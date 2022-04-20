@@ -1,4 +1,4 @@
-export const PROJECT_NAME = "Sol Playground";
+export const PROJECT_NAME = "Solana Playground";
 export const SERVER_URL =
   process.env.NODE_ENV === "production"
     ? "https://api.solpg.io"
