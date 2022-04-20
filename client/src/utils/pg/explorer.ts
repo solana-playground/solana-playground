@@ -4,11 +4,7 @@ import { ItemError } from "./errors";
 const EXPLORER_KEY = "explorer";
 
 const DEFAULT_FILE = "/src/lib.rs";
-const DEFAULT_CODE = `// This is a tutorial code and it has some errors for you to fix.
-// You can build the code from left sidebar and see what errors you get.
-// Join Anchor Discord https://discord.gg/5bhZyEFGY8 if you want help.
-
-use anchor_lang::prelude::*;
+const DEFAULT_CODE = `use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
 // automatically when you first build the project.
@@ -18,7 +14,7 @@ declare_id!("11111111111111111111111111111111");
 mod hello_anchor {
     use super::*;
     pub fn initialize(ctx: Context<Initialize>, data: u64) -> Result<()> {
-        ctx.accounts.random_account.data = data;
+        ctx.accounts.new_account.data = data;
         msg!("Changed data to: {}!", data); // Message will show up in the tx logs
         Ok(())
     }
@@ -32,7 +28,9 @@ pub struct Initialize<'info> {
   // (u64 = 64 bits unsigned integer = 8 bytes)
   #[account(init, payer = signer, space = 8 + 8)]
   pub new_account: Account<'info, NewAccount>,
-  pub signer: Signer<'info>
+  #[account(mut)]
+  pub signer: Signer<'info>,
+  pub system_program: Program<'info, System>,
 }
 
 #[account]
