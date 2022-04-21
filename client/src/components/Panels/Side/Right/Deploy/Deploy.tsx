@@ -4,11 +4,14 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
+import Text from "../../../../Text";
 import { PgDeploy } from "../../../../../utils/pg/deploy";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
-import { terminalAtom } from "../../../../../state";
-import { pgWalletAtom, refreshPgWalletAtom } from "../../../../../state/solana";
-import Text from "../../../../Text";
+import {
+  terminalAtom,
+  pgWalletAtom,
+  refreshPgWalletAtom,
+} from "../../../../../state";
 import { PgError } from "../../../../../utils/pg/error";
 
 const Deploy = () => {
@@ -29,9 +32,11 @@ const Deploy = () => {
 
   const deploy = useCallback(async () => {
     if (!pgWallet.connected) return;
-    setLoading(true);
 
-    setTerminal("Deploying...");
+    setLoading(true);
+    setTerminal(
+      "Deploying... This could take a while depending on the program size and network conditions."
+    );
 
     let msg = "";
 
@@ -40,7 +45,7 @@ const Deploy = () => {
 
       PgProgramInfo.updateProgramInfo({ deployed: true });
 
-      msg = "Deployment successful";
+      msg = "Deployment successful.";
     } catch (e: any) {
       const convertedError = PgError.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;

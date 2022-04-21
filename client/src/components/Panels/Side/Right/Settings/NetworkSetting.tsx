@@ -1,8 +1,8 @@
-import { useAtom } from "jotai";
 import { ChangeEvent, useCallback, useMemo } from "react";
+import { useAtom } from "jotai";
 
+import { endpointAtom } from "../../../../../state";
 import { NETWORKS } from "../../../../../constants";
-import { endpointAtom } from "../../../../../state/solana";
 import { PgEndpoint } from "../../../../../utils/pg/endpoint";
 import Select from "../../../../Select";
 

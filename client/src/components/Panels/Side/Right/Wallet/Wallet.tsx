@@ -4,12 +4,11 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { terminalAtom } from "../../../../../state";
+import { terminalAtom, endpointAtom } from "../../../../../state";
 import { PgTx } from "../../../../../utils/pg/tx";
 import Button from "../../../../Button";
 import useConnect from "./useConnect";
 import useCurrentWallet from "./useCurrentWallet";
-import { endpointAtom } from "../../../../../state/solana";
 import { Endpoints } from "../../../../../constants";
 
 const Wallet = () => {

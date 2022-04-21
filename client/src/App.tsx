@@ -7,7 +7,7 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 
 import MutThemeProvider from "./theme/";
 import IDE from "./pages/ide";
-import { endpointAtom } from "./state/solana";
+import { endpointAtom } from "./state";
 
 const App = () => {
   const [endpoint] = useAtom(endpointAtom);
@@ -18,7 +18,7 @@ const App = () => {
     <MutThemeProvider>
       <ConnectionProvider
         endpoint={endpoint}
-        config={{ commitment: "processed" }}
+        config={{ commitment: "confirmed" }}
       >
         <WalletProvider wallets={wallets}>
           <IDE />

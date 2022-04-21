@@ -3,11 +3,11 @@ export enum ItemError {
   INVALID_NAME = "Invalid name",
 }
 
-interface ProgramError {
+interface ConvertedError {
   [key: string]: string;
 }
 
-export const PROGRAM_ERROR: ProgramError = {
+export const PROGRAM_ERROR: ConvertedError = {
   "0": "Either the account has already been initialized or new account balance is below rent-exempt threshold",
   "1": "Insufficient funds",
   "2": "Invalid Mint(token address)",
@@ -28,4 +28,9 @@ export const PROGRAM_ERROR: ProgramError = {
   "11": "Account is frozen, all account operations will fail",
   "12": "The provided decimals value different from the Mint decimals",
   "13": "Instruction does not support non-native tokens",
+};
+
+export const RPC_ERROR: ConvertedError = {
+  "503 Service Unavailable":
+    "RPC unavailable. Please try a different endpoint from the settings or try again.",
 };

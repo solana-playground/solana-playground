@@ -1,15 +1,14 @@
-import { Connection, Keypair } from "@solana/web3.js";
 import { Buffer } from "buffer";
+import { Connection, Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
-import { PgCommon } from "./common";
 import { SERVER_URL } from "../../constants";
 import { PgProgramInfo } from "./program-info";
+import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
 
 export class PgDeploy {
   static async deploy(conn: Connection, wallet: PgWallet) {
-    // Only get the binary if it's not in the localStorage
     const uuid = PgProgramInfo.getProgramInfo().uuid;
     const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
 
@@ -41,10 +40,22 @@ export class PgDeploy {
     console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
 
     // Confirm the buffer has been created
+    let tries = 0;
     while (1) {
       const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
       if (bufferInit) break;
-      await PgCommon.sleep(1000);
+
+      // Retry again every 5 tries
+      if (tries % 5)
+        await BpfLoaderUpgradeable.createBuffer(
+          conn,
+          wallet,
+          bufferKp,
+          bufferBalance,
+          programBuffer.length
+        );
+
+      await PgCommon.sleep(2000);
     }
 
     // Load buffer
@@ -65,40 +76,66 @@ export class PgDeploy {
     if (programKpResult?.err) throw new Error(programKpResult.err);
     const programKp = programKpResult.programKp!;
 
-    const programExists = await conn.getAccountInfo(programKp.publicKey);
-
     let txHash;
 
-    if (!programExists) {
-      // Deploy
-      const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
-        BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
-      );
-      const programBalance = await conn.getMinimumBalanceForRentExemption(
-        programSize
-      );
+    // Retry until it's successful
+    while (1) {
+      try {
+        const programExists = await conn.getAccountInfo(programKp.publicKey);
 
-      txHash = await BpfLoaderUpgradeable.deployProgram(
-        conn,
-        wallet,
-        bufferKp.publicKey,
-        programKp,
-        programBalance,
-        programBuffer.length * 2
-      );
+        if (!programExists) {
+          // Deploy
+          const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
+            BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
+          );
+          const programBalance = await conn.getMinimumBalanceForRentExemption(
+            programSize
+          );
 
-      console.log("Deploy Program Tx Hash: ", txHash);
-    } else {
-      // Upgrade
-      txHash = await BpfLoaderUpgradeable.upgradeProgram(
-        programKp.publicKey,
-        conn,
-        wallet,
-        bufferKp.publicKey,
-        wallet.publicKey
-      );
+          txHash = await BpfLoaderUpgradeable.deployProgram(
+            conn,
+            wallet,
+            bufferKp.publicKey,
+            programKp,
+            programBalance,
+            programBuffer.length * 2
+          );
 
-      console.log("Upgrade Program Tx Hash: ", txHash);
+          console.log("Deploy Program Tx Hash: ", txHash);
+
+          const result = await conn.confirmTransaction(txHash);
+          if (!result?.value.err) break;
+          await BpfLoaderUpgradeable.deployProgram(
+            conn,
+            wallet,
+            bufferKp.publicKey,
+            programKp,
+            programBalance,
+            programBuffer.length * 2
+          );
+        } else {
+          // Upgrade
+          txHash = await BpfLoaderUpgradeable.upgradeProgram(
+            programKp.publicKey,
+            conn,
+            wallet,
+            bufferKp.publicKey,
+            wallet.publicKey
+          );
+
+          console.log("Upgrade Program Tx Hash: ", txHash);
+
+          const result = await conn.confirmTransaction(txHash);
+          if (!result?.value.err) break;
+          txHash = await BpfLoaderUpgradeable.upgradeProgram(
+            programKp.publicKey,
+            conn,
+            wallet,
+            bufferKp.publicKey,
+            wallet.publicKey
+          );
+        }
+      } catch {}
     }
 
     return txHash;

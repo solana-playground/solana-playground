@@ -18,6 +18,7 @@ import { encodeData, InstructionType } from "./instruction";
 import * as Layout from "./layout";
 import { PgTx } from "../pg/tx";
 import { PgWallet } from "../pg/wallet";
+import { PgCommon } from "../pg/common";
 
 const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
@@ -510,8 +511,26 @@ export class BpfLoaderUpgradeable {
             })
           );
 
-          await PgTx.send(tx, conn, wallet);
+          let writeTxHash;
+          // Retry until writing is successful
+          for (;;) {
+            try {
+              writeTxHash = await PgTx.send(tx, conn, wallet);
+
+              const result = await conn.confirmTransaction(writeTxHash);
+              console.count("buffer write");
+
+              if (!result?.value.err) break;
+            } catch (e: any) {
+              console.log("Buffer write error:", e.message);
+
+              // Sleep incase of being rate-limited
+              await PgCommon.sleep(2000);
+            }
+          }
         }
+
+        console.countReset("buffer write");
       })
     );
   }
