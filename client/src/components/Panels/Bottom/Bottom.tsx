@@ -1,6 +1,6 @@
+import { useEffect, useMemo, useState } from "react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
@@ -8,6 +8,7 @@ import { ConnState } from "../Side/Right/Wallet/connection-states";
 import Link from "../../Link";
 import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
 import useConnect from "../Side/Right/Wallet/useConnect";
+import { NETWORKS } from "../../../constants/connection";
 
 const Bottom = () => {
   const { connection: conn } = useConnection();
@@ -35,6 +36,10 @@ const Bottom = () => {
     };
   }, [balance, currentWallet, conn]);
 
+  const networkName = useMemo(() => {
+    return NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0].name;
+  }, [conn]);
+
   return (
     <Wrapper>
       <Button onClick={handleConnectPg} title="Toggle Playground Wallet">
@@ -43,7 +48,8 @@ const Bottom = () => {
       </Button>
       {walletPkStr && (
         <>
-          <RpcEndpoint>{conn.rpcEndpoint}</RpcEndpoint>
+          <Dash>-</Dash>
+          <RpcEndpoint title={conn.rpcEndpoint}>{networkName}</RpcEndpoint>
           <Seperator>|</Seperator>
           <Link
             href={`https://explorer.solana.com/address/${walletPkStr}?cluster=custom&customUrl=${conn.rpcEndpoint}`}
@@ -98,6 +104,10 @@ const ConnStatus = styled.span<{ connStatus: string }>`
         : theme.colors.state.success.color};
     }
   `}
+`;
+
+const Dash = styled.span`
+  margin-right: 0.75rem;
 `;
 
 const RpcEndpoint = styled.span``;
