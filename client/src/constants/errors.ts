@@ -8,7 +8,7 @@ interface ProgramError {
 }
 
 export const PROGRAM_ERROR: ProgramError = {
-  "0": "Lamport balance below rent-exempt threshold",
+  "0": "Either the account has already been initialized or new account balance is below rent-exempt threshold",
   "1": "Insufficient funds",
   "2": "Invalid Mint(token address)",
   "3": "Account not associated with this Mint(token address)",
