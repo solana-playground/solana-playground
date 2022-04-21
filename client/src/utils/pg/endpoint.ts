@@ -1,4 +1,4 @@
-import { Endpoints } from "../../constants/connection";
+import { Endpoints } from "../../constants";
 
 const ENDPOINT_KEY = "endpoint";
 

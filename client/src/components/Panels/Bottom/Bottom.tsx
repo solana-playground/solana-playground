@@ -8,7 +8,7 @@ import { ConnState } from "../Side/Right/Wallet/connection-states";
 import Link from "../../Link";
 import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
 import useConnect from "../Side/Right/Wallet/useConnect";
-import { NETWORKS } from "../../../constants/connection";
+import { NETWORKS } from "../../../constants";
 
 const Bottom = () => {
   const { connection: conn } = useConnection();

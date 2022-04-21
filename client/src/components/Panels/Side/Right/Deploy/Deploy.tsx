@@ -9,6 +9,7 @@ import { PgProgramInfo } from "../../../../../utils/pg/program-info";
 import { terminalAtom } from "../../../../../state";
 import { pgWalletAtom, refreshPgWalletAtom } from "../../../../../state/solana";
 import Text from "../../../../Text";
+import { PgError } from "../../../../../utils/pg/error";
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -41,7 +42,8 @@ const Deploy = () => {
 
       msg = "Deployment successful";
     } catch (e: any) {
-      msg = `Deployment error: ${e.message}`;
+      const convertedError = PgError.convertErrorMessage(e.message);
+      msg = `Deployment error: ${convertedError}`;
     } finally {
       setTerminal(msg);
       setLoading(false);

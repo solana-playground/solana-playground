@@ -10,7 +10,7 @@ import Button from "../../../../Button";
 import useConnect from "./useConnect";
 import useCurrentWallet from "./useCurrentWallet";
 import { endpointAtom } from "../../../../../state/solana";
-import { Endpoints } from "../../../../../constants/connection";
+import { Endpoints } from "../../../../../constants";
 
 const Wallet = () => {
   const [, setTerminal] = useAtom(terminalAtom);

@@ -19,7 +19,7 @@ import { ctxSelectedAtom, modalAtom, newItemAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import RenameItem from "./RenameItem";
 import DeleteItem from "./DeleteItem";
-import { ClassNames } from "../../../../../constants/";
+import { ClassNames } from "../../../../../constants";
 
 interface MenuState {
   show: boolean;

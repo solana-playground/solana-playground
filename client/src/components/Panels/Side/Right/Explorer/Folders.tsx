@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Arrow } from "../../../../Icons";
 import ContextMenu from "./ContextMenu";
-import { ClassNames } from "../../../../../constants/";
+import { ClassNames } from "../../../../../constants";
 import LangIcon from "../../../../LangIcon";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 

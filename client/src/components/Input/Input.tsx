@@ -1,7 +1,7 @@
 import { FocusEvent } from "react";
 import styled, { css } from "styled-components";
 
-import { ClassNames } from "../../constants/";
+import { ClassNames } from "../../constants";
 
 interface InputProps {
   fullWidth?: boolean;

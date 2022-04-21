@@ -1,5 +1,4 @@
-import { ClassNames } from "../../constants/";
-import { ItemError } from "./errors";
+import { ClassNames, ItemError } from "../../constants";
 
 const EXPLORER_KEY = "explorer";
 
@@ -95,12 +94,12 @@ export class Explorer {
   newItem(fullPath: string) {
     // Invalid name
     if (!PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath)!))
-      return { err: ItemError.InvalidName };
+      return { err: ItemError.INVALID_NAME };
 
     const files = this._explorer.files;
 
     // Already exists
-    if (files[fullPath]) return { err: ItemError.AlreadyExists };
+    if (files[fullPath]) return { err: ItemError.ALREADY_EXISTS };
 
     const itemType = PgExplorer.getItemTypeFromPath(fullPath);
 
@@ -143,7 +142,7 @@ export class Explorer {
 
   renameItem(fullPath: string, newName: string) {
     if (!PgExplorer.isItemNameValid(newName))
-      return { err: ItemError.InvalidName };
+      return { err: ItemError.INVALID_NAME };
 
     const files = this._explorer.files;
 
@@ -154,7 +153,7 @@ export class Explorer {
       const parentFolder = PgExplorer.getParentPathFromPath(fullPath);
       const newPath = parentFolder + newName;
 
-      if (files[newPath]) return { err: ItemError.AlreadyExists };
+      if (files[newPath]) return { err: ItemError.ALREADY_EXISTS };
 
       // Store the file
       const file = files[fullPath];
@@ -183,7 +182,7 @@ export class Explorer {
         }
 
         // Check if newPath exists
-        if (files[newPath]) return { err: ItemError.AlreadyExists };
+        if (files[newPath]) return { err: ItemError.ALREADY_EXISTS };
 
         // Store the data
         const data = files[path];

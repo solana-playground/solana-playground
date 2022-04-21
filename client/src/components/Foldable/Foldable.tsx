@@ -9,7 +9,7 @@ import {
 } from "react";
 import styled from "styled-components";
 
-import { ClassNames } from "../../constants/";
+import { ClassNames } from "../../constants";
 import { Arrow } from "../Icons";
 
 interface FoldableProps {

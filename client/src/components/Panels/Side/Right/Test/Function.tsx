@@ -13,10 +13,11 @@ import Arg from "./Arg";
 import { getFullType } from "./types";
 import { PgTest } from "../../../../../utils/pg/test";
 import { updateTxValsProps } from "./useUpdateTxVals";
-import { ClassNames } from "../../../../../constants/";
+import { ClassNames } from "../../../../../constants";
 import { terminalAtom } from "../../../../../state";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 import { PgTx } from "../../../../../utils/pg/tx";
+import { PgError } from "../../../../../utils/pg/error";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;
@@ -151,7 +152,8 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
         () => (msg = `Test '${ixs.name}' passed. Tx hash: ${txHash}`)
       );
     } catch (e: any) {
-      msg = `Test '${ixs.name}' error: ${e.message}`;
+      const convertedError = PgError.convertErrorMessage(e.message);
+      msg = `Test '${ixs.name}' error: ${convertedError}`;
     } finally {
       setTerminal(msg);
       setLoading(false);
