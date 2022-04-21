@@ -1,5 +1,6 @@
 export const PROJECT_NAME = "Solana Playground";
+const ENDPOINT = "https://api.solpg.io";
 export const SERVER_URL =
   process.env.NODE_ENV === "production"
-    ? "https://api.solpg.io"
-    : process.env.REACT_APP_SERVER_URL ?? "http://127.0.0.1:8080";
+    ? ENDPOINT
+    : process.env.REACT_APP_SERVER_URL ?? ENDPOINT;
