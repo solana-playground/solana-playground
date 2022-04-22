@@ -6,8 +6,7 @@ import { Sidebar } from "../sidebar-values";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
-const Build = lazy(() => import("./Build"));
-const Deploy = lazy(() => import("./Deploy"));
+const BuildDeploy = lazy(() => import("./BuildDeploy"));
 const Test = lazy(() => import("./Test"));
 
 interface RightProps {
@@ -29,10 +28,8 @@ const Inside: FC<RightProps> = ({ sidebarState }) => {
       return <Explorer />;
     // case Sidebar.SEARCH:
     //   return <Search />;
-    case Sidebar.BUILD:
-      return <Build />;
-    case Sidebar.DEPLOY:
-      return <Deploy />;
+    case Sidebar.BUILD_DEPLOY:
+      return <BuildDeploy />;
     case Sidebar.TEST:
       return <Test />;
     default:

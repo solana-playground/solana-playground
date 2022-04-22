@@ -15,14 +15,9 @@ export const sidebarData = {
     //   value: Sidebar.SEARCH,
     // },
     {
-      title: `${Sidebar.BUILD} (Ctrl+Shift+B)`,
+      title: `${Sidebar.BUILD_DEPLOY} (Ctrl+Shift+B)`,
       src: rootDir + "build.png",
-      value: Sidebar.BUILD,
-    },
-    {
-      title: `${Sidebar.DEPLOY} (Ctrl+Shift+D)`,
-      src: rootDir + "deploy.png",
-      value: Sidebar.DEPLOY,
+      value: Sidebar.BUILD_DEPLOY,
     },
     {
       title: `${Sidebar.TEST} (Ctrl+Shift+T)`,

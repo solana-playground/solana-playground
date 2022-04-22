@@ -40,7 +40,7 @@ const Build = () => {
 
   return (
     <Wrapper>
-      <Button kind="primary" onClick={build} disabled={loading}>
+      <Button kind="primary" onClick={build} disabled={loading} fullWidth>
         {loading ? "Building..." : "Build"}
       </Button>
     </Wrapper>
@@ -49,8 +49,10 @@ const Build = () => {
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding: 1.5rem 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
 `;
 
 const editStderr = (stderr: string, uuid: string) => {

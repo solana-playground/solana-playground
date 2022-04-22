@@ -46,6 +46,7 @@ const Left: FC<LeftProps> = ({
                 <Link
                   key={i}
                   href="https://github.com/solana-playground/solana-playground"
+                  showExternalIcon={false}
                 >
                   <IconButton title={data.title} src={data.src} />
                 </Link>

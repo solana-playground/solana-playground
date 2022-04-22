@@ -8,7 +8,7 @@ interface LinkProps {
   showExternalIcon?: boolean;
 }
 
-const Link: FC<LinkProps> = ({ href, showExternalIcon = false, children }) => {
+const Link: FC<LinkProps> = ({ href, showExternalIcon = true, children }) => {
   return (
     <StyledLink href={href} target="_blank" rel="noopener">
       {children}

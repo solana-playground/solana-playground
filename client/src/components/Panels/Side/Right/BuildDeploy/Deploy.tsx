@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled from "styled-components";
@@ -13,6 +13,7 @@ import {
   refreshPgWalletAtom,
 } from "../../../../../state";
 import { PgError } from "../../../../../utils/pg/error";
+import useIsDeployed from "./useIsDeployed";
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -23,19 +24,16 @@ const Deploy = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const programIsBuilt = useMemo(() => {
-    const pkResult = PgProgramInfo.getProgramKp();
-    if (pkResult.programKp) return true;
-  }, []);
+  const programIsBuilt = PgProgramInfo.getProgramKp()?.programKp;
 
-  const deployed = PgProgramInfo.getProgramInfo().deployed;
+  const { deployed, setDeployed } = useIsDeployed();
 
   const deploy = useCallback(async () => {
     if (!pgWallet.connected) return;
 
     setLoading(true);
     setTerminal(
-      "Deploying... This could take a while depending on the program size and network conditions."
+      "Deploying... This could take a while depending on the program size and network condition."
     );
 
     let msg = "";
@@ -43,9 +41,9 @@ const Deploy = () => {
     try {
       await PgDeploy.deploy(conn, pgWallet);
 
-      PgProgramInfo.updateProgramInfo({ deployed: true });
-
       msg = "Deployment successful.";
+
+      setDeployed(true);
     } catch (e: any) {
       const convertedError = PgError.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;
@@ -55,7 +53,7 @@ const Deploy = () => {
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conn, pgWalletChanged, setLoading, setTerminal]);
+  }, [conn, pgWalletChanged, setLoading, setDeployed, setTerminal]);
 
   return (
     <Wrapper>
@@ -69,7 +67,7 @@ const Deploy = () => {
         <Text>Build the program first.</Text>
       )}
       <Button
-        kind="primary"
+        kind="secondary"
         onClick={deploy}
         disabled={loading || !programIsBuilt || !pgWallet.connected}
       >
@@ -89,7 +87,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1.5rem;
+  margin-top: 1rem;
 
   & button {
     margin-top: 1.5rem;

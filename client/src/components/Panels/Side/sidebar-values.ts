@@ -1,8 +1,7 @@
 export enum Sidebar {
   EXPLORER = "Explorer",
   // SEARCH = "Search",
-  BUILD = "Build",
-  DEPLOY = "Deploy",
+  BUILD_DEPLOY = "Build & Deploy",
   TEST = "Test",
   GITHUB = "Github",
   WALLET = "Wallet",

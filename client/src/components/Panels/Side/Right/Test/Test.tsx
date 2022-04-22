@@ -2,15 +2,15 @@ import styled from "styled-components";
 
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
 import Text from "../../../../Text";
+import useIsDeployed from "../BuildDeploy/useIsDeployed";
 import Function from "./Function";
 
 // Webpack 5 doesn't polyfill buffer
 window.Buffer = require("buffer").Buffer;
 
 const Test = () => {
-  const programInfo = PgProgramInfo.getProgramInfo();
-  const idl = programInfo?.idl;
-  const deployed = programInfo?.deployed;
+  const { deployed } = useIsDeployed();
+  const idl = PgProgramInfo.getProgramInfo()?.idl;
 
   return (
     <Wrapper>
