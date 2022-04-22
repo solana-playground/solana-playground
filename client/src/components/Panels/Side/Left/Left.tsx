@@ -2,6 +2,7 @@ import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
 import styled from "styled-components";
 
 import IconButton from "../../../IconButton";
+import Link from "../../../Link";
 import PopButton from "../../../PopButton";
 import Settings from "../Right/Settings";
 import Wallet from "../Right/Wallet";
@@ -39,13 +40,25 @@ const Left: FC<LeftProps> = ({
           ))}
         </Top>
         <Bottom>
-          {sidebarData.bottom.map((data, i) => (
-            <PopButton
-              key={i}
-              PopElement={data.value === Sidebar.WALLET ? Wallet : Settings}
-              buttonProps={{ ...data }}
-            />
-          ))}
+          {sidebarData.bottom.map((data, i) => {
+            if (data.value === Sidebar.GITHUB)
+              return (
+                <Link
+                  key={i}
+                  href="https://github.com/solana-playground/solana-playground"
+                >
+                  <IconButton title={data.title} src={data.src} />
+                </Link>
+              );
+
+            return (
+              <PopButton
+                key={i}
+                PopElement={data.value === Sidebar.WALLET ? Wallet : Settings}
+                buttonProps={{ ...data }}
+              />
+            );
+          })}
         </Bottom>
       </Icons>
     </Wrapper>
@@ -59,7 +72,6 @@ const Wrapper = styled.div`
   user-select: none;
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors?.left?.bg!};
-  // display: none;
 `;
 
 const Icons = styled.div`

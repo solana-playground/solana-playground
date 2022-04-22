@@ -32,6 +32,11 @@ export const sidebarData = {
   ],
   bottom: [
     {
+      title: Sidebar.GITHUB,
+      src: rootDir + "github.png",
+      value: Sidebar.GITHUB,
+    },
+    {
       title: Sidebar.WALLET,
       src: rootDir + "wallet.png",
       value: Sidebar.WALLET,

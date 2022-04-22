@@ -5,13 +5,14 @@ import { External } from "../Icons";
 
 interface LinkProps {
   href: string;
+  showExternalIcon?: boolean;
 }
 
-const Link: FC<LinkProps> = ({ href, children }) => {
+const Link: FC<LinkProps> = ({ href, showExternalIcon = false, children }) => {
   return (
     <StyledLink href={href} target="_blank" rel="noopener">
       {children}
-      <External />
+      {showExternalIcon && <External />}
     </StyledLink>
   );
 };
