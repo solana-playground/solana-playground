@@ -31,7 +31,11 @@ const Wallet = () => {
   // Get cap amount for airdrop based on network
   const amount = useMemo(() => {
     if (endpoint === Endpoints.LOCALHOST) return 100;
-    else if (endpoint === Endpoints.DEVNET) return 2;
+    else if (
+      endpoint === Endpoints.DEVNET ||
+      endpoint === Endpoints.DEVNET_GENESYSGO
+    )
+      return 2;
     else if (endpoint === Endpoints.TESTNET) return 1;
 
     return null;
