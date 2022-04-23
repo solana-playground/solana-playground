@@ -1,19 +1,18 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { terminalAtom, endpointAtom } from "../../../../../state";
+import { terminalAtom } from "../../../../../state";
 import { PgTx } from "../../../../../utils/pg/tx";
 import Button from "../../../../Button";
 import useConnect from "./useConnect";
 import useCurrentWallet from "./useCurrentWallet";
-import { Endpoints } from "../../../../../constants";
+import useAirdropAmount from "./useAirdropAmount";
 
 const Wallet = () => {
   const [, setTerminal] = useAtom(terminalAtom);
-  const [endpoint] = useAtom(endpointAtom);
   const {
     pgButtonStatus,
     handleConnectPg,
@@ -29,17 +28,7 @@ const Wallet = () => {
   const [loading, setLoading] = useState(false);
 
   // Get cap amount for airdrop based on network
-  const amount = useMemo(() => {
-    if (endpoint === Endpoints.LOCALHOST) return 100;
-    else if (
-      endpoint === Endpoints.DEVNET ||
-      endpoint === Endpoints.DEVNET_GENESYSGO
-    )
-      return 2;
-    else if (endpoint === Endpoints.TESTNET) return 1;
-
-    return null;
-  }, [endpoint]);
+  const amount = useAirdropAmount();
 
   const airdrop = useCallback(
     async (walletPk: PublicKey) => {

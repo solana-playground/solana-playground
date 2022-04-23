@@ -9,11 +9,12 @@ import Link from "../../Link";
 import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
 import useConnect from "../Side/Right/Wallet/useConnect";
 import { NETWORKS } from "../../../constants";
+import useAirdropAmount from "../Side/Right/Wallet/useAirdropAmount";
 
 const Bottom = () => {
   const { connection: conn } = useConnection();
   const { connStatus, handleConnectPg } = useConnect();
-  const { walletPkStr, currentWallet } = useCurrentWallet();
+  const { walletPkStr, currentWallet, pgWalletPk } = useCurrentWallet();
 
   const [balance, setBalance] = useState<number | null>();
 
@@ -27,6 +28,7 @@ const Bottom = () => {
     };
     fetchBalance().catch(() => setBalance(null));
 
+    // Listen for balance changes
     const id = conn.onAccountChange(currentWallet.publicKey, (a) =>
       setBalance(a.lamports / LAMPORTS_PER_SOL)
     );
@@ -35,6 +37,46 @@ const Bottom = () => {
       conn.removeAccountChangeListener(id);
     };
   }, [balance, currentWallet, conn]);
+
+  // Auto airdrop if balance is less than 4 SOL
+  const amount = useAirdropAmount();
+  const [rateLimited, setRateLimited] = useState(false);
+
+  useEffect(() => {
+    if (
+      rateLimited ||
+      !amount ||
+      balance === undefined ||
+      balance === null ||
+      !currentWallet ||
+      !pgWalletPk
+    )
+      return;
+
+    // Only auto-airdrop to PgWallet
+    if (!pgWalletPk.equals(currentWallet.publicKey)) return;
+
+    const airdrop = async () => {
+      try {
+        await conn.requestAirdrop(
+          currentWallet.publicKey,
+          amount * LAMPORTS_PER_SOL
+        );
+      } catch (e: any) {
+        if (e.message.startsWith("429 Too Many Requests")) setRateLimited(true);
+      }
+    };
+
+    if (balance < 4) airdrop();
+  }, [
+    balance,
+    amount,
+    currentWallet,
+    pgWalletPk,
+    conn,
+    rateLimited,
+    setRateLimited,
+  ]);
 
   const networkName = useMemo(() => {
     return NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0].name;

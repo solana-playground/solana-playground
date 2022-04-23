@@ -8,7 +8,7 @@ interface ConvertedError {
 }
 
 export const PROGRAM_ERROR: ConvertedError = {
-  "0": "Either the account has already been initialized or new account balance is below rent-exempt threshold",
+  "0": "Either an account has already been initialized or an account balance is below rent-exempt threshold",
   "1": "Insufficient funds",
   "2": "Invalid Mint(token address)",
   "3": "Account not associated with this Mint(token address)",
@@ -33,4 +33,8 @@ export const PROGRAM_ERROR: ConvertedError = {
 export const RPC_ERROR: ConvertedError = {
   "503 Service Unavailable":
     "RPC unavailable. Please try a different endpoint from the settings or try again.",
+  "429 Too Many Requests":
+    "Too many requests for this endpoint. You can change the endpoint from the settings.",
+  "Network request failed":
+    "RPC endpoint is not responsive. Please change the endpoint from the settings.",
 };

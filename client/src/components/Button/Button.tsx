@@ -1,6 +1,6 @@
 import styled, { css, DefaultTheme } from "styled-components";
 
-type ButtonType =
+export type ButtonKind =
   | "primary"
   | "secondary"
   | "primary-outline"
@@ -10,14 +10,14 @@ type ButtonType =
 type ButtonSize = "small" | "medium" | "large";
 
 interface ButtonProps {
-  kind?: ButtonType;
+  kind?: ButtonKind;
   size?: ButtonSize;
   fullWidth?: boolean;
 }
 
 const getButtonStyles = (
   theme: DefaultTheme,
-  kind?: ButtonType,
+  kind?: ButtonKind,
   size?: ButtonSize,
   fullWidth?: boolean
 ) => {

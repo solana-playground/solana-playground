@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 import { Connection, Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
-import { SERVER_URL } from "../../constants";
+import { GITHUB_URL, SERVER_URL } from "../../constants";
 import { PgProgramInfo } from "./program-info";
 import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
@@ -78,8 +78,8 @@ export class PgDeploy {
 
     let txHash;
 
-    // Retry until it's successful
-    while (1) {
+    // Retry until it's successful or exceeds max tries
+    for (let i = 0; i < 10; i++) {
       try {
         const programExists = await conn.getAccountInfo(programKp.publicKey);
 
@@ -135,8 +135,25 @@ export class PgDeploy {
             wallet.publicKey
           );
         }
-      } catch {}
+      } catch (e: any) {
+        console.log(e.message);
+        // Not enough balance
+        if (e.message.endsWith("0x1"))
+          throw new Error(
+            "Make sure you have enough SOL to complete the deployment."
+          );
+
+        await PgCommon.sleep(2000);
+      }
     }
+
+    // Most likely the user doesn't have the upgrade authority
+    if (!txHash)
+      throw new Error(
+        "Unknown error. Please check the browser console. You can report the issue in " +
+          GITHUB_URL +
+          "/issues"
+      );
 
     return txHash;
   }

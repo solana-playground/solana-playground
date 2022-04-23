@@ -1,5 +1,6 @@
 import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
 import styled from "styled-components";
+import { GITHUB_URL } from "../../../../constants";
 
 import IconButton from "../../../IconButton";
 import Link from "../../../Link";
@@ -43,11 +44,7 @@ const Left: FC<LeftProps> = ({
           {sidebarData.bottom.map((data, i) => {
             if (data.value === Sidebar.GITHUB)
               return (
-                <Link
-                  key={i}
-                  href="https://github.com/solana-playground/solana-playground"
-                  showExternalIcon={false}
-                >
+                <Link key={i} href={GITHUB_URL} showExternalIcon={false}>
                   <IconButton title={data.title} src={data.src} />
                 </Link>
               );

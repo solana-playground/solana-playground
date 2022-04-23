@@ -512,6 +512,7 @@ export class BpfLoaderUpgradeable {
           );
 
           let writeTxHash;
+          let sleepAmount = 1000;
           // Retry until writing is successful
           for (;;) {
             try {
@@ -523,9 +524,11 @@ export class BpfLoaderUpgradeable {
               if (!result?.value.err) break;
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
-
-              // Sleep incase of being rate-limited
-              await PgCommon.sleep(2000);
+              if (e.message.endsWith("Network request failed")) {
+                sleepAmount = sleepAmount * 2;
+                // Incrementally sleep incase of being rate-limited
+                await PgCommon.sleep(sleepAmount);
+              }
             }
           }
         }

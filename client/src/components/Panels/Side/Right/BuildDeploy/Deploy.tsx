@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled from "styled-components";
@@ -14,6 +14,8 @@ import {
 } from "../../../../../state";
 import { PgError } from "../../../../../utils/pg/error";
 import useIsDeployed from "./useIsDeployed";
+import { ButtonKind } from "../../../../Button/Button";
+import useConnect from "../Wallet/useConnect";
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -21,12 +23,11 @@ const Deploy = () => {
   const [, setTerminal] = useAtom(terminalAtom);
 
   const { connection: conn } = useConnection();
+  const { deployed, setDeployed } = useIsDeployed();
 
   const [loading, setLoading] = useState(false);
 
   const programIsBuilt = PgProgramInfo.getProgramKp()?.programKp;
-
-  const { deployed, setDeployed } = useIsDeployed();
 
   const deploy = useCallback(async () => {
     if (!pgWallet.connected) return;
@@ -55,31 +56,58 @@ const Deploy = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conn, pgWalletChanged, setLoading, setDeployed, setTerminal]);
 
+  const [deployButtonProps, deployButtonText] = useMemo(
+    () => [
+      {
+        kind: "primary" as ButtonKind,
+        onClick: deploy,
+        disabled: loading || !programIsBuilt || !pgWallet.connected,
+      },
+      loading
+        ? deployed
+          ? "Upgrading..."
+          : "Deploying..."
+        : deployed
+        ? "Upgrade"
+        : "Deploy",
+    ],
+    [loading, programIsBuilt, pgWallet.connected, deployed, deploy]
+  );
+
+  if (programIsBuilt) {
+    if (pgWallet.connected)
+      return (
+        <Wrapper>
+          <Text>Ready to {deployed ? "upgrade" : "deploy"}.</Text>
+          <Button {...deployButtonProps}>{deployButtonText}</Button>
+        </Wrapper>
+      );
+    // PgWallet not connected
+    else
+      return (
+        <Wrapper>
+          <Text>Deployment can only be done from Playground Wallet.</Text>
+          <ConnectPgWalletButton />
+        </Wrapper>
+      );
+  }
+
+  // Program is not built
   return (
     <Wrapper>
-      {programIsBuilt ? (
-        pgWallet.connected ? (
-          <Text>Ready to {deployed ? "upgrade" : "deploy"}</Text>
-        ) : (
-          <Text>Deployment can only be done from Playground Wallet.</Text>
-        )
-      ) : (
-        <Text>Build the program first.</Text>
-      )}
-      <Button
-        kind="secondary"
-        onClick={deploy}
-        disabled={loading || !programIsBuilt || !pgWallet.connected}
-      >
-        {loading
-          ? deployed
-            ? "Upgrading..."
-            : "Deploying..."
-          : deployed
-          ? "Upgrade"
-          : "Deploy"}
-      </Button>
+      <Text>Build the program first.</Text>
+      <Button {...deployButtonProps}>{deployButtonText}</Button>
     </Wrapper>
+  );
+};
+
+const ConnectPgWalletButton = () => {
+  const { pgButtonStatus, handleConnectPg } = useConnect();
+
+  return (
+    <Button onClick={handleConnectPg} kind="primary">
+      {pgButtonStatus}
+    </Button>
   );
 };
 

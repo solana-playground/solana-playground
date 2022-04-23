@@ -40,7 +40,7 @@ const Build = () => {
 
   return (
     <Wrapper>
-      <Button kind="primary" onClick={build} disabled={loading} fullWidth>
+      <Button kind="secondary" onClick={build} disabled={loading} fullWidth>
         {loading ? "Building..." : "Build"}
       </Button>
     </Wrapper>
