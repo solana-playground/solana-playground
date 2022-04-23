@@ -34,7 +34,7 @@ const Deploy = () => {
 
     setLoading(true);
     setTerminal(
-      "Deploying... This could take a while depending on the program size and network condition."
+      "Deploying... This could take a while depending on the program size and network conditions."
     );
 
     let msg = "";

@@ -17,6 +17,7 @@ const useIsDeployed = () => {
         const programExists = await conn.getAccountInfo(pkResult.programPk!);
 
         if (programExists) setDeployed(true);
+        else setDeployed(false);
       } catch {
         setDeployed(false);
       }

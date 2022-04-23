@@ -54,7 +54,7 @@ const Bottom = () => {
       return;
 
     // Only auto-airdrop to PgWallet
-    if (!pgWalletPk.equals(currentWallet.publicKey)) return;
+    if (!pgWalletPk.equals(currentWallet.publicKey) || balance >= 4) return;
 
     const airdrop = async () => {
       try {
@@ -67,16 +67,12 @@ const Bottom = () => {
       }
     };
 
-    if (balance < 4) airdrop();
-  }, [
-    balance,
-    amount,
-    currentWallet,
-    pgWalletPk,
-    conn,
-    rateLimited,
-    setRateLimited,
-  ]);
+    airdrop();
+
+    // Intentionally don't include 'conn' and 'amount' in the dependencies
+    // because it's causing extra airdrops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balance, currentWallet, pgWalletPk, rateLimited, setRateLimited]);
 
   const networkName = useMemo(() => {
     return NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0].name;
