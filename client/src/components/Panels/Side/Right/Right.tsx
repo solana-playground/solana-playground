@@ -1,5 +1,6 @@
 import { FC, Suspense, lazy } from "react";
 import styled, { css } from "styled-components";
+import Loading from "../../../Loading";
 
 import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
 import { Sidebar } from "../sidebar-values";
@@ -16,11 +17,21 @@ interface RightProps {
 const Right: FC<RightProps> = ({ sidebarState }) => (
   <Wrapper>
     <StyledTitle sidebarState={sidebarState} />
-    <Suspense fallback={<></>}>
+    <Suspense
+      fallback={
+        <LoadingWrapper>
+          <Loading />
+        </LoadingWrapper>
+      }
+    >
       <Inside sidebarState={sidebarState} />
     </Suspense>
   </Wrapper>
 );
+
+const LoadingWrapper = styled.div`
+  margin-top: 2rem;
+`;
 
 const Inside: FC<RightProps> = ({ sidebarState }) => {
   switch (sidebarState) {

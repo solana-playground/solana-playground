@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
-type TextType = "Info" | "Warning" | "Success";
+type TextType = "Info" | "Warning" | "Success" | "Error";
 
 interface TextProps {
   type?: TextType;
@@ -21,6 +21,7 @@ const getTextStyle = (theme: DefaultTheme, type: TextType) => {
   if (type === "Info") borderColor = theme.colors.state.info.color;
   else if (type === "Warning") borderColor = theme.colors.state.warning.color;
   else if (type === "Success") borderColor = theme.colors.state.success.color;
+  else if (type === "Error") borderColor = theme.colors.state.error.color;
 
   return css`
     padding: 1rem;

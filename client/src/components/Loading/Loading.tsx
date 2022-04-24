@@ -3,7 +3,7 @@ import styled, { css, keyframes } from "styled-components";
 
 // in rem
 const DEFAULT_SIZE = 3;
-const DEFAULT_CIRCLE_COUNT = 5;
+const DEFAULT_CIRCLE_COUNT = 8;
 
 interface LoadingProps {
   size?: number;

@@ -6,7 +6,8 @@ import { PgProgramInfo } from "../../../../../utils/pg/program-info";
 const useIsDeployed = () => {
   const { connection: conn } = useConnection();
 
-  const [deployed, setDeployed] = useState(false);
+  const [deployed, setDeployed] = useState<boolean | null>(null);
+  const [connError, setConnError] = useState(false);
 
   useEffect(() => {
     const getIsDeployed = async () => {
@@ -18,15 +19,18 @@ const useIsDeployed = () => {
 
         if (programExists) setDeployed(true);
         else setDeployed(false);
+
+        setConnError(false);
       } catch {
-        setDeployed(false);
+        setDeployed(null);
+        setConnError(true);
       }
     };
 
     getIsDeployed();
-  }, [conn, setDeployed]);
+  }, [conn, setDeployed, setConnError]);
 
-  return { deployed, setDeployed };
+  return { deployed, setDeployed, connError };
 };
 
 export default useIsDeployed;

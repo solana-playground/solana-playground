@@ -51,8 +51,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
 `;
 
 const editStderr = (stderr: string, uuid: string) => {

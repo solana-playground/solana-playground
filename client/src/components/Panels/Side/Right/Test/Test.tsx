@@ -1,7 +1,10 @@
 import styled from "styled-components";
 
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import Loading from "../../../../Loading";
 import Text from "../../../../Text";
+import { ConnectionErrorText } from "../../Common";
+import useInitialLoading from "../../useInitialLoading";
 import useIsDeployed from "../BuildDeploy/useIsDeployed";
 import Function from "./Function";
 
@@ -9,7 +12,24 @@ import Function from "./Function";
 window.Buffer = require("buffer").Buffer;
 
 const Test = () => {
-  const { deployed } = useIsDeployed();
+  const { initialLoading } = useInitialLoading();
+
+  const { deployed, connError } = useIsDeployed();
+
+  if (initialLoading)
+    return (
+      <InitialWrapper>
+        <Loading />
+      </InitialWrapper>
+    );
+
+  if (connError)
+    return (
+      <InitialWrapper>
+        <ConnectionErrorText />
+      </InitialWrapper>
+    );
+
   const idl = PgProgramInfo.getProgramInfo()?.idl;
 
   return (
@@ -40,6 +60,10 @@ const Test = () => {
 };
 
 const Wrapper = styled.div``;
+
+const InitialWrapper = styled.div`
+  padding: 1.5rem;
+`;
 
 const ProgramWrapper = styled.div`
   user-select: none;

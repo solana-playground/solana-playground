@@ -16,14 +16,19 @@ import { PgError } from "../../../../../utils/pg/error";
 import useIsDeployed from "./useIsDeployed";
 import { ButtonKind } from "../../../../Button/Button";
 import useConnect from "../Wallet/useConnect";
+import Loading from "../../../../Loading";
+import useInitialLoading from "../../useInitialLoading";
+import { ConnectionErrorText } from "../../Common";
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const [, setTerminal] = useAtom(terminalAtom);
 
+  const { initialLoading } = useInitialLoading();
+  const { deployed, setDeployed, connError } = useIsDeployed();
+
   const { connection: conn } = useConnection();
-  const { deployed, setDeployed } = useIsDeployed();
 
   const [loading, setLoading] = useState(false);
 
@@ -74,6 +79,20 @@ const Deploy = () => {
     [loading, programIsBuilt, pgWallet.connected, deployed, deploy]
   );
 
+  if (initialLoading)
+    return (
+      <Wrapper>
+        <Loading />
+      </Wrapper>
+    );
+
+  if (connError)
+    return (
+      <Wrapper>
+        <ConnectionErrorText />
+      </Wrapper>
+    );
+
   if (programIsBuilt) {
     if (pgWallet.connected)
       return (
@@ -93,12 +112,7 @@ const Deploy = () => {
   }
 
   // Program is not built
-  return (
-    <Wrapper>
-      <Text>Build the program first.</Text>
-      <Button {...deployButtonProps}>{deployButtonText}</Button>
-    </Wrapper>
-  );
+  return null;
 };
 
 const ConnectPgWalletButton = () => {
@@ -116,6 +130,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.default.borderColor};
 
   & button {
     margin-top: 1.5rem;
