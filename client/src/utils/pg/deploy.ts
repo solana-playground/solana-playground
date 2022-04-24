@@ -138,22 +138,33 @@ export class PgDeploy {
       } catch (e: any) {
         console.log(e.message);
         // Not enough balance
-        if (e.message.endsWith("0x1"))
+        if (e.message.endsWith("0x1")) {
+          // Close buffer
+          await BpfLoaderUpgradeable.closeBuffer(
+            conn,
+            wallet,
+            bufferKp.publicKey
+          );
+
           throw new Error(
             "Make sure you have enough SOL to complete the deployment."
           );
+        }
 
         await PgCommon.sleep(2000);
       }
     }
 
     // Most likely the user doesn't have the upgrade authority
-    if (!txHash)
+    if (!txHash) {
+      await BpfLoaderUpgradeable.closeBuffer(conn, wallet, bufferKp.publicKey);
+
       throw new Error(
         "Unknown error. Please check the browser console. You can report the issue in " +
           GITHUB_URL +
           "/issues"
       );
+    }
 
     return txHash;
   }

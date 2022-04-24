@@ -32,8 +32,6 @@ const Deploy = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const programIsBuilt = PgProgramInfo.getProgramKp()?.programKp;
-
   const deploy = useCallback(async () => {
     if (!pgWallet.connected) return;
 
@@ -61,6 +59,8 @@ const Deploy = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conn, pgWalletChanged, setLoading, setDeployed, setTerminal]);
 
+  const programIsBuilt = PgProgramInfo.getProgramKp()?.programKp;
+
   const [deployButtonProps, deployButtonText] = useMemo(
     () => [
       {
@@ -78,6 +78,8 @@ const Deploy = () => {
     ],
     [loading, programIsBuilt, pgWallet.connected, deployed, deploy]
   );
+
+  if (!programIsBuilt && !pgWallet.connected) return null;
 
   if (initialLoading)
     return (
@@ -111,7 +113,6 @@ const Deploy = () => {
       );
   }
 
-  // Program is not built
   return null;
 };
 
