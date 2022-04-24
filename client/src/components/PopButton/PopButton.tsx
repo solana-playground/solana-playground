@@ -81,6 +81,7 @@ const PopButton: FC<PopButtonProps> = ({ PopElement, buttonProps }) => {
             position: strategy,
             top: y ?? "",
             left: x ?? "",
+            zIndex: 2,
           }}
         >
           <PopElement />

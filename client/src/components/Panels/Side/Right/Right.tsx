@@ -1,7 +1,9 @@
 import { FC, Suspense, lazy } from "react";
 import styled, { css } from "styled-components";
-import Loading from "../../../Loading";
+import { Resizable } from "re-resizable";
 
+import Loading from "../../../Loading";
+import { DEFAULT_CURSOR } from "../../../../constants/common";
 import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
 import { Sidebar } from "../sidebar-values";
 
@@ -14,24 +16,40 @@ interface RightProps {
   sidebarState: string;
 }
 
-const Right: FC<RightProps> = ({ sidebarState }) => (
-  <Wrapper>
-    <StyledTitle sidebarState={sidebarState} />
-    <Suspense
-      fallback={
-        <LoadingWrapper>
-          <Loading />
-        </LoadingWrapper>
-      }
+const Right: FC<RightProps> = ({ sidebarState }) => {
+  return (
+    <Resizable
+      defaultSize={{
+        width: 320,
+        height: "100%",
+      }}
+      minWidth={320}
+      minHeight="100%"
+      maxWidth={window.innerWidth * 0.75}
+      handleStyles={{
+        top: DEFAULT_CURSOR,
+        topLeft: DEFAULT_CURSOR,
+        topRight: DEFAULT_CURSOR,
+        left: DEFAULT_CURSOR,
+        bottomRight: DEFAULT_CURSOR,
+        bottom: DEFAULT_CURSOR,
+      }}
     >
-      <Inside sidebarState={sidebarState} />
-    </Suspense>
-  </Wrapper>
-);
-
-const LoadingWrapper = styled.div`
-  margin-top: 2rem;
-`;
+      <Wrapper>
+        <StyledTitle sidebarState={sidebarState} />
+        <Suspense
+          fallback={
+            <LoadingWrapper>
+              <Loading />
+            </LoadingWrapper>
+          }
+        >
+          <Inside sidebarState={sidebarState} />
+        </Suspense>
+      </Wrapper>
+    </Resizable>
+  );
+};
 
 const Inside: FC<RightProps> = ({ sidebarState }) => {
   switch (sidebarState) {
@@ -62,7 +80,7 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     display: flex;
     flex-direction: column;
-    width: 20rem;
+    min-width: 20rem;
     height: 100%;
     background-color: ${theme.colors?.right?.bg ?? "inherit"};
     border-left: 1px solid ${theme.colors.default.borderColor};
@@ -77,6 +95,10 @@ const StyledTitle = styled(Title)`
   align-items: center;
   border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
   color: ${({ theme }) => theme.colors.default.textSecondary};
+`;
+
+const LoadingWrapper = styled.div`
+  margin-top: 2rem;
 `;
 
 export default Right;

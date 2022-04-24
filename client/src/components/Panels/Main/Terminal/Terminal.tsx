@@ -5,6 +5,7 @@ import { Resizable } from "re-resizable";
 
 import { terminalAtom } from "../../../../state";
 import TerminalText from "./TerminalText";
+import { DEFAULT_CURSOR } from "../../../../constants/common";
 
 const Terminal = () => {
   const [terminal] = useAtom(terminalAtom);
@@ -18,7 +19,19 @@ const Terminal = () => {
   }, [terminal]);
 
   return (
-    <Resizable defaultSize={{ height: 200, width: "100%" }} minWidth={"100%"}>
+    <Resizable
+      defaultSize={{ height: 200, width: "100%" }}
+      minWidth={"100%"}
+      handleStyles={{
+        topLeft: DEFAULT_CURSOR,
+        topRight: DEFAULT_CURSOR,
+        right: DEFAULT_CURSOR,
+        bottomRight: DEFAULT_CURSOR,
+        bottom: DEFAULT_CURSOR,
+        bottomLeft: DEFAULT_CURSOR,
+        left: DEFAULT_CURSOR,
+      }}
+    >
       <Wrapper ref={terminalRef}>
         <TerminalText text={terminal} />
       </Wrapper>
