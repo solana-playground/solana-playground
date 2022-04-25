@@ -111,9 +111,15 @@ const getButtonStyles = (
       justify-content: center;
       align-items: center;
 
-      & img {
+      & img,
+      svg {
         width: 1rem;
         height: 1rem;
+      }
+
+      &:hover {
+        color: ${theme.colors.default.textPrimary};
+        background-color: ${theme.colors.state.hover.bg};
       }
     `);
 

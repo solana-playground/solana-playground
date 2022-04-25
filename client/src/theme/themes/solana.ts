@@ -194,6 +194,9 @@ const solana: Theme = {
     right: {
       otherBg: BG_GRAY,
     },
+    terminal: {
+      bg: BG_GRAY,
+    },
     tooltip: {
       bg: BG_GRAY,
     },

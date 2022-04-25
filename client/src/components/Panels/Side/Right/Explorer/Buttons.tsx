@@ -1,8 +1,8 @@
 import { FC, useCallback } from "react";
 import styled from "styled-components";
+
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import Button from "../../../../Button";
-
 import NewItem from "./NewItem";
 import useNewItem from "./useNewItem";
 
@@ -31,8 +31,13 @@ const ButtonsWrapper = styled.div`
     filter: invert(0.5);
   }
 
-  & button:hover img {
-    filter: invert(1);
+  & button:hover {
+    color: initial;
+    background-color: initial;
+
+    & img {
+      filter: invert(1);
+    }
   }
 `;
 

@@ -11,6 +11,9 @@ interface TextInfo {
 }
 
 export class PgTerminal {
+  static MIN_HEIGHT = 36;
+  static DEFAULT_HEIGHT = "25%";
+
   private static TEXTS: TextInfo[] = [
     { text: "Compiling", state: TextState.INFO },
     { text: "Finished", state: TextState.SUCCESS },

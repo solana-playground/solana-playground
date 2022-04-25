@@ -77,11 +77,11 @@ const Wrapper = styled.div<{ current: boolean }>`
     & button {
       margin: 0 0.25rem 0 0.5rem;
       color: ${theme.colors.default.textSecondary};
-    }
 
-    & button:hover {
-      color: ${theme.colors.default.textPrimary};
-      background-color: ${theme.colors.state.hover.bg};
+      & svg {
+        width: 0.875rem;
+        height: 0.875rem;
+      }
     }
   `}
 `;

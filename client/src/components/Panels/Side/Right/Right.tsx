@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import Loading from "../../../Loading";
-import { DEFAULT_CURSOR } from "../../../../constants/common";
+import { DEFAULT_CURSOR } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
 import { Sidebar } from "../sidebar-values";
 

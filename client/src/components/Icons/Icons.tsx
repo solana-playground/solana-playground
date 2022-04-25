@@ -27,6 +27,14 @@ export const Arrow = ({ fullSize }: IconProps) => {
   );
 };
 
+export const DoubleArrow = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 320 512" style={getStyle(fullSize)}>
+      <path d="M177 255.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 351.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 425.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1zm-34-192L7 199.7c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l96.4-96.4 96.4 96.4c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9l-136-136c-9.2-9.4-24.4-9.4-33.8 0z"></path>
+    </svg>
+  );
+};
+
 export const Warning = ({ fullSize }: IconProps) => {
   return (
     <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
@@ -57,6 +65,28 @@ export const External = ({ fullSize }: IconProps) => {
       <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
       <polyline points="15 3 21 3 21 9"></polyline>
       <line x1="10" y1="14" x2="21" y2="3"></line>
+    </svg>
+  );
+};
+
+export const Clear = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
+      <defs></defs>
+      <path d="M899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-0.3 1.5-0.4 3-0.4 4.4 0 14.4 11.6 26 26 26h723c1.5 0 3-0.1 4.4-0.4 14.2-2.4 23.7-15.9 21.2-30zM204 390h272V182h72v208h272v104H204V390z m468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260H672z"></path>
+    </svg>
+  );
+};
+
+export const Tick = ({ fullSize }: IconProps) => {
+  return (
+    <svg
+      {...defaultProps}
+      baseProfile="tiny"
+      viewBox="0 0 24 24"
+      style={getStyle(fullSize)}
+    >
+      <path d="M16.972 6.251c-.967-.538-2.185-.188-2.72.777l-3.713 6.682-2.125-2.125c-.781-.781-2.047-.781-2.828 0-.781.781-.781 2.047 0 2.828l4 4c.378.379.888.587 1.414.587l.277-.02c.621-.087 1.166-.46 1.471-1.009l5-9c.537-.966.189-2.183-.776-2.72z"></path>
     </svg>
   );
 };
