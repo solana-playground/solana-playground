@@ -10,6 +10,7 @@ import {
 import Button from "../../../../Button";
 import { PgBuild } from "../../../../../utils/pg/build";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import { PgTerminal } from "../../../../../utils/pg/terminal";
 
 const Build = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -26,7 +27,7 @@ const Build = () => {
     try {
       const result = await PgBuild.build(explorer);
 
-      msg = editStderr(result.stderr!, result.uuid!);
+      msg = PgTerminal.editStderr(result.stderr!, result.uuid!);
 
       const { programPk } = PgProgramInfo.getProgramPk();
       if (programPk) setProgramId(programPk.toBase58());
@@ -52,15 +53,5 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
 `;
-
-const editStderr = (stderr: string, uuid: string) => {
-  // Remove full path
-  let _stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
-
-  // Remove uuid from folders
-  _stderr = _stderr.replaceAll(uuid, "");
-
-  return _stderr;
-};
 
 export default Build;

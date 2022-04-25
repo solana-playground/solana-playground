@@ -121,7 +121,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
 
           // Remove error from the input
           handleErrors(identifier, k, "remove");
-        } catch (e) {
+        } catch {
           // Add error to the input
           handleErrors(identifier, k, "add");
         } finally {
@@ -153,9 +153,9 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
       );
     } catch (e: any) {
       const convertedError = PgError.convertErrorMessage(e.message);
-      msg = `Test '${ixs.name}' error: ${convertedError}`;
+      msg = `Test '${ixs.name}' failed: ${convertedError}`;
     } finally {
-      setTerminal(msg);
+      setTerminal(msg + "\n");
       setLoading(false);
     }
 

@@ -52,7 +52,7 @@ const Deploy = () => {
       const convertedError = PgError.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;
     } finally {
-      setTerminal(msg);
+      setTerminal(msg + "\n");
       setLoading(false);
     }
 

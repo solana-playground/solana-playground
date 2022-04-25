@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import styled, { useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 
@@ -159,10 +159,8 @@ const Editor = () => {
   }, [theme.name]);
 
   const removeEditor = useCallback(() => {
-    if (parent.current?.hasChildNodes()) {
-      const cm = document.getElementsByClassName("cm-editor")[0];
-      parent.current.removeChild(cm);
-    }
+    if (parent.current?.hasChildNodes())
+      parent.current.removeChild(parent.current.childNodes[0]);
   }, []);
 
   const getCurFile = useCallback(() => {
@@ -271,10 +269,12 @@ const Editor = () => {
 };
 
 const Wrapper = styled.div`
-  flex: 1;
-  overflow: auto;
-  background-color: ${({ theme }) => theme.colors?.editor?.bg ?? "inherit"};
-  color: ${({ theme }) => theme.colors?.editor?.text?.color ?? "inherit"};
+  ${({ theme }) => css`
+    flex: 1;
+    overflow: auto;
+    background-color: ${theme.colors?.editor?.bg ?? "inherit"};
+    color: ${theme.colors?.editor?.text?.color ?? "inherit"};
+  `}
 `;
 
 export default Editor;
