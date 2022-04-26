@@ -122,6 +122,12 @@ export class Explorer {
 
     const isCurrentFile = files[fullPath]?.current;
 
+    // If we are deleting current file's parent(s)
+    // we need to update the current file to the last tab
+    let isCurrentParent = false;
+    if (this.getCurrentFile()?.path.startsWith(fullPath))
+      isCurrentParent = true;
+
     for (const path in files) {
       if (path.startsWith(fullPath)) {
         delete files[path];
@@ -137,7 +143,8 @@ export class Explorer {
     if (Object.keys(files).length === 1) files[parentPath + "src/"] = {};
 
     // Change current file to the last tab when current file is deleted
-    if (isCurrentFile) this.changeCurrentFileToTheLastTab();
+    // or current file's parent is deleted
+    if (isCurrentFile || isCurrentParent) this.changeCurrentFileToTheLastTab();
   }
 
   renameItem(fullPath: string, newName: string) {

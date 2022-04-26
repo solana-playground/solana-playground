@@ -100,7 +100,7 @@ const snippets: Completion[] = [
     label: "clock sysvar(sysc)",
     type: "property",
   }),
-  snip("pub signer: Signer<'info>,${}", {
+  snip("#[account(mut)]\npub signer: Signer<'info>,${}", {
     label: "signer (sig)",
     type: "property",
   }),

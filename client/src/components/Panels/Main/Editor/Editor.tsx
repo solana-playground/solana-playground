@@ -247,7 +247,7 @@ const Editor = () => {
     const code = editor.state.doc.toString();
     const findText = "declare_id!";
     const findTextIndex = code.indexOf(findText);
-    if (!findTextIndex) return;
+    if (findTextIndex === -1) return;
 
     const quoteStartIndex = findTextIndex + findText.length + 2;
     const quoteEndIndex = code.indexOf('"', quoteStartIndex);

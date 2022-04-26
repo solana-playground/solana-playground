@@ -20,7 +20,7 @@ export const sidebarData = {
       value: Sidebar.BUILD_DEPLOY,
     },
     {
-      title: `${Sidebar.TEST} (Ctrl+Shift+T)`,
+      title: `${Sidebar.TEST} (Ctrl+Shift+D)`,
       src: rootDir + "test.png",
       value: Sidebar.TEST,
     },
