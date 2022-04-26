@@ -11,8 +11,8 @@ interface TextInfo {
 }
 
 export class PgTerminal {
-  static MIN_HEIGHT = 36;
   static DEFAULT_HEIGHT = "25%";
+  static MIN_HEIGHT = 36;
 
   private static TEXTS: TextInfo[] = [
     { text: "Compiling", state: TextState.INFO },
@@ -68,6 +68,9 @@ export class PgTerminal {
     return `\x1B[1m${text}\x1B[0m`;
   }
 
+  /**
+   * Edit build stderr
+   */
   static editStderr = (stderr: string, uuid: string) => {
     // Remove full path
     stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");

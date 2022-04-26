@@ -89,7 +89,7 @@ const Terminal = () => {
   const maxButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const maximize = useCallback(() => {
+  const toggleMaximize = useCallback(() => {
     setHeight((h) => {
       if (h === "100%") {
         maxButtonRef.current?.classList.remove("down");
@@ -103,13 +103,38 @@ const Terminal = () => {
 
   const [isClosed, setIsClosed] = useState(false);
 
-  const close = useCallback(() => {
+  const toggleClose = useCallback(() => {
     setIsClosed((c) => !c);
     setHeight((h) => {
       if (h === "0%") return PgTerminal.DEFAULT_HEIGHT;
       return "0%";
     });
   }, [setHeight, setIsClosed]);
+
+  // Keybinds
+  useEffect(() => {
+    const handleKeybinds = (e: globalThis.KeyboardEvent) => {
+      // TODO: Focus terminal
+      if (e.ctrlKey) {
+        if (e.key === "l") {
+          e.preventDefault();
+          clear();
+        } else if (e.key === "`") {
+          e.preventDefault();
+          toggleClose();
+        } else if (e.key === "j") {
+          e.preventDefault();
+          toggleClose();
+        } else if (e.key === "m") {
+          e.preventDefault();
+          toggleMaximize();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeybinds);
+    return () => document.removeEventListener("keydown", handleKeybinds);
+  }, [clear, toggleClose, toggleMaximize]);
 
   return (
     <Resizable
@@ -135,22 +160,22 @@ const Terminal = () => {
           </Button>
           <Button
             kind="icon"
-            title="Maximize"
-            onClick={maximize}
+            title="Toggle Maximize(Ctrl+M)"
+            onClick={toggleMaximize}
             ref={maxButtonRef}
           >
             <DoubleArrow />
           </Button>
           <Button
             kind="icon"
-            title="Toggle Close"
-            onClick={close}
+            title="Toggle Close(Ctrl+`)"
+            onClick={toggleClose}
             ref={closeButtonRef}
           >
             {isClosed ? <Tick /> : <Close />}
           </Button>
         </TerminalTopbar>
-        <TerminalWrapper ref={terminalRef} id="terminal" />
+        <TerminalWrapper ref={terminalRef} minHeight={PgTerminal.MIN_HEIGHT} />
       </Wrapper>
     </Resizable>
   );
@@ -186,12 +211,13 @@ const TerminalTopbar = styled.div<{ minHeight: number }>`
     `}
 `;
 
-const TerminalWrapper = styled.div`
-  ${({ theme }) => css`
-    height: 100%;
+// minHeight fixes text going below too much which made bottom text invisible
+const TerminalWrapper = styled.div<{ minHeight: number }>`
+  ${({ theme, minHeight }) => css`
+    height: calc(100% - ${minHeight}px);
     margin-left: 1rem;
 
-    & .xterm .xterm-viewport {
+    & .xterm-viewport {
       background-color: inherit !important;
     }
 
