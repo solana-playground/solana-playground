@@ -1,6 +1,11 @@
 import { createContext, Dispatch, FC, SetStateAction, useState } from "react";
 import { ThemeProvider } from "styled-components";
-import { PG_BORDER_RADIUS, PG_FONT, PG_TRANSPARENCY } from "./default";
+import {
+  PG_BORDER_RADIUS,
+  PG_FONT,
+  PG_SCROLLBAR,
+  PG_TRANSPARENCY,
+} from "./default";
 
 import Theme from "./interface";
 import THEMES from "./themes";
@@ -31,6 +36,10 @@ const MutThemeProvider: FC = ({ children }) => {
   if (!theme.colors.tooltip)
     theme.colors.tooltip = { bg: theme.colors.default.bg };
   if (!theme.borderRadius) theme.borderRadius = PG_BORDER_RADIUS;
+  if (!theme.colors.scrollbar) {
+    if (theme.isDark) theme.colors.scrollbar = PG_SCROLLBAR.dark;
+    else theme.colors.scrollbar = PG_SCROLLBAR.light;
+  }
 
   const [_theme, setTheme] = useState(theme);
 

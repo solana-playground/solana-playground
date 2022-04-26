@@ -84,6 +84,12 @@ export default interface Theme {
       selectedBorderColor?: string;
     };
     tooltip?: BgAndColor;
+    scrollbar?: {
+      thumb: {
+        color: string;
+        hoverColor: string;
+      };
+    };
   };
   highlight: HighlightStyle;
   borderRadius?: string;

@@ -272,8 +272,28 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
     overflow: auto;
-    background-color: ${theme.colors?.editor?.bg ?? "inherit"};
-    color: ${theme.colors?.editor?.text?.color ?? "inherit"};
+    background-color: ${theme.colors?.editor?.bg};
+    color: ${theme.colors?.editor?.text?.color};
+
+    /* Scrollbar */
+    /* Chromium */
+    & ::-webkit-scrollbar {
+      width: 0.75rem;
+    }
+
+    & ::-webkit-scrollbar-track {
+      background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
+      border-left: 1px solid ${theme.colors.default.borderColor};
+    }
+
+    & ::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      background-color: ${theme.colors.scrollbar?.thumb.color};
+    }
+
+    & ::-webkit-scrollbar-thumb:hover {
+      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+    }
   `}
 `;
 

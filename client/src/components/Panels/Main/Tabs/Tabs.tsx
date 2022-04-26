@@ -30,7 +30,7 @@ const Wrapper = styled.div`
     overflow-y: hidden;
     height: ${TAB_HEIGHT};
     user-select: none;
-    background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
+    background-color: ${theme.colors.right?.bg};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
     font-size: ${theme.font?.size.small};
   `}

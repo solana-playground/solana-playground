@@ -188,6 +188,31 @@ const Wrapper = styled.div`
     background-color: ${theme.colors.terminal?.bg ?? "inherit"};
     color: ${theme.colors.terminal?.color ?? "inherit"};
     border-top: 1px solid ${theme.colors.default.primary};
+
+    /* Scrollbar */
+    /* Chromium */
+    & ::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+
+    & ::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    & ::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      border-radius: ${theme.borderRadius};
+      background-color: ${theme.colors.scrollbar?.thumb.color};
+    }
+
+    & ::-webkit-scrollbar-thumb:hover {
+      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+    }
+
+    /* Firefox */
+    & * {
+      scrollbar-color: ${theme.colors.scrollbar?.thumb.color};
+    }
   `}
 `;
 

@@ -14,3 +14,18 @@ export const PG_TRANSPARENCY = {
 };
 
 export const PG_BORDER_RADIUS = "4px";
+
+export const PG_SCROLLBAR = {
+  dark: {
+    thumb: {
+      color: "#ffffff64",
+      hoverColor: "#ffffff32",
+    },
+  },
+  light: {
+    thumb: {
+      color: "#00000032",
+      hoverColor: "#00000064",
+    },
+  },
+};
