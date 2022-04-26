@@ -6,14 +6,16 @@ import { Terminal as XTerm } from "xterm";
 import "xterm/css/xterm.css";
 import { FitAddon } from "xterm-addon-fit";
 
-import { terminalAtom } from "../../../../state";
+import { terminalAtom, terminalProgressAtom } from "../../../../state";
 import { PgTerminal } from "../../../../utils/pg/terminal";
 import { PROJECT_NAME, DEFAULT_CURSOR } from "../../../../constants";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import Button from "../../../Button";
+import Progress from "../../../Progress";
 
 const Terminal = () => {
   const [terminal] = useAtom(terminalAtom);
+  const [progress] = useAtom(terminalProgressAtom);
 
   const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -154,28 +156,31 @@ const Terminal = () => {
       }}
     >
       <Wrapper>
-        <TerminalTopbar minHeight={PgTerminal.MIN_HEIGHT}>
-          <Button kind="icon" title="Clear(Ctrl+L)" onClick={clear}>
-            <Clear />
-          </Button>
-          <Button
-            kind="icon"
-            title="Toggle Maximize(Ctrl+M)"
-            onClick={toggleMaximize}
-            ref={maxButtonRef}
-          >
-            <DoubleArrow />
-          </Button>
-          <Button
-            kind="icon"
-            title="Toggle Close(Ctrl+`)"
-            onClick={toggleClose}
-            ref={closeButtonRef}
-          >
-            {isClosed ? <Tick /> : <Close />}
-          </Button>
-        </TerminalTopbar>
-        <TerminalWrapper ref={terminalRef} minHeight={PgTerminal.MIN_HEIGHT} />
+        <Topbar>
+          <Progress value={progress} />
+          <ButtonsWrapper>
+            <Button kind="icon" title="Clear(Ctrl+L)" onClick={clear}>
+              <Clear />
+            </Button>
+            <Button
+              kind="icon"
+              title="Toggle Maximize(Ctrl+M)"
+              onClick={toggleMaximize}
+              ref={maxButtonRef}
+            >
+              <DoubleArrow />
+            </Button>
+            <Button
+              kind="icon"
+              title="Toggle Close(Ctrl+`)"
+              onClick={toggleClose}
+              ref={closeButtonRef}
+            >
+              {isClosed ? <Tick /> : <Close />}
+            </Button>
+          </ButtonsWrapper>
+        </Topbar>
+        <TerminalWrapper ref={terminalRef} />
       </Wrapper>
     </Resizable>
   );
@@ -216,30 +221,32 @@ const Wrapper = styled.div`
   `}
 `;
 
-const TerminalTopbar = styled.div<{ minHeight: number }>`
-  ${({ minHeight }) =>
-    css`
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      height: ${minHeight}px;
-      margin-right: 1.5rem;
+const Topbar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: ${PgTerminal.MIN_HEIGHT}px;
+  padding: 0 1rem;
+`;
 
-      & button {
-        margin-left: 0.25rem;
-        height: fit-content;
-      }
+const ButtonsWrapper = styled.div`
+  display: flex;
+  margin-left: 0.5rem;
 
-      & button.down svg {
-        transform: rotate(180deg);
-      }
-    `}
+  & button {
+    margin-left: 0.25rem;
+    height: fit-content;
+  }
+
+  & button.down svg {
+    transform: rotate(180deg);
+  }
 `;
 
 // minHeight fixes text going below too much which made bottom text invisible
-const TerminalWrapper = styled.div<{ minHeight: number }>`
-  ${({ theme, minHeight }) => css`
-    height: calc(100% - ${minHeight}px);
+const TerminalWrapper = styled.div`
+  ${({ theme }) => css`
+    height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
     margin-left: 1rem;
 
     & .xterm-viewport {

@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 import { Buffer } from "buffer";
 import { Connection, Keypair } from "@solana/web3.js";
 
@@ -8,7 +9,11 @@ import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
 
 export class PgDeploy {
-  static async deploy(conn: Connection, wallet: PgWallet) {
+  static async deploy(
+    conn: Connection,
+    wallet: PgWallet,
+    setProgress: Dispatch<SetStateAction<number>>
+  ) {
     const uuid = PgProgramInfo.getProgramInfo().uuid;
     const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
 
@@ -63,7 +68,8 @@ export class PgDeploy {
       conn,
       wallet,
       bufferKp.publicKey,
-      programBuffer
+      programBuffer,
+      setProgress
     );
 
     // it errors if we don't wait for the buffer to load

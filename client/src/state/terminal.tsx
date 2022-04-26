@@ -10,3 +10,5 @@ export const terminalAtom = atom(
     else set(_terminalAtom, newVal + "\t");
   }
 );
+
+export const terminalProgressAtom = atom(0);

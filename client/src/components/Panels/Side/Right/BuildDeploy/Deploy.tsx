@@ -11,6 +11,7 @@ import {
   terminalAtom,
   pgWalletAtom,
   refreshPgWalletAtom,
+  terminalProgressAtom,
 } from "../../../../../state";
 import { PgError } from "../../../../../utils/pg/error";
 import useIsDeployed from "./useIsDeployed";
@@ -24,6 +25,7 @@ const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const [, setTerminal] = useAtom(terminalAtom);
+  const [, setProgress] = useAtom(terminalProgressAtom);
 
   const { initialLoading } = useInitialLoading();
   const { deployed, setDeployed, connError } = useIsDeployed();
@@ -39,11 +41,12 @@ const Deploy = () => {
     setTerminal(
       "Deploying... This could take a while depending on the program size and network conditions."
     );
+    setProgress(0.1);
 
     let msg = "";
 
     try {
-      await PgDeploy.deploy(conn, pgWallet);
+      await PgDeploy.deploy(conn, pgWallet, setProgress);
 
       msg = "Deployment successful.";
 
@@ -54,6 +57,7 @@ const Deploy = () => {
     } finally {
       setTerminal(msg + "\n");
       setLoading(false);
+      setProgress(0);
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps

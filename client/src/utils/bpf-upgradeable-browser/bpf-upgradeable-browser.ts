@@ -1,5 +1,6 @@
 // Thanks to @fanatid
 
+import { Dispatch, SetStateAction } from "react";
 import { Buffer } from "buffer";
 import * as BufferLayout from "@solana/buffer-layout";
 import {
@@ -484,6 +485,7 @@ export class BpfLoaderUpgradeable {
     wallet: PgWallet,
     bufferPk: PublicKey,
     programData: Buffer,
+    setProgress: Dispatch<SetStateAction<number>>,
     loadConcurrency: number = 10
   ) {
     let bytesOffset = 0;
@@ -531,11 +533,13 @@ export class BpfLoaderUpgradeable {
               }
             }
           }
-        }
 
-        console.countReset("buffer write");
+          setProgress((bytesOffset / programData.length) * 100);
+        }
       })
     );
+
+    console.countReset("buffer write");
   }
 
   /**
