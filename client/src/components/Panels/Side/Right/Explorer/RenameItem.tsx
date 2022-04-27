@@ -10,10 +10,9 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import Input from "../../../../Input";
-import Button from "../../../../Button";
-import { defaultInputProps } from "../../../../Input/Input";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
+import Button from "../../../../Button";
+import Input, { defaultInputProps } from "../../../../Input";
 import useModal from "../../../../Modal/useModal";
 import ModalInside from "../../../../Modal/ModalInside";
 

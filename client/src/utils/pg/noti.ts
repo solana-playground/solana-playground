@@ -1,11 +1,11 @@
-const NOTI_KEY = "noti";
-
 export class PgNoti {
+  private static NOTI_KEY = "noti";
+
   static isEnabled(): boolean {
-    return JSON.parse(localStorage.getItem(NOTI_KEY) ?? "true");
+    return JSON.parse(localStorage.getItem(this.NOTI_KEY) ?? "true");
   }
 
   static disable() {
-    localStorage.setItem(NOTI_KEY, JSON.stringify(false));
+    localStorage.setItem(this.NOTI_KEY, JSON.stringify(false));
   }
 }

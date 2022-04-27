@@ -1,7 +1,5 @@
 import { ClassNames, ItemError } from "../../constants";
 
-const EXPLORER_KEY = "explorer";
-
 const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
 
@@ -76,19 +74,22 @@ export class Explorer {
   constructor() {
     let explorer;
 
-    const lsExplorer = localStorage.getItem(EXPLORER_KEY);
+    const lsExplorer = localStorage.getItem(PgExplorer.EXPLORER_KEY);
 
     if (lsExplorer) explorer = JSON.parse(lsExplorer);
     else {
       explorer = DEFAULT_EXPLORER;
-      localStorage.setItem(EXPLORER_KEY, JSON.stringify(explorer));
+      localStorage.setItem(PgExplorer.EXPLORER_KEY, JSON.stringify(explorer));
     }
 
     this._explorer = explorer;
   }
 
   saveLs() {
-    localStorage.setItem(EXPLORER_KEY, JSON.stringify(this._explorer));
+    localStorage.setItem(
+      PgExplorer.EXPLORER_KEY,
+      JSON.stringify(this._explorer)
+    );
   }
 
   newItem(fullPath: string) {
@@ -332,6 +333,8 @@ export class Explorer {
 
 // Static methods only
 export class PgExplorer {
+  static EXPLORER_KEY = "explorer";
+
   static getItemNameFromPath(path: string) {
     const itemsArr = path.split("/");
     const itemType = this.getItemTypeFromPath(path);

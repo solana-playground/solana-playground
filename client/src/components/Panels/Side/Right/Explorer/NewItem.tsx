@@ -8,8 +8,7 @@ import {
   newItemAtom,
   refreshExplorerAtom,
 } from "../../../../../state";
-import Input from "../../../../Input";
-import { defaultInputProps } from "../../../../Input/Input";
+import Input, { defaultInputProps } from "../../../../Input";
 import LangIcon from "../../../../LangIcon";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 

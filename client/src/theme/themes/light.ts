@@ -3,7 +3,7 @@ import Theme from "../interface";
 
 // BG
 const DARK = "#2c2c2c";
-const LIGHT = "#f3f3f3";
+const BG_LIGHT = "#f3f3f3";
 const LIGHTER = "#ffffff";
 
 // FG
@@ -142,7 +142,7 @@ const highlight = HighlightStyle.define([
   },
 ]);
 
-const light: Theme = {
+export const LIGHT: Theme = {
   name: "Light",
   isDark: false,
   colors: {
@@ -179,7 +179,7 @@ const light: Theme = {
       bg: DARK,
     },
     right: {
-      bg: LIGHT,
+      bg: BG_LIGHT,
     },
     editor: {
       text: {
@@ -201,10 +201,8 @@ const light: Theme = {
     },
     iconButton: {
       selectedBg: HOVER,
-      selectedBorderColor: LIGHT,
+      selectedBorderColor: BG_LIGHT,
     },
   },
   highlight,
 };
-
-export default light;

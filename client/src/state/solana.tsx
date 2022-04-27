@@ -1,6 +1,6 @@
 import { atom } from "jotai";
-import { PgEndpoint } from "../utils/pg/endpoint";
 
+import { PgEndpoint } from "../utils/pg/endpoint";
 import { PgWallet } from "../utils/pg/wallet";
 
 // Wallet

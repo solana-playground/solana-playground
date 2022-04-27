@@ -2,8 +2,6 @@ import { Idl } from "@project-serum/anchor";
 import { Keypair } from "@solana/web3.js";
 import { Buffer } from "buffer";
 
-const PROGRAM_INFO_LS = "programInfo";
-
 interface ProgramInfo {
   update?: number;
   uuid?: string;
@@ -13,9 +11,11 @@ interface ProgramInfo {
 }
 
 export class PgProgramInfo {
+  private static PROGRAM_INFO_KEY = "programInfo";
+
   static getProgramInfo() {
     const programInfo: ProgramInfo = JSON.parse(
-      localStorage.getItem(PROGRAM_INFO_LS) || "{}"
+      localStorage.getItem(this.PROGRAM_INFO_KEY) || "{}"
     );
     return programInfo;
   }
@@ -29,7 +29,7 @@ export class PgProgramInfo {
     if (params.idl) programInfo.idl = params.idl;
     if (params.deployed) programInfo.deployed = params.deployed;
 
-    localStorage.setItem(PROGRAM_INFO_LS, JSON.stringify(programInfo));
+    localStorage.setItem(this.PROGRAM_INFO_KEY, JSON.stringify(programInfo));
   }
 
   static getProgramKp() {

@@ -1,12 +1,12 @@
 import { Endpoints } from "../../constants";
 
-const ENDPOINT_KEY = "endpoint";
-
 export class PgEndpoint {
+  private static ENDPOINT_KEY = "endpoint";
+
   static getLsEndpoint() {
-    let endpoint = localStorage.getItem(ENDPOINT_KEY);
+    let endpoint = localStorage.getItem(this.ENDPOINT_KEY);
     if (!endpoint) {
-      localStorage.setItem(ENDPOINT_KEY, Endpoints.DEVNET);
+      localStorage.setItem(this.ENDPOINT_KEY, Endpoints.DEVNET);
       endpoint = Endpoints.DEVNET;
     }
 
@@ -14,6 +14,6 @@ export class PgEndpoint {
   }
 
   static setLsEndpoint(endpoint: string) {
-    localStorage.setItem(ENDPOINT_KEY, endpoint);
+    localStorage.setItem(this.ENDPOINT_KEY, endpoint);
   }
 }

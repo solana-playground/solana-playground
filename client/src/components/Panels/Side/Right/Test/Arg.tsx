@@ -4,9 +4,8 @@ import styled from "styled-components";
 
 import Account from "./Account";
 import InputLabel from "./InputLabel";
-import Input from "../../../../Input";
+import Input, { defaultInputProps } from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import { defaultInputProps } from "../../../../Input/Input";
 
 interface ArgProps {
   name: string;

@@ -147,7 +147,7 @@ const highlight = HighlightStyle.define([
   },
 ]);
 
-const solana: Theme = {
+export const SOLANA: Theme = {
   name: "Solana",
   isDark: true,
   colors: {
@@ -203,5 +203,3 @@ const solana: Theme = {
   },
   highlight,
 };
-
-export default solana;

@@ -1,7 +1,5 @@
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 
-const WALLET_KEY = "wallet";
-
 const DEFAULT_LS_WALLET: LsWallet = {
   setupCompleted: false,
   connected: false,
@@ -53,8 +51,11 @@ export class PgWallet {
     return txs;
   }
 
+  // Statics
+  private static WALLET_KEY = "wallet";
+
   static getLs() {
-    const lsWalletStr = localStorage.getItem(WALLET_KEY);
+    const lsWalletStr = localStorage.getItem(this.WALLET_KEY);
     if (!lsWalletStr) return null;
 
     const lsWallet: LsWallet = JSON.parse(lsWalletStr);
@@ -70,7 +71,7 @@ export class PgWallet {
       lsWallet.connected = updateParams.connected;
     if (updateParams.sk) lsWallet.sk = updateParams.sk;
 
-    localStorage.setItem(WALLET_KEY, JSON.stringify(lsWallet));
+    localStorage.setItem(this.WALLET_KEY, JSON.stringify(lsWallet));
   }
 
   static getKp() {

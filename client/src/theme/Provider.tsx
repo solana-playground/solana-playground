@@ -9,7 +9,7 @@ import {
 
 import Theme from "./interface";
 import THEMES from "./themes";
-import dracula from "./themes/dracula";
+import { DRACULA } from "./themes/";
 
 export const THEME_KEY = "theme";
 
@@ -22,7 +22,7 @@ export const MutThemeContext = createContext<MutThemeContextProps>(
 
 const MutThemeProvider: FC = ({ children }) => {
   const themeName = localStorage.getItem(THEME_KEY);
-  const theme = THEMES.find((t) => t.name === themeName) ?? dracula;
+  const theme = THEMES.find((t) => t.name === themeName) ?? DRACULA;
 
   // Set defaults
   if (!theme.font) theme.font = PG_FONT;

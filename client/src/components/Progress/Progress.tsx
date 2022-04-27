@@ -8,7 +8,7 @@ interface ProgressProps {
 const Progress: FC<ProgressProps> = ({ value }) => {
   return (
     <Wrapper style={value ? {} : { visibility: "hidden" }}>
-      <Indicator value={value} />
+      <Indicator style={{ width: value.toString() + "%" }} />
     </Wrapper>
   );
 };
@@ -23,11 +23,10 @@ const Wrapper = styled.div`
   `}
 `;
 
-const Indicator = styled.div<ProgressProps>`
-  ${({ theme, value }) => css`
+const Indicator = styled.div`
+  ${({ theme }) => css`
     background-color: ${theme.colors.default.primary};
     border-radius: ${theme.borderRadius};
-    width: ${value}%;
     height: 100%;
   `}
 `;

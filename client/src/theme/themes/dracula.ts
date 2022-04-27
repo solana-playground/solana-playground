@@ -148,7 +148,7 @@ const highlight = HighlightStyle.define([
   },
 ]);
 
-const dracula: Theme = {
+export const DRACULA: Theme = {
   name: "Dracula",
   isDark: true,
   colors: {
@@ -206,5 +206,3 @@ const dracula: Theme = {
   },
   highlight,
 };
-
-export default dracula;

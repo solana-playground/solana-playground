@@ -48,12 +48,7 @@ const Folders = () => {
 
   return (
     <>
-      <div
-        ref={explorerRef}
-        id="root-dir"
-        data-path="/"
-        style={{ paddingLeft: "0.5rem" }}
-      >
+      <RootWrapper ref={explorerRef} id="root-dir" data-path="/">
         {root.folders
           .sort((x, y) => x.localeCompare(y))
           .map((f, i) => {
@@ -68,7 +63,7 @@ const Folders = () => {
               />
             );
           })}
-      </div>
+      </RootWrapper>
       <ContextMenu explorerRef={explorerRef} />
     </>
   );
@@ -182,6 +177,10 @@ const File: FC<FileOrFolderProps> = ({ path, name, onClick, className }) => {
     </div>
   );
 };
+
+const RootWrapper = styled.div`
+  padding-left: 0.5rem;
+`;
 
 const FolderInsideWrapper = styled.div`
   margin-left: 1rem;

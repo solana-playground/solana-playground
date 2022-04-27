@@ -1,7 +1,5 @@
-import dracula from "./themes/dracula";
-import solana from "./themes/solana";
-import light from "./themes/light";
+import { DRACULA, SOLANA, LIGHT } from "./themes/";
 
-const THEMES = [dracula, solana, light];
+const THEMES = [DRACULA, SOLANA, LIGHT];
 
 export default THEMES;

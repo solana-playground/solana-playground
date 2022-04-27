@@ -18,11 +18,10 @@ import {
 import { IdlAccount } from "@project-serum/anchor/dist/cjs/idl";
 import styled, { css } from "styled-components";
 
-import Input from "../../../../Input";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import Input, { defaultInputProps } from "../../../../Input";
 import Button from "../../../../Button";
 import InputLabel from "./InputLabel";
-import { defaultInputProps } from "../../../../Input/Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 
