@@ -11,13 +11,13 @@ import Foldable from "../../../../Foldable";
 import Account from "./Account";
 import Arg from "./Arg";
 import { getFullType } from "./types";
-import { PgTest } from "../../../../../utils/pg/test";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassNames } from "../../../../../constants";
 import { terminalAtom } from "../../../../../state";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
+import { PgTest } from "../../../../../utils/pg/test";
 import { PgTx } from "../../../../../utils/pg/tx";
-import { PgError } from "../../../../../utils/pg/error";
+import { PgTerminal } from "../../../../../utils/pg/terminal";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;
@@ -148,12 +148,20 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
       await PgTx.confirm(
         txHash,
         conn,
-        () => (msg = `Test '${ixs.name}' failed. Tx hash: ${txHash}`),
-        () => (msg = `Test '${ixs.name}' passed. Tx hash: ${txHash}`)
+        () =>
+          (msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+            "failed"
+          )}. Tx hash: ${txHash}`),
+        () =>
+          (msg = `${PgTerminal.CHECKMARK}  Test '${
+            ixs.name
+          }' ${PgTerminal.success("passed")}. Tx hash: ${txHash}`)
       );
     } catch (e: any) {
-      const convertedError = PgError.convertErrorMessage(e.message);
-      msg = `Test '${ixs.name}' failed: ${convertedError}`;
+      const convertedError = PgTerminal.convertErrorMessage(e.message);
+      msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+        "failed"
+      )}: ${convertedError}`;
     } finally {
       setTerminal(msg + "\n");
       setLoading(false);

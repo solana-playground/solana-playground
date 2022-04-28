@@ -5,10 +5,11 @@ import { Resizable } from "re-resizable";
 import { Terminal as XTerm } from "xterm";
 import "xterm/css/xterm.css";
 import { FitAddon } from "xterm-addon-fit";
+import { WebLinksAddon } from "xterm-addon-web-links";
 
 import { terminalAtom, terminalProgressAtom } from "../../../../state";
 import { PgTerminal } from "../../../../utils/pg/terminal";
-import { PROJECT_NAME, DEFAULT_CURSOR } from "../../../../constants";
+import { DEFAULT_CURSOR } from "../../../../constants";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import Button from "../../../Button";
 import Progress from "../../../Progress";
@@ -21,49 +22,57 @@ const Terminal = () => {
 
   const theme = useTheme();
 
-  const [term, fitAddon] = useMemo(() => {
+  // Load xterm
+  const xterm = useMemo(() => {
     const state = theme.colors.state;
 
-    return [
-      new XTerm({
-        convertEol: true,
-        rendererType: "dom",
-        // fontFamily: theme.font?.family,
-        fontSize: 14,
-        theme: {
-          brightGreen: state.success.color,
-          brightRed: state.error.color,
-          brightYellow: state.warning.color,
-          brightBlue: state.info.color,
-        },
-      }),
-      new FitAddon(),
-    ];
+    return new XTerm({
+      convertEol: true,
+      rendererType: "dom",
+      // fontFamily: theme.font?.family,
+      fontSize: 14,
+      theme: {
+        brightGreen: state.success.color,
+        brightRed: state.error.color,
+        brightYellow: state.warning.color,
+        brightBlue: state.info.color,
+      },
+    });
   }, [theme]);
 
+  // Load addons
+  const fitAddon = useMemo(() => {
+    const fitAddon = new FitAddon();
+    const webLinksAddon = new WebLinksAddon();
+
+    xterm.loadAddon(fitAddon);
+    xterm.loadAddon(webLinksAddon);
+
+    return fitAddon;
+  }, [xterm]);
+
   useEffect(() => {
-    if (term && terminalRef.current) {
+    if (xterm && terminalRef.current) {
       const hasChild = terminalRef.current.hasChildNodes();
       if (hasChild)
         terminalRef.current.removeChild(terminalRef.current.childNodes[0]);
 
-      term.loadAddon(fitAddon);
-      term.open(terminalRef.current);
+      xterm.open(terminalRef.current);
       fitAddon.fit();
 
-      // TODO: Welcome text
-      term.writeln(`Welcome to ${PgTerminal.bold(PROJECT_NAME)}`);
-      if (hasChild) term.writeln("");
+      // Welcome text
+      xterm.writeln(PgTerminal.DEFAULT_TEXT);
+      if (hasChild) xterm.writeln("");
     }
-  }, [term, fitAddon]);
+  }, [xterm, fitAddon]);
 
   // New output
   useEffect(() => {
     if (terminalRef.current) {
-      term.writeln(PgTerminal.colorText(terminal));
-      term.scrollToBottom();
+      xterm.writeln(PgTerminal.colorText(terminal));
+      xterm.scrollToBottom();
     }
-  }, [terminal, term]);
+  }, [terminal, xterm]);
 
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
@@ -85,8 +94,8 @@ const Terminal = () => {
 
   // Buttons
   const clear = useCallback(() => {
-    term.clear();
-  }, [term]);
+    xterm.clear();
+  }, [xterm]);
 
   const maxButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);

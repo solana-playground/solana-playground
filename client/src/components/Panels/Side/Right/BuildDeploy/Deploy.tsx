@@ -13,13 +13,13 @@ import {
   refreshPgWalletAtom,
   terminalProgressAtom,
 } from "../../../../../state";
-import { PgError } from "../../../../../utils/pg/error";
 import useIsDeployed from "./useIsDeployed";
 import { ButtonKind } from "../../../../Button/Button";
 import useConnect from "../Wallet/useConnect";
 import Loading from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
+import { PgTerminal } from "../../../../../utils/pg/terminal";
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -39,7 +39,9 @@ const Deploy = () => {
 
     setLoading(true);
     setTerminal(
-      "Deploying... This could take a while depending on the program size and network conditions."
+      `${PgTerminal.info(
+        "Deploying..."
+      )} This could take a while depending on the program size and network conditions.`
     );
     setProgress(0.1);
 
@@ -48,11 +50,11 @@ const Deploy = () => {
     try {
       await PgDeploy.deploy(conn, pgWallet, setProgress);
 
-      msg = "Deployment successful.";
+      msg = PgTerminal.success("Deployment successful.");
 
       setDeployed(true);
     } catch (e: any) {
-      const convertedError = PgError.convertErrorMessage(e.message);
+      const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;
     } finally {
       setTerminal(msg + "\n");

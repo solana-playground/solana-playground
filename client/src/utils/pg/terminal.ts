@@ -1,3 +1,10 @@
+import {
+  GITHUB_URL,
+  PROGRAM_ERROR,
+  PROJECT_NAME,
+  RPC_ERROR,
+} from "../../constants";
+
 enum TextState {
   SUCCESS = 0,
   ERROR = 1,
@@ -14,15 +21,23 @@ export class PgTerminal {
   static DEFAULT_HEIGHT = "25%";
   static MIN_HEIGHT = 36;
 
+  static DEFAULT_TEXT = `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.
+
+Currently allowed crates:
+* anchor-lang
+* anchor-spl
+
+You can request more crates from github: ${PgTerminal.underline(GITHUB_URL)}`;
+
+  // Emojis
+  static CROSS = "❌";
+  static CHECKMARK = "✅";
+
   private static TEXTS: TextInfo[] = [
     { text: "Compiling", state: TextState.INFO },
     { text: "Finished", state: TextState.SUCCESS },
     { text: "warning", state: TextState.WARNING },
     { text: "error", state: TextState.ERROR },
-    { text: "Deploying...", state: TextState.INFO },
-    { text: "Deployment successful.", state: TextState.SUCCESS },
-    { text: "passed", state: TextState.SUCCESS },
-    { text: "failed", state: TextState.ERROR },
   ];
 
   static colorText(text: string) {
@@ -68,6 +83,10 @@ export class PgTerminal {
     return `\x1B[1m${text}\x1B[0m`;
   }
 
+  static underline(text: string) {
+    return `\x1B[4m${text}\x1B[0m`;
+  }
+
   /**
    * Edit build stderr
    */
@@ -87,4 +106,36 @@ export class PgTerminal {
 
     return stderr;
   };
+
+  /**
+   * Improve error messages
+   */
+  static convertErrorMessage(msg: string) {
+    let changed = false;
+
+    // Program errors
+    for (const programErrorCode in PROGRAM_ERROR) {
+      if (msg.endsWith("0x" + programErrorCode)) {
+        const parts = msg.split(":");
+        const ixNumber = parts[2][parts[2].length - 1];
+        const programError = PROGRAM_ERROR[programErrorCode];
+
+        msg = `\n${this.bold("Instruction index:")} ${ixNumber}\n${this.bold(
+          "Reason:"
+        )} ${programError}`;
+
+        changed = true;
+        break;
+      }
+    }
+
+    // Rpc errors
+    if (!changed) {
+      for (const rpcError in RPC_ERROR) {
+        if (msg.includes(rpcError)) msg = RPC_ERROR[rpcError];
+      }
+    }
+
+    return msg;
+  }
 }
