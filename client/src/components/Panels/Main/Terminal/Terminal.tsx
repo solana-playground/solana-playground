@@ -29,7 +29,6 @@ const Terminal = () => {
     return new XTerm({
       convertEol: true,
       rendererType: "dom",
-      // fontFamily: theme.font?.family,
       fontSize: 14,
       theme: {
         brightGreen: state.success.color,

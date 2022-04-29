@@ -25,12 +25,12 @@ const Tab: FC<TabProps> = ({ current, path }) => {
 
   const changeTab = (e: MouseEvent<HTMLDivElement>) => {
     if (closeButtonRef.current?.contains(e.target as Node)) return;
-    explorer.changeCurrentFile(path);
+    explorer?.changeCurrentFile(path);
     refresh();
   };
 
   const closeTab = () => {
-    explorer.removeFromTabs(path);
+    explorer?.removeFromTabs(path);
     refresh();
   };
 

@@ -4,7 +4,7 @@ const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
-// automatically when you first build the project.
+// automatically when build the project.
 declare_id!("11111111111111111111111111111111");
 
 #[program]
@@ -46,7 +46,7 @@ const DEFAULT_EXPLORER = {
   },
 };
 
-interface ExplorerJSON {
+export interface ExplorerJSON {
   files: {
     [key: string]: ItemInfo;
   };
@@ -68,28 +68,36 @@ interface Folder {
 }
 
 // Non-static methods only
-export class Explorer {
+export class PgExplorer {
   private _explorer: ExplorerJSON;
+  private _shared: boolean;
 
-  constructor() {
-    let explorer;
+  constructor(explorer?: ExplorerJSON) {
+    if (!explorer) {
+      this._shared = false;
 
-    const lsExplorer = localStorage.getItem(PgExplorer.EXPLORER_KEY);
+      const lsExplorer = localStorage.getItem(PgExplorer.EXPLORER_KEY);
 
-    if (lsExplorer) explorer = JSON.parse(lsExplorer);
-    else {
-      explorer = DEFAULT_EXPLORER;
-      localStorage.setItem(PgExplorer.EXPLORER_KEY, JSON.stringify(explorer));
-    }
+      if (lsExplorer) explorer = JSON.parse(lsExplorer);
+      else {
+        explorer = DEFAULT_EXPLORER;
+        localStorage.setItem(PgExplorer.EXPLORER_KEY, JSON.stringify(explorer));
+      }
+    } else this._shared = true;
 
-    this._explorer = explorer;
+    this._explorer = explorer ?? DEFAULT_EXPLORER;
+  }
+
+  get shared() {
+    return this._shared;
   }
 
   saveLs() {
-    localStorage.setItem(
-      PgExplorer.EXPLORER_KEY,
-      JSON.stringify(this._explorer)
-    );
+    if (!this._shared)
+      localStorage.setItem(
+        PgExplorer.EXPLORER_KEY,
+        JSON.stringify(this._explorer)
+      );
   }
 
   newItem(fullPath: string) {
@@ -324,15 +332,13 @@ export class Explorer {
     let buildFiles = [];
 
     for (const path in files) {
-      files[path].content && buildFiles.push([path, files[path].content]);
+      files[path].content && buildFiles.push([path, files[path].content ?? ""]);
     }
 
     return buildFiles;
   }
-}
 
-// Static methods only
-export class PgExplorer {
+  // Static methods
   static EXPLORER_KEY = "explorer";
 
   static getItemNameFromPath(path: string) {
@@ -490,5 +496,9 @@ export class PgExplorer {
       !name.includes("//") &&
       !name.includes("..")
     );
+  }
+
+  static getExplorerIconsPath(name: string) {
+    return "icons/explorer/" + name;
   }
 }

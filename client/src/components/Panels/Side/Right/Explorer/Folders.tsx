@@ -15,7 +15,7 @@ const Folders = () => {
 
   // Initial folder state on mount
   useEffect(() => {
-    if (!explorer.getTabs().length) return;
+    if (!explorer?.getTabs().length) return;
 
     const curFile = explorer.getCurrentFile();
     if (!curFile) return;
@@ -31,14 +31,14 @@ const Folders = () => {
   const explorerRef = useRef<HTMLDivElement>(null);
 
   // No need to memoize here
-  const root = explorer.getFolderContent("/");
+  const root = explorer?.getFolderContent("/");
 
   // Only update local storage if we haven't rendered in 5s
   useEffect(() => {
     let timeOutId: NodeJS.Timeout;
 
     timeOutId = setTimeout(() => {
-      explorer.saveLs();
+      explorer?.saveLs();
     }, 5000);
 
     return () => {
@@ -49,11 +49,14 @@ const Folders = () => {
   return (
     <>
       <RootWrapper ref={explorerRef} id="root-dir" data-path="/">
-        {root.folders
+        {root?.folders
           .sort((x, y) => x.localeCompare(y))
           .map((f, i) => {
             const path = "/" + f + "/";
-            const folder = explorer.getFolderContent(path);
+            const folder = explorer?.getFolderContent(path);
+
+            if (!folder) return null;
+
             return (
               <RFolder
                 key={i}
@@ -92,7 +95,7 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     if (PgExplorer.getItemTypeFromEl(e.currentTarget)?.folder) {
       PgExplorer.toggleFolder(e.currentTarget);
     } else {
-      explorer.changeCurrentFile(
+      explorer?.changeCurrentFile(
         PgExplorer.getItemPathFromEl(e.currentTarget)!
       );
       refresh();
@@ -117,7 +120,10 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
           .sort((x, y) => x.localeCompare(y))
           .map((folderName, i) => {
             const insideFolderPath = path + folderName + "/";
-            const folder = explorer.getFolderContent(insideFolderPath);
+            const folder = explorer?.getFolderContent(insideFolderPath);
+
+            if (!folder) return null;
+
             return (
               <RFolder
                 key={i}

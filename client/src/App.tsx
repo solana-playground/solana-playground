@@ -8,6 +8,7 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import MutThemeProvider from "./theme/";
 import IDE from "./pages/ide";
 import { endpointAtom } from "./state";
+import { BrowserRouter } from "react-router-dom";
 
 const App = () => {
   const [endpoint] = useAtom(endpointAtom);
@@ -21,7 +22,9 @@ const App = () => {
         config={{ commitment: "confirmed" }}
       >
         <WalletProvider wallets={wallets}>
-          <IDE />
+          <BrowserRouter>
+            <IDE />
+          </BrowserRouter>
         </WalletProvider>
       </ConnectionProvider>
     </MutThemeProvider>

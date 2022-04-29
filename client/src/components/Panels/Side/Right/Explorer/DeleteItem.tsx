@@ -18,7 +18,7 @@ const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   const { close } = useModal();
 
   const deleteItem = () => {
-    explorer.deleteItem(path);
+    explorer?.deleteItem(path);
     close();
     refresh();
   };

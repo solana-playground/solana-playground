@@ -1,22 +1,23 @@
+import { useAtom } from "jotai";
 import { FC, useCallback } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+import { explorerAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import Button from "../../../../Button";
 import NewItem from "./NewItem";
 import useNewItem from "./useNewItem";
 
-const Buttons = () => {
-  return (
-    <ButtonsWrapper>
-      <NewItemButton image="new_file.png" title="New File" />
-      <NewItemButton image="new_folder.png" title="New Folder" />
-      <CollapseAllButton />
-      <NewItem />
-    </ButtonsWrapper>
-  );
-};
-
+const Buttons = () => (
+  <ButtonsWrapper>
+    <NewItemButton imageName="new_file.png" title="New File" />
+    <NewItemButton imageName="new_folder.png" title="New Folder" />
+    <CollapseAllButton />
+    <NewItem />
+    <GoBackButton />
+  </ButtonsWrapper>
+);
 const ButtonsWrapper = styled.div`
   padding: 0.25rem;
   display: flex;
@@ -42,16 +43,16 @@ const ButtonsWrapper = styled.div`
 `;
 
 interface ButtonProps {
-  image: string;
+  imageName: string;
   title: string;
 }
 
-const NewItemButton: FC<ButtonProps> = ({ image, title }) => {
+const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
   const { newItem } = useNewItem();
 
   return (
     <Button title={title} onClick={newItem} kind="icon">
-      <img src={`icons/explorer/${image}`} alt={title} />
+      <img src={PgExplorer.getExplorerIconsPath(imageName)} alt={title} />
     </Button>
   );
 };
@@ -63,8 +64,28 @@ const CollapseAllButton = () => {
 
   return (
     <Button kind="icon" title="Collapse Folders" onClick={handleCollapse}>
-      <img src="icons/explorer/collapse.png" alt="Collapse Folders" />
+      <img
+        src={PgExplorer.getExplorerIconsPath("collapse.png")}
+        alt="Collapse Folders"
+      />
     </Button>
+  );
+};
+
+const GoBackButton = () => {
+  const [explorer] = useAtom(explorerAtom);
+
+  if (!explorer?.shared) return null;
+
+  return (
+    <Link to="/">
+      <Button kind="icon" title="Go back your project">
+        <img
+          src={PgExplorer.getExplorerIconsPath("back.png")}
+          alt="Go back your project"
+        />
+      </Button>
+    </Link>
   );
 };
 

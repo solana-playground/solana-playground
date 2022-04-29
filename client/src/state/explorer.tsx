@@ -1,8 +1,8 @@
 import { atom } from "jotai";
 
-import { Explorer } from "../utils/pg/explorer";
+import { PgExplorer } from "../utils/pg/explorer";
 
-export const explorerAtom = atom(new Explorer());
+export const explorerAtom = atom<PgExplorer | null>(null);
 // To refresh explorer
 const _explorerCountAtom = atom(0);
 export const refreshExplorerAtom = atom(

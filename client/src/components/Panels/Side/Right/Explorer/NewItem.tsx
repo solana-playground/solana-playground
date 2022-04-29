@@ -48,7 +48,7 @@ const NewItem = () => {
 
         const itemPath = parentPath + convertedItemName;
 
-        const newItemRes = explorer.newItem(itemPath);
+        const newItemRes = explorer?.newItem(itemPath);
 
         // TODO: Proper error handling
         if (newItemRes?.err) {

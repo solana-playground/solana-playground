@@ -1,3 +1,3 @@
 import { atom } from "jotai";
 
-export const programIdAtom = atom("");
+export const buildCountAtom = atom(0);

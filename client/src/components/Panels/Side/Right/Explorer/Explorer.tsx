@@ -3,15 +3,12 @@ import styled, { css } from "styled-components";
 import Buttons from "./Buttons";
 import Folders from "./Folders";
 
-const Explorer = () => {
-  return (
-    <ExplorerWrapper>
-      <Buttons />
-      <Folders />
-    </ExplorerWrapper>
-  );
-};
-
+const Explorer = () => (
+  <ExplorerWrapper>
+    <Buttons />
+    <Folders />
+  </ExplorerWrapper>
+);
 const ExplorerWrapper = styled.div`
   ${({ theme }) => css`
     display: flex;

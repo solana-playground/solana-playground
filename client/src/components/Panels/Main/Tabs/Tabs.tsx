@@ -12,11 +12,11 @@ const Tabs = () => {
   useAtom(refreshExplorerAtom);
 
   // No need memoization
-  const tabs = explorer.getTabs();
+  const tabs = explorer?.getTabs();
 
   return (
     <Wrapper>
-      {tabs.map((t, i) => (
+      {tabs?.map((t, i) => (
         <Tab key={i} current={t.current!} path={t.path} />
       ))}
     </Wrapper>

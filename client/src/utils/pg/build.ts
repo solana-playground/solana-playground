@@ -2,7 +2,6 @@ import { Idl } from "@project-serum/anchor";
 
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
-import { Explorer } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 
 interface BuildResp {
@@ -12,10 +11,11 @@ interface BuildResp {
   idl: Idl | null;
 }
 
+export type Files = string[][];
+
 export class PgBuild {
-  static async build(explorer: Explorer) {
+  static async build(files: Files) {
     const programInfo = PgProgramInfo.getProgramInfo();
-    const uuid = programInfo.uuid;
 
     const resp = await fetch(`${SERVER_URL}/build`, {
       method: "POST",
@@ -23,8 +23,8 @@ export class PgBuild {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        files: explorer.getBuildFiles(),
-        uuid,
+        files,
+        uuid: programInfo.uuid,
         kp: programInfo.kp,
       }),
     });
@@ -42,6 +42,6 @@ export class PgBuild {
       kp: data.kp,
     });
 
-    return { uuid, stderr: data.stderr };
+    return { uuid: data.uuid, stderr: data.stderr };
   }
 }

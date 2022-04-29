@@ -7,12 +7,14 @@ import { EditorView } from "@codemirror/view";
 import Theme from "../../../../theme/interface";
 import { getExtensions } from "./extensions";
 import {
+  buildCountAtom,
   explorerAtom,
-  programIdAtom,
   refreshExplorerAtom,
 } from "../../../../state";
 import autosave from "./autosave";
 import { PgExplorer } from "../../../../utils/pg/explorer";
+import Loading from "../../../Loading";
+import { PgProgramInfo } from "../../../../utils/pg/program-info";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -164,19 +166,13 @@ const Editor = () => {
   }, []);
 
   const getCurFile = useCallback(() => {
-    const path = explorer.getCurrentFile()?.path ?? "/";
-    const curFile = {
-      content: explorer.getFileContentFromPath(path) ?? "",
-      path,
-    };
-
-    return curFile;
+    return explorer?.getCurrentFile();
   }, [explorer]);
 
   // Editor configuration
   useEffect(() => {
     // If there is no tab open, show Home screen
-    if (!explorer.getTabs().length) {
+    if (!explorer?.getTabs().length) {
       setNoOpenTabs(true);
       return;
     }
@@ -187,6 +183,7 @@ const Editor = () => {
 
     // Get current file
     const curFile = getCurFile();
+    if (!curFile) return;
 
     // Change selected
     // won't work on mount
@@ -221,15 +218,20 @@ const Editor = () => {
     setNoOpenTabs,
   ]);
 
-  // Update programId on first build
-  const [programId] = useAtom(programIdAtom);
+  // Update programId on each build
+  const [buildCount] = useAtom(buildCountAtom);
 
   // Change programId
   useEffect(() => {
-    if (!parent.current || !programId) return;
-    removeEditor();
+    if (!explorer || !parent.current || !buildCount) return;
 
     const curFile = getCurFile();
+    if (!curFile) return;
+
+    const programPkResult = PgProgramInfo.getProgramPk();
+    if (programPkResult?.err) return;
+
+    removeEditor();
 
     const editor = new EditorView({
       state: EditorState.create({
@@ -255,11 +257,22 @@ const Editor = () => {
     if (code.length < quoteStartIndex + 50) return;
 
     editor.dispatch({
-      changes: { from: quoteStartIndex, to: quoteEndIndex, insert: programId },
+      changes: {
+        from: quoteStartIndex,
+        to: quoteEndIndex,
+        insert: programPkResult.programPk?.toBase58(),
+      },
     });
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [programId, removeEditor]);
+  }, [buildCount, removeEditor]);
+
+  if (!explorer)
+    return (
+      <LoadingWrapper>
+        <Loading size={10} />
+      </LoadingWrapper>
+    );
 
   // TODO: Home screen
   if (noOpenTabs)
@@ -295,6 +308,11 @@ const Wrapper = styled.div`
       background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
     }
   `}
+`;
+
+const LoadingWrapper = styled.div`
+  flex: 1;
+  display: flex;
 `;
 
 export default Editor;

@@ -38,7 +38,7 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   const rename = useCallback(() => {
     if (!newName) return;
-    const renameResult = explorer.renameItem(path, newName);
+    const renameResult = explorer?.renameItem(path, newName);
 
     if (renameResult?.err) {
       console.log(renameResult.err);
