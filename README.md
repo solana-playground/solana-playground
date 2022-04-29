@@ -8,6 +8,7 @@
 - Currently allowed crates:
   - [anchor-lang](https://docs.rs/anchor-lang/latest/anchor_lang)
   - [anchor-spl](https://docs.rs/anchor-spl/latest/anchor_spl)
+  - [mpl-token-metadata](https://docs.rs/mpl-token-metadata/latest/mpl_token_metadata)
 
 ## License
 

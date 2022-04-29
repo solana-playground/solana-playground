@@ -24,8 +24,9 @@ export class PgTerminal {
   static DEFAULT_TEXT = `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.
 
 Currently allowed crates:
-* anchor-lang
-* anchor-spl
+  * anchor-lang
+  * anchor-spl
+  * mpl-token-metadata
 
 You can request more crates from github: ${PgTerminal.underline(GITHUB_URL)}`;
 
