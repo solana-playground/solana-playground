@@ -1,3 +1,4 @@
+import * as buffer from "buffer";
 import styled from "styled-components";
 
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
@@ -9,7 +10,7 @@ import useIsDeployed from "../BuildDeploy/useIsDeployed";
 import Function from "./Function";
 
 // Webpack 5 doesn't polyfill buffer
-window.Buffer = require("buffer").Buffer;
+window.Buffer = buffer.Buffer;
 
 const Test = () => {
   const { initialLoading } = useInitialLoading();

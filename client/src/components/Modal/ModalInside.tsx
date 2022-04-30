@@ -10,6 +10,7 @@ interface ModalInsideProps {
     name: string;
     onSubmit: () => void;
     close: () => void;
+    disabled?: boolean;
   };
 }
 
@@ -25,7 +26,11 @@ const ModalInside: FC<ModalInsideProps> = ({
       {buttonProps && (
         <ButtonWrapper>
           <Button onClick={buttonProps.close}>Cancel</Button>
-          <Button onClick={buttonProps.onSubmit} style={{ marginLeft: "1rem" }}>
+          <Button
+            onClick={buttonProps.onSubmit}
+            style={{ marginLeft: "1rem" }}
+            disabled={buttonProps.disabled}
+          >
             {buttonProps.name}
           </Button>
         </ButtonWrapper>
@@ -49,7 +54,7 @@ const Title = styled.div`
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  padding: 0.5rem 0;
+  padding: 0.625rem 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
 `;
 

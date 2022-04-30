@@ -10,7 +10,7 @@ export const PG_FONT = {
 export const PG_TRANSPARENCY = {
   low: "16",
   medium: "64",
-  high: "128",
+  high: "99",
 };
 
 export const PG_BORDER_RADIUS = "4px";

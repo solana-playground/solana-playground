@@ -3,7 +3,7 @@ import styled, { css, DefaultTheme } from "styled-components";
 
 type TextType = "Info" | "Warning" | "Success" | "Error";
 
-interface TextProps {
+export interface TextProps {
   type?: TextType;
 }
 

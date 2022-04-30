@@ -38,12 +38,7 @@ const Tab: FC<TabProps> = ({ current, path }) => {
     <Wrapper current={current} onClick={changeTab}>
       <LangIcon fileName={fileName} />
       <Name>{fileName}</Name>
-      <Button
-        ref={closeButtonRef}
-        kind="icon"
-        onClick={closeTab}
-        title="Close (Ctrl+W)"
-      >
+      <Button ref={closeButtonRef} kind="icon" onClick={closeTab} title="Close">
         <Close />
       </Button>
     </Wrapper>

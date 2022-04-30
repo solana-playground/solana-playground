@@ -1,19 +1,21 @@
-import { useAtom } from "jotai";
 import { FC, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { explorerAtom } from "../../../../../state";
+import { explorerAtom, modalAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import Button from "../../../../Button";
 import NewItem from "./NewItem";
 import useNewItem from "./useNewItem";
+import Share from "./Share";
 
 const Buttons = () => (
   <ButtonsWrapper>
     <NewItemButton imageName="new_file.png" title="New File" />
     <NewItemButton imageName="new_folder.png" title="New Folder" />
     <CollapseAllButton />
+    <ShareButton />
     <NewItem />
     <GoBackButton />
   </ButtonsWrapper>
@@ -72,6 +74,26 @@ const CollapseAllButton = () => {
   );
 };
 
+const ShareButton = () => {
+  const [explorer] = useAtom(explorerAtom);
+  const [, setModal] = useAtom(modalAtom);
+
+  const handleShare = useCallback(async () => {
+    if (explorer) {
+      setModal({ show: true, JSX: <Share /> });
+    }
+  }, [explorer, setModal]);
+
+  return (
+    <Button onClick={handleShare} kind="icon" title="Share">
+      <img
+        src={PgExplorer.getExplorerIconsPath("share.png")}
+        alt="Go back your project"
+      />
+    </Button>
+  );
+};
+
 const GoBackButton = () => {
   const [explorer] = useAtom(explorerAtom);
 
@@ -83,6 +105,7 @@ const GoBackButton = () => {
         <img
           src={PgExplorer.getExplorerIconsPath("back.png")}
           alt="Go back your project"
+          style={{ height: "0.875rem", width: "0.875rem" }}
         />
       </Button>
     </Link>

@@ -67,8 +67,8 @@ interface Folder {
   files: string[];
 }
 
-// Non-static methods only
 export class PgExplorer {
+  // Non-static methods
   private _explorer: ExplorerJSON;
   private _shared: boolean;
 
@@ -90,6 +90,10 @@ export class PgExplorer {
 
   get shared() {
     return this._shared;
+  }
+
+  get files() {
+    return this._explorer.files;
   }
 
   saveLs() {

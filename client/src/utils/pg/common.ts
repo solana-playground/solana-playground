@@ -5,14 +5,17 @@ export class PgCommon {
     return new Promise((res) => setTimeout((s) => res(s), ms));
   }
 
+  static decodeArrayBuffer(arrayBuffer: ArrayBuffer) {
+    const decoder = new TextDecoder("utf-8");
+    const decodedString = decoder.decode(arrayBuffer);
+
+    return decodedString;
+  }
+
   static async checkForRespErr(resp: Response) {
     const arrayBuffer = await resp.arrayBuffer();
 
-    if (!resp.ok) {
-      const decoder = new TextDecoder("utf-8");
-      const decodedString = decoder.decode(arrayBuffer);
-      return { err: decodedString };
-    }
+    if (!resp.ok) return { err: this.decodeArrayBuffer(arrayBuffer) };
 
     return { arrayBuffer };
   }

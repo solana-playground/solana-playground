@@ -11,7 +11,6 @@ import styled from "styled-components";
 
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
-import Button from "../../../../Button";
 import Input, { defaultInputProps } from "../../../../Input";
 import useModal from "../../../../Modal/useModal";
 import ModalInside from "../../../../Modal/ModalInside";
@@ -63,15 +62,11 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <ModalInside>
+    <ModalInside buttonProps={{ name: "Rename", close, onSubmit: rename }}>
       <Content>
         <Text>Rename '{itemName}'</Text>
         <Input onChange={handleChange} ref={inputRef} {...defaultInputProps} />
       </Content>
-      <ButtonWrapper>
-        <Button onClick={close}>Cancel</Button>
-        <Button onClick={rename}>Rename</Button>
-      </ButtonWrapper>
     </ModalInside>
   );
 };
@@ -81,16 +76,11 @@ const Content = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-bottom: 1rem;
 `;
 
 const Text = styled.div`
   margin: 1rem 0;
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin: 0.75rem 0;
 `;
 
 export default RenameItem;

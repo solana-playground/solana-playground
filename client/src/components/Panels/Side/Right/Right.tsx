@@ -34,7 +34,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
     else {
       const getShare = async () => {
         try {
-          const explorerData = await PgShare.getShare(pathname);
+          const explorerData = await PgShare.get(pathname);
 
           setExplorer(new PgExplorer(explorerData));
         } catch {
