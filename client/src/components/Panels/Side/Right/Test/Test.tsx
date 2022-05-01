@@ -33,30 +33,47 @@ const Test = () => {
 
   const idl = PgProgramInfo.getProgramInfo()?.idl;
 
+  if (idl === undefined)
+    return (
+      <InitialWrapper>
+        <Text>Build the program first.</Text>
+      </InitialWrapper>
+    );
+
+  if (!deployed)
+    return (
+      <InitialWrapper>
+        <Text>Deploy the program first.</Text>
+      </InitialWrapper>
+    );
+
+  if (idl === null)
+    return (
+      <InitialWrapper>
+        <Text type="Warning">Native program testing is not yet supported.</Text>
+      </InitialWrapper>
+    );
+
+  if (deployed)
+    return (
+      <Wrapper>
+        <ProgramWrapper>
+          <ProgramNameWrapper>
+            Program:
+            <ProgramName>{idl.name}</ProgramName>
+          </ProgramNameWrapper>
+          {idl.instructions.map((ixs, i) => (
+            <Function key={i} idl={idl} index={i} ixs={ixs} />
+          ))}
+        </ProgramWrapper>
+      </Wrapper>
+    );
+
+  // Shouldn't come here
   return (
-    <Wrapper>
-      {idl ? (
-        deployed ? (
-          <ProgramWrapper>
-            <ProgramNameWrapper>
-              Program:
-              <ProgramName>{idl.name}</ProgramName>
-            </ProgramNameWrapper>
-            {idl.instructions.map((ixs, i) => (
-              <Function key={i} idl={idl} index={i} ixs={ixs} />
-            ))}
-          </ProgramWrapper>
-        ) : (
-          <NotReadyWrapper>
-            <Text>Deploy the program first.</Text>
-          </NotReadyWrapper>
-        )
-      ) : (
-        <NotReadyWrapper>
-          <Text>Build the program first.</Text>
-        </NotReadyWrapper>
-      )}
-    </Wrapper>
+    <InitialWrapper>
+      <Text type="Error">Something went wrong.</Text>
+    </InitialWrapper>
   );
 };
 
@@ -77,12 +94,6 @@ const ProgramNameWrapper = styled.div`
 const ProgramName = styled.span`
   font-weight: bold;
   margin-left: 0.25rem;
-`;
-
-const NotReadyWrapper = styled.div`
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
 `;
 
 export default Test;

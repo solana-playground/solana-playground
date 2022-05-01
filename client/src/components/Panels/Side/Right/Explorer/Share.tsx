@@ -41,7 +41,7 @@ const Share = () => {
         id,
       });
     } catch (e: any) {
-      setTextState({ text: "Share error: " + e.message, type: "Error" });
+      setTextState({ text: "Please try again later.", type: "Error" });
       setDisabled(false);
     }
   }, [explorer, setTextState, setDisabled]);

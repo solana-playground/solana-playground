@@ -38,3 +38,7 @@ export const RPC_ERROR: ConvertedError = {
   "Network request failed":
     "RPC endpoint is not responsive. Please change the endpoint from the settings.",
 };
+
+export const SERVER_ERROR: ConvertedError = {
+  OpenFile: "Please rebuild the project.",
+};

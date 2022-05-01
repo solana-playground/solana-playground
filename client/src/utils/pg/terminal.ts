@@ -3,6 +3,7 @@ import {
   PROGRAM_ERROR,
   PROJECT_NAME,
   RPC_ERROR,
+  SERVER_ERROR,
 } from "../../constants";
 
 enum TextState {
@@ -112,8 +113,6 @@ You can request more crates from github: ${PgTerminal.underline(GITHUB_URL)}`;
    * Improve error messages
    */
   static convertErrorMessage(msg: string) {
-    let changed = false;
-
     // Program errors
     for (const programErrorCode in PROGRAM_ERROR) {
       if (msg.endsWith("0x" + programErrorCode)) {
@@ -125,15 +124,23 @@ You can request more crates from github: ${PgTerminal.underline(GITHUB_URL)}`;
           "Reason:"
         )} ${programError}`;
 
-        changed = true;
-        break;
+        return msg;
       }
     }
 
     // Rpc errors
-    if (!changed) {
-      for (const rpcError in RPC_ERROR) {
-        if (msg.includes(rpcError)) msg = RPC_ERROR[rpcError];
+    for (const rpcError in RPC_ERROR) {
+      if (msg.includes(rpcError)) {
+        msg = RPC_ERROR[rpcError];
+        return msg;
+      }
+    }
+
+    // Server errors
+    for (const serverError in SERVER_ERROR) {
+      if (msg === serverError) {
+        msg = SERVER_ERROR[serverError];
+        return msg;
       }
     }
 

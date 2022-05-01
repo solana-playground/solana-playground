@@ -26,7 +26,7 @@ export class PgProgramInfo {
     if (params.kp) programInfo.kp = params.kp;
     if (params.update !== undefined) programInfo.update = params.update;
     if (params.uuid) programInfo.uuid = params.uuid;
-    if (params.idl) programInfo.idl = params.idl;
+    if (params.idl !== undefined) programInfo.idl = params.idl;
     if (params.deployed) programInfo.deployed = params.deployed;
 
     localStorage.setItem(this.PROGRAM_INFO_KEY, JSON.stringify(programInfo));
