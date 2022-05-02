@@ -115,7 +115,7 @@ You can request more crates from github: ${PgTerminal.underline(GITHUB_URL)}`;
   static convertErrorMessage(msg: string) {
     // Program errors
     for (const programErrorCode in PROGRAM_ERROR) {
-      if (msg.endsWith("0x" + programErrorCode)) {
+      if (msg.endsWith("0x" + programErrorCode.toLowerCase())) {
         const parts = msg.split(":");
         const ixNumber = parts[2][parts[2].length - 1];
         const programError = PROGRAM_ERROR[programErrorCode];
