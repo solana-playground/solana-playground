@@ -29,7 +29,7 @@ export const PROGRAM_ERROR: ConvertedError = {
   "12": "The provided decimals value different from the Mint decimals.",
   "13": "Instruction does not support non-native tokens.",
 
-  /// Anchor Internal Errors
+  /// Anchor Internal Errors in HexCode formate
   // Instructions.
   "64": "InstructionMissing: 8 byte instruction identifier not provided",
   "65": "InstructionFallbackNotFound: Fallback functions are not supported",
