@@ -200,6 +200,10 @@ export const SOLANA: Theme = {
     tooltip: {
       bg: BG_GRAY,
     },
+    toast: {
+      bg: BG_GRAY,
+      color: TEXT_PRIMARY,
+    },
   },
   highlight,
 };

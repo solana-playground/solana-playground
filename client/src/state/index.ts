@@ -3,3 +3,4 @@ export * from "./modal";
 export * from "./editor";
 export * from "./terminal";
 export * from "./solana";
+export * from "./toast";

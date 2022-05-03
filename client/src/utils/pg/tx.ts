@@ -25,14 +25,8 @@ export class PgTx {
     return await conn.sendRawTransaction(rawTx);
   }
 
-  static async confirm(
-    txHash: string,
-    conn: Connection,
-    errorCallback?: () => void,
-    successCallback?: () => void
-  ) {
+  static async confirm(txHash: string, conn: Connection) {
     const result = await conn.confirmTransaction(txHash);
-    if (errorCallback && result?.value.err) errorCallback();
-    else if (successCallback) successCallback();
+    if (result?.value.err) return { err: 1 };
   }
 }

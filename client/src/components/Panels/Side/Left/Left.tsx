@@ -1,7 +1,7 @@
 import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
 import styled from "styled-components";
-import { GITHUB_URL } from "../../../../constants";
 
+import { GITHUB_URL } from "../../../../constants";
 import IconButton from "../../../IconButton";
 import Link from "../../../Link";
 import PopButton from "../../../PopButton";

@@ -4,15 +4,18 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { terminalAtom } from "../../../../../state";
+import { terminalAtom, txHashAtom } from "../../../../../state";
 import { PgTx } from "../../../../../utils/pg/tx";
 import Button from "../../../../Button";
 import useConnect from "./useConnect";
 import useCurrentWallet from "./useCurrentWallet";
 import useAirdropAmount from "./useAirdropAmount";
+import { PgTerminal } from "../../../../../utils/pg/terminal";
 
 const Wallet = () => {
   const [, setTerminal] = useAtom(terminalAtom);
+  const [, setTxHash] = useAtom(txHashAtom);
+
   const {
     pgButtonStatus,
     handleConnectPg,
@@ -39,26 +42,34 @@ const Wallet = () => {
       let msg = "";
 
       try {
+        msg = PgTerminal.info("Sending an airdrop request...");
+        setTerminal(msg);
+
         const txHash = await conn.requestAirdrop(
           walletPk,
           amount * LAMPORTS_PER_SOL
         );
-        msg = `Sent airdrop request. Tx hash: ${txHash}`;
-        setTerminal(msg);
-        await PgTx.confirm(
-          txHash,
-          conn,
-          () => (msg = "Error receiving airdrop"),
-          () => (msg = `Success. Received ${amount} SOL`)
-        );
+
+        setTxHash(txHash);
+
+        const txResult = await PgTx.confirm(txHash, conn);
+
+        if (txResult?.err)
+          msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
+            "Error"
+          )} receiving airdrop.`;
+        else
+          msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
+            "Success"
+          )}. Received ${amount} SOL.`;
       } catch (e: any) {
         msg = e.message;
       } finally {
-        setTerminal(msg);
+        setTerminal(msg + "\n");
         setLoading(false);
       }
     },
-    [conn, amount, setLoading, setTerminal]
+    [conn, amount, setLoading, setTerminal, setTxHash]
   );
 
   const airdropPg = useCallback(async () => {

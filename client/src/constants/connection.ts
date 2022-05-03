@@ -1,4 +1,4 @@
-enum NetworkNames {
+enum NetworkName {
   LOCALHOST = "localhost",
   DEVNET = "devnet",
   DEVNET_GENESYSGO = "devnet-genesysgo",
@@ -8,7 +8,7 @@ enum NetworkNames {
   MAINNET_BETA_SERUM = "mainnet-beta-serum",
 }
 
-export enum Endpoints {
+export enum Endpoint {
   LOCALHOST = "http://localhost:8899",
   DEVNET = "https://api.devnet.solana.com",
   DEVNET_GENESYSGO = "https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899",
@@ -19,37 +19,37 @@ export enum Endpoints {
 }
 
 interface Network {
-  name: NetworkNames;
-  endpoint: Endpoints;
+  name: NetworkName;
+  endpoint: Endpoint;
 }
 
 export const NETWORKS: Network[] = [
   {
-    name: NetworkNames.LOCALHOST,
-    endpoint: Endpoints.LOCALHOST,
+    name: NetworkName.LOCALHOST,
+    endpoint: Endpoint.LOCALHOST,
   },
   {
-    name: NetworkNames.DEVNET,
-    endpoint: Endpoints.DEVNET,
+    name: NetworkName.DEVNET,
+    endpoint: Endpoint.DEVNET,
   },
   {
-    name: NetworkNames.DEVNET_GENESYSGO,
-    endpoint: Endpoints.DEVNET_GENESYSGO,
+    name: NetworkName.DEVNET_GENESYSGO,
+    endpoint: Endpoint.DEVNET_GENESYSGO,
   },
   {
-    name: NetworkNames.TESTNET,
-    endpoint: Endpoints.TESTNET,
+    name: NetworkName.TESTNET,
+    endpoint: Endpoint.TESTNET,
   },
   {
-    name: NetworkNames.MAINNET_BETA,
-    endpoint: Endpoints.MAINNET_BETA,
+    name: NetworkName.MAINNET_BETA,
+    endpoint: Endpoint.MAINNET_BETA,
   },
   {
-    name: NetworkNames.MAINNET_BETA_GENESYSGO,
-    endpoint: Endpoints.MAINNET_BETA_GENESYSGO,
+    name: NetworkName.MAINNET_BETA_GENESYSGO,
+    endpoint: Endpoint.MAINNET_BETA_GENESYSGO,
   },
   {
-    name: NetworkNames.MAINNET_BETA_SERUM,
-    endpoint: Endpoints.MAINNET_BETA_SERUM,
+    name: NetworkName.MAINNET_BETA_SERUM,
+    endpoint: Endpoint.MAINNET_BETA_SERUM,
   },
 ];
