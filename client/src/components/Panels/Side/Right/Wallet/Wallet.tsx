@@ -118,6 +118,7 @@ const Wrapper = styled.div`
     align-items: center;
     background-color: ${theme.colors.tooltip?.bg};
     border: 1px solid ${theme.colors.default.borderColor};
+    border-radius: ${theme.borderRadius};
   `}
 `;
 

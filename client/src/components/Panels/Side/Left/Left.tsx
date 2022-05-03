@@ -12,6 +12,7 @@ import { sidebarData } from "./sidebar-data";
 import useActiveTab from "./useActiveTab";
 
 const ID_PREFIX = "Icon";
+export const ICONBAR_WIDTH = "3rem";
 
 interface LeftProps {
   sidebarState: string;
@@ -66,7 +67,7 @@ const Left: FC<LeftProps> = ({
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 3rem;
+  width: ${ICONBAR_WIDTH};
   user-select: none;
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors?.left?.bg!};

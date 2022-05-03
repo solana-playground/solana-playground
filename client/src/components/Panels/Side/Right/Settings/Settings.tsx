@@ -1,5 +1,5 @@
 import { FC, ReactElement } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import ThemeSetting from "./ThemeSetting";
 import NetworkSetting from "./NetworkSetting";
@@ -11,8 +11,11 @@ const Settings = () => (
   </Wrapper>
 );
 const Wrapper = styled.div`
-  background-color: ${({ theme }) => theme.colors?.tooltip?.bg};
-  border: 1px solid ${({ theme }) => theme.colors.default.borderColor};
+  ${({ theme }) => css`
+    background-color: ${theme.colors?.tooltip?.bg};
+    border: 1px solid ${theme.colors.default.borderColor};
+    border-radius: ${theme.borderRadius};
+  `}
 `;
 
 interface SettingProps {

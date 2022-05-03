@@ -203,6 +203,10 @@ export const DRACULA: Theme = {
       selectedBg: SELECTION,
       selectedBorderColor: PINK,
     },
+    toast: {
+      bg: DARKER,
+      color: TEXT_PRIMARY,
+    },
   },
   highlight,
 };
