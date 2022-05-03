@@ -24,12 +24,11 @@ export class PgTerminal {
 
   static DEFAULT_TEXT = `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.
 
-Currently allowed crates:
-  * anchor-lang
-  * anchor-spl
-  * mpl-token-metadata
+Popular crates for Solana development are available to use.
 
-You can request more crates from github: ${PgTerminal.underline(GITHUB_URL)}`;
+See the list of available crates and request new crates from here: ${PgTerminal.underline(
+    GITHUB_URL
+  )}`;
 
   // Emojis
   static CROSS = "❌";
