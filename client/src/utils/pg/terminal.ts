@@ -35,10 +35,9 @@ See the list of available crates and request new crates from here: ${PgTerminal.
   static CHECKMARK = "✅";
 
   private static TEXTS: TextInfo[] = [
-    { text: "Compiling", state: TextState.INFO },
-    { text: "Finished", state: TextState.SUCCESS },
-    { text: "warning", state: TextState.WARNING },
     { text: "error", state: TextState.ERROR },
+    { text: "warning", state: TextState.WARNING },
+    { text: "Finished", state: TextState.SUCCESS },
   ];
 
   static colorText(text: string) {
@@ -99,10 +98,23 @@ See the list of available crates and request new crates from here: ${PgTerminal.
     stderr = stderr.replaceAll(uuid, "");
 
     // Remove rustc error line
-    const startIndex = stderr.indexOf("For more");
+    let startIndex = stderr.indexOf("For more");
     if (startIndex !== -1) {
-      const endIndex = stderr.indexOf(".", startIndex);
-      stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 2);
+      const endIndex = stderr.indexOf("\n", startIndex);
+      stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
+    }
+
+    // Remove Compiling message
+    stderr = stderr.replace("Compiling solpg v0.1.0\n", "");
+
+    // Remove whitespace before 'Finished'
+    startIndex = stderr.indexOf("Finished release");
+    if (startIndex !== -1) {
+      const whiteSpaceStartIndex = startIndex - 7; // This is the most amount of whitespace
+      stderr =
+        stderr.substring(0, whiteSpaceStartIndex) +
+        stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
+        stderr.substring(startIndex);
     }
 
     return stderr;

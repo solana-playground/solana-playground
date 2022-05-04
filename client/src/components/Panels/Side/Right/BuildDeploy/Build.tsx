@@ -23,13 +23,16 @@ const Build = () => {
 
     setLoading(true);
 
-    let msg = "";
+    let msg = PgTerminal.info("Compiling...");
+
+    setTerminal(msg);
 
     try {
       const result = await PgBuild.build(explorer.getBuildFiles());
 
-      msg = PgTerminal.editStderr(result.stderr!, result.uuid!);
+      msg = PgTerminal.editStderr(result.stderr, result.uuid);
 
+      // To update programId each build
       setBuildCount((c) => c + 1);
     } catch (e: any) {
       msg = `Build error: ${e.message}`;
