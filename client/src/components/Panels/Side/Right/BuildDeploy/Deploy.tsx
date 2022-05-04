@@ -12,6 +12,7 @@ import {
   pgWalletAtom,
   refreshPgWalletAtom,
   terminalProgressAtom,
+  txHashAtom,
 } from "../../../../../state";
 import useIsDeployed from "./useIsDeployed";
 import { ButtonKind } from "../../../../Button/Button";
@@ -26,6 +27,7 @@ const Deploy = () => {
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const [, setTerminal] = useAtom(terminalAtom);
   const [, setProgress] = useAtom(terminalProgressAtom);
+  const [, setTxHash] = useAtom(txHashAtom);
 
   const { initialLoading } = useInitialLoading();
   const { deployed, setDeployed, connError } = useIsDeployed();
@@ -48,7 +50,8 @@ const Deploy = () => {
     let msg = "";
 
     try {
-      await PgDeploy.deploy(conn, pgWallet, setProgress);
+      const txHash = await PgDeploy.deploy(conn, pgWallet, setProgress);
+      setTxHash(txHash);
 
       msg = PgTerminal.success("Deployment successful.");
 
@@ -63,7 +66,7 @@ const Deploy = () => {
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conn, pgWalletChanged, setLoading, setDeployed, setTerminal]);
+  }, [conn, pgWalletChanged, setLoading, setDeployed, setTerminal, setTxHash]);
 
   const programIsBuilt = PgProgramInfo.getProgramKp()?.programKp;
 

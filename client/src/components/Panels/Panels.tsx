@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Loading from "../Loading";
 import Side from "./Side";
 import Noti from "./Noti";
+import Toast from "../Toast";
 
 const Main = lazy(() => import("./Main"));
 const Bottom = lazy(() => import("./Bottom"));
@@ -19,10 +20,10 @@ const Panels = () => (
     </MainWrapper>
     <Suspense fallback={false}>
       <Bottom />
+      <Toast />
     </Suspense>
   </Wrapper>
 );
-
 const Wrapper = styled.div`
   width: 100vw;
   height: 100vh;

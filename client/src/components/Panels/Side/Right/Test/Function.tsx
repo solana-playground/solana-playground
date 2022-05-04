@@ -13,7 +13,7 @@ import Arg from "./Arg";
 import { getFullType } from "./types";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassNames } from "../../../../../constants";
-import { terminalAtom } from "../../../../../state";
+import { terminalAtom, txHashAtom } from "../../../../../state";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 import { PgTest } from "../../../../../utils/pg/test";
 import { PgTx } from "../../../../../utils/pg/tx";
@@ -44,6 +44,7 @@ interface FunctionProps {
 
 const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
   const [, setTerminal] = useAtom(terminalAtom);
+  const [, setTxHash] = useAtom(txHashAtom);
 
   const { connection: conn } = useConnection();
 
@@ -144,19 +145,18 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
 
     try {
       const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
+      setTxHash(txHash);
 
-      await PgTx.confirm(
-        txHash,
-        conn,
-        () =>
-          (msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
-            "failed"
-          )}. Tx hash: ${txHash}`),
-        () =>
-          (msg = `${PgTerminal.CHECKMARK}  Test '${
-            ixs.name
-          }' ${PgTerminal.success("passed")}. Tx hash: ${txHash}`)
-      );
+      const txResult = await PgTx.confirm(txHash, conn);
+
+      if (txResult?.err)
+        msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+          "failed"
+        )}.`;
+      else
+        msg = `${PgTerminal.CHECKMARK}  Test '${ixs.name}' ${PgTerminal.success(
+          "passed"
+        )}.`;
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(

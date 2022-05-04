@@ -8,7 +8,7 @@ import { ConnState } from "../Side/Right/Wallet/connection-states";
 import Link from "../../Link";
 import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
 import useConnect from "../Side/Right/Wallet/useConnect";
-import { NETWORKS } from "../../../constants";
+import { EXPLORER_URL, NETWORKS } from "../../../constants";
 import useAirdropAmount from "../Side/Right/Wallet/useAirdropAmount";
 
 const Bottom = () => {
@@ -90,7 +90,7 @@ const Bottom = () => {
           <RpcEndpoint title={conn.rpcEndpoint}>{networkName}</RpcEndpoint>
           <Seperator>|</Seperator>
           <Link
-            href={`https://explorer.solana.com/address/${walletPkStr}?cluster=custom&customUrl=${conn.rpcEndpoint}`}
+            href={`${EXPLORER_URL}/address/${walletPkStr}?cluster=custom&customUrl=${conn.rpcEndpoint}`}
           >
             {walletPkStr}
           </Link>

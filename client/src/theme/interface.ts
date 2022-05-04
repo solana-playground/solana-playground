@@ -84,6 +84,7 @@ export default interface Theme {
       selectedBorderColor?: string;
     };
     tooltip?: BgAndColor;
+    toast?: BgAndColor;
     scrollbar?: {
       thumb: {
         color: string;

@@ -1,7 +1,7 @@
 import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
 import styled from "styled-components";
-import { GITHUB_URL } from "../../../../constants";
 
+import { GITHUB_URL } from "../../../../constants";
 import IconButton from "../../../IconButton";
 import Link from "../../../Link";
 import PopButton from "../../../PopButton";
@@ -12,6 +12,7 @@ import { sidebarData } from "./sidebar-data";
 import useActiveTab from "./useActiveTab";
 
 const ID_PREFIX = "Icon";
+export const ICONBAR_WIDTH = "3rem";
 
 interface LeftProps {
   sidebarState: string;
@@ -66,7 +67,7 @@ const Left: FC<LeftProps> = ({
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 3rem;
+  width: ${ICONBAR_WIDTH};
   user-select: none;
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors?.left?.bg!};
