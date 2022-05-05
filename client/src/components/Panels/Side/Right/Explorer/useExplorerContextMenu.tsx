@@ -6,7 +6,7 @@ import { ctxSelectedAtom, modalAtom, newItemAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import RenameItem from "./RenameItem";
 import DeleteItem from "./DeleteItem";
-import { ClassName } from "../../../../../constants";
+import { ClassName, Id } from "../../../../../constants";
 
 interface MenuState {
   show: boolean;
@@ -37,16 +37,23 @@ const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
       }
 
       // Root dir is now allowed to be selected, as it cannot be renamed or deleted
-      if ((itemEl as Element).id === "root-dir") return;
+      if ((itemEl as Element).id === Id.ROOT_DIR) return;
 
       const itemType = PgExplorer.getItemTypeFromEl(itemEl as HTMLDivElement);
 
       if (!itemType) return;
 
+      const sideRightCoords = document
+        .getElementsByClassName(ClassName.SIDE_RIGHT)[0]
+        .getBoundingClientRect();
+
       setMenuState({
         show: true,
         isFolder: itemType.folder ?? false,
-        position: { x: e.pageX - 48, y: e.pageY },
+        position: {
+          x: e.pageX - sideRightCoords.x,
+          y: e.pageY - sideRightCoords.y,
+        },
       });
 
       (itemEl as Element).classList.add(ClassName.CTX_SELECTED);

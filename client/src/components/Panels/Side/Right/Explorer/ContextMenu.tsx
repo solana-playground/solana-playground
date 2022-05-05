@@ -17,12 +17,7 @@ const ContextMenu: FC<ContextMenuProps> = ({ explorerRef }) => {
     useExplorerContextMenu(explorerRef);
 
   return menuState.show ? (
-    <Wrapper
-      ref={menuRef}
-      x={menuState.position.x}
-      y={menuState.position.y}
-      onContextMenu={(e) => e.preventDefault()}
-    >
+    <Wrapper ref={menuRef} x={menuState.position.x} y={menuState.position.y}>
       {menuState.isFolder && (
         <>
           <StyledItem name="New File" keybind="ALT+N" onClick={ctxNewItem} />

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Arrow } from "../../../../Icons";
 import ContextMenu from "./ContextMenu";
-import { ClassName } from "../../../../../constants";
+import { ClassName, Id } from "../../../../../constants";
 import LangIcon from "../../../../LangIcon";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 
@@ -47,7 +47,7 @@ const Folders = () => {
   });
 
   return (
-    <RootWrapper ref={explorerRef} id="root-dir" data-path="/">
+    <RootWrapper ref={explorerRef} id={Id.ROOT_DIR} data-path="/">
       {root?.folders
         .sort((x, y) => x.localeCompare(y))
         .map((f, i) => {

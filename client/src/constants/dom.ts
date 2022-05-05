@@ -7,4 +7,9 @@ export enum ClassName {
   CTX_SELECTED = "ctx-selected",
   FILE = "file",
   FOLDER = "folder",
+  SIDE_RIGHT = "side-right",
+}
+
+export enum Id {
+  ROOT_DIR = "root-dir",
 }

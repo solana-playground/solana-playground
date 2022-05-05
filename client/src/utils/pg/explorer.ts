@@ -1,4 +1,4 @@
-import { ClassName, ItemError } from "../../constants";
+import { ClassName, Id, ItemError } from "../../constants";
 
 const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
@@ -430,7 +430,7 @@ export class PgExplorer {
   }
 
   static getRootFolderEl() {
-    return document.getElementById("root-dir");
+    return document.getElementById(Id.ROOT_DIR);
   }
 
   static getSelectedEl = () => {
