@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Arrow } from "../../../../Icons";
 import ContextMenu from "./ContextMenu";
-import { ClassNames } from "../../../../../constants";
+import { ClassName } from "../../../../../constants";
 import LangIcon from "../../../../LangIcon";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 
@@ -47,28 +47,26 @@ const Folders = () => {
   });
 
   return (
-    <>
-      <RootWrapper ref={explorerRef} id="root-dir" data-path="/">
-        {root?.folders
-          .sort((x, y) => x.localeCompare(y))
-          .map((f, i) => {
-            const path = "/" + f + "/";
-            const folder = explorer?.getFolderContent(path);
+    <RootWrapper ref={explorerRef} id="root-dir" data-path="/">
+      {root?.folders
+        .sort((x, y) => x.localeCompare(y))
+        .map((f, i) => {
+          const path = "/" + f + "/";
+          const folder = explorer?.getFolderContent(path);
 
-            if (!folder) return null;
+          if (!folder) return null;
 
-            return (
-              <RFolder
-                key={i}
-                path={path}
-                folders={folder.folders}
-                files={folder.files}
-              />
-            );
-          })}
-      </RootWrapper>
+          return (
+            <RFolder
+              key={i}
+              path={path}
+              folders={folder.folders}
+              files={folder.files}
+            />
+          );
+        })}
       <ContextMenu explorerRef={explorerRef} />
-    </>
+    </RootWrapper>
   );
 };
 
@@ -112,10 +110,10 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
         name={folderName ?? ""}
         reff={folderRef}
         onClick={toggle}
-        className={ClassNames.FOLDER}
+        className={ClassName.FOLDER}
       />
 
-      <FolderInsideWrapper ref={folderInsideRef} className={ClassNames.HIDDEN}>
+      <FolderInsideWrapper ref={folderInsideRef} className={ClassName.HIDDEN}>
         {folders
           .sort((x, y) => x.localeCompare(y))
           .map((folderName, i) => {
@@ -142,7 +140,7 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
               path={path}
               name={fileName}
               onClick={toggle}
-              className={ClassNames.FILE}
+              className={ClassName.FILE}
             />
           ))}
       </FolderInsideWrapper>

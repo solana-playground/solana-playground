@@ -12,7 +12,7 @@ import Account from "./Account";
 import Arg from "./Arg";
 import { getFullType } from "./types";
 import { updateTxValsProps } from "./useUpdateTxVals";
-import { ClassNames } from "../../../../../constants";
+import { ClassName } from "../../../../../constants";
 import { terminalAtom, txHashAtom } from "../../../../../state";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 import { PgTest } from "../../../../../utils/pg/test";
@@ -64,8 +64,8 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
 
         if (action === "add") {
           const inputEl = document.getElementsByName(name)[0];
-          if (inputEl?.classList.contains(ClassNames.TOUCHED))
-            inputEl.classList.add(ClassNames.ERROR);
+          if (inputEl?.classList.contains(ClassName.TOUCHED))
+            inputEl.classList.add(ClassName.ERROR);
 
           e[name] = 1;
         } else {
@@ -73,7 +73,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
           if (e[name] === 0) return e;
 
           const inputEl = document.getElementsByName(name)[0];
-          inputEl?.classList.remove(ClassNames.ERROR);
+          inputEl?.classList.remove(ClassName.ERROR);
 
           e[name] = 0;
         }

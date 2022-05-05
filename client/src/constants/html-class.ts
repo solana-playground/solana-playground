@@ -1,4 +1,4 @@
-export enum ClassNames {
+export enum ClassName {
   ERROR = "error",
   OPEN = "open",
   HIDDEN = "hidden",

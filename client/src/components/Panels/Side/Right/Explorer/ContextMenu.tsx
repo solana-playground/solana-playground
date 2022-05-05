@@ -1,12 +1,7 @@
 import { FC, MouseEvent, RefObject } from "react";
 import styled, { css } from "styled-components";
 
-import useContextMenu from "./useContextMenu";
-
-export const DATA_NEW_FILE = "new-file";
-export const DATA_NEW_FOLDER = "new-folder";
-export const DATA_RENAME = "rename";
-export const DATA_DELETE = "delete";
+import useExplorerContextMenu from "./useExplorerContextMenu";
 
 export interface Position {
   x: number;
@@ -18,7 +13,8 @@ interface ContextMenuProps {
 }
 
 const ContextMenu: FC<ContextMenuProps> = ({ explorerRef }) => {
-  const { menuState, clickMenu, menuRef } = useContextMenu(explorerRef);
+  const { menuState, menuRef, ctxNewItem, renameItem, deleteItem } =
+    useExplorerContextMenu(explorerRef);
 
   return menuState.show ? (
     <Wrapper
@@ -29,30 +25,12 @@ const ContextMenu: FC<ContextMenuProps> = ({ explorerRef }) => {
     >
       {menuState.isFolder && (
         <>
-          <StyledItem
-            name="New File"
-            onClick={clickMenu}
-            dataValue={DATA_NEW_FILE}
-          />
-          <StyledItem
-            name="New Folder"
-            onClick={clickMenu}
-            dataValue={DATA_NEW_FOLDER}
-          />
+          <StyledItem name="New File" keybind="ALT+N" onClick={ctxNewItem} />
+          <StyledItem name="New Folder" keybind="ALT+N" onClick={ctxNewItem} />
         </>
       )}
-      <StyledItem
-        name="Rename"
-        keybind="F2"
-        onClick={clickMenu}
-        dataValue={DATA_RENAME}
-      />
-      <StyledItem
-        name="Delete"
-        keybind="Del"
-        onClick={clickMenu}
-        dataValue={DATA_DELETE}
-      />
+      <StyledItem name="Rename" keybind="F2" onClick={renameItem} />
+      <StyledItem name="Delete" keybind="Del" onClick={deleteItem} />
     </Wrapper>
   ) : null;
 };
@@ -62,9 +40,10 @@ const Wrapper = styled.div<Position>`
     position: absolute;
     top: ${y}px;
     left: ${x}px;
-    background-color: ${theme.colors.default.bg};
+    background-color: ${theme.colors?.right?.otherBg ??
+    theme.colors.default.bg};
     border: 1px solid ${theme.colors.default.borderColor};
-    width: 10rem;
+    width: 11rem;
     z-index: 2;
   `}
 `;
@@ -73,19 +52,12 @@ interface ItemProps {
   name: string;
   keybind?: string;
   onClick: (e: MouseEvent<HTMLDivElement>) => void;
-  dataValue: string;
   className?: string;
 }
 
-const Item: FC<ItemProps> = ({
-  name,
-  keybind,
-  onClick,
-  dataValue,
-  className,
-}) => {
+const Item: FC<ItemProps> = ({ name, keybind, onClick, className }) => {
   return (
-    <div className={className} onClick={onClick} data-value={dataValue}>
+    <div className={className} onClick={onClick}>
       <span>{name}</span>
       {keybind && <span>{keybind}</span>}
     </div>

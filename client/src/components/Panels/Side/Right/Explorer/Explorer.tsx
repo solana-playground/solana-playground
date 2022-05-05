@@ -1,14 +1,35 @@
+import { useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import Buttons from "./Buttons";
 import Folders from "./Folders";
+import useExplorerContextMenu from "./useExplorerContextMenu";
+import useNewItem from "./useNewItem";
 
-const Explorer = () => (
-  <ExplorerWrapper>
-    <Buttons />
-    <Folders />
-  </ExplorerWrapper>
-);
+const Explorer = () => {
+  const { newItem } = useNewItem();
+  const { renameItem, deleteItem } = useExplorerContextMenu();
+
+  // Explorer keybinds
+  useEffect(() => {
+    const handleKey = (e: globalThis.KeyboardEvent) => {
+      if (e.altKey && e.key === "n") newItem();
+      else if (e.key === "F2") renameItem();
+      else if (e.key === "Delete") deleteItem();
+    };
+
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [newItem, renameItem, deleteItem]);
+
+  return (
+    <ExplorerWrapper>
+      <Buttons />
+      <Folders />
+    </ExplorerWrapper>
+  );
+};
+
 const ExplorerWrapper = styled.div`
   ${({ theme }) => css`
     display: flex;
