@@ -36,7 +36,7 @@ pub struct NewAccount {
     data: u64
 }`;
 
-const DEFAULT_EXPLORER = {
+const DEFAULT_EXPLORER: ExplorerJSON = {
   files: {
     [DEFAULT_FILE]: {
       content: DEFAULT_CODE,
@@ -285,16 +285,9 @@ export class PgExplorer {
 
     if (curFile) files[curFile.path].current = false;
 
-    files[newPath].current = true;
-
-    // If the file is not in tabs add it
-    const tabs = this.getTabs();
-
-    for (const path in tabs) {
-      if (path === newPath) return;
-    }
-
+    // Add file to the tabs
     files[newPath].tabs = true;
+    files[newPath].current = true;
   }
 
   getTabs() {
@@ -306,7 +299,6 @@ export class PgExplorer {
 
       if (fileInfo.tabs)
         tabs.push({
-          content: fileInfo.content,
           path,
           current: fileInfo.current,
         });
@@ -317,7 +309,7 @@ export class PgExplorer {
 
   changeCurrentFileToTheLastTab() {
     const tabs = this.getTabs();
-    if (tabs.length === 0) return;
+    if (!tabs.length) return;
 
     const lastTabPath = tabs[tabs.length - 1].path;
     this.changeCurrentFile(lastTabPath);

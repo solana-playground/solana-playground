@@ -10,7 +10,7 @@ import { explorerAtom, refreshExplorerAtom } from "../../../../state";
 
 interface TabProps {
   path: string;
-  current: boolean;
+  current?: boolean;
 }
 
 const Tab: FC<TabProps> = ({ current, path }) => {
@@ -25,6 +25,7 @@ const Tab: FC<TabProps> = ({ current, path }) => {
 
   const changeTab = (e: MouseEvent<HTMLDivElement>) => {
     if (closeButtonRef.current?.contains(e.target as Node)) return;
+
     explorer?.changeCurrentFile(path);
     refresh();
   };
@@ -34,8 +35,16 @@ const Tab: FC<TabProps> = ({ current, path }) => {
     refresh();
   };
 
+  const handleContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+  };
+
   return (
-    <Wrapper current={current} onClick={changeTab}>
+    <Wrapper
+      current={current}
+      onClick={changeTab}
+      onContextMenu={handleContextMenu}
+    >
       <LangIcon fileName={fileName} />
       <Name>{fileName}</Name>
       <Button ref={closeButtonRef} kind="icon" onClick={closeTab} title="Close">
@@ -45,7 +54,7 @@ const Tab: FC<TabProps> = ({ current, path }) => {
   );
 };
 
-const Wrapper = styled.div<{ current: boolean }>`
+const Wrapper = styled.div<{ current?: boolean }>`
   ${({ theme, current }) => css`
     width: fit-content;
     height: 100%;
@@ -55,6 +64,9 @@ const Wrapper = styled.div<{ current: boolean }>`
     background-color: ${current
       ? theme.colors.default.bg
       : theme.colors.right?.bg};
+    color: ${current
+      ? theme.colors.default.textPrimary
+      : theme.colors.default.textSecondary};
     border: 1px solid transparent;
     border-right-color: ${theme.colors.default.borderColor};
     border-top-color: ${current
@@ -82,7 +94,7 @@ const Wrapper = styled.div<{ current: boolean }>`
 `;
 
 const Name = styled.span`
-  margin-left: 0.25rem;
+  margin-left: 0.375rem;
 `;
 
 export default Tab;

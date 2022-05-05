@@ -5,6 +5,8 @@ export type ButtonKind =
   | "secondary"
   | "primary-outline"
   | "secondary-outline"
+  | "primary-transparent"
+  | "secondary-transparent"
   | "transparent"
   | "icon";
 type ButtonSize = "small" | "medium" | "large";
@@ -23,8 +25,12 @@ const getButtonStyles = (
 ) => {
   let color = "inherit";
   let bgColor = "transparent";
+  let border = "1px solid transparent";
+
   let hoverBgColor = theme.colors.default.primary;
-  let border = "none";
+  let hoverColor = "inherit";
+  let hoverBorder = "1px solid transparent";
+
   let padding = "0.5rem 0.75rem";
 
   // Kind
@@ -55,15 +61,30 @@ const getButtonStyles = (
       padding = "0.5rem 1.25rem";
       break;
     }
+    case "primary-transparent": {
+      bgColor = theme.colors.default.primary + theme.transparency?.medium;
+      hoverBgColor += theme.transparency?.high;
+      padding = "0.5rem 1.25rem";
+      break;
+    }
+    case "secondary-transparent": {
+      bgColor = theme.colors.default.secondary + theme.transparency?.medium;
+      hoverBgColor = theme.colors.default.secondary + theme.transparency?.high;
+      padding = "0.5rem 1.25rem";
+      break;
+    }
     case "icon": {
       padding = "0.25rem";
       color = theme.colors.default.textSecondary;
       hoverBgColor = "transparent";
-
       break;
     }
     default: {
-      hoverBgColor = theme.colors.default.primary + theme.transparency?.medium;
+      // hoverBgColor = theme.colors.default.primary + theme.transparency?.medium;
+
+      hoverBgColor = "transparent";
+      hoverBorder = "1px solid " + theme.colors.default.borderColor;
+      // hoverColor = theme.colors.default.primary;
     }
   }
 
@@ -78,12 +99,14 @@ const getButtonStyles = (
     border-radius: ${theme.borderRadius};
     cursor: pointer;
     padding: ${padding};
-    color: ${color};
     background-color: ${bgColor};
+    color: ${color};
     border: ${border};
 
     &:hover {
       background-color: ${hoverBgColor};
+      color: ${hoverColor};
+      border: ${hoverBorder};
     }
 
     &:disabled {

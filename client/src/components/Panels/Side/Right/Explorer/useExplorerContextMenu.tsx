@@ -1,33 +1,28 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { MouseEvent, useCallback, useState } from "react";
 import { useAtom } from "jotai";
 
-import { Position } from "./ContextMenu";
-import { ctxSelectedAtom, modalAtom, newItemAtom } from "../../../../../state";
+import {
+  contextMenuStateAtom,
+  ctxSelectedAtom,
+  modalAtom,
+  newItemAtom,
+} from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import RenameItem from "./RenameItem";
 import DeleteItem from "./DeleteItem";
 import { ClassName, Id } from "../../../../../constants";
 
-interface MenuState {
-  show: boolean;
-  isFolder: boolean;
-  position: Position;
-}
-
-const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
+const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);
   const [, setCtxSelected] = useAtom(ctxSelectedAtom);
   const [, setModal] = useAtom(modalAtom);
+  const [, setMenu] = useAtom(contextMenuStateAtom);
 
-  const [menuState, setMenuState] = useState<MenuState>({
-    show: false,
-    isFolder: false,
-    position: { x: 0, y: 0 },
-  });
+  const [isFolder, setIsFolder] = useState(false);
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
 
   const handleMenu = useCallback(
-    (e: globalThis.MouseEvent) => {
+    (e: MouseEvent<HTMLDivElement>) => {
       e.preventDefault();
 
       // Add selected style to the item
@@ -47,9 +42,9 @@ const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
         .getElementsByClassName(ClassName.SIDE_RIGHT)[0]
         .getBoundingClientRect();
 
-      setMenuState({
+      setIsFolder(itemType.folder ?? false);
+      setMenu({
         show: true,
-        isFolder: itemType.folder ?? false,
         position: {
           x: e.pageX - sideRightCoords.x,
           y: e.pageY - sideRightCoords.y,
@@ -61,42 +56,8 @@ const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
         PgExplorer.getItemPathFromEl(itemEl as HTMLDivElement) ?? ""
       );
     },
-    [setCtxSelectedPath]
+    [setMenu, setCtxSelectedPath]
   );
-
-  useEffect(() => {
-    if (!explorerRef?.current) return;
-
-    const explorerCurrent = explorerRef.current;
-    if (explorerCurrent)
-      explorerCurrent.addEventListener("contextmenu", handleMenu);
-
-    return () =>
-      explorerCurrent?.removeEventListener("contextmenu", handleMenu);
-  }, [explorerRef, handleMenu]);
-
-  // After menu is opened
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const handleClickOutside = useCallback(
-    (e: globalThis.MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) {
-        // Remove ctx-selected class
-        PgExplorer.removeCtxSelectedEl();
-        // Update ui
-        setMenuState((ms) => ({ ...ms, show: false }));
-      }
-    },
-    [setMenuState]
-  );
-
-  useEffect(() => {
-    if (menuState.show)
-      document.body.addEventListener("mousedown", handleClickOutside);
-
-    return () =>
-      document.body.removeEventListener("mousedown", handleClickOutside);
-  }, [menuState.show, handleClickOutside]);
 
   const getPath = useCallback(() => {
     return !ctxSelectedPath
@@ -119,8 +80,8 @@ const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
     // Remove ctx-selected class
     PgExplorer.removeCtxSelectedEl();
     // Remove menu
-    setMenuState((ms) => ({ ...ms, show: false }));
-  }, [getPath, setEl, setCtxSelected, setMenuState]);
+    setMenu((m) => ({ ...m, show: false }));
+  }, [getPath, setEl, setCtxSelected, setMenu]);
 
   const renameItem = useCallback(() => {
     const path = getPath();
@@ -134,8 +95,8 @@ const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
     // Remove ctx-selected class
     PgExplorer.removeCtxSelectedEl();
     // Remove menu
-    setMenuState((ms) => ({ ...ms, show: false }));
-  }, [getPath, setModal, setMenuState]);
+    setMenu((m) => ({ ...m, show: false }));
+  }, [getPath, setModal, setMenu]);
 
   const deleteItem = useCallback(() => {
     const path = getPath();
@@ -146,10 +107,10 @@ const useExplorerContextMenu = (explorerRef?: RefObject<HTMLDivElement>) => {
     // Remove ctx-selected class
     PgExplorer.removeCtxSelectedEl();
     // Remove menu
-    setMenuState((ms) => ({ ...ms, show: false }));
-  }, [getPath, setModal, setMenuState]);
+    setMenu((m) => ({ ...m, show: false }));
+  }, [getPath, setModal, setMenu]);
 
-  return { menuState, menuRef, ctxNewItem, renameItem, deleteItem };
+  return { ctxNewItem, renameItem, deleteItem, handleMenu, isFolder };
 };
 
 export default useExplorerContextMenu;

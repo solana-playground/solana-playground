@@ -4,10 +4,11 @@ import styled from "styled-components";
 
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Arrow } from "../../../../Icons";
-import ContextMenu from "./ContextMenu";
+import ExplorerContextMenu from "./ExplorerContextMenu";
 import { ClassName, Id } from "../../../../../constants";
 import LangIcon from "../../../../LangIcon";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
+import useExplorerContextMenu from "./useExplorerContextMenu";
 
 const Folders = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -28,8 +29,6 @@ const Folders = () => {
     if (newEl) PgExplorer.setSelectedEl(newEl);
   }, [explorer]);
 
-  const explorerRef = useRef<HTMLDivElement>(null);
-
   // No need to memoize here
   const root = explorer?.getFolderContent("/");
 
@@ -46,8 +45,14 @@ const Folders = () => {
     };
   });
 
+  const ctxMenu = useExplorerContextMenu();
+
   return (
-    <RootWrapper ref={explorerRef} id={Id.ROOT_DIR} data-path="/">
+    <RootWrapper
+      id={Id.ROOT_DIR}
+      data-path="/"
+      onContextMenu={ctxMenu.handleMenu}
+    >
       {root?.folders
         .sort((x, y) => x.localeCompare(y))
         .map((f, i) => {
@@ -65,7 +70,7 @@ const Folders = () => {
             />
           );
         })}
-      <ContextMenu explorerRef={explorerRef} />
+      <ExplorerContextMenu {...ctxMenu} />
     </RootWrapper>
   );
 };
