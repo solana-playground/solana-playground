@@ -1,7 +1,7 @@
 import {
-  ComponentType,
   FC,
   MouseEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -13,7 +13,7 @@ import { ClassName } from "../../constants";
 import { Arrow } from "../Icons";
 
 interface FoldableProps {
-  ClickEl: ComponentType;
+  ClickEl: ReactNode;
   closed?: boolean;
 }
 
@@ -44,7 +44,7 @@ const Foldable: FC<FoldableProps> = ({ ClickEl, closed, children }) => {
     <>
       <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
         <Arrow />
-        <ClickEl />
+        {ClickEl}
       </ClickElWrapper>
 
       {show && children}

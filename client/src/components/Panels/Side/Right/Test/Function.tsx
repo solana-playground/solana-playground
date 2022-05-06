@@ -172,7 +172,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
 
   return (
     <FunctionWrapper index={index}>
-      <Foldable ClickEl={() => <FunctionName>{ixs.name}</FunctionName>} closed>
+      <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>} closed>
         <ArgsAndAccountsWrapper>
           <FnContext.Provider
             value={{
@@ -180,7 +180,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
             }}
           >
             <ArgsWrapper>
-              <Foldable ClickEl={() => <ArgsText>Args:</ArgsText>}>
+              <Foldable ClickEl={<ArgsText>Args:</ArgsText>}>
                 {ixs.args.map((a, j) => (
                   <Arg
                     key={j}
@@ -191,7 +191,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
               </Foldable>
             </ArgsWrapper>
             <AccountsWrapper>
-              <Foldable ClickEl={() => <AccountsText>Accounts:</AccountsText>}>
+              <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>}>
                 {ixs.accounts.map((a, j) => (
                   <Account key={j} account={a as IdlAccount} />
                 ))}
