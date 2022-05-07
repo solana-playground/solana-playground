@@ -4,7 +4,7 @@ const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
-// automatically when build the project.
+// automatically when you build the project.
 declare_id!("11111111111111111111111111111111");
 
 #[program]

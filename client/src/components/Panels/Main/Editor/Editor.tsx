@@ -228,7 +228,7 @@ const Editor = () => {
     const curFile = getCurFile();
     if (!curFile) return;
 
-    const programPkResult = PgProgramInfo.getProgramPk();
+    const programPkResult = PgProgramInfo.getPk();
     if (programPkResult?.err) return;
 
     removeEditor();

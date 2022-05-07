@@ -1,9 +1,11 @@
 import { ChangeEvent, FC, ReactNode } from "react";
+import { useAtom } from "jotai";
 import { Buffer } from "buffer";
 import styled, { css } from "styled-components";
 
 import UploadButton from "../../../../UploadButton";
 import Foldable from "../../../../Foldable";
+import { DEFAULT_PROGRAM, programAtom } from "../../../../../state";
 
 const Extras = () => {
   return (
@@ -31,13 +33,24 @@ const ExtraItem: FC<ExtraItemProps> = ({ ButtonEl, text }) => (
 );
 
 const UploadProgram = () => {
+  const [, setProgram] = useAtom(programAtom);
+
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
+    if (!e.target.files?.length) {
+      setProgram(DEFAULT_PROGRAM);
+      return;
+    }
 
-    const arrayBuffer = await e.target.files[0].arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    try {
+      const file = e.target.files[0];
+      const fileName = file.name;
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-    console.log(buffer);
+      setProgram({ buffer, fileName });
+    } catch (err: any) {
+      console.log(err.message);
+    }
   };
 
   return <UploadButton accept=".so" onUpload={handleUpload} />;

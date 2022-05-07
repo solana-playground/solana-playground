@@ -57,7 +57,7 @@ export class PgTest {
     const provider = new Provider(conn, wallet, Provider.defaultOptions());
 
     // Get program pk
-    const programPkResult = PgProgramInfo.getProgramPk();
+    const programPkResult = PgProgramInfo.getPk();
     if (programPkResult.err) throw new Error(programPkResult.err);
 
     const programPk = programPkResult.programPk!;

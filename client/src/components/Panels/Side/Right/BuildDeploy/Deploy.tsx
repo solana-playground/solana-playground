@@ -21,6 +21,7 @@ import Loading from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
 import { PgTerminal } from "../../../../../utils/pg/terminal";
+import { programAtom } from "../../../../../state";
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -28,6 +29,7 @@ const Deploy = () => {
   const [, setTerminal] = useAtom(terminalAtom);
   const [, setProgress] = useAtom(terminalProgressAtom);
   const [, setTxHash] = useAtom(txHashAtom);
+  const [program] = useAtom(programAtom);
 
   const { initialLoading } = useInitialLoading();
   const { deployed, setDeployed, connError } = useIsDeployed();
@@ -50,7 +52,12 @@ const Deploy = () => {
     let msg = "";
 
     try {
-      const txHash = await PgDeploy.deploy(conn, pgWallet, setProgress);
+      const txHash = await PgDeploy.deploy(
+        conn,
+        pgWallet,
+        setProgress,
+        program.buffer
+      );
       setTxHash(txHash);
 
       msg = PgTerminal.success("Deployment successful.");
@@ -60,35 +67,68 @@ const Deploy = () => {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;
     } finally {
-      setTerminal(msg + "\n");
       setLoading(false);
+      setTerminal(msg + "\n");
       setProgress(0);
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conn, pgWalletChanged, setLoading, setDeployed, setTerminal, setTxHash]);
+  }, [
+    conn,
+    pgWalletChanged,
+    program,
+    setLoading,
+    setDeployed,
+    setTerminal,
+    setTxHash,
+  ]);
 
-  const programIsBuilt = PgProgramInfo.getProgramKp()?.programKp;
+  const programIsBuilt = PgProgramInfo.getKp()?.programKp;
 
-  const [deployButtonProps, deployButtonText] = useMemo(
-    () => [
-      {
-        kind: "primary" as ButtonKind,
-        onClick: deploy,
-        disabled: loading || !programIsBuilt || !pgWallet.connected,
-      },
-      loading
-        ? deployed
-          ? "Upgrading..."
-          : "Deploying..."
-        : deployed
-        ? "Upgrade"
-        : "Deploy",
-    ],
-    [loading, programIsBuilt, pgWallet.connected, deployed, deploy]
-  );
+  const deployButtonText = useMemo(() => {
+    let text;
+    if (loading) {
+      if (deployed) text = "Upgrading...";
+      else text = "Deploying...";
+    } else {
+      if (deployed) text = "Upgrade";
+      else text = "Deploy";
+    }
 
-  if (!programIsBuilt && !pgWallet.connected) return null;
+    return text;
+  }, [loading, deployed]);
+
+  const deployButtonProps = {
+    kind: "primary" as ButtonKind,
+    onClick: deploy,
+  };
+
+  // Custom program deploy
+  if (program.buffer.length) {
+    if (pgWallet.connected)
+      return (
+        <Wrapper>
+          <Text>
+            Ready to {deployed ? "upgrade" : "deploy"} {program.fileName}
+          </Text>
+          <Button
+            disabled={loading || !pgWallet.connected}
+            {...deployButtonProps}
+          >
+            {deployButtonText}
+          </Button>
+        </Wrapper>
+      );
+    else
+      return (
+        <Wrapper>
+          <Text>Deployment can only be done from Playground Wallet.</Text>
+          <ConnectPgWalletButton />
+        </Wrapper>
+      );
+  }
+
+  if (!programIsBuilt) return null;
 
   if (initialLoading)
     return (
@@ -109,7 +149,12 @@ const Deploy = () => {
       return (
         <Wrapper>
           <Text>Ready to {deployed ? "upgrade" : "deploy"}.</Text>
-          <Button {...deployButtonProps}>{deployButtonText}</Button>
+          <Button
+            disabled={loading || !programIsBuilt || !pgWallet.connected}
+            {...deployButtonProps}
+          >
+            {deployButtonText}
+          </Button>
         </Wrapper>
       );
     // PgWallet not connected
@@ -122,7 +167,12 @@ const Deploy = () => {
       );
   }
 
-  return null;
+  // Shouldn't come here
+  return (
+    <Wrapper>
+      <Text type="Error">Something went wrong.</Text>
+    </Wrapper>
+  );
 };
 
 const ConnectPgWalletButton = () => {

@@ -23,14 +23,10 @@ const UploadButton: FC<UploadButtonProps> = ({ accept, onUpload }) => {
   };
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    try {
-      await onUpload(e);
-      const files = e.target.files;
-      if (!files?.length) setUploadState(DEFAULT_STATE);
-      else setUploadState({ button: "Uploaded", text: `${files[0].name}` });
-    } catch (err: any) {
-      console.log(err.message);
-    }
+    await onUpload(e);
+    const files = e.target.files;
+    if (!files?.length) setUploadState(DEFAULT_STATE);
+    else setUploadState({ button: "Uploaded", text: files[0].name });
   };
 
   return (

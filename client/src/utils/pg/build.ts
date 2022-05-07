@@ -26,6 +26,7 @@ export class PgBuild {
         files,
         uuid: programInfo.uuid,
         kp: programInfo.kp,
+        pk: programInfo.customPk,
       }),
     });
 
@@ -35,7 +36,7 @@ export class PgBuild {
     const data: BuildResp = await resp.json();
 
     // Update programInfo localStorage
-    PgProgramInfo.updateProgramInfo({
+    PgProgramInfo.update({
       update: 0,
       uuid: data.uuid,
       idl: data.idl,
