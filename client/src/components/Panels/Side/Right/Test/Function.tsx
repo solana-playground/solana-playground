@@ -12,7 +12,7 @@ import Account from "./Account";
 import Arg from "./Arg";
 import { getFullType } from "./types";
 import { updateTxValsProps } from "./useUpdateTxVals";
-import { ClassNames } from "../../../../../constants";
+import { ClassName } from "../../../../../constants";
 import { terminalAtom, txHashAtom } from "../../../../../state";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 import { PgTest } from "../../../../../utils/pg/test";
@@ -64,8 +64,8 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
 
         if (action === "add") {
           const inputEl = document.getElementsByName(name)[0];
-          if (inputEl?.classList.contains(ClassNames.TOUCHED))
-            inputEl.classList.add(ClassNames.ERROR);
+          if (inputEl?.classList.contains(ClassName.TOUCHED))
+            inputEl.classList.add(ClassName.ERROR);
 
           e[name] = 1;
         } else {
@@ -73,7 +73,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
           if (e[name] === 0) return e;
 
           const inputEl = document.getElementsByName(name)[0];
-          inputEl?.classList.remove(ClassNames.ERROR);
+          inputEl?.classList.remove(ClassName.ERROR);
 
           e[name] = 0;
         }
@@ -172,7 +172,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
 
   return (
     <FunctionWrapper index={index}>
-      <Foldable ClickEl={() => <FunctionName>{ixs.name}</FunctionName>} closed>
+      <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>} closed>
         <ArgsAndAccountsWrapper>
           <FnContext.Provider
             value={{
@@ -180,7 +180,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
             }}
           >
             <ArgsWrapper>
-              <Foldable ClickEl={() => <ArgsText>Args:</ArgsText>}>
+              <Foldable ClickEl={<ArgsText>Args:</ArgsText>}>
                 {ixs.args.map((a, j) => (
                   <Arg
                     key={j}
@@ -191,7 +191,7 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
               </Foldable>
             </ArgsWrapper>
             <AccountsWrapper>
-              <Foldable ClickEl={() => <AccountsText>Accounts:</AccountsText>}>
+              <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>}>
                 {ixs.accounts.map((a, j) => (
                   <Account key={j} account={a as IdlAccount} />
                 ))}

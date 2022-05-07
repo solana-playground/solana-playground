@@ -1,7 +1,7 @@
 import { FocusEvent } from "react";
 import styled, { css } from "styled-components";
 
-import { ClassNames } from "../../constants";
+import { ClassName } from "../../constants";
 
 interface InputProps {
   fullWidth?: boolean;
@@ -39,7 +39,7 @@ export const defaultInputProps = {
   autoComplete: "off",
   fullWidth: true,
   onFocus: (e: FocusEvent<HTMLInputElement>) => {
-    e.target.classList.add(ClassNames.TOUCHED);
+    e.target.classList.add(ClassName.TOUCHED);
   },
 };
 

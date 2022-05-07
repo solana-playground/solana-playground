@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import Loading from "../../../Loading";
-import { DEFAULT_CURSOR } from "../../../../constants";
+import { ClassName, DEFAULT_CURSOR } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
 import { Sidebar } from "../sidebar-values";
 import { PgShare } from "../../../../utils/pg/share";
@@ -55,6 +55,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
 
   return (
     <Resizable
+      className={ClassName.SIDE_RIGHT}
       defaultSize={{
         width: 320,
         height: "100%",

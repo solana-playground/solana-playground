@@ -12,18 +12,21 @@ export class PgDeploy {
   static async deploy(
     conn: Connection,
     wallet: PgWallet,
-    setProgress: Dispatch<SetStateAction<number>>
+    setProgress: Dispatch<SetStateAction<number>>,
+    programBuffer: Buffer
   ) {
-    const uuid = PgProgramInfo.getProgramInfo().uuid;
-    const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
+    if (!programBuffer.length) {
+      const uuid = PgProgramInfo.getProgramInfo().uuid;
+      const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
 
-    const result = await PgCommon.checkForRespErr(resp);
-    if (result?.err) throw new Error(result.err);
+      const result = await PgCommon.checkForRespErr(resp);
+      if (result?.err) throw new Error(result.err);
 
-    const arrayBuffer = result.arrayBuffer!;
+      const arrayBuffer = result.arrayBuffer!;
 
-    // Need to convert ArrayBuffer to Buffer
-    const programBuffer = Buffer.from(arrayBuffer);
+      // Need to convert ArrayBuffer to Buffer
+      programBuffer = Buffer.from(arrayBuffer);
+    }
 
     // Create buffer
     const bufferKp = Keypair.generate();
@@ -77,19 +80,59 @@ export class PgDeploy {
     // wait for the next block(~500ms blocktime on mainnet as of 2022-04-05)
     await PgCommon.sleep(500);
 
-    // Decide whether it's an initial deployment or an upgrade
-    const programKpResult = PgProgramInfo.getProgramKp();
-    if (programKpResult?.err) throw new Error(programKpResult.err);
-    const programKp = programKpResult.programKp!;
+    // Get program pubkey
+    let programPk;
+    try {
+      programPk = PgProgramInfo.getCustomPk();
+    } catch (e: any) {
+      // Invalid public key
+      // This shouldn't happen unless the user manually changes localStorage
+      await BpfLoaderUpgradeable.closeBuffer(conn, wallet, bufferKp.publicKey);
+
+      throw new Error(e.message);
+    }
+
+    // Get program kp
+    let programKp;
+    if (!programPk) {
+      const programKpResult = PgProgramInfo.getKp();
+      if (programKpResult?.err) {
+        await BpfLoaderUpgradeable.closeBuffer(
+          conn,
+          wallet,
+          bufferKp.publicKey
+        );
+
+        throw new Error(programKpResult.err);
+      }
+
+      programKp = programKpResult.programKp!;
+      programPk = programKp.publicKey;
+    } else {
+      console.log("using customPk");
+    }
 
     let txHash;
 
     // Retry until it's successful or exceeds max tries
     for (let i = 0; i < 10; i++) {
       try {
-        const programExists = await conn.getAccountInfo(programKp.publicKey);
+        // Decide whether it's an initial deployment or an upgrade
+        const programExists = await conn.getAccountInfo(programPk);
 
         if (!programExists) {
+          if (!programKp) {
+            await BpfLoaderUpgradeable.closeBuffer(
+              conn,
+              wallet,
+              bufferKp.publicKey
+            );
+
+            throw new Error(
+              "First deployment needs a keypair. You only provided public key."
+            );
+          }
+
           // Deploy
           const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
             BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
@@ -122,7 +165,7 @@ export class PgDeploy {
         } else {
           // Upgrade
           txHash = await BpfLoaderUpgradeable.upgradeProgram(
-            programKp.publicKey,
+            programPk,
             conn,
             wallet,
             bufferKp.publicKey,
@@ -134,7 +177,7 @@ export class PgDeploy {
           const result = await conn.confirmTransaction(txHash);
           if (!result?.value.err) break;
           txHash = await BpfLoaderUpgradeable.upgradeProgram(
-            programKp.publicKey,
+            programPk,
             conn,
             wallet,
             bufferKp.publicKey,

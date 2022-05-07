@@ -2,15 +2,15 @@ import styled from "styled-components";
 
 import Build from "./Build";
 import Deploy from "./Deploy";
+import Extras from "./Extras";
 
-const BuildDeploy = () => {
-  return (
-    <Wrapper>
-      <Build />
-      <Deploy />
-    </Wrapper>
-  );
-};
+const BuildDeploy = () => (
+  <Wrapper>
+    <Build />
+    <Deploy />
+    <Extras />
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
   padding: 1.5rem;

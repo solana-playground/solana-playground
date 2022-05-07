@@ -1,10 +1,10 @@
-import { ClassNames, ItemError } from "../../constants";
+import { ClassName, Id, ItemError } from "../../constants";
 
 const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
-// automatically when build the project.
+// automatically when you build the project.
 declare_id!("11111111111111111111111111111111");
 
 #[program]
@@ -36,7 +36,7 @@ pub struct NewAccount {
     data: u64
 }`;
 
-const DEFAULT_EXPLORER = {
+const DEFAULT_EXPLORER: ExplorerJSON = {
   files: {
     [DEFAULT_FILE]: {
       content: DEFAULT_CODE,
@@ -153,7 +153,7 @@ export class PgExplorer {
     files[parentPath] = {};
 
     // If there is no folder, create src folder
-    if (Object.keys(files).length === 1) files[parentPath + "src/"] = {};
+    if (Object.keys(files).length === 1) files["/src/"] = {};
 
     // Change current file to the last tab when current file is deleted
     // or current file's parent is deleted
@@ -285,16 +285,9 @@ export class PgExplorer {
 
     if (curFile) files[curFile.path].current = false;
 
-    files[newPath].current = true;
-
-    // If the file is not in tabs add it
-    const tabs = this.getTabs();
-
-    for (const path in tabs) {
-      if (path === newPath) return;
-    }
-
+    // Add file to the tabs
     files[newPath].tabs = true;
+    files[newPath].current = true;
   }
 
   getTabs() {
@@ -306,7 +299,6 @@ export class PgExplorer {
 
       if (fileInfo.tabs)
         tabs.push({
-          content: fileInfo.content,
           path,
           current: fileInfo.current,
         });
@@ -317,7 +309,7 @@ export class PgExplorer {
 
   changeCurrentFileToTheLastTab() {
     const tabs = this.getTabs();
-    if (tabs.length === 0) return;
+    if (!tabs.length) return;
 
     const lastTabPath = tabs[tabs.length - 1].path;
     this.changeCurrentFile(lastTabPath);
@@ -372,7 +364,7 @@ export class PgExplorer {
   }
 
   static getItemTypeFromEl = (el: HTMLDivElement) => {
-    if (el.classList.contains(ClassNames.FOLDER)) {
+    if (el.classList.contains(ClassName.FOLDER)) {
       return { folder: true };
     } else if (el.classList.contains("file")) {
       return { file: true };
@@ -430,37 +422,45 @@ export class PgExplorer {
   }
 
   static getRootFolderEl() {
-    return document.getElementById("root-dir");
+    return document.getElementById(Id.ROOT_DIR);
   }
 
   static getSelectedEl = () => {
     return document.getElementsByClassName(
-      ClassNames.SELECTED
+      ClassName.SELECTED
     )[0] as HTMLDivElement;
   };
 
   static setSelectedEl = (newEl: HTMLDivElement) => {
     const selectedEl = this.getSelectedEl();
-    selectedEl?.classList.remove(ClassNames.SELECTED);
-    newEl.classList.add(ClassNames.SELECTED);
+    selectedEl?.classList.remove(ClassName.SELECTED);
+    newEl.classList.add(ClassName.SELECTED);
   };
+
+  static getCtxSelectedEl() {
+    return document.getElementsByClassName(ClassName.CTX_SELECTED)[0];
+  }
+
+  static removeCtxSelectedEl() {
+    this.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
+  }
 
   static openFolder = (el: HTMLDivElement) => {
     // Folder icon
-    el.classList.add(ClassNames.OPEN);
+    el.classList.add(ClassName.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl) insideFolderEl.classList.remove(ClassNames.HIDDEN);
+    if (insideFolderEl) insideFolderEl.classList.remove(ClassName.HIDDEN);
   };
 
   static toggleFolder = (el: HTMLDivElement) => {
     // Folder icon
-    el.classList.toggle(ClassNames.OPEN);
+    el.classList.toggle(ClassName.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl) insideFolderEl.classList.toggle(ClassNames.HIDDEN);
+    if (insideFolderEl) insideFolderEl.classList.toggle(ClassName.HIDDEN);
   };
 
   static openAllParents(path: string) {
@@ -484,11 +484,11 @@ export class PgExplorer {
     for (;;) {
       if (!rootEl || !rootEl.childElementCount) break;
       // Close folder
-      rootEl.children[0]?.classList.remove(ClassNames.OPEN);
-      rootEl.children[1]?.classList.add(ClassNames.HIDDEN);
+      rootEl.children[0]?.classList.remove(ClassName.OPEN);
+      rootEl.children[1]?.classList.add(ClassName.HIDDEN);
       // Remove selected
       const selectedEl = this.getSelectedEl();
-      if (selectedEl) selectedEl.classList.remove(ClassNames.SELECTED);
+      if (selectedEl) selectedEl.classList.remove(ClassName.SELECTED);
 
       rootEl = rootEl?.children[1] as HTMLElement;
     }

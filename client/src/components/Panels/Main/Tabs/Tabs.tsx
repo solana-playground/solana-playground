@@ -17,7 +17,7 @@ const Tabs = () => {
   return (
     <Wrapper>
       {tabs?.map((t, i) => (
-        <Tab key={i} current={t.current!} path={t.path} />
+        <Tab key={i} current={t.current} path={t.path} />
       ))}
     </Wrapper>
   );
@@ -28,7 +28,7 @@ const Wrapper = styled.div`
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
-    height: ${TAB_HEIGHT};
+    min-height: ${TAB_HEIGHT};
     user-select: none;
     background-color: ${theme.colors.right?.bg};
     border-bottom: 1px solid ${theme.colors.default.borderColor};

@@ -20,6 +20,7 @@ const Buttons = () => (
     <GoBackButton />
   </ButtonsWrapper>
 );
+
 const ButtonsWrapper = styled.div`
   padding: 0.25rem;
   display: flex;

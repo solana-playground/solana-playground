@@ -17,6 +17,15 @@ const Test = () => {
 
   const { deployed, connError } = useIsDeployed();
 
+  const idl = PgProgramInfo.getProgramInfo()?.idl;
+
+  if (idl === undefined)
+    return (
+      <InitialWrapper>
+        <Text>Build the program first.</Text>
+      </InitialWrapper>
+    );
+
   if (initialLoading)
     return (
       <InitialWrapper>
@@ -28,15 +37,6 @@ const Test = () => {
     return (
       <InitialWrapper>
         <ConnectionErrorText />
-      </InitialWrapper>
-    );
-
-  const idl = PgProgramInfo.getProgramInfo()?.idl;
-
-  if (idl === undefined)
-    return (
-      <InitialWrapper>
-        <Text>Build the program first.</Text>
       </InitialWrapper>
     );
 

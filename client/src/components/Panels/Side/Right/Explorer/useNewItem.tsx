@@ -27,9 +27,11 @@ const useNewItem = () => {
       const rootEl = PgExplorer.getRootFolderEl();
       const firstChild = rootEl?.firstElementChild;
       if (!firstChild) return;
+
       PgExplorer.openFolder(firstChild as HTMLDivElement);
       const folderInside = firstChild.nextElementSibling;
       if (!folderInside) return;
+
       PgExplorer.setSelectedEl(firstChild as HTMLDivElement);
       setEl(folderInside);
     }

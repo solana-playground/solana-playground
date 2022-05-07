@@ -9,7 +9,7 @@ const useInitialLoading = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    const isBuilt = PgProgramInfo.getProgramKp()?.programKp;
+    const isBuilt = PgProgramInfo.getKp()?.programKp;
     const init = async () => {
       if (!isBuilt || deployed || deployed === false || connError) {
         setInitialLoading(true);

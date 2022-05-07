@@ -1,4 +1,4 @@
-export enum ClassNames {
+export enum ClassName {
   ERROR = "error",
   OPEN = "open",
   HIDDEN = "hidden",
@@ -7,4 +7,9 @@ export enum ClassNames {
   CTX_SELECTED = "ctx-selected",
   FILE = "file",
   FOLDER = "folder",
+  SIDE_RIGHT = "side-right",
+}
+
+export enum Id {
+  ROOT_DIR = "root-dir",
 }

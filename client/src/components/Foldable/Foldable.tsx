@@ -1,7 +1,7 @@
 import {
-  ComponentType,
   FC,
   MouseEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -9,11 +9,11 @@ import {
 } from "react";
 import styled from "styled-components";
 
-import { ClassNames } from "../../constants";
+import { ClassName } from "../../constants";
 import { Arrow } from "../Icons";
 
 interface FoldableProps {
-  ClickEl: ComponentType;
+  ClickEl: ReactNode;
   closed?: boolean;
 }
 
@@ -24,14 +24,14 @@ const Foldable: FC<FoldableProps> = ({ ClickEl, closed, children }) => {
     const showAtStart = !closed;
     setShow(showAtStart);
     if (showAtStart) {
-      clickWrapperRef.current?.classList.add(ClassNames.OPEN);
+      clickWrapperRef.current?.classList.add(ClassName.OPEN);
     }
   }, [setShow, closed]);
 
   const handleClick = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       // Rotate arrow
-      e.currentTarget.classList.toggle(ClassNames.OPEN);
+      e.currentTarget.classList.toggle(ClassName.OPEN);
 
       setShow((s) => !s);
     },
@@ -44,7 +44,7 @@ const Foldable: FC<FoldableProps> = ({ ClickEl, closed, children }) => {
     <>
       <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
         <Arrow />
-        <ClickEl />
+        {ClickEl}
       </ClickElWrapper>
 
       {show && children}

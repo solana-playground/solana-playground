@@ -205,7 +205,7 @@ const ShowSeed: FC<ShowGenProps> = ({
   removeSignerKp,
 }) => {
   const programStr = useMemo(() => {
-    const result = PgProgramInfo.getProgramKp();
+    const result = PgProgramInfo.getKp();
     if (result?.err) return "";
 
     return result.programKp!.publicKey.toBase58();

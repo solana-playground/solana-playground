@@ -20,7 +20,7 @@ const ModalInside: FC<ModalInsideProps> = ({
   children,
 }) => {
   return (
-    <ModalInsideWrapper>
+    <Wrapper>
       {title && <Title>{PROJECT_NAME}</Title>}
       {children}
       {buttonProps && (
@@ -28,20 +28,20 @@ const ModalInside: FC<ModalInsideProps> = ({
           <Button onClick={buttonProps.close}>Cancel</Button>
           <Button
             onClick={buttonProps.onSubmit}
-            style={{ marginLeft: "1rem" }}
             disabled={buttonProps.disabled}
+            kind="primary-transparent"
           >
             {buttonProps.name}
           </Button>
         </ButtonWrapper>
       )}
-    </ModalInsideWrapper>
+    </Wrapper>
   );
 };
 
-const ModalInsideWrapper = styled.div`
+const Wrapper = styled.div`
   ${({ theme }) => css`
-    padding: 0 1rem;
+    padding: 0.25rem 1.5rem;
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
     background-color: ${(theme.colors.right?.bg ?? theme.colors.default.bg) +
@@ -54,7 +54,7 @@ const Title = styled.div`
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  padding: 0.625rem 0;
+  padding: 0.75rem 0 0.5rem 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
 `;
 
@@ -62,6 +62,10 @@ const ButtonWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-bottom: 0.75rem;
+
+  & button:nth-child(2) {
+    margin-left: 1rem;
+  }
 `;
 
 export default ModalInside;
