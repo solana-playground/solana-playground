@@ -7,7 +7,7 @@ import { PgProgramInfo } from "./program-info";
 interface BuildResp {
   uuid: string;
   stderr: string;
-  kp: Buffer | null;
+  kp: Array<number> | null;
   idl: Idl | null;
 }
 

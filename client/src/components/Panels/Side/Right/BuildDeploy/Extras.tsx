@@ -1,60 +1,41 @@
-import { ChangeEvent, FC, ReactNode } from "react";
-import { useAtom } from "jotai";
-import { Buffer } from "buffer";
+import { FC, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
-import UploadButton from "../../../../UploadButton";
 import Foldable from "../../../../Foldable";
-import { DEFAULT_PROGRAM, programAtom } from "../../../../../state";
+import ProgramCredentials from "./Extras/ProgramCredentials";
+import UploadProgram from "./Extras/UploadProgram";
 
-const Extras = () => {
-  return (
-    <Wrapper>
-      <Foldable ClickEl={<ExtraTitle>Extra options</ExtraTitle>}>
-        <ExtraItem
-          ButtonEl={<UploadProgram />}
-          text="You can upload your program and deploy without failure."
-        />
-      </Foldable>
-    </Wrapper>
-  );
-};
-
-interface ExtraItemProps {
-  text: string;
-  ButtonEl: ReactNode;
-}
-
-const ExtraItem: FC<ExtraItemProps> = ({ ButtonEl, text }) => (
-  <ExtraItemWrapper>
-    <ExtraItemText>{text}</ExtraItemText>
-    {ButtonEl}
-  </ExtraItemWrapper>
+const Extras = () => (
+  <Wrapper>
+    <Foldable ClickEl={<ExtraTitle>Extra</ExtraTitle>} closed>
+      <ExtraItem
+        title="Program credentials"
+        text="Import/export program keypair or input a public key for the program."
+        InsideEl={<ProgramCredentials />}
+      />
+      <ExtraItem
+        title="Upload a program"
+        text="Upload your program and deploy without failure."
+        InsideEl={<UploadProgram />}
+      />
+    </Foldable>
+  </Wrapper>
 );
 
-const UploadProgram = () => {
-  const [, setProgram] = useAtom(programAtom);
+interface ExtraItemProps {
+  title: string;
+  text: string;
+  InsideEl: ReactNode;
+}
 
-  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) {
-      setProgram(DEFAULT_PROGRAM);
-      return;
-    }
-
-    try {
-      const file = e.target.files[0];
-      const fileName = file.name;
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      setProgram({ buffer, fileName });
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
-
-  return <UploadButton accept=".so" onUpload={handleUpload} />;
-};
+const ExtraItem: FC<ExtraItemProps> = ({ title, text, InsideEl }) => (
+  <ExtraItemWrapper>
+    <Foldable ClickEl={<ExtraItemTitle>{title}</ExtraItemTitle>} closed>
+      <ExtraItemText>{text}</ExtraItemText>
+      {InsideEl}
+    </Foldable>
+  </ExtraItemWrapper>
+);
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,16 +50,21 @@ const ExtraTitle = styled.span``;
 
 const ExtraItemWrapper = styled.div`
   margin-top: 1rem;
+  margin-left: 0.5rem;
 
-  & > div:nth-child(2) {
+  /* Button Wrapper */
+  & > div:nth-child(3) {
     margin-top: 0.75rem;
   }
 `;
+
+const ExtraItemTitle = styled.span``;
 
 const ExtraItemText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.default.textSecondary};
     font-size: ${theme.font?.size.small};
+    margin-top: 0.75rem;
   `}
 `;
 

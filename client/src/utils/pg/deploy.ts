@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import { Buffer } from "buffer";
 import { Connection, Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
@@ -15,6 +14,8 @@ export class PgDeploy {
     setProgress: Dispatch<SetStateAction<number>>,
     programBuffer: Buffer
   ) {
+    // TODO: Check if the user has program's upgrade authority
+
     if (!programBuffer.length) {
       const uuid = PgProgramInfo.getProgramInfo().uuid;
       const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
@@ -37,6 +38,9 @@ export class PgDeploy {
       bufferSize
     );
 
+    // TODO: Check if it's initial deploy and decide how much SOL user needs before
+    // creating the buffer.
+
     await BpfLoaderUpgradeable.createBuffer(
       conn,
       wallet,
@@ -48,6 +52,7 @@ export class PgDeploy {
     console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
 
     // Confirm the buffer has been created
+    // TODO: Make creating buffer infallible unless the user don't have enough funds
     let tries = 0;
     while (1) {
       const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
@@ -83,7 +88,8 @@ export class PgDeploy {
     // Get program pubkey
     let programPk;
     try {
-      programPk = PgProgramInfo.getCustomPk();
+      programPk = PgProgramInfo.getPk()?.programPk;
+      if (!programPk) throw new Error("Program id not found");
     } catch (e: any) {
       // Invalid public key
       // This shouldn't happen unless the user manually changes localStorage
@@ -92,27 +98,13 @@ export class PgDeploy {
       throw new Error(e.message);
     }
 
-    // Get program kp
-    let programKp;
-    if (!programPk) {
-      const programKpResult = PgProgramInfo.getKp();
-      if (programKpResult?.err) {
-        await BpfLoaderUpgradeable.closeBuffer(
-          conn,
-          wallet,
-          bufferKp.publicKey
-        );
-
-        throw new Error(programKpResult.err);
-      }
-
-      programKp = programKpResult.programKp!;
-      programPk = programKp.publicKey;
-    } else {
-      console.log("using customPk");
-    }
+    console.log(programPk.toBase58());
 
     let txHash;
+    let errorMsg =
+      "Please check the browser console. You can report the issue in " +
+      GITHUB_URL +
+      "/issues";
 
     // Retry until it's successful or exceeds max tries
     for (let i = 0; i < 10; i++) {
@@ -121,19 +113,23 @@ export class PgDeploy {
         const programExists = await conn.getAccountInfo(programPk);
 
         if (!programExists) {
-          if (!programKp) {
+          // First deploy needs keypair
+          const programKpResult = PgProgramInfo.getKp();
+          if (programKpResult.err) {
+            errorMsg =
+              "First deployment needs a keypair. You only provided public key.";
+
             await BpfLoaderUpgradeable.closeBuffer(
               conn,
               wallet,
               bufferKp.publicKey
             );
 
-            throw new Error(
-              "First deployment needs a keypair. You only provided public key."
-            );
+            break;
           }
 
-          // Deploy
+          const programKp = programKpResult.programKp!;
+
           const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
             BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
           );
@@ -154,6 +150,7 @@ export class PgDeploy {
 
           const result = await conn.confirmTransaction(txHash);
           if (!result?.value.err) break;
+
           await BpfLoaderUpgradeable.deployProgram(
             conn,
             wallet,
@@ -176,6 +173,7 @@ export class PgDeploy {
 
           const result = await conn.confirmTransaction(txHash);
           if (!result?.value.err) break;
+
           txHash = await BpfLoaderUpgradeable.upgradeProgram(
             programPk,
             conn,
@@ -187,7 +185,15 @@ export class PgDeploy {
       } catch (e: any) {
         console.log(e.message);
         // Not enough balance
-        if (e.message.endsWith("0x1")) {
+        if (e.message.endsWith("0x0")) {
+          await BpfLoaderUpgradeable.closeBuffer(
+            conn,
+            wallet,
+            bufferKp.publicKey
+          );
+
+          throw new Error("Incorrect program id.");
+        } else if (e.message.endsWith("0x1")) {
           // Close buffer
           await BpfLoaderUpgradeable.closeBuffer(
             conn,
@@ -208,11 +214,7 @@ export class PgDeploy {
     if (!txHash) {
       await BpfLoaderUpgradeable.closeBuffer(conn, wallet, bufferKp.publicKey);
 
-      throw new Error(
-        "Unknown error. Please check the browser console. You can report the issue in " +
-          GITHUB_URL +
-          "/issues"
-      );
+      throw new Error(errorMsg);
     }
 
     return txHash;

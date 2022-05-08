@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { explorerAtom } from "../../../../../state";
 import { PgShare } from "../../../../../utils/pg/share";
@@ -9,10 +9,8 @@ import useModal from "../../../../Modal/useModal";
 import Text from "../../../../Text";
 import { TextProps } from "../../../../Text/Text";
 import { CLIENT_URL } from "../../../../../constants";
-import useCopyClipboard from "react-use-clipboard";
 import Input from "../../../../Input";
-import { Copy } from "../../../../Icons";
-import Button from "../../../../Button";
+import CopyButton from "../../../../CopyButton";
 
 interface TextState extends TextProps {
   text: string;
@@ -48,9 +46,6 @@ const Share = () => {
 
   const shareLink = `${CLIENT_URL}/${textState.id}`;
 
-  // Copy to clipboard
-  const [isCopied, setCopied] = useCopyClipboard(shareLink);
-
   return (
     <ModalInside
       title
@@ -63,15 +58,9 @@ const Share = () => {
           <DefaultText>Do you want to share this project?</DefaultText>
         )}
         {textState?.id && (
-          <InputWrapper isCopied={isCopied}>
-            <Input value={shareLink} fullWidth />
-            <Button
-              onClick={setCopied}
-              kind="icon"
-              title={isCopied ? "Copied" : "Copy to clipboard"}
-            >
-              <Copy />
-            </Button>
+          <InputWrapper>
+            <Input value={shareLink} fullWidth readOnly />
+            <CopyButton copyText={shareLink} />
           </InputWrapper>
         )}
       </Content>
@@ -87,15 +76,9 @@ const DefaultText = styled.div`
   margin: 1.5rem 0;
 `;
 
-const InputWrapper = styled.div<{ isCopied: boolean }>`
-  ${({ theme, isCopied }) => css`
-    display: flex;
-    margin-top: 1rem;
-
-    & > button > svg {
-      color: ${isCopied && theme.colors.state.success.color};
-    }
-  `}
+const InputWrapper = styled.div`
+  display: flex;
+  margin-top: 1rem;
 `;
 
 export default Share;

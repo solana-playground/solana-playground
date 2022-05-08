@@ -1,22 +1,25 @@
 import { ChangeEvent, FC, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../Button";
+import Button, { ButtonKind } from "../Button";
 
 interface UploadButtonProps {
   accept: string;
   onUpload: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  showUploadText?: boolean;
+  buttonKind?: ButtonKind;
 }
 
-const DEFAULT_STATE = {
-  button: "Upload",
-  text: "",
-};
-
-const UploadButton: FC<UploadButtonProps> = ({ accept, onUpload }) => {
+const UploadButton: FC<UploadButtonProps> = ({
+  accept,
+  onUpload,
+  buttonKind = "outline",
+  showUploadText = false,
+  children,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [uploadState, setUploadState] = useState(DEFAULT_STATE);
+  const [uploadText, setUploadText] = useState("");
 
   const handleClick = () => {
     inputRef.current?.click();
@@ -25,8 +28,8 @@ const UploadButton: FC<UploadButtonProps> = ({ accept, onUpload }) => {
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     await onUpload(e);
     const files = e.target.files;
-    if (!files?.length) setUploadState(DEFAULT_STATE);
-    else setUploadState({ button: "Uploaded", text: files[0].name });
+    if (!files?.length) setUploadText("");
+    else setUploadText(files[0].name);
   };
 
   return (
@@ -37,10 +40,10 @@ const UploadButton: FC<UploadButtonProps> = ({ accept, onUpload }) => {
         onChange={handleChange}
         accept={accept}
       />
-      <Button kind="outline" onClick={handleClick}>
-        {uploadState.button}
+      <Button kind={buttonKind} onClick={handleClick}>
+        {children}
       </Button>
-      <UploadInfo>{uploadState.text}</UploadInfo>
+      {showUploadText && uploadText && <UploadInfo>{uploadText}</UploadInfo>}
     </Wrapper>
   );
 };

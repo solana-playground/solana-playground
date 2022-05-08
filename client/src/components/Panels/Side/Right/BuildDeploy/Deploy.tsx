@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled from "styled-components";
 
-import Button from "../../../../Button";
+import Button, { ButtonKind } from "../../../../Button";
 import Text from "../../../../Text";
 import { PgDeploy } from "../../../../../utils/pg/deploy";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
@@ -13,15 +13,16 @@ import {
   refreshPgWalletAtom,
   terminalProgressAtom,
   txHashAtom,
+  programAtom,
 } from "../../../../../state";
 import useIsDeployed from "./useIsDeployed";
-import { ButtonKind } from "../../../../Button/Button";
 import useConnect from "../Wallet/useConnect";
 import Loading from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
 import { PgTerminal } from "../../../../../utils/pg/terminal";
-import { programAtom } from "../../../../../state";
+
+// TODO: Cancel deployment
 
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -83,7 +84,7 @@ const Deploy = () => {
     setTxHash,
   ]);
 
-  const programIsBuilt = PgProgramInfo.getKp()?.programKp;
+  const hasProgramKp = PgProgramInfo.getKp()?.programKp;
 
   const deployButtonText = useMemo(() => {
     let text;
@@ -103,32 +104,43 @@ const Deploy = () => {
     onClick: deploy,
   };
 
-  // Custom program deploy
+  // Custom(uploaded) program deploy
   if (program.buffer.length) {
-    if (pgWallet.connected)
-      return (
-        <Wrapper>
-          <Text>
-            Ready to {deployed ? "upgrade" : "deploy"} {program.fileName}
-          </Text>
-          <Button
-            disabled={loading || !pgWallet.connected}
-            {...deployButtonProps}
-          >
-            {deployButtonText}
-          </Button>
-        </Wrapper>
-      );
-    else
+    if (!pgWallet.connected)
       return (
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
           <ConnectPgWalletButton />
         </Wrapper>
       );
+
+    if (!deployed && !hasProgramKp)
+      return (
+        <Wrapper>
+          <Text>
+            {
+              "First deployment needs a keypair. You can import it from Extra > Program credentials."
+            }
+          </Text>
+        </Wrapper>
+      );
+
+    return (
+      <Wrapper>
+        <Text>
+          Ready to {deployed ? "upgrade" : "deploy"} {program.fileName}
+        </Text>
+        <Button
+          disabled={loading || !pgWallet.connected}
+          {...deployButtonProps}
+        >
+          {deployButtonText}
+        </Button>
+      </Wrapper>
+    );
   }
 
-  if (!programIsBuilt) return null;
+  if (!hasProgramKp) return null;
 
   if (initialLoading)
     return (
@@ -144,13 +156,13 @@ const Deploy = () => {
       </Wrapper>
     );
 
-  if (programIsBuilt) {
+  if (hasProgramKp) {
     if (pgWallet.connected)
       return (
         <Wrapper>
           <Text>Ready to {deployed ? "upgrade" : "deploy"}.</Text>
           <Button
-            disabled={loading || !programIsBuilt || !pgWallet.connected}
+            disabled={loading || !hasProgramKp || !pgWallet.connected}
             {...deployButtonProps}
           >
             {deployButtonText}
