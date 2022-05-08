@@ -1,13 +1,6 @@
-import {
-  ChangeEvent,
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { PublicKey } from "@solana/web3.js";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useAtom } from "jotai";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import { ClassName } from "../../../../../../constants";
@@ -19,26 +12,23 @@ import Input from "../../../../../Input";
 import CopyButton from "../../../../../CopyButton";
 import UploadButton from "../../../../../UploadButton";
 import { PgCommon } from "../../../../../../utils/pg/common";
+import { programIdCountAtom } from "../../../../../../state";
 
 const ProgramCredentials = () => {
-  const [newImport, setNewImport] = useState(0);
-
   return (
     <Wrapper>
       <ButtonsWrapper>
-        <Import setNewImport={setNewImport} />
+        <Import />
         <Export />
       </ButtonsWrapper>
-      <InputPk newImport={newImport} />
+      <InputPk />
     </Wrapper>
   );
 };
 
-interface ImportProps {
-  setNewImport: Dispatch<SetStateAction<number>>;
-}
+const Import = () => {
+  const [, setProgramIdCount] = useAtom(programIdCountAtom);
 
-const Import: FC<ImportProps> = ({ setNewImport }) => {
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
@@ -50,8 +40,14 @@ const Import: FC<ImportProps> = ({ setNewImport }) => {
       const buffer = Buffer.from(JSON.parse(decodedString));
       if (buffer.length !== 64) throw new Error("Invalid keypair");
 
-      PgProgramInfo.update({ kp: Array.from(buffer) });
-      setNewImport((c) => c + 1);
+      // Override customPk when user imports a new keypair
+      PgProgramInfo.update({
+        kp: Array.from(buffer),
+        customPk: Keypair.fromSecretKey(
+          Uint8Array.from(buffer)
+        ).publicKey.toBase58(),
+      });
+      setProgramIdCount((c) => c + 1);
       // Reset file
       e.target.value = "";
     } catch (err: any) {
@@ -84,16 +80,14 @@ const Export = () => {
   );
 };
 
-interface InputPkProps {
-  newImport: number;
-}
-
 interface UpdateInfoProps {
   text?: string;
   error?: boolean;
 }
 
-const InputPk: FC<InputPkProps> = ({ newImport }) => {
+const InputPk = () => {
+  const [programIdCount, setProgramIdCount] = useAtom(programIdCountAtom);
+
   const [val, setVal] = useState(
     PgProgramInfo.getPk()?.programPk?.toBase58() ?? ""
   );
@@ -103,14 +97,12 @@ const InputPk: FC<InputPkProps> = ({ newImport }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const kpResult = PgProgramInfo.getKp();
-    if (kpResult?.programKp) {
-      const pkStr = kpResult.programKp.publicKey.toBase58();
-      // Override customPk with the new import
-      PgProgramInfo.update({ customPk: pkStr });
+    const pkResult = PgProgramInfo.getPk();
+    if (pkResult?.programPk) {
+      const pkStr = pkResult.programPk.toBase58();
       setVal(pkStr);
     }
-  }, [newImport, setVal]);
+  }, [programIdCount, setVal]);
 
   useEffect(() => {
     try {
@@ -136,6 +128,7 @@ const InputPk: FC<InputPkProps> = ({ newImport }) => {
         text: "Updated program id.",
       });
       setChanged(false);
+      setProgramIdCount((c) => c + 1);
     } catch {
       setUpdateInfo({ text: "Invalid public key.", error: true });
     }

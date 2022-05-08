@@ -84,7 +84,9 @@ const Deploy = () => {
     setTxHash,
   ]);
 
-  const hasProgramKp = PgProgramInfo.getKp()?.programKp;
+  const pgProgramInfo = PgProgramInfo.getProgramInfo();
+  const hasProgramKp = pgProgramInfo.kp;
+  const hasUuid = pgProgramInfo.uuid;
 
   const deployButtonText = useMemo(() => {
     let text;
@@ -156,27 +158,38 @@ const Deploy = () => {
       </Wrapper>
     );
 
+  // Normal deploy
   if (hasProgramKp) {
-    if (pgWallet.connected)
-      return (
-        <Wrapper>
-          <Text>Ready to {deployed ? "upgrade" : "deploy"}.</Text>
-          <Button
-            disabled={loading || !hasProgramKp || !pgWallet.connected}
-            {...deployButtonProps}
-          >
-            {deployButtonText}
-          </Button>
-        </Wrapper>
-      );
-    // PgWallet not connected
-    else
+    if (!pgWallet.connected)
       return (
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
           <ConnectPgWalletButton />
         </Wrapper>
       );
+
+    if (!hasUuid)
+      return (
+        <Wrapper>
+          <Text>
+            {
+              "You need to build the project first or upload a program from Extra > Upload a program."
+            }
+          </Text>
+        </Wrapper>
+      );
+
+    return (
+      <Wrapper>
+        <Text>Ready to {deployed ? "upgrade" : "deploy"}.</Text>
+        <Button
+          disabled={loading || !hasProgramKp || !pgWallet.connected}
+          {...deployButtonProps}
+        >
+          {deployButtonText}
+        </Button>
+      </Wrapper>
+    );
   }
 
   // Shouldn't come here

@@ -12,3 +12,5 @@ export const DEFAULT_PROGRAM: Program = {
 };
 
 export const programAtom = atom<Program>(DEFAULT_PROGRAM);
+
+export const programIdCountAtom = atom(0);
