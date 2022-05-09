@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useConnection } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
@@ -10,6 +9,7 @@ import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
 import useConnect from "../Side/Right/Wallet/useConnect";
 import { EXPLORER_URL, NETWORKS } from "../../../constants";
 import useAirdropAmount from "../Side/Right/Wallet/useAirdropAmount";
+import { PgCommon } from "../../../utils/pg/common";
 
 const Bottom = () => {
   const { connection: conn } = useConnection();
@@ -24,13 +24,13 @@ const Bottom = () => {
     const fetchBalance = async () => {
       const lamports = await conn.getBalance(currentWallet.publicKey);
 
-      setBalance(lamports / LAMPORTS_PER_SOL);
+      setBalance(PgCommon.lamportsToSol(lamports));
     };
     fetchBalance().catch(() => setBalance(null));
 
     // Listen for balance changes
     const id = conn.onAccountChange(currentWallet.publicKey, (a) =>
-      setBalance(a.lamports / LAMPORTS_PER_SOL)
+      setBalance(PgCommon.lamportsToSol(a.lamports))
     );
 
     return () => {
@@ -60,7 +60,7 @@ const Bottom = () => {
       try {
         await conn.requestAirdrop(
           currentWallet.publicKey,
-          amount * LAMPORTS_PER_SOL
+          PgCommon.SolToLamports(amount)
         );
       } catch (e: any) {
         if (e.message.startsWith("429 Too Many Requests")) setRateLimited(true);

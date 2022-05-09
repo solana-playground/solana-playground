@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import { terminalAtom, txHashAtom } from "../../../../../state";
@@ -11,6 +11,7 @@ import useConnect from "./useConnect";
 import useCurrentWallet from "./useCurrentWallet";
 import useAirdropAmount from "./useAirdropAmount";
 import { PgTerminal } from "../../../../../utils/pg/terminal";
+import { PgCommon } from "../../../../../utils/pg/common";
 
 const Wallet = () => {
   const [, setTerminal] = useAtom(terminalAtom);
@@ -47,7 +48,7 @@ const Wallet = () => {
 
         const txHash = await conn.requestAirdrop(
           walletPk,
-          amount * LAMPORTS_PER_SOL
+          PgCommon.SolToLamports(amount)
         );
 
         setTxHash(txHash);

@@ -527,9 +527,9 @@ export class BpfLoaderUpgradeable {
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
               if (e.message.endsWith("Network request failed")) {
-                sleepAmount = sleepAmount * 2;
-                // Incrementally sleep incase of being rate-limited
                 await PgCommon.sleep(sleepAmount);
+                // Incrementally sleep incase of being rate-limited
+                sleepAmount *= 2;
               }
             }
           }

@@ -6,15 +6,22 @@ import { GITHUB_URL, SERVER_URL } from "../../constants";
 import { PgProgramInfo } from "./program-info";
 import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
+import { PgTerminal } from "./terminal";
 
 export class PgDeploy {
+  private static MAX_RETRIES = 10;
+  private static SLEEP_MULTIPLIER = 1.5;
+
   static async deploy(
     conn: Connection,
     wallet: PgWallet,
     setProgress: Dispatch<SetStateAction<number>>,
     programBuffer: Buffer
   ) {
-    // TODO: Check if the user has program's upgrade authority
+    // Get program id
+    const programPk = PgProgramInfo.getPk()?.programPk;
+    // This shouldn't happen because the deploy button is disabled in this condition.
+    if (!programPk) throw new Error("Invalid program id.");
 
     if (!programBuffer.length) {
       const uuid = PgProgramInfo.getProgramInfo().uuid;
@@ -38,28 +45,47 @@ export class PgDeploy {
       bufferSize
     );
 
-    // TODO: Check if it's initial deploy and decide how much SOL user needs before
-    // creating the buffer.
+    // Decide whether it's an initial deployment or an upgrade and calculate
+    // how much SOL user needs before creating the buffer.
+    const userBalance = await conn.getBalance(wallet.publicKey);
+    const programExists = await conn.getAccountInfo(programPk);
 
-    await BpfLoaderUpgradeable.createBuffer(
-      conn,
-      wallet,
-      bufferKp,
-      bufferBalance,
-      programBuffer.length
-    );
+    if (!programExists) {
+      // Initial deploy
+      const neededBalance = 3 * bufferBalance;
+      if (userBalance < neededBalance)
+        throw new Error(
+          `Initial deployment costs ${PgTerminal.bold(
+            PgCommon.lamportsToSol(neededBalance).toFixed(2)
+          )} SOL but you have ${PgTerminal.bold(
+            PgCommon.lamportsToSol(userBalance).toFixed(2)
+          )} SOL. ${PgTerminal.bold(
+            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+          )} SOL will be refunded at the end.`
+        );
+    } else {
+      // Upgrade
+      if (userBalance < bufferBalance)
+        throw new Error(
+          `Upgrading costs ${PgTerminal.bold(
+            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+          )} SOL but you have ${PgTerminal.bold(
+            PgCommon.lamportsToSol(userBalance).toFixed(2)
+          )} SOL. ${PgTerminal.bold(
+            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+          )} SOL will be refunded at the end.`
+        );
+    }
 
-    console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
+    let sleepAmt = 1000;
+    // Retry until it's successful or exceeds max tries
+    for (let i = 0; i < this.MAX_RETRIES; i++) {
+      try {
+        if (i !== 0) {
+          const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
+          if (bufferInit) break;
+        }
 
-    // Confirm the buffer has been created
-    // TODO: Make creating buffer infallible unless the user don't have enough funds
-    let tries = 0;
-    while (1) {
-      const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
-      if (bufferInit) break;
-
-      // Retry again every 5 tries
-      if (tries % 5)
         await BpfLoaderUpgradeable.createBuffer(
           conn,
           wallet,
@@ -68,8 +94,23 @@ export class PgDeploy {
           programBuffer.length
         );
 
-      await PgCommon.sleep(2000);
+        // Confirm the buffer has been created
+        const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
+        if (bufferInit) break;
+      } catch (e: any) {
+        console.log("Create buffer error: ", e.message);
+        if (i === this.MAX_RETRIES - 1)
+          throw new Error(
+            `Exceeded maximum amount of retries(${PgTerminal.bold(
+              this.MAX_RETRIES.toString()
+            )}).`
+          );
+        await PgCommon.sleep(sleepAmt);
+        sleepAmt *= this.SLEEP_MULTIPLIER;
+      }
     }
+
+    console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
 
     // Load buffer
     await BpfLoaderUpgradeable.loadBuffer(
@@ -85,33 +126,16 @@ export class PgDeploy {
     // wait for the next block(~500ms blocktime on mainnet as of 2022-04-05)
     await PgCommon.sleep(500);
 
-    // Get program pubkey
-    let programPk;
-    try {
-      programPk = PgProgramInfo.getPk()?.programPk;
-      if (!programPk) throw new Error("Program id not found");
-    } catch (e: any) {
-      // Invalid public key
-      // This shouldn't happen unless the user manually changes localStorage
-      await BpfLoaderUpgradeable.closeBuffer(conn, wallet, bufferKp.publicKey);
-
-      throw new Error(e.message);
-    }
-
-    console.log(programPk.toBase58());
-
     let txHash;
     let errorMsg =
       "Please check the browser console. You can report the issue in " +
       GITHUB_URL +
       "/issues";
+    sleepAmt = 1000;
 
     // Retry until it's successful or exceeds max tries
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < this.MAX_RETRIES; i++) {
       try {
-        // Decide whether it's an initial deployment or an upgrade
-        const programExists = await conn.getAccountInfo(programPk);
-
         if (!programExists) {
           // First deploy needs keypair
           const programKpResult = PgProgramInfo.getKp();
@@ -206,7 +230,8 @@ export class PgDeploy {
           );
         }
 
-        await PgCommon.sleep(2000);
+        await PgCommon.sleep(sleepAmt);
+        sleepAmt *= this.SLEEP_MULTIPLIER;
       }
     }
 

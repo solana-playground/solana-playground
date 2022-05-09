@@ -16,7 +16,6 @@ const useIsDeployed = () => {
 
   useEffect(() => {
     const getIsDeployed = async () => {
-      console.log("running");
       const pkResult = PgProgramInfo.getPk();
       if (pkResult.err) return;
 
