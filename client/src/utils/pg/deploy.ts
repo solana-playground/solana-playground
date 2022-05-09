@@ -94,6 +94,10 @@ export class PgDeploy {
           programBuffer.length
         );
 
+        // Sleep before getting account info because it fails in localhost
+        // if we do it right away
+        await PgCommon.sleep(500);
+
         // Confirm the buffer has been created
         const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
         if (bufferInit) break;
@@ -105,6 +109,7 @@ export class PgDeploy {
               this.MAX_RETRIES.toString()
             )}).`
           );
+
         await PgCommon.sleep(sleepAmt);
         sleepAmt *= this.SLEEP_MULTIPLIER;
       }
