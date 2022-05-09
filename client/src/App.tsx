@@ -1,3 +1,4 @@
+import { BrowserRouter } from "react-router-dom";
 import { useAtom } from "jotai";
 import {
   ConnectionProvider,
@@ -8,7 +9,6 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import MutThemeProvider from "./theme/";
 import IDE from "./pages/ide";
 import { endpointAtom } from "./state";
-import { BrowserRouter } from "react-router-dom";
 
 const App = () => {
   const [endpoint] = useAtom(endpointAtom);

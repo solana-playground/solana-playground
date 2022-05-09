@@ -32,6 +32,11 @@ const Input = styled.input<InputProps>`
       outline-color: transparent;
       border-color: ${theme.colors.state.error.color};
     }
+
+    &.success {
+      outline-color: transparent;
+      border-color: ${theme.colors.state.success.color};
+    }
   `}
 `;
 

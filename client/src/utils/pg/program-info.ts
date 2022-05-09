@@ -1,11 +1,10 @@
 import { Idl } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { Buffer } from "buffer";
 
 interface ProgramInfo {
   update?: number;
   uuid?: string;
-  kp?: Buffer | null;
+  kp?: Array<number> | null;
   idl?: Idl | null;
   customPk?: string;
 }
@@ -40,18 +39,22 @@ export class PgProgramInfo {
     return { programKp };
   }
 
-  static getPk() {
-    const result = this.getKp();
-    if (result.err) return { err: result.err };
-
-    const programPk = result.programKp!.publicKey;
-
-    return { programPk };
-  }
-
-  static getCustomPk() {
+  private static getCustomPk() {
     const customPkStr = this.getProgramInfo().customPk;
 
     if (customPkStr) return new PublicKey(customPkStr);
+  }
+
+  /**
+   * Prioritizes custom public key if it exists
+   */
+  static getPk() {
+    const result = this.getKp();
+    const customPk = this.getCustomPk();
+    if (result.err && !customPk) return { err: result.err };
+
+    const programPk = customPk ?? result.programKp!.publicKey;
+
+    return { programPk };
   }
 }

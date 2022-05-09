@@ -1,15 +1,15 @@
 import { createContext, Dispatch, FC, SetStateAction, useState } from "react";
 import { ThemeProvider } from "styled-components";
+
 import {
   PG_BORDER_RADIUS,
   PG_FONT,
   PG_SCROLLBAR,
   PG_TRANSPARENCY,
 } from "./default";
-
 import Theme from "./interface";
 import THEMES from "./themes";
-import { DRACULA } from "./themes/";
+import { SOLANA } from "./themes/";
 
 export const THEME_KEY = "theme";
 
@@ -22,7 +22,7 @@ export const MutThemeContext = createContext<MutThemeContextProps>(
 
 const MutThemeProvider: FC = ({ children }) => {
   const themeName = localStorage.getItem(THEME_KEY);
-  const theme = THEMES.find((t) => t.name === themeName) ?? DRACULA;
+  const theme = THEMES.find((t) => t.name === themeName) ?? SOLANA;
 
   // Set defaults
   if (!theme.font) theme.font = PG_FONT;

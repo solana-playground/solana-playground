@@ -1,4 +1,4 @@
-import { PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 export class PgCommon {
   static async sleep(ms: number) {
@@ -23,5 +23,13 @@ export class PgCommon {
   static shortenPk(pk: PublicKey, chars: number = 5) {
     const pkStr = pk.toBase58();
     return `${pkStr.slice(0, chars)}...${pkStr.slice(-chars)}`;
+  }
+
+  static lamportsToSol(lamports: number) {
+    return lamports / LAMPORTS_PER_SOL;
+  }
+
+  static SolToLamports(sol: number) {
+    return sol * LAMPORTS_PER_SOL;
   }
 }
