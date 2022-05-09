@@ -1,5 +1,5 @@
 import { DRACULA, SOLANA, LIGHT } from "./themes/";
 
-const THEMES = [SOLANA, DRACULA, LIGHT];
+const THEMES = [DRACULA, SOLANA, LIGHT];
 
 export default THEMES;
