@@ -22,7 +22,7 @@ const Test = () => {
   if (idl === undefined)
     return (
       <InitialWrapper>
-        <Text>Build the program first.</Text>
+        <Text>{"Build the program or import an IDL from Extra > IDL."}</Text>
       </InitialWrapper>
     );
 
@@ -43,18 +43,32 @@ const Test = () => {
   if (!deployed)
     return (
       <InitialWrapper>
-        <Text>Deploy the program first.</Text>
+        <Text>
+          {
+            "Deploy the program or if you already have a deployed program set the program id from Extra > Program credentials."
+          }
+        </Text>
       </InitialWrapper>
     );
 
   if (idl === null)
     return (
       <InitialWrapper>
-        <Text type="Warning">Native program testing is not yet supported.</Text>
+        <Text type="Warning">Native program tests are not yet supported.</Text>
       </InitialWrapper>
     );
 
-  if (deployed)
+  if (deployed) {
+    if (!idl.instructions)
+      return (
+        <InitialWrapper>
+          <Text type="Error">
+            You've imported a corrupted IDL. Please double check you are
+            importing an IDL.json file.
+          </Text>
+        </InitialWrapper>
+      );
+
     return (
       <Wrapper>
         <ProgramWrapper>
@@ -68,6 +82,7 @@ const Test = () => {
         </ProgramWrapper>
       </Wrapper>
     );
+  }
 
   // Shouldn't come here
   return (

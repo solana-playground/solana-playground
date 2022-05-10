@@ -7,6 +7,7 @@ import Button, { ButtonKind } from "../../../../Button";
 import Text from "../../../../Text";
 import { PgDeploy } from "../../../../../utils/pg/deploy";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import { PgTerminal } from "../../../../../utils/pg/terminal";
 import {
   terminalAtom,
   pgWalletAtom,
@@ -20,7 +21,6 @@ import useConnect from "../Wallet/useConnect";
 import Loading from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
-import { PgTerminal } from "../../../../../utils/pg/terminal";
 
 // TODO: Cancel deployment
 
@@ -104,6 +104,7 @@ const Deploy = () => {
   const deployButtonProps = {
     kind: "primary" as ButtonKind,
     onClick: deploy,
+    disabled: loading,
   };
 
   // Custom(uploaded) program deploy
@@ -127,22 +128,23 @@ const Deploy = () => {
         </Wrapper>
       );
 
+    let text = ` Ready to ${deployed ? "upgrade" : "deploy"} ${
+      program.fileName
+    }`;
+    if (loading) {
+      text = `${deployed ? "Upgrading" : "Deploying"} ${program.fileName}...`;
+    }
+
     return (
       <Wrapper>
-        <Text>
-          Ready to {deployed ? "upgrade" : "deploy"} {program.fileName}
-        </Text>
-        <Button
-          disabled={loading || !pgWallet.connected}
-          {...deployButtonProps}
-        >
-          {deployButtonText}
-        </Button>
+        <Text>{text}</Text>
+        <Button {...deployButtonProps}>{deployButtonText}</Button>
       </Wrapper>
     );
   }
 
-  if (!hasProgramKp) return null;
+  // First time state
+  if (!deployed && !hasProgramKp) return null;
 
   if (initialLoading)
     return (
@@ -159,7 +161,7 @@ const Deploy = () => {
     );
 
   // Normal deploy
-  if (hasProgramKp) {
+  if (PgProgramInfo.getPk()?.programPk) {
     if (!pgWallet.connected)
       return (
         <Wrapper>
@@ -181,13 +183,7 @@ const Deploy = () => {
 
     return (
       <Wrapper>
-        <Text>Ready to {deployed ? "upgrade" : "deploy"}.</Text>
-        <Button
-          disabled={loading || !hasProgramKp || !pgWallet.connected}
-          {...deployButtonProps}
-        >
-          {deployButtonText}
-        </Button>
+        <Button {...deployButtonProps}>{deployButtonText}</Button>
       </Wrapper>
     );
   }
@@ -218,7 +214,7 @@ const Wrapper = styled.div`
   padding-top: 1rem;
   border-top: 1px solid ${({ theme }) => theme.colors.default.borderColor};
 
-  & button {
+  & div:first-child + button {
     margin-top: 1.5rem;
   }
 `;

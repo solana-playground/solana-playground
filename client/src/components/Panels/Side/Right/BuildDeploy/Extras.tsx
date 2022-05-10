@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import Foldable from "../../../../Foldable";
 import ProgramCredentials from "./Extras/ProgramCredentials";
 import UploadProgram from "./Extras/UploadProgram";
+import IDL from "./Extras/IDL";
 
 const Extras = () => (
   <Wrapper>
@@ -17,6 +18,11 @@ const Extras = () => (
         title="Upload a program"
         text="Upload your program and deploy without failure."
         InsideEl={<UploadProgram />}
+      />
+      <ExtraItem
+        title="IDL"
+        text="Import/export the program IDL."
+        InsideEl={<IDL />}
       />
     </Foldable>
   </Wrapper>
