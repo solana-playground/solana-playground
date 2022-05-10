@@ -81,7 +81,7 @@ const useConnect = () => {
       setModal({ show: true, JSX: <Setup onSubmit={handleConnectPg} /> });
     else {
       pgWallet.connected = !pgWallet.connected;
-      PgWallet.updateLs({ connected: pgWallet.connected });
+      PgWallet.update({ connected: pgWallet.connected });
       refresh();
     }
 

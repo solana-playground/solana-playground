@@ -5,7 +5,7 @@ import { PROJECT_NAME } from "../../constants";
 import Button from "../Button";
 
 interface ModalInsideProps {
-  title?: boolean;
+  title?: boolean | string;
   buttonProps?: {
     name: string;
     onSubmit: () => void;
@@ -21,7 +21,7 @@ const ModalInside: FC<ModalInsideProps> = ({
 }) => {
   return (
     <Wrapper>
-      {title && <Title>{PROJECT_NAME}</Title>}
+      {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
       {children}
       {buttonProps && (
         <ButtonWrapper>
@@ -46,6 +46,7 @@ const Wrapper = styled.div`
     border-radius: ${theme.borderRadius};
     background-color: ${(theme.colors.right?.bg ?? theme.colors.default.bg) +
     "EE"};
+    max-width: max(40%, 20rem);
   `}
 `;
 

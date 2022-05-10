@@ -94,7 +94,7 @@ const Wallet = () => {
           onClick={airdropPg}
           disabled={loading}
           kind="primary-outline"
-          style={{ marginTop: "1rem" }}
+          className="airdrop"
         >
           Airdrop
         </Button>
@@ -112,7 +112,7 @@ const Wallet = () => {
           onClick={airdropSol}
           disabled={loading}
           kind="secondary-outline"
-          style={{ marginTop: "1rem" }}
+          className="airdrop"
         >
           Airdrop
         </Button>
@@ -131,6 +131,10 @@ const Wrapper = styled.div`
     background-color: ${theme.colors.tooltip?.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
+
+    & button.airdrop {
+      margin-top: 1rem;
+    }
   `}
 `;
 

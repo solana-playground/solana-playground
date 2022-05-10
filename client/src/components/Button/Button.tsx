@@ -53,13 +53,11 @@ const getButtonStyles = (
     case "primary-outline": {
       borderColor = theme.colors.default.primary;
       hoverBgColor += "E0";
-      padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary-outline": {
       borderColor = theme.colors.default.secondary;
       hoverBgColor = theme.colors.default.secondary + "E0";
-      padding = "0.5rem 1.25rem";
       break;
     }
     case "primary-transparent": {

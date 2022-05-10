@@ -10,19 +10,16 @@ const useCurrentWallet = () => {
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const wallet = useAnchorWallet();
 
-  const currentWallet = useMemo(() => {
+  const [currentWallet, walletPkStr] = useMemo(() => {
     let currentWallet: PgWallet | AnchorWallet | null = null;
+    // Priority is external wallet
     if (wallet) currentWallet = wallet;
     else if (pgWallet.connected) currentWallet = pgWallet;
 
-    return currentWallet;
+    return [currentWallet, currentWallet?.publicKey.toBase58() ?? ""];
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, pgWallet, pgWalletChanged]);
-
-  const walletPkStr = useMemo(() => {
-    return currentWallet?.publicKey.toBase58() ?? "";
-  }, [currentWallet]);
 
   return {
     currentWallet,
