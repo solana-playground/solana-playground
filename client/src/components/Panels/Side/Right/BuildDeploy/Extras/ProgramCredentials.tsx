@@ -3,29 +3,26 @@ import { useAtom } from "jotai";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
+import { programIdCountAtom } from "../../../../../../state";
 import { ClassName } from "../../../../../../constants";
-import { PgProgramInfo } from "../../../../../../utils/pg/program-info";
 import Button from "../../../../../Button";
 import DownloadButton from "../../../../../DownloadButton";
 import { Warning } from "../../../../../Icons";
 import Input from "../../../../../Input";
 import CopyButton from "../../../../../CopyButton";
 import UploadButton from "../../../../../UploadButton";
+import { PgProgramInfo } from "../../../../../../utils/pg/program-info";
 import { PgCommon } from "../../../../../../utils/pg/common";
-import { programIdCountAtom } from "../../../../../../state";
 
-const ProgramCredentials = () => {
-  return (
-    <Wrapper>
-      <ButtonsWrapper>
-        <Import />
-        <Export />
-      </ButtonsWrapper>
-      <InputPk />
-    </Wrapper>
-  );
-};
-
+const ProgramCredentials = () => (
+  <Wrapper>
+    <ButtonsWrapper>
+      <Import />
+      <Export />
+    </ButtonsWrapper>
+    <InputPk />
+  </Wrapper>
+);
 const Import = () => {
   const [, setProgramIdCount] = useAtom(programIdCountAtom);
 
@@ -47,7 +44,10 @@ const Import = () => {
           Uint8Array.from(buffer)
         ).publicKey.toBase58(),
       });
+
+      // Refresh components
       setProgramIdCount((c) => c + 1);
+
       // Reset file
       e.target.value = "";
     } catch (err: any) {
