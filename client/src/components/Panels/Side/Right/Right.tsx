@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import Loading from "../../../Loading";
-import { ClassName, DEFAULT_CURSOR } from "../../../../constants";
+import { ClassName, DEFAULT_CURSOR, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
 import { Sidebar } from "../sidebar-values";
 import { PgShare } from "../../../../utils/pg/share";
@@ -53,6 +53,11 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
     if (explorer) setLoading(false);
   }, [explorer, setLoading]);
 
+  const bottomHeight =
+    document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24;
+  const windowHeight =
+    document.getElementById(Id.ROOT)?.getClientRects()[0].height ?? 979;
+
   return (
     <Resizable
       className={ClassName.SIDE_RIGHT}
@@ -72,7 +77,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
         bottom: DEFAULT_CURSOR,
       }}
     >
-      <Wrapper>
+      <Wrapper windowHeight={windowHeight} bottomHeight={bottomHeight}>
         <StyledTitle sidebarState={sidebarState} />
         <Suspense fallback={<RightLoading />}>
           {loading ? <RightLoading /> : <Inside sidebarState={sidebarState} />}
@@ -113,20 +118,48 @@ export const RightLoading = () => (
   </LoadingWrapper>
 );
 
-const Wrapper = styled.div`
-  ${({ theme }) => css`
+const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
+  ${({ theme, windowHeight, bottomHeight }) => css`
     display: flex;
     flex-direction: column;
     min-width: 20rem;
-    height: 100%;
+    height: ${windowHeight && bottomHeight
+      ? windowHeight - bottomHeight
+      : 955}px;
+    overflow-y: auto;
     background-color: ${theme.colors?.right?.bg ?? "inherit"};
     border-left: 1px solid ${theme.colors.default.borderColor};
     border-right: 1px solid ${theme.colors.default.borderColor};
+
+    /* Scrollbar */
+    /* Chromium */
+    &::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      border-radius: ${theme.borderRadius};
+      background-color: ${theme.colors.scrollbar?.thumb.color};
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+    }
+
+    /* Firefox */
+    & * {
+      scrollbar-color: ${theme.colors.scrollbar?.thumb.color};
+    }
   `}
 `;
 
 const StyledTitle = styled(Title)`
-  height: ${TAB_HEIGHT};
+  min-height: ${TAB_HEIGHT};
   display: flex;
   justify-content: center;
   align-items: center;

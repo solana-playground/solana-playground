@@ -7,7 +7,7 @@ import { ConnState } from "../Side/Right/Wallet/connection-states";
 import Link from "../../Link";
 import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
 import useConnect from "../Side/Right/Wallet/useConnect";
-import { EXPLORER_URL, NETWORKS } from "../../../constants";
+import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
 import useAirdropAmount from "../Side/Right/Wallet/useAirdropAmount";
 import { PgCommon } from "../../../utils/pg/common";
 
@@ -79,7 +79,7 @@ const Bottom = () => {
   }, [conn]);
 
   return (
-    <Wrapper>
+    <Wrapper id={Id.BOTTOM}>
       <Button onClick={handleConnectPg} title="Toggle Playground Wallet">
         <ConnStatus connStatus={connStatus}></ConnStatus>
         {connStatus}
