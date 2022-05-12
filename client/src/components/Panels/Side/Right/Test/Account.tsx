@@ -34,9 +34,10 @@ import useCurrentWallet from "../Wallet/useCurrentWallet";
 interface AccountProps {
   account: IdlAccount;
   isArg?: boolean;
+  functionName: string;
 }
 
-const Account: FC<AccountProps> = ({ account, isArg }) => {
+const Account: FC<AccountProps> = ({ account, isArg, functionName }) => {
   const { walletPkStr } = useCurrentWallet();
 
   const accountStr = useMemo(
@@ -125,10 +126,10 @@ const Account: FC<AccountProps> = ({ account, isArg }) => {
   });
 
   const inputName = useMemo(() => {
-    if (isArg) return Identifiers.ARGS + account.name;
+    if (isArg) return functionName + Identifiers.ARGS + account.name;
 
-    return Identifiers.ACCS + account.name;
-  }, [account.name, isArg]);
+    return functionName + Identifiers.ACCS + account.name;
+  }, [functionName, account.name, isArg]);
 
   return (
     <Wrapper>

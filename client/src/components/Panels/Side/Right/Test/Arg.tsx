@@ -10,16 +10,23 @@ import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 interface ArgProps {
   name: string;
   type: IdlType;
+  functionName: string;
 }
 
-const Arg: FC<ArgProps> = ({ name, type }) => {
+const Arg: FC<ArgProps> = ({ name, type, functionName }) => {
   if (type === "publicKey")
-    return <Account account={{ name, isMut: false, isSigner: false }} isArg />;
+    return (
+      <Account
+        account={{ name, isMut: false, isSigner: false }}
+        isArg
+        functionName={functionName}
+      />
+    );
 
-  return <OtherArg name={name} type={type} />;
+  return <OtherArg name={name} type={type} functionName={functionName} />;
 };
 
-const OtherArg: FC<ArgProps> = ({ name, type }) => {
+const OtherArg: FC<ArgProps> = ({ name, type, functionName }) => {
   const [val, setVal] = useState("");
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -30,8 +37,8 @@ const OtherArg: FC<ArgProps> = ({ name, type }) => {
   useUpdateTxVals({ identifier: Identifiers.ARGS, k: name, v: val, type });
 
   const inputName = useMemo(() => {
-    return Identifiers.ARGS + name;
-  }, [name]);
+    return functionName + Identifiers.ARGS + name;
+  }, [functionName, name]);
 
   return (
     <Wrapper>

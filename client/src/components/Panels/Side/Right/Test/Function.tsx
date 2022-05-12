@@ -36,13 +36,24 @@ interface FnContextProps {
 
 export const FnContext = createContext<FnContextProps>({} as FnContextProps);
 
-interface FunctionProps {
+interface FunctionProps extends FunctionInsideProps {
   index: number;
+}
+
+const Function: FC<FunctionProps> = ({ ixs, idl, index }) => (
+  <FunctionWrapper index={index}>
+    <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>} closed>
+      <FunctionInside idl={idl} ixs={ixs} />
+    </Foldable>
+  </FunctionWrapper>
+);
+
+interface FunctionInsideProps {
   ixs: IdlInstruction;
   idl: Idl;
 }
 
-const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
+const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   const [, setTerminal] = useAtom(terminalAtom);
   const [, setTxHash] = useAtom(txHashAtom);
 
@@ -56,11 +67,31 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
   const [errors, setErrors] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, [setMounted]);
+
+  // Set errors
+  useEffect(() => {
+    // This fixes button being enabled at the start
+    if (!mounted) return;
+
+    let totalErrors = 0;
+
+    for (const name in errors) {
+      totalErrors += errors[name];
+    }
+
+    if (totalErrors) setDisabled(true);
+    else setDisabled(false);
+  }, [errors, mounted]);
 
   const handleErrors = useCallback(
     (identifier: string, k: string, action: "add" | "remove") => {
       setErrors((e) => {
-        const name = identifier + k;
+        const name = ixs.name + identifier + k;
 
         if (action === "add") {
           const inputEl = document.getElementsByName(name)[0];
@@ -81,20 +112,8 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
         return { ...e };
       });
     },
-    [setErrors]
+    [ixs.name, setErrors]
   );
-
-  // Set errors
-  useEffect(() => {
-    let totalErrors = 0;
-
-    for (const name in errors) {
-      totalErrors += errors[name];
-    }
-
-    if (totalErrors) setDisabled(true);
-    else setDisabled(false);
-  }, [errors]);
 
   // Gets called in the first render
   const updateTxVals = useCallback(
@@ -171,14 +190,14 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
   }, [txVals, idl, conn, currentWallet, setTerminal]);
 
   return (
-    <FunctionWrapper index={index}>
-      <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>} closed>
-        <ArgsAndAccountsWrapper>
-          <FnContext.Provider
-            value={{
-              updateTxVals,
-            }}
-          >
+    <>
+      <ArgsAndAccountsWrapper>
+        <FnContext.Provider
+          value={{
+            updateTxVals,
+          }}
+        >
+          {ixs.args.length ? (
             <ArgsWrapper>
               <Foldable ClickEl={<ArgsText>Args:</ArgsText>}>
                 {ixs.args.map((a, j) => (
@@ -186,30 +205,35 @@ const Function: FC<FunctionProps> = ({ ixs, idl, index }) => {
                     key={j}
                     name={a.name}
                     type={getFullType(a.type, idl.types!)}
+                    functionName={ixs.name}
                   />
                 ))}
               </Foldable>
             </ArgsWrapper>
-            <AccountsWrapper>
-              <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>}>
-                {ixs.accounts.map((a, j) => (
-                  <Account key={j} account={a as IdlAccount} />
-                ))}
-              </Foldable>
-            </AccountsWrapper>
-          </FnContext.Provider>
-        </ArgsAndAccountsWrapper>
-        <ButtonWrapper>
-          <Button
-            kind="primary"
-            onClick={handleTest}
-            disabled={disabled || loading || !currentWallet}
-          >
-            Test
-          </Button>
-        </ButtonWrapper>
-      </Foldable>
-    </FunctionWrapper>
+          ) : null}
+          <AccountsWrapper>
+            <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>}>
+              {ixs.accounts.map((a, j) => (
+                <Account
+                  key={j}
+                  account={a as IdlAccount}
+                  functionName={ixs.name}
+                />
+              ))}
+            </Foldable>
+          </AccountsWrapper>
+        </FnContext.Provider>
+      </ArgsAndAccountsWrapper>
+      <ButtonWrapper>
+        <Button
+          kind="primary"
+          onClick={handleTest}
+          disabled={disabled || loading || !currentWallet}
+        >
+          Test
+        </Button>
+      </ButtonWrapper>
+    </>
   );
 };
 
