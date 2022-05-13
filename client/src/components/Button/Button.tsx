@@ -37,14 +37,14 @@ const getButtonStyles = (
   // Kind
   switch (kind) {
     case "primary": {
-      if (theme.colors.conrast?.primary) color = theme.colors.conrast.color;
+      if (theme.colors.contrast?.primary) color = theme.colors.contrast.color;
       bgColor = theme.colors.default.primary;
       hoverBgColor += "E0";
       padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary": {
-      if (theme.colors.conrast?.secondary) color = theme.colors.conrast.color;
+      if (theme.colors.contrast?.secondary) color = theme.colors.contrast.color;
       bgColor = theme.colors.default.secondary;
       hoverBgColor = theme.colors.default.secondary + "E0";
       padding = "0.5rem 1.25rem";

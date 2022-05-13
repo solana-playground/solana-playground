@@ -26,7 +26,7 @@ export default interface Theme {
       warning: BgAndColor;
       info: BgAndColor;
     };
-    conrast?: {
+    contrast?: {
       color: string;
       primary?: boolean;
       secondary?: boolean;
