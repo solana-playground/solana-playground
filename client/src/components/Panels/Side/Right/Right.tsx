@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import Loading from "../../../Loading";
-import { ClassName, DEFAULT_CURSOR, Id } from "../../../../constants";
+import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
 import { Sidebar } from "../sidebar-values";
 import { PgShare } from "../../../../utils/pg/share";
@@ -68,13 +68,15 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
       minWidth={320}
       minHeight="100%"
       maxWidth={window.innerWidth * 0.75}
-      handleStyles={{
-        top: DEFAULT_CURSOR,
-        topLeft: DEFAULT_CURSOR,
-        topRight: DEFAULT_CURSOR,
-        left: DEFAULT_CURSOR,
-        bottomRight: DEFAULT_CURSOR,
-        bottom: DEFAULT_CURSOR,
+      enable={{
+        top: false,
+        right: true,
+        bottom: false,
+        left: false,
+        topRight: false,
+        bottomRight: false,
+        bottomLeft: false,
+        topLeft: false,
       }}
     >
       <Wrapper windowHeight={windowHeight} bottomHeight={bottomHeight}>

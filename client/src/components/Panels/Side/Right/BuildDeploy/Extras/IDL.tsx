@@ -1,5 +1,7 @@
+import { useAtom } from "jotai";
 import { ChangeEvent } from "react";
 import styled from "styled-components";
+import { buildCountAtom } from "../../../../../../state";
 
 import { PgCommon } from "../../../../../../utils/pg/common";
 import { PgProgramInfo } from "../../../../../../utils/pg/program-info";
@@ -40,6 +42,9 @@ const Import = () => {
 };
 
 const Export = () => {
+  // Fixes IDL not being updated correctly after a new build
+  useAtom(buildCountAtom);
+
   const idl = PgProgramInfo.getProgramInfo().idl;
 
   if (!idl) return null;
