@@ -3,12 +3,12 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
-import { ConnState } from "../Side/Right/Wallet/connection-states";
+import { ConnState } from "../Wallet/connection-states";
 import Link from "../../Link";
-import useCurrentWallet from "../Side/Right/Wallet/useCurrentWallet";
-import useConnect from "../Side/Right/Wallet/useConnect";
+import useCurrentWallet from "../Wallet/useCurrentWallet";
+import useConnect from "../Wallet/useConnect";
 import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
-import useAirdropAmount from "../Side/Right/Wallet/useAirdropAmount";
+import useAirdropAmount from "../Wallet/useAirdropAmount";
 import { PgCommon } from "../../../utils/pg/common";
 
 const Bottom = () => {

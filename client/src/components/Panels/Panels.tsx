@@ -8,6 +8,7 @@ import Toast from "../Toast";
 
 const Main = lazy(() => import("./Main"));
 const Bottom = lazy(() => import("./Bottom"));
+const Wallet = lazy(() => import("./Wallet"));
 
 const Panels = () => (
   <Wrapper>
@@ -17,6 +18,7 @@ const Panels = () => (
       <Side />
       <Suspense fallback={<Loading size={10} circleCount={10} />}>
         <Main />
+        <Wallet />
       </Suspense>
     </MainWrapper>
     <Suspense fallback={false}>

@@ -281,6 +281,8 @@ const Editor = () => {
   return <Wrapper ref={parent}></Wrapper>;
 };
 
+export const EDITOR_SCROLLBAR_WIDTH = "0.75rem";
+
 const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
@@ -291,7 +293,7 @@ const Wrapper = styled.div`
     /* Scrollbar */
     /* Chromium */
     & ::-webkit-scrollbar {
-      width: 0.75rem;
+      width: ${EDITOR_SCROLLBAR_WIDTH};
     }
 
     & ::-webkit-scrollbar-track {

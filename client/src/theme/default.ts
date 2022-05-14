@@ -21,11 +21,17 @@ export const PG_SCROLLBAR = {
       color: "#ffffff64",
       hoverColor: "#ffffff32",
     },
+    width: {
+      editor: "0.75rem",
+    },
   },
   light: {
     thumb: {
       color: "#00000032",
       hoverColor: "#00000064",
+    },
+    width: {
+      editor: "0.75rem",
     },
   },
 };

@@ -3,12 +3,8 @@ import { useAtom } from "jotai";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 import { ConnState } from "./connection-states";
-import {
-  modalAtom,
-  pgWalletAtom,
-  refreshPgWalletAtom,
-} from "../../../../../state";
-import { PgWallet } from "../../../../../utils/pg/wallet";
+import { modalAtom, pgWalletAtom, refreshPgWalletAtom } from "../../../state";
+import { PgWallet } from "../../../utils/pg/wallet";
 import Setup from "./Setup";
 
 const useConnect = () => {

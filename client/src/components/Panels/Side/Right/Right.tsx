@@ -6,7 +6,7 @@ import { Resizable } from "re-resizable";
 
 import Loading from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
-import { TAB_HEIGHT } from "../../Main/Tabs/Tabs";
+import { TAB_HEIGHT } from "../../Main/Tabs";
 import { Sidebar } from "../sidebar-values";
 import { PgShare } from "../../../../utils/pg/share";
 import { PgExplorer } from "../../../../utils/pg/explorer";

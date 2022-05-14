@@ -17,7 +17,7 @@ import {
   programAtom,
 } from "../../../../../state";
 import useIsDeployed from "./useIsDeployed";
-import useConnect from "../Wallet/useConnect";
+import useConnect from "../../../Wallet/useConnect";
 import Loading from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";

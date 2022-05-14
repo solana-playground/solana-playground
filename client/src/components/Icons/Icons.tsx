@@ -106,3 +106,48 @@ export const Copy = ({ fullSize }: IconProps) => {
     </svg>
   );
 };
+
+export const Sad = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 24 24" style={getStyle(fullSize)}>
+      <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path>
+      <circle cx="8.5" cy="10.5" r="1.5"></circle>
+      <circle cx="15.493" cy="10.493" r="1.493"></circle>
+      <path d="M12 14c-3 0-4 3-4 3h8s-1-3-4-3z"></path>
+    </svg>
+  );
+};
+
+export const Refresh = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 24 24" style={getStyle(fullSize)}>
+      <path fill="none" d="M0 0h24v24H0z"></path>
+      <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+    </svg>
+  );
+};
+
+export const Error = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 24 24" style={getStyle(fullSize)}>
+      <path fill="none" d="M0 0h24v24H0z"></path>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+    </svg>
+  );
+};
+
+export const Clock = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
+      <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm176.5 585.7l-28.6 39a7.99 7.99 0 0 1-11.2 1.7L483.3 569.8a7.92 7.92 0 0 1-3.3-6.5V288c0-4.4 3.6-8 8-8h48.1c4.4 0 8 3.6 8 8v247.5l142.6 103.1c3.6 2.5 4.4 7.5 1.8 11.1z"></path>
+    </svg>
+  );
+};
+
+export const ThreeDots = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 16 16" style={getStyle(fullSize)}>
+      <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path>
+    </svg>
+  );
+};

@@ -29,7 +29,7 @@ import Input, { defaultInputProps } from "../../../../Input";
 import Button from "../../../../Button";
 import InputLabel from "./InputLabel";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import useCurrentWallet from "../Wallet/useCurrentWallet";
+import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 
 interface AccountProps {
   account: IdlAccount;

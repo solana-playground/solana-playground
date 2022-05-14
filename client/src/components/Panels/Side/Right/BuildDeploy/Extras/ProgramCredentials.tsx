@@ -70,10 +70,7 @@ const Export = () => {
 
   return (
     <DownloadButton
-      href={
-        "data:text/json;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(Array.from(programKp.secretKey)))
-      }
+      href={PgCommon.getUtf8EncodedString(Array.from(programKp.secretKey))}
       download="program-keypair.json"
     >
       Export

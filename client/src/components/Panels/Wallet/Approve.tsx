@@ -1,8 +1,8 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import ModalInside from "../../../../Modal/ModalInside";
-import useModal from "../../../../Modal/useModal";
+import ModalInside from "../../Modal/ModalInside";
+import useModal from "../../Modal/useModal";
 
 interface ApproveProps {}
 

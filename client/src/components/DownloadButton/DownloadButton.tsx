@@ -5,16 +5,22 @@ interface DownloadButtonProps {
   href: string;
   download: string;
   buttonKind?: ButtonKind;
+  noButton?: boolean;
 }
 
 const DownloadButton: FC<DownloadButtonProps> = ({
   href,
   download,
   buttonKind = "outline",
+  noButton = false,
   children,
 }) => (
   <a href={href} download={download}>
-    <Button kind={buttonKind}>{children}</Button>
+    {noButton ? (
+      <div>{children}</div>
+    ) : (
+      <Button kind={buttonKind}>{children}</Button>
+    )}
   </a>
 );
 

@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useAtom } from "jotai";
 import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 
-import { pgWalletAtom, refreshPgWalletAtom } from "../../../../../state";
-import { PgWallet } from "../../../../../utils/pg/wallet";
+import { pgWalletAtom, refreshPgWalletAtom } from "../../../state";
+import { PgWallet } from "../../../utils/pg/wallet";
 
 const useCurrentWallet = () => {
   const [pgWallet] = useAtom(pgWalletAtom);

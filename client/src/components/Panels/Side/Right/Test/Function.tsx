@@ -14,7 +14,7 @@ import { getFullType } from "./types";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
 import { terminalAtom, txHashAtom } from "../../../../../state";
-import useCurrentWallet from "../Wallet/useCurrentWallet";
+import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import { PgTest } from "../../../../../utils/pg/test";
 import { PgTx } from "../../../../../utils/pg/tx";
 import { PgTerminal } from "../../../../../utils/pg/terminal";

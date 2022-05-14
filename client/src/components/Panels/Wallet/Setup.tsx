@@ -4,15 +4,15 @@ import { Buffer } from "buffer";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { PgCommon } from "../../../../../utils/pg/common";
-import { PgWallet } from "../../../../../utils/pg/wallet";
-import DownloadButton from "../../../../DownloadButton";
-import { Warning } from "../../../../Icons";
-import ModalInside from "../../../../Modal/ModalInside";
-import useModal from "../../../../Modal/useModal";
-import Text from "../../../../Text";
-import UploadButton from "../../../../UploadButton";
-import { pgWalletAtom } from "../../../../../state";
+import { PgCommon } from "../../../utils/pg/common";
+import { PgWallet } from "../../../utils/pg/wallet";
+import DownloadButton from "../../DownloadButton";
+import { Warning } from "../../Icons";
+import ModalInside from "../../Modal/ModalInside";
+import useModal from "../../Modal/useModal";
+import Text from "../../Text";
+import UploadButton from "../../UploadButton";
+import { pgWalletAtom } from "../../../state";
 
 interface SetupProps {
   onSubmit: () => void;
@@ -88,12 +88,9 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
           </WarningTextWrapper>
           <WalletButtonsWrapper>
             <DownloadButton
-              href={
-                "data:text/json;charset=utf-8," +
-                encodeURIComponent(
-                  JSON.stringify(Array.from(PgWallet.getKp().secretKey))
-                )
-              }
+              href={PgCommon.getUtf8EncodedString(
+                Array.from(PgWallet.getKp().secretKey)
+              )}
               download="keypair.json"
               buttonKind="primary-outline"
             >

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useAtom } from "jotai";
 
-import { Endpoint } from "../../../../../constants";
-import { endpointAtom } from "../../../../../state";
+import { Endpoint } from "../../../constants";
+import { endpointAtom } from "../../../state";
 
 const useAirdropAmount = () => {
   const [endpoint] = useAtom(endpointAtom);

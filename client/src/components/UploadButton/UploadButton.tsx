@@ -8,6 +8,7 @@ interface UploadButtonProps {
   onUpload: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
   showUploadText?: boolean;
   buttonKind?: ButtonKind;
+  noButton?: boolean;
 }
 
 const UploadButton: FC<UploadButtonProps> = ({
@@ -15,6 +16,7 @@ const UploadButton: FC<UploadButtonProps> = ({
   onUpload,
   buttonKind = "outline",
   showUploadText = false,
+  noButton = false,
   children,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,9 +42,13 @@ const UploadButton: FC<UploadButtonProps> = ({
         onChange={handleChange}
         accept={accept}
       />
-      <Button kind={buttonKind} onClick={handleClick}>
-        {children}
-      </Button>
+      {noButton ? (
+        <div onClick={handleClick}>{children}</div>
+      ) : (
+        <Button kind={buttonKind} onClick={handleClick}>
+          {children}
+        </Button>
+      )}
       {showUploadText && uploadText && <UploadInfo>{uploadText}</UploadInfo>}
     </Wrapper>
   );
@@ -54,6 +60,10 @@ const Wrapper = styled.div`
 
   & input[type="file"] {
     display: none;
+  }
+
+  & > div {
+    width: 100%;
   }
 `;
 
