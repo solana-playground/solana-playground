@@ -30,7 +30,7 @@ export class PgCommon {
     return lamports / LAMPORTS_PER_SOL;
   }
 
-  static SolToLamports(sol: number) {
+  static solToLamports(sol: number) {
     return sol * LAMPORTS_PER_SOL;
   }
 
@@ -69,5 +69,22 @@ export class PgCommon {
     const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
 
     return [explorer, solscan];
+  }
+
+  static isInt(str: string) {
+    const intRegex = /^-?\d+$/;
+    if (!intRegex.test(str)) return false;
+
+    const int = parseInt(str, 10);
+    return parseFloat(str) === int && !isNaN(int);
+  }
+
+  static isFloat(str: string) {
+    const floatRegex = /^-?\d+(?:[.,]\d*?)?$/;
+    if (!floatRegex.test(str)) return false;
+
+    const float = parseFloat(str);
+    if (isNaN(float)) return false;
+    return true;
   }
 }

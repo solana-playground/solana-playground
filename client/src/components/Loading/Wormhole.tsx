@@ -5,12 +5,12 @@ import styled, { css, keyframes } from "styled-components";
 const DEFAULT_SIZE = 3;
 const DEFAULT_CIRCLE_COUNT = 8;
 
-interface LoadingProps {
+interface WormholeProps {
   size?: number;
   circleCount?: number;
 }
 
-const Loading: FC<LoadingProps> = ({
+export const Wormhole: FC<WormholeProps> = ({
   size = DEFAULT_SIZE,
   circleCount = DEFAULT_CIRCLE_COUNT,
 }) => {
@@ -74,5 +74,3 @@ const circleAnimation = keyframes`
   50% {transform: rotate(180deg)}
   100% {transform: rotate(360deg)}
 `;
-
-export default Loading;

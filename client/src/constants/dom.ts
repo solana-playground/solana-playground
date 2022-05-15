@@ -8,10 +8,13 @@ export enum ClassName {
   FILE = "file",
   FOLDER = "folder",
   SIDE_RIGHT = "side-right",
+  LOADING = "loading",
+  DARKEN = "darken",
 }
 
 export enum Id {
   ROOT = "root",
   ROOT_DIR = "root-dir",
   BOTTOM = "bottom",
+  WALLET_MAIN = "wallet-main",
 }

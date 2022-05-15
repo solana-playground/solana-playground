@@ -9,12 +9,11 @@ import {
 import { useAtom } from "jotai";
 import { Buffer } from "buffer";
 import { useConnection } from "@solana/wallet-adapter-react";
-import { ConfirmedSignatureInfo, Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import useCopyClipboard from "react-use-clipboard";
 import styled, { css } from "styled-components";
 
 import {
-  endpointAtom,
   pgWalletAtom,
   showWalletAtom,
   terminalAtom,
@@ -28,18 +27,14 @@ import useCurrentWallet from "./useCurrentWallet";
 import useAirdropAmount from "./useAirdropAmount";
 import { TAB_HEIGHT } from "../Main/Tabs";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
-import {
-  Clock,
-  Error as ErrorIcon,
-  Refresh,
-  Sad,
-  ThreeDots,
-} from "../../Icons";
+import { ThreeDots } from "../../Icons";
 import Button from "../../Button";
 import DownloadButton from "../../DownloadButton";
 import { PgWallet } from "../../../utils/pg/wallet";
 import UploadButton from "../../UploadButton";
-import Link from "../../Link";
+import Transactions from "./Transactions";
+import Send from "./Send";
+import { ClassName, Id } from "../../../constants";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -51,8 +46,9 @@ const Wallet = () => {
   return (
     <Wrapper>
       <WalletTitle />
-      <Main>
-        <Txs />
+      <Main id={Id.WALLET_MAIN}>
+        <Send />
+        <Transactions />
       </Main>
     </Wrapper>
   );
@@ -73,75 +69,17 @@ const WalletTitle = () => {
   );
 };
 
-const Txs = () => {
-  const { connection: conn } = useConnection();
-  const { currentWallet } = useCurrentWallet();
-
-  // State
-  const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
-  const [refreshCount, setRefreshCount] = useState(0);
-
-  useEffect(() => {
-    if (!currentWallet) return;
-
-    const getTxs = async () => {
-      try {
-        const _signatures = await conn.getSignaturesForAddress(
-          currentWallet.publicKey,
-          { limit: 10 }
-        );
-        setSignatures(_signatures);
-      } catch (e: any) {
-        console.log(e.message);
-      }
-    };
-
-    getTxs();
-  }, [conn, currentWallet, refreshCount, setSignatures]);
-
-  const refresh = useCallback(() => {
-    setRefreshCount((rc) => rc + 1);
-  }, [setRefreshCount]);
-
-  return (
-    <TxsWrapper>
-      <TxTitleWrapper>
-        <TxTitle>Transactions</TxTitle>
-        <Button kind="icon" title="Refresh" onClick={refresh}>
-          <Refresh />
-        </Button>
-      </TxTitleWrapper>
-      <TxsListWrapper>
-        <TxsTop>
-          <Signature>Signature</Signature>
-          <Slot>Slot</Slot>
-          <Time>
-            Time
-            <Clock />
-          </Time>
-        </TxsTop>
-        {signatures?.length ? (
-          signatures.map((info, i) => <Tx key={i} {...info} />)
-        ) : (
-          <NoTransaction>
-            <Sad />
-            No transaction found.
-          </NoTransaction>
-        )}
-      </TxsListWrapper>
-    </TxsWrapper>
-  );
-};
-
 const WalletSettings = () => {
   const [show, setShow] = useState(false);
 
   const toggle = useCallback(() => {
     setShow((s) => !s);
+    document.getElementById(Id.WALLET_MAIN)?.classList.toggle(ClassName.DARKEN);
   }, [setShow]);
 
   const close = useCallback(() => {
     setShow(false);
+    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
   }, [setShow]);
 
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -150,13 +88,13 @@ const WalletSettings = () => {
     if (!show || !settingsRef.current) return;
 
     const handleClick = (e: globalThis.MouseEvent) => {
-      if (!settingsRef.current?.contains(e.target as Node)) setShow(false);
+      if (!settingsRef.current?.contains(e.target as Node)) close();
     };
 
     document.addEventListener("mousedown", handleClick);
 
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [show]);
+  }, [show, close]);
 
   return (
     <SettingsWrapper>
@@ -183,9 +121,6 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
   const [, setTerminal] = useAtom(terminalAtom);
   const [, setTxHash] = useAtom(txHashAtom);
 
-  // State
-  const [loading, setLoading] = useState(false);
-
   // Get cap amount for airdrop based on network
   const { connection: conn } = useConnection();
   const amount = useAirdropAmount();
@@ -193,9 +128,8 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
   const airdrop = useCallback(
     async (walletPk: PublicKey) => {
-      if (!amount || loading) return;
+      if (!amount) return;
 
-      setLoading(true);
       close();
 
       let msg = "";
@@ -206,7 +140,7 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
         const txHash = await conn.requestAirdrop(
           walletPk,
-          PgCommon.SolToLamports(amount)
+          PgCommon.solToLamports(amount)
         );
 
         setTxHash(txHash);
@@ -215,22 +149,21 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
         if (txResult?.err)
           msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
-            "Error"
-          )} receiving airdrop.`;
+            "Error receiving airdrop."
+          )}`;
         else
           msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
-            "Success"
-          )}. Received ${amount} SOL.`;
+            "Success."
+          )} Received ${amount} SOL.`;
       } catch (e: any) {
         msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
-          "Error"
-        )} receiving airdrop: ${e.message}`;
+          "Error receiving airdrop:"
+        )}  ${e.message}`;
       } finally {
         setTerminal(msg + "\n");
-        setLoading(false);
       }
     },
-    [conn, amount, loading, setLoading, setTerminal, setTxHash, close]
+    [conn, amount, setTerminal, setTxHash, close]
   );
 
   const airdropPg = useCallback(async () => {
@@ -321,45 +254,6 @@ const Connect: FC<SettingsItemProps> = ({ close }) => {
   return <SettingsItem onClick={handleClick}>{solButtonStatus}</SettingsItem>;
 };
 
-const Tx: FC<ConfirmedSignatureInfo> = ({
-  signature,
-  slot,
-  err,
-  blockTime,
-}) => {
-  const [endpoint] = useAtom(endpointAtom);
-
-  const [hover, setHover] = useState(false);
-
-  const enter = useCallback(() => setHover(true), [setHover]);
-  const leave = useCallback(() => setHover(false), [setHover]);
-
-  const now = new Date().getTime() / 1000;
-  const timePassed = PgCommon.secondsToTime(now - (blockTime ?? 0));
-
-  const [explorer, solscan] = PgCommon.getExplorerUrls(signature, endpoint);
-
-  return (
-    <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>
-      {hover ? (
-        <HoverWrapper>
-          <Link href={explorer}>Solana Explorer</Link>
-          {solscan && <Link href={solscan}>Solscan</Link>}
-        </HoverWrapper>
-      ) : (
-        <>
-          <Signature>
-            {err && <ErrorIcon />}
-            {signature.substring(0, 5)}...
-          </Signature>
-          <Slot>{slot}</Slot>
-          {blockTime && <Time>{timePassed}</Time>}
-        </>
-      )}
-    </TxWrapper>
-  );
-};
-
 const Wrapper = styled.div`
   ${({ theme }) => css`
     position: absolute;
@@ -367,7 +261,6 @@ const Wrapper = styled.div`
     top: ${TAB_HEIGHT};
     width: 20rem;
     min-height: 12rem;
-    overflow: hidden;
     background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
     border-left: 1px solid ${theme.colors.default.borderColor};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
@@ -397,6 +290,7 @@ const Title = styled.span`
 const SettingsWrapper = styled.div`
   position: absolute;
   right: 1rem;
+  z-index: 2;
 `;
 
 const SettingsList = styled.div`
@@ -438,120 +332,17 @@ const Main = styled.div`
       ${theme.colors.default.primary + theme.transparency?.low} 100%
     );
     padding: 1rem;
-  `}
-`;
+    position: relative;
 
-const TxsWrapper = styled.div``;
-
-const TxTitleWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  & > button {
-    margin-right: 0.5rem;
-  }
-`;
-
-const TxTitle = styled.span`
-  font-weight: bold;
-`;
-
-const TxsListWrapper = styled.div`
-  ${({ theme }) => css`
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
-    background-color: ${theme.colors.right?.otherBg};
-    margin-top: 0.5rem;
-  `}
-`;
-
-const TxsTop = styled.div`
-  ${({ theme }) => css`
-    padding: 0.5rem 1rem;
-    display: flex;
-    font-size: ${theme.font?.size.small};
-    color: ${theme.colors.default.textSecondary};
-    background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
-    font-weight: bold;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid ${theme.colors.default.borderColor};
+    &.darken::after {
+      content: "";
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
     }
   `}
-`;
-
-const TxWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 0.5rem 1rem;
-    display: flex;
-    font-size: ${theme.font?.size.small};
-    color: ${theme.colors.default.textSecondary};
-
-    &:not(:last-child) {
-      border-bottom: 1px solid ${theme.colors.default.borderColor};
-    }
-
-    &:hover {
-      color: ${theme.colors.default.textPrimary};
-      background: linear-gradient(
-        0deg,
-        ${theme.colors.right?.bg ?? theme.colors.default.bg} 75%,
-        ${theme.colors.default.primary + theme.transparency?.low} 100%
-      );
-    }
-  `}
-`;
-
-const HoverWrapper = styled.div`
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-
-  & > a:hover {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-`;
-
-const Signature = styled.div`
-  width: 40%;
-  display: flex;
-  align-items: center;
-
-  & > svg {
-    margin-right: 0.25rem;
-    color: ${({ theme }) => theme.colors.state.error.color};
-  }
-`;
-
-const Slot = styled.div`
-  width: 40%;
-`;
-
-const Time = styled.div`
-  width: 20%;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  & > svg {
-    margin-left: 0.25rem;
-  }
-`;
-
-const NoTransaction = styled.div`
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.colors.default.textSecondary};
-
-  & > svg {
-    margin-right: 0.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-  }
 `;
 
 export default Wallet;

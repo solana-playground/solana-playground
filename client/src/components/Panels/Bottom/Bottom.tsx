@@ -60,7 +60,7 @@ const Bottom = () => {
       try {
         await conn.requestAirdrop(
           currentWallet.publicKey,
-          PgCommon.SolToLamports(amount)
+          PgCommon.solToLamports(amount)
         );
       } catch (e: any) {
         if (e.message.startsWith("429 Too Many Requests")) setRateLimited(true);

@@ -8,7 +8,7 @@ import IDL from "./Extras/IDL";
 
 const Extras = () => (
   <Wrapper>
-    <Foldable ClickEl={<ExtraTitle>Extra</ExtraTitle>} closed>
+    <Foldable ClickEl={<ExtraTitle>Extra</ExtraTitle>}>
       <ExtraItem
         title="Program credentials"
         text="Import/export program keypair or input a public key for the program."
@@ -36,7 +36,7 @@ interface ExtraItemProps {
 
 const ExtraItem: FC<ExtraItemProps> = ({ title, text, InsideEl }) => (
   <ExtraItemWrapper>
-    <Foldable ClickEl={<ExtraItemTitle>{title}</ExtraItemTitle>} closed>
+    <Foldable ClickEl={<ExtraItemTitle>{title}</ExtraItemTitle>}>
       <ExtraItemText>{text}</ExtraItemText>
       {InsideEl}
     </Foldable>

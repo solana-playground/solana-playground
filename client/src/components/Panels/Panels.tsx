@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import styled from "styled-components";
 
-import Loading from "../Loading";
+import { Wormhole } from "../Loading";
 import Side from "./Side";
 // import Noti from "./Noti";
 import Toast from "../Toast";
@@ -16,7 +16,7 @@ const Panels = () => (
     {/* <Noti /> */}
     <MainWrapper>
       <Side />
-      <Suspense fallback={<Loading size={10} circleCount={10} />}>
+      <Suspense fallback={<Wormhole size={10} circleCount={10} />}>
         <Main />
         <Wallet />
       </Suspense>

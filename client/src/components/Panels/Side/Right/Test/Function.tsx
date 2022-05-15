@@ -42,7 +42,7 @@ interface FunctionProps extends FunctionInsideProps {
 
 const Function: FC<FunctionProps> = ({ ixs, idl, index }) => (
   <FunctionWrapper index={index}>
-    <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>} closed>
+    <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>}>
       <FunctionInside idl={idl} ixs={ixs} />
     </Foldable>
   </FunctionWrapper>
@@ -199,7 +199,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         >
           {ixs.args.length ? (
             <ArgsWrapper>
-              <Foldable ClickEl={<ArgsText>Args:</ArgsText>}>
+              <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
                 {ixs.args.map((a, j) => (
                   <Arg
                     key={j}
@@ -212,7 +212,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
             </ArgsWrapper>
           ) : null}
           <AccountsWrapper>
-            <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>}>
+            <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
               {ixs.accounts.map((a, j) => (
                 <Account
                   key={j}
