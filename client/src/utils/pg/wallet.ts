@@ -30,7 +30,7 @@ export class PgWallet {
     let lsWallet = PgWallet.getLs();
     if (!lsWallet) {
       lsWallet = DEFAULT_LS_WALLET;
-      PgWallet.updateLs(DEFAULT_LS_WALLET);
+      PgWallet.update(DEFAULT_LS_WALLET);
     }
 
     this._kp = Keypair.fromSecretKey(new Uint8Array(lsWallet.sk));
@@ -62,7 +62,7 @@ export class PgWallet {
     return lsWallet;
   }
 
-  static updateLs(updateParams: UpdateLsParams) {
+  static update(updateParams: UpdateLsParams) {
     const lsWallet = this.getLs() ?? DEFAULT_LS_WALLET;
 
     if (updateParams.setupCompleted !== undefined)

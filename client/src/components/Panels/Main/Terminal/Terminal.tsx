@@ -9,7 +9,6 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 
 import { terminalAtom, terminalProgressAtom } from "../../../../state";
 import { PgTerminal } from "../../../../utils/pg/terminal";
-import { DEFAULT_CURSOR } from "../../../../constants";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import Button from "../../../Button";
 import Progress from "../../../Progress";
@@ -153,14 +152,15 @@ const Terminal = () => {
       minHeight={PgTerminal.MIN_HEIGHT}
       onResizeStop={handleResizeStop}
       onResize={handleResize}
-      handleStyles={{
-        topLeft: DEFAULT_CURSOR,
-        topRight: DEFAULT_CURSOR,
-        right: DEFAULT_CURSOR,
-        bottomRight: DEFAULT_CURSOR,
-        bottom: DEFAULT_CURSOR,
-        bottomLeft: DEFAULT_CURSOR,
-        left: DEFAULT_CURSOR,
+      enable={{
+        top: true,
+        right: false,
+        bottom: false,
+        left: false,
+        topRight: false,
+        bottomRight: false,
+        bottomLeft: false,
+        topLeft: false,
       }}
     >
       <Wrapper>

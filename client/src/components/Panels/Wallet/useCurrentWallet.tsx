@@ -2,27 +2,24 @@ import { useMemo } from "react";
 import { useAtom } from "jotai";
 import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 
-import { pgWalletAtom, refreshPgWalletAtom } from "../../../../../state";
-import { PgWallet } from "../../../../../utils/pg/wallet";
+import { pgWalletAtom, refreshPgWalletAtom } from "../../../state";
+import { PgWallet } from "../../../utils/pg/wallet";
 
 const useCurrentWallet = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const wallet = useAnchorWallet();
 
-  const currentWallet = useMemo(() => {
+  const [currentWallet, walletPkStr] = useMemo(() => {
     let currentWallet: PgWallet | AnchorWallet | null = null;
+    // Priority is external wallet
     if (wallet) currentWallet = wallet;
     else if (pgWallet.connected) currentWallet = pgWallet;
 
-    return currentWallet;
+    return [currentWallet, currentWallet?.publicKey.toBase58() ?? ""];
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, pgWallet, pgWalletChanged]);
-
-  const walletPkStr = useMemo(() => {
-    return currentWallet?.publicKey.toBase58() ?? "";
-  }, [currentWallet]);
 
   return {
     currentWallet,

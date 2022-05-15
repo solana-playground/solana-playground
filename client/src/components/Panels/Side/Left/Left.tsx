@@ -6,7 +6,6 @@ import IconButton from "../../../IconButton";
 import Link from "../../../Link";
 import PopButton from "../../../PopButton";
 import Settings from "../Right/Settings";
-import Wallet from "../Right/Wallet";
 import { Sidebar } from "../sidebar-values";
 import { sidebarData } from "./sidebar-data";
 import useActiveTab from "./useActiveTab";
@@ -53,7 +52,7 @@ const Left: FC<LeftProps> = ({
             return (
               <PopButton
                 key={i}
-                PopElement={data.value === Sidebar.WALLET ? Wallet : Settings}
+                PopElement={Settings}
                 buttonProps={{ ...data }}
               />
             );

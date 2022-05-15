@@ -16,13 +16,15 @@ interface ButtonProps {
   kind?: ButtonKind;
   size?: ButtonSize;
   fullWidth?: boolean;
+  bold?: boolean;
 }
 
 const getButtonStyles = (
   theme: DefaultTheme,
   kind?: ButtonKind,
   size?: ButtonSize,
-  fullWidth?: boolean
+  fullWidth?: boolean,
+  bold?: boolean
 ) => {
   let color = "inherit";
   let bgColor = "transparent";
@@ -37,14 +39,14 @@ const getButtonStyles = (
   // Kind
   switch (kind) {
     case "primary": {
-      if (theme.colors.conrast?.primary) color = theme.colors.conrast.color;
+      if (theme.colors.contrast?.primary) color = theme.colors.contrast.color;
       bgColor = theme.colors.default.primary;
       hoverBgColor += "E0";
       padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary": {
-      if (theme.colors.conrast?.secondary) color = theme.colors.conrast.color;
+      if (theme.colors.contrast?.secondary) color = theme.colors.contrast.color;
       bgColor = theme.colors.default.secondary;
       hoverBgColor = theme.colors.default.secondary + "E0";
       padding = "0.5rem 1.25rem";
@@ -53,13 +55,11 @@ const getButtonStyles = (
     case "primary-outline": {
       borderColor = theme.colors.default.primary;
       hoverBgColor += "E0";
-      padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary-outline": {
       borderColor = theme.colors.default.secondary;
       hoverBgColor = theme.colors.default.secondary + "E0";
-      padding = "0.5rem 1.25rem";
       break;
     }
     case "primary-transparent": {
@@ -133,6 +133,12 @@ const getButtonStyles = (
       width: 100%;
     `);
 
+  // Bold
+  if (bold)
+    defaultCss = defaultCss.concat(css`
+      font-weight: bold;
+    `);
+
   if (kind === "icon")
     defaultCss = defaultCss.concat(css`
       display: flex;
@@ -155,8 +161,8 @@ const getButtonStyles = (
 };
 
 const Button = styled.button<ButtonProps>`
-  ${({ theme, kind, size, fullWidth }) =>
-    getButtonStyles(theme, kind, size, fullWidth)}
+  ${({ theme, kind, size, fullWidth, bold }) =>
+    getButtonStyles(theme, kind, size, fullWidth, bold)}
 `;
 
 export default Button;

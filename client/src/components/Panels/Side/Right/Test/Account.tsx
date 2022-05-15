@@ -9,7 +9,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  SYSVAR_CLOCK_PUBKEY,
+  SYSVAR_RENT_PUBKEY,
+} from "@solana/web3.js";
 import {
   associatedAddress,
   ASSOCIATED_PROGRAM_ID,
@@ -23,14 +29,15 @@ import Input, { defaultInputProps } from "../../../../Input";
 import Button from "../../../../Button";
 import InputLabel from "./InputLabel";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import useCurrentWallet from "../Wallet/useCurrentWallet";
+import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 
 interface AccountProps {
   account: IdlAccount;
   isArg?: boolean;
+  functionName: string;
 }
 
-const Account: FC<AccountProps> = ({ account, isArg }) => {
+const Account: FC<AccountProps> = ({ account, isArg, functionName }) => {
   const { walletPkStr } = useCurrentWallet();
 
   const accountStr = useMemo(
@@ -119,10 +126,10 @@ const Account: FC<AccountProps> = ({ account, isArg }) => {
   });
 
   const inputName = useMemo(() => {
-    if (isArg) return Identifiers.ARGS + account.name;
+    if (isArg) return functionName + Identifiers.ARGS + account.name;
 
-    return Identifiers.ACCS + account.name;
-  }, [account.name, isArg]);
+    return functionName + Identifiers.ACCS + account.name;
+  }, [functionName, account.name, isArg]);
 
   return (
     <Wrapper>
@@ -272,7 +279,7 @@ const ShowSeed: FC<ShowGenProps> = ({
         />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
-        <Button onClick={handleGen} kind="primary">
+        <Button onClick={handleGen} kind="primary-outline">
           Generate
         </Button>
       </ShowGenButtonWrapper>
@@ -343,7 +350,7 @@ const ShowAta: FC<ShowGenProps> = ({
         <Input value={owner} onChange={handleOwner} {...defaultInputProps} />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
-        <Button onClick={handleGen} kind="primary">
+        <Button onClick={handleGen} kind="primary-outline">
           Generate
         </Button>
       </ShowGenButtonWrapper>
@@ -355,6 +362,7 @@ const ShowGenWrapper = styled.div``;
 
 const ShowGenTitle = styled.div`
   color: ${({ theme }) => theme.colors.default.primary};
+  font-size: ${({ theme }) => theme.font?.size.small};
 `;
 
 const ShowGenInputWrapper = styled.div`
@@ -369,15 +377,24 @@ const ShowGenButtonWrapper = styled.div`
 `;
 
 const getKnownAccount = (name: string) => {
+  const pk = getKnownAccountPk(name);
+  return pk?.toBase58() ?? "";
+};
+
+const getKnownAccountPk = (name: string) => {
   switch (name) {
     case "systemProgram":
-      return SystemProgram.programId.toBase58();
+      return SystemProgram.programId;
     case "tokenProgram":
-      return TOKEN_PROGRAM_ID.toBase58();
+      return TOKEN_PROGRAM_ID;
     case "associatedTokenProgram":
-      return ASSOCIATED_PROGRAM_ID.toBase58();
+      return ASSOCIATED_PROGRAM_ID;
+    case "clock":
+      return SYSVAR_CLOCK_PUBKEY;
+    case "rent":
+      return SYSVAR_RENT_PUBKEY;
     default:
-      return "";
+      return null;
   }
 };
 

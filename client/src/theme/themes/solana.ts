@@ -178,7 +178,7 @@ export const SOLANA: Theme = {
       },
       warning: { color: YELLOW },
     },
-    conrast: {
+    contrast: {
       color: BG_BLACK,
       primary: true,
     },

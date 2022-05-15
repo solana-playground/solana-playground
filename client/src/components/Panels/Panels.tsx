@@ -3,19 +3,22 @@ import styled from "styled-components";
 
 import Loading from "../Loading";
 import Side from "./Side";
-import Noti from "./Noti";
+// import Noti from "./Noti";
 import Toast from "../Toast";
 
 const Main = lazy(() => import("./Main"));
 const Bottom = lazy(() => import("./Bottom"));
+const Wallet = lazy(() => import("./Wallet"));
 
 const Panels = () => (
   <Wrapper>
-    <Noti />
+    {/* FIXME: Notification div is causing incorrect styling on other elements */}
+    {/* <Noti /> */}
     <MainWrapper>
       <Side />
       <Suspense fallback={<Loading size={10} circleCount={10} />}>
         <Main />
+        <Wallet />
       </Suspense>
     </MainWrapper>
     <Suspense fallback={false}>

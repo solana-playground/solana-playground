@@ -32,11 +32,6 @@ export const sidebarData = {
       value: Sidebar.GITHUB,
     },
     {
-      title: Sidebar.WALLET,
-      src: rootDir + "wallet.png",
-      value: Sidebar.WALLET,
-    },
-    {
       title: Sidebar.SETTINGS,
       src: rootDir + "settings.webp",
       value: Sidebar.SETTINGS,

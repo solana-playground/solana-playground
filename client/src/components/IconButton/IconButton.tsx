@@ -39,7 +39,7 @@ const IconWrapper = styled.div`
   align-items: center;
 
   &.active {
-    background-color: ${({ theme }) => theme.colors?.iconButton?.selectedBg!};
+    background-color: ${({ theme }) => theme.colors?.iconButton?.selectedBg};
     border-left: 2px solid
       ${({ theme }) =>
         theme.colors?.iconButton?.selectedBorderColor ??

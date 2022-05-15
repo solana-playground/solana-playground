@@ -11,5 +11,7 @@ export enum ClassName {
 }
 
 export enum Id {
+  ROOT = "root",
   ROOT_DIR = "root-dir",
+  BOTTOM = "bottom",
 }

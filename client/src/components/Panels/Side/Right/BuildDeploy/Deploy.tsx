@@ -17,10 +17,11 @@ import {
   programAtom,
 } from "../../../../../state";
 import useIsDeployed from "./useIsDeployed";
-import useConnect from "../Wallet/useConnect";
+import useConnect from "../../../Wallet/useConnect";
 import Loading from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
+import useAuthority from "./useAuthority";
 
 // TODO: Cancel deployment
 
@@ -34,6 +35,7 @@ const Deploy = () => {
 
   const { initialLoading } = useInitialLoading();
   const { deployed, setDeployed, connError } = useIsDeployed();
+  const { hasAuthority, upgradeable } = useAuthority();
 
   const { connection: conn } = useConnection();
 
@@ -128,6 +130,22 @@ const Deploy = () => {
         </Wrapper>
       );
 
+    if (upgradeable === false)
+      return (
+        <Wrapper>
+          <Text type="Warning">The program is not upgradeable.</Text>
+        </Wrapper>
+      );
+
+    if (hasAuthority === false)
+      return (
+        <Wrapper>
+          <Text type="Warning">
+            You don't have the authority to upgrade this program.
+          </Text>
+        </Wrapper>
+      );
+
     let text = ` Ready to ${deployed ? "upgrade" : "deploy"} ${
       program.fileName
     }`;
@@ -177,6 +195,22 @@ const Deploy = () => {
             {
               "You need to build the project first or upload a program from Extra > Upload a program."
             }
+          </Text>
+        </Wrapper>
+      );
+
+    if (upgradeable === false)
+      return (
+        <Wrapper>
+          <Text type="Warning">The program is not upgradeable.</Text>
+        </Wrapper>
+      );
+
+    if (hasAuthority === false)
+      return (
+        <Wrapper>
+          <Text type="Warning">
+            You don't have the authority to upgrade this program.
           </Text>
         </Wrapper>
       );

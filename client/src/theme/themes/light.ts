@@ -203,6 +203,14 @@ export const LIGHT: Theme = {
       selectedBg: HOVER,
       selectedBorderColor: BG_LIGHT,
     },
+    contrast: {
+      color: LIGHTER,
+      primary: true,
+      secondary: true,
+    },
+    bottom: {
+      color: LIGHTER,
+    },
   },
   highlight,
 };
