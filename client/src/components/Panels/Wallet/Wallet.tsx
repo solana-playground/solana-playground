@@ -27,7 +27,7 @@ import useCurrentWallet from "./useCurrentWallet";
 import useAirdropAmount from "./useAirdropAmount";
 import { TAB_HEIGHT } from "../Main/Tabs";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
-import { ThreeDots } from "../../Icons";
+import { Close, ThreeDots } from "../../Icons";
 import Button from "../../Button";
 import DownloadButton from "../../DownloadButton";
 import { PgWallet } from "../../../utils/pg/wallet";
@@ -36,6 +36,9 @@ import Transactions from "./Transactions";
 import { ClassName, Id } from "../../../constants";
 import Send from "./Send";
 import Balance from "./Balance";
+import { Rnd } from "react-rnd";
+import { ICONBAR_WIDTH } from "../Side/Left";
+import { BOTTOM_HEIGHT } from "../Bottom/Bottom";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -44,15 +47,36 @@ const Wallet = () => {
 
   if (!showWallet || !walletPkStr) return null;
 
+  const tabHeight = document
+    .getElementById(Id.TABS)
+    ?.getBoundingClientRect().height;
+
   return (
-    <Wrapper>
-      <WalletTitle />
-      <Main id={Id.WALLET_MAIN}>
-        <Balance />
-        <Send />
-        <Transactions />
-      </Main>
-    </Wrapper>
+    <>
+      <WalletBound id={Id.WALLET_BOUND} />
+      <Rnd
+        default={{
+          x: window.innerWidth - (WALLET_WIDTH + 12),
+          y: tabHeight ?? 32,
+          width: "fit-content",
+          height: "fit-content",
+        }}
+        minWidth={WALLET_WIDTH}
+        maxWidth={WALLET_WIDTH}
+        enableResizing={false}
+        bounds={"#" + Id.WALLET_BOUND}
+        enableUserSelectHack={false}
+      >
+        <WalletWrapper>
+          <WalletTitle />
+          <Main id={Id.WALLET_MAIN}>
+            <Balance />
+            <Send />
+            <Transactions />
+          </Main>
+        </WalletWrapper>
+      </Rnd>
+    </>
   );
 };
 
@@ -63,10 +87,11 @@ const WalletTitle = () => {
 
   return (
     <TitleWrapper>
+      <WalletSettings />
       <Title onClick={setCopied} title="Copy address">
         {PgCommon.shortenPk(walletPkStr)}
       </Title>
-      <WalletSettings />
+      <WalletClose />
     </TitleWrapper>
   );
 };
@@ -100,7 +125,7 @@ const WalletSettings = () => {
 
   return (
     <SettingsWrapper>
-      <Button onClick={toggle} kind="icon">
+      <Button onClick={toggle} kind="icon" title="More">
         <ThreeDots />
       </Button>
       {show && (
@@ -256,17 +281,47 @@ const Connect: FC<SettingsItemProps> = ({ close }) => {
   return <SettingsItem onClick={handleClick}>{solButtonStatus}</SettingsItem>;
 };
 
-const Wrapper = styled.div`
+const WalletClose = () => {
+  const [, setShowWallet] = useAtom(showWalletAtom);
+
+  const close = () => {
+    setShowWallet(false);
+  };
+
+  return (
+    <WalletCloseWrapper>
+      <Button onClick={close} kind="icon">
+        <Close />
+      </Button>
+    </WalletCloseWrapper>
+  );
+};
+
+const WALLET_WIDTH = 320;
+
+const WalletBound = styled.div`
+  position: absolute;
+  margin: ${TAB_HEIGHT} ${EDITOR_SCROLLBAR_WIDTH} ${BOTTOM_HEIGHT}
+    ${ICONBAR_WIDTH};
+  width: calc(
+    100% -
+      ${PgCommon.calculateRem(EDITOR_SCROLLBAR_WIDTH, ICONBAR_WIDTH, "add")}
+  );
+  height: calc(
+    100% - ${PgCommon.calculateRem(TAB_HEIGHT, BOTTOM_HEIGHT, "add")}
+  );
+  z-index: -1;
+`;
+
+const WalletWrapper = styled.div`
   ${({ theme }) => css`
-    position: absolute;
-    right: ${EDITOR_SCROLLBAR_WIDTH};
-    top: ${TAB_HEIGHT};
-    width: 20rem;
-    min-height: 12rem;
+    width: 100%;
+    height: 100%;
     background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
-    border-left: 1px solid ${theme.colors.default.borderColor};
-    border-bottom: 1px solid ${theme.colors.default.borderColor};
+    border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
+    overflow: hidden;
+    z-index: 2;
   `}
 `;
 
@@ -291,14 +346,14 @@ const Title = styled.span`
 
 const SettingsWrapper = styled.div`
   position: absolute;
-  right: 1rem;
+  left: 1rem;
   z-index: 2;
 `;
 
 const SettingsList = styled.div`
   ${({ theme }) => css`
     position: absolute;
-    right: 0;
+    left: 0;
     top: 1.75rem;
     background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
     font-size: ${theme.font?.size.small};
@@ -326,6 +381,11 @@ const SettingsItem = styled.div`
   `}
 `;
 
+const WalletCloseWrapper = styled.div`
+  position: absolute;
+  right: 1rem;
+`;
+
 const Main = styled.div`
   ${({ theme }) => css`
     background: linear-gradient(
@@ -334,6 +394,7 @@ const Main = styled.div`
       ${theme.colors.default.primary + theme.transparency?.low} 100%
     );
     padding: 1rem;
+    cursor: auto;
     position: relative;
 
     &.darken::after {

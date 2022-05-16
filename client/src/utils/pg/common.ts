@@ -87,4 +87,20 @@ export class PgCommon {
     if (isNaN(float)) return false;
     return true;
   }
+
+  static calculateRem(
+    remOne: string,
+    remTwo: string,
+    operation: "add" | "substract"
+  ) {
+    const intOne = +remOne.split("rem")[0];
+    const intTwo = +remTwo.split("rem")[0];
+
+    let result;
+
+    if (operation === "add") result = intOne + intTwo;
+    else if (operation === "substract") result = intOne - intTwo;
+
+    return result + "rem";
+  }
 }

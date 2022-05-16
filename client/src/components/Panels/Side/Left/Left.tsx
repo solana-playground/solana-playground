@@ -11,7 +11,6 @@ import { sidebarData } from "./sidebar-data";
 import useActiveTab from "./useActiveTab";
 
 const ID_PREFIX = "Icon";
-export const ICONBAR_WIDTH = "3rem";
 
 interface LeftProps {
   sidebarState: string;
@@ -62,6 +61,8 @@ const Left: FC<LeftProps> = ({
     </Wrapper>
   );
 };
+
+export const ICONBAR_WIDTH = "3rem";
 
 const Wrapper = styled.div`
   display: flex;

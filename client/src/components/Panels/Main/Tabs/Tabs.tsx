@@ -1,6 +1,7 @@
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 import styled, { css } from "styled-components";
+import { Id } from "../../../../constants";
 
 import {
   explorerAtom,
@@ -19,7 +20,7 @@ const Tabs = () => {
   const tabs = explorer?.getTabs();
 
   return (
-    <Wrapper>
+    <Wrapper id={Id.TABS}>
       <TabsWrapper>
         {tabs?.map((t, i) => (
           <Tab key={i} current={t.current} path={t.path} />

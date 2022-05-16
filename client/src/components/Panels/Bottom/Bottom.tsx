@@ -108,10 +108,12 @@ const Bottom = () => {
   );
 };
 
+export const BOTTOM_HEIGHT = "1.5rem";
+
 const Wrapper = styled.div`
   ${({ theme }) => css`
     overflow: hidden;
-    height: 1.5rem;
+    height: ${BOTTOM_HEIGHT};
     width: 100%;
     display: flex;
     align-items: center;
