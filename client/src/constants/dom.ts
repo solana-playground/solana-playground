@@ -10,6 +10,7 @@ export enum ClassName {
   SIDE_RIGHT = "side-right",
   LOADING = "loading",
   DARKEN = "darken",
+  ICON_CHECKMARK = "icon-checkmark",
 }
 
 export enum Id {

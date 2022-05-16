@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
 type TextType = "Info" | "Warning" | "Success" | "Error";
@@ -7,24 +7,28 @@ type TextSize = "Small" | "Medium" | "Large";
 export interface TextProps {
   type?: TextType;
   size?: TextSize;
+  IconEl?: ReactNode;
 }
 
-const Text: FC<TextProps> = ({ type, size, children }) => {
+const Text: FC<TextProps> = ({ type, size, IconEl, children }) => {
   return (
-    <Wrapper type={type} size={size}>
+    <Wrapper type={type} size={size} IconEl={IconEl}>
+      {IconEl}
       {children}
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div<TextProps>`
-  ${({ theme, type, size }) => getTextStyle(theme, type, size)}
+  ${({ theme, type, size, IconEl }) =>
+    getTextStyle(theme, type, size, IconEl ? true : false)}
 `;
 
 const getTextStyle = (
   theme: DefaultTheme,
   type: TextType = "Info",
-  size: TextSize = "Small"
+  size: TextSize = "Small",
+  iconElExists: boolean
 ) => {
   let borderColor;
   let fontSize;
@@ -38,7 +42,7 @@ const getTextStyle = (
   else if (size === "Medium") fontSize = theme.font?.size.medium;
   else if (size === "Large") fontSize = theme.font?.size.large;
 
-  return css`
+  let returnedCss = css`
     font-size: ${fontSize};
     padding: 1rem;
     background-color: ${theme.colors.right?.otherBg};
@@ -46,7 +50,19 @@ const getTextStyle = (
     border-radius: ${theme.borderRadius};
     display: flex;
     justify-content: center;
+    align-items: center;
   `;
+
+  if (iconElExists)
+    returnedCss = returnedCss.concat(css`
+      & > svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 0.5rem;
+      }
+    `);
+
+  return returnedCss;
 };
 
 export default Text;
