@@ -33,8 +33,9 @@ import DownloadButton from "../../DownloadButton";
 import { PgWallet } from "../../../utils/pg/wallet";
 import UploadButton from "../../UploadButton";
 import Transactions from "./Transactions";
-import Send from "./Send";
 import { ClassName, Id } from "../../../constants";
+import Send from "./Send";
+import Balance from "./Balance";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -47,6 +48,7 @@ const Wallet = () => {
     <Wrapper>
       <WalletTitle />
       <Main id={Id.WALLET_MAIN}>
+        <Balance />
         <Send />
         <Transactions />
       </Main>

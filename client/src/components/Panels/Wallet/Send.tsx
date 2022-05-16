@@ -4,7 +4,7 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import styled from "styled-components";
 
-import { terminalAtom, txHashAtom } from "../../../state";
+import { balanceAtom, terminalAtom, txHashAtom } from "../../../state";
 import { ClassName } from "../../../constants";
 import { PgTx } from "../../../utils/pg/tx";
 import Button from "../../Button";
@@ -14,19 +14,18 @@ import { PgTerminal } from "../../../utils/pg/terminal";
 import Foldable from "../../Foldable";
 import { PgCommon } from "../../../utils/pg/common";
 
-const Send = () => {
-  return (
-    <Wrapper>
-      <Foldable ClickEl={<Title>Send</Title>}>
-        <SendInside />
-      </Foldable>
-    </Wrapper>
-  );
-};
+const Send = () => (
+  <Wrapper>
+    <Foldable ClickEl={<Title>Send</Title>}>
+      <SendInside />
+    </Foldable>
+  </Wrapper>
+);
 
 const SendInside = () => {
   const [, setTerminal] = useAtom(terminalAtom);
   const [, setTxHash] = useAtom(txHashAtom);
+  const [balance] = useAtom(balanceAtom);
 
   const [address, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
@@ -36,6 +35,7 @@ const SendInside = () => {
   const addressInputRef = useRef<HTMLInputElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
 
+  // Address Input error
   useEffect(() => {
     if (!address) {
       addressInputRef.current?.classList.remove(ClassName.ERROR);
@@ -52,8 +52,9 @@ const SendInside = () => {
     }
   }, [address, setDisabled]);
 
+  // Amount Input error
   useEffect(() => {
-    if (!amount) {
+    if (!amount || !balance) {
       amountInputRef.current?.classList.remove(ClassName.ERROR);
       setDisabled(true);
       return;
@@ -63,17 +64,25 @@ const SendInside = () => {
       const isFloat = PgCommon.isFloat(amount);
       if (!isFloat) throw new Error("Invalid amount");
 
+      if (parseFloat(amount) > balance) throw new Error("Not enough balance");
+
       amountInputRef.current?.classList.remove(ClassName.ERROR);
     } catch {
       amountInputRef.current?.classList.add(ClassName.ERROR);
-      setDisabled(true);
     }
-  }, [amount, setDisabled]);
+  }, [amount, balance]);
 
+  // Send button disable
   useEffect(() => {
-    if (address && amount) setDisabled(false);
+    if (
+      address &&
+      PgCommon.isFloat(amount) &&
+      balance &&
+      balance > parseFloat(amount)
+    )
+      setDisabled(false);
     else setDisabled(true);
-  }, [address, amount, setDisabled]);
+  }, [address, amount, balance, setDisabled]);
 
   const handleChangeAddress = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +154,6 @@ const SendInside = () => {
           disabled={disabled || loading}
           kind="primary-transparent"
           fullWidth
-          bold
         >
           Send
         </Button>
@@ -163,15 +171,17 @@ const Title = styled.div`
 `;
 
 const InsideWrapper = styled.div`
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
 `;
 
 const InputWrapper = styled.div`
   & > input {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 `;
 
-const ButtonWrapper = styled.div``;
+const ButtonWrapper = styled.div`
+  margin-top: 0.25rem;
+`;
 
 export default Send;

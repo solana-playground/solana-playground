@@ -35,7 +35,7 @@ const Build = () => {
       // To update programId each build
       setBuildCount((c) => c + 1);
     } catch (e: any) {
-      msg = `Build error: ${e.message}\n`;
+      msg = `${PgTerminal.error("Build error:")} ${e.message}\n`;
     } finally {
       setTerminal(msg);
       setLoading(false);

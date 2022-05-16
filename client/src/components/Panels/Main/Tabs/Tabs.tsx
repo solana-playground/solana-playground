@@ -43,7 +43,7 @@ const Wallet = () => {
 
   return (
     <WalletWrapper>
-      <Button onClick={toggleWallet} kind="icon" bold>
+      <Button onClick={toggleWallet} kind="icon">
         <img src="icons/sidebar/wallet.png" alt="Wallet" />
         Wallet
       </Button>
@@ -84,6 +84,7 @@ const WalletWrapper = styled.div`
       border-bottom-left-radius: ${theme.borderRadius};
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
+      font-weight: bold;
 
       & img {
         filter: invert(0.5);
