@@ -23,7 +23,7 @@ const StyledTooltip = styled.div<TooltipProps>`
       left: 50%;
       transform: translateX(-50%) translateY(var(--translate-y, 0))
         scale(var(--scale));
-      transition: 150ms transform;
+      transition: all ${theme.transition?.duration} ${theme.transition?.type};
       transform-origin: bottom center;
     }
 

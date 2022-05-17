@@ -44,7 +44,13 @@ const Build = () => {
 
   return (
     <Wrapper>
-      <Button kind="secondary" onClick={build} disabled={loading} fullWidth>
+      <Button
+        kind="secondary"
+        onClick={build}
+        disabled={loading}
+        fullWidth
+        btnLoading={loading}
+      >
         {loading ? "Building..." : "Build"}
       </Button>
     </Wrapper>

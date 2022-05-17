@@ -5,6 +5,7 @@ import {
   PG_BORDER_RADIUS,
   PG_FONT,
   PG_SCROLLBAR,
+  PG_TRANSITION,
   PG_TRANSPARENCY,
 } from "./default";
 import Theme from "./interface";
@@ -43,6 +44,7 @@ const MutThemeProvider: FC = ({ children }) => {
     if (theme.isDark) theme.colors.scrollbar = PG_SCROLLBAR.dark;
     else theme.colors.scrollbar = PG_SCROLLBAR.light;
   }
+  if (!theme.transition) theme.transition = PG_TRANSITION;
 
   const [_theme, setTheme] = useState(theme);
 

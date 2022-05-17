@@ -1,4 +1,7 @@
+import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
+
+import { spinnerAnimation } from "../Loading/Spinner";
 
 export type ButtonKind =
   | "primary"
@@ -12,18 +15,36 @@ export type ButtonKind =
   | "icon";
 type ButtonSize = "small" | "medium" | "large";
 
-interface ButtonProps {
+export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   kind?: ButtonKind;
   size?: ButtonSize;
   fullWidth?: boolean;
+  btnLoading?: boolean;
 }
 
-const getButtonStyles = (
-  theme: DefaultTheme,
-  kind?: ButtonKind,
-  size?: ButtonSize,
-  fullWidth?: boolean
-) => {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
+  <StyledButton
+    ref={ref}
+    className={`${props.className ? props.className : ""} ${
+      props.btnLoading ? "btn-loading" : ""
+    }`}
+    {...props}
+  >
+    <span className="btn-spinner" />
+    {props.children}
+  </StyledButton>
+));
+
+const StyledButton = styled.button<ButtonProps>`
+  ${(props) => getButtonStyles(props)}
+`;
+
+const getButtonStyles = ({
+  theme,
+  kind,
+  size,
+  fullWidth,
+}: ButtonProps & { theme: DefaultTheme }) => {
   let color = "inherit";
   let bgColor = "transparent";
   let borderColor = "transparent";
@@ -105,6 +126,8 @@ const getButtonStyles = (
     background-color: ${bgColor};
     color: ${color};
     border: 1px solid ${borderColor};
+    position: relative;
+    transition: all ${theme.transition?.duration} ${theme.transition?.type};
 
     &:hover {
       background-color: ${hoverBgColor};
@@ -122,6 +145,23 @@ const getButtonStyles = (
         background-color: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
       }
+    }
+
+    /* Loading */
+    & > span.btn-spinner {
+      transform: scale(0);
+    }
+
+    &.btn-loading > span.btn-spinner {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+      border: 3px solid transparent;
+      border-top-color: ${theme.colors.default.primary};
+      border-right-color: ${theme.colors.default.primary};
+      border-radius: 50%;
+      animation: ${spinnerAnimation} 0.5s linear infinite;
+      transform: scale(1);
     }
   `;
 
@@ -151,10 +191,5 @@ const getButtonStyles = (
 
   return defaultCss;
 };
-
-const Button = styled.button<ButtonProps>`
-  ${({ theme, kind, size, fullWidth }) =>
-    getButtonStyles(theme, kind, size, fullWidth)}
-`;
 
 export default Button;

@@ -17,27 +17,37 @@ export const SpinnerWithBg: FC<SpinnerWithBgProps> = ({
 );
 
 const Background = styled.div`
-  position: relative;
-
-  & > .spinner {
-    display: none;
-  }
-
-  &.loading {
-    & > .spinner {
-      display: block;
-    }
+  ${({ theme }) => css`
+    position: relative;
 
     &::after {
       content: "";
-      display: block;
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background-color: #000;
+      opacity: 0;
+      z-index: -1;
+      transition: all ${theme.transition?.duration} ${theme.transition?.type};
     }
-  }
+
+    & > .spinner {
+      display: none;
+    }
+
+    &.loading {
+      &::after {
+        opacity: 0.5;
+        z-index: 1;
+      }
+
+      & > .spinner {
+        display: block;
+        z-index: 2;
+      }
+    }
+  `}
 `;
 
 interface SpinnerProps {
@@ -62,7 +72,7 @@ export const Spinner = styled.div<SpinnerProps>`
   `}
 `;
 
-const spinnerAnimation = keyframes`
+export const spinnerAnimation = keyframes`
   0% {transform: rotate(0deg)}
   100% {transform: rotate(360deg)}
 `;

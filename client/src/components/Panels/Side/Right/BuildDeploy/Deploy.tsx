@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled from "styled-components";
 
-import Button, { ButtonKind } from "../../../../Button";
+import Button, { ButtonKind, ButtonProps } from "../../../../Button";
 import Text from "../../../../Text";
 import { PgDeploy } from "../../../../../utils/pg/deploy";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
@@ -103,10 +103,11 @@ const Deploy = () => {
     return text;
   }, [loading, deployed]);
 
-  const deployButtonProps = {
+  const deployButtonProps: ButtonProps = {
     kind: "primary" as ButtonKind,
     onClick: deploy,
     disabled: loading,
+    btnLoading: loading,
   };
 
   // Custom(uploaded) program deploy

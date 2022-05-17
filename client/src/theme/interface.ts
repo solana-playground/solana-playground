@@ -107,4 +107,8 @@ export default interface Theme {
     medium: string;
     high: string;
   };
+  transition?: {
+    type: string;
+    duration: string;
+  };
 }
