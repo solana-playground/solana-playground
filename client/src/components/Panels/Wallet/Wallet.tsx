@@ -10,7 +10,7 @@ import { useAtom } from "jotai";
 import { Buffer } from "buffer";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import useCopyClipboard from "react-use-clipboard";
+import { Rnd } from "react-rnd";
 import styled, { css } from "styled-components";
 
 import {
@@ -36,9 +36,10 @@ import Transactions from "./Transactions";
 import { ClassName, Id } from "../../../constants";
 import Send from "./Send";
 import Balance from "./Balance";
-import { Rnd } from "react-rnd";
 import { ICONBAR_WIDTH } from "../Side/Left";
 import { BOTTOM_HEIGHT } from "../Bottom/Bottom";
+import Tooltip from "../../Tooltip";
+import useCopy from "../../CopyButton/useCopy";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -83,14 +84,14 @@ const Wallet = () => {
 const WalletTitle = () => {
   const { walletPkStr } = useCurrentWallet();
 
-  const [, setCopied] = useCopyClipboard(walletPkStr);
+  const [copied, setCopied] = useCopy(walletPkStr);
 
   return (
     <TitleWrapper>
       <WalletSettings />
-      <Title onClick={setCopied} title="Copy address">
-        {PgCommon.shortenPk(walletPkStr)}
-      </Title>
+      <Tooltip tooltipText={copied ? "Copied" : "Copy address"}>
+        <Title onClick={setCopied}>{PgCommon.shortenPk(walletPkStr)}</Title>
+      </Tooltip>
       <WalletClose />
     </TitleWrapper>
   );
@@ -320,7 +321,6 @@ const WalletWrapper = styled.div`
     background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
-    overflow: hidden;
     z-index: 2;
   `}
 `;

@@ -34,7 +34,10 @@ const MutThemeProvider: FC = ({ children }) => {
       otherBg: theme.colors.default.bg,
     };
   if (!theme.colors.tooltip)
-    theme.colors.tooltip = { bg: theme.colors.default.bg };
+    theme.colors.tooltip = {
+      bg: theme.colors.default.bg,
+      color: theme.colors.default.textPrimary,
+    };
   if (!theme.borderRadius) theme.borderRadius = PG_BORDER_RADIUS;
   if (!theme.colors.scrollbar) {
     if (theme.isDark) theme.colors.scrollbar = PG_SCROLLBAR.dark;

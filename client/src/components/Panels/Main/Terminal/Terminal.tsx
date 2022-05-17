@@ -167,12 +167,12 @@ const Terminal = () => {
         <Topbar>
           <Progress value={progress} />
           <ButtonsWrapper>
-            <Button kind="icon" title="Clear(Ctrl+L)" onClick={clear}>
+            <Button kind="icon" title="Clear (Ctrl+L)" onClick={clear}>
               <Clear />
             </Button>
             <Button
               kind="icon"
-              title="Toggle Maximize(Ctrl+M)"
+              title="Toggle Maximize (Ctrl+M)"
               onClick={toggleMaximize}
               ref={maxButtonRef}
             >
@@ -180,7 +180,7 @@ const Terminal = () => {
             </Button>
             <Button
               kind="icon"
-              title="Toggle Close(Ctrl+`)"
+              title="Toggle Close (Ctrl+`)"
               onClick={toggleClose}
               ref={closeButtonRef}
             >

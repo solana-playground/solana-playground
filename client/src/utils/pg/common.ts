@@ -1,4 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 
 export class PgCommon {
@@ -35,13 +36,15 @@ export class PgCommon {
   }
 
   static secondsToTime(secs: number) {
-    const h = Math.floor(secs / 3600),
-      m = Math.floor((secs % 3600) / 60),
+    const d = Math.floor(secs / (60 * 60 * 24)),
+      h = Math.floor((secs % (60 * 60 * 24)) / (60 * 60)),
+      m = Math.floor((secs % (60 * 60)) / 60),
       s = Math.floor(secs % 60);
 
-    if (!(h + m)) return `${s}s`;
-    else if (!h) return `${m}m`;
-    else if (!m) return `${h}h`;
+    if (d) return `${d}d`;
+    if (h) return `${h}h`;
+    if (m) return `${m}m`;
+    if (s) return `${s}s`;
 
     return "";
   }
