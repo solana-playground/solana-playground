@@ -35,7 +35,6 @@ const StyledTooltip = styled.div<TooltipProps>`
       border-radius: ${theme.borderRadius};
       text-align: center;
       width: max-content;
-      max-width: 100%;
       color: ${tooltipText !== "Copied"
         ? theme.colors.tooltip?.color
         : theme.colors.state.success.color};

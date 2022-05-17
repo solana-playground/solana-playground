@@ -124,19 +124,36 @@ See the list of available crates and request new crates from here: ${PgTerminal.
    * Improve error messages
    */
   static convertErrorMessage(msg: string) {
-    // Program errors
+    // Hex program errors
     for (const programErrorCode in PROGRAM_ERROR) {
       if (msg.endsWith("0x" + programErrorCode.toLowerCase())) {
         const parts = msg.split(":");
-        const ixNumber = parts[2][parts[2].length - 1];
+        if (parts.length !== 4) return msg;
+
+        const ixIndex = parts[2][parts[2].length - 1];
         const programError = PROGRAM_ERROR[programErrorCode];
 
-        msg = `\n${this.bold("Instruction index:")} ${ixNumber}\n${this.bold(
+        msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
           "Reason:"
         )} ${programError}`;
 
         return msg;
       }
+    }
+
+    // Descriptive program errors
+    if (msg.startsWith("failed to send")) {
+      const parts = msg.split(":");
+      if (parts.length !== 4) return msg;
+
+      const ixIndex = parts[2][parts[2].length - 1];
+      const programError = parts[3][1].toUpperCase() + parts[3].substring(2);
+
+      msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
+        "Reason:"
+      )} ${programError}.`;
+
+      return msg;
     }
 
     // Rpc errors
