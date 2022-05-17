@@ -1,3 +1,5 @@
+import { ClassName } from "../../constants";
+
 const defaultProps = {
   xmlns: "http://www.w3.org/2000/svg",
   stroke: "currentColor",
@@ -148,6 +150,35 @@ export const ThreeDots = ({ fullSize }: IconProps) => {
   return (
     <svg {...defaultProps} viewBox="0 0 16 16" style={getStyle(fullSize)}>
       <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path>
+    </svg>
+  );
+};
+
+export const Checkmark = ({ fullSize }: IconProps) => {
+  return (
+    <svg
+      {...defaultProps}
+      viewBox="0 0 512 512"
+      className={ClassName.ICON_CHECKMARK}
+      style={getStyle(fullSize)}
+    >
+      <path d="M256 48C141.6 48 48 141.6 48 256s93.6 208 208 208 208-93.6 208-208S370.4 48 256 48zm-42.7 318.9L106.7 260.3l29.9-29.9 76.8 76.8 162.1-162.1 29.9 29.9-192.1 191.9z"></path>
+    </svg>
+  );
+};
+
+export const Plus = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
+      <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm192 472c0 4.4-3.6 8-8 8H544v152c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V544H328c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h152V328c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v152h152c4.4 0 8 3.6 8 8v48z"></path>
+    </svg>
+  );
+};
+
+export const Minus = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
+      <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm192 472c0 4.4-3.6 8-8 8H328c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8h368c4.4 0 8 3.6 8 8v48z"></path>
     </svg>
   );
 };

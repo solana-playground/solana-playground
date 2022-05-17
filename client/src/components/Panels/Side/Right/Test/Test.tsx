@@ -2,7 +2,7 @@ import * as buffer from "buffer";
 import styled from "styled-components";
 
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
-import Loading from "../../../../Loading";
+import { Wormhole } from "../../../../Loading";
 import Text from "../../../../Text";
 import { ConnectionErrorText } from "../../Common";
 import useInitialLoading from "../../useInitialLoading";
@@ -29,7 +29,7 @@ const Test = () => {
   if (initialLoading)
     return (
       <InitialWrapper>
-        <Loading />
+        <Wormhole />
       </InitialWrapper>
     );
 

@@ -14,19 +14,18 @@ import { Arrow } from "../Icons";
 
 interface FoldableProps {
   ClickEl: ReactNode;
-  closed?: boolean;
+  open?: boolean;
 }
 
-const Foldable: FC<FoldableProps> = ({ ClickEl, closed, children }) => {
+const Foldable: FC<FoldableProps> = ({ ClickEl, open = false, children }) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const showAtStart = !closed;
-    setShow(showAtStart);
-    if (showAtStart) {
+    setShow(open);
+    if (open) {
       clickWrapperRef.current?.classList.add(ClassName.OPEN);
     }
-  }, [setShow, closed]);
+  }, [open, setShow]);
 
   const handleClick = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {

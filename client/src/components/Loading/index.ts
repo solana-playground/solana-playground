@@ -1,1 +1,2 @@
-export { default } from "./Loading";
+export { Wormhole } from "./Wormhole";
+export { Spinner, SpinnerWithBg } from "./Spinner";

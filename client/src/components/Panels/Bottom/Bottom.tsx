@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
@@ -10,13 +11,14 @@ import useConnect from "../Wallet/useConnect";
 import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
 import useAirdropAmount from "../Wallet/useAirdropAmount";
 import { PgCommon } from "../../../utils/pg/common";
+import { balanceAtom } from "../../../state";
 
 const Bottom = () => {
+  const [balance, setBalance] = useAtom(balanceAtom);
+
   const { connection: conn } = useConnection();
   const { connStatus, handleConnectPg } = useConnect();
   const { walletPkStr, currentWallet, pgWalletPk } = useCurrentWallet();
-
-  const [balance, setBalance] = useState<number | null>();
 
   useEffect(() => {
     if (!currentWallet) return;
@@ -36,7 +38,7 @@ const Bottom = () => {
     return () => {
       conn.removeAccountChangeListener(id);
     };
-  }, [balance, currentWallet, conn]);
+  }, [balance, currentWallet, conn, setBalance]);
 
   // Auto airdrop if balance is less than 4 SOL
   const amount = useAirdropAmount();
@@ -60,7 +62,7 @@ const Bottom = () => {
       try {
         await conn.requestAirdrop(
           currentWallet.publicKey,
-          PgCommon.SolToLamports(amount)
+          PgCommon.solToLamports(amount)
         );
       } catch (e: any) {
         if (e.message.startsWith("429 Too Many Requests")) setRateLimited(true);
@@ -106,10 +108,12 @@ const Bottom = () => {
   );
 };
 
+export const BOTTOM_HEIGHT = "1.5rem";
+
 const Wrapper = styled.div`
   ${({ theme }) => css`
     overflow: hidden;
-    height: 1.5rem;
+    height: ${BOTTOM_HEIGHT};
     width: 100%;
     display: flex;
     align-items: center;

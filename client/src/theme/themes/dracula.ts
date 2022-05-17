@@ -207,6 +207,10 @@ export const DRACULA: Theme = {
       bg: DARKER,
       color: TEXT_PRIMARY,
     },
+    tooltip: {
+      bg: DARKER,
+      color: TEXT_PRIMARY,
+    },
   },
   highlight,
 };

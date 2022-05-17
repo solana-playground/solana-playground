@@ -6,6 +6,7 @@ import { PgWallet } from "../utils/pg/wallet";
 // Wallet
 export const pgWalletAtom = atom(new PgWallet());
 export const showWalletAtom = atom(false);
+export const balanceAtom = atom<number | null>(null);
 
 // To trigger re-render
 const _countAtom = atom(0);

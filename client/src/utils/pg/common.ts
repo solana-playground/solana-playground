@@ -1,4 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 
 export class PgCommon {
@@ -30,18 +31,20 @@ export class PgCommon {
     return lamports / LAMPORTS_PER_SOL;
   }
 
-  static SolToLamports(sol: number) {
+  static solToLamports(sol: number) {
     return sol * LAMPORTS_PER_SOL;
   }
 
   static secondsToTime(secs: number) {
-    const h = Math.floor(secs / 3600),
-      m = Math.floor((secs % 3600) / 60),
+    const d = Math.floor(secs / (60 * 60 * 24)),
+      h = Math.floor((secs % (60 * 60 * 24)) / (60 * 60)),
+      m = Math.floor((secs % (60 * 60)) / 60),
       s = Math.floor(secs % 60);
 
-    if (!(h + m)) return `${s}s`;
-    else if (!h) return `${m}m`;
-    else if (!m) return `${h}h`;
+    if (d) return `${d}d`;
+    if (h) return `${h}h`;
+    if (m) return `${m}m`;
+    if (s) return `${s}s`;
 
     return "";
   }
@@ -69,5 +72,38 @@ export class PgCommon {
     const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
 
     return [explorer, solscan];
+  }
+
+  static isInt(str: string) {
+    const intRegex = /^-?\d+$/;
+    if (!intRegex.test(str)) return false;
+
+    const int = parseInt(str, 10);
+    return parseFloat(str) === int && !isNaN(int);
+  }
+
+  static isFloat(str: string) {
+    const floatRegex = /^-?\d+(?:[.,]\d*?)?$/;
+    if (!floatRegex.test(str)) return false;
+
+    const float = parseFloat(str);
+    if (isNaN(float)) return false;
+    return true;
+  }
+
+  static calculateRem(
+    remOne: string,
+    remTwo: string,
+    operation: "add" | "substract"
+  ) {
+    const intOne = +remOne.split("rem")[0];
+    const intTwo = +remTwo.split("rem")[0];
+
+    let result;
+
+    if (operation === "add") result = intOne + intTwo;
+    else if (operation === "substract") result = intOne - intTwo;
+
+    return result + "rem";
   }
 }

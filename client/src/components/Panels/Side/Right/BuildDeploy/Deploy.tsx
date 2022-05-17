@@ -18,7 +18,7 @@ import {
 } from "../../../../../state";
 import useIsDeployed from "./useIsDeployed";
 import useConnect from "../../../Wallet/useConnect";
-import Loading from "../../../../Loading";
+import { Wormhole } from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
 import useAuthority from "./useAuthority";
@@ -68,7 +68,7 @@ const Deploy = () => {
       setDeployed(true);
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
-      msg = `Deployment error: ${convertedError}`;
+      msg = `${PgTerminal.error("Deployment error:")} ${convertedError}`;
     } finally {
       setLoading(false);
       setTerminal(msg + "\n");
@@ -167,7 +167,7 @@ const Deploy = () => {
   if (initialLoading)
     return (
       <Wrapper>
-        <Loading />
+        <Wormhole />
       </Wrapper>
     );
 

@@ -1,6 +1,7 @@
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 import styled, { css } from "styled-components";
+import { Id } from "../../../../constants";
 
 import {
   explorerAtom,
@@ -19,7 +20,7 @@ const Tabs = () => {
   const tabs = explorer?.getTabs();
 
   return (
-    <Wrapper>
+    <Wrapper id={Id.TABS}>
       <TabsWrapper>
         {tabs?.map((t, i) => (
           <Tab key={i} current={t.current} path={t.path} />
@@ -43,7 +44,7 @@ const Wallet = () => {
 
   return (
     <WalletWrapper>
-      <Button onClick={toggleWallet} kind="icon" bold>
+      <Button onClick={toggleWallet} kind="icon">
         <img src="icons/sidebar/wallet.png" alt="Wallet" />
         Wallet
       </Button>
@@ -84,6 +85,7 @@ const WalletWrapper = styled.div`
       border-bottom-left-radius: ${theme.borderRadius};
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
+      font-weight: bold;
 
       & img {
         filter: invert(0.5);

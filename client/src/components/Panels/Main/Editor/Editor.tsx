@@ -13,7 +13,7 @@ import {
 } from "../../../../state";
 import autosave from "./autosave";
 import { PgExplorer } from "../../../../utils/pg/explorer";
-import Loading from "../../../Loading";
+import { Wormhole } from "../../../Loading";
 import { PgProgramInfo } from "../../../../utils/pg/program-info";
 
 const Editor = () => {
@@ -270,7 +270,7 @@ const Editor = () => {
   if (!explorer)
     return (
       <LoadingWrapper>
-        <Loading size={10} />
+        <Wormhole size={10} />
       </LoadingWrapper>
     );
 

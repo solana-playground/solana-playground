@@ -14,7 +14,7 @@ const useInitialLoading = () => {
       if (!isBuilt || deployed || deployed === false || connError) {
         setInitialLoading(true);
         // Add delay for smooth transition
-        await PgCommon.sleep(250);
+        await PgCommon.sleep(200);
         setInitialLoading(false);
       }
     };

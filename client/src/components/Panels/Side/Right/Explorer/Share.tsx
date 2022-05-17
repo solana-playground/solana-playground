@@ -11,9 +11,11 @@ import { TextProps } from "../../../../Text/Text";
 import { CLIENT_URL } from "../../../../../constants";
 import Input from "../../../../Input";
 import CopyButton from "../../../../CopyButton";
+import Link from "../../../../Link";
+import Button from "../../../../Button";
+import { Checkmark, Sad } from "../../../../Icons";
 
 interface TextState extends TextProps {
-  text: string;
   id?: string;
 }
 
@@ -21,9 +23,7 @@ const Share = () => {
   const [explorer] = useAtom(explorerAtom);
   const { close } = useModal();
 
-  const [textState, setTextState] = useState<TextState>({
-    text: "Do you want to share this project?",
-  });
+  const [textState, setTextState] = useState<TextState>({});
   const [disabled, setDisabled] = useState(false);
 
   const share = useCallback(async () => {
@@ -34,12 +34,13 @@ const Share = () => {
     try {
       const id = await PgShare.new(explorer);
       setTextState({
-        text: "Successfully shared the project.",
         type: "Success",
         id,
       });
     } catch (e: any) {
-      setTextState({ text: "Please try again later.", type: "Error" });
+      setTextState({
+        type: "Error",
+      });
       setDisabled(false);
     }
   }, [explorer, setTextState, setDisabled]);
@@ -47,38 +48,97 @@ const Share = () => {
   const shareLink = `${CLIENT_URL}/${textState.id}`;
 
   return (
-    <ModalInside
-      title
-      buttonProps={{ name: "Share", close, onSubmit: share, disabled }}
-    >
+    <ModalInside title>
       <Content>
         {textState.type ? (
-          <Text type={textState.type}>{textState.text}</Text>
+          textState.type === "Error" ? (
+            <Text type={textState.type} IconEl={<Sad />}>
+              You are sharing too often, please try again later.
+            </Text>
+          ) : (
+            <Text type={textState.type} IconEl={<Checkmark />}>
+              Successfully shared the project.
+            </Text>
+          )
         ) : (
           <DefaultText>Do you want to share this project?</DefaultText>
         )}
         {textState?.id && (
-          <InputWrapper>
-            <Input value={shareLink} fullWidth readOnly />
-            <CopyButton copyText={shareLink} />
-          </InputWrapper>
+          <SuccessWrapper>
+            <InputWrapper>
+              <Input value={shareLink} fullWidth readOnly />
+              <CopyButton copyText={shareLink} />
+            </InputWrapper>
+            <LinkWrapper>
+              <Link href={"https://" + shareLink}>Go to the link</Link>
+            </LinkWrapper>
+          </SuccessWrapper>
         )}
       </Content>
+      <ButtonWrapper>
+        {textState?.id ? (
+          <Button onClick={close} kind="outline">
+            Continue
+          </Button>
+        ) : (
+          <>
+            <Button onClick={close}>Cancel</Button>
+            <Button
+              onClick={share}
+              disabled={disabled}
+              kind="primary-transparent"
+            >
+              Share
+            </Button>
+          </>
+        )}
+      </ButtonWrapper>
     </ModalInside>
   );
 };
 
 const Content = styled.div`
   margin: 1rem 0 1rem 0.5rem;
+
+  & svg.icon-checkmark {
+    color: ${({ theme }) => theme.colors.state.success.color};
+  }
 `;
 
 const DefaultText = styled.div`
   margin: 1.5rem 0;
 `;
 
+const SuccessWrapper = styled.div``;
+
 const InputWrapper = styled.div`
   display: flex;
   margin-top: 1rem;
+`;
+
+const LinkWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 0.5rem;
+  margin-left: 0.25rem;
+
+  & a {
+    color: ${({ theme }) => theme.colors.state.info.color};
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+
+  & button:nth-child(2) {
+    margin-left: 1rem;
+  }
 `;
 
 export default Share;

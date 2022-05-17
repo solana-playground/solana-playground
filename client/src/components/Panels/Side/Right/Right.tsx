@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
-import Loading from "../../../Loading";
+import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs";
 import { Sidebar } from "../sidebar-values";
@@ -116,7 +116,7 @@ const Title: FC<TitleProps> = ({ sidebarState, className }) => (
 
 export const RightLoading = () => (
   <LoadingWrapper>
-    <Loading />
+    <Wormhole />
   </LoadingWrapper>
 );
 
