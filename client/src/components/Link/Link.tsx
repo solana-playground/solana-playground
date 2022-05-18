@@ -21,6 +21,10 @@ const StyledLink = styled.a`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export default Link;

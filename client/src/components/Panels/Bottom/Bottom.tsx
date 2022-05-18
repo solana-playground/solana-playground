@@ -12,6 +12,7 @@ import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
 import useAirdropAmount from "../Wallet/useAirdropAmount";
 import { PgCommon } from "../../../utils/pg/common";
 import { balanceAtom } from "../../../state";
+import Tooltip from "../../Tooltip";
 
 const Bottom = () => {
   const [balance, setBalance] = useAtom(balanceAtom);
@@ -82,24 +83,33 @@ const Bottom = () => {
 
   return (
     <Wrapper id={Id.BOTTOM}>
-      <Button onClick={handleConnectPg} title="Toggle Playground Wallet">
-        <ConnStatus connStatus={connStatus}></ConnStatus>
-        {connStatus}
-      </Button>
+      <Tooltip text="Toggle Playground Wallet">
+        <Button onClick={handleConnectPg}>
+          <ConnStatus connStatus={connStatus}></ConnStatus>
+          {connStatus}
+        </Button>
+      </Tooltip>
+
       {walletPkStr && (
         <>
           <Dash>-</Dash>
-          <RpcEndpoint title={conn.rpcEndpoint}>{networkName}</RpcEndpoint>
+          <Tooltip text="RPC Endpoint">
+            <RpcEndpoint title={conn.rpcEndpoint}>{networkName}</RpcEndpoint>
+          </Tooltip>
           <Seperator>|</Seperator>
-          <Link
-            href={`${EXPLORER_URL}/address/${walletPkStr}?cluster=custom&customUrl=${conn.rpcEndpoint}`}
-          >
-            {walletPkStr}
-          </Link>
+          <Tooltip text="Your address">
+            <Link
+              href={`${EXPLORER_URL}/address/${walletPkStr}?cluster=custom&customUrl=${conn.rpcEndpoint}`}
+            >
+              {walletPkStr}
+            </Link>
+          </Tooltip>
           {balance !== undefined && balance !== null && (
             <>
               <Seperator>|</Seperator>
-              <Balance>{`${balance} SOL`}</Balance>
+              <Tooltip text="Current balance">
+                <Balance>{`${balance} SOL`}</Balance>
+              </Tooltip>
             </>
           )}
         </>
@@ -112,7 +122,7 @@ export const BOTTOM_HEIGHT = "1.5rem";
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    overflow: hidden;
+    // overflow-y: hidden;
     height: ${BOTTOM_HEIGHT};
     width: 100%;
     display: flex;
@@ -123,9 +133,20 @@ const Wrapper = styled.div`
     theme.colors.default.primary};
     color: ${theme.colors.bottom?.color ?? "inherit"};
 
-    & button:hover {
-      background-color: ${theme.colors.default.primary +
-      theme.transparency?.low};
+    & .tooltip {
+      height: 100%;
+      display: flex;
+      align-items: center;
+
+      & button {
+        padding: 0 0.75rem;
+        height: 100%;
+
+        &:hover {
+          background-color: ${theme.colors.default.primary +
+          theme.transparency?.low};
+        }
+      }
     }
   `}
 `;

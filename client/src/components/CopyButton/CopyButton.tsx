@@ -14,7 +14,7 @@ const CopyButton: FC<CopyButtonProps> = ({ copyText }) => {
   const [copied, setCopied] = useCopy(copyText);
 
   return (
-    <Tooltip tooltipText={copied ? "Copied" : "Copy"}>
+    <Tooltip text={copied ? "Copied" : "Copy"}>
       <Wrapper copied={copied}>
         <Button onClick={setCopied} kind="icon">
           <Copy />

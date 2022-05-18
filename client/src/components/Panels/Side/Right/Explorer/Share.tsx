@@ -124,10 +124,6 @@ const LinkWrapper = styled.div`
 
   & a {
     color: ${({ theme }) => theme.colors.state.info.color};
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
