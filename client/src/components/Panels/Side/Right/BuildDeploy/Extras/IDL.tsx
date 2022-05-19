@@ -25,7 +25,6 @@ const Import = () => {
       const arrayBuffer = await file.arrayBuffer();
       const decodedString = PgCommon.decodeArrayBuffer(arrayBuffer);
 
-      // Override customPk when user imports a new keypair
       PgProgramInfo.update({
         idl: JSON.parse(decodedString),
       });

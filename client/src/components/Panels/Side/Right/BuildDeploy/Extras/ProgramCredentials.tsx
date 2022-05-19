@@ -29,9 +29,21 @@ const ProgramCredentials = () => (
 
 const New = () => {
   const [, setModal] = useAtom(modalAtom);
+  const [, setProgramIdCount] = useAtom(programIdCountAtom);
 
   const handleNew = () => {
-    setModal(<NewKeypairModal />);
+    const kp = PgProgramInfo.getKp()?.programKp;
+    if (kp) setModal(<NewKeypairModal />);
+    else {
+      const kp = Keypair.generate();
+
+      PgProgramInfo.update({
+        kp: Array.from(kp.secretKey),
+      });
+
+      // Refresh necessary components
+      setProgramIdCount((c) => c + 1);
+    }
   };
 
   return (
