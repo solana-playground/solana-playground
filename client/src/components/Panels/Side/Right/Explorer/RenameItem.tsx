@@ -12,7 +12,6 @@ import styled from "styled-components";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
 import Input, { defaultInputProps } from "../../../../Input";
-import useModal from "../../../../Modal/useModal";
 import ModalInside from "../../../../Modal/ModalInside";
 
 interface RenameItemProps {
@@ -22,7 +21,6 @@ interface RenameItemProps {
 const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
-  const { close } = useModal();
 
   // Focus on input on mount
   useEffect(() => {
@@ -44,25 +42,15 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
       return;
     }
 
-    close();
     refresh();
-  }, [explorer, path, newName, close, refresh]);
-
-  useEffect(() => {
-    const handleEnter = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") rename();
-    };
-
-    document.addEventListener("keydown", handleEnter);
-    return () => document.removeEventListener("keydown", handleEnter);
-  }, [rename]);
+  }, [explorer, path, newName, refresh]);
 
   const itemName = PgExplorer.getItemNameFromPath(path);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <ModalInside buttonProps={{ name: "Rename", close, onSubmit: rename }}>
+    <ModalInside buttonProps={{ name: "Rename", onSubmit: rename }}>
       <Content>
         <Text>Rename '{itemName}'</Text>
         <Input onChange={handleChange} ref={inputRef} {...defaultInputProps} />

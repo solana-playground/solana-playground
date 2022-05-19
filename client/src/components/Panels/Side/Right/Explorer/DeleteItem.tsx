@@ -1,11 +1,10 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Warning } from "../../../../Icons";
 import { PgExplorer } from "../../../../../utils/pg/explorer";
-import useModal from "../../../../Modal/useModal";
 import ModalInside from "../../../../Modal/ModalInside";
 
 interface DeleteItemProps {
@@ -15,40 +14,24 @@ interface DeleteItemProps {
 const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
-  const { close } = useModal();
 
   const deleteItem = () => {
     explorer?.deleteItem(path);
-    close();
     refresh();
   };
-
-  useEffect(() => {
-    const handleEnter = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") deleteItem();
-    };
-
-    document.addEventListener("keydown", handleEnter);
-    return () => document.removeEventListener("keydown", handleEnter);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const itemName = PgExplorer.getItemNameFromPath(path);
 
   return (
-    <ModalInside
-      title
-      buttonProps={{ name: "Delete", close, onSubmit: deleteItem }}
-    >
+    <ModalInside title buttonProps={{ name: "Delete", onSubmit: deleteItem }}>
       <Content>
         <Icon>
           <Warning fullSize />
         </Icon>
-        <Text>
+        <ContentText>
           <Main>Are you sure you want to delete '{itemName}'?</Main>
           <Desc>This action is irreversable.</Desc>
-        </Text>
+        </ContentText>
       </Content>
     </ModalInside>
   );
@@ -66,7 +49,7 @@ const Icon = styled.div`
   height: 2rem;
 `;
 
-const Text = styled.div`
+const ContentText = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 1rem;

@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled from "styled-components";
 
-import Button, { ButtonKind, ButtonProps } from "../../../../Button";
+import Button, { ButtonProps } from "../../../../Button";
 import Text from "../../../../Text";
 import { PgDeploy } from "../../../../../utils/pg/deploy";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
@@ -22,6 +22,7 @@ import { Wormhole } from "../../../../Loading";
 import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
 import useAuthority from "./useAuthority";
+import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 
 // TODO: Cancel deployment
 
@@ -38,6 +39,7 @@ const Deploy = () => {
   const { hasAuthority, upgradeable } = useAuthority();
 
   const { connection: conn } = useConnection();
+  const { solWalletPk } = useCurrentWallet();
 
   const [loading, setLoading] = useState(false);
 
@@ -104,7 +106,7 @@ const Deploy = () => {
   }, [loading, deployed]);
 
   const deployButtonProps: ButtonProps = {
-    kind: "primary" as ButtonKind,
+    kind: "primary",
     onClick: deploy,
     disabled: loading,
     btnLoading: loading,
@@ -144,6 +146,17 @@ const Deploy = () => {
           <Text type="Warning">
             You don't have the authority to upgrade this program.
           </Text>
+        </Wrapper>
+      );
+
+    if (solWalletPk)
+      return (
+        <Wrapper>
+          <Text type="Warning">
+            Please disconnect from Phantom Wallet. Deployment can only be done
+            from Playground Wallet.
+          </Text>
+          <DisconnectSolWalletButton />
         </Wrapper>
       );
 
@@ -216,6 +229,17 @@ const Deploy = () => {
         </Wrapper>
       );
 
+    if (solWalletPk)
+      return (
+        <Wrapper>
+          <Text type="Warning">
+            Please disconnect from Phantom Wallet. Deployment can only be done
+            from Playground Wallet.
+          </Text>
+          <DisconnectSolWalletButton />
+        </Wrapper>
+      );
+
     return (
       <Wrapper>
         <Button {...deployButtonProps}>{deployButtonText}</Button>
@@ -237,6 +261,16 @@ const ConnectPgWalletButton = () => {
   return (
     <Button onClick={handleConnectPg} kind="primary">
       {pgButtonStatus}
+    </Button>
+  );
+};
+
+const DisconnectSolWalletButton = () => {
+  const { solButtonStatus, handleConnect } = useConnect();
+
+  return (
+    <Button onClick={handleConnect} kind="outline">
+      {solButtonStatus}
     </Button>
   );
 };

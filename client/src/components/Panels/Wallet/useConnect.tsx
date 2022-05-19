@@ -73,8 +73,7 @@ const useConnect = () => {
   // Pg wallet should always be connected except first time ever
   const handleConnectPg = useCallback(() => {
     const setupCompleted = PgWallet.getLs()?.setupCompleted;
-    if (!setupCompleted)
-      setModal({ show: true, JSX: <Setup onSubmit={handleConnectPg} /> });
+    if (!setupCompleted) setModal(<Setup onSubmit={handleConnectPg} />);
     else {
       pgWallet.connected = !pgWallet.connected;
       PgWallet.update({ connected: pgWallet.connected });

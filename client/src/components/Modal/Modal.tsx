@@ -9,7 +9,7 @@ const Modal = () => {
 
   useEffect(() => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setModal({ show: false });
+      if (e.key === "Escape") setModal(null);
     };
 
     document.body.addEventListener("keydown", handleKey);
@@ -17,7 +17,7 @@ const Modal = () => {
     return () => document.body.removeEventListener("keydown", handleKey);
   }, [setModal]);
 
-  return modal.show ? <Wrapper>{modal.JSX}</Wrapper> : null;
+  return modal ? <Wrapper>{modal}</Wrapper> : null;
 };
 
 const Wrapper = styled.div`

@@ -81,7 +81,7 @@ const ShareButton = () => {
 
   const handleShare = useCallback(async () => {
     if (explorer) {
-      setModal({ show: true, JSX: <Share /> });
+      setModal(<Share />);
     }
   }, [explorer, setModal]);
 

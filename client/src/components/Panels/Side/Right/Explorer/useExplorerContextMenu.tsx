@@ -87,10 +87,7 @@ const useExplorerContextMenu = () => {
     const path = getPath();
     if (!path) return;
 
-    setModal({
-      show: true,
-      JSX: <RenameItem path={path} />,
-    });
+    setModal(<RenameItem path={path} />);
 
     // Remove ctx-selected class
     PgExplorer.removeCtxSelectedEl();
@@ -102,7 +99,7 @@ const useExplorerContextMenu = () => {
     const path = getPath();
     if (!path) return;
 
-    setModal({ show: true, JSX: <DeleteItem path={path} /> });
+    setModal(<DeleteItem path={path} />);
 
     // Remove ctx-selected class
     PgExplorer.removeCtxSelectedEl();
