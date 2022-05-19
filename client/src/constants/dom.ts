@@ -11,6 +11,7 @@ export enum ClassName {
   LOADING = "loading",
   DARKEN = "darken",
   ICON_CHECKMARK = "icon-checkmark",
+  TOOLTIP = "tooltip",
 }
 
 export enum Id {

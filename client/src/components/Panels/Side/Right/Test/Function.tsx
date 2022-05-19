@@ -18,6 +18,7 @@ import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import { PgTest } from "../../../../../utils/pg/test";
 import { PgTx } from "../../../../../utils/pg/tx";
 import { PgTerminal } from "../../../../../utils/pg/terminal";
+import { PgCommon } from "../../../../../utils/pg/common";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;
@@ -25,9 +26,9 @@ type KV = {
 
 export interface TxVals {
   name: string;
+  additionalSigners: KV;
   accs?: KV;
   args?: KV;
-  additionalSigners: KV;
 }
 
 interface FnContextProps {
@@ -67,26 +68,23 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   const [errors, setErrors] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, [setMounted]);
 
   // Set errors
   useEffect(() => {
-    // This fixes button being enabled at the start
-    if (!mounted) return;
-
-    let totalErrors = 0;
+    let totalErrors = 0,
+      nameCount = 0;
 
     for (const name in errors) {
       totalErrors += errors[name];
+      nameCount++;
     }
+
+    // Fixes button being enabled at start
+    if (!nameCount) return;
 
     if (totalErrors) setDisabled(true);
     else setDisabled(false);
-  }, [errors, mounted]);
+  }, [errors]);
 
   const handleErrors = useCallback(
     (identifier: string, k: string, action: "add" | "remove") => {
@@ -163,6 +161,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     let msg = "";
 
     try {
+      await PgCommon.sleep(200); // To fix button transition
       const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
       setTxHash(txHash);
 
@@ -229,6 +228,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
           kind="primary"
           onClick={handleTest}
           disabled={disabled || loading || !currentWallet}
+          btnLoading={loading}
         >
           Test
         </Button>

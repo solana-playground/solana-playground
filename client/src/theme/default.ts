@@ -35,3 +35,8 @@ export const PG_SCROLLBAR = {
     },
   },
 };
+
+export const PG_TRANSITION = {
+  type: "linear",
+  duration: "150ms",
+};

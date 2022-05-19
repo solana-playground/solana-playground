@@ -96,7 +96,6 @@ const Terminal = () => {
   }, [xterm]);
 
   const maxButtonRef = useRef<HTMLButtonElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const toggleMaximize = useCallback(() => {
     setHeight((h) => {
@@ -182,7 +181,6 @@ const Terminal = () => {
               kind="icon"
               title="Toggle Close (Ctrl+`)"
               onClick={toggleClose}
-              ref={closeButtonRef}
             >
               {isClosed ? <Tick /> : <Close />}
             </Button>

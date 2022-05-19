@@ -89,7 +89,7 @@ const WalletTitle = () => {
   return (
     <TitleWrapper>
       <WalletSettings />
-      <Tooltip tooltipText={copied ? "Copied" : "Copy address"}>
+      <Tooltip text={copied ? "Copied" : "Copy address"}>
         <Title onClick={setCopied}>{PgCommon.shortenPk(walletPkStr)}</Title>
       </Tooltip>
       <WalletClose />

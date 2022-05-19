@@ -1,16 +1,20 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import { ClassName } from "../../constants";
+
 interface TooltipProps {
-  tooltipText: string;
+  text: string;
 }
 
-const Tooltip: FC<TooltipProps> = ({ tooltipText, children }) => {
-  return <StyledTooltip tooltipText={tooltipText}>{children}</StyledTooltip>;
-};
+const Tooltip: FC<TooltipProps> = ({ text, children }) => (
+  <StyledTooltip className={ClassName.TOOLTIP} text={text}>
+    {children}
+  </StyledTooltip>
+);
 
 const StyledTooltip = styled.div<TooltipProps>`
-  ${({ tooltipText, theme }) => css`
+  ${({ text, theme }) => css`
     position: relative;
 
     &::before,
@@ -23,20 +27,20 @@ const StyledTooltip = styled.div<TooltipProps>`
       left: 50%;
       transform: translateX(-50%) translateY(var(--translate-y, 0))
         scale(var(--scale));
-      transition: 150ms transform;
+      transition: all ${theme.transition?.duration} ${theme.transition?.type};
       transform-origin: bottom center;
     }
 
     &::before {
       --translate-y: calc(-100% - var(--arrow-size));
 
-      content: "${tooltipText}";
+      content: "${text}";
       padding: 0.375rem 0.5rem;
       border-radius: ${theme.borderRadius};
       text-align: center;
       width: max-content;
-      max-width: 100%;
-      color: ${tooltipText !== "Copied"
+      max-width: fit-content;
+      color: ${text !== "Copied"
         ? theme.colors.tooltip?.color
         : theme.colors.state.success.color};
       background: ${theme.colors.tooltip?.bg};
