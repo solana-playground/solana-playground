@@ -59,19 +59,19 @@ export class PgCommon {
   }
 
   static getExplorerUrls(txHash: string, endpoint: Endpoint) {
-    const explorer =
-      EXPLORER_URL + "/tx/" + txHash + "?cluster=custom&customUrl=" + endpoint;
 
+    let explorer = EXPLORER_URL + "/tx/" + txHash
     let cluster = "";
-    if (endpoint === Endpoint.LOCALHOST) return [explorer];
-    else if (
-      endpoint === Endpoint.DEVNET ||
-      endpoint === Endpoint.DEVNET_GENESYSGO
-    )
-      cluster = "?cluster=devnet";
+
+    if (endpoint === Endpoint.LOCALHOST) {
+      explorer += "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
+      return [explorer];
+    } else if (endpoint === Endpoint.DEVNET || endpoint === Endpoint.DEVNET_GENESYSGO) cluster = "?cluster=devnet";
     else if (endpoint === Endpoint.TESTNET) cluster = "?cluster=testnet";
 
+
     const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
+    explorer += cluster
 
     return [explorer, solscan];
   }

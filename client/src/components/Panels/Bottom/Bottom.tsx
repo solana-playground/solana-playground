@@ -8,7 +8,7 @@ import { ConnState } from "../Wallet/connection-states";
 import Link from "../../Link";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 import useConnect from "../Wallet/useConnect";
-import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
+import { EXPLORER_URL, Id, NETWORKS, Endpoint } from "../../../constants";
 import useAirdropAmount from "../Wallet/useAirdropAmount";
 import { PgCommon } from "../../../utils/pg/common";
 import { balanceAtom } from "../../../state";
@@ -81,6 +81,18 @@ const Bottom = () => {
     return NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0].name;
   }, [conn]);
 
+  const networkCluster = useMemo(() => {
+    const endpoint = conn.rpcEndpoint;
+    let cluster = "";
+
+    if (endpoint === Endpoint.LOCALHOST) {
+      cluster = "?cluster=custom&customUrl=" + Endpoint.LOCALHOST; 
+    } else if (endpoint === Endpoint.DEVNET || endpoint === Endpoint.DEVNET_GENESYSGO) cluster = "?cluster=devnet";
+    else if (endpoint === Endpoint.TESTNET) cluster = "?cluster=testnet";
+
+    return cluster    
+  }, [conn]);
+
   return (
     <Wrapper id={Id.BOTTOM}>
       <Tooltip text="Toggle Playground Wallet">
@@ -99,7 +111,7 @@ const Bottom = () => {
           <Seperator>|</Seperator>
           <Tooltip text="Your address">
             <Link
-              href={`${EXPLORER_URL}/address/${walletPkStr}?cluster=custom&customUrl=${conn.rpcEndpoint}`}
+              href={`${EXPLORER_URL}/address/${walletPkStr}${networkCluster}`}
             >
               {walletPkStr}
             </Link>
