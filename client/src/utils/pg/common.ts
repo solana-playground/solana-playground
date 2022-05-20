@@ -58,20 +58,39 @@ export class PgCommon {
     );
   }
 
-  static getExplorerUrls(txHash: string, endpoint: Endpoint) {
-
-    let explorer = EXPLORER_URL + "/tx/" + txHash
+  /**
+   * Only used for adding cluster param to explorer url(s)
+   */
+  static getExplorerCluster(endpoint: string) {
+    // Mainnet by default
     let cluster = "";
 
     if (endpoint === Endpoint.LOCALHOST) {
-      explorer += "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
-      return [explorer];
-    } else if (endpoint === Endpoint.DEVNET || endpoint === Endpoint.DEVNET_GENESYSGO) cluster = "?cluster=devnet";
+      cluster = "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
+    } else if (
+      endpoint === Endpoint.DEVNET ||
+      endpoint === Endpoint.DEVNET_GENESYSGO
+    )
+      cluster = "?cluster=devnet";
     else if (endpoint === Endpoint.TESTNET) cluster = "?cluster=testnet";
 
+    return cluster;
+  }
+
+  /**
+   *  Used for getting transaction urls for explorers
+   */
+  static getExplorerTxUrls(txHash: string, endpoint: Endpoint) {
+    let explorer = EXPLORER_URL + "/tx/" + txHash;
+    let cluster = this.getExplorerCluster(endpoint);
+
+    // Solscan doesn't have support for localhost
+    if (endpoint === Endpoint.LOCALHOST) {
+      return [explorer + cluster];
+    }
 
     const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
-    explorer += cluster
+    explorer += cluster;
 
     return [explorer, solscan];
   }

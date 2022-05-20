@@ -6,9 +6,11 @@ import { balanceAtom } from "../../../state";
 const Balance = () => {
   const [balance] = useAtom(balanceAtom);
 
-  if (!balance) return null;
+  if (balance === null || balance === undefined) return null;
 
-  return <Wrapper>{balance.toFixed(3)} SOL</Wrapper>;
+  const uiBalance = balance === 0 ? 0 : balance.toFixed(3);
+
+  return <Wrapper>{uiBalance} SOL</Wrapper>;
 };
 
 const Wrapper = styled.div`

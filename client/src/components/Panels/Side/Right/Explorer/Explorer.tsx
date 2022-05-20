@@ -36,7 +36,6 @@ const ExplorerWrapper = styled.div`
     flex-direction: column;
     width: 100%;
     user-select: none;
-    overflow: auto;
 
     & .folder,
     & .file {

@@ -110,7 +110,7 @@ const Tx: FC<ConfirmedSignatureInfo> = ({
   const now = new Date().getTime() / 1000;
   const timePassed = PgCommon.secondsToTime(now - (blockTime ?? 0));
 
-  const [explorer, solscan] = PgCommon.getExplorerUrls(signature, endpoint);
+  const [explorer, solscan] = PgCommon.getExplorerTxUrls(signature, endpoint);
 
   return (
     <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>
