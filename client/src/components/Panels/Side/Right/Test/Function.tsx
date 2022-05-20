@@ -10,7 +10,6 @@ import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
 import Account from "./Account";
 import Arg from "./Arg";
-import { getFullType } from "./types";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
 import { terminalAtom, txHashAtom } from "../../../../../state";
@@ -120,7 +119,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         const { identifier, k, v, type, kp } = props;
 
         try {
-          const parsedV = PgTest.validate(v, type);
+          const parsedV = PgTest.parse(v, type);
 
           if (identifier === "args") {
             let args = txVals.args ?? {};
@@ -203,7 +202,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
                   <Arg
                     key={j}
                     name={a.name}
-                    type={getFullType(a.type, idl.types!)}
+                    type={PgTest.getFullType(a.type, idl.types!)}
                     functionName={ixs.name}
                   />
                 ))}

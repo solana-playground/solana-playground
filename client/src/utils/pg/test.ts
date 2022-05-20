@@ -1,16 +1,112 @@
 import { Idl, Program, Provider, BN } from "@project-serum/anchor";
-import { IdlType } from "@project-serum/anchor/dist/cjs/idl";
+import {
+  IdlType,
+  IdlTypeArray,
+  IdlTypeCOption,
+  IdlTypeDef,
+  IdlTypeDefined,
+  IdlTypeOption,
+  IdlTypeVec,
+} from "@project-serum/anchor/dist/cjs/idl";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
 import { TxVals } from "../../components/Panels/Side/Right/Test/Function";
+import { PgCommon } from "./common";
 import { PgProgramInfo } from "./program-info";
 import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
 
 export class PgTest {
-  // TODO: More precise validation
-  static validate(v: string, type: IdlType) {
+  static DEFAULT_TYPES: IdlType[] = [
+    "bool",
+    "bytes",
+    "f32",
+    "f64",
+    "i128",
+    "i16",
+    "i32",
+    "i64",
+    "i8",
+    "publicKey",
+    "string",
+    "u128",
+    "u16",
+    "u32",
+    "u64",
+    "u8",
+  ];
+
+  static getFullType(type: IdlType, idlTypes: IdlTypeDef[]): IdlType {
+    if (this.DEFAULT_TYPES.includes(type)) return type;
+
+    if (typeof type === "object") {
+      if ((type as IdlTypeOption)?.option) {
+        // Option<T>
+        const insideType = this.getFullType(
+          (type as IdlTypeOption).option,
+          idlTypes
+        );
+
+        return ("Option<" + insideType + ">") as IdlType;
+      } else if ((type as IdlTypeCOption)?.coption) {
+        // COption<T>
+        const insideType = this.getFullType(
+          (type as IdlTypeCOption).coption,
+          idlTypes
+        );
+
+        return ("COption<" + insideType + ">") as IdlType;
+      } else if ((type as IdlTypeDefined)?.defined) {
+        // Struct or enum
+        const customTypeName = (type as IdlTypeDefined).defined;
+        const typeInfo = idlTypes.filter((t) => t.name === customTypeName)[0]
+          .type;
+
+        const kind = typeInfo.kind;
+        if (kind === "enum") {
+          // TODO:
+          // const variants = typeInfo.variants;
+          // ...
+        } else if (kind === "struct") {
+          return customTypeName as IdlType;
+
+          // TODO:
+          // const struct: Struct = {};
+
+          // for (const field of typeInfo.fields) {
+          //   struct[field.name] = this.getFullType(field.type, idlTypes);
+          // }
+
+          // const fullType =
+          //   customTypeName +
+          //   JSON.stringify(struct)
+          //     .replace("{", " { ")
+          //     .replace("}", " }")
+          //     .replaceAll(":", ": ")
+          //     .replaceAll(",", ", ")
+          //     .replaceAll('"', "");
+          // return fullType as IdlType;
+        }
+      } else if ((type as IdlTypeVec)?.vec) {
+        // Vec<T>
+        const insideType = this.getFullType((type as IdlTypeVec).vec, idlTypes);
+
+        return ("Vec<" + insideType + ">") as IdlType;
+      } else if ((type as IdlTypeArray)?.array) {
+        // Array = [<T>; n];
+        const array = (type as IdlTypeArray).array;
+        const insideType = this.getFullType(array[0], idlTypes);
+
+        return ("[" + insideType + "; " + array[1] + "]") as IdlType;
+      }
+    }
+
+    return "string";
+  }
+
+  // TODO: Implement custom types
+  static parse(v: string, type: IdlType) {
     let parsedV;
 
     if (v === "") throw new Error("Can't be empty");
@@ -21,9 +117,8 @@ export class PgTest {
       if (isTrue || isFalse) parsedV = isTrue;
       else throw new Error("Invalid bool");
     } else if (type === "f32" || type === "f64") {
-      const float = parseFloat(v);
-      if (isNaN(float)) throw new Error("Invalid float");
-      parsedV = float;
+      if (PgCommon.isFloat(v)) throw new Error("Invalid float");
+      parsedV = parseFloat(v);
     } else if (
       type === "i128" ||
       type === "i64" ||
@@ -39,9 +134,8 @@ export class PgTest {
       type === "u32" ||
       type === "u8"
     ) {
-      const int = parseFloat(v);
-      if (isNaN(int)) throw new Error("Invalid integer");
-      parsedV = int;
+      if (!PgCommon.isInt(v)) throw new Error("Invalid integer");
+      parsedV = parseInt(v);
     } else if (type === "publicKey") parsedV = new PublicKey(v);
     else parsedV = v;
 
