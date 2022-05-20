@@ -9,7 +9,6 @@ import { PgWallet } from "../../../utils/pg/wallet";
 import DownloadButton from "../../DownloadButton";
 import { Warning } from "../../Icons";
 import ModalInside from "../../Modal/ModalInside";
-import useModal from "../../Modal/useModal";
 import Text from "../../Text";
 import UploadButton from "../../UploadButton";
 import { pgWalletAtom } from "../../../state";
@@ -23,11 +22,8 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
 
   const [text, setText] = useState("");
 
-  const { close } = useModal();
-
   const handleSetup = () => {
     PgWallet.update({ setupCompleted: true });
-    close();
     onSubmit();
     // Update global wallet state
     setPgWallet(new PgWallet());
@@ -62,7 +58,7 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
   return (
     <ModalInside
       title="Playground Wallet"
-      buttonProps={{ name: "Continue", close, onSubmit: handleSetup }}
+      buttonProps={{ name: "Continue", onSubmit: handleSetup }}
     >
       <InsideWrapper>
         <Content>

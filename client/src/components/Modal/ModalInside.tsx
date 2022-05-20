@@ -1,15 +1,15 @@
-import { FC } from "react";
+import { FC, useCallback, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { PROJECT_NAME } from "../../constants";
 import Button from "../Button";
+import useModal from "./useModal";
 
 interface ModalInsideProps {
   title?: boolean | string;
   buttonProps?: {
     name: string;
     onSubmit: () => void;
-    close: () => void;
     disabled?: boolean;
   };
 }
@@ -19,15 +19,33 @@ const ModalInside: FC<ModalInsideProps> = ({
   buttonProps,
   children,
 }) => {
+  const { close } = useModal();
+
+  const handleSubmit = useCallback(() => {
+    if (!buttonProps) return;
+
+    buttonProps.onSubmit();
+    close();
+  }, [buttonProps, close]);
+
+  useEffect(() => {
+    const handleEnter = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Enter") handleSubmit();
+    };
+
+    document.addEventListener("keydown", handleEnter);
+    return () => document.removeEventListener("keydown", handleEnter);
+  }, [handleSubmit]);
+
   return (
     <Wrapper>
       {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
       {children}
       {buttonProps && (
         <ButtonWrapper>
-          <Button onClick={buttonProps.close}>Cancel</Button>
+          <Button onClick={close}>Cancel</Button>
           <Button
-            onClick={buttonProps.onSubmit}
+            onClick={handleSubmit}
             disabled={buttonProps.disabled}
             kind="primary-transparent"
           >

@@ -7,7 +7,7 @@ const useModal = () => {
   const [, setModal] = useAtom(modalAtom);
 
   const close = useCallback(() => {
-    setModal({ show: false });
+    setModal(null);
   }, [setModal]);
 
   return { close };

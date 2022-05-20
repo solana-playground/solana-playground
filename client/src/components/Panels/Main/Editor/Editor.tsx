@@ -254,7 +254,7 @@ const Editor = () => {
     const quoteStartIndex = findTextIndex + findText.length + 2;
     const quoteEndIndex = code.indexOf('"', quoteStartIndex);
 
-    if (code.length < quoteStartIndex + 50) return;
+    if (code.length < quoteStartIndex + 3) return;
 
     editor.dispatch({
       changes: {

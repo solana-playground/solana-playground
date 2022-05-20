@@ -247,7 +247,7 @@ const ImportKeypair: FC<SettingsItemProps> = ({ close }) => {
 
   return (
     <UploadButton accept=".json" onUpload={handleUpload} noButton>
-      <SettingsItem>Import keypair</SettingsItem>
+      <SettingsItem>Import Keypair</SettingsItem>
     </UploadButton>
   );
 };
@@ -262,7 +262,7 @@ const ExportKeypair = () => {
       noButton
     >
       <SettingsItem className="export-wallet-keypair">
-        Export keypair
+        Export Keypair
       </SettingsItem>
     </DownloadButton>
   );

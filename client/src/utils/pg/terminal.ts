@@ -5,6 +5,7 @@ import {
   RPC_ERROR,
   SERVER_ERROR,
 } from "../../constants";
+import { PgCommon } from "./common";
 
 enum TextState {
   SUCCESS = 0,
@@ -128,9 +129,9 @@ See the list of available crates and request new crates from here: ${PgTerminal.
     for (const programErrorCode in PROGRAM_ERROR) {
       if (msg.endsWith("0x" + programErrorCode.toLowerCase())) {
         const parts = msg.split(":");
-        if (parts.length !== 4) return msg;
 
-        const ixIndex = parts[2][parts[2].length - 1];
+        let ixIndex = parts[2][parts[2].length - 1];
+        if (!PgCommon.isInt(ixIndex)) ixIndex = "0";
         const programError = PROGRAM_ERROR[programErrorCode];
 
         msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(

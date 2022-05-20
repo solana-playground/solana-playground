@@ -110,6 +110,7 @@ const SendInside = () => {
     let msg = "";
 
     try {
+      await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
       const pk = new PublicKey(address);
 
       const ix = SystemProgram.transfer({
@@ -152,6 +153,7 @@ const SendInside = () => {
         <Button
           onClick={send}
           disabled={disabled || loading}
+          btnLoading={loading}
           kind="primary-transparent"
           fullWidth
         >

@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { programIdCountAtom } from "../../../../../../state";
+import { modalAtom, programIdCountAtom } from "../../../../../../state";
 import { ClassName } from "../../../../../../constants";
 import Button from "../../../../../Button";
 import DownloadButton from "../../../../../DownloadButton";
@@ -13,16 +13,95 @@ import CopyButton from "../../../../../CopyButton";
 import UploadButton from "../../../../../UploadButton";
 import { PgProgramInfo } from "../../../../../../utils/pg/program-info";
 import { PgCommon } from "../../../../../../utils/pg/common";
+import ModalInside from "../../../../../Modal/ModalInside";
+import Text from "../../../../../Text";
 
 const ProgramCredentials = () => (
   <Wrapper>
     <ButtonsWrapper>
+      <New />
       <Import />
       <Export />
     </ButtonsWrapper>
     <InputPk />
   </Wrapper>
 );
+
+const New = () => {
+  const [, setModal] = useAtom(modalAtom);
+  const [, setProgramIdCount] = useAtom(programIdCountAtom);
+
+  const handleNew = () => {
+    const kp = PgProgramInfo.getKp()?.programKp;
+    if (kp) setModal(<NewKeypairModal />);
+    else {
+      const kp = Keypair.generate();
+
+      PgProgramInfo.update({
+        kp: Array.from(kp.secretKey),
+      });
+
+      // Refresh necessary components
+      setProgramIdCount((c) => c + 1);
+    }
+  };
+
+  return (
+    <Button onClick={handleNew} kind="outline">
+      New
+    </Button>
+  );
+};
+
+const NewKeypairModal = () => {
+  const [, setProgramIdCount] = useAtom(programIdCountAtom);
+
+  const generateNewKeypair = () => {
+    const kp = Keypair.generate();
+
+    PgProgramInfo.update({
+      kp: Array.from(kp.secretKey),
+      customPk: kp.publicKey.toBase58(),
+    });
+
+    // Refresh necessary components
+    setProgramIdCount((c) => c + 1);
+  };
+
+  return (
+    <ModalInside
+      title
+      buttonProps={{
+        name: "Generate",
+        onSubmit: generateNewKeypair,
+      }}
+    >
+      <Content>
+        <MainContent>
+          <MainText>
+            Are you sure you want to create a new program keypair?
+          </MainText>
+          <Desc>This will create a brand new keypair for your program.</Desc>
+          <WarningTextWrapper>
+            <Text type="Warning">
+              <Warning />
+              The old keypair will be lost if you don't save it.
+            </Text>
+          </WarningTextWrapper>
+          <DownloadButton
+            href={PgCommon.getUtf8EncodedString(
+              Array.from(PgProgramInfo.getKp()?.programKp!.secretKey)
+            )}
+            download="program-keypair.json"
+            buttonKind="outline"
+          >
+            Save keypair
+          </DownloadButton>
+        </MainContent>
+      </Content>
+    </ModalInside>
+  );
+};
 
 const Import = () => {
   const [, setProgramIdCount] = useAtom(programIdCountAtom);
@@ -64,6 +143,8 @@ const Import = () => {
 };
 
 const Export = () => {
+  useAtom(programIdCountAtom); // To refresh program kp
+
   const programKp = PgProgramInfo.getKp()?.programKp;
 
   if (!programKp) return null;
@@ -174,6 +255,48 @@ const ButtonsWrapper = styled.div`
   display: flex;
 `;
 
+// New keypair modal
+const Content = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+`;
+
+const MainContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
+
+  & > a {
+    margin-top: 1rem;
+  }
+`;
+const MainText = styled.span`
+  font-weight: bold;
+`;
+
+const Desc = styled.span`
+  ${({ theme }) => css`
+    font-size: ${theme.font?.size.small};
+    color: ${theme.colors.default.textSecondary};
+    margin-top: 0.5rem;
+  `}
+`;
+
+const WarningTextWrapper = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+
+  & svg {
+    height: 2rem;
+    width: 2rem;
+    margin-right: 1rem;
+  }
+`;
+
+// Program Id input
 const InputPkWrapper = styled.div`
   margin-top: 1rem;
 

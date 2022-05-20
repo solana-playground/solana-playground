@@ -389,6 +389,8 @@ const getKnownAccountPk = (name: string) => {
       return TOKEN_PROGRAM_ID;
     case "associatedTokenProgram":
       return ASSOCIATED_PROGRAM_ID;
+    case "tokenMetadataProgram":
+      return new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
     case "clock":
       return SYSVAR_CLOCK_PUBKEY;
     case "rent":

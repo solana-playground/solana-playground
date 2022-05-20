@@ -1,4 +1,6 @@
 import { FC } from "react";
+import styled from "styled-components";
+
 import Button, { ButtonKind } from "../Button";
 
 interface DownloadButtonProps {
@@ -15,13 +17,17 @@ const DownloadButton: FC<DownloadButtonProps> = ({
   noButton = false,
   children,
 }) => (
-  <a href={href} download={download}>
+  <Wrapper href={href} download={download}>
     {noButton ? (
       <div>{children}</div>
     ) : (
       <Button kind={buttonKind}>{children}</Button>
     )}
-  </a>
+  </Wrapper>
 );
+
+const Wrapper = styled.a`
+  width: fit-content;
+`;
 
 export default DownloadButton;

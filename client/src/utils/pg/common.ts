@@ -3,6 +3,8 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 
 export class PgCommon {
+  static TRANSITION_SLEEP = 200;
+
   static async sleep(ms: number) {
     return new Promise((res) => setTimeout((s) => res(s), ms));
   }
