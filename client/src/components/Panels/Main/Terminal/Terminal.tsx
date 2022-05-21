@@ -144,6 +144,16 @@ const Terminal = () => {
     return () => document.removeEventListener("keydown", handleKeybinds);
   }, [clear, toggleClose, toggleMaximize]);
 
+  // Resize the terminal on window resize event
+  useEffect(() => {
+    const handleResize = () => {
+      fitAddon.fit();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [fitAddon]);
+
   return (
     <Resizable
       size={{ height, width: "100%" }}

@@ -59,6 +59,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
       document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24,
   });
 
+  // Resize the sidebar on window resize event
   useEffect(() => {
     const handleResize = () => {
       const windowHeight =
