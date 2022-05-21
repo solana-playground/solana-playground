@@ -53,10 +53,27 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
     if (explorer) setLoading(false);
   }, [explorer, setLoading]);
 
-  const bottomHeight =
-    document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24;
-  const windowHeight =
-    document.getElementById(Id.ROOT)?.getClientRects()[0].height ?? 979;
+  const [height, setHeight] = useState({
+    window: document.getElementById(Id.ROOT)?.getClientRects()[0].height ?? 979,
+    bottom:
+      document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const windowHeight =
+        document.getElementById(Id.ROOT)?.getClientRects()[0].height ?? 979;
+      const bottomHeight =
+        document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24;
+
+      setHeight({ window: windowHeight, bottom: bottomHeight });
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [setHeight]);
 
   return (
     <Resizable
@@ -79,7 +96,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
         topLeft: false,
       }}
     >
-      <Wrapper windowHeight={windowHeight} bottomHeight={bottomHeight}>
+      <Wrapper windowHeight={height.window} bottomHeight={height.bottom}>
         <StyledTitle sidebarState={sidebarState} />
         <Suspense fallback={<RightLoading />}>
           {loading ? <RightLoading /> : <Inside sidebarState={sidebarState} />}
