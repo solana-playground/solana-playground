@@ -3,11 +3,11 @@ import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
-import { programIdCountAtom } from "../../../../../state";
+import { refreshProgramIdAtom } from "../../../../../state";
 
 const useIsDeployed = () => {
   // To re-render if user changes program id
-  const [programIdCount] = useAtom(programIdCountAtom);
+  const [programIdCount] = useAtom(refreshProgramIdAtom);
 
   const { connection: conn } = useConnection();
 
@@ -16,11 +16,11 @@ const useIsDeployed = () => {
 
   useEffect(() => {
     const getIsDeployed = async () => {
-      const pkResult = PgProgramInfo.getPk();
-      if (pkResult.err) return;
+      const programPk = PgProgramInfo.getPk()?.programPk;
+      if (!programPk) return;
 
       try {
-        const programExists = await conn.getAccountInfo(pkResult.programPk!);
+        const programExists = await conn.getAccountInfo(programPk);
 
         if (programExists) setDeployed(true);
         else setDeployed(false);
