@@ -1,4 +1,5 @@
 export enum Sidebar {
+  CLOSED = "",
   EXPLORER = "Explorer",
   // SEARCH = "Search",
   BUILD_DEPLOY = "Build & Deploy",

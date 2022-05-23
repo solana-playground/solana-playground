@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { Sidebar } from "./sidebar-values";
+import { Sidebar } from "./sidebar-state";
 
 const Side = () => {
   const [sidebarState, setSidebarState] = useState(Sidebar.EXPLORER);
@@ -42,8 +42,7 @@ const Side = () => {
 };
 
 const Wrapper = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 20fr;
+  display: flex;
 `;
 
 export default Side;

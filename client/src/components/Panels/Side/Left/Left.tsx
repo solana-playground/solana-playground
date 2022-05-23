@@ -1,12 +1,12 @@
 import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { GITHUB_URL } from "../../../../constants";
 import IconButton from "../../../IconButton";
 import Link from "../../../Link";
 import PopButton from "../../../PopButton";
 import Settings from "../Right/Settings";
-import { Sidebar } from "../sidebar-values";
+import { Sidebar } from "../sidebar-state";
 import { sidebarData } from "./sidebar-data";
 import useActiveTab from "./useActiveTab";
 
@@ -25,6 +25,14 @@ const Left: FC<LeftProps> = ({
 }) => {
   useActiveTab(sidebarState, oldSidebarRef, ID_PREFIX);
 
+  const handleSidebarChange = (value: Sidebar) => {
+    setSidebarState((state) => {
+      if (state === value) return Sidebar.CLOSED;
+
+      return value;
+    });
+  };
+
   return (
     <Wrapper>
       <Icons>
@@ -35,7 +43,7 @@ const Left: FC<LeftProps> = ({
               id={ID_PREFIX + data.value}
               title={data.title}
               src={data.src}
-              onClick={() => setSidebarState(data.value)}
+              onClick={() => handleSidebarChange(data.value)}
             />
           ))}
         </Top>
@@ -65,12 +73,15 @@ const Left: FC<LeftProps> = ({
 export const ICONBAR_WIDTH = "3rem";
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: ${ICONBAR_WIDTH};
-  user-select: none;
-  overflow: hidden;
-  background-color: ${({ theme }) => theme.colors?.left?.bg!};
+  ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    width: ${ICONBAR_WIDTH};
+    user-select: none;
+    overflow: hidden;
+    background-color: ${theme.colors?.left?.bg ?? theme.colors.default.bg};
+    border-right: 1px solid ${theme.colors.default.borderColor};
+  `}
 `;
 
 const Icons = styled.div`

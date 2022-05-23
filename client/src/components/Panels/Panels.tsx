@@ -27,6 +27,7 @@ const Panels = () => (
     </Suspense>
   </Wrapper>
 );
+
 const Wrapper = styled.div`
   width: 100vw;
   height: 100vh;
@@ -36,7 +37,7 @@ const Wrapper = styled.div`
 
 const MainWrapper = styled.div`
   display: grid;
-  grid-template-columns: 23fr 97fr;
+  grid-template-columns: auto 1fr;
   overflow: hidden;
   width: 100%;
   flex: 1;

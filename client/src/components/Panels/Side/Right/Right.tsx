@@ -7,7 +7,7 @@ import { Resizable } from "re-resizable";
 import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs";
-import { Sidebar } from "../sidebar-values";
+import { Sidebar } from "../sidebar-state";
 import { PgShare } from "../../../../utils/pg/share";
 import { PgExplorer } from "../../../../utils/pg/explorer";
 import { explorerAtom } from "../../../../state";
@@ -75,6 +75,8 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [setHeight]);
+
+  if (sidebarState === Sidebar.CLOSED) return null;
 
   return (
     <Resizable
@@ -148,7 +150,6 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
       : 955}px;
     overflow-y: auto;
     background-color: ${theme.colors?.right?.bg ?? "inherit"};
-    border-left: 1px solid ${theme.colors.default.borderColor};
     border-right: 1px solid ${theme.colors.default.borderColor};
 
     /* Scrollbar */

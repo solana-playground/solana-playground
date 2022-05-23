@@ -83,6 +83,21 @@ const Terminal = () => {
     fitAddon.fit();
   }, [fitAddon]);
 
+  // Resize the terminal on window resize event
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
+
+  // Resize the terminal on interval just in case of a resizing bug
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      handleResize();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [handleResize]);
+
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => {
       setHeight((h) => h + d.height);
@@ -143,16 +158,6 @@ const Terminal = () => {
     document.addEventListener("keydown", handleKeybinds);
     return () => document.removeEventListener("keydown", handleKeybinds);
   }, [clear, toggleClose, toggleMaximize]);
-
-  // Resize the terminal on window resize event
-  useEffect(() => {
-    const handleResize = () => {
-      fitAddon.fit();
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [fitAddon]);
 
   return (
     <Resizable
@@ -267,6 +272,7 @@ const TerminalWrapper = styled.div`
 
     & .xterm-viewport {
       background-color: inherit !important;
+      width: 100% !important;
     }
 
     & .xterm-rows {
