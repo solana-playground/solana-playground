@@ -7,11 +7,12 @@ import "xterm/css/xterm.css";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 
+import Button from "../../../Button";
+import Progress from "../../../Progress";
 import { terminalAtom, terminalProgressAtom } from "../../../../state";
 import { PgTerminal } from "../../../../utils/pg/terminal";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
-import Button from "../../../Button";
-import Progress from "../../../Progress";
+import { PgCommon } from "../../../../utils/pg/common";
 
 const Terminal = () => {
   const [terminal] = useAtom(terminalAtom);
@@ -138,7 +139,7 @@ const Terminal = () => {
   useEffect(() => {
     const handleKeybinds = (e: globalThis.KeyboardEvent) => {
       // TODO: Focus terminal
-      if (e.ctrlKey) {
+      if (PgCommon.isKeyctrlOrCmd(e)) {
         if (e.key === "l") {
           e.preventDefault();
           clear();
@@ -181,12 +182,16 @@ const Terminal = () => {
         <Topbar>
           <Progress value={progress} />
           <ButtonsWrapper>
-            <Button kind="icon" title="Clear (Ctrl+L)" onClick={clear}>
+            <Button
+              kind="icon"
+              title={PgCommon.getKeybindTextOS("Clear (Ctrl+L)")}
+              onClick={clear}
+            >
               <Clear />
             </Button>
             <Button
               kind="icon"
-              title="Toggle Maximize (Ctrl+M)"
+              title={PgCommon.getKeybindTextOS("Toggle Maximize (Ctrl+M)")}
               onClick={toggleMaximize}
               ref={maxButtonRef}
             >
@@ -194,7 +199,7 @@ const Terminal = () => {
             </Button>
             <Button
               kind="icon"
-              title="Toggle Close (Ctrl+`)"
+              title={PgCommon.getKeybindTextOS("Toggle Close (Ctrl+`)")}
               onClick={toggleClose}
             >
               {isClosed ? <Tick /> : <Close />}

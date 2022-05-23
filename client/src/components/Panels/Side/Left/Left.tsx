@@ -1,14 +1,15 @@
 import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
 import styled, { css } from "styled-components";
 
-import { GITHUB_URL } from "../../../../constants";
 import IconButton from "../../../IconButton";
 import Link from "../../../Link";
 import PopButton from "../../../PopButton";
 import Settings from "../Right/Settings";
+import useActiveTab from "./useActiveTab";
+import { GITHUB_URL } from "../../../../constants";
+import { PgCommon } from "../../../../utils/pg/common";
 import { Sidebar } from "../sidebar-state";
 import { sidebarData } from "./sidebar-data";
-import useActiveTab from "./useActiveTab";
 
 const ID_PREFIX = "Icon";
 
@@ -41,7 +42,7 @@ const Left: FC<LeftProps> = ({
             <IconButton
               key={i}
               id={ID_PREFIX + data.value}
-              title={data.title}
+              title={PgCommon.getKeybindTextOS(data.title)}
               src={data.src}
               onClick={() => handleSidebarChange(data.value)}
             />

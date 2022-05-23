@@ -127,4 +127,38 @@ export class PgCommon {
 
     return result + "rem";
   }
+
+  /**
+   * Returns true if the pressed key is 'ctrl' or 'cmd'
+   */
+  static isKeyctrlOrCmd(e: globalThis.KeyboardEvent) {
+    return e.ctrlKey || e.metaKey;
+  }
+
+  /**
+   * Returns true if the OS is Mac
+   */
+  static isMac() {
+    const macPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
+    let isMac = false;
+    for (const mac of macPlatforms) {
+      if (window.navigator.userAgent.includes(mac)) {
+        isMac = true;
+        break;
+      }
+    }
+
+    return isMac;
+  }
+
+  /**
+   * Changes `Ctrl` to `Cmd` if the OS is Mac
+   */
+  static getKeybindTextOS(text: string) {
+    if (this.isMac()) {
+      text.replace("Ctrl", "Cmd");
+    }
+
+    return text;
+  }
 }

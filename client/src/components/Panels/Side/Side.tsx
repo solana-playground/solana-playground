@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Left from "./Left";
 import Right from "./Right";
 import { Sidebar } from "./sidebar-state";
+import { PgCommon } from "../../../utils/pg/common";
 
 const Side = () => {
   const [sidebarState, setSidebarState] = useState(Sidebar.EXPLORER);
@@ -12,16 +13,30 @@ const Side = () => {
   // Keybinds
   useEffect(() => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey) {
-        if (e.key === "E") setSidebarState(Sidebar.EXPLORER);
-        else if (e.key === "B") {
-          e.preventDefault();
-          setSidebarState(Sidebar.BUILD_DEPLOY);
-        } else if (e.key === "D") {
-          // T doesn't work
-          e.preventDefault();
-          setSidebarState(Sidebar.TEST);
-        }
+      if (PgCommon.isKeyctrlOrCmd(e) && e.shiftKey) {
+        setSidebarState((state) => {
+          const key = e.key;
+          const closeCondition =
+            (state === Sidebar.EXPLORER && key === "E") ||
+            (state === Sidebar.BUILD_DEPLOY && key === "B") ||
+            (state === Sidebar.TEST && key === "D");
+          if (closeCondition) {
+            e.preventDefault();
+            return Sidebar.CLOSED;
+          } else if (key === "E") {
+            e.preventDefault();
+            return Sidebar.EXPLORER;
+          } else if (key === "B") {
+            e.preventDefault();
+            return Sidebar.BUILD_DEPLOY;
+          } else if (key === "D") {
+            // T doesn't work
+            e.preventDefault();
+            return Sidebar.TEST;
+          }
+
+          return state;
+        });
       }
     };
 
