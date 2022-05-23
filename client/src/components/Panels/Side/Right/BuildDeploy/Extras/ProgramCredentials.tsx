@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { modalAtom, programIdCountAtom } from "../../../../../../state";
+import { modalAtom, refreshProgramIdAtom } from "../../../../../../state";
 import { ClassName } from "../../../../../../constants";
 import Button from "../../../../../Button";
 import DownloadButton from "../../../../../DownloadButton";
@@ -29,7 +29,7 @@ const ProgramCredentials = () => (
 
 const New = () => {
   const [, setModal] = useAtom(modalAtom);
-  const [, setProgramIdCount] = useAtom(programIdCountAtom);
+  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
 
   const handleNew = () => {
     const kp = PgProgramInfo.getKp()?.programKp;
@@ -42,7 +42,7 @@ const New = () => {
       });
 
       // Refresh necessary components
-      setProgramIdCount((c) => c + 1);
+      refreshProgramId();
     }
   };
 
@@ -54,7 +54,7 @@ const New = () => {
 };
 
 const NewKeypairModal = () => {
-  const [, setProgramIdCount] = useAtom(programIdCountAtom);
+  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
 
   const generateNewKeypair = () => {
     const kp = Keypair.generate();
@@ -65,7 +65,7 @@ const NewKeypairModal = () => {
     });
 
     // Refresh necessary components
-    setProgramIdCount((c) => c + 1);
+    refreshProgramId();
   };
 
   return (
@@ -104,7 +104,7 @@ const NewKeypairModal = () => {
 };
 
 const Import = () => {
-  const [, setProgramIdCount] = useAtom(programIdCountAtom);
+  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -126,7 +126,7 @@ const Import = () => {
       });
 
       // Refresh components
-      setProgramIdCount((c) => c + 1);
+      refreshProgramId();
 
       // Reset file
       e.target.value = "";
@@ -143,7 +143,7 @@ const Import = () => {
 };
 
 const Export = () => {
-  useAtom(programIdCountAtom); // To refresh program kp
+  useAtom(refreshProgramIdAtom); // To refresh program kp
 
   const programKp = PgProgramInfo.getKp()?.programKp;
 
@@ -165,7 +165,7 @@ interface UpdateInfoProps {
 }
 
 const InputPk = () => {
-  const [programIdCount, setProgramIdCount] = useAtom(programIdCountAtom);
+  const [programIdCount, refreshProgramId] = useAtom(refreshProgramIdAtom);
 
   const [val, setVal] = useState(
     PgProgramInfo.getPk()?.programPk?.toBase58() ?? ""
@@ -207,7 +207,7 @@ const InputPk = () => {
         text: "Updated program id.",
       });
       setChanged(false);
-      setProgramIdCount((c) => c + 1);
+      refreshProgramId();
     } catch {
       setUpdateInfo({ text: "Invalid public key.", error: true });
     }

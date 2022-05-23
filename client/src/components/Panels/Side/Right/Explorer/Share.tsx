@@ -46,6 +46,7 @@ const Share = () => {
   }, [explorer, setTextState, setDisabled]);
 
   const shareLink = `${CLIENT_URL}/${textState.id}`;
+  const httpsLink = "https://" + shareLink;
 
   return (
     <ModalInside title>
@@ -67,10 +68,10 @@ const Share = () => {
           <SuccessWrapper>
             <InputWrapper>
               <Input value={shareLink} fullWidth readOnly />
-              <CopyButton copyText={shareLink} />
+              <CopyButton copyText={httpsLink} />
             </InputWrapper>
             <LinkWrapper>
-              <Link href={"https://" + shareLink}>Go to the link</Link>
+              <Link href={httpsLink}>Go to the link</Link>
             </LinkWrapper>
           </SuccessWrapper>
         )}
@@ -119,7 +120,7 @@ const InputWrapper = styled.div`
 const LinkWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   margin-left: 0.25rem;
 
   & a {

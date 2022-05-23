@@ -13,4 +13,8 @@ export const DEFAULT_PROGRAM: Program = {
 
 export const programAtom = atom<Program>(DEFAULT_PROGRAM);
 
-export const programIdCountAtom = atom(0);
+const _programIdCountAtom = atom(0);
+export const refreshProgramIdAtom = atom(
+  (get) => get(_programIdCountAtom),
+  (get, set) => set(_programIdCountAtom, get(_programIdCountAtom) + 1)
+);

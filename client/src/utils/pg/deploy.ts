@@ -23,6 +23,7 @@ export class PgDeploy {
     // This shouldn't happen because the deploy button is disabled in this condition.
     if (!programPk) throw new Error("Invalid program id.");
 
+    // Regular deploy without custom elf upload
     if (!programBuffer.length) {
       const uuid = PgProgramInfo.getProgramInfo().uuid;
       const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
@@ -107,7 +108,7 @@ export class PgDeploy {
           throw new Error(
             `Exceeded maximum amount of retries(${PgTerminal.bold(
               this.MAX_RETRIES.toString()
-            )}).`
+            )}). Please change RPC endpoint from the settings.`
           );
 
         await PgCommon.sleep(sleepAmt);

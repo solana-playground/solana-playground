@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
 import { PgWallet } from "../../../../../utils/pg/wallet";
+import { refreshProgramIdAtom } from "../../../../../state";
 
 interface ProgramData {
   upgradeable: boolean;
@@ -11,6 +13,9 @@ interface ProgramData {
 }
 
 const useAuthority = () => {
+  // To re-render if user changes program id
+  const [programIdCount] = useAtom(refreshProgramIdAtom);
+
   const { connection: conn } = useConnection();
 
   const [programData, setProgramData] = useState<ProgramData>({
@@ -25,21 +30,27 @@ const useAuthority = () => {
       try {
         const programAccountInfo = await conn.getAccountInfo(programPk);
         const programDataPkBuffer = programAccountInfo?.data.slice(4);
-        if (!programDataPkBuffer) return;
+        if (!programDataPkBuffer) {
+          setProgramData({ upgradeable: true });
+          return;
+        }
         const programDataPk = new PublicKey(programDataPkBuffer);
 
         const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
 
         // Check if program authority exists
         const authorityExists = programDataAccountInfo?.data.at(12);
-        if (!authorityExists) setProgramData({ upgradeable: false });
+        if (!authorityExists) {
+          setProgramData({ upgradeable: false });
+          return;
+        }
 
         const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
           13,
           45
         );
-        if (!upgradeAuthorityPkBuffer) return;
-        const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer);
+
+        const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
 
         setProgramData({ authority: upgradeAuthorityPk, upgradeable: true });
       } catch (e: any) {
@@ -48,7 +59,7 @@ const useAuthority = () => {
     };
 
     handleClick();
-  }, [conn]);
+  }, [conn, programIdCount]);
 
   return {
     hasAuthority:
