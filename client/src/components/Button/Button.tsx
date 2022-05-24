@@ -6,10 +6,10 @@ import { spinnerAnimation } from "../Loading/Spinner";
 export type ButtonKind =
   | "primary"
   | "secondary"
-  | "primary-outline"
-  | "secondary-outline"
   | "primary-transparent"
   | "secondary-transparent"
+  | "primary-outline"
+  | "secondary-outline"
   | "outline"
   | "transparent"
   | "icon";
@@ -71,16 +71,6 @@ const getButtonStyles = ({
       padding = "0.5rem 1.25rem";
       break;
     }
-    case "primary-outline": {
-      borderColor = theme.colors.default.primary;
-      hoverBgColor += "E0";
-      break;
-    }
-    case "secondary-outline": {
-      borderColor = theme.colors.default.secondary;
-      hoverBgColor = theme.colors.default.secondary + "E0";
-      break;
-    }
     case "primary-transparent": {
       bgColor = theme.colors.default.primary + theme.transparency?.medium;
       hoverBgColor += theme.transparency?.high;
@@ -91,6 +81,16 @@ const getButtonStyles = ({
       bgColor = theme.colors.default.secondary + theme.transparency?.medium;
       hoverBgColor = theme.colors.default.secondary + theme.transparency?.high;
       padding = "0.5rem 1.25rem";
+      break;
+    }
+    case "primary-outline": {
+      borderColor = theme.colors.default.primary;
+      hoverBgColor += "E0";
+      break;
+    }
+    case "secondary-outline": {
+      borderColor = theme.colors.default.secondary;
+      hoverBgColor = theme.colors.default.secondary + "E0";
       break;
     }
     case "outline": {
@@ -127,7 +127,8 @@ const getButtonStyles = ({
     color: ${color};
     border: 1px solid ${borderColor};
     position: relative;
-    transition: all ${theme.transition?.duration} ${theme.transition?.type};
+    transition: all ${theme.transition?.duration.medium}
+      ${theme.transition?.type};
 
     &:hover {
       background-color: ${hoverBgColor};

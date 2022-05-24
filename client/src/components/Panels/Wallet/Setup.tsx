@@ -4,13 +4,13 @@ import { Buffer } from "buffer";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { PgCommon } from "../../../utils/pg/common";
-import { PgWallet } from "../../../utils/pg/wallet";
-import DownloadButton from "../../DownloadButton";
-import { Warning } from "../../Icons";
 import ModalInside from "../../Modal/ModalInside";
 import Text from "../../Text";
+import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
+import { PgCommon } from "../../../utils/pg/common";
+import { PgWallet } from "../../../utils/pg/wallet";
+import { Warning } from "../../Icons";
 import { pgWalletAtom } from "../../../state";
 
 interface SetupProps {
@@ -129,6 +129,7 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
+    color: ${({ theme }) => theme.colors.state.warning.color};
   }
 `;
 

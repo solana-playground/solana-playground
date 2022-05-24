@@ -4,15 +4,15 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
-import { ConnState } from "../Wallet/connection-states";
 import Link from "../../Link";
-import useCurrentWallet from "../Wallet/useCurrentWallet";
+import Tooltip from "../../Tooltip";
 import useConnect from "../Wallet/useConnect";
-import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
+import useCurrentWallet from "../Wallet/useCurrentWallet";
 import useAirdropAmount from "../Wallet/useAirdropAmount";
+import { ConnState } from "../Wallet/connection-states";
+import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
 import { PgCommon } from "../../../utils/pg/common";
 import { balanceAtom } from "../../../state";
-import Tooltip from "../../Tooltip";
 
 const Bottom = () => {
   const [balance, setBalance] = useAtom(balanceAtom);

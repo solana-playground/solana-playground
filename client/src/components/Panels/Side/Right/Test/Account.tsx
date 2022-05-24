@@ -193,13 +193,18 @@ const SearchWrapper = styled.div`
     border-radius: ${theme.borderRadius};
   `}
 `;
-const Element = styled.div`
-  padding: 0.5rem;
 
-  &:hover {
-    cursor: pointer;
-    background-color: ${({ theme }) => theme.colors.state.hover.bg};
-  }
+const Element = styled.div`
+  ${({ theme }) => css`
+    padding: 0.5rem;
+    transition: all ${theme.transition?.duration.short}
+      ${theme.transition?.type};
+
+    &:hover {
+      cursor: pointer;
+      background-color: ${theme.colors.state.hover.bg};
+    }
+  `}
 `;
 
 interface ShowGenProps {
@@ -406,7 +411,8 @@ const AddSeedItem = styled.div`
     width: max-content;
     padding: 0.5rem;
     color: ${theme.colors.default.textSecondary};
-    transition: all ${theme.transition?.duration} ${theme.transition?.type};
+    transition: all ${theme.transition?.duration.short}
+      ${theme.transition?.type};
 
     &:hover {
       cursor: pointer;

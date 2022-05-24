@@ -4,14 +4,14 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import styled from "styled-components";
 
+import Button from "../../Button";
+import Input from "../../Input";
+import Foldable from "../../Foldable";
+import useCurrentWallet from "./useCurrentWallet";
 import { balanceAtom, terminalAtom, txHashAtom } from "../../../state";
 import { ClassName } from "../../../constants";
 import { PgTx } from "../../../utils/pg/tx";
-import Button from "../../Button";
-import Input from "../../Input";
-import useCurrentWallet from "./useCurrentWallet";
 import { PgTerminal } from "../../../utils/pg/terminal";
-import Foldable from "../../Foldable";
 import { PgCommon } from "../../../utils/pg/common";
 
 const Send = () => (
