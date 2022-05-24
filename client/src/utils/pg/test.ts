@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { Idl, Program, Provider, BN } from "@project-serum/anchor";
 import {
   IdlType,
@@ -16,6 +17,7 @@ import { PgCommon } from "./common";
 import { PgProgramInfo } from "./program-info";
 import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
+import { Seed } from "../../components/Panels/Side/Right/Test/Account";
 
 export class PgTest {
   static DEFAULT_TYPES: IdlType[] = [
@@ -140,6 +142,24 @@ export class PgTest {
     else parsedV = v;
 
     return parsedV;
+  }
+
+  static async generateProgramAddressFromSeeds(
+    seeds: Seed[],
+    programId: PublicKey | string
+  ) {
+    if (typeof programId !== "object") programId = new PublicKey(programId);
+
+    let buffers = [];
+    for (const seed of seeds) {
+      let buffer;
+      if (seed.type === "string") buffer = Buffer.from(seed.value);
+      else buffer = new PublicKey(seed.value).toBuffer();
+
+      buffers.push(buffer);
+    }
+
+    return await PublicKey.findProgramAddress(buffers, programId);
   }
 
   static async test(

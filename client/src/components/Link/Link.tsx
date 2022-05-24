@@ -25,6 +25,10 @@ const StyledLink = styled.a`
   &:hover {
     text-decoration: underline;
   }
+
+  & > svg {
+    margin-left: 0.125rem;
+  }
 `;
 
 export default Link;

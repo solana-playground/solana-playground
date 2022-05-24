@@ -182,11 +182,11 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
         else
           msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
             "Success."
-          )} Received ${amount} SOL.`;
+          )} Received ${PgTerminal.bold(amount.toString())} SOL.`;
       } catch (e: any) {
         msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
           "Error receiving airdrop:"
-        )}  ${e.message}`;
+        )} ${e.message}`;
       } finally {
         setTerminal(msg + "\n");
       }
