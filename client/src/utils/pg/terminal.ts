@@ -1,5 +1,6 @@
 import {
   GITHUB_URL,
+  OTHER_ERROR,
   PROGRAM_ERROR,
   PROJECT_NAME,
   RPC_ERROR,
@@ -169,6 +170,14 @@ See the list of available crates and request new crates from here: ${PgTerminal.
     for (const serverError in SERVER_ERROR) {
       if (msg === serverError) {
         msg = SERVER_ERROR[serverError];
+        return msg;
+      }
+    }
+
+    // Other errors
+    for (const otherError in OTHER_ERROR) {
+      if (msg === otherError) {
+        msg = OTHER_ERROR[otherError];
         return msg;
       }
     }

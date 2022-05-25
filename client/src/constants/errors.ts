@@ -102,3 +102,7 @@ export const RPC_ERROR: ConvertedError = {
 export const SERVER_ERROR: ConvertedError = {
   OpenFile: "Please rebuild the project.",
 };
+
+export const OTHER_ERROR: ConvertedError = {
+  "unable to infer src variant": "Enum variant does not exist.",
+};

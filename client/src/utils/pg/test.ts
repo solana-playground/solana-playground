@@ -67,13 +67,14 @@ export class PgTest {
 
         const kind = typeInfo.kind;
         if (kind === "enum") {
-          // TODO:
+          return (customTypeName + "(Enum)") as IdlType;
+          // TODO: Error handling based on variants
           // const variants = typeInfo.variants;
           // ...
         } else if (kind === "struct") {
           return customTypeName as IdlType;
 
-          // TODO:
+          // TODO: Implement error handling based on properties
           // const struct: Struct = {};
 
           // for (const field of typeInfo.fields) {
@@ -191,6 +192,14 @@ export class PgTest {
 
         // The program will not be able to deserialize if the size of the array is not enough
         if (parsedV.length !== arraySize) throw new Error("Invalid array size");
+      } else if (typeString.endsWith("(Enum)")) {
+        let parsedInput = {};
+        if (v.includes("[")) throw new Error("Invalid " + type);
+
+        if (v.includes("{")) parsedInput = JSON.parse(v);
+        else (parsedInput as { [key: string]: {} })[v.toLowerCase()] = {};
+
+        parsedV = parsedInput;
       } else {
         // Custom Struct
         const parsedInput = JSON.parse(v);
