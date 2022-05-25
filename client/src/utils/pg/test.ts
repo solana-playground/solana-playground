@@ -119,7 +119,7 @@ export class PgTest {
       if (isTrue || isFalse) parsedV = isTrue;
       else throw new Error("Invalid bool");
     } else if (type === "f32" || type === "f64") {
-      if (PgCommon.isFloat(v)) throw new Error("Invalid float");
+      if (!PgCommon.isFloat(v)) throw new Error("Invalid float");
       parsedV = parseFloat(v);
     } else if (
       type === "i128" ||
@@ -139,8 +139,13 @@ export class PgTest {
       if (!PgCommon.isInt(v)) throw new Error("Invalid integer");
       parsedV = parseInt(v);
     } else if (type === "publicKey") parsedV = new PublicKey(v);
-    else if (type === "bytes") parsedV = Buffer.from(JSON.parse(v));
-    else if (type === "string") parsedV = v;
+    else if (type === "bytes") {
+      const userArray: string[] = JSON.parse(v);
+      const isValid = userArray.every((el) => PgCommon.isInt(el));
+      if (!isValid) throw new Error("Invalid bytes");
+
+      parsedV = Buffer.from(userArray as []);
+    } else if (type === "string") parsedV = v;
     else {
       // Non-default types
       const { insideType, outerType } = this.getTypesFromParsedString(
