@@ -111,7 +111,8 @@ export class PgTest {
   static parse(v: string, type: IdlType): any {
     let parsedV;
 
-    if (v === "") throw new Error("Can't be empty");
+    if (!type.toString().startsWith("Option") && v === "")
+      throw new Error("Can't be empty");
     if (type === "bool") {
       const isTrue = v === "true";
       const isFalse = v === "false";
@@ -164,6 +165,16 @@ export class PgTest {
         }
 
         if (!parsedV.length) throw new Error("Invalid vec");
+      } else if (outerType === "Option" || outerType === "COption") {
+        switch (v.toLowerCase()) {
+          case "":
+          case "none":
+          case "null":
+            parsedV = null;
+            break;
+          default:
+            parsedV = this.parse(v, insideType as IdlType);
+        }
       }
     }
 
