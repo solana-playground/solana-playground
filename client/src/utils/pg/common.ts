@@ -156,9 +156,8 @@ export class PgCommon {
    */
   static getKeybindTextOS(text: string) {
     if (this.isMac()) {
-      text.replace("Ctrl", "Cmd");
+      text = text.replace("Ctrl", "Cmd");
     }
-
     return text;
   }
 }
