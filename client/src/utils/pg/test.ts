@@ -108,7 +108,7 @@ export class PgTest {
   }
 
   // TODO: Implement custom types
-  static parse(v: string, type: IdlType) {
+  static parse(v: string, type: IdlType): any {
     let parsedV;
 
     if (v === "") throw new Error("Can't be empty");
@@ -140,9 +140,38 @@ export class PgTest {
       parsedV = parseInt(v);
     } else if (type === "publicKey") parsedV = new PublicKey(v);
     else if (type === "bytes") parsedV = Buffer.from(JSON.parse(v));
-    else parsedV = v;
+    else if (type === "string") parsedV = v;
+    else {
+      // Non-default types
+      const { insideType, outerType } = this.getTypesFromParsedString(
+        type as unknown as string
+      );
+
+      if (insideType.includes("<") || insideType.includes(">"))
+        throw new Error("Nested type args are not yet supported");
+
+      if (outerType === "Vec") {
+        const userArray: string[] = JSON.parse(v);
+
+        parsedV = [];
+        for (const el of userArray) {
+          parsedV.push(this.parse(el, insideType as IdlType));
+        }
+
+        if (!parsedV.length) throw new Error("Invalid vec");
+      }
+    }
 
     return parsedV;
+  }
+
+  static getTypesFromParsedString(str: string) {
+    const openIndex = str.indexOf("<");
+    const closeIndex = str.indexOf(">");
+    const outerType = str.substring(0, openIndex);
+    const insideType = str.substring(openIndex + 1, closeIndex);
+
+    return { outerType, insideType };
   }
 
   static async generateProgramAddressFromSeeds(
