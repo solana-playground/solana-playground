@@ -29,7 +29,8 @@ const Background = styled.div`
       background-color: #000;
       opacity: 0;
       z-index: -1;
-      transition: all ${theme.transition?.duration} ${theme.transition?.type};
+      transition: all ${theme.transition?.duration.medium}
+        ${theme.transition?.type};
     }
 
     & > .spinner {

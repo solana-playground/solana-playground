@@ -1,6 +1,7 @@
-import { IdlType } from "@project-serum/anchor/dist/cjs/idl";
-import { Keypair } from "@solana/web3.js";
 import { useContext, useEffect } from "react";
+import { Keypair } from "@solana/web3.js";
+import { IdlType } from "@project-serum/anchor/dist/cjs/idl";
+
 import { FnContext } from "./Function";
 
 export enum Identifiers {

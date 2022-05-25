@@ -109,6 +109,10 @@ export default interface Theme {
   };
   transition?: {
     type: string;
-    duration: string;
+    duration: {
+      short: string;
+      medium: string;
+      long: string;
+    };
   };
 }

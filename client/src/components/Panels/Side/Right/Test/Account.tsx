@@ -21,15 +21,18 @@ import {
   ASSOCIATED_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from "@project-serum/anchor/dist/cjs/utils/token";
-import { IdlAccount } from "@project-serum/anchor/dist/cjs/idl";
+import { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
 import styled, { css } from "styled-components";
 
-import { PgProgramInfo } from "../../../../../utils/pg/program-info";
-import Input, { defaultInputProps } from "../../../../Input";
 import Button from "../../../../Button";
+import Tooltip from "../../../../Tooltip";
 import InputLabel from "./InputLabel";
-import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 import useCurrentWallet from "../../../Wallet/useCurrentWallet";
+import Input, { defaultInputProps } from "../../../../Input";
+import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
+import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import { Minus, Plus } from "../../../../Icons";
+import { PgTest } from "../../../../../utils/pg/test";
 
 interface AccountProps {
   account: IdlAccount;
@@ -190,13 +193,18 @@ const SearchWrapper = styled.div`
     border-radius: ${theme.borderRadius};
   `}
 `;
-const Element = styled.div`
-  padding: 0.5rem;
 
-  &:hover {
-    cursor: pointer;
-    background-color: ${({ theme }) => theme.colors.state.hover.bg};
-  }
+const Element = styled.div`
+  ${({ theme }) => css`
+    padding: 0.5rem;
+    transition: all ${theme.transition?.duration.short}
+      ${theme.transition?.type};
+
+    &:hover {
+      cursor: pointer;
+      background-color: ${theme.colors.state.hover.bg};
+    }
+  `}
 `;
 
 interface ShowGenProps {
@@ -218,15 +226,8 @@ const ShowSeed: FC<ShowGenProps> = ({
     return result.programKp!.publicKey.toBase58();
   }, []);
 
-  const [seed, setSeed] = useState("");
+  const [seeds, setSeeds] = useState<Seed[]>([{ value: "", type: "string" }]);
   const [programId, setProgramId] = useState(programStr);
-
-  const handleSeed = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setSeed(e.target.value);
-    },
-    [setSeed]
-  );
 
   const handleProgramId = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -238,10 +239,7 @@ const ShowSeed: FC<ShowGenProps> = ({
   const handleGen = useCallback(async () => {
     try {
       const pkStr = (
-        await PublicKey.findProgramAddress(
-          [Buffer.from(seed)],
-          new PublicKey(programId)
-        )
+        await PgTest.generateProgramAddressFromSeeds(seeds, programId)
       )[0].toBase58();
       setVal(pkStr);
       removeSignerKp();
@@ -250,26 +248,14 @@ const ShowSeed: FC<ShowGenProps> = ({
       // TODO: Show error in terminal
       console.log(e.message);
     }
-  }, [seed, programId, setVal, removeSignerKp, setShowSearch]);
-
-  const seedInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    seedInputRef.current?.focus();
-  }, []);
+  }, [seeds, programId, setVal, removeSignerKp, setShowSearch]);
 
   return (
     <ShowGenWrapper>
       <ShowGenTitle>Generate from seed</ShowGenTitle>
-      <ShowGenInputWrapper>
-        <InputLabel label="Seed(s)" type="string" />
-        <Input
-          ref={seedInputRef}
-          value={seed}
-          onChange={handleSeed}
-          {...defaultInputProps}
-        />
-      </ShowGenInputWrapper>
+      {seeds.map((seed, i) => (
+        <SeedInput key={i} index={i} seed={seed} setSeeds={setSeeds} />
+      ))}
       <ShowGenInputWrapper>
         <InputLabel label="Program Id" type="publicKey" />
         <Input
@@ -286,6 +272,155 @@ const ShowSeed: FC<ShowGenProps> = ({
     </ShowGenWrapper>
   );
 };
+
+export type Seed = {
+  value: string;
+  type: IdlType;
+};
+
+interface SeedInputProps {
+  index: number;
+  seed: Seed;
+  setSeeds: Dispatch<SetStateAction<Seed[]>>;
+}
+
+const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
+  const [showAddSeed, setShowAddSeed] = useState(false);
+
+  const handleSeed = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setSeeds((seeds) => {
+        seeds[index] = { value: e.target.value, type: seed.type };
+
+        return [...seeds];
+      });
+    },
+    [index, seed.type, setSeeds]
+  );
+
+  const toggleAddSeed = useCallback(() => {
+    setShowAddSeed((s) => !s);
+  }, [setShowAddSeed]);
+
+  const closeAddSeed = useCallback(() => {
+    setShowAddSeed(false);
+  }, [setShowAddSeed]);
+
+  const addSeed = useCallback(
+    (type: IdlType) => {
+      setSeeds((seeds) => [...seeds, { value: "", type }]);
+      closeAddSeed();
+    },
+    [setSeeds, closeAddSeed]
+  );
+
+  const addSeedString = useCallback(() => {
+    addSeed("string");
+    closeAddSeed();
+  }, [addSeed, closeAddSeed]);
+
+  const addSeedPk = useCallback(() => {
+    addSeed("publicKey");
+  }, [addSeed]);
+
+  const removeSeed = useCallback(() => {
+    setSeeds((seeds) => [...seeds.filter((_s, i) => i !== index)]);
+  }, [index, setSeeds]);
+
+  const seedInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    seedInputRef.current?.focus();
+  }, []);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close showAddSeed on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: globalThis.MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) closeAddSeed();
+    };
+
+    if (showAddSeed) document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showAddSeed, closeAddSeed]);
+
+  const isFirst = index === 0;
+
+  return (
+    <ShowGenInputWrapper>
+      <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
+      <SeedInputWrapper>
+        <Input
+          ref={seedInputRef}
+          value={seed.value}
+          onChange={handleSeed}
+          {...defaultInputProps}
+        />
+        {isFirst ? (
+          <AddSeedWrapper>
+            <Tooltip text="Add seed">
+              <Button onClick={toggleAddSeed} kind="icon">
+                <Plus />
+              </Button>
+            </Tooltip>
+            {showAddSeed && (
+              <AddSeedMenu ref={menuRef}>
+                <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
+                <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
+              </AddSeedMenu>
+            )}
+          </AddSeedWrapper>
+        ) : (
+          <Tooltip text="Remove seed">
+            <Button onClick={removeSeed} kind="icon">
+              <Minus />
+            </Button>
+          </Tooltip>
+        )}
+      </SeedInputWrapper>
+    </ShowGenInputWrapper>
+  );
+};
+
+const SeedInputWrapper = styled.div`
+  display: flex;
+
+  & button {
+    margin-left: 0.25rem;
+  }
+`;
+
+const AddSeedWrapper = styled.div`
+  position: relative;
+`;
+
+const AddSeedMenu = styled.div`
+  ${({ theme }) => css`
+    position: absolute;
+    z-index: 2;
+    background-color: ${theme.colors.tooltip?.bg ?? theme.colors.default.bg};
+    border-radius: ${theme.borderRadius};
+    font-size: ${theme.font?.size.small};
+  `}
+`;
+
+const AddSeedItem = styled.div`
+  ${({ theme }) => css`
+    width: max-content;
+    padding: 0.5rem;
+    color: ${theme.colors.default.textSecondary};
+    transition: all ${theme.transition?.duration.short}
+      ${theme.transition?.type};
+
+    &:hover {
+      cursor: pointer;
+      background-color: ${theme.colors.state.hover.bg};
+      color: ${theme.colors.default.textPrimary};
+    }
+  `}
+`;
 
 const ShowAta: FC<ShowGenProps> = ({
   setVal,
@@ -361,12 +496,19 @@ const ShowAta: FC<ShowGenProps> = ({
 const ShowGenWrapper = styled.div``;
 
 const ShowGenTitle = styled.div`
-  color: ${({ theme }) => theme.colors.default.primary};
-  font-size: ${({ theme }) => theme.font?.size.small};
+  ${({ theme }) => css`
+    color: ${theme.colors.default.primary};
+    font-size: ${theme.font?.size.small};
+    text-align: center;
+  `}
 `;
 
 const ShowGenInputWrapper = styled.div`
   margin-top: 0.5rem;
+
+  & span {
+    font-size: ${({ theme }) => theme.font?.size.small};
+  }
 `;
 
 const ShowGenButtonWrapper = styled.div`

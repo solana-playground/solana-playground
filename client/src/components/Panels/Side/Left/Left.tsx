@@ -5,30 +5,35 @@ import IconButton from "../../../IconButton";
 import Link from "../../../Link";
 import PopButton from "../../../PopButton";
 import Settings from "../Right/Settings";
-import useActiveTab from "./useActiveTab";
+import useActiveTab, { ID_PREFIX } from "./useActiveTab";
 import { GITHUB_URL } from "../../../../constants";
 import { PgCommon } from "../../../../utils/pg/common";
 import { Sidebar } from "../sidebar-state";
 import { sidebarData } from "./sidebar-data";
 
-const ID_PREFIX = "Icon";
-
 interface LeftProps {
-  sidebarState: string;
+  sidebarState: Sidebar;
   setSidebarState: Dispatch<SetStateAction<Sidebar>>;
-  oldSidebarRef: MutableRefObject<string>;
+  oldSidebarRef: MutableRefObject<Sidebar>;
+  width: number;
+  setWidth: Dispatch<SetStateAction<number>>;
+  oldWidth: number;
 }
 
 const Left: FC<LeftProps> = ({
   sidebarState,
   setSidebarState,
   oldSidebarRef,
+  width,
+  setWidth,
+  oldWidth,
 }) => {
-  useActiveTab(sidebarState, oldSidebarRef, ID_PREFIX);
+  useActiveTab(sidebarState, oldSidebarRef, width);
 
   const handleSidebarChange = (value: Sidebar) => {
     setSidebarState((state) => {
-      if (state === value) return Sidebar.CLOSED;
+      if (!width) setWidth(oldWidth);
+      else if (state === value) setWidth(0);
 
       return value;
     });

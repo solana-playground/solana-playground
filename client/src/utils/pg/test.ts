@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { Idl, Program, Provider, BN } from "@project-serum/anchor";
 import {
   IdlType,
@@ -16,6 +17,7 @@ import { PgCommon } from "./common";
 import { PgProgramInfo } from "./program-info";
 import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
+import { Seed } from "../../components/Panels/Side/Right/Test/Account";
 
 export class PgTest {
   static DEFAULT_TYPES: IdlType[] = [
@@ -106,10 +108,11 @@ export class PgTest {
   }
 
   // TODO: Implement custom types
-  static parse(v: string, type: IdlType) {
+  static parse(v: string, type: IdlType): any {
     let parsedV;
 
-    if (v === "") throw new Error("Can't be empty");
+    if (!type.toString().startsWith("Option") && v === "")
+      throw new Error("Can't be empty");
     if (type === "bool") {
       const isTrue = v === "true";
       const isFalse = v === "false";
@@ -117,7 +120,7 @@ export class PgTest {
       if (isTrue || isFalse) parsedV = isTrue;
       else throw new Error("Invalid bool");
     } else if (type === "f32" || type === "f64") {
-      if (PgCommon.isFloat(v)) throw new Error("Invalid float");
+      if (!PgCommon.isFloat(v)) throw new Error("Invalid float");
       parsedV = parseFloat(v);
     } else if (
       type === "i128" ||
@@ -137,9 +140,95 @@ export class PgTest {
       if (!PgCommon.isInt(v)) throw new Error("Invalid integer");
       parsedV = parseInt(v);
     } else if (type === "publicKey") parsedV = new PublicKey(v);
-    else parsedV = v;
+    else if (type === "bytes") {
+      const userArray: string[] = JSON.parse(v);
+      const isValid = userArray.every((el) => PgCommon.isInt(el));
+      if (!isValid) throw new Error("Invalid bytes");
+
+      parsedV = Buffer.from(userArray as []);
+    } else if (type === "string") parsedV = v;
+    else {
+      const typeString = type.toString();
+      // Non-default types
+      const { insideType, outerType } =
+        this.getTypesFromParsedString(typeString);
+
+      if (insideType.includes("<") || insideType.includes(">"))
+        throw new Error("Nested type args are not yet supported");
+
+      if (outerType === "Vec") {
+        const userArray: string[] = JSON.parse(v);
+
+        parsedV = [];
+        for (const el of userArray) {
+          parsedV.push(this.parse(el, insideType as IdlType));
+        }
+
+        if (!parsedV.length) throw new Error("Invalid vec");
+      } else if (outerType === "Option" || outerType === "COption") {
+        switch (v.toLowerCase()) {
+          case "":
+          case "none":
+          case "null":
+            parsedV = null;
+            break;
+          default:
+            parsedV = this.parse(v, insideType as IdlType);
+        }
+      } else if (typeString.startsWith("[")) {
+        const userArray = JSON.parse(v);
+        const columnIndex = typeString.indexOf(";");
+        const arrayType = typeString.substring(1, columnIndex);
+        const arraySize = +typeString.substring(
+          columnIndex + 1,
+          typeString.indexOf("]")
+        );
+
+        parsedV = [];
+        for (const el of userArray) {
+          parsedV.push(this.parse(el, arrayType as IdlType));
+        }
+
+        // The program will not be able to deserialize if the size of the array is not enough
+        if (parsedV.length !== arraySize) throw new Error("Invalid array size");
+      } else {
+        // Custom Struct
+        const parsedInput = JSON.parse(v);
+        if (typeof parsedInput !== "object" || parsedInput?.length >= 0)
+          throw new Error("Invalid " + type);
+
+        parsedV = parsedInput;
+      }
+    }
 
     return parsedV;
+  }
+
+  static getTypesFromParsedString(str: string) {
+    const openIndex = str.indexOf("<");
+    const closeIndex = str.indexOf(">");
+    const outerType = str.substring(0, openIndex);
+    const insideType = str.substring(openIndex + 1, closeIndex);
+
+    return { outerType, insideType };
+  }
+
+  static async generateProgramAddressFromSeeds(
+    seeds: Seed[],
+    programId: PublicKey | string
+  ) {
+    if (typeof programId !== "object") programId = new PublicKey(programId);
+
+    let buffers = [];
+    for (const seed of seeds) {
+      let buffer;
+      if (seed.type === "string") buffer = Buffer.from(seed.value);
+      else buffer = new PublicKey(seed.value).toBuffer();
+
+      buffers.push(buffer);
+    }
+
+    return await PublicKey.findProgramAddress(buffers, programId);
   }
 
   static async test(

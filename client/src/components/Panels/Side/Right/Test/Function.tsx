@@ -10,10 +10,10 @@ import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
 import Account from "./Account";
 import Arg from "./Arg";
+import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
 import { terminalAtom, txHashAtom } from "../../../../../state";
-import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import { PgTest } from "../../../../../utils/pg/test";
 import { PgTx } from "../../../../../utils/pg/tx";
 import { PgTerminal } from "../../../../../utils/pg/terminal";
@@ -195,7 +195,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
             updateTxVals,
           }}
         >
-          {ixs.args.length ? (
+          {ixs.args.length && (
             <ArgsWrapper>
               <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
                 {ixs.args.map((a, j) => (
@@ -208,7 +208,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
                 ))}
               </Foldable>
             </ArgsWrapper>
-          ) : null}
+          )}
           <AccountsWrapper>
             <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
               {ixs.accounts.map((a, j) => (

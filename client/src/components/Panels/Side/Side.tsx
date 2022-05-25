@@ -8,6 +8,13 @@ import { PgCommon } from "../../../utils/pg/common";
 
 const Side = () => {
   const [sidebarState, setSidebarState] = useState(Sidebar.EXPLORER);
+  const [width, setWidth] = useState(320);
+  const [oldWidth, setOldWidth] = useState(width);
+
+  useEffect(() => {
+    if (width) setOldWidth(width);
+  }, [width, setOldWidth]);
+
   const oldSidebarRef = useRef(sidebarState);
 
   // Keybinds
@@ -17,21 +24,28 @@ const Side = () => {
         setSidebarState((state) => {
           const key = e.key;
           const closeCondition =
-            (state === Sidebar.EXPLORER && key === "E") ||
-            (state === Sidebar.BUILD_DEPLOY && key === "B") ||
-            (state === Sidebar.TEST && key === "D");
+            width !== 0 &&
+            ((state === Sidebar.EXPLORER && key === "E") ||
+              (state === Sidebar.BUILD_DEPLOY && key === "B") ||
+              (state === Sidebar.TEST && key === "D"));
+
+          const defaultFn = () => {
+            e.preventDefault();
+            setWidth(oldWidth);
+          };
+
           if (closeCondition) {
             e.preventDefault();
-            return Sidebar.CLOSED;
+            setWidth(0);
           } else if (key === "E") {
-            e.preventDefault();
+            defaultFn();
             return Sidebar.EXPLORER;
           } else if (key === "B") {
-            e.preventDefault();
+            defaultFn();
             return Sidebar.BUILD_DEPLOY;
           } else if (key === "D") {
             // T doesn't work
-            e.preventDefault();
+            defaultFn();
             return Sidebar.TEST;
           }
 
@@ -42,7 +56,7 @@ const Side = () => {
 
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [setSidebarState]);
+  }, [width, oldWidth, setSidebarState, setWidth]);
 
   return (
     <Wrapper>
@@ -50,8 +64,11 @@ const Side = () => {
         sidebarState={sidebarState}
         setSidebarState={setSidebarState}
         oldSidebarRef={oldSidebarRef}
+        width={width}
+        setWidth={setWidth}
+        oldWidth={oldWidth}
       />
-      <Right sidebarState={sidebarState} />
+      <Right sidebarState={sidebarState} width={width} setWidth={setWidth} />
     </Wrapper>
   );
 };

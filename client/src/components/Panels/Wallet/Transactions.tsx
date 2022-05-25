@@ -4,13 +4,13 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
+import Button from "../../Button";
+import Link from "../../Link";
+import useCurrentWallet from "./useCurrentWallet";
 import { endpointAtom } from "../../../state";
 import { PgCommon } from "../../../utils/pg/common";
-import Button from "../../Button";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../../Icons";
-import Link from "../../Link";
 import { SpinnerWithBg } from "../../Loading";
-import useCurrentWallet from "./useCurrentWallet";
 
 const Transactions = () => {
   const { connection: conn } = useConnection();
@@ -50,6 +50,15 @@ const Transactions = () => {
   const refresh = useCallback(() => {
     setRefreshCount((rc) => rc + 1);
   }, [setRefreshCount]);
+
+  // Refresh transactions every 30s
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refresh();
+    }, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [refresh]);
 
   return (
     <TxsWrapper>

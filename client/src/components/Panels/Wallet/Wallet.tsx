@@ -10,9 +10,20 @@ import { useAtom } from "jotai";
 import { Buffer } from "buffer";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { Rnd } from "react-rnd";
 import styled, { css } from "styled-components";
+import { Rnd } from "react-rnd";
 
+import Balance from "./Balance";
+import Send from "./Send";
+import Transactions from "./Transactions";
+import Tooltip from "../../Tooltip";
+import useCopy from "../../CopyButton/useCopy";
+import Button from "../../Button";
+import DownloadButton from "../../DownloadButton";
+import UploadButton from "../../UploadButton";
+import useConnect from "./useConnect";
+import useCurrentWallet from "./useCurrentWallet";
+import useAirdropAmount from "./useAirdropAmount";
 import {
   pgWalletAtom,
   showWalletAtom,
@@ -22,24 +33,13 @@ import {
 import { PgTx } from "../../../utils/pg/tx";
 import { PgTerminal } from "../../../utils/pg/terminal";
 import { PgCommon } from "../../../utils/pg/common";
-import useConnect from "./useConnect";
-import useCurrentWallet from "./useCurrentWallet";
-import useAirdropAmount from "./useAirdropAmount";
 import { TAB_HEIGHT } from "../Main/Tabs";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
 import { Close, ThreeDots } from "../../Icons";
-import Button from "../../Button";
-import DownloadButton from "../../DownloadButton";
 import { PgWallet } from "../../../utils/pg/wallet";
-import UploadButton from "../../UploadButton";
-import Transactions from "./Transactions";
 import { ClassName, Id } from "../../../constants";
-import Send from "./Send";
-import Balance from "./Balance";
 import { ICONBAR_WIDTH } from "../Side/Left";
-import { BOTTOM_HEIGHT } from "../Bottom/Bottom";
-import Tooltip from "../../Tooltip";
-import useCopy from "../../CopyButton/useCopy";
+import { BOTTOM_HEIGHT } from "../Bottom";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -182,11 +182,11 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
         else
           msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
             "Success."
-          )} Received ${amount} SOL.`;
+          )} Received ${PgTerminal.bold(amount.toString())} SOL.`;
       } catch (e: any) {
         msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
           "Error receiving airdrop:"
-        )}  ${e.message}`;
+        )} ${e.message}`;
       } finally {
         setTerminal(msg + "\n");
       }
@@ -372,6 +372,8 @@ const SettingsItem = styled.div`
   ${({ theme }) => css`
     display: flex;
     padding: 0.5rem 0.75rem;
+    transition: all ${theme.transition?.duration.short}
+      ${theme.transition?.type};
 
     &:hover {
       background-color: ${theme.colors.state.hover.bg};
@@ -397,13 +399,22 @@ const Main = styled.div`
     cursor: auto;
     position: relative;
 
-    &.darken::after {
+    &::after {
       content: "";
       width: 100%;
       height: 100%;
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: #000;
+      opacity: 0;
+      z-index: -1;
+      transition: all ${theme.transition?.duration.short}
+        ${theme.transition?.type};
+    }
+
+    &.darken::after {
+      opacity: 0.5;
+      z-index: 1;
     }
   `}
 `;
