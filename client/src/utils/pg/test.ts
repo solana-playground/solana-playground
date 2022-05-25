@@ -148,10 +148,10 @@ export class PgTest {
       parsedV = Buffer.from(userArray as []);
     } else if (type === "string") parsedV = v;
     else {
+      const typeString = type.toString();
       // Non-default types
-      const { insideType, outerType } = this.getTypesFromParsedString(
-        type as unknown as string
-      );
+      const { insideType, outerType } =
+        this.getTypesFromParsedString(typeString);
 
       if (insideType.includes("<") || insideType.includes(">"))
         throw new Error("Nested type args are not yet supported");
@@ -175,6 +175,22 @@ export class PgTest {
           default:
             parsedV = this.parse(v, insideType as IdlType);
         }
+      } else if (typeString.startsWith("[")) {
+        const userArray = JSON.parse(v);
+        const columnIndex = typeString.indexOf(";");
+        const arrayType = typeString.substring(1, columnIndex);
+        const arraySize = +typeString.substring(
+          columnIndex + 1,
+          typeString.indexOf("]")
+        );
+
+        parsedV = [];
+        for (const el of userArray) {
+          parsedV.push(this.parse(el, arrayType as IdlType));
+        }
+
+        // The program will not be able to deserialize if the size of the array is not enough
+        if (parsedV.length !== arraySize) throw new Error("Invalid array size");
       } else {
         // Custom Struct
         const parsedInput = JSON.parse(v);
