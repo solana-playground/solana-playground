@@ -1,10 +1,10 @@
 import * as buffer from "buffer";
 import styled from "styled-components";
 
+import Function from "./Function";
 import Text from "../../../../Text";
 import useInitialLoading from "../../useInitialLoading";
 import useIsDeployed from "../BuildDeploy/useIsDeployed";
-import Function from "./Function";
 import { PgProgramInfo } from "../../../../../utils/pg/program-info";
 import { Wormhole } from "../../../../Loading";
 import { ConnectionErrorText } from "../../Common";

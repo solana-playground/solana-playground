@@ -175,6 +175,13 @@ export class PgTest {
           default:
             parsedV = this.parse(v, insideType as IdlType);
         }
+      } else {
+        // Custom Struct
+        const parsedInput = JSON.parse(v);
+        if (typeof parsedInput !== "object" || parsedInput?.length >= 0)
+          throw new Error("Invalid " + type);
+
+        parsedV = parsedInput;
       }
     }
 
