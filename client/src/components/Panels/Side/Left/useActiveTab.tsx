@@ -1,5 +1,23 @@
 import { MutableRefObject, useEffect } from "react";
 import { useTheme } from "styled-components";
+import { Sidebar } from "../sidebar-state";
+
+export const ID_PREFIX = "Icon";
+
+const useActiveTab = (
+  currentState: Sidebar,
+  oldStateRef: MutableRefObject<Sidebar>,
+  width: number
+) => {
+  const theme = useTheme();
+
+  useEffect(() => {
+    const current = width !== 0 ? currentState : "Closed";
+
+    changeActiveTab(getId(current), getId(oldStateRef.current));
+    oldStateRef.current = currentState;
+  }, [currentState, oldStateRef, width, theme.name]);
+};
 
 const changeActiveTab = (newId: string, oldId: string) => {
   const oldEl = document.getElementById(oldId);
@@ -9,24 +27,8 @@ const changeActiveTab = (newId: string, oldId: string) => {
   newEl?.classList.add("active");
 };
 
-const getId = (prefix: string, id: string) => {
-  return prefix + id;
-};
-
-const useActiveTab = <T extends string>(
-  currentState: T,
-  oldStateRef: MutableRefObject<T>,
-  idPrefix: string
-) => {
-  const theme = useTheme();
-
-  useEffect(() => {
-    changeActiveTab(
-      getId(idPrefix, currentState),
-      getId(idPrefix, oldStateRef.current)
-    );
-    oldStateRef.current = currentState;
-  }, [currentState, oldStateRef, idPrefix, theme.name]);
+const getId = (id: string) => {
+  return ID_PREFIX + id;
 };
 
 export default useActiveTab;

@@ -1,4 +1,13 @@
-import { FC, Suspense, lazy, useEffect, useState } from "react";
+import {
+  FC,
+  Suspense,
+  lazy,
+  useEffect,
+  useState,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
@@ -17,11 +26,16 @@ const Explorer = lazy(() => import("./Explorer"));
 const BuildDeploy = lazy(() => import("./BuildDeploy"));
 const Test = lazy(() => import("./Test"));
 
-interface RightProps {
+interface DefaultRightProps {
   sidebarState: string;
 }
 
-const Right: FC<RightProps> = ({ sidebarState }) => {
+interface RightProps extends DefaultRightProps {
+  width: number;
+  setWidth: Dispatch<SetStateAction<number>>;
+}
+
+const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
 
   const { pathname } = useLocation();
@@ -76,16 +90,22 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, [setHeight]);
 
-  if (sidebarState === Sidebar.CLOSED) return null;
+  const handleResizeStop = useCallback(
+    (e, direction, ref, d) => {
+      setWidth((w) => {
+        const newWidth = w + d.width;
+        if (newWidth < MIN_WIDTH) return 0;
+
+        return newWidth;
+      });
+    },
+    [setWidth]
+  );
 
   return (
     <Resizable
       className={ClassName.SIDE_RIGHT}
-      defaultSize={{
-        width: 320,
-        height: "100%",
-      }}
-      minWidth={320}
+      size={{ width, height: "100%" }}
       minHeight="100%"
       maxWidth={window.innerWidth * 0.75}
       enable={{
@@ -98,6 +118,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
         bottomLeft: false,
         topLeft: false,
       }}
+      onResizeStop={handleResizeStop}
     >
       <Wrapper windowHeight={height.window} bottomHeight={height.bottom}>
         <StyledTitle sidebarState={sidebarState} />
@@ -109,7 +130,7 @@ const Right: FC<RightProps> = ({ sidebarState }) => {
   );
 };
 
-const Inside: FC<RightProps> = ({ sidebarState }) => {
+const Inside: FC<DefaultRightProps> = ({ sidebarState }) => {
   switch (sidebarState) {
     case Sidebar.EXPLORER:
       return <Explorer />;
@@ -124,7 +145,7 @@ const Inside: FC<RightProps> = ({ sidebarState }) => {
   }
 };
 
-interface TitleProps extends RightProps {
+interface TitleProps extends DefaultRightProps {
   className?: string;
 }
 
@@ -140,11 +161,12 @@ export const RightLoading = () => (
   </LoadingWrapper>
 );
 
+const MIN_WIDTH = 180;
+
 const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
   ${({ theme, windowHeight, bottomHeight }) => css`
     display: flex;
     flex-direction: column;
-    min-width: 20rem;
     height: ${windowHeight && bottomHeight
       ? windowHeight - bottomHeight
       : 955}px;
