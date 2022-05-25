@@ -139,6 +139,7 @@ export class PgTest {
       if (!PgCommon.isInt(v)) throw new Error("Invalid integer");
       parsedV = parseInt(v);
     } else if (type === "publicKey") parsedV = new PublicKey(v);
+    else if (type === "bytes") parsedV = Buffer.from(JSON.parse(v));
     else parsedV = v;
 
     return parsedV;
