@@ -195,7 +195,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
             updateTxVals,
           }}
         >
-          {ixs.args.length && (
+          {ixs.args.length ? (
             <ArgsWrapper>
               <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
                 {ixs.args.map((a, j) => (
@@ -208,7 +208,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
                 ))}
               </Foldable>
             </ArgsWrapper>
-          )}
+          ) : null}
           <AccountsWrapper>
             <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
               {ixs.accounts.map((a, j) => (

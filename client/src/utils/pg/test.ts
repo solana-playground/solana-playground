@@ -142,20 +142,21 @@ export class PgTest {
       parsedV = parseInt(v);
     } else if (type === "publicKey") parsedV = new PublicKey(v);
     else if (type === "bytes") {
-      const userArray: string[] = JSON.parse(v);
-      const isValid = userArray.every((el) => PgCommon.isInt(el));
+      const userArray: Uint8Array = JSON.parse(v);
+      const isValid = userArray.every((el) => PgCommon.isInt(el.toString()));
       if (!isValid) throw new Error("Invalid bytes");
 
-      parsedV = Buffer.from(userArray as []);
+      parsedV = Buffer.from(userArray);
     } else if (type === "string") parsedV = v;
     else {
-      const typeString = type.toString();
       // Non-default types
+      const typeString = type.toString();
       const { insideType, outerType } =
         this.getTypesFromParsedString(typeString);
 
-      if (insideType.includes("<") || insideType.includes(">"))
-        throw new Error("Nested type args are not yet supported");
+      // TODO: Implement nested advanced types
+      if (!this.DEFAULT_TYPES.includes(insideType as IdlType))
+        return JSON.parse(v);
 
       if (outerType === "Vec") {
         const userArray: string[] = JSON.parse(v);
@@ -193,20 +194,16 @@ export class PgTest {
         // The program will not be able to deserialize if the size of the array is not enough
         if (parsedV.length !== arraySize) throw new Error("Invalid array size");
       } else if (typeString.endsWith("(Enum)")) {
-        let parsedInput = {};
+        let parsedV = {};
         if (v.includes("[")) throw new Error("Invalid " + type);
 
-        if (v.includes("{")) parsedInput = JSON.parse(v);
-        else (parsedInput as { [key: string]: {} })[v.toLowerCase()] = {};
-
-        parsedV = parsedInput;
+        if (v.includes("{")) parsedV = JSON.parse(v);
+        else (parsedV as { [key: string]: {} })[v.toLowerCase()] = {};
       } else {
         // Custom Struct
-        const parsedInput = JSON.parse(v);
-        if (typeof parsedInput !== "object" || parsedInput?.length >= 0)
+        parsedV = JSON.parse(v);
+        if (typeof parsedV !== "object" || parsedV?.length >= 0)
           throw new Error("Invalid " + type);
-
-        parsedV = parsedInput;
       }
     }
 
@@ -215,7 +212,7 @@ export class PgTest {
 
   static getTypesFromParsedString(str: string) {
     const openIndex = str.indexOf("<");
-    const closeIndex = str.indexOf(">");
+    const closeIndex = str.lastIndexOf(">");
     const outerType = str.substring(0, openIndex);
     const insideType = str.substring(openIndex + 1, closeIndex);
 
@@ -263,36 +260,13 @@ export class PgTest {
       argValues.push(txVals.args[argName]);
     }
 
-    let method;
-
-    // Currently supports up to 4 args
-    if (!argValues.length) {
-      method = program.methods[txVals.name]();
-    } else if (argValues.length === 1) {
-      method = program.methods[txVals.name](argValues[0]);
-    } else if (argValues.length === 2) {
-      method = program.methods[txVals.name](argValues[0], argValues[1]);
-    } else if (argValues.length === 3) {
-      method = program.methods[txVals.name](
-        argValues[0],
-        argValues[1],
-        argValues[2]
-      );
-    } else if (argValues.length === 4) {
-      method = program.methods[txVals.name](
-        argValues[0],
-        argValues[1],
-        argValues[2],
-        argValues[3]
-      );
-    }
-
-    if (!method) throw new Error(`${argValues.length} is too many arguments`);
+    // Create method
+    const method = program.methods[txVals.name](...argValues);
 
     // Create instruction
     const ix = await method.accounts(txVals.accs as {}).instruction();
 
-    // Add to tx
+    // Add ix to tx
     tx.add(ix);
 
     // Add additional signers
