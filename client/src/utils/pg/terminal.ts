@@ -28,7 +28,7 @@ export class PgTerminal {
 
 Popular crates for Solana development are available to use.
 
-See the list of available crates and request new crates from here: ${PgTerminal.underline(
+See the list of available crates and request new crates from: ${PgTerminal.underline(
     GITHUB_URL
   )}`;
 

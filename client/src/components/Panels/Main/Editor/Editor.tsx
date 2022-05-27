@@ -1,28 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 
+import { autosave, getExtensions } from "./extensions";
 import Theme from "../../../../theme/interface";
-import { getExtensions } from "./extensions";
 import {
   buildCountAtom,
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import autosave from "./autosave";
 import { PgExplorer } from "../../../../utils/pg/explorer";
-import { Wormhole } from "../../../Loading";
 import { PgProgramInfo } from "../../../../utils/pg/program-info";
+import { Wormhole } from "../../../Loading";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
   const [explorerChanged] = useAtom(refreshExplorerAtom); // to re-render on demand
+  // Update programId on each build
+  const [buildCount] = useAtom(buildCountAtom);
 
+  const [mount, setMount] = useState(0);
   const [noOpenTabs, setNoOpenTabs] = useState(false);
 
-  const parent = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
 
   const theme = useTheme() as Theme;
 
@@ -160,18 +162,48 @@ const Editor = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme.name]);
 
-  const removeEditor = useCallback(() => {
-    if (parent.current?.hasChildNodes())
-      parent.current.removeChild(parent.current.childNodes[0]);
-  }, []);
-
-  const getCurFile = useCallback(() => {
-    return explorer?.getCurrentFile();
-  }, [explorer]);
-
-  // Editor configuration
+  // Initial Mount
   useEffect(() => {
-    // If there is no tab open, show Home screen
+    setMount((c) => c + 1);
+  }, [setMount]);
+
+  // If there is open tabs but the editor is not mounted, mount the editor.
+  useEffect(() => {
+    if (!noOpenTabs && !parentRef.current?.hasChildNodes())
+      setMount((c) => c + 1);
+  }, [noOpenTabs, setMount]);
+
+  // Create editor
+  const editor = useMemo(() => {
+    if (!explorer || !parentRef.current) return;
+
+    // Get current file
+    const curFile = explorer.getCurrentFile();
+    if (!curFile) return;
+
+    // Remove editor if it's already mounted
+    if (parentRef.current?.hasChildNodes())
+      parentRef.current.removeChild(parentRef.current.childNodes[0]);
+
+    return new EditorView({
+      state: EditorState.create({
+        doc: curFile.content,
+        extensions: [
+          getExtensions(),
+          editorTheme,
+          theme.highlight,
+          autosave(explorer, curFile, 5000),
+        ],
+      }),
+      parent: parentRef.current,
+    });
+
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mount, editorTheme]);
+
+  // When user switches files or editor changed
+  useEffect(() => {
+    // Show home screen no tab is open
     if (!explorer?.getTabs().length) {
       setNoOpenTabs(true);
       return;
@@ -179,25 +211,23 @@ const Editor = () => {
 
     setNoOpenTabs(false);
 
-    if (!parent.current) return;
+    if (!explorer || !editor) return;
 
     // Get current file
-    const curFile = getCurFile();
+    const curFile = explorer.getCurrentFile();
     if (!curFile) return;
+
+    // Open all parents
+    PgExplorer.openAllParents(curFile.path);
 
     // Change selected
     // won't work on mount
     const newEl = PgExplorer.getElFromPath(curFile.path);
     if (newEl) PgExplorer.setSelectedEl(newEl);
 
-    // Open all parents
-    // won't work on mount
-    PgExplorer.openAllParents(curFile.path);
-
-    removeEditor();
-
-    new EditorView({
-      state: EditorState.create({
+    // Change editor state
+    editor.setState(
+      EditorState.create({
         doc: curFile.content,
         extensions: [
           getExtensions(),
@@ -205,46 +235,21 @@ const Editor = () => {
           theme.highlight,
           autosave(explorer, curFile, 5000),
         ],
-      }),
-      parent: parent.current,
-    });
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    explorerChanged,
-    explorer,
-    editorTheme,
-    noOpenTabs,
-    removeEditor,
-    setNoOpenTabs,
-  ]);
+      })
+    );
 
-  // Update programId on each build
-  const [buildCount] = useAtom(buildCountAtom);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, explorerChanged, setNoOpenTabs]);
 
   // Change programId
   useEffect(() => {
-    if (!explorer || !parent.current || !buildCount) return;
+    if (!explorer || !parentRef.current || !buildCount || !editor) return;
 
-    const curFile = getCurFile();
+    const curFile = explorer.getCurrentFile();
     if (!curFile) return;
 
     const programPkResult = PgProgramInfo.getPk();
     if (programPkResult?.err) return;
-
-    removeEditor();
-
-    const editor = new EditorView({
-      state: EditorState.create({
-        doc: curFile.content,
-        extensions: [
-          getExtensions(),
-          editorTheme,
-          theme.highlight,
-          autosave(explorer, curFile, 5000),
-        ],
-      }),
-      parent: parent.current,
-    });
 
     const code = editor.state.doc.toString();
     const findText = "declare_id!";
@@ -265,7 +270,7 @@ const Editor = () => {
     });
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildCount, removeEditor]);
+  }, [buildCount, editor]);
 
   if (!explorer)
     return (
@@ -278,7 +283,7 @@ const Editor = () => {
   if (noOpenTabs)
     return <Wrapper>Professional looking home screen coming soon.</Wrapper>;
 
-  return <Wrapper ref={parent}></Wrapper>;
+  return <Wrapper ref={parentRef}></Wrapper>;
 };
 
 export const EDITOR_SCROLLBAR_WIDTH = "0.75rem";
