@@ -9,6 +9,7 @@ import {
 } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 import { completeFromList, ifNotIn } from "@codemirror/autocomplete";
+
 import snippets from "./snippets";
 
 const rustLanguage = LRLanguage.define({

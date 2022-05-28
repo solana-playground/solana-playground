@@ -8,7 +8,7 @@ import {
 import { Extension, EditorState } from "@codemirror/state";
 import { history, historyKeymap } from "@codemirror/history";
 import { foldGutter, foldKeymap } from "@codemirror/fold";
-import { indentOnInput } from "@codemirror/language";
+import { indentOnInput, indentUnit } from "@codemirror/language";
 import { lineNumbers, highlightActiveLineGutter } from "@codemirror/gutter";
 import { defaultKeymap } from "@codemirror/commands";
 import { bracketMatching } from "@codemirror/matchbrackets";
@@ -43,6 +43,7 @@ export const getExtensions = (): Extension[] => {
     highlightActiveLine(),
     search.highlightSelectionMatches(),
     rust(),
+    indentUnit.of("    "),
     keymap.of([
       ...defaultKeymap,
       ...closeBracketsKeymap,
