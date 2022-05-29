@@ -3,8 +3,8 @@ import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import LangIcon from "../../../LangIcon";
-import { Close } from "../../../Icons";
 import Button from "../../../Button";
+import { Close } from "../../../Icons";
 import { PgExplorer } from "../../../../utils/pg/explorer";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
 

@@ -173,7 +173,7 @@ const TxsTop = styled.div`
     display: flex;
     font-size: ${theme.font?.size.small};
     color: ${theme.colors.default.textSecondary};
-    background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
+    background-color: ${theme.colors.right?.bg};
     font-weight: bold;
 
     &:not(:last-child) {
@@ -197,7 +197,7 @@ const TxWrapper = styled.div`
       color: ${theme.colors.default.textPrimary};
       background: linear-gradient(
         0deg,
-        ${theme.colors.right?.bg ?? theme.colors.default.bg} 75%,
+        ${theme.colors.right?.bg} 75%,
         ${theme.colors.default.primary + theme.transparency?.low} 100%
       );
     }

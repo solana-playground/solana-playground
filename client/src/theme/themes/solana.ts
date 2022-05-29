@@ -199,6 +199,7 @@ export const SOLANA: Theme = {
     },
     tooltip: {
       bg: BG_GRAY,
+      color: TEXT_PRIMARY,
     },
     toast: {
       bg: BG_GRAY,

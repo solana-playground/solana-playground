@@ -19,10 +19,10 @@ import { rectangularSelection } from "@codemirror/rectangular-selection";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { lintKeymap } from "@codemirror/lint";
 
-// The packages we customized
+// Packages we customized/added
 import { indentWithTab } from "@codemirror/commands";
-import rust from "../lang";
-import search from "../search";
+import { rust } from "./lang";
+import { highlightSelectionMatches, searchKeymap } from "./search";
 
 export const getExtensions = (): Extension[] => {
   return [
@@ -41,7 +41,7 @@ export const getExtensions = (): Extension[] => {
     autocompletion(),
     rectangularSelection(),
     highlightActiveLine(),
-    search.highlightSelectionMatches(),
+    highlightSelectionMatches(),
     rust(),
     indentUnit.of("    "),
     keymap.of([
@@ -52,7 +52,7 @@ export const getExtensions = (): Extension[] => {
       ...commentKeymap,
       ...completionKeymap,
       ...lintKeymap,
-      ...search.searchKeymap,
+      ...searchKeymap,
       indentWithTab,
     ]),
   ];

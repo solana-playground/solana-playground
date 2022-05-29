@@ -1,6 +1,6 @@
 import { EditorView, ViewUpdate } from "@codemirror/view";
 
-import { PgExplorer, FullFile } from "../../../../../utils/pg/explorer";
+import { PgExplorer, FullFile } from "../../../../../../utils/pg/explorer";
 
 export const autosave = (
   explorer: PgExplorer,

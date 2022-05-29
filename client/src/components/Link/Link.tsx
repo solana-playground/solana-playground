@@ -31,4 +31,10 @@ const StyledLink = styled.a`
   }
 `;
 
+export const DefaultLink: FC<LinkProps> = ({ href, children }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer">
+    {children}
+  </a>
+);
+
 export default Link;

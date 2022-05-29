@@ -14,6 +14,7 @@ import {
 import { PgExplorer } from "../../../../utils/pg/explorer";
 import { PgProgramInfo } from "../../../../utils/pg/program-info";
 import { Wormhole } from "../../../Loading";
+import Home from "./Home/Home";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -167,10 +168,14 @@ const Editor = () => {
     setMount((c) => c + 1);
   }, [setMount]);
 
-  // If there is open tabs but the editor is not mounted, mount the editor.
+  // Mounting based on open tabs state
   useEffect(() => {
-    if (!noOpenTabs && !parentRef.current?.hasChildNodes())
-      setMount((c) => c + 1);
+    const firstEl = parentRef.current?.firstElementChild;
+
+    // If there is open tabs but the editor is not mounted, mount the editor.
+    if (!noOpenTabs && !firstEl) setMount((c) => c + 1);
+    else if (firstEl?.classList.contains("cm-editor"))
+      parentRef.current?.removeChild(firstEl);
   }, [noOpenTabs, setMount]);
 
   // Create editor
@@ -279,11 +284,7 @@ const Editor = () => {
       </LoadingWrapper>
     );
 
-  // TODO: Home screen
-  if (noOpenTabs)
-    return <Wrapper>Professional looking home screen coming soon.</Wrapper>;
-
-  return <Wrapper ref={parentRef}></Wrapper>;
+  return <Wrapper ref={parentRef}>{noOpenTabs && <Home />}</Wrapper>;
 };
 
 export const EDITOR_SCROLLBAR_WIDTH = "0.75rem";
@@ -297,20 +298,24 @@ const Wrapper = styled.div`
 
     /* Scrollbar */
     /* Chromium */
+    &::-webkit-scrollbar,
     & ::-webkit-scrollbar {
       width: ${EDITOR_SCROLLBAR_WIDTH};
     }
 
+    &::-webkit-scrollbar-track,
     & ::-webkit-scrollbar-track {
-      background-color: ${theme.colors.right?.bg ?? theme.colors.default.bg};
+      background-color: ${theme.colors.right?.bg};
       border-left: 1px solid ${theme.colors.default.borderColor};
     }
 
+    &::-webkit-scrollbar-thumb,
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       background-color: ${theme.colors.scrollbar?.thumb.color};
     }
 
+    &::-webkit-scrollbar-thumb:hover,
     & ::-webkit-scrollbar-thumb:hover {
       background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
     }

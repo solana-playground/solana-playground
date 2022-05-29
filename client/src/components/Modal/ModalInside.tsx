@@ -62,8 +62,7 @@ const Wrapper = styled.div`
     padding: 0.25rem 1.5rem;
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
-    background-color: ${(theme.colors.right?.bg ?? theme.colors.default.bg) +
-    "EE"};
+    background-color: ${theme.colors.right?.bg + "EE"};
     max-width: max(40%, 20rem);
   `}
 `;

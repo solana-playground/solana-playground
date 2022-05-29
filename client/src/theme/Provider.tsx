@@ -29,6 +29,11 @@ const MutThemeProvider: FC = ({ children }) => {
   if (!theme.font) theme.font = PG_FONT;
   if (!theme.transparency) theme.transparency = PG_TRANSPARENCY;
   // Change bg in each item
+  if (!theme.colors.right?.bg)
+    theme.colors.right = {
+      ...theme.colors.right,
+      bg: theme.colors.default.bg,
+    };
   if (!theme.colors.right?.otherBg)
     theme.colors.right = {
       ...theme.colors.right,

@@ -19,19 +19,18 @@ mod hello_anchor {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-  // We must specify the space in order to initialize an account.
-  // First 8 bytes are default account discriminator,
-  // next 8 bytes come from NewAccount.data being type u64.
-  // (u64 = 64 bits unsigned integer = 8 bytes)
-  #[account(init, payer = signer, space = 8 + 8)]
-  pub new_account: Account<'info, NewAccount>,
-  #[account(mut)]
-  pub signer: Signer<'info>,
-  pub system_program: Program<'info, System>,
+    // We must specify the space in order to initialize an account.
+    // First 8 bytes are default account discriminator,
+    // next 8 bytes come from NewAccount.data being type u64.
+    // (u64 = 64 bits unsigned integer = 8 bytes)
+    #[account(init, payer = signer, space = 8 + 8)]
+    pub new_account: Account<'info, NewAccount>,
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[account]
-#[derive(Default)]
 pub struct NewAccount {
     data: u64
 }`;
@@ -40,8 +39,8 @@ const DEFAULT_EXPLORER: ExplorerJSON = {
   files: {
     [DEFAULT_FILE]: {
       content: DEFAULT_CODE,
-      tabs: true,
-      current: true,
+      tabs: false,
+      current: false,
     },
   },
 };
@@ -318,6 +317,7 @@ export class PgExplorer {
   removeFromTabs(path: string) {
     const files = this._explorer.files;
     files[path].tabs = false;
+    files[path].current = false;
 
     // Change current file to the last tab
     this.changeCurrentFileToTheLastTab();

@@ -91,7 +91,7 @@ const rustLanguage = LRLanguage.define({
 });
 
 /// Rust language support
-export default function rust() {
+export const rust = () => {
   return new LanguageSupport(
     rustLanguage,
     rustLanguage.data.of({
@@ -101,4 +101,4 @@ export default function rust() {
       ),
     })
   );
-}
+};

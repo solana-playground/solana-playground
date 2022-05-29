@@ -3,7 +3,7 @@ export const PG_FONT = {
   size: {
     small: "0.75rem",
     medium: "0.875rem",
-    large: "1rem",
+    large: "1.25rem",
   },
 };
 
