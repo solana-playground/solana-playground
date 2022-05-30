@@ -50,17 +50,14 @@ const ProjectTitle = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   width: 100%;
-  // background: green;
 `;
 
 const LeftWrapper = styled.div`
   width: 70%;
-  // background: purple;
 `;
 
 const RightWrapper = styled.div`
   width: 30%;
-  // background: lightblue;
 `;
 
 const ContentTitle = styled.div`
@@ -167,10 +164,16 @@ const TutorialWrapper = styled.div`
     display: flex;
     align-items: center;
     padding: 1rem;
+    margin-bottom: 1rem;
     background-color: ${theme.colors.right?.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
-    margin-bottom: 1rem;
+    transition: all ${theme.transition?.duration.medium}
+      ${theme.transition?.type};
+
+    &:hover {
+      background-color: ${theme.colors.right?.otherBg};
+    }
   `}
 `;
 

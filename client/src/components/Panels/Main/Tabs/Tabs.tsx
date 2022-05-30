@@ -1,16 +1,16 @@
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 import styled, { css } from "styled-components";
-import { Id } from "../../../../constants";
 
+import Tab from "./Tab";
+import Button from "../../../Button";
+import useCurrentWallet from "../../Wallet/useCurrentWallet";
+import { Id } from "../../../../constants";
 import {
   explorerAtom,
   refreshExplorerAtom,
   showWalletAtom,
 } from "../../../../state";
-import Button from "../../../Button";
-import useCurrentWallet from "../../Wallet/useCurrentWallet";
-import Tab from "./Tab";
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -68,10 +68,37 @@ const Wrapper = styled.div`
 `;
 
 const TabsWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  ${({ theme }) => css`
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /* Scrollbar */
+    /* Chromium */
+    &::-webkit-scrollbar {
+      height: 0.25rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      border-radius: ${theme.borderRadius};
+      background-color: ${theme.colors.scrollbar?.thumb.color};
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+    }
+
+    /* Firefox */
+    & * {
+      scrollbar-color: ${theme.colors.scrollbar?.thumb.color};
+    }
+  `}
 `;
 
 const WalletWrapper = styled.div`
