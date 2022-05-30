@@ -1,4 +1,3 @@
-import { parser } from "@lezer/rust";
 import {
   continuedIndent,
   indentNodeProp,
@@ -10,6 +9,7 @@ import {
 import { styleTags, tags as t } from "@codemirror/highlight";
 import { completeFromList, ifNotIn } from "@codemirror/autocomplete";
 
+import { parser } from "./parser";
 import snippets from "./snippets";
 
 const rustLanguage = LRLanguage.define({

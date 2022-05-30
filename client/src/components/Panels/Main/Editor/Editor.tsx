@@ -14,7 +14,7 @@ import {
 import { PgExplorer } from "../../../../utils/pg/explorer";
 import { PgProgramInfo } from "../../../../utils/pg/program-info";
 import { Wormhole } from "../../../Loading";
-import Home from "./Home/Home";
+import Home from "./Home";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
