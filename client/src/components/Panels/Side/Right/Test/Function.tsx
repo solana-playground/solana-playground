@@ -160,7 +160,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     let msg = "";
 
     try {
-      await PgCommon.sleep(PgCommon.TRANSITION_SLEEP); // To fix button transition
+      await PgCommon.sleep(PgCommon.TRANSITION_SLEEP); // To smooth out button transition
       const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
       setTxHash(txHash);
 

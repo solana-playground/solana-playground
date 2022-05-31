@@ -7,6 +7,7 @@ import { PgProgramInfo } from "./program-info";
 import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
 import { PgTerminal } from "./terminal";
+import { PgTx } from "./tx";
 
 export class PgDeploy {
   private static MAX_RETRIES = 10;
@@ -78,7 +79,7 @@ export class PgDeploy {
         );
     }
 
-    let sleepAmt = 1000;
+    let sleepAmount = 1000;
     // Retry until it's successful or exceeds max tries
     for (let i = 0; i < this.MAX_RETRIES; i++) {
       try {
@@ -111,8 +112,8 @@ export class PgDeploy {
             )}). Please change RPC endpoint from the settings.`
           );
 
-        await PgCommon.sleep(sleepAmt);
-        sleepAmt *= this.SLEEP_MULTIPLIER;
+        await PgCommon.sleep(sleepAmount);
+        sleepAmount *= this.SLEEP_MULTIPLIER;
       }
     }
 
@@ -137,7 +138,7 @@ export class PgDeploy {
       "Please check the browser console. You can report the issue in " +
       GITHUB_URL +
       "/issues";
-    sleepAmt = 1000;
+    sleepAmount = 1000;
 
     // Retry until it's successful or exceeds max tries
     for (let i = 0; i < this.MAX_RETRIES; i++) {
@@ -178,8 +179,8 @@ export class PgDeploy {
 
           console.log("Deploy Program Tx Hash: ", txHash);
 
-          const result = await conn.confirmTransaction(txHash);
-          if (!result?.value.err) break;
+          const result = await PgTx.confirm(txHash, conn);
+          if (!result?.err) break;
 
           await BpfLoaderUpgradeable.deployProgram(
             conn,
@@ -201,8 +202,8 @@ export class PgDeploy {
 
           console.log("Upgrade Program Tx Hash: ", txHash);
 
-          const result = await conn.confirmTransaction(txHash);
-          if (!result?.value.err) break;
+          const result = await PgTx.confirm(txHash, conn);
+          if (!result?.err) break;
 
           txHash = await BpfLoaderUpgradeable.upgradeProgram(
             programPk,
@@ -236,8 +237,8 @@ export class PgDeploy {
           );
         }
 
-        await PgCommon.sleep(sleepAmt);
-        sleepAmt *= this.SLEEP_MULTIPLIER;
+        await PgCommon.sleep(sleepAmount);
+        sleepAmount *= this.SLEEP_MULTIPLIER;
       }
     }
 

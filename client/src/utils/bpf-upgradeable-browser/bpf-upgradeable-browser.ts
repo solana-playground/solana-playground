@@ -520,16 +520,16 @@ export class BpfLoaderUpgradeable {
             try {
               writeTxHash = await PgTx.send(tx, conn, wallet);
 
-              const result = await conn.confirmTransaction(writeTxHash);
+              const result = await PgTx.confirm(writeTxHash, conn);
               console.count("buffer write");
 
-              if (!result?.value.err) break;
+              if (!result?.err) break;
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
               if (e.message.endsWith("Network request failed")) {
                 await PgCommon.sleep(sleepAmount);
                 // Incrementally sleep incase of being rate-limited
-                sleepAmount *= 2;
+                if (sleepAmount < 60) sleepAmount *= 1.5;
               }
             }
           }
