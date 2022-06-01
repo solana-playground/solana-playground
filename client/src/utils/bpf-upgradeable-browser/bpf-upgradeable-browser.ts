@@ -526,11 +526,10 @@ export class BpfLoaderUpgradeable {
               if (!result?.err) break;
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
-              if (e.message.endsWith("Network request failed")) {
-                await PgCommon.sleep(sleepAmount);
-                // Incrementally sleep incase of being rate-limited
-                if (sleepAmount < 60) sleepAmount *= 1.5;
-              }
+
+              await PgCommon.sleep(sleepAmount);
+              // Incrementally sleep incase of being rate-limited
+              if (sleepAmount < 60) sleepAmount *= 1.5;
             }
           }
 

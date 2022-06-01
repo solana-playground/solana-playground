@@ -7,7 +7,7 @@ import styled, { css } from "styled-components";
 import Button from "../../Button";
 import Link from "../../Link";
 import useCurrentWallet from "./useCurrentWallet";
-import { endpointAtom } from "../../../state";
+import { connAtom } from "../../../state";
 import { PgCommon } from "../../../utils/pg/common";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../../Icons";
 import { SpinnerWithBg } from "../../Loading";
@@ -109,7 +109,7 @@ const Tx: FC<ConfirmedSignatureInfo> = ({
   err,
   blockTime,
 }) => {
-  const [endpoint] = useAtom(endpointAtom);
+  const [conn] = useAtom(connAtom);
 
   const [hover, setHover] = useState(false);
 
@@ -119,7 +119,10 @@ const Tx: FC<ConfirmedSignatureInfo> = ({
   const now = new Date().getTime() / 1000;
   const timePassed = PgCommon.secondsToTime(now - (blockTime ?? 0));
 
-  const [explorer, solscan] = PgCommon.getExplorerTxUrls(signature, endpoint);
+  const [explorer, solscan] = PgCommon.getExplorerTxUrls(
+    signature,
+    conn.endpoint!
+  );
 
   return (
     <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>

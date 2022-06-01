@@ -1,3 +1,5 @@
+import { Commitment } from "@solana/web3.js";
+
 enum NetworkName {
   LOCALHOST = "localhost",
   DEVNET = "devnet",
@@ -52,4 +54,10 @@ export const NETWORKS: Network[] = [
     name: NetworkName.MAINNET_BETA_SERUM,
     endpoint: Endpoint.MAINNET_BETA_SERUM,
   },
+];
+
+export const COMMITMENT_LEVELS: Commitment[] = [
+  "processed",
+  "confirmed",
+  "finalized",
 ];

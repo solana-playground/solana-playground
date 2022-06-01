@@ -1,15 +1,18 @@
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { endpointAtom, txHashAtom } from "../../state";
+import { connAtom, txHashAtom } from "../../state";
 import { PgCommon } from "../../utils/pg/common";
 import Link from "../Link";
 
 export const ExplorerLink = () => {
   const [txHash] = useAtom(txHashAtom);
-  const [endpoint] = useAtom(endpointAtom);
+  const [conn] = useAtom(connAtom);
 
-  const [explorer, solscan] = PgCommon.getExplorerTxUrls(txHash, endpoint);
+  const [explorer, solscan] = PgCommon.getExplorerTxUrls(
+    txHash,
+    conn.endpoint!
+  );
 
   return (
     <Wrapper>

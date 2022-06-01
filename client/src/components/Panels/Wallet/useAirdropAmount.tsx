@@ -2,18 +2,19 @@ import { useMemo } from "react";
 import { useAtom } from "jotai";
 
 import { Endpoint } from "../../../constants";
-import { endpointAtom } from "../../../state";
+import { connAtom } from "../../../state";
 
 const useAirdropAmount = () => {
-  const [endpoint] = useAtom(endpointAtom);
+  const [conn] = useAtom(connAtom);
 
   const amount = useMemo(() => {
+    const endpoint = conn.endpoint;
     if (endpoint === Endpoint.LOCALHOST) return 100;
-    else if (endpoint === Endpoint.DEVNET) return 2;
-    else if (endpoint === Endpoint.TESTNET) return 1;
+    if (endpoint === Endpoint.DEVNET) return 2;
+    if (endpoint === Endpoint.TESTNET) return 1;
 
     return null;
-  }, [endpoint]);
+  }, [conn.endpoint]);
 
   return amount;
 };

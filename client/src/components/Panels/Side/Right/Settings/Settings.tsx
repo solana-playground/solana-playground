@@ -2,14 +2,17 @@ import { FC, ReactElement } from "react";
 import styled, { css } from "styled-components";
 
 import ThemeSetting from "./ThemeSetting";
-import NetworkSetting from "./NetworkSetting";
+import CommitmentSetting from "./CommitmentSetting";
+import EndpointSetting from "./EndpointSetting";
 
 const Settings = () => (
   <Wrapper>
     <Setting name="Theme" SettingElement={<ThemeSetting />} />
-    <Setting name="Endpoint" SettingElement={<NetworkSetting />} />
+    <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
+    <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
   </Wrapper>
 );
+
 const Wrapper = styled.div`
   ${({ theme }) => css`
     background-color: ${theme.colors?.tooltip?.bg};
