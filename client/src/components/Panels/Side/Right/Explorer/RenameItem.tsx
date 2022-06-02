@@ -9,10 +9,10 @@ import {
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
 import Input, { defaultInputProps } from "../../../../Input";
 import ModalInside from "../../../../Modal/ModalInside";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
+import { PgExplorer } from "../../../../../utils/pg";
 
 interface RenameItemProps {
   path: string;

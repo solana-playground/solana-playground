@@ -9,17 +9,17 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import MutThemeProvider from "./theme/";
 import IDE from "./pages/ide";
 import { connAtom } from "./state";
-import { PgConnection } from "./utils/pg/connection";
+import { PgConnection } from "./utils/pg";
 
 const App = () => {
   const [conn] = useAtom(connAtom);
-
-  const wallets = [new PhantomWalletAdapter()];
 
   const endpoint = conn.endpoint ?? PgConnection.DEFAULT_CONNECTION.endpoint!;
   const config = {
     commitment: conn.commitment ?? PgConnection.DEFAULT_CONNECTION.commitment,
   };
+
+  const wallets = [new PhantomWalletAdapter()];
 
   return (
     <MutThemeProvider>

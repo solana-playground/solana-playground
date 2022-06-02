@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Left from "./Left";
 import Right from "./Right";
 import { Sidebar } from "./sidebar-state";
-import { PgCommon } from "../../../utils/pg/common";
+import { PgCommon } from "../../../utils/pg";
 
 const Side = () => {
   const [sidebarState, setSidebarState] = useState(Sidebar.EXPLORER);

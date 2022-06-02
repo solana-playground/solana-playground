@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { explorerAtom, modalAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
 import Button from "../../../../Button";
 import NewItem from "./NewItem";
-import useNewItem from "./useNewItem";
 import Share from "./Share";
+import useNewItem from "./useNewItem";
+import { explorerAtom, modalAtom } from "../../../../../state";
+import { PgExplorer } from "../../../../../utils/pg";
 
 const Buttons = () => (
   <ButtonsWrapper>

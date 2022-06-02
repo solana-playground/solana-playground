@@ -2,17 +2,17 @@ import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { explorerAtom } from "../../../../../state";
-import { PgShare } from "../../../../../utils/pg/share";
+import Button from "../../../../Button";
+import CopyButton from "../../../../CopyButton";
+import Input from "../../../../Input";
+import Link from "../../../../Link";
 import ModalInside from "../../../../Modal/ModalInside";
-import useModal from "../../../../Modal/useModal";
 import Text from "../../../../Text";
+import useModal from "../../../../Modal/useModal";
+import { explorerAtom } from "../../../../../state";
+import { PgShare } from "../../../../../utils/pg";
 import { TextProps } from "../../../../Text/Text";
 import { CLIENT_URL } from "../../../../../constants";
-import Input from "../../../../Input";
-import CopyButton from "../../../../CopyButton";
-import Link from "../../../../Link";
-import Button from "../../../../Button";
 import { Checkmark, Sad } from "../../../../Icons";
 
 interface TextState extends TextProps {

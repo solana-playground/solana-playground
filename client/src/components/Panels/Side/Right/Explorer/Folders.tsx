@@ -2,13 +2,13 @@ import { FC, MouseEvent, Ref, useEffect, useMemo, useRef } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import { Arrow } from "../../../../Icons";
-import ExplorerContextMenu from "./ExplorerContextMenu";
-import { ClassName, Id } from "../../../../../constants";
 import LangIcon from "../../../../LangIcon";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
+import ExplorerContextMenu from "./ExplorerContextMenu";
 import useExplorerContextMenu from "./useExplorerContextMenu";
+import { Arrow } from "../../../../Icons";
+import { ClassName, Id } from "../../../../../constants";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
+import { PgExplorer } from "../../../../../utils/pg";
 
 const Folders = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -21,7 +21,7 @@ const Folders = () => {
     const curFile = explorer.getCurrentFile();
     if (!curFile) return;
 
-    // Open if it's parents are not opened
+    // Open if current file's parents are not opened
     PgExplorer.openAllParents(curFile.path);
 
     // Change selected

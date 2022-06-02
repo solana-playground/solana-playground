@@ -17,8 +17,7 @@ import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs";
 import { Sidebar } from "../sidebar-state";
-import { PgShare } from "../../../../utils/pg/share";
-import { PgExplorer } from "../../../../utils/pg/explorer";
+import { PgExplorer, PgShare } from "../../../../utils/pg";
 import { explorerAtom } from "../../../../state";
 
 const Explorer = lazy(() => import("./Explorer"));

@@ -5,9 +5,11 @@ import styled from "styled-components";
 
 import Button, { ButtonProps } from "../../../../Button";
 import Text from "../../../../Text";
-import { PgDeploy } from "../../../../../utils/pg/deploy";
-import { PgProgramInfo } from "../../../../../utils/pg/program-info";
-import { PgTerminal } from "../../../../../utils/pg/terminal";
+import useAuthority from "./useAuthority";
+import useConnect from "../../../Wallet/useConnect";
+import useCurrentWallet from "../../../Wallet/useCurrentWallet";
+import useInitialLoading from "../../useInitialLoading";
+import useIsDeployed from "./useIsDeployed";
 import {
   terminalAtom,
   pgWalletAtom,
@@ -16,13 +18,9 @@ import {
   txHashAtom,
   programAtom,
 } from "../../../../../state";
-import useIsDeployed from "./useIsDeployed";
-import useConnect from "../../../Wallet/useConnect";
+import { PgDeploy, PgProgramInfo, PgTerminal } from "../../../../../utils/pg";
 import { Wormhole } from "../../../../Loading";
-import useInitialLoading from "../../useInitialLoading";
 import { ConnectionErrorText } from "../../Common";
-import useAuthority from "./useAuthority";
-import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 
 // TODO: Cancel deployment
 

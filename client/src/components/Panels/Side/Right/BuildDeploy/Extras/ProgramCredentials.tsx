@@ -3,18 +3,17 @@ import { useAtom } from "jotai";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import { modalAtom, refreshProgramIdAtom } from "../../../../../../state";
-import { ClassName } from "../../../../../../constants";
 import Button from "../../../../../Button";
-import DownloadButton from "../../../../../DownloadButton";
-import { Warning } from "../../../../../Icons";
-import Input from "../../../../../Input";
 import CopyButton from "../../../../../CopyButton";
+import DownloadButton from "../../../../../DownloadButton";
 import UploadButton from "../../../../../UploadButton";
-import { PgProgramInfo } from "../../../../../../utils/pg/program-info";
-import { PgCommon } from "../../../../../../utils/pg/common";
+import Input from "../../../../../Input";
 import ModalInside from "../../../../../Modal/ModalInside";
 import Text from "../../../../../Text";
+import { ClassName } from "../../../../../../constants";
+import { Warning } from "../../../../../Icons";
+import { modalAtom, refreshProgramIdAtom } from "../../../../../../state";
+import { PgProgramInfo, PgCommon } from "../../../../../../utils/pg";
 
 const ProgramCredentials = () => (
   <Wrapper>

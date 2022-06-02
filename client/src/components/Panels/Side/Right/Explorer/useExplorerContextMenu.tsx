@@ -1,16 +1,16 @@
 import { MouseEvent, useCallback, useState } from "react";
 import { useAtom } from "jotai";
 
+import DeleteItem from "./DeleteItem";
+import RenameItem from "./RenameItem";
+import { ClassName, Id } from "../../../../../constants";
 import {
   contextMenuStateAtom,
   ctxSelectedAtom,
   modalAtom,
   newItemAtom,
 } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
-import RenameItem from "./RenameItem";
-import DeleteItem from "./DeleteItem";
-import { ClassName, Id } from "../../../../../constants";
+import { PgExplorer } from "../../../../../utils/pg";
 
 const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);

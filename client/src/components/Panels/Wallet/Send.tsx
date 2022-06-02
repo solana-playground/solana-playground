@@ -8,11 +8,9 @@ import Button from "../../Button";
 import Input from "../../Input";
 import Foldable from "../../Foldable";
 import useCurrentWallet from "./useCurrentWallet";
-import { balanceAtom, terminalAtom, txHashAtom } from "../../../state";
 import { ClassName } from "../../../constants";
-import { PgTx } from "../../../utils/pg/tx";
-import { PgTerminal } from "../../../utils/pg/terminal";
-import { PgCommon } from "../../../utils/pg/common";
+import { balanceAtom, terminalAtom, txHashAtom } from "../../../state";
+import { PgCommon, PgTerminal, PgTx } from "../../../utils/pg";
 
 const Send = () => (
   <Wrapper>

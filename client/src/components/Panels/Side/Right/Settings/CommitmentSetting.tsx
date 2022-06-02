@@ -3,9 +3,9 @@ import { useAtom } from "jotai";
 import { Commitment } from "@solana/web3.js";
 
 import Select from "../../../../Select";
-import { connAtom } from "../../../../../state";
 import { COMMITMENT_LEVELS } from "../../../../../constants";
-import { PgConnection } from "../../../../../utils/pg/connection";
+import { connAtom } from "../../../../../state";
+import { PgConnection } from "../../../../../utils/pg";
 
 const CommitmentSetting = () => {
   const [conn, setConn] = useAtom(connAtom);

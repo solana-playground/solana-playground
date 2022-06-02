@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 
-import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import { PgProgramInfo } from "../../../../../utils/pg";
 import { refreshProgramIdAtom } from "../../../../../state";
 
 const useIsDeployed = () => {

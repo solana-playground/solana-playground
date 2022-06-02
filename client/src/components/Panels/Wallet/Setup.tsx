@@ -4,14 +4,13 @@ import { Buffer } from "buffer";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import ModalInside from "../../Modal/ModalInside";
-import Text from "../../Text";
 import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
-import { PgCommon } from "../../../utils/pg/common";
-import { PgWallet } from "../../../utils/pg/wallet";
+import ModalInside from "../../Modal/ModalInside";
+import Text from "../../Text";
 import { Warning } from "../../Icons";
 import { pgWalletAtom } from "../../../state";
+import { PgCommon, PgWallet } from "../../../utils/pg";
 
 interface SetupProps {
   onSubmit: () => void;

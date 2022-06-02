@@ -11,7 +11,7 @@ import useCurrentWallet from "../Wallet/useCurrentWallet";
 import useAirdropAmount from "../Wallet/useAirdropAmount";
 import { ConnState } from "../Wallet/connection-states";
 import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
-import { PgCommon } from "../../../utils/pg/common";
+import { PgCommon } from "../../../utils/pg";
 import { balanceAtom } from "../../../state";
 
 const Bottom = () => {

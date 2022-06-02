@@ -3,8 +3,7 @@ import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 
-import { PgProgramInfo } from "../../../../../utils/pg/program-info";
-import { PgWallet } from "../../../../../utils/pg/wallet";
+import { PgProgramInfo, PgWallet } from "../../../../../utils/pg";
 import { refreshProgramIdAtom } from "../../../../../state";
 
 interface ProgramData {

@@ -9,10 +9,9 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 
 import Button from "../../../Button";
 import Progress from "../../../Progress";
-import { terminalAtom, terminalProgressAtom } from "../../../../state";
-import { PgTerminal } from "../../../../utils/pg/terminal";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
-import { PgCommon } from "../../../../utils/pg/common";
+import { terminalAtom, terminalProgressAtom } from "../../../../state";
+import { PgCommon, PgTerminal } from "../../../../utils/pg";
 
 const Terminal = () => {
   const [terminal] = useAtom(terminalAtom);

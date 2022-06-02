@@ -4,17 +4,16 @@ import styled, { css, useTheme } from "styled-components";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 
-import { autosave, getExtensions } from "./extensions";
+import Home from "./Home";
 import Theme from "../../../../theme/interface";
+import { Wormhole } from "../../../Loading";
+import { autosave, getExtensions } from "./extensions";
 import {
   buildCountAtom,
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import { PgExplorer } from "../../../../utils/pg/explorer";
-import { PgProgramInfo } from "../../../../utils/pg/program-info";
-import { Wormhole } from "../../../Loading";
-import Home from "./Home";
+import { PgExplorer, PgProgramInfo } from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);

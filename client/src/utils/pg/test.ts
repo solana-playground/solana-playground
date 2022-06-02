@@ -17,7 +17,11 @@ import { PgCommon } from "./common";
 import { PgProgramInfo } from "./program-info";
 import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
-import { Seed } from "../../components/Panels/Side/Right/Test/Account";
+
+export type Seed = {
+  value: string;
+  type: IdlType;
+};
 
 export class PgTest {
   static DEFAULT_TYPES: IdlType[] = [
@@ -69,6 +73,7 @@ export class PgTest {
         if (kind === "enum") {
           return (customTypeName + "(Enum)") as IdlType;
           // TODO: Error handling based on variants
+          // TODO: Show possible enum options
           // const variants = typeInfo.variants;
           // ...
         } else if (kind === "struct") {
@@ -81,6 +86,7 @@ export class PgTest {
           //   struct[field.name] = this.getFullType(field.type, idlTypes);
           // }
 
+          // // This shows struct fields instead of the custom struct name
           // const fullType =
           //   customTypeName +
           //   JSON.stringify(struct)
@@ -112,8 +118,9 @@ export class PgTest {
   static parse(v: string, type: IdlType): any {
     let parsedV;
 
-    if (!type.toString().startsWith("Option") && v === "")
+    if (!type.toString().startsWith("Option") && v === "") {
       throw new Error("Can't be empty");
+    }
     if (type === "bool") {
       const isTrue = v === "true";
       const isFalse = v === "false";
@@ -128,9 +135,9 @@ export class PgTest {
       type === "i64" ||
       type === "u128" ||
       type === "u64"
-    )
+    ) {
       parsedV = new BN(v);
-    else if (
+    } else if (
       type === "i16" ||
       type === "i32" ||
       type === "i8" ||
@@ -140,15 +147,17 @@ export class PgTest {
     ) {
       if (!PgCommon.isInt(v)) throw new Error("Invalid integer");
       parsedV = parseInt(v);
-    } else if (type === "publicKey") parsedV = new PublicKey(v);
-    else if (type === "bytes") {
+    } else if (type === "publicKey") {
+      parsedV = new PublicKey(v);
+    } else if (type === "bytes") {
       const userArray: Uint8Array = JSON.parse(v);
       const isValid = userArray.every((el) => PgCommon.isInt(el.toString()));
       if (!isValid) throw new Error("Invalid bytes");
 
       parsedV = Buffer.from(userArray);
-    } else if (type === "string") parsedV = v;
-    else {
+    } else if (type === "string") {
+      parsedV = v;
+    } else {
       // Non-default types
       const typeString = type.toString();
       const { insideType, outerType } =

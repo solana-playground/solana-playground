@@ -30,9 +30,8 @@ import InputLabel from "./InputLabel";
 import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import Input, { defaultInputProps } from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import { PgProgramInfo } from "../../../../../utils/pg/program-info";
+import { PgProgramInfo, PgTest, Seed } from "../../../../../utils/pg";
 import { Minus, Plus } from "../../../../Icons";
-import { PgTest } from "../../../../../utils/pg/test";
 
 interface AccountProps {
   account: IdlAccount;
@@ -271,11 +270,6 @@ const ShowSeed: FC<ShowGenProps> = ({
       </ShowGenButtonWrapper>
     </ShowGenWrapper>
   );
-};
-
-export type Seed = {
-  value: string;
-  type: IdlType;
 };
 
 interface SeedInputProps {

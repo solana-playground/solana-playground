@@ -2,9 +2,9 @@ import { ChangeEvent, useMemo } from "react";
 import { useAtom } from "jotai";
 
 import Select from "../../../../Select";
-import { connAtom } from "../../../../../state";
 import { NETWORKS } from "../../../../../constants";
-import { PgConnection } from "../../../../../utils/pg/connection";
+import { connAtom } from "../../../../../state";
+import { PgConnection } from "../../../../../utils/pg";
 
 const EndpointSetting = () => {
   const [conn, setConn] = useAtom(connAtom);

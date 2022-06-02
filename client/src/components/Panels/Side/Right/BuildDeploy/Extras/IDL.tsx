@@ -2,11 +2,10 @@ import { ChangeEvent } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { buildCountAtom } from "../../../../../../state";
-import { PgCommon } from "../../../../../../utils/pg/common";
-import { PgProgramInfo } from "../../../../../../utils/pg/program-info";
 import DownloadButton from "../../../../../DownloadButton";
 import UploadButton from "../../../../../UploadButton";
+import { buildCountAtom } from "../../../../../../state";
+import { PgCommon, PgProgramInfo } from "../../../../../../utils/pg";
 
 const IDL = () => (
   <Wrapper>

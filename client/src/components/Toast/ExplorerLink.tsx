@@ -1,9 +1,9 @@
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import { connAtom, txHashAtom } from "../../state";
-import { PgCommon } from "../../utils/pg/common";
 import Link from "../Link";
+import { connAtom, txHashAtom } from "../../state";
+import { PgCommon } from "../../utils/pg";
 
 export const ExplorerLink = () => {
   const [txHash] = useAtom(txHashAtom);

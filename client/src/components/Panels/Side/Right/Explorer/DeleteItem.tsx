@@ -1,11 +1,11 @@
 import { FC } from "react";
 import { useAtom } from "jotai";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import { Warning } from "../../../../Icons";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
 import ModalInside from "../../../../Modal/ModalInside";
+import { Warning } from "../../../../Icons";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
+import { PgExplorer } from "../../../../../utils/pg";
 
 interface DeleteItemProps {
   path: string;
@@ -54,13 +54,17 @@ const ContentText = styled.div`
   flex-direction: column;
   margin-left: 1rem;
 `;
+
 const Main = styled.span`
   font-weight: bold;
 `;
+
 const Desc = styled.span`
-  margin-top: 0.5rem;
-  font-size: ${({ theme }) => theme.font?.size.small};
-  color: ${({ theme }) => theme.colors.default.textSecondary};
+  ${({ theme }) => css`
+    margin-top: 0.5rem;
+    font-size: ${theme.font?.size.small};
+    color: ${theme.colors.default.textSecondary};
+  `}
 `;
 
 export default DeleteItem;

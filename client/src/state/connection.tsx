@@ -1,7 +1,6 @@
 import { atom } from "jotai";
 
-import { PgConnection } from "../utils/pg/connection";
-import { PgWallet } from "../utils/pg/wallet";
+import { PgConnection, PgWallet } from "../utils/pg";
 
 // Wallet
 export const pgWalletAtom = atom(new PgWallet());

@@ -24,20 +24,17 @@ import UploadButton from "../../UploadButton";
 import useConnect from "./useConnect";
 import useCurrentWallet from "./useCurrentWallet";
 import useAirdropAmount from "./useAirdropAmount";
+import { ClassName, Id } from "../../../constants";
 import {
   pgWalletAtom,
   showWalletAtom,
   terminalAtom,
   txHashAtom,
 } from "../../../state";
-import { PgTx } from "../../../utils/pg/tx";
-import { PgTerminal } from "../../../utils/pg/terminal";
-import { PgCommon } from "../../../utils/pg/common";
+import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../../utils/pg";
 import { TAB_HEIGHT } from "../Main/Tabs";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
 import { Close, ThreeDots } from "../../Icons";
-import { PgWallet } from "../../../utils/pg/wallet";
-import { ClassName, Id } from "../../../constants";
 import { ICONBAR_WIDTH } from "../Side/Left";
 import { BOTTOM_HEIGHT } from "../Bottom";
 

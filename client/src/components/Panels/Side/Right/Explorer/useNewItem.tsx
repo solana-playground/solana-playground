@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 
 import { newItemAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
+import { PgExplorer } from "../../../../../utils/pg";
 
 const useNewItem = () => {
   const [, setEl] = useAtom(newItemAtom);

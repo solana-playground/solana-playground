@@ -8,8 +8,7 @@ import {
   terminalAtom,
 } from "../../../../../state";
 import Button from "../../../../Button";
-import { PgBuild } from "../../../../../utils/pg/build";
-import { PgTerminal } from "../../../../../utils/pg/terminal";
+import { PgBuild, PgTerminal } from "../../../../../utils/pg";
 
 const Build = () => {
   const [explorer] = useAtom(explorerAtom);

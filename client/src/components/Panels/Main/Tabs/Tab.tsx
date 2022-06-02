@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import LangIcon from "../../../LangIcon";
 import Button from "../../../Button";
 import { Close } from "../../../Icons";
-import { PgExplorer } from "../../../../utils/pg/explorer";
+import { PgExplorer } from "../../../../utils/pg";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
 
 interface TabProps {

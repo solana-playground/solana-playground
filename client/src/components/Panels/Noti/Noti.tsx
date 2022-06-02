@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { PgNoti } from "../../../utils/pg/noti";
 import Button from "../../Button";
-import { Close } from "../../Icons";
 import Link from "../../Link";
+import { Close } from "../../Icons";
+import { PgNoti } from "../../../utils/pg";
 
 const Noti = () => {
   const [show, setShow] = useState(false);

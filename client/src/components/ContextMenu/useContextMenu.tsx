@@ -2,7 +2,7 @@ import { useAtom } from "jotai";
 import { useCallback, useEffect, useRef } from "react";
 
 import { contextMenuStateAtom } from "../../state";
-import { PgExplorer } from "../../utils/pg/explorer";
+import { PgExplorer } from "../../utils/pg";
 
 const useContextMenu = () => {
   const [menuState, setMenuState] = useAtom(contextMenuStateAtom);

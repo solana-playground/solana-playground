@@ -1,16 +1,17 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { useAtom } from "jotai";
+import styled from "styled-components";
 
+import LangIcon from "../../../../LangIcon";
+import Input, { defaultInputProps } from "../../../../Input";
 import {
   ctxSelectedAtom,
   explorerAtom,
   newItemAtom,
   refreshExplorerAtom,
 } from "../../../../../state";
-import Input, { defaultInputProps } from "../../../../Input";
-import LangIcon from "../../../../LangIcon";
-import { PgExplorer } from "../../../../../utils/pg/explorer";
+import { PgExplorer } from "../../../../../utils/pg";
 
 const NewItem = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -96,25 +97,27 @@ const NewItem = () => {
 
   return el
     ? ReactDOM.createPortal(
-        <div
-          ref={newFileRef}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "0.25rem 0",
-          }}
-        >
+        <Wrapper ref={newFileRef}>
           <LangIcon fileName={itemName} />
           <Input
-            style={{ marginLeft: "0.375rem" }}
             ref={inputRef}
             onChange={handleChange}
             {...defaultInputProps}
           />
-        </div>,
+        </Wrapper>,
         el
       )
     : null;
 };
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
+
+  & > input {
+    margin-left: 0.375rem;
+  }
+`;
 
 export default NewItem;
