@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { useAtom } from "jotai";
+import { ConnectionConfig } from "@solana/web3.js";
 import {
   ConnectionProvider,
   WalletProvider,
@@ -15,7 +16,7 @@ const App = () => {
   const [conn] = useAtom(connAtom);
 
   const endpoint = conn.endpoint ?? PgConnection.DEFAULT_CONNECTION.endpoint!;
-  const config = {
+  const config: ConnectionConfig = {
     commitment: conn.commitment ?? PgConnection.DEFAULT_CONNECTION.commitment,
   };
 

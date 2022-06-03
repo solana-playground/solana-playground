@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import { UNKNOWN_IMG_SRC } from "../../constants";
+import { ImgSrc } from "../../constants";
 import { Langs } from "./langs";
 
 interface LangIconProps {
@@ -21,9 +21,9 @@ const Img = styled.img`
 const getIconSrc = (fileName: string) => {
   const parts = fileName.split(".");
   const ext = parts.at(parts.length - 1);
-  if (!ext) return UNKNOWN_IMG_SRC;
+  if (!ext) return ImgSrc.UNKNOWN;
 
-  return Langs[ext] ?? UNKNOWN_IMG_SRC;
+  return Langs[ext] ?? ImgSrc.UNKNOWN;
 };
 
 export default LangIcon;

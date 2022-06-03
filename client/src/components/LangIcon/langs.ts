@@ -1,5 +1,9 @@
 const PATH = "icons/lang/";
 
-export const Langs: { [key: string]: string | undefined } = {
+interface Lang {
+  [key: string]: string;
+}
+
+export const Langs: Lang = {
   rs: PATH + "rust.png",
 };
