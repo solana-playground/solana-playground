@@ -1,11 +1,26 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import styled, { css } from "styled-components";
 
-import { Position } from "../../state/context-menu";
 import useContextMenu from "./useContextMenu";
+import { Position } from "../../state/context-menu";
+import { PgExplorer } from "../../utils/pg";
 
 const ContextMenu: FC = ({ children }) => {
-  const { menuState, menuRef } = useContextMenu();
+  const { menuState, menuRef, setMenuState } = useContextMenu();
+
+  // Close context-menu on ESC
+  useEffect(() => {
+    const handleKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        PgExplorer.removeCtxSelectedEl();
+        setMenuState((ms) => ({ ...ms, show: false }));
+      }
+    };
+
+    document.addEventListener("keydown", handleKey);
+
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [setMenuState]);
 
   return (
     <Wrapper ref={menuRef} x={menuState.position.x} y={menuState.position.y}>
@@ -27,8 +42,7 @@ const Wrapper = styled.div<Position>`
 const InsideWrapper = styled.div`
   ${({ theme }) => css`
     border: 1px solid ${theme.colors.default.borderColor};
-    background-color: ${theme.colors?.right?.otherBg ??
-    theme.colors.default.bg};
+    background-color: ${theme.colors?.right?.otherBg};
   `}
 `;
 

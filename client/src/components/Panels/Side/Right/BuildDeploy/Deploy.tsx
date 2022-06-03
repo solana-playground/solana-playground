@@ -18,7 +18,12 @@ import {
   txHashAtom,
   programAtom,
 } from "../../../../../state";
-import { PgDeploy, PgProgramInfo, PgTerminal } from "../../../../../utils/pg";
+import {
+  PgCommon,
+  PgDeploy,
+  PgProgramInfo,
+  PgTerminal,
+} from "../../../../../utils/pg";
 import { Wormhole } from "../../../../Loading";
 import { ConnectionErrorText } from "../../Common";
 
@@ -55,15 +60,19 @@ const Deploy = () => {
     let msg = "";
 
     try {
+      const startTime = performance.now();
       const txHash = await PgDeploy.deploy(
         conn,
         pgWallet,
         setProgress,
         program.buffer
       );
+      const timePassed = (performance.now() - startTime) / 1000;
       setTxHash(txHash);
 
-      msg = PgTerminal.success("Deployment successful.");
+      msg = `${PgTerminal.success(
+        "Deployment successful."
+      )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
 
       setDeployed(true);
     } catch (e: any) {

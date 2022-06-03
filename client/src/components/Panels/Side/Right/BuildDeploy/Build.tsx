@@ -22,7 +22,7 @@ const Build = () => {
 
     setLoading(true);
 
-    let msg = PgTerminal.info("Compiling...");
+    let msg = PgTerminal.info("Building...");
 
     setTerminal(msg);
 

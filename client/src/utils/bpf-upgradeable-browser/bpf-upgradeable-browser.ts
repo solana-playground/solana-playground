@@ -513,23 +513,25 @@ export class BpfLoaderUpgradeable {
             })
           );
 
-          let writeTxHash;
           let sleepAmount = 1000;
           // Retry until writing is successful
           for (;;) {
             try {
-              writeTxHash = await PgTx.send(tx, conn, wallet);
+              const writeTxHash = await PgTx.send(tx, conn, wallet);
 
-              const result = await PgTx.confirm(writeTxHash, conn);
               console.count("buffer write");
 
-              if (!result?.err) break;
+              // Don't confirm on localhost
+              if (!conn.rpcEndpoint.includes("localhost")) {
+                const txResult = await PgTx.confirm(writeTxHash, conn);
+                if (!txResult?.err) break;
+              } else break;
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
 
               await PgCommon.sleep(sleepAmount);
               // Incrementally sleep incase of being rate-limited
-              if (sleepAmount < 60) sleepAmount *= 1.5;
+              if (sleepAmount < 60000) sleepAmount *= 1.5;
             }
           }
 

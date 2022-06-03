@@ -7,14 +7,15 @@ import { modalAtom } from "../../state";
 const Modal = () => {
   const [modal, setModal] = useAtom(modalAtom);
 
+  // Close modal on ESC
   useEffect(() => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") setModal(null);
     };
 
-    document.body.addEventListener("keydown", handleKey);
+    document.addEventListener("keydown", handleKey);
 
-    return () => document.body.removeEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
   }, [setModal]);
 
   return modal ? <Wrapper>{modal}</Wrapper> : null;
