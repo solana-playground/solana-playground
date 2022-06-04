@@ -43,8 +43,13 @@ export class PgTest {
     "u8",
   ];
 
-  static getFullType(type: IdlType, idlTypes: IdlTypeDef[]): IdlType {
-    if (this.DEFAULT_TYPES.includes(type)) return type;
+  static getFullType(
+    type: IdlType,
+    idlTypes?: IdlTypeDef[],
+    idlAccounts?: IdlTypeDef[]
+  ): IdlType {
+    if (this.DEFAULT_TYPES.includes(type) || !idlTypes || !idlAccounts)
+      return type;
 
     if (typeof type === "object") {
       if ((type as IdlTypeOption)?.option) {
@@ -66,8 +71,15 @@ export class PgTest {
       } else if ((type as IdlTypeDefined)?.defined) {
         // Struct or enum
         const customTypeName = (type as IdlTypeDefined).defined;
-        const typeInfo = idlTypes.filter((t) => t.name === customTypeName)[0]
-          .type;
+
+        // Type info might be in 'accounts' instead of 'types'
+        let typeInfo = idlTypes
+          .filter((t) => t.name === customTypeName)
+          .at(0)?.type;
+        if (!typeInfo) {
+          typeInfo = idlAccounts.filter((t) => t.name === customTypeName)[0]
+            .type;
+        }
 
         const kind = typeInfo.kind;
         if (kind === "enum") {

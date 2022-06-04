@@ -111,7 +111,7 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     // Remove whitespace before 'Finished'
     startIndex = stderr.indexOf("Finished release");
     if (startIndex !== -1) {
-      const whiteSpaceStartIndex = startIndex - 7; // This is the most amount of whitespace
+      const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
       stderr =
         stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
         stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +

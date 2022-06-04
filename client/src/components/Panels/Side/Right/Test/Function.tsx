@@ -199,7 +199,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
                   <Arg
                     key={j}
                     name={a.name}
-                    type={PgTest.getFullType(a.type, idl.types!)}
+                    type={PgTest.getFullType(a.type, idl.types, idl.accounts)}
                     functionName={ixs.name}
                   />
                 ))}
