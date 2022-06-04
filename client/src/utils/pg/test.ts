@@ -159,13 +159,10 @@ export class PgTest {
       parsedV = v;
     } else {
       // Non-default types
+      // TODO: Implement nested advanced types
       const typeString = type.toString();
       const { insideType, outerType } =
         this.getTypesFromParsedString(typeString);
-
-      // TODO: Implement nested advanced types
-      if (!this.DEFAULT_TYPES.includes(insideType as IdlType))
-        return JSON.parse(v);
 
       if (outerType === "Vec") {
         const userArray: string[] = JSON.parse(v);
@@ -200,14 +197,16 @@ export class PgTest {
           parsedV.push(this.parse(el, arrayType as IdlType));
         }
 
-        // The program will not be able to deserialize if the size of the array is not enough
+        // The program will not be able to deserialize if the size of the array is not sufficient
         if (parsedV.length !== arraySize) throw new Error("Invalid array size");
       } else if (typeString.endsWith("(Enum)")) {
-        let parsedV = {};
         if (v.includes("[")) throw new Error("Invalid " + type);
 
         if (v.includes("{")) parsedV = JSON.parse(v);
-        else (parsedV as { [key: string]: {} })[v.toLowerCase()] = {};
+        else {
+          parsedV = {};
+          (parsedV as { [key: string]: {} })[v.toLowerCase()] = {};
+        }
       } else {
         // Custom Struct
         parsedV = JSON.parse(v);
