@@ -39,7 +39,6 @@ See the list of available crates and request new crates from: ${PgTerminal.under
   private static TEXTS: TextInfo[] = [
     { text: "error", state: TextState.ERROR },
     { text: "warning", state: TextState.WARNING },
-    { text: "Finished", state: TextState.SUCCESS },
   ];
 
   static colorText(text: string) {
@@ -114,9 +113,13 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     if (startIndex !== -1) {
       const whiteSpaceStartIndex = startIndex - 7; // This is the most amount of whitespace
       stderr =
-        stderr.substring(0, whiteSpaceStartIndex) +
+        stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
         stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
-        stderr.substring(startIndex);
+        this.success("Build successful. ") +
+        "Completed" +
+        stderr
+          .substring(stderr.indexOf(" in", startIndex))
+          .replace("\n", ".\n"); // Time passed
     }
 
     return stderr;
