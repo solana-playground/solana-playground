@@ -32,10 +32,12 @@ const Setting: FC<SettingProps> = ({ name, SettingElement }) => (
     <Right>{SettingElement}</Right>
   </SettingWrapper>
 );
+
 const SettingWrapper = styled.div`
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
   padding: 1rem;
 
   &:not(:last-child) {
