@@ -243,7 +243,7 @@ const Editor = () => {
     );
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorerChanged, setNoOpenTabs]);
+  }, [editor, explorer, explorerChanged, setNoOpenTabs]);
 
   // Change programId
   useEffect(() => {
