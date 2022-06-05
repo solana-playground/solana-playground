@@ -95,7 +95,7 @@ const getButtonStyles = ({
     }
     case "outline": {
       borderColor = theme.colors.default.borderColor;
-      hoverBgColor = theme.colors.right?.otherBg ?? "transparent";
+      hoverBgColor = theme.colors.state.hover.bg ?? "transparent";
       hoverBorderColor = theme.colors.default.borderColor;
       break;
     }

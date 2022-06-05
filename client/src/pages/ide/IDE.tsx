@@ -13,11 +13,15 @@ const IDE = () => (
 // Set default theme values
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.bg};
+    background-color: ${theme.colors.default.bgPrimary};
     color: ${theme.colors.default.textPrimary};
-    border-color: ${theme.colors.default.borderColor};
     font-family: ${theme.font?.family};
     font-size: ${theme.font?.size.medium};
+
+    & ::selection {
+      background-color: ${theme.colors.default.primary +
+      theme.transparency?.medium};
+    }
   `}
 `;
 

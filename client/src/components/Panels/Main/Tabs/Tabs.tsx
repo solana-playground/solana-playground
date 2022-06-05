@@ -87,16 +87,16 @@ const TabsWrapper = styled.div`
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.colors.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar?.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar?.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.colors.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar?.thumb.color};
     }
   `}
 `;
@@ -107,7 +107,7 @@ const WalletWrapper = styled.div`
     align-items: center;
 
     & > button {
-      background-color: ${theme.colors.default.bg};
+      background-color: ${theme.colors.default.bgPrimary};
       border-top-left-radius: ${theme.borderRadius};
       border-bottom-left-radius: ${theme.borderRadius};
       border-top-right-radius: 0;

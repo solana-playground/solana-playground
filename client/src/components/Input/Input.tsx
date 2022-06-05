@@ -9,7 +9,7 @@ interface InputProps {
 
 const Input = styled.input<InputProps>`
   ${({ theme, fullWidth }) => css`
-    background-color: ${theme.colors.default.bg};
+    background-color: ${theme.colors.default.bgPrimary};
     border: 1px solid ${theme.colors.default.borderColor};
     color: ${theme.colors.default.textPrimary};
     border-radius: ${theme.borderRadius};

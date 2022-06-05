@@ -170,7 +170,7 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
       ? windowHeight - bottomHeight
       : 955}px;
     overflow-y: auto;
-    background-color: ${theme.colors?.right?.bg ?? "inherit"};
+    background-color: ${theme.colors?.right?.bg};
     border-right: 1px solid ${theme.colors.default.borderColor};
 
     /* Scrollbar */
@@ -186,16 +186,16 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.colors.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar?.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar?.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.colors.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar?.thumb.color};
     }
   `}
 `;

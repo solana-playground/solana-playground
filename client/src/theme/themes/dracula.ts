@@ -1,12 +1,11 @@
 import { HighlightStyle, tags as t } from "@codemirror/highlight";
+
 import Theme from "../interface";
 
 // BG
-const DARK = "#21222C",
-  DARKER = "#191A21",
-  DEFAULT = "#282A36",
-  // const LIGHT = "#343746";
-
+const BG_DEFAULT = "#282A36",
+  BG_DARK = "#21222C",
+  BG_DARKER = "#191A21",
   // FG
   CYAN = "#8BE9FD",
   GREEN = "#50FA7B",
@@ -21,7 +20,7 @@ const DARK = "#21222C",
   // State
   COMMENT = "#6272A4",
   SELECTION = "#44475A",
-  HOVER = "#FFFFFF30";
+  HOVER = "#343746";
 
 // Code highlighting
 // Highligts the part between '_'
@@ -153,7 +152,8 @@ export const DRACULA: Theme = {
   isDark: true,
   colors: {
     default: {
-      bg: DEFAULT,
+      bgPrimary: BG_DEFAULT,
+      bgSecondary: BG_DARK,
       primary: PURPLE,
       secondary: PINK,
       textPrimary: TEXT_PRIMARY,
@@ -165,7 +165,7 @@ export const DRACULA: Theme = {
         bg: HOVER,
       },
       disabled: {
-        bg: DARKER,
+        bg: BG_DARKER,
         color: TEXT_SECONDARY,
       },
       error: {
@@ -181,9 +181,6 @@ export const DRACULA: Theme = {
         color: CYAN,
       },
     },
-    right: {
-      bg: DARK,
-    },
     editor: {
       comment: {
         color: COMMENT,
@@ -197,18 +194,18 @@ export const DRACULA: Theme = {
       },
     },
     bottom: {
-      bg: DARKER,
+      bg: BG_DARKER,
     },
     iconButton: {
       selectedBg: SELECTION,
       selectedBorderColor: PINK,
     },
     toast: {
-      bg: DARKER,
+      bg: BG_DARKER,
       color: TEXT_PRIMARY,
     },
     tooltip: {
-      bg: DARKER,
+      bg: BG_DARKER,
       color: TEXT_PRIMARY,
     },
   },

@@ -315,7 +315,7 @@ const WalletWrapper = styled.div`
   ${({ theme }) => css`
     width: 100%;
     height: 100%;
-    background-color: ${theme.colors.right?.bg};
+    background-color: ${theme.colors?.right?.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
     z-index: 2;
@@ -352,7 +352,7 @@ const SettingsList = styled.div`
     position: absolute;
     left: 0;
     top: 1.75rem;
-    background-color: ${theme.colors.right?.bg};
+    background-color: ${theme.colors?.right?.bg};
     font-size: ${theme.font?.size.small};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
@@ -389,7 +389,7 @@ const Main = styled.div`
   ${({ theme }) => css`
     background: linear-gradient(
       0deg,
-      ${theme.colors.right?.bg} 75%,
+      ${theme.colors?.right?.bg} 75%,
       ${theme.colors.default.primary + theme.transparency?.low} 100%
     );
     padding: 1rem;

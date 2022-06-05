@@ -18,7 +18,7 @@ import {
   PG_TRANSPARENCY,
 } from "./default";
 
-export const THEME_KEY = "_theme";
+export const THEME_KEY = "theme";
 export const FONT_KEY = "font";
 
 interface MutThemeContextProps {
@@ -37,26 +37,37 @@ const MutThemeProvider: FC = ({ children }) => {
   const _font = FONTS.find((f) => f.family === fontFamily) ?? FONTS[0];
 
   // Set defaults
-  if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
+  // Right sidebar
   if (!_theme.colors.right?.bg)
     _theme.colors.right = {
       ..._theme.colors.right,
-      bg: _theme.colors.default.bg,
+      bg: _theme.colors.default.bgSecondary,
     };
   if (!_theme.colors.right?.otherBg)
     _theme.colors.right = {
       ..._theme.colors.right,
-      otherBg: _theme.colors.default.bg,
+      otherBg: _theme.colors.default.bgPrimary,
     };
+
+  // Home
+  if (!_theme.colors.home)
+    _theme.colors.home = {
+      bg: _theme.colors.default.bgPrimary,
+      card: {
+        bg: _theme.colors.default.bgSecondary,
+      },
+    };
+
+  if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
   if (!_theme.colors.tooltip)
     _theme.colors.tooltip = {
-      bg: _theme.colors.default.bg,
+      bg: _theme.colors.default.bgPrimary,
       color: _theme.colors.default.textPrimary,
     };
   if (!_theme.borderRadius) _theme.borderRadius = PG_BORDER_RADIUS;
-  if (!_theme.colors.scrollbar) {
-    if (_theme.isDark) _theme.colors.scrollbar = PG_SCROLLBAR.dark;
-    else _theme.colors.scrollbar = PG_SCROLLBAR.light;
+  if (!_theme.scrollbar) {
+    if (_theme.isDark) _theme.scrollbar = PG_SCROLLBAR.dark;
+    else _theme.scrollbar = PG_SCROLLBAR.light;
   }
   if (!_theme.transition) _theme.transition = PG_TRANSITION;
 

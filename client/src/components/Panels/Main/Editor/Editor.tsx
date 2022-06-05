@@ -34,6 +34,8 @@ const Editor = () => {
         // Editor
         "&": {
           height: "100%",
+          backgroundColor: theme.colors.editor?.bg ?? "inherit",
+          color: theme.colors.editor?.color ?? "inherit",
         },
         // Cursor
         "& .cm-cursor": {
@@ -85,7 +87,7 @@ const Editor = () => {
         // Tooltip
         ".cm-tooltip": {
           backgroundColor:
-            theme.colors.editor?.tooltip?.bg ?? theme.colors.default.bg,
+            theme.colors.editor?.tooltip?.bg ?? theme.colors.default.bgPrimary,
           color: theme.colors.default.textPrimary,
           border: "1px solid " + theme.colors.default.borderColor,
         },
@@ -97,7 +99,7 @@ const Editor = () => {
         },
         // Panels
         ".cm-panels": {
-          backgroundColor: theme.colors?.right?.bg ?? "inherit",
+          backgroundColor: theme.colors.default.bgSecondary ?? "inherit",
           color: theme.colors.default.textPrimary,
           width: "fit-content",
           height: "fit-content",
@@ -121,7 +123,7 @@ const Editor = () => {
         },
         // Search popup
         ".cm-panel.cm-search": {
-          backgroundColor: theme.colors?.right?.bg ?? "inherit",
+          backgroundColor: theme.colors.default.bgSecondary ?? "inherit",
 
           "& input, & button, & label": {
             margin: ".2em .6em .2em 0",
@@ -151,7 +153,7 @@ const Editor = () => {
 
             "&:hover": {
               cursor: "pointer",
-              backgroundColor: theme.colors.default.bg,
+              backgroundColor: theme.colors.default.bgPrimary,
             },
           },
         },
@@ -292,8 +294,7 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
     overflow: auto;
-    background-color: ${theme.colors?.editor?.bg};
-    color: ${theme.colors?.editor?.text?.color};
+    background-color: ${({ theme }) => theme.colors.home?.bg};
 
     /* Scrollbar */
     /* Chromium */
@@ -311,12 +312,12 @@ const Wrapper = styled.div`
     &::-webkit-scrollbar-thumb,
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      background-color: ${theme.colors.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar?.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover,
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.colors.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar?.thumb.hoverColor};
     }
   `}
 `;

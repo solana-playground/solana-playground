@@ -85,7 +85,8 @@ const Wrapper = styled.div`
     width: ${ICONBAR_WIDTH};
     user-select: none;
     overflow: hidden;
-    background-color: ${theme.colors?.left?.bg ?? theme.colors.default.bg};
+    background-color: ${theme.colors?.left?.bg ??
+    theme.colors.default.bgPrimary};
     border-right: 1px solid ${theme.colors.default.borderColor};
   `}
 `;

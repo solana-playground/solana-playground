@@ -62,7 +62,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
     align-items: center;
     justify-content: center;
     background-color: ${current
-      ? theme.colors.default.bg
+      ? theme.colors.default.bgPrimary
       : theme.colors.right?.bg};
     color: ${current
       ? theme.colors.default.textPrimary

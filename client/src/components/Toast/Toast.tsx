@@ -38,7 +38,8 @@ const StyledContainer = styled(ToastContainer)`
     }
 
     .Toastify__toast {
-      background-color: ${theme.colors.toast?.bg ?? theme.colors.default.bg};
+      background-color: ${theme.colors.toast?.bg ??
+      theme.colors.default.bgPrimary};
       border-radius: ${theme.borderRadius};
       color: ${theme.colors.default.textPrimary};
       font-family: ${theme.font?.family};

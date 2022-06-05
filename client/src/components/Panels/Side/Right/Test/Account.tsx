@@ -185,7 +185,7 @@ const InputWrapper = styled.div``;
 
 const SearchWrapper = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.bg};
+    background-color: ${theme.colors.default.bgPrimary};
     padding: 0.75rem 1rem;
     outline: 1px solid
       ${theme.colors.default.primary + theme.transparency?.medium};
@@ -394,7 +394,8 @@ const AddSeedMenu = styled.div`
   ${({ theme }) => css`
     position: absolute;
     z-index: 2;
-    background-color: ${theme.colors.tooltip?.bg ?? theme.colors.default.bg};
+    background-color: ${theme.colors.tooltip?.bg ??
+    theme.colors.default.bgPrimary};
     border-radius: ${theme.borderRadius};
     font-size: ${theme.font?.size.small};
   `}

@@ -1,4 +1,5 @@
 import { HighlightStyle, tags as t } from "@codemirror/highlight";
+
 import Theme from "../interface";
 
 // BG
@@ -17,10 +18,9 @@ const BG_BLACK = "#000000",
   TEXT_PRIMARY = "#FFFFFF",
   TEXT_SECONDARY = "#AAAAAA",
   // State
-  DISABLED_BG = "#111114",
+  DISABLED = "#111114",
   HOVER_BG = "#2B2D39",
-  // SELECTION_COLOR = "#00FFBD",
-  SELECTION_BG = "#232323";
+  SELECTION = "#232323";
 
 // Code highlighting
 // Highligts the part between '_'
@@ -152,8 +152,9 @@ export const SOLANA: Theme = {
   isDark: true,
   colors: {
     default: {
-      bg: BG_BLACK,
-      borderColor: SELECTION_BG,
+      bgPrimary: BG_BLACK,
+      bgSecondary: BG_GRAY,
+      borderColor: SELECTION,
       primary: GREEN,
       secondary: PURPLE,
       textPrimary: TEXT_PRIMARY,
@@ -161,7 +162,7 @@ export const SOLANA: Theme = {
     },
     state: {
       disabled: {
-        bg: DISABLED_BG,
+        bg: DISABLED,
         color: TEXT_SECONDARY,
       },
       error: {
@@ -190,8 +191,22 @@ export const SOLANA: Theme = {
       tooltip: {
         bg: BG_BLACK,
       },
+      activeLine: {
+        borderColor: SELECTION,
+      },
+      gutter: {
+        color: TEXT_SECONDARY,
+        activeColor: TEXT_PRIMARY,
+      },
+    },
+    home: {
+      bg: BG_BLACK,
+      card: {
+        bg: BG_GRAY,
+      },
     },
     right: {
+      bg: BG_BLACK,
       otherBg: BG_GRAY,
     },
     terminal: {
