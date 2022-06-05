@@ -5,6 +5,15 @@ type BgAndColor = {
   color?: string;
 };
 
+export type Font = {
+  family: string;
+  size: {
+    small: string;
+    medium: string;
+    large: string;
+  };
+};
+
 export default interface Theme {
   name: string;
   isDark: boolean;
@@ -94,14 +103,7 @@ export default interface Theme {
   };
   highlight: HighlightStyle;
   borderRadius?: string;
-  font?: {
-    family: string;
-    size: {
-      small: string;
-      medium: string;
-      large: string;
-    };
-  };
+  font?: Font;
   transparency?: {
     low: string;
     medium: string;

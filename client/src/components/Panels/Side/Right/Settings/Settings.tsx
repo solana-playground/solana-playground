@@ -2,12 +2,14 @@ import { FC, ReactElement } from "react";
 import styled, { css } from "styled-components";
 
 import ThemeSetting from "./ThemeSetting";
+import FontSetting from "./FontSetting";
 import CommitmentSetting from "./CommitmentSetting";
 import EndpointSetting from "./EndpointSetting";
 
 const Settings = () => (
   <Wrapper>
     <Setting name="Theme" SettingElement={<ThemeSetting />} />
+    <Setting name="Font" SettingElement={<FontSetting />} />
     <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
     <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
   </Wrapper>
@@ -42,6 +44,10 @@ const SettingWrapper = styled.div`
 
   &:not(:last-child) {
     border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
+  }
+
+  & select {
+    width: 10rem;
   }
 `;
 

@@ -3,8 +3,8 @@ import { useTheme } from "styled-components";
 
 import Theme from "../../../../../theme/interface";
 import THEMES from "../../../../../theme/themes";
-import useSetTheme from "../../../../../theme/useSetTheme";
 import Select from "../../../../Select";
+import useSetTheme from "../../../../../theme/useSetTheme";
 
 const ThemeSetting = () => {
   const [selectedTheme, setSelectedTheme] = useState<Theme>();
@@ -14,7 +14,7 @@ const ThemeSetting = () => {
     setSelectedTheme(THEMES.find((t) => t.name === e.target.value));
   }, []);
 
-  useSetTheme(selectedTheme!);
+  useSetTheme(selectedTheme);
 
   return (
     <Select value={theme?.name} onChange={changeTheme}>
