@@ -24,9 +24,10 @@ const BG_DEFAULT = "#151721",
 
 // Highlighting
 const H_YELLOW = "#fff296",
-  H_PURPLE = "#daabff",
-  H_PINK = "#d57bee",
-  H_GREEN = "#6cf29a";
+  H_LIGHT_BLUE = "#38ccff",
+  H_PURPLE = "#d57bee",
+  H_PINK = "#e1a6da",
+  H_GREEN = "#32e17f";
 
 // Code highlighting
 // Highligts the part between '_'
@@ -75,12 +76,12 @@ const highlight = HighlightStyle.define([
   {
     // for if else loop while match continue break return await
     tag: t.controlKeyword,
-    color: H_PINK,
+    color: H_PURPLE,
   },
   {
     // as in ref
     tag: t.operatorKeyword,
-    color: BLUE,
+    color: H_PURPLE,
   },
   {
     // where _ crate super dyn
@@ -101,12 +102,12 @@ const highlight = HighlightStyle.define([
   {
     // 5
     tag: t.integer,
-    color: GREEN,
+    color: H_PINK,
   },
   {
     // 5.5
     tag: t.literal,
-    color: GREEN,
+    color: H_PINK,
   },
   {
     // "" + b"" + r#""#
@@ -118,14 +119,14 @@ const highlight = HighlightStyle.define([
     color: H_YELLOW,
   },
   {
-    // &
+    // &, =
     tag: t.operator,
-    color: H_PINK,
+    color: H_PURPLE,
   },
   {
     // *
     tag: t.derefOperator,
-    color: H_PINK,
+    color: H_PURPLE,
   },
   {
     // Lifetime &_'a_
@@ -145,7 +146,7 @@ const highlight = HighlightStyle.define([
   {
     // #
     tag: t.meta,
-    color: H_PURPLE,
+    color: H_LIGHT_BLUE,
   },
   {
     tag: t.invalid,

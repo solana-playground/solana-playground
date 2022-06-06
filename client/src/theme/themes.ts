@@ -1,6 +1,6 @@
 import Theme from "./interface";
-import { PLAYGROUND, DRACULA, SOLANA, LIGHT } from "./themes/";
+import { DRACULA, PLAYGROUND, SOLANA, LIGHT } from "./themes/";
 
-const THEMES: Theme[] = [PLAYGROUND, DRACULA, SOLANA, LIGHT];
+const THEMES: Theme[] = [DRACULA, PLAYGROUND, SOLANA, LIGHT];
 
 export default THEMES;
