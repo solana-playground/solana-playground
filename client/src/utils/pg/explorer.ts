@@ -177,40 +177,41 @@ export class PgExplorer {
       // Store the file
       const file = files[fullPath];
 
-      // Delete the old path
+      // Delete the old path and data
       delete files[fullPath];
 
       // Set the new path
       files[newPath] = file;
     } else if (itemType.folder) {
-      // We need to loop through all files in order to change every dependent path
+      // We need to loop through all files in order to change every child path
       for (const path in files) {
         // /programs/my_program/logs/logfile.log
-        // If we are renaming 'my_program' then we can split by '/'
-        // Put newName instead of 'my_program' and recreate the string
-        const oldName = PgExplorer.getItemNameFromPath(fullPath);
-        const itemsArr = path.split("/");
+        // If we are renaming 'my_program' then we can replace '/programs/my_program/'
+        // with '/programs/<new_name>/'
+        if (path.startsWith(fullPath)) {
+          const namesArr = fullPath.split("/");
+          const pathWithoutName = namesArr
+            .filter((_itemName, i) => i !== namesArr.length - 2)
+            .reduce((acc, itemName) => (acc += `/${itemName}`));
 
-        let newPath = "";
-        for (const item of itemsArr) {
-          if (item === oldName) {
-            newPath = newPath + newName + "/";
-          } else {
-            newPath += item + "/";
-          }
+          // This is the folder path
+          const newFolderPath = pathWithoutName + newName + "/";
+
+          // This is the full path that could be a children(newFolderPath + ...)
+          const newFullPath = path.replace(fullPath, newFolderPath);
+
+          // Check if newPath exists
+          if (files[newFullPath]) return { err: ItemError.ALREADY_EXISTS };
+
+          // Store the data
+          const data = files[path];
+
+          // Delete the old path and data
+          delete files[path];
+
+          // Set the new path with the data
+          files[newFullPath] = data;
         }
-
-        // Check if newPath exists
-        if (files[newPath]) return { err: ItemError.ALREADY_EXISTS };
-
-        // Store the data
-        const data = files[path];
-
-        // Delete the data
-        delete files[path];
-
-        // Set the new path with the data
-        files[newPath] = data;
       }
     }
   }
