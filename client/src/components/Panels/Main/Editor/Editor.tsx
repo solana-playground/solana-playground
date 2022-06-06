@@ -34,8 +34,9 @@ const Editor = () => {
         // Editor
         "&": {
           height: "100%",
-          backgroundColor: theme.colors.editor?.bg ?? "inherit",
-          color: theme.colors.editor?.color ?? "inherit",
+          backgroundColor:
+            theme.colors.editor?.bg ?? theme.colors.default.bgPrimary,
+          color: theme.colors.editor?.color ?? theme.colors.default.textPrimary,
         },
         // Cursor
         "& .cm-cursor": {
@@ -47,12 +48,16 @@ const Editor = () => {
         // Gutters
         "& .cm-gutters": {
           backgroundColor: theme.colors.editor?.gutter?.bg ?? "inherit",
-          color: theme.colors.editor?.gutter?.color ?? "inherit",
+          color:
+            theme.colors.editor?.gutter?.color ??
+            theme.colors.default.textSecondary,
           borderRight: "none",
         },
         "& .cm-activeLineGutter": {
           backgroundColor: theme.colors.editor?.gutter?.activeBg ?? "inherit",
-          color: theme.colors.editor?.gutter?.activeColor ?? "inherit",
+          color:
+            theme.colors.editor?.gutter?.activeColor ??
+            theme.colors.default.textPrimary,
         },
         "& .cm-gutterElement:nth-child(1)": {
           padding: "0.125rem",

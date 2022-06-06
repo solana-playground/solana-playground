@@ -3,24 +3,30 @@ import { HighlightStyle, tags as t } from "@codemirror/highlight";
 import Theme from "../interface";
 
 // BG
-const BG_DEFAULT = "#282A36",
-  BG_DARK = "#21222C",
-  BG_DARKER = "#191A21",
+const BG_DEFAULT = "#151721",
+  BG_DARK = "#0e1019",
+  BG_LIGHT = "#212431",
   // FG
-  CYAN = "#8BE9FD",
-  GREEN = "#50FA7B",
-  // ORANGE = "#FFB86C",
-  PINK = "#FF79C6",
-  PURPLE = "#BD93F9",
-  RED = "#FF5555",
-  YELLOW = "#F1FA8C",
+  BLUE = "#5288f2",
+  DARK_BLUE = "#1a2c4f",
+  CYAN = "#46c9d7",
+  RED = "#bd3653",
+  GREEN = "#42b760",
+  YELLOW = "#ae9f38",
   // TEXT
-  TEXT_PRIMARY = "#F8F8F2",
-  TEXT_SECONDARY = "#BCC2CD",
+  TEXT_PRIMARY = "#f2f2f7",
+  TEXT_SECONDARY = "#c0c1ce",
+  // Border
+  BORDER_COLOR = "#293244",
   // State
-  COMMENT = "#6272A4",
-  SELECTION = "#44475A",
-  HOVER = "#343746";
+  DISABLED = "#0c0c11",
+  COMMENT = "#9BA8C8";
+
+// Highlighting
+const H_YELLOW = "#fff296",
+  H_PURPLE = "#daabff",
+  H_PINK = "#d57bee",
+  H_GREEN = "#6cf29a";
 
 // Code highlighting
 // Highligts the part between '_'
@@ -39,92 +45,92 @@ const highlight = HighlightStyle.define([
   {
     // _println!_()
     tag: t.macroName,
-    color: GREEN,
+    color: H_GREEN,
   },
   {
     // _myFunction_()
     tag: t.function(t.variableName),
-    color: GREEN,
+    color: H_GREEN,
   },
   {
     // a._to_lowercase_()
     tag: t.function(t.propertyName),
-    color: GREEN,
+    color: H_GREEN,
   },
   {
     // const macro_rules struct union enum type fn impl trait let static
     tag: t.definitionKeyword,
-    color: PINK,
+    color: BLUE,
   },
   {
     // mod use crate
     tag: t.moduleKeyword,
-    color: PINK,
+    color: BLUE,
   },
   {
     // pub unsafe async mut extern default move
     tag: t.modifier,
-    color: PINK,
+    color: BLUE,
   },
   {
     // for if else loop while match continue break return await
     tag: t.controlKeyword,
-    color: PINK,
+    color: H_PINK,
   },
   {
     // as in ref
     tag: t.operatorKeyword,
-    color: PINK,
+    color: BLUE,
   },
   {
-    tag:
-      // where _ crate super dyn
-      t.keyword,
-    color: PINK,
+    // where _ crate super dyn
+    tag: t.keyword,
+    color: BLUE,
   },
   {
     // self
     tag: t.self,
-    color: PINK,
+    color: BLUE,
   },
   {
     // true
     tag: t.bool,
-    color: PURPLE,
+    color: BLUE,
+    fontWeight: "bold",
   },
   {
     // 5
     tag: t.integer,
-    color: PURPLE,
+    color: GREEN,
   },
   {
     // 5.5
     tag: t.literal,
-    color: PURPLE,
+    color: GREEN,
   },
   {
     // "" + b"" + r#""#
     tag: t.string,
-    color: YELLOW,
+    color: H_YELLOW,
   },
   {
     tag: t.character,
-    color: YELLOW,
+    color: H_YELLOW,
   },
   {
     // &
     tag: t.operator,
-    color: PINK,
+    color: H_PINK,
   },
   {
     // *
     tag: t.derefOperator,
-    color: PINK,
+    color: H_PINK,
   },
   {
     // Lifetime &_'a_
     tag: t.special(t.variableName),
-    color: PURPLE,
+    color: H_PURPLE,
   },
   {
     // Comment with //
@@ -139,7 +145,7 @@ const highlight = HighlightStyle.define([
   {
     // #
     tag: t.meta,
-    color: PURPLE,
+    color: H_PURPLE,
   },
   {
     tag: t.invalid,
@@ -147,29 +153,32 @@ const highlight = HighlightStyle.define([
   },
 ]);
 
-export const DRACULA: Theme = {
-  name: "Dracula",
+export const PLAYGROUND: Theme = {
+  name: "Playground",
   isDark: true,
   colors: {
     default: {
       bgPrimary: BG_DEFAULT,
       bgSecondary: BG_DARK,
-      primary: PURPLE,
-      secondary: PINK,
+      borderColor: BORDER_COLOR,
+      primary: BLUE,
+      secondary: CYAN,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
-      borderColor: SELECTION,
     },
     state: {
-      hover: {
-        bg: HOVER,
-      },
       disabled: {
-        bg: BG_DARKER,
+        bg: DISABLED,
         color: TEXT_SECONDARY,
       },
       error: {
         color: RED,
+      },
+      hover: {
+        bg: BG_LIGHT,
+      },
+      info: {
+        color: BLUE,
       },
       success: {
         color: GREEN,
@@ -177,34 +186,23 @@ export const DRACULA: Theme = {
       warning: {
         color: YELLOW,
       },
-      info: {
-        color: CYAN,
+    },
+    bottom: {
+      bg: DARK_BLUE,
+    },
+    iconButton: {
+      selectedBg: BG_LIGHT,
+    },
+    home: {
+      bg: BG_DARK,
+      card: {
+        bg: BG_DEFAULT,
       },
     },
     editor: {
-      comment: {
-        color: COMMENT,
-      },
-      activeLine: {
-        borderColor: SELECTION,
-      },
       gutter: {
         color: COMMENT,
       },
-    },
-    bottom: {
-      bg: BG_DARKER,
-    },
-    iconButton: {
-      selectedBg: SELECTION,
-    },
-    toast: {
-      bg: BG_DARKER,
-      color: TEXT_PRIMARY,
-    },
-    tooltip: {
-      bg: BG_DARKER,
-      color: TEXT_PRIMARY,
     },
   },
   highlight,
