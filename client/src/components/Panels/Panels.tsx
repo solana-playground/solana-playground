@@ -4,11 +4,11 @@ import styled from "styled-components";
 import { Wormhole } from "../Loading";
 import Side from "./Side";
 // import Noti from "./Noti";
-import Toast from "../Toast";
 
 const Main = lazy(() => import("./Main"));
-const Bottom = lazy(() => import("./Bottom"));
 const Wallet = lazy(() => import("./Wallet"));
+const Bottom = lazy(() => import("./Bottom"));
+const Toast = lazy(() => import("../Toast"));
 
 const Panels = () => (
   <Wrapper>

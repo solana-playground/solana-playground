@@ -1,5 +1,7 @@
 import { MutableRefObject, useEffect } from "react";
 import { useTheme } from "styled-components";
+
+import { ClassName } from "../../../../constants";
 import { Sidebar } from "../sidebar-state";
 
 export const ID_PREFIX = "Icon";
@@ -23,8 +25,8 @@ const changeActiveTab = (newId: string, oldId: string) => {
   const oldEl = document.getElementById(oldId);
   const newEl = document.getElementById(newId);
 
-  oldEl?.classList.remove("active");
-  newEl?.classList.add("active");
+  oldEl?.classList.remove(ClassName.ACTIVE);
+  newEl?.classList.add(ClassName.ACTIVE);
 };
 
 const getId = (id: string) => {

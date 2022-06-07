@@ -5,6 +5,7 @@ export enum ClassName {
   TOUCHED = "touched",
   SELECTED = "selected",
   CTX_SELECTED = "ctx-selected",
+  ACTIVE = "active",
   FILE = "file",
   FOLDER = "folder",
   SIDE_RIGHT = "side-right",
