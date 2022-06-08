@@ -1,9 +1,9 @@
 import { FC, useCallback, useEffect } from "react";
 import styled, { css } from "styled-components";
 
-import { PROJECT_NAME } from "../../constants";
 import Button from "../Button";
 import useModal from "./useModal";
+import { PROJECT_NAME } from "../../constants";
 
 interface ModalInsideProps {
   title?: boolean | string;
@@ -12,11 +12,13 @@ interface ModalInsideProps {
     onSubmit: () => void;
     disabled?: boolean;
   };
+  closeOnSubmit?: boolean;
 }
 
 const ModalInside: FC<ModalInsideProps> = ({
   title,
   buttonProps,
+  closeOnSubmit = true,
   children,
 }) => {
   const { close } = useModal();
@@ -25,8 +27,8 @@ const ModalInside: FC<ModalInsideProps> = ({
     if (!buttonProps) return;
 
     buttonProps.onSubmit();
-    close();
-  }, [buttonProps, close]);
+    if (closeOnSubmit) close();
+  }, [buttonProps, closeOnSubmit, close]);
 
   useEffect(() => {
     const handleEnter = (e: globalThis.KeyboardEvent) => {

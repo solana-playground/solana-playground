@@ -9,8 +9,9 @@ import {
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import Input, { defaultInputProps } from "../../../../Input";
 import ModalInside from "../../../../Modal/ModalInside";
+import useModal from "../../../../Modal/useModal";
+import Input, { defaultInputProps } from "../../../../Input";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
 
@@ -22,7 +23,9 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
 
-  // Focus on input on mount
+  const { close } = useModal();
+
+  // Focus input on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -43,14 +46,18 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
     }
 
     refresh();
-  }, [explorer, path, newName, refresh]);
+    close();
+  }, [explorer, path, newName, refresh, close]);
 
   const itemName = PgExplorer.getItemNameFromPath(path);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <ModalInside buttonProps={{ name: "Rename", onSubmit: rename }}>
+    <ModalInside
+      buttonProps={{ name: "Rename", onSubmit: rename }}
+      closeOnSubmit={false}
+    >
       <Content>
         <Text>Rename '{itemName}'</Text>
         <Input onChange={handleChange} ref={inputRef} {...defaultInputProps} />
