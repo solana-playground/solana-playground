@@ -2,7 +2,6 @@ import { Idl } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
 
 interface ProgramInfo {
-  update?: number;
   uuid?: string;
   kp?: Array<number> | null;
   idl?: Idl | null;
@@ -10,7 +9,7 @@ interface ProgramInfo {
 }
 
 export class PgProgramInfo {
-  private static PROGRAM_INFO_KEY = "programInfo";
+  private static readonly PROGRAM_INFO_KEY = "programInfo";
 
   static getProgramInfo() {
     const programInfo: ProgramInfo = JSON.parse(
@@ -23,7 +22,6 @@ export class PgProgramInfo {
     const programInfo: ProgramInfo = this.getProgramInfo();
 
     if (params.kp) programInfo.kp = params.kp;
-    if (params.update !== undefined) programInfo.update = params.update;
     if (params.uuid) programInfo.uuid = params.uuid;
     if (params.idl !== undefined) programInfo.idl = params.idl;
     if (params.customPk) programInfo.customPk = params.customPk;

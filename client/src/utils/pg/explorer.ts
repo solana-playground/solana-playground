@@ -336,7 +336,7 @@ export class PgExplorer {
   }
 
   // Static methods
-  static EXPLORER_KEY = "explorer";
+  static readonly EXPLORER_KEY = "explorer";
 
   static getItemNameFromPath(path: string) {
     const itemsArr = path.split("/");

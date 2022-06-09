@@ -37,7 +37,6 @@ export class PgBuild {
 
     // Update programInfo localStorage
     PgProgramInfo.update({
-      update: 0,
       uuid: data.uuid,
       idl: data.idl,
       kp: data.kp,

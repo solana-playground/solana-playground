@@ -10,8 +10,8 @@ import { PgTerminal } from "./terminal";
 import { PgTx } from "./tx";
 
 export class PgDeploy {
-  private static MAX_RETRIES = 10;
-  private static SLEEP_MULTIPLIER = 1.5;
+  private static readonly MAX_RETRIES = 10;
+  private static readonly SLEEP_MULTIPLIER = 1.5;
 
   static async deploy(
     conn: Connection,

@@ -8,8 +8,8 @@ interface Connection {
 }
 
 export class PgConnection {
-  private static CONNECTION_KEY = "connection";
-  static DEFAULT_CONNECTION: Connection = {
+  private static readonly CONNECTION_KEY = "connection";
+  static readonly DEFAULT_CONNECTION: Connection = {
     commitment: "confirmed",
     endpoint: Endpoint.DEVNET,
   };

@@ -21,10 +21,20 @@ interface TextInfo {
 }
 
 export class PgTerminal {
-  static DEFAULT_HEIGHT = "25%";
-  static MIN_HEIGHT = 36;
+  /**
+   * Default height of the terminal
+   */
+  static readonly DEFAULT_HEIGHT = "25%";
 
-  static DEFAULT_TEXT = `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.
+  /**
+   * Minimum height of the terminal(in px)
+   */
+  static readonly MIN_HEIGHT = 36;
+
+  /**
+   * Welcome text
+   */
+  static readonly DEFAULT_TEXT = `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.
 
 Popular crates for Solana development are available to use.
 
@@ -33,14 +43,20 @@ See the list of available crates and request new crates from: ${PgTerminal.under
   )}`;
 
   // Emojis
-  static CROSS = "❌";
-  static CHECKMARK = "✅";
+  static readonly CROSS = "❌";
+  static readonly CHECKMARK = "✅";
 
-  private static TEXTS: TextInfo[] = [
+  /**
+   * These text-state pairs will be used to give colors before printing
+   */
+  private static readonly TEXTS: TextInfo[] = [
     { text: "error", state: TextState.ERROR },
     { text: "warning", state: TextState.WARNING },
   ];
 
+  /**
+   * Give color to the specified keywords in TEXTS
+   */
   static colorText(text: string) {
     for (const textInfo of this.TEXTS) {
       text = text.replaceAll(textInfo.text, this.getColorFromState(textInfo));
@@ -49,7 +65,10 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     return text;
   }
 
-  static getColorFromState(textInfo: TextInfo) {
+  /**
+   * Helper function for colorText
+   */
+  private static getColorFromState(textInfo: TextInfo) {
     switch (textInfo.state) {
       case TextState.SUCCESS:
         return this.success(textInfo.text);
@@ -90,6 +109,7 @@ See the list of available crates and request new crates from: ${PgTerminal.under
 
   /**
    * Edit build stderr
+   * This is what we get from a build request
    */
   static editStderr = (stderr: string, uuid: string) => {
     // Remove full path
@@ -126,7 +146,7 @@ See the list of available crates and request new crates from: ${PgTerminal.under
   };
 
   /**
-   * Improve error messages
+   * Make error messages more friendly
    */
   static convertErrorMessage(msg: string) {
     // Hex program errors
