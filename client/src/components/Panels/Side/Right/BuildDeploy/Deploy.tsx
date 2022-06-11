@@ -24,7 +24,6 @@ import {
   PgProgramInfo,
   PgTerminal,
 } from "../../../../../utils/pg";
-import { Wormhole } from "../../../../Loading";
 import { ConnectionErrorText } from "../../Common";
 
 // TODO: Cancel deployment
@@ -188,7 +187,9 @@ const Deploy = () => {
   if (initialLoading)
     return (
       <Wrapper>
-        <Wormhole />
+        <Button {...deployButtonProps} kind="skeleton">
+          {deployButtonText}
+        </Button>
       </Wrapper>
     );
 
