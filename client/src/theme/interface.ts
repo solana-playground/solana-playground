@@ -39,6 +39,11 @@ export type Transparency = {
   high: string;
 };
 
+export type Skeleton = {
+  color: string;
+  highlightColor: string;
+};
+
 export default interface Theme {
   name: string;
   isDark: boolean;
@@ -134,5 +139,6 @@ export default interface Theme {
   transparency?: Transparency;
   transition?: Transition;
   scrollbar?: Scrollbar;
+  skeleton?: Skeleton;
   highlight: HighlightStyle;
 }

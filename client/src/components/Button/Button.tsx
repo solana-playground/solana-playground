@@ -1,8 +1,7 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
-import { skeletonAnimation } from "../Loading/Skeleton";
 
-import { spinnerAnimation } from "../Loading/Spinner";
+import { spinnerAnimation } from "../Loading";
 
 export type ButtonKind =
   | "primary"
@@ -13,8 +12,7 @@ export type ButtonKind =
   | "secondary-outline"
   | "outline"
   | "transparent"
-  | "icon"
-  | "skeleton";
+  | "icon";
 type ButtonSize = "small" | "medium" | "large";
 
 export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
@@ -187,16 +185,6 @@ const getButtonStyles = ({
       &:hover {
         color: ${theme.colors.default.textPrimary};
         background-color: ${theme.colors.state.hover.bg};
-      }
-    `);
-  } else if (kind === "skeleton") {
-    defaultCss = defaultCss.concat(css`
-      color: transparent;
-      animation: ${skeletonAnimation} 800ms linear infinite alternate;
-
-      &:hover {
-        color: transparent;
-        cursor: default;
       }
     `);
   }

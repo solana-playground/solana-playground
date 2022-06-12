@@ -207,5 +207,9 @@ export const DRACULA: Theme = {
       color: TEXT_PRIMARY,
     },
   },
+  skeleton: {
+    color: SELECTION,
+    highlightColor: HOVER,
+  },
   highlight,
 };

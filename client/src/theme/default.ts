@@ -1,4 +1,4 @@
-import { Scrollbar, Transition, Transparency } from "./interface";
+import { Scrollbar, Skeleton, Transition, Transparency } from "./interface";
 
 export const PG_TRANSPARENCY: Transparency = {
   low: "16",
@@ -36,4 +36,9 @@ export const PG_TRANSITION: Transition = {
     medium: "150ms",
     long: "250ms",
   },
+};
+
+export const PG_SKELETON: Skeleton = {
+  color: "#44475A",
+  highlightColor: "#343746",
 };

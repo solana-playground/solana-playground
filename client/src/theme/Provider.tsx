@@ -14,6 +14,7 @@ import Theme, { Font } from "./interface";
 import {
   PG_BORDER_RADIUS,
   PG_SCROLLBAR,
+  PG_SKELETON,
   PG_TRANSITION,
   PG_TRANSPARENCY,
 } from "./default";
@@ -70,6 +71,7 @@ const MutThemeProvider: FC = ({ children }) => {
     else _theme.scrollbar = PG_SCROLLBAR.light;
   }
   if (!_theme.transition) _theme.transition = PG_TRANSITION;
+  if (!_theme.skeleton) _theme.skeleton = PG_SKELETON;
 
   const [theme, setTheme] = useState(_theme);
   const [font, setFont] = useState(_font);

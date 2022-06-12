@@ -206,5 +206,9 @@ export const PLAYGROUND: Theme = {
       },
     },
   },
+  skeleton: {
+    color: BG_LIGHT,
+    highlightColor: BG_DEFAULT,
+  },
   highlight,
 };

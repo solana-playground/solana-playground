@@ -221,5 +221,9 @@ export const SOLANA: Theme = {
       color: TEXT_PRIMARY,
     },
   },
+  skeleton: {
+    color: SELECTION,
+    highlightColor: HOVER_BG,
+  },
   highlight,
 };

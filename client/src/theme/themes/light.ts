@@ -24,6 +24,8 @@ const ERROR_RED = "#ff5555";
 const TEXT_PRIMARY = "#333333";
 const TEXT_SECONDARY = "#555555";
 
+const BORDER_COLOR = "#eeeeee";
+
 // State
 const COMMENT = "#238000";
 const SELECTION = "#e5ebf1";
@@ -197,7 +199,7 @@ export const LIGHT: Theme = {
         activeColor: TEXT_PRIMARY,
       },
       activeLine: {
-        borderColor: "#eeeeee",
+        borderColor: BORDER_COLOR,
       },
     },
     iconButton: {
@@ -218,6 +220,10 @@ export const LIGHT: Theme = {
         bg: BG_WHITE,
       },
     },
+  },
+  skeleton: {
+    color: "#e5e4e6",
+    highlightColor: BG_LIGHT,
   },
   highlight,
 };

@@ -25,6 +25,7 @@ import {
   PgTerminal,
 } from "../../../../../utils/pg";
 import { ConnectionErrorText } from "../../Common";
+import { Skeleton } from "../../../../Loading";
 
 // TODO: Cancel deployment
 
@@ -187,9 +188,7 @@ const Deploy = () => {
   if (initialLoading)
     return (
       <Wrapper>
-        <Button {...deployButtonProps} kind="skeleton">
-          {deployButtonText}
-        </Button>
+        <Skeleton />
       </Wrapper>
     );
 
