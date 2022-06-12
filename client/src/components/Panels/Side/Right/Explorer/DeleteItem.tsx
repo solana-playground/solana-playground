@@ -22,6 +22,8 @@ const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
 
   const itemName = PgExplorer.getItemNameFromPath(path);
 
+  if (!itemName) return null;
+
   return (
     <ModalInside title buttonProps={{ name: "Delete", onSubmit: deleteItem }}>
       <Content>
