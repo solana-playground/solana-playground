@@ -244,10 +244,19 @@ const ShowSeed: FC<ShowGenProps> = ({
       removeSignerKp();
       setShowSearch(false);
     } catch (e: any) {
-      // TODO: Show error in terminal
       console.log(e.message);
     }
   }, [seeds, programId, setVal, removeSignerKp, setShowSearch]);
+
+  // Submit on Enter
+  useEffect(() => {
+    const handleEnter = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Enter") handleGen();
+    };
+
+    document.addEventListener("keydown", handleEnter);
+    return () => document.removeEventListener("keydown", handleEnter);
+  }, [handleGen]);
 
   return (
     <ShowGenWrapper>
@@ -426,6 +435,12 @@ const ShowAta: FC<ShowGenProps> = ({
   const [mint, setMint] = useState("");
   const [owner, setOwner] = useState(walletPkStr ?? "");
 
+  const seedInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    seedInputRef.current?.focus();
+  }, []);
+
   const handleMint = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       setMint(e.target.value);
@@ -457,11 +472,15 @@ const ShowAta: FC<ShowGenProps> = ({
     }
   }, [mint, owner, setVal, removeSignerKp, setShowSearch]);
 
-  const seedInputRef = useRef<HTMLInputElement>(null);
-
+  // Submit on Enter
   useEffect(() => {
-    seedInputRef.current?.focus();
-  }, []);
+    const handleEnter = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Enter") handleGen();
+    };
+
+    document.addEventListener("keydown", handleEnter);
+    return () => document.removeEventListener("keydown", handleEnter);
+  }, [handleGen]);
 
   return (
     <ShowGenWrapper>
