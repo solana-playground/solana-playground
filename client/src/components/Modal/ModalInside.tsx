@@ -30,6 +30,7 @@ const ModalInside: FC<ModalInsideProps> = ({
     if (closeOnSubmit) close();
   }, [buttonProps, closeOnSubmit, close]);
 
+  // Submit on Enter
   useEffect(() => {
     const handleEnter = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Enter") handleSubmit();

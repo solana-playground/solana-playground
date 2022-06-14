@@ -18,7 +18,6 @@ const ContextMenu: FC = ({ children }) => {
     };
 
     document.addEventListener("keydown", handleKey);
-
     return () => document.removeEventListener("keydown", handleKey);
   }, [setMenuState]);
 

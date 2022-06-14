@@ -35,11 +35,11 @@ import { Minus, Plus } from "../../../../Icons";
 
 interface AccountProps {
   account: IdlAccount;
-  isArg?: boolean;
   functionName: string;
+  isArg?: boolean;
 }
 
-const Account: FC<AccountProps> = ({ account, isArg, functionName }) => {
+const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
   const { walletPkStr } = useCurrentWallet();
 
   const accountStr = useMemo(
@@ -467,7 +467,6 @@ const ShowAta: FC<ShowGenProps> = ({
       removeSignerKp();
       setShowSearch(false);
     } catch (e: any) {
-      // TODO: Show error in terminal
       console.log(e.message);
     }
   }, [mint, owner, setVal, removeSignerKp, setShowSearch]);

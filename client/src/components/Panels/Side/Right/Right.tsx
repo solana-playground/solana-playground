@@ -201,12 +201,14 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
 `;
 
 const StyledTitle = styled(Title)`
-  min-height: ${TAB_HEIGHT};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
-  color: ${({ theme }) => theme.colors.default.textSecondary};
+  ${({ theme }) => css`
+    min-height: ${TAB_HEIGHT};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid ${theme.colors.default.borderColor};
+    color: ${theme.colors.default.textSecondary};
+  `}
 `;
 
 export const LoadingWrapper = styled.div`

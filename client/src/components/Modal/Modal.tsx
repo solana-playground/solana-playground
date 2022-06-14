@@ -14,7 +14,6 @@ const Modal = () => {
     };
 
     document.addEventListener("keydown", handleKey);
-
     return () => document.removeEventListener("keydown", handleKey);
   }, [setModal]);
 
