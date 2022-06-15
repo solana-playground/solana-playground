@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useRef } from "react";
+import { FC, MouseEvent, useCallback, useEffect, useRef } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
@@ -19,9 +19,20 @@ const Tab: FC<TabProps> = ({ current, path }) => {
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const fileName = PgExplorer.getItemNameFromPath(path);
+  const closeTab = useCallback(() => {
+    explorer?.removeFromTabs(path);
+    refresh();
+  }, [explorer, path, refresh]);
 
-  if (!fileName) return null;
+  // Close tab with keybind
+  useEffect(() => {
+    const handleKey = (e: globalThis.KeyboardEvent) => {
+      if (e.altKey && e.key === "w") closeTab();
+    };
+
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [closeTab]);
 
   const changeTab = (e: MouseEvent<HTMLDivElement>) => {
     if (closeButtonRef.current?.contains(e.target as Node)) return;
@@ -30,14 +41,13 @@ const Tab: FC<TabProps> = ({ current, path }) => {
     refresh();
   };
 
-  const closeTab = () => {
-    explorer?.removeFromTabs(path);
-    refresh();
-  };
-
   const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
   };
+
+  const fileName = PgExplorer.getItemNameFromPath(path);
+
+  if (!fileName) return null;
 
   return (
     <Wrapper
@@ -47,7 +57,12 @@ const Tab: FC<TabProps> = ({ current, path }) => {
     >
       <LangIcon fileName={fileName} />
       <Name>{fileName}</Name>
-      <Button ref={closeButtonRef} kind="icon" onClick={closeTab} title="Close">
+      <Button
+        ref={closeButtonRef}
+        kind="icon"
+        onClick={closeTab}
+        title="Close (Alt+W)"
+      >
         <Close />
       </Button>
     </Wrapper>
