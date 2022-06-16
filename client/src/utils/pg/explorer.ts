@@ -318,10 +318,12 @@ export class PgExplorer {
   removeFromTabs(path: string) {
     const files = this._explorer.files;
     files[path].tabs = false;
-    files[path].current = false;
 
-    // Change current file to the last tab
-    this.changeCurrentFileToTheLastTab();
+    // If we are closing the current file, change current file to the last tab
+    if (files[path].current) {
+      files[path].current = false;
+      this.changeCurrentFileToTheLastTab();
+    }
   }
 
   getBuildFiles() {
