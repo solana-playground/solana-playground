@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useCallback, useEffect, useRef } from "react";
+import { FC, MouseEvent, useCallback, useRef } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
@@ -20,24 +20,16 @@ const Tab: FC<TabProps> = ({ current, path }) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeTab = useCallback(() => {
-    explorer?.removeFromTabs(path);
+    if (!explorer) return;
+
+    explorer.removeFromTabs(path);
     refresh();
   }, [explorer, path, refresh]);
 
-  // Close tab with keybind
-  useEffect(() => {
-    const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (e.altKey && e.key === "w") closeTab();
-    };
-
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [closeTab]);
-
   const changeTab = (e: MouseEvent<HTMLDivElement>) => {
-    if (closeButtonRef.current?.contains(e.target as Node)) return;
+    if (closeButtonRef.current?.contains(e.target as Node) || !explorer) return;
 
-    explorer?.changeCurrentFile(path);
+    explorer.changeCurrentFile(path);
     refresh();
   };
 

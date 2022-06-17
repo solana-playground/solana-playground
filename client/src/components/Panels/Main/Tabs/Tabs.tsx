@@ -1,5 +1,5 @@
+import { useCallback, useEffect } from "react";
 import { useAtom } from "jotai";
-import { useCallback } from "react";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
@@ -14,10 +14,26 @@ import {
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom);
-  useAtom(refreshExplorerAtom);
+  const [, refresh] = useAtom(refreshExplorerAtom);
 
   // No need memoization
   const tabs = explorer?.getTabs();
+
+  // Close current tab with keybind
+  useEffect(() => {
+    const handleKey = (e: globalThis.KeyboardEvent) => {
+      if (e.altKey && e.key === "w" && explorer) {
+        const currentPath = explorer.getCurrentFile()?.path;
+        if (!currentPath) return;
+
+        explorer.removeFromTabs(currentPath);
+        refresh();
+      }
+    };
+
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [explorer, refresh]);
 
   return (
     <Wrapper id={Id.TABS}>
