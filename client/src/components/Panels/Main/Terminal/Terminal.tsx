@@ -138,17 +138,18 @@ const Terminal = () => {
   useEffect(() => {
     const handleKeybinds = (e: globalThis.KeyboardEvent) => {
       // TODO: Focus terminal
+      const key = e.key.toUpperCase();
       if (PgCommon.isKeyctrlOrCmd(e)) {
-        if (e.key === "l") {
+        if (key === "L") {
           e.preventDefault();
           clear();
-        } else if (e.key === "`") {
+        } else if (key === "`") {
           e.preventDefault();
           toggleClose();
-        } else if (e.key === "j") {
+        } else if (key === "J") {
           e.preventDefault();
           toggleClose();
-        } else if (e.key === "m") {
+        } else if (key === "M") {
           e.preventDefault();
           toggleMaximize();
         }

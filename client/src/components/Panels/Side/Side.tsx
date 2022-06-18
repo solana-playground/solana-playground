@@ -22,7 +22,7 @@ const Side = () => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
       if (PgCommon.isKeyctrlOrCmd(e) && e.shiftKey) {
         setSidebarState((state) => {
-          const key = e.key;
+          const key = e.key.toUpperCase();
           const closeCondition =
             width !== 0 &&
             ((state === Sidebar.EXPLORER && key === "E") ||

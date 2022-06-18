@@ -13,7 +13,7 @@ const Explorer = () => {
   // Explorer keybinds
   useEffect(() => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (e.altKey && e.key === "n") newItem();
+      if (e.altKey && e.key.toUpperCase() === "N") newItem();
       else if (e.key === "F2") renameItem();
       else if (e.key === "Delete") deleteItem();
     };

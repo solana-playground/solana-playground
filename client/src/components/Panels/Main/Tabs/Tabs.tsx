@@ -22,7 +22,7 @@ const Tabs = () => {
   // Close current tab with keybind
   useEffect(() => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (e.altKey && e.key === "w" && explorer) {
+      if (explorer && e.altKey && e.key.toUpperCase() === "W") {
         const currentPath = explorer.getCurrentFile()?.path;
         if (!currentPath) return;
 
