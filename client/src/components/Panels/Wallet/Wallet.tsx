@@ -163,6 +163,10 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
         msg = PgTerminal.info("Sending an airdrop request...");
         setTerminal(msg);
 
+        // Airdrop tx is sometimes successful even when balance hasn't changed
+        // Instead of confirming the tx, we will check before and after balance
+        const beforeBalance = await conn.getBalance(walletPk, "processed");
+
         const txHash = await conn.requestAirdrop(
           walletPk,
           PgCommon.solToLamports(amount)
@@ -170,16 +174,19 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
         setTxHash(txHash);
 
-        const txResult = await PgTx.confirm(txHash, conn);
+        // Allow enough time for balance to update by waiting for confirmation
+        await PgTx.confirm(txHash, conn);
 
-        if (txResult?.err)
-          msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
-            "Error receiving airdrop."
-          )}`;
-        else
+        const afterBalance = await conn.getBalance(walletPk, "processed");
+
+        if (afterBalance > beforeBalance)
           msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
             "Success."
           )} Received ${PgTerminal.bold(amount.toString())} SOL.`;
+        else
+          msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
+            "Error receiving airdrop."
+          )}`;
       } catch (e: any) {
         msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
           "Error receiving airdrop:"
@@ -199,8 +206,8 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
     if (solWalletPk) await airdrop(solWalletPk);
   }, [solWalletPk, airdrop]);
 
-  const pgCond = conn && pgWalletPk && amount;
-  const solCond = conn && solWalletPk && amount;
+  const pgCond = pgWalletPk && conn && amount;
+  const solCond = solWalletPk && conn && amount;
 
   return (
     <>
