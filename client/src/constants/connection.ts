@@ -13,7 +13,7 @@ enum NetworkName {
 export enum Endpoint {
   LOCALHOST = "http://localhost:8899",
   DEVNET = "https://api.devnet.solana.com",
-  DEVNET_GENESYSGO = "https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899",
+  DEVNET_GENESYSGO = "https://devnet.genesysgo.net/",
   TESTNET = "https://api.testnet.solana.com",
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
   MAINNET_BETA_GENESYSGO = "https://ssc-dao.genesysgo.net",
