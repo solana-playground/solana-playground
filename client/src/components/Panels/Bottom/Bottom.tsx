@@ -79,7 +79,7 @@ const Bottom = () => {
 
   const [networkName, cluster] = useMemo(() => {
     return [
-      NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0].name,
+      NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name,
       PgCommon.getExplorerCluster(conn.rpcEndpoint),
     ];
   }, [conn]);

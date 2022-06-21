@@ -154,7 +154,7 @@ const Title: FC<TitleProps> = ({ sidebarState, className }) => (
   </div>
 );
 
-export const RightLoading = () => (
+const RightLoading = () => (
   <LoadingWrapper>
     <Wormhole />
   </LoadingWrapper>
@@ -211,7 +211,7 @@ const StyledTitle = styled(Title)`
   `}
 `;
 
-export const LoadingWrapper = styled.div`
+const LoadingWrapper = styled.div`
   margin-top: 2rem;
 `;
 
