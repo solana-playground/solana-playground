@@ -56,6 +56,8 @@ export const NETWORKS: Network[] = [
   },
 ];
 
+export const CUSTOM_NETWORK_NAME = "custom";
+
 export const COMMITMENT_LEVELS: Commitment[] = [
   "processed",
   "confirmed",

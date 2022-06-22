@@ -10,7 +10,12 @@ import useConnect from "../Wallet/useConnect";
 import useCurrentWallet from "../Wallet/useCurrentWallet";
 import useAirdropAmount from "../Wallet/useAirdropAmount";
 import { ConnState } from "../Wallet/connection-states";
-import { EXPLORER_URL, Id, NETWORKS } from "../../../constants";
+import {
+  EXPLORER_URL,
+  Id,
+  NETWORKS,
+  CUSTOM_NETWORK_NAME,
+} from "../../../constants";
 import { PgCommon } from "../../../utils/pg";
 import { balanceAtom } from "../../../state";
 
@@ -79,7 +84,8 @@ const Bottom = () => {
 
   const [networkName, cluster] = useMemo(() => {
     return [
-      NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name,
+      NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name ??
+        CUSTOM_NETWORK_NAME,
       PgCommon.getExplorerCluster(conn.rpcEndpoint),
     ];
   }, [conn]);

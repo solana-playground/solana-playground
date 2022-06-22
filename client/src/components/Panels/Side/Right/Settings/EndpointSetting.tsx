@@ -2,7 +2,7 @@ import { ChangeEvent, useMemo } from "react";
 import { useAtom } from "jotai";
 
 import Select from "../../../../Select";
-import { NETWORKS } from "../../../../../constants";
+import { NETWORKS, CUSTOM_NETWORK_NAME } from "../../../../../constants";
 import { connAtom } from "../../../../../state";
 import { PgConnection } from "../../../../../utils/pg";
 
@@ -16,15 +16,19 @@ const EndpointSetting = () => {
     PgConnection.update({ endpoint: newEndpoint });
   };
 
-  const cluster = useMemo(() => {
-    return NETWORKS.filter((n) => n.endpoint === conn.endpoint)[0].name;
+  const networkName = useMemo(() => {
+    return NETWORKS.filter((n) => n.endpoint === conn.endpoint)[0]?.name;
   }, [conn.endpoint]);
 
   return (
-    <Select value={cluster} onChange={changeEndpoint}>
+    <Select
+      value={networkName ?? CUSTOM_NETWORK_NAME}
+      onChange={changeEndpoint}
+    >
       {NETWORKS.map((n, i) => (
         <option key={i}>{n.name}</option>
       ))}
+      {!networkName && <option>{CUSTOM_NETWORK_NAME}</option>}
     </Select>
   );
 };
