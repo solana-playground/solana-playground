@@ -91,10 +91,10 @@ export const PROGRAM_ERROR: ConvertedError = {
 };
 
 export const RPC_ERROR: ConvertedError = {
-  "503 Service Unavailable":
+  "503,":
     "RPC unavailable. Please try a different endpoint from the settings or try again.",
-  "429 Too Many Requests":
-    "Too many requests for this endpoint. You can change the endpoint from the settings.",
+  "429,":
+    "Too many requests for this endpoint. You can change the endpoint from the settings or try again later.",
   "Network request failed":
     "RPC endpoint is not responsive. Please change the endpoint from the settings.",
 };

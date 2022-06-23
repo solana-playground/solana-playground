@@ -171,7 +171,6 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
           walletPk,
           PgCommon.solToLamports(amount)
         );
-
         setTxHash(txHash);
 
         // Allow enough time for balance to update by waiting for confirmation
@@ -188,9 +187,11 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
             "Error receiving airdrop."
           )}`;
       } catch (e: any) {
+        const convertedError = PgTerminal.convertErrorMessage(e.message);
+
         msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
           "Error receiving airdrop:"
-        )} ${e.message}`;
+        )} ${convertedError}`;
       } finally {
         setTerminal(msg + "\n");
       }
