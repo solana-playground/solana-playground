@@ -49,6 +49,7 @@ const Terminal = () => {
     return fitAddon;
   }, [xterm]);
 
+  // Open and fit terminal
   useEffect(() => {
     if (xterm && terminalRef.current) {
       const hasChild = terminalRef.current.hasChildNodes();
@@ -64,10 +65,35 @@ const Terminal = () => {
     }
   }, [xterm, fitAddon]);
 
+  // New Input
+  useEffect(() => {
+    if (xterm && terminalRef.current) {
+      const handleKey = ({
+        key,
+        domEvent,
+      }: {
+        key: string;
+        domEvent: KeyboardEvent;
+      }) => {
+        if (key === "\r") xterm.write(`\n${PgTerminal.PROMPT}`);
+        else if (domEvent.key === "Backspace") PgTerminal.removeLastChar(xterm);
+        else xterm.write(key);
+      };
+
+      xterm.onKey(handleKey);
+    }
+  }, [xterm]);
+
   // New output
   useEffect(() => {
     if (terminalRef.current) {
+      const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
+      if (currentLine?.startsWith(PgTerminal.PROMPT)) {
+        PgTerminal.removeCurrentLine(xterm);
+      }
+
       xterm.writeln(PgTerminal.colorText(terminal));
+      xterm.write(PgTerminal.PROMPT);
       xterm.scrollToBottom();
     }
   }, [terminal, xterm]);
@@ -285,12 +311,6 @@ const TerminalWrapper = styled.div`
       font-size: ${theme.font?.size.medium} !important;
       color: ${theme.colors.terminal?.color ??
       theme.colors.default.textPrimary} !important;
-    }
-
-    /* TODO: */
-    & .xterm.xterm-cursor-block,
-    .xterm .xterm-cursor-block {
-      display: none;
     }
   `}
 `;

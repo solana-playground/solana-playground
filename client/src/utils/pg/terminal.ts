@@ -1,3 +1,5 @@
+import { Terminal as XTerm, IBufferNamespace } from "xterm";
+
 import {
   GITHUB_URL,
   OTHER_ERROR,
@@ -40,7 +42,12 @@ Popular crates for Solana development are available to use.
 
 See the list of available crates and request new crates from: ${PgTerminal.underline(
     GITHUB_URL
-  )}`;
+  )} `;
+
+  /**
+   * Default prompt string before entering commands
+   */
+  static readonly PROMPT = "$ ";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -213,5 +220,30 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     }
 
     return msg;
+  }
+
+  /**
+   * Gets the current XTerm line
+   */
+  static getCurrentLine(buffer: IBufferNamespace) {
+    return buffer.normal
+      .getLine(buffer.normal.baseY + buffer.normal.cursorY)
+      ?.translateToString();
+  }
+
+  /**
+   * Remove the last @amount chars from the current line
+   */
+  static removeLastChar(xterm: XTerm, amount: number = 1) {
+    for (let i = 0; i < amount; i++) {
+      xterm.write("\b \b");
+    }
+  }
+
+  /**
+   * Removes the current line
+   */
+  static removeCurrentLine(xterm: XTerm) {
+    xterm.write(`\x1b[G\x1b`);
   }
 }
