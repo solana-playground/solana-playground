@@ -65,7 +65,7 @@ const Terminal = () => {
     }
   }, [xterm, fitAddon]);
 
-  // New Input
+  // New input
   useEffect(() => {
     if (xterm && terminalRef.current) {
       const handleKey = ({

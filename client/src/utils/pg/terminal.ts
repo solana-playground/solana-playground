@@ -235,6 +235,18 @@ See the list of available crates and request new crates from: ${PgTerminal.under
    * Remove the last @amount chars from the current line
    */
   static removeLastChar(xterm: XTerm, amount: number = 1) {
+    const commandWithoutSpace = this.getCurrentLine(xterm.buffer)
+      ?.split(this.PROMPT)[1]
+      .replaceAll(" ", "");
+
+    // Don't remove the prompt text
+    if (
+      commandWithoutSpace === "" ||
+      (commandWithoutSpace && commandWithoutSpace.length < 1)
+    ) {
+      return;
+    }
+
     for (let i = 0; i < amount; i++) {
       xterm.write("\b \b");
     }
