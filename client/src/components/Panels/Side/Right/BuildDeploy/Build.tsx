@@ -2,12 +2,12 @@ import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
+import Button from "../../../../Button";
 import {
   buildCountAtom,
   explorerAtom,
   terminalAtom,
 } from "../../../../../state";
-import Button from "../../../../Button";
 import { PgBuild, PgTerminal } from "../../../../../utils/pg";
 
 const Build = () => {
@@ -23,7 +23,6 @@ const Build = () => {
     setLoading(true);
 
     let msg = PgTerminal.info("Building...");
-
     setTerminal(msg);
 
     try {

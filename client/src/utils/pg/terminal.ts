@@ -258,4 +258,11 @@ See the list of available crates and request new crates from: ${PgTerminal.under
   static removeCurrentLine(xterm: XTerm) {
     xterm.write(`\x1b[G\x1b`);
   }
+
+  /**
+   * This function runs when user presses `Enter` in terminal
+   */
+  static parseCommand(cmd: string) {
+    // TODO:
+  }
 }

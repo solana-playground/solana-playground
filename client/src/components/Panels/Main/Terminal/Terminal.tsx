@@ -65,6 +65,9 @@ const Terminal = () => {
     }
   }, [xterm, fitAddon]);
 
+  // User input
+  const command = useRef("");
+
   // New input
   useEffect(() => {
     if (xterm && terminalRef.current) {
@@ -75,9 +78,26 @@ const Terminal = () => {
         key: string;
         domEvent: KeyboardEvent;
       }) => {
-        if (key === "\r") xterm.write(`\n${PgTerminal.PROMPT}`);
-        else if (domEvent.key === "Backspace") PgTerminal.removeLastChar(xterm);
-        else xterm.write(key);
+        // User entered a command
+        if (key === "\r") {
+          // Get command
+          PgTerminal.parseCommand(command.current);
+
+          // Clear command
+          command.current = "";
+
+          // New prompt
+          xterm.write(`\n${PgTerminal.PROMPT}`);
+        } else if (domEvent.key === "Backspace") {
+          PgTerminal.removeLastChar(xterm);
+          command.current = command.current.substring(
+            0,
+            command.current.length - 1
+          );
+        } else {
+          xterm.write(key);
+          command.current += key;
+        }
       };
 
       xterm.onKey(handleKey);
