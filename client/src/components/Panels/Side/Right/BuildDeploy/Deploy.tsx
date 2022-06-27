@@ -11,7 +11,7 @@ import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import useInitialLoading from "../../useInitialLoading";
 import useIsDeployed from "./useIsDeployed";
 import {
-  terminalAtom,
+  terminalOutputAtom,
   pgWalletAtom,
   refreshPgWalletAtom,
   terminalProgressAtom,
@@ -32,7 +32,7 @@ import { Skeleton } from "../../../../Loading";
 const Deploy = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
-  const [, setTerminal] = useAtom(terminalAtom);
+  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setProgress] = useAtom(terminalProgressAtom);
   const [, setTxHash] = useAtom(txHashAtom);
   const [program] = useAtom(programAtom);

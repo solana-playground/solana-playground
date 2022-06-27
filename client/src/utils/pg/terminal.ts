@@ -8,6 +8,7 @@ import {
   RPC_ERROR,
   SERVER_ERROR,
 } from "../../constants";
+import { TerminalAction } from "../../state";
 import { PgCommon } from "./common";
 
 enum TextState {
@@ -108,6 +109,10 @@ See the list of available crates and request new crates from: ${PgTerminal.under
 
   static bold(text: string) {
     return `\x1B[1m${text}\x1B[0m`;
+  }
+
+  static italic(text: string) {
+    return `\x1B[3m${text}\x1B[0m`;
   }
 
   static underline(text: string) {
@@ -253,16 +258,29 @@ See the list of available crates and request new crates from: ${PgTerminal.under
   }
 
   /**
-   * Removes the current line
+   * Clears the current line
    */
-  static removeCurrentLine(xterm: XTerm) {
+  static clearCurrentLine(xterm: XTerm) {
+    // Clears the whole line
     xterm.write(`\x1b[G\x1b`);
+    // This also clears the line but helps with parsing errors
+    xterm.write(`\x1b[2K`);
   }
 
   /**
    * This function runs when user presses `Enter` in terminal
    */
-  static parseCommand(cmd: string) {
+  static parseCommand(
+    cmd: string,
+    setTerminalState: (update: TerminalAction) => void
+  ) {
     // TODO:
+    switch (cmd.trim()) {
+      case "build":
+        setTerminalState(TerminalAction.runBuild);
+        return true;
+    }
+
+    return false;
   }
 }

@@ -9,7 +9,7 @@ import Input from "../../Input";
 import Foldable from "../../Foldable";
 import useCurrentWallet from "./useCurrentWallet";
 import { ClassName } from "../../../constants";
-import { balanceAtom, terminalAtom, txHashAtom } from "../../../state";
+import { balanceAtom, terminalOutputAtom, txHashAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgTx } from "../../../utils/pg";
 
 const Send = () => (
@@ -21,7 +21,7 @@ const Send = () => (
 );
 
 const SendInside = () => {
-  const [, setTerminal] = useAtom(terminalAtom);
+  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setTxHash] = useAtom(txHashAtom);
   const [balance] = useAtom(balanceAtom);
 

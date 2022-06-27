@@ -9,15 +9,18 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 
 import Button from "../../../Button";
 import Progress from "../../../Progress";
+import useTerminal from "./useTerminal";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
-import { terminalAtom, terminalProgressAtom } from "../../../../state";
+import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgTerminal } from "../../../../utils/pg";
 
 const Terminal = () => {
-  const [terminal] = useAtom(terminalAtom);
+  const [terminal] = useAtom(terminalOutputAtom);
   const [progress] = useAtom(terminalProgressAtom);
 
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  const { setTerminalState } = useTerminal();
 
   const theme = useTheme();
 
@@ -78,17 +81,31 @@ const Terminal = () => {
         key: string;
         domEvent: KeyboardEvent;
       }) => {
-        // User entered a command
         if (key === "\r") {
-          // Get command
-          PgTerminal.parseCommand(command.current);
+          // User entered a command
+          const isValidCommand = PgTerminal.parseCommand(
+            command.current,
+            setTerminalState
+          );
+
+          // Only new prompt after invalid command, other commands will automatically
+          // generate new prompt
+          if (!isValidCommand) {
+            if (command.current)
+              xterm.write(
+                `\nCommand '${PgTerminal.italic(
+                  command.current.trim()
+                )}' not found.\n\n${PgTerminal.PROMPT}`
+              );
+            else xterm.write(`\n${PgTerminal.PROMPT}`);
+          }
 
           // Clear command
           command.current = "";
-
-          // New prompt
-          xterm.write(`\n${PgTerminal.PROMPT}`);
-        } else if (domEvent.key === "Backspace") {
+        } else if (
+          domEvent.key === "Backspace" &&
+          command.current.length >= 0
+        ) {
           PgTerminal.removeLastChar(xterm);
           command.current = command.current.substring(
             0,
@@ -102,15 +119,15 @@ const Terminal = () => {
 
       xterm.onKey(handleKey);
     }
-  }, [xterm]);
+  }, [xterm, setTerminalState]);
 
   // New output
   useEffect(() => {
     if (terminalRef.current) {
       const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
-      if (currentLine?.startsWith(PgTerminal.PROMPT)) {
-        PgTerminal.removeCurrentLine(xterm);
-      }
+      const noCmd = !currentLine?.split(PgTerminal.PROMPT)[1]?.trim()?.length;
+      if (noCmd) PgTerminal.clearCurrentLine(xterm);
+      else xterm.writeln("");
 
       xterm.writeln(PgTerminal.colorText(terminal));
       xterm.write(PgTerminal.PROMPT);

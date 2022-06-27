@@ -13,7 +13,7 @@ import Arg from "./Arg";
 import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
-import { terminalAtom, txHashAtom } from "../../../../../state";
+import { terminalOutputAtom, txHashAtom } from "../../../../../state";
 import { PgCommon, PgTerminal, PgTest, PgTx } from "../../../../../utils/pg";
 
 type KV = {
@@ -51,7 +51,7 @@ interface FunctionInsideProps {
 }
 
 const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
-  const [, setTerminal] = useAtom(terminalAtom);
+  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setTxHash] = useAtom(txHashAtom);
 
   const { connection: conn } = useConnection();

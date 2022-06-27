@@ -28,7 +28,7 @@ import { ClassName, Id } from "../../../constants";
 import {
   pgWalletAtom,
   showWalletAtom,
-  terminalAtom,
+  terminalOutputAtom,
   txHashAtom,
 } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../../utils/pg";
@@ -143,7 +143,7 @@ interface SettingsItemProps {
 }
 
 const Airdrop: FC<SettingsItemProps> = ({ close }) => {
-  const [, setTerminal] = useAtom(terminalAtom);
+  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setTxHash] = useAtom(txHashAtom);
 
   // Get cap amount for airdrop based on network

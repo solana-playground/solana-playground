@@ -1,44 +1,33 @@
-import { useCallback, useState } from "react";
-import { useAtom } from "jotai";
+import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
-import {
-  buildCountAtom,
-  explorerAtom,
-  terminalAtom,
-} from "../../../../../state";
-import { PgBuild, PgTerminal } from "../../../../../utils/pg";
+import useCmd from "../../../Main/Terminal/useCmd";
+import { TerminalAction } from "../../../../../state";
 
 const Build = () => {
-  const [explorer] = useAtom(explorerAtom);
-  const [, setTerminal] = useAtom(terminalAtom);
-  const [, setBuildCount] = useAtom(buildCountAtom);
-
   const [loading, setLoading] = useState(false);
 
+  const { runBuild, terminalState, setTerminalState } = useCmd();
+
   const build = useCallback(async () => {
-    if (!explorer) return;
-
     setLoading(true);
+    await runBuild();
+    setLoading(false);
+  }, [setLoading, runBuild]);
 
-    let msg = PgTerminal.info("Building...");
-    setTerminal(msg);
+  useEffect(() => {
+    setTerminalState(TerminalAction.buildMounted);
+    return () => setTerminalState(TerminalAction.buildUnmounted);
+  }, [setTerminalState]);
 
-    try {
-      const result = await PgBuild.build(explorer.getBuildFiles());
-
-      msg = PgTerminal.editStderr(result.stderr, result.uuid);
-
-      // To update programId each build
-      setBuildCount((c) => c + 1);
-    } catch (e: any) {
-      msg = `${PgTerminal.error("Build error:")} ${e.message}\n`;
-    } finally {
-      setTerminal(msg);
-      setLoading(false);
+  // Run build from terminal
+  useEffect(() => {
+    if (terminalState.buildMounted && terminalState.runBuild) {
+      setTerminalState(TerminalAction.notRunBuild);
+      build();
     }
-  }, [explorer, setLoading, setTerminal, setBuildCount]);
+  }, [terminalState, build, setTerminalState]);
 
   return (
     <Wrapper>
