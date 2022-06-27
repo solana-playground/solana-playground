@@ -5,7 +5,7 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { PgProgramInfo } from "../../../../../utils/pg";
 import { refreshProgramIdAtom } from "../../../../../state";
 
-const useIsDeployed = () => {
+export const useIsDeployed = () => {
   // To re-render if user changes program id
   const [programIdCount] = useAtom(refreshProgramIdAtom);
 
@@ -37,5 +37,3 @@ const useIsDeployed = () => {
 
   return { deployed, setDeployed, connError };
 };
-
-export default useIsDeployed;

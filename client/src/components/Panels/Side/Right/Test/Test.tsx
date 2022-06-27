@@ -4,10 +4,10 @@ import styled from "styled-components";
 import Function from "./Function";
 import Text from "../../../../Text";
 import useInitialLoading from "../../useInitialLoading";
-import useIsDeployed from "../BuildDeploy/useIsDeployed";
 import { PgProgramInfo } from "../../../../../utils/pg";
 import { Wormhole } from "../../../../Loading";
 import { ConnectionErrorText } from "../../Common";
+import { useIsDeployed } from "../BuildDeploy";
 
 // Webpack 5 doesn't polyfill buffer
 window.Buffer = buffer.Buffer;

@@ -1,20 +1,17 @@
-import { useCallback } from "react";
 import { useAtom } from "jotai";
+import { useCallback } from "react";
 
 import {
   buildCountAtom,
   explorerAtom,
   terminalOutputAtom,
-  terminalStateAtom,
-} from "../../../../state";
-import { PgBuild, PgTerminal } from "../../../../utils/pg";
+} from "../../../../../state";
+import { PgBuild, PgTerminal } from "../../../../../utils/pg";
 
-// Run terminal commands
-const useCmd = () => {
+export const useBuild = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
-  const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
 
   const runBuild = useCallback(async () => {
     if (!explorer) return;
@@ -36,7 +33,5 @@ const useCmd = () => {
     }
   }, [explorer, setTerminal, setBuildCount]);
 
-  return { runBuild, terminalState, setTerminalState };
+  return { runBuild };
 };
-
-export default useCmd;

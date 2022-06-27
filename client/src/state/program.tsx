@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { Buffer } from "buffer";
 
-interface Program {
+export interface Program {
   buffer: Buffer;
   fileName: string;
 }

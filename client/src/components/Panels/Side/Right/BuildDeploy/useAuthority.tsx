@@ -11,7 +11,7 @@ interface ProgramData {
   authority?: PublicKey;
 }
 
-const useAuthority = () => {
+export const useAuthority = () => {
   // To re-render if user changes program id
   const [programIdCount] = useAtom(refreshProgramIdAtom);
 
@@ -67,5 +67,3 @@ const useAuthority = () => {
     upgradeable: programData.upgradeable,
   };
 };
-
-export default useAuthority;

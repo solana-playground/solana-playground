@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import useIsDeployed from "./Right/BuildDeploy/useIsDeployed";
 import { PgCommon, PgProgramInfo } from "../../../utils/pg";
+import { useIsDeployed } from "./Right/BuildDeploy";
 
 const useInitialLoading = () => {
   const { deployed, connError } = useIsDeployed();

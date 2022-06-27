@@ -2,13 +2,16 @@ import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
-import useCmd from "../../../Main/Terminal/useCmd";
-import { TerminalAction } from "../../../../../state";
+import { useBuild } from "./";
+import { TerminalAction, terminalStateAtom } from "../../../../../state";
+import { useAtom } from "jotai";
 
 const Build = () => {
+  const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
+
   const [loading, setLoading] = useState(false);
 
-  const { runBuild, terminalState, setTerminalState } = useCmd();
+  const { runBuild } = useBuild();
 
   const build = useCallback(async () => {
     setLoading(true);
@@ -16,6 +19,7 @@ const Build = () => {
     setLoading(false);
   }, [setLoading, runBuild]);
 
+  // Set global mount state
   useEffect(() => {
     setTerminalState(TerminalAction.buildMounted);
     return () => setTerminalState(TerminalAction.buildUnmounted);
