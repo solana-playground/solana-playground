@@ -17,30 +17,30 @@ export const terminalProgressAtom = atom(0);
 interface TerminalState {
   // Build
   buildMounted: boolean;
-  runBuild: boolean;
+  buildStart: boolean;
   // Deploy
   deployMounted: boolean;
-  runDeploy: boolean;
+  deployStart: boolean;
 }
 
 const _terminalStateAtom = atom<TerminalState>({
   buildMounted: false,
-  runBuild: false,
+  buildStart: false,
   deployMounted: false,
-  runDeploy: false,
+  deployStart: false,
 });
 
 export enum TerminalAction {
   // Build
   buildMounted = 1,
   buildUnmounted = 2,
-  runBuild = 3,
-  notRunBuild = 4,
+  buildStart = 3,
+  buildStop = 4,
   // Deploy
   deployMounted = 5,
   deployUnmounted = 6,
-  runDeploy = 7,
-  notRunDeploy = 8,
+  deployStart = 7,
+  deployStop = 8,
 }
 
 export const terminalStateAtom = atom(
@@ -51,17 +51,17 @@ export const terminalStateAtom = atom(
       set(_terminalStateAtom, { ...ts, buildMounted: true });
     else if (action === TerminalAction.buildUnmounted)
       set(_terminalStateAtom, { ...ts, buildMounted: false });
-    else if (action === TerminalAction.runBuild)
-      set(_terminalStateAtom, { ...ts, runBuild: true });
-    else if (action === TerminalAction.notRunBuild)
-      set(_terminalStateAtom, { ...ts, runBuild: false });
+    else if (action === TerminalAction.buildStart)
+      set(_terminalStateAtom, { ...ts, buildStart: true });
+    else if (action === TerminalAction.buildStop)
+      set(_terminalStateAtom, { ...ts, buildStart: false });
     else if (action === TerminalAction.deployMounted)
       set(_terminalStateAtom, { ...ts, deployMounted: true });
     else if (action === TerminalAction.deployUnmounted)
       set(_terminalStateAtom, { ...ts, deployMounted: false });
-    else if (action === TerminalAction.runDeploy)
-      set(_terminalStateAtom, { ...ts, runDeploy: true });
-    else if (action === TerminalAction.notRunDeploy)
-      set(_terminalStateAtom, { ...ts, runDeploy: false });
+    else if (action === TerminalAction.deployStart)
+      set(_terminalStateAtom, { ...ts, deployStart: true });
+    else if (action === TerminalAction.deployStop)
+      set(_terminalStateAtom, { ...ts, deployStart: false });
   }
 );

@@ -27,8 +27,8 @@ const Build = () => {
 
   // Run build from terminal
   useEffect(() => {
-    if (terminalState.buildMounted && terminalState.runBuild) {
-      setTerminalState(TerminalAction.notRunBuild);
+    if (terminalState.buildMounted && terminalState.buildStart) {
+      setTerminalState(TerminalAction.buildStop);
       build();
     }
   }, [terminalState, build, setTerminalState]);

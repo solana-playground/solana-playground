@@ -12,15 +12,15 @@ const useTerminal = () => {
   const { runDeploy } = useDeploy();
 
   useEffect(() => {
-    if (!terminalState.buildMounted && terminalState.runBuild) {
-      setTerminalState(TerminalAction.notRunBuild);
+    if (!terminalState.buildMounted && terminalState.buildStart) {
+      setTerminalState(TerminalAction.buildStop);
       runBuild();
     }
   }, [terminalState, runBuild, setTerminalState]);
 
   useEffect(() => {
-    if (!terminalState.deployMounted && terminalState.runDeploy) {
-      setTerminalState(TerminalAction.notRunDeploy);
+    if (!terminalState.deployMounted && terminalState.deployStart) {
+      setTerminalState(TerminalAction.deployStop);
       runDeploy();
     }
   }, [terminalState, runDeploy, setTerminalState]);

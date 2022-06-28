@@ -277,10 +277,10 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     // TODO:
     switch (cmd.trim()) {
       case "build":
-        setTerminalState(TerminalAction.runBuild);
+        setTerminalState(TerminalAction.buildStart);
         return true;
       case "deploy":
-        setTerminalState(TerminalAction.runDeploy);
+        setTerminalState(TerminalAction.deployStart);
         return true;
     }
 

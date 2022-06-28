@@ -46,8 +46,8 @@ const Deploy = () => {
 
   // Run build from terminal
   useEffect(() => {
-    if (terminalState.deployMounted && terminalState.runDeploy) {
-      setTerminalState(TerminalAction.notRunDeploy);
+    if (terminalState.deployMounted && terminalState.deployStart) {
+      setTerminalState(TerminalAction.deployStop);
       deploy();
     }
   }, [terminalState, deploy, setTerminalState]);
