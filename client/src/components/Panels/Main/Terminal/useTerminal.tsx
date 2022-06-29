@@ -1,7 +1,7 @@
-import { useAtom } from "jotai";
 import { useEffect } from "react";
+import { useAtom } from "jotai";
 
-import { TerminalAction, terminalStateAtom } from "../../../../state";
+import { terminalStateAtom } from "../../../../state";
 import { useBuild, useDeploy } from "../../Side/Right/BuildDeploy";
 
 // Runs build and deploy commands if those components are not mounted
@@ -11,19 +11,19 @@ const useTerminal = () => {
   const { runBuild } = useBuild();
   const { runDeploy } = useDeploy();
 
+  // Run build when build component is not mounted
   useEffect(() => {
     if (!terminalState.buildMounted && terminalState.buildStart) {
-      setTerminalState(TerminalAction.buildStop);
       runBuild();
     }
-  }, [terminalState, runBuild, setTerminalState]);
+  }, [terminalState, runBuild]);
 
+  // Run deploy when deploy component is not mounted
   useEffect(() => {
     if (!terminalState.deployMounted && terminalState.deployStart) {
-      setTerminalState(TerminalAction.deployStop);
       runDeploy();
     }
-  }, [terminalState, runDeploy, setTerminalState]);
+  }, [terminalState, runDeploy]);
 
   return { setTerminalState };
 };

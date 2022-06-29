@@ -7,23 +7,32 @@ import {
   pgWalletAtom,
   Program,
   refreshPgWalletAtom,
+  TerminalAction,
   terminalOutputAtom,
   terminalProgressAtom,
+  terminalStateAtom,
   txHashAtom,
 } from "../../../../../state";
 import { PgCommon, PgDeploy, PgTerminal } from "../../../../../utils/pg";
 
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
+  const [pgWallet] = useAtom(pgWalletAtom);
+  const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
+  const [, setTerminalState] = useAtom(terminalStateAtom);
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setProgress] = useAtom(terminalProgressAtom);
   const [, setTxHash] = useAtom(txHashAtom);
-  const [pgWallet] = useAtom(pgWalletAtom);
-  const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
 
   const { connection: conn } = useConnection();
 
   const runDeploy = useCallback(async () => {
     if (!pgWallet.connected) return;
+
+    // This doesn't stop the current deploy but stops new deploys
+    setTerminalState([
+      TerminalAction.deployStop,
+      TerminalAction.deployLoadingStart,
+    ]);
 
     let msg = `${PgTerminal.info(
       "Deploying..."
@@ -51,11 +60,20 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
       return 1;
     } finally {
       setTerminal(msg + "\n");
+      setTerminalState(TerminalAction.deployLoadingStop);
       setProgress(0);
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conn, pgWallet, pgWalletChanged, program, setTerminal, setTxHash]);
+  }, [
+    conn,
+    pgWallet,
+    pgWalletChanged,
+    program,
+    setTerminal,
+    setTxHash,
+    setTerminalState,
+  ]);
 
   return { runDeploy, pgWallet };
 };

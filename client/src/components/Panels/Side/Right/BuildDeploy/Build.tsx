@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
 import { useBuild } from "./";
 import { TerminalAction, terminalStateAtom } from "../../../../../state";
-import { useAtom } from "jotai";
 
 const Build = () => {
   const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
@@ -13,31 +13,33 @@ const Build = () => {
 
   const { runBuild } = useBuild();
 
-  const build = useCallback(async () => {
-    setLoading(true);
-    await runBuild();
-    setLoading(false);
-  }, [setLoading, runBuild]);
-
   // Set global mount state
   useEffect(() => {
-    setTerminalState(TerminalAction.buildMounted);
-    return () => setTerminalState(TerminalAction.buildUnmounted);
+    setTerminalState(TerminalAction.buildMount);
+    return () => setTerminalState(TerminalAction.buildUnmount);
   }, [setTerminalState]);
 
   // Run build from terminal
   useEffect(() => {
     if (terminalState.buildMounted && terminalState.buildStart) {
       setTerminalState(TerminalAction.buildStop);
-      build();
+      runBuild();
     }
-  }, [terminalState, build, setTerminalState]);
+  }, [terminalState, runBuild, setTerminalState]);
+
+  // Loading state for if the command started when the component wasn't mounted
+  useEffect(() => {
+    if (terminalState.buildMounted) {
+      if (terminalState.buildLoading) setLoading(true);
+      else setLoading(false);
+    }
+  }, [terminalState, setLoading]);
 
   return (
     <Wrapper>
       <Button
         kind="secondary"
-        onClick={build}
+        onClick={runBuild}
         disabled={loading}
         fullWidth
         btnLoading={loading}

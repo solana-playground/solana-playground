@@ -18,7 +18,6 @@ import { Skeleton } from "../../../../Loading";
 import { useDeploy, useAuthority, useIsDeployed } from "./";
 
 // TODO: Cancel deployment
-
 const Deploy = () => {
   const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
   const [program] = useAtom(programAtom);
@@ -32,25 +31,30 @@ const Deploy = () => {
   const { runDeploy, pgWallet } = useDeploy(program);
 
   const deploy = useCallback(async () => {
-    setLoading(true);
     const deployErrror = await runDeploy();
     if (!deployErrror) setDeployed(true);
-    setLoading(false);
-  }, [runDeploy, setLoading, setDeployed]);
+  }, [runDeploy, setDeployed]);
 
   // Set global mount state
   useEffect(() => {
-    setTerminalState(TerminalAction.deployMounted);
-    return () => setTerminalState(TerminalAction.deployUnmounted);
+    setTerminalState(TerminalAction.deployMount);
+    return () => setTerminalState(TerminalAction.deployUnmount);
   }, [setTerminalState]);
 
   // Run build from terminal
   useEffect(() => {
     if (terminalState.deployMounted && terminalState.deployStart) {
-      setTerminalState(TerminalAction.deployStop);
       deploy();
     }
-  }, [terminalState, deploy, setTerminalState]);
+  }, [terminalState, deploy]);
+
+  // Loading state for if the command started when the component wasn't mounted
+  useEffect(() => {
+    if (terminalState.deployMounted) {
+      if (terminalState.deployLoading) setLoading(true);
+      else setLoading(false);
+    }
+  }, [terminalState, setLoading]);
 
   const pgProgramInfo = PgProgramInfo.getProgramInfo();
   const hasProgramKp = pgProgramInfo.kp;

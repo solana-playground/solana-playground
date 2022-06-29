@@ -18,50 +18,68 @@ interface TerminalState {
   // Build
   buildMounted: boolean;
   buildStart: boolean;
+  buildLoading: boolean;
   // Deploy
   deployMounted: boolean;
   deployStart: boolean;
+  deployLoading: boolean;
 }
 
 const _terminalStateAtom = atom<TerminalState>({
   buildMounted: false,
   buildStart: false,
+  buildLoading: false,
   deployMounted: false,
   deployStart: false,
+  deployLoading: false,
 });
 
 export enum TerminalAction {
   // Build
-  buildMounted = 1,
-  buildUnmounted = 2,
+  buildMount = 1,
+  buildUnmount = 2,
   buildStart = 3,
   buildStop = 4,
+  buildLoadingStart = 5,
+  buildLoadingStop = 6,
   // Deploy
-  deployMounted = 5,
-  deployUnmounted = 6,
-  deployStart = 7,
-  deployStop = 8,
+  deployMount = 7,
+  deployUnmount = 8,
+  deployStart = 9,
+  deployStop = 10,
+  deployLoadingStart = 11,
+  deployLoadingStop = 12,
 }
 
 export const terminalStateAtom = atom(
   (get) => get(_terminalStateAtom),
-  (get, set, action: TerminalAction) => {
-    const ts = get(_terminalStateAtom);
-    if (action === TerminalAction.buildMounted)
-      set(_terminalStateAtom, { ...ts, buildMounted: true });
-    else if (action === TerminalAction.buildUnmounted)
-      set(_terminalStateAtom, { ...ts, buildMounted: false });
-    else if (action === TerminalAction.buildStart)
-      set(_terminalStateAtom, { ...ts, buildStart: true });
-    else if (action === TerminalAction.buildStop)
-      set(_terminalStateAtom, { ...ts, buildStart: false });
-    else if (action === TerminalAction.deployMounted)
-      set(_terminalStateAtom, { ...ts, deployMounted: true });
-    else if (action === TerminalAction.deployUnmounted)
-      set(_terminalStateAtom, { ...ts, deployMounted: false });
-    else if (action === TerminalAction.deployStart)
-      set(_terminalStateAtom, { ...ts, deployStart: true });
-    else if (action === TerminalAction.deployStop)
-      set(_terminalStateAtom, { ...ts, deployStart: false });
+  (get, set, actions: TerminalAction | TerminalAction[]) => {
+    if (typeof actions !== "object") actions = [actions];
+
+    let ts = get(_terminalStateAtom);
+
+    // Build
+    if (actions.includes(TerminalAction.buildMount)) ts.buildMounted = true;
+    if (actions.includes(TerminalAction.buildUnmount)) ts.buildMounted = false;
+    if (actions.includes(TerminalAction.buildStart)) ts.buildStart = true;
+    if (actions.includes(TerminalAction.buildStop)) ts.buildStart = false;
+    if (actions.includes(TerminalAction.buildLoadingStart))
+      ts.buildLoading = true;
+    if (actions.includes(TerminalAction.buildLoadingStop))
+      ts.buildLoading = false;
+
+    // Deploy
+    if (actions.includes(TerminalAction.deployMount)) ts.deployMounted = true;
+    if (actions.includes(TerminalAction.deployUnmount))
+      ts.deployMounted = false;
+    if (actions.includes(TerminalAction.deployStart)) ts.deployStart = true;
+    if (actions.includes(TerminalAction.deployStop)) ts.deployStart = false;
+    if (actions.includes(TerminalAction.deployLoadingStart))
+      ts.deployLoading = true;
+    if (actions.includes(TerminalAction.deployLoadingStop))
+      ts.deployLoading = false;
+
+    // Recreate the object to re-render
+    set(_terminalStateAtom, { ...ts });
   }
 );
