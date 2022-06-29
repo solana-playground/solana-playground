@@ -287,7 +287,19 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     return false;
   }
 
+  /**
+   * Runs when user presses a key when the terminal is in focus
+   */
   static isCharValid(char: string) {
     return char.match(/^[\w.\-/+\\='":;|,?><`~!@#$%^&*()[\]{}]+$/);
+  }
+
+  /**
+   * Gets whether the terminal is focused or in blur
+   */
+  static isTerminalFocused() {
+    return document
+      .getElementsByClassName("terminal xterm xterm-dom-renderer-owner-1")[0]
+      ?.classList.contains("focus");
   }
 }

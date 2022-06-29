@@ -68,73 +68,6 @@ const Terminal = () => {
     }
   }, [xterm, fitAddon]);
 
-  // User input
-  const command = useRef("");
-
-  // New input
-  useEffect(() => {
-    if (xterm && terminalRef.current) {
-      const handleKey = ({
-        key,
-        domEvent,
-      }: {
-        key: string;
-        domEvent: KeyboardEvent;
-      }) => {
-        if (domEvent.key === "Enter") {
-          // User entered a command
-          const isValidCommand = PgTerminal.parseCommand(
-            command.current,
-            setTerminalState
-          );
-
-          // Only new prompt after invalid command, other commands will automatically
-          // generate new prompt
-          if (!isValidCommand) {
-            if (command.current)
-              xterm.write(
-                `\nCommand '${PgTerminal.italic(
-                  command.current.trim()
-                )}' not found.\n\n${PgTerminal.PROMPT}`
-              );
-            else xterm.write(`\n${PgTerminal.PROMPT}`);
-          }
-
-          // Clear command
-          command.current = "";
-        } else if (
-          domEvent.key === "Backspace" &&
-          command.current.length >= 0
-        ) {
-          PgTerminal.removeLastChar(xterm);
-          command.current = command.current.substring(
-            0,
-            command.current.length - 1
-          );
-        } else if (PgTerminal.isCharValid(key)) {
-          xterm.write(key);
-          command.current += key;
-        }
-      };
-
-      xterm.onKey(handleKey);
-    }
-  }, [xterm, setTerminalState]);
-
-  // New output
-  useEffect(() => {
-    if (terminalRef.current) {
-      const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
-      const noCmd = !currentLine?.split(PgTerminal.PROMPT)[1]?.trim()?.length;
-      if (noCmd) PgTerminal.clearCurrentLine(xterm);
-      else xterm.writeln("");
-
-      xterm.writeln(PgTerminal.colorText(terminal));
-      xterm.write(PgTerminal.PROMPT);
-      xterm.scrollToBottom();
-    }
-  }, [terminal, xterm]);
-
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
 
@@ -197,10 +130,78 @@ const Terminal = () => {
     });
   }, [setHeight, setIsClosed]);
 
+  // User input
+  const command = useRef("");
+
+  // New input
+  useEffect(() => {
+    if (xterm && terminalRef.current) {
+      const handleKey = ({
+        key,
+        domEvent,
+      }: {
+        key: string;
+        domEvent: KeyboardEvent;
+      }) => {
+        if (domEvent.key === "Enter") {
+          // User entered a command
+          const isValidCommand = PgTerminal.parseCommand(
+            command.current,
+            setTerminalState
+          );
+
+          // Only new prompt after invalid command, other commands will automatically
+          // generate new prompt
+          if (!isValidCommand) {
+            if (command.current)
+              xterm.write(
+                `\nCommand '${PgTerminal.italic(
+                  command.current.trim()
+                )}' not found.\n\n${PgTerminal.PROMPT}`
+              );
+            else xterm.write(`\n${PgTerminal.PROMPT}`);
+          }
+
+          // Clear command
+          command.current = "";
+        } else if (
+          domEvent.key === "Backspace" &&
+          command.current.length >= 0
+        ) {
+          PgTerminal.removeLastChar(xterm);
+          command.current = command.current.substring(
+            0,
+            command.current.length - 1
+          );
+        } else if (PgTerminal.isCharValid(key)) {
+          xterm.write(key);
+          command.current += key;
+        } else if (key === "\x0c") clear();
+        else if (key === "\x0d") toggleMaximize();
+        else if (key === "\x0a") toggleClose();
+      };
+
+      xterm.onKey(handleKey);
+    }
+  }, [xterm, setTerminalState, clear, toggleMaximize, toggleClose]);
+
+  // New output
+  useEffect(() => {
+    if (terminalRef.current) {
+      const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
+      const noCmd = !currentLine?.split(PgTerminal.PROMPT)[1]?.trim()?.length;
+      if (noCmd) PgTerminal.clearCurrentLine(xterm);
+      else xterm.writeln("");
+
+      xterm.writeln(PgTerminal.colorText(terminal));
+      xterm.write(PgTerminal.PROMPT);
+      xterm.scrollToBottom();
+    }
+  }, [terminal, xterm]);
+
   // Keybinds
   useEffect(() => {
     const handleKeybinds = (e: globalThis.KeyboardEvent) => {
-      // TODO: Focus terminal
       const key = e.key.toUpperCase();
       if (PgCommon.isKeyctrlOrCmd(e)) {
         if (key === "L") {
@@ -208,7 +209,8 @@ const Terminal = () => {
           clear();
         } else if (key === "`") {
           e.preventDefault();
-          toggleClose();
+          if (PgTerminal.isTerminalFocused()) toggleClose();
+          else xterm.focus();
         } else if (key === "J") {
           e.preventDefault();
           toggleClose();
@@ -221,7 +223,7 @@ const Terminal = () => {
 
     document.addEventListener("keydown", handleKeybinds);
     return () => document.removeEventListener("keydown", handleKeybinds);
-  }, [clear, toggleClose, toggleMaximize]);
+  }, [xterm, clear, toggleClose, toggleMaximize]);
 
   return (
     <Resizable
