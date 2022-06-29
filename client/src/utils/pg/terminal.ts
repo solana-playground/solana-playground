@@ -286,4 +286,8 @@ See the list of available crates and request new crates from: ${PgTerminal.under
 
     return false;
   }
+
+  static isCharValid(char: string) {
+    return char.match(/^[\w.\-/+\\='":;|,?><`~!@#$%^&*()[\]{}]+$/);
+  }
 }

@@ -81,7 +81,7 @@ const Terminal = () => {
         key: string;
         domEvent: KeyboardEvent;
       }) => {
-        if (key === "\r") {
+        if (domEvent.key === "Enter") {
           // User entered a command
           const isValidCommand = PgTerminal.parseCommand(
             command.current,
@@ -111,7 +111,7 @@ const Terminal = () => {
             0,
             command.current.length - 1
           );
-        } else {
+        } else if (PgTerminal.isCharValid(key)) {
           xterm.write(key);
           command.current += key;
         }
