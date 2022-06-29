@@ -185,6 +185,36 @@ const Terminal = () => {
     }
   }, [xterm, setTerminalState, clear, toggleMaximize, toggleClose]);
 
+  // Custom events
+  useEffect(() => {
+    const handleCustomEvent = (e: KeyboardEvent) => {
+      if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
+        const key = e.key.toUpperCase();
+
+        if (key === "C") {
+          e.preventDefault();
+          const selection = xterm.getSelection();
+          navigator.clipboard.writeText(selection);
+        }
+      }
+
+      return true;
+    };
+
+    xterm.attachCustomKeyEventHandler(handleCustomEvent);
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const pasteText = e.clipboardData?.getData("text");
+      if (pasteText) {
+        xterm.write(pasteText);
+        command.current += pasteText;
+      }
+    };
+
+    xterm.textarea?.addEventListener("paste", handlePaste);
+    return () => xterm.textarea?.removeEventListener("paste", handlePaste);
+  }, [xterm]);
+
   // New output
   useEffect(() => {
     if (terminalRef.current) {
@@ -203,7 +233,7 @@ const Terminal = () => {
   useEffect(() => {
     const handleKeybinds = (e: globalThis.KeyboardEvent) => {
       const key = e.key.toUpperCase();
-      if (PgCommon.isKeyctrlOrCmd(e)) {
+      if (PgCommon.isKeyCtrlOrCmd(e)) {
         if (key === "L") {
           e.preventDefault();
           clear();

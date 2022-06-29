@@ -20,7 +20,7 @@ const Side = () => {
   // Keybinds
   useEffect(() => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (PgCommon.isKeyctrlOrCmd(e) && e.shiftKey) {
+      if (PgCommon.isKeyCtrlOrCmd(e) && e.shiftKey) {
         setSidebarState((state) => {
           const key = e.key.toUpperCase();
           const closeCondition =

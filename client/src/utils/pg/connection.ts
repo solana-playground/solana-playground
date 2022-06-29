@@ -30,11 +30,10 @@ export class PgConnection {
   }
 
   static update(params: Connection) {
-    const conn = this.getConnection();
     const { commitment, endpoint } = params;
+    const conn = this.getConnection();
 
     if (commitment) conn.commitment = commitment;
-
     if (endpoint) conn.endpoint = endpoint;
 
     localStorage.setItem(this.CONNECTION_KEY, JSON.stringify(conn));

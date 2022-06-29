@@ -291,7 +291,7 @@ See the list of available crates and request new crates from: ${PgTerminal.under
    * Runs when user presses a key when the terminal is in focus
    */
   static isCharValid(char: string) {
-    return char.match(/^[\w.\-/+\\='":;|,?><`~!@#$%^&*()[\]{}]+$/);
+    return char.match(/^[\w.\-/+\\='":;|,?><`~!@#$%^&*()[\]{} ]+$/);
   }
 
   /**

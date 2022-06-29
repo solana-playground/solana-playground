@@ -131,7 +131,7 @@ export class PgCommon {
   /**
    * Returns true if the pressed key is 'ctrl' or 'cmd'
    */
-  static isKeyctrlOrCmd(e: globalThis.KeyboardEvent) {
+  static isKeyCtrlOrCmd(e: globalThis.KeyboardEvent) {
     return e.ctrlKey || e.metaKey;
   }
 
