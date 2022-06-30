@@ -97,7 +97,11 @@ const Terminal = () => {
 
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => {
-      setHeight((h) => h + d.height);
+      setHeight((h) => {
+        const result = h + d.height;
+        if (result > PgTerminal.MAX_HEIGHT) return PgTerminal.MAX_HEIGHT;
+        return result;
+      });
     },
     [setHeight]
   );
@@ -111,13 +115,12 @@ const Terminal = () => {
 
   const toggleMaximize = useCallback(() => {
     setHeight((h) => {
-      if (h === "100%") {
+      if (h === PgTerminal.MAX_HEIGHT) {
         maxButtonRef.current?.classList.remove("down");
         return PgTerminal.DEFAULT_HEIGHT;
       }
-
       maxButtonRef.current?.classList.add("down");
-      return "100%";
+      return PgTerminal.MAX_HEIGHT;
     });
   }, [setHeight]);
 
@@ -126,8 +129,8 @@ const Terminal = () => {
   const toggleClose = useCallback(() => {
     setIsClosed((c) => !c);
     setHeight((h) => {
-      if (h === "0%") return PgTerminal.DEFAULT_HEIGHT;
-      return "0%";
+      if (h === 0) return PgTerminal.DEFAULT_HEIGHT;
+      return 0;
     });
   }, [setHeight, setIsClosed]);
 

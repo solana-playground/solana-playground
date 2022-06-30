@@ -3,6 +3,7 @@ import { Wasm } from "../../components/Panels/Main/Terminal/useWasm";
 
 import {
   GITHUB_URL,
+  Id,
   OTHER_ERROR,
   PROGRAM_ERROR,
   PROJECT_NAME,
@@ -30,12 +31,32 @@ export class PgTerminal {
   /**
    * Default height of the terminal
    */
-  static readonly DEFAULT_HEIGHT = "25%";
+  static readonly DEFAULT_HEIGHT = Math.floor(window.innerHeight / 4);
 
   /**
    * Minimum height of the terminal(in px)
    */
   static readonly MIN_HEIGHT = 36;
+
+  /**
+   * Maximum height for the terminal
+   * This is to fix bottom of the terminal not being visible due to
+   * incorrect resizing
+   */
+  static get MAX_HEIGHT() {
+    const tabHeight = document
+      .getElementById(Id.TABS)
+      ?.getBoundingClientRect()?.height;
+    const bottomHeight = document
+      .getElementById(Id.BOTTOM)
+      ?.getBoundingClientRect()?.height;
+
+    if (tabHeight && bottomHeight) {
+      return window.innerHeight - (tabHeight + bottomHeight);
+    }
+
+    return this.DEFAULT_HEIGHT;
+  }
 
   /**
    * Welcome text
@@ -327,7 +348,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   ) {
     cmd = cmd.trim();
     if (cmd === "help") {
-      PgTerminal.logWasm(PgTerminal.HELP_TEXT);
+      this.logWasm(PgTerminal.HELP_TEXT);
       return true;
     } else if (cmd === "build") {
       setTerminalState(TerminalAction.buildStart);
