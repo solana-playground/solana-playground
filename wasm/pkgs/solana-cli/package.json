@@ -1,0 +1,16 @@
+{
+  "name": "solana-cli-wasm",
+  "collaborators": [
+    "@acheroncrypto"
+  ],
+  "version": "1.11.0",
+  "files": [
+    "solana_cli_wasm_bg.wasm",
+    "solana_cli_wasm.js",
+    "solana_cli_wasm_bg.js",
+    "solana_cli_wasm.d.ts"
+  ],
+  "module": "solana_cli_wasm.js",
+  "types": "solana_cli_wasm.d.ts",
+  "sideEffects": false
+}
