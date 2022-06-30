@@ -9,10 +9,12 @@ interface Connection {
 
 export class PgConnection {
   private static readonly CONNECTION_KEY = "connection";
+
   static readonly DEFAULT_CONNECTION: Connection = {
     commitment: "confirmed",
     endpoint: Endpoint.DEVNET,
   };
+  static readonly REFRESH_EVENT_NAME = "refreshconnection";
 
   static get commitment(): Commitment {
     return (
@@ -49,10 +51,16 @@ export class PgConnection {
     localStorage.setItem(this.CONNECTION_KEY, JSON.stringify(conn));
   }
 
+  /**
+   * Updates the connection from WASM and refreshes the app
+   */
   static updateWasm(endpoint: string, commitment: string) {
     this.update({
       endpoint: endpoint as Endpoint,
       commitment: commitment as Commitment,
     });
+
+    const refreshConnectionEvent = new CustomEvent(this.REFRESH_EVENT_NAME);
+    document.dispatchEvent(refreshConnectionEvent);
   }
 }

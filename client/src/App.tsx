@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { useAtom } from "jotai";
 import { ConnectionConfig } from "@solana/web3.js";
@@ -13,7 +14,21 @@ import { connAtom } from "./state";
 import { PgConnection } from "./utils/pg";
 
 const App = () => {
-  const [conn] = useAtom(connAtom);
+  const [conn, setConn] = useAtom(connAtom);
+
+  // Runs after connection config changes from the terminal
+  useEffect(() => {
+    const handleRefresh = () => {
+      setConn(PgConnection.getConnection());
+    };
+
+    document.addEventListener(PgConnection.REFRESH_EVENT_NAME, handleRefresh);
+    return () =>
+      document.removeEventListener(
+        PgConnection.REFRESH_EVENT_NAME,
+        handleRefresh
+      );
+  }, [setConn]);
 
   const endpoint = conn.endpoint ?? PgConnection.DEFAULT_CONNECTION.endpoint!;
   const config: ConnectionConfig = {
