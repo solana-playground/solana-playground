@@ -1,5 +1,7 @@
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 
+import { PgTerminal } from "./terminal";
+
 const DEFAULT_LS_WALLET: LsWallet = {
   setupCompleted: false,
   connected: false,
@@ -79,5 +81,24 @@ export class PgWallet {
 
   static getKp() {
     return Keypair.fromSecretKey(new Uint8Array(this.getLs()!.sk));
+  }
+
+  /**
+   * Checks if pg wallet is connected
+   * Logs instructions in terminal if wallet is not connected
+   * @returns pg wallet connection status
+   */
+  static checkIfPgConnected() {
+    if (this.getLs()?.connected) return true;
+
+    PgTerminal.logWasm(
+      `${PgTerminal.bold(
+        "Playground Wallet"
+      )} must be connected to run this command. Run ${PgTerminal.bold(
+        "connect"
+      )} to connect.`
+    );
+
+    return false;
   }
 }

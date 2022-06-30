@@ -1,23 +1,17 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
 
-import {
-  TerminalAction,
-  terminalOutputAtom,
-  terminalStateAtom,
-} from "../../../../state";
+import { TerminalAction, terminalStateAtom } from "../../../../state";
 import { useBuild, useDeploy } from "../../Side/Right/BuildDeploy";
-import { useSetupPg } from "../../Wallet";
-import { PgTerminal } from "../../../../utils/pg";
+import { useConnectOrSetupPg } from "../../Wallet";
 
 // Runs build and deploy commands if those components are not mounted
 const useTerminal = () => {
   const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
-  const [, setTerminal] = useAtom(terminalOutputAtom);
 
   const { runBuild } = useBuild();
   const { runDeploy } = useDeploy();
-  const { handleConnectPg } = useSetupPg();
+  const { handleConnectPg } = useConnectOrSetupPg();
 
   // Run build when build component is not mounted
   useEffect(() => {
@@ -36,18 +30,13 @@ const useTerminal = () => {
     }
   }, [terminalState, setTerminalState, runDeploy]);
 
-  // Show setup wallet modal
+  // Run after connect command
   useEffect(() => {
-    if (terminalState.walletSetupShow) {
-      setTerminalState(TerminalAction.walletSetupHide);
-      setTerminal(
-        `Please connect ${PgTerminal.bold(
-          "Playground Wallet"
-        )} first in order to deploy.`
-      );
+    if (terminalState.walletConnectOrSetup) {
+      setTerminalState(TerminalAction.walletConnectOrSetupStop);
       handleConnectPg();
     }
-  }, [terminalState, setTerminalState, setTerminal, handleConnectPg]);
+  }, [terminalState, setTerminalState, handleConnectPg]);
 
   return { setTerminalState };
 };

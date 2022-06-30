@@ -3,9 +3,9 @@ import { useAtom } from "jotai";
 
 import Setup from "./Setup";
 import { modalAtom, pgWalletAtom, refreshPgWalletAtom } from "../../../state";
-import { PgWallet } from "../../../utils/pg";
+import { PgTerminal, PgWallet } from "../../../utils/pg";
 
-export const useSetupPg = () => {
+export const useConnectOrSetupPg = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged, refresh] = useAtom(refreshPgWalletAtom);
   const [, setModal] = useAtom(modalAtom);
@@ -18,6 +18,11 @@ export const useSetupPg = () => {
       pgWallet.connected = !pgWallet.connected;
       PgWallet.update({ connected: pgWallet.connected });
       refresh();
+      PgTerminal.logWasm(
+        pgWallet.connected
+          ? PgTerminal.success("Connected.")
+          : PgTerminal.bold("Disconnected.")
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pgWalletChanged]);

@@ -76,6 +76,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    */
   static readonly HELP_TEXT = `Available commands:
   build                      Build your program
+  connect                    Toggle connection to Playground Wallet
   deploy                     Deploy your program
   solana                     Access Solana CLI commands
 `;
@@ -353,16 +354,21 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     } else if (cmd === "build") {
       setTerminalState(TerminalAction.buildStart);
       return true;
+    } else if (cmd === "connect") {
+      setTerminalState(TerminalAction.walletConnectOrSetupStart);
+      return true;
     } else if (cmd === "deploy") {
-      if (!PgWallet.getLs()?.setupCompleted)
-        setTerminalState(TerminalAction.walletSetupShow);
-      else setTerminalState(TerminalAction.deployStart);
+      if (PgWallet.checkIfPgConnected())
+        setTerminalState(TerminalAction.deployStart);
 
       return true;
     } else if (cmd.startsWith("solana")) {
       if (wasm) {
-        // @ts-ignore
-        wasm.parseSolana(cmd, ...this.getSolanaCliArgs());
+        if (PgWallet.checkIfPgConnected()) {
+          // @ts-ignore
+          wasm.parseSolana(cmd, ...this.getSolanaCliArgs());
+        }
+
         return true;
       }
     }

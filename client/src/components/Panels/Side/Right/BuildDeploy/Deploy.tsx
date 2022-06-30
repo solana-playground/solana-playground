@@ -14,7 +14,11 @@ import { PgProgramInfo } from "../../../../../utils/pg";
 import { ConnectionErrorText } from "../../Common";
 import { Skeleton } from "../../../../Loading";
 import { useDeploy, useAuthority, useIsDeployed } from "./";
-import { useConnect, useCurrentWallet, useSetupPg } from "../../../Wallet";
+import {
+  useConnect,
+  useCurrentWallet,
+  useConnectOrSetupPg,
+} from "../../../Wallet";
 
 // TODO: Cancel deployment
 const Deploy = () => {
@@ -224,7 +228,7 @@ const Deploy = () => {
 
 const ConnectPgWalletButton = () => {
   const { pgButtonStatus } = useConnect();
-  const { handleConnectPg } = useSetupPg();
+  const { handleConnectPg } = useConnectOrSetupPg();
 
   return (
     <Button onClick={handleConnectPg} kind="primary">

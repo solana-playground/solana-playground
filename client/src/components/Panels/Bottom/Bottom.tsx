@@ -18,7 +18,7 @@ import {
   useAirdropAmount,
   useConnect,
   useCurrentWallet,
-  useSetupPg,
+  useConnectOrSetupPg,
 } from "../Wallet";
 import { ConnState } from "../Wallet/connection-states";
 
@@ -27,7 +27,7 @@ const Bottom = () => {
 
   const { connection: conn } = useConnection();
   const { connStatus } = useConnect();
-  const { handleConnectPg } = useSetupPg();
+  const { handleConnectPg } = useConnectOrSetupPg();
   const { walletPkStr, currentWallet, pgWalletPk } = useCurrentWallet();
 
   useEffect(() => {
