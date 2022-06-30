@@ -20,25 +20,25 @@ const useWasm = () => {
   const [wasm, setWasm] = useState<Wasm>();
 
   // TODO: Load solana-cli only the first time user types a solana command
-  // instead of load by default
+  // instead of loading by default
   useEffect(() => {
-    (async () => {
-      let resultMsg = "";
-      try {
-        setTerminal(PgTerminal.info("Loading solana-cli..."));
-        const { parseSolana } = await import("solana-cli-wasm");
-        setWasm({ parseSolana });
-        resultMsg = `${PgTerminal.success(
-          "Success."
-        )} See the available commands with solana --help`;
-      } catch (e: any) {
-        console.log("Couldn't import solana-cli-wasm", e.message);
-        resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${GITHUB_URL}/issues`;
-      } finally {
-        setTerminal(resultMsg + "\n");
-      }
-    })();
-  }, [setWasm, setTerminal]);
+    if (!wasm)
+      (async () => {
+        let resultMsg = "";
+        try {
+          setTerminal(PgTerminal.info("Loading Solana CLI..."));
+          const { parseSolana } = await import("solana-cli-wasm");
+          setWasm({ parseSolana });
+          resultMsg = `${PgTerminal.success("Success.")}`;
+        } catch (e: any) {
+          console.log("Couldn't import solana-cli-wasm", e.message);
+          resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${GITHUB_URL}/issues
+Error reason: ${e.message}`;
+        } finally {
+          setTerminal(resultMsg + "\n");
+        }
+      })();
+  }, [wasm, setWasm, setTerminal]);
 
   // Listen for log events
   useEffect(() => {

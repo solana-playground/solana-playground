@@ -46,7 +46,18 @@ Popular crates for Solana development are available to use.
 
 See the list of available crates and request new crates from: ${PgTerminal.underline(
     GITHUB_URL
-  )} `;
+  )}
+
+Type ${PgTerminal.bold("help")} to see all commands.`;
+
+  /**
+   * Help command text
+   */
+  static readonly HELP_TEXT = `Available commands:
+  build                      Build your program
+  deploy                     Deploy your program
+  solana                     Access Solana CLI commands
+`;
 
   /**
    * Default prompt string before entering commands
@@ -315,7 +326,10 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     wasm?: Wasm
   ) {
     cmd = cmd.trim();
-    if (cmd === "build") {
+    if (cmd === "help") {
+      PgTerminal.logWasm(PgTerminal.HELP_TEXT);
+      return true;
+    } else if (cmd === "build") {
       setTerminalState(TerminalAction.buildStart);
       return true;
     } else if (cmd === "deploy") {
