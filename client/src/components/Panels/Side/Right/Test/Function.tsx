@@ -10,11 +10,11 @@ import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
 import Account from "./Account";
 import Arg from "./Arg";
-import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
 import { terminalOutputAtom, txHashAtom } from "../../../../../state";
 import { PgCommon, PgTerminal, PgTest, PgTx } from "../../../../../utils/pg";
+import { useCurrentWallet } from "../../../Wallet";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;

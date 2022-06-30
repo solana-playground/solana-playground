@@ -4,13 +4,13 @@ import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../../Button";
-import useCurrentWallet from "../../Wallet/useCurrentWallet";
 import { Id } from "../../../../constants";
 import {
   explorerAtom,
   refreshExplorerAtom,
   showWalletAtom,
 } from "../../../../state";
+import { useCurrentWallet } from "../../Wallet";
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom);

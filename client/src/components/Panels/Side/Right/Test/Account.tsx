@@ -27,11 +27,11 @@ import styled, { css } from "styled-components";
 import Button from "../../../../Button";
 import Tooltip from "../../../../Tooltip";
 import InputLabel from "./InputLabel";
-import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import Input, { defaultInputProps } from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 import { PgProgramInfo, PgTest, Seed } from "../../../../../utils/pg";
 import { Minus, Plus } from "../../../../Icons";
+import { useCurrentWallet } from "../../../Wallet";
 
 interface AccountProps {
   account: IdlAccount;

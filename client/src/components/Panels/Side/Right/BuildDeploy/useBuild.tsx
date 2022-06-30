@@ -20,10 +20,7 @@ export const useBuild = () => {
     if (!explorer) return;
 
     // This doesn't stop the current deploy but stops new deploys
-    setTerminalState([
-      TerminalAction.buildStop,
-      TerminalAction.buildLoadingStart,
-    ]);
+    setTerminalState(TerminalAction.buildLoadingStart);
 
     let msg = PgTerminal.info("Building...");
     setTerminal(msg);

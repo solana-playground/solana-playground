@@ -26,13 +26,16 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const { connection: conn } = useConnection();
 
   const runDeploy = useCallback(async () => {
-    if (!pgWallet.connected) return;
+    if (!pgWallet.connected) {
+      setTerminal(
+        `${PgTerminal.bold(
+          "Playground Wallet"
+        )} must be connected in order to deploy.`
+      );
+      return;
+    }
 
-    // This doesn't stop the current deploy but stops new deploys
-    setTerminalState([
-      TerminalAction.deployStop,
-      TerminalAction.deployLoadingStart,
-    ]);
+    setTerminalState(TerminalAction.deployLoadingStart);
 
     let msg = `${PgTerminal.info(
       "Deploying..."
@@ -57,7 +60,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `${PgTerminal.error("Deployment error:")} ${convertedError}`;
-      return 1;
+      return 1; // To indicate error
     } finally {
       setTerminal(msg + "\n");
       setTerminalState(TerminalAction.deployLoadingStop);

@@ -2,16 +2,13 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import Setup from "./Setup";
 import { ConnState } from "./connection-states";
-import { modalAtom, pgWalletAtom, refreshPgWalletAtom } from "../../../state";
-import { PgWallet } from "../../../utils/pg";
+import { pgWalletAtom, refreshPgWalletAtom } from "../../../state";
 
-const useConnect = () => {
+export const useConnect = () => {
   // Pg
   const [pgWallet] = useAtom(pgWalletAtom);
-  const [pgWalletChanged, refresh] = useAtom(refreshPgWalletAtom);
-  const [, setModal] = useAtom(modalAtom);
+  const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
 
   // Sol
   const {
@@ -70,29 +67,13 @@ const useConnect = () => {
     }
   }, [publicKey, connect, disconnect]);
 
-  // Pg wallet should always be connected except first time ever
-  const handleConnectPg = useCallback(() => {
-    const setupCompleted = PgWallet.getLs()?.setupCompleted;
-    if (!setupCompleted) setModal(<Setup onSubmit={handleConnectPg} />);
-    else {
-      pgWallet.connected = !pgWallet.connected;
-      PgWallet.update({ connected: pgWallet.connected });
-      refresh();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pgWalletChanged]);
-
   return {
     connStatus,
     solButtonStatus,
     pgButtonStatus,
     pgConnected: pgWallet.connected,
     handleConnect,
-    handleConnectPg,
     connecting,
     disconnecting,
   };
 };
-
-export default useConnect;

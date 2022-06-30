@@ -6,10 +6,6 @@ import styled, { css } from "styled-components";
 import Button from "../../Button";
 import Link from "../../Link";
 import Tooltip from "../../Tooltip";
-import useConnect from "../Wallet/useConnect";
-import useCurrentWallet from "../Wallet/useCurrentWallet";
-import useAirdropAmount from "../Wallet/useAirdropAmount";
-import { ConnState } from "../Wallet/connection-states";
 import {
   EXPLORER_URL,
   Id,
@@ -18,12 +14,20 @@ import {
 } from "../../../constants";
 import { PgCommon } from "../../../utils/pg";
 import { balanceAtom } from "../../../state";
+import {
+  useAirdropAmount,
+  useConnect,
+  useCurrentWallet,
+  useSetupPg,
+} from "../Wallet";
+import { ConnState } from "../Wallet/connection-states";
 
 const Bottom = () => {
   const [balance, setBalance] = useAtom(balanceAtom);
 
   const { connection: conn } = useConnection();
-  const { connStatus, handleConnectPg } = useConnect();
+  const { connStatus } = useConnect();
+  const { handleConnectPg } = useSetupPg();
   const { walletPkStr, currentWallet, pgWalletPk } = useCurrentWallet();
 
   useEffect(() => {

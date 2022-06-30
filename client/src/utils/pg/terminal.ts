@@ -354,7 +354,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       setTerminalState(TerminalAction.buildStart);
       return true;
     } else if (cmd === "deploy") {
-      setTerminalState(TerminalAction.deployStart);
+      if (!PgWallet.getLs()?.setupCompleted)
+        setTerminalState(TerminalAction.walletSetupShow);
+      else setTerminalState(TerminalAction.deployStart);
+
       return true;
     } else if (cmd.startsWith("solana")) {
       if (wasm) {

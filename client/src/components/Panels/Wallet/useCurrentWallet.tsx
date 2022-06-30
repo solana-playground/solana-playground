@@ -5,7 +5,7 @@ import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { pgWalletAtom, refreshPgWalletAtom } from "../../../state";
 import { PgWallet } from "../../../utils/pg";
 
-const useCurrentWallet = () => {
+export const useCurrentWallet = () => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const wallet = useAnchorWallet();
@@ -28,5 +28,3 @@ const useCurrentWallet = () => {
     solWalletPk: wallet?.publicKey,
   };
 };
-
-export default useCurrentWallet;

@@ -23,6 +23,8 @@ interface TerminalState {
   deployMounted: boolean;
   deployStart: boolean;
   deployLoading: boolean;
+  // Wallet
+  walletSetupShow: boolean;
 }
 
 const _terminalStateAtom = atom<TerminalState>({
@@ -32,6 +34,7 @@ const _terminalStateAtom = atom<TerminalState>({
   deployMounted: false,
   deployStart: false,
   deployLoading: false,
+  walletSetupShow: false,
 });
 
 export enum TerminalAction {
@@ -49,6 +52,9 @@ export enum TerminalAction {
   deployStop = 10,
   deployLoadingStart = 11,
   deployLoadingStop = 12,
+  // Wallet
+  walletSetupShow = 13,
+  walletSetupHide = 14,
 }
 
 export const terminalStateAtom = atom(
@@ -78,6 +84,10 @@ export const terminalStateAtom = atom(
       ts.deployLoading = true;
     if (actions.includes(TerminalAction.deployLoadingStop))
       ts.deployLoading = false;
+    if (actions.includes(TerminalAction.walletSetupShow))
+      ts.walletSetupShow = true;
+    if (actions.includes(TerminalAction.walletSetupHide))
+      ts.walletSetupShow = false;
 
     // Recreate the object to re-render
     set(_terminalStateAtom, { ...ts });

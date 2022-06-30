@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { Endpoint } from "../../../constants";
 import { connAtom } from "../../../state";
 
-const useAirdropAmount = () => {
+export const useAirdropAmount = () => {
   const [conn] = useAtom(connAtom);
 
   const amount = useMemo(() => {
@@ -18,5 +18,3 @@ const useAirdropAmount = () => {
 
   return amount;
 };
-
-export default useAirdropAmount;

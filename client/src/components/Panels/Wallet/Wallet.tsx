@@ -21,9 +21,6 @@ import useCopy from "../../CopyButton/useCopy";
 import Button from "../../Button";
 import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
-import useConnect from "./useConnect";
-import useCurrentWallet from "./useCurrentWallet";
-import useAirdropAmount from "./useAirdropAmount";
 import { ClassName, Id } from "../../../constants";
 import {
   pgWalletAtom,
@@ -32,11 +29,11 @@ import {
   txHashAtom,
 } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../../utils/pg";
-import { TAB_HEIGHT } from "../Main/Tabs";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
 import { Close, ThreeDots } from "../../Icons";
 import { ICONBAR_WIDTH } from "../Side/Left";
 import { BOTTOM_HEIGHT } from "../Bottom";
+import { useCurrentWallet, useConnect, useAirdropAmount } from "./";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -304,6 +301,7 @@ const WalletClose = () => {
 };
 
 const WALLET_WIDTH = 320;
+const TAB_HEIGHT = "2rem";
 
 const WalletBound = styled.div`
   position: absolute;

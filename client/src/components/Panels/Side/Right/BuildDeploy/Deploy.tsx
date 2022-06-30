@@ -4,8 +4,6 @@ import styled from "styled-components";
 
 import Button, { ButtonProps } from "../../../../Button";
 import Text from "../../../../Text";
-import useConnect from "../../../Wallet/useConnect";
-import useCurrentWallet from "../../../Wallet/useCurrentWallet";
 import useInitialLoading from "../../useInitialLoading";
 import {
   programAtom,
@@ -16,6 +14,7 @@ import { PgProgramInfo } from "../../../../../utils/pg";
 import { ConnectionErrorText } from "../../Common";
 import { Skeleton } from "../../../../Loading";
 import { useDeploy, useAuthority, useIsDeployed } from "./";
+import { useConnect, useCurrentWallet, useSetupPg } from "../../../Wallet";
 
 // TODO: Cancel deployment
 const Deploy = () => {
@@ -224,7 +223,8 @@ const Deploy = () => {
 };
 
 const ConnectPgWalletButton = () => {
-  const { pgButtonStatus, handleConnectPg } = useConnect();
+  const { pgButtonStatus } = useConnect();
+  const { handleConnectPg } = useSetupPg();
 
   return (
     <Button onClick={handleConnectPg} kind="primary">

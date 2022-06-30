@@ -7,10 +7,10 @@ import styled from "styled-components";
 import Button from "../../Button";
 import Input from "../../Input";
 import Foldable from "../../Foldable";
-import useCurrentWallet from "./useCurrentWallet";
 import { ClassName } from "../../../constants";
 import { balanceAtom, terminalOutputAtom, txHashAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgTx } from "../../../utils/pg";
+import { useCurrentWallet } from "./useCurrentWallet";
 
 const Send = () => (
   <Wrapper>

@@ -6,11 +6,11 @@ import styled, { css } from "styled-components";
 
 import Button from "../../Button";
 import Link from "../../Link";
-import useCurrentWallet from "./useCurrentWallet";
 import { connAtom } from "../../../state";
 import { PgCommon } from "../../../utils/pg";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../../Icons";
 import { SpinnerWithBg } from "../../Loading";
+import { useCurrentWallet } from "./useCurrentWallet";
 
 const Transactions = () => {
   const { connection: conn } = useConnection();
