@@ -90,7 +90,7 @@ const Terminal = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       handleResize();
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(intervalId);
   }, [handleResize]);
@@ -226,6 +226,10 @@ const Terminal = () => {
   useEffect(() => {
     if (terminalRef.current) {
       const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
+      // FIXME: Some commands send bunch of logs in a row which causes
+      // xterm.buffer to not get updated in time. This results with unwanted
+      // prompt messages in the terminal.
+
       const noCmd = !currentLine?.split(PgTerminal.PROMPT)[1]?.trim()?.length;
       if (noCmd) PgTerminal.clearCurrentLine(xterm);
       else xterm.writeln("");

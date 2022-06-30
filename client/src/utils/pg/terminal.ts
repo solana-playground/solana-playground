@@ -257,7 +257,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static removeLastChar(xterm: XTerm, amount: number = 1) {
     const commandWithoutSpace = this.getCurrentLine(xterm.buffer)
       ?.split(this.PROMPT)[1]
-      .replaceAll(" ", "");
+      ?.replaceAll(" ", "");
 
     // Don't remove the prompt text
     if (
