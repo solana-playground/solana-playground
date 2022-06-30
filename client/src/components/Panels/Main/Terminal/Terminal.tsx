@@ -10,6 +10,7 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 import Button from "../../../Button";
 import Progress from "../../../Progress";
 import useTerminal from "./useTerminal";
+import useWasm from "./useWasm";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgTerminal } from "../../../../utils/pg";
@@ -133,6 +134,9 @@ const Terminal = () => {
   // User input
   const command = useRef("");
 
+  // WASM
+  const wasm = useWasm();
+
   // New input
   useEffect(() => {
     if (xterm && terminalRef.current) {
@@ -147,7 +151,8 @@ const Terminal = () => {
           // User entered a command
           const isValidCommand = PgTerminal.parseCommand(
             command.current,
-            setTerminalState
+            setTerminalState,
+            wasm
           );
 
           // Only new prompt after invalid command, other commands will automatically
@@ -181,9 +186,11 @@ const Terminal = () => {
         else if (key === "\x0a") toggleClose();
       };
 
-      xterm.onKey(handleKey);
+      const disposable = xterm.onKey(handleKey);
+
+      return () => disposable.dispose();
     }
-  }, [xterm, setTerminalState, clear, toggleMaximize, toggleClose]);
+  }, [xterm, wasm, setTerminalState, clear, toggleMaximize, toggleClose]);
 
   // Custom events
   useEffect(() => {

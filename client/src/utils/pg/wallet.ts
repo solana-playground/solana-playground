@@ -53,6 +53,9 @@ export class PgWallet {
 
   // Statics
   private static WALLET_KEY = "wallet";
+  static get keypairBytes() {
+    return Uint8Array.from(this.getKp().secretKey);
+  }
 
   static getLs() {
     const lsWalletStr = localStorage.getItem(this.WALLET_KEY);

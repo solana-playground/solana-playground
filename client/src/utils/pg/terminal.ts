@@ -1,4 +1,5 @@
 import { Terminal as XTerm, IBufferNamespace } from "xterm";
+import { Wasm } from "../../components/Panels/Main/Terminal/useWasm";
 
 import {
   GITHUB_URL,
@@ -10,6 +11,8 @@ import {
 } from "../../constants";
 import { TerminalAction } from "../../state";
 import { PgCommon } from "./common";
+import { PgConnection } from "./connection";
+import { PgWallet } from "./wallet";
 
 enum TextState {
   SUCCESS = 0,
@@ -59,6 +62,7 @@ See the list of available crates and request new crates from: ${PgTerminal.under
    */
   private static readonly TEXTS: TextInfo[] = [
     { text: "error", state: TextState.ERROR },
+    { text: "Error", state: TextState.ERROR },
     { text: "warning", state: TextState.WARNING },
   ];
 
@@ -268,26 +272,6 @@ See the list of available crates and request new crates from: ${PgTerminal.under
   }
 
   /**
-   * This function runs when user presses `Enter` in terminal
-   */
-  static parseCommand(
-    cmd: string,
-    setTerminalState: (update: TerminalAction) => void
-  ) {
-    // TODO:
-    switch (cmd.trim()) {
-      case "build":
-        setTerminalState(TerminalAction.buildStart);
-        return true;
-      case "deploy":
-        setTerminalState(TerminalAction.deployStart);
-        return true;
-    }
-
-    return false;
-  }
-
-  /**
    * Runs when user presses a key when the terminal is in focus
    */
   static isCharValid(char: string) {
@@ -301,5 +285,59 @@ See the list of available crates and request new crates from: ${PgTerminal.under
     return document
       .getElementsByClassName("terminal xterm xterm-dom-renderer-owner-1")[0]
       ?.classList.contains("focus");
+  }
+
+  /**
+   * Get the remaining Solana CLI args
+   * (endpoint: string, commitment: string, keypairBytes: Uint8Array)
+   */
+  static getSolanaCliArgs() {
+    let args = [];
+
+    const endpoint = PgConnection.endpoint;
+    args.push(endpoint);
+
+    const commitment = PgConnection.commitment;
+    args.push(commitment);
+
+    const keypairBytes = PgWallet.keypairBytes;
+    args.push(keypairBytes);
+
+    return args;
+  }
+
+  /**
+   * This function runs when user presses `Enter` in terminal
+   */
+  static parseCommand(
+    cmd: string,
+    setTerminalState: (update: TerminalAction) => void,
+    wasm?: Wasm
+  ) {
+    cmd = cmd.trim();
+    if (cmd === "build") {
+      setTerminalState(TerminalAction.buildStart);
+      return true;
+    } else if (cmd === "deploy") {
+      setTerminalState(TerminalAction.deployStart);
+      return true;
+    } else if (cmd.startsWith("solana")) {
+      if (wasm) {
+        // @ts-ignore
+        wasm.parseSolana(cmd, ...this.getSolanaCliArgs());
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Logs messages from WASM
+   */
+  static logWasm(msg: string) {
+    const customLogEvent = new CustomEvent("logterminal", { detail: { msg } });
+
+    document.dispatchEvent(customLogEvent);
   }
 }

@@ -14,6 +14,16 @@ export class PgConnection {
     endpoint: Endpoint.DEVNET,
   };
 
+  static get commitment(): Commitment {
+    return (
+      this.getConnection().commitment ?? this.DEFAULT_CONNECTION.commitment!
+    );
+  }
+
+  static get endpoint(): Endpoint {
+    return this.getConnection().endpoint ?? this.DEFAULT_CONNECTION.endpoint!;
+  }
+
   static getConnection() {
     let conn = localStorage.getItem(this.CONNECTION_KEY);
     if (!conn) {
@@ -37,5 +47,12 @@ export class PgConnection {
     if (endpoint) conn.endpoint = endpoint;
 
     localStorage.setItem(this.CONNECTION_KEY, JSON.stringify(conn));
+  }
+
+  static updateWasm(endpoint: string, commitment: string) {
+    this.update({
+      endpoint: endpoint as Endpoint,
+      commitment: commitment as Commitment,
+    });
   }
 }
