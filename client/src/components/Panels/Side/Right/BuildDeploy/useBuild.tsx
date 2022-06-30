@@ -17,9 +17,10 @@ export const useBuild = () => {
   const [, setBuildCount] = useAtom(buildCountAtom);
 
   const runBuild = useCallback(async () => {
+    setTerminalState(TerminalAction.buildStop);
+
     if (!explorer) return;
 
-    // This doesn't stop the current deploy but stops new deploys
     setTerminalState(TerminalAction.buildLoadingStart);
 
     let msg = PgTerminal.info("Building...");

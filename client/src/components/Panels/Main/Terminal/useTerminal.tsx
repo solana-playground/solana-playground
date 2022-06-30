@@ -16,19 +16,16 @@ const useTerminal = () => {
   // Run build when build component is not mounted
   useEffect(() => {
     if (!terminalState.buildMounted && terminalState.buildStart) {
-      setTerminalState(TerminalAction.buildStop);
       runBuild();
     }
-  }, [terminalState, setTerminalState, runBuild]);
+  }, [terminalState, runBuild]);
 
   // Run deploy when deploy component is not mounted
   useEffect(() => {
     if (!terminalState.deployMounted && terminalState.deployStart) {
-      // This doesn't stop the current deploy but stops new deploys
-      setTerminalState(TerminalAction.deployStop);
       runDeploy();
     }
-  }, [terminalState, setTerminalState, runDeploy]);
+  }, [terminalState, runDeploy]);
 
   // Run after connect command
   useEffect(() => {

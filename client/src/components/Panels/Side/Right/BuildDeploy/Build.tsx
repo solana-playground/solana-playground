@@ -22,10 +22,9 @@ const Build = () => {
   // Run build from terminal
   useEffect(() => {
     if (terminalState.buildMounted && terminalState.buildStart) {
-      setTerminalState(TerminalAction.buildStop);
       runBuild();
     }
-  }, [terminalState, runBuild, setTerminalState]);
+  }, [terminalState, runBuild]);
 
   // Loading state for if the command started when the component wasn't mounted
   useEffect(() => {

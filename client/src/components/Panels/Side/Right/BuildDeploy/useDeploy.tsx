@@ -26,6 +26,9 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const { connection: conn } = useConnection();
 
   const runDeploy = useCallback(async () => {
+    // This doesn't stop the current deploy but stops new deploys
+    setTerminalState(TerminalAction.deployStop);
+
     if (!pgWallet.connected) {
       setTerminal(
         `${PgTerminal.bold(
