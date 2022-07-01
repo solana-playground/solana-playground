@@ -349,20 +349,29 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   ) {
     cmd = cmd.trim();
     if (cmd === "help") {
-      this.logWasm(PgTerminal.HELP_TEXT);
+      this.logWasm(this.HELP_TEXT);
       return true;
-    } else if (cmd === "build") {
+    }
+    if (cmd === "build") {
       setTerminalState(TerminalAction.buildStart);
       return true;
-    } else if (cmd === "connect") {
+    }
+    if (cmd === "connect") {
       setTerminalState(TerminalAction.walletConnectOrSetupStart);
       return true;
-    } else if (cmd === "deploy") {
+    }
+    if (cmd === "deploy") {
       if (PgWallet.checkIfPgConnected())
         setTerminalState(TerminalAction.deployStart);
 
       return true;
-    } else if (cmd.startsWith("solana")) {
+    }
+
+    // This guarantees command only start with the specified command name
+    // solana-keygen would not count for cmdName === "solana"
+    const cmdName = cmd.split(" ")?.at(0);
+
+    if (cmdName === "solana") {
       if (wasm) {
         if (PgWallet.checkIfPgConnected()) {
           // @ts-ignore
