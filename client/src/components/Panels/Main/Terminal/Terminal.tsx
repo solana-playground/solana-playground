@@ -184,9 +184,9 @@ const Terminal = () => {
         } else if (PgTerminal.isCharValid(key)) {
           xterm.write(key);
           command.current += key;
-        } else if (key === "\x0c") clear();
-        else if (key === "\x0d") toggleMaximize();
-        else if (key === "\x0a") toggleClose();
+        } else if (key === "\x0c") clear(); // Ctrl + L
+        else if (key === "\x0d") toggleMaximize(); // Ctrl + M
+        else if (key === "\x0a") toggleClose(); // Ctrl + J
       };
 
       const disposable = xterm.onKey(handleKey);

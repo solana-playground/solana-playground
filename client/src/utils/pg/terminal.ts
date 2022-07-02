@@ -31,7 +31,9 @@ export class PgTerminal {
   /**
    * Default height of the terminal
    */
-  static readonly DEFAULT_HEIGHT = Math.floor(window.innerHeight / 4);
+  static get DEFAULT_HEIGHT() {
+    return Math.floor(window.innerHeight / 4);
+  }
 
   /**
    * Minimum height of the terminal(in px)
