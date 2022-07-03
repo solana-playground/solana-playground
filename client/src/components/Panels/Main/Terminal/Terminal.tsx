@@ -152,6 +152,9 @@ const Terminal = () => {
       }) => {
         if (domEvent.key === "Enter") {
           // User entered a command
+          xterm.writeln("");
+
+          // Parse the command
           const isValidCommand = PgTerminal.parseCommand(
             command.current,
             setTerminalState,
@@ -161,13 +164,13 @@ const Terminal = () => {
           // Only new prompt after invalid command, other commands will automatically
           // generate new prompt
           if (!isValidCommand) {
-            if (command.current)
+            if (command.current) {
               xterm.write(
-                `\nCommand '${PgTerminal.italic(
+                `Command '${PgTerminal.italic(
                   command.current.trim()
                 )}' not found.\n\n${PgTerminal.PROMPT}`
               );
-            else xterm.write(`\n${PgTerminal.PROMPT}`);
+            } else xterm.write(PgTerminal.PROMPT);
           }
 
           // Clear command
@@ -229,16 +232,16 @@ const Terminal = () => {
   useEffect(() => {
     if (terminalRef.current) {
       const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
-      // FIXME: Some commands send bunch of logs in a row which causes
-      // xterm.buffer to not get updated in time. This results with unwanted
-      // prompt messages in the terminal.
-
       const noCmd = !currentLine?.split(PgTerminal.PROMPT)[1]?.trim()?.length;
       if (noCmd) PgTerminal.clearCurrentLine(xterm);
       else xterm.writeln("");
 
-      xterm.writeln(PgTerminal.colorText(terminal));
-      xterm.write(PgTerminal.PROMPT);
+      if (terminal !== PgTerminal.PROMPT) {
+        xterm.writeln(PgTerminal.colorText(terminal));
+      } else {
+        xterm.write(PgTerminal.PROMPT);
+      }
+
       xterm.scrollToBottom();
     }
   }, [terminal, xterm]);

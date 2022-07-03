@@ -5,10 +5,13 @@ const _terminalOutputAtom = atom("");
 export const terminalOutputAtom = atom(
   (get) => get(_terminalOutputAtom),
   (get, set, newVal: string) => {
-    const terminal = get(_terminalOutputAtom);
-    if (terminal !== newVal) set(_terminalOutputAtom, newVal);
-    // To force-re render even if it's the exact same string
-    else set(_terminalOutputAtom, newVal + "\t");
+    // This gives enough time so that consequent outputs back to back don't get cancelled
+    setTimeout(() => {
+      const terminal = get(_terminalOutputAtom);
+      if (terminal !== newVal) set(_terminalOutputAtom, newVal);
+      // To force-re render even if it's the exact same string
+      else set(_terminalOutputAtom, newVal + "\t");
+    }, 10);
   }
 );
 

@@ -36,6 +36,7 @@ const useWasm = () => {
 Error reason: ${e.message}`;
         } finally {
           setTerminal(resultMsg + "\n");
+          PgTerminal.prompt();
         }
       })();
   }, [wasm, setWasm, setTerminal]);

@@ -23,6 +23,7 @@ export const useConnectOrSetupPg = () => {
           ? PgTerminal.success("Connected.")
           : PgTerminal.bold("Disconnected.")
       );
+      PgTerminal.prompt();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pgWalletChanged]);

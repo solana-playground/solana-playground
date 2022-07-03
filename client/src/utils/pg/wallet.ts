@@ -84,8 +84,8 @@ export class PgWallet {
   }
 
   /**
-   * Checks if pg wallet is connected
-   * Logs instructions in terminal if wallet is not connected
+   * Checks if pg wallet is connected and
+   * logs instructions in terminal if wallet is not connected
    * @returns pg wallet connection status
    */
   static checkIfPgConnected() {
@@ -98,6 +98,7 @@ export class PgWallet {
         "connect"
       )} to connect.`
     );
+    PgTerminal.prompt();
 
     return false;
   }

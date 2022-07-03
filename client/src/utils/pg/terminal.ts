@@ -343,6 +343,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
   /**
    * This function runs when user presses `Enter` in terminal
+   * @returns if the command is valid
    */
   static parseCommand(
     cmd: string,
@@ -352,6 +353,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     cmd = cmd.trim();
     if (cmd === "help") {
       this.logWasm(this.HELP_TEXT);
+      this.prompt();
       return true;
     }
     if (cmd === "build") {
@@ -388,11 +390,19 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Logs messages from WASM
+   * Logs messages to terminal.
+   * Mainly used from WASM.
    */
   static logWasm(msg: string) {
     const customLogEvent = new CustomEvent("logterminal", { detail: { msg } });
 
     document.dispatchEvent(customLogEvent);
+  }
+
+  /**
+   * Sends prompt message to terminal
+   */
+  static prompt() {
+    this.logWasm(this.PROMPT);
   }
 }

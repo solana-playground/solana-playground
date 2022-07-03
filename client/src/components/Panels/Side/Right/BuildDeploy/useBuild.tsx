@@ -38,6 +38,7 @@ export const useBuild = () => {
     } finally {
       setTerminal(msg);
       setTerminalState(TerminalAction.buildLoadingStop);
+      PgTerminal.prompt();
     }
   }, [explorer, setTerminal, setBuildCount, setTerminalState]);
 

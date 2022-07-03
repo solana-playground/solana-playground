@@ -67,6 +67,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     } finally {
       setTerminal(msg + "\n");
       setTerminalState(TerminalAction.deployLoadingStop);
+      PgTerminal.prompt();
       setProgress(0);
     }
 
