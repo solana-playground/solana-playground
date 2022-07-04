@@ -191,6 +191,7 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
         )} ${convertedError}`;
       } finally {
         setTerminal(msg + "\n");
+        PgTerminal.prompt();
       }
     },
     [conn, amount, setTerminal, setTxHash, close]

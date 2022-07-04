@@ -134,11 +134,11 @@ const Terminal = () => {
     });
   }, [setHeight, setIsClosed]);
 
-  // User input
-  const command = useRef("");
-
   // WASM
   const wasm = useWasm();
+
+  // User input
+  const command = useRef("");
 
   // New input
   useEffect(() => {
@@ -150,17 +150,26 @@ const Terminal = () => {
         key: string;
         domEvent: KeyboardEvent;
       }) => {
-        if (domEvent.key === "Enter") {
-          // User entered a command
-          xterm.writeln("");
+        const currentLineLength = PgTerminal.getCurrentLine(
+          xterm.buffer
+        )!.length;
+        const cursorX = xterm.buffer.normal.cursorX;
+        const cmdCursorIndex = cursorX - PgTerminal.PROMPT.length;
 
+        if (PgTerminal.isCharValid(key)) {
+          xterm.write(key);
+          command.current =
+            command.current.substring(0, cmdCursorIndex) +
+            key +
+            command.current.substring(cmdCursorIndex + 1);
+        } else if (domEvent.key === "Enter") {
+          xterm.writeln("");
           // Parse the command
           const isValidCommand = PgTerminal.parseCommand(
             command.current,
             setTerminalState,
             wasm
           );
-
           // Only new prompt after invalid command, other commands will automatically
           // generate new prompt
           if (!isValidCommand) {
@@ -172,21 +181,35 @@ const Terminal = () => {
               );
             } else xterm.write(PgTerminal.PROMPT);
           }
-
           // Clear command
           command.current = "";
-        } else if (
-          domEvent.key === "Backspace" &&
-          command.current.length >= 0
-        ) {
-          PgTerminal.removeLastChar(xterm);
-          command.current = command.current.substring(
-            0,
-            command.current.length - 1
+        } else if (domEvent.key === "Backspace") {
+          if (!command.current || cursorX <= PgTerminal.PROMPT.length) return;
+          if (cursorX === 0) {
+            // Move one line up if we are at the beginning
+            // Move cursor to the end of last line
+            xterm.write(`\x1b[A\x1b[${currentLineLength}C`);
+          }
+
+          xterm.write("\b \b");
+          command.current =
+            command.current.substring(0, cmdCursorIndex - 1) +
+            command.current.substring(cmdCursorIndex);
+        } else if (domEvent.key.startsWith("Arrow")) {
+          if (domEvent.key === "ArrowLeft") {
+            if (cursorX > PgTerminal.PROMPT.length) xterm.write("\x1b[D");
+          } else if (domEvent.key === "ArrowRight") {
+            if (cursorX < PgTerminal.PROMPT.length + command.current.length)
+              xterm.write("\x1b[C");
+          }
+        } else if (domEvent.key === "Home") {
+          // Move cursor to after prompt
+          xterm.write(`\r\x1b[${PgTerminal.PROMPT.length}C`);
+        } else if (domEvent.key === "End") {
+          // Move cursor to end of the command
+          xterm.write(
+            `\r\x1b[${PgTerminal.PROMPT.length + command.current.length}C`
           );
-        } else if (PgTerminal.isCharValid(key)) {
-          xterm.write(key);
-          command.current += key;
         } else if (key === "\x0c") clear(); // Ctrl + L
         else if (key === "\x0d") toggleMaximize(); // Ctrl + M
         else if (key === "\x0a") toggleClose(); // Ctrl + J

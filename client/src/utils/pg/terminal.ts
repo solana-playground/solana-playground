@@ -76,7 +76,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   /**
    * Help command text
    */
-  static readonly HELP_TEXT = `Available commands:
+  static readonly HELP_TEXT = `COMMANDS:
   build                      Build your program
   connect                    Toggle connection to Playground Wallet
   deploy                     Deploy your program
@@ -159,8 +159,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Edit build stderr
-   * This is what we get from a build request
+   * Edit build stderr that is returned from the build request
    */
   static editStderr = (stderr: string, uuid: string) => {
     // Remove full path
@@ -273,27 +272,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     return buffer.normal
       .getLine(buffer.normal.baseY + buffer.normal.cursorY)
       ?.translateToString();
-  }
-
-  /**
-   * Remove the last @amount chars from the current line
-   */
-  static removeLastChar(xterm: XTerm, amount: number = 1) {
-    const commandWithoutSpace = this.getCurrentLine(xterm.buffer)
-      ?.split(this.PROMPT)[1]
-      ?.replaceAll(" ", "");
-
-    // Don't remove the prompt text
-    if (
-      commandWithoutSpace === "" ||
-      (commandWithoutSpace && commandWithoutSpace.length < 1)
-    ) {
-      return;
-    }
-
-    for (let i = 0; i < amount; i++) {
-      xterm.write("\b \b");
-    }
   }
 
   /**
