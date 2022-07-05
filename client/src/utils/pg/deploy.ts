@@ -6,7 +6,7 @@ import { GITHUB_URL, SERVER_URL } from "../../constants";
 import { PgProgramInfo } from "./program-info";
 import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
-import { PgTerminal } from "./terminal";
+import { PgTerminal } from "./terminal/";
 import { PgTx } from "./tx";
 
 export class PgDeploy {

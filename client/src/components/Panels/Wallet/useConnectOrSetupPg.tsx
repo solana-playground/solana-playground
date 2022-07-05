@@ -18,12 +18,16 @@ export const useConnectOrSetupPg = () => {
       pgWallet.connected = !pgWallet.connected;
       PgWallet.update({ connected: pgWallet.connected });
       refresh();
+      PgTerminal.disable();
       PgTerminal.logWasm(
         pgWallet.connected
           ? PgTerminal.success("Connected.")
           : PgTerminal.bold("Disconnected.")
       );
-      PgTerminal.prompt();
+
+      setTimeout(() => {
+        PgTerminal.enable();
+      }, 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pgWalletChanged]);

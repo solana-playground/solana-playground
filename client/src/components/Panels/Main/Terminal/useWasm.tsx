@@ -15,7 +15,7 @@ export interface Wasm {
 }
 
 const useWasm = () => {
-  const [, setTerminal] = useAtom(terminalOutputAtom);
+  const [, setTerminalText] = useAtom(terminalOutputAtom);
 
   const [wasm, setWasm] = useState<Wasm>();
 
@@ -26,7 +26,7 @@ const useWasm = () => {
       (async () => {
         let resultMsg = "";
         try {
-          setTerminal(PgTerminal.info("Loading Solana CLI..."));
+          setTerminalText(PgTerminal.info("Loading Solana CLI..."));
           const { parseSolana } = await import("solana-cli-wasm");
           setWasm({ parseSolana });
           resultMsg = `${PgTerminal.success("Success.")}`;
@@ -35,23 +35,29 @@ const useWasm = () => {
           resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${GITHUB_URL}/issues
 Error reason: ${e.message}`;
         } finally {
-          setTerminal(resultMsg + "\n");
-          PgTerminal.prompt();
+          setTerminalText(resultMsg + "\n");
+          PgTerminal.enable();
         }
       })();
-  }, [wasm, setWasm, setTerminal]);
+  }, [wasm, setWasm, setTerminalText]);
 
   // Listen for log events
   useEffect(() => {
     const handleLog = (e: UIEvent) => {
       // @ts-ignore
-      setTerminal(e.detail.msg);
+      setTerminalText(e.detail.msg);
     };
 
-    document.addEventListener("logterminal", handleLog as EventListener);
+    document.addEventListener(
+      PgTerminal.EVT_NAME_TERMINAL_LOG,
+      handleLog as EventListener
+    );
     return () =>
-      document.removeEventListener("logterminal", handleLog as EventListener);
-  }, [setTerminal]);
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_TERMINAL_LOG,
+        handleLog as EventListener
+      );
+  }, [setTerminalText]);
 
   return wasm;
 };

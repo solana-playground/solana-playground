@@ -1,6 +1,6 @@
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 
-import { PgTerminal } from "./terminal";
+import { PgTerminal } from "./terminal/";
 
 const DEFAULT_LS_WALLET: LsWallet = {
   setupCompleted: false,
@@ -98,7 +98,7 @@ export class PgWallet {
         "connect"
       )} to connect.`
     );
-    PgTerminal.prompt();
+    PgTerminal.enable();
 
     return false;
   }

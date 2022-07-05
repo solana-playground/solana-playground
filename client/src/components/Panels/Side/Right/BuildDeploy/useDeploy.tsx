@@ -29,12 +29,15 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     // This doesn't stop the current deploy but stops new deploys
     setTerminalState(TerminalAction.deployStop);
 
+    PgTerminal.disable();
+
     if (!pgWallet.connected) {
       setTerminal(
         `${PgTerminal.bold(
           "Playground Wallet"
         )} must be connected in order to deploy.`
       );
+      PgTerminal.enable();
       return;
     }
 
@@ -67,8 +70,8 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     } finally {
       setTerminal(msg + "\n");
       setTerminalState(TerminalAction.deployLoadingStop);
-      PgTerminal.prompt();
       setProgress(0);
+      PgTerminal.enable();
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps

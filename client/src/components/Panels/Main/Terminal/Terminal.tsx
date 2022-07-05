@@ -2,10 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { Resizable } from "re-resizable";
-import { Terminal as XTerm } from "xterm";
 import "xterm/css/xterm.css";
-import { FitAddon } from "xterm-addon-fit";
-import { WebLinksAddon } from "xterm-addon-web-links";
 
 import Button from "../../../Button";
 import Progress from "../../../Progress";
@@ -13,23 +10,23 @@ import useTerminal from "./useTerminal";
 import useWasm from "./useWasm";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgTerm, PgTerminal } from "../../../../utils/pg";
 
 const Terminal = () => {
-  const [terminal] = useAtom(terminalOutputAtom);
+  const [terminalOutput] = useAtom(terminalOutputAtom);
   const [progress] = useAtom(terminalProgressAtom);
 
   const terminalRef = useRef<HTMLDivElement>(null);
 
-  const { setTerminalState } = useTerminal();
+  useTerminal();
 
   const theme = useTheme();
 
   // Load xterm
-  const xterm = useMemo(() => {
+  const term = useMemo(() => {
     const state = theme.colors.state;
 
-    return new XTerm({
+    return new PgTerm({
       convertEol: true,
       rendererType: "dom",
       fontSize: 14,
@@ -42,43 +39,31 @@ const Terminal = () => {
     });
   }, [theme]);
 
-  // Load addons
-  const fitAddon = useMemo(() => {
-    const fitAddon = new FitAddon();
-    const webLinksAddon = new WebLinksAddon();
-
-    xterm.loadAddon(fitAddon);
-    xterm.loadAddon(webLinksAddon);
-
-    return fitAddon;
-  }, [xterm]);
-
   // Open and fit terminal
   useEffect(() => {
-    if (xterm && terminalRef.current) {
+    if (term && terminalRef.current) {
       const hasChild = terminalRef.current.hasChildNodes();
       if (hasChild)
         terminalRef.current.removeChild(terminalRef.current.childNodes[0]);
 
-      xterm.open(terminalRef.current);
-      fitAddon.fit();
+      term.open(terminalRef.current);
+      term.fit();
 
-      // Welcome text
-      xterm.writeln(PgTerminal.DEFAULT_TEXT);
-      if (hasChild) xterm.writeln("");
+      // This runs after theme change
+      if (hasChild) term.println("");
     }
-  }, [xterm, fitAddon]);
+  }, [term]);
 
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
 
   useEffect(() => {
-    fitAddon.fit();
-  }, [fitAddon, height]);
+    term.fit();
+  }, [term, height]);
 
   const handleResize = useCallback(() => {
-    fitAddon.fit();
-  }, [fitAddon]);
+    term.fit();
+  }, [term]);
 
   // Resize the terminal on window resize event
   useEffect(() => {
@@ -108,8 +93,8 @@ const Terminal = () => {
 
   // Buttons
   const clear = useCallback(() => {
-    xterm.clear();
-  }, [xterm]);
+    term.clear();
+  }, [term]);
 
   const maxButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -134,140 +119,12 @@ const Terminal = () => {
     });
   }, [setHeight, setIsClosed]);
 
-  // WASM
-  const wasm = useWasm();
-
-  // User input
-  const command = useRef("");
-
-  // New input
-  useEffect(() => {
-    if (xterm && terminalRef.current) {
-      const handleKey = ({
-        key,
-        domEvent,
-      }: {
-        key: string;
-        domEvent: KeyboardEvent;
-      }) => {
-        const currentLineLength = PgTerminal.getCurrentLine(
-          xterm.buffer
-        )!.length;
-        const cursorX = xterm.buffer.normal.cursorX;
-        const cmdCursorIndex = cursorX - PgTerminal.PROMPT.length;
-
-        if (PgTerminal.isCharValid(key)) {
-          xterm.write(key);
-          command.current =
-            command.current.substring(0, cmdCursorIndex) +
-            key +
-            command.current.substring(cmdCursorIndex + 1);
-        } else if (domEvent.key === "Enter") {
-          xterm.writeln("");
-          // Parse the command
-          const isValidCommand = PgTerminal.parseCommand(
-            command.current,
-            setTerminalState,
-            wasm
-          );
-          // Only new prompt after invalid command, other commands will automatically
-          // generate new prompt
-          if (!isValidCommand) {
-            if (command.current) {
-              xterm.write(
-                `Command '${PgTerminal.italic(
-                  command.current.trim()
-                )}' not found.\n\n${PgTerminal.PROMPT}`
-              );
-            } else xterm.write(PgTerminal.PROMPT);
-          }
-          // Clear command
-          command.current = "";
-        } else if (domEvent.key === "Backspace") {
-          if (!command.current || cursorX <= PgTerminal.PROMPT.length) return;
-          if (cursorX === 0) {
-            // Move one line up if we are at the beginning
-            // Move cursor to the end of last line
-            xterm.write(`\x1b[A\x1b[${currentLineLength}C`);
-          }
-
-          xterm.write("\b \b");
-          command.current =
-            command.current.substring(0, cmdCursorIndex - 1) +
-            command.current.substring(cmdCursorIndex);
-        } else if (domEvent.key.startsWith("Arrow")) {
-          if (domEvent.key === "ArrowLeft") {
-            if (cursorX > PgTerminal.PROMPT.length) xterm.write("\x1b[D");
-          } else if (domEvent.key === "ArrowRight") {
-            if (cursorX < PgTerminal.PROMPT.length + command.current.length)
-              xterm.write("\x1b[C");
-          }
-        } else if (domEvent.key === "Home") {
-          // Move cursor to after prompt
-          xterm.write(`\r\x1b[${PgTerminal.PROMPT.length}C`);
-        } else if (domEvent.key === "End") {
-          // Move cursor to end of the command
-          xterm.write(
-            `\r\x1b[${PgTerminal.PROMPT.length + command.current.length}C`
-          );
-        } else if (key === "\x0c") clear(); // Ctrl + L
-        else if (key === "\x0d") toggleMaximize(); // Ctrl + M
-        else if (key === "\x0a") toggleClose(); // Ctrl + J
-      };
-
-      const disposable = xterm.onKey(handleKey);
-
-      return () => disposable.dispose();
-    }
-  }, [xterm, wasm, setTerminalState, clear, toggleMaximize, toggleClose]);
-
-  // Custom events
-  useEffect(() => {
-    const handleCustomEvent = (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
-        const key = e.key.toUpperCase();
-
-        if (key === "C") {
-          e.preventDefault();
-          const selection = xterm.getSelection();
-          navigator.clipboard.writeText(selection);
-        }
-      }
-
-      return true;
-    };
-
-    xterm.attachCustomKeyEventHandler(handleCustomEvent);
-
-    const handlePaste = (e: ClipboardEvent) => {
-      const pasteText = e.clipboardData?.getData("text");
-      if (pasteText) {
-        xterm.write(pasteText);
-        command.current += pasteText;
-      }
-    };
-
-    xterm.textarea?.addEventListener("paste", handlePaste);
-    return () => xterm.textarea?.removeEventListener("paste", handlePaste);
-  }, [xterm]);
-
   // New output
   useEffect(() => {
     if (terminalRef.current) {
-      const currentLine = PgTerminal.getCurrentLine(xterm.buffer);
-      const noCmd = !currentLine?.split(PgTerminal.PROMPT)[1]?.trim()?.length;
-      if (noCmd) PgTerminal.clearCurrentLine(xterm);
-      else xterm.writeln("");
-
-      if (terminal !== PgTerminal.PROMPT) {
-        xterm.writeln(PgTerminal.colorText(terminal));
-      } else {
-        xterm.write(PgTerminal.PROMPT);
-      }
-
-      xterm.scrollToBottom();
+      term.println(PgTerminal.colorText(terminalOutput));
     }
-  }, [terminal, xterm]);
+  }, [terminalOutput, term]);
 
   // Keybinds
   useEffect(() => {
@@ -280,7 +137,7 @@ const Terminal = () => {
         } else if (key === "`") {
           e.preventDefault();
           if (PgTerminal.isTerminalFocused()) toggleClose();
-          else xterm.focus();
+          else term.focus();
         } else if (key === "J") {
           e.preventDefault();
           toggleClose();
@@ -293,7 +150,45 @@ const Terminal = () => {
 
     document.addEventListener("keydown", handleKeybinds);
     return () => document.removeEventListener("keydown", handleKeybinds);
-  }, [xterm, clear, toggleClose, toggleMaximize]);
+  }, [term, clear, toggleClose, toggleMaximize]);
+
+  // Set wasm
+  const wasm = useWasm();
+
+  useEffect(() => {
+    if (wasm) term.setWasm(wasm);
+  }, [term, wasm]);
+
+  // Terminal custom events
+  useEffect(() => {
+    const handleEnable = () => {
+      term.enable();
+    };
+
+    const handleDisable = () => {
+      term.disable();
+    };
+
+    document.addEventListener(
+      PgTerminal.EVT_NAME_TERMINAL_ENABLE,
+      handleEnable
+    );
+    document.addEventListener(
+      PgTerminal.EVT_NAME_TERMINAL_DISABLE,
+      handleDisable
+    );
+
+    return () => {
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_TERMINAL_ENABLE,
+        handleEnable
+      );
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_TERMINAL_DISABLE,
+        handleDisable
+      );
+    };
+  }, [term]);
 
   return (
     <Resizable

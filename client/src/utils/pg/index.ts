@@ -6,7 +6,7 @@ export * from "./explorer";
 export * from "./noti";
 export * from "./program-info";
 export * from "./share";
-export * from "./terminal";
+export * from "./terminal/";
 export * from "./test";
 export * from "./tx";
 export * from "./wallet";

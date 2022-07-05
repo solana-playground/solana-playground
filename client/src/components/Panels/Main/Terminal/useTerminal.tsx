@@ -4,6 +4,7 @@ import { useAtom } from "jotai";
 import { TerminalAction, terminalStateAtom } from "../../../../state";
 import { useBuild, useDeploy } from "../../Side/Right/BuildDeploy";
 import { useConnectOrSetupPg } from "../../Wallet";
+import { PgTerminal } from "../../../../utils/pg";
 
 // Runs build and deploy commands if those components are not mounted
 const useTerminal = () => {
@@ -12,6 +13,24 @@ const useTerminal = () => {
   const { runBuild } = useBuild();
   const { runDeploy } = useDeploy();
   const { handleConnectPg } = useConnectOrSetupPg();
+
+  // Listen for terminal state change
+  useEffect(() => {
+    const handleState = (e: UIEvent) => {
+      // @ts-ignore
+      setTerminalState(e.detail.action);
+    };
+
+    document.addEventListener(
+      PgTerminal.EVT_NAME_TERMINAL_STATE,
+      handleState as EventListener
+    );
+    return () =>
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_TERMINAL_STATE,
+        handleState as EventListener
+      );
+  }, [setTerminalState]);
 
   // Run build when build component is not mounted
   useEffect(() => {
@@ -34,8 +53,6 @@ const useTerminal = () => {
       handleConnectPg();
     }
   }, [terminalState, setTerminalState, handleConnectPg]);
-
-  return { setTerminalState };
 };
 
 export default useTerminal;

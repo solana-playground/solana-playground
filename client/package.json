@@ -33,6 +33,7 @@
     "react-scripts": "5.0.0",
     "react-toastify": "^9.0.0",
     "react-use-clipboard": "^1.0.8",
+    "shell-quote": "^1.7.3",
     "solana-cli-wasm": "../wasm/pkgs/solana-cli",
     "styled-components": "^5.3.3",
     "xterm": "^4.18.0",
@@ -44,6 +45,7 @@
     "@types/node": "^17.0.21",
     "@types/react": "^17.0.40",
     "@types/react-dom": "^17.0.13",
+    "@types/shell-quote": "^1.7.1",
     "@types/styled-components": "^5.1.24",
     "prettier": "^2.6.2",
     "typescript": "^4.6.2"
