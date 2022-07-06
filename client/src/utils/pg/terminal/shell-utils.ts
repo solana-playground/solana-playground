@@ -113,16 +113,13 @@ export function collectAutocompleteCandidates(
 ): string[] {
   const tokens = parse(input);
   let index = tokens.length - 1;
-  let expr = tokens[index] || "";
 
   // Empty expressions
   if (input.trim() === "") {
     index = 0;
-    expr = "";
   } else if (hasTrailingWhitespace(input)) {
     // Expressions with danging space
     index += 1;
-    expr = "";
   }
 
   // Collect all auto-complete candidates from the callbacks
@@ -136,6 +133,8 @@ export function collectAutocompleteCandidates(
     }
   }, []);
 
-  // Filter only the ones starting with the expression
-  return all.filter((txt) => (txt as string).startsWith(expr as string));
+  // Filter only the ones starting with the input
+  const canditates = all.filter((txt) => (txt as string).startsWith(input));
+
+  return canditates;
 }

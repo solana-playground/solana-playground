@@ -1,17 +1,16 @@
 import { IBufferLine } from "xterm";
 
+import PgTty from "./tty";
+import ShellHistory from "./shell-history";
 import {
   ActiveCharPrompt,
   ActivePrompt,
   closestLeftBoundary,
   closestRightBoundary,
   collectAutocompleteCandidates,
-  getLastToken,
   hasTrailingWhitespace,
   isIncompleteInput,
 } from "./shell-utils";
-import ShellHistory from "./shell-history";
-import PgTty from "./tty";
 import { PgTerminal } from "./terminal";
 import { Wasm } from "../../../components/Panels/Main/Terminal/useWasm";
 
@@ -21,7 +20,6 @@ type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
  * A shell is the primary interface that is used to start other programs.
  * It's purpose to handle:
  * - Job control (control of child processes),
- * - Control Sequences (CTRL+C to kill the foreground process)
  * - Line editing and history
  * - Output text to the tty -> terminal
  * - Interpret text within the tty to launch processes and interpret programs
@@ -352,7 +350,6 @@ export default class PgShell {
             const inputFragment = this.pgTty
               .getInput()
               .substring(0, this.pgTty.getCursor());
-            console.log("inputFragment", inputFragment);
             const hasTrailingSpace = hasTrailingWhitespace(inputFragment);
             const candidates = collectAutocompleteCandidates(
               this._autocompleteHandlers,
@@ -370,11 +367,11 @@ export default class PgShell {
                 this.handleCursorInsert(" ");
               }
             } else if (candidates.length === 1) {
-              // Just a single candidate? Complete
-              const lastToken = getLastToken(inputFragment);
-              this.handleCursorInsert(
-                candidates[0].substring(lastToken.length) + " "
-              );
+              // Set the input
+              this.pgTty.setInput(candidates[0]);
+
+              // Move the cursor to the end
+              this.pgTty.setCursor(candidates[0].length);
             } else if (candidates.length <= this.maxAutocompleteEntries) {
               // If we are less than maximum auto-complete candidates, print
               // them to the user and re-start prompt
