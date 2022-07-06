@@ -306,18 +306,25 @@ export default class PgTty {
   /**
    * Function to get the current line
    */
-  getCurrentLine() {
+  getCurrentLine(offset: number = 0) {
     const buffer = this.getBuffer();
-    return buffer
-      .getLine(buffer.baseY + buffer.cursorY)
-      ?.translateToString(true);
+    return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
   }
 
   /**
-   * Returns whether the current line starts with the prompt message
+   * Gets whether the current input starts with prompt
+   *
+   * Useful for PgTerm.fit()
    */
-  getCurrentLineStartsWithPrompt() {
-    return this.getCurrentLine()?.startsWith(PgTerminal.PROMPT);
+  getInputStartsWithPrompt() {
+    for (let i = 0; i < 10; i++) {
+      const currentLine = this.getCurrentLine(i);
+      if (!currentLine) return;
+
+      if (!currentLine.isWrapped) {
+        return currentLine.translateToString().startsWith(PgTerminal.PROMPT);
+      }
+    }
   }
 
   /**

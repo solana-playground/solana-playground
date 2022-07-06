@@ -65,7 +65,7 @@ export default class PgShell {
    */
   async prompt() {
     // If we are already prompting, do nothing
-    if (this._activePrompt && this.pgTty.getCurrentLineStartsWithPrompt()) {
+    if (this._activePrompt && this.pgTty.getInputStartsWithPrompt()) {
       return;
     }
 
@@ -376,7 +376,6 @@ export default class PgShell {
               // If we are less than maximum auto-complete candidates, print
               // them to the user and re-start prompt
               this.printAndRestartPrompt(() => {
-                console.log(candidates);
                 this.pgTty.printWide(candidates);
                 return undefined;
               });

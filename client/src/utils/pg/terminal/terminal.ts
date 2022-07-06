@@ -420,7 +420,6 @@ export class PgTerm {
 
     this.resizeEvent = this.xterm.onResize(this.handleTermResize);
     this.xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
-      // Fix for iOS Keyboard Jumping on space
       if (keyEvent.key === " ") {
         keyEvent.domEvent.preventDefault();
         return false;
@@ -483,11 +482,11 @@ export class PgTerm {
     this.fitTimeoutId = setTimeout(() => {
       if (
         this.pgShell.isPrompting() &&
-        !this.pgTty.getCurrentLineStartsWithPrompt()
+        !this.pgTty.getInputStartsWithPrompt()
       ) {
         const input = this.pgTty.getInput();
         if (input) {
-          this.pgTty.clearCurrentLine();
+          this.pgTty.clearInput();
           this.pgShell.prompt();
           this.pgTty.print(input);
         } else {
@@ -576,16 +575,24 @@ export class PgTerm {
     this.pgTty.print(`${PgTerminal.PROMPT}${this.pgTty.getInput()}`);
   }
 
+  /**
+   * Disable shell:
+   * - Disables shell
+   * - Clears current line for  for actions that were committed from outside of terminal
+   * like pressing build button
+   */
   disable() {
     this.pgShell._active = false;
     this.pgTty.clearCurrentLine();
   }
 
+  /**
+   * Enable shell
+   */
   enable() {
     setTimeout(() => {
       this.pgShell._active = true;
       this.pgShell.prompt();
-
       this.pgTty.read(""); // Enables history
     }, 10);
   }
