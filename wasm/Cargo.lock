@@ -1923,7 +1923,7 @@ dependencies = [
 
 [[package]]
 name = "solana-extra-wasm"
-version = "1.11.0"
+version = "1.11.0-alpha"
 dependencies = [
  "Inflector",
  "arrayref",

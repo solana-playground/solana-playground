@@ -1,13 +1,14 @@
 [package]
 name = "solana-extra-wasm"
-version = "1.11.0"
+version = "1.11.0-alpha"
 description = "Solana WASM compatible utilities."
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"
 license = "Apache-2.0"
 homepage = "https://beta.solpg.io"
 edition = "2021"
-keywords = ["solana", "playground", "wasm"]
+keywords = ["solana", "playground", "wasm", "extra", "utils"]
+readme = "README.md"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
