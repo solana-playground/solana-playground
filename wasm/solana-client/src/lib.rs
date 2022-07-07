@@ -14,8 +14,10 @@ mod provider;
 mod request;
 mod response;
 
-// Export sdk for stand-alone use of wasm client without specifying sdk
+// Export sdk for stand-alone use of wasm client without specifying sdk as dependency
 pub use solana_sdk;
+
+// For root level imports
 pub use {
     client::WasmClient, error::ClientError, request::ClientRequest, response::ClientResponse,
 };
