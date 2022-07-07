@@ -29,4 +29,5 @@ Anyone is welcome to contribute to **Solana Playground** no matter how big or sm
 
 ## License
 
-SolPg is licensed under [GPL 3.0](https://github.com/solpg/solpg/blob/master/LICENSE).
+`client` is licensed under [GPL 3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
+`wasm` packages are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE).
