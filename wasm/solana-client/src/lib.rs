@@ -14,8 +14,8 @@ mod provider;
 mod request;
 mod response;
 
-// Export commitment config for stand-alone use of wasm client without sdk
-pub use solana_sdk::commitment_config;
+// Export sdk for stand-alone use of wasm client without specifying sdk
+pub use solana_sdk;
 pub use {
     client::WasmClient, error::ClientError, request::ClientRequest, response::ClientResponse,
 };

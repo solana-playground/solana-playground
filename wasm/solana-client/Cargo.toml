@@ -8,6 +8,7 @@ license = "Apache-2.0"
 homepage = "https://beta.solpg.io"
 edition = "2021"
 keywords = ["solana", "wasm", "client", "rpc", "playground"]
+readme = "README.md"
 
 [dependencies]
 async-trait = "0.1"
