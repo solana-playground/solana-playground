@@ -1,0 +1,21 @@
+[package]
+name = "solana-clap-v3-utils-wasm"
+version = "1.11.0"
+description = "Solana WASM utilities for clap v3"
+authors = ["Acheron <acheroncrypto@gmail.com>"]
+repository = "https://github.com/solana-playground/solana-playground"
+license = "Apache-2.0"
+homepage = "https://beta.solpg.io"
+edition = "2021"
+keywords = ["solana", "playground", "wasm", "clap"]
+
+[dependencies]
+chrono = "0.4"
+clap = "3.1.18"
+rpassword = "6.0"
+solana-remote-wallet = { version = "=1.11.0", default-features = false }
+solana-sdk = "=1.11.0"
+thiserror = "1.0.31"
+tiny-bip39 = "0.8.2"
+uriparse = "0.6.4"
+url = "2.2.2"

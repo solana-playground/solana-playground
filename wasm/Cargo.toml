@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "solana-cli",
+    "solana-client",
+    "utils/*"
+]
