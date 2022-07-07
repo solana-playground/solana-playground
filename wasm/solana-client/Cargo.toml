@@ -21,7 +21,6 @@ reqwest = { version = "0.11.9", features = ["json"] }
 serde = "1"
 serde_derive = "1"
 serde_json = "1"
-solana-clap-v3-utils-wasm = { path = "../utils/solana-clap-v3-utils", version = "=1.11.0" }
 solana-extra-wasm = { path = "../utils/solana-extra", version = "=1.11.0" }
 solana-sdk = "=1.11.0"
 thiserror = "1.0"

@@ -1,10 +1,5 @@
 use bincode::serialize;
 use clap::ArgMatches;
-use solana_clap_v3_utils_wasm::{
-    input_parsers::{pubkey_of, value_of},
-    nonce::NONCE_ARG,
-    offline::{BLOCKHASH_ARG, SIGN_ONLY_ARG},
-};
 use solana_extra_wasm::{
     account_decoder::{UiAccount, UiAccountEncoding, UiDataSliceConfig},
     transaction_status::{TransactionDetails, UiTransactionEncoding},
@@ -17,7 +12,14 @@ use solana_sdk::{
     signature::Signature,
 };
 
-use super::rpc_filter::RpcFilterType;
+use super::{
+    clap::{
+        input_parsers::{pubkey_of, value_of},
+        nonce::NONCE_ARG,
+        offline::{BLOCKHASH_ARG, SIGN_ONLY_ARG},
+    },
+    rpc_filter::RpcFilterType,
+};
 use crate::{utils::nonce_utils, ClientError, ClientResult, WasmClient};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]

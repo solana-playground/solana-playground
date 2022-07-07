@@ -11,7 +11,7 @@ You can use [solana-client](https://docs.rs/solana-client/1.11.0/solana_client/n
 ## Example
 
 ```rust
-use solana_client_wasm::{solana_sdk::signer::keypair::Keypair, WasmClient};
+use solana_client_wasm::{solana_sdk::signature::{Keypair, Signer}, WasmClient};
 
 // Create client
 let client = WasmClient::new("https://api.devnet.solana.com");
@@ -21,5 +21,5 @@ let pubkey = Keypair::new().pubkey();
 
 // Get balance
 let balance = client.get_balance(&pubkey).await?;
-log::info!("Balance is {balance}");
+log::info!("Balance is {balance}"); // 0
 ```

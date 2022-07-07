@@ -1916,7 +1916,6 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
- "solana-clap-v3-utils-wasm",
  "solana-extra-wasm",
  "solana-sdk",
  "thiserror",
