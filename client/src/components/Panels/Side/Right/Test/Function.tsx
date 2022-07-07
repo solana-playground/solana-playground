@@ -152,8 +152,11 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   const handleTest = useCallback(async () => {
     if (!currentWallet) return;
 
+    PgTerminal.disable();
+
     setLoading(true);
 
+    setTerminal(PgTerminal.info(`Testing '${ixs.name}'...`));
     let msg = "";
 
     try {
@@ -179,6 +182,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     } finally {
       setTerminal(msg + "\n");
       setLoading(false);
+      PgTerminal.enable();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
