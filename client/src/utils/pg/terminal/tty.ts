@@ -235,10 +235,12 @@ export default class PgTty {
     this.xterm.write("\u001b[2J");
     // Set the cursor to 0, 0
     this.xterm.write("\u001b[0;0H");
+    // Scroll to bottom
+    this.xterm.scrollToBottom();
   }
 
   /**
-   * Clear entire line
+   * Clear the entire current line
    */
   clearCurrentLine() {
     // Clears the whole line

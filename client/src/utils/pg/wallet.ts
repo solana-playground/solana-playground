@@ -88,7 +88,7 @@ export class PgWallet {
    * logs instructions in terminal if wallet is not connected
    * @returns pg wallet connection status
    */
-  static checkIfPgConnected() {
+  static checkIsPgConnected() {
     if (this.getLs()?.connected) return true;
 
     PgTerminal.logWasm(

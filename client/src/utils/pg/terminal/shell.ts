@@ -10,7 +10,7 @@ import {
   isIncompleteInput,
 } from "./shell-utils";
 import { PgTerminal } from "./terminal";
-import { Wasm } from "../../../components/Panels/Main/Terminal/useWasm";
+import { Wasm } from "../../../components/Panels/Main/Terminal";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 

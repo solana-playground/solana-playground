@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 
 import { terminalOutputAtom } from "../../../../state";
@@ -14,34 +14,54 @@ export interface Wasm {
   ) => void;
 }
 
-const useWasm = () => {
+export enum WasmPkg {
+  SOLANA_CLI = "solana-cli",
+}
+
+export const useWasm = () => {
   const [, setTerminalText] = useAtom(terminalOutputAtom);
 
   const [wasm, setWasm] = useState<Wasm>();
 
-  // TODO: Load solana-cli only the first time user types a solana command
-  // instead of loading by default
-  useEffect(() => {
-    if (!wasm)
-      (async () => {
-        let resultMsg = "";
-        try {
-          setTerminalText(PgTerminal.info("Loading Solana CLI..."));
-          const { parseSolana } = await import("solana-cli-wasm");
-          setWasm({ parseSolana });
-          resultMsg = `${PgTerminal.success("Success.")}`;
-        } catch (e: any) {
-          console.log("Couldn't import solana-cli-wasm", e.message);
-          resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${GITHUB_URL}/issues
+  const loadSolanaCli = useCallback(async () => {
+    let resultMsg = "";
+    try {
+      setTerminalText(PgTerminal.info("Loading Solana CLI..."));
+      const { parseSolana } = await import("solana-cli-wasm");
+      setWasm({ parseSolana });
+      resultMsg = `${PgTerminal.success("Success.")}`;
+    } catch (e: any) {
+      resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${GITHUB_URL}/issues
 Error reason: ${e.message}`;
-        } finally {
-          setTerminalText(resultMsg + "\n");
-          PgTerminal.enable();
-        }
-      })();
-  }, [wasm, setWasm, setTerminalText]);
+    } finally {
+      setTerminalText(resultMsg + "\n");
+      PgTerminal.runLastCmd();
+    }
+  }, [setWasm, setTerminalText]);
 
-  // Listen for log events
+  // Load solana cli only when user first enters a solana command
+  useEffect(() => {
+    const handleLoadWasm = (e: UIEvent) => {
+      // @ts-ignore
+      const pkg = e.detail.pkg as WasmPkg;
+      switch (pkg) {
+        case WasmPkg.SOLANA_CLI:
+          if (!wasm?.parseSolana) loadSolanaCli();
+      }
+    };
+
+    document.addEventListener(
+      PgTerminal.EVT_NAME_LOAD_WASM,
+      handleLoadWasm as EventListener
+    );
+    return () =>
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_LOAD_WASM,
+        handleLoadWasm as EventListener
+      );
+  }, [wasm, loadSolanaCli]);
+
+  // Listen for custom terminal events
   useEffect(() => {
     const handleLog = (e: UIEvent) => {
       // @ts-ignore
@@ -61,5 +81,3 @@ Error reason: ${e.message}`;
 
   return wasm;
 };
-
-export default useWasm;

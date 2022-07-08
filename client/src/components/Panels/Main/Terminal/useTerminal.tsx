@@ -7,7 +7,7 @@ import { useConnectOrSetupPg } from "../../Wallet";
 import { PgTerminal } from "../../../../utils/pg";
 
 // Runs build and deploy commands if those components are not mounted
-const useTerminal = () => {
+export const useTerminal = () => {
   const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
 
   const { runBuild } = useBuild();
@@ -54,5 +54,3 @@ const useTerminal = () => {
     }
   }, [terminalState, setTerminalState, handleConnectPg]);
 };
-
-export default useTerminal;

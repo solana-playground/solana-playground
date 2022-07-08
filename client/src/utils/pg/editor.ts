@@ -1,7 +1,7 @@
 import { PgCommon } from "./common";
 
 export class PgEditor {
-  static EVT_NAME_EDITOR_FOCUS = "editorfocus";
+  static readonly EVT_NAME_EDITOR_FOCUS = "editorfocus";
 
   /**
    * Focus editor

@@ -6,8 +6,8 @@ import "xterm/css/xterm.css";
 
 import Button from "../../../Button";
 import Progress from "../../../Progress";
-import useTerminal from "./useTerminal";
-import useWasm from "./useWasm";
+import { useTerminal } from "./useTerminal";
+import { useWasm } from "./useWasm";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
@@ -215,6 +215,10 @@ const Terminal = () => {
       term.disable();
     };
 
+    const handleRunLastCmd = () => {
+      term.runLastCmd();
+    };
+
     document.addEventListener(
       PgTerminal.EVT_NAME_TERMINAL_ENABLE,
       handleEnable
@@ -222,6 +226,10 @@ const Terminal = () => {
     document.addEventListener(
       PgTerminal.EVT_NAME_TERMINAL_DISABLE,
       handleDisable
+    );
+    document.addEventListener(
+      PgTerminal.EVT_NAME_RUN_LAST_CMD,
+      handleRunLastCmd
     );
 
     return () => {
@@ -232,6 +240,10 @@ const Terminal = () => {
       document.removeEventListener(
         PgTerminal.EVT_NAME_TERMINAL_DISABLE,
         handleDisable
+      );
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_RUN_LAST_CMD,
+        handleRunLastCmd
       );
     };
   }, [term]);

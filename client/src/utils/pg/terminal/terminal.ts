@@ -17,9 +17,10 @@ import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgWallet } from "../wallet";
-import { Wasm } from "../../../components/Panels/Main/Terminal/useWasm";
-
-// import WasmTerminalConfig from "./wasm-terminal-config";
+import {
+  Wasm,
+  WasmPkg,
+} from "../../../components/Panels/Main/Terminal/useWasm";
 
 enum TextState {
   SUCCESS = 0,
@@ -101,6 +102,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly EVT_NAME_TERMINAL_STATE = "terminalstate";
   static readonly EVT_NAME_TERMINAL_ENABLE = "terminalenable";
   static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
+  static readonly EVT_NAME_LOAD_WASM = "terminalloadwasm";
+  static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -334,7 +337,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       return true;
     }
     if (cmd === "deploy") {
-      if (PgWallet.checkIfPgConnected())
+      if (PgWallet.checkIsPgConnected())
         this.setTerminalState(TerminalAction.deployStart);
 
       return true;
@@ -345,17 +348,19 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     const cmdName = cmd.split(" ")?.at(0);
 
     if (cmdName === "solana") {
-      if (wasm) {
-        if (PgWallet.checkIfPgConnected()) {
+      if (wasm?.parseSolana) {
+        if (PgWallet.checkIsPgConnected()) {
           // @ts-ignore
           wasm.parseSolana(cmd, ...this.getSolanaCliArgs());
 
           // TODO: enable from wasm when the command is over
           setTimeout(() => this.enable(), 1000);
         }
-
-        return true;
+      } else {
+        PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
       }
+
+      return true;
     }
 
     return false;
@@ -368,15 +373,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_STATE, {
       action,
     });
-  }
-
-  /**
-   * Log terminal messages from anywhere
-   *
-   * Mainly used from WASM
-   */
-  static logWasm(msg: string) {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_LOG, { msg });
   }
 
   /**
@@ -395,6 +391,31 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_DISABLE, {
       enabled: false,
     });
+  }
+
+  /**
+   * Log terminal messages from anywhere
+   *
+   * Mainly used from WASM
+   */
+  static logWasm(msg: string) {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_LOG, { msg });
+  }
+
+  /**
+   * Dispatch disable terminal custom event
+   */
+  static loadWasm(pkg: WasmPkg) {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_LOAD_WASM, {
+      pkg,
+    });
+  }
+
+  /**
+   * Dispatch run last command custom event
+   */
+  static runLastCmd() {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
   }
 }
 
@@ -462,6 +483,8 @@ export class PgTerm {
 
     // Print welcome text
     this.println(PgTerminal.DEFAULT_TEXT);
+
+    this.enable();
   }
 
   fit() {
@@ -601,4 +624,14 @@ export class PgTerm {
     this.pgTty.setTermSize(cols, rows);
     this.pgTty.setInput(this.pgTty.getInput(), true);
   };
+
+  /**
+   * Runs the last command if it exists
+   *
+   * This function is useful for running wasm cli packages after first loading
+   */
+  runLastCmd() {
+    this.pgTty.setInput(this.pgShell.history.getPrevious());
+    this.pgShell.handleReadComplete();
+  }
 }
