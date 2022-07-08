@@ -161,7 +161,7 @@ export class PgCommon {
     return text;
   }
 
-  static createAndDispatchCustomEvent(name: string, obj: object) {
+  static createAndDispatchCustomEvent(name: string, obj?: object) {
     const customEvent = new CustomEvent(name, { detail: obj });
 
     document.dispatchEvent(customEvent);

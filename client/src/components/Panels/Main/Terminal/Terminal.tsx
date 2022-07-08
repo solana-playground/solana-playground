@@ -10,7 +10,7 @@ import useTerminal from "./useTerminal";
 import useWasm from "./useWasm";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
-import { PgCommon, PgTerm, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
 
 const Terminal = () => {
   const [terminalOutput] = useAtom(terminalOutputAtom);
@@ -39,6 +39,32 @@ const Terminal = () => {
     });
   }, [theme]);
 
+  // Custom keyboard event
+  // Runs when terminal is in focus
+  const handleCustomEvent = useCallback(
+    (e: KeyboardEvent) => {
+      if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
+        const key = e.key.toUpperCase();
+
+        switch (key) {
+          case "C":
+            e.preventDefault();
+            const selection = term.xterm.getSelection();
+            navigator.clipboard.writeText(selection);
+            return false;
+
+          case "L":
+          case "M":
+          case "J":
+            return false;
+        }
+      }
+
+      return true;
+    },
+    [term]
+  );
+
   // Open and fit terminal
   useEffect(() => {
     if (term && terminalRef.current) {
@@ -49,10 +75,19 @@ const Terminal = () => {
       term.open(terminalRef.current);
       term.fit();
 
+      term.attachCustomKeyEventHandler(handleCustomEvent);
+
       // This runs after theme change
       if (hasChild) term.println("");
     }
-  }, [term]);
+  }, [term, handleCustomEvent]);
+
+  // New output
+  useEffect(() => {
+    if (terminalRef.current) {
+      term.println(PgTerminal.colorText(terminalOutput));
+    }
+  }, [terminalOutput, term]);
 
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
@@ -119,38 +154,49 @@ const Terminal = () => {
     });
   }, [setHeight, setIsClosed]);
 
-  // New output
-  useEffect(() => {
-    if (terminalRef.current) {
-      term.println(PgTerminal.colorText(terminalOutput));
-    }
-  }, [terminalOutput, term]);
-
   // Keybinds
   useEffect(() => {
-    const handleKeybinds = (e: globalThis.KeyboardEvent) => {
+    const handleKeybinds = (e: KeyboardEvent) => {
       const key = e.key.toUpperCase();
       if (PgCommon.isKeyCtrlOrCmd(e)) {
-        if (key === "L") {
-          e.preventDefault();
-          clear();
-        } else if (key === "`") {
-          e.preventDefault();
-          if (PgTerminal.isTerminalFocused()) toggleClose();
-          else term.focus();
-        } else if (key === "J") {
-          e.preventDefault();
-          toggleClose();
-        } else if (key === "M") {
-          e.preventDefault();
-          toggleMaximize();
+        switch (key) {
+          case "L":
+            e.preventDefault();
+            clear();
+            break;
+
+          case "`":
+            e.preventDefault();
+            if (PgTerminal.isTerminalFocused()) {
+              toggleClose();
+              PgEditor.focus();
+            } else if (!height) {
+              // Terminal is minimized
+              toggleClose();
+              term.focus();
+            } else term.focus();
+
+            break;
+
+          case "M":
+            e.preventDefault();
+            toggleMaximize();
+            break;
+
+          case "J":
+            e.preventDefault();
+            toggleClose();
+            if (!height) term.focus();
+            else PgEditor.focus();
+
+            break;
         }
       }
     };
 
     document.addEventListener("keydown", handleKeybinds);
     return () => document.removeEventListener("keydown", handleKeybinds);
-  }, [term, clear, toggleClose, toggleMaximize]);
+  }, [term, height, clear, toggleClose, toggleMaximize]);
 
   // Set wasm
   const wasm = useWasm();

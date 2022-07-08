@@ -13,7 +13,7 @@ import {
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import { PgExplorer, PgProgramInfo } from "../../../../utils/pg";
+import { PgExplorer, PgProgramInfo, PgEditor } from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -282,6 +282,17 @@ const Editor = () => {
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCount, editor]);
+
+  // Listen for custom events
+  useEffect(() => {
+    const handleFocus = () => {
+      if (editor && !editor.hasFocus) editor.focus();
+    };
+
+    document.addEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+    return () =>
+      document.removeEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+  }, [editor]);
 
   if (!explorer)
     return (

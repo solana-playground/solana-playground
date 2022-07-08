@@ -1,5 +1,3 @@
-import { IBufferLine } from "xterm";
-
 import PgTty from "./tty";
 import ShellHistory from "./shell-history";
 import {
@@ -92,7 +90,7 @@ export default class PgShell {
         if (!this.history.includes(input)) this.history.push(input);
       }
     } catch (e: any) {
-      this.pgTty.println(`${e.toString()}`);
+      this.pgTty.println(e.message);
 
       this.prompt();
     }
@@ -210,11 +208,14 @@ export default class PgShell {
     if (!this._active && data !== "\x03") {
       return;
     }
+
     if (this.pgTty.getFirstInit() && this._activePrompt) {
       let line = this.pgTty
         .getBuffer()
         .getLine(this.pgTty.getBuffer().cursorY + this.pgTty.getBuffer().baseY);
-      let promptRead = (line as IBufferLine).translateToString(
+      if (!line) return;
+
+      let promptRead = line.translateToString(
         false,
         0,
         this.pgTty.getBuffer().cursorX
@@ -325,13 +326,11 @@ export default class PgShell {
           }
           break;
       }
-
-      // Handle special characters
-    } else if (ord < 32 || ord === 0x7f) {
+    }
+    // Handle special characters
+    else if (ord < 32 || ord === 0x7f) {
       switch (data) {
         case "\r": // ENTER
-        case "\x0a": // CTRL+J
-        case "\x0d": // CTRL+M
           if (isIncompleteInput(this.pgTty.getInput())) {
             this.handleCursorInsert("\n");
           } else {
@@ -428,11 +427,6 @@ export default class PgShell {
             this.pgTty.getInput().substring(0, this.pgTty.getCursor())
           );
           this.pgTty.setCursor(this.pgTty.getInput().length);
-          break;
-
-        case "\x0c": // CTRL+L
-          this.pgTty.clearTty();
-          this.pgTty.print(`${PgTerminal.PROMPT}${this.pgTty.getInput()}`);
           break;
 
         case "\x0e": // CTRL+N

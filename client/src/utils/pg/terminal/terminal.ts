@@ -441,23 +441,13 @@ export class PgTerm {
 
     this.dataEvent = this.xterm.onData(this.pgShell.handleTermData);
 
-    // Custom event
-    const handleCustomEvent = (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
-        const key = e.key.toUpperCase();
-
-        if (key === "C") {
-          e.preventDefault();
-          const selection = this.xterm.getSelection();
-          navigator.clipboard.writeText(selection);
-        }
-      }
-
-      return true;
-    };
-    this.xterm.attachCustomKeyEventHandler(handleCustomEvent);
-
     this.isOpen = false;
+  }
+
+  attachCustomKeyEventHandler(
+    customEventHandler: (e: KeyboardEvent) => boolean
+  ) {
+    this.xterm.attachCustomKeyEventHandler(customEventHandler);
   }
 
   setWasm(wasm: Wasm) {
@@ -470,6 +460,7 @@ export class PgTerm {
     this.xterm.open(container);
     this.isOpen = true;
 
+    // Print welcome text
     this.println(PgTerminal.DEFAULT_TEXT);
   }
 
