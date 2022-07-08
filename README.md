@@ -29,5 +29,5 @@ Anyone is welcome to contribute to **Solana Playground** no matter how big or sm
 
 ## License
 
-`client` is licensed under [GPL 3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
-`wasm` packages are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE).
+`client` is licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
+`wasm` packages are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE) unless specified otherwise in their respective `Cargo.toml`.
