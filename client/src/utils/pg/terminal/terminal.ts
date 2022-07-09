@@ -27,6 +27,7 @@ enum TextState {
   ERROR = 1,
   WARNING = 2,
   INFO = 3,
+  PRIMARY = 4, // Primary theme color
 }
 
 interface TextInfo {
@@ -116,6 +117,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     { text: "error", state: TextState.ERROR },
     { text: "Error", state: TextState.ERROR },
     { text: "warning", state: TextState.WARNING },
+    { text: "USAGE:", state: TextState.PRIMARY },
+    { text: "OPTIONS:", state: TextState.PRIMARY },
+    { text: "SUBCOMMANDS:", state: TextState.PRIMARY },
+    { text: "COMMANDS:", state: TextState.PRIMARY },
   ];
 
   /**
@@ -142,6 +147,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
         return this.warning(textInfo.text);
       case TextState.INFO:
         return this.info(textInfo.text);
+      case TextState.PRIMARY:
+        return this.primary(textInfo.text);
       default:
         return textInfo.text;
     }
@@ -161,6 +168,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
   static info(text: string) {
     return `\x1B[1;34m${text}\x1B[0m`;
+  }
+
+  static primary(text: string) {
+    return `\x1B[1;35m${text}\x1B[0m`;
   }
 
   static bold(text: string) {

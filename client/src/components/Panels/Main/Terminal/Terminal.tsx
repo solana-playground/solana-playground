@@ -35,6 +35,7 @@ const Terminal = () => {
         brightRed: state.error.color,
         brightYellow: state.warning.color,
         brightBlue: state.info.color,
+        brightMagenta: theme.colors.default.primary,
       },
     });
   }, [theme]);
