@@ -1,5 +1,7 @@
 # Solana WASM Client
 
+[![Crates.io](https://img.shields.io/crates/v/solana-client-wasm.svg)](https://crates.io/crates/solana-client-wasm) [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE)
+
 Non-blocking implementation of WASM compatible Solana Client.
 
 ## Usage
