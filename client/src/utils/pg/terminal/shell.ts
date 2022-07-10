@@ -210,12 +210,12 @@ export default class PgShell {
     }
 
     if (this.pgTty.getFirstInit() && this._activePrompt) {
-      let line = this.pgTty
+      const line = this.pgTty
         .getBuffer()
         .getLine(this.pgTty.getBuffer().cursorY + this.pgTty.getBuffer().baseY);
       if (!line) return;
 
-      let promptRead = line.translateToString(
+      const promptRead = line.translateToString(
         false,
         0,
         this.pgTty.getBuffer().cursorX

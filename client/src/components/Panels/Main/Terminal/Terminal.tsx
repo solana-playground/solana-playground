@@ -41,7 +41,7 @@ const Terminal = () => {
   }, [theme]);
 
   // Custom keyboard event
-  // Runs when terminal is in focus
+  // Only runs when terminal is in focus
   const handleCustomEvent = useCallback(
     (e: KeyboardEvent) => {
       if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {

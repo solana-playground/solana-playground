@@ -1,4 +1,4 @@
-import { ITerminalOptions, Terminal as XTerm } from "xterm";
+import { IDisposable, ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 
@@ -439,9 +439,8 @@ export class PgTerm {
   pgTty: PgTty;
   pgShell: PgShell;
 
-  pasteEvent: any;
-  resizeEvent: any;
-  dataEvent: any;
+  resizeEvent: IDisposable;
+  dataEvent: IDisposable;
 
   isOpen: boolean;
   fitTimeoutId?: NodeJS.Timeout;
@@ -471,15 +470,10 @@ export class PgTerm {
     this.pgTty = new PgTty(this.xterm);
     this.pgShell = new PgShell(this.pgTty);
 
+    // Any data event
     this.dataEvent = this.xterm.onData(this.pgShell.handleTermData);
 
     this.isOpen = false;
-  }
-
-  attachCustomKeyEventHandler(
-    customEventHandler: (e: KeyboardEvent) => boolean
-  ) {
-    this.xterm.attachCustomKeyEventHandler(customEventHandler);
   }
 
   setWasm(wasm: Wasm) {
@@ -499,12 +493,13 @@ export class PgTerm {
   }
 
   fit() {
-    this.fitAddon.fit();
-
-    // Timeout fixes prompt message not showing after resizing
+    // Timeout fixes prompt message not showing in some rare cases
     if (this.fitTimeoutId) clearTimeout(this.fitTimeoutId);
+    else this.fitAddon.fit();
 
     this.fitTimeoutId = setTimeout(() => {
+      this.fitAddon.fit();
+
       if (
         this.pgShell.isPrompting() &&
         !this.pgTty.getInputStartsWithPrompt()
@@ -513,12 +508,23 @@ export class PgTerm {
         if (input) {
           this.pgTty.clearInput();
           this.pgShell.prompt();
-          this.pgTty.print(input);
+          this.pgTty.setInput(input);
         } else {
+          // Clear the input in case of a prompt bug where there is a text before the prompt
+          this.pgTty.clearCurrentLine();
           this.pgShell.prompt();
         }
       }
-    }, 1000); // time needs to be lower than specified fit interval in Terminal component
+    }, 100); // time needs to be lower than specified fit interval in Terminal component
+  }
+
+  /**
+   * Used for overriding default xterm key event handler
+   */
+  attachCustomKeyEventHandler(
+    customKeyEventHandler: (e: KeyboardEvent) => boolean
+  ) {
+    this.xterm.attachCustomKeyEventHandler(customKeyEventHandler);
   }
 
   focus() {
@@ -595,6 +601,11 @@ export class PgTerm {
     this.pgTty.print(data);
   }
 
+  /**
+   * Moves the command line to the top of the terminal screen
+   *
+   * This function does not clear previous history.
+   */
   clear() {
     this.pgTty.clearTty();
     this.pgTty.print(`${PgTerminal.PROMPT}${this.pgTty.getInput()}`);
@@ -623,6 +634,16 @@ export class PgTerm {
   }
 
   /**
+   * Runs the last command if it exists
+   *
+   * This function is useful for running wasm cli packages after first loading
+   */
+  runLastCmd() {
+    this.pgTty.setInput(this.pgShell.history.getPrevious());
+    this.pgShell.handleReadComplete();
+  }
+
+  /**
    * Handle terminal resize
    *
    * This function clears the prompt using the previous configuration,
@@ -635,14 +656,4 @@ export class PgTerm {
     this.pgTty.setTermSize(cols, rows);
     this.pgTty.setInput(this.pgTty.getInput(), true);
   };
-
-  /**
-   * Runs the last command if it exists
-   *
-   * This function is useful for running wasm cli packages after first loading
-   */
-  runLastCmd() {
-    this.pgTty.setInput(this.pgShell.history.getPrevious());
-    this.pgShell.handleReadComplete();
-  }
 }
