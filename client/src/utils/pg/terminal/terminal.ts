@@ -86,6 +86,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    */
   static readonly HELP_TEXT = `COMMANDS:
   build                      Build your program
+  clear                      Clear terminal
   connect                    Toggle connection to Playground Wallet
   deploy                     Deploy your program
   solana                     Access Solana CLI commands
@@ -105,6 +106,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
   static readonly EVT_NAME_LOAD_WASM = "terminalloadwasm";
   static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
+  static readonly EVT_NAME_TERMINAL_CLEAR = "terminalclear";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -343,14 +345,18 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       this.setTerminalState(TerminalAction.buildStart);
       return true;
     }
-    if (cmd === "connect") {
-      this.setTerminalState(TerminalAction.walletConnectOrSetupStart);
-      return true;
-    }
     if (cmd === "deploy") {
       if (PgWallet.checkIsPgConnected())
         this.setTerminalState(TerminalAction.deployStart);
 
+      return true;
+    }
+    if (cmd === "clear") {
+      this.clear();
+      return true;
+    }
+    if (cmd === "connect") {
+      this.setTerminalState(TerminalAction.walletConnectOrSetupStart);
       return true;
     }
 
@@ -427,6 +433,13 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    */
   static runLastCmd() {
     PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
+  }
+
+  /**
+   * Dispatch clear terminal custom event
+   */
+  static clear() {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_CLEAR);
   }
 }
 
@@ -609,6 +622,10 @@ export class PgTerm {
   clear() {
     this.pgTty.clearTty();
     this.pgTty.print(`${PgTerminal.PROMPT}${this.pgTty.getInput()}`);
+  }
+
+  fullClear() {
+    this.xterm.clear();
   }
 
   /**
