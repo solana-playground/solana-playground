@@ -17,7 +17,9 @@ export const useWasm = () => {
       const { parseSolana } = await import("solana-cli-wasm");
       setWasm({ parseSolana });
       resultMsg = `${PgTerminal.success("Success.")}`;
-      PgTerminal.runLastCmd();
+
+      // This prevents unnecessary looping
+      setTimeout(() => PgTerminal.runLastCmd());
     } catch (e: any) {
       resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${PgTerminal.underline(
         GITHUB_URL + "/issues"
