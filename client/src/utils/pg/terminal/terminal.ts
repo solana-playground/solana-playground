@@ -130,12 +130,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    */
   private static readonly TEXTS: TextInfo[] = [
     { text: "error", state: TextState.ERROR },
-    { text: "Error", state: TextState.ERROR },
     { text: "warning", state: TextState.WARNING },
-    { text: "USAGE:", state: TextState.PRIMARY },
-    { text: "OPTIONS:", state: TextState.PRIMARY },
-    { text: "SUBCOMMANDS:", state: TextState.PRIMARY },
-    { text: "COMMANDS:", state: TextState.PRIMARY },
   ];
 
   /**
@@ -145,6 +140,13 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     for (const textInfo of this.TEXTS) {
       text = text.replaceAll(textInfo.text, this.getColorFromState(textInfo));
     }
+
+    // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+    text = text.replace(/^(.*?:)/gm, (match) => {
+      if (!match.includes("  ")) return this.primary(match);
+
+      return match;
+    });
 
     return text;
   }
