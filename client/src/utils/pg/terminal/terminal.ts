@@ -353,18 +353,14 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Dispatch enable terminal custom event
    */
   static enable() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_ENABLE, {
-      enabled: true,
-    });
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_ENABLE);
   }
 
   /**
    * Dispatch disable terminal custom event
    */
   static disable() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_DISABLE, {
-      enabled: false,
-    });
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_DISABLE);
   }
 
   /**
@@ -456,13 +452,12 @@ export class PgTerm {
   }
 
   fit() {
+    this.fitAddon.fit();
+
     // Timeout fixes prompt message not showing in some rare cases
     if (this.fitTimeoutId) clearTimeout(this.fitTimeoutId);
-    else this.fitAddon.fit();
 
     this.fitTimeoutId = setTimeout(() => {
-      this.fitAddon.fit();
-
       if (
         this.pgShell.isPrompting() &&
         !this.pgTty.getInputStartsWithPrompt()
@@ -608,6 +603,8 @@ export class PgTerm {
    * This function clears the prompt using the previous configuration,
    * updates the cached terminal size information and then re-renders the
    * input. This leads (most of the times) into a better formatted input.
+   *
+   * Also stops multiline inputs rendering unnecessarily.
    */
   handleTermResize = (data: { rows: number; cols: number }) => {
     const { rows, cols } = data;
