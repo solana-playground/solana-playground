@@ -107,6 +107,11 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly PROMPT = "$ ";
 
   /**
+   * Prompt after '
+   */
+  static readonly CONTINUATION_PROMPT_PREFIX = "> ";
+
+  /**
    * Event name for logging terminal
    */
   static readonly EVT_NAME_TERMINAL_LOG = "terminallog";
@@ -115,7 +120,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
   static readonly EVT_NAME_LOAD_WASM = "terminalloadwasm";
   static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
-  static readonly EVT_NAME_TERMINAL_CLEAR = "terminalclear";
 
   // Emojis
   static readonly CROSS = "❌";

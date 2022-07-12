@@ -64,7 +64,7 @@ export default class PgTty {
    */
   read(
     promptPrefix: string,
-    continuationPromptPrefix: string = "> "
+    continuationPromptPrefix: string = PgTerminal.CONTINUATION_PROMPT_PREFIX
   ): ActivePrompt {
     if (promptPrefix.length > 0) {
       this.print(promptPrefix);
@@ -324,7 +324,11 @@ export default class PgTty {
       if (!currentLine) return;
 
       if (!currentLine.isWrapped) {
-        return currentLine.translateToString().startsWith(PgTerminal.PROMPT);
+        const currentLineStr = currentLine.translateToString();
+        return (
+          currentLineStr.startsWith(PgTerminal.PROMPT) ||
+          currentLineStr.startsWith(PgTerminal.CONTINUATION_PROMPT_PREFIX)
+        );
       }
     }
   }
