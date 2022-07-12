@@ -17,10 +17,19 @@ import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgWallet } from "../wallet";
-import {
-  Wasm,
-  WasmPkg,
-} from "../../../components/Panels/Main/Terminal/useWasm";
+
+export interface Wasm {
+  parseSolana: (
+    arg: string,
+    endpoint: string,
+    commitment: string,
+    keypairBytes: Uint8Array
+  ) => void;
+}
+
+export enum WasmPkg {
+  SOLANA_CLI = "solana-cli",
+}
 
 enum TextState {
   SUCCESS = 0,
@@ -157,41 +166,41 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   static success(text: string) {
-    return `\x1B[1;32m${text}\x1B[0m`;
+    return `\x1b[1;32m${text}\x1b[0m`;
   }
 
   static error(text: string) {
-    return `\x1B[1;31m${text}\x1B[0m`;
+    return `\x1b[1;31m${text}\x1b[0m`;
   }
 
   static warning(text: string) {
-    return `\x1B[1;33m${text}\x1B[0m`;
+    return `\x1b[1;33m${text}\x1b[0m`;
   }
 
   static info(text: string) {
-    return `\x1B[1;34m${text}\x1B[0m`;
+    return `\x1b[1;34m${text}\x1b[0m`;
   }
 
   static primary(text: string) {
-    return `\x1B[1;35m${text}\x1B[0m`;
+    return `\x1b[1;35m${text}\x1b[0m`;
   }
 
   static bold(text: string) {
-    return `\x1B[1m${text}\x1B[0m`;
+    return `\x1b[1m${text}\x1b[0m`;
   }
 
   static italic(text: string) {
-    return `\x1B[3m${text}\x1B[0m`;
+    return `\x1b[3m${text}\x1b[0m`;
   }
 
   static underline(text: string) {
-    return `\x1B[4m${text}\x1B[0m`;
+    return `\x1b[4m${text}\x1b[0m`;
   }
 
   /**
    * Edit build stderr that is returned from the build request
    */
-  static editStderr = (stderr: string, uuid: string) => {
+  static editStderr(stderr: string, uuid: string) {
     // Remove full path
     stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
 
@@ -223,7 +232,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     }
 
     return stderr;
-  };
+  }
 
   /**
    * Make error messages more friendly
@@ -312,75 +321,19 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Get the remaining Solana CLI args
-   * (endpoint: string, commitment: string, keypairBytes: Uint8Array)
+   * Get the remaining CLI args
+   *
+   * - Solana: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
    */
-  static getSolanaCliArgs() {
-    let args = [];
-
-    const endpoint = PgConnection.endpoint;
-    args.push(endpoint);
-
-    const commitment = PgConnection.commitment;
-    args.push(commitment);
-
-    const keypairBytes = PgWallet.keypairBytes;
-    args.push(keypairBytes);
-
-    return args;
-  }
-
-  /**
-   * This function runs when user presses `Enter` in terminal
-   * @returns if the command is valid
-   */
-  static parseCommand(cmd: string, wasm?: Wasm) {
-    cmd = cmd.trim();
-    if (cmd === "help") {
-      this.logWasm(this.HELP_TEXT);
-      this.enable();
-      return true;
+  static getCliArgs(pkg: WasmPkg) {
+    switch (pkg) {
+      case WasmPkg.SOLANA_CLI:
+        return [
+          PgConnection.endpoint,
+          PgConnection.commitment,
+          PgWallet.keypairBytes,
+        ];
     }
-    if (cmd === "build") {
-      this.setTerminalState(TerminalAction.buildStart);
-      return true;
-    }
-    if (cmd === "deploy") {
-      if (PgWallet.checkIsPgConnected())
-        this.setTerminalState(TerminalAction.deployStart);
-
-      return true;
-    }
-    if (cmd === "clear") {
-      this.clear();
-      return true;
-    }
-    if (cmd === "connect") {
-      this.setTerminalState(TerminalAction.walletConnectOrSetupStart);
-      return true;
-    }
-
-    // This guarantees command only start with the specified command name
-    // solana-keygen would not count for cmdName === "solana"
-    const cmdName = cmd.split(" ")?.at(0);
-
-    if (cmdName === "solana") {
-      if (wasm?.parseSolana) {
-        if (PgWallet.checkIsPgConnected()) {
-          // @ts-ignore
-          wasm.parseSolana(cmd, ...this.getSolanaCliArgs());
-
-          // TODO: enable from wasm when the command is over
-          setTimeout(() => this.enable(), 1000);
-        }
-      } else {
-        PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
-      }
-
-      return true;
-    }
-
-    return false;
   }
 
   /**
@@ -433,13 +386,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    */
   static runLastCmd() {
     PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
-  }
-
-  /**
-   * Dispatch clear terminal custom event
-   */
-  static clear() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_CLEAR);
   }
 }
 
@@ -624,10 +570,6 @@ export class PgTerm {
     this.pgTty.print(`${PgTerminal.PROMPT}${this.pgTty.getInput()}`);
   }
 
-  fullClear() {
-    this.xterm.clear();
-  }
-
   /**
    * Disable shell:
    * - Disables shell
@@ -643,11 +585,7 @@ export class PgTerm {
    * Enable shell
    */
   enable() {
-    setTimeout(() => {
-      this.pgShell._active = true;
-      this.pgShell.prompt();
-      this.pgTty.read(""); // Enables history
-    }, 10);
+    this.pgShell.enable();
   }
 
   /**

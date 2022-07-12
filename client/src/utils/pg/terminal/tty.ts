@@ -217,11 +217,11 @@ export default class PgTty {
 
     // First move on the last line
     const moveRows = allRows - row - 1;
-    for (let i = 0; i < moveRows; ++i) this.xterm.write("\x1B[E");
+    for (let i = 0; i < moveRows; ++i) this.xterm.write("\x1b[E");
 
     // Clear current input line(s)
-    this.xterm.write("\r\x1B[K");
-    for (let i = 1; i < allRows; ++i) this.xterm.write("\x1B[F\x1B[K");
+    this.xterm.write("\r\x1b[K");
+    for (let i = 1; i < allRows; ++i) this.xterm.write("\x1b[F\x1b[K");
   }
 
   /**
@@ -232,9 +232,9 @@ export default class PgTty {
    */
   clearTty() {
     // Clear the screen
-    this.xterm.write("\u001b[2J");
+    this.xterm.write("\x1b[2J");
     // Set the cursor to 0, 0
-    this.xterm.write("\u001b[0;0H");
+    this.xterm.write("\x1b[0;0H");
     // Scroll to bottom
     this.xterm.scrollToBottom();
   }
@@ -363,8 +363,8 @@ export default class PgTty {
     const moveUpRows = newLines - row - 1;
 
     this.xterm.write("\r");
-    for (let i = 0; i < moveUpRows; ++i) this.xterm.write("\x1B[F");
-    for (let i = 0; i < col; ++i) this.xterm.write("\x1B[C");
+    for (let i = 0; i < moveUpRows; ++i) this.xterm.write("\x1b[F");
+    for (let i = 0; i < col; ++i) this.xterm.write("\x1b[C");
 
     // Replace input
     this._input = newInput;
@@ -412,16 +412,16 @@ export default class PgTty {
 
     // Adjust vertically
     if (newRow > prevRow) {
-      for (let i = prevRow; i < newRow; ++i) this.xterm.write("\x1B[B");
+      for (let i = prevRow; i < newRow; ++i) this.xterm.write("\x1b[B");
     } else {
-      for (let i = newRow; i < prevRow; ++i) this.xterm.write("\x1B[A");
+      for (let i = newRow; i < prevRow; ++i) this.xterm.write("\x1b[A");
     }
 
     // Adjust horizontally
     if (newCol > prevCol) {
-      for (let i = prevCol; i < newCol; ++i) this.xterm.write("\x1B[C");
+      for (let i = prevCol; i < newCol; ++i) this.xterm.write("\x1b[C");
     } else {
-      for (let i = newCol; i < prevCol; ++i) this.xterm.write("\x1B[D");
+      for (let i = newCol; i < prevCol; ++i) this.xterm.write("\x1b[D");
     }
 
     // Set new offset

@@ -2,21 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 
 import { terminalOutputAtom } from "../../../../state";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, Wasm, WasmPkg } from "../../../../utils/pg";
 import { GITHUB_URL } from "../../../../constants";
-
-export interface Wasm {
-  parseSolana: (
-    arg: string,
-    endpoint: string,
-    commitment: string,
-    keypairBytes: Uint8Array
-  ) => void;
-}
-
-export enum WasmPkg {
-  SOLANA_CLI = "solana-cli",
-}
 
 export const useWasm = () => {
   const [, setTerminalText] = useAtom(terminalOutputAtom);

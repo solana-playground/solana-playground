@@ -220,10 +220,6 @@ const Terminal = () => {
       term.runLastCmd();
     };
 
-    const handleClear = () => {
-      term.fullClear();
-    };
-
     document.addEventListener(
       PgTerminal.EVT_NAME_TERMINAL_ENABLE,
       handleEnable
@@ -234,10 +230,6 @@ const Terminal = () => {
     );
     document.addEventListener(
       PgTerminal.EVT_NAME_RUN_LAST_CMD,
-      handleRunLastCmd
-    );
-    document.addEventListener(
-      PgTerminal.EVT_NAME_TERMINAL_CLEAR,
       handleRunLastCmd
     );
 
@@ -253,10 +245,6 @@ const Terminal = () => {
       document.removeEventListener(
         PgTerminal.EVT_NAME_RUN_LAST_CMD,
         handleRunLastCmd
-      );
-      document.removeEventListener(
-        PgTerminal.EVT_NAME_TERMINAL_CLEAR,
-        handleClear
       );
     };
   }, [term]);

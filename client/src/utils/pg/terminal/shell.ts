@@ -9,8 +9,9 @@ import {
   hasTrailingWhitespace,
   isIncompleteInput,
 } from "./shell-utils";
-import { PgTerminal } from "./terminal";
-import { Wasm } from "../../../components/Panels/Main/Terminal";
+import { TerminalAction } from "../../../state";
+import { PgTerminal, Wasm, WasmPkg } from "./terminal";
+import { PgWallet } from "../wallet";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 
@@ -52,8 +53,77 @@ export default class PgShell {
     this._active = false;
   }
 
+  /**
+   * This function runs when user presses `Enter` in terminal
+   * @returns if the command is valid
+   */
+  _parseCommand(cmd: string) {
+    cmd = cmd.trim();
+    if (cmd === "help") {
+      PgTerminal.logWasm(PgTerminal.HELP_TEXT);
+      this.enable();
+      return true;
+    }
+    if (cmd === "build") {
+      PgTerminal.setTerminalState(TerminalAction.buildStart);
+      return true;
+    }
+    if (cmd === "deploy") {
+      if (PgWallet.checkIsPgConnected())
+        PgTerminal.setTerminalState(TerminalAction.deployStart);
+
+      return true;
+    }
+    if (cmd === "clear") {
+      this.pgTty.clearTty();
+      this.pgTty.xterm.clear();
+      this.prompt();
+      return true;
+    }
+    if (cmd === "connect") {
+      PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
+      return true;
+    }
+
+    // This guarantees command only start with the specified command name
+    // solana-keygen would not count for cmdName === "solana"
+    const cmdName = cmd.split(" ")?.at(0);
+
+    if (cmdName === "solana") {
+      const wasm = this._wasm;
+      if (wasm?.parseSolana) {
+        if (PgWallet.checkIsPgConnected()) {
+          // @ts-ignore
+          wasm.parseSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
+          // TODO: enable from wasm when the command is over
+          setTimeout(() => this.enable(), 1000);
+        }
+      } else {
+        PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
   setWasm(wasm: Wasm) {
     this._wasm = wasm;
+  }
+
+  /**
+   * Enable shell:
+   *
+   * - Prompt
+   * - Enable history
+   */
+  enable() {
+    setTimeout(() => {
+      this._active = true;
+      this.prompt();
+      this.pgTty.read(""); // Enables history
+    }, 10);
   }
 
   /**
@@ -177,15 +247,15 @@ export default class PgShell {
    * Handle input completion
    */
   handleReadComplete = () => {
+    const input = this.pgTty.getInput();
     if (this._activePrompt && this._activePrompt.resolve) {
-      this._activePrompt.resolve(this.pgTty.getInput());
+      this._activePrompt.resolve(input);
       this._activePrompt = undefined;
     }
     this.pgTty.print("\r\n");
     this._active = false;
 
-    const input = this.pgTty.getInput();
-    const isCmdValid = PgTerminal.parseCommand(input, this._wasm);
+    const isCmdValid = this._parseCommand(input);
 
     // Only new prompt after invalid command, other commands will automatically
     // generate new prompt
@@ -196,7 +266,7 @@ export default class PgShell {
         );
       }
 
-      PgTerminal.enable();
+      this.enable();
     }
   };
 
