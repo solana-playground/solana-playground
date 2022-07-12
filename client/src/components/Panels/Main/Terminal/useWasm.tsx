@@ -17,12 +17,14 @@ export const useWasm = () => {
       const { parseSolana } = await import("solana-cli-wasm");
       setWasm({ parseSolana });
       resultMsg = `${PgTerminal.success("Success.")}`;
+      PgTerminal.runLastCmd();
     } catch (e: any) {
-      resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${GITHUB_URL}/issues
+      resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${PgTerminal.underline(
+        GITHUB_URL + "/issues"
+      )}
 Error reason: ${e.message}`;
     } finally {
       setTerminalText(resultMsg + "\n");
-      PgTerminal.runLastCmd();
     }
   }, [setWasm, setTerminalText]);
 

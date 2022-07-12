@@ -143,7 +143,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
     // Match until ':' from the start of the line: e.g SUBCOMMANDS:
     text = text.replace(/^(.*?:)/gm, (match) => {
-      if (!match.includes("  ")) return this.primary(match);
+      if (!match.includes("  ") && !match.toLowerCase().includes("error"))
+        return this.primary(match);
 
       return match;
     });
