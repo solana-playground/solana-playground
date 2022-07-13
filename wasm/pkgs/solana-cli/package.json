@@ -1,9 +1,15 @@
 {
   "name": "solana-cli-wasm",
   "collaborators": [
-    "@acheroncrypto"
+    "Acheron <acheroncrypto@gmail.com>"
   ],
+  "description": "Solana CLI for Solana Playground with WASM.",
   "version": "1.11.0",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-playground/solana-playground"
+  },
   "files": [
     "solana_cli_wasm_bg.wasm",
     "solana_cli_wasm.js",
@@ -11,6 +17,13 @@
     "solana_cli_wasm.d.ts"
   ],
   "module": "solana_cli_wasm.js",
+  "homepage": "https://beta.solpg.io",
   "types": "solana_cli_wasm.d.ts",
-  "sideEffects": false
+  "sideEffects": false,
+  "keywords": [
+    "solana",
+    "cli",
+    "wasm",
+    "playground"
+  ]
 }

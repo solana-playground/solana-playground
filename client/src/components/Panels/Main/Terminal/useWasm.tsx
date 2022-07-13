@@ -14,8 +14,8 @@ export const useWasm = () => {
     let resultMsg = "";
     try {
       setTerminalText(PgTerminal.info("Loading Solana CLI..."));
-      const { parseSolana } = await import("solana-cli-wasm");
-      setWasm({ parseSolana });
+      const { runSolana } = await import("solana-cli-wasm");
+      setWasm({ runSolana });
       resultMsg = `${PgTerminal.success("Success.")}`;
 
       // This prevents unnecessary looping
@@ -37,7 +37,7 @@ Error reason: ${e.message}`;
       const pkg = e.detail.pkg as WasmPkg;
       switch (pkg) {
         case WasmPkg.SOLANA_CLI:
-          if (!wasm?.parseSolana) loadSolanaCli();
+          if (!wasm?.runSolana) loadSolanaCli();
       }
     };
 

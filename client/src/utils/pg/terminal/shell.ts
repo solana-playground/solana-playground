@@ -91,12 +91,10 @@ export default class PgShell {
 
     if (cmdName === "solana") {
       const wasm = this._wasm;
-      if (wasm?.parseSolana) {
+      if (wasm?.runSolana) {
         if (PgWallet.checkIsPgConnected()) {
           // @ts-ignore
-          wasm.parseSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
-          // TODO: enable from wasm when the command is over
-          setTimeout(() => this.enable(), 1000);
+          wasm.runSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
         }
       } else {
         PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);

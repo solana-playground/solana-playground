@@ -6,7 +6,7 @@
 * @param {string} commitment
 * @param {Uint8Array} keypair_bytes
 */
-export function parseSolana(arg: string, endpoint: string, commitment: string, keypair_bytes: Uint8Array): void;
+export function runSolana(arg: string, endpoint: string, commitment: string, keypair_bytes: Uint8Array): void;
 /**
 * Initialize Javascript logging and panic handler
 */

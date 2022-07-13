@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
-export function parseSolana(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): void;
+export function runSolana(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): void;
 export function __wbg_transaction_free(a: number): void;
 export function transaction_constructor(a: number, b: number): number;
 export function transaction_message(a: number): number;
@@ -53,8 +53,8 @@ export function __wbg_hash_free(a: number): void;
 export function __wbindgen_malloc(a: number): number;
 export function __wbindgen_realloc(a: number, b: number, c: number): number;
 export const __wbindgen_export_2: WebAssembly.Table;
-export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h22c8b9afc480bc3c(a: number, b: number, c: number): void;
-export function _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h40ce7bb38ca8509b(a: number, b: number): void;
+export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__he5fe24f0ae29351b(a: number, b: number, c: number): void;
+export function _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hd3365ee063b34140(a: number, b: number): void;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
 export function __wbindgen_free(a: number, b: number): void;
 export function __wbindgen_exn_store(a: number): void;

@@ -19,7 +19,7 @@ import { PgConnection } from "../connection";
 import { PgWallet } from "../wallet";
 
 export interface Wasm {
-  parseSolana: (
+  runSolana: (
     arg: string,
     endpoint: string,
     commitment: string,
