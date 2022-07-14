@@ -275,7 +275,7 @@ pub struct RpcSupplyConfig {
     #[serde(flatten)]
     pub commitment: Option<CommitmentConfig>,
     #[serde(default)]
-    pub exclude_non_circulating_accounts_list: Option<bool>,
+    pub exclude_non_circulating_accounts_list: bool,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]

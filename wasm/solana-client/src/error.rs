@@ -2,14 +2,14 @@ use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Error {
-    code: u16,
+    code: i32,
     message: String,
 }
 
 impl Default for Error {
     fn default() -> Self {
         Self {
-            code: reqwest::StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+            code: reqwest::StatusCode::INTERNAL_SERVER_ERROR.as_u16() as i32,
             message: reqwest::StatusCode::INTERNAL_SERVER_ERROR
                 .as_str()
                 .to_owned(),
@@ -19,7 +19,7 @@ impl Default for Error {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClientError {
-    id: u32,
+    id: u16,
     jsonrpc: String,
     error: Error,
 }
@@ -43,9 +43,10 @@ impl From<reqwest::Error> for ClientError {
                 code: error
                     .status()
                     .unwrap_or(
-                        reqwest::StatusCode::from_u16(ClientError::default().error.code).unwrap(),
+                        reqwest::StatusCode::from_u16(ClientError::default().error.code as u16)
+                            .unwrap(),
                     )
-                    .as_u16(),
+                    .as_u16() as i32,
                 message: error.to_string(),
             },
             ..Default::default()
@@ -57,7 +58,7 @@ impl ClientError {
     pub fn new(error_msg: &str) -> Self {
         ClientError {
             error: Error {
-                code: reqwest::StatusCode::SEE_OTHER.as_u16(),
+                code: reqwest::StatusCode::SEE_OTHER.as_u16() as i32,
                 message: error_msg.to_string(),
             },
             ..Default::default()

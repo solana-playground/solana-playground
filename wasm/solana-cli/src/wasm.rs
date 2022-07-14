@@ -60,6 +60,10 @@ pub fn run_solana(arg: &str, endpoint: &str, commitment: &str, keypair_bytes: &[
                     // Enable terminal
                     PgTerminal::enable();
                 })
+            } else {
+                // Config command
+                // Enable terminal
+                PgTerminal::enable();
             }
         }
         Err(e) => {

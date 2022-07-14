@@ -32,7 +32,7 @@ impl GetBlocksWithLimitRequest {
 impl Into<serde_json::Value> for GetBlocksWithLimitRequest {
     fn into(self) -> serde_json::Value {
         match self.config {
-            Some(config) => serde_json::json!([self.start_slot, self.limit, config.commitment]),
+            Some(config) => serde_json::json!([self.start_slot, self.limit, config]),
             None => serde_json::json!([self.start_slot, self.limit]),
         }
     }
@@ -48,7 +48,6 @@ impl Into<ClientRequest> for GetBlocksWithLimitRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBlocksWithLimitResponse(Vec<Slot>);
 
 impl From<ClientResponse> for GetBlocksWithLimitResponse {

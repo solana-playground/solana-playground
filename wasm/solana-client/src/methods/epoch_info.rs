@@ -38,7 +38,6 @@ impl Into<ClientRequest> for GetEpochInfoRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetEpochInfoResponse(EpochInfo);
 
 impl From<ClientResponse> for GetEpochInfoResponse {

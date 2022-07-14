@@ -25,7 +25,7 @@ impl GetSlotLeaderRequest {
 impl Into<serde_json::Value> for GetSlotLeaderRequest {
     fn into(self) -> serde_json::Value {
         match self.config {
-            Some(config) => serde_json::json!([config.commitment]),
+            Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
@@ -51,7 +51,7 @@ impl Into<Pubkey> for GetSlotLeaderResponse {
 
 impl From<ClientResponse> for GetSlotLeaderResponse {
     fn from(response: ClientResponse) -> Self {
-        let pubkey = response.result.as_str().expect("public key is a string");
-        GetSlotLeaderResponse(Pubkey::from_str(pubkey).expect("public key is valid"))
+        let pubkey = response.result.as_str().expect("Invalid response");
+        GetSlotLeaderResponse(Pubkey::from_str(pubkey).expect("Invalid public key"))
     }
 }

@@ -128,16 +128,7 @@ impl WasmClient {
         pubkey: &Pubkey,
         config: RpcAccountInfoConfig,
     ) -> ClientResult<Option<Account>> {
-        let request = GetAccountInfoRequest::new_with_config(
-            *pubkey,
-            RpcAccountInfoConfig {
-                commitment: Some(config.commitment.unwrap()),
-                encoding: config.encoding,
-                data_slice: None,
-                min_context_slot: None,
-            },
-        )
-        .into();
+        let request = GetAccountInfoRequest::new_with_config(*pubkey, config).into();
         let response = GetAccountInfoResponse::from(self.send(request).await?);
 
         match response.value {
@@ -555,9 +546,8 @@ impl WasmClient {
         &self,
         config: RpcLargestAccountsConfig,
     ) -> ClientResult<Vec<RpcAccountBalance>> {
-        let commitment = config.commitment.unwrap_or_default();
         let config = RpcLargestAccountsConfig {
-            commitment: Some(commitment),
+            commitment: config.commitment,
             ..config
         };
 
@@ -580,7 +570,7 @@ impl WasmClient {
     ) -> ClientResult<RpcSupply> {
         self.get_supply_with_config(RpcSupplyConfig {
             commitment: Some(commitment_config),
-            exclude_non_circulating_accounts_list: None,
+            exclude_non_circulating_accounts_list: false,
         })
         .await
     }
@@ -622,7 +612,7 @@ impl WasmClient {
         config: RpcAccountInfoConfig,
     ) -> ClientResult<Vec<Option<Account>>> {
         let config = RpcAccountInfoConfig {
-            commitment: config.commitment.or(Some(self.commitment_config())),
+            commitment: config.commitment,
             ..config
         };
 

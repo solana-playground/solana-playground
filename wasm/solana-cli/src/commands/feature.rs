@@ -4,9 +4,14 @@ use clap::{Arg, ArgMatches, Command};
 use console::style;
 use serde::{Deserialize, Serialize};
 use solana_clap_v3_utils_wasm::{input_parsers::*, input_validators::*};
-use solana_cli_output_wasm::cli_output::{QuietDisplay, VerboseDisplay};
-use solana_cli_output_wasm::cli_version::CliVersion;
-use solana_client_wasm::{ClientError, WasmClient};
+use solana_cli_output_wasm::{
+    cli_output::{QuietDisplay, VerboseDisplay},
+    cli_version::CliVersion,
+};
+use solana_client_wasm::{
+    utils::rpc_request::MAX_MULTIPLE_ACCOUNTS,
+    {ClientError, WasmClient},
+};
 use solana_remote_wallet::remote_wallet::RemoteWalletManager;
 use solana_sdk::signer::Signer;
 use solana_sdk::{
@@ -800,36 +805,41 @@ async fn process_status(
         None
     };
     let mut inactive = false;
-    let mut features = rpc_client
-        .get_multiple_accounts(feature_ids)
-        .await?
-        .into_iter()
-        .zip(feature_ids)
-        .map(|(account, feature_id)| {
-            let feature_name = FEATURE_NAMES.get(feature_id).unwrap();
-            account
-                .and_then(status_from_account)
-                .map(|feature_status| CliFeature {
-                    id: feature_id.to_string(),
-                    description: feature_name.to_string(),
-                    status: feature_status,
-                })
-                .unwrap_or_else(|| {
-                    inactive = true;
-                    CliFeature {
+    let mut features = vec![];
+    for feature_ids in feature_ids.chunks(MAX_MULTIPLE_ACCOUNTS) {
+        let mut feature_chunk = rpc_client
+            .get_multiple_accounts(feature_ids)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .zip(feature_ids)
+            .map(|(account, feature_id)| {
+                let feature_name = FEATURE_NAMES.get(feature_id).unwrap();
+                account
+                    .and_then(status_from_account)
+                    .map(|feature_status| CliFeature {
                         id: feature_id.to_string(),
                         description: feature_name.to_string(),
-                        status: CliFeatureStatus::Inactive,
-                    }
-                })
-        })
-        .filter(|feature| match (filter, &feature.status) {
-            (Some(min_activation), CliFeatureStatus::Active(activation)) => {
-                activation > &min_activation
-            }
-            _ => true,
-        })
-        .collect::<Vec<_>>();
+                        status: feature_status,
+                    })
+                    .unwrap_or_else(|| {
+                        inactive = true;
+                        CliFeature {
+                            id: feature_id.to_string(),
+                            description: feature_name.to_string(),
+                            status: CliFeatureStatus::Inactive,
+                        }
+                    })
+            })
+            .filter(|feature| match (filter, &feature.status) {
+                (Some(min_activation), CliFeatureStatus::Active(activation)) => {
+                    activation > &min_activation
+                }
+                _ => true,
+            })
+            .collect::<Vec<_>>();
+        features.append(&mut feature_chunk);
+    }
 
     features.sort_unstable();
 

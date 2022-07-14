@@ -36,7 +36,7 @@ impl GetBlocksRequest {
 impl Into<serde_json::Value> for GetBlocksRequest {
     fn into(self) -> serde_json::Value {
         match self.config {
-            Some(config) => serde_json::json!([self.start_slot, self.end_slot, config.commitment]),
+            Some(config) => serde_json::json!([self.start_slot, self.end_slot, config]),
             None => serde_json::json!([self.start_slot, self.end_slot]),
         }
     }
