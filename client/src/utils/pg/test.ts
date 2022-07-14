@@ -10,7 +10,7 @@ import {
   IdlTypeVec,
 } from "@project-serum/anchor/dist/cjs/idl";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 
 import { TxVals } from "../../components/Panels/Side/Right/Test/Function";
 import { PgCommon } from "./common";
@@ -290,9 +290,9 @@ export class PgTest {
     tx.add(ix);
 
     // Add additional signers
-    let additionalSigners = [];
+    let additionalSigners: Signer[] = [];
     for (const name in txVals.additionalSigners) {
-      additionalSigners.push(txVals.additionalSigners[name]);
+      additionalSigners.push(txVals.additionalSigners[name] as Signer);
     }
 
     const txHash = await PgTx.send(tx, conn, wallet, additionalSigners);

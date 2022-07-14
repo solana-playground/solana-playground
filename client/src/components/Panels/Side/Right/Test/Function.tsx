@@ -59,7 +59,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   // State
   const [txVals, setTxVals] = useState<TxVals>({
     name: ixs.name,
-    additionalSigners: [],
+    additionalSigners: {},
   });
   const [errors, setErrors] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
