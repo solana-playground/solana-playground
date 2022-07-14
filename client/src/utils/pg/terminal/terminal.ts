@@ -134,7 +134,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   ];
 
   /**
-   * Give color to the specified keywords in TEXTS
+   * Give color before printing to terminal
    */
   static colorText(text: string) {
     for (const textInfo of this.TEXTS) {
@@ -143,7 +143,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
     // Match until ':' from the start of the line: e.g SUBCOMMANDS:
     text = text.replace(/^(.*?:)/gm, (match) => {
-      if (!match.includes("  ") && !match.toLowerCase().includes("error"))
+      if (match.startsWith(" ")) return this.bold(match); // Indented
+      if (!match.toLowerCase().includes("error") && !match.includes("  "))
         return this.primary(match);
 
       return match;

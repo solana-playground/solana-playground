@@ -120,7 +120,12 @@ impl WasmClient {
         let request = GetTransactionRequest::new_with_config(*signature, config).into();
         let response = GetTransactionResponse::from(self.send(request).await?);
 
-        Ok(response.into())
+        match response.into() {
+            Some(result) => Ok(result),
+            None => Err(ClientError::new(&format!(
+                "Signature {signature} not found."
+            ))),
+        }
     }
 
     pub async fn get_account_with_config(

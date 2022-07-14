@@ -1800,13 +1800,13 @@ export function __wbindgen_memory() {
   return addHeapObject(ret);
 }
 
-export function __wbindgen_closure_wrapper2394(arg0, arg1, arg2) {
-  const ret = makeMutClosure(arg0, arg1, 527, __wbg_adapter_28);
+export function __wbindgen_closure_wrapper2529(arg0, arg1, arg2) {
+  const ret = makeMutClosure(arg0, arg1, 543, __wbg_adapter_28);
   return addHeapObject(ret);
 }
 
-export function __wbindgen_closure_wrapper2674(arg0, arg1, arg2) {
-  const ret = makeMutClosure(arg0, arg1, 631, __wbg_adapter_31);
+export function __wbindgen_closure_wrapper2811(arg0, arg1, arg2) {
+  const ret = makeMutClosure(arg0, arg1, 647, __wbg_adapter_31);
   return addHeapObject(ret);
 }
 

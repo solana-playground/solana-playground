@@ -1,6 +1,4 @@
-use solana_extra_wasm::transaction_status::{
-    EncodedConfirmedTransactionWithStatusMeta, EncodedTransactionWithStatusMeta,
-};
+use solana_extra_wasm::transaction_status::EncodedConfirmedTransactionWithStatusMeta;
 use solana_sdk::signature::Signature;
 
 use crate::{utils::rpc_config::RpcTransactionConfig, ClientRequest, ClientResponse};
@@ -48,13 +46,7 @@ impl Into<ClientRequest> for GetTransactionRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GetTransactionResponse {
-    pub block_time: Option<i64>,
-    pub meta: serde_json::Value,
-    pub slot: u64,
-    pub transaction: EncodedTransactionWithStatusMeta,
-}
+pub struct GetTransactionResponse(Option<EncodedConfirmedTransactionWithStatusMeta>);
 
 impl From<ClientResponse> for GetTransactionResponse {
     fn from(response: ClientResponse) -> Self {
@@ -62,12 +54,8 @@ impl From<ClientResponse> for GetTransactionResponse {
     }
 }
 
-impl Into<EncodedConfirmedTransactionWithStatusMeta> for GetTransactionResponse {
-    fn into(self) -> EncodedConfirmedTransactionWithStatusMeta {
-        EncodedConfirmedTransactionWithStatusMeta {
-            block_time: self.block_time,
-            slot: self.slot,
-            transaction: self.transaction,
-        }
+impl Into<Option<EncodedConfirmedTransactionWithStatusMeta>> for GetTransactionResponse {
+    fn into(self) -> Option<EncodedConfirmedTransactionWithStatusMeta> {
+        self.0
     }
 }
