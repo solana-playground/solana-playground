@@ -15,30 +15,48 @@ export const useWasm = () => {
     try {
       setTerminalText(PgTerminal.info("Loading Solana CLI..."));
       const { runSolana } = await import("solana-cli-wasm");
-      setWasm({ runSolana });
+      setWasm((w) => ({ ...w, runSolana }));
       resultMsg = `${PgTerminal.success("Success.")}`;
 
       // This prevents unnecessary looping
       setTimeout(() => PgTerminal.runLastCmd());
     } catch (e: any) {
-      resultMsg = `Error loading solana-cli. Please consider filing a bug report in ${PgTerminal.underline(
+      resultMsg = `Error loading Solana CLI. Please consider filing a bug report in ${PgTerminal.underline(
         GITHUB_URL + "/issues"
       )}
 Error reason: ${e.message}`;
     } finally {
       setTerminalText(resultMsg + "\n");
     }
-  }, [setWasm, setTerminalText]);
+  }, [setTerminalText]);
+
+  const loadSplTokenCli = useCallback(async () => {
+    let resultMsg = "";
+    try {
+      setTerminalText(PgTerminal.info("Loading SPL-Token CLI..."));
+      const { runSplToken } = await import("spl-token-cli-wasm");
+      setWasm((w) => ({ ...w, runSplToken }));
+      resultMsg = `${PgTerminal.success("Success.")}`;
+
+      // This prevents unnecessary looping
+      setTimeout(() => PgTerminal.runLastCmd());
+    } catch (e: any) {
+      resultMsg = `Error loading SPL-Token CLI. Please consider filing a bug report in ${PgTerminal.underline(
+        GITHUB_URL + "/issues"
+      )}
+Error reason: ${e.message}`;
+    } finally {
+      setTerminalText(resultMsg + "\n");
+    }
+  }, [setTerminalText]);
 
   // Load solana cli only when user first enters a solana command
   useEffect(() => {
     const handleLoadWasm = (e: UIEvent) => {
       // @ts-ignore
       const pkg = e.detail.pkg as WasmPkg;
-      switch (pkg) {
-        case WasmPkg.SOLANA_CLI:
-          if (!wasm?.runSolana) loadSolanaCli();
-      }
+      if (pkg === WasmPkg.SOLANA_CLI) loadSolanaCli();
+      else if (pkg === WasmPkg.SPL_TOKEN_CLI) loadSplTokenCli();
     };
 
     document.addEventListener(
@@ -50,7 +68,7 @@ Error reason: ${e.message}`;
         PgTerminal.EVT_NAME_LOAD_WASM,
         handleLoadWasm as EventListener
       );
-  }, [wasm, loadSolanaCli]);
+  }, [wasm, loadSolanaCli, loadSplTokenCli]);
 
   // Listen for custom terminal events
   useEffect(() => {

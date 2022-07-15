@@ -1,0 +1,30 @@
+{
+  "name": "spl-token-cli-wasm",
+  "collaborators": [
+    "Acheron <acheroncrypto@gmail.com>"
+  ],
+  "description": "SPL-Token CLI for Solana Playground with WASM.",
+  "version": "2.0.15",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-playground/solana-playground"
+  },
+  "files": [
+    "spl_token_cli_wasm_bg.wasm",
+    "spl_token_cli_wasm.js",
+    "spl_token_cli_wasm_bg.js",
+    "spl_token_cli_wasm.d.ts"
+  ],
+  "module": "spl_token_cli_wasm.js",
+  "homepage": "https://beta.solpg.io",
+  "types": "spl_token_cli_wasm.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "spl",
+    "token",
+    "solana",
+    "cli",
+    "wasm"
+  ]
+}

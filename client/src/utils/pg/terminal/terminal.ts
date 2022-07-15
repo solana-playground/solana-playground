@@ -19,7 +19,13 @@ import { PgConnection } from "../connection";
 import { PgWallet } from "../wallet";
 
 export interface Wasm {
-  runSolana: (
+  runSolana?: (
+    arg: string,
+    endpoint: string,
+    commitment: string,
+    keypairBytes: Uint8Array
+  ) => void;
+  runSplToken?: (
     arg: string,
     endpoint: string,
     commitment: string,
@@ -29,6 +35,7 @@ export interface Wasm {
 
 export enum WasmPkg {
   SOLANA_CLI = "solana-cli",
+  SPL_TOKEN_CLI = "spl-token-cli",
 }
 
 enum TextState {
@@ -98,7 +105,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   clear                      Clear terminal
   connect                    Toggle connection to Playground Wallet
   deploy                     Deploy your program
-  solana                     Access Solana CLI commands
+  solana                     Commands for interacting with Solana
+  spl-token                  Commands related to SPL-Token
 `;
 
   /**
@@ -142,8 +150,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     }
 
     // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+    // TODO: Highlight the text from WASM so we don't have to do this.
     text = text.replace(/^(.*?:)/gm, (match) => {
-      if (match.startsWith(" ")) return this.bold(match); // Indented
+      if (!match.includes("   ") && match.startsWith(" "))
+        return this.bold(match); // Indented
       if (!match.toLowerCase().includes("error") && !match.includes("  "))
         return this.primary(match);
 
@@ -332,10 +342,12 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Get the remaining CLI args
    *
    * - Solana: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
+   * - SPL-Token: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
    */
   static getCliArgs(pkg: WasmPkg) {
     switch (pkg) {
       case WasmPkg.SOLANA_CLI:
+      case WasmPkg.SPL_TOKEN_CLI:
         return [
           PgConnection.endpoint,
           PgConnection.commitment,
@@ -597,7 +609,10 @@ export class PgTerm {
    * This function is useful for running wasm cli packages after first loading
    */
   runLastCmd() {
-    this.pgTty.setInput(this.pgShell.history.getPrevious());
+    let lastCmd = this.pgTty.getInput();
+    if (!lastCmd) lastCmd = this.pgShell.history.getPrevious();
+
+    this.pgTty.setInput(lastCmd);
     this.pgShell.handleReadComplete();
   }
 

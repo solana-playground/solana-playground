@@ -75,7 +75,9 @@ export default class PgShell {
       return true;
     }
     if (cmd === "clear") {
+      // Move first line to the top
       this.pgTty.clearTty();
+      // Clear everything
       this.pgTty.xterm.clear();
       this.prompt();
       return true;
@@ -91,13 +93,29 @@ export default class PgShell {
 
     if (cmdName === "solana") {
       const wasm = this._wasm;
-      if (wasm?.runSolana) {
-        if (PgWallet.checkIsPgConnected()) {
+      if (PgWallet.checkIsPgConnected()) {
+        if (wasm?.runSolana) {
           // @ts-ignore
           wasm.runSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
+        } else {
+          PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
         }
-      } else {
-        PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
+      }
+
+      return true;
+    }
+    if (cmdName === "spl-token") {
+      const wasm = this._wasm;
+      if (PgWallet.checkIsPgConnected()) {
+        if (wasm?.runSplToken) {
+          wasm.runSplToken(
+            cmd,
+            // @ts-ignore
+            ...PgTerminal.getCliArgs(WasmPkg.SPL_TOKEN_CLI)
+          );
+        } else {
+          PgTerminal.loadWasm(WasmPkg.SPL_TOKEN_CLI);
+        }
       }
 
       return true;
