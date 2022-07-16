@@ -76,9 +76,9 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   useEffect(() => {
     const handleResize = () => {
       const windowHeight =
-        document.getElementById(Id.ROOT)?.getClientRects()[0].height ?? 979;
+        document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979;
       const bottomHeight =
-        document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24;
+        document.getElementById(Id.BOTTOM)?.getClientRects()[0]?.height ?? 24;
 
       setHeight({ window: windowHeight, bottom: bottomHeight });
     };

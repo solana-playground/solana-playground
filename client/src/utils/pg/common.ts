@@ -161,8 +161,12 @@ export class PgCommon {
     return text;
   }
 
-  static createAndDispatchCustomEvent(name: string, obj?: object) {
-    const customEvent = new CustomEvent(name, { detail: obj });
+  static isFirefox() {
+    return window.navigator.userAgent.includes("Firefox");
+  }
+
+  static createAndDispatchCustomEvent(name: string, detail?: any) {
+    const customEvent = new CustomEvent(name, { detail });
 
     document.dispatchEvent(customEvent);
   }

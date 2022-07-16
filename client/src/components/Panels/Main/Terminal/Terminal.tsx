@@ -40,7 +40,7 @@ const Terminal = () => {
     });
   }, [theme]);
 
-  // Custom keyboard event
+  // Custom keyboard events
   // Only runs when terminal is in focus
   const handleCustomEvent = useCallback(
     (e: KeyboardEvent) => {
@@ -49,10 +49,21 @@ const Terminal = () => {
 
         switch (key) {
           case "C":
-            e.preventDefault();
-            const selection = term.xterm.getSelection();
-            navigator.clipboard.writeText(selection);
-            return false;
+            if (e.shiftKey) {
+              e.preventDefault();
+              const selection = term.getSelection();
+              navigator.clipboard.writeText(selection);
+              return false;
+            }
+
+            return true;
+
+          case "V":
+            // Ctrl+Shift+V does not work with Firefox but works with Chromium.
+            // We fallback to Ctrl+V for Firefox
+            if (e.shiftKey || PgCommon.isFirefox()) return false;
+
+            return true;
 
           case "L":
           case "M":

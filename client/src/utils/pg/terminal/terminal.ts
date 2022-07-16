@@ -575,6 +575,10 @@ export class PgTerm {
     this.pgTty.print(data);
   }
 
+  getSelection() {
+    return this.xterm.getSelection();
+  }
+
   /**
    * Moves the command line to the top of the terminal screen
    *
