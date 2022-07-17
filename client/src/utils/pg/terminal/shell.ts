@@ -14,6 +14,7 @@ import { PgTerminal, Wasm, WasmPkg } from "./terminal";
 import { PgWallet } from "../wallet";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
+type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
 
 /**
  * A shell is the primary interface that is used to start other programs.
@@ -36,8 +37,8 @@ export default class PgShell {
 
   constructor(
     pgTty: PgTty,
-    options: { historySize: number; maxAutocompleteEntries: number } = {
-      historySize: 10,
+    options: ShellOptions = {
+      historySize: 30,
       maxAutocompleteEntries: 100,
     }
   ) {
@@ -172,8 +173,7 @@ export default class PgShell {
         }
       } else if (this.history) {
         const input = this.pgTty.getInput().trim();
-        // Only put input into history if it's unique
-        if (!this.history.includes(input)) this.history.push(input);
+        this.history.push(input);
       }
     } catch (e: any) {
       this.pgTty.println(e.message);

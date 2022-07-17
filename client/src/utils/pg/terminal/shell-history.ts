@@ -17,14 +17,26 @@ export default class ShellHistory {
    */
   push(entry: string) {
     // Skip empty entries
-    if (entry.trim() === "") return;
-    // Skip duplicate entries
-    const lastEntry = this.entries[this.entries.length - 1];
-    if (entry === lastEntry) return;
+    if (!entry) return;
+
+    // If it's a duplicate entry, change index
+    const entryIndex = this.entries.indexOf(entry);
+    if (entryIndex !== -1) {
+      const isEntryLastIndex = entryIndex === this.entries.length - 1;
+      this.entries = this.entries
+        .slice(0, entryIndex)
+        .concat(
+          this.entries.slice(isEntryLastIndex ? entryIndex : entryIndex + 1)
+        );
+    }
+
+    // Only push if the last entry is not the same
+    if (!this.entries.length || this.entries[this.entries.length - 1] !== entry)
+      this.entries.push(entry);
+
     // Keep track of entries
-    this.entries.push(entry);
     if (this.entries.length > this.size) {
-      this.entries.pop();
+      this.entries = this.entries.slice(1);
     }
     this.cursor = this.entries.length;
   }
