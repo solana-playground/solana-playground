@@ -8,6 +8,7 @@ import { PgProgramInfo } from "../../../../../utils/pg";
 import { Wormhole } from "../../../../Loading";
 import { ConnectionErrorText } from "../../Common";
 import { useIsDeployed } from "../BuildDeploy";
+import FetchableAccount from "./FetchableAccount";
 
 // Webpack 5 doesn't polyfill buffer
 window.Buffer = buffer.Buffer;
@@ -76,9 +77,20 @@ const Test = () => {
             Program:
             <ProgramName>{idl.name}</ProgramName>
           </ProgramNameWrapper>
-          {idl.instructions.map((ixs, i) => (
-            <Function key={i} idl={idl} index={i} ixs={ixs} />
-          ))}
+
+          <ProgramInteractionWrapper>
+            <Subheading>Instructions</Subheading>
+            {idl.instructions.map((ixs, i) => (
+              <Function key={i} idl={idl} index={i} ixs={ixs} />
+            ))}
+          </ProgramInteractionWrapper>
+
+          <ProgramInteractionWrapper>
+            <Subheading>Accounts</Subheading>
+            {idl.accounts?.map((acc, i) => (
+              <FetchableAccount key={i} index={i} accountName={acc.name} idl={idl} />
+            ))}
+          </ProgramInteractionWrapper>
         </ProgramWrapper>
       </Wrapper>
     );
@@ -100,16 +112,26 @@ const InitialWrapper = styled.div`
 
 const ProgramWrapper = styled.div`
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
 `;
 
 const ProgramNameWrapper = styled.div`
-  padding: 1rem;
+  padding-left: 1rem;
 `;
 
 const ProgramName = styled.span`
   font-weight: bold;
   margin-left: 0.25rem;
 `;
+
+const Subheading = styled.h4`
+  margin: 0.5rem 1rem;
+`
+
+const ProgramInteractionWrapper = styled.div``;
 
 export default Test;
 

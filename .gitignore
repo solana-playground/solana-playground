@@ -17,6 +17,6 @@
 server
 
 # wasm
-*/target
+**/target
 **/www
 
