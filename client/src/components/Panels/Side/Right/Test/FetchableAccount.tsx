@@ -1,7 +1,7 @@
 import { BN, Idl } from "@project-serum/anchor";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { PgAccount } from "../../../../../utils/pg/account";
 import Button from "../../../../Button";
@@ -32,6 +32,7 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
   const { currentWallet } = useCurrentWallet();
 
   const [enteredAddress, setEnteredAddress] = useState("");
+  const [enteredAddressError, setEnteredAddressError] = useState(false);
   const [fetchedData, setFetchedData] = useState<any>();
 
   useEffect(() => {
@@ -62,16 +63,52 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
     setFetchedData(accountData);
   }
 
+  const enteredAddressChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const address = e.target.value;
+    if (address) {
+      try {
+        new PublicKey(address);
+        setEnteredAddressError(false);
+      } catch {
+        setEnteredAddressError(true);
+      }
+    }
+
+    setEnteredAddress(address);
+  }
+
   return (
     <>
       <InputWrapper>
         <InputLabel label="address" type="publicKey" />
-        <Input type="text" value={enteredAddress} onChange={e => setEnteredAddress(e.target.value)} {...defaultInputProps} />
+        <Input
+          type="text"
+          className={enteredAddressError ? 'error' : ''}
+          value={enteredAddress}
+          onChange={enteredAddressChanged}
+          {...defaultInputProps}
+        />
       </InputWrapper>
 
       <ButtonsWrapper>
-        <Button onClick={fetchEntered} disabled={!enteredAddress} kind="outline" fullWidth={false} size="small">Fetch Entered</Button>
-        <Button onClick={fetchAll} kind="outline" fullWidth={false} size="small">Fetch All</Button>
+        <Button
+          onClick={fetchEntered}
+          disabled={!enteredAddress || enteredAddressError || !currentWallet}
+          kind="outline"
+          fullWidth={false}
+          size="small"
+        >
+          Fetch Entered
+        </Button>
+        <Button
+          onClick={fetchAll}
+          disabled={!currentWallet}
+          kind="outline"
+          fullWidth={false}
+          size="small"
+        >
+          Fetch All
+        </Button>
       </ButtonsWrapper>
 
       {fetchedData && (
