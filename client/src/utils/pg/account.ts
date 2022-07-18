@@ -28,8 +28,10 @@ export class PgAccount {
     conn: Connection,
     wallet: PgWallet | AnchorWallet
   ) {
-    const program = await this.getProgram(idl, conn, wallet)
-    const allAccountData = await program.account[PgCommon.camelize(accountName)].all();
+    const program = await this.getProgram(idl, conn, wallet);
+    const allAccountData = await program.account[
+      PgCommon.camelize(accountName)
+    ].all();
     return allAccountData;
   }
 
@@ -40,8 +42,10 @@ export class PgAccount {
     conn: Connection,
     wallet: PgWallet | AnchorWallet
   ) {
-    const program = await this.getProgram(idl, conn, wallet)
-    const accountData = await program.account[PgCommon.camelize(accountName)].fetch(address);
+    const program = await this.getProgram(idl, conn, wallet);
+    const accountData = await program.account[
+      PgCommon.camelize(accountName)
+    ].fetch(address);
     return accountData;
   }
 }

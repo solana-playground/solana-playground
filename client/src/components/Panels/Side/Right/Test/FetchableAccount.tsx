@@ -14,20 +14,27 @@ interface FetchableAccountProps extends FetchableAccountInsideProps {
   index: number;
 }
 
-const FetchableAccount: FC<FetchableAccountProps> = ({ accountName, idl, index }) => (
+const FetchableAccount: FC<FetchableAccountProps> = ({
+  accountName,
+  idl,
+  index,
+}) => (
   <FetchableAccountWrapper index={index}>
     <Foldable ClickEl={<AccountName>{accountName}</AccountName>}>
       <FetchableAccountInside idl={idl} accountName={accountName} />
     </Foldable>
   </FetchableAccountWrapper>
-)
+);
 
 interface FetchableAccountInsideProps {
   accountName: string;
   idl: Idl;
 }
 
-const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProps) => {
+const FetchableAccountInside = ({
+  accountName,
+  idl,
+}: FetchableAccountInsideProps) => {
   const { connection: conn } = useConnection();
   const { currentWallet } = useCurrentWallet();
 
@@ -42,45 +49,61 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
     const oldBNPrototypeToJSON = BN.prototype.toJSON;
     BN.prototype.toJSON = function (this: BN) {
       return this.toString();
-    }
+    };
 
     // Change the toJSON prototype back on unmount
-    return () => { BN.prototype.toJSON = oldBNPrototypeToJSON }
-  }, [])
+    return () => {
+      BN.prototype.toJSON = oldBNPrototypeToJSON;
+    };
+  }, []);
 
   const handleError = (err: any) => {
-    if (err instanceof Error && err.message.startsWith("Account does not exist")) {
+    if (
+      err instanceof Error &&
+      err.message.startsWith("Account does not exist")
+    ) {
       setFetchError(err.message);
     } else {
       console.error(err);
       setFetchError("Unknown error fetching account data");
     }
-  }
+  };
 
   const handleFetched = (data: any) => {
     setFetchedData(data);
     setFetchError(undefined);
-  }
+  };
 
   const fetchAll = async () => {
     if (!currentWallet) return;
     try {
-      const accountData = await PgAccount.fetchAll(accountName, idl, conn, currentWallet);
+      const accountData = await PgAccount.fetchAll(
+        accountName,
+        idl,
+        conn,
+        currentWallet
+      );
       handleFetched(accountData);
     } catch (err: any) {
       handleError(err);
     }
-  }
+  };
 
   const fetchEntered = async () => {
     if (!currentWallet) return;
     try {
-      const accountData = await PgAccount.fetchOne(accountName, new PublicKey(enteredAddress), idl, conn, currentWallet);
+      const accountData = await PgAccount.fetchOne(
+        accountName,
+        new PublicKey(enteredAddress),
+        idl,
+        conn,
+        currentWallet
+      );
       handleFetched(accountData);
     } catch (err: any) {
       handleError(err);
     }
-  }
+  };
 
   const enteredAddressChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const address = e.target.value;
@@ -94,7 +117,7 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
     }
 
     setEnteredAddress(address);
-  }
+  };
 
   const renderResult = () => {
     if (fetchError) {
@@ -103,16 +126,14 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
       return (
         <ResultWrapper>
           <Foldable ClickEl={<span>Result</span>} open>
-            <Result>
-              {JSON.stringify(fetchedData, null, 2)}
-            </Result>
+            <Result>{JSON.stringify(fetchedData, null, 2)}</Result>
           </Foldable>
         </ResultWrapper>
       );
     } else {
       return null;
     }
-  }
+  };
 
   return (
     <>
@@ -120,7 +141,7 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
         <InputLabel label="address" type="publicKey" />
         <Input
           type="text"
-          className={enteredAddressError ? 'error' : ''}
+          className={enteredAddressError ? "error" : ""}
           value={enteredAddress}
           onChange={enteredAddressChanged}
           {...defaultInputProps}
@@ -150,8 +171,8 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
 
       {renderResult()}
     </>
-  )
-}
+  );
+};
 
 interface FetchableAccountWrapperProps {
   index: number;
@@ -184,7 +205,7 @@ const ButtonsWrapper = styled.div`
 `;
 
 const ResultWrapper = styled.div`
-    margin: 0.5rem 0;
+  margin: 0.5rem 0;
 `;
 
 const ErrorWrapper = styled.div`
@@ -196,8 +217,8 @@ const ErrorWrapper = styled.div`
 `;
 
 const Result = styled.pre`
-    user-select: text;
-    font-family: monospace;
-`
+  user-select: text;
+  font-family: monospace;
+`;
 
 export default FetchableAccount;

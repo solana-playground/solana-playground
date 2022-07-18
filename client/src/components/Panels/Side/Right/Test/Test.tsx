@@ -88,7 +88,12 @@ const Test = () => {
           <ProgramInteractionWrapper>
             <Subheading>Accounts</Subheading>
             {idl.accounts?.map((acc, i) => (
-              <FetchableAccount key={i} index={i} accountName={acc.name} idl={idl} />
+              <FetchableAccount
+                key={i}
+                index={i}
+                accountName={acc.name}
+                idl={idl}
+              />
             ))}
           </ProgramInteractionWrapper>
         </ProgramWrapper>
@@ -129,7 +134,7 @@ const ProgramName = styled.span`
 
 const Subheading = styled.h4`
   margin: 0.5rem 1rem;
-`
+`;
 
 const ProgramInteractionWrapper = styled.div``;
 
