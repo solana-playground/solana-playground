@@ -5,10 +5,17 @@ import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 export class PgCommon {
   static readonly TRANSITION_SLEEP = 200;
 
+  /**
+   * @param ms amount of time to sleep in ms
+   * @returns a promise that will resolve after specified ms
+   */
   static async sleep(ms: number) {
     return new Promise((res) => setTimeout((s) => res(s), ms));
   }
 
+  /**
+   * @returns the decoded utf-8 string
+   */
   static decodeArrayBuffer(arrayBuffer: ArrayBuffer) {
     const decoder = new TextDecoder("utf-8");
     const decodedString = decoder.decode(arrayBuffer);
@@ -24,19 +31,31 @@ export class PgCommon {
     return { arrayBuffer };
   }
 
+  /**
+   * @returns first and last (default: 5) chars of a public key and '...' in between as string
+   */
   static shortenPk(pk: PublicKey | string, chars: number = 5) {
     const pkStr = typeof pk === "object" ? pk.toBase58() : pk;
     return `${pkStr.slice(0, chars)}...${pkStr.slice(-chars)}`;
   }
 
+  /**
+   * @returns lamports amount to equivalent Sol
+   */
   static lamportsToSol(lamports: number) {
     return lamports / LAMPORTS_PER_SOL;
   }
 
+  /**
+   * @returns Sol amount to equivalent lamports
+   */
   static solToLamports(sol: number) {
     return sol * LAMPORTS_PER_SOL;
   }
 
+  /**
+   * Convert seconds into human readable string format
+   */
   static secondsToTime(secs: number) {
     const d = Math.floor(secs / (60 * 60 * 24)),
       h = Math.floor((secs % (60 * 60 * 24)) / (60 * 60)),
@@ -51,6 +70,9 @@ export class PgCommon {
     return "";
   }
 
+  /**
+   * @returns utf-8 encoded string from the arg
+   */
   static getUtf8EncodedString(object: object) {
     return (
       "data:text/json;charset=utf-8," +
@@ -79,6 +101,8 @@ export class PgCommon {
 
   /**
    *  Used for getting transaction urls for explorers
+   *
+   * @returns tx url of [Solana Explorer, Solscan]
    */
   static getExplorerTxUrls(txHash: string, endpoint: Endpoint) {
     let explorer = EXPLORER_URL + "/tx/" + txHash;
@@ -95,6 +119,9 @@ export class PgCommon {
     return [explorer, solscan];
   }
 
+  /**
+   * @returns whether a given string is parseable to an int
+   */
   static isInt(str: string) {
     const intRegex = /^-?\d+$/;
     if (!intRegex.test(str)) return false;
@@ -103,6 +130,9 @@ export class PgCommon {
     return parseFloat(str) === int && !isNaN(int);
   }
 
+  /**
+   * @returns whether a given string is parseable to a float
+   */
   static isFloat(str: string) {
     const floatRegex = /^-?\d+(?:[.,]\d*?)?$/;
     if (!floatRegex.test(str)) return false;
@@ -112,6 +142,9 @@ export class PgCommon {
     return true;
   }
 
+  /**
+   * Calculate basic rem operations for css
+   */
   static calculateRem(
     remOne: string,
     remTwo: string,
@@ -129,14 +162,14 @@ export class PgCommon {
   }
 
   /**
-   * Returns true if the pressed key is `Ctrl` or `Cmd`
+   * @returns true if the pressed key is `Ctrl` or `Cmd`
    */
   static isKeyCtrlOrCmd(e: globalThis.KeyboardEvent) {
     return e.ctrlKey || e.metaKey;
   }
 
   /**
-   * Returns true if the OS is Mac
+   * @returns true if the OS is Mac
    */
   static isMac() {
     const macPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
@@ -161,10 +194,16 @@ export class PgCommon {
     return text;
   }
 
+  /**
+   * @returns whether the browser is Firefox
+   */
   static isFirefox() {
     return window.navigator.userAgent.includes("Firefox");
   }
 
+  /**
+   * Dispatch a custom DOM event
+   */
   static createAndDispatchCustomEvent(name: string, detail?: any) {
     const customEvent = new CustomEvent(name, { detail });
 

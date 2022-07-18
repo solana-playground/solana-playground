@@ -308,9 +308,16 @@ export default class PgTty {
   /**
    * Function to get the current line
    */
-  getCurrentLine(offset: number = 0) {
+  private _getCurrentLine(offset: number = 0) {
     const buffer = this.getBuffer();
     return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
+  }
+
+  /**
+   * @returns the current line as string
+   */
+  getCurrentLineString(offset: number = 0) {
+    return this._getCurrentLine(offset)?.translateToString();
   }
 
   /**
@@ -320,7 +327,7 @@ export default class PgTty {
    */
   getInputStartsWithPrompt() {
     for (let i = 0; i < 10; i++) {
-      const currentLine = this.getCurrentLine(i);
+      const currentLine = this._getCurrentLine(i);
       if (!currentLine) return;
 
       if (!currentLine.isWrapped) {

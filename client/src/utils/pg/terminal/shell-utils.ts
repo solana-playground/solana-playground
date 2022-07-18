@@ -85,14 +85,14 @@ export function isIncompleteInput(input: string) {
 }
 
 /**
- * Returns true if the expression ends on a tailing whitespace
+ * @returns true if the expression ends on a tailing whitespace
  */
 export function hasTrailingWhitespace(input: string) {
   return input.match(/[^\\][ \t]$/m) !== null;
 }
 
 /**
- * Returns the last expression in the given input
+ * @returns the last expression in the given input
  */
 export function getLastToken(input: string): string {
   // Empty expressions
@@ -105,7 +105,7 @@ export function getLastToken(input: string): string {
 }
 
 /**
- * Returns the auto-complete candidates for the given input
+ * @returns the auto-complete candidates for the given input
  */
 export function collectAutocompleteCandidates(
   callbacks: ((index: number, tokens: string[]) => string[])[],

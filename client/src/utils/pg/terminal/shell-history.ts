@@ -1,5 +1,5 @@
 /**
- * The shell history provides an ring-buffer
+ * Keeps track of shell history
  */
 export default class ShellHistory {
   size: number;
@@ -16,8 +16,8 @@ export default class ShellHistory {
    * Push an entry and maintain ring buffer size
    */
   push(entry: string) {
-    // Skip empty entries
-    if (!entry) return;
+    // Skip empty entries or special last cmd
+    if (!entry || entry === "!!") return;
 
     // If it's a duplicate entry, change index
     const entryIndex = this.entries.indexOf(entry);
@@ -42,13 +42,6 @@ export default class ShellHistory {
   }
 
   /**
-   * Check if the history includes an entry
-   */
-  includes(entry: string) {
-    return this.entries.includes(entry);
-  }
-
-  /**
    * Rewind history cursor on the last entry
    */
   rewind() {
@@ -56,20 +49,20 @@ export default class ShellHistory {
   }
 
   /**
-   * Returns the previous entry
+   * @returns the previous entry if it exists
    */
   getPrevious() {
     const idx = Math.max(0, this.cursor - 1);
     this.cursor = idx;
-    return this.entries[idx];
+    if (this.entries.length > idx) return this.entries[idx];
   }
 
   /**
-   * Returns the next entry
+   * @returns the next entry if it exists
    */
   getNext() {
     const idx = Math.min(this.entries.length, this.cursor + 1);
     this.cursor = idx;
-    return this.entries[idx];
+    if (this.entries.length >= idx) return this.entries[idx];
   }
 }

@@ -323,13 +323,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Runs when user presses a key when the terminal is in focus
-   */
-  static isCharValid(char: string) {
-    return char.match(/^[\w.\-/+\\='":;|,?><`~!@#$%^&*()[\]{} ]+$/);
-  }
-
-  /**
    * Gets whether the terminal is focused or in blur
    */
   static isTerminalFocused() {
@@ -407,7 +400,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
 export class PgTerm {
   xterm: XTerm;
-  container: HTMLElement | undefined;
+  container: HTMLElement | null;
   webLinksAddon: WebLinksAddon;
   fitAddon: FitAddon;
 
@@ -433,7 +426,7 @@ export class PgTerm {
     });
 
     // Set up  container
-    this.container = undefined;
+    this.container = null;
 
     // Load addons
     this.webLinksAddon = new WebLinksAddon();
@@ -464,6 +457,7 @@ export class PgTerm {
     // Print welcome text
     this.println(PgTerminal.DEFAULT_TEXT);
 
+    // Enable prompt
     this.enable();
   }
 
@@ -613,8 +607,13 @@ export class PgTerm {
    * This function is useful for running wasm cli packages after first loading
    */
   runLastCmd() {
+    // Last command is current input
     let lastCmd = this.pgTty.getInput();
-    if (!lastCmd) lastCmd = this.pgShell.history.getPrevious();
+    if (!lastCmd) {
+      const maybeLastCmd = this.pgShell.history.getPrevious();
+      if (maybeLastCmd) lastCmd = maybeLastCmd;
+      else this.println("Unable to run last command.");
+    }
 
     this.pgTty.setInput(lastCmd);
     this.pgShell.handleReadComplete();

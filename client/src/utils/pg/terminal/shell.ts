@@ -60,20 +60,21 @@ export default class PgShell {
    */
   _parseCommand(cmd: string) {
     cmd = cmd.trim();
+    let isCmdValid = false;
     if (cmd === "help") {
       PgTerminal.logWasm(PgTerminal.HELP_TEXT);
       this.enable();
-      return true;
+      isCmdValid = true;
     }
     if (cmd === "build") {
       PgTerminal.setTerminalState(TerminalAction.buildStart);
-      return true;
+      isCmdValid = true;
     }
     if (cmd === "deploy") {
       if (PgWallet.checkIsPgConnected())
         PgTerminal.setTerminalState(TerminalAction.deployStart);
 
-      return true;
+      isCmdValid = true;
     }
     if (cmd === "clear") {
       // Move first line to the top
@@ -81,11 +82,11 @@ export default class PgShell {
       // Clear everything
       this.pgTty.xterm.clear();
       this.prompt();
-      return true;
+      isCmdValid = true;
     }
     if (cmd === "connect") {
       PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
-      return true;
+      isCmdValid = true;
     }
 
     // This guarantees command only start with the specified command name
@@ -103,7 +104,7 @@ export default class PgShell {
         }
       }
 
-      return true;
+      isCmdValid = true;
     }
     if (cmdName === "spl-token") {
       const wasm = this._wasm;
@@ -119,10 +120,33 @@ export default class PgShell {
         }
       }
 
-      return true;
+      isCmdValid = true;
     }
 
-    return false;
+    // Special commands
+    if (cmd === "!!") {
+      // Run the last command
+      const entries = this.history.entries;
+      if (!entries.length) {
+        this.pgTty.println("No previous command.");
+        this.enable();
+      } else {
+        const lastCmd = entries[entries.length - 1];
+        this._parseCommand(lastCmd);
+      }
+
+      isCmdValid = true;
+    }
+
+    // Only new prompt after invalid command, other commands will automatically
+    // generate new prompt
+    if (!isCmdValid) {
+      if (cmd) {
+        this.pgTty.println(`Command '${PgTerminal.italic(cmd)}' not found.\n`);
+      }
+
+      this.enable();
+    }
   }
 
   setWasm(wasm: Wasm) {
@@ -164,14 +188,7 @@ export default class PgShell {
         return;
       }
 
-      if (line === "!!") {
-        // This means run the previous command
-        if (this.history && this.history.entries.length > 0) {
-          line = this.history.entries[this.history.entries.length - 1];
-        } else {
-          throw new Error("No Previous command in History");
-        }
-      } else if (this.history) {
+      if (this.history) {
         const input = this.pgTty.getInput().trim();
         this.history.push(input);
       }
@@ -271,19 +288,7 @@ export default class PgShell {
     this.pgTty.print("\r\n");
     this._active = false;
 
-    const isCmdValid = this._parseCommand(input);
-
-    // Only new prompt after invalid command, other commands will automatically
-    // generate new prompt
-    if (!isCmdValid) {
-      if (input) {
-        this.pgTty.print(
-          `Command '${PgTerminal.italic(input.trim())}' not found.\n\n`
-        );
-      }
-
-      this.enable();
-    }
+    this._parseCommand(input);
   };
 
   /**
