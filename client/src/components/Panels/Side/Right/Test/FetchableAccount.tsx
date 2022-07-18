@@ -34,6 +34,7 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
   const [enteredAddress, setEnteredAddress] = useState("");
   const [enteredAddressError, setEnteredAddressError] = useState(false);
   const [fetchedData, setFetchedData] = useState<any>();
+  const [fetchError, setFetchError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     // The default BN.toJSON is a hex string, but we want a readable string
@@ -47,20 +48,38 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
     return () => { BN.prototype.toJSON = oldBNPrototypeToJSON }
   }, [])
 
+  const handleError = (err: any) => {
+    if (err instanceof Error && err.message.startsWith("Account does not exist")) {
+      setFetchError(err.message);
+    } else {
+      console.error(err);
+      setFetchError("Unknown error fetching account data");
+    }
+  }
+
+  const handleFetched = (data: any) => {
+    setFetchedData(data);
+    setFetchError(undefined);
+  }
+
   const fetchAll = async () => {
     if (!currentWallet) return;
-    setFetchedData(null);
-    const accountData = await PgAccount.fetchAll(accountName, idl, conn, currentWallet);
-    console.log({ accountData });
-    setFetchedData(accountData);
+    try {
+      const accountData = await PgAccount.fetchAll(accountName, idl, conn, currentWallet);
+      handleFetched(accountData);
+    } catch (err: any) {
+      handleError(err);
+    }
   }
 
   const fetchEntered = async () => {
     if (!currentWallet) return;
-    setFetchedData(null);
-    const accountData = await PgAccount.fetchOne(accountName, new PublicKey(enteredAddress), idl, conn, currentWallet);
-    console.log({ accountData: accountData.data.toString() });
-    setFetchedData(accountData);
+    try {
+      const accountData = await PgAccount.fetchOne(accountName, new PublicKey(enteredAddress), idl, conn, currentWallet);
+      handleFetched(accountData);
+    } catch (err: any) {
+      handleError(err);
+    }
   }
 
   const enteredAddressChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +94,24 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
     }
 
     setEnteredAddress(address);
+  }
+
+  const renderResult = () => {
+    if (fetchError) {
+      return <ErrorWrapper>{fetchError}</ErrorWrapper>;
+    } else if (fetchedData) {
+      return (
+        <ResultWrapper>
+          <Foldable ClickEl={<span>Result</span>} open>
+            <Result>
+              {JSON.stringify(fetchedData, null, 2)}
+            </Result>
+          </Foldable>
+        </ResultWrapper>
+      );
+    } else {
+      return null;
+    }
   }
 
   return (
@@ -111,15 +148,7 @@ const FetchableAccountInside = ({ accountName, idl }: FetchableAccountInsideProp
         </Button>
       </ButtonsWrapper>
 
-      {fetchedData && (
-        <ResultWrapper>
-          <Foldable ClickEl={<span>Result</span>} open>
-            <Result>
-              {JSON.stringify(fetchedData, null, 2)}
-            </Result>
-          </Foldable>
-        </ResultWrapper>
-      )}
+      {renderResult()}
     </>
   )
 }
@@ -156,6 +185,14 @@ const ButtonsWrapper = styled.div`
 
 const ResultWrapper = styled.div`
     margin: 0.5rem 0;
+`;
+
+const ErrorWrapper = styled.div`
+  ${({ theme }) => css`
+    margin: 0.5rem 0;
+    color: ${theme.colors.state.error.color};
+    user-select: text;
+  `}
 `;
 
 const Result = styled.pre`
