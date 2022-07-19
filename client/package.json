@@ -57,7 +57,8 @@
   "scripts": {
     "start": "craco start",
     "build": "GENERATE_SOURCEMAP=false craco build",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "check-format": "prettier --check src/"
   },
   "eslintConfig": {
     "extends": [
