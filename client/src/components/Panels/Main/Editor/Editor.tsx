@@ -335,6 +335,10 @@ const Wrapper = styled.div`
     & ::-webkit-scrollbar-thumb:hover {
       background-color: ${theme.scrollbar?.thumb.hoverColor};
     }
+
+    & ::-webkit-scrollbar-corner {
+      background-color: ${theme.colors.right?.bg};
+    }
   `}
 `;
 

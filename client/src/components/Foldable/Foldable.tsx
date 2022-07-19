@@ -1,11 +1,12 @@
 import {
   FC,
-  MouseEvent,
   ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
+  Dispatch,
+  SetStateAction,
 } from "react";
 import styled from "styled-components";
 
@@ -15,29 +16,35 @@ import { Arrow } from "../Icons";
 interface FoldableProps {
   ClickEl: ReactNode;
   open?: boolean;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-const Foldable: FC<FoldableProps> = ({ ClickEl, open = false, children }) => {
+const Foldable: FC<FoldableProps> = ({
+  ClickEl,
+  open = false,
+  setOpen,
+  children,
+}) => {
   const [show, setShow] = useState(false);
+
+  const clickWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShow(open);
-    if (open) {
+  }, [open]);
+
+  const handleClick = useCallback(() => {
+    if (setOpen) setOpen((o) => !o);
+    else setShow((s) => !s);
+  }, [setOpen]);
+
+  useEffect(() => {
+    if (show) {
       clickWrapperRef.current?.classList.add(ClassName.OPEN);
+    } else {
+      clickWrapperRef.current?.classList.remove(ClassName.OPEN);
     }
-  }, [open, setShow]);
-
-  const handleClick = useCallback(
-    (e: MouseEvent<HTMLDivElement>) => {
-      // Rotate arrow
-      e.currentTarget.classList.toggle(ClassName.OPEN);
-
-      setShow((s) => !s);
-    },
-    [setShow]
-  );
-
-  const clickWrapperRef = useRef<HTMLDivElement>(null);
+  }, [show]);
 
   return (
     <>
@@ -61,7 +68,7 @@ const ClickElWrapper = styled.div`
     margin-right: 0.5rem;
   }
 
-  &.open svg {
+  &.${ClassName.OPEN} svg {
     transform: rotate(90deg);
   }
 

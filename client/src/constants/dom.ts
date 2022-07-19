@@ -1,5 +1,6 @@
 export enum ClassName {
   ERROR = "error",
+  SUCCESS = "success",
   OPEN = "open",
   HIDDEN = "hidden",
   TOUCHED = "touched",
