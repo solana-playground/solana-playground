@@ -1,6 +1,6 @@
 [package]
 name = "solana-extra-wasm"
-version = "1.11.0-alpha"
+version = "1.11.0-beta"
 description = "Solana WASM compatible utilities."
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"
