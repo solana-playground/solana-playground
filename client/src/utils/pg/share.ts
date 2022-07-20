@@ -3,6 +3,9 @@ import { PgCommon } from "./common";
 import { ExplorerJSON, PgExplorer } from "./explorer";
 
 export class PgShare {
+  /**
+   * @returns shared project info
+   */
   static async get(id: string) {
     const resp = await fetch(`${SERVER_URL}/share${id}`);
 
@@ -14,6 +17,11 @@ export class PgShare {
     return data;
   }
 
+  /**
+   * Share a new project.
+   *
+   * @returns object id if sharing is successful.
+   */
   static async new(explorer: PgExplorer) {
     const resp = await fetch(`${SERVER_URL}/new`, {
       method: "POST",

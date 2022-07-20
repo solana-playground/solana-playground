@@ -1,6 +1,8 @@
 import { CSSProperties, FC, Ref } from "react";
 import styled from "styled-components";
 
+import { ClassName } from "../../constants";
+
 interface IconButtonProps {
   id?: string;
   src?: string;
@@ -38,7 +40,7 @@ const IconWrapper = styled.div`
   justify-content: center;
   align-items: center;
 
-  &.active {
+  &.${ClassName.ACTIVE} {
     background-color: ${({ theme }) => theme.colors?.iconButton?.selectedBg};
     border-left: 2px solid
       ${({ theme }) =>
@@ -47,8 +49,8 @@ const IconWrapper = styled.div`
     border-right: 2px solid transparent;
   }
 
-  &.active img,
-  &:hover:not(.active) img {
+  &.${ClassName.ACTIVE} img,
+  &:hover:not(.${ClassName.ACTIVE}) img {
     filter: invert(1);
   }
 `;

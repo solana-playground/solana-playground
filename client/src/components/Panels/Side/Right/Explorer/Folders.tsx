@@ -194,7 +194,7 @@ const RootWrapper = styled.div`
 const FolderInsideWrapper = styled.div`
   margin-left: 1rem;
 
-  &.hidden {
+  &.${ClassName.HIDDEN} {
     display: none;
   }
 `;
@@ -210,7 +210,7 @@ const StyledFolder = styled(Folder)`
     height: 1rem;
   }
 
-  &.open svg {
+  &.${ClassName.OPEN} svg {
     transform: rotate(90deg);
   }
 `;

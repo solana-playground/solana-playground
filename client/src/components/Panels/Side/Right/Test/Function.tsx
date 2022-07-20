@@ -1,31 +1,25 @@
 import { createContext, FC, useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { Idl, BN } from "@project-serum/anchor";
-import { PublicKey, Signer } from "@solana/web3.js";
+import { Idl } from "@project-serum/anchor";
 import { IdlAccount, IdlInstruction } from "@project-serum/anchor/dist/cjs/idl";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../../Button";
-import Foldable from "../../../../Foldable";
 import Account from "./Account";
 import Arg from "./Arg";
+import Button from "../../../../Button";
+import Foldable from "../../../../Foldable";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
 import { terminalOutputAtom, txHashAtom } from "../../../../../state";
-import { PgCommon, PgTerminal, PgTest, PgTx } from "../../../../../utils/pg";
+import {
+  PgCommon,
+  PgTerminal,
+  PgTest,
+  PgTx,
+  TxVals,
+} from "../../../../../utils/pg";
 import { useCurrentWallet } from "../../../Wallet";
-
-type KV = {
-  [key: string]: string | number | BN | PublicKey | Signer;
-};
-
-export interface TxVals {
-  name: string;
-  additionalSigners: KV;
-  accs?: KV;
-  args?: KV;
-}
 
 interface FnContextProps {
   updateTxVals: (props: updateTxValsProps) => void;

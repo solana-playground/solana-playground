@@ -29,8 +29,8 @@ import {
   txHashAtom,
 } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../../utils/pg";
-import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
 import { Close, ThreeDots } from "../../Icons";
+import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
 import { ICONBAR_WIDTH } from "../Side/Left";
 import { BOTTOM_HEIGHT } from "../Bottom";
 import { useCurrentWallet, useConnect, useAirdropAmount } from "./";
@@ -417,7 +417,7 @@ const Main = styled.div`
         ${theme.transition?.type};
     }
 
-    &.darken::after {
+    &.${ClassName.DARKEN}::after {
       opacity: 0.5;
       z-index: 1;
     }

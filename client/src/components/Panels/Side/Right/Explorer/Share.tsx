@@ -12,7 +12,7 @@ import useModal from "../../../../Modal/useModal";
 import { explorerAtom } from "../../../../../state";
 import { PgShare } from "../../../../../utils/pg";
 import { TextProps } from "../../../../Text/Text";
-import { CLIENT_URL } from "../../../../../constants";
+import { ClassName, CLIENT_URL } from "../../../../../constants";
 import { Checkmark, Sad } from "../../../../Icons";
 
 interface TextState extends TextProps {
@@ -101,7 +101,7 @@ const Share = () => {
 const Content = styled.div`
   margin: 1rem 0 1rem 0.5rem;
 
-  & svg.icon-checkmark {
+  & svg.${ClassName.ICON_CHECKMARK} {
     color: ${({ theme }) => theme.colors.state.success.color};
   }
 `;

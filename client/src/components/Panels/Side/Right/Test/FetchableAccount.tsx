@@ -1,17 +1,17 @@
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import { BN, Idl } from "@project-serum/anchor";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import React, { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { ClassName } from "../../../../../constants";
-import { PgCommon } from "../../../../../utils/pg";
-import { PgAccount } from "../../../../../utils/pg/account";
+
 import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
+import InputLabel from "./InputLabel";
 import Input, { defaultInputProps } from "../../../../Input";
+import { ClassName } from "../../../../../constants";
+import { PgAccount, PgCommon } from "../../../../../utils/pg";
 import { SpinnerWithBg } from "../../../../Loading";
 import { useCurrentWallet } from "../../../Wallet";
-import InputLabel from "./InputLabel";
 
 interface FetchableAccountProps {
   accountName: string;
@@ -45,9 +45,9 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
 
   const [enteredAddress, setEnteredAddress] = useState("");
   const [enteredAddressError, setEnteredAddressError] = useState(false);
-  const [fetchedData, setFetchedData] = useState<any>();
-  const [fetchError, setFetchError] = useState<string | undefined>(undefined);
-  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchedData, setFetchedData] = useState<object>();
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [fetchOneLoading, setFetchOneLoading] = useState(false);
   const [fetchAllLoading, setFetchAllLoading] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
 
@@ -65,6 +65,26 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
     };
   }, []);
 
+  const handleAddressChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const address = e.target.value;
+    if (address) {
+      try {
+        new PublicKey(address);
+        setEnteredAddressError(false);
+      } catch {
+        setEnteredAddressError(true);
+      }
+    }
+
+    setEnteredAddress(address);
+  };
+
+  const handleFetched = (data: object) => {
+    setFetchedData(data);
+    setFetchError(null);
+    setResultOpen(true);
+  };
+
   const handleError = (err: any) => {
     if (
       err instanceof Error &&
@@ -79,10 +99,24 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
     setResultOpen(true);
   };
 
-  const handleFetched = (data: any) => {
-    setFetchedData(data);
-    setFetchError(undefined);
-    setResultOpen(true);
+  const fetchOne = async () => {
+    if (!currentWallet) return;
+    setFetchOneLoading(true);
+    await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
+    try {
+      const accountData = await PgAccount.fetchOne(
+        accountName,
+        new PublicKey(enteredAddress),
+        idl,
+        conn,
+        currentWallet
+      );
+      handleFetched(accountData);
+    } catch (err: any) {
+      handleError(err);
+    } finally {
+      setFetchOneLoading(false);
+    }
   };
 
   const fetchAll = async () => {
@@ -104,52 +138,49 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
     }
   };
 
-  const fetchEntered = async () => {
-    if (!currentWallet) return;
-    setFetchLoading(true);
-    await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
-    try {
-      const accountData = await PgAccount.fetchOne(
-        accountName,
-        new PublicKey(enteredAddress),
-        idl,
-        conn,
-        currentWallet
-      );
-      handleFetched(accountData);
-    } catch (err: any) {
-      handleError(err);
-    } finally {
-      setFetchLoading(false);
-    }
-  };
+  return (
+    <>
+      <InputWrapper>
+        <InputLabel label="address" type="publicKey" />
+        <Input
+          type="text"
+          className={enteredAddressError ? ClassName.ERROR : ""}
+          value={enteredAddress}
+          onChange={handleAddressChange}
+          {...defaultInputProps}
+        />
+      </InputWrapper>
 
-  const enteredAddressChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const address = e.target.value;
-    if (address) {
-      try {
-        new PublicKey(address);
-        setEnteredAddressError(false);
-      } catch {
-        setEnteredAddressError(true);
-      }
-    }
+      <ButtonsWrapper>
+        <Button
+          onClick={fetchOne}
+          disabled={
+            !currentWallet ||
+            !enteredAddress ||
+            enteredAddressError ||
+            fetchOneLoading
+          }
+          kind="outline"
+        >
+          Fetch
+        </Button>
+        <Button
+          onClick={fetchAll}
+          disabled={!currentWallet || fetchAllLoading}
+          kind="outline"
+        >
+          Fetch All
+        </Button>
+      </ButtonsWrapper>
 
-    setEnteredAddress(address);
-  };
-
-  const anyLoading = fetchLoading || fetchAllLoading;
-
-  const renderResult = () => {
-    if (fetchedData) {
-      return (
+      {fetchedData && (
         <ResultWrapper>
           <Foldable
             ClickEl={<span>Result</span>}
             open={resultOpen}
             setOpen={setResultOpen}
           >
-            <SpinnerWithBg loading={anyLoading}>
+            <SpinnerWithBg loading={fetchOneLoading || fetchAllLoading}>
               <Result index={index}>
                 {fetchError ? (
                   <ErrorWrapper>{fetchError}</ErrorWrapper>
@@ -160,63 +191,16 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
             </SpinnerWithBg>
           </Foldable>
         </ResultWrapper>
-      );
-    }
-
-    return null;
-  };
-
-  return (
-    <>
-      <InputWrapper>
-        <InputLabel label="address" type="publicKey" />
-        <Input
-          type="text"
-          className={enteredAddressError ? ClassName.ERROR : ""}
-          value={enteredAddress}
-          onChange={enteredAddressChanged}
-          {...defaultInputProps}
-        />
-      </InputWrapper>
-
-      <ButtonsWrapper>
-        <Button
-          onClick={fetchEntered}
-          disabled={
-            !enteredAddress ||
-            enteredAddressError ||
-            !currentWallet ||
-            fetchLoading
-          }
-          btnLoading={fetchLoading}
-          kind="outline"
-          fullWidth={false}
-          size="small"
-        >
-          Fetch Entered
-        </Button>
-        <Button
-          onClick={fetchAll}
-          disabled={!currentWallet || fetchAllLoading}
-          btnLoading={fetchAllLoading}
-          kind="outline"
-          fullWidth={false}
-          size="small"
-        >
-          Fetch All
-        </Button>
-      </ButtonsWrapper>
-
-      {renderResult()}
+      )}
     </>
   );
 };
 
-interface FetchableAccountWrapperProps {
+interface IndexProps {
   index: number;
 }
 
-const FetchableAccountWrapper = styled.div<FetchableAccountWrapperProps>`
+const FetchableAccountWrapper = styled.div<IndexProps>`
   ${({ theme, index }) => css`
     padding: 1rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
@@ -255,7 +239,7 @@ const ErrorWrapper = styled.div`
   `}
 `;
 
-const Result = styled.pre<{ index: number }>`
+const Result = styled.pre<IndexProps>`
   ${({ theme, index }) => css`
     margin-top: 0.25rem;
     user-select: text;

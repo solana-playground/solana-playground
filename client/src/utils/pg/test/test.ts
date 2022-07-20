@@ -12,44 +12,55 @@ import {
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 
-import { TxVals } from "../../components/Panels/Side/Right/Test/Function";
-import { PgCommon } from "./common";
-import { PgProgramInfo } from "./program-info";
-import { PgTx } from "./tx";
-import { PgWallet } from "./wallet";
+import { PgCommon, PgProgramInfo, PgTx, PgWallet } from "../";
+
+type KV = {
+  [key: string]: string | number | BN | PublicKey | Signer;
+};
+
+export interface TxVals {
+  name: string;
+  additionalSigners: KV;
+  accs?: KV;
+  args?: KV;
+}
 
 export type Seed = {
   value: string;
   type: IdlType;
 };
 
-export class PgTest {
-  static DEFAULT_TYPES: IdlType[] = [
-    "bool",
-    "bytes",
-    "f32",
-    "f64",
-    "i128",
-    "i16",
-    "i32",
-    "i64",
-    "i8",
-    "publicKey",
-    "string",
-    "u128",
-    "u16",
-    "u32",
-    "u64",
-    "u8",
-  ];
+const DEFAULT_TYPES: IdlType[] = [
+  "bool",
+  "bytes",
+  "f32",
+  "f64",
+  "i128",
+  "i16",
+  "i32",
+  "i64",
+  "i8",
+  "publicKey",
+  "string",
+  "u128",
+  "u16",
+  "u32",
+  "u64",
+  "u8",
+];
 
+export class PgTest {
+  /**
+   * Convert types into string for UI
+   *
+   * @returns the human readable type
+   */
   static getFullType(
     type: IdlType,
     idlTypes?: IdlTypeDef[],
     idlAccounts?: IdlTypeDef[]
   ): IdlType {
-    if (this.DEFAULT_TYPES.includes(type) || !idlTypes || !idlAccounts)
-      return type;
+    if (DEFAULT_TYPES.includes(type) || !idlTypes || !idlAccounts) return type;
 
     if (typeof type === "object") {
       if ((type as IdlTypeOption)?.option) {
@@ -126,7 +137,13 @@ export class PgTest {
     return "string";
   }
 
-  // TODO: Implement custom types
+  /**
+   * Parse value based on type.
+   *
+   * This function throws an error if parsing fails.
+   *
+   * @returns the parsed value
+   */
   static parse(v: string, type: IdlType): any {
     let parsedV;
 
@@ -174,7 +191,7 @@ export class PgTest {
       // TODO: Implement nested advanced types
       const typeString = type.toString();
       const { insideType, outerType } =
-        this.getTypesFromParsedString(typeString);
+        this._getTypesFromParsedString(typeString);
 
       if (outerType === "Vec") {
         const userArray: string[] = JSON.parse(v);
@@ -221,6 +238,7 @@ export class PgTest {
         }
       } else {
         // Custom Struct
+        // TODO: Some properties are not getting parsed correctly here(e.g i64)
         parsedV = JSON.parse(v);
         if (typeof parsedV !== "object" || parsedV?.length >= 0)
           throw new Error("Invalid " + type);
@@ -230,15 +248,10 @@ export class PgTest {
     return parsedV;
   }
 
-  static getTypesFromParsedString(str: string) {
-    const openIndex = str.indexOf("<");
-    const closeIndex = str.lastIndexOf(">");
-    const outerType = str.substring(0, openIndex);
-    const insideType = str.substring(openIndex + 1, closeIndex);
-
-    return { outerType, insideType };
-  }
-
+  /**
+   * Generate program address from seed(s) that are not necessarily the same type.
+   * @returns [program public key, bump]
+   */
   static async generateProgramAddressFromSeeds(
     seeds: Seed[],
     programId: PublicKey | string
@@ -257,8 +270,10 @@ export class PgTest {
     return await PublicKey.findProgramAddress(buffers, programId);
   }
 
-  static async test(
-    txVals: TxVals,
+  /**
+   * @returns Anchor program from the program id in localStorage
+   */
+  static getProgram(
     idl: Idl,
     conn: Connection,
     wallet: PgWallet | AnchorWallet
@@ -268,10 +283,23 @@ export class PgTest {
     // Get program pk
     const programPkResult = PgProgramInfo.getPk();
     if (programPkResult.err) throw new Error(programPkResult.err);
-
     const programPk = programPkResult.programPk!;
 
-    const program = new Program(idl, programPk, provider);
+    return new Program(idl, programPk, provider);
+  }
+
+  /**
+   * Tests the Anchor function.
+   *
+   * @returns the transaction signature
+   */
+  static async test(
+    txVals: TxVals,
+    idl: Idl,
+    conn: Connection,
+    wallet: PgWallet | AnchorWallet
+  ) {
+    const program = this.getProgram(idl, conn, wallet);
 
     const tx = new Transaction();
 
@@ -297,5 +325,17 @@ export class PgTest {
 
     const txHash = await PgTx.send(tx, conn, wallet, additionalSigners);
     return txHash;
+  }
+
+  /**
+   * Calculate inside and outer type of nested types
+   */
+  private static _getTypesFromParsedString(str: string) {
+    const openIndex = str.indexOf("<");
+    const closeIndex = str.lastIndexOf(">");
+    const outerType = str.substring(0, openIndex);
+    const insideType = str.substring(openIndex + 1, closeIndex);
+
+    return { outerType, insideType };
   }
 }

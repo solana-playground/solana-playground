@@ -11,6 +11,7 @@ import {
   Id,
   NETWORKS,
   CUSTOM_NETWORK_NAME,
+  ClassName,
 } from "../../../constants";
 import { PgCommon } from "../../../utils/pg";
 import { balanceAtom } from "../../../state";
@@ -19,8 +20,8 @@ import {
   useConnect,
   useCurrentWallet,
   useConnectOrSetupPg,
+  ConnState,
 } from "../Wallet";
-import { ConnState } from "../Wallet/connection-states";
 
 const Bottom = () => {
   const [balance, setBalance] = useAtom(balanceAtom);
@@ -143,7 +144,7 @@ const Wrapper = styled.div`
     theme.colors.default.primary};
     color: ${theme.colors.bottom?.color ?? "inherit"};
 
-    & .tooltip {
+    & .${ClassName.TOOLTIP} {
       height: 100%;
       display: flex;
       align-items: center;

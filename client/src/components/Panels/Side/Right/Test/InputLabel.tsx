@@ -14,8 +14,8 @@ const InputLabel: FC<InputLabelProps> = ({ label, account, type }) => {
       <Label>{label}:</Label>
       <TypesWrapper>
         <Type>{type}</Type>
-        {account?.isMut && <Mut>Mut</Mut>}
-        {account?.isSigner && <Signer>Signer</Signer>}
+        {account?.isMut && <Type>Mut</Type>}
+        {account?.isSigner && <Type>Signer</Type>}
       </TypesWrapper>
     </Wrapper>
   );
@@ -42,14 +42,6 @@ const TypesWrapper = styled.div`
 `;
 
 const Type = styled.span`
-  ${({ theme, children }) => getTypeStyles(theme, children as IdlType)}
-`;
-
-const Mut = styled.span`
-  ${({ theme, children }) => getTypeStyles(theme, children as IdlType)}
-`;
-
-const Signer = styled.span`
   ${({ theme, children }) => getTypeStyles(theme, children as IdlType)}
 `;
 

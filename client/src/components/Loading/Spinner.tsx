@@ -1,5 +1,6 @@
 import { FC } from "react";
 import styled, { css, keyframes } from "styled-components";
+
 import { ClassName } from "../../constants";
 
 interface SpinnerWithBgProps {
@@ -37,7 +38,7 @@ const Background = styled.div`
       display: none;
     }
 
-    &.loading {
+    &.${ClassName.LOADING} {
       &::after {
         opacity: 0.5;
         z-index: 1;

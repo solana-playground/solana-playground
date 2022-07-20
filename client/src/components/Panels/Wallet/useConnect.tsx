@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { ConnState } from "./connection-states";
+import { ConnState } from "./connection-state";
 import { pgWalletAtom, refreshPgWalletAtom } from "../../../state";
 
 export const useConnect = () => {
