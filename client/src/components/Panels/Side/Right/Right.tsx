@@ -177,6 +177,7 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
     /* Chromium */
     &::-webkit-scrollbar {
       width: 0.5rem;
+      height: 0.5rem;
     }
 
     &::-webkit-scrollbar-track {

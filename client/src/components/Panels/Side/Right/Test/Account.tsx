@@ -9,27 +9,23 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  SYSVAR_CLOCK_PUBKEY,
-  SYSVAR_RENT_PUBKEY,
-} from "@solana/web3.js";
-import {
-  associatedAddress,
-  ASSOCIATED_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from "@project-serum/anchor/dist/cjs/utils/token";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
 import { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../Button";
-import Tooltip from "../../../../Tooltip";
+import CopyButton from "../../../../CopyButton";
 import InputLabel from "./InputLabel";
+import Tooltip from "../../../../Tooltip";
 import Input, { defaultInputProps } from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import { PgProgramInfo, PgTest, Seed } from "../../../../../utils/pg";
+import {
+  PgAccount,
+  PgProgramInfo,
+  PgTest,
+  Seed,
+} from "../../../../../utils/pg";
 import { Minus, Plus } from "../../../../Icons";
 import { useCurrentWallet } from "../../../Wallet";
 
@@ -43,7 +39,7 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
   const { walletPkStr } = useCurrentWallet();
 
   const accountStr = useMemo(
-    () => getKnownAccount(account.name),
+    () => PgAccount.getKnownAccount(account.name),
     [account.name]
   );
   const accountExists = useMemo(() => accountStr !== "", [accountStr]);
@@ -124,7 +120,7 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
     v: val,
     type: "publicKey",
     // Only set kp when last selection was random
-    kp: signerKp ? signerKp : null,
+    kp: signerKp,
   });
 
   const inputName = useMemo(() => {
@@ -135,44 +131,49 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
 
   return (
     <Wrapper>
-      <InputLabel label={account.name} account={account} type={"publicKey"} />
-      <InputWrapper ref={inputWrapperRef}>
-        <Input
-          value={val}
-          name={inputName}
-          onChange={handleChange}
-          onClick={handleClick}
-          disabled={accountExists}
-          {...defaultInputProps}
-        />
-        {showSearch && (
-          <SearchWrapper>
-            {showSeed ? (
-              <ShowSeed
-                setVal={setVal}
-                setShowSearch={setShowSearch}
-                removeSignerKp={removeSignerKp}
-              />
-            ) : showAta ? (
-              <ShowAta
-                setVal={setVal}
-                setShowSearch={setShowSearch}
-                removeSignerKp={removeSignerKp}
-                walletPkStr={walletPkStr}
-              />
-            ) : (
-              <>
-                {walletPkStr && (
-                  <Element onClick={handleMyAddress}>My address</Element>
-                )}
-                <Element onClick={handleRandom}>Random</Element>
-                <Element onClick={handleSeed}>From seed</Element>
-                <Element onClick={handleAta}>Associated token address</Element>
-              </>
-            )}
-          </SearchWrapper>
-        )}
-      </InputWrapper>
+      <InputLabel label={account.name} account={account} type="publicKey" />
+      <InputRowWrapper>
+        <InputWrapper ref={inputWrapperRef}>
+          <Input
+            value={val}
+            name={inputName}
+            onChange={handleChange}
+            onClick={handleClick}
+            disabled={accountExists}
+            {...defaultInputProps}
+          />
+          {showSearch && (
+            <SearchWrapper>
+              {showSeed ? (
+                <ShowSeed
+                  setVal={setVal}
+                  setShowSearch={setShowSearch}
+                  removeSignerKp={removeSignerKp}
+                />
+              ) : showAta ? (
+                <ShowAta
+                  setVal={setVal}
+                  setShowSearch={setShowSearch}
+                  removeSignerKp={removeSignerKp}
+                  walletPkStr={walletPkStr}
+                />
+              ) : (
+                <>
+                  {walletPkStr && (
+                    <Element onClick={handleMyAddress}>My address</Element>
+                  )}
+                  <Element onClick={handleRandom}>Random</Element>
+                  <Element onClick={handleSeed}>From seed</Element>
+                  <Element onClick={handleAta}>
+                    Associated token address
+                  </Element>
+                </>
+              )}
+            </SearchWrapper>
+          )}
+        </InputWrapper>
+        <CopyButton copyText={val} />
+      </InputRowWrapper>
     </Wrapper>
   );
 };
@@ -181,7 +182,13 @@ const Wrapper = styled.div`
   margin: 0.5rem 0;
 `;
 
-const InputWrapper = styled.div``;
+const InputRowWrapper = styled.div`
+  display: flex;
+`;
+
+const InputWrapper = styled.div`
+  flex: 1;
+`;
 
 const SearchWrapper = styled.div`
   ${({ theme }) => css`
@@ -530,29 +537,5 @@ const ShowGenButtonWrapper = styled.div`
   justify-content: center;
   align-items: center;
 `;
-
-const getKnownAccount = (name: string) => {
-  const pk = getKnownAccountPk(name);
-  return pk?.toBase58() ?? "";
-};
-
-const getKnownAccountPk = (name: string) => {
-  switch (name) {
-    case "systemProgram":
-      return SystemProgram.programId;
-    case "tokenProgram":
-      return TOKEN_PROGRAM_ID;
-    case "associatedTokenProgram":
-      return ASSOCIATED_PROGRAM_ID;
-    case "tokenMetadataProgram":
-      return new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
-    case "clock":
-      return SYSVAR_CLOCK_PUBKEY;
-    case "rent":
-      return SYSVAR_RENT_PUBKEY;
-    default:
-      return null;
-  }
-};
 
 export default Account;

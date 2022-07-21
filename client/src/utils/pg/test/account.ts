@@ -1,6 +1,16 @@
 import { Idl } from "@project-serum/anchor";
+import {
+  ASSOCIATED_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "@project-serum/anchor/dist/cjs/utils/token";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
-import { Connection, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  SYSVAR_CLOCK_PUBKEY,
+  SYSVAR_RENT_PUBKEY,
+} from "@solana/web3.js";
 
 import { PgCommon, PgTest, PgWallet } from "../";
 
@@ -35,6 +45,14 @@ export class PgAccount {
   }
 
   /**
+   * @returns account public key as string or empty string if the name is unknown
+   */
+  static getKnownAccount(name: string) {
+    const pk = this._getKnownAccountPk(name);
+    return pk?.toBase58() ?? "";
+  }
+
+  /**
    *
    * @returns Anchor client account based on `accountName`
    */
@@ -47,5 +65,27 @@ export class PgAccount {
     const program = PgTest.getProgram(idl, conn, wallet);
     const account = program.account[PgCommon.toCamelCase(accountName)];
     return account;
+  }
+
+  /**
+   * @returns known account public key from given name
+   */
+  private static _getKnownAccountPk(name: string) {
+    switch (name) {
+      case "systemProgram":
+        return SystemProgram.programId;
+      case "tokenProgram":
+        return TOKEN_PROGRAM_ID;
+      case "associatedTokenProgram":
+        return ASSOCIATED_PROGRAM_ID;
+      case "tokenMetadataProgram":
+        return new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+      case "clock":
+        return SYSVAR_CLOCK_PUBKEY;
+      case "rent":
+        return SYSVAR_RENT_PUBKEY;
+      default:
+        return null;
+    }
   }
 }

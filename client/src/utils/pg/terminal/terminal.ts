@@ -604,10 +604,10 @@ export class PgTerm {
   /**
    * Runs the last command if it exists
    *
-   * This function is useful for running wasm cli packages after first loading
+   * This function is useful for running wasm cli packages after initial loading
    */
   runLastCmd() {
-    // Last command is current input
+    // Last command is the current input
     let lastCmd = this.pgTty.getInput();
     if (!lastCmd) {
       const maybeLastCmd = this.pgShell.history.getPrevious();
@@ -616,7 +616,7 @@ export class PgTerm {
     }
 
     this.pgTty.setInput(lastCmd);
-    this.pgShell.handleReadComplete();
+    this.pgShell.handleReadComplete(true);
   }
 
   /**

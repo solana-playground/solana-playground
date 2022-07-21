@@ -277,15 +277,20 @@ export default class PgShell {
   };
 
   /**
+   * @param clearCmd whether to clean the current line before parsing the command
+   *
    * Handle input completion
    */
-  handleReadComplete = () => {
+  handleReadComplete = (clearCmd?: boolean) => {
     const input = this.pgTty.getInput();
     if (this._activePrompt && this._activePrompt.resolve) {
       this._activePrompt.resolve(input);
       this._activePrompt = undefined;
     }
-    this.pgTty.print("\r\n");
+
+    if (clearCmd) this.pgTty.clearCurrentLine();
+    else this.pgTty.print("\r\n");
+
     this._active = false;
 
     this._parseCommand(input);

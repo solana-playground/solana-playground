@@ -86,11 +86,10 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   };
 
   const handleError = (err: any) => {
-    if (
-      err instanceof Error &&
-      err.message.startsWith("Account does not exist")
-    ) {
+    if (err.message.startsWith("Account does not exist")) {
       setFetchError("Account does not exist");
+    } else if (err.message === "Invalid account discriminator") {
+      setFetchError(`Given account is not type ${accountName}`);
     } else {
       console.error(err);
       setFetchError("Unknown error");
@@ -173,7 +172,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
         </Button>
       </ButtonsWrapper>
 
-      {fetchedData && (
+      {(fetchedData || fetchError) && (
         <ResultWrapper>
           <Foldable
             ClickEl={<span>Result</span>}
@@ -196,11 +195,11 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   );
 };
 
-interface IndexProps {
+interface IndexProp {
   index: number;
 }
 
-const FetchableAccountWrapper = styled.div<IndexProps>`
+const FetchableAccountWrapper = styled.div<IndexProp>`
   ${({ theme, index }) => css`
     padding: 1rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
@@ -223,7 +222,7 @@ const InputWrapper = styled.div`
 const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const ResultWrapper = styled.div`
@@ -231,15 +230,7 @@ const ResultWrapper = styled.div`
   width: 100%;
 `;
 
-const ErrorWrapper = styled.div`
-  ${({ theme }) => css`
-    margin: 0.5rem 0;
-    color: ${theme.colors.state.error.color};
-    text-align: center;
-  `}
-`;
-
-const Result = styled.pre<IndexProps>`
+const Result = styled.pre<IndexProp>`
   ${({ theme, index }) => css`
     margin-top: 0.25rem;
     user-select: text;
@@ -275,6 +266,14 @@ const Result = styled.pre<IndexProps>`
     & * {
       scrollbar-color: ${theme.scrollbar?.thumb.color};
     }
+  `}
+`;
+
+const ErrorWrapper = styled.div`
+  ${({ theme }) => css`
+    padding: 0.5rem 0.25rem;
+    color: ${theme.colors.state.error.color};
+    text-align: center;
   `}
 `;
 

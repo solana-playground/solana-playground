@@ -193,9 +193,9 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
           {ixs.args.length ? (
             <ArgsWrapper>
               <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
-                {ixs.args.map((a, j) => (
+                {ixs.args.map((a, i) => (
                   <Arg
-                    key={j}
+                    key={i}
                     name={a.name}
                     type={PgTest.getFullType(a.type, idl.types, idl.accounts)}
                     functionName={ixs.name}
@@ -206,9 +206,9 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
           ) : null}
           <AccountsWrapper>
             <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
-              {ixs.accounts.map((a, j) => (
+              {ixs.accounts.map((a, i) => (
                 <Account
-                  key={j}
+                  key={i}
                   account={a as IdlAccount}
                   functionName={ixs.name}
                 />
