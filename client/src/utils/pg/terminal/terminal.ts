@@ -98,18 +98,6 @@ See the list of available crates and request new crates from: ${PgTerminal.under
 Type ${PgTerminal.bold("help")} to see all commands.`;
 
   /**
-   * Help command text
-   */
-  static readonly HELP_TEXT = `COMMANDS:
-  build                      Build your program
-  clear                      Clear terminal
-  connect                    Toggle connection to Playground Wallet
-  deploy                     Deploy your program
-  solana                     Commands for interacting with Solana
-  spl-token                  Commands related to SPL-Token
-`;
-
-  /**
    * Default prompt string before entering commands
    */
   static readonly PROMPT = "$ ";

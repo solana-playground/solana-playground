@@ -12,6 +12,7 @@ import {
 import { TerminalAction } from "../../../state";
 import { PgTerminal, Wasm, WasmPkg } from "./terminal";
 import { PgWallet } from "../wallet";
+import { PgCommand } from "./commands";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -61,70 +62,86 @@ export default class PgShell {
   _parseCommand(cmd: string) {
     cmd = cmd.trim();
     let isCmdValid = false;
-    if (cmd === "help") {
-      PgTerminal.logWasm(PgTerminal.HELP_TEXT);
-      this.enable();
-      isCmdValid = true;
-    }
-    if (cmd === "build") {
-      PgTerminal.setTerminalState(TerminalAction.buildStart);
-      isCmdValid = true;
-    }
-    if (cmd === "deploy") {
-      if (PgWallet.checkIsPgConnected())
-        PgTerminal.setTerminalState(TerminalAction.deployStart);
+    switch (cmd) {
+      case PgCommand.HELP: {
+        PgTerminal.logWasm(PgCommand.help());
+        this.enable();
+        isCmdValid = true;
+        break;
+      }
 
-      isCmdValid = true;
-    }
-    if (cmd === "clear") {
-      // Move first line to the top
-      this.pgTty.clearTty();
-      // Clear everything
-      this.pgTty.xterm.clear();
-      this.prompt();
-      isCmdValid = true;
-    }
-    if (cmd === "connect") {
-      PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
-      isCmdValid = true;
+      case PgCommand.BUILD: {
+        PgTerminal.setTerminalState(TerminalAction.buildStart);
+        isCmdValid = true;
+        break;
+      }
+
+      case PgCommand.DEPLOY: {
+        if (PgWallet.checkIsPgConnected()) {
+          PgTerminal.setTerminalState(TerminalAction.deployStart);
+        }
+
+        isCmdValid = true;
+        break;
+      }
+
+      case PgCommand.CLEAR: {
+        // Move first line to the top
+        this.pgTty.clearTty();
+        // Clear everything
+        this.pgTty.xterm.clear();
+        this.prompt();
+        isCmdValid = true;
+        break;
+      }
+
+      case PgCommand.CONNECT: {
+        PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
+        isCmdValid = true;
+      }
     }
 
+    // WASM commands
     // This guarantees command only start with the specified command name
     // solana-keygen would not count for cmdName === "solana"
     const cmdName = cmd.split(" ")?.at(0);
 
-    if (cmdName === "solana") {
-      const wasm = this._wasm;
-      if (PgWallet.checkIsPgConnected()) {
-        if (wasm?.runSolana) {
-          // @ts-ignore
-          wasm.runSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
-        } else {
-          PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
-        }
-      }
-
-      isCmdValid = true;
-    }
-    if (cmdName === "spl-token") {
-      const wasm = this._wasm;
-      if (PgWallet.checkIsPgConnected()) {
-        if (wasm?.runSplToken) {
-          wasm.runSplToken(
-            cmd,
+    switch (cmdName) {
+      case PgCommand.SOLANA: {
+        const wasm = this._wasm;
+        if (PgWallet.checkIsPgConnected()) {
+          if (wasm?.runSolana) {
             // @ts-ignore
-            ...PgTerminal.getCliArgs(WasmPkg.SPL_TOKEN_CLI)
-          );
-        } else {
-          PgTerminal.loadWasm(WasmPkg.SPL_TOKEN_CLI);
+            wasm.runSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
+          } else {
+            PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
+          }
         }
+
+        isCmdValid = true;
+        break;
       }
 
-      isCmdValid = true;
+      case PgCommand.SPL_TOKEN: {
+        const wasm = this._wasm;
+        if (PgWallet.checkIsPgConnected()) {
+          if (wasm?.runSplToken) {
+            wasm.runSplToken(
+              cmd,
+              // @ts-ignore
+              ...PgTerminal.getCliArgs(WasmPkg.SPL_TOKEN_CLI)
+            );
+          } else {
+            PgTerminal.loadWasm(WasmPkg.SPL_TOKEN_CLI);
+          }
+        }
+
+        isCmdValid = true;
+      }
     }
 
-    // Special commands
-    if (cmd === "!!") {
+    // Special command
+    if (cmd === PgCommand.RUN_LAST_CMD) {
       // Run the last command
       const entries = this.history.entries;
       if (!entries.length) {
