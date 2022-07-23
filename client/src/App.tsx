@@ -22,17 +22,20 @@ const App = () => {
       setConn(PgConnection.getConnection());
     };
 
-    document.addEventListener(PgConnection.REFRESH_EVENT_NAME, handleRefresh);
+    document.addEventListener(
+      PgConnection.EVT_NAME_REFRESH_CONNECTION,
+      handleRefresh
+    );
     return () =>
       document.removeEventListener(
-        PgConnection.REFRESH_EVENT_NAME,
+        PgConnection.EVT_NAME_REFRESH_CONNECTION,
         handleRefresh
       );
   }, [setConn]);
 
-  const endpoint = conn.endpoint ?? PgConnection.DEFAULT_CONNECTION.endpoint!;
+  const endpoint = conn.endpoint;
   const config: ConnectionConfig = {
-    commitment: conn.commitment ?? PgConnection.DEFAULT_CONNECTION.commitment,
+    commitment: conn.commitment,
   };
 
   const wallets = [new PhantomWalletAdapter()];

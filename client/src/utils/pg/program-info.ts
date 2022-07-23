@@ -9,14 +9,14 @@ interface ProgramInfo {
 }
 
 export class PgProgramInfo {
-  private static readonly PROGRAM_INFO_KEY = "programInfo";
+  private static readonly _PROGRAM_INFO_KEY = "programInfo";
 
   /**
    * @returns program info if it exists in localStorage
    */
   static getProgramInfo() {
     const programInfo: ProgramInfo = JSON.parse(
-      localStorage.getItem(this.PROGRAM_INFO_KEY) || "{}"
+      localStorage.getItem(this._PROGRAM_INFO_KEY) || "{}"
     );
     return programInfo;
   }
@@ -32,11 +32,11 @@ export class PgProgramInfo {
     if (params.idl !== undefined) programInfo.idl = params.idl;
     if (params.customPk) programInfo.customPk = params.customPk;
 
-    localStorage.setItem(this.PROGRAM_INFO_KEY, JSON.stringify(programInfo));
+    localStorage.setItem(this._PROGRAM_INFO_KEY, JSON.stringify(programInfo));
   }
 
   /**
-   * @returns program keypair
+   * @returns program keypair from localStorage
    */
   static getKp() {
     const kpBuffer = this.getProgramInfo().kp;

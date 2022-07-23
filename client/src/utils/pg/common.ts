@@ -14,15 +14,21 @@ export class PgCommon {
   }
 
   /**
-   * @returns the decoded utf-8 string
+   * @returns the decoded string
    */
-  static decodeArrayBuffer(arrayBuffer: ArrayBuffer) {
-    const decoder = new TextDecoder("utf-8");
+  static decodeArrayBuffer(arrayBuffer: ArrayBuffer, type: string = "utf-8") {
+    const decoder = new TextDecoder(type);
     const decodedString = decoder.decode(arrayBuffer);
 
     return decodedString;
   }
 
+  /**
+   * Check whether the http response is OK.
+   * If there is an error, decode the array buffer and return it.
+   *
+   * @returns response array buffer if the response is OK
+   */
   static async checkForRespErr(resp: Response) {
     const arrayBuffer = await resp.arrayBuffer();
 

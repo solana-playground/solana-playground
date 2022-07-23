@@ -2,12 +2,6 @@ import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 
 import { PgTerminal } from "./terminal/";
 
-const DEFAULT_LS_WALLET: LsWallet = {
-  setupCompleted: false,
-  connected: false,
-  sk: Array.from(Keypair.generate().secretKey),
-};
-
 interface LsWallet {
   setupCompleted: boolean;
   connected: boolean;
@@ -20,6 +14,12 @@ interface UpdateLsParams {
   connected?: boolean;
   sk?: Array<number>;
 }
+
+const DEFAULT_LS_WALLET: LsWallet = {
+  setupCompleted: false,
+  connected: false,
+  sk: Array.from(Keypair.generate().secretKey),
+};
 
 export class PgWallet {
   private _kp: Keypair;
@@ -56,7 +56,7 @@ export class PgWallet {
   }
 
   // Statics
-  private static readonly WALLET_KEY = "wallet";
+  private static readonly _WALLET_KEY = "wallet";
 
   static get keypairBytes() {
     return Uint8Array.from(this.getKp().secretKey);
@@ -66,7 +66,7 @@ export class PgWallet {
    * @returns wallet info from localStorage
    */
   static getLs() {
-    const lsWalletStr = localStorage.getItem(this.WALLET_KEY);
+    const lsWalletStr = localStorage.getItem(this._WALLET_KEY);
     if (!lsWalletStr) return null;
 
     const lsWallet: LsWallet = JSON.parse(lsWalletStr);
@@ -85,7 +85,7 @@ export class PgWallet {
       lsWallet.connected = updateParams.connected;
     if (updateParams.sk) lsWallet.sk = updateParams.sk;
 
-    localStorage.setItem(this.WALLET_KEY, JSON.stringify(lsWallet));
+    localStorage.setItem(this._WALLET_KEY, JSON.stringify(lsWallet));
   }
 
   /**
