@@ -4,16 +4,16 @@ import styled from "styled-components";
 
 import Button, { ButtonProps } from "../../../../Button";
 import Text from "../../../../Text";
-import useInitialLoading from "../../useInitialLoading";
 import {
   programAtom,
   TerminalAction,
   terminalStateAtom,
 } from "../../../../../state";
 import { PgProgramInfo } from "../../../../../utils/pg";
-import { ConnectionErrorText } from "../../Common";
+import { ConnectionErrorText } from "../Common";
 import { Skeleton } from "../../../../Loading";
-import { useDeploy, useAuthority, useIsDeployed } from "./";
+import { useDeploy, useAuthority } from "./";
+import { useInitialLoading } from "../";
 import {
   useConnect,
   useCurrentWallet,
@@ -27,8 +27,8 @@ const Deploy = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const { initialLoading } = useInitialLoading();
-  const { deployed, setDeployed, connError } = useIsDeployed();
+  const { initialLoading, deployed, setDeployed, connError } =
+    useInitialLoading();
   const { hasAuthority, upgradeable } = useAuthority();
   const { solWalletPk } = useCurrentWallet();
   const { runDeploy, pgWallet } = useDeploy(program);

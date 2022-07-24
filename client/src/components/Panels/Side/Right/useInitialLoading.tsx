@@ -2,10 +2,32 @@ import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 
-import { PgProgramInfo } from "../../../../../utils/pg";
-import { refreshProgramIdAtom } from "../../../../../state";
+import { PgCommon, PgProgramInfo } from "../../../../utils/pg";
+import { refreshProgramIdAtom } from "../../../../state";
 
-export const useIsDeployed = () => {
+export const useInitialLoading = () => {
+  const { deployed, setDeployed, connError } = useIsDeployed();
+
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const isBuilt = PgProgramInfo.getKp()?.programKp;
+    const init = async () => {
+      if (!isBuilt || deployed || deployed === false || connError) {
+        setInitialLoading(true);
+        // Add delay for smooth transition
+        await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
+        setInitialLoading(false);
+      }
+    };
+
+    init();
+  }, [deployed, connError, setInitialLoading]);
+
+  return { initialLoading, deployed, setDeployed, connError };
+};
+
+const useIsDeployed = () => {
   // To re-render if user changes program id
   const [programIdCount] = useAtom(refreshProgramIdAtom);
 
