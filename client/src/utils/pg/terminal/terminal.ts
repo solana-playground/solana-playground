@@ -116,6 +116,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
   static readonly EVT_NAME_LOAD_WASM = "terminalloadwasm";
   static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
+  static readonly EVT_NAME_SCROLL_TO_BOTTOM = "terminalscrolltobottom";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -384,6 +385,13 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static runLastCmd() {
     PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
   }
+
+  /**
+   * Dispatch scroll to bottom custom event
+   */
+  static scrollToBottom() {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_SCROLL_TO_BOTTOM);
+  }
 }
 
 export class PgTerm {
@@ -605,6 +613,13 @@ export class PgTerm {
 
     this.pgTty.setInput(lastCmd);
     this.pgShell.handleReadComplete(true);
+  }
+
+  /**
+   * Scrolls the terminal to bottom
+   */
+  scrollToBottom() {
+    this.xterm.scrollToBottom();
   }
 
   /**

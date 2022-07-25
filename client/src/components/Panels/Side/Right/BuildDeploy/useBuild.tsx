@@ -22,6 +22,7 @@ export const useBuild = () => {
     if (!explorer) return;
 
     PgTerminal.disable();
+    PgTerminal.scrollToBottom();
 
     setTerminalState(TerminalAction.buildLoadingStart);
 

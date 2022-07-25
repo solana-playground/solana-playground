@@ -30,6 +30,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     setTerminalState(TerminalAction.deployStop);
 
     PgTerminal.disable();
+    PgTerminal.scrollToBottom();
 
     if (!pgWallet.connected) {
       setTerminal(

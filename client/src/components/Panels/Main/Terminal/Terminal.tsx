@@ -230,6 +230,9 @@ const Terminal = () => {
     const handleRunLastCmd = () => {
       term.runLastCmd();
     };
+    const handleScrollToBottom = () => {
+      term.scrollToBottom();
+    };
 
     document.addEventListener(
       PgTerminal.EVT_NAME_TERMINAL_ENABLE,
@@ -242,6 +245,10 @@ const Terminal = () => {
     document.addEventListener(
       PgTerminal.EVT_NAME_RUN_LAST_CMD,
       handleRunLastCmd
+    );
+    document.addEventListener(
+      PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
+      handleScrollToBottom
     );
 
     return () => {
@@ -256,6 +263,10 @@ const Terminal = () => {
       document.removeEventListener(
         PgTerminal.EVT_NAME_RUN_LAST_CMD,
         handleRunLastCmd
+      );
+      document.removeEventListener(
+        PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
+        handleScrollToBottom
       );
     };
   }, [term]);

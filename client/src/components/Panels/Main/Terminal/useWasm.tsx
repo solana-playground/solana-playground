@@ -41,7 +41,7 @@ Error reason: ${e.message}`;
       // This prevents unnecessary looping
       setTimeout(() => PgTerminal.runLastCmd());
     } catch (e: any) {
-      resultMsg = `Error loading SPL-Token CLI. Please consider filing a bug report in ${PgTerminal.underline(
+      resultMsg = `Error loading SPL Token CLI. Please consider filing a bug report in ${PgTerminal.underline(
         GITHUB_URL + "/issues"
       )}
 Error reason: ${e.message}`;
