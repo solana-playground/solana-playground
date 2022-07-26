@@ -1,4 +1,4 @@
-import { IDisposable, ITerminalOptions, Terminal as XTerm } from "xterm";
+import { ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 
@@ -395,60 +395,55 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 }
 
 export class PgTerm {
-  xterm: XTerm;
-  container: HTMLElement | null;
-  webLinksAddon: WebLinksAddon;
-  fitAddon: FitAddon;
-
-  pgTty: PgTty;
-  pgShell: PgShell;
-
-  resizeEvent: IDisposable;
-  dataEvent: IDisposable;
-
-  isOpen: boolean;
-  fitTimeoutId?: NodeJS.Timeout;
+  private _xterm: XTerm;
+  private _container: HTMLElement | null;
+  private _webLinksAddon: WebLinksAddon;
+  private _fitAddon: FitAddon;
+  private _pgTty: PgTty;
+  private _pgShell: PgShell;
+  private _isOpen: boolean;
+  private _fitTimeoutId?: NodeJS.Timeout;
 
   constructor(xtermOptions?: ITerminalOptions) {
     // Create xterm element
-    this.xterm = new XTerm(xtermOptions);
+    this._xterm = new XTerm(xtermOptions);
 
-    this.resizeEvent = this.xterm.onResize(this.handleTermResize);
-    this.xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
+    // Container is empty at start
+    this._container = null;
+
+    this._xterm.onResize(this._handleTermResize);
+    this._xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
       if (keyEvent.key === " ") {
         keyEvent.domEvent.preventDefault();
         return false;
       }
     });
 
-    // Set up  container
-    this.container = null;
-
-    // Load addons
-    this.webLinksAddon = new WebLinksAddon();
-    this.fitAddon = new FitAddon();
-    this.xterm.loadAddon(this.fitAddon);
-    this.xterm.loadAddon(this.webLinksAddon);
+    // Load xterm addons
+    this._webLinksAddon = new WebLinksAddon();
+    this._fitAddon = new FitAddon();
+    this._xterm.loadAddon(this._fitAddon);
+    this._xterm.loadAddon(this._webLinksAddon);
 
     // Create  Shell and TTY
-    this.pgTty = new PgTty(this.xterm);
-    this.pgShell = new PgShell(this.pgTty);
+    this._pgTty = new PgTty(this._xterm);
+    this._pgShell = new PgShell(this._pgTty);
 
-    // Any data event
-    this.dataEvent = this.xterm.onData(this.pgShell.handleTermData);
+    // Any data event (key, paste...)
+    this._xterm.onData(this._pgShell.handleTermData);
 
-    this.isOpen = false;
+    this._isOpen = false;
   }
 
   setWasm(wasm: Wasm) {
-    this.pgShell.setWasm(wasm);
+    this._pgShell.setWasm(wasm);
   }
 
   open(container: HTMLElement) {
-    this.container = container;
+    this._container = container;
 
-    this.xterm.open(container);
-    this.isOpen = true;
+    this._xterm.open(container);
+    this._isOpen = true;
 
     // Print welcome text
     this.println(PgTerminal.DEFAULT_TEXT);
@@ -458,25 +453,25 @@ export class PgTerm {
   }
 
   fit() {
-    this.fitAddon.fit();
+    this._fitAddon.fit();
 
     // Timeout fixes prompt message not showing in some rare cases
-    if (this.fitTimeoutId) clearTimeout(this.fitTimeoutId);
+    if (this._fitTimeoutId) clearTimeout(this._fitTimeoutId);
 
-    this.fitTimeoutId = setTimeout(() => {
+    this._fitTimeoutId = setTimeout(() => {
       if (
-        this.pgShell.isPrompting() &&
-        !this.pgTty.getInputStartsWithPrompt()
+        this._pgShell.isPrompting() &&
+        !this._pgTty.getInputStartsWithPrompt()
       ) {
-        const input = this.pgTty.getInput();
+        const input = this._pgTty.getInput();
         if (input) {
-          this.pgTty.clearInput();
-          this.pgShell.prompt();
-          this.pgTty.setInput(input);
+          this._pgTty.clearInput();
+          this._pgShell.prompt();
+          this._pgTty.setInput(input);
         } else {
           // Clear the input in case of a prompt bug where there is a text before the prompt
-          this.pgTty.clearCurrentLine();
-          this.pgShell.prompt();
+          this._pgTty.clearCurrentLine();
+          this._pgShell.prompt();
         }
       }
     }, 100); // time needs to be lower than specified fit interval in Terminal component
@@ -488,24 +483,29 @@ export class PgTerm {
   attachCustomKeyEventHandler(
     customKeyEventHandler: (e: KeyboardEvent) => boolean
   ) {
-    this.xterm.attachCustomKeyEventHandler(customKeyEventHandler);
+    this._xterm.attachCustomKeyEventHandler(customKeyEventHandler);
   }
-
+  /**
+   * Focus terminal and scroll to cursor
+   */
   focus() {
-    this.xterm.focus();
+    this._xterm.focus();
     this.scrollToCursor();
   }
 
+  /**
+   * Scroll terminal to wherever the cursor currently is
+   */
   scrollToCursor() {
-    if (!this.container) {
+    if (!this._container) {
       return;
     }
 
     // We don't need cursorX, since we want to start at the beginning of the terminal.
-    const cursorY = this.pgTty.getBuffer().cursorY;
-    const size = this.pgTty.getSize();
+    const cursorY = this._pgTty.getBuffer().cursorY;
+    const size = this._pgTty.getSize();
 
-    const containerBoundingClientRect = this.container.getBoundingClientRect();
+    const containerBoundingClientRect = this._container.getBoundingClientRect();
 
     // Find how much to scroll because of our cursor
     const cursorOffsetY =
@@ -524,49 +524,51 @@ export class PgTerm {
     window.scrollTo(scrollX, scrollY);
   }
 
+  /**
+   * Print a message to terminal
+   */
   print(message: string, sync?: boolean) {
     // For some reason, double new lines are not respected. Thus, fixing that here
     message = message.replace(/\n\n/g, "\n \n");
 
-    if (!this.isOpen) {
+    if (!this._isOpen) {
       return;
     }
 
-    if (this.pgShell.isPrompting()) {
+    if (this._pgShell.isPrompting()) {
       // Cancel the current prompt and restart
-      this.pgShell.printAndRestartPrompt(() => {
-        this.pgTty.print(message + "\n", sync);
+      this._pgShell.printAndRestartPrompt(() => {
+        this._pgTty.print(message + "\n", sync);
         return undefined;
       });
       return;
     }
 
-    this.pgTty.print(message, sync);
+    this._pgTty.print(message, sync);
   }
 
+  /**
+   * Print a message with end line character appended
+   */
   println(message: string, sync?: boolean) {
     this.print(message + "\n", sync);
   }
 
+  /**
+   * Run the line as command
+   */
   runCommand(line: string) {
-    if (this.pgShell.isPrompting()) {
-      this.pgTty.setInput(line);
-      this.pgShell.handleReadComplete();
+    if (this._pgShell.isPrompting()) {
+      this._pgTty.setInput(line);
+      this._pgShell.handleReadComplete();
     }
   }
 
-  destroy() {
-    this.xterm.dispose();
-    // @ts-ignore
-    delete this.xterm;
-  }
-
-  onPaste(data: string) {
-    this.pgTty.print(data);
-  }
-
+  /**
+   * Get terminal selection as string
+   */
   getSelection() {
-    return this.xterm.getSelection();
+    return this._xterm.getSelection();
   }
 
   /**
@@ -575,8 +577,8 @@ export class PgTerm {
    * This function does not clear previous history.
    */
   clear() {
-    this.pgTty.clearTty();
-    this.pgTty.print(`${PgTerminal.PROMPT}${this.pgTty.getInput()}`);
+    this._pgTty.clearTty();
+    this._pgTty.print(`${PgTerminal.PROMPT}${this._pgTty.getInput()}`);
   }
 
   /**
@@ -586,15 +588,15 @@ export class PgTerm {
    * like pressing build button
    */
   disable() {
-    this.pgShell._active = false;
-    this.pgTty.clearCurrentLine();
+    this._pgShell.disable();
+    this._pgTty.clearCurrentLine();
   }
 
   /**
    * Enable shell
    */
   enable() {
-    this.pgShell.enable();
+    this._pgShell.enable();
   }
 
   /**
@@ -604,22 +606,31 @@ export class PgTerm {
    */
   runLastCmd() {
     // Last command is the current input
-    let lastCmd = this.pgTty.getInput();
+    let lastCmd = this._pgTty.getInput();
     if (!lastCmd) {
-      const maybeLastCmd = this.pgShell.history.getPrevious();
+      const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
 
-    this.pgTty.setInput(lastCmd);
-    this.pgShell.handleReadComplete(true);
+    this._pgTty.setInput(lastCmd);
+    this._pgShell.handleReadComplete(true);
   }
 
   /**
    * Scrolls the terminal to bottom
    */
   scrollToBottom() {
-    this.xterm.scrollToBottom();
+    this._xterm.scrollToBottom();
+  }
+
+  /**
+   * Destroy xterm instance
+   */
+  destroy() {
+    this._xterm.dispose();
+    // @ts-ignore
+    delete this._xterm;
   }
 
   /**
@@ -631,10 +642,10 @@ export class PgTerm {
    *
    * Also stops multiline inputs rendering unnecessarily.
    */
-  handleTermResize = (data: { rows: number; cols: number }) => {
+  private _handleTermResize = (data: { rows: number; cols: number }) => {
     const { rows, cols } = data;
-    this.pgTty.clearInput();
-    this.pgTty.setTermSize(cols, rows);
-    this.pgTty.setInput(this.pgTty.getInput(), true);
+    this._pgTty.clearInput();
+    this._pgTty.setTermSize(cols, rows);
+    this._pgTty.setInput(this._pgTty.getInput(), true);
   };
 }

@@ -4,7 +4,11 @@
  * This function is not optimized and practically emulates via brute-force
  * the navigation on the terminal, wrapping when they reach the column width.
  */
-export function offsetToColRow(input: string, offset: number, maxCols: number) {
+export const offsetToColRow = (
+  input: string,
+  offset: number,
+  maxCols: number
+) => {
   let row = 0;
   let col = 0;
 
@@ -23,11 +27,11 @@ export function offsetToColRow(input: string, offset: number, maxCols: number) {
   }
 
   return { row, col };
-}
+};
 
 /**
  * Counts the lines in the given input
  */
-export function countLines(input: string, maxCols: number) {
+export const countLines = (input: string, maxCols: number) => {
   return offsetToColRow(input, input.length, maxCols).row + 1;
-}
+};

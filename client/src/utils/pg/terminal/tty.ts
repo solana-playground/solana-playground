@@ -1,4 +1,4 @@
-import { Terminal } from "xterm";
+import { Terminal as XTerm } from "xterm";
 
 import { countLines, offsetToColRow } from "./tty-utils";
 import { ActiveCharPrompt, ActivePrompt } from "./shell-utils";
@@ -9,53 +9,29 @@ import { PgTerminal } from "./terminal";
  * It acts an an interface for the shell and terminal to read/write from
  * and communicate with one another
  */
-
 export default class PgTty {
-  xterm: Terminal;
-
-  _termSize: {
+  private _xterm: XTerm;
+  private _termSize: {
     cols: number;
     rows: number;
   };
-  _firstInit: boolean = true;
-  _promptPrefix: string;
-  _continuationPromptPrefix: string;
-  _cursor: number;
-  _input: string;
+  private _firstInit: boolean = true;
+  private _promptPrefix: string;
+  private _continuationPromptPrefix: string;
+  private _cursor: number;
+  private _input: string;
 
-  constructor(xterm: Terminal) {
-    this.xterm = xterm;
+  constructor(xterm: XTerm) {
+    this._xterm = xterm;
 
     this._termSize = {
-      cols: this.xterm.cols,
-      rows: this.xterm.rows,
+      cols: this._xterm.cols,
+      rows: this._xterm.rows,
     };
     this._promptPrefix = "";
     this._continuationPromptPrefix = "";
     this._input = "";
     this._cursor = 0;
-  }
-
-  /**
-   * Function to return a deconstructed readPromise
-   */
-  _getAsyncRead() {
-    let readResolve;
-    let readReject;
-    const readPromise = new Promise((resolve, reject) => {
-      readResolve = (response: string) => {
-        this._promptPrefix = "";
-        this._continuationPromptPrefix = "";
-        resolve(response);
-      };
-      readReject = reject;
-    });
-
-    return {
-      promise: readPromise,
-      resolve: readResolve,
-      reject: readReject,
-    };
   }
 
   /**
@@ -117,13 +93,13 @@ export default class PgTty {
       // We write it synchronously via hacking a bit on xterm
 
       //@ts-ignore
-      this.xterm._core.writeSync(normInput);
+      this._xterm._core.writeSync(normInput);
       //@ts-ignore
-      this.xterm._core._renderService._renderer._runOperation((renderer) =>
-        renderer.onGridChanged(0, this.xterm.rows - 1)
+      this._xterm._core._renderService._renderer._runOperation((renderer) =>
+        renderer.onGridChanged(0, this._xterm.rows - 1)
       );
     } else {
-      this.xterm.write(normInput);
+      this._xterm.write(normInput);
     }
   }
 
@@ -177,38 +153,19 @@ export default class PgTty {
   }
 
   /**
-   * Apply prompts to the given input
-   */
-  applyPrompts(input: string): string {
-    return (
-      this._promptPrefix +
-      input.replace(/\n/g, "\n" + this._continuationPromptPrefix)
-    );
-  }
-
-  /**
-   * Advances the `offset` as required in order to accompany the prompt
-   * additions to the input.
-   */
-  applyPromptOffset(input: string, offset: number): number {
-    const newInput = this.applyPrompts(input.substr(0, offset));
-    return newInput.length;
-  }
-
-  /**
    * Clears the current prompt
    *
    * This function will erase all the lines that display the current prompt
    * and move the cursor in the beginning of the first line of the prompt.
    */
   clearInput() {
-    const currentPrompt = this.applyPrompts(this._input);
+    const currentPrompt = this._applyPrompts(this._input);
 
     // Get the overall number of lines to clear
     const allRows = countLines(currentPrompt, this._termSize.cols);
 
     // Get the line we are currently in
-    const promptCursor = this.applyPromptOffset(this._input, this._cursor);
+    const promptCursor = this._applyPromptOffset(this._input, this._cursor);
     const { row } = offsetToColRow(
       currentPrompt,
       promptCursor,
@@ -217,11 +174,18 @@ export default class PgTty {
 
     // First move on the last line
     const moveRows = allRows - row - 1;
-    for (let i = 0; i < moveRows; ++i) this.xterm.write("\x1b[E");
+    for (let i = 0; i < moveRows; ++i) this._xterm.write("\x1b[E");
 
     // Clear current input line(s)
-    this.xterm.write("\r\x1b[K");
-    for (let i = 1; i < allRows; ++i) this.xterm.write("\x1b[F\x1b[K");
+    this._xterm.write("\r\x1b[K");
+    for (let i = 1; i < allRows; ++i) this._xterm.write("\x1b[F\x1b[K");
+  }
+
+  /**
+   * This function clears all xterm buffer
+   */
+  clear() {
+    this._xterm.clear();
   }
 
   /**
@@ -232,11 +196,11 @@ export default class PgTty {
    */
   clearTty() {
     // Clear the screen
-    this.xterm.write("\x1b[2J");
+    this._xterm.write("\x1b[2J");
     // Set the cursor to 0, 0
-    this.xterm.write("\x1b[0;0H");
+    this._xterm.write("\x1b[0;0H");
     // Scroll to bottom
-    this.xterm.scrollToBottom();
+    this._xterm.scrollToBottom();
   }
 
   /**
@@ -302,18 +266,12 @@ export default class PgTty {
    * Function to return the terminal buffer
    */
   getBuffer() {
-    return this.xterm.buffer.active;
+    return this._xterm.buffer.active;
   }
 
   /**
-   * Function to get the current line
-   */
-  private _getCurrentLine(offset: number = 0) {
-    const buffer = this.getBuffer();
-    return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
-  }
-
-  /**
+   * @param offset how many lines before the current line
+   *
    * @returns the current line as string
    */
   getCurrentLineString(offset: number = 0) {
@@ -355,7 +313,7 @@ export default class PgTty {
     }
 
     // Write the new input lines, including the current prompt
-    const newPrompt = this.applyPrompts(newInput);
+    const newPrompt = this._applyPrompts(newInput);
     this.print(newPrompt);
 
     // Trim cursor overflow
@@ -364,7 +322,7 @@ export default class PgTty {
     }
 
     // Move the cursor to the appropriate row/col
-    const newCursor = this.applyPromptOffset(newInput, this._cursor);
+    const newCursor = this._applyPromptOffset(newInput, this._cursor);
     const newLines = countLines(newPrompt, this._termSize.cols);
     const { col, row } = offsetToColRow(
       newPrompt,
@@ -373,9 +331,9 @@ export default class PgTty {
     );
     const moveUpRows = newLines - row - 1;
 
-    this.xterm.write("\r");
-    for (let i = 0; i < moveUpRows; ++i) this.xterm.write("\x1b[F");
-    for (let i = 0; i < col; ++i) this.xterm.write("\x1b[C");
+    this._xterm.write("\r");
+    for (let i = 0; i < moveUpRows; ++i) this._xterm.write("\x1b[F");
+    for (let i = 0; i < col; ++i) this._xterm.write("\x1b[C");
 
     // Replace input
     this._input = newInput;
@@ -400,45 +358,6 @@ export default class PgTty {
     this._writeCursorPosition(newCursor);
   }
 
-  _writeCursorPosition(newCursor: number) {
-    // Apply prompt formatting to get the visual status of the display
-    const inputWithPrompt = this.applyPrompts(this._input);
-    // const inputLines = countLines(inputWithPrompt, this._termSize.cols);
-
-    // Estimate previous cursor position
-    const prevPromptOffset = this.applyPromptOffset(this._input, this._cursor);
-    const { col: prevCol, row: prevRow } = offsetToColRow(
-      inputWithPrompt,
-      prevPromptOffset,
-      this._termSize.cols
-    );
-
-    // Estimate next cursor position
-    const newPromptOffset = this.applyPromptOffset(this._input, newCursor);
-    const { col: newCol, row: newRow } = offsetToColRow(
-      inputWithPrompt,
-      newPromptOffset,
-      this._termSize.cols
-    );
-
-    // Adjust vertically
-    if (newRow > prevRow) {
-      for (let i = prevRow; i < newRow; ++i) this.xterm.write("\x1b[B");
-    } else {
-      for (let i = newRow; i < prevRow; ++i) this.xterm.write("\x1b[A");
-    }
-
-    // Adjust horizontally
-    if (newCol > prevCol) {
-      for (let i = prevCol; i < newCol; ++i) this.xterm.write("\x1b[C");
-    } else {
-      for (let i = newCol; i < prevCol; ++i) this.xterm.write("\x1b[D");
-    }
-
-    // Set new offset
-    this._cursor = newCursor;
-  }
-
   setTermSize(cols: number, rows: number) {
     this._termSize = { cols, rows };
   }
@@ -453,5 +372,93 @@ export default class PgTty {
 
   setContinuationPromptPrefix(value: string) {
     this._continuationPromptPrefix = value;
+  }
+
+  /**
+   * Function to return a deconstructed readPromise
+   */
+  private _getAsyncRead() {
+    let readResolve;
+    let readReject;
+    const readPromise = new Promise((resolve, reject) => {
+      readResolve = (response: string) => {
+        this._promptPrefix = "";
+        this._continuationPromptPrefix = "";
+        resolve(response);
+      };
+      readReject = reject;
+    });
+
+    return {
+      promise: readPromise,
+      resolve: readResolve,
+      reject: readReject,
+    };
+  }
+
+  /**
+   * Apply prompts to the given input
+   */
+  private _applyPrompts(input: string): string {
+    return (
+      this._promptPrefix +
+      input.replace(/\n/g, "\n" + this._continuationPromptPrefix)
+    );
+  }
+
+  /**
+   * Function to get the current line
+   */
+  private _getCurrentLine(offset: number = 0) {
+    const buffer = this.getBuffer();
+    return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
+  }
+
+  /**
+   * Advances the `offset` as required in order to accompany the prompt
+   * additions to the input.
+   */
+  private _applyPromptOffset(input: string, offset: number): number {
+    const newInput = this._applyPrompts(input.substring(0, offset));
+    return newInput.length;
+  }
+
+  private _writeCursorPosition(newCursor: number) {
+    // Apply prompt formatting to get the visual status of the display
+    const inputWithPrompt = this._applyPrompts(this._input);
+    // const inputLines = countLines(inputWithPrompt, this._termSize.cols);
+
+    // Estimate previous cursor position
+    const prevPromptOffset = this._applyPromptOffset(this._input, this._cursor);
+    const { col: prevCol, row: prevRow } = offsetToColRow(
+      inputWithPrompt,
+      prevPromptOffset,
+      this._termSize.cols
+    );
+
+    // Estimate next cursor position
+    const newPromptOffset = this._applyPromptOffset(this._input, newCursor);
+    const { col: newCol, row: newRow } = offsetToColRow(
+      inputWithPrompt,
+      newPromptOffset,
+      this._termSize.cols
+    );
+
+    // Adjust vertically
+    if (newRow > prevRow) {
+      for (let i = prevRow; i < newRow; ++i) this._xterm.write("\x1b[B");
+    } else {
+      for (let i = newRow; i < prevRow; ++i) this._xterm.write("\x1b[A");
+    }
+
+    // Adjust horizontally
+    if (newCol > prevCol) {
+      for (let i = prevCol; i < newCol; ++i) this._xterm.write("\x1b[C");
+    } else {
+      for (let i = newCol; i < prevCol; ++i) this._xterm.write("\x1b[D");
+    }
+
+    // Set new offset
+    this._cursor = newCursor;
   }
 }

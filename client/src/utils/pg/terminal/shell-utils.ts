@@ -14,12 +14,12 @@ export interface ActivePrompt extends ActiveCharPrompt {
 /**
  * Detects all the word boundaries on the given input
  */
-export function wordBoundaries(input: string, leftSide: boolean = true) {
+export const wordBoundaries = (input: string, leftSide: boolean = true) => {
   let match;
   const words = [];
-  const rx = /\w+/g;
+  const regex = /\w+/g;
 
-  match = rx.exec(input);
+  match = regex.exec(input);
   while (match) {
     if (leftSide) {
       words.push(match.index);
@@ -27,26 +27,26 @@ export function wordBoundaries(input: string, leftSide: boolean = true) {
       words.push(match.index + match[0].length);
     }
 
-    match = rx.exec(input);
+    match = regex.exec(input);
   }
 
   return words;
-}
+};
 
 /**
  * The closest left (or right) word boundary of the given input at the
  * given offset.
  */
-export function closestLeftBoundary(input: string, offset: number) {
+export const closestLeftBoundary = (input: string, offset: number) => {
   const found = wordBoundaries(input, true)
     .reverse()
     .find((x) => x < offset);
   return found === undefined ? 0 : found;
-}
-export function closestRightBoundary(input: string, offset: number) {
+};
+export const closestRightBoundary = (input: string, offset: number) => {
   const found = wordBoundaries(input, false).find((x) => x > offset);
   return found === undefined ? input.length : found;
-}
+};
 
 /**
  * Checks if there is an incomplete input
@@ -58,7 +58,7 @@ export function closestRightBoundary(input: string, offset: number) {
  * - An input that has an incomplete boolean shell expression (&& and ||)
  * - An incomplete pipe expression (|)
  */
-export function isIncompleteInput(input: string) {
+export const isIncompleteInput = (input: string) => {
   // Empty input is not incomplete
   if (input.trim() === "") {
     return false;
@@ -82,19 +82,19 @@ export function isIncompleteInput(input: string) {
   }
 
   return false;
-}
+};
 
 /**
  * @returns true if the expression ends on a tailing whitespace
  */
-export function hasTrailingWhitespace(input: string) {
+export const hasTrailingWhitespace = (input: string) => {
   return input.match(/[^\\][ \t]$/m) !== null;
-}
+};
 
 /**
  * @returns the last expression in the given input
  */
-export function getLastToken(input: string): string {
+export const getLastToken = (input: string) => {
   // Empty expressions
   if (input.trim() === "") return "";
   if (hasTrailingWhitespace(input)) return "";
@@ -102,15 +102,15 @@ export function getLastToken(input: string): string {
   // Last token
   const tokens = parse(input);
   return (tokens.pop() as string) || "";
-}
+};
 
 /**
  * @returns the auto-complete candidates for the given input
  */
-export function collectAutocompleteCandidates(
+export const collectAutocompleteCandidates = (
   callbacks: ((index: number, tokens: string[]) => string[])[],
   input: string
-): string[] {
+): string[] => {
   const tokens = parse(input);
   let index = tokens.length - 1;
 
@@ -137,4 +137,4 @@ export function collectAutocompleteCandidates(
   const canditates = all.filter((txt) => (txt as string).startsWith(input));
 
   return canditates;
-}
+};
