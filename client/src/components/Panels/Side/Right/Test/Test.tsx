@@ -1,18 +1,23 @@
+import { useAtom } from "jotai";
 import * as buffer from "buffer";
 import styled from "styled-components";
 
 import Function from "./Function";
 import FetchableAccount from "./FetchableAccount";
 import Text from "../../../../Text";
-import { PgProgramInfo } from "../../../../../utils/pg";
 import { Wormhole } from "../../../../Loading";
 import { ConnectionErrorText } from "../Common";
+import { PgProgramInfo } from "../../../../../utils/pg";
+import { buildCountAtom } from "../../../../../state";
 import { useInitialLoading } from "../";
 
 // Webpack 5 doesn't polyfill buffer
 window.Buffer = buffer.Buffer;
 
 const Test = () => {
+  // Refresh the component on a new build
+  useAtom(buildCountAtom);
+
   const { initialLoading, deployed, connError } = useInitialLoading();
 
   const idl = PgProgramInfo.getProgramInfo()?.idl;
