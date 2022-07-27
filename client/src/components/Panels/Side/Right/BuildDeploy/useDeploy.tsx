@@ -4,6 +4,7 @@ import { useConnection } from "@solana/wallet-adapter-react";
 
 import {
   DEFAULT_PROGRAM,
+  deployCountAtom,
   pgWalletAtom,
   Program,
   refreshPgWalletAtom,
@@ -22,6 +23,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setProgress] = useAtom(terminalProgressAtom);
   const [, setTxHash] = useAtom(txHashAtom);
+  const [, setDeployCount] = useAtom(deployCountAtom);
 
   const { connection: conn } = useConnection();
 
@@ -64,6 +66,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
       msg = `${PgTerminal.success(
         "Deployment successful."
       )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
+      setDeployCount((c) => c + 1);
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `${PgTerminal.error("Deployment error:")} ${convertedError}`;
@@ -84,6 +87,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     setTerminal,
     setTxHash,
     setTerminalState,
+    setDeployCount,
   ]);
 
   return { runDeploy, pgWallet };
