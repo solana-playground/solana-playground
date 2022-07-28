@@ -4,7 +4,7 @@
 
 ## Note
 
-- SolPg is still in **beta** and everything is subject to change.
+- Playground is still in **beta** and everything is subject to change.
 - Currently allowed crates:
   - [anchor-lang](https://docs.rs/anchor-lang/0.24.2/anchor_lang/)
   - [anchor-spl](https://docs.rs/anchor-spl/0.24.2/anchor_spl/)
@@ -22,6 +22,16 @@
   - [thiserror](https://docs.rs/thiserror/1.0.30/thiserror/)
 
 You can open an issue to request more crates.
+
+## Run locally
+
+You can run the client locally by cloning the repo and running these commands in the project directory.
+
+```sh
+cd client # change directory to client
+yarn # install dependencies
+yarn start # start local dev server
+```
 
 ## Contributing
 
