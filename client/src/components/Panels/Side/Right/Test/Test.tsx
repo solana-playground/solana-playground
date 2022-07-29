@@ -67,7 +67,7 @@ const Test = () => {
         <InitialWrapper>
           <Text type="Error">
             You've imported a corrupted IDL. Please double check you are
-            importing an IDL.json file.
+            importing an Anchor IDL.
           </Text>
         </InitialWrapper>
       );

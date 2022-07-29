@@ -105,4 +105,6 @@ export const SERVER_ERROR: ConvertedError = {
 
 export const OTHER_ERROR: ConvertedError = {
   "unable to infer src variant": "Enum variant does not exist.",
+  "program.methods[txVals.name] is not a function":
+    "Test component is not up to date.",
 };
