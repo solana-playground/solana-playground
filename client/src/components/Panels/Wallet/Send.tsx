@@ -108,7 +108,7 @@ const SendInside = () => {
     let msg = "";
 
     try {
-      await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
+      await PgCommon.sleep();
       const pk = new PublicKey(address);
 
       const ix = SystemProgram.transfer({

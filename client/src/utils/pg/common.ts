@@ -9,7 +9,7 @@ export class PgCommon {
    * @param ms amount of time to sleep in ms
    * @returns a promise that will resolve after specified ms
    */
-  static async sleep(ms: number) {
+  static async sleep(ms: number = this.TRANSITION_SLEEP) {
     return new Promise((res) => setTimeout((s) => res(s), ms));
   }
 

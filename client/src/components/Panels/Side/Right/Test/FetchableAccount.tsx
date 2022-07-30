@@ -101,7 +101,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   const fetchOne = async () => {
     if (!currentWallet) return;
     setFetchOneLoading(true);
-    await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
+    await PgCommon.sleep();
     try {
       const accountData = await PgAccount.fetchOne(
         accountName,
@@ -121,7 +121,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   const fetchAll = async () => {
     if (!currentWallet) return;
     setFetchAllLoading(true);
-    await PgCommon.sleep(PgCommon.TRANSITION_SLEEP);
+    await PgCommon.sleep();
     try {
       const accountData = await PgAccount.fetchAll(
         accountName,

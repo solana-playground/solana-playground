@@ -19,6 +19,7 @@ import { TAB_HEIGHT } from "../../Main/Tabs";
 import { Sidebar } from "../sidebar-state";
 import { PgExplorer, PgShare } from "../../../../utils/pg";
 import { explorerAtom } from "../../../../state";
+import TestSkeleton from "./Test/TestSkeleton";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -121,8 +122,12 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
     >
       <Wrapper windowHeight={height.window} bottomHeight={height.bottom}>
         <StyledTitle sidebarState={sidebarState} />
-        <Suspense fallback={<RightLoading />}>
-          {loading ? <RightLoading /> : <Inside sidebarState={sidebarState} />}
+        <Suspense fallback={<RightLoading sidebarState={sidebarState} />}>
+          {loading ? (
+            <RightLoading sidebarState={sidebarState} />
+          ) : (
+            <Inside sidebarState={sidebarState} />
+          )}
         </Suspense>
       </Wrapper>
     </Resizable>
@@ -154,11 +159,22 @@ const Title: FC<TitleProps> = ({ sidebarState, className }) => (
   </div>
 );
 
-const RightLoading = () => (
-  <LoadingWrapper>
-    <Wormhole />
-  </LoadingWrapper>
-);
+interface RightLoadingProps {
+  sidebarState: string;
+}
+
+const RightLoading: FC<RightLoadingProps> = ({ sidebarState }) => {
+  switch (sidebarState) {
+    case Sidebar.TEST:
+      return <TestSkeleton />;
+    default:
+      return (
+        <LoadingWrapper>
+          <Wormhole />
+        </LoadingWrapper>
+      );
+  }
+};
 
 const MIN_WIDTH = 180;
 

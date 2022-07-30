@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Function from "./Function";
 import FetchableAccount from "./FetchableAccount";
 import Text from "../../../../Text";
-import { Wormhole } from "../../../../Loading";
+import TestSkeleton from "./TestSkeleton";
 import { ConnectionErrorText } from "../Common";
 import { PgProgramInfo } from "../../../../../utils/pg";
 import { buildCountAtom } from "../../../../../state";
@@ -29,12 +29,7 @@ const Test = () => {
       </InitialWrapper>
     );
 
-  if (initialLoading)
-    return (
-      <InitialWrapper>
-        <Wormhole />
-      </InitialWrapper>
-    );
+  if (initialLoading) return <TestSkeleton />;
 
   if (connError)
     return (
@@ -136,6 +131,7 @@ const ProgramName = styled.span`
 
 const Subheading = styled.h4`
   margin: 0.5rem 1rem;
+  color: ${({ theme }) => theme.colors.default.primary};
 `;
 
 const ProgramInteractionWrapper = styled.div``;

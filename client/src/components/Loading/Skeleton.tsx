@@ -8,14 +8,15 @@ export const skeletonAnimation = keyframes`
 
 interface SkeletonProps {
   height?: string;
+  width?: string;
 }
 
 export const Skeleton = styled.div<SkeletonProps>`
-  ${({ theme, height = "2rem" }) => css`
+  ${({ theme, height = "1rem", width = "100%" }) => css`
     background-color: ${theme.skeleton?.color};
     height: ${height};
 
-    width: 100%;
+    width: ${width};
     border-radius: ${theme.borderRadius};
 
     position: relative;

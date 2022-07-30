@@ -152,7 +152,7 @@ const Deploy = () => {
   if (initialLoading)
     return (
       <Wrapper>
-        <Skeleton />
+        <Skeleton height="2rem" />
       </Wrapper>
     );
 
