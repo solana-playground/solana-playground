@@ -1,6 +1,7 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
+import { PgConnection } from "./connection";
 
 export class PgCommon {
   static readonly TRANSITION_SLEEP = 200;
@@ -224,5 +225,21 @@ export class PgCommon {
       if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
       return index === 0 ? match.toLowerCase() : match.toUpperCase();
     });
+  }
+
+  /**
+   * @returns automatic airdrop amount
+   */
+  static getAirdropAmount(endpoint: Endpoint = PgConnection.endpoint) {
+    switch (endpoint) {
+      case Endpoint.LOCALHOST:
+        return 100;
+      case Endpoint.DEVNET:
+        return 2;
+      case Endpoint.TESTNET:
+        return 1;
+      default:
+        return null;
+    }
   }
 }

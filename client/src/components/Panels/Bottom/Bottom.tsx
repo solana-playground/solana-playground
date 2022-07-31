@@ -52,28 +52,28 @@ const Bottom = () => {
   }, [balance, currentWallet, conn, setBalance]);
 
   // Auto airdrop if balance is less than 4 SOL
-  const amount = useAirdropAmount();
+  const airdropAmount = useAirdropAmount();
   const [rateLimited, setRateLimited] = useState(false);
 
   useEffect(() => {
     if (
       rateLimited ||
-      !amount ||
+      !airdropAmount ||
       balance === undefined ||
       balance === null ||
+      balance >= 4 ||
       !currentWallet ||
-      !pgWalletPk
+      !pgWalletPk ||
+      // Only auto-airdrop to PgWallet
+      !pgWalletPk.equals(currentWallet.publicKey)
     )
       return;
-
-    // Only auto-airdrop to PgWallet
-    if (!pgWalletPk.equals(currentWallet.publicKey) || balance >= 4) return;
 
     const airdrop = async () => {
       try {
         await conn.requestAirdrop(
           currentWallet.publicKey,
-          PgCommon.solToLamports(amount)
+          PgCommon.solToLamports(airdropAmount)
         );
       } catch (e: any) {
         if (e.message.startsWith("429 Too Many Requests")) setRateLimited(true);

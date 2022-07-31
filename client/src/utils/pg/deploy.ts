@@ -55,28 +55,46 @@ export class PgDeploy {
     if (!programExists) {
       // Initial deploy
       const neededBalance = 3 * bufferBalance;
-      if (userBalance < neededBalance)
-        throw new Error(
-          `Initial deployment costs ${PgTerminal.bold(
-            PgCommon.lamportsToSol(neededBalance).toFixed(2)
-          )} SOL but you have ${PgTerminal.bold(
-            PgCommon.lamportsToSol(userBalance).toFixed(2)
-          )} SOL. ${PgTerminal.bold(
-            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-          )} SOL will be refunded at the end.`
-        );
+      if (userBalance < neededBalance) {
+        const errMsg = `Initial deployment costs ${PgTerminal.bold(
+          PgCommon.lamportsToSol(neededBalance).toFixed(2)
+        )} SOL but you have ${PgTerminal.bold(
+          PgCommon.lamportsToSol(userBalance).toFixed(2)
+        )} SOL. ${PgTerminal.bold(
+          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+        )} SOL will be refunded at the end.`;
+
+        const airdropAmount = PgCommon.getAirdropAmount();
+        if (airdropAmount !== null) {
+          throw new Error(
+            errMsg +
+              `\nYou can use '${PgTerminal.bold(
+                `solana airdrop ${PgCommon.getAirdropAmount()}`
+              )}' to airdrop some SOL.`
+          );
+        } else throw new Error(errMsg);
+      }
     } else {
       // Upgrade
-      if (userBalance < bufferBalance)
-        throw new Error(
-          `Upgrading costs ${PgTerminal.bold(
-            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-          )} SOL but you have ${PgTerminal.bold(
-            PgCommon.lamportsToSol(userBalance).toFixed(2)
-          )} SOL. ${PgTerminal.bold(
-            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-          )} SOL will be refunded at the end.`
-        );
+      if (userBalance < bufferBalance) {
+        const errMsg = `Upgrading costs ${PgTerminal.bold(
+          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+        )} SOL but you have ${PgTerminal.bold(
+          PgCommon.lamportsToSol(userBalance).toFixed(2)
+        )} SOL. ${PgTerminal.bold(
+          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+        )} SOL will be refunded at the end.`;
+
+        const airdropAmount = PgCommon.getAirdropAmount();
+        if (airdropAmount !== null) {
+          throw new Error(
+            errMsg +
+              `\nYou can use '${PgTerminal.bold(
+                `solana airdrop ${PgCommon.getAirdropAmount()}`
+              )}' to airdrop some SOL.`
+          );
+        } else throw new Error(errMsg);
+      }
     }
 
     let sleepAmount = 1000;

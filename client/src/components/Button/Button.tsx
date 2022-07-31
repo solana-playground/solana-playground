@@ -42,7 +42,7 @@ const StyledButton = styled.button<ButtonProps>`
 const getButtonStyles = ({
   theme,
   kind = "transparent",
-  size,
+  size = "small",
   fullWidth,
 }: ButtonProps & { theme: DefaultTheme }) => {
   let color = "inherit";
