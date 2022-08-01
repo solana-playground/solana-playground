@@ -22,14 +22,14 @@ const Test = () => {
 
   const idl = PgProgramInfo.getProgramInfo()?.idl;
 
+  if (initialLoading) return <TestSkeleton />;
+
   if (idl === undefined)
     return (
       <InitialWrapper>
         <Text>{"Build the program or import an IDL from Extra > IDL."}</Text>
       </InitialWrapper>
     );
-
-  if (initialLoading) return <TestSkeleton />;
 
   if (connError)
     return (
@@ -41,11 +41,7 @@ const Test = () => {
   if (!deployed)
     return (
       <InitialWrapper>
-        <Text>
-          {
-            "Deploy the program or if you already have a deployed program set the program id from Extra > Program credentials."
-          }
-        </Text>
+        <Text>Program is not deployed.</Text>
       </InitialWrapper>
     );
 

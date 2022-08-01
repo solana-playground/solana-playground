@@ -20,6 +20,7 @@ import InputLabel from "./InputLabel";
 import Tooltip from "../../../../Tooltip";
 import Input, { defaultInputProps } from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
+import { ClassName } from "../../../../../constants";
 import {
   PgAccount,
   PgProgramInfo,
@@ -296,6 +297,7 @@ interface SeedInputProps {
 
 const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
   const [showAddSeed, setShowAddSeed] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleSeed = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -304,17 +306,26 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
 
         return [...seeds];
       });
+
+      if (seed.type === "publicKey") {
+        try {
+          new PublicKey(e.target.value);
+          setError(false);
+        } catch {
+          setError(true);
+        }
+      }
     },
     [index, seed.type, setSeeds]
   );
 
   const toggleAddSeed = useCallback(() => {
     setShowAddSeed((s) => !s);
-  }, [setShowAddSeed]);
+  }, []);
 
   const closeAddSeed = useCallback(() => {
     setShowAddSeed(false);
-  }, [setShowAddSeed]);
+  }, []);
 
   const addSeed = useCallback(
     (type: IdlType) => {
@@ -326,8 +337,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
 
   const addSeedString = useCallback(() => {
     addSeed("string");
-    closeAddSeed();
-  }, [addSeed, closeAddSeed]);
+  }, [addSeed]);
 
   const addSeedPk = useCallback(() => {
     addSeed("publicKey");
@@ -338,12 +348,12 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
   }, [index, setSeeds]);
 
   const seedInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  // Focus on mount
   useEffect(() => {
     seedInputRef.current?.focus();
   }, []);
-
-  const menuRef = useRef<HTMLDivElement>(null);
 
   // Close showAddSeed on outside click
   useEffect(() => {
@@ -366,6 +376,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
           ref={seedInputRef}
           value={seed.value}
           onChange={handleSeed}
+          className={error ? ClassName.ERROR : ""}
           {...defaultInputProps}
         />
         {isFirst ? (
