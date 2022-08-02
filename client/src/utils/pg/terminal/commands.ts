@@ -1,3 +1,7 @@
+import { PgConnection } from "../connection";
+import { PgWallet } from "../wallet";
+import { PkgName } from "./pkg";
+
 export class PgCommand {
   static readonly BUILD = "build";
   static readonly CLEAR = "clear";
@@ -32,6 +36,24 @@ export class PgCommand {
         ""
       )
     );
+  }
+
+  /**
+   * Get the remaining args for the command
+   *
+   * - Solana: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
+   * - SPL-Token: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
+   */
+  static getCmdArgs(pkg: PkgName) {
+    switch (pkg) {
+      case PkgName.SOLANA_CLI:
+      case PkgName.SPL_TOKEN_CLI:
+        return [
+          PgConnection.endpoint,
+          PgConnection.commitment,
+          PgWallet.keypairBytes,
+        ];
+    }
   }
 }
 

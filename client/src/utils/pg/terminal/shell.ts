@@ -1,4 +1,4 @@
-import PgTty from "./tty";
+import { PgTty } from "./tty";
 import ShellHistory from "./shell-history";
 import {
   ActiveCharPrompt,
@@ -9,10 +9,11 @@ import {
   hasTrailingWhitespace,
   isIncompleteInput,
 } from "./shell-utils";
-import { TerminalAction } from "../../../state";
-import { PgTerminal, Wasm, WasmPkg } from "./terminal";
+import { PgTerminal } from "./terminal";
 import { PgWallet } from "../wallet";
 import { PgCommand } from "./commands";
+import { PkgName, Pkgs } from "./pkg";
+import { TerminalAction } from "../../../state";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -25,7 +26,7 @@ type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
  * - Output text to the tty -> terminal
  * - Interpret text within the tty to launch processes and interpret programs
  */
-export default class PgShell {
+export class PgShell {
   private _pgTty: PgTty;
   private _history: ShellHistory;
   private _active: boolean;
@@ -33,7 +34,7 @@ export default class PgShell {
   private _autocompleteHandlers: AutoCompleteHandler[];
   private _activePrompt?: ActivePrompt;
   private _activeCharPrompt?: ActiveCharPrompt;
-  private _wasm?: Wasm;
+  private _pkgs?: Pkgs;
 
   constructor(
     pgTty: PgTty,
@@ -61,8 +62,8 @@ export default class PgShell {
     return this._history;
   }
 
-  setWasm(wasm: Wasm) {
-    this._wasm = wasm;
+  setPkgs(pkgs: Pkgs) {
+    this._pkgs = pkgs;
   }
 
   /**
@@ -532,13 +533,13 @@ export default class PgShell {
 
     switch (cmdName) {
       case PgCommand.SOLANA: {
-        const wasm = this._wasm;
+        const pkgs = this._pkgs;
         if (PgWallet.checkIsPgConnected()) {
-          if (wasm?.runSolana) {
+          if (pkgs?.runSolana) {
             // @ts-ignore
-            wasm.runSolana(cmd, ...PgTerminal.getCliArgs(WasmPkg.SOLANA_CLI));
+            pkgs.runSolana(cmd, ...PgCommand.getCmdArgs(PkgName.SOLANA_CLI));
           } else {
-            PgTerminal.loadWasm(WasmPkg.SOLANA_CLI);
+            PgTerminal.loadPkg(PkgName.SOLANA_CLI);
           }
         }
 
@@ -547,16 +548,16 @@ export default class PgShell {
       }
 
       case PgCommand.SPL_TOKEN: {
-        const wasm = this._wasm;
+        const pkgs = this._pkgs;
         if (PgWallet.checkIsPgConnected()) {
-          if (wasm?.runSplToken) {
-            wasm.runSplToken(
+          if (pkgs?.runSplToken) {
+            pkgs.runSplToken(
               cmd,
               // @ts-ignore
-              ...PgTerminal.getCliArgs(WasmPkg.SPL_TOKEN_CLI)
+              ...PgCommand.getCmdArgs(PkgName.SPL_TOKEN_CLI)
             );
           } else {
-            PgTerminal.loadWasm(WasmPkg.SPL_TOKEN_CLI);
+            PgTerminal.loadPkg(PkgName.SPL_TOKEN_CLI);
           }
         }
 

@@ -2,8 +2,8 @@ import { ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 
-import PgTty from "./tty";
-import PgShell from "./shell";
+import { PgTty } from "./tty";
+import { PgShell } from "./shell";
 import {
   GITHUB_URL,
   Id,
@@ -15,28 +15,7 @@ import {
 } from "../../../constants";
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
-import { PgWallet } from "../wallet";
-
-export interface Wasm {
-  runSolana?: (
-    arg: string,
-    endpoint: string,
-    commitment: string,
-    keypairBytes: Uint8Array
-  ) => void;
-  runSplToken?: (
-    arg: string,
-    endpoint: string,
-    commitment: string,
-    keypairBytes: Uint8Array
-  ) => void;
-}
-
-export enum WasmPkg {
-  SOLANA_CLI = "solana-cli",
-  SPL_TOKEN_CLI = "spl-token-cli",
-}
+import { PkgName, Pkgs } from "./pkg";
 
 enum TextState {
   SUCCESS = 0,
@@ -114,7 +93,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly EVT_NAME_TERMINAL_STATE = "terminalstate";
   static readonly EVT_NAME_TERMINAL_ENABLE = "terminalenable";
   static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
-  static readonly EVT_NAME_LOAD_WASM = "terminalloadwasm";
+  static readonly EVT_NAME_LOAD_PKG = "terminalloadpkg";
   static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
   static readonly EVT_NAME_SCROLL_TO_BOTTOM = "terminalscrolltobottom";
 
@@ -321,24 +300,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Get the remaining CLI args
-   *
-   * - Solana: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
-   * - SPL-Token: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
-   */
-  static getCliArgs(pkg: WasmPkg) {
-    switch (pkg) {
-      case WasmPkg.SOLANA_CLI:
-      case WasmPkg.SPL_TOKEN_CLI:
-        return [
-          PgConnection.endpoint,
-          PgConnection.commitment,
-          PgWallet.keypairBytes,
-        ];
-    }
-  }
-
-  /**
    * Set terminal state from anywhere
    */
   static setTerminalState(action: TerminalAction) {
@@ -371,10 +332,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Dispatch disable terminal custom event
+   * Dispatch load pkg terminal custom event
    */
-  static loadWasm(pkg: WasmPkg) {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_LOAD_WASM, {
+  static loadPkg(pkg: PkgName) {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_LOAD_PKG, {
       pkg,
     });
   }
@@ -435,8 +396,8 @@ export class PgTerm {
     this._isOpen = false;
   }
 
-  setWasm(wasm: Wasm) {
-    this._pgShell.setWasm(wasm);
+  setPkgs(pkgs: Pkgs) {
+    this._pgShell.setPkgs(pkgs);
   }
 
   open(container: HTMLElement) {

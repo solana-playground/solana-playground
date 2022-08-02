@@ -27,7 +27,7 @@ const Test = () => {
   if (idl === undefined)
     return (
       <InitialWrapper>
-        <Text>{"Build the program or import an IDL from Extra > IDL."}</Text>
+        <Text>Program is not built.</Text>
       </InitialWrapper>
     );
 

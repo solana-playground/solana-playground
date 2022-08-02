@@ -9,7 +9,7 @@ import { PgTerminal } from "./terminal";
  * It acts an an interface for the shell and terminal to read/write from
  * and communicate with one another
  */
-export default class PgTty {
+export class PgTty {
   private _xterm: XTerm;
   private _termSize: {
     cols: number;
