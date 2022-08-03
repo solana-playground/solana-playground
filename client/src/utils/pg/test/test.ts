@@ -261,8 +261,27 @@ export class PgTest {
     let buffers = [];
     for (const seed of seeds) {
       let buffer;
-      if (seed.type === "string") buffer = Buffer.from(seed.value);
-      else buffer = new PublicKey(seed.value).toBuffer();
+      switch (seed.type) {
+        case "string": {
+          buffer = Buffer.from(seed.value);
+          break;
+        }
+        case "publicKey": {
+          buffer = this.parse(seed.value, "publicKey").toBuffer();
+          break;
+        }
+        case "bytes": {
+          buffer = Buffer.from(this.parse(seed.value, "bytes"));
+          break;
+        }
+        case "i32": {
+          buffer = Buffer.from([this.parse(seed.value, "i32")]);
+          break;
+        }
+        default: {
+          buffer = Buffer.from(seed.value);
+        }
+      }
 
       buffers.push(buffer);
     }

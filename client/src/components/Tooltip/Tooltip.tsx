@@ -16,6 +16,7 @@ const Tooltip: FC<TooltipProps> = ({ text, children }) => (
 const StyledTooltip = styled.div<TooltipProps>`
   ${({ text, theme }) => css`
     position: relative;
+    height: fit-content;
 
     &::before,
     &::after {

@@ -13,13 +13,13 @@ import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
+import TestSkeleton from "./Test/TestSkeleton";
 import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs";
 import { Sidebar } from "../sidebar-state";
 import { PgExplorer, PgShare } from "../../../../utils/pg";
 import { explorerAtom } from "../../../../state";
-import TestSkeleton from "./Test/TestSkeleton";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -68,9 +68,10 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   }, [explorer, setLoading]);
 
   const [height, setHeight] = useState({
-    window: document.getElementById(Id.ROOT)?.getClientRects()[0].height ?? 979,
+    window:
+      document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979,
     bottom:
-      document.getElementById(Id.BOTTOM)?.getClientRects()[0].height ?? 24,
+      document.getElementById(Id.BOTTOM)?.getClientRects()[0]?.height ?? 24,
   });
 
   // Resize the sidebar on window resize event

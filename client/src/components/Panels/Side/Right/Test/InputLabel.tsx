@@ -4,7 +4,7 @@ import { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
 
 interface InputLabelProps {
   label: string;
-  type: IdlType;
+  type: IdlType | "number";
   account?: IdlAccount;
 }
 
