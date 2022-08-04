@@ -5,7 +5,7 @@ const ROOT_DIR = "icons/sidebar/";
 export const sidebarData = {
   top: [
     {
-      title: `${Sidebar.EXPLORER} Ctrl+Shift+E)`,
+      title: `${Sidebar.EXPLORER} (Ctrl+Shift+E)`,
       src: ROOT_DIR + "explorer.webp",
       value: Sidebar.EXPLORER,
     },

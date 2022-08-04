@@ -267,15 +267,15 @@ export class PgTest {
           break;
         }
         case "publicKey": {
-          buffer = this.parse(seed.value, "publicKey").toBuffer();
+          buffer = this.parse(seed.value, seed.type).toBuffer();
           break;
         }
         case "bytes": {
-          buffer = Buffer.from(this.parse(seed.value, "bytes"));
+          buffer = Buffer.from(this.parse(seed.value, seed.type));
           break;
         }
         case "i32": {
-          buffer = Buffer.from([this.parse(seed.value, "i32")]);
+          buffer = Buffer.from([this.parse(seed.value, seed.type)]);
           break;
         }
         default: {

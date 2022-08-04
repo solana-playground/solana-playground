@@ -29,23 +29,22 @@ const Side = () => {
               (state === Sidebar.BUILD_DEPLOY && key === "B") ||
               (state === Sidebar.TEST && key === "D"));
 
-          const defaultFn = () => {
+          const preventDefaultAndSetWidth = (w: number = oldWidth) => {
             e.preventDefault();
-            setWidth(oldWidth);
+            setWidth(w);
           };
 
           if (closeCondition) {
-            e.preventDefault();
-            setWidth(0);
+            preventDefaultAndSetWidth(0);
           } else if (key === "E") {
-            defaultFn();
+            preventDefaultAndSetWidth();
             return Sidebar.EXPLORER;
           } else if (key === "B") {
-            defaultFn();
+            preventDefaultAndSetWidth();
             return Sidebar.BUILD_DEPLOY;
           } else if (key === "D") {
             // T doesn't work
-            defaultFn();
+            preventDefaultAndSetWidth();
             return Sidebar.TEST;
           }
 
