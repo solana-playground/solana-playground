@@ -14,7 +14,14 @@ import {
   terminalStateAtom,
   txHashAtom,
 } from "../../../../../state";
-import { PgCommon, PgDeploy, PgTerminal } from "../../../../../utils/pg";
+import {
+  PgCommon,
+  PgDeploy,
+  PgProgramInfo,
+  PgTerminal,
+  PgWallet,
+} from "../../../../../utils/pg";
+import { useAuthority } from "./useAuthority";
 
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -26,6 +33,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [, setDeployCount] = useAtom(deployCountAtom);
 
   const { connection: conn } = useConnection();
+  const { authority, hasAuthority, upgradeable } = useAuthority();
 
   const runDeploy = useCallback(async () => {
     // This doesn't stop the current deploy but stops new deploys
@@ -39,6 +47,23 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
         `${PgTerminal.bold(
           "Playground Wallet"
         )} must be connected in order to deploy.`
+      );
+      PgTerminal.enable();
+      return;
+    }
+    if (upgradeable === false) {
+      setTerminal(PgTerminal.warning("The program is not upgradeable."));
+      PgTerminal.enable();
+      return;
+    }
+    if (hasAuthority === false) {
+      setTerminal(
+        `${PgTerminal.warning(
+          "You don't have the authority to upgrade this program."
+        )}
+Program ID: ${PgProgramInfo.getPk()!.programPk}
+Program authority: ${authority}
+Your address: ${PgWallet.getKp().publicKey}`
       );
       PgTerminal.enable();
       return;
@@ -84,11 +109,14 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
     pgWallet,
     pgWalletChanged,
     program,
+    authority,
+    hasAuthority,
+    upgradeable,
     setTerminal,
     setTxHash,
     setTerminalState,
     setDeployCount,
   ]);
 
-  return { runDeploy, pgWallet };
+  return { runDeploy, pgWallet, hasAuthority, upgradeable };
 };

@@ -12,7 +12,7 @@ import {
 import { PgProgramInfo } from "../../../../../utils/pg";
 import { ConnectionErrorText } from "../Common";
 import { Skeleton } from "../../../../Loading";
-import { useDeploy, useAuthority } from "./";
+import { useDeploy } from "./";
 import { useInitialLoading } from "../";
 import {
   useConnect,
@@ -29,9 +29,8 @@ const Deploy = () => {
 
   const { initialLoading, deployed, setDeployed, connError } =
     useInitialLoading();
-  const { hasAuthority, upgradeable } = useAuthority();
   const { solWalletPk } = useCurrentWallet();
-  const { runDeploy, pgWallet } = useDeploy(program);
+  const { runDeploy, pgWallet, hasAuthority, upgradeable } = useDeploy(program);
 
   const deploy = useCallback(async () => {
     const deployErrror = await runDeploy();
@@ -44,7 +43,7 @@ const Deploy = () => {
     return () => setTerminalState(TerminalAction.deployUnmount);
   }, [setTerminalState]);
 
-  // Run build from terminal
+  // Run deploy from terminal
   useEffect(() => {
     if (terminalState.deployMounted && terminalState.deployStart) {
       deploy();

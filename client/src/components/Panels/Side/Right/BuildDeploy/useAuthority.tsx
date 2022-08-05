@@ -61,6 +61,7 @@ export const useAuthority = () => {
   }, [conn, programIdCount]);
 
   return {
+    authority: programData.authority,
     hasAuthority:
       programData.authority &&
       programData.authority.equals(PgWallet.getKp().publicKey),
