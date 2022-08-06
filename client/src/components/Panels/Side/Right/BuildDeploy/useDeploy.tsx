@@ -70,13 +70,14 @@ Your address: ${PgWallet.getKp().publicKey}`
     }
 
     setTerminalState(TerminalAction.deployLoadingStart);
-
-    let msg = `${PgTerminal.info(
-      "Deploying..."
-    )} This could take a while depending on the program size and network conditions.`;
-    setTerminal(msg);
+    setTerminal(
+      `${PgTerminal.info(
+        "Deploying..."
+      )} This could take a while depending on the program size and network conditions.`
+    );
     setProgress(0.1);
 
+    let msg;
     try {
       const startTime = performance.now();
       const txHash = await PgDeploy.deploy(
