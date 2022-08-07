@@ -60,7 +60,7 @@ export class PgTest {
     idlTypes?: IdlTypeDef[],
     idlAccounts?: IdlTypeDef[]
   ): IdlType {
-    if (DEFAULT_TYPES.includes(type) || !idlTypes || !idlAccounts) return type;
+    if (DEFAULT_TYPES.includes(type)) return type;
 
     if (typeof type === "object") {
       if ((type as IdlTypeOption)?.option) {
@@ -85,14 +85,14 @@ export class PgTest {
 
         // Type info might be in 'accounts' instead of 'types'
         let typeInfo = idlTypes
-          .filter((t) => t.name === customTypeName)
+          ?.filter((t) => t.name === customTypeName)
           .at(0)?.type;
         if (!typeInfo) {
-          typeInfo = idlAccounts.filter((t) => t.name === customTypeName)[0]
+          typeInfo = idlAccounts?.filter((t) => t.name === customTypeName)[0]
             .type;
         }
 
-        const kind = typeInfo.kind;
+        const kind = typeInfo?.kind;
         if (kind === "enum") {
           return (customTypeName + "(Enum)") as IdlType;
           // TODO: Error handling based on variants
