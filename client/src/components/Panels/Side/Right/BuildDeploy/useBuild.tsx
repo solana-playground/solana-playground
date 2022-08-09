@@ -16,33 +16,31 @@ export const useBuild = () => {
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
 
-  const runBuild = useCallback(async () => {
-    setTerminalState(TerminalAction.buildStop);
+  const runBuild = useCallback(() => {
+    PgTerminal.run(async () => {
+      setTerminalState(TerminalAction.buildStop);
 
-    if (!explorer) return;
+      if (!explorer) return;
 
-    PgTerminal.disable();
-    PgTerminal.scrollToBottom();
+      setTerminalState(TerminalAction.buildLoadingStart);
 
-    setTerminalState(TerminalAction.buildLoadingStart);
-
-    let msg = PgTerminal.info("Building...");
-    setTerminal(msg);
-
-    try {
-      const result = await PgBuild.build(explorer.getBuildFiles());
-
-      msg = PgTerminal.editStderr(result.stderr, result.uuid);
-
-      // To update programId each build
-      setBuildCount((c) => c + 1);
-    } catch (e: any) {
-      msg = `${PgTerminal.error("Build error:")} ${e.message}\n`;
-    } finally {
+      let msg = PgTerminal.info("Building...");
       setTerminal(msg);
-      setTerminalState(TerminalAction.buildLoadingStop);
-      PgTerminal.enable();
-    }
+
+      try {
+        const result = await PgBuild.build(explorer.getBuildFiles());
+
+        msg = PgTerminal.editStderr(result.stderr, result.uuid);
+
+        // To update programId each build
+        setBuildCount((c) => c + 1);
+      } catch (e: any) {
+        msg = `${PgTerminal.error("Build error:")} ${e.message}\n`;
+      } finally {
+        setTerminal(msg);
+        setTerminalState(TerminalAction.buildLoadingStop);
+      }
+    });
   }, [explorer, setTerminal, setBuildCount, setTerminalState]);
 
   return { runBuild };

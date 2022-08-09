@@ -99,36 +99,38 @@ const SendInside = () => {
   const { connection: conn } = useConnection();
   const { currentWallet } = useCurrentWallet();
 
-  const send = async () => {
-    if (!currentWallet) return;
+  const send = () => {
+    PgTerminal.run(async () => {
+      if (!currentWallet) return;
 
-    setLoading(true);
-    setTerminal(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
+      setLoading(true);
+      setTerminal(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
 
-    let msg = "";
+      let msg = "";
 
-    try {
-      await PgCommon.sleep();
-      const pk = new PublicKey(address);
+      try {
+        await PgCommon.sleep();
+        const pk = new PublicKey(address);
 
-      const ix = SystemProgram.transfer({
-        fromPubkey: currentWallet.publicKey,
-        toPubkey: pk,
-        lamports: PgCommon.solToLamports(parseFloat(amount)),
-      });
+        const ix = SystemProgram.transfer({
+          fromPubkey: currentWallet.publicKey,
+          toPubkey: pk,
+          lamports: PgCommon.solToLamports(parseFloat(amount)),
+        });
 
-      const tx = new Transaction().add(ix);
+        const tx = new Transaction().add(ix);
 
-      const txHash = await PgTx.send(tx, conn, currentWallet);
-      setTxHash(txHash);
-      msg = PgTerminal.success("Success.");
-    } catch (e: any) {
-      const convertedError = PgTerminal.convertErrorMessage(e.message);
-      msg = `${PgTerminal.error("Transfer error:")} ${convertedError}`;
-    } finally {
-      setLoading(false);
-      setTerminal(msg + "\n");
-    }
+        const txHash = await PgTx.send(tx, conn, currentWallet);
+        setTxHash(txHash);
+        msg = PgTerminal.success("Success.");
+      } catch (e: any) {
+        const convertedError = PgTerminal.convertErrorMessage(e.message);
+        msg = `${PgTerminal.error("Transfer error:")} ${convertedError}`;
+      } finally {
+        setLoading(false);
+        setTerminal(msg + "\n");
+      }
+    });
   };
 
   return (

@@ -353,6 +353,23 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static scrollToBottom() {
     PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_SCROLL_TO_BOTTOM);
   }
+
+  /**
+   * Wrapper function for commands that interact with the terminal
+   *
+   * This function should be used as a wrapper function when calling any
+   * terminal command.
+   */
+  static async run<T>(cb: () => Promise<T>) {
+    this.disable();
+    this.scrollToBottom();
+    try {
+      return await cb();
+    } catch {
+    } finally {
+      this.enable();
+    }
+  }
 }
 
 export class PgTerm {

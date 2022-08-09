@@ -143,41 +143,40 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   const { currentWallet } = useCurrentWallet();
 
   // Test submission
-  const handleTest = useCallback(async () => {
-    if (!currentWallet) return;
+  const handleTest = useCallback(() => {
+    PgTerminal.run(async () => {
+      if (!currentWallet) return;
 
-    PgTerminal.disable();
+      setLoading(true);
 
-    setLoading(true);
+      setTerminal(PgTerminal.info(`Testing '${ixs.name}'...`));
+      let msg = "";
 
-    setTerminal(PgTerminal.info(`Testing '${ixs.name}'...`));
-    let msg = "";
+      try {
+        await PgCommon.sleep(); // To smooth out button transition
+        const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
+        setTxHash(txHash);
 
-    try {
-      await PgCommon.sleep(); // To smooth out button transition
-      const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
-      setTxHash(txHash);
+        const txResult = await PgTx.confirm(txHash, conn);
 
-      const txResult = await PgTx.confirm(txHash, conn);
-
-      if (txResult?.err)
+        if (txResult?.err)
+          msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+            "failed"
+          )}.`;
+        else
+          msg = `${PgTerminal.CHECKMARK}  Test '${
+            ixs.name
+          }' ${PgTerminal.success("passed")}.`;
+      } catch (e: any) {
+        const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
           "failed"
-        )}.`;
-      else
-        msg = `${PgTerminal.CHECKMARK}  Test '${ixs.name}' ${PgTerminal.success(
-          "passed"
-        )}.`;
-    } catch (e: any) {
-      const convertedError = PgTerminal.convertErrorMessage(e.message);
-      msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
-        "failed"
-      )}: ${convertedError}`;
-    } finally {
-      setTerminal(msg + "\n");
-      setLoading(false);
-      PgTerminal.enable();
-    }
+        )}: ${convertedError}`;
+      } finally {
+        setTerminal(msg + "\n");
+        setLoading(false);
+      }
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txVals, idl, conn, currentWallet, setTerminal]);

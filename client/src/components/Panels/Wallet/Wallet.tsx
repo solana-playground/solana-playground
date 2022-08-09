@@ -150,50 +150,48 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
   const airdrop = useCallback(
     async (walletPk: PublicKey) => {
-      if (!amount) return;
+      await PgTerminal.run(async () => {
+        if (!amount) return;
 
-      close();
-      PgTerminal.disable();
+        close();
 
-      let msg = "";
+        let msg;
+        try {
+          setTerminal(PgTerminal.info("Sending an airdrop request..."));
 
-      try {
-        msg = PgTerminal.info("Sending an airdrop request...");
-        setTerminal(msg);
+          // Airdrop tx is sometimes successful even when balance hasn't changed
+          // Instead of confirming the tx, we will check before and after balance
+          const beforeBalance = await conn.getBalance(walletPk, "processed");
 
-        // Airdrop tx is sometimes successful even when balance hasn't changed
-        // Instead of confirming the tx, we will check before and after balance
-        const beforeBalance = await conn.getBalance(walletPk, "processed");
+          const txHash = await conn.requestAirdrop(
+            walletPk,
+            PgCommon.solToLamports(amount)
+          );
+          setTxHash(txHash);
 
-        const txHash = await conn.requestAirdrop(
-          walletPk,
-          PgCommon.solToLamports(amount)
-        );
-        setTxHash(txHash);
+          // Allow enough time for balance to update by waiting for confirmation
+          await PgTx.confirm(txHash, conn);
 
-        // Allow enough time for balance to update by waiting for confirmation
-        await PgTx.confirm(txHash, conn);
+          const afterBalance = await conn.getBalance(walletPk, "processed");
 
-        const afterBalance = await conn.getBalance(walletPk, "processed");
+          if (afterBalance > beforeBalance)
+            msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
+              "Success."
+            )} Received ${PgTerminal.bold(amount.toString())} SOL.`;
+          else
+            msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
+              "Error receiving airdrop."
+            )}`;
+        } catch (e: any) {
+          const convertedError = PgTerminal.convertErrorMessage(e.message);
 
-        if (afterBalance > beforeBalance)
-          msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
-            "Success."
-          )} Received ${PgTerminal.bold(amount.toString())} SOL.`;
-        else
           msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
-            "Error receiving airdrop."
-          )}`;
-      } catch (e: any) {
-        const convertedError = PgTerminal.convertErrorMessage(e.message);
-
-        msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
-          "Error receiving airdrop:"
-        )} ${convertedError}`;
-      } finally {
-        setTerminal(msg + "\n");
-        PgTerminal.enable();
-      }
+            "Error receiving airdrop:"
+          )} ${convertedError}`;
+        } finally {
+          setTerminal(msg + "\n");
+        }
+      });
     },
     [conn, amount, setTerminal, setTxHash, close]
   );
