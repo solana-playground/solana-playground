@@ -471,6 +471,8 @@ const ShowAta: FC<ShowAtaProps> = ({
 }) => {
   const [mint, setMint] = useState("");
   const [owner, setOwner] = useState(walletPkStr ?? "");
+  const [mintError, setMintError] = useState(false);
+  const [ownerError, setOwnerError] = useState(false);
 
   const seedInputRef = useRef<HTMLInputElement>(null);
 
@@ -480,15 +482,32 @@ const ShowAta: FC<ShowAtaProps> = ({
 
   const handleMint = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setMint(e.target.value);
+      const val = e.target.value;
+      setMint(val);
+      try {
+        if (!val) return;
+        PgTest.parse(val, "publicKey");
+        setMintError(false);
+      } catch {
+        setMintError(true);
+      }
     },
     [setMint]
   );
 
   const handleOwner = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setOwner(e.target.value);
+      const val = e.target.value;
+      setOwner(val);
+      try {
+        if (!val) return;
+        PgTest.parse(val, "publicKey");
+        setOwnerError(false);
+      } catch {
+        setOwnerError(true);
+      }
     },
+
     [setOwner]
   );
 
@@ -528,12 +547,18 @@ const ShowAta: FC<ShowAtaProps> = ({
           ref={seedInputRef}
           value={mint}
           onChange={handleMint}
+          className={mintError ? ClassName.ERROR : ""}
           {...defaultInputProps}
         />
       </ShowGenInputWrapper>
       <ShowGenInputWrapper>
         <InputLabel label="Owner" type="publicKey" />
-        <Input value={owner} onChange={handleOwner} {...defaultInputProps} />
+        <Input
+          value={owner}
+          onChange={handleOwner}
+          className={ownerError ? ClassName.ERROR : ""}
+          {...defaultInputProps}
+        />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
         <Button onClick={handleGen} kind="primary-outline">
