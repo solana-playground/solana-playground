@@ -180,7 +180,7 @@ const Editor = () => {
 
     // If there is open tabs but the editor is not mounted, mount the editor.
     if (!noOpenTabs && !firstEl) setMount((c) => c + 1);
-    else if (firstEl?.classList.contains("cm-editor"))
+    else if (firstEl?.classList.contains(PgEditor.CLASSNAME))
       parentRef.current?.removeChild(firstEl);
   }, [noOpenTabs, setMount]);
 

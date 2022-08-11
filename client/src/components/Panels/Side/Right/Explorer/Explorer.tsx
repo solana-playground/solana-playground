@@ -6,6 +6,7 @@ import Folders from "./Folders";
 import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
 import { ClassName } from "../../../../../constants";
+import { PgEditor } from "../../../../../utils/pg";
 
 const Explorer = () => {
   const { newItem } = useNewItem();
@@ -16,7 +17,9 @@ const Explorer = () => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
       if (e.altKey && e.key.toUpperCase() === "N") newItem();
       else if (e.key === "F2") renameItem();
-      else if (e.key === "Delete") deleteItem();
+      else if (e.key === "Delete" && !PgEditor.isFocused()) {
+        deleteItem();
+      }
     };
 
     document.addEventListener("keydown", handleKey);

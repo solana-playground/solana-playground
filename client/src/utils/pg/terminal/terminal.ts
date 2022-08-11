@@ -120,10 +120,12 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     // Match until ':' from the start of the line: e.g SUBCOMMANDS:
     // TODO: Highlight the text from WASM so we don't have to do this.
     text = text.replace(/^(.*?:)/gm, (match) => {
-      if (!match.includes("   ") && match.startsWith(" "))
+      if (!match.includes("   ") && match.startsWith(" ")) {
         return this.bold(match); // Indented
-      if (!match.toLowerCase().includes("error") && !match.includes("  "))
+      }
+      if (!match.toLowerCase().includes("error") && !match.includes("  ")) {
         return this.primary(match);
+      }
 
       return match;
     });
