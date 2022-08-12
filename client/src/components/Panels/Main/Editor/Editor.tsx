@@ -256,14 +256,32 @@ const Editor = () => {
   useEffect(() => {
     if (!explorer || !parentRef.current || !buildCount || !editor) return;
 
-    const curFile = explorer.getCurrentFile();
-    if (!curFile) return;
-
     const programPkResult = PgProgramInfo.getPk();
     if (programPkResult?.err) return;
+    const programPkStr = programPkResult.programPk?.toBase58();
 
-    const code = editor.state.doc.toString();
+    // Change in localStorage
     const findText = "declare_id!";
+    {
+      const lsContent = explorer.getFileContentFromPath("/src/lib.rs");
+      const lsFindTextIndex = lsContent?.indexOf(findText);
+      if (!lsContent || !lsFindTextIndex || lsFindTextIndex === -1) return;
+      const quoteStartIndex = lsFindTextIndex + findText.length + 2;
+      const quoteEndIndex = lsContent.indexOf('"', quoteStartIndex);
+      if (lsContent.length < quoteStartIndex + 3) return;
+
+      const updatedContent =
+        lsContent.substring(0, quoteStartIndex) +
+        programPkStr +
+        lsContent.substring(quoteEndIndex);
+      const data = explorer.files["/src/lib.rs"];
+      if (data?.content) {
+        explorer.files["/src/lib.rs"] = { ...data, content: updatedContent };
+      }
+    }
+
+    // Change in editor
+    const code = editor.state.doc.toString();
     const findTextIndex = code.indexOf(findText);
     if (findTextIndex === -1) return;
 
@@ -276,7 +294,7 @@ const Editor = () => {
       changes: {
         from: quoteStartIndex,
         to: quoteEndIndex,
-        insert: programPkResult.programPk?.toBase58(),
+        insert: programPkStr,
       },
     });
 
