@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Text from "../../../../Text";
 import Button, { ButtonProps } from "../../../../Button";
 import {
+  buildCountAtom,
   programAtom,
   TerminalAction,
   terminalStateAtom,
@@ -23,6 +24,7 @@ import { PgProgramInfo } from "../../../../../utils/pg";
 // TODO: Cancel deployment
 const Deploy = () => {
   const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
+  const [buildCount] = useAtom(buildCountAtom);
   const [program] = useAtom(programAtom);
 
   const { initialLoading, deployed, setDeployed, connError } =
@@ -87,7 +89,7 @@ const Deploy = () => {
     const hasUuid = pgProgramInfo.uuid ? true : false;
     const hasProgramPk = PgProgramInfo.getPk()?.programPk ? true : false;
     return [hasProgramKp, hasUuid, hasProgramPk];
-  }, []);
+  }, [buildCount]);
 
   // Custom(uploaded) program deploy
   if (program.buffer.length) {

@@ -78,17 +78,19 @@ const Test = () => {
             ))}
           </ProgramInteractionWrapper>
 
-          <ProgramInteractionWrapper>
-            <Subheading>Accounts</Subheading>
-            {idl.accounts?.map((acc, i) => (
-              <FetchableAccount
-                key={i}
-                index={i}
-                accountName={acc.name}
-                idl={idl}
-              />
-            ))}
-          </ProgramInteractionWrapper>
+          {idl.accounts && (
+            <ProgramInteractionWrapper>
+              <Subheading>Accounts</Subheading>
+              {idl.accounts.map((acc, i) => (
+                <FetchableAccount
+                  key={i}
+                  index={i}
+                  accountName={acc.name}
+                  idl={idl}
+                />
+              ))}
+            </ProgramInteractionWrapper>
+          )}
         </ProgramWrapper>
       </Wrapper>
     );
