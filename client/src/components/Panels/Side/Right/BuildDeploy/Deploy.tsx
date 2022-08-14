@@ -89,6 +89,7 @@ const Deploy = () => {
     const hasUuid = pgProgramInfo.uuid ? true : false;
     const hasProgramPk = PgProgramInfo.getPk()?.programPk ? true : false;
     return [hasProgramKp, hasUuid, hasProgramPk];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCount]);
 
   // Custom(uploaded) program deploy
