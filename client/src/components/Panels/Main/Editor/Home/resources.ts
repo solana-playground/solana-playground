@@ -15,10 +15,10 @@ export const RESOURCES: ResourceProps[] = [
     src: "https://solanacookbook.com/solana_cookbook_darkmode.svg",
   },
   {
-    title: "Anchor Book",
+    title: "Anchor",
     text: "Everything related to developing on Solana with Anchor framework.",
-    url: "https://book.anchor-lang.com/",
-    src: "https://camo.githubusercontent.com/0542190d13e5a50f7d601abc4bfde84cf02af2ca786af519e78411f43f3ca9c0/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f3831333434343531343934393130333635382f3839303237383532303535333630333039322f6578706f72742e706e673f77696474683d373436266865696768743d373436",
+    url: "https://anchor-lang.com/",
+    src: "https://www.anchor-lang.com/_next/image?url=%2Flogo.png&w=32&q=75",
   },
   {
     title: "SolDev",
@@ -34,7 +34,7 @@ export const RESOURCES: ResourceProps[] = [
   },
   {
     title: "Metaplex Docs",
-    text: "The core Metaplex documentation used to provide understanding and implementations for building with NFTs on Solana.",
+    text: "Documentation for understanding how to work with NFTs on Solana.",
     url: "https://docs.metaplex.com/",
     src: ROOT_DIR + "metaplex.png",
   },
