@@ -166,18 +166,25 @@ export class PgDeploy {
           const programKpResult = PgProgramInfo.getKp();
           if (programKpResult.err) {
             errorMsg =
-              "First deployment needs a keypair. You only provided public key.";
-
-            await BpfLoaderUpgradeable.closeBuffer(
-              conn,
-              wallet,
-              bufferKp.publicKey
-            );
+              "Initial deployment needs a keypair. You only provided public key.";
 
             break;
           }
 
+          // Check whether customPk and programPk matches
           const programKp = programKpResult.programKp!;
+          if (!programKp.publicKey.equals(PgProgramInfo.getPk().programPk!)) {
+            errorMsg =
+              "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.\n" +
+              "You can fix this in 3 different ways:\n" +
+              `1. Remove the custom program id from ${PgTerminal.bold(
+                "Program Credentials"
+              )}\n` +
+              "2. Import the program keypair for the current program id\n" +
+              "3. Create a new program keypair";
+
+            break;
+          }
 
           const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
             BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE

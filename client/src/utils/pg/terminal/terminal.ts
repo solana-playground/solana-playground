@@ -16,6 +16,7 @@ import {
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PkgName, Pkgs } from "./pkg";
+import { PgProgramInfo } from "../program-info";
 
 enum TextState {
   SUCCESS = 0,
@@ -188,12 +189,13 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   /**
    * Edit build stderr that is returned from the build request
    */
-  static editStderr(stderr: string, uuid: string) {
+  static editStderr(stderr: string) {
     // Remove full path
     stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
 
     // Remove uuid from folders
-    stderr = stderr.replaceAll(uuid, "");
+    const uuid = PgProgramInfo.getProgramInfo().uuid;
+    if (uuid) stderr = stderr.replaceAll(uuid, "");
 
     // Remove rustc error line
     let startIndex = stderr.indexOf("For more");

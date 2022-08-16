@@ -7,6 +7,7 @@ import Button, { ButtonProps } from "../../../../Button";
 import {
   buildCountAtom,
   programAtom,
+  refreshProgramIdAtom,
   TerminalAction,
   terminalStateAtom,
 } from "../../../../../state";
@@ -24,6 +25,7 @@ import { PgProgramInfo } from "../../../../../utils/pg";
 // TODO: Cancel deployment
 const Deploy = () => {
   const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
+  const [programIdCount] = useAtom(refreshProgramIdAtom);
   const [buildCount] = useAtom(buildCountAtom);
   const [program] = useAtom(programAtom);
 
@@ -90,7 +92,7 @@ const Deploy = () => {
     const hasProgramPk = PgProgramInfo.getPk()?.programPk ? true : false;
     return [hasProgramKp, hasUuid, hasProgramPk];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildCount]);
+  }, [programIdCount, buildCount]);
 
   // Custom(uploaded) program deploy
   if (program.buffer.length) {

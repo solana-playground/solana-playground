@@ -23,14 +23,13 @@ export const useBuild = () => {
       if (!explorer) return;
 
       setTerminalState(TerminalAction.buildLoadingStart);
+      setTerminal(PgTerminal.info("Building..."));
 
-      let msg = PgTerminal.info("Building...");
-      setTerminal(msg);
-
+      let msg = "";
       try {
         const result = await PgBuild.build(explorer.getBuildFiles());
 
-        msg = PgTerminal.editStderr(result.stderr, result.uuid);
+        msg = PgTerminal.editStderr(result.stderr);
 
         // To update programId each build
         setBuildCount((c) => c + 1);

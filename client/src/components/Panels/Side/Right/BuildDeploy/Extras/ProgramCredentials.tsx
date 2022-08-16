@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
@@ -34,11 +34,7 @@ const New = () => {
     const kp = PgProgramInfo.getKp()?.programKp;
     if (kp) setModal(<NewKeypairModal />);
     else {
-      const kp = Keypair.generate();
-
-      PgProgramInfo.update({
-        kp: Array.from(kp.secretKey),
-      });
+      PgProgramInfo.createNewKp();
 
       // Refresh necessary components
       refreshProgramId();
@@ -60,7 +56,7 @@ const NewKeypairModal = () => {
 
     PgProgramInfo.update({
       kp: Array.from(kp.secretKey),
-      customPk: kp.publicKey.toBase58(),
+      customPk: null,
     });
 
     // Refresh necessary components
@@ -119,9 +115,7 @@ const Import = () => {
       // Override customPk when user imports a new keypair
       PgProgramInfo.update({
         kp: Array.from(buffer),
-        customPk: Keypair.fromSecretKey(
-          Uint8Array.from(buffer)
-        ).publicKey.toBase58(),
+        customPk: null,
       });
 
       // Refresh components
@@ -212,6 +206,25 @@ const InputPk = () => {
     }
   };
 
+  const handleRemoveCustomProgramId = () => {
+    PgProgramInfo.update({ customPk: null });
+    setUpdateInfo({
+      text: "Removed custom id.",
+    });
+    refreshProgramId();
+  };
+
+  const hasCustomProgramId = useMemo(() => {
+    const customPk = PgProgramInfo.getCustomPk();
+    if (customPk) {
+      const kp = PgProgramInfo.getKp()?.programKp;
+      if (kp) return !kp.publicKey.equals(customPk);
+    }
+
+    return false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [programIdCount]);
+
   return (
     <InputPkWrapper>
       <InputLabelWrapper>
@@ -233,11 +246,16 @@ const InputPk = () => {
       </InputWrapper>
       <InputWarning>
         <Warning />
-        {"  Note that you need to have this program's authority to upgrade."}
+        Note that you need to have this program's authority to upgrade
       </InputWarning>
       {changed && (
         <Button onClick={handleClick} kind="outline">
           Change program id
+        </Button>
+      )}
+      {hasCustomProgramId && (
+        <Button onClick={handleRemoveCustomProgramId} kind="outline">
+          Remove custom program id
         </Button>
       )}
     </InputPkWrapper>
@@ -339,6 +357,7 @@ const InputWarning = styled.div`
 
     & > svg {
       color: ${theme.colors.state.warning.color};
+      margin-right: 0.375rem;
     }
   `}
 `;

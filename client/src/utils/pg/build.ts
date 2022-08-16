@@ -5,9 +5,8 @@ import { PgCommon } from "./common";
 import { PgProgramInfo } from "./program-info";
 
 interface BuildResp {
-  uuid: string;
   stderr: string;
-  kp: Array<number> | null;
+  uuid: string | null;
   idl: Idl | null;
 }
 
@@ -25,8 +24,6 @@ export class PgBuild {
       body: JSON.stringify({
         files,
         uuid: programInfo.uuid,
-        kp: programInfo.kp,
-        pk: programInfo.customPk,
       }),
     });
 
@@ -37,11 +34,10 @@ export class PgBuild {
 
     // Update programInfo localStorage
     PgProgramInfo.update({
-      uuid: data.uuid,
+      uuid: data.uuid ?? undefined,
       idl: data.idl,
-      kp: data.kp,
     });
 
-    return { uuid: data.uuid, stderr: data.stderr };
+    return { stderr: data.stderr };
   }
 }

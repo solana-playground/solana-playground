@@ -1,4 +1,5 @@
 import { ClassName, Id, ItemError } from "../../constants";
+import { PgProgramInfo } from "./program-info";
 
 const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
@@ -328,10 +329,25 @@ export class PgExplorer {
 
   getBuildFiles() {
     const files = this._explorer.files;
-    let buildFiles = [];
+    const buildFiles: string[][] = [];
 
     for (const path in files) {
-      files[path].content && buildFiles.push([path, files[path].content ?? ""]);
+      const content = files[path].content;
+      if (!content) continue;
+
+      if (path === DEFAULT_FILE) {
+        // Change program id
+        files[path].content = content.replace(
+          /^declare_id!\("(\w*)"\)/gm,
+          () => {
+            const pk =
+              PgProgramInfo.getPk().programPk ??
+              PgProgramInfo.createNewKp().publicKey;
+            return `declare_id!("${pk.toBase58()}")`;
+          }
+        );
+      }
+      buildFiles.push([path, files[path].content ?? ""]);
     }
 
     return buildFiles;
