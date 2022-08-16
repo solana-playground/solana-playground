@@ -24,6 +24,7 @@ export class PgBuild {
       body: JSON.stringify({
         files,
         uuid: programInfo.uuid,
+        kp: programInfo.kp,
       }),
     });
 
