@@ -3,7 +3,7 @@ import { Idl } from "@project-serum/anchor";
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
 import { PgProgramInfo } from "./program-info";
-import { PgPkg, PkgName } from "./terminal";
+import { Pkgs } from "./terminal";
 
 interface BuildResp {
   stderr: string;
@@ -20,35 +20,34 @@ export class PgBuild {
     return lastPart.replace(expectedSuffix, "");
   }
 
-  static async build(files: Files) {
-    const programInfo = PgProgramInfo.getProgramInfo();
+  static async buildPython(pythonFiles: Files, seahorsePkg: Pkgs) {
+    const compileFn = seahorsePkg.compileSeahorse;
+    if (!compileFn) {
+      throw new Error("No compile function found in seahorse package");
+    }
 
-    const pythonFiles = files.filter(([fileName]) =>
-      fileName.toLowerCase().endsWith(".py")
-    );
+    const rustFiles = pythonFiles.map((file) => {
+      const [fileName, contents] = file;
+      const newFileName = fileName.replace(".py", ".rs");
+      const programName = this.getProgramName(fileName, ".py");
+      let newContents = compileFn(contents, programName);
 
-    let rustFiles: Files;
-    if (pythonFiles.length > 0) {
-      const seahorsePkg = await PgPkg.loadPkg(PkgName.SEAHORSE_COMPILE);
-      const compileFn = seahorsePkg.compileSeahorse;
-      if (!compileFn) {
-        throw new Error("No compile function found in seahorse package");
+      // The build server detects #[program] to determine if Anchor
+      // Seahorse (without rustfmt) outputs # [program]
+      newContents = newContents.replace("# [program]", "#[program]");
+
+      if (newContents.length === 0) {
+        throw new Error("Seahorse compile failed");
       }
 
-      rustFiles = files.map((file) => {
-        const [fileName, contents] = file;
-        const newFileName = fileName.replace(".py", ".rs");
-        const programName = this.getProgramName(fileName, ".py");
-        const newContents = compileFn(contents, programName);
-        if (newContents.length === 0) {
-          throw new Error("Seahorse compile failed");
-        }
+      return [newFileName, newContents];
+    });
 
-        return [newFileName, newContents];
-      });
-    } else {
-      rustFiles = files;
-    }
+    return await this.buildRust(rustFiles);
+  }
+
+  static async buildRust(rustFiles: Files) {
+    const programInfo = PgProgramInfo.getProgramInfo();
 
     const resp = await fetch(`${SERVER_URL}/build`, {
       method: "POST",

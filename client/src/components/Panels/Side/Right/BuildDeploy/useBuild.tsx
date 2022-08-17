@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 
 import {
@@ -8,13 +8,29 @@ import {
   terminalOutputAtom,
   terminalStateAtom,
 } from "../../../../../state";
-import { PgBuild, PgTerminal } from "../../../../../utils/pg";
+import {
+  PgBuild,
+  PgPkg,
+  PgTerminal,
+  PkgName,
+  Pkgs,
+} from "../../../../../utils/pg";
 
 export const useBuild = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setTerminalState] = useAtom(terminalStateAtom);
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
+  const [seahorsePkg, setSeahorsePkg] = useState<Pkgs | undefined>(undefined);
+
+  const getSeahorsePkg = useCallback(async () => {
+    if (seahorsePkg) {
+      return seahorsePkg;
+    }
+    const pkg = await PgPkg.loadPkg(PkgName.SEAHORSE_COMPILE);
+    setSeahorsePkg(pkg);
+    return pkg;
+  }, [seahorsePkg]);
 
   const runBuild = useCallback(() => {
     PgTerminal.run(async () => {
@@ -27,7 +43,19 @@ export const useBuild = () => {
 
       let msg = "";
       try {
-        const result = await PgBuild.build(explorer.getBuildFiles());
+        const files = explorer.getBuildFiles();
+        const pythonFiles = files.filter(([fileName]) =>
+          fileName.toLowerCase().endsWith(".py")
+        );
+
+        let result: { stderr: string };
+
+        if (pythonFiles.length > 0) {
+          const seahorsePkgToBuild = await getSeahorsePkg();
+          result = await PgBuild.buildPython(pythonFiles, seahorsePkgToBuild);
+        } else {
+          result = await PgBuild.buildRust(files);
+        }
 
         msg = PgTerminal.editStderr(result.stderr);
 
@@ -40,7 +68,7 @@ export const useBuild = () => {
         setTerminalState(TerminalAction.buildLoadingStop);
       }
     });
-  }, [explorer, setTerminal, setBuildCount, setTerminalState]);
+  }, [explorer, setTerminal, setBuildCount, setTerminalState, getSeahorsePkg]);
 
   return { runBuild };
 };
