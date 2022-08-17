@@ -1,7 +1,7 @@
 import { ClassName, Id, ItemError } from "../../constants";
 import { PgProgramInfo } from "./program-info";
 
-const DEFAULT_FILE = "/src/lib.rs";
+export const DEFAULT_FILE = "/src/lib.rs";
 const DEFAULT_CODE = `use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update

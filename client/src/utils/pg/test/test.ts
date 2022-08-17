@@ -201,7 +201,9 @@ export class PgTest {
           parsedV.push(this.parse(el, insideType as IdlType));
         }
 
-        if (!parsedV.length) throw new Error("Invalid vec");
+        if (!parsedV.every((el) => typeof el === typeof insideType)) {
+          throw new Error("Invalid vec");
+        }
       } else if (outerType === "Option" || outerType === "COption") {
         switch (v.toLowerCase()) {
           case "":

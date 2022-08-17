@@ -13,7 +13,12 @@ import {
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import { PgExplorer, PgProgramInfo, PgEditor } from "../../../../utils/pg";
+import {
+  PgExplorer,
+  PgProgramInfo,
+  PgEditor,
+  DEFAULT_FILE,
+} from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -258,12 +263,12 @@ const Editor = () => {
 
     const programPkResult = PgProgramInfo.getPk();
     if (programPkResult?.err) return;
-    const programPkStr = programPkResult.programPk?.toBase58();
+    const programPkStr = programPkResult.programPk!.toBase58();
 
     // Change in localStorage
     const findText = "declare_id!";
     {
-      const lsContent = explorer.getFileContentFromPath("/src/lib.rs");
+      const lsContent = explorer.getFileContentFromPath(DEFAULT_FILE);
       const lsFindTextIndex = lsContent?.indexOf(findText);
       if (!lsContent || !lsFindTextIndex || lsFindTextIndex === -1) return;
       const quoteStartIndex = lsFindTextIndex + findText.length + 2;
@@ -274,9 +279,9 @@ const Editor = () => {
         lsContent.substring(0, quoteStartIndex) +
         programPkStr +
         lsContent.substring(quoteEndIndex);
-      const data = explorer.files["/src/lib.rs"];
+      const data = explorer.files[DEFAULT_FILE];
       if (data?.content) {
-        explorer.files["/src/lib.rs"] = { ...data, content: updatedContent };
+        explorer.files[DEFAULT_FILE] = { ...data, content: updatedContent };
       }
     }
 
@@ -335,6 +340,7 @@ const Wrapper = styled.div`
     &::-webkit-scrollbar,
     & ::-webkit-scrollbar {
       width: ${EDITOR_SCROLLBAR_WIDTH};
+      height: 0.75rem;
     }
 
     &::-webkit-scrollbar-track,
