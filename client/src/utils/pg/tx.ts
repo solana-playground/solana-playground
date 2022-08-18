@@ -2,6 +2,7 @@ import { Connection, Signer, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgWallet } from "./wallet";
+import { PgConnection } from "./connection";
 
 export class PgTx {
   /**
@@ -26,7 +27,9 @@ export class PgTx {
 
     const rawTx = tx.serialize();
 
-    return await conn.sendRawTransaction(rawTx);
+    return await conn.sendRawTransaction(rawTx, {
+      skipPreflight: !PgConnection.preflightChecks,
+    });
   }
 
   /**

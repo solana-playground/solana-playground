@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 
-import { PgConnection, PgWallet } from "../utils/pg";
+import { PgConnection, PgWallet, PgConnectionConfig } from "../utils/pg";
 
 // Wallet
 export const pgWalletAtom = atom(new PgWallet());
@@ -17,4 +17,6 @@ export const refreshPgWalletAtom = atom(
 );
 
 // Connection
-export const connAtom = atom(PgConnection.getConnection());
+export const connAtom = atom<PgConnectionConfig>(
+  PgConnection.getConnectionConfig()
+);

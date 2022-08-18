@@ -5,13 +5,15 @@ import ThemeSetting from "./ThemeSetting";
 import FontSetting from "./FontSetting";
 import CommitmentSetting from "./CommitmentSetting";
 import EndpointSetting from "./EndpointSetting";
+import PreflightSetting from "./PreflightSetting";
 
 const Settings = () => (
   <Wrapper>
     <Setting name="Theme" SettingElement={<ThemeSetting />} />
     <Setting name="Font" SettingElement={<FontSetting />} />
-    <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
     <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
+    <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
+    <Setting name="Preflight Checks" SettingElement={<PreflightSetting />} />
   </Wrapper>
 );
 

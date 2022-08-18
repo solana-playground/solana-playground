@@ -19,7 +19,7 @@ const App = () => {
   // Runs after connection config changes from the terminal
   useEffect(() => {
     const handleRefresh = () => {
-      setConn(PgConnection.getConnection());
+      setConn(PgConnection.getConnectionConfig());
     };
 
     document.addEventListener(

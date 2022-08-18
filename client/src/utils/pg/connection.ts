@@ -2,34 +2,41 @@ import { Commitment } from "@solana/web3.js";
 
 import { Endpoint } from "../../constants";
 
-interface Connection {
-  commitment: Commitment;
+export interface PgConnectionConfig {
   endpoint: Endpoint;
+  commitment: Commitment;
+  preflightChecks: boolean;
 }
 
 interface UpdateConnectionParams {
-  commitment?: Commitment;
   endpoint?: Endpoint;
+  commitment?: Commitment;
+  preflightChecks?: boolean;
 }
 
 export class PgConnection {
   private static readonly _CONNECTION_KEY = "connection";
 
-  static readonly DEFAULT_CONNECTION: Connection = {
-    commitment: "confirmed",
+  static readonly DEFAULT_CONNECTION: PgConnectionConfig = {
     endpoint: Endpoint.DEVNET,
+    commitment: "confirmed",
+    preflightChecks: true,
   };
   static readonly EVT_NAME_REFRESH_CONNECTION = "refreshconnection";
 
-  static get commitment(): Commitment {
-    return this.getConnection().commitment;
-  }
-
   static get endpoint(): Endpoint {
-    return this.getConnection().endpoint;
+    return this.getConnectionConfig().endpoint;
   }
 
-  static getConnection() {
+  static get commitment(): Commitment {
+    return this.getConnectionConfig().commitment;
+  }
+
+  static get preflightChecks(): boolean {
+    return this.getConnectionConfig().preflightChecks;
+  }
+
+  static getConnectionConfig() {
     let conn = localStorage.getItem(this._CONNECTION_KEY);
     if (!conn) {
       // Remove old endpoint key if it exists
@@ -41,15 +48,18 @@ export class PgConnection {
       conn = connStr;
     }
 
-    return JSON.parse(conn) as Connection;
+    return JSON.parse(conn) as PgConnectionConfig;
   }
 
   static update(params: UpdateConnectionParams) {
-    const { commitment, endpoint } = params;
-    const conn = this.getConnection();
+    const { endpoint, commitment, preflightChecks } = params;
+    const conn = this.getConnectionConfig();
 
-    if (commitment) conn.commitment = commitment;
     if (endpoint) conn.endpoint = endpoint;
+    if (commitment) conn.commitment = commitment;
+    if (preflightChecks !== undefined) {
+      conn.preflightChecks = !!preflightChecks;
+    }
 
     localStorage.setItem(this._CONNECTION_KEY, JSON.stringify(conn));
   }
