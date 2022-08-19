@@ -95,8 +95,9 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly EVT_NAME_TERMINAL_ENABLE = "terminalenable";
   static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
   static readonly EVT_NAME_LOAD_PKG = "terminalloadpkg";
-  static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
   static readonly EVT_NAME_SCROLL_TO_BOTTOM = "terminalscrolltobottom";
+  static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
+  static readonly EVT_NAME_RUN_CMD_FROM_STR = "terminalruncmdfromstr";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -345,13 +346,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Dispatch run last command custom event
-   */
-  static runLastCmd() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
-  }
-
-  /**
    * Dispatch scroll to bottom custom event
    */
   static scrollToBottom() {
@@ -373,6 +367,20 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     } finally {
       this.enable();
     }
+  }
+
+  /**
+   * Dispatch run last command custom event
+   */
+  static runLastCmd() {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
+  }
+
+  /**
+   * Dispatch run cmd from str custom event
+   */
+  static runCmdFromStr(cmd: string) {
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_CMD_FROM_STR, cmd);
   }
 }
 
@@ -582,25 +590,7 @@ export class PgTerm {
   }
 
   /**
-   * Runs the last command if it exists
-   *
-   * This function is useful for running wasm cli packages after initial loading
-   */
-  runLastCmd() {
-    // Last command is the current input
-    let lastCmd = this._pgTty.getInput();
-    if (!lastCmd) {
-      const maybeLastCmd = this._pgShell.getHistory().getPrevious();
-      if (maybeLastCmd) lastCmd = maybeLastCmd;
-      else this.println("Unable to run last command.");
-    }
-
-    this._pgTty.setInput(lastCmd);
-    this._pgShell.handleReadComplete(true);
-  }
-
-  /**
-   * Scrolls the terminal to bottom
+   * Scroll the terminal to bottom
    */
   scrollToBottom() {
     this._xterm.scrollToBottom();
@@ -613,6 +603,31 @@ export class PgTerm {
     this._xterm.dispose();
     // @ts-ignore
     delete this._xterm;
+  }
+
+  /**
+   * Run the last command if it exists
+   *
+   * This function is useful for running wasm cli packages after initial loading
+   */
+  runLastCmd() {
+    // Last command is the current input
+    let lastCmd = this._pgTty.getInput();
+    if (!lastCmd) {
+      const maybeLastCmd = this._pgShell.getHistory().getPrevious();
+      if (maybeLastCmd) lastCmd = maybeLastCmd;
+      else this.println("Unable to run last command.");
+    }
+
+    this.runCmdFromStr(lastCmd);
+  }
+
+  /**
+   * Write the given input in the terminal and press enter
+   */
+  runCmdFromStr(cmd: string) {
+    this._pgTty.setInput(cmd);
+    this._pgShell.handleReadComplete(true);
   }
 
   /**

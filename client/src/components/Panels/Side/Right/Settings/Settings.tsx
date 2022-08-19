@@ -3,9 +3,10 @@ import styled, { css } from "styled-components";
 
 import ThemeSetting from "./ThemeSetting";
 import FontSetting from "./FontSetting";
-import CommitmentSetting from "./CommitmentSetting";
 import EndpointSetting from "./EndpointSetting";
+import CommitmentSetting from "./CommitmentSetting";
 import PreflightSetting from "./PreflightSetting";
+import ShowTxDetailsInTerminal from "./ShowTxDetailsSetting";
 
 const Settings = () => (
   <Wrapper>
@@ -14,6 +15,10 @@ const Settings = () => (
     <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
     <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
     <Setting name="Preflight Checks" SettingElement={<PreflightSetting />} />
+    <Setting
+      name="Show Transaction Details In Terminal"
+      SettingElement={<ShowTxDetailsInTerminal />}
+    />
   </Wrapper>
 );
 
@@ -40,6 +45,7 @@ const Setting: FC<SettingProps> = ({ name, SettingElement }) => (
 const SettingWrapper = styled.div`
   display: flex;
   width: 100%;
+  max-width: 23rem;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
@@ -56,7 +62,7 @@ const SettingWrapper = styled.div`
 const Left = styled.div``;
 
 const Right = styled.div`
-  margin-left: 2rem;
+  margin-left: 1rem;
 `;
 
 export default Settings;

@@ -222,16 +222,18 @@ const Terminal = () => {
     const handleEnable = () => {
       term.enable();
     };
-
     const handleDisable = () => {
       term.disable();
     };
-
+    const handleScrollToBottom = () => {
+      term.scrollToBottom();
+    };
     const handleRunLastCmd = () => {
       term.runLastCmd();
     };
-    const handleScrollToBottom = () => {
-      term.scrollToBottom();
+    const handleRunCmdFromStr = (e: UIEvent) => {
+      const cmd = e.detail as unknown as string;
+      term.runCmdFromStr(cmd);
     };
 
     document.addEventListener(
@@ -243,12 +245,16 @@ const Terminal = () => {
       handleDisable
     );
     document.addEventListener(
+      PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
+      handleScrollToBottom
+    );
+    document.addEventListener(
       PgTerminal.EVT_NAME_RUN_LAST_CMD,
       handleRunLastCmd
     );
     document.addEventListener(
-      PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
-      handleScrollToBottom
+      PgTerminal.EVT_NAME_RUN_CMD_FROM_STR,
+      handleRunCmdFromStr as EventListener
     );
 
     return () => {
@@ -261,12 +267,16 @@ const Terminal = () => {
         handleDisable
       );
       document.removeEventListener(
+        PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
+        handleScrollToBottom
+      );
+      document.removeEventListener(
         PgTerminal.EVT_NAME_RUN_LAST_CMD,
         handleRunLastCmd
       );
       document.removeEventListener(
-        PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
-        handleScrollToBottom
+        PgTerminal.EVT_NAME_RUN_CMD_FROM_STR,
+        handleRunCmdFromStr as EventListener
       );
     };
   }, [term]);

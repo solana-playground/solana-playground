@@ -16,12 +16,12 @@ interface UpdateConnectionParams {
 
 export class PgConnection {
   private static readonly _CONNECTION_KEY = "connection";
-
-  static readonly DEFAULT_CONNECTION: PgConnectionConfig = {
+  private static readonly _DEFAULT_CONNECTION: PgConnectionConfig = {
     endpoint: Endpoint.DEVNET,
     commitment: "confirmed",
     preflightChecks: true,
   };
+
   static readonly EVT_NAME_REFRESH_CONNECTION = "refreshconnection";
 
   static get endpoint(): Endpoint {
@@ -43,7 +43,7 @@ export class PgConnection {
       // TODO: Remove this when changing the domain
       if (localStorage.getItem("endpoint")) localStorage.removeItem("endpoint");
 
-      const connStr = JSON.stringify(this.DEFAULT_CONNECTION);
+      const connStr = JSON.stringify(this._DEFAULT_CONNECTION);
       localStorage.setItem(this._CONNECTION_KEY, connStr);
       conn = connStr;
     }

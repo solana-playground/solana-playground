@@ -14,6 +14,7 @@ import { ClassName } from "../../../../../constants";
 import { terminalOutputAtom, txHashAtom } from "../../../../../state";
 import {
   PgCommon,
+  PgPreferences,
   PgTerminal,
   PgTest,
   PgTx,
@@ -143,19 +144,25 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   const { currentWallet } = useCurrentWallet();
 
   // Test submission
-  const handleTest = useCallback(() => {
-    PgTerminal.run(async () => {
+  const handleTest = useCallback(async () => {
+    const showLogTxHash = await PgTerminal.run(async () => {
       if (!currentWallet) return;
 
       setLoading(true);
-
       setTerminal(PgTerminal.info(`Testing '${ixs.name}'...`));
+
+      const preferences = PgPreferences.getPreferences();
+
       let msg = "";
 
       try {
         await PgCommon.sleep(); // To smooth out button transition
         const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
         setTxHash(txHash);
+
+        if (preferences.showTxDetailsInTerminal) {
+          return txHash;
+        }
 
         const txResult = await PgTx.confirm(txHash, conn);
 
@@ -173,10 +180,15 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
           "failed"
         )}: ${convertedError}`;
       } finally {
-        setTerminal(msg + "\n");
         setLoading(false);
+        if (!preferences.showTxDetailsInTerminal) setTerminal(msg + "\n");
       }
     });
+
+    if (showLogTxHash) {
+      await PgCommon.sleep(500);
+      PgTerminal.runCmdFromStr(`solana confirm ${showLogTxHash} -v`);
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txVals, idl, conn, currentWallet, setTerminal]);
