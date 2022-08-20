@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorState } from "@codemirror/state";
@@ -7,7 +7,12 @@ import { EditorView } from "@codemirror/view";
 import Home from "./Home";
 import Theme from "../../../../theme/interface";
 import { Wormhole } from "../../../Loading";
-import { autosave, getExtensions } from "./extensions";
+import {
+  autosave,
+  defaultExtensions,
+  rustExtensions,
+  pythonExtensions,
+} from "./extensions";
 import {
   buildCountAtom,
   explorerAtom,
@@ -17,7 +22,7 @@ import { PgExplorer, PgProgramInfo, PgEditor } from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
-  const [explorerChanged] = useAtom(refreshExplorerAtom); // to re-render on demand
+  const [explorerChanged] = useAtom(refreshExplorerAtom);
   // Update programId on each build
   const [buildCount] = useAtom(buildCountAtom);
 
@@ -197,15 +202,6 @@ const Editor = () => {
       parentRef.current.removeChild(parentRef.current.childNodes[0]);
 
     return new EditorView({
-      state: EditorState.create({
-        doc: curFile.content,
-        extensions: [
-          getExtensions(),
-          editorTheme,
-          theme.highlight,
-          autosave(explorer, curFile, 5000),
-        ],
-      }),
       parent: parentRef.current,
     });
 
@@ -237,15 +233,22 @@ const Editor = () => {
     if (newEl) PgExplorer.setSelectedEl(newEl);
 
     // Change editor state
+    const extensions = [
+      defaultExtensions(),
+      editorTheme,
+      theme.highlight,
+      autosave(explorer, curFile, 5000),
+    ];
+    if (explorer.isCurrentFileRust()) {
+      extensions.push(rustExtensions());
+    } else {
+      extensions.push(pythonExtensions());
+    }
+
     editor.setState(
       EditorState.create({
         doc: curFile.content,
-        extensions: [
-          getExtensions(),
-          editorTheme,
-          theme.highlight,
-          autosave(explorer, curFile, 5000),
-        ],
+        extensions,
       })
     );
 
@@ -259,47 +262,53 @@ const Editor = () => {
    * @param programId The new program ID to be set
    * @param extension The extension, which determines the language of the file
    */
-  const updateLib = (
-    currentContent: string,
-    programId: string,
-    extension: string
-  ) => {
-    if (!explorer || !editor) return;
-    const filePath = `/src/lib.${extension}`;
+  const updateLib = useCallback(
+    (currentContent: string, programId: string, extension: "rs" | "py") => {
+      if (!explorer || !editor) return;
 
-    // update in localstorage
-    const findText = extension === "py" ? "declare_id" : "declare_id!";
-    let findTextIndex = currentContent.indexOf(findText);
-    if (!currentContent || !findTextIndex || findTextIndex === -1) return;
-    let quoteStartIndex = findTextIndex + findText.length + 1;
-    let quoteChar = currentContent[quoteStartIndex];
-    let quoteEndIndex = currentContent.indexOf(quoteChar, quoteStartIndex + 1);
-    if (currentContent.length < quoteStartIndex + 3) return;
+      const getProgramIdStartAndEndIndex = (content: string) => {
+        const findTextIndex = content.indexOf(findText);
+        if (!content || !findTextIndex || findTextIndex === -1) return;
+        const quoteStartIndex = findTextIndex + findText.length + 1;
+        const quoteChar = content[quoteStartIndex];
+        const quoteEndIndex = content.indexOf(quoteChar, quoteStartIndex + 1);
 
-    const updatedContent =
-      currentContent.substring(0, quoteStartIndex + 1) +
-      programId +
-      currentContent.substring(quoteEndIndex);
-    const data = explorer.files[filePath];
-    if (data?.content) {
-      explorer.files[filePath] = { ...data, content: updatedContent };
-    }
+        return [quoteStartIndex, quoteEndIndex];
+      };
 
-    // update in editor
-    const code = editor.state.doc.toString();
-    findTextIndex = code.indexOf(findText);
-    quoteStartIndex = findTextIndex + findText.length + 1;
-    quoteChar = code[quoteStartIndex];
-    quoteEndIndex = code.indexOf(quoteChar, quoteStartIndex + 1);
+      // update in localstorage
+      const findText = extension === "py" ? "declare_id" : "declare_id!";
+      let indices = getProgramIdStartAndEndIndex(currentContent);
+      if (!indices) return;
+      let [quoteStartIndex, quoteEndIndex] = indices;
 
-    editor.dispatch({
-      changes: {
-        from: quoteStartIndex + 1,
-        to: quoteEndIndex,
-        insert: programId,
-      },
-    });
-  };
+      const updatedContent =
+        currentContent.substring(0, quoteStartIndex + 1) +
+        programId +
+        currentContent.substring(quoteEndIndex);
+      const filePath = `/src/lib.${extension}`;
+      const data = explorer.files[filePath];
+      if (data?.content) {
+        explorer.files[filePath] = { ...data, content: updatedContent };
+      }
+
+      // update in editor
+      const editorContent = editor.state.doc.toString();
+      indices = getProgramIdStartAndEndIndex(editorContent);
+      if (!indices) return;
+      [quoteStartIndex, quoteEndIndex] = indices;
+
+      editor.dispatch({
+        changes: {
+          from: quoteStartIndex + 1,
+          to: quoteEndIndex,
+          insert: programId,
+        },
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [editor, explorer, explorerChanged]
+  );
 
   // Change programId
   useEffect(() => {
@@ -322,7 +331,7 @@ const Editor = () => {
     }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildCount, editor]);
+  }, [buildCount, editor, updateLib]);
 
   // Listen for custom events
   useEffect(() => {

@@ -383,6 +383,10 @@ export class PgExplorer {
     return buildFiles;
   }
 
+  isCurrentFileRust() {
+    return this.getCurrentFile()?.path.endsWith(".rs");
+  }
+
   // Static methods
   static readonly EXPLORER_KEY = "explorer";
 

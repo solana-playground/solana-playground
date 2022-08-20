@@ -13,7 +13,10 @@ const LangIcon: FC<LangIconProps> = ({ fileName }) => (
 );
 
 const Img = styled.img`
-  filter: ${({ theme }) => (theme.isDark ? "invert(0.6)" : "invert(0.4)")};
+  filter: ${({ theme, src }) => {
+    if (src?.includes("python")) return;
+    return theme.isDark ? "invert(0.6)" : "invert(0.4)";
+  }};
   width: 1rem;
   height: 1rem;
 `;

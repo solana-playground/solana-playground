@@ -1,5 +1,8 @@
 {
-  "name": "seahorse-compile",
+  "name": "seahorse-compile-wasm",
+  "collaborators": [
+    "Callum McIntyre <callum@pointer.gg>"
+  ],
   "description": "Seahorse compiler for Solana Playground with WASM.",
   "version": "0.1.6",
   "license": "GPL-3.0",
@@ -8,12 +11,12 @@
     "url": "https://github.com/solana-playground/solana-playground"
   },
   "files": [
-    "seahorse_compile_bg.wasm",
-    "seahorse_compile.js",
-    "seahorse_compile_bg.js",
-    "seahorse_compile.d.ts"
+    "seahorse_compile_wasm_bg.wasm",
+    "seahorse_compile_wasm.js",
+    "seahorse_compile_wasm_bg.js",
+    "seahorse_compile_wasm.d.ts"
   ],
-  "module": "seahorse_compile.js",
-  "types": "seahorse_compile.d.ts",
+  "module": "seahorse_compile_wasm.js",
+  "types": "seahorse_compile_wasm.d.ts",
   "sideEffects": false
 }

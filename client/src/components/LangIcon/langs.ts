@@ -6,4 +6,5 @@ interface Lang {
 
 export const Langs: Lang = {
   rs: PATH + "rust.png",
+  py: PATH + "python.png",
 };

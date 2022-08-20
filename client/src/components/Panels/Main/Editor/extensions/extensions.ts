@@ -18,13 +18,14 @@ import { commentKeymap } from "@codemirror/comment";
 import { rectangularSelection } from "@codemirror/rectangular-selection";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { lintKeymap } from "@codemirror/lint";
+import { python } from "@codemirror/lang-python";
 
 // Packages we customized/added
 import { indentWithTab } from "@codemirror/commands";
 import { rust } from "./lang";
 import { highlightSelectionMatches, searchKeymap } from "./search";
 
-export const getExtensions = (): Extension[] => {
+export const defaultExtensions = (): Extension[] => {
   return [
     lineNumbers(),
     highlightActiveLineGutter(),
@@ -42,8 +43,6 @@ export const getExtensions = (): Extension[] => {
     rectangularSelection(),
     highlightActiveLine(),
     highlightSelectionMatches(),
-    rust(),
-    indentUnit.of("    "),
     keymap.of([
       ...defaultKeymap,
       ...closeBracketsKeymap,
@@ -56,4 +55,12 @@ export const getExtensions = (): Extension[] => {
       indentWithTab,
     ]),
   ];
+};
+
+export const rustExtensions = () => {
+  return [rust(), indentUnit.of("    ")];
+};
+
+export const pythonExtensions = () => {
+  return [python()];
 };

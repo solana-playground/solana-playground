@@ -217,9 +217,6 @@ const StyledFolder = styled(Folder)`
 
 const StyledFile = styled(File)`
   & img {
-    width: 1rem;
-    height: 1rem;
-    filter: ${({ theme }) => (theme.isDark ? "invert(0.6)" : "invert(0.4)")};
     margin-left: 0.125rem;
   }
 

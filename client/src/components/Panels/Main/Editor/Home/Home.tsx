@@ -139,12 +139,12 @@ const ResourceButton = styled(Button)`
 `;
 
 const getSrc = (url: string) => {
-  let src;
+  let src: string = "";
 
   if (url.includes("youtube.com")) src = "youtube.png";
   else if (url.includes("dev.to")) src = "devto.png";
 
-  return "icons/platforms/" + src;
+  if (src) return "icons/platforms/" + src;
 };
 
 const Tutorial: FC<TutorialProps> = ({ title, url }) => {

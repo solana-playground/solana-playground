@@ -11,42 +11,35 @@ interface BuildResp {
   idl: Idl | null;
 }
 
-export type Files = string[][];
+type BuildFiles = string[][];
 
 export class PgBuild {
-  static getProgramName(fileName: string, expectedSuffix: string) {
-    const pathParts = fileName.split("/");
-    const lastPart = pathParts[pathParts.length - 1];
-    return lastPart.replace(expectedSuffix, "");
-  }
-
-  static async buildPython(pythonFiles: Files, seahorsePkg: Pkgs) {
+  static async buildPython(pythonFiles: BuildFiles, seahorsePkg: Pkgs) {
     const compileFn = seahorsePkg.compileSeahorse;
     if (!compileFn) {
       throw new Error("No compile function found in seahorse package");
     }
 
     const rustFiles = pythonFiles.map((file) => {
-      const [fileName, contents] = file;
+      const [fileName, content] = file;
       const newFileName = fileName.replace(".py", ".rs");
-      const programName = this.getProgramName(fileName, ".py");
-      let newContents = compileFn(contents, programName);
+      let newContent = compileFn(content, "solpg-seahorse");
 
       // The build server detects #[program] to determine if Anchor
       // Seahorse (without rustfmt) outputs # [program]
-      newContents = newContents.replace("# [program]", "#[program]");
+      newContent = newContent.replace("# [program]", "#[program]");
 
-      if (newContents.length === 0) {
+      if (newContent.length === 0) {
         throw new Error("Seahorse compile failed");
       }
 
-      return [newFileName, newContents];
+      return [newFileName, newContent];
     });
 
     return await this.buildRust(rustFiles);
   }
 
-  static async buildRust(rustFiles: Files) {
+  static async buildRust(rustFiles: BuildFiles) {
     const programInfo = PgProgramInfo.getProgramInfo();
 
     const resp = await fetch(`${SERVER_URL}/build`, {

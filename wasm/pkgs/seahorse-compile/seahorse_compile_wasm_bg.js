@@ -1,5 +1,5 @@
 import { PgTerminal } from '/src/utils/pg/terminal/terminal.ts';
-import * as wasm from './seahorse_compile_bg.wasm';
+import * as wasm from './seahorse_compile_wasm_bg.wasm';
 
 const heap = new Array(32).fill(undefined);
 

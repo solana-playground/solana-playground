@@ -186,7 +186,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     });
 
     if (showLogTxHash) {
-      await PgCommon.sleep(500);
+      await PgCommon.sleep(1000);
       PgTerminal.runCmdFromStr(`solana confirm ${showLogTxHash} -v`);
     }
 

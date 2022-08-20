@@ -11,7 +11,7 @@ export interface Pkgs {
     commitment: string,
     keypairBytes: Uint8Array
   ) => void;
-  compileSeahorse?: (python_source: string, program_name: string) => string;
+  compileSeahorse?: (pythonSource: string, programName: string) => string;
 }
 
 export interface PkgInfo {
