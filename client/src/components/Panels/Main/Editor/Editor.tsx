@@ -13,12 +13,7 @@ import {
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import {
-  PgExplorer,
-  PgProgramInfo,
-  PgEditor,
-  DEFAULT_FILE,
-} from "../../../../utils/pg";
+import { PgExplorer, PgProgramInfo, PgEditor } from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -257,6 +252,55 @@ const Editor = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, explorer, explorerChanged, setNoOpenTabs]);
 
+  /**
+   * Update /src/lib.rs or /src/lib.py with the programId
+   * Updates the content of the file in the editor and in localstorage
+   * @param currentContent Current content of the file to be updated
+   * @param programId The new program ID to be set
+   * @param extension The extension, which determines the language of the file
+   */
+  const updateLib = (
+    currentContent: string,
+    programId: string,
+    extension: string
+  ) => {
+    if (!explorer || !editor) return;
+    const filePath = `/src/lib.${extension}`;
+
+    // update in localstorage
+    const findText = extension === "py" ? "declare_id" : "declare_id!";
+    let findTextIndex = currentContent.indexOf(findText);
+    if (!currentContent || !findTextIndex || findTextIndex === -1) return;
+    let quoteStartIndex = findTextIndex + findText.length + 1;
+    let quoteChar = currentContent[quoteStartIndex];
+    let quoteEndIndex = currentContent.indexOf(quoteChar, quoteStartIndex + 1);
+    if (currentContent.length < quoteStartIndex + 3) return;
+
+    const updatedContent =
+      currentContent.substring(0, quoteStartIndex + 1) +
+      programId +
+      currentContent.substring(quoteEndIndex);
+    const data = explorer.files[filePath];
+    if (data?.content) {
+      explorer.files[filePath] = { ...data, content: updatedContent };
+    }
+
+    // update in editor
+    const code = editor.state.doc.toString();
+    findTextIndex = code.indexOf(findText);
+    quoteStartIndex = findTextIndex + findText.length + 1;
+    quoteChar = code[quoteStartIndex];
+    quoteEndIndex = code.indexOf(quoteChar, quoteStartIndex + 1);
+
+    editor.dispatch({
+      changes: {
+        from: quoteStartIndex + 1,
+        to: quoteEndIndex,
+        insert: programId,
+      },
+    });
+  };
+
   // Change programId
   useEffect(() => {
     if (!explorer || !parentRef.current || !buildCount || !editor) return;
@@ -265,43 +309,17 @@ const Editor = () => {
     if (programPkResult?.err) return;
     const programPkStr = programPkResult.programPk!.toBase58();
 
-    // Change in localStorage
-    const findText = "declare_id!";
-    {
-      const lsContent = explorer.getFileContentFromPath(DEFAULT_FILE);
-      const lsFindTextIndex = lsContent?.indexOf(findText);
-      if (!lsContent || !lsFindTextIndex || lsFindTextIndex === -1) return;
-      const quoteStartIndex = lsFindTextIndex + findText.length + 2;
-      const quoteEndIndex = lsContent.indexOf('"', quoteStartIndex);
-      if (lsContent.length < quoteStartIndex + 3) return;
-
-      const updatedContent =
-        lsContent.substring(0, quoteStartIndex) +
-        programPkStr +
-        lsContent.substring(quoteEndIndex);
-      const data = explorer.files[DEFAULT_FILE];
-      if (data?.content) {
-        explorer.files[DEFAULT_FILE] = { ...data, content: updatedContent };
-      }
+    const libRsContent = explorer.getFileContentFromPath("/src/lib.rs");
+    if (libRsContent) {
+      updateLib(libRsContent, programPkStr, "rs");
+      return;
     }
 
-    // Change in editor
-    const code = editor.state.doc.toString();
-    const findTextIndex = code.indexOf(findText);
-    if (findTextIndex === -1) return;
-
-    const quoteStartIndex = findTextIndex + findText.length + 2;
-    const quoteEndIndex = code.indexOf('"', quoteStartIndex);
-
-    if (code.length < quoteStartIndex + 3) return;
-
-    editor.dispatch({
-      changes: {
-        from: quoteStartIndex,
-        to: quoteEndIndex,
-        insert: programPkStr,
-      },
-    });
+    const libPyContent = explorer.getFileContentFromPath("/src/lib.py");
+    if (libPyContent) {
+      updateLib(libPyContent, programPkStr, "py");
+      return;
+    }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCount, editor]);

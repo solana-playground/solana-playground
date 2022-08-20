@@ -331,21 +331,51 @@ export class PgExplorer {
     const files = this._explorer.files;
     const buildFiles: string[][] = [];
 
+    const splitExtension = (fileName: string) => {
+      const split = fileName.split(".");
+      if (split.length === 1) {
+        // file has no extension
+        return [split[0], ""];
+      } else {
+        // remove the last part, which will be the extension
+        const extension = split.pop() as string;
+        return [split.join("."), extension];
+      }
+    };
+
+    const updateIdRust = (content: string) => {
+      return content.replace(/^declare_id!\("(\w*)"\)/gm, () => {
+        const pk =
+          PgProgramInfo.getPk().programPk ??
+          PgProgramInfo.createNewKp().publicKey;
+        return `declare_id!("${pk.toBase58()}")`;
+      });
+    };
+
+    const updateIdPython = (content: string) => {
+      return content.replace(/^declare_id\(("|')(\w*)("|')\)/gm, () => {
+        const pk =
+          PgProgramInfo.getPk().programPk ??
+          PgProgramInfo.createNewKp().publicKey;
+        return `declare_id('${pk.toBase58()}')`;
+      });
+    };
+
+    const defaultFileNameWithoutExtension = splitExtension(DEFAULT_FILE)[0];
+
     for (const path in files) {
       const content = files[path].content;
       if (!content) continue;
 
-      if (path === DEFAULT_FILE) {
+      const [pathWithoutExtension, extension] = splitExtension(path);
+      if (pathWithoutExtension === defaultFileNameWithoutExtension) {
         // Change program id
-        files[path].content = content.replace(
-          /^declare_id!\("(\w*)"\)/gm,
-          () => {
-            const pk =
-              PgProgramInfo.getPk().programPk ??
-              PgProgramInfo.createNewKp().publicKey;
-            return `declare_id!("${pk.toBase58()}")`;
-          }
-        );
+        const currentContent = files[path].content ?? "";
+        if (extension.toLowerCase() === "rs") {
+          files[path].content = updateIdRust(currentContent);
+        } else if (extension.toLowerCase() === "py") {
+          files[path].content = updateIdPython(currentContent);
+        }
       }
       buildFiles.push([path, files[path].content ?? ""]);
     }

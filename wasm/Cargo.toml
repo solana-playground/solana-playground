@@ -3,5 +3,6 @@ members = [
     "solana-cli",
     "solana-client",
     "spl-token-cli",
+    "seahorse-compile",
     "utils/*"
 ]
