@@ -2,6 +2,7 @@ import { Idl } from "@project-serum/anchor";
 
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
+import { BuildFiles } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 import { Pkgs } from "./terminal";
 
@@ -10,8 +11,6 @@ interface BuildResp {
   uuid: string | null;
   idl: Idl | null;
 }
-
-type BuildFiles = string[][];
 
 export class PgBuild {
   static async buildPython(pythonFiles: BuildFiles, seahorsePkg: Pkgs) {
@@ -23,7 +22,7 @@ export class PgBuild {
     const rustFiles = pythonFiles.map((file) => {
       const [fileName, content] = file;
       const newFileName = fileName.replace(".py", ".rs");
-      let newContent = compileFn(content, "solpg-seahorse");
+      let newContent = compileFn(content, "seahorse");
 
       // The build server detects #[program] to determine if Anchor
       // Seahorse (without rustfmt) outputs # [program]

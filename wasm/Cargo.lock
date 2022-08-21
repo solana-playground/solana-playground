@@ -2193,7 +2193,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "seahorse-compile-wasm"
-version = "0.1.6"
+version = "0.1.6-hidewarnings"
 dependencies = [
  "console_error_panic_hook",
  "seahorse-lang",
@@ -2204,8 +2204,7 @@ dependencies = [
 [[package]]
 name = "seahorse-lang"
 version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3349dbb656c385a785a0ff290e3766f50daa5b2fc24eaa6b8990946314b2eaeb"
+source = "git+https://github.com/acheroncrypto/seahorse-lang?branch=hide-warning-messages#ba3a42807afe264d6a63688798c4ec5ab6ed2a2b"
 dependencies = [
  "clap",
  "heck",

@@ -67,6 +67,8 @@ interface Folder {
   files: string[];
 }
 
+export type BuildFiles = string[][];
+
 export class PgExplorer {
   // Non-static methods
   private _explorer: ExplorerJSON;
@@ -328,8 +330,8 @@ export class PgExplorer {
   }
 
   getBuildFiles() {
-    const files = this._explorer.files;
-    const buildFiles: string[][] = [];
+    const files = this.files;
+    const buildFiles: BuildFiles = [];
 
     const splitExtension = (fileName: string) => {
       const split = fileName.split(".");
@@ -371,18 +373,22 @@ export class PgExplorer {
       if (pathWithoutExtension === defaultFileNameWithoutExtension) {
         // Change program id
         const currentContent = files[path].content ?? "";
-        if (extension.toLowerCase() === "rs") {
+        if (extension === "rs") {
           files[path].content = updateIdRust(currentContent);
-        } else if (extension.toLowerCase() === "py") {
+        } else if (extension === "py") {
           files[path].content = updateIdPython(currentContent);
         }
       }
+
       buildFiles.push([path, files[path].content ?? ""]);
     }
 
     return buildFiles;
   }
 
+  /**
+   * @returns whether the current file in the state is rust
+   */
   isCurrentFileRust() {
     return this.getCurrentFile()?.path.endsWith(".rs");
   }

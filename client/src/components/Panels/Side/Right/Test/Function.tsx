@@ -166,22 +166,26 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
 
         const txResult = await PgTx.confirm(txHash, conn);
 
-        if (txResult?.err)
+        if (txResult?.err) {
           msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
             "failed"
           )}.`;
-        else
+        } else {
           msg = `${PgTerminal.CHECKMARK}  Test '${
             ixs.name
           }' ${PgTerminal.success("passed")}.`;
+        }
+
+        setTerminal(msg + "\n");
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
-          "failed"
-        )}: ${convertedError}`;
+        setTerminal(
+          `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+            "failed"
+          )}: ${convertedError}\n`
+        );
       } finally {
         setLoading(false);
-        if (!preferences.showTxDetailsInTerminal) setTerminal(msg + "\n");
       }
     });
 

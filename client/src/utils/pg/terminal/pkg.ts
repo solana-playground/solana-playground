@@ -47,11 +47,11 @@ export class PgPkg {
   static async loadPkg(pkgName: PkgName): Promise<Pkgs> {
     switch (pkgName) {
       case PkgName.SOLANA_CLI:
-        return await import("solana-cli-wasm");
+        return await import("@solana-playground/solana-cli-wasm");
       case PkgName.SPL_TOKEN_CLI:
-        return await import("spl-token-cli-wasm");
+        return await import("@solana-playground/spl-token-cli-wasm");
       case PkgName.SEAHORSE_COMPILE:
-        return await import("seahorse-compile-wasm");
+        return await import("@solana-playground/seahorse-compile-wasm");
     }
   }
 }

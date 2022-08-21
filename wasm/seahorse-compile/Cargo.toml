@@ -1,6 +1,6 @@
 [package]
 name = "seahorse-compile-wasm"
-version = "0.1.6" # mirror seahorse-lang version
+version = "0.1.6-hidewarnings" # mirror seahorse-lang version
 edition = "2021"
 authors = ["Callum McIntyre <callum@pointer.gg>"]
 description = "Seahorse compiler for Solana Playground with WASM."
@@ -12,6 +12,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 console_error_panic_hook = "0.1.7"
-seahorse-lang = "0.1.6"
+# seahorse-lang = "0.1.6" https://github.com/ameliatastic/seahorse-lang/pull/13
+seahorse-lang = { git = "https://github.com/acheroncrypto/seahorse-lang", branch = "hide-warning-messages" }
 solana-playground-utils-wasm = { path = "../utils/solana-playground-utils" }
 wasm-bindgen = "0.2.81"

@@ -9,7 +9,7 @@ interface UpdatePreferencesConfig {
 export class PgPreferences {
   private static readonly _PREFERENCES_KEY = "preferences";
   private static readonly _DEFAULT_PREFERENCES: PreferencesConfig = {
-    showTxDetailsInTerminal: true,
+    showTxDetailsInTerminal: false,
   };
 
   static getPreferences(): PreferencesConfig {

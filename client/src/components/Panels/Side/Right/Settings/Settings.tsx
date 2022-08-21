@@ -14,9 +14,9 @@ const Settings = () => (
     <Setting name="Font" SettingElement={<FontSetting />} />
     <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
     <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
-    <Setting name="Preflight Checks" SettingElement={<PreflightSetting />} />
+    <Setting name="Preflight checks" SettingElement={<PreflightSetting />} />
     <Setting
-      name="Show Transaction Details In Terminal"
+      name="Show transaction details in terminal"
       SettingElement={<ShowTxDetailsInTerminal />}
     />
   </Wrapper>
