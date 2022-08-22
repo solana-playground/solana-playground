@@ -18,9 +18,9 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   const { close } = useModal();
 
-  const itemName = PgExplorer.getItemNameFromPath(path) ?? "";
-
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const itemName = PgExplorer.getItemNameFromPath(path) ?? "";
 
   // Focus input on mount
   useEffect(() => {
@@ -34,17 +34,17 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
     setNewName(e.target.value);
   };
 
-  const rename = () => {
+  const rename = async () => {
     if (!newName || !explorer) return;
-    const renameResult = explorer.renameItem(path, newName);
 
-    if (renameResult?.err) {
-      console.log(renameResult.err);
-      return;
+    try {
+      await explorer.renameItem(path, newName);
+
+      refresh();
+      close();
+    } catch (e: any) {
+      console.log(e.message);
     }
-
-    refresh();
-    close();
   };
 
   if (!itemName) return null;

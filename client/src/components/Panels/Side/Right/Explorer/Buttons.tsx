@@ -98,7 +98,7 @@ const ShareButton = () => {
 const GoBackButton = () => {
   const [explorer] = useAtom(explorerAtom);
 
-  if (!explorer?.shared) return null;
+  if (!explorer?.isShared) return null;
 
   return (
     <Link to="/">

@@ -1,6 +1,9 @@
 export enum ItemError {
   ALREADY_EXISTS = "Already exists",
   INVALID_NAME = "Invalid name",
+  FS_NOT_FOUND = "File system not found",
+  TYPE_MISMATCH = "Types don't match",
+  SRC_DELETE = "Cannot delete src folder",
 }
 
 interface ConvertedError {

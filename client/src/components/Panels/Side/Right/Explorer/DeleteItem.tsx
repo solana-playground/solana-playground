@@ -15,9 +15,15 @@ const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
 
-  const deleteItem = () => {
-    explorer?.deleteItem(path);
-    refresh();
+  const deleteItem = async () => {
+    if (!explorer) return;
+
+    try {
+      await explorer.deleteItem(path);
+      refresh();
+    } catch (e: any) {
+      console.log(e.message);
+    }
   };
 
   const itemName = PgExplorer.getItemNameFromPath(path);

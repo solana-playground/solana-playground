@@ -22,7 +22,7 @@ const Tab: FC<TabProps> = ({ current, path }) => {
   const closeTab = useCallback(() => {
     if (!explorer) return;
 
-    explorer.removeFromTabs(path);
+    explorer.closeTab(path);
     refresh();
   }, [explorer, path, refresh]);
 

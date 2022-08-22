@@ -11,10 +11,15 @@ export const autosave = (
 
   return EditorView.updateListener.of((v: ViewUpdate) => {
     if (v.docChanged) {
-      explorer.saveFile(curFile.path, v.state.doc.toString());
+      const args: [string, string] = [curFile.path, v.state.doc.toString()];
+      explorer.saveFileToState(...args);
       timeoutId && clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        explorer.saveLs();
+        explorer
+          .saveFileToIndexedDB(...args)
+          .catch((e: any) =>
+            console.log(`Error saving file ${curFile.path}. ${e.message}`)
+          );
       }, ms);
     }
   });

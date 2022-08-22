@@ -26,7 +26,7 @@ const NewItem = () => {
 
   const handleClickOut = useCallback(
     (e: globalThis.MouseEvent) => {
-      if (!newFileRef.current!.contains(e.target as Node)) setEl(null);
+      if (!newFileRef.current?.contains(e.target as Node)) setEl(null);
     },
     [setEl]
   );
@@ -34,9 +34,9 @@ const NewItem = () => {
   // Only allow setting filename with Enter
   // Escape closes the input
   const handleKeyPress = useCallback(
-    (e: globalThis.KeyboardEvent) => {
+    async (e: globalThis.KeyboardEvent) => {
       if (e.key === "Enter") {
-        if (!itemName) return;
+        if (!itemName || !explorer) return;
 
         // Check if the command is coming from context menu
         let selected = ctxSelected;
@@ -49,37 +49,35 @@ const NewItem = () => {
 
         const itemPath = parentPath + convertedItemName;
 
-        const newItemRes = explorer?.newItem(itemPath);
+        try {
+          await explorer.newItem(itemPath);
 
-        // TODO: Proper error handling
-        if (newItemRes?.err) {
-          console.log(newItemRes.err);
-          return;
+          // File add successfull
+
+          // Remove input
+          setEl(null);
+
+          // Reset Ctx Selected
+          setCtxSelected(null);
+
+          // Trigger refresh on components that have explorerRefreshAtom
+          refresh();
+
+          // Select new file
+          PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
+        } catch (e: any) {
+          console.log(e.message);
         }
-
-        // File add successfull
-
-        // Remove input
-        setEl(null);
-
-        // Reset Ctx Selected
-        setCtxSelected(null);
-
-        // Trigger refresh on components that have explorerRefreshAtom
-        refresh();
-
-        // Select new file
-        PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
       } else if (e.key === "Escape") setEl(null);
     },
-    [itemName, explorer, setEl, refresh, ctxSelected, setCtxSelected]
+    [itemName, explorer, ctxSelected, setEl, setCtxSelected, refresh]
   );
 
   useEffect(() => {
     if (el) {
       document.body.addEventListener("mousedown", handleClickOut);
       document.body.addEventListener("keydown", handleKeyPress);
-      inputRef.current!.focus();
+      inputRef.current?.focus();
     }
 
     return () => {

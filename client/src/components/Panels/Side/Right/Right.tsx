@@ -44,22 +44,28 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pathname === "/") setExplorer(new PgExplorer());
-    else {
-      const getShare = async () => {
+    if (pathname === "/") {
+      (async () => {
+        try {
+          const explorer = new PgExplorer();
+          await explorer.init();
+          setExplorer(explorer);
+        } catch (e: any) {
+          console.log(e.message);
+        }
+      })();
+    } else {
+      // Shared project
+      (async () => {
         try {
           const explorerData = await PgShare.get(pathname);
-
           setExplorer(new PgExplorer(explorerData));
         } catch {
           // Couldn't get the data
-          // TODO: Not found page
-          // Redirect to main for now
+          // Redirect to main
           navigate("/");
         }
-      };
-
-      getShare();
+      })();
     }
   }, [pathname, navigate, setExplorer]);
 

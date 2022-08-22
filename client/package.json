@@ -19,6 +19,7 @@
     "@codemirror/rectangular-selection": "^0.19.1",
     "@codemirror/view": "^0.19.47",
     "@floating-ui/react-dom": "^0.6.0",
+    "@isomorphic-git/lightning-fs": "^4.6.0",
     "@project-serum/anchor": "^0.23.0",
     "@solana-playground/seahorse-compile-wasm": "../wasm/pkgs/seahorse-compile",
     "@solana-playground/solana-cli-wasm": "../wasm/pkgs/solana-cli",

@@ -26,7 +26,7 @@ const Tabs = () => {
         const currentPath = explorer.getCurrentFile()?.path;
         if (!currentPath) return;
 
-        explorer.removeFromTabs(currentPath);
+        explorer.closeTab(currentPath);
         refresh();
       }
     };

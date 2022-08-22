@@ -30,14 +30,16 @@ const Folders = () => {
   }, [explorer]);
 
   // No need to memoize here
-  const root = explorer?.getFolderContent("/");
+  const workspaceDir = explorer?.getFolderContent(
+    explorer.currentWorkspacePath
+  );
 
   // Only update local storage if we haven't rendered in 5s
   useEffect(() => {
     let timeOutId: NodeJS.Timeout;
 
     timeOutId = setTimeout(() => {
-      explorer?.saveLs();
+      explorer?.saveTabs().catch();
     }, 5000);
 
     return () => {
@@ -47,17 +49,19 @@ const Folders = () => {
 
   const ctxMenu = useExplorerContextMenu();
 
+  if (!explorer) return null;
+
   return (
     <RootWrapper
       id={Id.ROOT_DIR}
-      data-path="/"
+      data-path={explorer.currentWorkspacePath}
       onContextMenu={ctxMenu.handleMenu}
     >
-      {root?.folders
+      {workspaceDir?.folders
         .sort((x, y) => x.localeCompare(y))
         .map((f, i) => {
-          const path = "/" + f + "/";
-          const folder = explorer?.getFolderContent(path);
+          const path = explorer.currentWorkspacePath + f + "/";
+          const folder = explorer.getFolderContent(path);
 
           if (!folder) return null;
 
