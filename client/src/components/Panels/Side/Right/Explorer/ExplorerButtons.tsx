@@ -10,7 +10,7 @@ import useNewItem from "./useNewItem";
 import { explorerAtom, modalAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
 
-const Buttons = () => (
+const ExplorerButtons = () => (
   <ButtonsWrapper>
     <NewItemButton imageName="new_file.png" title="New File" />
     <NewItemButton imageName="new_folder.png" title="New Folder" />
@@ -89,7 +89,7 @@ const ShareButton = () => {
     <Button onClick={handleShare} kind="icon" title="Share">
       <img
         src={PgExplorer.getExplorerIconsPath("share.png")}
-        alt="Go back your project"
+        alt="Go back to your project"
       />
     </Button>
   );
@@ -113,4 +113,4 @@ const GoBackButton = () => {
   );
 };
 
-export default Buttons;
+export default ExplorerButtons;

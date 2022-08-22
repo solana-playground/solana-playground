@@ -13,8 +13,8 @@ export interface TextProps {
 const Text: FC<TextProps> = ({ type, size, IconEl, children }) => {
   return (
     <Wrapper type={type} size={size} IconEl={IconEl}>
-      {IconEl}
-      {children}
+      <div>{IconEl}</div>
+      <div>{children}</div>
     </Wrapper>
   );
 };

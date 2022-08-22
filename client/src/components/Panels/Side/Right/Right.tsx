@@ -19,7 +19,7 @@ import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/Tabs";
 import { Sidebar } from "../sidebar-state";
 import { PgExplorer, PgShare } from "../../../../utils/pg";
-import { explorerAtom } from "../../../../state";
+import { explorerAtom, refreshExplorerAtom } from "../../../../state";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -37,6 +37,7 @@ interface RightProps extends DefaultRightProps {
 
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
+  const [, refreshExplorer] = useAtom(refreshExplorerAtom);
 
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
     if (pathname === "/") {
       (async () => {
         try {
-          const explorer = new PgExplorer();
+          const explorer = new PgExplorer(refreshExplorer);
           await explorer.init();
           setExplorer(explorer);
         } catch (e: any) {
@@ -59,7 +60,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
       (async () => {
         try {
           const explorerData = await PgShare.get(pathname);
-          setExplorer(new PgExplorer(explorerData));
+          setExplorer(new PgExplorer(refreshExplorer, explorerData));
         } catch {
           // Couldn't get the data
           // Redirect to main
@@ -67,7 +68,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
         }
       })();
     }
-  }, [pathname, navigate, setExplorer]);
+  }, [pathname, navigate, setExplorer, refreshExplorer]);
 
   useEffect(() => {
     if (explorer) setLoading(false);

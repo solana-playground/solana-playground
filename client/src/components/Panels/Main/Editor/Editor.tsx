@@ -185,8 +185,9 @@ const Editor = () => {
 
     // If there is open tabs but the editor is not mounted, mount the editor.
     if (!noOpenTabs && !firstEl) setMount((c) => c + 1);
-    else if (firstEl?.classList.contains(PgEditor.CLASSNAME))
+    else if (firstEl?.classList.contains(PgEditor.CLASSNAME)) {
       parentRef.current?.removeChild(firstEl);
+    }
   }, [noOpenTabs, setMount]);
 
   // Create editor
@@ -198,8 +199,9 @@ const Editor = () => {
     if (!curFile) return;
 
     // Remove editor if it's already mounted
-    if (parentRef.current?.hasChildNodes())
+    if (parentRef.current?.hasChildNodes()) {
       parentRef.current.removeChild(parentRef.current.childNodes[0]);
+    }
 
     return new EditorView({
       parent: parentRef.current,

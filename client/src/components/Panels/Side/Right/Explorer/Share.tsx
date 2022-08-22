@@ -62,7 +62,7 @@ const Share = () => {
             </Text>
           )
         ) : (
-          <DefaultText>Do you want to share this project?</DefaultText>
+          <MainText>Do you want to share this project?</MainText>
         )}
         {textState?.id && (
           <SuccessWrapper>
@@ -106,8 +106,8 @@ const Content = styled.div`
   }
 `;
 
-const DefaultText = styled.div`
-  margin: 1.5rem 0;
+const MainText = styled.div`
+  margin: 1rem 0;
 `;
 
 const SuccessWrapper = styled.div``;

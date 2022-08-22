@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
-import Buttons from "./Buttons";
+import ExplorerButtons from "./ExplorerButtons";
 import Folders from "./Folders";
+import Workspaces from "./Workspaces";
 import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
-import { ClassName } from "../../../../../constants";
 import { PgEditor } from "../../../../../utils/pg";
 
 const Explorer = () => {
@@ -28,43 +28,19 @@ const Explorer = () => {
 
   return (
     <ExplorerWrapper>
-      <Buttons />
+      <Workspaces />
+      <ExplorerButtons />
       <Folders />
     </ExplorerWrapper>
   );
 };
 
 const ExplorerWrapper = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    user-select: none;
-
-    & .${ClassName.FOLDER}, & .${ClassName.FILE} {
-      display: flex;
-      padding: 0.25rem 0;
-      cursor: pointer;
-      border: 1px solid transparent;
-
-      &.${ClassName.SELECTED} {
-        background-color: ${theme.colors.default.primary +
-        theme.transparency?.low};
-      }
-
-      &.${ClassName.CTX_SELECTED} {
-        background-color: ${theme.colors.default.primary +
-        theme.transparency?.medium};
-        border-color: ${theme.colors.default.primary};
-        border-radius: ${theme.borderRadius};
-      }
-
-      &:hover {
-        background-color: ${theme.colors.default.primary +
-        theme.transparency?.medium};
-      }
-    }
-  `}
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  user-select: none;
+  padding: 0 0.5rem;
 `;
 
 export default Explorer;

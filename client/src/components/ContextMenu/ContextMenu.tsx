@@ -33,7 +33,7 @@ const Wrapper = styled.div<Position>`
     position: absolute;
     top: ${y}px;
     left: ${x}px;
-    width: 11rem;
+    width: 10rem;
     z-index: 2;
   `}
 `;

@@ -1,5 +1,5 @@
 import { FC, MouseEvent } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import ContextMenu from "../../../../ContextMenu";
 
@@ -45,21 +45,24 @@ const Item: FC<ItemProps> = ({ name, keybind, onClick, className }) => {
 };
 
 const StyledItem = styled(Item)`
-  padding: 0.5rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  ${({ theme }) => css`
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: ${theme.font?.size.small};
 
-  &:hover {
-    cursor: pointer;
-    background-color: ${({ theme }) =>
-      theme.colors.default.primary + theme.transparency?.medium};
-  }
+    &:hover {
+      cursor: pointer;
+      background-color: ${theme.colors.default.primary +
+      theme.transparency?.medium};
+    }
 
-  & span:nth-child(2) {
-    color: ${({ theme }) => theme.colors.default.textSecondary};
-    font-size: ${({ theme }) => theme.font?.size.small};
-  }
+    & span:nth-child(2) {
+      color: ${theme.colors.default.textSecondary};
+      font-size: ${theme.font?.size.small};
+    }
+  `}
 `;
 
 export default ExplorerContextMenu;

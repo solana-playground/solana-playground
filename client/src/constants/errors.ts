@@ -6,6 +6,12 @@ export enum ItemError {
   SRC_DELETE = "Cannot delete src folder",
 }
 
+export enum WorkspaceError {
+  ALREADY_EXISTS = "Already exists",
+  INVALID_NAME = "Invalid name",
+  NOT_FOUND = "Workspace not found",
+}
+
 interface ConvertedError {
   [key: string]: string;
 }
