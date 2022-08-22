@@ -222,38 +222,6 @@ export class PgExplorer {
   }
 
   /**
-   * Saves tab and current file info in IndexedDB
-   *
-   * NOTE: Only runs when the project is not shared.
-   */
-  async saveTabs() {
-    if (!this.isShared) {
-      const files = this.files;
-
-      const tabs = [];
-      let currentPath;
-      for (const path in files) {
-        const itemInfo = files[path];
-        if (itemInfo?.tabs) tabs.push(path);
-        if (itemInfo?.current) currentPath = path;
-      }
-
-      const tabFile: TabFile = { tabs, currentPath };
-
-      await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
-    }
-  }
-
-  /**
-   * Saves file to IndexedDB.
-   *
-   * NOTE: This function assumes parent directories exist.
-   */
-  async saveFileToIndexedDB(path: string, data: string) {
-    if (!this.isShared) await this._fs?.writeFile(path, data);
-  }
-
-  /**
    * Save the file to the state only.
    */
   saveFileToState(path: string, content: string) {
@@ -386,7 +354,7 @@ export class PgExplorer {
     };
 
     const updateIdRust = (content: string) => {
-      return content.replace(/^declare_id!\("(\w*)"\)/gm, () => {
+      return content.replace(/^(\s)*(\w*::)?declare_id!\("(\w*)"\)/gm, () => {
         const pk =
           PgProgramInfo.getPk().programPk ??
           PgProgramInfo.createNewKp().publicKey;
@@ -445,6 +413,38 @@ export class PgExplorer {
    */
   isCurrentFileRust() {
     return this.getCurrentFile()?.path.endsWith(".rs");
+  }
+
+  /**
+   * Saves tab and current file info to IndexedDB
+   *
+   * NOTE: Only runs when the project is not shared.
+   */
+  async saveTabs() {
+    if (!this.isShared) {
+      const files = this.files;
+
+      const tabs = [];
+      let currentPath;
+      for (const path in files) {
+        const itemInfo = files[path];
+        if (itemInfo?.tabs) tabs.push(path);
+        if (itemInfo?.current) currentPath = path;
+      }
+
+      const tabFile: TabFile = { tabs, currentPath };
+
+      await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
+    }
+  }
+
+  /**
+   * Saves file to IndexedDB.
+   *
+   * NOTE: This function assumes parent directories exist.
+   */
+  async saveFileToIndexedDB(path: string, data: string) {
+    if (!this.isShared) await this._fs?.writeFile(path, data);
   }
 
   /**
