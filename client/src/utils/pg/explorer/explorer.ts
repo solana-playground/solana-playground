@@ -30,10 +30,13 @@ export interface Folder {
 }
 
 interface TabFile {
+  /** Relative paths of the tabs */
   tabs: string[];
+  /** Relative path of the current file */
   currentPath?: string;
 }
 
+/** Build request format files */
 export type BuildFiles = string[][];
 
 /**
@@ -86,7 +89,9 @@ export class PgExplorer {
 
   /** Get full path of current workspace */
   get currentWorkspacePath() {
-    return PgExplorer.ROOT_DIR_PATH + this.currentWorkspaceName + "/";
+    return this._getWorkspacePath(
+      this.currentWorkspaceName ?? PgWorkspace.DEFAULT_WORKSPACE_NAME
+    );
   }
 
   /** Get current workspace name */
@@ -122,9 +127,12 @@ export class PgExplorer {
     }
 
     if (workspace) {
-      this._explorer.files = {};
       this._workspace.setCurrentName(workspace);
+
+      // Update workspaces file
       await this._saveWorkspaces();
+
+      this._explorer.files = {};
     } else {
       // Get current workspace
       const getCurrentWorkspace = async () => {
@@ -211,17 +219,20 @@ export class PgExplorer {
       }
 
       // Create tab info file
-      await this.saveTabs();
+      await this.saveTabs(true);
     }
 
     // Load tab info from IndexedDB
     const tabStr = await this._readToString(this._tabInfoPath);
     const tabFile: TabFile = JSON.parse(tabStr);
 
-    for (const path of tabFile.tabs) {
-      this.files[path].tabs = true;
+    for (const relativePath of tabFile.tabs) {
+      this.files[this.currentWorkspacePath + relativePath].tabs = true;
     }
-    if (tabFile.currentPath) this.files[tabFile.currentPath].current = true;
+    if (tabFile.currentPath) {
+      this.files[this.currentWorkspacePath + tabFile.currentPath].current =
+        true;
+    }
 
     return this;
   }
@@ -231,19 +242,31 @@ export class PgExplorer {
    *
    * NOTE: Only runs when the project is not shared.
    */
-  async saveTabs() {
+  async saveTabs(initial?: boolean) {
     if (!this.isShared) {
+      if (initial) {
+        const tabFile: TabFile = { tabs: [] };
+        await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
+        return;
+      }
+
       const files = this.files;
+
+      const getRelativePath = (p: string) => {
+        return p.split(this.currentWorkspacePath)[1];
+      };
 
       const tabs = [];
       let currentPath;
       for (const path in files) {
         const itemInfo = files[path];
-        if (itemInfo?.tabs) tabs.push(path);
-        if (itemInfo?.current) currentPath = path;
+        if (itemInfo?.tabs) tabs.push(getRelativePath(path));
+        if (itemInfo?.current) currentPath = getRelativePath(path);
       }
 
       const tabFile: TabFile = { tabs, currentPath };
+
+      console.log(`Saving file ${this._tabInfoPath}, ${tabFile.currentPath}`);
 
       await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
     }
@@ -321,8 +344,10 @@ export class PgExplorer {
    * - Rename in state
    */
   async renameItem(fullPath: string, newName: string) {
-    if (!PgExplorer.isItemNameValid(newName))
+    if (!PgExplorer.isItemNameValid(newName)) {
+      console.log(newName, fullPath);
       throw new Error(ItemError.INVALID_NAME);
+    }
 
     const files = this.files;
 
@@ -331,8 +356,9 @@ export class PgExplorer {
     if (
       (itemType.file && !newItemType.file) ||
       (itemType.folder && !newItemType.folder)
-    )
+    ) {
       throw new Error(ItemError.TYPE_MISMATCH);
+    }
 
     const parentFolder = PgExplorer.getParentPathFromPath(fullPath);
 
@@ -402,7 +428,7 @@ export class PgExplorer {
    * - Delete from state
    */
   async deleteItem(fullPath: string) {
-    if (fullPath === this.getCurrentSrcPath()) {
+    if (fullPath === this._getCurrentSrcPath()) {
       throw new Error(ItemError.SRC_DELETE);
     }
 
@@ -452,28 +478,42 @@ export class PgExplorer {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
 
+    // Save tabs before initializing so data is never lost
+    await this.saveTabs();
+
     // Create a new workspace in state
     this._workspace.new(name);
 
     // Create src folder
-    await this._mkdir(this.getCurrentSrcPath(), true);
+    await this._mkdir(this._getCurrentSrcPath(), true);
 
-    await this.changeWorkspace(name);
+    await this.changeWorkspace(name, true);
   }
 
   /**
    * Change the current workspace to the given workspace
    * @param name workspace name that we are changing to
    */
-  async changeWorkspace(name: string) {
+  async changeWorkspace(name: string, initial?: boolean) {
+    // Save tabs before changing the workspace to never lose data
+    await this.saveTabs(initial);
+
+    await this.init(name);
+
+    this._refresh();
+  }
+
+  async renameWorkspace(newName: string) {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
 
-    // Save tabs before initializing so it will be the latest tabs
-    await this.saveTabs();
+    await this.renameItem(this.currentWorkspacePath, newName);
 
-    await this.init(name);
+    // Create a new workspace in state
+    this._workspace.rename(newName);
+
+    await this.init(newName);
 
     this._refresh();
   }
@@ -635,7 +675,7 @@ export class PgExplorer {
     )[0];
 
     for (let path in files) {
-      if (!path.startsWith(this.getCurrentSrcPath())) continue;
+      if (!path.startsWith(this._getCurrentSrcPath())) continue;
 
       let content = files[path].content;
       if (!content) continue;
@@ -672,10 +712,6 @@ export class PgExplorer {
    */
   isCurrentFileRust() {
     return this.getCurrentFile()?.path.endsWith(".rs");
-  }
-
-  getCurrentSrcPath() {
-    return this.currentWorkspacePath + "src/";
   }
 
   /** Private methods */
@@ -803,6 +839,22 @@ export class PgExplorer {
         true
       );
     }
+  }
+
+  /**
+   *
+   * @returns current workspace's src directory path
+   */
+  private _getCurrentSrcPath() {
+    return this.currentWorkspacePath + "src/";
+  }
+
+  /**
+   * @param name workspace name
+   * @returns the full path to the workspace root dir
+   */
+  private _getWorkspacePath(name: string) {
+    return PgExplorer.ROOT_DIR_PATH + name + "/";
   }
 
   /** Static methods */

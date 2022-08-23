@@ -60,7 +60,7 @@ export class PgWorkspace {
   }
 
   /**
-   * Create a new workspace in state
+   * Create a new workspace in state and set the current state
    * @param name workspace name
    */
   new(name: string) {
@@ -82,13 +82,14 @@ export class PgWorkspace {
 
   /**
    * Rename the given workspace
-   * @param oldName current workspace name
    * @param newName new workspace name
    */
-  rename(oldName: string, newName: string) {
+  rename(newName: string) {
     if (this._allNames.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
+
+    const oldName = this._currentName;
 
     this._allNames = this._allNames.map((n) => (n === oldName ? newName : n));
 

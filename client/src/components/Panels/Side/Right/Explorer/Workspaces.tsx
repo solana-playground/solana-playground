@@ -15,9 +15,15 @@ const Workspaces = () => {
     explorer.changeWorkspace(e.target.value);
   };
 
-  const handleNewWorkspace = async () => {
+  const handleNew = async () => {
     await explorer.newWorkspace(
-      "workspace " + explorer.allWorkspaceNames?.length ?? 1
+      "workspace" + explorer.allWorkspaceNames!.length
+    );
+  };
+
+  const handleRename = async () => {
+    await explorer.renameWorkspace(
+      explorer.currentWorkspaceName!.replace("workspace", "renamed-workspace")!
     );
   };
 
@@ -26,8 +32,11 @@ const Workspaces = () => {
       <TopWrapper>
         <MainText>Workspaces</MainText>
         <ButtonsWrapper>
-          <Button onClick={handleNewWorkspace} kind="outline">
+          <Button onClick={handleNew} kind="outline">
             New
+          </Button>
+          <Button onClick={handleRename} kind="outline">
+            Rename
           </Button>
         </ButtonsWrapper>
       </TopWrapper>
@@ -56,6 +65,8 @@ const MainText = styled.div``;
 
 const ButtonsWrapper = styled.div`
   margin-left: 0.5rem;
+  display: flex;
+  gap: 0 0.5rem;
 `;
 
 const SelectWrapper = styled.div`
