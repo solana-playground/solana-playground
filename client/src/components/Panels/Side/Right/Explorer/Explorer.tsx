@@ -1,14 +1,19 @@
 import { useEffect } from "react";
+import { useAtom } from "jotai";
 import styled from "styled-components";
 
+import CreateNewWorkspace from "./CreateNewWorkspace";
 import ExplorerButtons from "./ExplorerButtons";
 import Folders from "./Folders";
 import Workspaces from "./Workspaces";
 import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
 import { PgEditor } from "../../../../../utils/pg";
+import { explorerAtom } from "../../../../../state";
 
 const Explorer = () => {
+  const [explorer] = useAtom(explorerAtom);
+
   const { newItem } = useNewItem();
   const { renameItem, deleteItem } = useExplorerContextMenu();
 
@@ -25,6 +30,10 @@ const Explorer = () => {
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [newItem, renameItem, deleteItem]);
+
+  if (!explorer) return null;
+
+  if (!explorer.hasWorkspaces()) return <CreateNewWorkspace />;
 
   return (
     <ExplorerWrapper>

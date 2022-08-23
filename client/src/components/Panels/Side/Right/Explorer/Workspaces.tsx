@@ -9,7 +9,7 @@ import { explorerAtom } from "../../../../../state";
 const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
 
-  if (!explorer?.allWorkspaceNames) return null;
+  if (!explorer?.allWorkspaceNames?.length) return null;
 
   const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     explorer.changeWorkspace(e.target.value);
@@ -27,6 +27,10 @@ const Workspaces = () => {
     );
   };
 
+  const handleDelete = async () => {
+    await explorer.deleteWorkspace();
+  };
+
   return (
     <Wrapper>
       <TopWrapper>
@@ -37,6 +41,9 @@ const Workspaces = () => {
           </Button>
           <Button onClick={handleRename} kind="outline">
             Rename
+          </Button>
+          <Button onClick={handleDelete} kind="outline">
+            Delete
           </Button>
         </ButtonsWrapper>
       </TopWrapper>

@@ -1,8 +1,8 @@
 import { WorkspaceError } from "../../../constants";
 
 export interface Workspaces {
-  currentName: string;
   allNames: string[];
+  currentName?: string;
 }
 
 /**
@@ -12,22 +12,20 @@ export interface Workspaces {
  */
 export class PgWorkspace {
   /** Class methods */
-  private _currentName: string;
-  private _allNames: string[];
+  private _state: Workspaces;
 
-  constructor(params: Workspaces = PgWorkspace.default()) {
-    this._currentName = params.currentName;
-    this._allNames = params.allNames;
-  }
-
-  /** Get current workspace name */
-  get currentName() {
-    return this._currentName;
+  constructor(workspaces: Workspaces = PgWorkspace.default()) {
+    this._state = workspaces;
   }
 
   /** Get all workspace names */
   get allNames() {
-    return this._allNames;
+    return this._state.allNames;
+  }
+
+  /** Get current workspace name */
+  get currentName() {
+    return this._state.currentName;
   }
 
   /**
@@ -45,8 +43,8 @@ export class PgWorkspace {
    * @param workspaces new workspaces config to set the state to
    */
   setCurrent(workspaces: Workspaces) {
-    this._currentName = workspaces.currentName;
-    this._allNames = workspaces.allNames;
+    this._state.allNames = workspaces.allNames;
+    this._state.currentName = workspaces.currentName;
   }
 
   /**
@@ -54,8 +52,8 @@ export class PgWorkspace {
    * @param name new workspace name to set the current name to
    */
   setCurrentName(name: string) {
-    if (this._allNames.includes(name)) {
-      this._currentName = name;
+    if (this.allNames.includes(name)) {
+      this._state.currentName = name;
     }
   }
 
@@ -64,12 +62,12 @@ export class PgWorkspace {
    * @param name workspace name
    */
   new(name: string) {
-    if (this._allNames.includes(name)) {
+    if (this.allNames.includes(name)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
-    this._allNames.push(name);
-    this._currentName = name;
+    this._state.allNames.push(name);
+    this._state.currentName = name;
   }
 
   /**
@@ -77,25 +75,25 @@ export class PgWorkspace {
    * @param name workspace name
    */
   delete(name: string) {
-    this._allNames = this._allNames.filter((n) => n !== name);
+    this._state.allNames = this._state.allNames.filter((n) => n !== name);
   }
 
   /**
-   * Rename the given workspace
+   * Rename the given workspace and make it current
    * @param newName new workspace name
    */
   rename(newName: string) {
-    if (this._allNames.includes(newName)) {
+    if (this._state.allNames.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
-    const oldName = this._currentName;
+    const oldName = this._state.currentName;
 
-    this._allNames = this._allNames.map((n) => (n === oldName ? newName : n));
+    this._state.allNames = this._state.allNames.map((n) =>
+      n === oldName ? newName : n
+    );
 
-    if (oldName === this._currentName) {
-      this._currentName = newName;
-    }
+    this._state.currentName = newName;
   }
 
   /** Static methods */

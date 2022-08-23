@@ -421,13 +421,14 @@ export class PgExplorer {
 
   /**
    * If the project is not shared(default):
-   * - Delete from IndexedDB
-   * - If delete is successful also delete from state
+   * - Delete from IndexedDB(recursively)
+   * - If delete is successful, delete from state
    *
    * If the project is shared:
    * - Delete from state
    */
   async deleteItem(fullPath: string) {
+    // Can't delete src folder
     if (fullPath === this._getCurrentSrcPath()) {
       throw new Error(ItemError.SRC_DELETE);
     }
@@ -492,7 +493,7 @@ export class PgExplorer {
 
   /**
    * Change the current workspace to the given workspace
-   * @param name workspace name that we are changing to
+   * @param name workspace name to change to
    */
   async changeWorkspace(name: string, initial?: boolean) {
     // Save tabs before changing the workspace to never lose data
@@ -503,6 +504,10 @@ export class PgExplorer {
     this._refresh();
   }
 
+  /**
+   * Rename the current workspace
+   * @param newName new workspace name
+   */
   async renameWorkspace(newName: string) {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
@@ -513,9 +518,30 @@ export class PgExplorer {
     // Create a new workspace in state
     this._workspace.rename(newName);
 
-    await this.init(newName);
+    await this.changeWorkspace(newName);
+  }
 
-    this._refresh();
+  /**
+   * Delete the current workspace
+   */
+  async deleteWorkspace() {
+    if (!this._workspace) {
+      throw new Error(WorkspaceError.NOT_FOUND);
+    }
+
+    // Delete from state
+    this._workspace.delete(this.currentWorkspaceName!);
+
+    await this.deleteItem(this.currentWorkspacePath);
+
+    const workspaceCount = this._workspace.allNames.length;
+    if (workspaceCount) {
+      const lastWorkspace = this._workspace.allNames[workspaceCount - 1];
+      await this.changeWorkspace(lastWorkspace, true);
+    } else {
+      this._workspace.setCurrent({ allNames: [] });
+      this._refresh();
+    }
   }
 
   /** State methods */
@@ -712,6 +738,13 @@ export class PgExplorer {
    */
   isCurrentFileRust() {
     return this.getCurrentFile()?.path.endsWith(".rs");
+  }
+
+  /**
+   * @returns whether the user has any workspaces
+   */
+  hasWorkspaces() {
+    return (this._workspace?.allNames?.length ?? 0) > 0;
   }
 
   /** Private methods */
