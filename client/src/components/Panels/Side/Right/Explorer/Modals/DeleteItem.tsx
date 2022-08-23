@@ -2,16 +2,16 @@ import { FC } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import ModalInside from "../../../../Modal/ModalInside";
-import { Warning } from "../../../../Icons";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg";
+import ModalInside from "../../../../../Modal/ModalInside";
+import { Warning } from "../../../../../Icons";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
+import { PgExplorer } from "../../../../../../utils/pg";
 
 interface DeleteItemProps {
   path: string;
 }
 
-const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
+export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
 
@@ -74,5 +74,3 @@ const Desc = styled.span`
     color: ${theme.colors.default.textSecondary};
   `}
 `;
-
-export default DeleteItem;

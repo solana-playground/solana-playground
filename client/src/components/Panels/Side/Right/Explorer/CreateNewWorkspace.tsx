@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 
-import { explorerAtom } from "../../../../../state";
 import Button from "../../../../Button";
+import { explorerAtom } from "../../../../../state";
 
 const CreateNewWorkspace = () => {
   const [explorer] = useAtom(explorerAtom);

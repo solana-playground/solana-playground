@@ -219,7 +219,7 @@ export class PgExplorer {
       }
 
       // Create tab info file
-      await this.saveTabs(true);
+      await this.saveTabs({ initial: true });
     }
 
     // Load tab info from IndexedDB
@@ -242,9 +242,9 @@ export class PgExplorer {
    *
    * NOTE: Only runs when the project is not shared.
    */
-  async saveTabs(initial?: boolean) {
+  async saveTabs(options?: { initial?: boolean }) {
     if (!this.isShared) {
-      if (initial) {
+      if (options?.initial) {
         const tabFile: TabFile = { tabs: [] };
         await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
         return;
@@ -343,10 +343,17 @@ export class PgExplorer {
    * - Name and path checks
    * - Rename in state
    */
-  async renameItem(fullPath: string, newName: string) {
-    if (!PgExplorer.isItemNameValid(newName)) {
+  async renameItem(
+    fullPath: string,
+    newName: string,
+    options?: { skipNameValidation?: boolean }
+  ) {
+    if (!options?.skipNameValidation && !PgExplorer.isItemNameValid(newName)) {
       console.log(newName, fullPath);
       throw new Error(ItemError.INVALID_NAME);
+    }
+    if (fullPath === this._getCurrentSrcPath()) {
+      throw new Error(ItemError.SRC_RENAME);
     }
 
     const files = this.files;
@@ -480,7 +487,7 @@ export class PgExplorer {
     }
 
     // Save tabs before initializing so data is never lost
-    await this.saveTabs();
+    if (this.hasWorkspaces()) await this.saveTabs();
 
     // Create a new workspace in state
     this._workspace.new(name);
@@ -488,16 +495,16 @@ export class PgExplorer {
     // Create src folder
     await this._mkdir(this._getCurrentSrcPath(), true);
 
-    await this.changeWorkspace(name, true);
+    await this.changeWorkspace(name, { initial: true });
   }
 
   /**
    * Change the current workspace to the given workspace
    * @param name workspace name to change to
    */
-  async changeWorkspace(name: string, initial?: boolean) {
+  async changeWorkspace(name: string, options?: { initial?: boolean }) {
     // Save tabs before changing the workspace to never lose data
-    await this.saveTabs(initial);
+    await this.saveTabs(options);
 
     await this.init(name);
 
@@ -512,10 +519,15 @@ export class PgExplorer {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
+    if (this.currentWorkspaceName === newName) {
+      throw new Error(WorkspaceError.ALREADY_EXISTS);
+    }
 
-    await this.renameItem(this.currentWorkspacePath, newName);
+    await this.renameItem(this.currentWorkspacePath, newName, {
+      skipNameValidation: true,
+    });
 
-    // Create a new workspace in state
+    // Rename workspace in state
     this._workspace.rename(newName);
 
     await this.changeWorkspace(newName);
@@ -528,18 +540,22 @@ export class PgExplorer {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
+    if (!this.currentWorkspaceName) {
+      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+    }
 
     // Delete from state
-    this._workspace.delete(this.currentWorkspaceName!);
+    this._workspace.delete(this.currentWorkspaceName);
 
     await this.deleteItem(this.currentWorkspacePath);
 
     const workspaceCount = this._workspace.allNames.length;
     if (workspaceCount) {
       const lastWorkspace = this._workspace.allNames[workspaceCount - 1];
-      await this.changeWorkspace(lastWorkspace, true);
+      await this.changeWorkspace(lastWorkspace, { initial: true });
     } else {
       this._workspace.setCurrent({ allNames: [] });
+      await this._saveWorkspaces();
       this._refresh();
     }
   }

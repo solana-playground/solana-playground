@@ -2,24 +2,24 @@ import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import Button from "../../../../Button";
-import CopyButton from "../../../../CopyButton";
-import Input from "../../../../Input";
-import Link from "../../../../Link";
-import ModalInside from "../../../../Modal/ModalInside";
-import Text from "../../../../Text";
-import useModal from "../../../../Modal/useModal";
-import { explorerAtom } from "../../../../../state";
-import { PgShare } from "../../../../../utils/pg";
-import { TextProps } from "../../../../Text/Text";
-import { ClassName, CLIENT_URL } from "../../../../../constants";
-import { Checkmark, Sad } from "../../../../Icons";
+import Button from "../../../../../Button";
+import CopyButton from "../../../../../CopyButton";
+import Input from "../../../../../Input";
+import Link from "../../../../../Link";
+import ModalInside from "../../../../../Modal/ModalInside";
+import Text from "../../../../../Text";
+import useModal from "../../../../../Modal/useModal";
+import { explorerAtom } from "../../../../../../state";
+import { PgShare } from "../../../../../../utils/pg";
+import { TextProps } from "../../../../../Text/Text";
+import { ClassName, CLIENT_URL } from "../../../../../../constants";
+import { Checkmark, Sad } from "../../../../../Icons";
 
 interface TextState extends TextProps {
   id?: string;
 }
 
-const Share = () => {
+export const Share = () => {
   const [explorer] = useAtom(explorerAtom);
   const { close } = useModal();
 
@@ -88,6 +88,7 @@ const Share = () => {
               onClick={share}
               disabled={disabled}
               kind="primary-transparent"
+              size="medium"
             >
               Share
             </Button>
@@ -99,7 +100,7 @@ const Share = () => {
 };
 
 const Content = styled.div`
-  margin: 1rem 0 1rem 0.5rem;
+  margin: 1.5rem 0 1.5rem 0.5rem;
 
   & svg.${ClassName.ICON_CHECKMARK} {
     color: ${({ theme }) => theme.colors.state.success.color};
@@ -137,5 +138,3 @@ const ButtonWrapper = styled.div`
     margin-left: 1rem;
   }
 `;
-
-export default Share;

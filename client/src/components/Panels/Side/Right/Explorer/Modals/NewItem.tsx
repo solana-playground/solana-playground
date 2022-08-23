@@ -3,17 +3,17 @@ import ReactDOM from "react-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import LangIcon from "../../../../LangIcon";
-import Input, { defaultInputProps } from "../../../../Input";
+import LangIcon from "../../../../../LangIcon";
+import Input, { defaultInputProps } from "../../../../../Input";
 import {
   ctxSelectedAtom,
   explorerAtom,
   newItemAtom,
   refreshExplorerAtom,
-} from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg";
+} from "../../../../../../state";
+import { PgExplorer } from "../../../../../../utils/pg";
 
-const NewItem = () => {
+export const NewItem = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
   const [el, setEl] = useAtom(newItemAtom);
@@ -117,5 +117,3 @@ const Wrapper = styled.div`
     margin-left: 0.375rem;
   }
 `;
-
-export default NewItem;

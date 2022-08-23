@@ -18,6 +18,6 @@ export class PgEditor {
   static isFocused() {
     return document
       .getElementsByClassName(this.CLASSNAME)[0]
-      .classList.contains(this.ACTIVE_CLASSNAME);
+      ?.classList.contains(this.ACTIVE_CLASSNAME);
   }
 }

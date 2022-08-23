@@ -13,7 +13,7 @@ export type ButtonKind =
   | "outline"
   | "transparent"
   | "icon";
-type ButtonSize = "small" | "medium" | "large";
+export type ButtonSize = "small" | "medium" | "large";
 
 export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   kind?: ButtonKind;
@@ -53,7 +53,7 @@ const getButtonStyles = ({
   let hoverColor = "inherit";
   let hoverBorderColor = "transparent";
 
-  let padding = "0.5rem 0.75rem";
+  let padding: string;
 
   // Kind
   switch (kind) {
@@ -111,8 +111,9 @@ const getButtonStyles = ({
   }
 
   // Size
-  if (size === "medium") padding = "0.5rem 1.25rem";
-  else if (size === "large") padding = "0.75rem 1.5rem";
+  if (size === "small") padding = "0.5rem 0.75rem";
+  else if (size === "medium") padding = "0.5rem 1.25rem";
+  else padding = "0.75rem 1.5rem";
 
   let defaultCss = css`
     display: flex;

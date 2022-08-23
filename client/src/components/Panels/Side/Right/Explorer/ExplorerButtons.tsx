@@ -4,9 +4,8 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
-import NewItem from "./NewItem";
-import Share from "./Share";
 import useNewItem from "./useNewItem";
+import { NewItem, Share } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
 

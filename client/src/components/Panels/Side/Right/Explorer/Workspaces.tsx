@@ -4,31 +4,29 @@ import styled from "styled-components";
 
 import Button from "../../../../Button";
 import Select from "../../../../Select";
-import { explorerAtom } from "../../../../../state";
+import { NewWorkspace, RenameWorkspace, DeleteWorkspace } from "./Modals";
+import { explorerAtom, modalAtom } from "../../../../../state";
 
 const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
+  const [, setModal] = useAtom(modalAtom);
 
-  if (!explorer?.allWorkspaceNames?.length) return null;
+  if (!explorer?.hasWorkspaces()) return null;
 
   const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     explorer.changeWorkspace(e.target.value);
   };
 
   const handleNew = async () => {
-    await explorer.newWorkspace(
-      "workspace" + explorer.allWorkspaceNames!.length
-    );
+    setModal(<NewWorkspace />);
   };
 
   const handleRename = async () => {
-    await explorer.renameWorkspace(
-      explorer.currentWorkspaceName!.replace("workspace", "renamed-workspace")!
-    );
+    setModal(<RenameWorkspace />);
   };
 
   const handleDelete = async () => {
-    await explorer.deleteWorkspace();
+    setModal(<DeleteWorkspace />);
   };
 
   return (
@@ -49,7 +47,7 @@ const Workspaces = () => {
       </TopWrapper>
       <SelectWrapper>
         <Select value={explorer.currentWorkspaceName} onChange={handleSelect}>
-          {explorer.allWorkspaceNames.map((name, i) => (
+          {explorer.allWorkspaceNames!.map((name, i) => (
             <option key={i}>{name}</option>
           ))}
         </Select>

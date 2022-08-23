@@ -1,7 +1,7 @@
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../Button";
+import Button, { ButtonSize } from "../Button";
 import useModal from "./useModal";
 import { PROJECT_NAME } from "../../constants";
 
@@ -11,6 +11,7 @@ interface ModalInsideProps {
     name: string;
     onSubmit: () => void;
     disabled?: boolean;
+    size?: ButtonSize;
   };
   closeOnSubmit?: boolean;
 }
@@ -40,6 +41,12 @@ const ModalInside: FC<ModalInsideProps> = ({
     return () => document.removeEventListener("keydown", handleEnter);
   }, [handleSubmit]);
 
+  const focusButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    focusButtonRef.current?.focus();
+  }, []);
+
   return (
     <Wrapper>
       {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
@@ -51,11 +58,13 @@ const ModalInside: FC<ModalInsideProps> = ({
             onClick={handleSubmit}
             disabled={buttonProps.disabled}
             kind="primary-transparent"
+            size={buttonProps.size ?? "medium"}
           >
             {buttonProps.name}
           </Button>
         </ButtonWrapper>
       )}
+      <FocusButton ref={focusButtonRef} style={{}} />
     </Wrapper>
   );
 };
@@ -87,6 +96,11 @@ const ButtonWrapper = styled.div`
   & button:nth-child(2) {
     margin-left: 1rem;
   }
+`;
+
+const FocusButton = styled.button`
+  opacity: 0;
+  position: absolute;
 `;
 
 export default ModalInside;

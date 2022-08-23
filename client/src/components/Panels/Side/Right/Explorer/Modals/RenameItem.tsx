@@ -2,17 +2,17 @@ import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import ModalInside from "../../../../Modal/ModalInside";
-import useModal from "../../../../Modal/useModal";
-import Input, { defaultInputProps } from "../../../../Input";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg";
+import ModalInside from "../../../../../Modal/ModalInside";
+import useModal from "../../../../../Modal/useModal";
+import Input, { defaultInputProps } from "../../../../../Input";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
+import { PgExplorer } from "../../../../../../utils/pg";
 
 interface RenameItemProps {
   path: string;
 }
 
-const RenameItem: FC<RenameItemProps> = ({ path }) => {
+export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
   const [, refresh] = useAtom(refreshExplorerAtom);
 
@@ -51,7 +51,7 @@ const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   return (
     <ModalInside
-      buttonProps={{ name: "Rename", onSubmit: rename }}
+      buttonProps={{ name: "Rename", onSubmit: rename, size: "small" }}
       closeOnSubmit={false}
     >
       <Content>
@@ -73,10 +73,13 @@ const Content = styled.div`
   justify-content: center;
   align-items: center;
   margin-bottom: 1rem;
+
+  & > input {
+    font-size: ${({ theme }) => theme.font?.size.medium};
+    padding: 0.375rem 0.5rem;
+  }
 `;
 
 const Text = styled.div`
   margin: 1rem 0;
 `;
-
-export default RenameItem;

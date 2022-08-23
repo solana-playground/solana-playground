@@ -4,12 +4,14 @@ export enum ItemError {
   FS_NOT_FOUND = "File system not found",
   TYPE_MISMATCH = "Types don't match",
   SRC_DELETE = "Cannot delete src folder",
+  SRC_RENAME = "Cannot rename src folder",
 }
 
 export enum WorkspaceError {
   ALREADY_EXISTS = "Already exists",
   INVALID_NAME = "Invalid name",
   NOT_FOUND = "Workspace not found",
+  CURRENT_NOT_FOUND = "Current workspace not found",
 }
 
 interface ConvertedError {

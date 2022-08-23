@@ -1,8 +1,7 @@
 import { MouseEvent, useCallback, useState } from "react";
 import { useAtom } from "jotai";
 
-import DeleteItem from "./DeleteItem";
-import RenameItem from "./RenameItem";
+import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../../constants";
 import {
   contextMenuStateAtom,
