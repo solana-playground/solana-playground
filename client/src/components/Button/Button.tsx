@@ -53,7 +53,7 @@ const getButtonStyles = ({
   let hoverColor = "inherit";
   let hoverBorderColor = "transparent";
 
-  let padding: string;
+  let padding = "";
 
   // Kind
   switch (kind) {
@@ -111,9 +111,11 @@ const getButtonStyles = ({
   }
 
   // Size
-  if (size === "small") padding = "0.5rem 0.75rem";
-  else if (size === "medium") padding = "0.5rem 1.25rem";
-  else padding = "0.75rem 1.5rem";
+  if (kind !== "icon") {
+    if (size === "small") padding = "0.5rem 0.75rem";
+    else if (size === "medium") padding = "0.5rem 1.25rem";
+    else padding = "0.75rem 1.5rem";
+  }
 
   let defaultCss = css`
     display: flex;

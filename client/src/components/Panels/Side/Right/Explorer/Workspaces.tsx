@@ -4,7 +4,12 @@ import styled from "styled-components";
 
 import Button from "../../../../Button";
 import Select from "../../../../Select";
-import { NewWorkspace, RenameWorkspace, DeleteWorkspace } from "./Modals";
+import {
+  NewWorkspace,
+  RenameWorkspace,
+  DeleteWorkspace,
+  ImportGithub,
+} from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
 
 const Workspaces = () => {
@@ -17,16 +22,20 @@ const Workspaces = () => {
     explorer.changeWorkspace(e.target.value);
   };
 
-  const handleNew = async () => {
+  const handleNew = () => {
     setModal(<NewWorkspace />);
   };
 
-  const handleRename = async () => {
+  const handleRename = () => {
     setModal(<RenameWorkspace />);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     setModal(<DeleteWorkspace />);
+  };
+
+  const handleGithub = () => {
+    setModal(<ImportGithub />);
   };
 
   return (
@@ -42,6 +51,9 @@ const Workspaces = () => {
           </Button>
           <Button onClick={handleDelete} kind="outline">
             Delete
+          </Button>
+          <Button onClick={handleGithub} kind="outline">
+            Github
           </Button>
         </ButtonsWrapper>
       </TopWrapper>

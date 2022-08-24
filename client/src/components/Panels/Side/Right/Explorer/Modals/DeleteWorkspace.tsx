@@ -27,9 +27,9 @@ export const DeleteWorkspace = () => {
       }}
     >
       <Content>
-        <Icon>
-          <Warning fullSize />
-        </Icon>
+        <IconWrapper>
+          <Warning />
+        </IconWrapper>
         <ContentText>
           <Main>
             Are you sure you want to delete '{explorer.currentWorkspaceName}'?
@@ -50,9 +50,11 @@ const Content = styled.div`
   padding: 1rem 0;
 `;
 
-const Icon = styled.div`
-  width: 2rem;
-  height: 2rem;
+const IconWrapper = styled.div`
+  & > svg {
+    width: 3rem;
+    height: 3rem;
+  }
 `;
 
 const ContentText = styled.div`

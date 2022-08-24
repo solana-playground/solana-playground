@@ -2,7 +2,7 @@ import { Idl } from "@project-serum/anchor";
 
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
-import { BuildFiles } from "./explorer";
+import { Files, TupleString } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 import { Pkgs } from "./terminal";
 
@@ -13,7 +13,7 @@ interface BuildResp {
 }
 
 export class PgBuild {
-  static async buildPython(pythonFiles: BuildFiles, seahorsePkg: Pkgs) {
+  static async buildPython(pythonFiles: Files, seahorsePkg: Pkgs) {
     const compileFn = seahorsePkg.compileSeahorse;
     if (!compileFn) {
       throw new Error("No compile function found in seahorse package");
@@ -32,13 +32,13 @@ export class PgBuild {
         throw new Error("Seahorse compile failed");
       }
 
-      return [newFileName, newContent];
+      return [newFileName, newContent] as TupleString;
     });
 
     return await this.buildRust(rustFiles);
   }
 
-  static async buildRust(rustFiles: BuildFiles) {
+  static async buildRust(rustFiles: Files) {
     const programInfo = PgProgramInfo.getProgramInfo();
 
     const resp = await fetch(`${SERVER_URL}/build`, {

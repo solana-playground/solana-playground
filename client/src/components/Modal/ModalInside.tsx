@@ -11,6 +11,10 @@ interface ModalInsideProps {
     name: string;
     onSubmit: () => void;
     disabled?: boolean;
+    loading?: {
+      state?: boolean;
+      text?: string;
+    };
     size?: ButtonSize;
   };
   closeOnSubmit?: boolean;
@@ -47,6 +51,12 @@ const ModalInside: FC<ModalInsideProps> = ({
     focusButtonRef.current?.focus();
   }, []);
 
+  const buttonText = buttonProps?.loading?.state
+    ? buttonProps.loading?.text
+      ? buttonProps?.loading.text
+      : buttonProps.name
+    : buttonProps?.name;
+
   return (
     <Wrapper>
       {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
@@ -56,11 +66,12 @@ const ModalInside: FC<ModalInsideProps> = ({
           <Button onClick={close}>Cancel</Button>
           <Button
             onClick={handleSubmit}
-            disabled={buttonProps.disabled}
+            disabled={buttonProps.disabled || buttonProps.loading?.state}
+            btnLoading={buttonProps.loading?.state}
             kind="primary-transparent"
             size={buttonProps.size ?? "medium"}
           >
-            {buttonProps.name}
+            {buttonText}
           </Button>
         </ButtonWrapper>
       )}

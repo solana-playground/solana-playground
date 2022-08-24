@@ -4,15 +4,14 @@ import { Dispatch } from "react";
 
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 import { PgProgramInfo } from "../program-info";
+import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
 
 export interface ExplorerJSON {
-  files: Files;
+  files: {
+    [key: string]: ItemInfo;
+  };
 }
-
-type Files = {
-  [key: string]: ItemInfo;
-};
 
 interface ItemInfo {
   content?: string;
@@ -36,8 +35,10 @@ interface TabFile {
   currentPath?: string;
 }
 
-/** Build request format files */
-export type BuildFiles = string[][];
+/** Array<[Path, Content]> */
+export type Files = TupleString[];
+
+export type TupleString = [string, string];
 
 /**
  * Class that has both static and non-static methods for explorer.
@@ -480,8 +481,13 @@ export class PgExplorer {
   /**
    * Create a new workspace and change the current workspace to the created workspace
    * @param name new workspace name
+   * @param options
+   * - files: Files to create the workspace from
    */
-  async newWorkspace(name: string) {
+  async newWorkspace(
+    name: string,
+    options?: { files?: Files; openLibFile?: boolean }
+  ) {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
@@ -495,18 +501,44 @@ export class PgExplorer {
     // Create src folder
     await this._mkdir(this._getCurrentSrcPath(), true);
 
-    await this.changeWorkspace(name, { initial: true });
+    // Create files
+    if (options?.files) {
+      for (const pathContent of options?.files) {
+        const fullPath = this._getCurrentSrcPath() + pathContent[0];
+        const content = pathContent[1];
+        await this._writeFile(fullPath, content, true);
+      }
+    }
+
+    await this.changeWorkspace(name, {
+      initial: true,
+      openLibFile: options?.openLibFile,
+    });
   }
 
   /**
    * Change the current workspace to the given workspace
    * @param name workspace name to change to
+   * @param options
+   * - initial: if changing to the given workspace for the first time
    */
-  async changeWorkspace(name: string, options?: { initial?: boolean }) {
+  async changeWorkspace(
+    name: string,
+    options?: { initial?: boolean; openLibFile?: boolean }
+  ) {
     // Save tabs before changing the workspace to never lose data
     await this.saveTabs(options);
 
     await this.init(name);
+
+    // Open the lib file if it has been specified
+    if (options?.openLibFile) {
+      for (const path in this.files) {
+        if (path.endsWith("lib.rs") || path.endsWith("lib.py")) {
+          this.changeCurrentFile(path);
+        }
+      }
+    }
 
     this._refresh();
   }
@@ -558,6 +590,16 @@ export class PgExplorer {
       await this._saveWorkspaces();
       this._refresh();
     }
+  }
+
+  async importFromGithub(url: string) {
+    const { files, owner, repo, path } = await PgGithub.getImportableRepository(
+      url
+    );
+    await this.newWorkspace(`github-${owner}/${repo}/${path}`, {
+      files,
+      openLibFile: true,
+    });
   }
 
   /** State methods */
@@ -680,7 +722,7 @@ export class PgExplorer {
    */
   getBuildFiles() {
     const files = this.files;
-    const buildFiles: BuildFiles = [];
+    const buildFiles: Files = [];
 
     const splitExtension = (fileName: string) => {
       const split = fileName.split(".");
@@ -900,10 +942,10 @@ export class PgExplorer {
 
   /**
    * @param name workspace name
-   * @returns the full path to the workspace root dir
+   * @returns the full path to the workspace root dir without '/' at the end
    */
   private _getWorkspacePath(name: string) {
-    return PgExplorer.ROOT_DIR_PATH + name + "/";
+    return PgExplorer.ROOT_DIR_PATH + PgExplorer.appendSlash(name);
   }
 
   /** Static methods */
@@ -1114,5 +1156,10 @@ pub struct NewAccount {
 
   static getExplorerIconsPath(name: string) {
     return "icons/explorer/" + name;
+  }
+
+  static appendSlash(path: string) {
+    if (!path) return "";
+    return path + (path.endsWith("/") ? "" : "/");
   }
 }
