@@ -725,11 +725,17 @@ export class PgExplorer {
    */
   getBuildFiles() {
     const updateIdRust = (content: string) => {
-      return content.replace(/^(\s)*(\w*::)?declare_id!\("(\w*)"\)/gm, () => {
+      const regex = new RegExp(/^(\s)*(\w*::)?declare_id!\("(\w*)"\)/gm);
+      return content.replace(regex, (match) => {
+        const res = regex.exec(match);
+        if (!res) return match;
+
         const pk =
           PgProgramInfo.getPk().programPk ??
           PgProgramInfo.createNewKp().publicKey;
-        return `declare_id!("${pk.toBase58()}")`;
+
+        // res[2] could be solana_program:: or undefined
+        return (res[2] ?? "") + `declare_id!("${pk.toBase58()}")`;
       });
     };
 

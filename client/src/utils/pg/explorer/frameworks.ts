@@ -74,7 +74,7 @@ pub struct NewAccount {
       [
         "lib.py",
         `# fizzbuzz
-# Built with Seahorse v0.1.0
+# Built with Seahorse v0.1.6
 #
 # On-chain, persistent FizzBuzz!
 
