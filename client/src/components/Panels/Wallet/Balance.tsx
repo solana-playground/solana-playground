@@ -19,7 +19,7 @@ const Wrapper = styled.div`
     justify-content: center;
     margin-bottom: 0.5rem;
     font-weight: bold;
-    font-size: ${theme.font?.size.large};
+    font-size: ${theme.font?.size.xlarge};
     color: ${theme.colors.default.textSecondary};
   `}
 `;

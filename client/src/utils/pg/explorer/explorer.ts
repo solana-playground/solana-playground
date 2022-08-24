@@ -206,7 +206,7 @@ export class PgExplorer {
         this._explorer.files = lsFiles;
       } else {
         // Show the default explorer if the files are empty
-        this._explorer = PgExplorer._default();
+        this._explorer = { files: {} };
       }
 
       // Save file(s) to IndexedDB
@@ -724,21 +724,6 @@ export class PgExplorer {
    * @returns the necessary data for the build request
    */
   getBuildFiles() {
-    const files = this.files;
-    const buildFiles: Files = [];
-
-    const splitExtension = (fileName: string) => {
-      const split = fileName.split(".");
-      if (split.length === 1) {
-        // file has no extension
-        return [split[0], ""];
-      } else {
-        // remove the last part, which will be the extension
-        const extension = split.pop() as string;
-        return [split.join("."), extension];
-      }
-    };
-
     const updateIdRust = (content: string) => {
       return content.replace(/^(\s)*(\w*::)?declare_id!\("(\w*)"\)/gm, () => {
         const pk =
@@ -757,9 +742,8 @@ export class PgExplorer {
       });
     };
 
-    const defaultFileNameWithoutExtension = splitExtension(
-      PgExplorer._DEFAULT_FILE_PATH
-    )[0];
+    const files = this.files;
+    const buildFiles: Files = [];
 
     for (let path in files) {
       if (!path.startsWith(this._getCurrentSrcPath())) continue;
@@ -767,14 +751,11 @@ export class PgExplorer {
       let content = files[path].content;
       if (!content) continue;
 
-      const [pathWithoutExtension, extension] = splitExtension(path);
-      if (pathWithoutExtension === defaultFileNameWithoutExtension) {
-        // Change program id
-        if (extension === "rs") {
-          content = updateIdRust(content);
-        } else if (extension === "py") {
-          content = updateIdPython(content);
-        }
+      // Change program id
+      if (path.endsWith("lib.rs")) {
+        content = updateIdRust(content);
+      } else if (path.endsWith(".py")) {
+        content = updateIdPython(content);
       }
 
       // We are removing the workspace from path because build only needs /src
@@ -956,54 +937,6 @@ export class PgExplorer {
 
   /** Don't change this! */
   private static readonly _INDEXED_DB_NAME = "solana-playground";
-
-  private static readonly _DEFAULT_FILE_PATH =
-    this.ROOT_DIR_PATH + PgWorkspace.DEFAULT_WORKSPACE_NAME + "/src/lib.rs";
-  private static readonly _DEFAULT_CODE = `use anchor_lang::prelude::*;
-
-// This is your program's public key and it will update
-// automatically when you build the project.
-declare_id!("11111111111111111111111111111111");
-
-#[program]
-mod hello_anchor {
-    use super::*;
-    pub fn initialize(ctx: Context<Initialize>, data: u64) -> Result<()> {
-        ctx.accounts.new_account.data = data;
-        msg!("Changed data to: {}!", data); // Message will show up in the tx logs
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-pub struct Initialize<'info> {
-    // We must specify the space in order to initialize an account.
-    // First 8 bytes are default account discriminator,
-    // next 8 bytes come from NewAccount.data being type u64.
-    // (u64 = 64 bits unsigned integer = 8 bytes)
-    #[account(init, payer = signer, space = 8 + 8)]
-    pub new_account: Account<'info, NewAccount>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[account]
-pub struct NewAccount {
-    data: u64
-}`;
-
-  private static _default(): ExplorerJSON {
-    return {
-      files: {
-        [this._DEFAULT_FILE_PATH]: {
-          content: this._DEFAULT_CODE,
-          tabs: false,
-          current: false,
-        },
-      },
-    };
-  }
 
   static getItemNameFromPath(path: string) {
     const itemsArr = path.split("/");

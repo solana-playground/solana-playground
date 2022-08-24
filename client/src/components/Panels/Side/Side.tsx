@@ -8,7 +8,7 @@ import { PgCommon } from "../../../utils/pg";
 
 const Side = () => {
   const [sidebarState, setSidebarState] = useState(Sidebar.EXPLORER);
-  const [width, setWidth] = useState(320);
+  const [width, setWidth] = useState(480);
   const [oldWidth, setOldWidth] = useState(width);
 
   useEffect(() => {

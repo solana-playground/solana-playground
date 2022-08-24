@@ -11,6 +11,7 @@ export type Font = {
     small: string;
     medium: string;
     large: string;
+    xlarge: string;
   };
 };
 

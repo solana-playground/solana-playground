@@ -87,6 +87,7 @@ const Wrapper = styled.div`
     border-radius: ${theme.borderRadius};
     background-color: ${theme.colors.default.bgSecondary + "EE"};
     max-width: max(40%, 20rem);
+    min-width: min-content;
   `}
 `;
 

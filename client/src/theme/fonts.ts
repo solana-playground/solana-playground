@@ -6,7 +6,8 @@ const FONTS: Font[] = [
     size: {
       small: "0.75rem",
       medium: "0.875rem",
-      large: "1.25rem",
+      large: "1rem",
+      xlarge: "1.25rem",
     },
   },
   {
@@ -14,7 +15,8 @@ const FONTS: Font[] = [
     size: {
       small: "0.75rem",
       medium: "0.875rem",
-      large: "1.25rem",
+      large: "1rem",
+      xlarge: "1.25rem",
     },
   },
 ];
