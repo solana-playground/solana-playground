@@ -8,14 +8,16 @@ import useNewItem from "./useNewItem";
 import { NewItem, Share } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
+import { ImportShared } from "./Modals/ImportShared";
 
 const ExplorerButtons = () => (
   <ButtonsWrapper>
     <NewItemButton imageName="new_file.png" title="New File" />
     <NewItemButton imageName="new_folder.png" title="New Folder" />
+    <NewItem />
     <CollapseAllButton />
     <ShareButton />
-    <NewItem />
+    <ImportButton />
     <GoBackButton />
   </ButtonsWrapper>
 );
@@ -78,17 +80,34 @@ const ShareButton = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setModal] = useAtom(modalAtom);
 
-  const handleShare = useCallback(async () => {
-    if (explorer) {
-      setModal(<Share />);
-    }
-  }, [explorer, setModal]);
+  if (!explorer) return null;
+
+  const handleShare = () => {
+    setModal(<Share />);
+  };
 
   return (
     <Button onClick={handleShare} kind="icon" title="Share">
+      <img src={PgExplorer.getExplorerIconsPath("share.png")} alt="Share" />
+    </Button>
+  );
+};
+
+const ImportButton = () => {
+  const [explorer] = useAtom(explorerAtom);
+  const [, setModal] = useAtom(modalAtom);
+
+  if (!explorer?.isShared) return null;
+
+  const handleImport = () => {
+    setModal(<ImportShared />);
+  };
+
+  return (
+    <Button onClick={handleImport} kind="icon" title="Import to your workspace">
       <img
-        src={PgExplorer.getExplorerIconsPath("share.png")}
-        alt="Go back to your project"
+        src={PgExplorer.getExplorerIconsPath("import_workspace.svg")}
+        alt="Import to your workspace"
       />
     </Button>
   );

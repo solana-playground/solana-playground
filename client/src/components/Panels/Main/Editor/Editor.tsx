@@ -269,6 +269,7 @@ const Editor = () => {
       if (!explorer || !editor) return;
 
       const getProgramIdStartAndEndIndex = (content: string) => {
+        const findText = extension === "py" ? "declare_id" : "declare_id!";
         const findTextIndex = content.indexOf(findText);
         if (!content || !findTextIndex || findTextIndex === -1) return;
         const quoteStartIndex = findTextIndex + findText.length + 1;
@@ -278,8 +279,7 @@ const Editor = () => {
         return [quoteStartIndex, quoteEndIndex];
       };
 
-      // update in localstorage
-      const findText = extension === "py" ? "declare_id" : "declare_id!";
+      // Update in state
       let indices = getProgramIdStartAndEndIndex(currentContent);
       if (!indices) return;
       let [quoteStartIndex, quoteEndIndex] = indices;
@@ -294,7 +294,7 @@ const Editor = () => {
         explorer.files[filePath] = { ...data, content: updatedContent };
       }
 
-      // update in editor
+      // Update in editor
       const editorContent = editor.state.doc.toString();
       indices = getProgramIdStartAndEndIndex(editorContent);
       if (!indices) return;

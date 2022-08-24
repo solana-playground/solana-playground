@@ -51,11 +51,17 @@ const getTextStyle = (
     display: flex;
     justify-content: center;
     align-items: center;
+
+    & > div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   `;
 
   if (iconElExists)
     returnedCss = returnedCss.concat(css`
-      & > svg {
+      & div > svg {
         width: 1.5rem;
         height: 1.5rem;
         margin-right: 0.5rem;

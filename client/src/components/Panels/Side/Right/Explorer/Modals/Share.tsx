@@ -10,7 +10,7 @@ import ModalInside from "../../../../../Modal/ModalInside";
 import Text from "../../../../../Text";
 import useModal from "../../../../../Modal/useModal";
 import { explorerAtom } from "../../../../../../state";
-import { PgShare } from "../../../../../../utils/pg";
+import { PgCommon, PgShare } from "../../../../../../utils/pg";
 import { TextProps } from "../../../../../Text/Text";
 import { ClassName, CLIENT_URL } from "../../../../../../constants";
 import { Checkmark, Sad } from "../../../../../Icons";
@@ -30,6 +30,7 @@ export const Share = () => {
     if (!explorer) return;
 
     setDisabled(true);
+    await PgCommon.sleep();
 
     try {
       const id = await PgShare.new(explorer);
@@ -43,7 +44,7 @@ export const Share = () => {
       });
       setDisabled(false);
     }
-  }, [explorer, setTextState, setDisabled]);
+  }, [explorer]);
 
   const shareLink = `${CLIENT_URL}/${textState.id}`;
   const httpsLink = "https://" + shareLink;
@@ -87,10 +88,11 @@ export const Share = () => {
             <Button
               onClick={share}
               disabled={disabled}
+              btnLoading={disabled}
               kind="primary-transparent"
               size="medium"
             >
-              Share
+              {disabled ? "Sharing..." : "Share"}
             </Button>
           </>
         )}

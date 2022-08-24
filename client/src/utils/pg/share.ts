@@ -29,7 +29,7 @@ export class PgShare {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        explorer: { files: explorer.files },
+        explorer: explorer.getShareFiles(),
       }),
     });
 

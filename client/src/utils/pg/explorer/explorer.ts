@@ -88,7 +88,7 @@ export class PgExplorer {
     return this._explorer.files;
   }
 
-  /** Get full path of current workspace */
+  /** Get full path of current workspace('/' appended) */
   get currentWorkspacePath() {
     return this._getWorkspacePath(
       this.currentWorkspaceName ?? PgWorkspace.DEFAULT_WORKSPACE_NAME
@@ -135,24 +135,8 @@ export class PgExplorer {
 
       this._explorer.files = {};
     } else {
-      // Get current workspace
-      const getCurrentWorkspace = async () => {
-        try {
-          const workspacesStr = await this._readToString(
-            PgWorkspace.WORKSPACES_CONFIG_PATH
-          );
-          const workspaces: Workspaces = JSON.parse(workspacesStr);
-          return workspaces;
-        } catch {
-          // Create default workspaces file
-          const defaultWorkspaces = PgWorkspace.default();
-          await this._saveWorkspaces();
-          return defaultWorkspaces;
-        }
-      };
-
-      const currentWorkspace = await getCurrentWorkspace();
-      this._workspace.setCurrent(currentWorkspace);
+      // Initialize workspaces
+      await this._initializeWorkspaces();
     }
 
     const fs = this._getFs();
@@ -206,18 +190,11 @@ export class PgExplorer {
         this._explorer.files = lsFiles;
       } else {
         // Show the default explorer if the files are empty
-        this._explorer = { files: {} };
+        this._explorer = { files: { "/src/": {} } };
       }
 
       // Save file(s) to IndexedDB
-      for (const path in this.files) {
-        const itemType = PgExplorer.getItemTypeFromPath(path);
-        if (itemType.file) {
-          await this._writeFile(path, this.files[path].content ?? "", true);
-        } else {
-          await this._mkdir(path, true);
-        }
-      }
+      await this._writeAllFromState();
 
       // Create tab info file
       await this.saveTabs({ initial: true });
@@ -486,8 +463,35 @@ export class PgExplorer {
    */
   async newWorkspace(
     name: string,
-    options?: { files?: Files; defaultOpenFile?: string }
+    options?: { files?: Files; defaultOpenFile?: string; fromShared?: boolean }
   ) {
+    if (options?.fromShared && this.isShared) {
+      this._shared = false;
+      this._fs = new FS(PgExplorer._INDEXED_DB_NAME).promises;
+      this._workspace = new PgWorkspace();
+      // Init workspace
+      await this._initializeWorkspaces();
+      // Create a new workspace in state
+      this._workspace.new(name);
+
+      // Change state paths(shared projects start with /src)
+      for (const path in this.files) {
+        const data = this.files[path];
+        delete this.files[path];
+        this.files[`/${name}${path}`] = data;
+      }
+
+      // Save everything from state to IndexedDB
+      await this._writeAllFromState();
+
+      // Save tabs
+      await this.saveTabs();
+
+      await this.changeWorkspace(name);
+
+      return;
+    }
+
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
@@ -519,8 +523,9 @@ export class PgExplorer {
   /**
    * Change the current workspace to the given workspace
    * @param name workspace name to change to
-   * @param options
+   * @param options -
    * - initial: if changing to the given workspace for the first time
+   * - defaultOpenFile: the file to open in the editor
    */
   async changeWorkspace(
     name: string,
@@ -702,7 +707,7 @@ export class PgExplorer {
     const filesAndFolders: Folder = { folders: [], files: [] };
 
     for (const itemPath in files) {
-      if (itemPath.includes(path)) {
+      if (itemPath.startsWith(path)) {
         const item = itemPath.split(path)[1].split("/")[0];
         if (
           !filesAndFolders.files.includes(item) &&
@@ -748,29 +753,74 @@ export class PgExplorer {
       });
     };
 
+    const getUpdatedProgramIdContent = (path: string) => {
+      let content = files[path].content;
+      if (content) {
+        if (path.endsWith("lib.rs")) {
+          content = updateIdRust(content);
+        } else if (path.endsWith(".py")) {
+          content = updateIdPython(content);
+        }
+      }
+
+      return content;
+    };
+
     const files = this.files;
     const buildFiles: Files = [];
+
+    if (this.isShared) {
+      for (const path in files) {
+        // Shared files are already in correct format, we only update program id
+        const updatedContent = getUpdatedProgramIdContent(path);
+        if (!updatedContent) continue;
+        buildFiles.push([path, updatedContent]);
+      }
+    } else {
+      for (let path in files) {
+        if (!path.startsWith(this._getCurrentSrcPath())) continue;
+
+        const updatedContent = getUpdatedProgramIdContent(path);
+        if (!updatedContent) continue;
+
+        // We are removing the workspace from path because build only needs /src
+        path = path.replace(
+          this.currentWorkspacePath,
+          PgExplorer.ROOT_DIR_PATH
+        );
+
+        buildFiles.push([path, updatedContent]);
+      }
+    }
+
+    return buildFiles;
+  }
+
+  /**
+   * @returns the necessary data for a new share
+   */
+  getShareFiles() {
+    // Shared files are already in a valid form to share
+    if (this.isShared) return { files: this._explorer.files };
+
+    const files = this.files;
+
+    const shareFiles: ExplorerJSON = { files: {} };
 
     for (let path in files) {
       if (!path.startsWith(this._getCurrentSrcPath())) continue;
 
-      let content = files[path].content;
-      if (!content) continue;
+      const itemInfo = files[path];
 
-      // Change program id
-      if (path.endsWith("lib.rs")) {
-        content = updateIdRust(content);
-      } else if (path.endsWith(".py")) {
-        content = updateIdPython(content);
-      }
-
-      // We are removing the workspace from path because build only needs /src
+      // We are removing the workspace from path because share only needs /src
       path = path.replace(this.currentWorkspacePath, PgExplorer.ROOT_DIR_PATH);
 
-      buildFiles.push([path, content]);
+      shareFiles.files[path] = itemInfo;
     }
 
-    return buildFiles;
+    if (!Object.keys(shareFiles.files).length) throw new Error("Empty share");
+
+    return shareFiles;
   }
 
   /**
@@ -863,6 +913,20 @@ export class PgExplorer {
   }
 
   /**
+   * Write all data in the state to IndexedDB
+   */
+  private async _writeAllFromState() {
+    for (const path in this.files) {
+      const itemType = PgExplorer.getItemTypeFromPath(path);
+      if (itemType.file) {
+        await this._writeFile(path, this.files[path].content ?? "", true);
+      } else {
+        await this._mkdir(path, true);
+      }
+    }
+  }
+
+  /**
    * Reads file and returns the converted file string
    */
   private async _readToString(path: string) {
@@ -907,6 +971,27 @@ export class PgExplorer {
     } else {
       await fs.rmdir(path);
     }
+  }
+
+  private async _initializeWorkspaces() {
+    if (!this._workspace) {
+      throw new Error(WorkspaceError.NOT_FOUND);
+    }
+
+    let workspaces: Workspaces;
+    try {
+      const workspacesStr = await this._readToString(
+        PgWorkspace.WORKSPACES_CONFIG_PATH
+      );
+      workspaces = JSON.parse(workspacesStr);
+    } catch {
+      // Create default workspaces file
+      const defaultWorkspaces = PgWorkspace.default();
+      await this._saveWorkspaces();
+      workspaces = defaultWorkspaces;
+    }
+
+    this._workspace.setCurrent(workspaces);
   }
 
   /**

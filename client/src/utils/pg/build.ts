@@ -39,6 +39,8 @@ export class PgBuild {
   }
 
   static async buildRust(rustFiles: Files) {
+    if (!rustFiles.length) throw new Error("Couldn't find files.");
+
     const programInfo = PgProgramInfo.getProgramInfo();
 
     const resp = await fetch(`${SERVER_URL}/build`, {

@@ -47,18 +47,21 @@ const Folders = () => {
   if (!explorer) return null;
 
   // No need to memoize here
-  const workspaceDir = explorer.getFolderContent(explorer.currentWorkspacePath);
+  const relativeRootPath = !explorer.isShared
+    ? explorer.currentWorkspacePath
+    : "/";
+  const relativeRootDir = explorer.getFolderContent(relativeRootPath);
 
   return (
     <RootWrapper
       id={Id.ROOT_DIR}
-      data-path={explorer.currentWorkspacePath}
+      data-path={relativeRootPath}
       onContextMenu={ctxMenu.handleMenu}
     >
-      {workspaceDir?.folders
+      {relativeRootDir?.folders
         .sort((x, y) => x.localeCompare(y))
         .map((f, i) => {
-          const path = explorer.currentWorkspacePath + f + "/";
+          const path = relativeRootPath + f + "/";
           const folder = explorer.getFolderContent(path);
 
           if (!folder) return null;
