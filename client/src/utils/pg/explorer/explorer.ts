@@ -486,7 +486,7 @@ export class PgExplorer {
    */
   async newWorkspace(
     name: string,
-    options?: { files?: Files; openLibFile?: boolean }
+    options?: { files?: Files; defaultOpenFile?: string }
   ) {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
@@ -512,7 +512,7 @@ export class PgExplorer {
 
     await this.changeWorkspace(name, {
       initial: true,
-      openLibFile: options?.openLibFile,
+      defaultOpenFile: options?.defaultOpenFile,
     });
   }
 
@@ -524,7 +524,7 @@ export class PgExplorer {
    */
   async changeWorkspace(
     name: string,
-    options?: { initial?: boolean; openLibFile?: boolean }
+    options?: { initial?: boolean; defaultOpenFile?: string }
   ) {
     // Save tabs before changing the workspace to never lose data
     await this.saveTabs(options);
@@ -532,12 +532,10 @@ export class PgExplorer {
     await this.init(name);
 
     // Open the lib file if it has been specified
-    if (options?.openLibFile) {
-      for (const path in this.files) {
-        if (path.endsWith("lib.rs") || path.endsWith("lib.py")) {
-          this.changeCurrentFile(path);
-        }
-      }
+    if (options?.defaultOpenFile) {
+      this.changeCurrentFile(
+        this._getCurrentSrcPath() + options.defaultOpenFile
+      );
     }
 
     this._refresh();
@@ -592,13 +590,18 @@ export class PgExplorer {
     }
   }
 
+  /**
+   * Create a new workspace from the url
+   *
+   * @param url Github url to a program's content(folder or single file)
+   */
   async importFromGithub(url: string) {
     const { files, owner, repo, path } = await PgGithub.getImportableRepository(
       url
     );
     await this.newWorkspace(`github-${owner}/${repo}/${path}`, {
       files,
-      openLibFile: true,
+      defaultOpenFile: files.length === 1 ? files[0][0] : "lib.rs",
     });
   }
 

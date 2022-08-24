@@ -32,7 +32,8 @@ export const DeleteWorkspace = () => {
         </IconWrapper>
         <ContentText>
           <Main>
-            Are you sure you want to delete '{explorer.currentWorkspaceName}'?
+            Are you sure you want to delete workspace '
+            {explorer.currentWorkspaceName}'?
           </Main>
           <Desc>This action is irreversable!</Desc>
           <Desc>- All files and folders will be deleted.</Desc>
@@ -65,6 +66,7 @@ const ContentText = styled.div`
 
 const Main = styled.span`
   font-weight: bold;
+  word-break: break-all;
 `;
 
 const Desc = styled.span`

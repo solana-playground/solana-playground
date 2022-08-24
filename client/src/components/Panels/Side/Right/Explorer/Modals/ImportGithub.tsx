@@ -39,7 +39,6 @@ export const ImportGithub = () => {
 
     try {
       await explorer.importFromGithub(url);
-      //   await PgCommon.sleep(2000);
       close();
     } catch (e: any) {
       console.log(e.message);
@@ -69,19 +68,35 @@ export const ImportGithub = () => {
           onChange={handleChange}
           value={url}
           className={error ? ClassName.ERROR : ""}
+          placeholder="Full url to the program folder or file"
           {...defaultInputProps}
         />
       </Content>
       <DescriptionWrapper>
         <Desc>
-          Given url must have either `lib.rs` or `lib.py` inside its src folder.
+          If the program in the url is written in <Emphasis>Rust</Emphasis>:
+        </Desc>
+        <Desc>
+          - Given url must have `lib.rs` inside of its src folder.(if the url is
+          a folder)
         </Desc>
         <Desc>
           e.g
           https://github.com/solana-labs/solana-program-library/tree/master/token/program
+          (Native)
         </Desc>
         <Desc>
           https://github.com/coral-xyz/anchor/tree/master/examples/tutorial/basic-0/programs/basic-0
+          (Anchor)
+        </Desc>
+        <Desc>
+          If the program in the url is written in <Emphasis>Python</Emphasis>:
+        </Desc>
+        <Desc>- Given url must be a single Python file.</Desc>
+        <Desc>
+          e.g
+          https://github.com/ameliatastic/seahorse-lang/blob/main/examples/fizzbuzz.py
+          (Seahorse)
         </Desc>
       </DescriptionWrapper>
     </ModalInside>
@@ -118,8 +133,14 @@ const DescriptionWrapper = styled.div`
 
 const Desc = styled.p`
   ${({ theme }) => css`
-    color: ${theme.colors.default.textSecondary};
     font-size: ${theme.font?.size.small};
+    color: ${theme.colors.default.textSecondary};
     margin-bottom: 0.5rem;
+    word-break: break-all;
   `}
+`;
+
+const Emphasis = styled.span`
+  font-weight: bold;
+  color: ${({ theme }) => theme.colors.default.textPrimary};
 `;
