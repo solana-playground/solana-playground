@@ -74,11 +74,12 @@ export const ImportFs = () => {
     >
       <Content>
         <WorkspaceNameWrapper>
-          <MainText>Workspace name</MainText>
+          <MainText>Project name</MainText>
           <Input
             ref={inputRef}
             onChange={handleChange}
             value={name}
+            placeholder="my local project..."
             {...defaultInputProps}
           />
         </WorkspaceNameWrapper>

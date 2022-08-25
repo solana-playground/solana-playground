@@ -54,7 +54,7 @@ const Workspaces = () => {
   return (
     <Wrapper>
       <TopWrapper>
-        <MainText>Workspaces</MainText>
+        <MainText>Projects</MainText>
         <ButtonsWrapper>
           <Button onClick={handleNew} kind="outline">
             New

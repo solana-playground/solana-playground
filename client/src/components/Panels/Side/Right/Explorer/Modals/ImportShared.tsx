@@ -51,11 +51,12 @@ export const ImportShared = () => {
       closeOnSubmit={false}
     >
       <Content>
-        <MainText>Workspace name</MainText>
+        <MainText>Project name</MainText>
         <Input
           ref={inputRef}
           onChange={handleChange}
           value={name}
+          placeholder="shared project..."
           {...defaultInputProps}
         />
       </Content>

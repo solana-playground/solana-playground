@@ -68,11 +68,12 @@ export const NewWorkspace = () => {
     >
       <Content>
         <WorkspaceNameWrapper>
-          <MainText>Workspace name</MainText>
+          <MainText>Project name</MainText>
           <Input
             ref={inputRef}
             onChange={handleChange}
             value={name}
+            placeholder="my first project..."
             {...defaultInputProps}
           />
         </WorkspaceNameWrapper>
