@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorState } from "@codemirror/state";
@@ -207,7 +207,7 @@ const Editor = () => {
       parent: parentRef.current,
     });
 
-    //eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mount, editorTheme]);
 
   // When user switches files or editor changed
@@ -254,86 +254,51 @@ const Editor = () => {
       })
     );
 
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged, setNoOpenTabs]);
-
-  /**
-   * Update /src/lib.rs or /src/lib.py with the programId
-   * Updates the content of the file in the editor and in localstorage
-   * @param currentContent Current content of the file to be updated
-   * @param programId The new program ID to be set
-   * @param extension The extension, which determines the language of the file
-   */
-  const updateLib = useCallback(
-    (currentContent: string, programId: string, extension: "rs" | "py") => {
-      if (!explorer || !editor) return;
-
-      const getProgramIdStartAndEndIndex = (content: string) => {
-        const findText = extension === "py" ? "declare_id" : "declare_id!";
-        const findTextIndex = content.indexOf(findText);
-        if (!content || !findTextIndex || findTextIndex === -1) return;
-        const quoteStartIndex = findTextIndex + findText.length + 1;
-        const quoteChar = content[quoteStartIndex];
-        const quoteEndIndex = content.indexOf(quoteChar, quoteStartIndex + 1);
-
-        return [quoteStartIndex, quoteEndIndex];
-      };
-
-      // Update in state
-      let indices = getProgramIdStartAndEndIndex(currentContent);
-      if (!indices) return;
-      let [quoteStartIndex, quoteEndIndex] = indices;
-
-      const updatedContent =
-        currentContent.substring(0, quoteStartIndex + 1) +
-        programId +
-        currentContent.substring(quoteEndIndex);
-      const filePath = `/src/lib.${extension}`;
-      const data = explorer.files[filePath];
-      if (data?.content) {
-        explorer.files[filePath] = { ...data, content: updatedContent };
-      }
-
-      // Update in editor
-      const editorContent = editor.state.doc.toString();
-      indices = getProgramIdStartAndEndIndex(editorContent);
-      if (!indices) return;
-      [quoteStartIndex, quoteEndIndex] = indices;
-
-      editor.dispatch({
-        changes: {
-          from: quoteStartIndex + 1,
-          to: quoteEndIndex,
-          insert: programId,
-        },
-      });
-    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [editor, explorer, explorerChanged]
-  );
+  }, [editor, explorer, explorerChanged, setNoOpenTabs]);
 
   // Change programId
   useEffect(() => {
     if (!explorer || !parentRef.current || !buildCount || !editor) return;
 
+    const getProgramIdStartAndEndIndex = (
+      content: string,
+      isPython?: boolean
+    ) => {
+      const findText = isPython ? "declare_id" : "declare_id!";
+      const findTextIndex = content.indexOf(findText);
+      if (!content || !findTextIndex || findTextIndex === -1) return;
+      const quoteStartIndex = findTextIndex + findText.length + 1;
+      const quoteChar = content[quoteStartIndex];
+      const quoteEndIndex = content.indexOf(quoteChar, quoteStartIndex + 1);
+
+      return [quoteStartIndex, quoteEndIndex];
+    };
+
+    // Update in editor
+    const isLibrs = explorer.getCurrentFile()?.path.endsWith("lib.rs");
+    const isPython = !isLibrs && explorer.isCurrentFilePython();
+    if (!isLibrs && !isPython) return;
+
+    const editorContent = editor.state.doc.toString();
+    const indices = getProgramIdStartAndEndIndex(editorContent, isPython);
+    if (!indices) return;
+    const [quoteStartIndex, quoteEndIndex] = indices;
+
     const programPkResult = PgProgramInfo.getPk();
     if (programPkResult?.err) return;
     const programPkStr = programPkResult.programPk!.toBase58();
 
-    const libRsContent = explorer.getFileContentFromPath("/src/lib.rs");
-    if (libRsContent) {
-      updateLib(libRsContent, programPkStr, "rs");
-      return;
-    }
+    editor.dispatch({
+      changes: {
+        from: quoteStartIndex + 1,
+        to: quoteEndIndex,
+        insert: programPkStr,
+      },
+    });
 
-    const libPyContent = explorer.getFileContentFromPath("/src/lib.py");
-    if (libPyContent) {
-      updateLib(libPyContent, programPkStr, "py");
-      return;
-    }
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildCount, editor, updateLib]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildCount, explorer, explorerChanged, editor]);
 
   // Listen for custom events
   useEffect(() => {

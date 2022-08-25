@@ -13,6 +13,12 @@ interface BuildResp {
 }
 
 export class PgBuild {
+  /**
+   * Convert python files into rust with seahorse-compile-wasm and run `buildRust`
+   * @param pythonFiles Python files in `src/`
+   * @param seahorsePkg Loaded `seahorse-compile-wasm` package
+   * @returns Build output from stderr(not only errors)
+   */
   static async buildPython(pythonFiles: Files, seahorsePkg: Pkgs) {
     const compileFn = seahorsePkg.compileSeahorse;
     if (!compileFn) {
@@ -38,8 +44,13 @@ export class PgBuild {
     return await this.buildRust(rustFiles);
   }
 
+  /**
+   * Build rust files and return the output
+   * @param rustFiles Rust files from `src/`
+   * @returns Build output from stderr(not only errors)
+   */
   static async buildRust(rustFiles: Files) {
-    if (!rustFiles.length) throw new Error("Couldn't find files.");
+    if (!rustFiles.length) throw new Error("Couldn't find any Rust files.");
 
     const programInfo = PgProgramInfo.getProgramInfo();
 

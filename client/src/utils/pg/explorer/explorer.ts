@@ -729,28 +729,26 @@ export class PgExplorer {
    * @returns the necessary data for the build request
    */
   getBuildFiles() {
+    const programPkStr = (
+      PgProgramInfo.getPk().programPk ?? PgProgramInfo.createNewKp().publicKey
+    ).toBase58();
+
     const updateIdRust = (content: string) => {
       const regex = new RegExp(/^(\s)*(\w*::)?declare_id!\("(\w*)"\)/gm);
       return content.replace(regex, (match) => {
         const res = regex.exec(match);
         if (!res) return match;
 
-        const pk =
-          PgProgramInfo.getPk().programPk ??
-          PgProgramInfo.createNewKp().publicKey;
-
         // res[2] could be solana_program:: or undefined
-        return (res[2] ?? "") + `declare_id!("${pk.toBase58()}")`;
+        return (res[2] ?? "") + `declare_id!("${programPkStr}")`;
       });
     };
 
     const updateIdPython = (content: string) => {
-      return content.replace(/^declare_id\(("|')(\w*)("|')\)/gm, () => {
-        const pk =
-          PgProgramInfo.getPk().programPk ??
-          PgProgramInfo.createNewKp().publicKey;
-        return `declare_id('${pk.toBase58()}')`;
-      });
+      return content.replace(
+        /^declare_id\(("|')(\w*)("|')\)/gm,
+        () => `declare_id('${programPkStr}')`
+      );
     };
 
     const getUpdatedProgramIdContent = (path: string) => {
@@ -827,15 +825,26 @@ export class PgExplorer {
    * @returns the file content if it exists in the state
    */
   getFileContentFromPath(path: string) {
-    path = path.startsWith("/") ? path.substring(1) : path;
-    return this.files[this.currentWorkspacePath + path]?.content;
+    if (!this.isShared) {
+      path = path.startsWith("/") ? path.substring(1) : path;
+      path = this.currentWorkspacePath + path;
+    }
+
+    return this.files[path]?.content;
   }
 
   /**
-   * @returns whether the current file in the state is rust
+   * @returns whether the current file in the state is a Rust file
    */
   isCurrentFileRust() {
     return this.getCurrentFile()?.path.endsWith(".rs");
+  }
+
+  /**
+   * @returns whether the current file in the state is a Python file
+   */
+  isCurrentFilePython() {
+    return this.getCurrentFile()?.path.endsWith(".py");
   }
 
   /**

@@ -118,6 +118,7 @@ const SuccessWrapper = styled.div``;
 const InputWrapper = styled.div`
   display: flex;
   margin-top: 1rem;
+  min-width: 20rem;
 `;
 
 const LinkWrapper = styled.div`

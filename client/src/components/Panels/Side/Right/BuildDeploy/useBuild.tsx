@@ -21,7 +21,7 @@ export const useBuild = () => {
   const [, setTerminalState] = useAtom(terminalStateAtom);
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
-  const [seahorsePkg, setSeahorsePkg] = useState<Pkgs | undefined>(undefined);
+  const [seahorsePkg, setSeahorsePkg] = useState<Pkgs>();
 
   const getSeahorsePkg = useCallback(async () => {
     if (seahorsePkg) {
