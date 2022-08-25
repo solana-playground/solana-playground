@@ -71,11 +71,13 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     }
 
     // Fixes button being enabled at start
-    if (!nameCount) return;
+    if (!nameCount && ixs.accounts.length) {
+      return;
+    }
 
     if (totalErrors) setDisabled(true);
     else setDisabled(false);
-  }, [errors]);
+  }, [errors, ixs.accounts.length]);
 
   const handleErrors = useCallback(
     (identifier: string, k: string, action: "add" | "remove") => {
@@ -219,17 +221,19 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
               </Foldable>
             </ArgsWrapper>
           ) : null}
-          <AccountsWrapper>
-            <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
-              {ixs.accounts.map((a, i) => (
-                <Account
-                  key={i}
-                  account={a as IdlAccount}
-                  functionName={ixs.name}
-                />
-              ))}
-            </Foldable>
-          </AccountsWrapper>
+          {ixs.accounts.length ? (
+            <AccountsWrapper>
+              <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
+                {ixs.accounts.map((a, i) => (
+                  <Account
+                    key={i}
+                    account={a as IdlAccount}
+                    functionName={ixs.name}
+                  />
+                ))}
+              </Foldable>
+            </AccountsWrapper>
+          ) : null}
         </FnContext.Provider>
       </ArgsAndAccountsWrapper>
       <ButtonWrapper>
