@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Build from "./Build";
 import Deploy from "./Deploy";
-import Extras from "./Extras";
+import ProgramSettings from "./ProgramSettings";
 
 window.Buffer = buffer.Buffer;
 
@@ -11,7 +11,7 @@ const BuildDeploy = () => (
   <Wrapper>
     <Build />
     <Deploy />
-    <Extras />
+    <ProgramSettings />
   </Wrapper>
 );
 

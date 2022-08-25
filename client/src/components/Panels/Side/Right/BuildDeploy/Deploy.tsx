@@ -108,9 +108,10 @@ const Deploy = () => {
       return (
         <Wrapper>
           <Text>
-            {
-              "First deployment needs a keypair. You can import it from Extra > Program credentials."
-            }
+            <div>
+              First deployment needs a keypair. You can import it from
+              <Bold> Program credentials</Bold>.
+            </div>
           </Text>
         </Wrapper>
       );
@@ -188,9 +189,10 @@ const Deploy = () => {
       return (
         <Wrapper>
           <Text>
-            {
-              "You need to build the project first or upload a program from Extra > Upload a program."
-            }
+            <div>
+              You need to build the project first or upload a program from
+              <Bold> Upload a program</Bold>.
+            </div>
           </Text>
         </Wrapper>
       );
@@ -269,6 +271,10 @@ const Wrapper = styled.div`
   & div:first-child + button {
     margin-top: 1.5rem;
   }
+`;
+
+const Bold = styled.span`
+  font-weight: bold;
 `;
 
 export default Deploy;
