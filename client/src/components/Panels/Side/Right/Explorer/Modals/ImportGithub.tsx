@@ -69,7 +69,7 @@ export const ImportGithub = () => {
           onChange={handleChange}
           value={url}
           className={error ? ClassName.ERROR : ""}
-          placeholder="Full url to the program folder or file"
+          placeholder="https://github.com/..."
           {...defaultInputProps}
         />
       </Content>
@@ -77,13 +77,10 @@ export const ImportGithub = () => {
         <Desc>
           If the program in the url is written in <Emphasis>Rust</Emphasis>:
         </Desc>
-        <Desc>
-          - Given url must have `lib.rs` inside of its src folder.(if the url is
-          a folder)
-        </Desc>
+        <Desc>- Can import single file or full program folder.</Desc>
         <Desc>
           e.g
-          https://github.com/solana-labs/solana-program-library/tree/master/token/program
+          https://github.com/solana-labs/example-helloworld/blob/master/src/program-rust/src/lib.rs
           (Native)
         </Desc>
         <Desc>
