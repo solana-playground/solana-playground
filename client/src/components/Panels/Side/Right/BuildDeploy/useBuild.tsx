@@ -66,6 +66,9 @@ export const useBuild = () => {
       } finally {
         setTerminal(msg);
         setTerminalState(TerminalAction.buildLoadingStop);
+
+        // Update program info in IndexedDB
+        await explorer.saveProgramInfo();
       }
     });
   }, [explorer, setTerminal, setBuildCount, setTerminalState, getSeahorsePkg]);

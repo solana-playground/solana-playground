@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
-import { PgProgramInfo } from "../program-info";
+import { PgProgramInfo, ProgramInfo } from "../program-info";
 import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
 
@@ -112,6 +112,11 @@ export class PgExplorer {
     return this.currentWorkspacePath + PgWorkspace.TABINFO_PATH;
   }
 
+  /** Get current workspace's program info file path */
+  private get _programInfoPath() {
+    return this.currentWorkspacePath + PgWorkspace.PROGRAM_INFO_PATH;
+  }
+
   /** Public methods */
 
   /**
@@ -216,6 +221,19 @@ export class PgExplorer {
         true;
     }
 
+    // Load program info from IndexedDB
+    try {
+      const programInfoStr = await this._readToString(this._programInfoPath);
+      const programInfo: ProgramInfo = JSON.parse(programInfoStr);
+
+      // Set program info in localStorage
+      PgProgramInfo.update(programInfo);
+    } catch {
+      // Program info doesn't exist in IndexedDB
+      // Create it from localStorage
+      await this.saveProgramInfo();
+    }
+
     return this;
   }
 
@@ -247,6 +265,18 @@ export class PgExplorer {
       console.log(`Saving file ${this._tabInfoPath}, ${tabFile.currentPath}`);
 
       await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
+    }
+  }
+
+  /**
+   * Write program info from localStorage to workspace in IndexedDB
+   */
+  async saveProgramInfo() {
+    if (!this.isShared) {
+      await this._writeFile(
+        this._programInfoPath,
+        JSON.stringify(PgProgramInfo.getProgramInfo())
+      );
     }
   }
 
@@ -542,6 +572,9 @@ export class PgExplorer {
   ) {
     // Save tabs before changing the workspace to never lose data
     await this.saveTabs(options);
+
+    // Remove the current program info from localStorage
+    PgProgramInfo.reset();
 
     await this.init(name);
 

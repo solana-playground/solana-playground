@@ -1,7 +1,7 @@
 import { Idl } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
 
-interface ProgramInfo {
+export interface ProgramInfo {
   uuid?: string;
   idl?: Idl | null;
   kp?: Array<number> | null;
@@ -33,6 +33,13 @@ export class PgProgramInfo {
     if (params.customPk !== undefined) programInfo.customPk = params.customPk;
 
     localStorage.setItem(this._PROGRAM_INFO_KEY, JSON.stringify(programInfo));
+  }
+
+  /**
+   * Remove program info from localStorage
+   */
+  static reset() {
+    localStorage.removeItem(this._PROGRAM_INFO_KEY);
   }
 
   /**
