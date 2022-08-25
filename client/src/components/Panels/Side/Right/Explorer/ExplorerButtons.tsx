@@ -5,10 +5,9 @@ import styled from "styled-components";
 
 import Button from "../../../../Button";
 import useNewItem from "./useNewItem";
-import { NewItem, Share } from "./Modals";
+import { NewItem, Share, ImportShared } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
-import { ImportShared } from "./Modals/ImportShared";
 
 const ExplorerButtons = () => (
   <ButtonsWrapper>

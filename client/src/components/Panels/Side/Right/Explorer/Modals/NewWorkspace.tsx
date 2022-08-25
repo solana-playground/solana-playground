@@ -47,7 +47,7 @@ export const NewWorkspace = () => {
         (f) => f.name === selected
       )!;
 
-      await explorer.newWorkspace(name.trim(), {
+      await explorer.newWorkspace(name, {
         files,
         defaultOpenFile,
       });

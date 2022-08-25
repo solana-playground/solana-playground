@@ -4,19 +4,21 @@ import styled, { css } from "styled-components";
 import Button, { ButtonKind } from "../Button";
 
 interface UploadButtonProps {
-  accept: string;
   onUpload: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  accept?: string;
   showUploadText?: boolean;
   buttonKind?: ButtonKind;
   noButton?: boolean;
+  dir?: boolean;
 }
 
 const UploadButton: FC<UploadButtonProps> = ({
-  accept,
   onUpload,
+  accept,
   buttonKind = "outline",
-  showUploadText = false,
-  noButton = false,
+  showUploadText,
+  noButton,
+  dir,
   children,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,6 +36,10 @@ const UploadButton: FC<UploadButtonProps> = ({
     else setUploadText(files[0].name);
   };
 
+  const dirProps = dir
+    ? { webkitdirectory: "", mozdirectory: "", directory: "", multiple: true }
+    : {};
+
   return (
     <Wrapper>
       <input
@@ -41,6 +47,7 @@ const UploadButton: FC<UploadButtonProps> = ({
         type="file"
         onChange={handleChange}
         accept={accept}
+        {...dirProps}
       />
       {noButton ? (
         <div onClick={handleClick}>{children}</div>

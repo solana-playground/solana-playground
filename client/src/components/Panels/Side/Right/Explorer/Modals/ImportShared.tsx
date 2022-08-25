@@ -33,7 +33,7 @@ export const ImportShared = () => {
     if (!name || !explorer) return;
 
     try {
-      await explorer.newWorkspace(name.trim(), { fromShared: true });
+      await explorer.newWorkspace(name, { fromShared: true });
       navigate("/");
       close();
     } catch (e: any) {
@@ -51,7 +51,7 @@ export const ImportShared = () => {
       closeOnSubmit={false}
     >
       <Content>
-        <MainText>Workspace name:</MainText>
+        <MainText>Workspace name</MainText>
         <Input
           ref={inputRef}
           onChange={handleChange}

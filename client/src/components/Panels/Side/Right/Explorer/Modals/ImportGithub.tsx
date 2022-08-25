@@ -59,9 +59,10 @@ export const ImportGithub = () => {
         },
       }}
       closeOnSubmit={false}
+      title
     >
       <Content>
-        <Text>Github url:</Text>
+        <Text>Github url</Text>
         {error && <ErrorText>Error: {error}</ErrorText>}
         <Input
           ref={inputRef}
@@ -117,6 +118,7 @@ const Content = styled.div`
 
 const Text = styled.div`
   margin-bottom: 0.5rem;
+  font-weight: bold;
 `;
 
 const ErrorText = styled.div`

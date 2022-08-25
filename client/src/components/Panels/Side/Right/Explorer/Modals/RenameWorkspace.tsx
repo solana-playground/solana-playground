@@ -31,7 +31,7 @@ export const RenameWorkspace = () => {
     if (!newName || !explorer) return;
 
     try {
-      await explorer.renameWorkspace(newName.trim());
+      await explorer.renameWorkspace(newName);
       close();
     } catch (e: any) {
       console.log(e.message);

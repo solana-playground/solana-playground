@@ -1,6 +1,6 @@
-import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
-import { SetStateAction } from "jotai";
 import { Dispatch } from "react";
+import { SetStateAction } from "jotai";
+import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
 
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 import { PgProgramInfo } from "../program-info";
@@ -458,14 +458,23 @@ export class PgExplorer {
   /**
    * Create a new workspace and change the current workspace to the created workspace
    * @param name new workspace name
-   * @param options
+   * @param options -
    * - files: Files to create the workspace from
+   * - defaultOpenFile: Default file to open in the editor
+   * - fromShared: Whether to create new workspace from a shared project
    */
   async newWorkspace(
     name: string,
     options?: { files?: Files; defaultOpenFile?: string; fromShared?: boolean }
   ) {
+    name = name.trim();
+    if (!name) throw new Error(WorkspaceError.INVALID_NAME);
+
     if (options?.fromShared && this.isShared) {
+      // The reason we are not just getting the necessary files and re-calling this
+      // function with { files } is because we would lose the tab info. Instead we
+      // are creating a valid workspace state and writing it to IndexedDB.
+
       this._shared = false;
       this._fs = new FS(PgExplorer._INDEXED_DB_NAME).promises;
       this._workspace = new PgWorkspace();
@@ -551,6 +560,10 @@ export class PgExplorer {
    * @param newName new workspace name
    */
   async renameWorkspace(newName: string) {
+    newName = newName.trim();
+    if (!newName) {
+      throw new Error(WorkspaceError.INVALID_NAME);
+    }
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
@@ -622,7 +635,7 @@ export class PgExplorer {
   }
 
   /**
-   * Gets all the files from state that are in tabs
+   * @returns all the files from state that are in tabs
    */
   getTabs() {
     const files = this.files;

@@ -9,6 +9,7 @@ import {
   RenameWorkspace,
   DeleteWorkspace,
   ImportGithub,
+  ImportFs,
 } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
 
@@ -38,6 +39,10 @@ const Workspaces = () => {
     setModal(<ImportGithub />);
   };
 
+  const handleFsImport = () => {
+    setModal(<ImportFs />);
+  };
+
   return (
     <Wrapper>
       <TopWrapper>
@@ -54,6 +59,9 @@ const Workspaces = () => {
           </Button>
           <Button onClick={handleGithub} kind="outline">
             Github
+          </Button>
+          <Button onClick={handleFsImport} kind="outline">
+            Import
           </Button>
         </ButtonsWrapper>
       </TopWrapper>
