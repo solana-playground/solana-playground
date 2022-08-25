@@ -43,6 +43,14 @@ const Workspaces = () => {
     setModal(<ImportFs />);
   };
 
+  const handleFsExport = async () => {
+    try {
+      await explorer.exportWorkspace();
+    } catch (e: any) {
+      console.log(e.message);
+    }
+  };
+
   return (
     <Wrapper>
       <TopWrapper>
@@ -62,6 +70,9 @@ const Workspaces = () => {
           </Button>
           <Button onClick={handleFsImport} kind="outline">
             Import
+          </Button>
+          <Button onClick={handleFsExport} kind="outline">
+            Export
           </Button>
         </ButtonsWrapper>
       </TopWrapper>

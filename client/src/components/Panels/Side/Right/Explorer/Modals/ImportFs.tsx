@@ -89,7 +89,7 @@ export const ImportFs = () => {
             {files ? (
               <SuccessText>
                 <Checkmark />
-                Imported files.
+                Imported file{files.length > 1 && "s"}.
               </SuccessText>
             ) : isDragActive ? (
               "Just do it"
@@ -137,6 +137,8 @@ const ImportFileWrapper = styled.div<{ isDragActive: boolean }>`
     background-color: ${theme.colors.default.primary +
     (theme.transparency?.low ?? "")};
     opacity: ${isDragActive ? 0.55 : 1};
+    transition: all ${theme.transition?.duration.short}
+      ${theme.transition?.type};
 
     &:hover {
       cursor: pointer;

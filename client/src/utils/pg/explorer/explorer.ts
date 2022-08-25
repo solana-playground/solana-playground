@@ -1,6 +1,8 @@
 import { Dispatch } from "react";
 import { SetStateAction } from "jotai";
 import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 import { PgProgramInfo } from "../program-info";
@@ -150,7 +152,9 @@ export class PgExplorer {
         return;
       }
 
-      const subItemPaths = itemNames.map((itemName) => path + "/" + itemName);
+      const subItemPaths = itemNames.map(
+        (itemName) => PgExplorer.appendSlash(path) + itemName
+      );
       for (const subItemPath of subItemPaths) {
         const stat = await fs.stat(subItemPath);
         if (stat.isFile()) {
@@ -163,7 +167,7 @@ export class PgExplorer {
     };
 
     try {
-      await setupFiles(PgExplorer.ROOT_DIR_PATH + this.currentWorkspaceName);
+      await setupFiles(this.currentWorkspacePath);
     } catch {
       console.log(
         "Couldn't setup files from IndexedDB. Probably need initial setup."
@@ -230,16 +234,12 @@ export class PgExplorer {
 
       const files = this.files;
 
-      const getRelativePath = (p: string) => {
-        return p.split(this.currentWorkspacePath)[1];
-      };
-
       const tabs = [];
       let currentPath;
       for (const path in files) {
         const itemInfo = files[path];
-        if (itemInfo?.tabs) tabs.push(getRelativePath(path));
-        if (itemInfo?.current) currentPath = getRelativePath(path);
+        if (itemInfo?.tabs) tabs.push(this._getRelativePath(path));
+        if (itemInfo?.current) currentPath = this._getRelativePath(path);
       }
 
       const tabFile: TabFile = { tabs, currentPath };
@@ -609,6 +609,41 @@ export class PgExplorer {
   }
 
   /**
+   * Export the current workspace as a zip file
+   */
+  async exportWorkspace() {
+    const fs = this._getFs();
+
+    const zip = new JSZip();
+
+    const recursivelyGetItems = async (path: string) => {
+      const itemNames = await fs.readdir(path);
+      if (!itemNames.length) return;
+
+      const subItemPaths = itemNames
+        .filter((itemName) => !itemName.startsWith("."))
+        .map((itemName) => PgExplorer.appendSlash(path) + itemName);
+
+      for (const subItemPath of subItemPaths) {
+        const stat = await fs.stat(subItemPath);
+        const relativePath = this._getRelativePath(subItemPath);
+        if (stat.isFile()) {
+          const content = await this._readToString(subItemPath);
+          zip.file(relativePath, content);
+        } else {
+          zip.folder(relativePath);
+          await recursivelyGetItems(subItemPath);
+        }
+      }
+    };
+
+    await recursivelyGetItems(this.currentWorkspacePath);
+
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, this.currentWorkspaceName + ".zip");
+  }
+
+  /**
    * Create a new workspace from the url
    *
    * @param url Github url to a program's content(folder or single file)
@@ -867,6 +902,16 @@ export class PgExplorer {
     return (this._workspace?.allNames?.length ?? 0) > 0;
   }
 
+  /**
+   * Get the path without the workspace path prefix
+   *
+   * @param p Full path
+   * @returns Relative path
+   */
+  _getRelativePath(p: string) {
+    return p.split(this.currentWorkspacePath)[1];
+  }
+
   /** Private methods */
 
   /**
@@ -995,6 +1040,9 @@ export class PgExplorer {
     }
   }
 
+  /**
+   * Initialize workspaces from IndexedDB to state
+   */
   private async _initializeWorkspaces() {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
@@ -1039,7 +1087,7 @@ export class PgExplorer {
 
   /**
    * @param name workspace name
-   * @returns the full path to the workspace root dir without '/' at the end
+   * @returns the full path to the workspace root dir with '/' at the end
    */
   private _getWorkspacePath(name: string) {
     return PgExplorer.ROOT_DIR_PATH + PgExplorer.appendSlash(name);
