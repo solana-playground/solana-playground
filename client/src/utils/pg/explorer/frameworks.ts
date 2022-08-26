@@ -128,7 +128,9 @@ pub struct NewAccount {
 
 from seahorse.prelude import *
 
-declare_id('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS')
+# This is your program's public key and it will update
+# automatically when you build the project.
+declare_id('11111111111111111111111111111111');
 
 class FizzBuzz(Account):
   fizz: bool
