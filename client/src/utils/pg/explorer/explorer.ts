@@ -201,6 +201,8 @@ export class PgExplorer {
       if (lsExplorerStr) {
         // Create a default workspace
         this._workspace.new(PgWorkspace.DEFAULT_WORKSPACE_NAME);
+        // Save workspaces
+        await this._saveWorkspaces();
 
         const lsExplorer: ExplorerJSON = JSON.parse(lsExplorerStr);
         const lsFiles = lsExplorer.files;
