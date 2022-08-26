@@ -14,8 +14,8 @@ const ExplorerButtons = () => (
     <NotYourProjectWarning />
 
     <ButtonsWrapper>
-      <NewItemButton imageName="new_file.png" title="New File" />
-      <NewItemButton imageName="new_folder.png" title="New Folder" />
+      <NewItemButton imageName="new_file.png" title="New file" />
+      <NewItemButton imageName="new_folder.png" title="New folder" />
       <NewItem />
       <CollapseAllButton />
       <ShareButton />
@@ -97,10 +97,10 @@ const CollapseAllButton = () => {
   }, []);
 
   return (
-    <Button kind="icon" title="Collapse Folders" onClick={handleCollapse}>
+    <Button kind="icon" title="Collapse folders" onClick={handleCollapse}>
       <img
         src={PgExplorer.getExplorerIconsPath("collapse.png")}
-        alt="Collapse Folders"
+        alt="Collapse folders"
       />
     </Button>
   );

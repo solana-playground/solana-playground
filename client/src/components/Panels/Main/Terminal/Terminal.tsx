@@ -382,7 +382,6 @@ const ButtonsWrapper = styled.div`
 
   & button {
     margin-left: 0.25rem;
-    height: fit-content;
   }
 
   & button.down svg {

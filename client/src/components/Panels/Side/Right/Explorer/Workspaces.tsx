@@ -12,6 +12,14 @@ import {
   ImportFs,
 } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
+import {
+  ExportFile,
+  Github,
+  ImportFile,
+  Plus,
+  Rename,
+  Trash,
+} from "../../../../Icons";
 
 const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -56,23 +64,27 @@ const Workspaces = () => {
       <TopWrapper>
         <MainText>Projects</MainText>
         <ButtonsWrapper>
-          <Button onClick={handleNew} kind="outline">
-            New
+          <Button onClick={handleNew} kind="icon" title="Create">
+            <Plus />
           </Button>
-          <Button onClick={handleRename} kind="outline">
-            Rename
+          <Button onClick={handleRename} kind="icon" title="Rename">
+            <Rename />
           </Button>
-          <Button onClick={handleDelete} kind="outline">
-            Delete
+          <Button onClick={handleDelete} kind="icon" title="Delete">
+            <Trash />
           </Button>
-          <Button onClick={handleGithub} kind="outline">
-            Github
+          <Button onClick={handleGithub} kind="icon" title="Import from Github">
+            <Github />
           </Button>
-          <Button onClick={handleFsImport} kind="outline">
-            Import
+          <Button
+            onClick={handleFsImport}
+            kind="icon"
+            title="Import from local file system"
+          >
+            <ImportFile />
           </Button>
-          <Button onClick={handleFsExport} kind="outline">
-            Export
+          <Button onClick={handleFsExport} kind="icon" title="Export">
+            <ExportFile />
           </Button>
         </ButtonsWrapper>
       </TopWrapper>
@@ -93,15 +105,19 @@ const Wrapper = styled.div`
 
 const TopWrapper = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
 `;
 
-const MainText = styled.div``;
+const MainText = styled.div`
+  color: ${({ theme }) => theme.colors.default.textSecondary};
+`;
 
 const ButtonsWrapper = styled.div`
   margin-left: 0.5rem;
   display: flex;
+  align-items: center;
   gap: 0 0.5rem;
 `;
 

@@ -189,6 +189,8 @@ const getButtonStyles = ({
       display: flex;
       justify-content: center;
       align-items: center;
+      height: fit-content;
+      width: fit-content;
 
       & img,
       svg {
