@@ -7,12 +7,13 @@ type TextSize = "Small" | "Medium" | "Large";
 export interface TextProps {
   type?: TextType;
   size?: TextSize;
+  noBorder?: boolean;
   IconEl?: ReactNode;
 }
 
-const Text: FC<TextProps> = ({ type, size, IconEl, children }) => {
+const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
   return (
-    <Wrapper type={type} size={size} IconEl={IconEl}>
+    <Wrapper IconEl={IconEl} {...rest}>
       <div>{IconEl}</div>
       <div>{children}</div>
     </Wrapper>
@@ -20,15 +21,16 @@ const Text: FC<TextProps> = ({ type, size, IconEl, children }) => {
 };
 
 const Wrapper = styled.div<TextProps>`
-  ${({ theme, type, size, IconEl }) =>
-    getTextStyle(theme, type, size, IconEl ? true : false)}
+  ${({ theme, type, size, noBorder, IconEl }) =>
+    getTextStyle(theme, type, size, IconEl ? true : false, noBorder)}
 `;
 
 const getTextStyle = (
   theme: DefaultTheme,
   type: TextType = "Info",
   size: TextSize = "Small",
-  iconElExists: boolean
+  iconElExists: boolean,
+  noBorder?: boolean
 ) => {
   let borderColor;
   let fontSize;
@@ -46,7 +48,7 @@ const getTextStyle = (
     font-size: ${fontSize};
     padding: 1rem;
     background-color: ${theme.colors.right?.otherBg};
-    border: 1px solid ${borderColor};
+    border: ${noBorder ? "none" : `1px solid ${borderColor}`};
     border-radius: ${theme.borderRadius};
     display: flex;
     justify-content: center;

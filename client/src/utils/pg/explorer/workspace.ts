@@ -107,6 +107,7 @@ export class PgWorkspace {
   /** Relative path to program info */
   static readonly PROGRAM_INFO_PATH = ".workspace/program-info.json";
 
+  /** Default name to name the projects that used to be in localStorage */
   static readonly DEFAULT_WORKSPACE_NAME = "default";
 
   /**
@@ -114,8 +115,7 @@ export class PgWorkspace {
    */
   static default(): Workspaces {
     return {
-      currentName: this.DEFAULT_WORKSPACE_NAME,
-      allNames: [this.DEFAULT_WORKSPACE_NAME],
+      allNames: [],
     };
   }
 }

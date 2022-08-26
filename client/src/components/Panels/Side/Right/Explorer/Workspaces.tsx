@@ -17,7 +17,7 @@ const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setModal] = useAtom(modalAtom);
 
-  if (!explorer?.hasWorkspaces()) return null;
+  if (!explorer) return null;
 
   const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     explorer.changeWorkspace(e.target.value);

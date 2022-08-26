@@ -23,7 +23,7 @@ export interface FullFile extends ItemInfo {
 interface ItemInfo {
   /** Contents of the file */
   content?: string;
-  /** Meta information about the file */
+  /** Metadata about the file */
   meta?: ItemMeta;
 }
 
@@ -101,9 +101,11 @@ export class PgExplorer {
 
   /** Get full path of current workspace('/' appended) */
   get currentWorkspacePath() {
-    return this._getWorkspacePath(
-      this.currentWorkspaceName ?? PgWorkspace.DEFAULT_WORKSPACE_NAME
-    );
+    if (!this.currentWorkspaceName) {
+      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+    }
+
+    return this._getWorkspacePath(this.currentWorkspaceName);
   }
 
   /** Get current workspace name */
@@ -138,7 +140,7 @@ export class PgExplorer {
    * IMPORTANT: This function must be called after constructing the class
    * if the project is not shared.
    */
-  async init(workspace?: string): Promise<PgExplorer> {
+  async init(workspace?: string) {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
@@ -196,6 +198,9 @@ export class PgExplorer {
       // TODO: delete this check after moving domains
       const lsExplorerStr = localStorage.getItem("explorer");
       if (lsExplorerStr) {
+        // Create a default workspace
+        this._workspace.new(PgWorkspace.DEFAULT_WORKSPACE_NAME);
+
         const lsExplorer: ExplorerJSON = JSON.parse(lsExplorerStr);
         const lsFiles = lsExplorer.files;
         for (const path in lsFiles) {
@@ -211,8 +216,9 @@ export class PgExplorer {
         }
         this._explorer.files = lsFiles;
       } else {
-        // Show the default explorer if the files are empty
-        this._explorer = { files: { "/src/": {} } };
+        // There are no files in state and IndexedDB
+        // return and show create a project option
+        return;
       }
 
       // Save file(s) to IndexedDB
@@ -244,8 +250,6 @@ export class PgExplorer {
       // Create it from localStorage
       await this.saveProgramInfo();
     }
-
-    return this;
   }
 
   /**

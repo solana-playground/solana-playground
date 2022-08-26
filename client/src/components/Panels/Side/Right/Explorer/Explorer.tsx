@@ -7,8 +7,13 @@ import Workspaces from "./Workspaces";
 import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
 import { PgEditor } from "../../../../../utils/pg";
+import { useAtom } from "jotai";
+import { explorerAtom } from "../../../../../state";
+import NoWorkspace from "./NoWorkspace";
 
 const Explorer = () => {
+  const [explorer] = useAtom(explorerAtom);
+
   const { newItem } = useNewItem();
   const { renameItem, deleteItem } = useExplorerContextMenu();
 
@@ -25,6 +30,8 @@ const Explorer = () => {
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [newItem, renameItem, deleteItem]);
+
+  if (!explorer?.hasWorkspaces()) return <NoWorkspace />;
 
   return (
     <ExplorerWrapper>

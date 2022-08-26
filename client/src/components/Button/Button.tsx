@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, forwardRef } from "react";
+import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
@@ -20,6 +20,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   size?: ButtonSize;
   fullWidth?: boolean;
   btnLoading?: boolean;
+  leftIcon?: ReactNode;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
@@ -31,6 +32,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
     {...props}
   >
     <span className="btn-spinner" />
+    <span className="left-icon">{props.leftIcon}</span>
     {props.children}
   </StyledButton>
 ));
@@ -146,6 +148,15 @@ const getButtonStyles = ({
         cursor: not-allowed;
         background-color: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
+      }
+    }
+
+    /* Left Icon */
+    & > span.left-icon {
+      display: flex;
+
+      & > svg {
+        margin-right: 0.5rem;
       }
     }
 

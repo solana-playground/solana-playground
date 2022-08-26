@@ -27,7 +27,7 @@ import {
   PgTest,
   Seed,
 } from "../../../../../utils/pg";
-import { Close, Minus, Plus } from "../../../../Icons";
+import { Close, MinusFilled, PlusFilled } from "../../../../Icons";
 import { useCurrentWallet } from "../../../Wallet";
 
 interface AccountProps {
@@ -394,7 +394,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
           <AddSeedWrapper>
             <Tooltip text="Add seed">
               <Button onClick={toggleAddSeed} kind="icon">
-                <Plus />
+                <PlusFilled />
               </Button>
             </Tooltip>
             {showAddSeed && (
@@ -409,7 +409,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
         ) : (
           <Tooltip text="Remove seed">
             <Button onClick={removeSeed} kind="icon">
-              <Minus />
+              <MinusFilled />
             </Button>
           </Tooltip>
         )}
