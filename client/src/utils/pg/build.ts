@@ -2,7 +2,7 @@ import { Idl } from "@project-serum/anchor";
 
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
-import { Files, TupleString } from "./explorer";
+import { Files, PgExplorer, TupleString } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 import { Pkgs } from "./terminal";
 
@@ -15,6 +15,7 @@ interface BuildResp {
 export class PgBuild {
   /**
    * Convert python files into rust with seahorse-compile-wasm and run `buildRust`
+   *
    * @param pythonFiles Python files in `src/`
    * @param seahorsePkg Loaded `seahorse-compile-wasm` package
    * @returns Build output from stderr(not only errors)
@@ -26,9 +27,11 @@ export class PgBuild {
     }
 
     const rustFiles = pythonFiles.map((file) => {
-      const [fileName, content] = file;
-      const newFileName = fileName.replace(".py", ".rs");
-      let newContent = compileFn(content, "seahorse");
+      const [path, content] = file;
+      const seahorseProgramName =
+        PgExplorer.getItemNameFromPath(path).split(".py")[0];
+      const libRsFilePath = path.replace(`${seahorseProgramName}.py`, "lib.rs");
+      let newContent = compileFn(content, seahorseProgramName);
 
       // The build server detects #[program] to determine if Anchor
       // Seahorse (without rustfmt) outputs # [program]
@@ -38,7 +41,7 @@ export class PgBuild {
         throw new Error("Seahorse compile failed");
       }
 
-      return [newFileName, newContent] as TupleString;
+      return [libRsFilePath, newContent] as TupleString;
     });
 
     return await this.buildRust(rustFiles);
@@ -46,6 +49,7 @@ export class PgBuild {
 
   /**
    * Build rust files and return the output
+   *
    * @param rustFiles Rust files from `src/`
    * @returns Build output from stderr(not only errors)
    */

@@ -120,7 +120,7 @@ pub struct NewAccount {
     src: "https://pbs.twimg.com/profile_images/1556384244598964226/S3cx06I2_400x400.jpg",
     files: [
       [
-        "lib.py",
+        "fizzbuzz.py",
         `# fizzbuzz
 # Built with Seahorse v0.1.6
 #
@@ -151,7 +151,7 @@ def do_fizzbuzz(fizzbuzz: FizzBuzz, n: u64):
     fizzbuzz.n = 0`,
       ],
     ],
-    defaultOpenFile: "lib.py",
+    defaultOpenFile: "fizzbuzz.py",
     circleImage: true,
   },
 ];
