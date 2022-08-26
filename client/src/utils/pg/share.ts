@@ -1,6 +1,16 @@
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
-import { ExplorerJSON, PgExplorer } from "./explorer";
+import { PgExplorer, ExplorerJSON } from "./explorer";
+
+export interface ShareJSON {
+  files: {
+    [key: string]: {
+      content?: string;
+      current?: boolean;
+      tabs?: boolean;
+    };
+  };
+}
 
 export class PgShare {
   /**
@@ -12,9 +22,24 @@ export class PgShare {
     const result = await PgCommon.checkForRespErr(resp.clone());
     if (result?.err) throw new Error(result.err);
 
-    const data: ExplorerJSON = await resp.json();
+    const shareData: ShareJSON = await resp.json();
 
-    return data;
+    // Convert ShareJSON into new ExplorerJSON to make shares backwards compatible
+    // with the old shares
+    const newData: ExplorerJSON = { files: {} };
+
+    for (const path in shareData.files) {
+      const fileInfo = shareData.files[path];
+      newData.files[path] = {
+        content: fileInfo.content,
+        meta: {
+          current: fileInfo.current,
+          tabs: fileInfo.tabs,
+        },
+      };
+    }
+
+    return newData;
   }
 
   /**
@@ -23,23 +48,21 @@ export class PgShare {
    * @returns object id if sharing is successful.
    */
   static async new(explorer: PgExplorer) {
-    console.log(explorer.getShareFiles());
-    return "abc";
-    // const resp = await fetch(`${SERVER_URL}/new`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     explorer: explorer.getShareFiles(),
-    //   }),
-    // });
+    const resp = await fetch(`${SERVER_URL}/new`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        explorer: explorer.getShareFiles(),
+      }),
+    });
 
-    // const result = await PgCommon.checkForRespErr(resp.clone());
-    // if (result?.err) throw new Error(result.err);
+    const result = await PgCommon.checkForRespErr(resp.clone());
+    if (result?.err) throw new Error(result.err);
 
-    // const objectId = PgCommon.decodeArrayBuffer(result.arrayBuffer!);
+    const objectId = PgCommon.decodeArrayBuffer(result.arrayBuffer!);
 
-    // return objectId;
+    return objectId;
   }
 }

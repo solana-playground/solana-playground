@@ -8,6 +8,7 @@ import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 import { PgProgramInfo, ProgramInfo } from "../program-info";
 import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
+import { ShareJSON } from "../share";
 
 export interface ExplorerJSON {
   files: {
@@ -927,7 +928,7 @@ export class PgExplorer {
     // Shared files are already in a valid form to share
     if (this.isShared) return { files };
 
-    const shareFiles: ExplorerJSON = { files: {} };
+    const shareFiles: ShareJSON = { files: {} };
 
     for (let path in files) {
       if (!path.startsWith(this._getCurrentSrcPath())) continue;
@@ -937,7 +938,12 @@ export class PgExplorer {
       // We are removing the workspace from path because share only needs /src
       path = path.replace(this.currentWorkspacePath, PgExplorer.ROOT_DIR_PATH);
 
-      shareFiles.files[path] = itemInfo;
+      // To make it backwards compatible with the old shares
+      shareFiles.files[path] = {
+        content: itemInfo.content,
+        current: itemInfo.meta?.current,
+        tabs: itemInfo.meta?.tabs,
+      };
     }
 
     if (!Object.keys(shareFiles.files).length) throw new Error("Empty share");
