@@ -15,26 +15,35 @@ export interface ExplorerJSON {
   };
 }
 
-interface ItemInfo {
-  content?: string;
-  current?: boolean;
-  tabs?: boolean;
+export interface FullFile extends ItemInfo {
+  /** Full path to the file */
+  path: string;
 }
 
-export interface FullFile extends ItemInfo {
-  path: string;
+interface ItemInfo {
+  /** Contents of the file */
+  content?: string;
+  /** Meta information about the file */
+  meta?: ItemMeta;
+}
+
+interface ItemMetaFile {
+  /** [Relative path]: ItemMeta */
+  [key: string]: ItemMeta;
+}
+
+interface ItemMeta {
+  /** Whether the file is the current file */
+  current?: boolean;
+  /** Whether the file is in tabs */
+  tabs?: boolean;
+  /** Editor's visible top line number */
+  topLineNumber?: number;
 }
 
 export interface Folder {
   folders: string[];
   files: string[];
-}
-
-interface TabFile {
-  /** Relative paths of the tabs */
-  tabs: string[];
-  /** Relative path of the current file */
-  currentPath?: string;
 }
 
 /** Array<[Path, Content]> */
@@ -108,8 +117,8 @@ export class PgExplorer {
   }
 
   /** Get current workspace's tab info file path */
-  private get _tabInfoPath() {
-    return this.currentWorkspacePath + PgWorkspace.TABINFO_PATH;
+  private get _metadataPath() {
+    return this.currentWorkspacePath + PgWorkspace.METADATA_PATH;
   }
 
   /** Get current workspace's program info file path */
@@ -190,11 +199,15 @@ export class PgExplorer {
         const lsExplorer: ExplorerJSON = JSON.parse(lsExplorerStr);
         const lsFiles = lsExplorer.files;
         for (const path in lsFiles) {
-          const data = lsFiles[path];
+          const oldData = lsFiles[path];
           delete lsFiles[path];
           lsFiles[
             path.replace(PgExplorer.ROOT_DIR_PATH, this.currentWorkspacePath)
-          ] = data;
+          ] = {
+            content: oldData.content,
+            // @ts-ignore // ignoring because the type of oldData changed
+            meta: { current: oldData.current, tabs: oldData.tabs },
+          };
         }
         this._explorer.files = lsFiles;
       } else {
@@ -206,19 +219,17 @@ export class PgExplorer {
       await this._writeAllFromState();
 
       // Create tab info file
-      await this.saveTabs({ initial: true });
+      await this.saveMeta();
     }
 
-    // Load tab info from IndexedDB
-    const tabStr = await this._readToString(this._tabInfoPath);
-    const tabFile: TabFile = JSON.parse(tabStr);
+    // Load metadata info from IndexedDB
+    const metaStr = await this._readToString(this._metadataPath);
+    const metaFile: ItemMetaFile = JSON.parse(metaStr);
 
-    for (const relativePath of tabFile.tabs) {
-      this.files[this.currentWorkspacePath + relativePath].tabs = true;
-    }
-    if (tabFile.currentPath) {
-      this.files[this.currentWorkspacePath + tabFile.currentPath].current =
-        true;
+    for (const path in metaFile) {
+      if (this.files[this.currentWorkspacePath + path]?.content) {
+        this.files[this.currentWorkspacePath + path].meta = metaFile[path];
+      }
     }
 
     // Load program info from IndexedDB
@@ -238,33 +249,30 @@ export class PgExplorer {
   }
 
   /**
-   * Saves tab and current file info to IndexedDB
+   * Saves file metadata to IndexedDB
    *
    * NOTE: Only runs when the project is not shared.
    */
-  async saveTabs(options?: { initial?: boolean }) {
+  async saveMeta(options?: { initial?: boolean }) {
     if (!this.isShared) {
       if (options?.initial) {
-        const tabFile: TabFile = { tabs: [] };
-        await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
+        const metaFile: ItemMeta = {};
+        await this._writeFile(
+          this._metadataPath,
+          JSON.stringify(metaFile),
+          true
+        );
         return;
       }
 
       const files = this.files;
 
-      const tabs = [];
-      let currentPath;
+      const metaFile: ItemMetaFile = {};
       for (const path in files) {
-        const itemInfo = files[path];
-        if (itemInfo?.tabs) tabs.push(this._getRelativePath(path));
-        if (itemInfo?.current) currentPath = this._getRelativePath(path);
+        metaFile[this._getRelativePath(path)] = { ...files[path].meta };
       }
 
-      const tabFile: TabFile = { tabs, currentPath };
-
-      console.log(`Saving file ${this._tabInfoPath}, ${tabFile.currentPath}`);
-
-      await this._writeFile(this._tabInfoPath, JSON.stringify(tabFile), true);
+      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
     }
   }
 
@@ -319,13 +327,15 @@ export class PgExplorer {
     if (itemType.file) {
       if (!this.isShared) {
         await this._writeFile(fullPath, "", true);
-        await this.saveTabs();
+        await this.saveMeta();
       }
 
       files[fullPath] = {
         content: "",
-        current: true,
-        tabs: true,
+        meta: {
+          current: true,
+          tabs: true,
+        },
       };
 
       this.changeCurrentFile(fullPath);
@@ -338,7 +348,7 @@ export class PgExplorer {
       files[fullPath] = {};
     }
 
-    await this.saveTabs();
+    await this.saveMeta();
   }
 
   /**
@@ -357,7 +367,6 @@ export class PgExplorer {
     options?: { skipNameValidation?: boolean }
   ) {
     if (!options?.skipNameValidation && !PgExplorer.isItemNameValid(newName)) {
-      console.log(newName, fullPath);
       throw new Error(ItemError.INVALID_NAME);
     }
     if (fullPath === this._getCurrentSrcPath()) {
@@ -431,7 +440,7 @@ export class PgExplorer {
       }
     }
 
-    await this.saveTabs();
+    await this.saveMeta();
   }
 
   /**
@@ -458,7 +467,7 @@ export class PgExplorer {
 
     const files = this.files;
 
-    const isCurrentFile = files[fullPath]?.current;
+    const isCurrentFile = files[fullPath]?.meta?.current;
 
     // If we are deleting current file's parent(s)
     // we need to update the current file to the last tab
@@ -482,7 +491,7 @@ export class PgExplorer {
     // or current file's parent is deleted
     if (isCurrentFile || isCurrentParent) this.changeCurrentFileToTheLastTab();
 
-    await this.saveTabs();
+    await this.saveMeta();
   }
 
   /**
@@ -523,8 +532,8 @@ export class PgExplorer {
       // Save everything from state to IndexedDB
       await this._writeAllFromState();
 
-      // Save tabs
-      await this.saveTabs();
+      // Save metadata
+      await this.saveMeta();
 
       await this.changeWorkspace(name);
 
@@ -535,8 +544,8 @@ export class PgExplorer {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
 
-    // Save tabs before initializing so data is never lost
-    if (this.hasWorkspaces()) await this.saveTabs();
+    // Save metadata before initializing so data is never lost
+    if (this.hasWorkspaces()) await this.saveMeta();
 
     // Create a new workspace in state
     this._workspace.new(name);
@@ -570,8 +579,8 @@ export class PgExplorer {
     name: string,
     options?: { initial?: boolean; defaultOpenFile?: string }
   ) {
-    // Save tabs before changing the workspace to never lose data
-    await this.saveTabs(options);
+    // Save metadata before changing the workspace to never lose data
+    await this.saveMeta(options);
 
     // Remove the current program info from localStorage
     PgProgramInfo.reset();
@@ -710,12 +719,15 @@ export class PgExplorer {
     const tabs: FullFile[] = [];
 
     for (const path in files) {
-      const fileInfo: ItemInfo = files[path];
+      const meta = files[path].meta;
 
-      if (fileInfo.tabs)
+      if (meta?.tabs)
         tabs.push({
           path,
-          current: fileInfo.current,
+          meta: {
+            current: meta.current,
+            topLineNumber: meta.topLineNumber,
+          },
         });
     }
 
@@ -729,9 +741,9 @@ export class PgExplorer {
     const files = this.files;
 
     for (const path in files) {
-      const fileInfo: ItemInfo = files[path];
+      const fileInfo = files[path];
 
-      if (fileInfo.current) {
+      if (fileInfo.meta?.current) {
         const currentFile: FullFile = { content: fileInfo.content, path };
         return currentFile;
       }
@@ -748,11 +760,39 @@ export class PgExplorer {
 
     const curFile = this.getCurrentFile();
 
-    if (curFile) files[curFile.path].current = false;
+    if (curFile) {
+      files[curFile.path].meta = {
+        ...files[curFile.path].meta,
+        current: false,
+      };
+    }
 
     // Add file to the tabs and current
-    files[newPath].tabs = true;
-    files[newPath].current = true;
+    files[newPath].meta = {
+      ...files[newPath].meta,
+      tabs: true,
+      current: true,
+    };
+  }
+
+  /**
+   * Get the visible top line number in Editor from state
+   *
+   * @param path Full path to the file
+   * @returns The top line number
+   */
+  getEditorTopLineNumber(path: string) {
+    return this.files[path].meta?.topLineNumber;
+  }
+
+  /**
+   * Save where the editor is to the state
+   *
+   * @param path Full path to the file
+   * @param topLineNumber Visible top line number
+   */
+  saveEditorTopLineNumber(path: string, topLineNumber: number) {
+    this.files[path].meta = { ...this.files[path].meta, topLineNumber };
   }
 
   /**
@@ -771,11 +811,11 @@ export class PgExplorer {
    */
   closeTab(path: string) {
     const files = this.files;
-    files[path].tabs = false;
+    files[path].meta!.tabs = false;
 
     // If we are closing the current file, change current file to the last tab
-    if (files[path].current) {
-      files[path].current = false;
+    if (files[path].meta?.current) {
+      files[path].meta!.current = false;
       this.changeCurrentFileToTheLastTab();
     }
   }
@@ -879,10 +919,9 @@ export class PgExplorer {
    * @returns the necessary data for a new share
    */
   getShareFiles() {
-    // Shared files are already in a valid form to share
-    if (this.isShared) return { files: this._explorer.files };
-
     const files = this.files;
+    // Shared files are already in a valid form to share
+    if (this.isShared) return { files };
 
     const shareFiles: ExplorerJSON = { files: {} };
 

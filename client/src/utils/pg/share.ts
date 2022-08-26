@@ -23,21 +23,23 @@ export class PgShare {
    * @returns object id if sharing is successful.
    */
   static async new(explorer: PgExplorer) {
-    const resp = await fetch(`${SERVER_URL}/new`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        explorer: explorer.getShareFiles(),
-      }),
-    });
+    console.log(explorer.getShareFiles());
+    return "abc";
+    // const resp = await fetch(`${SERVER_URL}/new`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     explorer: explorer.getShareFiles(),
+    //   }),
+    // });
 
-    const result = await PgCommon.checkForRespErr(resp.clone());
-    if (result?.err) throw new Error(result.err);
+    // const result = await PgCommon.checkForRespErr(resp.clone());
+    // if (result?.err) throw new Error(result.err);
 
-    const objectId = PgCommon.decodeArrayBuffer(result.arrayBuffer!);
+    // const objectId = PgCommon.decodeArrayBuffer(result.arrayBuffer!);
 
-    return objectId;
+    // return objectId;
   }
 }

@@ -239,7 +239,7 @@ const Editor = () => {
       defaultExtensions(),
       editorTheme,
       theme.highlight,
-      autosave(explorer, curFile, 5000),
+      autosave(explorer, curFile, 500),
     ];
     if (explorer.isCurrentFileRust()) {
       extensions.push(rustExtensions());
@@ -247,6 +247,7 @@ const Editor = () => {
       extensions.push(pythonExtensions());
     }
 
+    // Create editor state
     editor.setState(
       EditorState.create({
         doc: curFile.content,
@@ -254,8 +255,29 @@ const Editor = () => {
       })
     );
 
+    // Scroll to the top line number
+    const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
+    const pos = topLineNumber ? editor.state.doc.line(topLineNumber).from : 0;
+    editor.dispatch({
+      effects: EditorView.scrollIntoView(pos, { y: "start", yMargin: 0 }),
+    });
+
+    // Save top line number
+    const intervalId = setInterval(() => {
+      explorer.saveEditorTopLineNumber(
+        curFile.path,
+        editor.state.doc.lineAt(
+          editor.visualLineAtHeight(
+            editor.scrollDOM.getBoundingClientRect().top
+          ).from
+        ).number
+      );
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged, setNoOpenTabs]);
+  }, [editor, explorer, explorerChanged]);
 
   // Change programId
   useEffect(() => {

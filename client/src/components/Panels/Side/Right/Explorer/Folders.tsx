@@ -34,7 +34,7 @@ const Folders = () => {
     let timeOutId: NodeJS.Timeout;
 
     timeOutId = setTimeout(() => {
-      explorer?.saveTabs().catch();
+      explorer?.saveMeta().catch();
     }, 5000);
 
     return () => {

@@ -102,8 +102,8 @@ export class PgWorkspace {
   static readonly WORKSPACES_CONFIG_PATH = "/.config/workspaces.json";
 
   /** Workspace Relative Paths */
-  /** Relative path to tab info */
-  static readonly TABINFO_PATH = ".workspace/tabs.json";
+  /** Relative path to file metadatas */
+  static readonly METADATA_PATH = ".workspace/metadata.json";
   /** Relative path to program info */
   static readonly PROGRAM_INFO_PATH = ".workspace/program-info.json";
 

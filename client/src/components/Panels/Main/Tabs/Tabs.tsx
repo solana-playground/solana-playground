@@ -39,7 +39,7 @@ const Tabs = () => {
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
         {tabs?.map((t, i) => (
-          <Tab key={i} current={t.current} path={t.path} />
+          <Tab key={i} current={t.meta?.current} path={t.path} />
         ))}
       </TabsWrapper>
       <Wallet />
