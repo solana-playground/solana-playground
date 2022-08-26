@@ -263,7 +263,7 @@ const Editor = () => {
     });
 
     // Save top line number
-    const intervalId = setInterval(() => {
+    const topLineIntervalId = setInterval(() => {
       explorer.saveEditorTopLineNumber(
         curFile.path,
         editor.state.doc.lineAt(
@@ -274,7 +274,15 @@ const Editor = () => {
       );
     }, 1000);
 
-    return () => clearInterval(intervalId);
+    // Save metadata to IndexedDB if we haven't rendered in 5s
+    const saveMetadataIntervalId = setInterval(() => {
+      explorer?.saveMeta().catch();
+    }, 5000);
+
+    return () => {
+      clearInterval(topLineIntervalId);
+      clearInterval(saveMetadataIntervalId);
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, explorer, explorerChanged]);

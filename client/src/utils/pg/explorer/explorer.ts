@@ -791,7 +791,7 @@ export class PgExplorer {
   }
 
   /**
-   * Save where the editor is to the state
+   * Save the first visible top line number in editor to state
    *
    * @param path Full path to the file
    * @param topLineNumber Visible top line number

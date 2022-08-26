@@ -29,19 +29,6 @@ const Folders = () => {
     if (newEl) PgExplorer.setSelectedEl(newEl);
   }, [explorer]);
 
-  // Only update local storage if we haven't rendered in 5s
-  useEffect(() => {
-    let timeOutId: NodeJS.Timeout;
-
-    timeOutId = setTimeout(() => {
-      explorer?.saveMeta().catch();
-    }, 5000);
-
-    return () => {
-      clearTimeout(timeOutId);
-    };
-  });
-
   const ctxMenu = useExplorerContextMenu();
 
   if (!explorer) return null;
