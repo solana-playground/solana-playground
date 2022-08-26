@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
+import Text from "../../../../Text";
 import Select from "../../../../Select";
 import {
   NewWorkspace,
@@ -25,7 +26,7 @@ const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setModal] = useAtom(modalAtom);
 
-  if (!explorer?.hasWorkspaces()) return null;
+  if (!explorer?.hasWorkspaces()) return <ShareWarning />;
 
   const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     explorer.changeWorkspace(e.target.value);
@@ -125,6 +126,25 @@ const SelectWrapper = styled.div`
   & > select {
     width: 100%;
   }
+`;
+
+const ShareWarning = () => (
+  <NotYourProjectWarningWrapper>
+    <Text noBorder>
+      <div>
+        This is a shared project, the changes you make will not persist. You can
+        use the <Bold>Import</Bold> button to import as a new project.
+      </div>
+    </Text>
+  </NotYourProjectWarningWrapper>
+);
+
+const NotYourProjectWarningWrapper = styled.div`
+  padding: 1rem 0.5rem;
+`;
+
+const Bold = styled.span`
+  font-weight: bold;
 `;
 
 export default Workspaces;

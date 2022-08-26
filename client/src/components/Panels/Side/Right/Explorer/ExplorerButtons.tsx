@@ -1,7 +1,7 @@
 import { FC, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAtom } from "jotai";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import Button from "../../../../Button";
 import useNewItem from "./useNewItem";
@@ -10,26 +10,16 @@ import { explorerAtom, modalAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
 
 const ExplorerButtons = () => (
-  <ExplorerButtonsWrapper>
-    <NotYourProjectWarning />
-
-    <ButtonsWrapper>
-      <NewItemButton imageName="new_file.png" title="New file" />
-      <NewItemButton imageName="new_folder.png" title="New folder" />
-      <NewItem />
-      <CollapseAllButton />
-      <ShareButton />
-      <ImportButton />
-      <GoBackButton />
-    </ButtonsWrapper>
-  </ExplorerButtonsWrapper>
+  <ButtonsWrapper>
+    <NewItemButton imageName="new_file.png" title="New file" />
+    <NewItemButton imageName="new_folder.png" title="New folder" />
+    <NewItem />
+    <CollapseAllButton />
+    <ShareButton />
+    <ImportButton />
+    <GoBackButton />
+  </ButtonsWrapper>
 );
-
-const ExplorerButtonsWrapper = styled.div`
-  padding: 0.25rem;
-  display: flex;
-  flex-direction: column;
-`;
 
 const ButtonsWrapper = styled.div`
   padding: 0.25rem;
@@ -55,31 +45,10 @@ const ButtonsWrapper = styled.div`
   }
 `;
 
-const NotYourProjectWarningWrapper = styled.div`
-  ${({ theme }) => css`
-    font-size: ${theme.font?.size.small};
-  `}
-`;
-
 interface ButtonProps {
   imageName: string;
   title: string;
 }
-
-const NotYourProjectWarning = () => {
-  const [explorer] = useAtom(explorerAtom);
-
-  if (!explorer?.isShared) return null;
-
-  return (
-    <NotYourProjectWarningWrapper>
-      <p>
-        This is not your project, the changes you make will not persist. You can
-        use the Import button to import as a new project
-      </p>
-    </NotYourProjectWarningWrapper>
-  );
-};
 
 const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
   const { newItem } = useNewItem();
