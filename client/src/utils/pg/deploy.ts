@@ -10,8 +10,8 @@ import { PgTerminal } from "./terminal/";
 import { PgTx } from "./tx";
 
 export class PgDeploy {
-  private static readonly MAX_RETRIES = 10;
-  private static readonly SLEEP_MULTIPLIER = 1.5;
+  private static readonly _MAX_RETRIES = 10;
+  private static readonly _SLEEP_MULTIPLIER = 1.4;
 
   static async deploy(
     conn: Connection,
@@ -21,8 +21,8 @@ export class PgDeploy {
   ) {
     // Get program id
     const programPk = PgProgramInfo.getPk()?.programPk;
-    // This shouldn't happen because the deploy button is disabled in this condition.
-    if (!programPk) throw new Error("Invalid program id.");
+    // This shouldn't happen because the deploy button is disabled for this condition.
+    if (!programPk) throw new Error("Program id not found.");
 
     // Regular deploy without custom elf upload
     if (!programBuffer.length) {
@@ -99,7 +99,7 @@ export class PgDeploy {
 
     let sleepAmount = 1000;
     // Retry until it's successful or exceeds max tries
-    for (let i = 0; i < this.MAX_RETRIES; i++) {
+    for (let i = 0; i < this._MAX_RETRIES; i++) {
       try {
         if (i !== 0) {
           const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
@@ -123,15 +123,15 @@ export class PgDeploy {
         if (bufferInit) break;
       } catch (e: any) {
         console.log("Create buffer error: ", e.message);
-        if (i === this.MAX_RETRIES - 1)
+        if (i === this._MAX_RETRIES - 1)
           throw new Error(
             `Exceeded maximum amount of retries(${PgTerminal.bold(
-              this.MAX_RETRIES.toString()
+              this._MAX_RETRIES.toString()
             )}). Please change RPC endpoint from the settings.`
           );
 
         await PgCommon.sleep(sleepAmount);
-        sleepAmount *= this.SLEEP_MULTIPLIER;
+        sleepAmount *= this._SLEEP_MULTIPLIER;
       }
     }
 
@@ -153,13 +153,13 @@ export class PgDeploy {
 
     let txHash;
     let errorMsg =
-      "Please check the browser console. You can report the issue in " +
+      "Please check the browser console. If the problem persists, you can report the issue in " +
       GITHUB_URL +
       "/issues";
     sleepAmount = 1000;
 
     // Retry until it's successful or exceeds max tries
-    for (let i = 0; i < this.MAX_RETRIES; i++) {
+    for (let i = 0; i < this._MAX_RETRIES; i++) {
       try {
         if (!programExists) {
           // First deploy needs keypair
@@ -240,7 +240,6 @@ export class PgDeploy {
         }
       } catch (e: any) {
         console.log(e.message);
-        // Not enough balance
         if (e.message.endsWith("0x0")) {
           await BpfLoaderUpgradeable.closeBuffer(
             conn,
@@ -250,7 +249,7 @@ export class PgDeploy {
 
           throw new Error("Incorrect program id.");
         } else if (e.message.endsWith("0x1")) {
-          // Close buffer
+          // Not enough balance
           await BpfLoaderUpgradeable.closeBuffer(
             conn,
             wallet,
@@ -263,7 +262,7 @@ export class PgDeploy {
         }
 
         await PgCommon.sleep(sleepAmount);
-        sleepAmount *= this.SLEEP_MULTIPLIER;
+        sleepAmount *= this._SLEEP_MULTIPLIER;
       }
     }
 
