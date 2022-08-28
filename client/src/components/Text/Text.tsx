@@ -1,13 +1,12 @@
 import { FC, ReactNode } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
-type TextType = "Info" | "Warning" | "Success" | "Error";
+type TextType = "Normal" | "Info" | "Warning" | "Success" | "Error";
 type TextSize = "Small" | "Medium" | "Large";
 
 export interface TextProps {
   type?: TextType;
   size?: TextSize;
-  noBorder?: boolean;
   IconEl?: ReactNode;
 }
 
@@ -21,24 +20,24 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 };
 
 const Wrapper = styled.div<TextProps>`
-  ${({ theme, type, size, noBorder, IconEl }) =>
-    getTextStyle(theme, type, size, IconEl ? true : false, noBorder)}
+  ${({ theme, type, size, IconEl }) =>
+    getTextStyle(theme, type, size, IconEl ? true : false)}
 `;
 
 const getTextStyle = (
   theme: DefaultTheme,
-  type: TextType = "Info",
+  type: TextType = "Normal",
   size: TextSize = "Small",
-  iconElExists: boolean,
-  noBorder?: boolean
+  iconElExists: boolean
 ) => {
-  let borderColor;
+  let color;
   let fontSize;
 
-  if (type === "Info") borderColor = theme.colors.state.info.color;
-  else if (type === "Warning") borderColor = theme.colors.state.warning.color;
-  else if (type === "Success") borderColor = theme.colors.state.success.color;
-  else if (type === "Error") borderColor = theme.colors.state.error.color;
+  if (type === "Normal") color = "inherit";
+  else if (type === "Info") color = theme.colors.state.info.color;
+  else if (type === "Warning") color = theme.colors.state.warning.color;
+  else if (type === "Success") color = theme.colors.state.success.color;
+  else if (type === "Error") color = theme.colors.state.error.color;
 
   if (size === "Small") fontSize = theme.font?.size.small;
   else if (size === "Medium") fontSize = theme.font?.size.medium;
@@ -46,9 +45,9 @@ const getTextStyle = (
 
   let returnedCss = css`
     font-size: ${fontSize};
-    padding: 1rem;
+    color: ${color};
     background-color: ${theme.colors.right?.otherBg};
-    border: ${noBorder ? "none" : `1px solid ${borderColor}`};
+    padding: 1rem;
     border-radius: ${theme.borderRadius};
     display: flex;
     justify-content: center;

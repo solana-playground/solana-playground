@@ -16,7 +16,7 @@ const NoWorkspace = () => {
 
   return (
     <Wrapper>
-      <Text noBorder>Start by creating a new project.</Text>
+      <Text>Start by creating a new project.</Text>
       <Button
         onClick={handleClick}
         kind="outline"

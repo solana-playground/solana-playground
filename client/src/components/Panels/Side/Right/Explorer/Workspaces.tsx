@@ -129,17 +129,17 @@ const SelectWrapper = styled.div`
 `;
 
 const ShareWarning = () => (
-  <NotYourProjectWarningWrapper>
-    <Text noBorder>
+  <ShareWarningWrapper>
+    <Text>
       <div>
         This is a shared project, the changes you make will not persist. You can
         use the <Bold>Import</Bold> button to import as a new project.
       </div>
     </Text>
-  </NotYourProjectWarningWrapper>
+  </ShareWarningWrapper>
 );
 
-const NotYourProjectWarningWrapper = styled.div`
+const ShareWarningWrapper = styled.div`
   padding: 1rem 0.5rem;
 `;
 
