@@ -5,7 +5,7 @@ import styled from "styled-components";
 import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
 import Input, { defaultInputProps } from "../../../../../Input";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
+import { explorerAtom } from "../../../../../../state";
 import { PgExplorer } from "../../../../../../utils/pg";
 
 interface RenameItemProps {
@@ -14,7 +14,6 @@ interface RenameItemProps {
 
 export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
-  const [, refresh] = useAtom(refreshExplorerAtom);
 
   const { close } = useModal();
 
@@ -40,7 +39,6 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
     try {
       await explorer.renameItem(path, newName);
 
-      refresh();
       close();
     } catch (e: any) {
       console.log(e.message);

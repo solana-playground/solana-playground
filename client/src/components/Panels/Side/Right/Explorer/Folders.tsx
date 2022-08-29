@@ -74,7 +74,6 @@ interface FolderProps extends FolderType {
 // RFolder = Recursive Folder
 const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
   const [explorer] = useAtom(explorerAtom);
-  const [, refresh] = useAtom(refreshExplorerAtom);
 
   const folderName = useMemo(() => {
     return PgExplorer.getItemNameFromPath(path);
@@ -91,7 +90,6 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
       explorer?.changeCurrentFile(
         PgExplorer.getItemPathFromEl(e.currentTarget)!
       );
-      refresh();
     }
   };
 

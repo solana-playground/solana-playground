@@ -9,13 +9,11 @@ import {
   ctxSelectedAtom,
   explorerAtom,
   newItemAtom,
-  refreshExplorerAtom,
 } from "../../../../../../state";
 import { PgExplorer } from "../../../../../../utils/pg";
 
 export const NewItem = () => {
   const [explorer] = useAtom(explorerAtom);
-  const [, refresh] = useAtom(refreshExplorerAtom);
   const [el, setEl] = useAtom(newItemAtom);
   const [ctxSelected, setCtxSelected] = useAtom(ctxSelectedAtom);
 
@@ -60,9 +58,6 @@ export const NewItem = () => {
           // Reset Ctx Selected
           setCtxSelected(null);
 
-          // Trigger refresh on components that have explorerRefreshAtom
-          refresh();
-
           // Select new file
           PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
         } catch (e: any) {
@@ -70,7 +65,7 @@ export const NewItem = () => {
         }
       } else if (e.key === "Escape") setEl(null);
     },
-    [itemName, explorer, ctxSelected, setEl, setCtxSelected, refresh]
+    [itemName, explorer, ctxSelected, setEl, setCtxSelected]
   );
 
   useEffect(() => {

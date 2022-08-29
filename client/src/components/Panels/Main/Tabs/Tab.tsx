@@ -6,7 +6,7 @@ import LangIcon from "../../../LangIcon";
 import Button from "../../../Button";
 import { Close } from "../../../Icons";
 import { PgExplorer } from "../../../../utils/pg";
-import { explorerAtom, refreshExplorerAtom } from "../../../../state";
+import { explorerAtom } from "../../../../state";
 
 interface TabProps {
   path: string;
@@ -15,7 +15,6 @@ interface TabProps {
 
 const Tab: FC<TabProps> = ({ current, path }) => {
   const [explorer] = useAtom(explorerAtom);
-  const [, refresh] = useAtom(refreshExplorerAtom);
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -23,14 +22,12 @@ const Tab: FC<TabProps> = ({ current, path }) => {
     if (!explorer) return;
 
     explorer.closeTab(path);
-    refresh();
-  }, [explorer, path, refresh]);
+  }, [explorer, path]);
 
   const changeTab = (e: MouseEvent<HTMLDivElement>) => {
     if (closeButtonRef.current?.contains(e.target as Node) || !explorer) return;
 
     explorer.changeCurrentFile(path);
-    refresh();
   };
 
   const handleContextMenu = (e: MouseEvent) => {

@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 
 import ModalInside from "../../../../../Modal/ModalInside";
 import { Warning } from "../../../../../Icons";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
+import { explorerAtom } from "../../../../../../state";
 import { PgExplorer } from "../../../../../../utils/pg";
 
 interface DeleteItemProps {
@@ -13,14 +13,12 @@ interface DeleteItemProps {
 
 export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   const [explorer] = useAtom(explorerAtom);
-  const [, refresh] = useAtom(refreshExplorerAtom);
 
   const deleteItem = async () => {
     if (!explorer) return;
 
     try {
       await explorer.deleteItem(path);
-      refresh();
     } catch (e: any) {
       console.log(e.message);
     }

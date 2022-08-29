@@ -14,7 +14,7 @@ import { useCurrentWallet } from "../../Wallet";
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom);
-  const [, refresh] = useAtom(refreshExplorerAtom);
+  useAtom(refreshExplorerAtom);
 
   // No need memoization
   const tabs = explorer?.getTabs();
@@ -27,13 +27,12 @@ const Tabs = () => {
         if (!currentPath) return;
 
         explorer.closeTab(currentPath);
-        refresh();
       }
     };
 
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [explorer, refresh]);
+  }, [explorer]);
 
   return (
     <Wrapper id={Id.TABS}>

@@ -1,5 +1,3 @@
-import { Dispatch } from "react";
-import { SetStateAction } from "jotai";
 import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
@@ -72,10 +70,7 @@ export class PgExplorer {
   /**
    * @param explorer state is shared if this param is supplied
    */
-  constructor(
-    refresh: Dispatch<SetStateAction<number>>,
-    explorer?: ExplorerJSON
-  ) {
+  constructor(refresh: () => void, explorer?: ExplorerJSON) {
     if (explorer) {
       this._shared = true;
       this._explorer = explorer;
@@ -87,7 +82,7 @@ export class PgExplorer {
       this._workspace = new PgWorkspace();
     }
 
-    this._refresh = () => refresh((c) => c + 1);
+    this._refresh = refresh;
   }
 
   /** Get whether the current page is shared */
@@ -353,6 +348,8 @@ export class PgExplorer {
       }
 
       files[fullPath] = {};
+
+      this._refresh();
     }
 
     await this.saveMeta();
@@ -447,6 +444,8 @@ export class PgExplorer {
       }
     }
 
+    this._refresh();
+
     await this.saveMeta();
   }
 
@@ -496,7 +495,9 @@ export class PgExplorer {
 
     // Change current file to the last tab when current file is deleted
     // or current file's parent is deleted
-    if (isCurrentFile || isCurrentParent) this.changeCurrentFileToTheLastTab();
+    if (isCurrentFile || isCurrentParent) this._changeCurrentFileToTheLastTab();
+
+    this._refresh();
 
     await this.saveMeta();
   }
@@ -780,6 +781,8 @@ export class PgExplorer {
       tabs: true,
       current: true,
     };
+
+    this._refresh();
   }
 
   /**
@@ -803,17 +806,6 @@ export class PgExplorer {
   }
 
   /**
-   * Changes current file to the last opened tab if it exists
-   */
-  changeCurrentFileToTheLastTab() {
-    const tabs = this.getTabs();
-    if (!tabs.length) return;
-
-    const lastTabPath = tabs[tabs.length - 1].path;
-    this.changeCurrentFile(lastTabPath);
-  }
-
-  /**
    * Closes the tab and changes the current file to the last opened tab if it exists
    */
   closeTab(path: string) {
@@ -823,8 +815,10 @@ export class PgExplorer {
     // If we are closing the current file, change current file to the last tab
     if (files[path].meta?.current) {
       files[path].meta!.current = false;
-      this.changeCurrentFileToTheLastTab();
+      this._changeCurrentFileToTheLastTab();
     }
+
+    this._refresh();
   }
 
   /**
@@ -1175,6 +1169,17 @@ export class PgExplorer {
    */
   private _getWorkspacePath(name: string) {
     return PgExplorer.ROOT_DIR_PATH + PgExplorer.appendSlash(name);
+  }
+
+  /**
+   * Change current file to the last opened tab if it exists
+   */
+  private _changeCurrentFileToTheLastTab() {
+    const tabs = this.getTabs();
+    if (!tabs.length) return;
+
+    const lastTabPath = tabs[tabs.length - 1].path;
+    this.changeCurrentFile(lastTabPath);
   }
 
   /** Static methods */
