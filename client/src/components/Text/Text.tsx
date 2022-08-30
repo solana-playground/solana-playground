@@ -3,10 +3,12 @@ import styled, { css, DefaultTheme } from "styled-components";
 
 type TextType = "Normal" | "Info" | "Warning" | "Success" | "Error";
 type TextSize = "Small" | "Medium" | "Large";
+type TextBg = "Primary" | "Secondary" | "Transparent";
 
 export interface TextProps {
   type?: TextType;
   size?: TextSize;
+  bg?: TextBg;
   IconEl?: ReactNode;
 }
 
@@ -20,18 +22,20 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 };
 
 const Wrapper = styled.div<TextProps>`
-  ${({ theme, type, size, IconEl }) =>
-    getTextStyle(theme, type, size, IconEl ? true : false)}
+  ${({ theme, type, size, bg, IconEl }) =>
+    getTextStyle(theme, type, size, bg, IconEl ? true : false)}
 `;
 
 const getTextStyle = (
   theme: DefaultTheme,
   type: TextType = "Normal",
   size: TextSize = "Small",
+  bg: TextBg = "Secondary",
   iconElExists: boolean
 ) => {
   let color;
   let fontSize;
+  let bgColor;
 
   if (type === "Normal") color = "inherit";
   else if (type === "Info") color = theme.colors.state.info.color;
@@ -43,11 +47,15 @@ const getTextStyle = (
   else if (size === "Medium") fontSize = theme.font?.size.medium;
   else if (size === "Large") fontSize = theme.font?.size.large;
 
+  if (bg === "Primary") bgColor = theme.colors.right?.bg;
+  else if (bg === "Secondary") bgColor = theme.colors.right?.otherBg;
+  else if (bg === "Transparent") bgColor = "transparent";
+
   let returnedCss = css`
     font-size: ${fontSize};
     color: ${color};
-    background-color: ${theme.colors.right?.otherBg};
-    padding: 1rem;
+    background-color: ${bgColor};
+    padding: ${bg === "Transparent" ? "0" : "1rem"};
     border-radius: ${theme.borderRadius};
     display: flex;
     justify-content: center;

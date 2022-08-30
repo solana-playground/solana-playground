@@ -1,4 +1,11 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDropzone } from "react-dropzone";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
@@ -25,12 +32,47 @@ export const ImportFs = () => {
   // Handle user input
   const [name, setName] = useState("");
   const [files, setFiles] = useState<Files>();
+  const [filesError, setFilesError] = useState("");
+  const [importError, setImportError] = useState("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
+    setImportError("");
   };
 
-  const disableCond = !explorer || !name || !files;
+  const onDrop = useCallback(async (userFiles) => {
+    try {
+      const importFiles: Files = [];
+      for (const userFile of userFiles) {
+        const pathAfterRoot: string = userFile.path.replace(/^(\/)?\w*\//, "");
+        if (pathAfterRoot.endsWith(".zip")) {
+          throw new Error("Can't import .zip files.");
+        }
+
+        const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
+        if (arrayBuffer.byteLength > 1024 * 128) {
+          throw new Error(
+            `File '${pathAfterRoot}' is too big.(${arrayBuffer.byteLength})`
+          );
+        }
+
+        const content = PgCommon.decodeArrayBuffer(arrayBuffer);
+        importFiles.push([pathAfterRoot, content]);
+      }
+
+      setFiles(importFiles);
+      setFilesError("");
+    } catch (e: any) {
+      setFilesError(e.message);
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+  });
+
+  const disableCond =
+    !explorer || !name || !files || !!filesError || !!importError;
 
   const importNewWorkspace = async () => {
     if (disableCond) return;
@@ -39,29 +81,9 @@ export const ImportFs = () => {
       await explorer.newWorkspace(name, { files });
       close();
     } catch (e: any) {
-      console.log(e.message);
+      setImportError(e.message);
     }
   };
-
-  const onDrop = useCallback(async (userFiles) => {
-    try {
-      const importFiles: Files = [];
-      for (const userFile of userFiles) {
-        const arrayBuffer = await userFile.arrayBuffer();
-        const content = PgCommon.decodeArrayBuffer(arrayBuffer);
-        const pathAfterRoot = userFile.path.replace(/^(\/)?\w*\//, "");
-        importFiles.push([pathAfterRoot, content]);
-      }
-
-      setFiles(importFiles);
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-  });
 
   return (
     <ModalInside
@@ -86,18 +108,11 @@ export const ImportFs = () => {
         <ImportFileWrapper {...getRootProps()} isDragActive={isDragActive}>
           <Input {...getInputProps()} />
           <Upload />
-          <div>
-            {files ? (
-              <SuccessText>
-                <Checkmark />
-                Imported file{files.length > 1 && "s"}.
-              </SuccessText>
-            ) : isDragActive ? (
-              "Just do it"
-            ) : (
-              "Select or drop files"
-            )}
-          </div>
+          <ImportResult
+            error={importError || filesError}
+            filesLength={files?.length}
+            isDragActive={isDragActive}
+          />
         </ImportFileWrapper>
       </Content>
     </ModalInside>
@@ -141,17 +156,6 @@ const ImportFileWrapper = styled.div<{ isDragActive: boolean }>`
     transition: all ${theme.transition?.duration.short}
       ${theme.transition?.type};
 
-    &:hover {
-      cursor: pointer;
-
-      & > div {
-        color: ${theme.colors.default.textPrimary};
-      }
-
-      border-color: ${theme.colors.default.primary +
-      (theme.transparency?.high ?? "")};
-    }
-
     & > svg {
       width: 4rem;
       height: 4rem;
@@ -163,15 +167,70 @@ const ImportFileWrapper = styled.div<{ isDragActive: boolean }>`
       color: ${theme.colors.default.textSecondary};
       font-weight: bold;
     }
+
+    &:hover {
+      cursor: pointer;
+
+      & > div {
+        color: ${theme.colors.default.textPrimary};
+      }
+
+      border-color: ${theme.colors.default.primary +
+      (theme.transparency?.high ?? "")};
+    }
   `}
 `;
 
-const SuccessText = styled.div`
-  display: flex;
-  align-items: center;
-  color: ${({ theme }) => theme.colors.default.secondary};
+interface ImportResultProps {
+  error: string;
+  isDragActive: boolean;
+  filesLength?: number;
+}
 
-  & > svg {
-    margin-right: 0.5rem;
-  }
+const ImportResult: FC<ImportResultProps> = ({
+  error,
+  filesLength,
+  isDragActive,
+}) => {
+  if (error)
+    return (
+      <ImportResultWrapper>
+        <ImportResultText type="Error">{error}</ImportResultText>
+      </ImportResultWrapper>
+    );
+
+  if (filesLength)
+    return (
+      <ImportResultWrapper>
+        <ImportResultText type="Success">
+          <Checkmark />
+          Imported file{filesLength > 1 && "s"}.
+        </ImportResultText>
+      </ImportResultWrapper>
+    );
+
+  if (isDragActive)
+    return <ImportResultWrapper>Just do it</ImportResultWrapper>;
+
+  return <ImportResultWrapper>Select or drop files</ImportResultWrapper>;
+};
+
+const ImportResultWrapper = styled.div``;
+
+interface ImportResultTextProps {
+  type: "Success" | "Error";
+}
+
+const ImportResultText = styled.div<ImportResultTextProps>`
+  ${({ theme, type }) => css`
+    display: flex;
+    align-items: center;
+    color: ${type === "Success"
+      ? theme.colors.default.secondary
+      : theme.colors.state.error.color};
+
+    & > svg {
+      margin-right: 0.5rem;
+    }
+  `}
 `;
