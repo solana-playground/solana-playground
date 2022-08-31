@@ -395,6 +395,9 @@ const TerminalWrapper = styled.div`
     height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
     margin-left: 1rem;
 
+    --color: ${theme.colors.terminal?.color ??
+    theme.colors.default.textPrimary};
+
     & .xterm-viewport {
       background-color: inherit !important;
       width: 100% !important;
@@ -403,8 +406,15 @@ const TerminalWrapper = styled.div`
     & .xterm-rows {
       font-family: ${theme.font?.family} !important;
       font-size: ${theme.font?.size.medium} !important;
-      color: ${theme.colors.terminal?.color ??
-      theme.colors.default.textPrimary} !important;
+      color: var(--color) !important;
+
+      &.xterm-focus .xterm-cursor.xterm-cursor-block {
+        background-color: var(--color) !important;
+      }
+
+      &:not(.xterm-focus) .xterm-cursor.xterm-cursor-block {
+        outline-color: var(--color) !important;
+      }
     }
   `}
 `;

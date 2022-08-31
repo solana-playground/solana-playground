@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
-import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
+import { EditorState } from "@codemirror/state";
 
 import Home from "./Home";
 import Theme from "../../../../theme/interface";
@@ -357,7 +357,7 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
     overflow: auto;
-    background-color: ${({ theme }) => theme.colors.home?.bg};
+    background-color: ${theme.colors.home?.bg};
 
     /* Scrollbar */
     /* Chromium */

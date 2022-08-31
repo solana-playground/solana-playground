@@ -60,7 +60,6 @@ const StyledItem = styled(Item)`
 
     & span:nth-child(2) {
       color: ${theme.colors.default.textSecondary};
-      font-size: ${theme.font?.size.small};
     }
   `}
 `;

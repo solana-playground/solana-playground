@@ -132,8 +132,8 @@ const ShareWarning = () => (
   <ShareWarningWrapper>
     <Text>
       <div>
-        This is a shared project, the changes you make will not persist. You can
-        use the <Bold>Import</Bold> button to import as a new project.
+        This is a shared project, the changes you make will not persist. In
+        order to save changes, you can use the <Bold>Import</Bold> button.
       </div>
     </Text>
   </ShareWarningWrapper>
