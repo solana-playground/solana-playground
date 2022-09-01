@@ -45,8 +45,10 @@ export const ImportFs = () => {
       const importFiles: Files = [];
       for (const userFile of userFiles) {
         const pathAfterRoot: string = userFile.path.replace(/^(\/)?\w*\//, "");
-        if (pathAfterRoot.endsWith(".zip")) {
-          throw new Error("Can't import .zip files.");
+        if (!(pathAfterRoot.endsWith(".rs") || pathAfterRoot.endsWith(".py"))) {
+          throw new Error(
+            `Only .rs and .py file imports are allowed.(${pathAfterRoot})`
+          );
         }
 
         const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
@@ -148,10 +150,9 @@ const ImportFileWrapper = styled.div<{ isDragActive: boolean }>`
     flex-direction: column;
     width: 20rem;
     border: 2px dashed
-      ${theme.colors.default.primary + (theme.transparency?.medium ?? "")};
+      ${theme.colors.default.primary + theme.transparency?.medium};
     border-radius: ${theme.borderRadius};
-    background-color: ${theme.colors.default.primary +
-    (theme.transparency?.low ?? "")};
+    background-color: ${theme.colors.default.primary + theme.transparency?.low};
     opacity: ${isDragActive ? 0.55 : 1};
     transition: all ${theme.transition?.duration.short}
       ${theme.transition?.type};
@@ -175,8 +176,7 @@ const ImportFileWrapper = styled.div<{ isDragActive: boolean }>`
         color: ${theme.colors.default.textPrimary};
       }
 
-      border-color: ${theme.colors.default.primary +
-      (theme.transparency?.high ?? "")};
+      border-color: ${theme.colors.default.primary + theme.transparency?.high};
     }
   `}
 `;
