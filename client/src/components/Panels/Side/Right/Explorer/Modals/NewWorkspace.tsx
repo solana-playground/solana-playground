@@ -18,6 +18,7 @@ import {
   Framework as FrameworkType,
   FRAMEWORKS,
 } from "../../../../../../utils/pg/explorer";
+import { ClassName } from "../../../../../../constants";
 
 export const NewWorkspace = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -33,14 +34,18 @@ export const NewWorkspace = () => {
 
   // Handle user input
   const [name, setName] = useState("");
+  const [error, setError] = useState("");
   const [selected, setSelected] = useState("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
+    setError("");
   };
 
+  const disableCond = !name || !selected || !explorer;
+
   const newWorkspace = async () => {
-    if (!name || !selected || !explorer) return;
+    if (disableCond) return;
 
     try {
       const { files, defaultOpenFile } = FRAMEWORKS.find(
@@ -53,7 +58,7 @@ export const NewWorkspace = () => {
       });
       close();
     } catch (e: any) {
-      console.log(e.message);
+      setError(e.message);
     }
   };
 
@@ -62,18 +67,20 @@ export const NewWorkspace = () => {
       buttonProps={{
         name: "Create",
         onSubmit: newWorkspace,
-        disabled: !name || !selected,
+        disabled: disableCond,
       }}
       closeOnSubmit={false}
     >
       <Content>
         <WorkspaceNameWrapper>
           <MainText>Project name</MainText>
+          {error && <ErrorText>{error}</ErrorText>}
           <Input
             ref={inputRef}
             onChange={handleChange}
             value={name}
             placeholder="my first project..."
+            className={error ? ClassName.ERROR : ""}
             {...defaultInputProps}
           />
         </WorkspaceNameWrapper>
@@ -113,6 +120,14 @@ const MainText = styled.div`
   margin: 1rem 0 0.5rem 0;
   font-weight: bold;
   font-size: ${({ theme }) => theme.font?.size.large};
+`;
+
+const ErrorText = styled.div`
+  ${({ theme }) => css`
+    color: ${theme.colors.state.error.color};
+    font-size: ${theme.font?.size.small};
+    margin-bottom: 0.5rem;
+  `}
 `;
 
 const FrameworkSectionWrapper = styled.div`
