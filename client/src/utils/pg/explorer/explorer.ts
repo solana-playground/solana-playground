@@ -2,11 +2,11 @@ import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
-import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
-import { PgProgramInfo, ProgramInfo } from "../program-info";
 import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
+import { PgProgramInfo, ProgramInfo } from "../program-info";
 import { ShareJSON } from "../share";
+import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 
 export interface ExplorerJSON {
   files: {
@@ -231,7 +231,7 @@ export class PgExplorer {
     const metaFile: ItemMetaFile = JSON.parse(metaStr);
 
     for (const path in metaFile) {
-      if (this.files[this.currentWorkspacePath + path]?.content) {
+      if (this.files[this.currentWorkspacePath + path]?.content !== undefined) {
         this.files[this.currentWorkspacePath + path].meta = metaFile[path];
       }
     }
@@ -256,26 +256,22 @@ export class PgExplorer {
    * NOTE: Only runs when the project is not shared.
    */
   async saveMeta(options?: { initial?: boolean }) {
-    if (!this.isShared) {
-      if (options?.initial) {
-        const metaFile: ItemMeta = {};
-        await this._writeFile(
-          this._metadataPath,
-          JSON.stringify(metaFile),
-          true
-        );
-        return;
-      }
+    if (this.isShared) return;
 
-      const files = this.files;
-
-      const metaFile: ItemMetaFile = {};
-      for (const path in files) {
-        metaFile[this._getRelativePath(path)] = { ...files[path].meta };
-      }
-
+    if (options?.initial) {
+      const metaFile: ItemMeta = {};
       await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+      return;
     }
+
+    const files = this.files;
+
+    const metaFile: ItemMetaFile = {};
+    for (const path in files) {
+      metaFile[this._getRelativePath(path)] = { ...files[path].meta };
+    }
+
+    await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
   }
 
   /**
