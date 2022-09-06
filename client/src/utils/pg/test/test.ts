@@ -276,8 +276,40 @@ export class PgTest {
           buffer = Buffer.from(this.parse(seed.value, seed.type));
           break;
         }
-        case "i32": {
+        case "u8": {
           buffer = Buffer.from([this.parse(seed.value, seed.type)]);
+          break;
+        }
+        case "u16": {
+          buffer = new BN(this.parse(seed.value, seed.type)).toArrayLike(
+            Buffer,
+            "le",
+            2
+          );
+          break;
+        }
+        case "u32": {
+          buffer = new BN(this.parse(seed.value, seed.type)).toArrayLike(
+            Buffer,
+            "le",
+            4
+          );
+          break;
+        }
+        case "u64": {
+          buffer = new BN(this.parse(seed.value, seed.type)).toArrayLike(
+            Buffer,
+            "le",
+            8
+          );
+          break;
+        }
+        case "u128": {
+          buffer = new BN(this.parse(seed.value, seed.type)).toArrayLike(
+            Buffer,
+            "le",
+            16
+          );
           break;
         }
         default: {

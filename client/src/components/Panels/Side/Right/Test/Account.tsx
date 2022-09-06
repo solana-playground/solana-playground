@@ -347,8 +347,24 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
     addSeed("bytes");
   }, [addSeed]);
 
-  const addSeedNumber = useCallback(() => {
-    addSeed("i32");
+  const addSeedU8 = useCallback(() => {
+    addSeed("u8");
+  }, [addSeed]);
+
+  const addSeedU16 = useCallback(() => {
+    addSeed("u16");
+  }, [addSeed]);
+
+  const addSeedU32 = useCallback(() => {
+    addSeed("u32");
+  }, [addSeed]);
+
+  const addSeedU64 = useCallback(() => {
+    addSeed("u64");
+  }, [addSeed]);
+
+  const addSeedU128 = useCallback(() => {
+    addSeed("u128");
   }, [addSeed]);
 
   const removeSeed = useCallback(() => {
@@ -378,10 +394,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
 
   return (
     <ShowGenInputWrapper>
-      <InputLabel
-        label={`Seed(${index + 1})`}
-        type={seed.type === "i32" ? "number" : seed.type}
-      />
+      <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
       <SeedInputWrapper>
         <Input
           ref={seedInputRef}
@@ -401,8 +414,12 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
               <AddSeedMenu ref={menuRef}>
                 <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
                 <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
-                <AddSeedItem onClick={addSeedNumber}>Number</AddSeedItem>
                 <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
+                <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
+                <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
+                <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
+                <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
+                <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
               </AddSeedMenu>
             )}
           </AddSeedWrapper>
