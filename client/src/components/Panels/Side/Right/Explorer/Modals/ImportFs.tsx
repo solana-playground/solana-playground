@@ -44,22 +44,25 @@ export const ImportFs = () => {
     try {
       const importFiles: Files = [];
       for (const userFile of userFiles) {
-        const pathAfterRoot: string = userFile.path.replace(/^(\/)?\w*\//, "");
-        if (!(pathAfterRoot.endsWith(".rs") || pathAfterRoot.endsWith(".py"))) {
+        const pathAfterSrc: string = userFile.path.replace(
+          /^(\/)?[\w\s]*\/(src\/)?/,
+          ""
+        );
+        if (!(pathAfterSrc.endsWith(".rs") || pathAfterSrc.endsWith(".py"))) {
           throw new Error(
-            `Only .rs and .py file imports are allowed.(${pathAfterRoot})`
+            `You can only import Rust or Python files (${pathAfterSrc}).`
           );
         }
 
         const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
         if (arrayBuffer.byteLength > 1024 * 128) {
           throw new Error(
-            `File '${pathAfterRoot}' is too big.(${arrayBuffer.byteLength})`
+            `File '${pathAfterSrc}' is too big.(${arrayBuffer.byteLength})`
           );
         }
 
         const content = PgCommon.decodeArrayBuffer(arrayBuffer);
-        importFiles.push([pathAfterRoot, content]);
+        importFiles.push([pathAfterSrc, content]);
       }
 
       setFiles(importFiles);
