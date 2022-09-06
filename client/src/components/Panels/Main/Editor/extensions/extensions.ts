@@ -4,6 +4,7 @@ import {
   drawSelection,
   highlightActiveLine,
   dropCursor,
+  scrollPastEnd,
 } from "@codemirror/view";
 import { Extension, EditorState } from "@codemirror/state";
 import { history, historyKeymap } from "@codemirror/history";
@@ -43,6 +44,7 @@ export const defaultExtensions = (): Extension[] => {
     rectangularSelection(),
     highlightActiveLine(),
     highlightSelectionMatches(),
+    scrollPastEnd(),
     keymap.of([
       ...defaultKeymap,
       ...closeBracketsKeymap,
