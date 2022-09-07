@@ -12,7 +12,12 @@ import ModalInside from "../../../../../Modal/ModalInside";
 import Text from "../../../../../Text";
 import { ClassName } from "../../../../../../constants";
 import { Warning } from "../../../../../Icons";
-import { modalAtom, refreshProgramIdAtom } from "../../../../../../state";
+import {
+  explorerAtom,
+  modalAtom,
+  refreshExplorerAtom,
+  refreshProgramIdAtom,
+} from "../../../../../../state";
 import { PgProgramInfo, PgCommon } from "../../../../../../utils/pg";
 
 const ProgramCredentials = () => (
@@ -23,6 +28,7 @@ const ProgramCredentials = () => (
       <Export />
     </ButtonsWrapper>
     <InputPk />
+    <SaveProgramInfo />
   </Wrapper>
 );
 
@@ -259,6 +265,27 @@ const InputPk = () => {
       )}
     </InputPkWrapper>
   );
+};
+
+const SaveProgramInfo = () => {
+  const [programIdCount] = useAtom(refreshProgramIdAtom);
+  const [explorer] = useAtom(explorerAtom);
+  const [explorerChanged] = useAtom(refreshExplorerAtom);
+
+  const previousProgramIdCount = useRef<number>(0);
+
+  useEffect(() => {
+    // Save program info if there is a new program id
+    if (previousProgramIdCount.current !== programIdCount) {
+      explorer?.saveProgramInfo();
+    }
+
+    previousProgramIdCount.current = programIdCount;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [programIdCount, explorer, explorerChanged]);
+
+  return null;
 };
 
 const Wrapper = styled.div`
