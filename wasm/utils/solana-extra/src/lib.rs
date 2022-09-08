@@ -1,3 +1,4 @@
+#![cfg_attr(NIGHTLY, feature(specialization))]
 #![allow(dead_code)]
 
 #[macro_use]
