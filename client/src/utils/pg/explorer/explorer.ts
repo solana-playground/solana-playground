@@ -613,7 +613,7 @@ export class PgExplorer {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
-    if (this.currentWorkspaceName === newName) {
+    if (this.allWorkspaceNames?.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
