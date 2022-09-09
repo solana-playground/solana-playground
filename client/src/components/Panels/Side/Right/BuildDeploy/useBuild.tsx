@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useAtom } from "jotai";
 
 import {
@@ -8,29 +8,13 @@ import {
   terminalOutputAtom,
   terminalStateAtom,
 } from "../../../../../state";
-import {
-  PgBuild,
-  PgPkg,
-  PgTerminal,
-  PkgName,
-  Pkgs,
-} from "../../../../../utils/pg";
+import { PgBuild, PgPkg, PgTerminal, PkgName } from "../../../../../utils/pg";
 
 export const useBuild = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setTerminalState] = useAtom(terminalStateAtom);
   const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
-  const [seahorsePkg, setSeahorsePkg] = useState<Pkgs>();
-
-  const getSeahorsePkg = useCallback(async () => {
-    if (seahorsePkg) {
-      return seahorsePkg;
-    }
-    const pkg = await PgPkg.loadPkg(PkgName.SEAHORSE_COMPILE);
-    setSeahorsePkg(pkg);
-    return pkg;
-  }, [seahorsePkg]);
 
   const runBuild = useCallback(() => {
     PgTerminal.run(async () => {
@@ -51,7 +35,9 @@ export const useBuild = () => {
         let result: { stderr: string };
 
         if (pythonFiles.length > 0) {
-          const seahorsePkgToBuild = await getSeahorsePkg();
+          const seahorsePkgToBuild = await PgPkg.loadPkg(
+            PkgName.SEAHORSE_COMPILE
+          );
           result = await PgBuild.buildPython(pythonFiles, seahorsePkgToBuild);
         } else {
           result = await PgBuild.buildRust(files);
@@ -72,7 +58,7 @@ export const useBuild = () => {
         await explorer.saveProgramInfo();
       }
     });
-  }, [explorer, setTerminal, setBuildCount, setTerminalState, getSeahorsePkg]);
+  }, [explorer, setTerminal, setBuildCount, setTerminalState]);
 
   return { runBuild };
 };

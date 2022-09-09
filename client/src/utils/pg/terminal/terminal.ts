@@ -358,7 +358,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * This function should be used as a wrapper function when calling any
    * terminal command.
    */
-  static async run<T>(cb: () => Promise<T> | void) {
+  static async run<T>(cb: () => Promise<T>) {
     this.disable();
     this.scrollToBottom();
     try {

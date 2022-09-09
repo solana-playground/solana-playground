@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
@@ -25,7 +25,6 @@ import {
   PgTerminal,
   Lang,
   PgCommon,
-  Pkgs,
   PgPkg,
   PkgName,
 } from "../../../../utils/pg";
@@ -354,24 +353,14 @@ const Editor = () => {
     };
   }, [editor]);
 
-  const [pkgs, setPkgs] = useState<Pkgs>();
-  const getRustfmt = useCallback(async () => {
-    if (pkgs?.rustfmt) {
-      return pkgs;
-    }
-    const pkg = await PgPkg.loadPkg(PkgName.RUSTFMT);
-    setPkgs(pkg);
-    return pkg;
-  }, [pkgs]);
-
   // Format event
   useEffect(() => {
     if (!editor || !explorer) return;
 
     const handleEditorFormat = (
-      e: UIEvent & { detail: { lang: Lang } | null }
+      e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
     ) => {
-      PgTerminal.run(() => {
+      PgTerminal.run(async () => {
         const extensionSplit = explorer.getCurrentFile()?.path.split(".");
         if (!extensionSplit?.length) return;
         const fileExtension = extensionSplit[1];
@@ -379,7 +368,7 @@ const Editor = () => {
         let formatRust;
         if (fileExtension === "rs") {
           formatRust = async () => {
-            const { rustfmt } = await getRustfmt();
+            const { rustfmt } = await PgPkg.loadPkg(PkgName.RUSTFMT);
             const currentContent = editor.state.doc.toString();
             const result = rustfmt!(currentContent);
             if (result.error()) {
@@ -387,6 +376,10 @@ const Editor = () => {
                 PgTerminal.error("Unable to format the file.")
               );
               return;
+            }
+
+            if (e.detail?.fromTerminal) {
+              PgTerminal.logWasm(PgTerminal.success("Format successful."));
             }
 
             const cursorPos = editor.state.selection.ranges[0].from;
@@ -407,7 +400,7 @@ const Editor = () => {
 
         if (!e.detail) {
           if (fileExtension === "rs") {
-            formatRust && formatRust();
+            formatRust && (await formatRust());
           }
 
           return;
@@ -416,12 +409,12 @@ const Editor = () => {
         if (e.detail.lang === Lang.RUST) {
           if (fileExtension !== "rs") {
             PgTerminal.logWasm(
-              PgTerminal.warning("Current file is not a rust file.")
+              PgTerminal.warning("Current file is not a Rust file.")
             );
             return;
           }
 
-          formatRust && formatRust();
+          formatRust && (await formatRust());
         }
       });
     };

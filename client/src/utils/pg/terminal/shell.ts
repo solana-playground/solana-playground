@@ -532,6 +532,7 @@ export class PgShell {
       case PgCommand.RUSTFMT: {
         PgCommon.createAndDispatchCustomEvent(PgEditor.EVT_NAME_EDITOR_FORMAT, {
           lang: Lang.RUST,
+          fromTerminal: true,
         });
 
         isCmdValid = true;
