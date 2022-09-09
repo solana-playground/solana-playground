@@ -62,7 +62,8 @@ export const useBuild = () => {
         // To update programId each build
         setBuildCount((c) => c + 1);
       } catch (e: any) {
-        msg = `${PgTerminal.error("Build error:")} ${e.message}\n`;
+        const convertedError = PgTerminal.convertErrorMessage(e.message);
+        msg = `${PgTerminal.error("Build error:")} ${convertedError}`;
       } finally {
         setTerminal(msg);
         setTerminalState(TerminalAction.buildLoadingStop);
