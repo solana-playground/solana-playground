@@ -18,7 +18,12 @@ import {
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import { PgExplorer, PgProgramInfo, PgEditor } from "../../../../utils/pg";
+import {
+  PgExplorer,
+  PgProgramInfo,
+  PgEditor,
+  PgTerminal,
+} from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -332,14 +337,53 @@ const Editor = () => {
 
   // Listen for custom events
   useEffect(() => {
+    if (!editor || !explorer) return;
+
     const handleFocus = () => {
-      if (editor && !editor.hasFocus) editor.focus();
+      if (!editor.hasFocus) editor.focus();
+    };
+
+    const handleRustfmt = () => {
+      PgTerminal.run(() => {
+        if (!explorer.getCurrentFile()?.path.endsWith(".rs")) {
+          PgTerminal.logWasm(
+            PgTerminal.warning("Current file is not a rust file.")
+          );
+          return;
+        }
+
+        const currentContent = editor.state.doc.toString();
+        const result = window.rustfmt(currentContent);
+        if (result.error()) {
+          PgTerminal.logWasm(PgTerminal.error("Unable to format the file."));
+          return;
+        }
+
+        editor.dispatch({
+          changes: {
+            from: 0,
+            to: currentContent.length,
+            insert: result.code(),
+          },
+        });
+      });
     };
 
     document.addEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
-    return () =>
+    document.addEventListener(
+      PgEditor.EVT_NAME_EDITOR_FORMAT,
+      handleRustfmt as EventListener
+    );
+    return () => {
       document.removeEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
-  }, [editor]);
+      document.removeEventListener(
+        PgEditor.EVT_NAME_EDITOR_FORMAT,
+        handleRustfmt as EventListener
+      );
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, explorer, explorerChanged]);
 
   if (!explorer)
     return (

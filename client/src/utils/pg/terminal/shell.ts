@@ -14,6 +14,8 @@ import { PgWallet } from "../wallet";
 import { PgCommand } from "./commands";
 import { PkgName, Pkgs } from "./pkg";
 import { TerminalAction } from "../../../state";
+import { PgCommon } from "../common";
+import { PgEditor } from "../editor";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -482,30 +484,14 @@ export class PgShell {
 
   /**
    * This function runs when user presses `Enter` in terminal
-   * @returns if the command is valid
+   * @returns whether the command is valid
    */
   private _parseCommand(cmd: string) {
     cmd = cmd.trim();
     let isCmdValid = false;
     switch (cmd) {
-      case PgCommand.HELP: {
-        PgTerminal.logWasm(PgCommand.help());
-        this.enable();
-        isCmdValid = true;
-        break;
-      }
-
       case PgCommand.BUILD: {
         PgTerminal.setTerminalState(TerminalAction.buildStart);
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.DEPLOY: {
-        if (PgWallet.checkIsPgConnected()) {
-          PgTerminal.setTerminalState(TerminalAction.deployStart);
-        }
-
         isCmdValid = true;
         break;
       }
@@ -523,21 +509,56 @@ export class PgShell {
       case PgCommand.CONNECT: {
         PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
         isCmdValid = true;
+        break;
+      }
+
+      case PgCommand.DEPLOY: {
+        if (PgWallet.checkIsPgConnected()) {
+          PgTerminal.setTerminalState(TerminalAction.deployStart);
+        }
+
+        isCmdValid = true;
+        break;
+      }
+
+      case PgCommand.HELP: {
+        PgTerminal.logWasm(PgCommand.help());
+        this.enable();
+        isCmdValid = true;
+        break;
+      }
+
+      case PgCommand.RUSTFMT: {
+        if (this._pkgs?.rustfmt) {
+          if (!window.rustfmt) {
+            window.rustfmt = this._pkgs.rustfmt;
+          }
+
+          PgCommon.createAndDispatchCustomEvent(
+            PgEditor.EVT_NAME_EDITOR_FORMAT
+          );
+        } else {
+          PgTerminal.loadPkg(PkgName.RUSTFMT);
+        }
+
+        isCmdValid = true;
+        break;
       }
     }
 
-    // WASM commands
     // This guarantees command only start with the specified command name
     // solana-keygen would not count for cmdName === "solana"
     const cmdName = cmd.split(" ")?.at(0);
 
     switch (cmdName) {
       case PgCommand.SOLANA: {
-        const pkgs = this._pkgs;
         if (PgWallet.checkIsPgConnected()) {
-          if (pkgs?.runSolana) {
-            // @ts-ignore
-            pkgs.runSolana(cmd, ...PgCommand.getCmdArgs(PkgName.SOLANA_CLI));
+          if (this._pkgs?.runSolana) {
+            this._pkgs.runSolana(
+              cmd,
+              // @ts-ignore
+              ...PgCommand.getCmdArgs(PkgName.SOLANA_CLI)
+            );
           } else {
             PgTerminal.loadPkg(PkgName.SOLANA_CLI);
           }
@@ -548,10 +569,9 @@ export class PgShell {
       }
 
       case PgCommand.SPL_TOKEN: {
-        const pkgs = this._pkgs;
         if (PgWallet.checkIsPgConnected()) {
-          if (pkgs?.runSplToken) {
-            pkgs.runSplToken(
+          if (this._pkgs?.runSplToken) {
+            this._pkgs.runSplToken(
               cmd,
               // @ts-ignore
               ...PgCommand.getCmdArgs(PkgName.SPL_TOKEN_CLI)

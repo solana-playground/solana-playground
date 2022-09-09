@@ -14,11 +14,13 @@ export const usePkg = () => {
 
   const loadPkg = useCallback(async (pkgInfo: PkgInfo) => {
     PgTerminal.logWasm(PgTerminal.info(`Loading ${pkgInfo.uiName}...`));
+
     let resultMsg;
 
     try {
       // Unfortunately we can't dynamically import packages with variable name
       const pkg = await PgPkg.loadPkg(pkgInfo.name);
+
       setPkgs((w) => ({ ...w, ...pkg }));
       resultMsg = `${PgTerminal.success("Success.")}`;
 
@@ -39,10 +41,10 @@ export const usePkg = () => {
 
   // Load solana cli only when user first enters a solana command
   useEffect(() => {
-    const handleLoadPkg = (e: UIEvent) => {
-      // @ts-ignore
+    const handleLoadPkg = (e: UIEvent & { detail: { pkg: PkgName } }) => {
       const pkg = e.detail.pkg as PkgName;
-      if (pkg === PkgName.SOLANA_CLI) loadPkg(PgPkg.SOLANA_CLI);
+      if (pkg === PkgName.RUSTFMT) loadPkg(PgPkg.RUSTFMT);
+      else if (pkg === PkgName.SOLANA_CLI) loadPkg(PgPkg.SOLANA_CLI);
       else if (pkg === PkgName.SPL_TOKEN_CLI) loadPkg(PgPkg.SPL_TOKEN_CLI);
     };
 

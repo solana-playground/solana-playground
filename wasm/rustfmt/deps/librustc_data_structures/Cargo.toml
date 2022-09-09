@@ -1,0 +1,25 @@
+[package]
+authors = ["The Rust Project Developers"]
+name = "rustc_data_structures"
+version = "0.0.0"
+
+[lib]
+name = "rustc_data_structures"
+path = "lib.rs"
+
+[dependencies]
+ena = "=0.9.3"
+log = "=0.4.3"
+rustc_cratesio_shim = { path = "../librustc_cratesio_shim" }
+serialize = { path = "../libserialize" }
+cfg-if = "=0.1.4"
+stable_deref_trait = "=1.1.0"
+parking_lot_core = "=0.2.14"
+rustc-rayon = "=0.1.1"
+rustc-rayon-core = "=0.1.1"
+rustc-hash = "=1.0.1"
+smallvec = { version = "0.6.5", features = ["union"] }
+
+[dependencies.parking_lot]
+version = "0.5"
+features = ["nightly"]

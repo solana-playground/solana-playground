@@ -8,9 +8,10 @@ export class PgCommand {
   static readonly CONNECT = "connect";
   static readonly DEPLOY = "deploy";
   static readonly HELP = "help";
+  static readonly RUN_LAST_CMD = "!!";
+  static readonly RUSTFMT = "rustfmt";
   static readonly SOLANA = "solana";
   static readonly SPL_TOKEN = "spl-token";
-  static readonly RUN_LAST_CMD = "!!";
 
   /**
    * @returns help command output
@@ -81,6 +82,10 @@ const COMMANDS: Command[] = [
   {
     name: PgCommand.DEPLOY,
     description: "Deploy your program",
+  },
+  {
+    name: PgCommand.RUSTFMT,
+    description: "Format the current file with rustfmt",
   },
   {
     name: PgCommand.SOLANA,
