@@ -16,6 +16,7 @@ import { PkgName, Pkgs } from "./pkg";
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgEditor } from "../editor";
+import { Lang } from "../explorer";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -529,17 +530,9 @@ export class PgShell {
       }
 
       case PgCommand.RUSTFMT: {
-        if (this._pkgs?.rustfmt) {
-          if (!window.rustfmt) {
-            window.rustfmt = this._pkgs.rustfmt;
-          }
-
-          PgCommon.createAndDispatchCustomEvent(
-            PgEditor.EVT_NAME_EDITOR_FORMAT
-          );
-        } else {
-          PgTerminal.loadPkg(PkgName.RUSTFMT);
-        }
+        PgCommon.createAndDispatchCustomEvent(PgEditor.EVT_NAME_EDITOR_FORMAT, {
+          lang: Lang.RUST,
+        });
 
         isCmdValid = true;
         break;

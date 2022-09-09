@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
@@ -23,6 +23,11 @@ import {
   PgProgramInfo,
   PgEditor,
   PgTerminal,
+  Lang,
+  PgCommon,
+  Pkgs,
+  PgPkg,
+  PkgName,
 } from "../../../../utils/pg";
 
 const Editor = () => {
@@ -335,51 +340,115 @@ const Editor = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCount, explorer, explorerChanged, editor]);
 
-  // Listen for custom events
+  // Editor custom events
   useEffect(() => {
-    if (!editor || !explorer) return;
+    if (!editor) return;
 
     const handleFocus = () => {
       if (!editor.hasFocus) editor.focus();
     };
 
-    const handleRustfmt = () => {
+    document.addEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+    return () => {
+      document.removeEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+    };
+  }, [editor]);
+
+  const [pkgs, setPkgs] = useState<Pkgs>();
+  const getRustfmt = useCallback(async () => {
+    if (pkgs?.rustfmt) {
+      return pkgs;
+    }
+    const pkg = await PgPkg.loadPkg(PkgName.RUSTFMT);
+    setPkgs(pkg);
+    return pkg;
+  }, [pkgs]);
+
+  // Format event
+  useEffect(() => {
+    if (!editor || !explorer) return;
+
+    const handleEditorFormat = (
+      e: UIEvent & { detail: { lang: Lang } | null }
+    ) => {
       PgTerminal.run(() => {
-        if (!explorer.getCurrentFile()?.path.endsWith(".rs")) {
-          PgTerminal.logWasm(
-            PgTerminal.warning("Current file is not a rust file.")
-          );
+        const extensionSplit = explorer.getCurrentFile()?.path.split(".");
+        if (!extensionSplit?.length) return;
+        const fileExtension = extensionSplit[1];
+
+        let formatRust;
+        if (fileExtension === "rs") {
+          formatRust = async () => {
+            const { rustfmt } = await getRustfmt();
+            const currentContent = editor.state.doc.toString();
+            const result = rustfmt!(currentContent);
+            if (result.error()) {
+              PgTerminal.logWasm(
+                PgTerminal.error("Unable to format the file.")
+              );
+              return;
+            }
+
+            const cursorPos = editor.state.selection.ranges[0].from;
+
+            editor.dispatch({
+              changes: {
+                from: 0,
+                to: currentContent.length,
+                insert: result.code(),
+              },
+              selection: {
+                anchor: cursorPos,
+                head: cursorPos,
+              },
+            });
+          };
+        }
+
+        if (!e.detail) {
+          if (fileExtension === "rs") {
+            formatRust && formatRust();
+          }
+
           return;
         }
 
-        const currentContent = editor.state.doc.toString();
-        const result = window.rustfmt(currentContent);
-        if (result.error()) {
-          PgTerminal.logWasm(PgTerminal.error("Unable to format the file."));
-          return;
-        }
+        if (e.detail.lang === Lang.RUST) {
+          if (fileExtension !== "rs") {
+            PgTerminal.logWasm(
+              PgTerminal.warning("Current file is not a rust file.")
+            );
+            return;
+          }
 
-        editor.dispatch({
-          changes: {
-            from: 0,
-            to: currentContent.length,
-            insert: result.code(),
-          },
-        });
+          formatRust && formatRust();
+        }
       });
     };
 
-    document.addEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+    const handleFormatOnKeybind = (e: KeyboardEvent) => {
+      if (editor.hasFocus && PgCommon.isKeyCtrlOrCmd(e)) {
+        const key = e.key.toUpperCase();
+        if (key === "S") {
+          e.preventDefault();
+          PgCommon.createAndDispatchCustomEvent(
+            PgEditor.EVT_NAME_EDITOR_FORMAT
+          );
+        }
+      }
+    };
+
     document.addEventListener(
       PgEditor.EVT_NAME_EDITOR_FORMAT,
-      handleRustfmt as EventListener
+      handleEditorFormat as EventListener
     );
+    document.addEventListener("keydown", handleFormatOnKeybind);
     return () => {
-      document.removeEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
       document.removeEventListener(
         PgEditor.EVT_NAME_EDITOR_FORMAT,
-        handleRustfmt as EventListener
+        handleEditorFormat as EventListener
       );
+      document.removeEventListener("keydown", handleFormatOnKeybind);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

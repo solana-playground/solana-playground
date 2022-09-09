@@ -43,8 +43,7 @@ export const usePkg = () => {
   useEffect(() => {
     const handleLoadPkg = (e: UIEvent & { detail: { pkg: PkgName } }) => {
       const pkg = e.detail.pkg as PkgName;
-      if (pkg === PkgName.RUSTFMT) loadPkg(PgPkg.RUSTFMT);
-      else if (pkg === PkgName.SOLANA_CLI) loadPkg(PgPkg.SOLANA_CLI);
+      if (pkg === PkgName.SOLANA_CLI) loadPkg(PgPkg.SOLANA_CLI);
       else if (pkg === PkgName.SPL_TOKEN_CLI) loadPkg(PgPkg.SPL_TOKEN_CLI);
     };
 
