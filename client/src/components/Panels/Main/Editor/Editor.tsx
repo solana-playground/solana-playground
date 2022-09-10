@@ -382,13 +382,33 @@ const Editor = () => {
               PgTerminal.logWasm(PgTerminal.success("Format successful."));
             }
 
-            const cursorPos = editor.state.selection.ranges[0].from;
+            let cursorPos = editor.state.selection.ranges[0].from;
+            const currentLine = editor.state.doc.lineAt(cursorPos);
+            const beforeLine = editor.state.doc.line(currentLine.number - 1);
+            const afterLine = editor.state.doc.line(currentLine.number + 1);
+            const searchText = currentContent.substring(
+              beforeLine.from,
+              afterLine.to
+            );
+
+            const formattedCode = result.code();
+            const searchIndex = formattedCode.indexOf(searchText);
+            if (searchIndex !== -1) {
+              // Check if there are multiple instances of the same searchText
+              const nextSearchIndex = formattedCode.indexOf(
+                searchText,
+                searchIndex + searchText.length
+              );
+              if (nextSearchIndex === -1) {
+                cursorPos = searchIndex + cursorPos - beforeLine.from;
+              }
+            }
 
             editor.dispatch({
               changes: {
                 from: 0,
                 to: currentContent.length,
-                insert: result.code(),
+                insert: formattedCode,
               },
               selection: {
                 anchor: cursorPos,
@@ -420,13 +440,15 @@ const Editor = () => {
     };
 
     const handleFormatOnKeybind = (e: KeyboardEvent) => {
-      if (editor.hasFocus && PgCommon.isKeyCtrlOrCmd(e)) {
+      if (PgCommon.isKeyCtrlOrCmd(e)) {
         const key = e.key.toUpperCase();
         if (key === "S") {
           e.preventDefault();
-          PgCommon.createAndDispatchCustomEvent(
-            PgEditor.EVT_NAME_EDITOR_FORMAT
-          );
+          if (editor.hasFocus) {
+            PgCommon.createAndDispatchCustomEvent(
+              PgEditor.EVT_NAME_EDITOR_FORMAT
+            );
+          }
         }
       }
     };
