@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
@@ -55,37 +55,43 @@ const Bottom = () => {
   const airdropAmount = useAirdropAmount();
   const [rateLimited, setRateLimited] = useState(false);
 
-  useEffect(() => {
-    if (
-      rateLimited ||
-      !airdropAmount ||
-      balance === undefined ||
-      balance === null ||
-      balance >= 4 ||
-      !currentWallet ||
-      !pgWalletPk ||
-      // Only auto-airdrop to PgWallet
-      !pgWalletPk.equals(currentWallet.publicKey)
-    )
-      return;
+  const airdropping = useRef(false);
 
-    const airdrop = async () => {
+  useEffect(() => {
+    const airdrop = async (_balance: number | null = balance) => {
+      if (
+        airdropping.current ||
+        rateLimited ||
+        !airdropAmount ||
+        _balance === undefined ||
+        _balance === null ||
+        _balance >= 4 ||
+        !currentWallet ||
+        !pgWalletPk ||
+        // Only auto-airdrop to PgWallet
+        !pgWalletPk.equals(currentWallet.publicKey)
+      )
+        return;
+
       try {
-        await conn.requestAirdrop(
-          currentWallet.publicKey,
+        airdropping.current = true;
+        const txHash = await conn.requestAirdrop(
+          pgWalletPk,
           PgCommon.solToLamports(airdropAmount)
         );
+        await conn.confirmTransaction(txHash, "finalized");
       } catch (e: any) {
-        if (e.message.startsWith("429 Too Many Requests")) setRateLimited(true);
+        console.log(e.message);
+        setRateLimited(true);
+      } finally {
+        airdropping.current = false;
+        _balance = PgCommon.lamportsToSol(await conn.getBalance(pgWalletPk));
+        airdrop(_balance);
       }
     };
 
     airdrop();
-
-    // Intentionally don't include 'conn' and 'amount' in the dependencies
-    // because it's causing extra airdrops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [balance, currentWallet, pgWalletPk, rateLimited, setRateLimited]);
+  }, [balance, currentWallet, pgWalletPk, rateLimited, airdropAmount, conn]);
 
   const [networkName, cluster] = useMemo(() => {
     return [

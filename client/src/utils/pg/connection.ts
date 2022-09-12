@@ -1,17 +1,12 @@
 import { Commitment } from "@solana/web3.js";
 
 import { Endpoint } from "../../constants";
+import { PgCommon } from "./common";
 
 export interface PgConnectionConfig {
   endpoint: Endpoint;
   commitment: Commitment;
   preflightChecks: boolean;
-}
-
-interface UpdateConnectionParams {
-  endpoint?: Endpoint;
-  commitment?: Commitment;
-  preflightChecks?: boolean;
 }
 
 export class PgConnection {
@@ -51,7 +46,7 @@ export class PgConnection {
     return JSON.parse(conn) as PgConnectionConfig;
   }
 
-  static update(params: UpdateConnectionParams) {
+  static update(params: Partial<PgConnectionConfig>) {
     const { endpoint, commitment, preflightChecks } = params;
     const conn = this.getConnectionConfig();
 
@@ -73,9 +68,6 @@ export class PgConnection {
       commitment: commitment as Commitment,
     });
 
-    const refreshConnectionEvent = new CustomEvent(
-      this.EVT_NAME_REFRESH_CONNECTION
-    );
-    document.dispatchEvent(refreshConnectionEvent);
+    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_REFRESH_CONNECTION);
   }
 }
