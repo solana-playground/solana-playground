@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "deps/*",
+    "rustfmt-wasm",
+    # Not including rustfmt-nightly to the workspace because of incompatible deps
+]
+
+[profile.release]
+lto = true

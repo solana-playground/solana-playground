@@ -1,0 +1,11 @@
+[package]
+authors = ["The Rust Project Developers"]
+name = "serialize"
+version = "0.0.0"
+
+[lib]
+name = "serialize"
+path = "lib.rs"
+
+[dependencies]
+smallvec = { version = "0.6.5", features = ["union"] }

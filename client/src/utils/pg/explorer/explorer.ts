@@ -373,8 +373,6 @@ export class PgExplorer {
       throw new Error(ItemError.SRC_RENAME);
     }
 
-    const files = this.files;
-
     const itemType = PgExplorer.getItemTypeFromPath(fullPath);
     const newItemType = PgExplorer.getItemTypeFromName(newName);
     if (
@@ -386,10 +384,13 @@ export class PgExplorer {
 
     const parentFolder = PgExplorer.getParentPathFromPath(fullPath);
 
+    const files = this.files;
+
     // Check to see if newName already exists
     const newPath = itemType.file
       ? parentFolder + newName
       : parentFolder + newName + "/";
+    if (newPath === fullPath) return;
     if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
 
     if (!this.isShared) {

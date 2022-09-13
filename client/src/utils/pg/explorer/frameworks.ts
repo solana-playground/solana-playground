@@ -1,8 +1,13 @@
 import { Files } from "./explorer";
 
+export enum Lang {
+  RUST = "Rust",
+  PYTHON = "Python",
+}
+
 export interface Framework {
   name: string;
-  language: "Rust" | "Python";
+  language: Lang;
   src: string;
   files: Files;
   defaultOpenFile: string;
@@ -12,7 +17,7 @@ export interface Framework {
 export const FRAMEWORKS: Framework[] = [
   {
     name: "Native",
-    language: "Rust",
+    language: Lang.RUST,
     src: "icons/platforms/solana.png",
     files: [
       [
@@ -72,7 +77,7 @@ pub fn process_instruction(
   },
   {
     name: "Anchor",
-    language: "Rust",
+    language: Lang.RUST,
     src: "https://www.anchor-lang.com/_next/image?url=%2Flogo.png&w=128&q=80",
     files: [
       [
@@ -116,7 +121,7 @@ pub struct NewAccount {
   },
   {
     name: "Seahorse",
-    language: "Python",
+    language: Lang.PYTHON,
     src: "https://pbs.twimg.com/profile_images/1556384244598964226/S3cx06I2_400x400.jpg",
     files: [
       [

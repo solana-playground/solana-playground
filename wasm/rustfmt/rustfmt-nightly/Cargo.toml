@@ -1,0 +1,57 @@
+[package]
+
+name = "rustfmt-nightly"
+version = "0.99.4"
+authors = ["Nicholas Cameron <ncameron@mozilla.com>", "The Rustfmt developers"]
+description = "Tool to find and fix Rust formatting issues"
+repository = "https://github.com/rust-lang-nursery/rustfmt"
+readme = "README.md"
+license = "Apache-2.0/MIT"
+build = "build.rs"
+categories = ["development-tools"]
+
+[[bin]]
+name = "rustfmt"
+path = "src/bin/main.rs"
+
+[[bin]]
+name = "cargo-fmt"
+path = "src/cargo-fmt/main.rs"
+
+[[bin]]
+name = "rustfmt-format-diff"
+path = "src/format-diff/main.rs"
+
+[[bin]]
+name = "git-rustfmt"
+path = "src/git-rustfmt/main.rs"
+
+[features]
+default = ["cargo-fmt", "rustfmt-format-diff"]
+cargo-fmt = []
+rustfmt-format-diff = []
+
+[dependencies]
+# isatty = "=0.1.8"
+itertools = "=0.7.8"
+toml = "=0.4.6"
+serde = "=1.0.71"
+serde_derive = "=1.0.71"
+serde_json = "=1.0.26"
+unicode-segmentation = "=1.2.1"
+regex = "=1.0.2"
+term = "=0.5.1"
+diff = "=0.1.11"
+log = "0.4.3"
+env_logger = "=0.5.12"
+getopts = "=0.2.18"
+derive-new = "=0.5.5"
+cargo_metadata = "=0.6"
+rustc_target = { path = "../deps/librustc_target" }
+syntax = { path = "../deps/libsyntax" }
+syntax_pos = { path = "../deps/libsyntax_pos" }
+failure = "=0.1.2"
+
+[dev-dependencies]
+assert_cli = "0.6"
+lazy_static = "1.0.0"

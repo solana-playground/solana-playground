@@ -18,7 +18,16 @@ import {
   explorerAtom,
   refreshExplorerAtom,
 } from "../../../../state";
-import { PgExplorer, PgProgramInfo, PgEditor } from "../../../../utils/pg";
+import {
+  PgExplorer,
+  PgProgramInfo,
+  PgEditor,
+  PgTerminal,
+  Lang,
+  PgCommon,
+  PgPkg,
+  PkgName,
+} from "../../../../utils/pg";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -330,16 +339,138 @@ const Editor = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCount, explorer, explorerChanged, editor]);
 
-  // Listen for custom events
+  // Editor custom events
   useEffect(() => {
+    if (!editor) return;
+
     const handleFocus = () => {
-      if (editor && !editor.hasFocus) editor.focus();
+      if (!editor.hasFocus) editor.focus();
     };
 
     document.addEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
-    return () =>
+    return () => {
       document.removeEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+    };
   }, [editor]);
+
+  // Format event
+  useEffect(() => {
+    if (!editor || !explorer) return;
+
+    const handleEditorFormat = (
+      e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
+    ) => {
+      PgTerminal.run(async () => {
+        const isCurrentFileRust = explorer.isCurrentFileRust();
+
+        let formatRust;
+        if (isCurrentFileRust) {
+          formatRust = async () => {
+            const { rustfmt } = await PgPkg.loadPkg(PkgName.RUSTFMT);
+            const currentContent = editor.state.doc.toString();
+            let result;
+            try {
+              result = rustfmt!(currentContent);
+            } catch (e: any) {
+              result = { error: () => e.message };
+            }
+            if (result.error()) {
+              PgTerminal.logWasm(
+                PgTerminal.error("Unable to format the file.")
+              );
+              return;
+            }
+
+            if (e.detail?.fromTerminal) {
+              PgTerminal.logWasm(PgTerminal.success("Format successful."));
+            }
+
+            let cursorPos = editor.state.selection.ranges[0].from;
+            const currentLine = editor.state.doc.lineAt(cursorPos);
+            const beforeLine = editor.state.doc.line(currentLine.number - 1);
+            const afterLine = editor.state.doc.line(currentLine.number + 1);
+            const searchText = currentContent.substring(
+              beforeLine.from,
+              afterLine.to
+            );
+
+            const formattedCode = result.code!();
+            const searchIndex = formattedCode.indexOf(searchText);
+            if (searchIndex !== -1) {
+              // Check if there are multiple instances of the same searchText
+              const nextSearchIndex = formattedCode.indexOf(
+                searchText,
+                searchIndex + searchText.length
+              );
+              if (nextSearchIndex === -1) {
+                cursorPos = searchIndex + cursorPos - beforeLine.from;
+              }
+            }
+
+            editor.dispatch({
+              changes: {
+                from: 0,
+                to: currentContent.length,
+                insert: formattedCode,
+              },
+              selection: {
+                anchor: cursorPos,
+                head: cursorPos,
+              },
+            });
+          };
+        }
+
+        if (!e.detail) {
+          if (isCurrentFileRust) {
+            formatRust && (await formatRust());
+          }
+
+          return;
+        }
+
+        if (e.detail.lang === Lang.RUST) {
+          if (!isCurrentFileRust) {
+            PgTerminal.logWasm(
+              PgTerminal.warning("Current file is not a Rust file.")
+            );
+            return;
+          }
+
+          formatRust && (await formatRust());
+        }
+      });
+    };
+
+    const handleFormatOnKeybind = (e: KeyboardEvent) => {
+      if (PgCommon.isKeyCtrlOrCmd(e)) {
+        const key = e.key.toUpperCase();
+        if (key === "S") {
+          e.preventDefault();
+          if (editor.hasFocus) {
+            PgCommon.createAndDispatchCustomEvent(
+              PgEditor.EVT_NAME_EDITOR_FORMAT
+            );
+          }
+        }
+      }
+    };
+
+    document.addEventListener(
+      PgEditor.EVT_NAME_EDITOR_FORMAT,
+      handleEditorFormat as EventListener
+    );
+    document.addEventListener("keydown", handleFormatOnKeybind);
+    return () => {
+      document.removeEventListener(
+        PgEditor.EVT_NAME_EDITOR_FORMAT,
+        handleEditorFormat as EventListener
+      );
+      document.removeEventListener("keydown", handleFormatOnKeybind);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, explorer, explorerChanged]);
 
   if (!explorer)
     return (

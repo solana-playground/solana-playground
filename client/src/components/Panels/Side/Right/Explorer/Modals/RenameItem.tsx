@@ -1,12 +1,13 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
 import Input, { defaultInputProps } from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
 import { PgExplorer } from "../../../../../../utils/pg";
+import { ClassName } from "../../../../../../constants";
 
 interface RenameItemProps {
   path: string;
@@ -29,19 +30,23 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   // Handle user input
   const [newName, setNewName] = useState(itemName);
+  const [error, setError] = useState("");
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewName(e.target.value);
+    setError("");
   };
 
+  const disableCond = !newName || !explorer || !!error;
+
   const rename = async () => {
-    if (!newName || !explorer) return;
+    if (disableCond) return;
 
     try {
       await explorer.renameItem(path, newName);
-
       close();
     } catch (e: any) {
-      console.log(e.message);
+      setError(e.message);
     }
   };
 
@@ -49,15 +54,22 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   return (
     <ModalInside
-      buttonProps={{ name: "Rename", onSubmit: rename, size: "small" }}
+      buttonProps={{
+        name: "Rename",
+        onSubmit: rename,
+        size: "small",
+        disabled: disableCond,
+      }}
       closeOnSubmit={false}
     >
       <Content>
         <Text>Rename '{itemName}'</Text>
+        {error && <ErrorText>{error}</ErrorText>}
         <Input
           ref={inputRef}
           onChange={handleChange}
           value={newName}
+          className={error ? ClassName.ERROR : ""}
           {...defaultInputProps}
         />
       </Content>
@@ -80,4 +92,15 @@ const Content = styled.div`
 
 const Text = styled.div`
   margin: 1rem 0;
+`;
+
+const ErrorText = styled.div`
+  ${({ theme }) => css`
+    color: ${theme.colors.state.error.color};
+    font-size: ${theme.font?.size.small};
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+  `}
 `;

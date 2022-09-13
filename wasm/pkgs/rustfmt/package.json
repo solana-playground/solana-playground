@@ -1,0 +1,30 @@
+{
+  "name": "rustfmt-wasm",
+  "collaborators": [
+    "Acheron <acheroncrypto@gmail.com>"
+  ],
+  "description": "Rust formatter for WASM",
+  "version": "0.99.4",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-playground/solana-playground"
+  },
+  "files": [
+    "rustfmt_wasm_bg.wasm",
+    "rustfmt_wasm.js",
+    "rustfmt_wasm_bg.js",
+    "rustfmt_wasm.d.ts"
+  ],
+  "module": "rustfmt_wasm.js",
+  "homepage": "https://beta.solpg.io",
+  "types": "rustfmt_wasm.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "rustfmt",
+    "wasm",
+    "rust",
+    "format",
+    "rustwasm"
+  ]
+}

@@ -1,3 +1,5 @@
+import { GITHUB_URL } from "./project";
+
 export enum ItemError {
   ALREADY_EXISTS = "Already exists",
   INVALID_NAME = "Invalid name",
@@ -120,6 +122,7 @@ export const SERVER_ERROR: ConvertedError = {
 };
 
 export const OTHER_ERROR: ConvertedError = {
+  "Failed to fetch": `Unable to build. If the problem persists, please consider creating an issue about the problem in ${GITHUB_URL}/issues`,
   "unable to infer src variant": "Enum variant does not exist.",
   "program.methods[txVals.name] is not a function":
     "Test component is not up to date.",

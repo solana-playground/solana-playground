@@ -1,4 +1,5 @@
 export interface Pkgs {
+  compileSeahorse?: (pythonSource: string, programName: string) => string;
   runSolana?: (
     arg: string,
     endpoint: string,
@@ -11,7 +12,10 @@ export interface Pkgs {
     commitment: string,
     keypairBytes: Uint8Array
   ) => void;
-  compileSeahorse?: (pythonSource: string, programName: string) => string;
+  rustfmt?: (input: string) => {
+    code: () => string;
+    error: () => string | undefined;
+  };
 }
 
 export interface PkgInfo {
@@ -20,17 +24,23 @@ export interface PkgInfo {
 }
 
 export enum PkgName {
+  RUSTFMT = "rustfmt",
+  SEAHORSE_COMPILE = "seahorse-compile",
   SOLANA_CLI = "solana-cli",
   SPL_TOKEN_CLI = "spl-token-cli",
-  SEAHORSE_COMPILE = "seahorse-compile",
 }
 
 enum PkgUiName {
+  RUSTFMT = "Rustfmt",
   SOLANA_CLI = "Solana CLI",
   SPL_TOKEN_CLI = "SPL Token CLI",
 }
 
 export class PgPkg {
+  static readonly RUSTFMT: PkgInfo = {
+    name: PkgName.RUSTFMT,
+    uiName: PkgUiName.RUSTFMT,
+  };
   static readonly SOLANA_CLI: PkgInfo = {
     name: PkgName.SOLANA_CLI,
     uiName: PkgUiName.SOLANA_CLI,
@@ -46,12 +56,14 @@ export class PgPkg {
    */
   static async loadPkg(pkgName: PkgName): Promise<Pkgs> {
     switch (pkgName) {
+      case PkgName.RUSTFMT:
+        return await import("@solana-playground/rustfmt-wasm");
+      case PkgName.SEAHORSE_COMPILE:
+        return await import("@solana-playground/seahorse-compile-wasm");
       case PkgName.SOLANA_CLI:
         return await import("@solana-playground/solana-cli-wasm");
       case PkgName.SPL_TOKEN_CLI:
         return await import("@solana-playground/spl-token-cli-wasm");
-      case PkgName.SEAHORSE_COMPILE:
-        return await import("@solana-playground/seahorse-compile-wasm");
     }
   }
 }
