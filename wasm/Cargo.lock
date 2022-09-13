@@ -2440,7 +2440,6 @@ version = "1.11.0"
 dependencies = [
  "dirs-next",
  "lazy_static",
- "log",
  "serde",
  "serde_derive",
  "serde_yaml",
