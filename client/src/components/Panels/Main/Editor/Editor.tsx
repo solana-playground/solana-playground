@@ -361,16 +361,19 @@ const Editor = () => {
       e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
     ) => {
       PgTerminal.run(async () => {
-        const extensionSplit = explorer.getCurrentFile()?.path.split(".");
-        if (!extensionSplit?.length) return;
-        const fileExtension = extensionSplit[1];
+        const isCurrentFileRust = explorer.isCurrentFileRust();
 
         let formatRust;
-        if (fileExtension === "rs") {
+        if (isCurrentFileRust) {
           formatRust = async () => {
             const { rustfmt } = await PgPkg.loadPkg(PkgName.RUSTFMT);
             const currentContent = editor.state.doc.toString();
-            const result = rustfmt!(currentContent);
+            let result;
+            try {
+              result = rustfmt!(currentContent);
+            } catch (e: any) {
+              result = { error: () => e.message };
+            }
             if (result.error()) {
               PgTerminal.logWasm(
                 PgTerminal.error("Unable to format the file.")
@@ -391,7 +394,7 @@ const Editor = () => {
               afterLine.to
             );
 
-            const formattedCode = result.code();
+            const formattedCode = result.code!();
             const searchIndex = formattedCode.indexOf(searchText);
             if (searchIndex !== -1) {
               // Check if there are multiple instances of the same searchText
@@ -419,7 +422,7 @@ const Editor = () => {
         }
 
         if (!e.detail) {
-          if (fileExtension === "rs") {
+          if (isCurrentFileRust) {
             formatRust && (await formatRust());
           }
 
@@ -427,7 +430,7 @@ const Editor = () => {
         }
 
         if (e.detail.lang === Lang.RUST) {
-          if (fileExtension !== "rs") {
+          if (!isCurrentFileRust) {
             PgTerminal.logWasm(
               PgTerminal.warning("Current file is not a Rust file.")
             );
