@@ -32,20 +32,30 @@ const snippets: Completion[] = [
     label: "mut attribute(mat)",
     type: "function",
   }),
-  snip("#[account(mut)]\npub ${new_account}: Account<'info, NewAccount>,", {
+  snip("#[account(mut)]\npub ${new_account}: Account<'info, ${NewAccount}>,", {
     label: "mut account(mac)",
     type: "function",
   }),
   snip("#[account(init, payer = signer, space = ${})]", {
-    label: "init account(ia)",
+    label: "init attribute(iat)",
     type: "function",
   }),
+  snip(
+    "#[account(init, payer = signer, space = ${})]\npub ${new_account}: Account<'info, ${NewAccount}>,",
+    {
+      label: "init account(iac)",
+      type: "function",
+    }
+  ),
   // Creators
-  snip("pub fn ${name}(${args}) -> Result<()> {\n\tOk(())\n}", {
-    label: "create fn(cf)",
-    info: "Create an anchor function",
-    type: "function",
-  }),
+  snip(
+    "pub fn ${name}(ctx: Context<${MyContext}>) -> Result<()> {\n\tOk(())\n}",
+    {
+      label: "create fn(cf)",
+      info: "Create an anchor function",
+      type: "function",
+    }
+  ),
   snip(
     "#[program]\nmod ${my_program} {\n\tuse super::*;\n\tpub fn ${init}(ctx: Context<${MyContext}>) -> Result<()> {\n\t\tOk(())\n\t}\n}",
     {
@@ -67,20 +77,32 @@ const snippets: Completion[] = [
       type: "class",
     }
   ),
-  snip("pub struct ${MyStruct} {\n\t\n}", {
+  snip("struct ${MyStruct} {\n\t\n}", {
     label: "create struct(cs)",
+    type: "class",
+  }),
+  snip("enum ${MyEnum} {\n\t\n}", {
+    label: "create enum(ce)",
+    type: "class",
+  }),
+  snip("pub struct ${MyStruct} {\n\t\n}", {
+    label: "create pub struct(cps)",
+    type: "class",
+  }),
+  snip("pub enum ${MyEnum} {\n\t\n}", {
+    label: "create pub enum(cpe)",
     type: "class",
   }),
   // Errors
   snip(
     '#[error_code]\npub enum ${MyError} {\n\t#[msg("${Custom Error Message}")]\n\t${CustomErrorName},\n}',
     {
-      label: "define custom error(dce)",
+      label: "create custom error(cce)",
       type: "enum",
     }
   ),
   snip('#[msg("${Custom Error Message}")]\n${CustomErrorName},', {
-    label: "custom error(ce)",
+    label: "custom error field(cef)",
     type: "enum",
   }),
   // Properties
