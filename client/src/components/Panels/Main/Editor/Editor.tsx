@@ -355,12 +355,11 @@ const Editor = () => {
 
   // Format event
   useEffect(() => {
-    if (!editor || !explorer) return;
-
     const handleEditorFormat = (
       e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
     ) => {
       PgTerminal.run(async () => {
+        if (!editor || !explorer) return;
         const isCurrentFileRust = explorer.isCurrentFileRust();
 
         let formatRust;
@@ -447,7 +446,7 @@ const Editor = () => {
         const key = e.key.toUpperCase();
         if (key === "S") {
           e.preventDefault();
-          if (editor.hasFocus) {
+          if (editor?.hasFocus) {
             PgCommon.createAndDispatchCustomEvent(
               PgEditor.EVT_NAME_EDITOR_FORMAT
             );
