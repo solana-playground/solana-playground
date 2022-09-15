@@ -283,18 +283,22 @@ const Editor = () => {
       );
     }, 1000);
 
+    return () => clearInterval(topLineIntervalId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, explorer, explorerChanged]);
+
+  // Save explorer metadata
+  useEffect(() => {
     // Save metadata to IndexedDB if we haven't rendered in 5s
     const saveMetadataIntervalId = setInterval(() => {
       explorer?.saveMeta().catch();
     }, 5000);
 
-    return () => {
-      clearInterval(topLineIntervalId);
-      clearInterval(saveMetadataIntervalId);
-    };
+    return () => clearInterval(saveMetadataIntervalId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged]);
+  }, [explorer, explorerChanged]);
 
   // Change programId
   useEffect(() => {
