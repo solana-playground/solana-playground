@@ -1,4 +1,5 @@
-import { HighlightStyle, tags as t } from "@codemirror/highlight";
+import { HighlightStyle } from "@codemirror/language";
+import { tags as t } from "@lezer/highlight";
 
 import Theme from "../interface";
 

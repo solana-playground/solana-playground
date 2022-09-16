@@ -4,27 +4,52 @@ import {
   drawSelection,
   highlightActiveLine,
   dropCursor,
+  rectangularSelection,
+  crosshairCursor,
+  lineNumbers,
+  highlightActiveLineGutter,
   scrollPastEnd,
 } from "@codemirror/view";
 import { Extension, EditorState } from "@codemirror/state";
-import { history, historyKeymap } from "@codemirror/history";
-import { foldGutter, foldKeymap } from "@codemirror/fold";
-import { indentOnInput, indentUnit } from "@codemirror/language";
-import { lineNumbers, highlightActiveLineGutter } from "@codemirror/gutter";
-import { defaultKeymap } from "@codemirror/commands";
-import { bracketMatching } from "@codemirror/matchbrackets";
-import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets";
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { commentKeymap } from "@codemirror/comment";
-import { rectangularSelection } from "@codemirror/rectangular-selection";
-import { defaultHighlightStyle } from "@codemirror/highlight";
+import {
+  indentOnInput,
+  indentUnit,
+  bracketMatching,
+  foldGutter,
+  foldKeymap,
+  LanguageSupport,
+} from "@codemirror/language";
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab,
+} from "@codemirror/commands";
+import {
+  autocompletion,
+  completionKeymap,
+  closeBrackets,
+  closeBracketsKeymap,
+  ifNotIn,
+  completeFromList,
+  Completion,
+} from "@codemirror/autocomplete";
+import {
+  highlightSelectionMatches,
+  searchKeymap,
+  search,
+} from "@codemirror/search";
 import { lintKeymap } from "@codemirror/lint";
-import { python } from "@codemirror/lang-python";
 
-// Packages we customized/added
-import { indentWithTab } from "@codemirror/commands";
-import { rust } from "./lang";
-import { highlightSelectionMatches, searchKeymap } from "./search";
+// Langs
+import { rustLanguage } from "@codemirror/lang-rust";
+import { python } from "@codemirror/lang-python";
+import {
+  ANCHOR_SNIPPETS,
+  COMMON_SNIPPETS,
+  NATIVE_SNIPPETS,
+  RUST_SNIPPETS,
+} from "./snippets/rust";
 
 export const defaultExtensions = (): Extension[] => {
   return [
@@ -37,20 +62,20 @@ export const defaultExtensions = (): Extension[] => {
     dropCursor(),
     EditorState.allowMultipleSelections.of(true),
     indentOnInput(),
-    defaultHighlightStyle.fallback,
     bracketMatching(),
     closeBrackets(),
     autocompletion(),
     rectangularSelection(),
+    crosshairCursor(),
     highlightActiveLine(),
     highlightSelectionMatches(),
+    search({ top: true }),
     scrollPastEnd(),
     keymap.of([
       ...defaultKeymap,
       ...closeBracketsKeymap,
       ...historyKeymap,
       ...foldKeymap,
-      ...commentKeymap,
       ...completionKeymap,
       ...lintKeymap,
       ...searchKeymap,
@@ -59,8 +84,18 @@ export const defaultExtensions = (): Extension[] => {
   ];
 };
 
-export const rustExtensions = () => {
-  return [rust(), indentUnit.of("    ")];
+export const rustExtensions = (isAnchor: boolean) => {
+  const snippets: Completion[] = RUST_SNIPPETS.concat(COMMON_SNIPPETS);
+  if (isAnchor) snippets.push(...ANCHOR_SNIPPETS);
+  else snippets.push(...NATIVE_SNIPPETS);
+
+  const support = rustLanguage.data.of({
+    autocomplete: ifNotIn(
+      ["LineComment", "BlockComment", "String", "Char"],
+      completeFromList(snippets)
+    ),
+  });
+  return [new LanguageSupport(rustLanguage, support), indentUnit.of("    ")];
 };
 
 export const pythonExtensions = () => {

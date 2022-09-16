@@ -945,18 +945,6 @@ export class PgExplorer {
   }
 
   /**
-   * @returns the file content if it exists in the state
-   */
-  getFileContentFromPath(path: string) {
-    if (!this.isShared) {
-      path = path.startsWith("/") ? path.substring(1) : path;
-      path = this.currentWorkspacePath + path;
-    }
-
-    return this.files[path]?.content;
-  }
-
-  /**
    * @returns whether the current file in the state is a Rust file
    */
   isCurrentFileRust() {
@@ -968,6 +956,14 @@ export class PgExplorer {
    */
   isCurrentFilePython() {
     return this.getCurrentFile()?.path.endsWith(".py");
+  }
+
+  /**
+   * @returns whether the current workspace in the state is an Anchor program
+   */
+  isWorkspaceAnchor() {
+    const libRsPath = this._getCurrentSrcPath() + "lib.rs";
+    return this.files[libRsPath]?.content?.includes("anchor") ?? false;
   }
 
   /**
@@ -990,9 +986,9 @@ export class PgExplorer {
   /** Private methods */
 
   /**
-   * @returns the in-memory FS.
+   * @returns the in-memory FS
    *
-   * This function will throw an error if FS doesn't exist.
+   * @throws if FS doesn't exist
    */
   private _getFs() {
     const fs = this._fs;

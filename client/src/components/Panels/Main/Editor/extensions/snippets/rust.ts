@@ -4,17 +4,45 @@ import {
   snippetCompletion as snip,
 } from "@codemirror/autocomplete";
 
-const snippets: Completion[] = [
+/** Rust language snippets */
+export const RUST_SNIPPETS: Completion[] = [
+  snip("struct ${MyStruct} {\n\t\n}", {
+    label: "create struct(cs)",
+    type: "class",
+  }),
+  snip("enum ${MyEnum} {\n\t\n}", {
+    label: "create enum(ce)",
+    type: "class",
+  }),
+  snip("pub struct ${MyStruct} {\n\t\n}", {
+    label: "create pub struct(cps)",
+    type: "class",
+  }),
+  snip("pub enum ${MyEnum} {\n\t\n}", {
+    label: "create pub enum(cpe)",
+    type: "class",
+  }),
+];
+
+/** Common snippets for Native and Anchor */
+export const COMMON_SNIPPETS: Completion[] = [
+  snip('declare_id!("11111111111111111111111111111111");', {
+    label: "declare id(di)",
+    type: "function",
+  }),
+];
+
+/** Native specific snippets */
+export const NATIVE_SNIPPETS: Completion[] = [];
+
+/** Anchor specific snippets */
+export const ANCHOR_SNIPPETS: Completion[] = [
   // Use statements
   snip("use anchor_lang::prelude::*;${}", {
     label: "use anchor prelude(uap)",
     type: "namespace",
   }),
   // Macros
-  snip('declare_id!("11111111111111111111111111111111");', {
-    label: "declare id(di)",
-    type: "function",
-  }),
   snip("require!(${condition}, ${CustomError});", {
     label: "require(rq)",
     type: "function",
@@ -77,22 +105,6 @@ const snippets: Completion[] = [
       type: "class",
     }
   ),
-  snip("struct ${MyStruct} {\n\t\n}", {
-    label: "create struct(cs)",
-    type: "class",
-  }),
-  snip("enum ${MyEnum} {\n\t\n}", {
-    label: "create enum(ce)",
-    type: "class",
-  }),
-  snip("pub struct ${MyStruct} {\n\t\n}", {
-    label: "create pub struct(cps)",
-    type: "class",
-  }),
-  snip("pub enum ${MyEnum} {\n\t\n}", {
-    label: "create pub enum(cpe)",
-    type: "class",
-  }),
   // Errors
   snip(
     '#[error_code]\npub enum ${MyError} {\n\t#[msg("${Custom Error Message}")]\n\t${CustomErrorName},\n}',
@@ -127,5 +139,3 @@ const snippets: Completion[] = [
     type: "property",
   }),
 ];
-
-export default snippets;

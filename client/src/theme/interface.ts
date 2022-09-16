@@ -1,4 +1,4 @@
-import { HighlightStyle } from "@codemirror/highlight";
+import { HighlightStyle } from "@codemirror/language";
 
 type BgAndColor = {
   bg?: string;

@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
+import { syntaxHighlighting } from "@codemirror/language";
 
 import Home from "./Home";
 import Theme from "../../../../theme/interface";
@@ -122,10 +123,11 @@ const Editor = () => {
           color: theme.colors.default.textPrimary,
           width: "fit-content",
           height: "fit-content",
-          position: "fixed",
+          position: "absolute",
           top: 0,
           right: "10%",
           left: "auto",
+          zIndex: 2,
         },
         // Search
         ".cm-searchMatch": {
@@ -147,16 +149,17 @@ const Editor = () => {
           "& input, & button, & label": {
             margin: ".2em .6em .2em 0",
           },
+
           "& input[type=checkbox]": {
             marginRight: ".2em",
           },
+
           "& label": {
             fontSize: "80%",
-            whiteSpace: "pre",
-          },
 
-          "& label:nth-of-type(2)": {
-            marginRight: "1.5rem",
+            "&:nth-of-type(3)": {
+              marginRight: "1.5rem",
+            },
           },
 
           "& button[name=close]": {
@@ -169,11 +172,11 @@ const Editor = () => {
             color: theme.colors.default.textPrimary,
             backgroundColor: "inherit",
             borderRadius: "0.25rem",
+          },
 
-            "&:hover": {
-              cursor: "pointer",
-              backgroundColor: theme.colors.default.bgPrimary,
-            },
+          "& button:hover": {
+            cursor: "pointer",
+            backgroundColor: theme.colors.default.bgPrimary,
           },
         },
       },
@@ -247,12 +250,12 @@ const Editor = () => {
     const extensions = [
       defaultExtensions(),
       editorTheme,
-      theme.highlight,
+      syntaxHighlighting(theme.highlight),
       autosave(explorer, curFile, 500),
     ];
     if (explorer.isCurrentFileRust()) {
-      extensions.push(rustExtensions());
-    } else {
+      extensions.push(rustExtensions(explorer.isWorkspaceAnchor()));
+    } else if (explorer.isCurrentFilePython()) {
       extensions.push(pythonExtensions());
     }
 
@@ -276,8 +279,8 @@ const Editor = () => {
       explorer.saveEditorTopLineNumber(
         curFile.path,
         editor.state.doc.lineAt(
-          editor.visualLineAtHeight(
-            editor.scrollDOM.getBoundingClientRect().top
+          editor.lineBlockAtHeight(
+            editor.scrollDOM.getBoundingClientRect().top - editor.documentTop
           ).from
         ).number
       );
