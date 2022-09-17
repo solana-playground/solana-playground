@@ -1144,7 +1144,7 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@codemirror/autocomplete@^6.2.0":
+"@codemirror/autocomplete@^6.0.0", "@codemirror/autocomplete@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@codemirror/autocomplete/-/autocomplete-6.2.0.tgz#f7205f8281613f77529f07b279ee25e1a5d20124"
   integrity sha512-yNCm2CEE4kE4L2Sf7WeyCej1Q3951ccaCWfomrlBkoERKCss+TzuEeqGe5VnAJTEybLy1yzf1BdMUY/988bfpg==
@@ -1163,6 +1163,19 @@
     "@codemirror/state" "^6.0.0"
     "@codemirror/view" "^6.0.0"
     "@lezer/common" "^1.0.0"
+
+"@codemirror/lang-javascript@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@codemirror/lang-javascript/-/lang-javascript-6.0.2.tgz#1468de7898c2fd477cfdd24207e62c7af822d234"
+  integrity sha512-BZRJ9u/zl16hLkSpDAWm73mrfIR7HJrr0lvnhoSOCQVea5BglguWI/slxexhvUb0CB5cXgKWuo2bM+N9EhIaZw==
+  dependencies:
+    "@codemirror/autocomplete" "^6.0.0"
+    "@codemirror/language" "^6.0.0"
+    "@codemirror/lint" "^6.0.0"
+    "@codemirror/state" "^6.0.0"
+    "@codemirror/view" "^6.0.0"
+    "@lezer/common" "^1.0.0"
+    "@lezer/javascript" "^1.0.0"
 
 "@codemirror/lang-python@^6.0.1":
   version "6.0.1"
@@ -1641,6 +1654,14 @@
   integrity sha512-nsCnNtim90UKsB5YxoX65v3GEIw3iCHw9RM2DtdgkiqAbKh9pCdvi8AWNwkYf10Lu6fxNhXPpkpHbW6mihhvJA==
   dependencies:
     "@lezer/common" "^1.0.0"
+
+"@lezer/javascript@^1.0.0":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@lezer/javascript/-/javascript-1.0.2.tgz#79b5c2c77e27322a0ae516395a193574b9ad3f5e"
+  integrity sha512-IjOVeIRhM8IuafWNnk+UzRz7p4/JSOKBNINLYLsdSGuJS9Ju7vFdc82AlTt0jgtV5D8eBZf4g0vK4d3ttBNz7A==
+  dependencies:
+    "@lezer/highlight" "^1.0.0"
+    "@lezer/lr" "^1.0.0"
 
 "@lezer/lr@^1.0.0":
   version "1.2.3"

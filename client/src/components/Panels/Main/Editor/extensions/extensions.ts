@@ -13,11 +13,9 @@ import {
 import { Extension, EditorState } from "@codemirror/state";
 import {
   indentOnInput,
-  indentUnit,
   bracketMatching,
   foldGutter,
   foldKeymap,
-  LanguageSupport,
 } from "@codemirror/language";
 import {
   defaultKeymap,
@@ -30,9 +28,6 @@ import {
   completionKeymap,
   closeBrackets,
   closeBracketsKeymap,
-  ifNotIn,
-  completeFromList,
-  Completion,
 } from "@codemirror/autocomplete";
 import {
   highlightSelectionMatches,
@@ -40,16 +35,6 @@ import {
   search,
 } from "@codemirror/search";
 import { lintKeymap } from "@codemirror/lint";
-
-// Langs
-import { rustLanguage } from "@codemirror/lang-rust";
-import { python } from "@codemirror/lang-python";
-import {
-  ANCHOR_SNIPPETS,
-  COMMON_SNIPPETS,
-  NATIVE_SNIPPETS,
-  RUST_SNIPPETS,
-} from "./snippets/rust";
 
 export const defaultExtensions = (): Extension[] => {
   return [
@@ -82,22 +67,4 @@ export const defaultExtensions = (): Extension[] => {
       indentWithTab,
     ]),
   ];
-};
-
-export const rustExtensions = (isAnchor: boolean) => {
-  const snippets: Completion[] = RUST_SNIPPETS.concat(COMMON_SNIPPETS);
-  if (isAnchor) snippets.push(...ANCHOR_SNIPPETS);
-  else snippets.push(...NATIVE_SNIPPETS);
-
-  const support = rustLanguage.data.of({
-    autocomplete: ifNotIn(
-      ["LineComment", "BlockComment", "String", "Char"],
-      completeFromList(snippets)
-    ),
-  });
-  return [new LanguageSupport(rustLanguage, support), indentUnit.of("    ")];
-};
-
-export const pythonExtensions = () => {
-  return [python()];
 };

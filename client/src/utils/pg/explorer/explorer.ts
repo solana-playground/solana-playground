@@ -7,6 +7,7 @@ import { PgWorkspace, Workspaces } from "./workspace";
 import { PgProgramInfo, ProgramInfo } from "../program-info";
 import { ShareJSON } from "../share";
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
+import { Lang } from "./frameworks";
 
 export interface ExplorerJSON {
   files: {
@@ -945,17 +946,55 @@ export class PgExplorer {
   }
 
   /**
+   * Get the current file's language from it's path
+   *
+   * @returns the current language name
+   */
+  getCurrentFileLanguage() {
+    const splitByDot = this.getCurrentFile()?.path.split(".");
+    if (!splitByDot?.length) {
+      return null;
+    }
+
+    const langExtension = splitByDot[splitByDot.length - 1];
+    switch (langExtension) {
+      case "rs":
+        return Lang.RUST;
+      case "py":
+        return Lang.PYTHON;
+      case "js":
+        return Lang.JAVASCRIPT;
+      case "ts":
+        return Lang.TYPESCRIPT;
+    }
+  }
+
+  /**
    * @returns whether the current file in the state is a Rust file
    */
   isCurrentFileRust() {
-    return this.getCurrentFile()?.path.endsWith(".rs");
+    return this.getCurrentFileLanguage() === Lang.RUST;
   }
 
   /**
    * @returns whether the current file in the state is a Python file
    */
   isCurrentFilePython() {
-    return this.getCurrentFile()?.path.endsWith(".py");
+    return this.getCurrentFileLanguage() === Lang.PYTHON;
+  }
+
+  /**
+   * @returns whether the current file in the state is a Javascript file
+   */
+  isCurrentFileJavascript() {
+    return this.getCurrentFileLanguage() === Lang.JAVASCRIPT;
+  }
+
+  /**
+   * @returns whether the current file in the state is a Typescript file
+   */
+  isCurrentFileTypescript() {
+    return this.getCurrentFileLanguage() === Lang.TYPESCRIPT;
   }
 
   /**
@@ -976,11 +1015,11 @@ export class PgExplorer {
   /**
    * Get the path without the workspace path prefix
    *
-   * @param p Full path
+   * @param fullPath Full path
    * @returns Relative path
    */
-  _getRelativePath(p: string) {
-    return p.split(this.currentWorkspacePath)[1];
+  _getRelativePath(fullPath: string) {
+    return fullPath.split(this.currentWorkspacePath)[1];
   }
 
   /** Private methods */

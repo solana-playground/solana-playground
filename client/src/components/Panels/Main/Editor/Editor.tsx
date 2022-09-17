@@ -2,18 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import { syntaxHighlighting } from "@codemirror/language";
 
 import Home from "./Home";
 import Theme from "../../../../theme/interface";
 import { Wormhole } from "../../../Loading";
-import {
-  autosave,
-  defaultExtensions,
-  rustExtensions,
-  pythonExtensions,
-} from "./extensions";
+import { autosave, defaultExtensions } from "./extensions";
 import {
   buildCountAtom,
   explorerAtom,
@@ -112,9 +107,15 @@ const Editor = () => {
           border: "1px solid " + theme.colors.default.borderColor,
         },
         ".cm-tooltip-autocomplete": {
-          "& > ul > li[aria-selected]": {
-            backgroundColor:
-              theme.colors.default.primary + theme.transparency?.medium,
+          "& > ul": {
+            "& > li > div.cm-completionIcon": {
+              marginRight: "0.5rem",
+            },
+
+            "& > li[aria-selected]": {
+              backgroundColor:
+                theme.colors.default.primary + theme.transparency?.medium,
+            },
           },
         },
         // Panels
@@ -247,17 +248,14 @@ const Editor = () => {
     if (newEl) PgExplorer.setSelectedEl(newEl);
 
     // Change editor state
+    const languageCompartment = new Compartment();
     const extensions = [
       defaultExtensions(),
       editorTheme,
       syntaxHighlighting(theme.highlight),
       autosave(explorer, curFile, 500),
+      languageCompartment.of([]),
     ];
-    if (explorer.isCurrentFileRust()) {
-      extensions.push(rustExtensions(explorer.isWorkspaceAnchor()));
-    } else if (explorer.isCurrentFilePython()) {
-      extensions.push(pythonExtensions());
-    }
 
     // Create editor state
     editor.setState(
@@ -266,6 +264,49 @@ const Editor = () => {
         extensions,
       })
     );
+
+    // Lazy load language extensions
+    (async () => {
+      let languageExtensions;
+      switch (explorer.getCurrentFileLanguage()) {
+        case Lang.RUST: {
+          const { rustExtensions } = await import(
+            "./extensions/languages/rust"
+          );
+          languageExtensions = rustExtensions(explorer.isWorkspaceAnchor());
+          break;
+        }
+
+        case Lang.PYTHON: {
+          const { pythonExtensions } = await import(
+            "./extensions/languages/python"
+          );
+          languageExtensions = pythonExtensions();
+          break;
+        }
+
+        case Lang.JAVASCRIPT: {
+          const { javascriptExtensions } = await import(
+            "./extensions/languages/javascript"
+          );
+          languageExtensions = javascriptExtensions(false);
+          break;
+        }
+
+        case Lang.TYPESCRIPT: {
+          const { javascriptExtensions } = await import(
+            "./extensions/languages/javascript"
+          );
+          languageExtensions = javascriptExtensions(true);
+        }
+      }
+
+      if (languageExtensions) {
+        editor.dispatch({
+          effects: languageCompartment.reconfigure(languageExtensions),
+        });
+      }
+    })();
 
     // Scroll to the top line number
     const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);

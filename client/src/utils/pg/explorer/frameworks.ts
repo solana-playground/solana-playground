@@ -3,6 +3,8 @@ import { Files } from "./explorer";
 export enum Lang {
   RUST = "Rust",
   PYTHON = "Python",
+  JAVASCRIPT = "JavaScript",
+  TYPESCRIPT = "TypeScript",
 }
 
 export interface Framework {
