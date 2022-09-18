@@ -12,6 +12,7 @@ export class PgCommand {
   static readonly RUSTFMT = "rustfmt";
   static readonly SOLANA = "solana";
   static readonly SPL_TOKEN = "spl-token";
+  static readonly TEST = "test";
 
   /**
    * @returns help command output

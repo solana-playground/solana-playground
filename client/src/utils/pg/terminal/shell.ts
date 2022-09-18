@@ -17,6 +17,7 @@ import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgEditor } from "../editor";
 import { Lang } from "../explorer";
+import { PgTest } from "../test";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -517,7 +518,6 @@ export class PgShell {
         if (PgWallet.checkIsPgConnected()) {
           PgTerminal.setTerminalState(TerminalAction.deployStart);
         }
-
         isCmdValid = true;
         break;
       }
@@ -534,9 +534,13 @@ export class PgShell {
           lang: Lang.RUST,
           fromTerminal: true,
         });
-
         isCmdValid = true;
         break;
+      }
+
+      case PgCommand.TEST: {
+        PgCommon.createAndDispatchCustomEvent(PgTest.EVT_NAME_TEST_CLIENT);
+        isCmdValid = true;
       }
     }
 

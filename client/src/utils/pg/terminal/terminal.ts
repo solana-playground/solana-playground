@@ -363,7 +363,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     this.scrollToBottom();
     try {
       return await cb();
-    } catch {
+    } catch (e: any) {
+      console.log("Process error:", e.message);
     } finally {
       this.enable();
     }

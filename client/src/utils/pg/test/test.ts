@@ -50,6 +50,8 @@ const DEFAULT_TYPES: IdlType[] = [
 ];
 
 export class PgTest {
+  static readonly EVT_NAME_TEST_CLIENT = "testclient";
+
   /**
    * Convert types into string for UI
    *
