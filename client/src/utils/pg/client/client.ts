@@ -1,5 +1,6 @@
 import { transpile } from "typescript";
 import * as assert from "assert";
+import * as mocha from "mocha";
 import * as util from "util";
 import * as web3 from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
@@ -15,7 +16,12 @@ export class PgClient {
   /**
    * Run js/ts code
    *
-   * @param code Client code to test
+   * @param code Client code to run/test
+   * @param wallet Playground or Anchor Wallet
+   * @param connection Current connection
+   * @param opts
+   * - test: whether to run the code as test
+   *
    * @returns A promise that will resolve once all tests are finished
    */
   static async run(
@@ -25,6 +31,17 @@ export class PgClient {
     opts?: { test: boolean }
   ): Promise<void> {
     const isTest = opts?.test;
+    if (isTest) {
+      if (!code.includes("describe")) {
+        throw new Error(
+          `Tests must use '${PgTerminal.bold(
+            "describe"
+          )}' function. Use '${PgTerminal.bold(
+            "run"
+          )}' command to run the script.`
+        );
+      }
+    }
     PgTerminal.logWasm(
       PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
     );
@@ -38,7 +55,9 @@ export class PgClient {
     for (const key in iframeWindow) {
       try {
         delete iframeWindow[key];
-      } catch {}
+      } catch {
+        // Not every key can be deleted from the window object
+      }
     }
 
     // Redefine console inside the iframe to log in the terminal
@@ -73,10 +92,55 @@ export class PgClient {
       /// Inherited objects from playground
       ["connection", connection],
       ["wallet", wallet],
-
-      /// Internal
-      ["_finish", () => (finished = true)],
     ];
+
+    let endCode;
+    if (isTest) {
+      // Setup mocha
+      try {
+        if (describe !== undefined) {
+          // Reset suite
+          // @ts-ignore
+          mocha.suite.suites = [];
+          // @ts-ignore
+          mocha.suite.tests = [];
+        }
+      } catch {}
+
+      // @ts-ignore
+      mocha.setup({
+        ui: "bdd",
+        timeout: "30000",
+        // Mocha disposes itself after the `run` function without this option
+        cleanReferencesAfterRun: false,
+        // Logs the test output to the browser console
+        reporter: "spec",
+      });
+
+      // Set mocha globals
+      globals.push(
+        ["after", after],
+        ["afterEach", afterEach],
+        ["before", before],
+        ["beforeEach", beforeEach],
+        ["context", context],
+        ["describe", describe],
+        ["it", it],
+        ["specify", specify],
+        ["xcontext", xcontext],
+        ["xdescribe", xdescribe],
+        ["xit", xit],
+        ["xspecify", xspecify],
+        ["_run", mocha.run]
+      );
+
+      endCode = "_run()";
+    } else {
+      // Run only
+      globals.push(["_finish", () => (finished = true)]);
+
+      endCode = "_finish()";
+    }
 
     // Wallet
     if (wallet) {
@@ -104,34 +168,45 @@ export class PgClient {
     const scriptEl = document.createElement("script");
     iframeDocument.head.appendChild(scriptEl);
 
-    // Tests should not have access to window object
-    const blacklistedWords = [
-      "window",
-      "this",
-      "globalThis",
-      "document",
-      "location",
-      "top",
-      "chrome",
-    ];
-    for (const blacklistedWord of blacklistedWords) {
+    for (const blacklistedWord of this._blacklistedWords) {
       if (code.includes(blacklistedWord)) {
         throw new Error(`'${blacklistedWord}' is not allowed`);
       }
     }
 
     // Allow top-level async, also helps detecting when tests finish
-    code = `(async () => { try { await ${code} } catch (e) { console.error("Error:", e.message) }; _finish()})()`;
+    code = `(async () => { try { await ${code} } catch (e) { console.error("Error:", e.message) } finally { ${endCode} }})()`;
 
     scriptEl.textContent = transpile(code);
 
     return new Promise((res) => {
-      const intervalId = setInterval(() => {
-        if (finished) {
-          clearInterval(intervalId);
-          res();
-        }
-      }, 1000);
+      if (isTest) {
+        const intervalId = setInterval(() => {
+          // @ts-ignore
+          if (mocha._state === "init") {
+            clearInterval(intervalId);
+            res();
+          }
+        }, 1000);
+      } else {
+        const intervalId = setInterval(() => {
+          if (finished) {
+            clearInterval(intervalId);
+            res();
+          }
+        }, 1000);
+      }
     });
   }
+
+  /** Words that are not allowed to be in the user code */
+  private static readonly _blacklistedWords = [
+    "window",
+    "this",
+    "globalThis",
+    "document",
+    "location",
+    "top",
+    "chrome",
+  ];
 }
