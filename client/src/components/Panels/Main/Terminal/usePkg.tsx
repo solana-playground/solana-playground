@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { GITHUB_URL } from "../../../../constants";
+import { EventName, GITHUB_URL } from "../../../../constants";
 import {
   PgPkg,
   PgTerminal,
@@ -48,12 +48,12 @@ export const usePkg = () => {
     };
 
     document.addEventListener(
-      PgTerminal.EVT_NAME_LOAD_PKG,
+      EventName.TERMINAL_LOAD_PKG,
       handleLoadPkg as EventListener
     );
     return () =>
       document.removeEventListener(
-        PgTerminal.EVT_NAME_LOAD_PKG,
+        EventName.TERMINAL_LOAD_PKG,
         handleLoadPkg as EventListener
       );
   }, [pkgs, loadPkg]);

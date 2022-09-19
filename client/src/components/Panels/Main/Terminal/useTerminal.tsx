@@ -8,7 +8,7 @@ import {
 } from "../../../../state";
 import { useBuild, useDeploy } from "../../Side/Right/BuildDeploy";
 import { useConnectOrSetupPg } from "../../Wallet";
-import { PgTerminal } from "../../../../utils/pg";
+import { EventName } from "../../../../constants";
 
 // Runs build and deploy commands if those components are not mounted
 export const useTerminal = () => {
@@ -30,12 +30,12 @@ export const useTerminal = () => {
     };
 
     document.addEventListener(
-      PgTerminal.EVT_NAME_TERMINAL_LOG,
+      EventName.TERMINAL_LOG,
       handleLog as EventListener
     );
     return () =>
       document.removeEventListener(
-        PgTerminal.EVT_NAME_TERMINAL_LOG,
+        EventName.TERMINAL_LOG,
         handleLog as EventListener
       );
   }, [setTerminalText]);
@@ -48,12 +48,12 @@ export const useTerminal = () => {
     };
 
     document.addEventListener(
-      PgTerminal.EVT_NAME_TERMINAL_STATE,
+      EventName.TERMINAL_STATE,
       handleState as EventListener
     );
     return () =>
       document.removeEventListener(
-        PgTerminal.EVT_NAME_TERMINAL_STATE,
+        EventName.TERMINAL_STATE,
         handleState as EventListener
       );
   }, [setTerminalState]);

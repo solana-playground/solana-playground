@@ -24,6 +24,7 @@ import {
   PgPkg,
   PkgName,
 } from "../../../../utils/pg";
+import { EventName } from "../../../../constants";
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -395,9 +396,9 @@ const Editor = () => {
       if (!editor.hasFocus) editor.focus();
     };
 
-    document.addEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+    document.addEventListener(EventName.EDITOR_FOCUS, handleFocus);
     return () => {
-      document.removeEventListener(PgEditor.EVT_NAME_EDITOR_FOCUS, handleFocus);
+      document.removeEventListener(EventName.EDITOR_FOCUS, handleFocus);
     };
   }, [editor]);
 
@@ -495,22 +496,20 @@ const Editor = () => {
         if (key === "S") {
           e.preventDefault();
           if (editor?.hasFocus) {
-            PgCommon.createAndDispatchCustomEvent(
-              PgEditor.EVT_NAME_EDITOR_FORMAT
-            );
+            PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT);
           }
         }
       }
     };
 
     document.addEventListener(
-      PgEditor.EVT_NAME_EDITOR_FORMAT,
+      EventName.EDITOR_FORMAT,
       handleEditorFormat as EventListener
     );
     document.addEventListener("keydown", handleFormatOnKeybind);
     return () => {
       document.removeEventListener(
-        PgEditor.EVT_NAME_EDITOR_FORMAT,
+        EventName.EDITOR_FORMAT,
         handleEditorFormat as EventListener
       );
       document.removeEventListener("keydown", handleFormatOnKeybind);

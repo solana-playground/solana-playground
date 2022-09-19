@@ -15,9 +15,8 @@ import { PgCommand } from "./commands";
 import { PkgName, Pkgs } from "./pkg";
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
-import { PgEditor } from "../editor";
 import { Lang } from "../explorer";
-import { PgTest } from "../test";
+import { EventName } from "../../../constants";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -529,8 +528,14 @@ export class PgShell {
         break;
       }
 
+      case PgCommand.RUN: {
+        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN);
+        isCmdValid = true;
+        break;
+      }
+
       case PgCommand.RUSTFMT: {
-        PgCommon.createAndDispatchCustomEvent(PgEditor.EVT_NAME_EDITOR_FORMAT, {
+        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
           lang: Lang.RUST,
           fromTerminal: true,
         });
@@ -539,7 +544,9 @@ export class PgShell {
       }
 
       case PgCommand.TEST: {
-        PgCommon.createAndDispatchCustomEvent(PgTest.EVT_NAME_TEST_CLIENT);
+        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+          test: true,
+        });
         isCmdValid = true;
       }
     }

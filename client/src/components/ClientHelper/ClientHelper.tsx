@@ -5,7 +5,8 @@ import { useConnection } from "@solana/wallet-adapter-react";
 
 import { explorerAtom, refreshExplorerAtom } from "../../state";
 import { useCurrentWallet } from "../Panels/Wallet";
-import { PgTerminal, PgTest } from "../../utils/pg";
+import { PgTerminal } from "../../utils/pg";
+import { EventName } from "../../constants";
 
 const ClientHelper = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -15,19 +16,26 @@ const ClientHelper = () => {
   const { currentWallet: wallet } = useCurrentWallet();
 
   useEffect(() => {
-    const handleTest = () => {
+    const handle = (e: UIEvent & { detail?: { test?: boolean } }) => {
       PgTerminal.run(async () => {
         const code = explorer?.getCurrentFile()?.content;
         if (code) {
-          const { PgClient } = await import("../../utils/pg/test/client");
-          await PgClient.run(code, wallet, connection);
+          const { PgClient } = await import("../../utils/pg/client");
+          if (e.detail?.test) {
+            await PgClient.run(code, wallet, connection, { test: true });
+          } else {
+            await PgClient.run(code, wallet, connection);
+          }
         }
       });
     };
 
-    document.addEventListener(PgTest.EVT_NAME_TEST_CLIENT, handleTest);
+    document.addEventListener(EventName.CLIENT_RUN, handle as EventListener);
     return () => {
-      document.removeEventListener(PgTest.EVT_NAME_TEST_CLIENT, handleTest);
+      document.removeEventListener(
+        EventName.CLIENT_RUN,
+        handle as EventListener
+      );
     };
 
     // eslint-disable-next line react-hooks/exhausive-deps

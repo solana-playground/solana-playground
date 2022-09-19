@@ -8,6 +8,7 @@ export class PgCommand {
   static readonly CONNECT = "connect";
   static readonly DEPLOY = "deploy";
   static readonly HELP = "help";
+  static readonly RUN = "run";
   static readonly RUN_LAST_CMD = "!!";
   static readonly RUSTFMT = "rustfmt";
   static readonly SOLANA = "solana";

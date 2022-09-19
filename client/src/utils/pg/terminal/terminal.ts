@@ -5,6 +5,7 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
 import {
+  EventName,
   GITHUB_URL,
   Id,
   OTHER_ERROR,
@@ -86,18 +87,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Prompt after '
    */
   static readonly CONTINUATION_PROMPT_PREFIX = "> ";
-
-  /**
-   * Event name for logging terminal
-   */
-  static readonly EVT_NAME_TERMINAL_LOG = "terminallog";
-  static readonly EVT_NAME_TERMINAL_STATE = "terminalstate";
-  static readonly EVT_NAME_TERMINAL_ENABLE = "terminalenable";
-  static readonly EVT_NAME_TERMINAL_DISABLE = "terminaldisable";
-  static readonly EVT_NAME_LOAD_PKG = "terminalloadpkg";
-  static readonly EVT_NAME_SCROLL_TO_BOTTOM = "terminalscrolltobottom";
-  static readonly EVT_NAME_RUN_LAST_CMD = "terminalrunlastcmd";
-  static readonly EVT_NAME_RUN_CMD_FROM_STR = "terminalruncmdfromstr";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -308,7 +297,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Set terminal state from anywhere
    */
   static setTerminalState(action: TerminalAction) {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_STATE, {
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_STATE, {
       action,
     });
   }
@@ -317,14 +306,14 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Dispatch enable terminal custom event
    */
   static enable() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_ENABLE);
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_ENABLE);
   }
 
   /**
    * Dispatch disable terminal custom event
    */
   static disable() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_DISABLE);
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_DISABLE);
   }
 
   /**
@@ -333,14 +322,14 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Mainly used from WASM
    */
   static logWasm(msg: string) {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_TERMINAL_LOG, { msg });
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_LOG, { msg });
   }
 
   /**
    * Dispatch load pkg terminal custom event
    */
   static loadPkg(pkg: PkgName) {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_LOAD_PKG, {
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_LOAD_PKG, {
       pkg,
     });
   }
@@ -349,7 +338,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Dispatch scroll to bottom custom event
    */
   static scrollToBottom() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_SCROLL_TO_BOTTOM);
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_SCROLL_TO_BOTTOM);
   }
 
   /**
@@ -364,7 +353,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     try {
       return await cb();
     } catch (e: any) {
-      console.log("Process error:", e.message);
+      this.logWasm(`${this.error("Process error")}: ${e.message}`);
     } finally {
       this.enable();
     }
@@ -374,14 +363,17 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * Dispatch run last command custom event
    */
   static runLastCmd() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_LAST_CMD);
+    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_RUN_LAST_CMD);
   }
 
   /**
    * Dispatch run cmd from str custom event
    */
   static runCmdFromStr(cmd: string) {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_RUN_CMD_FROM_STR, cmd);
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.TERMINAL_RUN_CMD_FROM_STR,
+      cmd
+    );
   }
 }
 

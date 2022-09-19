@@ -11,6 +11,7 @@ import { usePkg } from "./usePkg";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
+import { EventName } from "../../../../constants";
 
 const Terminal = () => {
   const [terminalOutput] = useAtom(terminalOutputAtom);
@@ -236,46 +237,34 @@ const Terminal = () => {
       term.runCmdFromStr(cmd);
     };
 
+    document.addEventListener(EventName.TERMINAL_ENABLE, handleEnable);
+    document.addEventListener(EventName.TERMINAL_DISABLE, handleDisable);
     document.addEventListener(
-      PgTerminal.EVT_NAME_TERMINAL_ENABLE,
-      handleEnable
-    );
-    document.addEventListener(
-      PgTerminal.EVT_NAME_TERMINAL_DISABLE,
-      handleDisable
-    );
-    document.addEventListener(
-      PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
+      EventName.TERMINAL_SCROLL_TO_BOTTOM,
       handleScrollToBottom
     );
     document.addEventListener(
-      PgTerminal.EVT_NAME_RUN_LAST_CMD,
+      EventName.TERMINAL_RUN_LAST_CMD,
       handleRunLastCmd
     );
     document.addEventListener(
-      PgTerminal.EVT_NAME_RUN_CMD_FROM_STR,
+      EventName.TERMINAL_RUN_CMD_FROM_STR,
       handleRunCmdFromStr as EventListener
     );
 
     return () => {
+      document.removeEventListener(EventName.TERMINAL_ENABLE, handleEnable);
+      document.removeEventListener(EventName.TERMINAL_DISABLE, handleDisable);
       document.removeEventListener(
-        PgTerminal.EVT_NAME_TERMINAL_ENABLE,
-        handleEnable
-      );
-      document.removeEventListener(
-        PgTerminal.EVT_NAME_TERMINAL_DISABLE,
-        handleDisable
-      );
-      document.removeEventListener(
-        PgTerminal.EVT_NAME_SCROLL_TO_BOTTOM,
+        EventName.TERMINAL_SCROLL_TO_BOTTOM,
         handleScrollToBottom
       );
       document.removeEventListener(
-        PgTerminal.EVT_NAME_RUN_LAST_CMD,
+        EventName.TERMINAL_RUN_LAST_CMD,
         handleRunLastCmd
       );
       document.removeEventListener(
-        PgTerminal.EVT_NAME_RUN_CMD_FROM_STR,
+        EventName.TERMINAL_RUN_CMD_FROM_STR,
         handleRunCmdFromStr as EventListener
       );
     };

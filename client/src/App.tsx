@@ -12,6 +12,7 @@ import MutThemeProvider from "./theme/";
 import IDE from "./pages/ide";
 import { connAtom } from "./state";
 import { PgConnection } from "./utils/pg";
+import { EventName } from "./constants";
 
 const App = () => {
   const [conn, setConn] = useAtom(connAtom);
@@ -22,15 +23,9 @@ const App = () => {
       setConn(PgConnection.getConnectionConfig());
     };
 
-    document.addEventListener(
-      PgConnection.EVT_NAME_REFRESH_CONNECTION,
-      handleRefresh
-    );
+    document.addEventListener(EventName.CONNECTION_REFRESH, handleRefresh);
     return () =>
-      document.removeEventListener(
-        PgConnection.EVT_NAME_REFRESH_CONNECTION,
-        handleRefresh
-      );
+      document.removeEventListener(EventName.CONNECTION_REFRESH, handleRefresh);
   }, [setConn]);
 
   const endpoint = conn.endpoint;

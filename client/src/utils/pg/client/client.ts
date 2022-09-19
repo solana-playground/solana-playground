@@ -5,7 +5,7 @@ import * as web3 from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgTest } from "./test";
+import { PgTest } from "../test/test";
 import { PgTerminal } from "../terminal";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
@@ -21,8 +21,14 @@ export class PgClient {
   static async run(
     code: string,
     wallet: PgWallet | AnchorWallet | null,
-    connection: web3.Connection
+    connection: web3.Connection,
+    opts?: { test: boolean }
   ): Promise<void> {
+    const isTest = opts?.test;
+    PgTerminal.logWasm(
+      PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
+    );
+
     const iframeEls = document.getElementsByTagName("iframe");
     if (!iframeEls.length) throw new Error("No iframe element");
     const iframeWindow = (iframeEls[0] as HTMLIFrameElement).contentWindow;
@@ -76,7 +82,7 @@ export class PgClient {
     if (wallet) {
       globals.push(["wallet", wallet]);
 
-      // Anchor
+      // Anchor IDL
       const idl = PgProgramInfo.getProgramInfo().idl;
       if (idl) {
         globals.push(["program", PgTest.getProgram(idl, connection, wallet)]);

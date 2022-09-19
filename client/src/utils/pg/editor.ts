@@ -1,16 +1,15 @@
+import { EventName } from "../../constants";
 import { PgCommon } from "./common";
 
 export class PgEditor {
   static readonly CLASSNAME = "cm-editor";
   static readonly ACTIVE_CLASSNAME = "cm-focused";
-  static readonly EVT_NAME_EDITOR_FOCUS = "editorfocus";
-  static readonly EVT_NAME_EDITOR_FORMAT = "editorformat";
 
   /**
    * Dispatch custom event to focus editor
    */
   static focus() {
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_EDITOR_FOCUS);
+    PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FOCUS);
   }
 
   /**

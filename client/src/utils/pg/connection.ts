@@ -1,6 +1,6 @@
 import { Commitment } from "@solana/web3.js";
 
-import { Endpoint } from "../../constants";
+import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
 
 export interface PgConnectionConfig {
@@ -16,8 +16,6 @@ export class PgConnection {
     commitment: "confirmed",
     preflightChecks: true,
   };
-
-  static readonly EVT_NAME_REFRESH_CONNECTION = "refreshconnection";
 
   static get endpoint(): Endpoint {
     return this.getConnectionConfig().endpoint;
@@ -68,6 +66,6 @@ export class PgConnection {
       commitment: commitment as Commitment,
     });
 
-    PgCommon.createAndDispatchCustomEvent(this.EVT_NAME_REFRESH_CONNECTION);
+    PgCommon.createAndDispatchCustomEvent(EventName.CONNECTION_REFRESH);
   }
 }
