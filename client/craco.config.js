@@ -37,9 +37,9 @@ module.exports = {
           process: "process/browser",
         }),
         // Ignore `Critical dependency: the request of a dependency is an expression`
-        // from typescript
+        // from typescript and mocha
         new webpack.ContextReplacementPlugin(/^\.$/, (context) => {
-          if (/\/node_modules\/typescript\/lib/.test(context.context)) {
+          if (/\/node_modules\/(typescript|mocha)\/lib/.test(context.context)) {
             for (const d of context.dependencies) {
               if (d.critical) d.critical = false;
             }
