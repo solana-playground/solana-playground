@@ -14,7 +14,7 @@ import { PgCommon } from "../common";
 
 export class PgClient {
   /**
-   * Run js/ts code
+   * Run or test js/ts code
    *
    * @param code Client code to run/test
    * @param wallet Playground or Anchor Wallet
@@ -179,7 +179,7 @@ export class PgClient {
     }
 
     // Allow top-level async, also helps detecting when tests finish
-    code = `(async () => { try { await ${code} } catch (e) { console.error("Error:", e.message) } finally { ${endCode} }})()`;
+    code = `(async () => { try { await ${code} } catch (e) { console.log("Uncaught error:", e.message) } finally { ${endCode} }})()`;
 
     // Transpile and inject the script to the iframe element
     scriptEl.textContent = transpile(code);

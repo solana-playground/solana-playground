@@ -27,9 +27,9 @@ export const usePkg = () => {
       // This prevents unnecessary looping
       setTimeout(() => PgTerminal.runLastCmd());
     } catch (e: any) {
-      resultMsg = `${PgTerminal.error("Error")} loading ${
+      resultMsg = `WASM error: loading ${
         pkgInfo.uiName
-      }. Please consider filing a bug report in ${PgTerminal.underline(
+      } failed. Please consider filing a bug report in ${PgTerminal.underline(
         GITHUB_URL + "/issues"
       )}
   Error reason: ${e.message}`;

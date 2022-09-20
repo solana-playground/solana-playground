@@ -49,7 +49,7 @@ export const useBuild = () => {
         setBuildCount((c) => c + 1);
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        msg = `${PgTerminal.error("Build error:")} ${convertedError}`;
+        msg = `Build error: ${convertedError}`;
       } finally {
         setTerminal(msg);
         setTerminalState(TerminalAction.buildLoadingStop);

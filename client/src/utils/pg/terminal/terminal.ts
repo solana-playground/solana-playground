@@ -20,19 +20,6 @@ import { PgCommon } from "../common";
 import { PkgName, Pkgs } from "./pkg";
 import { PgProgramInfo } from "../program-info";
 
-enum TextState {
-  SUCCESS = 0,
-  ERROR = 1,
-  WARNING = 2,
-  INFO = 3,
-  PRIMARY = 4, // Primary theme color
-}
-
-interface TextInfo {
-  text: string;
-  state: TextState;
-}
-
 export class PgTerminal {
   /**
    * Default height of the terminal
@@ -93,58 +80,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   static readonly CROSS = "❌";
   static readonly CHECKMARK = "✅";
 
-  /**
-   * These text-state pairs will be used to give colors before printing
-   */
-  private static readonly TEXTS: TextInfo[] = [
-    { text: "error", state: TextState.ERROR },
-    { text: "warning", state: TextState.WARNING },
-  ];
-
-  /**
-   * Give color before printing to terminal
-   */
-  static colorText(text: string) {
-    for (const textInfo of this.TEXTS) {
-      text = text.replaceAll(textInfo.text, this.getColorFromState(textInfo));
-    }
-
-    // Match until ':' from the start of the line: e.g SUBCOMMANDS:
-    // TODO: Highlight the text from WASM so we don't have to do this.
-    text = text.replace(/^(.*?:)/gm, (match) => {
-      if (!match.includes("   ") && match.startsWith(" ")) {
-        return this.bold(match); // Indented
-      }
-      if (!match.toLowerCase().includes("error") && !match.includes("  ")) {
-        return this.primary(match);
-      }
-
-      return match;
-    });
-
-    return text;
-  }
-
-  /**
-   * Helper function for colorText
-   */
-  private static getColorFromState(textInfo: TextInfo) {
-    switch (textInfo.state) {
-      case TextState.SUCCESS:
-        return this.success(textInfo.text);
-      case TextState.ERROR:
-        return this.error(textInfo.text);
-      case TextState.WARNING:
-        return this.warning(textInfo.text);
-      case TextState.INFO:
-        return this.info(textInfo.text);
-      case TextState.PRIMARY:
-        return this.primary(textInfo.text);
-      default:
-        return textInfo.text;
-    }
-  }
-
   static success(text: string) {
     return `\x1b[1;32m${text}\x1b[0m`;
   }
@@ -165,6 +100,14 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     return `\x1b[1;35m${text}\x1b[0m`;
   }
 
+  static secondary(text: string) {
+    return `\x1b[1;36m${text}\x1b[0m`;
+  }
+
+  static secondaryText(text: string) {
+    return `\x1b[30m${text}\x1b[0m`;
+  }
+
   static bold(text: string) {
     return `\x1b[1m${text}\x1b[0m`;
   }
@@ -175,6 +118,56 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
   static underline(text: string) {
     return `\x1b[4m${text}\x1b[0m`;
+  }
+
+  /**
+   * Hightlight the text before printing to terminal
+   */
+  static colorText(text: string) {
+    text = text
+      // Match for error
+      .replace(
+        /\w*\serror(\[|:)/gim,
+        (match) =>
+          this.error(match.substring(0, match.length - 1)) +
+          match[match.length - 1]
+      )
+      // Match for warning
+      .replace(/(\d\s)?warning(s|:)?/gim, (match) => {
+        // warning:
+        if (match.endsWith(":")) {
+          return (
+            this.warning(match.substring(0, match.length - 1)) +
+            match[match.length - 1]
+          );
+        }
+
+        // 1 warning, 2 warnings
+        return this.warning(match);
+      })
+      // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+      // TODO: Highlight the text from WASM so we don't have to do this.
+      .replace(/^(.*?:)/gm, (match) => {
+        if (
+          (!match.includes("   ") && match.startsWith(" ")) ||
+          match.startsWith("{")
+        ) {
+          return this.bold(match); // Indented
+        }
+        if (!match.toLowerCase().includes("error") && !match.includes("  ")) {
+          return this.primary(match);
+        }
+
+        return match;
+      })
+      // Secondary text color for (...)
+      .replace(/\(\d+\w+\)/gm, (match) => this.secondaryText(match))
+      // Numbers
+      .replace(/^\s*\d+$/, (match) => {
+        return this.secondary(match);
+      });
+
+    return text;
   }
 
   /**
@@ -386,7 +379,19 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       _log(fullMessage);
 
       // We only want to log mocha logs to the terminal
-      if (fullMessage.startsWith("  ")) PgTerminal.logWasm(fullMessage);
+      if (fullMessage.startsWith("  ")) {
+        const editedMessage = fullMessage
+          // Replace checkmark icon
+          .replace(PgTerminal.CHECKMARK, PgTerminal.success("✔"))
+          // Make '1) testname' red
+          .replace(/\s+\d\)\s\w*$/, (match) => PgTerminal.error(match))
+          // Passing text
+          .replace(/\d+\spassing/, (match) => PgTerminal.success(match))
+          // Failing text
+          .replace(/\d+\sfailing/, (match) => PgTerminal.error(match));
+
+        PgTerminal.logWasm(editedMessage);
+      }
     }
   }
 }

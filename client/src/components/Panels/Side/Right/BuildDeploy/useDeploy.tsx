@@ -90,7 +90,7 @@ Your address: ${PgWallet.getKp().publicKey}`
         setDeployCount((c) => c + 1);
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        msg = `${PgTerminal.error("Deployment error:")} ${convertedError}`;
+        msg = `Deployment error: ${convertedError}`;
         return 1; // To indicate error
       } finally {
         setTerminal(msg + "\n");

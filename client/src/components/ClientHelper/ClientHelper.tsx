@@ -20,15 +20,12 @@ const ClientHelper = () => {
       PgTerminal.run(async () => {
         const code = explorer?.getCurrentFile()?.content;
         if (code) {
-          const isTest = e.detail?.isTest;
-          if (isTest) {
-            // Redefine console.log to show mocha logs in the terminal
-            console.log = PgTerminal.consoleLog;
-          }
+          // Redefine console.log to show mocha logs in the terminal
+          console.log = PgTerminal.consoleLog;
 
           const { PgClient } = await import("../../utils/pg/client");
           await PgClient.run(code, wallet, connection, {
-            isTest,
+            isTest: e.detail?.isTest,
           });
         }
       });

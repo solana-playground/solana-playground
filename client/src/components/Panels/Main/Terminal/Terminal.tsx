@@ -37,6 +37,8 @@ const Terminal = () => {
         brightYellow: state.warning.color,
         brightBlue: state.info.color,
         brightMagenta: theme.colors.default.primary,
+        black: theme.colors.default.textSecondary,
+        brightCyan: theme.colors.default.secondary,
       },
     });
   }, [theme]);

@@ -125,7 +125,7 @@ const SendInside = () => {
         msg = PgTerminal.success("Success.");
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        msg = `${PgTerminal.error("Transfer error:")} ${convertedError}`;
+        msg = `Transfer error: ${convertedError}`;
       } finally {
         setLoading(false);
         setTerminal(msg + "\n");
