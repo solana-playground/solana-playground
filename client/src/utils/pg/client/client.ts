@@ -28,9 +28,9 @@ export class PgClient {
     code: string,
     wallet: PgWallet | AnchorWallet | null,
     connection: web3.Connection,
-    opts?: { test: boolean }
+    opts?: { isTest?: boolean }
   ): Promise<void> {
-    const isTest = opts?.test;
+    const isTest = opts?.isTest;
     if (isTest) {
       if (!code.includes("describe")) {
         throw new Error(
@@ -61,13 +61,17 @@ export class PgClient {
     }
 
     // Redefine console inside the iframe to log in the terminal
+    let padding = "";
+    if (isTest) padding = "    ";
     // @ts-ignore
     iframeWindow["console"] = {
       log: (msg: string, ...rest: any[]) => {
-        PgTerminal.logWasm(util.format(msg, ...rest));
+        PgTerminal.logWasm(padding + util.format(msg, ...rest));
       },
       error: (msg: string, ...rest: any[]) => {
-        PgTerminal.logWasm(PgTerminal.error(util.format(msg, ...rest)));
+        PgTerminal.logWasm(
+          padding + PgTerminal.error(util.format(msg, ...rest))
+        );
       },
     };
 
@@ -159,7 +163,7 @@ export class PgClient {
       iframeWindow[args[0]] = args[1];
     }
 
-    // Inject script into the iframe
+    // Create script element in the iframe
     const iframeDocument = iframeWindow.document;
     const scriptEls = iframeDocument.getElementsByTagName("script");
     if (scriptEls.length) {
@@ -177,6 +181,7 @@ export class PgClient {
     // Allow top-level async, also helps detecting when tests finish
     code = `(async () => { try { await ${code} } catch (e) { console.error("Error:", e.message) } finally { ${endCode} }})()`;
 
+    // Transpile and inject the script to the iframe element
     scriptEl.textContent = transpile(code);
 
     return new Promise((res) => {

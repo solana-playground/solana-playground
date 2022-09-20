@@ -1,6 +1,7 @@
 import { ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
+import { format } from "util";
 
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
@@ -375,7 +376,23 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       cmd
     );
   }
+
+  /**
+   * Redifined console.log for showing mocha logs in the playground terminal
+   */
+  static consoleLog(msg: string, ...rest: any[]) {
+    if (msg !== undefined) {
+      const fullMessage = format(msg, ...rest);
+      _log(fullMessage);
+
+      // We only want to log mocha logs to the terminal
+      if (fullMessage.startsWith("  ")) PgTerminal.logWasm(fullMessage);
+    }
+  }
 }
+
+// Keep the default console.log
+const _log = console.log;
 
 export class PgTerm {
   private _xterm: XTerm;

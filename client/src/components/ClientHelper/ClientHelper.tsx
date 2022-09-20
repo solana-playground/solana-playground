@@ -3,10 +3,10 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 import { useConnection } from "@solana/wallet-adapter-react";
 
-import { explorerAtom, refreshExplorerAtom } from "../../state";
 import { useCurrentWallet } from "../Panels/Wallet";
-import { PgTerminal } from "../../utils/pg";
+import { explorerAtom, refreshExplorerAtom } from "../../state";
 import { EventName } from "../../constants";
+import { PgTerminal } from "../../utils/pg";
 
 const ClientHelper = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -16,16 +16,20 @@ const ClientHelper = () => {
   const { currentWallet: wallet } = useCurrentWallet();
 
   useEffect(() => {
-    const handle = (e: UIEvent & { detail?: { test?: boolean } }) => {
+    const handle = (e: UIEvent & { detail?: { isTest?: boolean } }) => {
       PgTerminal.run(async () => {
         const code = explorer?.getCurrentFile()?.content;
         if (code) {
-          const { PgClient } = await import("../../utils/pg/client");
-          if (e.detail?.test) {
-            await PgClient.run(code, wallet, connection, { test: true });
-          } else {
-            await PgClient.run(code, wallet, connection);
+          const isTest = e.detail?.isTest;
+          if (isTest) {
+            // Redefine console.log to show mocha logs in the terminal
+            console.log = PgTerminal.consoleLog;
           }
+
+          const { PgClient } = await import("../../utils/pg/client");
+          await PgClient.run(code, wallet, connection, {
+            isTest,
+          });
         }
       });
     };

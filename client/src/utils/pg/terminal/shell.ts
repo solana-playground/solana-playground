@@ -545,7 +545,7 @@ export class PgShell {
 
       case PgCommand.TEST: {
         PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
-          test: true,
+          isTest: true,
         });
         isCmdValid = true;
       }
