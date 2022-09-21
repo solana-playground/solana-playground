@@ -306,7 +306,7 @@ export class PgExplorer {
    * - Name and path checks
    * - Create item in the state
    */
-  async newItem(fullPath: string) {
+  async newItem(fullPath: string, content: string = "") {
     // Invalid name
     if (
       !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath)!)
@@ -325,12 +325,12 @@ export class PgExplorer {
     // state will not change. Can't say the same if the ordering was in reverse.
     if (itemType.file) {
       if (!this.isShared) {
-        await this._writeFile(fullPath, "", true);
+        await this._writeFile(fullPath, content, true);
         await this.saveMeta();
       }
 
       files[fullPath] = {
-        content: "",
+        content,
         meta: {
           current: true,
           tabs: true,
@@ -820,6 +820,16 @@ export class PgExplorer {
   }
 
   /**
+   * Get full file from the state
+   *
+   * @param path full path to the file
+   * @returns the full file info from the state
+   */
+  getFullFile(path: string) {
+    return this.files[path];
+  }
+
+  /**
    * Gets items inside the folder and groups them into `folders` and `files`
    */
   getFolderContent(path: string) {
@@ -843,6 +853,17 @@ export class PgExplorer {
     }
 
     return filesAndFolders;
+  }
+
+  /**
+   * @param path path to be appended after the current workspace path
+   * @returns full path based on the input
+   */
+  appendToCurrentWorkspacePath(path: string) {
+    return PgExplorer.appendSlash(
+      this.currentWorkspacePath +
+        (path.startsWith("/") ? path.substring(1) : path)
+    );
   }
 
   /**
@@ -1018,7 +1039,7 @@ export class PgExplorer {
    * @param fullPath Full path
    * @returns Relative path
    */
-  _getRelativePath(fullPath: string) {
+  private _getRelativePath(fullPath: string) {
     return fullPath.split(this.currentWorkspacePath)[1];
   }
 
@@ -1188,11 +1209,10 @@ export class PgExplorer {
   }
 
   /**
-   *
    * @returns current workspace's src directory path
    */
   private _getCurrentSrcPath() {
-    return this.currentWorkspacePath + "src/";
+    return this.appendToCurrentWorkspacePath(PgExplorer.SRC_DIRNAME + "/");
   }
 
   /**
@@ -1216,6 +1236,9 @@ export class PgExplorer {
 
   /** Static methods */
   static readonly ROOT_DIR_PATH = "/";
+  static readonly SRC_DIRNAME = "src";
+  static readonly CLIENT_DIRNAME = "client";
+  static readonly TESTS_DIRNAME = "tests";
 
   /** Don't change this! */
   private static readonly _INDEXED_DB_NAME = "solana-playground";
