@@ -26,6 +26,7 @@ export class PgClient {
    */
   static async run(
     code: string,
+    fileName: string,
     wallet: PgWallet | AnchorWallet | null,
     connection: web3.Connection,
     opts?: { isTest?: boolean }
@@ -42,9 +43,7 @@ export class PgClient {
         );
       }
     }
-    PgTerminal.logWasm(
-      PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
-    );
+    PgTerminal.logWasm(`  ${fileName}:`);
 
     const iframeEls = document.getElementsByTagName("iframe");
     if (!iframeEls.length) throw new Error("No iframe element");
@@ -61,8 +60,7 @@ export class PgClient {
     }
 
     // Redefine console inside the iframe to log in the terminal
-    let padding = "";
-    if (isTest) padding = "    ";
+    const padding = "    ";
     // @ts-ignore
     iframeWindow["console"] = {
       log: (msg: string, ...rest: any[]) => {
@@ -196,6 +194,7 @@ export class PgClient {
       } else {
         const intervalId = setInterval(() => {
           if (finished) {
+            PgTerminal.logWasm("");
             clearInterval(intervalId);
             res();
           }

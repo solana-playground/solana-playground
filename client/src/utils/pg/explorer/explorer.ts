@@ -820,13 +820,13 @@ export class PgExplorer {
   }
 
   /**
-   * Get full file from the state
+   * Get file content from the state
    *
    * @param path full path to the file
-   * @returns the full file info from the state
+   * @returns the file content from the state
    */
-  getFullFile(path: string) {
-    return this.files[path];
+  getFileContent(path: string) {
+    return this.files[path]?.content;
   }
 
   /**
@@ -972,22 +972,9 @@ export class PgExplorer {
    * @returns the current language name
    */
   getCurrentFileLanguage() {
-    const splitByDot = this.getCurrentFile()?.path.split(".");
-    if (!splitByDot?.length) {
-      return null;
-    }
-
-    const langExtension = splitByDot[splitByDot.length - 1];
-    switch (langExtension) {
-      case "rs":
-        return Lang.RUST;
-      case "py":
-        return Lang.PYTHON;
-      case "js":
-        return Lang.JAVASCRIPT;
-      case "ts":
-        return Lang.TYPESCRIPT;
-    }
+    const currentPath = this.getCurrentFile()?.path;
+    if (!currentPath) return null;
+    return PgExplorer.getLanguageFromPath(currentPath);
   }
 
   /**
@@ -1262,7 +1249,7 @@ export class PgExplorer {
     return { file: true };
   }
 
-  static getItemTypeFromEl = (el: HTMLDivElement) => {
+  static getItemTypeFromEl(el: HTMLDivElement) {
     if (el.classList.contains(ClassName.FOLDER)) {
       return { folder: true };
     } else if (el.classList.contains(ClassName.FILE)) {
@@ -1270,11 +1257,52 @@ export class PgExplorer {
     }
 
     return null;
-  };
+  }
 
-  static getItemPathFromEl = (el: HTMLDivElement) => {
+  static getItemPathFromEl(el: HTMLDivElement) {
     return el?.getAttribute("data-path");
-  };
+  }
+
+  static getLanguageFromPath(path: string) {
+    const splitByDot = path.split(".");
+    if (!splitByDot?.length) {
+      return null;
+    }
+
+    const langExtension = splitByDot[splitByDot.length - 1];
+    switch (langExtension) {
+      case "rs":
+        return Lang.RUST;
+      case "py":
+        return Lang.PYTHON;
+      case "js":
+        return Lang.JAVASCRIPT;
+      case "ts":
+        return Lang.TYPESCRIPT;
+    }
+  }
+
+  static getIsItemClientFromEl(el: HTMLDivElement) {
+    const path = this.getItemPathFromEl(el);
+    if (!path) return false;
+    const lang = this.getLanguageFromPath(path);
+    return (
+      !!path &&
+      !path.includes(".test") &&
+      (lang === Lang.JAVASCRIPT || lang === Lang.TYPESCRIPT)
+    );
+  }
+
+  static getIsItemTestFromEl(el: HTMLDivElement) {
+    const path = this.getItemPathFromEl(el);
+    if (!path) return false;
+    const lang = this.getLanguageFromPath(path);
+    return (
+      !!path &&
+      path.includes(".test") &&
+      (lang === Lang.JAVASCRIPT || lang === Lang.TYPESCRIPT)
+    );
+  }
 
   /**
    * Gets the parent folder path with '/' appended at the end.

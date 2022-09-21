@@ -528,12 +528,6 @@ export class PgShell {
         break;
       }
 
-      case PgCommand.RUN: {
-        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN);
-        isCmdValid = true;
-        break;
-      }
-
       case PgCommand.RUSTFMT: {
         PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
           lang: Lang.RUST,
@@ -542,13 +536,17 @@ export class PgShell {
         isCmdValid = true;
         break;
       }
+    }
 
-      case PgCommand.TEST: {
-        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
-          isTest: true,
-        });
-        isCmdValid = true;
-      }
+    if (cmd.startsWith(PgCommand.RUN) || cmd.startsWith(PgCommand.TEST)) {
+      const regex = new RegExp(/^\w+\s?(.*)/);
+      const match = regex.exec(cmd);
+      PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+        isTest: cmd.startsWith(PgCommand.TEST),
+        path: match && match[1],
+      });
+
+      isCmdValid = true;
     }
 
     // This guarantees command only start with the specified command name

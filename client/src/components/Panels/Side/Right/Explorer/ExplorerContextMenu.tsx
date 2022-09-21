@@ -2,22 +2,33 @@ import { FC, MouseEvent } from "react";
 import styled, { css } from "styled-components";
 
 import ContextMenu from "../../../../ContextMenu";
+import { ItemData } from "./useExplorerContextMenu";
+
+type Fn = () => void;
 
 interface ExplorerContextMenuProps {
-  ctxNewItem: () => void;
-  renameItem: () => void;
-  deleteItem: () => void;
-  isFolder: boolean;
+  ctxNewItem: Fn;
+  renameItem: Fn;
+  deleteItem: Fn;
+  runClient: Fn;
+  runClientFolder: Fn;
+  runTest: Fn;
+  runTestFolder: Fn;
+  itemData: ItemData;
 }
 
 const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   ctxNewItem,
   renameItem,
   deleteItem,
-  isFolder,
+  runClient,
+  runClientFolder,
+  runTest,
+  runTestFolder,
+  itemData,
 }) => (
   <ContextMenu>
-    {isFolder && (
+    {itemData.isFolder && (
       <>
         <StyledItem name="New File" keybind="ALT+N" onClick={ctxNewItem} />
         <StyledItem name="New Folder" keybind="ALT+N" onClick={ctxNewItem} />
@@ -25,6 +36,14 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
     )}
     <StyledItem name="Rename" keybind="F2" onClick={renameItem} />
     <StyledItem name="Delete" keybind="Del" onClick={deleteItem} />
+    {itemData.isClient && <StyledItem name="Run" onClick={runClient} />}
+    {itemData.isClientFolder && (
+      <StyledItem name="Run All" onClick={runClientFolder} />
+    )}
+    {itemData.isTest && <StyledItem name="Test" onClick={runTest} />}
+    {itemData.isTestFolder && (
+      <StyledItem name="Test All" onClick={runTestFolder} />
+    )}
   </ContextMenu>
 );
 

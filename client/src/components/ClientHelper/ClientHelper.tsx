@@ -16,16 +16,34 @@ const ClientHelper = () => {
   const { currentWallet: wallet } = useCurrentWallet();
 
   useEffect(() => {
-    const handle = (e: UIEvent & { detail?: { isTest?: boolean } }) => {
+    const handle = (
+      e: UIEvent & { detail?: { isTest?: boolean; path?: string } }
+    ) => {
       PgTerminal.run(async () => {
         if (!explorer) return;
         const isTest = e.detail?.isTest;
+        const path = e.detail.path;
+
+        PgTerminal.logWasm(
+          PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
+        );
 
         // Redefine console.log to show mocha logs in the terminal
         console.log = PgTerminal.consoleLog;
 
         // Lazy load PgClient
         const { PgClient } = await import("../../utils/pg/client");
+
+        if (path) {
+          const code = explorer.getFileContent(path);
+          if (!code) return;
+          const fileName = PgExplorer.getItemNameFromPath(path);
+          await PgClient.run(code, fileName, wallet, connection, {
+            isTest,
+          });
+
+          return;
+        }
 
         const folderPath = explorer.appendToCurrentWorkspacePath(
           isTest ? PgExplorer.TESTS_DIRNAME : PgExplorer.CLIENT_DIRNAME
@@ -44,16 +62,16 @@ const ClientHelper = () => {
           const fileName = DEFAULT[0];
           const code = DEFAULT[1];
           await explorer.newItem(folderPath + fileName, code);
-          await PgClient.run(code, wallet, connection, {
+          await PgClient.run(code, fileName, wallet, connection, {
             isTest,
           });
         }
 
         for (const fileName of folder.files) {
-          const code = explorer.getFullFile(folderPath + fileName)?.content;
+          const code = explorer.getFileContent(folderPath + fileName);
           if (!code) continue;
 
-          await PgClient.run(code, wallet, connection, {
+          await PgClient.run(code, fileName, wallet, connection, {
             isTest,
           });
         }
