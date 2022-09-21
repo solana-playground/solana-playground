@@ -25,20 +25,22 @@ const Terminal = () => {
 
   // Load xterm
   const term = useMemo(() => {
-    const state = theme.colors.state;
-
     return new PgTerm({
       convertEol: true,
       rendererType: "dom",
       fontSize: 14,
       theme: {
-        brightGreen: state.success.color,
-        brightRed: state.error.color,
-        brightYellow: state.warning.color,
-        brightBlue: state.info.color,
+        brightGreen: theme.colors.state.success.color,
+        brightRed: theme.colors.state.error.color,
+        brightYellow: theme.colors.state.warning.color,
+        brightBlue: theme.colors.state.info.color,
         brightMagenta: theme.colors.default.primary,
         black: theme.colors.default.textSecondary,
         brightCyan: theme.colors.default.secondary,
+        background: theme.colors.terminal?.bg,
+        foreground: theme.colors.terminal?.color,
+        selection: theme.colors.terminal?.selectionBg,
+        cursor: theme.colors.terminal?.cursorColor,
       },
     });
   }, [theme]);
@@ -386,9 +388,6 @@ const TerminalWrapper = styled.div`
     height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
     margin-left: 1rem;
 
-    --color: ${theme.colors.terminal?.color ??
-    theme.colors.default.textPrimary};
-
     & .xterm-viewport {
       background-color: inherit !important;
       width: 100% !important;
@@ -397,15 +396,6 @@ const TerminalWrapper = styled.div`
     & .xterm-rows {
       font-family: ${theme.font?.family} !important;
       font-size: ${theme.font?.size.medium} !important;
-      color: var(--color) !important;
-
-      &.xterm-focus .xterm-cursor.xterm-cursor-block {
-        background-color: var(--color) !important;
-      }
-
-      &:not(.xterm-focus) .xterm-cursor.xterm-cursor-block {
-        outline-color: var(--color) !important;
-      }
     }
   `}
 `;

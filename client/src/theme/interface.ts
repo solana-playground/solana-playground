@@ -59,6 +59,7 @@ export default interface Theme {
       textSecondary: string;
       borderColor: string;
     };
+
     state: {
       hover: BgAndColor;
       disabled: BgAndColor;
@@ -67,21 +68,22 @@ export default interface Theme {
       warning: BgAndColor;
       info: BgAndColor;
     };
+
     contrast?: {
       color: string;
       primary?: boolean;
       secondary?: boolean;
     };
+
     // Icon panel
     left?: BgAndColor; // bgPrimary, textPrimary
+
     // Side right panel
-    right?: {
-      bg?: string; // bgSecondary
-      color?: string; // textPrimary
-      otherBg?: string; // bgPrimary
-    };
+    right?: BgAndColor & { otherBg?: string };
+
     // Terminal
-    terminal?: BgAndColor; // bgPrimary, textPrimary
+    terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
+
     // Editor
     editor?: {
       bg?: string; // bgPrimary
@@ -115,8 +117,10 @@ export default interface Theme {
         selectedColor?: string;
       };
     };
+
     // Bottom bar
     bottom?: BgAndColor; // primary, textPrimary
+
     // Left sidebar IconButton
     iconButton?: {
       bg?: string;
@@ -124,8 +128,11 @@ export default interface Theme {
       selectedBg?: string;
       selectedBorderColor?: string;
     };
+
     tooltip?: BgAndColor;
+
     toast?: BgAndColor;
+
     home?: {
       bg?: string; // bgPrimary
       color?: string; // textPrimary

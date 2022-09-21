@@ -37,7 +37,7 @@ const MutThemeProvider: FC = ({ children }) => {
   const _theme = THEMES.find((t) => t.name === themeName) ?? THEMES[0];
   const _font = FONTS.find((f) => f.family === fontFamily) ?? FONTS[0];
 
-  // Set defaults
+  /// Set defaults
   // Right sidebar
   if (!_theme.colors.right?.bg)
     _theme.colors.right = {
@@ -59,18 +59,38 @@ const MutThemeProvider: FC = ({ children }) => {
       },
     };
 
+  // Terminal
+  if (!_theme.colors.terminal)
+    _theme.colors.terminal = {
+      bg: _theme.colors.default.bgPrimary,
+      color: _theme.colors.default.textPrimary,
+      cursorColor: _theme.colors.default.textPrimary,
+      selectionBg: _theme.colors.default.textSecondary,
+    };
+
+  // Transparency
   if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
+
+  // Tooltip
   if (!_theme.colors.tooltip)
     _theme.colors.tooltip = {
       bg: _theme.colors.default.bgPrimary,
       color: _theme.colors.default.textPrimary,
     };
+
+  // Border radius
   if (!_theme.borderRadius) _theme.borderRadius = PG_BORDER_RADIUS;
+
+  // Scrollbar
   if (!_theme.scrollbar) {
     if (_theme.isDark) _theme.scrollbar = PG_SCROLLBAR.dark;
     else _theme.scrollbar = PG_SCROLLBAR.light;
   }
+
+  // Transition
   if (!_theme.transition) _theme.transition = PG_TRANSITION;
+
+  // Skeleton
   if (!_theme.skeleton) _theme.skeleton = PG_SKELETON;
 
   const [theme, setTheme] = useState(_theme);
