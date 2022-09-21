@@ -34,11 +34,11 @@ const ClientHelper = () => {
         if (!folder.files.length && !folder.folders.length) {
           let DEFAULT;
           if (isTest) {
-            const { DEFAULT_TEST } = await import("../../utils/pg/client");
-            DEFAULT = DEFAULT_TEST;
+            PgTerminal.logWasm(PgTerminal.info("Creating default test..."));
+            DEFAULT = PgClient.DEFAULT_TEST;
           } else {
-            const { DEFAULT_CLIENT } = await import("../../utils/pg/client");
-            DEFAULT = DEFAULT_CLIENT;
+            PgTerminal.logWasm(PgTerminal.info("Creating default client..."));
+            DEFAULT = PgClient.DEFAULT_CLIENT;
           }
 
           const fileName = DEFAULT[0];

@@ -204,29 +204,17 @@ export class PgClient {
     });
   }
 
-  /** Words that are not allowed to be in the user code */
-  private static readonly _blacklistedWords = [
-    "window",
-    "this",
-    "globalThis",
-    "document",
-    "location",
-    "top",
-    "chrome",
-  ];
-}
-
-export const DEFAULT_CLIENT = [
-  "client.ts",
-  `// Client
+  static readonly DEFAULT_CLIENT = [
+    "client.ts",
+    `// Client
 console.log("My address:", wallet.publicKey.toString());
 const balance = await connection.getBalance(wallet.publicKey);
 console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);`,
-];
+  ];
 
-export const DEFAULT_TEST = [
-  "index.test.ts",
-  `describe("Test", () => {
+  static readonly DEFAULT_TEST = [
+    "index.test.ts",
+    `describe("Test", () => {
   it("Airdrop", async () => {
     // Fetch my balance
     const balance = await connection.getBalance(wallet.publicKey);
@@ -238,7 +226,7 @@ export const DEFAULT_TEST = [
 
     // Confirm transaction
     await connection.confirmTransaction(txHash);
- 
+
     // Fetch new balance
     const newBalance = await connection.getBalance(wallet.publicKey);
     console.log(\`New balance is \${newBalance} lamports\`);
@@ -247,4 +235,16 @@ export const DEFAULT_TEST = [
     assert(balance + airdropAmount === newBalance);
   })
 })`,
-];
+  ];
+
+  /** Words that are not allowed to be in the user code */
+  private static readonly _blacklistedWords = [
+    "window",
+    "this",
+    "globalThis",
+    "document",
+    "location",
+    "top",
+    "chrome",
+  ];
+}
