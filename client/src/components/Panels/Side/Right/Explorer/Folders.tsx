@@ -14,6 +14,8 @@ const Folders = () => {
   const [explorer] = useAtom(explorerAtom);
   useAtom(refreshExplorerAtom); // to re-render on demand
 
+  const rootRef = useRef<HTMLDivElement>(null);
+
   // Initial folder state on mount
   useEffect(() => {
     if (!explorer?.getTabs().length) return;
@@ -29,6 +31,18 @@ const Folders = () => {
     if (newEl) PgExplorer.setSelectedEl(newEl);
   }, [explorer]);
 
+  // Handle ctx selected if user clicks outside of the root element
+  useEffect(() => {
+    const handleClick = (e: globalThis.MouseEvent) => {
+      if (e.target && !rootRef.current?.contains(e.target as Node)) {
+        PgExplorer.removeCtxSelectedEl();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   const ctxMenu = useExplorerContextMenu();
 
   if (!explorer) return null;
@@ -43,6 +57,7 @@ const Folders = () => {
     <RootWrapper
       id={Id.ROOT_DIR}
       data-path={relativeRootPath}
+      ref={rootRef}
       onContextMenu={ctxMenu.handleMenu}
     >
       {relativeRootDir?.folders
@@ -81,15 +96,15 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
 
   // No need useCallback here
   const toggle = (e: MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
     // Set selected
-    PgExplorer.setSelectedEl(e.currentTarget);
+    PgExplorer.setSelectedEl(el);
+    PgExplorer.setCtxSelectedEl(el);
 
-    if (PgExplorer.getItemTypeFromEl(e.currentTarget)?.folder) {
-      PgExplorer.toggleFolder(e.currentTarget);
+    if (PgExplorer.getItemTypeFromEl(el)?.folder) {
+      PgExplorer.toggleFolder(el);
     } else {
-      explorer?.changeCurrentFile(
-        PgExplorer.getItemPathFromEl(e.currentTarget)!
-      );
+      explorer?.changeCurrentFile(PgExplorer.getItemPathFromEl(el)!);
     }
   };
 
@@ -100,7 +115,7 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     <>
       <StyledFolder
         path={path}
-        name={folderName ?? ""}
+        name={folderName}
         reff={folderRef}
         onClick={toggle}
         className={ClassName.FOLDER}
@@ -166,14 +181,12 @@ const Folder: FC<FileOrFolderProps> = ({
   </div>
 );
 
-const File: FC<FileOrFolderProps> = ({ path, name, onClick, className }) => {
-  return (
-    <div className={className} onClick={onClick} data-path={path + name}>
-      <LangIcon fileName={name} />
-      <span>{name}</span>
-    </div>
-  );
-};
+const File: FC<FileOrFolderProps> = ({ path, name, onClick, className }) => (
+  <div className={className} onClick={onClick} data-path={path + name}>
+    <LangIcon fileName={name} />
+    <span>{name}</span>
+  </div>
+);
 
 const RootWrapper = styled.div`
   ${({ theme }) => css`
@@ -188,17 +201,13 @@ const RootWrapper = styled.div`
   }
 
   &.${ClassName.CTX_SELECTED} {
-    background-color: ${
-      theme.colors.default.primary + theme.transparency?.medium
-    };
-    border-color: ${theme.colors.default.primary};
+    background-color: ${theme.colors.default.primary + theme.transparency?.low};
+    border-color: ${theme.colors.default.primary + theme.transparency?.medium};
     border-radius: ${theme.borderRadius};
   }
 
   &:hover {
-    background-color: ${
-      theme.colors.default.primary + theme.transparency?.medium
-    };
+    background-color: ${theme.colors.default.primary + theme.transparency?.low};
   }
 `}
 `;

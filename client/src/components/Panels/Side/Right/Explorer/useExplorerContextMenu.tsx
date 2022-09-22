@@ -71,7 +71,7 @@ const useExplorerContextMenu = () => {
         },
       });
 
-      (itemEl as Element).classList.add(ClassName.CTX_SELECTED);
+      PgExplorer.setCtxSelectedEl(itemEl as HTMLDivElement);
       setCtxSelectedPath(
         PgExplorer.getItemPathFromEl(itemEl as HTMLDivElement) ?? ""
       );
@@ -117,15 +117,19 @@ const useExplorerContextMenu = () => {
 
   const renameItem = useCallback(() => {
     run(() => {
-      const path = getPath();
-      setModal(<RenameItem path={path} />);
+      if (PgExplorer.getCtxSelectedEl()) {
+        const path = getPath();
+        setModal(<RenameItem path={path} />);
+      }
     });
   }, [getPath, setModal, run]);
 
   const deleteItem = useCallback(() => {
     run(() => {
-      const path = getPath();
-      setModal(<DeleteItem path={path} />);
+      if (PgExplorer.getCtxSelectedEl()) {
+        const path = getPath();
+        setModal(<DeleteItem path={path} />);
+      }
     });
   }, [getPath, setModal, run]);
 

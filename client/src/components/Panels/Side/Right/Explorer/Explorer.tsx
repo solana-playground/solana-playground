@@ -1,15 +1,14 @@
 import { useEffect } from "react";
+import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Folders from "./Folders";
 import Workspaces from "./Workspaces";
+import NoWorkspace from "./NoWorkspace";
 import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
-import { PgEditor } from "../../../../../utils/pg";
-import { useAtom } from "jotai";
 import { explorerAtom } from "../../../../../state";
-import NoWorkspace from "./NoWorkspace";
 
 const Explorer = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -22,9 +21,7 @@ const Explorer = () => {
     const handleKey = (e: globalThis.KeyboardEvent) => {
       if (e.altKey && e.key.toUpperCase() === "N") newItem();
       else if (e.key === "F2") renameItem();
-      else if (e.key === "Delete" && !PgEditor.isFocused()) {
-        deleteItem();
-      }
+      else if (e.key === "Delete") deleteItem();
     };
 
     document.addEventListener("keydown", handleKey);

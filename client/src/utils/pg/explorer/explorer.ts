@@ -1360,8 +1360,16 @@ export class PgExplorer {
   };
 
   static getCtxSelectedEl() {
-    return document.getElementsByClassName(ClassName.CTX_SELECTED)[0];
+    const ctxSelectedEls = document.getElementsByClassName(
+      ClassName.CTX_SELECTED
+    );
+    if (ctxSelectedEls.length) return ctxSelectedEls[0];
   }
+
+  static setCtxSelectedEl = (newEl: HTMLDivElement) => {
+    this.removeCtxSelectedEl();
+    newEl.classList.add(ClassName.CTX_SELECTED);
+  };
 
   static removeCtxSelectedEl() {
     this.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
