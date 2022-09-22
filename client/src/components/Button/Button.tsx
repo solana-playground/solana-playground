@@ -32,7 +32,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
     {...props}
   >
     <span className="btn-spinner" />
-    <span className="left-icon">{props.leftIcon}</span>
+    {props.leftIcon && <span className="left-icon">{props.leftIcon}</span>}
     {props.children}
   </StyledButton>
 ));
@@ -201,6 +201,10 @@ const getButtonStyles = ({
       &:hover {
         color: ${theme.colors.default.textPrimary};
         background-color: ${theme.colors.state.hover.bg};
+      }
+
+      & > span:not(.btn-spinner) {
+        margin: 0 0.25rem 0 0.375rem;
       }
     `);
   }

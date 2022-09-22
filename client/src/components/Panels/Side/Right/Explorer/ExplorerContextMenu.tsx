@@ -10,6 +10,7 @@ interface ExplorerContextMenuProps {
   ctxNewItem: Fn;
   renameItem: Fn;
   deleteItem: Fn;
+  runBuild: Fn;
   runClient: Fn;
   runClientFolder: Fn;
   runTest: Fn;
@@ -21,6 +22,7 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   ctxNewItem,
   renameItem,
   deleteItem,
+  runBuild,
   runClient,
   runClientFolder,
   runTest,
@@ -36,6 +38,7 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
     )}
     <StyledItem name="Rename" keybind="F2" onClick={renameItem} />
     <StyledItem name="Delete" keybind="Del" onClick={deleteItem} />
+    {itemData.isProgramFolder && <StyledItem name="Build" onClick={runBuild} />}
     {itemData.isClient && <StyledItem name="Run" onClick={runClient} />}
     {itemData.isClientFolder && (
       <StyledItem name="Run All" onClick={runClientFolder} />

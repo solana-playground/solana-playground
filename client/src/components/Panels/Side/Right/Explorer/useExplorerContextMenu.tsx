@@ -17,6 +17,7 @@ export interface ItemData {
   isClientFolder?: boolean;
   isTest?: boolean;
   isTestFolder?: boolean;
+  isProgramFolder?: boolean;
 }
 
 const useExplorerContextMenu = () => {
@@ -62,6 +63,7 @@ const useExplorerContextMenu = () => {
           itemType.file &&
           PgExplorer.getIsItemTestFromEl(itemEl as HTMLDivElement),
         isTestFolder: itemType.folder && itemName === PgExplorer.TESTS_DIRNAME,
+        isProgramFolder: itemType.folder && itemName === PgExplorer.SRC_DIRNAME,
       });
       setMenu({
         show: true,
@@ -157,7 +159,14 @@ const useExplorerContextMenu = () => {
     });
   }, [run]);
 
+  const runBuild = useCallback(() => {
+    run(() => {
+      PgTerminal.runCmdFromStr(PgCommand.BUILD);
+    });
+  }, [run]);
+
   return {
+    handleMenu,
     ctxNewItem,
     renameItem,
     deleteItem,
@@ -165,7 +174,7 @@ const useExplorerContextMenu = () => {
     runTest,
     runClientFolder,
     runTestFolder,
-    handleMenu,
+    runBuild,
     itemData,
   };
 };

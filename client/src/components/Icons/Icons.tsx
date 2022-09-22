@@ -1,5 +1,13 @@
 import { ClassName } from "../../constants";
 
+interface IconProps {
+  fullSize?: boolean;
+}
+
+interface RotateProps {
+  rotate?: "90deg" | "180deg" | "270deg";
+}
+
 const defaultProps = {
   xmlns: "http://www.w3.org/2000/svg",
   stroke: "currentColor",
@@ -15,10 +23,6 @@ const getStyle = (fullSize?: boolean) => {
 
   return style;
 };
-
-interface IconProps {
-  fullSize?: boolean;
-}
 
 export const Arrow = ({ fullSize }: IconProps) => {
   return (
@@ -229,6 +233,40 @@ export const ExportFile = ({ fullSize }: IconProps) => {
     <svg {...defaultProps} viewBox="0 0 24 24" style={getStyle(fullSize)}>
       <path d="M11 16h2V7h3l-4-5-4 5h3z"></path>
       <path d="M5 22h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2z"></path>
+    </svg>
+  );
+};
+
+export const Wrench = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 24 24" style={getStyle(fullSize)}>
+      <path fill="none" d="M0 0h24v24H0z" clipRule="evenodd"></path>
+      <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"></path>
+    </svg>
+  );
+};
+
+export const RunAll = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 16 16" style={getStyle(fullSize)}>
+      <path d="M2.78 2L2 2.41v12l.78.42 9-6V8l-9-6zM3 13.48V3.35l7.6 5.07L3 13.48z"></path>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M6 14.683l8.78-5.853V8L6 2.147V3.35l7.6 5.07L6 13.48v1.203z"
+      ></path>
+    </svg>
+  );
+};
+
+export const Triangle = ({ fullSize, rotate }: IconProps & RotateProps) => {
+  return (
+    <svg
+      {...defaultProps}
+      viewBox="0 0 512 512"
+      style={{ ...getStyle(fullSize), rotate }}
+    >
+      <path d="M256 32L20 464h472L256 32z"></path>
     </svg>
   );
 };

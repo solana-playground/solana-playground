@@ -5,10 +5,11 @@ import styled, { css } from "styled-components";
 import LangIcon from "../../../../LangIcon";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import useExplorerContextMenu from "./useExplorerContextMenu";
-import { Arrow } from "../../../../Icons";
+import { Arrow, RunAll, Triangle, Wrench } from "../../../../Icons";
 import { ClassName, Id } from "../../../../../constants";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Folder as FolderType, PgExplorer } from "../../../../../utils/pg";
+import Button from "../../../../Button";
 
 const Folders = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -62,8 +63,12 @@ const Folders = () => {
     >
       <SectionTopWrapper>
         <SectionHeader>Program</SectionHeader>
+        <Button onClick={ctxMenu.runBuild} kind="icon" title="Build">
+          <Wrench />
+          <BuildButtonText>Build</BuildButtonText>
+        </Button>
       </SectionTopWrapper>
-      {relativeRootDir?.folders
+      {relativeRootDir.folders
         .filter((f) => f === PgExplorer.SRC_DIRNAME)
         .map((f, i) => {
           const path = relativeRootPath + f + "/";
@@ -79,10 +84,32 @@ const Folders = () => {
           );
         })}
 
-      <SectionTopWrapper>
-        <SectionHeader>Client</SectionHeader>
-      </SectionTopWrapper>
-      {relativeRootDir?.folders
+      {relativeRootDir.folders.length > 1 && (
+        <SectionTopWrapper>
+          <SectionHeader>Client</SectionHeader>
+          {relativeRootDir.folders.includes(PgExplorer.CLIENT_DIRNAME) && (
+            <Button
+              onClick={ctxMenu.runClientFolder}
+              kind="icon"
+              title="Run All (in client dir)"
+            >
+              <Triangle rotate="90deg" />
+              <span>Run</span>
+            </Button>
+          )}
+          {relativeRootDir.folders.includes(PgExplorer.TESTS_DIRNAME) && (
+            <Button
+              onClick={ctxMenu.runTestFolder}
+              kind="icon"
+              title="Test All (in tests dir)"
+            >
+              <RunAll />
+              <span>Test</span>
+            </Button>
+          )}
+        </SectionTopWrapper>
+      )}
+      {relativeRootDir.folders
         .sort((x, y) => x.localeCompare(y))
         .filter((f) => f !== PgExplorer.SRC_DIRNAME)
         .map((f, i) => {
@@ -244,6 +271,8 @@ const RootWrapper = styled.div`
 
 const SectionTopWrapper = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    align-items: center;
     margin-left: 1rem;
     margin-bottom: 0.25rem;
     color: ${theme.colors.default.textSecondary};
@@ -251,10 +280,18 @@ const SectionTopWrapper = styled.div`
     &:not(:first-child) {
       margin-top: 1rem;
     }
+
+    & > button {
+      margin-left: 0.5rem;
+    }
   `}
 `;
 
 const SectionHeader = styled.div``;
+
+const BuildButtonText = styled.span`
+  margin-left: 0.5rem !important;
+`;
 
 const FolderInsideWrapper = styled.div`
   margin-left: 1rem;
