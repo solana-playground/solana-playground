@@ -60,13 +60,14 @@ const Folders = () => {
       ref={rootRef}
       onContextMenu={ctxMenu.handleMenu}
     >
+      <SectionTopWrapper>
+        <SectionHeader>Program</SectionHeader>
+      </SectionTopWrapper>
       {relativeRootDir?.folders
-        .sort((x, y) => x.localeCompare(y))
+        .filter((f) => f === PgExplorer.SRC_DIRNAME)
         .map((f, i) => {
           const path = relativeRootPath + f + "/";
           const folder = explorer.getFolderContent(path);
-
-          if (!folder) return null;
 
           return (
             <RFolder
@@ -77,6 +78,27 @@ const Folders = () => {
             />
           );
         })}
+
+      <SectionTopWrapper>
+        <SectionHeader>Client</SectionHeader>
+      </SectionTopWrapper>
+      {relativeRootDir?.folders
+        .sort((x, y) => x.localeCompare(y))
+        .filter((f) => f !== PgExplorer.SRC_DIRNAME)
+        .map((f, i) => {
+          const path = relativeRootPath + f + "/";
+          const folder = explorer.getFolderContent(path);
+
+          return (
+            <RFolder
+              key={i}
+              path={path}
+              folders={folder.folders}
+              files={folder.files}
+            />
+          );
+        })}
+
       <ExplorerContextMenu {...ctxMenu} />
     </RootWrapper>
   );
@@ -190,27 +212,49 @@ const File: FC<FileOrFolderProps> = ({ path, name, onClick, className }) => (
 
 const RootWrapper = styled.div`
   ${({ theme }) => css`
-& .${ClassName.FOLDER}, & .${ClassName.FILE} {
-  display: flex;
-  padding: 0.25rem 0;
-  cursor: pointer;
-  border: 1px solid transparent;
+  & .${ClassName.FOLDER}, & .${ClassName.FILE} {
+    display: flex;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    border: 1px solid transparent;
 
-  &.${ClassName.SELECTED} {
-    background-color: ${theme.colors.default.primary + theme.transparency?.low};
-  }
+    &.${ClassName.SELECTED} {
+      background-color: ${
+        theme.colors.default.primary + theme.transparency?.low
+      };
+    }
 
-  &.${ClassName.CTX_SELECTED} {
-    background-color: ${theme.colors.default.primary + theme.transparency?.low};
-    border-color: ${theme.colors.default.primary + theme.transparency?.medium};
-    border-radius: ${theme.borderRadius};
-  }
+    &.${ClassName.CTX_SELECTED} {
+      background-color: ${
+        theme.colors.default.primary + theme.transparency?.low
+      };
+      border-color: ${
+        theme.colors.default.primary + theme.transparency?.medium
+      };
+      border-radius: ${theme.borderRadius};
+    }
 
-  &:hover {
-    background-color: ${theme.colors.default.primary + theme.transparency?.low};
-  }
+    &:hover {
+      background-color: ${
+        theme.colors.default.primary + theme.transparency?.low
+      };
+    }
 `}
 `;
+
+const SectionTopWrapper = styled.div`
+  ${({ theme }) => css`
+    margin-left: 1rem;
+    margin-bottom: 0.25rem;
+    color: ${theme.colors.default.textSecondary};
+
+    &:not(:first-child) {
+      margin-top: 1rem;
+    }
+  `}
+`;
+
+const SectionHeader = styled.div``;
 
 const FolderInsideWrapper = styled.div`
   margin-left: 1rem;

@@ -34,8 +34,10 @@ const Explorer = () => {
 
   return (
     <ExplorerWrapper>
-      <Workspaces />
-      <ExplorerButtons />
+      <ExplorerTopWrapper>
+        <Workspaces />
+        <ExplorerButtons />
+      </ExplorerTopWrapper>
       <Folders />
     </ExplorerWrapper>
   );
@@ -46,6 +48,9 @@ const ExplorerWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   user-select: none;
+`;
+
+const ExplorerTopWrapper = styled.div`
   padding: 0 0.5rem;
 `;
 
