@@ -1,10 +1,6 @@
 import { Scrollbar, Skeleton, Transition, Transparency } from "./interface";
 
-export const PG_TRANSPARENCY: Transparency = {
-  low: "16",
-  medium: "64",
-  high: "99",
-};
+export const PG_BOX_SHADOW = "rgb(0 0 0 / 25%) -1px 3px 4px";
 
 export const PG_BORDER_RADIUS = "4px";
 
@@ -29,6 +25,11 @@ export const PG_SCROLLBAR: { [key: string]: Scrollbar } = {
   },
 };
 
+export const PG_SKELETON: Skeleton = {
+  color: "#44475A",
+  highlightColor: "#343746",
+};
+
 export const PG_TRANSITION: Transition = {
   type: "linear",
   duration: {
@@ -38,7 +39,8 @@ export const PG_TRANSITION: Transition = {
   },
 };
 
-export const PG_SKELETON: Skeleton = {
-  color: "#44475A",
-  highlightColor: "#343746",
+export const PG_TRANSPARENCY: Transparency = {
+  low: "16",
+  medium: "64",
+  high: "99",
 };

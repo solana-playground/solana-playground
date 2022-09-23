@@ -270,3 +270,58 @@ export const Triangle = ({ fullSize, rotate }: IconProps & RotateProps) => {
     </svg>
   );
 };
+
+export const TestTube = ({ fullSize }: IconProps) => {
+  return (
+    <svg
+      {...defaultProps}
+      fill="none"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={getStyle(fullSize)}
+    >
+      <desc></desc>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M20 8.04l-12.122 12.124a2.857 2.857 0 1 1 -4.041 -4.04l12.122 -12.124"></path>
+      <path d="M7 13h8"></path>
+      <path d="M19 15l1.5 1.6a2 2 0 1 1 -3 0l1.5 -1.6z"></path>
+      <path d="M15 3l6 6"></path>
+    </svg>
+  );
+};
+
+export const TestPaper = ({ fullSize }: IconProps) => {
+  return (
+    <svg
+      {...defaultProps}
+      version="1.1"
+      viewBox="0 0 297 297"
+      enable-background="new 0 0 297 297"
+      style={getStyle(fullSize)}
+    >
+      <g>
+        <g>
+          <path d="m206.51,32c-0.269-17.718-14.706-32-32.487-32h-49.379c-17.781,0-32.219,14.282-32.487,32h-42.657v265h198v-265h-40.99zm-81.866-16h49.189 0.19c9.099,0 16.5,7.402 16.5,16.5s-7.401,16.5-16.5,16.5h-49.379c-9.099,0-16.5-7.402-16.5-16.5s7.401-16.5 16.5-16.5zm23.856,239h-66v-16h66v16zm0-50h-66v-16h66v16zm0-49h-66v-16h66v16zm0-50h-66v-16h66v16zm43.768,160.029l-19.541-16.204 10.213-12.316 7.793,6.462 12.19-13.362 11.82,10.783-22.475,24.637zm0-50l-19.541-16.204 10.213-12.316 7.793,6.462 12.19-13.362 11.82,10.783-22.475,24.637zm0-49l-19.541-16.204 10.213-12.316 7.793,6.462 12.19-13.362 11.82,10.783-22.475,24.637zm0-50l-19.541-16.204 10.213-12.316 7.793,6.462 12.19-13.362 11.82,10.783-22.475,24.637z" />
+        </g>
+      </g>
+    </svg>
+  );
+};
+
+export const NewFile = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
+      <path d="M480 580H372a8 8 0 0 0-8 8v48a8 8 0 0 0 8 8h108v108a8 8 0 0 0 8 8h48a8 8 0 0 0 8-8V644h108a8 8 0 0 0 8-8v-48a8 8 0 0 0-8-8H544V472a8 8 0 0 0-8-8h-48a8 8 0 0 0-8 8v108zm374.6-291.3c6 6 9.4 14.1 9.4 22.6V928c0 17.7-14.3 32-32 32H192c-17.7 0-32-14.3-32-32V96c0-17.7 14.3-32 32-32h424.7c8.5 0 16.7 3.4 22.7 9.4l215.2 215.3zM790.2 326L602 137.8V326h188.2z"></path>
+    </svg>
+  );
+};
+
+export const NewFolder = ({ fullSize }: IconProps) => {
+  return (
+    <svg {...defaultProps} viewBox="0 0 1024 1024" style={getStyle(fullSize)}>
+      <path d="M880 298.4H521L403.7 186.2a8.15 8.15 0 0 0-5.5-2.2H144c-17.7 0-32 14.3-32 32v592c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V330.4c0-17.7-14.3-32-32-32zM632 577c0 3.8-3.4 7-7.5 7H540v84.9c0 3.9-3.2 7.1-7 7.1h-42c-3.8 0-7-3.2-7-7.1V584h-84.5c-4.1 0-7.5-3.2-7.5-7v-42c0-3.8 3.4-7 7.5-7H484v-84.9c0-3.9 3.2-7.1 7-7.1h42c3.8 0 7 3.2 7 7.1V528h84.5c4.1 0 7.5 3.2 7.5 7v42z"></path>
+    </svg>
+  );
+};

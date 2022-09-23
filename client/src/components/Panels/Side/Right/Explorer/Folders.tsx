@@ -2,14 +2,14 @@ import { FC, MouseEvent, Ref, useEffect, useMemo, useRef } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
+import Button from "../../../../Button";
 import LangIcon from "../../../../LangIcon";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import useExplorerContextMenu from "./useExplorerContextMenu";
-import { Arrow, RunAll, Triangle, Wrench } from "../../../../Icons";
+import { Arrow, TestTube, Triangle, Wrench } from "../../../../Icons";
 import { ClassName, Id } from "../../../../../constants";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Folder as FolderType, PgExplorer } from "../../../../../utils/pg";
-import Button from "../../../../Button";
 
 const Folders = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -63,7 +63,7 @@ const Folders = () => {
     >
       <SectionTopWrapper>
         <SectionHeader>Program</SectionHeader>
-        <Button onClick={ctxMenu.runBuild} kind="icon" title="Build">
+        <Button onClick={ctxMenu.runBuild} kind="icon">
           <Wrench />
           <BuildButtonText>Build</BuildButtonText>
         </Button>
@@ -103,7 +103,7 @@ const Folders = () => {
               kind="icon"
               title="Test All (in tests dir)"
             >
-              <RunAll />
+              <TestTube />
               <span>Test</span>
             </Button>
           )}
@@ -282,6 +282,10 @@ const SectionTopWrapper = styled.div`
 
     & > button {
       margin-left: 0.5rem;
+    }
+
+    & > button:nth-child(2) {
+      margin-left: 0.75rem;
     }
   `}
 `;

@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { contextMenuStateAtom } from "../../state";
 import { PgExplorer } from "../../utils/pg";
@@ -9,26 +9,35 @@ const useContextMenu = () => {
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // After menu is opened
-  const handleClickOutside = useCallback(
-    (e: globalThis.MouseEvent) => {
+  useEffect(() => {
+    // After menu is opened
+    const handleClickOutside = (e: globalThis.MouseEvent) => {
       if (!menuRef.current?.contains(e.target as Node)) {
         // Remove ctx-selected class
         PgExplorer.removeCtxSelectedEl();
         // Update ui
         setMenuState((ms) => ({ ...ms, show: false }));
       }
-    },
-    [setMenuState, menuRef]
-  );
+    };
 
-  useEffect(() => {
-    if (menuState.show)
+    // Close context-menu on ESC
+    const handleKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        PgExplorer.removeCtxSelectedEl();
+        setMenuState((ms) => ({ ...ms, show: false }));
+      }
+    };
+
+    if (menuState.show) {
       document.body.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKey);
+    }
 
-    return () =>
+    return () => {
       document.body.removeEventListener("mousedown", handleClickOutside);
-  }, [menuState.show, handleClickOutside]);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [menuState.show, setMenuState]);
 
   return { menuState, setMenuState, menuRef };
 };

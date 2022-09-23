@@ -13,6 +13,7 @@ import FONTS from "./fonts";
 import Theme, { Font } from "./interface";
 import {
   PG_BORDER_RADIUS,
+  PG_BOX_SHADOW,
   PG_SCROLLBAR,
   PG_SKELETON,
   PG_TRANSITION,
@@ -68,9 +69,6 @@ const MutThemeProvider: FC = ({ children }) => {
       selectionBg: _theme.colors.default.textSecondary,
     };
 
-  // Transparency
-  if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
-
   // Tooltip
   if (!_theme.colors.tooltip)
     _theme.colors.tooltip = {
@@ -81,17 +79,23 @@ const MutThemeProvider: FC = ({ children }) => {
   // Border radius
   if (!_theme.borderRadius) _theme.borderRadius = PG_BORDER_RADIUS;
 
+  // Box shadow
+  if (!_theme.boxShadow) _theme.boxShadow = PG_BOX_SHADOW;
+
   // Scrollbar
   if (!_theme.scrollbar) {
     if (_theme.isDark) _theme.scrollbar = PG_SCROLLBAR.dark;
     else _theme.scrollbar = PG_SCROLLBAR.light;
   }
 
+  // Skeleton
+  if (!_theme.skeleton) _theme.skeleton = PG_SKELETON;
+
   // Transition
   if (!_theme.transition) _theme.transition = PG_TRANSITION;
 
-  // Skeleton
-  if (!_theme.skeleton) _theme.skeleton = PG_SKELETON;
+  // Transparency
+  if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
 
   const [theme, setTheme] = useState(_theme);
   const [font, setFont] = useState(_font);

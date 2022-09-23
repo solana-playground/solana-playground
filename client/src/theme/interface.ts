@@ -143,10 +143,11 @@ export default interface Theme {
     };
   };
   borderRadius?: string;
+  boxShadow?: string;
   font?: Font;
-  transparency?: Transparency;
-  transition?: Transition;
   scrollbar?: Scrollbar;
   skeleton?: Skeleton;
+  transparency?: Transparency;
+  transition?: Transition;
   highlight: HighlightStyle;
 }
