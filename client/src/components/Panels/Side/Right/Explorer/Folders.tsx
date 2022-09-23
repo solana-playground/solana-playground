@@ -221,17 +221,15 @@ const Folder: FC<FileOrFolderProps> = ({
   className,
 }) => (
   <div className={className} ref={reff} onClick={onClick} data-path={path}>
-    {name && (
-      <>
-        <Arrow />
-        <span>{name}</span>
-      </>
-    )}
+    <PaddingLeft depth={path.split("/").length - 4} />
+    <Arrow />
+    <span>{name}</span>
   </div>
 );
 
 const File: FC<FileOrFolderProps> = ({ path, name, onClick, className }) => (
   <div className={className} onClick={onClick} data-path={path + name}>
+    <PaddingLeft depth={path.split("/").length - 3} />
     <LangIcon fileName={name} />
     <span>{name}</span>
   </div>
@@ -241,9 +239,10 @@ const RootWrapper = styled.div`
   ${({ theme }) => css`
   & .${ClassName.FOLDER}, & .${ClassName.FILE} {
     display: flex;
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 1rem;
     cursor: pointer;
     border: 1px solid transparent;
+    font-size: ${theme.font?.size.small};
 
     &.${ClassName.SELECTED} {
       background-color: ${
@@ -294,8 +293,6 @@ const BuildButtonText = styled.span`
 `;
 
 const FolderInsideWrapper = styled.div`
-  margin-left: 1rem;
-
   &.${ClassName.HIDDEN} {
     display: none;
   }
@@ -308,8 +305,8 @@ const StyledFolder = styled(Folder)`
   }
 
   & svg {
-    width: 1rem;
-    height: 1rem;
+    width: 0.875rem;
+    height: 0.875rem;
   }
 
   &.${ClassName.OPEN} svg {
@@ -326,6 +323,11 @@ const StyledFile = styled(File)`
     color: ${({ theme }) => theme.colors.default.textPrimary};
     margin-left: 0.375rem;
   }
+`;
+
+const PaddingLeft = styled.div<{ depth: number }>`
+  width: ${({ depth }) => depth}rem;
+  height: 100%;
 `;
 
 export default Folders;
