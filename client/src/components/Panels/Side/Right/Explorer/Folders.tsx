@@ -139,9 +139,18 @@ interface FolderProps extends FolderType {
 const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
   const [explorer] = useAtom(explorerAtom);
 
-  const folderName = useMemo(() => {
-    return PgExplorer.getItemNameFromPath(path);
-  }, [path]);
+  const folderRef = useRef<HTMLDivElement>(null);
+  const folderInsideRef = useRef<HTMLDivElement>(null);
+
+  const folderName = useMemo(
+    () => PgExplorer.getItemNameFromPath(path),
+    [path]
+  );
+
+  const depth = useMemo(
+    () => path.split(explorer?.currentWorkspacePath!)[1].split("/").length - 2,
+    [path, explorer?.currentWorkspacePath]
+  );
 
   // No need useCallback here
   const toggle = (e: MouseEvent<HTMLDivElement>) => {
@@ -157,16 +166,14 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     }
   };
 
-  const folderRef = useRef<HTMLDivElement>(null);
-  const folderInsideRef = useRef<HTMLDivElement>(null);
-
   return (
     <>
       <StyledFolder
         path={path}
         name={folderName}
-        reff={folderRef}
+        depth={depth}
         onClick={toggle}
+        reff={folderRef}
         className={ClassName.FOLDER}
       />
 
@@ -196,6 +203,7 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
               key={i}
               path={path}
               name={fileName}
+              depth={depth + 1}
               onClick={toggle}
               className={ClassName.FILE}
             />
@@ -208,6 +216,7 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
 interface FileOrFolderProps {
   path: string;
   name: string;
+  depth: number;
   onClick?: (e: any) => void;
   className?: string;
   reff?: Ref<HTMLDivElement>;
@@ -216,20 +225,27 @@ interface FileOrFolderProps {
 const Folder: FC<FileOrFolderProps> = ({
   path,
   name,
-  reff,
+  depth,
   onClick,
+  reff,
   className,
 }) => (
   <div className={className} ref={reff} onClick={onClick} data-path={path}>
-    <PaddingLeft depth={path.split("/").length - 4} />
+    <PaddingLeft depth={depth} />
     <Arrow />
     <span>{name}</span>
   </div>
 );
 
-const File: FC<FileOrFolderProps> = ({ path, name, onClick, className }) => (
+const File: FC<FileOrFolderProps> = ({
+  path,
+  name,
+  depth,
+  onClick,
+  className,
+}) => (
   <div className={className} onClick={onClick} data-path={path + name}>
-    <PaddingLeft depth={path.split("/").length - 3} />
+    <PaddingLeft depth={depth} />
     <LangIcon fileName={name} />
     <span>{name}</span>
   </div>
