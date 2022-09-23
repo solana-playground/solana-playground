@@ -82,7 +82,7 @@ export const NewItem = () => {
   useEffect(() => {
     if (el) {
       document.addEventListener("mousedown", handleClickOut);
-      document.body.addEventListener("keydown", handleKeyPress);
+      document.addEventListener("keydown", handleKeyPress);
       inputRef.current?.focus();
     }
 

@@ -166,7 +166,10 @@ export class PgExplorer {
       }
 
       const subItemPaths = itemNames.map(
-        (itemName) => PgExplorer.appendSlash(path) + itemName
+        (itemName) =>
+          PgExplorer.appendSlash(path) +
+          itemName +
+          (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
       );
       for (const subItemPath of subItemPaths) {
         const stat = await fs.stat(subItemPath);
