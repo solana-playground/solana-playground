@@ -1408,19 +1408,29 @@ export class PgExplorer {
   }
 
   static collapseAllFolders() {
-    let rootEl = this.getRootFolderEl();
+    const rootEl = this.getRootFolderEl();
+    if (!rootEl) return;
 
-    for (;;) {
-      if (!rootEl || !rootEl.childElementCount) break;
-      // Close folder
-      rootEl.children[0]?.classList.remove(ClassName.OPEN);
-      rootEl.children[1]?.classList.add(ClassName.HIDDEN);
-      // Remove selected
-      const selectedEl = this.getSelectedEl();
-      if (selectedEl) selectedEl.classList.remove(ClassName.SELECTED);
+    // Remove selected
+    const selectedEl = this.getSelectedEl();
+    if (selectedEl) selectedEl.classList.remove(ClassName.SELECTED);
 
-      rootEl = rootEl?.children[1] as HTMLElement;
-    }
+    const recursivelyCollapse = (el: HTMLElement) => {
+      if (!el || !el.childElementCount) return;
+
+      // Close folders
+      el.childNodes.forEach((child) => {
+        const c = child as HTMLElement;
+        if (c.classList.contains(ClassName.FOLDER)) {
+          c.classList.remove(ClassName.OPEN);
+        } else if (c.classList.contains(ClassName.FOLDER_INSIDE)) {
+          c.classList.add(ClassName.HIDDEN);
+          recursivelyCollapse(c);
+        }
+      });
+    };
+
+    recursivelyCollapse(rootEl);
   }
 
   static isItemNameValid(name: string) {

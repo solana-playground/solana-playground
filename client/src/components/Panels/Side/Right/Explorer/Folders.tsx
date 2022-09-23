@@ -177,7 +177,10 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
         className={ClassName.FOLDER}
       />
 
-      <FolderInsideWrapper ref={folderInsideRef} className={ClassName.HIDDEN}>
+      <FolderInsideWrapper
+        ref={folderInsideRef}
+        className={`${ClassName.FOLDER_INSIDE} ${ClassName.HIDDEN}`}
+      >
         {folders
           .sort((x, y) => x.localeCompare(y))
           .map((folderName, i) => {

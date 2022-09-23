@@ -9,6 +9,7 @@ export enum ClassName {
   ACTIVE = "active",
   FILE = "file",
   FOLDER = "folder",
+  FOLDER_INSIDE = "folder-inside",
   SIDE_RIGHT = "side-right",
   LOADING = "loading",
   DARKEN = "darken",

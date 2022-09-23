@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
@@ -61,12 +61,12 @@ const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
 };
 
 const CollapseAllButton = () => {
+  const handleCollapse = useCallback(() => {
+    PgExplorer.collapseAllFolders();
+  }, []);
+
   return (
-    <Button
-      kind="icon"
-      title="Collapse folders"
-      onClick={PgExplorer.collapseAllFolders}
-    >
+    <Button kind="icon" title="Collapse folders" onClick={handleCollapse}>
       <img
         src={PgExplorer.getExplorerIconsPath("collapse.png")}
         alt="Collapse folders"
