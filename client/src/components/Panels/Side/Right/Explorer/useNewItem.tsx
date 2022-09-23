@@ -25,14 +25,14 @@ const useNewItem = () => {
     } else {
       // Create in the first dir(src)
       const rootEl = PgExplorer.getRootFolderEl();
-      const firstChild = rootEl?.firstElementChild;
-      if (!firstChild) return;
+      const srcFolderEl = rootEl?.children[1];
+      if (!srcFolderEl) return;
 
-      PgExplorer.openFolder(firstChild as HTMLDivElement);
-      const folderInside = firstChild.nextElementSibling;
+      PgExplorer.openFolder(srcFolderEl as HTMLDivElement);
+      const folderInside = srcFolderEl.nextElementSibling;
       if (!folderInside) return;
 
-      PgExplorer.setSelectedEl(firstChild as HTMLDivElement);
+      PgExplorer.setSelectedEl(srcFolderEl as HTMLDivElement);
       setEl(folderInside);
     }
   }, [setEl]);

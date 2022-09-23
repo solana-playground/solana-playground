@@ -1,4 +1,11 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ReactDOM from "react-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
@@ -68,29 +75,45 @@ export const NewItem = () => {
     [itemName, explorer, ctxSelected, setEl, setCtxSelected]
   );
 
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setItemName(e.target.value);
+  }, []);
+
   useEffect(() => {
     if (el) {
-      document.body.addEventListener("mousedown", handleClickOut);
+      document.addEventListener("mousedown", handleClickOut);
       document.body.addEventListener("keydown", handleKeyPress);
       inputRef.current?.focus();
     }
 
     return () => {
-      document.body.removeEventListener("mousedown", handleClickOut);
-      document.body.removeEventListener("keydown", handleKeyPress);
+      document.removeEventListener("mousedown", handleClickOut);
+      document.removeEventListener("keydown", handleKeyPress);
     };
   }, [el, setEl, handleClickOut, handleKeyPress]);
 
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setItemName(e.target.value);
-    },
-    [setItemName]
-  );
+  const depth = useMemo(() => {
+    if (!el) return 0;
+    let path = PgExplorer.getItemPathFromEl(el.firstChild as HTMLDivElement);
+
+    // Empty folder
+    if (!path) {
+      path = PgExplorer.getItemPathFromEl(
+        el.parentElement?.firstChild as HTMLDivElement
+      );
+      if (!path) return 0;
+    }
+    const itemType = PgExplorer.getItemTypeFromPath(path);
+
+    return (
+      path.split(explorer?.currentWorkspacePath!)[1].split("/").length -
+      (itemType.folder ? 1 : 0)
+    );
+  }, [el, explorer?.currentWorkspacePath]);
 
   return el
     ? ReactDOM.createPortal(
-        <Wrapper ref={newFileRef}>
+        <Wrapper ref={newFileRef} depth={depth}>
           <LangIcon fileName={itemName} />
           <Input
             ref={inputRef}
@@ -103,10 +126,11 @@ export const NewItem = () => {
     : null;
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ depth: number }>`
   display: flex;
   align-items: center;
   padding: 0.25rem 0;
+  padding-left: ${({ depth }) => depth + 0.25 + "rem"};
 
   & > input {
     margin-left: 0.375rem;
