@@ -1,10 +1,7 @@
-import { EventName } from "../../constants";
+import { ClassName, EventName } from "../../constants";
 import { PgCommon } from "./common";
 
 export class PgEditor {
-  static readonly CLASSNAME = "cm-editor";
-  static readonly ACTIVE_CLASSNAME = "cm-focused";
-
   /**
    * Dispatch custom event to focus editor
    */
@@ -17,7 +14,7 @@ export class PgEditor {
    */
   static isFocused() {
     return document
-      .getElementsByClassName(this.CLASSNAME)[0]
-      ?.classList.contains(this.ACTIVE_CLASSNAME);
+      .getElementsByClassName(ClassName.CM_CLASSNAME)[0]
+      ?.classList.contains(ClassName.CM_ACTIVE_CLASSNAME);
   }
 }
