@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
@@ -20,7 +20,7 @@ import {
   PgPkg,
   PkgName,
 } from "../../../../../utils/pg";
-import { ClassName, EventName } from "../../../../../constants";
+import { EventName } from "../../../../../constants";
 
 const CodeMirror = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -183,18 +183,21 @@ const CodeMirror = () => {
     [theme.name]
   );
 
+  const codemirrorRef = useRef<HTMLDivElement>(null);
+
   const [editor, setEditor] = useState<EditorView>();
 
   // Create editor
   useEffect(() => {
-    const wrapper = document.getElementById(ClassName.EDITOR_WRAPPER);
-    if (!wrapper) return;
-    const editorEl = document.getElementsByClassName(ClassName.CM_CLASSNAME)[0];
-    if (editorEl) editorEl.remove();
+    if (!codemirrorRef.current) return;
+
+    if (codemirrorRef.current.hasChildNodes()) {
+      codemirrorRef.current.removeChild(codemirrorRef.current.firstChild!);
+    }
 
     setEditor(
       new EditorView({
-        parent: wrapper,
+        parent: codemirrorRef.current,
       })
     );
 
@@ -390,25 +393,28 @@ const CodeMirror = () => {
               PgTerminal.logWasm(PgTerminal.success("Format successful."));
             }
 
-            let cursorPos = editor.state.selection.ranges[0].from;
-            const currentLine = editor.state.doc.lineAt(cursorPos);
-            const beforeLine = editor.state.doc.line(currentLine.number - 1);
-            const afterLine = editor.state.doc.line(currentLine.number + 1);
-            const searchText = currentContent.substring(
-              beforeLine.from,
-              afterLine.to
-            );
-
             const formattedCode = result.code!();
-            const searchIndex = formattedCode.indexOf(searchText);
-            if (searchIndex !== -1) {
-              // Check if there are multiple instances of the same searchText
-              const nextSearchIndex = formattedCode.indexOf(
-                searchText,
-                searchIndex + searchText.length
+
+            let cursorOffset = editor.state.selection.ranges[0].from;
+            const currentLine = editor.state.doc.lineAt(cursorOffset);
+            if (currentLine.number !== 1) {
+              const beforeLine = editor.state.doc.line(currentLine.number - 1);
+              const afterLine = editor.state.doc.line(currentLine.number + 1);
+              const searchText = currentContent.substring(
+                beforeLine.from,
+                afterLine.to
               );
-              if (nextSearchIndex === -1) {
-                cursorPos = searchIndex + cursorPos - beforeLine.from;
+
+              const searchIndex = formattedCode.indexOf(searchText);
+              if (searchIndex !== -1) {
+                // Check if there are multiple instances of the same searchText
+                const nextSearchIndex = formattedCode.indexOf(
+                  searchText,
+                  searchIndex + searchText.length
+                );
+                if (nextSearchIndex === -1) {
+                  cursorOffset = searchIndex + cursorOffset - beforeLine.from;
+                }
               }
             }
 
@@ -419,8 +425,8 @@ const CodeMirror = () => {
                 insert: formattedCode,
               },
               selection: {
-                anchor: cursorPos,
-                head: cursorPos,
+                anchor: cursorOffset,
+                head: cursorOffset,
               },
             });
           };
@@ -528,7 +534,7 @@ const CodeMirror = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, explorer, explorerChanged]);
 
-  return null;
+  return <div ref={codemirrorRef} />;
 };
 
 export default CodeMirror;

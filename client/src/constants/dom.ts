@@ -17,7 +17,6 @@ export enum ClassName {
   TOOLTIP = "tooltip",
 
   // Editor
-  EDITOR_WRAPPER = "editor-wrapper",
   CM_CLASSNAME = "cm-editor",
   CM_ACTIVE_CLASSNAME = "cm-focused",
 }

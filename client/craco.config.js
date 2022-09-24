@@ -1,4 +1,5 @@
 const webpack = require("webpack");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 module.exports = {
   webpack: {
@@ -33,9 +34,11 @@ module.exports = {
 
       // Plugins
       webpackConfig.plugins.push(
+        // Process
         new webpack.ProvidePlugin({
           process: "process/browser",
         }),
+
         // Ignore `Critical dependency: the request of a dependency is an expression`
         // from typescript and mocha
         new webpack.ContextReplacementPlugin(/^\.$/, (context) => {
@@ -44,7 +47,10 @@ module.exports = {
               if (d.critical) d.critical = false;
             }
           }
-        })
+        }),
+
+        // Monaco
+        new MonacoWebpackPlugin()
       );
 
       return webpackConfig;

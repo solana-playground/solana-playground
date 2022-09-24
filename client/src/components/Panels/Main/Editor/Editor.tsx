@@ -1,13 +1,13 @@
-import { useEffect, lazy, Suspense, useState } from "react";
+import { useEffect, lazy, Suspense, useState, useRef } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Home from "./Home";
 import { Wormhole } from "../../../Loading";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
-import { ClassName } from "../../../../constants";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
+const Monaco = lazy(() => import("./Monaco"));
 
 const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -15,26 +15,24 @@ const Editor = () => {
 
   const [loading, setLoading] = useState(true);
   const [showHome, setShowHome] = useState(false);
+  const [showMonaco, setShowMonaco] = useState(false);
+
+  const editorWrapper = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (explorer) {
-      setLoading(false);
       if (!explorer.getTabs().length) {
         setShowHome(true);
-        const maybeEditor = document.getElementById(
-          ClassName.EDITOR_WRAPPER
-        )?.firstChild;
-        if (
-          maybeEditor &&
-          (maybeEditor as HTMLDivElement).classList.contains(
-            ClassName.CM_CLASSNAME
-          )
-        ) {
-          maybeEditor.remove();
-        }
       } else {
         setShowHome(false);
+
+        setShowMonaco(
+          explorer.isCurrentFileJavascript() ||
+            explorer.isCurrentFileTypescript()
+        );
       }
+
+      setLoading(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,9 +53,9 @@ const Editor = () => {
   if (loading) return <EditorLoading />;
 
   return (
-    <Wrapper id={ClassName.EDITOR_WRAPPER}>
+    <Wrapper ref={editorWrapper}>
       <Suspense fallback={<EditorLoading />}>
-        {showHome ? <Home /> : <CodeMirror />}
+        {showHome ? <Home /> : showMonaco ? <Monaco /> : <CodeMirror />}
       </Suspense>
     </Wrapper>
   );
@@ -70,6 +68,10 @@ const Wrapper = styled.div`
     flex: 1;
     overflow: auto;
     background-color: ${theme.colors.home?.bg};
+
+    & > div {
+      height: 100%;
+    }
 
     /* Scrollbar */
     /* Chromium */
