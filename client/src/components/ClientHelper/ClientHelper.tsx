@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 import { useConnection } from "@solana/wallet-adapter-react";
@@ -20,30 +20,37 @@ const ClientHelper = () => {
 
   const [client, setClient] = useState<PgClient>();
 
-  useEffect(() => {
-    (async () => {
+  const getClient = useCallback(async () => {
+    if (!client) {
       // Redefine console.log to show mocha logs in the terminal
       // This must be defined before PgClient is imported
       console.log = PgTerminal.consoleLog;
 
       const { PgClient } = await import("../../utils/pg/client");
 
-      setClient(new PgClient());
-    })();
-  }, []);
+      const client = new PgClient();
+      setClient(client);
+      return client;
+    }
+
+    return client;
+  }, [client]);
 
   useEffect(() => {
     const handle = (
       e: UIEvent & { detail: { isTest?: boolean; path?: string } }
     ) => {
       PgTerminal.run(async () => {
-        if (!explorer || !client) return;
+        if (!explorer) return;
+
         const isTest = e.detail.isTest;
         const path = e.detail.path;
 
         PgTerminal.logWasm(
           PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
         );
+
+        const client = await getClient();
 
         if (path) {
           const code = explorer.getFileContent(path);
@@ -98,7 +105,7 @@ const ClientHelper = () => {
     };
 
     // eslint-disable-next line react-hooks/exhausive-deps
-  }, [client, explorer, explorerChanged, connection, wallet]);
+  }, [explorer, explorerChanged, connection, wallet, getClient]);
 
   return <StyledIframe title="test" loading="lazy" />;
 };
