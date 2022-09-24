@@ -33,6 +33,7 @@ export class PgShell {
   private _pgTty: PgTty;
   private _history: ShellHistory;
   private _active: boolean;
+  private _processCount: number;
   private _maxAutocompleteEntries: number;
   private _autocompleteHandlers: AutoCompleteHandler[];
   private _activePrompt?: ActivePrompt;
@@ -56,6 +57,7 @@ export class PgShell {
       },
     ];
     this._active = false;
+    this._processCount = 0;
   }
 
   /**
@@ -73,6 +75,7 @@ export class PgShell {
    * Disable shell
    */
   disable() {
+    this._incrementProcessCount();
     this._active = false;
   }
 
@@ -84,9 +87,12 @@ export class PgShell {
    */
   enable() {
     setTimeout(() => {
-      this._active = true;
-      this.prompt();
-      this._pgTty.read(""); // Enables history
+      this._decrementProcessCount();
+      if (!this._processCount) {
+        this._active = true;
+        this.prompt();
+        this._pgTty.read(""); // Enables history
+      }
     }, 10);
   }
 
@@ -611,6 +617,22 @@ export class PgShell {
       }
 
       this.enable();
+    }
+  }
+
+  /**
+   * Increments active process count
+   */
+  private _incrementProcessCount() {
+    this._processCount++;
+  }
+
+  /**
+   * Decrements active process count if process count is gt 0
+   */
+  private _decrementProcessCount() {
+    if (this._processCount) {
+      this._processCount--;
     }
   }
 }

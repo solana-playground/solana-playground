@@ -13,6 +13,12 @@ import { PgWallet } from "../wallet";
 import { PgCommon } from "../common";
 
 export class PgClient {
+  private _isClientRunning: boolean;
+
+  constructor() {
+    this._isClientRunning = false;
+  }
+
   /**
    * Run or test js/ts code
    *
@@ -24,7 +30,7 @@ export class PgClient {
    *
    * @returns A promise that will resolve once all tests are finished
    */
-  static async run(
+  async run(
     code: string,
     fileName: string,
     wallet: PgWallet | AnchorWallet | null,
@@ -32,6 +38,28 @@ export class PgClient {
     opts?: { isTest?: boolean }
   ): Promise<void> {
     const isTest = opts?.isTest;
+
+    // Block creating multiple client/test instances at the same time
+    if (this._isClientRunning) {
+      if (isTest) {
+        throw new Error("Please wait for client to finish.");
+      }
+
+      throw new Error("Client is already running!");
+    }
+    // @ts-ignore
+    if (mocha._state === "running") {
+      if (!isTest) {
+        throw new Error("Please wait for tests to finish.");
+      }
+
+      throw new Error("Tests are already running!");
+    }
+
+    if (!isTest) {
+      this._isClientRunning = true;
+    }
+
     if (isTest) {
       if (!code.includes("describe")) {
         throw new Error(
@@ -43,6 +71,7 @@ export class PgClient {
         );
       }
     }
+
     PgTerminal.logWasm(`  ${fileName}:`);
 
     const iframeEls = document.getElementsByTagName("iframe");
@@ -72,8 +101,6 @@ export class PgClient {
         );
       },
     };
-
-    let finished = false;
 
     // Add globally accessed objects
     const globals: [string, object][] = [
@@ -139,7 +166,7 @@ export class PgClient {
       endCode = "_run()";
     } else {
       // Run only
-      globals.push(["_finish", () => (finished = true)]);
+      globals.push(["_finish", () => (this._isClientRunning = false)]);
 
       endCode = "_finish()";
     }
@@ -170,7 +197,7 @@ export class PgClient {
     const scriptEl = document.createElement("script");
     iframeDocument.head.appendChild(scriptEl);
 
-    for (const blacklistedWord of this._blacklistedWords) {
+    for (const blacklistedWord of _BLACKLISTED_WORDS) {
       if (code.includes(blacklistedWord)) {
         throw new Error(`'${blacklistedWord}' is not allowed`);
       }
@@ -193,7 +220,7 @@ export class PgClient {
         }, 1000);
       } else {
         const intervalId = setInterval(() => {
-          if (finished) {
+          if (!this._isClientRunning) {
             PgTerminal.logWasm("");
             clearInterval(intervalId);
             res();
@@ -203,7 +230,7 @@ export class PgClient {
     });
   }
 
-  static readonly DEFAULT_CLIENT = [
+  readonly DEFAULT_CLIENT = [
     "client.ts",
     `// Client
 console.log("My address:", wallet.publicKey.toString());
@@ -211,7 +238,7 @@ const balance = await connection.getBalance(wallet.publicKey);
 console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);`,
   ];
 
-  static readonly DEFAULT_TEST = [
+  readonly DEFAULT_TEST = [
     "index.test.ts",
     `describe("Test", () => {
   it("Airdrop", async () => {
@@ -235,15 +262,15 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);`,
   })
 })`,
   ];
-
-  /** Words that are not allowed to be in the user code */
-  private static readonly _blacklistedWords = [
-    "window",
-    "this",
-    "globalThis",
-    "document",
-    "location",
-    "top",
-    "chrome",
-  ];
 }
+
+/** Words that are not allowed to be in the user code */
+const _BLACKLISTED_WORDS = [
+  "window",
+  "this",
+  "globalThis",
+  "document",
+  "location",
+  "top",
+  "chrome",
+];

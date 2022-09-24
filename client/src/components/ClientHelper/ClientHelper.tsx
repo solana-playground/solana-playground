@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 import { useConnection } from "@solana/wallet-adapter-react";
@@ -8,6 +8,9 @@ import { explorerAtom, refreshExplorerAtom } from "../../state";
 import { EventName } from "../../constants";
 import { PgExplorer, PgTerminal } from "../../utils/pg";
 
+// Only for type
+import { PgClient } from "../../utils/pg/client";
+
 const ClientHelper = () => {
   const [explorer] = useAtom(explorerAtom);
   const [explorerChanged] = useAtom(refreshExplorerAtom);
@@ -15,30 +18,38 @@ const ClientHelper = () => {
   const { connection } = useConnection();
   const { currentWallet: wallet } = useCurrentWallet();
 
+  const [client, setClient] = useState<PgClient>();
+
+  useEffect(() => {
+    (async () => {
+      // Redefine console.log to show mocha logs in the terminal
+      // This must be defined before PgClient is imported
+      console.log = PgTerminal.consoleLog;
+
+      const { PgClient } = await import("../../utils/pg/client");
+
+      setClient(new PgClient());
+    })();
+  }, []);
+
   useEffect(() => {
     const handle = (
-      e: UIEvent & { detail?: { isTest?: boolean; path?: string } }
+      e: UIEvent & { detail: { isTest?: boolean; path?: string } }
     ) => {
       PgTerminal.run(async () => {
-        if (!explorer) return;
-        const isTest = e.detail?.isTest;
+        if (!explorer || !client) return;
+        const isTest = e.detail.isTest;
         const path = e.detail.path;
 
         PgTerminal.logWasm(
           PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
         );
 
-        // Redefine console.log to show mocha logs in the terminal
-        console.log = PgTerminal.consoleLog;
-
-        // Lazy load PgClient
-        const { PgClient } = await import("../../utils/pg/client");
-
         if (path) {
           const code = explorer.getFileContent(path);
           if (!code) return;
           const fileName = PgExplorer.getItemNameFromPath(path);
-          await PgClient.run(code, fileName, wallet, connection, {
+          await client.run(code, fileName, wallet, connection, {
             isTest,
           });
 
@@ -53,16 +64,16 @@ const ClientHelper = () => {
           let DEFAULT;
           if (isTest) {
             PgTerminal.logWasm(PgTerminal.info("Creating default test..."));
-            DEFAULT = PgClient.DEFAULT_TEST;
+            DEFAULT = client.DEFAULT_TEST;
           } else {
             PgTerminal.logWasm(PgTerminal.info("Creating default client..."));
-            DEFAULT = PgClient.DEFAULT_CLIENT;
+            DEFAULT = client.DEFAULT_CLIENT;
           }
 
           const fileName = DEFAULT[0];
           const code = DEFAULT[1];
           await explorer.newItem(folderPath + fileName, code);
-          await PgClient.run(code, fileName, wallet, connection, {
+          await client.run(code, fileName, wallet, connection, {
             isTest,
           });
         }
@@ -71,7 +82,7 @@ const ClientHelper = () => {
           const code = explorer.getFileContent(folderPath + fileName);
           if (!code) continue;
 
-          await PgClient.run(code, fileName, wallet, connection, {
+          await client.run(code, fileName, wallet, connection, {
             isTest,
           });
         }
@@ -87,7 +98,7 @@ const ClientHelper = () => {
     };
 
     // eslint-disable-next line react-hooks/exhausive-deps
-  }, [explorer, explorerChanged, connection, wallet]);
+  }, [client, explorer, explorerChanged, connection, wallet]);
 
   return <StyledIframe title="test" loading="lazy" />;
 };

@@ -347,7 +347,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     try {
       return await cb();
     } catch (e: any) {
-      this.logWasm(`${this.error("Process error")}: ${e.message}`);
+      this.logWasm(`Process error: ${e.message}`);
     } finally {
       this.enable();
     }
