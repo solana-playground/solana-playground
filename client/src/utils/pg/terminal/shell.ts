@@ -534,6 +534,15 @@ export class PgShell {
         break;
       }
 
+      case PgCommand.PRETTIER: {
+        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+          lang: Lang.TYPESCRIPT,
+          fromTerminal: true,
+        });
+        isCmdValid = true;
+        break;
+      }
+
       case PgCommand.RUSTFMT: {
         PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
           lang: Lang.RUST,

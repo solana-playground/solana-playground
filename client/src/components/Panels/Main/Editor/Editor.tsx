@@ -409,9 +409,9 @@ const Editor = () => {
     ) => {
       PgTerminal.run(async () => {
         if (!editor || !explorer) return;
-        const isCurrentFileRust = explorer.isCurrentFileRust();
 
         let formatRust;
+        const isCurrentFileRust = explorer.isCurrentFileRust();
         if (isCurrentFileRust) {
           formatRust = async () => {
             const { rustfmt } = await PgPkg.loadPkg(PkgName.RUSTFMT);
@@ -469,23 +469,76 @@ const Editor = () => {
           };
         }
 
+        let formatJSTS;
+        const isCurrentFileJSTS =
+          explorer.isCurrentFileTypescript() ||
+          explorer.isCurrentFileJavascript();
+        if (isCurrentFileJSTS) {
+          formatJSTS = async () => {
+            const { formatWithCursor } = await import("prettier/standalone");
+            const { default: parserTypescript } = await import(
+              "prettier/parser-typescript"
+            );
+            const currentContent = editor.state.doc.toString();
+            const result = formatWithCursor(currentContent, {
+              parser: "typescript",
+              plugins: [parserTypescript],
+              cursorOffset: editor.state.selection.ranges[0].from,
+            });
+
+            if (e.detail?.fromTerminal) {
+              PgTerminal.logWasm(PgTerminal.success("Format successful."));
+            }
+
+            editor.dispatch({
+              changes: {
+                from: 0,
+                to: currentContent.length,
+                insert: result.formatted,
+              },
+              selection: {
+                anchor: result.cursorOffset,
+                head: result.cursorOffset,
+              },
+            });
+          };
+        }
+
+        // From keybind
         if (!e.detail) {
           if (isCurrentFileRust) {
             formatRust && (await formatRust());
+          } else if (isCurrentFileJSTS) {
+            formatJSTS && (await formatJSTS());
           }
 
           return;
         }
 
-        if (e.detail.lang === Lang.RUST) {
-          if (!isCurrentFileRust) {
-            PgTerminal.logWasm(
-              PgTerminal.warning("Current file is not a Rust file.")
-            );
-            return;
+        // From terminal
+        switch (e.detail.lang) {
+          case Lang.RUST: {
+            if (!isCurrentFileRust) {
+              PgTerminal.logWasm(
+                PgTerminal.warning("Current file is not a Rust file.")
+              );
+              return;
+            }
+
+            formatRust && (await formatRust());
+            break;
           }
 
-          formatRust && (await formatRust());
+          case Lang.TYPESCRIPT: {
+            if (!isCurrentFileJSTS) {
+              PgTerminal.logWasm(
+                PgTerminal.warning("Current file is not a JS/TS file.")
+              );
+              return;
+            }
+
+            formatJSTS && (await formatJSTS());
+          }
         }
       });
     };

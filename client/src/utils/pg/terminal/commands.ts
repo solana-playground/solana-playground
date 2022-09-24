@@ -8,6 +8,7 @@ export class PgCommand {
   static readonly CONNECT = "connect";
   static readonly DEPLOY = "deploy";
   static readonly HELP = "help";
+  static readonly PRETTIER = "prettier";
   static readonly RUN = "run";
   static readonly RUN_LAST_CMD = "!!";
   static readonly RUSTFMT = "rustfmt";
@@ -84,6 +85,10 @@ const COMMANDS: Command[] = [
   {
     name: PgCommand.DEPLOY,
     description: "Deploy your program",
+  },
+  {
+    name: PgCommand.PRETTIER,
+    description: "Format the current file with prettier",
   },
   {
     name: PgCommand.RUSTFMT,
