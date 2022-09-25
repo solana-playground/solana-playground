@@ -1,7 +1,4 @@
-import { HighlightStyle } from "@codemirror/language";
-import { tags as t } from "@lezer/highlight";
-
-import Theme from "../interface";
+import { PgTheme } from "../interface";
 
 // BG
 const BG_DEFAULT = "#151721",
@@ -30,132 +27,7 @@ const H_YELLOW = "#fff296",
   H_PINK = "#e1a6da",
   H_GREEN = "#32e17f";
 
-// Code highlighting
-// Highligts the part between '_'
-const highlight = HighlightStyle.define([
-  {
-    // const x: _bool_ = true;
-    tag: t.typeName,
-    color: CYAN,
-    fontStyle: "italic",
-  },
-  {
-    // _String_::new();
-    tag: t.namespace,
-    color: CYAN,
-  },
-  {
-    // _println!_()
-    tag: t.macroName,
-    color: H_GREEN,
-  },
-  {
-    // _myFunction_()
-    tag: t.function(t.variableName),
-    color: H_GREEN,
-  },
-  {
-    // a._to_lowercase_()
-    tag: t.function(t.propertyName),
-    color: H_GREEN,
-  },
-  {
-    // const macro_rules struct union enum type fn impl trait let static
-    tag: t.definitionKeyword,
-    color: BLUE,
-  },
-  {
-    // mod use crate
-    tag: t.moduleKeyword,
-    color: BLUE,
-  },
-  {
-    // pub unsafe async mut extern default move
-    tag: t.modifier,
-    color: BLUE,
-  },
-  {
-    // for if else loop while match continue break return await
-    tag: t.controlKeyword,
-    color: H_PURPLE,
-  },
-  {
-    // as in ref
-    tag: t.operatorKeyword,
-    color: H_PURPLE,
-  },
-  {
-    // where _ crate super dyn
-    tag: t.keyword,
-    color: BLUE,
-  },
-  {
-    // self
-    tag: t.self,
-    color: BLUE,
-  },
-  {
-    // true
-    tag: t.bool,
-    color: BLUE,
-    fontWeight: "bold",
-  },
-  {
-    // 5
-    tag: t.integer,
-    color: H_PINK,
-  },
-  {
-    // 5.5
-    tag: t.literal,
-    color: H_PINK,
-  },
-  {
-    // "" + b"" + r#""#
-    tag: t.string,
-    color: H_YELLOW,
-  },
-  {
-    tag: t.character,
-    color: H_YELLOW,
-  },
-  {
-    // &, =
-    tag: t.operator,
-    color: H_PURPLE,
-  },
-  {
-    // *
-    tag: t.derefOperator,
-    color: H_PURPLE,
-  },
-  {
-    // Lifetime &_'a_
-    tag: t.special(t.variableName),
-    color: H_PURPLE,
-  },
-  {
-    // Comment with //
-    tag: t.lineComment,
-    color: COMMENT,
-  },
-  {
-    // Comment with /* */
-    tag: t.blockComment,
-    color: COMMENT,
-  },
-  {
-    // #
-    tag: t.meta,
-    color: H_LIGHT_BLUE,
-  },
-  {
-    tag: t.invalid,
-    color: RED,
-  },
-]);
-
-export const PLAYGROUND: Theme = {
+export const PLAYGROUND: PgTheme = {
   name: "Playground",
   isDark: true,
   colors: {
@@ -211,5 +83,38 @@ export const PLAYGROUND: Theme = {
     color: BG_LIGHT,
     highlightColor: BG_DEFAULT,
   },
-  highlight,
+  highlight: {
+    typeName: { color: CYAN, fontStyle: "italic" },
+    variableName: { color: TEXT_PRIMARY },
+    namespace: { color: CYAN },
+    macroName: { color: H_GREEN },
+    functionCall: { color: H_GREEN },
+    functionDef: { color: H_GREEN },
+    functionArg: { color: YELLOW },
+    definitionKeyword: { color: BLUE },
+    moduleKeyword: { color: BLUE },
+    modifier: { color: BLUE },
+    controlKeyword: { color: H_PURPLE },
+    operatorKeyword: { color: H_PURPLE },
+    keyword: { color: BLUE },
+    self: { color: BLUE },
+    bool: { color: BLUE, fontStyle: "bold" },
+    integer: { color: H_PINK },
+    literal: { color: H_PINK },
+    string: { color: H_YELLOW },
+    character: { color: H_YELLOW },
+    operator: { color: H_PURPLE },
+    derefOperator: { color: H_PURPLE },
+    specialVariable: { color: H_PURPLE },
+    lineComment: { color: COMMENT },
+    blockComment: { color: COMMENT },
+    meta: { color: H_LIGHT_BLUE },
+    invalid: { color: RED },
+    constant: { color: BLUE },
+    regexp: { color: YELLOW },
+    tagName: { color: YELLOW },
+    attributeName: { color: YELLOW },
+    attributeValue: { color: YELLOW },
+    annotion: { color: YELLOW },
+  },
 };

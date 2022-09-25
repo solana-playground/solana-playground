@@ -1,14 +1,14 @@
 import { ChangeEvent, useCallback, useState } from "react";
 import { useTheme } from "styled-components";
 
-import Theme from "../../../../../theme/interface";
 import THEMES from "../../../../../theme/themes";
 import Select from "../../../../Select";
 import useSetTheme from "../../../../../theme/useSetTheme";
+import { PgTheme } from "../../../../../theme/interface";
 
 const ThemeSetting = () => {
-  const [selectedTheme, setSelectedTheme] = useState<Theme>();
-  const theme = useTheme() as Theme;
+  const [selectedTheme, setSelectedTheme] = useState<PgTheme>();
+  const theme = useTheme();
 
   const changeTheme = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
     setSelectedTheme(THEMES.find((t) => t.name === e.target.value));

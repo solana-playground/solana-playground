@@ -3,9 +3,8 @@ import { useAtom } from "jotai";
 import { useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
-import { syntaxHighlighting } from "@codemirror/language";
 
-import { autosave, defaultExtensions } from "./extensions";
+import { autosave, defaultExtensions, getThemeExtension } from "./extensions";
 import {
   buildCountAtom,
   explorerAtom,
@@ -209,7 +208,7 @@ const CodeMirror = () => {
     const extensions = [
       defaultExtensions(),
       editorTheme,
-      syntaxHighlighting(theme.highlight),
+      getThemeExtension(theme.highlight),
       autosave(explorer, curFile, 500),
       languageCompartment.of([]),
     ];

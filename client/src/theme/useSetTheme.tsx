@@ -1,12 +1,12 @@
 import { useContext, useEffect } from "react";
 import { useTheme } from "styled-components";
 
-import Theme from "./interface";
+import { PgTheme } from "./interface";
 import { MutThemeContext, THEME_KEY } from "./Provider";
 
-const useSetTheme = (theme?: Theme) => {
+const useSetTheme = (theme?: PgTheme) => {
   const { setTheme } = useContext(MutThemeContext);
-  const currentTheme = useTheme() as Theme;
+  const currentTheme = useTheme();
 
   useEffect(() => {
     if (!theme || theme.name === currentTheme.name) return;

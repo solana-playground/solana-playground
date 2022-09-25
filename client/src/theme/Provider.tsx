@@ -10,7 +10,7 @@ import { ThemeProvider } from "styled-components";
 
 import THEMES from "./themes";
 import FONTS from "./fonts";
-import Theme, { Font } from "./interface";
+import { Font, PgTheme } from "./interface";
 import {
   PG_BORDER_RADIUS,
   PG_BOX_SHADOW,
@@ -24,7 +24,7 @@ export const THEME_KEY = "theme";
 export const FONT_KEY = "font";
 
 interface MutThemeContextProps {
-  setTheme: Dispatch<SetStateAction<Theme>>;
+  setTheme: Dispatch<SetStateAction<PgTheme>>;
   font: Font;
   setFont: Dispatch<SetStateAction<Font>>;
 }

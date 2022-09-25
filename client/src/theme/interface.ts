@@ -1,5 +1,3 @@
-import { HighlightStyle } from "@codemirror/language";
-
 type BgAndColor = {
   bg?: string;
   color?: string;
@@ -45,7 +43,106 @@ export type Skeleton = {
   highlightColor: string;
 };
 
-export default interface Theme {
+type HighlightToken = {
+  color?: string;
+  fontStyle?: "bold" | "italic";
+};
+
+export interface PgHighlight {
+  // const x: _bool_ = true;
+  typeName: HighlightToken;
+
+  // let _x_: bool = true;
+  variableName: HighlightToken;
+
+  // _String_::new();
+  namespace: HighlightToken;
+
+  // _println!_()
+  macroName: HighlightToken;
+
+  // _myFn_()
+  functionCall: HighlightToken;
+
+  // a._to_lowercase_()
+  functionDef: HighlightToken;
+
+  // myFn(_arg_: bool)
+  functionArg: HighlightToken;
+
+  // const macro_rules struct union enum type fn impl trait let static
+  definitionKeyword: HighlightToken;
+
+  // mod use crate
+  moduleKeyword: HighlightToken;
+
+  // pub unsafe async mut extern default move
+  modifier: HighlightToken;
+
+  // for if else loop while match continue break return await
+  controlKeyword: HighlightToken;
+
+  // as in ref
+  operatorKeyword: HighlightToken;
+
+  // where crate super dyn
+  keyword: HighlightToken;
+
+  // self
+  self: HighlightToken;
+
+  // true
+  bool: HighlightToken;
+
+  // 5
+  integer: HighlightToken;
+
+  // 5.5
+  literal: HighlightToken;
+
+  // "" + b"" + r#""#
+  string: HighlightToken;
+
+  // '
+  character: HighlightToken;
+
+  // &
+  operator: HighlightToken;
+
+  // *
+  derefOperator: HighlightToken;
+
+  // Lifetime &_'a_
+  specialVariable: HighlightToken;
+
+  // Comment with //
+  lineComment: HighlightToken;
+
+  // Comment with /* */
+  blockComment: HighlightToken;
+
+  // #
+  meta: HighlightToken;
+
+  invalid: HighlightToken;
+
+  /// Unused in Rust
+
+  // const _x_: bool = true;
+  constant: HighlightToken;
+
+  regexp: HighlightToken;
+
+  tagName: HighlightToken;
+
+  attributeName: HighlightToken;
+
+  attributeValue: HighlightToken;
+
+  annotion: HighlightToken;
+}
+
+export interface PgTheme {
   name: string;
   isDark: boolean;
   colors: {
@@ -141,5 +238,5 @@ export default interface Theme {
   skeleton?: Skeleton;
   transparency?: Transparency;
   transition?: Transition;
-  highlight: HighlightStyle;
+  highlight: PgHighlight;
 }

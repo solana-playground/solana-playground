@@ -24,6 +24,7 @@ const Monaco = () => {
   const monacoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Compiler options
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       lib: ["es2015"],
       module: monaco.languages.typescript.ModuleKind.ESNext,
@@ -36,6 +37,7 @@ const Monaco = () => {
       allowNonTsExtensions: true,
     });
 
+    // Diagnostic options
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       diagnosticCodesToIgnore: [
         1375, // top level await
@@ -55,11 +57,45 @@ const Monaco = () => {
 
       const editorColors = theme.colors.editor!;
       const inputColors = theme.colors.input!;
+      const hl = theme.highlight;
 
       monaco.editor.defineTheme(theme.name, {
         base: "vs-dark",
         inherit: true,
-        rules: [],
+        rules: [
+          { token: "invalid", foreground: hl.invalid.color },
+          { token: "emphasis", fontStyle: "italic" },
+          { token: "strong", fontStyle: "bold" },
+
+          { token: "variable", foreground: hl.variableName.color },
+          { token: "variable.predefined", foreground: hl.variableName.color },
+          { token: "variable.parameter", foreground: hl.functionArg.color },
+          { token: "constant", foreground: hl.constant.color },
+          { token: "comment", foreground: hl.lineComment.color },
+          { token: "number", foreground: hl.integer.color },
+          { token: "number.hex", foreground: hl.integer.color },
+          { token: "regexp", foreground: hl.regexp.color },
+          { token: "annotation", foreground: hl.annotion.color },
+          { token: "type", foreground: hl.typeName.color },
+
+          { token: "tag", foreground: hl.tagName.color },
+          { token: "tag.id.pug", foreground: hl.tagName.color },
+          { token: "tag.class.pug", foreground: hl.tagName.color },
+          { token: "meta.tag", foreground: hl.meta.color },
+          { token: "metatag", foreground: hl.meta.color },
+
+          { token: "key", foreground: hl.keyword.color },
+          { token: "string.key.json", foreground: hl.typeName.color },
+          { token: "string.value.json", foreground: hl.string.color },
+
+          { token: "attribute.name", foreground: hl.attributeName.color },
+          { token: "attribute.value", foreground: hl.attributeValue.color },
+
+          { token: "string", foreground: hl.string.color },
+
+          { token: "keyword", foreground: hl.keyword.color },
+          { token: "keyword.json", foreground: hl.moduleKeyword.color },
+        ],
         colors: {
           // Editor
           "editor.foreground": editorColors.color!,
@@ -94,6 +130,7 @@ const Monaco = () => {
             editorColors.tooltip?.selectedColor!,
           "list.inactiveSelectionBackground": editorColors.tooltip?.bg!,
           "list.inactiveSelectionForeground": editorColors.tooltip?.color!,
+          "list.highlightForeground": theme.colors.state.info.color!,
 
           // Input
           "input.background": inputColors.bg!,
@@ -128,6 +165,7 @@ const Monaco = () => {
       monaco.editor.create(monacoRef.current, {
         automaticLayout: true,
         fontLigatures: true,
+        bracketPairColorization: { enabled: true },
       })
     );
   }, [editor, isThemeSet]);

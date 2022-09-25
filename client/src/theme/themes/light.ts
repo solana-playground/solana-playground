@@ -1,7 +1,4 @@
-import { HighlightStyle } from "@codemirror/language";
-import { tags as t } from "@lezer/highlight";
-
-import Theme from "../interface";
+import { PgTheme } from "../interface";
 
 // BG
 const BG_DARK = "#2c2c2c";
@@ -31,120 +28,7 @@ const SELECTION = "#e5ebf1";
 const HOVER = "#00000010";
 const DISABLED = "#cccccc";
 
-const highlight = HighlightStyle.define([
-  {
-    // const x: _bool_ = true;
-    tag: t.typeName,
-    color: TYPE_BLUE,
-    fontStyle: "italic",
-  },
-  {
-    // _String_::new();
-    tag: t.namespace,
-    color: TYPE_BLUE,
-  },
-  {
-    // _println!_()
-    tag: t.macroName,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // _myFunction_()
-    tag: t.function(t.variableName),
-    color: FN_YELLOW,
-  },
-  {
-    // a._to_lowercase_()
-    tag: t.function(t.propertyName),
-    color: FN_YELLOW,
-  },
-  {
-    // const macro_rules struct union enum type fn impl trait let static
-    tag: t.definitionKeyword,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // mod use crate
-    tag: t.moduleKeyword,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // pub unsafe async mut extern default move
-    tag: t.modifier,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // for if else loop while match continue break return await
-    tag: t.controlKeyword,
-    color: CONDITIONAL_PURPLE,
-  },
-  {
-    // as in ref
-    tag: t.operatorKeyword,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    tag:
-      // where _ crate super dyn
-      t.keyword,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // self
-    tag: t.self,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // true
-    tag: t.bool,
-    color: KEYWORDS_BLUE,
-  },
-  {
-    // 5
-    tag: t.integer,
-    color: NUMBER_GREEN,
-  },
-  {
-    // 5.5
-    tag: t.literal,
-    color: NUMBER_GREEN,
-  },
-  {
-    // "" + b"" + r#""#
-    tag: t.string,
-    color: STRING_RED,
-  },
-  {
-    tag: t.character,
-    color: STRING_RED,
-  },
-  {
-    // &
-    tag: t.operator,
-    color: AMPERSAND_DARK_BLUE,
-  },
-  {
-    tag: t.derefOperator,
-    color: AMPERSAND_DARK_BLUE,
-  },
-  {
-    // Lifetime &_'a_
-    tag: t.special(t.variableName),
-    color: AMPERSAND_DARK_BLUE,
-  },
-  {
-    // Comment with //
-    tag: t.lineComment,
-    color: COMMENT,
-  },
-  {
-    // Comment with /* */
-    tag: t.blockComment,
-    color: COMMENT,
-  },
-]);
-
-export const LIGHT: Theme = {
+export const LIGHT: PgTheme = {
   name: "Light",
   isDark: false,
   colors: {
@@ -221,5 +105,38 @@ export const LIGHT: Theme = {
     color: "#e5e4e6",
     highlightColor: BG_LIGHT,
   },
-  highlight,
+  highlight: {
+    typeName: { color: TYPE_BLUE, fontStyle: "italic" },
+    variableName: { color: TEXT_PRIMARY },
+    namespace: { color: TYPE_BLUE },
+    macroName: { color: KEYWORDS_BLUE },
+    functionCall: { color: FN_YELLOW },
+    functionDef: { color: FN_YELLOW },
+    functionArg: { color: TEXT_PRIMARY },
+    definitionKeyword: { color: KEYWORDS_BLUE },
+    moduleKeyword: { color: KEYWORDS_BLUE },
+    modifier: { color: KEYWORDS_BLUE },
+    controlKeyword: { color: CONDITIONAL_PURPLE },
+    operatorKeyword: { color: KEYWORDS_BLUE },
+    keyword: { color: KEYWORDS_BLUE },
+    self: { color: KEYWORDS_BLUE },
+    bool: { color: KEYWORDS_BLUE },
+    integer: { color: NUMBER_GREEN },
+    literal: { color: NUMBER_GREEN },
+    string: { color: STRING_RED },
+    character: { color: STRING_RED },
+    operator: { color: AMPERSAND_DARK_BLUE },
+    derefOperator: { color: AMPERSAND_DARK_BLUE },
+    specialVariable: { color: AMPERSAND_DARK_BLUE },
+    lineComment: { color: COMMENT },
+    blockComment: { color: COMMENT },
+    meta: { color: GUTTER_BLUE },
+    invalid: { color: ERROR_RED },
+    constant: { color: TEXT_SECONDARY },
+    regexp: { color: STRING_RED },
+    tagName: { color: STRING_RED },
+    attributeName: { color: STRING_RED },
+    attributeValue: { color: STRING_RED },
+    annotion: { color: STRING_RED },
+  },
 };
