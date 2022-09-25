@@ -166,6 +166,7 @@ const Monaco = () => {
         automaticLayout: true,
         fontLigatures: true,
         bracketPairColorization: { enabled: true },
+        tabSize: 2,
       })
     );
   }, [editor, isThemeSet]);

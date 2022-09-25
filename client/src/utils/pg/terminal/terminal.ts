@@ -127,11 +127,12 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     text = text
       // Match for error
       .replace(
-        /\w*\serror(\[|:)/gim,
+        /\w*\s(\w*)error(\[|:)/gim,
         (match) =>
           this.error(match.substring(0, match.length - 1)) +
           match[match.length - 1]
       )
+
       // Match for warning
       .replace(/(\d\s)?warning(s|:)?/gim, (match) => {
         // warning:
@@ -145,6 +146,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
         // 1 warning, 2 warnings
         return this.warning(match);
       })
+
       // Match until ':' from the start of the line: e.g SUBCOMMANDS:
       // TODO: Highlight the text from WASM so we don't have to do this.
       .replace(/^(.*?:)/gm, (match) => {
@@ -160,8 +162,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
         return match;
       })
+
       // Secondary text color for (...)
       .replace(/\(\d+\w+\)/gm, (match) => this.secondaryText(match))
+
       // Numbers
       .replace(/^\s*\d+$/, (match) => {
         return this.secondary(match);
