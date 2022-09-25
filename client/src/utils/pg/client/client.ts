@@ -56,6 +56,12 @@ export class PgClient {
       throw new Error("Tests are already running!");
     }
 
+    for (const blacklistedWord of _BLACKLISTED_WORDS) {
+      if (code.includes(blacklistedWord)) {
+        throw new Error(`'${blacklistedWord}' is not allowed`);
+      }
+    }
+
     if (!isTest) {
       this._isClientRunning = true;
     }
@@ -197,14 +203,8 @@ export class PgClient {
     const scriptEl = document.createElement("script");
     iframeDocument.head.appendChild(scriptEl);
 
-    for (const blacklistedWord of _BLACKLISTED_WORDS) {
-      if (code.includes(blacklistedWord)) {
-        throw new Error(`'${blacklistedWord}' is not allowed`);
-      }
-    }
-
     // Allow top-level async, also helps detecting when tests finish
-    code = `(async () => { try { await ${code} } catch (e) { console.log("Uncaught error:", e.message) } finally { ${endCode} }})()`;
+    code = `(async () => { try { await (async () => { ${code} })() } catch (e) { console.log("Uncaught error:", e.message) } finally { ${endCode} }})()`;
 
     // Transpile and inject the script to the iframe element
     scriptEl.textContent = transpile(code);
