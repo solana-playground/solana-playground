@@ -9,17 +9,16 @@ interface InputProps {
 
 const Input = styled.input<InputProps>`
   ${({ theme, fullWidth }) => css`
-    background-color: ${theme.colors.default.bgPrimary};
-    border: 1px solid ${theme.colors.default.borderColor};
-    color: ${theme.colors.default.textPrimary};
+    background-color: ${theme.colors.input?.bg};
+    border: 1px solid ${theme.colors.input?.borderColor};
+    color: ${theme.colors.input?.color};
     border-radius: ${theme.borderRadius};
     padding: 0.25rem 0.5rem;
     width: ${fullWidth && "100%"};
 
     &:focus,
     &:focus-visible {
-      outline: 1px solid
-        ${theme.colors.default.primary + theme.transparency?.medium};
+      outline: 1px solid ${theme.colors.input?.outlineColor};
     }
 
     &:disabled {

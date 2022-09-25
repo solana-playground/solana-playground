@@ -41,6 +41,6 @@ export const PG_TRANSITION: Transition = {
 
 export const PG_TRANSPARENCY: Transparency = {
   low: "16",
-  medium: "64",
+  medium: "56",
   high: "99",
 };

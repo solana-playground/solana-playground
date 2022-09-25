@@ -25,8 +25,6 @@ const ERROR_RED = "#ff5555";
 const TEXT_PRIMARY = "#333333";
 const TEXT_SECONDARY = "#555555";
 
-const BORDER_COLOR = "#eeeeee";
-
 // State
 const COMMENT = "#238000";
 const SELECTION = "#e5ebf1";
@@ -198,9 +196,6 @@ export const LIGHT: Theme = {
       gutter: {
         color: GUTTER_BLUE,
         activeColor: TEXT_PRIMARY,
-      },
-      activeLine: {
-        borderColor: BORDER_COLOR,
       },
     },
     iconButton: {

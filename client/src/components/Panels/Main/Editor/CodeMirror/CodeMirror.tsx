@@ -37,24 +37,17 @@ const CodeMirror = () => {
           // Editor
           "&": {
             height: "100%",
-            backgroundColor:
-              theme.colors.editor?.bg ?? theme.colors.default.bgPrimary,
-            color:
-              theme.colors.editor?.color ?? theme.colors.default.textPrimary,
+            backgroundColor: theme.colors.editor?.bg!,
+            color: theme.colors.editor?.color!,
           },
           // Cursor
           "& .cm-cursor": {
-            borderLeft:
-              "2px solid " +
-              (theme.colors.editor?.cursor?.color ??
-                theme.colors.default.textSecondary),
+            borderLeft: "2px solid " + theme.colors.editor?.cursorColor!,
           },
           // Gutters
           "& .cm-gutters": {
-            backgroundColor: theme.colors.editor?.gutter?.bg ?? "inherit",
-            color:
-              theme.colors.editor?.gutter?.color ??
-              theme.colors.default.textSecondary,
+            backgroundColor: theme.colors.editor?.gutter?.bg!,
+            color: theme.colors.editor?.gutter?.color!,
             borderRight: "none",
           },
           "& .cm-activeLineGutter": {
@@ -74,31 +67,24 @@ const CodeMirror = () => {
             border: "1.5px solid transparent",
           },
           "& .cm-activeLine": {
-            backgroundColor: theme.colors.editor?.activeLine?.bg ?? "inherit",
-            borderColor:
-              theme.colors.editor?.activeLine?.borderColor ?? "transparent",
+            backgroundColor: theme.colors.editor?.activeLine?.bg!,
+            borderColor: theme.colors.editor?.activeLine?.borderColor!,
             borderRightColor: "transparent",
             borderLeftColor: "transparent",
           },
           // Selection
           "& .cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
-            backgroundColor:
-              theme.colors.editor?.selection?.bg ??
-              theme.colors.default.primary + theme.transparency?.medium,
-            color: theme.colors.editor?.selection?.color ?? "inherit",
+            backgroundColor: theme.colors.editor?.selection?.bg!,
+            color: theme.colors.editor?.selection?.color!,
           },
           "& .cm-selectionMatch": {
-            backgroundColor:
-              theme.colors.editor?.selection?.bg ??
-              theme.colors.default.textPrimary + theme.transparency?.medium,
-            color: theme.colors.editor?.selection?.color ?? "inherit",
+            backgroundColor: theme.colors.editor?.selection?.bg!,
+            color: theme.colors.editor?.selection?.color!,
           },
           // Tooltip
           ".cm-tooltip": {
-            backgroundColor:
-              theme.colors.editor?.tooltip?.bg ??
-              theme.colors.default.bgPrimary,
-            color: theme.colors.default.textPrimary,
+            backgroundColor: theme.colors.editor?.tooltip?.bg!,
+            color: theme.colors.editor?.tooltip?.color!,
             border: "1px solid " + theme.colors.default.borderColor,
           },
           ".cm-tooltip-autocomplete": {
@@ -108,8 +94,8 @@ const CodeMirror = () => {
               },
 
               "& > li[aria-selected]": {
-                backgroundColor:
-                  theme.colors.default.primary + theme.transparency?.medium,
+                backgroundColor: theme.colors.editor?.tooltip?.selectedBg!,
+                color: theme.colors?.editor?.tooltip?.selectedColor!,
               },
             },
           },
@@ -127,20 +113,18 @@ const CodeMirror = () => {
           },
           // Search
           ".cm-searchMatch": {
-            backgroundColor:
-              theme.colors.editor?.searchMatch?.bg ??
-              theme.colors.default.textSecondary + theme.transparency?.medium,
-            color: theme.colors?.editor?.searchMatch?.color ?? "inherit",
+            backgroundColor: theme.colors.editor?.searchMatch?.bg!,
+            color: theme.colors?.editor?.searchMatch?.color!,
           },
           ".cm-searchMatch-selected": {
             backgroundColor:
               theme.colors.editor?.searchMatch?.selectedBg ??
               theme.colors.default.primary + theme.transparency?.medium,
-            color: theme.colors?.editor?.searchMatch?.color ?? "inherit",
+            color: theme.colors?.editor?.searchMatch?.color!,
           },
           // Search popup
           ".cm-panel.cm-search": {
-            backgroundColor: theme.colors.default.bgSecondary ?? "inherit",
+            backgroundColor: theme.colors.default.bgSecondary,
 
             "& input, & button, & label": {
               margin: ".2em .6em .2em 0",

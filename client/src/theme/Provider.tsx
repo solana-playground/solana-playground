@@ -39,17 +39,89 @@ const MutThemeProvider: FC = ({ children }) => {
   const _font = FONTS.find((f) => f.family === fontFamily) ?? FONTS[0];
 
   /// Set defaults
+  // Transparency
+  if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
+
+  // Border radius
+  if (!_theme.borderRadius) _theme.borderRadius = PG_BORDER_RADIUS;
+
+  // Box shadow
+  if (!_theme.boxShadow) _theme.boxShadow = PG_BOX_SHADOW;
+
+  // Input
+  if (!_theme.colors.input) _theme.colors.input = {};
+  if (!_theme.colors.input.bg)
+    _theme.colors.input.bg = _theme.colors.default.bgPrimary;
+  if (!_theme.colors.input.borderColor)
+    _theme.colors.input.borderColor = _theme.colors.default.borderColor;
+  if (!_theme.colors.input.color)
+    _theme.colors.input.color = _theme.colors.default.textPrimary;
+  if (!_theme.colors.input.outlineColor)
+    _theme.colors.input.outlineColor =
+      _theme.colors.default.primary + _theme.transparency!.medium;
+
   // Right sidebar
+  if (!_theme.colors.right) _theme.colors.right = {};
   if (!_theme.colors.right?.bg)
-    _theme.colors.right = {
-      ..._theme.colors.right,
-      bg: _theme.colors.default.bgSecondary,
-    };
+    _theme.colors.right.bg = _theme.colors.default.bgSecondary;
   if (!_theme.colors.right?.otherBg)
-    _theme.colors.right = {
-      ..._theme.colors.right,
-      otherBg: _theme.colors.default.bgPrimary,
-    };
+    _theme.colors.right.otherBg = _theme.colors.default.bgPrimary;
+
+  // Editor
+  if (!_theme.colors.editor) _theme.colors.editor = {};
+  if (!_theme.colors.editor.bg)
+    _theme.colors.editor.bg = _theme.colors.default.bgPrimary;
+  if (!_theme.colors.editor.color)
+    _theme.colors.editor.color = _theme.colors.default.textPrimary;
+  if (!_theme.colors.editor.cursorColor)
+    _theme.colors.editor.cursorColor = _theme.colors.default.textSecondary;
+
+  // Active line
+  if (!_theme.colors.editor.activeLine) _theme.colors.editor.activeLine = {};
+  if (!_theme.colors.editor.activeLine.bg)
+    _theme.colors.editor.activeLine.bg = "inherit";
+  if (!_theme.colors.editor.activeLine.borderColor)
+    _theme.colors.editor.activeLine.borderColor =
+      _theme.colors.default.borderColor;
+
+  // Selection
+  if (!_theme.colors.editor?.selection) _theme.colors.editor.selection = {};
+  if (!_theme.colors.editor.selection.bg)
+    _theme.colors.editor.selection.bg =
+      _theme.colors.default.primary + _theme.transparency!.medium;
+  if (!_theme.colors.editor.selection.color)
+    _theme.colors.editor.selection.color = "inherit";
+
+  // Search match
+  if (!_theme.colors.editor?.searchMatch) _theme.colors.editor.searchMatch = {};
+  if (!_theme.colors.editor.searchMatch.bg)
+    _theme.colors.editor.searchMatch.bg =
+      _theme.colors.default.textSecondary + _theme.transparency!.medium;
+  if (!_theme.colors.editor.searchMatch.color)
+    _theme.colors.editor.searchMatch.color = "inherit";
+  if (!_theme.colors.editor.searchMatch.selectedBg)
+    _theme.colors.editor.searchMatch.selectedBg = "inherit";
+  if (!_theme.colors.editor.searchMatch.selectedColor)
+    _theme.colors.editor.searchMatch.selectedColor = "inherit";
+  // Gutter
+  if (!_theme.colors.editor?.gutter) _theme.colors.editor.gutter = {};
+  if (!_theme.colors.editor.gutter.bg)
+    _theme.colors.editor.gutter.bg = "inherit";
+  if (!_theme.colors.editor.gutter.color)
+    _theme.colors.editor.gutter.color = _theme.colors.default.textSecondary;
+
+  // Tooltip/dropdown
+  if (!_theme.colors.editor?.tooltip) _theme.colors.editor.tooltip = {};
+  if (!_theme.colors.editor.tooltip.bg)
+    _theme.colors.editor.tooltip.bg = _theme.colors.default.bgPrimary;
+  if (!_theme.colors.editor.tooltip.color)
+    _theme.colors.editor.tooltip.color = _theme.colors.default.textPrimary;
+  if (!_theme.colors.editor.tooltip.selectedBg)
+    _theme.colors.editor.tooltip.selectedBg =
+      _theme.colors.default.primary + _theme.transparency?.medium;
+  if (!_theme.colors.editor.tooltip.selectedColor)
+    _theme.colors.editor.tooltip.selectedColor =
+      _theme.colors.default.textPrimary;
 
   // Home
   if (!_theme.colors.home)
@@ -76,12 +148,6 @@ const MutThemeProvider: FC = ({ children }) => {
       color: _theme.colors.default.textPrimary,
     };
 
-  // Border radius
-  if (!_theme.borderRadius) _theme.borderRadius = PG_BORDER_RADIUS;
-
-  // Box shadow
-  if (!_theme.boxShadow) _theme.boxShadow = PG_BOX_SHADOW;
-
   // Scrollbar
   if (!_theme.scrollbar) {
     if (_theme.isDark) _theme.scrollbar = PG_SCROLLBAR.dark;
@@ -93,9 +159,6 @@ const MutThemeProvider: FC = ({ children }) => {
 
   // Transition
   if (!_theme.transition) _theme.transition = PG_TRANSITION;
-
-  // Transparency
-  if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
 
   const [theme, setTheme] = useState(_theme);
   const [font, setFont] = useState(_font);

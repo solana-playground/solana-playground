@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
+import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
@@ -18,6 +19,7 @@ const Monaco = () => {
   const [explorerChanged] = useAtom(refreshExplorerAtom);
 
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
+  const [isThemeSet, setIsThemeSet] = useState(false);
 
   const monacoRef = useRef<HTMLDivElement>(null);
 
@@ -41,16 +43,94 @@ const Monaco = () => {
     });
   }, []);
 
+  const theme = useTheme();
+
+  // Set theme
   useEffect(() => {
-    if (editor || !monacoRef.current) return;
+    if (theme.isDark) {
+      // Monaco only takes hex values
+      const orTransparent = (v: string) => {
+        return v === "transparent" || v === "inherit" ? "#00000000" : v;
+      };
+
+      const editorColors = theme.colors.editor!;
+      const inputColors = theme.colors.input!;
+
+      monaco.editor.defineTheme(theme.name, {
+        base: "vs-dark",
+        inherit: true,
+        rules: [],
+        colors: {
+          // Editor
+          "editor.foreground": editorColors.color!,
+          "editor.background": editorColors.bg!,
+          "editorCursor.foreground": editorColors.cursorColor!,
+          "editor.lineHighlightBackground": orTransparent(
+            editorColors.activeLine?.bg!
+          ),
+          "editor.lineHighlightBorder": orTransparent(
+            editorColors.activeLine?.borderColor!
+          ),
+          "editor.selectionBackground": editorColors.selection?.bg!,
+          "editor.inactiveSelectionBackground": editorColors.searchMatch?.bg!,
+          "editorGutter.background": orTransparent(editorColors.gutter?.bg!),
+          "editorLineNumber.foreground": editorColors.gutter?.color!,
+          "editorError.foreground": theme.colors.state.error.color!,
+          "editorWarning.foreground": theme.colors.state.warning.color!,
+
+          // Dropdown
+          "dropdown.background": editorColors.tooltip?.bg!,
+          "dropdown.foreground": editorColors.tooltip?.color!,
+
+          // Widget
+          "editorWidget.background": editorColors.tooltip?.bg!,
+          "editorHoverWidget.background": editorColors.tooltip?.bg!,
+          "editorHoverWidget.border": theme.colors.default.borderColor,
+
+          // List
+          "list.hoverBackground": theme.colors.state.hover.bg!,
+          "list.activeSelectionBackground": editorColors.tooltip?.selectedBg!,
+          "list.activeSelectionForeground":
+            editorColors.tooltip?.selectedColor!,
+          "list.inactiveSelectionBackground": editorColors.tooltip?.bg!,
+          "list.inactiveSelectionForeground": editorColors.tooltip?.color!,
+
+          // Input
+          "input.background": inputColors.bg!,
+          "input.foreground": inputColors.color!,
+          "input.border": inputColors.borderColor!,
+          "inputOption.activeBorder": inputColors.outlineColor!,
+
+          // General
+          foreground: theme.colors.default.textPrimary,
+          errorForeground: theme.colors.state.error.color!,
+          descriptionForeground: theme.colors.default.textSecondary,
+          focusBorder: theme.colors.default.primary + theme.transparency?.high!,
+        },
+      });
+      monaco.editor.setTheme(theme.name);
+    } else {
+      monaco.editor.setTheme("vs");
+    }
+
+    setIsThemeSet(true);
+  }, [theme]);
+
+  // Set font
+  useEffect(() => {
+    if (editor) editor.updateOptions({ fontFamily: theme.font?.family });
+  }, [editor, theme]);
+
+  useEffect(() => {
+    if (editor || !isThemeSet || !monacoRef.current) return;
 
     setEditor(
       monaco.editor.create(monacoRef.current, {
-        theme: "vs-dark",
         automaticLayout: true,
+        fontLigatures: true,
       })
     );
-  }, [editor]);
+  }, [editor, isThemeSet]);
 
   // Set editor state
   useEffect(() => {

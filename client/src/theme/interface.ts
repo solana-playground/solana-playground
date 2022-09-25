@@ -69,10 +69,53 @@ export default interface Theme {
       info: BgAndColor;
     };
 
+    // Bottom bar
+    bottom?: BgAndColor; // primary, textPrimary
+
+    // Contrast
     contrast?: {
       color: string;
       primary?: boolean;
       secondary?: boolean;
+    };
+
+    // Editor
+    editor?: BgAndColor & {
+      cursorColor?: string; // textSecondary
+      selection?: BgAndColor;
+      comment?: BgAndColor;
+      searchMatch?: BgAndColor & {
+        selectedBg?: string;
+        selectedColor?: string;
+      };
+      activeLine?: BgAndColor & {
+        borderColor?: string;
+      };
+      gutter?: BgAndColor & {
+        activeBg?: string;
+        activeColor?: string;
+      };
+      tooltip?: BgAndColor & {
+        selectedBg?: string;
+        selectedColor?: string;
+      };
+    };
+
+    // Home screen
+    home?: BgAndColor & {
+      card?: BgAndColor;
+    };
+
+    // Left sidebar IconButton
+    iconButton?: BgAndColor & {
+      selectedBg?: string;
+      selectedBorderColor?: string;
+    };
+
+    // Input
+    input?: BgAndColor & {
+      borderColor?: string;
+      outlineColor?: string;
     };
 
     // Icon panel
@@ -84,64 +127,13 @@ export default interface Theme {
     // Terminal
     terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
 
-    // Editor
-    editor?: {
-      bg?: string; // bgPrimary
-      color?: string; // textPrimary
-      cursor?: {
-        color: string; // textSecondary
-      };
-      selection?: BgAndColor;
-      comment?: BgAndColor;
-      searchMatch?: {
-        bg?: string;
-        color?: string;
-        selectedBg?: string;
-        selectedColor?: string;
-      };
-      activeLine?: {
-        bg?: string;
-        color?: string;
-        borderColor?: string;
-      };
-      gutter?: {
-        bg?: string;
-        color?: string;
-        activeBg?: string;
-        activeColor?: string;
-      };
-      tooltip?: {
-        bg?: string;
-        color?: string;
-        selectedBg?: string;
-        selectedColor?: string;
-      };
-    };
-
-    // Bottom bar
-    bottom?: BgAndColor; // primary, textPrimary
-
-    // Left sidebar IconButton
-    iconButton?: {
-      bg?: string;
-      color?: string;
-      selectedBg?: string;
-      selectedBorderColor?: string;
-    };
-
-    tooltip?: BgAndColor;
-
+    // Notification toast
     toast?: BgAndColor;
 
-    home?: {
-      bg?: string; // bgPrimary
-      color?: string; // textPrimary
-      card?: {
-        bg?: string; // bgSecondary
-        color?: string; // textSecondary
-      };
-    };
+    // General tooltip
+    tooltip?: BgAndColor;
   };
+
   borderRadius?: string;
   boxShadow?: string;
   font?: Font;
