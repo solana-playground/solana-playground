@@ -23,6 +23,7 @@ const Monaco = () => {
 
   const monacoRef = useRef<HTMLDivElement>(null);
 
+  // Set default options
   useEffect(() => {
     // Compiler options
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -44,6 +45,21 @@ const Monaco = () => {
       ],
     });
   }, []);
+
+  // Set declarations
+  useEffect(() => {
+    if (!explorer) return;
+
+    (async () => {
+      const { setDeclarations } = await import("./declarations");
+      setDeclarations(
+        explorer.isCurrentFileJavascriptTest() ||
+          explorer.isCurrentFileTypescriptTest()
+      );
+    })();
+
+    // eslint-disable-next line react-hooks/exhausive-deps
+  }, [explorer, explorerChanged]);
 
   const theme = useTheme();
 
@@ -164,8 +180,9 @@ const Monaco = () => {
     setEditor(
       monaco.editor.create(monacoRef.current, {
         automaticLayout: true,
-        fontLigatures: true,
+        // FIXME: Coloring is not working
         bracketPairColorization: { enabled: true },
+        fontLigatures: true,
         tabSize: 2,
       })
     );
@@ -188,10 +205,19 @@ const Monaco = () => {
     if (newEl) PgExplorer.setSelectedEl(newEl);
 
     // Set editor value
-    editor.setValue(curFile.content!);
+    // editor.setValue(curFile.content!);
+    let model = monaco.editor.getModel(
+      monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
+    );
+    if (!model) {
+      model = monaco.editor.createModel(
+        curFile.content!,
+        "typescript",
+        monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
+      );
+    }
 
-    const model = editor.getModel();
-    if (!model) return;
+    editor.setModel(model);
 
     // Set language
     switch (explorer.getCurrentFileLanguage()) {

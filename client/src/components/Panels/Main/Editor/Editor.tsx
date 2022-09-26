@@ -27,8 +27,7 @@ const Editor = () => {
         setShowHome(false);
 
         setShowMonaco(
-          explorer.isCurrentFileJavascript() ||
-            explorer.isCurrentFileTypescript()
+          !(explorer.isCurrentFileRust() || explorer.isCurrentFilePython())
         );
       }
 

@@ -1009,6 +1009,20 @@ export class PgExplorer {
   }
 
   /**
+   * @returns whether the current file in the state is a Javascript test file
+   */
+  isCurrentFileJavascriptTest() {
+    return this.getCurrentFileLanguage() === Lang.JAVASCRIPT_TEST;
+  }
+
+  /**
+   * @returns whether the current file in the state is a Typescript test file
+   */
+  isCurrentFileTypescriptTest() {
+    return this.getCurrentFileLanguage() === Lang.TYPESCRIPT_TEST;
+  }
+
+  /**
    * @returns whether the current workspace in the state is an Anchor program
    */
   isWorkspaceAnchor() {
@@ -1312,9 +1326,7 @@ export class PgExplorer {
     if (!path) return false;
     const lang = this.getLanguageFromPath(path);
     return (
-      !!path &&
-      path.includes(".test") &&
-      (lang === Lang.JAVASCRIPT || lang === Lang.TYPESCRIPT)
+      !!path && (lang === Lang.JAVASCRIPT_TEST || lang === Lang.TYPESCRIPT_TEST)
     );
   }
 

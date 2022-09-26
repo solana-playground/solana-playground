@@ -10,19 +10,29 @@ module.exports = {
         asyncWebAssembly: true,
       };
       webpackConfig.module.rules.forEach((rule) => {
-        (rule.oneOf || []).forEach((oneOf) => {
+        (rule.oneOf ?? []).forEach((oneOf) => {
           if (oneOf.type === "asset/resource") {
             // Including .cjs here solves `nanoid is not a function`
             oneOf.exclude.push(/\.wasm$/, /\.cjs$/);
+          } else if (new RegExp(oneOf.test).test(".d.ts")) {
+            // Exclude declaration files from being loaded by babel
+            oneOf.exclude = [/\.d\.ts$/];
           }
         });
       });
 
-      // Fix process error on @lezer/lr
-      webpackConfig.module.rules.push({
-        test: /@lezer\/lr\/dist\/\w+\.js$/,
-        resolve: { fullySpecified: false },
-      });
+      webpackConfig.module.rules.push(
+        // Fix process error on @lezer/lr
+        {
+          test: /@lezer\/lr\/dist\/\w+\.js$/,
+          resolve: { fullySpecified: false },
+        },
+        // Import typescript declaration files as raw
+        {
+          test: /\.d\.ts$/,
+          type: "asset/source",
+        }
+      );
 
       // Resolve node polyfills
       webpackConfig.resolve.fallback = {

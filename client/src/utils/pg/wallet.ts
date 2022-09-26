@@ -9,12 +9,6 @@ interface LsWallet {
   sk: Array<number>;
 }
 
-interface UpdateLsParams {
-  setupCompleted?: boolean;
-  connected?: boolean;
-  sk?: Array<number>;
-}
-
 const DEFAULT_LS_WALLET: LsWallet = {
   setupCompleted: false,
   connected: false,
@@ -76,7 +70,7 @@ export class PgWallet {
   /**
    * Update localStorage wallet
    */
-  static update(updateParams: UpdateLsParams) {
+  static update(updateParams: Partial<LsWallet>) {
     const lsWallet = this.getLs() ?? DEFAULT_LS_WALLET;
 
     if (updateParams.setupCompleted !== undefined)

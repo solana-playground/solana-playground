@@ -1,0 +1,1 @@
+export { setDeclarations } from "./declarations";

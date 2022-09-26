@@ -104,7 +104,7 @@ const ClientHelper = () => {
       );
     };
 
-    // eslint-disable-next line react-hooks/exhausive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explorer, explorerChanged, connection, wallet, getClient]);
 
   return <StyledIframe title="test" loading="lazy" />;

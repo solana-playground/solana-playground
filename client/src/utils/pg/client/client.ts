@@ -12,6 +12,13 @@ import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
 import { PgCommon } from "../common";
 
+interface Pg {
+  connection: web3.Connection;
+  wallet?: PgWallet | AnchorWallet;
+  PROGRAM_ID?: web3.PublicKey;
+  program?: anchor.Program;
+}
+
 export class PgClient {
   private _isClientRunning: boolean;
   private _IframeWindow?: Window;
@@ -77,11 +84,8 @@ export class PgClient {
         ["Keypair", web3.Keypair],
         ["PublicKey", web3.PublicKey],
         ["Connection", web3.Connection],
-
-        /// Inherited objects from playground
-        ["connection", connection],
-        ["wallet", wallet],
       ];
+      const pg: Pg = { connection };
 
       let endCode;
       if (isTest) {
@@ -131,16 +135,23 @@ export class PgClient {
         endCode = "_finish()";
       }
 
-      // Wallet
+      // Playground inherited
       if (wallet) {
-        globals.push(["wallet", wallet]);
+        pg.wallet = wallet;
 
         // Anchor IDL
         const idl = PgProgramInfo.getProgramInfo().idl;
         if (idl) {
-          globals.push(["program", PgTest.getProgram(idl, connection, wallet)]);
+          pg.program = PgTest.getProgram(idl, connection, wallet);
         }
       }
+      const PROGRAM_ID = PgProgramInfo.getPk().programPk;
+      if (PROGRAM_ID) {
+        pg.PROGRAM_ID = PROGRAM_ID;
+      }
+
+      // Set Playground inherited object
+      globals.push(["pg", pg]);
 
       // Setup iframe globals
       for (const args of globals) {
@@ -191,8 +202,8 @@ export class PgClient {
   readonly DEFAULT_CLIENT = [
     "client.ts",
     `// Client
-console.log("My address:", wallet.publicKey.toString());
-const balance = await connection.getBalance(wallet.publicKey);
+console.log("My address:", pg.wallet.publicKey.toString());
+const balance = await pg.connection.getBalance(pg.wallet.publicKey);
 console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);`,
   ];
 
@@ -201,18 +212,18 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);`,
     `describe("Test", () => {
   it("Airdrop", async () => {
     // Fetch my balance
-    const balance = await connection.getBalance(wallet.publicKey);
-    console.log(\`My balance is \${balance} lamports\`)
+    const balance = await pg.connection.getBalance(pg.wallet.publicKey);
+    console.log(\`My balance is \${balance} lamports\`);
 
     // Airdrop 1 SOL
     const airdropAmount = 1 * web3.LAMPORTS_PER_SOL;
-    const txHash = await connection.requestAirdrop(wallet.publicKey, airdropAmount);
+    const txHash = await pg.connection.requestAirdrop(pg.wallet.publicKey, airdropAmount);
 
     // Confirm transaction
-    await connection.confirmTransaction(txHash);
+    await pg.connection.confirmTransaction(txHash);
 
     // Fetch new balance
-    const newBalance = await connection.getBalance(wallet.publicKey);
+    const newBalance = await pg.connection.getBalance(pg.wallet.publicKey);
     console.log(\`New balance is \${newBalance} lamports\`);
 
     // Assert balances
