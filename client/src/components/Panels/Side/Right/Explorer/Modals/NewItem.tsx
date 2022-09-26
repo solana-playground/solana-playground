@@ -130,7 +130,7 @@ const Wrapper = styled.div<{ depth: number }>`
   display: flex;
   align-items: center;
   padding: 0.25rem 0;
-  padding-left: ${({ depth }) => depth + 0.25 + "rem"};
+  padding-left: ${({ depth }) => depth + "rem"};
 
   & > input {
     margin-left: 0.375rem;

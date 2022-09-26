@@ -1272,7 +1272,14 @@ export class PgExplorer {
       return null;
     }
 
-    const langExtension = splitByDot[splitByDot.length - 1];
+    let langExtension;
+    if (splitByDot.length === 2) {
+      langExtension = splitByDot[splitByDot.length - 1];
+    } else {
+      langExtension =
+        splitByDot[splitByDot.length - 2] + splitByDot[splitByDot.length - 1];
+    }
+
     switch (langExtension) {
       case "rs":
         return Lang.RUST;
@@ -1282,6 +1289,10 @@ export class PgExplorer {
         return Lang.JAVASCRIPT;
       case "ts":
         return Lang.TYPESCRIPT;
+      case "testjs":
+        return Lang.JAVASCRIPT_TEST;
+      case "testts":
+        return Lang.TYPESCRIPT_TEST;
     }
   }
 

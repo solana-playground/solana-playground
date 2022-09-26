@@ -15,10 +15,14 @@ const LangIcon: FC<LangIconProps> = ({ fileName }) => {
         return <Rust />;
       case Lang.PYTHON:
         return <Python />;
-      case Lang.TYPESCRIPT:
-        return <TypeScript />;
       case Lang.JAVASCRIPT:
         return <JavaScript />;
+      case Lang.TYPESCRIPT:
+        return <TypeScript />;
+      case Lang.JAVASCRIPT_TEST:
+        return <JavaScript isTest />;
+      case Lang.TYPESCRIPT_TEST:
+        return <TypeScript isTest />;
       default:
         return <QuestionMark />;
     }
@@ -28,8 +32,6 @@ const LangIcon: FC<LangIconProps> = ({ fileName }) => {
 };
 
 const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
   width: 1rem;
   height: 1rem;
 
