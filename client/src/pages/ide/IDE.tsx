@@ -18,6 +18,10 @@ const Wrapper = styled.div`
     font-family: ${theme.font?.family};
     font-size: ${theme.font?.size.medium};
 
+    & svg {
+      color: ${theme.colors.default.textSecondary};
+    }
+
     & ::selection {
       background-color: ${theme.colors.default.primary +
       theme.transparency?.medium};

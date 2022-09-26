@@ -2,8 +2,8 @@ import { FC, MouseEvent, useCallback, useRef } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import LangIcon from "../../../LangIcon";
 import Button from "../../../Button";
+import LangIcon from "../../../LangIcon";
 import { Close } from "../../../Icons";
 import { PgExplorer } from "../../../../utils/pg";
 import { explorerAtom } from "../../../../state";
@@ -62,6 +62,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
   ${({ theme, current }) => css`
     width: fit-content;
     height: 100%;
+    padding-left: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -79,10 +80,6 @@ const Wrapper = styled.div<{ current?: boolean }>`
 
     &:hover {
       cursor: pointer;
-    }
-
-    & img {
-      margin-left: 0.5rem;
     }
 
     & button {
