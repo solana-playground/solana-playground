@@ -3,6 +3,8 @@ import * as assert from "assert";
 import * as mocha from "mocha";
 import * as util from "util";
 import * as web3 from "@solana/web3.js";
+import * as borsh from "borsh";
+import * as BufferLayout from "@solana/buffer-layout";
 import * as anchor from "@project-serum/anchor";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
@@ -12,6 +14,9 @@ import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
 import { PgCommon } from "../common";
 
+/**
+ * Utilities to be available under the `pg` namespace
+ */
 interface Pg {
   connection: web3.Connection;
   wallet?: PgWallet | AnchorWallet;
@@ -74,8 +79,10 @@ export class PgClient {
         /// Modules
         ["assert", assert],
         ["web3", web3],
-        ["anchor", anchor],
         ["BN", anchor.BN],
+        ["borsh", borsh],
+        ["BufferLayout", BufferLayout],
+        ["anchor", anchor],
 
         /// Functions
         ["sleep", PgCommon.sleep],

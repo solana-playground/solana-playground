@@ -20,6 +20,8 @@ const Wrapper = styled.div`
 
     & svg {
       color: ${theme.colors.default.textSecondary};
+      transition: color ${theme.transition?.duration.short}
+        ${theme.transition?.type};
     }
 
     & ::selection {

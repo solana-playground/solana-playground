@@ -201,6 +201,10 @@ const getButtonStyles = ({
       &:hover {
         color: ${theme.colors.default.textPrimary};
         background-color: ${theme.colors.state.hover.bg};
+
+        & svg {
+          color: ${theme.colors.default.textPrimary};
+        }
       }
 
       & > span:not(.btn-spinner) {

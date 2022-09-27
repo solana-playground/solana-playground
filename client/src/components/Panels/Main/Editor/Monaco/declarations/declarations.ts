@@ -4,7 +4,7 @@ import { PgProgramInfo, PgWallet } from "../../../../../../utils/pg";
 
 interface DeclarationState {
   disposables: monaco.IDisposable[];
-  isDeclarationsSet?: boolean;
+  isDefaultsSet?: boolean;
   isTest?: boolean;
 }
 
@@ -56,7 +56,7 @@ export const setDeclarations = (isTest?: boolean) => {
 
   /* -------------------------- End disposable types -------------------------- */
 
-  if (declarationState.isDeclarationsSet) return;
+  if (declarationState.isDefaultsSet) return;
 
   /* -------------------------- Begin types -------------------------- */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -77,7 +77,12 @@ export const setDeclarations = (isTest?: boolean) => {
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     declare("borsh", require("borsh/lib/index.d.ts"))
   );
-
+  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    declare(
+      "@solana/buffer-layout",
+      require("@solana/buffer-layout/lib/Layout.d.ts")
+    )
+  );
   /* -------------------------- End types -------------------------- */
 
   /* -------------------------- Begin namespaces -------------------------- */
@@ -101,6 +106,10 @@ export const setDeclarations = (isTest?: boolean) => {
     require("./borsh-ns.raw.d.ts"),
     "borsh-ns.raw.d.ts"
   );
+  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    require("./buffer-layout-ns.raw.d.ts"),
+    "buffer-layout-ns.raw.d.ts"
+  );
   /* -------------------------- End namespaces -------------------------- */
 
   // Globals
@@ -108,7 +117,7 @@ export const setDeclarations = (isTest?: boolean) => {
     require("./globals.raw.d.ts")
   );
 
-  declarationState.isDeclarationsSet = true;
+  declarationState.isDefaultsSet = true;
 };
 
 const declare = (moduleName: string, module: string) => {
