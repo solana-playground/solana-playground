@@ -1,6 +1,5 @@
 declare module "solana-playground" {
   import * as web3 from "@solana/web3.js";
-
   interface PgWallet {
     publicKey: web3.PublicKey;
     signTransaction: (tx: web3.Transaction) => Promise<web3.Transaction>;

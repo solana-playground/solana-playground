@@ -35,6 +35,8 @@ const Monaco = () => {
 
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       lib: ["es2015"],
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      target: monaco.languages.typescript.ScriptTarget.ES2017,
       allowNonTsExtensions: true,
     });
 

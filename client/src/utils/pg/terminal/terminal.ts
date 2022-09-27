@@ -395,7 +395,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
           .replace(/\d+\sfailing/, (match) => PgTerminal.error(match))
           // Don't show the stack trace because it shows the transpiled code
           // TODO: show where the error actually happened in user code
-          .replace(/\s*at.*$/gm, "");
+          .replace(/\s+at.*$/gm, "");
 
         PgTerminal.logWasm(editedMessage);
       }
