@@ -15,7 +15,11 @@ const removeDisposable = (i: number) => {
   );
 };
 
-export const setDeclarations = (isTest?: boolean) => {
+interface SetDeclarationsProps {
+  isTest: boolean;
+}
+
+export const setDeclarations = ({ isTest }: SetDeclarationsProps) => {
   /* -------------------------- Begin disposable types -------------------------- */
   // Remove the old disposables
   let i = 0;

@@ -54,10 +54,7 @@ const Monaco = () => {
 
     (async () => {
       const { setDeclarations } = await import("./declarations");
-      setDeclarations(
-        explorer.isCurrentFileJavascriptTest() ||
-          explorer.isCurrentFileTypescriptTest()
-      );
+      setDeclarations({ isTest: explorer.isCurrentFileJsLikeTest() });
     })();
 
     // eslint-disable-next line react-hooks/exhausive-deps
@@ -390,11 +387,9 @@ const Monaco = () => {
           };
         }
 
+        const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
         let formatJSTS;
-        const isCurrentFileJSTS =
-          explorer.isCurrentFileTypescript() ||
-          explorer.isCurrentFileJavascript();
-        if (isCurrentFileJSTS) {
+        if (isCurrentFileJsLike) {
           formatJSTS = async () => {
             const currentContent = editor.getValue();
 
@@ -443,7 +438,7 @@ const Monaco = () => {
         if (!e.detail) {
           if (isCurrentFileRust) {
             formatRust && (await formatRust());
-          } else if (isCurrentFileJSTS) {
+          } else if (isCurrentFileJsLike) {
             formatJSTS && (await formatJSTS());
           }
 
@@ -465,7 +460,7 @@ const Monaco = () => {
           }
 
           case Lang.TYPESCRIPT: {
-            if (!isCurrentFileJSTS) {
+            if (!isCurrentFileJsLike) {
               PgTerminal.logWasm(
                 PgTerminal.warning("Current file is not a JS/TS file.")
               );

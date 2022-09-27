@@ -995,31 +995,31 @@ export class PgExplorer {
   }
 
   /**
-   * @returns whether the current file in the state is a Javascript file
+   * @returns whether the current file in the state is a Typescript test file
    */
-  isCurrentFileJavascript() {
-    return this.getCurrentFileLanguage() === Lang.JAVASCRIPT;
-  }
-
-  /**
-   * @returns whether the current file in the state is a Typescript file
-   */
-  isCurrentFileTypescript() {
-    return this.getCurrentFileLanguage() === Lang.TYPESCRIPT;
-  }
-
-  /**
-   * @returns whether the current file in the state is a Javascript test file
-   */
-  isCurrentFileJavascriptTest() {
-    return this.getCurrentFileLanguage() === Lang.JAVASCRIPT_TEST;
+  isCurrentFileJsLike() {
+    switch (this.getCurrentFileLanguage()) {
+      case Lang.JAVASCRIPT:
+      case Lang.TYPESCRIPT:
+      case Lang.JAVASCRIPT_TEST:
+      case Lang.TYPESCRIPT_TEST:
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**
    * @returns whether the current file in the state is a Typescript test file
    */
-  isCurrentFileTypescriptTest() {
-    return this.getCurrentFileLanguage() === Lang.TYPESCRIPT_TEST;
+  isCurrentFileJsLikeTest() {
+    switch (this.getCurrentFileLanguage()) {
+      case Lang.JAVASCRIPT_TEST:
+      case Lang.TYPESCRIPT_TEST:
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**

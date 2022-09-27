@@ -415,11 +415,9 @@ const CodeMirror = () => {
           };
         }
 
+        const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
         let formatJSTS;
-        const isCurrentFileJSTS =
-          explorer.isCurrentFileTypescript() ||
-          explorer.isCurrentFileJavascript();
-        if (isCurrentFileJSTS) {
+        if (isCurrentFileJsLike) {
           formatJSTS = async () => {
             const { formatWithCursor } = await import("prettier/standalone");
             const { default: parserTypescript } = await import(
@@ -454,7 +452,7 @@ const CodeMirror = () => {
         if (!e.detail) {
           if (isCurrentFileRust) {
             formatRust && (await formatRust());
-          } else if (isCurrentFileJSTS) {
+          } else if (isCurrentFileJsLike) {
             formatJSTS && (await formatJSTS());
           }
 
@@ -476,7 +474,7 @@ const CodeMirror = () => {
           }
 
           case Lang.TYPESCRIPT: {
-            if (!isCurrentFileJSTS) {
+            if (!isCurrentFileJsLike) {
               PgTerminal.logWasm(
                 PgTerminal.warning("Current file is not a JS/TS file.")
               );
