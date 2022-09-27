@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor";
 
-import { PgProgramInfo, PgWallet } from "../../../../../../utils/pg";
+import { PgProgramInfo } from "../../../../../../utils/pg";
 
 interface DeclarationState {
   disposables: monaco.IDisposable[];
@@ -28,11 +28,9 @@ export const setDeclarations = (isTest?: boolean) => {
   // Playground
   const anchorIdl = PgProgramInfo.getProgramInfo().idl;
   const programPk = PgProgramInfo.getPk().programPk;
-  const walletConnected = PgWallet.getLs()?.connected;
   declarationState.disposables.push(
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       (require("./pg.raw.d.ts") as string)
-        .replace("// _wallet_", walletConnected ? "const wallet: PgWallet" : "")
         .replace(
           "// _programId_",
           programPk ? "const PROGRAM_ID: web3.PublicKey;" : ""

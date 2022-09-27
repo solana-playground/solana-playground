@@ -204,19 +204,12 @@ const Monaco = () => {
     const newEl = PgExplorer.getElFromPath(curFile.path);
     if (newEl) PgExplorer.setSelectedEl(newEl);
 
-    // Set editor value
-    // editor.setValue(curFile.content!);
-    let model = monaco.editor.getModel(
+    // Set editor model
+    const model = monaco.editor.createModel(
+      curFile.content!,
+      "typescript",
       monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
     );
-    if (!model) {
-      model = monaco.editor.createModel(
-        curFile.content!,
-        "typescript",
-        monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
-      );
-    }
-
     editor.setModel(model);
 
     // Set language
@@ -254,7 +247,10 @@ const Monaco = () => {
       );
     }, 1000);
 
-    return () => clearInterval(topLineIntervalId);
+    return () => {
+      clearInterval(topLineIntervalId);
+      model?.dispose();
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, explorer, explorerChanged]);

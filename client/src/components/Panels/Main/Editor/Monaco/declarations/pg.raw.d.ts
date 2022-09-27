@@ -12,8 +12,11 @@ declare module "solana-playground" {
   /** Same connection that's being used in playground */
   const connection: web3.Connection;
 
-  /** Playground wallet */
-  // _wallet_
+  /** Playground wallet.
+   *
+   * NOTE: Make sure you are connected before you run.
+   */
+  const wallet: PgWallet;
 
   /** Your program public key from playground */
   // _programId_
