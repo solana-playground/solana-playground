@@ -1,9 +1,10 @@
 import { ScriptTarget, transpile } from "typescript";
+import { Buffer } from "buffer";
 import * as assert from "assert";
 import * as mocha from "mocha";
 import * as util from "util";
-import * as web3 from "@solana/web3.js";
 import * as borsh from "borsh";
+import * as web3 from "@solana/web3.js";
 import * as BufferLayout from "@solana/buffer-layout";
 import * as anchor from "@project-serum/anchor";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
@@ -78,6 +79,7 @@ export class PgClient {
       const globals: [string, object][] = [
         /// Modules
         ["assert", assert],
+        ["Buffer", Buffer],
         ["web3", web3],
         ["BN", anchor.BN],
         ["borsh", borsh],

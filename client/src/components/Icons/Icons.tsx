@@ -351,8 +351,8 @@ export const Python = (props: IconProps) => {
           gradientTransform="translate(25243.061 38519.17) scale(189.38 189.81)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stop-color="#387eb8" />
-          <stop offset="1" stop-color="#366994" />
+          <stop offset="0" stopColor="#387eb8" />
+          <stop offset="1" stopColor="#366994" />
         </linearGradient>
         <linearGradient
           id="b"
@@ -363,8 +363,8 @@ export const Python = (props: IconProps) => {
           gradientTransform="translate(25309.061 38583.42) scale(189.38 189.81)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stop-color="#ffe052" />
-          <stop offset="1" stop-color="#ffc331" />
+          <stop offset="0" stopColor="#ffe052" />
+          <stop offset="1" stopColor="#ffc331" />
         </linearGradient>
       </defs>
       <path

@@ -91,6 +91,10 @@ const COMMANDS: Command[] = [
     description: "Format the current file with prettier",
   },
   {
+    name: PgCommand.RUN,
+    description: "Run all scripts in client directory",
+  },
+  {
     name: PgCommand.RUSTFMT,
     description: "Format the current file with rustfmt",
   },
@@ -100,6 +104,10 @@ const COMMANDS: Command[] = [
   },
   {
     name: PgCommand.SPL_TOKEN,
-    description: "Commands related to SPL Token",
+    description: "Commands for interacting with SPL Tokens",
+  },
+  {
+    name: PgCommand.TEST,
+    description: "Run all tests in tests directory",
   },
 ];

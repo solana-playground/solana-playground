@@ -1,11 +1,11 @@
 import * as monaco from "monaco-editor";
+import { Idl } from "@project-serum/anchor";
 
 import { PgProgramInfo } from "../../../../../../utils/pg";
 
 interface DeclarationState {
   disposables: monaco.IDisposable[];
   isDefaultsSet?: boolean;
-  isTest?: boolean;
 }
 
 const declarationState: DeclarationState = { disposables: [] };
@@ -41,20 +41,23 @@ export const setDeclarations = ({ isTest }: SetDeclarationsProps) => {
         )
         .replace(
           "// _program_",
-          idl ? `const program: anchor.Program<${JSON.stringify(idl)}>;` : ""
+          idl
+            ? `const program: anchor.Program<${JSON.stringify(
+                convertIdl(idl)
+              )}>;`
+            : ""
         )
     )
   );
 
   // Mocha
-  if (!declarationState.isTest && isTest) {
+  if (isTest) {
     declarationState.disposables.push(
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         require("@types/mocha/index.d.ts")
       )
     );
   }
-  declarationState.isTest = isTest;
 
   /* -------------------------- End disposable types -------------------------- */
 
@@ -731,6 +734,35 @@ export const setDeclarations = ({ isTest }: SetDeclarationsProps) => {
   declarationState.isDefaultsSet = true;
 };
 
+/**
+ * Some declaration files need to be declared for them to be referenced by other
+ * declaration files.
+ *
+ * @param moduleName module name to be referenced in declaration files
+ * @param module contents of the module
+ * @returns declared version  of the module with `moduleName`
+ */
 const declare = (moduleName: string, module: string) => {
   return `declare module "${moduleName}" { ${module} }`;
+};
+
+/**
+ * Convert Anchor IDL's account names into camelCase to be used accuretely for types
+ *
+ * @param idl Anchor IDL
+ * @returns converted Anchor IDL
+ */
+const convertIdl = (idl: Idl) => {
+  if (!idl.accounts) return idl;
+
+  let newIdl: Idl = { ...idl, accounts: [] };
+
+  for (const account of idl.accounts) {
+    newIdl.accounts!.push({
+      ...account,
+      name: account.name[0].toLowerCase() + account.name.substring(1),
+    });
+  }
+
+  return newIdl;
 };
