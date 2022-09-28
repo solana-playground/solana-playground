@@ -177,8 +177,18 @@ export class PgClient {
       const scriptEl = document.createElement("script");
       iframeDocument.head.appendChild(scriptEl);
 
-      // Allow top-level async, also helps detecting when tests finish
-      code = `(async () => { try { await (async () => {\n${code}\n})() } catch (e) { console.log("Uncaught error:", e.message) } finally { ${endCode} }})()`;
+      // Wrapping the code in a class blocks window access from `this`
+      // This approach:
+      // 1- Wraps the code in a class to block window access from `this`
+      // 2- Allows top-level async
+      // 3- Helps detecting when tests finish
+      code = `(async () => {
+  class __Pg { async __run() {\n${code}\n} }
+  const __pg = new __Pg();
+  try { await __pg.__run(); }
+  catch (e) { console.log("Uncaught error:", e.message) }
+  finally { ${endCode} }
+}()`;
 
       // Transpile and inject the script to the iframe element
       scriptEl.textContent = transpile(code, {
