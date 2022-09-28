@@ -17,7 +17,7 @@ import { explorerAtom } from "../../../../../../state";
 import {
   Framework as FrameworkType,
   FRAMEWORKS,
-} from "../../../../../../utils/pg/explorer";
+} from "../../../../../../utils/pg";
 import { ClassName } from "../../../../../../constants";
 
 export const NewWorkspace = () => {

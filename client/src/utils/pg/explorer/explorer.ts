@@ -559,13 +559,10 @@ export class PgExplorer {
     // Create a new workspace in state
     this._workspace.new(name);
 
-    // Create src folder
-    await this._mkdir(this._getCurrentSrcPath(), true);
-
     // Create files
     if (options?.files) {
       for (const pathContent of options?.files) {
-        const fullPath = this._getCurrentSrcPath() + pathContent[0];
+        const fullPath = this.currentWorkspacePath + pathContent[0];
         const content = pathContent[1];
         await this._writeFile(fullPath, content, true);
       }
@@ -599,7 +596,7 @@ export class PgExplorer {
     // Open the lib file if it has been specified
     if (options?.defaultOpenFile) {
       this.changeCurrentFile(
-        this._getCurrentSrcPath() + options.defaultOpenFile
+        this.currentWorkspacePath + options.defaultOpenFile
       );
     }
 
