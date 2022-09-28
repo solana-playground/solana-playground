@@ -724,6 +724,7 @@ export const setDeclarations = ({ isTest }: SetDeclarationsProps) => {
     require("./anchor-ns.raw.d.ts"),
     "anchor-ns.raw.d.ts"
   );
+
   /* -------------------------- End namespaces -------------------------- */
 
   // Globals

@@ -9,7 +9,7 @@ import * as BufferLayout from "@solana/buffer-layout";
 import * as anchor from "@project-serum/anchor";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgTest } from "../test/test";
+import { PgTest } from "../test";
 import { PgTerminal } from "../terminal";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
@@ -80,11 +80,11 @@ export class PgClient {
         /// Modules
         ["assert", assert],
         ["Buffer", Buffer],
-        ["web3", web3],
-        ["BN", anchor.BN],
         ["borsh", borsh],
         ["BufferLayout", BufferLayout],
+        ["web3", web3],
         ["anchor", anchor],
+        ["BN", anchor.BN],
 
         /// Functions
         ["sleep", PgCommon.sleep],
