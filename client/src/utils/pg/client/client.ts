@@ -348,4 +348,6 @@ const _BLACKLISTED_WORDS = [
   "location",
   "top",
   "chrome",
+  "eval",
+  "Function",
 ];
