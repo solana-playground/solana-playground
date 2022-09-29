@@ -209,15 +209,6 @@ export class PgCommon {
   }
 
   /**
-   * Dispatch a custom DOM event
-   */
-  static createAndDispatchCustomEvent(name: string, detail?: any) {
-    const customEvent = new CustomEvent(name, { detail });
-
-    document.dispatchEvent(customEvent);
-  }
-
-  /**
    * @returns camelCase converted version of the string input
    */
   static toCamelCase(str: string) {
@@ -241,5 +232,62 @@ export class PgCommon {
       default:
         return null;
     }
+  }
+
+  /**
+   * Dispatch a custom DOM event
+   *
+   * @param name
+   * @param detail
+   */
+  static createAndDispatchCustomEvent(name: string, detail?: any) {
+    const customEvent = new CustomEvent(name, { detail });
+
+    document.dispatchEvent(customEvent);
+  }
+
+  /**
+   * Get send and receive event names
+   *
+   * @param eventName
+   * @returns send and receive event names
+   */
+  static getSendAndReceiveEventNames(eventName: string) {
+    const send = eventName + "send";
+    const receive = eventName + "receive";
+    return { send, receive };
+  }
+
+  /**
+   * Dispatch a custom event and wait for receiver to resolve
+   *
+   * @param eventName
+   * @param data
+   * @returns the resolved data
+   */
+  static async sendAndReceiveCustomEvent<T, U>(
+    eventName: string,
+    data?: T
+  ): Promise<U> {
+    const eventNames = this.getSendAndReceiveEventNames(eventName);
+
+    // Send data
+    this.createAndDispatchCustomEvent(eventNames.send, data);
+
+    // Wait for data
+    return new Promise((res) => {
+      const handleReceive = (e: UIEvent & { detail: { data: U } }) => {
+        document.removeEventListener(
+          eventNames.receive,
+          handleReceive as EventListener
+        );
+        res(e.detail?.data);
+      };
+
+      document.addEventListener(
+        eventNames.receive,
+        handleReceive as EventListener
+      );
+    });
   }
 }

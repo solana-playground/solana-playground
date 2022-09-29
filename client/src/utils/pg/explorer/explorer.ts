@@ -6,8 +6,16 @@ import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
 import { PgProgramInfo, ProgramInfo } from "../program-info";
 import { ShareJSON } from "../share";
-import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
+import {
+  ClassName,
+  EventName,
+  Id,
+  ItemError,
+  WorkspaceError,
+} from "../../../constants";
 import { Lang } from "./frameworks";
+import { PgMethod, PgReturnType } from "../types";
+import { PgCommon } from "../common";
 
 export interface ExplorerJSON {
   files: {
@@ -1256,6 +1264,22 @@ export class PgExplorer {
 
   /** Don't change this! */
   private static readonly _INDEXED_DB_NAME = "solana-playground";
+
+  /**
+   * Run any method of explorer in state from anywhere
+   *
+   * @param data method to run
+   * @returns the result from the method call
+   */
+  static async run<
+    T extends PgMethod<PgExplorer>,
+    U extends PgReturnType<PgExplorer, keyof T>
+  >(data: T) {
+    return await PgCommon.sendAndReceiveCustomEvent<T, U>(
+      EventName.EXPLORER_RUN,
+      data
+    );
+  }
 
   static getItemNameFromPath(path: string) {
     const itemsArr = path.split("/");

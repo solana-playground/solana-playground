@@ -9,6 +9,9 @@ export enum EventName {
   EDITOR_FOCUS = "editorfocus",
   EDITOR_FORMAT = "editorformat",
 
+  // Explorer
+  EXPLORER_RUN = "explorerrun",
+
   // Terminal
   TERMINAL_DISABLE = "terminaldisable",
   TERMINAL_ENABLE = "terminalenable",
