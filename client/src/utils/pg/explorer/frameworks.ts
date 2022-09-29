@@ -146,28 +146,19 @@ describe("Test", () => {
     const tx = new web3.Transaction();
     tx.add(createGreetingAccountIx, greetIx);
 
-    // Set the required fields of the transaction
-    tx.feePayer = pg.wallet.publicKey;
-    tx.recentBlockhash = (await pg.connection.getLatestBlockhash()).blockhash;
-
-    /// Sign transaction
-    // New accounts that are being created needs to sign the transaction
-    tx.partialSign(greetingAccountKp);
-    // We are the payer of the transaction so we sign too
-    await pg.wallet.signTransaction(tx);
-
-    // Send the transaction
-    const txHash = await pg.connection.sendRawTransaction(tx.serialize());
+    // Send and confirm the transaction
+    const txHash = await web3.sendAndConfirmTransaction(pg.connection, tx, [
+      pg.wallet.keypair,
+      greetingAccountKp,
+    ]);
     console.log(\`Use 'solana confirm -v \${txHash}' to see the logs\`);
-
-    // Confirm the transaction
-    await pg.connection.confirmTransaction(txHash);
 
     // Fetch the greetings account
     const greetingAccount = await pg.connection.getAccountInfo(
       greetingAccountKp.publicKey
     );
 
+    // Deserialize the account data
     const deserializedAccountData = borsh.deserialize(
       GreetingSchema,
       GreetingAccount,
