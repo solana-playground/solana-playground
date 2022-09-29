@@ -53,9 +53,9 @@ export class PgClient {
   ): Promise<void> {
     const isTest = opts?.isTest;
     await this._run(async (iframeWindow) => {
-      for (const blacklistedWord of _BLACKLISTED_WORDS) {
-        if (code.includes(blacklistedWord)) {
-          throw new Error(`'${blacklistedWord}' is not allowed`);
+      for (const keyword of BLACKLISTED_KEYWORDS) {
+        if (code.includes(keyword)) {
+          throw new Error(`'${keyword}' is not allowed`);
         }
       }
 
@@ -177,7 +177,10 @@ export class PgClient {
       const scriptEl = document.createElement("script");
       iframeDocument.head.appendChild(scriptEl);
 
-      // Wrapping the code in a class blocks window access from `this`
+      for (const keyword of UNDEFINED_KEYWORDS) {
+        code = `${keyword} = undefined;` + code;
+      }
+
       // This approach:
       // 1- Wraps the code in a class to block window access from `this`
       // 2- Allows top-level async
@@ -340,14 +343,15 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
   }
 }
 
-/** Words that are not allowed to be in the user code */
-const _BLACKLISTED_WORDS = [
+/** Keywords that are not allowed to be in the user code */
+const BLACKLISTED_KEYWORDS = [
   "window",
   "globalThis",
   "document",
   "location",
   "top",
   "chrome",
-  "eval",
-  "Function",
 ];
+
+/** Keywords that will be set to `undefined` */
+const UNDEFINED_KEYWORDS = ["eval", "Function"];
