@@ -1,4 +1,9 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+} from "@solana/web3.js";
 /**
  * Create and initialize a new associated token account
  *
@@ -12,5 +17,13 @@ import type { ConfirmOptions, Connection, PublicKey, Signer } from '@solana/web3
  *
  * @return Address of the new associated token account
  */
-export declare function createAssociatedTokenAccount(connection: Connection, payer: Signer, mint: PublicKey, owner: PublicKey, confirmOptions?: ConfirmOptions, programId?: PublicKey, associatedTokenProgramId?: PublicKey): Promise<PublicKey>;
+export declare function createAssociatedTokenAccount(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  owner: PublicKey,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey,
+  associatedTokenProgramId?: PublicKey
+): Promise<PublicKey>;
 //# sourceMappingURL=createAssociatedTokenAccount.d.ts.map

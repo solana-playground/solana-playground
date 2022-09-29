@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  Keypair,
+  PublicKey,
+  Signer,
+} from "@solana/web3.js";
 /**
  * Create, initialize, and fund a new wrapped native SOL account
  *
@@ -12,5 +18,14 @@ import type { ConfirmOptions, Connection, Keypair, PublicKey, Signer } from '@so
  *
  * @return Address of the new wrapped native SOL account
  */
-export declare function createWrappedNativeAccount(connection: Connection, payer: Signer, owner: PublicKey, amount: number, keypair?: Keypair, confirmOptions?: ConfirmOptions, programId?: PublicKey, nativeMint?: PublicKey): Promise<PublicKey>;
+export declare function createWrappedNativeAccount(
+  connection: Connection,
+  payer: Signer,
+  owner: PublicKey,
+  amount: number,
+  keypair?: Keypair,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey,
+  nativeMint?: PublicKey
+): Promise<PublicKey>;
 //# sourceMappingURL=createWrappedNativeAccount.d.ts.map

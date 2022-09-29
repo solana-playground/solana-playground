@@ -1,36 +1,36 @@
 /// <reference types="node" />
-import type { AccountInfo, Commitment, Connection } from '@solana/web3.js';
-import { PublicKey } from '@solana/web3.js';
-import type { ExtensionType } from '../extensions/extensionType.js';
+import type { AccountInfo, Commitment, Connection } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
+import type { ExtensionType } from "../extensions/extensionType.js";
 /** Information about a mint */
 export interface Mint {
-    /** Address of the mint */
-    address: PublicKey;
-    /**
-     * Optional authority used to mint new tokens. The mint authority may only be provided during mint creation.
-     * If no mint authority is present then the mint has a fixed supply and no further tokens may be minted.
-     */
-    mintAuthority: PublicKey | null;
-    /** Total supply of tokens */
-    supply: bigint;
-    /** Number of base 10 digits to the right of the decimal place */
-    decimals: number;
-    /** Is this mint initialized */
-    isInitialized: boolean;
-    /** Optional authority to freeze token accounts */
-    freezeAuthority: PublicKey | null;
-    /** Additional data for extension */
-    tlvData: Buffer;
+  /** Address of the mint */
+  address: PublicKey;
+  /**
+   * Optional authority used to mint new tokens. The mint authority may only be provided during mint creation.
+   * If no mint authority is present then the mint has a fixed supply and no further tokens may be minted.
+   */
+  mintAuthority: PublicKey | null;
+  /** Total supply of tokens */
+  supply: bigint;
+  /** Number of base 10 digits to the right of the decimal place */
+  decimals: number;
+  /** Is this mint initialized */
+  isInitialized: boolean;
+  /** Optional authority to freeze token accounts */
+  freezeAuthority: PublicKey | null;
+  /** Additional data for extension */
+  tlvData: Buffer;
 }
 /** Mint as stored by the program */
 export interface RawMint {
-    mintAuthorityOption: 1 | 0;
-    mintAuthority: PublicKey;
-    supply: bigint;
-    decimals: number;
-    isInitialized: boolean;
-    freezeAuthorityOption: 1 | 0;
-    freezeAuthority: PublicKey;
+  mintAuthorityOption: 1 | 0;
+  mintAuthority: PublicKey;
+  supply: bigint;
+  decimals: number;
+  isInitialized: boolean;
+  freezeAuthorityOption: 1 | 0;
+  freezeAuthority: PublicKey;
 }
 /** Buffer layout for de/serializing a mint */
 export declare const MintLayout: import("@solana/buffer-layout").Structure<RawMint>;
@@ -46,7 +46,12 @@ export declare const MINT_SIZE: number;
  *
  * @return Mint information
  */
-export declare function getMint(connection: Connection, address: PublicKey, commitment?: Commitment, programId?: PublicKey): Promise<Mint>;
+export declare function getMint(
+  connection: Connection,
+  address: PublicKey,
+  commitment?: Commitment,
+  programId?: PublicKey
+): Promise<Mint>;
 /**
  * Unpack a mint
  *
@@ -56,7 +61,11 @@ export declare function getMint(connection: Connection, address: PublicKey, comm
  *
  * @return Unpacked mint
  */
-export declare function unpackMint(address: PublicKey, info: AccountInfo<Buffer> | null, programId?: PublicKey): Mint;
+export declare function unpackMint(
+  address: PublicKey,
+  info: AccountInfo<Buffer> | null,
+  programId?: PublicKey
+): Mint;
 /** Get the minimum lamport balance for a mint to be rent exempt
  *
  * @param connection Connection to use
@@ -64,7 +73,10 @@ export declare function unpackMint(address: PublicKey, info: AccountInfo<Buffer>
  *
  * @return Amount of lamports required
  */
-export declare function getMinimumBalanceForRentExemptMint(connection: Connection, commitment?: Commitment): Promise<number>;
+export declare function getMinimumBalanceForRentExemptMint(
+  connection: Connection,
+  commitment?: Commitment
+): Promise<number>;
 /** Get the minimum lamport balance for a rent-exempt mint with extensions
  *
  * @param connection Connection to use
@@ -73,7 +85,11 @@ export declare function getMinimumBalanceForRentExemptMint(connection: Connectio
  *
  * @return Amount of lamports required
  */
-export declare function getMinimumBalanceForRentExemptMintWithExtensions(connection: Connection, extensions: ExtensionType[], commitment?: Commitment): Promise<number>;
+export declare function getMinimumBalanceForRentExemptMintWithExtensions(
+  connection: Connection,
+  extensions: ExtensionType[],
+  commitment?: Commitment
+): Promise<number>;
 /**
  * Async version of getAssociatedTokenAddressSync
  * For backwards compatibility
@@ -86,7 +102,13 @@ export declare function getMinimumBalanceForRentExemptMintWithExtensions(connect
  *
  * @return Promise containing the address of the associated token account
  */
-export declare function getAssociatedTokenAddress(mint: PublicKey, owner: PublicKey, allowOwnerOffCurve?: boolean, programId?: PublicKey, associatedTokenProgramId?: PublicKey): Promise<PublicKey>;
+export declare function getAssociatedTokenAddress(
+  mint: PublicKey,
+  owner: PublicKey,
+  allowOwnerOffCurve?: boolean,
+  programId?: PublicKey,
+  associatedTokenProgramId?: PublicKey
+): Promise<PublicKey>;
 /**
  * Get the address of the associated token account for a given mint and owner
  *
@@ -98,5 +120,11 @@ export declare function getAssociatedTokenAddress(mint: PublicKey, owner: Public
  *
  * @return Address of the associated token account
  */
-export declare function getAssociatedTokenAddressSync(mint: PublicKey, owner: PublicKey, allowOwnerOffCurve?: boolean, programId?: PublicKey, associatedTokenProgramId?: PublicKey): PublicKey;
+export declare function getAssociatedTokenAddressSync(
+  mint: PublicKey,
+  owner: PublicKey,
+  allowOwnerOffCurve?: boolean,
+  programId?: PublicKey,
+  associatedTokenProgramId?: PublicKey
+): PublicKey;
 //# sourceMappingURL=mint.d.ts.map

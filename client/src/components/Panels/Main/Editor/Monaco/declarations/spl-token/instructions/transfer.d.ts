@@ -1,10 +1,10 @@
-import type { AccountMeta, PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface TransferInstructionData {
-    instruction: TokenInstruction.Transfer;
-    amount: bigint;
+  instruction: TokenInstruction.Transfer;
+  amount: bigint;
 }
 /** TODO: docs */
 export declare const transferInstructionData: import("@solana/buffer-layout").Structure<TransferInstructionData>;
@@ -20,20 +20,27 @@ export declare const transferInstructionData: import("@solana/buffer-layout").St
  *
  * @return Instruction to add to a transaction
  */
-export declare function createTransferInstruction(source: PublicKey, destination: PublicKey, owner: PublicKey, amount: number | bigint, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createTransferInstruction(
+  source: PublicKey,
+  destination: PublicKey,
+  owner: PublicKey,
+  amount: number | bigint,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid Transfer instruction */
 export interface DecodedTransferInstruction {
-    programId: PublicKey;
-    keys: {
-        source: AccountMeta;
-        destination: AccountMeta;
-        owner: AccountMeta;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: TokenInstruction.Transfer;
-        amount: bigint;
-    };
+  programId: PublicKey;
+  keys: {
+    source: AccountMeta;
+    destination: AccountMeta;
+    owner: AccountMeta;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: TokenInstruction.Transfer;
+    amount: bigint;
+  };
 }
 /**
  * Decode a Transfer instruction and validate it
@@ -43,20 +50,23 @@ export interface DecodedTransferInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeTransferInstruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedTransferInstruction;
+export declare function decodeTransferInstruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedTransferInstruction;
 /** A decoded, non-validated Transfer instruction */
 export interface DecodedTransferInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        source: AccountMeta | undefined;
-        destination: AccountMeta | undefined;
-        owner: AccountMeta | undefined;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: number;
-        amount: bigint;
-    };
+  programId: PublicKey;
+  keys: {
+    source: AccountMeta | undefined;
+    destination: AccountMeta | undefined;
+    owner: AccountMeta | undefined;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: number;
+    amount: bigint;
+  };
 }
 /**
  * Decode a Transfer instruction without validating it
@@ -65,5 +75,9 @@ export interface DecodedTransferInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeTransferInstructionUnchecked({ programId, keys: [source, destination, owner, ...multiSigners], data, }: TransactionInstruction): DecodedTransferInstructionUnchecked;
+export declare function decodeTransferInstructionUnchecked({
+  programId,
+  keys: [source, destination, owner, ...multiSigners],
+  data,
+}: TransactionInstruction): DecodedTransferInstructionUnchecked;
 //# sourceMappingURL=transfer.d.ts.map

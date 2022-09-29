@@ -1,7 +1,6 @@
-import type { Mint } from '../state/mint.js';
+import type { Mint } from "../state/mint.js";
 /** Non-transferable state as stored by the program */
-export interface NonTransferable {
-}
+export interface NonTransferable {}
 /** Buffer layout for de/serializing an account */
 export declare const NonTransferableLayout: import("@solana/buffer-layout").Structure<NonTransferable>;
 export declare const NON_TRANSFERABLE_SIZE: number;

@@ -1,5 +1,5 @@
-import type { PublicKey } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
+import type { PublicKey } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
 /**
  * Construct an AssociatedTokenAccount instruction
  *
@@ -12,5 +12,12 @@ import { TransactionInstruction } from '@solana/web3.js';
  *
  * @return Instruction to add to a transaction
  */
-export declare function createAssociatedTokenAccountInstruction(payer: PublicKey, associatedToken: PublicKey, owner: PublicKey, mint: PublicKey, programId?: PublicKey, associatedTokenProgramId?: PublicKey): TransactionInstruction;
+export declare function createAssociatedTokenAccountInstruction(
+  payer: PublicKey,
+  associatedToken: PublicKey,
+  owner: PublicKey,
+  mint: PublicKey,
+  programId?: PublicKey,
+  associatedTokenProgramId?: PublicKey
+): TransactionInstruction;
 //# sourceMappingURL=associatedTokenAccount.d.ts.map

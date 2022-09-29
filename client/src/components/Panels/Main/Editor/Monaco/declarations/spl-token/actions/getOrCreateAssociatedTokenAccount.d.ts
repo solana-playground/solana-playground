@@ -1,5 +1,11 @@
-import type { Commitment, ConfirmOptions, Connection, PublicKey, Signer } from '@solana/web3.js';
-import type { Account } from '../state/account.js';
+import type {
+  Commitment,
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+} from "@solana/web3.js";
+import type { Account } from "../state/account.js";
 /**
  * Retrieve the associated token account, or create it if it doesn't exist
  *
@@ -15,5 +21,15 @@ import type { Account } from '../state/account.js';
  *
  * @return Address of the new associated token account
  */
-export declare function getOrCreateAssociatedTokenAccount(connection: Connection, payer: Signer, mint: PublicKey, owner: PublicKey, allowOwnerOffCurve?: boolean, commitment?: Commitment, confirmOptions?: ConfirmOptions, programId?: PublicKey, associatedTokenProgramId?: PublicKey): Promise<Account>;
+export declare function getOrCreateAssociatedTokenAccount(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  owner: PublicKey,
+  allowOwnerOffCurve?: boolean,
+  commitment?: Commitment,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey,
+  associatedTokenProgramId?: PublicKey
+): Promise<Account>;
 //# sourceMappingURL=getOrCreateAssociatedTokenAccount.d.ts.map

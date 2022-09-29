@@ -1,20 +1,20 @@
-import type { PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from '../../instructions/types.js';
+import type { PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "../../instructions/types.js";
 export declare enum InterestBearingMintInstruction {
-    Initialize = 0,
-    UpdateRate = 1
+  Initialize = 0,
+  UpdateRate = 1,
 }
 export interface InterestBearingMintInitializeInstructionData {
-    instruction: TokenInstruction.InterestBearingMintExtension;
-    interestBearingMintInstruction: InterestBearingMintInstruction.Initialize;
-    rateAuthority: PublicKey;
-    rate: number;
+  instruction: TokenInstruction.InterestBearingMintExtension;
+  interestBearingMintInstruction: InterestBearingMintInstruction.Initialize;
+  rateAuthority: PublicKey;
+  rate: number;
 }
 export interface InterestBearingMintUpdateRateInstructionData {
-    instruction: TokenInstruction.InterestBearingMintExtension;
-    interestBearingMintInstruction: InterestBearingMintInstruction.UpdateRate;
-    rate: number;
+  instruction: TokenInstruction.InterestBearingMintExtension;
+  interestBearingMintInstruction: InterestBearingMintInstruction.UpdateRate;
+  rate: number;
 }
 export declare const interestBearingMintInitializeInstructionData: import("@solana/buffer-layout").Structure<InterestBearingMintInitializeInstructionData>;
 export declare const interestBearingMintUpdateRateInstructionData: import("@solana/buffer-layout").Structure<InterestBearingMintUpdateRateInstructionData>;
@@ -28,7 +28,12 @@ export declare const interestBearingMintUpdateRateInstructionData: import("@sola
  *
  * @return Instruction to add to a transaction
  */
-export declare function createInitializeInterestBearingMintInstruction(mint: PublicKey, rateAuthority: PublicKey, rate: number, programId?: PublicKey): TransactionInstruction;
+export declare function createInitializeInterestBearingMintInstruction(
+  mint: PublicKey,
+  rateAuthority: PublicKey,
+  rate: number,
+  programId?: PublicKey
+): TransactionInstruction;
 /**
  * Construct an UpdateRateInterestBearingMint instruction
  *
@@ -40,5 +45,11 @@ export declare function createInitializeInterestBearingMintInstruction(mint: Pub
  *
  * @return Instruction to add to a transaction
  */
-export declare function createUpdateRateInterestBearingMintInstruction(mint: PublicKey, rateAuthority: PublicKey, rate: number, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createUpdateRateInterestBearingMintInstruction(
+  mint: PublicKey,
+  rateAuthority: PublicKey,
+  rate: number,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 //# sourceMappingURL=instructions.d.ts.map

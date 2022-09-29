@@ -1,4 +1,9 @@
-import type { Connection, PublicKey, Signer, TransactionError } from '@solana/web3.js';
+import type {
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionError,
+} from "@solana/web3.js";
 /**
  * Amount as a string using mint-prescribed decimals
  *
@@ -10,5 +15,11 @@ import type { Connection, PublicKey, Signer, TransactionError } from '@solana/we
  *
  * @return Ui Amount generated
  */
-export declare function amountToUiAmount(connection: Connection, payer: Signer, mint: PublicKey, amount: number | bigint, programId?: PublicKey): Promise<string | TransactionError | null>;
+export declare function amountToUiAmount(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  amount: number | bigint,
+  programId?: PublicKey
+): Promise<string | TransactionError | null>;
 //# sourceMappingURL=amountToUiAmount.d.ts.map

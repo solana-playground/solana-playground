@@ -1,5 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer } from '@solana/web3.js';
-import { Keypair } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+} from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 /**
  * Create and initialize a new mint
  *
@@ -14,5 +19,14 @@ import { Keypair } from '@solana/web3.js';
  *
  * @return Address of the new mint
  */
-export declare function createMint(connection: Connection, payer: Signer, mintAuthority: PublicKey, freezeAuthority: PublicKey | null, decimals: number, keypair?: Keypair, confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<PublicKey>;
+export declare function createMint(
+  connection: Connection,
+  payer: Signer,
+  mintAuthority: PublicKey,
+  freezeAuthority: PublicKey | null,
+  decimals: number,
+  keypair?: Keypair,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<PublicKey>;
 //# sourceMappingURL=createMint.d.ts.map

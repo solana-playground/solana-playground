@@ -1,5 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer } from '@solana/web3.js';
-import { Keypair } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+} from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 /**
  * Initialize an interest bearing account on a mint
  *
@@ -16,7 +21,18 @@ import { Keypair } from '@solana/web3.js';
  *
  * @return Public key of the mint
  */
-export declare function createInterestBearingMint(connection: Connection, payer: Signer, mintAuthority: PublicKey, freezeAuthority: PublicKey, rateAuthority: PublicKey, rate: number, decimals: number, keypair?: Keypair, confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<PublicKey>;
+export declare function createInterestBearingMint(
+  connection: Connection,
+  payer: Signer,
+  mintAuthority: PublicKey,
+  freezeAuthority: PublicKey,
+  rateAuthority: PublicKey,
+  rate: number,
+  decimals: number,
+  keypair?: Keypair,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<PublicKey>;
 /**
  * Update the interest rate of an interest bearing account
  *
@@ -31,5 +47,14 @@ export declare function createInterestBearingMint(connection: Connection, payer:
  *
  * @return Signature of the confirmed transaction
  */
-export declare function updateRateInterestBearingMint(connection: Connection, payer: Signer, mint: PublicKey, rateAuthority: Signer, rate: number, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<string>;
+export declare function updateRateInterestBearingMint(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  rateAuthority: Signer,
+  rate: number,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<string>;
 //# sourceMappingURL=actions.d.ts.map

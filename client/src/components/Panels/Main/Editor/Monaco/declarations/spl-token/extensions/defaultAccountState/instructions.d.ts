@@ -1,16 +1,16 @@
-import type { PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from '../../instructions/types.js';
-import type { AccountState } from '../../state/account.js';
+import type { PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "../../instructions/types.js";
+import type { AccountState } from "../../state/account.js";
 export declare enum DefaultAccountStateInstruction {
-    Initialize = 0,
-    Update = 1
+  Initialize = 0,
+  Update = 1,
 }
 /** TODO: docs */
 export interface DefaultAccountStateInstructionData {
-    instruction: TokenInstruction.DefaultAccountStateExtension;
-    defaultAccountStateInstruction: DefaultAccountStateInstruction;
-    accountState: AccountState;
+  instruction: TokenInstruction.DefaultAccountStateExtension;
+  defaultAccountStateInstruction: DefaultAccountStateInstruction;
+  accountState: AccountState;
 }
 /** TODO: docs */
 export declare const defaultAccountStateInstructionData: import("@solana/buffer-layout").Structure<DefaultAccountStateInstructionData>;
@@ -23,7 +23,11 @@ export declare const defaultAccountStateInstructionData: import("@solana/buffer-
  *
  * @return Instruction to add to a transaction
  */
-export declare function createInitializeDefaultAccountStateInstruction(mint: PublicKey, accountState: AccountState, programId?: PublicKey): TransactionInstruction;
+export declare function createInitializeDefaultAccountStateInstruction(
+  mint: PublicKey,
+  accountState: AccountState,
+  programId?: PublicKey
+): TransactionInstruction;
 /**
  * Construct an UpdateDefaultAccountState instruction
  *
@@ -35,5 +39,11 @@ export declare function createInitializeDefaultAccountStateInstruction(mint: Pub
  *
  * @return Instruction to add to a transaction
  */
-export declare function createUpdateDefaultAccountStateInstruction(mint: PublicKey, accountState: AccountState, freezeAuthority: PublicKey, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createUpdateDefaultAccountStateInstruction(
+  mint: PublicKey,
+  accountState: AccountState,
+  freezeAuthority: PublicKey,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 //# sourceMappingURL=instructions.d.ts.map

@@ -1,10 +1,10 @@
-import type { AccountMeta, PublicKey } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface InitializeMultisigInstructionData {
-    instruction: TokenInstruction.InitializeMultisig;
-    m: number;
+  instruction: TokenInstruction.InitializeMultisig;
+  m: number;
 }
 /** TODO: docs */
 export declare const initializeMultisigInstructionData: import("@solana/buffer-layout").Structure<InitializeMultisigInstructionData>;
@@ -18,19 +18,24 @@ export declare const initializeMultisigInstructionData: import("@solana/buffer-l
  *
  * @return Instruction to add to a transaction
  */
-export declare function createInitializeMultisigInstruction(account: PublicKey, signers: PublicKey[], m: number, programId?: PublicKey): TransactionInstruction;
+export declare function createInitializeMultisigInstruction(
+  account: PublicKey,
+  signers: PublicKey[],
+  m: number,
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid InitializeMultisig instruction */
 export interface DecodedInitializeMultisigInstruction {
-    programId: PublicKey;
-    keys: {
-        account: AccountMeta;
-        rent: AccountMeta;
-        signers: AccountMeta[];
-    };
-    data: {
-        instruction: TokenInstruction.InitializeMultisig;
-        m: number;
-    };
+  programId: PublicKey;
+  keys: {
+    account: AccountMeta;
+    rent: AccountMeta;
+    signers: AccountMeta[];
+  };
+  data: {
+    instruction: TokenInstruction.InitializeMultisig;
+    m: number;
+  };
 }
 /**
  * Decode an InitializeMultisig instruction and validate it
@@ -40,19 +45,22 @@ export interface DecodedInitializeMultisigInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeInitializeMultisigInstruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedInitializeMultisigInstruction;
+export declare function decodeInitializeMultisigInstruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedInitializeMultisigInstruction;
 /** A decoded, non-validated InitializeMultisig instruction */
 export interface DecodedInitializeMultisigInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        account: AccountMeta | undefined;
-        rent: AccountMeta | undefined;
-        signers: AccountMeta[];
-    };
-    data: {
-        instruction: number;
-        m: number;
-    };
+  programId: PublicKey;
+  keys: {
+    account: AccountMeta | undefined;
+    rent: AccountMeta | undefined;
+    signers: AccountMeta[];
+  };
+  data: {
+    instruction: number;
+    m: number;
+  };
 }
 /**
  * Decode an InitializeMultisig instruction without validating it
@@ -61,5 +69,9 @@ export interface DecodedInitializeMultisigInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeInitializeMultisigInstructionUnchecked({ programId, keys: [account, rent, ...signers], data, }: TransactionInstruction): DecodedInitializeMultisigInstructionUnchecked;
+export declare function decodeInitializeMultisigInstructionUnchecked({
+  programId,
+  keys: [account, rent, ...signers],
+  data,
+}: TransactionInstruction): DecodedInitializeMultisigInstructionUnchecked;
 //# sourceMappingURL=initializeMultisig.d.ts.map

@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Enable memo transfers on the given account
  *
@@ -12,7 +18,15 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function enableRequiredMemoTransfers(connection: Connection, payer: Signer, account: PublicKey, owner: Signer | PublicKey, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function enableRequiredMemoTransfers(
+  connection: Connection,
+  payer: Signer,
+  account: PublicKey,
+  owner: Signer | PublicKey,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 /**
  * Disable memo transfers on the given account
  *
@@ -26,5 +40,13 @@ export declare function enableRequiredMemoTransfers(connection: Connection, paye
  *
  * @return Signature of the confirmed transaction
  */
-export declare function disableRequiredMemoTransfers(connection: Connection, payer: Signer, account: PublicKey, owner: Signer | PublicKey, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function disableRequiredMemoTransfers(
+  connection: Connection,
+  payer: Signer,
+  account: PublicKey,
+  owner: Signer | PublicKey,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=actions.d.ts.map

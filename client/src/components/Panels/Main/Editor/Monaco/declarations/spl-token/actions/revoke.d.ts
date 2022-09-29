@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Revoke approval for the transfer of tokens from an account
  *
@@ -12,5 +18,13 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function revoke(connection: Connection, payer: Signer, account: PublicKey, owner: Signer | PublicKey, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function revoke(
+  connection: Connection,
+  payer: Signer,
+  account: PublicKey,
+  owner: Signer | PublicKey,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=revoke.d.ts.map

@@ -1,13 +1,13 @@
-import type { AccountMeta } from '@solana/web3.js';
-import { PublicKey, TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta } from "@solana/web3.js";
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface InitializeMint2InstructionData {
-    instruction: TokenInstruction.InitializeMint2;
-    decimals: number;
-    mintAuthority: PublicKey;
-    freezeAuthorityOption: 1 | 0;
-    freezeAuthority: PublicKey;
+  instruction: TokenInstruction.InitializeMint2;
+  decimals: number;
+  mintAuthority: PublicKey;
+  freezeAuthorityOption: 1 | 0;
+  freezeAuthority: PublicKey;
 }
 /** TODO: docs */
 export declare const initializeMint2InstructionData: import("@solana/buffer-layout").Structure<InitializeMint2InstructionData>;
@@ -22,19 +22,25 @@ export declare const initializeMint2InstructionData: import("@solana/buffer-layo
  *
  * @return Instruction to add to a transaction
  */
-export declare function createInitializeMint2Instruction(mint: PublicKey, decimals: number, mintAuthority: PublicKey, freezeAuthority: PublicKey | null, programId?: PublicKey): TransactionInstruction;
+export declare function createInitializeMint2Instruction(
+  mint: PublicKey,
+  decimals: number,
+  mintAuthority: PublicKey,
+  freezeAuthority: PublicKey | null,
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid InitializeMint2 instruction */
 export interface DecodedInitializeMint2Instruction {
-    programId: PublicKey;
-    keys: {
-        mint: AccountMeta;
-    };
-    data: {
-        instruction: TokenInstruction.InitializeMint2;
-        decimals: number;
-        mintAuthority: PublicKey;
-        freezeAuthority: PublicKey | null;
-    };
+  programId: PublicKey;
+  keys: {
+    mint: AccountMeta;
+  };
+  data: {
+    instruction: TokenInstruction.InitializeMint2;
+    decimals: number;
+    mintAuthority: PublicKey;
+    freezeAuthority: PublicKey | null;
+  };
 }
 /**
  * Decode an InitializeMint2 instruction and validate it
@@ -44,19 +50,22 @@ export interface DecodedInitializeMint2Instruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeInitializeMint2Instruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedInitializeMint2Instruction;
+export declare function decodeInitializeMint2Instruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedInitializeMint2Instruction;
 /** A decoded, non-validated InitializeMint2 instruction */
 export interface DecodedInitializeMint2InstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        mint: AccountMeta | undefined;
-    };
-    data: {
-        instruction: number;
-        decimals: number;
-        mintAuthority: PublicKey;
-        freezeAuthority: PublicKey | null;
-    };
+  programId: PublicKey;
+  keys: {
+    mint: AccountMeta | undefined;
+  };
+  data: {
+    instruction: number;
+    decimals: number;
+    mintAuthority: PublicKey;
+    freezeAuthority: PublicKey | null;
+  };
 }
 /**
  * Decode an InitializeMint2 instruction without validating it
@@ -65,5 +74,9 @@ export interface DecodedInitializeMint2InstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeInitializeMint2InstructionUnchecked({ programId, keys: [mint], data, }: TransactionInstruction): DecodedInitializeMint2InstructionUnchecked;
+export declare function decodeInitializeMint2InstructionUnchecked({
+  programId,
+  keys: [mint],
+  data,
+}: TransactionInstruction): DecodedInitializeMint2InstructionUnchecked;
 //# sourceMappingURL=initializeMint2.d.ts.map

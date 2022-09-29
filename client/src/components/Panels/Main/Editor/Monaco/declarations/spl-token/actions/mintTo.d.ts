@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Mint tokens to an account
  *
@@ -14,5 +20,15 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function mintTo(connection: Connection, payer: Signer, mint: PublicKey, destination: PublicKey, authority: Signer | PublicKey, amount: number | bigint, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function mintTo(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  destination: PublicKey,
+  authority: Signer | PublicKey,
+  amount: number | bigint,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=mintTo.d.ts.map

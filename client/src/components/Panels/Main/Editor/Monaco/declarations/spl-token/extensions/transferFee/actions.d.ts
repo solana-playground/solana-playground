@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Transfer tokens from one account to another, asserting the transfer fee, token mint, and decimals
  *
@@ -16,7 +22,20 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function transferCheckedWithFee(connection: Connection, payer: Signer, source: PublicKey, mint: PublicKey, destination: PublicKey, owner: Signer | PublicKey, amount: bigint, decimals: number, fee: bigint, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function transferCheckedWithFee(
+  connection: Connection,
+  payer: Signer,
+  source: PublicKey,
+  mint: PublicKey,
+  destination: PublicKey,
+  owner: Signer | PublicKey,
+  amount: bigint,
+  decimals: number,
+  fee: bigint,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 /**
  * Withdraw withheld tokens from mint
  *
@@ -31,7 +50,16 @@ export declare function transferCheckedWithFee(connection: Connection, payer: Si
  *
  * @return Signature of the confirmed transaction
  */
-export declare function withdrawWithheldTokensFromMint(connection: Connection, payer: Signer, mint: PublicKey, destination: PublicKey, authority: Signer | PublicKey, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function withdrawWithheldTokensFromMint(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  destination: PublicKey,
+  authority: Signer | PublicKey,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 /**
  * Withdraw withheld tokens from accounts
  *
@@ -47,7 +75,17 @@ export declare function withdrawWithheldTokensFromMint(connection: Connection, p
  *
  * @return Signature of the confirmed transaction
  */
-export declare function withdrawWithheldTokensFromAccounts(connection: Connection, payer: Signer, mint: PublicKey, destination: PublicKey, authority: Signer | PublicKey, multiSigners: Signer[], sources: PublicKey[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function withdrawWithheldTokensFromAccounts(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  destination: PublicKey,
+  authority: Signer | PublicKey,
+  multiSigners: Signer[],
+  sources: PublicKey[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 /**
  * Harvest withheld tokens from accounts to the mint
  *
@@ -60,5 +98,12 @@ export declare function withdrawWithheldTokensFromAccounts(connection: Connectio
  *
  * @return Signature of the confirmed transaction
  */
-export declare function harvestWithheldTokensToMint(connection: Connection, payer: Signer, mint: PublicKey, sources: PublicKey[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function harvestWithheldTokensToMint(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  sources: PublicKey[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=actions.d.ts.map

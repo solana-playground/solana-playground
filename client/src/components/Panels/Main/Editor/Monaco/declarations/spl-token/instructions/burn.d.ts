@@ -1,10 +1,10 @@
-import type { AccountMeta, PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface BurnInstructionData {
-    instruction: TokenInstruction.Burn;
-    amount: bigint;
+  instruction: TokenInstruction.Burn;
+  amount: bigint;
 }
 /** TODO: docs */
 export declare const burnInstructionData: import("@solana/buffer-layout").Structure<BurnInstructionData>;
@@ -20,20 +20,27 @@ export declare const burnInstructionData: import("@solana/buffer-layout").Struct
  *
  * @return Instruction to add to a transaction
  */
-export declare function createBurnInstruction(account: PublicKey, mint: PublicKey, owner: PublicKey, amount: number | bigint, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createBurnInstruction(
+  account: PublicKey,
+  mint: PublicKey,
+  owner: PublicKey,
+  amount: number | bigint,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid Burn instruction */
 export interface DecodedBurnInstruction {
-    programId: PublicKey;
-    keys: {
-        account: AccountMeta;
-        mint: AccountMeta;
-        owner: AccountMeta;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: TokenInstruction.Burn;
-        amount: bigint;
-    };
+  programId: PublicKey;
+  keys: {
+    account: AccountMeta;
+    mint: AccountMeta;
+    owner: AccountMeta;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: TokenInstruction.Burn;
+    amount: bigint;
+  };
 }
 /**
  * Decode a Burn instruction and validate it
@@ -43,20 +50,23 @@ export interface DecodedBurnInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeBurnInstruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedBurnInstruction;
+export declare function decodeBurnInstruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedBurnInstruction;
 /** A decoded, non-validated Burn instruction */
 export interface DecodedBurnInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        account: AccountMeta | undefined;
-        mint: AccountMeta | undefined;
-        owner: AccountMeta | undefined;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: number;
-        amount: bigint;
-    };
+  programId: PublicKey;
+  keys: {
+    account: AccountMeta | undefined;
+    mint: AccountMeta | undefined;
+    owner: AccountMeta | undefined;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: number;
+    amount: bigint;
+  };
 }
 /**
  * Decode a Burn instruction without validating it
@@ -65,5 +75,9 @@ export interface DecodedBurnInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeBurnInstructionUnchecked({ programId, keys: [account, mint, owner, ...multiSigners], data, }: TransactionInstruction): DecodedBurnInstructionUnchecked;
+export declare function decodeBurnInstructionUnchecked({
+  programId,
+  keys: [account, mint, owner, ...multiSigners],
+  data,
+}: TransactionInstruction): DecodedBurnInstructionUnchecked;
 //# sourceMappingURL=burn.d.ts.map

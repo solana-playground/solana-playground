@@ -1,11 +1,11 @@
-import type { PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import type { ExtensionType } from '../extensions/extensionType.js';
-import { TokenInstruction } from './types.js';
+import type { PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import type { ExtensionType } from "../extensions/extensionType.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface ReallocateInstructionData {
-    instruction: TokenInstruction.Reallocate;
-    extensionTypes: ExtensionType[];
+  instruction: TokenInstruction.Reallocate;
+  extensionTypes: ExtensionType[];
 }
 /**
  * Construct a Reallocate instruction
@@ -19,5 +19,12 @@ export interface ReallocateInstructionData {
  *
  * @return Instruction to add to a transaction
  */
-export declare function createReallocateInstruction(account: PublicKey, payer: PublicKey, extensionTypes: ExtensionType[], owner: PublicKey, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createReallocateInstruction(
+  account: PublicKey,
+  payer: PublicKey,
+  extensionTypes: ExtensionType[],
+  owner: PublicKey,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 //# sourceMappingURL=reallocate.d.ts.map

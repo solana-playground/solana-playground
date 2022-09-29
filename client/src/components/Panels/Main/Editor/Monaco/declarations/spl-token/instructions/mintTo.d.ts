@@ -1,10 +1,10 @@
-import type { AccountMeta, PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface MintToInstructionData {
-    instruction: TokenInstruction.MintTo;
-    amount: bigint;
+  instruction: TokenInstruction.MintTo;
+  amount: bigint;
 }
 /** TODO: docs */
 export declare const mintToInstructionData: import("@solana/buffer-layout").Structure<MintToInstructionData>;
@@ -20,20 +20,27 @@ export declare const mintToInstructionData: import("@solana/buffer-layout").Stru
  *
  * @return Instruction to add to a transaction
  */
-export declare function createMintToInstruction(mint: PublicKey, destination: PublicKey, authority: PublicKey, amount: number | bigint, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createMintToInstruction(
+  mint: PublicKey,
+  destination: PublicKey,
+  authority: PublicKey,
+  amount: number | bigint,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid MintTo instruction */
 export interface DecodedMintToInstruction {
-    programId: PublicKey;
-    keys: {
-        mint: AccountMeta;
-        destination: AccountMeta;
-        authority: AccountMeta;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: TokenInstruction.MintTo;
-        amount: bigint;
-    };
+  programId: PublicKey;
+  keys: {
+    mint: AccountMeta;
+    destination: AccountMeta;
+    authority: AccountMeta;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: TokenInstruction.MintTo;
+    amount: bigint;
+  };
 }
 /**
  * Decode a MintTo instruction and validate it
@@ -43,20 +50,23 @@ export interface DecodedMintToInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeMintToInstruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedMintToInstruction;
+export declare function decodeMintToInstruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedMintToInstruction;
 /** A decoded, non-validated MintTo instruction */
 export interface DecodedMintToInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        mint: AccountMeta | undefined;
-        destination: AccountMeta | undefined;
-        authority: AccountMeta | undefined;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: number;
-        amount: bigint;
-    };
+  programId: PublicKey;
+  keys: {
+    mint: AccountMeta | undefined;
+    destination: AccountMeta | undefined;
+    authority: AccountMeta | undefined;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: number;
+    amount: bigint;
+  };
 }
 /**
  * Decode a MintTo instruction without validating it
@@ -65,5 +75,9 @@ export interface DecodedMintToInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeMintToInstructionUnchecked({ programId, keys: [mint, destination, authority, ...multiSigners], data, }: TransactionInstruction): DecodedMintToInstructionUnchecked;
+export declare function decodeMintToInstructionUnchecked({
+  programId,
+  keys: [mint, destination, authority, ...multiSigners],
+  data,
+}: TransactionInstruction): DecodedMintToInstructionUnchecked;
 //# sourceMappingURL=mintTo.d.ts.map

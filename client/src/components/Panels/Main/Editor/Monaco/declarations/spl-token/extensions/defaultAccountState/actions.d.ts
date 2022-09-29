@@ -1,5 +1,11 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
-import type { AccountState } from '../../state/account.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
+import type { AccountState } from "../../state/account.js";
 /**
  * Initialize a default account state on a mint
  *
@@ -12,7 +18,14 @@ import type { AccountState } from '../../state/account.js';
  *
  * @return Signature of the confirmed transaction
  */
-export declare function initializeDefaultAccountState(connection: Connection, payer: Signer, mint: PublicKey, state: AccountState, confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function initializeDefaultAccountState(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  state: AccountState,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 /**
  * Update the default account state on a mint
  *
@@ -27,5 +40,14 @@ export declare function initializeDefaultAccountState(connection: Connection, pa
  *
  * @return Signature of the confirmed transaction
  */
-export declare function updateDefaultAccountState(connection: Connection, payer: Signer, mint: PublicKey, state: AccountState, freezeAuthority: Signer | PublicKey, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function updateDefaultAccountState(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  state: AccountState,
+  freezeAuthority: Signer | PublicKey,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=actions.d.ts.map

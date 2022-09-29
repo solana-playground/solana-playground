@@ -1,11 +1,11 @@
-import type { AccountMeta, PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface TransferCheckedInstructionData {
-    instruction: TokenInstruction.TransferChecked;
-    amount: bigint;
-    decimals: number;
+  instruction: TokenInstruction.TransferChecked;
+  amount: bigint;
+  decimals: number;
 }
 /** TODO: docs */
 export declare const transferCheckedInstructionData: import("@solana/buffer-layout").Structure<TransferCheckedInstructionData>;
@@ -23,22 +23,31 @@ export declare const transferCheckedInstructionData: import("@solana/buffer-layo
  *
  * @return Instruction to add to a transaction
  */
-export declare function createTransferCheckedInstruction(source: PublicKey, mint: PublicKey, destination: PublicKey, owner: PublicKey, amount: number | bigint, decimals: number, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createTransferCheckedInstruction(
+  source: PublicKey,
+  mint: PublicKey,
+  destination: PublicKey,
+  owner: PublicKey,
+  amount: number | bigint,
+  decimals: number,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid TransferChecked instruction */
 export interface DecodedTransferCheckedInstruction {
-    programId: PublicKey;
-    keys: {
-        source: AccountMeta;
-        mint: AccountMeta;
-        destination: AccountMeta;
-        owner: AccountMeta;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: TokenInstruction.TransferChecked;
-        amount: bigint;
-        decimals: number;
-    };
+  programId: PublicKey;
+  keys: {
+    source: AccountMeta;
+    mint: AccountMeta;
+    destination: AccountMeta;
+    owner: AccountMeta;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: TokenInstruction.TransferChecked;
+    amount: bigint;
+    decimals: number;
+  };
 }
 /**
  * Decode a TransferChecked instruction and validate it
@@ -48,22 +57,25 @@ export interface DecodedTransferCheckedInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeTransferCheckedInstruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedTransferCheckedInstruction;
+export declare function decodeTransferCheckedInstruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedTransferCheckedInstruction;
 /** A decoded, non-validated TransferChecked instruction */
 export interface DecodedTransferCheckedInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        source: AccountMeta | undefined;
-        mint: AccountMeta | undefined;
-        destination: AccountMeta | undefined;
-        owner: AccountMeta | undefined;
-        multiSigners: AccountMeta[];
-    };
-    data: {
-        instruction: number;
-        amount: bigint;
-        decimals: number;
-    };
+  programId: PublicKey;
+  keys: {
+    source: AccountMeta | undefined;
+    mint: AccountMeta | undefined;
+    destination: AccountMeta | undefined;
+    owner: AccountMeta | undefined;
+    multiSigners: AccountMeta[];
+  };
+  data: {
+    instruction: number;
+    amount: bigint;
+    decimals: number;
+  };
 }
 /**
  * Decode a TransferChecked instruction without validating it
@@ -72,5 +84,9 @@ export interface DecodedTransferCheckedInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeTransferCheckedInstructionUnchecked({ programId, keys: [source, mint, destination, owner, ...multiSigners], data, }: TransactionInstruction): DecodedTransferCheckedInstructionUnchecked;
+export declare function decodeTransferCheckedInstructionUnchecked({
+  programId,
+  keys: [source, mint, destination, owner, ...multiSigners],
+  data,
+}: TransactionInstruction): DecodedTransferCheckedInstructionUnchecked;
 //# sourceMappingURL=transferChecked.d.ts.map

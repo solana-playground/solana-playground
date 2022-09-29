@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  Keypair,
+  PublicKey,
+  Signer,
+} from "@solana/web3.js";
 /**
  * Create and initialize a new token account
  *
@@ -12,5 +18,13 @@ import type { ConfirmOptions, Connection, Keypair, PublicKey, Signer } from '@so
  *
  * @return Address of the new token account
  */
-export declare function createAccount(connection: Connection, payer: Signer, mint: PublicKey, owner: PublicKey, keypair?: Keypair, confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<PublicKey>;
+export declare function createAccount(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  owner: PublicKey,
+  keypair?: Keypair,
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<PublicKey>;
 //# sourceMappingURL=createAccount.d.ts.map

@@ -1,9 +1,9 @@
-import type { AccountMeta, PublicKey } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** Deserialized instruction for the initiation of an immutable owner account */
 export interface InitializeImmutableOwnerInstructionData {
-    instruction: TokenInstruction.InitializeImmutableOwner;
+  instruction: TokenInstruction.InitializeImmutableOwner;
 }
 /** The struct that represents the instruction data as it is read by the program */
 export declare const initializeImmutableOwnerInstructionData: import("@solana/buffer-layout").Structure<InitializeImmutableOwnerInstructionData>;
@@ -15,16 +15,19 @@ export declare const initializeImmutableOwnerInstructionData: import("@solana/bu
  *
  * @return Instruction to add to a transaction
  */
-export declare function createInitializeImmutableOwnerInstruction(account: PublicKey, programId: PublicKey): TransactionInstruction;
+export declare function createInitializeImmutableOwnerInstruction(
+  account: PublicKey,
+  programId: PublicKey
+): TransactionInstruction;
 /** A decoded, valid InitializeImmutableOwner instruction */
 export interface DecodedInitializeImmutableOwnerInstruction {
-    programId: PublicKey;
-    keys: {
-        account: AccountMeta;
-    };
-    data: {
-        instruction: TokenInstruction.InitializeImmutableOwner;
-    };
+  programId: PublicKey;
+  keys: {
+    account: AccountMeta;
+  };
+  data: {
+    instruction: TokenInstruction.InitializeImmutableOwner;
+  };
 }
 /**
  * Decode an InitializeImmutableOwner instruction and validate it
@@ -34,16 +37,19 @@ export interface DecodedInitializeImmutableOwnerInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeInitializeImmutableOwnerInstruction(instruction: TransactionInstruction, programId: PublicKey): DecodedInitializeImmutableOwnerInstruction;
+export declare function decodeInitializeImmutableOwnerInstruction(
+  instruction: TransactionInstruction,
+  programId: PublicKey
+): DecodedInitializeImmutableOwnerInstruction;
 /** A decoded, non-validated InitializeImmutableOwner instruction */
 export interface DecodedInitializeImmutableOwnerInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        account: AccountMeta | undefined;
-    };
-    data: {
-        instruction: number;
-    };
+  programId: PublicKey;
+  keys: {
+    account: AccountMeta | undefined;
+  };
+  data: {
+    instruction: number;
+  };
 }
 /**
  * Decode an InitializeImmutableOwner instruction without validating it
@@ -52,5 +58,9 @@ export interface DecodedInitializeImmutableOwnerInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeInitializeImmutableOwnerInstructionUnchecked({ programId, keys: [account], data, }: TransactionInstruction): DecodedInitializeImmutableOwnerInstructionUnchecked;
+export declare function decodeInitializeImmutableOwnerInstructionUnchecked({
+  programId,
+  keys: [account],
+  data,
+}: TransactionInstruction): DecodedInitializeImmutableOwnerInstructionUnchecked;
 //# sourceMappingURL=initializeImmutableOwner.d.ts.map

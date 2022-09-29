@@ -1,14 +1,14 @@
-import type { PublicKey, Signer } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from '../../instructions/types.js';
+import type { PublicKey, Signer } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "../../instructions/types.js";
 export declare enum MemoTransferInstruction {
-    Enable = 0,
-    Disable = 1
+  Enable = 0,
+  Disable = 1,
 }
 /** TODO: docs */
 export interface MemoTransferInstructionData {
-    instruction: TokenInstruction.MemoTransferExtension;
-    memoTransferInstruction: MemoTransferInstruction;
+  instruction: TokenInstruction.MemoTransferExtension;
+  memoTransferInstruction: MemoTransferInstruction;
 }
 /** TODO: docs */
 export declare const memoTransferInstructionData: import("@solana/buffer-layout").Structure<MemoTransferInstructionData>;
@@ -22,7 +22,12 @@ export declare const memoTransferInstructionData: import("@solana/buffer-layout"
  *
  * @return Instruction to add to a transaction
  */
-export declare function createEnableRequiredMemoTransfersInstruction(account: PublicKey, authority: PublicKey, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createEnableRequiredMemoTransfersInstruction(
+  account: PublicKey,
+  authority: PublicKey,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 /**
  * Construct a DisableMemoTransfer instruction
  *
@@ -33,5 +38,10 @@ export declare function createEnableRequiredMemoTransfersInstruction(account: Pu
  *
  * @return Instruction to add to a transaction
  */
-export declare function createDisableRequiredMemoTransfersInstruction(account: PublicKey, authority: PublicKey, multiSigners?: Signer[], programId?: PublicKey): TransactionInstruction;
+export declare function createDisableRequiredMemoTransfersInstruction(
+  account: PublicKey,
+  authority: PublicKey,
+  multiSigners?: Signer[],
+  programId?: PublicKey
+): TransactionInstruction;
 //# sourceMappingURL=instructions.d.ts.map

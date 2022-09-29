@@ -1,10 +1,10 @@
-import type { AccountMeta, PublicKey } from '@solana/web3.js';
-import { TransactionInstruction } from '@solana/web3.js';
-import { TokenInstruction } from './types.js';
+import type { AccountMeta, PublicKey } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
+import { TokenInstruction } from "./types.js";
 /** TODO: docs */
 export interface UiAmountToAmountInstructionData {
-    instruction: TokenInstruction.UiAmountToAmount;
-    amount: Uint8Array;
+  instruction: TokenInstruction.UiAmountToAmount;
+  amount: Uint8Array;
 }
 /** TODO: docs */
 /**
@@ -16,17 +16,21 @@ export interface UiAmountToAmountInstructionData {
  *
  * @return Instruction to add to a transaction
  */
-export declare function createUiAmountToAmountInstruction(mint: PublicKey, amount: string, programId?: PublicKey): TransactionInstruction;
+export declare function createUiAmountToAmountInstruction(
+  mint: PublicKey,
+  amount: string,
+  programId?: PublicKey
+): TransactionInstruction;
 /** A decoded, valid UiAmountToAmount instruction */
 export interface DecodedUiAmountToAmountInstruction {
-    programId: PublicKey;
-    keys: {
-        mint: AccountMeta;
-    };
-    data: {
-        instruction: TokenInstruction.UiAmountToAmount;
-        amount: Uint8Array;
-    };
+  programId: PublicKey;
+  keys: {
+    mint: AccountMeta;
+  };
+  data: {
+    instruction: TokenInstruction.UiAmountToAmount;
+    amount: Uint8Array;
+  };
 }
 /**
  * Decode a UiAmountToAmount instruction and validate it
@@ -36,17 +40,20 @@ export interface DecodedUiAmountToAmountInstruction {
  *
  * @return Decoded, valid instruction
  */
-export declare function decodeUiAmountToAmountInstruction(instruction: TransactionInstruction, programId?: PublicKey): DecodedUiAmountToAmountInstruction;
+export declare function decodeUiAmountToAmountInstruction(
+  instruction: TransactionInstruction,
+  programId?: PublicKey
+): DecodedUiAmountToAmountInstruction;
 /** A decoded, non-validated UiAmountToAmount instruction */
 export interface DecodedUiAmountToAmountInstructionUnchecked {
-    programId: PublicKey;
-    keys: {
-        mint: AccountMeta | undefined;
-    };
-    data: {
-        instruction: number;
-        amount: Uint8Array;
-    };
+  programId: PublicKey;
+  keys: {
+    mint: AccountMeta | undefined;
+  };
+  data: {
+    instruction: number;
+    amount: Uint8Array;
+  };
 }
 /**
  * Decode a UiAmountToAmount instruction without validating it
@@ -55,5 +62,9 @@ export interface DecodedUiAmountToAmountInstructionUnchecked {
  *
  * @return Decoded, non-validated instruction
  */
-export declare function decodeUiAmountToAmountInstructionUnchecked({ programId, keys: [mint], data, }: TransactionInstruction): DecodedUiAmountToAmountInstructionUnchecked;
+export declare function decodeUiAmountToAmountInstructionUnchecked({
+  programId,
+  keys: [mint],
+  data,
+}: TransactionInstruction): DecodedUiAmountToAmountInstructionUnchecked;
 //# sourceMappingURL=uiAmountToAmount.d.ts.map

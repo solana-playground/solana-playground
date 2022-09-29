@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Burn tokens from an account, asserting the token mint and decimals
  *
@@ -15,5 +21,16 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function burnChecked(connection: Connection, payer: Signer, account: PublicKey, mint: PublicKey, owner: Signer | PublicKey, amount: number | bigint, decimals: number, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function burnChecked(
+  connection: Connection,
+  payer: Signer,
+  account: PublicKey,
+  mint: PublicKey,
+  owner: Signer | PublicKey,
+  amount: number | bigint,
+  decimals: number,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=burnChecked.d.ts.map

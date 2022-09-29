@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Transfer tokens from one account to another, asserting the token mint and decimals
  *
@@ -16,5 +22,17 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function transferChecked(connection: Connection, payer: Signer, source: PublicKey, mint: PublicKey, destination: PublicKey, owner: Signer | PublicKey, amount: number | bigint, decimals: number, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function transferChecked(
+  connection: Connection,
+  payer: Signer,
+  source: PublicKey,
+  mint: PublicKey,
+  destination: PublicKey,
+  owner: Signer | PublicKey,
+  amount: number | bigint,
+  decimals: number,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=transferChecked.d.ts.map

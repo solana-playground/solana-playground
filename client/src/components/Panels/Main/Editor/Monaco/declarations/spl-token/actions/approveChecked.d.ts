@@ -1,4 +1,10 @@
-import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignature } from '@solana/web3.js';
+import type {
+  ConfirmOptions,
+  Connection,
+  PublicKey,
+  Signer,
+  TransactionSignature,
+} from "@solana/web3.js";
 /**
  * Approve a delegate to transfer up to a maximum number of tokens from an account, asserting the token mint and
  * decimals
@@ -16,5 +22,17 @@ import type { ConfirmOptions, Connection, PublicKey, Signer, TransactionSignatur
  *
  * @return Signature of the confirmed transaction
  */
-export declare function approveChecked(connection: Connection, payer: Signer, mint: PublicKey, account: PublicKey, delegate: PublicKey, owner: Signer | PublicKey, amount: number | bigint, decimals: number, multiSigners?: Signer[], confirmOptions?: ConfirmOptions, programId?: PublicKey): Promise<TransactionSignature>;
+export declare function approveChecked(
+  connection: Connection,
+  payer: Signer,
+  mint: PublicKey,
+  account: PublicKey,
+  delegate: PublicKey,
+  owner: Signer | PublicKey,
+  amount: number | bigint,
+  decimals: number,
+  multiSigners?: Signer[],
+  confirmOptions?: ConfirmOptions,
+  programId?: PublicKey
+): Promise<TransactionSignature>;
 //# sourceMappingURL=approveChecked.d.ts.map
