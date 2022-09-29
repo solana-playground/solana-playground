@@ -10,12 +10,16 @@ import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
 import { explorerAtom } from "../../../../../state";
 import { EventName } from "../../../../../constants";
-import { useExposeStatic } from "../../../../../hooks";
+import {
+  useExposeMethodsAsStatic,
+  useExposeGetClassAsStatic,
+} from "../../../../../hooks";
 
 const Explorer = () => {
   const [explorer] = useAtom(explorerAtom);
 
-  useExposeStatic(explorer, EventName.EXPLORER_RUN);
+  useExposeGetClassAsStatic(explorer, EventName.EXPLORER_GET);
+  useExposeMethodsAsStatic(explorer, EventName.EXPLORER_RUN);
 
   const { newItem } = useNewItem();
   const { renameItem, deleteItem } = useExplorerContextMenu();

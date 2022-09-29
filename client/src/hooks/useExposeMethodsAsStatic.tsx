@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { PgMethod } from "../utils/pg";
 import { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
 
-export const useExposeStatic = <T,>(
+export const useExposeMethodsAsStatic = <T,>(
   classObject: { [key: string]: any } | null,
   eventName: string
 ) => {

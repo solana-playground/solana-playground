@@ -10,6 +10,7 @@ export enum EventName {
   EDITOR_FORMAT = "editorformat",
 
   // Explorer
+  EXPLORER_GET = "explorerget",
   EXPLORER_RUN = "explorerrun",
 
   // Terminal

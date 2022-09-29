@@ -1266,16 +1266,27 @@ export class PgExplorer {
   private static readonly _INDEXED_DB_NAME = "solana-playground";
 
   /**
+   * Get explorer object from state as static
+   *
+   * @returns the explorer object in state
+   */
+  static async get<T, R extends PgExplorer>() {
+    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
+      EventName.EXPLORER_GET
+    );
+  }
+
+  /**
    * Run any method of explorer in state from anywhere
    *
    * @param data method to run
    * @returns the result from the method call
    */
   static async run<
-    T extends PgMethod<PgExplorer>,
-    U extends PgReturnType<PgExplorer, keyof T>
-  >(data: T) {
-    return await PgCommon.sendAndReceiveCustomEvent<T, U>(
+    M extends PgMethod<PgExplorer>,
+    R extends PgReturnType<PgExplorer, keyof M>
+  >(data: M) {
+    return await PgCommon.sendAndReceiveCustomEvent<M, R>(
       EventName.EXPLORER_RUN,
       data
     );
