@@ -24,6 +24,7 @@
     "@solana-playground/solana-cli-wasm": "../wasm/pkgs/solana-cli",
     "@solana-playground/spl-token-cli-wasm": "../wasm/pkgs/spl-token-cli",
     "@solana/buffer-layout": "3.0.0",
+    "@solana/spl-token": "^0.3.5",
     "@solana/wallet-adapter-phantom": "^0.9.3",
     "@solana/wallet-adapter-react": "^0.15.4",
     "@solana/web3.js": "^1.37.0",

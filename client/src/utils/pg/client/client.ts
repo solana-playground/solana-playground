@@ -94,6 +94,14 @@ export class PgClient {
         ["PublicKey", web3.PublicKey],
         ["Connection", web3.Connection],
       ];
+
+      // Lazy load optional packages
+      if (code.includes("splToken")) {
+        const splToken = await import("@solana/spl-token");
+        globals.push(["splToken", splToken]);
+      }
+
+      // Playground utils namespace
       const pg: Pg = { connection };
 
       let endCode;
