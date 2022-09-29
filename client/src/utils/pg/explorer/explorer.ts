@@ -159,6 +159,7 @@ export class PgExplorer {
     // Sets up the files from IndexedDB to the state
     const setupFiles = async (path: string) => {
       const itemNames = await fs.readdir(path);
+
       if (!itemNames.length) {
         // Empty directory
         this.files[path] = {};
@@ -184,7 +185,19 @@ export class PgExplorer {
 
     try {
       await setupFiles(this.currentWorkspacePath);
-    } catch {
+    } catch (e: any) {
+      console.log(e.message);
+
+      // This helps with in rare case where user logs out during rename
+      if (this._workspace.allNames.length) {
+        const rootDirs = await fs.readdir("/");
+        const lastWorkspaceName = rootDirs[rootDirs.length - 1];
+        this._workspace.rename(lastWorkspaceName);
+        await this.init(lastWorkspaceName);
+
+        return;
+      }
+
       console.log(
         "Couldn't setup files from IndexedDB. Probably need initial setup."
       );
@@ -974,7 +987,7 @@ export class PgExplorer {
   getCurrentFileLanguage() {
     const currentPath = this.getCurrentFile()?.path;
     if (!currentPath) return null;
-    return PgExplorer.getLanguageFromPath(currentPath);
+    return PgExplorer.getLanguageFromPath(this._getRelativePath(currentPath));
   }
 
   /**
@@ -1277,7 +1290,7 @@ export class PgExplorer {
     return el?.getAttribute("data-path");
   }
 
-  static getLanguageFromPath(path: string) {
+  static getLanguageFromPath(path: string = "") {
     const splitByDot = path.split(".");
     if (!splitByDot?.length) {
       return null;

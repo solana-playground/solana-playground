@@ -1,4 +1,5 @@
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgTerminal } from "./terminal/";
 
@@ -15,11 +16,18 @@ const DEFAULT_LS_WALLET: LsWallet = {
   sk: Array.from(Keypair.generate().secretKey),
 };
 
-export class PgWallet {
-  keypair: Keypair;
-  // Public key will always be set
+/**
+ * A class that can be used as a replacement of any AnchorWallet.
+ *
+ * This implementation allows playground to not have to wait for user confirmation
+ * for transactions.
+ */
+export class PgWallet implements AnchorWallet {
+  private _kp: Keypair;
+
+  /** Public key will always be set */
   publicKey: PublicKey;
-  // Connected can change
+  /** Connected can change */
   connected: boolean;
 
   constructor() {
@@ -29,9 +37,13 @@ export class PgWallet {
       PgWallet.update(DEFAULT_LS_WALLET);
     }
 
-    this.keypair = Keypair.fromSecretKey(new Uint8Array(lsWallet.sk));
-    this.publicKey = this.keypair.publicKey;
+    this._kp = Keypair.fromSecretKey(new Uint8Array(lsWallet.sk));
+    this.publicKey = this._kp.publicKey;
     this.connected = lsWallet.connected;
+  }
+
+  get keypair() {
+    return this._kp;
   }
 
   // For compatibility with AnchorWallet

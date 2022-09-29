@@ -123,7 +123,7 @@ const WarningTextWrapper = styled.div`
   display: flex;
   align-items: center;
 
-  & svg {
+  & div > svg {
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;

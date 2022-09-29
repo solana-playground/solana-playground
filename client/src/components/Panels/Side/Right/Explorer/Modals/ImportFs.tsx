@@ -14,7 +14,7 @@ import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
 import Input, { defaultInputProps } from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
-import { Files, PgCommon } from "../../../../../../utils/pg";
+import { Files, PgCommon, PgExplorer } from "../../../../../../utils/pg";
 import { Checkmark, Upload } from "../../../../../Icons";
 
 export const ImportFs = () => {
@@ -44,25 +44,31 @@ export const ImportFs = () => {
     try {
       const importFiles: Files = [];
       for (const userFile of userFiles) {
-        const pathAfterSrc: string = userFile.path.replace(
-          /^(\/)?[\w\s]*\/(src\/)?/,
-          ""
-        );
-        if (!(pathAfterSrc.endsWith(".rs") || pathAfterSrc.endsWith(".py"))) {
-          throw new Error(
-            `You can only import Rust or Python files (${pathAfterSrc}).`
-          );
+        let path: string = userFile.path;
+        switch (path.split("/").length) {
+          case 1:
+            path = `${PgExplorer.SRC_DIRNAME}/${path}`;
+            break;
+          case 3:
+            path = path.substring(1);
+            break;
+          default:
+            path = path.replace(/\/\w+\//, "");
+        }
+
+        if (!PgExplorer.getLanguageFromPath(path)) {
+          throw new Error(`Unsupported file type (${path})`);
         }
 
         const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
         if (arrayBuffer.byteLength > 1024 * 128) {
           throw new Error(
-            `File '${pathAfterSrc}' is too big.(${arrayBuffer.byteLength})`
+            `File '${path}' is too big.(${arrayBuffer.byteLength})`
           );
         }
 
         const content = PgCommon.decodeArrayBuffer(arrayBuffer);
-        importFiles.push([pathAfterSrc, content]);
+        importFiles.push([path, content]);
       }
 
       setFiles(importFiles);
@@ -212,8 +218,7 @@ const ImportResult: FC<ImportResultProps> = ({
       </ImportResultWrapper>
     );
 
-  if (isDragActive)
-    return <ImportResultWrapper>Just do it</ImportResultWrapper>;
+  if (isDragActive) return <ImportResultWrapper>Drop here</ImportResultWrapper>;
 
   return <ImportResultWrapper>Select or drop files</ImportResultWrapper>;
 };
@@ -226,14 +231,18 @@ interface ImportResultTextProps {
 
 const ImportResultText = styled.div<ImportResultTextProps>`
   ${({ theme, type }) => css`
-    display: flex;
-    align-items: center;
-    color: ${type === "Success"
+    --color: ${type === "Success"
       ? theme.colors.default.secondary
       : theme.colors.state.error.color};
 
+    display: flex;
+    align-items: center;
+
+    color: var(--color);
+
     & > svg {
       margin-right: 0.5rem;
+      color: var(--color);
     }
   `}
 `;

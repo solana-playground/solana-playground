@@ -41,7 +41,6 @@ export const ImportGithub = () => {
       await explorer.importFromGithub(url);
       close();
     } catch (e: any) {
-      console.log(e.message);
       setLoading(false);
       setError(e.message);
     }
