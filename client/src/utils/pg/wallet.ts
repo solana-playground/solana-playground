@@ -16,7 +16,7 @@ const DEFAULT_LS_WALLET: LsWallet = {
 };
 
 export class PgWallet {
-  private _kp: Keypair;
+  keypair: Keypair;
   // Public key will always be set
   publicKey: PublicKey;
   // Connected can change
@@ -29,21 +29,21 @@ export class PgWallet {
       PgWallet.update(DEFAULT_LS_WALLET);
     }
 
-    this._kp = Keypair.fromSecretKey(new Uint8Array(lsWallet.sk));
-    this.publicKey = this._kp.publicKey;
+    this.keypair = Keypair.fromSecretKey(new Uint8Array(lsWallet.sk));
+    this.publicKey = this.keypair.publicKey;
     this.connected = lsWallet.connected;
   }
 
   // For compatibility with AnchorWallet
   async signTransaction(tx: Transaction) {
-    tx.partialSign(this._kp);
+    tx.partialSign(this.keypair);
     return tx;
   }
 
   // For compatibility with AnchorWallet
   async signAllTransactions(txs: Transaction[]) {
     for (const tx of txs) {
-      tx.partialSign(this._kp);
+      tx.partialSign(this.keypair);
     }
 
     return txs;
