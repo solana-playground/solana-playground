@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
+import { useMemo } from "react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
@@ -14,84 +13,20 @@ import {
   ClassName,
 } from "../../../constants";
 import { PgCommon } from "../../../utils/pg";
-import { balanceAtom } from "../../../state";
 import {
-  useAirdropAmount,
   useConnect,
   useCurrentWallet,
   useConnectOrSetupPg,
   ConnState,
 } from "../Wallet";
+import { useAutoAirdrop } from "./useAutoAirdrop";
 
 const Bottom = () => {
-  const [balance, setBalance] = useAtom(balanceAtom);
-
   const { connection: conn } = useConnection();
   const { connStatus } = useConnect();
   const { handleConnectPg } = useConnectOrSetupPg();
-  const { walletPkStr, currentWallet, pgWalletPk } = useCurrentWallet();
-
-  useEffect(() => {
-    if (!currentWallet) return;
-
-    const fetchBalance = async () => {
-      const lamports = await conn.getBalance(currentWallet.publicKey);
-
-      setBalance(PgCommon.lamportsToSol(lamports));
-    };
-    fetchBalance().catch(() => setBalance(null));
-
-    // Listen for balance changes
-    const id = conn.onAccountChange(currentWallet.publicKey, (a) =>
-      setBalance(PgCommon.lamportsToSol(a.lamports))
-    );
-
-    return () => {
-      conn.removeAccountChangeListener(id);
-    };
-  }, [balance, currentWallet, conn, setBalance]);
-
-  // Auto airdrop if balance is less than 4 SOL
-  const airdropAmount = useAirdropAmount();
-  const [rateLimited, setRateLimited] = useState(false);
-
-  const airdropping = useRef(false);
-
-  useEffect(() => {
-    const airdrop = async (_balance: number | null = balance) => {
-      if (
-        airdropping.current ||
-        rateLimited ||
-        !airdropAmount ||
-        _balance === undefined ||
-        _balance === null ||
-        _balance >= 4 ||
-        !currentWallet ||
-        !pgWalletPk ||
-        // Only auto-airdrop to PgWallet
-        !pgWalletPk.equals(currentWallet.publicKey)
-      )
-        return;
-
-      try {
-        airdropping.current = true;
-        const txHash = await conn.requestAirdrop(
-          pgWalletPk,
-          PgCommon.solToLamports(airdropAmount)
-        );
-        await conn.confirmTransaction(txHash, "finalized");
-      } catch (e: any) {
-        console.log(e.message);
-        setRateLimited(true);
-      } finally {
-        airdropping.current = false;
-        _balance = PgCommon.lamportsToSol(await conn.getBalance(pgWalletPk));
-        airdrop(_balance);
-      }
-    };
-
-    airdrop();
-  }, [balance, currentWallet, pgWalletPk, rateLimited, airdropAmount, conn]);
+  const { walletPkStr } = useCurrentWallet();
+  const { balance } = useAutoAirdrop();
 
   const [networkName, cluster] = useMemo(() => {
     return [

@@ -7,3 +7,5 @@ export type PgReturnType<T, U> = U extends keyof T
     ? ReturnType<T[U]>
     : T[U]
   : never;
+
+export type TupleString = [string, string];

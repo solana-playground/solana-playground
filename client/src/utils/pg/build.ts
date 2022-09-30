@@ -2,9 +2,10 @@ import { Idl } from "@project-serum/anchor";
 
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
-import { Files, PgExplorer, TupleString } from "./explorer";
+import { Files, PgExplorer } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 import { Pkgs } from "./terminal";
+import { TupleString } from "./types";
 
 interface BuildResp {
   stderr: string;

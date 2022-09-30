@@ -14,7 +14,7 @@ import {
   WorkspaceError,
 } from "../../../constants";
 import { Lang } from "./frameworks";
-import { PgMethod, PgReturnType } from "../types";
+import { PgMethod, PgReturnType, TupleString } from "../types";
 import { PgCommon } from "../common";
 
 export interface ExplorerJSON {
@@ -56,8 +56,6 @@ export interface Folder {
 
 /** Array<[Path, Content]> */
 export type Files = TupleString[];
-
-export type TupleString = [string, string];
 
 /**
  * Class that has both static and non-static methods for explorer.
