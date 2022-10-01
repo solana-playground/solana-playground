@@ -102,7 +102,11 @@ export class PgExplorer {
     return this._explorer.files;
   }
 
-  /** Get full path of current workspace('/' appended) */
+  /**
+   * Get full path of current workspace('/' appended)
+   *
+   * @throws if the workspace doesn't exist. Shouldn't be called on shared projects.
+   */
   get currentWorkspacePath() {
     if (!this.currentWorkspaceName) {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
@@ -291,7 +295,7 @@ export class PgExplorer {
 
     const metaFile: ItemMetaFile = {};
     for (const path in files) {
-      metaFile[this._getRelativePath(path)] = { ...files[path].meta };
+      metaFile[this.getRelativePath(path)] = { ...files[path].meta };
     }
 
     await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
@@ -693,7 +697,7 @@ export class PgExplorer {
 
       for (const subItemPath of subItemPaths) {
         const stat = await fs.stat(subItemPath);
-        const relativePath = this._getRelativePath(subItemPath);
+        const relativePath = this.getRelativePath(subItemPath);
         if (stat.isFile()) {
           const content = await this._readToString(subItemPath);
           zip.file(relativePath, content);
@@ -993,7 +997,10 @@ export class PgExplorer {
   getCurrentFileLanguage() {
     const currentPath = this.getCurrentFile()?.path;
     if (!currentPath) return null;
-    return PgExplorer.getLanguageFromPath(this._getRelativePath(currentPath));
+    const path = this.isShared
+      ? currentPath
+      : this.getRelativePath(currentPath);
+    return PgExplorer.getLanguageFromPath(path);
   }
 
   /**
@@ -1059,8 +1066,12 @@ export class PgExplorer {
    * @param fullPath Full path
    * @returns Relative path
    */
-  private _getRelativePath(fullPath: string) {
-    return fullPath.split(this.currentWorkspacePath)[1];
+  getRelativePath(fullPath: string) {
+    if (this.isShared) {
+      return fullPath;
+    } else {
+      return fullPath.split(this.currentWorkspacePath)[1];
+    }
   }
 
   /** Private methods */
@@ -1232,7 +1243,9 @@ export class PgExplorer {
    * @returns current workspace's src directory path
    */
   private _getCurrentSrcPath() {
-    return this.appendToCurrentWorkspacePath(PgExplorer.SRC_DIRNAME + "/");
+    return this.isShared
+      ? PgExplorer.ROOT_DIR_PATH + PgExplorer.SRC_DIRNAME + "/"
+      : this.appendToCurrentWorkspacePath(PgExplorer.SRC_DIRNAME + "/");
   }
 
   /**

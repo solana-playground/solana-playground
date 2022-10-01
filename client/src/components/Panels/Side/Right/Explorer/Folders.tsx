@@ -147,10 +147,14 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     [path]
   );
 
-  const depth = useMemo(
-    () => path.split(explorer?.currentWorkspacePath!)[1].split("/").length - 2,
-    [path, explorer?.currentWorkspacePath]
-  );
+  const depth = useMemo(() => {
+    if (!explorer) return 0;
+
+    return (
+      explorer.getRelativePath(path).split("/").length -
+      (explorer.isShared ? 3 : 2)
+    );
+  }, [path, explorer]);
 
   // No need useCallback here
   const toggle = (e: MouseEvent<HTMLDivElement>) => {

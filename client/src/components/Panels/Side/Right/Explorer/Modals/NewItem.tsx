@@ -93,7 +93,7 @@ export const NewItem = () => {
   }, [el, setEl, handleClickOut, handleKeyPress]);
 
   const depth = useMemo(() => {
-    if (!el) return 0;
+    if (!el || !explorer) return 0;
     let path = PgExplorer.getItemPathFromEl(el.firstChild as HTMLDivElement);
 
     // Empty folder
@@ -105,11 +105,13 @@ export const NewItem = () => {
     }
     const itemType = PgExplorer.getItemTypeFromPath(path);
 
-    return (
-      path.split(explorer?.currentWorkspacePath!)[1].split("/").length -
-      (itemType.folder ? 1 : 0)
-    );
-  }, [el, explorer?.currentWorkspacePath]);
+    if (!explorer.isShared) {
+      path = explorer.getRelativePath(path);
+    }
+
+    const depth = path.split("/").length - (itemType.folder ? 1 : 0);
+    return !explorer.isShared ? depth : depth - 1;
+  }, [el, explorer]);
 
   return el
     ? ReactDOM.createPortal(
