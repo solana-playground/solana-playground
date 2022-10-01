@@ -40,7 +40,7 @@ const ClientHelper = () => {
     const handle = (
       e: UIEvent & { detail: { isTest?: boolean; path?: string } }
     ) => {
-      PgTerminal.run(async () => {
+      PgTerminal.runCmd(async () => {
         if (!explorer) return;
 
         const isTest = e.detail.isTest;

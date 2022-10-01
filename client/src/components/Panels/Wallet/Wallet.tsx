@@ -150,7 +150,7 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
   const airdrop = useCallback(
     async (walletPk: PublicKey) => {
-      await PgTerminal.run(async () => {
+      await PgTerminal.runCmd(async () => {
         if (!amount) return;
 
         close();

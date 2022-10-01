@@ -10,10 +10,10 @@ export enum EventName {
   EDITOR_FORMAT = "editorformat",
 
   // Explorer
-  EXPLORER_GET = "explorerget",
-  EXPLORER_RUN = "explorerrun",
+  EXPLORER_STATIC = "explorerstatic",
 
   // Terminal
+  TERMINAL_STATIC = "terminalstatic",
   TERMINAL_DISABLE = "terminaldisable",
   TERMINAL_ENABLE = "terminalenable",
   TERMINAL_LOAD_PKG = "terminalloadpkg",

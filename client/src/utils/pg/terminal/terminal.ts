@@ -19,6 +19,7 @@ import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PkgName, Pkgs } from "./pkg";
 import { PgProgramInfo } from "../program-info";
+import { PgMethod, PgReturnType } from "../types";
 
 export class PgTerminal {
   /**
@@ -345,7 +346,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    * This function should be used as a wrapper function when calling any
    * terminal command.
    */
-  static async run<T>(cb: () => Promise<T>) {
+  static async runCmd<T>(cb: () => Promise<T>) {
     this.disable();
     this.scrollToBottom();
     try {
@@ -371,6 +372,33 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     PgCommon.createAndDispatchCustomEvent(
       EventName.TERMINAL_RUN_CMD_FROM_STR,
       cmd
+    );
+  }
+
+  /**
+   * Get terminal object from state as static
+   *
+   * @returns the terminal object in state
+   */
+  static async get<T, R extends PgTerm>() {
+    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
+      PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).get
+    );
+  }
+
+  /**
+   * Run any method of terminal in state from anywhere
+   *
+   * @param data method and its data to run
+   * @returns the result from the method call
+   */
+  static async run<
+    M extends PgMethod<PgTerm>,
+    R extends PgReturnType<PgTerm, keyof M>
+  >(data: M) {
+    return await PgCommon.sendAndReceiveCustomEvent<M, R>(
+      PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
+      data
     );
   }
 

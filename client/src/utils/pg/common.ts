@@ -258,6 +258,18 @@ export class PgCommon {
   }
 
   /**
+   * Get static get and run event names
+   *
+   * @param eventName name of the custom event
+   * @returns names of the get and run
+   */
+  static getStaticEventNames(eventName: string) {
+    const get = eventName + "get";
+    const run = eventName + "run";
+    return { get, run };
+  }
+
+  /**
    * Dispatch a custom event and wait for receiver to resolve
    *
    * @param eventName name of the custom event

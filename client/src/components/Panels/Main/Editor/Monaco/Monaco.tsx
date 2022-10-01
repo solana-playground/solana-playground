@@ -306,7 +306,7 @@ const Monaco = () => {
     const handleEditorFormat = (
       e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
     ) => {
-      PgTerminal.run(async () => {
+      PgTerminal.runCmd(async () => {
         if (!editor || !explorer) return;
 
         let formatRust;

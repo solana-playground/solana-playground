@@ -17,7 +17,7 @@ export const useBuild = () => {
   const [, setBuildCount] = useAtom(buildCountAtom);
 
   const runBuild = useCallback(() => {
-    PgTerminal.run(async () => {
+    PgTerminal.runCmd(async () => {
       setTerminalState(TerminalAction.buildStop);
 
       if (!explorer) return;

@@ -147,7 +147,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
 
   // Test submission
   const handleTest = useCallback(async () => {
-    const showLogTxHash = await PgTerminal.run(async () => {
+    const showLogTxHash = await PgTerminal.runCmd(async () => {
       if (!currentWallet) return;
 
       setLoading(true);

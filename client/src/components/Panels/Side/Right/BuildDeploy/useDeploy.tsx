@@ -36,7 +36,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const { authority, hasAuthority, upgradeable } = useAuthority();
 
   const runDeploy = useCallback(async () => {
-    return await PgTerminal.run(async () => {
+    return await PgTerminal.runCmd(async () => {
       // This doesn't stop the current deploy but stops new deploys
       setTerminalState(TerminalAction.deployStop);
 

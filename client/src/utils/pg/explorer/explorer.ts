@@ -1289,14 +1289,14 @@ export class PgExplorer {
    */
   static async get<T, R extends PgExplorer>() {
     return await PgCommon.sendAndReceiveCustomEvent<T, R>(
-      EventName.EXPLORER_GET
+      PgCommon.getStaticEventNames(EventName.EXPLORER_STATIC).get
     );
   }
 
   /**
    * Run any method of explorer in state from anywhere
    *
-   * @param data method to run
+   * @param data method and its data to run
    * @returns the result from the method call
    */
   static async run<
@@ -1304,7 +1304,7 @@ export class PgExplorer {
     R extends PgReturnType<PgExplorer, keyof M>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<M, R>(
-      EventName.EXPLORER_RUN,
+      PgCommon.getStaticEventNames(EventName.EXPLORER_STATIC).run,
       data
     );
   }

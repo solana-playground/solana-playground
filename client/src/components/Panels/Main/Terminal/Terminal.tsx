@@ -12,6 +12,7 @@ import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
 import { EventName } from "../../../../constants";
+import { useExposeStatic } from "../../../../hooks";
 
 const Terminal = () => {
   const [terminalOutput] = useAtom(terminalOutputAtom);
@@ -44,6 +45,8 @@ const Terminal = () => {
       },
     });
   }, [theme]);
+
+  useExposeStatic(term, EventName.TERMINAL_STATIC);
 
   // Custom keyboard events
   // Only runs when terminal is in focus
