@@ -10,7 +10,7 @@ export type InstructionType = {
   /** The Instruction index (from solana upstream program) */
   index: number;
   /** The BufferLayout to use to build data */
-  layout: BufferLayout.Layout;
+  layout: BufferLayout.Layout<any>;
 };
 
 /**

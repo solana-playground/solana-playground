@@ -5,7 +5,7 @@ import * as BufferLayout from "@solana/buffer-layout";
  * Layout for a Rust Vec<u8> type
  */
 export const rustVecBytes = (property: string = "string") => {
-  const rvbl = BufferLayout.struct(
+  const rvbl = BufferLayout.struct<any>(
     [
       BufferLayout.u32("length"),
       BufferLayout.u32("lengthPadding"),

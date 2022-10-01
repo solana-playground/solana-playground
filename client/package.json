@@ -23,7 +23,7 @@
     "@solana-playground/seahorse-compile-wasm": "../wasm/pkgs/seahorse-compile",
     "@solana-playground/solana-cli-wasm": "../wasm/pkgs/solana-cli",
     "@solana-playground/spl-token-cli-wasm": "../wasm/pkgs/spl-token-cli",
-    "@solana/buffer-layout": "3.0.0",
+    "@solana/buffer-layout": "^4.0.0",
     "@solana/spl-token": "^0.3.5",
     "@solana/wallet-adapter-phantom": "^0.9.3",
     "@solana/wallet-adapter-react": "^0.15.4",
@@ -66,6 +66,7 @@
     "monaco-editor-webpack-plugin": "^7.0.1"
   },
   "resolutions": {
+    "@solana/buffer-layout": "^4.0.0",
     "styled-components": "^5"
   },
   "scripts": {

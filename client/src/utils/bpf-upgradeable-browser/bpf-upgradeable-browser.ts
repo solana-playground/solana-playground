@@ -45,11 +45,13 @@ const BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS: {
 } = Object.freeze({
   InitializeBuffer: {
     index: 0,
-    layout: BufferLayout.struct([BufferLayout.u32("instruction")]),
+    layout: BufferLayout.struct<BufferLayout.UInt>([
+      BufferLayout.u32("instruction"),
+    ]),
   },
   Write: {
     index: 1,
-    layout: BufferLayout.struct([
+    layout: BufferLayout.struct<BufferLayout.UInt>([
       BufferLayout.u32("instruction"),
       BufferLayout.u32("offset"),
       Layout.rustVecBytes("bytes"),
@@ -57,7 +59,7 @@ const BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS: {
   },
   DeployWithMaxDataLen: {
     index: 2,
-    layout: BufferLayout.struct([
+    layout: BufferLayout.struct<BufferLayout.UInt>([
       BufferLayout.u32("instruction"),
       BufferLayout.u32("maxDataLen"),
       BufferLayout.u32("maxDataLenPadding"),
@@ -65,15 +67,21 @@ const BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS: {
   },
   Upgrade: {
     index: 3,
-    layout: BufferLayout.struct([BufferLayout.u32("instruction")]),
+    layout: BufferLayout.struct<BufferLayout.UInt>([
+      BufferLayout.u32("instruction"),
+    ]),
   },
   SetAuthority: {
     index: 4,
-    layout: BufferLayout.struct([BufferLayout.u32("instruction")]),
+    layout: BufferLayout.struct<BufferLayout.UInt>([
+      BufferLayout.u32("instruction"),
+    ]),
   },
   Close: {
     index: 5,
-    layout: BufferLayout.struct([BufferLayout.u32("instruction")]),
+    layout: BufferLayout.struct<BufferLayout.UInt>([
+      BufferLayout.u32("instruction"),
+    ]),
   },
 });
 
