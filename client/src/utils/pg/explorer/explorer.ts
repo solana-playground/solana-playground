@@ -63,15 +63,15 @@ export type Files = TupleString[];
 export class PgExplorer {
   /** Non-static methods */
 
-  // Internal state
+  /** Internal state */
   private _explorer: ExplorerJSON;
-  // IndexedDB FS object
+  /** IndexedDB FS object */
   private _fs?: PromisifiedFS;
-  // Workspace functionality
+  /** Workspace functionality */
   private _workspace?: PgWorkspace;
-  // Whether the user is on a shared page
+  /** Whether the user is on a shared page */
   private _shared?: boolean;
-  // To update ui
+  /** To update ui */
   private _refresh: () => void;
 
   /**
@@ -1069,9 +1069,14 @@ export class PgExplorer {
   getRelativePath(fullPath: string) {
     if (this.isShared) {
       return fullPath;
-    } else {
-      return fullPath.split(this.currentWorkspacePath)[1];
     }
+
+    const split = fullPath.split(this.currentWorkspacePath);
+    if (split.length === 1) {
+      return split[0];
+    }
+
+    return split[1];
   }
 
   /** Private methods */
@@ -1240,12 +1245,13 @@ export class PgExplorer {
   }
 
   /**
-   * @returns current workspace's src directory path
+   * @returns current src directory path
    */
   private _getCurrentSrcPath() {
-    return this.isShared
-      ? PgExplorer.ROOT_DIR_PATH + PgExplorer.SRC_DIRNAME + "/"
-      : this.appendToCurrentWorkspacePath(PgExplorer.SRC_DIRNAME + "/");
+    const srcPath = this.isShared
+      ? PgExplorer.ROOT_DIR_PATH + PgExplorer.SRC_DIRNAME
+      : this.appendToCurrentWorkspacePath(PgExplorer.SRC_DIRNAME);
+    return PgExplorer.appendSlash(srcPath);
   }
 
   /**
