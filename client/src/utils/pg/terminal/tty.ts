@@ -291,8 +291,9 @@ export class PgTty {
       if (!currentLine.isWrapped) {
         const currentLineStr = currentLine.translateToString();
         return (
-          currentLineStr.startsWith(PgTerminal.PROMPT) ||
-          currentLineStr.startsWith(PgTerminal.CONTINUATION_PROMPT_PREFIX)
+          currentLineStr.startsWith(PgTerminal.PROMPT_PREFIX) ||
+          currentLineStr.startsWith(PgTerminal.CONTINUATION_PROMPT_PREFIX) ||
+          currentLineStr.startsWith(PgTerminal.WAITING_INPUT_PROMPT_PREFIX)
         );
       }
     }

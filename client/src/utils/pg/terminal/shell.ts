@@ -33,12 +33,15 @@ export class PgShell {
   private _pgTty: PgTty;
   private _history: ShellHistory;
   private _active: boolean;
+  private _waitingForInput: boolean;
   private _processCount: number;
   private _maxAutocompleteEntries: number;
   private _autocompleteHandlers: AutoCompleteHandler[];
   private _loadedPkgs: { [pkgName: string]: boolean };
   private _activePrompt?: ActivePrompt;
   private _activeCharPrompt?: ActiveCharPrompt;
+
+  private readonly _EVT_NAME_WAIT_FOR_INPUT = "terminalwaitforinput";
 
   constructor(
     pgTty: PgTty,
@@ -56,9 +59,10 @@ export class PgShell {
         return this._history.getEntries();
       },
     ];
-    this._loadedPkgs = {};
     this._active = false;
+    this._waitingForInput = false;
     this._processCount = 0;
+    this._loadedPkgs = {};
   }
 
   /**
@@ -105,7 +109,10 @@ export class PgShell {
     }
 
     try {
-      this._activePrompt = this._pgTty.read(PgTerminal.PROMPT);
+      const promptText = this._waitingForInput
+        ? PgTerminal.WAITING_INPUT_PROMPT_PREFIX
+        : PgTerminal.PROMPT_PREFIX;
+      this._activePrompt = this._pgTty.read(promptText);
       this._active = true;
       let line = await this._activePrompt.promise;
 
@@ -171,7 +178,11 @@ export class PgShell {
 
     this._active = false;
 
-    this._parseCommand(input);
+    if (this._waitingForInput) {
+      PgCommon.createAndDispatchCustomEvent(this._EVT_NAME_WAIT_FOR_INPUT);
+    } else {
+      this._parseCommand(input);
+    }
   };
 
   /**
@@ -217,6 +228,40 @@ export class PgShell {
       this._handleData(data);
     }
   };
+
+  /**
+   * Wait for user input
+   *
+   * @param msg Message to print to the terminal before prompting user
+   * @returns user input
+   */
+  async waitForUserInput(msg: string): Promise<string> {
+    return new Promise((res, rej) => {
+      if (this._waitingForInput) rej("Already waiting for input.");
+      else {
+        this._waitingForInput = true;
+        this._pgTty.clearCurrentLine();
+        this._pgTty.println(
+          PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
+        );
+        this.enable();
+
+        // This will happen once user submits the input
+        const handleInput = () => {
+          this._waitingForInput = false;
+          document.removeEventListener(
+            this._EVT_NAME_WAIT_FOR_INPUT,
+            handleInput
+          );
+          this.enable();
+          const input = this._pgTty.getInput();
+          res(input);
+        };
+
+        document.addEventListener(this._EVT_NAME_WAIT_FOR_INPUT, handleInput);
+      }
+    });
+  }
 
   /**
    * Move cursor at given direction

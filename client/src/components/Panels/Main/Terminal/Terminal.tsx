@@ -47,43 +47,6 @@ const Terminal = () => {
 
   useExposeStatic(term, EventName.TERMINAL_STATIC);
 
-  // Custom keyboard events
-  // Only runs when terminal is in focus
-  const handleCustomEvent = useCallback(
-    (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
-        const key = e.key.toUpperCase();
-
-        switch (key) {
-          case "C":
-            if (e.shiftKey) {
-              e.preventDefault();
-              const selection = term.getSelection();
-              navigator.clipboard.writeText(selection);
-              return false;
-            }
-
-            return true;
-
-          case "V":
-            // Ctrl+Shift+V does not work with Firefox but works with Chromium.
-            // We fallback to Ctrl+V for Firefox
-            if (e.shiftKey || PgCommon.isFirefox()) return false;
-
-            return true;
-
-          case "L":
-          case "M":
-          case "J":
-            return false;
-        }
-      }
-
-      return true;
-    },
-    [term]
-  );
-
   // Open and fit terminal
   useEffect(() => {
     if (term && terminalRef.current) {
@@ -94,12 +57,10 @@ const Terminal = () => {
       term.open(terminalRef.current);
       term.fit();
 
-      term.attachCustomKeyEventHandler(handleCustomEvent);
-
       // This runs after theme change
       if (hasChild) term.println("");
     }
-  }, [term, handleCustomEvent]);
+  }, [term]);
 
   // New output
   useEffect(() => {

@@ -66,15 +66,17 @@ See the list of available crates and request new crates from: ${PgTerminal.under
 
 Type ${PgTerminal.bold("help")} to see all commands.`;
 
-  /**
-   * Default prompt string before entering commands
-   */
-  static readonly PROMPT = "$ ";
+  /** Default prompt string before entering commands */
+  static readonly PROMPT_PREFIX = "$ ";
 
-  /**
-   * Prompt after '
-   */
+  /** Prompt after `\` or `'` */
   static readonly CONTINUATION_PROMPT_PREFIX = "> ";
+
+  /** Prefix for the waiting user input prompt message */
+  static readonly WAITING_INPUT_MSG_PREFIX = "? ";
+
+  /** Prompt prefix for waiting user input */
+  static readonly WAITING_INPUT_PROMPT_PREFIX = ">> ";
 
   // Emojis
   static readonly CROSS = "❌";
@@ -468,6 +470,7 @@ export class PgTerm {
   open(container: HTMLElement) {
     this._container = container;
 
+    this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
     this._xterm.open(container);
     this._isOpen = true;
 
@@ -501,15 +504,6 @@ export class PgTerm {
         }
       }
     }, 100); // time needs to be lower than specified fit interval in Terminal component
-  }
-
-  /**
-   * Used for overriding default xterm key event handler
-   */
-  attachCustomKeyEventHandler(
-    customKeyEventHandler: (e: KeyboardEvent) => boolean
-  ) {
-    this._xterm.attachCustomKeyEventHandler(customKeyEventHandler);
   }
   /**
    * Focus terminal and scroll to cursor
@@ -604,7 +598,7 @@ export class PgTerm {
    */
   clear() {
     this._pgTty.clearTty();
-    this._pgTty.print(`${PgTerminal.PROMPT}${this._pgTty.getInput()}`);
+    this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.getInput()}`);
   }
 
   /**
@@ -664,6 +658,54 @@ export class PgTerm {
   runCmdFromStr(cmd: string) {
     this._pgTty.setInput(cmd);
     this._pgShell.handleReadComplete(true);
+  }
+
+  /**
+   * Wait for user input
+   *
+   * @param msg Message to print to the terminal before prompting user
+   * @returns user input
+   */
+  async waitForUserInput(msg: string) {
+    return await this._pgShell.waitForUserInput(msg);
+  }
+
+  /**
+   * Custom keyboard events. Only runs when terminal is in focus.
+   *
+   * @param e keyboard event
+   * @returns whether to change the defaults
+   */
+  private _handleCustomEvent(e: KeyboardEvent) {
+    if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
+      const key = e.key.toUpperCase();
+
+      switch (key) {
+        case "C":
+          if (e.shiftKey) {
+            e.preventDefault();
+            const selection = this._xterm.getSelection();
+            navigator.clipboard.writeText(selection);
+            return false;
+          }
+
+          return true;
+
+        case "V":
+          // Ctrl+Shift+V does not work with Firefox but works with Chromium.
+          // We fallback to Ctrl+V for Firefox
+          if (e.shiftKey || PgCommon.isFirefox()) return false;
+
+          return true;
+
+        case "L":
+        case "M":
+        case "J":
+          return false;
+      }
+    }
+
+    return true;
   }
 
   /**
