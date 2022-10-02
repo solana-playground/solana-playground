@@ -178,7 +178,7 @@ export class PgShell {
    * Handle terminal -> tty input
    */
   handleTermData = (data: string) => {
-    // Only Allow CTRL+C Through
+    // Only Allow CTRL+C through
     if (!this._active && data !== "\x03") {
       return;
     }
@@ -487,158 +487,6 @@ export class PgShell {
   };
 
   /**
-   * This function runs when user presses `Enter` in terminal
-   * @returns whether the command is valid
-   */
-  private _parseCommand(cmd: string) {
-    cmd = cmd.trim();
-    let isCmdValid = false;
-    switch (cmd) {
-      case PgCommand.BUILD: {
-        PgTerminal.setTerminalState(TerminalAction.buildStart);
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.CLEAR: {
-        // Move first line to the top(doesn't remove all xterm buffer)
-        this._pgTty.clearTty();
-        // Clear all
-        this._pgTty.clear();
-        this.prompt();
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.CONNECT: {
-        PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.DEPLOY: {
-        if (PgWallet.checkIsPgConnected()) {
-          PgTerminal.setTerminalState(TerminalAction.deployStart);
-        }
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.HELP: {
-        PgTerminal.logWasm(PgCommand.help());
-        this.enable();
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.PRETTIER: {
-        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
-          lang: Lang.TYPESCRIPT,
-          fromTerminal: true,
-        });
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.RUSTFMT: {
-        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
-          lang: Lang.RUST,
-          fromTerminal: true,
-        });
-        isCmdValid = true;
-        break;
-      }
-    }
-
-    if (cmd.startsWith(PgCommand.RUN) || cmd.startsWith(PgCommand.TEST)) {
-      const regex = new RegExp(/^\w+\s?(.*)/);
-      const match = regex.exec(cmd);
-      PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
-        isTest: cmd.startsWith(PgCommand.TEST),
-        path: match && match[1],
-      });
-
-      isCmdValid = true;
-    }
-
-    // This guarantees command only start with the specified command name
-    // solana-keygen would not count for cmdName === "solana"
-    const cmdName = cmd.split(" ")?.at(0);
-
-    switch (cmdName) {
-      case PgCommand.SOLANA: {
-        if (PgWallet.checkIsPgConnected()) {
-          (async () => {
-            const initial = !this._loadedPkgs[PkgName.SOLANA_CLI];
-            if (initial) {
-              this._loadedPkgs[PkgName.SOLANA_CLI] = true;
-            }
-            const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
-              log: initial,
-            });
-
-            runSolana!(
-              cmd,
-              // @ts-ignore
-              ...PgCommand.getCmdArgs(PkgName.SOLANA_CLI)
-            );
-          })();
-        }
-
-        isCmdValid = true;
-        break;
-      }
-
-      case PgCommand.SPL_TOKEN: {
-        if (PgWallet.checkIsPgConnected()) {
-          (async () => {
-            const initial = !this._loadedPkgs[PkgName.SPL_TOKEN_CLI];
-            if (initial) {
-              this._loadedPkgs[PkgName.SPL_TOKEN_CLI] = true;
-            }
-            const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
-              log: initial,
-            });
-
-            runSplToken!(
-              cmd,
-              // @ts-ignore
-              ...PgCommand.getCmdArgs(PkgName.SPL_TOKEN_CLI)
-            );
-          })();
-        }
-
-        isCmdValid = true;
-      }
-    }
-
-    // Special command
-    if (cmd === PgCommand.RUN_LAST_CMD) {
-      // Run the last command
-      const entries = this._history.getEntries();
-      if (!entries.length) {
-        this._pgTty.println("No previous command.");
-        this.enable();
-      } else {
-        const lastCmd = entries[entries.length - 1];
-        this._parseCommand(lastCmd);
-      }
-
-      isCmdValid = true;
-    }
-
-    // Only new prompt after invalid command, other commands will automatically
-    // generate new prompt
-    if (!isCmdValid) {
-      if (cmd) {
-        this._pgTty.println(`Command '${PgTerminal.italic(cmd)}' not found.\n`);
-      }
-
-      this.enable();
-    }
-  }
-
-  /**
    * Increments active process count
    */
   private _incrementProcessCount() {
@@ -652,5 +500,135 @@ export class PgShell {
     if (this._processCount) {
       this._processCount--;
     }
+  }
+
+  /**
+   * Runs after pressesing `Enter` in terminal
+   */
+  private _parseCommand(cmd: string) {
+    // This guarantees command only start with the specified command name
+    // solana-keygen would not count for cmdName === "solana"
+    const cmdName = cmd.trim().split(" ")?.at(0);
+
+    switch (cmdName) {
+      case PgCommand.BUILD: {
+        PgTerminal.setTerminalState(TerminalAction.buildStart);
+        return;
+      }
+
+      case PgCommand.CLEAR: {
+        // Move first line to the top(doesn't remove all xterm buffer)
+        this._pgTty.clearTty();
+        // Clear all
+        this._pgTty.clear();
+        this.prompt();
+        return;
+      }
+
+      case PgCommand.CONNECT: {
+        PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
+        return;
+      }
+
+      case PgCommand.DEPLOY: {
+        if (PgWallet.checkIsPgConnected()) {
+          PgTerminal.setTerminalState(TerminalAction.deployStart);
+        }
+        return;
+      }
+
+      case PgCommand.HELP: {
+        PgTerminal.logWasm(PgCommand.help());
+        this.enable();
+        return;
+      }
+
+      case PgCommand.PRETTIER: {
+        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+          lang: Lang.TYPESCRIPT,
+          fromTerminal: true,
+        });
+        return;
+      }
+
+      // Special command
+      case PgCommand.RUN_LAST_CMD: {
+        // Run the last command
+        const entries = this._history.getEntries();
+        if (!entries.length) {
+          this._pgTty.println("No previous command.");
+          this.enable();
+        } else {
+          const lastCmd = entries[entries.length - 1];
+          this._parseCommand(lastCmd);
+        }
+
+        return;
+      }
+
+      case PgCommand.RUN:
+      case PgCommand.TEST: {
+        const regex = new RegExp(/^\w+\s?(.*)/);
+        const match = regex.exec(cmd);
+        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+          isTest: cmd.startsWith(PgCommand.TEST),
+          path: match && match[1],
+        });
+
+        return;
+      }
+
+      case PgCommand.RUSTFMT: {
+        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+          lang: Lang.RUST,
+          fromTerminal: true,
+        });
+        return;
+      }
+
+      case PgCommand.SOLANA: {
+        if (PgWallet.checkIsPgConnected()) {
+          (async () => {
+            const initial = !this._loadedPkgs[PkgName.SOLANA_CLI];
+            if (initial) {
+              this._loadedPkgs[PkgName.SOLANA_CLI] = true;
+            }
+            const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
+              log: initial,
+            });
+
+            runSolana!(cmd, ...PgCommand.getCmdArgs(PkgName.SOLANA_CLI)!);
+          })();
+        }
+
+        return;
+      }
+
+      case PgCommand.SPL_TOKEN: {
+        if (PgWallet.checkIsPgConnected()) {
+          (async () => {
+            const initial = !this._loadedPkgs[PkgName.SPL_TOKEN_CLI];
+            if (initial) {
+              this._loadedPkgs[PkgName.SPL_TOKEN_CLI] = true;
+            }
+            const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
+              log: initial,
+            });
+
+            runSplToken!(cmd, ...PgCommand.getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
+          })();
+        }
+
+        return;
+      }
+    }
+
+    // Only new prompt after invalid command, other commands will automatically
+    // generate new prompt
+    if (cmdName) {
+      this._pgTty.println(`Command '${PgTerminal.italic(cmd)}' not found.\n`);
+    }
+
+    this.enable();
   }
 }

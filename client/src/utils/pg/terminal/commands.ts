@@ -48,15 +48,15 @@ export class PgCommand {
    * - Solana: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
    * - SPL-Token: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
    */
-  static getCmdArgs(pkg: PkgName) {
-    switch (pkg) {
+  static getCmdArgs(pkgName: PkgName) {
+    switch (pkgName) {
       case PkgName.SOLANA_CLI:
       case PkgName.SPL_TOKEN_CLI:
         return [
           PgConnection.endpoint,
           PgConnection.commitment,
           PgWallet.keypairBytes,
-        ];
+        ] as [string, string, Uint8Array];
     }
   }
 }
