@@ -1,3 +1,6 @@
+import { GITHUB_URL } from "../../../constants";
+import { PgTerminal } from "./terminal";
+
 export interface Pkgs {
   compileSeahorse?: (pythonSource: string, programName: string) => string;
   runSolana?: (
@@ -32,6 +35,7 @@ export enum PkgName {
 
 enum PkgUiName {
   RUSTFMT = "Rustfmt",
+  SEAHORSE_COMPILE = "Seahorse",
   SOLANA_CLI = "Solana CLI",
   SPL_TOKEN_CLI = "SPL Token CLI",
 }
@@ -40,6 +44,10 @@ export class PgPkg {
   static readonly RUSTFMT: PkgInfo = {
     name: PkgName.RUSTFMT,
     uiName: PkgUiName.RUSTFMT,
+  };
+  static readonly SEAHORSE_COMPILE: PkgInfo = {
+    name: PkgName.SEAHORSE_COMPILE,
+    uiName: PkgUiName.SEAHORSE_COMPILE,
   };
   static readonly SOLANA_CLI: PkgInfo = {
     name: PkgName.SOLANA_CLI,
@@ -52,9 +60,47 @@ export class PgPkg {
 
   /**
    * Imports the given package asynchronously
+   *
+   * @param opts.log log the progress to the terminal
    * @returns the imported package
    */
-  static async loadPkg(pkgName: PkgName): Promise<Pkgs> {
+  static async loadPkg(
+    pkgInfo: PkgInfo,
+    opts?: { log: boolean }
+  ): Promise<Pkgs> {
+    const log = opts?.log;
+    if (log) {
+      PgTerminal.logWasm(PgTerminal.info(`Loading ${pkgInfo.uiName}...`));
+    }
+
+    let resultMsg;
+    try {
+      const pkg = await this._loadPkg(pkgInfo.name);
+
+      resultMsg = `${PgTerminal.success("Success.")}`;
+
+      return pkg;
+    } catch (e: any) {
+      resultMsg = `${PgTerminal.error("Error")} loading ${
+        pkgInfo.uiName
+      }. Please consider filing a bug report in ${PgTerminal.underline(
+        GITHUB_URL + "/issues"
+      )}
+      Error reason: ${e.message}`;
+
+      PgTerminal.enable();
+
+      throw new Error(resultMsg);
+    } finally {
+      if (log) PgTerminal.logWasm(resultMsg + "\n");
+    }
+  }
+
+  /**
+   * Imports the given package asynchronously
+   * @returns the imported package
+   */
+  private static async _loadPkg(pkgName: PkgName) {
     switch (pkgName) {
       case PkgName.RUSTFMT:
         return await import("@solana-playground/rustfmt-wasm");

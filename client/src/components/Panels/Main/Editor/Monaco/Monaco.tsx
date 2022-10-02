@@ -10,7 +10,6 @@ import {
   PgExplorer,
   PgPkg,
   PgTerminal,
-  PkgName,
 } from "../../../../../utils/pg";
 import { EventName } from "../../../../../constants";
 
@@ -317,7 +316,7 @@ const Monaco = () => {
             const model = editor.getModel();
             if (!model) return;
 
-            const { rustfmt } = await PgPkg.loadPkg(PkgName.RUSTFMT);
+            const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
 
             let result;
             try {

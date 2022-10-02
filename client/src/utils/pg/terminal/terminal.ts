@@ -17,7 +17,6 @@ import {
 } from "../../../constants";
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
-import { PkgName, Pkgs } from "./pkg";
 import { PgProgramInfo } from "../program-info";
 import { PgMethod, PgReturnType } from "../types";
 
@@ -325,15 +324,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Dispatch load pkg terminal custom event
-   */
-  static loadPkg(pkg: PkgName) {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_LOAD_PKG, {
-      pkg,
-    });
-  }
-
-  /**
    * Dispatch scroll to bottom custom event
    */
   static scrollToBottom() {
@@ -451,14 +441,6 @@ export class PgTerm {
     // Container is empty at start
     this._container = null;
 
-    this._xterm.onResize(this._handleTermResize);
-    this._xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
-      if (keyEvent.key === " ") {
-        keyEvent.domEvent.preventDefault();
-        return false;
-      }
-    });
-
     // Load xterm addons
     this._webLinksAddon = new WebLinksAddon();
     this._fitAddon = new FitAddon();
@@ -469,14 +451,18 @@ export class PgTerm {
     this._pgTty = new PgTty(this._xterm);
     this._pgShell = new PgShell(this._pgTty);
 
+    // XTerm events
+    this._xterm.onResize(this._handleTermResize);
+    this._xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
+      if (keyEvent.key === " ") {
+        keyEvent.domEvent.preventDefault();
+        return false;
+      }
+    });
     // Any data event (key, paste...)
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
-  }
-
-  setPkgs(pkgs: Pkgs) {
-    this._pgShell.setPkgs(pkgs);
   }
 
   open(container: HTMLElement) {

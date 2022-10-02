@@ -12,7 +12,7 @@ import {
 import { PgTerminal } from "./terminal";
 import { PgWallet } from "../wallet";
 import { PgCommand } from "./commands";
-import { PkgName, Pkgs } from "./pkg";
+import { PgPkg, PkgName } from "./pkg";
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { Lang } from "../explorer";
@@ -36,9 +36,9 @@ export class PgShell {
   private _processCount: number;
   private _maxAutocompleteEntries: number;
   private _autocompleteHandlers: AutoCompleteHandler[];
+  private _loadedPkgs: { [pkgName: string]: boolean };
   private _activePrompt?: ActivePrompt;
   private _activeCharPrompt?: ActiveCharPrompt;
-  private _pkgs?: Pkgs;
 
   constructor(
     pgTty: PgTty,
@@ -56,6 +56,7 @@ export class PgShell {
         return this._history.getEntries();
       },
     ];
+    this._loadedPkgs = {};
     this._active = false;
     this._processCount = 0;
   }
@@ -65,10 +66,6 @@ export class PgShell {
    */
   getHistory() {
     return this._history;
-  }
-
-  setPkgs(pkgs: Pkgs) {
-    this._pkgs = pkgs;
   }
 
   /**
@@ -571,15 +568,21 @@ export class PgShell {
     switch (cmdName) {
       case PgCommand.SOLANA: {
         if (PgWallet.checkIsPgConnected()) {
-          if (this._pkgs?.runSolana) {
-            this._pkgs.runSolana(
+          (async () => {
+            const initial = !this._loadedPkgs[PkgName.SOLANA_CLI];
+            if (initial) {
+              this._loadedPkgs[PkgName.SOLANA_CLI] = true;
+            }
+            const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
+              log: initial,
+            });
+
+            runSolana!(
               cmd,
               // @ts-ignore
               ...PgCommand.getCmdArgs(PkgName.SOLANA_CLI)
             );
-          } else {
-            PgTerminal.loadPkg(PkgName.SOLANA_CLI);
-          }
+          })();
         }
 
         isCmdValid = true;
@@ -588,15 +591,21 @@ export class PgShell {
 
       case PgCommand.SPL_TOKEN: {
         if (PgWallet.checkIsPgConnected()) {
-          if (this._pkgs?.runSplToken) {
-            this._pkgs.runSplToken(
+          (async () => {
+            const initial = !this._loadedPkgs[PkgName.SPL_TOKEN_CLI];
+            if (initial) {
+              this._loadedPkgs[PkgName.SPL_TOKEN_CLI] = true;
+            }
+            const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
+              log: initial,
+            });
+
+            runSplToken!(
               cmd,
               // @ts-ignore
               ...PgCommand.getCmdArgs(PkgName.SPL_TOKEN_CLI)
             );
-          } else {
-            PgTerminal.loadPkg(PkgName.SPL_TOKEN_CLI);
-          }
+          })();
         }
 
         isCmdValid = true;

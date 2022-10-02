@@ -7,7 +7,6 @@ import "xterm/css/xterm.css";
 import Button from "../../../Button";
 import Progress from "../../../Progress";
 import { useTerminal } from "./useTerminal";
-import { usePkg } from "./usePkg";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
@@ -217,13 +216,6 @@ const Terminal = () => {
     document.addEventListener("keydown", handleKeybinds);
     return () => document.removeEventListener("keydown", handleKeybinds);
   }, [term, height, clear, toggleClose, toggleMaximize]);
-
-  // Set packages
-  const pkgs = usePkg();
-
-  useEffect(() => {
-    if (pkgs) term.setPkgs(pkgs);
-  }, [term, pkgs]);
 
   // Terminal custom events
   useEffect(() => {

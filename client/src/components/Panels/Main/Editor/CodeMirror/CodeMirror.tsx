@@ -17,7 +17,6 @@ import {
   Lang,
   PgCommon,
   PgPkg,
-  PkgName,
 } from "../../../../../utils/pg";
 import { EventName } from "../../../../../constants";
 
@@ -357,7 +356,7 @@ const CodeMirror = () => {
         const isCurrentFileRust = explorer.isCurrentFileRust();
         if (isCurrentFileRust) {
           formatRust = async () => {
-            const { rustfmt } = await PgPkg.loadPkg(PkgName.RUSTFMT);
+            const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
             const currentContent = editor.state.doc.toString();
             let result;
             try {

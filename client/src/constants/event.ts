@@ -16,7 +16,6 @@ export enum EventName {
   TERMINAL_STATIC = "terminalstatic",
   TERMINAL_DISABLE = "terminaldisable",
   TERMINAL_ENABLE = "terminalenable",
-  TERMINAL_LOAD_PKG = "terminalloadpkg",
   TERMINAL_LOG = "terminallog",
   TERMINAL_RUN_CMD_FROM_STR = "terminalruncmdfromstr",
   TERMINAL_RUN_LAST_CMD = "terminalrunlastcmd",
