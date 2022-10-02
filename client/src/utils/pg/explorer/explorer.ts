@@ -200,7 +200,7 @@ export class PgExplorer {
 
       // This helps with in rare case where user logs out during rename
       if (this._workspace.allNames.length) {
-        const rootDirs = await fs.readdir("/");
+        const rootDirs = await fs.readdir(PgExplorer.ROOT_DIR_PATH);
         const lastWorkspaceName = rootDirs[rootDirs.length - 1];
         this._workspace.rename(lastWorkspaceName);
         await this.init(lastWorkspaceName);
@@ -790,6 +790,8 @@ export class PgExplorer {
     const curFile = this.getCurrentFile();
 
     if (curFile) {
+      if (newPath === curFile.path) return;
+
       files[curFile.path].meta = {
         ...files[curFile.path].meta,
         current: false,

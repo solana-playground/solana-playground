@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense, useState, useRef } from "react";
+import { useEffect, lazy, Suspense, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
@@ -16,8 +16,6 @@ const Editor = () => {
   const [loading, setLoading] = useState(true);
   const [showHome, setShowHome] = useState(false);
   const [showMonaco, setShowMonaco] = useState(false);
-
-  const editorWrapper = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (explorer) {
@@ -52,7 +50,7 @@ const Editor = () => {
   if (loading) return <EditorLoading />;
 
   return (
-    <Wrapper ref={editorWrapper}>
+    <Wrapper>
       <Suspense fallback={<EditorLoading />}>
         {showHome ? <Home /> : showMonaco ? <Monaco /> : <CodeMirror />}
       </Suspense>
