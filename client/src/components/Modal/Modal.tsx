@@ -1,20 +1,38 @@
-import { useEffect } from "react";
+import { ComponentType, useEffect } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import { modalAtom } from "../../state";
+import { PgCommon } from "../../utils/pg";
+import { EventName } from "../../constants";
 
 const Modal = () => {
   const [modal, setModal] = useAtom(modalAtom);
 
-  // Close modal on ESC
+  // Events
   useEffect(() => {
+    const eventName = PgCommon.getSendAndReceiveEventNames(
+      EventName.MODAL_SET
+    ).send;
+
+    // Set modal from custom event
+    const handleModalSet = (e: UIEvent & { detail: { el: ComponentType } }) => {
+      const El = e.detail.el;
+      setModal(El ? <El /> : null);
+    };
+
+    // Close modal on ESC
     const handleKey = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") setModal(null);
     };
 
+    document.addEventListener(eventName, handleModalSet as EventListener);
     document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
+
+    return () => {
+      document.removeEventListener(eventName, handleModalSet as EventListener);
+      document.removeEventListener("keydown", handleKey);
+    };
   }, [setModal]);
 
   return modal ? <Wrapper>{modal}</Wrapper> : null;

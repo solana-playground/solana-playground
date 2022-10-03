@@ -12,6 +12,9 @@ export enum EventName {
   // Explorer
   EXPLORER_STATIC = "explorerstatic",
 
+  // Modal
+  MODAL_SET = "modalset",
+
   // Terminal
   TERMINAL_STATIC = "terminalstatic",
   TERMINAL_DISABLE = "terminaldisable",

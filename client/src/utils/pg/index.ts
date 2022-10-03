@@ -4,6 +4,7 @@ export * from "./connection";
 export * from "./deploy";
 export * from "./editor";
 export * from "./explorer/";
+export * from "./modal";
 export * from "./noti";
 export * from "./preferences";
 export * from "./program-info";
