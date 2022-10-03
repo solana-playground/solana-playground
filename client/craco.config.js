@@ -36,10 +36,18 @@ module.exports = {
 
       // Resolve node polyfills
       webpackConfig.resolve.fallback = {
-        // Mocha depends on stream
+        // Mocha
         stream: require.resolve("stream-browserify"),
+
         // Fix `Module not found: Error: Can't resolve 'perf_hooks'` from typescript
         perf_hooks: false,
+
+        // @metaplex-foundation/js polyfills
+        crypto: require.resolve("crypto-browserify"),
+        fs: false,
+        process: false,
+        path: false,
+        zlib: false,
       };
 
       // Plugins

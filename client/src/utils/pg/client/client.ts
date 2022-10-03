@@ -100,6 +100,10 @@ export class PgClient {
         const splToken = await import("@solana/spl-token");
         globals.push(["splToken", splToken]);
       }
+      if (code.includes("metaplex")) {
+        const metaplex = await import("@metaplex-foundation/js");
+        globals.push(["metaplex", metaplex]);
+      }
 
       // Playground utils namespace
       const pg: Pg = { connection };
