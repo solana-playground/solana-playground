@@ -470,8 +470,8 @@ export class PgTerm {
   open(container: HTMLElement) {
     this._container = container;
 
-    this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
     this._xterm.open(container);
+    this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
     this._isOpen = true;
 
     // Print welcome text
@@ -585,13 +585,6 @@ export class PgTerm {
   }
 
   /**
-   * Get terminal selection as string
-   */
-  getSelection() {
-    return this._xterm.getSelection();
-  }
-
-  /**
    * Moves the command line to the top of the terminal screen
    *
    * This function does not clear previous history.
@@ -663,7 +656,7 @@ export class PgTerm {
   /**
    * Wait for user input
    *
-   * @param msg Message to print to the terminal before prompting user
+   * @param msg message to print to the terminal before prompting user
    * @returns user input
    */
   async waitForUserInput(msg: string) {
@@ -674,9 +667,13 @@ export class PgTerm {
    * Custom keyboard events. Only runs when terminal is in focus.
    *
    * @param e keyboard event
-   * @returns whether to change the defaults
+   * @returns whether to keep the defaults
+   *
+   * NOTE: This function is intentionally uses arrow functions for `this` to be
+   * defined from the outer class (PgTerm) otherwise `this` is being defined from
+   * XTerm's instance
    */
-  private _handleCustomEvent(e: KeyboardEvent) {
+  private _handleCustomEvent = (e: KeyboardEvent) => {
     if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
       const key = e.key.toUpperCase();
 
@@ -706,7 +703,7 @@ export class PgTerm {
     }
 
     return true;
-  }
+  };
 
   /**
    * Handle terminal resize

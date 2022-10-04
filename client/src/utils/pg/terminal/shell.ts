@@ -1,5 +1,5 @@
 import { PgTty } from "./tty";
-import ShellHistory from "./shell-history";
+import { PgShellHistory } from "./shell-history";
 import {
   ActiveCharPrompt,
   ActivePrompt,
@@ -13,8 +13,8 @@ import { PgTerminal } from "./terminal";
 import { PgWallet } from "../wallet";
 import { PgCommand } from "./commands";
 import { PgPkg, PkgName } from "./pkg";
-import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
+import { TerminalAction } from "../../../state";
 import { Lang } from "../explorer";
 import { EventName } from "../../../constants";
 
@@ -31,7 +31,7 @@ type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
  */
 export class PgShell {
   private _pgTty: PgTty;
-  private _history: ShellHistory;
+  private _history: PgShellHistory;
   private _active: boolean;
   private _waitingForInput: boolean;
   private _processCount: number;
@@ -41,8 +41,6 @@ export class PgShell {
   private _activePrompt?: ActivePrompt;
   private _activeCharPrompt?: ActiveCharPrompt;
 
-  private readonly _EVT_NAME_WAIT_FOR_INPUT = "terminalwaitforinput";
-
   constructor(
     pgTty: PgTty,
     options: ShellOptions = {
@@ -51,7 +49,7 @@ export class PgShell {
     }
   ) {
     this._pgTty = pgTty;
-    this._history = new ShellHistory(options.historySize);
+    this._history = new PgShellHistory(options.historySize);
 
     this._maxAutocompleteEntries = options.maxAutocompleteEntries;
     this._autocompleteHandlers = [
@@ -179,7 +177,7 @@ export class PgShell {
     this._active = false;
 
     if (this._waitingForInput) {
-      PgCommon.createAndDispatchCustomEvent(this._EVT_NAME_WAIT_FOR_INPUT);
+      PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_WAIT_FOR_INPUT);
     } else {
       this._parseCommand(input);
     }
@@ -250,7 +248,7 @@ export class PgShell {
         const handleInput = () => {
           this._waitingForInput = false;
           document.removeEventListener(
-            this._EVT_NAME_WAIT_FOR_INPUT,
+            EventName.TERMINAL_WAIT_FOR_INPUT,
             handleInput
           );
           this.enable();
@@ -258,7 +256,10 @@ export class PgShell {
           res(input);
         };
 
-        document.addEventListener(this._EVT_NAME_WAIT_FOR_INPUT, handleInput);
+        document.addEventListener(
+          EventName.TERMINAL_WAIT_FOR_INPUT,
+          handleInput
+        );
       }
     });
   }

@@ -3,7 +3,7 @@ import { PgCommand } from "./commands";
 /**
  * Keeps track of shell history
  */
-export default class ShellHistory {
+export class PgShellHistory {
   private _cursor: number;
   private _size: number;
   private _entries: string[];

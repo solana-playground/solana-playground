@@ -306,9 +306,6 @@ export class PgTty {
    * then replaces them with the new input.
    */
   setInput(newInput: string, shouldNotClearInput: boolean = false) {
-    // Doing the programming anitpattern here,
-    // because defaulting to true is the opposite of what
-    // not passing a param means in JS
     if (!shouldNotClearInput) {
       this.clearInput();
     }

@@ -16,7 +16,6 @@ export enum EventName {
   MODAL_SET = "modalset",
 
   // Terminal
-  TERMINAL_STATIC = "terminalstatic",
   TERMINAL_DISABLE = "terminaldisable",
   TERMINAL_ENABLE = "terminalenable",
   TERMINAL_LOG = "terminallog",
@@ -24,4 +23,6 @@ export enum EventName {
   TERMINAL_RUN_LAST_CMD = "terminalrunlastcmd",
   TERMINAL_SCROLL_TO_BOTTOM = "terminalscrolltobottom",
   TERMINAL_STATE = "terminalstate",
+  TERMINAL_STATIC = "terminalstatic",
+  TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
 }
