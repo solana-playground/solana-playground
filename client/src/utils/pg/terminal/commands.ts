@@ -14,6 +14,7 @@ export class PgCommand {
   static readonly RUSTFMT = "rustfmt";
   static readonly SOLANA = "solana";
   static readonly SPL_TOKEN = "spl-token";
+  static readonly SUGAR = "sugar";
   static readonly TEST = "test";
 
   /**

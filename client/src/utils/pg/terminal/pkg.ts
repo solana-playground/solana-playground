@@ -15,6 +15,7 @@ export interface Pkgs {
     commitment: string,
     keypairBytes: Uint8Array
   ) => void;
+  runSugar?: (arg: string) => Promise<void>;
   rustfmt?: (input: string) => {
     code: () => string;
     error: () => string | undefined;
@@ -31,6 +32,7 @@ export enum PkgName {
   SEAHORSE_COMPILE = "seahorse-compile",
   SOLANA_CLI = "solana-cli",
   SPL_TOKEN_CLI = "spl-token-cli",
+  SUGAR_CLI = "sugar-cli",
 }
 
 enum PkgUiName {
@@ -38,6 +40,7 @@ enum PkgUiName {
   SEAHORSE_COMPILE = "Seahorse",
   SOLANA_CLI = "Solana CLI",
   SPL_TOKEN_CLI = "SPL Token CLI",
+  SUGAR_CLI = "Sugar CLI",
 }
 
 export class PgPkg {
@@ -56,6 +59,10 @@ export class PgPkg {
   static readonly SPL_TOKEN_CLI: PkgInfo = {
     name: PkgName.SPL_TOKEN_CLI,
     uiName: PkgUiName.SPL_TOKEN_CLI,
+  };
+  static readonly SUGAR_CLI: PkgInfo = {
+    name: PkgName.SUGAR_CLI,
+    uiName: PkgUiName.SUGAR_CLI,
   };
 
   /**
@@ -110,6 +117,8 @@ export class PgPkg {
         return await import("@solana-playground/solana-cli-wasm");
       case PkgName.SPL_TOKEN_CLI:
         return await import("@solana-playground/spl-token-cli-wasm");
+      case PkgName.SUGAR_CLI:
+        return await import("@solana-playground/sugar-cli-wasm");
     }
   }
 }

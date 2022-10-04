@@ -548,6 +548,7 @@ export class PgShell {
     }
   }
 
+  // TODO: Move this to `PgCommands` and keep state for cmd and pkg management
   /**
    * Runs after pressesing `Enter` in terminal
    */
@@ -664,6 +665,24 @@ export class PgShell {
             runSplToken!(cmd, ...PgCommand.getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
           })();
         }
+
+        return;
+      }
+
+      case PgCommand.SUGAR: {
+        PgTerminal.runCmd(async () => {
+          if (PgWallet.checkIsPgConnected()) {
+            const initial = !this._loadedPkgs[PkgName.SUGAR_CLI];
+            if (initial) {
+              this._loadedPkgs[PkgName.SUGAR_CLI] = true;
+            }
+            const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
+              log: initial,
+            });
+
+            await runSugar!(cmd);
+          }
+        });
 
         return;
       }

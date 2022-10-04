@@ -2360,6 +2360,9 @@
 "@solana-playground/spl-token-cli-wasm@../wasm/pkgs/spl-token-cli":
   version "2.0.15"
 
+"@solana-playground/sugar-cli-wasm@../wasm/pkgs/sugar-cli":
+  version "1.0.0"
+
 "@solana/buffer-layout-utils@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@solana/buffer-layout-utils/-/buffer-layout-utils-0.2.0.tgz#b45a6cab3293a2eb7597cceb474f229889d875ca"

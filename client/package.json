@@ -24,6 +24,7 @@
     "@solana-playground/seahorse-compile-wasm": "../wasm/pkgs/seahorse-compile",
     "@solana-playground/solana-cli-wasm": "../wasm/pkgs/solana-cli",
     "@solana-playground/spl-token-cli-wasm": "../wasm/pkgs/spl-token-cli",
+    "@solana-playground/sugar-cli-wasm": "../wasm/pkgs/sugar-cli",
     "@solana/buffer-layout": "^4.0.0",
     "@solana/spl-token": "^0.3.5",
     "@solana/wallet-adapter-phantom": "^0.9.3",
