@@ -1,3 +1,4 @@
+import { Emoji } from "../../../../constants";
 import { PgTerminal } from "../../terminal";
 
 enum BundlrAction {
@@ -98,7 +99,7 @@ export class PgSugar {
 
   /**
    * WASM panics if any of the `PgSugar` processes throw an error.
-   * We are catching the errors and log it similar to Sugar's the Rust implementation.
+   * We are catching the errors and log them similar to Sugar's Rust implementation.
    *
    * @param cb callback function to run
    */
@@ -107,7 +108,7 @@ export class PgSugar {
       await cb();
     } catch (e: any) {
       PgTerminal.logWasm(
-        `${PgTerminal.CROSS} ${PgTerminal.error(
+        `${Emoji.ERROR} ${PgTerminal.error(
           "Error running command (re-run needed):"
         )} ${e.message}\n`
       );

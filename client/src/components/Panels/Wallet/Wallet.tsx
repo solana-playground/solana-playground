@@ -21,7 +21,7 @@ import useCopy from "../../CopyButton/useCopy";
 import Button from "../../Button";
 import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
-import { ClassName, Id } from "../../../constants";
+import { ClassName, Emoji, Id } from "../../../constants";
 import {
   pgWalletAtom,
   showWalletAtom,
@@ -175,19 +175,19 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
           const afterBalance = await conn.getBalance(walletPk, "processed");
 
           if (afterBalance > beforeBalance)
-            msg = `${PgTerminal.CHECKMARK}  ${PgTerminal.success(
+            msg = `${Emoji.CHECKMARK} ${PgTerminal.success(
               "Success."
             )} Received ${PgTerminal.bold(amount.toString())} SOL.`;
           else
-            msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
+            msg = `${Emoji.CROSS} ${PgTerminal.error(
               "Error receiving airdrop."
             )}`;
         } catch (e: any) {
           const convertedError = PgTerminal.convertErrorMessage(e.message);
 
-          msg = `${PgTerminal.CROSS}  ${PgTerminal.error(
+          msg = `${Emoji.CROSS} ${PgTerminal.error(
             "Error receiving airdrop:"
-          )} ${convertedError}`;
+          )}: ${convertedError}`;
         } finally {
           setTerminal(msg + "\n");
         }

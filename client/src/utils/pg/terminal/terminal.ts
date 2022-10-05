@@ -6,6 +6,7 @@ import { format } from "util";
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
 import {
+  Emoji,
   EventName,
   GITHUB_URL,
   Id,
@@ -77,10 +78,6 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
   /** Prompt prefix for waiting user input */
   static readonly WAITING_INPUT_PROMPT_PREFIX = ">> ";
-
-  // Emojis
-  static readonly CROSS = "❌";
-  static readonly CHECKMARK = "✅";
 
   static success(text: string) {
     return `\x1b[1;32m${text}\x1b[0m`;
@@ -406,7 +403,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       if (fullMessage.startsWith("  ")) {
         const editedMessage = fullMessage
           // Replace checkmark icon
-          .replace(PgTerminal.CHECKMARK, PgTerminal.success("✔"))
+          .replace(Emoji.CHECKMARK, PgTerminal.success("✔ "))
           // Make '1) testname' red
           .replace(/\s+\d\)\s\w*$/, (match) => PgTerminal.error(match))
           // Passing text

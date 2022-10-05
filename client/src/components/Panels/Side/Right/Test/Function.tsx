@@ -10,7 +10,7 @@ import Arg from "./Arg";
 import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
 import { updateTxValsProps } from "./useUpdateTxVals";
-import { ClassName } from "../../../../../constants";
+import { ClassName, Emoji } from "../../../../../constants";
 import { terminalOutputAtom, txHashAtom } from "../../../../../state";
 import {
   PgCommon,
@@ -169,20 +169,20 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         const txResult = await PgTx.confirm(txHash, conn);
 
         if (txResult?.err) {
-          msg = `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+          msg = `${Emoji.CROSS} Test '${ixs.name}' ${PgTerminal.error(
             "failed"
           )}.`;
         } else {
-          msg = `${PgTerminal.CHECKMARK}  Test '${
-            ixs.name
-          }' ${PgTerminal.success("passed")}.`;
+          msg = `${Emoji.CHECKMARK} Test '${ixs.name}' ${PgTerminal.success(
+            "passed"
+          )}.`;
         }
 
         setTerminal(msg + "\n");
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         setTerminal(
-          `${PgTerminal.CROSS}  Test '${ixs.name}' ${PgTerminal.error(
+          `${Emoji.CROSS} Test '${ixs.name}' ${PgTerminal.error(
             "failed"
           )}: ${convertedError}\n`
         );
