@@ -1,4 +1,4 @@
-import { Commitment } from "@solana/web3.js";
+import { Commitment, Connection } from "@solana/web3.js";
 
 import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
@@ -67,5 +67,15 @@ export class PgConnection {
     });
 
     PgCommon.createAndDispatchCustomEvent(EventName.CONNECTION_REFRESH);
+  }
+
+  /**
+   * Create a connection with the configured commitment settings
+   *
+   * @param endpoint rpc endpoint
+   * @returns web3.js connection
+   */
+  static createConnectionFromUrl(endpoint: string) {
+    return new Connection(endpoint, this.commitment);
   }
 }

@@ -166,9 +166,10 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       .replace(/\(\d+\w+\)/gm, (match) => this.secondaryText(match))
 
       // Numbers
-      .replace(/^\s*\d+$/, (match) => {
-        return this.secondary(match);
-      });
+      .replace(/^\s*\d+$/, (match) => this.secondary(match))
+
+      // Progression [1/5]
+      .replace(/\[\d+\/\d+\]/, (match) => this.bold(match));
 
     return text;
   }

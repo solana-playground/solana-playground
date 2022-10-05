@@ -1,16 +1,16 @@
+// @ts-nocheck
+
 import { Emoji } from "../../../../constants";
 import { PgTerminal } from "../../terminal";
-
-enum BundlrAction {
-  Balance = 0,
-  Withraw = 1,
-}
+import { processBundlr } from "./bundlr";
 
 /**
  * Metaplex Sugar CLI commands
  */
 export class PgSugar {
-  static async bundlr(rpcUrl: string | undefined, action: BundlrAction) {}
+  static async bundlr(...args) {
+    await this._run(() => processBundlr(...args));
+  }
 
   static async collectionSet(
     rpcUrl: string | undefined,
@@ -106,6 +106,9 @@ export class PgSugar {
   private static async _run(cb: () => Promise<void>) {
     try {
       await cb();
+      PgTerminal.logWasm(
+        `${Emoji.CHECKMARK} ${PgTerminal.success("Command successful.")}\n`
+      );
     } catch (e: any) {
       PgTerminal.logWasm(
         `${Emoji.ERROR} ${PgTerminal.error(
