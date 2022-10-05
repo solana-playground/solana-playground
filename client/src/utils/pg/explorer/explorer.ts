@@ -1285,9 +1285,9 @@ export class PgExplorer {
   private static readonly _INDEXED_DB_NAME = "solana-playground";
 
   /**
-   * Get explorer object from state as static
+   * Statically get the explorer object from state
    *
-   * @returns the explorer object in state
+   * @returns the explorer object
    */
   static async get<T, R extends PgExplorer>() {
     return await PgCommon.sendAndReceiveCustomEvent<T, R>(

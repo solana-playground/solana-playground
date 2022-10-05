@@ -78,4 +78,15 @@ export class PgConnection {
   static createConnectionFromUrl(endpoint: string) {
     return new Connection(endpoint, this.commitment);
   }
+
+  /**
+   * Statically get the connection object from state
+   *
+   * @returns the connection object
+   */
+  static async get<T, R extends Connection>() {
+    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
+      PgCommon.getStaticEventNames(EventName.CONNECTION_STATIC).get
+    );
+  }
 }

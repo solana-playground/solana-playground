@@ -4,6 +4,7 @@ export enum EventName {
 
   // Connection
   CONNECTION_REFRESH = "connectionrefresh",
+  CONNECTION_STATIC = "connectionstatic",
 
   // Editor
   EDITOR_FOCUS = "editorfocus",
@@ -25,4 +26,7 @@ export enum EventName {
   TERMINAL_STATE = "terminalstate",
   TERMINAL_STATIC = "terminalstatic",
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
+
+  // Wallet
+  WALLET_STATIC = "walletstatic",
 }

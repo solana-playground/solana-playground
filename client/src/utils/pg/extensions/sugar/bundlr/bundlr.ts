@@ -15,10 +15,10 @@ enum BundlrAction {
 // The minimum amount of lamports required for withdraw
 const LIMIT = 5000;
 
-// Bundlr devnet endpoint.
+// Bundlr devnet endpoint
 const BUNDLR_DEVNET = "https://devnet.bundlr.network";
 
-// Bundlr mainnet endpoint.
+// Bundlr mainnet endpoint
 const BUNDLR_MAINNET = "https://node1.bundlr.network";
 
 export const processBundlr = async (
@@ -32,7 +32,7 @@ export const processBundlr = async (
     } Retrieving balance`
   );
 
-  const wallet = new PgWallet();
+  const wallet = await PgWallet.get();
   const pkStr = wallet.publicKey.toBase58();
 
   const cluster = await getCluster(rpcUrl);

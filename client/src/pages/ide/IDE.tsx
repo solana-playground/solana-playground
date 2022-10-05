@@ -2,11 +2,13 @@ import styled, { css } from "styled-components";
 
 import Modal from "../../components/Modal";
 import Panels from "../../components/Panels";
+import Statics from "../../components/Statics";
 
 const IDE = () => (
   <Wrapper>
     <Panels />
     <Modal />
+    <Statics />
   </Wrapper>
 );
 

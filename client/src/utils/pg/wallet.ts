@@ -2,6 +2,8 @@ import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgTerminal } from "./terminal/";
+import { PgCommon } from "./common";
+import { EventName } from "../../constants";
 
 interface LsWallet {
   setupCompleted: boolean;
@@ -119,5 +121,16 @@ export class PgWallet implements AnchorWallet {
     PgTerminal.enable();
 
     return false;
+  }
+
+  /**
+   * Statically get the wallet object from state
+   *
+   * @returns the wallet object
+   */
+  static async get<T, R extends PgWallet>() {
+    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
+      PgCommon.getStaticEventNames(EventName.WALLET_STATIC).get
+    );
   }
 }

@@ -366,9 +366,9 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   }
 
   /**
-   * Get terminal object from state as static
+   * Statically get the terminal object from state
    *
-   * @returns the terminal object in state
+   * @returns the terminal object
    */
   static async get<T, R extends PgTerm>() {
     return await PgCommon.sendAndReceiveCustomEvent<T, R>(
