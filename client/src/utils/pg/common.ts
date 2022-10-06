@@ -127,29 +127,6 @@ export class PgCommon {
   }
 
   /**
-   * @returns whether a given string is parseable to an int
-   */
-  static isInt(str: string) {
-    const intRegex = /^-?\d+$/;
-    if (!intRegex.test(str)) return false;
-
-    const int = parseInt(str, 10);
-    return parseFloat(str) === int && !isNaN(int);
-  }
-
-  /**
-   * @returns whether a given string is parseable to a float
-   */
-  static isFloat(str: string) {
-    const floatRegex = /^-?\d+(?:[.,]\d*?)?$/;
-    if (!floatRegex.test(str)) return false;
-
-    const float = parseFloat(str);
-    if (isNaN(float)) return false;
-    return true;
-  }
-
-  /**
    * Calculate basic rem operations for css
    */
   static calculateRem(

@@ -1,5 +1,6 @@
 import { Cluster } from "@solana/web3.js";
-import { PgConnection } from "../../connection";
+
+import { PgConnection } from "../../../connection";
 
 // Hash for devnet cluster
 const DEVNET_HASH = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";

@@ -20,6 +20,7 @@ import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { PgMethod, PgReturnType } from "../types";
+import { PgValidator } from "../validator";
 
 export class PgTerminal {
   /**
@@ -150,9 +151,11 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       // TODO: Highlight the text from WASM so we don't have to do this.
       .replace(/^(.*?:)/gm, (match) => {
         if (
-          (!match.includes("   ") && match.startsWith(" ")) ||
-          match.startsWith("{")
+          !match.includes("http") &&
+          ((!match.includes("   ") && match.startsWith(" ")) ||
+            match.startsWith("{"))
         ) {
+          console.log(match);
           return this.bold(match); // Indented
         }
         if (!match.toLowerCase().includes("error") && !match.includes("  ")) {
@@ -222,7 +225,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
         const parts = msg.split(":");
 
         let ixIndex = parts[2][parts[2].length - 1];
-        if (!PgCommon.isInt(ixIndex)) ixIndex = "0";
+        if (!PgValidator.isInt(ixIndex)) ixIndex = "0";
         const programError = PROGRAM_ERROR[programErrorCode];
 
         msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
@@ -319,7 +322,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
    *
    * Mainly used from WASM
    */
-  static logWasm(msg: string) {
+  static logWasm(msg: any) {
     PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_LOG, { msg });
   }
 
@@ -655,10 +658,90 @@ export class PgTerm {
    * Wait for user input
    *
    * @param msg message to print to the terminal before prompting user
+   * @param opts -
+   * - default: default value to set
+   * - multiChoice: set of values to choose from. Returns the selected indices.
+   * - validator: callback function to validate the user input
    * @returns user input
    */
-  async waitForUserInput(msg: string) {
-    return await this._pgShell.waitForUserInput(msg);
+  async waitForUserInput<
+    O extends {
+      confirm?: boolean;
+      default?: string;
+      multiChoice?: {
+        items: string[];
+        chooseOne?: boolean;
+      };
+      validator?: (userInput: string) => boolean | void;
+    }
+  >(
+    msg: string,
+    opts?: O
+  ): Promise<
+    O["confirm"] extends boolean
+      ? boolean
+      : O["multiChoice"] extends object
+      ? O["multiChoice"]["chooseOne"] extends boolean
+        ? number
+        : number[]
+      : string
+  > {
+    // Multi choice
+    let multiChoiceMsg;
+    if (opts?.multiChoice) {
+      multiChoiceMsg = opts.multiChoice.items.reduce(
+        (acc, cur, i) => acc + `[${i}] - ${cur}\n`,
+        msg + "\n"
+      );
+    }
+
+    let convertedMsg = multiChoiceMsg ?? msg;
+    if (opts?.default) {
+      convertedMsg += `DEFAULT: ${opts.default}`;
+    }
+
+    const userInput = await this._pgShell.waitForUserInput(convertedMsg);
+
+    // Validate multi choice
+    if (opts?.multiChoice && !opts.validator) {
+      const multiChoiceMaxLength = opts.multiChoice.items.length - 1;
+      opts.validator = (input) => {
+        const parsed: number[] = JSON.parse(`[${input}]`);
+        return (
+          (opts.multiChoice?.chooseOne ? parsed.length === 1 : true) &&
+          parsed.every(
+            (v) =>
+              PgValidator.isInt(v.toString()) &&
+              v >= 0 &&
+              v <= multiChoiceMaxLength
+          )
+        );
+      };
+    }
+
+    // Default
+    if (!userInput && opts?.default) return opts.default as any;
+
+    // Validator
+    if (opts?.validator) {
+      try {
+        if (opts.validator(userInput) === false) {
+          PgTerminal.logWasm(
+            PgTerminal.error(`'${userInput}' is not a valid value.\n`)
+          );
+          return await this.waitForUserInput(msg, opts);
+        }
+      } catch (e: any) {
+        PgTerminal.logWasm(PgTerminal.error(`${e.message}\n`));
+        return await this.waitForUserInput(msg, opts);
+      }
+    }
+
+    if (opts?.multiChoice) {
+      return JSON.parse(`[${userInput}]`);
+    }
+
+    return userInput as any;
   }
 
   /**

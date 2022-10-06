@@ -112,20 +112,14 @@ export class PgShell {
         : PgTerminal.PROMPT_PREFIX;
       this._activePrompt = this._pgTty.read(promptText);
       this._active = true;
-      let line = await this._activePrompt.promise;
-
-      if (line === "") {
-        this.prompt();
-        return;
-      }
 
       if (this._history) {
+        await this._activePrompt.promise;
         const input = this._pgTty.getInput().trim();
         this._history.push(input);
       }
     } catch (e: any) {
       this._pgTty.println(e.message);
-
       this.prompt();
     }
   }
@@ -251,7 +245,6 @@ export class PgShell {
             EventName.TERMINAL_WAIT_FOR_INPUT,
             handleInput
           );
-          this.enable();
           const input = this._pgTty.getInput();
           res(input);
         };

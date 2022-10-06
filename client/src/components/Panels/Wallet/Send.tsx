@@ -9,7 +9,7 @@ import Input from "../../Input";
 import Foldable from "../../Foldable";
 import { ClassName } from "../../../constants";
 import { balanceAtom, terminalOutputAtom, txHashAtom } from "../../../state";
-import { PgCommon, PgTerminal, PgTx } from "../../../utils/pg";
+import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../../utils/pg";
 import { useCurrentWallet } from "./useCurrentWallet";
 
 const Send = () => (
@@ -59,7 +59,7 @@ const SendInside = () => {
     }
 
     try {
-      const isFloat = PgCommon.isFloat(amount);
+      const isFloat = PgValidator.isFloat(amount);
       if (!isFloat) throw new Error("Invalid amount");
 
       if (parseFloat(amount) > balance) throw new Error("Not enough balance");
@@ -74,7 +74,7 @@ const SendInside = () => {
   useEffect(() => {
     if (
       address &&
-      PgCommon.isFloat(amount) &&
+      PgValidator.isFloat(amount) &&
       balance &&
       balance > parseFloat(amount)
     )

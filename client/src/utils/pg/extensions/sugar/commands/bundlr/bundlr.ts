@@ -1,11 +1,11 @@
 import Bundlr from "@bundlr-network/client";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
-import { Emoji } from "../../../../../constants";
-import { PgConnection } from "../../../connection";
-import { PgTerminal } from "../../../terminal";
-import { PgWallet } from "../../../wallet";
-import { getCluster } from "../utils";
+import { Emoji } from "../../../../../../constants";
+import { PgConnection } from "../../../../connection";
+import { PgTerminal } from "../../../../terminal";
+import { PgWallet } from "../../../../wallet";
+import { getCluster } from "../../utils";
 
 enum BundlrAction {
   Balance = 0,

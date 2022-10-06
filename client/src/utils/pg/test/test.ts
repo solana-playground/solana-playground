@@ -12,7 +12,7 @@ import {
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 
-import { PgCommon, PgProgramInfo, PgTx, PgWallet } from "../";
+import { PgProgramInfo, PgTx, PgValidator, PgWallet } from "../";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;
@@ -157,7 +157,7 @@ export class PgTest {
       if (isTrue || isFalse) parsedV = isTrue;
       else throw new Error("Invalid bool");
     } else if (type === "f32" || type === "f64") {
-      if (!PgCommon.isFloat(v)) throw new Error("Invalid float");
+      if (!PgValidator.isFloat(v)) throw new Error("Invalid float");
       parsedV = parseFloat(v);
     } else if (
       type === "i128" ||
@@ -174,13 +174,13 @@ export class PgTest {
       type === "u32" ||
       type === "u8"
     ) {
-      if (!PgCommon.isInt(v)) throw new Error("Invalid integer");
+      if (!PgValidator.isInt(v)) throw new Error("Invalid integer");
       parsedV = parseInt(v);
     } else if (type === "publicKey") {
       parsedV = new PublicKey(v);
     } else if (type === "bytes") {
       const userArray: Uint8Array = JSON.parse(v);
-      const isValid = userArray.every((el) => PgCommon.isInt(el.toString()));
+      const isValid = userArray.every((el) => PgValidator.isInt(el.toString()));
       if (!isValid) throw new Error("Invalid bytes");
 
       parsedV = Buffer.from(userArray);
