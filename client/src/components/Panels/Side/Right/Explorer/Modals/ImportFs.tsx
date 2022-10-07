@@ -47,7 +47,7 @@ export const ImportFs = () => {
         let path: string = userFile.path;
         switch (path.split("/").length) {
           case 1:
-            path = `${PgExplorer.SRC_DIRNAME}/${path}`;
+            path = `${PgExplorer.PATHS.SRC_DIRNAME}/${path}`;
             break;
           case 3:
             path = path.substring(1);

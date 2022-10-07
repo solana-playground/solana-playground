@@ -64,7 +64,9 @@ const ClientHelper = () => {
         }
 
         const folderPath = explorer.appendToCurrentWorkspacePath(
-          isTest ? PgExplorer.TESTS_DIRNAME : PgExplorer.CLIENT_DIRNAME
+          isTest
+            ? PgExplorer.PATHS.TESTS_DIRNAME
+            : PgExplorer.PATHS.CLIENT_DIRNAME
         );
         const folder = explorer.getFolderContent(folderPath);
         if (!folder.files.length && !folder.folders.length) {

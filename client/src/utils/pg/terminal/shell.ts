@@ -165,7 +165,7 @@ export class PgShell {
       this._activePrompt = undefined;
     }
 
-    if (clearCmd) this._pgTty.clearCurrentLine();
+    if (clearCmd) this._pgTty.clearLine();
     else this._pgTty.print("\r\n");
 
     this._active = false;
@@ -232,7 +232,7 @@ export class PgShell {
       if (this._waitingForInput) rej("Already waiting for input.");
       else {
         this._waitingForInput = true;
-        this._pgTty.clearCurrentLine();
+        this._pgTty.clearLine();
         this._pgTty.println(
           PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
         );

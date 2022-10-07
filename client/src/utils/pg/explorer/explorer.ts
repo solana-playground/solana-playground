@@ -200,7 +200,7 @@ export class PgExplorer {
 
       // This helps with in rare case where user logs out during rename
       if (this._workspace.allNames.length) {
-        const rootDirs = await fs.readdir(PgExplorer.ROOT_DIR_PATH);
+        const rootDirs = await fs.readdir(PgExplorer.PATHS.ROOT_DIR_PATH);
         const lastWorkspaceName = rootDirs[rootDirs.length - 1];
         this._workspace.rename(lastWorkspaceName);
         await this.init(lastWorkspaceName);
@@ -232,7 +232,10 @@ export class PgExplorer {
           const oldData = lsFiles[path];
           delete lsFiles[path];
           lsFiles[
-            path.replace(PgExplorer.ROOT_DIR_PATH, this.currentWorkspacePath)
+            path.replace(
+              PgExplorer.PATHS.ROOT_DIR_PATH,
+              this.currentWorkspacePath
+            )
           ] = {
             content: oldData.content,
             // @ts-ignore // ignoring because the type of oldData changed
@@ -332,7 +335,11 @@ export class PgExplorer {
    * - Name and path checks
    * - Create item in the state
    */
-  async newItem(fullPath: string, content: string = "") {
+  async newItem(
+    fullPath: string,
+    content: string = "",
+    opts?: { override?: boolean }
+  ) {
     // Invalid name
     if (
       !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath)!)
@@ -343,7 +350,9 @@ export class PgExplorer {
     const files = this.files;
 
     // Already exists
-    if (files[fullPath]) throw new Error(ItemError.ALREADY_EXISTS);
+    if (files[fullPath] && !opts?.override) {
+      throw new Error(ItemError.ALREADY_EXISTS);
+    }
 
     const itemType = PgExplorer.getItemTypeFromPath(fullPath);
 
@@ -362,6 +371,9 @@ export class PgExplorer {
           tabs: true,
         },
       };
+
+      // Close the file if we are overriding to correctly display the new content
+      if (opts?.override) this.closeTab(fullPath);
 
       this.changeCurrentFile(fullPath);
     } else {
@@ -729,6 +741,23 @@ export class PgExplorer {
     });
   }
 
+  /**
+   * @returns whether the given path exists
+   */
+  async exists(path: string) {
+    try {
+      const fs = this._getFs();
+      await fs.stat(path);
+      return true;
+    } catch (e: any) {
+      if (e.code === "ENOENT" || e.code === "ENOTDIR") return false;
+      else {
+        console.log("Unknown error in exists: ", e);
+        throw e;
+      }
+    }
+  }
+
   /** State methods */
 
   /**
@@ -950,7 +979,7 @@ export class PgExplorer {
         // We are removing the workspace from path because build only needs /src
         path = path.replace(
           this.currentWorkspacePath,
-          PgExplorer.ROOT_DIR_PATH
+          PgExplorer.PATHS.ROOT_DIR_PATH
         );
 
         buildFiles.push([path, updatedContent]);
@@ -976,7 +1005,10 @@ export class PgExplorer {
       const itemInfo = files[path];
 
       // We are removing the workspace from path because share only needs /src
-      path = path.replace(this.currentWorkspacePath, PgExplorer.ROOT_DIR_PATH);
+      path = path.replace(
+        this.currentWorkspacePath,
+        PgExplorer.PATHS.ROOT_DIR_PATH
+      );
 
       // To make it backwards compatible with the old shares
       shareFiles.files[path] = {
@@ -1095,23 +1127,6 @@ export class PgExplorer {
   }
 
   /**
-   * @returns whether the given path exists
-   */
-  private async _exists(path: string) {
-    try {
-      const fs = this._getFs();
-      await fs.stat(path);
-      return true;
-    } catch (e: any) {
-      if (e.code === "ENOENT" || e.code === "ENOTDIR") return false;
-      else {
-        console.log("Unknown error in _exists: ", e);
-        throw e;
-      }
-    }
-  }
-
-  /**
    * Creates new directory with create parents optionality
    */
   private async _mkdir(path: string, createParents?: boolean) {
@@ -1124,7 +1139,7 @@ export class PgExplorer {
         _path += "/" + folders[i];
 
         // Only create if the dir doesn't exist
-        const exists = await this._exists(_path);
+        const exists = await this.exists(_path);
         if (!exists) await fs.mkdir(_path);
       }
     } else {
@@ -1251,8 +1266,8 @@ export class PgExplorer {
    */
   private _getCurrentSrcPath() {
     const srcPath = this.isShared
-      ? PgExplorer.ROOT_DIR_PATH + PgExplorer.SRC_DIRNAME
-      : this.appendToCurrentWorkspacePath(PgExplorer.SRC_DIRNAME);
+      ? PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.PATHS.SRC_DIRNAME
+      : this.appendToCurrentWorkspacePath(PgExplorer.PATHS.SRC_DIRNAME);
     return PgExplorer.appendSlash(srcPath);
   }
 
@@ -1261,7 +1276,7 @@ export class PgExplorer {
    * @returns the full path to the workspace root dir with '/' at the end
    */
   private _getWorkspacePath(name: string) {
-    return PgExplorer.ROOT_DIR_PATH + PgExplorer.appendSlash(name);
+    return PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.appendSlash(name);
   }
 
   /**
@@ -1276,10 +1291,19 @@ export class PgExplorer {
   }
 
   /** Static methods */
-  static readonly ROOT_DIR_PATH = "/";
-  static readonly SRC_DIRNAME = "src";
-  static readonly CLIENT_DIRNAME = "client";
-  static readonly TESTS_DIRNAME = "tests";
+  static readonly PATHS = {
+    ROOT_DIR_PATH: "/",
+    SRC_DIRNAME: "src",
+    CLIENT_DIRNAME: "client",
+    TESTS_DIRNAME: "tests",
+    METAPLEX_DIRNAME: "nft",
+    get CANDY_MACHINE_DIR_PATH() {
+      return PgExplorer.joinPaths([this.METAPLEX_DIRNAME, "candy-machine"]);
+    },
+    get CANDY_MACHINE_CONFIG_FILEPATH() {
+      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "config.json"]);
+    },
+  };
 
   /** Don't change this! */
   private static readonly _INDEXED_DB_NAME = "solana-playground";
@@ -1538,5 +1562,15 @@ export class PgExplorer {
   static appendSlash(path: string) {
     if (!path) return "";
     return path + (path.endsWith("/") ? "" : "/");
+  }
+
+  static withoutPreSlash(path: string) {
+    return path[0] === "/" ? path.substring(1) : path;
+  }
+
+  static joinPaths(paths: string[]) {
+    return paths.reduce(
+      (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
+    );
   }
 }

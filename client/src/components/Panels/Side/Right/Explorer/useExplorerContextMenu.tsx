@@ -58,12 +58,14 @@ const useExplorerContextMenu = () => {
           itemType.file &&
           PgExplorer.getIsItemClientFromEl(itemEl as HTMLDivElement),
         isClientFolder:
-          itemType.folder && itemName === PgExplorer.CLIENT_DIRNAME,
+          itemType.folder && itemName === PgExplorer.PATHS.CLIENT_DIRNAME,
         isTest:
           itemType.file &&
           PgExplorer.getIsItemTestFromEl(itemEl as HTMLDivElement),
-        isTestFolder: itemType.folder && itemName === PgExplorer.TESTS_DIRNAME,
-        isProgramFolder: itemType.folder && itemName === PgExplorer.SRC_DIRNAME,
+        isTestFolder:
+          itemType.folder && itemName === PgExplorer.PATHS.TESTS_DIRNAME,
+        isProgramFolder:
+          itemType.folder && itemName === PgExplorer.PATHS.SRC_DIRNAME,
       });
       setMenu({
         show: true,

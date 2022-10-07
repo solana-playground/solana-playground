@@ -1,26 +1,35 @@
 import {
-  BigNumber,
   Creator,
   CandyMachineGatekeeper,
   CandyMachineEndSettings,
   CandyMachineWhitelistMintSettings,
   CandyMachineHiddenSettings,
   Option,
+  DateTime,
 } from "@metaplex-foundation/js";
 
 export interface ConfigData {
   price: number;
-  number: BigNumber;
+  number: number;
   gatekeeper: Option<CandyMachineGatekeeper>;
   creators: Creator[];
   solTreasuryAccount: Option<string>;
   splTokenAccount: Option<string>;
   splToken: Option<string>;
   goLiveDate: Option<string>;
-  endSettings: Option<CandyMachineEndSettings>;
-  whitelistMintSettings: Option<CandyMachineWhitelistMintSettings>;
+  endSettings: Option<
+    Omit<CandyMachineEndSettings, "number"> & {
+      number?: number;
+      date?: DateTime;
+    }
+  >;
+  whitelistMintSettings: Option<
+    Omit<CandyMachineWhitelistMintSettings, "discountPrice"> & {
+      discountPrice: Option<number>;
+    }
+  >;
   hiddenSettings: Option<CandyMachineHiddenSettings>;
-  freezeTime: Option<BigNumber>;
+  freezeTime: Option<number>;
   uploadMethod: UploadMethod;
   retainAuthority: boolean;
   isMutable: boolean;

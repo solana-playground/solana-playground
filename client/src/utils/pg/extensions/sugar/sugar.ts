@@ -2,7 +2,7 @@
 
 import { Emoji } from "../../../../constants";
 import { PgTerminal } from "../../terminal";
-import { processBundlr } from "./commands";
+import { processBundlr, processCreateConfig } from "./commands";
 
 /**
  * Metaplex Sugar CLI commands
@@ -23,7 +23,9 @@ export class PgSugar {
     candyMachine: string | undefined
   ) {}
 
-  static async createConfig(...args) {}
+  static async createConfig(...args) {
+    await this._run(() => processCreateConfig(...args));
+  }
 
   static async deploy(rpcUrl: string | undefined) {}
 

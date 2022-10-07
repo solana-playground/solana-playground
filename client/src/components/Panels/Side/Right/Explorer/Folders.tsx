@@ -69,7 +69,7 @@ const Folders = () => {
         </Button>
       </SectionTopWrapper>
       {relativeRootDir.folders
-        .filter((f) => f === PgExplorer.SRC_DIRNAME)
+        .filter((f) => f === PgExplorer.PATHS.SRC_DIRNAME)
         .map((f, i) => {
           const path = relativeRootPath + f + "/";
           const folder = explorer.getFolderContent(path);
@@ -87,7 +87,9 @@ const Folders = () => {
       {relativeRootDir.folders.length > 1 && (
         <SectionTopWrapper>
           <SectionHeader>Client</SectionHeader>
-          {relativeRootDir.folders.includes(PgExplorer.CLIENT_DIRNAME) && (
+          {relativeRootDir.folders.includes(
+            PgExplorer.PATHS.CLIENT_DIRNAME
+          ) && (
             <Button
               onClick={ctxMenu.runClientFolder}
               kind="icon"
@@ -97,7 +99,7 @@ const Folders = () => {
               <span>Run</span>
             </Button>
           )}
-          {relativeRootDir.folders.includes(PgExplorer.TESTS_DIRNAME) && (
+          {relativeRootDir.folders.includes(PgExplorer.PATHS.TESTS_DIRNAME) && (
             <Button
               onClick={ctxMenu.runTestFolder}
               kind="icon"
@@ -111,7 +113,7 @@ const Folders = () => {
       )}
       {relativeRootDir.folders
         .sort((x, y) => x.localeCompare(y))
-        .filter((f) => f !== PgExplorer.SRC_DIRNAME)
+        .filter((f) => f !== PgExplorer.PATHS.SRC_DIRNAME)
         .map((f, i) => {
           const path = relativeRootPath + f + "/";
           const folder = explorer.getFolderContent(path);

@@ -205,12 +205,30 @@ export class PgTty {
 
   /**
    * Clear the entire current line
+   *
+   * @param offset amount of lines before the current line
    */
-  clearCurrentLine() {
+  clearLine(offset?: number) {
+    if (offset) {
+      // Move up
+      this.print(`\x1b[${offset}A`);
+    }
+
     // Clears the whole line
     this.print(`\x1b[G`);
     // This also clears the line but helps with parsing errors
     this.print(`\x1b[2K`);
+  }
+
+  /**
+   * Change the specified line with the new input
+   *
+   * @param newInput input to change the line to
+   * @param offset line offset. 0 is current, 1 is last. Defaults to 1.
+   */
+  changeLine(newInput: string, offset: number = 1) {
+    this.clearLine(offset);
+    this.println(newInput);
   }
 
   /**

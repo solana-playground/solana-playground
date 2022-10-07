@@ -150,11 +150,8 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       // Match until ':' from the start of the line: e.g SUBCOMMANDS:
       // TODO: Highlight the text from WASM so we don't have to do this.
       .replace(/^(.*?:)/gm, (match) => {
-        if (
-          !match.includes("http") &&
-          ((!match.includes("   ") && match.startsWith(" ")) ||
-            match.startsWith("{"))
-        ) {
+        if (new RegExp(/[http|{|}]/).test(match)) return match;
+        if (match.startsWith(" ") && !match.includes("   ")) {
           console.log(match);
           return this.bold(match); // Indented
         }
@@ -166,7 +163,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       })
 
       // Secondary text color for (...)
-      .replace(/\(\d+\w+\)/gm, (match) => this.secondaryText(match))
+      .replace(/\(.*\)/gm, (match) => this.secondaryText(match))
 
       // Numbers
       .replace(/^\s*\d+$/, (match) => this.secondary(match))
@@ -500,7 +497,7 @@ export class PgTerm {
           this._pgTty.setInput(input);
         } else {
           // Clear the input in case of a prompt bug where there is a text before the prompt
-          this._pgTty.clearCurrentLine();
+          this._pgTty.clearLine();
           this._pgShell.prompt();
         }
       }
@@ -603,7 +600,7 @@ export class PgTerm {
    */
   disable() {
     this._pgShell.disable();
-    this._pgTty.clearCurrentLine();
+    this._pgTty.clearLine();
   }
 
   /**
@@ -659,13 +656,17 @@ export class PgTerm {
    *
    * @param msg message to print to the terminal before prompting user
    * @param opts -
+   * - allowEmpty: whether to allow the input to be empty
+   * - confirm: yes/no question. Returns the result as boolean.
    * - default: default value to set
-   * - multiChoice: set of values to choose from. Returns the selected indices.
+   * - multiChoice.items: set of values to choose from. Returns the selected indices.
+   * - multiChoice.chooseOne: whether to choose only one. Returns the selected index.
    * - validator: callback function to validate the user input
    * @returns user input
    */
   async waitForUserInput<
     O extends {
+      allowEmpty?: boolean;
       confirm?: boolean;
       default?: string;
       multiChoice?: {
@@ -686,41 +687,55 @@ export class PgTerm {
         : number[]
       : string
   > {
-    // Multi choice
-    let multiChoiceMsg;
-    if (opts?.multiChoice) {
-      multiChoiceMsg = opts.multiChoice.items.reduce(
-        (acc, cur, i) => acc + `[${i}] - ${cur}\n`,
-        msg + "\n"
-      );
-    }
-
-    let convertedMsg = multiChoiceMsg ?? msg;
+    let convertedMsg = msg;
     if (opts?.default) {
-      convertedMsg += `DEFAULT: ${opts.default}`;
+      convertedMsg += ` (default: ${opts.default})`;
+    }
+    if (opts?.multiChoice) {
+      // Show multi choice items
+      convertedMsg += opts.multiChoice.items.reduce(
+        (acc, cur, i) => acc + `[${i}] - ${cur}\n`,
+        "\n"
+      );
+    } else if (opts?.confirm) {
+      convertedMsg = PgTerminal.secondaryText(` [yes/no]`);
     }
 
-    const userInput = await this._pgShell.waitForUserInput(convertedMsg);
+    let userInput = await this._pgShell.waitForUserInput(convertedMsg);
+    if (!userInput && opts?.default) {
+      userInput = opts.default;
+    }
 
-    // Validate multi choice
-    if (opts?.multiChoice && !opts.validator) {
-      const multiChoiceMaxLength = opts.multiChoice.items.length - 1;
-      opts.validator = (input) => {
-        const parsed: number[] = JSON.parse(`[${input}]`);
-        return (
-          (opts.multiChoice?.chooseOne ? parsed.length === 1 : true) &&
-          parsed.every(
-            (v) =>
-              PgValidator.isInt(v.toString()) &&
-              v >= 0 &&
-              v <= multiChoiceMaxLength
-          )
-        );
-      };
+    // Default validators
+    if (opts && !opts.validator) {
+      // Validate confirm
+      if (opts.confirm) {
+        opts.validator = (input) => input === "yes" || input === "no";
+      }
+
+      // Validate multi choice
+      if (opts.multiChoice) {
+        const multiChoiceMaxLength = opts.multiChoice.items.length - 1;
+        opts.validator = (input) => {
+          const parsed: number[] = JSON.parse(`[${input}]`);
+          return (
+            (opts.multiChoice?.chooseOne ? parsed.length === 1 : true) &&
+            parsed.every(
+              (v) =>
+                PgValidator.isInt(v.toString()) &&
+                v >= 0 &&
+                v <= multiChoiceMaxLength
+            )
+          );
+        };
+      }
     }
 
     // Default
-    if (!userInput && opts?.default) return opts.default as any;
+    if (!userInput && !opts?.allowEmpty) {
+      PgTerminal.logWasm(PgTerminal.error("Can't be empty."));
+      return await this.waitForUserInput(msg, opts);
+    }
 
     // Validator
     if (opts?.validator) {
@@ -737,11 +752,35 @@ export class PgTerm {
       }
     }
 
-    if (opts?.multiChoice) {
-      return JSON.parse(`[${userInput}]`);
+    // Return value
+    let returnValue;
+
+    // Confirm
+    if (opts?.confirm) {
+      returnValue = userInput === "yes" ? true : false;
+    }
+    // Multichoice
+    else if (opts?.multiChoice) {
+      if (opts.multiChoice.chooseOne) {
+        returnValue = parseInt(userInput);
+      } else {
+        returnValue = JSON.parse(`[${userInput}]`);
+      }
+    }
+    // Default as string
+    else {
+      returnValue = userInput;
     }
 
-    return userInput as any;
+    let visibleText = PgTerminal.success(returnValue);
+    if (returnValue === "" || returnValue?.length === 0) {
+      visibleText = PgTerminal.secondaryText("empty");
+    }
+
+    this._pgTty.changeLine(
+      PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText
+    );
+    return returnValue as any;
   }
 
   /**
