@@ -5,7 +5,6 @@ import {
   buildCountAtom,
   explorerAtom,
   TerminalAction,
-  terminalOutputAtom,
   terminalStateAtom,
 } from "../../../../../state";
 import { PgBuild, PgPkg, PgTerminal } from "../../../../../utils/pg";
@@ -13,7 +12,6 @@ import { PgBuild, PgPkg, PgTerminal } from "../../../../../utils/pg";
 export const useBuild = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setTerminalState] = useAtom(terminalStateAtom);
-  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
 
   const runBuild = useCallback(() => {
@@ -23,7 +21,7 @@ export const useBuild = () => {
       if (!explorer) return;
 
       setTerminalState(TerminalAction.buildLoadingStart);
-      setTerminal(PgTerminal.info("Building..."));
+      PgTerminal.log(PgTerminal.info("Building..."));
 
       let msg = "";
       try {
@@ -51,14 +49,14 @@ export const useBuild = () => {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Build error: ${convertedError}`;
       } finally {
-        setTerminal(msg);
+        PgTerminal.log(msg + "\n");
         setTerminalState(TerminalAction.buildLoadingStop);
 
         // Update program info in IndexedDB
         await explorer.saveProgramInfo();
       }
     });
-  }, [explorer, setTerminal, setBuildCount, setTerminalState]);
+  }, [explorer, setBuildCount, setTerminalState]);
 
   return { runBuild };
 };

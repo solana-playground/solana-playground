@@ -9,7 +9,6 @@ import {
   Program,
   refreshPgWalletAtom,
   TerminalAction,
-  terminalOutputAtom,
   terminalProgressAtom,
   terminalStateAtom,
   txHashAtom,
@@ -27,7 +26,6 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const [, setTerminalState] = useAtom(terminalStateAtom);
-  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setProgress] = useAtom(terminalProgressAtom);
   const [, setTxHash] = useAtom(txHashAtom);
   const [, setDeployCount] = useAtom(deployCountAtom);
@@ -41,7 +39,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
       setTerminalState(TerminalAction.deployStop);
 
       if (!pgWallet.connected) {
-        setTerminal(
+        PgTerminal.log(
           `${PgTerminal.bold(
             "Playground Wallet"
           )} must be connected in order to deploy.`
@@ -49,11 +47,11 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
         return;
       }
       if (upgradeable === false) {
-        setTerminal(PgTerminal.warning("The program is not upgradeable."));
+        PgTerminal.log(PgTerminal.warning("The program is not upgradeable."));
         return;
       }
       if (hasAuthority === false) {
-        setTerminal(
+        PgTerminal.log(
           `${PgTerminal.warning(
             "You don't have the authority to upgrade this program."
           )}
@@ -65,7 +63,7 @@ Your address: ${PgWallet.getKp().publicKey}`
       }
 
       setTerminalState(TerminalAction.deployLoadingStart);
-      setTerminal(
+      PgTerminal.log(
         `${PgTerminal.info(
           "Deploying..."
         )} This could take a while depending on the program size and network conditions.`
@@ -93,7 +91,7 @@ Your address: ${PgWallet.getKp().publicKey}`
         msg = `Deployment error: ${convertedError}`;
         return 1; // To indicate error
       } finally {
-        setTerminal(msg + "\n");
+        PgTerminal.log(msg + "\n");
         setTerminalState(TerminalAction.deployLoadingStop);
         setProgress(0);
       }
@@ -108,7 +106,7 @@ Your address: ${PgWallet.getKp().publicKey}`
     authority,
     hasAuthority,
     upgradeable,
-    setTerminal,
+    PgTerminal.log,
     setTxHash,
     setTerminalState,
     setDeployCount,

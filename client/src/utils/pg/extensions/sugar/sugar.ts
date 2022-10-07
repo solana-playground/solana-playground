@@ -108,11 +108,11 @@ export class PgSugar {
   private static async _run(cb: () => Promise<void>) {
     try {
       await cb();
-      PgTerminal.logWasm(
+      PgTerminal.log(
         `${Emoji.CHECKMARK} ${PgTerminal.success("Command successful.")}\n`
       );
     } catch (e: any) {
-      PgTerminal.logWasm(
+      PgTerminal.log(
         `${Emoji.ERROR} ${PgTerminal.error(
           "Error running command (re-run needed):"
         )} ${e.message}\n`

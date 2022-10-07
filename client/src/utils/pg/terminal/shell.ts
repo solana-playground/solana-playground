@@ -578,7 +578,7 @@ export class PgShell {
       }
 
       case PgCommand.HELP: {
-        PgTerminal.logWasm(PgCommand.help());
+        PgTerminal.log(PgCommand.help());
         this.enable();
         return;
       }
@@ -684,7 +684,7 @@ export class PgShell {
     // Only new prompt after invalid command, other commands will automatically
     // generate new prompt
     if (cmdName) {
-      this._pgTty.println(`Command '${PgTerminal.italic(cmd)}' not found.\n`);
+      this._pgTty.println(`Command '${PgTerminal.italic(cmd)}' not found.`);
     }
 
     this.enable();

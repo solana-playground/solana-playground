@@ -8,13 +8,12 @@ import Button from "../../../Button";
 import Progress from "../../../Progress";
 import { useTerminal } from "./useTerminal";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
-import { terminalOutputAtom, terminalProgressAtom } from "../../../../state";
+import { terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
 import { EventName } from "../../../../constants";
 import { useExposeStatic } from "../../../../hooks";
 
 const Terminal = () => {
-  const [terminalOutput] = useAtom(terminalOutputAtom);
   const [progress] = useAtom(terminalProgressAtom);
 
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -56,18 +55,8 @@ const Terminal = () => {
 
       term.open(terminalRef.current);
       term.fit();
-
-      // This runs after theme change
-      if (hasChild) term.println("");
     }
   }, [term]);
-
-  // New output
-  useEffect(() => {
-    if (terminalRef.current) {
-      term.println(PgTerminal.colorText(terminalOutput));
-    }
-  }, [terminalOutput, term]);
 
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
@@ -147,7 +136,7 @@ const Terminal = () => {
 
           case "`":
             e.preventDefault();
-            if (PgTerminal.isTerminalFocused()) {
+            if (PgTerminal.isFocused()) {
               toggleClose();
               PgEditor.focus();
             } else if (!height) {

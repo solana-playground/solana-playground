@@ -19,7 +19,7 @@ export const useConnectOrSetupPg = () => {
       PgWallet.update({ connected: pgWallet.connected });
       refresh();
       PgTerminal.disable();
-      PgTerminal.logWasm(
+      PgTerminal.log(
         pgWallet.connected
           ? PgTerminal.success("Connected.")
           : PgTerminal.bold("Disconnected.")

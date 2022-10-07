@@ -111,14 +111,13 @@ export class PgWallet implements AnchorWallet {
   static checkIsPgConnected() {
     if (this.getLs()?.connected) return true;
 
-    PgTerminal.logWasm(
+    PgTerminal.log(
       `${PgTerminal.bold(
         "Playground Wallet"
       )} must be connected to run this command. Run ${PgTerminal.bold(
         "connect"
       )} to connect.`
     );
-    PgTerminal.enable();
 
     return false;
   }

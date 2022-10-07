@@ -46,7 +46,7 @@ const ClientHelper = () => {
         const isTest = e.detail.isTest;
         const path = e.detail.path;
 
-        PgTerminal.logWasm(
+        PgTerminal.log(
           PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
         );
 
@@ -72,10 +72,10 @@ const ClientHelper = () => {
         if (!folder.files.length && !folder.folders.length) {
           let DEFAULT;
           if (isTest) {
-            PgTerminal.logWasm(PgTerminal.info("Creating default test..."));
+            PgTerminal.log(PgTerminal.info("Creating default test..."));
             DEFAULT = client.DEFAULT_TEST;
           } else {
-            PgTerminal.logWasm(PgTerminal.info("Creating default client..."));
+            PgTerminal.log(PgTerminal.info("Creating default client..."));
             DEFAULT = client.DEFAULT_CLIENT;
           }
 

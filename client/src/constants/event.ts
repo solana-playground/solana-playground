@@ -19,7 +19,6 @@ export enum EventName {
   // Terminal
   TERMINAL_DISABLE = "terminaldisable",
   TERMINAL_ENABLE = "terminalenable",
-  TERMINAL_LOG = "terminallog",
   TERMINAL_RUN_CMD_FROM_STR = "terminalruncmdfromstr",
   TERMINAL_RUN_LAST_CMD = "terminalrunlastcmd",
   TERMINAL_SCROLL_TO_BOTTOM = "terminalscrolltobottom",

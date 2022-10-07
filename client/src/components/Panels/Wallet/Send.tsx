@@ -8,7 +8,7 @@ import Button from "../../Button";
 import Input from "../../Input";
 import Foldable from "../../Foldable";
 import { ClassName } from "../../../constants";
-import { balanceAtom, terminalOutputAtom, txHashAtom } from "../../../state";
+import { balanceAtom, txHashAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../../utils/pg";
 import { useCurrentWallet } from "./useCurrentWallet";
 
@@ -21,7 +21,6 @@ const Send = () => (
 );
 
 const SendInside = () => {
-  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setTxHash] = useAtom(txHashAtom);
   const [balance] = useAtom(balanceAtom);
 
@@ -104,7 +103,7 @@ const SendInside = () => {
       if (!currentWallet) return;
 
       setLoading(true);
-      setTerminal(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
+      PgTerminal.log(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
 
       let msg = "";
 
@@ -128,7 +127,7 @@ const SendInside = () => {
         msg = `Transfer error: ${convertedError}`;
       } finally {
         setLoading(false);
-        setTerminal(msg + "\n");
+        PgTerminal.log(msg + "\n");
       }
     });
   };

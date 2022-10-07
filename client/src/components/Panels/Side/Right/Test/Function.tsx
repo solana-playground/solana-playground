@@ -11,7 +11,7 @@ import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
 import { updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName, Emoji } from "../../../../../constants";
-import { terminalOutputAtom, txHashAtom } from "../../../../../state";
+import { txHashAtom } from "../../../../../state";
 import {
   PgCommon,
   PgPreferences,
@@ -46,7 +46,6 @@ interface FunctionInsideProps {
 }
 
 const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
-  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setTxHash] = useAtom(txHashAtom);
 
   const { connection: conn } = useConnection();
@@ -151,7 +150,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
       if (!currentWallet) return;
 
       setLoading(true);
-      setTerminal(PgTerminal.info(`Testing '${ixs.name}'...`));
+      PgTerminal.log(PgTerminal.info(`Testing '${ixs.name}'...`));
 
       const preferences = PgPreferences.getPreferences();
 
@@ -169,22 +168,23 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         const txResult = await PgTx.confirm(txHash, conn);
 
         if (txResult?.err) {
-          msg = `${Emoji.CROSS} Test '${ixs.name}' ${PgTerminal.error(
-            "failed"
+          msg = `${Emoji.CROSS} ${PgTerminal.error(
+            `Test '${ixs.name}' failed`
           )}.`;
         } else {
-          msg = `${Emoji.CHECKMARK} Test '${ixs.name}' ${PgTerminal.success(
-            "passed"
+          msg = `${Emoji.CHECKMARK}  ${PgTerminal.success(
+            `Test '${ixs.name}' passed`
           )}.`;
         }
 
-        setTerminal(msg + "\n");
+        PgTerminal.log(msg + "\n", { noColor: true });
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        setTerminal(
-          `${Emoji.CROSS} Test '${ixs.name}' ${PgTerminal.error(
-            "failed"
-          )}: ${convertedError}\n`
+        PgTerminal.log(
+          `${Emoji.CROSS} ${PgTerminal.error(
+            `Test '${ixs.name}' failed`
+          )}: ${convertedError}\n`,
+          { noColor: true }
         );
       } finally {
         setLoading(false);
@@ -197,7 +197,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txVals, idl, conn, currentWallet, setTerminal]);
+  }, [txVals, idl, conn, currentWallet, PgTerminal.log]);
 
   return (
     <>

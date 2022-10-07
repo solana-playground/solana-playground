@@ -21,6 +21,7 @@ import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { PgMethod, PgReturnType } from "../types";
 import { PgValidator } from "../validator";
+import { PrintOptions } from "./types";
 
 export class PgTerminal {
   /**
@@ -58,15 +59,14 @@ export class PgTerminal {
   /**
    * Welcome text
    */
-  static readonly DEFAULT_TEXT = `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.
-
-Popular crates for Solana development are available to use.
-
-See the list of available crates and request new crates from: ${PgTerminal.underline(
-    GITHUB_URL
-  )}
-
-Type ${PgTerminal.bold("help")} to see all commands.`;
+  static readonly DEFAULT_TEXT = [
+    `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
+    `Popular crates for Solana development are available to use.`,
+    `See the list of available crates and request new crates from ${PgTerminal.underline(
+      GITHUB_URL
+    )}`,
+    `Type ${PgTerminal.bold("help")} to see all commands.\n`,
+  ].join("\n\n");
 
   /** Default prompt string before entering commands */
   static readonly PROMPT_PREFIX = "$ ";
@@ -150,13 +150,19 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
       // Match until ':' from the start of the line: e.g SUBCOMMANDS:
       // TODO: Highlight the text from WASM so we don't have to do this.
       .replace(/^(.*?:)/gm, (match) => {
-        if (new RegExp(/[http|{|}]/).test(match)) return match;
-        if (match.startsWith(" ") && !match.includes("   ")) {
-          console.log(match);
-          return this.bold(match); // Indented
+        if (
+          new RegExp(/(http|{|})/).test(match) ||
+          new RegExp(/"\w+":/).test(match)
+        ) {
+          return match;
         }
-        if (!match.toLowerCase().includes("error") && !match.includes("  ")) {
-          return this.primary(match);
+        if (!match.includes("   ")) {
+          if (match.startsWith(" ")) {
+            return this.bold(match); // Indented
+          }
+          if (!match.toLowerCase().includes("error")) {
+            return this.primary(match);
+          }
         }
 
         return match;
@@ -209,7 +215,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
           .replace("\n", ".\n"); // Time passed
     }
 
-    return stderr;
+    return stderr.substring(0, stderr.length - 1);
   }
 
   /**
@@ -285,7 +291,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
   /**
    * Gets whether the terminal is focused or in blur
    */
-  static isTerminalFocused() {
+  static isFocused() {
     return document
       .getElementsByClassName("terminal xterm xterm-dom-renderer-owner-1")[0]
       ?.classList.contains("focus");
@@ -316,11 +322,19 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
 
   /**
    * Log terminal messages from anywhere
+   */
+  static log(msg: any, opts?: PrintOptions) {
+    this.run({ println: [msg, opts] });
+  }
+
+  // TODO: Remove
+  /**
+   * Log terminal messages from anywhere
    *
    * Mainly used from WASM
    */
   static logWasm(msg: any) {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_LOG, { msg });
+    this.log(msg);
   }
 
   /**
@@ -342,7 +356,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
     try {
       return await cb();
     } catch (e: any) {
-      this.logWasm(`Process error: ${e.message}`);
+      this.log(`Process error: ${e.message}`);
     } finally {
       this.enable();
     }
@@ -415,7 +429,7 @@ Type ${PgTerminal.bold("help")} to see all commands.`;
           // TODO: show where the error actually happened in user code
           .replace(/\s+at.*$/gm, "");
 
-        PgTerminal.logWasm(editedMessage);
+        PgTerminal.log(editedMessage);
       }
     }
   }
@@ -545,9 +559,11 @@ export class PgTerm {
   /**
    * Print a message to terminal
    */
-  print(message: string, sync?: boolean) {
-    // For some reason, double new lines are not respected. Thus, fixing that here
-    message = message.replace(/\n\n/g, "\n \n");
+  print(msg: any, opts?: PrintOptions) {
+    if (typeof msg === "string") {
+      // For some reason, double new lines are not respected. Thus, fixing that here
+      msg = msg.replace(/\n\n/g, "\n \n");
+    }
 
     if (!this._isOpen) {
       return;
@@ -556,20 +572,20 @@ export class PgTerm {
     if (this._pgShell.isPrompting()) {
       // Cancel the current prompt and restart
       this._pgShell.printAndRestartPrompt(() => {
-        this._pgTty.print(message + "\n", sync);
+        this._pgTty.print(msg + "\n", opts);
         return undefined;
       });
       return;
     }
 
-    this._pgTty.print(message, sync);
+    this._pgTty.print(msg, opts);
   }
 
   /**
    * Print a message with end line character appended
    */
-  println(message: string, sync?: boolean) {
-    this.print(message + "\n", sync);
+  println(msg: any, opts?: PrintOptions) {
+    this.print(msg, { ...opts, newLine: true });
   }
 
   /**
@@ -694,7 +710,7 @@ export class PgTerm {
     if (opts?.multiChoice) {
       // Show multi choice items
       convertedMsg += opts.multiChoice.items.reduce(
-        (acc, cur, i) => acc + `[${i}] - ${cur}\n`,
+        (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
     } else if (opts?.confirm) {
@@ -733,7 +749,7 @@ export class PgTerm {
 
     // Default
     if (!userInput && !opts?.allowEmpty) {
-      PgTerminal.logWasm(PgTerminal.error("Can't be empty."));
+      PgTerminal.log(PgTerminal.error("Can't be empty."));
       return await this.waitForUserInput(msg, opts);
     }
 
@@ -741,13 +757,13 @@ export class PgTerm {
     if (opts?.validator) {
       try {
         if (opts.validator(userInput) === false) {
-          PgTerminal.logWasm(
+          PgTerminal.log(
             PgTerminal.error(`'${userInput}' is not a valid value.\n`)
           );
           return await this.waitForUserInput(msg, opts);
         }
       } catch (e: any) {
-        PgTerminal.logWasm(PgTerminal.error(`${e.message}\n`));
+        PgTerminal.log(PgTerminal.error(`${e.message}\n`));
         return await this.waitForUserInput(msg, opts);
       }
     }

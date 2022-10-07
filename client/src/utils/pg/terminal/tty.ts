@@ -3,6 +3,7 @@ import { Terminal as XTerm } from "xterm";
 import { countLines, offsetToColRow } from "./tty-utils";
 import { ActiveCharPrompt, ActivePrompt } from "./shell-utils";
 import { PgTerminal } from "./terminal";
+import { PrintOptions } from "./types";
 
 /**
  * A tty is a particular device file, that sits between the shell and the terminal.
@@ -78,29 +79,38 @@ export class PgTty {
   }
 
   /**
-   * Prints a message and changes line
-   */
-  println(message: string) {
-    this.print(message + "\n");
-  }
-
-  /**
    * Prints a message and properly handles new-lines
    */
-  print(message: string, sync?: boolean) {
-    const normInput = message.replace(/[\r\n]+/g, "\n").replace(/\n/g, "\r\n");
-    if (sync) {
+  print(msg: any, opts?: PrintOptions) {
+    if (typeof msg === "object") msg = JSON.stringify(msg, null, 2);
+    else msg = `${msg}`;
+
+    // All data types should be converted to string
+    msg = msg.replace(/[\r\n]+/g, "\n").replace(/\n/g, "\r\n");
+
+    // Color text
+    if (!opts?.noColor) msg = PgTerminal.colorText(msg);
+    if (opts?.newLine) msg += "\n";
+
+    if (opts?.sync) {
       // We write it synchronously via hacking a bit on xterm
 
       //@ts-ignore
-      this._xterm._core.writeSync(normInput);
+      this._xterm._core.writeSync(msg);
       //@ts-ignore
       this._xterm._core._renderService._renderer._runOperation((renderer) =>
         renderer.onGridChanged(0, this._xterm.rows - 1)
       );
     } else {
-      this._xterm.write(normInput);
+      this._xterm.write(msg);
     }
+  }
+
+  /**
+   * Prints a message and changes line
+   */
+  println(msg: string, opts?: PrintOptions) {
+    this.print(msg, { ...opts, newLine: true });
   }
 
   /**
@@ -137,8 +147,8 @@ export class PgTty {
    */
   printStatus(message: string, sync?: boolean) {
     // Save the cursor position
-    this.print("\u001b[s", sync);
-    this.print(message, sync);
+    this.print("\u001b[s", { sync });
+    this.print(message, { sync });
   }
 
   /**
@@ -146,10 +156,10 @@ export class PgTty {
    */
   clearStatus(sync?: boolean) {
     // Restore the cursor position
-    this.print("\u001b[u", sync);
+    this.print("\u001b[u", { sync });
     // Clear from cursor to end of screen
-    this.print("\u001b[1000D", sync);
-    this.print("\u001b[0J", sync);
+    this.print("\u001b[1000D", { sync });
+    this.print("\u001b[0J", { sync });
   }
 
   /**

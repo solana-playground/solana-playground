@@ -365,14 +365,12 @@ const CodeMirror = () => {
               result = { error: () => e.message };
             }
             if (result.error()) {
-              PgTerminal.logWasm(
-                PgTerminal.error("Unable to format the file.")
-              );
+              PgTerminal.log(PgTerminal.error("Unable to format the file."));
               return;
             }
 
             if (e.detail?.fromTerminal) {
-              PgTerminal.logWasm(PgTerminal.success("Format successful."));
+              PgTerminal.log(PgTerminal.success("Format successful."));
             }
 
             const formattedCode = result.code!();
@@ -430,7 +428,7 @@ const CodeMirror = () => {
             });
 
             if (e.detail?.fromTerminal) {
-              PgTerminal.logWasm(PgTerminal.success("Format successful."));
+              PgTerminal.log(PgTerminal.success("Format successful."));
             }
 
             editor.dispatch({
@@ -462,7 +460,7 @@ const CodeMirror = () => {
         switch (e.detail.lang) {
           case Lang.RUST: {
             if (!isCurrentFileRust) {
-              PgTerminal.logWasm(
+              PgTerminal.log(
                 PgTerminal.warning("Current file is not a Rust file.")
               );
               return;
@@ -474,7 +472,7 @@ const CodeMirror = () => {
 
           case Lang.TYPESCRIPT: {
             if (!isCurrentFileJsLike) {
-              PgTerminal.logWasm(
+              PgTerminal.log(
                 PgTerminal.warning("Current file is not a JS/TS file.")
               );
               return;

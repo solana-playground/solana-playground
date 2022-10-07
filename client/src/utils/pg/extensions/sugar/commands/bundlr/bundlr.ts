@@ -26,7 +26,7 @@ export const processBundlr = async (
   action: BundlrAction
 ) => {
   // Get balance
-  PgTerminal.logWasm(
+  PgTerminal.log(
     `${BundlrAction.Withraw ? "[1/2]" : "[1/1]"} ${
       Emoji.COMPUTER
     } Retrieving balance`
@@ -47,33 +47,33 @@ export const processBundlr = async (
 
   const balance = await bundlr.getBalance(pkStr);
 
-  PgTerminal.logWasm("\nFunding address:");
-  PgTerminal.logWasm(`  -> pubkey: ${pkStr}`);
-  PgTerminal.logWasm(
+  PgTerminal.log("\nFunding address:");
+  PgTerminal.log(`  -> pubkey: ${pkStr}`);
+  PgTerminal.log(
     `  -> lamports: ${balance} (◎ ${balance.div(LAMPORTS_PER_SOL)})`
   );
 
   // Withdraw funds
   if (action === BundlrAction.Withraw) {
-    PgTerminal.logWasm(`\n${"[2/2]"} ${Emoji.WITHDRAW} Withdrawing funds`);
+    PgTerminal.log(`\n${"[2/2]"} ${Emoji.WITHDRAW} Withdrawing funds`);
 
     if (balance.isZero()) {
-      PgTerminal.logWasm!("\nNo funds to withdraw.");
+      PgTerminal.log!("\nNo funds to withdraw.");
     } else if (balance.minus(LIMIT).gt(0)) {
       const withdrawBalance = balance.minus(LIMIT);
       const response = await bundlr.withdrawBalance(withdrawBalance);
 
       if (response.status === 200) {
-        PgTerminal.logWasm("Withdraw completed.");
+        PgTerminal.log("Withdraw completed.");
       } else {
-        PgTerminal.logWasm(`\n${PgTerminal.error("Withdraw failed.")}`);
+        PgTerminal.log(`\n${PgTerminal.error("Withdraw failed.")}`);
         throw new Error(`Failed to complete withdraw (${response.data})`);
       }
     } else {
-      PgTerminal.logWasm(
+      PgTerminal.log(
         `\n${PgTerminal.error("Insufficient balance for withdraw:")}`
       );
-      PgTerminal.logWasm(
+      PgTerminal.log(
         `  -> required balance > ${LIMIT.toString()} (◎ ${
           LIMIT / LAMPORTS_PER_SOL
         })`

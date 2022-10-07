@@ -1,17 +1,5 @@
 import { atom } from "jotai";
 
-// Terminal output
-const _terminalOutputAtom = atom("");
-export const terminalOutputAtom = atom(
-  (get) => get(_terminalOutputAtom),
-  (get, set, newVal: string) => {
-    const terminal = get(_terminalOutputAtom);
-    if (terminal !== newVal) set(_terminalOutputAtom, newVal);
-    // To force-re render even if it's the exact same string
-    else set(_terminalOutputAtom, newVal + "\t");
-  }
-);
-
 export const terminalProgressAtom = atom(0);
 
 interface TerminalState {

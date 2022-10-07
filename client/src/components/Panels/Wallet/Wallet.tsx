@@ -22,12 +22,7 @@ import Button from "../../Button";
 import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
 import { ClassName, Emoji, Id } from "../../../constants";
-import {
-  pgWalletAtom,
-  showWalletAtom,
-  terminalOutputAtom,
-  txHashAtom,
-} from "../../../state";
+import { pgWalletAtom, showWalletAtom, txHashAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../../utils/pg";
 import { Close, ThreeDots } from "../../Icons";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
@@ -140,7 +135,6 @@ interface SettingsItemProps {
 }
 
 const Airdrop: FC<SettingsItemProps> = ({ close }) => {
-  const [, setTerminal] = useAtom(terminalOutputAtom);
   const [, setTxHash] = useAtom(txHashAtom);
 
   // Get cap amount for airdrop based on network
@@ -157,7 +151,7 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
         let msg;
         try {
-          setTerminal(PgTerminal.info("Sending an airdrop request..."));
+          PgTerminal.log(PgTerminal.info("Sending an airdrop request..."));
 
           // Airdrop tx is sometimes successful even when balance hasn't changed
           // Instead of confirming the tx, we will check before and after balance
@@ -189,11 +183,11 @@ const Airdrop: FC<SettingsItemProps> = ({ close }) => {
             "Error receiving airdrop:"
           )}: ${convertedError}`;
         } finally {
-          setTerminal(msg + "\n");
+          PgTerminal.log(msg + "\n");
         }
       });
     },
-    [conn, amount, setTerminal, setTxHash, close]
+    [conn, amount, setTxHash, close]
   );
 
   const airdropPg = useCallback(async () => {

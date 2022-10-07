@@ -73,7 +73,7 @@ export class PgClient {
         this._isClientRunning = true;
       }
 
-      PgTerminal.logWasm(`  ${fileName}:`);
+      PgTerminal.log(`  ${fileName}:`);
 
       // Add globally accessed objects
       const globals: [string, object][] = [
@@ -223,7 +223,7 @@ export class PgClient {
         } else {
           const intervalId = setInterval(() => {
             if (!this._isClientRunning) {
-              PgTerminal.logWasm("");
+              PgTerminal.log("");
               clearInterval(intervalId);
               res();
             }
@@ -312,12 +312,10 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
       // @ts-ignore
       iframeWindow["console"] = {
         log: (msg: string, ...rest: any[]) => {
-          PgTerminal.logWasm(padding + util.format(msg, ...rest));
+          PgTerminal.log(padding + util.format(msg, ...rest));
         },
         error: (msg: string, ...rest: any[]) => {
-          PgTerminal.logWasm(
-            padding + PgTerminal.error(util.format(msg, ...rest))
-          );
+          PgTerminal.log(padding + PgTerminal.error(util.format(msg, ...rest)));
         },
       };
 
@@ -343,7 +341,7 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
     if (!iframeWindow) throw new Error("No iframe window");
 
     const handleIframeError = (e: ErrorEvent) => {
-      PgTerminal.logWasm(`    ${e.message}`);
+      PgTerminal.log(`    ${e.message}`);
       this._isClientRunning = false;
     };
 

@@ -24,12 +24,12 @@ const MAX_FREEZE_DAYS = 31;
 export const processCreateConfig = async (
   rpcUrl: string = PgConnection.endpoint
 ) => {
-  PgTerminal.logWasm(`[1/2] ${Emoji.CANDY} Sugar interactive config maker`);
+  PgTerminal.log(`[1/2] ${Emoji.CANDY} Sugar interactive config maker`);
 
-  PgTerminal.logWasm(
+  PgTerminal.log(
     "\nCheck out our Candy Machine config docs to learn about the options:"
   );
-  PgTerminal.logWasm(
+  PgTerminal.log(
     `  -> ${PgTerminal.underline(
       "https://docs.metaplex.com/tools/sugar/configuration"
     )}\n`
@@ -433,7 +433,7 @@ export const processCreateConfig = async (
   }
 
   // Save the file
-  PgTerminal.logWasm(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
+  PgTerminal.log(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
 
   const explorer = await PgExplorer.get();
   const configPath = PgExplorer.joinPaths([
@@ -459,20 +459,22 @@ export const processCreateConfig = async (
       )) === 0;
   }
 
+  const prettyConfigData = JSON.stringify(configData, null, 2);
+
   if (saveFile) {
-    PgTerminal.logWasm(
+    PgTerminal.log(
       `Saving config to file: "${PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
     );
-    await explorer.newItem(configPath, JSON.stringify(configData, null, 2), {
+    await explorer.newItem(configPath, prettyConfigData, {
       override: true,
     });
-    PgTerminal.logWasm(
+    PgTerminal.log(
       `${PgTerminal.secondary("Successfully generated the config file.")} ${
         Emoji.CONFETTI
       }`
     );
   } else {
-    PgTerminal.logWasm("Logging config to console:\n");
-    PgTerminal.logWasm(configData);
+    PgTerminal.log("Logging config to console:\n");
+    PgTerminal.log(prettyConfigData);
   }
 };
