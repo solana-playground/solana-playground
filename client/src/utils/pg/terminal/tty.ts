@@ -4,6 +4,7 @@ import { countLines, offsetToColRow } from "./tty-utils";
 import { ActiveCharPrompt, ActivePrompt } from "./shell-utils";
 import { PgTerminal } from "./terminal";
 import { PrintOptions } from "./types";
+import { PgCommon } from "../common";
 
 /**
  * A tty is a particular device file, that sits between the shell and the terminal.
@@ -82,7 +83,7 @@ export class PgTty {
    * Prints a message and properly handles new-lines
    */
   print(msg: any, opts?: PrintOptions) {
-    if (typeof msg === "object") msg = JSON.stringify(msg, null, 2);
+    if (typeof msg === "object") msg = PgCommon.prettyJSON(msg);
     else msg = `${msg}`;
 
     // All data types should be converted to string

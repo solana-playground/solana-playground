@@ -10,7 +10,7 @@ export class PgModal {
    * @param el React component to be set as the modal
    * @returns the data from `close` method of the modal
    */
-  static async set(el: ComponentType | null) {
+  static async set<T>(el: ComponentType | null): Promise<T> {
     return await PgCommon.sendAndReceiveCustomEvent(EventName.MODAL_SET, {
       el,
     });

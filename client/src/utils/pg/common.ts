@@ -263,13 +263,20 @@ export class PgCommon {
     this.createAndDispatchCustomEvent(eventNames.send, data);
 
     // Wait for data
-    return new Promise((res) => {
-      const handleReceive = (e: UIEvent & { detail: { data: R } }) => {
+    return new Promise((res, rej) => {
+      const handleReceive = (
+        e: UIEvent & { detail: { data: R; error?: string } }
+      ) => {
         document.removeEventListener(
           eventNames.receive,
           handleReceive as EventListener
         );
-        res(e.detail?.data);
+
+        if (e.detail.error) {
+          rej({ message: e.detail.error });
+        } else {
+          res(e.detail.data);
+        }
       };
 
       document.addEventListener(
@@ -277,5 +284,41 @@ export class PgCommon {
         handleReceive as EventListener
       );
     });
+  }
+
+  /**
+   * Make a noun plural
+   *
+   * @param noun name of the noun
+   * @param length item length that will decide whether to make the noun plural
+   * @param plural plural version of the name for irregular suffixes
+   * @returns plural version of the noun
+   */
+  static makePlural(noun: string, length: number, plural?: string) {
+    if (length > 1) return plural ?? noun + "s";
+    return noun;
+  }
+
+  /**
+   * Convert objects into pretty JSON strings
+   *
+   * @param obj json object
+   * @returns prettified string output
+   */
+  static prettyJSON(obj: object) {
+    return JSON.stringify(obj, null, 2);
+  }
+
+  /**
+   * Adds space before the string, mainly used for terminal output
+   *
+   * @param str string to prepend spaces to
+   * @param spaceAmount amount of space characters
+   * @returns the space prepended string
+   */
+  static addSpace(str: string, spaceAmount: number) {
+    return (
+      new Array(spaceAmount).fill(null).reduce((acc) => acc + " ", "") + str
+    );
   }
 }

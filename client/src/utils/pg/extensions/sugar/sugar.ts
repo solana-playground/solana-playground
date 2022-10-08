@@ -2,7 +2,7 @@
 
 import { Emoji } from "../../../../constants";
 import { PgTerminal } from "../../terminal";
-import { processBundlr, processCreateConfig } from "./commands";
+import { processBundlr, processCreateConfig, processUpload } from "./commands";
 
 /**
  * Metaplex Sugar CLI commands
@@ -87,7 +87,9 @@ export class PgSugar {
     candyMachine: string | undefined
   ) {}
 
-  static async upload(rpcUrl: string | undefined) {}
+  static async upload(...args) {
+    await this._run(() => processUpload(...args));
+  }
 
   static async validate(strict: boolean, skipCollectionPrompt: boolean) {}
 
@@ -109,13 +111,14 @@ export class PgSugar {
     try {
       await cb();
       PgTerminal.log(
-        `${Emoji.CHECKMARK} ${PgTerminal.success("Command successful.")}\n`
+        `\n${Emoji.CHECKMARK} ${PgTerminal.success("Command successful.")}\n`
       );
     } catch (e: any) {
       PgTerminal.log(
-        `${Emoji.ERROR} ${PgTerminal.error(
+        `\n${Emoji.ERROR} ${PgTerminal.error(
           "Error running command (re-run needed):"
-        )} ${e.message}\n`
+        )} ${e.message}\n`,
+        { noColor: true }
       );
     }
   }

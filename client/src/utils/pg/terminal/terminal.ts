@@ -170,7 +170,9 @@ export class PgTerminal {
       })
 
       // Secondary text color for (...)
-      .replace(/\(.*\)/gm, (match) => this.secondaryText(match))
+      .replace(/\(.*\)/gm, (match) =>
+        match.endsWith("\x1b[0m") ? this.secondaryText(match) : match
+      )
 
       // Numbers
       .replace(/^\s*\d+$/, (match) => this.secondary(match))
@@ -324,8 +326,8 @@ export class PgTerminal {
   /**
    * Log terminal messages from anywhere
    */
-  static log(msg: any, opts?: PrintOptions) {
-    this.run({ println: [msg, opts] });
+  static async log(msg: any, opts?: PrintOptions) {
+    await this.run({ println: [msg, opts] });
   }
 
   // TODO: Remove

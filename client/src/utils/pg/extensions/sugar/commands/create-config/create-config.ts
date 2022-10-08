@@ -11,6 +11,7 @@ import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
 import { PgExplorer } from "../../../../explorer";
+import { PgCommon } from "../../../../common";
 
 const CIVIC_NETWORK = new PublicKey(
   "ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6"
@@ -440,13 +441,9 @@ export const processCreateConfig = async (
   term.println(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
 
   const explorer = await PgExplorer.get();
-  const configPath = PgExplorer.joinPaths([
-    explorer.currentWorkspacePath,
-    PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
-  ]);
 
   let saveFile = true;
-  if (await explorer.exists(configPath)) {
+  if (await explorer.exists(PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH)) {
     saveFile =
       (await term.waitForUserInput(
         [
@@ -462,15 +459,19 @@ export const processCreateConfig = async (
       )) === 0;
   }
 
-  const prettyConfigData = JSON.stringify(configData, null, 2);
+  const prettyConfigData = PgCommon.prettyJSON(configData);
 
   if (saveFile) {
     term.println(
       `Saving config to file: "${PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
     );
-    await explorer.newItem(configPath, prettyConfigData, {
-      override: true,
-    });
+    await explorer.newItem(
+      PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
+      prettyConfigData,
+      {
+        override: true,
+      }
+    );
     term.println(
       `${PgTerminal.secondary("Successfully generated the config file.")} ${
         Emoji.CONFETTI

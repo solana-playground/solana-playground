@@ -340,6 +340,8 @@ export class PgExplorer {
     content: string = "",
     opts?: { override?: boolean }
   ) {
+    fullPath = this._convertToFullPath(fullPath);
+
     // Invalid name
     if (
       !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath)!)
@@ -405,6 +407,8 @@ export class PgExplorer {
     newName: string,
     options?: { skipNameValidation?: boolean }
   ) {
+    fullPath = this._convertToFullPath(fullPath);
+
     if (!options?.skipNameValidation && !PgExplorer.isItemNameValid(newName)) {
       throw new Error(ItemError.INVALID_NAME);
     }
@@ -494,6 +498,8 @@ export class PgExplorer {
    * - Delete from state
    */
   async deleteItem(fullPath: string) {
+    fullPath = this._convertToFullPath(fullPath);
+
     // Can't delete src folder
     if (fullPath === this._getCurrentSrcPath()) {
       throw new Error(ItemError.SRC_DELETE);
@@ -745,6 +751,8 @@ export class PgExplorer {
    * @returns whether the given path exists
    */
   async exists(path: string) {
+    path = this._convertToFullPath(path);
+
     try {
       const fs = this._getFs();
       await fs.stat(path);
@@ -765,7 +773,6 @@ export class PgExplorer {
    */
   saveFileToState(path: string, content: string) {
     const files = this.files;
-
     if (files[path]) files[path].content = content;
   }
 
@@ -880,7 +887,7 @@ export class PgExplorer {
    * @returns the file content from the state
    */
   getFileContent(path: string) {
-    return this.files[path]?.content;
+    return this.files[this._convertToFullPath(path)]?.content;
   }
 
   /**
@@ -1290,18 +1297,37 @@ export class PgExplorer {
     this.changeCurrentFile(lastTabPath);
   }
 
+  private _convertToFullPath(path: string) {
+    // Convert to absolute path if it doesn't start with '/'
+    if (!path.startsWith(PgExplorer.PATHS.ROOT_DIR_PATH)) {
+      path =
+        (this.isShared
+          ? PgExplorer.PATHS.ROOT_DIR_PATH
+          : this.currentWorkspacePath) + path;
+    }
+    return path;
+  }
+
   /** Static methods */
+
+  /** Paths */
   static readonly PATHS = {
     ROOT_DIR_PATH: "/",
     SRC_DIRNAME: "src",
     CLIENT_DIRNAME: "client",
     TESTS_DIRNAME: "tests",
-    METAPLEX_DIRNAME: "nft",
+    METAPLEX_DIRNAME: "metaplex",
     get CANDY_MACHINE_DIR_PATH() {
       return PgExplorer.joinPaths([this.METAPLEX_DIRNAME, "candy-machine"]);
     },
     get CANDY_MACHINE_CONFIG_FILEPATH() {
       return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "config.json"]);
+    },
+    get CANDY_MACHINE_CACHE_FILEPATH() {
+      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "cache.json"]);
+    },
+    get CANDY_MACHINE_ASSETS_DIR_PATH() {
+      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "assets"]);
     },
   };
 

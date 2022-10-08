@@ -10,8 +10,14 @@ export const useSendAndReceiveCustomEvent = <T,>(
     const eventNames = PgCommon.getSendAndReceiveEventNames(eventName);
 
     const handleSend = async (e: UIEvent & { detail: T }) => {
-      const data = await cb(e.detail);
-      PgCommon.createAndDispatchCustomEvent(eventNames.receive, { data });
+      try {
+        const data = await cb(e.detail);
+        PgCommon.createAndDispatchCustomEvent(eventNames.receive, { data });
+      } catch (e: any) {
+        PgCommon.createAndDispatchCustomEvent(eventNames.receive, {
+          error: e.message,
+        });
+      }
     };
 
     document.addEventListener(eventNames.send, handleSend as any);
