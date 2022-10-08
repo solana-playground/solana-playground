@@ -1,4 +1,8 @@
 import { toDateTime } from "@metaplex-foundation/js";
+import {
+  EndSettingType,
+  WhitelistMintMode,
+} from "@metaplex-foundation/mpl-candy-machine";
 import { PublicKey } from "@solana/web3.js";
 
 import { ConfigData } from "../../types";
@@ -6,10 +10,6 @@ import { Emoji } from "../../../../../../constants";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
-import {
-  EndSettingType,
-  WhitelistMintMode,
-} from "@metaplex-foundation/mpl-candy-machine";
 import { PgExplorer } from "../../../../explorer";
 
 const CIVIC_NETWORK = new PublicKey(
@@ -24,18 +24,17 @@ const MAX_FREEZE_DAYS = 31;
 export const processCreateConfig = async (
   rpcUrl: string = PgConnection.endpoint
 ) => {
-  PgTerminal.log(`[1/2] ${Emoji.CANDY} Sugar interactive config maker`);
+  const term = await PgTerminal.get();
 
-  PgTerminal.log(
+  term.println(`[1/2] ${Emoji.CANDY} Sugar interactive config maker`);
+  term.println(
     "\nCheck out our Candy Machine config docs to learn about the options:"
   );
-  PgTerminal.log(
+  term.println(
     `  -> ${PgTerminal.underline(
       "https://docs.metaplex.com/tools/sugar/configuration"
     )}\n`
   );
-
-  const term = await PgTerminal.get();
 
   const configData: Partial<ConfigData> = {};
 
@@ -143,7 +142,7 @@ export const processCreateConfig = async (
     "Which extra features do you want to use? Leave empty for no extra features. (e.g. 0,2)",
     {
       allowEmpty: true,
-      multiChoice: {
+      choice: {
         items: [
           "SPL Token Mint", // 0
           "Gatekeeper", // 1
@@ -152,23 +151,31 @@ export const processCreateConfig = async (
           "Hidden Settings", // 4
           "Freeze Settings", // 5
         ],
+        allowMultiple: true,
       },
     }
   );
 
   // SPL Token Mint
   if (choices.includes(0)) {
+    const splToken = await import("@solana/spl-token");
+    const conn = PgConnection.createConnectionFromUrl(rpcUrl);
+
     configData.solTreasuryAccount = null;
     configData.splToken = await term.waitForUserInput(
       "What is your SPL token mint address?",
       {
-        validator: PgValidator.isPubkey,
+        validator: async (input) => {
+          await splToken.getMint(conn, new PublicKey(input));
+        },
       }
     );
     configData.splTokenAccount = await term.waitForUserInput(
       "What is your SPL token account address (the account that will hold the SPL token mints)?",
       {
-        validator: PgValidator.isPubkey,
+        validator: async (input) => {
+          await splToken.getAccount(conn, new PublicKey(input));
+        },
       }
     );
   } else {
@@ -190,12 +197,11 @@ export const processCreateConfig = async (
         "Check https://docs.metaplex.com/guides/archived/candy-machine-v2/configuration#provider-networks for more info.",
       ].join(" "),
       {
-        multiChoice: {
+        choice: {
           items: [
             "Civic Pass", // 0
             "Verify by Encore", // 1
           ],
-          chooseOne: true,
         },
         default: "0",
       }
@@ -261,9 +267,8 @@ export const processCreateConfig = async (
     const endSettingType = await term.waitForUserInput(
       "What end settings type do you want to use?",
       {
-        multiChoice: {
+        choice: {
           items: ["Amount", "Date"],
-          chooseOne: true,
         },
         default: "0",
       }
@@ -377,14 +382,13 @@ export const processCreateConfig = async (
   const uploadMethod = await term.waitForUserInput(
     "What upload method do you want to use?",
     {
-      multiChoice: {
+      choice: {
         items: [
           "Bundlr", // 0
           "AWS", // 1
           "NFT Storage", // 2
           "SHDW", // 3
         ],
-        chooseOne: true,
       },
       default: "0",
     }
@@ -433,7 +437,7 @@ export const processCreateConfig = async (
   }
 
   // Save the file
-  PgTerminal.log(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
+  term.println(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
 
   const explorer = await PgExplorer.get();
   const configPath = PgExplorer.joinPaths([
@@ -451,9 +455,8 @@ export const processCreateConfig = async (
         ].join(" "),
         {
           default: "0",
-          multiChoice: {
+          choice: {
             items: ["Overwrite the file", "Log to console"],
-            chooseOne: true,
           },
         }
       )) === 0;
@@ -462,19 +465,19 @@ export const processCreateConfig = async (
   const prettyConfigData = JSON.stringify(configData, null, 2);
 
   if (saveFile) {
-    PgTerminal.log(
+    term.println(
       `Saving config to file: "${PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
     );
     await explorer.newItem(configPath, prettyConfigData, {
       override: true,
     });
-    PgTerminal.log(
+    term.println(
       `${PgTerminal.secondary("Successfully generated the config file.")} ${
         Emoji.CONFETTI
       }`
     );
   } else {
-    PgTerminal.log("Logging config to console:\n");
-    PgTerminal.log(prettyConfigData);
+    term.println("Logging config to console:\n");
+    term.println(prettyConfigData);
   }
 };

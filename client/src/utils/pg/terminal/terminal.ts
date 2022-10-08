@@ -152,7 +152,8 @@ export class PgTerminal {
       .replace(/^(.*?:)/gm, (match) => {
         if (
           new RegExp(/(http|{|})/).test(match) ||
-          new RegExp(/"\w+":/).test(match)
+          new RegExp(/"\w+":/).test(match) ||
+          new RegExp(/\(\w+:/).test(match)
         ) {
           return match;
         }
@@ -673,10 +674,11 @@ export class PgTerm {
    * @param msg message to print to the terminal before prompting user
    * @param opts -
    * - allowEmpty: whether to allow the input to be empty
+   * - choice.items: set of values to choose from. Returns the selected index if
+   * `allowMultiple` is not specified.
+   * - choice.allowMultiple: whether to allow multiple choices. Returns the indices.
    * - confirm: yes/no question. Returns the result as boolean.
    * - default: default value to set
-   * - multiChoice.items: set of values to choose from. Returns the selected indices.
-   * - multiChoice.chooseOne: whether to choose only one. Returns the selected index.
    * - validator: callback function to validate the user input
    * @returns user input
    */
@@ -685,11 +687,13 @@ export class PgTerm {
       allowEmpty?: boolean;
       confirm?: boolean;
       default?: string;
-      multiChoice?: {
+      choice?: {
         items: string[];
-        chooseOne?: boolean;
+        allowMultiple?: boolean;
       };
-      validator?: (userInput: string) => boolean | void;
+      validator?: (
+        userInput: string
+      ) => boolean | void | Promise<boolean | void>;
     }
   >(
     msg: string,
@@ -697,24 +701,24 @@ export class PgTerm {
   ): Promise<
     O["confirm"] extends boolean
       ? boolean
-      : O["multiChoice"] extends object
-      ? O["multiChoice"]["chooseOne"] extends boolean
-        ? number
-        : number[]
+      : O["choice"] extends object
+      ? O["choice"]["allowMultiple"] extends boolean
+        ? number[]
+        : number
       : string
   > {
     let convertedMsg = msg;
     if (opts?.default) {
       convertedMsg += ` (default: ${opts.default})`;
     }
-    if (opts?.multiChoice) {
+    if (opts?.choice) {
       // Show multi choice items
-      convertedMsg += opts.multiChoice.items.reduce(
+      convertedMsg += opts.choice.items.reduce(
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
     } else if (opts?.confirm) {
-      convertedMsg = PgTerminal.secondaryText(` [yes/no]`);
+      convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
     }
 
     let userInput = await this._pgShell.waitForUserInput(convertedMsg);
@@ -730,40 +734,42 @@ export class PgTerm {
       }
 
       // Validate multi choice
-      if (opts.multiChoice) {
-        const multiChoiceMaxLength = opts.multiChoice.items.length - 1;
+      if (opts.choice) {
+        const choiceMaxLength = opts.choice.items.length - 1;
         opts.validator = (input) => {
           const parsed: number[] = JSON.parse(`[${input}]`);
           return (
-            (opts.multiChoice?.chooseOne ? parsed.length === 1 : true) &&
+            (opts.choice?.allowMultiple ? true : parsed.length === 1) &&
             parsed.every(
               (v) =>
                 PgValidator.isInt(v.toString()) &&
                 v >= 0 &&
-                v <= multiChoiceMaxLength
+                v <= choiceMaxLength
             )
           );
         };
       }
     }
 
-    // Default
+    // Allow empty
     if (!userInput && !opts?.allowEmpty) {
-      PgTerminal.log(PgTerminal.error("Can't be empty."));
+      this.println(PgTerminal.error("Can't be empty.\n"));
       return await this.waitForUserInput(msg, opts);
     }
 
     // Validator
-    if (opts?.validator) {
+    if (opts?.validator && userInput) {
       try {
-        if (opts.validator(userInput) === false) {
-          PgTerminal.log(
+        if ((await opts.validator(userInput)) === false) {
+          this.println(
             PgTerminal.error(`'${userInput}' is not a valid value.\n`)
           );
           return await this.waitForUserInput(msg, opts);
         }
       } catch (e: any) {
-        PgTerminal.log(PgTerminal.error(`${e.message}\n`));
+        this.println(
+          PgTerminal.error(`${e.message || `Validation failed: ${e}`}\n`)
+        );
         return await this.waitForUserInput(msg, opts);
       }
     }
@@ -776,11 +782,11 @@ export class PgTerm {
       returnValue = userInput === "yes" ? true : false;
     }
     // Multichoice
-    else if (opts?.multiChoice) {
-      if (opts.multiChoice.chooseOne) {
-        returnValue = parseInt(userInput);
-      } else {
+    else if (opts?.choice) {
+      if (opts.choice.allowMultiple) {
         returnValue = JSON.parse(`[${userInput}]`);
+      } else {
+        returnValue = parseInt(userInput);
       }
     }
     // Default as string
@@ -788,7 +794,7 @@ export class PgTerm {
       returnValue = userInput;
     }
 
-    let visibleText = PgTerminal.success(returnValue);
+    let visibleText = PgTerminal.success(userInput);
     if (returnValue === "" || returnValue?.length === 0) {
       visibleText = PgTerminal.secondaryText("empty");
     }
