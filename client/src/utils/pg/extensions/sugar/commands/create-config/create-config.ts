@@ -437,6 +437,18 @@ export const processCreateConfig = async (
     }
   }
 
+  // Retain authority
+  configData.retainAuthority = await term.waitForUserInput(
+    "Do you want to retain update authority on your NFTs? We HIGHLY recommend you choose yes.",
+    { confirm: true }
+  );
+
+  // Is mutable
+  configData.isMutable = await term.waitForUserInput(
+    "Do you want your NFTs to remain mutable? We HIGHLY recommend you choose yes.",
+    { confirm: true }
+  );
+
   // Save the file
   term.println(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
 
