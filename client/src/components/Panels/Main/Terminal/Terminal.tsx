@@ -35,6 +35,7 @@ const Terminal = () => {
         brightBlue: theme.colors.state.info.color,
         brightMagenta: theme.colors.default.primary,
         black: theme.colors.default.textSecondary,
+        brightBlack: theme.colors.default.textSecondary,
         brightCyan: theme.colors.default.secondary,
         background: theme.colors.terminal?.bg,
         foreground: theme.colors.terminal?.color,

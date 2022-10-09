@@ -772,8 +772,8 @@ export class PgExplorer {
    * Save the file to the state only.
    */
   saveFileToState(path: string, content: string) {
-    const files = this.files;
-    if (files[path]) files[path].content = content;
+    path = this._convertToFullPath(path);
+    if (this.files[path]) this.files[path].content = content;
   }
 
   /**
@@ -821,10 +821,11 @@ export class PgExplorer {
    * Changes the current opened file in state if it exists
    */
   changeCurrentFile(newPath: string) {
+    newPath = this._convertToFullPath(newPath);
+
     const files = this.files;
 
     const curFile = this.getCurrentFile();
-
     if (curFile) {
       if (newPath === curFile.path) return;
 
@@ -868,6 +869,8 @@ export class PgExplorer {
    * Closes the tab and changes the current file to the last opened tab if it exists
    */
   closeTab(path: string) {
+    path = this._convertToFullPath(path);
+
     const files = this.files;
     files[path].meta!.tabs = false;
 

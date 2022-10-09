@@ -117,7 +117,7 @@ export class PgSugar {
       PgTerminal.log(
         `\n${Emoji.ERROR} ${PgTerminal.error(
           "Error running command (re-run needed):"
-        )} ${e.message}\n`,
+        )} ${e.message}`,
         { noColor: true }
       );
     }

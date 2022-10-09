@@ -170,8 +170,8 @@ export class PgTerminal {
       })
 
       // Secondary text color for (...)
-      .replace(/\(.*\)/gm, (match) =>
-        match.endsWith("\x1b[0m") ? this.secondaryText(match) : match
+      .replace(/\(.+\)/gm, (match) =>
+        match === "(s)" ? match : this.secondaryText(match)
       )
 
       // Numbers

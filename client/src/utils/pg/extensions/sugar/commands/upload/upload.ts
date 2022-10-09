@@ -89,7 +89,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
     // Symbol check, but only if the asset actually has the value
     if (metadata.symbol && configData.symbol !== metadata.symbol) {
       throw new Error(
-        `Mismatch between symbols in config file and metadata file. ${configData.symbol} != ${metadata.symbol}`
+        `Mismatch between symbols in config file and metadata file. '${configData.symbol}' != '${metadata.symbol}'`
       );
     }
 
@@ -155,6 +155,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
     // TODO:
     if (indices.image.length) {
+      term.println("Image...");
     }
 
     // Upload animation
@@ -166,6 +167,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
       );
 
       // TODO:
+      term.println("Animation...");
     }
 
     // Upload metadata
@@ -179,6 +181,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
     // TODO:
     if (indices.metadata.length) {
+      term.println("Metadata...");
     }
   } else {
     term.println("\n...no files need uploading, skipping remaining steps.");
