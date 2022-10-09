@@ -5,6 +5,7 @@ import { Emoji } from "../../../../../../constants";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { PgWallet } from "../../../../wallet";
+import { BundlrEnpoints } from "../../constants";
 import { getCluster } from "../../utils";
 
 enum BundlrAction {
@@ -14,12 +15,6 @@ enum BundlrAction {
 
 // The minimum amount of lamports required for withdraw
 const LIMIT = 5000;
-
-// Bundlr devnet endpoint
-const BUNDLR_DEVNET = "https://devnet.bundlr.network";
-
-// Bundlr mainnet endpoint
-const BUNDLR_MAINNET = "https://node1.bundlr.network";
 
 export const processBundlr = async (
   rpcUrl: string = PgConnection.endpoint,
@@ -37,7 +32,7 @@ export const processBundlr = async (
 
   const cluster = await getCluster(rpcUrl);
   const bundlr = new Bundlr(
-    cluster === "mainnet-beta" ? BUNDLR_MAINNET : BUNDLR_DEVNET,
+    cluster === "devnet" ? BundlrEnpoints.DEVNET : BundlrEnpoints.MAINNET,
     "solana",
     wallet.keypair,
     {

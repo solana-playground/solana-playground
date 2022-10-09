@@ -342,7 +342,7 @@ export class PgExplorer {
   async newItem(
     fullPath: string,
     content: string = "",
-    opts?: { override?: boolean }
+    opts?: { dontOpen?: boolean; override?: boolean }
   ) {
     fullPath = this._convertToFullPath(fullPath);
 
@@ -372,16 +372,15 @@ export class PgExplorer {
 
       files[fullPath] = {
         content,
-        meta: {
-          current: true,
-          tabs: true,
-        },
+        meta: {},
       };
 
-      // Close the file if we are overriding to correctly display the new content
-      if (opts?.override) this.closeTab(fullPath);
+      if (!opts?.dontOpen) {
+        // Close the file if we are overriding to correctly display the new content
+        if (opts?.override) this.closeTab(fullPath);
 
-      this.changeCurrentFile(fullPath);
+        this.changeCurrentFile(fullPath);
+      }
     } else {
       // Folder
       if (!this.isShared) {

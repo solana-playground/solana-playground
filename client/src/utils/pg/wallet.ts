@@ -1,5 +1,6 @@
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
+import * as ed25519 from "@noble/ed25519";
 
 import { PgTerminal } from "./terminal/";
 import { PgCommon } from "./common";
@@ -61,6 +62,16 @@ export class PgWallet implements AnchorWallet {
     }
 
     return txs;
+  }
+
+  /**
+   * Sign arbitrary messages
+   *
+   * @param message message to sign
+   * @returns signature of the signed message
+   */
+  async signMessage(message: Uint8Array): Promise<Uint8Array> {
+    return await ed25519.sign(message, this.keypair.secretKey.slice(0, 32));
   }
 
   // Statics

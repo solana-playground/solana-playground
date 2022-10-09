@@ -25,14 +25,18 @@ class CandyCache {
     });
   }
 
-  async syncFile() {
+  async syncFile(open?: boolean) {
     await PgExplorer.run({
       newItem: [
         PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
         PgCommon.prettyJSON(this),
-        { override: true },
+        { dontOpen: !open, override: true },
       ],
     });
+  }
+
+  updateItemAtIndex(index: number, newValue: Partial<CacheItem>) {
+    this.items[index].update(newValue);
   }
 }
 
@@ -93,6 +97,33 @@ export class CacheItem {
       return { name: this.name, uri: this.metadata_link };
     } else {
       return null;
+    }
+  }
+
+  update(newValue: Partial<CacheItem>) {
+    if (newValue.name !== undefined) {
+      this.name = newValue.name;
+    }
+    if (newValue.image_hash !== undefined) {
+      this.image_hash = newValue.image_hash;
+    }
+    if (newValue.image_link !== undefined) {
+      this.image_link = newValue.image_link;
+    }
+    if (newValue.metadata_hash !== undefined) {
+      this.metadata_hash = newValue.metadata_hash;
+    }
+    if (newValue.metadata_link !== undefined) {
+      this.metadata_link = newValue.metadata_link;
+    }
+    if (newValue.onChain !== undefined) {
+      this.onChain = newValue.onChain;
+    }
+    if (newValue.animation_hash !== undefined) {
+      this.animation_hash = newValue.animation_hash;
+    }
+    if (newValue.animation_link !== undefined) {
+      this.animation_link = newValue.animation_link;
     }
   }
 }

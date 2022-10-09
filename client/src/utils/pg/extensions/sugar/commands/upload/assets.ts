@@ -1,7 +1,6 @@
-import { Metadata } from "@metaplex-foundation/js";
+import { JsonMetadata } from "@metaplex-foundation/js";
 import * as anchor from "@project-serum/anchor";
 
-import { PgExplorer } from "../../../../explorer";
 import { PgModal } from "../../../../modal";
 import { PgValidator } from "../../../../validator";
 import { CacheItem } from "../../utils";
@@ -56,6 +55,9 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
   const files = await PgModal.set<File[]>(UploadScreen);
   if (!files) throw new Error("You haven't selected files.");
 
+  // Sort files based on their name
+  files.sort((a, b) => a.name.localeCompare(b.name));
+
   const fileNames = files.map((f) => f.name);
 
   const animationExistsRegex = new RegExp(
@@ -79,8 +81,6 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
   if (!metadatafileNames.length) {
     throw new Error("Could not find any metadata .json files.");
   }
-
-  ensureSequentialFiles(metadatafileNames);
 
   const result: GetAssetPairsResult = { assetPairs: [], files };
 
@@ -117,30 +117,21 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
 
     const animationfileNames = fileNames.filter((f) => animationRegex.test(f));
     const animationFileName =
-      animationfileNames.length === 1
-        ? PgExplorer.joinPaths([
-            PgExplorer.PATHS.CANDY_MACHINE_ASSETS_DIR_PATH,
-            animationfileNames[0],
-          ])
-        : undefined;
+      animationfileNames.length === 1 ? animationfileNames[0] : undefined;
     const animationHash = animationFileName
       ? encode(animationFileName)
       : undefined;
 
-    const metadataFilePath = PgExplorer.joinPaths([
-      PgExplorer.PATHS.CANDY_MACHINE_ASSETS_DIR_PATH,
-      metadataFileName,
-    ]);
-    const metadataHash = encode(metadataFilePath);
-    const metadata: Metadata = JSON.parse(
+    const metadataHash = encode(metadataFileName);
+    const metadata: JsonMetadata = JSON.parse(
       await files.find((f) => f.name === metadataFileName)!.text()
     );
     const name = metadata.name;
-
-    const imgFilePath = PgExplorer.joinPaths([
-      PgExplorer.PATHS.CANDY_MACHINE_ASSETS_DIR_PATH,
-      metadataFileName,
-    ]);
+    if (!name) {
+      throw new Error(
+        `'name' is not specified in metadata file ${metadataFileName}`
+      );
+    }
 
     result.assetPairs.push([
       index,
@@ -148,7 +139,7 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
         name,
         metadataFileName,
         metadataHash,
-        imgFilePath,
+        imgFileName,
         imgHash,
         animationFileName,
         animationHash
@@ -157,26 +148,6 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
   }
 
   return result;
-};
-
-const ensureSequentialFiles = (metadatafileNames: string[]) => {
-  metadatafileNames
-    .filter((f) => !f.startsWith(COLLECTION_FILENAME))
-    .map((f) => {
-      const index = f.split(".")[0];
-      if (!PgValidator.isInt(index)) {
-        throw new Error(
-          `Couldn't parse filename '${f}' to a valid index number.`
-        );
-      }
-      return parseInt(index);
-    })
-    .sort()
-    .forEach((f, i) => {
-      if (f !== i) {
-        throw new Error(`Missing metadata file '${i}.json'`);
-      }
-    });
 };
 
 const encode = (fileName: string) => anchor.utils.sha256.hash(fileName);

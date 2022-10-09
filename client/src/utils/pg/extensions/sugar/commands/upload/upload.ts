@@ -1,10 +1,14 @@
-import { Metadata } from "@metaplex-foundation/js";
+import {
+  JsonMetadata,
+  toMetaplexFileFromBrowser,
+  UploadMetadataInput,
+} from "@metaplex-foundation/js";
 
 import { Emoji } from "../../../../../../constants";
 import { PgCommon } from "../../../../common";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
-import { getConfigData, loadCache } from "../../utils";
+import { getConfigData, getMetaplex, loadCache } from "../../utils";
 import { getAssetPairs } from "./assets";
 
 interface AssetType {
@@ -17,7 +21,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
   const configData = await getConfigData();
   const term = await PgTerminal.get();
 
-  term.println(`[1/4] ${Emoji.ASSETS} Loading assets`);
+  term.println(`[1/3] ${Emoji.ASSETS} Loading assets`);
 
   // Get asset pairs
   const { assetPairs, files } = await getAssetPairs();
@@ -84,7 +88,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
     const currentFile = files.find((f) => f.name === pair.metadata);
     if (!currentFile)
       throw new Error(`Metadata file ${pair.metadata} not found.`);
-    const metadata: Metadata = JSON.parse(await currentFile.text());
+    const metadata: JsonMetadata = JSON.parse(await currentFile.text());
 
     // Symbol check, but only if the asset actually has the value
     if (metadata.symbol && configData.symbol !== metadata.symbol) {
@@ -140,54 +144,54 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
   // Ready to upload data
   if (needUpload) {
-    const totalSteps = !indices.animation.length ? 4 : 5;
-    term.println(`\n[2/${totalSteps}] ${Emoji.COMPUTER} Initializing upload`);
+    term.println(`\n[2/3] ${Emoji.COMPUTER} Initializing upload`);
 
     // Initialize storage
-    // TODO:
+    const metaplex = await getMetaplex(rpcUrl);
 
-    // Upload image
+    // Uploadin files
     term.println(
-      `\n[3/${totalSteps}] ${Emoji.UPLOAD} Uploading image files ${
-        !indices.image.length ? "(skipping)" : ""
-      }`
-    );
-
-    // TODO:
-    if (indices.image.length) {
-      term.println("Image...");
-    }
-
-    // Upload animation
-    if (indices.animation.length) {
-      term.println(
-        `\n[4/${totalSteps}] ${Emoji.UPLOAD} Uploading animation files ${
-          !indices.animation.length ? "(skipping)" : ""
-        }`
-      );
-
-      // TODO:
-      term.println("Animation...");
-    }
-
-    // Upload metadata
-    term.println(
-      `\n[${totalSteps}/${totalSteps}] ${
-        Emoji.UPLOAD
-      } Uploading metadata files ${
+      `\n[3/3] ${Emoji.UPLOAD} Uploading files ${
         !indices.metadata.length ? "(skipping)" : ""
       }`
     );
+    for (const i of indices.metadata) {
+      const metadataIndex = i !== -1 ? 2 * i : files.length - 2;
+      const metadata: UploadMetadataInput = JSON.parse(
+        await files[metadataIndex].text()
+      );
+      const imgMetaplexFile = await toMetaplexFileFromBrowser(
+        files[metadataIndex + 1]
+      );
+      // Edit
+      metadata.image = imgMetaplexFile;
+      if (metadata.properties?.files) {
+        for (const j in metadata.properties.files) {
+          metadata.properties.files[j] = {
+            ...metadata.properties.files[j],
+            // TODO: handle animations
+            uri: imgMetaplexFile,
+          };
+        }
+      }
 
-    // TODO:
-    if (indices.metadata.length) {
-      term.println("Metadata...");
+      const { uri, metadata: resultMetadata } = await metaplex
+        .nfts()
+        .uploadMetadata(metadata)
+        .run();
+
+      // Update and save cache
+      cache.updateItemAtIndex(i, {
+        image_link: resultMetadata.image,
+        metadata_link: uri,
+      });
+      await cache.syncFile();
     }
+
+    await cache.syncFile(true);
   } else {
     term.println("\n...no files need uploading, skipping remaining steps.");
   }
-
-  await cache.syncFile();
 
   // Sanity check
   let count = 0;
@@ -209,7 +213,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
   }
 
   term.println(
-    PgTerminal.bold(`${count}/${assetPairs.length} asset pair(s) uploaded.`)
+    PgTerminal.bold(`\n${count}/${assetPairs.length} asset pair(s) uploaded.`)
   );
 
   if (count !== assetPairs.length) {
