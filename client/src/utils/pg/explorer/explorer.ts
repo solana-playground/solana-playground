@@ -185,8 +185,14 @@ export class PgExplorer {
       for (const subItemPath of subItemPaths) {
         const stat = await fs.stat(subItemPath);
         if (stat.isFile()) {
-          const content = await this._readToString(subItemPath);
-          this.files[subItemPath] = { content };
+          try {
+            // This might fail if the user closes the window when a file delete
+            // operation has not been completed yet
+            const content = await this._readToString(subItemPath);
+            this.files[subItemPath] = { content };
+          } catch (e: any) {
+            console.log(`Couldn't read to string: ${e.message} ${subItemPath}`);
+          }
         } else {
           await setupFiles(subItemPath);
         }
@@ -196,7 +202,7 @@ export class PgExplorer {
     try {
       await setupFiles(this.currentWorkspacePath);
     } catch (e: any) {
-      console.log(e.message);
+      console.log("Couldn't setup files:", e.message);
 
       // This helps with in rare case where user logs out during rename
       if (this._workspace.allNames.length) {
@@ -208,9 +214,7 @@ export class PgExplorer {
         return;
       }
 
-      console.log(
-        "Couldn't setup files from IndexedDB. Probably need initial setup."
-      );
+      console.log("No workspace found. Most likely needs initial setup.");
     }
 
     // Runs when IndexedDB is empty

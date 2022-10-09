@@ -8,17 +8,14 @@ import { PgExplorer } from "../../../explorer";
 class CandyCache {
   program: CacheProgram;
   items: CacheItems;
-  filePath: string;
 
   constructor(cache?: CandyCache) {
     if (cache) {
       this.program = cache.program;
       this.items = cache.items;
-      this.filePath = cache.filePath;
     } else {
       this.program = new CacheProgram();
       this.items = {};
-      this.filePath = PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH;
     }
   }
 
@@ -30,7 +27,11 @@ class CandyCache {
 
   async syncFile() {
     await PgExplorer.run({
-      newItem: [this.filePath, PgCommon.prettyJSON(this), { override: true }],
+      newItem: [
+        PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
+        PgCommon.prettyJSON(this),
+        { override: true },
+      ],
     });
   }
 }
@@ -101,7 +102,7 @@ export const loadCache = async () => {
     getFileContent: [PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH],
   });
   if (!cacheFile) {
-    // Cache file doesn't exist, create it
+    // Cache file doesn't exist, return default
     return new CandyCache();
   }
 
