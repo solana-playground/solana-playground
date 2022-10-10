@@ -7,12 +7,17 @@ import {
   Option,
   DateTime,
 } from "@metaplex-foundation/js";
+import { PublicKey } from "@solana/web3.js";
+
+type PublicKeyToString<T> = {
+  [K in keyof T]: T[K] extends PublicKey ? string : T[K];
+};
 
 export interface ConfigData {
   price: number;
   number: number;
-  gatekeeper: Option<CandyMachineGatekeeper>;
-  creators: Creator[];
+  gatekeeper: Option<PublicKeyToString<CandyMachineGatekeeper>>;
+  creators: PublicKeyToString<Creator>[];
   solTreasuryAccount: Option<string>;
   splTokenAccount: Option<string>;
   splToken: Option<string>;

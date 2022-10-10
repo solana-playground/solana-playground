@@ -1,8 +1,12 @@
-import { sol, toBigNumber, toOptionDateTime } from "@metaplex-foundation/js";
-
+import {
+  sol,
+  toBigNumber,
+  toDateTime,
+  toOptionDateTime,
+} from "@metaplex-foundation/js";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { Emoji } from "../../../../../../constants";
 
+import { Emoji } from "../../../../../../constants";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
@@ -81,7 +85,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
 
     if (!PgValidator.isPubkey(candyMachineAddress)) {
       throw new Error(
-        `Invalid candy machine address in cache file: ${candyMachineAddress}!,`
+        `Invalid candy machine address in cache file: '${candyMachineAddress}'`
       );
     }
     candyPubkey = new PublicKey(candyMachineAddress);
@@ -148,7 +152,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       }
     }
 
-    // Save the candy machine pubkey to the cache _before_ attempting to deploy
+    // Save the candy machine pubkey to the cache before attempting to deploy
     // in case the transaction doesn't confirm in time the next run should pickup the pubkey
     // and check if the deploy succeeded
     cache.program = new CacheProgram(candyPubkey);
@@ -163,14 +167,33 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
         symbol: configData.symbol,
         sellerFeeBasisPoints: configData.sellerFeeBasisPoints,
         goLiveDate: toOptionDateTime(configData.goLiveDate),
-        creators: configData.creators,
+        creators: configData.creators.map((c) => ({
+          ...c,
+          address: new PublicKey(c.address),
+        })),
         tokenMint: configData.splToken
           ? new PublicKey(configData.splToken)
           : null,
         wallet: treasuryPk,
-        gatekeeper: configData.gatekeeper,
-        // whitelistMintSettings: configData.whitelistMintSettings,
-        // endSettings: configData.endSettings,
+        gatekeeper: configData.gatekeeper
+          ? {
+              ...configData.gatekeeper,
+              network: new PublicKey(configData.gatekeeper.network),
+            }
+          : null,
+        whitelistMintSettings: configData.whitelistMintSettings as any,
+        // @ts-ignore
+        endSettings: configData.endSettings
+          ? {
+              ...configData.endSettings,
+              number: configData.endSettings.number
+                ? toBigNumber(configData.endSettings.number)
+                : undefined,
+              date: configData.endSettings.date
+                ? toDateTime(configData.endSettings.date)
+                : undefined,
+            }
+          : null,
         hiddenSettings: configData.hiddenSettings,
         retainAuthority: configData.retainAuthority,
         isMutable: configData.isMutable,
@@ -193,48 +216,75 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
     );
 
     const configLineChunks = cache.getConfigLineChunks();
-    if (!configLineChunks.length) {
+    if (!configLineChunks[0]?.items.length) {
       term.println(`\nAll config lines deployed.`);
     } else {
       const candy = await candyClient
         .findByAddress({ address: candyPubkey })
         .run();
 
-      console.log(configLineChunks);
+      const getTotalConfigLinesUntilChunkN = (n: number) => {
+        return new Array(n)
+          .fill(null)
+          .reduce(
+            (acc, _cur, i) =>
+              acc + (n === i ? 0 : configLineChunks[i].items.length),
+            0
+          );
+      };
 
-      let itemsLoaded = candy.itemsLoaded;
+      const CONCURRENT = 10;
+      let errorCount = 0;
+
+      // Periodically save the cache
+      const saveCacheIntervalId = setInterval(() => cache.syncFile(), 5000);
+
       await Promise.all(
-        new Array(10).fill(null).map(async (_, i) => {
-          for (let j = 0; ; j += 10) {
-            console.log(i, j, itemsLoaded.toString());
+        new Array(CONCURRENT).fill(null).map(async (_, i) => {
+          for (let j = 0; ; j += CONCURRENT) {
             const currentChunk = configLineChunks[j + i];
             if (!currentChunk) break;
 
-            await candyClient
-              .insertItems({
-                candyMachine: {
-                  address: candyPubkey,
-                  itemsAvailable: candy.itemsAvailable,
-                  itemsLoaded: toBigNumber(
-                    itemsLoaded.addn(
-                      new Array(i)
-                        .fill(null)
-                        .reduce(
-                          (acc, _cur, k) =>
-                            acc + configLineChunks[j + k].length,
-                          0
-                        )
-                    )
-                  ),
-                },
-                items: currentChunk,
-              })
-              .run();
+            try {
+              if (i + j === 42 || i + j === 50)
+                await candyClient
+                  .insertItems({
+                    candyMachine: {
+                      address: candyPubkey,
+                      itemsAvailable: candy.itemsAvailable,
+                      itemsLoaded: toBigNumber(
+                        getTotalConfigLinesUntilChunkN(j + i)
+                      ),
+                    },
+                    items: currentChunk.items,
+                  })
+                  .run();
 
-            itemsLoaded = toBigNumber(itemsLoaded.addn(currentChunk.length));
+              for (const currentIndex of currentChunk.indices) {
+                cache.updateItemAtIndex(currentIndex, {
+                  onChain: true,
+                });
+              }
+            } catch {
+              errorCount++;
+            }
           }
         })
       );
+
+      clearInterval(saveCacheIntervalId);
+
+      await cache.syncFile(true);
+
+      if (errorCount) {
+        throw new Error(
+          `${errorCount}/${
+            configLineChunks.length
+          } of the write config line transactions has failed. Please re-run ${PgTerminal.bold(
+            "'sugar deploy'"
+          )}`
+        );
+      }
     }
   } else {
     // TODO:

@@ -117,10 +117,11 @@ export const processCreateConfig = async (
 
   configData.creators = [];
   for (let i = 0; i < numberOfCreators; i++) {
-    const address = new PublicKey(
-      await term.waitForUserInput(`Enter creator wallet address #${i + 1}`, {
+    const address = await term.waitForUserInput(
+      `Enter creator wallet address #${i + 1}`,
+      {
         validator: PgValidator.isPubkey,
-      })
+      }
     );
     const share = parseInt(
       await term.waitForUserInput(
@@ -213,10 +214,11 @@ export const processCreateConfig = async (
       { confirm: true }
     );
 
-    const network = gatekeeperOption === 0 ? CIVIC_NETWORK : ENCORE_NETWORK;
-
     configData.gatekeeper = {
-      network,
+      network: (gatekeeperOption === 0
+        ? CIVIC_NETWORK
+        : ENCORE_NETWORK
+      ).toBase58(),
       expireOnUse,
     };
   } else {

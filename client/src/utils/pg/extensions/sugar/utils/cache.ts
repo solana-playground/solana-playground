@@ -54,8 +54,11 @@ class CandyCache {
     const RAW_TX_LEN = 440;
     const MAX_TX_LEN = 1232;
 
-    const configLineChunks: CandyMachineItem[][] = [];
-    let configLines: CandyMachineItem[] = [];
+    const configLineChunks = [];
+    let configLines: { items: CandyMachineItem[]; indices: number[] } = {
+      items: [],
+      indices: [],
+    };
 
     let txLen = RAW_TX_LEN;
     for (const i in this.items) {
@@ -65,10 +68,11 @@ class CandyCache {
         if (txLen + configLineLen > MAX_TX_LEN) {
           txLen = RAW_TX_LEN + configLineLen;
           configLineChunks.push(configLines);
-          configLines = [configLine];
+          configLines = { items: [configLine], indices: [+i] };
         } else {
           txLen += configLineLen;
-          configLines.push(configLine);
+          configLines.items.push(configLine);
+          configLines.indices.push(+i);
         }
       }
     }
