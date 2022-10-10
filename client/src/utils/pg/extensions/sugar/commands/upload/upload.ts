@@ -8,7 +8,7 @@ import { Emoji } from "../../../../../../constants";
 import { PgCommon } from "../../../../common";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
-import { getConfigData, getMetaplex, loadCache } from "../../utils";
+import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { getAssetPairs } from "./assets";
 
 interface AssetType {
@@ -18,7 +18,7 @@ interface AssetType {
 }
 
 export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
-  const configData = await getConfigData();
+  const configData = await loadConfigData();
   const term = await PgTerminal.get();
 
   term.println(`[1/3] ${Emoji.ASSETS} Loading assets`);

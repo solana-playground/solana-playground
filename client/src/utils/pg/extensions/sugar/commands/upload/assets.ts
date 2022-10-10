@@ -34,16 +34,16 @@ class AssetPair {
   }
 
   intoCacheItem() {
-    return new CacheItem(
-      this.name,
-      this.image_hash,
-      this.image,
-      this.metadata_hash,
-      this.metadata,
-      false,
-      this.animation_hash,
-      this.animation
-    );
+    return new CacheItem({
+      name: this.name,
+      metadata_link: this.metadata,
+      metadata_hash: this.metadata_hash,
+      image_link: this.image,
+      image_hash: this.image_hash,
+      animation_link: this.animation,
+      animation_hash: this.animation_hash,
+      onChain: false,
+    });
   }
 }
 

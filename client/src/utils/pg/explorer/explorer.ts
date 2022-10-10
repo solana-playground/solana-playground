@@ -372,7 +372,7 @@ export class PgExplorer {
 
       files[fullPath] = {
         content,
-        meta: {},
+        meta: files[fullPath]?.meta ?? {},
       };
 
       if (!opts?.dontOpen) {

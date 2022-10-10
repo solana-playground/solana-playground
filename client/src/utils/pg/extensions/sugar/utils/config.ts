@@ -2,7 +2,7 @@ import { PgExplorer } from "../../../explorer";
 import { PgTerminal } from "../../../terminal";
 import { ConfigData } from "../types";
 
-export const getConfigData = async () => {
+export const loadConfigData = async () => {
   const configStr = await PgExplorer.run({
     getFileContent: [PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH],
   });

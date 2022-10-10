@@ -1,4 +1,8 @@
-import { findCandyMachineCreatorPda, Option } from "@metaplex-foundation/js";
+import {
+  CandyMachineItem,
+  findCandyMachineCreatorPda,
+  Option,
+} from "@metaplex-foundation/js";
 import { ConfigLine } from "@metaplex-foundation/mpl-candy-machine";
 import { PublicKey } from "@solana/web3.js";
 
@@ -10,12 +14,15 @@ class CandyCache {
   items: CacheItems;
 
   constructor(cache?: CandyCache) {
+    this.items = {};
+
     if (cache) {
       this.program = cache.program;
-      this.items = cache.items;
+      for (const i in cache.items) {
+        this.items[i] = new CacheItem(cache.items[i]);
+      }
     } else {
       this.program = new CacheProgram();
-      this.items = {};
     }
   }
 
@@ -38,9 +45,40 @@ class CandyCache {
   updateItemAtIndex(index: number, newValue: Partial<CacheItem>) {
     this.items[index].update(newValue);
   }
+
+  isItemsEmpty() {
+    return Object.keys(this.items).length === 0;
+  }
+
+  getConfigLineChunks() {
+    const RAW_TX_LEN = 440;
+    const MAX_TX_LEN = 1232;
+
+    const configLineChunks: CandyMachineItem[][] = [];
+    let configLines: CandyMachineItem[] = [];
+
+    let txLen = RAW_TX_LEN;
+    for (const i in this.items) {
+      const configLine = this.items[i].toConfigLine();
+      if (configLine) {
+        const configLineLen = configLine.name.length + configLine.uri.length;
+        if (txLen + configLineLen > MAX_TX_LEN) {
+          txLen = RAW_TX_LEN + configLineLen;
+          configLineChunks.push(configLines);
+          configLines = [configLine];
+        } else {
+          txLen += configLineLen;
+          configLines.push(configLine);
+        }
+      }
+    }
+    configLineChunks.push(configLines);
+
+    return configLineChunks;
+  }
 }
 
-class CacheProgram {
+export class CacheProgram {
   candyMachine: string;
   candyMachineCreator: string;
   collectionMint: string;
@@ -72,24 +110,15 @@ export class CacheItem {
   animation_hash?: string;
   animation_link?: string;
 
-  constructor(
-    name: string,
-    imageHash: string,
-    imageLink: string,
-    metadataHash: string,
-    metadataLink: string,
-    onChain: boolean,
-    animationHash?: string,
-    animationLink?: string
-  ) {
-    this.name = name;
-    this.image_hash = imageHash;
-    this.image_link = imageLink;
-    this.metadata_hash = metadataHash;
-    this.metadata_link = metadataLink;
-    this.onChain = onChain;
-    this.animation_hash = animationHash;
-    this.animation_link = animationLink;
+  constructor(params: Omit<CacheItem, "toConfigLine" | "update">) {
+    this.name = params.name;
+    this.image_hash = params.image_hash;
+    this.image_link = params.image_link;
+    this.metadata_hash = params.metadata_hash;
+    this.metadata_link = params.metadata_link;
+    this.onChain = params.onChain;
+    this.animation_hash = params.animation_hash;
+    this.animation_link = params.animation_link;
   }
 
   toConfigLine(): Option<ConfigLine> {
