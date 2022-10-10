@@ -26,20 +26,14 @@ class CandyCache {
     }
   }
 
-  async writeToFile(path: string) {
-    await PgExplorer.run({
-      newItem: [path, PgCommon.prettyJSON(this)],
-    });
-  }
-
   async syncFile(open?: boolean) {
-    await PgExplorer.run({
-      newItem: [
-        PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
-        PgCommon.prettyJSON(this),
-        { dontOpen: !open, override: true },
-      ],
-    });
+    await (
+      await PgExplorer.get()
+    ).newItem(
+      PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
+      PgCommon.prettyJSON(this),
+      { dontOpen: !open, override: true }
+    );
   }
 
   updateItemAtIndex(index: number, newValue: Partial<CacheItem>) {

@@ -233,15 +233,15 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
           );
       };
 
-      const CONCURRENT = 10;
-      let errorCount = 0;
-
       // Periodically save the cache
       const saveCacheIntervalId = setInterval(() => cache.syncFile(), 5000);
 
       // Show progress bar
       PgTerminal.setProgress(0.1);
       let progressCount = 0;
+
+      const CONCURRENT = 10;
+      let errorCount = 0;
 
       await Promise.all(
         new Array(CONCURRENT).fill(null).map(async (_, i) => {
@@ -281,8 +281,9 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       );
 
       // Hide progress bar
-      setTimeout(() => PgTerminal.setProgress(0), 2000);
+      setTimeout(() => PgTerminal.setProgress(0), 1000);
 
+      // Sync and open the file
       clearInterval(saveCacheIntervalId);
       await cache.syncFile(true);
 
