@@ -1,6 +1,5 @@
 // Thanks to @fanatid
 
-import { Dispatch, SetStateAction } from "react";
 import { Buffer } from "buffer";
 import * as BufferLayout from "@solana/buffer-layout";
 import {
@@ -17,9 +16,7 @@ import {
 
 import { encodeData, InstructionType } from "./instruction";
 import * as Layout from "./layout";
-import { PgTx } from "../pg/tx";
-import { PgWallet } from "../pg/wallet";
-import { PgCommon } from "../pg/common";
+import { PgCommon, PgTerminal, PgTx, PgWallet } from "../pg";
 
 const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
@@ -493,7 +490,6 @@ export class BpfLoaderUpgradeable {
     wallet: PgWallet,
     bufferPk: PublicKey,
     programData: Buffer,
-    setProgress: Dispatch<SetStateAction<number>>,
     loadConcurrency: number = 10
   ) {
     let bytesOffset = 0;
@@ -543,7 +539,7 @@ export class BpfLoaderUpgradeable {
             }
           }
 
-          setProgress((bytesOffset / programData.length) * 100);
+          PgTerminal.setProgress((bytesOffset / programData.length) * 100);
         }
       })
     );

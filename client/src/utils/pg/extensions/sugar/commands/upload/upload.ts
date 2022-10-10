@@ -17,6 +17,8 @@ interface AssetType {
   animation: number[];
 }
 
+const MAX_TRY = 5;
+
 export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
   const configData = await loadConfigData();
   const term = await PgTerminal.get();
@@ -146,15 +148,20 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
   if (needUpload) {
     term.println(`\n[2/3] ${Emoji.COMPUTER} Initializing upload`);
 
-    // Initialize storage
+    // Get metaplex
     const metaplex = await getMetaplex(rpcUrl);
 
-    // Uploadin files
+    // Upload files
     term.println(
       `\n[3/3] ${Emoji.UPLOAD} Uploading files ${
         !indices.metadata.length ? "(skipping)" : ""
       }`
     );
+
+    // Show progress bar
+    PgTerminal.setProgress(0.1);
+    let progressCount = 0;
+
     for (const i of indices.metadata) {
       const metadataIndex = i !== -1 ? 2 * i : files.length - 2;
       const metadata: UploadMetadataInput = JSON.parse(
@@ -175,19 +182,54 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
         }
       }
 
-      const { uri, metadata: resultMetadata } = await metaplex
-        .nfts()
-        .uploadMetadata(metadata)
-        .run();
+      let maxTryIndex = 0;
+      while (true) {
+        try {
+          const { uri, metadata: resultMetadata } = await metaplex
+            .nfts()
+            .uploadMetadata(metadata)
+            .run();
 
-      // Update and save cache
-      cache.updateItemAtIndex(i, {
-        image_link: resultMetadata.image,
-        metadata_link: uri,
-      });
-      await cache.syncFile();
+          // Update and save cache
+          cache.updateItemAtIndex(i, {
+            image_link: resultMetadata.image,
+            metadata_link: uri,
+          });
+          await cache.syncFile();
+
+          progressCount++;
+          PgTerminal.setProgress(
+            (progressCount / indices.metadata.length) * 100
+          );
+
+          break;
+        } catch (e: any) {
+          console.log(e.message);
+
+          maxTryIndex++;
+          if (maxTryIndex === MAX_TRY) {
+            cache.updateItemAtIndex(i, {
+              image_link: "",
+              metadata_link: "",
+            });
+            await cache.syncFile();
+
+            progressCount++;
+            PgTerminal.setProgress(
+              (progressCount / indices.metadata.length) * 100
+            );
+            break;
+          }
+
+          await PgCommon.sleep(1000);
+        }
+      }
     }
 
+    // Hide progress bar
+    setTimeout(() => PgTerminal.setProgress(0), 2000);
+
+    // Sync and open the file
     await cache.syncFile(true);
   } else {
     term.println("\n...no files need uploading, skipping remaining steps.");

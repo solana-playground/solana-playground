@@ -7,5 +7,5 @@ export const useExposeGetClassAsStatic = <T,>(
   eventName: string
 ) => {
   const cb = useCallback(async () => classObject, [classObject]);
-  useSendAndReceiveCustomEvent<T>(eventName, cb);
+  useSendAndReceiveCustomEvent<T>(cb, eventName);
 };

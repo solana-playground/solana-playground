@@ -21,5 +21,5 @@ export const useExposeMethodsAsStatic = <T,>(
 
   useSendAndReceiveCustomEvent<
     PgMethod<T> extends { [key: string]: any } ? PgMethod<T> : never
-  >(eventName, cb);
+  >(cb, eventName);
 };

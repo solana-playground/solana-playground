@@ -9,7 +9,6 @@ import {
   Program,
   refreshPgWalletAtom,
   TerminalAction,
-  terminalProgressAtom,
   terminalStateAtom,
   txHashAtom,
 } from "../../../../../state";
@@ -26,7 +25,6 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [pgWallet] = useAtom(pgWalletAtom);
   const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const [, setTerminalState] = useAtom(terminalStateAtom);
-  const [, setProgress] = useAtom(terminalProgressAtom);
   const [, setTxHash] = useAtom(txHashAtom);
   const [, setDeployCount] = useAtom(deployCountAtom);
 
@@ -68,17 +66,12 @@ Your address: ${PgWallet.getKp().publicKey}`
           "Deploying..."
         )} This could take a while depending on the program size and network conditions.`
       );
-      setProgress(0.1);
+      PgTerminal.setProgress(0.1);
 
       let msg;
       try {
         const startTime = performance.now();
-        const txHash = await PgDeploy.deploy(
-          conn,
-          pgWallet,
-          setProgress,
-          program.buffer
-        );
+        const txHash = await PgDeploy.deploy(conn, pgWallet, program.buffer);
         const timePassed = (performance.now() - startTime) / 1000;
         setTxHash(txHash);
 
@@ -93,7 +86,7 @@ Your address: ${PgWallet.getKp().publicKey}`
       } finally {
         PgTerminal.log(msg + "\n");
         setTerminalState(TerminalAction.deployLoadingStop);
-        setProgress(0);
+        PgTerminal.setProgress(0);
       }
     });
 

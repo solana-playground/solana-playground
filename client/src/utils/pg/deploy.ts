@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import { Connection, Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
@@ -16,7 +15,6 @@ export class PgDeploy {
   static async deploy(
     conn: Connection,
     wallet: PgWallet,
-    setProgress: Dispatch<SetStateAction<number>>,
     programBuffer: Buffer
   ) {
     // Get program id
@@ -142,8 +140,7 @@ export class PgDeploy {
       conn,
       wallet,
       bufferKp.publicKey,
-      programBuffer,
-      setProgress
+      programBuffer
     );
 
     // it errors if we don't wait for the buffer to load

@@ -239,6 +239,10 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       // Periodically save the cache
       const saveCacheIntervalId = setInterval(() => cache.syncFile(), 5000);
 
+      // Show progress bar
+      PgTerminal.setProgress(0.1);
+      let progressCount = 0;
+
       await Promise.all(
         new Array(CONCURRENT).fill(null).map(async (_, i) => {
           for (let j = 0; ; j += CONCURRENT) {
@@ -246,19 +250,18 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
             if (!currentChunk) break;
 
             try {
-              if (i + j === 42 || i + j === 50)
-                await candyClient
-                  .insertItems({
-                    candyMachine: {
-                      address: candyPubkey,
-                      itemsAvailable: candy.itemsAvailable,
-                      itemsLoaded: toBigNumber(
-                        getTotalConfigLinesUntilChunkN(j + i)
-                      ),
-                    },
-                    items: currentChunk.items,
-                  })
-                  .run();
+              await candyClient
+                .insertItems({
+                  candyMachine: {
+                    address: candyPubkey,
+                    itemsAvailable: candy.itemsAvailable,
+                    itemsLoaded: toBigNumber(
+                      getTotalConfigLinesUntilChunkN(j + i)
+                    ),
+                  },
+                  items: currentChunk.items,
+                })
+                .run();
 
               for (const currentIndex of currentChunk.indices) {
                 cache.updateItemAtIndex(currentIndex, {
@@ -267,13 +270,20 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
               }
             } catch {
               errorCount++;
+            } finally {
+              progressCount++;
+              PgTerminal.setProgress(
+                (progressCount / configLineChunks.length) * 100
+              );
             }
           }
         })
       );
 
-      clearInterval(saveCacheIntervalId);
+      // Hide progress bar
+      setTimeout(() => PgTerminal.setProgress(0), 2000);
 
+      clearInterval(saveCacheIntervalId);
       await cache.syncFile(true);
 
       if (errorCount) {

@@ -14,8 +14,6 @@ import { EventName } from "../../../../constants";
 import { useExposeStatic } from "../../../../hooks";
 
 const Terminal = () => {
-  const [progress] = useAtom(terminalProgressAtom);
-
   const terminalRef = useRef<HTMLDivElement>(null);
 
   useTerminal();
@@ -240,7 +238,7 @@ const Terminal = () => {
     >
       <Wrapper>
         <Topbar>
-          <Progress value={progress} />
+          <TerminalProgress />
           <ButtonsWrapper>
             <Button
               kind="icon"
@@ -306,6 +304,11 @@ const Wrapper = styled.div`
     }
   `}
 `;
+
+const TerminalProgress = () => {
+  const [progress] = useAtom(terminalProgressAtom);
+  return <Progress value={progress} />;
+};
 
 const Topbar = styled.div`
   display: flex;
