@@ -17,7 +17,7 @@ export class CandyCache {
     this.items = {};
 
     if (cache) {
-      this.program = cache.program;
+      this.program = new CacheProgram(cache.program);
       for (const i in cache.items) {
         this.items[i] = new CacheItem(cache.items[i]);
       }
@@ -83,22 +83,27 @@ export class CandyCache {
   }
 }
 
-export class CacheProgram {
+class CacheProgram {
   candyMachine: string;
   candyMachineCreator: string;
   collectionMint: string;
 
-  constructor(candyMachinePk?: PublicKey) {
-    if (candyMachinePk) {
-      this.candyMachine = candyMachinePk.toBase58();
-      this.candyMachineCreator =
-        findCandyMachineV2CreatorPda(candyMachinePk).toBase58();
-      this.collectionMint = "";
+  constructor(cacheProgram?: Omit<CacheProgram, "setCandyMachine">) {
+    if (cacheProgram) {
+      this.candyMachine = cacheProgram.candyMachine;
+      this.candyMachineCreator = cacheProgram.candyMachineCreator;
+      this.collectionMint = cacheProgram.collectionMint;
     } else {
       this.candyMachine = "";
       this.candyMachineCreator = "";
       this.collectionMint = "";
     }
+  }
+
+  setCandyMachine(candyMachinePk: PublicKey) {
+    this.candyMachine = candyMachinePk.toBase58();
+    this.candyMachineCreator =
+      findCandyMachineV2CreatorPda(candyMachinePk).toBase58();
   }
 }
 
@@ -115,15 +120,15 @@ export class CacheItem {
   animation_hash?: string;
   animation_link?: string;
 
-  constructor(params: Omit<CacheItem, "toConfigLine" | "update">) {
-    this.name = params.name;
-    this.image_hash = params.image_hash;
-    this.image_link = params.image_link;
-    this.metadata_hash = params.metadata_hash;
-    this.metadata_link = params.metadata_link;
-    this.onChain = params.onChain;
-    this.animation_hash = params.animation_hash;
-    this.animation_link = params.animation_link;
+  constructor(cacheItem: Omit<CacheItem, "toConfigLine" | "update">) {
+    this.name = cacheItem.name;
+    this.image_hash = cacheItem.image_hash;
+    this.image_link = cacheItem.image_link;
+    this.metadata_hash = cacheItem.metadata_hash;
+    this.metadata_link = cacheItem.metadata_link;
+    this.onChain = cacheItem.onChain;
+    this.animation_hash = cacheItem.animation_hash;
+    this.animation_link = cacheItem.animation_link;
   }
 
   toConfigLine(): Option<ConfigLine> {

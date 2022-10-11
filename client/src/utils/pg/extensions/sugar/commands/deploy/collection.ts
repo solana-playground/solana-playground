@@ -1,4 +1,4 @@
-import { Creator, Metaplex, toBigNumber } from "@metaplex-foundation/js";
+import { Creator, Metaplex } from "@metaplex-foundation/js";
 import {
   createCreateMetadataAccountV3Instruction,
   createCreateMasterEditionV3Instruction,
@@ -44,7 +44,7 @@ export const createCollection = async (
     space: MINT_SIZE,
   });
 
-  // Initialize mint ix
+  // Initialize mint
   const initMintIx = await createInitializeMintInstruction(
     collectionMintPk,
     0,
@@ -54,6 +54,7 @@ export const createCollection = async (
 
   const ataPk = await getAssociatedTokenAddress(collectionMintPk, payer);
 
+  // Create associated account
   const createAtaIx = await createAssociatedTokenAccountInstruction(
     payer,
     ataPk,
@@ -61,6 +62,7 @@ export const createCollection = async (
     collectionMintPk
   );
 
+  // Mint
   const mintToIx = await createMintToInstruction(
     collectionMintPk,
     ataPk,
@@ -78,6 +80,7 @@ export const createCollection = async (
     .pdas()
     .metadata({ mint: collectionMintPk });
 
+  // Create metadata account
   const createMetadataAccountIx = createCreateMetadataAccountV3Instruction(
     {
       metadata: collectionMetadataPk,
@@ -97,7 +100,7 @@ export const createCollection = async (
           collection: null,
           uses: null,
         },
-        collectionDetails: { size: 0, __kind: "V1" },
+        collectionDetails: { __kind: "V1", size: 0 },
         isMutable: true,
       },
     }
@@ -108,6 +111,7 @@ export const createCollection = async (
     .pdas()
     .masterEdition({ mint: collectionMintPk });
 
+  // Create master edition account
   const createMasterEditionIx = createCreateMasterEditionV3Instruction(
     {
       edition: collectionEditionPubkey,
@@ -117,7 +121,7 @@ export const createCollection = async (
       metadata: collectionMetadataPk,
       payer,
     },
-    { createMasterEditionArgs: { maxSupply: toBigNumber(0) } }
+    { createMasterEditionArgs: { maxSupply: 0 } }
   );
 
   const tx = new Transaction().add(
@@ -137,7 +141,7 @@ export const createCollection = async (
 
   await metaplex
     .rpc()
-    .sendTransaction(tx, {}, [collectionMintKp, metaplex.identity()]);
+    .sendAndConfirmTransaction(tx, {}, [collectionMintKp, metaplex.identity()]);
 
   collectionItem.onChain = true;
   cache.program.collectionMint = collectionMintPk.toBase58();

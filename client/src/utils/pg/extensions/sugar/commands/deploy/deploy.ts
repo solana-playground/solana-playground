@@ -83,9 +83,24 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       term.println("\nCollection mint already deployed.");
       collectionMintPk = new PublicKey(cache.program.collectionMint);
     } else {
+      // Create collection
       collectionMintPk = await createCollection(metaplex, cache, configData);
 
-      // Create collection
+      // const { nft: collectionNft } = await metaplex.nfts().create({
+      //   isCollection: true,
+      //   name: collectionItem.name,
+      //   uri: collectionItem.metadata_link,
+      //   sellerFeeBasisPoints: configData.royalties,
+      //   isMutable: configData.isMutable,
+      //   creators: configData.creators,
+      //   symbol: configData.symbol,
+      // });
+      // collectionMintPk = collectionNft.address;
+
+      // collectionItem.onChain = true;
+      // cache.program.collectionMint = collectionMintPk.toBase58();
+      // await cache.syncFile();
+
       term.println(
         `${PgTerminal.bold(
           "Collection mint ID:"
@@ -96,14 +111,20 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
     // Create candy machine
     term.println(`[2/${totalSteps}] ${Emoji.CANDY} Creating candy machine`);
 
+    // Save the candy machine pubkey to the cache before attempting to deploy
+    // in case the transaction doesn't confirm in time the next run should pickup
+    // the pubkey  and check if the deploy succeeded
+    cache.program.setCandyMachine(candyPubkey);
+    await cache.syncFile();
+
     await candyClient.create({
       candyMachine: candyKp,
       collection: {
-        address: new PublicKey(cache.program.collectionMint),
+        address: collectionMintPk,
         updateAuthority: metaplex.identity(),
       },
       itemsAvailable: configData.size,
-      sellerFeeBasisPoints: configData.royalties,
+      sellerFeeBasisPoints: 0,
       symbol: configData.symbol,
       creators: configData.creators,
       isMutable: configData.isMutable,
