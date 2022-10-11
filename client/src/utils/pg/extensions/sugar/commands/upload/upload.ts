@@ -30,6 +30,9 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
   // Create/load cache
   const cache = await loadCache();
+  if (!assetPairs[-1]) {
+    cache.removeItemAtIndex(-1);
+  }
 
   // List of indices to upload
   const indices: AssetType = {
@@ -102,10 +105,10 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
     // Seller fee basis points check, but only if the asset actually has the value
     if (
       metadata.sellerFeeBasisPoints &&
-      configData.sellerFeeBasisPoints !== metadata.sellerFeeBasisPoints
+      configData.royalties !== metadata.sellerFeeBasisPoints
     ) {
       throw new Error(
-        `Mismatch between sellerFeeBasisPoints in config file and metadata file. ${configData.sellerFeeBasisPoints} != ${metadata.sellerFeeBasisPoints}`
+        `Mismatch between sellerFeeBasisPoints in config file and metadata file. ${configData.royalties} != ${metadata.sellerFeeBasisPoints}`
       );
     }
   }
@@ -197,8 +200,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
             try {
               const { uri, metadata: resultMetadata } = await metaplex
                 .nfts()
-                .uploadMetadata(metadata)
-                .run();
+                .uploadMetadata(metadata);
 
               // Update and save cache
               cache.updateItemAtIndex(currentIndex, {

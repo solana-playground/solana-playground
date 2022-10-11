@@ -1,15 +1,15 @@
 import {
   CandyMachineItem,
-  findCandyMachineCreatorPda,
   Option,
+  findCandyMachineV2CreatorPda,
 } from "@metaplex-foundation/js";
-import { ConfigLine } from "@metaplex-foundation/mpl-candy-machine";
+import { ConfigLine } from "@metaplex-foundation/mpl-candy-machine-core";
 import { PublicKey } from "@solana/web3.js";
 
 import { PgCommon } from "../../../common";
 import { PgExplorer } from "../../../explorer";
 
-class CandyCache {
+export class CandyCache {
   program: CacheProgram;
   items: CacheItems;
 
@@ -40,6 +40,10 @@ class CandyCache {
     this.items[index].update(newValue);
   }
 
+  removeItemAtIndex(index: number) {
+    delete this.items[index];
+  }
+
   isItemsEmpty() {
     return Object.keys(this.items).length === 0;
   }
@@ -49,7 +53,10 @@ class CandyCache {
     const MAX_TX_LEN = 1232;
 
     const configLineChunks = [];
-    let configLines: { items: CandyMachineItem[]; indices: number[] } = {
+    let configLines: {
+      items: Pick<CandyMachineItem, "name" | "uri">[];
+      indices: number[];
+    } = {
       items: [],
       indices: [],
     };
@@ -85,7 +92,7 @@ export class CacheProgram {
     if (candyMachinePk) {
       this.candyMachine = candyMachinePk.toBase58();
       this.candyMachineCreator =
-        findCandyMachineCreatorPda(candyMachinePk).toBase58();
+        findCandyMachineV2CreatorPda(candyMachinePk).toBase58();
       this.collectionMint = "";
     } else {
       this.candyMachine = "";
