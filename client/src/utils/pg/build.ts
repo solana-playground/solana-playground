@@ -5,7 +5,6 @@ import { PgCommon } from "./common";
 import { Files, PgExplorer } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 import { Pkgs } from "./terminal";
-import { TupleString } from "./types";
 
 interface BuildResp {
   stderr: string;
@@ -27,22 +26,28 @@ export class PgBuild {
       throw new Error("No compile function found in seahorse package");
     }
 
-    const rustFiles = pythonFiles.map((file) => {
+    const rustFiles = pythonFiles.flatMap((file) => {
       const [path, content] = file;
       const seahorseProgramName =
         PgExplorer.getItemNameFromPath(path).split(".py")[0];
-      const libRsFilePath = path.replace(`${seahorseProgramName}.py`, "lib.rs");
       let newContent = compileFn(content, seahorseProgramName);
-
-      // The build server detects #[program] to determine if Anchor
-      // Seahorse (without rustfmt) outputs # [program]
-      newContent = newContent.replace("# [program]", "#[program]");
 
       if (newContent.length === 0) {
         throw new Error("Seahorse compile failed");
       }
 
-      return [libRsFilePath, newContent] as TupleString;
+      // seahorse compile outputs a flattened array like [filepath, content, filepath, content]
+      const files: Files = [];
+      for (let i = 0; i < newContent.length; i += 2) {
+        const path = newContent[i];
+        let content = newContent[i + 1];
+        // The build server detects #[program] to determine if Anchor
+        // Seahorse (without rustfmt) outputs # [program]
+        content = content.replace("# [program]", "#[program]");
+        files.push([path, content]);
+      }
+
+      return files;
     });
 
     return await this.buildRust(rustFiles);

@@ -4,7 +4,7 @@
     "Callum McIntyre <callum@pointer.gg>"
   ],
   "description": "Seahorse compiler for Solana Playground with WASM.",
-  "version": "0.1.6-hidewarnings",
+  "version": "0.2.1",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
