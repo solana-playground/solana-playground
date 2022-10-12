@@ -153,7 +153,8 @@ export class PgTerminal {
         if (
           new RegExp(/(http|{|})/).test(match) ||
           new RegExp(/"\w+":/).test(match) ||
-          new RegExp(/\(\w+:/).test(match)
+          new RegExp(/\(\w+:/).test(match) ||
+          new RegExp(/^\s*\|/).test(match)
         ) {
           return match;
         }

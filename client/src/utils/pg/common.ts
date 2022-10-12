@@ -316,9 +316,33 @@ export class PgCommon {
    * @param spaceAmount amount of space characters
    * @returns the space prepended string
    */
-  static addSpace(str: string, spaceAmount: number) {
-    return (
-      new Array(spaceAmount).fill(null).reduce((acc) => acc + " ", "") + str
-    );
+  static string(
+    str: string,
+    opts: {
+      addSpace?: {
+        amount: number;
+        type?: "total" | "additional";
+        position?: "left" | "right";
+      };
+      repeat?: { amount: number };
+    }
+  ) {
+    if (opts.addSpace) {
+      const space = this._repeatPattern(
+        " ",
+        opts.addSpace.amount -
+          (opts.addSpace.type === "additional" ? 0 : str.length)
+      );
+      return opts.addSpace.position === "right" ? str + space : space + str;
+    }
+    if (opts.repeat) {
+      return this._repeatPattern(str, opts.repeat.amount);
+    }
+  }
+
+  private static _repeatPattern(pattern: string, amount: number) {
+    return new Array(amount >= 0 ? amount : 0)
+      .fill(null)
+      .reduce((acc) => acc + pattern, "");
   }
 }

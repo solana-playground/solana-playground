@@ -169,9 +169,13 @@ export const processShow = async (
 
         if (current === 11) {
           current = 0;
-          term.print(`${PgCommon.addSpace(i.toString(), 5)}\n`);
+          term.print(
+            `${PgCommon.string(i.toString(), { addSpace: { amount: 5 } })}\n`
+          );
         } else {
-          term.print(`${PgCommon.addSpace(i.toString(), 5)} `);
+          term.print(
+            `${PgCommon.string(i.toString(), { addSpace: { amount: 5 } })} `
+          );
         }
       }
 
@@ -182,10 +186,8 @@ export const processShow = async (
 };
 
 const printWithStyle = (indent: string, key: string | number, value: any) => {
-  PgTerminal.run({
-    println: [
-      ` ${PgTerminal.secondaryText(`${indent}:.. ${key}:`)} ${value}`,
-      { noColor: true },
-    ],
-  });
+  PgTerminal.log(
+    ` ${PgTerminal.secondaryText(`${indent}:.. ${key}:`)} ${value}`,
+    { noColor: true }
+  );
 };

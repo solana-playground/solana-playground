@@ -8,6 +8,7 @@ import {
   processDeploy,
   processShow,
   processUpload,
+  processWithdraw,
 } from "./commands";
 
 /**
@@ -101,11 +102,9 @@ export class PgSugar {
 
   static async verify(rpcUrl: string | undefined) {}
 
-  static async withdraw(
-    candyMachine: string | undefined,
-    rpcUrl: string | undefined,
-    list: boolean
-  ) {}
+  static async withdraw(...args) {
+    await this._run(() => processWithdraw(...args));
+  }
 
   /**
    * WASM panics if any of the `PgSugar` processes throw an error.

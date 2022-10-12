@@ -30,9 +30,6 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
   // Create/load cache
   const cache = await loadCache();
-  if (!assetPairs[-1]) {
-    cache.removeItemAtIndex(-1);
-  }
 
   // List of indices to upload
   const indices: AssetType = {
@@ -117,21 +114,21 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
   term.println("+--------------------+");
   term.println(
-    `| images    | ${PgCommon.addSpace(indices.image.length.toString(), 6)} |`
+    `| images    | ${PgCommon.string(indices.image.length.toString(), {
+      addSpace: { amount: 6 },
+    })} |`
   );
   term.println(
-    `| metadata  | ${PgCommon.addSpace(
-      indices.metadata.length.toString(),
-      6
-    )} |`
+    `| metadata  | ${PgCommon.string(indices.metadata.length.toString(), {
+      addSpace: { amount: 6 },
+    })} |`
   );
 
   if (indices.animation.length) {
     term.println(
-      `| animation    | ${PgCommon.addSpace(
-        indices.animation.length.toString(),
-        6
-      )} |`
+      `| animation    | ${PgCommon.string(indices.animation.length.toString(), {
+        addSpace: { amount: 6 },
+      })} |`
     );
   }
   term.println("+--------------------+");
