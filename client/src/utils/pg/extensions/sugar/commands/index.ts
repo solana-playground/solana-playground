@@ -5,4 +5,5 @@ export * from "./mint";
 export * from "./show";
 export * from "./update";
 export * from "./upload";
+export * from "./verify";
 export * from "./withdraw";

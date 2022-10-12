@@ -59,7 +59,7 @@ export const ImportFs = () => {
           );
         }
 
-        const content = PgCommon.decodeArrayBuffer(arrayBuffer);
+        const content = PgCommon.decodeBytes(arrayBuffer);
         importFiles.push([path, content]);
       }
 

@@ -22,7 +22,7 @@ const Import = () => {
     try {
       const file = files[0];
       const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeArrayBuffer(arrayBuffer);
+      const decodedString = PgCommon.decodeBytes(arrayBuffer);
 
       PgProgramInfo.update({
         idl: JSON.parse(decodedString),

@@ -61,7 +61,7 @@ export class PgShare {
     const result = await PgCommon.checkForRespErr(resp.clone());
     if (result?.err) throw new Error(result.err);
 
-    const objectId = PgCommon.decodeArrayBuffer(result.arrayBuffer!);
+    const objectId = PgCommon.decodeBytes(result.arrayBuffer!);
 
     return objectId;
   }

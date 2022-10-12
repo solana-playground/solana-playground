@@ -35,7 +35,7 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
     try {
       const file = files[0];
       const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeArrayBuffer(arrayBuffer);
+      const decodedString = PgCommon.decodeBytes(arrayBuffer);
       const buffer = Buffer.from(JSON.parse(decodedString));
 
       // Validate keypair

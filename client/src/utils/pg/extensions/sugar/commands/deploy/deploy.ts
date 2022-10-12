@@ -6,7 +6,6 @@ import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { checkName, checkSellerFeeBasisPoints, checkSymbol } from "../validate";
-import { createCollection } from "./collection";
 
 export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
   const term = await PgTerminal.get();
@@ -85,22 +84,22 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       collectionMintPk = new PublicKey(cache.program.collectionMint);
     } else {
       // Create collection
-      collectionMintPk = await createCollection(metaplex, cache, configData);
+      // collectionMintPk = await createCollection(metaplex, cache, configData);
 
-      // const { nft: collectionNft } = await metaplex.nfts().create({
-      //   isCollection: true,
-      //   name: collectionItem.name,
-      //   uri: collectionItem.metadata_link,
-      //   sellerFeeBasisPoints: configData.royalties,
-      //   isMutable: configData.isMutable,
-      //   creators: configData.creators,
-      //   symbol: configData.symbol,
-      // });
-      // collectionMintPk = collectionNft.address;
+      const { nft: collectionNft } = await metaplex.nfts().create({
+        isCollection: true,
+        name: collectionItem.name,
+        uri: collectionItem.metadata_link,
+        sellerFeeBasisPoints: configData.royalties,
+        isMutable: configData.isMutable,
+        creators: configData.creators,
+        symbol: configData.symbol,
+      });
+      collectionMintPk = collectionNft.address;
 
-      // collectionItem.onChain = true;
-      // cache.program.collectionMint = collectionMintPk.toBase58();
-      // await cache.syncFile();
+      collectionItem.onChain = true;
+      cache.program.collectionMint = collectionMintPk.toBase58();
+      await cache.syncFile();
 
       term.println(
         `${PgTerminal.bold(
@@ -135,7 +134,10 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
 
     if (!PgValidator.isPubkey(candyMachinePkStr)) {
       throw new Error(
-        `Invalid candy machine address in cache file: '${candyMachinePkStr}'`
+        [
+          `Invalid candy machine address in cache file: '${candyMachinePkStr}'.`,
+          "Check your cache file or run deploy to ensure your candy machine was created.",
+        ].join(" ")
       );
     }
     candyPubkey = new PublicKey(candyMachinePkStr);

@@ -17,9 +17,12 @@ export class PgCommon {
   /**
    * @returns the decoded string
    */
-  static decodeArrayBuffer(arrayBuffer: ArrayBuffer, type: string = "utf-8") {
+  static decodeBytes(
+    b: ArrayBuffer | Buffer | Uint8Array,
+    type: string = "utf-8"
+  ) {
     const decoder = new TextDecoder(type);
-    const decodedString = decoder.decode(arrayBuffer);
+    const decodedString = decoder.decode(b);
 
     return decodedString;
   }
@@ -33,7 +36,7 @@ export class PgCommon {
   static async checkForRespErr(resp: Response) {
     const arrayBuffer = await resp.arrayBuffer();
 
-    if (!resp.ok) return { err: this.decodeArrayBuffer(arrayBuffer) };
+    if (!resp.ok) return { err: this.decodeBytes(arrayBuffer) };
 
     return { arrayBuffer };
   }
@@ -313,7 +316,9 @@ export class PgCommon {
    * Adds space before the string, mainly used for terminal output
    *
    * @param str string to prepend spaces to
-   * @param spaceAmount amount of space characters
+   * @param opts -
+   * - addSpace: add space before or after the string
+   * - repeat: repeat the string `repeat.amount` times
    * @returns the space prepended string
    */
   static string(
