@@ -7,6 +7,7 @@ import {
   processCreateConfig,
   processDeploy,
   processShow,
+  processUpdate,
   processUpload,
   processWithdraw,
 } from "./commands";
@@ -88,11 +89,9 @@ export class PgSugar {
     candyMachine: string | undefined
   ) {}
 
-  static async update(
-    rpcUrl: string | undefined,
-    newAuthority: string | undefined,
-    candyMachine: string | undefined
-  ) {}
+  static async update(...args) {
+    await this._run(() => processUpdate(...args));
+  }
 
   static async upload(...args) {
     await this._run(() => processUpload(...args));
