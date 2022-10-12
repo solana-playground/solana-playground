@@ -52,7 +52,7 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
 
     term.println(`Verifying ${numItems.toString()} config line(s)...`);
 
-    let errors = [];
+    const errors = [];
 
     for (const configLine of candyState.items) {
       const cacheItem = cache.items[configLine.index];

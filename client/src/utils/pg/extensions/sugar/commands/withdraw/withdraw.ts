@@ -100,7 +100,7 @@ export const processWithdraw = async (
         }
 
         let notDrained = 0;
-        let errors = [];
+        const errors = [];
         for (const candyAccount of candyAccounts) {
           try {
             await doWithdraw(metaplex, candyAccount.pubkey);

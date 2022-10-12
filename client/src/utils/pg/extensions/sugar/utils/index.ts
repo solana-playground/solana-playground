@@ -1,3 +1,4 @@
+export * from "./accounts";
 export * from "./cache";
 export * from "./candy-machine";
 export * from "./config";

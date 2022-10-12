@@ -43,7 +43,7 @@ export const processMint = async (
   const mintAmount = toBigNumber(number?.toString() ?? 1);
   const available = candyState.itemsRemaining;
 
-  if (mintAmount.gte(available) || mintAmount.eqn(0)) {
+  if (mintAmount.gt(available) || mintAmount.eqn(0)) {
     throw new Error(`${available} item(s) available, requested ${mintAmount}`);
   }
 

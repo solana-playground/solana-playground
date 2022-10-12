@@ -8,6 +8,7 @@ import {
   processDeploy,
   processMint,
   processShow,
+  processSign,
   processUpdate,
   processUpload,
   processVerify,
@@ -70,11 +71,9 @@ export class PgSugar {
     await this._run(() => processShow(...args));
   }
 
-  static async sign(
-    rpcUrl: string | undefined,
-    mint: string | undefined,
-    candyMachineId: string | undefined
-  ) {}
+  static async sign(...args) {
+    await this._run(() => processSign(...args));
+  }
 
   static async thaw(
     rpcUrl: string | undefined,
