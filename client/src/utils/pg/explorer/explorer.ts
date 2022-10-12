@@ -342,7 +342,13 @@ export class PgExplorer {
   async newItem(
     fullPath: string,
     content: string = "",
-    opts?: { dontOpen?: boolean; override?: boolean }
+    opts?: {
+      override?: boolean;
+      openOptions?: {
+        dontOpen?: boolean;
+        onlyOpenIfAlreadyOpen?: boolean;
+      };
+    }
   ) {
     fullPath = this._convertToFullPath(fullPath);
 
@@ -375,11 +381,19 @@ export class PgExplorer {
         meta: files[fullPath]?.meta ?? {},
       };
 
-      if (!opts?.dontOpen) {
-        // Close the file if we are overriding to correctly display the new content
-        if (opts?.override) this.closeTab(fullPath);
+      const isCurrentFile = this.getCurrentFile()?.path === fullPath;
 
-        this.changeCurrentFile(fullPath);
+      if (!opts?.openOptions || opts?.openOptions?.onlyOpenIfAlreadyOpen) {
+        // Close the file if we are overriding to correctly display the new content
+        if (opts?.override && isCurrentFile) {
+          this.closeTab(fullPath);
+        }
+
+        if (!opts?.openOptions || isCurrentFile) {
+          this.changeCurrentFile(fullPath);
+        } else {
+          this._refresh();
+        }
       }
     } else {
       // Folder

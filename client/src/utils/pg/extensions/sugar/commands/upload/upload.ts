@@ -242,7 +242,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
     // Hide progress bar
     setTimeout(() => PgTerminal.setProgress(0), 1000);
 
-    // Sync and open the file
+    // Sync and refresh the file if it's already open
     clearInterval(saveCacheIntervalId);
     await cache.syncFile(true);
   } else {

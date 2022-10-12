@@ -300,6 +300,7 @@ export const processCreateConfig = async () => {
       prettyConfigData,
       {
         override: true,
+        openOptions: { onlyOpenIfAlreadyOpen: true },
       }
     );
     term.println(

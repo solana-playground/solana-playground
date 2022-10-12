@@ -58,7 +58,8 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
     checkSellerFeeBasisPoints(configData.royalties);
   }
 
-  const totalSteps = 2 + collectionInCache - hidden;
+  const collectionStepNumber = !candyMachinePkStr ? collectionInCache : 0;
+  const totalSteps = 2 + collectionStepNumber - hidden;
 
   const metaplex = await getMetaplex(rpcUrl);
   const candyClient = metaplex.candyMachines();
@@ -160,7 +161,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
   // Hidden Settings check needs to be the last action in this command, so that
   // we can update the hash with the final cache state.
   if (!hidden) {
-    const stepNum = 2 + collectionInCache;
+    const stepNum = 2 + collectionStepNumber;
     term.println(
       `\n[${stepNum}/${totalSteps}] ${Emoji.PAPER} Writing config lines`
     );
@@ -236,7 +237,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       // Hide progress bar
       setTimeout(() => PgTerminal.setProgress(0), 1000);
 
-      // Sync and open the file
+      // Sync and refresh the file if it's already open
       clearInterval(saveCacheIntervalId);
       await cache.syncFile(true);
 
