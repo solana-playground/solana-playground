@@ -6,6 +6,7 @@ import {
   processBundlr,
   processCreateConfig,
   processDeploy,
+  processShow,
   processUpload,
 } from "./commands";
 
@@ -64,11 +65,9 @@ export class PgSugar {
 
   static async reveal(rpcUrl: string | undefined) {}
 
-  static async show(
-    rpcUrl: string | undefined,
-    candyMachine: string | undefined,
-    unminted: boolean
-  ) {}
+  static async show(...args) {
+    await this._run(() => processShow(...args));
+  }
 
   static async sign(
     rpcUrl: string | undefined,
