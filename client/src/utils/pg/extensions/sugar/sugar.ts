@@ -6,6 +6,7 @@ import {
   processBundlr,
   processCreateConfig,
   processDeploy,
+  processMint,
   processShow,
   processUpdate,
   processUpload,
@@ -58,12 +59,9 @@ export class PgSugar {
     skipCollectionPrompt: boolean
   ) {}
 
-  static async mint(
-    rpcUrl: string | undefined,
-    number: number | undefined,
-    receiver: string | undefined,
-    candyMachine: string | undefined
-  ) {}
+  static async mint(...args) {
+    await this._run(() => processMint(...args));
+  }
 
   static async reveal(rpcUrl: string | undefined) {}
 
@@ -124,6 +122,8 @@ export class PgSugar {
         )} ${e.message}`,
         { noColor: true }
       );
+    } finally {
+      setTimeout(() => PgTerminal.setProgress(0), 1000);
     }
   }
 }

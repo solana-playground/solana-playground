@@ -125,7 +125,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
         updateAuthority: metaplex.identity(),
       },
       itemsAvailable: configData.size,
-      sellerFeeBasisPoints: 0,
+      sellerFeeBasisPoints: configData.royalties,
       symbol: configData.symbol,
       creators: configData.creators,
       isMutable: configData.isMutable,
@@ -189,7 +189,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       PgTerminal.setProgress(0.1);
       let progressCount = 0;
 
-      const CONCURRENT = 10;
+      const CONCURRENT = 8;
       let errorCount = 0;
 
       await Promise.all(

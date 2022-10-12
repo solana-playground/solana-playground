@@ -96,12 +96,12 @@ export const createCollection = async (
           symbol: configData.symbol,
           uri: collectionItem.metadata_link,
           creators: [creator],
-          sellerFeeBasisPoints: 0,
+          sellerFeeBasisPoints: configData.royalties,
           collection: null,
           uses: null,
         },
         collectionDetails: { __kind: "V1", size: 0 },
-        isMutable: true,
+        isMutable: configData.isMutable,
       },
     }
   );
