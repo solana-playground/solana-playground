@@ -7,5 +7,6 @@ export * from "./show";
 export * from "./sign";
 export * from "./update";
 export * from "./upload";
+export * from "./validate";
 export * from "./verify";
 export * from "./withdraw";

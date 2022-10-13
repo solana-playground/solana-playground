@@ -7,6 +7,7 @@ import {
   MAX_URI_LENGTH,
   VALID_CATEGORIES,
 } from "../../constants";
+import { ToPrimitive } from "../../types";
 
 export const checkName = (name: string) => {
   if (name.length > MAX_NAME_LENGTH) {
@@ -45,9 +46,9 @@ export const checkCreatorsShares = (creators: Creator[]) => {
   }
 };
 
-export const checkCreatorsAddresses = (creators: Creator[]) => {
+export const checkCreatorsAddresses = (creators: ToPrimitive<Creator>[]) => {
   for (const creator of creators) {
-    if (!PgValidator.isPubkey(creator.address as any)) {
+    if (!PgValidator.isPubkey(creator.address)) {
       throw new Error(`Creator address: '${creator.address}' is invalid.`);
     }
   }

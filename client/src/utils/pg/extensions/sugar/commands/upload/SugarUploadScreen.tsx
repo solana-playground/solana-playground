@@ -5,7 +5,7 @@ import useModal from "../../../../../../components/Modal/useModal";
 import UploadArea from "../../../../../../components/UploadArea";
 import { PgCommon } from "../../../../common";
 
-export const UploadScreen = () => {
+export const SugarUploadScreen = () => {
   const { close } = useModal();
 
   const [files, setFiles] = useState<FileList>();

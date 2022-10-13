@@ -4,7 +4,7 @@ import * as anchor from "@project-serum/anchor";
 import { PgModal } from "../../../../modal";
 import { PgValidator } from "../../../../validator";
 import { CacheItem } from "../../utils";
-import { UploadScreen } from "./UploadScreen";
+import { SugarUploadScreen } from "./SugarUploadScreen";
 
 class AssetPair {
   name: string;
@@ -52,7 +52,7 @@ type GetAssetPairsResult = { assetPairs: [number, AssetPair][]; files: File[] };
 const COLLECTION_FILENAME = "collection";
 
 export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
-  const files = await PgModal.set<File[]>(UploadScreen);
+  const files = await PgModal.set<File[]>(SugarUploadScreen);
   if (!files) throw new Error("You haven't selected files.");
 
   // Sort files based on their name

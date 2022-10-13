@@ -12,6 +12,7 @@ import {
   processSign,
   processUpdate,
   processUpload,
+  processValidate,
   processVerify,
   processWithdraw,
 } from "./commands";
@@ -94,7 +95,9 @@ export class PgSugar {
     await this._run(() => processUpload(...args));
   }
 
-  static async validate(strict: boolean, skipCollectionPrompt: boolean) {}
+  static async validate(...args) {
+    await this._run(() => processValidate(...args));
+  }
 
   static async verify(...args) {
     await this._run(() => processVerify(...args));
