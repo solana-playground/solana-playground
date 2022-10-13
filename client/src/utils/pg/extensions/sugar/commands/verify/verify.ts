@@ -66,7 +66,7 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
 
     if (errors.length) {
       term.println(PgTerminal.error("Verification failed"));
-      await cache.syncFile(true);
+      await cache.syncFile();
 
       term.println("\nInvalid items found:");
 
@@ -106,7 +106,7 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
       if (collectionItem) {
         collectionItem.onChain = false;
       }
-      await cache.syncFile(true);
+      await cache.syncFile();
 
       term.println(
         `Cache updated - re-run ${PgTerminal.bold("'sugar deploy`")}.`

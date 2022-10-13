@@ -1,4 +1,5 @@
 export * from "./bundlr";
+export * from "./collection";
 export * from "./create-config";
 export * from "./deploy";
 export * from "./mint";

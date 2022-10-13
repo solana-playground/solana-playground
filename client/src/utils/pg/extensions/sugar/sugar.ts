@@ -4,6 +4,7 @@ import { Emoji } from "../../../../constants";
 import { PgTerminal } from "../../terminal";
 import {
   processBundlr,
+  processCollectionSet,
   processCreateConfig,
   processDeploy,
   processMint,
@@ -23,11 +24,9 @@ export class PgSugar {
     await this._run(() => processBundlr(...args));
   }
 
-  static async collectionSet(
-    rpcUrl: string | undefined,
-    candyMachine: string | undefined,
-    collectionMint: string
-  ) {}
+  static async collectionSet(...args) {
+    await this._run(() => processCollectionSet(...args));
+  }
 
   static async collectionRemove(
     rpcUrl: string | undefined,

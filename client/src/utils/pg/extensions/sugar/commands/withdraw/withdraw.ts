@@ -54,7 +54,7 @@ export const processWithdraw = async (
     );
 
     term.println(
-      `\nFound ${candyAccounts.length} candy machines, total amount: ◎ ${
+      `\nFound ${candyAccounts.length} candy machine(s), total amount: ◎ ${
         totalLamports / LAMPORTS_PER_SOL
       }`,
       { noColor: true }

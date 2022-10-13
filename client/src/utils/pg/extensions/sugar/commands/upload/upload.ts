@@ -159,7 +159,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
     );
 
     // Periodically save the cache
-    const saveCacheIntervalId = setInterval(() => cache.syncFile(), 5000);
+    const saveCacheIntervalId = setInterval(() => cache.syncFile(false), 5000);
 
     // Show progress bar
     PgTerminal.setProgress(0.1);
@@ -241,7 +241,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
     // Sync and refresh the file if it's already open
     clearInterval(saveCacheIntervalId);
-    await cache.syncFile(true);
+    await cache.syncFile();
   } else {
     term.println("\n...no files need uploading, skipping remaining steps.");
   }

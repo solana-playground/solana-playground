@@ -26,7 +26,7 @@ export class CandyCache {
     }
   }
 
-  async syncFile(onlyOpenIfAlreadyOpen?: boolean) {
+  async syncFile(onlyOpenIfAlreadyOpen: boolean = true) {
     await (
       await PgExplorer.get()
     ).newItem(
