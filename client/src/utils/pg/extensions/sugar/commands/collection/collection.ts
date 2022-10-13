@@ -5,6 +5,8 @@ import { Emoji } from "../../../../../../constants";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { assertCorrectAuthority, getMetaplex, loadCache } from "../../utils";
+import { hashAndUpdate } from "../hash";
+import { processUpdate } from "../update";
 
 export const processCollectionSet = async (
   rpcUrl: string = PgConnection.endpoint,
@@ -111,14 +113,15 @@ export const processCollectionSet = async (
     // If hidden settings are enabled, we update the hash value in the config
     // file and update the candy machine on-chain
     if (candyState.itemSettings.type === "hidden") {
-      // TODO:
-      //   const configData = await loadConfigData();
-      //   const hiddenSettings = configData.hiddenSettings;
-      //   term.println(`\n${PgTerminal.bold("Hidden settings hash:")} ${processHashAndUpdate()}`)
-      //   term.println(
-      //     "\nCandy machine has hidden settings and cache file was updated. Updating hash value...\n"
-      //   );
-      //   await processUpdate(undefined, undefined, candyMachinePkStr);
+      term.println(
+        `\n${PgTerminal.bold("Hidden settings hash:")} ${await hashAndUpdate()}`
+      );
+
+      term.println(
+        "\nCandy machine has hidden settings and cache file was updated. Updating hash value...\n"
+      );
+
+      await processUpdate(undefined, undefined, candyMachinePkStr);
     }
   }
 };

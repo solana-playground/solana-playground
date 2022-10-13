@@ -7,6 +7,7 @@ import {
   processCollectionSet,
   processCreateConfig,
   processDeploy,
+  processHash,
   processMint,
   processShow,
   processSign,
@@ -53,7 +54,9 @@ export class PgSugar {
     freezeDays: number | undefined
   ) {}
 
-  static async hash(compare: string | undefined) {}
+  static async hash(...args) {
+    await this._run(() => processHash(...args));
+  }
 
   static async launch(
     rpcUrl: string | undefined,

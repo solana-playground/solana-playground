@@ -55,5 +55,8 @@ export const processUpdate = async (
     sellerFeeBasisPoints: configData.royalties,
     symbol: configData.symbol,
     maxEditionSupply: toBigNumber(0),
+    itemSettings: configData.hiddenSettings
+      ? { type: "hidden", ...configData.hiddenSettings }
+      : candyState.itemSettings,
   });
 };

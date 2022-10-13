@@ -80,6 +80,7 @@ export const processShow = async (
   const creators = candyState.creators;
   for (const i in creators) {
     const creator = creators[i] as Creator;
+    console.log(creator);
     printWithStyle(
       ":   ",
       +i + 1,
@@ -100,7 +101,7 @@ export const processShow = async (
     printWithStyle(
       ":   ",
       "hash",
-      new TextDecoder("utf-8").decode(Uint8Array.from(hiddenSettings.hash))
+      PgCommon.decodeBytes(Uint8Array.from(hiddenSettings.hash))
     );
   } else {
     printWithStyle("", "hidden settings", "none");

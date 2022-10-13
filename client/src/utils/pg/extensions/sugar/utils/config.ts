@@ -1,5 +1,6 @@
 import { toBigNumber } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
+import { PgCommon } from "../../../common";
 
 import { PgExplorer } from "../../../explorer";
 import { PgTerminal } from "../../../terminal";
@@ -33,4 +34,24 @@ export const loadConfigData = async (): Promise<ConfigData> => {
     // @ts-ignore
     guards: configData.guards,
   };
+};
+
+export const saveConfigData = async (configData: ConfigData) => {
+  await PgExplorer.run({
+    newItem: [
+      PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
+      PgCommon.prettyJSON({
+        ...configData,
+        size: configData.size.toNumber(),
+        creators: configData.creators.map((c) => ({
+          ...c,
+          address: c.address.toBase58(),
+        })),
+      }),
+      {
+        override: true,
+        openOptions: { onlyOpenIfAlreadyOpen: true },
+      },
+    ],
+  });
 };

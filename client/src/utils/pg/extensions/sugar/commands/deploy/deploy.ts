@@ -5,6 +5,8 @@ import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
+import { hashAndUpdate } from "../hash";
+import { processUpdate } from "../update";
 import { checkName, checkSellerFeeBasisPoints, checkSymbol } from "../validate";
 
 export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
@@ -113,7 +115,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
 
     // Save the candy machine pubkey to the cache before attempting to deploy
     // in case the transaction doesn't confirm in time the next run should pickup
-    // the pubkey  and check if the deploy succeeded
+    // the pubkey and check if the deploy succeeded
     cache.program.setCandyMachine(candyPubkey);
     await cache.syncFile();
 
@@ -128,6 +130,25 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       symbol: configData.symbol,
       creators: configData.creators,
       isMutable: configData.isMutable,
+      itemSettings: configData.hiddenSettings
+        ? {
+            type: "hidden",
+            ...configData.hiddenSettings,
+            // NOTE: we might not have a hash yet
+            hash:
+              configData.hiddenSettings.hash.length === 32
+                ? configData.hiddenSettings.hash
+                : new Array(32).fill(0),
+          }
+        : {
+            // TODO: find from cache
+            type: "configLines",
+            isSequential: configData.isSequential,
+            prefixName: "",
+            nameLength: 32,
+            prefixUri: "",
+            uriLength: 200,
+          },
     });
   } else {
     term.println(`[1/${totalSteps}] ${Emoji.CANDY} Loading candy machine`);
@@ -209,8 +230,8 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
                   address: candyPubkey,
                   itemsAvailable: candy.itemsAvailable,
                   itemsLoaded: getTotalConfigLinesUntilChunkN(j + i),
+                  // TODO: find from cache
                   itemSettings: {
-                    // TODO: find from cache
                     type: "configLines",
                     isSequential: configData.isSequential,
                     prefixName: "",
@@ -258,11 +279,11 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
       }
     }
   } else {
-    // TODO:
-    // // If hidden settings are enabled, update the hash value with the new cache file
-    // term.println("\nCandy machine with hidden settings deployed.");
-    // term.println(`\nHidden settings hash: ${}`, hashAndUpdate(configData))
-    // term.println("\nUpdating candy machine state with new hash value:\n");
-    // processUpdate()
+    // If hidden settings are enabled, update the hash value with the new cache file
+    term.println("\nCandy machine with hidden settings deployed.");
+    term.println(`\nHidden settings hash: ${await hashAndUpdate()}`);
+
+    term.println("\nUpdating candy machine state with new hash value...\n");
+    await processUpdate(rpcUrl, undefined, candyPubkey.toBase58());
   }
 };
