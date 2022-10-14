@@ -9,7 +9,7 @@ import {
 export const getCmCreatorMetadataAccounts = async (
   metaplex: Metaplex,
   creator: string,
-  position: number
+  position: number = 0
 ) => {
   if (position > 4) {
     throw new Error("CM Creator position cannot be greater than 4");

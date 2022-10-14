@@ -9,7 +9,7 @@ export const ExplorerLink = () => {
   const [txHash] = useAtom(txHashAtom);
   const [conn] = useAtom(connAtom);
 
-  const [explorer, solscan] = PgCommon.getExplorerTxUrls(
+  const { explorer, solscan } = PgCommon.getExplorerTxUrls(
     txHash,
     conn.endpoint!
   );

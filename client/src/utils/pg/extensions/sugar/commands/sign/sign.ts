@@ -39,11 +39,21 @@ export const processSign = async (
 
     const candyMachinePkStr =
       candyMachineId ?? (await loadCache()).program.candyMachine;
+    let candyMachinePk;
+    try {
+      candyMachinePk = new PublicKey(candyMachinePkStr);
+    } catch {
+      throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
+    }
+
+    const creatorPda = metaplex
+      .candyMachines()
+      .pdas()
+      .authority({ candyMachine: candyMachinePk });
 
     const metadataAccounts = await getCmCreatorMetadataAccounts(
       metaplex,
-      metaplex.identity().publicKey.toBase58(),
-      1
+      creatorPda.toBase58()
     );
 
     if (!metadataAccounts.length) {
@@ -71,7 +81,9 @@ export const processSign = async (
       );
     }
 
-    term.println(PgTerminal.success("All NFTs signed successfully."));
+    term.println(
+      PgTerminal.secondary(`${Emoji.CONFETTI} All NFTs signed successfully.`)
+    );
   }
 };
 

@@ -4,7 +4,11 @@ import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
 import { PgExplorer } from "../../../../explorer";
 import { PgCommon } from "../../../../common";
-import { MAX_NAME_LENGTH, MAX_URI_LENGTH } from "../../constants";
+import {
+  MAX_NAME_LENGTH,
+  MAX_URI_LENGTH,
+  REPLACEMENT_INDEX_INCREMENT,
+} from "../../constants";
 
 export const processCreateConfig = async () => {
   const term = await PgTerminal.get();
@@ -56,6 +60,12 @@ export const processCreateConfig = async () => {
     })
   );
 
+  // Sequential
+  configData.isSequential = await term.waitForUserInput(
+    "Do you want to use a sequential mint index generation? We recommend you choose no.",
+    { confirm: true }
+  );
+
   // Creators
   const numberOfCreators = parseInt(
     await term.waitForUserInput(
@@ -100,7 +110,7 @@ export const processCreateConfig = async () => {
     );
 
     totalShare += share;
-    configData.creators.push({ address, share, verified: false });
+    configData.creators.push({ address, share });
   }
 
   // Optional extra features
@@ -119,20 +129,31 @@ export const processCreateConfig = async () => {
 
   // Hidden Settings
   if (choices.includes(0)) {
-    const name = await term.waitForUserInput(
-      "What is the prefix name for your hidden settings mints? The mint index will be appended at the end of the name.",
+    let name = await term.waitForUserInput(
+      [
+        "What is the prefix name for your hidden settings mints? The mint index will be appended at the end of the name.",
+        PgTerminal.secondaryText(
+          "(If you put 'My NFT', NFTs will be named 'My NFT #1' 'My NFT #2'...)"
+        ),
+      ].join(" "),
       {
         validator: (input) => {
-          if (input.length > MAX_NAME_LENGTH - 7) {
+          if (!input.includes(REPLACEMENT_INDEX_INCREMENT)) {
+            input += ` #${REPLACEMENT_INDEX_INCREMENT}`;
+          }
+          const maxNameLengthWithoutFiller =
+            MAX_NAME_LENGTH - (REPLACEMENT_INDEX_INCREMENT.length + 2);
+          if (input.length > maxNameLengthWithoutFiller) {
             throw new Error(
-              `Your hidden settings name probably cannot be longer than ${
-                MAX_NAME_LENGTH - 7
-              } characters.`
+              `Your hidden settings name probably cannot be longer than ${maxNameLengthWithoutFiller} characters.`
             );
           }
         },
       }
     );
+    if (!name.includes(REPLACEMENT_INDEX_INCREMENT)) {
+      name += ` #${REPLACEMENT_INDEX_INCREMENT}`;
+    }
 
     const uri = await term.waitForUserInput(
       "What is URI to be used for each mint?",
@@ -261,7 +282,7 @@ export const processCreateConfig = async () => {
     }
   }
 
-  // Is mutable
+  // Mutability
   configData.isMutable = await term.waitForUserInput(
     "Do you want your NFTs to remain mutable? We HIGHLY recommend you choose yes.",
     { confirm: true }

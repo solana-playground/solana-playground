@@ -29,7 +29,7 @@ export interface ConfigData {
   isSequential: boolean;
 
   /** List of creators */
-  creators: Creator[];
+  creators: Omit<Creator, "verified">[];
 
   /** Hidden setttings */
   hiddenSettings: Option<HiddenSettings>;

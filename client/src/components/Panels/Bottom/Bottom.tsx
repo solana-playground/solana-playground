@@ -32,7 +32,7 @@ const Bottom = () => {
     return [
       NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name ??
         CUSTOM_NETWORK_NAME,
-      PgCommon.getExplorerCluster(conn.rpcEndpoint),
+      PgCommon.getExplorerClusterParam(conn.rpcEndpoint),
     ];
   }, [conn]);
 

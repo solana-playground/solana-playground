@@ -93,7 +93,7 @@ export class PgCommon {
   /**
    * Only used for adding cluster param to explorer url(s)
    */
-  static getExplorerCluster(endpoint: string) {
+  static getExplorerClusterParam(endpoint: string = PgConnection.endpoint) {
     // Mainnet by default
     let cluster = "";
 
@@ -110,23 +110,49 @@ export class PgCommon {
   }
 
   /**
-   *  Used for getting transaction urls for explorers
+   * Get transaction urls for explorers
    *
-   * @returns tx url of [Solana Explorer, Solscan]
+   * @returns transaction url for solana explorer, solscan
    */
-  static getExplorerTxUrls(txHash: string, endpoint: Endpoint) {
+  static getExplorerTxUrls(
+    txHash: string,
+    endpoint: Endpoint = PgConnection.endpoint
+  ) {
     let explorer = EXPLORER_URL + "/tx/" + txHash;
-    let cluster = this.getExplorerCluster(endpoint);
+    const cluster = this.getExplorerClusterParam(endpoint);
+    explorer += cluster;
 
     // Solscan doesn't have support for localhost
     if (endpoint === Endpoint.LOCALHOST) {
-      return [explorer + cluster];
+      return { explorer };
     }
 
     const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
+
+    return { explorer, solscan };
+  }
+
+  /**
+   *  Get explorer urls for a mint
+   *
+   * @returns mint url for solana explorer, solscan
+   */
+  static getExplorerTokenUrl(
+    mint: string,
+    endpoint: Endpoint = PgConnection.endpoint
+  ) {
+    let explorer = EXPLORER_URL + "/address/" + mint;
+    const cluster = this.getExplorerClusterParam(endpoint);
     explorer += cluster;
 
-    return [explorer, solscan];
+    // Solscan doesn't have support for localhost
+    if (endpoint === Endpoint.LOCALHOST) {
+      return { explorer };
+    }
+
+    const solscan = SOLSCAN_URL + "/token/" + mint + cluster;
+
+    return { explorer, solscan };
   }
 
   /**

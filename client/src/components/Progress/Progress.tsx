@@ -1,14 +1,27 @@
-import { FC } from "react";
-import styled, { css } from "styled-components";
+import { FC, useEffect, useRef } from "react";
+import styled, { css, useTheme } from "styled-components";
 
 interface ProgressProps {
   value: number;
 }
 
 const Progress: FC<ProgressProps> = ({ value }) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const theme = useTheme();
+
+  // Hide progress bar when value is falsy value but still allow the animation
+  useEffect(() => {
+    if (wrapperRef.current) {
+      wrapperRef.current.style.borderColor = value
+        ? theme.colors.default.borderColor
+        : "transparent";
+    }
+  }, [value, theme]);
+
   return (
-    <Wrapper style={value ? {} : { visibility: "hidden" }}>
-      <Indicator style={{ width: value.toString() + "%" }} />
+    <Wrapper ref={wrapperRef}>
+      <Indicator style={{ width: `${value.toString()}%` }} />
     </Wrapper>
   );
 };
@@ -28,6 +41,8 @@ const Indicator = styled.div`
     background-color: ${theme.colors.default.primary};
     border-radius: ${theme.borderRadius};
     height: 100%;
+    transition: width ${theme.transition?.duration.long}
+      ${theme.transition?.type};
   `}
 `;
 

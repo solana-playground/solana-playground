@@ -119,7 +119,7 @@ const Tx: FC<ConfirmedSignatureInfo> = ({
   const now = new Date().getTime() / 1000;
   const timePassed = PgCommon.secondsToTime(now - (blockTime ?? 0));
 
-  const [explorer, solscan] = PgCommon.getExplorerTxUrls(
+  const { explorer, solscan } = PgCommon.getExplorerTxUrls(
     signature,
     conn.endpoint!
   );

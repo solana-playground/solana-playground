@@ -4,6 +4,7 @@ export * from "./create-config";
 export * from "./deploy";
 export * from "./hash";
 export * from "./mint";
+export * from "./reveal";
 export * from "./show";
 export * from "./sign";
 export * from "./update";

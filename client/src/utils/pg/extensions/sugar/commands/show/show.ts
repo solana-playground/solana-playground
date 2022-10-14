@@ -80,7 +80,6 @@ export const processShow = async (
   const creators = candyState.creators;
   for (const i in creators) {
     const creator = creators[i] as Creator;
-    console.log(creator);
     printWithStyle(
       ":   ",
       +i + 1,

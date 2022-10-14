@@ -1,7 +1,7 @@
 import { toBigNumber } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
-import { PgCommon } from "../../../common";
 
+import { PgCommon } from "../../../common";
 import { PgExplorer } from "../../../explorer";
 import { PgTerminal } from "../../../terminal";
 import { ConfigData, ToPrimitive } from "../types";
@@ -29,7 +29,12 @@ export const loadConfigData = async (): Promise<ConfigData> => {
       ...c,
       address: new PublicKey(c.address),
     })),
-    hiddenSettings: configData.hiddenSettings,
+    hiddenSettings: configData.hiddenSettings
+      ? {
+          ...configData.hiddenSettings,
+          hash: Array.from(Buffer.from(configData.hiddenSettings.hash)),
+        }
+      : null,
     uploadConfig: configData.uploadConfig,
     // @ts-ignore
     guards: configData.guards,
@@ -43,6 +48,14 @@ export const saveConfigData = async (configData: ConfigData) => {
       PgCommon.prettyJSON({
         ...configData,
         size: configData.size.toNumber(),
+        hiddenSettings: configData.hiddenSettings
+          ? {
+              ...configData.hiddenSettings,
+              hash: PgCommon.decodeBytes(
+                Uint8Array.from(configData.hiddenSettings.hash)
+              ),
+            }
+          : null,
         creators: configData.creators.map((c) => ({
           ...c,
           address: c.address.toBase58(),

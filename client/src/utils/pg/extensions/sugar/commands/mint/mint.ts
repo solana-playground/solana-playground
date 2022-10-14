@@ -2,6 +2,7 @@ import { toBigNumber } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../constants";
+import { PgCommon } from "../../../../common";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { getMetaplex, loadCache } from "../../utils";
@@ -47,74 +48,77 @@ export const processMint = async (
     throw new Error(`${available} item(s) available, requested ${mintAmount}`);
   }
 
-  if (mintAmount.eqn(1)) {
-    await candyClient.mint({
-      candyMachine: {
-        address: candyState.address,
-        collectionMintAddress: candyState.collectionMintAddress,
-        candyGuard: candyState.candyGuard,
-      },
-      collectionUpdateAuthority: candyState.authorityAddress,
-    });
-  } else {
-    // Show progress bar
-    PgTerminal.setProgress(0.1);
-    let progressCount = 0;
+  // Show progress bar
+  PgTerminal.setProgress(0.1);
+  let progressCount = 0;
 
-    const CONCURRENT = 8;
-    let errorCount = 0;
-    let isMintingOver = false;
+  const CONCURRENT = 8;
+  let errorCount = 0;
+  let isMintingOver = false;
 
-    await Promise.all(
-      new Array(CONCURRENT).fill(null).map(async (_, i) => {
-        for (let j = 0; mintAmount.gtn(j + i); j += CONCURRENT) {
-          try {
-            await candyClient.mint({
-              candyMachine: {
-                address: candyState.address,
-                collectionMintAddress: candyState.collectionMintAddress,
-                candyGuard: candyState.candyGuard,
-              },
-              collectionUpdateAuthority: candyState.authorityAddress,
-            });
-          } catch {
-            errorCount++;
-            // Check if the mint is over
-            const newCandyState = await candyClient.findByAddress({
+  const logCondition = mintAmount.ltn(100);
+
+  await Promise.all(
+    new Array(CONCURRENT).fill(null).map(async (_, i) => {
+      for (let j = 0; mintAmount.gtn(j + i); j += CONCURRENT) {
+        try {
+          const { nft } = await candyClient.mint({
+            candyMachine: {
               address: candyState.address,
-            });
-            if (newCandyState.itemsRemaining.eqn(0)) {
-              isMintingOver = true;
-              break;
-            }
-          } finally {
-            progressCount++;
-            PgTerminal.setProgress(
-              (progressCount / mintAmount.toNumber()) * 100
+              collectionMintAddress: candyState.collectionMintAddress,
+              candyGuard: candyState.candyGuard,
+            },
+            collectionUpdateAuthority: candyState.authorityAddress,
+          });
+
+          if (logCondition) {
+            term.println(
+              PgTerminal.secondary(
+                `${Emoji.CONFETTI} Minted NFT${
+                  candyState.itemSettings.type === "hidden"
+                    ? ""
+                    : ` ${nft.name}`
+                }: ${PgTerminal.underline(
+                  PgCommon.getExplorerTokenUrl(nft.address.toBase58()).explorer
+                )} `
+              )
             );
           }
+        } catch {
+          errorCount++;
+          // Check if the mint is over
+          const newCandyState = await candyClient.findByAddress({
+            address: candyState.address,
+          });
+          if (newCandyState.itemsRemaining.eqn(0)) {
+            isMintingOver = true;
+            break;
+          }
+        } finally {
+          progressCount++;
+          PgTerminal.setProgress((progressCount / mintAmount.toNumber()) * 100);
         }
-      })
+      }
+    })
+  );
+
+  // Hide progress bar
+  setTimeout(() => PgTerminal.setProgress(0), 1000);
+
+  if (isMintingOver) {
+    term.println(PgTerminal.info("Minting is over!"));
+  }
+
+  if (errorCount) {
+    term.println(
+      `${PgTerminal.error(
+        "Some of the items failed to mint."
+      )} ${errorCount} items failed.`
     );
-
-    // Hide progress bar
-    setTimeout(() => PgTerminal.setProgress(0), 1000);
-
-    if (isMintingOver) {
-      term.println(PgTerminal.info("Minting is over!"));
-    }
-
-    if (errorCount) {
-      term.println(
-        `${PgTerminal.error(
-          "Some of the items failed to mint."
-        )} ${errorCount} items failed.`
-      );
-      throw new Error(
-        `${PgTerminal.error("Minted")} ${mintAmount
-          .subn(errorCount)
-          .toString()}/${mintAmount} ${PgTerminal.error("of the items")}`
-      );
-    }
+    throw new Error(
+      `${PgTerminal.error("Minted")} ${mintAmount
+        .subn(errorCount)
+        .toString()}/${mintAmount} ${PgTerminal.error("of the items")}`
+    );
   }
 };

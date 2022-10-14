@@ -42,7 +42,6 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
   const numItems = configData.size;
   const hidden = configData.hiddenSettings ? 1 : 0;
   const collectionInCache = cache.items["-1"] ? 1 : 0;
-  let itemsRedeemed = false;
 
   const cacheItemsSansCollection =
     Object.keys(cache.items).length - collectionInCache;
@@ -164,12 +163,9 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
     candyPubkey = new PublicKey(candyMachinePkStr);
 
     try {
-      const candyState = await candyClient.findByAddress({
+      await candyClient.findByAddress({
         address: candyPubkey,
       });
-      if (candyState.itemsMinted) {
-        itemsRedeemed = true;
-      }
     } catch {
       throw new Error("Candy machine from cache does't exist on chain!");
     }
@@ -178,8 +174,6 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
   term.println(
     `${PgTerminal.bold("Candy machine ID:")} ${candyPubkey.toBase58()}`
   );
-
-  console.log(itemsRedeemed);
 
   // Hidden Settings check needs to be the last action in this command, so that
   // we can update the hash with the final cache state.

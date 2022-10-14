@@ -179,7 +179,7 @@ export class PgTerminal {
       .replace(/^\s*\d+$/, (match) => this.secondary(match))
 
       // Progression [1/5]
-      .replace(/\[\d+\/\d+\]/, (match) => this.bold(match));
+      .replace(/\[\d+\/\d+\]/, (match) => this.bold(this.secondaryText(match)));
 
     return text;
   }
