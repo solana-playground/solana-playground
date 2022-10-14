@@ -32,11 +32,6 @@ export class PgSugar {
     await this._run(() => processCollectionSet(...args));
   }
 
-  static async collectionRemove(
-    rpcUrl: string | undefined,
-    candyMachine: string | undefined
-  ) {}
-
   static async createConfig(...args) {
     await this._run(() => processCreateConfig(...args));
   }
@@ -45,15 +40,31 @@ export class PgSugar {
     await this._run(() => processDeploy(...args));
   }
 
-  static async freezeDisable(
-    rpcUrl: string | undefined,
-    candyMachine: string | undefined
-  ) {}
-
-  static async freezeEnable(
+  static async guardAdd(
     rpcUrl: string | undefined,
     candyMachine: string | undefined,
-    freezeDays: number | undefined
+    candyGuard: string | undefined
+  ) {}
+
+  static async guardRemove(
+    rpcUrl: string | undefined,
+    candyMachine: string | undefined,
+    candyGuard: string | undefined
+  ) {}
+
+  static async guardShow(
+    rpcUrl: string | undefined,
+    candyGuard: string | undefined
+  ) {}
+
+  static async guardUpdate(
+    rpcUrl: string | undefined,
+    candyGuard: string | undefined
+  ) {}
+
+  static async guardWithdraw(
+    rpcUrl: string | undefined,
+    candyGuard: string | undefined
   ) {}
 
   static async hash(...args) {
@@ -79,18 +90,6 @@ export class PgSugar {
   static async sign(...args) {
     await this._run(() => processSign(...args));
   }
-
-  static async thaw(
-    rpcUrl: string | undefined,
-    all: boolean,
-    candyMachine: string | undefined,
-    nftMint: string | undefined
-  ) {}
-
-  static async unfreezeFunds(
-    rpcUrl: string | undefined,
-    candyMachine: string | undefined
-  ) {}
 
   static async update(...args) {
     await this._run(() => processUpdate(...args));

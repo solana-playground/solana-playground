@@ -16,24 +16,34 @@ extern "C" {
         collection_mint: String,
     );
 
-    #[wasm_bindgen(static_method_of = PgSugar, js_name = "collectionRemove")]
-    pub async fn collection_remove(rpc_url: Option<String>, candy_machine: Option<String>);
-
     #[wasm_bindgen(static_method_of = PgSugar, js_name = "createConfig")]
     pub async fn create_config(rpc_url: Option<String>);
 
     #[wasm_bindgen(static_method_of = PgSugar)]
     pub async fn deploy(rpc_url: Option<String>);
 
-    #[wasm_bindgen(static_method_of = PgSugar, js_name = "freezeDisable")]
-    pub async fn freeze_disable(rpc_url: Option<String>, candy_machine: Option<String>);
-
-    #[wasm_bindgen(static_method_of = PgSugar, js_name = "freezeEnable")]
-    pub async fn freeze_enable(
+    #[wasm_bindgen(static_method_of = PgSugar, js_name = "guardAdd")]
+    pub async fn guard_add(
         rpc_url: Option<String>,
         candy_machine: Option<String>,
-        freeze_days: Option<u8>,
+        candy_guard: Option<String>,
     );
+
+    #[wasm_bindgen(static_method_of = PgSugar, js_name = "guardRemove")]
+    pub async fn guard_remove(
+        rpc_url: Option<String>,
+        candy_machine: Option<String>,
+        candy_guard: Option<String>,
+    );
+
+    #[wasm_bindgen(static_method_of = PgSugar, js_name = "guardShow")]
+    pub async fn guard_show(rpc_url: Option<String>, candy_guard: Option<String>);
+
+    #[wasm_bindgen(static_method_of = PgSugar, js_name = "guardUpdate")]
+    pub async fn guard_update(rpc_url: Option<String>, candy_guard: Option<String>);
+
+    #[wasm_bindgen(static_method_of = PgSugar, js_name = "guardWithdraw")]
+    pub async fn guard_withdraw(rpc_url: Option<String>, candy_guard: Option<String>);
 
     #[wasm_bindgen(static_method_of = PgSugar)]
     pub async fn hash(compare: Option<String>);
@@ -61,17 +71,6 @@ extern "C" {
         mint: Option<String>,
         candy_machine_id: Option<String>,
     );
-
-    #[wasm_bindgen(static_method_of = PgSugar)]
-    pub async fn thaw(
-        rpc_url: Option<String>,
-        all: bool,
-        candy_machine: Option<String>,
-        nft_mint: Option<String>,
-    );
-
-    #[wasm_bindgen(static_method_of = PgSugar, js_name = "unfreezeFunds")]
-    pub async fn unfreeze_funds(rpc_url: Option<String>, candy_machine: Option<String>);
 
     #[wasm_bindgen(static_method_of = PgSugar)]
     pub async fn update(

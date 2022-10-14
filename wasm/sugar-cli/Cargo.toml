@@ -1,6 +1,6 @@
 [package]
 name = "sugar-cli-wasm"
-version = "1.0.0"
+version = "1.1.0-alpha+CMv3"
 description = "Command line tool for creating and managing Metaplex Candy Machines."
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"

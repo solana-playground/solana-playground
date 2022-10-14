@@ -4,7 +4,7 @@
     "Acheron <acheroncrypto@gmail.com>"
   ],
   "description": "Command line tool for creating and managing Metaplex Candy Machines.",
-  "version": "1.0.0",
+  "version": "1.1.0-alpha+CMv3",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",

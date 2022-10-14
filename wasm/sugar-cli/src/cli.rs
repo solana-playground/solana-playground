@@ -3,10 +3,6 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[clap(name = "sugar-cli", version, about)]
 pub struct Cli {
-    /// Log level: trace, debug, info, warn, error, off
-    #[clap(short, long, global = true)]
-    pub log_level: Option<String>,
-
     #[clap(subcommand)]
     pub command: Commands,
 }
@@ -43,10 +39,10 @@ pub enum Commands {
         rpc_url: Option<String>,
     },
 
-    /// Commands for the Candy Machine Freeze feature
-    Freeze {
+    /// Manage guards on the candy machine
+    Guard {
         #[clap(subcommand)]
-        command: FreezeSubcommands,
+        command: GuardCommand,
     },
 
     /// Generate hash of cache file for hidden settings.
@@ -126,34 +122,6 @@ pub enum Commands {
         candy_machine_id: Option<String>,
     },
 
-    /// Thaw a NFT or all NFTs in a candy machine.
-    Thaw {
-        /// RPC Url
-        #[clap(short, long)]
-        rpc_url: Option<String>,
-
-        /// Unthaw all NFTs in the candy machine.
-        #[clap(long)]
-        all: bool,
-
-        /// Address of candy machine to update [defaults to cache value].
-        #[clap(long)]
-        candy_machine: Option<String>,
-
-        /// Address of the NFT to thaw.
-        nft_mint: Option<String>,
-    },
-
-    /// Unlock treasury funds after freeze is turned off or expires.
-    UnfreezeFunds {
-        /// RPC Url
-        #[clap(short, long)]
-        rpc_url: Option<String>,
-
-        /// Address of candy machine to update.
-        candy_machine: Option<String>,
-    },
-
     /// Update the candy machine config on-chain
     Update {
         /// RPC Url
@@ -194,7 +162,7 @@ pub enum Commands {
         rpc_url: Option<String>,
     },
 
-    /// Withdraw funds from candy machine account closing it
+    /// Withdraw funds from candy machine account by closing it
     Withdraw {
         /// Address of candy machine to withdraw funds from.
         #[clap(long)]
@@ -233,43 +201,66 @@ pub enum CollectionSubcommands {
         /// Address of collection mint to set the candy machine to.
         collection_mint: String,
     },
+}
 
-    /// Remove the collection from the candy machine
+#[derive(Subcommand)]
+pub enum GuardCommand {
+    /// Add a candy guard on a candy machine
+    Add {
+        /// RPC Url
+        #[clap(short, long)]
+        rpc_url: Option<String>,
+
+        /// Address of the candy machine.
+        #[clap(long)]
+        candy_machine: Option<String>,
+
+        /// Address of the candy guard.
+        #[clap(long)]
+        candy_guard: Option<String>,
+    },
+    /// Remove a candy guard from a candy machine
     Remove {
         /// RPC Url
         #[clap(short, long)]
         rpc_url: Option<String>,
 
-        /// Address of candy machine to update.
+        /// Address of the candy machine.
         #[clap(long)]
         candy_machine: Option<String>,
-    },
-}
 
-#[derive(Subcommand)]
-pub enum FreezeSubcommands {
-    /// Disable freeze feature in a candy machine.
-    Disable {
+        /// Address of the candy guard.
+        #[clap(long)]
+        candy_guard: Option<String>,
+    },
+    /// Show the on-chain config of an existing candy guard
+    Show {
         /// RPC Url
         #[clap(short, long)]
         rpc_url: Option<String>,
 
-        /// Address of candy machine to update.
+        /// Address of the candy guard.
         #[clap(long)]
-        candy_machine: Option<String>,
+        candy_guard: Option<String>,
     },
-
-    /// Enable freeze feature for a candy machine that has not started minting yet.
-    Enable {
+    /// Update the configuration of a candy guard
+    Update {
         /// RPC Url
         #[clap(short, long)]
         rpc_url: Option<String>,
 
-        /// Address of candy machine to update.
+        /// Address of the candy guard.
         #[clap(long)]
-        candy_machine: Option<String>,
+        candy_guard: Option<String>,
+    },
+    /// Withdraw funds from a candy guard account closing it
+    Withdraw {
+        /// RPC Url
+        #[clap(short, long)]
+        rpc_url: Option<String>,
 
-        /// Number of days to freeze the candy machine for. Max: 30.
-        freeze_days: Option<u8>,
+        /// Address of the candy guard.
+        #[clap(long)]
+        candy_guard: Option<String>,
     },
 }

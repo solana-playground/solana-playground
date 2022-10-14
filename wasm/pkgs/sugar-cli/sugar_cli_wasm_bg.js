@@ -247,7 +247,7 @@ export function __wbindgen_cb_drop(arg0) {
     return ret;
 };
 
-export function __wbg_bundlr_93cbffdb37da2896(arg0, arg1, arg2) {
+export function __wbg_bundlr_60c9c738b15ac9b8(arg0, arg1, arg2) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -257,22 +257,7 @@ export function __wbg_bundlr_93cbffdb37da2896(arg0, arg1, arg2) {
     return addHeapObject(ret);
 };
 
-export function __wbg_collectionRemove_30411366eb77f104(arg0, arg1, arg2, arg3) {
-    let v0;
-    if (arg0 !== 0) {
-        v0 = getStringFromWasm0(arg0, arg1).slice();
-        wasm.__wbindgen_free(arg0, arg1 * 1);
-    }
-    let v1;
-    if (arg2 !== 0) {
-        v1 = getStringFromWasm0(arg2, arg3).slice();
-        wasm.__wbindgen_free(arg2, arg3 * 1);
-    }
-    const ret = PgSugar.collectionRemove(v0, v1);
-    return addHeapObject(ret);
-};
-
-export function __wbg_collectionSet_4f7b250c0835ae40(arg0, arg1, arg2, arg3, arg4, arg5) {
+export function __wbg_collectionSet_e63ad951c632557e(arg0, arg1, arg2, arg3, arg4, arg5) {
     try {
         let v0;
         if (arg0 !== 0) {
@@ -291,7 +276,7 @@ export function __wbg_collectionSet_4f7b250c0835ae40(arg0, arg1, arg2, arg3, arg
     }
 };
 
-export function __wbg_createConfig_387cba836d8b902d(arg0, arg1) {
+export function __wbg_createConfig_8b8d067206a41e76(arg0, arg1) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -301,7 +286,7 @@ export function __wbg_createConfig_387cba836d8b902d(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-export function __wbg_deploy_c7061f009c2046e9(arg0, arg1) {
+export function __wbg_deploy_02e04cc4cb28c426(arg0, arg1) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -311,7 +296,7 @@ export function __wbg_deploy_c7061f009c2046e9(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-export function __wbg_freezeDisable_9e98511f5895d025(arg0, arg1, arg2, arg3) {
+export function __wbg_guardAdd_758ee826f0c1b5bf(arg0, arg1, arg2, arg3, arg4, arg5) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -322,11 +307,16 @@ export function __wbg_freezeDisable_9e98511f5895d025(arg0, arg1, arg2, arg3) {
         v1 = getStringFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 1);
     }
-    const ret = PgSugar.freezeDisable(v0, v1);
+    let v2;
+    if (arg4 !== 0) {
+        v2 = getStringFromWasm0(arg4, arg5).slice();
+        wasm.__wbindgen_free(arg4, arg5 * 1);
+    }
+    const ret = PgSugar.guardAdd(v0, v1, v2);
     return addHeapObject(ret);
 };
 
-export function __wbg_freezeEnable_71a7b84d4c9fc9ca(arg0, arg1, arg2, arg3, arg4) {
+export function __wbg_guardRemove_e5bdb238f6e91b65(arg0, arg1, arg2, arg3, arg4, arg5) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -337,11 +327,61 @@ export function __wbg_freezeEnable_71a7b84d4c9fc9ca(arg0, arg1, arg2, arg3, arg4
         v1 = getStringFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 1);
     }
-    const ret = PgSugar.freezeEnable(v0, v1, arg4 === 0xFFFFFF ? undefined : arg4);
+    let v2;
+    if (arg4 !== 0) {
+        v2 = getStringFromWasm0(arg4, arg5).slice();
+        wasm.__wbindgen_free(arg4, arg5 * 1);
+    }
+    const ret = PgSugar.guardRemove(v0, v1, v2);
     return addHeapObject(ret);
 };
 
-export function __wbg_hash_e98cf4a1cbeaea5c(arg0, arg1) {
+export function __wbg_guardShow_8598cc7634ab4a66(arg0, arg1, arg2, arg3) {
+    let v0;
+    if (arg0 !== 0) {
+        v0 = getStringFromWasm0(arg0, arg1).slice();
+        wasm.__wbindgen_free(arg0, arg1 * 1);
+    }
+    let v1;
+    if (arg2 !== 0) {
+        v1 = getStringFromWasm0(arg2, arg3).slice();
+        wasm.__wbindgen_free(arg2, arg3 * 1);
+    }
+    const ret = PgSugar.guardShow(v0, v1);
+    return addHeapObject(ret);
+};
+
+export function __wbg_guardUpdate_dbdd7facd1ec2a44(arg0, arg1, arg2, arg3) {
+    let v0;
+    if (arg0 !== 0) {
+        v0 = getStringFromWasm0(arg0, arg1).slice();
+        wasm.__wbindgen_free(arg0, arg1 * 1);
+    }
+    let v1;
+    if (arg2 !== 0) {
+        v1 = getStringFromWasm0(arg2, arg3).slice();
+        wasm.__wbindgen_free(arg2, arg3 * 1);
+    }
+    const ret = PgSugar.guardUpdate(v0, v1);
+    return addHeapObject(ret);
+};
+
+export function __wbg_guardWithdraw_6d2fc48e05980bbc(arg0, arg1, arg2, arg3) {
+    let v0;
+    if (arg0 !== 0) {
+        v0 = getStringFromWasm0(arg0, arg1).slice();
+        wasm.__wbindgen_free(arg0, arg1 * 1);
+    }
+    let v1;
+    if (arg2 !== 0) {
+        v1 = getStringFromWasm0(arg2, arg3).slice();
+        wasm.__wbindgen_free(arg2, arg3 * 1);
+    }
+    const ret = PgSugar.guardWithdraw(v0, v1);
+    return addHeapObject(ret);
+};
+
+export function __wbg_hash_3aa60e250cbd2c7a(arg0, arg1) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -351,7 +391,7 @@ export function __wbg_hash_e98cf4a1cbeaea5c(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-export function __wbg_launch_bc9030b1b808941b(arg0, arg1, arg2, arg3) {
+export function __wbg_launch_422fba51200f13ab(arg0, arg1, arg2, arg3) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -361,7 +401,7 @@ export function __wbg_launch_bc9030b1b808941b(arg0, arg1, arg2, arg3) {
     return addHeapObject(ret);
 };
 
-export function __wbg_mint_f63e933eff4ad4b5(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
+export function __wbg_mint_a73d3c9c391e1414(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -384,7 +424,7 @@ export function __wbg_mint_f63e933eff4ad4b5(arg0, arg1, arg2, arg3, arg4, arg5, 
     return addHeapObject(ret);
 };
 
-export function __wbg_reveal_9cd8cb2453bacc8b(arg0, arg1) {
+export function __wbg_reveal_8c56c68c61bf33ae(arg0, arg1) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -394,7 +434,7 @@ export function __wbg_reveal_9cd8cb2453bacc8b(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-export function __wbg_show_6c1430f2e4e56c28(arg0, arg1, arg2, arg3, arg4) {
+export function __wbg_show_d67c349fd7dc542a(arg0, arg1, arg2, arg3, arg4) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -409,7 +449,7 @@ export function __wbg_show_6c1430f2e4e56c28(arg0, arg1, arg2, arg3, arg4) {
     return addHeapObject(ret);
 };
 
-export function __wbg_sign_b89f4bb87fadf2f0(arg0, arg1, arg2, arg3, arg4, arg5) {
+export function __wbg_sign_fcb8014354d3aa0e(arg0, arg1, arg2, arg3, arg4, arg5) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -429,42 +469,7 @@ export function __wbg_sign_b89f4bb87fadf2f0(arg0, arg1, arg2, arg3, arg4, arg5) 
     return addHeapObject(ret);
 };
 
-export function __wbg_thaw_245a962fd92741a6(arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
-    let v0;
-    if (arg0 !== 0) {
-        v0 = getStringFromWasm0(arg0, arg1).slice();
-        wasm.__wbindgen_free(arg0, arg1 * 1);
-    }
-    let v1;
-    if (arg3 !== 0) {
-        v1 = getStringFromWasm0(arg3, arg4).slice();
-        wasm.__wbindgen_free(arg3, arg4 * 1);
-    }
-    let v2;
-    if (arg5 !== 0) {
-        v2 = getStringFromWasm0(arg5, arg6).slice();
-        wasm.__wbindgen_free(arg5, arg6 * 1);
-    }
-    const ret = PgSugar.thaw(v0, arg2 !== 0, v1, v2);
-    return addHeapObject(ret);
-};
-
-export function __wbg_unfreezeFunds_ee7c3566edb44d8c(arg0, arg1, arg2, arg3) {
-    let v0;
-    if (arg0 !== 0) {
-        v0 = getStringFromWasm0(arg0, arg1).slice();
-        wasm.__wbindgen_free(arg0, arg1 * 1);
-    }
-    let v1;
-    if (arg2 !== 0) {
-        v1 = getStringFromWasm0(arg2, arg3).slice();
-        wasm.__wbindgen_free(arg2, arg3 * 1);
-    }
-    const ret = PgSugar.unfreezeFunds(v0, v1);
-    return addHeapObject(ret);
-};
-
-export function __wbg_update_28595f6b3fdaf69d(arg0, arg1, arg2, arg3, arg4, arg5) {
+export function __wbg_update_e3bdfab719414de6(arg0, arg1, arg2, arg3, arg4, arg5) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -484,7 +489,7 @@ export function __wbg_update_28595f6b3fdaf69d(arg0, arg1, arg2, arg3, arg4, arg5
     return addHeapObject(ret);
 };
 
-export function __wbg_upload_ad22baf4d4325922(arg0, arg1) {
+export function __wbg_upload_f3d664cd9980fb8f(arg0, arg1) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -494,12 +499,12 @@ export function __wbg_upload_ad22baf4d4325922(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-export function __wbg_validate_1238b3a3b34c5401(arg0, arg1) {
+export function __wbg_validate_2ef96db434bb7344(arg0, arg1) {
     const ret = PgSugar.validate(arg0 !== 0, arg1 !== 0);
     return addHeapObject(ret);
 };
 
-export function __wbg_verify_e56742aee62d45d2(arg0, arg1) {
+export function __wbg_verify_9af2f77f95541d06(arg0, arg1) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -509,7 +514,7 @@ export function __wbg_verify_e56742aee62d45d2(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-export function __wbg_withdraw_e90a191bc259d3a2(arg0, arg1, arg2, arg3, arg4) {
+export function __wbg_withdraw_70a7b2b61de2c302(arg0, arg1, arg2, arg3, arg4) {
     let v0;
     if (arg0 !== 0) {
         v0 = getStringFromWasm0(arg0, arg1).slice();
@@ -579,8 +584,8 @@ export function __wbindgen_throw(arg0, arg1) {
     throw new Error(getStringFromWasm0(arg0, arg1));
 };
 
-export function __wbindgen_closure_wrapper147(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 52, __wbg_adapter_10);
+export function __wbindgen_closure_wrapper142(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 50, __wbg_adapter_10);
     return addHeapObject(ret);
 };
 

@@ -2390,7 +2390,7 @@
   version "2.0.15"
 
 "@solana-playground/sugar-cli-wasm@../wasm/pkgs/sugar-cli":
-  version "1.0.0"
+  version "1.1.0-alpha"
 
 "@solana/buffer-layout-utils@^0.2.0":
   version "0.2.0"

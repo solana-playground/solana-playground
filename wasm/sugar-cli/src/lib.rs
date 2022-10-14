@@ -25,10 +25,6 @@ pub async fn run_sugar(cmd: String) {
             }
 
             Commands::Collection { command } => match command {
-                CollectionSubcommands::Remove {
-                    rpc_url,
-                    candy_machine,
-                } => PgSugar::collection_remove(rpc_url, candy_machine).await,
                 CollectionSubcommands::Set {
                     rpc_url,
                     candy_machine,
@@ -40,16 +36,29 @@ pub async fn run_sugar(cmd: String) {
 
             Commands::Deploy { rpc_url } => PgSugar::deploy(rpc_url).await,
 
-            Commands::Freeze { command } => match command {
-                FreezeSubcommands::Disable {
+            Commands::Guard { command } => match command {
+                GuardCommand::Add {
                     rpc_url,
                     candy_machine,
-                } => PgSugar::freeze_disable(rpc_url, candy_machine).await,
-                FreezeSubcommands::Enable {
+                    candy_guard,
+                } => PgSugar::guard_add(rpc_url, candy_machine, candy_guard).await,
+                GuardCommand::Remove {
                     rpc_url,
                     candy_machine,
-                    freeze_days,
-                } => PgSugar::freeze_enable(rpc_url, candy_machine, freeze_days).await,
+                    candy_guard,
+                } => PgSugar::guard_remove(rpc_url, candy_machine, candy_guard).await,
+                GuardCommand::Show {
+                    rpc_url,
+                    candy_guard,
+                } => PgSugar::guard_show(rpc_url, candy_guard).await,
+                GuardCommand::Update {
+                    rpc_url,
+                    candy_guard,
+                } => PgSugar::guard_update(rpc_url, candy_guard).await,
+                GuardCommand::Withdraw {
+                    rpc_url,
+                    candy_guard,
+                } => PgSugar::guard_withdraw(rpc_url, candy_guard).await,
             },
 
             Commands::Hash { compare } => PgSugar::hash(compare).await,
@@ -80,18 +89,6 @@ pub async fn run_sugar(cmd: String) {
                 mint,
                 candy_machine_id,
             } => PgSugar::sign(rpc_url, mint, candy_machine_id).await,
-
-            Commands::Thaw {
-                rpc_url,
-                all,
-                candy_machine,
-                nft_mint,
-            } => PgSugar::thaw(rpc_url, all, candy_machine, nft_mint).await,
-
-            Commands::UnfreezeFunds {
-                rpc_url,
-                candy_machine,
-            } => PgSugar::unfreeze_funds(rpc_url, candy_machine).await,
 
             Commands::Update {
                 rpc_url,
