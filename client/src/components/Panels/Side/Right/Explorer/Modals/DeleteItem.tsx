@@ -29,7 +29,14 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   if (!itemName) return null;
 
   return (
-    <ModalInside title buttonProps={{ name: "Delete", onSubmit: deleteItem }}>
+    <ModalInside
+      title
+      buttonProps={{
+        name: "Delete",
+        onSubmit: deleteItem,
+        closeOnSubmit: true,
+      }}
+    >
       <Content>
         <Icon>
           <Warning fullSize />

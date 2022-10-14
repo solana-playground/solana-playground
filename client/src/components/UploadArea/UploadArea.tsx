@@ -32,7 +32,7 @@ const UploadArea: FC<UploadAreaProps> = ({ onDrop, error, filesLength }) => {
 
 const Wrapper = styled.div<{ isDragActive: boolean }>`
   ${({ theme, isDragActive }) => css`
-    margin: 1.5rem 0 0.5rem 0;
+    margin: 1rem 0 0.5rem 0;
     padding: 2rem;
     display: flex;
     justify-content: center;

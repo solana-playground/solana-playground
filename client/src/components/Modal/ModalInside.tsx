@@ -6,24 +6,23 @@ import useModal from "./useModal";
 import { PROJECT_NAME } from "../../constants";
 
 interface ModalInsideProps {
-  title?: boolean | string;
   buttonProps?: {
     name: string;
-    onSubmit: () => void;
     disabled?: boolean;
     loading?: {
       state?: boolean;
       text?: string;
     };
     size?: ButtonSize;
+    onSubmit: () => void;
+    closeOnSubmit?: boolean;
   };
-  closeOnSubmit?: boolean;
+  title?: boolean | string;
 }
 
 const ModalInside: FC<ModalInsideProps> = ({
   title,
   buttonProps,
-  closeOnSubmit = true,
   children,
 }) => {
   const { close } = useModal();
@@ -32,8 +31,8 @@ const ModalInside: FC<ModalInsideProps> = ({
     if (!buttonProps) return;
 
     buttonProps.onSubmit();
-    if (closeOnSubmit) close();
-  }, [buttonProps, closeOnSubmit, close]);
+    if (buttonProps.closeOnSubmit) close();
+  }, [buttonProps, close]);
 
   // Submit on Enter
   useEffect(() => {
@@ -75,7 +74,7 @@ const ModalInside: FC<ModalInsideProps> = ({
           </Button>
         </ButtonWrapper>
       )}
-      <FocusButton ref={focusButtonRef} style={{}} />
+      <FocusButton ref={focusButtonRef} />
     </Wrapper>
   );
 };
@@ -103,7 +102,7 @@ const Title = styled.div`
 const ButtonWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 0.75rem;
+  margin: 0.75rem 0;
 
   & button:nth-child(2) {
     margin-left: 1rem;

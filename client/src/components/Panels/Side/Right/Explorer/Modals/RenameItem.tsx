@@ -60,7 +60,6 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
         size: "small",
         disabled: disableCond,
       }}
-      closeOnSubmit={false}
     >
       <Content>
         <Text>Rename '{itemName}'</Text>

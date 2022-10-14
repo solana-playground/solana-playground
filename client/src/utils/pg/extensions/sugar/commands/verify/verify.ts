@@ -133,10 +133,13 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
       term.println(
         [
           `\nVerification successful. You're good to go!\n\nSee your candy machine at:\n`,
-          `  -> https://www.solaneyes.com/address/${
-            cache.program.candyMachine
-          }?cluster=${cluster === "devnet" ? cluster : "mainnet"}`,
-        ].join("")
+          `  -> ${PgTerminal.underline(
+            `https://www.solaneyes.com/address/${
+              cache.program.candyMachine
+            }?cluster=${cluster === "devnet" ? cluster : "mainnet"}`
+          )}`,
+        ].join(""),
+        { noColor: true }
       );
     }
   }

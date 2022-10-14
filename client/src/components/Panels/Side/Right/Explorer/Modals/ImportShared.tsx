@@ -48,7 +48,6 @@ export const ImportShared = () => {
         onSubmit: importNewWorkspace,
         disabled: !name,
       }}
-      closeOnSubmit={false}
     >
       <Content>
         <MainText>Project name</MainText>

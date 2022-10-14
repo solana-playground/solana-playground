@@ -54,7 +54,6 @@ export const RenameWorkspace = () => {
         size: "small",
       }}
       title={`Rename workspace '${workspaceName}'`}
-      closeOnSubmit={false}
     >
       <Content>
         {error && <ErrorText>{error}</ErrorText>}

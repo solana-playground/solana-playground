@@ -74,10 +74,10 @@ export const processMint = async (
           if (logCondition) {
             term.println(
               PgTerminal.secondary(
-                `${Emoji.CONFETTI} Minted NFT${
+                `${Emoji.CONFETTI} Minted ${
                   candyState.itemSettings.type === "hidden"
-                    ? ""
-                    : ` ${nft.name}`
+                    ? "NFT"
+                    : `${nft.name}`
                 }: ${PgTerminal.underline(
                   PgCommon.getExplorerTokenUrl(nft.address.toBase58()).explorer
                 )} `

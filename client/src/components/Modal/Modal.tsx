@@ -19,9 +19,11 @@ const Modal = () => {
     ).send;
 
     // Set modal from custom event
-    const handleModalSet = (e: UIEvent & { detail: { el: ComponentType } }) => {
+    const handleModalSet = (
+      e: UIEvent & { detail: { el: ComponentType; props: object } }
+    ) => {
       const El = e.detail.el;
-      El ? setModal(<El />) : close();
+      El ? setModal(<El {...e.detail.props} />) : close();
     };
 
     // Close modal on ESC

@@ -52,7 +52,9 @@ type GetAssetPairsResult = { assetPairs: [number, AssetPair][]; files: File[] };
 const COLLECTION_FILENAME = "collection";
 
 export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
-  const files = await PgModal.set<File[]>(SugarUploadScreen);
+  const files = await PgModal.set<File[]>(SugarUploadScreen, {
+    title: "Upload Assets",
+  });
   if (!files) throw new Error("You haven't selected files.");
 
   // Sort files based on their name

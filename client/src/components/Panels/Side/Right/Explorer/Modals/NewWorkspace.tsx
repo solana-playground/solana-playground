@@ -69,7 +69,6 @@ export const NewWorkspace = () => {
         onSubmit: newWorkspace,
         disabled: disableCond,
       }}
-      closeOnSubmit={false}
     >
       <Content>
         <WorkspaceNameWrapper>

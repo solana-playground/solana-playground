@@ -75,6 +75,7 @@ const NewKeypairModal = () => {
       buttonProps={{
         name: "Generate",
         onSubmit: generateNewKeypair,
+        closeOnSubmit: true,
       }}
     >
       <Content>

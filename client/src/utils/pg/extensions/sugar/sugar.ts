@@ -8,6 +8,7 @@ import {
   processCreateConfig,
   processDeploy,
   processHash,
+  processLaunch,
   processMint,
   processReveal,
   processShow,
@@ -59,11 +60,9 @@ export class PgSugar {
     await this._run(() => processHash(...args));
   }
 
-  static async launch(
-    rpcUrl: string | undefined,
-    strict: boolean,
-    skipCollectionPrompt: boolean
-  ) {}
+  static async launch(...args) {
+    await this._run(() => processLaunch(...args));
+  }
 
   static async mint(...args) {
     await this._run(() => processMint(...args));

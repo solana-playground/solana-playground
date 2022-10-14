@@ -57,7 +57,6 @@ export const ImportGithub = () => {
           text: "Importing...",
         },
       }}
-      closeOnSubmit={false}
       title
     >
       <Content>

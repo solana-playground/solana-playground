@@ -57,7 +57,11 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
   return (
     <ModalInside
       title="Playground Wallet"
-      buttonProps={{ name: "Continue", onSubmit: handleSetup }}
+      buttonProps={{
+        name: "Continue",
+        onSubmit: handleSetup,
+        closeOnSubmit: true,
+      }}
     >
       <InsideWrapper>
         <Content>

@@ -1,11 +1,16 @@
-import { useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
+import styled from "styled-components";
 
 import ModalInside from "../../../../../../components/Modal/ModalInside";
 import useModal from "../../../../../../components/Modal/useModal";
 import UploadArea from "../../../../../../components/UploadArea";
 import { PgCommon } from "../../../../common";
 
-export const SugarUploadScreen = () => {
+interface SugarUploadScreenProps {
+  title: string;
+}
+
+export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
   const { close } = useModal();
 
   const [files, setFiles] = useState<FileList>();
@@ -32,9 +37,22 @@ export const SugarUploadScreen = () => {
         disabled: !files || files.length % 2 === 1,
         onSubmit: () => close(files),
       }}
-      closeOnSubmit={false}
     >
-      <UploadArea onDrop={onDrop} error={error} filesLength={files?.length} />
+      <Title>{title}</Title>
+      <UploadWrapper>
+        <UploadArea onDrop={onDrop} error={error} filesLength={files?.length} />
+      </UploadWrapper>
     </ModalInside>
   );
 };
+
+const Title = styled.div`
+  margin-top: 0.75rem;
+  margin-bottom: -0.25rem;
+  text-align: center;
+  font-weight: bold;
+`;
+
+const UploadWrapper = styled.div`
+  margin-bottom: 1rem;
+`;

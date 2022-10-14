@@ -3,6 +3,7 @@ export * from "./collection";
 export * from "./create-config";
 export * from "./deploy";
 export * from "./hash";
+export * from "./launch";
 export * from "./mint";
 export * from "./reveal";
 export * from "./show";

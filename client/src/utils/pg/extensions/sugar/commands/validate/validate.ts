@@ -23,7 +23,9 @@ export const processValidate = async (
 
   term.println(`[1/1] ${Emoji.ASSETS} Loading assets`);
 
-  const files = await PgModal.set<File[]>(SugarUploadScreen);
+  const files = await PgModal.set<File[]>(SugarUploadScreen, {
+    title: "Validate Assets",
+  });
   if (!files) throw new Error("You haven't selected files.");
   // Sort files based on their name
   files.sort((a, b) => a.name.localeCompare(b.name));

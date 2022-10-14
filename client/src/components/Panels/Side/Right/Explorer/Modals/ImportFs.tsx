@@ -91,7 +91,6 @@ export const ImportFs = () => {
         onSubmit: importNewWorkspace,
         disabled: disableCond,
       }}
-      closeOnSubmit={false}
     >
       <Content>
         <WorkspaceNameWrapper>
@@ -122,6 +121,8 @@ const Content = styled.div`
 `;
 
 const WorkspaceNameWrapper = styled.div`
+  margin-bottom: 0.5rem;
+
   & > input {
     font-size: ${({ theme }) => theme.font?.size.medium};
     padding: 0.375rem 0.5rem;

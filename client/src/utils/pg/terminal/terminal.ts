@@ -607,16 +607,6 @@ export class PgTerm {
   }
 
   /**
-   * Run the line as command
-   */
-  runCommand(line: string) {
-    if (this._pgShell.isPrompting()) {
-      this._pgTty.setInput(line);
-      this._pgShell.handleReadComplete();
-    }
-  }
-
-  /**
    * Moves the command line to the top of the terminal screen
    *
    * This function does not clear previous history.
