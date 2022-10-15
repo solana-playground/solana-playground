@@ -2,7 +2,7 @@ import { GITHUB_URL } from "../../../constants";
 import { PgTerminal } from "./terminal";
 
 export interface Pkgs {
-  compileSeahorse?: (pythonSource: string, programName: string) => string;
+  compileSeahorse?: (pythonSource: string, programName: string) => string[];
   runSolana?: (
     arg: string,
     endpoint: string,
