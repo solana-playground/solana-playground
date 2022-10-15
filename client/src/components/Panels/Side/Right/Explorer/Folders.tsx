@@ -46,13 +46,17 @@ const Folders = () => {
 
   const ctxMenu = useExplorerContextMenu();
 
-  if (!explorer) return null;
-
   // No need to memoize here
-  const relativeRootPath = !explorer.isShared
-    ? explorer.currentWorkspacePath
+  const relativeRootPath = !explorer!.isShared
+    ? explorer!.currentWorkspacePath
     : "/";
-  const relativeRootDir = explorer.getFolderContent(relativeRootPath);
+  const relativeRootDir = explorer!.getFolderContent(relativeRootPath);
+  const otherFolders = relativeRootDir.folders.filter(
+    (f) =>
+      f !== PgExplorer.PATHS.SRC_DIRNAME &&
+      f !== PgExplorer.PATHS.CLIENT_DIRNAME &&
+      f !== PgExplorer.PATHS.TESTS_DIRNAME
+  );
 
   return (
     <RootWrapper
@@ -61,6 +65,7 @@ const Folders = () => {
       ref={rootRef}
       onContextMenu={ctxMenu.handleMenu}
     >
+      {/* Program */}
       <SectionTopWrapper>
         <SectionHeader>Program</SectionHeader>
         <Button onClick={ctxMenu.runBuild} kind="icon">
@@ -68,23 +73,16 @@ const Folders = () => {
           <BuildButtonText>Build</BuildButtonText>
         </Button>
       </SectionTopWrapper>
-      {relativeRootDir.folders
-        .filter((f) => f === PgExplorer.PATHS.SRC_DIRNAME)
-        .map((f, i) => {
-          const path = relativeRootPath + f + "/";
-          const folder = explorer.getFolderContent(path);
+      <FolderGroup
+        folders={relativeRootDir.folders.filter(
+          (f) => f === PgExplorer.PATHS.SRC_DIRNAME
+        )}
+        relativeRootPath={relativeRootPath}
+      />
 
-          return (
-            <RFolder
-              key={i}
-              path={path}
-              folders={folder.folders}
-              files={folder.files}
-            />
-          );
-        })}
-
-      {relativeRootDir.folders.length > 1 && (
+      {/* Client and tests */}
+      {(relativeRootDir.folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ||
+        relativeRootDir.folders.includes(PgExplorer.PATHS.TESTS_DIRNAME)) && (
         <SectionTopWrapper>
           <SectionHeader>Client</SectionHeader>
           {relativeRootDir.folders.includes(
@@ -111,12 +109,43 @@ const Folders = () => {
           )}
         </SectionTopWrapper>
       )}
-      {relativeRootDir.folders
+      <FolderGroup
+        folders={relativeRootDir.folders.filter(
+          (f) =>
+            f === PgExplorer.PATHS.CLIENT_DIRNAME ||
+            f === PgExplorer.PATHS.TESTS_DIRNAME
+        )}
+        relativeRootPath={relativeRootPath}
+      />
+
+      {/* Other */}
+      {otherFolders.length && (
+        <SectionTopWrapper>
+          <SectionHeader>Other</SectionHeader>
+        </SectionTopWrapper>
+      )}
+      <FolderGroup folders={otherFolders} relativeRootPath={relativeRootPath} />
+
+      <ExplorerContextMenu {...ctxMenu} />
+    </RootWrapper>
+  );
+};
+
+interface FolderGroupProps {
+  folders: string[];
+  relativeRootPath: string;
+}
+
+const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => {
+  const [explorer] = useAtom(explorerAtom);
+
+  return (
+    <>
+      {folders
         .sort((x, y) => x.localeCompare(y))
-        .filter((f) => f !== PgExplorer.PATHS.SRC_DIRNAME)
         .map((f, i) => {
           const path = relativeRootPath + f + "/";
-          const folder = explorer.getFolderContent(path);
+          const folder = explorer!.getFolderContent(path);
 
           return (
             <RFolder
@@ -127,9 +156,7 @@ const Folders = () => {
             />
           );
         })}
-
-      <ExplorerContextMenu {...ctxMenu} />
-    </RootWrapper>
+    </>
   );
 };
 
@@ -328,19 +355,23 @@ const FolderInsideWrapper = styled.div`
 `;
 
 const StyledFolder = styled(Folder)`
-  & span {
-    color: ${({ theme }) => theme.colors.default.primary};
-    margin-left: 0.5rem;
-  }
+  ${({ theme }) => css`
+    & span {
+      color: ${theme.colors.default.primary};
+      margin-left: 0.5rem;
+    }
 
-  & svg {
-    width: 0.875rem;
-    height: 0.875rem;
-  }
+    & svg {
+      width: 0.875rem;
+      height: 0.875rem;
+      transition: transform ${theme.transition?.duration.short}
+        ${theme.transition?.type};
+    }
 
-  &.${ClassName.OPEN} svg {
-    transform: rotate(90deg);
-  }
+    &.${ClassName.OPEN} svg {
+      transform: rotate(90deg);
+    }
+  `}
 `;
 
 const StyledFile = styled(File)`
