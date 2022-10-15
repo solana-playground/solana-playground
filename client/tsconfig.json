@@ -17,5 +17,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
-  "exclude": ["/**/*.raw.d.ts"]
+  "exclude": ["/**/*.raw.d.ts", "/**/declarations/packages/"]
 }

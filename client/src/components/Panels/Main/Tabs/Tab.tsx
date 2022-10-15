@@ -96,6 +96,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
 
 const Name = styled.span`
   margin-left: 0.375rem;
+  white-space: nowrap;
 `;
 
 export default Tab;

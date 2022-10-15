@@ -277,7 +277,6 @@ const CodeMirror = () => {
 
       // Save top line number
       topLineIntervalId = setInterval(() => {
-        console.log("run");
         explorer.saveEditorTopLineNumber(
           curFile.path,
           editor.state.doc.lineAt(

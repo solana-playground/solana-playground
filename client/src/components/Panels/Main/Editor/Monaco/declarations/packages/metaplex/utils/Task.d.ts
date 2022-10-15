@@ -1,0 +1,42 @@
+import type EventEmitter from 'eventemitter3';
+import { DisposableScope } from './Disposable';
+export declare type TaskStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
+export declare type TaskCallback<T, I extends any[]> = (scope: DisposableScope, ...inputs: I) => T | Promise<T>;
+export declare type TaskOptions = {
+    signal?: AbortSignal;
+    force?: boolean;
+};
+export declare class Task<T, I extends any[] = []> {
+    protected callback: TaskCallback<T, I>;
+    protected children: Task<any, any[]>[];
+    protected context: object;
+    protected status: TaskStatus;
+    protected result: T | undefined;
+    protected error: unknown;
+    protected eventEmitter: EventEmitter;
+    constructor(callback: TaskCallback<T, I>, children?: Task<any, any[]>[], context?: object);
+    run(options?: TaskOptions, ...inputs: I): Promise<T>;
+    protected forceRun(options?: TaskOptions, ...inputs: I): Promise<T>;
+    loadWith(preloadedResult: T): this;
+    reset(): this;
+    setChildren(children: Task<any, any[]>[]): this;
+    getChildren(): Task<any, any[]>[];
+    getDescendants(): Task<any, any[]>[];
+    setContext(context: object): this;
+    getContext<C extends object = object>(): C;
+    getStatus(): TaskStatus;
+    getResult(): T | undefined;
+    getError(): unknown;
+    isPending(): boolean;
+    isRunning(): boolean;
+    isCompleted(): boolean;
+    isSuccessful(): boolean;
+    isFailed(): boolean;
+    isCanceled(): boolean;
+    onStatusChange(callback: (status: TaskStatus) => unknown): this;
+    onStatusChangeTo(status: TaskStatus, callback: () => unknown): this;
+    onSuccess(callback: () => unknown): this;
+    onFailure(callback: () => unknown): this;
+    onCancel(callback: () => unknown): this;
+    protected setStatus(newStatus: TaskStatus): void;
+}

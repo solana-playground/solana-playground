@@ -49,17 +49,35 @@ const Monaco = () => {
 
   // Set declarations
   useEffect(() => {
-    if (!explorer) return;
+    if (!editor || !explorer) return;
+    let declareOptionalsTimoutId: NodeJS.Timer;
 
-    const { dispose } = explorer.onDidSwitchFile(() => {
-      (async () => {
-        const { setDeclarations } = await import("./declarations");
-        setDeclarations({ isTest: explorer.isCurrentFileJsLikeTest() });
-      })();
+    const declareOptionals = async () => {
+      const { declareOptionalTypes } = await import("./declarations/optionals");
+      await declareOptionalTypes(editor.getValue());
+    };
+
+    const switchFile = explorer.onDidSwitchFile(async () => {
+      const { declareDefaultTypes } = await import("./declarations/defaults");
+      await declareDefaultTypes();
+      await declareOptionals();
+      const { declareDisposableTypes } = await import(
+        "./declarations/disposables"
+      );
+      await declareDisposableTypes();
     });
 
-    return () => dispose();
-  }, [explorer]);
+    const changeContent = editor.onDidChangeModelContent(async () => {
+      clearTimeout(declareOptionalsTimoutId);
+      declareOptionalsTimoutId = setTimeout(declareOptionals, 1000);
+    });
+
+    return () => {
+      switchFile.dispose();
+      clearTimeout(declareOptionalsTimoutId);
+      changeContent.dispose();
+    };
+  }, [editor, explorer]);
 
   const theme = useTheme();
 

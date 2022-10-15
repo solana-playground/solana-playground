@@ -1096,19 +1096,6 @@ export class PgExplorer {
   }
 
   /**
-   * @returns whether the current file in the state is a Typescript test file
-   */
-  isCurrentFileJsLikeTest() {
-    switch (this.getCurrentFileLanguage()) {
-      case Lang.JAVASCRIPT_TEST:
-      case Lang.TYPESCRIPT_TEST:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /**
    * @returns whether the current workspace in the state is an Anchor program
    */
   isWorkspaceAnchor() {

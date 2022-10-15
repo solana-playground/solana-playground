@@ -1,1 +1,0 @@
-export { setDeclarations } from "./declarations";
