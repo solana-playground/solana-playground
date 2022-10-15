@@ -119,7 +119,7 @@ const Folders = () => {
       />
 
       {/* Other */}
-      {otherFolders.length && (
+      {otherFolders.length > 0 && (
         <SectionTopWrapper>
           <SectionHeader>Other</SectionHeader>
         </SectionTopWrapper>

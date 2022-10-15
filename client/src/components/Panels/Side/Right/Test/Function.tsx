@@ -172,7 +172,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
             `Test '${ixs.name}' failed`
           )}.`;
         } else {
-          msg = `${Emoji.CHECKMARK}  ${PgTerminal.success(
+          msg = `${Emoji.CHECKMARK} ${PgTerminal.success(
             `Test '${ixs.name}' passed`
           )}.`;
         }
@@ -207,7 +207,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
             updateTxVals,
           }}
         >
-          {ixs.args.length ? (
+          {ixs.args.length > 0 && (
             <ArgsWrapper>
               <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
                 {ixs.args.map((a, i) => (
@@ -220,8 +220,8 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
                 ))}
               </Foldable>
             </ArgsWrapper>
-          ) : null}
-          {ixs.accounts.length ? (
+          )}
+          {ixs.accounts.length > 0 && (
             <AccountsWrapper>
               <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
                 {ixs.accounts.map((a, i) => (
@@ -233,7 +233,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
                 ))}
               </Foldable>
             </AccountsWrapper>
-          ) : null}
+          )}
         </FnContext.Provider>
       </ArgsAndAccountsWrapper>
       <ButtonWrapper>
