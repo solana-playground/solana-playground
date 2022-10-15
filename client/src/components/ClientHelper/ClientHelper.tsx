@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 import { useConnection } from "@solana/wallet-adapter-react";
 
 import { useCurrentWallet } from "../Panels/Wallet";
-import { explorerAtom, refreshExplorerAtom } from "../../state";
 import { EventName } from "../../constants";
 import { PgExplorer, PgTerminal } from "../../utils/pg";
 
@@ -12,9 +10,6 @@ import { PgExplorer, PgTerminal } from "../../utils/pg";
 import { PgClient } from "../../utils/pg/client";
 
 const ClientHelper = () => {
-  const [explorer] = useAtom(explorerAtom);
-  const [explorerChanged] = useAtom(refreshExplorerAtom);
-
   const { connection } = useConnection();
   const { currentWallet: wallet } = useCurrentWallet();
 
@@ -41,8 +36,6 @@ const ClientHelper = () => {
       e: UIEvent & { detail: { isTest?: boolean; path?: string } }
     ) => {
       PgTerminal.runCmd(async () => {
-        if (!explorer) return;
-
         const isTest = e.detail.isTest;
         const path = e.detail.path;
 
@@ -51,6 +44,7 @@ const ClientHelper = () => {
         );
 
         const client = await getClient();
+        const explorer = await PgExplorer.get();
 
         if (path) {
           const code = explorer.getFileContent(path);
@@ -105,9 +99,7 @@ const ClientHelper = () => {
         handle as EventListener
       );
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [explorer, explorerChanged, connection, wallet, getClient]);
+  }, [connection, wallet, getClient]);
 
   return <StyledIframe title="test" loading="lazy" />;
 };

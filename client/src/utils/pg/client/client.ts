@@ -14,6 +14,7 @@ import { PgTerminal } from "../terminal";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
 import { PgCommon } from "../common";
+import { ClientPackage } from "./package";
 
 /**
  * Utilities to be available under the `pg` namespace
@@ -88,22 +89,76 @@ export class PgClient {
 
         /// Functions
         ["sleep", PgCommon.sleep],
-
-        /// Classes
-        ["Keypair", web3.Keypair],
-        ["PublicKey", web3.PublicKey],
-        ["Connection", web3.Connection],
       ];
 
-      // Lazy load optional packages
-      if (code.includes("splToken")) {
-        const splToken = await import("@solana/spl-token");
-        globals.push(["splToken", splToken]);
-      }
-      if (code.includes("metaplex")) {
-        const metaplex = await import("@metaplex-foundation/js");
-        globals.push(["metaplex", metaplex]);
-      }
+      // Imports
+      const importRegex = new RegExp(
+        /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*}))\s+from\s+["|'](.+)["|']/gm
+      );
+      let importMatch: RegExpExecArray | null;
+
+      const setupImport = (pkg: { [key: string]: any }) => {
+        // 'import as *' syntax
+        if (importMatch?.[3]) {
+          globals.push([importMatch[3], pkg]);
+        }
+        // 'import {}' syntax
+        else if (importMatch?.[4]) {
+          const namedImports = importMatch[4]
+            .substring(1, importMatch[4].length - 1)
+            .replace(/\s+\n?/g, "")
+            .split(",");
+          for (const namedImport of namedImports) {
+            globals.push([namedImport, pkg[namedImport]]);
+          }
+        }
+      };
+
+      do {
+        importMatch = importRegex.exec(code);
+        if (importMatch) {
+          switch (importMatch[5] as ClientPackage) {
+            case ClientPackage.ANCHOR:
+              setupImport(anchor);
+              break;
+            case ClientPackage.ASSERT:
+              setupImport(assert);
+              break;
+            case ClientPackage.BN:
+              setupImport(anchor.BN);
+              break;
+            case ClientPackage.BORSH:
+              setupImport(borsh);
+              break;
+            case ClientPackage.BUFFER:
+              setupImport(Buffer);
+              break;
+            case ClientPackage.METAPLEX_JS:
+              setupImport(await import("@metaplex-foundation/js"));
+              break;
+            case ClientPackage.SOLANA_BUFFER_LAYOUT:
+              setupImport(BufferLayout);
+              break;
+            case ClientPackage.SOLANA_SPL_TOKEN:
+              setupImport(await import("@solana/spl-token"));
+              break;
+            case ClientPackage.SOLANA_WEB3JS:
+              setupImport(web3);
+              break;
+            default:
+              throw new Error(
+                importMatch[5].startsWith(".")
+                  ? "File imports are not supported."
+                  : `Package '${importMatch[5]}' is not recognized.`
+              );
+          }
+        }
+      } while (importMatch);
+
+      // Remove import statements
+      // Need to do this after we setup all the imports because of internal
+      // cursor index state the regex.exec has.
+      code = code.replace(/import\s+[*|{](.?\n?)+["|'].+["|']/gm, "");
 
       // Playground utils namespace
       const pg: Pg = { connection };
