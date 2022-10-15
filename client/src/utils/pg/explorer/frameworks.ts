@@ -7,6 +7,7 @@ export enum Lang {
   TYPESCRIPT = "TypeScript",
   JAVASCRIPT_TEST = "JavaScript Test",
   TYPESCRIPT_TEST = "TypeScript Test",
+  JSON = "JSON",
 }
 
 export interface Framework {

@@ -189,103 +189,113 @@ const CodeMirror = () => {
   // When user switches files or editor changed
   useEffect(() => {
     if (!explorer || !editor) return;
+    let topLineIntervalId: NodeJS.Timer;
 
-    // Get current file
-    const curFile = explorer.getCurrentFile();
-    if (!curFile) return;
+    const { dispose } = explorer.onDidSwitchFile(() => {
+      // Clear previous state
+      topLineIntervalId && clearInterval(topLineIntervalId);
 
-    // Open all parents
-    PgExplorer.openAllParents(curFile.path);
+      // Get current file
+      const curFile = explorer.getCurrentFile();
+      if (!curFile) return;
 
-    // Change selected
-    // won't work on mount
-    const newEl = PgExplorer.getElFromPath(curFile.path);
-    if (newEl) PgExplorer.setSelectedEl(newEl);
+      // Open all parents
+      PgExplorer.openAllParents(curFile.path);
 
-    // Change editor state
-    const languageCompartment = new Compartment();
-    const extensions = [
-      defaultExtensions(),
-      editorTheme,
-      getThemeExtension(theme.highlight),
-      autosave(explorer, curFile, 500),
-      languageCompartment.of([]),
-    ];
+      // Change selected
+      // won't work on mount
+      const newEl = PgExplorer.getElFromPath(curFile.path);
+      if (newEl) PgExplorer.setSelectedEl(newEl);
 
-    // Create editor state
-    editor.setState(
-      EditorState.create({
-        doc: curFile.content,
-        extensions,
-      })
-    );
+      // Change editor state
+      const languageCompartment = new Compartment();
+      const extensions = [
+        defaultExtensions(),
+        editorTheme,
+        getThemeExtension(theme.highlight),
+        autosave(explorer, curFile, 500),
+        languageCompartment.of([]),
+      ];
 
-    // Lazy load language extensions
-    (async () => {
-      let languageExtensions;
-      switch (explorer.getCurrentFileLanguage()) {
-        case Lang.RUST: {
-          const { rustExtensions } = await import(
-            "./extensions/languages/rust"
-          );
-          languageExtensions = rustExtensions(explorer.isWorkspaceAnchor());
-          break;
+      // Create editor state
+      editor.setState(
+        EditorState.create({
+          doc: curFile.content,
+          extensions,
+        })
+      );
+
+      // Lazy load language extensions
+      (async () => {
+        let languageExtensions;
+        switch (explorer.getCurrentFileLanguage()) {
+          case Lang.RUST: {
+            const { rustExtensions } = await import(
+              "./extensions/languages/rust"
+            );
+            languageExtensions = rustExtensions(explorer.isWorkspaceAnchor());
+            break;
+          }
+
+          case Lang.PYTHON: {
+            const { pythonExtensions } = await import(
+              "./extensions/languages/python"
+            );
+            languageExtensions = pythonExtensions();
+            break;
+          }
+
+          case Lang.JAVASCRIPT: {
+            const { javascriptExtensions } = await import(
+              "./extensions/languages/javascript"
+            );
+            languageExtensions = javascriptExtensions(false);
+            break;
+          }
+
+          case Lang.TYPESCRIPT: {
+            const { javascriptExtensions } = await import(
+              "./extensions/languages/javascript"
+            );
+            languageExtensions = javascriptExtensions(true);
+          }
         }
 
-        case Lang.PYTHON: {
-          const { pythonExtensions } = await import(
-            "./extensions/languages/python"
-          );
-          languageExtensions = pythonExtensions();
-          break;
+        if (languageExtensions) {
+          editor.dispatch({
+            effects: languageCompartment.reconfigure(languageExtensions),
+          });
         }
+      })();
 
-        case Lang.JAVASCRIPT: {
-          const { javascriptExtensions } = await import(
-            "./extensions/languages/javascript"
-          );
-          languageExtensions = javascriptExtensions(false);
-          break;
-        }
+      // Scroll to the top line number
+      const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
+      const pos = topLineNumber ? editor.state.doc.line(topLineNumber).from : 0;
+      editor.dispatch({
+        effects: EditorView.scrollIntoView(pos, { y: "start", yMargin: 0 }),
+      });
 
-        case Lang.TYPESCRIPT: {
-          const { javascriptExtensions } = await import(
-            "./extensions/languages/javascript"
-          );
-          languageExtensions = javascriptExtensions(true);
-        }
-      }
-
-      if (languageExtensions) {
-        editor.dispatch({
-          effects: languageCompartment.reconfigure(languageExtensions),
-        });
-      }
-    })();
-
-    // Scroll to the top line number
-    const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
-    const pos = topLineNumber ? editor.state.doc.line(topLineNumber).from : 0;
-    editor.dispatch({
-      effects: EditorView.scrollIntoView(pos, { y: "start", yMargin: 0 }),
+      // Save top line number
+      topLineIntervalId = setInterval(() => {
+        console.log("run");
+        explorer.saveEditorTopLineNumber(
+          curFile.path,
+          editor.state.doc.lineAt(
+            editor.lineBlockAtHeight(
+              editor.scrollDOM.getBoundingClientRect().top - editor.documentTop
+            ).from
+          ).number
+        );
+      }, 1000);
     });
 
-    // Save top line number
-    const topLineIntervalId = setInterval(() => {
-      explorer.saveEditorTopLineNumber(
-        curFile.path,
-        editor.state.doc.lineAt(
-          editor.lineBlockAtHeight(
-            editor.scrollDOM.getBoundingClientRect().top - editor.documentTop
-          ).from
-        ).number
-      );
-    }, 1000);
-
-    return () => clearInterval(topLineIntervalId);
+    return () => {
+      clearInterval(topLineIntervalId);
+      dispose();
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged]);
+  }, [editor, explorer]);
 
   // Change programId
   useEffect(() => {

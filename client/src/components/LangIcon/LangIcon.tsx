@@ -2,7 +2,14 @@ import { FC, useMemo } from "react";
 import styled from "styled-components";
 
 import { Lang, PgExplorer } from "../../utils/pg";
-import { JavaScript, Python, QuestionMark, Rust, TypeScript } from "../Icons";
+import {
+  JavaScript,
+  Json,
+  Python,
+  QuestionMark,
+  Rust,
+  TypeScript,
+} from "../Icons";
 
 interface LangIconProps {
   fileName: string;
@@ -23,6 +30,8 @@ const LangIcon: FC<LangIconProps> = ({ fileName }) => {
         return <JavaScript isTest />;
       case Lang.TYPESCRIPT_TEST:
         return <TypeScript isTest />;
+      case Lang.JSON:
+        return <Json />;
       default:
         return <QuestionMark />;
     }

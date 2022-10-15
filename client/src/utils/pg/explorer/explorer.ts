@@ -14,7 +14,7 @@ import {
   WorkspaceError,
 } from "../../../constants";
 import { Lang } from "./frameworks";
-import { PgMethod, PgReturnType, TupleString } from "../types";
+import { PgDisposable, PgMethod, PgReturnType, TupleString } from "../types";
 import { PgCommon } from "../common";
 
 export interface ExplorerJSON {
@@ -859,6 +859,8 @@ export class PgExplorer {
       current: true,
     };
 
+    this._dispatchOnDidSwitchFiles();
+
     this._refresh();
   }
 
@@ -1140,6 +1142,22 @@ export class PgExplorer {
     return split[1];
   }
 
+  /**
+   * Runs when switching to a different file
+   *
+   * @param cb callback function to run after switching file
+   * @returns a dispose function to clear the event
+   */
+  onDidSwitchFile(cb: () => any, runOnMount: boolean = true): PgDisposable {
+    if (runOnMount) cb();
+
+    document.addEventListener(EventName.EXPLORER_ON_DID_SWITCH_FILE, cb);
+    return {
+      dispose: () =>
+        document.removeEventListener(EventName.EXPLORER_ON_DID_SWITCH_FILE, cb),
+    };
+  }
+
   /** Private methods */
 
   /**
@@ -1328,6 +1346,15 @@ export class PgExplorer {
     return path;
   }
 
+  /**
+   * Dispatch onDidChangeCurrentFile custom event
+   */
+  private _dispatchOnDidSwitchFiles() {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.EXPLORER_ON_DID_SWITCH_FILE
+    );
+  }
+
   /** Static methods */
 
   /** Paths */
@@ -1441,6 +1468,8 @@ export class PgExplorer {
         return Lang.JAVASCRIPT_TEST;
       case "testts":
         return Lang.TYPESCRIPT_TEST;
+      case "json":
+        return Lang.JSON;
     }
   }
 

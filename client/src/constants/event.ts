@@ -12,6 +12,7 @@ export enum EventName {
 
   // Explorer
   EXPLORER_STATIC = "explorerstatic",
+  EXPLORER_ON_DID_SWITCH_FILE = "explorerondidswitchfile",
 
   // Modal
   MODAL_SET = "modalset",

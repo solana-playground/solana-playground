@@ -51,13 +51,15 @@ const Monaco = () => {
   useEffect(() => {
     if (!explorer) return;
 
-    (async () => {
-      const { setDeclarations } = await import("./declarations");
-      setDeclarations({ isTest: explorer.isCurrentFileJsLikeTest() });
-    })();
+    const { dispose } = explorer.onDidSwitchFile(() => {
+      (async () => {
+        const { setDeclarations } = await import("./declarations");
+        setDeclarations({ isTest: explorer.isCurrentFileJsLikeTest() });
+      })();
+    });
 
-    // eslint-disable-next line react-hooks/exhausive-deps
-  }, [explorer, explorerChanged]);
+    return () => dispose();
+  }, [explorer]);
 
   const theme = useTheme();
 
@@ -172,6 +174,7 @@ const Monaco = () => {
     if (editor) editor.updateOptions({ fontFamily: theme.font?.family });
   }, [editor, theme]);
 
+  // Create editor
   useEffect(() => {
     if (editor || !isThemeSet || !monacoRef.current) return;
 
@@ -189,69 +192,81 @@ const Monaco = () => {
   // Set editor state
   useEffect(() => {
     if (!editor || !explorer) return;
+    let topLineIntervalId: NodeJS.Timer;
+    let model: monaco.editor.ITextModel | undefined;
 
-    // Get current file
-    const curFile = explorer.getCurrentFile();
-    if (!curFile) return;
+    const switchFile = explorer.onDidSwitchFile(() => {
+      // Clear previous state
+      clearInterval(topLineIntervalId);
+      model?.dispose();
 
-    // Open all parents
-    PgExplorer.openAllParents(curFile.path);
+      // Get current file
+      const curFile = explorer.getCurrentFile();
+      if (!curFile) return;
 
-    // Change selected
-    // won't work on mount
-    const newEl = PgExplorer.getElFromPath(curFile.path);
-    if (newEl) PgExplorer.setSelectedEl(newEl);
+      // Open all parents
+      PgExplorer.openAllParents(curFile.path);
 
-    // Set editor model
-    const model = monaco.editor.createModel(
-      curFile.content!,
-      "typescript",
-      monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
-    );
-    editor.setModel(model);
+      // Change selected
+      // won't work on mount
+      const newEl = PgExplorer.getElFromPath(curFile.path);
+      if (newEl) PgExplorer.setSelectedEl(newEl);
 
-    // Set language
-    switch (explorer.getCurrentFileLanguage()) {
-      case Lang.RUST: {
-        monaco.editor.setModelLanguage(model, "rust");
-        break;
-      }
-
-      case Lang.PYTHON: {
-        monaco.editor.setModelLanguage(model, "python");
-        break;
-      }
-
-      case Lang.JAVASCRIPT: {
-        monaco.editor.setModelLanguage(model, "javascript");
-        break;
-      }
-
-      case Lang.TYPESCRIPT: {
-        monaco.editor.setModelLanguage(model, "typescript");
-      }
-    }
-
-    // Scroll to the top line number
-    const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
-    const pos = topLineNumber ? editor.getTopForLineNumber(topLineNumber) : 0;
-    editor.setScrollTop(pos);
-
-    // Save top line number
-    const topLineIntervalId = setInterval(() => {
-      explorer.saveEditorTopLineNumber(
-        curFile.path,
-        editor.getVisibleRanges()[0].startLineNumber
+      // Set editor model
+      model = monaco.editor.createModel(
+        curFile.content!,
+        undefined,
+        monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
       );
-    }, 1000);
+      editor.setModel(model);
+
+      // Set language
+      switch (explorer.getCurrentFileLanguage()) {
+        case Lang.RUST: {
+          monaco.editor.setModelLanguage(model, "rust");
+          break;
+        }
+
+        case Lang.PYTHON: {
+          monaco.editor.setModelLanguage(model, "python");
+          break;
+        }
+
+        case Lang.JAVASCRIPT: {
+          monaco.editor.setModelLanguage(model, "javascript");
+          break;
+        }
+
+        case Lang.TYPESCRIPT: {
+          monaco.editor.setModelLanguage(model, "typescript");
+          break;
+        }
+
+        case Lang.JSON: {
+          monaco.editor.setModelLanguage(model, "json");
+        }
+      }
+
+      // Scroll to the top line number
+      const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
+      const pos = topLineNumber ? editor.getTopForLineNumber(topLineNumber) : 0;
+      editor.setScrollTop(pos);
+
+      // Save top line number
+      topLineIntervalId = setInterval(() => {
+        explorer.saveEditorTopLineNumber(
+          curFile.path,
+          editor.getVisibleRanges()[0].startLineNumber
+        );
+      }, 1000);
+    });
 
     return () => {
       clearInterval(topLineIntervalId);
       model?.dispose();
+      switchFile.dispose();
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged]);
+  }, [editor, explorer]);
 
   // Auto save
   useEffect(() => {

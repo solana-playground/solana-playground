@@ -9,3 +9,8 @@ export type PgReturnType<T, U> = U extends keyof T
   : never;
 
 export type TupleString = [string, string];
+
+export type PgDisposable = {
+  /** Clear registered events */
+  dispose: () => void;
+};
