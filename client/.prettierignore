@@ -2,3 +2,6 @@
 build
 node_modules
 public
+
+# Declaration files:
+*.d.ts
