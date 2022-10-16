@@ -42,7 +42,7 @@ export const processMint = async (
   const receiverPk = receiver
     ? new PublicKey(receiver)
     : metaplex.identity().publicKey;
-  term.println(`\nMinting to ${receiverPk.toBase58()}`);
+  term.println(`Minting to ${receiverPk.toBase58()}\n`);
 
   const mintAmount = toBigNumber(number?.toString() ?? 1);
   const available = candyState.itemsRemaining;
@@ -55,8 +55,26 @@ export const processMint = async (
   PgTerminal.setProgress(0.1);
   let progressCount = 0;
 
+  // Check for candy guard groups
+  const groupLen = candyState.candyGuard?.groups.length;
+  let groupIndex = 0;
+  if (groupLen && groupLen > 1) {
+    groupIndex = await term.waitForUserInput(
+      "Candy guard has multiple groups. Which group do you belong to?",
+      {
+        choice: {
+          items: candyState.candyGuard.groups.map((g) => g.label),
+        },
+      }
+    );
+  }
+  // Need to specify the group label when we are minting if guards have groups
+  const group = groupLen
+    ? candyState.candyGuard.groups[groupIndex].label
+    : null;
+
   const CONCURRENT = 8;
-  let errorCount = 0;
+  const errors: string[] = [];
   let isMintingOver = false;
 
   const logCondition = mintAmount.ltn(100);
@@ -72,6 +90,7 @@ export const processMint = async (
               candyGuard: candyState.candyGuard,
             },
             collectionUpdateAuthority: candyState.authorityAddress,
+            group,
           });
 
           if (logCondition) {
@@ -87,8 +106,8 @@ export const processMint = async (
               )
             );
           }
-        } catch {
-          errorCount++;
+        } catch (e: any) {
+          errors.push(e.message);
           // Check if the mint is over
           const newCandyState = await candyClient.findByAddress({
             address: candyState.address,
@@ -112,16 +131,13 @@ export const processMint = async (
     term.println(PgTerminal.info("Minting is over!"));
   }
 
-  if (errorCount) {
+  if (errors.length) {
     term.println(
-      `${PgTerminal.error(
-        "Some of the items failed to mint."
-      )} ${errorCount} items failed.`
-    );
-    throw new Error(
       `${PgTerminal.error("Minted")} ${mintAmount
-        .subn(errorCount)
-        .toString()}/${mintAmount} ${PgTerminal.error("of the items")}`
+        .subn(errors.length)
+        .toString()}/${mintAmount} ${PgTerminal.error("of the items.")}`
     );
+
+    throw new Error(errors[0]);
   }
 };
