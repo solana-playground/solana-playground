@@ -85,16 +85,19 @@ export class CandyCache {
 
 class CacheProgram {
   candyMachine: string;
+  candyGuard: string;
   candyMachineCreator: string;
   collectionMint: string;
 
   constructor(cacheProgram?: Omit<CacheProgram, "setCandyMachine">) {
     if (cacheProgram) {
       this.candyMachine = cacheProgram.candyMachine;
+      this.candyGuard = cacheProgram.candyGuard;
       this.candyMachineCreator = cacheProgram.candyMachineCreator;
       this.collectionMint = cacheProgram.collectionMint;
     } else {
       this.candyMachine = "";
+      this.candyGuard = "";
       this.candyMachineCreator = "";
       this.collectionMint = "";
     }

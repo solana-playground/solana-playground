@@ -20,4 +20,7 @@ export enum Emoji {
   RIGHT_ARROW = "➡️ ",
   MONEY_BAG = "💰 ",
   BULLSEYE = "◎ ",
+  GUARD = "🛡  ",
+  WRAP = "📦 ",
+  UNWRAP = "🔩 ",
 }

@@ -16,6 +16,9 @@ export const processCollectionSet = async (
   // The candy machine id specified takes precedence over the one from the cache
   const candyMachinePkStr =
     candyMachine ?? (await loadCache()).program.candyMachine;
+  if (!candyMachinePkStr) {
+    throw new Error("Missing candy machine id.");
+  }
   let candyMachinePk: PublicKey;
   try {
     candyMachinePk = new PublicKey(candyMachinePkStr);

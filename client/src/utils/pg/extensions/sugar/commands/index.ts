@@ -2,6 +2,7 @@ export * from "./bundlr";
 export * from "./collection";
 export * from "./create-config";
 export * from "./deploy";
+export * from "./guard";
 export * from "./hash";
 export * from "./launch";
 export * from "./mint";

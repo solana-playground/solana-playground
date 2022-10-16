@@ -1,10 +1,11 @@
-import { toBigNumber } from "@metaplex-foundation/js";
+import { Option, toBigNumber } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 
 import { PgCommon } from "../../../common";
 import { PgExplorer } from "../../../explorer";
 import { PgTerminal } from "../../../terminal";
 import { ConfigData, ToPrimitive } from "../types";
+import { parseGuards } from "./guards";
 
 export const loadConfigData = async (): Promise<ConfigData> => {
   const configStr = await PgExplorer.run({
@@ -36,8 +37,11 @@ export const loadConfigData = async (): Promise<ConfigData> => {
         }
       : null,
     uploadConfig: configData.uploadConfig,
-    // @ts-ignore
-    guards: configData.guards,
+    guards: parseGuards(
+      configData.guards as ToPrimitive<Option<ConfigData["guards"]>> & {
+        [key: string]: any;
+      }
+    ),
   };
 };
 
