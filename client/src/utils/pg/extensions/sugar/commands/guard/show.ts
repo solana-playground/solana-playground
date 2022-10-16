@@ -5,7 +5,6 @@ import { Emoji } from "../../../../../../constants";
 import { PgCommon } from "../../../../common";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
-import {} from "../../constants";
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 
 export const processGuardShow = async (

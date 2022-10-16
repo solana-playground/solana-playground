@@ -5,7 +5,7 @@ import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { getMetaplex, loadCache, loadConfigData } from "../../utils";
 
-export const processGuardUpdate = async (
+export const processGuardWithdraw = async (
   rpcUrl: string = PgConnection.endpoint,
   candyGuard: string | undefined
 ) => {
@@ -37,10 +37,8 @@ export const processGuardUpdate = async (
   }
 
   const metaplex = await getMetaplex(rpcUrl);
-  const { response } = await metaplex.candyMachines().updateCandyGuard({
+  const { response } = await metaplex.candyMachines().deleteCandyGuard({
     candyGuard: candyGuardPk,
-    guards: guards.default,
-    groups: guards.groups ?? undefined,
   });
 
   term.println(`Signature: ${response.signature}`);

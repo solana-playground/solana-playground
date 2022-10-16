@@ -11,6 +11,7 @@ import {
   processGuardRemove,
   processGuardShow,
   processGuardUpdate,
+  processGuardWithdraw,
   processHash,
   processLaunch,
   processMint,
@@ -60,10 +61,9 @@ export class PgSugar {
     await this._run(() => processGuardUpdate(...args));
   }
 
-  static async guardWithdraw(
-    rpcUrl: string | undefined,
-    candyGuard: string | undefined
-  ) {}
+  static async guardWithdraw(...args) {
+    await this._run(() => processGuardWithdraw(...args));
+  }
 
   static async hash(...args) {
     await this._run(() => processHash(...args));

@@ -1,4 +1,4 @@
-import { ConfigData, ToPrimitive } from "../../types";
+import { ConfigData, ToPrimitive, UploadMethod } from "../../types";
 import { Emoji } from "../../../../../../constants";
 import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
@@ -178,21 +178,23 @@ export const processCreateConfig = async () => {
 
   // Upload method
   configData.uploadConfig = {
-    method: await term.waitForUserInput(
-      "What upload method do you want to use?",
-      {
-        choice: {
-          items: [
-            "Bundlr", // 0
-            "AWS", // 1
-            "NFT Storage", // 2
-            "SHDW", // 3
-            "Pinata", // 4
-          ],
-        },
-        default: "0",
-      }
-    ),
+    // TODO:
+    // method: await term.waitForUserInput(
+    //   `"What upload method do you want to use?"`,
+    //   {
+    //     choice: {
+    //       items: [
+    //         "Bundlr", // 0
+    //         "AWS", // 1
+    //         "NFT Storage", // 2
+    //         "SHDW", // 3
+    //         "Pinata", // 4
+    //       ],
+    //     },
+    //     default: "0",
+    //   }
+    // ),
+    method: UploadMethod.BUNDLR,
     awsConfig: null,
     nftStorageAuthToken: null,
     pinataConfig: null,
@@ -201,13 +203,13 @@ export const processCreateConfig = async () => {
 
   switch (configData.uploadConfig.method) {
     // Bundlr
-    case 0: {
+    case UploadMethod.BUNDLR: {
       // This is the default, do nothing.
       break;
     }
 
     // AWS
-    case 1: {
+    case UploadMethod.AWS: {
       const bucket = await term.waitForUserInput(
         "What is the AWS S3 bucket name?"
       );
@@ -234,7 +236,7 @@ export const processCreateConfig = async () => {
     }
 
     // NFT Storage
-    case 2: {
+    case UploadMethod.NFT_STORAGE: {
       configData.uploadConfig.nftStorageAuthToken = await term.waitForUserInput(
         "What is the NFT Storage authentication token?"
       );
@@ -242,7 +244,7 @@ export const processCreateConfig = async () => {
     }
 
     // SHDW
-    case 3: {
+    case UploadMethod.SHDW: {
       configData.uploadConfig.shdwStorageAccount = await term.waitForUserInput(
         "What is the SHDW storage address?",
         { validator: PgValidator.isPubkey }
@@ -251,7 +253,7 @@ export const processCreateConfig = async () => {
     }
 
     // Pinata
-    case 4: {
+    case UploadMethod.PINATA: {
       const jwt = await term.waitForUserInput(
         "What is your Pinata JWT authentication?"
       );
@@ -330,7 +332,7 @@ export const processCreateConfig = async () => {
       }`
     );
   } else {
-    term.println("Logging config to console:\n");
+    term.println(PgTerminal.secondaryText("Logging config to console:\n"));
     term.println(prettyConfigData);
   }
 };

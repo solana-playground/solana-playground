@@ -58,12 +58,13 @@ interface UploadConfig {
   pinataConfig: Option<PinataConfig>;
 }
 
-enum UploadMethod {
-  BUNDLR = 0,
-  AWS = 1,
-  NFT_STORAGE = 2,
-  SHDW = 3,
-  PINATA = 4,
+/** Sugar compatible upload method names */
+export enum UploadMethod {
+  BUNDLR = "bundlr",
+  AWS = "aws",
+  NFT_STORAGE = "nft_storage",
+  SHDW = "shdw",
+  PINATA = "pinata",
 }
 
 interface AwsConfig {
