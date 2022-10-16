@@ -656,6 +656,8 @@ export class PgExplorer {
       this.changeCurrentFile(
         this.currentWorkspacePath + options.defaultOpenFile
       );
+    } else {
+      this._dispatchOnDidSwitchFile();
     }
 
     this._refresh();
@@ -859,7 +861,7 @@ export class PgExplorer {
       current: true,
     };
 
-    this._dispatchOnDidSwitchFiles();
+    this._dispatchOnDidSwitchFile();
 
     this._refresh();
   }
@@ -1336,7 +1338,7 @@ export class PgExplorer {
   /**
    * Dispatch onDidChangeCurrentFile custom event
    */
-  private _dispatchOnDidSwitchFiles() {
+  private _dispatchOnDidSwitchFile() {
     PgCommon.createAndDispatchCustomEvent(
       EventName.EXPLORER_ON_DID_SWITCH_FILE
     );
