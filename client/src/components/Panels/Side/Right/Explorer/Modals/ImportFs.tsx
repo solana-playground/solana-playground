@@ -7,7 +7,7 @@ import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
 import Input, { defaultInputProps } from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
-import { Files, PgCommon, PgExplorer } from "../../../../../../utils/pg";
+import { Files, Lang, PgCommon, PgExplorer } from "../../../../../../utils/pg";
 
 export const ImportFs = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -48,12 +48,17 @@ export const ImportFs = () => {
             path = path.replace(/\/\w+\//, "");
         }
 
-        if (!PgExplorer.getLanguageFromPath(path)) {
+        const lang = PgExplorer.getLanguageFromPath(path);
+
+        if (!lang) {
           throw new Error(`Unsupported file type (${path})`);
         }
 
         const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
-        if (arrayBuffer.byteLength > 1024 * 128) {
+        if (
+          (lang === Lang.RUST || lang === Lang.PYTHON) &&
+          arrayBuffer.byteLength > 1024 * 128
+        ) {
           throw new Error(
             `File '${path}' is too big.(${arrayBuffer.byteLength})`
           );
