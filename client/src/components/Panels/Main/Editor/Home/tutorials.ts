@@ -5,6 +5,14 @@ export interface TutorialProps {
 
 export const TUTORIALS: TutorialProps[] = [
   {
+    title: "Build a Blog DApp using Solana Playground",
+    url: "https://www.youtube.com/watch?v=PWvbMWyuYNQ",
+  },
+  {
+    title: "Build a Todo DApp using Solana Playground",
+    url: "https://www.youtube.com/watch?v=3_zoGgffxac",
+  },
+  {
     title: "Build TikTok DApp using Solana Playground",
     url: "https://www.youtube.com/watch?v=qIGs3XWybgU",
   },

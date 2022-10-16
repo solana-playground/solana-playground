@@ -3,6 +3,7 @@ export interface ResourceProps {
   text: string;
   url: string;
   src: string;
+  circleImage?: boolean;
 }
 
 const ROOT_DIR = "icons/platforms/";
@@ -17,8 +18,15 @@ export const RESOURCES: ResourceProps[] = [
   {
     title: "Anchor",
     text: "Everything related to developing on Solana with Anchor framework.",
-    url: "https://anchor-lang.com/",
+    url: "https://www.anchor-lang.com/docs/high-level-overview",
     src: "https://www.anchor-lang.com/_next/image?url=%2Flogo.png&w=32&q=75",
+  },
+  {
+    title: "Seahorse",
+    text: "Write Anchor-compatible Solana programs in Python.",
+    url: "https://seahorse-lang.org/docs/accounts/",
+    src: "https://pbs.twimg.com/profile_images/1556384244598964226/S3cx06I2_400x400.jpg",
+    circleImage: true,
   },
   {
     title: "SolDev",

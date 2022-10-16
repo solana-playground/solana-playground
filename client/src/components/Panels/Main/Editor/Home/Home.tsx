@@ -46,7 +46,7 @@ const Home = () => {
 
 const Wrapper = styled.div`
   height: 100%;
-  padding: 0 10%;
+  padding: 0 8%;
 `;
 
 const ProjectTitle = styled.div`
@@ -85,10 +85,16 @@ const ResourcesWrapper = styled.div`
 
 const TutorialsWrapper = styled.div``;
 
-const Resource: FC<ResourceProps> = ({ title, text, url, src }) => (
+const Resource: FC<ResourceProps> = ({
+  title,
+  text,
+  url,
+  src,
+  circleImage,
+}) => (
   <ResourceWrapper>
     <ResourceTitle>
-      <ResourceImg src={src} />
+      <ResourceImg src={src} circleImage={circleImage} />
       {title}
     </ResourceTitle>
     <ResourceText>{text}</ResourceText>
@@ -124,10 +130,11 @@ const ResourceTitle = styled.div`
   align-items: center;
 `;
 
-const ResourceImg = styled.img`
+const ResourceImg = styled.img<{ circleImage?: boolean }>`
   width: 1.25rem;
   height: 1.25rem;
   margin-right: 0.5rem;
+  border-radius: ${({ circleImage }) => circleImage && "50%"};
 `;
 
 const ResourceText = styled.div`
