@@ -490,7 +490,7 @@ export class BpfLoaderUpgradeable {
     wallet: PgWallet,
     bufferPk: PublicKey,
     programData: Buffer,
-    loadConcurrency: number = 10
+    loadConcurrency: number = 8
   ) {
     let bytesOffset = 0;
     await Promise.all(

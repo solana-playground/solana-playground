@@ -63,7 +63,7 @@ export const processReveal = async (rpcUrl: string = PgConnection.endpoint) => {
   PgTerminal.setProgress(0.1);
   let progressCount = 0;
 
-  const CONCURRENT = 8;
+  const CONCURRENT = 4;
   let errorCount = 0;
 
   const nftNumberRegex = new RegExp(/#(\d+)/);

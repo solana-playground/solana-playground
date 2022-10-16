@@ -1,6 +1,7 @@
 // @ts-nocheck
 
-import { Emoji } from "../../../../constants";
+import { Emoji, NETWORKS } from "../../../../constants";
+import { PgConnection } from "../../connection";
 import { PgTerminal } from "../../terminal";
 import {
   processBundlr,
@@ -126,8 +127,17 @@ export class PgSugar {
         `\n${Emoji.ERROR} ${PgTerminal.error(
           "Error running command (re-run needed):"
         )} ${e.message}`,
+
         { noColor: true }
       );
+      // Show how to set a custom rpc endpoint if the current endpoint is a known endpoint
+      if (NETWORKS.some((n) => n.endpoint === PgConnection.endpoint)) {
+        PgTerminal.log(
+          `\nNOTE: You may want to use a custom rpc endpoint. If you have one, you can set it up with ${PgTerminal.bold(
+            "'solana config set --url <RPC_URL>'"
+          )}`
+        );
+      }
     } finally {
       setTimeout(() => PgTerminal.setProgress(0), 1000);
     }

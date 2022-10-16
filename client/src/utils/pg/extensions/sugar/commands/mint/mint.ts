@@ -73,7 +73,7 @@ export const processMint = async (
     ? candyState.candyGuard.groups[groupIndex].label
     : null;
 
-  const CONCURRENT = 8;
+  const CONCURRENT = 4;
   const errors: string[] = [];
   let isMintingOver = false;
 
