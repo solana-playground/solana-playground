@@ -6,7 +6,7 @@ import { PgCommon } from "../../../../common";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
 import { NULL_STRING } from "../../constants";
-import { getMetaplex, loadCache } from "../../utils";
+import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 
 export const processShow = async (
   rpcUrl: string = PgConnection.endpoint,
@@ -186,11 +186,4 @@ export const processShow = async (
       term.println("");
     }
   }
-};
-
-const printWithStyle = (indent: string, key: string | number, value: any) => {
-  PgTerminal.log(
-    ` ${PgTerminal.secondaryText(`${indent}:.. ${key}:`)} ${value}`,
-    { noColor: true }
-  );
 };

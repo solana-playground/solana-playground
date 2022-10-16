@@ -339,6 +339,26 @@ export class PgCommon {
   }
 
   /**
+   * Get human readable date time from unix timestamp
+   *
+   * @param unixTs unix timestamp in seconds
+   * @param opts date format options
+   * @returns formatted date string
+   */
+  static getFormattedDateFromUnixTimestamp(
+    unixTs: number,
+    opts?: {
+      locale: string;
+    } & Pick<Intl.DateTimeFormatOptions, "dateStyle" | "timeStyle" | "timeZone">
+  ) {
+    return new Intl.DateTimeFormat(opts?.locale ?? "en-US", {
+      dateStyle: opts?.dateStyle ?? "full",
+      timeStyle: opts?.timeStyle ?? "long",
+      timeZone: opts?.timeZone ?? "UTC",
+    }).format(unixTs * 1e3);
+  }
+
+  /**
    * Adds space before the string, mainly used for terminal output
    *
    * @param str string to prepend spaces to

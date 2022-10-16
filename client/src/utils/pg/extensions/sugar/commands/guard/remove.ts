@@ -11,6 +11,7 @@ export const processGuardRemove = async (
   candyGuard: string | undefined
 ) => {
   const term = await PgTerminal.get();
+
   term.println(`[1/1] ${Emoji.UNWRAP} Unwrapping`);
 
   // The candy machine id specified takes precedence over the one from the cache
@@ -29,7 +30,7 @@ export const processGuardRemove = async (
   // The candy guard id specified takes precedence over the one from the cache
   const candyGuardPkStr = candyGuard ?? (await loadCache()).program.candyGuard;
   if (!candyGuardPkStr) {
-    throw new Error("Missing candy machine guard.");
+    throw new Error("Missing candy machine guard id.");
   }
   let candyGuardPk;
   try {

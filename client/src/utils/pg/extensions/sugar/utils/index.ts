@@ -4,4 +4,5 @@ export * from "./candy-machine";
 export * from "./config";
 export * from "./guards";
 export * from "./metaplex";
+export * from "./print";
 export * from "./utils";
