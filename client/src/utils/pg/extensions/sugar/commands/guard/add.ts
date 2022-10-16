@@ -56,8 +56,6 @@ export const processGuardAdd = async (
     throw new Error("Missing guards configuration.");
   }
 
-  console.log(configData.guards);
-
   let candyGuardPk;
   if (!candyGuardPkStr) {
     term.println(`\n[2/3] ${Emoji.GUARD} Initializing a candy guard`);
