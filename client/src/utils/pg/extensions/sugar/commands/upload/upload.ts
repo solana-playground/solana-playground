@@ -11,6 +11,7 @@ import { Emoji } from "../../../../../../constants";
 import { PgCommon } from "../../../../common";
 import { PgConnection } from "../../../../connection";
 import { PgTerminal } from "../../../../terminal";
+import { PgValidator } from "../../../../validator";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { getAssetPairs } from "./assets";
 
@@ -46,14 +47,16 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
     if (item) {
       const imageChanged =
-        item.image_hash !== pair.image_hash || !item.image_link;
+        item.image_hash !== pair.image_hash ||
+        !PgValidator.isUrl(item.image_link);
 
       const animationChanged =
         item.animation_hash !== pair.animation_hash ||
-        (!item.animation_link && pair.animation);
+        (!PgValidator.isUrl(item.animation_link ?? "") && pair.animation);
 
       const metadataChanged =
-        item.metadata_hash !== pair.metadata_hash || !item.metadata_link;
+        item.metadata_hash !== pair.metadata_hash ||
+        !PgValidator.isUrl(item.metadata_link);
 
       if (imageChanged) {
         // Triggers the image upload
@@ -175,13 +178,21 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
           const currentIndex = indices.metadata[j + i];
           if (currentIndex === undefined) break;
 
-          const metadataIndex =
+          let metadataIndex =
             currentIndex !== -1 ? 2 * currentIndex : files.length - 2;
+          let imgIndex = metadataIndex + 1;
+
+          // metadata and image files could be in reverse order
+          if (!files[metadataIndex].name.endsWith(".json")) {
+            metadataIndex++;
+            imgIndex--;
+          }
+
           const metadata: UploadMetadataInput = JSON.parse(
             await files[metadataIndex].text()
           );
           const imgMetaplexFile = await toMetaplexFileFromBrowser(
-            files[metadataIndex + 1]
+            files[imgIndex]
           );
           // Edit
           metadata.image = imgMetaplexFile;

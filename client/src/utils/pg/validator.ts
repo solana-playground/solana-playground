@@ -35,4 +35,16 @@ export class PgValidator {
       return false;
     }
   }
+
+  /**
+   * @returns whether a given string is a URL
+   */
+  static isUrl(str: string) {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

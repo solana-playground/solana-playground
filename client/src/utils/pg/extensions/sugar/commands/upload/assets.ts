@@ -113,8 +113,8 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
     const imgFileName = imgFileNames[0];
     const imgHash = encode(imgFileName);
 
-    // Need a similar check for animation as above, this one checking if there is animation
-    // on specific index
+    // Need a similar check for animation as above, this one checking if there is
+    // animation on specific index
     const animationRegex = new RegExp(`^${i}\\.(mp3|mp4|mov|webm|glb)$`, "i");
 
     const animationfileNames = fileNames.filter((f) => animationRegex.test(f));
