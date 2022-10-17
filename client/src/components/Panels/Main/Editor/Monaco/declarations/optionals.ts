@@ -4,7 +4,7 @@ const getImportRegex = (packageName: string) =>
   new RegExp(`("|')${packageName}("|')`, "gm");
 
 const SPL_TOKEN_REGEX = getImportRegex(ClientPackage.SOLANA_SPL_TOKEN);
-const METAPLEX_REGEX = getImportRegex(ClientPackage.METAPLEX_JS);
+// const METAPLEX_REGEX = getImportRegex(ClientPackage.METAPLEX_JS);
 
 const loaded = {
   splToken: false,
@@ -17,9 +17,10 @@ export const declareOptionalTypes = async (content: string) => {
     loadSplTokenTypes();
     loaded.splToken = true;
   }
-  if (!loaded.metaplex && METAPLEX_REGEX.test(content)) {
-    const { loadMetaplexTypes } = await import("./packages/metaplex");
-    loadMetaplexTypes();
-    loaded.metaplex = true;
-  }
+  // TODO: takes forever to load and doesn't work properly
+  // if (!loaded.metaplex && METAPLEX_REGEX.test(content)) {
+  //   const { loadMetaplexTypes } = await import("./packages/metaplex");
+  //   loadMetaplexTypes();
+  //   loaded.metaplex = true;
+  // }
 };

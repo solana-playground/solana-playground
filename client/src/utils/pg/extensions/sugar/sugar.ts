@@ -133,7 +133,9 @@ export class PgSugar {
       // Show how to set a custom rpc endpoint if the current endpoint is a known endpoint
       if (NETWORKS.some((n) => n.endpoint === PgConnection.endpoint)) {
         PgTerminal.log(
-          `NOTE: You may want to use a custom rpc endpoint. If you have one, you can set it up with ${PgTerminal.bold(
+          `${
+            e.message?.endsWith("\n") ? "" : "\n"
+          }NOTE: You may want to use a custom rpc endpoint. If you have one, you can set it up with ${PgTerminal.bold(
             "'solana config set --url <RPC_URL>'"
           )}`
         );

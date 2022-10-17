@@ -43,6 +43,7 @@ const Monaco = () => {
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       diagnosticCodesToIgnore: [
         1375, // top level await
+        2686, // UMD global because of module
       ],
     });
   }, []);
