@@ -108,6 +108,11 @@ const COMMANDS: Command[] = [
     description: "Commands for interacting with SPL Tokens",
   },
   {
+    name: PgCommand.SUGAR,
+    description:
+      "Command line tool for creating and managing Metaplex Candy Machines",
+  },
+  {
     name: PgCommand.TEST,
     description: "Run all tests in tests directory",
   },

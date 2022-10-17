@@ -1,8 +1,11 @@
 import {
+  BundlrStorageDriver,
   JsonMetadata,
+  sol,
   toMetaplexFileFromBrowser,
   UploadMetadataInput,
 } from "@metaplex-foundation/js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../constants";
 import { PgCommon } from "../../../../common";
@@ -17,7 +20,7 @@ interface AssetType {
   animation: number[];
 }
 
-const MAX_TRY = 5;
+const MAX_TRY = 3;
 
 export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
   const configData = await loadConfigData();
@@ -213,6 +216,15 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
               break;
             } catch (e: any) {
               console.log(e.message);
+              // There is a bug where the amount automatically calculated and sent by the sdk
+              // is not enough and it throws not enough funds error. We are funding it extra
+              // 10_000 lamports and users are able to withdraw their extra balance with
+              // `sugar bundlr withdraw`
+              if ((e.message = "Not enough funds to send data")) {
+                (
+                  (await metaplex.storage().driver()) as BundlrStorageDriver
+                ).fund(sol(10_000 / LAMPORTS_PER_SOL));
+              }
 
               maxTryIndex++;
               if (maxTryIndex === MAX_TRY) {
@@ -229,7 +241,7 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
                 break;
               }
 
-              await PgCommon.sleep(1000);
+              await PgCommon.sleep(500);
             }
           }
         }

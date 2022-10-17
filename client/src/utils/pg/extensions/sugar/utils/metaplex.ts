@@ -15,9 +15,9 @@ export const getMetaplex = async (endpoint: string) => {
     .use(
       bundlrStorage({
         address:
-          (await getCluster(endpoint)) === "devnet"
-            ? BundlrEnpoints.DEVNET
-            : BundlrEnpoints.MAINNET,
+          (await getCluster(endpoint)) === "mainnet-beta"
+            ? BundlrEnpoints.MAINNET
+            : BundlrEnpoints.DEVNET,
         providerUrl: endpoint,
       })
     );

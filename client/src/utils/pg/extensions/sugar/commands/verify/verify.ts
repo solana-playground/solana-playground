@@ -11,8 +11,6 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
   // the upload command)
   const cache = await loadCache();
 
-  const term = await PgTerminal.get();
-
   if (cache.isItemsEmpty()) {
     throw new Error(
       `No cache items found - run ${PgTerminal.bold(
@@ -20,6 +18,8 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
       )} to create the cache file first.`
     );
   }
+
+  const term = await PgTerminal.get();
 
   term.println(`[1/2] ${Emoji.CANDY} Loading candy machine`);
 

@@ -65,19 +65,40 @@ export const processSign = async (
       term.println(`\n[3/3] ${Emoji.SIGNING} Signing mint accounts`);
     }
 
-    const errors = [];
-    for (const metadataAccount of metadataAccounts) {
-      try {
-        await sign(metaplex, new PublicKey(metadataAccount.data.slice(33, 65)));
-      } catch (e: any) {
-        errors.push(e.message);
-      }
-    }
+    // Show progress bar
+    PgTerminal.setProgress(0.1);
+    let progressCount = 0;
+    let errorCount = 0;
 
-    if (errors.length) {
-      console.log(errors);
+    const CONCURRENT = 4;
+
+    await Promise.all(
+      new Array(CONCURRENT).fill(null).map(async (_, i) => {
+        for (let j = 0; j + i < metadataAccounts.length; j += CONCURRENT) {
+          try {
+            await sign(
+              metaplex,
+              new PublicKey(metadataAccounts[j + i].data.slice(33, 65))
+            );
+          } catch (e: any) {
+            console.log(e.message);
+            errorCount++;
+          } finally {
+            progressCount++;
+            PgTerminal.setProgress(
+              (progressCount / metadataAccounts.length) * 100
+            );
+          }
+        }
+      })
+    );
+
+    // Hide progress bar
+    setTimeout(() => PgTerminal.setProgress(0), 1000);
+
+    if (errorCount) {
       throw new Error(
-        `Failed to sign ${errors.length}/${metadataAccounts.length} NFTs.`
+        `Failed to sign ${errorCount}/${metadataAccounts.length} NFTs.`
       );
     }
 

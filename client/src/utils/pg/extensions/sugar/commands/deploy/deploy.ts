@@ -16,7 +16,9 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
   const cache = await loadCache();
   if (cache.isItemsEmpty()) {
     throw new Error(
-      "No cache items found - run 'sugar upload' to create the cache file first."
+      `No cache items found - run ${PgTerminal.bold(
+        "'sugar upload'"
+      )} to create the cache file first.`
     );
   }
 

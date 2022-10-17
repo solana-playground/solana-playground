@@ -32,9 +32,9 @@ export const processBundlr = async (
 
   const cluster = await getCluster(rpcUrl);
   const bundlr = new Bundlr(
-    cluster === "devnet" ? BundlrEnpoints.DEVNET : BundlrEnpoints.MAINNET,
+    cluster === "mainnet-beta" ? BundlrEnpoints.MAINNET : BundlrEnpoints.DEVNET,
     "solana",
-    wallet.keypair,
+    wallet,
     {
       providerUrl: rpcUrl,
     }
@@ -45,7 +45,7 @@ export const processBundlr = async (
   PgTerminal.log("\nFunding address:");
   PgTerminal.log(`  -> pubkey: ${pkStr}`);
   PgTerminal.log(
-    `  -> lamports: ${balance} (◎ ${balance.div(LAMPORTS_PER_SOL)})`
+    `  -> lamports: ${balance} (${Emoji.SOL} ${balance.div(LAMPORTS_PER_SOL)})`
   );
 
   // Withdraw funds
@@ -69,7 +69,7 @@ export const processBundlr = async (
         `\n${PgTerminal.error("Insufficient balance for withdraw:")}`
       );
       PgTerminal.log(
-        `  -> required balance > ${LIMIT.toString()} (◎ ${
+        `  -> required balance > ${LIMIT.toString()} (${Emoji.SOL} ${
           LIMIT / LAMPORTS_PER_SOL
         })`
       );

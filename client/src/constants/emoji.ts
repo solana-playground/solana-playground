@@ -19,8 +19,8 @@ export enum Emoji {
   FIRE = "🔥 ",
   RIGHT_ARROW = "➡️ ",
   MONEY_BAG = "💰 ",
-  BULLSEYE = "◎",
-  GUARD = "🛡  ",
+  SOL = "◎",
+  GUARD = "🛡 ",
   WRAP = "📦 ",
   UNWRAP = "🔩 ",
 }

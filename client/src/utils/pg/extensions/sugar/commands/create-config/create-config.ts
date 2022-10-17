@@ -290,6 +290,9 @@ export const processCreateConfig = async () => {
     { confirm: true }
   );
 
+  // Guards
+  configData.guards = null;
+
   // Save the file
   term.println(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
 

@@ -91,7 +91,7 @@ const printGuardSet = (
     printWithStyle(
       innerPadding,
       "lamports",
-      `${guardSet.botTax.lamports.basisPoints.toString()} (${Emoji.BULLSEYE} ${
+      `${guardSet.botTax.lamports.basisPoints.toString()} (${Emoji.SOL} ${
         guardSet.botTax.lamports.basisPoints.toNumber() / LAMPORTS_PER_SOL
       })`
     );
@@ -111,9 +111,7 @@ const printGuardSet = (
       innerPadding,
       "lamports",
 
-      `${guardSet.solPayment.amount.basisPoints.toString()} (${
-        Emoji.BULLSEYE
-      } ${
+      `${guardSet.solPayment.amount.basisPoints.toString()} (${Emoji.SOL} ${
         guardSet.solPayment.amount.basisPoints.toNumber() / LAMPORTS_PER_SOL
       })`
     );
