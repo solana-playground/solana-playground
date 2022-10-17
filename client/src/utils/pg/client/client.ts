@@ -158,7 +158,7 @@ export class PgClient {
       // Remove import statements
       // Need to do this after we setup all the imports because of internal
       // cursor index state the regex.exec has.
-      code = code.replace(/import\s+[*|{](.?\n?)+["|'].+["|']/gm, "");
+      code = code.replace(importRegex, "");
 
       // Playground utils namespace
       const pg: Pg = { connection };
