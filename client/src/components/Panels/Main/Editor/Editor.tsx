@@ -5,6 +5,7 @@ import styled, { css } from "styled-components";
 import Home from "./Home";
 import { Wormhole } from "../../../Loading";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
+import { Lang } from "../../../../utils/pg";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
@@ -23,10 +24,8 @@ const Editor = () => {
         setShowHome(true);
       } else {
         setShowHome(false);
-
-        setShowMonaco(
-          !(explorer.isCurrentFileRust() || explorer.isCurrentFilePython())
-        );
+        const lang = explorer.getCurrentFileLanguage();
+        setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
       }
 
       setLoading(false);

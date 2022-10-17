@@ -316,7 +316,8 @@ const CodeMirror = () => {
 
     // Update in editor
     const isLibrs = explorer.getCurrentFile()?.path.endsWith("lib.rs");
-    const isPython = !isLibrs && explorer.isCurrentFilePython();
+    const isPython =
+      !isLibrs && explorer.getCurrentFileLanguage() === Lang.PYTHON;
     if (!isLibrs && !isPython) return;
 
     const editorContent = editor.state.doc.toString();
@@ -361,8 +362,11 @@ const CodeMirror = () => {
       PgTerminal.runCmd(async () => {
         if (!editor || !explorer) return;
 
+        const lang = explorer.getCurrentFileLanguage();
+        if (!lang) return;
+
         let formatRust;
-        const isCurrentFileRust = explorer.isCurrentFileRust();
+        const isCurrentFileRust = lang === Lang.RUST;
         if (isCurrentFileRust) {
           formatRust = async () => {
             const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
@@ -454,12 +458,60 @@ const CodeMirror = () => {
           };
         }
 
+        const isCurrentFileJSON = lang === Lang.JSON;
+        let formatJSON;
+        if (isCurrentFileJSON) {
+          formatJSON = () => {
+            const currentContent = editor.state.doc.toString();
+            const formattedCode = PgCommon.prettyJSON(
+              JSON.parse(currentContent)
+            );
+
+            let cursorOffset = editor.state.selection.ranges[0].from;
+            const currentLine = editor.state.doc.lineAt(cursorOffset);
+            if (currentLine.number !== 1) {
+              const beforeLine = editor.state.doc.line(currentLine.number - 1);
+              const afterLine = editor.state.doc.line(currentLine.number + 1);
+              const searchText = currentContent.substring(
+                beforeLine.from,
+                afterLine.to
+              );
+
+              const searchIndex = formattedCode.indexOf(searchText);
+              if (searchIndex !== -1) {
+                // Check if there are multiple instances of the same searchText
+                const nextSearchIndex = formattedCode.indexOf(
+                  searchText,
+                  searchIndex + searchText.length
+                );
+                if (nextSearchIndex === -1) {
+                  cursorOffset = searchIndex + cursorOffset - beforeLine.from;
+                }
+              }
+            }
+
+            editor.dispatch({
+              changes: {
+                from: 0,
+                to: currentContent.length,
+                insert: formattedCode,
+              },
+              selection: {
+                anchor: cursorOffset,
+                head: cursorOffset,
+              },
+            });
+          };
+        }
+
         // From keybind
         if (!e.detail) {
           if (isCurrentFileRust) {
             formatRust && (await formatRust());
           } else if (isCurrentFileJsLike) {
             formatJSTS && (await formatJSTS());
+          } else if (isCurrentFileJSON) {
+            formatJSON && formatJSON();
           }
 
           return;
@@ -517,9 +569,7 @@ const CodeMirror = () => {
       );
       document.removeEventListener("keydown", handleFormatOnKeybind);
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged]);
+  }, [editor, explorer]);
 
   return <div ref={codemirrorRef} />;
 };

@@ -501,6 +501,8 @@ export class PgExplorer {
       }
     }
 
+    this._dispatchOnDidSwitchFile();
+
     this._refresh();
 
     await this.saveMeta();
@@ -1066,20 +1068,6 @@ export class PgExplorer {
       ? currentPath
       : this.getRelativePath(currentPath);
     return PgExplorer.getLanguageFromPath(path);
-  }
-
-  /**
-   * @returns whether the current file in the state is a Rust file
-   */
-  isCurrentFileRust() {
-    return this.getCurrentFileLanguage() === Lang.RUST;
-  }
-
-  /**
-   * @returns whether the current file in the state is a Python file
-   */
-  isCurrentFilePython() {
-    return this.getCurrentFileLanguage() === Lang.PYTHON;
   }
 
   /**

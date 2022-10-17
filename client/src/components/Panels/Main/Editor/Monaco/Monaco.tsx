@@ -47,38 +47,6 @@ const Monaco = () => {
     });
   }, []);
 
-  // Set declarations
-  useEffect(() => {
-    if (!editor || !explorer) return;
-    let declareOptionalsTimoutId: NodeJS.Timer;
-
-    const declareOptionals = async () => {
-      const { declareOptionalTypes } = await import("./declarations/optionals");
-      await declareOptionalTypes(editor.getValue());
-    };
-
-    const switchFile = explorer.onDidSwitchFile(async () => {
-      const { declareDefaultTypes } = await import("./declarations/defaults");
-      await declareDefaultTypes();
-      await declareOptionals();
-      const { declareDisposableTypes } = await import(
-        "./declarations/disposables"
-      );
-      await declareDisposableTypes();
-    });
-
-    const changeContent = editor.onDidChangeModelContent(async () => {
-      clearTimeout(declareOptionalsTimoutId);
-      declareOptionalsTimoutId = setTimeout(declareOptionals, 1000);
-    });
-
-    return () => {
-      switchFile.dispose();
-      clearTimeout(declareOptionalsTimoutId);
-      changeContent.dispose();
-    };
-  }, [editor, explorer]);
-
   const theme = useTheme();
 
   // Set theme
@@ -341,8 +309,11 @@ const Monaco = () => {
       PgTerminal.runCmd(async () => {
         if (!editor || !explorer) return;
 
+        const lang = explorer.getCurrentFileLanguage();
+        if (!lang) return;
+
         let formatRust;
-        const isCurrentFileRust = explorer.isCurrentFileRust();
+        const isCurrentFileRust = lang === Lang.RUST;
         if (isCurrentFileRust) {
           formatRust = async () => {
             const currentContent = editor.getValue();
@@ -464,12 +435,74 @@ const Monaco = () => {
           };
         }
 
+        const isCurrentFileJSON = lang === Lang.JSON;
+        let formatJSON;
+        if (isCurrentFileJSON) {
+          formatJSON = () => {
+            const model = editor.getModel();
+            if (!model) return;
+
+            const pos = editor.getPosition();
+            if (!pos) return;
+            let cursorOffset = model.getOffsetAt(pos);
+            const currentLine = model.getLineContent(pos.lineNumber);
+            const beforeLine = model.getLineContent(pos.lineNumber - 1);
+            const afterLine = model.getLineContent(pos.lineNumber + 1);
+            const searchText = [beforeLine, currentLine, afterLine].reduce(
+              (acc, cur) => acc + cur + "\n",
+              ""
+            );
+
+            const formattedCode = PgCommon.prettyJSON(
+              JSON.parse(editor.getValue())
+            );
+            const searchIndex = formattedCode.indexOf(searchText);
+            if (searchIndex !== -1) {
+              // Check if there are multiple instances of the same searchText
+              const nextSearchIndex = formattedCode.indexOf(
+                searchText,
+                searchIndex + searchText.length
+              );
+              if (nextSearchIndex === -1) {
+                cursorOffset =
+                  searchIndex +
+                  cursorOffset -
+                  model.getOffsetAt({
+                    lineNumber: pos.lineNumber - 1,
+                    column: 0,
+                  });
+              }
+            }
+
+            const endLineNumber = model.getLineCount();
+            const endColumn = model.getLineContent(endLineNumber).length + 1;
+
+            // Execute edits pushes the changes to the undo stack
+            editor.executeEdits(null, [
+              {
+                text: formattedCode,
+                range: {
+                  startLineNumber: 1,
+                  endLineNumber,
+                  startColumn: 0,
+                  endColumn,
+                },
+              },
+            ]);
+
+            const resultPos = model.getPositionAt(cursorOffset);
+            editor.setPosition(resultPos);
+          };
+        }
+
         // From keybind
         if (!e.detail) {
           if (isCurrentFileRust) {
             formatRust && (await formatRust());
           } else if (isCurrentFileJsLike) {
             formatJSTS && (await formatJSTS());
+          } else if (isCurrentFileJSON) {
+            formatJSON && formatJSON();
           }
 
           return;
@@ -527,9 +560,39 @@ const Monaco = () => {
       );
       document.removeEventListener("keydown", handleFormatOnKeybind);
     };
+  }, [editor, explorer]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged]);
+  // Set declarations
+  useEffect(() => {
+    if (!editor || !explorer) return;
+    let declareOptionalsTimoutId: NodeJS.Timer;
+
+    const declareOptionals = async () => {
+      const { declareOptionalTypes } = await import("./declarations/optionals");
+      await declareOptionalTypes(editor.getValue());
+    };
+
+    const switchFile = explorer.onDidSwitchFile(async () => {
+      const { declareDefaultTypes } = await import("./declarations/defaults");
+      await declareDefaultTypes();
+      await declareOptionals();
+      const { declareDisposableTypes } = await import(
+        "./declarations/disposables"
+      );
+      await declareDisposableTypes();
+    });
+
+    const changeContent = editor.onDidChangeModelContent(async () => {
+      clearTimeout(declareOptionalsTimoutId);
+      declareOptionalsTimoutId = setTimeout(declareOptionals, 1000);
+    });
+
+    return () => {
+      switchFile.dispose();
+      clearTimeout(declareOptionalsTimoutId);
+      changeContent.dispose();
+    };
+  }, [editor, explorer]);
 
   return <div ref={monacoRef} />;
 };
