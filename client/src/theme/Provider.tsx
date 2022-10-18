@@ -106,7 +106,7 @@ const MutThemeProvider: FC = ({ children }) => {
   // Gutter
   if (!_theme.colors.editor?.gutter) _theme.colors.editor.gutter = {};
   if (!_theme.colors.editor.gutter.bg)
-    _theme.colors.editor.gutter.bg = "inherit";
+    _theme.colors.editor.gutter.bg = _theme.colors.editor.bg;
   if (!_theme.colors.editor.gutter.color)
     _theme.colors.editor.gutter.color = _theme.colors.default.textSecondary;
 
