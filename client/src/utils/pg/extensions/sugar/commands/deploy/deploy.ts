@@ -112,7 +112,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
     }
 
     // Create candy machine
-    term.println(`[2/${totalSteps}] ${Emoji.CANDY} Creating candy machine`);
+    term.println(`\n[2/${totalSteps}] ${Emoji.CANDY} Creating candy machine`);
 
     // Save the candy machine pubkey to the cache before attempting to deploy
     // in case the transaction doesn't confirm in time the next run should pickup

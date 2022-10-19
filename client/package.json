@@ -18,7 +18,7 @@
     "@codemirror/view": "^6.2.3",
     "@floating-ui/react-dom": "^0.6.0",
     "@isomorphic-git/lightning-fs": "^4.6.0",
-    "@metaplex-foundation/js": "^0.17.1",
+    "@metaplex-foundation/js": "^0.17.2",
     "@metaplex-foundation/mpl-candy-machine-core": "*",
     "@metaplex-foundation/mpl-token-metadata": "*",
     "@project-serum/anchor": "^0.23.0",
