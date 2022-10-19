@@ -54,6 +54,8 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   const [txVals, setTxVals] = useState<TxVals>({
     name: ixs.name,
     additionalSigners: {},
+    args: [],
+    accs: {},
   });
   const [errors, setErrors] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
@@ -102,7 +104,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         return { ...e };
       });
     },
-    [ixs.name, setErrors]
+    [ixs.name]
   );
 
   // Gets called in the first render
@@ -115,13 +117,9 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
           const parsedV = PgTest.parse(v, type);
 
           if (identifier === "args") {
-            let args = txVals.args ?? {};
-            args[k] = parsedV;
-            txVals.args = args;
+            txVals.args[ixs.args.findIndex((arg) => arg.name === k)] = parsedV;
           } else {
-            let accs = txVals.accs ?? {};
-            accs[k] = parsedV;
-            txVals.accs = accs;
+            txVals.accs[k] = parsedV;
           }
 
           // If there is a randomly generated signer
@@ -139,7 +137,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         }
       });
     },
-    [setTxVals, handleErrors]
+    [ixs.args, handleErrors]
   );
 
   const { currentWallet } = useCurrentWallet();
@@ -197,7 +195,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txVals, idl, conn, currentWallet, PgTerminal.log]);
+  }, [txVals, idl, conn, currentWallet, setTxHash]);
 
   return (
     <>

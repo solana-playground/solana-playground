@@ -21,8 +21,8 @@ type KV = {
 export interface TxVals {
   name: string;
   additionalSigners: KV;
-  accs?: KV;
-  args?: KV;
+  accs: KV;
+  args: any[];
 }
 
 export type Seed = {
@@ -352,20 +352,17 @@ export class PgTest {
     conn: Connection,
     wallet: PgWallet | AnchorWallet
   ) {
+    // Get program
     const program = this.getProgram(idl, conn, wallet);
 
-    const tx = new Transaction();
-
-    let argValues = [];
-    for (const argName in txVals.args) {
-      argValues.push(txVals.args[argName]);
-    }
-
     // Create method
-    const method = program.methods[txVals.name](...argValues);
+    const method = program.methods[txVals.name](...txVals.args);
 
     // Create instruction
     const ix = await method.accounts(txVals.accs as {}).instruction();
+
+    // Create tx
+    const tx = new Transaction();
 
     // Add ix to tx
     tx.add(ix);
