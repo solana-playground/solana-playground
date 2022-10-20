@@ -28,6 +28,9 @@ export enum EventName {
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
+  // View
+  VIEW_MAIN_SET = "viewmainset",
+
   // Wallet
   WALLET_STATIC = "walletstatic",
 }

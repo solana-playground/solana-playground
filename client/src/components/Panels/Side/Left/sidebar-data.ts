@@ -1,6 +1,6 @@
 import { Sidebar } from "../sidebar-state";
 
-const ROOT_DIR = "icons/sidebar/";
+const ROOT_DIR = "/icons/sidebar/";
 
 export const sidebarData = {
   top: [
@@ -24,6 +24,11 @@ export const sidebarData = {
       src: ROOT_DIR + "test.png",
       value: Sidebar.TEST,
     },
+    // {
+    //   title: `${Sidebar.TUTORIALS} (Ctrl+Shift+L)`,
+    //   src: ROOT_DIR + "tutorials.png",
+    //   value: Sidebar.TUTORIALS,
+    // },
   ],
   bottom: [
     {

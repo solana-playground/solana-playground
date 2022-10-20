@@ -1608,7 +1608,7 @@ export class PgExplorer {
   }
 
   static getExplorerIconsPath(name: string) {
-    return "icons/explorer/" + name;
+    return "/icons/explorer/" + name;
   }
 
   static appendSlash(path: string) {

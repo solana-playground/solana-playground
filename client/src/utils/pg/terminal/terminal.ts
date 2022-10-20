@@ -37,9 +37,10 @@ export class PgTerminal {
   static readonly MIN_HEIGHT = 36;
 
   /**
-   * Maximum height for the terminal
-   * This is to fix bottom of the terminal not being visible due to
-   * incorrect resizing
+   * Maximum height for the terminal.
+   *
+   * This is for fixing bottom of the terminal not being visible due to
+   * incorrect resizing.
    */
   static get MAX_HEIGHT() {
     const tabHeight = document
@@ -51,6 +52,8 @@ export class PgTerminal {
 
     if (tabHeight && bottomHeight) {
       return window.innerHeight - (tabHeight + bottomHeight);
+    } else if (bottomHeight) {
+      return window.innerHeight - bottomHeight;
     }
 
     return this.DEFAULT_HEIGHT;
@@ -154,7 +157,8 @@ export class PgTerminal {
           new RegExp(/(http|{|})/).test(match) ||
           new RegExp(/"\w+":/).test(match) ||
           new RegExp(/\(\w+:/).test(match) ||
-          new RegExp(/^\s*\|/).test(match)
+          new RegExp(/^\s*\|/).test(match) ||
+          new RegExp(/^\s?\d+/).test(match)
         ) {
           return match;
         }

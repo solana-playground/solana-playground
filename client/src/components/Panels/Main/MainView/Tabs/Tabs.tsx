@@ -3,14 +3,14 @@ import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
-import Button from "../../../Button";
-import { Id } from "../../../../constants";
+import Button from "../../../../Button";
+import { Id } from "../../../../../constants";
 import {
   explorerAtom,
   refreshExplorerAtom,
   showWalletAtom,
-} from "../../../../state";
-import { useCurrentWallet } from "../../Wallet";
+} from "../../../../../state";
+import { useCurrentWallet } from "../../../Wallet";
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -34,10 +34,12 @@ const Tabs = () => {
     return () => document.removeEventListener("keydown", handleKey);
   }, [explorer]);
 
+  if (!tabs?.length) return null;
+
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        {tabs?.map((t, i) => (
+        {tabs.map((t, i) => (
           <Tab key={i} current={t.meta?.current} path={t.path} />
         ))}
       </TabsWrapper>

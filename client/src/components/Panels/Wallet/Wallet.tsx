@@ -25,7 +25,7 @@ import { ClassName, Emoji, Id } from "../../../constants";
 import { pgWalletAtom, showWalletAtom, txHashAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../../utils/pg";
 import { Close, ThreeDots } from "../../Icons";
-import { EDITOR_SCROLLBAR_WIDTH } from "../Main/Editor";
+import { EDITOR_SCROLLBAR_WIDTH } from "../Main/MainView/Editor";
 import { ICONBAR_WIDTH } from "../Side/Left";
 import { BOTTOM_HEIGHT } from "../Bottom";
 import { useCurrentWallet, useConnect, useAirdropAmount } from "./";

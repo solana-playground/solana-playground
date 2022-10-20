@@ -1,12 +1,12 @@
 import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../../Button";
-import { PROJECT_NAME } from "../../../../../constants";
+import Button from "../../../../../Button";
+import { PROJECT_NAME } from "../../../../../../constants";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
-import { DefaultLink } from "../../../../Link";
-import { External } from "../../../../Icons";
+import { DefaultLink } from "../../../../../Link";
+import { External } from "../../../../../Icons";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the

@@ -2,7 +2,7 @@ import * as monaco from "monaco-editor";
 import { PublicKey } from "@solana/web3.js";
 import { Idl } from "@project-serum/anchor";
 
-import { PgProgramInfo } from "../../../../../../utils/pg";
+import { PgProgramInfo } from "../../../../../../../utils/pg";
 
 interface DeclarationState {
   disposables: monaco.IDisposable[];

@@ -26,6 +26,7 @@ export enum Id {
   ROOT_DIR = "root-dir",
   BOTTOM = "bottom",
   TABS = "tabs",
+  TERMINAL = "terminal",
   WALLET_MAIN = "wallet-main",
   WALLET_BOUND = "wallet-bound",
 }

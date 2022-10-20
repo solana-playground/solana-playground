@@ -225,6 +225,16 @@ export class PgCommon {
   }
 
   /**
+   * @returns kebab-case converted version of the string input
+   */
+  static toKebabCase(str: string) {
+    return str
+      .split(" ")
+      .map((w) => w[0].toLowerCase() + w.substring(1))
+      .join("-");
+  }
+
+  /**
    * @returns automatic airdrop amount
    */
   static getAirdropAmount(endpoint: Endpoint = PgConnection.endpoint) {

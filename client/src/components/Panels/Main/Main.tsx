@@ -1,18 +1,15 @@
 import styled from "styled-components";
 
-import Tabs from "./Tabs";
-import Editor from "./Editor";
 import Terminal from "./Terminal";
-import ClientHelper from "../../ClientHelper";
+import MainView from "./MainView";
 
 const Main = () => (
   <Wrapper>
-    <Tabs />
-    <Editor />
+    <MainView />
     <Terminal />
-    <ClientHelper />
   </Wrapper>
 );
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

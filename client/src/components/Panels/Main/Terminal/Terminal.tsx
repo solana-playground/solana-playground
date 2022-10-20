@@ -10,7 +10,7 @@ import { useTerminal } from "./useTerminal";
 import { Clear, Close, DoubleArrow, Tick } from "../../../Icons";
 import { terminalProgressAtom } from "../../../../state";
 import { PgCommon, PgEditor, PgTerm, PgTerminal } from "../../../../utils/pg";
-import { EventName } from "../../../../constants";
+import { EventName, Id } from "../../../../constants";
 import { useExposeStatic } from "../../../../hooks";
 
 const Terminal = () => {
@@ -236,7 +236,7 @@ const Terminal = () => {
         topLeft: false,
       }}
     >
-      <Wrapper>
+      <Wrapper id={Id.TERMINAL}>
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>

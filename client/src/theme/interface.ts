@@ -229,6 +229,14 @@ export interface PgTheme {
 
     // General tooltip
     tooltip?: BgAndColor;
+
+    // Tutorial component
+    tutorial?: BgAndColor & {
+      code?: BgAndColor;
+    };
+
+    // Tutorials section
+    tutorials?: BgAndColor;
   };
 
   borderRadius?: string;

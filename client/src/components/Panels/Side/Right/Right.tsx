@@ -15,8 +15,8 @@ import { Resizable } from "re-resizable";
 
 import TestSkeleton from "./Test/TestSkeleton";
 import { Wormhole } from "../../../Loading";
-import { ClassName, Id } from "../../../../constants";
-import { TAB_HEIGHT } from "../../Main/Tabs";
+import { ClassName, Id, Route } from "../../../../constants";
+import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { Sidebar } from "../sidebar-state";
 import { PgExplorer, PgShare } from "../../../../utils/pg";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
@@ -25,6 +25,7 @@ const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
 const BuildDeploy = lazy(() => import("./BuildDeploy"));
 const Test = lazy(() => import("./Test"));
+const Tutorials = lazy(() => import("./Tutorials"));
 
 interface DefaultRightProps {
   sidebarState: string;
@@ -45,7 +46,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pathname === "/") {
+    if (pathname === "/" || pathname.startsWith(Route.TUTORIALS)) {
       (async () => {
         try {
           const explorer = new PgExplorer(refreshExplorer);
@@ -152,6 +153,8 @@ const Inside: FC<DefaultRightProps> = ({ sidebarState }) => {
       return <BuildDeploy />;
     case Sidebar.TEST:
       return <Test />;
+    case Sidebar.TUTORIALS:
+      return <Tutorials />;
     default:
       return null;
   }

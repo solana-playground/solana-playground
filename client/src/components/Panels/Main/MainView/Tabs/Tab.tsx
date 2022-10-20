@@ -2,11 +2,11 @@ import { FC, MouseEvent, useCallback, useRef } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import Button from "../../../Button";
-import LangIcon from "../../../LangIcon";
-import { Close } from "../../../Icons";
-import { PgExplorer } from "../../../../utils/pg";
-import { explorerAtom } from "../../../../state";
+import Button from "../../../../Button";
+import LangIcon from "../../../../LangIcon";
+import { Close } from "../../../../Icons";
+import { PgExplorer } from "../../../../../utils/pg";
+import { explorerAtom } from "../../../../../state";
 
 interface TabProps {
   path: string;

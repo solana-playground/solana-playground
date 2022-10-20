@@ -4,6 +4,7 @@ export enum Sidebar {
   // SEARCH = "Search",
   BUILD_DEPLOY = "Build & Deploy",
   TEST = "Test",
+  TUTORIALS = "Tutorials",
   GITHUB = "Github",
   WALLET = "Wallet",
   SETTINGS = "Settings",

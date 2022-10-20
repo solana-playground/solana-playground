@@ -27,9 +27,9 @@ module.exports = {
           test: /@lezer\/lr\/dist\/\w+\.js$/,
           resolve: { fullySpecified: false },
         },
-        // Import typescript declaration files as raw
+        // Raw imports
         {
-          test: /\.d\.ts$/,
+          test: /\.(d\.ts|raw\.ts|rs|py|md)$/,
           type: "asset/source",
         }
       );

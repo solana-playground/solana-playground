@@ -9,7 +9,7 @@ import {
   buildCountAtom,
   explorerAtom,
   refreshExplorerAtom,
-} from "../../../../../state";
+} from "../../../../../../state";
 import {
   PgExplorer,
   PgProgramInfo,
@@ -17,8 +17,8 @@ import {
   Lang,
   PgCommon,
   PgPkg,
-} from "../../../../../utils/pg";
-import { EventName } from "../../../../../constants";
+} from "../../../../../../utils/pg";
+import { EventName } from "../../../../../../constants";
 
 const CodeMirror = () => {
   const [explorer] = useAtom(explorerAtom);

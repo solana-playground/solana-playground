@@ -3,9 +3,9 @@ import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Home from "./Home";
-import { Wormhole } from "../../../Loading";
-import { explorerAtom, refreshExplorerAtom } from "../../../../state";
-import { Lang } from "../../../../utils/pg";
+import MainViewLoading from "../MainViewLoading";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
+import { Lang } from "../../../../../utils/pg";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
@@ -46,14 +46,14 @@ const Editor = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explorer, explorerChanged]);
 
-  if (loading) return <EditorLoading />;
+  if (loading) return <MainViewLoading />;
 
   return (
-    <Wrapper>
-      <Suspense fallback={<EditorLoading />}>
+    <Suspense fallback={<MainViewLoading />}>
+      <Wrapper>
         {showHome ? <Home /> : showMonaco ? <Monaco /> : <CodeMirror />}
-      </Suspense>
-    </Wrapper>
+      </Wrapper>
+    </Suspense>
   );
 };
 
@@ -62,6 +62,7 @@ export const EDITOR_SCROLLBAR_WIDTH = "0.75rem";
 const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
+    height: 100%;
     overflow: auto;
     background-color: ${theme.colors.home?.bg};
 
@@ -98,18 +99,6 @@ const Wrapper = styled.div`
       background-color: ${theme.colors.right?.bg};
     }
   `}
-`;
-
-const EditorLoading = () => (
-  <LoadingWrapper>
-    <Wormhole size={10} />
-  </LoadingWrapper>
-);
-
-const LoadingWrapper = styled.div`
-  flex: 1;
-  height: 100%;
-  display: flex;
 `;
 
 export default Editor;

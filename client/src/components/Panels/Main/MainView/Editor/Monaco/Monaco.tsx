@@ -3,15 +3,15 @@ import { useAtom } from "jotai";
 import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
-import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
 import {
   Lang,
   PgCommon,
   PgExplorer,
   PgPkg,
   PgTerminal,
-} from "../../../../../utils/pg";
-import { EventName } from "../../../../../constants";
+} from "../../../../../../utils/pg";
+import { EventName } from "../../../../../../constants";
 
 const Monaco = () => {
   const [explorer] = useAtom(explorerAtom);

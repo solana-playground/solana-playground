@@ -1,4 +1,4 @@
-import { ClientPackage } from "../../../../../../utils/pg/client/package";
+import { ClientPackage } from "../../../../../../../utils/pg/client/package";
 
 const getImportRegex = (packageName: string) =>
   new RegExp(`("|')${packageName}("|')`, "gm");
