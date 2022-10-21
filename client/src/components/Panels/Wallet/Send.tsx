@@ -108,7 +108,6 @@ const SendInside = () => {
       let msg = "";
 
       try {
-        await PgCommon.sleep();
         const pk = new PublicKey(address);
 
         const ix = SystemProgram.transfer({
@@ -119,7 +118,9 @@ const SendInside = () => {
 
         const tx = new Transaction().add(ix);
 
-        const txHash = await PgTx.send(tx, conn, currentWallet);
+        const txHash = await PgCommon.transition(
+          PgTx.send(tx, conn, currentWallet)
+        );
         setTxHash(txHash);
         msg = PgTerminal.success("Success.");
       } catch (e: any) {

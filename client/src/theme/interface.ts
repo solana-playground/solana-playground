@@ -218,6 +218,11 @@ export interface PgTheme {
     // Icon panel
     left?: BgAndColor; // bgPrimary, textPrimary
 
+    // Markdown component
+    markdown?: BgAndColor & {
+      code?: BgAndColor;
+    };
+
     // Side right panel
     right?: BgAndColor & { otherBg?: string };
 
@@ -231,9 +236,7 @@ export interface PgTheme {
     tooltip?: BgAndColor;
 
     // Tutorial component
-    tutorial?: BgAndColor & {
-      code?: BgAndColor;
-    };
+    tutorial?: BgAndColor;
 
     // Tutorials section
     tutorials?: BgAndColor;

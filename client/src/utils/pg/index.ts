@@ -11,6 +11,7 @@ export * from "./program-info";
 export * from "./share";
 export * from "./terminal/";
 export * from "./test/";
+export * from "./tutorial";
 export * from "./tx";
 export * from "./types";
 export * from "./validator";

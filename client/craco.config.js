@@ -29,7 +29,7 @@ module.exports = {
         },
         // Raw imports
         {
-          test: /\.(d\.ts|raw\.ts|rs|py|md)$/,
+          test: /\.(d\.ts|raw|rs|py|md)$/,
           type: "asset/source",
         }
       );

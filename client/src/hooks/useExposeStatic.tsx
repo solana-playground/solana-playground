@@ -8,10 +8,10 @@ export const useExposeStatic = (
   classObject: { [key: string]: any } | null,
   eventName: string
 ) => {
-  const { get, run } = useMemo(
+  const eventNames = useMemo(
     () => PgCommon.getStaticEventNames(eventName),
     [eventName]
   );
-  useExposeGetClassAsStatic(classObject, get);
-  useExposeMethodsAsStatic(classObject, run);
+  useExposeGetClassAsStatic(classObject, eventNames.get);
+  useExposeMethodsAsStatic(classObject, eventNames.run);
 };

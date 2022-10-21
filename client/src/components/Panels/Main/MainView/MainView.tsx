@@ -5,7 +5,7 @@ import EditorWithTabs from "./EditorWithTabs";
 import MainViewLoading from "./MainViewLoading";
 import Tutorials from "./Tutorials";
 import { EventName, Route } from "../../../../constants";
-import { PgCommon, PgView } from "../../../../utils/pg";
+import { PgCommon, PgTutorial } from "../../../../utils/pg";
 import { TUTORIALS } from "../../../../tutorials";
 
 const MainView = () => {
@@ -18,27 +18,33 @@ const MainView = () => {
   useEffect(() => {
     setLoading(true);
     (async () => {
-      if (pathname.startsWith(Route.TUTORIALS)) {
-        if (pathname === Route.TUTORIALS) {
-          await PgCommon.sleep(500);
-          PgView.setMain(Tutorials);
-        } else {
-          const tutorial = TUTORIALS.find(
-            (t) =>
-              PgCommon.toKebabCase(t.name) ===
-              pathname.split(`${Route.TUTORIALS}/`)[1]
-          );
-          if (!tutorial) {
-            navigate(Route.TUTORIALS);
-            return;
-          }
+      await PgCommon.transition(
+        (async () => {
+          if (pathname.startsWith(Route.TUTORIALS)) {
+            if (pathname === Route.TUTORIALS) {
+              setEl(Tutorials);
+            } else {
+              const tutorial = TUTORIALS.find(
+                (t) =>
+                  PgCommon.toKebabCase(t.name) ===
+                  pathname.split(`${Route.TUTORIALS}/`)[1]
+              );
+              if (!tutorial) {
+                navigate(Route.TUTORIALS);
+                return;
+              }
+              PgTutorial.setCurrent(tutorial);
 
-          const { default: El } = await tutorial.elementImport();
-          PgView.setMain(() => <El {...tutorial} />);
-        }
-      } else {
-        PgView.setMain(EditorWithTabs);
-      }
+              const { default: El } = await tutorial.elementImport();
+              setEl(() => <El {...tutorial} />);
+            }
+          } else {
+            setEl(EditorWithTabs);
+          }
+        })(),
+        400
+      );
+
       setLoading(false);
     })();
   }, [pathname, navigate]);

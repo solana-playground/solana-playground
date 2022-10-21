@@ -7,3 +7,4 @@ export * from "./program";
 export * from "./connection";
 export * from "./terminal";
 export * from "./toast";
+export * from "./tutorial";

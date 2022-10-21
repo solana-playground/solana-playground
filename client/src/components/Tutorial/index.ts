@@ -1,2 +1,2 @@
-export { default } from "./Tutorial";
+export * from "./Tutorial";
 export * from "./types";

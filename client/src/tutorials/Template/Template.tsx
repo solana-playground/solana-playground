@@ -1,15 +1,23 @@
-import { FC } from "react";
+import { Tutorial } from "../../components/Tutorial";
+import { Files } from "../../utils/pg";
 
-import Tutorial, { TutorialProps } from "../../components/Tutorial";
-
-const page1 = `# Hello1, *world*!`;
-const page2 = `# Hello2, *world*!`;
-const page3 = `# Hello3, *world*!`;
-
+// Main markdown text to show as the preview and introduction to the tutorial
 const main = require("./Main.md");
 
-const FirstTutorial: FC<TutorialProps> = (props) => {
-  return <Tutorial {...props} main={main} pages={[page1, page2, page3]} />;
-};
+// Actual tutorial pages to show next to the editor
+const page1 = require("./pages/1.md");
+const page2 = require("./pages/2.md");
+const page3 = require("./pages/3.md");
+const pages = [page1, page2, page3];
+
+// Initial files to have at the beginning of the tutorial
+const files: Files = [
+  ["src/lib.rs", require("./files/lib.rs")],
+  ["client/client.ts", require("./files/client.ts.raw")],
+];
+
+const FirstTutorial = () => (
+  <Tutorial main={main} pages={pages} files={files} />
+);
 
 export default FirstTutorial;

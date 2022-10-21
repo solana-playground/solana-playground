@@ -6,7 +6,8 @@ import Left from "./Left";
 import Right from "./Right";
 import { Sidebar } from "./sidebar-state";
 import { PgCommon } from "../../../utils/pg";
-import { Route } from "../../../constants";
+import { EventName, Route } from "../../../constants";
+import { useSetStatic } from "../../../hooks";
 
 const Side = () => {
   const { pathname } = useLocation();
@@ -23,6 +24,15 @@ const Side = () => {
 
   const oldSidebarRef = useRef(sidebarState);
 
+  useSetStatic(setSidebarState, EventName.VIEW_SIDEBAR_STATE_SET);
+
+  useEffect(() => {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+      { state: sidebarState }
+    );
+  }, [sidebarState]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +41,10 @@ const Side = () => {
       !pathname.startsWith(Route.TUTORIALS)
     ) {
       navigate(Route.TUTORIALS);
-    } else if (sidebarState !== Sidebar.TUTORIALS && pathname !== "/") {
+    } else if (
+      sidebarState !== Sidebar.TUTORIALS &&
+      pathname === Route.TUTORIALS
+    ) {
       navigate("/");
     }
   }, [sidebarState, pathname, navigate]);

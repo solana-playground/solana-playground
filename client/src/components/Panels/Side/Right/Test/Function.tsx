@@ -155,8 +155,9 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
       let msg = "";
 
       try {
-        await PgCommon.sleep(); // To smooth out button transition
-        const txHash = await PgTest.test(txVals, idl, conn, currentWallet);
+        const txHash = await PgCommon.transition(
+          PgTest.test(txVals, idl, conn, currentWallet)
+        );
         setTxHash(txHash);
 
         if (preferences.showTxDetailsInTerminal) {

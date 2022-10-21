@@ -28,8 +28,14 @@ export enum EventName {
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
+  // Tutorial
+  TUTORIAL_PAGE_STATIC = "tutorialpagestatic",
+  TUTORIAL_STATIC = "tutorialstatic",
+
   // View
   VIEW_MAIN_SET = "viewmainset",
+  VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
+  VIEW_ON_DID_CHANGE_SIDEBAR_STATE = "viewondidchangesidebarstate",
 
   // Wallet
   WALLET_STATIC = "walletstatic",

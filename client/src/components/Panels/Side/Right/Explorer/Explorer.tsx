@@ -9,13 +9,9 @@ import NoWorkspace from "./NoWorkspace";
 import useExplorerContextMenu from "./useExplorerContextMenu";
 import useNewItem from "./useNewItem";
 import { explorerAtom } from "../../../../../state";
-import { EventName } from "../../../../../constants";
-import { useExposeStatic } from "../../../../../hooks";
 
 const Explorer = () => {
   const [explorer] = useAtom(explorerAtom);
-
-  useExposeStatic(explorer, EventName.EXPLORER_STATIC);
 
   const { newItem } = useNewItem();
   const { renameItem, deleteItem } = useExplorerContextMenu();

@@ -135,6 +135,18 @@ const MutThemeProvider: FC = ({ children }) => {
   if (!_theme.colors.home.card.color)
     _theme.colors.home.card.color = _theme.colors.default.textPrimary;
 
+  // Markdown
+  if (!_theme.colors.markdown) _theme.colors.markdown = {};
+  if (!_theme.colors.markdown.bg)
+    _theme.colors.markdown.bg = _theme.colors.default.bgPrimary;
+  if (!_theme.colors.markdown.color)
+    _theme.colors.markdown.color = _theme.colors.default.textPrimary;
+  if (!_theme.colors.markdown.code) _theme.colors.markdown.code = {};
+  if (!_theme.colors.markdown.code.bg)
+    _theme.colors.markdown.code.bg = _theme.colors.default.bgSecondary;
+  if (!_theme.colors.markdown.code.color)
+    _theme.colors.markdown.code.color = _theme.colors.default.textPrimary;
+
   // Terminal
   if (!_theme.colors.terminal)
     _theme.colors.terminal = {
@@ -154,14 +166,9 @@ const MutThemeProvider: FC = ({ children }) => {
   // Tutorial
   if (!_theme.colors.tutorial) _theme.colors.tutorial = {};
   if (!_theme.colors.tutorial.bg)
-    _theme.colors.tutorial.bg = _theme.colors.default.bgPrimary;
+    _theme.colors.tutorial.bg = _theme.colors.default.bgSecondary;
   if (!_theme.colors.tutorial.color)
     _theme.colors.tutorial.color = _theme.colors.default.textPrimary;
-  if (!_theme.colors.tutorial.code) _theme.colors.tutorial.code = {};
-  if (!_theme.colors.tutorial.code.bg)
-    _theme.colors.tutorial.code.bg = _theme.colors.default.bgSecondary;
-  if (!_theme.colors.tutorial.code.color)
-    _theme.colors.tutorial.code.color = _theme.colors.default.textPrimary;
 
   // Tutorials
   if (!_theme.colors.tutorials) _theme.colors.tutorials = {};

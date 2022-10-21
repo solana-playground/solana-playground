@@ -4,14 +4,26 @@ import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 import { PgConnection } from "./connection";
 
 export class PgCommon {
-  static readonly TRANSITION_SLEEP = 200;
-
   /**
    * @param ms amount of time to sleep in ms
    * @returns a promise that will resolve after specified ms
    */
-  static async sleep(ms: number = this.TRANSITION_SLEEP) {
+  static async sleep(ms: number = 300) {
     return new Promise((res) => setTimeout((s) => res(s), ms));
+  }
+
+  /**
+   * Wait at least `ms` amount of miliseconds before resolving
+   *
+   * @param promise promise to await
+   */
+  static async transition<P>(promise: P, ms?: number): Promise<Awaited<P>> {
+    const result = (await Promise.allSettled([this.sleep(ms), promise]))[1];
+    if (result.status === "fulfilled") {
+      return result.value;
+    }
+
+    throw new Error(result.reason);
   }
 
   /**
@@ -283,6 +295,18 @@ export class PgCommon {
     const get = eventName + "get";
     const run = eventName + "run";
     return { get, run };
+  }
+
+  /**
+   * Get static get and set event names
+   *
+   * @param eventName name of the custom event
+   * @returns names of the get and set
+   */
+  static getStaticStateEventNames(eventName: string) {
+    const get = eventName + "get";
+    const set = eventName + "set";
+    return { get, set };
   }
 
   /**

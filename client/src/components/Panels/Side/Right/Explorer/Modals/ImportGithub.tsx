@@ -35,10 +35,8 @@ export const ImportGithub = () => {
     if (!url || !explorer) return;
 
     setLoading(true);
-    await PgCommon.sleep();
-
     try {
-      await explorer.importFromGithub(url);
+      await PgCommon.transition(explorer.importFromGithub(url));
       close();
     } catch (e: any) {
       setLoading(false);

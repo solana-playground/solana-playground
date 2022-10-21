@@ -30,10 +30,9 @@ export const Share = () => {
     if (!explorer) return;
 
     setDisabled(true);
-    await PgCommon.sleep();
 
     try {
-      const id = await PgShare.new(explorer);
+      const id = await PgCommon.transition(PgShare.new(explorer));
       setTextState({
         type: "Success",
         id,

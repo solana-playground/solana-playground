@@ -62,7 +62,6 @@ export const EDITOR_SCROLLBAR_WIDTH = "0.75rem";
 const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
-    height: 100%;
     overflow: auto;
     background-color: ${theme.colors.home?.bg};
 

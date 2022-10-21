@@ -1,5 +1,7 @@
-import { EventName, Id } from "../../constants";
+import { Sidebar } from "../../components/Panels/Side/sidebar-state";
+import { EventName } from "../../constants";
 import { PgCommon } from "./common";
+import { PgDisposable } from "./types";
 
 export class PgView {
   /**
@@ -11,18 +13,34 @@ export class PgView {
     PgCommon.createAndDispatchCustomEvent(EventName.VIEW_MAIN_SET, { El });
   }
 
-  /**
-   * @returns the available height for the main view
-   */
-  static getMainViewHeight() {
-    const tabHeight =
-      document.getElementById(Id.TABS)?.getBoundingClientRect()?.height ?? 32;
-    const bottomHeight =
-      document.getElementById(Id.BOTTOM)?.getBoundingClientRect()?.height ?? 24;
-    const terminalHeight =
-      document.getElementById(Id.TERMINAL)?.getBoundingClientRect()?.height ??
-      244;
+  static setSidebarState(state: Sidebar) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_SIDEBAR_STATE_SET,
+      state
+    );
+  }
 
-    return window.innerHeight - (tabHeight + bottomHeight + terminalHeight);
+  /**
+   * Runs after changing sidebar state
+   *
+   * @param cb callback function to run after changing sidebar page
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeSidebarState(cb: (state: Sidebar) => any): PgDisposable {
+    const handle = (e: UIEvent & { detail: { state: Sidebar } }) => {
+      cb(e.detail.state);
+    };
+
+    document.addEventListener(
+      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+      handle as EventListener
+    );
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+          handle as EventListener
+        ),
+    };
   }
 }

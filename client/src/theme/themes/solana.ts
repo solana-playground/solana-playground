@@ -93,6 +93,12 @@ export const SOLANA: PgTheme = {
       bg: BG_GRAY,
       color: TEXT_PRIMARY,
     },
+    tutorial: {
+      bg: BG_BLACK,
+    },
+    tutorials: {
+      bg: BG_BLACK,
+    },
   },
   skeleton: {
     color: SELECTION,

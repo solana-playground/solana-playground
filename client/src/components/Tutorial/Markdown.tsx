@@ -41,15 +41,15 @@ const MarkdownWrapper = styled.div`
     --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
     --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
     --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-    --color-fg-default: ${theme.colors.tutorial?.color};
+    --color-fg-default: ${theme.colors.markdown?.color};
     --color-fg-muted: ${theme.colors.default.textSecondary};
     --color-fg-subtle: #484f58;
-    --color-canvas-default: ${theme.colors.tutorial?.bg};
-    --color-canvas-subtle: ${theme.colors.tutorial?.code?.bg};
+    --color-canvas-default: ${theme.colors.markdown?.bg};
+    --color-canvas-subtle: ${theme.colors.markdown?.code?.bg};
     --color-border-default: ${theme.colors.default.borderColor};
     --color-border-muted: ${theme.colors.default.borderColor +
     theme.transparency?.high};
-    --color-neutral-muted: rgba(110, 118, 129, 0.4);
+    --color-neutral-muted: ${theme.colors.state.hover.bg};
     --color-accent-fg: ${theme.colors.default.primary};
     --color-accent-emphasis: #1f6feb;
     --color-attention-subtle: rgba(187, 128, 9, 0.15);

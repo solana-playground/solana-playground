@@ -28,10 +28,8 @@ const Transactions = () => {
     const getTxs = async () => {
       setLoading(true);
       try {
-        await PgCommon.sleep();
-        const _signatures = await conn.getSignaturesForAddress(
-          currentWallet.publicKey,
-          { limit: 10 }
+        const _signatures = await PgCommon.transition(
+          conn.getSignaturesForAddress(currentWallet.publicKey, { limit: 10 })
         );
 
         setSignatures(_signatures);
