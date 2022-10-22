@@ -9,7 +9,7 @@ import {
   EXPLORER_URL,
   Id,
   NETWORKS,
-  CUSTOM_NETWORK_NAME,
+  NetworkName,
   ClassName,
 } from "../../../constants";
 import { PgCommon } from "../../../utils/pg";
@@ -31,10 +31,10 @@ const Bottom = () => {
   const [networkName, cluster] = useMemo(() => {
     return [
       NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name ??
-        CUSTOM_NETWORK_NAME,
+        NetworkName.CUSTOM,
       PgCommon.getExplorerClusterParam(conn.rpcEndpoint),
     ];
-  }, [conn]);
+  }, [conn.rpcEndpoint]);
 
   return (
     <Wrapper id={Id.BOTTOM}>

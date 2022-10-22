@@ -1,6 +1,7 @@
 import { ChangeEvent } from "react";
-import { PgPreferences } from "../../../../../utils/pg";
+
 import CheckBox from "../../../../CheckBox";
+import { PgPreferences } from "../../../../../utils/pg";
 
 const ShowTxDetailsInTerminal = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

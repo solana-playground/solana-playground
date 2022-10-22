@@ -3,6 +3,11 @@ type BgAndColor = {
   color?: string;
 };
 
+type StateColor = {
+  color: string;
+  bg?: string;
+};
+
 export type Font = {
   family: string;
   size: {
@@ -158,12 +163,12 @@ export interface PgTheme {
     };
 
     state: {
-      hover: BgAndColor;
-      disabled: BgAndColor;
-      error: BgAndColor;
-      success: BgAndColor;
-      warning: BgAndColor;
-      info: BgAndColor;
+      hover: StateColor;
+      disabled: StateColor;
+      error: StateColor;
+      success: StateColor;
+      warning: StateColor;
+      info: StateColor;
     };
 
     // Bottom bar

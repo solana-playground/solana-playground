@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTheme } from "styled-components";
 
 import THEMES from "../../../../../theme/themes";
@@ -10,18 +10,25 @@ const ThemeSetting = () => {
   const [selectedTheme, setSelectedTheme] = useState<PgTheme>();
   const theme = useTheme();
 
-  const changeTheme = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedTheme(THEMES.find((t) => t.name === e.target.value));
-  }, []);
-
   useSetTheme(selectedTheme);
 
+  const options = useMemo(
+    () => THEMES.map((t) => ({ value: t.name, label: t.name })),
+    []
+  );
+  const value = useMemo(
+    () => options.find((option) => option.value === theme.name),
+    [theme.name, options]
+  );
+
   return (
-    <Select value={theme?.name} onChange={changeTheme}>
-      {THEMES.map((t, i) => (
-        <option key={i}>{t.name}</option>
-      ))}
-    </Select>
+    <Select
+      options={options}
+      value={value}
+      onChange={(newValue) =>
+        setSelectedTheme(THEMES.find((t) => t.name === newValue?.value))
+      }
+    />
   );
 };
 

@@ -1,6 +1,6 @@
 import { Commitment } from "@solana/web3.js";
 
-enum NetworkName {
+export enum NetworkName {
   LOCALHOST = "localhost",
   DEVNET = "devnet",
   DEVNET_GENESYSGO = "devnet-genesysgo",
@@ -8,6 +8,7 @@ enum NetworkName {
   MAINNET_BETA = "mainnet-beta",
   MAINNET_BETA_GENESYSGO = "mainnet-beta-genesysgo",
   MAINNET_BETA_SERUM = "mainnet-beta-serum",
+  CUSTOM = "custom",
 }
 
 export enum Endpoint {
@@ -55,8 +56,6 @@ export const NETWORKS: Network[] = [
     endpoint: Endpoint.MAINNET_BETA_SERUM,
   },
 ];
-
-export const CUSTOM_NETWORK_NAME = "custom";
 
 export const COMMITMENT_LEVELS: Commitment[] = [
   "processed",

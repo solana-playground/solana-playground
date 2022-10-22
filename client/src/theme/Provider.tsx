@@ -42,6 +42,26 @@ const MutThemeProvider: FC = ({ children }) => {
   // Transparency
   if (!_theme.transparency) _theme.transparency = PG_TRANSPARENCY;
 
+  // State
+  if (!_theme.colors.state.disabled.bg)
+    _theme.colors.state.disabled.bg =
+      _theme.colors.state.disabled.color + _theme.transparency.low;
+  if (!_theme.colors.state.error.bg)
+    _theme.colors.state.error.bg =
+      _theme.colors.state.error.color + _theme.transparency.low;
+  if (!_theme.colors.state.hover.bg)
+    _theme.colors.state.hover.bg =
+      _theme.colors.state.hover.color + _theme.transparency.low;
+  if (!_theme.colors.state.info.bg)
+    _theme.colors.state.info.bg =
+      _theme.colors.state.info.color + _theme.transparency.low;
+  if (!_theme.colors.state.success.bg)
+    _theme.colors.state.success.bg =
+      _theme.colors.state.success.color + _theme.transparency.low;
+  if (!_theme.colors.state.warning.bg)
+    _theme.colors.state.warning.bg =
+      _theme.colors.state.warning.color + _theme.transparency.low;
+
   // Border radius
   if (!_theme.borderRadius) _theme.borderRadius = PG_BORDER_RADIUS;
 

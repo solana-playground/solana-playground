@@ -36,6 +36,7 @@ export const DRACULA: PgTheme = {
     state: {
       hover: {
         bg: HOVER,
+        color: "#888a9d",
       },
       disabled: {
         bg: BG_DARKER,

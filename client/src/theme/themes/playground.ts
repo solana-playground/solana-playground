@@ -50,6 +50,7 @@ export const PLAYGROUND: PgTheme = {
       },
       hover: {
         bg: BG_LIGHT,
+        color: "#838799",
       },
       info: {
         color: BLUE,

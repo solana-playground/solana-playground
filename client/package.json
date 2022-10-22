@@ -49,6 +49,7 @@
     "react-rnd": "^10.3.7",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
+    "react-select": "^5.5.4",
     "react-toastify": "^9.0.0",
     "react-use-clipboard": "^1.0.8",
     "shell-quote": "^1.7.3",

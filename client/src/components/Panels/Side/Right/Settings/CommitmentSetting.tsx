@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo } from "react";
+import { useMemo } from "react";
 import { useAtom } from "jotai";
 import { Commitment } from "@solana/web3.js";
 
@@ -10,22 +10,25 @@ import { PgConnection } from "../../../../../utils/pg";
 const CommitmentSetting = () => {
   const [conn, setConn] = useAtom(connAtom);
 
-  const changeCommitment = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newCommitment = e.target.value as Commitment;
-    setConn((c) => ({ ...c, commitment: newCommitment }));
-    PgConnection.update({ commitment: newCommitment });
-  };
-
-  const cluster = useMemo(() => {
-    return COMMITMENT_LEVELS.filter((c) => c === conn.commitment)[0];
-  }, [conn.commitment]);
+  const options = useMemo(
+    () => COMMITMENT_LEVELS.map((c) => ({ value: c, label: c })),
+    []
+  );
+  const value = useMemo(
+    () => options.find((o) => o.value === conn.commitment),
+    [conn.commitment, options]
+  );
 
   return (
-    <Select value={cluster} onChange={changeCommitment}>
-      {COMMITMENT_LEVELS.map((c, i) => (
-        <option key={i}>{c}</option>
-      ))}
-    </Select>
+    <Select
+      options={options}
+      value={value}
+      onChange={(newValue) => {
+        const newCommitment = newValue?.value as Commitment;
+        setConn((c) => ({ ...c, commitment: newCommitment }));
+        PgConnection.update({ commitment: newCommitment });
+      }}
+    />
   );
 };
 

@@ -14,10 +14,15 @@ const Settings = () => (
     <Setting name="Font" SettingElement={<FontSetting />} />
     <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
     <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
-    <Setting name="Preflight checks" SettingElement={<PreflightSetting />} />
+    <Setting
+      name="Preflight checks"
+      SettingElement={<PreflightSetting />}
+      isCheckbox
+    />
     <Setting
       name="Show transaction details in terminal"
       SettingElement={<ShowTxDetailsInTerminal />}
+      isCheckbox
     />
   </Wrapper>
 );
@@ -33,30 +38,33 @@ const Wrapper = styled.div`
 interface SettingProps {
   name: string;
   SettingElement: ReactElement;
+  isCheckbox?: boolean;
 }
 
-const Setting: FC<SettingProps> = ({ name, SettingElement }) => (
-  <SettingWrapper>
+const Setting: FC<SettingProps> = ({ name, SettingElement, isCheckbox }) => (
+  <SettingWrapper isCheckbox={isCheckbox}>
     <Left>{name}</Left>
     <Right>{SettingElement}</Right>
   </SettingWrapper>
 );
 
-const SettingWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  max-width: 23rem;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
+const SettingWrapper = styled.div<Pick<SettingProps, "isCheckbox">>`
+  ${({ theme, isCheckbox }) => css`
+    display: flex;
+    width: 100%;
+    max-width: 23rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
 
-  &:not(:last-child) {
-    border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
-  }
+    &:not(:last-child) {
+      border-bottom: 1px solid ${theme.colors.default.borderColor};
+    }
 
-  & select {
-    width: 10rem;
-  }
+    & > div:last-child {
+      width: ${!isCheckbox && "11.5rem"};
+    }
+  `}
 `;
 
 const Left = styled.div``;

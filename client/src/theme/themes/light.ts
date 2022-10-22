@@ -44,6 +44,7 @@ export const LIGHT: PgTheme = {
     state: {
       hover: {
         bg: HOVER,
+        color: "#71717110",
       },
       disabled: {
         bg: DISABLED,

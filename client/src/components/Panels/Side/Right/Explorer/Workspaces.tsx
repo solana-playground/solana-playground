@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { useMemo } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -21,16 +21,13 @@ import {
   Rename,
   Trash,
 } from "../../../../Icons";
+import { PgExplorer } from "../../../../../utils/pg";
 
 const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setModal] = useAtom(modalAtom);
 
   if (!explorer?.hasWorkspaces()) return <ShareWarning />;
-
-  const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-    explorer.changeWorkspace(e.target.value);
-  };
 
   const handleNew = () => {
     setModal(<NewWorkspace />);
@@ -89,14 +86,34 @@ const Workspaces = () => {
           </Button>
         </ButtonsWrapper>
       </TopWrapper>
-      <SelectWrapper>
-        <Select value={explorer.currentWorkspaceName} onChange={handleSelect}>
-          {explorer.allWorkspaceNames!.map((name, i) => (
-            <option key={i}>{name}</option>
-          ))}
-        </Select>
-      </SelectWrapper>
+      <WorkspaceSelect />
     </Wrapper>
+  );
+};
+
+const WorkspaceSelect = () => {
+  const [explorer] = useAtom<PgExplorer>(explorerAtom as any);
+
+  const options = useMemo(
+    () =>
+      explorer.allWorkspaceNames!.map((name) => ({
+        value: name,
+        label: name,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [explorer.currentWorkspaceName]
+  );
+
+  return (
+    <SelectWrapper>
+      <Select
+        options={options}
+        value={options.find(
+          (option) => option.value === explorer.currentWorkspaceName
+        )}
+        onChange={(props) => explorer.changeWorkspace(props?.value!)}
+      />
+    </SelectWrapper>
   );
 };
 

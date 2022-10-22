@@ -43,6 +43,7 @@ export const SOLANA: PgTheme = {
       },
       hover: {
         bg: HOVER_BG,
+        color: "#91939e",
       },
       info: {
         color: BLUE,
