@@ -1,20 +1,12 @@
 import { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-import { Route } from "../../../../../constants";
-import { PgCommon } from "../../../../../utils/pg";
+import { PgTutorial } from "../../../../../utils/pg";
 import { TutorialData } from "../../../../Tutorial";
 
 const TutorialCard: FC<TutorialData> = ({ name, description, imageSrc }) => {
-  const navigate = useNavigate();
-
   return (
-    <Wrapper
-      onClick={() =>
-        navigate(`${Route.TUTORIALS}/${PgCommon.toKebabCase(name)}`)
-      }
-    >
+    <Wrapper onClick={() => PgTutorial.openTutorial(name)}>
       <ImgWrapper>
         <Img src={imageSrc} />
       </ImgWrapper>

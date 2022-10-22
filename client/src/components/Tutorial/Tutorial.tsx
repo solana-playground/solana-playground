@@ -1,12 +1,11 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import Button from "../Button";
 import Markdown from "./Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { Sidebar } from "../Panels/Side/sidebar-state";
-import { PgExplorer, PgTutorial, PgView } from "../../utils/pg";
+import { PgExplorer, PgRouter, PgTutorial, PgView } from "../../utils/pg";
 import { Route } from "../../constants";
 import { TutorialComponentProps } from "./types";
 
@@ -15,17 +14,16 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   pages,
   files,
   defaultOpenFile,
+  reverseLayout,
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const previousPageRef = useRef(currentPage);
 
-  const navigate = useNavigate();
-
   const goBackToTutorials = useCallback(() => {
     PgView.setSidebarState(Sidebar.TUTORIALS);
-    navigate(Route.TUTORIALS);
-  }, [navigate]);
+    PgRouter.navigate(Route.TUTORIALS);
+  }, []);
   const nextPage = useCallback(() => {
     setCurrentPage((c) => c + 1);
   }, []);
@@ -34,10 +32,13 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }, []);
   const startTutorial = useCallback(async () => {
     const explorer = await PgExplorer.get();
-    const tutorialWorkspaceName = await PgTutorial.getTutorialWorkspaceName();
+    const tutorialWorkspaceName = (await PgTutorial.getCurrent()).name;
     if (explorer.allWorkspaceNames?.includes(tutorialWorkspaceName)) {
       console.log(1);
       // Start from where the user left off
+      if (explorer.currentWorkspaceName !== tutorialWorkspaceName) {
+        await explorer.changeWorkspace(tutorialWorkspaceName);
+      }
     } else {
       console.log(2);
       // Initial tutorial setup
@@ -77,7 +78,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           <Button onClick={startTutorial}>START TUTORIAL</Button>
         </MainWrapper>
       ) : (
-        <PagesWrapper>
+        <PagesWrapper reverseLayout={reverseLayout}>
           <EditorWrapper>
             <EditorWithTabs />
           </EditorWrapper>
@@ -142,8 +143,10 @@ const MainWrapper = styled.div`
   overflow: auto;
 `;
 
-const PagesWrapper = styled.div`
+const PagesWrapper = styled.div<Pick<TutorialComponentProps, "reverseLayout">>`
   display: flex;
+  flex-direction: ${({ reverseLayout }) =>
+    reverseLayout ? "row-reverse" : "row"};
   width: 100%;
   overflow: auto;
   height: -webkit-fill-available;

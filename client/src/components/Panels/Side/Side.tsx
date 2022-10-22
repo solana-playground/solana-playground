@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
 import { Sidebar } from "./sidebar-state";
-import { PgCommon } from "../../../utils/pg";
+import { PgCommon, PgRouter } from "../../../utils/pg";
 import { EventName, Route } from "../../../constants";
 import { useSetStatic } from "../../../hooks";
 
@@ -33,21 +33,19 @@ const Side = () => {
     );
   }, [sidebarState]);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (
       sidebarState === Sidebar.TUTORIALS &&
       !pathname.startsWith(Route.TUTORIALS)
     ) {
-      navigate(Route.TUTORIALS);
+      PgRouter.navigate(Route.TUTORIALS);
     } else if (
       sidebarState !== Sidebar.TUTORIALS &&
       pathname === Route.TUTORIALS
     ) {
-      navigate("/");
+      PgRouter.navigate("/");
     }
-  }, [sidebarState, pathname, navigate]);
+  }, [sidebarState, pathname]);
 
   // Keybinds
   useEffect(() => {

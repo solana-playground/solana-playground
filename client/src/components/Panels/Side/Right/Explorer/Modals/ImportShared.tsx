@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -7,6 +6,7 @@ import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
 import Input, { defaultInputProps } from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
+import { PgRouter } from "../../../../../../utils/pg";
 
 export const ImportShared = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -20,8 +20,6 @@ export const ImportShared = () => {
     inputRef.current?.focus();
   }, []);
 
-  const navigate = useNavigate();
-
   // Handle user input
   const [name, setName] = useState("");
 
@@ -34,7 +32,7 @@ export const ImportShared = () => {
 
     try {
       await explorer.newWorkspace(name, { fromShared: true });
-      navigate("/");
+      PgRouter.navigate("/");
       close();
     } catch (e: any) {
       console.log(e.message);

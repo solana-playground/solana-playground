@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import EditorWithTabs from "./EditorWithTabs";
 import MainViewLoading from "./MainViewLoading";
 import Tutorials from "./Tutorials";
 import { EventName, Route } from "../../../../constants";
-import { PgCommon, PgTutorial } from "../../../../utils/pg";
-import { TUTORIALS } from "../../../../tutorials";
+import {
+  PgCommon,
+  PgExplorer,
+  PgRouter,
+  PgTutorial,
+} from "../../../../utils/pg";
 
 const MainView = () => {
   const [El, setEl] = useState(EditorWithTabs);
   const [loading, setLoading] = useState(true);
 
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -24,13 +27,9 @@ const MainView = () => {
             if (pathname === Route.TUTORIALS) {
               setEl(Tutorials);
             } else {
-              const tutorial = TUTORIALS.find(
-                (t) =>
-                  PgCommon.toKebabCase(t.name) ===
-                  pathname.split(`${Route.TUTORIALS}/`)[1]
-              );
+              const tutorial = PgTutorial.getTutorialFromPathname(pathname);
               if (!tutorial) {
-                navigate(Route.TUTORIALS);
+                PgRouter.navigate(Route.TUTORIALS);
                 return;
               }
               PgTutorial.setCurrent(tutorial);
@@ -38,6 +37,9 @@ const MainView = () => {
               const { default: El } = await tutorial.elementImport();
               setEl(() => <El {...tutorial} />);
             }
+          } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
+            const tutorialName = (await PgExplorer.get()).currentWorkspaceName;
+            PgTutorial.openTutorial(tutorialName!);
           } else {
             setEl(EditorWithTabs);
           }
@@ -47,7 +49,7 @@ const MainView = () => {
 
       setLoading(false);
     })();
-  }, [pathname, navigate]);
+  }, [pathname]);
 
   useEffect(() => {
     const handleSetMainView = (

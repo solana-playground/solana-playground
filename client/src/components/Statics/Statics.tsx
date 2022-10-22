@@ -1,8 +1,14 @@
 import { useAtom } from "jotai";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useConnection } from "@solana/wallet-adapter-react";
 
 import { EventName } from "../../constants";
-import { useExposeStatic, useGetAndSetStatic, useSetStatic } from "../../hooks";
+import {
+  useExposeStatic,
+  useGetAndSetStatic,
+  useGetStatic,
+  useSetStatic,
+} from "../../hooks";
 import {
   explorerAtom,
   pgWalletAtom,
@@ -18,6 +24,14 @@ const Statics = () => {
   // Explorer
   const [explorer] = useAtom(explorerAtom);
   useExposeStatic(explorer, EventName.EXPLORER_STATIC);
+
+  // Router pathname
+  const { pathname } = useLocation();
+  useGetStatic(pathname, EventName.ROUTER_PATHNAME);
+
+  // Router navigate
+  const navigate = useNavigate();
+  useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
 
   // Terminal progress
   const [, setProgress] = useAtom(terminalProgressAtom);

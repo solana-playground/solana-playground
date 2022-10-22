@@ -1,6 +1,9 @@
 import { TutorialData } from "../../components/Tutorial";
-import { EventName } from "../../constants";
+import { EventName, Route } from "../../constants";
+import { TUTORIALS } from "../../tutorials";
 import { PgCommon } from "./common";
+import { PgExplorer } from "./explorer";
+import { PgRouter } from "./router";
 
 export class PgTutorial {
   static readonly PREFIX = "tutorial";
@@ -18,9 +21,12 @@ export class PgTutorial {
     );
   }
 
-  static async getTutorialWorkspaceName() {
-    const tutorial = await this.getCurrent();
-    return `${PgTutorial.PREFIX}-${PgCommon.toKebabCase(tutorial.name)}`;
+  static getTutorialFromPathname(pathname: string) {
+    return TUTORIALS.find(
+      (t) =>
+        PgCommon.toKebabCase(t.name) ===
+        pathname.split(`${Route.TUTORIALS}/`)[1]
+    );
   }
 
   static async getPageNumber(): Promise<number> {
@@ -33,6 +39,17 @@ export class PgTutorial {
     PgCommon.createAndDispatchCustomEvent(
       PgCommon.getStaticStateEventNames(EventName.TUTORIAL_PAGE_STATIC).set,
       pageNumber
+    );
+  }
+
+  static async isCurrentWorkspaceTutorial() {
+    const workspaceName = (await PgExplorer.get())?.currentWorkspaceName;
+    return TUTORIALS.some((t) => t.name === workspaceName);
+  }
+
+  static openTutorial(tutorialName: string) {
+    PgRouter.navigate(
+      `${Route.TUTORIALS}/${PgCommon.toKebabCase(tutorialName)}`
     );
   }
 }

@@ -282,6 +282,10 @@ export class PgExplorer {
       // Create it from localStorage
       await this.saveProgramInfo();
     }
+
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.EXPLORER_ON_DID_INIT_WORKSPACE
+    );
   }
 
   /**
@@ -1120,7 +1124,7 @@ export class PgExplorer {
   }
 
   /**
-   * Runs when switching to a different file
+   * Runs after switching to a different file
    *
    * @param cb callback function to run after switching file
    * @returns a dispose function to clear the event
@@ -1132,6 +1136,27 @@ export class PgExplorer {
     return {
       dispose: () =>
         document.removeEventListener(EventName.EXPLORER_ON_DID_SWITCH_FILE, cb),
+    };
+  }
+
+  /**
+   * Runs after init workspace
+   *
+   * @param cb callback function to run after init workspace
+   * @returns a dispose function to clear the event
+   */
+  onDidInitWorkspace(cb: () => any): PgDisposable {
+    // Calling the callback on the first mount because first init is getting
+    // triggered before explorer global object is set
+    cb();
+
+    document.addEventListener(EventName.EXPLORER_ON_DID_INIT_WORKSPACE, cb);
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.EXPLORER_ON_DID_INIT_WORKSPACE,
+          cb
+        ),
     };
   }
 

@@ -13,9 +13,14 @@ export enum EventName {
   // Explorer
   EXPLORER_STATIC = "explorerstatic",
   EXPLORER_ON_DID_SWITCH_FILE = "explorerondidswitchfile",
+  EXPLORER_ON_DID_INIT_WORKSPACE = "explorerondidinitworkspace",
 
   // Modal
   MODAL_SET = "modalset",
+
+  // Router
+  ROUTER_NAVIGATE = "routernavigate",
+  ROUTER_PATHNAME = "routerpathname",
 
   // Terminal
   TERMINAL_DISABLE = "terminaldisable",

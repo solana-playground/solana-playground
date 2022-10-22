@@ -8,6 +8,7 @@ export * from "./modal";
 export * from "./noti";
 export * from "./preferences";
 export * from "./program-info";
+export * from "./router";
 export * from "./share";
 export * from "./terminal/";
 export * from "./test/";
