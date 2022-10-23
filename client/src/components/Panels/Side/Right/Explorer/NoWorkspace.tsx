@@ -37,6 +37,10 @@ const Wrapper = styled.div`
 
   & > button {
     margin-top: 1rem;
+
+    & svg {
+      margin-right: 0.5rem !important;
+    }
   }
 `;
 

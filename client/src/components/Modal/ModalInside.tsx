@@ -62,7 +62,9 @@ const ModalInside: FC<ModalInsideProps> = ({
       {children}
       {buttonProps && (
         <ButtonWrapper>
-          <Button onClick={close}>Cancel</Button>
+          <Button onClick={close} kind="transparent">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmit}
             disabled={buttonProps.disabled || buttonProps.loading?.state}

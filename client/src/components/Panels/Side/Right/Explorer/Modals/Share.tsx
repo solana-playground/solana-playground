@@ -83,7 +83,9 @@ export const Share = () => {
           </Button>
         ) : (
           <>
-            <Button onClick={close}>Cancel</Button>
+            <Button onClick={close} kind="transparent">
+              Cancel
+            </Button>
             <Button
               onClick={share}
               disabled={disabled}

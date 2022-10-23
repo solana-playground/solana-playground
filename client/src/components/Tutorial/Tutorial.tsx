@@ -4,20 +4,24 @@ import styled, { css } from "styled-components";
 import Button from "../Button";
 import Markdown from "./Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
-import { Sidebar } from "../Panels/Side/sidebar-state";
-import { PgExplorer, PgRouter, PgTutorial, PgView } from "../../utils/pg";
-import { Route } from "../../constants";
-import { TutorialComponentProps } from "./types";
-import { PointedArrow } from "../Icons";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
+import { Sidebar } from "../Panels/Side/sidebar-state";
+import { PgExplorer, PgRouter, PgView } from "../../utils/pg";
+import { Route } from "../../constants";
+import { PointedArrow } from "../Icons";
+import { TutorialComponentProps, TutorialData } from "./types";
+import { useAtom } from "jotai";
+import { tutorialAtom } from "../../state";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
-  main,
+  about,
   pages,
   files,
   defaultOpenFile,
   reverseLayout,
 }) => {
+  const [tutorial] = useAtom<TutorialData>(tutorialAtom as any);
+
   const [currentPage, setCurrentPage] = useState(0);
 
   const previousPageRef = useRef(currentPage);
@@ -34,7 +38,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }, []);
   const startTutorial = useCallback(async () => {
     const explorer = await PgExplorer.get();
-    const tutorialWorkspaceName = (await PgTutorial.getCurrent()).name;
+    const tutorialWorkspaceName = tutorial.name;
     if (explorer.allWorkspaceNames?.includes(tutorialWorkspaceName)) {
       console.log(1);
       // Start from where the user left off
@@ -53,7 +57,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
     PgView.setSidebarState(Sidebar.EXPLORER);
     setCurrentPage(1);
-  }, [files, defaultOpenFile]);
+  }, [files, defaultOpenFile, tutorial.name]);
 
   useEffect(() => {
     const disposable = PgView.onDidChangeSidebarState((state) => {
@@ -75,9 +79,31 @@ export const Tutorial: FC<TutorialComponentProps> = ({
     <Wrapper>
       {currentPage === 0 ? (
         <MainWrapper>
-          <Button onClick={goBackToTutorials}>Go back</Button>
-          <Markdown>{main}</Markdown>
-          <Button onClick={startTutorial}>START TUTORIAL</Button>
+          <GoBackButtonWrapper>
+            <Button
+              onClick={goBackToTutorials}
+              kind="no-border"
+              leftIcon={<PointedArrow rotate="180deg" />}
+            >
+              Back
+            </Button>
+          </GoBackButtonWrapper>
+          <TutorialTopSectionWrapper>
+            <TutorialName>{tutorial.name}</TutorialName>
+            <TutorialDescriptionWrapper>
+              <TutorialDescription>{tutorial.description}</TutorialDescription>
+              <StartTutorialButtonWrapper>
+                <Button
+                  onClick={startTutorial}
+                  kind="secondary"
+                  fontWeight="bold"
+                >
+                  START
+                </Button>
+              </StartTutorialButtonWrapper>
+            </TutorialDescriptionWrapper>
+          </TutorialTopSectionWrapper>
+          <Markdown>{about}</Markdown>
         </MainWrapper>
       ) : (
         <PagesWrapper reverseLayout={reverseLayout}>
@@ -94,6 +120,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                     <Button
                       onClick={previousPage}
                       kind="no-border"
+                      fontWeight="bold"
                       leftIcon={<PointedArrow rotate="180deg" />}
                     >
                       {pages[currentPage - 2].title}
@@ -106,6 +133,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                     <Button
                       onClick={nextPage}
                       kind="no-border"
+                      fontWeight="bold"
                       rightIcon={<PointedArrow />}
                     >
                       {pages[currentPage].title}
@@ -160,6 +188,48 @@ const MainWrapper = styled.div`
   height: 100%;
   width: 100%;
   overflow: auto;
+`;
+
+const GoBackButtonWrapper = styled.div`
+  height: ${TAB_HEIGHT};
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+
+  & svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+`;
+
+const TutorialTopSectionWrapper = styled.div`
+  ${({ theme }) => css`
+    font-family: ${theme.font?.other?.family};
+    font-size: ${theme.font?.other?.size.medium};
+    background-color: ${theme.colors.markdown?.bg};
+    color: ${theme.colors.markdown?.color};
+    padding: 1.5rem 2rem;
+    max-width: 60rem;
+    border-top-right-radius: ${theme.borderRadius};
+    border-bottom-right-radius: ${theme.borderRadius};
+  `}
+`;
+
+const TutorialName = styled.h1``;
+
+const TutorialDescriptionWrapper = styled.div`
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const TutorialDescription = styled.div`
+  color: ${({ theme }) => theme.colors.default.textSecondary};
+  max-width: 85%;
+`;
+
+const StartTutorialButtonWrapper = styled.div`
+  margin-left: 2rem;
 `;
 
 const PagesWrapper = styled.div<Pick<TutorialComponentProps, "reverseLayout">>`

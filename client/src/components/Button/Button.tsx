@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
+import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
 
@@ -23,6 +23,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   btnLoading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  fontWeight?: CSSProperties["fontWeight"];
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
@@ -47,19 +48,19 @@ const StyledButton = styled.button<ButtonProps>`
 const getButtonStyles = ({
   theme,
   kind = "outline",
-  size = "small",
+  size,
   fullWidth,
+  fontWeight,
 }: ButtonProps & { theme: DefaultTheme }) => {
-  let color = "inherit";
-  let bgColor = "transparent";
-  let borderColor = "transparent";
+  let color: CSSProperties["color"] = "inherit";
+  let bgColor: CSSProperties["backgroundColor"] = "transparent";
+  let borderColor: CSSProperties["borderColor"] = "transparent";
 
-  let hoverBgColor = "transparent";
-  let hoverColor = "inherit";
-  let hoverBorderColor = "transparent";
-  let fontWeight = "normal";
+  let hoverBgColor: CSSProperties["backgroundColor"] = "transparent";
+  let hoverColor: CSSProperties["color"] = "inherit";
+  let hoverBorderColor: CSSProperties["borderColor"] = "transparent";
 
-  let padding = "";
+  let padding: CSSProperties["padding"] = "";
 
   // Kind
   switch (kind) {
@@ -106,28 +107,28 @@ const getButtonStyles = ({
       break;
     }
     case "icon": {
-      padding = "0.25rem";
       color = theme.colors.default.textSecondary;
+      padding = "0.25rem";
       break;
     }
     case "transparent": {
       hoverBorderColor = theme.colors.default.borderColor;
+      padding = "0.5rem 0.75rem";
       break;
     }
     case "no-border": {
-      padding = "0";
-      fontWeight = "bold";
       color = theme.colors.default.textSecondary;
       hoverColor = theme.colors.default.textPrimary;
+      padding = "0";
       break;
     }
   }
 
   // Size
-  if (!padding) {
-    if (size === "small") padding = "0.5rem 0.75rem";
+  if (size || !padding) {
+    if (size === "large") padding = "0.75rem 1.5rem";
     else if (size === "medium") padding = "0.5rem 1.25rem";
-    else padding = "0.75rem 1.5rem";
+    else padding = "0.5rem 0.75rem";
   }
 
   let defaultCss = css`
@@ -146,7 +147,7 @@ const getButtonStyles = ({
       ${theme.transition?.type};
 
     & svg {
-      color: ${color};
+      color: ${color} !important;
     }
 
     &:hover {
@@ -155,7 +156,7 @@ const getButtonStyles = ({
       border: 1px solid ${hoverBorderColor};
 
       & svg {
-        color: ${hoverColor};
+        color: ${hoverColor} !important;
       }
     }
 

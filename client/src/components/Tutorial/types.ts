@@ -23,8 +23,8 @@ type Page = {
 };
 
 export type TutorialComponentProps = {
-  /** Main markdown text to show as the preview and introduction to the tutorial */
-  main: string;
+  /** About section that will be shown under the description of the tutorial page */
+  about: string;
   /* Tutorial pages to show next to the editor */
   pages: Page[];
   /** Initial files to have at the beginning of the tutorial */
