@@ -65,7 +65,7 @@ const ProgramSettingTitle = styled.span``;
 const ProgramSettingText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.default.textSecondary};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     margin-top: 0.75rem;
   `}
 `;

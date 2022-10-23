@@ -343,8 +343,8 @@ const TerminalWrapper = styled.div`
     }
 
     & .xterm-rows {
-      font-family: ${theme.font?.family} !important;
-      font-size: ${theme.font?.size.medium} !important;
+      font-family: ${theme.font?.code?.family} !important;
+      font-size: ${theme.font?.code?.size.medium} !important;
     }
   `}
 `;

@@ -8,6 +8,8 @@ import { Sidebar } from "../Panels/Side/sidebar-state";
 import { PgExplorer, PgRouter, PgTutorial, PgView } from "../../utils/pg";
 import { Route } from "../../constants";
 import { TutorialComponentProps } from "./types";
+import { PointedArrow } from "../Icons";
+import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
   main,
@@ -83,24 +85,41 @@ export const Tutorial: FC<TutorialComponentProps> = ({
             <EditorWithTabs />
           </EditorWrapper>
           <Resizeable>
-            <Button onClick={goBackToTutorials}>Go back</Button>
-            <Markdown>{pages[currentPage - 1]}</Markdown>
-            {currentPage !== 1 && (
-              <Button onClick={previousPage}>Previous Page</Button>
-            )}
-            {currentPage !== pages.length && (
-              <Button onClick={nextPage}>Next Page</Button>
-            )}
+            <Markdown>{pages[currentPage - 1].content}</Markdown>
+            <NavigationButtonsOutsideWrapper>
+              <NavigationButtonsInsideWrapper>
+                {currentPage !== 1 && (
+                  <PreviousWrapper>
+                    <PreviousText>Previous</PreviousText>
+                    <Button
+                      onClick={previousPage}
+                      kind="no-border"
+                      leftIcon={<PointedArrow rotate="180deg" />}
+                    >
+                      {pages[currentPage - 2].title}
+                    </Button>
+                  </PreviousWrapper>
+                )}
+                {currentPage !== pages.length && (
+                  <NextWrapper>
+                    <NextText>Next</NextText>
+                    <Button
+                      onClick={nextPage}
+                      kind="no-border"
+                      rightIcon={<PointedArrow />}
+                    >
+                      {pages[currentPage].title}
+                    </Button>
+                  </NextWrapper>
+                )}
+              </NavigationButtonsInsideWrapper>
+            </NavigationButtonsOutsideWrapper>
           </Resizeable>
         </PagesWrapper>
       )}
     </Wrapper>
   );
 };
-
-const Resizeable: FC = ({ children }) => (
-  <ResizeableWrapper>{children}</ResizeableWrapper>
-);
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
@@ -166,7 +185,53 @@ const EditorWrapper = styled.div`
   }
 `;
 
+const Resizeable: FC = ({ children }) => (
+  <ResizeableWrapper>{children}</ResizeableWrapper>
+);
+
 const ResizeableWrapper = styled.div`
   height: 100%;
   overflow: auto;
+  padding-top: ${TAB_HEIGHT};
+  font-family: ${({ theme }) => theme.font?.other?.family};
 `;
+
+const NavigationButtonsOutsideWrapper = styled.div`
+  padding: 3rem 2rem;
+  background-color: ${({ theme }) => theme.colors.markdown?.bg};
+`;
+
+const NavigationButtonsInsideWrapper = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    width: 100%;
+    padding-top: 1.5rem;
+    font-weight: bold;
+    border-top: 1px solid ${theme.colors.default.borderColor};
+
+    & button {
+      margin-top: 0.5rem;
+      font-size: ${theme.font?.code?.size.large};
+
+      & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  `}
+`;
+
+const PreviousWrapper = styled.div`
+  width: 100%;
+`;
+
+const PreviousText = styled.div``;
+
+const NextWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
+`;
+
+const NextText = styled.div``;

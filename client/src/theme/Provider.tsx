@@ -14,6 +14,7 @@ import { Font, PgTheme } from "./interface";
 import {
   PG_BORDER_RADIUS,
   PG_BOX_SHADOW,
+  PG_FONT_OTHER,
   PG_SCROLLBAR,
   PG_SKELETON,
   PG_TRANSITION,
@@ -214,7 +215,9 @@ const MutThemeProvider: FC = ({ children }) => {
 
   // Update theme.font when theme or font changes
   useEffect(() => {
-    if (theme && theme.font !== font) setTheme((t) => ({ ...t, font }));
+    if (theme && theme.font?.code !== font) {
+      setTheme((t) => ({ ...t, font: { code: font, other: PG_FONT_OTHER } }));
+    }
   }, [theme, font, setTheme]);
 
   return (

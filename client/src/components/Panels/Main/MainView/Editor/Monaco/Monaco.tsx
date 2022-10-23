@@ -158,7 +158,7 @@ const Monaco = () => {
 
   // Set font
   useEffect(() => {
-    if (editor) editor.updateOptions({ fontFamily: theme.font?.family });
+    if (editor) editor.updateOptions({ fontFamily: theme.font?.code?.family });
   }, [editor, theme]);
 
   // Create editor

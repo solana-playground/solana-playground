@@ -46,7 +46,7 @@ const StyledTooltip = styled.div<TooltipProps>`
         ? theme.colors.tooltip?.color
         : theme.colors.state.success.color};
       background: ${theme.colors.tooltip?.bg};
-      font-size: ${theme.font?.size.small};
+      font-size: ${theme.font?.code?.size.small};
     }
 
     &:hover::before,

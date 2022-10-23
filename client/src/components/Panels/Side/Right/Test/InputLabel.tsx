@@ -37,7 +37,7 @@ const TypesWrapper = styled.div`
 
   & span {
     margin-left: 0.75rem;
-    font-size: ${({ theme }) => theme.font?.size.small};
+    font-size: ${({ theme }) => theme.font?.code?.size.small};
   }
 `;
 

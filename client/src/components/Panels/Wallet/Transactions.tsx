@@ -172,7 +172,7 @@ const TxsTop = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem 1rem;
     display: flex;
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     color: ${theme.colors.default.textSecondary};
     background-color: ${theme.colors.default.bgSecondary};
     font-weight: bold;
@@ -187,7 +187,7 @@ const TxWrapper = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem 1rem;
     display: flex;
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     color: ${theme.colors.default.textSecondary};
 
     &:not(:last-child) {

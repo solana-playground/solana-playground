@@ -84,7 +84,7 @@ const Content = styled.div`
   margin-bottom: 1rem;
 
   & > input {
-    font-size: ${({ theme }) => theme.font?.size.medium};
+    font-size: ${({ theme }) => theme.font?.code?.size.medium};
     padding: 0.375rem 0.5rem;
   }
 `;
@@ -96,7 +96,7 @@ const Text = styled.div`
 const ErrorText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.state.error.color};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     margin-bottom: 0.5rem;
     display: flex;
     justify-content: flex-start;

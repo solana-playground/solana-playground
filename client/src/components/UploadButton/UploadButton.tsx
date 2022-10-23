@@ -77,7 +77,7 @@ const Wrapper = styled.div`
 const UploadInfo = styled.span`
   ${({ theme }) => css`
     color: ${theme.colors.default.textSecondary};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     margin-left: 0.5rem;
   `}
 `;

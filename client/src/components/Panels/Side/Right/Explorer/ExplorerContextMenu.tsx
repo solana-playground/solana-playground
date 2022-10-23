@@ -137,7 +137,7 @@ const StyledItem = styled(Item)`
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     color: ${theme.colors.default.textSecondary};
     border-left: 2px solid transparent;
     transition: all ${theme.transition?.duration.short}

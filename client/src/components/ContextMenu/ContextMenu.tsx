@@ -27,7 +27,7 @@ const InsideWrapper = styled.div`
   ${({ theme }) => css`
     padding: 0.25rem 0;
     background-color: ${theme.colors?.right?.otherBg};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     box-shadow: ${theme.boxShadow};
   `}
 `;

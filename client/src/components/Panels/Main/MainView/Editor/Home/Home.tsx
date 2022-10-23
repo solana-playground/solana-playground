@@ -124,7 +124,7 @@ const ResourceWrapper = styled.div`
 
 const ResourceTitle = styled.div`
   font-weight: bold;
-  font-size: ${({ theme }) => theme.font?.size.xlarge};
+  font-size: ${({ theme }) => theme.font?.code?.size.xlarge};
   height: 20%;
   display: flex;
   align-items: center;

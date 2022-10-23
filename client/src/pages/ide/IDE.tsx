@@ -19,8 +19,8 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     background-color: ${theme.colors.default.bgPrimary};
     color: ${theme.colors.default.textPrimary};
-    font-family: ${theme.font?.family};
-    font-size: ${theme.font?.size.medium};
+    font-family: ${theme.font?.code?.family};
+    font-size: ${theme.font?.code?.size.medium};
 
     & svg {
       color: ${theme.colors.default.textSecondary};

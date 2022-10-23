@@ -12,6 +12,7 @@ export type ButtonKind =
   | "secondary-outline"
   | "outline"
   | "transparent"
+  | "no-border"
   | "icon";
 export type ButtonSize = "small" | "medium" | "large";
 
@@ -21,6 +22,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   fullWidth?: boolean;
   btnLoading?: boolean;
   leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
@@ -34,6 +36,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
     <span className="btn-spinner" />
     {props.leftIcon && <span className="left-icon">{props.leftIcon}</span>}
     {props.children}
+    {props.rightIcon && <span className="right-icon">{props.rightIcon}</span>}
   </StyledButton>
 ));
 
@@ -43,7 +46,7 @@ const StyledButton = styled.button<ButtonProps>`
 
 const getButtonStyles = ({
   theme,
-  kind = "transparent",
+  kind = "outline",
   size = "small",
   fullWidth,
 }: ButtonProps & { theme: DefaultTheme }) => {
@@ -54,6 +57,7 @@ const getButtonStyles = ({
   let hoverBgColor = "transparent";
   let hoverColor = "inherit";
   let hoverBorderColor = "transparent";
+  let fontWeight = "normal";
 
   let padding = "";
 
@@ -110,16 +114,24 @@ const getButtonStyles = ({
       hoverBorderColor = theme.colors.default.borderColor;
       break;
     }
+    case "no-border": {
+      padding = "0";
+      fontWeight = "bold";
+      color = theme.colors.default.textSecondary;
+      hoverColor = theme.colors.default.textPrimary;
+      break;
+    }
   }
 
   // Size
-  if (kind !== "icon") {
+  if (!padding) {
     if (size === "small") padding = "0.5rem 0.75rem";
     else if (size === "medium") padding = "0.5rem 1.25rem";
     else padding = "0.75rem 1.5rem";
   }
 
   let defaultCss = css`
+    font-weight: ${fontWeight};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -133,10 +145,18 @@ const getButtonStyles = ({
     transition: all ${theme.transition?.duration.medium}
       ${theme.transition?.type};
 
+    & svg {
+      color: ${color};
+    }
+
     &:hover {
       background-color: ${hoverBgColor};
       color: ${hoverColor};
       border: 1px solid ${hoverBorderColor};
+
+      & svg {
+        color: ${hoverColor};
+      }
     }
 
     &:disabled {
@@ -156,7 +176,16 @@ const getButtonStyles = ({
       display: flex;
 
       & > svg {
-        margin-right: 0.5rem;
+        margin-right: 0.25rem;
+      }
+    }
+
+    /* Right Icon */
+    & > span.right-icon {
+      display: flex;
+
+      & > svg {
+        margin-left: 0.25rem;
       }
     }
 

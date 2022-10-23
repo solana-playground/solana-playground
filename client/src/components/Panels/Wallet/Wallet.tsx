@@ -353,7 +353,7 @@ const SettingsList = styled.div`
     left: 0;
     top: 1.75rem;
     background-color: ${theme.colors?.right?.bg};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
     min-width: 8.5rem;

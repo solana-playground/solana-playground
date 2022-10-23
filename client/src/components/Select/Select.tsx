@@ -75,7 +75,7 @@ const Select = <
 
 const StyledReactSelect = styled(ReactSelect)`
   ${({ theme }) => css`
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     width: 100%;
 
     /* Scrollbar */

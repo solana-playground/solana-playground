@@ -80,7 +80,7 @@ const Wrapper = styled.div`
     user-select: none;
     background-color: ${theme.colors.right?.bg};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
   `}
 `;
 

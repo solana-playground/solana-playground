@@ -104,7 +104,7 @@ const Content = styled.div`
   margin: 1rem 0;
 
   & > input {
-    font-size: ${({ theme }) => theme.font?.size.medium};
+    font-size: ${({ theme }) => theme.font?.code?.size.medium};
     padding: 0.375rem 0.5rem;
   }
 `;
@@ -117,7 +117,7 @@ const Text = styled.div`
 const ErrorText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.state.error.color};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     margin-bottom: 0.5rem;
   `}
 `;
@@ -128,7 +128,7 @@ const DescriptionWrapper = styled.div`
 
 const Desc = styled.p`
   ${({ theme }) => css`
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     color: ${theme.colors.default.textSecondary};
     margin-bottom: 0.5rem;
     word-break: break-all;

@@ -39,7 +39,7 @@ const Bottom = () => {
   return (
     <Wrapper id={Id.BOTTOM}>
       <Tooltip text="Toggle Playground Wallet">
-        <Button onClick={handleConnectPg}>
+        <Button onClick={handleConnectPg} kind="transparent">
           <ConnStatus connStatus={connStatus}></ConnStatus>
           {connStatus}
         </Button>
@@ -80,7 +80,7 @@ const Wrapper = styled.div`
     display: flex;
     align-items: center;
     padding: 0 0.5rem;
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     background-color: ${theme.colors.bottom?.bg ??
     theme.colors.default.primary};
     color: ${theme.colors.bottom?.color ?? "inherit"};

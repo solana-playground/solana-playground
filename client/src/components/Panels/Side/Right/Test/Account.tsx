@@ -454,7 +454,7 @@ const AddSeedMenu = styled.div`
     background-color: ${theme.colors.tooltip?.bg ??
     theme.colors.default.bgPrimary};
     border-radius: ${theme.borderRadius};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
   `}
 `;
 
@@ -609,7 +609,7 @@ const GenCloseWrapper = styled.div`
 const ShowGenTitle = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.default.primary};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     text-align: center;
   `}
 `;
@@ -618,7 +618,7 @@ const ShowGenInputWrapper = styled.div`
   margin-top: 0.5rem;
 
   & span {
-    font-size: ${({ theme }) => theme.font?.size.small};
+    font-size: ${({ theme }) => theme.font?.code?.size.small};
   }
 `;
 

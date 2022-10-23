@@ -43,9 +43,9 @@ const getTextStyle = (
   else if (type === "Success") color = theme.colors.state.success.color;
   else if (type === "Error") color = theme.colors.state.error.color;
 
-  if (size === "Small") fontSize = theme.font?.size.small;
-  else if (size === "Medium") fontSize = theme.font?.size.medium;
-  else if (size === "Large") fontSize = theme.font?.size.large;
+  if (size === "Small") fontSize = theme.font?.code?.size.small;
+  else if (size === "Medium") fontSize = theme.font?.code?.size.medium;
+  else if (size === "Large") fontSize = theme.font?.code?.size.large;
 
   if (bg === "Primary") bgColor = theme.colors.right?.bg;
   else if (bg === "Secondary") bgColor = theme.colors.right?.otherBg;

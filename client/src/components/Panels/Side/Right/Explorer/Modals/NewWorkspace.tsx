@@ -110,7 +110,7 @@ const Content = styled.div`
 
 const WorkspaceNameWrapper = styled.div`
   & > input {
-    font-size: ${({ theme }) => theme.font?.size.medium};
+    font-size: ${({ theme }) => theme.font?.code?.size.medium};
     padding: 0.375rem 0.5rem;
   }
 `;
@@ -118,13 +118,13 @@ const WorkspaceNameWrapper = styled.div`
 const MainText = styled.div`
   margin: 1rem 0 0.5rem 0;
   font-weight: bold;
-  font-size: ${({ theme }) => theme.font?.size.large};
+  font-size: ${({ theme }) => theme.font?.code?.size.large};
 `;
 
 const ErrorText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.state.error.color};
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
     margin-bottom: 0.5rem;
   `}
 `;

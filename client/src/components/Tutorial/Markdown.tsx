@@ -61,9 +61,8 @@ const MarkdownWrapper = styled.div`
       margin: 0;
       color: var(--color-fg-default);
       background-color: var(--color-canvas-default);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-        Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 16px;
+      font-family: ${theme.font?.other?.family};
+      font-size: ${theme.font?.other?.size.medium};
       line-height: 1.5;
       word-wrap: break-word;
     }
@@ -1004,6 +1003,7 @@ const MarkdownWrapper = styled.div`
     height: fit-content;
     padding: 2rem;
     max-width: 60rem;
+    border-radius: ${theme.borderRadius};
   `}
 `;
 

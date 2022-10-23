@@ -294,7 +294,7 @@ const RootWrapper = styled.div`
     padding: 0.25rem 1rem;
     cursor: pointer;
     border: 1px solid transparent;
-    font-size: ${theme.font?.size.small};
+    font-size: ${theme.font?.code?.size.small};
 
     &.${ClassName.SELECTED} {
       background-color: ${

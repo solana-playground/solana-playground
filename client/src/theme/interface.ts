@@ -249,7 +249,10 @@ export interface PgTheme {
 
   borderRadius?: string;
   boxShadow?: string;
-  font?: Font;
+  font?: {
+    code?: Font;
+    other?: Font;
+  };
   scrollbar?: Scrollbar;
   skeleton?: Skeleton;
   transparency?: Transparency;

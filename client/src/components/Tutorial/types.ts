@@ -15,11 +15,18 @@ export interface TutorialData {
   }>;
 }
 
+type Page = {
+  /** Content of the page(markdown) */
+  content: string;
+  /** Title of the page that will be used for navigation */
+  title: string;
+};
+
 export type TutorialComponentProps = {
   /** Main markdown text to show as the preview and introduction to the tutorial */
   main: string;
   /* Tutorial pages to show next to the editor */
-  pages: string[];
+  pages: Page[];
   /** Initial files to have at the beginning of the tutorial */
   files: Files;
   /** Initial open file when the tutorial is first loaded */

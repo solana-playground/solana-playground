@@ -42,8 +42,8 @@ const StyledContainer = styled(ToastContainer)`
       theme.colors.default.bgPrimary};
       border-radius: ${theme.borderRadius};
       color: ${theme.colors.default.textPrimary};
-      font-family: ${theme.font?.family};
-      font-size: ${theme.font?.size.medium};
+      font-family: ${theme.font?.code?.family};
+      font-size: ${theme.font?.code?.size.medium};
     }
 
     .Toastify__progress-bar {
