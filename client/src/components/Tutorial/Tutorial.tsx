@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { FC, Fragment, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../Button";
@@ -94,22 +94,20 @@ export const Tutorial: FC<TutorialComponentProps> = ({
             <TutorialAuthorsWrapper>
               <TutorialAuthorsByText>by </TutorialAuthorsByText>
               {tutorial.authors.length !== 0 &&
-                tutorial.authors.map((author, i) => {
-                  return (
-                    <>
-                      {i !== 0 && (
-                        <TutorialAuthorSeperator>, </TutorialAuthorSeperator>
-                      )}
-                      {author.link ? (
-                        <TutorialAuthorLink key={i} href={author.link}>
-                          {author.name}
-                        </TutorialAuthorLink>
-                      ) : (
-                        <TutorialAuthor key={i}>{author.name}</TutorialAuthor>
-                      )}
-                    </>
-                  );
-                })}
+                tutorial.authors.map((author, i) => (
+                  <Fragment key={i}>
+                    {i !== 0 && (
+                      <TutorialAuthorSeperator>, </TutorialAuthorSeperator>
+                    )}
+                    {author.link ? (
+                      <TutorialAuthorLink href={author.link}>
+                        {author.name}
+                      </TutorialAuthorLink>
+                    ) : (
+                      <TutorialWithoutLink>{author.name}</TutorialWithoutLink>
+                    )}
+                  </Fragment>
+                ))}
             </TutorialAuthorsWrapper>
             <TutorialDescriptionWrapper>
               <TutorialDescription>{tutorial.description}</TutorialDescription>
@@ -252,7 +250,7 @@ const TutorialAuthorSeperator = styled.span``;
 
 const TutorialAuthorLink = styled(StyledDefaultLink)``;
 
-const TutorialAuthor = styled.span``;
+const TutorialWithoutLink = styled.span``;
 
 const TutorialDescriptionWrapper = styled.div`
   margin-top: 1.5rem;

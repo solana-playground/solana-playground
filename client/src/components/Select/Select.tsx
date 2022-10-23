@@ -54,6 +54,10 @@ const Select = <
           color: theme.colors.input?.color,
         }),
         input: (base) => ({ ...base, color: theme.colors.input?.color }),
+        groupHeading: (base) => ({
+          ...base,
+          color: theme.colors.default.textSecondary,
+        }),
         dropdownIndicator: (base) => ({
           ...base,
           padding: "0.25rem",

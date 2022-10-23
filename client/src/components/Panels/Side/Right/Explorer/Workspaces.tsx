@@ -21,7 +21,7 @@ import {
   Rename,
   Trash,
 } from "../../../../Icons";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgExplorer, PgTutorial } from "../../../../../utils/pg";
 
 const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -95,22 +95,48 @@ const WorkspaceSelect = () => {
   const [explorer] = useAtom<PgExplorer>(explorerAtom as any);
 
   const options = useMemo(
-    () =>
-      explorer.allWorkspaceNames!.map((name) => ({
-        value: name,
-        label: name,
-      })),
+    () => {
+      const projects = explorer.allWorkspaceNames!.filter(
+        (name) => !PgTutorial.isWorkspaceTutorial(name)
+      );
+      const tutorials = explorer.allWorkspaceNames!.filter(
+        PgTutorial.isWorkspaceTutorial
+      );
+
+      const projectOptions = [
+        {
+          label: "Projects",
+          options: projects.map((name) => ({ value: name, label: name })),
+        },
+      ];
+      if (tutorials.length) {
+        return projectOptions.concat([
+          {
+            label: "Tutorials",
+            options: tutorials.map((name) => ({ value: name, label: name })),
+          },
+        ]);
+      }
+
+      return projectOptions;
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [explorer.currentWorkspaceName]
   );
+  const value = useMemo(() => {
+    for (const option of options) {
+      const val = option.options.find(
+        (option) => option.value === explorer.currentWorkspaceName
+      );
+      if (val) return val;
+    }
+  }, [explorer.currentWorkspaceName, options]);
 
   return (
     <SelectWrapper>
       <Select
         options={options}
-        value={options.find(
-          (option) => option.value === explorer.currentWorkspaceName
-        )}
+        value={value}
         onChange={(props) => explorer.changeWorkspace(props?.value!)}
       />
     </SelectWrapper>

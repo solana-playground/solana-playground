@@ -42,9 +42,13 @@ export class PgTutorial {
     );
   }
 
+  static isWorkspaceTutorial(workspaceName: string) {
+    return TUTORIALS.some((t) => t.name === workspaceName);
+  }
+
   static async isCurrentWorkspaceTutorial() {
     const workspaceName = (await PgExplorer.get())?.currentWorkspaceName;
-    return TUTORIALS.some((t) => t.name === workspaceName);
+    return this.isWorkspaceTutorial(workspaceName!);
   }
 
   static openTutorial(tutorialName: string) {
