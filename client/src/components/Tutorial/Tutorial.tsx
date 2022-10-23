@@ -1,5 +1,7 @@
 import { FC, Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
+import Split from "react-split";
 
 import Button from "../Button";
 import Markdown from "./Markdown";
@@ -10,7 +12,6 @@ import { PgExplorer, PgRouter, PgView } from "../../utils/pg";
 import { Route } from "../../constants";
 import { PointedArrow } from "../Icons";
 import { TutorialComponentProps, TutorialData } from "./types";
-import { useAtom } from "jotai";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
 
@@ -268,7 +269,9 @@ const StartTutorialButtonWrapper = styled.div`
   margin-left: 2rem;
 `;
 
-const PagesWrapper = styled.div<Pick<TutorialComponentProps, "reverseLayout">>`
+const PagesWrapper = styled(Split)<
+  Pick<TutorialComponentProps, "reverseLayout">
+>`
   display: flex;
   flex-direction: ${({ reverseLayout }) =>
     reverseLayout ? "row-reverse" : "row"};
@@ -277,8 +280,13 @@ const PagesWrapper = styled.div<Pick<TutorialComponentProps, "reverseLayout">>`
   height: -webkit-fill-available;
   max-height: 100%;
 
-  & > div {
+  & > div:not(.gutter) {
     width: 50%;
+    min-width: 25%;
+  }
+
+  & > .gutter {
+    cursor: col-resize;
   }
 `;
 
@@ -304,6 +312,7 @@ const ResizeableWrapper = styled.div`
 
 const NavigationButtonsOutsideWrapper = styled.div`
   padding: 3rem 2rem;
+  max-width: 60rem;
   background-color: ${({ theme }) => theme.colors.markdown?.bg};
 `;
 

@@ -94,7 +94,7 @@ const TabsWrapper = styled.div`
     /* Scrollbar */
     /* Chromium */
     &::-webkit-scrollbar {
-      height: 0.25rem;
+      height: 0.25rem !important;
     }
 
     &::-webkit-scrollbar-track {
@@ -102,7 +102,7 @@ const TabsWrapper = styled.div`
     }
 
     &::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
+      border: 0.25rem solid transparent !important;
       border-radius: ${theme.borderRadius};
       background-color: ${theme.scrollbar?.thumb.color};
     }
