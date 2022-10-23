@@ -61,15 +61,17 @@ const ProjectTitle = styled.div`
 
 const ContentWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
 `;
 
 const LeftWrapper = styled.div`
-  width: 70%;
+  max-width: 53rem;
 `;
 
 const RightWrapper = styled.div`
-  width: 30%;
+  min-width: 16rem;
+  max-width: 27rem;
 `;
 
 const ContentTitle = styled.div`
@@ -163,7 +165,7 @@ const getSrc = (url: string) => {
   if (url.includes("youtube.com")) src = "youtube.png";
   else if (url.includes("dev.to")) src = "devto.png";
 
-  if (src) return "icons/platforms/" + src;
+  if (src) return "/icons/platforms/" + src;
 };
 
 const Tutorial: FC<TutorialProps> = ({ title, url }) => {

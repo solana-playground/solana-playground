@@ -23,7 +23,7 @@ export const FRAMEWORKS: Framework[] = [
   {
     name: "Native",
     language: Lang.RUST,
-    src: "icons/platforms/solana.png",
+    src: "/icons/platforms/solana.png",
     files: [
       [
         "src/lib.rs",

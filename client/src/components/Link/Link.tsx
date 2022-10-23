@@ -6,11 +6,22 @@ import { External } from "../Icons";
 interface LinkProps {
   href: string;
   showExternalIcon?: boolean;
+  className?: string;
 }
 
-const Link: FC<LinkProps> = ({ href, showExternalIcon = true, children }) => {
+const Link: FC<LinkProps> = ({
+  href,
+  className,
+  showExternalIcon = true,
+  children,
+}) => {
   return (
-    <StyledLink href={href} target="_blank" rel="noopener">
+    <StyledLink
+      className={className}
+      href={href}
+      target="_blank"
+      rel="noopener"
+    >
       {children}
       {showExternalIcon && <External />}
     </StyledLink>
@@ -31,10 +42,23 @@ const StyledLink = styled.a`
   }
 `;
 
-export const DefaultLink: FC<LinkProps> = ({ href, children }) => (
-  <a href={href} target="_blank" rel="noopener noreferrer">
+export const DefaultLink: FC<LinkProps> = ({ href, className, children }) => (
+  <a
+    className={className}
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
     {children}
   </a>
 );
+
+export const StyledDefaultLink = styled(DefaultLink)`
+  color: ${({ theme }) => theme.colors.default.primary};
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 export default Link;

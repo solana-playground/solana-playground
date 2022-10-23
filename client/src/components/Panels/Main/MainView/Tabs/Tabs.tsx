@@ -62,7 +62,7 @@ const Wallet = () => {
   return (
     <WalletWrapper>
       <Button onClick={toggleWallet} kind="icon">
-        <img src="icons/sidebar/wallet.png" alt="Wallet" />
+        <img src="/icons/sidebar/wallet.png" alt="Wallet" />
         Wallet
       </Button>
     </WalletWrapper>

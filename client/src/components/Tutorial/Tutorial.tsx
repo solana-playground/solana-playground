@@ -12,6 +12,7 @@ import { PointedArrow } from "../Icons";
 import { TutorialComponentProps, TutorialData } from "./types";
 import { useAtom } from "jotai";
 import { tutorialAtom } from "../../state";
+import { StyledDefaultLink } from "../Link";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
   about,
@@ -90,6 +91,26 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           </GoBackButtonWrapper>
           <TutorialTopSectionWrapper>
             <TutorialName>{tutorial.name}</TutorialName>
+            <TutorialAuthorsWrapper>
+              <TutorialAuthorsByText>by </TutorialAuthorsByText>
+              {tutorial.authors.length !== 0 &&
+                tutorial.authors.map((author, i) => {
+                  return (
+                    <>
+                      {i !== 0 && (
+                        <TutorialAuthorSeperator>, </TutorialAuthorSeperator>
+                      )}
+                      {author.link ? (
+                        <TutorialAuthorLink key={i} href={author.link}>
+                          {author.name}
+                        </TutorialAuthorLink>
+                      ) : (
+                        <TutorialAuthor key={i}>{author.name}</TutorialAuthor>
+                      )}
+                    </>
+                  );
+                })}
+            </TutorialAuthorsWrapper>
             <TutorialDescriptionWrapper>
               <TutorialDescription>{tutorial.description}</TutorialDescription>
               <StartTutorialButtonWrapper>
@@ -217,15 +238,32 @@ const TutorialTopSectionWrapper = styled.div`
 
 const TutorialName = styled.h1``;
 
+const TutorialAuthorsWrapper = styled.div`
+  ${({ theme }) => css`
+    margin-top: 0.5rem;
+    font-size: ${theme.font?.other?.size.small};
+    color: ${theme.colors.default.textSecondary};
+  `}
+`;
+
+const TutorialAuthorsByText = styled.span``;
+
+const TutorialAuthorSeperator = styled.span``;
+
+const TutorialAuthorLink = styled(StyledDefaultLink)``;
+
+const TutorialAuthor = styled.span``;
+
 const TutorialDescriptionWrapper = styled.div`
   margin-top: 1.5rem;
   display: flex;
   justify-content: space-between;
 `;
 
-const TutorialDescription = styled.div`
+const TutorialDescription = styled.p`
   color: ${({ theme }) => theme.colors.default.textSecondary};
   max-width: 85%;
+  line-height: 1.5;
 `;
 
 const StartTutorialButtonWrapper = styled.div`
