@@ -41,5 +41,5 @@ export type TutorialComponentProps = {
   /** Initial open file when the tutorial is first loaded */
   defaultOpenFile?: string;
   /** Whether to put editor to the right instead of left */
-  reverseLayout?: boolean;
+  rtl?: boolean;
 };

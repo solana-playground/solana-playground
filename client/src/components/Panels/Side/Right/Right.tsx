@@ -85,7 +85,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
 
       // If it's a tutorial, navigate to the tutorial's path
       if (TUTORIALS.some((t) => t.name === explorer.currentWorkspaceName)) {
-        PgTutorial.openTutorial(explorer.currentWorkspaceName);
+        PgTutorial.open(explorer.currentWorkspaceName);
       } else {
         PgRouter.navigate("/");
       }

@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Home from "./Home";
-import MainViewLoading from "../MainViewLoading";
+import { MainViewLoading } from "../../../../Loading";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
 import { Lang } from "../../../../../utils/pg";
 

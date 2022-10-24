@@ -188,7 +188,7 @@ export class PgExplorer {
           try {
             // This might fail if the user closes the window when a file delete
             // operation has not been completed yet
-            const content = await this._readToString(subItemPath);
+            const content = await this.readToString(subItemPath);
             this.files[subItemPath] = { content };
           } catch (e: any) {
             console.log(`Couldn't read to string: ${e.message} ${subItemPath}`);
@@ -261,7 +261,7 @@ export class PgExplorer {
     }
 
     // Load metadata info from IndexedDB
-    const metaStr = await this._readToString(this._metadataPath);
+    const metaStr = await this.readToString(this._metadataPath);
     const metaFile: ItemMetaFile = JSON.parse(metaStr);
 
     for (const path in metaFile) {
@@ -272,7 +272,7 @@ export class PgExplorer {
 
     // Load program info from IndexedDB
     try {
-      const programInfoStr = await this._readToString(this._programInfoPath);
+      const programInfoStr = await this.readToString(this._programInfoPath);
       const programInfo: ProgramInfo = JSON.parse(programInfoStr);
 
       // Set program info in localStorage
@@ -347,6 +347,7 @@ export class PgExplorer {
     fullPath: string,
     content: string = "",
     opts?: {
+      skipNameValidation?: boolean;
       override?: boolean;
       openOptions?: {
         dontOpen?: boolean;
@@ -358,6 +359,7 @@ export class PgExplorer {
 
     // Invalid name
     if (
+      !opts?.skipNameValidation &&
       !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath)!)
     ) {
       throw new Error(ItemError.INVALID_NAME);
@@ -742,7 +744,7 @@ export class PgExplorer {
         const stat = await fs.stat(subItemPath);
         const relativePath = this.getRelativePath(subItemPath);
         if (stat.isFile()) {
-          const content = await this._readToString(subItemPath);
+          const content = await this.readToString(subItemPath);
           zip.file(relativePath, content);
         } else {
           zip.folder(relativePath);
@@ -789,6 +791,14 @@ export class PgExplorer {
         throw e;
       }
     }
+  }
+
+  /**
+   * Reads file and returns the converted file string
+   */
+  async readToString(path: string) {
+    const data = await this._getFs().readFile(this._convertToFullPath(path));
+    return data.toString();
   }
 
   /** State methods */
@@ -1225,14 +1235,6 @@ export class PgExplorer {
   }
 
   /**
-   * Reads file and returns the converted file string
-   */
-  private async _readToString(path: string) {
-    const data = await this._getFs().readFile(path);
-    return data.toString();
-  }
-
-  /**
    * Remove directory with recursive optionality
    */
   private async _rmdir(path: string, recursive?: boolean) {
@@ -1281,7 +1283,7 @@ export class PgExplorer {
 
     let workspaces: Workspaces;
     try {
-      const workspacesStr = await this._readToString(
+      const workspacesStr = await this.readToString(
         PgWorkspace.WORKSPACES_CONFIG_PATH
       );
       workspaces = JSON.parse(workspacesStr);

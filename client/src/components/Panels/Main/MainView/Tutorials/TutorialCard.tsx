@@ -6,7 +6,7 @@ import { TutorialData } from "../../../../Tutorial";
 
 const TutorialCard: FC<TutorialData> = ({ name, description, imageSrc }) => {
   return (
-    <Wrapper onClick={() => PgTutorial.openTutorial(name)}>
+    <Wrapper onClick={() => PgTutorial.open(name)}>
       <ImgWrapper>
         <Img src={imageSrc} />
       </ImgWrapper>

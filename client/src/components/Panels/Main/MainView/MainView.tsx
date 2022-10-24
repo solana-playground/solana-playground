@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import EditorWithTabs from "./EditorWithTabs";
-import MainViewLoading from "./MainViewLoading";
 import Tutorials from "./Tutorials";
+import { MainViewLoading } from "../../../Loading";
 import { EventName, Route } from "../../../../constants";
 import {
   PgCommon,
@@ -39,7 +39,7 @@ const MainView = () => {
             }
           } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
             const tutorialName = (await PgExplorer.get()).currentWorkspaceName;
-            PgTutorial.openTutorial(tutorialName!);
+            PgTutorial.open(tutorialName!);
           } else {
             setEl(EditorWithTabs);
           }

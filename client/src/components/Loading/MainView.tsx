@@ -1,13 +1,13 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import { Wormhole } from "../../../Loading";
+import { Wormhole } from "./Wormhole";
 
 interface MainViewLoadingProps {
   tutorialsBg?: boolean;
 }
 
-const MainViewLoading: FC<MainViewLoadingProps> = (props) => (
+export const MainViewLoading: FC<MainViewLoadingProps> = (props) => (
   <LoadingWrapper {...props}>
     <Wormhole size={10} />
   </LoadingWrapper>
@@ -20,5 +20,3 @@ const LoadingWrapper = styled.div<MainViewLoadingProps>`
   height: 100%;
   display: flex;
 `;
-
-export default MainViewLoading;

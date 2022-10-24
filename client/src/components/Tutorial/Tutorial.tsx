@@ -1,5 +1,5 @@
 import { FC, Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
+import { Atom, useAtom } from "jotai";
 import styled, { css } from "styled-components";
 import Split from "react-split";
 
@@ -8,74 +8,86 @@ import Markdown from "./Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
 import { Sidebar } from "../Panels/Side/sidebar-state";
-import { PgExplorer, PgRouter, PgView } from "../../utils/pg";
-import { Route } from "../../constants";
+import { MainViewLoading } from "../Loading";
+import { PgCommon, PgRouter, PgTutorial, PgView } from "../../utils/pg";
+import { EventName, Route } from "../../constants";
 import { PointedArrow } from "../Icons";
 import { TutorialComponentProps, TutorialData } from "./types";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
+import { useGetAndSetStatic } from "../../hooks";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
   about,
   pages,
   files,
   defaultOpenFile,
-  reverseLayout,
+  rtl,
 }) => {
-  const [tutorial] = useAtom<TutorialData>(tutorialAtom as any);
+  const [tutorial] = useAtom<TutorialData>(tutorialAtom as Atom<TutorialData>);
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState<number>();
 
   const previousPageRef = useRef(currentPage);
 
-  const goBackToTutorials = useCallback(() => {
-    PgView.setSidebarState(Sidebar.TUTORIALS);
-    PgRouter.navigate(Route.TUTORIALS);
-  }, []);
-  const nextPage = useCallback(() => {
-    setCurrentPage((c) => c + 1);
-  }, []);
-  const previousPage = useCallback(() => {
-    setCurrentPage((c) => c - 1);
-  }, []);
-  const startTutorial = useCallback(async () => {
-    const explorer = await PgExplorer.get();
-    const tutorialWorkspaceName = tutorial.name;
-    if (explorer.allWorkspaceNames?.includes(tutorialWorkspaceName)) {
-      console.log(1);
-      // Start from where the user left off
-      if (explorer.currentWorkspaceName !== tutorialWorkspaceName) {
-        await explorer.changeWorkspace(tutorialWorkspaceName);
-      }
-    } else {
-      console.log(2);
-      // Initial tutorial setup
-      await explorer.newWorkspace(tutorialWorkspaceName, {
-        files,
-        defaultOpenFile:
-          files.length > 0 ? defaultOpenFile ?? files[0][0] : undefined,
-      });
-    }
-
-    PgView.setSidebarState(Sidebar.EXPLORER);
-    setCurrentPage(1);
-  }, [files, defaultOpenFile, tutorial.name]);
+  useGetAndSetStatic(
+    currentPage,
+    setCurrentPage,
+    EventName.TUTORIAL_PAGE_STATIC
+  );
 
   useEffect(() => {
+    (async () => {
+      try {
+        const metadata = await PgCommon.transition(PgTutorial.getMetadata());
+        if (metadata.page) {
+          PgView.setSidebarState(Sidebar.EXPLORER);
+        }
+        setCurrentPage(metadata.page);
+      } catch {
+        setCurrentPage(0);
+      }
+    })();
+  }, []);
+
+  // Handle page number based on sidebar state change
+  useEffect(() => {
     const disposable = PgView.onDidChangeSidebarState((state) => {
-      if (currentPage !== 0) {
+      if (currentPage) {
         previousPageRef.current = currentPage;
       }
 
       if (state === Sidebar.TUTORIALS) {
         setCurrentPage(0);
-      } else if (previousPageRef.current !== 0) {
+      } else if (previousPageRef.current) {
         setCurrentPage(previousPageRef.current);
       }
     });
 
     return () => disposable.dispose();
   }, [currentPage]);
+
+  // Save tutorial metadata
+  useEffect(() => {
+    if (!currentPage) return;
+    PgTutorial.saveTutorialMeta({ page: currentPage });
+  }, [currentPage]);
+
+  const goBackToTutorials = useCallback(() => {
+    PgView.setSidebarState(Sidebar.TUTORIALS);
+    PgRouter.navigate(Route.TUTORIALS);
+  }, []);
+  const nextPage = useCallback(() => {
+    setCurrentPage((c) => (c as number) + 1);
+  }, []);
+  const previousPage = useCallback(() => {
+    setCurrentPage((c) => (c as number) - 1);
+  }, []);
+  const startTutorial = useCallback(async () => {
+    await PgTutorial.start(tutorial.name, { files, defaultOpenFile });
+  }, [files, defaultOpenFile, tutorial.name]);
+
+  if (currentPage === undefined) return <MainViewLoading tutorialsBg />;
 
   return (
     <Wrapper>
@@ -118,7 +130,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                   kind="secondary"
                   fontWeight="bold"
                 >
-                  START
+                  {previousPageRef.current ? "CONTINUE" : "START"}
                 </Button>
               </StartTutorialButtonWrapper>
             </TutorialDescriptionWrapper>
@@ -126,7 +138,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           <Markdown>{about}</Markdown>
         </MainWrapper>
       ) : (
-        <PagesWrapper reverseLayout={reverseLayout}>
+        <PagesWrapper rtl={rtl}>
           <EditorWrapper>
             <EditorWithTabs />
           </EditorWrapper>
@@ -269,12 +281,9 @@ const StartTutorialButtonWrapper = styled.div`
   margin-left: 2rem;
 `;
 
-const PagesWrapper = styled(Split)<
-  Pick<TutorialComponentProps, "reverseLayout">
->`
+const PagesWrapper = styled(Split)<Pick<TutorialComponentProps, "rtl">>`
   display: flex;
-  flex-direction: ${({ reverseLayout }) =>
-    reverseLayout ? "row-reverse" : "row"};
+  flex-direction: ${({ rtl }) => (rtl ? "row-reverse" : "row")};
   width: 100%;
   overflow: auto;
   height: -webkit-fill-available;
