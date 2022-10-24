@@ -26,7 +26,7 @@ export const sidebarData = {
     },
     {
       title: `${Sidebar.TUTORIALS} (Ctrl+Shift+L)`,
-      src: ROOT_DIR + "tutorials.png",
+      src: ROOT_DIR + "tutorials.webp",
       value: Sidebar.TUTORIALS,
     },
   ],

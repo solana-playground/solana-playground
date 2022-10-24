@@ -176,7 +176,7 @@ const getButtonStyles = ({
     & > span.left-icon {
       display: flex;
 
-      & > svg {
+      & > * {
         margin-right: 0.25rem;
       }
     }
@@ -185,7 +185,7 @@ const getButtonStyles = ({
     & > span.right-icon {
       display: flex;
 
-      & > svg {
+      & > * {
         margin-left: 0.25rem;
       }
     }

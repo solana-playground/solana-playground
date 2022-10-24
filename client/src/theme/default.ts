@@ -47,8 +47,8 @@ export const PG_TRANSITION: Transition = {
 
 export const PG_TRANSPARENCY: Transparency = {
   low: "16",
-  medium: "56",
-  high: "99",
+  medium: "64",
+  high: "BB",
 };
 
 export const PG_FONT_OTHER: Font = {

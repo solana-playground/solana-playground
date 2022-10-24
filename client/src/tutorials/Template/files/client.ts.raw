@@ -1,1 +1,2 @@
-// client.ts
+// Client code...
+console.log(42)

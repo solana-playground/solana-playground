@@ -36,14 +36,15 @@ export const Tutorial: FC<TutorialComponentProps> = ({
     EventName.TUTORIAL_PAGE_STATIC
   );
 
+  // Set initial page number
   useEffect(() => {
     (async () => {
       try {
         const metadata = await PgCommon.transition(PgTutorial.getMetadata());
-        if (metadata.page) {
+        if (metadata.pageNumber) {
           PgView.setSidebarState(Sidebar.EXPLORER);
         }
-        setCurrentPage(metadata.page);
+        setCurrentPage(metadata.pageNumber);
       } catch {
         setCurrentPage(0);
       }
@@ -70,22 +71,32 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   // Save tutorial metadata
   useEffect(() => {
     if (!currentPage) return;
-    PgTutorial.saveTutorialMeta({ page: currentPage });
-  }, [currentPage]);
+    PgTutorial.saveTutorialMeta({
+      pageNumber: currentPage,
+      pageCount: pages.length,
+    });
+  }, [currentPage, pages.length]);
 
   const goBackToTutorials = useCallback(() => {
     PgView.setSidebarState(Sidebar.TUTORIALS);
     PgRouter.navigate(Route.TUTORIALS);
   }, []);
+
   const nextPage = useCallback(() => {
     setCurrentPage((c) => (c as number) + 1);
   }, []);
+
   const previousPage = useCallback(() => {
     setCurrentPage((c) => (c as number) - 1);
   }, []);
+
   const startTutorial = useCallback(async () => {
-    await PgTutorial.start(tutorial.name, { files, defaultOpenFile });
-  }, [files, defaultOpenFile, tutorial.name]);
+    await PgTutorial.start({
+      files,
+      defaultOpenFile,
+      pageCount: pages.length,
+    });
+  }, [files, defaultOpenFile, pages.length]);
 
   if (currentPage === undefined) return <MainViewLoading tutorialsBg />;
 
@@ -142,7 +153,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           <EditorWrapper>
             <EditorWithTabs />
           </EditorWrapper>
-          <Resizeable>
+          <Pages>
             <Markdown>{pages[currentPage - 1].content}</Markdown>
             <NavigationButtonsOutsideWrapper>
               <NavigationButtonsInsideWrapper>
@@ -159,9 +170,18 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                     </Button>
                   </PreviousWrapper>
                 )}
-                {currentPage !== pages.length && (
-                  <NextWrapper>
-                    <NextText>Next</NextText>
+                <NextWrapper>
+                  <NextText>Next</NextText>
+                  {currentPage === pages.length ? (
+                    <FinishButton
+                      onClick={PgTutorial.finish}
+                      kind="no-border"
+                      fontWeight="bold"
+                      rightIcon={<span>✔</span>}
+                    >
+                      Finish
+                    </FinishButton>
+                  ) : (
                     <Button
                       onClick={nextPage}
                       kind="no-border"
@@ -170,11 +190,11 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                     >
                       {pages[currentPage].title}
                     </Button>
-                  </NextWrapper>
-                )}
+                  )}
+                </NextWrapper>
               </NavigationButtonsInsideWrapper>
             </NavigationButtonsOutsideWrapper>
-          </Resizeable>
+          </Pages>
         </PagesWrapper>
       )}
     </Wrapper>
@@ -308,11 +328,7 @@ const EditorWrapper = styled.div`
   }
 `;
 
-const Resizeable: FC = ({ children }) => (
-  <ResizeableWrapper>{children}</ResizeableWrapper>
-);
-
-const ResizeableWrapper = styled.div`
+const Pages = styled.div`
   height: 100%;
   overflow: auto;
   padding-top: ${TAB_HEIGHT};
@@ -359,3 +375,13 @@ const NextWrapper = styled.div`
 `;
 
 const NextText = styled.div``;
+
+const FinishButton = styled(Button)`
+  ${({ theme }) => css`
+    color: ${theme.colors.state.success.color + theme.transparency?.high};
+
+    &:hover {
+      color: ${theme.colors.state.success.color};
+    }
+  `}
+`;

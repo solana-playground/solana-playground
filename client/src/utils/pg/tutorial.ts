@@ -10,8 +10,10 @@ import { PgExplorer } from "./explorer";
 import { PgRouter } from "./router";
 import { PgView } from "./view";
 
-interface TutorialMetadata {
-  page: number;
+export interface TutorialMetadata {
+  pageNumber: number;
+  pageCount: number;
+  completed?: boolean;
 }
 
 export class PgTutorial {
@@ -28,6 +30,10 @@ export class PgTutorial {
       PgCommon.getStaticStateEventNames(EventName.TUTORIAL_STATIC).set,
       tutorial
     );
+  }
+
+  static getTutorialData(tutorialName: string) {
+    return TUTORIALS.find((t) => t.name === tutorialName);
   }
 
   static getTutorialFromPathname(pathname: string) {
@@ -67,9 +73,11 @@ export class PgTutorial {
   }
 
   static async start(
-    tutorialName: string,
-    props: Pick<TutorialComponentProps, "files" | "defaultOpenFile">
+    props: Pick<TutorialComponentProps, "files" | "defaultOpenFile"> &
+      Pick<TutorialMetadata, "pageCount">
   ) {
+    const tutorialName = (await this.getCurrent()).name;
+
     const explorer = await PgExplorer.get();
     if (explorer.allWorkspaceNames?.includes(tutorialName)) {
       // Start from where the user left off
@@ -79,7 +87,7 @@ export class PgTutorial {
 
       // Read tutorial metadata file
       const metadata = await this.getMetadata();
-      this.setPageNumber(metadata.page);
+      this.setPageNumber(metadata.pageNumber);
     } else {
       // Initial tutorial setup
       await explorer.newWorkspace(tutorialName, {
@@ -91,7 +99,10 @@ export class PgTutorial {
       });
 
       // Create tutorial metadata file
-      const metadata: TutorialMetadata = { page: 0 };
+      const metadata: TutorialMetadata = {
+        pageNumber: 0,
+        pageCount: props.pageCount,
+      };
       await explorer.newItem(
         this.TUTORIAL_METADATA_FILENAME,
         JSON.stringify(metadata),
@@ -100,6 +111,11 @@ export class PgTutorial {
       this.setPageNumber(1);
     }
     PgView.setSidebarState(Sidebar.EXPLORER);
+  }
+
+  static async finish() {
+    await PgTutorial.saveTutorialMeta({ completed: true });
+    PgView.setSidebarState(Sidebar.TUTORIALS);
   }
 
   static async saveTutorialMeta(updatedMeta: Partial<TutorialMetadata>) {
@@ -119,9 +135,29 @@ export class PgTutorial {
     } catch {}
   }
 
-  static async getMetadata(): Promise<TutorialMetadata> {
+  static async getMetadata(tutorialName?: string): Promise<TutorialMetadata> {
     return JSON.parse(
-      await PgExplorer.run({ readToString: [this.TUTORIAL_METADATA_FILENAME] })
+      await PgExplorer.run({
+        readToString: [
+          tutorialName
+            ? PgExplorer.joinPaths([
+                PgExplorer.PATHS.ROOT_DIR_PATH,
+                tutorialName,
+                this.TUTORIAL_METADATA_FILENAME,
+              ])
+            : this.TUTORIAL_METADATA_FILENAME,
+        ],
+      })
+    );
+  }
+
+  static getTutorialsCount() {
+    return TUTORIALS.length;
+  }
+
+  static async getUserTutorialNames() {
+    return (await PgExplorer.get()).allWorkspaceNames!.filter(
+      this.isWorkspaceTutorial
     );
   }
 }

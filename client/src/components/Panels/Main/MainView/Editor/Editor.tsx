@@ -14,7 +14,6 @@ const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
   const [explorerChanged] = useAtom(refreshExplorerAtom);
 
-  const [loading, setLoading] = useState(true);
   const [showHome, setShowHome] = useState(false);
   const [showMonaco, setShowMonaco] = useState(false);
 
@@ -27,8 +26,6 @@ const Editor = () => {
         const lang = explorer.getCurrentFileLanguage();
         setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
       }
-
-      setLoading(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,8 +42,6 @@ const Editor = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explorer, explorerChanged]);
-
-  if (loading) return <MainViewLoading />;
 
   return (
     <Suspense fallback={<MainViewLoading />}>

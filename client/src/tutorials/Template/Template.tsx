@@ -1,6 +1,6 @@
 import { Tutorial } from "../../components/Tutorial";
 
-const FirstTutorial = () => (
+const Template = () => (
   <Tutorial
     // About section that will be shown under the description of the tutorial page
     about={require("./about.md")}
@@ -14,8 +14,9 @@ const FirstTutorial = () => (
     files={[
       ["src/lib.rs", require("./files/lib.rs")],
       ["client/client.ts", require("./files/client.ts.raw")],
+      ["tests/index.test.ts", require("./files/index.test.ts.raw")],
     ]}
   />
 );
 
-export default FirstTutorial;
+export default Template;
