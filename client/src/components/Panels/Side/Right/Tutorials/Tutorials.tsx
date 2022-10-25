@@ -1,9 +1,12 @@
 import { FC, useEffect, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
-import { PgTutorial, TutorialMetadata } from "../../../../../utils/pg";
 import Text from "../../../../Text";
-import { TutorialData } from "../../../../Tutorial";
+import {
+  PgTutorial,
+  TutorialData,
+  TutorialMetadata,
+} from "../../../../../utils/pg";
 
 type TutorialFullData = (TutorialData & TutorialMetadata)[];
 type TutorialsData = { completed: TutorialFullData; ongoing: TutorialFullData };

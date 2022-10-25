@@ -1,8 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import { PgTutorial } from "../../../../../utils/pg";
-import { TutorialData } from "../../../../Tutorial";
+import { PgTutorial, TutorialData } from "../../../../../utils/pg";
 
 const TutorialCard: FC<TutorialData> = ({ name, description, imageSrc }) => {
   return (

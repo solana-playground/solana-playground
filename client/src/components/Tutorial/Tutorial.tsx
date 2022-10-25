@@ -9,10 +9,16 @@ import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
 import { Sidebar } from "../Panels/Side/sidebar-state";
 import { MainViewLoading } from "../Loading";
-import { PgCommon, PgRouter, PgTutorial, PgView } from "../../utils/pg";
+import {
+  PgCommon,
+  PgRouter,
+  PgTutorial,
+  PgView,
+  TutorialData,
+} from "../../utils/pg";
 import { EventName, Route } from "../../constants";
 import { PointedArrow } from "../Icons";
-import { TutorialComponentProps, TutorialData } from "./types";
+import { TutorialComponentProps } from "./types";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
 import { useGetAndSetStatic } from "../../hooks";
@@ -23,6 +29,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   files,
   defaultOpenFile,
   rtl,
+  onMount,
 }) => {
   const [tutorial] = useAtom<TutorialData>(tutorialAtom as Atom<TutorialData>);
 
@@ -97,6 +104,21 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       pageCount: pages.length,
     });
   }, [files, defaultOpenFile, pages.length]);
+
+  // Custom callbacks
+  // On component mount
+  useEffect(() => {
+    if (onMount) onMount();
+  }, [onMount]);
+
+  // Specific page events
+  useEffect(() => {
+    if (!currentPage) return;
+    const page = pages[currentPage - 1];
+    if (page.onMount) {
+      page.onMount();
+    }
+  }, [currentPage, pages]);
 
   if (currentPage === undefined) return <MainViewLoading tutorialsBg />;
 

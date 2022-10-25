@@ -1,4 +1,4 @@
-import { TutorialData } from "../components/Tutorial";
+import { TutorialData } from "../utils/pg";
 
 const getTutorialImgSrc = (src: string) => "/tutorials/" + src;
 
