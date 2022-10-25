@@ -8,24 +8,15 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { useLocation } from "react-router-dom";
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import TestSkeleton from "./Test/TestSkeleton";
 import { Wormhole } from "../../../Loading";
-import { ClassName, Id, Route } from "../../../../constants";
+import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { Sidebar } from "../sidebar-state";
-import {
-  PgExplorer,
-  PgRouter,
-  PgShare,
-  PgTutorial,
-} from "../../../../utils/pg";
-import { explorerAtom, refreshExplorerAtom } from "../../../../state";
-import { TUTORIALS } from "../../../../tutorials";
+import { useSetupExplorerAndRouter } from "./useTutorialRouter";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -43,62 +34,7 @@ interface RightProps extends DefaultRightProps {
 }
 
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
-  const [explorer, setExplorer] = useAtom(explorerAtom);
-  const [, refreshExplorer] = useAtom(refreshExplorerAtom);
-
-  const [loading, setLoading] = useState(true);
-
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    if (pathname === "/" || pathname.startsWith(Route.TUTORIALS)) {
-      if (explorer && !explorer.isShared) return;
-      (async () => {
-        try {
-          const _explorer = new PgExplorer(refreshExplorer);
-          await _explorer.init();
-          setExplorer(_explorer);
-        } catch (e: any) {
-          console.log(e.message);
-        }
-      })();
-    } else if (!explorer?.isShared) {
-      // Shared project
-      (async () => {
-        try {
-          const explorerData = await PgShare.get(pathname);
-          setExplorer(new PgExplorer(refreshExplorer, explorerData));
-        } catch {
-          // Couldn't get the data
-          // Redirect to main
-          PgRouter.navigate("/");
-        }
-      })();
-    }
-  }, [explorer, pathname, setExplorer, refreshExplorer]);
-
-  useEffect(() => {
-    if (!explorer) return;
-
-    const initWorkspace = explorer.onDidInitWorkspace(() => {
-      if (!explorer.currentWorkspaceName) return;
-
-      // If it's a tutorial, navigate to the tutorial's path
-      if (TUTORIALS.some((t) => t.name === explorer.currentWorkspaceName)) {
-        PgTutorial.open(explorer.currentWorkspaceName);
-      } else {
-        PgRouter.navigate("/");
-      }
-    });
-
-    return () => {
-      initWorkspace.dispose();
-    };
-  }, [explorer]);
-
-  useEffect(() => {
-    if (explorer) setLoading(false);
-  }, [explorer, setLoading]);
+  const { loading } = useSetupExplorerAndRouter();
 
   const [height, setHeight] = useState({
     window:
@@ -122,7 +58,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [setHeight]);
+  }, []);
 
   const handleResizeStop = useCallback(
     (e, direction, ref, d) => {

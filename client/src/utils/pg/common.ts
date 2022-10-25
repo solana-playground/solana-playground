@@ -23,7 +23,7 @@ export class PgCommon {
       return result.value;
     }
 
-    throw new Error(result.reason);
+    throw new Error(result.reason?.message);
   }
 
   /**

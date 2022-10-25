@@ -35,7 +35,7 @@ const Tutorials = () => {
   return (
     <Wrapper>
       {!tutorialsData.ongoing.length && !tutorialsData.completed.length && (
-        <Text>Start a tutorial to see more.</Text>
+        <Text>Choose and start a new tutorial to track your progress.</Text>
       )}
       <TutorialGroup name="Ongoing" data={tutorialsData.ongoing} />
       <TutorialGroup name="Completed" data={tutorialsData.completed} />

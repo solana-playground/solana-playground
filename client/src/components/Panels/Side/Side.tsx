@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Left from "./Left";
 import Right from "./Right";
 import { Sidebar } from "./sidebar-state";
-import { PgCommon, PgRouter } from "../../../utils/pg";
+import { PgCommon } from "../../../utils/pg";
 import { EventName, Route } from "../../../constants";
 import { useSetStatic } from "../../../hooks";
 
@@ -32,20 +32,6 @@ const Side = () => {
       { state: sidebarState }
     );
   }, [sidebarState]);
-
-  useEffect(() => {
-    if (
-      sidebarState === Sidebar.TUTORIALS &&
-      !pathname.startsWith(Route.TUTORIALS)
-    ) {
-      PgRouter.navigate(Route.TUTORIALS);
-    } else if (
-      sidebarState !== Sidebar.TUTORIALS &&
-      pathname === Route.TUTORIALS
-    ) {
-      PgRouter.navigate("/");
-    }
-  }, [sidebarState, pathname]);
 
   // Keybinds
   useEffect(() => {
