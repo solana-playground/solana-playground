@@ -4,6 +4,7 @@ export enum NetworkName {
   LOCALHOST = "localhost",
   DEVNET = "devnet",
   DEVNET_GENESYSGO = "devnet-genesysgo",
+  DEVNET_ALCHEMY = "devnet-alchemy",
   TESTNET = "testnet",
   MAINNET_BETA = "mainnet-beta",
   MAINNET_BETA_GENESYSGO = "mainnet-beta-genesysgo",
@@ -15,6 +16,7 @@ export enum Endpoint {
   LOCALHOST = "http://localhost:8899",
   DEVNET = "https://api.devnet.solana.com",
   DEVNET_GENESYSGO = "https://devnet.genesysgo.net/",
+  DEVNET_ALCHEMY = "https://solana-devnet.g.alchemy.com/v2/demo",
   TESTNET = "https://api.testnet.solana.com",
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
   MAINNET_BETA_GENESYSGO = "https://ssc-dao.genesysgo.net",
@@ -38,6 +40,10 @@ export const NETWORKS: Network[] = [
   {
     name: NetworkName.DEVNET_GENESYSGO,
     endpoint: Endpoint.DEVNET_GENESYSGO,
+  },
+  {
+    name: NetworkName.DEVNET_ALCHEMY,
+    endpoint: Endpoint.DEVNET_ALCHEMY,
   },
   {
     name: NetworkName.TESTNET,
