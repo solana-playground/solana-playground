@@ -9,7 +9,7 @@ export enum NetworkName {
   MAINNET_BETA_GENESYSGO = "mainnet-beta-genesysgo",
   MAINNET_BETA_SERUM = "mainnet-beta-serum",
   CUSTOM = "custom",
-  DEVNET_ALCHEMY = "alchemy",
+  DEVNET_ALCHEMY = "devnet-alchemy",
 }
 
 export enum Endpoint {
