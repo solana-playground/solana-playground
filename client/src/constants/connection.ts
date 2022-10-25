@@ -9,6 +9,7 @@ export enum NetworkName {
   MAINNET_BETA_GENESYSGO = "mainnet-beta-genesysgo",
   MAINNET_BETA_SERUM = "mainnet-beta-serum",
   CUSTOM = "custom",
+  DEVNET_ALCHEMY = "alchemy",
 }
 
 export enum Endpoint {
@@ -19,6 +20,7 @@ export enum Endpoint {
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
   MAINNET_BETA_GENESYSGO = "https://ssc-dao.genesysgo.net",
   MAINNET_BETA_SERUM = "https://solana-api.projectserum.com",
+  DEVNET_ALCHEMY = "https://solana-devnet.g.alchemy.com/v2/demo",
 }
 
 interface Network {
@@ -54,6 +56,10 @@ export const NETWORKS: Network[] = [
   {
     name: NetworkName.MAINNET_BETA_SERUM,
     endpoint: Endpoint.MAINNET_BETA_SERUM,
+  },
+  {
+    name: NetworkName.DEVNET_ALCHEMY,
+    endpoint: Endpoint.DEVNET_ALCHEMY,
   },
 ];
 
