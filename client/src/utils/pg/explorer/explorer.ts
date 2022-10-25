@@ -722,6 +722,10 @@ export class PgExplorer {
       await this._saveWorkspaces();
       this._refresh();
     }
+
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.EXPLORER_ON_DID_DELETE_WORKSPACE
+    );
   }
 
   /**
@@ -1161,6 +1165,23 @@ export class PgExplorer {
       dispose: () =>
         document.removeEventListener(
           EventName.EXPLORER_ON_DID_CHANGE_WORKSPACE,
+          cb
+        ),
+    };
+  }
+
+  /**
+   * Runs after deleting the current workspace
+   *
+   * @param cb callback function to run after deleting the current workspace
+   * @returns a dispose function to clear the event
+   */
+  onDidDeleteWorkspace(cb: () => any): PgDisposable {
+    document.addEventListener(EventName.EXPLORER_ON_DID_DELETE_WORKSPACE, cb);
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.EXPLORER_ON_DID_DELETE_WORKSPACE,
           cb
         ),
     };

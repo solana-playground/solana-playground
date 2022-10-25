@@ -12,7 +12,7 @@ export * from "./router";
 export * from "./share";
 export * from "./terminal/";
 export * from "./test/";
-export * from "./tutorial";
+export * from "./tutorial/";
 export * from "./tx";
 export * from "./types";
 export * from "./validator";

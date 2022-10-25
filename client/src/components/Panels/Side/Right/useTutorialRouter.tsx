@@ -57,11 +57,11 @@ export const useSetupExplorerAndRouter = () => {
     }
   }, [explorer, pathname, setExplorer, refreshExplorer]);
 
-  // Handle workspace change
+  // Handle workspace change/deletion
   useEffect(() => {
     if (!explorer) return;
 
-    const initWorkspace = explorer.onDidChangeWorkspace(async () => {
+    const initWorkspace = explorer.onDidChangeWorkspace(() => {
       if (!explorer.currentWorkspaceName) return;
 
       // If it's a tutorial, navigate to the tutorial's path
@@ -72,8 +72,14 @@ export const useSetupExplorerAndRouter = () => {
       }
     });
 
+    const deleteWorkspace = explorer.onDidDeleteWorkspace(() => {
+      // Set view to the default editor if there are workspaces
+      if (!explorer.hasWorkspaces()) PgView.setMain();
+    });
+
     return () => {
       initWorkspace.dispose();
+      deleteWorkspace.dispose();
     };
   }, [explorer]);
 

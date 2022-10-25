@@ -14,6 +14,7 @@ export enum EventName {
   EXPLORER_STATIC = "explorerstatic",
   EXPLORER_ON_DID_SWITCH_FILE = "explorerondidswitchfile",
   EXPLORER_ON_DID_CHANGE_WORKSPACE = "explorerondidchangeworkspace",
+  EXPLORER_ON_DID_DELETE_WORKSPACE = "explorerondiddeleteworkspace",
 
   // Modal
   MODAL_SET = "modalset",
