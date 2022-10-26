@@ -244,7 +244,7 @@ export interface PgTheme {
     tutorial?: BgAndColor;
 
     // Tutorials section
-    tutorials?: BgAndColor;
+    tutorials?: BgAndColor & { card?: BgAndColor };
   };
 
   borderRadius?: string;

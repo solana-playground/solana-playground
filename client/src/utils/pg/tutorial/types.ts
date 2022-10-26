@@ -1,12 +1,5 @@
 import { ComponentType } from "react";
 
-type Author = {
-  /** Author's name that will be displayed as one of the creators of the tutorial */
-  name: string;
-  /** Optional link to the author's page, e.g Twitter */
-  link?: string;
-};
-
 export enum TutorialLevel {
   BEGINNER = "Beginner",
   INTERMEDIATE = "Intermediate",
@@ -15,25 +8,36 @@ export enum TutorialLevel {
 
 export enum TutorialCategory {
   DEFI = "DeFi",
-  NFTS = "NFTs",
+  NFT = "NFT",
   PAYMENT = "Payment",
   STAKING = "Staking",
   OTHER = "Other",
 }
 
+type Author = {
+  /** Author's name that will be displayed as one of the creators of the tutorial */
+  name: string;
+  /** Optional link to the author's page, e.g Twitter, Github */
+  link?: string;
+};
+
 export interface TutorialData {
   /** Tutorial name that will be shown in tutorials section */
   name: string;
-  /** Tutorial description that will be shown in tutorials section */
+  /** Tutorial description that will be shown in tutorials section.
+   * Only the first 72 characters will be shown in the tutorials page.
+   */
   description: string;
-  /** Tutorial cover image that will be shown in tutorials section */
+  /** Tutorial cover image that will be shown in tutorials section.
+   * It can either be `public/tutorials/...` or full url to the image.
+   */
   imageSrc: string;
   /** Authors of the tutorial */
   authors: Author[];
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
   /** Category of the tutorial */
-  category: TutorialCategory;
+  categories: TutorialCategory[];
   /** Tutorial component async import */
   elementImport: () => Promise<{
     default: ComponentType<Omit<TutorialData, "elementImport">>;

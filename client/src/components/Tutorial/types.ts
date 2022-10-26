@@ -1,7 +1,7 @@
 import { Files } from "../../utils/pg";
 
 type Page = {
-  /** Content of the page(markdown) */
+  /** Content of the page(markdown supported) */
   content: string;
   /** Title of the page that will be used for navigation */
   title: string;

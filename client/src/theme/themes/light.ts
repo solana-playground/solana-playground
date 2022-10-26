@@ -25,7 +25,7 @@ const TEXT_SECONDARY = "#555555";
 // State
 const COMMENT = "#238000";
 const SELECTION = "#e5ebf1";
-const HOVER = "#00000010";
+const HOVER = "#ecedee";
 const DISABLED = "#cccccc";
 
 export const LIGHT: PgTheme = {

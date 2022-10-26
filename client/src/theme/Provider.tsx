@@ -197,6 +197,11 @@ const MutThemeProvider: FC = ({ children }) => {
     _theme.colors.tutorials.bg = _theme.colors.default.bgSecondary;
   if (!_theme.colors.tutorials.color)
     _theme.colors.tutorials.color = _theme.colors.default.textPrimary;
+  if (!_theme.colors.tutorials.card) _theme.colors.tutorials.card = {};
+  if (!_theme.colors.tutorials.card.bg)
+    _theme.colors.tutorials.card.bg = _theme.colors.default.bgPrimary;
+  if (!_theme.colors.tutorials.card.color)
+    _theme.colors.tutorials.card.color = _theme.colors.default.textPrimary;
 
   // Scrollbar
   if (!_theme.scrollbar) {

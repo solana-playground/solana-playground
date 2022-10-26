@@ -99,6 +99,9 @@ export const SOLANA: PgTheme = {
     },
     tutorials: {
       bg: BG_BLACK,
+      card: {
+        bg: BG_GRAY,
+      },
     },
   },
   skeleton: {
