@@ -47,6 +47,17 @@ const Select = <
           ":active": {
             backgroundColor: theme.colors.state.hover.bg,
           },
+          display: "flex",
+          alignItems: "center",
+          "::before": {
+            content: `"${state.isSelected ? "✔" : ""}"`,
+            width: "0.5rem",
+            height: "0.5rem",
+            display: "flex",
+            alignItems: "center",
+            color: theme.colors.default.primary,
+            marginRight: "0.5rem",
+          },
         }),
         singleValue: (base) => ({
           ...base,
