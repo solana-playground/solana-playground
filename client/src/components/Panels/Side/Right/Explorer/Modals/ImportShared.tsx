@@ -7,6 +7,7 @@ import useModal from "../../../../../Modal/useModal";
 import Input, { defaultInputProps } from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
 import { PgRouter } from "../../../../../../utils/pg";
+import { Route } from "../../../../../../constants";
 
 export const ImportShared = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -32,7 +33,7 @@ export const ImportShared = () => {
 
     try {
       await explorer.newWorkspace(name, { fromShared: true });
-      PgRouter.navigate("/");
+      PgRouter.navigate(Route.DEFAULT);
       close();
     } catch (e: any) {
       console.log(e.message);

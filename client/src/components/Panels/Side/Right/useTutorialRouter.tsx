@@ -23,23 +23,38 @@ export const useSetupExplorerAndRouter = () => {
 
   // Initialize explorer
   useEffect(() => {
-    if (pathname === "/" || pathname.startsWith(Route.TUTORIALS)) {
+    if (
+      pathname === Route.DEFAULT ||
+      pathname.startsWith(Route.TUTORIALS) ||
+      pathname.startsWith(Route.GITHUB)
+    ) {
       if (explorer && !explorer.isShared) return;
       (async () => {
         try {
           const _explorer = new PgExplorer(refreshExplorer);
           await _explorer.init();
 
+          // If it's github, import the project
+          if (pathname.startsWith(Route.GITHUB)) {
+            await _explorer.importFromGithub(
+              pathname.split(`${Route.GITHUB}/`)?.[1]
+            );
+            // Navigate to main(will re-run current function)
+            PgRouter.navigate(Route.DEFAULT);
+            return;
+          }
           // If it's a tutorial, navigate to the tutorial's path
-          if (
-            pathname === "/" &&
+          else if (
+            pathname === Route.DEFAULT &&
             PgTutorial.isWorkspaceTutorial(_explorer.currentWorkspaceName!)
           ) {
             PgTutorial.open(_explorer.currentWorkspaceName!);
           }
+
           setExplorer(_explorer);
         } catch (e: any) {
           console.log(e.message);
+          PgRouter.navigate(Route.DEFAULT);
         }
       })();
     } else if (!explorer?.isShared) {
@@ -51,7 +66,7 @@ export const useSetupExplorerAndRouter = () => {
         } catch {
           // Couldn't get the data
           // Redirect to main
-          PgRouter.navigate("/");
+          PgRouter.navigate(Route.DEFAULT);
         }
       })();
     }
@@ -68,7 +83,7 @@ export const useSetupExplorerAndRouter = () => {
       if (PgTutorial.isWorkspaceTutorial(explorer.currentWorkspaceName)) {
         PgTutorial.open(explorer.currentWorkspaceName);
       } else {
-        PgRouter.navigate("/");
+        PgRouter.navigate(Route.DEFAULT);
       }
     });
 
@@ -86,7 +101,7 @@ export const useSetupExplorerAndRouter = () => {
   // Handle sidebar state change
   useEffect(() => {
     PgView.onDidChangeSidebarState(async (sidebarState) => {
-      const pathname = await PgRouter.getPath();
+      const pathname = await PgRouter.getPathname();
       if (
         sidebarState === Sidebar.TUTORIALS &&
         !pathname.startsWith(Route.TUTORIALS)
@@ -97,7 +112,7 @@ export const useSetupExplorerAndRouter = () => {
         (pathname === Route.TUTORIALS ||
           !(await PgTutorial.isCurrentWorkspaceTutorial()))
       ) {
-        PgRouter.navigate("/");
+        PgRouter.navigate(Route.DEFAULT);
       }
     });
   }, []);

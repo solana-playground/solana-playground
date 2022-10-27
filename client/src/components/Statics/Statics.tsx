@@ -25,9 +25,9 @@ const Statics = () => {
   const [explorer] = useAtom(explorerAtom);
   useExposeStatic(explorer, EventName.EXPLORER_STATIC);
 
-  // Router pathname
-  const { pathname } = useLocation();
-  useGetStatic(pathname, EventName.ROUTER_PATHNAME);
+  // Router location
+  const location = useLocation();
+  useGetStatic(location, EventName.ROUTER_LOCATION);
 
   // Router navigate
   const navigate = useNavigate();

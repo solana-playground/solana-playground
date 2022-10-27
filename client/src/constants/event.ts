@@ -21,7 +21,7 @@ export enum EventName {
 
   // Router
   ROUTER_NAVIGATE = "routernavigate",
-  ROUTER_PATHNAME = "routerpathname",
+  ROUTER_LOCATION = "routerlocation",
 
   // Terminal
   TERMINAL_DISABLE = "terminaldisable",
