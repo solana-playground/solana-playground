@@ -35,7 +35,7 @@ const GradientWrapper = styled.div`
   ${({ theme }) => css`
     --img-height: 15rem;
 
-    padding: 2px;
+    padding: 0.25rem;
     width: 20rem;
     height: 24rem;
     position: relative;
