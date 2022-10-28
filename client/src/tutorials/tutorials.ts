@@ -35,6 +35,6 @@ export const TUTORIALS: TutorialData[] = [
     ],
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.OTHER],
-    elementImport: () => import("./Template_counter"),
+    elementImport: () => import("./CounterEasy"),
   },
 ];
