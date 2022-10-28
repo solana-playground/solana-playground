@@ -25,7 +25,7 @@ export const TUTORIALS: TutorialData[] = [
   },
 
   {
-    name: "Counter Tutorial",
+    name: "Counter PDA Tutorial",
     description: "Create a simple counter that will store the number of times is called.",
     imageSrc: getTutorialImgSrc("template/counter.jpg"),
     authors: [
