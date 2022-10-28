@@ -4,5 +4,5 @@
 - How to build and deploy a Solana Anchor program
 - How to store information using PDAs
 - Basic on-chain adding operation
-- How to interact with your on-chain program using Typescript.
+- How to interact with your on-chain data accounts.
 
