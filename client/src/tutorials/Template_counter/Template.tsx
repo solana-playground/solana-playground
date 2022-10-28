@@ -15,7 +15,7 @@ const Template = () => (
       { content: require("./pages/7.md"), title: "7/10" },
       { content: require("./pages/8.md"), title: "8/10" },
       { content: require("./pages/9.md"), title: "9/10" },
-      { content: require("./pages/10.md"), title: "10/10"},
+      { content: require("./pages/10.md"), title: "10/10" },
     ]}
     // Initial files to have at the beginning of the tutorial
     files={[

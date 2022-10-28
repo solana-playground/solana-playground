@@ -20,14 +20,13 @@ export const TUTORIALS: TutorialData[] = [
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.OTHER],
     elementImport: () => import("./Template"),
-
-    
   },
 
   {
     name: "Counter PDA Tutorial",
-    description: "Create a simple counter that will store the number of times is called.",
-    imageSrc: getTutorialImgSrc("template/counter.jpg"),
+    description:
+      "Create a simple counter that will store the number of times is called.",
+    imageSrc: getTutorialImgSrc("counter-easy/counter.jpg"),
     authors: [
       {
         name: "cleon",
@@ -37,7 +36,5 @@ export const TUTORIALS: TutorialData[] = [
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.OTHER],
     elementImport: () => import("./Template_counter"),
-
-    
   },
 ];
