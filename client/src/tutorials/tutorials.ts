@@ -20,5 +20,24 @@ export const TUTORIALS: TutorialData[] = [
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.OTHER],
     elementImport: () => import("./Template"),
+
+    
+  },
+
+  {
+    name: "Counter Tutorial",
+    description: "Create a simple counter that will store the number of times is called.",
+    imageSrc: getTutorialImgSrc("template/counter.jpg"),
+    authors: [
+      {
+        name: "cleon",
+        link: "https://twitter.com/0xCleon",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.OTHER],
+    elementImport: () => import("./Template_counter"),
+
+    
   },
 ];
