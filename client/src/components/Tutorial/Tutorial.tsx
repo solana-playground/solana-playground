@@ -125,7 +125,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   return (
     <Wrapper>
       {currentPage === 0 ? (
-        <MainWrapper>
+        <TutorialMainPageWrapper>
           <GoBackButtonWrapper>
             <Button
               onClick={goBackToTutorials}
@@ -135,88 +135,103 @@ export const Tutorial: FC<TutorialComponentProps> = ({
               Back
             </Button>
           </GoBackButtonWrapper>
-          <TutorialTopSectionWrapper>
-            <TutorialName>{tutorial.name}</TutorialName>
-            <TutorialAuthorsWrapper>
-              <TutorialAuthorsByText>by </TutorialAuthorsByText>
-              {tutorial.authors.length !== 0 &&
-                tutorial.authors.map((author, i) => (
-                  <Fragment key={i}>
-                    {i !== 0 && (
-                      <TutorialAuthorSeperator>, </TutorialAuthorSeperator>
-                    )}
-                    {author.link ? (
-                      <TutorialAuthorLink href={author.link}>
-                        {author.name}
-                      </TutorialAuthorLink>
-                    ) : (
-                      <TutorialWithoutLink>{author.name}</TutorialWithoutLink>
-                    )}
-                  </Fragment>
-                ))}
-            </TutorialAuthorsWrapper>
-            <TutorialDescriptionWrapper>
-              <TutorialDescription>{tutorial.description}</TutorialDescription>
-              <StartTutorialButtonWrapper>
-                <Button
-                  onClick={startTutorial}
-                  kind="secondary"
-                  fontWeight="bold"
-                >
-                  {previousPageRef.current ? "CONTINUE" : "START"}
-                </Button>
-              </StartTutorialButtonWrapper>
-            </TutorialDescriptionWrapper>
-          </TutorialTopSectionWrapper>
-          <Markdown>{about}</Markdown>
-        </MainWrapper>
+
+          <TutorialMainPage>
+            <TutorialTopSectionWrapper>
+              <TutorialName>{tutorial.name}</TutorialName>
+              <TutorialAuthorsWrapper>
+                <TutorialAuthorsByText>by </TutorialAuthorsByText>
+                {tutorial.authors.length !== 0 &&
+                  tutorial.authors.map((author, i) => (
+                    <Fragment key={i}>
+                      {i !== 0 && (
+                        <TutorialAuthorSeperator>, </TutorialAuthorSeperator>
+                      )}
+                      {author.link ? (
+                        <TutorialAuthorLink href={author.link}>
+                          {author.name}
+                        </TutorialAuthorLink>
+                      ) : (
+                        <TutorialWithoutLink>{author.name}</TutorialWithoutLink>
+                      )}
+                    </Fragment>
+                  ))}
+              </TutorialAuthorsWrapper>
+              <TutorialDescriptionWrapper>
+                <TutorialDescription>
+                  {tutorial.description}
+                </TutorialDescription>
+                <StartTutorialButtonWrapper>
+                  <Button
+                    onClick={startTutorial}
+                    kind="secondary"
+                    fontWeight="bold"
+                  >
+                    {previousPageRef.current ? "CONTINUE" : "START"}
+                  </Button>
+                </StartTutorialButtonWrapper>
+              </TutorialDescriptionWrapper>
+            </TutorialTopSectionWrapper>
+
+            <TutorialAboutSectionWrapper>
+              {typeof about === "string" ? <Markdown>{about}</Markdown> : about}
+            </TutorialAboutSectionWrapper>
+          </TutorialMainPage>
+        </TutorialMainPageWrapper>
       ) : (
         <PagesWrapper rtl={rtl}>
           <EditorWrapper>
             <EditorWithTabs />
           </EditorWrapper>
-          <Pages>
-            <Markdown>{pages[currentPage - 1].content}</Markdown>
-            <NavigationButtonsOutsideWrapper>
-              <NavigationButtonsInsideWrapper>
-                {currentPage !== 1 && (
-                  <PreviousWrapper>
-                    <PreviousText>Previous</PreviousText>
-                    <Button
-                      onClick={previousPage}
-                      kind="no-border"
-                      fontWeight="bold"
-                      leftIcon={<PointedArrow rotate="180deg" />}
-                    >
-                      {pages[currentPage - 2].title}
-                    </Button>
-                  </PreviousWrapper>
-                )}
-                <NextWrapper>
-                  <NextText>Next</NextText>
-                  {currentPage === pages.length ? (
-                    <FinishButton
-                      onClick={PgTutorial.finish}
-                      kind="no-border"
-                      fontWeight="bold"
-                      rightIcon={<span>✔</span>}
-                    >
-                      Finish
-                    </FinishButton>
-                  ) : (
-                    <Button
-                      onClick={nextPage}
-                      kind="no-border"
-                      fontWeight="bold"
-                      rightIcon={<PointedArrow />}
-                    >
-                      {pages[currentPage].title}
-                    </Button>
+
+          <TutorialPage>
+            <TutorialContent>
+              {typeof pages[currentPage - 1].content === "string" ? (
+                <Markdown>{pages[currentPage - 1].content as string}</Markdown>
+              ) : (
+                pages[currentPage - 1].content
+              )}
+              <NavigationButtonsOutsideWrapper>
+                <NavigationButtonsInsideWrapper>
+                  {currentPage !== 1 && (
+                    <PreviousWrapper>
+                      <PreviousText>Previous</PreviousText>
+                      <Button
+                        onClick={previousPage}
+                        kind="no-border"
+                        fontWeight="bold"
+                        leftIcon={<PointedArrow rotate="180deg" />}
+                      >
+                        {pages[currentPage - 2].title}
+                      </Button>
+                    </PreviousWrapper>
                   )}
-                </NextWrapper>
-              </NavigationButtonsInsideWrapper>
-            </NavigationButtonsOutsideWrapper>
-          </Pages>
+                  <NextWrapper>
+                    <NextText>Next</NextText>
+                    {currentPage === pages.length ? (
+                      <FinishButton
+                        onClick={PgTutorial.finish}
+                        kind="no-border"
+                        fontWeight="bold"
+                        rightIcon={<span>✔</span>}
+                      >
+                        Finish
+                      </FinishButton>
+                    ) : (
+                      <Button
+                        onClick={nextPage}
+                        kind="no-border"
+                        fontWeight="bold"
+                        rightIcon={<PointedArrow />}
+                      >
+                        {pages[currentPage].title}
+                      </Button>
+                    )}
+                  </NextWrapper>
+                </NavigationButtonsInsideWrapper>
+              </NavigationButtonsOutsideWrapper>
+            </TutorialContent>
+          </TutorialPage>
         </PagesWrapper>
       )}
     </Wrapper>
@@ -258,7 +273,7 @@ const Wrapper = styled.div`
   `}
 `;
 
-const MainWrapper = styled.div`
+const TutorialMainPageWrapper = styled.div`
   height: 100%;
   width: 100%;
   overflow: auto;
@@ -276,17 +291,22 @@ const GoBackButtonWrapper = styled.div`
   }
 `;
 
-const TutorialTopSectionWrapper = styled.div`
+const TutorialMainPage = styled.div`
   ${({ theme }) => css`
+    max-width: 60rem;
+    padding: 2rem;
+    background: green;
     font-family: ${theme.font?.other?.family};
     font-size: ${theme.font?.other?.size.medium};
     background-color: ${theme.colors.markdown?.bg};
     color: ${theme.colors.markdown?.color};
-    padding: 1.5rem 2rem;
-    max-width: 60rem;
     border-top-right-radius: ${theme.borderRadius};
     border-bottom-right-radius: ${theme.borderRadius};
   `}
+`;
+
+const TutorialTopSectionWrapper = styled.div`
+  padding: 1.5rem 0;
 `;
 
 const TutorialName = styled.h1``;
@@ -323,6 +343,8 @@ const StartTutorialButtonWrapper = styled.div`
   margin-left: 2rem;
 `;
 
+const TutorialAboutSectionWrapper = styled.div``;
+
 const PagesWrapper = styled(Split)<Pick<TutorialComponentProps, "rtl">>`
   display: flex;
   flex-direction: ${({ rtl }) => (rtl ? "row-reverse" : "row")};
@@ -350,15 +372,23 @@ const EditorWrapper = styled.div`
   }
 `;
 
-const Pages = styled.div`
-  height: 100%;
-  overflow: auto;
-  padding-top: ${TAB_HEIGHT};
-  font-family: ${({ theme }) => theme.font?.other?.family};
+const TutorialPage = styled.div`
+  ${({ theme }) => css`
+    height: 100%;
+    max-width: 60rem;
+    overflow: auto;
+    padding-top: ${TAB_HEIGHT};
+    font-family: ${theme.font?.other?.family};
+  `}
+`;
+
+const TutorialContent = styled.div`
+  padding: 2rem;
+  background-color: ${({ theme }) => theme.colors.markdown?.bg};
 `;
 
 const NavigationButtonsOutsideWrapper = styled.div`
-  padding: 3rem 2rem;
+  padding: 3rem 0;
   max-width: 60rem;
   background-color: ${({ theme }) => theme.colors.markdown?.bg};
 `;

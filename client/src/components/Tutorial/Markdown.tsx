@@ -1001,9 +1001,6 @@ const MarkdownWrapper = styled.div`
 
     /* Custom */
     height: fit-content;
-    padding: 2rem;
-    max-width: 60rem;
-    border-radius: ${theme.borderRadius};
   `}
 `;
 
