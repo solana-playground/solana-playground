@@ -5,7 +5,7 @@ import { PgDisposable } from "./types";
 
 export class PgView {
   /**
-   * Set main view.
+   * Set main view(next to the sidebar and above the terminal)
    *
    * @param El element to set the main view to. If empty, default editor will be set.
    */
@@ -13,6 +13,11 @@ export class PgView {
     PgCommon.createAndDispatchCustomEvent(EventName.VIEW_MAIN_SET, { El });
   }
 
+  /**
+   * Set the current sidebar state
+   *
+   * @param state sidebar state to set
+   */
   static setSidebarState(state: Sidebar) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,

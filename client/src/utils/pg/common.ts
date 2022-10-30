@@ -237,12 +237,12 @@ export class PgCommon {
   }
 
   /**
-   * @returns kebab-case converted version of the string input
+   * @returns kebab-case converted version of the string input(works with Title Case)
    */
   static toKebabCase(str: string) {
     return str
       .split(" ")
-      .map((w) => w[0].toLowerCase() + w.substring(1))
+      .map((w) => w.toLowerCase())
       .join("-");
   }
 

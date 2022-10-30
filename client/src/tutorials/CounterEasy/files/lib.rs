@@ -1,7 +1,6 @@
-
 use anchor_lang::prelude::*;
 
-declare_id!("9MGFR88uofDVcjHx3hoy2jmRtcnfMdQUbYRHCFFJFuXC");
+declare_id!("");
 
 #[program]
 // Smart contract functions
@@ -11,8 +10,7 @@ pub mod counter {
     pub fn create_counter(ctx: Context<CreateCounter>) -> Result<()> {
         msg!("Creating a Counter!!");
 
-         // The creation of the counter must be here
-
+        // The creation of the counter must be here
         
         msg!("Current count is {}", counter.count);
         msg!("The Admin PubKey is: {} ", counter.authority);
@@ -38,7 +36,13 @@ pub mod counter {
 pub struct CreateCounter<'info> {
     #[account(mut)]
     authority: Signer<'info>,
-    #[account(init, seeds=[authority.key().as_ref()], bump, payer=authority, space=100)]
+    #[account(
+        init,
+        seeds = [authority.key().as_ref()],
+        bump,
+        payer = authority,
+        space = 100
+    )]
     counter: Account<'info, Counter>,
     system_program: Program<'info, System>,
 }

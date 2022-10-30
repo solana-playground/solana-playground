@@ -9,9 +9,14 @@ type Page = {
    * - React component
    */
   content: TutorialElement;
-  /** Title of the page that will be used for navigation */
-  title: string;
-} & Pick<TutorialComponentProps, "onMount">;
+  /** Title of the page that will be used for navigation.
+   *
+   * Defaults to `pageNumber/pageCount`, e.g 3/5
+   */
+  title?: string;
+  /** Callback to run on mount */
+  onMount?: () => any;
+};
 
 export type TutorialComponentProps = {
   /** About section that will be shown under the description of the tutorial page */
@@ -24,6 +29,4 @@ export type TutorialComponentProps = {
   defaultOpenFile?: string;
   /** Whether to put editor to the right instead of left */
   rtl?: boolean;
-  /** Callback to run on mount */
-  onMount?: () => any;
-};
+} & Pick<Page, "onMount">;

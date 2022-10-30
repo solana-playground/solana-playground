@@ -8,10 +8,6 @@ export class PgRouter {
     return await PgCommon.sendAndReceiveCustomEvent(EventName.ROUTER_LOCATION);
   }
 
-  static async getPathname() {
-    return (await this.getLocation()).pathname;
-  }
-
   static async navigate(path: string) {
     const { pathname, search } = await this.getLocation();
     if (pathname + search !== path) {

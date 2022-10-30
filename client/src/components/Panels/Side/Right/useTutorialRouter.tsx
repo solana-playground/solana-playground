@@ -101,7 +101,7 @@ export const useSetupExplorerAndRouter = () => {
   // Handle sidebar state change
   useEffect(() => {
     PgView.onDidChangeSidebarState(async (sidebarState) => {
-      const pathname = await PgRouter.getPathname();
+      const { pathname } = await PgRouter.getLocation();
       if (
         sidebarState === Sidebar.TUTORIALS &&
         !pathname.startsWith(Route.TUTORIALS)

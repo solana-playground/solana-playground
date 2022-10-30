@@ -47,16 +47,15 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   useEffect(() => {
     (async () => {
       try {
-        const metadata = await PgCommon.transition(PgTutorial.getMetadata());
-        if (metadata.pageNumber) {
-          PgView.setSidebarState(Sidebar.EXPLORER);
-        }
+        const metadata = await PgCommon.transition(
+          PgTutorial.getMetadata(tutorial.name)
+        );
         setCurrentPage(metadata.pageNumber);
       } catch {
         setCurrentPage(0);
       }
     })();
-  }, []);
+  }, [tutorial.name]);
 
   // Handle page number based on sidebar state change
   useEffect(() => {
@@ -82,6 +81,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       pageNumber: currentPage,
       pageCount: pages.length,
     });
+    PgView.setSidebarState(Sidebar.EXPLORER);
   }, [currentPage, pages.length]);
 
   const goBackToTutorials = useCallback(() => {
@@ -114,6 +114,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   // Specific page events
   useEffect(() => {
     if (!currentPage) return;
+
     const page = pages[currentPage - 1];
     if (page.onMount) {
       page.onMount();
@@ -121,6 +122,12 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }, [currentPage, pages]);
 
   if (currentPage === undefined) return <MainViewLoading tutorialsBg />;
+
+  // This could happen if the saved page has been deleted
+  if (currentPage && !pages[currentPage - 1]) {
+    setCurrentPage(1);
+    return null;
+  }
 
   return (
     <Wrapper>
@@ -202,7 +209,8 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                         fontWeight="bold"
                         leftIcon={<PointedArrow rotate="180deg" />}
                       >
-                        {pages[currentPage - 2].title}
+                        {pages[currentPage - 2].title ??
+                          `${currentPage - 1}/${pages.length}`}
                       </Button>
                     </PreviousWrapper>
                   )}
@@ -224,7 +232,8 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                         fontWeight="bold"
                         rightIcon={<PointedArrow />}
                       >
-                        {pages[currentPage].title}
+                        {pages[currentPage].title ??
+                          `${currentPage + 1}/${pages.length}`}
                       </Button>
                     )}
                   </NextWrapper>

@@ -647,6 +647,8 @@ export class PgExplorer {
     name: string,
     options?: { initial?: boolean; defaultOpenFile?: string }
   ) {
+    if (name === this.currentWorkspaceName) return;
+
     // Save metadata before changing the workspace to never lose data
     await this.saveMeta(options);
 

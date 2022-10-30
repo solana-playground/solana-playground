@@ -58,10 +58,19 @@ export class PgTutorial {
     return this.isWorkspaceTutorial(workspaceName!);
   }
 
-  static open(tutorialName: string) {
-    PgRouter.navigate(
-      `${Route.TUTORIALS}/${PgCommon.toKebabCase(tutorialName)}`
-    );
+  static async open(tutorialName: string) {
+    const { pathname } = await PgRouter.getLocation();
+    const tutorialPath = `${Route.TUTORIALS}/${PgCommon.toKebabCase(
+      tutorialName
+    )}`;
+    if (pathname === tutorialPath) {
+      // Open the tutorial pages view
+      const metadata = await this.getMetadata();
+      this.setPageNumber(metadata.pageNumber);
+    } else {
+      PgRouter.navigate(tutorialPath);
+      await PgExplorer.run({ changeWorkspace: [tutorialName] });
+    }
   }
 
   static async start(
