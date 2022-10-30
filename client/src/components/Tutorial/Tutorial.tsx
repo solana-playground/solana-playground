@@ -11,6 +11,7 @@ import { Sidebar } from "../Panels/Side/sidebar-state";
 import { MainViewLoading } from "../Loading";
 import {
   PgCommon,
+  PgExplorer,
   PgRouter,
   PgTutorial,
   PgView,
@@ -30,10 +31,12 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   defaultOpenFile,
   rtl,
   onMount,
+  onComplete,
 }) => {
   const [tutorial] = useAtom<TutorialData>(tutorialAtom as Atom<TutorialData>);
 
   const [currentPage, setCurrentPage] = useState<number>();
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const previousPageRef = useRef(currentPage);
 
@@ -50,7 +53,12 @@ export const Tutorial: FC<TutorialComponentProps> = ({
         const metadata = await PgCommon.transition(
           PgTutorial.getMetadata(tutorial.name)
         );
-        setCurrentPage(metadata.pageNumber);
+        if (metadata.completed) {
+          setIsCompleted(true);
+          setCurrentPage(0);
+        } else {
+          setCurrentPage(metadata.pageNumber);
+        }
       } catch {
         setCurrentPage(0);
       }
@@ -81,8 +89,22 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       pageNumber: currentPage,
       pageCount: pages.length,
     });
+
+    // Set sidebar State
     PgView.setSidebarState(Sidebar.EXPLORER);
   }, [currentPage, pages.length]);
+
+  // Change workspace if it hasn't been changed yet
+  useEffect(() => {
+    if (!currentPage) return;
+
+    (async () => {
+      const explorer = await PgExplorer.get();
+      if (explorer.currentWorkspaceName !== tutorial.name) {
+        await explorer.changeWorkspace(tutorial.name);
+      }
+    })();
+  }, [currentPage, tutorial.name]);
 
   const goBackToTutorials = useCallback(() => {
     PgView.setSidebarState(Sidebar.TUTORIALS);
@@ -104,6 +126,12 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       pageCount: pages.length,
     });
   }, [files, defaultOpenFile, pages.length]);
+
+  const finishTutorial = useCallback(async () => {
+    await PgTutorial.finish();
+    setIsCompleted(true);
+    if (onComplete) onComplete();
+  }, [onComplete]);
 
   // Custom callbacks
   // On component mount
@@ -171,10 +199,16 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                 <StartTutorialButtonWrapper>
                   <Button
                     onClick={startTutorial}
-                    kind="secondary"
+                    kind={isCompleted ? "no-border" : "secondary"}
+                    color={isCompleted ? "success" : undefined}
                     fontWeight="bold"
+                    leftIcon={isCompleted ? <span>✔</span> : undefined}
                   >
-                    {previousPageRef.current ? "CONTINUE" : "START"}
+                    {isCompleted
+                      ? "COMPLETED"
+                      : previousPageRef.current
+                      ? "CONTINUE"
+                      : "START"}
                   </Button>
                 </StartTutorialButtonWrapper>
               </TutorialDescriptionWrapper>
@@ -217,14 +251,15 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                   <NextWrapper>
                     <NextText>Next</NextText>
                     {currentPage === pages.length ? (
-                      <FinishButton
-                        onClick={PgTutorial.finish}
+                      <Button
+                        onClick={finishTutorial}
                         kind="no-border"
+                        color="success"
                         fontWeight="bold"
                         rightIcon={<span>✔</span>}
                       >
                         Finish
-                      </FinishButton>
+                      </Button>
                     ) : (
                       <Button
                         onClick={nextPage}
@@ -436,13 +471,3 @@ const NextWrapper = styled.div`
 `;
 
 const NextText = styled.div``;
-
-const FinishButton = styled(Button)`
-  ${({ theme }) => css`
-    color: ${theme.colors.state.success.color + theme.transparency?.high};
-
-    &:hover {
-      color: ${theme.colors.state.success.color};
-    }
-  `}
-`;

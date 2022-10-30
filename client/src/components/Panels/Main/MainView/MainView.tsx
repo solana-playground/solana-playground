@@ -44,7 +44,7 @@ const MainView = () => {
             setEl(EditorWithTabs);
           }
         })(),
-        400
+        300
       );
 
       setLoading(false);

@@ -69,7 +69,6 @@ export class PgTutorial {
       this.setPageNumber(metadata.pageNumber);
     } else {
       PgRouter.navigate(tutorialPath);
-      await PgExplorer.run({ changeWorkspace: [tutorialName] });
     }
   }
 

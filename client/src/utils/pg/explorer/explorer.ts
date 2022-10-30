@@ -305,7 +305,14 @@ export class PgExplorer {
       metaFile[this.getRelativePath(path)] = { ...files[path].meta };
     }
 
-    await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+    // Only save when relative paths are correct to not lose metadata on some rare cases
+    if (
+      Object.keys(metaFile)
+        .find((k) => k.includes(PgWorkspace.METADATA_PATH))
+        ?.startsWith(PgWorkspace.METADATA_PATH)
+    ) {
+      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+    }
   }
 
   /**
@@ -647,8 +654,6 @@ export class PgExplorer {
     name: string,
     options?: { initial?: boolean; defaultOpenFile?: string }
   ) {
-    if (name === this.currentWorkspaceName) return;
-
     // Save metadata before changing the workspace to never lose data
     await this.saveMeta(options);
 

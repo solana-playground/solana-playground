@@ -78,7 +78,6 @@ export const useSetupExplorerAndRouter = () => {
 
     const initWorkspace = explorer.onDidChangeWorkspace(() => {
       if (!explorer.currentWorkspaceName) return;
-
       // If it's a tutorial, navigate to the tutorial's path
       if (PgTutorial.isWorkspaceTutorial(explorer.currentWorkspaceName)) {
         PgTutorial.open(explorer.currentWorkspaceName);
@@ -107,15 +106,26 @@ export const useSetupExplorerAndRouter = () => {
         !pathname.startsWith(Route.TUTORIALS)
       ) {
         PgRouter.navigate(Route.TUTORIALS);
-      } else if (
-        sidebarState !== Sidebar.TUTORIALS &&
-        (pathname === Route.TUTORIALS ||
-          !(await PgTutorial.isCurrentWorkspaceTutorial()))
-      ) {
-        PgRouter.navigate(Route.DEFAULT);
+      } else if (sidebarState !== Sidebar.TUTORIALS) {
+        const tutorial = PgTutorial.getTutorialFromPathname(pathname);
+        if (!tutorial) {
+          PgRouter.navigate(Route.DEFAULT);
+        } else if (
+          pathname !== Route.TUTORIALS &&
+          pathname.startsWith(Route.TUTORIALS)
+        ) {
+          if (explorer && explorer.currentWorkspaceName !== tutorial.name) {
+            await explorer.changeWorkspace(tutorial.name);
+          } else {
+            const metadata = await PgTutorial.getMetadata(tutorial.name);
+            if (metadata.pageNumber) {
+              PgTutorial.setPageNumber(metadata.pageNumber);
+            }
+          }
+        }
       }
     });
-  }, []);
+  }, [explorer]);
 
   useEffect(() => {
     if (explorer) setLoading(false);

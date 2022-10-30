@@ -29,4 +29,6 @@ export type TutorialComponentProps = {
   defaultOpenFile?: string;
   /** Whether to put editor to the right instead of left */
   rtl?: boolean;
+  /** Callback to run when the tutorial is completed */
+  onComplete?: () => any;
 } & Pick<Page, "onMount">;
