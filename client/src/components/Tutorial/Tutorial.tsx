@@ -39,6 +39,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   const previousPageRef = useRef(currentPage);
+  const tutorialPageRef = useRef<HTMLDivElement>(null);
 
   useGetAndSetStatic(
     currentPage,
@@ -105,6 +106,11 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       }
     })();
   }, [currentPage, tutorial.name]);
+
+  // Scroll to the top on page change
+  useEffect(() => {
+    tutorialPageRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [currentPage]);
 
   const goBackToTutorials = useCallback(() => {
     PgView.setSidebarState(Sidebar.TUTORIALS);
@@ -225,7 +231,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
             <EditorWithTabs />
           </EditorWrapper>
 
-          <TutorialPage>
+          <TutorialPage ref={tutorialPageRef}>
             <TutorialContent>
               {typeof pages[currentPage - 1].content === "string" ? (
                 <Markdown>{pages[currentPage - 1].content as string}</Markdown>
