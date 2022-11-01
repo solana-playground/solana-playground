@@ -59,6 +59,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           setCurrentPage(0);
         } else {
           setCurrentPage(metadata.pageNumber);
+          PgView.setSidebarState(Sidebar.EXPLORER);
         }
       } catch {
         setCurrentPage(0);
@@ -90,9 +91,6 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       pageNumber: currentPage,
       pageCount: pages.length,
     });
-
-    // Set sidebar State
-    PgView.setSidebarState(Sidebar.EXPLORER);
   }, [currentPage, pages.length]);
 
   // Change workspace if it hasn't been changed yet

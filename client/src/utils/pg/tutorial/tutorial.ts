@@ -67,6 +67,7 @@ export class PgTutorial {
       // Open the tutorial pages view
       const metadata = await this.getMetadata();
       this.setPageNumber(metadata.pageNumber);
+      PgView.setSidebarState(Sidebar.EXPLORER);
     } else {
       PgRouter.navigate(tutorialPath);
     }

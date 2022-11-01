@@ -99,7 +99,7 @@ export const useSetupExplorerAndRouter = () => {
 
   // Handle sidebar state change
   useEffect(() => {
-    PgView.onDidChangeSidebarState(async (sidebarState) => {
+    const disposable = PgView.onDidChangeSidebarState(async (sidebarState) => {
       const { pathname } = await PgRouter.getLocation();
       if (
         sidebarState === Sidebar.TUTORIALS &&
@@ -125,6 +125,8 @@ export const useSetupExplorerAndRouter = () => {
         }
       }
     });
+
+    return () => disposable.dispose();
   }, [explorer]);
 
   useEffect(() => {
