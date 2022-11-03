@@ -8,7 +8,6 @@ import Markdown from "./Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
 import { Sidebar } from "../Panels/Side/sidebar-state";
-import { MainViewLoading } from "../Loading";
 import {
   PgCommon,
   PgExplorer,
@@ -39,6 +38,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   const previousPageRef = useRef(currentPage);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const tutorialPageRef = useRef<HTMLDivElement>(null);
 
   useGetAndSetStatic(
@@ -63,6 +63,10 @@ export const Tutorial: FC<TutorialComponentProps> = ({
         }
       } catch {
         setCurrentPage(0);
+      } finally {
+        if (wrapperRef.current) {
+          wrapperRef.current.style.opacity = "1";
+        }
       }
     })();
   }, [tutorial.name]);
@@ -153,8 +157,6 @@ export const Tutorial: FC<TutorialComponentProps> = ({
     }
   }, [currentPage, pages]);
 
-  if (currentPage === undefined) return <MainViewLoading tutorialsBg />;
-
   // This could happen if the saved page has been deleted
   if (currentPage && !pages[currentPage - 1]) {
     setCurrentPage(1);
@@ -162,8 +164,8 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }
 
   return (
-    <Wrapper>
-      {currentPage === 0 ? (
+    <Wrapper ref={wrapperRef}>
+      {currentPage === undefined ? null : currentPage === 0 ? (
         <TutorialMainPageWrapper>
           <GoBackButtonWrapper>
             <Button
@@ -292,6 +294,9 @@ const Wrapper = styled.div`
     overflow: auto;
     background-color: ${theme.colors.tutorial?.bg};
     color: ${theme.colors.tutorial?.color};
+    opacity: 0;
+    transition: opacity ${theme.transition?.duration?.medium}
+      ${theme.transition?.type};
 
     /* Scrollbar */
     /* Chromium */
