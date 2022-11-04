@@ -136,7 +136,7 @@ const printGuardSet = (
     printWithStyle(
       innerPadding,
       "token mint",
-      guardSet.tokenPayment.tokenMint.toBase58()
+      guardSet.tokenPayment.mint.toBase58()
     );
   } else {
     printWithStyle(padding, "token payment", "none");
