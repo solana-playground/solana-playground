@@ -1,0 +1,1 @@
+export { WalletSettings } from "./Settings";
