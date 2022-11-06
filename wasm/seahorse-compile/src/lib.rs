@@ -1,30 +1,8 @@
 use std::{panic, path::PathBuf, str::FromStr};
 
 use seahorse_lang::core::{compile, Tree};
-
 use solana_playground_utils_wasm::js::PgTerminal;
 use wasm_bindgen::prelude::*;
-
-/// Convert the Seahorse file tree to an array that we can return via wasm
-/// Seahorse gives a file tree.
-/// The nodes are the file path (eg. `dot` -> `mod`) would be dot/mod.rs
-/// The leaves are the rust content of the file
-/// We output to wasm an array of flattened tuples [filepath, content, filepath, content]
-fn build_src_tree(tree: &Tree<String>, path: PathBuf) -> Vec<String> {
-    match tree {
-        Tree::Leaf(src) => {
-            // We add the `.rs` extension to each file
-            let path = path.with_extension("rs").to_str().unwrap().to_owned();
-            return vec![path, src.to_string()];
-        }
-
-        Tree::Node(node) => node
-            // Recursively find the leaves from this node and flatten
-            .iter()
-            .flat_map(|(subpath, subtree)| build_src_tree(subtree, path.join(subpath)))
-            .collect::<Vec<_>>(),
-    }
-}
 
 #[wasm_bindgen(js_name = "compileSeahorse")]
 pub fn compile_seahorse(python_source: String, program_name: String) -> Vec<JsValue> {
@@ -47,5 +25,26 @@ pub fn compile_seahorse(python_source: String, program_name: String) -> Vec<JsVa
             PgTerminal::enable();
             return vec![];
         }
+    }
+}
+
+/// Convert the Seahorse file tree to an array that we can return via wasm
+/// Seahorse gives a file tree.
+/// The nodes are the file path (eg. `dot` -> `mod`) would be dot/mod.rs
+/// The leaves are the rust content of the file
+/// We output to wasm an array of flattened tuples [filepath, content, filepath, content]
+fn build_src_tree(tree: &Tree<String>, path: PathBuf) -> Vec<String> {
+    match tree {
+        Tree::Leaf(src) => {
+            // We add the `.rs` extension to each file
+            let path = path.with_extension("rs").to_str().unwrap().to_owned();
+            return vec![path, src.to_string()];
+        }
+
+        Tree::Node(node) => node
+            // Recursively find the leaves from this node and flatten
+            .iter()
+            .flat_map(|(subpath, subtree)| build_src_tree(subtree, path.join(subpath)))
+            .collect::<Vec<_>>(),
     }
 }
