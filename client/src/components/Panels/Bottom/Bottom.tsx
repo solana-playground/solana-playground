@@ -75,6 +75,8 @@ export const BOTTOM_HEIGHT = "1.5rem";
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    --bottom-color: ${theme.colors.bottom?.color ?? "inherit"};
+
     height: ${BOTTOM_HEIGHT};
     width: 100%;
     display: flex;
@@ -83,7 +85,7 @@ const Wrapper = styled.div`
     font-size: ${theme.font?.code?.size.small};
     background-color: ${theme.colors.bottom?.bg ??
     theme.colors.default.primary};
-    color: ${theme.colors.bottom?.color ?? "inherit"};
+    color: var(--bottom-color);
 
     & .${ClassName.TOOLTIP} {
       height: 100%;
@@ -98,6 +100,10 @@ const Wrapper = styled.div`
           background-color: ${theme.colors.default.primary +
           theme.transparency?.low};
         }
+      }
+
+      & svg {
+        color: var(--bottom-color) !important;
       }
     }
   `}

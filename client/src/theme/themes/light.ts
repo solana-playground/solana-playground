@@ -84,7 +84,7 @@ export const LIGHT: PgTheme = {
       },
     },
     iconButton: {
-      selectedBg: HOVER,
+      selectedBg: "#00000020",
       selectedBorderColor: BG_LIGHT,
     },
     contrast: {
