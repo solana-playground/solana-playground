@@ -16,7 +16,7 @@ import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { Sidebar } from "../sidebar-state";
-import { useSetupExplorerAndRouter } from "./useTutorialRouter";
+import { usePlaygroundRouter } from "./usePlaygroundRouter";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -34,7 +34,7 @@ interface RightProps extends DefaultRightProps {
 }
 
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
-  const { loading } = useSetupExplorerAndRouter();
+  const { loading } = usePlaygroundRouter();
 
   const [height, setHeight] = useState({
     window:

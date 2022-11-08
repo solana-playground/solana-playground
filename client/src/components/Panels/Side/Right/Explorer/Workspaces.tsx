@@ -27,7 +27,7 @@ const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
   const [, setModal] = useAtom(modalAtom);
 
-  if (!explorer?.hasWorkspaces()) return <ShareWarning />;
+  if (explorer?.isShared) return <ShareWarning />;
 
   const handleNew = () => {
     setModal(<NewWorkspace />);
@@ -51,7 +51,7 @@ const Workspaces = () => {
 
   const handleFsExport = async () => {
     try {
-      await explorer.exportWorkspace();
+      await explorer?.exportWorkspace();
     } catch (e: any) {
       console.log(e.message);
     }

@@ -16,6 +16,7 @@ export class PgCommon {
    * Wait at least `ms` amount of miliseconds before resolving
    *
    * @param promise promise to await
+   * @returns the result of the promise parameter
    */
   static async transition<P>(promise: P, ms?: number): Promise<Awaited<P>> {
     const result = (await Promise.allSettled([this.sleep(ms), promise]))[1];
@@ -24,6 +25,23 @@ export class PgCommon {
     }
 
     throw new Error(result.reason?.message);
+  }
+
+  /**
+   * Wait at least `ms` amount of miliseconds before timing out
+   *
+   * @param promise promise to await
+   * @returns the result of the promise parameter
+   */
+  static async timeout<P>(promise: P, ms?: number): Promise<P | undefined> {
+    try {
+      return (await Promise.race([
+        new Promise((_, rej) => this.sleep(ms).then(rej)),
+        promise,
+      ])) as Awaited<P>;
+    } catch {
+      console.log("Timed out");
+    }
   }
 
   /**

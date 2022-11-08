@@ -46,7 +46,6 @@ export const Share = () => {
   }, [explorer]);
 
   const shareLink = `${CLIENT_URL}/${textState.id}`;
-  const httpsLink = "https://" + shareLink;
 
   return (
     <ModalInside title>
@@ -68,10 +67,10 @@ export const Share = () => {
           <SuccessWrapper>
             <InputWrapper>
               <Input value={shareLink} fullWidth readOnly />
-              <CopyButton copyText={httpsLink} />
+              <CopyButton copyText={shareLink} />
             </InputWrapper>
             <LinkWrapper>
-              <Link href={httpsLink}>Go to the link</Link>
+              <Link href={shareLink}>Go to the link</Link>
             </LinkWrapper>
           </SuccessWrapper>
         )}

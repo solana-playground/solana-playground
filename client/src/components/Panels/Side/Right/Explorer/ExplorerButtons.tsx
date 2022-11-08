@@ -1,5 +1,4 @@
 import { FC, useCallback } from "react";
-import { Link } from "react-router-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -7,7 +6,8 @@ import Button from "../../../../Button";
 import useNewItem from "./useNewItem";
 import { NewItem, Share, ImportShared } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgExplorer, PgRouter } from "../../../../../utils/pg";
+import { Route } from "../../../../../constants";
 
 const ExplorerButtons = () => (
   <ButtonsWrapper>
@@ -76,10 +76,7 @@ const CollapseAllButton = () => {
 };
 
 const ShareButton = () => {
-  const [explorer] = useAtom(explorerAtom);
   const [, setModal] = useAtom(modalAtom);
-
-  if (!explorer) return null;
 
   const handleShare = () => {
     setModal(<Share />);
@@ -113,20 +110,28 @@ const ImportButton = () => {
 };
 
 const GoBackButton = () => {
-  const [explorer] = useAtom(explorerAtom);
+  const [explorer, setExplorer] = useAtom(explorerAtom);
+
+  const goBack = useCallback(async () => {
+    // Checking whether the user has workspaces to validate state
+    const _explorer = new PgExplorer(() => {});
+    await _explorer.init();
+    if (!_explorer.hasWorkspaces()) {
+      setExplorer(null);
+    }
+    await PgRouter.navigate(Route.DEFAULT);
+  }, [setExplorer]);
 
   if (!explorer?.isShared) return null;
 
   return (
-    <Link to="/">
-      <Button kind="icon" title="Go back to your project">
-        <img
-          src={PgExplorer.getExplorerIconsPath("back.png")}
-          alt="Go back to your project"
-          style={{ height: "0.875rem", width: "0.875rem" }}
-        />
-      </Button>
-    </Link>
+    <Button onClick={goBack} kind="icon" title="Go back to your project">
+      <img
+        src={PgExplorer.getExplorerIconsPath("back.png")}
+        alt="Go back to your project"
+        style={{ height: "0.875rem", width: "0.875rem" }}
+      />
+    </Button>
   );
 };
 

@@ -261,8 +261,13 @@ export class PgExplorer {
     }
 
     // Load metadata info from IndexedDB
-    const metaStr = await this.readToString(this._metadataPath);
-    const metaFile: ItemMetaFile = JSON.parse(metaStr);
+    let metaFile: ItemMetaFile;
+    try {
+      const metaStr = await this.readToString(this._metadataPath);
+      metaFile = JSON.parse(metaStr);
+    } catch {
+      metaFile = {};
+    }
 
     for (const path in metaFile) {
       if (this.files[this.currentWorkspacePath + path]?.content !== undefined) {
@@ -305,12 +310,16 @@ export class PgExplorer {
       metaFile[this.getRelativePath(path)] = { ...files[path].meta };
     }
 
+    const metaFilePath = Object.keys(metaFile).find((k) =>
+      k.includes(PgWorkspace.METADATA_PATH)
+    );
+
+    // Save meta file if it doesn't exist
+    if (!metaFilePath) {
+      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+    }
     // Only save when relative paths are correct to not lose metadata on some rare cases
-    if (
-      Object.keys(metaFile)
-        .find((k) => k.includes(PgWorkspace.METADATA_PATH))
-        ?.startsWith(PgWorkspace.METADATA_PATH)
-    ) {
+    else if (metaFilePath.startsWith(PgWorkspace.METADATA_PATH)) {
       await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
     }
   }
@@ -322,7 +331,8 @@ export class PgExplorer {
     if (!this.isShared) {
       await this._writeFile(
         this._programInfoPath,
-        JSON.stringify(PgProgramInfo.getProgramInfo())
+        JSON.stringify(PgProgramInfo.getProgramInfo()),
+        true
       );
     }
   }
@@ -611,7 +621,7 @@ export class PgExplorer {
       await this._writeAllFromState();
 
       // Save metadata
-      await this.saveMeta();
+      await this.saveMeta({ initial: true });
 
       await this.changeWorkspace(name);
 
@@ -662,7 +672,7 @@ export class PgExplorer {
 
     await this.init(name);
 
-    // Open the lib file if it has been specified
+    // Open the default file if it has been specified
     if (options?.defaultOpenFile) {
       this.changeCurrentFile(
         this.currentWorkspacePath + options.defaultOpenFile
@@ -776,13 +786,26 @@ export class PgExplorer {
    * @param url Github url to a program's content(folder or single file)
    */
   async importFromGithub(url: string) {
+    // Get repository info
     const { files, owner, repo, path } = await PgGithub.getImportableRepository(
       url
     );
-    await this.newWorkspace(`github-${owner}/${repo}/${path}`, {
-      files,
-      defaultOpenFile: files.length === 1 ? files[0][0] : "lib.rs",
-    });
+
+    // Check whether the repository already exists in user's workspaces
+    const githubWorkspaceName = `github-${owner}/${repo}/${path}`;
+    if (this._workspace?.allNames.includes(githubWorkspaceName)) {
+      // Switch to the existing workspace
+      await this.changeWorkspace(githubWorkspaceName);
+    } else {
+      // Create a new workspace
+      await this.newWorkspace(githubWorkspaceName, {
+        files,
+        defaultOpenFile: files.length === 1 ? files[0][0] : "lib.rs",
+      });
+
+      // Save metadata
+      await this.saveMeta();
+    }
   }
 
   /**
@@ -1314,11 +1337,11 @@ export class PgExplorer {
     } catch {
       // Create default workspaces file
       const defaultWorkspaces = PgWorkspace.default();
-      await this._saveWorkspaces();
       workspaces = defaultWorkspaces;
     }
 
     this._workspace.setCurrent(workspaces);
+    await this._saveWorkspaces();
   }
 
   /**

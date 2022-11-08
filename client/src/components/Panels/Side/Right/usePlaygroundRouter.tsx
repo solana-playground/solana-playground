@@ -5,6 +5,7 @@ import { useAtom } from "jotai";
 import { Route } from "../../../../constants";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
 import {
+  PgCommon,
   PgExplorer,
   PgRouter,
   PgShare,
@@ -13,7 +14,7 @@ import {
 } from "../../../../utils/pg";
 import { Sidebar } from "../sidebar-state";
 
-export const useSetupExplorerAndRouter = () => {
+export const usePlaygroundRouter = () => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
   const [, refreshExplorer] = useAtom(refreshExplorerAtom);
 
@@ -23,14 +24,13 @@ export const useSetupExplorerAndRouter = () => {
 
   // Initialize explorer
   useEffect(() => {
-    if (
-      pathname === Route.DEFAULT ||
-      pathname.startsWith(Route.TUTORIALS) ||
-      pathname.startsWith(Route.GITHUB)
-    ) {
-      if (explorer && !explorer.isShared) return;
-      (async () => {
-        try {
+    (async () => {
+      try {
+        if (
+          pathname === Route.DEFAULT ||
+          pathname.startsWith(Route.TUTORIALS) ||
+          pathname.startsWith(Route.GITHUB)
+        ) {
           const _explorer = new PgExplorer(refreshExplorer);
           await _explorer.init();
 
@@ -52,25 +52,17 @@ export const useSetupExplorerAndRouter = () => {
           }
 
           setExplorer(_explorer);
-        } catch (e: any) {
-          console.log(e.message);
-          PgRouter.navigate(Route.DEFAULT);
-        }
-      })();
-    } else if (!explorer?.isShared) {
-      // Shared project
-      (async () => {
-        try {
+        } else if (!(await PgCommon.timeout(PgExplorer.get()))?.isShared) {
+          // Shared project
           const explorerData = await PgShare.get(pathname);
           setExplorer(new PgExplorer(refreshExplorer, explorerData));
-        } catch {
-          // Couldn't get the data
-          // Redirect to main
-          PgRouter.navigate(Route.DEFAULT);
         }
-      })();
-    }
-  }, [explorer, pathname, setExplorer, refreshExplorer]);
+      } catch (e: any) {
+        console.log(e.message);
+        PgRouter.navigate(Route.DEFAULT);
+      }
+    })();
+  }, [pathname, setExplorer, refreshExplorer]);
 
   // Handle workspace change/deletion
   useEffect(() => {
@@ -87,7 +79,7 @@ export const useSetupExplorerAndRouter = () => {
     });
 
     const deleteWorkspace = explorer.onDidDeleteWorkspace(() => {
-      // Set view to the default editor if there are workspaces
+      // Set view to the default editor if there are no workspaces
       if (!explorer.hasWorkspaces()) PgView.setMain();
     });
 
@@ -115,7 +107,11 @@ export const useSetupExplorerAndRouter = () => {
           pathname.startsWith(Route.TUTORIALS)
         ) {
           if (explorer && explorer.currentWorkspaceName !== tutorial.name) {
-            await explorer.changeWorkspace(tutorial.name);
+            if (explorer.allWorkspaceNames?.includes(tutorial.name)) {
+              await explorer.changeWorkspace(tutorial.name);
+            } else {
+              await PgRouter.navigate(Route.DEFAULT);
+            }
           } else {
             const metadata = await PgTutorial.getMetadata(tutorial.name);
             if (metadata.pageNumber) {
@@ -130,6 +126,7 @@ export const useSetupExplorerAndRouter = () => {
   }, [explorer]);
 
   useEffect(() => {
+    setLoading(true);
     if (explorer) setLoading(false);
   }, [explorer]);
 
