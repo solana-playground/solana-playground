@@ -68,12 +68,6 @@ export const PLAYGROUND: PgTheme = {
     iconButton: {
       selectedBg: BG_LIGHT,
     },
-    home: {
-      bg: BG_DARK,
-      card: {
-        bg: BG_DEFAULT,
-      },
-    },
     editor: {
       gutter: {
         color: COMMENT,

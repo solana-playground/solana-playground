@@ -95,12 +95,6 @@ export const LIGHT: PgTheme = {
     bottom: {
       color: BG_WHITE,
     },
-    home: {
-      bg: BG_LIGHT,
-      card: {
-        bg: BG_WHITE,
-      },
-    },
   },
   skeleton: {
     color: "#e5e4e6",
