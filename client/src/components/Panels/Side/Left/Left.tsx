@@ -63,11 +63,7 @@ const Left: FC<LeftProps> = ({
               );
 
             return (
-              <PopButton
-                key={i}
-                PopElement={Settings}
-                buttonProps={{ ...data }}
-              />
+              <PopButton key={i} PopElement={Settings} buttonProps={data} />
             );
           })}
         </Bottom>
