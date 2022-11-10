@@ -24,11 +24,11 @@ export const sidebarData = {
       src: ROOT_DIR + "test.png",
       value: Sidebar.TEST,
     },
-    // {
-    //   title: `${Sidebar.TUTORIALS} (Ctrl+Shift+L)`,
-    //   src: ROOT_DIR + "tutorials.webp",
-    //   value: Sidebar.TUTORIALS,
-    // },
+    {
+      title: `${Sidebar.TUTORIALS} (Ctrl+Shift+L)`,
+      src: ROOT_DIR + "tutorials.webp",
+      value: Sidebar.TUTORIALS,
+    },
   ],
   bottom: [
     {
