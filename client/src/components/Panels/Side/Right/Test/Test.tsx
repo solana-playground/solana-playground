@@ -7,9 +7,14 @@ import FetchableAccount from "./FetchableAccount";
 import Text from "../../../../Text";
 import TestSkeleton from "./TestSkeleton";
 import { ConnectionErrorText } from "../Common";
-import { PgProgramInfo } from "../../../../../utils/pg";
+import { PgProgramInfo, PgTest } from "../../../../../utils/pg";
 import { buildCountAtom } from "../../../../../state";
 import { useInitialLoading } from "../";
+import { useMemo } from "react";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { useCurrentWallet } from "../../../Wallet";
+import ListenableEvent from "./ListenableEvent";
+import { useBigNumberJson } from "../../../../../hooks/useBigNumberJson";
 
 // Webpack 5 doesn't polyfill buffer
 window.Buffer = buffer.Buffer;
@@ -21,6 +26,17 @@ const Test = () => {
   const { initialLoading, deployed, connError } = useInitialLoading();
 
   const idl = PgProgramInfo.getProgramInfo()?.idl;
+  const { connection: conn } = useConnection();
+  const { currentWallet } = useCurrentWallet();
+
+  const program = useMemo(() => {
+    return idl && currentWallet
+      ? PgTest.getProgram(idl, conn, currentWallet)
+      : null;
+  }, [idl, conn, currentWallet]);
+
+  // Used for both accounts and events data
+  useBigNumberJson();
 
   if (initialLoading) return <TestSkeleton />;
 
@@ -87,6 +103,20 @@ const Test = () => {
                   index={i}
                   accountName={acc.name}
                   idl={idl}
+                />
+              ))}
+            </ProgramInteractionWrapper>
+          )}
+
+          {idl.events && (
+            <ProgramInteractionWrapper>
+              <Subheading>Events</Subheading>
+              {idl.events.map((event, i) => (
+                <ListenableEvent
+                  key={i}
+                  index={i}
+                  program={program}
+                  eventName={event.name}
                 />
               ))}
             </ProgramInteractionWrapper>
