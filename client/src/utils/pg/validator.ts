@@ -25,6 +25,17 @@ export class PgValidator {
   }
 
   /**
+   * @returns whether a given string is parseable to a hexadecimal
+   */
+  static isHex(str: string) {
+    const hexRegex = /(0x)?[\da-f]+/i;
+    const result = hexRegex.exec(str);
+    if (!result) return false;
+
+    return result[0] === str;
+  }
+
+  /**
    * @returns whether a given string is parseable to a pubkey
    */
   static isPubkey(str: string) {

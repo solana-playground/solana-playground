@@ -26,36 +26,54 @@ export const usePlaygroundRouter = () => {
   useEffect(() => {
     (async () => {
       try {
-        if (
-          pathname === Route.DEFAULT ||
-          pathname.startsWith(Route.TUTORIALS) ||
-          pathname.startsWith(Route.GITHUB)
-        ) {
+        // Default
+        if (pathname === Route.DEFAULT) {
           const _explorer = new PgExplorer(refreshExplorer);
           await _explorer.init();
 
-          // If it's github, import the project
-          if (pathname.startsWith(Route.GITHUB)) {
-            await _explorer.importFromGithub(
-              pathname.split(`${Route.GITHUB}/`)?.[1]
-            );
-            // Navigate to main(will re-run current function)
-            PgRouter.navigate(Route.DEFAULT);
-            return;
-          }
           // If it's a tutorial, navigate to the tutorial's path
-          else if (
-            pathname === Route.DEFAULT &&
-            PgTutorial.isWorkspaceTutorial(_explorer.currentWorkspaceName!)
+          if (
+            _explorer.currentWorkspaceName &&
+            PgTutorial.isWorkspaceTutorial(_explorer.currentWorkspaceName)
           ) {
-            PgTutorial.open(_explorer.currentWorkspaceName!);
+            await PgTutorial.open(_explorer.currentWorkspaceName);
           }
 
           setExplorer(_explorer);
-        } else if (!(await PgCommon.timeout(PgExplorer.get()))?.isShared) {
-          // Shared project
+        }
+
+        // Tutorials
+        else if (pathname.startsWith(Route.TUTORIALS)) {
+          const _explorer = new PgExplorer(refreshExplorer);
+          await _explorer.init();
+          setExplorer(_explorer);
+        }
+
+        // Github
+        else if (pathname.startsWith(Route.GITHUB)) {
+          const _explorer = new PgExplorer(refreshExplorer);
+          await _explorer.init();
+
+          // Import the repository
+          await _explorer.importFromGithub(
+            pathname.split(`${Route.GITHUB}/`)?.[1]
+          );
+          // Navigate to main(will re-run current function)
+          PgRouter.navigate(Route.DEFAULT);
+        }
+
+        // Shared
+        else if (
+          PgShare.isValidPathname(pathname) &&
+          !(await PgCommon.timeout(PgExplorer.get()))?.isShared
+        ) {
           const explorerData = await PgShare.get(pathname);
           setExplorer(new PgExplorer(refreshExplorer, explorerData));
+        }
+
+        // Not found
+        else {
+          PgRouter.navigate(Route.DEFAULT);
         }
       } catch (e: any) {
         console.log(e.message);
@@ -70,6 +88,7 @@ export const usePlaygroundRouter = () => {
 
     const initWorkspace = explorer.onDidChangeWorkspace(() => {
       if (!explorer.currentWorkspaceName) return;
+
       // If it's a tutorial, navigate to the tutorial's path
       if (PgTutorial.isWorkspaceTutorial(explorer.currentWorkspaceName)) {
         PgTutorial.open(explorer.currentWorkspaceName);
@@ -91,6 +110,8 @@ export const usePlaygroundRouter = () => {
 
   // Handle sidebar state change
   useEffect(() => {
+    if (!explorer) return;
+
     const disposable = PgView.onDidChangeSidebarState(async (sidebarState) => {
       const { pathname } = await PgRouter.getLocation();
       if (
@@ -98,7 +119,7 @@ export const usePlaygroundRouter = () => {
         !pathname.startsWith(Route.TUTORIALS)
       ) {
         PgRouter.navigate(Route.TUTORIALS);
-      } else if (sidebarState !== Sidebar.TUTORIALS) {
+      } else if (sidebarState !== Sidebar.TUTORIALS && !explorer.isShared) {
         const tutorial = PgTutorial.getTutorialFromPathname(pathname);
         if (!tutorial) {
           PgRouter.navigate(Route.DEFAULT);
@@ -106,7 +127,7 @@ export const usePlaygroundRouter = () => {
           pathname !== Route.TUTORIALS &&
           pathname.startsWith(Route.TUTORIALS)
         ) {
-          if (explorer && explorer.currentWorkspaceName !== tutorial.name) {
+          if (explorer.currentWorkspaceName !== tutorial.name) {
             if (explorer.allWorkspaceNames?.includes(tutorial.name)) {
               await explorer.changeWorkspace(tutorial.name);
             } else {
@@ -125,6 +146,7 @@ export const usePlaygroundRouter = () => {
     return () => disposable.dispose();
   }, [explorer]);
 
+  // Handle loading state
   useEffect(() => {
     setLoading(true);
     if (explorer) setLoading(false);

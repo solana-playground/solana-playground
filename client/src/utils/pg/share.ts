@@ -1,6 +1,7 @@
 import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
 import { PgExplorer, ExplorerJSON } from "./explorer";
+import { PgValidator } from "./validator";
 
 export interface ShareJSON {
   files: {
@@ -64,5 +65,15 @@ export class PgShare {
     const objectId = PgCommon.decodeBytes(result.arrayBuffer!);
 
     return objectId;
+  }
+
+  /**
+   * Get whether the current pathname is in a valid format
+   *
+   * @param pathname current pathname
+   * @returns whether the current pathname is in a valid format
+   */
+  static isValidPathname(pathname: string) {
+    return PgValidator.isHex(pathname.substring(1));
   }
 }

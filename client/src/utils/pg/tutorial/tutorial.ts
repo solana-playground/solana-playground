@@ -55,7 +55,7 @@ export class PgTutorial {
 
   static async isCurrentWorkspaceTutorial() {
     const workspaceName = (await PgExplorer.get())?.currentWorkspaceName;
-    return this.isWorkspaceTutorial(workspaceName!);
+    return workspaceName ? this.isWorkspaceTutorial(workspaceName) : false;
   }
 
   static async open(tutorialName: string) {

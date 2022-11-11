@@ -57,6 +57,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
         if (metadata.completed) {
           setIsCompleted(true);
           setCurrentPage(0);
+          PgView.setSidebarState(Sidebar.TUTORIALS);
         } else {
           setCurrentPage(metadata.pageNumber);
           PgView.setSidebarState(Sidebar.EXPLORER);
