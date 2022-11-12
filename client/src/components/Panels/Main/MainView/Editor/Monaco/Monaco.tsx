@@ -240,7 +240,7 @@ const Monaco = () => {
       editor.setScrollTop(pos);
 
       // Save top line number
-      topLineIntervalId = setInterval(() => {
+      topLineIntervalId = PgCommon.setIntervalOnFocus(() => {
         explorer.saveEditorTopLineNumber(
           curFile.path,
           editor.getVisibleRanges()[0].startLineNumber

@@ -276,7 +276,7 @@ const CodeMirror = () => {
       });
 
       // Save top line number
-      topLineIntervalId = setInterval(() => {
+      topLineIntervalId = PgCommon.setIntervalOnFocus(() => {
         explorer.saveEditorTopLineNumber(
           curFile.path,
           editor.state.doc.lineAt(

@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import Home from "./Home";
 import { MainViewLoading } from "../../../../Loading";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../state";
-import { Lang } from "../../../../../utils/pg";
+import { Lang, PgCommon } from "../../../../../utils/pg";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
@@ -33,15 +33,17 @@ const Editor = () => {
 
   // Save explorer metadata
   useEffect(() => {
+    if (showHome || !explorer) return;
+
     // Save metadata to IndexedDB if we haven't rendered in 5s
-    const saveMetadataIntervalId = setInterval(() => {
-      explorer?.saveMeta().catch();
+    const saveMetadataIntervalId = PgCommon.setIntervalOnFocus(() => {
+      explorer.saveMeta().catch();
     }, 5000);
 
     return () => clearInterval(saveMetadataIntervalId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [explorer, explorerChanged]);
+  }, [explorer, explorerChanged, showHome]);
 
   return (
     <Suspense fallback={<MainViewLoading />}>

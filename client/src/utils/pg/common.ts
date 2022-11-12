@@ -368,6 +368,19 @@ export class PgCommon {
   }
 
   /**
+   * Runs `setInterval` callback function only when the document has focus
+   *
+   * @param cb callback to run on interval
+   * @param ms interval time amount in miliseconds
+   * @returns a cleanup timer that should be called with `clearInterval`
+   */
+  static setIntervalOnFocus(cb: () => void, ms?: number) {
+    return setInterval(() => {
+      if (document.hasFocus()) cb();
+    }, ms);
+  }
+
+  /**
    * Make a noun plural
    *
    * @param noun name of the noun
