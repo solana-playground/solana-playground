@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { Keypair } from "@solana/web3.js";
 import { IdlType } from "@project-serum/anchor/dist/cjs/idl";
 
-import { FnContext } from "./Function";
+import { FnContext } from "./Instruction";
 
 export enum Identifiers {
   ARGS = "args",

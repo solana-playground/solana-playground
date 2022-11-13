@@ -1,17 +1,30 @@
-import { Idl, Program } from "@project-serum/anchor";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
+import { Idl } from "@project-serum/anchor";
+import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
+
 import Foldable from "../../../../Foldable";
 import { CodeResult } from "./CodeResult";
+import { PgCommon, PgTest } from "../../../../../utils/pg";
+import { useCurrentWallet } from "../../../Wallet";
 
 interface EventProps {
-  program: Program<Idl> | null;
-  eventName: string;
   index: number;
+  eventName: string;
+  idl: Idl;
 }
 
-const ListenableEvent: FC<EventProps> = ({ program, eventName, index }) => {
+const Event: FC<EventProps> = ({ index, eventName, idl }) => {
   const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
+
+  const { connection: conn } = useConnection();
+  const { currentWallet } = useCurrentWallet();
+
+  const program = useMemo(() => {
+    return idl && currentWallet
+      ? PgTest.getProgram(idl, conn, currentWallet)
+      : null;
+  }, [idl, conn, currentWallet]);
 
   useEffect(() => {
     if (!program) return;
@@ -35,19 +48,19 @@ const ListenableEvent: FC<EventProps> = ({ program, eventName, index }) => {
           <EventName>{`${eventName} (${receivedEvents.length})`}</EventName>
         }
       >
-        <CodeResult index={index}>
-          {receivedEvents.map((e) => JSON.stringify(e, null, 2)).join("\n")}
-        </CodeResult>
+        <StyledCodeResult index={index}>
+          {receivedEvents.map((e) => PgCommon.prettyJSON(e)).join("\n")}
+        </StyledCodeResult>
       </Foldable>
     </EventWrapper>
   );
 };
 
-interface IndexProp {
+interface EventWrapperProps {
   index: number;
 }
 
-const EventWrapper = styled.div<IndexProp>`
+const EventWrapper = styled.div<EventWrapperProps>`
   ${({ theme, index }) => css`
     padding: 1rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
@@ -61,7 +74,10 @@ const EventWrapper = styled.div<IndexProp>`
 
 const EventName = styled.span`
   font-weight: bold;
-  margin: 0.5rem 0;
 `;
 
-export default ListenableEvent;
+const StyledCodeResult = styled(CodeResult)`
+  margin-top: 0.5rem;
+`;
+
+export default Event;

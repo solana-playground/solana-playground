@@ -168,7 +168,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
                 {fetchError ? (
                   <ErrorWrapper>{fetchError}</ErrorWrapper>
                 ) : (
-                  JSON.stringify(fetchedData, null, 2)
+                  PgCommon.prettyJSON(fetchedData!)
                 )}
               </CodeResult>
             </SpinnerWithBg>

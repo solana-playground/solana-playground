@@ -28,31 +28,31 @@ interface FnContextProps {
 
 export const FnContext = createContext<FnContextProps>({} as FnContextProps);
 
-interface FunctionProps extends FunctionInsideProps {
+interface InstructionProps extends InstructionInsideProps {
   index: number;
 }
 
-const Function: FC<FunctionProps> = ({ ixs, idl, index }) => (
-  <FunctionWrapper index={index}>
-    <Foldable ClickEl={<FunctionName>{ixs.name}</FunctionName>}>
-      <FunctionInside idl={idl} ixs={ixs} />
+const Instruction: FC<InstructionProps> = ({ ix, idl, index }) => (
+  <InstructionWrapper index={index}>
+    <Foldable ClickEl={<InstructionName>{ix.name}</InstructionName>}>
+      <InstructionInside idl={idl} ix={ix} />
     </Foldable>
-  </FunctionWrapper>
+  </InstructionWrapper>
 );
 
-interface FunctionInsideProps {
-  ixs: IdlInstruction;
+interface InstructionInsideProps {
+  ix: IdlInstruction;
   idl: Idl;
 }
 
-const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
+const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
   const [, setTxHash] = useAtom(txHashAtom);
 
   const { connection: conn } = useConnection();
 
   // State
   const [txVals, setTxVals] = useState<TxVals>({
-    name: ixs.name,
+    name: ix.name,
     additionalSigners: {},
     args: [],
     accs: {},
@@ -72,18 +72,18 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
     }
 
     // Fixes button being enabled at start
-    if (!nameCount && ixs.accounts.length) {
+    if (!nameCount && ix.accounts.length) {
       return;
     }
 
     if (totalErrors) setDisabled(true);
     else setDisabled(false);
-  }, [errors, ixs.accounts.length]);
+  }, [errors, ix.accounts.length]);
 
   const handleErrors = useCallback(
     (identifier: string, k: string, action: "add" | "remove") => {
       setErrors((e) => {
-        const name = ixs.name + identifier + k;
+        const name = ix.name + identifier + k;
 
         if (action === "add") {
           const inputEl = document.getElementsByName(name)[0];
@@ -104,7 +104,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         return { ...e };
       });
     },
-    [ixs.name]
+    [ix.name]
   );
 
   // Gets called in the first render
@@ -117,7 +117,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
           const parsedV = PgTest.parse(v, type);
 
           if (identifier === "args") {
-            txVals.args[ixs.args.findIndex((arg) => arg.name === k)] = parsedV;
+            txVals.args[ix.args.findIndex((arg) => arg.name === k)] = parsedV;
           } else {
             txVals.accs[k] = parsedV;
           }
@@ -137,7 +137,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         }
       });
     },
-    [ixs.args, handleErrors]
+    [ix.args, handleErrors]
   );
 
   const { currentWallet } = useCurrentWallet();
@@ -148,7 +148,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
       if (!currentWallet) return;
 
       setLoading(true);
-      PgTerminal.log(PgTerminal.info(`Testing '${ixs.name}'...`));
+      PgTerminal.log(PgTerminal.info(`Testing '${ix.name}'...`));
 
       const preferences = PgPreferences.getPreferences();
 
@@ -168,11 +168,11 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
 
         if (txResult?.err) {
           msg = `${Emoji.CROSS} ${PgTerminal.error(
-            `Test '${ixs.name}' failed`
+            `Test '${ix.name}' failed`
           )}.`;
         } else {
           msg = `${Emoji.CHECKMARK} ${PgTerminal.success(
-            `Test '${ixs.name}' passed`
+            `Test '${ix.name}' passed`
           )}.`;
         }
 
@@ -181,7 +181,7 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         PgTerminal.log(
           `${Emoji.CROSS} ${PgTerminal.error(
-            `Test '${ixs.name}' failed`
+            `Test '${ix.name}' failed`
           )}: ${convertedError}\n`,
           { noColor: true }
         );
@@ -206,28 +206,28 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
             updateTxVals,
           }}
         >
-          {ixs.args.length > 0 && (
+          {ix.args.length > 0 && (
             <ArgsWrapper>
               <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
-                {ixs.args.map((a, i) => (
+                {ix.args.map((a, i) => (
                   <Arg
                     key={i}
                     name={a.name}
                     type={PgTest.getFullType(a.type, idl.types, idl.accounts)}
-                    functionName={ixs.name}
+                    functionName={ix.name}
                   />
                 ))}
               </Foldable>
             </ArgsWrapper>
           )}
-          {ixs.accounts.length > 0 && (
+          {ix.accounts.length > 0 && (
             <AccountsWrapper>
               <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
-                {ixs.accounts.map((a, i) => (
+                {ix.accounts.map((a, i) => (
                   <Account
                     key={i}
                     account={a as IdlAccount}
-                    functionName={ixs.name}
+                    functionName={ix.name}
                   />
                 ))}
               </Foldable>
@@ -249,11 +249,11 @@ const FunctionInside: FC<FunctionInsideProps> = ({ ixs, idl }) => {
   );
 };
 
-interface FunctionWrapperProps {
+interface InstructionWrapperProps {
   index: number;
 }
 
-const FunctionWrapper = styled.div<FunctionWrapperProps>`
+const InstructionWrapper = styled.div<InstructionWrapperProps>`
   ${({ theme, index }) => css`
     padding: 1rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
@@ -265,7 +265,7 @@ const FunctionWrapper = styled.div<FunctionWrapperProps>`
   `}
 `;
 
-const FunctionName = styled.span`
+const InstructionName = styled.span`
   font-weight: bold;
 `;
 
@@ -296,4 +296,4 @@ const AccountsWrapper = styled.div``;
 
 const AccountsText = styled.span``;
 
-export default Function;
+export default Instruction;

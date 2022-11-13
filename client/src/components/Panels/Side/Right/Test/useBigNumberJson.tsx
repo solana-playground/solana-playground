@@ -1,5 +1,5 @@
-import BN from "bn.js";
 import { useEffect } from "react";
+import BN from "bn.js";
 
 export const useBigNumberJson = () => {
   useEffect(() => {

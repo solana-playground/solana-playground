@@ -2,19 +2,16 @@ import { useAtom } from "jotai";
 import * as buffer from "buffer";
 import styled from "styled-components";
 
-import Function from "./Function";
+import Instruction from "./Instruction";
 import FetchableAccount from "./FetchableAccount";
-import Text from "../../../../Text";
+import Event from "./Event";
 import TestSkeleton from "./TestSkeleton";
+import Text from "../../../../Text";
 import { ConnectionErrorText } from "../Common";
-import { PgProgramInfo, PgTest } from "../../../../../utils/pg";
+import { PgProgramInfo } from "../../../../../utils/pg";
 import { buildCountAtom } from "../../../../../state";
 import { useInitialLoading } from "../";
-import { useMemo } from "react";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { useCurrentWallet } from "../../../Wallet";
-import ListenableEvent from "./ListenableEvent";
-import { useBigNumberJson } from "../../../../../hooks/useBigNumberJson";
+import { useBigNumberJson } from "./useBigNumberJson";
 
 // Webpack 5 doesn't polyfill buffer
 window.Buffer = buffer.Buffer;
@@ -26,14 +23,6 @@ const Test = () => {
   const { initialLoading, deployed, connError } = useInitialLoading();
 
   const idl = PgProgramInfo.getProgramInfo()?.idl;
-  const { connection: conn } = useConnection();
-  const { currentWallet } = useCurrentWallet();
-
-  const program = useMemo(() => {
-    return idl && currentWallet
-      ? PgTest.getProgram(idl, conn, currentWallet)
-      : null;
-  }, [idl, conn, currentWallet]);
 
   // Used for both accounts and events data
   useBigNumberJson();
@@ -89,8 +78,8 @@ const Test = () => {
 
           <ProgramInteractionWrapper>
             <Subheading>Instructions</Subheading>
-            {idl.instructions.map((ixs, i) => (
-              <Function key={i} idl={idl} index={i} ixs={ixs} />
+            {idl.instructions.map((ix, i) => (
+              <Instruction key={i} idl={idl} index={i} ix={ix} />
             ))}
           </ProgramInteractionWrapper>
 
@@ -112,12 +101,7 @@ const Test = () => {
             <ProgramInteractionWrapper>
               <Subheading>Events</Subheading>
               {idl.events.map((event, i) => (
-                <ListenableEvent
-                  key={i}
-                  index={i}
-                  program={program}
-                  eventName={event.name}
-                />
+                <Event key={i} index={i} eventName={event.name} idl={idl} />
               ))}
             </ProgramInteractionWrapper>
           )}
