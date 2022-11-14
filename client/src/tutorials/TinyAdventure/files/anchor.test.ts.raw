@@ -1,23 +1,21 @@
 // No imports needed: web3, anchor, pg and more are globally available
 
 describe("Test", () => {
-  it("RunningRight", async () => {
-    const wallet = new web3.Keypair();
-
+  it("Initlialize", async () => {
     const [newGameDataAccount, bump] =
       await anchor.web3.PublicKey.findProgramAddress(
         [Buffer.from("level1", "utf8")],
-        //[pg.wallet.publicKey.toBuffer()],
         pg.program.programId
       );
 
-    // Fetch the created account
-    let gameDateAccount = await pg.program.account.gameDataAccount.fetch(
-      newGameDataAccount
-    );
+    // If account is null we initialize
+    try {
+      let gameDateAccount = await pg.program.account.gameDataAccount.fetch(
+        newGameDataAccount
+      );
+    } catch {
+      let txHash;
 
-    let txHash;
-    if (gameDateAccount == null) {
       txHash = await pg.program.methods
         .initialize()
         .accounts({
@@ -31,6 +29,14 @@ describe("Test", () => {
       console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
       await pg.connection.confirmTransaction(txHash);
     }
+  });
+
+  it("RunningRight", async () => {
+    const [newGameDataAccount, bump] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [Buffer.from("level1", "utf8")],
+        pg.program.programId
+      );
 
     for (let i = 0; i < 3; i++) {
       txHash = await pg.program.methods
@@ -49,7 +55,10 @@ describe("Test", () => {
       newGameDataAccount
     );
 
-    console.log("On-chain data is:", gameDateAccount.playerPosition.toString());
+    console.log(
+      "Player position is:",
+      gameDateAccount.playerPosition.toString()
+    );
 
     // Check whether the data on-chain is equal to local 'data'
     assert(3 == gameDateAccount.playerPosition);
@@ -61,23 +70,12 @@ describe("Test", () => {
     const [newGameDataAccount, bump] =
       await anchor.web3.PublicKey.findProgramAddress(
         [Buffer.from("level1", "utf8")],
-        //[pg.wallet.publicKey.toBuffer()],
         pg.program.programId
       );
 
-    let txHash = await pg.program.methods
-      .initialize()
-      .accounts({
-        newGameDataAccount: newGameDataAccount,
-        signer: pg.wallet.publicKey,
-        systemProgram: web3.SystemProgram.programId,
-      })
-      .rpc();
+    let txHash;
 
-    console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
-    await pg.connection.confirmTransaction(txHash);
-
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       txHash = await pg.program.methods
         .moveLeft()
         .accounts({

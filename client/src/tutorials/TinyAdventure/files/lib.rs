@@ -60,7 +60,7 @@ pub struct Initialize<'info> {
     // (u8 = 8 bits unsigned integer = 8 bytes)
     // You can also use the signer as seed [signer.key().as_ref()],
     #[account(
-        init,
+        init_if_needed,
         seeds = [b"level1"],
         bump,
         payer = signer,
