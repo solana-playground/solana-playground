@@ -65,9 +65,11 @@ export class PgTutorial {
     )}`;
     if (pathname === tutorialPath) {
       // Open the tutorial pages view
-      const metadata = await this.getMetadata();
-      this.setPageNumber(metadata.pageNumber);
-      PgView.setSidebarState(Sidebar.EXPLORER);
+      try {
+        const metadata = await this.getMetadata();
+        this.setPageNumber(metadata.pageNumber);
+        PgView.setSidebarState(Sidebar.EXPLORER);
+      } catch {}
     } else {
       PgRouter.navigate(tutorialPath);
     }
@@ -105,7 +107,7 @@ export class PgTutorial {
         pageCount: props.pageCount,
       };
       await explorer.newItem(
-        this.TUTORIAL_METADATA_FILENAME,
+        this._getTutorialMetadataPath(),
         JSON.stringify(metadata),
         { skipNameValidation: true, openOptions: { dontOpen: true } }
       );
@@ -119,12 +121,15 @@ export class PgTutorial {
     PgView.setSidebarState(Sidebar.TUTORIALS);
   }
 
-  static async saveTutorialMeta(updatedMeta: Partial<TutorialMetadata>) {
+  static async saveTutorialMeta(
+    updatedMeta: Partial<TutorialMetadata>,
+    tutorialName?: string
+  ) {
     try {
       const currentMeta = await this.getMetadata();
       await PgExplorer.run({
         newItem: [
-          this.TUTORIAL_METADATA_FILENAME,
+          this._getTutorialMetadataPath(tutorialName),
           JSON.stringify({ ...currentMeta, ...updatedMeta }),
           {
             override: true,
@@ -139,15 +144,7 @@ export class PgTutorial {
   static async getMetadata(tutorialName?: string): Promise<TutorialMetadata> {
     return JSON.parse(
       await PgExplorer.run({
-        readToString: [
-          tutorialName
-            ? PgExplorer.joinPaths([
-                PgExplorer.PATHS.ROOT_DIR_PATH,
-                tutorialName,
-                this.TUTORIAL_METADATA_FILENAME,
-              ])
-            : this.TUTORIAL_METADATA_FILENAME,
-        ],
+        readToString: [this._getTutorialMetadataPath(tutorialName)],
       })
     );
   }
@@ -160,5 +157,15 @@ export class PgTutorial {
     return (await PgExplorer.get()).allWorkspaceNames!.filter(
       this.isWorkspaceTutorial
     );
+  }
+
+  private static _getTutorialMetadataPath(tutorialName?: string) {
+    return tutorialName
+      ? PgExplorer.joinPaths([
+          PgExplorer.PATHS.ROOT_DIR_PATH,
+          tutorialName,
+          this.TUTORIAL_METADATA_FILENAME,
+        ])
+      : this.TUTORIAL_METADATA_FILENAME;
   }
 }
