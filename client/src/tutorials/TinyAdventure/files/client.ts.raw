@@ -1,0 +1,46 @@
+// Client
+
+const [globalLevel1GameDataAccount, bump] =
+  await anchor.web3.PublicKey.findProgramAddress(
+    [Buffer.from("level1", "utf8")],
+    //[pg.wallet.publicKey.toBuffer()],
+    pg.program.programId
+  );
+
+let gameDateAccount = await pg.program.account.gameDataAccount.fetch(
+  globalLevel1GameDataAccount
+);
+
+let txHash;
+if (gameDateAccount == null) {
+  txHash = await pg.program.methods
+    .initialize()
+    .accounts({
+      newGameDataAccount: globalLevel1GameDataAccount,
+      signer: pg.wallet.publicKey,
+      systemProgram: web3.SystemProgram.programId,
+    })
+    .signers([pg.wallet.keypair])
+    .rpc();
+
+  console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
+  await pg.connection.confirmTransaction(txHash);
+}
+
+for (let i = 0; i < 3; i++) {
+  let txHash = await pg.program.methods
+    .moveRight()
+    .accounts({
+      gameDataAccount: globalLevel1GameDataAccount,
+    })
+    .signers([pg.wallet.keypair])
+    .rpc();
+  console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
+  await pg.connection.confirmTransaction(txHash);
+}
+
+gameDateAccount = await pg.program.account.gameDataAccount.fetch(
+  globalLevel1GameDataAccount
+);
+
+console.log("Player position is:", gameDateAccount.playerPosition.toString());
