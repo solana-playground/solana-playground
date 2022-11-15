@@ -37,4 +37,20 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.OTHER],
     elementImport: () => import("./CounterEasy"),
   },
+
+  {
+    name: "Tiny Adventure",
+    description:
+      "Create a very simple on chain game. Moving a character left and right. Will be connected to Unity Game Example later on",
+    imageSrc: getTutorialImgSrc("tiny-adventure/tinyAdventure.jpg"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.GAMING],
+    elementImport: () => import("./TinyAdventure"),
+  },
 ];

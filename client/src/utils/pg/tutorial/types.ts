@@ -12,6 +12,7 @@ export enum TutorialCategory {
   PAYMENT = "Payment",
   STAKING = "Staking",
   OTHER = "Other",
+  GAMING = "Gaming",
 }
 
 type Author = {
