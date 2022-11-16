@@ -15,8 +15,8 @@ import TestSkeleton from "./Test/TestSkeleton";
 import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
-import { Sidebar } from "../sidebar-state";
 import { usePlaygroundRouter } from "./usePlaygroundRouter";
+import { Sidebar } from "../../../../utils/pg";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));

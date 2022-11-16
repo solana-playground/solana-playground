@@ -7,13 +7,13 @@ import Button from "../Button";
 import Markdown from "./Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
-import { Sidebar } from "../Panels/Side/sidebar-state";
 import {
   PgCommon,
   PgExplorer,
   PgRouter,
   PgTutorial,
   PgView,
+  Sidebar,
   TutorialData,
 } from "../../utils/pg";
 import { EventName, Route } from "../../constants";

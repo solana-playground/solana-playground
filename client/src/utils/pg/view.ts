@@ -1,7 +1,18 @@
-import { Sidebar } from "../../components/Panels/Side/sidebar-state";
 import { EventName } from "../../constants";
 import { PgCommon } from "./common";
 import { PgDisposable } from "./types";
+
+export enum Sidebar {
+  CLOSED = "Closed",
+  EXPLORER = "Explorer",
+  // SEARCH = "Search",
+  BUILD_DEPLOY = "Build & Deploy",
+  TEST = "Test",
+  TUTORIALS = "Tutorials",
+  GITHUB = "Github",
+  WALLET = "Wallet",
+  SETTINGS = "Settings",
+}
 
 export class PgView {
   /**

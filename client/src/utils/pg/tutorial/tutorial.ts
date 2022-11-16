@@ -1,11 +1,10 @@
-import { Sidebar } from "../../../components/Panels/Side/sidebar-state";
 import { TutorialComponentProps } from "../../../components/Tutorial";
 import { EventName, Route } from "../../../constants";
 import { TUTORIALS } from "../../../tutorials";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
 import { PgRouter } from "../router";
-import { PgView } from "../view";
+import { PgView, Sidebar } from "../view";
 import { TutorialData, TutorialMetadata } from "./types";
 
 export class PgTutorial {

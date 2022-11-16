@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect } from "react";
 import { useTheme } from "styled-components";
 
 import { ClassName } from "../../../../constants";
-import { Sidebar } from "../sidebar-state";
+import { Sidebar } from "../../../../utils/pg";
 
 export const ID_PREFIX = "Icon";
 
