@@ -41,7 +41,7 @@ export const TUTORIALS: TutorialData[] = [
   {
     name: "Tiny Adventure",
     description:
-      "Create a very simple on chain game. Moving a character left and right. Will be connected to Unity Game Example later on",
+      "Create a very simple on chain game. Moving a character left and right. Will be connected to Unity Game Engine later on.",
     imageSrc: getTutorialImgSrc("tiny-adventure/tinyAdventure.jpg"),
     authors: [
       {

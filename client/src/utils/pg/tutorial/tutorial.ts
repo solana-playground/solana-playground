@@ -30,8 +30,8 @@ export class PgTutorial {
   static getTutorialFromPathname(pathname: string) {
     return TUTORIALS.find(
       (t) =>
-        PgCommon.toKebabCase(t.name) ===
-        pathname.split(`${Route.TUTORIALS}/`)[1]
+        PgExplorer.appendSlash(PgCommon.toKebabCase(t.name)) ===
+        PgExplorer.appendSlash(pathname.split(`${Route.TUTORIALS}/`)[1])
     );
   }
 

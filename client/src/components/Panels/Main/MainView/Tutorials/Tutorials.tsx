@@ -1,26 +1,54 @@
+import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
 import { TUTORIALS } from "../../../../../tutorials";
 
-const Tutorials = () => (
-  <Wrapper>
-    <TutorialsOuterWrapper>
-      <TopSection>
-        <Title>Learn</Title>
-      </TopSection>
-      <TutorialsInsideWrapper>
-        {TUTORIALS.map((t, i) => (
-          <TutorialCard key={i} {...t} />
-        ))}
-      </TutorialsInsideWrapper>
-    </TutorialsOuterWrapper>
-  </Wrapper>
-);
+const Tutorials = () => {
+  const insideWrapperRef = useRef<HTMLDivElement>(null);
 
-const TopSection = styled.div``;
+  // Make tutorials container responsive with ResizeObserver
+  useEffect(() => {
+    if (!insideWrapperRef.current) return;
+    const el = insideWrapperRef.current;
 
-const Title = styled.h1``;
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const style = (entry.target as HTMLDivElement).style;
+      const width = entry.contentRect.width;
+      let amountInRow;
+      if (width > 1080) {
+        amountInRow = 3;
+      } else if (width > 666) {
+        amountInRow = 2;
+      } else {
+        amountInRow = 1;
+      }
+
+      style.gridTemplateColumns = `repeat(${amountInRow}, 1fr)`;
+    });
+
+    resizeObserver.observe(el);
+
+    return () => resizeObserver.unobserve(el);
+  }, []);
+
+  return (
+    <Wrapper>
+      <TutorialsOuterWrapper>
+        <TopSection>
+          <Title>Learn</Title>
+        </TopSection>
+
+        <TutorialsInsideWrapper ref={insideWrapperRef}>
+          {TUTORIALS.map((t, i) => (
+            <TutorialCard key={i} {...t} />
+          ))}
+        </TutorialsInsideWrapper>
+      </TutorialsOuterWrapper>
+    </Wrapper>
+  );
+};
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
@@ -62,16 +90,30 @@ const Wrapper = styled.div`
 `;
 
 const TutorialsOuterWrapper = styled.div`
-  margin-left: auto;
-  margin-right: auto;
-  padding: 2rem;
+  --max-container-width: 72rem;
+
+  padding: 2rem 3rem;
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
+const TopSection = styled.div`
+  width: 100%;
+  max-width: var(--max-container-width);
+`;
+
+const Title = styled.h1``;
+
 const TutorialsInsideWrapper = styled.div`
-  margin-top: 2rem;
+  margin: 2rem 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
+  width: 100%;
+  max-width: var(--max-container-width);
 `;
 
 export default Tutorials;
