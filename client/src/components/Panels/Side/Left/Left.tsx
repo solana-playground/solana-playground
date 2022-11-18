@@ -7,8 +7,7 @@ import PopButton from "../../../PopButton";
 import Settings from "../Right/Settings";
 import useActiveTab, { ID_PREFIX } from "./useActiveTab";
 import { GITHUB_URL } from "../../../../constants";
-import { PgCommon } from "../../../../utils/pg";
-import { Sidebar } from "../sidebar-state";
+import { PgCommon, Sidebar } from "../../../../utils/pg";
 import { sidebarData } from "./sidebar-data";
 
 interface LeftProps {

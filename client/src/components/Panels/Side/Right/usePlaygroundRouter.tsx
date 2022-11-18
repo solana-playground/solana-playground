@@ -11,8 +11,8 @@ import {
   PgShare,
   PgTutorial,
   PgView,
+  Sidebar,
 } from "../../../../utils/pg";
-import { Sidebar } from "../sidebar-state";
 
 export const usePlaygroundRouter = () => {
   const [explorer, setExplorer] = useAtom(explorerAtom);

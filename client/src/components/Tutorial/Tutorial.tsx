@@ -7,13 +7,13 @@ import Button from "../Button";
 import Markdown from "./Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
-import { Sidebar } from "../Panels/Side/sidebar-state";
 import {
   PgCommon,
   PgExplorer,
   PgRouter,
   PgTutorial,
   PgView,
+  Sidebar,
   TutorialData,
 } from "../../utils/pg";
 import { EventName, Route } from "../../constants";
@@ -92,11 +92,15 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   // Save tutorial metadata
   useEffect(() => {
     if (!currentPage) return;
-    PgTutorial.saveTutorialMeta({
-      pageNumber: currentPage,
-      pageCount: pages.length,
-    });
-  }, [currentPage, pages.length]);
+
+    PgTutorial.saveTutorialMeta(
+      {
+        pageNumber: currentPage,
+        pageCount: pages.length,
+      },
+      tutorial.name
+    );
+  }, [tutorial.name, currentPage, pages.length]);
 
   // Change workspace if it hasn't been changed yet
   useEffect(() => {
@@ -174,7 +178,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
               kind="no-border"
               leftIcon={<PointedArrow rotate="180deg" />}
             >
-              Back
+              Go back to tutorials
             </Button>
           </GoBackButtonWrapper>
 

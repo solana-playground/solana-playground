@@ -87,6 +87,9 @@ export class PgClient {
         ["anchor", anchor],
         ["BN", anchor.BN],
 
+        // https://github.com/solana-playground/solana-playground/issues/82
+        ["Uint8Array", Uint8Array],
+
         /// Functions
         ["sleep", PgCommon.sleep],
       ];

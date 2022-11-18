@@ -25,7 +25,7 @@ const MainView = () => {
         (async () => {
           if (pathname.startsWith(Route.TUTORIALS)) {
             if (pathname === Route.TUTORIALS) {
-              setEl(Tutorials);
+              setEl(<Tutorials />);
             } else {
               const tutorial = PgTutorial.getTutorialFromPathname(pathname);
               if (!tutorial) {
@@ -35,13 +35,13 @@ const MainView = () => {
               PgTutorial.setCurrent(tutorial);
 
               const { default: El } = await tutorial.elementImport();
-              setEl(() => <El {...tutorial} />);
+              setEl(<El {...tutorial} />);
             }
           } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
             const tutorialName = (await PgExplorer.get()).currentWorkspaceName;
             PgTutorial.open(tutorialName!);
           } else {
-            setEl(EditorWithTabs);
+            setEl(<EditorWithTabs />);
           }
         })(),
         300

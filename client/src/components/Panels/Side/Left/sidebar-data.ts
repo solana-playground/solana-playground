@@ -1,4 +1,4 @@
-import { Sidebar } from "../sidebar-state";
+import { Sidebar } from "../../../../utils/pg";
 
 const ROOT_DIR = "/icons/sidebar/";
 

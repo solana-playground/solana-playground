@@ -2,21 +2,16 @@
 
 describe("Test", () => {
   it("Initlialize", async () => {
-    const [newGameDataAccount, bump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from("level1", "utf8")],
-        pg.program.programId
-      );
+    const [newGameDataAccount] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from("level1", "utf8")],
+      pg.program.programId
+    );
 
     // If account is null we initialize
     try {
-      let gameDateAccount = await pg.program.account.gameDataAccount.fetch(
-        newGameDataAccount
-      );
+      await pg.program.account.gameDataAccount.fetch(newGameDataAccount);
     } catch {
-      let txHash;
-
-      txHash = await pg.program.methods
+      const txHash = await pg.program.methods
         .initialize()
         .accounts({
           newGameDataAccount: newGameDataAccount,
@@ -32,14 +27,13 @@ describe("Test", () => {
   });
 
   it("RunningRight", async () => {
-    const [newGameDataAccount, bump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from("level1", "utf8")],
-        pg.program.programId
-      );
+    const [newGameDataAccount] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from("level1", "utf8")],
+      pg.program.programId
+    );
 
     for (let i = 0; i < 3; i++) {
-      txHash = await pg.program.methods
+      const txHash = await pg.program.methods
         .moveRight()
         .accounts({
           gameDataAccount: newGameDataAccount,
@@ -51,7 +45,7 @@ describe("Test", () => {
     }
 
     // Fetch the created account
-    gameDateAccount = await pg.program.account.gameDataAccount.fetch(
+    const gameDateAccount = await pg.program.account.gameDataAccount.fetch(
       newGameDataAccount
     );
 
@@ -65,18 +59,13 @@ describe("Test", () => {
   });
 
   it("RunningLeft", async () => {
-    const wallet = new web3.Keypair();
-
-    const [newGameDataAccount, bump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from("level1", "utf8")],
-        pg.program.programId
-      );
-
-    let txHash;
+    const [newGameDataAccount] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from("level1", "utf8")],
+      pg.program.programId
+    );
 
     for (let i = 0; i < 3; i++) {
-      txHash = await pg.program.methods
+      const txHash = await pg.program.methods
         .moveLeft()
         .accounts({
           gameDataAccount: newGameDataAccount,

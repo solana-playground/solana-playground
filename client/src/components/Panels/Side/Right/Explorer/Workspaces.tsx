@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useAtom } from "jotai";
+import { Atom, useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../Button";
@@ -92,7 +92,7 @@ const Workspaces = () => {
 };
 
 const WorkspaceSelect = () => {
-  const [explorer] = useAtom<PgExplorer>(explorerAtom as any);
+  const [explorer] = useAtom<PgExplorer>(explorerAtom as Atom<PgExplorer>);
 
   const options = useMemo(
     () => {
@@ -137,7 +137,12 @@ const WorkspaceSelect = () => {
       <Select
         options={options}
         value={value}
-        onChange={(props) => explorer.changeWorkspace(props?.value!)}
+        onChange={(props) => {
+          const newWorkspace = props?.value!;
+          if (explorer.currentWorkspaceName !== newWorkspace) {
+            explorer.changeWorkspace(newWorkspace);
+          }
+        }}
       />
     </SelectWrapper>
   );

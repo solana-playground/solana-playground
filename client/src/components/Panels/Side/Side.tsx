@@ -4,8 +4,7 @@ import styled from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { Sidebar } from "./sidebar-state";
-import { PgCommon } from "../../../utils/pg";
+import { PgCommon, Sidebar } from "../../../utils/pg";
 import { EventName, Route } from "../../../constants";
 import { useSetStatic } from "../../../hooks";
 
