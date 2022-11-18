@@ -90,7 +90,7 @@ const Wrapper = styled.div`
 `;
 
 const TutorialsOuterWrapper = styled.div`
-  --max-container-width: 72rem;
+  --max-container-width: 68rem;
 
   padding: 2rem 3rem;
   height: fit-content;
