@@ -11,8 +11,13 @@ export enum TutorialCategory {
   NFT = "NFT",
   PAYMENT = "Payment",
   STAKING = "Staking",
-  OTHER = "Other",
   GAMING = "Gaming",
+  NATIVE = "Native",
+  ANCHOR = "Anchor",
+  SEAHORSE = "Seahorse",
+  JAVASCRIPT = "JS",
+  TYPESCRIPT = "TS",
+  OTHER = "Other",
 }
 
 type Author = {
@@ -30,14 +35,14 @@ export interface TutorialData {
    */
   description: string;
   /** Tutorial cover image that will be shown in tutorials section.
-   * It can either be `public/tutorials/...` or full url to the image.
+   * It can either be `/tutorials/...` or full url to the image.
    */
   imageSrc: string;
   /** Authors of the tutorial */
   authors: Author[];
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
-  /** Category of the tutorial */
+  /** Category of the tutorial. Can specify up to 3 categories. */
   categories: TutorialCategory[];
   /** Tutorial component async import */
   elementImport: () => Promise<{

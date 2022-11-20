@@ -34,7 +34,7 @@ export const TUTORIALS: TutorialData[] = [
       },
     ],
     level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.OTHER],
+    categories: [TutorialCategory.ANCHOR],
     elementImport: () => import("./CounterEasy"),
   },
 
@@ -50,7 +50,7 @@ export const TUTORIALS: TutorialData[] = [
       },
     ],
     level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.GAMING],
+    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./TinyAdventure"),
   },
 ];

@@ -22,7 +22,7 @@ const TutorialCard: FC<TutorialData> = ({
             : `${description.substring(0, 72)}...`}
         </Description>
         <CategoriesWrapper>
-          {categories.map((c, i) => (
+          {categories.slice(0, 3).map((c, i) => (
             <Category key={i}>{c}</Category>
           ))}
         </CategoriesWrapper>
