@@ -15,7 +15,7 @@ const [chestVaultAccount, chestBump] =
 
 // Initialize level set the player position back to 0 and the caller needs to pay to fill up the chest with sol
 let txHash = await pg.program.methods
-  .initializeLevel1()
+  .initializeLevelOne()
   .accounts({
     chestVault: chestVaultAccount,
     newGameDataAccount: globalLevel1GameDataAccount,
@@ -74,16 +74,17 @@ for (let i = 0; i < 3; i++) {
   switch (gameDateAccount.playerPosition) {
     case 0:
       console.log("A journey begins...");
-      console.log("o........");
+      console.log("o........💎");
       break;
     case 1:
-      console.log("....o....");
+      console.log("....o....💎");
       break;
     case 2:
-      console.log("......o..");
+      console.log("......o..💎");
       break;
     case 3:
-      console.log(".........\\o/");
+      console.log(".........\\o/💎");
+      console.log("...........\\o/");
       break;
   }
 }

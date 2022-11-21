@@ -65,7 +65,7 @@ export const TUTORIALS: TutorialData[] = [
       },
     ],
     level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.GAMING],
+    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./TinyAdventureTwo"),
   },
 ];

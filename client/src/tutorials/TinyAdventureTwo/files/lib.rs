@@ -2,25 +2,26 @@ use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
 // automatically when you build the project.
-declare_id!("ByeQkAcfdgitqUk7mmUjgMpEFcPsmR6Z94jbFJ6ho111");
+declare_id!("");
 
 #[program]
 mod tiny_adventure {
     use super::*;
     use anchor_lang::system_program;
 
+    // The amount of lamports that will be put into chests and given out as rewards.
     const CHEST_REWARD: u64 = 100000000;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize_level_one(ctx: Context<InitializeLevelOne>) -> Result<()> {
         ctx.accounts.new_game_data_account.player_position = 0;
         msg!("A Journey Begins!");
-        msg!("o.......");
+        msg!("o.......💎");
         Ok(())
     }
 
+    // this will the the player position of the given level back to 0 and fill up the chest with sol
     pub fn reset_level_and_spawn_chest(ctx: Context<SpawnChest>) -> Result<()> {
         ctx.accounts.game_data_account.player_position = 0;
-        msg!("Game Reset and Chest Spawned at position 3");
 
         let cpi_context = CpiContext::new(
             ctx.accounts.system_program.to_account_info(),
@@ -30,6 +31,8 @@ mod tiny_adventure {
             },
         );
         system_program::transfer(cpi_context, CHEST_REWARD)?;
+
+        msg!("Level Reset and Chest Spawned at position 3");
 
         Ok(())
     }
@@ -67,19 +70,20 @@ mod tiny_adventure {
 fn print_player(player_position: u8) {
     if player_position == 0 {
         msg!("A Journey Begins!");
-        msg!("o.......");
+        msg!("o.........💎");
     } else if player_position == 1 {
-        msg!("..o.....");
+        msg!("..o.......💎");
     } else if player_position == 2 {
-        msg!("....o...");
+        msg!("....o.....💎");
     } else if player_position == 3 {
-        msg!("........\\o/");
+        msg!("........\\o/💎");
+        msg!("..........\\o/");
         msg!("You have reached the end! Super!");
     }
 }
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
+pub struct InitializeLevelOne<'info> {
     // We must specify the space in order to initialize an account.
     // First 8 bytes are default account discriminator,
     // next 1 byte come from NewAccount.data being type u8.
@@ -87,17 +91,17 @@ pub struct Initialize<'info> {
     // You can also use the signer as seed [signer.key().as_ref()],
     #[account(
         init_if_needed,
-        seeds = [b"level3"],
+        seeds = [b"level1"],
         bump,
         payer = signer,
         space = 8 + 1
     )]
     pub new_game_data_account: Account<'info, GameDataAccount>,
-    // This is the PDA in which we will deposit the reward SOl and 
+    // This is the PDA in which we will deposit the reward SOl and
     // from where we send it back to the first player reaching the chest.
     #[account(
         init_if_needed,
-        seeds = [b"chestVault1"],
+        seeds = [b"chestVault"],
         bump,
         payer = signer,
         space = 8
