@@ -130,7 +130,9 @@ const Terminal = () => {
         switch (key) {
           case "L":
             e.preventDefault();
-            clear();
+            if (PgTerminal.isFocused()) {
+              clear();
+            }
             break;
 
           case "`":
