@@ -1,15 +1,14 @@
 import ReactMarkdown from "react-markdown";
 import styled, { css } from "styled-components";
+import remarkGfm from "remark-gfm";
 
-const Markdown = ({ children }: { children: string }) => {
-  return (
-    <MarkdownWrapper>
-      <ReactMarkdown>{children}</ReactMarkdown>
-    </MarkdownWrapper>
-  );
-};
+const Markdown = ({ children }: { children: string }) => (
+  <Wrapper>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+  </Wrapper>
+);
 
-const MarkdownWrapper = styled.div`
+const Wrapper = styled.div`
   ${({ theme }) => css`
     --color-prettylights-syntax-comment: #8b949e;
     --color-prettylights-syntax-constant: #79c0ff;
