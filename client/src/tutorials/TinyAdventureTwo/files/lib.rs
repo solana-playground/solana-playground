@@ -1,16 +1,17 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
+use anchor_lang::system_program;
 
 // This is your program's public key and it will update
 // automatically when you build the project.
 declare_id!("");
 
 #[program]
-mod tiny_adventure {
+mod tiny_adventure_two {
     use super::*;
-    use anchor_lang::system_program;
 
     // The amount of lamports that will be put into chests and given out as rewards.
-    const CHEST_REWARD: u64 = 100000000;
+    const CHEST_REWARD: u64 = LAMPORTS_PER_SOL / 10; // 0.1 SOL
 
     pub fn initialize_level_one(ctx: Context<InitializeLevelOne>) -> Result<()> {
         ctx.accounts.new_game_data_account.player_position = 0;
@@ -113,24 +114,24 @@ pub struct InitializeLevelOne<'info> {
 }
 
 #[derive(Accounts)]
-pub struct MoveRight<'info> {
-    #[account(mut)]
+pub struct SpawnChest<'info> {
+    #[account(mut, signer)]
+    pub payer: AccountInfo<'info>,
+    #[account(mut, seeds = [b"chestVault"], bump)]
     pub chest_vault: AccountInfo<'info>,
     #[account(mut)]
     pub game_data_account: Account<'info, GameDataAccount>,
-    #[account(mut)]
-    pub player: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct SpawnChest<'info> {
-    #[account(mut)]
-    pub payer: AccountInfo<'info>,
-    #[account(mut)]
-    pub chest_vault: AccountInfo<'info>,
+pub struct MoveRight<'info> {
+    #[account(mut, seeds = [b"chestVault"], bump)]
+    pub chest_vault: Account<'info, ChestVaultAccount>,
     #[account(mut)]
     pub game_data_account: Account<'info, GameDataAccount>,
+    #[account(mut)]
+    pub player: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 

@@ -47,6 +47,9 @@ txHash = await pg.program.methods
 console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
 await pg.connection.confirmTransaction(txHash);
 
+console.log("Level reset and chest spawned 💎");
+console.log("o........💎");
+
 // Here we move to the right three times and collect the chest at the end of the level
 for (let i = 0; i < 3; i++) {
   txHash = await pg.program.methods
