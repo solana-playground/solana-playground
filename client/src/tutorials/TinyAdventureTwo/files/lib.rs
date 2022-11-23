@@ -27,8 +27,8 @@ mod tiny_adventure_two {
         let cpi_context = CpiContext::new(
             ctx.accounts.system_program.to_account_info(),
             system_program::Transfer {
-                from: ctx.accounts.payer.clone(),
-                to: ctx.accounts.chest_vault.clone(),
+                from: ctx.accounts.payer.to_account_info().clone(),
+                to: ctx.accounts.chest_vault.to_account_info().clone(),
             },
         );
         system_program::transfer(cpi_context, CHEST_REWARD)?;
@@ -115,10 +115,10 @@ pub struct InitializeLevelOne<'info> {
 
 #[derive(Accounts)]
 pub struct SpawnChest<'info> {
-    #[account(mut, signer)]
-    pub payer: AccountInfo<'info>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
     #[account(mut, seeds = [b"chestVault"], bump)]
-    pub chest_vault: AccountInfo<'info>,
+    pub chest_vault: Account<'info, ChestVaultAccount>,
     #[account(mut)]
     pub game_data_account: Account<'info, GameDataAccount>,
     pub system_program: Program<'info, System>,
