@@ -27,10 +27,7 @@ export class PgDeploy {
       const uuid = PgProgramInfo.getProgramInfo().uuid;
       const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
 
-      const result = await PgCommon.checkForRespErr(resp);
-      if (result?.err) throw new Error(result.err);
-
-      const arrayBuffer = result.arrayBuffer!;
+      const arrayBuffer = await PgCommon.checkForRespErr(resp);
 
       // Need to convert ArrayBuffer to Buffer
       programBuffer = Buffer.from(arrayBuffer);
@@ -67,7 +64,7 @@ export class PgDeploy {
           throw new Error(
             errMsg +
               `\nYou can use '${PgTerminal.bold(
-                `solana airdrop ${PgCommon.getAirdropAmount()}`
+                `solana airdrop ${airdropAmount}`
               )}' to airdrop some SOL.`
           );
         } else throw new Error(errMsg);
@@ -88,7 +85,7 @@ export class PgDeploy {
           throw new Error(
             errMsg +
               `\nYou can use '${PgTerminal.bold(
-                `solana airdrop ${PgCommon.getAirdropAmount()}`
+                `solana airdrop ${airdropAmount}`
               )}' to airdrop some SOL.`
           );
         } else throw new Error(errMsg);
@@ -171,14 +168,15 @@ export class PgDeploy {
           // Check whether customPk and programPk matches
           const programKp = programKpResult.programKp!;
           if (!programKp.publicKey.equals(PgProgramInfo.getPk().programPk!)) {
-            errorMsg =
-              "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.\n" +
-              "You can fix this in 3 different ways:\n" +
+            errorMsg = [
+              "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.",
+              "You can fix this in 3 different ways:",
               `1. Remove the custom program id from ${PgTerminal.bold(
                 "Program Credentials"
-              )}\n` +
-              "2. Import the program keypair for the current program id\n" +
-              "3. Create a new program keypair";
+              )}`,
+              "2. Import the program keypair for the current program id",
+              "3. Create a new program keypair",
+            ].join("\n");
 
             break;
           }
@@ -199,7 +197,7 @@ export class PgDeploy {
             programBuffer.length * 2
           );
 
-          console.log("Deploy Program Tx Hash: ", txHash);
+          console.log("Deploy Program Tx Hash:", txHash);
 
           const result = await PgTx.confirm(txHash, conn);
           if (!result?.err) break;
@@ -222,7 +220,7 @@ export class PgDeploy {
             wallet.publicKey
           );
 
-          console.log("Upgrade Program Tx Hash: ", txHash);
+          console.log("Upgrade Program Tx Hash:", txHash);
 
           const result = await PgTx.confirm(txHash, conn);
           if (!result?.err) break;

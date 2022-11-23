@@ -75,8 +75,7 @@ export class PgBuild {
       }),
     });
 
-    const result = await PgCommon.checkForRespErr(resp.clone());
-    if (result?.err) throw new Error(result.err);
+    await PgCommon.checkForRespErr(resp.clone());
 
     const data: BuildResp = await resp.json();
 

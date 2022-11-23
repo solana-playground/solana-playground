@@ -66,9 +66,9 @@ export class PgCommon {
   static async checkForRespErr(resp: Response) {
     const arrayBuffer = await resp.arrayBuffer();
 
-    if (!resp.ok) return { err: this.decodeBytes(arrayBuffer) };
+    if (!resp.ok) throw new Error(this.decodeBytes(arrayBuffer));
 
-    return { arrayBuffer };
+    return arrayBuffer;
   }
 
   /**

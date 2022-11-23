@@ -1010,13 +1010,15 @@ export class PgExplorer {
     ).toBase58();
 
     const updateIdRust = (content: string) => {
-      const regex = new RegExp(/^(\s)*(\w*::)?declare_id!\("(\w*)"\)/gm);
-      return content.replace(regex, (match) => {
-        const res = regex.exec(match);
+      const rustDeclareIdRegex = new RegExp(
+        /^\s*(([\w_]+::)*)declare_id!\("(\w*)"\)/gm
+      );
+      return content.replace(rustDeclareIdRegex, (match) => {
+        const res = rustDeclareIdRegex.exec(match);
         if (!res) return match;
 
-        // res[2] could be solana_program:: or undefined
-        return (res[2] ?? "") + `declare_id!("${programPkStr}")`;
+        // res[1] could be solana_program:: or undefined
+        return (res[1] ?? "\n") + `declare_id!("${programPkStr}")`;
       });
     };
 

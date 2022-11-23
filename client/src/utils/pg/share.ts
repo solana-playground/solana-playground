@@ -20,8 +20,7 @@ export class PgShare {
   static async get(id: string) {
     const resp = await fetch(`${SERVER_URL}/share${id}`);
 
-    const result = await PgCommon.checkForRespErr(resp.clone());
-    if (result?.err) throw new Error(result.err);
+    await PgCommon.checkForRespErr(resp.clone());
 
     const shareData: ShareJSON = await resp.json();
 
@@ -59,10 +58,9 @@ export class PgShare {
       }),
     });
 
-    const result = await PgCommon.checkForRespErr(resp.clone());
-    if (result?.err) throw new Error(result.err);
+    const arrayBuffer = await PgCommon.checkForRespErr(resp.clone());
 
-    const objectId = PgCommon.decodeBytes(result.arrayBuffer!);
+    const objectId = PgCommon.decodeBytes(arrayBuffer);
 
     return objectId;
   }
