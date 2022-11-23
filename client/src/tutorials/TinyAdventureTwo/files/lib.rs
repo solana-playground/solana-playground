@@ -14,7 +14,7 @@ mod tiny_adventure_two {
     const CHEST_REWARD: u64 = LAMPORTS_PER_SOL / 10; // 0.1 SOL
 
     pub fn initialize_level_one(ctx: Context<InitializeLevelOne>) -> Result<()> {
-        ctx.accounts.new_game_data_account.player_position = 0;
+        // Usually in your production code you would not print lots of text because it cost compute units.
         msg!("A Journey Begins!");
         msg!("o.......💎");
         Ok(())
