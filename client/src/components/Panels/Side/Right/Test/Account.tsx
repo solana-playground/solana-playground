@@ -226,10 +226,9 @@ interface ShowSeedProps {
 
 const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
   const programStr = useMemo(() => {
-    const result = PgProgramInfo.getKp();
-    if (result?.err) return "";
-
-    return result.programKp!.publicKey.toBase58();
+    const result = PgProgramInfo.getPk();
+    if (result.err) return "";
+    return result.programPk!.toBase58();
   }, []);
 
   const [seeds, setSeeds] = useState<Seed[]>([{ value: "", type: "string" }]);
