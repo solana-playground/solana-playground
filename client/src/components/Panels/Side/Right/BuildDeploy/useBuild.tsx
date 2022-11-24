@@ -3,25 +3,24 @@ import { useAtom } from "jotai";
 
 import {
   buildCountAtom,
-  explorerAtom,
   TerminalAction,
   terminalStateAtom,
 } from "../../../../../state";
-import { PgBuild, PgPkg, PgTerminal } from "../../../../../utils/pg";
+import { PgBuild, PgExplorer, PgTerminal } from "../../../../../utils/pg";
 
 export const useBuild = () => {
-  const [explorer] = useAtom(explorerAtom);
   const [, setTerminalState] = useAtom(terminalStateAtom);
   const [, setBuildCount] = useAtom(buildCountAtom);
 
   const runBuild = useCallback(() => {
     PgTerminal.runCmd(async () => {
-      setTerminalState(TerminalAction.buildStop);
-
-      if (!explorer) return;
-
-      setTerminalState(TerminalAction.buildLoadingStart);
+      setTerminalState([
+        TerminalAction.buildStop,
+        TerminalAction.buildLoadingStart,
+      ]);
       PgTerminal.log(PgTerminal.info("Building..."));
+
+      const explorer = await PgExplorer.get();
 
       let msg = "";
       try {
@@ -33,10 +32,7 @@ export const useBuild = () => {
         let result: { stderr: string };
 
         if (pythonFiles.length > 0) {
-          const seahorsePkgToBuild = await PgPkg.loadPkg(
-            PgPkg.SEAHORSE_COMPILE
-          );
-          result = await PgBuild.buildPython(pythonFiles, seahorsePkgToBuild);
+          result = await PgBuild.buildPython(pythonFiles);
         } else {
           result = await PgBuild.buildRust(files);
         }
@@ -56,7 +52,7 @@ export const useBuild = () => {
         await explorer.saveProgramInfo();
       }
     });
-  }, [explorer, setBuildCount, setTerminalState]);
+  }, [setBuildCount, setTerminalState]);
 
   return { runBuild };
 };

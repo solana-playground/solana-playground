@@ -1011,7 +1011,7 @@ export class PgExplorer {
 
     const updateIdRust = (content: string) => {
       const rustDeclareIdRegex = new RegExp(
-        /^\s*(([\w_]+::)*)declare_id!\("(\w*)"\)/gm
+        /^\s*(([\w]+::)*)declare_id!\("(\w*)"\)/gm
       );
       return content.replace(rustDeclareIdRegex, (match) => {
         const res = rustDeclareIdRegex.exec(match);

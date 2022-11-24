@@ -99,7 +99,6 @@ Your address: ${PgWallet.getKp().publicKey}`
     authority,
     hasAuthority,
     upgradeable,
-    PgTerminal.log,
     setTxHash,
     setTerminalState,
     setDeployCount,
