@@ -60,7 +60,13 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           PgView.setSidebarState(Sidebar.TUTORIALS);
         } else {
           setCurrentPage(metadata.pageNumber);
-          PgView.setSidebarState(Sidebar.EXPLORER);
+          PgView.setSidebarState((state) => {
+            if (state === Sidebar.TUTORIALS) {
+              return Sidebar.EXPLORER;
+            }
+
+            return state;
+          });
         }
       } catch {
         setCurrentPage(0);

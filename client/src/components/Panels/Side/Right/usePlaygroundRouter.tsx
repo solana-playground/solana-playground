@@ -133,11 +133,6 @@ export const usePlaygroundRouter = () => {
             } else {
               await PgRouter.navigate(Route.DEFAULT);
             }
-          } else {
-            const metadata = await PgTutorial.getMetadata(tutorial.name);
-            if (metadata.pageNumber) {
-              PgTutorial.setPageNumber(metadata.pageNumber);
-            }
           }
         }
       }

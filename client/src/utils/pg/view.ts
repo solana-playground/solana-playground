@@ -29,7 +29,7 @@ export class PgView {
    *
    * @param state sidebar state to set
    */
-  static setSidebarState(state: Sidebar) {
+  static setSidebarState(state: Sidebar | ((state: Sidebar) => Sidebar)) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,
       state
