@@ -53,4 +53,19 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./TinyAdventure"),
   },
+
+  {
+    name: "Tiny Adventure Two",
+    description: "Giving out sol rewards to players.",
+    imageSrc: getTutorialImgSrc("tiny-adventure-two/tinyAdventureTwo.jpg"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    elementImport: () => import("./TinyAdventureTwo"),
+  },
 ];
