@@ -1,6 +1,9 @@
+## About
+
+This is the second part of the [Tiny Adventure Tutorial](/tutorials/tiny-adventure)
+
 ## What you will learn
 
-This is the second part of the Tiny Adventure Tutorial
-
-Here you will learn how to work with PDAs again, how to do cross programm invocations (CPIs)
-and how to use a PDA as a vault to pay rewards to your players.
+- How to work with PDAs
+- How to do cross program invocations(CPIs)
+- How to use a PDA as a vault to pay rewards(SOL) to your players
