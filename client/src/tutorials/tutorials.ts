@@ -23,6 +23,21 @@ export const TUTORIALS: TutorialData[] = [
   },
 
   {
+    name: "Hello Solana",
+    description: "Hello world program with Native Solana/Rust.",
+    imageSrc: getTutorialImgSrc("hello-solana/thumbnail.jpg"),
+    authors: [
+      {
+        name: "acheron",
+        link: "https://twitter.com/acheroncrypto",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.NATIVE],
+    elementImport: () => import("./HelloSolana"),
+  },
+
+  {
     name: "Counter PDA Tutorial",
     description:
       "Create a simple counter that will store the number of times is called.",
@@ -56,7 +71,7 @@ export const TUTORIALS: TutorialData[] = [
 
   {
     name: "Tiny Adventure Two",
-    description: "Giving out sol rewards to players.",
+    description: "Giving out SOL rewards to players.",
     imageSrc: getTutorialImgSrc("tiny-adventure-two/tinyAdventureTwo.jpg"),
     authors: [
       {
