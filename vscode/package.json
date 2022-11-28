@@ -1,0 +1,136 @@
+{
+  "name": "solpg",
+  "displayName": "Solana Playground",
+  "description": "Commands and snippets to help Solana development in VS Code",
+  "version": "0.0.1-alpha",
+  "author": {
+    "name": "acheron",
+    "url": "https://github.com/acheroncrypto"
+  },
+  "license": "GPL-3.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-playground/solana-playground"
+  },
+  "publisher": "acheroncrypto",
+  "engines": {
+    "vscode": "^1.72.0"
+  },
+  "categories": [
+    "Other",
+    "Snippets"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onCommand:solpg.address",
+    "onCommand:solpg.airdrop",
+    "onCommand:solpg.balance",
+    "onCommand:solpg.build",
+    "onCommand:solpg.connection",
+    "onCommand:solpg.createAnchor",
+    "onCommand:solpg.createNative",
+    "onCommand:solpg.createSeahorse",
+    "onCommand:solpg.deploy",
+    "onCommand:solpg.share"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "solpg.address",
+        "title": "Address",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.airdrop",
+        "title": "Airdrop",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.balance",
+        "title": "Balance",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.build",
+        "title": "Build",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.connection",
+        "title": "Connection",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.createAnchor",
+        "title": "Create Anchor Project",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.createNative",
+        "title": "Create Solana(Native) Project",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.createSeahorse",
+        "title": "Create Seahorse Project",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.deploy",
+        "title": "Deploy",
+        "category": "solpg"
+      },
+      {
+        "command": "solpg.share",
+        "title": "Share",
+        "category": "solpg"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "rust",
+        "path": "./snippets/rust.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@solana/web3.js": "^1.66.2",
+    "@solana-playground/seahorse-compile-wasm": "../wasm/pkgs/seahorse-compile",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.2.10"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/lodash": "^4.14.187",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.72.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/test-electron": "^2.1.5",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}

@@ -1,0 +1,1 @@
+export { processDeploy } from "./deploy";

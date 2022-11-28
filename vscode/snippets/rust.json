@@ -1,0 +1,152 @@
+{
+  "Create struct": {
+    "prefix": "create struct(cst)",
+    "body": "struct ${1:MyStruct} {\n\t${2}\n}",
+    "description": "Create struct"
+  },
+  "Create pub struct": {
+    "prefix": "create pub struct(cpst)",
+    "body": "pub struct ${1:MyStruct} {\n\t${2}\n}",
+    "description": "Create pub struct"
+  },
+  "Create enum": {
+    "prefix": "create enum(cen)",
+    "body": "enum ${1:MyEnum} {\n\t${2}\n}",
+    "description": "Create enum"
+  },
+  "Create pub enum": {
+    "prefix": "create pub enum(cpen)",
+    "body": "pub enum ${1:MyEnum} {\n\t${2}\n}",
+    "description": "Create pub enum"
+  },
+  "Declare id": {
+    "prefix": "declare id(di)",
+    "body": "declare_id!(\"${1}\");",
+    "description": "Declare program id"
+  },
+  "Derive trait": {
+    "prefix": "derive(drv)",
+    "body": "#[derive(${1:Trait})]",
+    "description": "Derive a trait"
+  },
+  "Msg": {
+    "prefix": "message(msg)",
+    "body": "msg!(\"${1:message}\");",
+    "description": "Log program message"
+  },
+  "Borsh de-serialize": {
+    "prefix": "borsh serialize deserialize(bsd)",
+    "body": "#[derive(BorshSerialize, BorshDeserialize)]",
+    "description": "Derive Borsh de-serialize"
+  },
+  "Use anchor prelude": {
+    "prefix": "use anchor prelude(uap)",
+    "body": "use anchor_lang::prelude::*;",
+    "description": "Use anchor prelude"
+  },
+  "Require": {
+    "prefix": "require(rq)",
+    "body": "require!(${1:condition}, ${2:CustomError});",
+    "description": "Require macro"
+  },
+  "Anchor de-serialize": {
+    "prefix": "anchor serialize deserialize(asd)",
+    "body": "#[derive(AnchorSerialize, AnchorDeserialize)]",
+    "description": "Derive Anchor de-serialize"
+  },
+  "Mut attribute": {
+    "prefix": "mut attribute(mat)",
+    "body": "#[account(mut)]",
+    "description": "Mut attribute"
+  },
+  "Mut account": {
+    "prefix": "mut account(mac)",
+    "body": "#[account(mut)]\npub ${1:mut_account}: Account<'info, ${2:MutAccount}>,",
+    "description": "Mut account"
+  },
+  "Init attribute": {
+    "prefix": "init attribute(iat)",
+    "body": "#[account(init, payer = signer, space = ${1:space})]",
+    "description": "Init attribute"
+  },
+  "Init attribute with seeds": {
+    "prefix": "init attribute with seeds(iats)",
+    "body": "#[account(\n\tinit,\n\tpayer = signer,\n\tspace = ${1:space},\n\tseeds = [${2}],\n\tbump\n)]",
+    "description": "Init attribute with seeds"
+  },
+  "Init account": {
+    "prefix": "init account(iac)",
+    "body": "#[account(init, payer = signer, space = ${1:space})]\npub ${2:new_account}: Account<'info, ${3:NewAccount}>,",
+    "description": "Init account"
+  },
+  "Init account with seeds": {
+    "prefix": "init account with seeds(iacs)",
+    "body": "#[account(\n\tinit,\n\tpayer = signer,\n\tspace = ${1:space},\n\tseeds = [${2}],\n\tbump\n)]\npub ${3:new_account}: Account<'info, ${4:NewAccount}>,",
+    "description": "Init account with seeds"
+  },
+  "Create program": {
+    "prefix": "create program(cpr)",
+    "body": "#[program]\nmod ${1:my_program} {\n\tuse super::*;\n\tpub fn ${2:init}(ctx: Context<${3:MyContext}>) -> Result<()> {\n\t\tOk(())\n\t}\n}",
+    "description": "Create program"
+  },
+  "Create Anchor instruction": {
+    "prefix": "create instruction(cin)",
+    "body": "pub fn ${1:name}(ctx: Context<${2:MyContext}>) -> Result<()> {\n\tOk(())\n}",
+    "description": "Create Anchor instruction"
+  },
+  "Create context": {
+    "prefix": "create context(cctx)",
+    "body": "#[derive(Accounts)]\npub struct ${1:MyContext}<'info> {\n\t#[account(mut)]\n\tpub ${2:signer}: Signer<'info>,\n}",
+    "description": "Create context"
+  },
+  "Create account": {
+    "prefix": "create account(cac)",
+    "body": "#[account]\n#[derive(Default)]\npub struct ${1:MyAccount} {\n\tpub ${2:field}: ${3:u64},\n}",
+    "description": "Create account"
+  },
+  "Create event": {
+    "prefix": "create event(cev)",
+    "body": "#[event]\npub struct ${1:EventName} {\n\t${2}\n}",
+    "description": "Create event"
+  },
+  "Create constant": {
+    "prefix": "create constant(ccnst)",
+    "body": "#[constant]\npub const ${1:CONSTANT}: ${2:type} = ${3:value};",
+    "description": "Create constant"
+  },
+  "Create custom error": {
+    "prefix": "create custom error(cce)",
+    "body": "#[error_code]\npub enum ${1:MyError} {\n\t#[msg(\"${2:Custom Error Message}\")]\n\t${3:CustomErrorName},\n}",
+    "description": "Create custom error"
+  },
+  "Custom error field": {
+    "prefix": "custom error field(cef)",
+    "body": "#[msg(\"${1:Custom error message}\")]\n${2:CustomErrorName},",
+    "description": "Define custom error variant"
+  },
+  "System program": {
+    "prefix": "system program(sp)",
+    "body": "pub system_program: Program<'info, System>,",
+    "description": "Add system program account"
+  },
+  "Token program": {
+    "prefix": "token program(tp)",
+    "body": "pub token_program: Program<'info, Token>,",
+    "description": "Add token program account"
+  },
+  "Rent sysvar": {
+    "prefix": "rent sysvar(sysr)",
+    "body": "pub rent: Sysvar<'info, Rent>,",
+    "description": "Add rent sysvar account"
+  },
+  "Clock sysvar": {
+    "prefix": "clock sysvar(sysc)",
+    "body": "pub clock: Sysvar<'info, Clock>,",
+    "description": "Add clock sysvar account"
+  },
+  "Signer": {
+    "prefix": "signer(sig)",
+    "body": "#[account(mut)]\npub signer: Signer<'info>,",
+    "description": "Add signer account"
+  }
+}

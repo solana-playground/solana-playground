@@ -1,0 +1,5 @@
+.vscode/**
+.vscode-test/**
+dist/**
+node_modules/**
+.yarnrc

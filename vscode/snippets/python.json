@@ -1,0 +1,37 @@
+{
+  "Import seahorse prelude": {
+    "prefix": "import seahorse prelude(isp)",
+    "body": "from seahorse.prelude import *",
+    "description": "Import Seahorse Prelude"
+  },
+  "Declare id": {
+    "prefix": "declare id(di)",
+    "body": "declare_id('${1}')",
+    "description": "Declare program id"
+  },
+  "Print message": {
+    "prefix": "print(msg)",
+    "body": "print('${1:message}')",
+    "description": "Log program message"
+  },
+  "Assert": {
+    "prefix": "assert(asrt)",
+    "body": "assert ${1:condition}, '${2:error message}'",
+    "description": "Assert a statement, throw error with the specified message if assertion fails"
+  },
+  "Create instruction": {
+    "prefix": "create instruction(cin)",
+    "body": "@instruction\ndef ${1:instruction_name}(${2:signer}: Signer):\n\t",
+    "description": "Create Seahorse instruction"
+  },
+  "Create account": {
+    "prefix": "create account(cac)",
+    "body": "class ${1:AccountName}(Account):\n\t${2:property}: ${3:u64}",
+    "description": "Create program account"
+  },
+  "Create event": {
+    "prefix": "create event(cev)",
+    "body": "class ${1:EventName}(Event):\n\t${2:property}: ${3:type}\n\n\tdef __init__(self, ${2:property}: ${3:type}):\n\t\tself.${2:property} = ${2:property}\n\t\t",
+    "description": "Create program event"
+  }
+}

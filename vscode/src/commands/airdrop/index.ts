@@ -1,0 +1,1 @@
+export { processAirdrop } from "./airdrop";
