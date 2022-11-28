@@ -36,6 +36,8 @@ export interface TutorialData {
   description: string;
   /** Tutorial cover image that will be shown in tutorials section.
    * It can either be `/tutorials/...` or full url to the image.
+   *
+   * Thumbnails are displayed at 4:3 aspect ratio(320x240).
    */
   imageSrc: string;
   /** Authors of the tutorial */

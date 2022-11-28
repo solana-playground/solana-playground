@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
@@ -6,32 +6,6 @@ import { TUTORIALS } from "../../../../../tutorials";
 
 const Tutorials = () => {
   const insideWrapperRef = useRef<HTMLDivElement>(null);
-
-  // Make tutorials container responsive with ResizeObserver
-  useEffect(() => {
-    if (!insideWrapperRef.current) return;
-    const el = insideWrapperRef.current;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      const style = (entry.target as HTMLDivElement).style;
-      const width = entry.contentRect.width;
-      let amountInRow;
-      if (width > 1080) {
-        amountInRow = 3;
-      } else if (width > 666) {
-        amountInRow = 2;
-      } else {
-        amountInRow = 1;
-      }
-
-      style.gridTemplateColumns = `repeat(${amountInRow}, 1fr)`;
-    });
-
-    resizeObserver.observe(el);
-
-    return () => resizeObserver.unobserve(el);
-  }, []);
 
   return (
     <Wrapper>
@@ -110,9 +84,10 @@ const Title = styled.h1``;
 
 const TutorialsInsideWrapper = styled.div`
   margin: 2rem 0;
-  display: grid;
   gap: 2rem;
   width: 100%;
+  display: flex;
+  flex-wrap: wrap;
   max-width: var(--max-container-width);
 `;
 
