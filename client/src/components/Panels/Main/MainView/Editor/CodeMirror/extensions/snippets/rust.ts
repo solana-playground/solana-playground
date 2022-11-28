@@ -133,7 +133,7 @@ export const ANCHOR_SNIPPETS: Completion[] = [
     }
   ),
   snip(
-    "#[derive(Accounts)]\npub struct ${MyContext}<'info> {\n\t#[account(${mut})]\n\tpub ${my_account}: Account<'info, ${MyAccount}>,\n}",
+    "#[derive(Accounts)]\npub struct ${MyContext}<'info> {\n\t#[account(mut)]\n\tpub ${signer}: Signer<'info>,\n}",
     {
       label: "create context(cctx)",
       type: "class",
@@ -141,7 +141,7 @@ export const ANCHOR_SNIPPETS: Completion[] = [
     }
   ),
   snip(
-    "#[account]\n#[derive(Default)]\npub struct ${MyAccount} {\n\t${field}: ${u64},\n}",
+    "#[account]\n#[derive(Default)]\npub struct ${MyAccount} {\n\tpub ${field}: ${u64},\n}",
     {
       label: "create account(cac)",
       type: "class",

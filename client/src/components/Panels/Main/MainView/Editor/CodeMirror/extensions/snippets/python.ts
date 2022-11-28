@@ -38,7 +38,7 @@ export const SEAHORSE_SNIPPETS: Completion[] = [
       info: "Create Seahorse instruction",
     }
   ),
-  snip("class ${1:AccountName}(Account):\n\t${2}", {
+  snip("class ${1:AccountName}(Account):\n\t${2:property}: ${3:type}", {
     label: "create account(cac)",
     type: "class",
     info: "Create program account",
