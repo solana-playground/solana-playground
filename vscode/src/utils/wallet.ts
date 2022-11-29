@@ -83,8 +83,16 @@ export class PgWallet {
   private static async _createKeypair(
     path: string = this._DEFAULT_KEYPAIR_PATH
   ) {
-    const keypairBytes: number[] = Array.from(Keypair.generate().secretKey);
-    await PgFs.writeFile(vscode.Uri.parse(path), JSON.stringify(keypairBytes));
+    // Confirm the file doesn't exist just in case
+    const keypairUri = vscode.Uri.parse(path);
+    const keypairExists = await PgFs.exists(keypairUri);
+    if (keypairExists) {
+      const keypairStr = await PgFs.readFile(keypairUri);
+      return Uint8Array.from(JSON.parse(keypairStr));
+    }
+
+    const keypairBytes = Array.from(Keypair.generate().secretKey);
+    await PgFs.writeFile(keypairUri, JSON.stringify(keypairBytes));
     return Uint8Array.from(keypairBytes);
   }
 }
