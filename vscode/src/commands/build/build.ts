@@ -170,6 +170,38 @@ export const processBuild = async () => {
   }
 
   // Show output in a channel
-  pgChannel.appendLine(data.stderr);
+  pgChannel.appendLine(editStderr(data.stderr));
   pgChannel.show();
+};
+
+const editStderr = (stderr: string) => {
+  // Remove full path
+  stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
+
+  // Remove uuid from folders
+  const uuid = PgProgramInfo.get().uuid;
+  if (uuid) stderr = stderr.replace(new RegExp(uuid, "gm"), "");
+
+  // Remove rustc error line
+  let startIndex = stderr.indexOf("For more");
+  if (startIndex !== -1) {
+    const endIndex = stderr.indexOf("\n", startIndex);
+    stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
+  }
+
+  // Remove Compiling message
+  stderr = stderr.replace("Compiling solpg v0.1.0\n", "");
+
+  // Remove whitespace before 'Finished'
+  startIndex = stderr.indexOf("Finished release");
+  if (startIndex !== -1) {
+    const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
+    stderr =
+      stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
+      stderr.substring(whiteSpaceStartIndex, startIndex).replace(/\s+/, "") +
+      "\nBuild successful. Completed" +
+      stderr.substring(stderr.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
+  }
+
+  return stderr.substring(0, stderr.length - 1);
 };
