@@ -59,7 +59,7 @@ export const processCreate = async ({ name, files }: CreateProps) => {
         }
 
         // Create files with the name prefix to not override current files
-        files = files.map((f) => [`${name}/${f[0]}`, f[1]]);
+        files = files.map((f) => [path.join(name, f[0]), f[1]]);
         createdNewFolder = true;
       }
 

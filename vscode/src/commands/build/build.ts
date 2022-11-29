@@ -157,7 +157,7 @@ export const processBuild = async () => {
         await PgFs.writeFiles(
           [
             [
-              `${PATHS.DIRS.IDL}/${data.idl.name}.json`,
+              path.join(PATHS.DIRS.IDL, `${data.idl.name}.json`),
               JSON.stringify(data.idl),
             ],
           ],
