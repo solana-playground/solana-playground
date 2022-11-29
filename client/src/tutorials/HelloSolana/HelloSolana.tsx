@@ -29,7 +29,7 @@ const HelloSolana = () => (
           const clientExists = await explorer.exists(clientPath);
           if (!clientExists) {
             await explorer.newItem(
-              "client/client.ts",
+              clientPath,
               require("./files/client.ts.raw")
             );
           }
