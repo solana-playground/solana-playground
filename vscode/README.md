@@ -2,13 +2,15 @@
 
 Commands and snippets to help Solana development.
 
+> 💡️ Rust/Solana toolchain is not necessary for the extension to work.
+
 ## Commands
 
 Commands are accessed via the Command Palette (`Ctrl+Shift+P` on Windows and Linux or `Cmd+Shift+P` on macOS). You can type **solpg** to see all commands.
 
 ![commands](https://raw.githubusercontent.com/solana-playground/solana-playground/master/vscode/images/commands.gif)
 
-> You can also create keybinds for any of the commands by opening the Command Palette and clicking the Gear icon next to the command that you want to add keybind for.
+> ️You can also create keybinds for any of the commands by opening the Command Palette and clicking the Gear(⚙️) icon next to the command that you want to add keybind for.
 
 ### Create a template project
 

@@ -1,3 +1,4 @@
+import * as vscode from "vscode";
 import * as os from "os";
 import * as path from "path";
 import * as _ from "lodash";
@@ -10,7 +11,6 @@ import {
   processInstallNodeModules,
 } from "./common";
 import { PgFs } from "../../utils";
-import { Uri } from "vscode"
 
 const ANCHOR_VERSION = "0.25.0";
 
@@ -236,7 +236,9 @@ codegen-units = 1
   });
 
   const baseUri = await PgFs.getBaseUri();
-  const projectUri = createdNewFolder ? Uri.joinPath(baseUri, name) : baseUri;
+  const projectUri = createdNewFolder
+    ? vscode.Uri.joinPath(baseUri, name)
+    : baseUri;
 
   return { name, projectUri };
 };
