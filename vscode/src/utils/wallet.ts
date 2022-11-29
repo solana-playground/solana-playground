@@ -9,7 +9,7 @@ import { PgTerminal } from "./terminal";
 import { PATHS } from "../constants";
 
 export class PgWallet {
-  private static readonly _DEFAULT_KEYPAIR_PATH: string = path.join(
+  static readonly DEFAULT_KEYPAIR_PATH: string = path.join(
     os.homedir(),
     ".config",
     "solana",
@@ -45,7 +45,7 @@ export class PgWallet {
           const result = PgTerminal.exec("solana config get keypair");
           keypairPath = result.stdout.substring(10).trim();
         } else {
-          keypairPath = this._DEFAULT_KEYPAIR_PATH;
+          keypairPath = this.DEFAULT_KEYPAIR_PATH;
         }
 
         break;
@@ -81,7 +81,7 @@ export class PgWallet {
   }
 
   private static async _createKeypair(
-    path: string = this._DEFAULT_KEYPAIR_PATH
+    path: string = this.DEFAULT_KEYPAIR_PATH
   ) {
     // Confirm the file doesn't exist just in case
     const keypairUri = vscode.Uri.parse(path);

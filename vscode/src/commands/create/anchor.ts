@@ -10,7 +10,7 @@ import {
   processCreate,
   processInstallNodeModules,
 } from "./common";
-import { PgFs } from "../../utils";
+import { PgFs, PgWallet } from "../../utils";
 
 const ANCHOR_VERSION = "0.25.0";
 
@@ -161,7 +161,7 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "localnet"
-wallet = "${path.join(os.homedir(), "/.config/solana/id.json")}"
+wallet = "${PgWallet.DEFAULT_KEYPAIR_PATH}"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
