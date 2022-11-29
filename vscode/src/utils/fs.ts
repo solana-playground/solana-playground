@@ -79,14 +79,7 @@ export class PgFs {
   // vscode.workspace.findFiles()
   static async findFiles(
     regexp: RegExp,
-    exclude: RegExp[] | null = [
-      /^\./,
-      new RegExp(PATHS.DIRS.NODE_MODULES),
-      new RegExp(PATHS.DIRS.TARGET),
-      new RegExp(PATHS.DIRS.TESTS),
-      new RegExp(PATHS.FILES.INIT_PY),
-      new RegExp(PATHS.FILES.PRELUDE_PY),
-    ]
+    exclude: RegExp[] | null = this._EXCLUDE_REGEX
   ) {
     const uris: vscode.Uri[] = [];
 
@@ -143,6 +136,11 @@ export class PgFs {
     };
 
     const getFrameworks = async (uri: vscode.Uri) => {
+      // Check whether to search inside the uri
+      for (const excludeRegexp of this._EXCLUDE_REGEX) {
+        if (excludeRegexp.test(uri.fsPath)) return;
+      }
+
       // Get files of the directory
       const dirFiles = await vscode.workspace.fs.readDirectory(uri);
 
@@ -588,6 +586,15 @@ export class PgFs {
 
   private static _REGEX_PATH_SEP =
     process.platform === "win32" ? `\\\\` : `\\/`;
+
+  private static _EXCLUDE_REGEX = [
+    /^\./,
+    new RegExp(PATHS.DIRS.NODE_MODULES),
+    new RegExp(PATHS.DIRS.TARGET),
+    new RegExp(PATHS.DIRS.TESTS),
+    new RegExp(PATHS.FILES.INIT_PY),
+    new RegExp(PATHS.FILES.PRELUDE_PY),
+  ];
 
   private static _getItemPath(p: string | vscode.Uri, n: number = 0) {
     if (typeof p !== "string") {
