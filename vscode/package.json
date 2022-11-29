@@ -2,7 +2,7 @@
   "name": "solpg",
   "displayName": "Solana Playground",
   "description": "Commands and snippets to help Solana development in VS Code",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1",
   "author": {
     "name": "acheron",
     "url": "https://github.com/acheroncrypto"
@@ -13,15 +13,15 @@
     "type": "git",
     "url": "https://github.com/solana-playground/solana-playground"
   },
-  "publisher": "acheroncrypto",
-  "engines": {
-    "vscode": "^1.72.0"
-  },
+  "publisher": "solana-playground",
   "categories": [
     "Other",
     "Snippets"
   ],
   "main": "./dist/extension.js",
+  "engines": {
+    "vscode": "^1.72.0"
+  },
   "activationEvents": [
     "onCommand:solpg.address",
     "onCommand:solpg.airdrop",
