@@ -9,6 +9,8 @@ import {
   processCreate,
   processInstallNodeModules,
 } from "./common";
+import { PgFs } from "../../utils";
+import { Uri } from "vscode"
 
 const ANCHOR_VERSION = "0.25.0";
 
@@ -233,5 +235,8 @@ codegen-units = 1
     createdNewFolder,
   });
 
-  return { name };
+  const baseUri = await PgFs.getBaseUri();
+  const projectUri = createdNewFolder ? Uri.joinPath(baseUri, name) : baseUri;
+
+  return { name, projectUri };
 };
