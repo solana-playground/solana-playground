@@ -109,6 +109,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
+name = "base58"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6107fe1be6682a68940da878d9e9f5e90ca5745b3dec9fd1bb393c8777d4f581"
+
+[[package]]
 name = "base64"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2193,7 +2199,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "seahorse-compile-wasm"
-version = "0.2.3-nolocalimport"
+version = "0.2.4-wasm-fix"
 dependencies = [
  "console_error_panic_hook",
  "seahorse-lang",
@@ -2203,9 +2209,10 @@ dependencies = [
 
 [[package]]
 name = "seahorse-lang"
-version = "0.2.2"
-source = "git+https://github.com/ameliatastic/seahorse-lang?rev=0bc37a40b4a8b983731f2dc9b51ec70d5f6545bf#0bc37a40b4a8b983731f2dc9b51ec70d5f6545bf"
+version = "0.2.4"
+source = "git+https://github.com/ameliatastic/seahorse-lang?rev=38a4c0dd46fe445a88fcf64098ce16baab2bfd73#38a4c0dd46fe445a88fcf64098ce16baab2bfd73"
 dependencies = [
+ "base58",
  "clap",
  "heck",
  "owo-colors",
