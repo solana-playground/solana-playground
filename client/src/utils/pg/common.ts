@@ -18,7 +18,10 @@ export class PgCommon {
    * @param promise promise to await
    * @returns the result of the promise parameter
    */
-  static async transition<P>(promise: P, ms?: number): Promise<Awaited<P>> {
+  static async transition<P>(
+    promise: Promise<P>,
+    ms?: number
+  ): Promise<Awaited<P>> {
     const result = (await Promise.allSettled([this.sleep(ms), promise]))[1];
     if (result.status === "fulfilled") {
       return result.value;
@@ -33,7 +36,10 @@ export class PgCommon {
    * @param promise promise to await
    * @returns the result of the promise parameter
    */
-  static async timeout<P>(promise: P, ms?: number): Promise<P | undefined> {
+  static async timeout<P>(
+    promise: Promise<P>,
+    ms?: number
+  ): Promise<P | undefined> {
     try {
       return (await Promise.race([
         new Promise((_, rej) => this.sleep(ms).then(rej)),

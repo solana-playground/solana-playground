@@ -2,6 +2,7 @@ import { Location } from "react-router-dom";
 
 import { EventName } from "../../constants";
 import { PgCommon } from "./common";
+import { PgExplorer } from "./explorer";
 
 export class PgRouter {
   /**
@@ -21,9 +22,20 @@ export class PgRouter {
     if (!location) {
       PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
     } else {
-      if (location.pathname + location.search !== path) {
+      if (!this.comparePaths(location.pathname + location.search, path)) {
         PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
       }
     }
+  }
+
+  /**
+   * Compare pathnames to each other
+   *
+   * @param pathOne First path
+   * @param pathTwo Second path
+   * @returns Whether the paths are equal
+   */
+  static comparePaths(pathOne: string, pathTwo: string) {
+    return PgExplorer.appendSlash(pathOne) === PgExplorer.appendSlash(pathTwo);
   }
 }

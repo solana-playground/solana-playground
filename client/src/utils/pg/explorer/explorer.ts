@@ -677,6 +677,9 @@ export class PgExplorer {
       this.changeCurrentFile(
         this.currentWorkspacePath + options.defaultOpenFile
       );
+
+      // Save metadata to never lose default open file
+      await this.saveMeta();
     } else {
       this._dispatchOnDidSwitchFile();
     }

@@ -62,7 +62,7 @@ export class PgTutorial {
     const tutorialPath = `${Route.TUTORIALS}/${PgCommon.toKebabCase(
       tutorialName
     )}`;
-    if (pathname === tutorialPath) {
+    if (PgRouter.comparePaths(pathname, tutorialPath)) {
       // Open the tutorial pages view
       try {
         const metadata = await this.getMetadata();

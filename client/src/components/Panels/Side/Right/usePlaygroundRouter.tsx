@@ -13,6 +13,8 @@ import {
   PgView,
   Sidebar,
 } from "../../../../utils/pg";
+import Tutorials from "../../Main/MainView/Tutorials";
+import EditorWithTabs from "../../Main/MainView/EditorWithTabs";
 
 export const usePlaygroundRouter = () => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
@@ -124,7 +126,7 @@ export const usePlaygroundRouter = () => {
         if (!tutorial) {
           PgRouter.navigate(Route.DEFAULT);
         } else if (
-          pathname !== Route.TUTORIALS &&
+          !PgRouter.comparePaths(pathname, Route.TUTORIALS) &&
           pathname.startsWith(Route.TUTORIALS)
         ) {
           if (explorer.currentWorkspaceName !== tutorial.name) {
@@ -140,6 +142,37 @@ export const usePlaygroundRouter = () => {
 
     return () => disposable.dispose();
   }, [explorer]);
+
+  // Handle MainView
+  const explorerExists = !!explorer;
+  useEffect(() => {
+    (async () => {
+      if (!explorerExists) return;
+
+      const explorer = await PgExplorer.get();
+
+      if (pathname.startsWith(Route.TUTORIALS)) {
+        if (PgRouter.comparePaths(pathname, Route.TUTORIALS)) {
+          PgView.setMain(() => <Tutorials />);
+        } else {
+          const tutorial = PgTutorial.getTutorialFromPathname(pathname);
+          if (!tutorial) {
+            PgRouter.navigate(Route.TUTORIALS);
+            return;
+          }
+          PgTutorial.setCurrent(tutorial);
+
+          const { default: El } = await tutorial.elementImport();
+          PgView.setMain(() => <El {...tutorial} />);
+        }
+      } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
+        const tutorialName = explorer.currentWorkspaceName;
+        PgTutorial.open(tutorialName!);
+      } else {
+        PgView.setMain(() => <EditorWithTabs />);
+      }
+    })();
+  }, [pathname, explorerExists]);
 
   // Handle loading state
   useEffect(() => {
