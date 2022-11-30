@@ -12,8 +12,8 @@ pub fn compile_seahorse(python_source: String, program_name: String) -> Vec<JsVa
     // Playground expects to include the src/ prefix on files
     let base_path: PathBuf = PathBuf::from_str("/src").unwrap();
 
-    match compile(python_source, program_name) {
-        Ok(out_tree) => build_src_tree(&out_tree, base_path)
+    match compile(python_source, program_name, Some(base_path.clone())) {
+        Ok(out_tree) => build_src_tree(&out_tree.tree, base_path)
             // we need to change from Vec<String> to Vec<JsValue> for wasm-bindgen
             .iter()
             .map(|s| JsValue::from_str(s))

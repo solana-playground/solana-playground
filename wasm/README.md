@@ -4,9 +4,9 @@ Toolchain:
 
 ```sh
 rustc --version
-# rustc 1.62.0 (a8314ef7d 2022-06-27)
+# rustc 1.65.0 (897e37553 2022-11-02)
 wasm-pack --version
-# wasm-pack 0.10.2
+# wasm-pack 0.10.3
 ```
 
 Run:
