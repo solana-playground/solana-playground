@@ -8,7 +8,9 @@ Commands and snippets to help Solana development.
 
 Commands are accessed via the Command Palette (`Ctrl+Shift+P` on Windows and Linux or `Cmd+Shift+P` on macOS). You can type **solpg** to see all commands.
 
-![commands](https://raw.githubusercontent.com/solana-playground/solana-playground/master/vscode/images/commands.gif)
+> ⚠ Commands usually require VSCode to be in a program workspace to work properly. If you don't have a program, use one of the **Create** commands.
+
+![Commands](https://raw.githubusercontent.com/solana-playground/solana-playground/master/vscode/images/commands.gif)
 
 > ️You can also create keybinds for any of the commands by opening the Command Palette and clicking the Gear(⚙️) icon next to the command that you want to add keybind for.
 
