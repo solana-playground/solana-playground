@@ -279,7 +279,7 @@ describe("Test", () => {
       [
         "src/fizzbuzz.py",
         `# fizzbuzz
-# Built with Seahorse v0.2.2
+# Built with Seahorse v0.2.4
 #
 # On-chain, persistent FizzBuzz!
 

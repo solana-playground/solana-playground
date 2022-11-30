@@ -2509,7 +2509,7 @@
   version "0.99.4"
 
 "@solana-playground/seahorse-compile-wasm@../wasm/pkgs/seahorse-compile":
-  version "0.2.3-nolocalimport"
+  version "0.2.4-wasm-fix"
 
 "@solana-playground/solana-cli-wasm@../wasm/pkgs/solana-cli":
   version "1.11.0"
