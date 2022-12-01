@@ -800,10 +800,19 @@ export class PgExplorer {
       // Switch to the existing workspace
       await this.changeWorkspace(githubWorkspaceName);
     } else {
+      // Get the default open file since there is no previous metadata saved
+      let defaultOpenFile;
+      const libRsFile = files.find((f) => f[0].endsWith("lib.rs"));
+      if (libRsFile) {
+        defaultOpenFile = libRsFile[0];
+      } else if (files.length > 0) {
+        defaultOpenFile = files[0][0];
+      }
+
       // Create a new workspace
       await this.newWorkspace(githubWorkspaceName, {
         files,
-        defaultOpenFile: files.length === 1 ? files[0][0] : "lib.rs",
+        defaultOpenFile,
       });
 
       // Save metadata
