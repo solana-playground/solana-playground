@@ -38,6 +38,21 @@ export const TUTORIALS: TutorialData[] = [
   },
 
   {
+    name: "Hello Anchor",
+    description: "Hello world program with Anchor framework.",
+    imageSrc: getTutorialImgSrc("hello-anchor/thumbnail.jpg"),
+    authors: [
+      {
+        name: "acheron",
+        link: "https://twitter.com/acheroncrypto",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.ANCHOR],
+    elementImport: () => import("./HelloAnchor"),
+  },
+
+  {
     name: "Counter PDA Tutorial",
     description:
       "Create a simple counter that will store the number of times is called.",
