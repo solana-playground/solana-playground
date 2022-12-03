@@ -53,6 +53,21 @@ export const TUTORIALS: TutorialData[] = [
   },
 
   {
+    name: "Hello Seahorse",
+    description: "Hello world program with Seahorse framework in Python.",
+    imageSrc: getTutorialImgSrc("hello-seahorse/thumbnail.jpg"),
+    authors: [
+      {
+        name: "acheron",
+        link: "https://twitter.com/acheroncrypto",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.SEAHORSE],
+    elementImport: () => import("./HelloSeahorse"),
+  },
+
+  {
     name: "Counter PDA Tutorial",
     description:
       "Create a simple counter that will store the number of times is called.",
