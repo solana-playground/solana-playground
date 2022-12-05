@@ -51,7 +51,7 @@ const DEFAULT_TYPES: IdlType[] = [
 
 export class PgTest {
   /**
-   * Convert types into string for UI
+   * Convert types into string to display in UI
    *
    * @returns the human readable type
    */
@@ -199,10 +199,6 @@ export class PgTest {
         parsedV = [];
         for (const el of userArray) {
           parsedV.push(this.parse(el, insideType as IdlType));
-        }
-
-        if (!parsedV.every((el) => typeof el === typeof insideType)) {
-          throw new Error("Invalid vec");
         }
       } else if (outerType === "Option" || outerType === "COption") {
         switch (v.toLowerCase()) {
