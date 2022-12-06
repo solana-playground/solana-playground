@@ -13,14 +13,8 @@ const EndpointSetting = () => {
 
   const options = useMemo(() => {
     const options = NETWORKS.map((n) => ({ value: n.endpoint, label: n.name }));
-    if (!NETWORKS.find((n) => n.endpoint === conn.endpoint)) {
-      return options.concat({
-        value: conn.endpoint,
-        label: NetworkName.CUSTOM,
-      });
-    }
     return options;
-  }, [conn.endpoint]);
+  }, []);
   const value = useMemo(
     () => options.find((o) => o.value === conn.endpoint),
     [options, conn.endpoint]
