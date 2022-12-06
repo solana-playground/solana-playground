@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAtom } from "jotai";
 
+import Tutorials from "../../Main/MainView/Tutorials";
+import EditorWithTabs from "../../Main/MainView/EditorWithTabs";
 import { Route } from "../../../../constants";
 import { explorerAtom, refreshExplorerAtom } from "../../../../state";
 import {
@@ -13,8 +15,6 @@ import {
   PgView,
   Sidebar,
 } from "../../../../utils/pg";
-import Tutorials from "../../Main/MainView/Tutorials";
-import EditorWithTabs from "../../Main/MainView/EditorWithTabs";
 
 export const usePlaygroundRouter = () => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
@@ -174,10 +174,20 @@ export const usePlaygroundRouter = () => {
     })();
   }, [pathname, explorerExists]);
 
+  // Check whether the tab state is valid
+  // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
+  useEffect(() => {
+    if (!explorer) return;
+
+    const tabs = explorer.getTabs();
+    if (tabs.length && !explorer.getCurrentFile()) {
+      explorer.changeCurrentFile(tabs[0].path);
+    }
+  }, [explorer]);
+
   // Handle loading state
   useEffect(() => {
-    setLoading(true);
-    if (explorer) setLoading(false);
+    setLoading(!explorer);
   }, [explorer]);
 
   return { loading };
