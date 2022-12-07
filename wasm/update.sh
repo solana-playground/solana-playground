@@ -3,11 +3,12 @@
 # updates a single wasm package, by building it and updating the code in pkgs/
 
 if [ $# -eq 0 ]; then
-  echo "Usage: update.sh [package]"
+  echo "Usage: update.sh [package] [update-vscode]"
   exit 1
 fi
 
 PACKAGE=$1
+VSCODE=$2
 
 # get script directory (which is wasm/), and root directory (which is one level higher)
 # this allows the script to be run from any directory
@@ -32,6 +33,11 @@ find ./pkg -type f -not -name '.gitignore' -exec cp {} ../pkgs/$PACKAGE \;
 
 # update the client's local dependency of this package
 (cd $ROOT_DIR/client && yarn upgrade file:../wasm/pkgs/$PACKAGE)
+
+# update the vscode extension's local dependency of this package if specified
+if [ -n "$VSCODE" ]; then
+  (cd $ROOT_DIR/vscode && yarn upgrade file:../wasm/pkgs/$PACKAGE)
+fi
 
 # return to original working directory
 popd
