@@ -79,8 +79,9 @@ export class PgTutorial {
       Pick<TutorialMetadata, "pageCount">
   ) {
     const tutorialName = (await this.getCurrent()).name;
-
     const explorer = await PgExplorer.get();
+
+    let tutorialMetaExists;
     if (explorer.allWorkspaceNames?.includes(tutorialName)) {
       // Start from where the user left off
       if (explorer.currentWorkspaceName !== tutorialName) {
@@ -88,8 +89,11 @@ export class PgTutorial {
       }
 
       // Read tutorial metadata file
-      const metadata = await this.getMetadata();
-      this.setPageNumber(metadata.pageNumber);
+      try {
+        const metadata = await this.getMetadata();
+        this.setPageNumber(metadata.pageNumber);
+        tutorialMetaExists = true;
+      } catch {}
     } else {
       // Initial tutorial setup
       await explorer.newWorkspace(tutorialName, {
@@ -99,7 +103,9 @@ export class PgTutorial {
             ? props.defaultOpenFile ?? props.files[0][0]
             : undefined,
       });
+    }
 
+    if (!tutorialMetaExists) {
       // Create tutorial metadata file
       const metadata: TutorialMetadata = {
         pageNumber: 0,
@@ -112,6 +118,7 @@ export class PgTutorial {
       );
       this.setPageNumber(1);
     }
+
     PgView.setSidebarState(Sidebar.EXPLORER);
   }
 
@@ -146,10 +153,6 @@ export class PgTutorial {
         readToString: [this._getTutorialMetadataPath(tutorialName)],
       })
     );
-  }
-
-  static getTutorialsCount() {
-    return TUTORIALS.length;
   }
 
   static async getUserTutorialNames() {
