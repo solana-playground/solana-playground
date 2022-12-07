@@ -1,10 +1,10 @@
 {
   "name": "seahorse-compile-wasm",
   "collaborators": [
-    "Callum McIntyre <callum@pointer.gg>"
+    "Callum McIntyre <callum.mcintyre@solana.com>"
   ],
   "description": "Seahorse compiler for Solana Playground with WASM.",
-  "version": "0.2.4-wasm-fix",
+  "version": "0.2.5",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
