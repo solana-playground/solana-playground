@@ -4,7 +4,6 @@ import {
   IdlType,
   IdlTypeArray,
   IdlTypeCOption,
-  IdlTypeDef,
   IdlTypeDefined,
   IdlTypeOption,
   IdlTypeVec,
@@ -55,40 +54,33 @@ export class PgTest {
    *
    * @returns the human readable type
    */
-  static getFullType(
-    type: IdlType,
-    idlTypes?: IdlTypeDef[],
-    idlAccounts?: IdlTypeDef[]
-  ): IdlType {
+  static getFullType(type: IdlType, idl: Idl): IdlType {
     if (DEFAULT_TYPES.includes(type)) return type;
 
     if (typeof type === "object") {
       if ((type as IdlTypeOption)?.option) {
         // Option<T>
-        const insideType = this.getFullType(
-          (type as IdlTypeOption).option,
-          idlTypes
-        );
+        const innerType = this.getFullType((type as IdlTypeOption).option, idl);
 
-        return ("Option<" + insideType + ">") as IdlType;
+        return ("Option<" + innerType + ">") as IdlType;
       } else if ((type as IdlTypeCOption)?.coption) {
         // COption<T>
-        const insideType = this.getFullType(
+        const innerType = this.getFullType(
           (type as IdlTypeCOption).coption,
-          idlTypes
+          idl
         );
 
-        return ("COption<" + insideType + ">") as IdlType;
+        return ("COption<" + innerType + ">") as IdlType;
       } else if ((type as IdlTypeDefined)?.defined) {
         // Struct or enum
         const customTypeName = (type as IdlTypeDefined).defined;
 
         // Type info might be in 'accounts' instead of 'types'
-        let typeInfo = idlTypes
+        let typeInfo = idl.types
           ?.filter((t) => t.name === customTypeName)
           .at(0)?.type;
         if (!typeInfo) {
-          typeInfo = idlAccounts?.filter((t) => t.name === customTypeName)[0]
+          typeInfo = idl.accounts?.filter((t) => t.name === customTypeName)[0]
             .type;
         }
 
@@ -122,15 +114,15 @@ export class PgTest {
         }
       } else if ((type as IdlTypeVec)?.vec) {
         // Vec<T>
-        const insideType = this.getFullType((type as IdlTypeVec).vec, idlTypes);
+        const innerType = this.getFullType((type as IdlTypeVec).vec, idl);
 
-        return ("Vec<" + insideType + ">") as IdlType;
+        return ("Vec<" + innerType + ">") as IdlType;
       } else if ((type as IdlTypeArray)?.array) {
         // Array = [<T>; n];
         const array = (type as IdlTypeArray).array;
-        const insideType = this.getFullType(array[0], idlTypes);
+        const innerType = this.getFullType(array[0], idl);
 
-        return ("[" + insideType + "; " + array[1] + "]") as IdlType;
+        return ("[" + innerType + "; " + array[1] + "]") as IdlType;
       }
     }
 
@@ -144,7 +136,7 @@ export class PgTest {
    *
    * @returns the parsed value
    */
-  static parse(v: string, type: IdlType): any {
+  static parse(v: string, type: IdlType, idl?: Idl): any {
     let parsedV;
 
     if (!type.toString().startsWith("Option") && v === "") {
@@ -190,15 +182,17 @@ export class PgTest {
       // Non-default types
       // TODO: Implement nested advanced types
       const typeString = type.toString();
-      const { insideType, outerType } =
+      const { innerType, outerType } =
         this._getTypesFromParsedString(typeString);
 
       if (outerType === "Vec") {
-        const userArray: string[] = JSON.parse(v);
+        const userArray = JSON.parse(v);
 
         parsedV = [];
         for (const el of userArray) {
-          parsedV.push(this.parse(el, insideType as IdlType));
+          parsedV.push(
+            this.parse(JSON.stringify(el), innerType as IdlType, idl)
+          );
         }
       } else if (outerType === "Option" || outerType === "COption") {
         switch (v.toLowerCase()) {
@@ -208,7 +202,7 @@ export class PgTest {
             parsedV = null;
             break;
           default:
-            parsedV = this.parse(v, insideType as IdlType);
+            parsedV = this.parse(v, innerType as IdlType, idl);
         }
       } else if (typeString.startsWith("[")) {
         const userArray = JSON.parse(v);
@@ -221,7 +215,7 @@ export class PgTest {
 
         parsedV = [];
         for (const el of userArray) {
-          parsedV.push(this.parse(el, arrayType as IdlType));
+          parsedV.push(this.parse(el, arrayType as IdlType, idl));
         }
 
         // The program will not be able to deserialize if the size of the array is not sufficient
@@ -236,10 +230,30 @@ export class PgTest {
         }
       } else {
         // Custom Struct
-        // TODO: Some properties are not getting parsed correctly here(e.g i64)
+        if (!idl?.types) {
+          throw new Error("Custom struct requires IDL types to exist.");
+        }
+
+        const idlType = idl.types.find((t) => (t.name as IdlType) === type);
+        if (!idlType) {
+          throw new Error(`Type ${type} not found in the IDL`);
+        }
+
+        if (idlType.type.kind === "enum") {
+          throw new Error("IDL type kind should not be enum");
+        }
+
         parsedV = JSON.parse(v);
-        if (typeof parsedV !== "object" || parsedV?.length >= 0)
-          throw new Error("Invalid " + type);
+        // Parse values that needs to be parsed(e.g i64)
+        for (const field of idlType.type.fields) {
+          parsedV[field.name] = this.parse(
+            typeof parsedV[field.name] === "string"
+              ? parsedV[field.name]
+              : JSON.stringify(parsedV[field.name]),
+            this.getFullType(field.type, idl),
+            idl
+          );
+        }
       }
     }
 
@@ -248,6 +262,7 @@ export class PgTest {
 
   /**
    * Generate program address from seed(s) that are not necessarily the same type.
+   *
    * @returns [program public key, bump]
    */
   static async generateProgramAddressFromSeeds(
@@ -380,8 +395,8 @@ export class PgTest {
     const openIndex = str.indexOf("<");
     const closeIndex = str.lastIndexOf(">");
     const outerType = str.substring(0, openIndex);
-    const insideType = str.substring(openIndex + 1, closeIndex);
+    const innerType = str.substring(openIndex + 1, closeIndex);
 
-    return { outerType, insideType };
+    return { outerType, innerType };
   }
 }

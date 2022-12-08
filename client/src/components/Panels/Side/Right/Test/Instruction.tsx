@@ -114,7 +114,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         const { identifier, k, v, type, kp } = props;
 
         try {
-          const parsedV = PgTest.parse(v, type);
+          const parsedV = PgTest.parse(v, type, idl);
 
           if (identifier === "args") {
             txVals.args[ix.args.findIndex((arg) => arg.name === k)] = parsedV;
@@ -129,7 +129,8 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
 
           // Remove error from the input
           handleErrors(identifier, k, "remove");
-        } catch {
+        } catch (e: any) {
+          console.log(`${e.message}\nKey: ${k}\nValue: ${v}`);
           // Add error to the input
           handleErrors(identifier, k, "add");
         } finally {
@@ -137,7 +138,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         }
       });
     },
-    [ix.args, handleErrors]
+    [ix.args, idl, handleErrors]
   );
 
   const { currentWallet } = useCurrentWallet();
@@ -213,7 +214,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
                   <Arg
                     key={i}
                     name={a.name}
-                    type={PgTest.getFullType(a.type, idl.types, idl.accounts)}
+                    type={PgTest.getFullType(a.type, idl)}
                     functionName={ix.name}
                   />
                 ))}
