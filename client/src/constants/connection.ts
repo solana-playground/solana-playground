@@ -21,6 +21,7 @@ export enum Endpoint {
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
   MAINNET_BETA_GENESYSGO = "https://ssc-dao.genesysgo.net",
   MAINNET_BETA_SERUM = "https://solana-api.projectserum.com",
+  CUSTOM = "CUSTOM",
 }
 
 interface Network {
@@ -60,6 +61,10 @@ export const NETWORKS: Network[] = [
   {
     name: NetworkName.MAINNET_BETA_SERUM,
     endpoint: Endpoint.MAINNET_BETA_SERUM,
+  },
+  {
+    name: NetworkName.CUSTOM,
+    endpoint: Endpoint.CUSTOM,
   },
 ];
 
