@@ -39,7 +39,7 @@ export enum EventName {
   TUTORIAL_STATIC = "tutorialstatic",
 
   // View
-  VIEW_MAIN_SET = "viewmainset",
+  VIEW_MAIN_STATIC = "viewmainstatic",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
   VIEW_ON_DID_CHANGE_SIDEBAR_STATE = "viewondidchangesidebarstate",
 

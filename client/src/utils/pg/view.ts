@@ -20,8 +20,23 @@ export class PgView {
    *
    * @param El element to set the main view to. If empty, default editor will be set.
    */
-  static setMain(El?: () => JSX.Element) {
-    PgCommon.createAndDispatchCustomEvent(EventName.VIEW_MAIN_SET, { El });
+  static async setMain(El?: () => JSX.Element) {
+    while (1) {
+      try {
+        const eventNames = PgCommon.getStaticStateEventNames(
+          EventName.VIEW_MAIN_STATIC
+        );
+        const result = await PgCommon.timeout(
+          PgCommon.sendAndReceiveCustomEvent(eventNames.get)
+        );
+        if (result) {
+          PgCommon.createAndDispatchCustomEvent(eventNames.set, El);
+          break;
+        }
+      } catch {
+        await PgCommon.sleep(1000);
+      }
+    }
   }
 
   /**
