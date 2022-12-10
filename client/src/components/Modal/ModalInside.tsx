@@ -3,9 +3,12 @@ import styled, { css } from "styled-components";
 
 import Button, { ButtonSize } from "../Button";
 import useModal from "./useModal";
+import { Close } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
+import { useOnKey } from "../../hooks";
 
 interface ModalInsideProps {
+  title?: boolean | string;
   buttonProps?: {
     name: string;
     disabled?: boolean;
@@ -17,12 +20,13 @@ interface ModalInsideProps {
     onSubmit: () => void;
     closeOnSubmit?: boolean;
   };
-  title?: boolean | string;
+  closeButton?: boolean;
 }
 
 const ModalInside: FC<ModalInsideProps> = ({
   title,
   buttonProps,
+  closeButton,
   children,
 }) => {
   const { close } = useModal();
@@ -35,15 +39,9 @@ const ModalInside: FC<ModalInsideProps> = ({
   }, [buttonProps, close]);
 
   // Submit on Enter
-  useEffect(() => {
-    const handleEnter = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") handleSubmit();
-    };
+  useOnKey("Enter", handleSubmit);
 
-    document.addEventListener("keydown", handleEnter);
-    return () => document.removeEventListener("keydown", handleEnter);
-  }, [handleSubmit]);
-
+  // Take away the focus of other buttons when modal is mounted
   const focusButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -58,8 +56,19 @@ const ModalInside: FC<ModalInsideProps> = ({
 
   return (
     <Wrapper>
-      {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
+      <TopWrapper>
+        {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
+        {closeButton && (
+          <CloseButtonWrapper hasTitle={!!title}>
+            <Button kind="icon" onClick={close}>
+              <Close />
+            </Button>
+          </CloseButtonWrapper>
+        )}
+      </TopWrapper>
+
       {children}
+
       {buttonProps && (
         <ButtonWrapper>
           <Button onClick={close} kind="transparent">
@@ -72,10 +81,11 @@ const ModalInside: FC<ModalInsideProps> = ({
             kind="primary-transparent"
             size={buttonProps.size ?? "medium"}
           >
-            {buttonText}
+            {buttonText && buttonText}
           </Button>
         </ButtonWrapper>
       )}
+
       <FocusButton ref={focusButtonRef} />
     </Wrapper>
   );
@@ -92,6 +102,10 @@ const Wrapper = styled.div`
   `}
 `;
 
+const TopWrapper = styled.div`
+  position: relative;
+`;
+
 const Title = styled.div`
   display: flex;
   justify-content: center;
@@ -99,6 +113,22 @@ const Title = styled.div`
   font-weight: bold;
   padding: 0.75rem 0 0.5rem 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
+`;
+
+const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
+  ${({ hasTitle }) =>
+    hasTitle
+      ? css`
+          position: absolute;
+          top: 0.25rem;
+          right: 0.5rem;
+        `
+      : css`
+          width: 100%;
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 0.5rem;
+        `}
 `;
 
 const ButtonWrapper = styled.div`
