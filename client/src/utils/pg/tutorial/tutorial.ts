@@ -132,7 +132,7 @@ export class PgTutorial {
     tutorialName?: string
   ) {
     try {
-      const currentMeta = await this.getMetadata();
+      const currentMeta = await this.getMetadata(tutorialName);
       await PgExplorer.run({
         newItem: [
           this._getTutorialMetadataPath(tutorialName),
