@@ -329,13 +329,17 @@ const CodeMirror = () => {
     if (programPkResult?.err) return;
     const programPkStr = programPkResult.programPk!.toBase58();
 
-    editor.dispatch({
-      changes: {
-        from: quoteStartIndex + 1,
-        to: quoteEndIndex,
-        insert: programPkStr,
-      },
-    });
+    try {
+      editor.dispatch({
+        changes: {
+          from: quoteStartIndex + 1,
+          to: quoteEndIndex,
+          insert: programPkStr,
+        },
+      });
+    } catch (e: any) {
+      console.log("Program ID update error:", e.message);
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCount, explorer, explorerChanged, editor]);
