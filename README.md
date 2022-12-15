@@ -13,10 +13,13 @@
 | [borsh-derive](https://docs.rs/borsh-derive/0.9.3)                                 | 0.9.3   |
 | [bytemuck](https://docs.rs/bytemuck/1.9.1)                                         | 1.9.1   |
 | [bytemuck-derive](https://docs.rs/bytemuck-derive/1.2.1)                           | 1.2.1   |
+| [clockwork-sdk](https://docs.rs/clockwork-sdk/1.13.12)                             | 1.13.12 |
 | [mpl-token-metadata](https://docs.rs/mpl-token-metadata/1.3.4)                     | 1.3.4   |
 | [mpl-token-vault](https://docs.rs/mpl-token-vault/0.1.0)                           | 0.1.1   |
 | [num-derive](https://docs.rs/num-derive/0.3.3)                                     | 0.3.3   |
 | [num-traits](https://docs.rs/num-traits/0.2.15)                                    | 0.2.15  |
+| [pyth-sdk](https://docs.rs/pyth-sdk/0.7.0)                                         | 0.7.0   |
+| [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.7.0)                           | 0.7.0   |
 | [solana-program](https://docs.rs/solana-program/1.10.35)                           | 1.10.35 |
 | [spl-associated-token-account](https://docs.rs/spl-associated-token-account/1.0.5) | 1.0.5   |
 | [spl-token](https://docs.rs/spl-token/3.3.1)                                       | 3.3.1   |
@@ -42,5 +45,5 @@ Anyone is welcome to contribute to **Solana Playground** no matter how big or sm
 
 ## License
 
-`client` is licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
+`client` and `vscode` is licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
 `wasm` packages are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE) unless specified otherwise in their respective `Cargo.toml`.
