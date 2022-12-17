@@ -1,28 +1,23 @@
-import { useRef } from "react";
 import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
 import { TUTORIALS } from "../../../../../tutorials";
 
-const Tutorials = () => {
-  const insideWrapperRef = useRef<HTMLDivElement>(null);
+const Tutorials = () => (
+  <Wrapper>
+    <TutorialsOuterWrapper>
+      <TopSection>
+        <Title>Learn</Title>
+      </TopSection>
 
-  return (
-    <Wrapper>
-      <TutorialsOuterWrapper>
-        <TopSection>
-          <Title>Learn</Title>
-        </TopSection>
-
-        <TutorialsInsideWrapper ref={insideWrapperRef}>
-          {TUTORIALS.map((t, i) => (
-            <TutorialCard key={i} {...t} />
-          ))}
-        </TutorialsInsideWrapper>
-      </TutorialsOuterWrapper>
-    </Wrapper>
-  );
-};
+      <TutorialsInsideWrapper>
+        {TUTORIALS.map((t, i) => (
+          <TutorialCard key={i} {...t} />
+        ))}
+      </TutorialsInsideWrapper>
+    </TutorialsOuterWrapper>
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
