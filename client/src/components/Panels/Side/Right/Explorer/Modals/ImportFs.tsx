@@ -45,7 +45,7 @@ export const ImportFs = () => {
             path = path.substring(1);
             break;
           default:
-            path = path.replace(/\/\w+\//, "");
+            path = path.replace(/\/[\w-]+\//, "");
         }
 
         const lang = PgExplorer.getLanguageFromPath(path);
