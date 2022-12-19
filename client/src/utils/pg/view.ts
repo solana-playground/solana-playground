@@ -1,6 +1,6 @@
 import { EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { PgDisposable } from "./types";
+import { PgDisposable, SetElementAsync } from "./types";
 
 export enum Sidebar {
   CLOSED = "Closed",
@@ -18,9 +18,11 @@ export class PgView {
   /**
    * Set main view(next to the sidebar and above the terminal)
    *
-   * @param El element to set the main view to. If empty, default editor will be set.
+   * @param SetEl element to set the main view to.
+   *
+   * If empty, default editor will be set.
    */
-  static async setMain(El?: () => JSX.Element) {
+  static async setMain(SetEl?: SetElementAsync) {
     while (1) {
       try {
         const eventNames = PgCommon.getStaticStateEventNames(
@@ -30,7 +32,7 @@ export class PgView {
           PgCommon.sendAndReceiveCustomEvent(eventNames.get)
         );
         if (result) {
-          PgCommon.createAndDispatchCustomEvent(eventNames.set, El);
+          PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
           break;
         }
       } catch {

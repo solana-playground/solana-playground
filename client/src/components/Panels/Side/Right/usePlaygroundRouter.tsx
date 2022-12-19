@@ -162,8 +162,10 @@ export const usePlaygroundRouter = () => {
           }
           PgTutorial.setCurrent(tutorial);
 
-          const { default: El } = await tutorial.elementImport();
-          PgView.setMain(() => <El {...tutorial} />);
+          PgView.setMain(async () => {
+            const { default: El } = await tutorial.elementImport();
+            return <El {...tutorial} />;
+          });
         }
       } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
         const tutorialName = explorer.currentWorkspaceName;

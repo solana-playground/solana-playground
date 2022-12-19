@@ -14,3 +14,8 @@ export type PgDisposable = {
   /** Clear registered events */
   dispose: () => void;
 };
+
+export type SetElementAsync =
+  | JSX.Element
+  | ((El: JSX.Element) => JSX.Element)
+  | (() => Promise<JSX.Element>);
