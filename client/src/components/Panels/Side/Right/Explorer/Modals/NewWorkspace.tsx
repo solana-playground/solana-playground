@@ -12,7 +12,7 @@ import styled, { css } from "styled-components";
 
 import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
-import Input, { defaultInputProps } from "../../../../../Input";
+import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
 import {
   Framework as FrameworkType,
@@ -80,7 +80,6 @@ export const NewWorkspace = () => {
             value={name}
             placeholder="my first project..."
             className={error ? ClassName.ERROR : ""}
-            {...defaultInputProps}
           />
         </WorkspaceNameWrapper>
         <FrameworkSectionWrapper>

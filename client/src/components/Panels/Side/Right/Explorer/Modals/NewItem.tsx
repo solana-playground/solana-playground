@@ -11,7 +11,7 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import LangIcon from "../../../../../LangIcon";
-import Input, { defaultInputProps } from "../../../../../Input";
+import Input from "../../../../../Input";
 import {
   ctxSelectedAtom,
   explorerAtom,
@@ -117,11 +117,7 @@ export const NewItem = () => {
     ? ReactDOM.createPortal(
         <Wrapper ref={newFileRef} depth={depth}>
           <LangIcon fileName={itemName} />
-          <Input
-            ref={inputRef}
-            onChange={handleChange}
-            {...defaultInputProps}
-          />
+          <Input ref={inputRef} onChange={handleChange} />
         </Wrapper>,
         el
       )

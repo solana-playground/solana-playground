@@ -7,7 +7,7 @@ import styled, { css } from "styled-components";
 import Button from "../../../../Button";
 import Foldable from "../../../../Foldable";
 import InputLabel from "./InputLabel";
-import Input, { defaultInputProps } from "../../../../Input";
+import Input from "../../../../Input";
 import { ClassName } from "../../../../../constants";
 import { PgAccount, PgCommon } from "../../../../../utils/pg";
 import { SpinnerWithBg } from "../../../../Loading";
@@ -130,7 +130,6 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
           className={enteredAddressError ? ClassName.ERROR : ""}
           value={enteredAddress}
           onChange={handleAddressChange}
-          {...defaultInputProps}
         />
       </InputWrapper>
 

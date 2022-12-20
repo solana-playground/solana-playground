@@ -5,7 +5,7 @@ import styled from "styled-components";
 import UploadArea from "../../../../../UploadArea";
 import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
-import Input, { defaultInputProps } from "../../../../../Input";
+import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
 import { Files, Lang, PgCommon, PgExplorer } from "../../../../../../utils/pg";
 
@@ -105,7 +105,6 @@ export const ImportFs = () => {
             onChange={handleChange}
             value={name}
             placeholder="my local project..."
-            {...defaultInputProps}
           />
         </WorkspaceNameWrapper>
         <UploadArea

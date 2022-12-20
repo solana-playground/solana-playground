@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
-import Input, { defaultInputProps } from "../../../../../Input";
+import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
 import { PgRouter } from "../../../../../../utils/pg";
 import { Route } from "../../../../../../constants";
@@ -55,7 +55,6 @@ export const ImportShared = () => {
           onChange={handleChange}
           value={name}
           placeholder="shared project..."
-          {...defaultInputProps}
         />
       </Content>
     </ModalInside>

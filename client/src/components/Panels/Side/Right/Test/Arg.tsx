@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Account from "./Account";
 import InputLabel from "./InputLabel";
-import Input, { defaultInputProps } from "../../../../Input";
+import Input from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 
 interface ArgProps {
@@ -43,12 +43,7 @@ const OtherArg: FC<ArgProps> = ({ name, type, functionName }) => {
   return (
     <Wrapper>
       <InputLabel label={name} type={type} />
-      <Input
-        value={val}
-        name={inputName}
-        onChange={handleChange}
-        {...defaultInputProps}
-      />
+      <Input value={val} name={inputName} onChange={handleChange} />
     </Wrapper>
   );
 };

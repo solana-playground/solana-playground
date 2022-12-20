@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 
 import ModalInside from "../../../../../Modal/ModalInside";
 import useModal from "../../../../../Modal/useModal";
-import Input, { defaultInputProps } from "../../../../../Input";
+import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
 import { PgCommon } from "../../../../../../utils/pg";
 import { ClassName } from "../../../../../../constants";
@@ -66,7 +66,6 @@ export const ImportGithub = () => {
           value={url}
           className={error ? ClassName.ERROR : ""}
           placeholder="https://github.com/..."
-          {...defaultInputProps}
         />
       </Content>
       <DescriptionWrapper>

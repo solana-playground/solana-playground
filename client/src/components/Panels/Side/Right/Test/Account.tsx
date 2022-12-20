@@ -18,7 +18,7 @@ import Button from "../../../../Button";
 import CopyButton from "../../../../CopyButton";
 import InputLabel from "./InputLabel";
 import Tooltip from "../../../../Tooltip";
-import Input, { defaultInputProps } from "../../../../Input";
+import Input from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 import { ClassName } from "../../../../../constants";
 import {
@@ -146,7 +146,6 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
             onChange={handleChange}
             onClick={handleClick}
             disabled={accountExists}
-            {...defaultInputProps}
           />
           {(showSearch || showSeed || showAta) && (
             <SearchWrapper>
@@ -273,11 +272,7 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
       ))}
       <ShowGenInputWrapper>
         <InputLabel label="Program Id" type="publicKey" />
-        <Input
-          value={programId}
-          onChange={handleProgramId}
-          {...defaultInputProps}
-        />
+        <Input value={programId} onChange={handleProgramId} />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
         <Button onClick={handleGen} kind="primary-outline">
@@ -400,7 +395,6 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
           value={seed.value}
           onChange={handleSeed}
           className={error ? ClassName.ERROR : ""}
-          {...defaultInputProps}
         />
         {isFirst ? (
           <AddSeedWrapper>
@@ -564,7 +558,6 @@ const ShowAta: FC<ShowAtaProps> = ({
           value={mint}
           onChange={handleMint}
           className={mintError ? ClassName.ERROR : ""}
-          {...defaultInputProps}
         />
       </ShowGenInputWrapper>
       <ShowGenInputWrapper>
@@ -573,7 +566,6 @@ const ShowAta: FC<ShowAtaProps> = ({
           value={owner}
           onChange={handleOwner}
           className={ownerError ? ClassName.ERROR : ""}
-          {...defaultInputProps}
         />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
