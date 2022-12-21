@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import { Warning } from "../../../../../Icons";
 import { explorerAtom } from "../../../../../../state";
 
@@ -19,7 +19,7 @@ export const DeleteWorkspace = () => {
   };
 
   return (
-    <ModalInside
+    <Modal
       title
       buttonProps={{
         name: "Delete",
@@ -41,7 +41,7 @@ export const DeleteWorkspace = () => {
           <Desc>- Program credentials will be deleted.</Desc>
         </ContentText>
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

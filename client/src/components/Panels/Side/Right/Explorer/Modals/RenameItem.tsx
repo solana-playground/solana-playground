@@ -2,7 +2,7 @@ import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import useModal from "../../../../../Modal/useModal";
 import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
@@ -53,7 +53,7 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   if (!itemName) return null;
 
   return (
-    <ModalInside
+    <Modal
       buttonProps={{
         name: "Rename",
         onSubmit: rename,
@@ -71,7 +71,7 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
           className={error ? ClassName.ERROR : ""}
         />
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

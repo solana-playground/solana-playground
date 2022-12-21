@@ -6,7 +6,7 @@ import Button from "../../../../../Button";
 import CopyButton from "../../../../../CopyButton";
 import Input from "../../../../../Input";
 import Link from "../../../../../Link";
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import Text from "../../../../../Text";
 import useModal from "../../../../../Modal/useModal";
 import { explorerAtom } from "../../../../../../state";
@@ -48,7 +48,7 @@ export const Share = () => {
   const shareLink = `${CLIENT_URL}/${textState.id}`;
 
   return (
-    <ModalInside title>
+    <Modal title>
       <Content>
         {textState.type ? (
           textState.type === "Error" ? (
@@ -97,7 +97,7 @@ export const Share = () => {
           </>
         )}
       </ButtonWrapper>
-    </ModalInside>
+    </Modal>
   );
 };
 

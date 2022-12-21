@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import UploadArea from "../../../../../UploadArea";
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import useModal from "../../../../../Modal/useModal";
 import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
@@ -90,7 +90,7 @@ export const ImportFs = () => {
   };
 
   return (
-    <ModalInside
+    <Modal
       buttonProps={{
         name: "Import",
         onSubmit: importNewWorkspace,
@@ -113,7 +113,7 @@ export const ImportFs = () => {
           filesLength={files?.length}
         />
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

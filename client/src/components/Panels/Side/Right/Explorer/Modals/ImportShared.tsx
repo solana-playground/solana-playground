@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import useModal from "../../../../../Modal/useModal";
 import Input from "../../../../../Input";
 import { explorerAtom } from "../../../../../../state";
@@ -41,7 +41,7 @@ export const ImportShared = () => {
   };
 
   return (
-    <ModalInside
+    <Modal
       buttonProps={{
         name: "Import",
         onSubmit: importNewWorkspace,
@@ -57,7 +57,7 @@ export const ImportShared = () => {
           placeholder="shared project..."
         />
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

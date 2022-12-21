@@ -4,7 +4,7 @@ import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import DownloadButton from "../../../DownloadButton";
-import ModalInside from "../../../Modal/ModalInside";
+import Modal from "../../../Modal/Modal";
 import Text from "../../../Text";
 import { SettingsItem, SettingsItemProps } from "./SettingsItem";
 import { Warning } from "../../../Icons";
@@ -37,7 +37,7 @@ const NewWalletModal = () => {
   };
 
   return (
-    <ModalInside
+    <Modal
       title
       buttonProps={{
         name: "Create",
@@ -64,7 +64,7 @@ const NewWalletModal = () => {
           </DownloadButton>
         </MainContent>
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

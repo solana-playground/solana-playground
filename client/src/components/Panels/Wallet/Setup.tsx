@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 
 import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
-import ModalInside from "../../Modal/ModalInside";
+import Modal from "../../Modal/Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
 import { pgWalletAtom } from "../../../state";
@@ -55,7 +55,7 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
   };
 
   return (
-    <ModalInside
+    <Modal
       title="Playground Wallet"
       buttonProps={{
         name: "Continue",
@@ -101,7 +101,7 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
           {text && <KeypairText>{text}</KeypairText>}
         </Content>
       </InsideWrapper>
-    </ModalInside>
+    </Modal>
   );
 };
 

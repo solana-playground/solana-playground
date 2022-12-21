@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import ModalInside from "../../Modal/ModalInside";
+import Modal from "../../Modal/Modal";
 
 interface ApproveProps {}
 
@@ -10,12 +10,9 @@ const Approve: FC<ApproveProps> = ({}) => {
   const handleApprove = () => {};
 
   return (
-    <ModalInside
-      title
-      buttonProps={{ name: "Approve", onSubmit: handleApprove }}
-    >
+    <Modal title buttonProps={{ name: "Approve", onSubmit: handleApprove }}>
       <Content>Approve tx</Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

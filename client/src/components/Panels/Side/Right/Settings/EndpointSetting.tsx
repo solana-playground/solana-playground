@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Button from "../../../../Button";
 import Input from "../../../../Input";
 import Select from "../../../../Select";
-import ModalInside from "../../../../Modal/ModalInside";
+import Modal from "../../../../Modal/Modal";
 import useModal from "../../../../Modal/useModal";
 import { Endpoint, NetworkName, NETWORKS } from "../../../../../constants";
 import { connAtom } from "../../../../../state";
@@ -65,7 +65,7 @@ const CustomEndpoint = () => {
   useOnKey("Enter", onSubmit);
 
   return (
-    <ModalInside closeButton>
+    <Modal closeButton>
       <ModalCard>
         <Input
           ref={inputRef}
@@ -82,7 +82,7 @@ const CustomEndpoint = () => {
           Add
         </Button>
       </ModalCard>
-    </ModalInside>
+    </Modal>
   );
 };
 

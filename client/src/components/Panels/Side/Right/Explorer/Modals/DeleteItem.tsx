@@ -2,7 +2,7 @@ import { FC } from "react";
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import { Warning } from "../../../../../Icons";
 import { explorerAtom } from "../../../../../../state";
 import { PgExplorer } from "../../../../../../utils/pg";
@@ -29,7 +29,7 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   if (!itemName) return null;
 
   return (
-    <ModalInside
+    <Modal
       title
       buttonProps={{
         name: "Delete",
@@ -46,7 +46,7 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
           <Desc>This action is irreversable.</Desc>
         </ContentText>
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 

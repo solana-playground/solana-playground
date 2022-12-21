@@ -1,7 +1,7 @@
 import { FC, useCallback, useState } from "react";
 import styled from "styled-components";
 
-import ModalInside from "../../../../../../components/Modal/ModalInside";
+import Modal from "../../../../../../components/Modal";
 import useModal from "../../../../../../components/Modal/useModal";
 import UploadArea from "../../../../../../components/UploadArea";
 import { PgCommon } from "../../../../common";
@@ -31,7 +31,7 @@ export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
   }, []);
 
   return (
-    <ModalInside
+    <Modal
       buttonProps={{
         name: "Continue",
         disabled: !files || files.length % 2 === 1,
@@ -42,7 +42,7 @@ export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
       <UploadWrapper>
         <UploadArea onDrop={onDrop} error={error} filesLength={files?.length} />
       </UploadWrapper>
-    </ModalInside>
+    </Modal>
   );
 };
 

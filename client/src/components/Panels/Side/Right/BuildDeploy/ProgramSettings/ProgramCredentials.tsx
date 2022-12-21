@@ -8,7 +8,7 @@ import CopyButton from "../../../../../CopyButton";
 import DownloadButton from "../../../../../DownloadButton";
 import UploadButton from "../../../../../UploadButton";
 import Input from "../../../../../Input";
-import ModalInside from "../../../../../Modal/ModalInside";
+import Modal from "../../../../../Modal";
 import Text from "../../../../../Text";
 import { ClassName } from "../../../../../../constants";
 import { Warning } from "../../../../../Icons";
@@ -70,7 +70,7 @@ const NewKeypairModal = () => {
   };
 
   return (
-    <ModalInside
+    <Modal
       title
       buttonProps={{
         name: "Generate",
@@ -100,7 +100,7 @@ const NewKeypairModal = () => {
           </DownloadButton>
         </MainContent>
       </Content>
-    </ModalInside>
+    </Modal>
   );
 };
 
