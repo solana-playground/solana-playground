@@ -1,14 +1,14 @@
 import styled, { css } from "styled-components";
 
 import Panels from "../../components/Panels";
-import Modal from "../../components/Modal";
+import ModalWrapper from "../../components/Modal/ModalWrapper";
 import Statics from "../../components/Statics";
 import ClientHelper from "../../components/ClientHelper";
 
 const IDE = () => (
   <Wrapper>
     <Panels />
-    <Modal />
+    <ModalWrapper />
     <Statics />
     <ClientHelper />
   </Wrapper>
