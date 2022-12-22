@@ -5,10 +5,32 @@ import { ClassName } from "../../constants";
 
 interface InputProps extends ComponentPropsWithoutRef<"input"> {
   fullWidth?: boolean;
+  validator?: (value: string) => boolean | void;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => (
-  <StyledInput ref={ref} {...defaultInputProps} {...props}>
+  <StyledInput
+    ref={ref}
+    {...defaultInputProps}
+    {...props}
+    onChange={(ev) => {
+      props.onChange?.(ev);
+
+      // Validation
+      if (props.validator) {
+        try {
+          if (props.validator(ev.target.value) === false) {
+            ev.target.classList.add(ClassName.ERROR);
+          } else {
+            ev.target.classList.remove(ClassName.ERROR);
+          }
+        } catch (err: any) {
+          console.log(err.message);
+          ev.target.classList.add(ClassName.ERROR);
+        }
+      }
+    }}
+  >
     {props.children}
   </StyledInput>
 ));
