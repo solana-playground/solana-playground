@@ -838,10 +838,10 @@ export class SystemInstruction {
         return ptr;
     }
 
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_systeminstruction_free(ptr);
-    }
+    // free() {
+    //     const ptr = this.__destroy_into_raw();
+    //     wasm.__wbg_systeminstruction_free(ptr);
+    // }
     /**
     * @param {Pubkey} from_pubkey
     * @param {Pubkey} to_pubkey
