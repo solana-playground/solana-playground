@@ -1306,7 +1306,7 @@ pub fn withdraw<S: std::hash::BuildHasher>(
         if reject_active_vote_account_close {
             // TODO:
             // datapoint_debug!("vote-account-close", ("reject-active", 1, i64));
-            return Err(InstructionError::ActiveVoteAccountClose);
+            return Err(InstructionError::InvalidAccountData);
         } else {
             // Deinitialize upon zero-balance
             // TODO:

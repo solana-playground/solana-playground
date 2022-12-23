@@ -8,7 +8,7 @@ Non-blocking implementation of WASM compatible Solana Client.
 
 You can use [solana-client](https://docs.rs/solana-client/1.11.0/solana_client/nonblocking/rpc_client/struct.RpcClient.html) non-blocking API.
 
-[solana-sdk](https://docs.rs/solana-sdk/1.11.0/solana_sdk/index.html) is exported from the lib so you don't need to add it to your dependencies.
+[solana-sdk](https://docs.rs/solana-sdk/1.14.11/solana_sdk/index.html) is exported from the lib so you don't need to add it to your dependencies.
 
 ## Example
 

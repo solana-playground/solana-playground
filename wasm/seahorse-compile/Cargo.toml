@@ -11,7 +11,7 @@ license = "GPL-3.0"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-console_error_panic_hook = "0.1.7"
+console_error_panic_hook = "*"
 seahorse-lang = "0.2.5"
 solana-playground-utils-wasm = { path = "../utils/solana-playground-utils" }
-wasm-bindgen = "0.2.81"
+wasm-bindgen = "*"

@@ -13,4 +13,4 @@ keywords = ["solana", "playground", "wasm"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wasm-bindgen = "=0.2.81"
+wasm-bindgen = "*"

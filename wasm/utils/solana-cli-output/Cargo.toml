@@ -12,16 +12,16 @@ keywords = ["solana", "playground", "wasm"]
 [dependencies]
 base64 = "0.13.0"
 chrono = { version = "0.4.11", features = ["serde"] }
-clap = "3.1.18"
-console = "0.15.0"
+clap = "*"
+console = "*"
 humantime = "2.0.1"
 pretty-hex = "0.3.0"
 semver = "1.0.9"
-serde = "1.0.137"
-serde_derive = "1.0.103"
-serde_json = "1.0.81"
-solana-clap-v3-utils-wasm = { path = "../solana-clap-v3-utils", version = "=1.11.0" }
-solana-cli-config-wasm = { path = "../solana-cli-config", version = "=1.11.0" }
-solana-client-wasm = { path = "../../solana-client", version = "=1.11.0-beta"}
-solana-extra-wasm = { path = "../solana-extra", version = "=1.11.0-beta"}
-solana-sdk = "=1.11.0"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+solana-clap-v3-utils-wasm = { path = "../solana-clap-v3-utils" }
+solana-cli-config-wasm = { path = "../solana-cli-config" }
+solana-client-wasm = { path = "../../solana-client" }
+solana-extra-wasm = { path = "../solana-extra" }
+solana-sdk = "*"

@@ -20,18 +20,18 @@ console_error_panic_hook = "0.1.7"
 const_format = "0.2.23"
 num-traits = "0.2"
 semver = "1.0.9"
-serde = "1.0.137"
-serde_derive = "1.0.103"
-serde_json = "1.0.81"
-solana-clap-v3-utils-wasm = { path = "../utils/solana-clap-v3-utils", version = "=1.11.0" }
-solana-cli-config-wasm = { path = "../utils/solana-cli-config", version = "=1.11.0" }
-solana-cli-output-wasm = { path = "../utils/solana-cli-output", version = "=1.11.0" }
-solana-client-wasm = { path = "../solana-client", version = "=1.11.0-beta" }
-solana-extra-wasm = { path = "../utils/solana-extra", version = "=1.11.0-beta" }
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+solana-clap-v3-utils-wasm = { path = "../utils/solana-clap-v3-utils" }
+solana-cli-config-wasm = { path = "../utils/solana-cli-config" }
+solana-cli-output-wasm = { path = "../utils/solana-cli-output" }
+solana-client-wasm = { path = "../solana-client" }
+solana-extra-wasm = { path = "../utils/solana-extra" }
 solana-playground-utils-wasm = { path = "../utils/solana-playground-utils" }
-solana-remote-wallet = { version = "=1.11.0", default-features = false }
-solana-sdk = "=1.11.0"
-solana-version = "=1.11.0"
+solana-remote-wallet = { version = "=1.14.11", default-features = false }
+solana-sdk = "=1.14.11"
+solana-version = "=1.14.11"
 thiserror = "1.0.31"
-wasm-bindgen = "=0.2.81"
-wasm-bindgen-futures = "=0.4.31"
+wasm-bindgen = "=0.2.83"
+wasm-bindgen-futures = "=0.4.33"

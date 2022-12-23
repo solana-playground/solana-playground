@@ -1,5 +1,4 @@
-#![allow(dead_code)]
-#![allow(deprecated)]
+#![allow(dead_code, deprecated)]
 
 #[macro_use]
 extern crate serde_derive;

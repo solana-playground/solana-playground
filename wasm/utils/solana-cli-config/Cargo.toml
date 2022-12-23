@@ -9,13 +9,12 @@ homepage = "https://beta.solpg.io"
 edition = "2021"
 keywords = ["solana", "playground", "wasm"]
 
-
 [dependencies]
 dirs-next = "2.0.0"
 lazy_static = "1.4.0"
 serde = "1.0.137"
 serde_derive = "1.0.103"
 serde_yaml = "0.8.24"
-solana-clap-v3-utils-wasm = { path = "../solana-clap-v3-utils", version = "=1.11.0" }
-solana-sdk = "=1.11.0"
+solana-clap-v3-utils-wasm = { path = "../solana-clap-v3-utils" }
+solana-sdk = "*"
 url = "2.2.2"
