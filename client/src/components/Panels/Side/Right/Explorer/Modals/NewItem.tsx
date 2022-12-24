@@ -92,6 +92,11 @@ export const NewItem = () => {
     };
   }, [el, setEl, handleClickOut, handleKeyPress]);
 
+  // Reset item name on element change
+  useEffect(() => {
+    if (!el) setItemName("");
+  }, [el]);
+
   const depth = useMemo(() => {
     if (!el || !explorer) return 0;
     let path = PgExplorer.getItemPathFromEl(el.firstChild as HTMLDivElement);
