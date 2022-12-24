@@ -432,11 +432,11 @@ export class PgTerminal {
    * Redifined console.log for showing mocha logs in the playground terminal
    */
   static consoleLog(msg: string, ...rest: any[]) {
-    if (msg !== undefined) {
-      const fullMessage = format(msg, ...rest);
-      _log(fullMessage);
+    _log(msg, ...rest);
 
+    if (msg !== undefined) {
       // We only want to log mocha logs to the terminal
+      const fullMessage = format(msg, ...rest);
       if (fullMessage.startsWith("  ")) {
         const editedMessage = fullMessage
           // Replace checkmark icon
