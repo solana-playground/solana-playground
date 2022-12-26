@@ -1,6 +1,4 @@
 import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
 
 import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
@@ -754,6 +752,7 @@ export class PgExplorer {
   async exportWorkspace() {
     const fs = this._getFs();
 
+    const { default: JSZip } = await import("jszip");
     const zip = new JSZip();
 
     const recursivelyGetItems = async (path: string) => {
@@ -780,6 +779,8 @@ export class PgExplorer {
     await recursivelyGetItems(this.currentWorkspacePath);
 
     const content = await zip.generateAsync({ type: "blob" });
+
+    const { default: saveAs } = await import("file-saver");
     saveAs(content, this.currentWorkspaceName + ".zip");
   }
 
