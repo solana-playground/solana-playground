@@ -71,6 +71,9 @@ module.exports = {
         new MonacoWebpackPlugin()
       );
 
+      // Ignore useless warnings
+      webpackConfig.ignoreWarnings = [/Failed to parse source map/];
+
       return webpackConfig;
     },
   },
