@@ -40,6 +40,8 @@ const GradientWrapper = styled.div`
     height: 24rem;
     position: relative;
     transform-style: preserve-3d;
+    transition: transform ${theme.transition?.duration.medium}
+      ${theme.transition?.type};
 
     &::after {
       content: "";
@@ -62,6 +64,7 @@ const GradientWrapper = styled.div`
 
     &:hover {
       cursor: pointer;
+      transform: translateY(-0.5rem);
 
       & > div {
         background-color: ${theme.colors.state.hover.bg};
