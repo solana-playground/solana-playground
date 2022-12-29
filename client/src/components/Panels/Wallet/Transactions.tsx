@@ -1,6 +1,5 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { useConnection } from "@solana/wallet-adapter-react";
 import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
@@ -11,9 +10,10 @@ import { PgCommon } from "../../../utils/pg";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../../Icons";
 import { SpinnerWithBg } from "../../Loading";
 import { useCurrentWallet } from "./useCurrentWallet";
+import { usePgConnection } from "../../../hooks";
 
 const Transactions = () => {
-  const { connection: conn } = useConnection();
+  const { connection: conn } = usePgConnection();
   const { currentWallet } = useCurrentWallet();
 
   // State

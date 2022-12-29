@@ -5,6 +5,7 @@ import * as ed25519 from "@noble/ed25519";
 import { PgTerminal } from "./terminal/";
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
+import { PgSet } from "./types";
 
 interface LsWallet {
   setupCompleted: boolean;
@@ -141,6 +142,18 @@ export class PgWallet implements AnchorWallet {
   static async get<T, R extends PgWallet>() {
     return await PgCommon.sendAndReceiveCustomEvent<T, R>(
       PgCommon.getStaticEventNames(EventName.WALLET_STATIC).get
+    );
+  }
+
+  /**
+   * Set the wallet balance in the UI
+   *
+   * @param balance setBalance type function
+   */
+  static setUIBalance(balance: PgSet<number | null>) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.WALLET_UI_BALANCE_SET,
+      balance
     );
   }
 }

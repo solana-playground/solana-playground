@@ -1,6 +1,5 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import styled from "styled-components";
 
@@ -8,9 +7,10 @@ import Button from "../../Button";
 import Input from "../../Input";
 import Foldable from "../../Foldable";
 import { ClassName } from "../../../constants";
-import { balanceAtom, txHashAtom } from "../../../state";
+import { uiBalanceAtom, txHashAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../../utils/pg";
 import { useCurrentWallet } from "./useCurrentWallet";
+import { usePgConnection } from "../../../hooks";
 
 const Send = () => (
   <Wrapper>
@@ -22,7 +22,7 @@ const Send = () => (
 
 const SendInside = () => {
   const [, setTxHash] = useAtom(txHashAtom);
-  const [balance] = useAtom(balanceAtom);
+  const [balance] = useAtom(uiBalanceAtom);
 
   const [address, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
@@ -95,7 +95,7 @@ const SendInside = () => {
     [setAmount]
   );
 
-  const { connection: conn } = useConnection();
+  const { connection: conn } = usePgConnection();
   const { currentWallet } = useCurrentWallet();
 
   const send = () => {

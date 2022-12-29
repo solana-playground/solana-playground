@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useConnection } from "@solana/wallet-adapter-react";
 
-import { useCurrentWallet } from "../Panels/Wallet";
 import { EventName } from "../../constants";
 import { PgExplorer, PgTerminal } from "../../utils/pg";
+import { useCurrentWallet } from "../Panels/Wallet";
+import { usePgConnection } from "../../hooks";
 
 // Only for type
 import { PgClient } from "../../utils/pg/client";
 
 const ClientHelper = () => {
-  const { connection } = useConnection();
+  const { connection } = usePgConnection();
   const { currentWallet: wallet } = useCurrentWallet();
 
   const [client, setClient] = useState<PgClient>();

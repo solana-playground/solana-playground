@@ -6,6 +6,7 @@ export * from "./editor";
 export * from "./explorer/";
 export * from "./modal";
 export * from "./noti";
+export * from "./playnet/";
 export * from "./preferences";
 export * from "./program-info";
 export * from "./router";

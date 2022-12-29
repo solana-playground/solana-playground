@@ -5,6 +5,7 @@ export enum EventName {
   // Connection
   CONNECTION_REFRESH = "connectionrefresh",
   CONNECTION_STATIC = "connectionstatic",
+  CONNECTION_SET = "connectionset",
 
   // Editor
   EDITOR_FOCUS = "editorfocus",
@@ -18,6 +19,9 @@ export enum EventName {
 
   // Modal
   MODAL_SET = "modalset",
+
+  // Playnet
+  PLAYNET_FETCH_SET = "playnetfetchset",
 
   // Router
   ROUTER_NAVIGATE = "routernavigate",
@@ -45,4 +49,5 @@ export enum EventName {
 
   // Wallet
   WALLET_STATIC = "walletstatic",
+  WALLET_UI_BALANCE_SET = "walletuibalanceset",
 }

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { useConnection } from "@solana/wallet-adapter-react";
 
 import { PgCommon, PgProgramInfo } from "../../../../utils/pg";
 import { deployCountAtom, refreshProgramIdAtom } from "../../../../state";
+import { usePgConnection } from "../../../../hooks";
 
 export const useInitialLoading = () => {
   const { deployed, setDeployed, connError } = useIsDeployed();
@@ -33,7 +33,7 @@ const useIsDeployed = () => {
   // To re-render on new deploy
   const [deployCount] = useAtom(deployCountAtom);
 
-  const { connection: conn } = useConnection();
+  const { connection: conn } = usePgConnection();
 
   const [deployed, setDeployed] = useState<boolean | null>(null);
   const [connError, setConnError] = useState(false);

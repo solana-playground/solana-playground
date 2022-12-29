@@ -51,6 +51,33 @@ export class PgCommon {
   }
 
   /**
+   * Try the callback until the return value of the callback is a non-falsy value.
+   *
+   * NOTE: Only use this function if you are certain the return value of the
+   * callback will eventually be a non-falsy value. It's not a good idea to use
+   * this function when the return value can be a falsy value due to possible
+   * infinite loop from this function.
+   *
+   * @param cb callback function to try
+   * @param tryInterval optional try interval
+   * @returns the non-nullable return value of the callback
+   */
+  static async tryUntilSuccess<T>(
+    cb: () => Promise<T>,
+    tryInterval: number = 1000
+  ) {
+    let returnValue: T;
+    while (1) {
+      returnValue = await cb();
+      if (returnValue) break;
+
+      await this.sleep(tryInterval);
+    }
+
+    return returnValue!;
+  }
+
+  /**
    * @returns the decoded string
    */
   static decodeBytes(
@@ -100,6 +127,22 @@ export class PgCommon {
   }
 
   /**
+   * Compare values by `JSON.stringify`
+   */
+  static compareValues(val1: any, val2: any) {
+    return JSON.stringify(val1) === JSON.stringify(val2);
+  }
+
+  /**
+   * @returns the JS number(only use it if you are certain this won't overflow)
+   */
+  static bigintToInt<T extends bigint | undefined>(bigint: T) {
+    return (
+      bigint?.toString() ? +bigint.toString() : undefined
+    ) as T extends bigint ? number : undefined;
+  }
+
+  /**
    * Convert seconds into human readable string format
    */
   static secondsToTime(secs: number) {
@@ -114,6 +157,13 @@ export class PgCommon {
     if (s) return `${s}s`;
 
     return "";
+  }
+
+  /**
+   * @returns the current UNIX timestamp(sec)
+   */
+  static getUnixTimstamp() {
+    return Math.floor(Date.now() / 1000);
   }
 
   /**
@@ -275,6 +325,8 @@ export class PgCommon {
    */
   static getAirdropAmount(endpoint: Endpoint = PgConnection.endpoint) {
     switch (endpoint) {
+      case Endpoint.PLAYNET:
+        return 1000;
       case Endpoint.LOCALHOST:
         return 100;
       case Endpoint.DEVNET:

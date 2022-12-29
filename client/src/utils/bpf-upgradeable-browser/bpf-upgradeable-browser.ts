@@ -525,11 +525,8 @@ export class BpfLoaderUpgradeable {
 
               console.count("buffer write");
 
-              // Don't confirm on localhost
-              if (!conn.rpcEndpoint.includes("localhost")) {
-                const txResult = await PgTx.confirm(writeTxHash, conn);
-                if (!txResult?.err) break;
-              } else break;
+              const txResult = await PgTx.confirm(writeTxHash, conn);
+              if (!txResult?.err) break;
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
 

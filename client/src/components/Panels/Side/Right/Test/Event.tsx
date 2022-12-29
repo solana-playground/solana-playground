@@ -1,12 +1,12 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { Idl } from "@project-serum/anchor";
-import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
 import Foldable from "../../../../Foldable";
 import { CodeResult } from "./CodeResult";
 import { PgCommon, PgTest } from "../../../../../utils/pg";
 import { useCurrentWallet } from "../../../Wallet";
+import { usePgConnection } from "../../../../../hooks";
 
 interface EventProps {
   index: number;
@@ -17,7 +17,7 @@ interface EventProps {
 const Event: FC<EventProps> = ({ index, eventName, idl }) => {
   const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
 
-  const { connection: conn } = useConnection();
+  const { connection: conn } = usePgConnection();
   const { currentWallet } = useCurrentWallet();
 
   const program = useMemo(() => {

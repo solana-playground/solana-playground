@@ -16,7 +16,7 @@ import {
   Sidebar,
 } from "../../../../utils/pg";
 
-export const usePlaygroundRouter = () => {
+export const usePgRouter = () => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
   const [, refreshExplorer] = useAtom(refreshExplorerAtom);
 

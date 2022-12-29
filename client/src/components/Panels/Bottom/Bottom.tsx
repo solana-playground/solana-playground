@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useConnection } from "@solana/wallet-adapter-react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
@@ -20,9 +19,10 @@ import {
   ConnState,
 } from "../Wallet";
 import { useAutoAirdrop } from "./useAutoAirdrop";
+import { usePgConnection } from "../../../hooks";
 
 const Bottom = () => {
-  const { connection: conn } = useConnection();
+  const { connection: conn } = usePgConnection();
   const { connStatus } = useConnect();
   const { handleConnectPg } = useConnectOrSetupPg();
   const { walletPkStr } = useCurrentWallet();

@@ -1,6 +1,6 @@
 import { EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { PgDisposable, SetElementAsync } from "./types";
+import { PgDisposable, PgSet, SetElementAsync } from "./types";
 
 export enum Sidebar {
   CLOSED = "Closed",
@@ -46,7 +46,7 @@ export class PgView {
    *
    * @param state sidebar state to set
    */
-  static setSidebarState(state: Sidebar | ((state: Sidebar) => Sidebar)) {
+  static setSidebarState(state: PgSet<Sidebar>) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,
       state

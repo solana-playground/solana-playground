@@ -2505,6 +2505,9 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@solana-playground/playnet@../wasm/pkgs/playnet":
+  version "0.1.0"
+
 "@solana-playground/rustfmt-wasm@../wasm/pkgs/rustfmt":
   version "0.99.4"
 

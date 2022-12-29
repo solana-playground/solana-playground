@@ -1,10 +1,10 @@
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import { balanceAtom } from "../../../state";
+import { uiBalanceAtom } from "../../../state";
 
 const Balance = () => {
-  const [balance] = useAtom(balanceAtom);
+  const [balance] = useAtom(uiBalanceAtom);
 
   if (balance === null || balance === undefined) return null;
 

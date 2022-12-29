@@ -1,5 +1,4 @@
 import { useAtom } from "jotai";
-import * as buffer from "buffer";
 import styled from "styled-components";
 
 import Instruction from "./Instruction";
@@ -12,9 +11,6 @@ import { PgProgramInfo } from "../../../../../utils/pg";
 import { buildCountAtom } from "../../../../../state";
 import { useInitialLoading } from "../";
 import { useBigNumberJson } from "./useBigNumberJson";
-
-// Webpack 5 doesn't polyfill buffer
-window.Buffer = buffer.Buffer;
 
 const Test = () => {
   // Refresh the component on a new build

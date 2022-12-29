@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { useAtom } from "jotai";
-import { useConnection } from "@solana/wallet-adapter-react";
 
 import {
   DEFAULT_PROGRAM,
@@ -28,7 +27,6 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [, setTxHash] = useAtom(txHashAtom);
   const [, setDeployCount] = useAtom(deployCountAtom);
 
-  const { connection: conn } = useConnection();
   const { authority, hasAuthority, upgradeable } = useAuthority();
 
   const runDeploy = useCallback(async () => {
@@ -71,7 +69,7 @@ Your address: ${PgWallet.getKp().publicKey}`
       let msg;
       try {
         const startTime = performance.now();
-        const txHash = await PgDeploy.deploy(conn, pgWallet, program.buffer);
+        const txHash = await PgDeploy.deploy(pgWallet, program.buffer);
         const timePassed = (performance.now() - startTime) / 1000;
         setTxHash(txHash);
 
@@ -92,7 +90,6 @@ Your address: ${PgWallet.getKp().publicKey}`
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    conn,
     pgWallet,
     pgWalletChanged,
     program,

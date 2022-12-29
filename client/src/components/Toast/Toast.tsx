@@ -7,12 +7,17 @@ import "react-toastify/dist/ReactToastify.min.css";
 import { ICONBAR_WIDTH } from "../Panels/Side/Left";
 import { ExplorerLink } from "./ExplorerLink";
 import { txHashAtom } from "../../state";
+import { PgPlaynet } from "../../utils/pg";
 
 const Toast = () => {
   const [txHash] = useAtom(txHashAtom);
 
   const notify = useCallback(() => {
     if (!txHash) return;
+
+    // Don't show on Playnet
+    if (PgPlaynet.isUrlPlaynet()) return;
+
     toast(<ExplorerLink />, { toastId: txHash });
   }, [txHash]);
 

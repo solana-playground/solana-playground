@@ -1,6 +1,7 @@
 import { Commitment } from "@solana/web3.js";
 
 export enum NetworkName {
+  PLAYNET = "playnet",
   LOCALHOST = "localhost",
   DEVNET = "devnet",
   DEVNET_GENESYSGO = "devnet-genesysgo",
@@ -13,6 +14,7 @@ export enum NetworkName {
 }
 
 export enum Endpoint {
+  PLAYNET = "http://playnet",
   LOCALHOST = "http://localhost:8899",
   DEVNET = "https://api.devnet.solana.com",
   DEVNET_GENESYSGO = "https://devnet.genesysgo.net/",
@@ -30,6 +32,10 @@ interface Network {
 }
 
 export const NETWORKS: Network[] = [
+  {
+    name: NetworkName.PLAYNET,
+    endpoint: Endpoint.PLAYNET,
+  },
   {
     name: NetworkName.LOCALHOST,
     endpoint: Endpoint.LOCALHOST,

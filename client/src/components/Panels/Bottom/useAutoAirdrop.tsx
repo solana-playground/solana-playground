@@ -1,31 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { useConnection } from "@solana/wallet-adapter-react";
 
-import { balanceAtom } from "../../../state";
-import { PgCommon } from "../../../utils/pg";
+import { uiBalanceAtom } from "../../../state";
+import { PgCommon, PgConnection, PgTx } from "../../../utils/pg";
+import { usePgConnection } from "../../../hooks";
 import { useAirdropAmount, useCurrentWallet } from "../Wallet";
 
 export const useAutoAirdrop = () => {
-  const [balance, setBalance] = useAtom(balanceAtom);
+  const [balance, setBalance] = useAtom(uiBalanceAtom);
 
-  const { connection: conn } = useConnection();
+  const { connection: conn } = usePgConnection();
   const { currentWallet, pgWalletPk } = useCurrentWallet();
 
   useEffect(() => {
-    if (!currentWallet) return;
+    if (!currentWallet || !PgConnection.isReady(conn)) return;
 
     const fetchBalance = async () => {
       const lamports = await conn.getBalance(currentWallet.publicKey);
-
       setBalance(PgCommon.lamportsToSol(lamports));
     };
-    fetchBalance().catch(() => setBalance(null));
+
+    fetchBalance().catch((e) =>
+      console.log("Couldn't fetch balance:", e.message)
+    );
 
     // Listen for balance changes
-    const id = conn.onAccountChange(currentWallet.publicKey, (a) =>
-      setBalance(PgCommon.lamportsToSol(a.lamports))
-    );
+    const id = conn.onAccountChange(currentWallet.publicKey, (acc) => {
+      setBalance(PgCommon.lamportsToSol(acc.lamports));
+    });
 
     return () => {
       conn.removeAccountChangeListener(id);
@@ -41,6 +43,7 @@ export const useAutoAirdrop = () => {
   useEffect(() => {
     const airdrop = async (_balance: number | null = balance) => {
       if (
+        !PgConnection.isReady(conn) ||
         airdropping.current ||
         rateLimited ||
         !airdropAmount ||
@@ -51,8 +54,9 @@ export const useAutoAirdrop = () => {
         !pgWalletPk ||
         // Only auto-airdrop to PgWallet
         !pgWalletPk.equals(currentWallet.publicKey)
-      )
+      ) {
         return;
+      }
 
       try {
         airdropping.current = true;
@@ -60,7 +64,7 @@ export const useAutoAirdrop = () => {
           pgWalletPk,
           PgCommon.solToLamports(airdropAmount)
         );
-        await conn.confirmTransaction(txHash, "finalized");
+        await PgTx.confirm(txHash, conn, "finalized");
       } catch (e: any) {
         console.log(e.message);
         setRateLimited(true);

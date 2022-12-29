@@ -1,0 +1,29 @@
+{
+  "name": "playnet",
+  "collaborators": [
+    "Acheron <acheroncrypto@gmail.com>"
+  ],
+  "description": "A minimal runtime to execute Solana programs",
+  "version": "0.1.0",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-playground/solana-playground"
+  },
+  "files": [
+    "playnet_bg.wasm",
+    "playnet.js",
+    "playnet_bg.js",
+    "playnet.d.ts"
+  ],
+  "module": "playnet.js",
+  "homepage": "https://beta.solpg.io",
+  "types": "playnet.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "playnet",
+    "solana",
+    "playground",
+    "wasm"
+  ]
+}

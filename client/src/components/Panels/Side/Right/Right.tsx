@@ -15,7 +15,7 @@ import TestSkeleton from "./Test/TestSkeleton";
 import { Wormhole } from "../../../Loading";
 import { ClassName, Id } from "../../../../constants";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
-import { usePlaygroundRouter } from "./usePlaygroundRouter";
+import { usePgRouter } from "./usePgRouter";
 import { Sidebar } from "../../../../utils/pg";
 
 const Explorer = lazy(() => import("./Explorer"));
@@ -34,7 +34,7 @@ interface RightProps extends DefaultRightProps {
 }
 
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
-  const { loading } = usePlaygroundRouter();
+  const { loading } = usePgRouter();
 
   const [height, setHeight] = useState({
     window:

@@ -1,11 +1,8 @@
-import * as buffer from "buffer";
 import styled from "styled-components";
 
 import Build from "./Build";
 import Deploy from "./Deploy";
 import ProgramSettings from "./ProgramSettings";
-
-window.Buffer = buffer.Buffer;
 
 const BuildDeploy = () => (
   <Wrapper>

@@ -7,3 +7,4 @@ members = [
     "sugar-cli",
     "utils/*"
 ]
+exclude = ["playnet"]

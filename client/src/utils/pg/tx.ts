@@ -1,8 +1,9 @@
-import { Connection, Signer, Transaction } from "@solana/web3.js";
+import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgWallet } from "./wallet";
 import { PgConnection } from "./connection";
+import { PgPlaynet } from "./playnet";
 
 export class PgTx {
   /**
@@ -38,8 +39,20 @@ export class PgTx {
    * Throws an error if rpc request fails
    * @returns an object with `err` property if the rpc request succeeded but tx failed
    */
-  static async confirm(txHash: string, conn: Connection) {
-    const result = await conn.confirmTransaction(txHash);
+  static async confirm(
+    txHash: string,
+    conn: Connection,
+    commitment?: Commitment
+  ) {
+    // Don't confirm on playnet and localnet
+    if (
+      PgPlaynet.isUrlPlaynet(conn.rpcEndpoint) ||
+      conn.rpcEndpoint.includes("localhost")
+    ) {
+      return;
+    }
+
+    const result = await conn.confirmTransaction(txHash, commitment);
     if (result?.value.err) return { err: 1 };
   }
 }

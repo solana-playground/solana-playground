@@ -1,4 +1,4 @@
-import { Connection, Keypair } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
 import { GITHUB_URL, SERVER_URL } from "../../constants";
@@ -7,16 +7,13 @@ import { PgCommon } from "./common";
 import { PgWallet } from "./wallet";
 import { PgTerminal } from "./terminal/";
 import { PgTx } from "./tx";
+import { PgConnection } from "./connection";
 
 export class PgDeploy {
   private static readonly _MAX_RETRIES = 10;
   private static readonly _SLEEP_MULTIPLIER = 1.4;
 
-  static async deploy(
-    conn: Connection,
-    wallet: PgWallet,
-    programBuffer: Buffer
-  ) {
+  static async deploy(wallet: PgWallet, programBuffer: Buffer) {
     // Get program id
     const programPk = PgProgramInfo.getPk()?.programPk;
     // This shouldn't happen because the deploy button is disabled for this condition.
@@ -32,6 +29,9 @@ export class PgDeploy {
       // Need to convert ArrayBuffer to Buffer
       programBuffer = Buffer.from(arrayBuffer);
     }
+
+    // Get connection
+    const conn = await PgConnection.get();
 
     // Create buffer
     const bufferKp = Keypair.generate();

@@ -10,7 +10,7 @@ import { BundlrEnpoints } from "../constants";
 import { getCluster } from "./utils";
 
 export const getMetaplex = async (endpoint: string) => {
-  return Metaplex.make(PgConnection.createConnectionFromUrl(endpoint))
+  return Metaplex.make(PgConnection.createConnection({ endpoint }))
     .use(walletAdapterIdentity(await PgWallet.get()))
     .use(
       bundlrStorage({

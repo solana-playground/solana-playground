@@ -1,15 +1,16 @@
 import { useAtom } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useConnection } from "@solana/wallet-adapter-react";
 
 import { EventName } from "../../constants";
 import {
   useExposeStatic,
   useGetAndSetStatic,
   useGetStatic,
+  usePgConnection,
   useSetStatic,
 } from "../../hooks";
 import {
+  uiBalanceAtom,
   explorerAtom,
   pgWalletAtom,
   terminalProgressAtom,
@@ -17,8 +18,12 @@ import {
 } from "../../state";
 
 const Statics = () => {
+  // Balance
+  const [, setBalance] = useAtom(uiBalanceAtom);
+  useSetStatic(setBalance, EventName.WALLET_UI_BALANCE_SET);
+
   // Connection
-  const { connection } = useConnection();
+  const { connection } = usePgConnection();
   useExposeStatic(connection, EventName.CONNECTION_STATIC);
 
   // Explorer

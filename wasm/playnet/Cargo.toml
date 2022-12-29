@@ -1,0 +1,26 @@
+[package]
+name = "playnet"
+version = "0.1.0"
+description = "A minimal runtime to execute Solana programs"
+authors = ["Acheron <acheroncrypto@gmail.com>"]
+repository = "https://github.com/solana-playground/solana-playground"
+license = "GPL-3.0"
+homepage = "https://beta.solpg.io"
+edition = "2021"
+keywords = ["playnet", "solana", "playground", "wasm"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+base64 = "*"
+bincode = "*"
+console_error_panic_hook = "*"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+solana-bpf-loader-program = { path = "../../../forks/solana/programs/bpf_loader" }
+solana-program-runtime = { path = "../../../forks/solana/program-runtime" }
+solana_rbpf = { path = "../../../forks/rbpf" }
+solana-sdk = { path = "../../../forks/solana/sdk" }
+wasm-bindgen = { version = "=0.2.83" }
