@@ -4,12 +4,13 @@ import { PublicKey } from "@solana/web3.js";
 import { PgCommon } from "../../../common";
 import { PgExplorer } from "../../../explorer";
 import { PgTerminal } from "../../../terminal";
-import { ConfigData, ToPrimitive } from "../types";
+import { PgSugar } from "../sugar";
 import { parseGuards } from "./guards";
+import { ConfigData, ToPrimitive } from "../types";
 
 export const loadConfigData = async (): Promise<ConfigData> => {
   const configStr = await PgExplorer.run({
-    getFileContent: [PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH],
+    getFileContent: [PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH],
   });
   if (!configStr)
     throw new Error(
@@ -48,7 +49,7 @@ export const loadConfigData = async (): Promise<ConfigData> => {
 export const saveConfigData = async (configData: ConfigData) => {
   await PgExplorer.run({
     newItem: [
-      PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
+      PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
       PgCommon.prettyJSON({
         ...configData,
         size: configData.size.toNumber(),

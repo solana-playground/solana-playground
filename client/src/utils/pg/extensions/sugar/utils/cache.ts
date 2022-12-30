@@ -8,6 +8,7 @@ import { PublicKey } from "@solana/web3.js";
 
 import { PgCommon } from "../../../common";
 import { PgExplorer } from "../../../explorer";
+import { PgSugar } from "../sugar";
 
 export class CandyCache {
   program: CacheProgram;
@@ -30,7 +31,7 @@ export class CandyCache {
     await (
       await PgExplorer.get()
     ).newItem(
-      PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
+      PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
       PgCommon.prettyJSON(this),
       { override: true, openOptions: { dontOpen: true, onlyOpenIfAlreadyOpen } }
     );
@@ -172,7 +173,7 @@ export class CacheItem {
 
 export const loadCache = async () => {
   const cacheFile = await PgExplorer.run({
-    getFileContent: [PgExplorer.PATHS.CANDY_MACHINE_CACHE_FILEPATH],
+    getFileContent: [PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH],
   });
   if (!cacheFile) {
     // Cache file doesn't exist, return default

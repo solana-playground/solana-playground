@@ -1429,19 +1429,6 @@ export class PgExplorer {
     SRC_DIRNAME: "src",
     CLIENT_DIRNAME: "client",
     TESTS_DIRNAME: "tests",
-    METAPLEX_DIRNAME: "metaplex",
-    get CANDY_MACHINE_DIR_PATH() {
-      return PgExplorer.joinPaths([this.METAPLEX_DIRNAME, "candy-machine"]);
-    },
-    get CANDY_MACHINE_CONFIG_FILEPATH() {
-      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "config.json"]);
-    },
-    get CANDY_MACHINE_CACHE_FILEPATH() {
-      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "cache.json"]);
-    },
-    get CANDY_MACHINE_ASSETS_DIR_PATH() {
-      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "assets"]);
-    },
   };
 
   /** Don't change this! */

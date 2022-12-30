@@ -1,14 +1,15 @@
-import { ConfigData, ToPrimitive, UploadMethod } from "../../types";
-import { Emoji } from "../../../../../../constants";
 import { PgTerminal } from "../../../../terminal";
 import { PgValidator } from "../../../../validator";
 import { PgExplorer } from "../../../../explorer";
 import { PgCommon } from "../../../../common";
+import { PgSugar } from "../../sugar";
 import {
   MAX_NAME_LENGTH,
   MAX_URI_LENGTH,
   REPLACEMENT_INDEX_INCREMENT,
 } from "../../constants";
+import { Emoji } from "../../../../../../constants";
+import { ConfigData, ToPrimitive, UploadMethod } from "../../types";
 
 export const processCreateConfig = async () => {
   const term = await PgTerminal.get();
@@ -299,11 +300,11 @@ export const processCreateConfig = async () => {
   const explorer = await PgExplorer.get();
 
   let saveFile = true;
-  if (await explorer.exists(PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH)) {
+  if (await explorer.exists(PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH)) {
     saveFile =
       (await term.waitForUserInput(
         [
-          `The file "${PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}" already exists.`,
+          `The file "${PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}" already exists.`,
           "Do you want to overwrite it with the new config or log the new config to the console?",
         ].join(" "),
         {
@@ -319,10 +320,10 @@ export const processCreateConfig = async () => {
 
   if (saveFile) {
     term.println(
-      `Saving config to file: "${PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
+      `Saving config to file: "${PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
     );
     await explorer.newItem(
-      PgExplorer.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
+      PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
       prettyConfigData,
       {
         override: true,
