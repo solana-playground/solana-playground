@@ -22,6 +22,7 @@ import { PgProgramInfo } from "../program-info";
 import { PgMethod, PgReturnType } from "../types";
 import { PgValidator } from "../validator";
 import { PrintOptions } from "./types";
+import { PgCommand } from "./commands";
 
 export class PgTerminal {
   /**
@@ -499,6 +500,9 @@ export class PgTerm {
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
+
+    // Load commands
+    PgCommand.load();
   }
 
   open(container: HTMLElement) {
@@ -611,13 +615,19 @@ export class PgTerm {
   }
 
   /**
-   * Moves the command line to the top of the terminal screen
+   * Clear terminal screen. This will move the cursor to the top of the terminal
+   * but will not clear xterm buffer by default.
    *
-   * This function does not clear previous history.
+   * @param opts.full whether to fully clean xterm buffer
+   *
    */
-  clear() {
+  clear(opts?: { full?: boolean }) {
     this._pgTty.clearTty();
-    this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.getInput()}`);
+    if (opts?.full) {
+      this._pgTty.clear();
+    } else {
+      this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.getInput()}`);
+    }
   }
 
   /**
@@ -662,7 +672,7 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd) {
+    if (!lastCmd || lastCmd === PgCommand.RUN_LAST_CMD) {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
