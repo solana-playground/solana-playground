@@ -2,13 +2,20 @@ import ReactMarkdown from "react-markdown";
 import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
+import CodeBlock from "./CodeBlock";
+
 const Markdown = ({ children }: { children: string }) => (
-  <Wrapper>
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
-  </Wrapper>
+  <StyledMarkdown
+    remarkPlugins={[remarkGfm]}
+    components={{
+      pre: CodeBlock,
+    }}
+  >
+    {children}
+  </StyledMarkdown>
 );
 
-const Wrapper = styled.div`
+const StyledMarkdown = styled(ReactMarkdown)`
   ${({ theme }) => css`
     --color-prettylights-syntax-comment: #8b949e;
     --color-prettylights-syntax-constant: #79c0ff;

@@ -26,13 +26,10 @@ const CopyButton: FC<CopyButtonProps> = ({ copyText }) => {
 
 const Wrapper = styled.div<{ copied: boolean }>`
   & > button {
-    & > svg {
-      color: ${({ theme, copied }) =>
-        copied && theme.colors.state.success.color};
-    }
-
     &:hover {
       background-color: transparent;
+      color: ${({ theme, copied }) =>
+        copied && theme.colors.state.success.color};
     }
   }
 `;

@@ -17,6 +17,7 @@ const StyledTooltip = styled.div<TooltipProps>`
   ${({ text, theme }) => css`
     position: relative;
     height: fit-content;
+    width: fit-content;
 
     &::before,
     &::after {

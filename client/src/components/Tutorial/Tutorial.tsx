@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Split from "react-split";
 
 import Button from "../Button";
-import Markdown from "./Markdown";
+import Markdown from "../Markdown";
 import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
 import {
