@@ -178,11 +178,13 @@ const MutThemeProvider: FC = ({ children }) => {
     };
 
   // Tooltip
-  if (!_theme.colors.tooltip)
-    _theme.colors.tooltip = {
-      bg: _theme.colors.default.bgPrimary,
-      color: _theme.colors.default.textPrimary,
-    };
+  if (!_theme.colors.tooltip) _theme.colors.tooltip = {};
+  if (!_theme.colors.tooltip.bg)
+    _theme.colors.tooltip.bg = _theme.colors.default.bgPrimary;
+  if (!_theme.colors.tooltip.color)
+    _theme.colors.tooltip.color = _theme.colors.default.textPrimary;
+  if (!_theme.colors.tooltip.bgSecondary)
+    _theme.colors.tooltip.bgSecondary = _theme.colors.default.bgSecondary;
 
   // Tutorial
   if (!_theme.colors.tutorial) _theme.colors.tutorial = {};

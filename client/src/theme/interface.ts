@@ -238,7 +238,7 @@ export interface PgTheme {
     toast?: BgAndColor;
 
     // General tooltip
-    tooltip?: BgAndColor;
+    tooltip?: BgAndColor & { bgSecondary?: string };
 
     // Tutorial component
     tutorial?: BgAndColor;

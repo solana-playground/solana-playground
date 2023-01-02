@@ -2,19 +2,30 @@ import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
+import { QuestionMarkOutlined } from "../Icons";
 
 interface TooltipProps {
   text: string;
+  maxWidth?: string;
+  bgSecondary?: boolean;
+  className?: string;
 }
 
-const Tooltip: FC<TooltipProps> = ({ text, children }) => (
-  <StyledTooltip className={ClassName.TOOLTIP} text={text}>
+const Tooltip: FC<TooltipProps> = ({
+  className,
+  children,
+  ...tooltipProps
+}) => (
+  <StyledTooltip
+    className={`${ClassName.TOOLTIP} ${className}`}
+    {...tooltipProps}
+  >
     {children}
   </StyledTooltip>
 );
 
 const StyledTooltip = styled.div<TooltipProps>`
-  ${({ text, theme }) => css`
+  ${({ text, maxWidth, bgSecondary, theme }) => css`
     position: relative;
     height: fit-content;
     width: fit-content;
@@ -42,11 +53,13 @@ const StyledTooltip = styled.div<TooltipProps>`
       border-radius: ${theme.borderRadius};
       text-align: center;
       width: max-content;
-      max-width: fit-content;
+      max-width: ${maxWidth ?? "fit-content"};
       color: ${text !== "Copied"
         ? theme.colors.tooltip?.color
         : theme.colors.state.success.color};
-      background: ${theme.colors.tooltip?.bg};
+      background: ${bgSecondary
+        ? theme.colors.tooltip?.bgSecondary
+        : theme.colors.tooltip?.bg};
       font-size: ${theme.font?.code?.size.small};
       box-shadow: ${theme.boxShadow};
     }
@@ -61,10 +74,26 @@ const StyledTooltip = styled.div<TooltipProps>`
 
       content: "";
       border: var(--arrow-size) solid transparent;
-      border-top-color: ${theme.colors.tooltip?.bg};
+      border-top-color: ${bgSecondary
+        ? theme.colors.tooltip?.bgSecondary
+        : theme.colors.tooltip?.bg};
       transform-origin: top center;
     }
   `}
+`;
+
+export const HelpTooltip: FC<TooltipProps> = (props) => (
+  <StyledQuestionTooltip {...props}>
+    <QuestionMarkOutlined />
+  </StyledQuestionTooltip>
+);
+
+const StyledQuestionTooltip = styled(Tooltip)`
+  &:hover {
+    & > svg {
+      color: ${({ theme }) => theme.colors.default.textPrimary};
+    }
+  }
 `;
 
 export default Tooltip;

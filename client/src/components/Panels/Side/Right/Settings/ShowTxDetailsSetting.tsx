@@ -3,7 +3,7 @@ import { ChangeEvent } from "react";
 import CheckBox from "../../../../CheckBox";
 import { PgPreferences } from "../../../../../utils/pg";
 
-const ShowTxDetailsInTerminal = () => {
+const ShowTxDetailsSetting = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     PgPreferences.update({ showTxDetailsInTerminal: e.target.checked });
   };
@@ -16,4 +16,4 @@ const ShowTxDetailsInTerminal = () => {
   );
 };
 
-export default ShowTxDetailsInTerminal;
+export default ShowTxDetailsSetting;

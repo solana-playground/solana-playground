@@ -6,23 +6,46 @@ import FontSetting from "./FontSetting";
 import EndpointSetting from "./EndpointSetting";
 import CommitmentSetting from "./CommitmentSetting";
 import PreflightSetting from "./PreflightSetting";
-import ShowTxDetailsInTerminal from "./ShowTxDetailsSetting";
+import ShowTxDetailsSetting from "./ShowTxDetailsSetting";
+import { HelpTooltip } from "../../../../Tooltip";
 
 const Settings = () => (
   <Wrapper>
     <Setting name="Theme" SettingElement={<ThemeSetting />} />
     <Setting name="Font" SettingElement={<FontSetting />} />
-    <Setting name="Endpoint" SettingElement={<EndpointSetting />} />
-    <Setting name="Commitment" SettingElement={<CommitmentSetting />} />
+    <Setting
+      name="Endpoint"
+      SettingElement={<EndpointSetting />}
+      tooltip={{
+        text: "RPC URL that lets you interact with a specific Solana cluster",
+        maxWidth: "10rem",
+      }}
+    />
+    <Setting
+      name="Commitment"
+      SettingElement={<CommitmentSetting />}
+      tooltip={{
+        text: "Commitment level to use when interacting with the endpoint",
+        maxWidth: "12rem",
+      }}
+    />
     <Setting
       name="Preflight checks"
       SettingElement={<PreflightSetting />}
       isCheckbox
+      tooltip={{
+        text: "If enabled, this check will simulate transactions before sending them and only the transactions that pass the simulation will be sent",
+        maxWidth: "18rem",
+      }}
     />
     <Setting
-      name="Show transaction details in terminal"
-      SettingElement={<ShowTxDetailsInTerminal />}
+      name="Show transaction details"
+      SettingElement={<ShowTxDetailsSetting />}
       isCheckbox
+      tooltip={{
+        text: "Whether to automatically fetch transaction details and show them in terminal(only applies to test UI)",
+        maxWidth: "18rem",
+      }}
     />
   </Wrapper>
 );
@@ -32,6 +55,7 @@ const Wrapper = styled.div`
     background-color: ${theme.colors?.tooltip?.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
+    min-width: 23rem;
   `}
 `;
 
@@ -39,11 +63,29 @@ interface SettingProps {
   name: string;
   SettingElement: ReactElement;
   isCheckbox?: boolean;
+  tooltip?: {
+    text: string;
+    maxWidth: string;
+  };
 }
 
-const Setting: FC<SettingProps> = ({ name, SettingElement, isCheckbox }) => (
+const Setting: FC<SettingProps> = ({
+  name,
+  SettingElement,
+  isCheckbox,
+  tooltip,
+}) => (
   <SettingWrapper isCheckbox={isCheckbox}>
-    <Left>{name}</Left>
+    <Left>
+      <SettingName>{name}</SettingName>
+      {tooltip && (
+        <HelpTooltip
+          text={tooltip.text}
+          maxWidth={tooltip.maxWidth}
+          bgSecondary
+        />
+      )}
+    </Left>
     <Right>{SettingElement}</Right>
   </SettingWrapper>
 );
@@ -67,7 +109,15 @@ const SettingWrapper = styled.div<Pick<SettingProps, "isCheckbox">>`
   `}
 `;
 
-const Left = styled.div``;
+const Left = styled.div`
+  display: flex;
+
+  & > :nth-child(2) {
+    margin-left: 0.5rem;
+  }
+`;
+
+const SettingName = styled.span``;
 
 const Right = styled.div`
   margin-left: 1rem;

@@ -89,6 +89,7 @@ export const SOLANA: PgTheme = {
     tooltip: {
       bg: BG_GRAY,
       color: TEXT_PRIMARY,
+      bgSecondary: BG_BLACK,
     },
     toast: {
       bg: BG_GRAY,
