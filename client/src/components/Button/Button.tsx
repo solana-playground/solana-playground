@@ -6,6 +6,7 @@ import { spinnerAnimation } from "../Loading";
 export type ButtonKind =
   | "primary"
   | "secondary"
+  | "error"
   | "primary-transparent"
   | "secondary-transparent"
   | "primary-outline"
@@ -43,8 +44,9 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   fontWeight?: CSSProperties["fontWeight"];
-  color?: ButtonColor;
   bg?: ButtonBg;
+  color?: ButtonColor;
+  hoverColor?: ButtonColor;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
@@ -72,8 +74,9 @@ const getButtonStyles = ({
   size,
   fullWidth,
   fontWeight,
-  color,
   bg,
+  color,
+  hoverColor: _hoverColor,
 }: ButtonProps & { theme: DefaultTheme }) => {
   let textColor: CSSProperties["color"] = "inherit";
   let bgColor: CSSProperties["backgroundColor"] = "transparent";
@@ -88,16 +91,18 @@ const getButtonStyles = ({
   // Kind
   switch (kind) {
     case "primary": {
-      if (theme.colors.contrast?.primary)
+      if (theme.colors.contrast?.primary) {
         textColor = theme.colors.contrast.color;
+      }
       bgColor = theme.colors.default.primary;
       hoverBgColor = theme.colors.default.primary + "E0";
       padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary": {
-      if (theme.colors.contrast?.secondary)
+      if (theme.colors.contrast?.secondary) {
         textColor = theme.colors.contrast.color;
+      }
       bgColor = theme.colors.default.secondary;
       hoverBgColor = theme.colors.default.secondary + "E0";
       padding = "0.5rem 1.25rem";
@@ -112,6 +117,12 @@ const getButtonStyles = ({
     case "secondary-transparent": {
       bgColor = theme.colors.default.secondary + theme.transparency?.medium;
       hoverBgColor = theme.colors.default.secondary + theme.transparency?.high;
+      padding = "0.5rem 1.25rem";
+      break;
+    }
+    case "error": {
+      bgColor = theme.colors.state.error.color + theme.transparency?.high;
+      hoverBgColor = theme.colors.state.error.color;
       padding = "0.5rem 1.25rem";
       break;
     }
@@ -156,6 +167,29 @@ const getButtonStyles = ({
     else padding = "0.5rem 0.75rem";
   }
 
+  // Bg color
+  if (bg) {
+    switch (bg) {
+      case "primary":
+        bgColor = theme.colors.default.primary;
+        break;
+      case "secondary":
+        bgColor = theme.colors.default.secondary;
+        break;
+      case "success":
+        bgColor = theme.colors.state.success.bg;
+        break;
+      case "error":
+        bgColor = theme.colors.state.error.bg;
+        break;
+      case "info":
+        bgColor = theme.colors.state.info.bg;
+        break;
+      case "warning":
+        bgColor = theme.colors.state.warning.bg;
+    }
+  }
+
   // Color
   if (color) {
     switch (color) {
@@ -191,26 +225,27 @@ const getButtonStyles = ({
     }
   }
 
-  // Bg color
-  if (bg) {
-    switch (bg) {
+  // Hover color
+  if (_hoverColor) {
+    switch (_hoverColor) {
       case "primary":
-        bgColor = theme.colors.default.primary;
+        hoverColor = theme.colors.default.primary;
         break;
       case "secondary":
-        bgColor = theme.colors.default.secondary;
+        hoverColor = theme.colors.default.secondary;
         break;
       case "success":
-        bgColor = theme.colors.state.success.bg;
+        hoverColor = theme.colors.state.success.color;
         break;
       case "error":
-        bgColor = theme.colors.state.error.bg;
+        hoverColor = theme.colors.state.error.color;
         break;
       case "info":
-        bgColor = theme.colors.state.info.bg;
+        hoverColor = theme.colors.state.info.color;
         break;
       case "warning":
-        bgColor = theme.colors.state.warning.bg;
+        hoverColor = theme.colors.state.warning.color;
+        break;
     }
   }
 

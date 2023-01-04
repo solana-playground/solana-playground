@@ -68,7 +68,12 @@ const Workspaces = () => {
           <Button onClick={handleRename} kind="icon" title="Rename">
             <Rename />
           </Button>
-          <Button onClick={handleDelete} kind="icon" title="Delete">
+          <Button
+            onClick={handleDelete}
+            kind="icon"
+            hoverColor="error"
+            title="Delete"
+          >
             <Trash />
           </Button>
           <Button onClick={handleGithub} kind="icon" title="Import from Github">

@@ -25,6 +25,7 @@ export const DeleteWorkspace = () => {
         name: "Delete",
         onSubmit: deleteWorkspace,
         closeOnSubmit: true,
+        kind: "error",
       }}
     >
       <Content>

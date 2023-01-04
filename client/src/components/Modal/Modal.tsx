@@ -1,25 +1,38 @@
 import { FC, useCallback, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import Button, { ButtonSize } from "../Button";
+import Button, { ButtonKind, ButtonSize } from "../Button";
 import useModal from "./useModal";
 import { Close } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
 import { useOnKey } from "../../hooks";
 
 interface ModalProps {
+  /** Modal title to show. If true, default is "Solana Playground" */
   title?: boolean | string;
+  /** Modal's submit button props */
   buttonProps?: {
+    /** Button text to show for submit */
     name: string;
+    /** Whether the button is disabled */
     disabled?: boolean;
+    /** Button loading information */
     loading?: {
+      /** Whether the button is in loading state */
       state?: boolean;
+      /** Text to show when the button is in loading state */
       text?: string;
     };
-    size?: ButtonSize;
+    /** Callback function to run on submit */
     onSubmit: () => void;
+    /** Whether the close the modal when user submits */
     closeOnSubmit?: boolean;
+    /** Default: medium */
+    size?: ButtonSize;
+    /** Default: primary-transparent */
+    kind?: ButtonKind;
   };
+  /** Whether to show a close button on top-right */
   closeButton?: boolean;
 }
 
@@ -78,8 +91,8 @@ const Modal: FC<ModalProps> = ({
             onClick={handleSubmit}
             disabled={buttonProps.disabled || buttonProps.loading?.state}
             btnLoading={buttonProps.loading?.state}
-            kind="primary-transparent"
             size={buttonProps.size ?? "medium"}
+            kind={buttonProps.kind ?? "primary-transparent"}
           >
             {buttonText && buttonText}
           </Button>

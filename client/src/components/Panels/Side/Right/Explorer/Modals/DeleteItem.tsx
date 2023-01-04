@@ -35,6 +35,7 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
         name: "Delete",
         onSubmit: deleteItem,
         closeOnSubmit: true,
+        kind: "error",
       }}
     >
       <Content>
