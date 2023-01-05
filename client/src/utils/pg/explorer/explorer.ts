@@ -176,7 +176,7 @@ export class PgExplorer {
 
       const subItemPaths = itemNames.map(
         (itemName) =>
-          PgExplorer.appendSlash(path) +
+          PgCommon.appendSlash(path) +
           itemName +
           (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
       );
@@ -761,7 +761,7 @@ export class PgExplorer {
 
       const subItemPaths = itemNames
         .filter((itemName) => !itemName.startsWith("."))
-        .map((itemName) => PgExplorer.appendSlash(path) + itemName);
+        .map((itemName) => PgCommon.appendSlash(path) + itemName);
 
       for (const subItemPath of subItemPaths) {
         const stat = await fs.stat(subItemPath);
@@ -1008,9 +1008,8 @@ export class PgExplorer {
    * @returns full path based on the input
    */
   appendToCurrentWorkspacePath(path: string) {
-    return PgExplorer.appendSlash(
-      this.currentWorkspacePath +
-        (path.startsWith("/") ? path.substring(1) : path)
+    return PgCommon.appendSlash(
+      this.currentWorkspacePath + PgCommon.withoutPreSlash(path)
     );
   }
 
@@ -1379,7 +1378,7 @@ export class PgExplorer {
     const srcPath = this.isShared
       ? PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.PATHS.SRC_DIRNAME
       : this.appendToCurrentWorkspacePath(PgExplorer.PATHS.SRC_DIRNAME);
-    return PgExplorer.appendSlash(srcPath);
+    return PgCommon.appendSlash(srcPath);
   }
 
   /**
@@ -1387,7 +1386,7 @@ export class PgExplorer {
    * @returns the full path to the workspace root dir with '/' at the end
    */
   private _getWorkspacePath(name: string) {
-    return PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.appendSlash(name);
+    return PgExplorer.PATHS.ROOT_DIR_PATH + PgCommon.appendSlash(name);
   }
 
   /**
@@ -1688,20 +1687,5 @@ export class PgExplorer {
 
   static getExplorerIconsPath(name: string) {
     return "/icons/explorer/" + name;
-  }
-
-  static appendSlash(path: string) {
-    if (!path) return "";
-    return path + (path.endsWith("/") ? "" : "/");
-  }
-
-  static withoutPreSlash(path: string) {
-    return path[0] === "/" ? path.substring(1) : path;
-  }
-
-  static joinPaths(paths: string[]) {
-    return paths.reduce(
-      (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
-    );
   }
 }

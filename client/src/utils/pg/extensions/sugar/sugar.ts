@@ -2,7 +2,6 @@
 
 import { Emoji, NETWORKS } from "../../../../constants";
 import { PgConnection } from "../../connection";
-import { PgExplorer } from "../../explorer";
 import { PgTerminal } from "../../terminal";
 import {
   processBundlr,
@@ -34,16 +33,16 @@ export class PgSugar {
   static PATHS = {
     METAPLEX_DIRNAME: "metaplex",
     get CANDY_MACHINE_DIR_PATH() {
-      return PgExplorer.joinPaths([this.METAPLEX_DIRNAME, "candy-machine"]);
+      return PgCommon.joinPaths([this.METAPLEX_DIRNAME, "candy-machine"]);
     },
     get CANDY_MACHINE_CONFIG_FILEPATH() {
-      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "config.json"]);
+      return PgCommon.joinPaths([this.CANDY_MACHINE_DIR_PATH, "config.json"]);
     },
     get CANDY_MACHINE_CACHE_FILEPATH() {
-      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "cache.json"]);
+      return PgCommon.joinPaths([this.CANDY_MACHINE_DIR_PATH, "cache.json"]);
     },
     get CANDY_MACHINE_ASSETS_DIR_PATH() {
-      return PgExplorer.joinPaths([this.CANDY_MACHINE_DIR_PATH, "assets"]);
+      return PgCommon.joinPaths([this.CANDY_MACHINE_DIR_PATH, "assets"]);
     },
   };
 

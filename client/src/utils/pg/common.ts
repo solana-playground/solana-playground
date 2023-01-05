@@ -482,6 +482,39 @@ export class PgCommon {
   }
 
   /**
+   * Append '/' to the end of the string
+   *
+   * @param str string to append slash to
+   * @returns the slash appended string
+   */
+  static appendSlash(str: string) {
+    if (!str) return "";
+    return str + (str.endsWith("/") ? "" : "/");
+  }
+
+  /**
+   * Get the string without '/' prefix
+   *
+   * @param str string input
+   * @returns the string without slash prefix
+   */
+  static withoutPreSlash(str: string) {
+    return str[0] === "/" ? str.substring(1) : str;
+  }
+
+  /**
+   * Join the paths without caring about incorrect '/' inside paths
+   *
+   * @param paths paths to join
+   * @returns the joined path
+   */
+  static joinPaths(paths: string[]) {
+    return paths.reduce(
+      (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
+    );
+  }
+
+  /**
    * Adds space before the string, mainly used for terminal output
    *
    * @param str string to prepend spaces to

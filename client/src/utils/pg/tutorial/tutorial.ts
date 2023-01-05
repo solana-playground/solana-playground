@@ -30,8 +30,8 @@ export class PgTutorial {
   static getTutorialFromPathname(pathname: string) {
     return TUTORIALS.find(
       (t) =>
-        PgExplorer.appendSlash(PgCommon.toKebabCase(t.name)) ===
-        PgExplorer.appendSlash(pathname.split(`${Route.TUTORIALS}/`)[1])
+        PgCommon.appendSlash(PgCommon.toKebabCase(t.name)) ===
+        PgCommon.appendSlash(pathname.split(`${Route.TUTORIALS}/`)[1])
     );
   }
 
@@ -163,7 +163,7 @@ export class PgTutorial {
 
   private static _getTutorialMetadataPath(tutorialName?: string) {
     return tutorialName
-      ? PgExplorer.joinPaths([
+      ? PgCommon.joinPaths([
           PgExplorer.PATHS.ROOT_DIR_PATH,
           tutorialName,
           this.TUTORIAL_METADATA_FILENAME,

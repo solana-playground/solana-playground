@@ -2,7 +2,6 @@ import { Location } from "react-router-dom";
 
 import { EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { PgExplorer } from "./explorer";
 
 export class PgRouter {
   /**
@@ -36,6 +35,6 @@ export class PgRouter {
    * @returns Whether the paths are equal
    */
   static comparePaths(pathOne: string, pathTwo: string) {
-    return PgExplorer.appendSlash(pathOne) === PgExplorer.appendSlash(pathTwo);
+    return PgCommon.appendSlash(pathOne) === PgCommon.appendSlash(pathTwo);
   }
 }

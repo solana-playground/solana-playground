@@ -1,5 +1,6 @@
 import { GithubError } from "../../../constants";
-import { Files, PgExplorer } from "./explorer";
+import { PgCommon } from "../common";
+import { Files } from "./explorer";
 
 interface GithubRepositoryInfo {
   name: string;
@@ -63,8 +64,7 @@ export class PgGithub {
           files.push([`src/${path}`, rawData]);
         } else if (data.type === "dir") {
           const afterSrc = data.path.split("/src/")[1];
-          _url =
-            PgExplorer.appendSlash(srcUrl) + PgExplorer.appendSlash(afterSrc);
+          _url = PgCommon.appendSlash(srcUrl) + PgCommon.appendSlash(afterSrc);
           const { data: insideDirData } = await this._getRepositoryData(_url);
           await recursivelyGetContent(insideDirData, _url);
         }
