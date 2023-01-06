@@ -2,21 +2,19 @@ import { Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
 import { GITHUB_URL, SERVER_URL } from "../../constants";
-import { PgProgramInfo } from "./program-info";
 import { PgCommon } from "./common";
-import { PgWallet } from "./wallet";
+import { PgConnection } from "./connection";
+import { PgProgramInfo } from "./program-info";
 import { PgTerminal } from "./terminal/";
 import { PgTx } from "./tx";
-import { PgConnection } from "./connection";
+import { PgWallet } from "./wallet";
 
 export class PgDeploy {
-  private static readonly _MAX_RETRIES = 10;
-  private static readonly _SLEEP_MULTIPLIER = 1.4;
-
   static async deploy(wallet: PgWallet, programBuffer: Buffer) {
     // Get program id
     const programPk = PgProgramInfo.getPk()?.programPk;
-    // This shouldn't happen because the deploy button is disabled for this condition.
+
+    // This shouldn't happen because the deploy button is disabled for this condition
     if (!programPk) throw new Error("Program id not found.");
 
     // Regular deploy without custom elf upload
@@ -59,7 +57,7 @@ export class PgDeploy {
           PgCommon.lamportsToSol(bufferBalance).toFixed(2)
         )} SOL will be refunded at the end.`;
 
-        const airdropAmount = PgCommon.getAirdropAmount();
+        const airdropAmount = PgCommon.getAirdropAmount(conn.rpcEndpoint);
         if (airdropAmount !== null) {
           throw new Error(
             errMsg +
@@ -80,7 +78,7 @@ export class PgDeploy {
           PgCommon.lamportsToSol(bufferBalance).toFixed(2)
         )} SOL will be refunded at the end.`;
 
-        const airdropAmount = PgCommon.getAirdropAmount();
+        const airdropAmount = PgCommon.getAirdropAmount(conn.rpcEndpoint);
         if (airdropAmount !== null) {
           throw new Error(
             errMsg +
@@ -270,4 +268,10 @@ export class PgDeploy {
 
     return txHash;
   }
+
+  /** Maximum amount of transaction retries */
+  private static readonly _MAX_RETRIES = 5;
+
+  /** Sleep amount multiplier each time a transaction fails */
+  private static readonly _SLEEP_MULTIPLIER = 1.6;
 }
