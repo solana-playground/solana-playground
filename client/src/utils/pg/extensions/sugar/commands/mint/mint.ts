@@ -101,7 +101,8 @@ export const processMint = async (
                     ? "NFT"
                     : `${nft.name}`
                 }: ${PgTerminal.underline(
-                  PgCommon.getExplorerTokenUrl(nft.address.toBase58()).explorer
+                  PgCommon.getExplorerTokenUrl(nft.address.toBase58(), rpcUrl)
+                    .explorer
                 )} `
               )
             );

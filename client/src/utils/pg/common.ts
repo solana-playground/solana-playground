@@ -1,7 +1,6 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
-import { PgConnection } from "./connection";
 
 export class PgCommon {
   /**
@@ -177,9 +176,11 @@ export class PgCommon {
   }
 
   /**
-   * Only used for adding cluster param to explorer url(s)
+   * Get the cluster URL parameter to add to the explorer URL(s)
+   *
+   * @returns the cluster URL suffix
    */
-  static getExplorerClusterParam(endpoint: string = PgConnection.endpoint) {
+  static getExplorerClusterParam(endpoint: string) {
     // Mainnet by default
     let cluster = "";
 
@@ -188,9 +189,11 @@ export class PgCommon {
     } else if (
       endpoint === Endpoint.DEVNET ||
       endpoint === Endpoint.DEVNET_GENESYSGO
-    )
+    ) {
       cluster = "?cluster=devnet";
-    else if (endpoint === Endpoint.TESTNET) cluster = "?cluster=testnet";
+    } else if (endpoint === Endpoint.TESTNET) {
+      cluster = "?cluster=testnet";
+    }
 
     return cluster;
   }
@@ -200,10 +203,7 @@ export class PgCommon {
    *
    * @returns transaction url for solana explorer, solscan
    */
-  static getExplorerTxUrls(
-    txHash: string,
-    endpoint: Endpoint = PgConnection.endpoint
-  ) {
+  static getExplorerTxUrls(txHash: string, endpoint: Endpoint) {
     let explorer = EXPLORER_URL + "/tx/" + txHash;
     const cluster = this.getExplorerClusterParam(endpoint);
     explorer += cluster;
@@ -223,10 +223,7 @@ export class PgCommon {
    *
    * @returns mint url for solana explorer, solscan
    */
-  static getExplorerTokenUrl(
-    mint: string,
-    endpoint: Endpoint = PgConnection.endpoint
-  ) {
+  static getExplorerTokenUrl(mint: string, endpoint: string) {
     let explorer = EXPLORER_URL + "/address/" + mint;
     const cluster = this.getExplorerClusterParam(endpoint);
     explorer += cluster;
@@ -323,7 +320,7 @@ export class PgCommon {
   /**
    * @returns automatic airdrop amount
    */
-  static getAirdropAmount(endpoint: Endpoint = PgConnection.endpoint) {
+  static getAirdropAmount(endpoint: string) {
     switch (endpoint) {
       case Endpoint.PLAYNET:
         return 1000;
