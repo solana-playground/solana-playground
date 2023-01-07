@@ -91,26 +91,30 @@ pub struct PgBank {
     feature_set: Rc<FeatureSet>,
 }
 
+impl Default for PgBank {
+    fn default() -> Self {
+        let genesis_hash = create_blockhash(b"playnet");
+        Self {
+            accounts: HashMap::new(),
+            txs: HashMap::new(),
+            slot: 0,
+            block_height: 0,
+            genesis_hash,
+            latest_blockhash: genesis_hash,
+            builtin_programs: vec![],
+            sysvar_cache: RwLock::new(SysvarCache::default()),
+            feature_set: Rc::new(FeatureSet::default()),
+        }
+    }
+}
+
 impl PgBank {
     const LAMPORTS_PER_SIGNATURE: u64 = 0;
 
     pub fn new(maybe_bank_string: Option<String>) -> Self {
         let mut bank = match maybe_bank_string {
-            Some(bank_string) => serde_json::from_str::<Self>(&bank_string).unwrap(),
-            None => {
-                let genesis_hash = create_blockhash(b"playnet");
-                Self {
-                    accounts: HashMap::new(),
-                    txs: HashMap::new(),
-                    slot: 0,
-                    block_height: 0,
-                    genesis_hash,
-                    latest_blockhash: genesis_hash,
-                    builtin_programs: vec![],
-                    sysvar_cache: RwLock::new(SysvarCache::default()),
-                    feature_set: Rc::new(FeatureSet::default()),
-                }
-            }
+            Some(bank_string) => serde_json::from_str::<Self>(&bank_string).unwrap_or_default(),
+            None => Self::default(),
         };
 
         // Add native accounts
