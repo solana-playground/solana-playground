@@ -47,8 +47,8 @@ export class PgCommand {
       {
         name: this.CLEAR,
         description: "Clear terminal",
-        process: () => {
-          PgTerminal.run({ clear: [{ full: true }] });
+        process: async () => {
+          await PgTerminal.run({ clear: [{ full: true }] });
           PgTerminal.enable();
         },
       },
@@ -108,12 +108,12 @@ export class PgCommand {
       },
       {
         name: this.RUN,
-        description: "Run all scripts in client directory",
+        description: "Run script(s)",
         process: (input) => {
           const regex = new RegExp(/^\w+\s?(.*)/);
           const match = regex.exec(input);
           PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
-            isTest: input.startsWith(PgCommand.TEST),
+            isTest: false,
             path: match && match[1],
           });
         },
@@ -191,8 +191,15 @@ export class PgCommand {
       },
       {
         name: this.TEST,
-        description: "Run all tests in tests directory",
-        process: () => PgTerminal.setTerminalState(TerminalAction.deployStart),
+        description: "Run test(s)",
+        process: (input) => {
+          const regex = new RegExp(/^\w+\s?(.*)/);
+          const match = regex.exec(input);
+          PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+            isTest: true,
+            path: match && match[1],
+          });
+        },
       },
 
       // Special commands
