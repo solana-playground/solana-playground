@@ -192,7 +192,10 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
     });
 
     if (showLogTxHash) {
-      await PgCommon.sleep(1000);
+      // Wait before confirming the transaction on live clusters
+      if (conn.rpcEndpoint.startsWith("https")) {
+        await PgCommon.sleep(1500);
+      }
       PgTerminal.runCmdFromStr(`solana confirm ${showLogTxHash} -v`);
     }
 
