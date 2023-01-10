@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { PublicKey } from "@solana/web3.js";
 
-import { PgProgramInfo, PgWallet } from "../../../../../utils/pg";
+import { PgConnection, PgProgramInfo, PgWallet } from "../../../../../utils/pg";
 import { refreshProgramIdAtom } from "../../../../../state";
 import { usePgConnection } from "../../../../../hooks";
 
@@ -22,7 +22,9 @@ export const useAuthority = () => {
   });
 
   useEffect(() => {
-    const handleAuthority = async () => {
+    (async () => {
+      if (!PgConnection.isReady(conn)) return;
+
       const programPk = PgProgramInfo.getPk()?.programPk;
       if (!programPk) return;
 
@@ -30,7 +32,7 @@ export const useAuthority = () => {
         const programAccountInfo = await conn.getAccountInfo(programPk);
         const programDataPkBuffer = programAccountInfo?.data.slice(4);
         if (!programDataPkBuffer) {
-          setProgramData({ upgradeable: true });
+          setProgramData({ upgradeable: false });
           return;
         }
         const programDataPk = new PublicKey(programDataPkBuffer);
@@ -53,11 +55,9 @@ export const useAuthority = () => {
 
         setProgramData({ authority: upgradeAuthorityPk, upgradeable: true });
       } catch (e: any) {
-        console.log(e.message);
+        console.log("Could not get authority:", e.message);
       }
-    };
-
-    handleAuthority();
+    })();
   }, [conn, programIdCount]);
 
   return {
