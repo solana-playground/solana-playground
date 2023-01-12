@@ -24,23 +24,31 @@ use solana_sdk::{
     instruction::CompiledInstruction,
     message::{
         v0::{LoadedAddresses, MessageAddressTableLookup},
-        AddressLoaderError, SanitizedMessage,
+        AddressLoaderError, Message, SanitizedMessage, VersionedMessage,
     },
     native_loader,
+    native_token::LAMPORTS_PER_SOL,
     pubkey::Pubkey,
     rent::Rent,
-    signature::Signature,
+    signature::{Keypair, Signature},
+    signer::Signer,
     slot_history::Slot,
-    system_program,
+    system_instruction, system_program,
     sysvar::{self, instructions::construct_instructions_data, Sysvar},
-    transaction::{self, AddressLoader, SanitizedTransaction, TransactionError},
+    transaction::{
+        self, AddressLoader, SanitizedTransaction, TransactionError, VersionedTransaction,
+    },
     transaction_context::{
         ExecutionRecord, IndexOfAccount, TransactionAccount, TransactionContext,
         TransactionReturnData,
     },
 };
 
-use crate::{serde::bank_accounts, types::SimulateTransactionResult, utils::create_blockhash};
+use crate::{
+    serde::{bank_accounts, bank_keypair},
+    types::SimulateTransactionResult,
+    utils::{create_blockhash, get_sanitized_tx_from_versioned_tx},
+};
 
 use super::{
     message_processor::MessageProcessor,
@@ -78,6 +86,10 @@ pub struct PgBank {
     /// Bank's latest blockhash
     latest_blockhash: Hash,
 
+    /// The keypair that signs airdrop transactions
+    #[serde(with = "bank_keypair")]
+    airdrop_kp: Keypair,
+
     /// Essential programs that don't get deployed with transactions
     #[serde(skip)]
     builtin_programs: Vec<BuiltinProgram>,
@@ -101,6 +113,7 @@ impl Default for PgBank {
             block_height: 0,
             genesis_hash,
             latest_blockhash: genesis_hash,
+            airdrop_kp: Keypair::new(),
             builtin_programs: vec![],
             sysvar_cache: RwLock::new(SysvarCache::default()),
             feature_set: Rc::new(FeatureSet::default()),
@@ -148,6 +161,16 @@ impl PgBank {
         sysvar_cache.set_clock(clock);
         sysvar_cache.set_rent(rent);
         drop(sysvar_cache);
+
+        // Add airdrop account
+        bank.accounts.insert(
+            bank.airdrop_kp.pubkey(),
+            Account::new(
+                1_000_000u64.wrapping_mul(LAMPORTS_PER_SOL),
+                0,
+                &system_program::id(),
+            ),
+        );
 
         // Add builtin programs
         bank.builtin_programs = vec![
@@ -271,6 +294,25 @@ impl PgBank {
 
     pub fn get_tx(&self, signature: &Signature) -> Option<&TransactionData> {
         self.txs.get(signature)
+    }
+
+    pub fn airdrop(&mut self, to_pubkey: &Pubkey, lamports: u64) -> transaction::Result<Signature> {
+        let payer = &self.airdrop_kp;
+        let tx = VersionedTransaction::try_new(
+            VersionedMessage::Legacy(Message::new(
+                &[system_instruction::transfer(
+                    &payer.pubkey(),
+                    to_pubkey,
+                    lamports,
+                )],
+                None,
+            )),
+            &[payer],
+        )
+        .unwrap();
+
+        get_sanitized_tx_from_versioned_tx(tx)
+            .and_then(|sanitized_tx| self.process_tx(sanitized_tx))
     }
 
     fn new_slot(&mut self) {

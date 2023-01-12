@@ -330,7 +330,6 @@ export class PgRpc {
 */
   getTransaction(signature_str: string): GetTransactionResult;
 /**
-* TODO: Create a transaction to airdrop. Currently we set the account lamports directly.
 * @param {string} pubkey_str
 * @param {bigint} lamports
 * @returns {SendTransactionResult}

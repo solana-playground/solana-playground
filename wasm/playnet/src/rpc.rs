@@ -9,12 +9,11 @@ use std::{
 
 use solana_sdk::{
     feature_set::FeatureSet,
-    instruction::InstructionError,
     message::{Message, SanitizedMessage},
     pubkey::Pubkey,
     signature::Signature,
     slot_history::Slot,
-    transaction::{self, SanitizedTransaction, TransactionError},
+    transaction::{self, SanitizedTransaction},
 };
 use wasm_bindgen::prelude::*;
 
@@ -25,7 +24,7 @@ use crate::{
         SendTransactionResult, SimulateTransactionResult, TransactionStatus, WasmAccount,
         WasmCommitmentLevel,
     },
-    utils::get_sanitized_tx,
+    utils::get_sanitized_tx_from_serialized_tx,
 };
 
 #[wasm_bindgen]
@@ -94,7 +93,7 @@ impl PgRpc {
 
     #[wasm_bindgen(js_name = simulateTransaction)]
     pub fn simulate_transaction(&self, serialized_tx: &[u8]) -> SimulateTransactionResult {
-        let sanitized_transaction = match get_sanitized_tx(serialized_tx) {
+        let sanitized_transaction = match get_sanitized_tx_from_serialized_tx(serialized_tx) {
             Ok(tx) => tx,
             Err(err) => return SimulateTransactionResult::new_error(err),
         };
@@ -105,7 +104,7 @@ impl PgRpc {
 
     #[wasm_bindgen(js_name = sendTransaction)]
     pub fn send_transaction(&self, serialized_tx: &[u8]) -> SendTransactionResult {
-        let sanitized_tx = match get_sanitized_tx(serialized_tx) {
+        let sanitized_tx = match get_sanitized_tx_from_serialized_tx(serialized_tx) {
             Ok(sanitized_tx) => sanitized_tx,
             Err(err) => return SendTransactionResult::new_error(err),
         };
@@ -169,26 +168,19 @@ impl PgRpc {
     #[wasm_bindgen(js_name = getTransaction)]
     pub fn get_transaction(&self, signature_str: &str) -> GetTransactionResult {
         let signature = Signature::from_str(signature_str).unwrap();
-        let bank = self.get_bank();
-        GetTransactionResult::new(bank.get_tx(&signature).map(|data| data.to_owned()))
+        GetTransactionResult::new(
+            self.get_bank()
+                .get_tx(&signature)
+                .map(|data| data.to_owned()),
+        )
     }
 
-    /// TODO: Create a transaction to airdrop. Currently we set the account lamports directly.
     #[wasm_bindgen(js_name = requestAirdrop)]
     pub fn request_airdrop(&self, pubkey_str: &str, lamports: u64) -> SendTransactionResult {
         let pubkey = Pubkey::from_str(pubkey_str).unwrap();
-        let mut bank = self.get_bank_mut();
-        let mut account = bank.get_account_default(&pubkey);
-        match account.lamports.checked_add(lamports) {
-            Some(res) => {
-                account.lamports = res;
-                bank.set_account(pubkey, account);
-                SendTransactionResult::new(Signature::new_unique().to_string())
-            }
-            None => SendTransactionResult::new_error(TransactionError::InstructionError(
-                0,
-                InstructionError::ArithmeticOverflow,
-            )),
+        match self.get_bank_mut().airdrop(&pubkey, lamports) {
+            Ok(tx_hash) => SendTransactionResult::new(tx_hash.to_string()),
+            Err(e) => SendTransactionResult::new_error(e),
         }
     }
 }

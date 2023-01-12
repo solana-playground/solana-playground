@@ -42,3 +42,27 @@ pub mod bank_accounts {
         Ok(pubkey_hm)
     }
 }
+
+/// Custom de-serialize implementation for `Keypair`
+pub mod bank_keypair {
+    use solana_sdk::signature::Keypair;
+
+    use super::*;
+
+    /// `Pubkey` as key is getting serialized as bytes by default. This function
+    /// serializes `Pubkey`s as `String`s to make `serde_json::to_string` work.
+    pub fn serialize<S>(keypair: &Keypair, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_bytes(&keypair.to_bytes())
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Keypair, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let buffer = Vec::<u8>::deserialize(deserializer)?;
+        Ok(Keypair::from_bytes(&buffer).unwrap())
+    }
+}
