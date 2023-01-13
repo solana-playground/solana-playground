@@ -435,7 +435,6 @@ const EditorWrapper = styled.div`
 
 const TutorialPage = styled.div`
   ${({ theme }) => css`
-    height: 100%;
     max-width: 60rem;
     overflow: auto;
     padding-top: ${TAB_HEIGHT};
