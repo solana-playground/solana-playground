@@ -14,8 +14,9 @@ const MainView = () => {
     setLoading(true);
     await PgCommon.transition(
       (async () => {
+        if (!El) El = EditorWithTabs;
         El = await (El as () => Promise<JSX.Element>)();
-        setEl((El as JSX.Element) ?? EditorWithTabs);
+        setEl(El);
       })(),
       300
     );
