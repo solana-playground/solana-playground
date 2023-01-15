@@ -299,13 +299,14 @@ impl PgBank {
     pub fn airdrop(&mut self, to_pubkey: &Pubkey, lamports: u64) -> transaction::Result<Signature> {
         let payer = &self.airdrop_kp;
         let tx = VersionedTransaction::try_new(
-            VersionedMessage::Legacy(Message::new(
+            VersionedMessage::Legacy(Message::new_with_blockhash(
                 &[system_instruction::transfer(
                     &payer.pubkey(),
                     to_pubkey,
                     lamports,
                 )],
-                None,
+                Some(&payer.pubkey()),
+                &self.latest_blockhash,
             )),
             &[payer],
         )
