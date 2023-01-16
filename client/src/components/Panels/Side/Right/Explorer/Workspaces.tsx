@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Atom, useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -11,17 +11,20 @@ import {
   DeleteWorkspace,
   ImportGithub,
   ImportFs,
+  ImportShared,
 } from "./Modals";
 import { explorerAtom, modalAtom } from "../../../../../state";
 import {
   ExportFile,
   Github,
   ImportFile,
+  ImportWorkspace,
+  Info,
   Plus,
   Rename,
   Trash,
 } from "../../../../Icons";
-import { PgExplorer, PgTutorial } from "../../../../../utils/pg";
+import { PgExplorer, PgModal, PgTutorial } from "../../../../../utils/pg";
 
 const Workspaces = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -181,23 +184,31 @@ const SelectWrapper = styled.div`
   }
 `;
 
-const ShareWarning = () => (
-  <ShareWarningWrapper>
-    <Text>
-      <div>
-        This is a shared project, the changes you make will not persist. In
-        order to save changes, you can use the <Bold>Import</Bold> button.
-      </div>
-    </Text>
-  </ShareWarningWrapper>
-);
+const ShareWarning = () => {
+  const handleImport = useCallback(() => PgModal.set(ImportShared), []);
+
+  return (
+    <ShareWarningWrapper>
+      <Text IconEl={<Info />}>
+        <div>This is a shared project, import it to persist changes.</div>
+      </Text>
+      <Button onClick={handleImport} leftIcon={<ImportWorkspace />} fullWidth>
+        Import
+      </Button>
+    </ShareWarningWrapper>
+  );
+};
 
 const ShareWarningWrapper = styled.div`
   padding: 1rem 0.5rem;
-`;
 
-const Bold = styled.span`
-  font-weight: bold;
+  & > div:first-child svg {
+    color: ${({ theme }) => theme.colors.state.info.color};
+  }
+
+  & > button {
+    margin-top: 0.75rem;
+  }
 `;
 
 export default Workspaces;

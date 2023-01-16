@@ -23,7 +23,7 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 
 const Wrapper = styled.div<TextProps>`
   ${({ theme, type, size, bg, IconEl }) =>
-    getTextStyle(theme, type, size, bg, IconEl ? true : false)}
+    getTextStyle(theme, type, size, bg, !!IconEl)}
 `;
 
 const getTextStyle = (
@@ -60,6 +60,7 @@ const getTextStyle = (
     display: flex;
     justify-content: center;
     align-items: center;
+    line-height: 1.5;
 
     & > div {
       display: flex;
@@ -68,14 +69,15 @@ const getTextStyle = (
     }
   `;
 
-  if (iconElExists)
+  if (iconElExists) {
     returnedCss = returnedCss.concat(css`
       & div > svg {
         width: 1.5rem;
         height: 1.5rem;
-        margin-right: 0.5rem;
+        margin-right: 0.75rem;
       }
     `);
+  }
 
   return returnedCss;
 };
