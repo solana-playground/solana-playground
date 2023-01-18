@@ -461,17 +461,32 @@ export class PgExplorer {
 
     const parentFolder = PgExplorer.getParentPathFromPath(fullPath);
 
-    const files = this.files;
+    // Get new path
+    let newPath;
+    if (
+      this._workspace?.allNames.includes(
+        fullPath.substring(1, fullPath.length - 1)
+      )
+    ) {
+      // Github workspace name or any other workspace name with additional '/'
+      // is causing problems. We are mitigating that by directly replacing it.
+      newPath = PgCommon.appendSlash(
+        PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, newName])
+      );
+    } else {
+      newPath = itemType.file
+        ? parentFolder + newName
+        : parentFolder + newName + "/";
+    }
 
     // Check to see if newName already exists
-    const newPath = itemType.file
-      ? parentFolder + newName
-      : parentFolder + newName + "/";
     if (newPath === fullPath) return;
+
+    const files = this.files;
     if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
 
+    // Rename in IndexedDB
     if (!this.isShared) {
-      // Rename in IndexedDB
       const fs = this._getFs();
       await fs.rename(fullPath, newPath);
     }
