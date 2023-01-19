@@ -23,6 +23,7 @@
 | [solana-program](https://docs.rs/solana-program/1.14.10)                           | 1.14.10 |
 | [spl-associated-token-account](https://docs.rs/spl-associated-token-account/1.1.2) | 1.1.2   |
 | [spl-token](https://docs.rs/spl-token/3.5.0)                                       | 3.5.0   |
+| [switchboard-v2](https://docs.rs/switchboard-v2/0.1.20)                            | 0.1.20  |
 | [thiserror](https://docs.rs/thiserror/1.0.38)                                      | 1.0.38  |
 
 You can open an issue to request more crates.
