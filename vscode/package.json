@@ -2,7 +2,7 @@
   "name": "solpg",
   "displayName": "Solana Playground",
   "description": "Commands and snippets to help Solana development in VS Code",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": {
     "name": "acheron",
     "url": "https://github.com/acheroncrypto"
