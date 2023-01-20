@@ -45,8 +45,11 @@ impl Playnet {
 }
 
 #[cfg(test)]
-mod test {
-    use std::{fs, io::Read, str::FromStr};
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
+#[cfg(test)]
+pub mod test {
+    use std::str::FromStr;
 
     use solana_sdk::{
         bpf_loader_upgradeable::{self, UpgradeableLoaderState},
@@ -62,17 +65,20 @@ mod test {
         system_instruction, system_program,
         transaction::Transaction,
     };
+    use wasm_bindgen_test::*;
+
+    use crate::test_programs;
 
     use super::Playnet;
 
     /// Tests whether `system_program::transfer` works as expected
     #[test]
+    #[wasm_bindgen_test]
     fn transfer() {
         let playnet = Playnet::new(None);
 
         let sender_kp = get_payer(&playnet);
         let sender_pk = sender_kp.pubkey();
-        let sender_pk_str = sender_pk.to_string();
 
         let receiver_kp = Keypair::new();
         let receiver_pk = receiver_kp.pubkey();
@@ -96,7 +102,10 @@ mod test {
             )
             .unwrap();
 
-        let sender_balance = playnet.rpc.get_account_info(&sender_pk_str).lamports;
+        let sender_balance = playnet
+            .rpc
+            .get_account_info(&sender_pk.to_string())
+            .lamports;
         let receiver_balance = playnet
             .rpc
             .get_account_info(&receiver_pk.to_string())
@@ -108,14 +117,19 @@ mod test {
 
     /// Tests whether "hello world" program works as expected
     #[test]
+    #[wasm_bindgen_test]
     fn hello_world() {
         let playnet = Playnet::new(None);
 
         let owner_kp = get_payer(&playnet);
         let owner_pk = owner_kp.pubkey();
 
-        let program_id =
-            deploy_program("./test-programs/hello-world.so", &owner_kp, &playnet).unwrap();
+        let program_id = deploy_program(
+            test_programs::hello_world::PROGRAM_BYTES,
+            &owner_kp,
+            &playnet,
+        )
+        .unwrap();
 
         let tx_hash = send_tx(
             &[Instruction::new_with_bytes(program_id, &[], vec![])],
@@ -133,6 +147,7 @@ mod test {
 
     /// Tests whether CPI works as expected
     #[test]
+    #[wasm_bindgen_test]
     fn transfer_cpi() {
         let playnet = Playnet::new(None);
 
@@ -142,8 +157,12 @@ mod test {
         let receiver_kp = Keypair::new();
         let receiver_pk = receiver_kp.pubkey();
 
-        let program_id =
-            deploy_program("./test-programs/transfer-cpi.so", &owner_kp, &playnet).unwrap();
+        let program_id = deploy_program(
+            test_programs::transfer_cpi::PROGRAM_BYTES,
+            &owner_kp,
+            &playnet,
+        )
+        .unwrap();
 
         let tx_hash = send_tx(
             &[Instruction::new_with_bytes(
@@ -227,14 +246,11 @@ mod test {
 
     /// Deploys the program and returns the program id
     fn deploy_program(
-        path: &str,
+        program_bytes: &[u8],
         owner_kp: &Keypair,
         playnet: &Playnet,
     ) -> Result<Pubkey, Box<dyn std::error::Error>> {
-        let mut program_buffer = vec![];
-        let mut file = fs::File::open(path).unwrap();
-        file.read_to_end(&mut program_buffer)?;
-        let program_len = program_buffer.len();
+        let program_len = program_bytes.len();
 
         // Create buffer
         let buffer_kp = Keypair::new();
@@ -261,7 +277,7 @@ mod test {
 
         // Write to buffer
         let chunk_size = PACKET_DATA_SIZE - 220; // Data with 1 signature
-        for (i, bytes) in program_buffer.chunks(chunk_size).enumerate() {
+        for (i, bytes) in program_bytes.chunks(chunk_size).enumerate() {
             send_tx(
                 &[bpf_loader_upgradeable::write(
                     &buffer_pk,

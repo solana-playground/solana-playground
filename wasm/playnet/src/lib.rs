@@ -9,3 +9,6 @@ mod runtime;
 mod serde;
 mod types;
 mod utils;
+
+#[cfg(test)]
+pub mod test_programs;
