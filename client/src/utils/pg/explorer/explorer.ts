@@ -64,7 +64,7 @@ export class PgExplorer {
   /** Internal state */
   private _explorer: ExplorerJSON;
   /** IndexedDB FS object */
-  private _fs?: PromisifiedFS;
+  private _fs: PromisifiedFS;
   /** Workspace functionality */
   private _workspace?: PgWorkspace;
   /** Whether the user is on a shared page */
@@ -80,13 +80,13 @@ export class PgExplorer {
       this._shared = true;
       this._explorer = explorer;
     } else {
-      this._fs = new FS(PgExplorer._INDEXED_DB_NAME).promises;
       this._explorer = {
         files: {},
       };
       this._workspace = new PgWorkspace();
     }
 
+    this._fs = new FS(PgExplorer._INDEXED_DB_NAME).promises;
     this._refresh = refresh;
   }
 
@@ -162,7 +162,7 @@ export class PgExplorer {
       await this._initializeWorkspaces();
     }
 
-    const fs = this._getFs();
+    const fs = this._fs;
 
     // Sets up the files from IndexedDB to the state
     const setupFiles = async (path: string) => {
@@ -341,7 +341,7 @@ export class PgExplorer {
    * NOTE: This function assumes parent directories exist.
    */
   async saveFileToIndexedDB(path: string, data: string) {
-    if (!this.isShared) await this._fs?.writeFile(path, data);
+    if (!this.isShared) await this._fs.writeFile(path, data);
   }
 
   /**
@@ -487,7 +487,7 @@ export class PgExplorer {
 
     // Rename in IndexedDB
     if (!this.isShared) {
-      const fs = this._getFs();
+      const fs = this._fs;
       await fs.rename(fullPath, newPath);
     }
 
@@ -557,7 +557,7 @@ export class PgExplorer {
     }
 
     if (!this.isShared) {
-      const fs = this._getFs();
+      const fs = this._fs;
 
       const stat = await fs.stat(fullPath);
       if (stat.isFile()) await fs.unlink(fullPath);
@@ -765,7 +765,7 @@ export class PgExplorer {
    * Export the current workspace as a zip file
    */
   async exportWorkspace() {
-    const fs = this._getFs();
+    const fs = this._fs;
 
     const { default: JSZip } = await import("jszip");
     const zip = new JSZip();
@@ -843,8 +843,7 @@ export class PgExplorer {
     path = this._convertToFullPath(path);
 
     try {
-      const fs = this._getFs();
-      await fs.stat(path);
+      await this._fs.stat(path);
       return true;
     } catch (e: any) {
       if (e.code === "ENOENT" || e.code === "ENOTDIR") return false;
@@ -859,7 +858,7 @@ export class PgExplorer {
    * Reads file and returns the converted file string
    */
   async readToString(path: string) {
-    const data = await this._getFs().readFile(this._convertToFullPath(path));
+    const data = await this._fs.readFile(this._convertToFullPath(path));
     return data.toString();
   }
 
@@ -1249,21 +1248,10 @@ export class PgExplorer {
   /** Private methods */
 
   /**
-   * @returns the in-memory FS
-   *
-   * @throws if FS doesn't exist
-   */
-  private _getFs() {
-    const fs = this._fs;
-    if (!fs) throw new Error(ItemError.FS_NOT_FOUND);
-    return fs;
-  }
-
-  /**
    * Creates new directory with create parents optionality
    */
   private async _mkdir(path: string, createParents?: boolean) {
-    const fs = this._getFs();
+    const fs = this._fs;
 
     if (createParents) {
       const folders = path.split("/");
@@ -1293,7 +1281,7 @@ export class PgExplorer {
       await this._mkdir(parentFolder, true);
     }
 
-    await this._getFs().writeFile(path, data);
+    await this._fs.writeFile(path, data);
   }
 
   /**
@@ -1314,7 +1302,7 @@ export class PgExplorer {
    * Remove directory with recursive optionality
    */
   private async _rmdir(path: string, recursive?: boolean) {
-    const fs = this._getFs();
+    const fs = this._fs;
 
     if (recursive) {
       const recursivelyRmdir = async (dir: string[], currentPath: string) => {
