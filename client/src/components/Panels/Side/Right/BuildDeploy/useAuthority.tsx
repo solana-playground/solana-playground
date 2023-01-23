@@ -32,7 +32,7 @@ export const useAuthority = () => {
         const programAccountInfo = await conn.getAccountInfo(programPk);
         const programDataPkBuffer = programAccountInfo?.data.slice(4);
         if (!programDataPkBuffer) {
-          setProgramData({ upgradeable: false });
+          setProgramData({ upgradeable: true });
           return;
         }
         const programDataPk = new PublicKey(programDataPkBuffer);
