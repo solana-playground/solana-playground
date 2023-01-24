@@ -116,9 +116,10 @@ export class PgWallet implements AnchorWallet {
   }
 
   /**
-   * Checks if pg wallet is connected and
-   * logs instructions in terminal if wallet is not connected
-   * @returns pg wallet connection status
+   * Check whether Pg wallet is connected.
+   * If not, print connect instructions in terminal.
+   *
+   * @returns `true` if Pg wallet is connected
    */
   static checkIsPgConnected() {
     if (this.getLs()?.connected) return true;

@@ -8,9 +8,14 @@ import { EventName } from "../../../constants";
 import { Lang } from "../explorer";
 
 interface Command {
+  /** Name of the command */
   name: string;
+  /** Description that will be seen in the `help` command */
   description: string;
+  /** Function to run when the command is called */
   process: (input: string) => void | Promise<void>;
+  /* Only process the command if the condition passes */
+  preCheck?: () => boolean;
 }
 
 export class PgCommand {
@@ -44,14 +49,17 @@ export class PgCommand {
           PgTerminal.setTerminalState(TerminalAction.buildStart);
         },
       },
+
       {
         name: this.CLEAR,
         description: "Clear terminal",
-        process: async () => {
-          await PgTerminal.run({ clear: [{ full: true }] });
-          PgTerminal.enable();
+        process: () => {
+          PgTerminal.runCmd(async () => {
+            await PgTerminal.run({ clear: [{ full: true }] });
+          });
         },
       },
+
       {
         name: this.CONNECT,
         description: "Toggle connection to Playground Wallet",
@@ -59,6 +67,7 @@ export class PgCommand {
           PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
         },
       },
+
       {
         name: this.DEPLOY,
         description: "Deploy your program",
@@ -66,6 +75,7 @@ export class PgCommand {
           PgTerminal.setTerminalState(TerminalAction.deployStart);
         },
       },
+
       {
         name: this.HELP,
         description: "Print help message",
@@ -96,6 +106,7 @@ export class PgCommand {
           PgTerminal.enable();
         },
       },
+
       {
         name: this.PRETTIER,
         description: "Format the current file with prettier",
@@ -106,18 +117,19 @@ export class PgCommand {
           });
         },
       },
+
       {
         name: this.RUN,
         description: "Run script(s)",
         process: (input) => {
-          const regex = new RegExp(/^\w+\s?(.*)/);
-          const match = regex.exec(input);
+          const match = new RegExp(/^\w+\s?(.*)/).exec(input);
           PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
             isTest: false,
             path: match && match[1],
           });
         },
       },
+
       {
         name: this.RUSTFMT,
         description: "Format the current file with rustfmt",
@@ -128,73 +140,54 @@ export class PgCommand {
           });
         },
       },
+
       {
         name: this.SOLANA,
         description: "Commands for interacting with Solana",
-        process: (input) => {
-          if (!PgWallet.checkIsPgConnected()) return;
+        process: async (input) => {
+          const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
+            log: this._isPkgLoadingInitial(PkgName.SOLANA_CLI),
+          });
 
-          (async () => {
-            const initial = !this._loadedPkgs[PkgName.SOLANA_CLI];
-            if (initial) {
-              this._loadedPkgs[PkgName.SOLANA_CLI] = true;
-            }
-            const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
-              log: initial,
-            });
-
-            runSolana!(input, ...PgCommand._getCmdArgs(PkgName.SOLANA_CLI)!);
-          })();
+          runSolana!(input, ...PgCommand._getCmdArgs(PkgName.SOLANA_CLI)!);
         },
+        preCheck: () => PgWallet.checkIsPgConnected(),
       },
+
       {
         name: this.SPL_TOKEN,
         description: "Commands for interacting with SPL Tokens",
-        process: (input) => {
-          if (!PgWallet.checkIsPgConnected()) return;
+        process: async (input) => {
+          const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
+            log: this._isPkgLoadingInitial(PkgName.SPL_TOKEN_CLI),
+          });
 
-          (async () => {
-            const initial = !this._loadedPkgs[PkgName.SPL_TOKEN_CLI];
-            if (initial) {
-              this._loadedPkgs[PkgName.SPL_TOKEN_CLI] = true;
-            }
-            const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
-              log: initial,
-            });
-
-            runSplToken!(
-              input,
-              ...PgCommand._getCmdArgs(PkgName.SPL_TOKEN_CLI)!
-            );
-          })();
+          runSplToken!(input, ...PgCommand._getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
         },
+        preCheck: () => PgWallet.checkIsPgConnected(),
       },
+
       {
         name: this.SUGAR,
         description:
           "Command line tool for creating and managing Metaplex Candy Machines",
         process: (input) => {
           PgTerminal.runCmd(async () => {
-            if (!PgWallet.checkIsPgConnected()) return;
-
-            const initial = !this._loadedPkgs[PkgName.SUGAR_CLI];
-            if (initial) {
-              this._loadedPkgs[PkgName.SUGAR_CLI] = true;
-            }
             const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
-              log: initial,
+              log: this._isPkgLoadingInitial(PkgName.SUGAR_CLI),
             });
 
             await runSugar!(input);
           });
         },
+        preCheck: () => PgWallet.checkIsPgConnected(),
       },
+
       {
         name: this.TEST,
         description: "Run test(s)",
         process: (input) => {
-          const regex = new RegExp(/^\w+\s?(.*)/);
-          const match = regex.exec(input);
+          const match = new RegExp(/^\w+\s?(.*)/).exec(input);
           PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
             isTest: true,
             path: match && match[1],
@@ -224,15 +217,20 @@ export class PgCommand {
     for (const command of this._commands) {
       if (command.name !== cmdName) continue;
 
+      if (command.preCheck && !command.preCheck()) {
+        PgTerminal.enable();
+        return;
+      }
+
       return await command.process(input);
     }
 
-    // Only new prompt after invalid command, other commands will automatically
-    // generate new prompt
     if (cmdName) {
       PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
     }
 
+    // Only new prompt after invalid command, other commands will automatically
+    // generate new prompt
     PgTerminal.enable();
   }
 
@@ -266,5 +264,21 @@ export class PgCommand {
           PgWallet.keypairBytes,
         ] as [string, string, Uint8Array];
     }
+  }
+
+  /**
+   * Get whether the package is being loaded for the first time and set the
+   * package's loaded state to `true`
+   *
+   * @param pkgName package name
+   * @returns `true` if the package hasn't been loaded before
+   */
+  private static _isPkgLoadingInitial(pkgName: PkgName) {
+    const initial = !this._loadedPkgs[pkgName];
+    if (initial) {
+      this._loadedPkgs[pkgName] = true;
+    }
+
+    return initial;
   }
 }
