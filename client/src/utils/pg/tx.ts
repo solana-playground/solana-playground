@@ -1,13 +1,20 @@
 import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgWallet } from "./wallet";
+import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgPlaynet } from "./playnet";
+import { PgWallet } from "./wallet";
+
+interface BlockhashInfo {
+  blockhash: string;
+  timestamp: number;
+}
 
 export class PgTx {
   /**
    * Send a transaction with additional signer optionality
+   *
    * @returns transaction signature
    */
   static async send(
@@ -16,7 +23,7 @@ export class PgTx {
     wallet: PgWallet | AnchorWallet,
     additionalSigners?: Signer[]
   ) {
-    tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash;
+    tx.recentBlockhash = await this._getLatestBlockhash(conn);
 
     tx.feePayer = wallet.publicKey;
 
@@ -26,9 +33,7 @@ export class PgTx {
 
     await wallet.signTransaction(tx);
 
-    const rawTx = tx.serialize();
-
-    return await conn.sendRawTransaction(rawTx, {
+    return await conn.sendRawTransaction(tx.serialize(), {
       skipPreflight: !PgConnection.preflightChecks,
     });
   }
@@ -36,7 +41,7 @@ export class PgTx {
   /**
    * Confirm a transaction
    *
-   * Throws an error if rpc request fails
+   * @throws if rpc request fails
    * @returns an object with `err` property if the rpc request succeeded but tx failed
    */
   static async confirm(
@@ -54,5 +59,34 @@ export class PgTx {
 
     const result = await conn.confirmTransaction(txHash, commitment);
     if (result?.value.err) return { err: 1 };
+  }
+
+  /** Cached blockhash to reduce the amount of requests to the RPC endpoint */
+  private static _cachedBlockhashInfo: BlockhashInfo | null = null;
+
+  /**
+   * Get the latest blockhash from the cache or fetch the latest if the cached
+   * blockhash has expired
+   *
+   * @returns the latest blockhash
+   */
+  private static async _getLatestBlockhash(conn: Connection) {
+    // Check whether the latest saved blockhash is still valid
+    const currentTs = PgCommon.getUnixTimstamp();
+
+    // Blockhashes are valid for 150 slots, optimal block time is ~400ms
+    // For finalized: (150 - 32) * 0.4 = 47.2s ~= 45s (to be safe)
+    if (
+      !this._cachedBlockhashInfo ||
+      (this._cachedBlockhashInfo &&
+        currentTs > this._cachedBlockhashInfo.timestamp + 45)
+    ) {
+      this._cachedBlockhashInfo = {
+        blockhash: (await conn.getLatestBlockhash()).blockhash,
+        timestamp: currentTs,
+      };
+    }
+
+    return this._cachedBlockhashInfo.blockhash;
   }
 }
