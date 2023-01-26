@@ -103,12 +103,8 @@ export class PgPlaynet {
     });
 
     // Save Playnet data periodically
-    this._SAVE_INTERVAL_ID = PgCommon.setIntervalOnFocus(async () => {
-      try {
-        await this._save();
-      } catch (e: any) {
-        console.log("Couldn't save Playnet data:", e.message);
-      }
+    this._SAVE_INTERVAL_ID = PgCommon.setIntervalOnFocus(() => {
+      this._save();
     }, this._SAVE_INTERVAL_MS);
   }
 
@@ -134,6 +130,7 @@ export class PgPlaynet {
     // Set the connection to default
     PgConnection.set(PgConnection.createConnection());
 
+    // Set fetch to default
     PgPlaynetRpc.overrideFetch();
 
     // Free memory
@@ -170,26 +167,30 @@ export class PgPlaynet {
   /** Save the Playnet instance data to IndexedDB at this interval */
   private static _SAVE_INTERVAL_MS = 30 * 1000;
 
-  /** Data saving interval that should be cleared while destroying the Playnet instance. */
+  /** Data saving interval that must be cleared while destroying the Playnet instance */
   private static _SAVE_INTERVAL_ID: NodeJS.Timer | null = null;
 
   /** Save the current playnet data */
   private static async _save() {
     if (!this._playnet) return;
 
-    await PgExplorer.run({
-      newItem: [
-        this._PATHS.SAVE_DATA,
-        this._playnet.getSaveData(),
-        {
-          openOptions: {
-            dontOpen: true,
+    try {
+      await PgExplorer.run({
+        newItem: [
+          this._PATHS.SAVE_DATA,
+          this._playnet.getSaveData(),
+          {
+            openOptions: {
+              dontOpen: true,
+            },
+            override: true,
+            skipNameValidation: true,
           },
-          override: true,
-          skipNameValidation: true,
-        },
-      ],
-    });
+        ],
+      });
+    } catch (e: any) {
+      console.log("Couldn't save Playnet data:", e.message);
+    }
   }
 
   /**
