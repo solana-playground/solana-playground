@@ -20,23 +20,9 @@ export const useBuild = () => {
       ]);
       PgTerminal.log(PgTerminal.info("Building..."));
 
-      const explorer = await PgExplorer.get();
-
       let msg = "";
       try {
-        const files = explorer.getBuildFiles();
-        const pythonFiles = files.filter(([fileName]) =>
-          fileName.toLowerCase().endsWith(".py")
-        );
-
-        let result: { stderr: string };
-
-        if (pythonFiles.length > 0) {
-          result = await PgBuild.buildPython(pythonFiles);
-        } else {
-          result = await PgBuild.buildRust(files);
-        }
-
+        const result = await PgBuild.build();
         msg = PgTerminal.editStderr(result.stderr);
 
         // To update programId each build
@@ -49,7 +35,7 @@ export const useBuild = () => {
         setTerminalState(TerminalAction.buildLoadingStop);
 
         // Update program info in IndexedDB
-        await explorer.saveProgramInfo();
+        await PgExplorer.run({ saveProgramInfo: [] });
       }
     });
   }, [setBuildCount, setTerminalState]);

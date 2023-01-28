@@ -14,15 +14,35 @@ interface BuildResp {
 
 export class PgBuild {
   /**
-   * Convert python files into rust with seahorse-compile-wasm and run `buildRust`
+   * Compile the current project
+   *
+   * @returns Build output from stderr(not only errors)
+   */
+  static async build() {
+    const buildFiles = await PgExplorer.run({ getBuildFiles: [] });
+    const pythonFiles = buildFiles.filter(([fileName]) =>
+      fileName.toLowerCase().endsWith(".py")
+    );
+
+    let result;
+    if (pythonFiles.length > 0) {
+      result = await PgBuild._buildPython(pythonFiles);
+    } else {
+      result = await PgBuild._buildRust(buildFiles);
+    }
+
+    return result;
+  }
+
+  /**
+   * Convert Python files into Rust with seahorse-compile-wasm and run `_buildRust`
    *
    * @param pythonFiles Python files in `src/`
    * @returns Build output from stderr(not only errors)
    */
-  static async buildPython(pythonFiles: Files) {
-    const seahorsePkg = await PgPkg.loadPkg(PgPkg.SEAHORSE_COMPILE);
-    const compileFn = seahorsePkg.compileSeahorse;
-    if (!compileFn) {
+  private static async _buildPython(pythonFiles: Files) {
+    const { compileSeahorse } = await PgPkg.loadPkg(PgPkg.SEAHORSE_COMPILE);
+    if (!compileSeahorse) {
       throw new Error("No compile function found in Seahorse package");
     }
 
@@ -30,7 +50,7 @@ export class PgBuild {
       const [path, content] = file;
       const seahorseProgramName =
         PgExplorer.getItemNameFromPath(path).split(".py")[0];
-      let compiledContent = compileFn(content, seahorseProgramName);
+      let compiledContent = compileSeahorse(content, seahorseProgramName);
 
       if (compiledContent.length === 0) {
         throw new Error("Seahorse compile failed");
@@ -50,7 +70,7 @@ export class PgBuild {
       return files;
     });
 
-    return await this.buildRust(rustFiles);
+    return await this._buildRust(rustFiles);
   }
 
   /**
@@ -59,7 +79,7 @@ export class PgBuild {
    * @param rustFiles Rust files from `src/`
    * @returns Build output from stderr(not only errors)
    */
-  static async buildRust(rustFiles: Files) {
+  private static async _buildRust(rustFiles: Files) {
     if (!rustFiles.length) throw new Error("Couldn't find any Rust files.");
 
     const programInfo = PgProgramInfo.getProgramInfo();
