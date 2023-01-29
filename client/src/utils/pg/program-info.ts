@@ -9,7 +9,25 @@ export interface ProgramInfo {
 }
 
 export class PgProgramInfo {
-  private static readonly _PROGRAM_INFO_KEY = "programInfo";
+  /**
+   * @returns the JSON.stringified IDL from localStorage
+   */
+  static get idlStr() {
+    const idl = this.getProgramInfo().idl;
+    if (!idl) return null;
+
+    return JSON.stringify(idl);
+  }
+
+  /**
+   * @returns the current program's pubkey as base58 string
+   */
+  static get pkStr() {
+    const result = this.getPk();
+    if (!result.programPk) return null;
+
+    return result.programPk.toBase58();
+  }
 
   /**
    * @returns program info if it exists in localStorage
@@ -92,4 +110,6 @@ export class PgProgramInfo {
 
     return { programPk };
   }
+
+  private static readonly _PROGRAM_INFO_KEY = "programInfo";
 }

@@ -19,6 +19,7 @@ interface Command {
 }
 
 export class PgCommand {
+  static readonly ANCHOR = "anchor";
   static readonly BUILD = "build";
   static readonly CLEAR = "clear";
   static readonly CONNECT = "connect";
@@ -42,6 +43,21 @@ export class PgCommand {
     if (this._commandsLoaded) return;
 
     this._add(
+      {
+        name: this.ANCHOR,
+        description: "Anchor CLI",
+        process: (input) => {
+          PgTerminal.runCmd(async () => {
+            const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
+              log: this._isPkgLoadingInitial(PkgName.ANCHOR_CLI),
+            });
+
+            await runAnchor!(input);
+          });
+        },
+        preCheck: () => PgWallet.checkIsPgConnected(),
+      },
+
       {
         name: this.BUILD,
         description: "Build your program",

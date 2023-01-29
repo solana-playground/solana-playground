@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "anchor-cli",
     "seahorse-compile",
     "solana-cli",
     "solana-client",

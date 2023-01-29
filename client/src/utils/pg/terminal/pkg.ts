@@ -4,6 +4,7 @@ import { PgTerminal } from "./terminal";
 export interface Pkgs {
   Playnet?: typeof import("@solana-playground/playnet").Playnet;
   compileSeahorse?: typeof import("@solana-playground/seahorse-compile-wasm").compileSeahorse;
+  runAnchor?: typeof import("@solana-playground/anchor-cli-wasm").runAnchor;
   runSolana?: typeof import("@solana-playground/solana-cli-wasm").runSolana;
   runSplToken?: typeof import("@solana-playground/spl-token-cli-wasm").runSplToken;
   runSugar?: typeof import("@solana-playground/sugar-cli-wasm").runSugar;
@@ -16,6 +17,7 @@ export interface PkgInfo {
 }
 
 export enum PkgName {
+  ANCHOR_CLI = "anchor-cli",
   PLAYNET = "playnet",
   RUSTFMT = "rustfmt",
   SEAHORSE_COMPILE = "seahorse-compile",
@@ -25,6 +27,7 @@ export enum PkgName {
 }
 
 enum PkgUiName {
+  ANCHOR_CLI = "Anchor CLI",
   PLAYNET = "Playnet",
   RUSTFMT = "Rustfmt",
   SEAHORSE_COMPILE = "Seahorse",
@@ -34,6 +37,10 @@ enum PkgUiName {
 }
 
 export class PgPkg {
+  static readonly ANCHOR_CLI: PkgInfo = {
+    name: PkgName.ANCHOR_CLI,
+    uiName: PkgUiName.ANCHOR_CLI,
+  };
   static readonly PLAYNET: PkgInfo = {
     name: PkgName.PLAYNET,
     uiName: PkgUiName.PLAYNET,
@@ -98,11 +105,14 @@ export class PgPkg {
   }
 
   /**
-   * Imports the given package asynchronously
+   * Import the given package asynchronously
+   *
    * @returns the imported package
    */
   private static async _loadPkg(pkgName: PkgName) {
     switch (pkgName) {
+      case PkgName.ANCHOR_CLI:
+        return await import("@solana-playground/anchor-cli-wasm");
       case PkgName.PLAYNET:
         return await import("@solana-playground/playnet");
       case PkgName.RUSTFMT:

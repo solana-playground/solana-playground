@@ -22,6 +22,7 @@
     "@metaplex-foundation/mpl-candy-machine-core": "*",
     "@metaplex-foundation/mpl-token-metadata": "*",
     "@project-serum/anchor": "^0.23.0",
+    "@solana-playground/anchor-cli-wasm": "../wasm/pkgs/anchor-cli",
     "@solana-playground/playnet": "../wasm/pkgs/playnet",
     "@solana-playground/rustfmt-wasm": "../wasm/pkgs/rustfmt",
     "@solana-playground/seahorse-compile-wasm": "../wasm/pkgs/seahorse-compile",
