@@ -20,7 +20,7 @@ const ProgramSettings = () => (
     />
     <ProgramSetting
       title="IDL"
-      text="Import/export the program IDL."
+      text="Anchor IDL interactions."
       InsideEl={<IDL />}
     />
   </Wrapper>

@@ -2,7 +2,6 @@ import { Commitment, Connection, ConnectionConfig } from "@solana/web3.js";
 
 import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { PgPlaynet } from "./playnet";
 import { PgSet } from "./types";
 
 export interface PgConnectionConfig {
@@ -109,7 +108,7 @@ export class PgConnection {
    * @returns whether the connection is ready to be used
    */
   static isReady(conn: Connection & { overridden?: boolean }) {
-    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) {
+    if (conn.rpcEndpoint === Endpoint.PLAYNET) {
       return conn.overridden;
     }
 

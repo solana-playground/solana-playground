@@ -1,5 +1,12 @@
-import { Idl } from "@project-serum/anchor";
+import * as pako from "pako";
+import { Idl, utils } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
+import {
+  decodeIdlAccount,
+  idlAddress,
+} from "@project-serum/anchor/dist/cjs/idl";
+
+import { PgConnection } from "./connection";
 
 export interface ProgramInfo {
   uuid?: string;
@@ -111,5 +118,40 @@ export class PgProgramInfo {
     return { programPk };
   }
 
+  /**
+   * Fetch the Anchor IDL from chain.
+   *
+   * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
+   * function only returns the IDL and not the IDL authority.
+   *
+   * @param programId optional program id
+   * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
+   */
+  static async getIdlFromChain(programId?: PublicKey) {
+    if (!programId) {
+      const programPkResult = PgProgramInfo.getPk();
+      if (programPkResult.err) {
+        throw new Error(programPkResult.err);
+      }
+      programId = programPkResult.programPk!;
+    }
+
+    const idlPk = await idlAddress(programId);
+
+    const conn = await PgConnection.get();
+    const accountInfo = await conn.getAccountInfo(idlPk);
+    if (!accountInfo) {
+      return null;
+    }
+
+    // Chop off account discriminator
+    const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
+    const inflatedIdl = pako.inflate(idlAccount.data);
+    const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
+
+    return { idl, authority: idlAccount.authority };
+  }
+
+  /** localStorage key */
   private static readonly _PROGRAM_INFO_KEY = "programInfo";
 }
