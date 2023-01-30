@@ -105,7 +105,7 @@ async fn process_authority(program_id: Option<Pubkey>) -> CliResult {
     let mut data: &[u8] = &account.data;
     let idl_account: IdlAccount = AccountDeserialize::try_deserialize(&mut data)?;
 
-    PgTerminal::log_wasm(&format!("{:?}", idl_account.authority));
+    PgTerminal::log_wasm(&format!("{}", idl_account.authority));
 
     Ok(())
 }
@@ -141,7 +141,7 @@ async fn process_close(program_id: Option<Pubkey>) -> CliResult {
     );
     client.send_and_confirm_transaction(&tx).await?;
 
-    PgTerminal::log_wasm(&format!("Idl account closed: {}", idl_address));
+    PgTerminal::log_wasm(&format!("IDL account closed: {}", idl_address));
 
     Ok(())
 }
@@ -162,8 +162,8 @@ async fn process_fetch(addr: Option<Pubkey>) -> CliResult {
     }
 
     // Cut off account discriminator
-    let mut d: &[u8] = &account.data[8..];
-    let idl_account: IdlAccount = AnchorDeserialize::deserialize(&mut d)?;
+    let mut data = &account.data[8..];
+    let idl_account: IdlAccount = AnchorDeserialize::deserialize(&mut data)?;
 
     let compressed_len: usize = idl_account.data_len.try_into().unwrap();
     let compressed_bytes = &account.data[44..44 + compressed_len];
@@ -253,11 +253,11 @@ async fn process_init(program_id: Option<Pubkey>) -> CliResult {
 
 async fn process_set_authority(
     program_id: Option<Pubkey>,
-    maybe_address: Option<Pubkey>,
+    idl_address: Option<Pubkey>,
     new_authority: Pubkey,
 ) -> CliResult {
     let program_id = get_program_id(program_id)?;
-    let idl_address = maybe_address.unwrap_or(IdlAccount::address(&program_id));
+    let idl_address = idl_address.unwrap_or(IdlAccount::address(&program_id));
 
     let keypair = get_keypair();
     let client = get_client();
@@ -288,7 +288,11 @@ async fn process_set_authority(
     );
     client.send_and_confirm_transaction(&tx).await?;
 
-    PgTerminal::log_wasm("Authority update complete.");
+    if new_authority == ERASED_AUTHORITY {
+        PgTerminal::log_wasm("Erased authority.");
+    } else {
+        PgTerminal::log_wasm(&format!("Set authority to: {}", new_authority));
+    }
 
     Ok(())
 }
@@ -461,7 +465,7 @@ async fn create_and_write_buffer(program_id: Pubkey) -> CliResult<Pubkey> {
 
     idl_write(program_id, &idl, buffer_pk).await?;
 
-    PgTerminal::log_wasm(&format!("Idl buffer created: {}", buffer_pk));
+    PgTerminal::log_wasm(&format!("IDL buffer created: {}", buffer_pk));
 
     Ok(buffer_pk)
 }
