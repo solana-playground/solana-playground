@@ -16,7 +16,12 @@ const EndpointSetting = () => {
   const [conn, setConn] = useAtom(connAtom);
 
   const options = useMemo(
-    () => NETWORKS.map((n) => ({ value: n.endpoint, label: n.name })),
+    () =>
+      NETWORKS.map((n) => ({ value: n.endpoint, label: n.name })).filter((n) =>
+        process.env.NODE_ENV === "production"
+          ? n.label !== NetworkName.PLAYNET
+          : true
+      ),
     []
   );
   const value = useMemo(
