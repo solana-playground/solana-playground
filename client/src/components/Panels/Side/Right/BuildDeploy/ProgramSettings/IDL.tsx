@@ -68,6 +68,7 @@ const Export = () => {
 };
 
 enum InitOrUpgradeState {
+  NO_IDL,
   HAS_ERROR,
   INCORRECT_AUTHORITY,
   IS_FETCHING,
@@ -78,8 +79,11 @@ enum InitOrUpgradeState {
 }
 
 const InitOrUpgrade = () => {
+  // Check IDL on each build
+  const [buildCount] = useAtom(buildCountAtom);
+
   const [state, setState] = useState<InitOrUpgradeState>(
-    InitOrUpgradeState.IS_FETCHING
+    InitOrUpgradeState.NO_IDL
   );
 
   const buttonText = useMemo(() => {
@@ -115,6 +119,11 @@ const InitOrUpgrade = () => {
 
   const getIdl = useCallback(async () => {
     try {
+      if (!PgProgramInfo.getProgramInfo().idl) {
+        setState(InitOrUpgradeState.NO_IDL);
+        return;
+      }
+
       setState(InitOrUpgradeState.IS_FETCHING);
       const idlResult = await PgCommon.transition(
         PgProgramInfo.getIdlFromChain()
@@ -140,7 +149,7 @@ const InitOrUpgrade = () => {
   // Initial run
   useEffect(() => {
     getIdl();
-  }, [getIdl]);
+  }, [getIdl, buildCount]);
 
   const handleInitOrUpgrade = async () => {
     switch (state) {
@@ -160,6 +169,8 @@ const InitOrUpgrade = () => {
 
     await getIdl();
   };
+
+  if (state === InitOrUpgradeState.NO_IDL) return null;
 
   return (
     <Button
