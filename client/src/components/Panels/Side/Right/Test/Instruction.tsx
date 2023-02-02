@@ -145,7 +145,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
 
   // Test submission
   const handleTest = useCallback(async () => {
-    const showLogTxHash = await PgTerminal.runCmd(async () => {
+    const showLogTxHash = await PgTerminal.process(async () => {
       if (!currentWallet) return;
 
       setLoading(true);
@@ -196,7 +196,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
       if (conn.rpcEndpoint.startsWith("https")) {
         await PgCommon.sleep(1500);
       }
-      PgTerminal.runCmdFromStr(`solana confirm ${showLogTxHash} -v`);
+      PgTerminal.run({ execute: [{ solana: `confirm ${showLogTxHash} -v` }] });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

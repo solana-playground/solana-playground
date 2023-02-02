@@ -99,7 +99,7 @@ const SendInside = () => {
   const { currentWallet } = useCurrentWallet();
 
   const send = () => {
-    PgTerminal.runCmd(async () => {
+    PgTerminal.process(async () => {
       if (!currentWallet) return;
 
       setLoading(true);

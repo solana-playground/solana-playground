@@ -359,7 +359,7 @@ export class PgTerminal {
    * This function should be used as a wrapper function when calling any
    * terminal command.
    */
-  static async runCmd<T>(cb: () => Promise<T>) {
+  static async process<T>(cb: () => Promise<T>) {
     this.disable();
     this.scrollToBottom();
     try {
@@ -381,7 +381,7 @@ export class PgTerminal {
   /**
    * Dispatch run cmd from str custom event
    */
-  static runCmdFromStr(cmd: string) {
+  static executeFromStr(cmd: string) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.TERMINAL_RUN_CMD_FROM_STR,
       cmd
@@ -665,6 +665,31 @@ export class PgTerm {
   }
 
   /**
+   * Write the given input in the terminal and press `Enter`
+   */
+  executeFromStr(cmd: string, clearCmd: boolean = true) {
+    this._pgTty.setInput(cmd);
+    this._pgShell.handleReadComplete(clearCmd);
+  }
+
+  /**
+   * Execute the given command
+   *
+   * @param cmd {command: args}
+   */
+  execute<K extends keyof typeof PgCommand["CMD_NAMES"]>(
+    cmd: {
+      [Name in K]?: string;
+    },
+    clearCmd?: boolean
+  ) {
+    for (const cmdName in cmd) {
+      const args = cmd[cmdName as K];
+      this.executeFromStr(`${cmdName} ${args}`, clearCmd);
+    }
+  }
+
+  /**
    * Run the last command if it exists
    *
    * This function is useful for running wasm cli packages after initial loading
@@ -672,21 +697,13 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.RUN_LAST_CMD) {
+    if (!lastCmd || lastCmd === PgCommand.CMD_NAMES.runLastCmd) {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
 
-    this.runCmdFromStr(lastCmd);
-  }
-
-  /**
-   * Write the given input in the terminal and press enter
-   */
-  runCmdFromStr(cmd: string) {
-    this._pgTty.setInput(cmd);
-    this._pgShell.handleReadComplete(true);
+    this.executeFromStr(lastCmd);
   }
 
   /**

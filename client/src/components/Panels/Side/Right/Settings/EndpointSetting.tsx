@@ -51,7 +51,7 @@ const EndpointSetting = () => {
 };
 
 const CustomEndpoint = () => {
-  const [customEndpoint, setCustomEndpoint] = useState<string>("");
+  const [customEndpoint, setCustomEndpoint] = useState("");
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +62,9 @@ const CustomEndpoint = () => {
   }, []);
 
   const onSubmit = () => {
-    PgTerminal.runCmdFromStr(`solana config set -u ${customEndpoint}`);
+    PgTerminal.run({
+      execute: [{ solana: `config set -u ${customEndpoint}` }],
+    });
     close();
   };
 

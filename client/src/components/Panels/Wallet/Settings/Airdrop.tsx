@@ -20,7 +20,7 @@ export const Airdrop: FC<SettingsItemProps> = ({ close }) => {
 
   const airdrop = useCallback(
     async (walletPk: PublicKey) => {
-      await PgTerminal.runCmd(async () => {
+      await PgTerminal.process(async () => {
         if (!amount) return;
 
         close();

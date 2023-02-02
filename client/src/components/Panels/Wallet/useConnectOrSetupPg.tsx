@@ -11,7 +11,7 @@ export const useConnectOrSetupPg = () => {
 
   // Pg wallet should always be connected except first time ever
   const handleConnectPg = useCallback(() => {
-    PgTerminal.runCmd(async () => {
+    PgTerminal.process(async () => {
       const setupCompleted = PgWallet.getLs()?.setupCompleted;
       if (!setupCompleted) {
         await PgModal.set(() => <Setup onSubmit={handleConnectPg} />);

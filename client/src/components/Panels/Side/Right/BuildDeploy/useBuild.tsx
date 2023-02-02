@@ -13,7 +13,7 @@ export const useBuild = () => {
   const [, setBuildCount] = useAtom(buildCountAtom);
 
   const runBuild = useCallback(() => {
-    PgTerminal.runCmd(async () => {
+    PgTerminal.process(async () => {
       setTerminalState([
         TerminalAction.buildStop,
         TerminalAction.buildLoadingStart,

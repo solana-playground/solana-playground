@@ -33,7 +33,6 @@ export class PgShell {
   private _processCount: number;
   private _maxAutocompleteEntries: number;
   private _autocompleteHandlers: AutoCompleteHandler[];
-  private _loadedPkgs: { [pkgName: string]: boolean };
   private _activePrompt?: ActivePrompt;
   private _activeCharPrompt?: ActiveCharPrompt;
 
@@ -56,7 +55,6 @@ export class PgShell {
     this._active = false;
     this._waitingForInput = false;
     this._processCount = 0;
-    this._loadedPkgs = {};
   }
 
   /**
@@ -94,7 +92,7 @@ export class PgShell {
   /**
    * Prompt terminal
    *
-   * This function also helps with command history
+   * This function also helps with command history.
    */
   async prompt() {
     // If we are already prompting, do nothing
@@ -150,9 +148,9 @@ export class PgShell {
   }
 
   /**
-   * @param clearCmd whether to clean the current line before parsing the command
-   *
    * Handle input completion
+   *
+   * @param clearCmd whether to clean the current line before parsing the command
    */
   handleReadComplete = (clearCmd?: boolean) => {
     const input = this._pgTty.getInput();
@@ -220,7 +218,7 @@ export class PgShell {
   /**
    * Wait for user input
    *
-   * @param msg Message to print to the terminal before prompting user
+   * @param msg message to print to the terminal before prompting user
    * @returns user input
    */
   async waitForUserInput(msg: string): Promise<string> {
@@ -236,11 +234,11 @@ export class PgShell {
 
         // This will happen once user submits the input
         const handleInput = () => {
-          this._waitingForInput = false;
           document.removeEventListener(
             EventName.TERMINAL_WAIT_FOR_INPUT,
             handleInput
           );
+          this._waitingForInput = false;
           const input = this._pgTty.getInput();
           res(input);
         };

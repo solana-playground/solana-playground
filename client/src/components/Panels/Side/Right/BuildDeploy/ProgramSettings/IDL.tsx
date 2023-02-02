@@ -7,7 +7,6 @@ import DownloadButton from "../../../../../DownloadButton";
 import UploadButton from "../../../../../UploadButton";
 import { buildCountAtom } from "../../../../../../state";
 import {
-  PgCommand,
   PgCommon,
   PgExplorer,
   PgProgramInfo,
@@ -155,13 +154,13 @@ const InitOrUpgrade = () => {
     switch (state) {
       case InitOrUpgradeState.CAN_INIT: {
         setState(InitOrUpgradeState.IS_INITIALIZING);
-        PgTerminal.runCmdFromStr(`${PgCommand.ANCHOR} idl init`);
+        await PgTerminal.run({ execute: [{ anchor: "idl init" }] });
         await PgCommon.sleep(4000);
         break;
       }
       case InitOrUpgradeState.CAN_UPGRADE: {
         setState(InitOrUpgradeState.IS_UPGRADING);
-        PgTerminal.runCmdFromStr(`${PgCommand.ANCHOR} idl upgrade`);
+        await PgTerminal.run({ execute: [{ anchor: "idl upgrade" }] });
         await PgCommon.sleep(2000);
         break;
       }

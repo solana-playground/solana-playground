@@ -9,7 +9,7 @@ import {
   modalAtom,
   newItemAtom,
 } from "../../../../../state";
-import { PgCommand, PgExplorer, PgTerminal } from "../../../../../utils/pg";
+import { PgExplorer, PgTerminal } from "../../../../../utils/pg";
 
 export interface ItemData {
   isFolder?: boolean;
@@ -139,31 +139,31 @@ const useExplorerContextMenu = () => {
 
   const runClient = useCallback(() => {
     run(() => {
-      PgTerminal.runCmdFromStr(`${PgCommand.RUN} ${getPath()}`);
+      PgTerminal.run({ execute: [{ run: getPath() }] });
     });
   }, [getPath, run]);
 
   const runTest = useCallback(() => {
     run(() => {
-      PgTerminal.runCmdFromStr(`${PgCommand.TEST} ${getPath()}`);
+      PgTerminal.run({ execute: [{ test: getPath() }] });
     });
   }, [getPath, run]);
 
   const runClientFolder = useCallback(() => {
     run(() => {
-      PgTerminal.runCmdFromStr(PgCommand.RUN);
+      PgTerminal.run({ execute: [{ run: "" }] });
     });
   }, [run]);
 
   const runTestFolder = useCallback(() => {
     run(() => {
-      PgTerminal.runCmdFromStr(PgCommand.TEST);
+      PgTerminal.run({ execute: [{ test: "" }] });
     });
   }, [run]);
 
   const runBuild = useCallback(() => {
     run(() => {
-      PgTerminal.runCmdFromStr(PgCommand.BUILD);
+      PgTerminal.run({ execute: [{ build: "" }] });
     });
   }, [run]);
 

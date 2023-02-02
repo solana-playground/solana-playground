@@ -184,7 +184,7 @@ const Terminal = () => {
     };
     const handleRunCmdFromStr = (e: UIEvent) => {
       const cmd = e.detail as unknown as string;
-      term.runCmdFromStr(cmd);
+      term.executeFromStr(cmd);
     };
 
     document.addEventListener(EventName.TERMINAL_ENABLE, handleEnable);

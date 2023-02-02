@@ -35,7 +35,7 @@ const ClientHelper = () => {
     const handle = (
       e: UIEvent & { detail: { isTest?: boolean; path?: string } }
     ) => {
-      PgTerminal.runCmd(async () => {
+      PgTerminal.process(async () => {
         const isTest = e.detail.isTest;
         const path = e.detail.path;
 

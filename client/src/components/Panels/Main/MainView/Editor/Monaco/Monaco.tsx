@@ -307,7 +307,7 @@ const Monaco = () => {
     const handleEditorFormat = (
       e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
     ) => {
-      PgTerminal.runCmd(async () => {
+      PgTerminal.process(async () => {
         if (!editor || !explorer) return;
 
         const lang = explorer.getCurrentFileLanguage();

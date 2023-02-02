@@ -19,20 +19,22 @@ interface Command {
 }
 
 export class PgCommand {
-  static readonly ANCHOR = "anchor";
-  static readonly BUILD = "build";
-  static readonly CLEAR = "clear";
-  static readonly CONNECT = "connect";
-  static readonly DEPLOY = "deploy";
-  static readonly HELP = "help";
-  static readonly PRETTIER = "prettier";
-  static readonly RUN = "run";
-  static readonly RUN_LAST_CMD = "!!";
-  static readonly RUSTFMT = "rustfmt";
-  static readonly SOLANA = "solana";
-  static readonly SPL_TOKEN = "spl-token";
-  static readonly SUGAR = "sugar";
-  static readonly TEST = "test";
+  static readonly CMD_NAMES = {
+    anchor: "anchor",
+    build: "build",
+    clear: "clear",
+    connect: "connect",
+    deploy: "deploy",
+    help: "help",
+    prettier: "prettier",
+    run: "run",
+    runLastCmd: "!!",
+    rustfmt: "rustfmt",
+    solana: "solana",
+    splToken: "spl-token",
+    sugar: "sugar",
+    test: "test",
+  };
 
   /**
    * Load the commands.
@@ -40,14 +42,14 @@ export class PgCommand {
    * NOTE: This function must be run in order for commands to work.
    */
   static load() {
-    if (this._commandsLoaded) return;
+    if (this._commands.length) return;
 
     this._add(
       {
-        name: this.ANCHOR,
+        name: this.CMD_NAMES.anchor,
         description: "Anchor CLI",
         process: (input) => {
-          PgTerminal.runCmd(async () => {
+          PgTerminal.process(async () => {
             const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
               log: this._isPkgLoadingInitial(PkgName.ANCHOR_CLI),
             });
@@ -59,7 +61,7 @@ export class PgCommand {
       },
 
       {
-        name: this.BUILD,
+        name: this.CMD_NAMES.build,
         description: "Build your program",
         process: () => {
           PgTerminal.setTerminalState(TerminalAction.buildStart);
@@ -67,17 +69,17 @@ export class PgCommand {
       },
 
       {
-        name: this.CLEAR,
+        name: this.CMD_NAMES.clear,
         description: "Clear terminal",
         process: () => {
-          PgTerminal.runCmd(async () => {
+          PgTerminal.process(async () => {
             await PgTerminal.run({ clear: [{ full: true }] });
           });
         },
       },
 
       {
-        name: this.CONNECT,
+        name: this.CMD_NAMES.connect,
         description: "Toggle connection to Playground Wallet",
         process: () => {
           PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
@@ -85,7 +87,7 @@ export class PgCommand {
       },
 
       {
-        name: this.DEPLOY,
+        name: this.CMD_NAMES.deploy,
         description: "Deploy your program",
         process: () => {
           PgTerminal.setTerminalState(TerminalAction.deployStart);
@@ -93,7 +95,7 @@ export class PgCommand {
       },
 
       {
-        name: this.HELP,
+        name: this.CMD_NAMES.help,
         description: "Print help message",
         process: () => {
           const commandsText = "COMMANDS:\n";
@@ -124,7 +126,7 @@ export class PgCommand {
       },
 
       {
-        name: this.PRETTIER,
+        name: this.CMD_NAMES.prettier,
         description: "Format the current file with prettier",
         process: () => {
           PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
@@ -135,7 +137,7 @@ export class PgCommand {
       },
 
       {
-        name: this.RUN,
+        name: this.CMD_NAMES.run,
         description: "Run script(s)",
         process: (input) => {
           const match = new RegExp(/^\w+\s?(.*)/).exec(input);
@@ -147,7 +149,7 @@ export class PgCommand {
       },
 
       {
-        name: this.RUSTFMT,
+        name: this.CMD_NAMES.rustfmt,
         description: "Format the current file with rustfmt",
         process: () => {
           PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
@@ -158,7 +160,7 @@ export class PgCommand {
       },
 
       {
-        name: this.SOLANA,
+        name: this.CMD_NAMES.solana,
         description: "Commands for interacting with Solana",
         process: async (input) => {
           const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
@@ -171,7 +173,7 @@ export class PgCommand {
       },
 
       {
-        name: this.SPL_TOKEN,
+        name: this.CMD_NAMES.splToken,
         description: "Commands for interacting with SPL Tokens",
         process: async (input) => {
           const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
@@ -184,11 +186,11 @@ export class PgCommand {
       },
 
       {
-        name: this.SUGAR,
+        name: this.CMD_NAMES.sugar,
         description:
           "Command line tool for creating and managing Metaplex Candy Machines",
         process: (input) => {
-          PgTerminal.runCmd(async () => {
+          PgTerminal.process(async () => {
             const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
               log: this._isPkgLoadingInitial(PkgName.SUGAR_CLI),
             });
@@ -200,7 +202,7 @@ export class PgCommand {
       },
 
       {
-        name: this.TEST,
+        name: this.CMD_NAMES.test,
         description: "Run test(s)",
         process: (input) => {
           const match = new RegExp(/^\w+\s?(.*)/).exec(input);
@@ -215,13 +217,11 @@ export class PgCommand {
 
       // Run last command
       {
-        name: this.RUN_LAST_CMD,
+        name: this.CMD_NAMES.runLastCmd,
         description: "Run the last command",
         process: PgTerminal.runLastCmd,
       }
     );
-
-    this._commandsLoaded = true;
   }
 
   /** Execute the given command */
@@ -252,9 +252,6 @@ export class PgCommand {
 
   /** Loaded commands */
   private static readonly _commands: Command[] = [];
-
-  /** Whether the commands has been loaded */
-  private static _commandsLoaded = false;
 
   /** Loaded packages */
   private static readonly _loadedPkgs: { [pkgName: string]: boolean } = {};
