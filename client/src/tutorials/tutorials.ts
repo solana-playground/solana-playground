@@ -62,6 +62,10 @@ export const TUTORIALS: TutorialData[] = [
         name: "cleon",
         link: "https://twitter.com/0xCleon",
       },
+      {
+        name: "firecrab",
+        link: "https://twitter.com/firecrab_",
+      },
     ],
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.ANCHOR],

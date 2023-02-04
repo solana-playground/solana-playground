@@ -268,7 +268,13 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
       <ShowGenClose close={closeSeed} />
       <ShowGenTitle>Generate from seed</ShowGenTitle>
       {seeds.map((seed, i) => (
-        <SeedInput key={i} index={i} seed={seed} setSeeds={setSeeds} />
+        <SeedInput
+          key={i}
+          index={i}
+          seed={seed}
+          seedCount={seeds.length}
+          setSeeds={setSeeds}
+        />
       ))}
       <ShowGenInputWrapper>
         <InputLabel label="Program Id" type="publicKey" />
@@ -286,10 +292,16 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
 interface SeedInputProps {
   index: number;
   seed: Seed;
+  seedCount: number;
   setSeeds: Dispatch<SetStateAction<Seed[]>>;
 }
 
-const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
+const SeedInput: FC<SeedInputProps> = ({
+  index,
+  seed,
+  seedCount,
+  setSeeds,
+}) => {
   const [showAddSeed, setShowAddSeed] = useState(false);
   const [error, setError] = useState(false);
 
@@ -384,47 +396,54 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAddSeed, closeAddSeed]);
 
-  const isFirst = index === 0;
+  const isLast = index === seedCount - 1;
 
   return (
-    <ShowGenInputWrapper>
-      <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
-      <SeedInputWrapper>
-        <Input
-          ref={seedInputRef}
-          value={seed.value}
-          onChange={handleSeed}
-          className={error ? ClassName.ERROR : ""}
-        />
-        {isFirst ? (
+    <>
+      <ShowGenInputWrapper>
+        <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
+        <SeedInputWrapper>
+          <Input
+            ref={seedInputRef}
+            value={seed.value}
+            onChange={handleSeed}
+            className={error ? ClassName.ERROR : ""}
+          />
+
+          {seedCount > 1 ? (
+            <Tooltip text="Remove seed">
+              <Button onClick={removeSeed} kind="icon">
+                <MinusFilled />
+              </Button>
+            </Tooltip>
+          ) : null}
+        </SeedInputWrapper>
+      </ShowGenInputWrapper>
+      {isLast ? (
+        <ShowGenInputWrapper>
+          <ShowGenTitle>Add new seed</ShowGenTitle>
           <AddSeedWrapper>
             <Tooltip text="Add seed">
               <Button onClick={toggleAddSeed} kind="icon">
                 <PlusFilled />
               </Button>
+              {showAddSeed && (
+                <AddSeedMenu ref={menuRef}>
+                  <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
+                  <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
+                  <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
+                  <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
+                  <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
+                  <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
+                  <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
+                  <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
+                </AddSeedMenu>
+              )}
             </Tooltip>
-            {showAddSeed && (
-              <AddSeedMenu ref={menuRef}>
-                <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
-                <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
-                <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
-                <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
-                <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
-                <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
-                <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
-                <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
-              </AddSeedMenu>
-            )}
           </AddSeedWrapper>
-        ) : (
-          <Tooltip text="Remove seed">
-            <Button onClick={removeSeed} kind="icon">
-              <MinusFilled />
-            </Button>
-          </Tooltip>
-        )}
-      </SeedInputWrapper>
-    </ShowGenInputWrapper>
+        </ShowGenInputWrapper>
+      ) : null}
+    </>
   );
 };
 
@@ -437,12 +456,15 @@ const SeedInputWrapper = styled.div`
 `;
 
 const AddSeedWrapper = styled.div`
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const AddSeedMenu = styled.div`
   ${({ theme }) => css`
     position: absolute;
+    margin-left: -15px;
     z-index: 2;
     background-color: ${theme.colors.tooltip?.bg ??
     theme.colors.default.bgPrimary};
