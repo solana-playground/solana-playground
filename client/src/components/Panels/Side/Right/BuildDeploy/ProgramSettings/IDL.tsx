@@ -154,13 +154,15 @@ const InitOrUpgrade = () => {
     switch (state) {
       case InitOrUpgradeState.CAN_INIT: {
         setState(InitOrUpgradeState.IS_INITIALIZING);
-        await PgTerminal.run({ execute: [{ anchor: "idl init" }] });
+        await PgTerminal.execute({ anchor: "idl init" });
+        // TODO: Remove after making command execution async
         await PgCommon.sleep(4000);
         break;
       }
       case InitOrUpgradeState.CAN_UPGRADE: {
         setState(InitOrUpgradeState.IS_UPGRADING);
-        await PgTerminal.run({ execute: [{ anchor: "idl upgrade" }] });
+        await PgTerminal.execute({ anchor: "idl upgrade" });
+        // TODO: Remove after making command execution async
         await PgCommon.sleep(2000);
         break;
       }

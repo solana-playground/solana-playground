@@ -416,6 +416,13 @@ export class PgTerminal {
   }
 
   /**
+   * Execute the given command
+   */
+  static async execute(...args: Parameters<PgTerm["execute"]>) {
+    await PgTerminal.run({ execute: [...args] });
+  }
+
+  /**
    * Set progressbar percentage.
    *
    * Progress bar will be hidden if `progress` is set to 0.
@@ -664,18 +671,24 @@ export class PgTerm {
     delete this._xterm;
   }
 
+  // TODO: Make async
   /**
    * Write the given input in the terminal and press `Enter`
+   *
+   * @param cmd command to run
+   * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
   executeFromStr(cmd: string, clearCmd: boolean = true) {
     this._pgTty.setInput(cmd);
     this._pgShell.handleReadComplete(clearCmd);
   }
 
+  // TODO: Make async
   /**
    * Execute the given command
    *
    * @param cmd {command: args}
+   * @param clearCmd whether to clean the command afterwards
    */
   execute<K extends keyof typeof PgCommand["CMD_NAMES"]>(
     cmd: {

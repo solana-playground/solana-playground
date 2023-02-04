@@ -62,9 +62,7 @@ const CustomEndpoint = () => {
   }, []);
 
   const onSubmit = () => {
-    PgTerminal.run({
-      execute: [{ solana: `config set -u ${customEndpoint}` }],
-    });
+    PgTerminal.execute({ solana: `config set -u ${customEndpoint}` });
     close();
   };
 

@@ -196,7 +196,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
       if (conn.rpcEndpoint.startsWith("https")) {
         await PgCommon.sleep(1500);
       }
-      PgTerminal.run({ execute: [{ solana: `confirm ${showLogTxHash} -v` }] });
+      PgTerminal.execute({ solana: `confirm ${showLogTxHash} -v` });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

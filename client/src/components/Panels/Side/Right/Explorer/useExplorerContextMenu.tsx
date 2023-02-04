@@ -139,31 +139,31 @@ const useExplorerContextMenu = () => {
 
   const runClient = useCallback(() => {
     run(() => {
-      PgTerminal.run({ execute: [{ run: getPath() }] });
+      PgTerminal.execute({ run: getPath() });
     });
   }, [getPath, run]);
 
   const runTest = useCallback(() => {
     run(() => {
-      PgTerminal.run({ execute: [{ test: getPath() }] });
+      PgTerminal.execute({ test: getPath() });
     });
   }, [getPath, run]);
 
   const runClientFolder = useCallback(() => {
     run(() => {
-      PgTerminal.run({ execute: [{ run: "" }] });
+      PgTerminal.execute({ run: "" });
     });
   }, [run]);
 
   const runTestFolder = useCallback(() => {
     run(() => {
-      PgTerminal.run({ execute: [{ test: "" }] });
+      PgTerminal.execute({ test: "" });
     });
   }, [run]);
 
   const runBuild = useCallback(() => {
     run(() => {
-      PgTerminal.run({ execute: [{ build: "" }] });
+      PgTerminal.execute({ build: "" });
     });
   }, [run]);
 
