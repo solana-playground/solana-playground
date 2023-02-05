@@ -16,6 +16,7 @@ const CounterEasy = () => (
       { content: require("./pages/8.md") },
       { content: require("./pages/9.md") },
       { content: require("./pages/10.md") },
+      { content: require("./pages/11.md") },
     ]}
     // Initial files to have at the beginning of the tutorial
     files={[
