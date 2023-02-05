@@ -20,7 +20,7 @@ import InputLabel from "./InputLabel";
 import Tooltip from "../../../../Tooltip";
 import Input from "../../../../Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import { ClassName } from "../../../../../constants";
+import { ClassName, Id } from "../../../../../constants";
 import {
   PgAccount,
   PgProgramInfo,
@@ -148,7 +148,7 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
             disabled={accountExists}
           />
           {(showSearch || showSeed || showAta) && (
-            <SearchWrapper>
+            <SearchWrapper id={Id.SEARCH_WRAPPER}>
               {showSeed ? (
                 <ShowSeed
                   setVal={setVal}
@@ -201,6 +201,24 @@ const SearchWrapper = styled.div`
       ${theme.colors.default.primary + theme.transparency?.medium};
     border-radius: ${theme.borderRadius};
     position: relative;
+
+    &::after {
+      content: "";
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      z-index: -1;
+      transition: all ${theme.transition?.duration.short}
+        ${theme.transition?.type};
+    }
+
+    &.${ClassName.DARKEN}::after {
+      opacity: 0.5;
+      z-index: 1;
+    }
   `}
 `;
 
@@ -267,6 +285,7 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
     <ShowGenWrapper>
       <ShowGenClose close={closeSeed} />
       <ShowGenTitle>Generate from seed</ShowGenTitle>
+
       {seeds.map((seed, i) => (
         <SeedInput
           key={i}
@@ -276,6 +295,9 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
           setSeeds={setSeeds}
         />
       ))}
+
+      <AddSeed setSeeds={setSeeds} />
+
       <ShowGenInputWrapper>
         <InputLabel label="Program Id" type="publicKey" />
         <Input value={programId} onChange={handleProgramId} />
@@ -302,7 +324,6 @@ const SeedInput: FC<SeedInputProps> = ({
   seedCount,
   setSeeds,
 }) => {
-  const [showAddSeed, setShowAddSeed] = useState(false);
   const [error, setError] = useState(false);
 
   const handleSeed = useCallback(
@@ -325,11 +346,56 @@ const SeedInput: FC<SeedInputProps> = ({
     [index, seed.type, setSeeds]
   );
 
+  const removeSeed = useCallback(() => {
+    setSeeds((seeds) => [...seeds.filter((_s, i) => i !== index)]);
+  }, [index, setSeeds]);
+
+  const seedInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus on mount
+  useEffect(() => {
+    seedInputRef.current?.focus();
+  }, []);
+
+  return (
+    <ShowGenInputWrapper>
+      <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
+      <SeedInputWrapper>
+        <Input
+          ref={seedInputRef}
+          value={seed.value}
+          onChange={handleSeed}
+          className={error ? ClassName.ERROR : ""}
+        />
+
+        {seedCount > 1 && (
+          <Tooltip text="Remove seed">
+            <Button onClick={removeSeed} kind="icon">
+              <MinusFilled />
+            </Button>
+          </Tooltip>
+        )}
+      </SeedInputWrapper>
+    </ShowGenInputWrapper>
+  );
+};
+
+const AddSeed: FC<Pick<SeedInputProps, "setSeeds">> = ({ setSeeds }) => {
+  const [showAddSeed, setShowAddSeed] = useState(false);
+
   const toggleAddSeed = useCallback(() => {
-    setShowAddSeed((s) => !s);
+    setShowAddSeed((s) => {
+      document
+        .getElementById(Id.SEARCH_WRAPPER)
+        ?.classList.add(ClassName.DARKEN);
+      return !s;
+    });
   }, []);
 
   const closeAddSeed = useCallback(() => {
+    document
+      .getElementById(Id.SEARCH_WRAPPER)
+      ?.classList.remove(ClassName.DARKEN);
     setShowAddSeed(false);
   }, []);
 
@@ -373,17 +439,7 @@ const SeedInput: FC<SeedInputProps> = ({
     addSeed("u128");
   }, [addSeed]);
 
-  const removeSeed = useCallback(() => {
-    setSeeds((seeds) => [...seeds.filter((_s, i) => i !== index)]);
-  }, [index, setSeeds]);
-
-  const seedInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  // Focus on mount
-  useEffect(() => {
-    seedInputRef.current?.focus();
-  }, []);
 
   // Close showAddSeed on outside click
   useEffect(() => {
@@ -396,54 +452,28 @@ const SeedInput: FC<SeedInputProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAddSeed, closeAddSeed]);
 
-  const isLast = index === seedCount - 1;
-
   return (
-    <>
-      <ShowGenInputWrapper>
-        <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
-        <SeedInputWrapper>
-          <Input
-            ref={seedInputRef}
-            value={seed.value}
-            onChange={handleSeed}
-            className={error ? ClassName.ERROR : ""}
-          />
-
-          {seedCount > 1 ? (
-            <Tooltip text="Remove seed">
-              <Button onClick={removeSeed} kind="icon">
-                <MinusFilled />
-              </Button>
-            </Tooltip>
-          ) : null}
-        </SeedInputWrapper>
-      </ShowGenInputWrapper>
-      {isLast ? (
-        <ShowGenInputWrapper>
-          <ShowGenTitle>Add new seed</ShowGenTitle>
-          <AddSeedWrapper>
-            <Tooltip text="Add seed">
-              <Button onClick={toggleAddSeed} kind="icon">
-                <PlusFilled />
-              </Button>
-              {showAddSeed && (
-                <AddSeedMenu ref={menuRef}>
-                  <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
-                  <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
-                  <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
-                  <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
-                  <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
-                  <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
-                  <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
-                  <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
-                </AddSeedMenu>
-              )}
-            </Tooltip>
-          </AddSeedWrapper>
-        </ShowGenInputWrapper>
-      ) : null}
-    </>
+    <ShowGenInputWrapper>
+      <AddSeedWrapper>
+        <Tooltip text="Add seed">
+          <Button onClick={toggleAddSeed} kind="icon">
+            <PlusFilled />
+          </Button>
+        </Tooltip>
+        {showAddSeed && (
+          <AddSeedMenu ref={menuRef}>
+            <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
+            <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
+            <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
+            <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
+            <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
+            <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
+            <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
+            <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
+          </AddSeedMenu>
+        )}
+      </AddSeedWrapper>
+    </ShowGenInputWrapper>
   );
 };
 
@@ -456,6 +486,7 @@ const SeedInputWrapper = styled.div`
 `;
 
 const AddSeedWrapper = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -464,10 +495,10 @@ const AddSeedWrapper = styled.div`
 const AddSeedMenu = styled.div`
   ${({ theme }) => css`
     position: absolute;
-    margin-left: -15px;
+    top: 100%;
     z-index: 2;
-    background-color: ${theme.colors.tooltip?.bg ??
-    theme.colors.default.bgPrimary};
+    background-color: ${theme.colors.tooltip?.bg};
+    box-shadow: ${theme.boxShadow};
     border-radius: ${theme.borderRadius};
     font-size: ${theme.font?.code?.size.small};
   `}

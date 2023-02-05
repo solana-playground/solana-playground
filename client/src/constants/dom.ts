@@ -25,6 +25,7 @@ export enum Id {
   ROOT = "root",
   ROOT_DIR = "root-dir",
   BOTTOM = "bottom",
+  SEARCH_WRAPPER = "search-wrapper",
   TABS = "tabs",
   TERMINAL = "terminal",
   WALLET_MAIN = "wallet-main",
