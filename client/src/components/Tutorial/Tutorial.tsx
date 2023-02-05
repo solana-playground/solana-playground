@@ -234,7 +234,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           </TutorialMainPage>
         </TutorialMainPageWrapper>
       ) : (
-        <PagesWrapper rtl={rtl}>
+        <PagesWrapper rtl={rtl} sizes={[60, 40]}>
           <EditorWrapper>
             <EditorWithTabs />
           </EditorWrapper>
@@ -410,12 +410,11 @@ const PagesWrapper = styled(Split)<Pick<TutorialComponentProps, "rtl">>`
   display: flex;
   flex-direction: ${({ rtl }) => (rtl ? "row-reverse" : "row")};
   width: 100%;
-  overflow: auto;
   height: -webkit-fill-available;
   max-height: 100%;
+  overflow: auto;
 
   & > div:not(.gutter) {
-    width: 50%;
     min-width: 25%;
   }
 
