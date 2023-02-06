@@ -53,12 +53,15 @@ export const SOLANA: PgTheme = {
       },
       warning: { color: YELLOW },
     },
-    contrast: {
-      color: BG_BLACK,
-      primary: true,
-    },
     bottom: {
       color: BG_BLACK,
+    },
+    button: {
+      overrides: {
+        primary: {
+          color: BG_BLACK,
+        },
+      },
     },
     editor: {
       bg: BG_GRAY,

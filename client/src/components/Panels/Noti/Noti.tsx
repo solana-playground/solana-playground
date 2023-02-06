@@ -46,7 +46,6 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     background-color: ${theme.colors.default.primary};
-    color: ${theme.colors.contrast?.primary && theme.colors.contrast.color};
 
     & a {
       font-weight: bold;

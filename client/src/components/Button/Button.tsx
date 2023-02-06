@@ -78,12 +78,14 @@ const getButtonStyles = ({
   color,
   hoverColor: _hoverColor,
 }: ButtonProps & { theme: DefaultTheme }) => {
-  let textColor: CSSProperties["color"] = "inherit";
+  let textColor: CSSProperties["color"] =
+    theme.colors.button?.color ?? "inherit";
   let bgColor: CSSProperties["backgroundColor"] = "transparent";
   let borderColor: CSSProperties["borderColor"] = "transparent";
 
+  let hoverColor: CSSProperties["color"] =
+    theme.colors.button?.hoverColor ?? theme.colors.button?.color ?? "inherit";
   let hoverBgColor: CSSProperties["backgroundColor"] = "transparent";
-  let hoverColor: CSSProperties["color"] = "inherit";
   let hoverBorderColor: CSSProperties["borderColor"] = "transparent";
 
   let padding: CSSProperties["padding"] = "";
@@ -91,26 +93,24 @@ const getButtonStyles = ({
   // Kind
   switch (kind) {
     case "primary": {
-      if (theme.colors.contrast?.primary) {
-        textColor = theme.colors.contrast.color;
-      }
       bgColor = theme.colors.default.primary;
       hoverBgColor = theme.colors.default.primary + "E0";
       padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary": {
-      if (theme.colors.contrast?.secondary) {
-        textColor = theme.colors.contrast.color;
-      }
       bgColor = theme.colors.default.secondary;
       hoverBgColor = theme.colors.default.secondary + "E0";
       padding = "0.5rem 1.25rem";
       break;
     }
     case "primary-transparent": {
-      bgColor = theme.colors.default.primary + theme.transparency?.medium;
-      hoverBgColor = theme.colors.default.primary + theme.transparency?.high;
+      bgColor =
+        theme.colors.default.primary +
+        (theme.isDark ? theme.transparency?.medium : theme.transparency?.high);
+      hoverBgColor =
+        theme.colors.default.primary +
+        (theme.isDark ? theme.transparency?.high : theme.transparency?.medium);
       padding = "0.5rem 1.25rem";
       break;
     }
@@ -121,8 +121,12 @@ const getButtonStyles = ({
       break;
     }
     case "error": {
-      bgColor = theme.colors.state.error.color + theme.transparency?.high;
-      hoverBgColor = theme.colors.state.error.color;
+      bgColor =
+        theme.colors.state.error.color +
+        (theme.isDark ? theme.transparency?.high : "");
+      hoverBgColor =
+        theme.colors.state.error.color +
+        (theme.isDark ? "" : theme.transparency?.high);
       padding = "0.5rem 1.25rem";
       break;
     }
@@ -144,6 +148,7 @@ const getButtonStyles = ({
     }
     case "icon": {
       textColor = theme.colors.default.textSecondary;
+      hoverBgColor = "red";
       padding = "0.25rem";
       break;
     }
@@ -157,6 +162,34 @@ const getButtonStyles = ({
       hoverColor = theme.colors.default.textPrimary;
       padding = "0";
       break;
+    }
+  }
+
+  // Button kind specific overrides
+  for (const buttonKind in theme.colors.button?.overrides) {
+    if (buttonKind === kind) {
+      if (theme.colors.button?.overrides[buttonKind]?.color) {
+        textColor = theme.colors.button.overrides[buttonKind]!.color;
+      }
+      if (theme.colors.button?.overrides[buttonKind]?.bgColor) {
+        bgColor = theme.colors.button.overrides[buttonKind]!.bgColor;
+      }
+      if (theme.colors.button?.overrides[buttonKind]?.borderColor) {
+        borderColor = theme.colors.button.overrides[buttonKind]!.borderColor;
+      }
+      if (theme.colors.button?.overrides[buttonKind]?.hoverColor) {
+        hoverColor = theme.colors.button.overrides[buttonKind]!.hoverColor;
+      }
+      if (theme.colors.button?.overrides[buttonKind]?.hoverBgColor) {
+        hoverBgColor = theme.colors.button.overrides[buttonKind]!.hoverBgColor;
+      }
+      if (theme.colors.button?.overrides[buttonKind]?.hoverBorderColor) {
+        hoverBorderColor =
+          theme.colors.button.overrides[buttonKind]!.hoverBorderColor;
+      }
+      if (theme.colors.button?.overrides[buttonKind]?.padding) {
+        padding = theme.colors.button.overrides[buttonKind]!.padding;
+      }
     }
   }
 
