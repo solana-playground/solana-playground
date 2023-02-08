@@ -57,7 +57,7 @@ export class PgCommand {
             await runAnchor!(input);
           });
         },
-        preCheck: () => PgWallet.checkIsPgConnected(),
+        preCheck: PgWallet.checkIsPgConnected,
       },
 
       {
@@ -169,7 +169,7 @@ export class PgCommand {
 
           runSolana!(input, ...PgCommand._getCmdArgs(PkgName.SOLANA_CLI)!);
         },
-        preCheck: () => PgWallet.checkIsPgConnected(),
+        preCheck: PgWallet.checkIsPgConnected,
       },
 
       {
@@ -182,7 +182,7 @@ export class PgCommand {
 
           runSplToken!(input, ...PgCommand._getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
         },
-        preCheck: () => PgWallet.checkIsPgConnected(),
+        preCheck: PgWallet.checkIsPgConnected,
       },
 
       {
@@ -198,7 +198,7 @@ export class PgCommand {
             await runSugar!(input);
           });
         },
-        preCheck: () => PgWallet.checkIsPgConnected(),
+        preCheck: PgWallet.checkIsPgConnected,
       },
 
       {
