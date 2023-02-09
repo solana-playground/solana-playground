@@ -14,13 +14,13 @@
 | [bytemuck](https://docs.rs/bytemuck/1.12.3)                                        | 1.12.3  |
 | [bytemuck-derive](https://docs.rs/bytemuck-derive/1.3.0)                           | 1.3.0   |
 | [clockwork-sdk](https://docs.rs/clockwork-sdk/1.3.16)                              | 1.3.16  |
-| [mpl-token-metadata](https://docs.rs/mpl-token-metadata/1.4.3)                     | 1.4.3   |
-| [mpl-token-vault](https://docs.rs/mpl-token-vault/0.1.0)                           | 0.1.1   |
+| [mpl-token-metadata](https://docs.rs/mpl-token-metadata/1.8.3)                     | 1.8.3   |
+| [mpl-token-vault](https://docs.rs/mpl-token-vault/0.2.0)                           | 0.2.0   |
 | [num-derive](https://docs.rs/num-derive/0.3.3)                                     | 0.3.3   |
 | [num-traits](https://docs.rs/num-traits/0.2.15)                                    | 0.2.15  |
 | [pyth-sdk](https://docs.rs/pyth-sdk/0.7.0)                                         | 0.7.0   |
 | [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.7.0)                           | 0.7.0   |
-| [solana-program](https://docs.rs/solana-program/1.14.10)                           | 1.14.10 |
+| [solana-program](https://docs.rs/solana-program/1.14.12)                           | 1.14.12 |
 | [spl-associated-token-account](https://docs.rs/spl-associated-token-account/1.1.2) | 1.1.2   |
 | [spl-token](https://docs.rs/spl-token/3.5.0)                                       | 3.5.0   |
 | [switchboard-v2](https://docs.rs/switchboard-v2/0.1.20)                            | 0.1.20  |
