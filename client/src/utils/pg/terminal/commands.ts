@@ -19,210 +19,187 @@ interface Command {
 }
 
 export class PgCommand {
-  static readonly CMD_NAMES = {
-    anchor: "anchor",
-    build: "build",
-    clear: "clear",
-    connect: "connect",
-    deploy: "deploy",
-    help: "help",
-    prettier: "prettier",
-    run: "run",
-    runLastCmd: "!!",
-    rustfmt: "rustfmt",
-    solana: "solana",
-    splToken: "spl-token",
-    sugar: "sugar",
-    test: "test",
-  };
-
-  /**
-   * Load the commands.
-   *
-   * NOTE: This function must be run in order for commands to work.
-   */
-  static load() {
-    if (this._commands.length) return;
-
-    this._add(
-      {
-        name: this.CMD_NAMES.anchor,
-        description: "Anchor CLI",
-        process: (input) => {
-          PgTerminal.process(async () => {
-            const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
-              log: this._isPkgLoadingInitial(PkgName.ANCHOR_CLI),
-            });
-
-            await runAnchor!(input);
+  /** All commands */
+  static readonly COMMANDS = {
+    anchor: this._createCmd({
+      name: "anchor",
+      description: "Anchor CLI",
+      process: (input) => {
+        PgTerminal.process(async () => {
+          const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
+            log: this._isPkgLoadingInitial(PkgName.ANCHOR_CLI),
           });
-        },
-        preCheck: PgWallet.checkIsPgConnected,
+
+          await runAnchor!(input);
+        });
       },
+      preCheck: PgWallet.checkIsPgConnected,
+    }),
 
-      {
-        name: this.CMD_NAMES.build,
-        description: "Build your program",
-        process: () => {
-          PgTerminal.setTerminalState(TerminalAction.buildStart);
-        },
+    build: this._createCmd({
+      name: "build",
+      description: "Build your program",
+      process: () => {
+        PgTerminal.setTerminalState(TerminalAction.buildStart);
       },
+    }),
 
-      {
-        name: this.CMD_NAMES.clear,
-        description: "Clear terminal",
-        process: () => {
-          PgTerminal.process(async () => {
-            await PgTerminal.run({ clear: [{ full: true }] });
-          });
-        },
+    clear: this._createCmd({
+      name: "clear",
+      description: "Clear terminal",
+      process: () => {
+        PgTerminal.process(async () => {
+          await PgTerminal.run({ clear: [{ full: true }] });
+        });
       },
+    }),
 
-      {
-        name: this.CMD_NAMES.connect,
-        description: "Toggle connection to Playground Wallet",
-        process: () => {
-          PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
-        },
+    connect: this._createCmd({
+      name: "connect",
+      description: "Toggle connection to Playground Wallet",
+      process: () => {
+        PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
       },
+    }),
 
-      {
-        name: this.CMD_NAMES.deploy,
-        description: "Deploy your program",
-        process: () => {
-          PgTerminal.setTerminalState(TerminalAction.deployStart);
-        },
+    deploy: this._createCmd({
+      name: "deploy",
+      description: "Deploy your program",
+      process: () => {
+        PgTerminal.setTerminalState(TerminalAction.deployStart);
       },
+    }),
 
-      {
-        name: this.CMD_NAMES.help,
-        description: "Print help message",
-        process: () => {
-          const commandsText = "COMMANDS:\n";
-          const indent = "    ";
+    help: this._createCmd({
+      name: "help",
+      description: "Print help message",
+      process: () => {
+        const commandsText = "COMMANDS:\n";
+        const indent = "    ";
 
-          const fillWhitespace = (cmdLength: number) => {
-            return new Array(25 - cmdLength)
-              .fill(" ")
-              .reduce((acc, v) => acc + v);
-          };
+        const fillWhitespace = (cmdLength: number) => {
+          return new Array(25 - cmdLength)
+            .fill(" ")
+            .reduce((acc, v) => acc + v);
+        };
 
-          const helpMessage =
-            commandsText +
-            this._commands.reduce(
-              (acc, cmd) =>
-                acc +
-                indent +
-                cmd.name +
-                fillWhitespace(cmd.name.length) +
-                cmd.description +
-                "\n",
-              ""
+        const helpMessage =
+          commandsText +
+          Object.keys(this.COMMANDS).reduce((acc, cmdName) => {
+            const cmd = this.COMMANDS[cmdName as keyof typeof this.COMMANDS];
+
+            return (
+              acc +
+              indent +
+              cmd.name +
+              fillWhitespace(cmd.name.length) +
+              cmd.description +
+              "\n"
             );
+          }, "");
 
-          PgTerminal.log(helpMessage);
-          PgTerminal.enable();
-        },
+        PgTerminal.log(helpMessage);
+        PgTerminal.enable();
       },
+    }),
 
-      {
-        name: this.CMD_NAMES.prettier,
-        description: "Format the current file with prettier",
-        process: () => {
-          PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
-            lang: Lang.TYPESCRIPT,
-            fromTerminal: true,
+    prettier: this._createCmd({
+      name: "prettier",
+      description: "Format the current file with prettier",
+      process: () => {
+        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+          lang: Lang.TYPESCRIPT,
+          fromTerminal: true,
+        });
+      },
+    }),
+
+    run: this._createCmd({
+      name: "run",
+      description: "Run script(s)",
+      process: (input) => {
+        const match = new RegExp(/^\w+\s?(.*)/).exec(input);
+        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+          isTest: false,
+          path: match && match[1],
+        });
+      },
+    }),
+
+    rustfmt: this._createCmd({
+      name: "rustfmt",
+      description: "Format the current file with rustfmt",
+      process: () => {
+        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+          lang: Lang.RUST,
+          fromTerminal: true,
+        });
+      },
+    }),
+
+    solana: this._createCmd({
+      name: "solana",
+      description: "Commands for interacting with Solana",
+      process: async (input) => {
+        const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
+          log: this._isPkgLoadingInitial(PkgName.SOLANA_CLI),
+        });
+
+        runSolana!(input, ...PgCommand._getCmdArgs(PkgName.SOLANA_CLI)!);
+      },
+      preCheck: PgWallet.checkIsPgConnected,
+    }),
+
+    splToken: this._createCmd({
+      name: "spl-token",
+      description: "Commands for interacting with SPL Tokens",
+      process: async (input) => {
+        const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
+          log: this._isPkgLoadingInitial(PkgName.SPL_TOKEN_CLI),
+        });
+
+        runSplToken!(input, ...PgCommand._getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
+      },
+      preCheck: PgWallet.checkIsPgConnected,
+    }),
+
+    sugar: this._createCmd({
+      name: "sugar",
+      description:
+        "Command line tool for creating and managing Metaplex Candy Machines",
+      process: (input) => {
+        PgTerminal.process(async () => {
+          const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
+            log: this._isPkgLoadingInitial(PkgName.SUGAR_CLI),
           });
-        },
+
+          await runSugar!(input);
+        });
       },
+      preCheck: PgWallet.checkIsPgConnected,
+    }),
 
-      {
-        name: this.CMD_NAMES.run,
-        description: "Run script(s)",
-        process: (input) => {
-          const match = new RegExp(/^\w+\s?(.*)/).exec(input);
-          PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
-            isTest: false,
-            path: match && match[1],
-          });
-        },
+    test: this._createCmd({
+      name: "test",
+      description: "Run test(s)",
+      process: (input) => {
+        const match = new RegExp(/^\w+\s?(.*)/).exec(input);
+        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+          isTest: true,
+          path: match && match[1],
+        });
       },
+    }),
 
-      {
-        name: this.CMD_NAMES.rustfmt,
-        description: "Format the current file with rustfmt",
-        process: () => {
-          PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
-            lang: Lang.RUST,
-            fromTerminal: true,
-          });
-        },
-      },
+    // Special commands
 
-      {
-        name: this.CMD_NAMES.solana,
-        description: "Commands for interacting with Solana",
-        process: async (input) => {
-          const { runSolana } = await PgPkg.loadPkg(PgPkg.SOLANA_CLI, {
-            log: this._isPkgLoadingInitial(PkgName.SOLANA_CLI),
-          });
-
-          runSolana!(input, ...PgCommand._getCmdArgs(PkgName.SOLANA_CLI)!);
-        },
-        preCheck: PgWallet.checkIsPgConnected,
-      },
-
-      {
-        name: this.CMD_NAMES.splToken,
-        description: "Commands for interacting with SPL Tokens",
-        process: async (input) => {
-          const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
-            log: this._isPkgLoadingInitial(PkgName.SPL_TOKEN_CLI),
-          });
-
-          runSplToken!(input, ...PgCommand._getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
-        },
-        preCheck: PgWallet.checkIsPgConnected,
-      },
-
-      {
-        name: this.CMD_NAMES.sugar,
-        description:
-          "Command line tool for creating and managing Metaplex Candy Machines",
-        process: (input) => {
-          PgTerminal.process(async () => {
-            const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
-              log: this._isPkgLoadingInitial(PkgName.SUGAR_CLI),
-            });
-
-            await runSugar!(input);
-          });
-        },
-        preCheck: PgWallet.checkIsPgConnected,
-      },
-
-      {
-        name: this.CMD_NAMES.test,
-        description: "Run test(s)",
-        process: (input) => {
-          const match = new RegExp(/^\w+\s?(.*)/).exec(input);
-          PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
-            isTest: true,
-            path: match && match[1],
-          });
-        },
-      },
-
-      // Special commands
-
-      // Run last command
-      {
-        name: this.CMD_NAMES.runLastCmd,
-        description: "Run the last command",
-        process: PgTerminal.runLastCmd,
-      }
-    );
-  }
+    // Run last command
+    runLastCmd: this._createCmd({
+      name: "!!",
+      description: "Run the last command",
+      process: PgTerminal.runLastCmd,
+    }),
+  };
 
   /** Execute the given command */
   static async execute(input: string) {
@@ -230,15 +207,16 @@ export class PgCommand {
     // solana-keygen would not count for cmdName === "solana"
     const cmdName = input.trim().split(" ")?.at(0);
 
-    for (const command of this._commands) {
-      if (command.name !== cmdName) continue;
+    for (const index in this.COMMANDS) {
+      const cmd = this.COMMANDS[index as keyof typeof PgCommand.COMMANDS];
+      if (cmd.name !== cmdName) continue;
 
-      if (command.preCheck && !command.preCheck()) {
+      if (cmd.preCheck && !cmd.preCheck()) {
         PgTerminal.enable();
         return;
       }
 
-      return await command.process(input);
+      return await cmd.process(input);
     }
 
     if (cmdName) {
@@ -250,15 +228,17 @@ export class PgCommand {
     PgTerminal.enable();
   }
 
-  /** Loaded commands */
-  private static readonly _commands: Command[] = [];
-
   /** Loaded packages */
   private static readonly _loadedPkgs: { [pkgName: string]: boolean } = {};
 
-  /** Add a new command */
-  private static _add(...commands: Command[]) {
-    this._commands.push(...commands);
+  /**
+   * Create a command. This is only a type helper function.
+   *
+   * @param cmd command to create
+   * @returns the command with `Command` type
+   */
+  private static _createCmd(cmd: Command) {
+    return cmd;
   }
 
   /**

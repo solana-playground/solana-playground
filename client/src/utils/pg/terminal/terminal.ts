@@ -507,9 +507,6 @@ export class PgTerm {
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
-
-    // Load commands
-    PgCommand.load();
   }
 
   open(container: HTMLElement) {
@@ -690,7 +687,7 @@ export class PgTerm {
    * @param cmd {command: args}
    * @param clearCmd whether to clean the command afterwards
    */
-  execute<K extends keyof typeof PgCommand["CMD_NAMES"]>(
+  execute<K extends keyof typeof PgCommand["COMMANDS"]>(
     cmd: {
       [Name in K]?: string;
     },
@@ -710,7 +707,7 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.CMD_NAMES.runLastCmd) {
+    if (!lastCmd || lastCmd === PgCommand.COMMANDS.runLastCmd.name) {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
