@@ -39,7 +39,7 @@ const ButtonsWrapper = styled.div`
     background-color: initial;
 
     & img {
-      filter: invert(1);
+      filter: invert(${({ theme }) => (theme.isDark ? 1 : 0)});
     }
   }
 `;
