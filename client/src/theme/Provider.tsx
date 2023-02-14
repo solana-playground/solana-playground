@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ThemeProvider } from "styled-components";
+import styled, { css, ThemeProvider } from "styled-components";
 
 import THEMES from "./themes";
 import FONTS from "./fonts";
@@ -229,9 +229,32 @@ const MutThemeProvider: FC = ({ children }) => {
 
   return (
     <MutThemeContext.Provider value={{ setTheme, font, setFont }}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <Wrapper>{children}</Wrapper>
+      </ThemeProvider>
     </MutThemeContext.Provider>
   );
 };
+
+// Set default theme values
+const Wrapper = styled.div`
+  ${({ theme }) => css`
+    background-color: ${theme.colors.default.bgPrimary};
+    color: ${theme.colors.default.textPrimary};
+    font-family: ${theme.font?.code?.family};
+    font-size: ${theme.font?.code?.size.medium};
+
+    & svg {
+      color: ${theme.colors.default.textSecondary};
+      transition: color ${theme.transition?.duration.short}
+        ${theme.transition?.type};
+    }
+
+    & ::selection {
+      background-color: ${theme.colors.default.primary +
+      theme.transparency?.medium};
+    }
+  `}
+`;
 
 export default MutThemeProvider;

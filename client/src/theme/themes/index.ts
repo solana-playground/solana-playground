@@ -1,4 +1,9 @@
-export { DRACULA } from "./dracula";
-export { LIGHT } from "./light";
-export { PLAYGROUND } from "./playground";
-export { SOLANA } from "./solana";
+import { PgTheme } from "../interface";
+import { DRACULA } from "./dracula";
+import { LIGHT } from "./light";
+import { PLAYGROUND } from "./playground";
+import { SOLANA } from "./solana";
+
+const THEMES: PgTheme[] = [DRACULA, SOLANA, PLAYGROUND, LIGHT];
+
+export default THEMES;

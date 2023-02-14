@@ -1,11 +1,5 @@
 import styled, { css, keyframes } from "styled-components";
 
-export const skeletonAnimation = keyframes`
-    100% {
-        transform: translateX(100%);
-    }
-`;
-
 interface SkeletonProps {
   height?: string;
   width?: string;
@@ -43,4 +37,10 @@ export const Skeleton = styled.div<SkeletonProps>`
       animation: ${skeletonAnimation} 1.25s ease-in-out infinite;
     }
   `}
+`;
+
+const skeletonAnimation = keyframes`
+    100% {
+        transform: translateX(100%);
+    }
 `;
