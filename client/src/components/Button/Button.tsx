@@ -89,6 +89,8 @@ const getButtonStyles = ({
   let hoverBorderColor: CSSProperties["borderColor"] = "transparent";
 
   let padding: CSSProperties["padding"] = "";
+  let borderRadius: CSSProperties["borderRadius"] =
+    theme.colors.button?.borderRadius ?? theme.borderRadius;
 
   // Kind
   switch (kind) {
@@ -190,6 +192,9 @@ const getButtonStyles = ({
       if (theme.colors.button?.overrides[buttonKind]?.padding) {
         padding = theme.colors.button.overrides[buttonKind]!.padding;
       }
+      if (theme.colors.button?.overrides[buttonKind]?.borderRadius) {
+        borderRadius = theme.colors.button.overrides[buttonKind]!.borderRadius;
+      }
     }
   }
 
@@ -283,17 +288,17 @@ const getButtonStyles = ({
   }
 
   let defaultCss = css`
-    font-weight: ${fontWeight};
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: ${theme.borderRadius};
     cursor: pointer;
     padding: ${padding};
     background-color: ${bgColor};
     color: ${textColor};
     border: 1px solid ${borderColor};
-    position: relative;
+    border-radius: ${borderRadius};
+    font-weight: ${fontWeight};
     transition: all ${theme.transition?.duration.medium}
       ${theme.transition?.type};
 

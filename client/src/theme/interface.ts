@@ -32,6 +32,7 @@ export interface PgTheme {
     button?: {
       color?: string;
       hoverColor?: string;
+      borderRadius?: string;
       overrides?: {
         [K in ButtonKind]?: {
           color?: string;
@@ -41,6 +42,7 @@ export interface PgTheme {
           hoverBgColor?: string;
           hoverBorderColor?: string;
           padding?: string;
+          borderRadius?: string;
         };
       };
     };
