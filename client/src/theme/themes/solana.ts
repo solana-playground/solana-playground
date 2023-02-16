@@ -56,13 +56,6 @@ export const SOLANA: PgTheme = {
     bottom: {
       color: BG_BLACK,
     },
-    button: {
-      overrides: {
-        primary: {
-          color: BG_BLACK,
-        },
-      },
-    },
     editor: {
       bg: BG_GRAY,
       tooltip: {
@@ -105,6 +98,18 @@ export const SOLANA: PgTheme = {
       bg: BG_BLACK,
       card: {
         bg: BG_GRAY,
+      },
+    },
+  },
+  components: {
+    button: {
+      overrides: {
+        primary: {
+          color: BG_BLACK,
+          hover: {
+            color: TEXT_PRIMARY,
+          },
+        },
       },
     },
   },

@@ -1,8 +1,17 @@
+import { CSSProperties } from "react";
+
 import { ButtonKind } from "../components/Button";
 
 export interface PgTheme {
+  /** Name of the theme that's displayed in theme settings */
   name: string;
+  /** Whether the theme is a dark theme */
   isDark: boolean;
+  /**
+   * Colors of the theme.
+   * NOTE: Optional theme properties will be derived from the following colors
+   * if they are not specified during creation.
+   */
   colors: {
     /** Default colors */
     default: {
@@ -27,25 +36,6 @@ export interface PgTheme {
 
     /** Bottom bar */
     bottom?: BgAndColor;
-
-    /** Button component */
-    button?: {
-      color?: string;
-      hoverColor?: string;
-      borderRadius?: string;
-      overrides?: {
-        [K in ButtonKind]?: {
-          color?: string;
-          bgColor?: string;
-          borderColor?: string;
-          hoverColor?: string;
-          hoverBgColor?: string;
-          hoverBorderColor?: string;
-          padding?: string;
-          borderRadius?: string;
-        };
-      };
-    };
 
     /** Editor component */
     editor?: BgAndColor & {
@@ -112,6 +102,19 @@ export interface PgTheme {
 
     /** Tutorials page*/
     tutorials?: BgAndColor & { card?: BgAndColor };
+  };
+
+  /** Override the component defaults */
+  components?: {
+    /** Button component */
+    button?: {
+      /** Default CSS values of the Button component */
+      default?: OverrideComponent;
+      /** Override the defaults with specificity */
+      overrides?: {
+        [K in ButtonKind]?: OverrideComponent;
+      };
+    };
   };
 
   /** Default border radius */
@@ -278,15 +281,25 @@ export type Skeleton = {
   highlightColor: string;
 };
 
-type BgAndColor = {
+type OverrideComponent = {
   bg?: string;
   color?: string;
+  borderColor?: string;
+  borderRadius?: string;
+  padding?: string;
+  fontWeight?: CSSProperties["fontWeight"];
+  hover?: Omit<OverrideComponent, "hover">;
 };
+
+type Bg = {
+  bg?: string;
+};
+
+type BgAndColor = Bg & { color?: string };
 
 type StateColor = {
   color: string;
-  bg?: string;
-};
+} & Bg;
 
 type HighlightToken = {
   color?: string;

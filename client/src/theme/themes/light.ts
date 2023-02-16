@@ -90,31 +90,43 @@ export const LIGHT: PgTheme = {
     bottom: {
       color: BG_WHITE,
     },
+  },
+  components: {
     button: {
       overrides: {
         primary: {
           color: BG_LIGHT,
-          hoverColor: BG_WHITE,
+          hover: {
+            color: BG_WHITE,
+          },
         },
         secondary: {
           color: BG_LIGHT,
-          hoverColor: BG_WHITE,
+          hover: {
+            color: BG_WHITE,
+          },
         },
         "primary-transparent": {
+          bg: BLUE + "dd",
           color: BG_LIGHT,
-          hoverColor: BG_WHITE,
-          bgColor: BLUE + "dd",
-          hoverBgColor: BLUE + "bb",
+          hover: {
+            bg: BLUE + "bb",
+            color: BG_WHITE,
+          },
         },
         "secondary-transparent": {
+          bg: PURPLE + "dd",
           color: BG_LIGHT,
-          hoverColor: BG_WHITE,
-          bgColor: PURPLE + "dd",
-          hoverBgColor: PURPLE + "bb",
+          hover: {
+            bg: PURPLE + "bb",
+            color: BG_WHITE,
+          },
         },
         error: {
           color: BG_LIGHT,
-          hoverColor: BG_WHITE,
+          hover: {
+            color: BG_WHITE,
+          },
         },
         outline: {
           borderColor: TEXT_SECONDARY + "36",
