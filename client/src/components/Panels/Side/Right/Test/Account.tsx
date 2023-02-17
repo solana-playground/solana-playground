@@ -279,7 +279,7 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
         <Input value={programId} onChange={handleProgramId} />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
-        <Button onClick={handleGen} kind="primary-outline">
+        <Button onClick={handleGen} kind="primary-transparent" fullWidth>
           Generate
         </Button>
       </ShowGenButtonWrapper>
@@ -582,7 +582,7 @@ const ShowAta: FC<ShowAtaProps> = ({
         />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
-        <Button onClick={handleGen} kind="primary-outline">
+        <Button onClick={handleGen} kind="primary-transparent" fullWidth>
           Generate
         </Button>
       </ShowGenButtonWrapper>
