@@ -287,13 +287,7 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
       <ShowGenTitle>Generate from seed</ShowGenTitle>
 
       {seeds.map((seed, i) => (
-        <SeedInput
-          key={i}
-          index={i}
-          seed={seed}
-          seedCount={seeds.length}
-          setSeeds={setSeeds}
-        />
+        <SeedInput key={i} index={i} seed={seed} setSeeds={setSeeds} />
       ))}
 
       <AddSeed setSeeds={setSeeds} />
@@ -314,16 +308,10 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
 interface SeedInputProps {
   index: number;
   seed: Seed;
-  seedCount: number;
   setSeeds: Dispatch<SetStateAction<Seed[]>>;
 }
 
-const SeedInput: FC<SeedInputProps> = ({
-  index,
-  seed,
-  seedCount,
-  setSeeds,
-}) => {
+const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
   const [error, setError] = useState(false);
 
   const handleSeed = useCallback(
@@ -368,13 +356,11 @@ const SeedInput: FC<SeedInputProps> = ({
           className={error ? ClassName.ERROR : ""}
         />
 
-        {seedCount > 1 && (
-          <Tooltip text="Remove seed">
-            <Button onClick={removeSeed} kind="icon">
-              <MinusFilled />
-            </Button>
-          </Tooltip>
-        )}
+        <Tooltip text="Remove seed">
+          <Button onClick={removeSeed} kind="icon">
+            <MinusFilled />
+          </Button>
+        </Tooltip>
       </SeedInputWrapper>
     </ShowGenInputWrapper>
   );
