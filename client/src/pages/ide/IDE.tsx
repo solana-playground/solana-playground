@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import Panels from "../../components/Panels";
+import Panels from "./Panels";
 import ModalWrapper from "../../components/Modal/ModalWrapper";
-import Statics from "../../components/Statics";
-import ClientHelper from "../../components/ClientHelper";
+import ClientHelper from "./ClientHelper";
+import useStatics from "./useStatics";
 
 const IDE = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -15,11 +15,12 @@ const IDE = () => {
     }
   }, []);
 
+  useStatics();
+
   return (
     <Wrapper ref={wrapperRef}>
       <Panels />
       <ModalWrapper />
-      <Statics />
       <ClientHelper />
     </Wrapper>
   );

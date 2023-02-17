@@ -5,8 +5,8 @@ import Split from "react-split";
 
 import Button from "../Button";
 import Markdown from "../Markdown";
-import EditorWithTabs from "../Panels/Main/MainView/EditorWithTabs";
-import { TAB_HEIGHT } from "../Panels/Main/MainView/Tabs";
+import EditorWithTabs from "../../pages/ide/Panels/Main/MainView/EditorWithTabs";
+import { TAB_HEIGHT } from "../../pages/ide/Panels/Main/MainView/Tabs";
 import {
   PgCommon,
   PgExplorer,
