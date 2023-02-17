@@ -201,24 +201,6 @@ const SearchWrapper = styled.div`
       ${theme.colors.default.primary + theme.transparency?.medium};
     border-radius: ${theme.borderRadius};
     position: relative;
-
-    &::after {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      inset: 0;
-      background: #000;
-      opacity: 0;
-      z-index: -1;
-      transition: all ${theme.transition?.duration.short}
-        ${theme.transition?.type};
-    }
-
-    &.${ClassName.DARKEN}::after {
-      opacity: 0.5;
-      z-index: 1;
-    }
   `}
 `;
 
@@ -370,18 +352,10 @@ const AddSeed: FC<Pick<SeedInputProps, "setSeeds">> = ({ setSeeds }) => {
   const [showAddSeed, setShowAddSeed] = useState(false);
 
   const toggleAddSeed = useCallback(() => {
-    setShowAddSeed((s) => {
-      document
-        .getElementById(Id.SEARCH_WRAPPER)
-        ?.classList.add(ClassName.DARKEN);
-      return !s;
-    });
+    setShowAddSeed((s) => !s);
   }, []);
 
   const closeAddSeed = useCallback(() => {
-    document
-      .getElementById(Id.SEARCH_WRAPPER)
-      ?.classList.remove(ClassName.DARKEN);
     setShowAddSeed(false);
   }, []);
 
