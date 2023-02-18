@@ -136,7 +136,7 @@ const WalletWrapper = styled.div`
       }
 
       &:hover img {
-        filter: invert(1);
+        filter: invert(${({ theme }) => (theme.isDark ? 1 : 0)});
       }
     }
   `}
