@@ -5,18 +5,18 @@ import { Rnd } from "react-rnd";
 import Balance from "./Balance";
 import Send from "./Send";
 import Transactions from "./Transactions";
+import Button from "../../../../components/Button";
 import Tooltip from "../../../../components/Tooltip";
 import useCopy from "../../../../components/CopyButton/useCopy";
-import Button from "../../../../components/Button";
+import { Close } from "../../../../components/Icons";
 import { ClassName, Id } from "../../../../constants";
 import { showWalletAtom } from "../../../../state";
 import { PgCommon } from "../../../../utils/pg";
-import { Close } from "../../../../components/Icons";
 import { EDITOR_SCROLLBAR_WIDTH } from "../Main/MainView/Editor";
 import { ICONBAR_WIDTH } from "../Side/Left";
 import { BOTTOM_HEIGHT } from "../Bottom";
 import { WalletSettings } from "./Settings";
-import { useCurrentWallet } from ".";
+import { useCurrentWallet } from "./useCurrentWallet";
 
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
@@ -47,7 +47,7 @@ const Wallet = () => {
       >
         <WalletWrapper>
           <WalletTitle />
-          <Main id={Id.WALLET_MAIN}>
+          <Main id={Id.WALLET_MAIN} className={ClassName.DARKEN}>
             <Balance />
             <Send />
             <Transactions />

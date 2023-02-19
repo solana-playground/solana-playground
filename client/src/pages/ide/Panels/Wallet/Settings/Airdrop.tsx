@@ -1,20 +1,22 @@
-import { FC, useCallback } from "react";
+import { useCallback } from "react";
 import { useAtom } from "jotai";
 import { PublicKey } from "@solana/web3.js";
 
-import { SettingsItem, SettingsItemProps } from "./SettingsItem";
 import { txHashAtom } from "../../../../../state";
 import { Emoji } from "../../../../../constants";
-import { PgCommon, PgTerminal, PgTx } from "../../../../../utils/pg";
+import {
+  PgCommon,
+  PgConnection,
+  PgTerminal,
+  PgTx,
+} from "../../../../../utils/pg";
 import { useAirdropAmount } from "../useAirdropAmount";
 import { useCurrentWallet } from "../useCurrentWallet";
-import { usePgConnection } from "../../../../../hooks";
 
-export const Airdrop: FC<SettingsItemProps> = ({ close }) => {
+export const useAirdrop = () => {
   const [, setTxHash] = useAtom(txHashAtom);
 
   // Get cap amount for airdrop based on network
-  const { connection: conn } = usePgConnection();
   const amount = useAirdropAmount();
   const { pgWalletPk, solWalletPk } = useCurrentWallet();
 
@@ -23,11 +25,11 @@ export const Airdrop: FC<SettingsItemProps> = ({ close }) => {
       await PgTerminal.process(async () => {
         if (!amount) return;
 
-        close();
-
         let msg;
         try {
           PgTerminal.log(PgTerminal.info("Sending an airdrop request..."));
+
+          const conn = await PgConnection.get();
 
           // Airdrop tx is sometimes successful even when balance hasn't changed
           // Instead of confirming the tx, we will check before and after balance
@@ -63,7 +65,7 @@ export const Airdrop: FC<SettingsItemProps> = ({ close }) => {
         }
       });
     },
-    [conn, amount, setTxHash, close]
+    [amount, setTxHash]
   );
 
   const airdropPg = useCallback(async () => {
@@ -74,15 +76,10 @@ export const Airdrop: FC<SettingsItemProps> = ({ close }) => {
     if (solWalletPk) await airdrop(solWalletPk);
   }, [solWalletPk, airdrop]);
 
-  const pgCond = pgWalletPk && conn && amount;
-  const solCond = solWalletPk && conn && amount;
-
-  return (
-    <>
-      {pgCond && <SettingsItem onClick={airdropPg}>Airdrop</SettingsItem>}
-      {solCond && (
-        <SettingsItem onClick={airdropSol}>Airdrop Phantom</SettingsItem>
-      )}
-    </>
-  );
+  return {
+    pgCond: pgWalletPk && !!amount,
+    solCond: (solWalletPk && !!amount) ?? false,
+    airdropPg: airdropPg,
+    airdropSol: airdropSol,
+  };
 };

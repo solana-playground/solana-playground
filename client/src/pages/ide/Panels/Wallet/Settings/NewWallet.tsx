@@ -1,4 +1,3 @@
-import { FC } from "react";
 import { useAtom } from "jotai";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
@@ -6,18 +5,16 @@ import styled, { css } from "styled-components";
 import DownloadButton from "../../../../../components/DownloadButton";
 import Modal from "../../../../../components/Modal/Modal";
 import Text from "../../../../../components/Text";
-import { SettingsItem, SettingsItemProps } from "./SettingsItem";
 import { Warning } from "../../../../../components/Icons";
 import { PgCommon, PgModal, PgWallet } from "../../../../../utils/pg";
 import { pgWalletAtom } from "../../../../../state";
 
-export const NewWallet: FC<SettingsItemProps> = ({ close }) => {
-  const handleNew = () => {
+export const useNewWallet = () => {
+  const handleNewWallet = () => {
     PgModal.set(NewWalletModal);
-    close();
   };
 
-  return <SettingsItem onClick={handleNew}>New Wallet</SettingsItem>;
+  return { handleNewWallet };
 };
 
 const NewWalletModal = () => {

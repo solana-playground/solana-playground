@@ -1,13 +1,11 @@
-import { ChangeEvent, FC } from "react";
+import { ChangeEvent } from "react";
 import { useAtom } from "jotai";
 import { Keypair } from "@solana/web3.js";
 
-import UploadButton from "../../../../../components/UploadButton";
-import { SettingsItem, SettingsItemProps } from "./SettingsItem";
 import { pgWalletAtom } from "../../../../../state";
 import { PgCommon, PgWallet } from "../../../../../utils/pg";
 
-export const ImportKeypair: FC<SettingsItemProps> = ({ close }) => {
+export const useImportKeypair = () => {
   const [, setPgWallet] = useAtom(pgWalletAtom);
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -31,15 +29,14 @@ export const ImportKeypair: FC<SettingsItemProps> = ({ close }) => {
 
       // Update global wallet state
       setPgWallet(new PgWallet());
-      close();
     } catch (err: any) {
       console.log(err.message);
     }
   };
 
-  return (
-    <UploadButton accept=".json" onUpload={handleUpload} noButton>
-      <SettingsItem>Import Keypair</SettingsItem>
-    </UploadButton>
-  );
+  return {
+    importKeypair: () => {
+      PgCommon.import(handleUpload, { accept: ".json" });
+    },
+  };
 };

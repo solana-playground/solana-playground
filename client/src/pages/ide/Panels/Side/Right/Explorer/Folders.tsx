@@ -20,8 +20,6 @@ const Folders = () => {
   const [explorer] = useAtom(explorerAtom);
   useAtom(refreshExplorerAtom); // to re-render on demand
 
-  const rootRef = useRef<HTMLDivElement>(null);
-
   // Initial folder state on mount
   useEffect(() => {
     if (!explorer?.getTabs().length) return;
@@ -36,18 +34,6 @@ const Folders = () => {
     const newEl = PgExplorer.getElFromPath(curFile.path);
     if (newEl) PgExplorer.setSelectedEl(newEl);
   }, [explorer]);
-
-  // Handle ctx selected if user clicks outside of the root element
-  useEffect(() => {
-    const handleClick = (e: globalThis.MouseEvent) => {
-      if (e.target && !rootRef.current?.contains(e.target as Node)) {
-        PgExplorer.removeCtxSelectedEl();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   const ctxMenu = useExplorerContextMenu();
 
@@ -64,75 +50,75 @@ const Folders = () => {
   );
 
   return (
-    <RootWrapper
-      id={Id.ROOT_DIR}
-      data-path={relativeRootPath}
-      ref={rootRef}
-      onContextMenu={ctxMenu.handleMenu}
-    >
-      {/* Program */}
-      <SectionTopWrapper>
-        <SectionHeader>Program</SectionHeader>
-        <Button onClick={ctxMenu.runBuild} kind="icon">
-          <Wrench />
-          <BuildButtonText>Build</BuildButtonText>
-        </Button>
-      </SectionTopWrapper>
-      <FolderGroup
-        folders={relativeRootDir.folders.filter(
-          (f) => f === PgExplorer.PATHS.SRC_DIRNAME
-        )}
-        relativeRootPath={relativeRootPath}
-      />
-
-      {/* Client and tests */}
-      {(relativeRootDir.folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ||
-        relativeRootDir.folders.includes(PgExplorer.PATHS.TESTS_DIRNAME)) && (
+    <ExplorerContextMenu {...ctxMenu}>
+      <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
+        {/* Program */}
         <SectionTopWrapper>
-          <SectionHeader>Client</SectionHeader>
-          {relativeRootDir.folders.includes(
-            PgExplorer.PATHS.CLIENT_DIRNAME
-          ) && (
-            <Button
-              onClick={ctxMenu.runClientFolder}
-              kind="icon"
-              title="Run All (in client dir)"
-            >
-              <Triangle rotate="90deg" />
-              <span>Run</span>
-            </Button>
-          )}
-          {relativeRootDir.folders.includes(PgExplorer.PATHS.TESTS_DIRNAME) && (
-            <Button
-              onClick={ctxMenu.runTestFolder}
-              kind="icon"
-              title="Test All (in tests dir)"
-            >
-              <TestTube />
-              <span>Test</span>
-            </Button>
-          )}
+          <SectionHeader>Program</SectionHeader>
+          <Button onClick={ctxMenu.runBuild} kind="icon">
+            <Wrench />
+            <BuildButtonText>Build</BuildButtonText>
+          </Button>
         </SectionTopWrapper>
-      )}
-      <FolderGroup
-        folders={relativeRootDir.folders.filter(
-          (f) =>
-            f === PgExplorer.PATHS.CLIENT_DIRNAME ||
-            f === PgExplorer.PATHS.TESTS_DIRNAME
+        <FolderGroup
+          folders={relativeRootDir.folders.filter(
+            (f) => f === PgExplorer.PATHS.SRC_DIRNAME
+          )}
+          relativeRootPath={relativeRootPath}
+        />
+
+        {/* Client and tests */}
+        {(relativeRootDir.folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ||
+          relativeRootDir.folders.includes(PgExplorer.PATHS.TESTS_DIRNAME)) && (
+          <SectionTopWrapper>
+            <SectionHeader>Client</SectionHeader>
+            {relativeRootDir.folders.includes(
+              PgExplorer.PATHS.CLIENT_DIRNAME
+            ) && (
+              <Button
+                onClick={ctxMenu.runClientFolder}
+                kind="icon"
+                title="Run All (in client dir)"
+              >
+                <Triangle rotate="90deg" />
+                <span>Run</span>
+              </Button>
+            )}
+            {relativeRootDir.folders.includes(
+              PgExplorer.PATHS.TESTS_DIRNAME
+            ) && (
+              <Button
+                onClick={ctxMenu.runTestFolder}
+                kind="icon"
+                title="Test All (in tests dir)"
+              >
+                <TestTube />
+                <span>Test</span>
+              </Button>
+            )}
+          </SectionTopWrapper>
         )}
-        relativeRootPath={relativeRootPath}
-      />
+        <FolderGroup
+          folders={relativeRootDir.folders.filter(
+            (f) =>
+              f === PgExplorer.PATHS.CLIENT_DIRNAME ||
+              f === PgExplorer.PATHS.TESTS_DIRNAME
+          )}
+          relativeRootPath={relativeRootPath}
+        />
 
-      {/* Other */}
-      {otherFolders.length > 0 && (
-        <SectionTopWrapper>
-          <SectionHeader>Other</SectionHeader>
-        </SectionTopWrapper>
-      )}
-      <FolderGroup folders={otherFolders} relativeRootPath={relativeRootPath} />
-
-      <ExplorerContextMenu {...ctxMenu} />
-    </RootWrapper>
+        {/* Other */}
+        {otherFolders.length > 0 && (
+          <SectionTopWrapper>
+            <SectionHeader>Other</SectionHeader>
+          </SectionTopWrapper>
+        )}
+        <FolderGroup
+          folders={otherFolders}
+          relativeRootPath={relativeRootPath}
+        />
+      </RootWrapper>
+    </ExplorerContextMenu>
   );
 };
 

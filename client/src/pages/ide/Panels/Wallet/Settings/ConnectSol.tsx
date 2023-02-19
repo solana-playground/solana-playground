@@ -1,18 +1,13 @@
-import { FC } from "react";
-
-import { SettingsItem, SettingsItemProps } from "./SettingsItem";
 import { useConnect } from "../useConnect";
 
-export const ConnectSol: FC<SettingsItemProps> = ({ close }) => {
+export const useConnectSol = () => {
   const { solButtonStatus, connecting, disconnecting, handleConnect } =
     useConnect();
 
-  const handleClick = () => {
+  const connectSol = () => {
     if (connecting || disconnecting) return;
-
     handleConnect();
-    close();
   };
 
-  return <SettingsItem onClick={handleClick}>{solButtonStatus}</SettingsItem>;
+  return { connectSol, solButtonStatus };
 };

@@ -1,5 +1,4 @@
 export * from "./build";
-export * from "./context-menu";
 export * from "./deploy";
 export * from "./explorer";
 export * from "./modal";

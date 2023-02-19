@@ -18,9 +18,7 @@ export class PgView {
   /**
    * Set main view(next to the sidebar and above the terminal)
    *
-   * @param SetEl element to set the main view to.
-   *
-   * If empty, default editor will be set.
+   * @param SetEl element to set the main view to. (default: Editor)
    */
   static async setMain(SetEl?: SetElementAsync) {
     while (1) {

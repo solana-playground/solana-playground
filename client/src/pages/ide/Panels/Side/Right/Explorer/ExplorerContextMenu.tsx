@@ -1,7 +1,5 @@
-import { FC, MouseEvent, ReactNode } from "react";
-import styled, { css } from "styled-components";
+import { FC, MouseEvent, useEffect, useRef } from "react";
 
-import ContextMenu from "../../../../../../components/ContextMenu";
 import {
   NewFile,
   NewFolder,
@@ -13,11 +11,14 @@ import {
   Triangle,
   Wrench,
 } from "../../../../../../components/Icons";
+import Menu from "../../../../../../components/Menu";
+import { PgExplorer } from "../../../../../../utils/pg";
 import { ItemData } from "./useExplorerContextMenu";
 
 type Fn = () => void;
 
 interface ExplorerContextMenuProps {
+  itemData: ItemData;
   ctxNewItem: Fn;
   renameItem: Fn;
   deleteItem: Fn;
@@ -26,10 +27,11 @@ interface ExplorerContextMenuProps {
   runClientFolder: Fn;
   runTest: Fn;
   runTestFolder: Fn;
-  itemData: ItemData;
+  handleMenu: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
 const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
+  itemData,
   ctxNewItem,
   renameItem,
   deleteItem,
@@ -38,154 +40,92 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   runClientFolder,
   runTest,
   runTestFolder,
-  itemData,
-}) => (
-  <ContextMenu>
-    {itemData.isFolder && (
-      <>
-        <StyledItem
-          name="New File"
-          keybind="ALT+N"
-          IconEl={<NewFile />}
-          onClick={ctxNewItem}
-        />
-        <StyledItem
-          name="New Folder"
-          keybind="ALT+N"
-          IconEl={<NewFolder />}
-          onClick={ctxNewItem}
-        />
-      </>
-    )}
-    <StyledItem
-      name="Rename"
-      keybind="F2"
-      IconEl={<Rename />}
-      onClick={renameItem}
-    />
-    <StyledItem
-      name="Delete"
-      keybind="Del"
-      IconEl={<Trash />}
-      onClick={deleteItem}
-    />
-    {itemData.isProgramFolder && (
-      <StyledItem name="Build" IconEl={<Wrench />} onClick={runBuild} />
-    )}
-    {itemData.isClient && (
-      <StyledItem
-        name="Run"
-        IconEl={<Triangle rotate="90deg" />}
-        onClick={runClient}
-      />
-    )}
-    {itemData.isClientFolder && (
-      <StyledItem
-        name="Run All"
-        IconEl={<RunAll />}
-        onClick={runClientFolder}
-      />
-    )}
-    {itemData.isTest && (
-      <StyledItem name="Test" IconEl={<TestTube />} onClick={runTest} />
-    )}
-    {itemData.isTestFolder && (
-      <StyledItem
-        name="Test All"
-        IconEl={<TestPaper />}
-        onClick={runTestFolder}
-      />
-    )}
-  </ContextMenu>
-);
+  handleMenu,
+  children,
+}) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-interface ItemProps {
-  name: string;
-  onClick: (e: MouseEvent<HTMLDivElement>) => void;
-  IconEl?: ReactNode;
-  keybind?: string;
-  className?: string;
-}
+  // Handle ctx selected if user clicks outside of the context wrapper
+  useEffect(() => {
+    const handleClick = (e: globalThis.MouseEvent) => {
+      if (e.target && !wrapperRef.current?.contains(e.target as Node)) {
+        PgExplorer.removeCtxSelectedEl();
+      }
+    };
 
-enum ItemClassName {
-  NAME = "item-name",
-  KEYBIND = "item-keybind",
-  DELETE = "item-delete",
-}
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
-const Item: FC<ItemProps> = ({ name, onClick, IconEl, keybind, className }) => {
   return (
-    <div
-      className={`${className} ${
-        name === "Delete" ? ItemClassName.DELETE : ""
-      }`}
-      onClick={onClick}
-    >
-      <div>
-        {IconEl && IconEl}
-        <span className={ItemClassName.NAME}>{name}</span>
-      </div>
-      {keybind && <span className={ItemClassName.KEYBIND}>{keybind}</span>}
+    <div ref={wrapperRef}>
+      <Menu
+        kind="context"
+        items={[
+          {
+            name: "New File",
+            onClick: ctxNewItem,
+            keybind: "ALT+N",
+            Icon: <NewFile />,
+            showCondition: itemData.isFolder,
+          },
+          {
+            name: "New Folder",
+            onClick: ctxNewItem,
+            keybind: "ALT+N",
+            Icon: <NewFolder />,
+            showCondition: itemData.isFolder,
+          },
+          {
+            name: "Rename",
+            onClick: renameItem,
+            keybind: "F2",
+            Icon: <Rename />,
+          },
+          {
+            name: "Delete",
+            onClick: deleteItem,
+            keybind: "Del",
+            Icon: <Trash />,
+            kind: "error",
+          },
+          {
+            name: "Build",
+            onClick: runBuild,
+            Icon: <Wrench />,
+            showCondition: itemData.isProgramFolder,
+          },
+          {
+            name: "Run",
+            onClick: runClient,
+            Icon: <Triangle rotate="90deg" />,
+            showCondition: itemData.isClient,
+          },
+          {
+            name: "Run All",
+            onClick: runClientFolder,
+            Icon: <RunAll />,
+            showCondition: itemData.isClientFolder,
+          },
+          {
+            name: "Test",
+            onClick: runTest,
+            Icon: <TestTube />,
+            showCondition: itemData.isTest,
+          },
+          {
+            name: "Test All",
+            onClick: runTestFolder,
+            Icon: <TestPaper />,
+            showCondition: itemData.isTestFolder,
+          },
+        ]}
+        cb={handleMenu}
+      >
+        {children}
+      </Menu>
     </div>
   );
 };
-
-const StyledItem = styled(Item)`
-  ${({ theme }) => css`
-    padding: 0.5rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    font-size: ${theme.font?.code?.size.small};
-    color: ${theme.colors.default.textSecondary};
-    border-left: 2px solid transparent;
-    transition: all ${theme.transition?.duration.short}
-      ${theme.transition?.type};
-
-    & > div {
-      display: flex;
-      align-items: center;
-      min-width: max-content;
-    }
-
-    & svg {
-      margin-right: 0.5rem;
-    }
-
-    & span.${ItemClassName.KEYBIND} {
-      font-weight: normal;
-      margin-left: 1.5rem;
-    }
-
-    &:hover {
-      cursor: pointer;
-      background-color: ${theme.colors.state.hover.bg};
-      border-left-color: ${theme.colors.default.primary};
-
-      & svg {
-        color: ${theme.colors.default.primary};
-      }
-
-      & span.${ItemClassName.NAME} {
-        color: ${theme.colors.default.primary};
-        transition: all ${theme.transition?.duration.short}
-          ${theme.transition?.type};
-      }
-
-      &.${ItemClassName.DELETE} {
-        border-left-color: ${theme.colors.state.error.color};
-
-        & svg {
-          color: ${theme.colors.state.error.color};
-        }
-
-        & span.${ItemClassName.NAME} {
-          color: ${theme.colors.state.error.color};
-        }
-      }
-    }
-  `}
-`;
 
 export default ExplorerContextMenu;
