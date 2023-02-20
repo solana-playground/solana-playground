@@ -6,17 +6,23 @@ import { MenuWrapper } from "./MenuWrapper";
 import type { OptionalMenuProps } from "./Menu"; // Circular dependency
 
 export type DropdownMenuProps = {
-  onToggle?: () => void;
+  onShow?: () => void;
+  onHide?: () => void;
 } & OptionalMenuProps;
 
-const DropdownMenu: FC<DropdownMenuProps> = ({ items, onToggle, children }) => {
+const DropdownMenu: FC<DropdownMenuProps> = ({
+  items,
+  onShow,
+  onHide,
+  children,
+}) => {
   const [show, setShow] = useState(false);
 
   const toggle = useCallback(() => setShow((s) => !s), []);
 
   useEffect(() => {
-    onToggle?.();
-  }, [show, onToggle]);
+    show ? onShow?.() : onHide?.();
+  }, [show, onShow, onHide]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 

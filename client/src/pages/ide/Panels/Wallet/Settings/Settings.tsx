@@ -49,10 +49,15 @@ export const WalletSettings = () => {
             onClick: connectSol,
           },
         ]}
-        onToggle={() => {
+        onShow={() => {
           document
             .getElementById(Id.WALLET_MAIN)
-            ?.classList.toggle(ClassName.DARKEN);
+            ?.classList.add(ClassName.DARKEN);
+        }}
+        onHide={() => {
+          document
+            .getElementById(Id.WALLET_MAIN)
+            ?.classList.remove(ClassName.DARKEN);
         }}
       >
         <Button kind="icon" title="More">

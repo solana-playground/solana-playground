@@ -8,7 +8,7 @@ import {
   modalAtom,
   newItemAtom,
 } from "../../../../../../state";
-import { PgExplorer, PgTerminal, PgView } from "../../../../../../utils/pg";
+import { PgExplorer, PgTerminal } from "../../../../../../utils/pg";
 
 export interface ItemData {
   isFolder?: boolean;

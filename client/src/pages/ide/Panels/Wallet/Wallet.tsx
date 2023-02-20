@@ -47,7 +47,7 @@ const Wallet = () => {
       >
         <WalletWrapper>
           <WalletTitle />
-          <Main id={Id.WALLET_MAIN} className={ClassName.DARKEN}>
+          <Main id={Id.WALLET_MAIN}>
             <Balance />
             <Send />
             <Transactions />
