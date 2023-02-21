@@ -1,4 +1,4 @@
-import { FC, MouseEvent } from "react";
+import { FC } from "react";
 
 import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import DropdownMenu, { DropdownMenuProps } from "./DropdownMenu";
@@ -6,7 +6,8 @@ import { MenuItemProps } from "./MenuItem";
 
 export type OptionalMenuProps = {
   items?: MenuItemProps[];
-  cb?: (e: MouseEvent<HTMLDivElement>) => void;
+  onShow?: () => void;
+  onHide?: () => void;
 };
 
 type MenuProps =

@@ -12,7 +12,9 @@ import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
 import type { OptionalMenuProps } from "./Menu"; // Circular dependency
 
-export type ContextMenuProps = {} & OptionalMenuProps;
+export type ContextMenuProps = {
+  beforeShowCb?: (e: MouseEvent<HTMLDivElement>) => void;
+} & OptionalMenuProps;
 
 type MenuState =
   | {
@@ -28,7 +30,13 @@ type Position = {
   y: number;
 };
 
-const ContextMenu: FC<ContextMenuProps> = ({ items, cb, children }) => {
+const ContextMenu: FC<ContextMenuProps> = ({
+  items,
+  beforeShowCb,
+  onShow,
+  onHide,
+  children,
+}) => {
   const [menu, setMenu] = useState<MenuState>({
     state: "hide",
   });
@@ -45,7 +53,7 @@ const ContextMenu: FC<ContextMenuProps> = ({ items, cb, children }) => {
       e.preventDefault();
 
       try {
-        cb?.(e);
+        beforeShowCb?.(e);
       } catch {
         return;
       }
@@ -58,7 +66,7 @@ const ContextMenu: FC<ContextMenuProps> = ({ items, cb, children }) => {
         position: { x: e.clientX - rect.x, y: e.clientY - rect.y },
       });
     },
-    [cb]
+    [beforeShowCb]
   );
 
   useEffect(() => {
@@ -76,6 +84,10 @@ const ContextMenu: FC<ContextMenuProps> = ({ items, cb, children }) => {
       document.body.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menu.state, hide]);
+
+  useEffect(() => {
+    menu.state === "show" ? onShow?.() : onHide?.();
+  }, [menu.state, onShow, onHide]);
 
   return (
     <Wrapper ref={wrapperRef} onContextMenu={handleContextMenu}>

@@ -1,5 +1,6 @@
 import { FC, MouseEvent, useEffect, useRef } from "react";
 
+import Menu from "../../../../../../components/Menu";
 import {
   NewFile,
   NewFolder,
@@ -11,22 +12,19 @@ import {
   Triangle,
   Wrench,
 } from "../../../../../../components/Icons";
-import Menu from "../../../../../../components/Menu";
 import { PgExplorer } from "../../../../../../utils/pg";
 import { ItemData } from "./useExplorerContextMenu";
 
-type Fn = () => void;
-
 interface ExplorerContextMenuProps {
   itemData: ItemData;
-  ctxNewItem: Fn;
-  renameItem: Fn;
-  deleteItem: Fn;
-  runBuild: Fn;
-  runClient: Fn;
-  runClientFolder: Fn;
-  runTest: Fn;
-  runTestFolder: Fn;
+  ctxNewItem: () => void;
+  renameItem: () => void;
+  deleteItem: () => void;
+  runBuild: () => void;
+  runClient: () => void;
+  runClientFolder: () => void;
+  runTest: () => void;
+  runTestFolder: () => void;
   handleMenu: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
@@ -120,7 +118,7 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
             showCondition: itemData.isTestFolder,
           },
         ]}
-        cb={handleMenu}
+        beforeShowCb={handleMenu}
       >
         {children}
       </Menu>

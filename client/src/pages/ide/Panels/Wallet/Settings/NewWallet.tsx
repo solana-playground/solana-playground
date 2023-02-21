@@ -10,11 +10,11 @@ import { PgCommon, PgModal, PgWallet } from "../../../../../utils/pg";
 import { pgWalletAtom } from "../../../../../state";
 
 export const useNewWallet = () => {
-  const handleNewWallet = () => {
-    PgModal.set(NewWalletModal);
+  return {
+    handleNewWallet: () => {
+      PgModal.set(NewWalletModal);
+    },
   };
-
-  return { handleNewWallet };
 };
 
 const NewWalletModal = () => {

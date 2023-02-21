@@ -1,9 +1,10 @@
+import { useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../../components/Button";
 import Menu from "../../../../../components/Menu";
-import { ClassName, Id } from "../../../../../constants";
 import { ThreeDots } from "../../../../../components/Icons";
+import { ClassName, Id } from "../../../../../constants";
 import { useAirdrop } from "./Airdrop";
 import { useNewWallet } from "./NewWallet";
 import { useConnectSol } from "./ConnectSol";
@@ -16,6 +17,13 @@ export const WalletSettings = () => {
   const { exportKeypair } = useExportKeypair();
   const { handleNewWallet } = useNewWallet();
   const { connectSol, solButtonStatus } = useConnectSol();
+
+  const darken = useCallback(() => {
+    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
+  }, []);
+  const lighten = useCallback(() => {
+    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
+  }, []);
 
   return (
     <Wrapper>
@@ -49,16 +57,8 @@ export const WalletSettings = () => {
             onClick: connectSol,
           },
         ]}
-        onShow={() => {
-          document
-            .getElementById(Id.WALLET_MAIN)
-            ?.classList.add(ClassName.DARKEN);
-        }}
-        onHide={() => {
-          document
-            .getElementById(Id.WALLET_MAIN)
-            ?.classList.remove(ClassName.DARKEN);
-        }}
+        onShow={darken}
+        onHide={lighten}
       >
         <Button kind="icon" title="More">
           <ThreeDots />

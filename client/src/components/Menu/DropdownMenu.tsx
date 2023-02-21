@@ -5,10 +5,7 @@ import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
 import type { OptionalMenuProps } from "./Menu"; // Circular dependency
 
-export type DropdownMenuProps = {
-  onShow?: () => void;
-  onHide?: () => void;
-} & OptionalMenuProps;
+export type DropdownMenuProps = {} & OptionalMenuProps;
 
 const DropdownMenu: FC<DropdownMenuProps> = ({
   items,
