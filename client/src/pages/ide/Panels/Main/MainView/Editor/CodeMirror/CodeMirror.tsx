@@ -315,10 +315,9 @@ const CodeMirror = () => {
     };
 
     // Update in editor
-    const isLibrs = explorer.getCurrentFile()?.path.endsWith("lib.rs");
-    const isPython =
-      !isLibrs && explorer.getCurrentFileLanguage() === Lang.PYTHON;
-    if (!isLibrs && !isPython) return;
+    const isRust = explorer.getCurrentFileLanguage() === Lang.RUST;
+    const isPython = explorer.getCurrentFileLanguage() === Lang.PYTHON;
+    if (!isRust && !isPython) return;
 
     const editorContent = editor.state.doc.toString();
     const indices = getProgramIdStartAndEndIndex(editorContent, isPython);

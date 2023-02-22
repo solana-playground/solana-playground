@@ -1036,54 +1036,108 @@ export class PgExplorer {
     ).toBase58();
 
     const updateIdRust = (content: string) => {
+      let updated = false;
+
       const rustDeclareIdRegex = new RegExp(
         /^(([\w]+::)*)declare_id!\("(\w*)"\)/gm
       );
-      return content.replace(rustDeclareIdRegex, (match) => {
+      const newContent = content.replace(rustDeclareIdRegex, (match) => {
         const res = rustDeclareIdRegex.exec(match);
         if (!res) return match;
+        updated = true;
 
         // res[1] could be solana_program:: or undefined
         return (res[1] ?? "\n") + `declare_id!("${programPkStr}")`;
       });
+
+      return {
+        content: newContent,
+        updated,
+      };
     };
 
     const updateIdPython = (content: string) => {
-      return content.replace(
-        /^declare_id\(("|')(\w*)("|')\)/gm,
-        () => `declare_id('${programPkStr}')`
+      let updated = false;
+
+      const pythonDeclareIdRegex = new RegExp(
+        /^declare_id\(("|')(\w*)("|')\)/gm
       );
+
+      const newContent = content.replace(pythonDeclareIdRegex, (match) => {
+        const res = pythonDeclareIdRegex.exec(match);
+        if (!res) return match;
+        updated = true;
+        return `declare_id('${programPkStr}')`;
+      });
+
+      return {
+        content: newContent,
+        updated,
+      };
     };
 
     const getUpdatedProgramIdContent = (path: string) => {
       let content = files[path].content;
+      let updated = false;
       if (content) {
-        if (path.endsWith("lib.rs")) {
-          content = updateIdRust(content);
+        if (path.endsWith(".rs")) {
+          const updateIdResult = updateIdRust(content);
+          content = updateIdResult.content;
+          updated = updateIdResult.updated;
         } else if (path.endsWith(".py")) {
-          content = updateIdPython(content);
+          const updateIdResult = updateIdPython(content);
+          content = updateIdResult.content;
+          updated = updateIdResult.updated;
         }
       }
 
-      return content;
+      return { content, updated };
+    };
+
+    // prioritise files where we are likely to find a rust declare_id
+    const prioritiseFilePaths = (files: { [key: string]: ItemInfo }) => {
+      const prioritised: Array<string> = [];
+      for (const path in files) {
+        if (path.endsWith("lib.rs") || path.endsWith("id.rs")) {
+          prioritised.unshift(path);
+        } else {
+          prioritised.push(path);
+        }
+      }
+      return prioritised;
     };
 
     const files = this.files;
+    const prioritisedFilePaths = prioritiseFilePaths(files);
     const buildFiles: Files = [];
 
     if (this.isShared) {
-      for (const path in files) {
+      let alreadyUpdatedId = false;
+      for (const path of prioritisedFilePaths) {
+        let content;
         // Shared files are already in correct format, we only update program id
-        const updatedContent = getUpdatedProgramIdContent(path);
-        if (!updatedContent) continue;
-        buildFiles.push([path, updatedContent]);
+        if (!alreadyUpdatedId) {
+          const updateIdResult = getUpdatedProgramIdContent(path);
+          content = updateIdResult.content;
+          alreadyUpdatedId = updateIdResult.updated;
+        } else {
+          content = files[path].content;
+        }
+        if (!content) continue;
+        buildFiles.push([path, content]);
       }
     } else {
-      for (let path in files) {
+      let alreadyUpdatedId = false;
+      for (let path of prioritisedFilePaths) {
         if (!path.startsWith(this._getCurrentSrcPath())) continue;
 
-        const updatedContent = getUpdatedProgramIdContent(path);
-        if (!updatedContent) continue;
+        let content = files[path].content;
+        if (!alreadyUpdatedId) {
+          const updateIdResult = getUpdatedProgramIdContent(path);
+          content = updateIdResult.content;
+          alreadyUpdatedId = updateIdResult.updated;
+        }
+        if (!content) continue;
 
         // We are removing the workspace from path because build only needs /src
         path = path.replace(
@@ -1091,7 +1145,7 @@ export class PgExplorer {
           PgExplorer.PATHS.ROOT_DIR_PATH
         );
 
-        buildFiles.push([path, updatedContent]);
+        buildFiles.push([path, content]);
       }
     }
 
