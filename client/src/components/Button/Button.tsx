@@ -145,13 +145,13 @@ const getButtonStyles = ({
     }
     case "outline": {
       borderColor = theme.colors.default.borderColor;
-      hoverBg = theme.colors.state.hover.bg ?? "transparent";
+      hoverBg = theme.colors.state.hover.bg;
       hoverBorderColor = theme.colors.default.borderColor;
       break;
     }
     case "icon": {
       color = theme.colors.default.textSecondary;
-      hoverBg = "red";
+      hoverBg = theme.colors.state.hover.bg;
       hoverColor = theme.colors.default.textPrimary;
       padding = "0.25rem";
       break;
@@ -399,10 +399,11 @@ const getButtonStyles = ({
   `;
 
   // FullWidth
-  if (fullWidth)
+  if (fullWidth) {
     defaultCss = defaultCss.concat(css`
       width: 100%;
     `);
+  }
 
   if (kind === "icon") {
     defaultCss = defaultCss.concat(css`
@@ -416,15 +417,6 @@ const getButtonStyles = ({
       svg {
         width: 1rem;
         height: 1rem;
-      }
-
-      &:hover {
-        color: ${theme.colors.default.textPrimary};
-        background-color: ${theme.colors.state.hover.bg};
-
-        & svg {
-          color: ${theme.colors.default.textPrimary};
-        }
       }
 
       & > span:not(.btn-spinner) {
