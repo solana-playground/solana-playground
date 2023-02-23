@@ -20,7 +20,7 @@ import InputLabel from "./InputLabel";
 import Tooltip from "../../../../../../components/Tooltip";
 import Input from "../../../../../../components/Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import { ClassName, Id } from "../../../../../../constants";
+import { ClassName } from "../../../../../../constants";
 import {
   PgAccount,
   PgProgramInfo,
@@ -133,11 +133,13 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
     kp: signerKp,
   });
 
-  const inputName = useMemo(() => {
-    if (isArg) return functionName + Identifiers.ARGS + account.name;
-
-    return functionName + Identifiers.ACCS + account.name;
-  }, [functionName, account.name, isArg]);
+  const inputName = useMemo(
+    () =>
+      functionName +
+      (isArg ? Identifiers.ARGS : Identifiers.ACCS) +
+      account.name,
+    [functionName, account.name, isArg]
+  );
 
   return (
     <Wrapper>
@@ -152,7 +154,7 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
             disabled={accountExists}
           />
           {(showSearch || showSeed || showAta) && (
-            <SearchWrapper id={Id.SEARCH_WRAPPER}>
+            <SearchWrapper>
               {showSeed ? (
                 <ShowSeed
                   setVal={setVal}
