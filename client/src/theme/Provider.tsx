@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ThemeProvider } from "styled-components";
+import styled, { css, ThemeProvider } from "styled-components";
 
 import THEMES from "./themes";
 import FONTS from "./fonts";
@@ -96,24 +96,21 @@ const MutThemeProvider: FC = ({ children }) => {
     _theme.colors.editor.color = _theme.colors.default.textPrimary;
   if (!_theme.colors.editor.cursorColor)
     _theme.colors.editor.cursorColor = _theme.colors.default.textSecondary;
-
-  // Active line
+  // Editor active line
   if (!_theme.colors.editor.activeLine) _theme.colors.editor.activeLine = {};
   if (!_theme.colors.editor.activeLine.bg)
     _theme.colors.editor.activeLine.bg = "inherit";
   if (!_theme.colors.editor.activeLine.borderColor)
     _theme.colors.editor.activeLine.borderColor =
       _theme.colors.default.borderColor;
-
-  // Selection
+  // Editor selection
   if (!_theme.colors.editor?.selection) _theme.colors.editor.selection = {};
   if (!_theme.colors.editor.selection.bg)
     _theme.colors.editor.selection.bg =
       _theme.colors.default.primary + _theme.transparency!.medium;
   if (!_theme.colors.editor.selection.color)
     _theme.colors.editor.selection.color = "inherit";
-
-  // Search match
+  // Editor search match
   if (!_theme.colors.editor?.searchMatch) _theme.colors.editor.searchMatch = {};
   if (!_theme.colors.editor.searchMatch.bg)
     _theme.colors.editor.searchMatch.bg =
@@ -124,14 +121,13 @@ const MutThemeProvider: FC = ({ children }) => {
     _theme.colors.editor.searchMatch.selectedBg = "inherit";
   if (!_theme.colors.editor.searchMatch.selectedColor)
     _theme.colors.editor.searchMatch.selectedColor = "inherit";
-  // Gutter
+  // Editor gutter
   if (!_theme.colors.editor?.gutter) _theme.colors.editor.gutter = {};
   if (!_theme.colors.editor.gutter.bg)
     _theme.colors.editor.gutter.bg = _theme.colors.editor.bg;
   if (!_theme.colors.editor.gutter.color)
     _theme.colors.editor.gutter.color = _theme.colors.default.textSecondary;
-
-  // Tooltip/dropdown
+  // Editor tooltip/dropdown
   if (!_theme.colors.editor?.tooltip) _theme.colors.editor.tooltip = {};
   if (!_theme.colors.editor.tooltip.bg)
     _theme.colors.editor.tooltip.bg = _theme.colors.default.bgPrimary;
@@ -217,6 +213,25 @@ const MutThemeProvider: FC = ({ children }) => {
   // Transition
   if (!_theme.transition) _theme.transition = PG_TRANSITION;
 
+  /// Components
+  // Button
+  if (!_theme.components) _theme.components = {};
+  if (!_theme.components.button) _theme.components.button = {};
+  // Button defaults
+  if (!_theme.components.button.default) _theme.components.button.default = {};
+  if (!_theme.components.button.default.bg)
+    _theme.components.button.default.bg = "transparent";
+  if (!_theme.components.button.default.color)
+    _theme.components.button.default.color = "inherit";
+  if (!_theme.components.button.default.borderColor)
+    _theme.components.button.default.borderColor = "transparent";
+  if (!_theme.components.button.default.borderRadius)
+    _theme.components.button.default.borderRadius = _theme.borderRadius;
+  if (!_theme.components.button.default.padding)
+    _theme.components.button.default.padding = "";
+  if (!_theme.components.button.default.fontWeight)
+    _theme.components.button.default.fontWeight = "normal";
+
   const [theme, setTheme] = useState(_theme);
   const [font, setFont] = useState(_font);
 
@@ -229,9 +244,32 @@ const MutThemeProvider: FC = ({ children }) => {
 
   return (
     <MutThemeContext.Provider value={{ setTheme, font, setFont }}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <Wrapper>{children}</Wrapper>
+      </ThemeProvider>
     </MutThemeContext.Provider>
   );
 };
+
+// Set default theme values
+const Wrapper = styled.div`
+  ${({ theme }) => css`
+    background-color: ${theme.colors.default.bgPrimary};
+    color: ${theme.colors.default.textPrimary};
+    font-family: ${theme.font?.code?.family};
+    font-size: ${theme.font?.code?.size.medium};
+
+    & svg {
+      color: ${theme.colors.default.textSecondary};
+      transition: color ${theme.transition?.duration.short}
+        ${theme.transition?.type};
+    }
+
+    & ::selection {
+      background-color: ${theme.colors.default.primary +
+      theme.transparency?.medium};
+    }
+  `}
+`;
 
 export default MutThemeProvider;

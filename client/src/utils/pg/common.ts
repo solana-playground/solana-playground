@@ -1,4 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { ChangeEvent } from "react";
 
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 
@@ -341,7 +342,7 @@ export class PgCommon {
    * @param name custom event name
    * @param detail data to send with the custom event
    */
-  static createAndDispatchCustomEvent(name: string, detail?: any) {
+  static createAndDispatchCustomEvent<T>(name: string, detail?: T) {
     const customEvent = new CustomEvent(name, { detail });
     document.dispatchEvent(customEvent);
   }
@@ -433,6 +434,52 @@ export class PgCommon {
     return setInterval(() => {
       if (document.hasFocus()) cb();
     }, ms);
+  }
+
+  /**
+   * Import file(s) from the user's file system
+   *
+   * @param onChange callback function to run when file input has changed
+   * @param opts optional options
+   */
+  static import(
+    onChange: (e: ChangeEvent<HTMLInputElement>) => Promise<void>,
+    opts?: { accept?: string; dir?: boolean }
+  ) {
+    const el = document.createElement("input");
+    el.type = "file";
+    if (opts?.accept) el.accept = opts.accept;
+
+    const dirProps = opts?.dir
+      ? {
+          webkitdirectory: "",
+          mozdirectory: "",
+          directory: "",
+          multiple: true,
+        }
+      : {};
+    for (const key in dirProps) {
+      // @ts-ignore
+      el[key] = dirProps[key as keyof typeof dirProps];
+    }
+
+    // @ts-ignore
+    el.onchange = onChange;
+
+    el.click();
+  }
+
+  /**
+   * Export the content as a file
+   *
+   * @param name name of the exported file
+   * @param content content of the exported file
+   */
+  static export(name: string, content: string) {
+    const el = document.createElement("a");
+    el.download = name;
+    el.href = content;
+    el.click();
   }
 
   /**

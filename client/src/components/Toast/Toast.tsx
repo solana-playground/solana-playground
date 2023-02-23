@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
-import { ICONBAR_WIDTH } from "../Panels/Side/Left";
+import { ICONBAR_WIDTH } from "../../pages/ide/Panels/Side/Left";
 import { ExplorerLink } from "./ExplorerLink";
 import { txHashAtom } from "../../state";
 import { PgPlaynet } from "../../utils/pg";

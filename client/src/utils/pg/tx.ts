@@ -7,15 +7,20 @@ import { PgPlaynet } from "./playnet";
 import { PgWallet } from "./wallet";
 
 interface BlockhashInfo {
+  /** Latest blockhash */
   blockhash: string;
+  /** UNIX timestamp of when the blockhash was last cached */
   timestamp: number;
 }
 
 export class PgTx {
   /**
-   * Send a transaction with additional signer optionality
+   * Send a transaction with additional signer optionality.
    *
-   * @returns transaction signature
+   * This method caches the latest blockhash in order to minimize the amount of
+   * RPC requests.
+   *
+   * @returns the transaction signature
    */
   static async send(
     tx: Transaction,
@@ -49,16 +54,13 @@ export class PgTx {
     conn: Connection,
     commitment?: Commitment
   ) {
-    // Don't confirm on playnet and localnet
-    if (
-      PgPlaynet.isUrlPlaynet(conn.rpcEndpoint) ||
-      conn.rpcEndpoint.includes("localhost")
-    ) {
+    // Don't confirm on playnet
+    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) {
       return;
     }
 
     const result = await conn.confirmTransaction(txHash, commitment);
-    if (result?.value.err) return { err: 1 };
+    if (result?.value.err) return { err: result.value.err };
   }
 
   /** Cached blockhash to reduce the amount of requests to the RPC endpoint */

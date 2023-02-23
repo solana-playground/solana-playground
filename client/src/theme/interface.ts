@@ -1,57 +1,151 @@
-type BgAndColor = {
-  bg?: string;
-  color?: string;
-};
+import { CSSProperties } from "react";
 
-type StateColor = {
-  color: string;
-  bg?: string;
-};
+import { ButtonKind } from "../components/Button";
 
-export type Font = {
-  family: string;
-  size: {
-    small: string;
-    medium: string;
-    large: string;
-    xlarge: string;
+export interface PgTheme {
+  /** Name of the theme that's displayed in theme settings */
+  name: string;
+  /** Whether the theme is a dark theme */
+  isDark: boolean;
+  /**
+   * Colors of the theme.
+   * NOTE: Optional theme properties will be derived from the following colors
+   * if they are not specified during creation.
+   */
+  colors: {
+    /** Default colors */
+    default: {
+      primary: string;
+      secondary: string;
+      bgPrimary: string;
+      bgSecondary: string;
+      textPrimary: string;
+      textSecondary: string;
+      borderColor: string;
+    };
+
+    /** State colors */
+    state: {
+      hover: StateColor;
+      disabled: StateColor;
+      error: StateColor;
+      success: StateColor;
+      warning: StateColor;
+      info: StateColor;
+    };
+
+    /** Bottom bar */
+    bottom?: BgAndColor;
+
+    /** Editor component */
+    editor?: BgAndColor & {
+      cursorColor?: string;
+      selection?: BgAndColor;
+      comment?: BgAndColor;
+      searchMatch?: BgAndColor & {
+        selectedBg?: string;
+        selectedColor?: string;
+      };
+      activeLine?: BgAndColor & {
+        borderColor?: string;
+      };
+      gutter?: BgAndColor & {
+        activeBg?: string;
+        activeColor?: string;
+      };
+      tooltip?: BgAndColor & {
+        selectedBg?: string;
+        selectedColor?: string;
+      };
+    };
+
+    /** Home screen */
+    home?: BgAndColor & {
+      card?: BgAndColor;
+    };
+
+    /** Left sidebar IconButton */
+    iconButton?: BgAndColor & {
+      selectedBg?: string;
+      selectedBorderColor?: string;
+    };
+
+    /** Input component */
+    input?: BgAndColor & {
+      borderColor?: string;
+      outlineColor?: string;
+    };
+
+    /** Left side of the side panel(icon panel) */
+    left?: BgAndColor; // bgPrimary, textPrimary
+
+    /** Markdown component */
+    markdown?: BgAndColor & {
+      /** Markdown codeblocks */
+      code?: BgAndColor;
+    };
+
+    /** Right side of the side panel */
+    right?: BgAndColor & { otherBg?: string };
+
+    /** Terminal */
+    terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
+
+    /** Notification toast */
+    toast?: BgAndColor;
+
+    /** Tooltip component */
+    tooltip?: BgAndColor & { bgSecondary?: string };
+
+    /** Tutorial component */
+    tutorial?: BgAndColor;
+
+    /** Tutorials page*/
+    tutorials?: BgAndColor & { card?: BgAndColor };
   };
-};
 
-export type Scrollbar = {
-  thumb: {
-    color: string;
-    hoverColor: string;
+  /** Override the component defaults */
+  components?: {
+    /** Button component */
+    button?: {
+      /** Default CSS values of the Button component */
+      default?: OverrideComponent;
+      /** Override the defaults with specificity */
+      overrides?: {
+        [K in ButtonKind]?: OverrideComponent;
+      };
+    };
   };
-  width?: {
-    editor: string;
+
+  /** Default border radius */
+  borderRadius?: string;
+
+  /** Default box shadow */
+  boxShadow?: string;
+
+  /** Default font */
+  font?: {
+    /** Code font */
+    code?: Font;
+    /** Any font other than code(e.g Markdown) */
+    other?: Font;
   };
-};
 
-export type Transition = {
-  type: string;
-  duration: {
-    short: string;
-    medium: string;
-    long: string;
-  };
-};
+  /** Scrollbar default */
+  scrollbar?: Scrollbar;
 
-export type Transparency = {
-  low: string;
-  medium: string;
-  high: string;
-};
+  /** Skeleton component */
+  skeleton?: Skeleton;
 
-export type Skeleton = {
-  color: string;
-  highlightColor: string;
-};
+  /** Default transparency values as hex string(00-ff) */
+  transparency?: Transparency;
 
-type HighlightToken = {
-  color?: string;
-  fontStyle?: "bold" | "italic";
-};
+  /** Default transition values */
+  transition?: Transition;
+
+  /** Code highlight styles */
+  highlight: PgHighlight;
+}
 
 export interface PgHighlight {
   // const x: _bool_ = true;
@@ -147,115 +241,67 @@ export interface PgHighlight {
   annotion: HighlightToken;
 }
 
-export interface PgTheme {
-  name: string;
-  isDark: boolean;
-  colors: {
-    // Defaults
-    default: {
-      primary: string;
-      secondary: string;
-      bgPrimary: string;
-      bgSecondary: string;
-      textPrimary: string;
-      textSecondary: string;
-      borderColor: string;
-    };
-
-    state: {
-      hover: StateColor;
-      disabled: StateColor;
-      error: StateColor;
-      success: StateColor;
-      warning: StateColor;
-      info: StateColor;
-    };
-
-    // Bottom bar
-    bottom?: BgAndColor; // primary, textPrimary
-
-    // Contrast
-    contrast?: {
-      color: string;
-      primary?: boolean;
-      secondary?: boolean;
-    };
-
-    // Editor
-    editor?: BgAndColor & {
-      cursorColor?: string; // textSecondary
-      selection?: BgAndColor;
-      comment?: BgAndColor;
-      searchMatch?: BgAndColor & {
-        selectedBg?: string;
-        selectedColor?: string;
-      };
-      activeLine?: BgAndColor & {
-        borderColor?: string;
-      };
-      gutter?: BgAndColor & {
-        activeBg?: string;
-        activeColor?: string;
-      };
-      tooltip?: BgAndColor & {
-        selectedBg?: string;
-        selectedColor?: string;
-      };
-    };
-
-    // Home screen
-    home?: BgAndColor & {
-      card?: BgAndColor;
-    };
-
-    // Left sidebar IconButton
-    iconButton?: BgAndColor & {
-      selectedBg?: string;
-      selectedBorderColor?: string;
-    };
-
-    // Input
-    input?: BgAndColor & {
-      borderColor?: string;
-      outlineColor?: string;
-    };
-
-    // Icon panel
-    left?: BgAndColor; // bgPrimary, textPrimary
-
-    // Markdown component
-    markdown?: BgAndColor & {
-      code?: BgAndColor;
-    };
-
-    // Side right panel
-    right?: BgAndColor & { otherBg?: string };
-
-    // Terminal
-    terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
-
-    // Notification toast
-    toast?: BgAndColor;
-
-    // General tooltip
-    tooltip?: BgAndColor & { bgSecondary?: string };
-
-    // Tutorial component
-    tutorial?: BgAndColor;
-
-    // Tutorials section
-    tutorials?: BgAndColor & { card?: BgAndColor };
+export type Font = {
+  family: string;
+  size: {
+    small: string;
+    medium: string;
+    large: string;
+    xlarge: string;
   };
+};
 
+export type Scrollbar = {
+  thumb: {
+    color: string;
+    hoverColor: string;
+  };
+  width?: {
+    editor: string;
+  };
+};
+
+export type Transition = {
+  type: string;
+  duration: {
+    short: string;
+    medium: string;
+    long: string;
+  };
+};
+
+export type Transparency = {
+  low: string;
+  medium: string;
+  high: string;
+};
+
+export type Skeleton = {
+  color: string;
+  highlightColor: string;
+};
+
+type OverrideComponent = {
+  bg?: string;
+  color?: string;
+  borderColor?: string;
   borderRadius?: string;
-  boxShadow?: string;
-  font?: {
-    code?: Font;
-    other?: Font;
-  };
-  scrollbar?: Scrollbar;
-  skeleton?: Skeleton;
-  transparency?: Transparency;
-  transition?: Transition;
-  highlight: PgHighlight;
-}
+  padding?: string;
+  fontWeight?: CSSProperties["fontWeight"];
+  hover?: Omit<OverrideComponent, "hover">;
+};
+
+type Bg = {
+  bg?: string;
+};
+
+type BgAndColor = Bg & { color?: string };
+
+type StateColor = {
+  color: string;
+} & Bg;
+
+type HighlightToken = {
+  color?: string;
+  fontStyle?: "bold" | "italic";
+};

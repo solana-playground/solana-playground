@@ -2515,7 +2515,7 @@
   version "0.99.4"
 
 "@solana-playground/seahorse-compile-wasm@../wasm/pkgs/seahorse-compile":
-  version "0.2.6"
+  version "0.2.7"
 
 "@solana-playground/solana-cli-wasm@../wasm/pkgs/solana-cli":
   version "1.11.0"

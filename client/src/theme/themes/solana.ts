@@ -53,10 +53,6 @@ export const SOLANA: PgTheme = {
       },
       warning: { color: YELLOW },
     },
-    contrast: {
-      color: BG_BLACK,
-      primary: true,
-    },
     bottom: {
       color: BG_BLACK,
     },
@@ -102,6 +98,18 @@ export const SOLANA: PgTheme = {
       bg: BG_BLACK,
       card: {
         bg: BG_GRAY,
+      },
+    },
+  },
+  components: {
+    button: {
+      overrides: {
+        primary: {
+          color: BG_BLACK,
+          hover: {
+            color: TEXT_PRIMARY,
+          },
+        },
       },
     },
   },

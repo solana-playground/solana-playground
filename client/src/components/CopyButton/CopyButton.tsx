@@ -28,8 +28,11 @@ const Wrapper = styled.div<{ copied: boolean }>`
   & > button {
     &:hover {
       background-color: transparent;
-      color: ${({ theme, copied }) =>
-        copied && theme.colors.state.success.color};
+
+      & svg {
+        color: ${({ theme, copied }) =>
+          copied && theme.colors.state.success.color};
+      }
     }
   }
 `;

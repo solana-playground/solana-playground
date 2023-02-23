@@ -5,11 +5,15 @@ import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
+import * as buffer from "buffer";
 
 import { EventName } from "../../constants";
 import { connAtom } from "../../state";
 import { PgConnection } from "../../utils/pg";
 import { usePlaynet } from "./usePlaynet";
+
+// Webpack 5 doesn't polyfill buffer
+window.Buffer = buffer.Buffer;
 
 /**
  * Connection and Wallet provider

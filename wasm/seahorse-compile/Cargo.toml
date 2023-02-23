@@ -1,6 +1,6 @@
 [package]
 name = "seahorse-compile-wasm"
-version = "0.2.6" # mirror seahorse-lang version
+version = "0.2.7" # mirror seahorse-lang version
 edition = "2021"
 authors = ["Callum McIntyre <callum.mcintyre@solana.com>"]
 description = "Seahorse compiler for Solana Playground with WASM."
@@ -12,6 +12,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 console_error_panic_hook = "*"
-seahorse-lang = "0.2.6"
+seahorse-lang = "0.2.7"
 solana-playground-utils-wasm = { path = "../utils/solana-playground-utils" }
 wasm-bindgen = "*"

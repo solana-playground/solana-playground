@@ -1,37 +1,36 @@
+import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import Panels from "../../components/Panels";
+import Panels from "./Panels";
 import ModalWrapper from "../../components/Modal/ModalWrapper";
-import Statics from "../../components/Statics";
-import ClientHelper from "../../components/ClientHelper";
+import ClientHelper from "./ClientHelper";
+import useStatics from "./useStatics";
 
-const IDE = () => (
-  <Wrapper>
-    <Panels />
-    <ModalWrapper />
-    <Statics />
-    <ClientHelper />
-  </Wrapper>
-);
+const IDE = () => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-// Set default theme values
+  useEffect(() => {
+    if (wrapperRef.current) {
+      wrapperRef.current.style.opacity = "1";
+    }
+  }, []);
+
+  useStatics();
+
+  return (
+    <Wrapper ref={wrapperRef}>
+      <Panels />
+      <ModalWrapper />
+      <ClientHelper />
+    </Wrapper>
+  );
+};
+
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.bgPrimary};
-    color: ${theme.colors.default.textPrimary};
-    font-family: ${theme.font?.code?.family};
-    font-size: ${theme.font?.code?.size.medium};
-
-    & svg {
-      color: ${theme.colors.default.textSecondary};
-      transition: color ${theme.transition?.duration.short}
-        ${theme.transition?.type};
-    }
-
-    & ::selection {
-      background-color: ${theme.colors.default.primary +
-      theme.transparency?.medium};
-    }
+    opacity: 0;
+    transition: opacity ${theme.transition?.duration.long}
+      ${theme.transition?.type};
   `}
 `;
 

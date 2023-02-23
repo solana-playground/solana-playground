@@ -1,20 +1,15 @@
-import { BrowserRouter } from "react-router-dom";
-import * as buffer from "buffer";
+import { lazy, Suspense } from "react";
 
 import MutThemeProvider from "./theme";
-import SolanaProvider from "./components/SolanaProvider";
-import IDE from "./pages/ide";
+import { AppLoading } from "./components/Loading/App";
 
-// Webpack 5 doesn't polyfill buffer
-window.Buffer = buffer.Buffer;
+const AppLazy = lazy(() => import("./AppLazy"));
 
 const App = () => (
   <MutThemeProvider>
-    <SolanaProvider>
-      <BrowserRouter>
-        <IDE />
-      </BrowserRouter>
-    </SolanaProvider>
+    <Suspense fallback={<AppLoading />}>
+      <AppLazy />
+    </Suspense>
   </MutThemeProvider>
 );
 

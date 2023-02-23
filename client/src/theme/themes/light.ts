@@ -87,13 +87,51 @@ export const LIGHT: PgTheme = {
       selectedBg: "#00000020",
       selectedBorderColor: BG_LIGHT,
     },
-    contrast: {
-      color: BG_WHITE,
-      primary: true,
-      secondary: true,
-    },
     bottom: {
       color: BG_WHITE,
+    },
+  },
+  components: {
+    button: {
+      overrides: {
+        primary: {
+          color: BG_LIGHT,
+          hover: {
+            color: BG_WHITE,
+          },
+        },
+        secondary: {
+          color: BG_LIGHT,
+          hover: {
+            color: BG_WHITE,
+          },
+        },
+        "primary-transparent": {
+          bg: BLUE + "dd",
+          color: BG_LIGHT,
+          hover: {
+            bg: BLUE + "bb",
+            color: BG_WHITE,
+          },
+        },
+        "secondary-transparent": {
+          bg: PURPLE + "dd",
+          color: BG_LIGHT,
+          hover: {
+            bg: PURPLE + "bb",
+            color: BG_WHITE,
+          },
+        },
+        error: {
+          color: BG_LIGHT,
+          hover: {
+            color: BG_WHITE,
+          },
+        },
+        outline: {
+          borderColor: TEXT_SECONDARY + "36",
+        },
+      },
     },
   },
   skeleton: {

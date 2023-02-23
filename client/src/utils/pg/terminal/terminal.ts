@@ -416,6 +416,13 @@ export class PgTerminal {
   }
 
   /**
+   * Execute the given command
+   */
+  static async execute(...args: Parameters<PgTerm["execute"]>) {
+    await PgTerminal.run({ execute: [...args] });
+  }
+
+  /**
    * Set progressbar percentage.
    *
    * Progress bar will be hidden if `progress` is set to 0.
@@ -500,9 +507,6 @@ export class PgTerm {
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
-
-    // Load commands
-    PgCommand.load();
   }
 
   open(container: HTMLElement) {
@@ -664,20 +668,26 @@ export class PgTerm {
     delete this._xterm;
   }
 
+  // TODO: Make async
   /**
    * Write the given input in the terminal and press `Enter`
+   *
+   * @param cmd command to run
+   * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
   executeFromStr(cmd: string, clearCmd: boolean = true) {
     this._pgTty.setInput(cmd);
     this._pgShell.handleReadComplete(clearCmd);
   }
 
+  // TODO: Make async
   /**
    * Execute the given command
    *
    * @param cmd {command: args}
+   * @param clearCmd whether to clean the command afterwards
    */
-  execute<K extends keyof typeof PgCommand["CMD_NAMES"]>(
+  execute<K extends keyof typeof PgCommand["COMMANDS"]>(
     cmd: {
       [Name in K]?: string;
     },
@@ -697,7 +707,7 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.CMD_NAMES.runLastCmd) {
+    if (!lastCmd || lastCmd === PgCommand.COMMANDS.runLastCmd.name) {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
