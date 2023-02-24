@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useEffect, useRef } from "react";
+import { FC, MouseEvent, useCallback, useEffect, useRef } from "react";
 
 import Menu from "../../../../../../components/Menu";
 import {
@@ -14,6 +14,7 @@ import {
 } from "../../../../../../components/Icons";
 import { PgExplorer } from "../../../../../../utils/pg";
 import { ItemData } from "./useExplorerContextMenu";
+import { Id } from "../../../../../../constants";
 
 interface ExplorerContextMenuProps {
   itemData: ItemData;
@@ -53,6 +54,14 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
 
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const onShow = useCallback(() => {
+    document.getElementById(Id.SIDE_RIGHT)!.style.overflowY = "visible";
+  }, []);
+
+  const onHide = useCallback(() => {
+    document.getElementById(Id.SIDE_RIGHT)!.style.overflowY = "auto";
   }, []);
 
   return (
@@ -119,6 +128,8 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
           },
         ]}
         beforeShowCb={handleMenu}
+        onShow={onShow}
+        onHide={onHide}
       >
         {children}
       </Menu>

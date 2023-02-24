@@ -13,7 +13,7 @@ import { Resizable } from "re-resizable";
 
 import TestSkeleton from "./Test/TestSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
-import { ClassName, Id } from "../../../../../constants";
+import { Id } from "../../../../../constants";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { usePgRouter } from "./usePgRouter";
 import { Sidebar } from "../../../../../utils/pg";
@@ -74,7 +74,6 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
 
   return (
     <Resizable
-      className={ClassName.SIDE_RIGHT}
       size={{ width, height: "100%" }}
       minHeight="100%"
       maxWidth={window.innerWidth * 0.75}
@@ -90,7 +89,11 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
       }}
       onResizeStop={handleResizeStop}
     >
-      <Wrapper windowHeight={height.window} bottomHeight={height.bottom}>
+      <Wrapper
+        id={Id.SIDE_RIGHT}
+        windowHeight={height.window}
+        bottomHeight={height.bottom}
+      >
         <StyledTitle sidebarState={sidebarState} />
         <Suspense fallback={<RightLoading sidebarState={sidebarState} />}>
           {loading ? (
