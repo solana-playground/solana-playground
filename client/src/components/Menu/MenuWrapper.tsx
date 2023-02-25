@@ -1,5 +1,6 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled, { css } from "styled-components";
+import { ClassName } from "../../constants";
 
 import { useOnKey } from "../../hooks";
 
@@ -12,7 +13,7 @@ export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
     useOnKey("Escape", hide);
 
     return (
-      <Wrapper ref={ref} {...props}>
+      <Wrapper ref={ref} className={ClassName.MENU_WRAPPER} {...props}>
         {children}
       </Wrapper>
     );

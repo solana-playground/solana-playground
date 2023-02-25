@@ -55,7 +55,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 const Wrapper = styled.div`
   position: relative;
-  z-index: 2;
 `;
 
 const ClickableWrapper = styled.div``;

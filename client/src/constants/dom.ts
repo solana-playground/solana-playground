@@ -14,6 +14,7 @@ export enum ClassName {
   DARKEN = "darken",
   ICON_CHECKMARK = "icon-checkmark",
   TOOLTIP = "tooltip",
+  MENU_WRAPPER = "menu-wrapper",
 
   // Editor
   CM_CLASSNAME = "cm-editor",
