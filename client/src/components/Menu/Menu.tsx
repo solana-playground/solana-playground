@@ -6,7 +6,6 @@ import DropdownMenu, { DropdownMenuProps } from "./DropdownMenu";
 import { MenuItemProps } from "./MenuItem";
 import { ClassName } from "../../constants";
 
-
 export type OptionalMenuProps = {
   items?: MenuItemProps[];
   fullWidth?: boolean;

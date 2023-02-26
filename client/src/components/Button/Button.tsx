@@ -338,12 +338,12 @@ const getButtonStyles = ({
     }
 
     &:hover {
-      ${hoverBg ? `background: ${hoverBg}` : ""};
-      ${color ? `color: ${hoverColor}` : ""};
-      ${hoverBorderColor ? `border: 1px solid ${hoverBorderColor}` : ""};
-      ${hoverBorderRadius ? `border-radius: ${hoverBorderRadius}` : ""};
-      ${hoverPadding ? `padding: ${hoverPadding}` : ""};
-      ${hoverFontWeight ? `font-weight: ${hoverFontWeight}` : ""};
+      ${hoverBg && `background: ${hoverBg}`};
+      ${hoverColor && `color: ${hoverColor}`};
+      ${hoverBorderColor && `border: 1px solid ${hoverBorderColor}`};
+      ${hoverBorderRadius && `border-radius: ${hoverBorderRadius}`};
+      ${hoverPadding && `padding: ${hoverPadding}`};
+      ${hoverFontWeight && `font-weight: ${hoverFontWeight}`};
 
       & svg {
         color: ${hoverColor};
