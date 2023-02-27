@@ -13,8 +13,8 @@ import {
   Wrench,
 } from "../../../../../../components/Icons";
 import { PgExplorer } from "../../../../../../utils/pg";
-import { ItemData } from "./useExplorerContextMenu";
 import { Id } from "../../../../../../constants";
+import { ItemData } from "./useExplorerContextMenu";
 
 interface ExplorerContextMenuProps {
   itemData: ItemData;
@@ -56,9 +56,13 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const onShow = useCallback(() => {
-    document.getElementById(Id.SIDE_RIGHT)!.style.overflowY = "visible";
-  }, []);
+  const beforeShowCb = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      document.getElementById(Id.SIDE_RIGHT)!.style.overflowY = "visible";
+      handleMenu(e);
+    },
+    [handleMenu]
+  );
 
   const onHide = useCallback(() => {
     document.getElementById(Id.SIDE_RIGHT)!.style.overflowY = "auto";
@@ -127,8 +131,7 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
             showCondition: itemData.isTestFolder,
           },
         ]}
-        beforeShowCb={handleMenu}
-        onShow={onShow}
+        beforeShowCb={beforeShowCb}
         onHide={onHide}
       >
         {children}
