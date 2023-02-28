@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled, { css } from "styled-components";
-import { ClassName } from "../../constants";
 
+import { ClassName } from "../../constants";
 import { useOnKey } from "../../hooks";
 
 interface MenuWrapperProps extends ComponentPropsWithoutRef<"div"> {

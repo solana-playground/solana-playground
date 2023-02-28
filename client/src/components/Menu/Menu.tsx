@@ -8,9 +8,12 @@ import { ClassName } from "../../constants";
 
 export type OptionalMenuProps = {
   items?: MenuItemProps[];
-  fullWidth?: boolean;
   onShow?: () => void;
   onHide?: () => void;
+} & MenuWrapperProps;
+
+type MenuWrapperProps = {
+  fullWidth?: boolean;
 };
 
 type MenuProps =
@@ -36,13 +39,13 @@ const Menu: FC<MenuProps> = ({ kind, children, ...props }) => {
   }
 
   return (
-    <Wrapper {...props}>
+    <Wrapper fullWidth>
       <MenuEl {...props}>{children}</MenuEl>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div<OptionalMenuProps>`
+const Wrapper = styled.div<MenuWrapperProps>`
   ${({ fullWidth }) => css`
     & .${ClassName.MENU_WRAPPER} {
       ${fullWidth && "width: 100%"};
