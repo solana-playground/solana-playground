@@ -308,50 +308,9 @@ pub struct RpcProgramAccountsConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub enum RpcTransactionLogsFilter {
-    All,
-    AllWithVotes,
-    Mentions(Vec<String>), // base58-encoded list of addresses
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RpcTransactionLogsConfig {
-    #[serde(flatten)]
-    pub commitment: Option<CommitmentConfig>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum RpcTokenAccountsFilter {
     Mint(String),
     ProgramId(String),
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RpcSignatureSubscribeConfig {
-    #[serde(flatten)]
-    pub commitment: Option<CommitmentConfig>,
-    pub enable_received_notification: Option<bool>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum RpcBlockSubscribeFilter {
-    All,
-    MentionsAccountOrProgram(String),
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RpcBlockSubscribeConfig {
-    #[serde(flatten)]
-    pub commitment: Option<CommitmentConfig>,
-    pub encoding: Option<UiTransactionEncoding>,
-    pub transaction_details: Option<TransactionDetails>,
-    pub show_rewards: Option<bool>,
-    pub max_supported_transaction_version: Option<u8>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -487,4 +446,57 @@ pub struct GetConfirmedSignaturesForAddress2Config {
     pub until: Option<Signature>,
     pub limit: Option<usize>,
     pub commitment: Option<CommitmentConfig>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RpcTransactionLogsConfig {
+    #[serde(flatten)]
+    pub commitment: Option<CommitmentConfig>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RpcTransactionLogsFilter {
+    All,
+    AllWithVotes,
+    Mentions(Vec<String>), // base58-encoded list of addresses
+}
+
+#[cfg(feature = "pubsub")]
+pub mod pubsub {
+    use super::*;
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+    pub struct RpcAccountSubscribeConfig {
+        #[serde(flatten)]
+        pub commitment: Option<CommitmentConfig>,
+        pub encoding: Option<UiTransactionEncoding>,
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct RpcBlockSubscribeConfig {
+        #[serde(flatten)]
+        pub commitment: Option<CommitmentConfig>,
+        pub encoding: Option<UiTransactionEncoding>,
+        pub transaction_details: Option<TransactionDetails>,
+        pub show_rewards: Option<bool>,
+        pub max_supported_transaction_version: Option<u8>,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub enum RpcBlockSubscribeFilter {
+        All,
+        MentionsAccountOrProgram(String),
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct RpcSignatureSubscribeConfig {
+        #[serde(flatten)]
+        pub commitment: Option<CommitmentConfig>,
+        pub enable_received_notification: Option<bool>,
+    }
 }

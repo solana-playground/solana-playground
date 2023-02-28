@@ -879,7 +879,7 @@ impl<'a> TokenInstruction<'a> {
     pub(crate) fn unpack_pubkey(input: &[u8]) -> Result<(Pubkey, &[u8]), ProgramError> {
         let pk = input
             .get(..PUBKEY_BYTES)
-            .map(Pubkey::new)
+            .map(|bytes| Pubkey::try_from(bytes).unwrap())
             .ok_or(TokenError::InvalidInstruction)?;
         Ok((pk, &input[PUBKEY_BYTES..]))
     }

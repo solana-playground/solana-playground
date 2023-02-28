@@ -718,7 +718,7 @@ impl<'a> TokenInstruction<'a> {
     fn unpack_pubkey(input: &[u8]) -> Result<(Pubkey, &[u8]), ProgramError> {
         if input.len() >= 32 {
             let (key, rest) = input.split_at(32);
-            let pk = Pubkey::new(key);
+            let pk = Pubkey::try_from(key).unwrap();
             Ok((pk, rest))
         } else {
             Err(TokenError::InvalidInstruction.into())
@@ -730,7 +730,7 @@ impl<'a> TokenInstruction<'a> {
             Option::Some((&0, rest)) => Ok((COption::None, rest)),
             Option::Some((&1, rest)) if rest.len() >= 32 => {
                 let (key, rest) = rest.split_at(32);
-                let pk = Pubkey::new(key);
+                let pk = Pubkey::try_from(key).unwrap();
                 Ok((COption::Some(pk), rest))
             }
             _ => Err(TokenError::InvalidInstruction.into()),

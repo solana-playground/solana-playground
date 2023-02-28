@@ -3,8 +3,6 @@
 #[macro_use]
 extern crate serde_derive;
 
-pub mod utils;
-
 mod client;
 mod constants;
 mod error;
@@ -12,6 +10,11 @@ mod methods;
 mod provider;
 mod request;
 mod response;
+
+#[cfg(feature = "pubsub")]
+mod pubsub;
+
+pub mod utils;
 
 // Export sdk for stand-alone use of wasm client without specifying sdk as dependency
 pub use solana_sdk;

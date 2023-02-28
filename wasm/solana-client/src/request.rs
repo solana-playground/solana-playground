@@ -17,17 +17,17 @@ impl ClientRequest {
             params: None,
         }
     }
-    pub fn id<'a>(&'a mut self, id: u32) -> &'a mut ClientRequest {
+    pub fn id(&mut self, id: u32) -> &mut ClientRequest {
         self.id = id;
         self
     }
 
-    pub fn jsonrpc<'a>(&'a mut self, jsonrpc: &str) -> &'a mut ClientRequest {
+    pub fn jsonrpc(&mut self, jsonrpc: &str) -> &mut ClientRequest {
         self.jsonrpc = jsonrpc.to_owned();
         self
     }
 
-    pub fn params<'a>(&'a mut self, params: Value) -> &'a mut ClientRequest {
+    pub fn params(&mut self, params: Value) -> &mut ClientRequest {
         self.params = Some(params);
         self
     }

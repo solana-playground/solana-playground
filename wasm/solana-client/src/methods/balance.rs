@@ -45,7 +45,6 @@ impl Into<ClientRequest> for GetBalanceRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     pub context: Context,
     pub value: u64,

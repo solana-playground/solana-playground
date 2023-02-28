@@ -2747,7 +2747,7 @@ dependencies = [
 
 [[package]]
 name = "solana-client-wasm"
-version = "1.14.11"
+version = "1.14.15"
 dependencies = [
  "async-trait",
  "base64 0.13.0",
@@ -2755,6 +2755,7 @@ dependencies = [
  "bs58 0.4.0",
  "clap",
  "futures",
+ "js-sys",
  "reqwest",
  "serde",
  "serde_derive",
@@ -2762,11 +2763,15 @@ dependencies = [
  "solana-extra-wasm",
  "solana-sdk",
  "thiserror",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-bindgen-test",
+ "web-sys",
 ]
 
 [[package]]
 name = "solana-extra-wasm"
-version = "1.14.11"
+version = "1.14.15"
 dependencies = [
  "Inflector",
  "arrayref",
@@ -2799,9 +2804,9 @@ dependencies = [
 
 [[package]]
 name = "solana-frozen-abi"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c5a383f43792311db749bbed4e7794222c9f118b609bc8252b4ea3ad88b4188"
+checksum = "f651fd3d06d9aa6c66d2ceb7230278ddad59403dc1cc4abf82a69970dc6f631d"
 dependencies = [
  "ahash",
  "blake3",
@@ -2833,9 +2838,9 @@ dependencies = [
 
 [[package]]
 name = "solana-frozen-abi-macro"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "062e282539e770967500945cd2fdb78170a1ea45aff7ad1b4ce4e2cc0b557db8"
+checksum = "301bb4bd66f592d4b799db0fb0ed1ae9fc7a8453476961faef1223127091574b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2845,9 +2850,9 @@ dependencies = [
 
 [[package]]
 name = "solana-logger"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c2bcbaba2c683e7bf80ff4f3a3cdcdaabdb0b21333e8d89aed06be136193d39"
+checksum = "305cf85e48a7660df7a483762dcf7989d4b3f6e3de2153f2f9f98ba3785a0bd6"
 dependencies = [
  "env_logger",
  "lazy_static",
@@ -2864,9 +2869,9 @@ dependencies = [
 
 [[package]]
 name = "solana-program"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75602376f2cea17ac301292a3ded6db73e968310ac482857237d95a34473b62a"
+checksum = "e5a52d34820e44c56a23ef540a9c996873885c4834e7e36bc5901990c675603c"
 dependencies = [
  "base64 0.13.0",
  "bincode",
@@ -2913,9 +2918,9 @@ dependencies = [
 
 [[package]]
 name = "solana-remote-wallet"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "874c76b56601eaf7a91a4d119824b57625c638ce42c601166d1e44eef4b28fc6"
+checksum = "4b0bdffc62c46598a541fab68355e313b5bae3429bcd4910761f4f6f63b849f5"
 dependencies = [
  "console",
  "dialoguer",
@@ -2932,9 +2937,9 @@ dependencies = [
 
 [[package]]
 name = "solana-sdk"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a46085d2548bb943e7210b28b09378e361350577b391a94457ad78af1a9f75ef"
+checksum = "f9ac3ab8b970c3e4c07d0c2b184a0be449075e933c81f0e27cd9fcab2b122020"
 dependencies = [
  "assert_matches",
  "base64 0.13.0",
@@ -2983,9 +2988,9 @@ dependencies = [
 
 [[package]]
 name = "solana-sdk-macro"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "faa38323e649c70b698e49f1ded17849a9b5da2e0821a38ad08327307009e274"
+checksum = "6a7f28d94a4ed37c6eb7c62221da0e2206f11af051e91c045f2cce60111d3020"
 dependencies = [
  "bs58 0.4.0",
  "proc-macro2",
@@ -2996,9 +3001,9 @@ dependencies = [
 
 [[package]]
 name = "solana-version"
-version = "1.14.11"
+version = "1.14.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9592a3fb652a0b84593e18935db930e5f7e9614efaf26e15f3cace1c6d47151"
+checksum = "359aecee536123048ae876b938688b4a87fa879bd1e8e752406f871656b98153"
 dependencies = [
  "log",
  "rustc_version",
@@ -3647,9 +3652,9 @@ dependencies = [
 
 [[package]]
 name = "web-sys"
-version = "0.3.58"
+version = "0.3.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fed94beee57daf8dd7d51f2b15dc2bcde92d7a72304cdf662a4371008b71b90"
+checksum = "bcda906d8be16e728fd5adc5b729afad4e444e106ab28cd1c7256e54fa61510f"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

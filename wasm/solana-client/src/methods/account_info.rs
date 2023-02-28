@@ -6,7 +6,6 @@ use super::Context;
 use crate::{utils::rpc_config::RpcAccountInfoConfig, ClientRequest, ClientResponse};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetAccountInfoRequest {
     pub pubkey: Pubkey,
     pub config: RpcAccountInfoConfig,
@@ -45,7 +44,6 @@ impl Into<ClientRequest> for GetAccountInfoRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetAccountInfoResponse {
     pub context: Context,
     pub value: Option<UiAccount>,

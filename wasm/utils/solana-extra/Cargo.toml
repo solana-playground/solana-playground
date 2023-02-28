@@ -1,6 +1,6 @@
 [package]
 name = "solana-extra-wasm"
-version = "1.14.11" # mirror solana-sdk version
+version = "1.14.15" # mirror solana-sdk version
 description = "Solana WASM compatible utilities."
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"
@@ -36,9 +36,9 @@ semver = "1.0.9"
 serde = "1.0.137"
 serde_derive = "1.0.103"
 serde_json = "1.0.81"
-solana-frozen-abi = "=1.14.11"
-solana-frozen-abi-macro = "=1.14.11"
-solana-sdk = "=1.14.11"
+solana-frozen-abi = "=1.14.15"
+solana-frozen-abi-macro = "=1.14.15"
+solana-sdk = "=1.14.15"
 thiserror = "1.0"
 
 [build-dependencies]

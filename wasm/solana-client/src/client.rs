@@ -45,17 +45,23 @@ use crate::{
     ClientError, ClientRequest, ClientResponse, ClientResult,
 };
 
-#[derive(Clone)]
 pub struct WasmClient {
     provider: Provider,
     commitment_config: CommitmentConfig,
+    #[cfg(feature = "pubsub")]
+    pub(crate) ws: crate::pubsub::WasmWebSocket,
 }
 
 impl WasmClient {
+    /// Create a [`WasmClient`].
+    ///
+    /// Default commitment is `confirmed` unlike default Solana Client.
     pub fn new(endpoint: &str) -> Self {
         Self {
             provider: Provider::new(endpoint),
             commitment_config: CommitmentConfig::confirmed(),
+            #[cfg(feature = "pubsub")]
+            ws: crate::pubsub::WasmWebSocket::new(endpoint),
         }
     }
 
@@ -63,6 +69,8 @@ impl WasmClient {
         Self {
             provider: Provider::new(endpoint),
             commitment_config,
+            #[cfg(feature = "pubsub")]
+            ws: crate::pubsub::WasmWebSocket::new(endpoint),
         }
     }
 

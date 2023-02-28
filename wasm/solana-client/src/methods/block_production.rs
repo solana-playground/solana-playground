@@ -45,7 +45,6 @@ impl Into<ClientRequest> for GetBlockProductionRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBlockProductionResponse {
     pub context: Context,
     pub value: RpcBlockProduction,
