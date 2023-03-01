@@ -24,7 +24,7 @@ type MenuProps =
       kind: "dropdown";
     } & DropdownMenuProps);
 
-const Menu: FC<MenuProps> = ({ kind, children, ...props }) => {
+const Menu: FC<MenuProps> = ({ kind, fullWidth, children, ...props }) => {
   let MenuEl;
 
   switch (kind) {
@@ -39,7 +39,7 @@ const Menu: FC<MenuProps> = ({ kind, children, ...props }) => {
   }
 
   return (
-    <Wrapper fullWidth>
+    <Wrapper fullWidth={fullWidth}>
       <MenuEl {...props}>{children}</MenuEl>
     </Wrapper>
   );
