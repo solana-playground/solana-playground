@@ -6,7 +6,7 @@ import {
   useExposeStatic,
   useGetAndSetStatic,
   useGetStatic,
-  usePgConnection,
+  usePgConnectionStatic,
   useSetStatic,
 } from "../../hooks";
 import {
@@ -23,8 +23,8 @@ const useStatics = () => {
   useSetStatic(setBalance, EventName.WALLET_UI_BALANCE_SET);
 
   // Connection
-  const { connection } = usePgConnection();
-  useExposeStatic(connection, EventName.CONNECTION_STATIC);
+  const [connection, setConnection] = usePgConnectionStatic();
+  useGetAndSetStatic(connection, setConnection, EventName.CONNECTION_STATIC);
 
   // Explorer
   const [explorer] = useAtom(explorerAtom);

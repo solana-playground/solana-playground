@@ -8,12 +8,12 @@ import Select from "../../../../../../components/Select";
 import Modal from "../../../../../../components/Modal/Modal";
 import useModal from "../../../../../../components/Modal/useModal";
 import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
-import { connAtom } from "../../../../../../state";
+import { connectionConfigAtom } from "../../../../../../state";
 import { PgConnection, PgModal, PgTerminal } from "../../../../../../utils/pg";
 import { useOnKey } from "../../../../../../hooks";
 
 const EndpointSetting = () => {
-  const [conn, setConn] = useAtom(connAtom);
+  const [conn, setConn] = useAtom(connectionConfigAtom);
 
   const options = useMemo(
     () =>

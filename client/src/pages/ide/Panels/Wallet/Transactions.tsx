@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 
 import Button from "../../../../components/Button";
 import Link from "../../../../components/Link";
-import { connAtom } from "../../../../state";
+import { connectionConfigAtom } from "../../../../state";
 import { PgCommon } from "../../../../utils/pg";
 import {
   Clock,
@@ -112,7 +112,7 @@ const Tx: FC<ConfirmedSignatureInfo> = ({
   err,
   blockTime,
 }) => {
-  const [conn] = useAtom(connAtom);
+  const [conn] = useAtom(connectionConfigAtom);
 
   const [hover, setHover] = useState(false);
 

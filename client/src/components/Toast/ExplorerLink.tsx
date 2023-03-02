@@ -2,12 +2,12 @@ import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Link from "../Link";
-import { connAtom, txHashAtom } from "../../state";
+import { connectionConfigAtom, txHashAtom } from "../../state";
 import { PgCommon } from "../../utils/pg";
 
 export const ExplorerLink = () => {
   const [txHash] = useAtom(txHashAtom);
-  const [conn] = useAtom(connAtom);
+  const [conn] = useAtom(connectionConfigAtom);
 
   const { explorer, solscan } = PgCommon.getExplorerTxUrls(
     txHash,

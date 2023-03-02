@@ -11,6 +11,7 @@ import { PgExplorer } from "../explorer";
 import { PgPkg } from "../terminal";
 import { PgPlaynetRpc } from "./rpc";
 import { PgPlaynetUtils } from "./utils";
+import { OverrideableConnection } from "./types";
 
 export class PgPlaynet {
   /**
@@ -31,10 +32,16 @@ export class PgPlaynet {
     // Override fetch function for both `window` and `ConnectionProvider`
     const newFetch = PgPlaynetRpc.overrideFetch(this._playnet);
 
+    // Add a small delay because overriding `fetch` results in a new `Connection`
+    // object which results in `usePgConnectionStatic` sets the new connection
+    // object and this should happen before we are overriding the new object
+    // with `PgConnection.set`
+    await PgCommon.sleep(100);
+
     // Override connection to make it compatible with Playnet
     PgConnection.set(() => {
       // Creating a new connection object to trigger re-render after this callback
-      const newConnection: Connection & { overridden?: boolean } =
+      const newConnection: OverrideableConnection =
         PgConnection.createConnection({ fetch: newFetch });
 
       // @ts-ignore
@@ -97,6 +104,7 @@ export class PgPlaynet {
         clearInterval(id);
       };
 
+      // `Connection` is not ready until this property is set.
       newConnection.overridden = true;
 
       return newConnection;

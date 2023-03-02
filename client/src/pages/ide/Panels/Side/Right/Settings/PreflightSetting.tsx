@@ -2,11 +2,11 @@ import { ChangeEvent } from "react";
 import { useAtom } from "jotai";
 
 import CheckBox from "../../../../../../components/CheckBox";
-import { connAtom } from "../../../../../../state";
+import { connectionConfigAtom } from "../../../../../../state";
 import { PgConnection } from "../../../../../../utils/pg";
 
 const PreflightSetting = () => {
-  const [conn, setConn] = useAtom(connAtom);
+  const [conn, setConn] = useAtom(connectionConfigAtom);
 
   const changePreflight = (e: ChangeEvent<HTMLInputElement>) => {
     const isPreflightEnabled = e.target.checked;

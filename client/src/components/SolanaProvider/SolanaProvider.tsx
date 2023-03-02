@@ -8,7 +8,7 @@ import {
 import * as buffer from "buffer";
 
 import { EventName } from "../../constants";
-import { connAtom } from "../../state";
+import { connectionConfigAtom } from "../../state";
 import { PgConnection } from "../../utils/pg";
 import { usePlaynet } from "./usePlaynet";
 
@@ -19,7 +19,7 @@ window.Buffer = buffer.Buffer;
  * Connection and Wallet provider
  */
 const SolanaProvider: FC = ({ children }) => {
-  const [conn, setConn] = useAtom(connAtom);
+  const [conn, setConn] = useAtom(connectionConfigAtom);
 
   // Runs after connection config changes from the terminal
   useEffect(() => {

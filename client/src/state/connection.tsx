@@ -1,3 +1,4 @@
+import { Connection } from "@solana/web3.js";
 import { atom } from "jotai";
 
 import { PgConnection, PgWallet, PgConnectionConfig } from "../utils/pg";
@@ -16,7 +17,10 @@ export const refreshPgWalletAtom = atom(
   }
 );
 
-// Connection
-export const connAtom = atom<PgConnectionConfig>(
+// Connection config
+export const connectionConfigAtom = atom<PgConnectionConfig>(
   PgConnection.getConnectionConfig()
 );
+
+// Connection
+export const connectionAtom = atom<Connection | null>(null);

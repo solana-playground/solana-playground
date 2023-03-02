@@ -5,7 +5,6 @@ export enum EventName {
   // Connection
   CONNECTION_REFRESH = "connectionrefresh",
   CONNECTION_STATIC = "connectionstatic",
-  CONNECTION_SET = "connectionset",
 
   // Editor
   EDITOR_FOCUS = "editorfocus",
@@ -39,8 +38,8 @@ export enum EventName {
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
   // Tutorial
-  TUTORIAL_PAGE_STATIC = "tutorialpagestatic",
   TUTORIAL_STATIC = "tutorialstatic",
+  TUTORIAL_PAGE_STATIC = "tutorialpagestatic",
 
   // View
   VIEW_MAIN_STATIC = "viewmainstatic",

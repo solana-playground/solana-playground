@@ -4,11 +4,11 @@ import { Commitment } from "@solana/web3.js";
 
 import Select from "../../../../../../components/Select";
 import { COMMITMENT_LEVELS } from "../../../../../../constants";
-import { connAtom } from "../../../../../../state";
+import { connectionConfigAtom } from "../../../../../../state";
 import { PgConnection } from "../../../../../../utils/pg";
 
 const CommitmentSetting = () => {
-  const [conn, setConn] = useAtom(connAtom);
+  const [conn, setConn] = useAtom(connectionConfigAtom);
 
   const options = useMemo(
     () => COMMITMENT_LEVELS.map((c) => ({ value: c, label: c })),

@@ -25,3 +25,5 @@ export type RpcResponseWithContext<K extends keyof Connection> = {
   };
   id: string;
 };
+
+export type OverrideableConnection = Connection & { overridden?: boolean };

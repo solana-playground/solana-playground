@@ -2,6 +2,7 @@ import { Commitment, Connection, ConnectionConfig } from "@solana/web3.js";
 
 import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
+import { OverrideableConnection } from "./playnet/types";
 import { PgSet } from "./types";
 
 export interface PgConnectionConfig {
@@ -104,10 +105,10 @@ export class PgConnection {
    *
    * This will always return `true` if the endpoint is not `Endpoint.PLAYNET`.
    *
-   * @param conn web3.js connection
+   * @param conn overrideable web3.js `Connection`
    * @returns whether the connection is ready to be used
    */
-  static isReady(conn: Connection & { overridden?: boolean }) {
+  static isReady(conn: OverrideableConnection) {
     if (conn.rpcEndpoint === Endpoint.PLAYNET) {
       return conn.overridden;
     }
@@ -122,7 +123,7 @@ export class PgConnection {
    */
   static async get<T, R extends Connection>() {
     return await PgCommon.sendAndReceiveCustomEvent<T, R>(
-      PgCommon.getStaticEventNames(EventName.CONNECTION_STATIC).get
+      PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).get
     );
   }
 
@@ -132,6 +133,9 @@ export class PgConnection {
    * @param set setConnection
    */
   static async set(set?: PgSet<Connection>) {
-    PgCommon.createAndDispatchCustomEvent(EventName.CONNECTION_SET, set);
+    PgCommon.createAndDispatchCustomEvent(
+      PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).set,
+      set
+    );
   }
 }
