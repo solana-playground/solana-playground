@@ -352,12 +352,12 @@ const getButtonStyles = ({
 
     &:disabled {
       cursor: not-allowed;
-      background-color: ${theme.colors.state.disabled.bg};
+      background: ${theme.colors.state.disabled.bg};
       color: ${theme.colors.state.disabled.color};
 
       &:hover {
         cursor: not-allowed;
-        background-color: ${theme.colors.state.disabled.bg};
+        background: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
       }
     }
