@@ -44,16 +44,11 @@ export class PgTerminal {
    * incorrect resizing.
    */
   static get MAX_HEIGHT() {
-    const tabHeight = document
-      .getElementById(Id.TABS)
-      ?.getBoundingClientRect()?.height;
     const bottomHeight = document
       .getElementById(Id.BOTTOM)
       ?.getBoundingClientRect()?.height;
 
-    if (tabHeight && bottomHeight) {
-      return window.innerHeight - (tabHeight + bottomHeight);
-    } else if (bottomHeight) {
+    if (bottomHeight) {
       return window.innerHeight - bottomHeight;
     }
 

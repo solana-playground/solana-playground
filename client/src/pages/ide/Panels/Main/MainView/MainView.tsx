@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import styled from "styled-components";
 
 import EditorWithTabs from "./EditorWithTabs";
 import { MainViewLoading } from "../../../../../components/Loading";
@@ -27,7 +28,14 @@ const MainView = () => {
 
   if (loading) return <MainViewLoading tutorialsBg />;
 
-  return El;
+  return <Wrapper>{El}</Wrapper>;
 };
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+`;
 
 export default MainView;
