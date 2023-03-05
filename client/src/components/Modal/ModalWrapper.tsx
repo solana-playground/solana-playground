@@ -6,6 +6,7 @@ import useModal from "./useModal";
 import { modalAtom } from "../../state";
 import { PgCommon } from "../../utils/pg";
 import { EventName } from "../../constants";
+import { useOnKey } from "../../hooks";
 
 const ModalWrapper = () => {
   const [modal, setModal] = useAtom(modalAtom);
@@ -26,19 +27,15 @@ const ModalWrapper = () => {
       El ? setModal(<El {...e.detail.props} />) : close();
     };
 
-    // Close modal on ESC
-    const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-
     document.addEventListener(eventName, handleModalSet as EventListener);
-    document.addEventListener("keydown", handleKey);
 
     return () => {
       document.removeEventListener(eventName, handleModalSet as EventListener);
-      document.removeEventListener("keydown", handleKey);
     };
   }, [setModal, close]);
+
+  // Close modal on ESC
+  useOnKey("Escape", close);
 
   return modal ? <Wrapper>{modal}</Wrapper> : null;
 };

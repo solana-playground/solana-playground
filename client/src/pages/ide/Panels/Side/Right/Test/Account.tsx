@@ -33,6 +33,7 @@ import {
   PlusFilled,
 } from "../../../../../../components/Icons";
 import { useCurrentWallet } from "../../../Wallet";
+import { useOnKey } from "../../../../../../hooks";
 
 interface AccountProps {
   account: IdlAccount;
@@ -258,14 +259,7 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
   }, [seeds, programId, setVal, removeSignerKp, closeSeed]);
 
   // Submit on Enter
-  useEffect(() => {
-    const handleEnter = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") handleGen();
-    };
-
-    document.addEventListener("keydown", handleEnter);
-    return () => document.removeEventListener("keydown", handleEnter);
-  }, [handleGen]);
+  useOnKey("Enter", handleGen);
 
   return (
     <ShowGenWrapper>
@@ -542,14 +536,7 @@ const ShowAta: FC<ShowAtaProps> = ({
   }, [mint, owner, setVal, removeSignerKp, closeAta]);
 
   // Submit on Enter
-  useEffect(() => {
-    const handleEnter = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") handleGen();
-    };
-
-    document.addEventListener("keydown", handleEnter);
-    return () => document.removeEventListener("keydown", handleEnter);
-  }, [handleGen]);
+  useOnKey("Enter", handleGen);
 
   return (
     <ShowGenWrapper>
