@@ -1,4 +1,4 @@
-import { PgTheme } from "../interface";
+import { PgTheme } from "../../utils/pg/theme";
 import { DRACULA } from "./dracula";
 import { LIGHT } from "./light";
 import { PLAYGROUND } from "./playground";

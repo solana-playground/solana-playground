@@ -2,10 +2,11 @@ import { useContext, useMemo } from "react";
 
 import Select from "../../../../../../components/Select";
 import FONTS from "../../../../../../theme/fonts";
-import { FONT_KEY, MutThemeContext } from "../../../../../../theme/Provider";
+import { MutThemeContext } from "../../../../../../theme/Provider";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 const FontSetting = () => {
-  const { font, setFont } = useContext(MutThemeContext);
+  const { font } = useContext(MutThemeContext);
 
   const options = useMemo(
     () => FONTS.map((f) => ({ value: f.family, label: f.family })),
@@ -22,10 +23,7 @@ const FontSetting = () => {
       value={value}
       onChange={(newValue) => {
         const newFont = FONTS.find((f) => f.family === newValue?.value);
-        if (!newFont) return;
-
-        localStorage.setItem(FONT_KEY, newFont.family);
-        setFont(newFont);
+        if (newFont) PgThemeManager.setFont(newFont);
       }}
     />
   );

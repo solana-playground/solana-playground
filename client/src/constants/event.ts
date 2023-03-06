@@ -37,6 +37,10 @@ export enum EventName {
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
+  // Theme
+  THEME_SET = "themeset",
+  THEME_FONT_SET = "fontset",
+
   // Tutorial
   TUTORIAL_STATIC = "tutorialstatic",
   TUTORIAL_PAGE_STATIC = "tutorialpagestatic",

@@ -1,4 +1,4 @@
-import { PgTheme } from "../interface";
+import { PgTheme } from "../../utils/pg/theme";
 
 // BG
 const BG_DARK = "#2c2c2c";

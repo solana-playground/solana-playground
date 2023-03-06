@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { PgCommon } from "../utils/pg";
+import { PgCommon } from "../utils/pg/common";
 import { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 import { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
 

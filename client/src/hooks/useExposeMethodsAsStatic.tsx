@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
-import { PgMethod } from "../utils/pg";
 import { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
+import type { PgMethod } from "../utils/pg";
 
 export const useExposeMethodsAsStatic = <T,>(
   classObject: { [key: string]: any } | null,

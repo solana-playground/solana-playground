@@ -1,5 +1,5 @@
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { ChangeEvent } from "react";
+import { PublicKey } from "@solana/web3.js";
 
 import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
 
@@ -116,14 +116,14 @@ export class PgCommon {
    * @returns lamports amount to equivalent Sol
    */
   static lamportsToSol(lamports: number) {
-    return lamports / LAMPORTS_PER_SOL;
+    return lamports / PgCommon._LAMPORTS_PER_SOL;
   }
 
   /**
    * @returns Sol amount to equivalent lamports
    */
   static solToLamports(sol: number) {
-    return sol * LAMPORTS_PER_SOL;
+    return sol * PgCommon._LAMPORTS_PER_SOL;
   }
 
   /**
@@ -591,6 +591,19 @@ export class PgCommon {
     }
   }
 
+  /**
+   * Intentionally not using web3.js.LAMPORTS_PER_SOL to not increase main
+   * bundle size since `PgCommon` is getting loaded at the start of the app.
+   */
+  private static _LAMPORTS_PER_SOL = 1000000000;
+
+  /**
+   * Repeat a `pattern` `amount` times
+   *
+   * @param pattern pattern to repeat
+   * @param amount amount of times to repeat
+   * @returns the output
+   */
   private static _repeatPattern(pattern: string, amount: number) {
     return new Array(amount >= 0 ? amount : 0)
       .fill(null)

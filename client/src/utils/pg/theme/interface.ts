@@ -1,6 +1,6 @@
 import { CSSProperties } from "react";
 
-import { ButtonKind } from "../components/Button";
+import { ButtonKind } from "../../../components/Button";
 
 export interface PgTheme {
   /** Name of the theme that's displayed in theme settings */
@@ -107,14 +107,7 @@ export interface PgTheme {
   /** Override the component defaults */
   components?: {
     /** Button component */
-    button?: {
-      /** Default CSS values of the Button component */
-      default?: OverrideComponent;
-      /** Override the defaults with specificity */
-      overrides?: {
-        [K in ButtonKind]?: OverrideComponent;
-      };
-    };
+    button?: DefaultOverrides<ButtonKind>;
   };
 
   /** Default border radius */
@@ -126,9 +119,9 @@ export interface PgTheme {
   /** Default font */
   font?: {
     /** Code font */
-    code?: Font;
+    code?: PgFont;
     /** Any font other than code(e.g Markdown) */
-    other?: Font;
+    other?: PgFont;
   };
 
   /** Scrollbar default */
@@ -241,7 +234,7 @@ export interface PgHighlight {
   annotion: HighlightToken;
 }
 
-export type Font = {
+export type PgFont = {
   family: string;
   size: {
     small: string;
@@ -282,13 +275,22 @@ export type Skeleton = {
 };
 
 type OverrideComponent = {
-  bg?: string;
-  color?: string;
-  borderColor?: string;
-  borderRadius?: string;
-  padding?: string;
+  bg?: CSSProperties["background"];
+  color?: CSSProperties["color"];
+  borderColor?: CSSProperties["borderColor"];
+  borderRadius?: CSSProperties["borderRadius"];
+  padding?: CSSProperties["padding"];
   fontWeight?: CSSProperties["fontWeight"];
   hover?: Omit<OverrideComponent, "hover">;
+};
+
+type DefaultOverrides<T extends string> = {
+  /** Default CSS values of the Button component */
+  default?: OverrideComponent;
+  /** Override the defaults with specificity */
+  overrides?: {
+    [K in T]?: OverrideComponent;
+  };
 };
 
 type Bg = {

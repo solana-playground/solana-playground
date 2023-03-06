@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useMemo } from "react";
 
-import { PgCommon } from "../utils/pg";
+import { PgCommon } from "../utils/pg/common";
 import { useGetStatic } from "./useGetStatic";
 import { useSetStatic } from "./useSetStatic";
 

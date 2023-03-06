@@ -1,16 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTheme } from "styled-components";
 
-import THEMES from "../../../../../../theme/themes";
 import Select from "../../../../../../components/Select";
-import useSetTheme from "../../../../../../theme/useSetTheme";
-import { PgTheme } from "../../../../../../theme/interface";
+import THEMES from "../../../../../../theme/themes";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 const ThemeSetting = () => {
-  const [selectedTheme, setSelectedTheme] = useState<PgTheme>();
   const theme = useTheme();
-
-  useSetTheme(selectedTheme);
 
   const options = useMemo(
     () => THEMES.map((t) => ({ value: t.name, label: t.name })),
@@ -25,9 +21,10 @@ const ThemeSetting = () => {
     <Select
       options={options}
       value={value}
-      onChange={(newValue) =>
-        setSelectedTheme(THEMES.find((t) => t.name === newValue?.value))
-      }
+      onChange={(newValue) => {
+        const theme = THEMES.find((t) => t.name === newValue?.value);
+        if (theme) PgThemeManager.setTheme(theme);
+      }}
     />
   );
 };

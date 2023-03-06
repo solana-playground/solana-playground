@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { PgCommon } from "../utils/pg";
+import { PgCommon } from "../utils/pg/common";
 
 export const useSendAndReceiveCustomEvent = <T,>(
   cb: (data: T) => Promise<any>,
