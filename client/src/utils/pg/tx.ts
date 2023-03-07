@@ -26,9 +26,13 @@ export class PgTx {
     tx: Transaction,
     conn: Connection,
     wallet: PgWallet | AnchorWallet,
-    additionalSigners?: Signer[]
-  ) {
-    tx.recentBlockhash = await this._getLatestBlockhash(conn);
+    additionalSigners?: Signer[],
+    forceFetchLatestBlockhash?: boolean
+  ): Promise<string> {
+    tx.recentBlockhash = await this._getLatestBlockhash(
+      conn,
+      forceFetchLatestBlockhash
+    );
 
     tx.feePayer = wallet.publicKey;
 
@@ -38,9 +42,25 @@ export class PgTx {
 
     await wallet.signTransaction(tx);
 
-    return await conn.sendRawTransaction(tx.serialize(), {
-      skipPreflight: !PgConnection.preflightChecks,
-    });
+    // Caching the blockhash will result in getting the same tx signature when
+    // using the same tx data.
+    // https://github.com/solana-playground/solana-playground/issues/116
+    let txHash;
+    try {
+      txHash = await conn.sendRawTransaction(tx.serialize(), {
+        skipPreflight: !PgConnection.preflightChecks,
+      });
+    } catch (e: any) {
+      if (e.message.includes("This transaction has already been processed")) {
+        // Reset signatures
+        tx.signatures = [];
+        return await this.send(tx, conn, wallet, additionalSigners, true);
+      }
+
+      throw e;
+    }
+
+    return txHash;
   }
 
   /**
@@ -70,18 +90,21 @@ export class PgTx {
    * Get the latest blockhash from the cache or fetch the latest if the cached
    * blockhash has expired
    *
+   * @param conn Connection object to use
+   * @param force whether to force fetch the latest blockhash
+   *
    * @returns the latest blockhash
    */
-  private static async _getLatestBlockhash(conn: Connection) {
+  private static async _getLatestBlockhash(conn: Connection, force?: boolean) {
     // Check whether the latest saved blockhash is still valid
     const currentTs = PgCommon.getUnixTimstamp();
 
     // Blockhashes are valid for 150 slots, optimal block time is ~400ms
     // For finalized: (150 - 32) * 0.4 = 47.2s ~= 45s (to be safe)
     if (
+      force ||
       !this._cachedBlockhashInfo ||
-      (this._cachedBlockhashInfo &&
-        currentTs > this._cachedBlockhashInfo.timestamp + 45)
+      currentTs > this._cachedBlockhashInfo.timestamp + 45
     ) {
       this._cachedBlockhashInfo = {
         blockhash: (await conn.getLatestBlockhash()).blockhash,
