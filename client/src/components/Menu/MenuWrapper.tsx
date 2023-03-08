@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { ClassName } from "../../constants";
 import { useOnKey } from "../../hooks";
@@ -9,11 +9,15 @@ interface MenuWrapperProps extends ComponentPropsWithoutRef<"div"> {
 }
 
 export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
-  ({ hide, children, ...props }, ref) => {
+  ({ hide, className, children, ...props }, ref) => {
     useOnKey("Escape", hide);
 
     return (
-      <Wrapper ref={ref} className={ClassName.MENU_WRAPPER} {...props}>
+      <Wrapper
+        ref={ref}
+        {...props}
+        className={`${className} ${ClassName.MENU_WRAPPER}`}
+      >
         {children}
       </Wrapper>
     );
@@ -21,12 +25,6 @@ export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
 );
 
 const Wrapper = styled.div`
-  ${({ theme }) => css`
-    position: absolute;
-    z-index: 3;
-    padding: 0.25rem 0;
-    background-color: ${theme.colors?.right?.otherBg};
-    font-size: ${theme.font?.code?.size.small};
-    box-shadow: ${theme.boxShadow};
-  `}
+  position: absolute;
+  z-index: 3;
 `;

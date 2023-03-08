@@ -46,6 +46,7 @@ export class PgThemeManager {
       ._stateColors()
       ._components()
       ._button()
+      ._menu()
       ._input()
       ._markdown()
       ._skeleton()
@@ -179,8 +180,56 @@ export class PgThemeManager {
     if (!this._theme.components!.button.default.padding) {
       this._theme.components!.button.default.padding = "";
     }
+    if (!this._theme.components!.button.default.fontSize) {
+      this._theme.components!.button.default.fontSize =
+        this._theme.font?.code?.size.small;
+    }
     if (!this._theme.components!.button.default.fontWeight) {
       this._theme.components!.button.default.fontWeight = "normal";
+    }
+    if (!this._theme.components!.button.default.boxShadow) {
+      this._theme.components!.button.default.boxShadow = "none";
+    }
+
+    return this;
+  }
+
+  /** Set default menu component */
+  private static _menu() {
+    if (!this._theme.components!.menu) {
+      this._theme.components!.menu = {};
+    }
+
+    // Button defaults
+    if (!this._theme.components!.menu.default) {
+      this._theme.components!.menu.default = {};
+    }
+    if (!this._theme.components!.menu.default.bg) {
+      this._theme.components!.menu.default.bg =
+        this._theme.colors?.right?.otherBg;
+    }
+    if (!this._theme.components!.menu.default.color) {
+      this._theme.components!.menu.default.color = "inherit";
+    }
+    if (!this._theme.components!.menu.default.borderColor) {
+      this._theme.components!.menu.default.borderColor = "transparent";
+    }
+    if (!this._theme.components!.menu.default.borderRadius) {
+      this._theme.components!.menu.default.borderRadius =
+        this._theme.borderRadius;
+    }
+    if (!this._theme.components!.menu.default.padding) {
+      this._theme.components!.menu.default.padding = "0.25rem 0";
+    }
+    if (!this._theme.components!.menu.default.fontWeight) {
+      this._theme.components!.menu.default.fontWeight = "normal";
+    }
+    if (!this._theme.components!.menu.default.fontSize) {
+      this._theme.components!.menu.default.fontSize =
+        this._theme.font?.code?.size.small;
+    }
+    if (!this._theme.components!.menu.default.boxShadow) {
+      this._theme.components!.menu.default.boxShadow = this._theme.boxShadow;
     }
 
     return this;

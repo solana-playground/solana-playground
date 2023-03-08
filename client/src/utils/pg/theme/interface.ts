@@ -1,6 +1,7 @@
 import { CSSProperties } from "react";
 
 import { ButtonKind } from "../../../components/Button";
+import { MenuKind } from "../../../components/Menu";
 
 export interface PgTheme {
   /** Name of the theme that's displayed in theme settings */
@@ -108,6 +109,8 @@ export interface PgTheme {
   components?: {
     /** Button component */
     button?: DefaultOverrides<ButtonKind>;
+    /** Menu component */
+    menu?: DefaultOverrides<MenuKind>;
   };
 
   /** Default border radius */
@@ -280,7 +283,9 @@ type OverrideComponent = {
   borderColor?: CSSProperties["borderColor"];
   borderRadius?: CSSProperties["borderRadius"];
   padding?: CSSProperties["padding"];
+  fontSize?: CSSProperties["fontSize"];
   fontWeight?: CSSProperties["fontWeight"];
+  boxShadow?: CSSProperties["boxShadow"];
   hover?: Omit<OverrideComponent, "hover">;
 };
 
