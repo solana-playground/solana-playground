@@ -61,6 +61,7 @@ const Wrapper = styled.div`
     flex: 1;
     overflow: auto;
     background-color: ${theme.colors.home?.bg};
+    font-size: ${theme.font?.code?.size.large};
 
     & > div {
       height: 100%;

@@ -251,39 +251,36 @@ export const Tutorial: FC<TutorialComponentProps> = ({
                   {currentPage !== 1 && (
                     <PreviousWrapper>
                       <PreviousText>Previous</PreviousText>
-                      <Button
+                      <NavigationButton
                         onClick={previousPage}
                         kind="no-border"
-                        fontWeight="bold"
                         leftIcon={<PointedArrow rotate="180deg" />}
                       >
                         {pages[currentPage - 2].title ??
                           `${currentPage - 1}/${pages.length}`}
-                      </Button>
+                      </NavigationButton>
                     </PreviousWrapper>
                   )}
                   <NextWrapper>
                     <NextText>Next</NextText>
                     {currentPage === pages.length ? (
-                      <Button
+                      <NavigationButton
                         onClick={finishTutorial}
                         kind="no-border"
                         color="success"
-                        fontWeight="bold"
                         rightIcon={<span>✔</span>}
                       >
                         Finish
-                      </Button>
+                      </NavigationButton>
                     ) : (
-                      <Button
+                      <NavigationButton
                         onClick={nextPage}
                         kind="no-border"
-                        fontWeight="bold"
                         rightIcon={<PointedArrow />}
                       >
                         {pages[currentPage].title ??
                           `${currentPage + 1}/${pages.length}`}
-                      </Button>
+                      </NavigationButton>
                     )}
                   </NextWrapper>
                 </NavigationButtonsInsideWrapper>
@@ -457,17 +454,21 @@ const NavigationButtonsInsideWrapper = styled.div`
     display: flex;
     width: 100%;
     padding-top: 1.5rem;
-    font-weight: bold;
     border-top: 1px solid ${theme.colors.default.borderColor};
+    font-size: ${theme.font?.other?.size.small};
+    font-weight: bold;
+  `}
+`;
 
-    & button {
-      margin-top: 0.5rem;
-      font-size: ${theme.font?.code?.size.large};
+const NavigationButton = styled(Button)`
+  ${({ theme }) => css`
+    margin-top: 0.5rem;
+    font-size: ${theme.font?.other?.size.medium};
+    font-weight: bold;
 
-      & svg {
-        width: 1.25rem;
-        height: 1.25rem;
-      }
+    & svg {
+      width: 1.25rem;
+      height: 1.25rem;
     }
   `}
 `;

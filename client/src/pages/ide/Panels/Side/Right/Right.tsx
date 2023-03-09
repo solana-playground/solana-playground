@@ -200,6 +200,7 @@ const StyledTitle = styled(Title)`
     align-items: center;
     border-bottom: 1px solid ${theme.colors.default.borderColor};
     color: ${theme.colors.default.textSecondary};
+    font-size: ${theme.font?.code?.size.large};
   `}
 `;
 

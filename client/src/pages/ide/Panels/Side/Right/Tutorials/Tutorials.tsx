@@ -53,12 +53,6 @@ const Wrapper = styled.div`
   `}
 `;
 
-const TutorialsSectionHeader = styled.div`
-  &:not(:first-child) {
-    margin-top: 2rem;
-  }
-`;
-
 interface TutorialGroupProps {
   name: string;
   data: TutorialFullData;
@@ -82,6 +76,14 @@ const TutorialGroup: FC<TutorialGroupProps> = ({ name, data }) => (
     ))}
   </>
 );
+
+const TutorialsSectionHeader = styled.div`
+  font-size: ${({ theme }) => theme.font?.code?.size.large};
+
+  &:not(:first-child) {
+    margin-top: 2rem;
+  }
+`;
 
 const Bold = styled.span`
   font-weight: bold;

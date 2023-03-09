@@ -55,6 +55,7 @@ export const DEFAULT_FONT_OTHER: PgFont = {
   family: `-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`,
   size: {
+    xsmall: "0.8125rem",
     small: "0.875rem",
     medium: "1rem",
     large: "1.25rem",

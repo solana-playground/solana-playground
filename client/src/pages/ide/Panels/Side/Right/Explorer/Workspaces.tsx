@@ -168,7 +168,10 @@ const TopWrapper = styled.div`
 `;
 
 const MainText = styled.div`
-  color: ${({ theme }) => theme.colors.default.textSecondary};
+  ${({ theme }) => `
+    color: ${theme.colors.default.textSecondary};
+    font-size: ${theme.font?.code?.size.large};
+  `}
 `;
 
 const ButtonsWrapper = styled.div`

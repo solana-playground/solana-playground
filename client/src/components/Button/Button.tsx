@@ -49,20 +49,20 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   fontWeight?: CSSProperties["fontWeight"];
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
-  <StyledButton
-    ref={ref}
-    className={`${props.className ? props.className : ""} ${
-      props.btnLoading ? "btn-loading" : ""
-    }`}
-    {...props}
-  >
-    <span className="btn-spinner" />
-    {props.leftIcon && <span className="left-icon">{props.leftIcon}</span>}
-    {props.children}
-    {props.rightIcon && <span className="right-icon">{props.rightIcon}</span>}
-  </StyledButton>
-));
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, btnLoading, leftIcon, rightIcon, children, ...props }, ref) => (
+    <StyledButton
+      ref={ref}
+      className={`${className} ${btnLoading ? "btn-loading" : ""}`}
+      {...props}
+    >
+      <span className="btn-spinner" />
+      {leftIcon && <span className="left-icon">{leftIcon}</span>}
+      {children}
+      {rightIcon && <span className="right-icon">{rightIcon}</span>}
+    </StyledButton>
+  )
+);
 
 const StyledButton = styled.button<ButtonProps>`
   ${(props) => getButtonStyles(props)}

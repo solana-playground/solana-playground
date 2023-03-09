@@ -240,6 +240,7 @@ export interface PgHighlight {
 export type PgFont = {
   family: string;
   size: {
+    xsmall: string;
     small: string;
     medium: string;
     large: string;

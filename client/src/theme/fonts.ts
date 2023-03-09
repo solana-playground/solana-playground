@@ -4,19 +4,21 @@ const FONTS: PgFont[] = [
   {
     family: "JetBrains Mono",
     size: {
+      xsmall: "0.7rem",
       small: "0.75rem",
-      medium: "0.875rem",
-      large: "1rem",
-      xlarge: "1.25rem",
+      medium: "0.8125rem",
+      large: "0.875rem",
+      xlarge: "1rem",
     },
   },
   {
     family: "Hack",
     size: {
+      xsmall: "0.7rem",
       small: "0.75rem",
-      medium: "0.875rem",
-      large: "1rem",
-      xlarge: "1.25rem",
+      medium: "0.8125rem",
+      large: "0.875rem",
+      xlarge: "1rem",
     },
   },
 ];

@@ -83,7 +83,6 @@ const Content = styled.div`
   margin-bottom: 1rem;
 
   & > input {
-    font-size: ${({ theme }) => theme.font?.code?.size.medium};
     padding: 0.375rem 0.5rem;
   }
 `;

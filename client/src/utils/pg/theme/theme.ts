@@ -182,7 +182,7 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.button.default.fontSize) {
       this._theme.components!.button.default.fontSize =
-        this._theme.font?.code?.size.small;
+        this._theme.font?.code?.size.medium;
     }
     if (!this._theme.components!.button.default.fontWeight) {
       this._theme.components!.button.default.fontWeight = "normal";

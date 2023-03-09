@@ -138,8 +138,11 @@ const ProgramName = styled.span`
 `;
 
 const Subheading = styled.h4`
-  margin: 0.5rem 1rem;
-  color: ${({ theme }) => theme.colors.default.primary};
+  ${({ theme }) => `
+    margin: 0.5rem 1rem;
+    color: ${theme.colors.default.primary};
+    font-size: ${theme.font?.code?.size.large};
+  `};
 `;
 
 const ProgramInteractionWrapper = styled.div``;

@@ -43,6 +43,7 @@ const StyledInput = styled.input<InputProps>`
     border-radius: ${theme.borderRadius};
     padding: 0.25rem 0.5rem;
     width: ${fullWidth && "100%"};
+    font-size: ${theme.font?.code?.size.medium};
 
     &:focus,
     &:focus-visible {

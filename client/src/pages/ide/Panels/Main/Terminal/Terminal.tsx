@@ -356,7 +356,7 @@ const TerminalWrapper = styled.div`
 
     & .xterm-rows {
       font-family: ${theme.font?.code?.family} !important;
-      font-size: ${theme.font?.code?.size.medium} !important;
+      font-size: ${theme.font?.code?.size.large} !important;
     }
   `}
 `;

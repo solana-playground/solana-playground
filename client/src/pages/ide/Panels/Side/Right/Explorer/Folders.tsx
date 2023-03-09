@@ -333,7 +333,9 @@ const SectionTopWrapper = styled.div`
   `}
 `;
 
-const SectionHeader = styled.div``;
+const SectionHeader = styled.div`
+  font-size: ${({ theme }) => theme.font?.code?.size.large};
+`;
 
 const BuildButtonText = styled.span`
   margin-left: 0.5rem !important;

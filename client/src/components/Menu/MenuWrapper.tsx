@@ -15,8 +15,8 @@ export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
     return (
       <Wrapper
         ref={ref}
-        {...props}
         className={`${className} ${ClassName.MENU_WRAPPER}`}
+        {...props}
       >
         {children}
       </Wrapper>
