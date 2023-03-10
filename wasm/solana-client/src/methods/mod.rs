@@ -94,7 +94,9 @@ pub use {
         GetSignatureStatusesRequest, GetSignatureStatusesResponse, SignatureStatusesValue,
     },
     signatures_for_address::{GetSignaturesForAddressRequest, GetSignaturesForAddressResponse},
-    simulate_transaction::{SimulateTransactionRequest, SimulateTransactionResponse},
+    simulate_transaction::{
+        SimulateTransactionRequest, SimulateTransactionResponse, SimulateTransactionResult,
+    },
     slot::{GetSlotRequest, GetSlotResponse},
     slot_leader::{GetSlotLeaderRequest, GetSlotLeaderResponse},
     slot_leaders::{GetSlotLeadersRequest, GetSlotLeadersResponse},

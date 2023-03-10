@@ -1,8 +1,10 @@
-use std::str::FromStr;
-
-use solana_sdk::{signature::Signature, transaction::Transaction};
-
 use crate::{utils::rpc_config::RpcSimulateTransactionConfig, ClientRequest, ClientResponse};
+use solana_extra_wasm::{account_decoder::UiAccount, transaction_status::UiTransactionEncoding};
+use solana_sdk::{
+    signature::Signature,
+    transaction::{Transaction, TransactionError},
+};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimulateTransactionRequest {
@@ -15,7 +17,11 @@ impl SimulateTransactionRequest {
     pub fn new(transaction: Transaction) -> Self {
         Self {
             transaction,
-            config: None,
+            config: Some(RpcSimulateTransactionConfig {
+                encoding: Some(UiTransactionEncoding::Base64),
+                replace_recent_blockhash: true,
+                ..Default::default()
+            }),
         }
     }
     pub fn new_with_config(transaction: Transaction, config: RpcSimulateTransactionConfig) -> Self {
@@ -29,7 +35,7 @@ impl SimulateTransactionRequest {
 impl Into<serde_json::Value> for SimulateTransactionRequest {
     fn into(self) -> serde_json::Value {
         let transaction_data = bincode::serialize(&self.transaction).unwrap();
-        let encoded_transaction = bs58::encode(&transaction_data).into_string();
+        let encoded_transaction = base64::encode(&transaction_data);
 
         match self.config {
             Some(config) => serde_json::json!([encoded_transaction, config]),
@@ -63,4 +69,33 @@ impl From<ClientResponse> for SimulateTransactionResponse {
 
         SimulateTransactionResponse(signature)
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct SimulateTransactionResult {
+    pub err: Option<TransactionError>,
+    pub logs: Option<Vec<String>>,
+    pub accounts: Option<Vec<Option<UiAccount>>>,
+    pub units_consumed: Option<u64>,
+    pub return_data: Option<UiTransactionReturnData>,
+}
+
+impl From<ClientResponse> for SimulateTransactionResult {
+    fn from(response: ClientResponse) -> Self {
+        serde_json::from_value(response.result.get("value").unwrap().to_owned()).unwrap()
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct UiTransactionReturnData {
+    pub program_id: String,
+    pub data: (String, UiReturnDataEncoding),
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum UiReturnDataEncoding {
+    Base64,
 }

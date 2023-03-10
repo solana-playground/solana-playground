@@ -2861,10 +2861,9 @@ dependencies = [
 
 [[package]]
 name = "solana-playground-utils-wasm"
-version = "0.1.0"
+version = "1.11.0"
 dependencies = [
  "wasm-bindgen",
- "wasm-bindgen-test",
 ]
 
 [[package]]
