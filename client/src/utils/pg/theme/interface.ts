@@ -71,12 +71,6 @@ export interface PgTheme {
       selectedBorderColor?: string;
     };
 
-    /** Input component */
-    input?: BgAndColor & {
-      borderColor?: string;
-      outlineColor?: string;
-    };
-
     /** Left side of the side panel(icon panel) */
     left?: BgAndColor; // bgPrimary, textPrimary
 
@@ -111,6 +105,19 @@ export interface PgTheme {
     button?: DefaultOverrides<ButtonKind>;
     /** Menu component */
     menu?: DefaultOverrides<MenuKind>;
+    /** Input component */
+    input?: DefaultComponent;
+    /** Select component */
+    select?: {
+      control?: DefaultComponent;
+      menu?: DefaultComponent;
+      option?: DefaultComponent;
+      singleValue?: DefaultComponent;
+      input?: DefaultComponent;
+      groupHeading?: DefaultComponent;
+      dropdownIndicator?: DefaultComponent;
+      indicatorSeparator?: DefaultComponent;
+    };
   };
 
   /** Default border radius */
@@ -278,24 +285,31 @@ export type Skeleton = {
   highlightColor: string;
 };
 
-type OverrideComponent = {
+type DefaultComponent = {
   bg?: CSSProperties["background"];
   color?: CSSProperties["color"];
   borderColor?: CSSProperties["borderColor"];
   borderRadius?: CSSProperties["borderRadius"];
   padding?: CSSProperties["padding"];
+  boxShadow?: CSSProperties["boxShadow"];
+  outline?: CSSProperties["outline"];
   fontSize?: CSSProperties["fontSize"];
   fontWeight?: CSSProperties["fontWeight"];
-  boxShadow?: CSSProperties["boxShadow"];
-  hover?: Omit<OverrideComponent, "hover">;
+  cursor?: CSSProperties["cursor"];
+} & DefaultComponentState<
+  "hover" | "active" | "focus" | "focusWithin" | "before" | "after"
+>;
+
+type DefaultComponentState<T extends string> = {
+  [K in T]?: Omit<DefaultComponent, T>;
 };
 
 type DefaultOverrides<T extends string> = {
   /** Default CSS values of the Button component */
-  default?: OverrideComponent;
+  default?: DefaultComponent;
   /** Override the defaults with specificity */
   overrides?: {
-    [K in T]?: OverrideComponent;
+    [K in T]?: DefaultComponent;
   };
 };
 

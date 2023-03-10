@@ -36,7 +36,7 @@ export class PgThemeManager {
     this._theme = theme;
     this._font = font;
 
-    // Set defaults
+    // Set defaults(order matters)
     this._fonts()
       ._transparency()
       ._borderRadius()
@@ -48,6 +48,7 @@ export class PgThemeManager {
       ._button()
       ._menu()
       ._input()
+      ._select()
       ._markdown()
       ._skeleton()
       ._tooltip()
@@ -160,7 +161,6 @@ export class PgThemeManager {
       this._theme.components!.button = {};
     }
 
-    // Button defaults
     if (!this._theme.components!.button.default) {
       this._theme.components!.button.default = {};
     }
@@ -180,15 +180,18 @@ export class PgThemeManager {
     if (!this._theme.components!.button.default.padding) {
       this._theme.components!.button.default.padding = "";
     }
+    if (!this._theme.components!.button.default.boxShadow) {
+      this._theme.components!.button.default.boxShadow = "none";
+    }
+    if (!this._theme.components!.button.default.outline) {
+      this._theme.components!.button.default.outline = "none";
+    }
     if (!this._theme.components!.button.default.fontSize) {
       this._theme.components!.button.default.fontSize =
         this._theme.font?.code?.size.medium;
     }
     if (!this._theme.components!.button.default.fontWeight) {
       this._theme.components!.button.default.fontWeight = "normal";
-    }
-    if (!this._theme.components!.button.default.boxShadow) {
-      this._theme.components!.button.default.boxShadow = "none";
     }
 
     return this;
@@ -200,7 +203,6 @@ export class PgThemeManager {
       this._theme.components!.menu = {};
     }
 
-    // Button defaults
     if (!this._theme.components!.menu.default) {
       this._theme.components!.menu.default = {};
     }
@@ -221,6 +223,12 @@ export class PgThemeManager {
     if (!this._theme.components!.menu.default.padding) {
       this._theme.components!.menu.default.padding = "0.25rem 0";
     }
+    if (!this._theme.components!.menu.default.outline) {
+      this._theme.components!.menu.default.outline = "none";
+    }
+    if (!this._theme.components!.menu.default.boxShadow) {
+      this._theme.components!.menu.default.boxShadow = this._theme.boxShadow;
+    }
     if (!this._theme.components!.menu.default.fontWeight) {
       this._theme.components!.menu.default.fontWeight = "normal";
     }
@@ -228,31 +236,197 @@ export class PgThemeManager {
       this._theme.components!.menu.default.fontSize =
         this._theme.font?.code?.size.small;
     }
-    if (!this._theme.components!.menu.default.boxShadow) {
-      this._theme.components!.menu.default.boxShadow = this._theme.boxShadow;
-    }
 
     return this;
   }
 
   /** Set default input component */
   private static _input() {
-    if (!this._theme.colors.input) {
-      this._theme.colors.input = {};
+    if (!this._theme.components!.input) {
+      this._theme.components!.input = {};
     }
-    if (!this._theme.colors.input.bg) {
-      this._theme.colors.input.bg = this._theme.colors.default.bgPrimary;
+
+    if (!this._theme.components!.input.bg) {
+      this._theme.components!.input.bg = this._theme.colors.default.bgPrimary;
     }
-    if (!this._theme.colors.input.borderColor) {
-      this._theme.colors.input.borderColor =
+    if (!this._theme.components!.input.color) {
+      this._theme.components!.input.color =
+        this._theme.colors.default.textPrimary;
+    }
+    if (!this._theme.components!.input.borderColor) {
+      this._theme.components!.input.borderColor =
         this._theme.colors.default.borderColor;
     }
-    if (!this._theme.colors.input.color) {
-      this._theme.colors.input.color = this._theme.colors.default.textPrimary;
+    if (!this._theme.components!.input.borderRadius) {
+      this._theme.components!.input.borderRadius = this._theme.borderRadius;
     }
-    if (!this._theme.colors.input.outlineColor) {
-      this._theme.colors.input.outlineColor =
-        this._theme.colors.default.primary + this._theme.transparency!.medium;
+    if (!this._theme.components!.input.padding) {
+      this._theme.components!.input.padding = "0.25rem 0.5rem";
+    }
+    if (!this._theme.components!.input.outline) {
+      this._theme.components!.input.outline = `1px solid ${
+        this._theme.colors.default.primary + this._theme.transparency!.medium
+      }`;
+    }
+    if (!this._theme.components!.input.boxShadow) {
+      this._theme.components!.input.boxShadow = "none";
+    }
+    if (!this._theme.components!.input.fontWeight) {
+      this._theme.components!.input.fontWeight = "normal";
+    }
+    if (!this._theme.components!.input.fontSize) {
+      this._theme.components!.input.fontSize =
+        this._theme.font?.code?.size.medium;
+    }
+
+    return this;
+  }
+
+  /** Set default select component */
+  private static _select() {
+    if (!this._theme.components!.select) {
+      this._theme.components!.select = {};
+    }
+
+    // Control
+    if (!this._theme.components!.select.control) {
+      this._theme.components!.select.control = {};
+    }
+    if (!this._theme.components!.select.control.bg) {
+      this._theme.components!.select.control.bg =
+        this._theme.components!.input!.bg;
+    }
+    if (!this._theme.components!.select.control.borderColor) {
+      this._theme.components!.select.control.borderColor =
+        this._theme.colors.default.borderColor;
+    }
+    if (!this._theme.components!.select.control.borderRadius) {
+      this._theme.components!.select.control.borderRadius =
+        this._theme.borderRadius;
+    }
+    if (!this._theme.components!.select.control.hover) {
+      this._theme.components!.select.control.hover = {};
+    }
+    if (!this._theme.components!.select.control.hover.borderColor) {
+      this._theme.components!.select.control.hover.borderColor =
+        this._theme.colors.state.hover.color;
+    }
+    if (!this._theme.components!.select.control.focusWithin) {
+      this._theme.components!.select.control.focusWithin = {};
+    }
+    if (!this._theme.components!.select.control.focusWithin.boxShadow) {
+      this._theme.components!.select.control.focusWithin.boxShadow = `0 0 0 1px ${
+        this._theme.colors.default.primary + this._theme.transparency!.high
+      }`;
+    }
+
+    // Menu
+    if (!this._theme.components!.select.menu) {
+      this._theme.components!.select.menu = {};
+    }
+    if (!this._theme.components!.select.menu.bg) {
+      this._theme.components!.select.menu.bg =
+        this._theme.components!.input!.bg;
+    }
+    if (!this._theme.components!.select.menu.color) {
+      this._theme.components!.select.menu.color =
+        this._theme.components!.input!.color;
+    }
+    if (!this._theme.components!.select.menu.borderRadius) {
+      this._theme.components!.select.menu.borderRadius =
+        this._theme.components!.input!.borderRadius;
+    }
+
+    // Option
+    if (!this._theme.components!.select.option) {
+      this._theme.components!.select.option = {};
+    }
+    if (!this._theme.components!.select.option.bg) {
+      this._theme.components!.select.option.bg =
+        this._theme.components!.input!.bg;
+    }
+    if (!this._theme.components!.select.option.color) {
+      this._theme.components!.select.option.color =
+        this._theme.colors.default.textSecondary;
+    }
+    if (!this._theme.components!.select.option.cursor) {
+      this._theme.components!.select.option.cursor = "pointer";
+    }
+    // Option::before
+    if (!this._theme.components!.select.option.before) {
+      this._theme.components!.select.option.before = {};
+    }
+    if (!this._theme.components!.select.option.before.color) {
+      this._theme.components!.select.option.before.color =
+        this._theme.colors.default.primary;
+    }
+    // Option:focus
+    if (!this._theme.components!.select.option.focus) {
+      this._theme.components!.select.option.focus = {};
+    }
+    if (!this._theme.components!.select.option.focus.bg) {
+      this._theme.components!.select.option.focus.bg =
+        this._theme.colors.state.hover.bg;
+    }
+    if (!this._theme.components!.select.option.focus.color) {
+      this._theme.components!.select.option.focus.color =
+        this._theme.colors.default.primary;
+    }
+    // Option:active
+    if (!this._theme.components!.select.option.active) {
+      this._theme.components!.select.option.active = {};
+    }
+    if (!this._theme.components!.select.option.active.bg) {
+      this._theme.components!.select.option.active.bg =
+        this._theme.colors.state.hover.bg;
+    }
+
+    // Single Value
+    if (!this._theme.components!.select.singleValue) {
+      this._theme.components!.select.singleValue = {};
+    }
+    if (!this._theme.components!.select.singleValue.bg) {
+      this._theme.components!.select.singleValue.bg =
+        this._theme.components?.input?.bg;
+    }
+    if (!this._theme.components!.select.singleValue.color) {
+      this._theme.components!.select.singleValue.color =
+        this._theme.components?.input?.color;
+    }
+
+    // Input
+    if (!this._theme.components!.select.input) {
+      this._theme.components!.select.input = {};
+    }
+    if (!this._theme.components!.select.input.color) {
+      this._theme.components!.select.input.color =
+        this._theme.components?.input?.color;
+    }
+
+    // Group Heading
+    if (!this._theme.components!.select.groupHeading) {
+      this._theme.components!.select.groupHeading = {};
+    }
+    if (!this._theme.components!.select.groupHeading.color) {
+      this._theme.components!.select.groupHeading.color =
+        this._theme.colors.default.textSecondary;
+    }
+
+    // Dropdown Indicator
+    if (!this._theme.components!.select.dropdownIndicator) {
+      this._theme.components!.select.dropdownIndicator = {};
+    }
+    if (!this._theme.components!.select.dropdownIndicator.padding) {
+      this._theme.components!.select.dropdownIndicator.padding = "0.25rem";
+    }
+
+    // Indicator Separator
+    if (!this._theme.components!.select.indicatorSeparator) {
+      this._theme.components!.select.indicatorSeparator = {};
+    }
+    if (!this._theme.components!.select.indicatorSeparator.bg) {
+      this._theme.components!.select.indicatorSeparator.bg =
+        this._theme.colors.default.textSecondary;
     }
 
     return this;

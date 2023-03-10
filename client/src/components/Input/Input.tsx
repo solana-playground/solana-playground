@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef, FocusEvent, forwardRef } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, DefaultTheme } from "styled-components";
 
 import { ClassName } from "../../constants";
 
@@ -36,18 +36,49 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => (
 ));
 
 const StyledInput = styled.input<InputProps>`
-  ${({ theme, fullWidth }) => css`
-    background-color: ${theme.colors.input?.bg};
-    border: 1px solid ${theme.colors.input?.borderColor};
-    color: ${theme.colors.input?.color};
-    border-radius: ${theme.borderRadius};
-    padding: 0.25rem 0.5rem;
-    width: ${fullWidth && "100%"};
-    font-size: ${theme.font?.code?.size.medium};
+  ${(props) => getStyles(props)}
+`;
+
+const getStyles = ({
+  fullWidth,
+  theme,
+}: InputProps & { theme: DefaultTheme }) => {
+  const input = theme.components?.input;
+
+  return css`
+  & .${ClassName.MENU_WRAPPER} {
+    ${fullWidth && "width: 100%"};
+
+    background: ${input?.bg};
+    color: ${input?.color};
+    border-color: ${input?.borderColor};
+    border-radius: ${input?.borderRadius};
+    padding: ${input?.padding};
+    box-shadow: ${input?.boxShadow};
+    outline: ${input?.outline};
+    font-size: ${input?.fontSize};
+    font-weight: ${input?.fontWeight};
+
+    &:hover {
+      ${input?.hover?.bg && `background: ${input.hover.bg}`};
+      ${input?.hover?.color && `color: ${input.hover.color}`};
+      ${
+        input?.hover?.borderColor && `border-color: ${input.hover.borderColor}`
+      };
+      ${
+        input?.hover?.borderRadius &&
+        `border-radius: ${input.hover.borderRadius}`
+      };
+      ${input?.hover?.padding && `padding: ${input.hover.padding}`};
+      ${input?.hover?.boxShadow && `box-shadow: ${input.hover.boxShadow}`};
+      ${input?.hover?.outline && `outline: ${input.hover.outline}`};
+      ${input?.hover?.fontSize && `font-size: ${input.hover.fontSize}`};
+      ${input?.hover?.fontWeight && `font-weight: ${input.hover.fontWeight}`};
+    }
 
     &:focus,
     &:focus-visible {
-      outline: 1px solid ${theme.colors.input?.outlineColor};
+      outline: ${theme.components?.input?.outline};
     }
 
     &:disabled {
@@ -65,8 +96,8 @@ const StyledInput = styled.input<InputProps>`
       outline-color: transparent;
       border-color: ${theme.colors.state.success.color};
     }
-  `}
 `;
+};
 
 const defaultInputProps = {
   autoComplete: "off",

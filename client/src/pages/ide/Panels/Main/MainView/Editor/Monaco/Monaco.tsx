@@ -59,7 +59,7 @@ const Monaco = () => {
       };
 
       const editorColors = theme.colors.editor!;
-      const inputColors = theme.colors.input!;
+      const inputColors = theme.components!.input!;
       const hl = theme.highlight;
 
       monaco.editor.defineTheme(theme.name, {
@@ -136,16 +136,15 @@ const Monaco = () => {
           "list.highlightForeground": theme.colors.state.info.color!,
 
           // Input
-          "input.background": inputColors.bg!,
+          "input.background": inputColors.bg as string,
           "input.foreground": inputColors.color!,
           "input.border": inputColors.borderColor!,
-          "inputOption.activeBorder": inputColors.outlineColor!,
 
           // General
           foreground: theme.colors.default.textPrimary,
           errorForeground: theme.colors.state.error.color!,
           descriptionForeground: theme.colors.default.textSecondary,
-          focusBorder: theme.colors.default.primary + theme.transparency?.high!,
+          focusBorder: theme.colors.default.primary + theme.transparency!.high,
         },
       });
       monaco.editor.setTheme(theme.name);

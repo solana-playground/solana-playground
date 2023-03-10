@@ -73,9 +73,10 @@ const getStyles = ({
     border-color: ${menu?.borderColor};
     border-radius: ${menu?.borderRadius};
     padding: ${menu?.padding};
+    box-shadow: ${menu?.boxShadow};
+    outline: ${menu?.outline};
     font-size: ${menu?.fontSize};
     font-weight: ${menu?.fontWeight};
-    box-shadow: ${menu?.boxShadow};
 
     &:hover {
       ${menu?.hover?.bg && `background: ${menu.hover.bg}`};
@@ -85,9 +86,10 @@ const getStyles = ({
         menu?.hover?.borderRadius && `border-radius: ${menu.hover.borderRadius}`
       };
       ${menu?.hover?.padding && `padding: ${menu.hover.padding}`};
+      ${menu?.hover?.boxShadow && `box-shadow: ${menu.hover.boxShadow}`};
+      ${menu?.hover?.outline && `outline: ${menu.hover.outline}`};
       ${menu?.hover?.fontSize && `font-size: ${menu.hover.fontSize}`};
       ${menu?.hover?.fontWeight && `font-weight: ${menu.hover.fontWeight}`};
-      ${menu?.hover?.boxShadow && `box-shadow: ${menu.hover.boxShadow}`};
     }
 `;
 };

@@ -9,6 +9,7 @@ const Select = <
   props: Props<Option, IsMulti, Group>
 ) => {
   const theme = useTheme();
+  const select = theme.components!.select!;
 
   return (
     // @ts-ignore
@@ -17,70 +18,58 @@ const Select = <
         control: (base) => ({
           ...base,
           minHeight: "fit-content",
-          backgroundColor: theme.colors.input?.bg,
-          borderColor: theme.colors.default.borderColor,
-          borderRadius: theme.borderRadius,
-          ":hover": {
-            borderColor: theme.colors.state.hover.color,
-          },
-          ":focus-within": {
-            boxShadow: `0 0 0 1px ${
-              theme.colors.default.primary + theme.transparency?.high
-            }`,
-          },
+          ...mapTheme(select.control),
+          ":hover": mapTheme(select.control!.hover),
+          ":focus-within": mapTheme(select.control!.focusWithin),
         }),
         menu: (base) => ({
           ...base,
-          backgroundColor: theme.colors.input?.bg,
-          color: theme.colors.input?.color,
-          borderRadius: theme.borderRadius,
+          ...mapTheme(select.menu),
         }),
-        option: (base, state) => ({
-          ...base,
-          backgroundColor: state.isFocused
-            ? theme.colors.state.hover.bg
-            : theme.colors.input?.bg,
-          color: state.isFocused
-            ? theme.colors.default.primary
-            : theme.colors.default.textSecondary,
-          cursor: "pointer",
-          ":active": {
-            backgroundColor: theme.colors.state.hover.bg,
-          },
-          display: "flex",
-          alignItems: "center",
-          "::before": {
-            content: `"${state.isSelected ? "✔" : ""}"`,
-            width: "0.5rem",
-            height: "0.5rem",
+        option: (base, state) => {
+          const stateStyle = state.isFocused
+            ? mapTheme(select.option!.focus)
+            : {};
+
+          return {
+            ...base,
             display: "flex",
             alignItems: "center",
-            color: theme.colors.default.primary,
-            marginRight: "0.5rem",
-          },
-        }),
+            ...mapTheme(select.option),
+            ...stateStyle,
+            ":before": {
+              content: `"${state.isSelected ? "✔" : ""}"`,
+              width: "0.5rem",
+              height: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              marginRight: "0.5rem",
+              ...mapTheme(select.option!.before),
+            },
+            ":active": mapTheme(select.option!.active),
+          };
+        },
         singleValue: (base) => ({
           ...base,
-          backgroundColor: theme.colors.input?.bg,
-          color: theme.colors.input?.color,
+          ...mapTheme(select.singleValue),
         }),
-        input: (base) => ({ ...base, color: theme.colors.input?.color }),
+        input: (base) => ({ ...base, ...mapTheme(select.input) }),
         groupHeading: (base) => ({
           ...base,
-          color: theme.colors.default.textSecondary,
+          ...mapTheme(select.groupHeading),
         }),
         dropdownIndicator: (base) => ({
           ...base,
-          padding: "0.25rem",
+          ...mapTheme(select.dropdownIndicator),
           "> svg": {
-            color: theme.colors.default.textSecondary,
+            color: select.dropdownIndicator?.color,
             height: "1rem",
             width: "1rem",
           },
         }),
         indicatorSeparator: (base) => ({
           ...base,
-          backgroundColor: theme.colors.default.textSecondary,
+          ...mapTheme(select.indicatorSeparator),
         }),
       }}
       {...props}
@@ -120,5 +109,7 @@ const StyledReactSelect = styled(ReactSelect)`
     }
   `}
 `;
+
+const mapTheme = (theme: any) => ({ ...theme, background: theme.bg });
 
 export default Select;
