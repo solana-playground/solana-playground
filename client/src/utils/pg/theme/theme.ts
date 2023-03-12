@@ -263,8 +263,11 @@ export class PgThemeManager {
     if (!this._theme.components!.input.padding) {
       this._theme.components!.input.padding = "0.25rem 0.5rem";
     }
-    if (!this._theme.components!.input.outline) {
-      this._theme.components!.input.outline = `1px solid ${
+    if (!this._theme.components!.input.focus) {
+      this._theme.components!.input.focus = {};
+    }
+    if (!this._theme.components!.input.focus.outline) {
+      this._theme.components!.input.focus.outline = `1px solid ${
         this._theme.colors.default.primary + this._theme.transparency!.medium
       }`;
     }

@@ -46,12 +46,11 @@ const getStyles = ({
   const input = theme.components?.input;
 
   return css`
-  & .${ClassName.MENU_WRAPPER} {
     ${fullWidth && "width: 100%"};
 
     background: ${input?.bg};
     color: ${input?.color};
-    border-color: ${input?.borderColor};
+    border: 1px solid ${input?.borderColor};
     border-radius: ${input?.borderRadius};
     padding: ${input?.padding};
     box-shadow: ${input?.boxShadow};
@@ -62,13 +61,10 @@ const getStyles = ({
     &:hover {
       ${input?.hover?.bg && `background: ${input.hover.bg}`};
       ${input?.hover?.color && `color: ${input.hover.color}`};
-      ${
-        input?.hover?.borderColor && `border-color: ${input.hover.borderColor}`
-      };
-      ${
-        input?.hover?.borderRadius &&
-        `border-radius: ${input.hover.borderRadius}`
-      };
+      ${input?.hover?.borderColor &&
+      `border-color: ${input.hover.borderColor}`};
+      ${input?.hover?.borderRadius &&
+      `border-radius: ${input.hover.borderRadius}`};
       ${input?.hover?.padding && `padding: ${input.hover.padding}`};
       ${input?.hover?.boxShadow && `box-shadow: ${input.hover.boxShadow}`};
       ${input?.hover?.outline && `outline: ${input.hover.outline}`};
@@ -78,7 +74,7 @@ const getStyles = ({
 
     &:focus,
     &:focus-visible {
-      outline: ${theme.components?.input?.outline};
+      outline: ${theme.components?.input?.focus?.outline};
     }
 
     &:disabled {
@@ -96,7 +92,7 @@ const getStyles = ({
       outline-color: transparent;
       border-color: ${theme.colors.state.success.color};
     }
-`;
+  `;
 };
 
 const defaultInputProps = {
