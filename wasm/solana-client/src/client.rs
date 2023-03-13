@@ -973,19 +973,19 @@ impl WasmClient {
         &self,
         transaction: &Transaction,
         config: RpcSimulateTransactionConfig,
-    ) -> ClientResult<SimulateTransactionResult> {
+    ) -> ClientResult<SimulateTransactionResponse> {
         let request =
             SimulateTransactionRequest::new_with_config(transaction.to_owned(), config).into();
-        let response = SimulateTransactionResult::from(self.send(request).await?);
+        let response = SimulateTransactionResponse::from(self.send(request).await?);
         Ok(response)
     }
 
     pub async fn simulate_transaction(
         &self,
-        transaction: Transaction,
-    ) -> ClientResult<SimulateTransactionResult> {
+        transaction: &Transaction,
+    ) -> ClientResult<SimulateTransactionResponse> {
         self.simulate_transaction_with_config(
-            &transaction,
+            transaction,
             RpcSimulateTransactionConfig {
                 encoding: Some(UiTransactionEncoding::Base64),
                 replace_recent_blockhash: true,
