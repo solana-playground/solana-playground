@@ -193,6 +193,9 @@ export class PgThemeManager {
     if (!this._theme.components!.button.default.fontWeight) {
       this._theme.components!.button.default.fontWeight = "normal";
     }
+    if (!this._theme.components!.button.default.hover) {
+      this._theme.components!.button.default.hover = {};
+    }
 
     return this;
   }
