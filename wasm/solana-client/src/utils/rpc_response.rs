@@ -329,38 +329,6 @@ pub struct RpcVoteAccountInfo {
 
 // #[derive(Serialize, Deserialize, Clone, Debug)]
 // #[serde(rename_all = "camelCase")]
-// pub struct RpcSimulateTransactionResult {
-//     pub err: Option<TransactionError>,
-//     pub logs: Option<Vec<String>>,
-//     pub accounts: Option<Vec<Option<UiAccount>>>,
-//     pub units_consumed: Option<u64>,
-//     pub return_data: Option<RpcTransactionReturnData>,
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug)]
-// #[serde(rename_all = "camelCase")]
-// pub struct RpcTransactionReturnData {
-//     pub program_id: String,
-//     pub data: (String, ReturnDataEncoding),
-// }
-
-// impl From<TransactionReturnData> for RpcTransactionReturnData {
-//     fn from(return_data: TransactionReturnData) -> Self {
-//         Self {
-//             program_id: return_data.program_id.to_string(),
-//             data: (base64::encode(return_data.data), ReturnDataEncoding::Base64),
-//         }
-//     }
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Copy, Debug, Eq, Hash, PartialEq)]
-// #[serde(rename_all = "camelCase")]
-// pub enum ReturnDataEncoding {
-//     Base64,
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug)]
-// #[serde(rename_all = "camelCase")]
 // pub struct RpcStorageTurn {
 //     pub blockhash: String,
 //     pub slot: Slot,
