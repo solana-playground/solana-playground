@@ -1,6 +1,5 @@
-use std::str::FromStr;
-
-use solana_sdk::{signature::Signature, transaction::Transaction};
+use solana_extra_wasm::{account_decoder::UiAccount, transaction_status::UiTransactionEncoding};
+use solana_sdk::transaction::{Transaction, TransactionError};
 
 use crate::{utils::rpc_config::RpcSimulateTransactionConfig, ClientRequest, ClientResponse};
 
@@ -15,7 +14,11 @@ impl SimulateTransactionRequest {
     pub fn new(transaction: Transaction) -> Self {
         Self {
             transaction,
-            config: None,
+            config: Some(RpcSimulateTransactionConfig {
+                encoding: Some(UiTransactionEncoding::Base64),
+                replace_recent_blockhash: true,
+                ..Default::default()
+            }),
         }
     }
     pub fn new_with_config(transaction: Transaction, config: RpcSimulateTransactionConfig) -> Self {
@@ -29,7 +32,7 @@ impl SimulateTransactionRequest {
 impl Into<serde_json::Value> for SimulateTransactionRequest {
     fn into(self) -> serde_json::Value {
         let transaction_data = bincode::serialize(&self.transaction).unwrap();
-        let encoded_transaction = bs58::encode(&transaction_data).into_string();
+        let encoded_transaction = base64::encode(&transaction_data);
 
         match self.config {
             Some(config) => serde_json::json!([encoded_transaction, config]),
@@ -47,20 +50,32 @@ impl Into<ClientRequest> for SimulateTransactionRequest {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SimulateTransactionResponse(Signature);
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct SimulateTransactionResponse {
+    pub err: Option<TransactionError>,
+    pub logs: Option<Vec<String>>,
+    pub accounts: Option<Vec<Option<UiAccount>>>,
+    pub units_consumed: Option<u64>,
+    pub return_data: Option<UiTransactionReturnData>,
+}
 
-impl Into<Signature> for SimulateTransactionResponse {
-    fn into(self) -> Signature {
-        self.0
-    }
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct UiTransactionReturnData {
+    pub program_id: String,
+    pub data: (String, UiReturnDataEncoding),
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum UiReturnDataEncoding {
+    Base64,
 }
 
 impl From<ClientResponse> for SimulateTransactionResponse {
     fn from(response: ClientResponse) -> Self {
-        let signature = response.result.as_str().expect("invalid response");
-        let signature = Signature::from_str(signature).expect("invalid signature");
-
-        SimulateTransactionResponse(signature)
+        let value = response.result["value"].clone();
+        serde_json::from_value(value).unwrap()
     }
 }

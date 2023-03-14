@@ -33,7 +33,8 @@ use crate::{
             RpcBlockProductionConfig, RpcContextConfig, RpcEpochConfig, RpcGetVoteAccountsConfig,
             RpcKeyedAccount, RpcLargestAccountsConfig, RpcLeaderScheduleConfig,
             RpcProgramAccountsConfig, RpcSendTransactionConfig, RpcSignaturesForAddressConfig,
-            RpcSupplyConfig, RpcTokenAccountsFilter, RpcTransactionConfig,
+            RpcSimulateTransactionConfig, RpcSupplyConfig, RpcTokenAccountsFilter,
+            RpcTransactionConfig,
         },
         rpc_filter::TokenAccountsFilter,
         rpc_response::{
@@ -966,5 +967,31 @@ impl WasmClient {
     pub async fn get_token_supply(&self, mint: &Pubkey) -> ClientResult<UiTokenAmount> {
         self.get_token_supply_with_commitment(mint, self.commitment_config())
             .await
+    }
+
+    pub async fn simulate_transaction_with_config(
+        &self,
+        transaction: &Transaction,
+        config: RpcSimulateTransactionConfig,
+    ) -> ClientResult<SimulateTransactionResponse> {
+        let request =
+            SimulateTransactionRequest::new_with_config(transaction.to_owned(), config).into();
+        let response = SimulateTransactionResponse::from(self.send(request).await?);
+        Ok(response)
+    }
+
+    pub async fn simulate_transaction(
+        &self,
+        transaction: &Transaction,
+    ) -> ClientResult<SimulateTransactionResponse> {
+        self.simulate_transaction_with_config(
+            transaction,
+            RpcSimulateTransactionConfig {
+                encoding: Some(UiTransactionEncoding::Base64),
+                replace_recent_blockhash: true,
+                ..Default::default()
+            },
+        )
+        .await
     }
 }
