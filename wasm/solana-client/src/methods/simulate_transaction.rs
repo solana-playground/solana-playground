@@ -1,6 +1,7 @@
-use crate::{utils::rpc_config::RpcSimulateTransactionConfig, ClientRequest, ClientResponse};
 use solana_extra_wasm::{account_decoder::UiAccount, transaction_status::UiTransactionEncoding};
 use solana_sdk::transaction::{Transaction, TransactionError};
+
+use crate::{utils::rpc_config::RpcSimulateTransactionConfig, ClientRequest, ClientResponse};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimulateTransactionRequest {
@@ -50,6 +51,7 @@ impl Into<ClientRequest> for SimulateTransactionRequest {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct SimulateTransactionResponse {
     pub err: Option<TransactionError>,
     pub logs: Option<Vec<String>>,
@@ -59,12 +61,14 @@ pub struct SimulateTransactionResponse {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct UiTransactionReturnData {
     pub program_id: String,
     pub data: (String, UiReturnDataEncoding),
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub enum UiReturnDataEncoding {
     Base64,
 }
