@@ -78,7 +78,8 @@ const getButtonStyles = ({
   hoverColor: _hoverColor,
   fontWeight: _fontWeight,
 }: ButtonProps & { theme: DefaultTheme }) => {
-  let button = theme.components?.button?.default!;
+  // Clone the default Button theme to not override the global object
+  let button = structuredClone(theme.components?.button?.default!);
 
   // Kind
   switch (kind) {
@@ -265,8 +266,6 @@ const getButtonStyles = ({
   }
 
   let defaultCss = css`
-    ${fullWidth && "width: 100%"};
-
     position: relative;
     display: flex;
     align-items: center;
