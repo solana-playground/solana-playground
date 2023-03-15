@@ -203,7 +203,7 @@ const SearchWrapper = styled.div`
     background-color: ${theme.colors.default.bgPrimary};
     padding: 0.75rem 1rem;
     outline: 1px solid
-      ${theme.colors.default.primary + theme.transparency?.medium};
+      ${theme.colors.default.primary + theme.transparency.medium};
     border-radius: ${theme.borderRadius};
     position: relative;
   `}
@@ -212,8 +212,7 @@ const SearchWrapper = styled.div`
 const Element = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem;
-    transition: all ${theme.transition?.duration.short}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.short} ${theme.transition.type};
 
     &:hover {
       cursor: pointer;
@@ -445,7 +444,7 @@ const AddSeedMenu = styled.div`
     background-color: ${theme.colors.tooltip?.bg ??
     theme.colors.default.bgPrimary};
     border-radius: ${theme.borderRadius};
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
   `}
 `;
 
@@ -453,8 +452,7 @@ const AddSeedItem = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem;
     color: ${theme.colors.default.textSecondary};
-    transition: all ${theme.transition?.duration.short}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.short} ${theme.transition.type};
 
     &:hover {
       cursor: pointer;
@@ -591,7 +589,7 @@ const GenCloseWrapper = styled.div`
 const ShowGenTitle = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.default.primary};
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     text-align: center;
   `}
 `;
@@ -600,7 +598,7 @@ const ShowGenInputWrapper = styled.div`
   margin-top: 0.5rem;
 
   & span {
-    font-size: ${({ theme }) => theme.font?.code?.size.small};
+    font-size: ${({ theme }) => theme.font.code.size.small};
   }
 `;
 

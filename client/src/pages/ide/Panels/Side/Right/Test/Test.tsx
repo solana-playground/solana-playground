@@ -141,7 +141,7 @@ const Subheading = styled.h4`
   ${({ theme }) => `
     margin: 0.5rem 1rem;
     color: ${theme.colors.default.primary};
-    font-size: ${theme.font?.code?.size.large};
+    font-size: ${theme.font.code.size.large};
   `};
 `;
 

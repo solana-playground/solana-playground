@@ -322,7 +322,7 @@ const MainText = styled.span`
 
 const Desc = styled.span`
   ${({ theme }) => css`
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
     margin-top: 0.5rem;
   `}
@@ -352,18 +352,18 @@ const InputPkWrapper = styled.div`
 
 const InputLabelWrapper = styled.div`
   margin-bottom: 0.375rem;
-  font-size: ${({ theme }) => theme.font?.code?.size.small};
+  font-size: ${({ theme }) => theme.font.code.size.small};
 `;
 
 const InputLabel = styled.span`
   margin-bottom: 0.375rem;
-  font-size: ${({ theme }) => theme.font?.code?.size.small};
+  font-size: ${({ theme }) => theme.font.code.size.small};
 `;
 
 const UpdateInfo = styled.span<UpdateInfoProps>`
   ${({ theme, error }) => css`
     margin-left: 0.375rem;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${error
       ? theme.colors.state.error.color
       : theme.colors.state.success.color};
@@ -379,7 +379,7 @@ const InputWrapper = styled.div`
 const InputWarning = styled.div`
   ${({ theme }) => css`
     margin-top: 0.375rem;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
 
     & > svg {

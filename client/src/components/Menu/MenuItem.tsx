@@ -59,11 +59,10 @@ const StyledItem = styled(MenuItem)`
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
     border-left: 2px solid transparent;
-    transition: all ${theme.transition?.duration.short}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.short} ${theme.transition.type};
 
     & > div {
       display: flex;
@@ -93,8 +92,8 @@ const StyledItem = styled(MenuItem)`
 
       & span.${ItemClassName.NAME} {
         color: var(--color);
-        transition: all ${theme.transition?.duration.short}
-          ${theme.transition?.type};
+        transition: all ${theme.transition.duration.short}
+          ${theme.transition.type};
       }
     }
   `}

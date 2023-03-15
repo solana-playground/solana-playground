@@ -177,7 +177,7 @@ const TxsTop = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem 1rem;
     display: flex;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
     background-color: ${theme.colors.default.bgSecondary};
     font-weight: bold;
@@ -192,7 +192,7 @@ const TxWrapper = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem 1rem;
     display: flex;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
 
     &:not(:last-child) {
@@ -204,7 +204,7 @@ const TxWrapper = styled.div`
       background: linear-gradient(
         0deg,
         ${theme.colors.default.bgSecondary} 75%,
-        ${theme.colors.default.primary + theme.transparency?.low} 100%
+        ${theme.colors.default.primary + theme.transparency.low} 100%
       );
     }
   `}

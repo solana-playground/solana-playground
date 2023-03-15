@@ -9,7 +9,7 @@ interface ThreeDotsProps {
 export const ThreeDots = styled.div<ThreeDotsProps>`
   ${({ theme, width = "0.5rem", height = "0.5rem", distance = "1rem" }) => css`
     --bg: ${theme.colors.default.primary};
-    --bg-fade: ${theme.colors.default.primary + theme.transparency?.low};
+    --bg-fade: ${theme.colors.default.primary + theme.transparency.low};
     --distance: ${distance};
 
     position: relative;

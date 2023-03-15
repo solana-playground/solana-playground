@@ -87,7 +87,7 @@ const MainText = styled.span`
 
 const Desc = styled.span`
   ${({ theme }) => css`
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
     margin-top: 0.5rem;
   `}

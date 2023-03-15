@@ -41,8 +41,7 @@ const Indicator = styled.div`
     background-color: ${theme.colors.default.primary};
     border-radius: ${theme.borderRadius};
     height: 100%;
-    transition: width ${theme.transition?.duration.long}
-      ${theme.transition?.type};
+    transition: width ${theme.transition.duration.long} ${theme.transition.type};
   `}
 `;
 

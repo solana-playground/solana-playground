@@ -79,7 +79,7 @@ const Select = <
 
 const StyledReactSelect = styled(ReactSelect)`
   ${({ theme }) => css`
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     width: 100%;
 
     /* Scrollbar */
@@ -96,16 +96,16 @@ const StyledReactSelect = styled(ReactSelect)`
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar.thumb.color};
     }
   `}
 `;

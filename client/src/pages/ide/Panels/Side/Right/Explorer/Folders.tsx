@@ -285,27 +285,25 @@ const RootWrapper = styled.div`
     padding: 0.25rem 1rem;
     cursor: pointer;
     border: 1px solid transparent;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
 
     &.${ClassName.SELECTED} {
       background-color: ${
-        theme.colors.default.primary + theme.transparency?.low
+        theme.colors.default.primary + theme.transparency.low
       };
     }
 
     &.${ClassName.CTX_SELECTED} {
       background-color: ${
-        theme.colors.default.primary + theme.transparency?.low
+        theme.colors.default.primary + theme.transparency.low
       };
-      border-color: ${
-        theme.colors.default.primary + theme.transparency?.medium
-      };
+      border-color: ${theme.colors.default.primary + theme.transparency.medium};
       border-radius: ${theme.borderRadius};
     }
 
     &:hover {
       background-color: ${
-        theme.colors.default.primary + theme.transparency?.low
+        theme.colors.default.primary + theme.transparency.low
       };
     }
 `}
@@ -334,7 +332,7 @@ const SectionTopWrapper = styled.div`
 `;
 
 const SectionHeader = styled.div`
-  font-size: ${({ theme }) => theme.font?.code?.size.large};
+  font-size: ${({ theme }) => theme.font.code.size.large};
 `;
 
 const BuildButtonText = styled.span`
@@ -357,8 +355,8 @@ const StyledFolder = styled(Folder)`
     & svg {
       width: 0.875rem;
       height: 0.875rem;
-      transition: transform ${theme.transition?.duration.short}
-        ${theme.transition?.type};
+      transition: transform ${theme.transition.duration.short}
+        ${theme.transition.type};
     }
 
     &.${ClassName.OPEN} svg {

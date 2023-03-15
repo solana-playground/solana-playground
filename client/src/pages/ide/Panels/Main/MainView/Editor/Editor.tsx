@@ -61,7 +61,7 @@ const Wrapper = styled.div`
     flex: 1;
     overflow: auto;
     background-color: ${theme.colors.home?.bg};
-    font-size: ${theme.font?.code?.size.large};
+    font-size: ${theme.font.code.size.large};
 
     & > div {
       height: 100%;
@@ -84,12 +84,12 @@ const Wrapper = styled.div`
     &::-webkit-scrollbar-thumb,
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover,
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     & ::-webkit-scrollbar-corner {

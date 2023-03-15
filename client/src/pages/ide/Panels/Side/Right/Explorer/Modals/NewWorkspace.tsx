@@ -116,13 +116,13 @@ const WorkspaceNameWrapper = styled.div`
 const MainText = styled.div`
   margin: 1rem 0 0.5rem 0;
   font-weight: bold;
-  font-size: ${({ theme }) => theme.font?.code?.size.large};
+  font-size: ${({ theme }) => theme.font.code.size.large};
 `;
 
 const ErrorText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.state.error.color};
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     margin-bottom: 0.5rem;
   `}
 `;
@@ -168,8 +168,7 @@ const FrameworkWrapper = styled.div<{ isSelected?: boolean }>`
     padding: 1rem;
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
-    transition: all ${theme.transition?.duration.medium}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.medium} ${theme.transition.type};
     border-color: ${isSelected && theme.colors.default.primary};
     & div:nth-child(2) {
       color: ${isSelected && theme.colors.default.textPrimary};

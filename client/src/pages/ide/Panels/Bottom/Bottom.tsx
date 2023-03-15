@@ -82,7 +82,7 @@ const Wrapper = styled.div`
     display: flex;
     align-items: center;
     padding: 0 0.5rem;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     background-color: ${theme.colors.bottom?.bg ??
     theme.colors.default.primary};
     color: var(--bottom-color);
@@ -98,7 +98,7 @@ const Wrapper = styled.div`
 
         &:hover {
           background-color: ${theme.colors.default.primary +
-          theme.transparency?.low};
+          theme.transparency.low};
         }
       }
 

@@ -54,7 +54,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     --color-canvas-subtle: ${theme.colors.markdown?.code?.bg};
     --color-border-default: ${theme.colors.default.borderColor};
     --color-border-muted: ${theme.colors.default.borderColor +
-    theme.transparency?.high};
+    theme.transparency.high};
     --color-neutral-muted: ${theme.colors.state.hover.bg};
     --color-accent-fg: ${theme.colors.default.primary};
     --color-accent-emphasis: #1f6feb;
@@ -67,8 +67,8 @@ const StyledMarkdown = styled(ReactMarkdown)`
       margin: 0;
       color: var(--color-fg-default);
       background-color: var(--color-canvas-default);
-      font-family: ${theme.font?.other?.family};
-      font-size: ${theme.font?.other?.size.medium};
+      font-family: ${theme.font.other.family};
+      font-size: ${theme.font.other.size.medium};
       line-height: 1.5;
       word-wrap: break-word;
     }

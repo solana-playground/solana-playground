@@ -300,8 +300,8 @@ const Wrapper = styled.div`
     background-color: ${theme.colors.tutorial?.bg};
     color: ${theme.colors.tutorial?.color};
     opacity: 0;
-    transition: opacity ${theme.transition?.duration?.medium}
-      ${theme.transition?.type};
+    transition: opacity ${theme.transition.duration.medium}
+      ${theme.transition.type};
 
     /* Scrollbar */
     /* Chromium */
@@ -317,16 +317,16 @@ const Wrapper = styled.div`
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar.thumb.color};
     }
   `}
 `;
@@ -354,8 +354,8 @@ const TutorialMainPage = styled.div`
     max-width: 60rem;
     padding: 2rem;
     background: green;
-    font-family: ${theme.font?.other?.family};
-    font-size: ${theme.font?.other?.size.medium};
+    font-family: ${theme.font.other.family};
+    font-size: ${theme.font.other.size.medium};
     background-color: ${theme.colors.markdown?.bg};
     color: ${theme.colors.markdown?.color};
     border-top-right-radius: ${theme.borderRadius};
@@ -372,7 +372,7 @@ const TutorialName = styled.h1``;
 const TutorialAuthorsWrapper = styled.div`
   ${({ theme }) => css`
     margin-top: 0.5rem;
-    font-size: ${theme.font?.other?.size.small};
+    font-size: ${theme.font.other.size.small};
     color: ${theme.colors.default.textSecondary};
   `}
 `;
@@ -434,7 +434,7 @@ const TutorialPage = styled.div`
     max-width: 60rem;
     overflow: auto;
     padding-top: ${TAB_HEIGHT};
-    font-family: ${theme.font?.other?.family};
+    font-family: ${theme.font.other.family};
   `}
 `;
 
@@ -455,7 +455,7 @@ const NavigationButtonsInsideWrapper = styled.div`
     width: 100%;
     padding-top: 1.5rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
-    font-size: ${theme.font?.other?.size.small};
+    font-size: ${theme.font.other.size.small};
     font-weight: bold;
   `}
 `;
@@ -463,7 +463,7 @@ const NavigationButtonsInsideWrapper = styled.div`
 const NavigationButton = styled(Button)`
   ${({ theme }) => css`
     margin-top: 0.5rem;
-    font-size: ${theme.font?.other?.size.medium};
+    font-size: ${theme.font.other.size.medium};
     font-weight: bold;
 
     & svg {

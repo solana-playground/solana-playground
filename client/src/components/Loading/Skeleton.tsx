@@ -7,7 +7,7 @@ interface SkeletonProps {
 
 export const Skeleton = styled.div<SkeletonProps>`
   ${({ theme, height = "1rem", width = "100%" }) => css`
-    background-color: ${theme.skeleton?.color};
+    background-color: ${theme.skeleton.color};
     height: ${height};
 
     width: ${width};
@@ -28,9 +28,9 @@ export const Skeleton = styled.div<SkeletonProps>`
       background-repeat: no-repeat;
       background-image: linear-gradient(
         90deg,
-        ${theme.skeleton?.color},
-        ${theme.skeleton?.highlightColor},
-        ${theme.skeleton?.color}
+        ${theme.skeleton.color},
+        ${theme.skeleton.highlightColor},
+        ${theme.skeleton.color}
       );
       transform: translateX(-100%);
 

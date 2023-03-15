@@ -117,7 +117,7 @@ const CodeMirror = () => {
           ".cm-searchMatch-selected": {
             backgroundColor:
               theme.colors.editor?.searchMatch?.selectedBg ??
-              theme.colors.default.primary + theme.transparency?.medium,
+              theme.colors.default.primary + theme.transparency.medium,
             color: theme.colors?.editor?.searchMatch?.color!,
           },
           // Search popup

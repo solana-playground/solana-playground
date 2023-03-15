@@ -147,7 +147,7 @@ const Main = styled.div`
     background: linear-gradient(
       0deg,
       ${theme.colors?.right?.bg} 75%,
-      ${theme.colors.default.primary + theme.transparency?.low} 100%
+      ${theme.colors.default.primary + theme.transparency.low} 100%
     );
     padding: 1rem;
     cursor: auto;
@@ -162,8 +162,8 @@ const Main = styled.div`
       background: #000;
       opacity: 0;
       z-index: -1;
-      transition: all ${theme.transition?.duration.short}
-        ${theme.transition?.type};
+      transition: all ${theme.transition.duration.short}
+        ${theme.transition.type};
     }
 
     &.${ClassName.DARKEN}::after {

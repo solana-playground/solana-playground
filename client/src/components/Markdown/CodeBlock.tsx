@@ -24,8 +24,8 @@ const Wrapper = styled.div`
 
     & > :first-child {
       opacity: 0;
-      transition: opacity ${theme.transition?.duration.short}
-        ${theme.transition?.type};
+      transition: opacity ${theme.transition.duration.short}
+        ${theme.transition.type};
     }
 
     &:hover > :first-child {

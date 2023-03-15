@@ -3,6 +3,28 @@ import { CSSProperties } from "react";
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
 
+/**
+ * Ready to be used theme. Some of the optional properties will be overridden
+ * with default values.
+ */
+export type PgThemeReady<
+  T extends PgTheme = PgTheme,
+  P extends keyof T =
+    | "components"
+    | "font"
+    | "skeleton"
+    | "borderRadius"
+    | "boxShadow"
+    | "scrollbar"
+    | "transparency"
+    | "transition"
+> = {
+  [K in keyof T]: T[K];
+} & {
+  [K in P]-?: Required<T[K]>;
+};
+
+/** Playground theme */
 export interface PgTheme {
   /** Name of the theme that's displayed in theme settings */
   name: string;
@@ -95,7 +117,7 @@ export interface PgTheme {
     /** Tutorial component */
     tutorial?: BgAndColor;
 
-    /** Tutorials page*/
+    /** Tutorials page */
     tutorials?: BgAndColor & { card?: BgAndColor };
   };
 
@@ -103,10 +125,13 @@ export interface PgTheme {
   components?: {
     /** Button component */
     button?: DefaultOverrides<ButtonKind>;
+
     /** Menu component */
     menu?: DefaultOverrides<MenuKind>;
+
     /** Input component */
     input?: DefaultComponent;
+
     /** Select component */
     select?: {
       control?: DefaultComponent;

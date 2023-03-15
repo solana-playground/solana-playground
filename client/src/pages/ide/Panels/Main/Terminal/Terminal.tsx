@@ -303,16 +303,16 @@ const Wrapper = styled.div`
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar.thumb.color};
     }
   `}
 `;
@@ -355,8 +355,8 @@ const TerminalWrapper = styled.div`
     }
 
     & .xterm-rows {
-      font-family: ${theme.font?.code?.family} !important;
-      font-size: ${theme.font?.code?.size.large} !important;
+      font-family: ${theme.font.code.family} !important;
+      font-size: ${theme.font.code.size.large} !important;
     }
   `}
 `;

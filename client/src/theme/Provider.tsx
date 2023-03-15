@@ -26,7 +26,7 @@ const MutThemeProvider: FC = ({ children }) => {
 
   // Update theme.font when theme or font changes
   useEffect(() => {
-    if (theme && theme.font?.code?.family !== font.family) {
+    if (theme && theme.font.code.family !== font.family) {
       setTheme((t) => ({ ...t, font: { code: font, other: t.font?.other } }));
     }
   }, [theme, font]);
@@ -45,18 +45,18 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     background-color: ${theme.colors.default.bgPrimary};
     color: ${theme.colors.default.textPrimary};
-    font-family: ${theme.font?.code?.family};
-    font-size: ${theme.font?.code?.size.medium};
+    font-family: ${theme.font.code.family};
+    font-size: ${theme.font.code.size.medium};
 
     & svg {
       color: ${theme.colors.default.textSecondary};
-      transition: color ${theme.transition?.duration.short}
-        ${theme.transition?.type};
+      transition: color ${theme.transition.duration.short}
+        ${theme.transition.type};
     }
 
     & ::selection {
       background-color: ${theme.colors.default.primary +
-      theme.transparency?.medium};
+      theme.transparency.medium};
     }
   `}
 `;

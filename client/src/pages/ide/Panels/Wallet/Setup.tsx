@@ -147,7 +147,7 @@ const WalletButtonsWrapper = styled.div`
 const KeypairText = styled.div`
   ${({ theme }) => css`
     margin-top: 1rem;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
   `}
 `;

@@ -80,7 +80,7 @@ const Wrapper = styled.div`
     user-select: none;
     background-color: ${theme.colors.right?.bg};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
   `}
 `;
 
@@ -104,16 +104,16 @@ const TabsWrapper = styled.div`
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent !important;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar.thumb.color};
     }
   `}
 `;

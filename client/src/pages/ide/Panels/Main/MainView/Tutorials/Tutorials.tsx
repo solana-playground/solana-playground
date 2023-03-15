@@ -34,8 +34,8 @@ const Wrapper = styled.div`
     overflow: auto;
     background-color: ${theme.colors.tutorials?.bg};
     color: ${theme.colors.tutorials?.color};
-    font-family: ${theme.font?.other?.family};
-    font-size: ${theme.font?.other?.size.medium};
+    font-family: ${theme.font.other.family};
+    font-size: ${theme.font.other.size.medium};
 
     /* Scrollbar */
     /* Chromium */
@@ -51,16 +51,16 @@ const Wrapper = styled.div`
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar.thumb.color};
     }
   `}
 `;

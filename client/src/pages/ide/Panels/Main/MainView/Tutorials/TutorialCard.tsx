@@ -40,8 +40,8 @@ const GradientWrapper = styled.div`
     height: 24rem;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform ${theme.transition?.duration.medium}
-      ${theme.transition?.type};
+    transition: transform ${theme.transition.duration.medium}
+      ${theme.transition.type};
 
     &::after {
       content: "";
@@ -58,8 +58,8 @@ const GradientWrapper = styled.div`
         ${theme.colors.default.secondary}
       );
       opacity: 0;
-      transition: opacity ${theme.transition?.duration.medium}
-        ${theme.transition?.type};
+      transition: opacity ${theme.transition.duration.medium}
+        ${theme.transition.type};
     }
 
     &:hover {
@@ -84,12 +84,12 @@ const InsideWrapper = styled.div`
     background-color: ${theme.colors.tutorials?.card?.bg};
     color: ${theme.colors.tutorials?.card?.color};
     border: 1px solid
-      ${theme.colors.default.borderColor + theme.transparency?.medium};
+      ${theme.colors.default.borderColor + theme.transparency.medium};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
     overflow: hidden;
-    transition: background-color ${theme.transition?.duration.medium}
-      ${theme.transition?.type};
+    transition: background-color ${theme.transition.duration.medium}
+      ${theme.transition.type};
   `}
 `;
 
@@ -132,7 +132,7 @@ const Category = styled.div`
     background-color: ${theme.colors.tutorials?.bg};
     color: ${theme.colors.default.textSecondary};
     font-weight: bold;
-    font-size: ${theme.font?.other?.size.small};
+    font-size: ${theme.font.other.size.small};
     box-shadow: ${theme.boxShadow};
     border-radius: ${theme.borderRadius};
   `}

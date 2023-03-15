@@ -9,7 +9,7 @@ import {
   DEFAULT_TRANSITION,
   DEFAULT_TRANSPARENCY,
 } from "./default";
-import { PgFont, PgTheme } from "./interface";
+import { PgFont, PgTheme, PgThemeReady } from "./interface";
 
 export class PgThemeManager {
   /** Current theme */
@@ -17,6 +17,12 @@ export class PgThemeManager {
 
   /** Current font */
   private static _font: PgFont;
+
+  /** Theme key in localStorage */
+  private static readonly _THEME_KEY = "theme";
+
+  /** Font key in localStorage */
+  private static readonly _FONT_KEY = "font";
 
   /**
    * Create a theme from `localStorage`.
@@ -59,7 +65,7 @@ export class PgThemeManager {
       ._tutorial()
       ._tutorials();
 
-    return { theme, font };
+    return { theme: theme as PgThemeReady, font };
   }
 
   /** Set new theme */
@@ -188,7 +194,7 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.button.default.fontSize) {
       this._theme.components!.button.default.fontSize =
-        this._theme.font?.code?.size.medium;
+        this._theme.font!.code!.size.medium;
     }
     if (!this._theme.components!.button.default.fontWeight) {
       this._theme.components!.button.default.fontWeight = "normal";
@@ -237,7 +243,7 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.menu.default.fontSize) {
       this._theme.components!.menu.default.fontSize =
-        this._theme.font?.code?.size.small;
+        this._theme.font!.code!.size.small;
     }
 
     return this;
@@ -282,7 +288,7 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.input.fontSize) {
       this._theme.components!.input.fontSize =
-        this._theme.font?.code?.size.medium;
+        this._theme.font!.code!.size.medium;
     }
 
     return this;
@@ -595,7 +601,7 @@ export class PgThemeManager {
     }
     if (!this._theme.colors.editor.tooltip.selectedBg) {
       this._theme.colors.editor.tooltip.selectedBg =
-        this._theme.colors.default.primary + this._theme.transparency?.medium;
+        this._theme.colors.default.primary + this._theme.transparency!.medium;
     }
     if (!this._theme.colors.editor.tooltip.selectedColor) {
       this._theme.colors.editor.tooltip.selectedColor =
@@ -711,10 +717,4 @@ export class PgThemeManager {
 
     return this;
   }
-
-  /** Theme key in localStorage */
-  private static readonly _THEME_KEY = "theme";
-
-  /** Font key in localStorage */
-  private static readonly _FONT_KEY = "font";
 }

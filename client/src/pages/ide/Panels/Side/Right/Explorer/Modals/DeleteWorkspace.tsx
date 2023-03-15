@@ -74,7 +74,7 @@ const Main = styled.span`
 const Desc = styled.span`
   ${({ theme }) => css`
     margin-top: 0.5rem;
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
   `}
 `;

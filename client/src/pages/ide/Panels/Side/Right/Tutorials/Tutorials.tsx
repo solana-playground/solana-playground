@@ -78,7 +78,7 @@ const TutorialGroup: FC<TutorialGroupProps> = ({ name, data }) => (
 );
 
 const TutorialsSectionHeader = styled.div`
-  font-size: ${({ theme }) => theme.font?.code?.size.large};
+  font-size: ${({ theme }) => theme.font.code.size.large};
 
   &:not(:first-child) {
     margin-top: 2rem;
@@ -96,8 +96,8 @@ const TutorialWrapper = styled.div<{ progress: number }>`
     background-color: ${theme.colors.right?.otherBg};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
-    transition: background-color ${theme.transition?.duration.medium}
-      ${theme.transition?.type};
+    transition: background-color ${theme.transition.duration.medium}
+      ${theme.transition.type};
     position: relative;
 
     &::after {
@@ -108,11 +108,11 @@ const TutorialWrapper = styled.div<{ progress: number }>`
       height: 0.125rem;
       background: ${progress === 100
         ? `linear-gradient(90deg, ${theme.colors.state.success.color} 0%, ${
-            theme.colors.state.success.color + theme.transparency?.high
+            theme.colors.state.success.color + theme.transparency.high
           } 100%)`
         : `linear-gradient(90deg, ${theme.colors.default.primary} 0%, ${theme.colors.default.secondary} 100%)`};
-      animation: ${animateWidth(progress)} ${theme.transition?.duration.long}
-        ${theme.transition?.type} forwards;
+      animation: ${animateWidth(progress)} ${theme.transition.duration.long}
+        ${theme.transition.type} forwards;
     }
 
     &:hover {

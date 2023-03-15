@@ -170,7 +170,7 @@ const TopWrapper = styled.div`
 const MainText = styled.div`
   ${({ theme }) => `
     color: ${theme.colors.default.textSecondary};
-    font-size: ${theme.font?.code?.size.large};
+    font-size: ${theme.font.code.size.large};
   `}
 `;
 

@@ -78,7 +78,6 @@ const getButtonStyles = ({
   hoverColor: _hoverColor,
   fontWeight: _fontWeight,
 }: ButtonProps & { theme: DefaultTheme }) => {
-  // Clone the default Button theme to not override the global object
   let button = structuredClone(theme.components?.button?.default!);
 
   // Kind
@@ -98,27 +97,27 @@ const getButtonStyles = ({
     case "primary-transparent": {
       button.bg =
         theme.colors.default.primary +
-        (theme.isDark ? theme.transparency?.medium : theme.transparency?.high);
+        (theme.isDark ? theme.transparency.medium : theme.transparency.high);
       button.hover!.bg =
         theme.colors.default.primary +
-        (theme.isDark ? theme.transparency?.high : theme.transparency?.medium);
+        (theme.isDark ? theme.transparency.high : theme.transparency.medium);
       button.padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary-transparent": {
-      button.bg = theme.colors.default.secondary + theme.transparency?.medium;
+      button.bg = theme.colors.default.secondary + theme.transparency.medium;
       button.hover!.bg =
-        theme.colors.default.secondary + theme.transparency?.high;
+        theme.colors.default.secondary + theme.transparency.high;
       button.padding = "0.5rem 1.25rem";
       break;
     }
     case "error": {
       button.bg =
         theme.colors.state.error.color +
-        (theme.isDark ? theme.transparency?.high : "");
+        (theme.isDark ? theme.transparency.high : "");
       button.hover!.bg =
         theme.colors.state.error.color +
-        (theme.isDark ? "" : theme.transparency?.high);
+        (theme.isDark ? "" : theme.transparency.high);
       button.padding = "0.5rem 1.25rem";
       break;
     }
@@ -201,31 +200,29 @@ const getButtonStyles = ({
   if (_color) {
     switch (_color) {
       case "primary":
-        button.color = theme.colors.default.primary + theme.transparency?.high;
+        button.color = theme.colors.default.primary + theme.transparency.high;
         button.hover!.color = theme.colors.default.primary;
         break;
       case "secondary":
-        button.color =
-          theme.colors.default.secondary + theme.transparency?.high;
+        button.color = theme.colors.default.secondary + theme.transparency.high;
         button.hover!.color = theme.colors.default.secondary;
         break;
       case "success":
         button.color =
-          theme.colors.state.success.color + theme.transparency?.high;
+          theme.colors.state.success.color + theme.transparency.high;
         button.hover!.color = theme.colors.state.success.color;
         break;
       case "error":
-        button.color =
-          theme.colors.state.error.color + theme.transparency?.high;
+        button.color = theme.colors.state.error.color + theme.transparency.high;
         button.hover!.color = theme.colors.state.error.color;
         break;
       case "info":
-        button.color = theme.colors.state.info.color + theme.transparency?.high;
+        button.color = theme.colors.state.info.color + theme.transparency.high;
         button.hover!.color = theme.colors.state.info.color;
         break;
       case "warning":
         button.color =
-          theme.colors.state.warning.color + theme.transparency?.high;
+          theme.colors.state.warning.color + theme.transparency.high;
         button.hover!.color = theme.colors.state.warning.color;
         break;
       case "textPrimary":
@@ -266,6 +263,8 @@ const getButtonStyles = ({
   }
 
   let defaultCss = css`
+    ${fullWidth && "width: 100%"};
+
     position: relative;
     display: flex;
     align-items: center;
@@ -279,8 +278,7 @@ const getButtonStyles = ({
     font-size: ${button.fontSize};
     font-weight: ${button.fontWeight};
     box-shadow: ${button.boxShadow};
-    transition: all ${theme.transition?.duration.medium}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.medium} ${theme.transition.type};
 
     & svg {
       color: ${button.color};

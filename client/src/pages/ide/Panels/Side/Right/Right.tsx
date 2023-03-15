@@ -178,16 +178,16 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
       border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar?.thumb.color};
+      background-color: ${theme.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar?.thumb.hoverColor};
+      background-color: ${theme.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar?.thumb.color};
+      scrollbar-color: ${theme.scrollbar.thumb.color};
     }
   `}
 `;
@@ -200,7 +200,7 @@ const StyledTitle = styled(Title)`
     align-items: center;
     border-bottom: 1px solid ${theme.colors.default.borderColor};
     color: ${theme.colors.default.textSecondary};
-    font-size: ${theme.font?.code?.size.large};
+    font-size: ${theme.font.code.size.large};
   `}
 `;
 

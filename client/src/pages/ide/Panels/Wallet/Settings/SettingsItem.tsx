@@ -11,8 +11,7 @@ export const SettingsItem = styled.div`
     font-weight: bold;
     color: ${theme.colors.default.textSecondary};
     border-left: 2px solid transparent;
-    transition: all ${theme.transition?.duration.short}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.short} ${theme.transition.type};
 
     &:hover {
       background-color: ${theme.colors.state.hover.bg};

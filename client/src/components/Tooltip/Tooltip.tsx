@@ -40,8 +40,8 @@ const StyledTooltip = styled.div<TooltipProps>`
       left: 50%;
       transform: translateX(-50%) translateY(var(--translate-y, 0))
         scale(var(--scale));
-      transition: all ${theme.transition?.duration.medium}
-        ${theme.transition?.type};
+      transition: all ${theme.transition.duration.medium}
+        ${theme.transition.type};
       transform-origin: bottom center;
     }
 
@@ -60,7 +60,7 @@ const StyledTooltip = styled.div<TooltipProps>`
       background: ${bgSecondary
         ? theme.colors.tooltip?.bgSecondary
         : theme.colors.tooltip?.bg};
-      font-size: ${theme.font?.code?.size.small};
+      font-size: ${theme.font.code.size.small};
       box-shadow: ${theme.boxShadow};
     }
 

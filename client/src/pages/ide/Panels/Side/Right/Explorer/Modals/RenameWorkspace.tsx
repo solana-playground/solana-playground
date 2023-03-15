@@ -83,7 +83,7 @@ const Content = styled.div`
 const ErrorText = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.state.error.color};
-    font-size: ${theme.font?.code?.size.small};
+    font-size: ${theme.font.code.size.small};
     margin-bottom: 0.5rem;
     display: flex;
     justify-content: flex-start;

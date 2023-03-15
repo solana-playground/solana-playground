@@ -113,7 +113,7 @@ const Resource: FC<ResourceProps> = ({
 const ResourceWrapper = styled.div`
   ${({ theme }) => css`
     border: 1px solid
-      ${theme.colors.default.borderColor + theme.transparency?.medium};
+      ${theme.colors.default.borderColor + theme.transparency.medium};
     border-radius: 8px;
     background-color: ${theme.colors?.home?.card?.bg};
     width: 15rem;
@@ -126,7 +126,7 @@ const ResourceWrapper = styled.div`
 
 const ResourceTitle = styled.div`
   font-weight: bold;
-  font-size: ${({ theme }) => theme.font?.code?.size.xlarge};
+  font-size: ${({ theme }) => theme.font.code.size.xlarge};
   height: 20%;
   display: flex;
   align-items: center;
@@ -189,10 +189,9 @@ const TutorialWrapper = styled.div`
     margin-bottom: 1rem;
     background-color: ${theme.colors?.home?.card?.bg};
     border: 1px solid
-      ${theme.colors.default.borderColor + theme.transparency?.medium};
+      ${theme.colors.default.borderColor + theme.transparency.medium};
     border-radius: ${theme.borderRadius};
-    transition: all ${theme.transition?.duration.medium}
-      ${theme.transition?.type};
+    transition: all ${theme.transition.duration.medium} ${theme.transition.type};
 
     &:hover {
       background-color: ${theme.colors.state.hover.bg};
