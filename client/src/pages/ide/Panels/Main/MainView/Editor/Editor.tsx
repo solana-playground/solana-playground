@@ -14,18 +14,15 @@ const Editor = () => {
   const [explorer] = useAtom(explorerAtom);
   const [explorerChanged] = useAtom(refreshExplorerAtom);
 
-  const [showHome, setShowHome] = useState(false);
-  const [showMonaco, setShowMonaco] = useState(false);
+  const [showHome, setShowHome] = useState<boolean>();
+  const [showMonaco, setShowMonaco] = useState<boolean>();
 
   useEffect(() => {
     if (explorer) {
-      if (!explorer.getTabs().length) {
-        setShowHome(true);
-      } else {
-        setShowHome(false);
-        const lang = explorer.getCurrentFileLanguage();
-        setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
-      }
+      setShowHome(!explorer.getTabs().length);
+
+      const lang = explorer.getCurrentFileLanguage();
+      setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -33,7 +30,12 @@ const Editor = () => {
 
   // Save explorer metadata
   useEffect(() => {
-    if (showHome || !explorer) return;
+    if (!explorer) return;
+
+    if (showHome) {
+      explorer.saveMeta().catch();
+      return;
+    }
 
     // Save metadata to IndexedDB if we haven't rendered in 5s
     const saveMetadataIntervalId = PgCommon.setIntervalOnFocus(() => {
@@ -44,6 +46,10 @@ const Editor = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explorer, explorerChanged, showHome]);
+
+  if (showHome === undefined || showMonaco === undefined) {
+    return <MainViewLoading />;
+  }
 
   return (
     <Suspense fallback={<MainViewLoading />}>
