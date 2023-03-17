@@ -134,11 +134,13 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
     kp: signerKp,
   });
 
-  const inputName = useMemo(() => {
-    if (isArg) return functionName + Identifiers.ARGS + account.name;
-
-    return functionName + Identifiers.ACCS + account.name;
-  }, [functionName, account.name, isArg]);
+  const inputName = useMemo(
+    () =>
+      functionName +
+      (isArg ? Identifiers.ARGS : Identifiers.ACCS) +
+      account.name,
+    [functionName, account.name, isArg]
+  );
 
   return (
     <Wrapper>
@@ -264,15 +266,19 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
     <ShowGenWrapper>
       <ShowGenClose close={closeSeed} />
       <ShowGenTitle>Generate from seed</ShowGenTitle>
+
       {seeds.map((seed, i) => (
         <SeedInput key={i} index={i} seed={seed} setSeeds={setSeeds} />
       ))}
+
+      <AddSeed setSeeds={setSeeds} />
+
       <ShowGenInputWrapper>
         <InputLabel label="Program Id" type="publicKey" />
         <Input value={programId} onChange={handleProgramId} />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
-        <Button onClick={handleGen} kind="primary-outline">
+        <Button onClick={handleGen} kind="primary-transparent" fullWidth>
           Generate
         </Button>
       </ShowGenButtonWrapper>
@@ -287,7 +293,6 @@ interface SeedInputProps {
 }
 
 const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
-  const [showAddSeed, setShowAddSeed] = useState(false);
   const [error, setError] = useState(false);
 
   const handleSeed = useCallback(
@@ -309,6 +314,41 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
     },
     [index, seed.type, setSeeds]
   );
+
+  const removeSeed = useCallback(() => {
+    setSeeds((seeds) => [...seeds.filter((_s, i) => i !== index)]);
+  }, [index, setSeeds]);
+
+  const seedInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus on mount
+  useEffect(() => {
+    seedInputRef.current?.focus();
+  }, []);
+
+  return (
+    <ShowGenInputWrapper>
+      <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
+      <SeedInputWrapper>
+        <Input
+          ref={seedInputRef}
+          value={seed.value}
+          onChange={handleSeed}
+          className={error ? ClassName.ERROR : ""}
+        />
+
+        <Tooltip text="Remove seed">
+          <Button onClick={removeSeed} kind="icon">
+            <MinusFilled />
+          </Button>
+        </Tooltip>
+      </SeedInputWrapper>
+    </ShowGenInputWrapper>
+  );
+};
+
+const AddSeed: FC<Pick<SeedInputProps, "setSeeds">> = ({ setSeeds }) => {
+  const [showAddSeed, setShowAddSeed] = useState(false);
 
   const toggleAddSeed = useCallback(() => {
     setShowAddSeed((s) => !s);
@@ -358,17 +398,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
     addSeed("u128");
   }, [addSeed]);
 
-  const removeSeed = useCallback(() => {
-    setSeeds((seeds) => [...seeds.filter((_s, i) => i !== index)]);
-  }, [index, setSeeds]);
-
-  const seedInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  // Focus on mount
-  useEffect(() => {
-    seedInputRef.current?.focus();
-  }, []);
 
   // Close showAddSeed on outside click
   useEffect(() => {
@@ -381,46 +411,27 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAddSeed, closeAddSeed]);
 
-  const isFirst = index === 0;
-
   return (
     <ShowGenInputWrapper>
-      <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
-      <SeedInputWrapper>
-        <Input
-          ref={seedInputRef}
-          value={seed.value}
-          onChange={handleSeed}
-          className={error ? ClassName.ERROR : ""}
-        />
-        {isFirst ? (
-          <AddSeedWrapper>
-            <Tooltip text="Add seed">
-              <Button onClick={toggleAddSeed} kind="icon">
-                <PlusFilled />
-              </Button>
-            </Tooltip>
-            {showAddSeed && (
-              <AddSeedMenu ref={menuRef}>
-                <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
-                <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
-                <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
-                <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
-                <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
-                <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
-                <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
-                <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
-              </AddSeedMenu>
-            )}
-          </AddSeedWrapper>
-        ) : (
-          <Tooltip text="Remove seed">
-            <Button onClick={removeSeed} kind="icon">
-              <MinusFilled />
-            </Button>
-          </Tooltip>
+      <AddSeedWrapper>
+        <Tooltip text="Add seed">
+          <Button onClick={toggleAddSeed} kind="icon">
+            <PlusFilled />
+          </Button>
+        </Tooltip>
+        {showAddSeed && (
+          <AddSeedMenu ref={menuRef}>
+            <AddSeedItem onClick={addSeedString}>String</AddSeedItem>
+            <AddSeedItem onClick={addSeedPk}>Pubkey</AddSeedItem>
+            <AddSeedItem onClick={addSeedBytes}>Bytes</AddSeedItem>
+            <AddSeedItem onClick={addSeedU8}>u8</AddSeedItem>
+            <AddSeedItem onClick={addSeedU16}>u16</AddSeedItem>
+            <AddSeedItem onClick={addSeedU32}>u32</AddSeedItem>
+            <AddSeedItem onClick={addSeedU64}>u64</AddSeedItem>
+            <AddSeedItem onClick={addSeedU128}>u128</AddSeedItem>
+          </AddSeedMenu>
         )}
-      </SeedInputWrapper>
+      </AddSeedWrapper>
     </ShowGenInputWrapper>
   );
 };
@@ -435,14 +446,18 @@ const SeedInputWrapper = styled.div`
 
 const AddSeedWrapper = styled.div`
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const AddSeedMenu = styled.div`
   ${({ theme }) => css`
     position: absolute;
+    top: 100%;
     z-index: 2;
-    background-color: ${theme.colors.tooltip?.bg ??
-    theme.colors.default.bgPrimary};
+    background-color: ${theme.colors.tooltip?.bg};
+    box-shadow: ${theme.boxShadow};
     border-radius: ${theme.borderRadius};
     font-size: ${theme.font.code.size.small};
   `}
@@ -558,7 +573,7 @@ const ShowAta: FC<ShowAtaProps> = ({
         />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
-        <Button onClick={handleGen} kind="primary-outline">
+        <Button onClick={handleGen} kind="primary-transparent" fullWidth>
           Generate
         </Button>
       </ShowGenButtonWrapper>
