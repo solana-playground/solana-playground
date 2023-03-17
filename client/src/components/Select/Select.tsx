@@ -9,7 +9,7 @@ const Select = <
   props: Props<Option, IsMulti, Group>
 ) => {
   const theme = useTheme();
-  const select = theme.components!.select!;
+  const select = theme.components.select;
 
   return (
     // @ts-ignore

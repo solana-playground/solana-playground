@@ -5,6 +5,7 @@ import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import DropdownMenu, { DropdownMenuProps } from "./DropdownMenu";
 import { MenuItemProps } from "./MenuItem";
 import { ClassName } from "../../constants";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 export type MenuKind = MenuProps["kind"];
 
@@ -56,41 +57,16 @@ const getStyles = ({
   fullWidth,
   theme,
 }: MenuWrapperProps & Pick<MenuProps, "kind"> & { theme: DefaultTheme }) => {
-  let menu = theme.components?.menu?.default;
-
-  // Check for overrides
-  if (theme.components?.menu?.overrides?.[kind]) {
-    const overrides = theme.components.menu.overrides[kind];
-    menu = { ...menu, ...overrides };
-  }
+  const menu = PgThemeManager.overrideDefaults(
+    theme.components.menu.default!,
+    theme.components.menu.overrides?.[kind]
+  );
 
   return css`
   & .${ClassName.MENU_WRAPPER} {
+    ${PgThemeManager.convertToCSS(menu)};
+
     ${fullWidth && "width: 100%"};
-
-    background: ${menu?.bg};
-    color: ${menu?.color};
-    border-color: ${menu?.borderColor};
-    border-radius: ${menu?.borderRadius};
-    padding: ${menu?.padding};
-    box-shadow: ${menu?.boxShadow};
-    outline: ${menu?.outline};
-    font-size: ${menu?.fontSize};
-    font-weight: ${menu?.fontWeight};
-
-    &:hover {
-      ${menu?.hover?.bg && `background: ${menu.hover.bg}`};
-      ${menu?.hover?.color && `color: ${menu.hover.color}`};
-      ${menu?.hover?.borderColor && `border-color: ${menu.hover.borderColor}`};
-      ${
-        menu?.hover?.borderRadius && `border-radius: ${menu.hover.borderRadius}`
-      };
-      ${menu?.hover?.padding && `padding: ${menu.hover.padding}`};
-      ${menu?.hover?.boxShadow && `box-shadow: ${menu.hover.boxShadow}`};
-      ${menu?.hover?.outline && `outline: ${menu.hover.outline}`};
-      ${menu?.hover?.fontSize && `font-size: ${menu.hover.fontSize}`};
-      ${menu?.hover?.fontWeight && `font-weight: ${menu.hover.fontWeight}`};
-    }
 `;
 };
 

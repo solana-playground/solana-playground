@@ -2,6 +2,7 @@ import { ComponentPropsWithoutRef, FocusEvent, forwardRef } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
 import { ClassName } from "../../constants";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 interface InputProps extends ComponentPropsWithoutRef<"input"> {
   fullWidth?: boolean;
@@ -43,39 +44,12 @@ const getStyles = ({
   fullWidth,
   theme,
 }: InputProps & { theme: DefaultTheme }) => {
-  const input = theme.components?.input;
+  const input = theme.components.input;
 
   return css`
+    ${PgThemeManager.convertToCSS(input)};
+
     ${fullWidth && "width: 100%"};
-
-    background: ${input?.bg};
-    color: ${input?.color};
-    border: 1px solid ${input?.borderColor};
-    border-radius: ${input?.borderRadius};
-    padding: ${input?.padding};
-    box-shadow: ${input?.boxShadow};
-    outline: ${input?.outline};
-    font-size: ${input?.fontSize};
-    font-weight: ${input?.fontWeight};
-
-    &:hover {
-      ${input?.hover?.bg && `background: ${input.hover.bg}`};
-      ${input?.hover?.color && `color: ${input.hover.color}`};
-      ${input?.hover?.borderColor &&
-      `border-color: ${input.hover.borderColor}`};
-      ${input?.hover?.borderRadius &&
-      `border-radius: ${input.hover.borderRadius}`};
-      ${input?.hover?.padding && `padding: ${input.hover.padding}`};
-      ${input?.hover?.boxShadow && `box-shadow: ${input.hover.boxShadow}`};
-      ${input?.hover?.outline && `outline: ${input.hover.outline}`};
-      ${input?.hover?.fontSize && `font-size: ${input.hover.fontSize}`};
-      ${input?.hover?.fontWeight && `font-weight: ${input.hover.fontWeight}`};
-    }
-
-    &:focus,
-    &:focus-visible {
-      outline: ${theme.components?.input?.focus?.outline};
-    }
 
     &:disabled {
       background-color: ${theme.colors.state.disabled.bg};

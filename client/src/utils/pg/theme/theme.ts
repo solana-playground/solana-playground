@@ -1,3 +1,5 @@
+import { CSSProperties } from "react";
+
 import { EventName } from "../../../constants";
 import { PgCommon } from "../common";
 import {
@@ -9,7 +11,7 @@ import {
   DEFAULT_TRANSITION,
   DEFAULT_TRANSPARENCY,
 } from "./default";
-import { PgFont, PgTheme, PgThemeReady } from "./interface";
+import { DefaultComponent, PgFont, PgTheme, PgThemeReady } from "./interface";
 
 export class PgThemeManager {
   /** Current theme */
@@ -80,6 +82,86 @@ export class PgThemeManager {
   static setFont(newFont: PgFont) {
     localStorage.setItem(this._FONT_KEY, newFont.family);
     PgCommon.createAndDispatchCustomEvent(EventName.THEME_FONT_SET, newFont);
+  }
+
+  /**
+   * Convert the component object styles into CSS styles.
+   *
+   * @param component Component to convert to CSS
+   * @returns the converted CSS
+   */
+  static convertToCSS(component: DefaultComponent): string {
+    return Object.keys(component).reduce((acc, cur) => {
+      const key = cur as keyof DefaultComponent;
+      let prop = PgCommon.toKebabFromCamel(key) as keyof CSSProperties;
+      switch (key) {
+        case "bg":
+          prop = "background";
+          break;
+
+        case "hover":
+        case "active":
+        case "focus":
+        case "focusWithin":
+          return `${acc}&:${prop}{${this.convertToCSS(
+            component[key] as DefaultComponent
+          )}}`;
+
+        case "before":
+        case "after":
+          return `${acc}&::${prop}{${this.convertToCSS(
+            component[key] as DefaultComponent
+          )}}`;
+      }
+
+      return `${acc}${prop}:${component[key]};`;
+    }, "");
+  }
+
+  /**
+   * Override default component with the given overrides
+   *
+   * @param component default component to override
+   * @param overrides override properties
+   * @returns the overridden component
+   */
+  static overrideDefaults(
+    component: DefaultComponent,
+    overrides?: DefaultComponent
+  ) {
+    if (!overrides) {
+      return component;
+    }
+
+    // Destructure in order to not override the nested objects
+    const { hover, active, focus, focusWithin, before, after, ...rest } =
+      overrides;
+
+    component = {
+      ...component,
+      ...rest,
+    };
+
+    if (hover) {
+      component.hover = { ...component.hover, ...hover };
+    }
+    if (active) {
+      component.active = { ...component.active, ...active };
+    }
+    if (focus) {
+      component.focus = { ...component.focus, ...focus };
+    }
+    if (focusWithin) {
+      component.focusWithin = { ...component.focusWithin, ...focusWithin };
+    }
+    if (before) {
+      component.before = { ...component.before, ...before };
+    }
+    if (after) {
+      component.after = { ...component.after, ...after };
+    }
+
+    return component;
   }
 
   /** Set default transparency */
@@ -272,14 +354,6 @@ export class PgThemeManager {
     if (!this._theme.components!.input.padding) {
       this._theme.components!.input.padding = "0.25rem 0.5rem";
     }
-    if (!this._theme.components!.input.focus) {
-      this._theme.components!.input.focus = {};
-    }
-    if (!this._theme.components!.input.focus.outline) {
-      this._theme.components!.input.focus.outline = `1px solid ${
-        this._theme.colors.default.primary + this._theme.transparency!.medium
-      }`;
-    }
     if (!this._theme.components!.input.boxShadow) {
       this._theme.components!.input.boxShadow = "none";
     }
@@ -289,6 +363,24 @@ export class PgThemeManager {
     if (!this._theme.components!.input.fontSize) {
       this._theme.components!.input.fontSize =
         this._theme.font!.code!.size.medium;
+    }
+
+    if (!this._theme.components!.input.focus) {
+      this._theme.components!.input.focus = {};
+    }
+    if (!this._theme.components!.input.focus.outline) {
+      this._theme.components!.input.focus.outline = `1px solid ${
+        this._theme.colors.default.primary + this._theme.transparency!.medium
+      }`;
+    }
+
+    if (!this._theme.components!.input.focusWithin) {
+      this._theme.components!.input.focusWithin = {};
+    }
+    if (!this._theme.components!.input.focusWithin.outline) {
+      this._theme.components!.input.focusWithin.outline = `1px solid ${
+        this._theme.colors.default.primary + this._theme.transparency!.medium
+      }`;
     }
 
     return this;

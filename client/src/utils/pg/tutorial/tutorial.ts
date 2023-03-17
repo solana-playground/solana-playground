@@ -30,7 +30,7 @@ export class PgTutorial {
   static getTutorialFromPathname(pathname: string) {
     return TUTORIALS.find(
       (t) =>
-        PgCommon.appendSlash(PgCommon.toKebabCase(t.name)) ===
+        PgCommon.appendSlash(PgCommon.toKebabFromTitle(t.name)) ===
         PgCommon.appendSlash(pathname.split(`${Route.TUTORIALS}/`)[1])
     );
   }
@@ -59,7 +59,7 @@ export class PgTutorial {
 
   static async open(tutorialName: string) {
     const { pathname } = await PgRouter.getLocation();
-    const tutorialPath = `${Route.TUTORIALS}/${PgCommon.toKebabCase(
+    const tutorialPath = `${Route.TUTORIALS}/${PgCommon.toKebabFromTitle(
       tutorialName
     )}`;
     if (PgRouter.comparePaths(pathname, tutorialPath)) {

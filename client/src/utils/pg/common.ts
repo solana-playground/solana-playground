@@ -309,13 +309,30 @@ export class PgCommon {
   }
 
   /**
-   * @returns kebab-case converted version of the string input(works with Title Case)
+   * @returns kebab-case converted version of the Title Case string
    */
-  static toKebabCase(str: string) {
+  static toKebabFromTitle(str: string) {
     return str
       .split(" ")
       .map((w) => w.toLowerCase())
       .join("-");
+  }
+
+  /**
+   * @returns kebab-case converted version of the camelCase string
+   */
+  static toKebabFromCamel(str: string) {
+    const kebab = [];
+
+    for (const letter of str) {
+      if (letter === letter.toUpperCase()) {
+        kebab.push("-" + letter.toLowerCase());
+      } else {
+        kebab.push(letter);
+      }
+    }
+
+    return kebab.reduce((acc, letter) => acc + letter);
   }
 
   /**

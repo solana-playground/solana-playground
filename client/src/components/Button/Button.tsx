@@ -2,6 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
+import { DefaultComponent, PgThemeManager } from "../../utils/pg/theme";
 
 export type ButtonKind =
   | "primary"
@@ -78,7 +79,10 @@ const getButtonStyles = ({
   hoverColor: _hoverColor,
   fontWeight: _fontWeight,
 }: ButtonProps & { theme: DefaultTheme }) => {
-  let button = structuredClone(theme.components?.button?.default!);
+  // Clone the default Button theme to not override the global object
+  let button: DefaultComponent = structuredClone(
+    theme.components.button.default!
+  );
 
   // Kind
   switch (kind) {
@@ -159,10 +163,10 @@ const getButtonStyles = ({
 
   // Button kind specific overrides
   // NOTE: Overrides must come after setting the `ButtonKind` defaults
-  if (theme.components?.button?.overrides?.[kind]) {
-    const overrides = theme.components.button.overrides[kind];
-    button = { ...button, ...overrides };
-  }
+  button = PgThemeManager.overrideDefaults(
+    button,
+    theme.components.button.overrides?.[kind]
+  );
 
   // NOTE: Props must come after the defaults and overrides
 
@@ -263,42 +267,20 @@ const getButtonStyles = ({
   }
 
   let defaultCss = css`
-    ${fullWidth && "width: 100%"};
-
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background: ${button.bg};
-    color: ${button.color};
-    border: 1px solid ${button.borderColor};
-    border-radius: ${button.borderRadius};
-    padding: ${button.padding};
-    font-size: ${button.fontSize};
-    font-weight: ${button.fontWeight};
-    box-shadow: ${button.boxShadow};
     transition: all ${theme.transition.duration.medium} ${theme.transition.type};
+    ${PgThemeManager.convertToCSS(button)};
 
     & svg {
       color: ${button.color};
     }
 
-    &:hover {
-      ${button.hover?.bg && `background: ${button.hover.bg}`};
+    &:hover svg {
       ${button.hover?.color && `color: ${button.hover.color}`};
-      ${button.hover?.borderColor &&
-      `border: 1px solid ${button.hover.borderColor}`};
-      ${button.hover?.borderRadius &&
-      `border-radius: ${button.hover.borderRadius}`};
-      ${button.hover?.padding && `padding: ${button.hover?.padding}`};
-      ${button.hover?.fontSize && `font-size: ${button.hover.fontSize}`};
-      ${button.hover?.fontWeight && `font-weight: ${button.hover.fontWeight}`};
-      ${button.hover?.boxShadow && `box-shadow: ${button.hover.boxShadow}`};
-
-      & svg {
-        ${button.hover?.color && `color: ${button.hover.color}`};
-      }
     }
 
     &:disabled {

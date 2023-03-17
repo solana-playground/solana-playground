@@ -310,7 +310,7 @@ export type Skeleton = {
   highlightColor: string;
 };
 
-type DefaultComponent = {
+export type DefaultComponent = {
   bg?: CSSProperties["background"];
   color?: CSSProperties["color"];
   borderColor?: CSSProperties["borderColor"];
