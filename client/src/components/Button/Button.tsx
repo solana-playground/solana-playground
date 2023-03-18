@@ -87,9 +87,9 @@ const getButtonStyles = ({
   // Kind
   switch (kind) {
     case "primary": {
+      button.padding = "0.5rem 1.25rem";
       button.bg = theme.colors.default.primary;
       button.hover!.bg = theme.colors.default.primary + "E0";
-      button.padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary": {
@@ -99,30 +99,30 @@ const getButtonStyles = ({
       break;
     }
     case "primary-transparent": {
+      button.padding = "0.5rem 1.25rem";
       button.bg =
         theme.colors.default.primary +
         (theme.isDark ? theme.transparency.medium : theme.transparency.high);
       button.hover!.bg =
         theme.colors.default.primary +
         (theme.isDark ? theme.transparency.high : theme.transparency.medium);
-      button.padding = "0.5rem 1.25rem";
       break;
     }
     case "secondary-transparent": {
+      button.padding = "0.5rem 1.25rem";
       button.bg = theme.colors.default.secondary + theme.transparency.medium;
       button.hover!.bg =
         theme.colors.default.secondary + theme.transparency.high;
-      button.padding = "0.5rem 1.25rem";
       break;
     }
     case "error": {
+      button.padding = "0.5rem 1.25rem";
       button.bg =
         theme.colors.state.error.color +
         (theme.isDark ? theme.transparency.high : "");
       button.hover!.bg =
         theme.colors.state.error.color +
         (theme.isDark ? "" : theme.transparency.high);
-      button.padding = "0.5rem 1.25rem";
       break;
     }
     case "primary-outline": {
@@ -142,8 +142,8 @@ const getButtonStyles = ({
       break;
     }
     case "icon": {
-      button.color = theme.colors.default.textSecondary;
       button.padding = "0.25rem";
+      button.color = theme.colors.default.textSecondary;
       button.hover!.bg = theme.colors.state.hover.bg;
       button.hover!.color = theme.colors.default.textPrimary;
       break;
@@ -154,8 +154,8 @@ const getButtonStyles = ({
       break;
     }
     case "no-border": {
-      button.color = theme.colors.default.textSecondary;
       button.padding = "0";
+      button.color = theme.colors.default.textSecondary;
       button.hover!.color = theme.colors.default.textPrimary;
       break;
     }
@@ -273,6 +273,7 @@ const getButtonStyles = ({
     justify-content: center;
     cursor: pointer;
     transition: all ${theme.transition.duration.medium} ${theme.transition.type};
+    border: 1px solid ${button.borderColor};
     ${PgThemeManager.convertToCSS(button)};
 
     & svg {

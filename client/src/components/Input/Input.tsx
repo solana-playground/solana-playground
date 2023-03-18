@@ -47,6 +47,7 @@ const getStyles = ({
   const input = theme.components.input;
 
   return css`
+    border: 1px solid ${input.borderColor};
     ${PgThemeManager.convertToCSS(input)};
 
     ${fullWidth && "width: 100%"};

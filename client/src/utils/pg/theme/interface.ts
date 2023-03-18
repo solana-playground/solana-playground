@@ -313,6 +313,7 @@ export type Skeleton = {
 export type DefaultComponent = {
   bg?: CSSProperties["background"];
   color?: CSSProperties["color"];
+  border?: CSSProperties["border"];
   borderColor?: CSSProperties["borderColor"];
   borderRadius?: CSSProperties["borderRadius"];
   padding?: CSSProperties["padding"];

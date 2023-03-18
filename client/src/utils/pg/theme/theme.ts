@@ -265,15 +265,6 @@ export class PgThemeManager {
       this._theme.components!.button.default.borderRadius =
         this._theme.borderRadius;
     }
-    if (!this._theme.components!.button.default.padding) {
-      this._theme.components!.button.default.padding = "";
-    }
-    if (!this._theme.components!.button.default.boxShadow) {
-      this._theme.components!.button.default.boxShadow = "none";
-    }
-    if (!this._theme.components!.button.default.outline) {
-      this._theme.components!.button.default.outline = "none";
-    }
     if (!this._theme.components!.button.default.fontSize) {
       this._theme.components!.button.default.fontSize =
         this._theme.font!.code!.size.medium;
@@ -303,9 +294,6 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.menu.default.color) {
       this._theme.components!.menu.default.color = "inherit";
-    }
-    if (!this._theme.components!.menu.default.borderColor) {
-      this._theme.components!.menu.default.borderColor = "transparent";
     }
     if (!this._theme.components!.menu.default.borderRadius) {
       this._theme.components!.menu.default.borderRadius =
