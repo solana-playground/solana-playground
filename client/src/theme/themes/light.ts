@@ -133,11 +133,12 @@ export const LIGHT: PgTheme = {
         },
       },
     },
+    skeleton: {
+      bg: "#e5e4e6",
+      highlightColor: BG_LIGHT,
+    },
   },
-  skeleton: {
-    color: "#e5e4e6",
-    highlightColor: BG_LIGHT,
-  },
+
   highlight: {
     typeName: { color: TYPE_BLUE, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },

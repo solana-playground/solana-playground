@@ -1,42 +1,47 @@
 import styled, { css, keyframes } from "styled-components";
 
+import { PgThemeManager } from "../../utils/pg/theme";
+
 interface SkeletonProps {
   height?: string;
   width?: string;
 }
 
 export const Skeleton = styled.div<SkeletonProps>`
-  ${({ theme, height = "1rem", width = "100%" }) => css`
-    background-color: ${theme.skeleton.color};
-    height: ${height};
+  ${({ theme, height = "1rem", width = "100%" }) => {
+    const skeleton = theme.components.skeleton;
 
-    width: ${width};
-    border-radius: ${theme.borderRadius};
+    return css`
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
 
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
+      height: ${height};
+      width: ${width};
 
-    &::after {
-      content: "";
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 100%;
-      background-repeat: no-repeat;
-      background-image: linear-gradient(
-        90deg,
-        ${theme.skeleton.color},
-        ${theme.skeleton.highlightColor},
-        ${theme.skeleton.color}
-      );
-      transform: translateX(-100%);
+      &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-image: linear-gradient(
+          90deg,
+          ${skeleton.bg},
+          ${skeleton.highlightColor},
+          ${skeleton.bg}
+        );
+        transform: translateX(-100%);
 
-      animation: ${skeletonAnimation} 1.25s ease-in-out infinite;
-    }
-  `}
+        animation: ${skeletonAnimation} 1.25s ease-in-out infinite;
+      }
+
+      ${PgThemeManager.convertToCSS(skeleton)};
+    `;
+  }}
 `;
 
 const skeletonAnimation = keyframes`

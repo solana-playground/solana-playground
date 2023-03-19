@@ -5,7 +5,7 @@ import { Skeleton } from "../../../../../../components/Loading";
 const TestSkeleton = () => (
   <Wrapper>
     <ProgramNameWrapper>
-      <Skeleton width="4.5rem" />
+      <Skeleton width="4rem" />
       <Skeleton width="6rem" />
     </ProgramNameWrapper>
     <Heading>
@@ -15,10 +15,10 @@ const TestSkeleton = () => (
       <Skeleton width="7.5rem" />
     </FullWidthBg>
     <Heading>
-      <Skeleton width="5rem" />
+      <Skeleton width="4.5rem" />
     </Heading>
     <FullWidthBg>
-      <Skeleton width="9rem" />
+      <Skeleton width="8rem" />
     </FullWidthBg>
   </Wrapper>
 );
@@ -30,7 +30,7 @@ const ProgramNameWrapper = styled.div`
   padding: 1rem 1rem 0 1rem;
 
   & > :first-child {
-    margin-right: 1rem;
+    margin-right: 0.75rem;
   }
 `;
 
@@ -40,9 +40,9 @@ const Heading = styled.div`
 
 const FullWidthBg = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.bgPrimary};
     padding: 1rem;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
+    background: ${theme.colors.default.bgPrimary};
     border-top: 1px solid ${theme.colors.default.borderColor};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
   `}

@@ -81,9 +81,11 @@ export const DRACULA: PgTheme = {
       color: TEXT_PRIMARY,
     },
   },
-  skeleton: {
-    color: SELECTION,
-    highlightColor: HOVER,
+  components: {
+    skeleton: {
+      bg: SELECTION,
+      highlightColor: HOVER,
+    },
   },
   highlight: {
     typeName: { color: CYAN, fontStyle: "italic" },

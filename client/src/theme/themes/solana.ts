@@ -112,10 +112,10 @@ export const SOLANA: PgTheme = {
         },
       },
     },
-  },
-  skeleton: {
-    color: SELECTION,
-    highlightColor: HOVER_BG,
+    skeleton: {
+      bg: SELECTION,
+      highlightColor: HOVER_BG,
+    },
   },
   highlight: {
     typeName: { color: BLUE, fontStyle: "italic" },

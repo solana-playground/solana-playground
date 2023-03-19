@@ -7,7 +7,6 @@ import {
   DEFAULT_BOX_SHADOW,
   DEFAULT_FONT_OTHER,
   DEFAULT_SCROLLBAR,
-  DEFAULT_SKELETON,
   DEFAULT_TRANSITION,
   DEFAULT_TRANSPARENCY,
 } from "./default";
@@ -57,8 +56,8 @@ export class PgThemeManager {
       ._menu()
       ._input()
       ._select()
-      ._markdown()
       ._skeleton()
+      ._markdown()
       ._tooltip()
       ._sidebarRight()
       ._editor()
@@ -553,9 +552,20 @@ export class PgThemeManager {
 
   /** Set default skeleton component */
   private static _skeleton() {
-    if (!this._theme.skeleton) {
-      this._theme.skeleton = DEFAULT_SKELETON;
+    if (!this._theme.components!.skeleton) {
+      this._theme.components!.skeleton = {};
     }
+
+    if (!this._theme.components!.skeleton!.bg) {
+      this._theme.components!.skeleton.bg = "#44475A";
+    }
+    if (!this._theme.components!.skeleton!.highlightColor) {
+      this._theme.components!.skeleton.highlightColor = "#343746";
+    }
+    if (!this._theme.components!.skeleton!.borderRadius) {
+      this._theme.components!.skeleton.borderRadius = this._theme.borderRadius;
+    }
+
     return this;
   }
 

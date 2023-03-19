@@ -74,9 +74,11 @@ export const PLAYGROUND: PgTheme = {
       },
     },
   },
-  skeleton: {
-    color: BG_LIGHT,
-    highlightColor: BG_DEFAULT,
+  components: {
+    skeleton: {
+      bg: BG_LIGHT,
+      highlightColor: BG_DEFAULT,
+    },
   },
   highlight: {
     typeName: { color: CYAN, fontStyle: "italic" },

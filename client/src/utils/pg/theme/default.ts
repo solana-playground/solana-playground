@@ -1,10 +1,4 @@
-import {
-  PgFont,
-  Scrollbar,
-  Skeleton,
-  Transition,
-  Transparency,
-} from "./interface";
+import { PgFont, Scrollbar, Transition, Transparency } from "./interface";
 
 export const DEFAULT_BOX_SHADOW = "rgb(0 0 0 / 25%) -1px 3px 4px";
 
@@ -29,11 +23,6 @@ export const DEFAULT_SCROLLBAR: { [K in "dark" | "light"]: Scrollbar } = {
       editor: "0.75rem",
     },
   },
-};
-
-export const DEFAULT_SKELETON: Skeleton = {
-  color: "#44475A",
-  highlightColor: "#343746",
 };
 
 export const DEFAULT_TRANSITION: Transition = {

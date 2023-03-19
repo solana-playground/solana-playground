@@ -12,7 +12,6 @@ export type PgThemeReady<
   P extends keyof T =
     | "components"
     | "font"
-    | "skeleton"
     | "borderRadius"
     | "boxShadow"
     | "scrollbar"
@@ -143,6 +142,11 @@ export interface PgTheme {
       dropdownIndicator?: DefaultComponent;
       indicatorSeparator?: DefaultComponent;
     };
+
+    /** Skeleton component */
+    skeleton?: DefaultComponent & {
+      highlightColor?: string;
+    };
   };
 
   /** Default border radius */
@@ -161,9 +165,6 @@ export interface PgTheme {
 
   /** Scrollbar default */
   scrollbar?: Scrollbar;
-
-  /** Skeleton component */
-  skeleton?: Skeleton;
 
   /** Default transparency values as hex string(00-ff) */
   transparency?: Transparency;
@@ -303,11 +304,6 @@ export type Transparency = {
   low: string;
   medium: string;
   high: string;
-};
-
-export type Skeleton = {
-  color: string;
-  highlightColor: string;
 };
 
 export type DefaultComponent = {
