@@ -18,7 +18,6 @@ import {
   Framework as FrameworkType,
   FRAMEWORKS,
 } from "../../../../../../../utils/pg";
-import { ClassName } from "../../../../../../../constants";
 
 export const NewWorkspace = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -73,13 +72,12 @@ export const NewWorkspace = () => {
       <Content>
         <WorkspaceNameWrapper>
           <MainText>Project name</MainText>
-          {error && <ErrorText>{error}</ErrorText>}
           <Input
             ref={inputRef}
             onChange={handleChange}
             value={name}
+            error={error}
             placeholder="my first project..."
-            className={error ? ClassName.ERROR : ""}
           />
         </WorkspaceNameWrapper>
         <FrameworkSectionWrapper>
@@ -117,14 +115,6 @@ const MainText = styled.div`
   margin: 1rem 0 0.5rem 0;
   font-weight: bold;
   font-size: ${({ theme }) => theme.font.code.size.large};
-`;
-
-const ErrorText = styled.div`
-  ${({ theme }) => css`
-    color: ${theme.colors.state.error.color};
-    font-size: ${theme.font.code.size.small};
-    margin-bottom: 0.5rem;
-  `}
 `;
 
 const FrameworkSectionWrapper = styled.div`

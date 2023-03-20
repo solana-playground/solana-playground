@@ -20,7 +20,6 @@ import InputLabel from "./InputLabel";
 import Tooltip from "../../../../../../components/Tooltip";
 import Input from "../../../../../../components/Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
-import { ClassName } from "../../../../../../constants";
 import {
   PgAccount,
   PgProgramInfo,
@@ -391,7 +390,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
           ref={seedInputRef}
           value={seed.value}
           onChange={handleSeed}
-          className={error ? ClassName.ERROR : ""}
+          error={error}
         />
         {isFirst ? (
           <AddSeedWrapper>
@@ -546,16 +545,12 @@ const ShowAta: FC<ShowAtaProps> = ({
           ref={seedInputRef}
           value={mint}
           onChange={handleMint}
-          className={mintError ? ClassName.ERROR : ""}
+          error={mintError}
         />
       </ShowGenInputWrapper>
       <ShowGenInputWrapper>
         <InputLabel label="Owner" type="publicKey" />
-        <Input
-          value={owner}
-          onChange={handleOwner}
-          className={ownerError ? ClassName.ERROR : ""}
-        />
+        <Input value={owner} onChange={handleOwner} error={ownerError} />
       </ShowGenInputWrapper>
       <ShowGenButtonWrapper>
         <Button onClick={handleGen} kind="primary-outline">

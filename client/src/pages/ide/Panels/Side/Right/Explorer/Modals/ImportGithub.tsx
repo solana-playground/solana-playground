@@ -7,7 +7,6 @@ import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import { explorerAtom } from "../../../../../../../state";
 import { PgCommon } from "../../../../../../../utils/pg";
-import { ClassName } from "../../../../../../../constants";
 
 export const ImportGithub = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -27,8 +26,14 @@ export const ImportGithub = () => {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
-    setError(null);
+    const input = e.target.value;
+    setUrl(input);
+
+    if (!input.includes("github.com")) {
+      setError("The URL must be a GitHub URL");
+    } else {
+      setError(null);
+    }
   };
 
   const importFromGithub = async () => {
@@ -49,7 +54,7 @@ export const ImportGithub = () => {
       buttonProps={{
         name: "Import",
         onSubmit: importFromGithub,
-        disabled: !url,
+        disabled: !url || !!error,
         loading: {
           state: loading,
           text: "Importing...",
@@ -58,13 +63,12 @@ export const ImportGithub = () => {
       title
     >
       <Content>
-        <Text>Github url</Text>
-        {error && <ErrorText>Error: {error}</ErrorText>}
+        <Text>GitHub URL</Text>
         <Input
           ref={inputRef}
           onChange={handleChange}
           value={url}
-          className={error ? ClassName.ERROR : ""}
+          error={error}
           placeholder="https://github.com/..."
         />
       </Content>
@@ -102,7 +106,7 @@ const Content = styled.div`
   justify-content: center;
   margin: 1rem 0;
 
-  & > input {
+  & input {
     padding: 0.375rem 0.5rem;
   }
 `;
@@ -110,14 +114,6 @@ const Content = styled.div`
 const Text = styled.div`
   margin-bottom: 0.5rem;
   font-weight: bold;
-`;
-
-const ErrorText = styled.div`
-  ${({ theme }) => css`
-    color: ${theme.colors.state.error.color};
-    font-size: ${theme.font.code.size.small};
-    margin-bottom: 0.5rem;
-  `}
 `;
 
 const DescriptionWrapper = styled.div`

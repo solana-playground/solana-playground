@@ -1,12 +1,11 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import { explorerAtom } from "../../../../../../../state";
-import { ClassName } from "../../../../../../../constants";
 
 export const RenameWorkspace = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -56,12 +55,11 @@ export const RenameWorkspace = () => {
       title={`Rename workspace '${workspaceName}'`}
     >
       <Content>
-        {error && <ErrorText>{error}</ErrorText>}
         <Input
           ref={inputRef}
           onChange={handleChange}
           value={newName}
-          className={error ? ClassName.ERROR : ""}
+          error={error}
         />
       </Content>
     </Modal>
@@ -69,24 +67,9 @@ export const RenameWorkspace = () => {
 };
 
 const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   margin: 1rem 0 1.5rem 0;
 
   & > input {
     padding: 0.375rem 0.5rem;
   }
-`;
-
-const ErrorText = styled.div`
-  ${({ theme }) => css`
-    color: ${theme.colors.state.error.color};
-    font-size: ${theme.font.code.size.small};
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-  `}
 `;

@@ -9,7 +9,12 @@ import Modal from "../../../../../../components/Modal/Modal";
 import useModal from "../../../../../../components/Modal/useModal";
 import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
 import { connectionConfigAtom } from "../../../../../../state";
-import { PgConnection, PgModal, PgTerminal } from "../../../../../../utils/pg";
+import {
+  PgConnection,
+  PgModal,
+  PgTerminal,
+  PgValidator,
+} from "../../../../../../utils/pg";
 import { useOnKey } from "../../../../../../hooks";
 
 const EndpointSetting = () => {
@@ -52,6 +57,7 @@ const EndpointSetting = () => {
 
 const CustomEndpoint = () => {
   const [customEndpoint, setCustomEndpoint] = useState("");
+
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,20 +76,15 @@ const CustomEndpoint = () => {
   useOnKey("Enter", onSubmit);
 
   return (
-    <Modal closeButton>
+    <Modal title closeButton>
       <ModalCard>
         <Input
           ref={inputRef}
-          style={{ width: "100%", height: "3rem" }}
           placeholder="Custom endpoint"
           onChange={(e) => setCustomEndpoint(e.target.value)}
+          validator={PgValidator.isUrl}
         />
-        <Button
-          onClick={onSubmit}
-          fullWidth
-          kind="primary-transparent"
-          style={{ height: "3rem" }}
-        >
+        <Button onClick={onSubmit} kind="primary-transparent" fullWidth>
           Add
         </Button>
       </ModalCard>
@@ -98,6 +99,11 @@ const ModalCard = styled.div`
   flex-direction: column;
   gap: 1rem;
   border-radius: ${({ theme }) => theme.borderRadius};
+
+  & input,
+  & button {
+    height: 3rem;
+  }
 `;
 
 export default EndpointSetting;

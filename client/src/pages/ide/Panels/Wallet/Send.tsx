@@ -6,7 +6,6 @@ import styled from "styled-components";
 import Button from "../../../../components/Button";
 import Input from "../../../../components/Input";
 import Foldable from "../../../../components/Foldable";
-import { ClassName } from "../../../../constants";
 import { uiBalanceAtom, txHashAtom } from "../../../../state";
 import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../../../utils/pg";
 import { useCurrentWallet } from "./useCurrentWallet";
@@ -32,53 +31,16 @@ const SendInside = () => {
   const addressInputRef = useRef<HTMLInputElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
 
-  // Address Input error
-  useEffect(() => {
-    if (!address) {
-      addressInputRef.current?.classList.remove(ClassName.ERROR);
-      setDisabled(true);
-      return;
-    }
-
-    try {
-      new PublicKey(address);
-      addressInputRef.current?.classList.remove(ClassName.ERROR);
-    } catch {
-      addressInputRef.current?.classList.add(ClassName.ERROR);
-      setDisabled(true);
-    }
-  }, [address, setDisabled]);
-
-  // Amount Input error
-  useEffect(() => {
-    if (!amount || !balance) {
-      amountInputRef.current?.classList.remove(ClassName.ERROR);
-      setDisabled(true);
-      return;
-    }
-
-    try {
-      const isFloat = PgValidator.isFloat(amount);
-      if (!isFloat) throw new Error("Invalid amount");
-
-      if (parseFloat(amount) > balance) throw new Error("Not enough balance");
-
-      amountInputRef.current?.classList.remove(ClassName.ERROR);
-    } catch {
-      amountInputRef.current?.classList.add(ClassName.ERROR);
-    }
-  }, [amount, balance]);
-
   // Send button disable
   useEffect(() => {
     if (
-      address &&
+      PgValidator.isPubkey(address) &&
       PgValidator.isFloat(amount) &&
       balance &&
       balance > parseFloat(amount)
-    )
+    ) {
       setDisabled(false);
-    else setDisabled(true);
+    } else setDisabled(true);
   }, [address, amount, balance, setDisabled]);
 
   const handleChangeAddress = useCallback(
@@ -139,14 +101,21 @@ const SendInside = () => {
         <Input
           ref={addressInputRef}
           onChange={handleChangeAddress}
+          validator={PgValidator.isPubkey}
           placeholder="Recipient address"
-          fullWidth
         />
         <Input
           ref={amountInputRef}
           onChange={handleChangeAmount}
+          validator={(input) => {
+            if (
+              !PgValidator.isFloat(input) ||
+              (balance && parseFloat(input) > balance)
+            ) {
+              throw new Error("Invalid amount");
+            }
+          }}
           placeholder="SOL amount"
-          fullWidth
         />
       </InputWrapper>
       <ButtonWrapper>

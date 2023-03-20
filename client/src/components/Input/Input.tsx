@@ -1,74 +1,102 @@
-import { ComponentPropsWithoutRef, FocusEvent, forwardRef } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
+import {
+  ComponentPropsWithoutRef,
+  Dispatch,
+  FocusEvent,
+  forwardRef,
+  SetStateAction,
+} from "react";
+import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
 import { PgThemeManager } from "../../utils/pg/theme";
 
+type InputError = string | boolean | null;
+
 interface InputProps extends ComponentPropsWithoutRef<"input"> {
-  fullWidth?: boolean;
+  error?: InputError;
+  setError?: Dispatch<SetStateAction<InputError>>;
   validator?: (value: string) => boolean | void;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => (
-  <StyledInput
-    ref={ref}
-    {...defaultInputProps}
-    {...props}
-    onChange={(ev) => {
-      props.onChange?.(ev);
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, error, setError, onChange, validator, ...props }, ref) => (
+    <>
+      {error && <ErrorText>{error}</ErrorText>}
+      <StyledInput
+        ref={ref}
+        {...defaultInputProps}
+        {...props}
+        className={`${className} ${error ? ClassName.ERROR : ""}`}
+        onChange={(ev) => {
+          onChange?.(ev);
 
-      // Validation
-      if (props.validator) {
-        try {
-          if (props.validator(ev.target.value) === false) {
-            ev.target.classList.add(ClassName.ERROR);
-          } else {
-            ev.target.classList.remove(ClassName.ERROR);
+          // Validation
+          if (validator) {
+            const handleError = (err: InputError) => {
+              if (setError) {
+                setError(err);
+              } else if (err) {
+                ev.target.classList.add(ClassName.ERROR);
+              } else {
+                ev.target.classList.remove(ClassName.ERROR);
+              }
+            };
+
+            try {
+              if (validator(ev.target.value) === false) {
+                handleError("Invalid value");
+              } else {
+                handleError(null);
+              }
+            } catch (err: any) {
+              console.log("Validation error:", err.message);
+              handleError(err.message);
+            }
           }
-        } catch (err: any) {
-          console.log(err.message);
-          ev.target.classList.add(ClassName.ERROR);
-        }
-      }
-    }}
-  >
-    {props.children}
-  </StyledInput>
-));
+        }}
+      >
+        {props.children}
+      </StyledInput>
+    </>
+  )
+);
 
-const StyledInput = styled.input<InputProps>`
-  ${(props) => getStyles(props)}
+const ErrorText = styled.div`
+  ${({ theme }) => css`
+    color: ${theme.colors.state.error.color};
+    font-size: ${theme.font.code.size.small};
+    margin-bottom: 0.5rem;
+  `}
 `;
 
-const getStyles = ({
-  fullWidth,
-  theme,
-}: InputProps & { theme: DefaultTheme }) => {
-  const input = theme.components.input;
+const StyledInput = styled.input<InputProps>`
+  ${({ theme }) => {
+    const input = theme.components.input;
 
-  return css`
-    border: 1px solid ${input.borderColor};
-    ${PgThemeManager.convertToCSS(input)};
+    return css`
+      width: 100%;
+      border: 1px solid ${input.borderColor};
 
-    ${fullWidth && "width: 100%"};
+      &:disabled {
+        background-color: ${theme.colors.state.disabled.bg};
+        color: ${theme.colors.state.disabled.color};
+        cursor: not-allowed;
+      }
 
-    &:disabled {
-      background-color: ${theme.colors.state.disabled.bg};
-      color: ${theme.colors.state.disabled.color};
-      cursor: not-allowed;
-    }
+      &.${ClassName.ERROR} {
+        outline-color: transparent;
+        border-color: ${theme.colors.state.error.color};
+      }
 
-    &.${ClassName.ERROR} {
-      outline-color: transparent;
-      border-color: ${theme.colors.state.error.color};
-    }
+      &.${ClassName.SUCCESS} {
+        outline-color: transparent;
+        border-color: ${theme.colors.state.success.color};
+      }
 
-    &.${ClassName.SUCCESS} {
-      outline-color: transparent;
-      border-color: ${theme.colors.state.success.color};
-    }
-  `;
-};
+      ${PgThemeManager.convertToCSS(input)};
+    `;
+  }}
+`;
 
 const defaultInputProps = {
   autoComplete: "off",

@@ -7,7 +7,6 @@ import Button from "../../../../../../components/Button";
 import Foldable from "../../../../../../components/Foldable";
 import InputLabel from "./InputLabel";
 import Input from "../../../../../../components/Input";
-import { ClassName } from "../../../../../../constants";
 import { PgAccount, PgCommon } from "../../../../../../utils/pg";
 import { SpinnerWithBg } from "../../../../../../components/Loading";
 import { useCurrentWallet } from "../../../Wallet";
@@ -127,7 +126,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
         <InputLabel label="address" type="publicKey" />
         <Input
           type="text"
-          className={enteredAddressError ? ClassName.ERROR : ""}
+          error={enteredAddressError}
           value={enteredAddress}
           onChange={handleAddressChange}
         />

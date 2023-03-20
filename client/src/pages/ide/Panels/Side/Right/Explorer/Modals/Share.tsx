@@ -66,7 +66,7 @@ export const Share = () => {
         {textState?.id && (
           <SuccessWrapper>
             <InputWrapper>
-              <Input value={shareLink} fullWidth readOnly />
+              <Input value={shareLink} readOnly />
               <CopyButton copyText={shareLink} />
             </InputWrapper>
             <LinkWrapper>

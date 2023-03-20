@@ -10,7 +10,6 @@ import UploadButton from "../../../../../../../components/UploadButton";
 import Input from "../../../../../../../components/Input";
 import Modal from "../../../../../../../components/Modal";
 import Text from "../../../../../../../components/Text";
-import { ClassName } from "../../../../../../../constants";
 import { Warning } from "../../../../../../../components/Icons";
 import {
   explorerAtom,
@@ -18,7 +17,11 @@ import {
   refreshExplorerAtom,
   refreshProgramIdAtom,
 } from "../../../../../../../state";
-import { PgProgramInfo, PgCommon } from "../../../../../../../utils/pg";
+import {
+  PgProgramInfo,
+  PgCommon,
+  PgValidator,
+} from "../../../../../../../utils/pg";
 
 const ProgramCredentials = () => (
   <Wrapper>
@@ -180,16 +183,7 @@ const InputPk = () => {
       const pkStr = pkResult.programPk.toBase58();
       setVal(pkStr);
     }
-  }, [programIdCount, setVal]);
-
-  useEffect(() => {
-    try {
-      new PublicKey(val);
-      inputRef.current?.classList.remove(ClassName.ERROR);
-    } catch {
-      inputRef.current?.classList.add(ClassName.ERROR);
-    }
-  }, [val]);
+  }, [programIdCount]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setVal(e.target.value);
@@ -245,8 +239,8 @@ const InputPk = () => {
           ref={inputRef}
           value={val}
           onChange={handleChange}
+          validator={PgValidator.isPubkey}
           placeholder="Your program's public key"
-          fullWidth
         />
         <CopyButton copyText={val} />
       </InputWrapper>
