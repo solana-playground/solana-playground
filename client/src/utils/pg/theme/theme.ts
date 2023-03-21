@@ -118,7 +118,7 @@ export class PgThemeManager {
   }
 
   /**
-   * Override default component with the given overrides
+   * Override default component styles with the given overrides
    *
    * @param component default component to override
    * @param overrides override properties
@@ -132,32 +132,17 @@ export class PgThemeManager {
       return component;
     }
 
-    // Destructure in order to not override the nested objects
-    const { hover, active, focus, focusWithin, before, after, ...rest } =
-      overrides;
+    for (const key in overrides) {
+      const value = overrides[key as keyof typeof overrides];
 
-    component = {
-      ...component,
-      ...rest,
-    };
-
-    if (hover) {
-      component.hover = { ...component.hover, ...hover };
-    }
-    if (active) {
-      component.active = { ...component.active, ...active };
-    }
-    if (focus) {
-      component.focus = { ...component.focus, ...focus };
-    }
-    if (focusWithin) {
-      component.focusWithin = { ...component.focusWithin, ...focusWithin };
-    }
-    if (before) {
-      component.before = { ...component.before, ...before };
-    }
-    if (after) {
-      component.after = { ...component.after, ...after };
+      // Ignoring `Expression produces a union type that is too complex to represent.`
+      if (typeof value === "object") {
+        // @ts-ignore
+        component[key] = { ...component[key], ...value };
+      } else {
+        // @ts-ignore
+        component[key] = value;
+      }
     }
 
     return component;

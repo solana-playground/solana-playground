@@ -318,11 +318,17 @@ export type DefaultComponent = {
   fontSize?: CSSProperties["fontSize"];
   fontWeight?: CSSProperties["fontWeight"];
   cursor?: CSSProperties["cursor"];
-} & DefaultComponentState<
-  "hover" | "active" | "focus" | "focusWithin" | "before" | "after"
->;
+} & DefaultComponentState;
 
-type DefaultComponentState<T extends string> = {
+type PseudoClass =
+  | "hover"
+  | "active"
+  | "focus"
+  | "focusWithin"
+  | "before"
+  | "after";
+
+type DefaultComponentState<T extends PseudoClass = PseudoClass> = {
   [K in T]?: Omit<DefaultComponent, T>;
 };
 
