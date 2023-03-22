@@ -1,29 +1,29 @@
-## How to build packages
+## Build packages
 
-Toolchain:
+See [recommended versions](https://github.com/solana-playground/solana-playground/#recommended-versions).
 
-```sh
-rustc --version
-# rustc 1.65.0 (897e37553 2022-11-02)
-wasm-pack --version
-# wasm-pack 0.10.3
-```
-
-Run:
+Build script usage:
 
 ```sh
-# In the directory you want to build(e.g solana-cli)
-wasm-pack build
+./build.sh --help
+
+Usage: build.sh [OPTIONS] <PACKAGE>
+
+<PACKAGE>: Optional WASM package name. Builds all packages if not specified.
+
+OPTIONS:
+    -h, --help: Print help information
+    -u, --update: Update client dependency
 ```
 
-Update a package:, eg. solana-cli:
+Build all packages:
 
 ```sh
-./update.sh solana-cli
+./build.sh
 ```
 
-This will:
+Build a single package:
 
-- Run wasm-pack build
-- Update the code in pkgs/ for the package
-- Update the client dependency on that package
+```sh
+./build.sh solana-cli
+```

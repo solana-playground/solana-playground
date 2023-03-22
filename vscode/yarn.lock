@@ -129,7 +129,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@solana-playground/seahorse-compile-wasm@../wasm/pkgs/seahorse-compile":
+"@solana-playground/seahorse-compile@../wasm/seahorse-compile/pkg":
   version "0.2.7"
 
 "@solana/buffer-layout@^4.0.0":

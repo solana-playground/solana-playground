@@ -96,7 +96,7 @@ export const processBuild = async () => {
   let seahorseCompiledFiles;
   if (framework === Framework.SEAHORSE) {
     const { compileSeahorse } = await import(
-      "@solana-playground/seahorse-compile-wasm"
+      "@solana-playground/seahorse-compile"
     );
 
     seahorseCompiledFiles = updatedFiles.flatMap((file) => {

@@ -2505,25 +2505,25 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@solana-playground/anchor-cli-wasm@../wasm/pkgs/anchor-cli":
+"@solana-playground/anchor-cli@../wasm/anchor-cli/pkg":
   version "0.26.0"
 
 "@solana-playground/playnet@../wasm/pkgs/playnet":
   version "0.1.0"
 
-"@solana-playground/rustfmt-wasm@../wasm/pkgs/rustfmt":
+"@solana-playground/rustfmt@../wasm/pkgs/rustfmt":
   version "0.99.4"
 
-"@solana-playground/seahorse-compile-wasm@../wasm/pkgs/seahorse-compile":
+"@solana-playground/seahorse-compile@../wasm/seahorse-compile/pkg":
   version "0.2.7"
 
-"@solana-playground/solana-cli-wasm@../wasm/pkgs/solana-cli":
+"@solana-playground/solana-cli@../wasm/solana-cli/pkg":
   version "1.11.0"
 
-"@solana-playground/spl-token-cli-wasm@../wasm/pkgs/spl-token-cli":
+"@solana-playground/spl-token-cli@../wasm/spl-token-cli/pkg":
   version "2.0.15"
 
-"@solana-playground/sugar-cli-wasm@../wasm/pkgs/sugar-cli":
+"@solana-playground/sugar-cli@../wasm/sugar-cli/pkg":
   version "1.1.0-alpha"
 
 "@solana/buffer-layout-utils@^0.2.0":

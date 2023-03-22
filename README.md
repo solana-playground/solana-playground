@@ -32,12 +32,30 @@ You can open an issue to request more crates.
 
 ## Run locally
 
-You can run the client locally by cloning the repo and running these commands in the project directory.
+You can run the client locally by cloning the repository and running the following commands in the project directory.
+
+Setup and start the dev server:
 
 ```sh
 cd client # change directory to client
-yarn # install dependencies
+yarn setup # run the setup script(only once)
 yarn start # start local dev server
+```
+
+##### Recommended versions:
+
+```sh
+rustc --version
+# rustc 1.65.0 (897e37553 2022-11-02)
+
+wasm-pack --version
+# wasm-pack 0.10.3
+
+node --version
+# v18.15.0
+
+yarn --version
+# 1.22.19
 ```
 
 ## Contributing

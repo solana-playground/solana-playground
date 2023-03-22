@@ -3,12 +3,12 @@ import { PgTerminal } from "./terminal";
 
 export interface Pkgs {
   Playnet?: typeof import("@solana-playground/playnet").Playnet;
-  compileSeahorse?: typeof import("@solana-playground/seahorse-compile-wasm").compileSeahorse;
-  runAnchor?: typeof import("@solana-playground/anchor-cli-wasm").runAnchor;
-  runSolana?: typeof import("@solana-playground/solana-cli-wasm").runSolana;
-  runSplToken?: typeof import("@solana-playground/spl-token-cli-wasm").runSplToken;
-  runSugar?: typeof import("@solana-playground/sugar-cli-wasm").runSugar;
-  rustfmt?: typeof import("@solana-playground/rustfmt-wasm").rustfmt;
+  compileSeahorse?: typeof import("@solana-playground/seahorse-compile").compileSeahorse;
+  runAnchor?: typeof import("@solana-playground/anchor-cli").runAnchor;
+  runSolana?: typeof import("@solana-playground/solana-cli").runSolana;
+  runSplToken?: typeof import("@solana-playground/spl-token-cli").runSplToken;
+  runSugar?: typeof import("@solana-playground/sugar-cli").runSugar;
+  rustfmt?: typeof import("@solana-playground/rustfmt").rustfmt;
 }
 
 export interface PkgInfo {
@@ -112,19 +112,19 @@ export class PgPkg {
   private static async _loadPkg(pkgName: PkgName) {
     switch (pkgName) {
       case PkgName.ANCHOR_CLI:
-        return await import("@solana-playground/anchor-cli-wasm");
+        return await import("@solana-playground/anchor-cli");
       case PkgName.PLAYNET:
         return await import("@solana-playground/playnet");
       case PkgName.RUSTFMT:
-        return await import("@solana-playground/rustfmt-wasm");
+        return await import("@solana-playground/rustfmt");
       case PkgName.SEAHORSE_COMPILE:
-        return await import("@solana-playground/seahorse-compile-wasm");
+        return await import("@solana-playground/seahorse-compile");
       case PkgName.SOLANA_CLI:
-        return await import("@solana-playground/solana-cli-wasm");
+        return await import("@solana-playground/solana-cli");
       case PkgName.SPL_TOKEN_CLI:
-        return await import("@solana-playground/spl-token-cli-wasm");
+        return await import("@solana-playground/spl-token-cli");
       case PkgName.SUGAR_CLI:
-        return await import("@solana-playground/sugar-cli-wasm");
+        return await import("@solana-playground/sugar-cli");
     }
   }
 }
