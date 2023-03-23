@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  client:
+  format_client:
+    name: Format client
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,11 +25,61 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "client/yarn.lock"
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      # Always install the version specified in yarn.lock
+      - name: Install prettier
+        run: |
+          prettier_version=$(awk "/^prettier/{getline; print}" yarn.lock | cut -d "\"" -f 2)
+          npm i -g prettier@$prettier_version
 
-      - name: Check formatting
+      - name: Check format
         run: yarn check-format
+
+  format_wasm:
+    runs-on: ubuntu-latest
+    name: Format WASM
+
+    defaults:
+      run:
+        working-directory: wasm
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        run: rustup toolchain install stable
+
+      - name: Check format
+        run: cargo fmt --check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [format_client, format_wasm]
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+          cache-dependency-path: "client/yarn.lock"
+
+      # Selecting a toolchain either by action or manual `rustup` calls should happen
+      # before the plugin, as the cache uses the current rustc version as its cache key
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Setup
+        run: yarn setup
 
       - name: Build
         run: yarn build
