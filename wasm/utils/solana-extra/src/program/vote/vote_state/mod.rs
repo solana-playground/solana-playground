@@ -1269,9 +1269,9 @@ fn verify_authorized_signer<S: std::hash::BuildHasher>(
 pub fn withdraw<S: std::hash::BuildHasher>(
     transaction_context: &TransactionContext,
     instruction_context: &InstructionContext,
-    vote_account_index: usize,
+    vote_account_index: u16,
     lamports: u64,
-    to_account_index: usize,
+    to_account_index: u16,
     signers: &HashSet<Pubkey, S>,
     rent_sysvar: Option<&Rent>,
     clock: Option<&Clock>,
