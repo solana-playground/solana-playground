@@ -45,9 +45,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Rust
-        run: rustup toolchain install stable
-
       - name: Check format
         run: cargo fmt --check
 
@@ -68,10 +65,8 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "client/yarn.lock"
 
-      # Selecting a toolchain either by action or manual `rustup` calls should happen
-      # before the plugin, as the cache uses the current rustc version as its cache key
-      - name: Install Rust
-        run: rustup toolchain install stable --profile minimal
+      - name: Sync rust-toolchain
+        run: rustc --version
 
       - uses: Swatinem/rust-cache@v2
 
