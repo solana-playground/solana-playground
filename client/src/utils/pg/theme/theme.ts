@@ -124,23 +124,20 @@ export class PgThemeManager {
    * @param overrides override properties
    * @returns the overridden component
    */
-  static overrideDefaults(
-    component: DefaultComponent,
-    overrides?: DefaultComponent
+  static overrideDefaults<T extends DefaultComponent>(
+    component: T,
+    overrides?: T
   ) {
     if (!overrides) {
       return component;
     }
 
     for (const key in overrides) {
-      const value = overrides[key as keyof typeof overrides];
+      const value = overrides[key];
 
-      // Ignoring `Expression produces a union type that is too complex to represent.`
       if (typeof value === "object") {
-        // @ts-ignore
         component[key] = { ...component[key], ...value };
       } else {
-        // @ts-ignore
         component[key] = value;
       }
     }
