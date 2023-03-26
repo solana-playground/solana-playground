@@ -10,7 +10,12 @@ import {
   DEFAULT_TRANSITION,
   DEFAULT_TRANSPARENCY,
 } from "./default";
-import { DefaultComponent, PgFont, PgTheme, PgThemeReady } from "./interface";
+import {
+  DefaultComponent,
+  ImportableTheme,
+  PgFont,
+  PgTheme,
+} from "./interface";
 
 export class PgThemeManager {
   /** Current theme */
@@ -19,6 +24,12 @@ export class PgThemeManager {
   /** Current font */
   private static _font: PgFont;
 
+  /** All themes */
+  private static _themes: ImportableTheme[];
+
+  /** All fonts */
+  private static _fonts: PgFont[];
+
   /** Theme key in localStorage */
   private static readonly _THEME_KEY = "theme";
 
@@ -26,25 +37,48 @@ export class PgThemeManager {
   private static readonly _FONT_KEY = "font";
 
   /**
-   * Create a theme from `localStorage`.
+   * Create the initial theme and font from `localStorage`.
+   *
+   * @param themes all importable themes
+   * @param fonts all fonts
+   */
+  static async create(themes: ImportableTheme[], fonts: PgFont[]) {
+    this._themes = themes;
+    this._fonts = fonts;
+    await this.set();
+  }
+
+  /**
+   * Set theme and font.
+   *
+   * The theme will be imported asynchronously based on the given theme name or
+   * the name in `localStorage`.
    *
    * This function is also responsible for setting sensible defaults.
    *
-   * @param themes themes to match against `localStorage`
-   * @param fonts fonts to match against `localStorage`
-   * @returns the theme and font
+   * @param params theme name and font family
    */
-  static create(themes: PgTheme[], fonts: PgFont[]) {
-    const themeName = localStorage.getItem(this._THEME_KEY);
-    const fontFamily = localStorage.getItem(this._FONT_KEY);
-    const theme = themes.find((t) => t.name === themeName) ?? themes[0];
-    const font = fonts.find((f) => f.family === fontFamily) ?? fonts[0];
+  static async set(
+    params: Partial<{
+      themeName: ImportableTheme["name"];
+      fontFamily: PgFont["family"];
+    }> = {}
+  ) {
+    params.themeName ??=
+      localStorage.getItem(this._THEME_KEY) ?? this._themes[0].name;
+    params.fontFamily ??=
+      localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family;
 
-    this._theme = theme;
+    const importableTheme = this._themes.find(
+      (t) => t.name === params.themeName
+    )!;
+    const font = this._fonts.find((f) => f.family === params.fontFamily)!;
+
+    this._theme = (await importableTheme.importTheme()).default;
     this._font = font;
 
     // Set defaults(order matters)
-    this._fonts()
+    this._theme_fonts()
       ._transparency()
       ._borderRadius()
       ._boxShadow()
@@ -66,21 +100,13 @@ export class PgThemeManager {
       ._tutorial()
       ._tutorials();
 
-    return { theme: theme as PgThemeReady, font };
-  }
+    // Set theme
+    localStorage.setItem(this._THEME_KEY, params.themeName);
+    PgCommon.createAndDispatchCustomEvent(EventName.THEME_SET, this._theme);
 
-  /** Set new theme */
-  static setTheme(newTheme: PgTheme) {
-    if (this._theme.name === newTheme.name) return;
-
-    localStorage.setItem(this._THEME_KEY, newTheme.name);
-    PgCommon.createAndDispatchCustomEvent(EventName.THEME_SET, newTheme);
-  }
-
-  /** Set new font */
-  static setFont(newFont: PgFont) {
-    localStorage.setItem(this._FONT_KEY, newFont.family);
-    PgCommon.createAndDispatchCustomEvent(EventName.THEME_FONT_SET, newFont);
+    // Set font
+    localStorage.setItem(this._FONT_KEY, params.fontFamily);
+    PgCommon.createAndDispatchCustomEvent(EventName.THEME_FONT_SET, this._font);
   }
 
   /**
@@ -776,7 +802,7 @@ export class PgThemeManager {
   }
 
   /** Set default fonts */
-  private static _fonts() {
+  private static _theme_fonts() {
     if (!this._theme.font) {
       this._theme.font = {};
     }

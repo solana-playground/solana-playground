@@ -22,8 +22,7 @@ const FontSetting = () => {
       options={options}
       value={value}
       onChange={(newValue) => {
-        const newFont = FONTS.find((f) => f.family === newValue?.value);
-        if (newFont) PgThemeManager.setFont(newFont);
+        PgThemeManager.set({ fontFamily: newValue!.value });
       }}
     />
   );

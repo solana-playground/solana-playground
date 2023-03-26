@@ -20,7 +20,7 @@ const BG_BLACK = "#000000",
   HOVER_BG = "#2B2D39",
   SELECTION = "#232323";
 
-export const SOLANA: PgTheme = {
+const SOLANA: PgTheme = {
   name: "Solana",
   isDark: true,
   colors: {
@@ -152,3 +152,5 @@ export const SOLANA: PgTheme = {
     annotion: { color: ORANGE },
   },
 };
+
+export default SOLANA;

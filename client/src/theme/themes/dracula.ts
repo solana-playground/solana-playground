@@ -20,7 +20,7 @@ const BG_DEFAULT = "#282A36",
   SELECTION = "#44475A",
   HOVER = "#343746";
 
-export const DRACULA: PgTheme = {
+const DRACULA: PgTheme = {
   name: "Dracula",
   isDark: true,
   colors: {
@@ -122,3 +122,5 @@ export const DRACULA: PgTheme = {
     annotion: { color: ORANGE },
   },
 };
+
+export default DRACULA;

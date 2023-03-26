@@ -3,26 +3,6 @@ import { CSSProperties } from "react";
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
 
-/**
- * Ready to be used theme. Some of the optional properties will be overridden
- * with default values.
- */
-export type PgThemeReady<
-  T extends PgTheme = PgTheme,
-  P extends keyof T =
-    | "components"
-    | "font"
-    | "borderRadius"
-    | "boxShadow"
-    | "scrollbar"
-    | "transparency"
-    | "transition"
-> = {
-  [K in keyof T]: T[K];
-} & {
-  [K in P]-?: Required<T[K]>;
-};
-
 /** Playground theme */
 export interface PgTheme {
   /** Name of the theme that's displayed in theme settings */
@@ -175,6 +155,34 @@ export interface PgTheme {
   /** Code highlight styles */
   highlight: PgHighlight;
 }
+
+/** Importable(lazy) theme */
+export interface ImportableTheme extends Pick<PgTheme, "name"> {
+  /** Import promise for the theme to lazy load */
+  importTheme: () => Promise<{
+    default: PgTheme;
+  }>;
+}
+
+/**
+ * Ready to be used theme. Some of the optional properties will be overridden
+ * with default values.
+ */
+export type PgThemeReady<
+  T extends PgTheme = PgTheme,
+  P extends keyof T =
+    | "components"
+    | "font"
+    | "borderRadius"
+    | "boxShadow"
+    | "scrollbar"
+    | "transparency"
+    | "transition"
+> = {
+  [K in keyof T]: T[K];
+} & {
+  [K in P]-?: Required<T[K]>;
+};
 
 export interface PgHighlight {
   // const x: _bool_ = true;

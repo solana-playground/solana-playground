@@ -28,7 +28,7 @@ const SELECTION = "#e5ebf1";
 const HOVER = "#ecedee";
 const DISABLED = "#cccccc";
 
-export const LIGHT: PgTheme = {
+const LIGHT: PgTheme = {
   name: "Light",
   isDark: false,
   colors: {
@@ -174,3 +174,5 @@ export const LIGHT: PgTheme = {
     annotion: { color: STRING_RED },
   },
 };
+
+export default LIGHT;

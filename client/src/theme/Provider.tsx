@@ -3,7 +3,7 @@ import styled, { css, ThemeProvider } from "styled-components";
 
 import THEMES from "./themes";
 import FONTS from "./fonts";
-import { PgFont, PgThemeManager } from "../utils/pg/theme";
+import { PgFont, PgThemeManager, PgThemeReady } from "../utils/pg/theme";
 import { EventName } from "../constants/event";
 import { useSetStatic } from "../hooks/useSetStatic";
 
@@ -16,20 +16,27 @@ export const MutThemeContext = createContext<MutThemeContextProps>(
 );
 
 const MutThemeProvider: FC = ({ children }) => {
-  const themeManager = PgThemeManager.create(THEMES, FONTS);
-
-  const [theme, setTheme] = useState(themeManager.theme);
-  const [font, setFont] = useState(themeManager.font);
+  const [theme, setTheme] = useState<PgThemeReady>();
+  const [font, setFont] = useState<PgFont>();
 
   useSetStatic(setTheme, EventName.THEME_SET);
   useSetStatic(setFont, EventName.THEME_FONT_SET);
 
+  // Create initial theme
+  useEffect(() => {
+    PgThemeManager.create(THEMES, FONTS);
+  }, []);
+
   // Update theme.font when theme or font changes
   useEffect(() => {
-    if (theme && theme.font.code.family !== font.family) {
-      setTheme((t) => ({ ...t, font: { code: font, other: t.font?.other } }));
+    if (theme && font && theme.font.code.family !== font.family) {
+      setTheme((t) =>
+        t ? { ...t, font: { code: font, other: t.font.other } } : t
+      );
     }
   }, [theme, font]);
+
+  if (!theme || !font) return null;
 
   return (
     <MutThemeContext.Provider value={{ font }}>

@@ -1,9 +1,10 @@
-import { PgTheme } from "../../utils/pg/theme";
-import { DRACULA } from "./dracula";
-import { LIGHT } from "./light";
-import { PLAYGROUND } from "./playground";
-import { SOLANA } from "./solana";
+import { ImportableTheme } from "../../utils/pg/theme";
 
-const THEMES: PgTheme[] = [DRACULA, SOLANA, PLAYGROUND, LIGHT];
+const THEMES: ImportableTheme[] = [
+  { name: "Dracula", importTheme: () => import("./dracula") },
+  { name: "Solana", importTheme: () => import("./solana") },
+  { name: "Playground", importTheme: () => import("./playground") },
+  { name: "Light", importTheme: () => import("./light") },
+];
 
 export default THEMES;

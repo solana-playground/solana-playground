@@ -27,7 +27,7 @@ const H_YELLOW = "#fff296",
   H_PINK = "#e1a6da",
   H_GREEN = "#32e17f";
 
-export const PLAYGROUND: PgTheme = {
+const PLAYGROUND: PgTheme = {
   name: "Playground",
   isDark: true,
   colors: {
@@ -115,3 +115,5 @@ export const PLAYGROUND: PgTheme = {
     annotion: { color: YELLOW },
   },
 };
+
+export default PLAYGROUND;

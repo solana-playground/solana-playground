@@ -22,8 +22,7 @@ const ThemeSetting = () => {
       options={options}
       value={value}
       onChange={(newValue) => {
-        const theme = THEMES.find((t) => t.name === newValue?.value);
-        if (theme) PgThemeManager.setTheme(theme);
+        PgThemeManager.set({ themeName: newValue!.value });
       }}
     />
   );
