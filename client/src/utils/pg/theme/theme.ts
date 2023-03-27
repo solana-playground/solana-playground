@@ -15,6 +15,7 @@ import {
   ImportableTheme,
   PgFont,
   PgTheme,
+  PgThemeReady,
 } from "./interface";
 
 export class PgThemeManager {
@@ -75,6 +76,7 @@ export class PgThemeManager {
     const font = this._fonts.find((f) => f.family === params.fontFamily)!;
 
     this._theme = (await importableTheme.importTheme()).default;
+    (this._theme as PgThemeReady).name = importableTheme.name;
     this._font = font;
 
     // Set defaults(order matters)

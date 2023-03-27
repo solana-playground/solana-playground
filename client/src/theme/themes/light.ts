@@ -29,7 +29,6 @@ const HOVER = "#ecedee";
 const DISABLED = "#cccccc";
 
 const LIGHT: PgTheme = {
-  name: "Light",
   isDark: false,
   colors: {
     default: {

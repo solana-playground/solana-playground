@@ -21,7 +21,6 @@ const BG_DEFAULT = "#282A36",
   HOVER = "#343746";
 
 const DRACULA: PgTheme = {
-  name: "Dracula",
   isDark: true,
   colors: {
     default: {

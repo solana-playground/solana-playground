@@ -21,7 +21,6 @@ const BG_BLACK = "#000000",
   SELECTION = "#232323";
 
 const SOLANA: PgTheme = {
-  name: "Solana",
   isDark: true,
   colors: {
     default: {

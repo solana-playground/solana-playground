@@ -28,7 +28,6 @@ const H_YELLOW = "#fff296",
   H_GREEN = "#32e17f";
 
 const PLAYGROUND: PgTheme = {
-  name: "Playground",
   isDark: true,
   colors: {
     default: {

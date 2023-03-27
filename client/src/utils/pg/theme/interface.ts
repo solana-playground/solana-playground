@@ -5,8 +5,6 @@ import { MenuKind } from "../../../components/Menu";
 
 /** Playground theme */
 export interface PgTheme {
-  /** Name of the theme that's displayed in theme settings */
-  name: string;
   /** Whether the theme is a dark theme */
   isDark: boolean;
   /**
@@ -157,7 +155,9 @@ export interface PgTheme {
 }
 
 /** Importable(lazy) theme */
-export interface ImportableTheme extends Pick<PgTheme, "name"> {
+export interface ImportableTheme {
+  /** Name of the theme that's displayed in theme settings */
+  name: string;
   /** Import promise for the theme to lazy load */
   importTheme: () => Promise<{
     default: PgTheme;
@@ -178,7 +178,7 @@ export type PgThemeReady<
     | "scrollbar"
     | "transparency"
     | "transition"
-> = {
+> = Pick<ImportableTheme, "name"> & {
   [K in keyof T]: T[K];
 } & {
   [K in P]-?: Required<T[K]>;
