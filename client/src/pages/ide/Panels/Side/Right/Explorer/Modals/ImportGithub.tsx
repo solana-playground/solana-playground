@@ -52,10 +52,10 @@ export const ImportGithub = () => {
   return (
     <Modal
       buttonProps={{
-        name: "Import",
+        text: "Import",
         onSubmit: importFromGithub,
-        disabled: !url || !!error,
-        loading: {
+        disabled: !url || !!error || loading,
+        btnLoading: {
           state: loading,
           text: "Importing...",
         },

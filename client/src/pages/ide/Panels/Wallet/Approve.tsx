@@ -10,7 +10,7 @@ const Approve: FC<ApproveProps> = ({}) => {
   const handleApprove = () => {};
 
   return (
-    <Modal title buttonProps={{ name: "Approve", onSubmit: handleApprove }}>
+    <Modal title buttonProps={{ text: "Approve", onSubmit: handleApprove }}>
       <Content>Approve tx</Content>
     </Modal>
   );

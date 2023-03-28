@@ -97,7 +97,7 @@ export const ImportFs = () => {
   return (
     <Modal
       buttonProps={{
-        name: "Import",
+        text: "Import",
         onSubmit: importNewWorkspace,
         disabled: disableCond,
       }}

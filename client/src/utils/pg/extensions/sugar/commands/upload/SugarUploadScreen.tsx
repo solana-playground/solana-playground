@@ -33,7 +33,7 @@ export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
   return (
     <Modal
       buttonProps={{
-        name: "Continue",
+        text: "Continue",
         disabled: !files || files.length % 2 === 1,
         onSubmit: () => close(files),
       }}

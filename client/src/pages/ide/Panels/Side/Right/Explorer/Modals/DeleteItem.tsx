@@ -32,7 +32,7 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
     <Modal
       title
       buttonProps={{
-        name: "Delete",
+        text: "Delete",
         onSubmit: deleteItem,
         closeOnSubmit: true,
         kind: "error",

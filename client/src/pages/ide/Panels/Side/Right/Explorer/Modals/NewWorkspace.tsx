@@ -64,7 +64,7 @@ export const NewWorkspace = () => {
   return (
     <Modal
       buttonProps={{
-        name: "Create",
+        text: "Create",
         onSubmit: newWorkspace,
         disabled: disableCond,
       }}

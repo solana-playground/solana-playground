@@ -2,6 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
+import { ClassName } from "../../constants";
 import { DefaultComponent, PgThemeManager } from "../../utils/pg/theme";
 
 export type ButtonKind =
@@ -38,31 +39,57 @@ type ButtonBg =
   | "info";
 
 export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
+  /** Button kind */
   kind?: ButtonKind;
+  /** Button size */
   size?: ButtonSize;
+  /** Whether the button should take the full width of the parent element */
   fullWidth?: boolean;
-  btnLoading?: boolean;
+  /** Loading state */
+  btnLoading?:
+    | boolean
+    | {
+        /** Whether the button is in loading state */
+        state?: boolean;
+        /** Text to show when the button is in loading state */
+        text?: string;
+      };
+  /** Left Icon */
   leftIcon?: ReactNode;
+  /** Right Icon */
   rightIcon?: ReactNode;
+  /** Background override */
   bg?: ButtonBg;
+  /** Color override */
   color?: ButtonColor;
+  /** Hover color override */
   hoverColor?: ButtonColor;
+  /** Font weight override */
   fontWeight?: CSSProperties["fontWeight"];
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, btnLoading, leftIcon, rightIcon, children, ...props }, ref) => (
-    <StyledButton
-      ref={ref}
-      className={`${className} ${btnLoading ? "btn-loading" : ""}`}
-      {...props}
-    >
-      <span className="btn-spinner" />
-      {leftIcon && <span className="left-icon">{leftIcon}</span>}
-      {children}
-      {rightIcon && <span className="right-icon">{rightIcon}</span>}
-    </StyledButton>
-  )
+  ({ className, btnLoading, leftIcon, rightIcon, children, ...props }, ref) => {
+    const isLoading =
+      typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+
+    return (
+      <StyledButton
+        ref={ref}
+        className={`${className} ${isLoading ? ClassName.BUTTON_LOADING : ""}`}
+        {...props}
+      >
+        <span className="btn-spinner" />
+        {leftIcon && <span className="left-icon">{leftIcon}</span>}
+        {isLoading
+          ? typeof btnLoading === "object"
+            ? btnLoading.text ?? children
+            : children
+          : children}
+        {rightIcon && <span className="right-icon">{rightIcon}</span>}
+      </StyledButton>
+    );
+  }
 );
 
 const StyledButton = styled.button<ButtonProps>`
@@ -319,7 +346,7 @@ const getButtonStyles = ({
       transform: scale(0);
     }
 
-    &.btn-loading > span.btn-spinner {
+    &.${ClassName.BUTTON_LOADING} > span.btn-spinner {
       width: 1rem;
       height: 1rem;
       margin-right: 0.5rem;

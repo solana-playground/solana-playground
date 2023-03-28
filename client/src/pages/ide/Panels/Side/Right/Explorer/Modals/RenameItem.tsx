@@ -54,7 +54,7 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   return (
     <Modal
       buttonProps={{
-        name: "Rename",
+        text: "Rename",
         onSubmit: rename,
         size: "small",
         disabled: disableCond,

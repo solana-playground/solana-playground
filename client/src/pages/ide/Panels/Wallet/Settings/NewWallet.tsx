@@ -37,7 +37,7 @@ const NewWalletModal = () => {
     <Modal
       title
       buttonProps={{
-        name: "Create",
+        text: "Create",
         onSubmit: generateNewKeypair,
         closeOnSubmit: true,
       }}

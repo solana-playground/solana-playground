@@ -43,7 +43,7 @@ export const ImportShared = () => {
   return (
     <Modal
       buttonProps={{
-        name: "Import",
+        text: "Import",
         onSubmit: importNewWorkspace,
         disabled: !name,
       }}

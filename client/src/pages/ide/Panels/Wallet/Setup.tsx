@@ -58,7 +58,7 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
     <Modal
       title="Playground Wallet"
       buttonProps={{
-        name: "Continue",
+        text: "Continue",
         onSubmit: handleSetup,
         closeOnSubmit: true,
       }}

@@ -22,7 +22,7 @@ export const DeleteWorkspace = () => {
     <Modal
       title
       buttonProps={{
-        name: "Delete",
+        text: "Delete",
         onSubmit: deleteWorkspace,
         closeOnSubmit: true,
         kind: "error",

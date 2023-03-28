@@ -47,7 +47,7 @@ export const RenameWorkspace = () => {
   return (
     <Modal
       buttonProps={{
-        name: "Rename",
+        text: "Rename",
         onSubmit: renameWorkspace,
         disabled: disableCond,
         size: "small",
