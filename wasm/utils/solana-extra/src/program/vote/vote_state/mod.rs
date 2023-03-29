@@ -1279,7 +1279,7 @@ pub fn withdraw<S: std::hash::BuildHasher>(
     // NOTE: solana-sdk 1.11 `try_borrow_account` is private(this lib was written in 1.10.29)
     // We use `try_borrow_instruction_account` to fix it.
     let mut vote_account = instruction_context
-        .try_borrow_instruction_account(transaction_context, vote_account_index)?;
+        .try_borrow_instruction_account(transaction_context, vote_account_index as usize)?;
     let vote_state: VoteState = vote_account
         .get_state::<VoteStateVersions>()?
         .convert_to_current();
@@ -1325,7 +1325,7 @@ pub fn withdraw<S: std::hash::BuildHasher>(
     // NOTE: solana-sdk 1.11 `try_borrow_account` is private(this lib was written in 1.10.29)
     // We use `try_borrow_instruction_account` to fix it.
     let mut to_account = instruction_context
-        .try_borrow_instruction_account(transaction_context, to_account_index)?;
+        .try_borrow_instruction_account(transaction_context, to_account_index as usize)?;
     to_account.checked_add_lamports(lamports)?;
     Ok(())
 }
