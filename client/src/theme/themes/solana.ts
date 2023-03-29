@@ -111,6 +111,11 @@ const SOLANA: PgTheme = {
         },
       },
     },
+    menu: {
+      default: {
+        bg: BG_GRAY,
+      },
+    },
     skeleton: {
       bg: SELECTION,
       highlightColor: HOVER_BG,

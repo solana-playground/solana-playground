@@ -178,6 +178,7 @@ export class PgThemeManager {
     if (!this._theme.transparency) {
       this._theme.transparency = DEFAULT_TRANSPARENCY;
     }
+
     return this;
   }
 
@@ -186,6 +187,7 @@ export class PgThemeManager {
     if (!this._theme.borderRadius) {
       this._theme.borderRadius = DEFAULT_BORDER_RADIUS;
     }
+
     return this;
   }
 
@@ -194,6 +196,7 @@ export class PgThemeManager {
     if (!this._theme.boxShadow) {
       this._theme.boxShadow = DEFAULT_BOX_SHADOW;
     }
+
     return this;
   }
 
@@ -203,6 +206,7 @@ export class PgThemeManager {
       if (this._theme.isDark) this._theme.scrollbar = DEFAULT_SCROLLBAR.dark;
       else this._theme.scrollbar = DEFAULT_SCROLLBAR.light;
     }
+
     return this;
   }
 
@@ -211,6 +215,7 @@ export class PgThemeManager {
     if (!this._theme.transition) {
       this._theme.transition = DEFAULT_TRANSITION;
     }
+
     return this;
   }
 
@@ -249,6 +254,7 @@ export class PgThemeManager {
     if (!this._theme.components) {
       this._theme.components = {};
     }
+
     return this;
   }
 
@@ -299,10 +305,7 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.menu.default.bg) {
       this._theme.components!.menu.default.bg =
-        this._theme.colors?.right?.otherBg;
-    }
-    if (!this._theme.components!.menu.default.color) {
-      this._theme.components!.menu.default.color = "inherit";
+        this._theme.colors.default.bgPrimary;
     }
     if (!this._theme.components!.menu.default.borderRadius) {
       this._theme.components!.menu.default.borderRadius =
@@ -311,18 +314,8 @@ export class PgThemeManager {
     if (!this._theme.components!.menu.default.padding) {
       this._theme.components!.menu.default.padding = "0.25rem 0";
     }
-    if (!this._theme.components!.menu.default.outline) {
-      this._theme.components!.menu.default.outline = "none";
-    }
     if (!this._theme.components!.menu.default.boxShadow) {
       this._theme.components!.menu.default.boxShadow = this._theme.boxShadow;
-    }
-    if (!this._theme.components!.menu.default.fontWeight) {
-      this._theme.components!.menu.default.fontWeight = "normal";
-    }
-    if (!this._theme.components!.menu.default.fontSize) {
-      this._theme.components!.menu.default.fontSize =
-        this._theme.font!.code!.size.small;
     }
 
     return this;
@@ -565,7 +558,6 @@ export class PgThemeManager {
     if (!this._theme.components!.skeleton) {
       this._theme.components!.skeleton = {};
     }
-
     if (!this._theme.components!.skeleton!.bg) {
       this._theme.components!.skeleton.bg = "#44475A";
     }
@@ -606,7 +598,6 @@ export class PgThemeManager {
     if (!this._theme.colors.right.bg) {
       this._theme.colors.right.bg = this._theme.colors.default.bgSecondary;
     }
-
     if (!this._theme.colors.right.otherBg) {
       this._theme.colors.right.otherBg = this._theme.colors.default.bgPrimary;
     }
