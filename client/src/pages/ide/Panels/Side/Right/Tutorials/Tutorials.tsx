@@ -1,8 +1,10 @@
 import { FC, useEffect, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
+import TutorialsSkeleton from "./TutorialsSkeleton";
 import Text from "../../../../../../components/Text";
 import {
+  PgCommon,
   PgTutorial,
   TutorialData,
   TutorialMetadata,
@@ -29,11 +31,14 @@ const Tutorials = () => {
         }
       }
 
+      // Better transition
+      await PgCommon.sleep(250);
+
       setTutorialsData(data);
     })();
   }, []);
 
-  if (!tutorialsData) return null;
+  if (!tutorialsData) return <TutorialsSkeleton />;
 
   return (
     <Wrapper>
@@ -93,10 +98,10 @@ const TutorialWrapper = styled.div<{ progress: number }>`
   ${({ theme, progress }) => css`
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background-color: ${theme.colors.right?.otherBg};
+    background: ${theme.colors.right?.otherBg};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
-    transition: background-color ${theme.transition.duration.medium}
+    transition: background ${theme.transition.duration.medium}
       ${theme.transition.type};
     position: relative;
 
@@ -116,7 +121,8 @@ const TutorialWrapper = styled.div<{ progress: number }>`
     }
 
     &:hover {
-      background-color: ${theme.colors.state.hover.bg};
+      background: ${theme.colors.state.hover.bg};
+      color: ${theme.colors.default.textPrimary};
       cursor: pointer;
     }
   `}

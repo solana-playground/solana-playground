@@ -12,11 +12,12 @@ import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import TestSkeleton from "./Test/TestSkeleton";
+import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
-import { Id } from "../../../../../constants";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
-import { usePgRouter } from "./usePgRouter";
+import { Id } from "../../../../../constants";
 import { Sidebar } from "../../../../../utils/pg";
+import { usePgRouter } from "./usePgRouter";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -28,9 +29,9 @@ interface DefaultRightProps {
   sidebarState: string;
 }
 
-interface RightProps extends DefaultRightProps {
-  width: number;
-  setWidth: Dispatch<SetStateAction<number>>;
+interface RightProps<T = number> extends DefaultRightProps {
+  width: T;
+  setWidth: Dispatch<SetStateAction<T>>;
 }
 
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
@@ -134,14 +135,12 @@ const Title: FC<TitleProps> = ({ sidebarState, className }) => (
   </div>
 );
 
-interface RightLoadingProps {
-  sidebarState: string;
-}
-
-const RightLoading: FC<RightLoadingProps> = ({ sidebarState }) => {
+const RightLoading: FC<DefaultRightProps> = ({ sidebarState }) => {
   switch (sidebarState) {
     case Sidebar.TEST:
       return <TestSkeleton />;
+    case Sidebar.TUTORIALS:
+      return <TutorialsSkeleton />;
     default:
       return (
         <LoadingWrapper>
