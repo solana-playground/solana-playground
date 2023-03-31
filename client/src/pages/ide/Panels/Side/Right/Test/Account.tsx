@@ -440,8 +440,7 @@ const AddSeedMenu = styled.div`
   ${({ theme }) => css`
     position: absolute;
     z-index: 2;
-    background-color: ${theme.colors.tooltip?.bg ??
-    theme.colors.default.bgPrimary};
+    background-color: ${theme.components.tooltip.bg};
     border-radius: ${theme.borderRadius};
     font-size: ${theme.font.code.size.small};
   `}

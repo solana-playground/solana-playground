@@ -71,7 +71,7 @@ export interface PgTheme {
     };
 
     /** Left side of the side panel(icon panel) */
-    left?: BgAndColor; // bgPrimary, textPrimary
+    left?: BgAndColor;
 
     /** Markdown component */
     markdown?: BgAndColor & {
@@ -87,9 +87,6 @@ export interface PgTheme {
 
     /** Notification toast */
     toast?: BgAndColor;
-
-    /** Tooltip component */
-    tooltip?: BgAndColor & { bgSecondary?: string };
 
     /** Tutorial component */
     tutorial?: BgAndColor;
@@ -125,6 +122,9 @@ export interface PgTheme {
     skeleton?: DefaultComponent & {
       highlightColor?: string;
     };
+
+    /** Tooltip component */
+    tooltip?: DefaultStyles & { bgSecondary?: string };
   };
 
   /** Default border radius */
@@ -314,7 +314,9 @@ export type Transparency = {
   high: string;
 };
 
-export type DefaultComponent = {
+export type DefaultComponent = DefaultStyles & DefaultComponentState;
+
+type DefaultStyles = {
   bg?: CSSProperties["background"];
   color?: CSSProperties["color"];
   border?: CSSProperties["border"];
@@ -326,7 +328,7 @@ export type DefaultComponent = {
   fontSize?: CSSProperties["fontSize"];
   fontWeight?: CSSProperties["fontWeight"];
   cursor?: CSSProperties["cursor"];
-} & DefaultComponentState;
+};
 
 type PseudoClass =
   | "hover"

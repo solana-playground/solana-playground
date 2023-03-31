@@ -75,15 +75,14 @@ const DRACULA: PgTheme = {
       bg: BG_DARKER,
       color: TEXT_PRIMARY,
     },
-    tooltip: {
-      bg: BG_DARKER,
-      color: TEXT_PRIMARY,
-    },
   },
   components: {
     skeleton: {
       bg: SELECTION,
       highlightColor: HOVER,
+    },
+    tooltip: {
+      bg: BG_DARKER,
     },
   },
   highlight: {

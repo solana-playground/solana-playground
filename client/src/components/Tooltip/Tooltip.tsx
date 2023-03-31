@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
 import { QuestionMarkOutlined } from "../Icons";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 interface TooltipProps {
   text: string;
@@ -11,15 +12,8 @@ interface TooltipProps {
   className?: string;
 }
 
-const Tooltip: FC<TooltipProps> = ({
-  className,
-  children,
-  ...tooltipProps
-}) => (
-  <StyledTooltip
-    className={`${ClassName.TOOLTIP} ${className}`}
-    {...tooltipProps}
-  >
+const Tooltip: FC<TooltipProps> = ({ className, children, ...props }) => (
+  <StyledTooltip className={`${ClassName.TOOLTIP} ${className}`} {...props}>
     {children}
   </StyledTooltip>
 );
@@ -34,6 +28,9 @@ const StyledTooltip = styled.div<TooltipProps>`
     &::after {
       --scale: 0;
       --arrow-size: 0.5rem;
+      --bg: ${bgSecondary
+        ? theme.components.tooltip.bgSecondary
+        : theme.components.tooltip.bg};
 
       position: absolute;
       top: -0.25rem;
@@ -50,23 +47,14 @@ const StyledTooltip = styled.div<TooltipProps>`
 
       content: "${text}";
       padding: 0.375rem 0.5rem;
-      border-radius: ${theme.borderRadius};
       text-align: center;
       width: max-content;
       max-width: ${maxWidth ?? "fit-content"};
+      ${PgThemeManager.convertToCSS(theme.components.tooltip)};
+      background: var(--bg);
       color: ${text !== "Copied"
-        ? theme.colors.tooltip?.color
+        ? theme.components.tooltip.color
         : theme.colors.state.success.color};
-      background: ${bgSecondary
-        ? theme.colors.tooltip?.bgSecondary
-        : theme.colors.tooltip?.bg};
-      font-size: ${theme.font.code.size.small};
-      box-shadow: ${theme.boxShadow};
-    }
-
-    &:hover::before,
-    &:hover::after {
-      --scale: 1;
     }
 
     &::after {
@@ -74,10 +62,13 @@ const StyledTooltip = styled.div<TooltipProps>`
 
       content: "";
       border: var(--arrow-size) solid transparent;
-      border-top-color: ${bgSecondary
-        ? theme.colors.tooltip?.bgSecondary
-        : theme.colors.tooltip?.bg};
+      border-top-color: var(--bg);
       transform-origin: top center;
+    }
+
+    &:hover::before,
+    &:hover::after {
+      --scale: 1;
     }
   `}
 `;

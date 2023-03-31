@@ -93,8 +93,8 @@ export class PgThemeManager {
       ._input()
       ._select()
       ._skeleton()
-      ._markdown()
       ._tooltip()
+      ._markdown()
       ._sidebarRight()
       ._editor()
       ._home()
@@ -573,18 +573,29 @@ export class PgThemeManager {
 
   /** Set default tooltip component */
   private static _tooltip() {
-    if (!this._theme.colors.tooltip) {
-      this._theme.colors.tooltip = {};
+    if (!this._theme.components!.tooltip) {
+      this._theme.components!.tooltip = {};
     }
-    if (!this._theme.colors.tooltip.bg) {
-      this._theme.colors.tooltip.bg = this._theme.colors.default.bgPrimary;
+    if (!this._theme.components!.tooltip.bg) {
+      this._theme.components!.tooltip.bg = this._theme.colors.default.bgPrimary;
     }
-    if (!this._theme.colors.tooltip.color) {
-      this._theme.colors.tooltip.color = this._theme.colors.default.textPrimary;
+    if (!this._theme.components!.tooltip.color) {
+      this._theme.components!.tooltip.color =
+        this._theme.colors.default.textPrimary;
     }
-    if (!this._theme.colors.tooltip.bgSecondary) {
-      this._theme.colors.tooltip.bgSecondary =
+    if (!this._theme.components!.tooltip.bgSecondary) {
+      this._theme.components!.tooltip.bgSecondary =
         this._theme.colors.default.bgSecondary;
+    }
+    if (!this._theme.components!.tooltip.borderRadius) {
+      this._theme.components!.tooltip.borderRadius = this._theme.borderRadius;
+    }
+    if (!this._theme.components!.tooltip.boxShadow) {
+      this._theme.components!.tooltip.boxShadow = this._theme.boxShadow;
+    }
+    if (!this._theme.components!.tooltip.fontSize) {
+      this._theme.components!.tooltip.fontSize =
+        this._theme.font!.code!.size.small;
     }
 
     return this;

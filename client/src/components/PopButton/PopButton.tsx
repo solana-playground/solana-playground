@@ -110,15 +110,14 @@ const Arrow = styled.div`
     content: "";
     position: absolute;
     border: 10px solid transparent;
-    border-top-color: ${({ theme }) =>
-      theme.colors?.left?.bg ?? theme.colors.default.borderColor};
+    border-top-color: ${({ theme }) => theme.colors.default.borderColor};
   }
 
   &:after {
     content: "";
     position: absolute;
     border: 9px solid transparent;
-    border-top-color: ${({ theme }) => theme.colors?.tooltip?.bg};
+    border-top-color: ${({ theme }) => theme.components.tooltip.bg};
   }
 `;
 

@@ -52,7 +52,7 @@ const Settings = () => (
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors?.tooltip?.bg};
+    background: ${theme.components.tooltip.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
     min-width: 23rem;
