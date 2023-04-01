@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
 import CodeBlock from "./CodeBlock";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 const Markdown = ({ children }: { children: string }) => (
   <StyledMarkdown
@@ -17,6 +18,7 @@ const Markdown = ({ children }: { children: string }) => (
 
 const StyledMarkdown = styled(ReactMarkdown)`
   ${({ theme }) => css`
+    --border-radius: ${theme.borderRadius};
     --color-prettylights-syntax-comment: #8b949e;
     --color-prettylights-syntax-constant: #79c0ff;
     --color-prettylights-syntax-entity: #d2a8ff;
@@ -47,11 +49,11 @@ const StyledMarkdown = styled(ReactMarkdown)`
     --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
     --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
     --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-    --color-fg-default: ${theme.colors.markdown?.color};
+    --color-fg-default: ${theme.components.markdown.color};
     --color-fg-muted: ${theme.colors.default.textSecondary};
     --color-fg-subtle: #484f58;
-    --color-canvas-default: ${theme.colors.markdown?.bg};
-    --color-canvas-subtle: ${theme.colors.markdown?.code?.bg};
+    --color-canvas-default: ${theme.components.markdown.bg};
+    --color-canvas-subtle: ${theme.components.markdown.code!.bg};
     --color-border-default: ${theme.colors.default.borderColor};
     --color-border-muted: ${theme.colors.default.borderColor +
     theme.transparency.high};
@@ -65,12 +67,10 @@ const StyledMarkdown = styled(ReactMarkdown)`
       -ms-text-size-adjust: 100%;
       -webkit-text-size-adjust: 100%;
       margin: 0;
-      color: var(--color-fg-default);
-      background-color: var(--color-canvas-default);
-      font-family: ${theme.font.other.family};
-      font-size: ${theme.font.other.size.medium};
       line-height: 1.5;
       word-wrap: break-word;
+
+      ${PgThemeManager.convertToCSS(theme.components.markdown)};
     }
 
     .octicon {
@@ -301,10 +301,10 @@ const StyledMarkdown = styled(ReactMarkdown)`
       line-height: 10px;
       color: var(--color-fg-default);
       vertical-align: middle;
-      background-color: var(--color-canvas-subtle);
+      background: var(--color-canvas-subtle);
       border: solid 1px var(--color-neutral-muted);
       border-bottom-color: var(--color-neutral-muted);
-      border-radius: 6px;
+      border-radius: var(--border-radius);
       box-shadow: inset 0 -1px 0 var(--color-neutral-muted);
     }
 
@@ -739,7 +739,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     }
 
     table tr:nth-child(2n) {
-      background-color: var(--color-canvas-subtle);
+      background: var(--color-canvas-subtle);
     }
 
     table img {
@@ -854,7 +854,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       margin: 0;
       font-size: 85%;
       background-color: var(--color-neutral-muted);
-      border-radius: 6px;
+      border-radius: var(--border-radius);
     }
 
     code br,
@@ -894,21 +894,21 @@ const StyledMarkdown = styled(ReactMarkdown)`
       overflow: auto;
       font-size: 85%;
       line-height: 1.45;
-      background-color: var(--color-canvas-subtle);
-      border-radius: 6px;
+
+      ${PgThemeManager.convertToCSS(theme.components.markdown.code!)};
     }
 
     pre code,
     pre tt {
       display: inline;
-      max-width: auto;
       padding: 0;
       margin: 0;
       overflow: visible;
       line-height: inherit;
       word-wrap: normal;
-      background-color: transparent;
       border: 0;
+      font-family: inherit;
+      font-size: inherit;
     }
 
     .csv-data td,
@@ -961,7 +961,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       pointer-events: none;
       content: "";
       border: 2px solid var(--color-accent-emphasis);
-      border-radius: 6px;
+      border-radius: var(--border-radius);
     }
 
     .footnotes li:target {

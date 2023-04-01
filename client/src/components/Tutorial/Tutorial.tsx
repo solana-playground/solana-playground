@@ -297,7 +297,7 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
     overflow: auto;
-    background-color: ${theme.colors.tutorial?.bg};
+    background: ${theme.colors.tutorial?.bg};
     color: ${theme.colors.tutorial?.color};
     opacity: 0;
     transition: opacity ${theme.transition.duration.medium}
@@ -353,11 +353,10 @@ const TutorialMainPage = styled.div`
   ${({ theme }) => css`
     max-width: 60rem;
     padding: 2rem;
-    background: green;
     font-family: ${theme.font.other.family};
     font-size: ${theme.font.other.size.medium};
-    background-color: ${theme.colors.markdown?.bg};
-    color: ${theme.colors.markdown?.color};
+    background: ${theme.colors.tutorial?.bg};
+    color: ${theme.colors.tutorial?.color};
     border-top-right-radius: ${theme.borderRadius};
     border-bottom-right-radius: ${theme.borderRadius};
   `}
@@ -440,13 +439,13 @@ const TutorialPage = styled.div`
 
 const TutorialContent = styled.div`
   padding: 2rem;
-  background-color: ${({ theme }) => theme.colors.markdown?.bg};
+  background: ${({ theme }) => theme.colors.tutorial?.bg};
 `;
 
 const NavigationButtonsOutsideWrapper = styled.div`
   padding: 3rem 0;
   max-width: 60rem;
-  background-color: ${({ theme }) => theme.colors.markdown?.bg};
+  background: ${({ theme }) => theme.colors.tutorial?.bg};
 `;
 
 const NavigationButtonsInsideWrapper = styled.div`

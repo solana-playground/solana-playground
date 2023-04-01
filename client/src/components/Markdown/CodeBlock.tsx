@@ -1,5 +1,6 @@
 import { DetailedHTMLProps, HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
+
 import CopyButton from "../CopyButton";
 
 const CodeBlock = ({
@@ -39,7 +40,7 @@ const CopyButtonWrapper = styled.div`
     position: absolute;
     top: 0.5rem;
     right: 1rem;
-    background-color: ${theme.colors.markdown?.bg};
+    background: ${theme.components.markdown.bg};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
 

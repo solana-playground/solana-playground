@@ -75,7 +75,12 @@ export class PgThemeManager {
     )!;
     const font = this._fonts.find((f) => f.family === params.fontFamily)!;
 
-    this._theme = (await importableTheme.importTheme()).default;
+    // Cloning the object because override functions expect the theme to be
+    // uninitialized. Keeping a reference to an old theme may cause unwanted
+    // side effects.
+    this._theme = structuredClone(
+      (await importableTheme.importTheme()).default
+    );
     (this._theme as PgThemeReady).name = importableTheme.name;
     this._font = font;
 
@@ -120,6 +125,8 @@ export class PgThemeManager {
   static convertToCSS(component: DefaultComponent): string {
     return Object.keys(component).reduce((acc, cur) => {
       const key = cur as keyof DefaultComponent;
+      const value = component[key];
+
       let prop = PgCommon.toKebabFromCamel(key) as keyof CSSProperties;
       switch (key) {
         case "bg":
@@ -131,17 +138,22 @@ export class PgThemeManager {
         case "focus":
         case "focusWithin":
           return `${acc}&:${prop}{${this.convertToCSS(
-            component[key] as DefaultComponent
+            value as DefaultComponent
           )}}`;
 
         case "before":
         case "after":
           return `${acc}&::${prop}{${this.convertToCSS(
-            component[key] as DefaultComponent
+            value as DefaultComponent
           )}}`;
       }
 
-      return `${acc}${prop}:${component[key]};`;
+      // Only allow string and number values
+      if (typeof value === "string" || typeof value === "number") {
+        return `${acc}${prop}:${value};`;
+      }
+
+      return acc;
     }, "");
   }
 
@@ -528,26 +540,47 @@ export class PgThemeManager {
 
   /** Set default markdown component */
   private static _markdown() {
-    if (!this._theme.colors.markdown) {
-      this._theme.colors.markdown = {};
+    if (!this._theme.components!.markdown) {
+      this._theme.components!.markdown = {};
     }
-    if (!this._theme.colors.markdown.bg) {
-      this._theme.colors.markdown.bg = this._theme.colors.default.bgPrimary;
+    if (!this._theme.components!.markdown.bg) {
+      this._theme.components!.markdown.bg = "inherit";
     }
-    if (!this._theme.colors.markdown.color) {
-      this._theme.colors.markdown.color =
+    if (!this._theme.components!.markdown.color) {
+      this._theme.components!.markdown.color =
         this._theme.colors.default.textPrimary;
     }
-    if (!this._theme.colors.markdown.code) {
-      this._theme.colors.markdown.code = {};
+    if (!this._theme.components!.markdown.fontFamily) {
+      this._theme.components!.markdown.fontFamily =
+        this._theme.font!.other!.family;
     }
-    if (!this._theme.colors.markdown.code.bg) {
-      this._theme.colors.markdown.code.bg =
+    if (!this._theme.components!.markdown.fontSize) {
+      this._theme.components!.markdown.fontSize =
+        this._theme.font!.other!.size.medium;
+    }
+
+    if (!this._theme.components!.markdown.code) {
+      this._theme.components!.markdown.code = {};
+    }
+    if (!this._theme.components!.markdown.code.bg) {
+      this._theme.components!.markdown.code.bg =
         this._theme.colors.default.bgSecondary;
     }
-    if (!this._theme.colors.markdown.code.color) {
-      this._theme.colors.markdown.code.color =
+    if (!this._theme.components!.markdown.code.color) {
+      this._theme.components!.markdown.code.color =
         this._theme.colors.default.textPrimary;
+    }
+    if (!this._theme.components!.markdown.code.borderRadius) {
+      this._theme.components!.markdown.code.borderRadius =
+        this._theme.borderRadius;
+    }
+    if (!this._theme.components!.markdown.code.fontFamily) {
+      this._theme.components!.markdown.code.fontFamily =
+        this._theme.font!.code!.family;
+    }
+    if (!this._theme.components!.markdown.code.fontSize) {
+      this._theme.components!.markdown.code.fontSize =
+        this._theme.font!.code!.size.medium;
     }
 
     return this;

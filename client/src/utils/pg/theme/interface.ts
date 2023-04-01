@@ -7,8 +7,10 @@ import { MenuKind } from "../../../components/Menu";
 export interface PgTheme {
   /** Whether the theme is a dark theme */
   isDark: boolean;
+
   /**
    * Colors of the theme.
+   *
    * NOTE: Optional theme properties will be derived from the following colors
    * if they are not specified during creation.
    */
@@ -73,12 +75,6 @@ export interface PgTheme {
     /** Left side of the side panel(icon panel) */
     left?: BgAndColor;
 
-    /** Markdown component */
-    markdown?: BgAndColor & {
-      /** Markdown codeblocks */
-      code?: BgAndColor;
-    };
-
     /** Right side of the side panel */
     right?: BgAndColor & { otherBg?: string };
 
@@ -100,11 +96,17 @@ export interface PgTheme {
     /** Button component */
     button?: DefaultOverrides<ButtonKind>;
 
+    /** Input component */
+    input?: DefaultComponent;
+
     /** Menu component */
     menu?: DefaultOverrides<MenuKind>;
 
-    /** Input component */
-    input?: DefaultComponent;
+    /** Markdown component */
+    markdown?: DefaultComponent & {
+      /** Markdown codeblocks */
+      code?: DefaultComponent;
+    };
 
     /** Select component */
     select?: {
@@ -325,6 +327,7 @@ type DefaultStyles = {
   padding?: CSSProperties["padding"];
   boxShadow?: CSSProperties["boxShadow"];
   outline?: CSSProperties["outline"];
+  fontFamily?: CSSProperties["fontFamily"];
   fontSize?: CSSProperties["fontSize"];
   fontWeight?: CSSProperties["fontWeight"];
   cursor?: CSSProperties["cursor"];
