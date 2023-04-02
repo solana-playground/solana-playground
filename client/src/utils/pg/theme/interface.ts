@@ -2,6 +2,7 @@ import { CSSProperties } from "react";
 
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
+import { ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
 export interface PgTheme {
@@ -84,9 +85,6 @@ export interface PgTheme {
     /** Notification toast */
     toast?: BgAndColor;
 
-    /** Tutorial component */
-    tutorial?: BgAndColor;
-
     /** Tutorials page */
     tutorials?: BgAndColor & { card?: BgAndColor };
   };
@@ -127,6 +125,9 @@ export interface PgTheme {
 
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: string };
+
+    /** Tutorial component */
+    tutorial?: ExtendibleDefaultComponent<"aboutPage" | "tutorialPage">;
   };
 
   /** Default border radius */
@@ -166,25 +167,37 @@ export interface ImportableTheme {
   }>;
 }
 
+/** Components that use `DefaultComponent` type */
+type DefaultComponents = "input" | "markdown" | "skeleton" | "tooltip";
+
+/** Components that use `ExtendibleComponent` type */
+type ExtendibleComponents = "tutorial";
+
+/** Components that use `DefaultOverrides` type */
+type OverrideableComponents = "button" | "menu";
+
 /**
  * Ready to be used theme. Some of the optional properties will be overridden
  * with default values.
  */
 export type PgThemeReady<
   T extends PgTheme = PgTheme,
-  P extends keyof T =
-    | "components"
-    | "font"
-    | "borderRadius"
-    | "boxShadow"
-    | "scrollbar"
-    | "transparency"
-    | "transition"
-> = Pick<ImportableTheme, "name"> & {
-  [K in keyof T]: T[K];
-} & {
-  [K in P]-?: Required<T[K]>;
-};
+  C extends NonNullable<T["components"]> = NonNullable<T["components"]>
+> = Pick<ImportableTheme, "name"> &
+  NestedRequired<T> & {
+    // Default components
+    components: Pick<C, DefaultComponents>;
+  } & {
+    // Extendible components
+    components: NestedRequired<Pick<C, ExtendibleComponents>>;
+  } & {
+    // Overrideable components
+    components: ChildRequired<
+      Pick<C, OverrideableComponents>,
+      OverrideableComponents,
+      "default"
+    >;
+  };
 
 export interface PgHighlight {
   // const x: _bool_ = true;
@@ -316,22 +329,37 @@ export type Transparency = {
   high: string;
 };
 
+type ExtendibleDefaultComponent<T extends string> = {
+  default?: DefaultComponent;
+} & {
+  [K in T]?: DefaultComponent;
+};
+
 export type DefaultComponent = DefaultStyles & DefaultComponentState;
 
 type DefaultStyles = {
   bg?: CSSProperties["background"];
-  color?: CSSProperties["color"];
-  border?: CSSProperties["border"];
-  borderColor?: CSSProperties["borderColor"];
-  borderRadius?: CSSProperties["borderRadius"];
-  padding?: CSSProperties["padding"];
-  boxShadow?: CSSProperties["boxShadow"];
-  outline?: CSSProperties["outline"];
-  fontFamily?: CSSProperties["fontFamily"];
-  fontSize?: CSSProperties["fontSize"];
-  fontWeight?: CSSProperties["fontWeight"];
-  cursor?: CSSProperties["cursor"];
-};
+} & Pick<
+  CSSProperties,
+  | "color"
+  | "border"
+  | "borderColor"
+  | "borderRadius"
+  | "borderTopRightRadius"
+  | "borderBottomRightRadius"
+  | "padding"
+  | "boxShadow"
+  | "outline"
+  | "fontFamily"
+  | "fontSize"
+  | "fontWeight"
+  | "cursor"
+  | "flex"
+  | "overflow"
+  | "opacity"
+  | "transition"
+  | "maxWidth"
+>;
 
 type PseudoClass =
   | "hover"

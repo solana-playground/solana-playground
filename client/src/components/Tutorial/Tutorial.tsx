@@ -22,6 +22,7 @@ import { TutorialComponentProps } from "./types";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
 import { useGetAndSetStatic } from "../../hooks";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
   about,
@@ -174,7 +175,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   return (
     <Wrapper ref={wrapperRef}>
       {currentPage === undefined ? null : currentPage === 0 ? (
-        <TutorialMainPageWrapper>
+        <TutorialAboutPageWrapper>
           <GoBackButtonWrapper>
             <Button
               onClick={goBackToTutorials}
@@ -185,7 +186,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
             </Button>
           </GoBackButtonWrapper>
 
-          <TutorialMainPage>
+          <TutorialAboutPage>
             <TutorialTopSectionWrapper>
               <TutorialName>{tutorial.name}</TutorialName>
               <TutorialAuthorsWrapper>
@@ -231,8 +232,8 @@ export const Tutorial: FC<TutorialComponentProps> = ({
             <TutorialAboutSectionWrapper>
               {typeof about === "string" ? <Markdown>{about}</Markdown> : about}
             </TutorialAboutSectionWrapper>
-          </TutorialMainPage>
-        </TutorialMainPageWrapper>
+          </TutorialAboutPage>
+        </TutorialAboutPageWrapper>
       ) : (
         <PagesWrapper rtl={rtl} sizes={[60, 40]}>
           <EditorWrapper>
@@ -295,13 +296,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    flex: 1;
-    overflow: auto;
-    background: ${theme.colors.tutorial?.bg};
-    color: ${theme.colors.tutorial?.color};
-    opacity: 0;
-    transition: opacity ${theme.transition.duration.medium}
-      ${theme.transition.type};
+    ${PgThemeManager.convertToCSS(theme.components.tutorial.default)};
 
     /* Scrollbar */
     /* Chromium */
@@ -331,7 +326,7 @@ const Wrapper = styled.div`
   `}
 `;
 
-const TutorialMainPageWrapper = styled.div`
+const TutorialAboutPageWrapper = styled.div`
   height: 100%;
   width: 100%;
   overflow: auto;
@@ -349,16 +344,9 @@ const GoBackButtonWrapper = styled.div`
   }
 `;
 
-const TutorialMainPage = styled.div`
+const TutorialAboutPage = styled.div`
   ${({ theme }) => css`
-    max-width: 60rem;
-    padding: 2rem;
-    font-family: ${theme.font.other.family};
-    font-size: ${theme.font.other.size.medium};
-    background: ${theme.colors.tutorial?.bg};
-    color: ${theme.colors.tutorial?.color};
-    border-top-right-radius: ${theme.borderRadius};
-    border-bottom-right-radius: ${theme.borderRadius};
+    ${PgThemeManager.convertToCSS(theme.components.tutorial.aboutPage)};
   `}
 `;
 
@@ -430,22 +418,21 @@ const EditorWrapper = styled.div`
 
 const TutorialPage = styled.div`
   ${({ theme }) => css`
-    max-width: 60rem;
     overflow: auto;
+    max-width: 60rem;
     padding-top: ${TAB_HEIGHT};
-    font-family: ${theme.font.other.family};
+    background: ${theme.components.tutorial.default.bg};
   `}
 `;
 
 const TutorialContent = styled.div`
-  padding: 2rem;
-  background: ${({ theme }) => theme.colors.tutorial?.bg};
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.tutorial.tutorialPage)};
+  `}
 `;
 
 const NavigationButtonsOutsideWrapper = styled.div`
   padding: 3rem 0;
-  max-width: 60rem;
-  background: ${({ theme }) => theme.colors.tutorial?.bg};
 `;
 
 const NavigationButtonsInsideWrapper = styled.div`

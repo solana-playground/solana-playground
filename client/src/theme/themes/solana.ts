@@ -85,9 +85,6 @@ const SOLANA: PgTheme = {
       bg: BG_GRAY,
       color: TEXT_PRIMARY,
     },
-    tutorial: {
-      bg: BG_BLACK,
-    },
     tutorials: {
       bg: BG_BLACK,
       card: {
@@ -118,6 +115,11 @@ const SOLANA: PgTheme = {
     tooltip: {
       bg: BG_GRAY,
       bgSecondary: BG_BLACK,
+    },
+    tutorial: {
+      default: {
+        bg: BG_BLACK,
+      },
     },
   },
   highlight: {
