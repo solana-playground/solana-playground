@@ -93,11 +93,11 @@ export class PgThemeManager {
       ._transition()
       ._stateColors()
       ._components()
+      ._skeleton()
       ._button()
       ._menu()
       ._input()
       ._select()
-      ._skeleton()
       ._tooltip()
       ._markdown()
       ._tutorial()
@@ -265,6 +265,24 @@ export class PgThemeManager {
   private static _components() {
     if (!this._theme.components) {
       this._theme.components = {};
+    }
+
+    return this;
+  }
+
+  /** Set default skeleton component */
+  private static _skeleton() {
+    if (!this._theme.components!.skeleton) {
+      this._theme.components!.skeleton = {};
+    }
+    if (!this._theme.components!.skeleton!.bg) {
+      this._theme.components!.skeleton.bg = "#44475A";
+    }
+    if (!this._theme.components!.skeleton!.highlightColor) {
+      this._theme.components!.skeleton.highlightColor = "#343746";
+    }
+    if (!this._theme.components!.skeleton!.borderRadius) {
+      this._theme.components!.skeleton.borderRadius = this._theme.borderRadius;
     }
 
     return this;
@@ -538,24 +556,57 @@ export class PgThemeManager {
     return this;
   }
 
+  /** Set default tooltip component */
+  private static _tooltip() {
+    if (!this._theme.components!.tooltip) {
+      this._theme.components!.tooltip = {};
+    }
+    if (!this._theme.components!.tooltip.bg) {
+      this._theme.components!.tooltip.bg = this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.tooltip.color) {
+      this._theme.components!.tooltip.color =
+        this._theme.colors.default.textPrimary;
+    }
+    if (!this._theme.components!.tooltip.bgSecondary) {
+      this._theme.components!.tooltip.bgSecondary =
+        this._theme.colors.default.bgSecondary;
+    }
+    if (!this._theme.components!.tooltip.borderRadius) {
+      this._theme.components!.tooltip.borderRadius = this._theme.borderRadius;
+    }
+    if (!this._theme.components!.tooltip.boxShadow) {
+      this._theme.components!.tooltip.boxShadow = this._theme.boxShadow;
+    }
+    if (!this._theme.components!.tooltip.fontSize) {
+      this._theme.components!.tooltip.fontSize =
+        this._theme.font!.code!.size.small;
+    }
+
+    return this;
+  }
+
   /** Set default markdown component */
   private static _markdown() {
     if (!this._theme.components!.markdown) {
       this._theme.components!.markdown = {};
     }
-    if (!this._theme.components!.markdown.bg) {
-      this._theme.components!.markdown.bg = "inherit";
+    if (!this._theme.components!.markdown.default) {
+      this._theme.components!.markdown.default = {};
     }
-    if (!this._theme.components!.markdown.color) {
-      this._theme.components!.markdown.color =
+    if (!this._theme.components!.markdown.default.bg) {
+      this._theme.components!.markdown.default.bg = "inherit";
+    }
+    if (!this._theme.components!.markdown.default.color) {
+      this._theme.components!.markdown.default.color =
         this._theme.colors.default.textPrimary;
     }
-    if (!this._theme.components!.markdown.fontFamily) {
-      this._theme.components!.markdown.fontFamily =
+    if (!this._theme.components!.markdown.default.fontFamily) {
+      this._theme.components!.markdown.default.fontFamily =
         this._theme.font!.other!.family;
     }
-    if (!this._theme.components!.markdown.fontSize) {
-      this._theme.components!.markdown.fontSize =
+    if (!this._theme.components!.markdown.default.fontSize) {
+      this._theme.components!.markdown.default.fontSize =
         this._theme.font!.other!.size.medium;
     }
 
@@ -586,49 +637,86 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default skeleton component */
-  private static _skeleton() {
-    if (!this._theme.components!.skeleton) {
-      this._theme.components!.skeleton = {};
+  /** Set default tutorial */
+  private static _tutorial() {
+    if (!this._theme.components!.tutorial) {
+      this._theme.components!.tutorial = {};
     }
-    if (!this._theme.components!.skeleton!.bg) {
-      this._theme.components!.skeleton.bg = "#44475A";
+    if (!this._theme.components!.tutorial.default) {
+      this._theme.components!.tutorial.default = {};
     }
-    if (!this._theme.components!.skeleton!.highlightColor) {
-      this._theme.components!.skeleton.highlightColor = "#343746";
-    }
-    if (!this._theme.components!.skeleton!.borderRadius) {
-      this._theme.components!.skeleton.borderRadius = this._theme.borderRadius;
-    }
-
-    return this;
-  }
-
-  /** Set default tooltip component */
-  private static _tooltip() {
-    if (!this._theme.components!.tooltip) {
-      this._theme.components!.tooltip = {};
-    }
-    if (!this._theme.components!.tooltip.bg) {
-      this._theme.components!.tooltip.bg = this._theme.colors.default.bgPrimary;
-    }
-    if (!this._theme.components!.tooltip.color) {
-      this._theme.components!.tooltip.color =
-        this._theme.colors.default.textPrimary;
-    }
-    if (!this._theme.components!.tooltip.bgSecondary) {
-      this._theme.components!.tooltip.bgSecondary =
+    if (!this._theme.components!.tutorial.default.bg) {
+      this._theme.components!.tutorial.default.bg =
         this._theme.colors.default.bgSecondary;
     }
-    if (!this._theme.components!.tooltip.borderRadius) {
-      this._theme.components!.tooltip.borderRadius = this._theme.borderRadius;
+    if (!this._theme.components!.tutorial.default.color) {
+      this._theme.components!.tutorial.default.color =
+        this._theme.colors.default.textPrimary;
     }
-    if (!this._theme.components!.tooltip.boxShadow) {
-      this._theme.components!.tooltip.boxShadow = this._theme.boxShadow;
+    if (!this._theme.components!.tutorial.default.flex) {
+      this._theme.components!.tutorial.default.flex = 1;
     }
-    if (!this._theme.components!.tooltip.fontSize) {
-      this._theme.components!.tooltip.fontSize =
-        this._theme.font!.code!.size.small;
+    if (!this._theme.components!.tutorial.default.overflow) {
+      this._theme.components!.tutorial.default.overflow = "auto";
+    }
+    if (!this._theme.components!.tutorial.default.opacity) {
+      this._theme.components!.tutorial.default.opacity = 0;
+    }
+    if (!this._theme.components!.tutorial.default.transition) {
+      this._theme.components!.tutorial.default.transition = `opacity ${
+        this._theme.transition!.duration.medium
+      } ${this._theme.transition!.type}`;
+    }
+
+    // About page
+    if (!this._theme.components!.tutorial.aboutPage) {
+      this._theme.components!.tutorial.aboutPage = {};
+    }
+    if (!this._theme.components!.tutorial.aboutPage.bg) {
+      this._theme.components!.tutorial.aboutPage.bg =
+        this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.tutorial.aboutPage.borderBottomRightRadius) {
+      this._theme.components!.tutorial.aboutPage.borderBottomRightRadius =
+        this._theme.borderRadius;
+    }
+    if (!this._theme.components!.tutorial.aboutPage.borderTopRightRadius) {
+      this._theme.components!.tutorial.aboutPage.borderTopRightRadius =
+        this._theme.borderRadius;
+    }
+    if (!this._theme.components!.tutorial.aboutPage.fontFamily) {
+      this._theme.components!.tutorial.aboutPage.fontFamily =
+        this._theme.font!.other!.family;
+    }
+    if (!this._theme.components!.tutorial.aboutPage.fontSize) {
+      this._theme.components!.tutorial.aboutPage.fontSize =
+        this._theme.font!.other!.size.medium;
+    }
+    if (!this._theme.components!.tutorial.aboutPage.padding) {
+      this._theme.components!.tutorial.aboutPage.padding = "2rem";
+    }
+    if (!this._theme.components!.tutorial.aboutPage.maxWidth) {
+      this._theme.components!.tutorial.aboutPage.maxWidth = "60rem";
+    }
+
+    // Tutorial page
+    if (!this._theme.components!.tutorial.tutorialPage) {
+      this._theme.components!.tutorial.tutorialPage = {};
+    }
+    if (!this._theme.components!.tutorial.tutorialPage.bg) {
+      this._theme.components!.tutorial.tutorialPage.bg =
+        this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.tutorial.tutorialPage.fontFamily) {
+      this._theme.components!.tutorial.tutorialPage.fontFamily =
+        this._theme.font!.other!.family;
+    }
+    if (!this._theme.components!.tutorial.tutorialPage.fontSize) {
+      this._theme.components!.tutorial.tutorialPage.fontSize =
+        this._theme.font!.other!.size.medium;
+    }
+    if (!this._theme.components!.tutorial.tutorialPage.padding) {
+      this._theme.components!.tutorial.tutorialPage.padding = "2rem";
     }
 
     return this;
@@ -790,91 +878,6 @@ export class PgThemeManager {
     if (!this._theme.colors.terminal.selectionBg) {
       this._theme.colors.terminal.selectionBg =
         this._theme.colors.default.textSecondary;
-    }
-
-    return this;
-  }
-
-  /** Set default tutorial */
-  private static _tutorial() {
-    if (!this._theme.components!.tutorial) {
-      this._theme.components!.tutorial = {};
-    }
-    if (!this._theme.components!.tutorial.default) {
-      this._theme.components!.tutorial.default = {};
-    }
-    if (!this._theme.components!.tutorial.default.bg) {
-      this._theme.components!.tutorial.default.bg =
-        this._theme.colors.default.bgSecondary;
-    }
-    if (!this._theme.components!.tutorial.default.color) {
-      this._theme.components!.tutorial.default.color =
-        this._theme.colors.default.textPrimary;
-    }
-    if (!this._theme.components!.tutorial.default.flex) {
-      this._theme.components!.tutorial.default.flex = 1;
-    }
-    if (!this._theme.components!.tutorial.default.overflow) {
-      this._theme.components!.tutorial.default.overflow = "auto";
-    }
-    if (!this._theme.components!.tutorial.default.opacity) {
-      this._theme.components!.tutorial.default.opacity = 0;
-    }
-    if (!this._theme.components!.tutorial.default.transition) {
-      this._theme.components!.tutorial.default.transition = `opacity ${
-        this._theme.transition!.duration.medium
-      } ${this._theme.transition!.type}`;
-    }
-
-    // About page
-    if (!this._theme.components!.tutorial.aboutPage) {
-      this._theme.components!.tutorial.aboutPage = {};
-    }
-    if (!this._theme.components!.tutorial.aboutPage.bg) {
-      this._theme.components!.tutorial.aboutPage.bg =
-        this._theme.colors.default.bgPrimary;
-    }
-    if (!this._theme.components!.tutorial.aboutPage.borderBottomRightRadius) {
-      this._theme.components!.tutorial.aboutPage.borderBottomRightRadius =
-        this._theme.borderRadius;
-    }
-    if (!this._theme.components!.tutorial.aboutPage.borderTopRightRadius) {
-      this._theme.components!.tutorial.aboutPage.borderTopRightRadius =
-        this._theme.borderRadius;
-    }
-    if (!this._theme.components!.tutorial.aboutPage.fontFamily) {
-      this._theme.components!.tutorial.aboutPage.fontFamily =
-        this._theme.font!.other!.family;
-    }
-    if (!this._theme.components!.tutorial.aboutPage.fontSize) {
-      this._theme.components!.tutorial.aboutPage.fontSize =
-        this._theme.font!.other!.size.medium;
-    }
-    if (!this._theme.components!.tutorial.aboutPage.padding) {
-      this._theme.components!.tutorial.aboutPage.padding = "2rem";
-    }
-    if (!this._theme.components!.tutorial.aboutPage.maxWidth) {
-      this._theme.components!.tutorial.aboutPage.maxWidth = "60rem";
-    }
-
-    // Tutorial page
-    if (!this._theme.components!.tutorial.tutorialPage) {
-      this._theme.components!.tutorial.tutorialPage = {};
-    }
-    if (!this._theme.components!.tutorial.tutorialPage.bg) {
-      this._theme.components!.tutorial.tutorialPage.bg =
-        this._theme.colors.default.bgPrimary;
-    }
-    if (!this._theme.components!.tutorial.tutorialPage.fontFamily) {
-      this._theme.components!.tutorial.tutorialPage.fontFamily =
-        this._theme.font!.other!.family;
-    }
-    if (!this._theme.components!.tutorial.tutorialPage.fontSize) {
-      this._theme.components!.tutorial.tutorialPage.fontSize =
-        this._theme.font!.other!.size.medium;
-    }
-    if (!this._theme.components!.tutorial.tutorialPage.padding) {
-      this._theme.components!.tutorial.tutorialPage.padding = "2rem";
     }
 
     return this;

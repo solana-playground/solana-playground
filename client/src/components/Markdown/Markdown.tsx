@@ -49,11 +49,11 @@ const StyledMarkdown = styled(ReactMarkdown)`
     --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
     --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
     --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-    --color-fg-default: ${theme.components.markdown.color};
+    --color-fg-default: ${theme.components.markdown.default.color};
     --color-fg-muted: ${theme.colors.default.textSecondary};
     --color-fg-subtle: #484f58;
-    --color-canvas-default: ${theme.components.markdown.bg};
-    --color-canvas-subtle: ${theme.components.markdown.code!.bg};
+    --color-canvas-default: ${theme.components.markdown.default.bg};
+    --color-canvas-subtle: ${theme.components.markdown.code.bg};
     --color-border-default: ${theme.colors.default.borderColor};
     --color-border-muted: ${theme.colors.default.borderColor +
     theme.transparency.high};
@@ -70,7 +70,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       line-height: 1.5;
       word-wrap: break-word;
 
-      ${PgThemeManager.convertToCSS(theme.components.markdown)};
+      ${PgThemeManager.convertToCSS(theme.components.markdown.default)};
     }
 
     .octicon {
@@ -895,7 +895,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       font-size: 85%;
       line-height: 1.45;
 
-      ${PgThemeManager.convertToCSS(theme.components.markdown.code!)};
+      ${PgThemeManager.convertToCSS(theme.components.markdown.code)};
     }
 
     pre code,

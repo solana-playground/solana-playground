@@ -22,12 +22,12 @@ export type SetElementAsync =
 
 export type PgSet<T> = T | ((cur: T) => T);
 
-/** Makes properties required for depth 1 and 2 */
+/** Make properties required for depth 1 and 2 */
 export type NestedRequired<T> = {
   [K in keyof T]-?: Required<T[K]>;
 };
 
-/** Makes properties required for depth 2 */
+/** Make properties required for depth 2 */
 export type ChildRequired<
   T,
   K extends keyof T = keyof T,
@@ -36,6 +36,4 @@ export type ChildRequired<
   [P in K]: {
     [P2 in K2]-?: NonNullable<T[K]>[K2];
   };
-} & {
-  [P in K]: Omit<NonNullable<T[K]>, K2>;
 };

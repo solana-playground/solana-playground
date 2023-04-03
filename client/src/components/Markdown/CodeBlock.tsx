@@ -40,7 +40,7 @@ const CopyButtonWrapper = styled.div`
     position: absolute;
     top: 0.5rem;
     right: 1rem;
-    background: ${theme.components.markdown.bg};
+    background: ${theme.components.tutorial.tutorialPage.bg};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
 

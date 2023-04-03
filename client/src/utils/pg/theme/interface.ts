@@ -92,19 +92,16 @@ export interface PgTheme {
   /** Override the component defaults */
   components?: {
     /** Button component */
-    button?: DefaultOverrides<ButtonKind>;
+    button?: OverrideableComponent<ButtonKind>;
 
     /** Input component */
     input?: DefaultComponent;
 
     /** Menu component */
-    menu?: DefaultOverrides<MenuKind>;
+    menu?: OverrideableComponent<MenuKind>;
 
     /** Markdown component */
-    markdown?: DefaultComponent & {
-      /** Markdown codeblocks */
-      code?: DefaultComponent;
-    };
+    markdown?: ExtendibleComponent<"code">;
 
     /** Select component */
     select?: {
@@ -127,7 +124,7 @@ export interface PgTheme {
     tooltip?: DefaultStyles & { bgSecondary?: string };
 
     /** Tutorial component */
-    tutorial?: ExtendibleDefaultComponent<"aboutPage" | "tutorialPage">;
+    tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
   };
 
   /** Default border radius */
@@ -168,12 +165,12 @@ export interface ImportableTheme {
 }
 
 /** Components that use `DefaultComponent` type */
-type DefaultComponents = "input" | "markdown" | "skeleton" | "tooltip";
+type DefaultComponents = "input" | "skeleton" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
-type ExtendibleComponents = "tutorial";
+type ExtendibleComponents = "select" | "markdown" | "tutorial";
 
-/** Components that use `DefaultOverrides` type */
+/** Components that use `OverrideableComponent` type */
 type OverrideableComponents = "button" | "menu";
 
 /**
@@ -199,6 +196,7 @@ export type PgThemeReady<
     >;
   };
 
+/** Syntax highlighting styles */
 export interface PgHighlight {
   // const x: _bool_ = true;
   typeName: HighlightToken;
@@ -293,6 +291,7 @@ export interface PgHighlight {
   annotion: HighlightToken;
 }
 
+/** Playground font */
 export type PgFont = {
   family: string;
   size: {
@@ -329,14 +328,7 @@ export type Transparency = {
   high: string;
 };
 
-type ExtendibleDefaultComponent<T extends string> = {
-  default?: DefaultComponent;
-} & {
-  [K in T]?: DefaultComponent;
-};
-
-export type DefaultComponent = DefaultStyles & DefaultComponentState;
-
+/** Properties that are allowed to be specified from theme objects */
 type DefaultStyles = {
   bg?: CSSProperties["background"];
 } & Pick<
@@ -361,6 +353,7 @@ type DefaultStyles = {
   | "maxWidth"
 >;
 
+/** CSS pseudo classes */
 type PseudoClass =
   | "hover"
   | "active"
@@ -369,17 +362,29 @@ type PseudoClass =
   | "before"
   | "after";
 
+/** Default component without pseudo classes */
 type DefaultComponentState<T extends PseudoClass = PseudoClass> = {
   [K in T]?: Omit<DefaultComponent, T>;
 };
 
-type DefaultOverrides<T extends string> = {
+/** Default component with pseudo classes */
+export type DefaultComponent = DefaultStyles & DefaultComponentState;
+
+/** Overrideable component */
+type OverrideableComponent<T extends string> = {
   /** Default CSS values of the Button component */
   default?: DefaultComponent;
   /** Override the defaults with specificity */
   overrides?: {
     [K in T]?: DefaultComponent;
   };
+};
+
+/** Extendible component */
+type ExtendibleComponent<T extends string> = {
+  default?: DefaultComponent;
+} & {
+  [K in T]?: DefaultComponent;
 };
 
 type Bg = {
