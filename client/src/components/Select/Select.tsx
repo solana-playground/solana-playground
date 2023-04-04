@@ -1,6 +1,8 @@
 import ReactSelect, { GroupBase, Props } from "react-select";
 import styled, { css, useTheme } from "styled-components";
 
+import { PgThemeManager } from "../../utils/pg/theme";
+
 const Select = <
   Option,
   IsMulti extends boolean = false,
@@ -17,10 +19,9 @@ const Select = <
       styles={{
         control: (base) => ({
           ...base,
-          minHeight: "fit-content",
           ...mapTheme(select.control),
-          ":hover": mapTheme(select.control!.hover),
-          ":focus-within": mapTheme(select.control!.focusWithin),
+          ":hover": mapTheme(select.control.hover),
+          ":focus-within": mapTheme(select.control.focusWithin),
         }),
         menu: (base) => ({
           ...base,
@@ -28,7 +29,7 @@ const Select = <
         }),
         option: (base, state) => {
           const stateStyle = state.isFocused
-            ? mapTheme(select.option!.focus)
+            ? mapTheme(select.option.focus)
             : {};
 
           return {
@@ -44,9 +45,9 @@ const Select = <
               display: "flex",
               alignItems: "center",
               marginRight: "0.5rem",
-              ...mapTheme(select.option!.before),
+              ...mapTheme(select.option.before),
             },
-            ":active": mapTheme(select.option!.active),
+            ":active": mapTheme(select.option.active),
           };
         },
         singleValue: (base) => ({
@@ -62,7 +63,7 @@ const Select = <
           ...base,
           ...mapTheme(select.dropdownIndicator),
           "> svg": {
-            color: select.dropdownIndicator?.color,
+            color: select.dropdownIndicator.color,
             height: "1rem",
             width: "1rem",
           },
@@ -79,8 +80,7 @@ const Select = <
 
 const StyledReactSelect = styled(ReactSelect)`
   ${({ theme }) => css`
-    font-size: ${theme.font.code.size.small};
-    width: 100%;
+    ${PgThemeManager.convertToCSS(theme.components.select.default)};
 
     /* Scrollbar */
     /* Chromium */

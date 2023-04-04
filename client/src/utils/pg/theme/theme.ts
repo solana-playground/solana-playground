@@ -294,6 +294,7 @@ export class PgThemeManager {
       this._theme.components!.button = {};
     }
 
+    // Default
     if (!this._theme.components!.button.default) {
       this._theme.components!.button.default = {};
     }
@@ -330,6 +331,7 @@ export class PgThemeManager {
       this._theme.components!.menu = {};
     }
 
+    // Default
     if (!this._theme.components!.menu.default) {
       this._theme.components!.menu.default = {};
     }
@@ -412,6 +414,15 @@ export class PgThemeManager {
       this._theme.components!.select = {};
     }
 
+    // Default
+    if (!this._theme.components!.select.default) {
+      this._theme.components!.select.default = {};
+    }
+    if (!this._theme.components!.select.default.fontSize) {
+      this._theme.components!.select.default.fontSize =
+        this._theme.font!.code!.size.small;
+    }
+
     // Control
     if (!this._theme.components!.select.control) {
       this._theme.components!.select.control = {};
@@ -428,12 +439,18 @@ export class PgThemeManager {
       this._theme.components!.select.control.borderRadius =
         this._theme.borderRadius;
     }
+    if (!this._theme.components!.select.control.minHeight) {
+      this._theme.components!.select.control.minHeight = "fit-content";
+    }
     if (!this._theme.components!.select.control.hover) {
       this._theme.components!.select.control.hover = {};
     }
     if (!this._theme.components!.select.control.hover.borderColor) {
       this._theme.components!.select.control.hover.borderColor =
         this._theme.colors.state.hover.color;
+    }
+    if (!this._theme.components!.select.control.hover.cursor) {
+      this._theme.components!.select.control.hover.cursor = "pointer";
     }
     if (!this._theme.components!.select.control.focusWithin) {
       this._theme.components!.select.control.focusWithin = {};
@@ -591,6 +608,8 @@ export class PgThemeManager {
     if (!this._theme.components!.markdown) {
       this._theme.components!.markdown = {};
     }
+
+    // Default
     if (!this._theme.components!.markdown.default) {
       this._theme.components!.markdown.default = {};
     }
@@ -642,6 +661,8 @@ export class PgThemeManager {
     if (!this._theme.components!.tutorial) {
       this._theme.components!.tutorial = {};
     }
+
+    // Default
     if (!this._theme.components!.tutorial.default) {
       this._theme.components!.tutorial.default = {};
     }

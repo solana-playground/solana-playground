@@ -104,16 +104,16 @@ export interface PgTheme {
     markdown?: ExtendibleComponent<"code">;
 
     /** Select component */
-    select?: {
-      control?: DefaultComponent;
-      menu?: DefaultComponent;
-      option?: DefaultComponent;
-      singleValue?: DefaultComponent;
-      input?: DefaultComponent;
-      groupHeading?: DefaultComponent;
-      dropdownIndicator?: DefaultComponent;
-      indicatorSeparator?: DefaultComponent;
-    };
+    select?: ExtendibleComponent<
+      | "control"
+      | "menu"
+      | "option"
+      | "singleValue"
+      | "input"
+      | "groupHeading"
+      | "dropdownIndicator"
+      | "indicatorSeparator"
+    >;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
@@ -351,6 +351,7 @@ type DefaultStyles = {
   | "opacity"
   | "transition"
   | "maxWidth"
+  | "minHeight"
 >;
 
 /** CSS pseudo classes */
