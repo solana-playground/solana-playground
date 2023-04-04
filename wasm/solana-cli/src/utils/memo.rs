@@ -9,7 +9,10 @@ impl WithMemo for Vec<Instruction> {
         if let Some(memo) = &memo {
             let memo = memo.as_ref();
             let memo_ix = Instruction {
-                program_id: Pubkey::new("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr".as_bytes()),
+                program_id: Pubkey::try_from(
+                    "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr".as_bytes(),
+                )
+                .unwrap(),
                 accounts: vec![],
                 data: memo.as_bytes().to_vec(),
             };
