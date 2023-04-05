@@ -71,15 +71,16 @@ const DRACULA: PgTheme = {
     iconButton: {
       selectedBg: SELECTION,
     },
-    toast: {
-      bg: BG_DARKER,
-      color: TEXT_PRIMARY,
-    },
   },
   components: {
     skeleton: {
       bg: SELECTION,
       highlightColor: HOVER,
+    },
+    toast: {
+      default: {
+        bg: BG_DARKER,
+      },
     },
     tooltip: {
       bg: BG_DARKER,

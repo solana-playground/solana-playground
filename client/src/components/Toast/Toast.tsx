@@ -8,6 +8,7 @@ import { ICONBAR_WIDTH } from "../../pages/ide/Panels/Side/Left";
 import { ExplorerLink } from "./ExplorerLink";
 import { txHashAtom } from "../../state";
 import { PgPlaynet } from "../../utils/pg";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 const Toast = () => {
   const [txHash] = useAtom(txHashAtom);
@@ -43,20 +44,15 @@ const StyledContainer = styled(ToastContainer)`
     }
 
     .Toastify__toast {
-      background-color: ${theme.colors.toast?.bg ??
-      theme.colors.default.bgPrimary};
-      border-radius: ${theme.borderRadius};
-      color: ${theme.colors.default.textPrimary};
-      font-family: ${theme.font.code.family};
-      font-size: ${theme.font.code.size.medium};
+      ${PgThemeManager.convertToCSS(theme.components.toast.default)};
     }
 
     .Toastify__progress-bar {
-      background: ${theme.colors.default.primary};
+      ${PgThemeManager.convertToCSS(theme.components.toast.progress)};
     }
 
     .Toastify__close-button--light {
-      color: ${theme.colors.default.textSecondary};
+      ${PgThemeManager.convertToCSS(theme.components.toast.closeButton)};
     }
   `}
 `;

@@ -81,10 +81,6 @@ const SOLANA: PgTheme = {
     terminal: {
       bg: BG_GRAY,
     },
-    toast: {
-      bg: BG_GRAY,
-      color: TEXT_PRIMARY,
-    },
     tutorials: {
       bg: BG_BLACK,
       card: {
@@ -111,6 +107,11 @@ const SOLANA: PgTheme = {
     skeleton: {
       bg: SELECTION,
       highlightColor: HOVER_BG,
+    },
+    toast: {
+      default: {
+        bg: BG_GRAY,
+      },
     },
     tooltip: {
       bg: BG_GRAY,

@@ -82,9 +82,6 @@ export interface PgTheme {
     /** Terminal */
     terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
 
-    /** Notification toast */
-    toast?: BgAndColor;
-
     /** Tutorials page */
     tutorials?: BgAndColor & { card?: BgAndColor };
   };
@@ -119,6 +116,9 @@ export interface PgTheme {
     skeleton?: DefaultComponent & {
       highlightColor?: string;
     };
+
+    /** Notification toast component */
+    toast?: ExtendibleComponent<"progress" | "closeButton">;
 
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: string };
@@ -168,7 +168,7 @@ export interface ImportableTheme {
 type DefaultComponents = "input" | "skeleton" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
-type ExtendibleComponents = "select" | "markdown" | "tutorial";
+type ExtendibleComponents = "markdown" | "select" | "toast" | "tutorial";
 
 /** Components that use `OverrideableComponent` type */
 type OverrideableComponents = "button" | "menu";

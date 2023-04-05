@@ -98,6 +98,7 @@ export class PgThemeManager {
       ._menu()
       ._input()
       ._select()
+      ._toast()
       ._tooltip()
       ._markdown()
       ._tutorial()
@@ -275,13 +276,13 @@ export class PgThemeManager {
     if (!this._theme.components!.skeleton) {
       this._theme.components!.skeleton = {};
     }
-    if (!this._theme.components!.skeleton!.bg) {
+    if (!this._theme.components!.skeleton.bg) {
       this._theme.components!.skeleton.bg = "#44475A";
     }
-    if (!this._theme.components!.skeleton!.highlightColor) {
+    if (!this._theme.components!.skeleton.highlightColor) {
       this._theme.components!.skeleton.highlightColor = "#343746";
     }
-    if (!this._theme.components!.skeleton!.borderRadius) {
+    if (!this._theme.components!.skeleton.borderRadius) {
       this._theme.components!.skeleton.borderRadius = this._theme.borderRadius;
     }
 
@@ -567,6 +568,61 @@ export class PgThemeManager {
     }
     if (!this._theme.components!.select.indicatorSeparator.bg) {
       this._theme.components!.select.indicatorSeparator.bg =
+        this._theme.colors.default.textSecondary;
+    }
+
+    return this;
+  }
+
+  /** Set default skeleton component */
+  private static _toast() {
+    if (!this._theme.components!.toast) {
+      this._theme.components!.toast = {};
+    }
+
+    // Default
+    if (!this._theme.components!.toast.default) {
+      this._theme.components!.toast.default = {};
+    }
+    if (!this._theme.components!.toast.default.bg) {
+      this._theme.components!.toast.default.bg =
+        this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.toast.default.color) {
+      this._theme.components!.toast.default.color =
+        this._theme.colors.default.textPrimary;
+    }
+    if (!this._theme.components!.toast.default.borderRadius) {
+      this._theme.components!.toast.default.borderRadius =
+        this._theme.borderRadius;
+    }
+    if (!this._theme.components!.toast.default.fontFamily) {
+      this._theme.components!.toast.default.fontFamily =
+        this._theme.font!.code!.family;
+    }
+    if (!this._theme.components!.toast.default.fontSize) {
+      this._theme.components!.toast.default.fontSize =
+        this._theme.font!.code!.size.medium;
+    }
+    if (!this._theme.components!.toast.default.cursor) {
+      this._theme.components!.toast.default.cursor = "default";
+    }
+
+    // Progress bar
+    if (!this._theme.components!.toast.progress) {
+      this._theme.components!.toast.progress = {};
+    }
+    if (!this._theme.components!.toast.progress.bg) {
+      this._theme.components!.toast.progress.bg =
+        this._theme.colors.default.primary;
+    }
+
+    // Close button
+    if (!this._theme.components!.toast.closeButton) {
+      this._theme.components!.toast.closeButton = {};
+    }
+    if (!this._theme.components!.toast.closeButton.color) {
+      this._theme.components!.toast.closeButton.color =
         this._theme.colors.default.textSecondary;
     }
 
