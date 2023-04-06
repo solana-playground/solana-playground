@@ -78,7 +78,7 @@ const Wrapper = styled.div`
     justify-content: space-between;
     min-height: ${TAB_HEIGHT};
     user-select: none;
-    background-color: ${theme.colors.right?.bg};
+    background-color: ${theme.components.sidebar.right.bg};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
     font-size: ${theme.font.code.size.small};
   `}

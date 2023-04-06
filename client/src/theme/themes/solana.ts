@@ -74,10 +74,6 @@ const SOLANA: PgTheme = {
         bg: BG_GRAY,
       },
     },
-    right: {
-      bg: BG_BLACK,
-      otherBg: BG_GRAY,
-    },
     terminal: {
       bg: BG_GRAY,
     },
@@ -102,6 +98,19 @@ const SOLANA: PgTheme = {
     menu: {
       default: {
         bg: BG_GRAY,
+      },
+    },
+    sidebar: {
+      left: {
+        iconButton: {
+          selected: {
+            bg: "transparent",
+          },
+        },
+      },
+      right: {
+        bg: BG_BLACK,
+        otherBg: BG_GRAY,
       },
     },
     skeleton: {

@@ -62,12 +62,6 @@ const LIGHT: PgTheme = {
         color: BLUE,
       },
     },
-    left: {
-      bg: BG_DARK,
-    },
-    right: {
-      bg: BG_LIGHT,
-    },
     editor: {
       bg: BG_WHITE,
       color: "#0f1780",
@@ -81,10 +75,6 @@ const LIGHT: PgTheme = {
         color: GUTTER_BLUE,
         activeColor: TEXT_PRIMARY,
       },
-    },
-    iconButton: {
-      selectedBg: "#00000020",
-      selectedBorderColor: BG_LIGHT,
     },
     bottom: {
       color: BG_WHITE,
@@ -130,6 +120,22 @@ const LIGHT: PgTheme = {
         outline: {
           borderColor: TEXT_SECONDARY + "36",
         },
+      },
+    },
+    sidebar: {
+      left: {
+        default: {
+          bg: BG_DARK,
+        },
+        iconButton: {
+          selected: {
+            bg: "#00000020",
+            borderLeft: `2px solid ${BG_LIGHT}`,
+          },
+        },
+      },
+      right: {
+        bg: BG_LIGHT,
       },
     },
     skeleton: {

@@ -68,11 +68,17 @@ const DRACULA: PgTheme = {
     bottom: {
       bg: BG_DARKER,
     },
-    iconButton: {
-      selectedBg: SELECTION,
-    },
   },
   components: {
+    sidebar: {
+      left: {
+        iconButton: {
+          selected: {
+            bg: SELECTION,
+          },
+        },
+      },
+    },
     skeleton: {
       bg: SELECTION,
       highlightColor: HOVER,

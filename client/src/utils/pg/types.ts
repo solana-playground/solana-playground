@@ -37,3 +37,10 @@ export type ChildRequired<
     [P2 in K2]-?: NonNullable<T[K]>[K2];
   };
 };
+
+/** Makes every prop required until `U` */
+export type RequiredUntil<T, U> = T extends U
+  ? { [K in keyof T]: T[K] }
+  : {
+      [K in keyof T]-?: RequiredUntil<T[K], U>;
+    };

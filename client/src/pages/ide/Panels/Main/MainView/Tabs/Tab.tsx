@@ -68,7 +68,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
     justify-content: center;
     background-color: ${current
       ? theme.colors.default.bgPrimary
-      : theme.colors.right?.bg};
+      : theme.components.sidebar.right.bg};
     color: ${current
       ? theme.colors.default.textPrimary
       : theme.colors.default.textSecondary};

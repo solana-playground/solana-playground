@@ -83,7 +83,7 @@ const Wrapper = styled.div`
 
     &::-webkit-scrollbar-track,
     & ::-webkit-scrollbar-track {
-      background-color: ${theme.colors.right?.bg};
+      background-color: ${theme.components.sidebar.right.bg};
       border-left: 1px solid ${theme.colors.default.borderColor};
     }
 
@@ -99,7 +99,7 @@ const Wrapper = styled.div`
     }
 
     & ::-webkit-scrollbar-corner {
-      background-color: ${theme.colors.right?.bg};
+      background-color: ${theme.components.sidebar.right.bg};
     }
   `}
 `;

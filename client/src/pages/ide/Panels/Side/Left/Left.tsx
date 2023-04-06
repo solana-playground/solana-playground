@@ -6,9 +6,10 @@ import Link from "../../../../../components/Link";
 import PopButton from "../../../../../components/PopButton";
 import Settings from "../Right/Settings";
 import useActiveTab, { ID_PREFIX } from "./useActiveTab";
+import { sidebarData } from "./sidebar-data";
 import { GITHUB_URL } from "../../../../../constants";
 import { PgCommon, Sidebar } from "../../../../../utils/pg";
-import { sidebarData } from "./sidebar-data";
+import { PgThemeManager } from "../../../../../utils/pg/theme";
 
 interface LeftProps {
   sidebarState: Sidebar;
@@ -80,9 +81,8 @@ const Wrapper = styled.div`
     width: ${ICONBAR_WIDTH};
     user-select: none;
     overflow: hidden;
-    background-color: ${theme.colors?.left?.bg ??
-    theme.colors.default.bgPrimary};
-    border-right: 1px solid ${theme.colors.default.borderColor};
+
+    ${PgThemeManager.convertToCSS(theme.components.sidebar.left.default)};
   `}
 `;
 

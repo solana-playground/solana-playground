@@ -64,9 +64,6 @@ const PLAYGROUND: PgTheme = {
     bottom: {
       bg: DARK_BLUE,
     },
-    iconButton: {
-      selectedBg: BG_LIGHT,
-    },
     editor: {
       gutter: {
         color: COMMENT,

@@ -2,6 +2,7 @@ import { EventName } from "../../constants";
 import { PgCommon } from "./common";
 import { PgDisposable, PgSet, SetElementAsync } from "./types";
 
+/** Sidebar states */
 export enum Sidebar {
   CLOSED = "Closed",
   EXPLORER = "Explorer",
@@ -13,6 +14,16 @@ export enum Sidebar {
   WALLET = "Wallet",
   SETTINGS = "Settings",
 }
+
+/** Each item props in left sidebar */
+export interface SidebarIcon {
+  title: string;
+  src: string;
+  value: Sidebar;
+}
+
+/** Left sidebar data */
+export type SidebarData = { [K in "top" | "bottom"]: SidebarIcon[] };
 
 export class PgView {
   /**

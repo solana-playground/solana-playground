@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
 import { PgCommon, Sidebar } from "../../../../utils/pg";
 import { EventName, Route } from "../../../../constants";
+import { PgThemeManager } from "../../../../utils/pg/theme";
 import { useSetStatic } from "../../../../hooks";
 
 const Side = () => {
@@ -93,7 +94,12 @@ const Side = () => {
 };
 
 const Wrapper = styled.div`
-  display: flex;
+  ${({ theme }) =>
+    css`
+      display: flex;
+
+      ${PgThemeManager.convertToCSS(theme.components.sidebar.default)};
+    `}
 `;
 
 export default Side;

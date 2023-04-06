@@ -1,7 +1,8 @@
 import { CSSProperties, FC, Ref } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 interface IconButtonProps {
   id?: string;
@@ -33,26 +34,29 @@ const IconButton: FC<IconButtonProps> = ({
 );
 
 const IconWrapper = styled.div`
-  cursor: pointer;
-  width: 100%;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  ${({ theme }) => css`
+    cursor: pointer;
+    width: 100%;
+    height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  &.${ClassName.ACTIVE} {
-    background-color: ${({ theme }) => theme.colors?.iconButton?.selectedBg};
-    border-left: 2px solid
-      ${({ theme }) =>
-        theme.colors?.iconButton?.selectedBorderColor ??
-        theme.colors.default.secondary};
-    border-right: 2px solid transparent;
-  }
+    ${PgThemeManager.convertToCSS(
+      theme.components.sidebar.left.iconButton.default
+    )};
 
-  &.${ClassName.ACTIVE} img,
-  &:hover:not(.${ClassName.ACTIVE}) img {
-    filter: invert(1);
-  }
+    &.${ClassName.ACTIVE} {
+      ${PgThemeManager.convertToCSS(
+        theme.components.sidebar.left.iconButton.selected
+      )};
+    }
+
+    &.${ClassName.ACTIVE} img,
+    &:hover:not(.${ClassName.ACTIVE}) img {
+      filter: invert(1);
+    }
+  `}
 `;
 
 const Icon = styled.img`

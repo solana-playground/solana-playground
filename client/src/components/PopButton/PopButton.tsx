@@ -7,13 +7,14 @@ import {
   useState,
 } from "react";
 import { useFloating, shift, arrow, autoUpdate } from "@floating-ui/react-dom";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import IconButton from "../IconButton";
+import { SidebarIcon } from "../../utils/pg";
 
 interface PopButtonProps {
   PopElement: ComponentType;
-  buttonProps?: object;
+  buttonProps: SidebarIcon;
 }
 
 const PopButton: FC<PopButtonProps> = ({ PopElement, buttonProps }) => {
@@ -54,12 +55,12 @@ const PopButton: FC<PopButtonProps> = ({ PopElement, buttonProps }) => {
       return;
     }
 
-    const handleClickOutside = (e: any) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         buttonWrapperRef &&
-        !buttonWrapperRef.current!.contains(e.target) &&
+        !buttonWrapperRef.current!.contains(e.target as Node) &&
         refs.floating &&
-        !refs.floating.current!.contains(e.target)
+        !refs.floating.current!.contains(e.target as Node)
       )
         close();
     };
@@ -103,22 +104,24 @@ const PopButton: FC<PopButtonProps> = ({ PopElement, buttonProps }) => {
 };
 
 const Arrow = styled.div`
-  display: flex;
-  justify-content: center;
+  ${({ theme }) => css`
+    display: flex;
+    justify-content: center;
 
-  &:before {
-    content: "";
-    position: absolute;
-    border: 10px solid transparent;
-    border-top-color: ${({ theme }) => theme.colors.default.borderColor};
-  }
+    &:before {
+      content: "";
+      position: absolute;
+      border: 10px solid transparent;
+      border-top-color: ${theme.colors.default.borderColor};
+    }
 
-  &:after {
-    content: "";
-    position: absolute;
-    border: 9px solid transparent;
-    border-top-color: ${({ theme }) => theme.components.tooltip.bg};
-  }
+    &:after {
+      content: "";
+      position: absolute;
+      border: 9px solid transparent;
+      border-top-color: ${theme.components.tooltip.bg};
+    }
+  `}
 `;
 
 export default PopButton;

@@ -102,7 +102,7 @@ export class PgThemeManager {
       ._tooltip()
       ._markdown()
       ._tutorial()
-      ._sidebarRight()
+      ._sidebar()
       ._editor()
       ._home()
       ._terminal()
@@ -799,16 +799,71 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default sidebar right */
-  private static _sidebarRight() {
-    if (!this._theme.colors.right) {
-      this._theme.colors.right = {};
+  /** Set default sidebar */
+  private static _sidebar() {
+    if (!this._theme.components!.sidebar) {
+      this._theme.components!.sidebar = {};
     }
-    if (!this._theme.colors.right.bg) {
-      this._theme.colors.right.bg = this._theme.colors.default.bgSecondary;
+
+    // Default
+    if (!this._theme.components!.sidebar.default) {
+      this._theme.components!.sidebar.default = {};
     }
-    if (!this._theme.colors.right.otherBg) {
-      this._theme.colors.right.otherBg = this._theme.colors.default.bgPrimary;
+
+    // Left
+    if (!this._theme.components!.sidebar.left) {
+      this._theme.components!.sidebar.left = {};
+    }
+    // Left default
+    if (!this._theme.components!.sidebar.left.default) {
+      this._theme.components!.sidebar.left.default = {};
+    }
+    if (!this._theme.components!.sidebar.left.default.bg) {
+      this._theme.components!.sidebar.left.default.bg =
+        this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.sidebar.left.default.borderRight) {
+      this._theme.components!.sidebar.left.default.borderRight = `1px solid ${this._theme.colors.default.borderColor}`;
+    }
+
+    // Left icon button
+    if (!this._theme.components!.sidebar.left.iconButton) {
+      this._theme.components!.sidebar.left.iconButton = {};
+    }
+    // Left icon button default
+    if (!this._theme.components!.sidebar.left.iconButton.default) {
+      this._theme.components!.sidebar.left.iconButton.default = {};
+    }
+    // Left icon button selected
+    if (!this._theme.components!.sidebar.left.iconButton.selected) {
+      this._theme.components!.sidebar.left.iconButton.selected = {};
+    }
+    if (!this._theme.components!.sidebar.left.iconButton.selected.bg) {
+      this._theme.components!.sidebar.left.iconButton.selected.bg =
+        this._theme.colors.state.hover.bg;
+    }
+    if (!this._theme.components!.sidebar.left.iconButton.selected.borderLeft) {
+      this._theme.components!.sidebar.left.iconButton.selected.borderLeft = `2px solid ${this._theme.colors.default.secondary}`;
+    }
+    if (!this._theme.components!.sidebar.left.iconButton.selected.borderRight) {
+      this._theme.components!.sidebar.left.iconButton.selected.borderRight =
+        "2px solid transparent";
+    }
+
+    // Right
+    if (!this._theme.components!.sidebar.right) {
+      this._theme.components!.sidebar.right = {};
+    }
+    if (!this._theme.components!.sidebar.right.bg) {
+      this._theme.components!.sidebar.right.bg =
+        this._theme.colors.default.bgSecondary;
+    }
+    if (!this._theme.components!.sidebar.right.otherBg) {
+      this._theme.components!.sidebar.right.otherBg =
+        this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.sidebar.right.borderRight) {
+      this._theme.components!.sidebar.right.borderRight = `1px solid ${this._theme.colors.default.borderColor}`;
     }
 
     return this;

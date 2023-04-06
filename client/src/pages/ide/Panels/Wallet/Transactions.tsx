@@ -168,7 +168,7 @@ const TxsListWrapper = styled.div`
   ${({ theme }) => css`
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
-    background-color: ${theme.colors.right?.otherBg};
+    background-color: ${theme.components.sidebar.right.otherBg};
     margin-top: 0.5rem;
   `}
 `;

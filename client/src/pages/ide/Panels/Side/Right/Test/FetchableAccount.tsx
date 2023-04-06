@@ -185,7 +185,8 @@ const FetchableAccountWrapper = styled.div<IndexProp>`
   ${({ theme, index }) => css`
     padding: 1rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
-    background-color: ${index % 2 === 0 && theme.colors.right?.otherBg};
+    background-color: ${index % 2 === 0 &&
+    theme.components.sidebar.right.otherBg};
 
     &:last-child {
       border-bottom: 1px solid ${theme.colors.default.borderColor};

@@ -98,7 +98,7 @@ const TutorialWrapper = styled.div<{ progress: number }>`
   ${({ theme, progress }) => css`
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background: ${theme.colors.right?.otherBg};
+    background: ${theme.components.sidebar.right.otherBg};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
     transition: background ${theme.transition.duration.medium}

@@ -47,8 +47,8 @@ const getTextStyle = (
   else if (size === "Medium") fontSize = theme.font.code.size.medium;
   else if (size === "Large") fontSize = theme.font.code.size.large;
 
-  if (bg === "Primary") bgColor = theme.colors.right?.bg;
-  else if (bg === "Secondary") bgColor = theme.colors.right?.otherBg;
+  if (bg === "Primary") bgColor = theme.components.sidebar.right.bg;
+  else if (bg === "Secondary") bgColor = theme.components.sidebar.right.otherBg;
   else if (bg === "Transparent") bgColor = "transparent";
 
   let returnedCss = css`

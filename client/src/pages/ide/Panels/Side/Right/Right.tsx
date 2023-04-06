@@ -17,6 +17,7 @@ import { Wormhole } from "../../../../../components/Loading";
 import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { Id } from "../../../../../constants";
 import { Sidebar } from "../../../../../utils/pg";
+import { PgThemeManager } from "../../../../../utils/pg/theme";
 import { usePgRouter } from "./usePgRouter";
 
 const Explorer = lazy(() => import("./Explorer"));
@@ -156,12 +157,12 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
   ${({ theme, windowHeight, bottomHeight }) => css`
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
     height: ${windowHeight && bottomHeight
       ? windowHeight - bottomHeight
       : 955}px;
-    overflow-y: auto;
-    background-color: ${theme.colors?.right?.bg};
-    border-right: 1px solid ${theme.colors.default.borderColor};
+
+    ${PgThemeManager.convertToCSS(theme.components.sidebar.right)};
 
     /* Scrollbar */
     /* Chromium */

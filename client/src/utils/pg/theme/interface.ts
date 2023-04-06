@@ -2,7 +2,7 @@ import { CSSProperties } from "react";
 
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
-import { ChildRequired, NestedRequired } from "../types";
+import { ChildRequired, NestedRequired, RequiredUntil } from "../types";
 
 /** Playground theme */
 export interface PgTheme {
@@ -67,18 +67,6 @@ export interface PgTheme {
       card?: BgAndColor;
     };
 
-    /** Left sidebar IconButton */
-    iconButton?: BgAndColor & {
-      selectedBg?: string;
-      selectedBorderColor?: string;
-    };
-
-    /** Left side of the side panel(icon panel) */
-    left?: BgAndColor;
-
-    /** Right side of the side panel */
-    right?: BgAndColor & { otherBg?: string };
-
     /** Terminal */
     terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
 
@@ -111,6 +99,18 @@ export interface PgTheme {
       | "dropdownIndicator"
       | "indicatorSeparator"
     >;
+
+    /** Sidebar component */
+    sidebar?: ExtendibleComponent<{
+      /** Left side of the side panel(icon panel) */
+      left?: ExtendibleComponent<{
+        /** Left sidebar IconButton */
+        iconButton?: ExtendibleComponent<"selected">;
+      }>;
+
+      /** Right side of the side panel */
+      right?: DefaultComponent & { otherBg?: string };
+    }>;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
@@ -168,7 +168,12 @@ export interface ImportableTheme {
 type DefaultComponents = "input" | "skeleton" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
-type ExtendibleComponents = "markdown" | "select" | "toast" | "tutorial";
+type ExtendibleComponents =
+  | "markdown"
+  | "select"
+  | "sidebar"
+  | "toast"
+  | "tutorial";
 
 /** Components that use `OverrideableComponent` type */
 type OverrideableComponents = "button" | "menu";
@@ -186,7 +191,7 @@ export type PgThemeReady<
     components: Pick<C, DefaultComponents>;
   } & {
     // Extendible components
-    components: NestedRequired<Pick<C, ExtendibleComponents>>;
+    components: RequiredUntil<Pick<C, ExtendibleComponents>, DefaultComponent>;
   } & {
     // Overrideable components
     components: ChildRequired<
@@ -335,6 +340,8 @@ type DefaultStyles = {
   CSSProperties,
   | "color"
   | "border"
+  | "borderRight"
+  | "borderLeft"
   | "borderColor"
   | "borderRadius"
   | "borderTopRightRadius"
@@ -382,11 +389,18 @@ type OverrideableComponent<T extends string> = {
 };
 
 /** Extendible component */
-type ExtendibleComponent<T extends string> = {
+type ExtendibleComponent<
+  T extends string | object,
+  U = T extends string
+    ? {
+        [K in T]?: DefaultComponent;
+      }
+    : T
+> = {
   default?: DefaultComponent;
-} & {
-  [K in T]?: DefaultComponent;
-};
+} & (T extends string
+  ? { [K in U extends any ? keyof U : never]?: DefaultComponent }
+  : U);
 
 type Bg = {
   bg?: string;
