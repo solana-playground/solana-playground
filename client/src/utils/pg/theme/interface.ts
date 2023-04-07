@@ -109,7 +109,7 @@ export interface PgTheme {
       }>;
 
       /** Right side of the side panel */
-      right?: DefaultComponent & { otherBg?: string };
+      right?: ExtendibleComponent<"title", { otherBg?: string }>;
     }>;
 
     /** Skeleton component */
@@ -340,7 +340,9 @@ type DefaultStyles = {
   CSSProperties,
   | "color"
   | "border"
+  | "borderTop"
   | "borderRight"
+  | "borderBottom"
   | "borderLeft"
   | "borderColor"
   | "borderRadius"
@@ -391,13 +393,14 @@ type OverrideableComponent<T extends string> = {
 /** Extendible component */
 type ExtendibleComponent<
   T extends string | object,
+  D = {},
   U = T extends string
     ? {
         [K in T]?: DefaultComponent;
       }
     : T
 > = {
-  default?: DefaultComponent;
+  default?: DefaultComponent & D;
 } & (T extends string
   ? { [K in U extends any ? keyof U : never]?: DefaultComponent }
   : U);

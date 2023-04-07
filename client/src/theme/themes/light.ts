@@ -134,9 +134,6 @@ const LIGHT: PgTheme = {
           },
         },
       },
-      right: {
-        bg: BG_LIGHT,
-      },
     },
     skeleton: {
       bg: "#e5e4e6",

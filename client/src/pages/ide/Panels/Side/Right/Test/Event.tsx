@@ -65,7 +65,7 @@ const EventWrapper = styled.div<EventWrapperProps>`
     padding: 1rem;
     border-top: 1px solid ${theme.colors.default.borderColor};
     background-color: ${index % 2 === 0 &&
-    theme.components.sidebar.right.otherBg};
+    theme.components.sidebar.right.default.otherBg};
 
     &:last-child {
       border-bottom: 1px solid ${theme.colors.default.borderColor};

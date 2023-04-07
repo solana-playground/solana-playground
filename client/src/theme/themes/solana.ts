@@ -109,8 +109,10 @@ const SOLANA: PgTheme = {
         },
       },
       right: {
-        bg: BG_BLACK,
-        otherBg: BG_GRAY,
+        default: {
+          bg: BG_BLACK,
+          otherBg: BG_GRAY,
+        },
       },
     },
     skeleton: {

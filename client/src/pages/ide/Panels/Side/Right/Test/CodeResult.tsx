@@ -12,8 +12,8 @@ export const CodeResult = styled.pre<CodeResultProps>`
     overflow-x: auto;
     padding: 0.75rem 0.5rem;
     background-color: ${index % 2 === 1
-      ? theme.components.sidebar.right.otherBg
-      : theme.components.sidebar.right.bg};
+      ? theme.components.sidebar.right.default.otherBg
+      : theme.components.sidebar.right.default.bg};
     border-radius: ${theme.borderRadius};
 
     /* Scrollbar */

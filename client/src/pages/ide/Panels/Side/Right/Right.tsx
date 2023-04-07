@@ -162,7 +162,7 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
       ? windowHeight - bottomHeight
       : 955}px;
 
-    ${PgThemeManager.convertToCSS(theme.components.sidebar.right)};
+    ${PgThemeManager.convertToCSS(theme.components.sidebar.right.default)};
 
     /* Scrollbar */
     /* Chromium */
@@ -198,9 +198,8 @@ const StyledTitle = styled(Title)`
     display: flex;
     justify-content: center;
     align-items: center;
-    border-bottom: 1px solid ${theme.colors.default.borderColor};
-    color: ${theme.colors.default.textSecondary};
-    font-size: ${theme.font.code.size.large};
+
+    ${PgThemeManager.convertToCSS(theme.components.sidebar.right.title)};
   `}
 `;
 

@@ -712,7 +712,7 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default tutorial */
+  /** Set default tutorial component */
   private static _tutorial() {
     if (!this._theme.components!.tutorial) {
       this._theme.components!.tutorial = {};
@@ -799,7 +799,7 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default sidebar */
+  /** Set default sidebar component */
   private static _sidebar() {
     if (!this._theme.components!.sidebar) {
       this._theme.components!.sidebar = {};
@@ -854,16 +854,35 @@ export class PgThemeManager {
     if (!this._theme.components!.sidebar.right) {
       this._theme.components!.sidebar.right = {};
     }
-    if (!this._theme.components!.sidebar.right.bg) {
-      this._theme.components!.sidebar.right.bg =
+    // Right default
+    if (!this._theme.components!.sidebar.right.default) {
+      this._theme.components!.sidebar.right.default = {};
+    }
+    if (!this._theme.components!.sidebar.right.default.bg) {
+      this._theme.components!.sidebar.right.default.bg =
         this._theme.colors.default.bgSecondary;
     }
-    if (!this._theme.components!.sidebar.right.otherBg) {
-      this._theme.components!.sidebar.right.otherBg =
+    if (!this._theme.components!.sidebar.right.default.otherBg) {
+      this._theme.components!.sidebar.right.default.otherBg =
         this._theme.colors.default.bgPrimary;
     }
-    if (!this._theme.components!.sidebar.right.borderRight) {
-      this._theme.components!.sidebar.right.borderRight = `1px solid ${this._theme.colors.default.borderColor}`;
+    if (!this._theme.components!.sidebar.right.default.borderRight) {
+      this._theme.components!.sidebar.right.default.borderRight = `1px solid ${this._theme.colors.default.borderColor}`;
+    }
+    // Right title
+    if (!this._theme.components!.sidebar.right.title) {
+      this._theme.components!.sidebar.right.title = {};
+    }
+    if (!this._theme.components!.sidebar.right.title.borderBottom) {
+      this._theme.components!.sidebar.right.title.borderBottom = `1px solid ${this._theme.colors.default.borderColor};`;
+    }
+    if (!this._theme.components!.sidebar.right.title.color) {
+      this._theme.components!.sidebar.right.title.color =
+        this._theme.colors.default.textSecondary;
+    }
+    if (!this._theme.components!.sidebar.right.title.fontSize) {
+      this._theme.components!.sidebar.right.title.fontSize =
+        this._theme.font!.code!.size.large;
     }
 
     return this;

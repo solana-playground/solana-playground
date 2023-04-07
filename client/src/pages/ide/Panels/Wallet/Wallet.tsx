@@ -111,7 +111,7 @@ const WalletWrapper = styled.div`
   ${({ theme }) => css`
     width: 100%;
     height: 100%;
-    background-color: ${theme.components.sidebar.right.bg};
+    background-color: ${theme.components.sidebar.right.default.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
     z-index: 2;
@@ -146,7 +146,7 @@ const Main = styled.div`
   ${({ theme }) => css`
     background: linear-gradient(
       0deg,
-      ${theme.components.sidebar.right.bg} 75%,
+      ${theme.components.sidebar.right.default.bg} 75%,
       ${theme.colors.default.primary + theme.transparency.low} 100%
     );
     padding: 1rem;
