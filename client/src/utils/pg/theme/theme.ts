@@ -1010,25 +1010,79 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default terminal */
+  /** Set default terminal component */
   private static _terminal() {
-    if (!this._theme.colors.terminal) {
-      this._theme.colors.terminal = {};
+    if (!this._theme.components!.terminal) {
+      this._theme.components!.terminal = {};
     }
-    if (!this._theme.colors.terminal.bg) {
-      this._theme.colors.terminal.bg = this._theme.colors.default.bgPrimary;
+
+    // Default
+    if (!this._theme.components!.terminal.default) {
+      this._theme.components!.terminal.default = {};
     }
-    if (!this._theme.colors.terminal.color) {
-      this._theme.colors.terminal.color =
+    if (!this._theme.components!.terminal.default.bg) {
+      this._theme.components!.terminal.default.bg =
+        this._theme.colors.default.bgPrimary;
+    }
+    if (!this._theme.components!.terminal.default.color) {
+      this._theme.components!.terminal.default.color =
         this._theme.colors.default.textPrimary;
     }
-    if (!this._theme.colors.terminal.cursorColor) {
-      this._theme.colors.terminal.cursorColor =
+    if (!this._theme.components!.terminal.default.borderTop) {
+      this._theme.components!.terminal.default.borderTop = `1px solid ${this._theme.colors.default.primary};`;
+    }
+
+    // Xterm
+    if (!this._theme.components!.terminal.xterm) {
+      this._theme.components!.terminal.xterm = {};
+    }
+    if (!this._theme.components!.terminal.xterm.textPrimary) {
+      this._theme.components!.terminal.xterm.textPrimary =
         this._theme.colors.default.textPrimary;
     }
-    if (!this._theme.colors.terminal.selectionBg) {
-      this._theme.colors.terminal.selectionBg =
+    if (!this._theme.components!.terminal.xterm.textSecondary) {
+      this._theme.components!.terminal.xterm.textSecondary =
         this._theme.colors.default.textSecondary;
+    }
+    if (!this._theme.components!.terminal.xterm.primary) {
+      this._theme.components!.terminal.xterm.primary =
+        this._theme.colors.default.primary;
+    }
+    if (!this._theme.components!.terminal.xterm.secondary) {
+      this._theme.components!.terminal.xterm.secondary =
+        this._theme.colors.default.secondary;
+    }
+    if (!this._theme.components!.terminal.xterm.success) {
+      this._theme.components!.terminal.xterm.success =
+        this._theme.colors.state.success.color;
+    }
+    if (!this._theme.components!.terminal.xterm.error) {
+      this._theme.components!.terminal.xterm.error =
+        this._theme.colors.state.error.color;
+    }
+    if (!this._theme.components!.terminal.xterm.warning) {
+      this._theme.components!.terminal.xterm.warning =
+        this._theme.colors.state.warning.color;
+    }
+    if (!this._theme.components!.terminal.xterm.info) {
+      this._theme.components!.terminal.xterm.info =
+        this._theme.colors.state.info.color;
+    }
+    if (!this._theme.components!.terminal.xterm.selectionBg) {
+      this._theme.components!.terminal.xterm.selectionBg =
+        this._theme.colors.default.textSecondary;
+    }
+    // Xterm cursor
+    if (!this._theme.components!.terminal.xterm.cursor) {
+      this._theme.components!.terminal.xterm.cursor = {};
+    }
+    if (!this._theme.components!.terminal.xterm.cursor.color) {
+      this._theme.components!.terminal.xterm.cursor.color =
+        this._theme.colors.default.textPrimary;
+    }
+    if (!this._theme.components!.terminal.xterm.cursor.accentColor) {
+      this._theme.components!.terminal.xterm.cursor.accentColor = this._theme
+        .components!.terminal.default.bg as string;
     }
 
     return this;

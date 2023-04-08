@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import { ITerminalOptions as XtermOptions } from "xterm";
 
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
@@ -67,9 +68,6 @@ export interface PgTheme {
       card?: BgAndColor;
     };
 
-    /** Terminal */
-    terminal?: BgAndColor & { cursorColor?: string; selectionBg?: string };
-
     /** Tutorials page */
     tutorials?: BgAndColor & { card?: BgAndColor };
   };
@@ -109,19 +107,45 @@ export interface PgTheme {
       }>;
 
       /** Right side of the side panel */
-      right?: ExtendibleComponent<"title", { otherBg?: string }>;
+      right?: ExtendibleComponent<
+        "title",
+        { otherBg?: CSSProperties["background"] }
+      >;
     }>;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
-      highlightColor?: string;
+      highlightColor?: CSSProperties["color"];
     };
+
+    /** Terminal component */
+    terminal?: ExtendibleComponent<{
+      xterm?: {
+        [K in
+          | "textPrimary"
+          | "textSecondary"
+          | "primary"
+          | "secondary"
+          | "success"
+          | "error"
+          | "warning"
+          | "info"]?: CSSProperties["color"];
+      } & {
+        selectionBg?: CSSProperties["background"];
+        cursor?: {
+          color?: CSSProperties["color"];
+          accentColor?: CSSProperties["color"];
+          blink?: XtermOptions["cursorBlink"];
+          kind?: XtermOptions["cursorStyle"];
+        };
+      };
+    }>;
 
     /** Notification toast component */
     toast?: ExtendibleComponent<"progress" | "closeButton">;
 
     /** Tooltip component */
-    tooltip?: DefaultStyles & { bgSecondary?: string };
+    tooltip?: DefaultStyles & { bgSecondary?: CSSProperties["background"] };
 
     /** Tutorial component */
     tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
@@ -172,6 +196,7 @@ type ExtendibleComponents =
   | "markdown"
   | "select"
   | "sidebar"
+  | "terminal"
   | "toast"
   | "tutorial";
 

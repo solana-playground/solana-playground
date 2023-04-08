@@ -74,9 +74,6 @@ const SOLANA: PgTheme = {
         bg: BG_GRAY,
       },
     },
-    terminal: {
-      bg: BG_GRAY,
-    },
     tutorials: {
       bg: BG_BLACK,
       card: {
@@ -118,6 +115,11 @@ const SOLANA: PgTheme = {
     skeleton: {
       bg: SELECTION,
       highlightColor: HOVER_BG,
+    },
+    terminal: {
+      default: {
+        bg: BG_GRAY,
+      },
     },
     toast: {
       default: {

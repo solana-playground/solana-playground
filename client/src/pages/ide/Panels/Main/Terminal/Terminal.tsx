@@ -6,7 +6,6 @@ import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
 import Progress from "../../../../../components/Progress";
-import { useTerminal } from "./useTerminal";
 import {
   Clear,
   Close,
@@ -21,6 +20,8 @@ import {
   PgTerminal,
 } from "../../../../../utils/pg";
 import { EventName, Id } from "../../../../../constants";
+import { PgThemeManager } from "../../../../../utils/pg/theme";
+import { useTerminal } from "./useTerminal";
 import { useExposeStatic } from "../../../../../hooks";
 
 const Terminal = () => {
@@ -30,25 +31,29 @@ const Terminal = () => {
 
   const theme = useTheme();
 
-  // Load xterm
+  // Create xterm
   const term = useMemo(() => {
+    const xterm = theme.components.terminal.xterm;
+
     return new PgTerm({
       convertEol: true,
       rendererType: "dom",
       fontSize: 14,
+      cursorBlink: xterm.cursor.blink,
+      cursorStyle: xterm.cursor.kind,
       theme: {
-        brightGreen: theme.colors.state.success.color,
-        brightRed: theme.colors.state.error.color,
-        brightYellow: theme.colors.state.warning.color,
-        brightBlue: theme.colors.state.info.color,
-        brightMagenta: theme.colors.default.primary,
-        black: theme.colors.default.textSecondary,
-        brightBlack: theme.colors.default.textSecondary,
-        brightCyan: theme.colors.default.secondary,
-        background: theme.colors.terminal?.bg,
-        foreground: theme.colors.terminal?.color,
-        selection: theme.colors.terminal?.selectionBg,
-        cursor: theme.colors.terminal?.cursorColor,
+        foreground: xterm.textPrimary,
+        brightBlack: xterm.textSecondary,
+        black: xterm.textSecondary,
+        brightMagenta: xterm.primary,
+        brightCyan: xterm.secondary,
+        brightGreen: xterm.success,
+        brightRed: xterm.error,
+        brightYellow: xterm.warning,
+        brightBlue: xterm.info,
+        selection: xterm.selectionBg as string,
+        cursor: xterm.cursor.color,
+        cursorAccent: xterm.cursor.accentColor,
       },
     });
   }, [theme]);
@@ -59,8 +64,9 @@ const Terminal = () => {
   useEffect(() => {
     if (term && terminalRef.current) {
       const hasChild = terminalRef.current.hasChildNodes();
-      if (hasChild)
+      if (hasChild) {
         terminalRef.current.removeChild(terminalRef.current.childNodes[0]);
+      }
 
       term.open(terminalRef.current);
       term.fit();
@@ -233,7 +239,7 @@ const Terminal = () => {
   return (
     <Resizable
       size={{ height, width: "100%" }}
-      minWidth={"100%"}
+      minWidth="100%"
       minHeight={PgTerminal.MIN_HEIGHT}
       onResizeStop={handleResizeStop}
       onResize={handleResize}
@@ -285,10 +291,7 @@ const Terminal = () => {
 const Wrapper = styled.div`
   ${({ theme }) => css`
     height: 100%;
-    overflow: hidden;
-    background-color: ${theme.colors.terminal?.bg ?? "inherit"};
-    color: ${theme.colors.terminal?.color ?? "inherit"};
-    border-top: 1px solid ${theme.colors.default.primary};
+    ${PgThemeManager.convertToCSS(theme.components.terminal.default)};
 
     /* Scrollbar */
     /* Chromium */
@@ -343,22 +346,15 @@ const ButtonsWrapper = styled.div`
   }
 `;
 
-// minHeight fixes text going below too much which made bottom text invisible
+// `minHeight` fixes text going below too much which made bottom text invisible
 const TerminalWrapper = styled.div`
-  ${({ theme }) => css`
-    height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
-    margin-left: 1rem;
+  height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
+  margin-left: 1rem;
 
-    & .xterm-viewport {
-      background-color: inherit !important;
-      width: 100% !important;
-    }
-
-    & .xterm-rows {
-      font-family: ${theme.font.code.family} !important;
-      font-size: ${theme.font.code.size.large} !important;
-    }
-  `}
+  & .xterm-viewport {
+    background-color: inherit !important;
+    width: 100% !important;
+  }
 `;
 
 export default Terminal;
