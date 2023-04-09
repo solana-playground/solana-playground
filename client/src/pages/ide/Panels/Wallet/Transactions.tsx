@@ -168,7 +168,7 @@ const TxsListWrapper = styled.div`
   ${({ theme }) => css`
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
-    background-color: ${theme.components.sidebar.right.default.otherBg};
+    background: ${theme.components.sidebar.right.default.otherBg};
     margin-top: 0.5rem;
   `}
 `;
@@ -179,7 +179,7 @@ const TxsTop = styled.div`
     display: flex;
     font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
-    background-color: ${theme.colors.default.bgSecondary};
+    background: ${theme.colors.default.bgSecondary};
     font-weight: bold;
 
     &:not(:last-child) {

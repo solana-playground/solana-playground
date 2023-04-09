@@ -32,7 +32,7 @@ const Wrapper = styled.div`
     justify-content: center;
     flex: 1;
     overflow: auto;
-    background-color: ${theme.colors.tutorials?.bg};
+    background: ${theme.colors.tutorials?.bg};
     color: ${theme.colors.tutorials?.color};
     font-family: ${theme.font.other.family};
     font-size: ${theme.font.other.size.medium};

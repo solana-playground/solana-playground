@@ -1,10 +1,10 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import useCopy from "./useCopy";
 import Button from "../Button";
-import { Copy } from "../Icons";
 import Tooltip from "../Tooltip";
+import useCopy from "./useCopy";
+import { Copy } from "../Icons";
 
 interface CopyButtonProps {
   copyText: string;
@@ -27,12 +27,10 @@ const CopyButton: FC<CopyButtonProps> = ({ copyText }) => {
 const Wrapper = styled.div<{ copied: boolean }>`
   & > button {
     &:hover {
-      background-color: transparent;
+      background: transparent;
 
-      & svg {
-        color: ${({ theme, copied }) =>
-          copied && theme.colors.state.success.color};
-      }
+      ${({ theme, copied }) =>
+        copied && `& svg { color: ${theme.colors.state.success.color}; }`}
     }
   }
 `;

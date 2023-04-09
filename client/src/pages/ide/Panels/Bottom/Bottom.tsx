@@ -83,8 +83,7 @@ const Wrapper = styled.div`
     align-items: center;
     padding: 0 0.5rem;
     font-size: ${theme.font.code.size.small};
-    background-color: ${theme.colors.bottom?.bg ??
-    theme.colors.default.primary};
+    background: ${theme.colors.bottom?.bg ?? theme.colors.default.primary};
     color: var(--bottom-color);
 
     & .${ClassName.TOOLTIP} {
@@ -97,8 +96,7 @@ const Wrapper = styled.div`
         height: 100%;
 
         &:hover {
-          background-color: ${theme.colors.default.primary +
-          theme.transparency.low};
+          background: ${theme.colors.default.primary + theme.transparency.low};
         }
       }
 
@@ -118,7 +116,7 @@ const ConnStatus = styled.span<{ connStatus: string }>`
       height: 0.75rem;
       border-radius: 50%;
       margin-right: 0.5rem;
-      background-color: ${connStatus === ConnState.NOT_CONNECTED
+      background: ${connStatus === ConnState.NOT_CONNECTED
         ? theme.colors.state.error.color
         : connStatus === ConnState.CONNECTING
         ? theme.colors.state.warning.color

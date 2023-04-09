@@ -78,7 +78,7 @@ const StyledInput = styled.input<InputProps>`
       border: 1px solid ${input.borderColor};
 
       &:disabled {
-        background-color: ${theme.colors.state.disabled.bg};
+        background: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
         cursor: not-allowed;
       }

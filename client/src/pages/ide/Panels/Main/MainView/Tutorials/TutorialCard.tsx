@@ -67,7 +67,7 @@ const GradientWrapper = styled.div`
       transform: translateY(-0.5rem);
 
       & > div {
-        background-color: ${theme.colors.state.hover.bg};
+        background: ${theme.colors.state.hover.bg};
       }
 
       &::after {
@@ -81,7 +81,7 @@ const InsideWrapper = styled.div`
   ${({ theme }) => css`
     width: 100%;
     height: 100%;
-    background-color: ${theme.colors.tutorials?.card?.bg};
+    background: ${theme.colors.tutorials?.card?.bg};
     color: ${theme.colors.tutorials?.card?.color};
     border: 1px solid
       ${theme.colors.default.borderColor + theme.transparency.medium};
@@ -129,7 +129,7 @@ const Category = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem 0.75rem;
     width: fit-content;
-    background-color: ${theme.colors.tutorials?.bg};
+    background: ${theme.colors.tutorials?.bg};
     color: ${theme.colors.default.textSecondary};
     font-weight: bold;
     font-size: ${theme.font.other.size.small};

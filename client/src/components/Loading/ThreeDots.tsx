@@ -22,7 +22,7 @@ export const ThreeDots = styled.div<ThreeDotsProps>`
       width: ${width};
       height: ${height};
       border-radius: ${theme.borderRadius};
-      background-color: var(--bg);
+      background: var(--bg);
     }
 
     &::before,
@@ -48,9 +48,9 @@ export const ThreeDots = styled.div<ThreeDotsProps>`
 
 const animation = keyframes`
   0% {
-    background-color: var(--bg);
+    background: var(--bg);
   }
   100% {
-    background-color: var(--bg-fade);
+    background: var(--bg-fade);
   }
 `;

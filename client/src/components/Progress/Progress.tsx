@@ -38,7 +38,7 @@ const Wrapper = styled.div`
 
 const Indicator = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.primary};
+    background: ${theme.colors.default.primary};
     border-radius: ${theme.borderRadius};
     height: 100%;
     transition: width ${theme.transition.duration.long} ${theme.transition.type};

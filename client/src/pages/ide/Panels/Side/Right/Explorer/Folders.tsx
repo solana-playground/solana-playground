@@ -288,23 +288,17 @@ const RootWrapper = styled.div`
     font-size: ${theme.font.code.size.small};
 
     &.${ClassName.SELECTED} {
-      background-color: ${
-        theme.colors.default.primary + theme.transparency.low
-      };
+      background: ${theme.colors.default.primary + theme.transparency.low};
     }
 
     &.${ClassName.CTX_SELECTED} {
-      background-color: ${
-        theme.colors.default.primary + theme.transparency.low
-      };
+      background: ${theme.colors.default.primary + theme.transparency.low};
       border-color: ${theme.colors.default.primary + theme.transparency.medium};
       border-radius: ${theme.borderRadius};
     }
 
     &:hover {
-      background-color: ${
-        theme.colors.default.primary + theme.transparency.low
-      };
+      background: ${theme.colors.default.primary + theme.transparency.low};
     }
 `}
 `;

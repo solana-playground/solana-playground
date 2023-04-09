@@ -352,7 +352,7 @@ const TerminalWrapper = styled.div`
   margin-left: 1rem;
 
   & .xterm-viewport {
-    background-color: inherit !important;
+    background: inherit !important;
     width: 100% !important;
   }
 `;

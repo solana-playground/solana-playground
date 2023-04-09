@@ -27,7 +27,7 @@ const Background = styled.div`
       inset: 0;
       width: 100%;
       height: 100%;
-      background-color: #000;
+      background: #000;
       opacity: 0;
       z-index: -1;
       transition: all ${theme.transition.duration.medium}

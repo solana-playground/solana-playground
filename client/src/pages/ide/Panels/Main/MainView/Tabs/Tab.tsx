@@ -66,7 +66,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: ${current
+    background: ${current
       ? theme.colors.default.bgPrimary
       : theme.components.sidebar.right.default.bg};
     color: ${current

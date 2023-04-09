@@ -199,7 +199,7 @@ const InputWrapper = styled.div`
 
 const SearchWrapper = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.bgPrimary};
+    background: ${theme.colors.default.bgPrimary};
     padding: 0.75rem 1rem;
     outline: 1px solid
       ${theme.colors.default.primary + theme.transparency.medium};
@@ -215,7 +215,7 @@ const Element = styled.div`
 
     &:hover {
       cursor: pointer;
-      background-color: ${theme.colors.state.hover.bg};
+      background: ${theme.colors.state.hover.bg};
     }
   `}
 `;
@@ -440,7 +440,7 @@ const AddSeedMenu = styled.div`
   ${({ theme }) => css`
     position: absolute;
     z-index: 2;
-    background-color: ${theme.components.tooltip.bg};
+    background: ${theme.components.tooltip.bg};
     border-radius: ${theme.borderRadius};
     font-size: ${theme.font.code.size.small};
   `}
@@ -454,7 +454,7 @@ const AddSeedItem = styled.div`
 
     &:hover {
       cursor: pointer;
-      background-color: ${theme.colors.state.hover.bg};
+      background: ${theme.colors.state.hover.bg};
       color: ${theme.colors.default.textPrimary};
     }
   `}

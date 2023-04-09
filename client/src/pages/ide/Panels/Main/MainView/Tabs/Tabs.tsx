@@ -78,7 +78,7 @@ const Wrapper = styled.div`
     justify-content: space-between;
     min-height: ${TAB_HEIGHT};
     user-select: none;
-    background-color: ${theme.components.sidebar.right.default.bg};
+    background: ${theme.components.sidebar.right.default.bg};
     border-bottom: 1px solid ${theme.colors.default.borderColor};
     font-size: ${theme.font.code.size.small};
   `}
@@ -124,7 +124,7 @@ const WalletWrapper = styled.div`
     align-items: center;
 
     & > button {
-      background-color: ${theme.colors.default.bgPrimary};
+      background: ${theme.colors.default.bgPrimary};
       border-top-left-radius: ${theme.borderRadius};
       border-bottom-left-radius: ${theme.borderRadius};
       border-top-right-radius: 0;

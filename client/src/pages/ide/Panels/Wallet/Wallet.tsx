@@ -111,7 +111,7 @@ const WalletWrapper = styled.div`
   ${({ theme }) => css`
     width: 100%;
     height: 100%;
-    background-color: ${theme.components.sidebar.right.default.bg};
+    background: ${theme.components.sidebar.right.default.bg};
     border: 1px solid ${theme.colors.default.borderColor};
     border-radius: ${theme.borderRadius};
     z-index: 2;

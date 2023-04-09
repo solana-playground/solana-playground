@@ -50,7 +50,7 @@ const MutThemeProvider: FC = ({ children }) => {
 // Set default theme values
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    background-color: ${theme.colors.default.bgPrimary};
+    background: ${theme.colors.default.bgPrimary};
     color: ${theme.colors.default.textPrimary};
     font-family: ${theme.font.code.family};
     font-size: ${theme.font.code.size.medium};
@@ -62,8 +62,7 @@ const Wrapper = styled.div`
     }
 
     & ::selection {
-      background-color: ${theme.colors.default.primary +
-      theme.transparency.medium};
+      background: ${theme.colors.default.primary + theme.transparency.medium};
     }
   `}
 `;

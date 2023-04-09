@@ -36,7 +36,7 @@ const ButtonsWrapper = styled.div`
 
   & button:hover {
     color: initial;
-    background-color: initial;
+    background: initial;
 
     & img {
       filter: invert(${({ theme }) => (theme.isDark ? 1 : 0)});

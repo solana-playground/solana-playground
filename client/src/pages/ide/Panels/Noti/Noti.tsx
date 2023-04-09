@@ -45,7 +45,7 @@ const Wrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: ${theme.colors.default.primary};
+    background: ${theme.colors.default.primary};
 
     & a {
       font-weight: bold;

@@ -89,7 +89,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       height: 16px;
       content: " ";
       display: inline-block;
-      background-color: currentColor;
+      background: currentColor;
       -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
       mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
     }
@@ -109,7 +109,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     }
 
     a {
-      background-color: transparent;
+      background: transparent;
       color: var(--color-accent-fg);
       text-decoration: none;
     }
@@ -142,7 +142,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     }
 
     mark {
-      background-color: var(--color-attention-subtle);
+      background: var(--color-attention-subtle);
       color: var(--color-text-primary);
     }
 
@@ -170,7 +170,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       border-style: none;
       max-width: 100%;
       box-sizing: content-box;
-      background-color: var(--color-canvas-default);
+      background: var(--color-canvas-default);
     }
 
     code,
@@ -193,7 +193,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       height: 0.25em;
       padding: 0;
       margin: 24px 0;
-      background-color: var(--color-border-default);
+      background: var(--color-border-default);
       border: 0;
     }
 
@@ -466,12 +466,12 @@ const StyledMarkdown = styled(ReactMarkdown)`
 
     .pl-ii {
       color: var(--color-prettylights-syntax-invalid-illegal-text);
-      background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+      background: var(--color-prettylights-syntax-invalid-illegal-bg);
     }
 
     .pl-c2 {
       color: var(--color-prettylights-syntax-carriage-return-text);
-      background-color: var(--color-prettylights-syntax-carriage-return-bg);
+      background: var(--color-prettylights-syntax-carriage-return-bg);
     }
 
     .pl-sr .pl-cce {
@@ -502,22 +502,22 @@ const StyledMarkdown = styled(ReactMarkdown)`
 
     .pl-md {
       color: var(--color-prettylights-syntax-markup-deleted-text);
-      background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+      background: var(--color-prettylights-syntax-markup-deleted-bg);
     }
 
     .pl-mi1 {
       color: var(--color-prettylights-syntax-markup-inserted-text);
-      background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+      background: var(--color-prettylights-syntax-markup-inserted-bg);
     }
 
     .pl-mc {
       color: var(--color-prettylights-syntax-markup-changed-text);
-      background-color: var(--color-prettylights-syntax-markup-changed-bg);
+      background: var(--color-prettylights-syntax-markup-changed-bg);
     }
 
     .pl-mi2 {
       color: var(--color-prettylights-syntax-markup-ignored-text);
-      background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+      background: var(--color-prettylights-syntax-markup-ignored-bg);
     }
 
     .pl-mdr {
@@ -734,7 +734,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     }
 
     table tr {
-      background-color: var(--color-canvas-default);
+      background: var(--color-canvas-default);
       border-top: 1px solid var(--color-border-muted);
     }
 
@@ -743,7 +743,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     }
 
     table img {
-      background-color: transparent;
+      background: transparent;
     }
 
     img[align="right"] {
@@ -757,7 +757,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
     .emoji {
       max-width: none;
       vertical-align: text-top;
-      background-color: transparent;
+      background: transparent;
     }
 
     span.frame {
@@ -853,7 +853,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       padding: 0.2em 0.4em;
       margin: 0;
       font-size: 85%;
-      background-color: var(--color-neutral-muted);
+      background: var(--color-neutral-muted);
       border-radius: var(--border-radius);
     }
 

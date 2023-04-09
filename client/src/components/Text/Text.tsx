@@ -55,7 +55,7 @@ const getTextStyle = (
   let returnedCss = css`
     font-size: ${fontSize};
     color: ${color};
-    background-color: ${bgColor};
+    background: ${bgColor};
     padding: ${bg === "Transparent" ? "0" : "1rem"};
     border-radius: ${theme.borderRadius};
     display: flex;

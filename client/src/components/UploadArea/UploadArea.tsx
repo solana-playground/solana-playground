@@ -42,7 +42,7 @@ const Wrapper = styled.div<{ isDragActive: boolean }>`
     border: 2px dashed
       ${theme.colors.default.primary + theme.transparency.medium};
     border-radius: ${theme.borderRadius};
-    background-color: ${theme.colors.default.primary + theme.transparency.low};
+    background: ${theme.colors.default.primary + theme.transparency.low};
     opacity: ${isDragActive ? 0.55 : 1};
     transition: all ${theme.transition.duration.short} ${theme.transition.type};
 

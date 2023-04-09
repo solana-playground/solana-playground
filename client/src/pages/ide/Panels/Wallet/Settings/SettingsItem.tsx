@@ -14,7 +14,7 @@ export const SettingsItem = styled.div`
     transition: all ${theme.transition.duration.short} ${theme.transition.type};
 
     &:hover {
-      background-color: ${theme.colors.state.hover.bg};
+      background: ${theme.colors.state.hover.bg};
       color: ${theme.colors.default.primary};
       border-left-color: ${theme.colors.default.primary};
       cursor: pointer;

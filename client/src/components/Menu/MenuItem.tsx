@@ -83,7 +83,7 @@ const StyledItem = styled(MenuItem)`
       --color: ${getHoverColor(kind, theme)};
 
       cursor: pointer;
-      background-color: ${theme.colors.state.hover.bg};
+      background: ${theme.colors.state.hover.bg};
       border-left-color: var(--color);
 
       & svg {
