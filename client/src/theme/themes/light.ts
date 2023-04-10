@@ -76,11 +76,13 @@ const LIGHT: PgTheme = {
         activeColor: TEXT_PRIMARY,
       },
     },
-    bottom: {
-      color: BG_WHITE,
-    },
   },
   components: {
+    bottom: {
+      default: {
+        color: BG_WHITE,
+      },
+    },
     button: {
       overrides: {
         primary: {

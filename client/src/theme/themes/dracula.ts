@@ -65,11 +65,18 @@ const DRACULA: PgTheme = {
         color: COMMENT,
       },
     },
-    bottom: {
-      bg: BG_DARKER,
-    },
   },
   components: {
+    bottom: {
+      default: {
+        bg: BG_DARKER,
+      },
+      connect: {
+        hover: {
+          bg: PURPLE + "16",
+        },
+      },
+    },
     sidebar: {
       left: {
         iconButton: {

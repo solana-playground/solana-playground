@@ -106,6 +106,7 @@ export class PgThemeManager {
       ._editor()
       ._home()
       ._terminal()
+      ._bottom()
       ._tutorials();
 
     // Set theme
@@ -471,6 +472,7 @@ export class PgThemeManager {
     this._theme.components!.markdown.default.fontSize ??=
       this._theme.font!.other!.size.medium;
 
+    // Code block
     this._theme.components!.markdown.code ??= {};
     this._theme.components!.markdown.code.bg ??=
       this._theme.colors.default.bgSecondary;
@@ -680,6 +682,41 @@ export class PgThemeManager {
       this._theme.colors.default.textPrimary;
     this._theme.components!.terminal.xterm.cursor.accentColor ??= this._theme
       .components!.terminal.default.bg as string;
+
+    return this;
+  }
+
+  /** Set default bottom bar component */
+  private static _bottom() {
+    this._theme.components!.bottom ??= {};
+
+    // Default
+    this._theme.components!.bottom.default ??= {};
+    this._theme.components!.bottom.default.bg ??=
+      this._theme.colors.default.primary;
+    this._theme.components!.bottom.default.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.bottom.default.padding ??= "0 0.5rem";
+    this._theme.components!.bottom.default.fontSize ??=
+      this._theme.font!.code!.size.small;
+
+    // Connect button
+    this._theme.components!.bottom.connect ??= {};
+    this._theme.components!.bottom.connect.border ??= "none";
+    this._theme.components!.bottom.connect.padding ??= "0 0.75rem";
+    this._theme.components!.bottom.connect.hover ??= {};
+    this._theme.components!.bottom.connect.hover.bg ??=
+      this._theme.components!.bottom.default.color +
+      this._theme.transparency!.low;
+
+    // Endpoint
+    this._theme.components!.bottom.endpoint ??= {};
+
+    // Address
+    this._theme.components!.bottom.address ??= {};
+
+    // Balance
+    this._theme.components!.bottom.balance ??= {};
 
     return this;
   }

@@ -61,9 +61,6 @@ const PLAYGROUND: PgTheme = {
         color: YELLOW,
       },
     },
-    bottom: {
-      bg: DARK_BLUE,
-    },
     editor: {
       gutter: {
         color: COMMENT,
@@ -71,6 +68,11 @@ const PLAYGROUND: PgTheme = {
     },
   },
   components: {
+    bottom: {
+      default: {
+        bg: DARK_BLUE,
+      },
+    },
     skeleton: {
       bg: BG_LIGHT,
       highlightColor: BG_DEFAULT,

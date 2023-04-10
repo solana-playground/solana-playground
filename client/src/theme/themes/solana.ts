@@ -52,9 +52,6 @@ const SOLANA: PgTheme = {
       },
       warning: { color: YELLOW },
     },
-    bottom: {
-      color: BG_BLACK,
-    },
     editor: {
       bg: BG_GRAY,
       tooltip: {
@@ -82,6 +79,11 @@ const SOLANA: PgTheme = {
     },
   },
   components: {
+    bottom: {
+      default: {
+        color: BG_BLACK,
+      },
+    },
     button: {
       overrides: {
         primary: {

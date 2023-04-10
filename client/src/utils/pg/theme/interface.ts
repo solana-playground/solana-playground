@@ -38,9 +38,6 @@ export interface PgTheme {
       info: StateColor;
     };
 
-    /** Bottom bar */
-    bottom?: BgAndColor;
-
     /** Editor component */
     editor?: BgAndColor & {
       cursorColor?: string;
@@ -74,6 +71,11 @@ export interface PgTheme {
 
   /** Override the component defaults */
   components?: {
+    /** Bottom bar component */
+    bottom?: ExtendibleComponent<
+      "connect" | "endpoint" | "address" | "balance"
+    >;
+
     /** Button component */
     button?: OverrideableComponent<ButtonKind>;
 
@@ -193,6 +195,7 @@ type DefaultComponents = "input" | "skeleton" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =
+  | "bottom"
   | "markdown"
   | "select"
   | "sidebar"
