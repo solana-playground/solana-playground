@@ -66,7 +66,7 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
     overflow: auto;
-    background: ${theme.colors.home?.bg};
+    background: ${theme.components.home.default.bg};
     font-size: ${theme.font.code.size.large};
 
     & > div {

@@ -59,11 +59,6 @@ export interface PgTheme {
         selectedColor?: string;
       };
     };
-
-    /** Home screen */
-    home?: BgAndColor & {
-      card?: BgAndColor;
-    };
   };
 
   /** Override the component defaults */
@@ -75,6 +70,23 @@ export interface PgTheme {
 
     /** Button component */
     button?: OverrideableComponent<ButtonKind>;
+
+    /** Home component */
+    home?: ExtendibleComponent<{
+      /** Playground title */
+      title?: DefaultComponent;
+      /** Resources section */
+      resources?: ExtendibleComponent<{
+        /** Resources title */
+        title?: DefaultComponent;
+        /** Resource card */
+        card?: ExtendibleComponent<
+          "image" | "title" | "description" | "button"
+        >;
+      }>;
+      /** Tutorials section */
+      tutorials?: ExtendibleComponent<"title" | "card">;
+    }>;
 
     /** Input component */
     input?: DefaultComponent;
@@ -204,6 +216,7 @@ type DefaultComponents = "input" | "skeleton" | "tooltip";
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =
   | "bottom"
+  | "home"
   | "markdown"
   | "select"
   | "sidebar"
@@ -387,6 +400,9 @@ type DefaultStyles = {
   | "borderBottomRightRadius"
   | "padding"
   | "marginTop"
+  | "marginRight"
+  | "marginBottom"
+  | "marginLeft"
   | "boxShadow"
   | "outline"
   | "fontFamily"
@@ -397,9 +413,14 @@ type DefaultStyles = {
   | "overflow"
   | "opacity"
   | "transition"
+  | "minWidth"
   | "maxWidth"
   | "minHeight"
   | "width"
+  | "height"
+  | "display"
+  | "alignItems"
+  | "textAlign"
 >;
 
 /** CSS pseudo classes */

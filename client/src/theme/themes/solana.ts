@@ -65,12 +65,6 @@ const SOLANA: PgTheme = {
         activeColor: TEXT_PRIMARY,
       },
     },
-    home: {
-      bg: BG_BLACK,
-      card: {
-        bg: BG_GRAY,
-      },
-    },
   },
   components: {
     bottom: {
@@ -88,19 +82,29 @@ const SOLANA: PgTheme = {
         },
       },
     },
+    home: {
+      default: {
+        bg: BG_BLACK,
+      },
+      resources: {
+        card: {
+          default: {
+            bg: BG_GRAY,
+          },
+        },
+      },
+      tutorials: {
+        card: {
+          bg: BG_GRAY,
+        },
+      },
+    },
     menu: {
       default: {
         bg: BG_GRAY,
       },
     },
     sidebar: {
-      left: {
-        iconButton: {
-          selected: {
-            bg: "transparent",
-          },
-        },
-      },
       right: {
         default: {
           bg: BG_BLACK,

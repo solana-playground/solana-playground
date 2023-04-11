@@ -588,13 +588,111 @@ export class PgThemeManager {
 
   /** Set default home */
   private static _home() {
-    this._theme.colors.home ??= {};
-    this._theme.colors.home.bg ??= this._theme.colors.default.bgSecondary;
-    this._theme.colors.home.color ??= this._theme.colors.default.textPrimary;
-    this._theme.colors.home.card ??= {};
-    this._theme.colors.home.card.bg ??= this._theme.colors.default.bgPrimary;
-    this._theme.colors.home.card.color ??=
+    this._theme.components!.home ??= {};
+
+    // Default
+    this._theme.components!.home.default ??= {};
+    this._theme.components!.home.default.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.home.default.color ??=
       this._theme.colors.default.textPrimary;
+    this._theme.components!.home.default.height ??= "100%";
+    this._theme.components!.home.default.padding ??= "0 8%";
+
+    // Title
+    this._theme.components!.home.title ??= {};
+    this._theme.components!.home.title.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.home.title.padding ??= "2rem";
+    this._theme.components!.home.title.fontWeight ??= "bold";
+    this._theme.components!.home.title.fontSize ??= "2rem";
+    this._theme.components!.home.title.textAlign ??= "center";
+
+    // Resources
+    this._theme.components!.home.resources ??= {};
+    // Resources default
+    this._theme.components!.home.resources.default ??= {};
+    this._theme.components!.home.resources.default.maxWidth ??= "53rem";
+    // Resources title
+    this._theme.components!.home.resources.title ??= {};
+    this._theme.components!.home.resources.title.marginBottom ??= "1rem";
+    this._theme.components!.home.resources.title.fontWeight ??= "bold";
+    this._theme.components!.home.resources.title.fontSize ??= "1.25rem";
+    // Resources card
+    this._theme.components!.home.resources.card ??= {};
+    // Resources card default
+    this._theme.components!.home.resources.card.default ??= {};
+    this._theme.components!.home.resources.card.default.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.home.resources.card.default.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.home.resources.card.default.border ??= `1px solid ${
+      this._theme.colors.default.borderColor + this._theme.transparency!.medium
+    }`;
+    this._theme.components!.home.resources.card.default.borderRadius ??=
+      this._theme.borderRadius;
+    this._theme.components!.home.resources.card.default.width ??= "15rem";
+    this._theme.components!.home.resources.card.default.height ??= "15rem";
+    this._theme.components!.home.resources.card.default.padding ??=
+      "1rem 1.5rem 1.5rem 1.5rem";
+    this._theme.components!.home.resources.card.default.marginRight ??= "2rem";
+    this._theme.components!.home.resources.card.default.marginBottom ??= "2rem";
+    // Resources card image
+    this._theme.components!.home.resources.card.image ??= {};
+    this._theme.components!.home.resources.card.image.width ??= "1.25rem";
+    this._theme.components!.home.resources.card.image.height ??= "1.25rem";
+    this._theme.components!.home.resources.card.image.marginRight ??= "0.5rem";
+    // Resources card title
+    this._theme.components!.home.resources.card.title ??= {};
+    this._theme.components!.home.resources.card.title.display ??= "flex";
+    this._theme.components!.home.resources.card.title.alignItems ??= "center";
+    this._theme.components!.home.resources.card.title.height ??= "20%";
+    this._theme.components!.home.resources.card.title.fontWeight ??= "bold";
+    this._theme.components!.home.resources.card.title.fontSize ??=
+      this._theme.font!.code!.size.xlarge;
+    // Resources card description
+    this._theme.components!.home.resources.card.description ??= {};
+    this._theme.components!.home.resources.card.description.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.home.resources.card.description.height ??= "60%";
+    // Resources card button
+    this._theme.components!.home.resources.card.button ??= {};
+    this._theme.components!.home.resources.card.button.width ??= "100%";
+
+    // Tutorials
+    this._theme.components!.home.tutorials ??= {};
+    // Tutorials default
+    this._theme.components!.home.tutorials.default ??= {};
+    this._theme.components!.home.tutorials.default.minWidth ??= "16rem";
+    this._theme.components!.home.tutorials.default.maxWidth ??= "27rem";
+    // Tutorials title
+    this._theme.components!.home.tutorials.title ??= {};
+    this._theme.components!.home.tutorials.title.marginBottom ??= "1rem";
+    this._theme.components!.home.tutorials.title.fontWeight ??= "bold";
+    this._theme.components!.home.tutorials.title.fontSize ??= "1.25rem";
+    // Tutorials card
+    this._theme.components!.home.tutorials.card ??= {};
+    this._theme.components!.home.tutorials.card.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.home.tutorials.card.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.home.tutorials.card.border ??= `1px solid
+      ${
+        this._theme.colors.default.borderColor +
+        this._theme.transparency!.medium
+      }`;
+    this._theme.components!.home.tutorials.card.borderRadius ??=
+      this._theme.borderRadius;
+    this._theme.components!.home.tutorials.card.padding ??= "1rem";
+    this._theme.components!.home.tutorials.card.marginBottom ??= "1rem";
+    this._theme.components!.home.tutorials.card.transition ??= `all ${
+      this._theme.transition!.duration.medium
+    } ${this._theme.transition!.type}`;
+    this._theme.components!.home.tutorials.card.display ??= "flex";
+    this._theme.components!.home.tutorials.card.alignItems ??= "center";
+    this._theme.components!.home.tutorials.card.hover ??= {};
+    this._theme.components!.home.tutorials.card.hover.bg ??=
+      this._theme.colors.state.hover.bg;
 
     return this;
   }
