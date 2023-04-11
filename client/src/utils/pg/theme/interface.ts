@@ -64,9 +64,6 @@ export interface PgTheme {
     home?: BgAndColor & {
       card?: BgAndColor;
     };
-
-    /** Tutorials page */
-    tutorials?: BgAndColor & { card?: BgAndColor };
   };
 
   /** Override the component defaults */
@@ -151,6 +148,17 @@ export interface PgTheme {
 
     /** Tutorial component */
     tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
+    /** Tutorials page component */
+    tutorials?: ExtendibleComponent<{
+      /** Tutorial card component */
+      card?: ExtendibleComponent<{
+        /** Wrapper gradient */
+        gradient?: DefaultComponent;
+        /** Wrapper bottom section of the card */
+        info?: ExtendibleComponent<"name" | "description" | "category">;
+      }>;
+    }>;
   };
 
   /** Default border radius */
@@ -201,7 +209,8 @@ type ExtendibleComponents =
   | "sidebar"
   | "terminal"
   | "toast"
-  | "tutorial";
+  | "tutorial"
+  | "tutorials";
 
 /** Components that use `OverrideableComponent` type */
 type OverrideableComponents = "button" | "menu";
@@ -377,6 +386,7 @@ type DefaultStyles = {
   | "borderTopRightRadius"
   | "borderBottomRightRadius"
   | "padding"
+  | "marginTop"
   | "boxShadow"
   | "outline"
   | "fontFamily"
@@ -389,6 +399,7 @@ type DefaultStyles = {
   | "transition"
   | "maxWidth"
   | "minHeight"
+  | "width"
 >;
 
 /** CSS pseudo classes */

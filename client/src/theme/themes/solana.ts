@@ -71,12 +71,6 @@ const SOLANA: PgTheme = {
         bg: BG_GRAY,
       },
     },
-    tutorials: {
-      bg: BG_BLACK,
-      card: {
-        bg: BG_GRAY,
-      },
-    },
   },
   components: {
     bottom: {
@@ -135,6 +129,16 @@ const SOLANA: PgTheme = {
     tutorial: {
       default: {
         bg: BG_BLACK,
+      },
+    },
+    tutorials: {
+      default: {
+        bg: BG_BLACK,
+      },
+      card: {
+        default: {
+          bg: BG_GRAY,
+        },
       },
     },
   },

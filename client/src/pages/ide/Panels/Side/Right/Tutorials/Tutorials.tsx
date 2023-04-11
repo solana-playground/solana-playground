@@ -101,8 +101,7 @@ const TutorialWrapper = styled.div<{ progress: number }>`
     background: ${theme.components.sidebar.right.default.otherBg};
     border-radius: ${theme.borderRadius};
     box-shadow: ${theme.boxShadow};
-    transition: background ${theme.transition.duration.medium}
-      ${theme.transition.type};
+    transition: all ${theme.transition.duration.medium} ${theme.transition.type};
     position: relative;
 
     &::after {

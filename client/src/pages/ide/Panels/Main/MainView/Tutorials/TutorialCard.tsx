@@ -2,6 +2,7 @@ import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import { PgTutorial, TutorialData } from "../../../../../../utils/pg";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 const TutorialCard: FC<TutorialData> = ({
   name,
@@ -74,6 +75,8 @@ const GradientWrapper = styled.div`
         opacity: 1;
       }
     }
+
+    ${PgThemeManager.convertToCSS(theme.components.tutorials.card.gradient)};
   `}
 `;
 
@@ -81,15 +84,9 @@ const InsideWrapper = styled.div`
   ${({ theme }) => css`
     width: 100%;
     height: 100%;
-    background: ${theme.colors.tutorials?.card?.bg};
-    color: ${theme.colors.tutorials?.card?.color};
-    border: 1px solid
-      ${theme.colors.default.borderColor + theme.transparency.medium};
-    border-radius: ${theme.borderRadius};
-    box-shadow: ${theme.boxShadow};
     overflow: hidden;
-    transition: background-color ${theme.transition.duration.medium}
-      ${theme.transition.type};
+
+    ${PgThemeManager.convertToCSS(theme.components.tutorials.card.default)};
   `}
 `;
 
@@ -105,18 +102,28 @@ const Img = styled.img`
 `;
 
 const InfoWrapper = styled.div`
-  width: 100%;
-  height: calc(100% - var(--img-height));
-  padding: 1rem 0.75rem;
+  ${({ theme }) => css`
+    width: 100%;
+    height: calc(100% - var(--img-height));
+
+    ${PgThemeManager.convertToCSS(
+      theme.components.tutorials.card.info.default
+    )};
+  `}
 `;
 
 const Name = styled.div`
-  font-weight: bold;
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.tutorials.card.info.name)};
+  `}
 `;
 
 const Description = styled.div`
-  margin-top: 0.5rem;
-  color: ${({ theme }) => theme.colors.default.textSecondary};
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(
+      theme.components.tutorials.card.info.description
+    )};
+  `}
 `;
 
 const CategoriesWrapper = styled.div`
@@ -127,14 +134,9 @@ const CategoriesWrapper = styled.div`
 
 const Category = styled.div`
   ${({ theme }) => css`
-    padding: 0.5rem 0.75rem;
-    width: fit-content;
-    background: ${theme.colors.tutorials?.bg};
-    color: ${theme.colors.default.textSecondary};
-    font-weight: bold;
-    font-size: ${theme.font.other.size.small};
-    box-shadow: ${theme.boxShadow};
-    border-radius: ${theme.borderRadius};
+    ${PgThemeManager.convertToCSS(
+      theme.components.tutorials.card.info.category
+    )};
   `}
 `;
 

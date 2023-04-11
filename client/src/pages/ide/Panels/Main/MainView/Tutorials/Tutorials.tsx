@@ -2,7 +2,9 @@ import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
 import { TUTORIALS } from "../../../../../../tutorials";
+import { GITHUB_URL } from "../../../../../../constants";
 import { StyledDefaultLink } from "../../../../../../components/Link";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 const Tutorials = () => (
   <Wrapper>
@@ -18,7 +20,9 @@ const Tutorials = () => (
       </TutorialsInsideWrapper>
 
       <BottomSection>
-        <StyledDefaultLink href="https://github.com/solana-playground/solana-playground/tree/master/client/src/tutorials">
+        <StyledDefaultLink
+          href={`${GITHUB_URL}/tree/master/client/src/tutorials`}
+        >
           Contribute
         </StyledDefaultLink>
       </BottomSection>
@@ -32,10 +36,8 @@ const Wrapper = styled.div`
     justify-content: center;
     flex: 1;
     overflow: auto;
-    background: ${theme.colors.tutorials?.bg};
-    color: ${theme.colors.tutorials?.color};
-    font-family: ${theme.font.other.family};
-    font-size: ${theme.font.other.size.medium};
+
+    ${PgThemeManager.convertToCSS(theme.components.tutorials.default)};
 
     /* Scrollbar */
     /* Chromium */

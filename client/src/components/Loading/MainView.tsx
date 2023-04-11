@@ -15,7 +15,7 @@ export const MainViewLoading: FC<MainViewLoadingProps> = (props) => (
 
 const LoadingWrapper = styled.div<MainViewLoadingProps>`
   background: ${({ tutorialsBg, theme }) =>
-    tutorialsBg && theme.colors.tutorials?.bg};
+    tutorialsBg && theme.components.tutorials.default.bg};
   flex: 1;
   height: 100%;
   display: flex;

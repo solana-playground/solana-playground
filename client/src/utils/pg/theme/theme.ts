@@ -101,12 +101,12 @@ export class PgThemeManager {
       ._toast()
       ._tooltip()
       ._markdown()
-      ._tutorial()
       ._sidebar()
       ._editor()
       ._home()
       ._terminal()
       ._bottom()
+      ._tutorial()
       ._tutorials();
 
     // Set theme
@@ -488,51 +488,6 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default tutorial component */
-  private static _tutorial() {
-    this._theme.components!.tutorial ??= {};
-
-    // Default
-    this._theme.components!.tutorial.default ??= {};
-    this._theme.components!.tutorial.default.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.tutorial.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.tutorial.default.flex ??= 1;
-    this._theme.components!.tutorial.default.overflow ??= "auto";
-    this._theme.components!.tutorial.default.opacity ??= 0;
-    this._theme.components!.tutorial.default.transition ??= `opacity ${
-      this._theme.transition!.duration.medium
-    } ${this._theme.transition!.type}`;
-
-    // About page
-    this._theme.components!.tutorial.aboutPage ??= {};
-    this._theme.components!.tutorial.aboutPage.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.tutorial.aboutPage.borderBottomRightRadius ??=
-      this._theme.borderRadius;
-    this._theme.components!.tutorial.aboutPage.borderTopRightRadius ??=
-      this._theme.borderRadius;
-    this._theme.components!.tutorial.aboutPage.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.tutorial.aboutPage.fontSize ??=
-      this._theme.font!.other!.size.medium;
-    this._theme.components!.tutorial.aboutPage.padding ??= "2rem";
-    this._theme.components!.tutorial.aboutPage.maxWidth ??= "60rem";
-
-    // Tutorial page
-    this._theme.components!.tutorial.tutorialPage ??= {};
-    this._theme.components!.tutorial.tutorialPage.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.tutorial.tutorialPage.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.tutorial.tutorialPage.fontSize ??=
-      this._theme.font!.other!.size.medium;
-    this._theme.components!.tutorial.tutorialPage.padding ??= "2rem";
-
-    return this;
-  }
-
   /** Set default sidebar component */
   private static _sidebar() {
     this._theme.components!.sidebar ??= {};
@@ -721,17 +676,119 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default tutorials */
-  private static _tutorials() {
-    this._theme.colors.tutorials ??= {};
-    this._theme.colors.tutorials.bg ??= this._theme.colors.default.bgSecondary;
-    this._theme.colors.tutorials.color ??=
+  /** Set default tutorial component */
+  private static _tutorial() {
+    this._theme.components!.tutorial ??= {};
+
+    // Default
+    this._theme.components!.tutorial.default ??= {};
+    this._theme.components!.tutorial.default.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.tutorial.default.color ??=
       this._theme.colors.default.textPrimary;
-    this._theme.colors.tutorials.card ??= {};
-    this._theme.colors.tutorials.card.bg ??=
+    this._theme.components!.tutorial.default.flex ??= 1;
+    this._theme.components!.tutorial.default.overflow ??= "auto";
+    this._theme.components!.tutorial.default.opacity ??= 0;
+    this._theme.components!.tutorial.default.transition ??= `opacity ${
+      this._theme.transition!.duration.medium
+    } ${this._theme.transition!.type}`;
+
+    // About page
+    this._theme.components!.tutorial.aboutPage ??= {};
+    this._theme.components!.tutorial.aboutPage.bg ??=
       this._theme.colors.default.bgPrimary;
-    this._theme.colors.tutorials.card.color ??=
+    this._theme.components!.tutorial.aboutPage.borderBottomRightRadius ??=
+      this._theme.borderRadius;
+    this._theme.components!.tutorial.aboutPage.borderTopRightRadius ??=
+      this._theme.borderRadius;
+    this._theme.components!.tutorial.aboutPage.fontFamily ??=
+      this._theme.font!.other!.family;
+    this._theme.components!.tutorial.aboutPage.fontSize ??=
+      this._theme.font!.other!.size.medium;
+    this._theme.components!.tutorial.aboutPage.padding ??= "2rem";
+    this._theme.components!.tutorial.aboutPage.maxWidth ??= "60rem";
+
+    // Tutorial page
+    this._theme.components!.tutorial.tutorialPage ??= {};
+    this._theme.components!.tutorial.tutorialPage.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.tutorial.tutorialPage.fontFamily ??=
+      this._theme.font!.other!.family;
+    this._theme.components!.tutorial.tutorialPage.fontSize ??=
+      this._theme.font!.other!.size.medium;
+    this._theme.components!.tutorial.tutorialPage.padding ??= "2rem";
+
+    return this;
+  }
+
+  /** Set default tutorials component */
+  private static _tutorials() {
+    this._theme.components!.tutorials ??= {};
+
+    // Default
+    this._theme.components!.tutorials.default ??= {};
+    this._theme.components!.tutorials.default.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.tutorials.default.color ??=
       this._theme.colors.default.textPrimary;
+    this._theme.components!.tutorials.default.fontFamily ??=
+      this._theme.font!.other!.family;
+    this._theme.components!.tutorials.default.fontSize ??=
+      this._theme.font!.other!.size.medium;
+
+    // Card
+    this._theme.components!.tutorials.card ??= {};
+    // Card default
+    this._theme.components!.tutorials.card.default ??= {};
+    this._theme.components!.tutorials.card.default.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.tutorials.card.default.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.tutorials.card.default.border ??= `1px solid ${
+      this._theme.colors.default.borderColor + this._theme.transparency!.medium
+    }`;
+    this._theme.components!.tutorials.card.default.borderRadius ??=
+      this._theme.borderRadius;
+    this._theme.components!.tutorials.card.default.boxShadow ??=
+      this._theme.boxShadow;
+    this._theme.components!.tutorials.card.default.transition ??= `all ${
+      this._theme.transition!.duration.medium
+    }
+      ${this._theme.transition!.type}`;
+    // Card gradient
+    this._theme.components!.tutorials.card.gradient ??= {};
+    // Card info
+    this._theme.components!.tutorials.card.info ??= {};
+    // Card info default
+    this._theme.components!.tutorials.card.info.default ??= {};
+    this._theme.components!.tutorials.card.info.default.padding ??=
+      " 1rem 0.75rem";
+    // Card info name
+    this._theme.components!.tutorials.card.info.name ??= {};
+    this._theme.components!.tutorials.card.info.name.fontWeight ??= "bold";
+    // Card info description
+    this._theme.components!.tutorials.card.info.description ??= {};
+    this._theme.components!.tutorials.card.info.description.marginTop ??=
+      "0.5rem";
+    this._theme.components!.tutorials.card.info.description.color ??=
+      this._theme.colors.default.textSecondary;
+    // Card info category
+    this._theme.components!.tutorials.card.info.category ??= {};
+    this._theme.components!.tutorials.card.info.category.padding ??=
+      "0.5rem 0.75rem";
+    this._theme.components!.tutorials.card.info.category.bg ??=
+      this._theme.components!.tutorials.default.bg;
+    this._theme.components!.tutorials.card.info.category.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.tutorials.card.info.category.fontSize ??=
+      this._theme.font!.other!.size.small;
+    this._theme.components!.tutorials.card.info.category.fontWeight ??= "bold";
+    this._theme.components!.tutorials.card.info.category.borderRadius ??=
+      this._theme.borderRadius;
+    this._theme.components!.tutorials.card.info.category.boxShadow ??=
+      this._theme.boxShadow;
+    this._theme.components!.tutorials.card.info.category.width ??=
+      "fit-content";
 
     return this;
   }
