@@ -98,4 +98,18 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./TinyAdventureTwo"),
   },
+  {
+    name: "Zero Copy",
+    description: "How to handle memory and big accounts.",
+    imageSrc: getTutorialImgSrc("zero-copy/tinyAdventureTwo.jpg"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    level: TutorialLevel.ADVANCED,
+    categories: [TutorialCategory.ANCHOR],
+    elementImport: () => import("./ZeroCopy"),
+  },
 ];

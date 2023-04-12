@@ -10,6 +10,12 @@ declare_id!("");
 mod tiny_adventure_two {
     use super::*;
 
+    #[error_code]
+    pub enum MyError {
+        #[msg("Password was wrong")]
+        WrongPassword,
+    }
+
     // The amount of lamports that will be put into chests and given out as rewards.
     const CHEST_REWARD: u64 = LAMPORTS_PER_SOL / 10; // 0.1 SOL
 
@@ -38,12 +44,17 @@ mod tiny_adventure_two {
         Ok(())
     }
 
-    pub fn move_right(ctx: Context<MoveRight>) -> Result<()> {
+    pub fn move_right(ctx: Context<MoveRight>, password: String ) -> Result<()> {
         let game_data_account = &mut ctx.accounts.game_data_account;
         if game_data_account.player_position == 3 {
             msg!("You have reached the end! Super!");
         } else if game_data_account.player_position == 2 {
             game_data_account.player_position = game_data_account.player_position + 1;
+
+            if password != "gib" {
+                return err!(MyError::WrongPassword);
+                //panic!("Password wrong. OMG!");
+            }
 
             msg!(
                 "You made it! Here is your reward {0} lamports",
