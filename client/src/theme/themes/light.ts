@@ -62,20 +62,6 @@ const LIGHT: PgTheme = {
         color: BLUE,
       },
     },
-    editor: {
-      bg: BG_WHITE,
-      color: "#0f1780",
-      selection: {
-        bg: SELECTION,
-      },
-      comment: {
-        bg: COMMENT,
-      },
-      gutter: {
-        color: GUTTER_BLUE,
-        activeColor: TEXT_PRIMARY,
-      },
-    },
   },
   components: {
     bottom: {
@@ -122,6 +108,16 @@ const LIGHT: PgTheme = {
         outline: {
           borderColor: TEXT_SECONDARY + "36",
         },
+      },
+    },
+    editor: {
+      default: {
+        bg: BG_WHITE,
+        color: "#0f1780",
+      },
+      gutter: {
+        color: GUTTER_BLUE,
+        activeColor: TEXT_PRIMARY,
       },
     },
     sidebar: {

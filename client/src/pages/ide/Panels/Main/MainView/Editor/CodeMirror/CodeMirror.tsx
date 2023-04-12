@@ -29,30 +29,30 @@ const CodeMirror = () => {
   const theme = useTheme();
 
   const editorTheme = useMemo(
-    () =>
-      EditorView.theme(
+    () => {
+      const editorStyles = theme.components.editor;
+
+      return EditorView.theme(
         {
           // Editor
           "&": {
             height: "100%",
-            backgroundColor: theme.colors.editor?.bg!,
-            color: theme.colors.editor?.color!,
+            background: editorStyles.default.bg!,
+            color: editorStyles.default.color!,
           },
           // Cursor
           "& .cm-cursor": {
-            borderLeft: "2px solid " + theme.colors.editor?.cursorColor!,
+            borderLeft: "2px solid " + editorStyles.default.cursorColor,
           },
           // Gutters
           "& .cm-gutters": {
-            backgroundColor: theme.colors.editor?.gutter?.bg!,
-            color: theme.colors.editor?.gutter?.color!,
-            borderRight: "none",
+            background: editorStyles.gutter.bg!,
+            color: editorStyles.gutter.color!,
+            borderRight: editorStyles.gutter.borderRight!,
           },
           "& .cm-activeLineGutter": {
-            backgroundColor: theme.colors.editor?.gutter?.activeBg ?? "inherit",
-            color:
-              theme.colors.editor?.gutter?.activeColor ??
-              theme.colors.default.textPrimary,
+            background: editorStyles.gutter.activeBg!,
+            color: editorStyles.gutter.activeColor!,
           },
           "& .cm-gutterElement:nth-child(1)": {
             padding: "0.125rem",
@@ -65,25 +65,22 @@ const CodeMirror = () => {
             border: "1.5px solid transparent",
           },
           "& .cm-activeLine": {
-            backgroundColor: theme.colors.editor?.activeLine?.bg!,
-            borderColor: theme.colors.editor?.activeLine?.borderColor!,
+            background: editorStyles.default.activeLine!.bg!,
+            borderColor: editorStyles.default.activeLine!.borderColor!,
             borderRightColor: "transparent",
             borderLeftColor: "transparent",
           },
           // Selection
-          "& .cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
-            backgroundColor: theme.colors.editor?.selection?.bg!,
-            color: theme.colors.editor?.selection?.color!,
-          },
-          "& .cm-selectionMatch": {
-            backgroundColor: theme.colors.editor?.selection?.bg!,
-            color: theme.colors.editor?.selection?.color!,
-          },
+          "& .cm-selectionBackground, &.cm-focused .cm-selectionBackground, & .cm-selectionMatch":
+            {
+              background: editorStyles.default.selection!.bg!,
+              color: editorStyles.default.selection!.color!,
+            },
           // Tooltip
           ".cm-tooltip": {
-            backgroundColor: theme.colors.editor?.tooltip?.bg!,
-            color: theme.colors.editor?.tooltip?.color!,
-            border: "1px solid " + theme.colors.default.borderColor,
+            background: editorStyles.tooltip.bg!,
+            color: editorStyles.tooltip.color!,
+            border: "1px solid " + editorStyles.tooltip.borderColor!,
           },
           ".cm-tooltip-autocomplete": {
             "& > ul": {
@@ -92,14 +89,14 @@ const CodeMirror = () => {
               },
 
               "& > li[aria-selected]": {
-                backgroundColor: theme.colors.editor?.tooltip?.selectedBg!,
-                color: theme.colors?.editor?.tooltip?.selectedColor!,
+                background: editorStyles.tooltip.selectedBg!,
+                color: editorStyles.tooltip.selectedColor!,
               },
             },
           },
           // Panels
           ".cm-panels": {
-            backgroundColor: theme.colors.default.bgSecondary ?? "inherit",
+            background: theme.colors.default.bgSecondary,
             color: theme.colors.default.textPrimary,
             width: "fit-content",
             height: "fit-content",
@@ -111,18 +108,16 @@ const CodeMirror = () => {
           },
           // Search
           ".cm-searchMatch": {
-            backgroundColor: theme.colors.editor?.searchMatch?.bg!,
-            color: theme.colors?.editor?.searchMatch?.color!,
+            background: editorStyles.default.searchMatch!.bg!,
+            color: editorStyles.default.searchMatch!.color!,
           },
           ".cm-searchMatch-selected": {
-            backgroundColor:
-              theme.colors.editor?.searchMatch?.selectedBg ??
-              theme.colors.default.primary + theme.transparency.medium,
-            color: theme.colors?.editor?.searchMatch?.color!,
+            background: editorStyles.default.searchMatch!.selectedBg!,
+            color: editorStyles.default.searchMatch!.color!,
           },
           // Search popup
           ".cm-panel.cm-search": {
-            backgroundColor: theme.colors.default.bgSecondary,
+            background: theme.colors.default.bgSecondary,
 
             "& input, & button, & label": {
               margin: ".2em .6em .2em 0",
@@ -154,12 +149,13 @@ const CodeMirror = () => {
 
             "& button:hover": {
               cursor: "pointer",
-              backgroundColor: theme.colors.default.bgPrimary,
+              background: theme.colors.default.bgPrimary,
             },
           },
         },
         { dark: theme.isDark }
-      ),
+      );
+    },
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
     [theme.name]

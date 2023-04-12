@@ -37,28 +37,6 @@ export interface PgTheme {
       warning: StateColor;
       info: StateColor;
     };
-
-    /** Editor component */
-    editor?: BgAndColor & {
-      cursorColor?: string;
-      selection?: BgAndColor;
-      comment?: BgAndColor;
-      searchMatch?: BgAndColor & {
-        selectedBg?: string;
-        selectedColor?: string;
-      };
-      activeLine?: BgAndColor & {
-        borderColor?: string;
-      };
-      gutter?: BgAndColor & {
-        activeBg?: string;
-        activeColor?: string;
-      };
-      tooltip?: BgAndColor & {
-        selectedBg?: string;
-        selectedColor?: string;
-      };
-    };
   };
 
   /** Override the component defaults */
@@ -70,6 +48,56 @@ export interface PgTheme {
 
     /** Button component */
     button?: OverrideableComponent<ButtonKind>;
+
+    /** Editor component */
+    editor?: {
+      /** Editor defaults */
+      default?: BgAndColor & {
+        cursorColor?: Color;
+        activeLine?: BgAndColor & Pick<CSSProperties, "borderColor">;
+        selection?: BgAndColor;
+        searchMatch?: BgAndColor & {
+          selectedBg?: Bg;
+          selectedColor?: Color;
+        };
+      };
+      /** Gutter component */
+      gutter?: BgAndColor & {
+        activeBg?: Bg;
+        activeColor?: Color;
+      } & Pick<CSSProperties, "borderRight">;
+      /** Minimap component */
+      minimap?: {
+        bg?: Bg;
+        selectionHighlight?: Color;
+      };
+      /** Peek view component */
+      peekView?: {
+        title?: {
+          bg?: Bg;
+          labelColor?: Color;
+          descriptionColor?: Color;
+        };
+        editor?: {
+          bg?: Bg;
+          matchHighlightBg?: Bg;
+          gutterBg?: Bg;
+        };
+        result?: {
+          bg?: Bg;
+          lineColor?: Color;
+          fileColor?: Color;
+          selectionBg?: Bg;
+          selectionColor?: Color;
+          matchHighlightBg?: Bg;
+        };
+      } & Pick<CSSProperties, "borderColor">;
+      /** Tooltip or widget component */
+      tooltip?: BgAndColor & {
+        selectedBg?: Bg;
+        selectedColor?: Color;
+      } & Pick<CSSProperties, "borderColor">;
+    };
 
     /** Home component */
     home?: ExtendibleComponent<{
@@ -118,15 +146,12 @@ export interface PgTheme {
       }>;
 
       /** Right side of the side panel */
-      right?: ExtendibleComponent<
-        "title",
-        { otherBg?: CSSProperties["background"] }
-      >;
+      right?: ExtendibleComponent<"title", { otherBg?: Bg }>;
     }>;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
-      highlightColor?: CSSProperties["color"];
+      highlightColor?: Color;
     };
 
     /** Terminal component */
@@ -140,12 +165,12 @@ export interface PgTheme {
           | "success"
           | "error"
           | "warning"
-          | "info"]?: CSSProperties["color"];
+          | "info"]?: Color;
       } & {
-        selectionBg?: CSSProperties["background"];
+        selectionBg?: Bg;
         cursor?: {
-          color?: CSSProperties["color"];
-          accentColor?: CSSProperties["color"];
+          color?: Color;
+          accentColor?: Color;
           blink?: XtermOptions["cursorBlink"];
           kind?: XtermOptions["cursorStyle"];
         };
@@ -156,7 +181,7 @@ export interface PgTheme {
     toast?: ExtendibleComponent<"progress" | "closeButton">;
 
     /** Tooltip component */
-    tooltip?: DefaultStyles & { bgSecondary?: CSSProperties["background"] };
+    tooltip?: DefaultStyles & { bgSecondary?: Bg };
 
     /** Tutorial component */
     tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
@@ -216,6 +241,7 @@ type DefaultComponents = "input" | "skeleton" | "tooltip";
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =
   | "bottom"
+  | "editor"
   | "home"
   | "markdown"
   | "select"
@@ -385,7 +411,7 @@ export type Transparency = {
 
 /** Properties that are allowed to be specified from theme objects */
 type DefaultStyles = {
-  bg?: CSSProperties["background"];
+  bg?: Bg;
 } & Pick<
   CSSProperties,
   | "color"
@@ -440,16 +466,6 @@ type DefaultComponentState<T extends PseudoClass = PseudoClass> = {
 /** Default component with pseudo classes */
 export type DefaultComponent = DefaultStyles & DefaultComponentState;
 
-/** Overrideable component */
-type OverrideableComponent<T extends string> = {
-  /** Default CSS values of the Button component */
-  default?: DefaultComponent;
-  /** Override the defaults with specificity */
-  overrides?: {
-    [K in T]?: DefaultComponent;
-  };
-};
-
 /** Extendible component */
 type ExtendibleComponent<
   T extends string | object,
@@ -465,17 +481,31 @@ type ExtendibleComponent<
   ? { [K in U extends any ? keyof U : never]?: DefaultComponent }
   : U);
 
-type Bg = {
-  bg?: string;
+/** Overrideable component */
+type OverrideableComponent<T extends string> = {
+  /** Default CSS values of the Button component */
+  default?: DefaultComponent;
+  /** Override the defaults with specificity */
+  overrides?: {
+    [K in T]?: DefaultComponent;
+  };
 };
 
-type BgAndColor = Bg & { color?: string };
+/** CSS background */
+type Bg = string;
 
+/** CSS color */
+type Color = NonNullable<CSSProperties["color"]>;
+
+/** Optional background and color */
+type BgAndColor = { bg?: Bg } & { color?: Color };
+
+/** Required color, optional background */
 type StateColor = {
-  color: string;
-} & Bg;
-
-type HighlightToken = {
-  color?: string;
-  fontStyle?: "bold" | "italic";
+  color: Color;
+} & {
+  bg?: Bg;
 };
+
+/** Syntax highlighting token */
+type HighlightToken = Pick<CSSProperties, "color" | "fontStyle">;

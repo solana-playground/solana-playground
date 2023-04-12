@@ -537,51 +537,105 @@ export class PgThemeManager {
 
   /** Set default editor */
   private static _editor() {
-    this._theme.colors.editor ??= {};
-    this._theme.colors.editor.bg ??= this._theme.colors.default.bgPrimary;
-    this._theme.colors.editor.color ??= this._theme.colors.default.textPrimary;
-    this._theme.colors.editor.cursorColor ??=
+    this._theme.components!.editor ??= {};
+
+    this._theme.components!.editor.default ??= {};
+    this._theme.components!.editor.default.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.editor.default.color ??=
+      this._theme.colors.default.textPrimary;
+
+    // Editor cursor color
+    this._theme.components!.editor.default.cursorColor ??=
       this._theme.colors.default.textSecondary;
 
     // Editor active line
-    this._theme.colors.editor.activeLine ??= {};
-    this._theme.colors.editor.activeLine.bg ??= "inherit";
-    this._theme.colors.editor.activeLine.borderColor ??=
+    this._theme.components!.editor.default.activeLine ??= {};
+    this._theme.components!.editor.default.activeLine.bg ??= "inherit";
+    this._theme.components!.editor.default.activeLine.borderColor ??=
       this._theme.colors.default.borderColor;
 
     // Editor selection
-    this._theme.colors.editor.selection ??= {};
-
-    this._theme.colors.editor.selection.bg ??=
+    this._theme.components!.editor.default.selection ??= {};
+    this._theme.components!.editor.default.selection.bg ??=
       this._theme.colors.default.primary + this._theme.transparency!.medium;
-
-    this._theme.colors.editor.selection.color ??= "inherit";
+    this._theme.components!.editor.default.selection.color ??= "inherit";
 
     // Editor search match
-    this._theme.colors.editor.searchMatch ??= {};
-    this._theme.colors.editor.searchMatch.bg ??=
+    this._theme.components!.editor.default.searchMatch ??= {};
+    this._theme.components!.editor.default.searchMatch.bg ??=
       this._theme.colors.default.textSecondary +
       this._theme.transparency!.medium;
-    this._theme.colors.editor.searchMatch.color ??= "inherit";
-    this._theme.colors.editor.searchMatch.selectedBg ??= "inherit";
-    this._theme.colors.editor.searchMatch.selectedColor ??= "inherit";
+    this._theme.components!.editor.default.searchMatch.color ??= "inherit";
+    this._theme.components!.editor.default.searchMatch.selectedBg ??= "inherit";
+    this._theme.components!.editor.default.searchMatch.selectedColor ??=
+      "inherit";
 
     // Editor gutter
-    this._theme.colors.editor.gutter ??= {};
-    this._theme.colors.editor.gutter.bg ??= this._theme.colors.editor.bg;
-    this._theme.colors.editor.gutter.color ??=
+    this._theme.components!.editor.gutter ??= {};
+    this._theme.components!.editor.gutter.bg ??=
+      this._theme.components!.editor.default.bg;
+    this._theme.components!.editor.gutter.color ??=
       this._theme.colors.default.textSecondary;
+    this._theme.components!.editor.gutter.activeBg ??= "inherit";
+    this._theme.components!.editor.gutter.activeColor ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.editor.gutter.borderRight ??= "none";
 
-    // Editor tooltip/dropdown
-    this._theme.colors.editor.tooltip ??= {};
-    this._theme.colors.editor.tooltip.bg ??=
+    // Editor minimap
+    this._theme.components!.editor.minimap ??= {};
+    this._theme.components!.editor.minimap.bg ??=
+      this._theme.components!.editor.default.bg;
+    this._theme.components!.editor.minimap.selectionHighlight ??=
+      this._theme.colors.default.secondary;
+
+    // Editor peek view
+    this._theme.components!.editor.peekView ??= {};
+    this._theme.components!.editor.peekView.borderColor ??=
+      this._theme.colors.default.primary;
+    // Editor peek view title
+    this._theme.components!.editor.peekView.title ??= {};
+    this._theme.components!.editor.peekView.title.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.editor.peekView.title.labelColor ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.editor.peekView.title.descriptionColor ??=
+      this._theme.colors.default.textSecondary;
+    // Editor peek view editor
+    this._theme.components!.editor.peekView.editor ??= {};
+    this._theme.components!.editor.peekView.editor.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.editor.peekView.editor.matchHighlightBg ??=
+      this._theme.colors.state.warning.color + this._theme.transparency!.medium;
+    this._theme.components!.editor.peekView.editor.gutterBg ??=
+      this._theme.components!.editor.peekView.editor.bg;
+    // Editor peek view result
+    this._theme.components!.editor.peekView.result ??= {};
+    this._theme.components!.editor.peekView.result.bg ??=
       this._theme.colors.default.bgPrimary;
-    this._theme.colors.editor.tooltip.color ??=
+    this._theme.components!.editor.peekView.result.lineColor ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.editor.peekView.result.fileColor ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.editor.peekView.result.selectionBg ??=
+      this._theme.colors.default.primary + this._theme.transparency!.low;
+    this._theme.components!.editor.peekView.result.selectionColor ??=
       this._theme.colors.default.textPrimary;
-    this._theme.colors.editor.tooltip.selectedBg ??=
+    this._theme.components!.editor.peekView.result.matchHighlightBg ??=
+      this._theme.colors.state.warning.color + this._theme.transparency!.medium;
+
+    // Editor tooltip/widget
+    this._theme.components!.editor.tooltip ??= {};
+    this._theme.components!.editor.tooltip.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.editor.tooltip.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.editor.tooltip.selectedBg ??=
       this._theme.colors.default.primary + this._theme.transparency!.medium;
-    this._theme.colors.editor.tooltip.selectedColor ??=
+    this._theme.components!.editor.tooltip.selectedColor ??=
       this._theme.colors.default.textPrimary;
+    this._theme.components!.editor.tooltip.borderColor ??=
+      this._theme.colors.default.borderColor;
 
     return this;
   }
