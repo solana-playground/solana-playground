@@ -80,18 +80,18 @@ const Wrapper = styled.div`
     &::-webkit-scrollbar-track,
     & ::-webkit-scrollbar-track {
       background-color: ${theme.components.sidebar.right.default.bg};
-      border-left: 1px solid ${theme.colors.default.borderColor};
+      border-left: 1px solid ${theme.colors.default.border};
     }
 
     &::-webkit-scrollbar-thumb,
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      background-color: ${theme.scrollbar.thumb.color};
+      background-color: ${theme.default.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover,
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar.thumb.hoverColor};
+      background-color: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     & ::-webkit-scrollbar-corner {

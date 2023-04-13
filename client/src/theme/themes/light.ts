@@ -38,7 +38,7 @@ const LIGHT: PgTheme = {
       secondary: PURPLE,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
-      borderColor: SELECTION,
+      border: SELECTION,
     },
     state: {
       hover: {

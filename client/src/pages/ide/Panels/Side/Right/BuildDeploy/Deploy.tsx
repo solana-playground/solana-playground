@@ -266,7 +266,7 @@ const Wrapper = styled.div`
   justify-content: center;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid ${({ theme }) => theme.colors.default.borderColor};
+  border-top: 1px solid ${({ theme }) => theme.colors.default.border};
 
   & div:first-child + button {
     margin-top: 1.5rem;

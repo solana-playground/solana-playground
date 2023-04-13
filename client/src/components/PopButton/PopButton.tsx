@@ -112,7 +112,7 @@ const Arrow = styled.div`
       content: "";
       position: absolute;
       border: 10px solid transparent;
-      border-top-color: ${theme.colors.default.borderColor};
+      border-top-color: ${theme.colors.default.border};
     }
 
     &:after {

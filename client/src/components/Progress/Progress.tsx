@@ -14,7 +14,7 @@ const Progress: FC<ProgressProps> = ({ value }) => {
   useEffect(() => {
     if (wrapperRef.current) {
       wrapperRef.current.style.borderColor = value
-        ? theme.colors.default.borderColor
+        ? theme.colors.default.border
         : "transparent";
     }
   }, [value, theme]);
@@ -28,8 +28,8 @@ const Progress: FC<ProgressProps> = ({ value }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
     width: 100%;
     height: 0.75rem;
     overflow: hidden;
@@ -39,9 +39,10 @@ const Wrapper = styled.div`
 const Indicator = styled.div`
   ${({ theme }) => css`
     background: ${theme.colors.default.primary};
-    border-radius: ${theme.borderRadius};
+    border-radius: ${theme.default.borderRadius};
     height: 100%;
-    transition: width ${theme.transition.duration.long} ${theme.transition.type};
+    transition: width ${theme.default.transition.duration.long}
+      ${theme.default.transition.type};
   `}
 `;
 

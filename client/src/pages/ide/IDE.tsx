@@ -29,8 +29,8 @@ const IDE = () => {
 const Wrapper = styled.div`
   ${({ theme }) => css`
     opacity: 0;
-    transition: opacity ${theme.transition.duration.long}
-      ${theme.transition.type};
+    transition: opacity ${theme.default.transition.duration.long}
+      ${theme.default.transition.type};
   `}
 `;
 

@@ -311,17 +311,17 @@ const Wrapper = styled.div`
 
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar.thumb.color};
+      border-radius: ${theme.default.borderRadius};
+      background-color: ${theme.default.scrollbar.thumb.color};
     }
 
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar.thumb.hoverColor};
+      background-color: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar.thumb.color};
+      scrollbar-color: ${theme.default.scrollbar.thumb.color};
     }
   `}
 `;
@@ -440,7 +440,7 @@ const NavigationButtonsInsideWrapper = styled.div`
     display: flex;
     width: 100%;
     padding-top: 1.5rem;
-    border-top: 1px solid ${theme.colors.default.borderColor};
+    border-top: 1px solid ${theme.colors.default.border};
     font-size: ${theme.font.other.size.small};
     font-weight: bold;
   `}

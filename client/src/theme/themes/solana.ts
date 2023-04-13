@@ -26,11 +26,11 @@ const SOLANA: PgTheme = {
     default: {
       bgPrimary: BG_BLACK,
       bgSecondary: BG_GRAY,
-      borderColor: SELECTION,
       primary: GREEN,
       secondary: PURPLE,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
+      border: SELECTION,
     },
     state: {
       disabled: {

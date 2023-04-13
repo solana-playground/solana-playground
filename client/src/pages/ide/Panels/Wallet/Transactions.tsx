@@ -166,8 +166,8 @@ const TxTitle = styled.span`
 
 const TxsListWrapper = styled.div`
   ${({ theme }) => css`
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
     background: ${theme.components.sidebar.right.default.otherBg};
     margin-top: 0.5rem;
   `}
@@ -183,7 +183,7 @@ const TxsTop = styled.div`
     font-weight: bold;
 
     &:not(:last-child) {
-      border-bottom: 1px solid ${theme.colors.default.borderColor};
+      border-bottom: 1px solid ${theme.colors.default.border};
     }
   `}
 `;
@@ -196,7 +196,7 @@ const TxWrapper = styled.div`
     color: ${theme.colors.default.textSecondary};
 
     &:not(:last-child) {
-      border-bottom: 1px solid ${theme.colors.default.borderColor};
+      border-bottom: 1px solid ${theme.colors.default.border};
     }
 
     &:hover {
@@ -204,7 +204,7 @@ const TxWrapper = styled.div`
       background: linear-gradient(
         0deg,
         ${theme.colors.default.bgSecondary} 75%,
-        ${theme.colors.default.primary + theme.transparency.low} 100%
+        ${theme.colors.default.primary + theme.default.transparency.low} 100%
       );
     }
   `}

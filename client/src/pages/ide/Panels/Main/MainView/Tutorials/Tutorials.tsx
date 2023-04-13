@@ -52,17 +52,17 @@ const Wrapper = styled.div`
 
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar.thumb.color};
+      border-radius: ${theme.default.borderRadius};
+      background-color: ${theme.default.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar.thumb.hoverColor};
+      background-color: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar.thumb.color};
+      scrollbar-color: ${theme.default.scrollbar.thumb.color};
     }
   `}
 `;

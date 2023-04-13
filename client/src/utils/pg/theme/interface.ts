@@ -25,7 +25,7 @@ export interface PgTheme {
       bgSecondary: string;
       textPrimary: string;
       textSecondary: string;
-      borderColor: string;
+      border: string;
     };
 
     /** State colors */
@@ -36,6 +36,40 @@ export interface PgTheme {
       success: StateColor;
       warning: StateColor;
       info: StateColor;
+    };
+  };
+
+  /** Default theme values */
+  default?: {
+    /** Default border radius */
+    borderRadius?: CSSProperties["borderRadius"];
+
+    /** Default box shadow */
+    boxShadow?: CSSProperties["boxShadow"];
+
+    /** Default scrollbar */
+    scrollbar?: {
+      thumb: {
+        color: Color;
+        hoverColor: Color;
+      };
+    };
+
+    /** Default transparency values as hex string(00-ff) */
+    transparency?: {
+      low: string;
+      medium: string;
+      high: string;
+    };
+
+    /** Default transition settings */
+    transition?: {
+      /** Timing function */
+      type: CSSProperties["transitionTimingFunction"];
+      /** Transition durations */
+      duration: {
+        [K in "short" | "medium" | "long"]: CSSProperties["transitionDuration"];
+      };
     };
   };
 
@@ -73,16 +107,19 @@ export interface PgTheme {
       };
       /** Peek view component */
       peekView?: {
+        /** Peek view title */
         title?: {
           bg?: Bg;
           labelColor?: Color;
           descriptionColor?: Color;
         };
+        /** Peek view editor */
         editor?: {
           bg?: Bg;
           matchHighlightBg?: Bg;
           gutterBg?: Bg;
         };
+        /** Peek view result(right side) */
         result?: {
           bg?: Bg;
           lineColor?: Color;
@@ -198,84 +235,9 @@ export interface PgTheme {
     }>;
   };
 
-  /** Default border radius */
-  borderRadius?: string;
-
-  /** Default box shadow */
-  boxShadow?: string;
-
-  /** Default font */
-  font?: {
-    /** Code font */
-    code?: PgFont;
-    /** Any font other than code(e.g Markdown) */
-    other?: PgFont;
-  };
-
-  /** Scrollbar default */
-  scrollbar?: Scrollbar;
-
-  /** Default transparency values as hex string(00-ff) */
-  transparency?: Transparency;
-
-  /** Default transition values */
-  transition?: Transition;
-
   /** Code highlight styles */
   highlight: PgHighlight;
 }
-
-/** Importable(lazy) theme */
-export interface ImportableTheme {
-  /** Name of the theme that's displayed in theme settings */
-  name: string;
-  /** Import promise for the theme to lazy load */
-  importTheme: () => Promise<{
-    default: PgTheme;
-  }>;
-}
-
-/** Components that use `DefaultComponent` type */
-type DefaultComponents = "input" | "skeleton" | "tooltip";
-
-/** Components that use `ExtendibleComponent` type */
-type ExtendibleComponents =
-  | "bottom"
-  | "editor"
-  | "home"
-  | "markdown"
-  | "select"
-  | "sidebar"
-  | "terminal"
-  | "toast"
-  | "tutorial"
-  | "tutorials";
-
-/** Components that use `OverrideableComponent` type */
-type OverrideableComponents = "button" | "menu";
-
-/**
- * Ready to be used theme. Some of the optional properties will be overridden
- * with default values.
- */
-export type PgThemeReady<
-  T extends PgTheme = PgTheme,
-  C extends NonNullable<T["components"]> = NonNullable<T["components"]>
-> = Pick<ImportableTheme, "name"> &
-  NestedRequired<T> & {
-    // Default components
-    components: Pick<C, DefaultComponents>;
-  } & {
-    // Extendible components
-    components: RequiredUntil<Pick<C, ExtendibleComponents>, DefaultComponent>;
-  } & {
-    // Overrideable components
-    components: ChildRequired<
-      Pick<C, OverrideableComponents>,
-      OverrideableComponents,
-      "default"
-    >;
-  };
 
 /** Syntax highlighting styles */
 export interface PgHighlight {
@@ -372,41 +334,80 @@ export interface PgHighlight {
   annotion: HighlightToken;
 }
 
+/** Syntax highlighting token */
+type HighlightToken = Pick<CSSProperties, "color" | "fontStyle">;
+
 /** Playground font */
-export type PgFont = {
-  family: string;
+export interface PgFont {
+  family: NonNullable<CSSProperties["fontFamily"]>;
   size: {
-    xsmall: string;
-    small: string;
-    medium: string;
-    large: string;
-    xlarge: string;
+    [K in "xsmall" | "small" | "medium" | "large" | "xlarge"]: NonNullable<
+      CSSProperties["fontSize"]
+    >;
   };
-};
+}
 
-export type Scrollbar = {
-  thumb: {
-    color: string;
-    hoverColor: string;
-  };
-  width?: {
-    editor: string;
-  };
-};
+/** Importable(lazy) theme */
+export interface ImportableTheme {
+  /** Name of the theme that's displayed in theme settings */
+  name: string;
+  /** Import promise for the theme to lazy load */
+  importTheme: () => Promise<{
+    default: PgTheme;
+  }>;
+}
 
-export type Transition = {
-  type: string;
-  duration: {
-    short: string;
-    medium: string;
-    long: string;
-  };
-};
+/** Components that use `DefaultComponent` type */
+type DefaultComponents = "input" | "skeleton" | "tooltip";
 
-export type Transparency = {
-  low: string;
-  medium: string;
-  high: string;
+/** Components that use `ExtendibleComponent` type */
+type ExtendibleComponents =
+  | "bottom"
+  | "editor"
+  | "home"
+  | "markdown"
+  | "select"
+  | "sidebar"
+  | "terminal"
+  | "toast"
+  | "tutorial"
+  | "tutorials";
+
+/** Components that use `OverrideableComponent` type */
+type OverrideableComponents = "button" | "menu";
+
+/** Theme to be used while setting the defaults internally */
+export type PgThemeInternal = Partial<Pick<ImportableTheme, "name">> &
+  PgTheme & {
+    /** Default font */
+    font?: {
+      /** Code font */
+      code?: PgFont;
+      /** Any font other than code(e.g Markdown) */
+      other?: PgFont;
+    };
+  };
+
+/**
+ * Ready to be used theme. Some of the optional properties will be overridden
+ * with default values.
+ */
+export type PgThemeReady<
+  T extends PgThemeInternal = PgThemeInternal,
+  C extends NonNullable<T["components"]> = NonNullable<T["components"]>
+> = NestedRequired<T> & {
+  // Default components
+  components: Pick<C, DefaultComponents>;
+} & {
+  // Extendible components
+  components: RequiredUntil<Pick<C, ExtendibleComponents>, DefaultComponent>;
+} & {
+  // Overrideable components
+  components: ChildRequired<
+    Pick<C, OverrideableComponents>,
+    OverrideableComponents,
+    "default"
+  >;
 };
 
 /** Properties that are allowed to be specified from theme objects */
@@ -506,6 +507,3 @@ type StateColor = {
 } & {
   bg?: Bg;
 };
-
-/** Syntax highlighting token */
-type HighlightToken = Pick<CSSProperties, "color" | "fontStyle">;

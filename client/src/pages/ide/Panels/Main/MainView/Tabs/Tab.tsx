@@ -73,7 +73,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
       ? theme.colors.default.textPrimary
       : theme.colors.default.textSecondary};
     border: 1px solid transparent;
-    border-right-color: ${theme.colors.default.borderColor};
+    border-right-color: ${theme.colors.default.border};
     border-top-color: ${current
       ? theme.colors.default.secondary
       : "transparent"};

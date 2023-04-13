@@ -57,12 +57,13 @@ const Wrapper = styled.div`
 
     & svg {
       color: ${theme.colors.default.textSecondary};
-      transition: color ${theme.transition.duration.short}
-        ${theme.transition.type};
+      transition: color ${theme.default.transition.duration.short}
+        ${theme.default.transition.type};
     }
 
     & ::selection {
-      background: ${theme.colors.default.primary + theme.transparency.medium};
+      background: ${theme.colors.default.primary +
+      theme.default.transparency.medium};
     }
   `}
 `;

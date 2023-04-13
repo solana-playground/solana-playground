@@ -30,7 +30,7 @@ const DRACULA: PgTheme = {
       secondary: PINK,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
-      borderColor: SELECTION,
+      border: SELECTION,
     },
     state: {
       hover: {

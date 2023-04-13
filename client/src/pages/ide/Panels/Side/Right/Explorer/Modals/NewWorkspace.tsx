@@ -156,9 +156,10 @@ const FrameworkWrapper = styled.div<{ isSelected?: boolean }>`
   ${({ theme, isSelected }) => css`
     width: fit-content;
     padding: 1rem;
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
-    transition: all ${theme.transition.duration.medium} ${theme.transition.type};
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
+    transition: all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
     border-color: ${isSelected && theme.colors.default.primary};
     & div:nth-child(2) {
       color: ${isSelected && theme.colors.default.textPrimary};

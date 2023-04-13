@@ -33,11 +33,11 @@ const PLAYGROUND: PgTheme = {
     default: {
       bgPrimary: BG_DEFAULT,
       bgSecondary: BG_DARK,
-      borderColor: BORDER_COLOR,
       primary: BLUE,
       secondary: CYAN,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
+      border: BORDER_COLOR,
     },
     state: {
       disabled: {

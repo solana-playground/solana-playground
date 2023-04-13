@@ -3,24 +3,15 @@ import { CSSProperties } from "react";
 import { EventName } from "../../../constants";
 import { PgCommon } from "../common";
 import {
-  DEFAULT_BORDER_RADIUS,
-  DEFAULT_BOX_SHADOW,
-  DEFAULT_FONT_OTHER,
-  DEFAULT_SCROLLBAR,
-  DEFAULT_TRANSITION,
-  DEFAULT_TRANSPARENCY,
-} from "./default";
-import {
   DefaultComponent,
   ImportableTheme,
   PgFont,
-  PgTheme,
-  PgThemeReady,
+  PgThemeInternal,
 } from "./interface";
 
 export class PgThemeManager {
   /** Current theme */
-  private static _theme: PgTheme;
+  private static _theme: PgThemeInternal;
 
   /** Current font */
   private static _font: PgFont;
@@ -61,7 +52,7 @@ export class PgThemeManager {
    */
   static async set(
     params: Partial<{
-      themeName: ImportableTheme["name"];
+      themeName: PgThemeInternal["name"];
       fontFamily: PgFont["family"];
     }> = {}
   ) {
@@ -70,11 +61,13 @@ export class PgThemeManager {
     params.fontFamily ??=
       localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family;
 
-    let importableTheme = this._themes.find(
-      (t) => t.name === params.themeName
-    )!;
+    let importableTheme = this._themes.find((t) => t.name === params.themeName);
 
-    if (importableTheme === undefined) {
+    // This could happen when:
+    // 1. The theme name was updated/deleted
+    // 2. The theme key was overridden by another app when running locally
+    // 3. The user manually edited `localStorage` theme value
+    if (!importableTheme) {
       importableTheme = this._themes[0];
       params.themeName = importableTheme.name;
       params.fontFamily = this._fonts[0].family;
@@ -88,16 +81,12 @@ export class PgThemeManager {
     this._theme = structuredClone(
       (await importableTheme.importTheme()).default
     );
-    (this._theme as PgThemeReady).name = importableTheme.name;
+    this._theme.name = importableTheme.name;
     this._font = font;
 
     // Set defaults(order matters)
     this._theme_fonts()
-      ._transparency()
-      ._borderRadius()
-      ._boxShadow()
-      ._scrollbar()
-      ._transition()
+      ._default()
       ._stateColors()
       ._components()
       ._skeleton()
@@ -194,40 +183,70 @@ export class PgThemeManager {
     return component;
   }
 
-  /** Set default transparency */
-  private static _transparency() {
-    this._theme.transparency ??= DEFAULT_TRANSPARENCY;
+  /** Set default fonts */
+  private static _theme_fonts() {
+    this._theme.font ??= {};
+    this._theme.font.code ??= this._font;
+    this._theme.font.other ??= {
+      family: `-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`,
+      size: {
+        xsmall: "0.8125rem",
+        small: "0.875rem",
+        medium: "1rem",
+        large: "1.25rem",
+        xlarge: "1.5rem",
+      },
+    };
 
     return this;
   }
 
-  /** Set default borderRadius */
-  private static _borderRadius() {
-    this._theme.borderRadius ??= DEFAULT_BORDER_RADIUS;
+  /** Set defaults */
+  private static _default() {
+    this._theme.default ??= {};
 
-    return this;
-  }
+    // Border radius
+    this._theme.default!.borderRadius ??= "4px";
 
-  /** Set default boxShadow */
-  private static _boxShadow() {
-    this._theme.boxShadow ??= DEFAULT_BOX_SHADOW;
+    // Box shadow
+    this._theme.default!.boxShadow ??= "rgb(0 0 0 / 25%) -1px 3px 4px";
 
-    return this;
-  }
-
-  /** Set default scrollbar */
-  private static _scrollbar() {
-    if (!this._theme.scrollbar) {
-      if (this._theme.isDark) this._theme.scrollbar = DEFAULT_SCROLLBAR.dark;
-      else this._theme.scrollbar = DEFAULT_SCROLLBAR.light;
+    // Scrollbar
+    if (!this._theme.default.scrollbar) {
+      if (this._theme.isDark) {
+        this._theme.default.scrollbar = {
+          thumb: {
+            color: "#ffffff64",
+            hoverColor: "#ffffff32",
+          },
+        };
+      } else {
+        this._theme.default.scrollbar = {
+          thumb: {
+            color: "#00000032",
+            hoverColor: "#00000064",
+          },
+        };
+      }
     }
 
-    return this;
-  }
+    // Transition
+    this._theme.default.transition ??= {
+      type: "linear",
+      duration: {
+        short: "50ms",
+        medium: "150ms",
+        long: "250ms",
+      },
+    };
 
-  /** Set default transition */
-  private static _transition() {
-    this._theme.transition ??= DEFAULT_TRANSITION;
+    // Transparency
+    this._theme.default.transparency ??= {
+      low: "16",
+      medium: "64",
+      high: "bb",
+    };
 
     return this;
   }
@@ -235,17 +254,23 @@ export class PgThemeManager {
   /** Set default state colors */
   private static _stateColors() {
     this._theme.colors.state.disabled.bg ??=
-      this._theme.colors.state.disabled.color + this._theme.transparency!.low;
+      this._theme.colors.state.disabled.color +
+      this._theme.default!.transparency!.low;
     this._theme.colors.state.error.bg ??=
-      this._theme.colors.state.error.color + this._theme.transparency!.low;
+      this._theme.colors.state.error.color +
+      this._theme.default!.transparency!.low;
     this._theme.colors.state.hover.bg ??=
-      this._theme.colors.state.hover.color + this._theme.transparency!.low;
+      this._theme.colors.state.hover.color +
+      this._theme.default!.transparency!.low;
     this._theme.colors.state.info.bg ??=
-      this._theme.colors.state.info.color + this._theme.transparency!.low;
+      this._theme.colors.state.info.color +
+      this._theme.default!.transparency!.low;
     this._theme.colors.state.success.bg ??=
-      this._theme.colors.state.success.color + this._theme.transparency!.low;
+      this._theme.colors.state.success.color +
+      this._theme.default!.transparency!.low;
     this._theme.colors.state.warning.bg ??=
-      this._theme.colors.state.warning.color + this._theme.transparency!.low;
+      this._theme.colors.state.warning.color +
+      this._theme.default!.transparency!.low;
 
     return this;
   }
@@ -262,7 +287,8 @@ export class PgThemeManager {
     this._theme.components!.skeleton ??= {};
     this._theme.components!.skeleton.bg ??= "#44475A";
     this._theme.components!.skeleton.highlightColor ??= "#343746";
-    this._theme.components!.skeleton.borderRadius ??= this._theme.borderRadius;
+    this._theme.components!.skeleton.borderRadius ??=
+      this._theme.default!.borderRadius;
 
     return this;
   }
@@ -277,7 +303,7 @@ export class PgThemeManager {
     this._theme.components!.button.default.color ??= "inherit";
     this._theme.components!.button.default.borderColor ??= "transparent";
     this._theme.components!.button.default.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.button.default.fontSize ??=
       this._theme.font!.code!.size.medium;
     this._theme.components!.button.default.fontWeight ??= "normal";
@@ -295,9 +321,10 @@ export class PgThemeManager {
     this._theme.components!.menu.default.bg ??=
       this._theme.colors.default.bgPrimary;
     this._theme.components!.menu.default.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.menu.default.padding ??= "0.25rem 0";
-    this._theme.components!.menu.default.boxShadow ??= this._theme.boxShadow;
+    this._theme.components!.menu.default.boxShadow ??=
+      this._theme.default!.boxShadow;
 
     return this;
   }
@@ -310,8 +337,9 @@ export class PgThemeManager {
     this._theme.components!.input.color ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.input.borderColor ??=
-      this._theme.colors.default.borderColor;
-    this._theme.components!.input.borderRadius ??= this._theme.borderRadius;
+      this._theme.colors.default.border;
+    this._theme.components!.input.borderRadius ??=
+      this._theme.default!.borderRadius;
     this._theme.components!.input.padding ??= "0.25rem 0.5rem";
     this._theme.components!.input.boxShadow ??= "none";
     this._theme.components!.input.fontWeight ??= "normal";
@@ -320,12 +348,14 @@ export class PgThemeManager {
 
     this._theme.components!.input.focus ??= {};
     this._theme.components!.input.focus.outline ??= `1px solid ${
-      this._theme.colors.default.primary + this._theme.transparency!.medium
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.medium
     }`;
 
     this._theme.components!.input.focusWithin ??= {};
     this._theme.components!.input.focusWithin.outline ??= `1px solid ${
-      this._theme.colors.default.primary + this._theme.transparency!.medium
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.medium
     }`;
 
     return this;
@@ -345,9 +375,9 @@ export class PgThemeManager {
     this._theme.components!.select.control.bg ??=
       this._theme.components!.input!.bg;
     this._theme.components!.select.control.borderColor ??=
-      this._theme.colors.default.borderColor;
+      this._theme.colors.default.border;
     this._theme.components!.select.control.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.select.control.minHeight ??= "fit-content";
     this._theme.components!.select.control.hover ??= {};
     this._theme.components!.select.control.hover.borderColor ??=
@@ -355,7 +385,8 @@ export class PgThemeManager {
     this._theme.components!.select.control.hover.cursor ??= "pointer";
     this._theme.components!.select.control.focusWithin ??= {};
     this._theme.components!.select.control.focusWithin.boxShadow ??= `0 0 0 1px ${
-      this._theme.colors.default.primary + this._theme.transparency!.high
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.high
     }`;
 
     // Menu
@@ -429,7 +460,7 @@ export class PgThemeManager {
     this._theme.components!.toast.default.color ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.toast.default.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.toast.default.fontFamily ??=
       this._theme.font!.code!.family;
     this._theme.components!.toast.default.fontSize ??=
@@ -457,8 +488,10 @@ export class PgThemeManager {
       this._theme.colors.default.textPrimary;
     this._theme.components!.tooltip.bgSecondary ??=
       this._theme.colors.default.bgSecondary;
-    this._theme.components!.tooltip.borderRadius ??= this._theme.borderRadius;
-    this._theme.components!.tooltip.boxShadow ??= this._theme.boxShadow;
+    this._theme.components!.tooltip.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.tooltip.boxShadow ??=
+      this._theme.default!.boxShadow;
     this._theme.components!.tooltip.fontSize ??=
       this._theme.font!.code!.size.small;
 
@@ -486,7 +519,7 @@ export class PgThemeManager {
     this._theme.components!.markdown.code.color ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.markdown.code.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.markdown.code.fontFamily ??=
       this._theme.font!.code!.family;
     this._theme.components!.markdown.code.fontSize ??=
@@ -508,7 +541,7 @@ export class PgThemeManager {
     this._theme.components!.sidebar.left.default ??= {};
     this._theme.components!.sidebar.left.default.bg ??=
       this._theme.colors.default.bgPrimary;
-    this._theme.components!.sidebar.left.default.borderRight ??= `1px solid ${this._theme.colors.default.borderColor}`;
+    this._theme.components!.sidebar.left.default.borderRight ??= `1px solid ${this._theme.colors.default.border}`;
 
     // Left icon button
     this._theme.components!.sidebar.left.iconButton ??= {};
@@ -530,10 +563,10 @@ export class PgThemeManager {
       this._theme.colors.default.bgSecondary;
     this._theme.components!.sidebar.right.default.otherBg ??=
       this._theme.colors.default.bgPrimary;
-    this._theme.components!.sidebar.right.default.borderRight ??= `1px solid ${this._theme.colors.default.borderColor}`;
+    this._theme.components!.sidebar.right.default.borderRight ??= `1px solid ${this._theme.colors.default.border}`;
     // Right title
     this._theme.components!.sidebar.right.title ??= {};
-    this._theme.components!.sidebar.right.title.borderBottom ??= `1px solid ${this._theme.colors.default.borderColor};`;
+    this._theme.components!.sidebar.right.title.borderBottom ??= `1px solid ${this._theme.colors.default.border};`;
     this._theme.components!.sidebar.right.title.color ??=
       this._theme.colors.default.textSecondary;
     this._theme.components!.sidebar.right.title.fontSize ??=
@@ -560,19 +593,20 @@ export class PgThemeManager {
     this._theme.components!.editor.default.activeLine ??= {};
     this._theme.components!.editor.default.activeLine.bg ??= "inherit";
     this._theme.components!.editor.default.activeLine.borderColor ??=
-      this._theme.colors.default.borderColor;
+      this._theme.colors.default.border;
 
     // Editor selection
     this._theme.components!.editor.default.selection ??= {};
     this._theme.components!.editor.default.selection.bg ??=
-      this._theme.colors.default.primary + this._theme.transparency!.medium;
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.medium;
     this._theme.components!.editor.default.selection.color ??= "inherit";
 
     // Editor search match
     this._theme.components!.editor.default.searchMatch ??= {};
     this._theme.components!.editor.default.searchMatch.bg ??=
       this._theme.colors.default.textSecondary +
-      this._theme.transparency!.medium;
+      this._theme.default!.transparency!.medium;
     this._theme.components!.editor.default.searchMatch.color ??= "inherit";
     this._theme.components!.editor.default.searchMatch.selectedBg ??= "inherit";
     this._theme.components!.editor.default.searchMatch.selectedColor ??=
@@ -613,7 +647,8 @@ export class PgThemeManager {
     this._theme.components!.editor.peekView.editor.bg ??=
       this._theme.colors.default.bgSecondary;
     this._theme.components!.editor.peekView.editor.matchHighlightBg ??=
-      this._theme.colors.state.warning.color + this._theme.transparency!.medium;
+      this._theme.colors.state.warning.color +
+      this._theme.default!.transparency!.medium;
     this._theme.components!.editor.peekView.editor.gutterBg ??=
       this._theme.components!.editor.peekView.editor.bg;
     // Editor peek view result
@@ -625,11 +660,13 @@ export class PgThemeManager {
     this._theme.components!.editor.peekView.result.fileColor ??=
       this._theme.colors.default.textSecondary;
     this._theme.components!.editor.peekView.result.selectionBg ??=
-      this._theme.colors.default.primary + this._theme.transparency!.low;
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.low;
     this._theme.components!.editor.peekView.result.selectionColor ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.editor.peekView.result.matchHighlightBg ??=
-      this._theme.colors.state.warning.color + this._theme.transparency!.medium;
+      this._theme.colors.state.warning.color +
+      this._theme.default!.transparency!.medium;
 
     // Editor tooltip/widget
     this._theme.components!.editor.tooltip ??= {};
@@ -638,11 +675,12 @@ export class PgThemeManager {
     this._theme.components!.editor.tooltip.color ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.editor.tooltip.selectedBg ??=
-      this._theme.colors.default.primary + this._theme.transparency!.medium;
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.medium;
     this._theme.components!.editor.tooltip.selectedColor ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.editor.tooltip.borderColor ??=
-      this._theme.colors.default.borderColor;
+      this._theme.colors.default.border;
 
     return this;
   }
@@ -688,10 +726,11 @@ export class PgThemeManager {
     this._theme.components!.home.resources.card.default.color ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.home.resources.card.default.border ??= `1px solid ${
-      this._theme.colors.default.borderColor + this._theme.transparency!.medium
+      this._theme.colors.default.border +
+      this._theme.default!.transparency!.medium
     }`;
     this._theme.components!.home.resources.card.default.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.home.resources.card.default.width ??= "15rem";
     this._theme.components!.home.resources.card.default.height ??= "15rem";
     this._theme.components!.home.resources.card.default.padding ??=
@@ -739,16 +778,16 @@ export class PgThemeManager {
       this._theme.colors.default.textPrimary;
     this._theme.components!.home.tutorials.card.border ??= `1px solid
       ${
-        this._theme.colors.default.borderColor +
-        this._theme.transparency!.medium
+        this._theme.colors.default.border +
+        this._theme.default!.transparency!.medium
       }`;
     this._theme.components!.home.tutorials.card.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.home.tutorials.card.padding ??= "1rem";
     this._theme.components!.home.tutorials.card.marginBottom ??= "1rem";
     this._theme.components!.home.tutorials.card.transition ??= `all ${
-      this._theme.transition!.duration.medium
-    } ${this._theme.transition!.type}`;
+      this._theme.default!.transition!.duration.medium
+    } ${this._theme.default!.transition!.type}`;
     this._theme.components!.home.tutorials.card.display ??= "flex";
     this._theme.components!.home.tutorials.card.alignItems ??= "center";
     this._theme.components!.home.tutorials.card.hover ??= {};
@@ -821,7 +860,7 @@ export class PgThemeManager {
     this._theme.components!.bottom.connect.hover ??= {};
     this._theme.components!.bottom.connect.hover.bg ??=
       this._theme.components!.bottom.default.color +
-      this._theme.transparency!.low;
+      this._theme.default!.transparency!.low;
 
     // Endpoint
     this._theme.components!.bottom.endpoint ??= {};
@@ -849,17 +888,17 @@ export class PgThemeManager {
     this._theme.components!.tutorial.default.overflow ??= "auto";
     this._theme.components!.tutorial.default.opacity ??= 0;
     this._theme.components!.tutorial.default.transition ??= `opacity ${
-      this._theme.transition!.duration.medium
-    } ${this._theme.transition!.type}`;
+      this._theme.default!.transition!.duration.medium
+    } ${this._theme.default!.transition!.type}`;
 
     // About page
     this._theme.components!.tutorial.aboutPage ??= {};
     this._theme.components!.tutorial.aboutPage.bg ??=
       this._theme.colors.default.bgPrimary;
     this._theme.components!.tutorial.aboutPage.borderBottomRightRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.tutorial.aboutPage.borderTopRightRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.tutorial.aboutPage.fontFamily ??=
       this._theme.font!.other!.family;
     this._theme.components!.tutorial.aboutPage.fontSize ??=
@@ -904,16 +943,17 @@ export class PgThemeManager {
     this._theme.components!.tutorials.card.default.color ??=
       this._theme.colors.default.textPrimary;
     this._theme.components!.tutorials.card.default.border ??= `1px solid ${
-      this._theme.colors.default.borderColor + this._theme.transparency!.medium
+      this._theme.colors.default.border +
+      this._theme.default!.transparency!.medium
     }`;
     this._theme.components!.tutorials.card.default.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.tutorials.card.default.boxShadow ??=
-      this._theme.boxShadow;
+      this._theme.default!.boxShadow;
     this._theme.components!.tutorials.card.default.transition ??= `all ${
-      this._theme.transition!.duration.medium
+      this._theme.default!.transition!.duration.medium
     }
-      ${this._theme.transition!.type}`;
+      ${this._theme.default!.transition!.type}`;
     // Card gradient
     this._theme.components!.tutorials.card.gradient ??= {};
     // Card info
@@ -943,20 +983,11 @@ export class PgThemeManager {
       this._theme.font!.other!.size.small;
     this._theme.components!.tutorials.card.info.category.fontWeight ??= "bold";
     this._theme.components!.tutorials.card.info.category.borderRadius ??=
-      this._theme.borderRadius;
+      this._theme.default!.borderRadius;
     this._theme.components!.tutorials.card.info.category.boxShadow ??=
-      this._theme.boxShadow;
+      this._theme.default!.boxShadow;
     this._theme.components!.tutorials.card.info.category.width ??=
       "fit-content";
-
-    return this;
-  }
-
-  /** Set default fonts */
-  private static _theme_fonts() {
-    this._theme.font ??= {};
-    this._theme.font.code ??= this._font;
-    this._theme.font.other ??= DEFAULT_FONT_OTHER;
 
     return this;
   }
