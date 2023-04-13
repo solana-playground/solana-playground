@@ -70,9 +70,16 @@ export class PgThemeManager {
     params.fontFamily ??=
       localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family;
 
-    const importableTheme = this._themes.find(
+    let importableTheme = this._themes.find(
       (t) => t.name === params.themeName
     )!;
+
+    if (importableTheme === undefined) {
+      importableTheme = this._themes[0];
+      params.themeName = importableTheme.name;
+      params.fontFamily = this._fonts[0].family;
+    }
+
     const font = this._fonts.find((f) => f.family === params.fontFamily)!;
 
     // Cloning the object because override functions expect the theme to be
