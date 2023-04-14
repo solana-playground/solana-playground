@@ -112,7 +112,6 @@ const LIGHT: PgTheme = {
     },
     editor: {
       default: {
-        bg: BG_WHITE,
         color: "#0f1780",
       },
       gutter: {

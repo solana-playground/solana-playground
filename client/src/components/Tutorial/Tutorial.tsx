@@ -7,6 +7,11 @@ import Button from "../Button";
 import Markdown from "../Markdown";
 import EditorWithTabs from "../../pages/ide/Panels/Main/MainView/EditorWithTabs";
 import { TAB_HEIGHT } from "../../pages/ide/Panels/Main/MainView/Tabs";
+import { PointedArrow } from "../Icons";
+import { tutorialAtom } from "../../state";
+import { StyledDefaultLink } from "../Link";
+import { EventName, Route } from "../../constants";
+import { PgThemeManager } from "../../utils/pg/theme";
 import {
   PgCommon,
   PgExplorer,
@@ -16,13 +21,8 @@ import {
   Sidebar,
   TutorialData,
 } from "../../utils/pg";
-import { EventName, Route } from "../../constants";
-import { PointedArrow } from "../Icons";
-import { TutorialComponentProps } from "./types";
-import { tutorialAtom } from "../../state";
-import { StyledDefaultLink } from "../Link";
 import { useGetAndSetStatic } from "../../hooks";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { TutorialComponentProps } from "./types";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
   about,
@@ -296,7 +296,9 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.tutorial.default)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorial.default
+    )};
 
     /* Scrollbar */
     /* Chromium */
@@ -346,7 +348,9 @@ const GoBackButtonWrapper = styled.div`
 
 const TutorialAboutPage = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.tutorial.aboutPage)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorial.aboutPage
+    )};
   `}
 `;
 
@@ -421,13 +425,15 @@ const TutorialPage = styled.div`
     overflow: auto;
     max-width: 60rem;
     padding-top: ${TAB_HEIGHT};
-    background: ${theme.components.tutorial.default.bg};
+    background: ${theme.components.main.views.tutorial.default.bg};
   `}
 `;
 
 const TutorialContent = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.tutorial.tutorialPage)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorial.tutorialPage
+    )};
   `}
 `;
 

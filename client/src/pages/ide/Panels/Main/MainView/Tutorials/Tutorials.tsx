@@ -37,7 +37,9 @@ const Wrapper = styled.div`
     flex: 1;
     overflow: auto;
 
-    ${PgThemeManager.convertToCSS(theme.components.tutorials.default)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorials.default
+    )};
 
     /* Scrollbar */
     /* Chromium */

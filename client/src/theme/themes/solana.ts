@@ -89,20 +89,31 @@ const SOLANA: PgTheme = {
         bg: BG_BLACK,
       },
     },
-    home: {
+    main: {
       default: {
         bg: BG_BLACK,
       },
-      resources: {
-        card: {
-          default: {
-            bg: BG_GRAY,
+      views: {
+        home: {
+          resources: {
+            card: {
+              default: {
+                bg: BG_GRAY,
+              },
+            },
+          },
+          tutorials: {
+            card: {
+              bg: BG_GRAY,
+            },
           },
         },
-      },
-      tutorials: {
-        card: {
-          bg: BG_GRAY,
+        tutorials: {
+          card: {
+            default: {
+              bg: BG_GRAY,
+            },
+          },
         },
       },
     },
@@ -136,21 +147,6 @@ const SOLANA: PgTheme = {
     tooltip: {
       bg: BG_GRAY,
       bgSecondary: BG_BLACK,
-    },
-    tutorial: {
-      default: {
-        bg: BG_BLACK,
-      },
-    },
-    tutorials: {
-      default: {
-        bg: BG_BLACK,
-      },
-      card: {
-        default: {
-          bg: BG_GRAY,
-        },
-      },
     },
   },
   highlight: {

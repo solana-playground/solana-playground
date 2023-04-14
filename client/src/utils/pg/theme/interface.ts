@@ -94,7 +94,7 @@ export interface PgTheme {
           selectedBg?: Bg;
           selectedColor?: Color;
         };
-      };
+      } & Pick<CSSProperties, "fontFamily" | "fontSize">;
       /** Gutter component */
       gutter?: BgAndColor & {
         activeBg?: Bg;
@@ -136,25 +136,44 @@ export interface PgTheme {
       } & Pick<CSSProperties, "borderColor">;
     };
 
-    /** Home component */
-    home?: ExtendibleComponent<{
-      /** Playground title */
-      title?: DefaultComponent;
-      /** Resources section */
-      resources?: ExtendibleComponent<{
-        /** Resources title */
-        title?: DefaultComponent;
-        /** Resource card */
-        card?: ExtendibleComponent<
-          "image" | "title" | "description" | "button"
-        >;
-      }>;
-      /** Tutorials section */
-      tutorials?: ExtendibleComponent<"title" | "card">;
-    }>;
-
     /** Input component */
     input?: DefaultComponent;
+
+    /** MainView component */
+    main?: ExtendibleComponent<{
+      views?: {
+        /** Home component */
+        home?: ExtendibleComponent<{
+          /** Playground title */
+          title?: DefaultComponent;
+          /** Resources section */
+          resources?: ExtendibleComponent<{
+            /** Resources title */
+            title?: DefaultComponent;
+            /** Resource card */
+            card?: ExtendibleComponent<
+              "image" | "title" | "description" | "button"
+            >;
+          }>;
+          /** Tutorials section */
+          tutorials?: ExtendibleComponent<"title" | "card">;
+        }>;
+
+        /** Tutorial component */
+        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
+        /** Tutorials page component */
+        tutorials?: ExtendibleComponent<{
+          /** Tutorial card component */
+          card?: ExtendibleComponent<{
+            /** Wrapper gradient */
+            gradient?: DefaultComponent;
+            /** Wrapper bottom section of the card */
+            info?: ExtendibleComponent<"name" | "description" | "category">;
+          }>;
+        }>;
+      };
+    }>;
 
     /** Menu component */
     menu?: OverrideableComponent<MenuKind>;
@@ -219,20 +238,6 @@ export interface PgTheme {
 
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
-
-    /** Tutorial component */
-    tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
-
-    /** Tutorials page component */
-    tutorials?: ExtendibleComponent<{
-      /** Tutorial card component */
-      card?: ExtendibleComponent<{
-        /** Wrapper gradient */
-        gradient?: DefaultComponent;
-        /** Wrapper bottom section of the card */
-        info?: ExtendibleComponent<"name" | "description" | "category">;
-      }>;
-    }>;
   };
 
   /** Code highlight styles */
@@ -364,14 +369,12 @@ type DefaultComponents = "input" | "skeleton" | "tooltip";
 type ExtendibleComponents =
   | "bottom"
   | "editor"
-  | "home"
+  | "main"
   | "markdown"
   | "select"
   | "sidebar"
   | "terminal"
-  | "toast"
-  | "tutorial"
-  | "tutorials";
+  | "toast";
 
 /** Components that use `OverrideableComponent` type */
 type OverrideableComponents = "button" | "menu";

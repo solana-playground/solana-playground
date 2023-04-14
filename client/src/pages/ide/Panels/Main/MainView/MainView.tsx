@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import EditorWithTabs from "./EditorWithTabs";
 import { MainViewLoading } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
 import { PgCommon, SetElementAsync } from "../../../../../utils/pg";
+import { PgThemeManager } from "../../../../../utils/pg/theme";
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
@@ -13,6 +14,7 @@ const MainView = () => {
 
   const setElWithTransition = useCallback(async (El: SetElementAsync) => {
     setLoading(true);
+
     await PgCommon.transition(
       (async () => {
         if (!El) El = EditorWithTabs;
@@ -21,21 +23,24 @@ const MainView = () => {
       })(),
       300
     );
+
     setLoading(false);
   }, []);
 
   useGetAndSetStatic(El, setElWithTransition, EventName.VIEW_MAIN_STATIC);
 
-  if (loading) return <MainViewLoading tutorialsBg />;
-
-  return <Wrapper>{El}</Wrapper>;
+  return <Wrapper>{loading ? <MainViewLoading /> : El}</Wrapper>;
 };
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    ${PgThemeManager.convertToCSS(theme.components.main.default)};
+  `}
 `;
 
 export default MainView;

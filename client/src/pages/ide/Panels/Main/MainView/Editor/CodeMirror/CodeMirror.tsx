@@ -39,6 +39,8 @@ const CodeMirror = () => {
             height: "100%",
             background: editorStyles.default.bg!,
             color: editorStyles.default.color!,
+            fontFamily: editorStyles.default.fontFamily!,
+            fontSize: editorStyles.default.fontSize!,
           },
           // Cursor
           "& .cm-cursor": {
@@ -158,7 +160,7 @@ const CodeMirror = () => {
     },
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-    [theme.name]
+    [theme.name, theme.components.editor.default.fontFamily]
   );
 
   const codemirrorRef = useRef<HTMLDivElement>(null);
