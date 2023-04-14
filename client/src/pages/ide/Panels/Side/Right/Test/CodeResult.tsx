@@ -14,7 +14,7 @@ export const CodeResult = styled.pre<CodeResultProps>`
     background: ${index % 2 === 1
       ? theme.components.sidebar.right.default.otherBg
       : theme.components.sidebar.right.default.bg};
-    border-radius: ${theme.borderRadius};
+    border-radius: ${theme.default.borderRadius};
 
     /* Scrollbar */
     /* Chromium */
@@ -28,17 +28,17 @@ export const CodeResult = styled.pre<CodeResultProps>`
 
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar.thumb.color};
+      border-radius: ${theme.default.borderRadius};
+      background-color: ${theme.default.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar.thumb.hoverColor};
+      background-color: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar.thumb.color};
+      scrollbar-color: ${theme.default.scrollbar.thumb.color};
     }
   `}
 `;

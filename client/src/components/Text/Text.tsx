@@ -57,7 +57,7 @@ const getTextStyle = (
     color: ${color};
     background: ${bgColor};
     padding: ${bg === "Transparent" ? "0" : "1rem"};
-    border-radius: ${theme.borderRadius};
+    border-radius: ${theme.default.borderRadius};
     display: flex;
     justify-content: center;
     align-items: center;

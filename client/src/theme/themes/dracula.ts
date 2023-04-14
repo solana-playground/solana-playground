@@ -30,7 +30,7 @@ const DRACULA: PgTheme = {
       secondary: PINK,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
-      borderColor: SELECTION,
+      border: SELECTION,
     },
     state: {
       hover: {
@@ -54,17 +54,6 @@ const DRACULA: PgTheme = {
         color: CYAN,
       },
     },
-    editor: {
-      comment: {
-        color: COMMENT,
-      },
-      activeLine: {
-        borderColor: SELECTION,
-      },
-      gutter: {
-        color: COMMENT,
-      },
-    },
   },
   components: {
     bottom: {
@@ -75,6 +64,11 @@ const DRACULA: PgTheme = {
         hover: {
           bg: PURPLE + "16",
         },
+      },
+    },
+    editor: {
+      gutter: {
+        color: COMMENT,
       },
     },
     sidebar: {

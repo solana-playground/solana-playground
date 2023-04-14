@@ -26,11 +26,11 @@ const SOLANA: PgTheme = {
     default: {
       bgPrimary: BG_BLACK,
       bgSecondary: BG_GRAY,
-      borderColor: SELECTION,
       primary: GREEN,
       secondary: PURPLE,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
+      border: SELECTION,
     },
     state: {
       disabled: {
@@ -52,19 +52,6 @@ const SOLANA: PgTheme = {
       },
       warning: { color: YELLOW },
     },
-    editor: {
-      bg: BG_GRAY,
-      tooltip: {
-        bg: BG_BLACK,
-      },
-      activeLine: {
-        borderColor: SELECTION,
-      },
-      gutter: {
-        color: TEXT_SECONDARY,
-        activeColor: TEXT_PRIMARY,
-      },
-    },
   },
   components: {
     bottom: {
@@ -80,6 +67,26 @@ const SOLANA: PgTheme = {
             color: TEXT_PRIMARY,
           },
         },
+      },
+    },
+    editor: {
+      default: {
+        bg: BG_GRAY,
+      },
+      gutter: {
+        color: TEXT_SECONDARY,
+        activeColor: TEXT_PRIMARY,
+      },
+      peekView: {
+        title: {
+          bg: BG_BLACK,
+        },
+        editor: {
+          bg: BG_BLACK,
+        },
+      },
+      tooltip: {
+        bg: BG_BLACK,
       },
     },
     home: {

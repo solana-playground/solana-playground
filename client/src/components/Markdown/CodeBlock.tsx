@@ -25,8 +25,8 @@ const Wrapper = styled.div`
 
     & > :first-child {
       opacity: 0;
-      transition: opacity ${theme.transition.duration.short}
-        ${theme.transition.type};
+      transition: opacity ${theme.default.transition.duration.short}
+        ${theme.default.transition.type};
     }
 
     &:hover > :first-child {
@@ -41,8 +41,8 @@ const CopyButtonWrapper = styled.div`
     top: 0.5rem;
     right: 1rem;
     background: ${theme.components.tutorial.tutorialPage.bg};
-    border-radius: ${theme.borderRadius};
-    box-shadow: ${theme.boxShadow};
+    border-radius: ${theme.default.borderRadius};
+    box-shadow: ${theme.default.boxShadow};
 
     & button {
       padding: 0.375rem;

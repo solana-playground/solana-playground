@@ -17,13 +17,14 @@ const Editor = () => {
   const [showHome, setShowHome] = useState<boolean>();
   const [showMonaco, setShowMonaco] = useState<boolean>();
 
+  // Decide which editor to show
   useEffect(() => {
-    if (explorer) {
-      setShowHome(!explorer.getTabs().length);
+    if (!explorer) return;
 
-      const lang = explorer.getCurrentFileLanguage();
-      setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
-    }
+    setShowHome(!explorer.getTabs().length);
+
+    const lang = explorer.getCurrentFileLanguage();
+    setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explorer, explorerChanged]);
@@ -31,11 +32,6 @@ const Editor = () => {
   // Save explorer metadata
   useEffect(() => {
     if (!explorer) return;
-
-    if (showHome) {
-      explorer.saveMeta().catch();
-      return;
-    }
 
     // Save metadata to IndexedDB if we haven't rendered in 5s
     const saveMetadataIntervalId = PgCommon.setIntervalOnFocus(() => {
@@ -45,7 +41,7 @@ const Editor = () => {
     return () => clearInterval(saveMetadataIntervalId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [explorer, explorerChanged, showHome]);
+  }, [explorer, explorerChanged]);
 
   if (showHome === undefined || showMonaco === undefined) {
     return <MainViewLoading />;
@@ -84,18 +80,18 @@ const Wrapper = styled.div`
     &::-webkit-scrollbar-track,
     & ::-webkit-scrollbar-track {
       background-color: ${theme.components.sidebar.right.default.bg};
-      border-left: 1px solid ${theme.colors.default.borderColor};
+      border-left: 1px solid ${theme.colors.default.border};
     }
 
     &::-webkit-scrollbar-thumb,
     & ::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent;
-      background-color: ${theme.scrollbar.thumb.color};
+      background-color: ${theme.default.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover,
     & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar.thumb.hoverColor};
+      background-color: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     & ::-webkit-scrollbar-corner {

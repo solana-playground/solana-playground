@@ -79,7 +79,7 @@ const Wrapper = styled.div`
     min-height: ${TAB_HEIGHT};
     user-select: none;
     background: ${theme.components.sidebar.right.default.bg};
-    border-bottom: 1px solid ${theme.colors.default.borderColor};
+    border-bottom: 1px solid ${theme.colors.default.border};
     font-size: ${theme.font.code.size.small};
   `}
 `;
@@ -103,17 +103,17 @@ const TabsWrapper = styled.div`
 
     &::-webkit-scrollbar-thumb {
       border: 0.25rem solid transparent !important;
-      border-radius: ${theme.borderRadius};
-      background-color: ${theme.scrollbar.thumb.color};
+      border-radius: ${theme.default.borderRadius};
+      background-color: ${theme.default.scrollbar.thumb.color};
     }
 
     &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.scrollbar.thumb.hoverColor};
+      background-color: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     /* Firefox */
     & * {
-      scrollbar-color: ${theme.scrollbar.thumb.color};
+      scrollbar-color: ${theme.default.scrollbar.thumb.color};
     }
   `}
 `;
@@ -125,8 +125,8 @@ const WalletWrapper = styled.div`
 
     & > button {
       background: ${theme.colors.default.bgPrimary};
-      border-top-left-radius: ${theme.borderRadius};
-      border-bottom-left-radius: ${theme.borderRadius};
+      border-top-left-radius: ${theme.default.borderRadius};
+      border-bottom-left-radius: ${theme.default.borderRadius};
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
 

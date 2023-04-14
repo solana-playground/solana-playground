@@ -260,12 +260,12 @@ interface InstructionWrapperProps {
 const InstructionWrapper = styled.div<InstructionWrapperProps>`
   ${({ theme, index }) => css`
     padding: 1rem;
-    border-top: 1px solid ${theme.colors.default.borderColor};
+    border-top: 1px solid ${theme.colors.default.border};
     background: ${index % 2 === 0 &&
     theme.components.sidebar.right.default.otherBg};
 
     &:last-child {
-      border-bottom: 1px solid ${theme.colors.default.borderColor};
+      border-bottom: 1px solid ${theme.colors.default.border};
     }
   `}
 `;

@@ -81,7 +81,12 @@ build() {
 
     # Comment out the following line
     line="wasm.__wbg_systeminstruction_free(ptr);"
-    sed -i "s/$line/\/\/$line/" $package_dir/pkg/${package_name}_bg.js
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        sed -i '' "s/$line/\/\/$line/" "$package_dir/pkg/${package_name}_bg.js"
+    else
+        sed -i "s/$line/\/\/$line/" "$package_dir/pkg/${package_name}_bg.js"
+    fi
 }
 
 if [ ${#args[@]} -ne 0 ]; then

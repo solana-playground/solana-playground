@@ -98,7 +98,7 @@ const ModalCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  border-radius: ${({ theme }) => theme.borderRadius};
+  border-radius: ${({ theme }) => theme.default.borderRadius};
 
   & input,
   & button {

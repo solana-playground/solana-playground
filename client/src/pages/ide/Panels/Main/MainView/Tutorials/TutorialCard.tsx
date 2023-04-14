@@ -41,8 +41,8 @@ const GradientWrapper = styled.div`
     height: 24rem;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform ${theme.transition.duration.medium}
-      ${theme.transition.type};
+    transition: transform ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
 
     &::after {
       content: "";
@@ -52,15 +52,15 @@ const GradientWrapper = styled.div`
       width: 100%;
       inset: 0;
       margin: auto;
-      border-radius: ${theme.borderRadius};
+      border-radius: ${theme.default.borderRadius};
       background: linear-gradient(
         45deg,
         ${theme.colors.default.primary},
         ${theme.colors.default.secondary}
       );
       opacity: 0;
-      transition: opacity ${theme.transition.duration.medium}
-        ${theme.transition.type};
+      transition: opacity ${theme.default.transition.duration.medium}
+        ${theme.default.transition.type};
     }
 
     &:hover {

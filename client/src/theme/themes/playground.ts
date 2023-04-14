@@ -33,11 +33,11 @@ const PLAYGROUND: PgTheme = {
     default: {
       bgPrimary: BG_DEFAULT,
       bgSecondary: BG_DARK,
-      borderColor: BORDER_COLOR,
       primary: BLUE,
       secondary: CYAN,
       textPrimary: TEXT_PRIMARY,
       textSecondary: TEXT_SECONDARY,
+      border: BORDER_COLOR,
     },
     state: {
       disabled: {
@@ -61,16 +61,16 @@ const PLAYGROUND: PgTheme = {
         color: YELLOW,
       },
     },
-    editor: {
-      gutter: {
-        color: COMMENT,
-      },
-    },
   },
   components: {
     bottom: {
       default: {
         bg: DARK_BLUE,
+      },
+    },
+    editor: {
+      gutter: {
+        color: COMMENT,
       },
     },
     skeleton: {

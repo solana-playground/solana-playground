@@ -1,7 +1,5 @@
 import { FC, ReactNode } from "react";
-import styled, { css } from "styled-components";
-
-import { PgTheme } from "../../utils/pg/theme";
+import styled, { css, DefaultTheme } from "styled-components";
 
 export interface MenuItemProps {
   name: string;
@@ -9,8 +7,8 @@ export interface MenuItemProps {
   keybind?: string;
   Icon?: ReactNode;
   kind?:
-    | keyof Pick<PgTheme["colors"]["default"], "primary" | "secondary">
-    | keyof Omit<PgTheme["colors"]["state"], "hover" | "disabled">;
+    | keyof Pick<DefaultTheme["colors"]["default"], "primary" | "secondary">
+    | keyof Omit<DefaultTheme["colors"]["state"], "hover" | "disabled">;
   showCondition?: boolean;
   className?: string;
 }
@@ -62,7 +60,8 @@ const StyledItem = styled(MenuItem)`
     font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
     border-left: 2px solid transparent;
-    transition: all ${theme.transition.duration.short} ${theme.transition.type};
+    transition: all ${theme.default.transition.duration.short}
+      ${theme.default.transition.type};
 
     & > div {
       display: flex;
@@ -92,14 +91,14 @@ const StyledItem = styled(MenuItem)`
 
       & span.${ItemClassName.NAME} {
         color: var(--color);
-        transition: all ${theme.transition.duration.short}
-          ${theme.transition.type};
+        transition: all ${theme.default.transition.duration.short}
+          ${theme.default.transition.type};
       }
     }
   `}
 `;
 
-const getHoverColor = (kind: MenuItemProps["kind"], theme: PgTheme) => {
+const getHoverColor = (kind: MenuItemProps["kind"], theme: DefaultTheme) => {
   switch (kind) {
     case "primary":
       return theme.colors.default.primary;

@@ -53,8 +53,8 @@ const Settings = () => (
 const Wrapper = styled.div`
   ${({ theme }) => css`
     background: ${theme.components.tooltip.bg};
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
     min-width: 23rem;
   `}
 `;
@@ -100,7 +100,7 @@ const SettingWrapper = styled.div<Pick<SettingProps, "isCheckbox">>`
     padding: 1rem;
 
     &:not(:last-child) {
-      border-bottom: 1px solid ${theme.colors.default.borderColor};
+      border-bottom: 1px solid ${theme.colors.default.border};
     }
 
     & > div:last-child {

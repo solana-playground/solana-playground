@@ -87,8 +87,8 @@ const Modal: FC<ModalProps> = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     padding: 0.25rem 1.5rem;
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
     background: ${theme.colors.default.bgSecondary + "EE"};
     max-width: max(40%, 20rem);
     min-width: min-content;
@@ -105,7 +105,7 @@ const Title = styled.div`
   align-items: center;
   font-weight: bold;
   padding: 0.75rem 0 0.5rem 0;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.default.borderColor};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.default.border};
 `;
 
 const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`

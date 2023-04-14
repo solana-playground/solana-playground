@@ -43,8 +43,8 @@ const FullWidthBg = styled.div`
     padding: 1rem;
     margin-top: 0.75rem;
     background: ${theme.colors.default.bgPrimary};
-    border-top: 1px solid ${theme.colors.default.borderColor};
-    border-bottom: 1px solid ${theme.colors.default.borderColor};
+    border-top: 1px solid ${theme.colors.default.border};
+    border-bottom: 1px solid ${theme.colors.default.border};
   `}
 `;
 

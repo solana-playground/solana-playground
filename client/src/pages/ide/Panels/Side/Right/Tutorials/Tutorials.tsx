@@ -99,9 +99,10 @@ const TutorialWrapper = styled.div<{ progress: number }>`
     margin-top: 1rem;
     padding: 0.75rem 1rem;
     background: ${theme.components.sidebar.right.default.otherBg};
-    border-radius: ${theme.borderRadius};
-    box-shadow: ${theme.boxShadow};
-    transition: all ${theme.transition.duration.medium} ${theme.transition.type};
+    border-radius: ${theme.default.borderRadius};
+    box-shadow: ${theme.default.boxShadow};
+    transition: all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
     position: relative;
 
     &::after {
@@ -112,11 +113,12 @@ const TutorialWrapper = styled.div<{ progress: number }>`
       height: 0.125rem;
       background: ${progress === 100
         ? `linear-gradient(90deg, ${theme.colors.state.success.color} 0%, ${
-            theme.colors.state.success.color + theme.transparency.high
+            theme.colors.state.success.color + theme.default.transparency.high
           } 100%)`
         : `linear-gradient(90deg, ${theme.colors.default.primary} 0%, ${theme.colors.default.secondary} 100%)`};
-      animation: ${animateWidth(progress)} ${theme.transition.duration.long}
-        ${theme.transition.type} forwards;
+      animation: ${animateWidth(progress)}
+        ${theme.default.transition.duration.long}
+        ${theme.default.transition.type} forwards;
     }
 
     &:hover {

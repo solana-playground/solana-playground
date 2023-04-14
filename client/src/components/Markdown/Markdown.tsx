@@ -18,7 +18,7 @@ const Markdown = ({ children }: { children: string }) => (
 
 const StyledMarkdown = styled(ReactMarkdown)`
   ${({ theme }) => css`
-    --border-radius: ${theme.borderRadius};
+    --border-radius: ${theme.default.borderRadius};
     --color-prettylights-syntax-comment: #8b949e;
     --color-prettylights-syntax-constant: #79c0ff;
     --color-prettylights-syntax-entity: #d2a8ff;
@@ -54,9 +54,9 @@ const StyledMarkdown = styled(ReactMarkdown)`
     --color-fg-subtle: #484f58;
     --color-canvas-default: ${theme.components.markdown.default.bg};
     --color-canvas-subtle: ${theme.components.markdown.code.bg};
-    --color-border-default: ${theme.colors.default.borderColor};
-    --color-border-muted: ${theme.colors.default.borderColor +
-    theme.transparency.high};
+    --color-border-default: ${theme.colors.default.border};
+    --color-border-muted: ${theme.colors.default.border +
+    theme.default.transparency.high};
     --color-neutral-muted: ${theme.colors.state.hover.bg};
     --color-accent-fg: ${theme.colors.default.primary};
     --color-accent-emphasis: #1f6feb;

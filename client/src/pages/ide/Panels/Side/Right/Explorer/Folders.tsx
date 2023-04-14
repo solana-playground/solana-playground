@@ -288,17 +288,25 @@ const RootWrapper = styled.div`
     font-size: ${theme.font.code.size.small};
 
     &.${ClassName.SELECTED} {
-      background: ${theme.colors.default.primary + theme.transparency.low};
+      background: ${
+        theme.colors.default.primary + theme.default.transparency.low
+      };
     }
 
     &.${ClassName.CTX_SELECTED} {
-      background: ${theme.colors.default.primary + theme.transparency.low};
-      border-color: ${theme.colors.default.primary + theme.transparency.medium};
-      border-radius: ${theme.borderRadius};
+      background: ${
+        theme.colors.default.primary + theme.default.transparency.low
+      };
+      border-color: ${
+        theme.colors.default.primary + theme.default.transparency.medium
+      };
+      border-radius: ${theme.default.borderRadius};
     }
 
     &:hover {
-      background: ${theme.colors.default.primary + theme.transparency.low};
+      background: ${
+        theme.colors.default.primary + theme.default.transparency.low
+      };
     }
 `}
 `;
@@ -349,8 +357,8 @@ const StyledFolder = styled(Folder)`
     & svg {
       width: 0.875rem;
       height: 0.875rem;
-      transition: transform ${theme.transition.duration.short}
-        ${theme.transition.type};
+      transition: transform ${theme.default.transition.duration.short}
+        ${theme.default.transition.type};
     }
 
     &.${ClassName.OPEN} svg {

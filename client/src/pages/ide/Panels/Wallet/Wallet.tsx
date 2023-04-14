@@ -112,8 +112,8 @@ const WalletWrapper = styled.div`
     width: 100%;
     height: 100%;
     background: ${theme.components.sidebar.right.default.bg};
-    border: 1px solid ${theme.colors.default.borderColor};
-    border-radius: ${theme.borderRadius};
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
     z-index: 2;
   `}
 `;
@@ -147,7 +147,7 @@ const Main = styled.div`
     background: linear-gradient(
       0deg,
       ${theme.components.sidebar.right.default.bg} 75%,
-      ${theme.colors.default.primary + theme.transparency.low} 100%
+      ${theme.colors.default.primary + theme.default.transparency.low} 100%
     );
     padding: 1rem;
     cursor: auto;
@@ -162,8 +162,8 @@ const Main = styled.div`
       background: #000;
       opacity: 0;
       z-index: -1;
-      transition: all ${theme.transition.duration.short}
-        ${theme.transition.type};
+      transition: all ${theme.default.transition.duration.short}
+        ${theme.default.transition.type};
     }
 
     &.${ClassName.DARKEN}::after {

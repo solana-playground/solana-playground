@@ -202,8 +202,8 @@ const SearchWrapper = styled.div`
     background: ${theme.colors.default.bgPrimary};
     padding: 0.75rem 1rem;
     outline: 1px solid
-      ${theme.colors.default.primary + theme.transparency.medium};
-    border-radius: ${theme.borderRadius};
+      ${theme.colors.default.primary + theme.default.transparency.medium};
+    border-radius: ${theme.default.borderRadius};
     position: relative;
   `}
 `;
@@ -211,7 +211,8 @@ const SearchWrapper = styled.div`
 const Element = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem;
-    transition: all ${theme.transition.duration.short} ${theme.transition.type};
+    transition: all ${theme.default.transition.duration.short}
+      ${theme.default.transition.type};
 
     &:hover {
       cursor: pointer;
@@ -441,7 +442,7 @@ const AddSeedMenu = styled.div`
     position: absolute;
     z-index: 2;
     background: ${theme.components.tooltip.bg};
-    border-radius: ${theme.borderRadius};
+    border-radius: ${theme.default.borderRadius};
     font-size: ${theme.font.code.size.small};
   `}
 `;
@@ -450,7 +451,8 @@ const AddSeedItem = styled.div`
   ${({ theme }) => css`
     padding: 0.5rem;
     color: ${theme.colors.default.textSecondary};
-    transition: all ${theme.transition.duration.short} ${theme.transition.type};
+    transition: all ${theme.default.transition.duration.short}
+      ${theme.default.transition.type};
 
     &:hover {
       cursor: pointer;
