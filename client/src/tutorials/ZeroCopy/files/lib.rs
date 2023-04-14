@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_program;
 use std::str;
 
-declare_id!("E7GebMdwaGevhj7G9EZFhkrMz6gQKyTnTNbx8gWvf8KF");
+declare_id!("2MpQoKyLGXP26cGASC8pPLY3MaCGitM9XKUxziUmNN4i");
 
 #[program]
 pub mod zero_copy {
@@ -25,23 +25,24 @@ pub mod zero_copy {
         let text_to_add_to_the_account = str::from_utf8(string_to_set.as_bytes()).unwrap();
         msg!(text_to_add_to_the_account);
 
-        // Since the account is bigger that the heap space as soon as we access the whole account we will get a out of memory error        
+        // Since the account is bigger that the heap space as soon as we access the whole account we will get a out of memory error
         // let string = &ctx.accounts.data_holder.load_mut()?.long_string;
-        // let complete_string = str::from_utf8(string).unwrap(); 
+        // let complete_string = str::from_utf8(string).unwrap();
         // msg!("DataLength: {}", string.len());
         // msg!("CompleteString: {}", complete_string);
 
         // So the solution is use copy_from_slice and mem copy when we want to access data in the big account
-        ctx.accounts
-            .data_holder
-            .load_mut()?
-            .long_string[((index) as usize)..((index + 912) as usize)]
+        ctx.accounts.data_holder.load_mut()?.long_string
+            [((index) as usize)..((index + 912) as usize)]
             .copy_from_slice(string_to_set.as_bytes());
 
         Ok(())
     }
 
-    pub fn increase_account_data_zero_copy(_ctx: Context<IncreaseZeroCopy>, _len: u16) -> Result<()> {
+    pub fn increase_account_data_zero_copy(
+        _ctx: Context<IncreaseZeroCopy>,
+        _len: u16,
+    ) -> Result<()> {
         Ok(())
     }
 
@@ -49,9 +50,15 @@ pub mod zero_copy {
         Ok(())
     }
 
-    pub fn set_data_no_zero_copy(ctx: Context<SetDataNoZeroCopy>, string_to_set: String) -> Result<()> {
+    pub fn set_data_no_zero_copy(
+        ctx: Context<SetDataNoZeroCopy>,
+        string_to_set: String,
+    ) -> Result<()> {
         // This will work up to the limit of heap space
-        ctx.accounts.data_holder.greet_string.push_str(&string_to_set);
+        ctx.accounts
+            .data_holder
+            .greet_string
+            .push_str(&string_to_set);
         //msg!(&ctx.accounts.data_holder.greet_string.len().to_string());
         Ok(())
     }
@@ -150,7 +157,8 @@ pub struct InitializeHitStackSize<'info> {
         bump, 
         payer=signer, 
         space= 10 * 1024 as usize)]
-    pub data_holder: Box<Account<'info, HitStackSize>>,
+    //pub data_holder: Box<Account<'info, HitStackSize>>,
+    pub data_holder: Account<'info, HitStackSize>,
     #[account(mut)]
     pub signer: Signer<'info>,
     #[account(address = system_program::ID)]
@@ -158,15 +166,14 @@ pub struct InitializeHitStackSize<'info> {
 }
 
 #[account]
-// 9 * (128 + 1) = 1161 bytes -> With the way anchor deserialized the account in the init function this will already hit the stack limit
-// Error  will be: Stack offset of 4536 exceeded max offset of 4096 by 440 bytes
+// 10 * (128 + 1) = 1290 bytes -> With the way anchor deserialized the account in the init function this will already hit the stack limit
+// Error  will be: Stack offset of 4400 exceeded max offset of 4096 by 304 bytes.
+// If you box the account int the InitilizeHitStackSize account struct.
 pub struct HitStackSize {
-    board: [Option<BigStruct>; 9],
+    board: [Option<BigStruct>; 12],
 }
 
-#[derive(
-    AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq,
-)]
+#[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, PartialEq, Eq)]
 // Size of this struct is 32 bytes * 4 = 128 bytes
 pub struct BigStruct {
     pub public_key_1: Pubkey,

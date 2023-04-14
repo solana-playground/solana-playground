@@ -9,6 +9,7 @@ const TinyAdventureTwo = () => (
       { content: require("./pages/1.md") },
       { content: require("./pages/2.md") },
       { content: require("./pages/3.md") },
+      { content: require("./pages/4.md") },
     ]}
     // Initial files to have at the beginning of the tutorial
     files={[

@@ -1,0 +1,79 @@
+// The PDA that holds the player account data
+const [playerDataPda, bump] = await anchor.web3.PublicKey.findProgramAddress(
+  [Buffer.from("player", "utf8"), pg.wallet.publicKey.toBuffer()],
+  pg.program.programId
+);
+
+let gameDataAccount = await pg.program.account.playerData
+  .fetch(playerDataPda)
+  .catch(async (error) => {
+    // Check if the account is already initialized, other wise initilalize it
+    let txHash = await pg.program.methods
+      .initPlayer()
+      .accounts({
+        player: playerDataPda,
+        signer: pg.wallet.publicKey,
+        systemProgram: web3.SystemProgram.programId,
+      })
+      .signers([pg.wallet.keypair])
+      .rpc();
+
+    console.log(`New player created.`);
+    console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
+    await pg.connection.confirmTransaction(txHash);
+  });
+
+let playerAccout = await pg.program.account.playerData.fetch(playerDataPda);
+
+const TIME_TO_REFILL_ENERGY = 30;
+const MAX_ENERGY = 5;
+
+// You can calculate how much energy the player currently has in the client without calling the program.
+// Like this you can also show a nice countdown to the player until he gets the next energy.
+let clientEnergy = playerAccout.energy;
+let lastLoginTime = playerAccout.lastLogin * 1000;
+let timePassed = (Date.now() - lastLoginTime) / 1000;
+while (timePassed > TIME_TO_REFILL_ENERGY && clientEnergy < MAX_ENERGY) {
+  clientEnergy = +clientEnergy + 1;
+  playerAccout.lastLogin = playerAccout.lastLogin + TIME_TO_REFILL_ENERGY;
+  timePassed -= TIME_TO_REFILL_ENERGY;
+}
+
+console.log(
+  "You currently have " +
+    playerAccout.wood +
+    " wood and " +
+    clientEnergy +
+    " energy in the client calculated and " +
+    playerAccout.energy +
+    " in the on chain account."
+);
+
+// Check if the account is already initialized, other wise initilalize it
+let txHash = await pg.program.methods
+  .chopTree()
+  .accounts({
+    player: playerDataPda,
+    signer: pg.wallet.publicKey,
+  })
+  .signers([pg.wallet.keypair])
+  .rpc({ skipPreflight: true });
+
+console.log(`Chopped tree`);
+console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
+await pg.connection.confirmTransaction(txHash);
+
+playerAccout = await pg.program.account.playerData.fetch(playerDataPda);
+lastLoginTime = playerAccout.lastLogin * 1000;
+timePassed = (Date.now() - lastLoginTime) / 1000;
+let timeLeftUntilEnergy = 60 - timePassed;
+
+console.log(
+  `After chop you have now ` +
+    playerAccout.wood +
+    " wood and " +
+    playerAccout.energy +
+    " energy left. Next energy in: " +
+    timeLeftUntilEnergy.toFixed(2) +
+    " seconds."
+);
