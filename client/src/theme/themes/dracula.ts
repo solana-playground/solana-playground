@@ -71,6 +71,11 @@ const DRACULA: PgTheme = {
         color: COMMENT,
       },
     },
+    modal: {
+      default: {
+        bg: BG_DARK,
+      },
+    },
     sidebar: {
       left: {
         iconButton: {

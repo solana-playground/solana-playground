@@ -81,28 +81,26 @@ const NewKeypairModal = () => {
         closeOnSubmit: true,
       }}
     >
-      <Content>
-        <MainContent>
-          <MainText>
-            Are you sure you want to create a new program keypair?
-          </MainText>
-          <Desc>This will create a brand new keypair for your program.</Desc>
-          <WarningTextWrapper>
-            <Text type="Warning" IconEl={<Warning />}>
-              The old keypair will be lost if you don't save it.
-            </Text>
-          </WarningTextWrapper>
-          <DownloadButton
-            href={PgCommon.getUtf8EncodedString(
-              Array.from(PgProgramInfo.getKp()?.programKp!.secretKey)
-            )}
-            download="program-keypair.json"
-            buttonKind="outline"
-          >
-            Save keypair
-          </DownloadButton>
-        </MainContent>
-      </Content>
+      <MainContent>
+        <MainText>
+          Are you sure you want to create a new program keypair?
+        </MainText>
+        <Desc>This will create a brand new keypair for your program.</Desc>
+        <WarningTextWrapper>
+          <Text type="Warning" IconEl={<Warning />}>
+            The old keypair will be lost if you don't save it.
+          </Text>
+        </WarningTextWrapper>
+        <DownloadButton
+          href={PgCommon.getUtf8EncodedString(
+            Array.from(PgProgramInfo.getKp()?.programKp!.secretKey)
+          )}
+          download="program-keypair.json"
+          buttonKind="outline"
+        >
+          Save keypair
+        </DownloadButton>
+      </MainContent>
     </Modal>
   );
 };
@@ -293,18 +291,10 @@ const ButtonsWrapper = styled.div`
   display: flex;
 `;
 
-// New keypair modal
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem 0;
-`;
-
 const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 1rem;
+  padding: 0 1rem;
 
   & > a {
     margin-top: 1rem;

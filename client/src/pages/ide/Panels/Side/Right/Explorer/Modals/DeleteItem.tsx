@@ -55,7 +55,7 @@ const Content = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem 0;
+  margin: 0.5rem 0 0.25rem 0;
 `;
 
 const Icon = styled.div`

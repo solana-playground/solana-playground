@@ -96,6 +96,7 @@ export class PgThemeManager {
       ._select()
       ._toast()
       ._tooltip()
+      ._modal()
       ._markdown()
       ._editor()
       ._terminal()
@@ -495,6 +496,49 @@ export class PgThemeManager {
       this._theme.default!.boxShadow;
     this._theme.components!.tooltip.fontSize ??=
       this._theme.font!.code!.size.small;
+
+    return this;
+  }
+
+  /** Set default modal component */
+  private static _modal() {
+    this._theme.components!.modal ??= {};
+
+    // Default
+    this._theme.components!.modal.default ??= {};
+    this._theme.components!.modal.default.bg ??=
+      this._theme.colors.default.bgPrimary + "EE";
+    this._theme.components!.modal.default.border ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.modal.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.modal.default.padding ??= "0.25rem 1.5rem";
+    this._theme.components!.modal.default.minWidth ??= "min-content";
+    this._theme.components!.modal.default.maxWidth ??= "max(40%, 20rem)";
+
+    // Backdrop
+    this._theme.components!.modal.backdrop ??= {};
+    this._theme.components!.modal.backdrop.bg ??= "#00000064";
+
+    // Title
+    this._theme.components!.modal.title ??= {};
+    this._theme.components!.modal.title.display ??= "flex";
+    this._theme.components!.modal.title.justifyContent ??= "center";
+    this._theme.components!.modal.title.alignItems ??= "center";
+    this._theme.components!.modal.title.padding ??= "0.5rem 0";
+    this._theme.components!.modal.title.borderBottom ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.modal.title.fontWeight ??= "bold";
+
+    // Content
+    this._theme.components!.modal.content ??= {};
+    this._theme.components!.modal.content.padding ??= "0.75rem 0";
+    this._theme.components!.modal.content.minWidth ??= "20rem";
+    this._theme.components!.modal.content.minHeight ??= "3rem";
+
+    // Bottom
+    this._theme.components!.modal.bottom ??= {};
+    this._theme.components!.modal.bottom.display ??= "flex";
+    this._theme.components!.modal.bottom.justifyContent ??= "flex-end";
+    this._theme.components!.modal.bottom.padding ??= "0.5rem 0";
 
     return this;
   }

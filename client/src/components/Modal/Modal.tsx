@@ -5,6 +5,7 @@ import Button, { ButtonProps } from "../Button";
 import useModal from "./useModal";
 import { Close } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
+import { PgThemeManager } from "../../utils/pg/theme";
 import { useOnKey } from "../../hooks";
 
 interface ModalProps {
@@ -61,13 +62,16 @@ const Modal: FC<ModalProps> = ({
         )}
       </TopWrapper>
 
-      {children}
+      <ContentWrapper>{children}</ContentWrapper>
 
       {buttonProps && (
-        <ButtonWrapper>
-          <Button onClick={close} kind="transparent">
-            Cancel
-          </Button>
+        <ButtonsWrapper>
+          {!closeButton && (
+            <Button onClick={close} kind="transparent">
+              Cancel
+            </Button>
+          )}
+
           <Button
             {...buttonProps}
             onClick={handleSubmit}
@@ -76,7 +80,7 @@ const Modal: FC<ModalProps> = ({
           >
             {buttonProps.text}
           </Button>
-        </ButtonWrapper>
+        </ButtonsWrapper>
       )}
 
       <FocusButton ref={focusButtonRef} />
@@ -86,12 +90,7 @@ const Modal: FC<ModalProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    padding: 0.25rem 1.5rem;
-    border: 1px solid ${theme.colors.default.border};
-    border-radius: ${theme.default.borderRadius};
-    background: ${theme.colors.default.bgSecondary + "EE"};
-    max-width: max(40%, 20rem);
-    min-width: min-content;
+    ${PgThemeManager.convertToCSS(theme.components.modal.default)};
   `}
 `;
 
@@ -100,12 +99,9 @@ const TopWrapper = styled.div`
 `;
 
 const Title = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  padding: 0.75rem 0 0.5rem 0;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.default.border};
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.modal.title)};
+  `}
 `;
 
 const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
@@ -113,8 +109,8 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
     hasTitle
       ? css`
           position: absolute;
-          top: 0.25rem;
-          right: 0.5rem;
+          top: 0;
+          right: 0;
         `
       : css`
           width: 100%;
@@ -124,14 +120,25 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
         `}
 `;
 
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin: 0.75rem 0;
+const ContentWrapper = styled.div`
+  ${({ theme }) => css`
+    & input {
+      padding: 0.375rem 0.5rem;
+      height: 2rem;
+    }
 
-  & button:nth-child(2) {
-    margin-left: 1rem;
-  }
+    ${PgThemeManager.convertToCSS(theme.components.modal.content)};
+  `}
+`;
+
+const ButtonsWrapper = styled.div`
+  ${({ theme }) => css`
+    & button:nth-child(2) {
+      margin-left: 1rem;
+    }
+
+    ${PgThemeManager.convertToCSS(theme.components.modal.bottom)};
+  `}
 `;
 
 const FocusButton = styled.button`

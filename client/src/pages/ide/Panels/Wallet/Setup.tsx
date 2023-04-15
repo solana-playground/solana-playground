@@ -63,54 +63,52 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
         closeOnSubmit: true,
       }}
     >
-      <InsideWrapper>
-        <Content>
-          <ContentTitle>What is it?</ContentTitle>
-          <ContentText>
-            Playground wallet is a native wallet that speeds up development by
-            auto-approving transactions.
-          </ContentText>
-        </Content>
-        <Content>
-          <ContentTitle>How to setup?</ContentTitle>
-          <ContentText>
-            You don't need to do anything other than saving the keypair for
-            future use. You can also choose to import an existing wallet.
-          </ContentText>
-          <WarningTextWrapper>
-            <Text type="Warning" IconEl={<Warning />}>
-              Wallet information is stored in your browser's local storage. You
-              are going to lose the wallet if you clear your browser history
-              unless you save the keypair.
-            </Text>
-          </WarningTextWrapper>
-          <WalletButtonsWrapper>
-            <DownloadButton
-              href={PgCommon.getUtf8EncodedString(
-                Array.from(PgWallet.getKp().secretKey)
-              )}
-              download="keypair.json"
-              buttonKind="primary-outline"
-            >
-              Save keypair
-            </DownloadButton>
-            <UploadButton accept=".json" onUpload={handleImport} showUploadText>
-              Import keypair
-            </UploadButton>
-          </WalletButtonsWrapper>
-          {text && <KeypairText>{text}</KeypairText>}
-        </Content>
-      </InsideWrapper>
+      <Content>
+        <ContentTitle>What is it?</ContentTitle>
+        <ContentText>
+          Playground wallet is a native wallet that speeds up development by
+          auto-approving transactions.
+        </ContentText>
+      </Content>
+      <Content>
+        <ContentTitle>How to setup?</ContentTitle>
+        <ContentText>
+          You don't need to do anything other than saving the keypair for future
+          use. You can also choose to import an existing wallet.
+        </ContentText>
+        <WarningTextWrapper>
+          <Text type="Warning" IconEl={<Warning />}>
+            Wallet information is stored in your browser's local storage. You
+            are going to lose the wallet if you clear your browser history
+            unless you save the keypair.
+          </Text>
+        </WarningTextWrapper>
+        <WalletButtonsWrapper>
+          <DownloadButton
+            href={PgCommon.getUtf8EncodedString(
+              Array.from(PgWallet.getKp().secretKey)
+            )}
+            download="keypair.json"
+            buttonKind="primary-outline"
+          >
+            Save keypair
+          </DownloadButton>
+          <UploadButton accept=".json" onUpload={handleImport} showUploadText>
+            Import keypair
+          </UploadButton>
+        </WalletButtonsWrapper>
+        {text && <KeypairText>{text}</KeypairText>}
+      </Content>
     </Modal>
   );
 };
 
-const InsideWrapper = styled.div`
-  margin: 1rem 0;
-`;
-
 const Content = styled.div`
-  margin-bottom: 1rem;
+  padding: 0 1rem;
+
+  &:not(:first-child) {
+    margin-top: 1rem;
+  }
 `;
 
 const ContentTitle = styled.div`

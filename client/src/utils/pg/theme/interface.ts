@@ -175,11 +175,14 @@ export interface PgTheme {
       };
     }>;
 
+    /** Markdown component */
+    markdown?: ExtendibleComponent<"code">;
+
     /** Menu component */
     menu?: OverrideableComponent<MenuKind>;
 
-    /** Markdown component */
-    markdown?: ExtendibleComponent<"code">;
+    /** Modal component */
+    modal?: ExtendibleComponent<"backdrop" | "title" | "content" | "bottom">;
 
     /** Select component */
     select?: ExtendibleComponent<
@@ -371,6 +374,7 @@ type ExtendibleComponents =
   | "editor"
   | "main"
   | "markdown"
+  | "modal"
   | "select"
   | "sidebar"
   | "terminal"
@@ -429,6 +433,8 @@ type DefaultStyles = {
   | "borderTopRightRadius"
   | "borderBottomRightRadius"
   | "padding"
+  | "paddingBottom"
+  | "margin"
   | "marginTop"
   | "marginRight"
   | "marginBottom"
@@ -450,7 +456,9 @@ type DefaultStyles = {
   | "height"
   | "display"
   | "alignItems"
+  | "justifyContent"
   | "textAlign"
+  | "backdropFilter"
 >;
 
 /** CSS pseudo classes */

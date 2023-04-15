@@ -1,6 +1,5 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import styled from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
@@ -54,22 +53,12 @@ export const RenameWorkspace = () => {
       }}
       title={`Rename workspace '${workspaceName}'`}
     >
-      <Content>
-        <Input
-          ref={inputRef}
-          onChange={handleChange}
-          value={newName}
-          error={error}
-        />
-      </Content>
+      <Input
+        ref={inputRef}
+        onChange={handleChange}
+        value={newName}
+        error={error}
+      />
     </Modal>
   );
 };
-
-const Content = styled.div`
-  margin: 1rem 0 1.5rem 0;
-
-  & > input {
-    padding: 0.375rem 0.5rem;
-  }
-`;

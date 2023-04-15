@@ -62,16 +62,14 @@ export const ImportGithub = () => {
       }}
       title
     >
-      <Content>
-        <Text>GitHub URL</Text>
-        <Input
-          ref={inputRef}
-          onChange={handleChange}
-          value={url}
-          error={error}
-          placeholder="https://github.com/..."
-        />
-      </Content>
+      <Text>GitHub URL</Text>
+      <Input
+        ref={inputRef}
+        onChange={handleChange}
+        value={url}
+        error={error}
+        placeholder="https://github.com/..."
+      />
       <DescriptionWrapper>
         <Desc>
           If the program in the url is written in <Emphasis>Rust</Emphasis>:
@@ -100,24 +98,13 @@ export const ImportGithub = () => {
   );
 };
 
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 1rem 0;
-
-  & input {
-    padding: 0.375rem 0.5rem;
-  }
-`;
-
 const Text = styled.div`
   margin-bottom: 0.5rem;
   font-weight: bold;
 `;
 
 const DescriptionWrapper = styled.div`
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 `;
 
 const Desc = styled.p`

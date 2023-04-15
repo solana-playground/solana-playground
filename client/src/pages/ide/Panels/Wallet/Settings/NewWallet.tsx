@@ -6,8 +6,8 @@ import DownloadButton from "../../../../../components/DownloadButton";
 import Modal from "../../../../../components/Modal/Modal";
 import Text from "../../../../../components/Text";
 import { Warning } from "../../../../../components/Icons";
-import { PgCommon, PgModal, PgWallet } from "../../../../../utils/pg";
 import { pgWalletAtom } from "../../../../../state";
+import { PgCommon, PgModal, PgWallet } from "../../../../../utils/pg";
 
 export const useNewWallet = () => {
   return {
@@ -42,40 +42,31 @@ const NewWalletModal = () => {
         closeOnSubmit: true,
       }}
     >
-      <Content>
-        <MainContent>
-          <MainText>Are you sure you want to create a new wallet?</MainText>
-          <Desc>This will create a brand new keypair.</Desc>
-          <WarningTextWrapper>
-            <Text type="Warning" IconEl={<Warning />}>
-              The old keypair will be lost if you don't save it.
-            </Text>
-          </WarningTextWrapper>
-          <DownloadButton
-            href={PgCommon.getUtf8EncodedString(
-              Array.from(PgWallet.keypairBytes)
-            )}
-            download="wallet-keypair.json"
-          >
-            Save wallet keypair
-          </DownloadButton>
-        </MainContent>
-      </Content>
+      <MainContent>
+        <MainText>Are you sure you want to create a new wallet?</MainText>
+        <Desc>This will create a brand new keypair.</Desc>
+        <WarningTextWrapper>
+          <Text type="Warning" IconEl={<Warning />}>
+            The old keypair will be lost if you don't save it.
+          </Text>
+        </WarningTextWrapper>
+        <DownloadButton
+          href={PgCommon.getUtf8EncodedString(
+            Array.from(PgWallet.keypairBytes)
+          )}
+          download="wallet-keypair.json"
+        >
+          Save wallet keypair
+        </DownloadButton>
+      </MainContent>
     </Modal>
   );
 };
 
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem 0;
-`;
-
 const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 1rem;
+  padding: 0 1rem;
 
   & > a {
     margin-top: 1rem;
