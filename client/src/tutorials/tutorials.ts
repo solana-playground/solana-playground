@@ -98,6 +98,7 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./TinyAdventureTwo"),
   },
+
   {
     name: "Zero Copy",
     description: "How to handle memory and big accounts.",

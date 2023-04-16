@@ -1,6 +1,6 @@
 ## About
 
-Energy systems are very popular in traditional casual games. It means having an energy value which refills over time. And the energy is used to do certain actions in the game. If you have no prior Solana Knowledge please start with the Tiny Adventure tutorial.
+Energy systems are very popular in traditional casual games. It means having an energy value which refills over time. And the energy is used to do certain actions in the game. If you have no prior Solana Knowledge please start with the [Tiny Adventure Tutorial](/tutorials/tiny-adventure).
 
 ## What you will learn
 

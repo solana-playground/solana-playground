@@ -14,7 +14,6 @@ const Lumberjack = () => (
     files={[
       ["src/lib.rs", require("./files/lib.rs")],
       ["client/client.ts", require("./files/client.ts.raw")],
-      ["tests/index.test.ts", require("./files/anchor.test.ts.raw")],
     ]}
   />
 );
