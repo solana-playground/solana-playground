@@ -46,7 +46,7 @@ const NewWalletModal = () => {
         <MainText>Are you sure you want to create a new wallet?</MainText>
         <Desc>This will create a brand new keypair.</Desc>
         <WarningTextWrapper>
-          <Text type="Warning" IconEl={<Warning />}>
+          <Text kind="warning" IconEl={<Warning />}>
             The old keypair will be lost if you don't save it.
           </Text>
         </WarningTextWrapper>

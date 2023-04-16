@@ -3,7 +3,7 @@ import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
 import { ClassName } from "../../constants";
-import { DefaultComponent, PgThemeManager } from "../../utils/pg/theme";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 export type ButtonKind =
   | "primary"
@@ -107,9 +107,7 @@ const getButtonStyles = ({
   fontWeight: _fontWeight,
 }: ButtonProps & { theme: DefaultTheme }) => {
   // Clone the default Button theme to not override the global object
-  let button: DefaultComponent = structuredClone(
-    theme.components.button.default!
-  );
+  let button = structuredClone(theme.components.button.default);
 
   // Kind
   switch (kind) {

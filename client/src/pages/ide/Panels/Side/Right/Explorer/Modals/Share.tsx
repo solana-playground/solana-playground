@@ -10,12 +10,13 @@ import Modal from "../../../../../../../components/Modal";
 import Text from "../../../../../../../components/Text";
 import useModal from "../../../../../../../components/Modal/useModal";
 import { Checkmark, Sad } from "../../../../../../../components/Icons";
-import { TextProps } from "../../../../../../../components/Text/Text";
+import { TextKind } from "../../../../../../../components/Text/Text";
 import { explorerAtom } from "../../../../../../../state";
 import { ClassName, CLIENT_URL } from "../../../../../../../constants";
 import { PgCommon, PgShare } from "../../../../../../../utils/pg";
 
-interface TextState extends TextProps {
+interface TextState {
+  kind?: TextKind;
   id?: string;
 }
 
@@ -34,12 +35,12 @@ export const Share = () => {
     try {
       const id = await PgCommon.transition(PgShare.new(explorer));
       setTextState({
-        type: "Success",
+        kind: "success",
         id,
       });
     } catch (e: any) {
       setTextState({
-        type: "Error",
+        kind: "error",
       });
       setDisabled(false);
     }
@@ -50,13 +51,13 @@ export const Share = () => {
   return (
     <Modal title>
       <Content>
-        {textState.type ? (
-          textState.type === "Error" ? (
-            <Text type={textState.type} IconEl={<Sad />}>
+        {textState.kind ? (
+          textState.kind === "error" ? (
+            <Text kind={textState.kind} IconEl={<Sad />}>
               You are sharing too often, please try again later.
             </Text>
           ) : (
-            <Text type={textState.type} IconEl={<Checkmark />}>
+            <Text kind={textState.kind} IconEl={<Checkmark />}>
               Successfully shared the project.
             </Text>
           )

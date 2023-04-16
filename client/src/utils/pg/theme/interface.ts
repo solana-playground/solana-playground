@@ -3,6 +3,7 @@ import { ITerminalOptions as XtermOptions } from "xterm";
 
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
+import { TextKind } from "../../../components/Text";
 import { ChildRequired, NestedRequired, RequiredUntil } from "../types";
 
 /** Playground theme */
@@ -236,6 +237,9 @@ export interface PgTheme {
       };
     }>;
 
+    /** Text component */
+    text?: OverrideableComponent<TextKind>;
+
     /** Notification toast component */
     toast?: ExtendibleComponent<"progress" | "closeButton">;
 
@@ -381,7 +385,7 @@ type ExtendibleComponents =
   | "toast";
 
 /** Components that use `OverrideableComponent` type */
-type OverrideableComponents = "button" | "menu";
+type OverrideableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
 export type PgThemeInternal = Partial<Pick<ImportableTheme, "name">> &
@@ -459,6 +463,7 @@ type DefaultStyles = {
   | "justifyContent"
   | "textAlign"
   | "backdropFilter"
+  | "lineHeight"
 >;
 
 /** CSS pseudo classes */
@@ -493,7 +498,7 @@ type ExtendibleComponent<
   ? { [K in U extends any ? keyof U : never]?: DefaultComponent }
   : U);
 
-/** Overrideable component */
+/** A component with multiple kinds */
 type OverrideableComponent<T extends string> = {
   /** Default CSS values of the Button component */
   default?: DefaultComponent;

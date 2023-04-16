@@ -77,7 +77,7 @@ const Setup: FC<SetupProps> = ({ onSubmit }) => {
           use. You can also choose to import an existing wallet.
         </ContentText>
         <WarningTextWrapper>
-          <Text type="Warning" IconEl={<Warning />}>
+          <Text kind="warning" IconEl={<Warning />}>
             Wallet information is stored in your browser's local storage. You
             are going to lose the wallet if you clear your browser history
             unless you save the keypair.

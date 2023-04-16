@@ -1,20 +1,64 @@
-import { FC, ReactNode } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
+import { FC, ReactNode, useEffect, useRef } from "react";
+import styled, { css, useTheme } from "styled-components";
 
-type TextType = "Normal" | "Info" | "Warning" | "Success" | "Error";
-type TextSize = "Small" | "Medium" | "Large";
-type TextBg = "Primary" | "Secondary" | "Transparent";
+import { PgCommon } from "../../utils/pg";
+import { PgThemeManager } from "../../utils/pg/theme";
 
-export interface TextProps {
-  type?: TextType;
-  size?: TextSize;
-  bg?: TextBg;
+export type TextKind = "normal" | "info" | "warning" | "success" | "error";
+
+interface TextProps {
+  kind?: TextKind;
   IconEl?: ReactNode;
 }
 
+/** A text component that always have a different background than its parent */
 const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
+  const theme = useTheme();
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Handle background(different background than its parent)
+  useEffect(() => {
+    if (!ref.current) return;
+
+    let parent: HTMLElement | null | undefined = ref.current;
+    let inheritedBg = "";
+    while (!parent?.style?.background) {
+      parent = parent?.parentElement;
+
+      if (parent) {
+        const style = getComputedStyle(parent);
+        if (style.backgroundImage !== "none") {
+          inheritedBg = style.backgroundImage;
+          break;
+        }
+
+        if (style.backgroundColor !== "rgba(0, 0, 0, 0)") {
+          inheritedBg = style.backgroundColor;
+          break;
+        }
+      }
+    }
+
+    const textBg = theme.components.text.default.bg!;
+
+    if (PgCommon.compareColors(inheritedBg, textBg)) {
+      const { bgPrimary, bgSecondary } = theme.colors.default;
+
+      if (PgCommon.compareColors(inheritedBg, bgPrimary)) {
+        ref.current.style.background = bgSecondary;
+      } else {
+        ref.current.style.background = bgPrimary;
+      }
+    } else {
+      ref.current.style.background = textBg;
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme.name]);
+
   return (
-    <Wrapper IconEl={IconEl} {...rest}>
+    <Wrapper ref={ref} IconEl={IconEl} {...rest}>
       <div>{IconEl}</div>
       <div>{children}</div>
     </Wrapper>
@@ -22,65 +66,54 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 };
 
 const Wrapper = styled.div<TextProps>`
-  ${({ theme, type, size, bg, IconEl }) =>
-    getTextStyle(theme, type, size, bg, !!IconEl)}
-`;
+  ${({ theme, kind, IconEl }) => {
+    kind ??= "normal";
 
-const getTextStyle = (
-  theme: DefaultTheme,
-  type: TextType = "Normal",
-  size: TextSize = "Small",
-  bg: TextBg = "Secondary",
-  iconElExists: boolean
-) => {
-  let color;
-  let fontSize;
-  let bgColor;
+    // Clone the default Text theme to not override the global object
+    let text = structuredClone(theme.components.text.default);
 
-  if (type === "Normal") color = "inherit";
-  else if (type === "Info") color = theme.colors.state.info.color;
-  else if (type === "Warning") color = theme.colors.state.warning.color;
-  else if (type === "Success") color = theme.colors.state.success.color;
-  else if (type === "Error") color = theme.colors.state.error.color;
+    switch (kind) {
+      case "info":
+        text.color = theme.colors.state.info.color;
+        break;
 
-  if (size === "Small") fontSize = theme.font.code.size.small;
-  else if (size === "Medium") fontSize = theme.font.code.size.medium;
-  else if (size === "Large") fontSize = theme.font.code.size.large;
+      case "warning":
+        text.color = theme.colors.state.warning.color;
+        break;
 
-  if (bg === "Primary") bgColor = theme.components.sidebar.right.default.bg;
-  else if (bg === "Secondary")
-    bgColor = theme.components.sidebar.right.default.otherBg;
-  else if (bg === "Transparent") bgColor = "transparent";
+      case "success":
+        text.color = theme.colors.state.success.color;
+        break;
 
-  let returnedCss = css`
-    font-size: ${fontSize};
-    color: ${color};
-    background: ${bgColor};
-    padding: ${bg === "Transparent" ? "0" : "1rem"};
-    border-radius: ${theme.default.borderRadius};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    line-height: 1.5;
-
-    & > div {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      case "error":
+        text.color = theme.colors.state.error.color;
+        break;
     }
-  `;
 
-  if (iconElExists) {
-    returnedCss = returnedCss.concat(css`
-      & div > svg {
-        width: 1.5rem;
-        height: 1.5rem;
-        margin-right: 0.75rem;
+    // Text kind specific overrides
+    // NOTE: Overrides must come after setting the `TextProps` defaults
+    text = PgThemeManager.overrideDefaults(
+      text,
+      theme.components.text.overrides?.[kind]
+    );
+
+    return css`
+      ${PgThemeManager.convertToCSS(text)};
+
+      & > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
-    `);
-  }
 
-  return returnedCss;
-};
+      ${!!IconEl &&
+      `& div > svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.75rem;
+    }`}
+    `;
+  }}
+`;
 
 export default Text;

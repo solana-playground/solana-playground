@@ -92,6 +92,7 @@ export class PgThemeManager {
       ._skeleton()
       ._button()
       ._menu()
+      ._text()
       ._input()
       ._select()
       ._toast()
@@ -331,6 +332,27 @@ export class PgThemeManager {
     return this;
   }
 
+  /** Set default menu component */
+  private static _text() {
+    this._theme.components!.text ??= {};
+
+    // Default
+    this._theme.components!.text.default ??= {};
+    this._theme.components!.text.default.display ??= "flex";
+    this._theme.components!.text.default.justifyContent ??= "center";
+    this._theme.components!.text.default.alignItems ??= "center";
+    this._theme.components!.text.default.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.text.default.padding ??= "1rem";
+    this._theme.components!.text.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.text.default.fontSize ??=
+      this._theme.font!.code!.size.small;
+    this._theme.components!.text.default.lineHeight ??= 1.5;
+
+    return this;
+  }
+
   /** Set default input component */
   private static _input() {
     this._theme.components!.input ??= {};
@@ -507,7 +529,7 @@ export class PgThemeManager {
     // Default
     this._theme.components!.modal.default ??= {};
     this._theme.components!.modal.default.bg ??=
-      this._theme.colors.default.bgPrimary + "EE";
+      this._theme.colors.default.bgPrimary;
     this._theme.components!.modal.default.border ??= `1px solid ${this._theme.colors.default.border}`;
     this._theme.components!.modal.default.borderRadius ??=
       this._theme.default!.borderRadius;
@@ -1057,7 +1079,7 @@ export class PgThemeManager {
     this._theme.components!.main!.views!.tutorials.card.info.category.padding ??=
       "0.5rem 0.75rem";
     this._theme.components!.main!.views!.tutorials.card.info.category.bg ??=
-      this._theme.components!.main!.views!.tutorials.default.bg;
+      this._theme.components!.main!.default!.bg;
     this._theme.components!.main!.views!.tutorials.card.info.category.color ??=
       this._theme.colors.default.textSecondary;
     this._theme.components!.main!.views!.tutorials.card.info.category.fontSize ??=
