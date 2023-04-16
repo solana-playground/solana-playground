@@ -214,6 +214,11 @@ export interface PgTheme {
       highlightColor?: Color;
     };
 
+    /** Tabs component */
+    tabs?: ExtendibleComponent<{
+      tab?: ExtendibleComponent<"selected">;
+    }>;
+
     /** Terminal component */
     terminal?: ExtendibleComponent<{
       xterm?: {
@@ -381,6 +386,7 @@ type ExtendibleComponents =
   | "modal"
   | "select"
   | "sidebar"
+  | "tabs"
   | "terminal"
   | "toast";
 
@@ -429,7 +435,9 @@ type DefaultStyles = {
   | "color"
   | "border"
   | "borderTop"
+  | "borderTopColor"
   | "borderRight"
+  | "borderRightColor"
   | "borderBottom"
   | "borderLeft"
   | "borderColor"
@@ -438,6 +446,7 @@ type DefaultStyles = {
   | "borderBottomRightRadius"
   | "padding"
   | "paddingBottom"
+  | "paddingLeft"
   | "margin"
   | "marginTop"
   | "marginRight"
@@ -464,6 +473,7 @@ type DefaultStyles = {
   | "textAlign"
   | "backdropFilter"
   | "lineHeight"
+  | "userSelect"
 >;
 
 /** CSS pseudo classes */

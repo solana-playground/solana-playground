@@ -134,6 +134,13 @@ const SOLANA: PgTheme = {
       bg: SELECTION,
       highlightColor: HOVER_BG,
     },
+    tabs: {
+      tab: {
+        selected: {
+          bg: BG_GRAY,
+        },
+      },
+    },
     terminal: {
       default: {
         bg: BG_GRAY,

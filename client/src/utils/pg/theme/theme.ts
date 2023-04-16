@@ -98,6 +98,7 @@ export class PgThemeManager {
       ._toast()
       ._tooltip()
       ._modal()
+      ._tabs()
       ._markdown()
       ._editor()
       ._terminal()
@@ -561,6 +562,55 @@ export class PgThemeManager {
     this._theme.components!.modal.bottom.display ??= "flex";
     this._theme.components!.modal.bottom.justifyContent ??= "flex-end";
     this._theme.components!.modal.bottom.padding ??= "0.5rem 0";
+
+    return this;
+  }
+
+  /** Set default tabs component */
+  private static _tabs() {
+    this._theme.components!.tabs ??= {};
+
+    // Default
+    this._theme.components!.tabs.default ??= {};
+    this._theme.components!.tabs.default.display ??= "flex";
+    this._theme.components!.tabs.default.justifyContent ??= "space-between";
+    this._theme.components!.tabs.default.userSelect ??= "none";
+    this._theme.components!.tabs.default.borderBottom ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.tabs.default.fontSize ??=
+      this._theme.font!.code!.size.small;
+
+    // Tab
+    this._theme.components!.tabs.tab ??= {};
+    // Tab default
+    this._theme.components!.tabs.tab.default ??= {};
+    this._theme.components!.tabs.tab.default.display ??= "flex";
+    this._theme.components!.tabs.tab.default.justifyContent ??= "center";
+    this._theme.components!.tabs.tab.default.alignItems ??= "center";
+    this._theme.components!.tabs.tab.default.width ??= "fit-content";
+    this._theme.components!.tabs.tab.default.height ??= "100%";
+    this._theme.components!.tabs.tab.default.paddingLeft ??= "0.5rem";
+    this._theme.components!.tabs.tab.default.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.tabs.tab.default.border ??= "1px solid transparent";
+    this._theme.components!.tabs.tab.default.borderRightColor ??=
+      this._theme.colors.default.border;
+    this._theme.components!.tabs.tab.default.transition ??= `all ${
+      this._theme.default!.transition!.duration.short
+    } ${this._theme.default!.transition!.type}`;
+    this._theme.components!.tabs.tab.default.hover ??= {};
+    this._theme.components!.tabs.tab.default.hover.cursor ??= "pointer";
+    this._theme.components!.tabs.tab.default.hover.bg ??=
+      this._theme.colors.state.hover.bg;
+    this._theme.components!.tabs.tab.default.hover.color ??=
+      this._theme.colors.default.textPrimary;
+    // Tab selected
+    this._theme.components!.tabs.tab.selected ??= {};
+    this._theme.components!.tabs.tab.selected.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.tabs.tab.selected.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.tabs.tab.selected.borderTopColor ??=
+      this._theme.colors.default.secondary;
 
     return this;
   }

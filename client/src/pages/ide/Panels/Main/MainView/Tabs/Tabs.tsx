@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { useAtom } from "jotai";
+import { Atom, useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
@@ -11,18 +11,20 @@ import {
   showWalletAtom,
 } from "../../../../../../state";
 import { useCurrentWallet } from "../../../Wallet";
+import { PgExplorer } from "../../../../../../utils/pg";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 const Tabs = () => {
-  const [explorer] = useAtom(explorerAtom);
+  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
   useAtom(refreshExplorerAtom);
 
-  // No need memoization
-  const tabs = explorer?.getTabs();
+  // No need for memoization
+  const tabs = explorer.getTabs();
 
   // Close current tab with keybind
   useEffect(() => {
-    const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (explorer && e.altKey && e.key.toUpperCase() === "W") {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.altKey && e.key.toUpperCase() === "W") {
         const currentPath = explorer.getCurrentFile()?.path;
         if (!currentPath) return;
 
@@ -48,39 +50,14 @@ const Tabs = () => {
   );
 };
 
-const Wallet = () => {
-  const [, setShowWallet] = useAtom(showWalletAtom);
-
-  const { walletPkStr } = useCurrentWallet();
-
-  const toggleWallet = useCallback(() => {
-    setShowWallet((s) => !s);
-  }, [setShowWallet]);
-
-  if (!walletPkStr) return null;
-
-  return (
-    <WalletWrapper>
-      <Button onClick={toggleWallet} kind="icon" fontWeight="bold">
-        <img src="/icons/sidebar/wallet.png" alt="Wallet" />
-        Wallet
-      </Button>
-    </WalletWrapper>
-  );
-};
-
 // Same height with Side-Right Title
 export const TAB_HEIGHT = "2rem";
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
-    justify-content: space-between;
     min-height: ${TAB_HEIGHT};
-    user-select: none;
-    background: ${theme.components.sidebar.right.default.bg};
-    border-bottom: 1px solid ${theme.colors.default.border};
-    font-size: ${theme.font.code.size.small};
+
+    ${PgThemeManager.convertToCSS(theme.components.tabs.default)};
   `}
 `;
 
@@ -118,6 +95,27 @@ const TabsWrapper = styled.div`
   `}
 `;
 
+const Wallet = () => {
+  const [, setShowWallet] = useAtom(showWalletAtom);
+
+  const { currentWallet } = useCurrentWallet();
+
+  const toggleWallet = useCallback(() => {
+    setShowWallet((s) => !s);
+  }, [setShowWallet]);
+
+  if (!currentWallet) return null;
+
+  return (
+    <WalletWrapper>
+      <Button onClick={toggleWallet} kind="icon" fontWeight="bold">
+        <img src="/icons/sidebar/wallet.png" alt="Wallet" />
+        Wallet
+      </Button>
+    </WalletWrapper>
+  );
+};
+
 const WalletWrapper = styled.div`
   ${({ theme }) => css`
     display: flex;
@@ -136,7 +134,7 @@ const WalletWrapper = styled.div`
       }
 
       &:hover img {
-        filter: invert(${({ theme }) => (theme.isDark ? 1 : 0)});
+        filter: invert(${theme.isDark ? 1 : 0});
       }
     }
   `}
