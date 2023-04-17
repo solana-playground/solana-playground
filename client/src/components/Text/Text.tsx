@@ -23,11 +23,12 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 
     let parent: HTMLElement | null | undefined = ref.current;
     let inheritedBg = "";
-    while (!parent?.style?.background) {
+    while (1) {
       parent = parent?.parentElement;
 
       if (parent) {
         const style = getComputedStyle(parent);
+
         if (style.backgroundImage !== "none") {
           inheritedBg = style.backgroundImage;
           break;

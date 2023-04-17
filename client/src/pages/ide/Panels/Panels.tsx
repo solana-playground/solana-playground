@@ -1,13 +1,12 @@
 import { lazy, Suspense } from "react";
 import styled from "styled-components";
 
-import { Wormhole } from "../../../components/Loading";
 import Side from "./Side";
-// import Noti from "./Noti";
+import { Wormhole } from "../../../components/Loading";
 
 const Main = lazy(() => import("./Main"));
-const Wallet = lazy(() => import("./Wallet"));
 const Bottom = lazy(() => import("./Bottom"));
+const Wallet = lazy(() => import("../../../components/Wallet"));
 const Toast = lazy(() => import("../../../components/Toast"));
 
 const Panels = () => (

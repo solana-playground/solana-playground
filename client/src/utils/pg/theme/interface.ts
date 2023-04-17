@@ -253,6 +253,38 @@ export interface PgTheme {
 
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
+
+    /** Wallet component */
+    wallet?: ExtendibleComponent<{
+      /** Top side of the wallet component */
+      title?: ExtendibleComponent<"text">;
+      /** Main side of the wallet component */
+      main?: ExtendibleComponent<{
+        /** Backdrop is made with `::after` pseudo class */
+        backdrop?: DefaultStyles;
+        /** Balance section */
+        balance?: DefaultComponent;
+        /** Send section */
+        send?: ExtendibleComponent<{
+          /** Send section foldable title text */
+          title?: DefaultComponent;
+          /** Expanded send component */
+          expanded?: ExtendibleComponent<"input" | "sendButton">;
+        }>;
+        /** Transaction history section */
+        transactions?: ExtendibleComponent<{
+          /** Transactions title */
+          title?: ExtendibleComponent<"text" | "refreshButton">;
+          /** Transactions table */
+          table?: ExtendibleComponent<{
+            /** Transactions table header */
+            header?: DefaultComponent;
+            /** Transactions table row */
+            row?: ExtendibleComponent<"signature" | "slot" | "time">;
+          }>;
+        }>;
+      }>;
+    }>;
   };
 
   /** Code highlight styles */
@@ -392,7 +424,8 @@ type ExtendibleComponents =
   | "sidebar"
   | "tabs"
   | "terminal"
-  | "toast";
+  | "toast"
+  | "wallet";
 
 /** Components that use `OverrideableComponent` type */
 type OverrideableComponents = "button" | "menu" | "text";
@@ -449,8 +482,10 @@ type DefaultStyles = {
   | "borderTopRightRadius"
   | "borderBottomRightRadius"
   | "padding"
-  | "paddingBottom"
+  | "paddingTop"
+  | "paddingRight"
   | "paddingLeft"
+  | "paddingBottom"
   | "margin"
   | "marginTop"
   | "marginRight"
@@ -478,6 +513,8 @@ type DefaultStyles = {
   | "backdropFilter"
   | "lineHeight"
   | "userSelect"
+  | "position"
+  | "zIndex"
 >;
 
 /** CSS pseudo classes */
@@ -489,9 +526,9 @@ type PseudoClass =
   | "before"
   | "after";
 
-/** Default component without pseudo classes */
+/** Default component pseudo classes */
 type DefaultComponentState<T extends PseudoClass = PseudoClass> = {
-  [K in T]?: Omit<DefaultComponent, T>;
+  [K in T]?: DefaultComponent;
 };
 
 /** Default component with pseudo classes */

@@ -136,6 +136,11 @@ const LIGHT: PgTheme = {
       bg: "#e5e4e6",
       highlightColor: BG_LIGHT,
     },
+    wallet: {
+      default: {
+        bg: BG_WHITE,
+      },
+    },
   },
 
   highlight: {

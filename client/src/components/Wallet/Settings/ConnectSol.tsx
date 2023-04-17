@@ -1,4 +1,4 @@
-import { useConnect } from "../useConnect";
+import { useConnect } from "../../../hooks";
 
 export const useConnectSol = () => {
   const { solButtonStatus, connecting, disconnecting, handleConnect } =

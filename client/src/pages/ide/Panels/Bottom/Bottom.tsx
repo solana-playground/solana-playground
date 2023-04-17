@@ -10,17 +10,17 @@ import {
   NETWORKS,
   NetworkName,
   ClassName,
+  ConnState,
 } from "../../../../constants";
+import { useAutoAirdrop } from "./useAutoAirdrop";
 import { PgCommon } from "../../../../utils/pg";
 import { PgThemeManager } from "../../../../utils/pg/theme";
-import { useAutoAirdrop } from "./useAutoAirdrop";
 import {
   useConnect,
-  useCurrentWallet,
   useConnectOrSetupPg,
-  ConnState,
-} from "../Wallet";
-import { usePgConnection } from "../../../../hooks";
+  useCurrentWallet,
+  usePgConnection,
+} from "../../../../hooks";
 
 const Bottom = () => {
   const { connection: conn } = usePgConnection();

@@ -231,7 +231,7 @@ export class PgCommon {
    *
    * @returns transaction url for solana explorer, solscan
    */
-  static getExplorerTxUrls(txHash: string, endpoint: Endpoint) {
+  static getExplorerTxUrls(txHash: string, endpoint: string) {
     let explorer = EXPLORER_URL + "/tx/" + txHash;
     const cluster = this.getExplorerClusterParam(endpoint);
     explorer += cluster;

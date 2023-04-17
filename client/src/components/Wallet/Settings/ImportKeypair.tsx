@@ -2,8 +2,8 @@ import { ChangeEvent } from "react";
 import { useAtom } from "jotai";
 import { Keypair } from "@solana/web3.js";
 
-import { pgWalletAtom } from "../../../../../state";
-import { PgCommon, PgWallet } from "../../../../../utils/pg";
+import { pgWalletAtom } from "../../../state";
+import { PgCommon, PgWallet } from "../../../utils/pg";
 
 export const useImportKeypair = () => {
   const [, setPgWallet] = useAtom(pgWalletAtom);

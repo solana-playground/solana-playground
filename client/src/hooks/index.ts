@@ -1,3 +1,7 @@
+export { useAirdropAmount } from "./useAirdropAmount";
+export { useConnect } from "./useConnect";
+export { useConnectOrSetupPg } from "./useConnectOrSetupPg";
+export { useCurrentWallet } from "./useCurrentWallet";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
 export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";

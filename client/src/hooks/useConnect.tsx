@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { ConnState } from "./connection-state";
-import { pgWalletAtom, refreshPgWalletAtom } from "../../../../state";
+import { pgWalletAtom, refreshPgWalletAtom } from "../state";
+import { ConnState } from "../constants";
 
 export const useConnect = () => {
   // Pg

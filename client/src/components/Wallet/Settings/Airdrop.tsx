@@ -2,16 +2,10 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 import { PublicKey } from "@solana/web3.js";
 
-import { txHashAtom } from "../../../../../state";
-import { Emoji } from "../../../../../constants";
-import {
-  PgCommon,
-  PgConnection,
-  PgTerminal,
-  PgTx,
-} from "../../../../../utils/pg";
-import { useAirdropAmount } from "../useAirdropAmount";
-import { useCurrentWallet } from "../useCurrentWallet";
+import { txHashAtom } from "../../../state";
+import { Emoji } from "../../../constants";
+import { PgCommon, PgConnection, PgTerminal, PgTx } from "../../../utils/pg";
+import { useAirdropAmount, useCurrentWallet } from "../../../hooks";
 
 export const useAirdrop = () => {
   const [, setTxHash] = useAtom(txHashAtom);

@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import styled from "styled-components";
 
-import Button from "../../../../../components/Button";
-import Menu from "../../../../../components/Menu";
-import { ThreeDots } from "../../../../../components/Icons";
-import { ClassName, Id } from "../../../../../constants";
+import Button from "../../Button";
+import Menu from "../../Menu";
+import { ThreeDots } from "../../Icons";
+import { ClassName, Id } from "../../../constants";
 import { useAirdrop } from "./Airdrop";
 import { useNewWallet } from "./NewWallet";
 import { useConnectSol } from "./ConnectSol";

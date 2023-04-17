@@ -1,5 +1,6 @@
 import { Commitment } from "@solana/web3.js";
 
+/** Name that will be showed in the UI */
 export enum NetworkName {
   PLAYNET = "playnet",
   LOCALHOST = "localhost",
@@ -11,6 +12,7 @@ export enum NetworkName {
   CUSTOM = "custom",
 }
 
+/** RPC endpoint */
 export enum Endpoint {
   PLAYNET = "http://playnet",
   LOCALHOST = "http://localhost:8899",
@@ -27,6 +29,7 @@ interface Network {
   endpoint: Endpoint;
 }
 
+/** Default networks that users can choose from */
 export const NETWORKS: Network[] = [
   {
     name: NetworkName.PLAYNET,
@@ -62,8 +65,24 @@ export const NETWORKS: Network[] = [
   },
 ];
 
+/** Available commitment levels that users can choose from */
 export const COMMITMENT_LEVELS: Commitment[] = [
   "processed",
   "confirmed",
   "finalized",
 ];
+
+/** Wallet connection state */
+export enum ConnState {
+  // Common
+  NOT_CONNECTED = "Not connected",
+  // PG
+  PG_CONNECT = "Connect to Playground Wallet",
+  PG_CONNECTED = "Connected to Playground Wallet",
+  PG_DISCONNECT = "Disconnect from Playground Wallet",
+  // Solana
+  CONNECT = "Connect to Phantom Wallet",
+  CONNECTED = "Connected to Phantom Wallet",
+  CONNECTING = "Connecting...",
+  DISCONNECT = "Disconnect from Phantom Wallet",
+}

@@ -5,8 +5,7 @@ import styled, { css } from "styled-components";
 import Foldable from "../../../../../../components/Foldable";
 import { CodeResult } from "./CodeResult";
 import { PgCommon, PgTest } from "../../../../../../utils/pg";
-import { useCurrentWallet } from "../../../Wallet";
-import { usePgConnection } from "../../../../../../hooks";
+import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
 
 interface EventProps {
   index: number;

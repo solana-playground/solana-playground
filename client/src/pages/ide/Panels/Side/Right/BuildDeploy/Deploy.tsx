@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import Text from "../../../../../../components/Text";
 import Button, { ButtonProps } from "../../../../../../components/Button";
+import { Skeleton } from "../../../../../../components/Loading";
 import {
   buildCountAtom,
   programAtom,
@@ -12,15 +13,14 @@ import {
   terminalStateAtom,
 } from "../../../../../../state";
 import { ConnectionErrorText } from "../Common";
-import { Skeleton } from "../../../../../../components/Loading";
-import { useDeploy } from ".";
+import { PgProgramInfo } from "../../../../../../utils/pg";
+import { useDeploy } from "./useDeploy";
 import { useInitialLoading } from "..";
 import {
   useConnect,
-  useCurrentWallet,
   useConnectOrSetupPg,
-} from "../../../Wallet";
-import { PgProgramInfo } from "../../../../../../utils/pg";
+  useCurrentWallet,
+} from "../../../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {

@@ -155,6 +155,23 @@ const SOLANA: PgTheme = {
       bg: BG_GRAY,
       bgSecondary: BG_BLACK,
     },
+    wallet: {
+      default: {
+        bg: BG_BLACK,
+      },
+      main: {
+        transactions: {
+          table: {
+            default: {
+              bg: BG_GRAY,
+            },
+            header: {
+              bg: BG_BLACK,
+            },
+          },
+        },
+      },
+    },
   },
   highlight: {
     typeName: { color: BLUE, fontStyle: "italic" },

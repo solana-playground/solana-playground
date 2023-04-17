@@ -3,11 +3,10 @@ import styled from "styled-components";
 
 import { EventName } from "../../constants";
 import { PgExplorer, PgTerminal } from "../../utils/pg";
-import { useCurrentWallet } from "./Panels/Wallet";
-import { usePgConnection } from "../../hooks";
+import { useCurrentWallet, usePgConnection } from "../../hooks";
 
 // Only for type
-import { PgClient } from "../../utils/pg/client";
+import type { PgClient } from "../../utils/pg/client";
 
 const ClientHelper = () => {
   const { connection } = usePgConnection();

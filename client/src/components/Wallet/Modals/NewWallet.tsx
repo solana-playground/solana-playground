@@ -2,22 +2,14 @@ import { useAtom } from "jotai";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
-import DownloadButton from "../../../../../components/DownloadButton";
-import Modal from "../../../../../components/Modal/Modal";
-import Text from "../../../../../components/Text";
-import { Warning } from "../../../../../components/Icons";
-import { pgWalletAtom } from "../../../../../state";
-import { PgCommon, PgModal, PgWallet } from "../../../../../utils/pg";
+import DownloadButton from "../../DownloadButton";
+import Modal from "../../Modal/Modal";
+import Text from "../../Text";
+import { Warning } from "../../Icons";
+import { pgWalletAtom } from "../../../state";
+import { PgCommon, PgWallet } from "../../../utils/pg";
 
-export const useNewWallet = () => {
-  return {
-    handleNewWallet: () => {
-      PgModal.set(NewWalletModal);
-    },
-  };
-};
-
-const NewWalletModal = () => {
+const NewWallet = () => {
   const [, setPgWallet] = useAtom(pgWalletAtom);
 
   const generateNewKeypair = () => {
@@ -96,3 +88,5 @@ const WarningTextWrapper = styled.div`
     color: ${({ theme }) => theme.colors.state.warning.color} !important;
   }
 `;
+
+export default NewWallet;

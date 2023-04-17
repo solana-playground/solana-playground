@@ -1,7 +1,8 @@
 import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import { uiBalanceAtom } from "../../../../state";
+import { uiBalanceAtom } from "../../state";
+import { PgThemeManager } from "../../utils/pg/theme";
 
 const Balance = () => {
   const [balance] = useAtom(uiBalanceAtom);
@@ -15,12 +16,7 @@ const Balance = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    font-size: ${theme.font.code.size.xlarge};
-    color: ${theme.colors.default.textSecondary};
+    ${PgThemeManager.convertToCSS(theme.components.wallet.main.balance)};
   `}
 `;
 

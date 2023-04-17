@@ -10,9 +10,9 @@ import {
   refreshExplorerAtom,
   showWalletAtom,
 } from "../../../../../../state";
-import { useCurrentWallet } from "../../../Wallet";
 import { PgExplorer } from "../../../../../../utils/pg";
 import { PgThemeManager } from "../../../../../../utils/pg/theme";
+import { useCurrentWallet } from "../../../../../../hooks";
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);

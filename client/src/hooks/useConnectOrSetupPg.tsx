@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useAtom } from "jotai";
 
-import Setup from "./Setup";
-import { pgWalletAtom, refreshPgWalletAtom } from "../../../../state";
-import { PgModal, PgTerminal, PgWallet } from "../../../../utils/pg";
+import Setup from "../components/Wallet/Modals/Setup";
+import { pgWalletAtom, refreshPgWalletAtom } from "../state";
+import { PgModal, PgTerminal, PgWallet } from "../utils/pg";
 
 export const useConnectOrSetupPg = () => {
   const [pgWallet] = useAtom(pgWalletAtom);

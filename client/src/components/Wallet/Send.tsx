@@ -1,25 +1,37 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import Button from "../../../../components/Button";
-import Input from "../../../../components/Input";
-import Foldable from "../../../../components/Foldable";
-import { uiBalanceAtom, txHashAtom } from "../../../../state";
-import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../../../utils/pg";
-import { useCurrentWallet } from "./useCurrentWallet";
-import { usePgConnection } from "../../../../hooks";
+import Button from "../Button";
+import Input from "../Input";
+import Foldable from "../Foldable";
+import { uiBalanceAtom, txHashAtom } from "../../state";
+import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../utils/pg";
+import { PgThemeManager } from "../../utils/pg/theme";
+import { useCurrentWallet, usePgConnection } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
     <Foldable ClickEl={<Title>Send</Title>}>
-      <SendInside />
+      <SendExpanded />
     </Foldable>
   </Wrapper>
 );
 
-const SendInside = () => {
+const Wrapper = styled.div`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.wallet.main.send.default)};
+  `}
+`;
+
+const Title = styled.div`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.wallet.main.send.title)};
+  `}
+`;
+
+const SendExpanded = () => {
   const [, setTxHash] = useAtom(txHashAtom);
   const [balance] = useAtom(uiBalanceAtom);
 
@@ -96,63 +108,61 @@ const SendInside = () => {
   };
 
   return (
-    <InsideWrapper>
-      <InputWrapper>
-        <Input
-          ref={addressInputRef}
-          onChange={handleChangeAddress}
-          validator={PgValidator.isPubkey}
-          placeholder="Recipient address"
-        />
-        <Input
-          ref={amountInputRef}
-          onChange={handleChangeAmount}
-          validator={(input) => {
-            if (
-              !PgValidator.isFloat(input) ||
-              (balance && parseFloat(input) > balance)
-            ) {
-              throw new Error("Invalid amount");
-            }
-          }}
-          placeholder="SOL amount"
-        />
-      </InputWrapper>
-      <ButtonWrapper>
-        <Button
-          onClick={send}
-          disabled={disabled || loading}
-          btnLoading={loading}
-          kind="primary-transparent"
-          fullWidth
-        >
-          Send
-        </Button>
-      </ButtonWrapper>
-    </InsideWrapper>
+    <ExpandedWrapper>
+      <ExpandedInput
+        ref={addressInputRef}
+        onChange={handleChangeAddress}
+        validator={PgValidator.isPubkey}
+        placeholder="Recipient address"
+      />
+      <ExpandedInput
+        ref={amountInputRef}
+        onChange={handleChangeAmount}
+        validator={(input) => {
+          if (
+            !PgValidator.isFloat(input) ||
+            (balance && parseFloat(input) > balance)
+          ) {
+            throw new Error("Invalid amount");
+          }
+        }}
+        placeholder="SOL amount"
+      />
+      <ExpandedButton
+        onClick={send}
+        disabled={disabled || loading}
+        btnLoading={loading}
+        kind="primary-transparent"
+        fullWidth
+      >
+        Send
+      </ExpandedButton>
+    </ExpandedWrapper>
   );
 };
 
-const Wrapper = styled.div`
-  margin-bottom: 1rem;
+const ExpandedWrapper = styled.div`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(
+      theme.components.wallet.main.send.expanded.default
+    )};
+  `}
 `;
 
-const Title = styled.div`
-  font-weight: bold;
+const ExpandedInput = styled(Input)`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(
+      theme.components.wallet.main.send.expanded.input
+    )};
+  `}
 `;
 
-const InsideWrapper = styled.div`
-  padding-top: 0.75rem;
-`;
-
-const InputWrapper = styled.div`
-  & > input {
-    margin-bottom: 0.75rem;
-  }
-`;
-
-const ButtonWrapper = styled.div`
-  margin-top: 0.25rem;
+const ExpandedButton = styled(Button)`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(
+      theme.components.wallet.main.send.expanded.sendButton
+    )};
+  `}
 `;
 
 export default Send;

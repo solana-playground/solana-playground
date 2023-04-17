@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import Modal from "../../../../components/Modal/Modal";
+import Modal from "../../Modal";
 
 interface ApproveProps {}
 

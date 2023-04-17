@@ -103,6 +103,7 @@ export class PgThemeManager {
       ._editor()
       ._terminal()
       ._progressbar()
+      ._wallet()
       ._bottom()
       ._sidebar()
       ._main()
@@ -826,6 +827,193 @@ export class PgThemeManager {
     this._theme.components!.progressbar.indicator.transition ??= `width ${
       this._theme.default!.transition!.duration.long
     } ${this._theme.default!.transition!.type}`;
+
+    return this;
+  }
+
+  /** Set default wallet component */
+  private static _wallet() {
+    this._theme.components!.wallet ??= {};
+
+    // Default
+    this._theme.components!.wallet.default ??= {};
+    this._theme.components!.wallet.default.width ??= "100%";
+    this._theme.components!.wallet.default.height ??= "100%";
+    this._theme.components!.wallet.default.zIndex ??= 2;
+    this._theme.components!.wallet.default.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.wallet.default.border ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.wallet.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.wallet.default.boxShadow ??=
+      this._theme.default!.boxShadow;
+
+    // Title
+    this._theme.components!.wallet.title ??= {};
+    // Title default
+    this._theme.components!.wallet.title.default ??= {};
+    this._theme.components!.wallet.title.default.position ??= "relative";
+    this._theme.components!.wallet.title.default.height ??= "2rem";
+    this._theme.components!.wallet.title.default.display ??= "flex";
+    this._theme.components!.wallet.title.default.justifyContent ??= "center";
+    this._theme.components!.wallet.title.default.alignItems ??= "center";
+    this._theme.components!.wallet.title.default.padding ??= "0.5rem";
+    // Title text
+    this._theme.components!.wallet.title.text ??= {};
+    this._theme.components!.wallet.title.text.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.wallet.title.text.transition ??= `all ${
+      this._theme.default!.transition!.duration.short
+    } ${this._theme.default!.transition!.type}`;
+    this._theme.components!.wallet.title.text.hover ??= {};
+    this._theme.components!.wallet.title.text.hover.cursor ??= "pointer";
+    this._theme.components!.wallet.title.text.hover.color ??=
+      this._theme.colors.default.textPrimary;
+
+    // Main
+    this._theme.components!.wallet.main ??= {};
+
+    // Main default
+    this._theme.components!.wallet.main.default ??= {};
+    this._theme.components!.wallet.main.default.position ??= "relative";
+    this._theme.components!.wallet.main.default.cursor ??= "auto";
+    this._theme.components!.wallet.main.default.padding ??= "1rem";
+    this._theme.components!.wallet.main.default.bg ??= `linear-gradient(
+      0deg,
+      ${this._theme.components!.wallet.default.bg} 75%,
+      ${
+        this._theme.colors.default.primary +
+        this._theme.default!.transparency!.low
+      } 100%
+    )`;
+
+    // Main backdrop
+    this._theme.components!.wallet.main.backdrop ??= {};
+    this._theme.components!.wallet.main.backdrop.bg ??=
+      this._theme.components!.modal!.backdrop!.bg;
+
+    // Main balance
+    this._theme.components!.wallet.main.balance ??= {};
+    this._theme.components!.wallet.main.balance.display ??= "flex";
+    this._theme.components!.wallet.main.balance.justifyContent ??= "center";
+    this._theme.components!.wallet.main.balance.marginBottom ??= "0.5rem";
+    this._theme.components!.wallet.main.balance.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.wallet.main.balance.fontWeight ??= "bold";
+    this._theme.components!.wallet.main.balance.fontSize ??=
+      this._theme.font!.code!.size.xlarge;
+
+    // Main send
+    this._theme.components!.wallet.main.send ??= {};
+    // Main send default
+    this._theme.components!.wallet.main.send.default ??= {};
+    this._theme.components!.wallet.main.send.default.marginBottom ??= "1rem";
+    // Main send title
+    this._theme.components!.wallet.main.send.title ??= {};
+    this._theme.components!.wallet.main.send.title.fontWeight ??= "bold";
+    // Main send expanded
+    this._theme.components!.wallet.main.send.expanded ??= {};
+    // Main send expanded default
+    this._theme.components!.wallet.main.send.expanded.default ??= {};
+    this._theme.components!.wallet.main.send.expanded.default.paddingTop ??=
+      "0.75rem";
+    // Main send expanded input
+    this._theme.components!.wallet.main.send.expanded.input ??= {};
+    this._theme.components!.wallet.main.send.expanded.input.marginBottom ??=
+      "0.75rem";
+    // Main send expanded button
+    this._theme.components!.wallet.main.send.expanded.sendButton ??= {};
+    this._theme.components!.wallet.main.send.expanded.sendButton.marginBottom ??=
+      "0.25rem";
+
+    // Main transactions
+    this._theme.components!.wallet.main.transactions ??= {};
+    // Main transactions default
+    this._theme.components!.wallet.main.transactions.default ??= {};
+    // Main transactions title
+    this._theme.components!.wallet.main.transactions.title ??= {};
+    // Main transactions title default
+    this._theme.components!.wallet.main.transactions.title.default ??= {};
+    this._theme.components!.wallet.main.transactions.title.default.display ??=
+      "flex";
+    this._theme.components!.wallet.main.transactions.title.default.justifyContent ??=
+      "space-between";
+    this._theme.components!.wallet.main.transactions.title.default.alignItems ??=
+      "center";
+    // Main transactions title text
+    this._theme.components!.wallet.main.transactions.title.text ??= {};
+    this._theme.components!.wallet.main.transactions.title.text.fontWeight ??=
+      "bold";
+    // Main transactions title button
+    this._theme.components!.wallet.main.transactions.title.refreshButton ??= {};
+    this._theme.components!.wallet.main.transactions.title.refreshButton.marginRight ??=
+      "0.5rem";
+    // Main transactions table
+    this._theme.components!.wallet.main.transactions.table ??= {};
+    // Main transactions table default
+    this._theme.components!.wallet.main.transactions.table.default ??= {};
+    this._theme.components!.wallet.main.transactions.table.default.bg ??=
+      this._theme.colors.default.bgPrimary;
+    this._theme.components!.wallet.main.transactions.table.default.border ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.wallet.main.transactions.table.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.wallet.main.transactions.table.default.marginTop ??=
+      "0.5rem";
+    // Main transactions table header
+    this._theme.components!.wallet.main.transactions.table.header ??= {};
+    this._theme.components!.wallet.main.transactions.table.header.display ??=
+      "flex";
+    this._theme.components!.wallet.main.transactions.table.header.padding ??=
+      "0.5rem 1rem";
+    this._theme.components!.wallet.main.transactions.table.header.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.wallet.main.transactions.table.header.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.wallet.main.transactions.table.header.borderBottom ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.wallet.main.transactions.table.header.fontWeight ??=
+      "bold";
+    this._theme.components!.wallet.main.transactions.table.header.fontSize ??=
+      this._theme.font!.code!.size.small;
+    // Main transactions table row
+    this._theme.components!.wallet.main.transactions.table.row ??= {};
+    // Main transactions table row default
+    this._theme.components!.wallet.main.transactions.table.row.default ??= {};
+    this._theme.components!.wallet.main.transactions.table.row.default.display ??=
+      "flex";
+    this._theme.components!.wallet.main.transactions.table.row.default.padding ??=
+      "0.5rem 1rem";
+    this._theme.components!.wallet.main.transactions.table.row.default.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.wallet.main.transactions.table.row.default.fontSize ??=
+      this._theme.font!.code!.size.small;
+    this._theme.components!.wallet.main.transactions.table.row.default.hover ??=
+      {};
+    this._theme.components!.wallet.main.transactions.table.row.default.hover.bg ??=
+      this._theme.colors.state.hover.bg;
+    this._theme.components!.wallet.main.transactions.table.row.default.hover.color ??=
+      this._theme.colors.default.textPrimary;
+    // Main transactions table row signature
+    this._theme.components!.wallet.main.transactions.table.row.signature ??= {};
+    this._theme.components!.wallet.main.transactions.table.row.signature.display ??=
+      "flex";
+    this._theme.components!.wallet.main.transactions.table.row.signature.alignItems ??=
+      "center";
+    this._theme.components!.wallet.main.transactions.table.row.signature.width ??=
+      "40%";
+    // Main transactions table row slot
+    this._theme.components!.wallet.main.transactions.table.row.slot ??= {};
+    this._theme.components!.wallet.main.transactions.table.row.slot.width ??=
+      "40%";
+    // Main transactions table row time
+    this._theme.components!.wallet.main.transactions.table.row.time ??= {};
+    this._theme.components!.wallet.main.transactions.table.row.time.display ??=
+      "flex";
+    this._theme.components!.wallet.main.transactions.table.row.time.justifyContent ??=
+      "flex-end";
+    this._theme.components!.wallet.main.transactions.table.row.time.alignItems ??=
+      "center";
+    this._theme.components!.wallet.main.transactions.table.row.time.width ??=
+      "20%";
 
     return this;
   }

@@ -19,8 +19,7 @@ import {
   PgTx,
   TxVals,
 } from "../../../../../../utils/pg";
-import { useCurrentWallet } from "../../../Wallet";
-import { usePgConnection } from "../../../../../../hooks";
+import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
 
 interface FnContextProps {
   updateTxVals: (props: updateTxValsProps) => void;

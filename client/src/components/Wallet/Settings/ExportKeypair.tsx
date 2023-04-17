@@ -1,4 +1,4 @@
-import { PgCommon, PgWallet } from "../../../../../utils/pg";
+import { PgCommon, PgWallet } from "../../../utils/pg";
 
 export const useExportKeypair = () => {
   return {
