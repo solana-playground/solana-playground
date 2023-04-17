@@ -185,6 +185,9 @@ export interface PgTheme {
     /** Modal component */
     modal?: ExtendibleComponent<"backdrop" | "title" | "content" | "bottom">;
 
+    /** Progress bar component */
+    progressbar?: ExtendibleComponent<"indicator">;
+
     /** Select component */
     select?: ExtendibleComponent<
       | "control"
@@ -384,6 +387,7 @@ type ExtendibleComponents =
   | "main"
   | "markdown"
   | "modal"
+  | "progressbar"
   | "select"
   | "sidebar"
   | "tabs"

@@ -98,10 +98,11 @@ export class PgThemeManager {
       ._toast()
       ._tooltip()
       ._modal()
-      ._tabs()
       ._markdown()
+      ._tabs()
       ._editor()
       ._terminal()
+      ._progressbar()
       ._bottom()
       ._sidebar()
       ._main()
@@ -566,6 +567,36 @@ export class PgThemeManager {
     return this;
   }
 
+  /** Set default markdown component */
+  private static _markdown() {
+    this._theme.components!.markdown ??= {};
+
+    // Default
+    this._theme.components!.markdown.default ??= {};
+    this._theme.components!.markdown.default.bg ??= "inherit";
+    this._theme.components!.markdown.default.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.markdown.default.fontFamily ??=
+      this._theme.font!.other!.family;
+    this._theme.components!.markdown.default.fontSize ??=
+      this._theme.font!.other!.size.medium;
+
+    // Code block
+    this._theme.components!.markdown.code ??= {};
+    this._theme.components!.markdown.code.bg ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.markdown.code.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.markdown.code.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.markdown.code.fontFamily ??=
+      this._theme.font!.code!.family;
+    this._theme.components!.markdown.code.fontSize ??=
+      this._theme.font!.code!.size.medium;
+
+    return this;
+  }
+
   /** Set default tabs component */
   private static _tabs() {
     this._theme.components!.tabs ??= {};
@@ -615,37 +646,7 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default markdown component */
-  private static _markdown() {
-    this._theme.components!.markdown ??= {};
-
-    // Default
-    this._theme.components!.markdown.default ??= {};
-    this._theme.components!.markdown.default.bg ??= "inherit";
-    this._theme.components!.markdown.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.markdown.default.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.markdown.default.fontSize ??=
-      this._theme.font!.other!.size.medium;
-
-    // Code block
-    this._theme.components!.markdown.code ??= {};
-    this._theme.components!.markdown.code.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.markdown.code.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.markdown.code.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.markdown.code.fontFamily ??=
-      this._theme.font!.code!.family;
-    this._theme.components!.markdown.code.fontSize ??=
-      this._theme.font!.code!.size.medium;
-
-    return this;
-  }
-
-  /** Set default editor */
+  /** Set default editor component */
   private static _editor() {
     this._theme.components!.editor ??= {};
 
@@ -801,6 +802,34 @@ export class PgThemeManager {
     return this;
   }
 
+  /** Set default progress bar component */
+  private static _progressbar() {
+    this._theme.components!.progressbar ??= {};
+
+    // Default
+    this._theme.components!.progressbar.default ??= {};
+    this._theme.components!.progressbar.default.width ??= "100%";
+    this._theme.components!.progressbar.default.height ??= "0.75rem";
+    this._theme.components!.progressbar.default.overflow ??= "hidden";
+    this._theme.components!.progressbar.default.border ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.progressbar.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+
+    // Indicator
+    this._theme.components!.progressbar.indicator ??= {};
+    this._theme.components!.progressbar.indicator.height ??= "100%";
+    this._theme.components!.progressbar.indicator.maxWidth ??= "100%";
+    this._theme.components!.progressbar.indicator.bg ??=
+      this._theme.colors.default.primary;
+    this._theme.components!.progressbar.indicator.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.progressbar.indicator.transition ??= `width ${
+      this._theme.default!.transition!.duration.long
+    } ${this._theme.default!.transition!.type}`;
+
+    return this;
+  }
+
   /** Set default bottom bar component */
   private static _bottom() {
     this._theme.components!.bottom ??= {};
@@ -900,7 +929,7 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default home */
+  /** Set default home view */
   private static _home() {
     this._theme.components!.main!.views!.home ??= {};
 
@@ -1032,7 +1061,7 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default tutorial component */
+  /** Set default tutorial view */
   private static _tutorial() {
     this._theme.components!.main!.views!.tutorial ??= {};
 
@@ -1075,7 +1104,7 @@ export class PgThemeManager {
     return this;
   }
 
-  /** Set default tutorials component */
+  /** Set default tutorials view */
   private static _tutorials() {
     this._theme.components!.main!.views!.tutorials ??= {};
 

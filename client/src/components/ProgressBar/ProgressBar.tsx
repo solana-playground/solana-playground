@@ -1,11 +1,13 @@
 import { FC, useEffect, useRef } from "react";
 import styled, { css, useTheme } from "styled-components";
 
-interface ProgressProps {
+import { PgThemeManager } from "../../utils/pg/theme";
+
+interface ProgressBarProps {
   value: number;
 }
 
-const Progress: FC<ProgressProps> = ({ value }) => {
+const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const theme = useTheme();
@@ -17,7 +19,9 @@ const Progress: FC<ProgressProps> = ({ value }) => {
         ? theme.colors.default.border
         : "transparent";
     }
-  }, [value, theme]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, theme.name]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -28,22 +32,14 @@ const Progress: FC<ProgressProps> = ({ value }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    border: 1px solid ${theme.colors.default.border};
-    border-radius: ${theme.default.borderRadius};
-    width: 100%;
-    height: 0.75rem;
-    overflow: hidden;
+    ${PgThemeManager.convertToCSS(theme.components.progressbar.default)};
   `}
 `;
 
 const Indicator = styled.div`
   ${({ theme }) => css`
-    background: ${theme.colors.default.primary};
-    border-radius: ${theme.default.borderRadius};
-    height: 100%;
-    transition: width ${theme.default.transition.duration.long}
-      ${theme.default.transition.type};
+    ${PgThemeManager.convertToCSS(theme.components.progressbar.indicator)};
   `}
 `;
 
-export default Progress;
+export default ProgressBar;

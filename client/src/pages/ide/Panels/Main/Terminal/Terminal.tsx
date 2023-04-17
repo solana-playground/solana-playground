@@ -5,7 +5,7 @@ import { Resizable } from "re-resizable";
 import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
-import Progress from "../../../../../components/Progress";
+import ProgressBar from "../../../../../components/ProgressBar";
 import {
   Clear,
   Close,
@@ -322,7 +322,7 @@ const Wrapper = styled.div`
 
 const TerminalProgress = () => {
   const [progress] = useAtom(terminalProgressAtom);
-  return <Progress value={progress} />;
+  return <ProgressBar value={progress} />;
 };
 
 const Topbar = styled.div`
