@@ -38,7 +38,7 @@ const Select = <
             alignItems: "center",
             ...mapTheme(select.option),
             ...stateStyle,
-            ":before": {
+            "::before": {
               content: `"${state.isSelected ? "✔" : ""}"`,
               width: "0.5rem",
               height: "0.5rem",

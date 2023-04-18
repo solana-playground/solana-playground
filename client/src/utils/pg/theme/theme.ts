@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { StandardProperties } from "csstype";
 
 import { EventName } from "../../../constants";
 import { PgCommon } from "../common";
@@ -131,7 +131,13 @@ export class PgThemeManager {
       const key = cur as keyof DefaultComponent;
       const value = component[key];
 
-      let prop = PgCommon.toKebabFromCamel(key) as keyof CSSProperties;
+      // Check for `&`
+      if (key.startsWith("&")) {
+        return `${acc}${key}{${this.convertToCSS(value as DefaultComponent)}}`;
+      }
+
+      // Handle non-standard properties
+      let prop = PgCommon.toKebabFromCamel(key) as keyof StandardProperties;
       switch (key) {
         case "bg":
           prop = "background";
@@ -450,14 +456,14 @@ export class PgThemeManager {
     // Single Value
     this._theme.components!.select.singleValue ??= {};
     this._theme.components!.select.singleValue.bg ??=
-      this._theme.components?.input?.bg;
+      this._theme.components!.input!.bg;
     this._theme.components!.select.singleValue.color ??=
-      this._theme.components?.input?.color;
+      this._theme.components!.input!.color;
 
     // Input
     this._theme.components!.select.input ??= {};
     this._theme.components!.select.input.color ??=
-      this._theme.components?.input?.color;
+      this._theme.components!.input!.color;
 
     // Group Heading
     this._theme.components!.select.groupHeading ??= {};

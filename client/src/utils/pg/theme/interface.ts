@@ -1,10 +1,10 @@
-import { CSSProperties } from "react";
+import { StandardProperties } from "csstype";
 import { ITerminalOptions as XtermOptions } from "xterm";
 
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
 import { TextKind } from "../../../components/Text";
-import { ChildRequired, NestedRequired, RequiredUntil } from "../types";
+import { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
 export interface PgTheme {
@@ -43,10 +43,10 @@ export interface PgTheme {
   /** Default theme values */
   default?: {
     /** Default border radius */
-    borderRadius?: CSSProperties["borderRadius"];
+    borderRadius?: StandardProperties["borderRadius"];
 
     /** Default box shadow */
-    boxShadow?: CSSProperties["boxShadow"];
+    boxShadow?: StandardProperties["boxShadow"];
 
     /** Default scrollbar */
     scrollbar?: {
@@ -66,10 +66,13 @@ export interface PgTheme {
     /** Default transition settings */
     transition?: {
       /** Timing function */
-      type: CSSProperties["transitionTimingFunction"];
+      type: StandardProperties["transitionTimingFunction"];
       /** Transition durations */
       duration: {
-        [K in "short" | "medium" | "long"]: CSSProperties["transitionDuration"];
+        [K in
+          | "short"
+          | "medium"
+          | "long"]: StandardProperties["transitionDuration"];
       };
     };
   };
@@ -89,18 +92,18 @@ export interface PgTheme {
       /** Editor defaults */
       default?: BgAndColor & {
         cursorColor?: Color;
-        activeLine?: BgAndColor & Pick<CSSProperties, "borderColor">;
+        activeLine?: BgAndColor & Pick<StandardProperties, "borderColor">;
         selection?: BgAndColor;
         searchMatch?: BgAndColor & {
           selectedBg?: Bg;
           selectedColor?: Color;
         };
-      } & Pick<CSSProperties, "fontFamily" | "fontSize">;
+      } & Pick<StandardProperties, "fontFamily" | "fontSize">;
       /** Gutter component */
       gutter?: BgAndColor & {
         activeBg?: Bg;
         activeColor?: Color;
-      } & Pick<CSSProperties, "borderRight">;
+      } & Pick<StandardProperties, "borderRight">;
       /** Minimap component */
       minimap?: {
         bg?: Bg;
@@ -129,12 +132,12 @@ export interface PgTheme {
           selectionColor?: Color;
           matchHighlightBg?: Bg;
         };
-      } & Pick<CSSProperties, "borderColor">;
+      } & Pick<StandardProperties, "borderColor">;
       /** Tooltip or widget component */
       tooltip?: BgAndColor & {
         selectedBg?: Bg;
         selectedColor?: Color;
-      } & Pick<CSSProperties, "borderColor">;
+      } & Pick<StandardProperties, "borderColor">;
     };
 
     /** Input component */
@@ -387,14 +390,14 @@ export interface PgHighlight {
 }
 
 /** Syntax highlighting token */
-type HighlightToken = Pick<CSSProperties, "color" | "fontStyle">;
+type HighlightToken = Pick<StandardProperties, "color" | "fontStyle">;
 
 /** Playground font */
 export interface PgFont {
-  family: NonNullable<CSSProperties["fontFamily"]>;
+  family: NonNullable<StandardProperties["fontFamily"]>;
   size: {
     [K in "xsmall" | "small" | "medium" | "large" | "xlarge"]: NonNullable<
-      CSSProperties["fontSize"]
+      StandardProperties["fontSize"]
     >;
   };
 }
@@ -454,7 +457,7 @@ export type PgThemeReady<
   components: Pick<C, DefaultComponents>;
 } & {
   // Extendible components
-  components: RequiredUntil<Pick<C, ExtendibleComponents>, DefaultComponent>;
+  components: AllRequired<Pick<C, ExtendibleComponents>>;
 } & {
   // Overrideable components
   components: ChildRequired<
@@ -467,57 +470,10 @@ export type PgThemeReady<
 /** Properties that are allowed to be specified from theme objects */
 type DefaultStyles = {
   bg?: Bg;
-} & Pick<
-  CSSProperties,
-  | "color"
-  | "border"
-  | "borderTop"
-  | "borderTopColor"
-  | "borderRight"
-  | "borderRightColor"
-  | "borderBottom"
-  | "borderLeft"
-  | "borderColor"
-  | "borderRadius"
-  | "borderTopRightRadius"
-  | "borderBottomRightRadius"
-  | "padding"
-  | "paddingTop"
-  | "paddingRight"
-  | "paddingLeft"
-  | "paddingBottom"
-  | "margin"
-  | "marginTop"
-  | "marginRight"
-  | "marginBottom"
-  | "marginLeft"
-  | "boxShadow"
-  | "outline"
-  | "fontFamily"
-  | "fontSize"
-  | "fontWeight"
-  | "cursor"
-  | "flex"
-  | "overflow"
-  | "opacity"
-  | "transition"
-  | "minWidth"
-  | "maxWidth"
-  | "minHeight"
-  | "width"
-  | "height"
-  | "display"
-  | "alignItems"
-  | "justifyContent"
-  | "textAlign"
-  | "backdropFilter"
-  | "lineHeight"
-  | "userSelect"
-  | "position"
-  | "zIndex"
->;
+} & StandardProperties &
+  AnyProperty;
 
-/** CSS pseudo classes */
+/** StandardProperties pseudo classes */
 type PseudoClass =
   | "hover"
   | "active"
@@ -529,6 +485,17 @@ type PseudoClass =
 /** Default component pseudo classes */
 type DefaultComponentState<T extends PseudoClass = PseudoClass> = {
   [K in T]?: DefaultComponent;
+};
+
+/**
+ * Specify any property that starts with `&`.
+ *
+ * NOTE: Usage of this should be avoided when possible because expressions such
+ * as `& > div:nth-child(3)` will break if the layout of of the component changes
+ * and TypeScript will not catch the error.
+ */
+type AnyProperty<T extends string = string> = {
+  [K in `&${T}`]?: DefaultComponent;
 };
 
 /** Default component with pseudo classes */
@@ -551,7 +518,7 @@ type ExtendibleComponent<
 
 /** A component with multiple kinds */
 type OverrideableComponent<T extends string> = {
-  /** Default CSS values of the Button component */
+  /** Default StandardProperties values of the Button component */
   default?: DefaultComponent;
   /** Override the defaults with specificity */
   overrides?: {
@@ -559,11 +526,11 @@ type OverrideableComponent<T extends string> = {
   };
 };
 
-/** CSS background */
+/** StandardProperties background */
 type Bg = string;
 
-/** CSS color */
-type Color = NonNullable<CSSProperties["color"]>;
+/** StandardProperties color */
+type Color = NonNullable<StandardProperties["color"]>;
 
 /** Optional background and color */
 type BgAndColor = { bg?: Bg } & { color?: Color };
