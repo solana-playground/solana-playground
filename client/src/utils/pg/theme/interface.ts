@@ -257,6 +257,14 @@ export interface PgTheme {
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
 
+    /** Upload area component */
+    uploadArea?: ExtendibleComponent<{
+      /** Upload icon */
+      icon?: DefaultComponent;
+      /** Upload message */
+      text?: ExtendibleComponent<"error" | "success">;
+    }>;
+
     /** Wallet component */
     wallet?: ExtendibleComponent<{
       /** Top side of the wallet component */
@@ -428,6 +436,7 @@ type ExtendibleComponents =
   | "tabs"
   | "terminal"
   | "toast"
+  | "uploadArea"
   | "wallet";
 
 /** Components that use `OverrideableComponent` type */

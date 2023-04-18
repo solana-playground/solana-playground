@@ -95,14 +95,15 @@ export class PgThemeManager {
       ._text()
       ._input()
       ._select()
-      ._toast()
       ._tooltip()
+      ._progressBar()
+      ._uploadArea()
+      ._toast()
       ._modal()
       ._markdown()
       ._tabs()
       ._editor()
       ._terminal()
-      ._progressbar()
       ._wallet()
       ._bottom()
       ._sidebar()
@@ -482,6 +483,108 @@ export class PgThemeManager {
     return this;
   }
 
+  /** Set default tooltip component */
+  private static _tooltip() {
+    this._theme.components!.tooltip ??= {};
+    this._theme.components!.tooltip.bg ??= this._theme.colors.default.bgPrimary;
+    this._theme.components!.tooltip.color ??=
+      this._theme.colors.default.textPrimary;
+    this._theme.components!.tooltip.bgSecondary ??=
+      this._theme.colors.default.bgSecondary;
+    this._theme.components!.tooltip.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.tooltip.boxShadow ??=
+      this._theme.default!.boxShadow;
+    this._theme.components!.tooltip.fontSize ??=
+      this._theme.font!.code!.size.small;
+
+    return this;
+  }
+
+  /** Set default progress bar component */
+  private static _progressBar() {
+    this._theme.components!.progressbar ??= {};
+
+    // Default
+    this._theme.components!.progressbar.default ??= {};
+    this._theme.components!.progressbar.default.width ??= "100%";
+    this._theme.components!.progressbar.default.height ??= "0.75rem";
+    this._theme.components!.progressbar.default.overflow ??= "hidden";
+    this._theme.components!.progressbar.default.border ??= `1px solid ${this._theme.colors.default.border}`;
+    this._theme.components!.progressbar.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+
+    // Indicator
+    this._theme.components!.progressbar.indicator ??= {};
+    this._theme.components!.progressbar.indicator.height ??= "100%";
+    this._theme.components!.progressbar.indicator.maxWidth ??= "100%";
+    this._theme.components!.progressbar.indicator.bg ??=
+      this._theme.colors.default.primary;
+    this._theme.components!.progressbar.indicator.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.progressbar.indicator.transition ??= `width ${
+      this._theme.default!.transition!.duration.long
+    } ${this._theme.default!.transition!.type}`;
+
+    return this;
+  }
+
+  /** Set default upload area component */
+  private static _uploadArea() {
+    this._theme.components!.uploadArea ??= {};
+
+    // Default
+    this._theme.components!.uploadArea.default ??= {};
+    this._theme.components!.uploadArea.default.margin ??= "1rem 0 0.5rem 0";
+    this._theme.components!.uploadArea.default.padding ??= "2rem";
+    this._theme.components!.uploadArea.default.maxWidth ??= "20rem";
+    this._theme.components!.uploadArea.default.bg ??=
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.low;
+    this._theme.components!.uploadArea.default.border ??= `2px dashed
+    ${
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.medium
+    }`;
+    this._theme.components!.uploadArea.default.borderRadius ??=
+      this._theme.default!.borderRadius;
+    this._theme.components!.uploadArea.default.transition ??= `all ${
+      this._theme.default!.transition!.duration.short
+    }
+      ${this._theme.default!.transition!.type}`;
+    this._theme.components!.uploadArea.default.hover ??= {};
+    this._theme.components!.uploadArea.default.hover.cursor ??= "pointer";
+    this._theme.components!.uploadArea.default.hover.borderColor ??=
+      this._theme.colors.default.primary +
+      this._theme.default!.transparency!.high;
+
+    // Icon
+    this._theme.components!.uploadArea.icon ??= {};
+    this._theme.components!.uploadArea.icon.width ??= "4rem";
+    this._theme.components!.uploadArea.icon.height ??= "4rem";
+    this._theme.components!.uploadArea.icon.color ??=
+      this._theme.colors.default.primary;
+
+    // Text
+    this._theme.components!.uploadArea.text ??= {};
+    // Text default
+    this._theme.components!.uploadArea.text.default ??= {};
+    this._theme.components!.uploadArea.text.default.marginTop ??= "1rem";
+    this._theme.components!.uploadArea.text.default.color ??=
+      this._theme.colors.default.textSecondary;
+    this._theme.components!.uploadArea.text.default.fontWeight ??= "bold";
+    // Text error
+    this._theme.components!.uploadArea.text.error ??= {};
+    this._theme.components!.uploadArea.text.error.color ??=
+      this._theme.colors.state.error.color;
+    // Text success
+    this._theme.components!.uploadArea.text.success ??= {};
+    this._theme.components!.uploadArea.text.success.color ??=
+      this._theme.colors.default.primary;
+
+    return this;
+  }
+
   /** Set default skeleton component */
   private static _toast() {
     this._theme.components!.toast ??= {};
@@ -509,24 +612,6 @@ export class PgThemeManager {
     this._theme.components!.toast.closeButton ??= {};
     this._theme.components!.toast.closeButton.color ??=
       this._theme.colors.default.textSecondary;
-
-    return this;
-  }
-
-  /** Set default tooltip component */
-  private static _tooltip() {
-    this._theme.components!.tooltip ??= {};
-    this._theme.components!.tooltip.bg ??= this._theme.colors.default.bgPrimary;
-    this._theme.components!.tooltip.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.tooltip.bgSecondary ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.tooltip.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.tooltip.boxShadow ??=
-      this._theme.default!.boxShadow;
-    this._theme.components!.tooltip.fontSize ??=
-      this._theme.font!.code!.size.small;
 
     return this;
   }
@@ -805,34 +890,6 @@ export class PgThemeManager {
       this._theme.colors.default.textPrimary;
     this._theme.components!.terminal.xterm.cursor.accentColor ??= this._theme
       .components!.terminal.default.bg as string;
-
-    return this;
-  }
-
-  /** Set default progress bar component */
-  private static _progressbar() {
-    this._theme.components!.progressbar ??= {};
-
-    // Default
-    this._theme.components!.progressbar.default ??= {};
-    this._theme.components!.progressbar.default.width ??= "100%";
-    this._theme.components!.progressbar.default.height ??= "0.75rem";
-    this._theme.components!.progressbar.default.overflow ??= "hidden";
-    this._theme.components!.progressbar.default.border ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.progressbar.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-
-    // Indicator
-    this._theme.components!.progressbar.indicator ??= {};
-    this._theme.components!.progressbar.indicator.height ??= "100%";
-    this._theme.components!.progressbar.indicator.maxWidth ??= "100%";
-    this._theme.components!.progressbar.indicator.bg ??=
-      this._theme.colors.default.primary;
-    this._theme.components!.progressbar.indicator.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.progressbar.indicator.transition ??= `width ${
-      this._theme.default!.transition!.duration.long
-    } ${this._theme.default!.transition!.type}`;
 
     return this;
   }
