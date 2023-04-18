@@ -75,11 +75,8 @@ const Bottom = () => {
   );
 };
 
-export const BOTTOM_HEIGHT = "1.5rem";
-
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    height: ${BOTTOM_HEIGHT};
     display: flex;
     align-items: center;
 

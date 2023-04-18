@@ -14,7 +14,6 @@ import { Resizable } from "re-resizable";
 import TestSkeleton from "./Test/TestSkeleton";
 import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
-import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { Id } from "../../../../../constants";
 import { Sidebar } from "../../../../../utils/pg";
 import { PgThemeManager } from "../../../../../utils/pg/theme";
@@ -194,10 +193,10 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
 
 const StyledTitle = styled(Title)`
   ${({ theme }) => css`
-    min-height: ${TAB_HEIGHT};
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: ${theme.components.tabs.tab.default.height};
 
     ${PgThemeManager.convertToCSS(theme.components.sidebar.right.title)};
   `}

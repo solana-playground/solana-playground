@@ -56,8 +56,6 @@ const Editor = () => {
   );
 };
 
-export const EDITOR_SCROLLBAR_WIDTH = "0.75rem";
-
 const Wrapper = styled.div`
   ${({ theme }) => css`
     flex: 1;
@@ -71,13 +69,13 @@ const Wrapper = styled.div`
     /* Chromium */
     &::-webkit-scrollbar,
     & ::-webkit-scrollbar {
-      width: ${EDITOR_SCROLLBAR_WIDTH};
+      width: 0.75rem;
       height: 0.75rem;
     }
 
     &::-webkit-scrollbar-track,
     & ::-webkit-scrollbar-track {
-      background-color: ${theme.components.sidebar.right.default.bg};
+      background-color: ${theme.components.main.default.bg};
       border-left: 1px solid ${theme.colors.default.border};
     }
 
@@ -93,7 +91,7 @@ const Wrapper = styled.div`
     }
 
     & ::-webkit-scrollbar-corner {
-      background-color: ${theme.components.sidebar.right.default.bg};
+      background-color: ${theme.components.main.default.bg};
     }
   `}
 `;

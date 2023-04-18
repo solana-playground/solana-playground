@@ -50,13 +50,8 @@ const Tabs = () => {
   );
 };
 
-// Same height with Side-Right Title
-export const TAB_HEIGHT = "2rem";
-
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    min-height: ${TAB_HEIGHT};
-
     ${PgThemeManager.convertToCSS(theme.components.tabs.default)};
   `}
 `;

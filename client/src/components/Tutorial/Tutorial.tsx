@@ -6,7 +6,6 @@ import Split from "react-split";
 import Button from "../Button";
 import Markdown from "../Markdown";
 import EditorWithTabs from "../../pages/ide/Panels/Main/MainView/EditorWithTabs";
-import { TAB_HEIGHT } from "../../pages/ide/Panels/Main/MainView/Tabs";
 import { PointedArrow } from "../Icons";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
@@ -335,9 +334,9 @@ const TutorialAboutPageWrapper = styled.div`
 `;
 
 const GoBackButtonWrapper = styled.div`
-  height: ${TAB_HEIGHT};
   display: flex;
   align-items: center;
+  height: ${({ theme }) => theme.components.tabs.tab.default.height};
   padding-left: 1rem;
 
   & svg {
@@ -424,7 +423,7 @@ const TutorialPage = styled.div`
   ${({ theme }) => css`
     overflow: auto;
     max-width: 60rem;
-    padding-top: ${TAB_HEIGHT};
+    padding-top: ${theme.components.tabs.tab.default.height};
     background: ${theme.components.main.views.tutorial.default.bg};
   `}
 `;

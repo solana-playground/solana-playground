@@ -710,7 +710,7 @@ export class PgThemeManager {
     this._theme.components!.tabs.tab.default.justifyContent ??= "center";
     this._theme.components!.tabs.tab.default.alignItems ??= "center";
     this._theme.components!.tabs.tab.default.width ??= "fit-content";
-    this._theme.components!.tabs.tab.default.height ??= "100%";
+    this._theme.components!.tabs.tab.default.height ??= "2rem";
     this._theme.components!.tabs.tab.default.paddingLeft ??= "0.5rem";
     this._theme.components!.tabs.tab.default.color ??=
       this._theme.colors.default.textSecondary;
@@ -1087,11 +1087,12 @@ export class PgThemeManager {
 
     // Default
     this._theme.components!.bottom.default ??= {};
+    this._theme.components!.bottom.default.height ??= "1.5rem";
+    this._theme.components!.bottom.default.padding ??= "0 0.5rem";
     this._theme.components!.bottom.default.bg ??=
       this._theme.colors.default.primary;
     this._theme.components!.bottom.default.color ??=
       this._theme.colors.default.textPrimary;
-    this._theme.components!.bottom.default.padding ??= "0 0.5rem";
     this._theme.components!.bottom.default.fontSize ??=
       this._theme.font!.code!.size.small;
 
@@ -1127,6 +1128,7 @@ export class PgThemeManager {
     this._theme.components!.sidebar.left ??= {};
     // Left default
     this._theme.components!.sidebar.left.default ??= {};
+    this._theme.components!.sidebar.left.default.width ??= "3rem";
     this._theme.components!.sidebar.left.default.bg ??=
       this._theme.colors.default.bgPrimary;
     this._theme.components!.sidebar.left.default.borderRight ??= `1px solid ${this._theme.colors.default.border}`;

@@ -16,11 +16,6 @@ import { PgCommon } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
 import { useCurrentWallet } from "../../hooks";
 
-// TODO: Remove these and specify them in themes
-import { EDITOR_SCROLLBAR_WIDTH } from "../../pages/ide/Panels/Main/MainView/Editor";
-import { ICONBAR_WIDTH } from "../../pages/ide/Panels/Side/Left";
-import { BOTTOM_HEIGHT } from "../../pages/ide/Panels/Bottom";
-
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
 
@@ -58,20 +53,31 @@ const Wallet = () => {
 };
 
 const WALLET_WIDTH = 320;
-const TAB_HEIGHT = "2rem";
 
 const WalletBound = styled.div`
-  position: absolute;
-  margin: ${TAB_HEIGHT} ${EDITOR_SCROLLBAR_WIDTH} ${BOTTOM_HEIGHT}
-    ${ICONBAR_WIDTH};
-  width: calc(
-    100% -
-      ${PgCommon.calculateRem(EDITOR_SCROLLBAR_WIDTH, ICONBAR_WIDTH, "add")}
-  );
-  height: calc(
-    100% - ${PgCommon.calculateRem(TAB_HEIGHT, BOTTOM_HEIGHT, "add")}
-  );
-  z-index: -1;
+  ${({ theme }) => css`
+    position: absolute;
+    margin: ${theme.components.tabs.tab.default.height} 0.75rem
+      ${theme.components.bottom.default.height}
+      ${theme.components.sidebar.left.default.width};
+    width: calc(
+      100% -
+        ${PgCommon.calculateRem(
+          "0.75rem",
+          theme.components.sidebar.left.default.width as string,
+          "add"
+        )}
+    );
+    height: calc(
+      100% -
+        ${PgCommon.calculateRem(
+          theme.components.tabs.tab.default.height as string,
+          theme.components.bottom.default.height as string,
+          "add"
+        )}
+    );
+    z-index: -1;
+  `}
 `;
 
 const WalletWrapper = styled.div`
