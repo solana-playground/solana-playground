@@ -655,6 +655,7 @@ export class PgThemeManager {
     this._theme.components!.modal.bottom.display ??= "flex";
     this._theme.components!.modal.bottom.justifyContent ??= "flex-end";
     this._theme.components!.modal.bottom.padding ??= "0.5rem 0";
+    this._theme.components!.modal.bottom.marginBottom ??= "0.25rem";
 
     return this;
   }
@@ -848,6 +849,9 @@ export class PgThemeManager {
       this._theme.colors.default.textPrimary;
     this._theme.components!.editor.tooltip.borderColor ??=
       this._theme.colors.default.border;
+
+    // Editor wrapper
+    this._theme.components!.editor.wrapper ??= {};
 
     return this;
   }

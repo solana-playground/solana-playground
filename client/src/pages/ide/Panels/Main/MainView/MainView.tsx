@@ -40,6 +40,32 @@ const Wrapper = styled.div`
     min-height: 0;
 
     ${PgThemeManager.convertToCSS(theme.components.main.default)};
+
+    /* Scrollbar */
+    /* Chromium */
+    & ::-webkit-scrollbar {
+      width: 0.5rem;
+      height: 0.5rem;
+    }
+
+    & ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    & ::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      border-radius: ${theme.default.borderRadius};
+      background: ${theme.default.scrollbar.thumb.color};
+    }
+
+    & ::-webkit-scrollbar-thumb:hover {
+      background: ${theme.default.scrollbar.thumb.hoverColor};
+    }
+
+    /* Firefox */
+    & * {
+      scrollbar-color: ${theme.default.scrollbar.thumb.color};
+    }
   `}
 `;
 

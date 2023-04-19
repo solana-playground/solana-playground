@@ -99,16 +99,19 @@ export interface PgTheme {
           selectedColor?: Color;
         };
       } & Pick<StandardProperties, "fontFamily" | "fontSize">;
+
       /** Gutter component */
       gutter?: BgAndColor & {
         activeBg?: Bg;
         activeColor?: Color;
       } & Pick<StandardProperties, "borderRight">;
+
       /** Minimap component */
       minimap?: {
         bg?: Bg;
         selectionHighlight?: Color;
       };
+
       /** Peek view component */
       peekView?: {
         /** Peek view title */
@@ -133,11 +136,15 @@ export interface PgTheme {
           matchHighlightBg?: Bg;
         };
       } & Pick<StandardProperties, "borderColor">;
+
       /** Tooltip or widget component */
       tooltip?: BgAndColor & {
         selectedBg?: Bg;
         selectedColor?: Color;
       } & Pick<StandardProperties, "borderColor">;
+
+      /** Editor wrapper component */
+      wrapper?: DefaultComponent;
     };
 
     /** Input component */

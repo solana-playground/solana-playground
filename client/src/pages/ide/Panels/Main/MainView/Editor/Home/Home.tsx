@@ -6,7 +6,7 @@ import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { DefaultLink } from "../../../../../../../components/Link";
 import { External } from "../../../../../../../components/Icons";
-import { PROJECT_NAME } from "../../../../../../../constants";
+import { Id, PROJECT_NAME } from "../../../../../../../constants";
 import { PgThemeManager } from "../../../../../../../utils/pg/theme";
 
 const Home = () => {
@@ -21,7 +21,7 @@ const Home = () => {
   if (!show) return null;
 
   return (
-    <Wrapper>
+    <Wrapper id={Id.HOME}>
       <ProjectTitle>{PROJECT_NAME}</ProjectTitle>
       <ContentWrapper>
         <ResourcesWrapper>

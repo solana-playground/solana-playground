@@ -5,7 +5,9 @@ import styled, { css } from "styled-components";
 import Home from "./Home";
 import { MainViewLoading } from "../../../../../../components/Loading";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
+import { Id } from "../../../../../../constants";
 import { Lang, PgCommon } from "../../../../../../utils/pg";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
@@ -65,34 +67,23 @@ const Wrapper = styled.div`
       height: 100%;
     }
 
-    /* Scrollbar */
-    /* Chromium */
-    &::-webkit-scrollbar,
-    & ::-webkit-scrollbar {
-      width: 0.75rem;
-      height: 0.75rem;
+    /**
+     * Changing the home background only changes the part that is in view and
+     * the remaining parts still have 'main.default.bg' which causes problem if
+     * they are different. This selector selects the current element when home
+     * is in view and sets the background to 'home.default.bg'.
+     *
+     * The reason we are setting the background in this element is also partly
+     * due to Monaco editor's incompatibility with background-image property.
+     * We are able to solve this problem by seting the editor's background to
+     * transparent and set this(wrapper) element's background to background-image.
+     */
+    &:has(> #${Id.HOME}) {
+      background: ${theme.components.main.views.home.default.bg ??
+      theme.components.main.default.bg};
     }
 
-    &::-webkit-scrollbar-track,
-    & ::-webkit-scrollbar-track {
-      background-color: ${theme.components.main.default.bg};
-      border-left: 1px solid ${theme.colors.default.border};
-    }
-
-    &::-webkit-scrollbar-thumb,
-    & ::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    &::-webkit-scrollbar-thumb:hover,
-    & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    & ::-webkit-scrollbar-corner {
-      background-color: ${theme.components.main.default.bg};
-    }
+    ${PgThemeManager.convertToCSS(theme.components.editor.wrapper)};
   `}
 `;
 
