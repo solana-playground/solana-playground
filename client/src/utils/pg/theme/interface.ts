@@ -42,6 +42,9 @@ export interface PgTheme {
 
   /** Default theme values */
   default?: {
+    /** Default backdrop */
+    backdrop?: DefaultStyles;
+
     /** Default border radius */
     borderRadius?: StandardProperties["borderRadius"];
 

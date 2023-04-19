@@ -8,9 +8,9 @@ const BG_DEFAULT = "#151721",
   BLUE = "#5288f2",
   DARK_BLUE = "#1a2c4f",
   CYAN = "#46c9d7",
-  RED = "#bd3653",
-  GREEN = "#42b760",
-  YELLOW = "#ae9f38",
+  RED = "#c63453",
+  GREEN = "#29cd7d",
+  YELLOW = "#e7d354",
   // TEXT
   TEXT_PRIMARY = "#f2f2f7",
   TEXT_SECONDARY = "#c0c1ce",
@@ -21,11 +21,15 @@ const BG_DEFAULT = "#151721",
   COMMENT = "#9BA8C8";
 
 // Highlighting
-const H_YELLOW = "#fff296",
+const H_YELLOW = "#ffd174",
   H_LIGHT_BLUE = "#38ccff",
   H_PURPLE = "#d57bee",
   H_PINK = "#e1a6da",
-  H_GREEN = "#32e17f";
+  H_GREEN = "#2ef0b1";
+
+const BOX_SHADOW_LIGHT = `0px 0px 12px 0px ${TEXT_PRIMARY}30`;
+
+const PROGRESS_BG = `linear-gradient(to right, ${BLUE}, ${CYAN})`;
 
 const PLAYGROUND: PgTheme = {
   isDark: true,
@@ -62,20 +66,110 @@ const PLAYGROUND: PgTheme = {
       },
     },
   },
+  default: {
+    backdrop: {
+      backdropFilter: "blur(8px)",
+      bg: "#00000080",
+    },
+    borderRadius: "8px",
+    boxShadow: "#0d081680 -1px 4px 8px",
+  },
   components: {
     bottom: {
       default: {
         bg: DARK_BLUE,
       },
     },
+    button: {
+      default: {
+        borderRadius: "12px",
+      },
+    },
     editor: {
+      default: {
+        bg: "transparent",
+      },
       gutter: {
+        bg: "transparent",
         color: COMMENT,
+      },
+      wrapper: {
+        bg: `linear-gradient(315deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
+      },
+    },
+    main: {
+      default: {
+        bg: `linear-gradient(45deg, ${BG_DARK}, ${BG_DEFAULT})`,
+      },
+      views: {
+        home: {
+          resources: {
+            card: {
+              default: {
+                boxShadow: BOX_SHADOW_LIGHT,
+                border: "none",
+              },
+            },
+          },
+        },
+        tutorial: {
+          aboutPage: {
+            bg: "transparent",
+            boxShadow: BOX_SHADOW_LIGHT,
+          },
+        },
+        tutorials: {
+          card: {
+            default: {
+              boxShadow: BOX_SHADOW_LIGHT,
+            },
+          },
+        },
+      },
+    },
+    modal: {
+      default: {
+        bg: BG_DARK + "19",
+        boxShadow: BOX_SHADOW_LIGHT,
+        border: "none",
+      },
+    },
+    sidebar: {
+      left: {
+        default: {
+          bg: `linear-gradient(to right, ${BG_DEFAULT}, ${BG_LIGHT})`,
+        },
+      },
+      right: {
+        default: {
+          bg: `linear-gradient(45deg, ${BG_DARK}, ${BG_LIGHT})`,
+          otherBg: `linear-gradient(315deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
+        },
       },
     },
     skeleton: {
       bg: BG_LIGHT,
       highlightColor: BG_DEFAULT,
+    },
+    progressbar: {
+      indicator: {
+        bg: PROGRESS_BG,
+      },
+    },
+    terminal: {
+      default: {
+        bg: `linear-gradient(210deg, ${BG_DEFAULT} 75%, ${BG_LIGHT})`,
+        borderTop: `1px solid ${BLUE}80`,
+        transition: `all 250ms ease-in-out`,
+        focusWithin: {
+          borderTopColor: BLUE,
+        },
+      },
+    },
+    toast: {
+      progress: {
+        bg: PROGRESS_BG,
+      },
     },
   },
   highlight: {
@@ -85,7 +179,7 @@ const PLAYGROUND: PgTheme = {
     macroName: { color: H_GREEN },
     functionCall: { color: H_GREEN },
     functionDef: { color: H_GREEN },
-    functionArg: { color: YELLOW },
+    functionArg: { color: TEXT_PRIMARY },
     definitionKeyword: { color: BLUE },
     moduleKeyword: { color: BLUE },
     modifier: { color: BLUE },
@@ -93,7 +187,7 @@ const PLAYGROUND: PgTheme = {
     operatorKeyword: { color: H_PURPLE },
     keyword: { color: BLUE },
     self: { color: BLUE },
-    bool: { color: BLUE, fontStyle: "bold" },
+    bool: { color: H_PINK, fontStyle: "italic" },
     integer: { color: H_PINK },
     literal: { color: H_PINK },
     string: { color: H_YELLOW },
@@ -101,8 +195,8 @@ const PLAYGROUND: PgTheme = {
     operator: { color: H_PURPLE },
     derefOperator: { color: H_PURPLE },
     specialVariable: { color: H_PURPLE },
-    lineComment: { color: COMMENT },
-    blockComment: { color: COMMENT },
+    lineComment: { color: COMMENT, fontStyle: "italic" },
+    blockComment: { color: COMMENT, fontStyle: "italic" },
     meta: { color: H_LIGHT_BLUE },
     invalid: { color: RED },
     constant: { color: BLUE },

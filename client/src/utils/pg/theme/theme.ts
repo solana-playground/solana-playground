@@ -219,6 +219,11 @@ export class PgThemeManager {
   private static _default() {
     this._theme.default ??= {};
 
+    // Backdrop
+    this._theme.default!.backdrop ??= {
+      bg: "#00000080",
+    };
+
     // Border radius
     this._theme.default!.borderRadius ??= "4px";
 
@@ -632,8 +637,7 @@ export class PgThemeManager {
     this._theme.components!.modal.default.maxWidth ??= "max(40%, 20rem)";
 
     // Backdrop
-    this._theme.components!.modal.backdrop ??= {};
-    this._theme.components!.modal.backdrop.bg ??= "#00000064";
+    this._theme.components!.modal.backdrop ??= this._theme.default!.backdrop;
 
     // Title
     this._theme.components!.modal.title ??= {};
@@ -955,9 +959,8 @@ export class PgThemeManager {
     )`;
 
     // Main backdrop
-    this._theme.components!.wallet.main.backdrop ??= {};
-    this._theme.components!.wallet.main.backdrop.bg ??=
-      this._theme.components!.modal!.backdrop!.bg;
+    this._theme.components!.wallet.main.backdrop ??=
+      this._theme.default!.backdrop;
 
     // Main balance
     this._theme.components!.wallet.main.balance ??= {};
