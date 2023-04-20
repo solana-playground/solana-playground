@@ -17,7 +17,7 @@ const metadata = {
 };
 
 // reward token mint PDA
-const [rewardTokenMintPda] = anchor.web3.PublicKey.findProgramAddressSync(
+const [rewardTokenMintPDA] = anchor.web3.PublicKey.findProgramAddressSync(
   [Buffer.from("reward")],
   pg.PROGRAM_ID
 );
@@ -32,11 +32,11 @@ const [playerPDA] = anchor.web3.PublicKey.findProgramAddressSync(
 const rewardTokenMintMetadataPDA = await metaplex
   .nfts()
   .pdas()
-  .metadata({ mint: rewardTokenMintPda });
+  .metadata({ mint: rewardTokenMintPDA });
 
 // player token account address
 const playerTokenAccount = getAssociatedTokenAddressSync(
-  rewardTokenMintPda,
+  rewardTokenMintPDA,
   pg.wallet.publicKey
 );
 
@@ -66,20 +66,20 @@ async function fetchAccountData() {
 let txHash;
 
 try {
-  const mintData = await getMint(pg.connection, rewardTokenMintPda);
+  const mintData = await getMint(pg.connection, rewardTokenMintPDA);
   console.log("Mint Already Exists");
 } catch {
   txHash = await pg.program.methods
     .createMint(metadata.uri, metadata.name, metadata.symbol)
     .accounts({
-      rewardTokenMint: rewardTokenMintPda,
+      rewardTokenMint: rewardTokenMintPDA,
       metadataAccount: rewardTokenMintMetadataPDA,
       tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
     })
     .rpc();
   await logTransaction(txHash);
 }
-console.log("Token Mint: ", rewardTokenMintPda.toString());
+console.log("Token Mint: ", rewardTokenMintPDA.toString());
 
 try {
   const playerData = await pg.program.account.playerData.fetch(playerPDA);
@@ -102,7 +102,7 @@ txHash = await pg.program.methods
   .accounts({
     playerData: playerPDA,
     playerTokenAccount: playerTokenAccount,
-    rewardTokenMint: rewardTokenMintPda,
+    rewardTokenMint: rewardTokenMintPDA,
   })
   .rpc();
 await logTransaction(txHash);
@@ -114,7 +114,7 @@ txHash = await pg.program.methods
   .accounts({
     playerData: playerPDA,
     playerTokenAccount: playerTokenAccount,
-    rewardTokenMint: rewardTokenMintPda,
+    rewardTokenMint: rewardTokenMintPDA,
   })
   .rpc();
 await logTransaction(txHash);
