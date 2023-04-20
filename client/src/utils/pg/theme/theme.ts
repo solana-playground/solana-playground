@@ -1156,6 +1156,7 @@ export class PgThemeManager {
     this._theme.components!.sidebar.right ??= {};
     // Right default
     this._theme.components!.sidebar.right.default ??= {};
+    this._theme.components!.sidebar.right.default.initialWidth ??= "20rem";
     this._theme.components!.sidebar.right.default.bg ??=
       this._theme.colors.default.bgSecondary;
     this._theme.components!.sidebar.right.default.otherBg ??=

@@ -222,7 +222,10 @@ export interface PgTheme {
       }>;
 
       /** Right side of the side panel */
-      right?: ExtendibleComponent<"title", { otherBg?: Bg }>;
+      right?: ExtendibleComponent<
+        "title",
+        { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
+      >;
     }>;
 
     /** Skeleton component */

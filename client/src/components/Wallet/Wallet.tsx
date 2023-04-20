@@ -61,20 +61,14 @@ const WalletBound = styled.div`
       ${theme.components.bottom.default.height}
       ${theme.components.sidebar.left.default.width};
     width: calc(
-      100% -
-        ${PgCommon.calculateRem(
-          "0.75rem",
-          theme.components.sidebar.left.default.width as string,
-          "add"
-        )}
+      100% - (0.75rem + ${theme.components.sidebar.left.default.width})
     );
     height: calc(
       100% -
-        ${PgCommon.calculateRem(
-          theme.components.tabs.tab.default.height as string,
-          theme.components.bottom.default.height as string,
-          "add"
-        )}
+        (
+          ${theme.components.tabs.tab.default.height} +
+            ${theme.components.bottom.default.height}
+        )
     );
     z-index: -1;
   `}

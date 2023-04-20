@@ -267,25 +267,6 @@ export class PgCommon {
   }
 
   /**
-   * Calculate basic rem operations for css
-   */
-  static calculateRem(
-    remOne: string,
-    remTwo: string,
-    operation: "add" | "substract"
-  ) {
-    const intOne = +remOne.split("rem")[0];
-    const intTwo = +remTwo.split("rem")[0];
-
-    let result;
-
-    if (operation === "add") result = intOne + intTwo;
-    else if (operation === "substract") result = intOne - intTwo;
-
-    return result + "rem";
-  }
-
-  /**
    * @returns true if the pressed key is `Ctrl` or `Cmd`
    */
   static isKeyCtrlOrCmd(e: globalThis.KeyboardEvent) {
