@@ -18,9 +18,9 @@ const TutorialCard: FC<TutorialData> = ({
       <InfoWrapper>
         <Name>{name}</Name>
         <Description>
-          {description.length < 72
+          {description.length < 70
             ? description
-            : `${description.substring(0, 72)}...`}
+            : `${description.substring(0, 70)}...`}
         </Description>
         <CategoriesWrapper>
           {categories.slice(0, 3).map((c, i) => (
