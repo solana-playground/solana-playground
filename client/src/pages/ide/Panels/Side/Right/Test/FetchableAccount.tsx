@@ -9,9 +9,8 @@ import InputLabel from "./InputLabel";
 import Input from "../../../../../../components/Input";
 import { PgAccount, PgCommon } from "../../../../../../utils/pg";
 import { SpinnerWithBg } from "../../../../../../components/Loading";
-import { useCurrentWallet } from "../../../Wallet";
 import { CodeResult } from "./CodeResult";
-import { usePgConnection } from "../../../../../../hooks";
+import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
 
 interface FetchableAccountProps {
   accountName: string;

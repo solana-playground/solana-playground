@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import Text from "../../../../../../components/Text";
 import Button, { ButtonProps } from "../../../../../../components/Button";
+import { Skeleton } from "../../../../../../components/Loading";
 import {
   buildCountAtom,
   programAtom,
@@ -12,15 +13,14 @@ import {
   terminalStateAtom,
 } from "../../../../../../state";
 import { ConnectionErrorText } from "../Common";
-import { Skeleton } from "../../../../../../components/Loading";
-import { useDeploy } from ".";
+import { PgProgramInfo } from "../../../../../../utils/pg";
+import { useDeploy } from "./useDeploy";
 import { useInitialLoading } from "..";
 import {
   useConnect,
-  useCurrentWallet,
   useConnectOrSetupPg,
-} from "../../../Wallet";
-import { PgProgramInfo } from "../../../../../../utils/pg";
+  useCurrentWallet,
+} from "../../../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {
@@ -119,14 +119,14 @@ const Deploy = () => {
     if (upgradeable === false)
       return (
         <Wrapper>
-          <Text type="Warning">The program is not upgradeable.</Text>
+          <Text kind="warning">The program is not upgradeable.</Text>
         </Wrapper>
       );
 
     if (hasAuthority === false)
       return (
         <Wrapper>
-          <Text type="Warning">
+          <Text kind="warning">
             You don't have the authority to upgrade this program.
           </Text>
         </Wrapper>
@@ -135,7 +135,7 @@ const Deploy = () => {
     if (solWalletPk)
       return (
         <Wrapper>
-          <Text type="Warning">
+          <Text kind="warning">
             Please disconnect from Phantom Wallet. Deployment can only be done
             from Playground Wallet.
           </Text>
@@ -200,14 +200,14 @@ const Deploy = () => {
     if (upgradeable === false)
       return (
         <Wrapper>
-          <Text type="Warning">The program is not upgradeable.</Text>
+          <Text kind="warning">The program is not upgradeable.</Text>
         </Wrapper>
       );
 
     if (hasAuthority === false)
       return (
         <Wrapper>
-          <Text type="Warning">
+          <Text kind="warning">
             You don't have the authority to upgrade this program.
           </Text>
         </Wrapper>
@@ -216,7 +216,7 @@ const Deploy = () => {
     if (solWalletPk)
       return (
         <Wrapper>
-          <Text type="Warning">
+          <Text kind="warning">
             Please disconnect from Phantom Wallet. Deployment can only be done
             from Playground Wallet.
           </Text>
@@ -234,7 +234,7 @@ const Deploy = () => {
   // Shouldn't come here
   return (
     <Wrapper>
-      <Text type="Error">Something went wrong.</Text>
+      <Text kind="error">Something went wrong.</Text>
     </Wrapper>
   );
 };

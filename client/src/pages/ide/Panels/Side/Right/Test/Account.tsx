@@ -21,18 +21,17 @@ import Tooltip from "../../../../../../components/Tooltip";
 import Input from "../../../../../../components/Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 import {
+  Close,
+  MinusFilled,
+  PlusFilled,
+} from "../../../../../../components/Icons";
+import {
   PgAccount,
   PgProgramInfo,
   PgTest,
   Seed,
 } from "../../../../../../utils/pg";
-import {
-  Close,
-  MinusFilled,
-  PlusFilled,
-} from "../../../../../../components/Icons";
-import { useCurrentWallet } from "../../../Wallet";
-import { useOnKey } from "../../../../../../hooks";
+import { useCurrentWallet, useOnKey } from "../../../../../../hooks";
 
 interface AccountProps {
   account: IdlAccount;

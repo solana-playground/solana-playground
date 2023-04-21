@@ -112,7 +112,6 @@ const LIGHT: PgTheme = {
     },
     editor: {
       default: {
-        bg: BG_WHITE,
         color: "#0f1780",
       },
       gutter: {
@@ -136,6 +135,11 @@ const LIGHT: PgTheme = {
     skeleton: {
       bg: "#e5e4e6",
       highlightColor: BG_LIGHT,
+    },
+    wallet: {
+      default: {
+        bg: BG_WHITE,
+      },
     },
   },
 

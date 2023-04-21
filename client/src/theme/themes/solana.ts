@@ -89,20 +89,31 @@ const SOLANA: PgTheme = {
         bg: BG_BLACK,
       },
     },
-    home: {
+    main: {
       default: {
         bg: BG_BLACK,
       },
-      resources: {
-        card: {
-          default: {
-            bg: BG_GRAY,
+      views: {
+        home: {
+          resources: {
+            card: {
+              default: {
+                bg: BG_GRAY,
+              },
+            },
+          },
+          tutorials: {
+            card: {
+              bg: BG_GRAY,
+            },
           },
         },
-      },
-      tutorials: {
-        card: {
-          bg: BG_GRAY,
+        tutorials: {
+          card: {
+            default: {
+              bg: BG_GRAY,
+            },
+          },
         },
       },
     },
@@ -123,6 +134,13 @@ const SOLANA: PgTheme = {
       bg: SELECTION,
       highlightColor: HOVER_BG,
     },
+    tabs: {
+      tab: {
+        selected: {
+          bg: BG_GRAY,
+        },
+      },
+    },
     terminal: {
       default: {
         bg: BG_GRAY,
@@ -137,18 +155,20 @@ const SOLANA: PgTheme = {
       bg: BG_GRAY,
       bgSecondary: BG_BLACK,
     },
-    tutorial: {
+    wallet: {
       default: {
         bg: BG_BLACK,
       },
-    },
-    tutorials: {
-      default: {
-        bg: BG_BLACK,
-      },
-      card: {
-        default: {
-          bg: BG_GRAY,
+      main: {
+        transactions: {
+          table: {
+            default: {
+              bg: BG_GRAY,
+            },
+            header: {
+              bg: BG_BLACK,
+            },
+          },
         },
       },
     },

@@ -47,32 +47,20 @@ export const ImportShared = () => {
         onSubmit: importNewWorkspace,
         disabled: !name,
       }}
+      title
     >
-      <Content>
-        <MainText>Project name</MainText>
-        <Input
-          ref={inputRef}
-          onChange={handleChange}
-          value={name}
-          placeholder="shared project..."
-        />
-      </Content>
+      <MainText>Project name</MainText>
+      <Input
+        ref={inputRef}
+        onChange={handleChange}
+        value={name}
+        placeholder="shared project..."
+      />
     </Modal>
   );
 };
 
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-bottom: 1rem;
-
-  & > input {
-    padding: 0.375rem 0.5rem;
-  }
-`;
-
 const MainText = styled.div`
-  margin: 1rem 0 0.5rem 0;
+  margin-bottom: 0.5rem;
   font-weight: bold;
 `;

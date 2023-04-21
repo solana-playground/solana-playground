@@ -76,7 +76,9 @@ const GradientWrapper = styled.div`
       }
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.tutorials.card.gradient)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorials.card.gradient
+    )};
   `}
 `;
 
@@ -86,7 +88,9 @@ const InsideWrapper = styled.div`
     height: 100%;
     overflow: hidden;
 
-    ${PgThemeManager.convertToCSS(theme.components.tutorials.card.default)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorials.card.default
+    )};
   `}
 `;
 
@@ -107,21 +111,23 @@ const InfoWrapper = styled.div`
     height: calc(100% - var(--img-height));
 
     ${PgThemeManager.convertToCSS(
-      theme.components.tutorials.card.info.default
+      theme.components.main.views.tutorials.card.info.default
     )};
   `}
 `;
 
 const Name = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.tutorials.card.info.name)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorials.card.info.name
+    )};
   `}
 `;
 
 const Description = styled.div`
   ${({ theme }) => css`
     ${PgThemeManager.convertToCSS(
-      theme.components.tutorials.card.info.description
+      theme.components.main.views.tutorials.card.info.description
     )};
   `}
 `;
@@ -135,7 +141,7 @@ const CategoriesWrapper = styled.div`
 const Category = styled.div`
   ${({ theme }) => css`
     ${PgThemeManager.convertToCSS(
-      theme.components.tutorials.card.info.category
+      theme.components.main.views.tutorials.card.info.category
     )};
   `}
 `;

@@ -126,18 +126,13 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-bottom: 1rem;
 `;
 
 const WorkspaceNameWrapper = styled.div`
-  margin-bottom: 0.5rem;
-
-  & > input {
-    padding: 0.375rem 0.5rem;
-  }
+  margin-bottom: 0.25rem;
 `;
 
 const MainText = styled.div`
-  margin: 1rem 0 0.5rem 0;
+  margin-bottom: 0.5rem;
   font-weight: bold;
 `;

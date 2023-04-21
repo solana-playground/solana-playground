@@ -44,3 +44,8 @@ export type RequiredUntil<T, U> = T extends U
   : {
       [K in keyof T]-?: RequiredUntil<T[K], U>;
     };
+
+/** Make all properties required recursively */
+export type AllRequired<T> = {
+  [K in keyof T]-?: AllRequired<T[K]>;
+};

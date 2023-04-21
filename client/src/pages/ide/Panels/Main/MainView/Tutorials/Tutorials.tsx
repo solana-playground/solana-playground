@@ -37,33 +37,9 @@ const Wrapper = styled.div`
     flex: 1;
     overflow: auto;
 
-    ${PgThemeManager.convertToCSS(theme.components.tutorials.default)};
-
-    /* Scrollbar */
-    /* Chromium */
-    &::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
-
-    &::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.tutorials.default
+    )};
   `}
 `;
 

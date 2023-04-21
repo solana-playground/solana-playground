@@ -14,7 +14,6 @@ import { Resizable } from "re-resizable";
 import TestSkeleton from "./Test/TestSkeleton";
 import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
-import { TAB_HEIGHT } from "../../Main/MainView/Tabs";
 import { Id } from "../../../../../constants";
 import { Sidebar } from "../../../../../utils/pg";
 import { PgThemeManager } from "../../../../../utils/pg/theme";
@@ -38,22 +37,16 @@ interface RightProps<T = number> extends DefaultRightProps {
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
   const { loading } = usePgRouter();
 
-  const [height, setHeight] = useState({
-    window:
-      document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979,
-    bottom:
-      document.getElementById(Id.BOTTOM)?.getClientRects()[0]?.height ?? 24,
-  });
+  const [windowHeight, setWindowHeight] = useState(
+    document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979
+  );
 
   // Resize the sidebar on window resize event
   useEffect(() => {
     const handleResize = () => {
-      const windowHeight =
-        document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979;
-      const bottomHeight =
-        document.getElementById(Id.BOTTOM)?.getClientRects()[0]?.height ?? 24;
-
-      setHeight({ window: windowHeight, bottom: bottomHeight });
+      setWindowHeight(
+        document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979
+      );
     };
 
     handleResize();
@@ -66,7 +59,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
     (e, direction, ref, d) => {
       setWidth((w) => {
         const newWidth = w + d.width;
-        if (newWidth < MIN_WIDTH) return 0;
+        if (newWidth < 180) return 0;
 
         return newWidth;
       });
@@ -91,11 +84,7 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
       }}
       onResizeStop={handleResizeStop}
     >
-      <Wrapper
-        id={Id.SIDE_RIGHT}
-        windowHeight={height.window}
-        bottomHeight={height.bottom}
-      >
+      <Wrapper id={Id.SIDE_RIGHT} windowHeight={windowHeight}>
         <StyledTitle sidebarState={sidebarState} />
         <Suspense fallback={<RightLoading sidebarState={sidebarState} />}>
           {loading ? (
@@ -151,16 +140,12 @@ const RightLoading: FC<DefaultRightProps> = ({ sidebarState }) => {
   }
 };
 
-const MIN_WIDTH = 180;
-
-const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
-  ${({ theme, windowHeight, bottomHeight }) => css`
+const Wrapper = styled.div<{ windowHeight: number }>`
+  ${({ theme, windowHeight }) => css`
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    height: ${windowHeight && bottomHeight
-      ? windowHeight - bottomHeight
-      : 955}px;
+    height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
 
     ${PgThemeManager.convertToCSS(theme.components.sidebar.right.default)};
 
@@ -194,10 +179,10 @@ const Wrapper = styled.div<{ windowHeight?: number; bottomHeight?: number }>`
 
 const StyledTitle = styled(Title)`
   ${({ theme }) => css`
-    min-height: ${TAB_HEIGHT};
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: ${theme.components.tabs.tab.default.height};
 
     ${PgThemeManager.convertToCSS(theme.components.sidebar.right.title)};
   `}

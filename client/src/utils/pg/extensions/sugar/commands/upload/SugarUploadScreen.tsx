@@ -1,5 +1,4 @@
 import { FC, useCallback, useState } from "react";
-import styled from "styled-components";
 
 import Modal from "../../../../../../components/Modal";
 import useModal from "../../../../../../components/Modal/useModal";
@@ -37,22 +36,9 @@ export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
         disabled: !files || files.length % 2 === 1,
         onSubmit: () => close(files),
       }}
+      title={title}
     >
-      <Title>{title}</Title>
-      <UploadWrapper>
-        <UploadArea onDrop={onDrop} error={error} filesLength={files?.length} />
-      </UploadWrapper>
+      <UploadArea onDrop={onDrop} error={error} filesLength={files?.length} />
     </Modal>
   );
 };
-
-const Title = styled.div`
-  margin-top: 0.75rem;
-  margin-bottom: -0.25rem;
-  text-align: center;
-  font-weight: bold;
-`;
-
-const UploadWrapper = styled.div`
-  margin-bottom: 1rem;
-`;

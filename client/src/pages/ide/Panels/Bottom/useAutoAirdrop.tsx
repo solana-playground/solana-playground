@@ -3,8 +3,11 @@ import { useAtom } from "jotai";
 
 import { uiBalanceAtom } from "../../../../state";
 import { PgCommon, PgConnection, PgTx } from "../../../../utils/pg";
-import { usePgConnection } from "../../../../hooks";
-import { useAirdropAmount, useCurrentWallet } from "../Wallet";
+import {
+  useAirdropAmount,
+  useCurrentWallet,
+  usePgConnection,
+} from "../../../../hooks";
 
 export const useAutoAirdrop = () => {
   const [balance, setBalance] = useAtom(uiBalanceAtom);
@@ -35,8 +38,9 @@ export const useAutoAirdrop = () => {
   }, [currentWallet, conn, setBalance]);
 
   // Auto airdrop if balance is less than 4 SOL
-  const airdropAmount = useAirdropAmount();
   const [rateLimited, setRateLimited] = useState(false);
+
+  const airdropAmount = useAirdropAmount();
 
   const airdropping = useRef(false);
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 
@@ -39,6 +39,8 @@ const CodeMirror = () => {
             height: "100%",
             background: editorStyles.default.bg!,
             color: editorStyles.default.color!,
+            fontFamily: editorStyles.default.fontFamily!,
+            fontSize: editorStyles.default.fontSize!,
           },
           // Cursor
           "& .cm-cursor": {
@@ -158,7 +160,7 @@ const CodeMirror = () => {
     },
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-    [theme.name]
+    [theme.name, theme.components.editor.default.fontFamily]
   );
 
   const codemirrorRef = useRef<HTMLDivElement>(null);
@@ -570,7 +572,37 @@ const CodeMirror = () => {
     };
   }, [editor, explorer]);
 
-  return <div ref={codemirrorRef} />;
+  return <Wrapper ref={codemirrorRef} />;
 };
+
+const Wrapper = styled.div`
+  ${({ theme }) => css`
+    /* Scrollbar */
+    /* Chromium */
+    & ::-webkit-scrollbar {
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+
+    & ::-webkit-scrollbar-track {
+      background: ${theme.components.main.default.bg};
+      border-left: 1px solid ${theme.colors.default.border};
+    }
+
+    & ::-webkit-scrollbar-thumb {
+      background: ${theme.default.scrollbar.thumb.color};
+      border: 0.25rem solid transparent;
+      border-radius: 0;
+    }
+
+    & ::-webkit-scrollbar-thumb:hover {
+      background: ${theme.default.scrollbar.thumb.hoverColor};
+    }
+
+    & ::-webkit-scrollbar-corner {
+      background: ${theme.components.main.default.bg};
+    }
+  `}
+`;
 
 export default CodeMirror;
