@@ -114,7 +114,7 @@ export const TUTORIALS: TutorialData[] = [
         link: "https://twitter.com/ZYJLiu",
       },
     ],
-    level: TutorialLevel.BEGINNER,
+    level: TutorialLevel.INTERMEDIATE,
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./BattleCoins"),
   },

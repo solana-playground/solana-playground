@@ -168,7 +168,7 @@ pub struct InitPlayer<'info> {
         init,
         payer = player,
         space = 8 + 8,
-        seeds = [b"player".as_ref(), player.key().as_ref()],
+        seeds = [b"player", player.key().as_ref()],
         bump,
     )]
     pub player_data: Account<'info, PlayerData>,
@@ -184,7 +184,7 @@ pub struct KillEnemy<'info> {
 
     #[account(
         mut,
-        seeds = [b"player".as_ref(), player.key().as_ref()],
+        seeds = [b"player", player.key().as_ref()],
         bump,
     )]
     pub player_data: Account<'info, PlayerData>,
@@ -217,7 +217,7 @@ pub struct Heal<'info> {
 
     #[account(
         mut,
-        seeds = [b"player".as_ref(), player.key().as_ref()],
+        seeds = [b"player", player.key().as_ref()],
         bump,
     )]
     pub player_data: Account<'info, PlayerData>,
