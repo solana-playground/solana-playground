@@ -76,5 +76,9 @@ jobs:
       - name: Setup
         run: yarn setup
 
+      # This confirms that there are no changes after setup script runs
+      - name: Check git status
+        run: git status --porcelain | wc -l | grep -q -w "0"
+
       - name: Build
         run: yarn build
