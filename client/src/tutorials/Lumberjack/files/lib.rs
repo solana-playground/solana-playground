@@ -22,7 +22,7 @@ pub struct InitPlayer<'info> {
         init, 
         payer = signer,
         space = 1000,
-        seeds = [b"player".as_ref(), signer.key().as_ref()],
+        seeds = [b"player", signer.key().as_ref()],
         bump,
     )]
     pub player: Account<'info, PlayerData>,

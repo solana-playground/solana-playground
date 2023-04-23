@@ -75,7 +75,6 @@ pub struct InitializeZeroCopy<'info> {
     pub data_holder: AccountLoader<'info, DataHolder>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
 }
 
@@ -90,7 +89,6 @@ pub struct InitializeNoZeroCopy<'info> {
     pub data_holder_no_zero_copy: Account<'info, DataHolderNoZeroCopy>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
 }
 
@@ -119,7 +117,6 @@ pub struct IncreaseZeroCopy<'info> {
     pub data_holder: AccountLoader<'info, DataHolder>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
 }
 
@@ -141,7 +138,6 @@ pub struct IncreaseAccoutSize<'info> {
     pub data_holder: Account<'info, DataHolderNoZeroCopy>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
 }
 
@@ -161,7 +157,6 @@ pub struct InitializeHitStackSize<'info> {
     pub data_holder: Account<'info, HitStackSize>,
     #[account(mut)]
     pub signer: Signer<'info>,
-    #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
 }
 
