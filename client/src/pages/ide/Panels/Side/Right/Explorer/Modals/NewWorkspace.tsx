@@ -102,23 +102,18 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-bottom: 1rem;
 `;
 
-const WorkspaceNameWrapper = styled.div`
-  & > input {
-    padding: 0.375rem 0.5rem;
-  }
-`;
+const WorkspaceNameWrapper = styled.div``;
 
 const MainText = styled.div`
-  margin: 1rem 0 0.5rem 0;
+  margin-bottom: 0.5rem;
   font-weight: bold;
   font-size: ${({ theme }) => theme.font.code.size.large};
 `;
 
 const FrameworkSectionWrapper = styled.div`
-  margin-bottom: 1rem;
+  margin: 1rem 0 0.5rem 0;
 `;
 
 const FrameworksWrapper = styled.div`

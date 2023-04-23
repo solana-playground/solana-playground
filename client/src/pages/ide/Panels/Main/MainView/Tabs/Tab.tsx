@@ -1,5 +1,5 @@
-import { FC, MouseEvent, useCallback, useRef } from "react";
-import { useAtom } from "jotai";
+import { FC, MouseEvent, useRef } from "react";
+import { Atom, useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../../components/Button";
@@ -7,6 +7,7 @@ import LangIcon from "../../../../../../components/LangIcon";
 import { Close } from "../../../../../../components/Icons";
 import { PgExplorer } from "../../../../../../utils/pg";
 import { explorerAtom } from "../../../../../../state";
+import { PgThemeManager } from "../../../../../../utils/pg/theme";
 
 interface TabProps {
   path: string;
@@ -14,18 +15,16 @@ interface TabProps {
 }
 
 const Tab: FC<TabProps> = ({ current, path }) => {
-  const [explorer] = useAtom(explorerAtom);
+  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const closeTab = useCallback(() => {
-    if (!explorer) return;
-
+  const closeTab = () => {
     explorer.closeTab(path);
-  }, [explorer, path]);
+  };
 
   const changeTab = (e: MouseEvent<HTMLDivElement>) => {
-    if (closeButtonRef.current?.contains(e.target as Node) || !explorer) return;
+    if (closeButtonRef.current?.contains(e.target as Node)) return;
 
     explorer.changeCurrentFile(path);
   };
@@ -60,37 +59,18 @@ const Tab: FC<TabProps> = ({ current, path }) => {
 
 const Wrapper = styled.div<{ current?: boolean }>`
   ${({ theme, current }) => css`
-    width: fit-content;
-    height: 100%;
-    padding-left: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: ${current
-      ? theme.colors.default.bgPrimary
-      : theme.components.sidebar.right.default.bg};
-    color: ${current
-      ? theme.colors.default.textPrimary
-      : theme.colors.default.textSecondary};
-    border: 1px solid transparent;
-    border-right-color: ${theme.colors.default.border};
-    border-top-color: ${current
-      ? theme.colors.default.secondary
-      : "transparent"};
-
-    &:hover {
-      cursor: pointer;
-    }
-
     & button {
       margin: 0 0.25rem 0 0.5rem;
-      color: ${theme.colors.default.textSecondary};
 
       & svg {
         width: 0.875rem;
         height: 0.875rem;
       }
     }
+
+    ${PgThemeManager.convertToCSS(theme.components.tabs.tab.default)};
+    ${current &&
+    PgThemeManager.convertToCSS(theme.components.tabs.tab.selected)};
   `}
 `;
 

@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
 
+import { EventName } from "../../../../../constants";
 import { TerminalAction, terminalStateAtom } from "../../../../../state";
 import { useBuild, useDeploy } from "../../Side/Right/BuildDeploy";
-import { useConnectOrSetupPg } from "../../Wallet";
-import { EventName } from "../../../../../constants";
+import { useConnectOrSetupPg } from "../../../../../hooks";
 
 // Runs build and deploy commands if those components are not mounted
 export const useTerminal = () => {

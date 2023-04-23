@@ -72,13 +72,10 @@ const Left: FC<LeftProps> = ({
   );
 };
 
-export const ICONBAR_WIDTH = "3rem";
-
 const Wrapper = styled.div`
   ${({ theme }) => css`
     display: flex;
     flex-direction: column;
-    width: ${ICONBAR_WIDTH};
     user-select: none;
     overflow: hidden;
 

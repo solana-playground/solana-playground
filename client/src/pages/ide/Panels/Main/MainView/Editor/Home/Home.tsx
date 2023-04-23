@@ -6,7 +6,7 @@ import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { DefaultLink } from "../../../../../../../components/Link";
 import { External } from "../../../../../../../components/Icons";
-import { PROJECT_NAME } from "../../../../../../../constants";
+import { Id, PROJECT_NAME } from "../../../../../../../constants";
 import { PgThemeManager } from "../../../../../../../utils/pg/theme";
 
 const Home = () => {
@@ -21,7 +21,7 @@ const Home = () => {
   if (!show) return null;
 
   return (
-    <Wrapper>
+    <Wrapper id={Id.HOME}>
       <ProjectTitle>{PROJECT_NAME}</ProjectTitle>
       <ContentWrapper>
         <ResourcesWrapper>
@@ -47,13 +47,13 @@ const Home = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.default)};
+    ${PgThemeManager.convertToCSS(theme.components.main.views.home.default)};
   `}
 `;
 
 const ProjectTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.title)};
+    ${PgThemeManager.convertToCSS(theme.components.main.views.home.title)};
   `}
 `;
 
@@ -65,13 +65,17 @@ const ContentWrapper = styled.div`
 
 const ResourcesWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.resources.default)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.resources.default
+    )};
   `}
 `;
 
 const ResourcesTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.resources.title)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.resources.title
+    )};
   `}
 `;
 
@@ -104,20 +108,24 @@ const Resource: FC<ResourceProps> = ({
 const ResourceWrapper = styled.div`
   ${({ theme }) => css`
     ${PgThemeManager.convertToCSS(
-      theme.components.home.resources.card.default
+      theme.components.main.views.home.resources.card.default
     )};
   `}
 `;
 
 const ResourceTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.resources.card.title)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.resources.card.title
+    )};
   `}
 `;
 
 const ResourceImg = styled.img<{ circleImage?: boolean }>`
   ${({ theme, circleImage }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.resources.card.image)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.resources.card.image
+    )};
 
     ${circleImage && "border-radius: 50%"};
   `};
@@ -126,7 +134,7 @@ const ResourceImg = styled.img<{ circleImage?: boolean }>`
 const ResourceDescription = styled.div`
   ${({ theme }) => css`
     ${PgThemeManager.convertToCSS(
-      theme.components.home.resources.card.description
+      theme.components.main.views.home.resources.card.description
     )};
   `}
 `;
@@ -138,19 +146,25 @@ const ResourceButtonWrapper = styled.div`
 
 const ResourceButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.resources.card.button)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.resources.card.button
+    )};
   `}
 `;
 
 const TutorialsWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.tutorials.default)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.tutorials.default
+    )};
   `}
 `;
 
 const TutorialsTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.tutorials.title)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.tutorials.title
+    )};
   `}
 `;
 
@@ -171,7 +185,9 @@ const Tutorial: FC<TutorialProps> = ({ title, url }) => {
 
 const TutorialWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.home.tutorials.card)};
+    ${PgThemeManager.convertToCSS(
+      theme.components.main.views.home.tutorials.card
+    )};
   `}
 `;
 

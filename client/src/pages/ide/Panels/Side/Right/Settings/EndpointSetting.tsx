@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import styled from "styled-components";
 
-import Button from "../../../../../../components/Button";
 import Input from "../../../../../../components/Input";
 import Select from "../../../../../../components/Select";
 import Modal from "../../../../../../components/Modal/Modal";
@@ -76,34 +74,24 @@ const CustomEndpoint = () => {
   useOnKey("Enter", onSubmit);
 
   return (
-    <Modal title closeButton>
-      <ModalCard>
-        <Input
-          ref={inputRef}
-          placeholder="Custom endpoint"
-          onChange={(e) => setCustomEndpoint(e.target.value)}
-          validator={PgValidator.isUrl}
-        />
-        <Button onClick={onSubmit} kind="primary-transparent" fullWidth>
-          Add
-        </Button>
-      </ModalCard>
+    <Modal
+      title
+      closeButton
+      buttonProps={{
+        text: "Add",
+        onSubmit,
+        fullWidth: true,
+        style: { height: "2.5rem", marginTop: "-0.25rem" },
+      }}
+    >
+      <Input
+        ref={inputRef}
+        placeholder="Custom endpoint"
+        onChange={(e) => setCustomEndpoint(e.target.value)}
+        validator={PgValidator.isUrl}
+      />
     </Modal>
   );
 };
-
-const ModalCard = styled.div`
-  width: 25rem;
-  padding: 1rem 1rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-radius: ${({ theme }) => theme.default.borderRadius};
-
-  & input,
-  & button {
-    height: 3rem;
-  }
-`;
 
 export default EndpointSetting;

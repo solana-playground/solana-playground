@@ -58,7 +58,7 @@ const getStyles = ({
   theme,
 }: MenuWrapperProps & Pick<MenuProps, "kind"> & { theme: DefaultTheme }) => {
   const menu = PgThemeManager.overrideDefaults(
-    theme.components.menu.default!,
+    theme.components.menu.default,
     theme.components.menu.overrides?.[kind]
   );
 

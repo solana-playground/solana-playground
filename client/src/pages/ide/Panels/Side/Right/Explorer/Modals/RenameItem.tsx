@@ -1,6 +1,5 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import styled from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
@@ -59,29 +58,14 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
         size: "small",
         disabled: disableCond,
       }}
+      title={`Rename '${itemName}'`}
     >
-      <Content>
-        <Text>Rename '{itemName}'</Text>
-        <Input
-          ref={inputRef}
-          onChange={handleChange}
-          value={newName}
-          error={error}
-        />
-      </Content>
+      <Input
+        ref={inputRef}
+        onChange={handleChange}
+        value={newName}
+        error={error}
+      />
     </Modal>
   );
 };
-
-const Content = styled.div`
-  margin-bottom: 1rem;
-
-  & > input {
-    padding: 0.375rem 0.5rem;
-  }
-`;
-
-const Text = styled.div`
-  margin: 1rem 0;
-  text-align: center;
-`;

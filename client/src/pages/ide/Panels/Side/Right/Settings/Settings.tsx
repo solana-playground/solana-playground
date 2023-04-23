@@ -52,10 +52,14 @@ const Settings = () => (
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    min-width: calc(
+      ${theme.components.sidebar.left.default.width} +
+        ${theme.components.sidebar.right.default.initialWidth}
+    );
     background: ${theme.components.tooltip.bg};
     border: 1px solid ${theme.colors.default.border};
     border-radius: ${theme.default.borderRadius};
-    min-width: 23rem;
+    box-shadow: ${theme.default.boxShadow};
   `}
 `;
 
@@ -93,19 +97,23 @@ const Setting: FC<SettingProps> = ({
 const SettingWrapper = styled.div<Pick<SettingProps, "isCheckbox">>`
   ${({ theme, isCheckbox }) => css`
     display: flex;
-    width: 100%;
-    max-width: 23rem;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    max-width: calc(
+      ${theme.components.sidebar.left.default.width} +
+        ${theme.components.sidebar.right.default.initialWidth}
+    );
     padding: 1rem;
 
     &:not(:last-child) {
       border-bottom: 1px solid ${theme.colors.default.border};
     }
 
-    & > div:last-child {
-      width: ${!isCheckbox && "11.5rem"};
-    }
+    ${!isCheckbox &&
+    `& > div:last-child {
+      width: 11.5rem;
+    }`}
   `}
 `;
 

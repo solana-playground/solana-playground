@@ -49,7 +49,7 @@ const Test = () => {
   if (idl === null)
     return (
       <InitialWrapper>
-        <Text type="Warning">Native program tests are not yet supported.</Text>
+        <Text kind="warning">Native program tests are not yet supported.</Text>
       </InitialWrapper>
     );
 
@@ -57,7 +57,7 @@ const Test = () => {
     if (!idl.instructions)
       return (
         <InitialWrapper>
-          <Text type="Error">
+          <Text kind="error">
             You've imported a corrupted IDL. Please double check you are
             importing an Anchor IDL.
           </Text>
@@ -109,7 +109,7 @@ const Test = () => {
   // Shouldn't come here
   return (
     <InitialWrapper>
-      <Text type="Error">Something went wrong.</Text>
+      <Text kind="error">Something went wrong.</Text>
     </InitialWrapper>
   );
 };

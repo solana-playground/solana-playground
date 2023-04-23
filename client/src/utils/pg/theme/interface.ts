@@ -1,9 +1,10 @@
-import { CSSProperties } from "react";
+import { StandardProperties } from "csstype";
 import { ITerminalOptions as XtermOptions } from "xterm";
 
 import { ButtonKind } from "../../../components/Button";
 import { MenuKind } from "../../../components/Menu";
-import { ChildRequired, NestedRequired, RequiredUntil } from "../types";
+import { TextKind } from "../../../components/Text";
+import { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
 export interface PgTheme {
@@ -41,11 +42,14 @@ export interface PgTheme {
 
   /** Default theme values */
   default?: {
+    /** Default backdrop */
+    backdrop?: DefaultStyles;
+
     /** Default border radius */
-    borderRadius?: CSSProperties["borderRadius"];
+    borderRadius?: StandardProperties["borderRadius"];
 
     /** Default box shadow */
-    boxShadow?: CSSProperties["boxShadow"];
+    boxShadow?: StandardProperties["boxShadow"];
 
     /** Default scrollbar */
     scrollbar?: {
@@ -65,10 +69,13 @@ export interface PgTheme {
     /** Default transition settings */
     transition?: {
       /** Timing function */
-      type: CSSProperties["transitionTimingFunction"];
+      type: StandardProperties["transitionTimingFunction"];
       /** Transition durations */
       duration: {
-        [K in "short" | "medium" | "long"]: CSSProperties["transitionDuration"];
+        [K in
+          | "short"
+          | "medium"
+          | "long"]: StandardProperties["transitionDuration"];
       };
     };
   };
@@ -88,23 +95,26 @@ export interface PgTheme {
       /** Editor defaults */
       default?: BgAndColor & {
         cursorColor?: Color;
-        activeLine?: BgAndColor & Pick<CSSProperties, "borderColor">;
+        activeLine?: BgAndColor & Pick<StandardProperties, "borderColor">;
         selection?: BgAndColor;
         searchMatch?: BgAndColor & {
           selectedBg?: Bg;
           selectedColor?: Color;
         };
-      };
+      } & Pick<StandardProperties, "fontFamily" | "fontSize">;
+
       /** Gutter component */
       gutter?: BgAndColor & {
         activeBg?: Bg;
         activeColor?: Color;
-      } & Pick<CSSProperties, "borderRight">;
+      } & Pick<StandardProperties, "borderRight">;
+
       /** Minimap component */
       minimap?: {
         bg?: Bg;
         selectionHighlight?: Color;
       };
+
       /** Peek view component */
       peekView?: {
         /** Peek view title */
@@ -128,39 +138,68 @@ export interface PgTheme {
           selectionColor?: Color;
           matchHighlightBg?: Bg;
         };
-      } & Pick<CSSProperties, "borderColor">;
+      } & Pick<StandardProperties, "borderColor">;
+
       /** Tooltip or widget component */
       tooltip?: BgAndColor & {
         selectedBg?: Bg;
         selectedColor?: Color;
-      } & Pick<CSSProperties, "borderColor">;
-    };
+      } & Pick<StandardProperties, "borderColor">;
 
-    /** Home component */
-    home?: ExtendibleComponent<{
-      /** Playground title */
-      title?: DefaultComponent;
-      /** Resources section */
-      resources?: ExtendibleComponent<{
-        /** Resources title */
-        title?: DefaultComponent;
-        /** Resource card */
-        card?: ExtendibleComponent<
-          "image" | "title" | "description" | "button"
-        >;
-      }>;
-      /** Tutorials section */
-      tutorials?: ExtendibleComponent<"title" | "card">;
-    }>;
+      /** Editor wrapper component */
+      wrapper?: DefaultComponent;
+    };
 
     /** Input component */
     input?: DefaultComponent;
 
-    /** Menu component */
-    menu?: OverrideableComponent<MenuKind>;
+    /** MainView component */
+    main?: ExtendibleComponent<{
+      views?: {
+        /** Home component */
+        home?: ExtendibleComponent<{
+          /** Playground title */
+          title?: DefaultComponent;
+          /** Resources section */
+          resources?: ExtendibleComponent<{
+            /** Resources title */
+            title?: DefaultComponent;
+            /** Resource card */
+            card?: ExtendibleComponent<
+              "image" | "title" | "description" | "button"
+            >;
+          }>;
+          /** Tutorials section */
+          tutorials?: ExtendibleComponent<"title" | "card">;
+        }>;
+
+        /** Tutorial component */
+        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
+        /** Tutorials page component */
+        tutorials?: ExtendibleComponent<{
+          /** Tutorial card component */
+          card?: ExtendibleComponent<{
+            /** Wrapper gradient */
+            gradient?: DefaultComponent;
+            /** Wrapper bottom section of the card */
+            info?: ExtendibleComponent<"name" | "description" | "category">;
+          }>;
+        }>;
+      };
+    }>;
 
     /** Markdown component */
     markdown?: ExtendibleComponent<"code">;
+
+    /** Menu component */
+    menu?: OverrideableComponent<MenuKind>;
+
+    /** Modal component */
+    modal?: ExtendibleComponent<"backdrop" | "title" | "content" | "bottom">;
+
+    /** Progress bar component */
+    progressbar?: ExtendibleComponent<"indicator">;
 
     /** Select component */
     select?: ExtendibleComponent<
@@ -183,13 +222,21 @@ export interface PgTheme {
       }>;
 
       /** Right side of the side panel */
-      right?: ExtendibleComponent<"title", { otherBg?: Bg }>;
+      right?: ExtendibleComponent<
+        "title",
+        { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
+      >;
     }>;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
       highlightColor?: Color;
     };
+
+    /** Tabs component */
+    tabs?: ExtendibleComponent<{
+      tab?: ExtendibleComponent<"selected">;
+    }>;
 
     /** Terminal component */
     terminal?: ExtendibleComponent<{
@@ -214,23 +261,52 @@ export interface PgTheme {
       };
     }>;
 
+    /** Text component */
+    text?: OverrideableComponent<TextKind>;
+
     /** Notification toast component */
     toast?: ExtendibleComponent<"progress" | "closeButton">;
 
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
 
-    /** Tutorial component */
-    tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+    /** Upload area component */
+    uploadArea?: ExtendibleComponent<{
+      /** Upload icon */
+      icon?: DefaultComponent;
+      /** Upload message */
+      text?: ExtendibleComponent<"error" | "success">;
+    }>;
 
-    /** Tutorials page component */
-    tutorials?: ExtendibleComponent<{
-      /** Tutorial card component */
-      card?: ExtendibleComponent<{
-        /** Wrapper gradient */
-        gradient?: DefaultComponent;
-        /** Wrapper bottom section of the card */
-        info?: ExtendibleComponent<"name" | "description" | "category">;
+    /** Wallet component */
+    wallet?: ExtendibleComponent<{
+      /** Top side of the wallet component */
+      title?: ExtendibleComponent<"text">;
+      /** Main side of the wallet component */
+      main?: ExtendibleComponent<{
+        /** Backdrop is made with `::after` pseudo class */
+        backdrop?: DefaultStyles;
+        /** Balance section */
+        balance?: DefaultComponent;
+        /** Send section */
+        send?: ExtendibleComponent<{
+          /** Send section foldable title text */
+          title?: DefaultComponent;
+          /** Expanded send component */
+          expanded?: ExtendibleComponent<"input" | "sendButton">;
+        }>;
+        /** Transaction history section */
+        transactions?: ExtendibleComponent<{
+          /** Transactions title */
+          title?: ExtendibleComponent<"text" | "refreshButton">;
+          /** Transactions table */
+          table?: ExtendibleComponent<{
+            /** Transactions table header */
+            header?: DefaultComponent;
+            /** Transactions table row */
+            row?: ExtendibleComponent<"signature" | "slot" | "time">;
+          }>;
+        }>;
       }>;
     }>;
   };
@@ -335,14 +411,14 @@ export interface PgHighlight {
 }
 
 /** Syntax highlighting token */
-type HighlightToken = Pick<CSSProperties, "color" | "fontStyle">;
+type HighlightToken = Pick<StandardProperties, "color" | "fontStyle">;
 
 /** Playground font */
 export interface PgFont {
-  family: NonNullable<CSSProperties["fontFamily"]>;
+  family: NonNullable<StandardProperties["fontFamily"]>;
   size: {
     [K in "xsmall" | "small" | "medium" | "large" | "xlarge"]: NonNullable<
-      CSSProperties["fontSize"]
+      StandardProperties["fontSize"]
     >;
   };
 }
@@ -364,17 +440,20 @@ type DefaultComponents = "input" | "skeleton" | "tooltip";
 type ExtendibleComponents =
   | "bottom"
   | "editor"
-  | "home"
+  | "main"
   | "markdown"
+  | "modal"
+  | "progressbar"
   | "select"
   | "sidebar"
+  | "tabs"
   | "terminal"
   | "toast"
-  | "tutorial"
-  | "tutorials";
+  | "uploadArea"
+  | "wallet";
 
 /** Components that use `OverrideableComponent` type */
-type OverrideableComponents = "button" | "menu";
+type OverrideableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
 export type PgThemeInternal = Partial<Pick<ImportableTheme, "name">> &
@@ -400,7 +479,7 @@ export type PgThemeReady<
   components: Pick<C, DefaultComponents>;
 } & {
   // Extendible components
-  components: RequiredUntil<Pick<C, ExtendibleComponents>, DefaultComponent>;
+  components: AllRequired<Pick<C, ExtendibleComponents>>;
 } & {
   // Overrideable components
   components: ChildRequired<
@@ -413,44 +492,10 @@ export type PgThemeReady<
 /** Properties that are allowed to be specified from theme objects */
 type DefaultStyles = {
   bg?: Bg;
-} & Pick<
-  CSSProperties,
-  | "color"
-  | "border"
-  | "borderTop"
-  | "borderRight"
-  | "borderBottom"
-  | "borderLeft"
-  | "borderColor"
-  | "borderRadius"
-  | "borderTopRightRadius"
-  | "borderBottomRightRadius"
-  | "padding"
-  | "marginTop"
-  | "marginRight"
-  | "marginBottom"
-  | "marginLeft"
-  | "boxShadow"
-  | "outline"
-  | "fontFamily"
-  | "fontSize"
-  | "fontWeight"
-  | "cursor"
-  | "flex"
-  | "overflow"
-  | "opacity"
-  | "transition"
-  | "minWidth"
-  | "maxWidth"
-  | "minHeight"
-  | "width"
-  | "height"
-  | "display"
-  | "alignItems"
-  | "textAlign"
->;
+} & StandardProperties &
+  AnyProperty;
 
-/** CSS pseudo classes */
+/** StandardProperties pseudo classes */
 type PseudoClass =
   | "hover"
   | "active"
@@ -459,9 +504,20 @@ type PseudoClass =
   | "before"
   | "after";
 
-/** Default component without pseudo classes */
+/** Default component pseudo classes */
 type DefaultComponentState<T extends PseudoClass = PseudoClass> = {
-  [K in T]?: Omit<DefaultComponent, T>;
+  [K in T]?: DefaultComponent;
+};
+
+/**
+ * Specify any property that starts with `&`.
+ *
+ * NOTE: Usage of this should be avoided when possible because expressions such
+ * as `& > div:nth-child(3)` will break if the layout of of the component changes
+ * and TypeScript will not catch the error.
+ */
+type AnyProperty<T extends string = string> = {
+  [K in `&${T}`]?: DefaultComponent;
 };
 
 /** Default component with pseudo classes */
@@ -482,9 +538,9 @@ type ExtendibleComponent<
   ? { [K in U extends any ? keyof U : never]?: DefaultComponent }
   : U);
 
-/** Overrideable component */
+/** A component with multiple kinds */
 type OverrideableComponent<T extends string> = {
-  /** Default CSS values of the Button component */
+  /** Default StandardProperties values of the Button component */
   default?: DefaultComponent;
   /** Override the defaults with specificity */
   overrides?: {
@@ -492,11 +548,11 @@ type OverrideableComponent<T extends string> = {
   };
 };
 
-/** CSS background */
+/** StandardProperties background */
 type Bg = string;
 
-/** CSS color */
-type Color = NonNullable<CSSProperties["color"]>;
+/** StandardProperties color */
+type Color = NonNullable<StandardProperties["color"]>;
 
 /** Optional background and color */
 type BgAndColor = { bg?: Bg } & { color?: Color };

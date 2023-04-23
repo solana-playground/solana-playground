@@ -9,13 +9,14 @@ import Link from "../../../../../../../components/Link";
 import Modal from "../../../../../../../components/Modal";
 import Text from "../../../../../../../components/Text";
 import useModal from "../../../../../../../components/Modal/useModal";
-import { explorerAtom } from "../../../../../../../state";
-import { PgCommon, PgShare } from "../../../../../../../utils/pg";
-import { TextProps } from "../../../../../../../components/Text/Text";
-import { ClassName, CLIENT_URL } from "../../../../../../../constants";
 import { Checkmark, Sad } from "../../../../../../../components/Icons";
+import { TextKind } from "../../../../../../../components/Text/Text";
+import { explorerAtom } from "../../../../../../../state";
+import { ClassName, CLIENT_URL } from "../../../../../../../constants";
+import { PgCommon, PgShare } from "../../../../../../../utils/pg";
 
-interface TextState extends TextProps {
+interface TextState {
+  kind?: TextKind;
   id?: string;
 }
 
@@ -34,12 +35,12 @@ export const Share = () => {
     try {
       const id = await PgCommon.transition(PgShare.new(explorer));
       setTextState({
-        type: "Success",
+        kind: "success",
         id,
       });
     } catch (e: any) {
       setTextState({
-        type: "Error",
+        kind: "error",
       });
       setDisabled(false);
     }
@@ -50,18 +51,18 @@ export const Share = () => {
   return (
     <Modal title>
       <Content>
-        {textState.type ? (
-          textState.type === "Error" ? (
-            <Text type={textState.type} IconEl={<Sad />}>
+        {textState.kind ? (
+          textState.kind === "error" ? (
+            <Text kind={textState.kind} IconEl={<Sad />}>
               You are sharing too often, please try again later.
             </Text>
           ) : (
-            <Text type={textState.type} IconEl={<Checkmark />}>
+            <Text kind={textState.kind} IconEl={<Checkmark />}>
               Successfully shared the project.
             </Text>
           )
         ) : (
-          <MainText>Do you want to share this project?</MainText>
+          <Text>Do you want to share this project?</Text>
         )}
         {textState?.id && (
           <SuccessWrapper>
@@ -102,15 +103,9 @@ export const Share = () => {
 };
 
 const Content = styled.div`
-  margin: 1.5rem 0 1.5rem 0.5rem;
-
   & svg.${ClassName.ICON_CHECKMARK} {
     color: ${({ theme }) => theme.colors.state.success.color};
   }
-`;
-
-const MainText = styled.div`
-  margin: 1rem 0;
 `;
 
 const SuccessWrapper = styled.div``;
@@ -127,7 +122,8 @@ const LinkWrapper = styled.div`
   margin-top: 0.75rem;
   margin-left: 0.25rem;
 
-  & a {
+  & a,
+  & svg {
     color: ${({ theme }) => theme.colors.state.info.color};
   }
 `;
@@ -135,7 +131,7 @@ const LinkWrapper = styled.div`
 const ButtonWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 0.75rem;
+  margin-top: 1rem;
 
   & button:nth-child(2) {
     margin-left: 1rem;

@@ -128,4 +128,24 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./Lumberjack"),
   },
+
+  {
+    name: "Battle Coins",
+    description:
+      "Learn to create a token mint with metadata, mint tokens, and burn tokens. Defeat enemies to earn tokens and restore your health by burning tokens.",
+    imageSrc: getTutorialImgSrc("battle-coins/battleCoins.jpg"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+      {
+        name: "John",
+        link: "https://twitter.com/ZYJLiu",
+      },
+    ],
+    level: TutorialLevel.INTERMEDIATE,
+    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    elementImport: () => import("./BattleCoins"),
+  },
 ];

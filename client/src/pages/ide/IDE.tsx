@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import Panels from "./Panels";
-import ModalWrapper from "../../components/Modal/ModalWrapper";
+import ModalBackdrop from "../../components/Modal/ModalBackdrop";
 import ClientHelper from "./ClientHelper";
 import useStatics from "./useStatics";
 
@@ -20,7 +20,7 @@ const IDE = () => {
   return (
     <Wrapper ref={wrapperRef}>
       <Panels />
-      <ModalWrapper />
+      <ModalBackdrop />
       <ClientHelper />
     </Wrapper>
   );

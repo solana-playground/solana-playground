@@ -134,6 +134,33 @@ export class PgCommon {
   }
 
   /**
+   * @returns whether the given colors are the same
+   */
+  static compareColors = (bg1: string, bg2: string) => {
+    // Won't be reading frequently, but it gives a warning on the 2nd read.
+    // Warning: Canvas2D: Multiple readback operations using getImageData are
+    // faster with the willReadFrequently attribute set to true.
+    const ctx = document
+      .createElement("canvas")
+      .getContext("2d", { willReadFrequently: true })!;
+
+    // Fill bg1
+    ctx.fillStyle = bg1;
+    const bg1Args: [number, number, number, number] = [0, 0, 1, 1];
+    ctx.fillRect(...bg1Args);
+
+    // Fill bg2
+    ctx.fillStyle = bg2;
+    const bg2Args: [number, number, number, number] = [1, 1, 1, 1];
+    ctx.fillRect(...bg2Args);
+
+    return PgCommon.compareValues(
+      ctx.getImageData(...bg1Args).data,
+      ctx.getImageData(...bg2Args).data
+    );
+  };
+
+  /**
    * @returns the JS number(only use it if you are certain this won't overflow)
    */
   static bigintToInt<T extends bigint | undefined>(bigint: T) {
@@ -204,7 +231,7 @@ export class PgCommon {
    *
    * @returns transaction url for solana explorer, solscan
    */
-  static getExplorerTxUrls(txHash: string, endpoint: Endpoint) {
+  static getExplorerTxUrls(txHash: string, endpoint: string) {
     let explorer = EXPLORER_URL + "/tx/" + txHash;
     const cluster = this.getExplorerClusterParam(endpoint);
     explorer += cluster;
@@ -237,25 +264,6 @@ export class PgCommon {
     const solscan = SOLSCAN_URL + "/token/" + mint + cluster;
 
     return { explorer, solscan };
-  }
-
-  /**
-   * Calculate basic rem operations for css
-   */
-  static calculateRem(
-    remOne: string,
-    remTwo: string,
-    operation: "add" | "substract"
-  ) {
-    const intOne = +remOne.split("rem")[0];
-    const intTwo = +remTwo.split("rem")[0];
-
-    let result;
-
-    if (operation === "add") result = intOne + intTwo;
-    else if (operation === "substract") result = intOne - intTwo;
-
-    return result + "rem";
   }
 
   /**
