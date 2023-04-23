@@ -7,6 +7,7 @@ import {
   ImportableTheme,
   PgFont,
   PgThemeInternal,
+  PgThemeReady,
 } from "./interface";
 
 export class PgThemeManager {
@@ -196,6 +197,21 @@ export class PgThemeManager {
     return component;
   }
 
+  /** Get the theme with default types set */
+  private static get _themeReady() {
+    return this._theme as PgThemeReady;
+  }
+
+  /** Get and initialize component and return it with the correct type */
+  private static _getComponent<
+    T extends keyof NonNullable<PgThemeInternal["components"]>
+  >(component: T): NonNullable<NonNullable<PgThemeInternal["components"]>[T]> {
+    const components = this._theme.components!;
+    components[component] ??= {};
+
+    return components[component]!;
+  }
+
   /** Set default fonts */
   private static _theme_fonts() {
     this._theme.font ??= {};
@@ -218,29 +234,30 @@ export class PgThemeManager {
   /** Set defaults */
   private static _default() {
     this._theme.default ??= {};
+    const def = this._theme.default;
 
     // Backdrop
-    this._theme.default!.backdrop ??= {
+    def.backdrop ??= {
       bg: "#00000080",
     };
 
     // Border radius
-    this._theme.default!.borderRadius ??= "4px";
+    def.borderRadius ??= "4px";
 
     // Box shadow
-    this._theme.default!.boxShadow ??= "rgb(0 0 0 / 25%) -1px 3px 4px";
+    def.boxShadow ??= "rgb(0 0 0 / 25%) -1px 3px 4px";
 
     // Scrollbar
-    if (!this._theme.default.scrollbar) {
+    if (!def.scrollbar) {
       if (this._theme.isDark) {
-        this._theme.default.scrollbar = {
+        def.scrollbar = {
           thumb: {
             color: "#ffffff64",
             hoverColor: "#ffffff32",
           },
         };
       } else {
-        this._theme.default.scrollbar = {
+        def.scrollbar = {
           thumb: {
             color: "#00000032",
             hoverColor: "#00000064",
@@ -250,7 +267,7 @@ export class PgThemeManager {
     }
 
     // Transition
-    this._theme.default.transition ??= {
+    def.transition ??= {
       type: "linear",
       duration: {
         short: "50ms",
@@ -260,7 +277,7 @@ export class PgThemeManager {
     };
 
     // Transparency
-    this._theme.default.transparency ??= {
+    def.transparency ??= {
       low: "16",
       medium: "64",
       high: "bb",
@@ -271,24 +288,15 @@ export class PgThemeManager {
 
   /** Set default state colors */
   private static _stateColors() {
-    this._theme.colors.state.disabled.bg ??=
-      this._theme.colors.state.disabled.color +
-      this._theme.default!.transparency!.low;
-    this._theme.colors.state.error.bg ??=
-      this._theme.colors.state.error.color +
-      this._theme.default!.transparency!.low;
-    this._theme.colors.state.hover.bg ??=
-      this._theme.colors.state.hover.color +
-      this._theme.default!.transparency!.low;
-    this._theme.colors.state.info.bg ??=
-      this._theme.colors.state.info.color +
-      this._theme.default!.transparency!.low;
-    this._theme.colors.state.success.bg ??=
-      this._theme.colors.state.success.color +
-      this._theme.default!.transparency!.low;
-    this._theme.colors.state.warning.bg ??=
-      this._theme.colors.state.warning.color +
-      this._theme.default!.transparency!.low;
+    const state = this._theme.colors.state;
+    const theme = this._themeReady;
+
+    state.disabled.bg ??= state.disabled.color + theme.default.transparency.low;
+    state.error.bg ??= state.error.color + theme.default.transparency.low;
+    state.hover.bg ??= state.hover.color + theme.default.transparency.low;
+    state.info.bg ??= state.info.color + theme.default.transparency.low;
+    state.success.bg ??= state.success.color + theme.default.transparency.low;
+    state.warning.bg ??= state.warning.color + theme.default.transparency.low;
 
     return this;
   }
@@ -302,99 +310,90 @@ export class PgThemeManager {
 
   /** Set default skeleton component */
   private static _skeleton() {
-    this._theme.components!.skeleton ??= {};
-    this._theme.components!.skeleton.bg ??= "#44475A";
-    this._theme.components!.skeleton.highlightColor ??= "#343746";
-    this._theme.components!.skeleton.borderRadius ??=
-      this._theme.default!.borderRadius;
+    const skeleton = this._getComponent("skeleton");
+    const theme = this._themeReady;
+
+    skeleton.bg ??= "#44475A";
+    skeleton.highlightColor ??= "#343746";
+    skeleton.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }
 
   /** Set default button component */
   private static _button() {
-    this._theme.components!.button ??= {};
+    const button = this._getComponent("button");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.button.default ??= {};
-    this._theme.components!.button.default.bg ??= "transparent";
-    this._theme.components!.button.default.color ??= "inherit";
-    this._theme.components!.button.default.borderColor ??= "transparent";
-    this._theme.components!.button.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.button.default.fontSize ??=
-      this._theme.font!.code!.size.medium;
-    this._theme.components!.button.default.fontWeight ??= "normal";
-    this._theme.components!.button.default.hover ??= {};
+    button.default ??= {};
+    button.default.bg ??= "transparent";
+    button.default.color ??= "inherit";
+    button.default.borderColor ??= "transparent";
+    button.default.borderRadius ??= theme.default.borderRadius;
+    button.default.fontSize ??= theme.font.code.size.medium;
+    button.default.fontWeight ??= "normal";
+    button.default.hover ??= {};
 
     return this;
   }
 
   /** Set default menu component */
   private static _menu() {
-    this._theme.components!.menu ??= {};
+    const menu = this._getComponent("menu");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.menu.default ??= {};
-    this._theme.components!.menu.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.menu.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.menu.default.padding ??= "0.25rem 0";
-    this._theme.components!.menu.default.boxShadow ??=
-      this._theme.default!.boxShadow;
+    menu.default ??= {};
+    menu.default.bg ??= theme.colors.default.bgPrimary;
+    menu.default.borderRadius ??= theme.default.borderRadius;
+    menu.default.padding ??= "0.25rem 0";
+    menu.default.boxShadow ??= theme.default.boxShadow;
 
     return this;
   }
 
   /** Set default menu component */
   private static _text() {
-    this._theme.components!.text ??= {};
+    const text = this._getComponent("text");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.text.default ??= {};
-    this._theme.components!.text.default.display ??= "flex";
-    this._theme.components!.text.default.justifyContent ??= "center";
-    this._theme.components!.text.default.alignItems ??= "center";
-    this._theme.components!.text.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.text.default.padding ??= "1rem";
-    this._theme.components!.text.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.text.default.fontSize ??=
-      this._theme.font!.code!.size.small;
-    this._theme.components!.text.default.lineHeight ??= 1.5;
+    text.default ??= {};
+    text.default.display ??= "flex";
+    text.default.justifyContent ??= "center";
+    text.default.alignItems ??= "center";
+    text.default.bg ??= theme.colors.default.bgPrimary;
+    text.default.padding ??= "1rem";
+    text.default.borderRadius ??= theme.default.borderRadius;
+    text.default.fontSize ??= theme.font.code.size.small;
+    text.default.lineHeight ??= 1.5;
 
     return this;
   }
 
   /** Set default input component */
   private static _input() {
-    this._theme.components!.input ??= {};
+    const input = this._getComponent("input");
+    const theme = this._themeReady;
 
-    this._theme.components!.input.bg ??= this._theme.colors.default.bgPrimary;
-    this._theme.components!.input.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.input.borderColor ??=
-      this._theme.colors.default.border;
-    this._theme.components!.input.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.input.padding ??= "0.25rem 0.5rem";
-    this._theme.components!.input.boxShadow ??= "none";
-    this._theme.components!.input.fontWeight ??= "normal";
-    this._theme.components!.input.fontSize ??=
-      this._theme.font!.code!.size.medium;
+    input.bg ??= theme.colors.default.bgPrimary;
+    input.color ??= theme.colors.default.textPrimary;
+    input.borderColor ??= theme.colors.default.border;
+    input.borderRadius ??= theme.default.borderRadius;
+    input.padding ??= "0.25rem 0.5rem";
+    input.boxShadow ??= "none";
+    input.fontWeight ??= "normal";
+    input.fontSize ??= theme.font.code.size.medium;
 
-    this._theme.components!.input.focus ??= {};
-    this._theme.components!.input.focus.outline ??= `1px solid ${
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.medium
+    input.focus ??= {};
+    input.focus.outline ??= `1px solid ${
+      theme.colors.default.primary + theme.default.transparency.medium
     }`;
 
-    this._theme.components!.input.focusWithin ??= {};
-    this._theme.components!.input.focusWithin.outline ??= `1px solid ${
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.medium
+    input.focusWithin ??= {};
+    input.focusWithin.outline ??= `1px solid ${
+      theme.colors.default.primary + theme.default.transparency.medium
     }`;
 
     return this;
@@ -402,1036 +401,831 @@ export class PgThemeManager {
 
   /** Set default select component */
   private static _select() {
-    this._theme.components!.select ??= {};
+    const select = this._getComponent("select");
+    const theme = this._themeReady;
+    const input = theme.components.input;
 
     // Default
-    this._theme.components!.select.default ??= {};
-    this._theme.components!.select.default.fontSize ??=
-      this._theme.font!.code!.size.small;
+    select.default ??= {};
+    select.default.fontSize ??= theme.font.code.size.small;
 
     // Control
-    this._theme.components!.select.control ??= {};
-    this._theme.components!.select.control.bg ??=
-      this._theme.components!.input!.bg;
-    this._theme.components!.select.control.borderColor ??=
-      this._theme.colors.default.border;
-    this._theme.components!.select.control.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.select.control.minHeight ??= "fit-content";
-    this._theme.components!.select.control.hover ??= {};
-    this._theme.components!.select.control.hover.borderColor ??=
-      this._theme.colors.state.hover.color;
-    this._theme.components!.select.control.hover.cursor ??= "pointer";
-    this._theme.components!.select.control.focusWithin ??= {};
-    this._theme.components!.select.control.focusWithin.boxShadow ??= `0 0 0 1px ${
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.high
+    select.control ??= {};
+    select.control.bg ??= input.bg;
+    select.control.borderColor ??= theme.colors.default.border;
+    select.control.borderRadius ??= theme.default.borderRadius;
+    select.control.minHeight ??= "fit-content";
+    select.control.hover ??= {};
+    select.control.hover.borderColor ??= theme.colors.state.hover.color;
+    select.control.hover.cursor ??= "pointer";
+    select.control.focusWithin ??= {};
+    select.control.focusWithin.boxShadow ??= `0 0 0 1px ${
+      theme.colors.default.primary + theme.default.transparency.high
     }`;
 
     // Menu
-    this._theme.components!.select.menu ??= {};
-    this._theme.components!.select.menu.bg ??=
-      this._theme.components!.input!.bg;
-    this._theme.components!.select.menu.color ??=
-      this._theme.components!.input!.color;
-    this._theme.components!.select.menu.borderRadius ??=
-      this._theme.components!.input!.borderRadius;
+    select.menu ??= {};
+    select.menu.bg ??= input.bg;
+    select.menu.color ??= input.color;
+    select.menu.borderRadius ??= input.borderRadius;
 
     // Option
-    this._theme.components!.select.option ??= {};
-    this._theme.components!.select.option.bg ??=
-      this._theme.components!.input!.bg;
-    this._theme.components!.select.option.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.select.option.cursor ??= "pointer";
+    select.option ??= {};
+    select.option.bg ??= input.bg;
+    select.option.color ??= theme.colors.default.textSecondary;
+    select.option.cursor ??= "pointer";
     // Option::before
-    this._theme.components!.select.option.before ??= {};
-    this._theme.components!.select.option.before.color ??=
-      this._theme.colors.default.primary;
+    select.option.before ??= {};
+    select.option.before.color ??= theme.colors.default.primary;
     // Option:focus
-    this._theme.components!.select.option.focus ??= {};
-    this._theme.components!.select.option.focus.bg ??=
-      this._theme.colors.state.hover.bg;
-    this._theme.components!.select.option.focus.color ??=
-      this._theme.colors.default.primary;
+    select.option.focus ??= {};
+    select.option.focus.bg ??= theme.colors.state.hover.bg;
+    select.option.focus.color ??= theme.colors.default.primary;
     // Option:active
-    this._theme.components!.select.option.active ??= {};
-    this._theme.components!.select.option.active.bg ??=
-      this._theme.colors.state.hover.bg;
+    select.option.active ??= {};
+    select.option.active.bg ??= theme.colors.state.hover.bg;
 
     // Single Value
-    this._theme.components!.select.singleValue ??= {};
-    this._theme.components!.select.singleValue.bg ??=
-      this._theme.components!.input!.bg;
-    this._theme.components!.select.singleValue.color ??=
-      this._theme.components!.input!.color;
+    select.singleValue ??= {};
+    select.singleValue.bg ??= input.bg;
+    select.singleValue.color ??= input.color;
 
     // Input
-    this._theme.components!.select.input ??= {};
-    this._theme.components!.select.input.color ??=
-      this._theme.components!.input!.color;
+    select.input ??= {};
+    select.input.color ??= input.color;
 
     // Group Heading
-    this._theme.components!.select.groupHeading ??= {};
-    this._theme.components!.select.groupHeading.color ??=
-      this._theme.colors.default.textSecondary;
+    select.groupHeading ??= {};
+    select.groupHeading.color ??= theme.colors.default.textSecondary;
 
     // Dropdown Indicator
-    this._theme.components!.select.dropdownIndicator ??= {};
-    this._theme.components!.select.dropdownIndicator.padding ??= "0.25rem";
+    select.dropdownIndicator ??= {};
+    select.dropdownIndicator.padding ??= "0.25rem";
 
     // Indicator Separator
-    this._theme.components!.select.indicatorSeparator ??= {};
-    this._theme.components!.select.indicatorSeparator.bg ??=
-      this._theme.colors.default.textSecondary;
+    select.indicatorSeparator ??= {};
+    select.indicatorSeparator.bg ??= theme.colors.default.textSecondary;
 
     return this;
   }
 
   /** Set default tooltip component */
   private static _tooltip() {
-    this._theme.components!.tooltip ??= {};
-    this._theme.components!.tooltip.bg ??= this._theme.colors.default.bgPrimary;
-    this._theme.components!.tooltip.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.tooltip.bgSecondary ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.tooltip.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.tooltip.boxShadow ??=
-      this._theme.default!.boxShadow;
-    this._theme.components!.tooltip.fontSize ??=
-      this._theme.font!.code!.size.small;
+    const tooltip = this._getComponent("tooltip");
+    const theme = this._themeReady;
+
+    tooltip.bg ??= theme.colors.default.bgPrimary;
+    tooltip.color ??= theme.colors.default.textPrimary;
+    tooltip.bgSecondary ??= theme.colors.default.bgSecondary;
+    tooltip.borderRadius ??= theme.default.borderRadius;
+    tooltip.boxShadow ??= theme.default.boxShadow;
+    tooltip.fontSize ??= theme.font.code.size.small;
 
     return this;
   }
 
   /** Set default progress bar component */
   private static _progressBar() {
-    this._theme.components!.progressbar ??= {};
+    const progressbar = this._getComponent("progressbar");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.progressbar.default ??= {};
-    this._theme.components!.progressbar.default.width ??= "100%";
-    this._theme.components!.progressbar.default.height ??= "0.75rem";
-    this._theme.components!.progressbar.default.overflow ??= "hidden";
-    this._theme.components!.progressbar.default.border ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.progressbar.default.borderRadius ??=
-      this._theme.default!.borderRadius;
+    progressbar.default ??= {};
+    progressbar.default.width ??= "100%";
+    progressbar.default.height ??= "0.75rem";
+    progressbar.default.overflow ??= "hidden";
+    progressbar.default.border ??= `1px solid ${theme.colors.default.border}`;
+    progressbar.default.borderRadius ??= theme.default.borderRadius;
 
     // Indicator
-    this._theme.components!.progressbar.indicator ??= {};
-    this._theme.components!.progressbar.indicator.height ??= "100%";
-    this._theme.components!.progressbar.indicator.maxWidth ??= "100%";
-    this._theme.components!.progressbar.indicator.bg ??=
-      this._theme.colors.default.primary;
-    this._theme.components!.progressbar.indicator.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.progressbar.indicator.transition ??= `width ${
-      this._theme.default!.transition!.duration.long
-    } ${this._theme.default!.transition!.type}`;
+    progressbar.indicator ??= {};
+    progressbar.indicator.height ??= "100%";
+    progressbar.indicator.maxWidth ??= "100%";
+    progressbar.indicator.bg ??= theme.colors.default.primary;
+    progressbar.indicator.borderRadius ??= theme.default.borderRadius;
+    progressbar.indicator.transition ??= `width ${theme.default.transition.duration.long} ${theme.default.transition.type}`;
 
     return this;
   }
 
   /** Set default upload area component */
   private static _uploadArea() {
-    this._theme.components!.uploadArea ??= {};
+    const uploadArea = this._getComponent("uploadArea");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.uploadArea.default ??= {};
-    this._theme.components!.uploadArea.default.margin ??= "1rem 0 0.5rem 0";
-    this._theme.components!.uploadArea.default.padding ??= "2rem";
-    this._theme.components!.uploadArea.default.maxWidth ??= "20rem";
-    this._theme.components!.uploadArea.default.bg ??=
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.low;
-    this._theme.components!.uploadArea.default.border ??= `2px dashed
-    ${
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.medium
-    }`;
-    this._theme.components!.uploadArea.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.uploadArea.default.transition ??= `all ${
-      this._theme.default!.transition!.duration.short
-    }
-      ${this._theme.default!.transition!.type}`;
-    this._theme.components!.uploadArea.default.hover ??= {};
-    this._theme.components!.uploadArea.default.hover.cursor ??= "pointer";
-    this._theme.components!.uploadArea.default.hover.borderColor ??=
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.high;
+    uploadArea.default ??= {};
+    uploadArea.default.margin ??= "1rem 0 0.5rem 0";
+    uploadArea.default.padding ??= "2rem";
+    uploadArea.default.maxWidth ??= "20rem";
+    uploadArea.default.bg ??=
+      theme.colors.default.primary + theme.default.transparency.low;
+    uploadArea.default.border ??= `2px dashed
+    ${theme.colors.default.primary + theme.default.transparency.medium}`;
+    uploadArea.default.borderRadius ??= theme.default.borderRadius;
+    uploadArea.default.transition ??= `all ${theme.default.transition.duration.short}
+      ${theme.default.transition.type}`;
+    uploadArea.default.hover ??= {};
+    uploadArea.default.hover.cursor ??= "pointer";
+    uploadArea.default.hover.borderColor ??=
+      theme.colors.default.primary + theme.default.transparency.high;
 
     // Icon
-    this._theme.components!.uploadArea.icon ??= {};
-    this._theme.components!.uploadArea.icon.width ??= "4rem";
-    this._theme.components!.uploadArea.icon.height ??= "4rem";
-    this._theme.components!.uploadArea.icon.color ??=
-      this._theme.colors.default.primary;
+    uploadArea.icon ??= {};
+    uploadArea.icon.width ??= "4rem";
+    uploadArea.icon.height ??= "4rem";
+    uploadArea.icon.color ??= theme.colors.default.primary;
 
     // Text
-    this._theme.components!.uploadArea.text ??= {};
+    uploadArea.text ??= {};
     // Text default
-    this._theme.components!.uploadArea.text.default ??= {};
-    this._theme.components!.uploadArea.text.default.marginTop ??= "1rem";
-    this._theme.components!.uploadArea.text.default.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.uploadArea.text.default.fontWeight ??= "bold";
+    uploadArea.text.default ??= {};
+    uploadArea.text.default.marginTop ??= "1rem";
+    uploadArea.text.default.color ??= theme.colors.default.textSecondary;
+    uploadArea.text.default.fontWeight ??= "bold";
     // Text error
-    this._theme.components!.uploadArea.text.error ??= {};
-    this._theme.components!.uploadArea.text.error.color ??=
-      this._theme.colors.state.error.color;
+    uploadArea.text.error ??= {};
+    uploadArea.text.error.color ??= theme.colors.state.error.color;
     // Text success
-    this._theme.components!.uploadArea.text.success ??= {};
-    this._theme.components!.uploadArea.text.success.color ??=
-      this._theme.colors.default.primary;
+    uploadArea.text.success ??= {};
+    uploadArea.text.success.color ??= theme.colors.default.primary;
 
     return this;
   }
 
   /** Set default skeleton component */
   private static _toast() {
-    this._theme.components!.toast ??= {};
+    const toast = this._getComponent("toast");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.toast.default ??= {};
-    this._theme.components!.toast.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.toast.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.toast.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.toast.default.fontFamily ??=
-      this._theme.font!.code!.family;
-    this._theme.components!.toast.default.fontSize ??=
-      this._theme.font!.code!.size.medium;
-    this._theme.components!.toast.default.cursor ??= "default";
+    toast.default ??= {};
+    toast.default.bg ??= theme.colors.default.bgPrimary;
+    toast.default.color ??= theme.colors.default.textPrimary;
+    toast.default.borderRadius ??= theme.default.borderRadius;
+    toast.default.fontFamily ??= theme.font.code.family;
+    toast.default.fontSize ??= theme.font.code.size.medium;
+    toast.default.cursor ??= "default";
 
     // Progress bar
-    this._theme.components!.toast.progress ??= {};
-    this._theme.components!.toast.progress.bg ??=
-      this._theme.colors.default.primary;
+    toast.progress ??= {};
+    toast.progress.bg ??= theme.colors.default.primary;
 
     // Close button
-    this._theme.components!.toast.closeButton ??= {};
-    this._theme.components!.toast.closeButton.color ??=
-      this._theme.colors.default.textSecondary;
+    toast.closeButton ??= {};
+    toast.closeButton.color ??= theme.colors.default.textSecondary;
 
     return this;
   }
 
   /** Set default modal component */
   private static _modal() {
-    this._theme.components!.modal ??= {};
+    const modal = this._getComponent("modal");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.modal.default ??= {};
-    this._theme.components!.modal.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.modal.default.border ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.modal.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.modal.default.padding ??= "0.25rem 1.5rem";
-    this._theme.components!.modal.default.minWidth ??= "min-content";
-    this._theme.components!.modal.default.maxWidth ??= "max(40%, 20rem)";
+    modal.default ??= {};
+    modal.default.bg ??= theme.colors.default.bgPrimary;
+    modal.default.border ??= `1px solid ${theme.colors.default.border}`;
+    modal.default.borderRadius ??= theme.default.borderRadius;
+    modal.default.padding ??= "0.25rem 1.5rem";
+    modal.default.minWidth ??= "min-content";
+    modal.default.maxWidth ??= "max(40%, 20rem)";
 
     // Backdrop
-    this._theme.components!.modal.backdrop ??= this._theme.default!.backdrop;
+    modal.backdrop ??= theme.default.backdrop;
 
     // Title
-    this._theme.components!.modal.title ??= {};
-    this._theme.components!.modal.title.display ??= "flex";
-    this._theme.components!.modal.title.justifyContent ??= "center";
-    this._theme.components!.modal.title.alignItems ??= "center";
-    this._theme.components!.modal.title.padding ??= "0.5rem 0";
-    this._theme.components!.modal.title.borderBottom ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.modal.title.fontWeight ??= "bold";
+    modal.title ??= {};
+    modal.title.display ??= "flex";
+    modal.title.justifyContent ??= "center";
+    modal.title.alignItems ??= "center";
+    modal.title.padding ??= "0.5rem 0";
+    modal.title.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    modal.title.fontWeight ??= "bold";
 
     // Content
-    this._theme.components!.modal.content ??= {};
-    this._theme.components!.modal.content.padding ??= "0.75rem 0";
-    this._theme.components!.modal.content.minWidth ??= "20rem";
-    this._theme.components!.modal.content.minHeight ??= "3rem";
+    modal.content ??= {};
+    modal.content.padding ??= "0.75rem 0";
+    modal.content.minWidth ??= "20rem";
+    modal.content.minHeight ??= "3rem";
 
     // Bottom
-    this._theme.components!.modal.bottom ??= {};
-    this._theme.components!.modal.bottom.display ??= "flex";
-    this._theme.components!.modal.bottom.justifyContent ??= "flex-end";
-    this._theme.components!.modal.bottom.padding ??= "0.5rem 0";
-    this._theme.components!.modal.bottom.marginBottom ??= "0.25rem";
+    modal.bottom ??= {};
+    modal.bottom.display ??= "flex";
+    modal.bottom.justifyContent ??= "flex-end";
+    modal.bottom.padding ??= "0.5rem 0";
+    modal.bottom.marginBottom ??= "0.25rem";
 
     return this;
   }
 
   /** Set default markdown component */
   private static _markdown() {
-    this._theme.components!.markdown ??= {};
+    const markdown = this._getComponent("markdown");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.markdown.default ??= {};
-    this._theme.components!.markdown.default.bg ??= "inherit";
-    this._theme.components!.markdown.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.markdown.default.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.markdown.default.fontSize ??=
-      this._theme.font!.other!.size.medium;
+    markdown.default ??= {};
+    markdown.default.bg ??= "inherit";
+    markdown.default.color ??= theme.colors.default.textPrimary;
+    markdown.default.fontFamily ??= theme.font.other.family;
+    markdown.default.fontSize ??= theme.font.other.size.medium;
 
     // Code block
-    this._theme.components!.markdown.code ??= {};
-    this._theme.components!.markdown.code.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.markdown.code.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.markdown.code.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.markdown.code.fontFamily ??=
-      this._theme.font!.code!.family;
-    this._theme.components!.markdown.code.fontSize ??=
-      this._theme.font!.code!.size.medium;
+    markdown.code ??= {};
+    markdown.code.bg ??= theme.colors.default.bgSecondary;
+    markdown.code.color ??= theme.colors.default.textPrimary;
+    markdown.code.borderRadius ??= theme.default.borderRadius;
+    markdown.code.fontFamily ??= theme.font.code.family;
+    markdown.code.fontSize ??= theme.font.code.size.medium;
 
     return this;
   }
 
   /** Set default tabs component */
   private static _tabs() {
-    this._theme.components!.tabs ??= {};
+    const tabs = this._getComponent("tabs");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.tabs.default ??= {};
-    this._theme.components!.tabs.default.display ??= "flex";
-    this._theme.components!.tabs.default.justifyContent ??= "space-between";
-    this._theme.components!.tabs.default.userSelect ??= "none";
-    this._theme.components!.tabs.default.borderBottom ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.tabs.default.fontSize ??=
-      this._theme.font!.code!.size.small;
+    tabs.default ??= {};
+    tabs.default.display ??= "flex";
+    tabs.default.justifyContent ??= "space-between";
+    tabs.default.userSelect ??= "none";
+    tabs.default.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    tabs.default.fontSize ??= theme.font.code.size.small;
 
     // Tab
-    this._theme.components!.tabs.tab ??= {};
+    tabs.tab ??= {};
     // Tab default
-    this._theme.components!.tabs.tab.default ??= {};
-    this._theme.components!.tabs.tab.default.display ??= "flex";
-    this._theme.components!.tabs.tab.default.justifyContent ??= "center";
-    this._theme.components!.tabs.tab.default.alignItems ??= "center";
-    this._theme.components!.tabs.tab.default.width ??= "fit-content";
-    this._theme.components!.tabs.tab.default.height ??= "2rem";
-    this._theme.components!.tabs.tab.default.paddingLeft ??= "0.5rem";
-    this._theme.components!.tabs.tab.default.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.tabs.tab.default.border ??= "1px solid transparent";
-    this._theme.components!.tabs.tab.default.borderRightColor ??=
-      this._theme.colors.default.border;
-    this._theme.components!.tabs.tab.default.transition ??= `all ${
-      this._theme.default!.transition!.duration.short
-    } ${this._theme.default!.transition!.type}`;
-    this._theme.components!.tabs.tab.default.hover ??= {};
-    this._theme.components!.tabs.tab.default.hover.cursor ??= "pointer";
-    this._theme.components!.tabs.tab.default.hover.bg ??=
-      this._theme.colors.state.hover.bg;
-    this._theme.components!.tabs.tab.default.hover.color ??=
-      this._theme.colors.default.textPrimary;
+    tabs.tab.default ??= {};
+    tabs.tab.default.display ??= "flex";
+    tabs.tab.default.justifyContent ??= "center";
+    tabs.tab.default.alignItems ??= "center";
+    tabs.tab.default.width ??= "fit-content";
+    tabs.tab.default.height ??= "2rem";
+    tabs.tab.default.paddingLeft ??= "0.5rem";
+    tabs.tab.default.color ??= theme.colors.default.textSecondary;
+    tabs.tab.default.border ??= "1px solid transparent";
+    tabs.tab.default.borderRightColor ??= theme.colors.default.border;
+    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
+    tabs.tab.default.hover ??= {};
+    tabs.tab.default.hover.cursor ??= "pointer";
+    tabs.tab.default.hover.bg ??= theme.colors.state.hover.bg;
+    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
     // Tab selected
-    this._theme.components!.tabs.tab.selected ??= {};
-    this._theme.components!.tabs.tab.selected.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.tabs.tab.selected.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.tabs.tab.selected.borderTopColor ??=
-      this._theme.colors.default.secondary;
+    tabs.tab.selected ??= {};
+    tabs.tab.selected.bg ??= theme.colors.default.bgPrimary;
+    tabs.tab.selected.color ??= theme.colors.default.textPrimary;
+    tabs.tab.selected.borderTopColor ??= theme.colors.default.secondary;
 
     return this;
   }
 
   /** Set default editor component */
   private static _editor() {
-    this._theme.components!.editor ??= {};
+    const editor = this._getComponent("editor");
+    const theme = this._themeReady;
 
-    this._theme.components!.editor.default ??= {};
-    this._theme.components!.editor.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.editor.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.editor.default.fontFamily ??=
-      this._theme.font!.code!.family;
-    this._theme.components!.editor.default.fontSize ??=
-      this._theme.font!.code!.size.large;
+    editor.default ??= {};
+    editor.default.bg ??= theme.colors.default.bgPrimary;
+    editor.default.color ??= theme.colors.default.textPrimary;
+    editor.default.fontFamily ??= theme.font.code.family;
+    editor.default.fontSize ??= theme.font.code.size.large;
 
     // Editor cursor color
-    this._theme.components!.editor.default.cursorColor ??=
-      this._theme.colors.default.textSecondary;
+    editor.default.cursorColor ??= theme.colors.default.textSecondary;
 
     // Editor active line
-    this._theme.components!.editor.default.activeLine ??= {};
-    this._theme.components!.editor.default.activeLine.bg ??= "inherit";
-    this._theme.components!.editor.default.activeLine.borderColor ??=
-      this._theme.colors.default.border;
+    editor.default.activeLine ??= {};
+    editor.default.activeLine.bg ??= "inherit";
+    editor.default.activeLine.borderColor ??= theme.colors.default.border;
 
     // Editor selection
-    this._theme.components!.editor.default.selection ??= {};
-    this._theme.components!.editor.default.selection.bg ??=
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.medium;
-    this._theme.components!.editor.default.selection.color ??= "inherit";
+    editor.default.selection ??= {};
+    editor.default.selection.bg ??=
+      theme.colors.default.primary + theme.default.transparency.medium;
+    editor.default.selection.color ??= "inherit";
 
     // Editor search match
-    this._theme.components!.editor.default.searchMatch ??= {};
-    this._theme.components!.editor.default.searchMatch.bg ??=
-      this._theme.colors.default.textSecondary +
-      this._theme.default!.transparency!.medium;
-    this._theme.components!.editor.default.searchMatch.color ??= "inherit";
-    this._theme.components!.editor.default.searchMatch.selectedBg ??= "inherit";
-    this._theme.components!.editor.default.searchMatch.selectedColor ??=
-      "inherit";
+    editor.default.searchMatch ??= {};
+    editor.default.searchMatch.bg ??=
+      theme.colors.default.textSecondary + theme.default.transparency.medium;
+    editor.default.searchMatch.color ??= "inherit";
+    editor.default.searchMatch.selectedBg ??= "inherit";
+    editor.default.searchMatch.selectedColor ??= "inherit";
 
     // Editor gutter
-    this._theme.components!.editor.gutter ??= {};
-    this._theme.components!.editor.gutter.bg ??=
-      this._theme.components!.editor.default.bg;
-    this._theme.components!.editor.gutter.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.editor.gutter.activeBg ??= "inherit";
-    this._theme.components!.editor.gutter.activeColor ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.editor.gutter.borderRight ??= "none";
+    editor.gutter ??= {};
+    editor.gutter.bg ??= editor.default.bg;
+    editor.gutter.color ??= theme.colors.default.textSecondary;
+    editor.gutter.activeBg ??= "inherit";
+    editor.gutter.activeColor ??= theme.colors.default.textPrimary;
+    editor.gutter.borderRight ??= "none";
 
     // Editor minimap
-    this._theme.components!.editor.minimap ??= {};
-    this._theme.components!.editor.minimap.bg ??=
-      this._theme.components!.editor.default.bg;
-    this._theme.components!.editor.minimap.selectionHighlight ??=
-      this._theme.colors.default.secondary;
+    editor.minimap ??= {};
+    editor.minimap.bg ??= editor.default.bg;
+    editor.minimap.selectionHighlight ??= theme.colors.default.secondary;
 
     // Editor peek view
-    this._theme.components!.editor.peekView ??= {};
-    this._theme.components!.editor.peekView.borderColor ??=
-      this._theme.colors.default.primary;
+    editor.peekView ??= {};
+    editor.peekView.borderColor ??= theme.colors.default.primary;
     // Editor peek view title
-    this._theme.components!.editor.peekView.title ??= {};
-    this._theme.components!.editor.peekView.title.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.editor.peekView.title.labelColor ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.editor.peekView.title.descriptionColor ??=
-      this._theme.colors.default.textSecondary;
+    editor.peekView.title ??= {};
+    editor.peekView.title.bg ??= theme.colors.default.bgSecondary;
+    editor.peekView.title.labelColor ??= theme.colors.default.textPrimary;
+    editor.peekView.title.descriptionColor ??=
+      theme.colors.default.textSecondary;
     // Editor peek view editor
-    this._theme.components!.editor.peekView.editor ??= {};
-    this._theme.components!.editor.peekView.editor.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.editor.peekView.editor.matchHighlightBg ??=
-      this._theme.colors.state.warning.color +
-      this._theme.default!.transparency!.medium;
-    this._theme.components!.editor.peekView.editor.gutterBg ??=
-      this._theme.components!.editor.peekView.editor.bg;
+    editor.peekView.editor ??= {};
+    editor.peekView.editor.bg ??= theme.colors.default.bgSecondary;
+    editor.peekView.editor.matchHighlightBg ??=
+      theme.colors.state.warning.color + theme.default.transparency.medium;
+    editor.peekView.editor.gutterBg ??= editor.peekView.editor.bg;
     // Editor peek view result
-    this._theme.components!.editor.peekView.result ??= {};
-    this._theme.components!.editor.peekView.result.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.editor.peekView.result.lineColor ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.editor.peekView.result.fileColor ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.editor.peekView.result.selectionBg ??=
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.low;
-    this._theme.components!.editor.peekView.result.selectionColor ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.editor.peekView.result.matchHighlightBg ??=
-      this._theme.colors.state.warning.color +
-      this._theme.default!.transparency!.medium;
+    editor.peekView.result ??= {};
+    editor.peekView.result.bg ??= theme.colors.default.bgPrimary;
+    editor.peekView.result.lineColor ??= theme.colors.default.textSecondary;
+    editor.peekView.result.fileColor ??= theme.colors.default.textSecondary;
+    editor.peekView.result.selectionBg ??=
+      theme.colors.default.primary + theme.default.transparency.low;
+    editor.peekView.result.selectionColor ??= theme.colors.default.textPrimary;
+    editor.peekView.result.matchHighlightBg ??=
+      theme.colors.state.warning.color + theme.default.transparency.medium;
 
     // Editor tooltip/widget
-    this._theme.components!.editor.tooltip ??= {};
-    this._theme.components!.editor.tooltip.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.editor.tooltip.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.editor.tooltip.selectedBg ??=
-      this._theme.colors.default.primary +
-      this._theme.default!.transparency!.medium;
-    this._theme.components!.editor.tooltip.selectedColor ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.editor.tooltip.borderColor ??=
-      this._theme.colors.default.border;
+    editor.tooltip ??= {};
+    editor.tooltip.bg ??= theme.colors.default.bgSecondary;
+    editor.tooltip.color ??= theme.colors.default.textPrimary;
+    editor.tooltip.selectedBg ??=
+      theme.colors.default.primary + theme.default.transparency.medium;
+    editor.tooltip.selectedColor ??= theme.colors.default.textPrimary;
+    editor.tooltip.borderColor ??= theme.colors.default.border;
 
     // Editor wrapper
-    this._theme.components!.editor.wrapper ??= {};
+    editor.wrapper ??= {};
 
     return this;
   }
 
   /** Set default terminal component */
   private static _terminal() {
-    this._theme.components!.terminal ??= {};
+    const terminal = this._getComponent("terminal");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.terminal.default ??= {};
-    this._theme.components!.terminal.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.terminal.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.terminal.default.borderTop ??= `1px solid ${this._theme.colors.default.primary};`;
+    terminal.default ??= {};
+    terminal.default.bg ??= theme.colors.default.bgPrimary;
+    terminal.default.color ??= theme.colors.default.textPrimary;
+    terminal.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
 
     // Xterm
-    this._theme.components!.terminal.xterm ??= {};
-    this._theme.components!.terminal.xterm.textPrimary ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.terminal.xterm.textSecondary ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.terminal.xterm.primary ??=
-      this._theme.colors.default.primary;
-    this._theme.components!.terminal.xterm.secondary ??=
-      this._theme.colors.default.secondary;
-    this._theme.components!.terminal.xterm.success ??=
-      this._theme.colors.state.success.color;
-    this._theme.components!.terminal.xterm.error ??=
-      this._theme.colors.state.error.color;
-    this._theme.components!.terminal.xterm.warning ??=
-      this._theme.colors.state.warning.color;
-    this._theme.components!.terminal.xterm.info ??=
-      this._theme.colors.state.info.color;
-    this._theme.components!.terminal.xterm.selectionBg ??=
-      this._theme.colors.default.textSecondary;
+    terminal.xterm ??= {};
+    terminal.xterm.textPrimary ??= theme.colors.default.textPrimary;
+    terminal.xterm.textSecondary ??= theme.colors.default.textSecondary;
+    terminal.xterm.primary ??= theme.colors.default.primary;
+    terminal.xterm.secondary ??= theme.colors.default.secondary;
+    terminal.xterm.success ??= theme.colors.state.success.color;
+    terminal.xterm.error ??= theme.colors.state.error.color;
+    terminal.xterm.warning ??= theme.colors.state.warning.color;
+    terminal.xterm.info ??= theme.colors.state.info.color;
+    terminal.xterm.selectionBg ??= theme.colors.default.textSecondary;
     // Xterm cursor
-    this._theme.components!.terminal.xterm.cursor ??= {};
-    this._theme.components!.terminal.xterm.cursor.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.terminal.xterm.cursor.accentColor ??= this._theme
-      .components!.terminal.default.bg as string;
+    terminal.xterm.cursor ??= {};
+    terminal.xterm.cursor.color ??= theme.colors.default.textPrimary;
+    terminal.xterm.cursor.accentColor ??= terminal.default.bg as string;
 
     return this;
   }
 
   /** Set default wallet component */
   private static _wallet() {
-    this._theme.components!.wallet ??= {};
+    const wallet = this._getComponent("wallet");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.wallet.default ??= {};
-    this._theme.components!.wallet.default.width ??= "100%";
-    this._theme.components!.wallet.default.height ??= "100%";
-    this._theme.components!.wallet.default.zIndex ??= 2;
-    this._theme.components!.wallet.default.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.wallet.default.border ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.wallet.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.wallet.default.boxShadow ??=
-      this._theme.default!.boxShadow;
+    wallet.default ??= {};
+    wallet.default.width ??= "100%";
+    wallet.default.height ??= "100%";
+    wallet.default.zIndex ??= 2;
+    wallet.default.bg ??= theme.colors.default.bgSecondary;
+    wallet.default.border ??= `1px solid ${theme.colors.default.border}`;
+    wallet.default.borderRadius ??= theme.default.borderRadius;
+    wallet.default.boxShadow ??= theme.default.boxShadow;
 
     // Title
-    this._theme.components!.wallet.title ??= {};
+    wallet.title ??= {};
     // Title default
-    this._theme.components!.wallet.title.default ??= {};
-    this._theme.components!.wallet.title.default.position ??= "relative";
-    this._theme.components!.wallet.title.default.height ??= "2rem";
-    this._theme.components!.wallet.title.default.display ??= "flex";
-    this._theme.components!.wallet.title.default.justifyContent ??= "center";
-    this._theme.components!.wallet.title.default.alignItems ??= "center";
-    this._theme.components!.wallet.title.default.padding ??= "0.5rem";
+    wallet.title.default ??= {};
+    wallet.title.default.position ??= "relative";
+    wallet.title.default.height ??= "2rem";
+    wallet.title.default.display ??= "flex";
+    wallet.title.default.justifyContent ??= "center";
+    wallet.title.default.alignItems ??= "center";
+    wallet.title.default.padding ??= "0.5rem";
     // Title text
-    this._theme.components!.wallet.title.text ??= {};
-    this._theme.components!.wallet.title.text.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.wallet.title.text.transition ??= `all ${
-      this._theme.default!.transition!.duration.short
-    } ${this._theme.default!.transition!.type}`;
-    this._theme.components!.wallet.title.text.hover ??= {};
-    this._theme.components!.wallet.title.text.hover.cursor ??= "pointer";
-    this._theme.components!.wallet.title.text.hover.color ??=
-      this._theme.colors.default.textPrimary;
+    wallet.title.text ??= {};
+    wallet.title.text.color ??= theme.colors.default.textSecondary;
+    wallet.title.text.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
+    wallet.title.text.hover ??= {};
+    wallet.title.text.hover.cursor ??= "pointer";
+    wallet.title.text.hover.color ??= theme.colors.default.textPrimary;
 
     // Main
-    this._theme.components!.wallet.main ??= {};
+    wallet.main ??= {};
 
     // Main default
-    this._theme.components!.wallet.main.default ??= {};
-    this._theme.components!.wallet.main.default.position ??= "relative";
-    this._theme.components!.wallet.main.default.cursor ??= "auto";
-    this._theme.components!.wallet.main.default.padding ??= "1rem";
-    this._theme.components!.wallet.main.default.bg ??= `linear-gradient(
+    wallet.main.default ??= {};
+    wallet.main.default.position ??= "relative";
+    wallet.main.default.cursor ??= "auto";
+    wallet.main.default.padding ??= "1rem";
+    wallet.main.default.bg ??= `linear-gradient(
       0deg,
-      ${this._theme.components!.wallet.default.bg} 75%,
-      ${
-        this._theme.colors.default.primary +
-        this._theme.default!.transparency!.low
-      } 100%
+      ${wallet.default.bg} 75%,
+      ${theme.colors.default.primary + theme.default.transparency.low} 100%
     )`;
 
     // Main backdrop
-    this._theme.components!.wallet.main.backdrop ??=
-      this._theme.default!.backdrop;
+    wallet.main.backdrop ??= theme.default.backdrop;
 
     // Main balance
-    this._theme.components!.wallet.main.balance ??= {};
-    this._theme.components!.wallet.main.balance.display ??= "flex";
-    this._theme.components!.wallet.main.balance.justifyContent ??= "center";
-    this._theme.components!.wallet.main.balance.marginBottom ??= "0.5rem";
-    this._theme.components!.wallet.main.balance.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.wallet.main.balance.fontWeight ??= "bold";
-    this._theme.components!.wallet.main.balance.fontSize ??=
-      this._theme.font!.code!.size.xlarge;
+    wallet.main.balance ??= {};
+    wallet.main.balance.display ??= "flex";
+    wallet.main.balance.justifyContent ??= "center";
+    wallet.main.balance.marginBottom ??= "0.5rem";
+    wallet.main.balance.color ??= theme.colors.default.textSecondary;
+    wallet.main.balance.fontWeight ??= "bold";
+    wallet.main.balance.fontSize ??= theme.font.code.size.xlarge;
 
     // Main send
-    this._theme.components!.wallet.main.send ??= {};
+    wallet.main.send ??= {};
     // Main send default
-    this._theme.components!.wallet.main.send.default ??= {};
-    this._theme.components!.wallet.main.send.default.marginBottom ??= "1rem";
+    wallet.main.send.default ??= {};
+    wallet.main.send.default.marginBottom ??= "1rem";
     // Main send title
-    this._theme.components!.wallet.main.send.title ??= {};
-    this._theme.components!.wallet.main.send.title.fontWeight ??= "bold";
+    wallet.main.send.title ??= {};
+    wallet.main.send.title.fontWeight ??= "bold";
     // Main send expanded
-    this._theme.components!.wallet.main.send.expanded ??= {};
+    wallet.main.send.expanded ??= {};
     // Main send expanded default
-    this._theme.components!.wallet.main.send.expanded.default ??= {};
-    this._theme.components!.wallet.main.send.expanded.default.paddingTop ??=
-      "0.75rem";
+    wallet.main.send.expanded.default ??= {};
+    wallet.main.send.expanded.default.paddingTop ??= "0.75rem";
     // Main send expanded input
-    this._theme.components!.wallet.main.send.expanded.input ??= {};
-    this._theme.components!.wallet.main.send.expanded.input.marginBottom ??=
-      "0.75rem";
+    wallet.main.send.expanded.input ??= {};
+    wallet.main.send.expanded.input.marginBottom ??= "0.75rem";
     // Main send expanded button
-    this._theme.components!.wallet.main.send.expanded.sendButton ??= {};
-    this._theme.components!.wallet.main.send.expanded.sendButton.marginBottom ??=
-      "0.25rem";
+    wallet.main.send.expanded.sendButton ??= {};
+    wallet.main.send.expanded.sendButton.marginBottom ??= "0.25rem";
 
     // Main transactions
-    this._theme.components!.wallet.main.transactions ??= {};
+    wallet.main.transactions ??= {};
     // Main transactions default
-    this._theme.components!.wallet.main.transactions.default ??= {};
+    wallet.main.transactions.default ??= {};
     // Main transactions title
-    this._theme.components!.wallet.main.transactions.title ??= {};
+    wallet.main.transactions.title ??= {};
     // Main transactions title default
-    this._theme.components!.wallet.main.transactions.title.default ??= {};
-    this._theme.components!.wallet.main.transactions.title.default.display ??=
-      "flex";
-    this._theme.components!.wallet.main.transactions.title.default.justifyContent ??=
-      "space-between";
-    this._theme.components!.wallet.main.transactions.title.default.alignItems ??=
-      "center";
+    wallet.main.transactions.title.default ??= {};
+    wallet.main.transactions.title.default.display ??= "flex";
+    wallet.main.transactions.title.default.justifyContent ??= "space-between";
+    wallet.main.transactions.title.default.alignItems ??= "center";
     // Main transactions title text
-    this._theme.components!.wallet.main.transactions.title.text ??= {};
-    this._theme.components!.wallet.main.transactions.title.text.fontWeight ??=
-      "bold";
+    wallet.main.transactions.title.text ??= {};
+    wallet.main.transactions.title.text.fontWeight ??= "bold";
     // Main transactions title button
-    this._theme.components!.wallet.main.transactions.title.refreshButton ??= {};
-    this._theme.components!.wallet.main.transactions.title.refreshButton.marginRight ??=
-      "0.5rem";
+    wallet.main.transactions.title.refreshButton ??= {};
+    wallet.main.transactions.title.refreshButton.marginRight ??= "0.5rem";
     // Main transactions table
-    this._theme.components!.wallet.main.transactions.table ??= {};
+    wallet.main.transactions.table ??= {};
     // Main transactions table default
-    this._theme.components!.wallet.main.transactions.table.default ??= {};
-    this._theme.components!.wallet.main.transactions.table.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.wallet.main.transactions.table.default.border ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.wallet.main.transactions.table.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.wallet.main.transactions.table.default.marginTop ??=
-      "0.5rem";
+    wallet.main.transactions.table.default ??= {};
+    wallet.main.transactions.table.default.bg ??=
+      theme.colors.default.bgPrimary;
+    wallet.main.transactions.table.default.border ??= `1px solid ${theme.colors.default.border}`;
+    wallet.main.transactions.table.default.borderRadius ??=
+      theme.default.borderRadius;
+    wallet.main.transactions.table.default.marginTop ??= "0.5rem";
+    wallet.main.transactions.table.default.overflow ??= "hidden";
     // Main transactions table header
-    this._theme.components!.wallet.main.transactions.table.header ??= {};
-    this._theme.components!.wallet.main.transactions.table.header.display ??=
-      "flex";
-    this._theme.components!.wallet.main.transactions.table.header.padding ??=
-      "0.5rem 1rem";
-    this._theme.components!.wallet.main.transactions.table.header.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.wallet.main.transactions.table.header.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.wallet.main.transactions.table.header.borderBottom ??= `1px solid ${this._theme.colors.default.border}`;
-    this._theme.components!.wallet.main.transactions.table.header.fontWeight ??=
-      "bold";
-    this._theme.components!.wallet.main.transactions.table.header.fontSize ??=
-      this._theme.font!.code!.size.small;
+    wallet.main.transactions.table.header ??= {};
+    wallet.main.transactions.table.header.display ??= "flex";
+    wallet.main.transactions.table.header.padding ??= "0.5rem 1rem";
+    wallet.main.transactions.table.header.bg ??=
+      theme.colors.default.bgSecondary;
+    wallet.main.transactions.table.header.color ??=
+      theme.colors.default.textSecondary;
+    wallet.main.transactions.table.header.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    wallet.main.transactions.table.header.fontWeight ??= "bold";
+    wallet.main.transactions.table.header.fontSize ??=
+      theme.font.code.size.small;
     // Main transactions table row
-    this._theme.components!.wallet.main.transactions.table.row ??= {};
+    wallet.main.transactions.table.row ??= {};
     // Main transactions table row default
-    this._theme.components!.wallet.main.transactions.table.row.default ??= {};
-    this._theme.components!.wallet.main.transactions.table.row.default.display ??=
-      "flex";
-    this._theme.components!.wallet.main.transactions.table.row.default.padding ??=
-      "0.5rem 1rem";
-    this._theme.components!.wallet.main.transactions.table.row.default.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.wallet.main.transactions.table.row.default.fontSize ??=
-      this._theme.font!.code!.size.small;
-    this._theme.components!.wallet.main.transactions.table.row.default.hover ??=
-      {};
-    this._theme.components!.wallet.main.transactions.table.row.default.hover.bg ??=
-      this._theme.colors.state.hover.bg;
-    this._theme.components!.wallet.main.transactions.table.row.default.hover.color ??=
-      this._theme.colors.default.textPrimary;
+    wallet.main.transactions.table.row.default ??= {};
+    wallet.main.transactions.table.row.default.display ??= "flex";
+    wallet.main.transactions.table.row.default.padding ??= "0.5rem 1rem";
+    wallet.main.transactions.table.row.default.color ??=
+      theme.colors.default.textSecondary;
+    wallet.main.transactions.table.row.default.fontSize ??=
+      theme.font.code.size.small;
+    wallet.main.transactions.table.row.default.hover ??= {};
+    wallet.main.transactions.table.row.default.hover.bg ??=
+      theme.colors.state.hover.bg;
+    wallet.main.transactions.table.row.default.hover.color ??=
+      theme.colors.default.textPrimary;
     // Main transactions table row signature
-    this._theme.components!.wallet.main.transactions.table.row.signature ??= {};
-    this._theme.components!.wallet.main.transactions.table.row.signature.display ??=
-      "flex";
-    this._theme.components!.wallet.main.transactions.table.row.signature.alignItems ??=
-      "center";
-    this._theme.components!.wallet.main.transactions.table.row.signature.width ??=
-      "40%";
+    wallet.main.transactions.table.row.signature ??= {};
+    wallet.main.transactions.table.row.signature.display ??= "flex";
+    wallet.main.transactions.table.row.signature.alignItems ??= "center";
+    wallet.main.transactions.table.row.signature.width ??= "40%";
     // Main transactions table row slot
-    this._theme.components!.wallet.main.transactions.table.row.slot ??= {};
-    this._theme.components!.wallet.main.transactions.table.row.slot.width ??=
-      "40%";
+    wallet.main.transactions.table.row.slot ??= {};
+    wallet.main.transactions.table.row.slot.width ??= "40%";
     // Main transactions table row time
-    this._theme.components!.wallet.main.transactions.table.row.time ??= {};
-    this._theme.components!.wallet.main.transactions.table.row.time.display ??=
-      "flex";
-    this._theme.components!.wallet.main.transactions.table.row.time.justifyContent ??=
-      "flex-end";
-    this._theme.components!.wallet.main.transactions.table.row.time.alignItems ??=
-      "center";
-    this._theme.components!.wallet.main.transactions.table.row.time.width ??=
-      "20%";
+    wallet.main.transactions.table.row.time ??= {};
+    wallet.main.transactions.table.row.time.display ??= "flex";
+    wallet.main.transactions.table.row.time.justifyContent ??= "flex-end";
+    wallet.main.transactions.table.row.time.alignItems ??= "center";
+    wallet.main.transactions.table.row.time.width ??= "20%";
 
     return this;
   }
 
   /** Set default bottom bar component */
   private static _bottom() {
-    this._theme.components!.bottom ??= {};
+    const bottom = this._getComponent("bottom");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.bottom.default ??= {};
-    this._theme.components!.bottom.default.height ??= "1.5rem";
-    this._theme.components!.bottom.default.padding ??= "0 0.5rem";
-    this._theme.components!.bottom.default.bg ??=
-      this._theme.colors.default.primary;
-    this._theme.components!.bottom.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.bottom.default.fontSize ??=
-      this._theme.font!.code!.size.small;
+    bottom.default ??= {};
+    bottom.default.height ??= "1.5rem";
+    bottom.default.padding ??= "0 0.5rem";
+    bottom.default.bg ??= theme.colors.default.primary;
+    bottom.default.color ??= theme.colors.default.textPrimary;
+    bottom.default.fontSize ??= theme.font.code.size.small;
 
     // Connect button
-    this._theme.components!.bottom.connect ??= {};
-    this._theme.components!.bottom.connect.border ??= "none";
-    this._theme.components!.bottom.connect.padding ??= "0 0.75rem";
-    this._theme.components!.bottom.connect.hover ??= {};
-    this._theme.components!.bottom.connect.hover.bg ??=
-      this._theme.components!.bottom.default.color +
-      this._theme.default!.transparency!.low;
+    bottom.connect ??= {};
+    bottom.connect.border ??= "none";
+    bottom.connect.padding ??= "0 0.75rem";
+    bottom.connect.hover ??= {};
+    bottom.connect.hover.bg ??=
+      bottom.default.color + theme.default.transparency.low;
 
     // Endpoint
-    this._theme.components!.bottom.endpoint ??= {};
+    bottom.endpoint ??= {};
 
     // Address
-    this._theme.components!.bottom.address ??= {};
+    bottom.address ??= {};
 
     // Balance
-    this._theme.components!.bottom.balance ??= {};
+    bottom.balance ??= {};
 
     return this;
   }
 
   /** Set default sidebar component */
   private static _sidebar() {
-    this._theme.components!.sidebar ??= {};
+    const sidebar = this._getComponent("sidebar");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.sidebar.default ??= {};
+    sidebar.default ??= {};
 
     // Left
-    this._theme.components!.sidebar.left ??= {};
+    sidebar.left ??= {};
     // Left default
-    this._theme.components!.sidebar.left.default ??= {};
-    this._theme.components!.sidebar.left.default.width ??= "3rem";
-    this._theme.components!.sidebar.left.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.sidebar.left.default.borderRight ??= `1px solid ${this._theme.colors.default.border}`;
+    sidebar.left.default ??= {};
+    sidebar.left.default.width ??= "3rem";
+    sidebar.left.default.bg ??= theme.colors.default.bgPrimary;
+    sidebar.left.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
 
     // Left icon button
-    this._theme.components!.sidebar.left.iconButton ??= {};
+    sidebar.left.iconButton ??= {};
     // Left icon button default
-    this._theme.components!.sidebar.left.iconButton.default ??= {};
+    sidebar.left.iconButton.default ??= {};
     // Left icon button selected
-    this._theme.components!.sidebar.left.iconButton.selected ??= {};
-    this._theme.components!.sidebar.left.iconButton.selected.bg ??=
-      this._theme.colors.state.hover.bg;
-    this._theme.components!.sidebar.left.iconButton.selected.borderLeft ??= `2px solid ${this._theme.colors.default.secondary}`;
-    this._theme.components!.sidebar.left.iconButton.selected.borderRight ??=
-      "2px solid transparent";
+    sidebar.left.iconButton.selected ??= {};
+    sidebar.left.iconButton.selected.bg ??= theme.colors.state.hover.bg;
+    sidebar.left.iconButton.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
+    sidebar.left.iconButton.selected.borderRight ??= "2px solid transparent";
 
     // Right
-    this._theme.components!.sidebar.right ??= {};
+    sidebar.right ??= {};
     // Right default
-    this._theme.components!.sidebar.right.default ??= {};
-    this._theme.components!.sidebar.right.default.initialWidth ??= "20rem";
-    this._theme.components!.sidebar.right.default.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.sidebar.right.default.otherBg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.sidebar.right.default.borderRight ??= `1px solid ${this._theme.colors.default.border}`;
+    sidebar.right.default ??= {};
+    sidebar.right.default.initialWidth ??= "20rem";
+    sidebar.right.default.bg ??= theme.colors.default.bgSecondary;
+    sidebar.right.default.otherBg ??= theme.colors.default.bgPrimary;
+    sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
     // Right title
-    this._theme.components!.sidebar.right.title ??= {};
-    this._theme.components!.sidebar.right.title.borderBottom ??= `1px solid ${this._theme.colors.default.border};`;
-    this._theme.components!.sidebar.right.title.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.sidebar.right.title.fontSize ??=
-      this._theme.font!.code!.size.large;
+    sidebar.right.title ??= {};
+    sidebar.right.title.borderBottom ??= `1px solid ${theme.colors.default.border};`;
+    sidebar.right.title.color ??= theme.colors.default.textSecondary;
+    sidebar.right.title.fontSize ??= theme.font.code.size.large;
 
     return this;
   }
 
   /** Set default main view */
   private static _main() {
-    this._theme.components!.main ??= {};
+    const main = this._getComponent("main");
+    const theme = this._themeReady;
 
     // Default
-    this._theme.components!.main.default ??= {};
-    this._theme.components!.main.default.bg ??=
-      this._theme.colors.default.bgSecondary;
-    this._theme.components!.main.default.color ??=
-      this._theme.colors.default.textPrimary;
+    main.default ??= {};
+    main.default.bg ??= theme.colors.default.bgSecondary;
+    main.default.color ??= theme.colors.default.textPrimary;
 
     // Views
-    this._theme.components!.main.views ??= {};
+    main.views ??= {};
 
     return this;
   }
 
   /** Set default home view */
   private static _home() {
-    this._theme.components!.main!.views!.home ??= {};
+    const main = this._getComponent("main");
+    const theme = this._themeReady;
+
+    main.views!.home ??= {};
+    const home = main.views!.home;
 
     // Default
-    this._theme.components!.main!.views!.home.default ??= {};
-    this._theme.components!.main!.views!.home.default.height ??= "100%";
-    this._theme.components!.main!.views!.home.default.padding ??= "0 8%";
+    home.default ??= {};
+    home.default.height ??= "100%";
+    home.default.padding ??= "0 8%";
 
     // Title
-    this._theme.components!.main!.views!.home.title ??= {};
-    this._theme.components!.main!.views!.home.title.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.main!.views!.home.title.padding ??= "2rem";
-    this._theme.components!.main!.views!.home.title.fontWeight ??= "bold";
-    this._theme.components!.main!.views!.home.title.fontSize ??= "2rem";
-    this._theme.components!.main!.views!.home.title.textAlign ??= "center";
+    home.title ??= {};
+    home.title.color ??= theme.colors.default.textSecondary;
+    home.title.padding ??= "2rem";
+    home.title.fontWeight ??= "bold";
+    home.title.fontSize ??= "2rem";
+    home.title.textAlign ??= "center";
 
     // Resources
-    this._theme.components!.main!.views!.home.resources ??= {};
+    home.resources ??= {};
     // Resources default
-    this._theme.components!.main!.views!.home.resources.default ??= {};
-    this._theme.components!.main!.views!.home.resources.default.maxWidth ??=
-      "53rem";
+    home.resources.default ??= {};
+    home.resources.default.maxWidth ??= "53rem";
     // Resources title
-    this._theme.components!.main!.views!.home.resources.title ??= {};
-    this._theme.components!.main!.views!.home.resources.title.marginBottom ??=
-      "1rem";
-    this._theme.components!.main!.views!.home.resources.title.fontWeight ??=
-      "bold";
-    this._theme.components!.main!.views!.home.resources.title.fontSize ??=
-      "1.25rem";
+    home.resources.title ??= {};
+    home.resources.title.marginBottom ??= "1rem";
+    home.resources.title.fontWeight ??= "bold";
+    home.resources.title.fontSize ??= "1.25rem";
     // Resources card
-    this._theme.components!.main!.views!.home.resources.card ??= {};
+    home.resources.card ??= {};
     // Resources card default
-    this._theme.components!.main!.views!.home.resources.card.default ??= {};
-    this._theme.components!.main!.views!.home.resources.card.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.main!.views!.home.resources.card.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.main!.views!.home.resources.card.default.border ??= `1px solid ${
-      this._theme.colors.default.border +
-      this._theme.default!.transparency!.medium
+    home.resources.card.default ??= {};
+    home.resources.card.default.bg ??= theme.colors.default.bgPrimary;
+    home.resources.card.default.color ??= theme.colors.default.textPrimary;
+    home.resources.card.default.border ??= `1px solid ${
+      theme.colors.default.border + theme.default.transparency.medium
     }`;
-    this._theme.components!.main!.views!.home.resources.card.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.main!.views!.home.resources.card.default.width ??=
-      "15rem";
-    this._theme.components!.main!.views!.home.resources.card.default.height ??=
-      "15rem";
-    this._theme.components!.main!.views!.home.resources.card.default.padding ??=
-      "1rem 1.5rem 1.5rem 1.5rem";
-    this._theme.components!.main!.views!.home.resources.card.default.marginRight ??=
-      "2rem";
-    this._theme.components!.main!.views!.home.resources.card.default.marginBottom ??=
-      "2rem";
+    home.resources.card.default.borderRadius ??= theme.default.borderRadius;
+    home.resources.card.default.width ??= "15rem";
+    home.resources.card.default.height ??= "15rem";
+    home.resources.card.default.padding ??= "1rem 1.5rem 1.5rem 1.5rem";
+    home.resources.card.default.marginRight ??= "2rem";
+    home.resources.card.default.marginBottom ??= "2rem";
     // Resources card image
-    this._theme.components!.main!.views!.home.resources.card.image ??= {};
-    this._theme.components!.main!.views!.home.resources.card.image.width ??=
-      "1.25rem";
-    this._theme.components!.main!.views!.home.resources.card.image.height ??=
-      "1.25rem";
-    this._theme.components!.main!.views!.home.resources.card.image.marginRight ??=
-      "0.5rem";
+    home.resources.card.image ??= {};
+    home.resources.card.image.width ??= "1.25rem";
+    home.resources.card.image.height ??= "1.25rem";
+    home.resources.card.image.marginRight ??= "0.5rem";
     // Resources card title
-    this._theme.components!.main!.views!.home.resources.card.title ??= {};
-    this._theme.components!.main!.views!.home.resources.card.title.display ??=
-      "flex";
-    this._theme.components!.main!.views!.home.resources.card.title.alignItems ??=
-      "center";
-    this._theme.components!.main!.views!.home.resources.card.title.height ??=
-      "20%";
-    this._theme.components!.main!.views!.home.resources.card.title.fontWeight ??=
-      "bold";
-    this._theme.components!.main!.views!.home.resources.card.title.fontSize ??=
-      this._theme.font!.code!.size.xlarge;
+    home.resources.card.title ??= {};
+    home.resources.card.title.display ??= "flex";
+    home.resources.card.title.alignItems ??= "center";
+    home.resources.card.title.height ??= "20%";
+    home.resources.card.title.fontWeight ??= "bold";
+    home.resources.card.title.fontSize ??= theme.font.code.size.xlarge;
     // Resources card description
-    this._theme.components!.main!.views!.home.resources.card.description ??= {};
-    this._theme.components!.main!.views!.home.resources.card.description.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.main!.views!.home.resources.card.description.height ??=
-      "60%";
+    home.resources.card.description ??= {};
+    home.resources.card.description.color ??=
+      theme.colors.default.textSecondary;
+    home.resources.card.description.height ??= "60%";
     // Resources card button
-    this._theme.components!.main!.views!.home.resources.card.button ??= {};
-    this._theme.components!.main!.views!.home.resources.card.button.width ??=
-      "100%";
+    home.resources.card.button ??= {};
+    home.resources.card.button.width ??= "100%";
 
     // Tutorials
-    this._theme.components!.main!.views!.home.tutorials ??= {};
+    home.tutorials ??= {};
     // Tutorials default
-    this._theme.components!.main!.views!.home.tutorials.default ??= {};
-    this._theme.components!.main!.views!.home.tutorials.default.minWidth ??=
-      "16rem";
-    this._theme.components!.main!.views!.home.tutorials.default.maxWidth ??=
-      "27rem";
+    home.tutorials.default ??= {};
+    home.tutorials.default.minWidth ??= "16rem";
+    home.tutorials.default.maxWidth ??= "27rem";
     // Tutorials title
-    this._theme.components!.main!.views!.home.tutorials.title ??= {};
-    this._theme.components!.main!.views!.home.tutorials.title.marginBottom ??=
-      "1rem";
-    this._theme.components!.main!.views!.home.tutorials.title.fontWeight ??=
-      "bold";
-    this._theme.components!.main!.views!.home.tutorials.title.fontSize ??=
-      "1.25rem";
+    home.tutorials.title ??= {};
+    home.tutorials.title.marginBottom ??= "1rem";
+    home.tutorials.title.fontWeight ??= "bold";
+    home.tutorials.title.fontSize ??= "1.25rem";
     // Tutorials card
-    this._theme.components!.main!.views!.home.tutorials.card ??= {};
-    this._theme.components!.main!.views!.home.tutorials.card.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.main!.views!.home.tutorials.card.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.main!.views!.home.tutorials.card.border ??= `1px solid
-      ${
-        this._theme.colors.default.border +
-        this._theme.default!.transparency!.medium
-      }`;
-    this._theme.components!.main!.views!.home.tutorials.card.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.main!.views!.home.tutorials.card.padding ??= "1rem";
-    this._theme.components!.main!.views!.home.tutorials.card.marginBottom ??=
-      "1rem";
-    this._theme.components!.main!.views!.home.tutorials.card.transition ??= `all ${
-      this._theme.default!.transition!.duration.medium
-    } ${this._theme.default!.transition!.type}`;
-    this._theme.components!.main!.views!.home.tutorials.card.display ??= "flex";
-    this._theme.components!.main!.views!.home.tutorials.card.alignItems ??=
-      "center";
-    this._theme.components!.main!.views!.home.tutorials.card.hover ??= {};
-    this._theme.components!.main!.views!.home.tutorials.card.hover.bg ??=
-      this._theme.colors.state.hover.bg;
+    home.tutorials.card ??= {};
+    home.tutorials.card.bg ??= theme.colors.default.bgPrimary;
+    home.tutorials.card.color ??= theme.colors.default.textPrimary;
+    home.tutorials.card.border ??= `1px solid
+      ${theme.colors.default.border + theme.default.transparency.medium}`;
+    home.tutorials.card.borderRadius ??= theme.default.borderRadius;
+    home.tutorials.card.padding ??= "1rem";
+    home.tutorials.card.marginBottom ??= "1rem";
+    home.tutorials.card.transition ??= `all ${theme.default.transition.duration.medium} ${theme.default.transition.type}`;
+    home.tutorials.card.display ??= "flex";
+    home.tutorials.card.alignItems ??= "center";
+    home.tutorials.card.hover ??= {};
+    home.tutorials.card.hover.bg ??= theme.colors.state.hover.bg;
 
     return this;
   }
 
   /** Set default tutorial view */
   private static _tutorial() {
-    this._theme.components!.main!.views!.tutorial ??= {};
+    const main = this._getComponent("main");
+    const theme = this._themeReady;
+
+    main.views!.tutorial ??= {};
+    const tutorial = main.views!.tutorial;
 
     // Default
-    this._theme.components!.main!.views!.tutorial.default ??= {};
-    this._theme.components!.main!.views!.tutorial.default.flex ??= 1;
-    this._theme.components!.main!.views!.tutorial.default.overflow ??= "auto";
-    this._theme.components!.main!.views!.tutorial.default.opacity ??= 0;
-    this._theme.components!.main!.views!.tutorial.default.transition ??= `opacity ${
-      this._theme.default!.transition!.duration.medium
-    } ${this._theme.default!.transition!.type}`;
+    tutorial.default ??= {};
+    tutorial.default.flex ??= 1;
+    tutorial.default.overflow ??= "auto";
+    tutorial.default.opacity ??= 0;
+    tutorial.default.transition ??= `opacity ${theme.default.transition.duration.medium} ${theme.default.transition.type}`;
 
     // About page
-    this._theme.components!.main!.views!.tutorial.aboutPage ??= {};
-    this._theme.components!.main!.views!.tutorial.aboutPage.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.main!.views!.tutorial.aboutPage.borderBottomRightRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.main!.views!.tutorial.aboutPage.borderTopRightRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.main!.views!.tutorial.aboutPage.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.main!.views!.tutorial.aboutPage.fontSize ??=
-      this._theme.font!.other!.size.medium;
-    this._theme.components!.main!.views!.tutorial.aboutPage.padding ??= "2rem";
-    this._theme.components!.main!.views!.tutorial.aboutPage.maxWidth ??=
-      "60rem";
+    tutorial.aboutPage ??= {};
+    tutorial.aboutPage.bg ??= theme.colors.default.bgPrimary;
+    tutorial.aboutPage.borderBottomRightRadius ??= theme.default.borderRadius;
+    tutorial.aboutPage.borderTopRightRadius ??= theme.default.borderRadius;
+    tutorial.aboutPage.fontFamily ??= theme.font.other.family;
+    tutorial.aboutPage.fontSize ??= theme.font.other.size.medium;
+    tutorial.aboutPage.padding ??= "2rem";
+    tutorial.aboutPage.maxWidth ??= "60rem";
 
     // Tutorial page
-    this._theme.components!.main!.views!.tutorial.tutorialPage ??= {};
-    this._theme.components!.main!.views!.tutorial.tutorialPage.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.main!.views!.tutorial.tutorialPage.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.main!.views!.tutorial.tutorialPage.fontSize ??=
-      this._theme.font!.other!.size.medium;
-    this._theme.components!.main!.views!.tutorial.tutorialPage.padding ??=
-      "2rem";
+    tutorial.tutorialPage ??= {};
+    tutorial.tutorialPage.bg ??= theme.colors.default.bgPrimary;
+    tutorial.tutorialPage.fontFamily ??= theme.font.other.family;
+    tutorial.tutorialPage.fontSize ??= theme.font.other.size.medium;
+    tutorial.tutorialPage.padding ??= "2rem";
 
     return this;
   }
 
   /** Set default tutorials view */
   private static _tutorials() {
-    this._theme.components!.main!.views!.tutorials ??= {};
+    const main = this._getComponent("main");
+    const theme = this._themeReady;
+
+    main.views!.tutorials ??= {};
+    const tutorials = main.views!.tutorials;
 
     // Default
-    this._theme.components!.main!.views!.tutorials.default ??= {};
-    this._theme.components!.main!.views!.tutorials.default.fontFamily ??=
-      this._theme.font!.other!.family;
-    this._theme.components!.main!.views!.tutorials.default.fontSize ??=
-      this._theme.font!.other!.size.medium;
+    tutorials.default ??= {};
+    tutorials.default.fontFamily ??= theme.font.other.family;
+    tutorials.default.fontSize ??= theme.font.other.size.medium;
 
     // Card
-    this._theme.components!.main!.views!.tutorials.card ??= {};
+    tutorials.card ??= {};
     // Card default
-    this._theme.components!.main!.views!.tutorials.card.default ??= {};
-    this._theme.components!.main!.views!.tutorials.card.default.bg ??=
-      this._theme.colors.default.bgPrimary;
-    this._theme.components!.main!.views!.tutorials.card.default.color ??=
-      this._theme.colors.default.textPrimary;
-    this._theme.components!.main!.views!.tutorials.card.default.border ??= `1px solid ${
-      this._theme.colors.default.border +
-      this._theme.default!.transparency!.medium
+    tutorials.card.default ??= {};
+    tutorials.card.default.bg ??= theme.colors.default.bgPrimary;
+    tutorials.card.default.color ??= theme.colors.default.textPrimary;
+    tutorials.card.default.border ??= `1px solid ${
+      theme.colors.default.border + theme.default.transparency.medium
     }`;
-    this._theme.components!.main!.views!.tutorials.card.default.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.main!.views!.tutorials.card.default.boxShadow ??=
-      this._theme.default!.boxShadow;
-    this._theme.components!.main!.views!.tutorials.card.default.transition ??= `all ${
-      this._theme.default!.transition!.duration.medium
-    }
-      ${this._theme.default!.transition!.type}`;
+    tutorials.card.default.borderRadius ??= theme.default.borderRadius;
+    tutorials.card.default.boxShadow ??= theme.default.boxShadow;
+    tutorials.card.default.transition ??= `all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type}`;
     // Card gradient
-    this._theme.components!.main!.views!.tutorials.card.gradient ??= {};
+    tutorials.card.gradient ??= {};
     // Card info
-    this._theme.components!.main!.views!.tutorials.card.info ??= {};
+    tutorials.card.info ??= {};
     // Card info default
-    this._theme.components!.main!.views!.tutorials.card.info.default ??= {};
-    this._theme.components!.main!.views!.tutorials.card.info.default.padding ??=
-      " 1rem 0.75rem";
+    tutorials.card.info.default ??= {};
+    tutorials.card.info.default.padding ??= " 1rem 0.75rem";
     // Card info name
-    this._theme.components!.main!.views!.tutorials.card.info.name ??= {};
-    this._theme.components!.main!.views!.tutorials.card.info.name.fontWeight ??=
-      "bold";
+    tutorials.card.info.name ??= {};
+    tutorials.card.info.name.fontWeight ??= "bold";
     // Card info description
-    this._theme.components!.main!.views!.tutorials.card.info.description ??= {};
-    this._theme.components!.main!.views!.tutorials.card.info.description.marginTop ??=
-      "0.5rem";
-    this._theme.components!.main!.views!.tutorials.card.info.description.color ??=
-      this._theme.colors.default.textSecondary;
+    tutorials.card.info.description ??= {};
+    tutorials.card.info.description.marginTop ??= "0.5rem";
+    tutorials.card.info.description.color ??=
+      theme.colors.default.textSecondary;
     // Card info category
-    this._theme.components!.main!.views!.tutorials.card.info.category ??= {};
-    this._theme.components!.main!.views!.tutorials.card.info.category.padding ??=
-      "0.5rem 0.75rem";
-    this._theme.components!.main!.views!.tutorials.card.info.category.bg ??=
-      this._theme.components!.main!.default!.bg;
-    this._theme.components!.main!.views!.tutorials.card.info.category.color ??=
-      this._theme.colors.default.textSecondary;
-    this._theme.components!.main!.views!.tutorials.card.info.category.fontSize ??=
-      this._theme.font!.other!.size.small;
-    this._theme.components!.main!.views!.tutorials.card.info.category.fontWeight ??=
-      "bold";
-    this._theme.components!.main!.views!.tutorials.card.info.category.borderRadius ??=
-      this._theme.default!.borderRadius;
-    this._theme.components!.main!.views!.tutorials.card.info.category.boxShadow ??=
-      this._theme.default!.boxShadow;
-    this._theme.components!.main!.views!.tutorials.card.info.category.width ??=
-      "fit-content";
+    tutorials.card.info.category ??= {};
+    tutorials.card.info.category.padding ??= "0.5rem 0.75rem";
+    tutorials.card.info.category.bg ??= main.default!.bg;
+    tutorials.card.info.category.color ??= theme.colors.default.textSecondary;
+    tutorials.card.info.category.fontSize ??= theme.font.other.size.small;
+    tutorials.card.info.category.fontWeight ??= "bold";
+    tutorials.card.info.category.borderRadius ??= theme.default.borderRadius;
+    tutorials.card.info.category.boxShadow ??= theme.default.boxShadow;
+    tutorials.card.info.category.width ??= "fit-content";
 
     return this;
   }
