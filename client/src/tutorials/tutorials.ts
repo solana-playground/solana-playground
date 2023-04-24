@@ -100,6 +100,36 @@ export const TUTORIALS: TutorialData[] = [
   },
 
   {
+    name: "Zero Copy",
+    description: "How to handle memory and big accounts.",
+    imageSrc: getTutorialImgSrc("zero-copy/zeroCopy.jpg"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    level: TutorialLevel.ADVANCED,
+    categories: [TutorialCategory.ANCHOR],
+    elementImport: () => import("./ZeroCopy"),
+  },
+
+  {
+    name: "Lumberjack",
+    description: "How to build and energy system on chain.",
+    imageSrc: getTutorialImgSrc("lumberjack/lumberjack.jpg"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    level: TutorialLevel.INTERMEDIATE,
+    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    elementImport: () => import("./Lumberjack"),
+  },
+
+  {
     name: "Battle Coins",
     description:
       "Learn to create a token mint with metadata, mint tokens, and burn tokens. Defeat enemies to earn tokens and restore your health by burning tokens.",
