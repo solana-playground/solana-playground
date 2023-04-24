@@ -1,11 +1,10 @@
-import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
-import { PgWallet } from "../wallet";
-import { PgPkg, PkgName } from "./pkg";
 import { PgTerminal } from "./terminal";
+import { PgPkg, PkgName } from "./pkg";
+import { PgCommon } from "../common";
+import { PgWallet } from "../wallet";
+import { Lang } from "../explorer";
 import { TerminalAction } from "../../../state";
 import { EventName } from "../../../constants";
-import { Lang } from "../explorer";
 
 interface Command {
   /** Name of the command */
@@ -145,7 +144,7 @@ export class PgCommand {
           log: this._isPkgLoadingInitial(PkgName.SOLANA_CLI),
         });
 
-        runSolana!(input, ...PgCommand._getCmdArgs(PkgName.SOLANA_CLI)!);
+        runSolana!(input);
       },
       preCheck: PgWallet.checkIsPgConnected,
     }),
@@ -158,7 +157,7 @@ export class PgCommand {
           log: this._isPkgLoadingInitial(PkgName.SPL_TOKEN_CLI),
         });
 
-        runSplToken!(input, ...PgCommand._getCmdArgs(PkgName.SPL_TOKEN_CLI)!);
+        runSplToken!(input);
       },
       preCheck: PgWallet.checkIsPgConnected,
     }),
@@ -239,24 +238,6 @@ export class PgCommand {
    */
   private static _createCmd(cmd: Command) {
     return cmd;
-  }
-
-  /**
-   * Get the remaining args for the command
-   *
-   * - Solana: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
-   * - SPL-Token: (endpoint: string, commitment: string, keypairBytes: Uint8Array)
-   */
-  private static _getCmdArgs(pkgName: PkgName) {
-    switch (pkgName) {
-      case PkgName.SOLANA_CLI:
-      case PkgName.SPL_TOKEN_CLI:
-        return [
-          PgConnection.endpoint,
-          PgConnection.commitment,
-          PgWallet.keypairBytes,
-        ] as [string, string, Uint8Array];
-    }
   }
 
   /**

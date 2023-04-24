@@ -1,6 +1,6 @@
 [package]
 name = "solana-playground-utils-wasm"
-version = "1.11.0"
+version = "0.1.0"
 description = "WASM utils for Solana Playground."
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"
@@ -11,6 +11,10 @@ keywords = ["solana", "playground", "wasm"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["js"]
+js = []
 
 [dependencies]
 wasm-bindgen = "*"

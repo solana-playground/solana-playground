@@ -4,15 +4,13 @@ use anchor_lang::prelude::Pubkey;
 use anchor_syn::idl::Idl;
 use anyhow::anyhow;
 use solana_client_wasm::WasmClient;
+use solana_playground_utils_wasm::js::{PgConnection, PgProgramInfo, PgWallet};
 use solana_sdk::{
     commitment_config::{CommitmentConfig, CommitmentLevel},
     signature::Keypair,
 };
 
-use crate::{
-    cli::CliResult,
-    js::{PgConnection, PgProgramInfo, PgWallet},
-};
+use crate::cli::CliResult;
 
 pub fn get_client() -> WasmClient {
     WasmClient::new_with_commitment(
