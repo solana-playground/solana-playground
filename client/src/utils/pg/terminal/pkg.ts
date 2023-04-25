@@ -96,8 +96,6 @@ export class PgPkg {
       )}
       Error reason: ${e.message}`;
 
-      PgTerminal.enable();
-
       throw new Error(resultMsg);
     } finally {
       if (log) PgTerminal.log(resultMsg + "\n");

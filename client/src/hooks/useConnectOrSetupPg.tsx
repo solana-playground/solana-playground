@@ -10,24 +10,24 @@ export const useConnectOrSetupPg = () => {
   const [pgWalletChanged, refresh] = useAtom(refreshPgWalletAtom);
 
   // Pg wallet should always be connected except first time ever
-  const handleConnectPg = useCallback(() => {
-    PgTerminal.process(async () => {
-      const setupCompleted = PgWallet.getLs()?.setupCompleted;
-      if (!setupCompleted) {
-        await PgModal.set(() => <Setup onSubmit={handleConnectPg} />);
-      } else {
-        pgWallet.connected = !pgWallet.connected;
-        PgWallet.update({ connected: pgWallet.connected });
-        refresh();
-        PgTerminal.log(
-          pgWallet.connected
-            ? PgTerminal.success("Connected.")
-            : PgTerminal.bold("Disconnected.")
-        );
-      }
-    });
+  const handleConnectPg = useCallback(async () => {
+    const setupCompleted = PgWallet.getLs()?.setupCompleted;
+    if (!setupCompleted) {
+      await PgModal.set(() => <Setup onSubmit={handleConnectPg} />);
+    } else {
+      pgWallet.connected = !pgWallet.connected;
+      PgWallet.update({ connected: pgWallet.connected });
+      refresh();
+
+      PgTerminal.log(
+        pgWallet.connected
+          ? PgTerminal.success("Connected.")
+          : PgTerminal.bold("Disconnected.")
+      );
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pgWalletChanged]);
+  }, [pgWallet, pgWalletChanged]);
 
   return { handleConnectPg };
 };

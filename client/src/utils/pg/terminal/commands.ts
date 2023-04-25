@@ -3,7 +3,6 @@ import { PgPkg, PkgName } from "./pkg";
 import { PgCommon } from "../common";
 import { PgWallet } from "../wallet";
 import { Lang } from "../explorer";
-import { TerminalAction } from "../../../state";
 import { EventName } from "../../../constants";
 
 interface Command {
@@ -12,7 +11,7 @@ interface Command {
   /** Description that will be seen in the `help` command */
   description: string;
   /** Function to run when the command is called */
-  process: (input: string) => void | Promise<void>;
+  process: (input: string) => any | Promise<any>;
   /* Only process the command if the condition passes */
   preCheck?: () => boolean;
 }
@@ -23,14 +22,12 @@ export class PgCommand {
     anchor: this._createCmd({
       name: "anchor",
       description: "Anchor CLI",
-      process: (input) => {
-        PgTerminal.process(async () => {
-          const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
-            log: this._isPkgLoadingInitial(PkgName.ANCHOR_CLI),
-          });
-
-          await runAnchor!(input);
+      process: async (input) => {
+        const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
+          log: this._isPkgLoadingInitial(PkgName.ANCHOR_CLI),
         });
+
+        await runAnchor!(input);
       },
       preCheck: PgWallet.checkIsPgConnected,
     }),
@@ -38,34 +35,34 @@ export class PgCommand {
     build: this._createCmd({
       name: "build",
       description: "Build your program",
-      process: () => {
-        PgTerminal.setTerminalState(TerminalAction.buildStart);
+      process: async () => {
+        await PgCommon.sendAndReceiveCustomEvent(EventName.COMMAND_BUILD);
       },
     }),
 
     clear: this._createCmd({
       name: "clear",
       description: "Clear terminal",
-      process: () => {
-        PgTerminal.process(async () => {
-          await PgTerminal.run({ clear: [{ full: true }] });
-        });
+      process: async () => {
+        await PgTerminal.run({ clear: [{ full: true }] });
       },
     }),
 
     connect: this._createCmd({
       name: "connect",
       description: "Toggle connection to Playground Wallet",
-      process: () => {
-        PgTerminal.setTerminalState(TerminalAction.walletConnectOrSetupStart);
+      process: async () => {
+        await PgCommon.sendAndReceiveCustomEvent(EventName.COMMAND_CONNECT);
       },
     }),
 
     deploy: this._createCmd({
       name: "deploy",
       description: "Deploy your program",
-      process: () => {
-        PgTerminal.setTerminalState(TerminalAction.deployStart);
+      process: async () => {
+        return await PgCommon.sendAndReceiveCustomEvent(
+          EventName.COMMAND_DEPLOY
+        );
       },
     }),
 
@@ -73,9 +70,6 @@ export class PgCommand {
       name: "help",
       description: "Print help message",
       process: () => {
-        const commandsText = "COMMANDS:\n";
-        const indent = "    ";
-
         const fillWhitespace = (cmdLength: number) => {
           return new Array(25 - cmdLength)
             .fill(" ")
@@ -83,13 +77,14 @@ export class PgCommand {
         };
 
         const helpMessage =
-          commandsText +
+          "COMMANDS:\n" +
           Object.keys(this.COMMANDS).reduce((acc, cmdName) => {
-            const cmd = this.COMMANDS[cmdName as keyof typeof this.COMMANDS];
+            const cmd: Command =
+              this.COMMANDS[cmdName as keyof typeof this.COMMANDS];
 
             return (
               acc +
-              indent +
+              "    " +
               cmd.name +
               fillWhitespace(cmd.name.length) +
               cmd.description +
@@ -98,15 +93,14 @@ export class PgCommand {
           }, "");
 
         PgTerminal.log(helpMessage);
-        PgTerminal.enable();
       },
     }),
 
     prettier: this._createCmd({
       name: "prettier",
       description: "Format the current file with prettier",
-      process: () => {
-        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+      process: async () => {
+        await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT, {
           lang: Lang.TYPESCRIPT,
           fromTerminal: true,
         });
@@ -116,9 +110,9 @@ export class PgCommand {
     run: this._createCmd({
       name: "run",
       description: "Run script(s)",
-      process: (input) => {
+      process: async (input) => {
         const match = new RegExp(/^\w+\s?(.*)/).exec(input);
-        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+        await PgCommon.sendAndReceiveCustomEvent(EventName.CLIENT_RUN, {
           isTest: false,
           path: match && match[1],
         });
@@ -128,8 +122,8 @@ export class PgCommand {
     rustfmt: this._createCmd({
       name: "rustfmt",
       description: "Format the current file with rustfmt",
-      process: () => {
-        PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT, {
+      process: async () => {
+        await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT, {
           lang: Lang.RUST,
           fromTerminal: true,
         });
@@ -144,7 +138,7 @@ export class PgCommand {
           log: this._isPkgLoadingInitial(PkgName.SOLANA_CLI),
         });
 
-        runSolana!(input);
+        await runSolana!(input);
       },
       preCheck: PgWallet.checkIsPgConnected,
     }),
@@ -157,7 +151,7 @@ export class PgCommand {
           log: this._isPkgLoadingInitial(PkgName.SPL_TOKEN_CLI),
         });
 
-        runSplToken!(input);
+        await runSplToken!(input);
       },
       preCheck: PgWallet.checkIsPgConnected,
     }),
@@ -166,14 +160,12 @@ export class PgCommand {
       name: "sugar",
       description:
         "Command line tool for creating and managing Metaplex Candy Machines",
-      process: (input) => {
-        PgTerminal.process(async () => {
-          const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
-            log: this._isPkgLoadingInitial(PkgName.SUGAR_CLI),
-          });
-
-          await runSugar!(input);
+      process: async (input) => {
+        const { runSugar } = await PgPkg.loadPkg(PgPkg.SUGAR_CLI, {
+          log: this._isPkgLoadingInitial(PkgName.SUGAR_CLI),
         });
+
+        await runSugar!(input);
       },
       preCheck: PgWallet.checkIsPgConnected,
     }),
@@ -181,9 +173,9 @@ export class PgCommand {
     test: this._createCmd({
       name: "test",
       description: "Run test(s)",
-      process: (input) => {
+      process: async (input) => {
         const match = new RegExp(/^\w+\s?(.*)/).exec(input);
-        PgCommon.createAndDispatchCustomEvent(EventName.CLIENT_RUN, {
+        await PgCommon.sendAndReceiveCustomEvent(EventName.CLIENT_RUN, {
           isTest: true,
           path: match && match[1],
         });
@@ -192,7 +184,6 @@ export class PgCommand {
 
     // Special commands
 
-    // Run last command
     runLastCmd: this._createCmd({
       name: "!!",
       description: "Run the last command",
@@ -202,28 +193,31 @@ export class PgCommand {
 
   /** Execute the given command */
   static async execute(input: string) {
-    // This guarantees command only start with the specified command name
-    // solana-keygen would not count for cmdName === "solana"
-    const cmdName = input.trim().split(" ")?.at(0);
+    // This guarantees commands only start with the specified command name.
+    // solana-keygen would not count for inputCmdName === "solana"
+    const inputCmdName = input.trim().split(" ")?.at(0);
 
-    for (const index in this.COMMANDS) {
-      const cmd = this.COMMANDS[index as keyof typeof PgCommand.COMMANDS];
-      if (cmd.name !== cmdName) continue;
+    if (!inputCmdName) {
+      PgTerminal.enable();
+      return;
+    }
+
+    for (const cmdName in PgCommand.COMMANDS) {
+      const cmd = this.COMMANDS[cmdName as keyof typeof PgCommand.COMMANDS];
+
+      if (inputCmdName !== cmd.name) continue;
 
       if (cmd.preCheck && !cmd.preCheck()) {
         PgTerminal.enable();
         return;
       }
 
-      return await cmd.process(input);
+      return await PgTerminal.process(async () => {
+        return await cmd.process(input);
+      });
     }
 
-    if (cmdName) {
-      PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
-    }
-
-    // Only new prompt after invalid command, other commands will automatically
-    // generate new prompt
+    PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
     PgTerminal.enable();
   }
 

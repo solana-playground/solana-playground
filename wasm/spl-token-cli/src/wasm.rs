@@ -3,7 +3,6 @@ use std::{panic, str::FromStr};
 use solana_extra_wasm::program::spl_token;
 use solana_playground_utils_wasm::js::{PgConnection, PgTerminal, PgWallet};
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
 
 use crate::{
     clap::get_clap,
@@ -13,7 +12,7 @@ use crate::{
 };
 
 #[wasm_bindgen(js_name = "runSplToken")]
-pub fn run_spl_token(cmd: String) {
+pub async fn run_spl_token(cmd: String) {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     let default_decimals = format!("{}", spl_token::native_mint::DECIMALS);
@@ -31,7 +30,7 @@ pub fn run_spl_token(cmd: String) {
     .try_get_matches_from(args);
 
     match match_result {
-        Ok(matches) => spawn_local(async move {
+        Ok(matches) => {
             let maybe_matches_subcommand = matches.subcommand();
             let (sub_command, sub_matches) = maybe_matches_subcommand.unwrap();
             let sub_command = CommandName::from_str(sub_command).unwrap();
@@ -45,31 +44,22 @@ pub fn run_spl_token(cmd: String) {
 
             let config = get_config(sub_matches, &endpoint, &commitment, &keypair_bytes);
 
-            let process_result = process_command(
+            let output = process_command(
                 sub_command,
                 sub_matches,
                 config,
                 wallet_manager,
                 bulk_signers,
             )
-            .await;
-            let output = match process_result {
-                Ok(output) => {
-                    format!("{}", output)
-                }
-                Err(e) => format!("Process error: {}", e.to_string()),
-            };
+            .await
+            .unwrap_or_else(|e| format!("Process error: {}", e.to_string()));
 
             // Log output
             PgTerminal::log_wasm(&output);
-            // Enable terminal
-            PgTerminal::enable();
-        }),
+        }
         Err(e) => {
             // Help or error
-            PgTerminal::log_wasm(&format!("{}", e.to_string()));
-            // Enable terminal
-            PgTerminal::enable();
+            PgTerminal::log_wasm(&e.to_string());
         }
     };
 }

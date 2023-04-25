@@ -362,17 +362,6 @@ export class PgCommon {
   }
 
   /**
-   * Dispatch a custom DOM event
-   *
-   * @param name custom event name
-   * @param detail data to send with the custom event
-   */
-  static createAndDispatchCustomEvent<T>(name: string, detail?: T) {
-    const customEvent = new CustomEvent(name, { detail });
-    document.dispatchEvent(customEvent);
-  }
-
-  /**
    * Get send and receive event names
    *
    * @param eventName name of the custom event
@@ -409,6 +398,17 @@ export class PgCommon {
   }
 
   /**
+   * Dispatch a custom DOM event
+   *
+   * @param name custom event name
+   * @param detail data to send with the custom event
+   */
+  static createAndDispatchCustomEvent<T>(name: string, detail?: T) {
+    const customEvent = new CustomEvent(name, { detail });
+    document.dispatchEvent(customEvent);
+  }
+
+  /**
    * Dispatch a custom event and wait for receiver to resolve
    *
    * @param eventName name of the custom event
@@ -422,22 +422,22 @@ export class PgCommon {
     const eventNames = this.getSendAndReceiveEventNames(eventName);
 
     // Send data
-    this.createAndDispatchCustomEvent(eventNames.send, data);
+    this.createAndDispatchCustomEvent(eventNames.send, data ?? {});
 
     // Wait for data
     return new Promise((res, rej) => {
       const handleReceive = (
-        e: UIEvent & { detail: { data: R; error?: string } }
+        ev: UIEvent & { detail: { data: R; error?: string } }
       ) => {
         document.removeEventListener(
           eventNames.receive,
           handleReceive as EventListener
         );
 
-        if (e.detail.error) {
-          rej({ message: e.detail.error });
+        if (ev.detail.error) {
+          rej({ message: ev.detail.error });
         } else {
-          res(e.detail.data);
+          res(ev.detail.data);
         }
       };
 

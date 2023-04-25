@@ -304,7 +304,7 @@ export class PgTerminal {
   /**
    * Set terminal state from anywhere
    */
-  static setTerminalState(action: TerminalAction) {
+  static setTerminalState(action: TerminalAction | TerminalAction[]) {
     PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_STATE, {
       action,
     });
@@ -354,7 +354,7 @@ export class PgTerminal {
    * This function should be used as a wrapper function when calling any
    * terminal command.
    */
-  static async process<T>(cb: () => Promise<T>) {
+  static async process<T>(cb: () => T | Promise<T>) {
     this.disable();
     this.scrollToBottom();
     try {
@@ -414,7 +414,7 @@ export class PgTerminal {
    * Execute the given command
    */
   static async execute(...args: Parameters<PgTerm["execute"]>) {
-    await PgTerminal.run({ execute: [...args] });
+    return await PgTerminal.run({ execute: [...args] });
   }
 
   /**
@@ -663,26 +663,24 @@ export class PgTerm {
     delete this._xterm;
   }
 
-  // TODO: Make async
   /**
    * Write the given input in the terminal and press `Enter`
    *
    * @param cmd command to run
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
-  executeFromStr(cmd: string, clearCmd: boolean = true) {
+  async executeFromStr(cmd: string, clearCmd: boolean = true) {
     this._pgTty.setInput(cmd);
-    this._pgShell.handleReadComplete(clearCmd);
+    return await this._pgShell.handleReadComplete(clearCmd);
   }
 
-  // TODO: Make async
   /**
    * Execute the given command
    *
    * @param cmd {command: args}
    * @param clearCmd whether to clean the command afterwards
    */
-  execute<K extends keyof typeof PgCommand["COMMANDS"]>(
+  async execute<K extends keyof typeof PgCommand["COMMANDS"]>(
     cmd: {
       [Name in K]?: string;
     },
@@ -690,7 +688,7 @@ export class PgTerm {
   ) {
     for (const cmdName in cmd) {
       const args = cmd[cmdName as K];
-      this.executeFromStr(`${cmdName} ${args}`, clearCmd);
+      return await this.executeFromStr(`${cmdName} ${args}`, clearCmd);
     }
   }
 
