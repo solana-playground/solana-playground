@@ -359,9 +359,7 @@ const CodeMirror = () => {
   // Format event
   useSendAndReceiveCustomEvent(
     EventName.EDITOR_FORMAT,
-    async (
-      e: UIEvent & { detail?: { lang: Lang; fromTerminal: boolean } | null }
-    ) => {
+    async (ev?: { lang: Lang; fromTerminal: boolean }) => {
       if (!editor) return;
 
       const explorer = await PgExplorer.get();
@@ -385,7 +383,7 @@ const CodeMirror = () => {
             return;
           }
 
-          if (e.detail?.fromTerminal) {
+          if (ev?.fromTerminal) {
             PgTerminal.log(PgTerminal.success("Format successful."));
           }
 
@@ -443,7 +441,7 @@ const CodeMirror = () => {
             cursorOffset: editor.state.selection.ranges[0].from,
           });
 
-          if (e.detail?.fromTerminal) {
+          if (ev?.fromTerminal) {
             PgTerminal.log(PgTerminal.success("Format successful."));
           }
 
@@ -506,7 +504,7 @@ const CodeMirror = () => {
       }
 
       // From keybind
-      if (!e.detail) {
+      if (!ev) {
         if (isCurrentFileRust) {
           formatRust && (await formatRust());
         } else if (isCurrentFileJsLike) {
@@ -519,7 +517,7 @@ const CodeMirror = () => {
       }
 
       // From terminal
-      switch (e.detail.lang) {
+      switch (ev.lang) {
         case Lang.RUST: {
           if (!isCurrentFileRust) {
             PgTerminal.log(

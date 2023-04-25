@@ -422,7 +422,7 @@ export class PgCommon {
     const eventNames = this.getSendAndReceiveEventNames(eventName);
 
     // Send data
-    this.createAndDispatchCustomEvent(eventNames.send, data ?? {});
+    this.createAndDispatchCustomEvent(eventNames.send, data);
 
     // Wait for data
     return new Promise((res, rej) => {
