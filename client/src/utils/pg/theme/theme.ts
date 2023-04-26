@@ -129,8 +129,7 @@ export class PgThemeManager {
    * @returns the converted CSS
    */
   static convertToCSS(component: DefaultComponent): string {
-    return Object.keys(component).reduce((acc, cur) => {
-      const key = cur as keyof DefaultComponent;
+    return Object.keys(component).reduce((acc, key) => {
       const value = component[key];
 
       // Check for `&`

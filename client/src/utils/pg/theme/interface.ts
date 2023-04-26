@@ -492,8 +492,9 @@ export type PgThemeReady<
 /** Properties that are allowed to be specified from theme objects */
 type DefaultStyles = {
   bg?: Bg;
-} & StandardProperties &
-  AnyProperty;
+} & AnyProperty & { [key: string]: any };
+// & StandardProperties
+// FIXME: Using `StandardProperties` makes TypeScript extremely slow.
 
 /** StandardProperties pseudo classes */
 type PseudoClass =
