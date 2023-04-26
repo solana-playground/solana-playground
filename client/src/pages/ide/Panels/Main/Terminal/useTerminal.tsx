@@ -3,11 +3,8 @@ import { useAtom } from "jotai";
 
 import { EventName } from "../../../../../constants";
 import { TerminalAction, terminalStateAtom } from "../../../../../state";
-import { useBuild, useDeploy } from "../../Side/Right/BuildDeploy";
-import {
-  useConnectOrSetupPg,
-  useSendAndReceiveCustomEvent,
-} from "../../../../../hooks";
+import { useBuild, useConnectOrSetupPg, useDeploy } from "./commands";
+import { useSendAndReceiveCustomEvent } from "../../../../../hooks";
 
 // Runs build and deploy commands if those components are not mounted
 export const useTerminal = () => {
@@ -37,15 +34,11 @@ export const useTerminal = () => {
   }, [setTerminalState]);
 
   // Run build
-  useSendAndReceiveCustomEvent(EventName.COMMAND_BUILD, runBuild, [runBuild]);
+  useSendAndReceiveCustomEvent(EventName.COMMAND_BUILD, runBuild);
 
   // Run deploy
-  useSendAndReceiveCustomEvent(EventName.COMMAND_DEPLOY, runDeploy, [
-    runDeploy,
-  ]);
+  useSendAndReceiveCustomEvent(EventName.COMMAND_DEPLOY, runDeploy);
 
-  // Run after connect command
-  useSendAndReceiveCustomEvent(EventName.COMMAND_CONNECT, handleConnectPg, [
-    handleConnectPg,
-  ]);
+  // Run connect
+  useSendAndReceiveCustomEvent(EventName.COMMAND_CONNECT, handleConnectPg);
 };

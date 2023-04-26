@@ -16,9 +16,44 @@ interface Command {
   preCheck?: () => boolean;
 }
 
+export type CommandName = keyof typeof PgCommand["_COMMANDS"];
+
 export class PgCommand {
+  /** Command to run the last command */
+  static readonly RUN_LAST_CMD = "!!";
+
+  /** Execute the given command */
+  static async execute(input: string) {
+    // This guarantees commands only start with the specified command name.
+    // solana-keygen would not count for inputCmdName === "solana"
+    const inputCmdName = input.trim().split(" ")?.at(0);
+
+    if (!inputCmdName) {
+      PgTerminal.enable();
+      return;
+    }
+
+    for (const cmdName in this._COMMANDS) {
+      const cmd = this._COMMANDS[cmdName as CommandName];
+
+      if (inputCmdName !== cmd.name) continue;
+
+      if (cmd.preCheck && !cmd.preCheck()) {
+        PgTerminal.enable();
+        return;
+      }
+
+      return await PgTerminal.process(async () => {
+        return await cmd.process(input);
+      });
+    }
+
+    PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
+    PgTerminal.enable();
+  }
+
   /** All commands */
-  static readonly COMMANDS = {
+  private static readonly _COMMANDS = {
     anchor: this._createCmd({
       name: "anchor",
       description: "Anchor CLI",
@@ -78,9 +113,8 @@ export class PgCommand {
 
         const helpMessage =
           "COMMANDS:\n" +
-          Object.keys(this.COMMANDS).reduce((acc, cmdName) => {
-            const cmd: Command =
-              this.COMMANDS[cmdName as keyof typeof this.COMMANDS];
+          Object.keys(this._COMMANDS).reduce((acc, cmdName) => {
+            const cmd = this._COMMANDS[cmdName as CommandName];
 
             return (
               acc +
@@ -185,54 +219,14 @@ export class PgCommand {
     // Special commands
 
     runLastCmd: this._createCmd({
-      name: "!!",
+      name: PgCommand.RUN_LAST_CMD,
       description: "Run the last command",
       process: PgTerminal.runLastCmd,
     }),
   };
 
-  /** Execute the given command */
-  static async execute(input: string) {
-    // This guarantees commands only start with the specified command name.
-    // solana-keygen would not count for inputCmdName === "solana"
-    const inputCmdName = input.trim().split(" ")?.at(0);
-
-    if (!inputCmdName) {
-      PgTerminal.enable();
-      return;
-    }
-
-    for (const cmdName in PgCommand.COMMANDS) {
-      const cmd = this.COMMANDS[cmdName as keyof typeof PgCommand.COMMANDS];
-
-      if (inputCmdName !== cmd.name) continue;
-
-      if (cmd.preCheck && !cmd.preCheck()) {
-        PgTerminal.enable();
-        return;
-      }
-
-      return await PgTerminal.process(async () => {
-        return await cmd.process(input);
-      });
-    }
-
-    PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
-    PgTerminal.enable();
-  }
-
   /** Loaded packages */
   private static readonly _loadedPkgs: { [pkgName: string]: boolean } = {};
-
-  /**
-   * Create a command. This is only a type helper function.
-   *
-   * @param cmd command to create
-   * @returns the command with `Command` type
-   */
-  private static _createCmd(cmd: Command) {
-    return cmd;
-  }
 
   /**
    * Get whether the package is being loaded for the first time and set the
@@ -248,5 +242,15 @@ export class PgCommand {
     }
 
     return initial;
+  }
+
+  /**
+   * Create a command. This is only a type helper function.
+   *
+   * @param cmd command to create
+   * @returns the command with `Command` type
+   */
+  private static _createCmd(cmd: Command): Readonly<Command> {
+    return cmd;
   }
 }

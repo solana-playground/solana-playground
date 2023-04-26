@@ -22,7 +22,7 @@ import { PgProgramInfo } from "../program-info";
 import { PgMethod, PgReturnType } from "../types";
 import { PgValidator } from "../validator";
 import { PrintOptions } from "./types";
-import { PgCommand } from "./commands";
+import { CommandName, PgCommand } from "./commands";
 
 export class PgTerminal {
   /**
@@ -680,7 +680,7 @@ export class PgTerm {
    * @param cmd {command: args}
    * @param clearCmd whether to clean the command afterwards
    */
-  async execute<K extends keyof typeof PgCommand["COMMANDS"]>(
+  async execute<K extends CommandName>(
     cmd: {
       [Name in K]?: string;
     },
@@ -700,7 +700,7 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.COMMANDS.runLastCmd.name) {
+    if (!lastCmd || lastCmd === PgCommand.RUN_LAST_CMD) {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");

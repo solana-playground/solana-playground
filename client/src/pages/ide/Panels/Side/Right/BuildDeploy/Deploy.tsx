@@ -13,13 +13,9 @@ import {
   terminalStateAtom,
 } from "../../../../../../state";
 import { PgProgramInfo, PgTerminal } from "../../../../../../utils/pg";
-import { useDeploy } from "./useDeploy";
+import { useDeploy } from "../../../Main/Terminal/commands/useDeploy";
 import { useInitialLoading } from "..";
-import {
-  useConnect,
-  useConnectOrSetupPg,
-  useCurrentWallet,
-} from "../../../../../../hooks";
+import { useConnect, useCurrentWallet } from "../../../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {
@@ -219,10 +215,13 @@ const Deploy = () => {
 
 const ConnectPgWalletButton = () => {
   const { pgButtonStatus } = useConnect();
-  const { handleConnectPg } = useConnectOrSetupPg();
+
+  const connect = useCallback(() => {
+    PgTerminal.execute({ connect: "" });
+  }, []);
 
   return (
-    <Button onClick={handleConnectPg} kind="primary">
+    <Button onClick={connect} kind="primary">
       {pgButtonStatus}
     </Button>
   );

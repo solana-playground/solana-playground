@@ -11,7 +11,7 @@ export const useBuild = () => {
     PgTerminal.setTerminalState(TerminalAction.buildLoadingStart);
     PgTerminal.log(PgTerminal.info("Building..."));
 
-    let msg = "";
+    let msg;
     try {
       const result = await PgBuild.build();
       msg = PgTerminal.editStderr(result.stderr);
