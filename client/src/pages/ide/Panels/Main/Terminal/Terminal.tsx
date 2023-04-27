@@ -198,10 +198,6 @@ const Terminal = () => {
     const handleRunLastCmd = () => {
       term.runLastCmd();
     };
-    const handleRunCmdFromStr = (e: UIEvent) => {
-      const cmd = e.detail as unknown as string;
-      term.executeFromStr(cmd);
-    };
 
     document.addEventListener(EventName.TERMINAL_ENABLE, handleEnable);
     document.addEventListener(EventName.TERMINAL_DISABLE, handleDisable);
@@ -212,10 +208,6 @@ const Terminal = () => {
     document.addEventListener(
       EventName.TERMINAL_RUN_LAST_CMD,
       handleRunLastCmd
-    );
-    document.addEventListener(
-      EventName.TERMINAL_RUN_CMD_FROM_STR,
-      handleRunCmdFromStr as EventListener
     );
 
     return () => {
@@ -228,10 +220,6 @@ const Terminal = () => {
       document.removeEventListener(
         EventName.TERMINAL_RUN_LAST_CMD,
         handleRunLastCmd
-      );
-      document.removeEventListener(
-        EventName.TERMINAL_RUN_CMD_FROM_STR,
-        handleRunCmdFromStr as EventListener
       );
     };
   }, [term]);

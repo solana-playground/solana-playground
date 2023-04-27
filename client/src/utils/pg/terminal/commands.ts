@@ -5,23 +5,25 @@ import { PgWallet } from "../wallet";
 import { Lang } from "../explorer";
 import { EventName } from "../../../constants";
 
-interface Command {
+/** Terminal command */
+interface Command<R> {
   /** Name of the command */
   name: string;
   /** Description that will be seen in the `help` command */
   description: string;
   /** Function to run when the command is called */
-  process: (input: string) => any | Promise<any>;
+  process: (input: string) => R;
   /* Only process the command if the condition passes */
   preCheck?: () => boolean;
 }
 
-export type CommandName = keyof typeof PgCommand["_COMMANDS"];
+/** All commands type */
+export type Commands = typeof PgCommand["_COMMANDS"];
+
+/** Name of all the available commands */
+export type CommandName = keyof Commands;
 
 export class PgCommand {
-  /** Command to run the last command */
-  static readonly RUN_LAST_CMD = "!!";
-
   /** Execute the given command */
   static async execute(input: string) {
     // This guarantees commands only start with the specified command name.
@@ -50,6 +52,11 @@ export class PgCommand {
 
     PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
     PgTerminal.enable();
+  }
+
+  /** Get the given command */
+  static getName(cmdName: CommandName) {
+    return this._COMMANDS[cmdName].name;
   }
 
   /** All commands */
@@ -95,9 +102,10 @@ export class PgCommand {
       name: "deploy",
       description: "Deploy your program",
       process: async () => {
-        return await PgCommon.sendAndReceiveCustomEvent(
-          EventName.COMMAND_DEPLOY
-        );
+        return await PgCommon.sendAndReceiveCustomEvent<
+          undefined,
+          number | undefined
+        >(EventName.COMMAND_DEPLOY);
       },
     }),
 
@@ -219,7 +227,7 @@ export class PgCommand {
     // Special commands
 
     runLastCmd: this._createCmd({
-      name: PgCommand.RUN_LAST_CMD,
+      name: "!!",
       description: "Run the last command",
       process: PgTerminal.runLastCmd,
     }),
@@ -250,7 +258,7 @@ export class PgCommand {
    * @param cmd command to create
    * @returns the command with `Command` type
    */
-  private static _createCmd(cmd: Command): Readonly<Command> {
+  private static _createCmd<T>(cmd: Command<T>): Readonly<Command<T>> {
     return cmd;
   }
 }

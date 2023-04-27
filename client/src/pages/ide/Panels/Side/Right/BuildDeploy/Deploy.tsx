@@ -12,7 +12,7 @@ import {
   refreshProgramIdAtom,
   terminalStateAtom,
 } from "../../../../../../state";
-import { PgProgramInfo, PgTerminal } from "../../../../../../utils/pg";
+import { Fn, PgProgramInfo, PgTerminal } from "../../../../../../utils/pg";
 import { useDeploy } from "../../../Main/Terminal/commands/useDeploy";
 import { useInitialLoading } from "..";
 import { useConnect, useCurrentWallet } from "../../../../../../hooks";
@@ -43,7 +43,7 @@ const Deploy = () => {
   }, [terminalState.deployLoading, deployed]);
 
   const deploy = useCallback(async () => {
-    const deployError = await PgTerminal.execute({ deploy: "" });
+    const deployError = await PgTerminal.COMMANDS.deploy();
     if (!deployError) setDeployed(true);
   }, [setDeployed]);
 
@@ -216,12 +216,8 @@ const Deploy = () => {
 const ConnectPgWalletButton = () => {
   const { pgButtonStatus } = useConnect();
 
-  const connect = useCallback(() => {
-    PgTerminal.execute({ connect: "" });
-  }, []);
-
   return (
-    <Button onClick={connect} kind="primary">
+    <Button onClick={PgTerminal.COMMANDS.connect as Fn} kind="primary">
       {pgButtonStatus}
     </Button>
   );

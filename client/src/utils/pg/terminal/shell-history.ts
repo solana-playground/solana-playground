@@ -1,5 +1,3 @@
-import { PgCommand } from "./commands";
-
 /**
  * Keeps track of shell history
  */
@@ -23,7 +21,7 @@ export class PgShellHistory {
    */
   push(entry: string) {
     // Skip empty entries or special last cmd
-    if (!entry || entry === PgCommand.RUN_LAST_CMD) return;
+    if (!entry || entry === "!!") return;
 
     // If it's a duplicate entry, change index
     const entryIndex = this._entries.indexOf(entry);

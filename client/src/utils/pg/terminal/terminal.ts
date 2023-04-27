@@ -5,6 +5,7 @@ import { format } from "util";
 
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
+import { CommandName, Commands, PgCommand } from "./commands";
 import {
   Emoji,
   EventName,
@@ -19,22 +20,25 @@ import {
 import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
-import { PgMethod, PgReturnType } from "../types";
 import { PgValidator } from "../validator";
-import { PrintOptions } from "./types";
-import { CommandName, PgCommand } from "./commands";
+import type { PrintOptions } from "./types";
+import type { PgMethod, PgReturnType } from "../types";
 
 export class PgTerminal {
-  /**
-   * Default height of the terminal
-   */
+  /** All commands */
+  static COMMANDS: {
+    [K in CommandName]: (
+      args?: string
+      // Always returns a `Promise`
+    ) => Promise<Awaited<ReturnType<Commands[K]["process"]>>>;
+  };
+
+  /** Default height of the terminal */
   static get DEFAULT_HEIGHT() {
     return Math.floor(window.innerHeight / 4);
   }
 
-  /**
-   * Minimum height of the terminal(in px)
-   */
+  /** Minimum height of the terminal(in px) */
   static readonly MIN_HEIGHT = 36;
 
   /**
@@ -55,9 +59,7 @@ export class PgTerminal {
     return this.DEFAULT_HEIGHT;
   }
 
-  /**
-   * Welcome text
-   */
+  /** Welcome text */
   static readonly DEFAULT_TEXT = [
     `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
     `Popular crates for Solana development are available to use.`,
@@ -374,16 +376,6 @@ export class PgTerminal {
   }
 
   /**
-   * Dispatch run cmd from str custom event
-   */
-  static executeFromStr(cmd: string) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.TERMINAL_RUN_CMD_FROM_STR,
-      cmd
-    );
-  }
-
-  /**
    * Statically get the terminal object from state
    *
    * @returns the terminal object
@@ -408,13 +400,6 @@ export class PgTerminal {
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
       data
     );
-  }
-
-  /**
-   * Execute the given command
-   */
-  static async execute(...args: Parameters<PgTerm["execute"]>) {
-    return await PgTerminal.run({ execute: [...args] });
   }
 
   /**
@@ -502,8 +487,21 @@ export class PgTerm {
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
+
+    // Command handler
+    PgTerminal.COMMANDS = new Proxy(
+      {},
+      {
+        get: (_target: any, name: CommandName) => {
+          return (args: string = "") => {
+            return this._executeFromStr(`${PgCommand.getName(name)} ${args}`);
+          };
+        },
+      }
+    );
   }
 
+  /** Open terminal */
   open(container: HTMLElement) {
     this._container = container;
 
@@ -518,6 +516,7 @@ export class PgTerm {
     this.enable();
   }
 
+  /** Fit terminal */
   fit() {
     this._fitAddon.fit();
 
@@ -542,17 +541,14 @@ export class PgTerm {
       }
     }, 100); // time needs to be lower than specified fit interval in Terminal component
   }
-  /**
-   * Focus terminal and scroll to cursor
-   */
+
+  /** Focus terminal and scroll to cursor */
   focus() {
     this._xterm.focus();
     this.scrollToCursor();
   }
 
-  /**
-   * Scroll terminal to wherever the cursor currently is
-   */
+  /** Scroll terminal to wherever the cursor currently is */
   scrollToCursor() {
     if (!this._container) {
       return;
@@ -581,9 +577,7 @@ export class PgTerm {
     window.scrollTo(scrollX, scrollY);
   }
 
-  /**
-   * Print a message to terminal
-   */
+  /** Print a message to terminal */
   print(msg: any, opts?: PrintOptions) {
     if (typeof msg === "string") {
       // For some reason, double new lines are not respected. Thus, fixing that here
@@ -606,9 +600,7 @@ export class PgTerm {
     this._pgTty.print(msg, opts);
   }
 
-  /**
-   * Print a message with end line character appended
-   */
+  /** Print a message with end line character appended */
   println(msg: any, opts?: PrintOptions) {
     this.print(msg, { ...opts, newLine: true });
   }
@@ -640,56 +632,21 @@ export class PgTerm {
     this._pgTty.clearLine();
   }
 
-  /**
-   * Enable shell
-   */
+  /** Enable shell */
   enable() {
     this._pgShell.enable();
   }
 
-  /**
-   * Scroll the terminal to bottom
-   */
+  /** Scroll the terminal to bottom */
   scrollToBottom() {
     this._xterm.scrollToBottom();
   }
 
-  /**
-   * Destroy xterm instance
-   */
+  /** Destroy xterm instance */
   destroy() {
     this._xterm.dispose();
     // @ts-ignore
     delete this._xterm;
-  }
-
-  /**
-   * Write the given input in the terminal and press `Enter`
-   *
-   * @param cmd command to run
-   * @param clearCmd whether to clean the command afterwards - defaults to `true`
-   */
-  async executeFromStr(cmd: string, clearCmd: boolean = true) {
-    this._pgTty.setInput(cmd);
-    return await this._pgShell.handleReadComplete(clearCmd);
-  }
-
-  /**
-   * Execute the given command
-   *
-   * @param cmd {command: args}
-   * @param clearCmd whether to clean the command afterwards
-   */
-  async execute<K extends CommandName>(
-    cmd: {
-      [Name in K]?: string;
-    },
-    clearCmd?: boolean
-  ) {
-    for (const cmdName in cmd) {
-      const args = cmd[cmdName as K];
-      return await this.executeFromStr(`${cmdName} ${args}`, clearCmd);
-    }
   }
 
   /**
@@ -700,13 +657,13 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.RUN_LAST_CMD) {
+    if (!lastCmd || lastCmd === "!!") {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
 
-    this.executeFromStr(lastCmd);
+    this._executeFromStr(lastCmd);
   }
 
   /**
@@ -844,6 +801,17 @@ export class PgTerm {
       PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText
     );
     return returnValue as any;
+  }
+
+  /**
+   * Write the given input in the terminal and press `Enter`
+   *
+   * @param cmd command to run
+   * @param clearCmd whether to clean the command afterwards - defaults to `true`
+   */
+  private async _executeFromStr(cmd: string, clearCmd: boolean = true) {
+    this._pgTty.setInput(cmd);
+    return await this._pgShell.handleReadComplete(clearCmd);
   }
 
   /**
