@@ -26,32 +26,22 @@ export type CommandName = keyof Commands;
 export class PgCommand {
   /** Execute the given command */
   static async execute(input: string) {
-    // This guarantees commands only start with the specified command name.
-    // solana-keygen would not count for inputCmdName === "solana"
-    const inputCmdName = input.trim().split(" ")?.at(0);
+    return await PgTerminal.process(async () => {
+      // This guarantees commands only start with the specified command name.
+      // solana-keygen would not count for inputCmdName === "solana"
+      const inputCmdName = input.trim().split(" ")?.at(0);
+      if (!inputCmdName) return;
 
-    if (!inputCmdName) {
-      PgTerminal.enable();
-      return;
-    }
+      for (const cmdName in this._COMMANDS) {
+        const cmd = this._COMMANDS[cmdName as CommandName];
+        if (inputCmdName !== cmd.name) continue;
+        if (cmd.preCheck && !cmd.preCheck()) return;
 
-    for (const cmdName in this._COMMANDS) {
-      const cmd = this._COMMANDS[cmdName as CommandName];
-
-      if (inputCmdName !== cmd.name) continue;
-
-      if (cmd.preCheck && !cmd.preCheck()) {
-        PgTerminal.enable();
-        return;
+        return await cmd.process(input);
       }
 
-      return await PgTerminal.process(async () => {
-        return await cmd.process(input);
-      });
-    }
-
-    PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
-    PgTerminal.enable();
+      PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
+    });
   }
 
   /** Get the given command */
