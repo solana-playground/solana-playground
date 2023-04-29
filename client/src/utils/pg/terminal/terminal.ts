@@ -5,7 +5,7 @@ import { format } from "util";
 
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
-import { CommandName, Commands, PgCommand } from "./commands";
+import { CommandName, Commands, PgCommand } from "./command";
 import {
   Emoji,
   EventName,
@@ -29,7 +29,6 @@ export class PgTerminal {
   static COMMANDS: {
     [K in CommandName]: (
       args?: string
-      // Always returns a `Promise`
     ) => Promise<Awaited<ReturnType<Commands[K]["process"]>>>;
   };
 
@@ -494,7 +493,9 @@ export class PgTerm {
       {
         get: (_target: any, name: CommandName) => {
           return (args: string = "") => {
-            return this._executeFromStr(`${PgCommand.getName(name)} ${args}`);
+            return this._executeFromStr(
+              `${PgCommand.COMMANDS[name].name} ${args}`
+            );
           };
         },
       }

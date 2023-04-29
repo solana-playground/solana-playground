@@ -10,7 +10,7 @@ import {
   isIncompleteInput,
 } from "./shell-utils";
 import { PgTerminal } from "./terminal";
-import { PgCommand } from "./commands";
+import { PgCommand } from "./command";
 import { PgCommon } from "../common";
 import { EventName } from "../../../constants";
 
