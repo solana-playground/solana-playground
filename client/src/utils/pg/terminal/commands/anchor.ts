@@ -1,16 +1,16 @@
-import { PgCommandHelper } from "./__command";
-import { PgPkg, PkgName } from "../pkg";
+import { createCmd } from "./__command";
+import { PgPackage } from "../package";
 import { PgWallet } from "../../wallet";
 
-export const anchor = PgCommandHelper.create({
+export const anchor = createCmd({
   name: "anchor",
   description: "Anchor CLI",
   process: async (input) => {
-    const { runAnchor } = await PgPkg.loadPkg(PgPkg.ANCHOR_CLI, {
-      log: PgCommandHelper.isPkgLoadingInitial(PkgName.ANCHOR_CLI),
+    const { runAnchor } = await PgPackage.import("anchor-cli", {
+      log: true,
     });
 
-    await runAnchor!(input);
+    await runAnchor(input);
   },
   preCheck: PgWallet.checkIsPgConnected,
 });

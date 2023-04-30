@@ -1,8 +1,8 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { PgCommon } from "../../common";
 import { EventName } from "../../../../constants";
 
-export const build = PgCommandHelper.create({
+export const build = createCmd({
   name: "build",
   description: "Build your program",
   process: async () => {

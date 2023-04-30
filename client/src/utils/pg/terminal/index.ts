@@ -1,3 +1,2 @@
-export * from "./commands";
-export * from "./pkg";
+export * from "./package";
 export * from "./terminal";

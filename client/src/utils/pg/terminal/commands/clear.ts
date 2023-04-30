@@ -1,7 +1,7 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { PgTerminal } from "../terminal";
 
-export const clear = PgCommandHelper.create({
+export const clear = createCmd({
   name: "clear",
   description: "Clear terminal",
   process: async () => {

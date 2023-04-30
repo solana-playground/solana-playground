@@ -278,15 +278,13 @@ export class PgCommon {
    */
   static isMac() {
     const macPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
-    let isMac = false;
     for (const mac of macPlatforms) {
       if (window.navigator.userAgent.includes(mac)) {
-        isMac = true;
-        break;
+        return true;
       }
     }
 
-    return isMac;
+    return false;
   }
 
   /**
@@ -341,6 +339,16 @@ export class PgCommon {
     }
 
     return kebab.reduce((acc, letter) => acc + letter);
+  }
+
+  /**
+   * @returns Title Case converted version of the kebab-case string
+   */
+  static toTitlefromKebab(str: string) {
+    return (
+      str[0].toUpperCase() +
+      str.slice(1).replace(/-\w/, (match) => " " + match[1].toUpperCase())
+    );
   }
 
   /**

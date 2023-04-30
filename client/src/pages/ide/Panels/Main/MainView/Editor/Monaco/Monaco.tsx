@@ -8,7 +8,7 @@ import {
   Lang,
   PgCommon,
   PgExplorer,
-  PgPkg,
+  PgPackage,
   PgTerminal,
 } from "../../../../../../../utils/pg";
 import { EventName } from "../../../../../../../constants";
@@ -360,7 +360,7 @@ const Monaco = () => {
           const model = editor.getModel();
           if (!model) return;
 
-          const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
+          const { rustfmt } = await PgPackage.import("rustfmt");
 
           let result;
           try {

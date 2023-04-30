@@ -1,8 +1,8 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { PgTerminal } from "../terminal";
 
-export const runLastCmd = PgCommandHelper.create({
+export const runLastCmd = createCmd({
   name: "!!",
   description: "Run the last command",
-  process: PgTerminal.runLastCmd,
+  process: () => PgTerminal.runLastCmd(),
 });

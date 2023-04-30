@@ -16,7 +16,7 @@ import {
   PgTerminal,
   Lang,
   PgCommon,
-  PgPkg,
+  PgPackage,
 } from "../../../../../../../utils/pg";
 import { EventName } from "../../../../../../../constants";
 import { useSendAndReceiveCustomEvent } from "../../../../../../../hooks";
@@ -370,11 +370,12 @@ const CodeMirror = () => {
       const isCurrentFileRust = lang === Lang.RUST;
       if (isCurrentFileRust) {
         formatRust = async () => {
-          const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
+          const { rustfmt } = await PgPackage.import("rustfmt");
+
           const currentContent = editor.state.doc.toString();
           let result;
           try {
-            result = rustfmt!(currentContent);
+            result = rustfmt(currentContent);
           } catch (e: any) {
             result = { error: () => e.message };
           }

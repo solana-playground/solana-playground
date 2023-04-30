@@ -1,16 +1,16 @@
-import { PgCommandHelper } from "./__command";
-import { PgPkg, PkgName } from "../pkg";
+import { createCmd } from "./__command";
 import { PgWallet } from "../../wallet";
+import { PgPackage } from "../package";
 
-export const splToken = PgCommandHelper.create({
+export const splToken = createCmd({
   name: "spl-token",
   description: "Commands for interacting with SPL Tokens",
   process: async (input) => {
-    const { runSplToken } = await PgPkg.loadPkg(PgPkg.SPL_TOKEN_CLI, {
-      log: PgCommandHelper.isPkgLoadingInitial(PkgName.SPL_TOKEN_CLI),
+    const { runSplToken } = await PgPackage.import("spl-token-cli", {
+      log: true,
     });
 
-    await runSplToken!(input);
+    await runSplToken(input);
   },
   preCheck: PgWallet.checkIsPgConnected,
 });

@@ -1,9 +1,9 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { PgCommon } from "../../common";
 import { Lang } from "../../explorer";
 import { EventName } from "../../../../constants";
 
-export const prettier = PgCommandHelper.create({
+export const prettier = createCmd({
   name: "prettier",
   description: "Format the current file with prettier",
   process: async () => {

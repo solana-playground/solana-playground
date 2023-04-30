@@ -1,8 +1,8 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { PgCommon } from "../../common";
 import { EventName } from "../../../../constants";
 
-export const connect = PgCommandHelper.create({
+export const connect = createCmd({
   name: "connect",
   description: "Toggle connection to Playground Wallet",
   process: async () => {

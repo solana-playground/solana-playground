@@ -1,9 +1,9 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { PgCommon } from "../../common";
 import { Lang } from "../../explorer";
 import { EventName } from "../../../../constants";
 
-export const rustfmt = PgCommandHelper.create({
+export const rustfmt = createCmd({
   name: "rustfmt",
   description: "Format the current file with rustfmt",
   process: async () => {

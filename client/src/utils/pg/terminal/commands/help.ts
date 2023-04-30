@@ -1,8 +1,8 @@
-import { PgCommandHelper } from "./__command";
+import { createCmd } from "./__command";
 import { CommandName, PgCommand } from "../command";
 import { PgTerminal } from "../terminal";
 
-export const help = PgCommandHelper.create({
+export const help = createCmd({
   name: "help",
   description: "Print help message",
   process: () => {
