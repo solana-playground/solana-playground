@@ -2,16 +2,6 @@ import { PgCommon } from "../common";
 import { PgTerminal } from "./terminal";
 import { GITHUB_URL } from "../../../constants";
 
-/** All package names */
-type PackageName =
-  | "anchor-cli"
-  | "playnet"
-  | "rustfmt"
-  | "seahorse-compile"
-  | "solana-cli"
-  | "spl-token-cli"
-  | "sugar-cli";
-
 /** Mapped import results */
 interface ImportResult {
   "anchor-cli": typeof import("@solana-playground/anchor-cli");
@@ -22,6 +12,9 @@ interface ImportResult {
   "spl-token-cli": typeof import("@solana-playground/spl-token-cli");
   "sugar-cli": typeof import("@solana-playground/sugar-cli");
 }
+
+/** All package names */
+type PackageName = keyof ImportResult;
 
 /** Utility class to manage packages */
 export class PgPackage {
