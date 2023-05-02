@@ -1,4 +1,4 @@
-import { createCmd } from "./__command";
+import { createCmd } from "./_command";
 import { PgCommon } from "../../common";
 import { EventName } from "../../../../constants";
 

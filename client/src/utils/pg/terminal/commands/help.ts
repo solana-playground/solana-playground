@@ -1,4 +1,4 @@
-import { createCmd } from "./__command";
+import { createCmd } from "./_command";
 import { CommandName, PgCommand } from "../command";
 import { PgTerminal } from "../terminal";
 

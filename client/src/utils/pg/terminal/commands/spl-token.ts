@@ -1,5 +1,4 @@
-import { createCmd } from "./__command";
-import { PgWallet } from "../../wallet";
+import { createCmd, PgCommandCheck } from "./_command";
 import { PgPackage } from "../package";
 
 export const splToken = createCmd({
@@ -12,5 +11,5 @@ export const splToken = createCmd({
 
     await runSplToken(input);
   },
-  preCheck: PgWallet.checkIsPgConnected,
+  preCheck: PgCommandCheck.isPgConnected,
 });

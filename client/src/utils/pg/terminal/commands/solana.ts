@@ -1,6 +1,5 @@
-import { createCmd } from "./__command";
+import { createCmd, PgCommandCheck } from "./_command";
 import { PgPackage } from "../package";
-import { PgWallet } from "../../wallet";
 
 export const solana = createCmd({
   name: "solana",
@@ -12,5 +11,5 @@ export const solana = createCmd({
 
     await runSolana(input);
   },
-  preCheck: PgWallet.checkIsPgConnected,
+  preCheck: PgCommandCheck.isPgConnected,
 });

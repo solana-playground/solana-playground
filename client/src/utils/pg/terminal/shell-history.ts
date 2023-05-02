@@ -1,9 +1,12 @@
-/**
- * Keeps track of shell history
- */
+import { PgCommand } from "./command";
+
+/** Manage shell history */
 export class PgShellHistory {
+  /** Cursor index */
   private _cursor: number;
+  /** Maximum allowed size */
   private _size: number;
+  /** All history entries */
   private _entries: string[];
 
   constructor(size: number) {
@@ -12,16 +15,15 @@ export class PgShellHistory {
     this._entries = [];
   }
 
+  /** Get all entries */
   getEntries() {
     return this._entries;
   }
 
-  /**
-   * Push an entry and maintain ring buffer size
-   */
+  /** Push an entry and maintain ring buffer size */
   push(entry: string) {
     // Skip empty entries or special last cmd
-    if (!entry || entry === "!!") return;
+    if (!entry || entry === PgCommand.COMMANDS.runLastCmd.name) return;
 
     // If it's a duplicate entry, change index
     const entryIndex = this._entries.indexOf(entry);
@@ -49,7 +51,7 @@ export class PgShellHistory {
   }
 
   /**
-   * Sets the cursor to the previous entry if it exists
+   * Set the cursor to the previous entry if it exists
    *
    * @returns the previous entry if it exists
    */
@@ -60,7 +62,7 @@ export class PgShellHistory {
   }
 
   /**
-   * Sets the cursor to the next entry if it exists
+   * Set the cursor to the next entry if it exists
    *
    * @returns the next entry if it exists
    */

@@ -1,5 +1,4 @@
-import { createCmd } from "./__command";
-import { PgWallet } from "../../wallet";
+import { createCmd, PgCommandCheck } from "./_command";
 import { PgPackage } from "../package";
 
 export const sugar = createCmd({
@@ -13,5 +12,5 @@ export const sugar = createCmd({
 
     await runSugar(input);
   },
-  preCheck: PgWallet.checkIsPgConnected,
+  preCheck: PgCommandCheck.isPgConnected,
 });

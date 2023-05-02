@@ -1,6 +1,5 @@
-import { createCmd } from "./__command";
+import { createCmd, PgCommandCheck } from "./_command";
 import { PgPackage } from "../package";
-import { PgWallet } from "../../wallet";
 
 export const anchor = createCmd({
   name: "anchor",
@@ -12,5 +11,5 @@ export const anchor = createCmd({
 
     await runAnchor(input);
   },
-  preCheck: PgWallet.checkIsPgConnected,
+  preCheck: PgCommandCheck.isPgConnected,
 });

@@ -1,4 +1,4 @@
-import { createContext, FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { Idl } from "@project-serum/anchor";
 import { IdlAccount, IdlInstruction } from "@project-serum/anchor/dist/cjs/idl";
@@ -8,7 +8,7 @@ import Account from "./Account";
 import Arg from "./Arg";
 import Button from "../../../../../../components/Button";
 import Foldable from "../../../../../../components/Foldable";
-import { updateTxValsProps } from "./useUpdateTxVals";
+import { IxContext, updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName, Emoji } from "../../../../../../constants";
 import { txHashAtom } from "../../../../../../state";
 import {
@@ -20,12 +20,6 @@ import {
   TxVals,
 } from "../../../../../../utils/pg";
 import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
-
-interface FnContextProps {
-  updateTxVals: (props: updateTxValsProps) => void;
-}
-
-export const FnContext = createContext<FnContextProps>({} as FnContextProps);
 
 interface InstructionProps extends InstructionInsideProps {
   index: number;
@@ -204,7 +198,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
   return (
     <>
       <ArgsAndAccountsWrapper>
-        <FnContext.Provider
+        <IxContext.Provider
           value={{
             updateTxVals,
           }}
@@ -236,7 +230,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
               </Foldable>
             </AccountsWrapper>
           )}
-        </FnContext.Provider>
+        </IxContext.Provider>
       </ArgsAndAccountsWrapper>
       <ButtonWrapper>
         <Button

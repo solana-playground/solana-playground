@@ -658,7 +658,7 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === "!!") {
+    if (!lastCmd || lastCmd === PgCommand.COMMANDS.runLastCmd.name) {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");

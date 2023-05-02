@@ -1,8 +1,12 @@
-import { useContext, useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { Keypair } from "@solana/web3.js";
 import { IdlType } from "@project-serum/anchor/dist/cjs/idl";
 
-import { FnContext } from "./Instruction";
+interface IxContextProps {
+  updateTxVals: (props: updateTxValsProps) => void;
+}
+
+export const IxContext = createContext<IxContextProps>({} as IxContextProps);
 
 export enum Identifiers {
   ARGS = "args",
@@ -19,7 +23,7 @@ export interface updateTxValsProps {
 
 const useUpdateTxVals = (props: updateTxValsProps) => {
   const { identifier, k, v, type, kp } = props;
-  const { updateTxVals } = useContext(FnContext);
+  const { updateTxVals } = useContext(IxContext);
 
   useEffect(() => {
     updateTxVals({ identifier, k, v, type, kp });

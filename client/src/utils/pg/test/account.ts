@@ -12,7 +12,9 @@ import {
   SYSVAR_RENT_PUBKEY,
 } from "@solana/web3.js";
 
-import { PgCommon, PgTest, PgWallet } from "../";
+import { PgTest } from "./test";
+import { PgCommon } from "../common";
+import { PgWallet } from "../wallet";
 
 export class PgAccount {
   /**

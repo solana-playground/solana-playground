@@ -1,4 +1,4 @@
-import { createCmd } from "./__command";
+import { createCmd } from "./_command";
 import { PgTerminal } from "../terminal";
 
 export const runLastCmd = createCmd({
