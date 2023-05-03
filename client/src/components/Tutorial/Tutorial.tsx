@@ -20,8 +20,8 @@ import {
   Sidebar,
   TutorialData,
 } from "../../utils/pg";
-import { useGetAndSetStatic } from "../../hooks";
-import { TutorialComponentProps } from "./types";
+import { useAsyncEffect, useGetAndSetStatic } from "../../hooks";
+import type { TutorialComponentProps } from "./types";
 
 export const Tutorial: FC<TutorialComponentProps> = ({
   about,
@@ -48,31 +48,29 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   );
 
   // Set initial page number
-  useEffect(() => {
-    (async () => {
-      try {
-        const metadata = await PgCommon.transition(
-          PgTutorial.getMetadata(tutorial.name)
-        );
-        if (metadata.completed) {
-          setIsCompleted(true);
-        }
-        setCurrentPage(metadata.pageNumber);
-        PgView.setSidebarState((state) => {
-          if (state === Sidebar.TUTORIALS) {
-            return Sidebar.EXPLORER;
-          }
-
-          return state;
-        });
-      } catch {
-        setCurrentPage(0);
-      } finally {
-        if (wrapperRef.current) {
-          wrapperRef.current.style.opacity = "1";
-        }
+  useAsyncEffect(async () => {
+    try {
+      const metadata = await PgCommon.transition(
+        PgTutorial.getMetadata(tutorial.name)
+      );
+      if (metadata.completed) {
+        setIsCompleted(true);
       }
-    })();
+      setCurrentPage(metadata.pageNumber);
+      PgView.setSidebarState((state) => {
+        if (state === Sidebar.TUTORIALS) {
+          return Sidebar.EXPLORER;
+        }
+
+        return state;
+      });
+    } catch {
+      setCurrentPage(0);
+    } finally {
+      if (wrapperRef.current) {
+        wrapperRef.current.style.opacity = "1";
+      }
+    }
   }, [tutorial.name]);
 
   // Handle page number based on sidebar state change
@@ -106,15 +104,13 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }, [tutorial.name, currentPage, pages.length]);
 
   // Change workspace if it hasn't been changed yet
-  useEffect(() => {
+  useAsyncEffect(async () => {
     if (!currentPage) return;
 
-    (async () => {
-      const explorer = await PgExplorer.get();
-      if (explorer.currentWorkspaceName !== tutorial.name) {
-        await explorer.changeWorkspace(tutorial.name);
-      }
-    })();
+    const explorer = await PgExplorer.get();
+    if (explorer.currentWorkspaceName !== tutorial.name) {
+      await explorer.changeWorkspace(tutorial.name);
+    }
   }, [currentPage, tutorial.name]);
 
   // Scroll to the top on page change

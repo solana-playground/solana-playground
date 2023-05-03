@@ -1,4 +1,5 @@
 export { useAirdropAmount } from "./useAirdropAmount";
+export { useAsyncEffect } from "./useAsyncEffect";
 export { useConnect } from "./useConnect";
 export { useCurrentWallet } from "./useCurrentWallet";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";

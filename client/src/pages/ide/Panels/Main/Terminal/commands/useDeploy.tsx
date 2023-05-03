@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAtom } from "jotai";
 import { PublicKey } from "@solana/web3.js";
 
@@ -20,7 +20,7 @@ import {
   PgTerminal,
   PgWallet,
 } from "../../../../../../utils/pg";
-import { usePgConnection } from "../../../../../../hooks";
+import { useAsyncEffect, usePgConnection } from "../../../../../../hooks";
 
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [pgWallet] = useAtom(pgWalletAtom);
@@ -115,43 +115,41 @@ const useAuthority = () => {
     upgradeable: true,
   });
 
-  useEffect(() => {
-    (async () => {
-      if (!PgConnection.isReady(conn)) return;
+  useAsyncEffect(async () => {
+    if (!PgConnection.isReady(conn)) return;
 
-      const programPk = PgProgramInfo.getPk()?.programPk;
-      if (!programPk) return;
+    const programPk = PgProgramInfo.getPk()?.programPk;
+    if (!programPk) return;
 
-      try {
-        const programAccountInfo = await conn.getAccountInfo(programPk);
-        const programDataPkBuffer = programAccountInfo?.data.slice(4);
-        if (!programDataPkBuffer) {
-          setProgramData({ upgradeable: true });
-          return;
-        }
-        const programDataPk = new PublicKey(programDataPkBuffer);
-
-        const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
-
-        // Check if program authority exists
-        const authorityExists = programDataAccountInfo?.data.at(12);
-        if (!authorityExists) {
-          setProgramData({ upgradeable: false });
-          return;
-        }
-
-        const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
-          13,
-          45
-        );
-
-        const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
-
-        setProgramData({ authority: upgradeAuthorityPk, upgradeable: true });
-      } catch (e: any) {
-        console.log("Could not get authority:", e.message);
+    try {
+      const programAccountInfo = await conn.getAccountInfo(programPk);
+      const programDataPkBuffer = programAccountInfo?.data.slice(4);
+      if (!programDataPkBuffer) {
+        setProgramData({ upgradeable: true });
+        return;
       }
-    })();
+      const programDataPk = new PublicKey(programDataPkBuffer);
+
+      const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
+
+      // Check if program authority exists
+      const authorityExists = programDataAccountInfo?.data.at(12);
+      if (!authorityExists) {
+        setProgramData({ upgradeable: false });
+        return;
+      }
+
+      const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
+        13,
+        45
+      );
+
+      const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
+
+      setProgramData({ authority: upgradeAuthorityPk, upgradeable: true });
+    } catch (e: any) {
+      console.log("Could not get authority:", e.message);
+    }
   }, [conn, programIdCount]);
 
   return {
