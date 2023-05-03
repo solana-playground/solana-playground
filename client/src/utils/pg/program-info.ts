@@ -1,4 +1,3 @@
-import * as pako from "pako";
 import { Idl, utils } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import {
@@ -146,7 +145,8 @@ export class PgProgramInfo {
 
     // Chop off account discriminator
     const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
-    const inflatedIdl = pako.inflate(idlAccount.data);
+    const { inflate } = await import("pako");
+    const inflatedIdl = inflate(idlAccount.data);
     const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
 
     return { idl, authority: idlAccount.authority };
