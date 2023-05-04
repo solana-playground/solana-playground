@@ -78,6 +78,29 @@ export class PgCommon {
   }
 
   /**
+   * Throttle the given callback.
+   *
+   * @param cb callback function to run
+   * @param ms amount of delay in miliseconds
+   * @returns the wrapped callback function
+   */
+  static throttle(cb: () => any, ms: number = 100) {
+    let timeoutId: NodeJS.Timer;
+    let lastCalled = Date.now();
+
+    return (...args: []) => {
+      const now = Date.now();
+      if (now < lastCalled + ms) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => cb(...args), ms);
+      } else {
+        cb(...args);
+        lastCalled = now;
+      }
+    };
+  }
+
+  /**
    * @returns the decoded string
    */
   static decodeBytes(

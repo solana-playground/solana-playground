@@ -361,7 +361,7 @@ export class PgTerminal {
     try {
       return await cb();
     } catch (e: any) {
-      this.log(`Process error: ${e.message}`);
+      this.log(`Process error: ${e?.message ? e.message : e}`);
     } finally {
       this.enable();
     }
