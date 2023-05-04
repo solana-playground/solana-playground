@@ -24,7 +24,8 @@ export const useCurrentWallet = () => {
   return {
     currentWallet,
     walletPkStr,
-    pgWalletPk: pgWallet.connected && pgWallet.publicKey,
+    pgWallet: pgWallet.connected ? pgWallet : null,
+    pgWalletPk: pgWallet.connected ? pgWallet.publicKey : null,
     solWalletPk: wallet?.publicKey,
   };
 };

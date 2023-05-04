@@ -5,9 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import {
   DEFAULT_PROGRAM,
   deployCountAtom,
-  pgWalletAtom,
   Program,
-  refreshPgWalletAtom,
   refreshProgramIdAtom,
   TerminalAction,
   txHashAtom,
@@ -23,22 +21,12 @@ import {
 import { useAsyncEffect, usePgConnection } from "../../../../../../hooks";
 
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
-  const [pgWallet] = useAtom(pgWalletAtom);
-  const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
   const [, setTxHash] = useAtom(txHashAtom);
   const [, setDeployCount] = useAtom(deployCountAtom);
 
   const { authority, hasAuthority, upgradeable } = useAuthority();
 
   const runDeploy = useCallback(async () => {
-    if (!pgWallet.connected) {
-      PgTerminal.log(
-        `${PgTerminal.bold(
-          "Playground Wallet"
-        )} must be connected in order to deploy.`
-      );
-      return;
-    }
     if (upgradeable === false) {
       PgTerminal.log(PgTerminal.warning("The program is not upgradeable."));
       return;
@@ -65,8 +53,9 @@ Your address: ${PgWallet.getKp().publicKey}`
 
     let msg;
     try {
+      const wallet = await PgWallet.get();
       const startTime = performance.now();
-      const txHash = await PgDeploy.deploy(pgWallet, program.buffer);
+      const txHash = await PgDeploy.deploy(wallet, program.buffer);
       const timePassed = (performance.now() - startTime) / 1000;
       setTxHash(txHash);
 
@@ -84,11 +73,7 @@ Your address: ${PgWallet.getKp().publicKey}`
       PgTerminal.setTerminalState(TerminalAction.deployLoadingStop);
       PgTerminal.setProgress(0);
     }
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    pgWallet,
-    pgWalletChanged,
     program,
     authority,
     hasAuthority,
@@ -97,7 +82,7 @@ Your address: ${PgWallet.getKp().publicKey}`
     setDeployCount,
   ]);
 
-  return { runDeploy, pgWallet, hasAuthority, upgradeable };
+  return { runDeploy, hasAuthority, upgradeable };
 };
 
 interface ProgramData {

@@ -26,8 +26,8 @@ const Deploy = () => {
 
   const { initialLoading, deployed, setDeployed, connError } =
     useInitialLoading();
-  const { solWalletPk } = useCurrentWallet();
-  const { pgWallet, hasAuthority, upgradeable } = useDeploy(program);
+  const { pgWallet, solWalletPk } = useCurrentWallet();
+  const { hasAuthority, upgradeable } = useDeploy(program);
 
   const deployButtonText = useMemo(() => {
     let text;
@@ -70,7 +70,7 @@ const Deploy = () => {
 
   // Custom(uploaded) program deploy
   if (program.buffer.length) {
-    if (!pgWallet.connected)
+    if (!pgWallet)
       return (
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
@@ -151,7 +151,7 @@ const Deploy = () => {
 
   // Normal deploy
   if (hasProgramPk) {
-    if (!pgWallet.connected)
+    if (!pgWallet)
       return (
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
