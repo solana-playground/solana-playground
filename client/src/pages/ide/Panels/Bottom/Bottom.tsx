@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../components/Button";
@@ -12,7 +12,7 @@ import {
   ClassName,
   ConnState,
 } from "../../../../constants";
-import { Fn, PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgTerminal } from "../../../../utils/pg";
 import { PgThemeManager } from "../../../../utils/pg/theme";
 import { useAutoAirdrop } from "./useAutoAirdrop";
 import {
@@ -35,11 +35,17 @@ const Bottom = () => {
     ];
   }, [conn.rpcEndpoint]);
 
+  // Using a callback because this function might be resolved later than the
+  // mount of this component
+  const connect = useCallback(() => {
+    PgTerminal.COMMANDS.connect();
+  }, []);
+
   return (
     <Wrapper id={Id.BOTTOM}>
       <Tooltip text="Toggle Playground Wallet">
         <ConnectButton
-          onClick={PgTerminal.COMMANDS.connect as Fn}
+          onClick={connect}
           kind="transparent"
           leftIcon={<ConnStatus connStatus={connStatus} />}
         >
