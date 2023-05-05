@@ -1,10 +1,10 @@
-import { ClientPackage } from "../../../../../../../../utils/pg/client/package";
+import type { ClientPackageName } from "../../../../../../../../utils/pg/client/package";
 
-const getImportRegex = (packageName: string) =>
-  new RegExp(`("|')${packageName}("|')`, "gm");
+const getImportRegex = (name: ClientPackageName) =>
+  new RegExp(`("|')${name}("|')`, "gm");
 
-const SPL_TOKEN_REGEX = getImportRegex(ClientPackage.SOLANA_SPL_TOKEN);
-// const METAPLEX_REGEX = getImportRegex(ClientPackage.METAPLEX_JS);
+const SPL_TOKEN_REGEX = getImportRegex("@solana/spl-token");
+// const METAPLEX_REGEX = getImportRegex("@metaplex-foundation/js");
 
 const loaded = {
   splToken: false,
