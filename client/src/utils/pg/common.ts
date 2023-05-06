@@ -383,8 +383,6 @@ export class PgCommon {
         return 1000;
       case Endpoint.LOCALHOST:
         return 100;
-      case Endpoint.DEVNET:
-        return 2;
       case Endpoint.TESTNET:
         return 1;
       default:
