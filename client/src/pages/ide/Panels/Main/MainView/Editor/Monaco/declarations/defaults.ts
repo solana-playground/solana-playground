@@ -49,7 +49,6 @@ export const declareDefaultTypes = async () => {
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     declare("@metaplex-foundation/js")
   );
-
   /* -------------------------- End types -------------------------- */
 
   /* -------------------------- Begin namespaces -------------------------- */
@@ -81,7 +80,6 @@ export const declareDefaultTypes = async () => {
     require("./raw/anchor-ns.raw.d.ts"),
     "anchor-ns.raw.d.ts"
   );
-
   /* -------------------------- End namespaces -------------------------- */
 
   // Globals

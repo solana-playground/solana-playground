@@ -1,10 +1,11 @@
 import type { ClientPackageName } from "../../../../../../../../utils/pg/client/package";
 
-const getImportRegex = (name: ClientPackageName) =>
-  new RegExp(`("|')${name}("|')`, "gm");
+const getImportRegex = (name: ClientPackageName) => {
+  return new RegExp(`("|')${name}("|')`, "gm");
+};
 
 const SPL_TOKEN_REGEX = getImportRegex("@solana/spl-token");
-// const METAPLEX_REGEX = getImportRegex("@metaplex-foundation/js");
+const METAPLEX_REGEX = getImportRegex("@metaplex-foundation/js");
 
 const loaded = {
   splToken: false,
@@ -17,10 +18,10 @@ export const declareOptionalTypes = async (content: string) => {
     loadSplTokenTypes();
     loaded.splToken = true;
   }
-  // TODO: takes forever to load and doesn't work properly
-  // if (!loaded.metaplex && METAPLEX_REGEX.test(content)) {
-  //   const { loadMetaplexTypes } = await import("./packages/metaplex");
-  //   loadMetaplexTypes();
-  //   loaded.metaplex = true;
-  // }
+
+  if (!loaded.metaplex && METAPLEX_REGEX.test(content)) {
+    const { loadMetaplexTypes } = await import("./packages/metaplex");
+    loadMetaplexTypes();
+    loaded.metaplex = true;
+  }
 };
