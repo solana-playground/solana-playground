@@ -1,1776 +1,1777 @@
 import * as monaco from "monaco-editor";
+import type { TupleString } from "../../../../../../../../../utils/pg";
 
 export const loadMetaplexTypes = () => {
   /* ------------------ Begin @metaplex-foundation/js ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/old-index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/index.d.ts"),
+      PATHS[0]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/Metaplex.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/Metaplex.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/Metaplex.d.ts"),
+      PATHS[1]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/BundlrError.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/BundlrError.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/BundlrError.d.ts"),
+      PATHS[2]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/MetaplexError.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/MetaplexError.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/MetaplexError.d.ts"),
+      PATHS[3]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/ProgramError.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/ProgramError.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/ProgramError.d.ts"),
+      PATHS[4]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/ReadApiError.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/ReadApiError.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/ReadApiError.d.ts"),
+      PATHS[5]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/RpcError.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/RpcError.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/RpcError.d.ts"),
+      PATHS[6]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/SdkError.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/SdkError.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/SdkError.d.ts"),
+      PATHS[7]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/errors/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/errors/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/errors/index.d.ts"),
+      PATHS[8]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseBuildersClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseBuildersClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseBuildersClient.d.ts"),
+      PATHS[9]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseClient.d.ts"),
+      PATHS[10]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHousePdasClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHousePdasClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHousePdasClient.d.ts"),
+      PATHS[11]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/accounts.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/accounts.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/accounts.d.ts"),
+      PATHS[12]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/constants.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/constants.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/constants.d.ts"),
+      PATHS[13]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/errors.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/errors.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/errors.d.ts"),
+      PATHS[14]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/BidReceiptGpaBuilder.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/BidReceiptGpaBuilder.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/BidReceiptGpaBuilder.d.ts"),
+      PATHS[15]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/ListingReceiptGpaBuilder.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/ListingReceiptGpaBuilder.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/ListingReceiptGpaBuilder.d.ts"),
+      PATHS[16]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/PurchaseReceiptGpaBuilder.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/PurchaseReceiptGpaBuilder.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/PurchaseReceiptGpaBuilder.d.ts"),
+      PATHS[17]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/index.d.ts"),
+      PATHS[18]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/index.d.ts"),
+      PATHS[19]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/AuctionHouse.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/AuctionHouse.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/AuctionHouse.d.ts"),
+      PATHS[20]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Bid.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Bid.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Bid.d.ts"),
+      PATHS[21]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Listing.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Listing.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Listing.d.ts"),
+      PATHS[22]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Purchase.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Purchase.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Purchase.d.ts"),
+      PATHS[23]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/index.d.ts"),
+      PATHS[24]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelBid.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelBid.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelBid.d.ts"),
+      PATHS[25]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelListing.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelListing.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelListing.d.ts"),
+      PATHS[26]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createAuctionHouse.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createAuctionHouse.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createAuctionHouse.d.ts"),
+      PATHS[27]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createBid.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createBid.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createBid.d.ts"),
+      PATHS[28]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createListing.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createListing.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createListing.d.ts"),
+      PATHS[29]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/depositToBuyerAccount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/depositToBuyerAccount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/depositToBuyerAccount.d.ts"),
+      PATHS[30]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directBuy.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directBuy.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directBuy.d.ts"),
+      PATHS[31]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directSell.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directSell.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directSell.d.ts"),
+      PATHS[32]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/executeSale.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/executeSale.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/executeSale.d.ts"),
+      PATHS[33]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByAddress.d.ts"),
+      PATHS[34]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByCreatorAndMint.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByCreatorAndMint.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByCreatorAndMint.d.ts"),
+      PATHS[35]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByReceipt.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByReceipt.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByReceipt.d.ts"),
+      PATHS[36]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByTradeState.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByTradeState.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByTradeState.d.ts"),
+      PATHS[37]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBids.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBids.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBids.d.ts"),
+      PATHS[38]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByReceipt.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByReceipt.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByReceipt.d.ts"),
+      PATHS[39]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByTradeState.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByTradeState.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByTradeState.d.ts"),
+      PATHS[40]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListings.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListings.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListings.d.ts"),
+      PATHS[41]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByReceipt.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByReceipt.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByReceipt.d.ts"),
+      PATHS[42]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByTradeState.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByTradeState.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByTradeState.d.ts"),
+      PATHS[43]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchases.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchases.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchases.d.ts"),
+      PATHS[44]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/getBuyerBalance.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/getBuyerBalance.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/getBuyerBalance.d.ts"),
+      PATHS[45]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/index.d.ts"),
+      PATHS[46]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadBid.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadBid.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadBid.d.ts"),
+      PATHS[47]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadListing.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadListing.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadListing.d.ts"),
+      PATHS[48]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadPurchase.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadPurchase.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadPurchase.d.ts"),
+      PATHS[49]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/updateAuctionHouse.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/updateAuctionHouse.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/updateAuctionHouse.d.ts"),
+      PATHS[50]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromBuyerAccount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromBuyerAccount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromBuyerAccount.d.ts"),
+      PATHS[51]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromFeeAccount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromFeeAccount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromFeeAccount.d.ts"),
+      PATHS[52]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromTreasuryAccount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromTreasuryAccount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromTreasuryAccount.d.ts"),
+      PATHS[53]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/auctionHouseModule/plugin.d.ts"),
+      PATHS[54]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/bundlrStorage/BundlrStorageDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/bundlrStorage/BundlrStorageDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/bundlrStorage/BundlrStorageDriver.d.ts"),
+      PATHS[55]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/bundlrStorage/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/bundlrStorage/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/bundlrStorage/index.d.ts"),
+      PATHS[56]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/bundlrStorage/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/bundlrStorage/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/bundlrStorage/plugin.d.ts"),
+      PATHS[57]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineBuildersClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineBuildersClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineBuildersClient.d.ts"),
+      PATHS[58]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineClient.d.ts"),
+      PATHS[59]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineGuardsClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineGuardsClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineGuardsClient.d.ts"),
+      PATHS[60]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachinePdasClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachinePdasClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachinePdasClient.d.ts"),
+      PATHS[61]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/asserts.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/asserts.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/asserts.d.ts"),
+      PATHS[62]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/constants.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/constants.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/constants.d.ts"),
+      PATHS[63]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/errors.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/errors.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/errors.d.ts"),
+      PATHS[64]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/addressGate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/addressGate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/addressGate.d.ts"),
+      PATHS[65]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/allowList.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/allowList.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/allowList.d.ts"),
+      PATHS[66]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/botTax.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/botTax.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/botTax.d.ts"),
+      PATHS[67]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/core.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/core.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/core.d.ts"),
+      PATHS[68]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/default.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/default.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/default.d.ts"),
+      PATHS[69]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/endDate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/endDate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/endDate.d.ts"),
+      PATHS[70]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeSolPayment.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeSolPayment.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeSolPayment.d.ts"),
+      PATHS[71]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeTokenPayment.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeTokenPayment.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeTokenPayment.d.ts"),
+      PATHS[72]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/gatekeeper.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/gatekeeper.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/gatekeeper.d.ts"),
+      PATHS[73]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/index.d.ts"),
+      PATHS[74]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/mintLimit.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/mintLimit.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/mintLimit.d.ts"),
+      PATHS[75]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftBurn.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftBurn.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftBurn.d.ts"),
+      PATHS[76]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftGate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftGate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftGate.d.ts"),
+      PATHS[77]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftPayment.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftPayment.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftPayment.d.ts"),
+      PATHS[78]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/programGate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/programGate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/programGate.d.ts"),
+      PATHS[79]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/redeemedAmount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/redeemedAmount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/redeemedAmount.d.ts"),
+      PATHS[80]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/solPayment.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/solPayment.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/solPayment.d.ts"),
+      PATHS[81]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/startDate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/startDate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/startDate.d.ts"),
+      PATHS[82]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/thirdPartySigner.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/thirdPartySigner.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/thirdPartySigner.d.ts"),
+      PATHS[83]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenBurn.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenBurn.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenBurn.d.ts"),
+      PATHS[84]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenGate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenGate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenGate.d.ts"),
+      PATHS[85]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenPayment.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenPayment.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenPayment.d.ts"),
+      PATHS[86]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/index.d.ts"),
+      PATHS[87]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyGuard.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyGuard.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyGuard.d.ts"),
+      PATHS[88]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachine.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachine.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachine.d.ts"),
+      PATHS[89]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineHiddenSection.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineHiddenSection.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineHiddenSection.d.ts"),
+      PATHS[90]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineItem.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineItem.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineItem.d.ts"),
+      PATHS[91]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/index.d.ts"),
+      PATHS[92]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/callCandyGuardRoute.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/callCandyGuardRoute.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/callCandyGuardRoute.d.ts"),
+      PATHS[93]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyGuard.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyGuard.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyGuard.d.ts"),
+      PATHS[94]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyMachine.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyMachine.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyMachine.d.ts"),
+      PATHS[95]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyGuard.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyGuard.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyGuard.d.ts"),
+      PATHS[96]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyMachine.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyMachine.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyMachine.d.ts"),
+      PATHS[97]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardByAddress.d.ts"),
+      PATHS[98]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardsByAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardsByAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardsByAuthority.d.ts"),
+      PATHS[99]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyMachineByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyMachineByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyMachineByAddress.d.ts"),
+      PATHS[100]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/index.d.ts"),
+      PATHS[101]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/insertCandyMachineItems.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/insertCandyMachineItems.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/insertCandyMachineItems.d.ts"),
+      PATHS[102]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/mintFromCandyMachine.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/mintFromCandyMachine.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/mintFromCandyMachine.d.ts"),
+      PATHS[103]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/unwrapCandyGuard.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/unwrapCandyGuard.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/unwrapCandyGuard.d.ts"),
+      PATHS[104]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuard.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuard.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuard.d.ts"),
+      PATHS[105]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuardAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuardAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuardAuthority.d.ts"),
+      PATHS[106]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyMachine.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyMachine.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyMachine.d.ts"),
+      PATHS[107]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/wrapCandyGuard.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/wrapCandyGuard.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/wrapCandyGuard.d.ts"),
+      PATHS[108]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/plugin.d.ts"),
+      PATHS[109]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/programs.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/programs.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineModule/programs.d.ts"),
+      PATHS[110]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2BuildersClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2BuildersClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2BuildersClient.d.ts"),
+      PATHS[111]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2Client.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2Client.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2Client.d.ts"),
+      PATHS[112]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/accounts.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/accounts.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/accounts.d.ts"),
+      PATHS[113]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/asserts.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/asserts.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/asserts.d.ts"),
+      PATHS[114]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/constants.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/constants.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/constants.d.ts"),
+      PATHS[115]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/errors.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/errors.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/errors.d.ts"),
+      PATHS[116]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/gpaBuilders.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/gpaBuilders.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/gpaBuilders.d.ts"),
+      PATHS[117]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/helpers.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/helpers.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/helpers.d.ts"),
+      PATHS[118]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/index.d.ts"),
+      PATHS[119]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/CandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/CandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/CandyMachineV2.d.ts"),
+      PATHS[120]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/index.d.ts"),
+      PATHS[121]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/createCandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/createCandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/createCandyMachineV2.d.ts"),
+      PATHS[122]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/deleteCandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/deleteCandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/deleteCandyMachineV2.d.ts"),
+      PATHS[123]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachineV2ByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachineV2ByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachineV2ByAddress.d.ts"),
+      PATHS[124]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachinesV2ByPublicKeyField.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachinesV2ByPublicKeyField.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachinesV2ByPublicKeyField.d.ts"),
+      PATHS[125]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findMintedNftsByCandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findMintedNftsByCandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findMintedNftsByCandyMachineV2.d.ts"),
+      PATHS[126]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/index.d.ts"),
+      PATHS[127]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/insertItemsToCandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/insertItemsToCandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/insertItemsToCandyMachineV2.d.ts"),
+      PATHS[128]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/mintCandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/mintCandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/mintCandyMachineV2.d.ts"),
+      PATHS[129]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/updateCandyMachineV2.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/updateCandyMachineV2.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/updateCandyMachineV2.d.ts"),
+      PATHS[130]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/pdas.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/pdas.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/pdas.d.ts"),
+      PATHS[131]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/plugin.d.ts"),
+      PATHS[132]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/program.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/program.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/program.d.ts"),
+      PATHS[133]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/corePlugins/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/corePlugins/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/corePlugins/index.d.ts"),
+      PATHS[134]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/corePlugins/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/corePlugins/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/corePlugins/plugin.d.ts"),
+      PATHS[135]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/DerivedIdentityClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/DerivedIdentityClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/DerivedIdentityClient.d.ts"),
+      PATHS[136]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/errors.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/errors.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/errors.d.ts"),
+      PATHS[137]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/index.d.ts"),
+      PATHS[138]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/derivedIdentity/plugin.d.ts"),
+      PATHS[139]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/guestIdentity/GuestIdentityDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/guestIdentity/GuestIdentityDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/guestIdentity/GuestIdentityDriver.d.ts"),
+      PATHS[140]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/guestIdentity/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/guestIdentity/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/guestIdentity/index.d.ts"),
+      PATHS[141]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/guestIdentity/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/guestIdentity/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/guestIdentity/plugin.d.ts"),
+      PATHS[142]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/IdentityClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/IdentityClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/IdentityClient.d.ts"),
+      PATHS[143]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/IdentityDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/IdentityDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/IdentityDriver.d.ts"),
+      PATHS[144]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/index.d.ts"),
+      PATHS[145]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/identityModule/plugin.d.ts"),
+      PATHS[146]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/index.d.ts"),
+      PATHS[147]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/keypairIdentity/KeypairIdentityDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/keypairIdentity/KeypairIdentityDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/keypairIdentity/KeypairIdentityDriver.d.ts"),
+      PATHS[148]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/keypairIdentity/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/keypairIdentity/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/keypairIdentity/index.d.ts"),
+      PATHS[149]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/keypairIdentity/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/keypairIdentity/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/keypairIdentity/plugin.d.ts"),
+      PATHS[150]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/mockStorage/MockStorageDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/mockStorage/MockStorageDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/mockStorage/MockStorageDriver.d.ts"),
+      PATHS[151]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/mockStorage/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/mockStorage/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/mockStorage/index.d.ts"),
+      PATHS[152]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/mockStorage/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/mockStorage/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/mockStorage/plugin.d.ts"),
+      PATHS[153]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/Authorization.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/Authorization.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/Authorization.d.ts"),
+      PATHS[154]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/DelegateInput.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/DelegateInput.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/DelegateInput.d.ts"),
+      PATHS[155]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/DelegateType.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/DelegateType.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/DelegateType.d.ts"),
+      PATHS[156]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/NftBuildersClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/NftBuildersClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/NftBuildersClient.d.ts"),
+      PATHS[157]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/NftClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/NftClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/NftClient.d.ts"),
+      PATHS[158]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/NftPdasClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/NftPdasClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/NftPdasClient.d.ts"),
+      PATHS[159]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/accounts.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/accounts.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/accounts.d.ts"),
+      PATHS[160]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/errors.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/errors.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/errors.d.ts"),
+      PATHS[161]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/gpaBuilders.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/gpaBuilders.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/gpaBuilders.d.ts"),
+      PATHS[162]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/helpers.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/helpers.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/helpers.d.ts"),
+      PATHS[163]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/index.d.ts"),
+      PATHS[164]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/JsonMetadata.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/JsonMetadata.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/JsonMetadata.d.ts"),
+      PATHS[165]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/Metadata.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/Metadata.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/Metadata.d.ts"),
+      PATHS[166]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/Nft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/Nft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/Nft.d.ts"),
+      PATHS[167]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/NftEdition.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/NftEdition.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/NftEdition.d.ts"),
+      PATHS[168]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/Sft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/Sft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/Sft.d.ts"),
+      PATHS[169]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/models/index.d.ts"),
+      PATHS[170]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftCollectionAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftCollectionAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftCollectionAuthority.d.ts"),
+      PATHS[171]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftDelegate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftDelegate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftDelegate.d.ts"),
+      PATHS[172]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftUseAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftUseAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftUseAuthority.d.ts"),
+      PATHS[173]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/createCompressedNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/createCompressedNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/createCompressedNft.d.ts"),
+      PATHS[174]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/createNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/createNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/createNft.d.ts"),
+      PATHS[175]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/createSft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/createSft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/createSft.d.ts"),
+      PATHS[176]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/deleteNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/deleteNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/deleteNft.d.ts"),
+      PATHS[177]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByAssetId.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByAssetId.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByAssetId.d.ts"),
+      PATHS[178]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMetadata.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMetadata.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMetadata.d.ts"),
+      PATHS[179]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMint.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMint.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMint.d.ts"),
+      PATHS[180]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByToken.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByToken.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByToken.d.ts"),
+      PATHS[181]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByCreator.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByCreator.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByCreator.d.ts"),
+      PATHS[182]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByMintList.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByMintList.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByMintList.d.ts"),
+      PATHS[183]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByOwner.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByOwner.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByOwner.d.ts"),
+      PATHS[184]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByUpdateAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByUpdateAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByUpdateAuthority.d.ts"),
+      PATHS[185]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/freezeDelegatedNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/freezeDelegatedNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/freezeDelegatedNft.d.ts"),
+      PATHS[186]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/index.d.ts"),
+      PATHS[187]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/loadMetadata.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/loadMetadata.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/loadMetadata.d.ts"),
+      PATHS[188]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/lockNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/lockNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/lockNft.d.ts"),
+      PATHS[189]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/migrateToSizedCollectionNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/migrateToSizedCollectionNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/migrateToSizedCollectionNft.d.ts"),
+      PATHS[190]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/mintNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/mintNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/mintNft.d.ts"),
+      PATHS[191]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/printNewEdition.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/printNewEdition.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/printNewEdition.d.ts"),
+      PATHS[192]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftCollectionAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftCollectionAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftCollectionAuthority.d.ts"),
+      PATHS[193]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftDelegate.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftDelegate.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftDelegate.d.ts"),
+      PATHS[194]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftUseAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftUseAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftUseAuthority.d.ts"),
+      PATHS[195]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/thawDelegatedNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/thawDelegatedNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/thawDelegatedNft.d.ts"),
+      PATHS[196]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferCompressedNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferCompressedNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferCompressedNft.d.ts"),
+      PATHS[197]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferNft.d.ts"),
+      PATHS[198]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/unlockNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/unlockNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/unlockNft.d.ts"),
+      PATHS[199]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCollection.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCollection.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCollection.d.ts"),
+      PATHS[200]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCreator.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCreator.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCreator.d.ts"),
+      PATHS[201]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/updateNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/updateNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/updateNft.d.ts"),
+      PATHS[202]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/uploadMetadata.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/uploadMetadata.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/uploadMetadata.d.ts"),
+      PATHS[203]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/useNft.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/useNft.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/useNft.d.ts"),
+      PATHS[204]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCollection.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCollection.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCollection.d.ts"),
+      PATHS[205]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCreator.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCreator.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCreator.d.ts"),
+      PATHS[206]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/pdas.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/pdas.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/pdas.d.ts"),
+      PATHS[207]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/nftModule/plugin.d.ts"),
+      PATHS[208]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/operationModule/OperationClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/operationModule/OperationClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/operationModule/OperationClient.d.ts"),
+      PATHS[209]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/operationModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/operationModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/operationModule/index.d.ts"),
+      PATHS[210]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/operationModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/operationModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/operationModule/plugin.d.ts"),
+      PATHS[211]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/programModule/ProgramClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/programModule/ProgramClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/programModule/ProgramClient.d.ts"),
+      PATHS[212]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/programModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/programModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/programModule/index.d.ts"),
+      PATHS[213]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/programModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/programModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/programModule/plugin.d.ts"),
+      PATHS[214]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/rpcModule/RpcClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/rpcModule/RpcClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/rpcModule/RpcClient.d.ts"),
+      PATHS[215]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/rpcModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/rpcModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/rpcModule/index.d.ts"),
+      PATHS[216]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/rpcModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/rpcModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/rpcModule/plugin.d.ts"),
+      PATHS[217]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/MetaplexFile.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/MetaplexFile.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/MetaplexFile.d.ts"),
+      PATHS[218]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/StorageClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/StorageClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/StorageClient.d.ts"),
+      PATHS[219]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/StorageDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/StorageDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/StorageDriver.d.ts"),
+      PATHS[220]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/index.d.ts"),
+      PATHS[221]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/storageModule/plugin.d.ts"),
+      PATHS[222]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/SystemBuildersClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/SystemBuildersClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/SystemBuildersClient.d.ts"),
+      PATHS[223]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/SystemClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/SystemClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/SystemClient.d.ts"),
+      PATHS[224]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/index.d.ts"),
+      PATHS[225]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/operations/createAccount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/operations/createAccount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/operations/createAccount.d.ts"),
+      PATHS[226]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/operations/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/operations/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/operations/index.d.ts"),
+      PATHS[227]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/operations/transferSol.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/operations/transferSol.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/operations/transferSol.d.ts"),
+      PATHS[228]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/systemModule/plugin.d.ts"),
+      PATHS[229]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/TokenBuildersClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/TokenBuildersClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/TokenBuildersClient.d.ts"),
+      PATHS[230]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/TokenClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/TokenClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/TokenClient.d.ts"),
+      PATHS[231]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/TokenPdasClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/TokenPdasClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/TokenPdasClient.d.ts"),
+      PATHS[232]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/accounts.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/accounts.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/accounts.d.ts"),
+      PATHS[233]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/constants.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/constants.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/constants.d.ts"),
+      PATHS[234]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/errors.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/errors.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/errors.d.ts"),
+      PATHS[235]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/gpaBuilders.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/gpaBuilders.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/gpaBuilders.d.ts"),
+      PATHS[236]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/index.d.ts"),
+      PATHS[237]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/models/Mint.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/models/Mint.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/models/Mint.d.ts"),
+      PATHS[238]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/models/Token.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/models/Token.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/models/Token.d.ts"),
+      PATHS[239]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/models/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/models/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/models/index.d.ts"),
+      PATHS[240]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/approveTokenDelegateAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/approveTokenDelegateAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/approveTokenDelegateAuthority.d.ts"),
+      PATHS[241]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createMint.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createMint.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createMint.d.ts"),
+      PATHS[242]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createToken.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createToken.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createToken.d.ts"),
+      PATHS[243]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createTokenWithMint.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createTokenWithMint.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createTokenWithMint.d.ts"),
+      PATHS[244]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findMintByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findMintByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findMintByAddress.d.ts"),
+      PATHS[245]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenByAddress.d.ts"),
+      PATHS[246]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByAddress.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByAddress.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByAddress.d.ts"),
+      PATHS[247]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByMint.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByMint.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByMint.d.ts"),
+      PATHS[248]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/freezeTokens.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/freezeTokens.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/freezeTokens.d.ts"),
+      PATHS[249]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/index.d.ts"),
+      PATHS[250]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/mintTokens.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/mintTokens.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/mintTokens.d.ts"),
+      PATHS[251]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/revokeTokenDelegateAuthority.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/revokeTokenDelegateAuthority.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/revokeTokenDelegateAuthority.d.ts"),
+      PATHS[252]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/sendTokens.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/sendTokens.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/sendTokens.d.ts"),
+      PATHS[253]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/thawTokens.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/thawTokens.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/operations/thawTokens.d.ts"),
+      PATHS[254]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/plugin.d.ts"),
+      PATHS[255]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/program.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/program.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/tokenModule/program.d.ts"),
+      PATHS[256]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/utilsModule/UtilsClient.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/utilsModule/UtilsClient.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/utilsModule/UtilsClient.d.ts"),
+      PATHS[257]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/utilsModule/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/utilsModule/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/utilsModule/index.d.ts"),
+      PATHS[258]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/utilsModule/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/utilsModule/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/utilsModule/plugin.d.ts"),
+      PATHS[259]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/WalletAdapterIdentityDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/WalletAdapterIdentityDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/WalletAdapterIdentityDriver.d.ts"),
+      PATHS[260]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/index.d.ts"),
+      PATHS[261]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/plugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/plugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/plugin.d.ts"),
+      PATHS[262]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Account.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Account.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Account.d.ts"),
+      PATHS[263]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Amount.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Amount.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Amount.d.ts"),
+      PATHS[264]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/BigNumber.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/BigNumber.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/BigNumber.d.ts"),
+      PATHS[265]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Cluster.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Cluster.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Cluster.d.ts"),
+      PATHS[266]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Creator.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Creator.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Creator.d.ts"),
+      PATHS[267]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/DateTime.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/DateTime.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/DateTime.d.ts"),
+      PATHS[268]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/FeatureFlags.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/FeatureFlags.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/FeatureFlags.d.ts"),
+      PATHS[269]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/HasDriver.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/HasDriver.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/HasDriver.d.ts"),
+      PATHS[270]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/HasMetaplex.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/HasMetaplex.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/HasMetaplex.d.ts"),
+      PATHS[271]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/MetaplexPlugin.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/MetaplexPlugin.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/MetaplexPlugin.d.ts"),
+      PATHS[272]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Model.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Model.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Model.d.ts"),
+      PATHS[273]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Operation.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Operation.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Operation.d.ts"),
+      PATHS[274]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Pda.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Pda.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Pda.d.ts"),
+      PATHS[275]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Program.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Program.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Program.d.ts"),
+      PATHS[276]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/PublicKey.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/PublicKey.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/PublicKey.d.ts"),
+      PATHS[277]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/ReadApi.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/ReadApi.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/ReadApi.d.ts"),
+      PATHS[278]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Serializer.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Serializer.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Serializer.d.ts"),
+      PATHS[279]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/Signer.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/Signer.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/Signer.d.ts"),
+      PATHS[280]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/types/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/types/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/types/index.d.ts"),
+      PATHS[281]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/Disposable.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/Disposable.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/Disposable.d.ts"),
+      PATHS[282]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/GmaBuilder.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/GmaBuilder.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/GmaBuilder.d.ts"),
+      PATHS[283]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/GpaBuilder.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/GpaBuilder.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/GpaBuilder.d.ts"),
+      PATHS[284]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/Task.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/Task.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/Task.d.ts"),
+      PATHS[285]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/TransactionBuilder.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/TransactionBuilder.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/TransactionBuilder.d.ts"),
+      PATHS[286]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/assert.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/assert.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/assert.d.ts"),
+      PATHS[287]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/common.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/common.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/common.d.ts"),
+      PATHS[288]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/exports.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/exports.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/exports.d.ts"),
+      PATHS[289]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/index.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/index.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/index.d.ts"),
+      PATHS[290]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/log.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/log.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/log.d.ts"),
+      PATHS[291]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/merkle.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/merkle.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/merkle.d.ts"),
+      PATHS[292]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/readApiConnection.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/readApiConnection.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/readApiConnection.d.ts"),
+      PATHS[293]
+    )
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    addIndex(
-      require("/node_modules/@metaplex-foundation/js/dist/types/utils/types.d.ts")
-    ),
-    "node_modules/metaplex-foundation/js/dist/types/utils/types.d.ts"
+    ...addResolvedLib(
+      require("/node_modules/@metaplex-foundation/js/dist/types/utils/types.d.ts"),
+      PATHS[294]
+    )
   );
 
   // Renaming exports allows us to use '@' and export everything
@@ -1783,36 +1784,356 @@ export const loadMetaplexTypes = () => {
   /* ------------------ End @metaplex-foundation/js ------------------ */
 };
 
+const PATHS = [
+  "node_modules/metaplex-foundation/js/dist/types/old-index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/Metaplex.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/BundlrError.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/MetaplexError.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/ProgramError.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/ReadApiError.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/RpcError.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/SdkError.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/errors/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseBuildersClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHouseClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/AuctionHousePdasClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/accounts.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/constants.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/errors.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/BidReceiptGpaBuilder.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/ListingReceiptGpaBuilder.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/PurchaseReceiptGpaBuilder.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/gpaBuilders/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/AuctionHouse.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Bid.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Listing.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/Purchase.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/models/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelBid.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/cancelListing.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createAuctionHouse.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createBid.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/createListing.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/depositToBuyerAccount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directBuy.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/directSell.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/executeSale.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findAuctionHouseByCreatorAndMint.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByReceipt.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBidByTradeState.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findBids.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByReceipt.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListingByTradeState.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findListings.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByReceipt.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchaseByTradeState.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/findPurchases.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/getBuyerBalance.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadBid.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadListing.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/loadPurchase.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/updateAuctionHouse.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromBuyerAccount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromFeeAccount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/operations/withdrawFromTreasuryAccount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/auctionHouseModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/bundlrStorage/BundlrStorageDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/bundlrStorage/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/bundlrStorage/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineBuildersClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachineGuardsClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/CandyMachinePdasClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/asserts.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/constants.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/errors.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/addressGate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/allowList.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/botTax.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/core.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/default.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/endDate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeSolPayment.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/freezeTokenPayment.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/gatekeeper.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/mintLimit.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftBurn.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftGate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/nftPayment.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/programGate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/redeemedAmount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/solPayment.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/startDate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/thirdPartySigner.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenBurn.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenGate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/guards/tokenPayment.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyGuard.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachine.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineHiddenSection.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/CandyMachineItem.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/models/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/callCandyGuardRoute.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyGuard.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/createCandyMachine.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyGuard.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/deleteCandyMachine.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyGuardsByAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/findCandyMachineByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/insertCandyMachineItems.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/mintFromCandyMachine.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/unwrapCandyGuard.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuard.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyGuardAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/updateCandyMachine.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/operations/wrapCandyGuard.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineModule/programs.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2BuildersClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/CandyMachinesV2Client.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/accounts.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/asserts.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/constants.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/errors.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/gpaBuilders.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/helpers.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/CandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/models/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/createCandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/deleteCandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachineV2ByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findCandyMachinesV2ByPublicKeyField.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/findMintedNftsByCandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/insertItemsToCandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/mintCandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/operations/updateCandyMachineV2.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/pdas.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/candyMachineV2Module/program.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/corePlugins/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/corePlugins/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/DerivedIdentityClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/errors.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/derivedIdentity/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/guestIdentity/GuestIdentityDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/guestIdentity/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/guestIdentity/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/IdentityClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/IdentityDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/identityModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/keypairIdentity/KeypairIdentityDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/keypairIdentity/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/keypairIdentity/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/mockStorage/MockStorageDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/mockStorage/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/mockStorage/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/Authorization.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/DelegateInput.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/DelegateType.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/NftBuildersClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/NftClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/NftPdasClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/accounts.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/errors.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/gpaBuilders.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/helpers.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/JsonMetadata.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/Metadata.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/Nft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/NftEdition.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/Sft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/models/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftCollectionAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftDelegate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/approveNftUseAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/createCompressedNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/createNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/createSft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/deleteNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByAssetId.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMetadata.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByMint.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftByToken.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByCreator.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByMintList.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByOwner.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/findNftsByUpdateAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/freezeDelegatedNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/loadMetadata.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/lockNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/migrateToSizedCollectionNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/mintNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/printNewEdition.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftCollectionAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftDelegate.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/revokeNftUseAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/thawDelegatedNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferCompressedNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/transferNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/unlockNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCollection.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/unverifyNftCreator.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/updateNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/uploadMetadata.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/useNft.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCollection.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/operations/verifyNftCreator.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/pdas.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/nftModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/operationModule/OperationClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/operationModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/operationModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/programModule/ProgramClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/programModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/programModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/rpcModule/RpcClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/rpcModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/rpcModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/MetaplexFile.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/StorageClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/StorageDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/storageModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/SystemBuildersClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/SystemClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/operations/createAccount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/operations/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/operations/transferSol.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/systemModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/TokenBuildersClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/TokenClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/TokenPdasClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/accounts.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/constants.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/errors.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/gpaBuilders.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/models/Mint.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/models/Token.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/models/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/approveTokenDelegateAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createMint.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createToken.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/createTokenWithMint.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findMintByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByAddress.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/findTokenWithMintByMint.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/freezeTokens.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/mintTokens.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/revokeTokenDelegateAuthority.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/sendTokens.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/operations/thawTokens.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/tokenModule/program.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/utilsModule/UtilsClient.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/utilsModule/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/utilsModule/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/WalletAdapterIdentityDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/plugins/walletAdapterIdentity/plugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Account.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Amount.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/BigNumber.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Cluster.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Creator.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/DateTime.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/FeatureFlags.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/HasDriver.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/HasMetaplex.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/MetaplexPlugin.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Model.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Operation.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Pda.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Program.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/PublicKey.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/ReadApi.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Serializer.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/Signer.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/types/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/Disposable.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/GmaBuilder.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/GpaBuilder.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/Task.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/TransactionBuilder.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/assert.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/common.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/exports.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/index.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/log.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/merkle.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/readApiConnection.d.ts",
+  "node_modules/metaplex-foundation/js/dist/types/utils/types.d.ts",
+];
+
 /**
  * Monaco TS worker is not able to use Metaplex imports/exports if indexes are
- * not explicit, e.g. "./common" will not translate into "./common/index.d.ts".
+ * not explicit, e.g. "./common" will not translate into "./common/index".
  *
  * @param content declaration file content
- * @returns the content with "/index" appended to the necessary imports/exports
+ * @param filePath declaration file path
+ * @returns the content with resolved statements
  */
-const addIndex = (content: string) => {
-  return content.replace(/[import|export].*from\s(.+)+/gm, (match, path) => {
-    if (path.slice(1).startsWith(".")) {
-      // Return the same if the import/export last name starts with an upper case
-      // e.g. "../NftClient" should return the same without appending "/index"
-      const lastName = path.split("/").pop();
-      if (lastName[0] === lastName[0].toUpperCase()) {
-        return match;
-      }
+const addResolvedLib = (content: string, filePath: string): TupleString => {
+  return [
+    content
+      // Module imports/exports
+      .replace(/^[import|export].*from\s(.+["|'])/gm, (...match: TupleString) =>
+        addIndex(filePath, ...match)
+      )
+      // import("...")
+      .replace(/import\((.*)\)/gm, (...match: TupleString) =>
+        addIndex(filePath, ...match)
+      ),
+    filePath,
+  ];
+};
 
-      const pathWithIndex = match.replace(
-        path,
-        path.slice(0, path.length - 2) + "/index" + path.slice(path.length - 2)
-      );
+/**
+ * Append `/index` to the given path when the path is a directory.
+ *
+ * @param filePath declaration file path
+ * @param match full matched string
+ * @param quotedPath quote surrounded path
+ * @returns the paths with `/index` appended when the path is a directory
+ */
+const addIndex = (filePath: string, match: string, quotedPath: string) => {
+  // Import or export statement's path
+  const statementPath = quotedPath.slice(1, quotedPath.length - 1);
 
-      if (match.startsWith("import")) {
-        return pathWithIndex;
-      }
+  // Only change local imports/exports
+  if (!statementPath.startsWith(".")) return match;
 
-      // Export should include both just in case
-      return match + "\n" + pathWithIndex;
-    }
+  // Resolve the given path
+  const canonicalIndexPath =
+    new URL(statementPath, "x://x.x/" + filePath).href.slice(8) + "/index.d.ts";
 
-    return match;
-  });
+  // Check if the filePath is a directory path with "index.d.ts" inside it
+  const isFolder = PATHS.some((p) => p === canonicalIndexPath);
+  if (isFolder) {
+    return match.replace(
+      quotedPath,
+      quotedPath.slice(0, quotedPath.length - 1) +
+        "/index" +
+        quotedPath.slice(quotedPath.length - 1)
+    );
+  }
+
+  return match;
 };
