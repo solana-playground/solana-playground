@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { DependencyList, useEffect } from "react";
 
 import { PgCommon } from "../utils/pg/common";
 
 export const useSendAndReceiveCustomEvent = <T,>(
+  eventName: string,
   cb: (data: T) => Promise<any>,
-  eventName: string
+  deps?: DependencyList
 ) => {
   useEffect(() => {
     const eventNames = PgCommon.getSendAndReceiveEventNames(eventName);
@@ -22,7 +23,10 @@ export const useSendAndReceiveCustomEvent = <T,>(
 
     document.addEventListener(eventNames.send, handleSend as any);
 
-    return () =>
+    return () => {
       document.removeEventListener(eventNames.send, handleSend as any);
-  }, [eventName, cb]);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps ?? [eventName, cb]);
 };

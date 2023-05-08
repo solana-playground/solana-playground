@@ -2,10 +2,9 @@ import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import * as ed25519 from "@noble/ed25519";
 
-import { PgTerminal } from "./terminal/";
 import { PgCommon } from "./common";
-import { EventName } from "../../constants";
 import { PgSet } from "./types";
+import { EventName } from "../../constants";
 
 /** localStorage data for the wallet */
 interface LsWallet {
@@ -145,23 +144,10 @@ export class PgWallet implements AnchorWallet {
   }
 
   /**
-   * Check whether Pg wallet is connected.
-   * If not, print connect instructions in terminal.
-   *
-   * @returns `true` if Pg wallet is connected
+   * @returns whether Playground Wallet is connected
    */
-  static checkIsPgConnected() {
-    if (PgWallet.getLs()?.connected) return true;
-
-    PgTerminal.log(
-      `${PgTerminal.bold(
-        "Playground Wallet"
-      )} must be connected to run this command. Run ${PgTerminal.bold(
-        "connect"
-      )} to connect.`
-    );
-
-    return false;
+  static isPgConnected() {
+    return !!PgWallet.getLs()?.connected;
   }
 
   /**

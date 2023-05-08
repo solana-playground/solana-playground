@@ -49,3 +49,6 @@ export type RequiredUntil<T, U> = T extends U
 export type AllRequired<T> = {
   [K in keyof T]-?: AllRequired<T[K]>;
 };
+
+/** Noop function type */
+export type Fn = () => void;

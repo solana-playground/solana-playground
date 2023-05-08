@@ -16,9 +16,10 @@ import {
   PgTerminal,
   Lang,
   PgCommon,
-  PgPkg,
+  PgPackage,
 } from "../../../../../../../utils/pg";
 import { EventName } from "../../../../../../../constants";
+import { useSendAndReceiveCustomEvent } from "../../../../../../../hooks";
 
 const CodeMirror = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -356,221 +357,214 @@ const CodeMirror = () => {
   }, [editor]);
 
   // Format event
-  useEffect(() => {
-    const handleEditorFormat = (
-      e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
-    ) => {
-      PgTerminal.process(async () => {
-        if (!editor || !explorer) return;
+  useSendAndReceiveCustomEvent(
+    EventName.EDITOR_FORMAT,
+    async (ev?: { lang: Lang; fromTerminal: boolean }) => {
+      if (!editor) return;
 
-        const lang = explorer.getCurrentFileLanguage();
-        if (!lang) return;
+      const explorer = await PgExplorer.get();
+      const lang = explorer.getCurrentFileLanguage();
+      if (!lang) return;
 
-        let formatRust;
-        const isCurrentFileRust = lang === Lang.RUST;
+      let formatRust;
+      const isCurrentFileRust = lang === Lang.RUST;
+      if (isCurrentFileRust) {
+        formatRust = async () => {
+          const { rustfmt } = await PgPackage.import("rustfmt");
+
+          const currentContent = editor.state.doc.toString();
+          let result;
+          try {
+            result = rustfmt(currentContent);
+          } catch (e: any) {
+            result = { error: () => e.message };
+          }
+          if (result.error()) {
+            PgTerminal.log(PgTerminal.error("Unable to format the file."));
+            return;
+          }
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
+
+          const formattedCode = result.code!();
+
+          let cursorOffset = editor.state.selection.ranges[0].from;
+          const currentLine = editor.state.doc.lineAt(cursorOffset);
+          if (currentLine.number !== 1) {
+            const beforeLine = editor.state.doc.line(currentLine.number - 1);
+            const afterLine = editor.state.doc.line(currentLine.number + 1);
+            const searchText = currentContent.substring(
+              beforeLine.from,
+              afterLine.to
+            );
+
+            const searchIndex = formattedCode.indexOf(searchText);
+            if (searchIndex !== -1) {
+              // Check if there are multiple instances of the same searchText
+              const nextSearchIndex = formattedCode.indexOf(
+                searchText,
+                searchIndex + searchText.length
+              );
+              if (nextSearchIndex === -1) {
+                cursorOffset = searchIndex + cursorOffset - beforeLine.from;
+              }
+            }
+          }
+
+          editor.dispatch({
+            changes: {
+              from: 0,
+              to: currentContent.length,
+              insert: formattedCode,
+            },
+            selection: {
+              anchor: cursorOffset,
+              head: cursorOffset,
+            },
+          });
+        };
+      }
+
+      const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
+      let formatJSTS;
+      if (isCurrentFileJsLike) {
+        formatJSTS = async () => {
+          const { formatWithCursor } = await import("prettier/standalone");
+          const { default: parserTypescript } = await import(
+            "prettier/parser-typescript"
+          );
+          const currentContent = editor.state.doc.toString();
+          const result = formatWithCursor(currentContent, {
+            parser: "typescript",
+            plugins: [parserTypescript],
+            cursorOffset: editor.state.selection.ranges[0].from,
+          });
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
+
+          editor.dispatch({
+            changes: {
+              from: 0,
+              to: currentContent.length,
+              insert: result.formatted,
+            },
+            selection: {
+              anchor: result.cursorOffset,
+              head: result.cursorOffset,
+            },
+          });
+        };
+      }
+
+      const isCurrentFileJSON = lang === Lang.JSON;
+      let formatJSON;
+      if (isCurrentFileJSON) {
+        formatJSON = () => {
+          const currentContent = editor.state.doc.toString();
+          const formattedCode = PgCommon.prettyJSON(JSON.parse(currentContent));
+
+          let cursorOffset = editor.state.selection.ranges[0].from;
+          const currentLine = editor.state.doc.lineAt(cursorOffset);
+          if (currentLine.number !== 1) {
+            const beforeLine = editor.state.doc.line(currentLine.number - 1);
+            const afterLine = editor.state.doc.line(currentLine.number + 1);
+            const searchText = currentContent.substring(
+              beforeLine.from,
+              afterLine.to
+            );
+
+            const searchIndex = formattedCode.indexOf(searchText);
+            if (searchIndex !== -1) {
+              // Check if there are multiple instances of the same searchText
+              const nextSearchIndex = formattedCode.indexOf(
+                searchText,
+                searchIndex + searchText.length
+              );
+              if (nextSearchIndex === -1) {
+                cursorOffset = searchIndex + cursorOffset - beforeLine.from;
+              }
+            }
+          }
+
+          editor.dispatch({
+            changes: {
+              from: 0,
+              to: currentContent.length,
+              insert: formattedCode,
+            },
+            selection: {
+              anchor: cursorOffset,
+              head: cursorOffset,
+            },
+          });
+        };
+      }
+
+      // From keybind
+      if (!ev) {
         if (isCurrentFileRust) {
-          formatRust = async () => {
-            const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
-            const currentContent = editor.state.doc.toString();
-            let result;
-            try {
-              result = rustfmt!(currentContent);
-            } catch (e: any) {
-              result = { error: () => e.message };
-            }
-            if (result.error()) {
-              PgTerminal.log(PgTerminal.error("Unable to format the file."));
-              return;
-            }
-
-            if (e.detail?.fromTerminal) {
-              PgTerminal.log(PgTerminal.success("Format successful."));
-            }
-
-            const formattedCode = result.code!();
-
-            let cursorOffset = editor.state.selection.ranges[0].from;
-            const currentLine = editor.state.doc.lineAt(cursorOffset);
-            if (currentLine.number !== 1) {
-              const beforeLine = editor.state.doc.line(currentLine.number - 1);
-              const afterLine = editor.state.doc.line(currentLine.number + 1);
-              const searchText = currentContent.substring(
-                beforeLine.from,
-                afterLine.to
-              );
-
-              const searchIndex = formattedCode.indexOf(searchText);
-              if (searchIndex !== -1) {
-                // Check if there are multiple instances of the same searchText
-                const nextSearchIndex = formattedCode.indexOf(
-                  searchText,
-                  searchIndex + searchText.length
-                );
-                if (nextSearchIndex === -1) {
-                  cursorOffset = searchIndex + cursorOffset - beforeLine.from;
-                }
-              }
-            }
-
-            editor.dispatch({
-              changes: {
-                from: 0,
-                to: currentContent.length,
-                insert: formattedCode,
-              },
-              selection: {
-                anchor: cursorOffset,
-                head: cursorOffset,
-              },
-            });
-          };
+          formatRust && (await formatRust());
+        } else if (isCurrentFileJsLike) {
+          formatJSTS && (await formatJSTS());
+        } else if (isCurrentFileJSON) {
+          formatJSON && formatJSON();
         }
 
-        const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
-        let formatJSTS;
-        if (isCurrentFileJsLike) {
-          formatJSTS = async () => {
-            const { formatWithCursor } = await import("prettier/standalone");
-            const { default: parserTypescript } = await import(
-              "prettier/parser-typescript"
+        return;
+      }
+
+      // From terminal
+      switch (ev.lang) {
+        case Lang.RUST: {
+          if (!isCurrentFileRust) {
+            PgTerminal.log(
+              PgTerminal.warning("Current file is not a Rust file.")
             );
-            const currentContent = editor.state.doc.toString();
-            const result = formatWithCursor(currentContent, {
-              parser: "typescript",
-              plugins: [parserTypescript],
-              cursorOffset: editor.state.selection.ranges[0].from,
-            });
+            return;
+          }
 
-            if (e.detail?.fromTerminal) {
-              PgTerminal.log(PgTerminal.success("Format successful."));
-            }
-
-            editor.dispatch({
-              changes: {
-                from: 0,
-                to: currentContent.length,
-                insert: result.formatted,
-              },
-              selection: {
-                anchor: result.cursorOffset,
-                head: result.cursorOffset,
-              },
-            });
-          };
+          formatRust && (await formatRust());
+          break;
         }
 
-        const isCurrentFileJSON = lang === Lang.JSON;
-        let formatJSON;
-        if (isCurrentFileJSON) {
-          formatJSON = () => {
-            const currentContent = editor.state.doc.toString();
-            const formattedCode = PgCommon.prettyJSON(
-              JSON.parse(currentContent)
+        case Lang.TYPESCRIPT: {
+          if (!isCurrentFileJsLike) {
+            PgTerminal.log(
+              PgTerminal.warning("Current file is not a JS/TS file.")
             );
-
-            let cursorOffset = editor.state.selection.ranges[0].from;
-            const currentLine = editor.state.doc.lineAt(cursorOffset);
-            if (currentLine.number !== 1) {
-              const beforeLine = editor.state.doc.line(currentLine.number - 1);
-              const afterLine = editor.state.doc.line(currentLine.number + 1);
-              const searchText = currentContent.substring(
-                beforeLine.from,
-                afterLine.to
-              );
-
-              const searchIndex = formattedCode.indexOf(searchText);
-              if (searchIndex !== -1) {
-                // Check if there are multiple instances of the same searchText
-                const nextSearchIndex = formattedCode.indexOf(
-                  searchText,
-                  searchIndex + searchText.length
-                );
-                if (nextSearchIndex === -1) {
-                  cursorOffset = searchIndex + cursorOffset - beforeLine.from;
-                }
-              }
-            }
-
-            editor.dispatch({
-              changes: {
-                from: 0,
-                to: currentContent.length,
-                insert: formattedCode,
-              },
-              selection: {
-                anchor: cursorOffset,
-                head: cursorOffset,
-              },
-            });
-          };
-        }
-
-        // From keybind
-        if (!e.detail) {
-          if (isCurrentFileRust) {
-            formatRust && (await formatRust());
-          } else if (isCurrentFileJsLike) {
-            formatJSTS && (await formatJSTS());
-          } else if (isCurrentFileJSON) {
-            formatJSON && formatJSON();
+            return;
           }
 
-          return;
+          formatJSTS && (await formatJSTS());
         }
+      }
+    },
+    [editor]
+  );
 
-        // From terminal
-        switch (e.detail.lang) {
-          case Lang.RUST: {
-            if (!isCurrentFileRust) {
-              PgTerminal.log(
-                PgTerminal.warning("Current file is not a Rust file.")
-              );
-              return;
-            }
-
-            formatRust && (await formatRust());
-            break;
-          }
-
-          case Lang.TYPESCRIPT: {
-            if (!isCurrentFileJsLike) {
-              PgTerminal.log(
-                PgTerminal.warning("Current file is not a JS/TS file.")
-              );
-              return;
-            }
-
-            formatJSTS && (await formatJSTS());
-          }
-        }
-      });
-    };
-
+  // Format on keybind
+  useEffect(() => {
     const handleFormatOnKeybind = (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e)) {
-        const key = e.key.toUpperCase();
-        if (key === "S") {
-          e.preventDefault();
-          if (editor?.hasFocus) {
-            PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT);
-          }
+      if (PgCommon.isKeyCtrlOrCmd(e) && e.key.toUpperCase() === "S") {
+        e.preventDefault();
+        if (editor?.hasFocus) {
+          PgTerminal.process(async () => {
+            await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
+          });
         }
       }
     };
 
-    document.addEventListener(
-      EventName.EDITOR_FORMAT,
-      handleEditorFormat as EventListener
-    );
     document.addEventListener("keydown", handleFormatOnKeybind);
+
     return () => {
-      document.removeEventListener(
-        EventName.EDITOR_FORMAT,
-        handleEditorFormat as EventListener
-      );
       document.removeEventListener("keydown", handleFormatOnKeybind);
     };
-  }, [editor, explorer]);
+  }, [editor]);
 
   return <Wrapper ref={codemirrorRef} />;
 };

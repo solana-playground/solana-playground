@@ -56,48 +56,37 @@ const Terminal = () => {
         cursorAccent: xterm.cursor.accentColor,
       },
     });
-  }, [theme]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme.name]);
 
   useExposeStatic(term, EventName.TERMINAL_STATIC);
 
-  // Open and fit terminal
+  // Open terminal
   useEffect(() => {
-    if (term && terminalRef.current) {
-      const hasChild = terminalRef.current.hasChildNodes();
-      if (hasChild) {
+    if (terminalRef.current) {
+      if (terminalRef.current.hasChildNodes()) {
         terminalRef.current.removeChild(terminalRef.current.childNodes[0]);
       }
 
       term.open(terminalRef.current);
-      term.fit();
     }
   }, [term]);
 
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
 
-  useEffect(() => {
-    term.fit();
-  }, [term, height]);
+  const termRef = useRef<HTMLDivElement>(null);
 
-  const handleResize = useCallback(() => {
-    term.fit();
+  // Handle resize
+  useEffect(() => {
+    const termEl = termRef.current!;
+    const observer = new ResizeObserver(
+      PgCommon.throttle(() => term.fit(), 200)
+    );
+    observer.observe(termEl);
+    return () => observer.unobserve(termEl);
   }, [term]);
-
-  // Resize the terminal on window resize event
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [handleResize]);
-
-  // Resize the terminal on interval just in case of a resizing bug
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      handleResize();
-    }, 3000);
-
-    return () => clearInterval(intervalId);
-  }, [handleResize]);
 
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => {
@@ -198,10 +187,6 @@ const Terminal = () => {
     const handleRunLastCmd = () => {
       term.runLastCmd();
     };
-    const handleRunCmdFromStr = (e: UIEvent) => {
-      const cmd = e.detail as unknown as string;
-      term.executeFromStr(cmd);
-    };
 
     document.addEventListener(EventName.TERMINAL_ENABLE, handleEnable);
     document.addEventListener(EventName.TERMINAL_DISABLE, handleDisable);
@@ -212,10 +197,6 @@ const Terminal = () => {
     document.addEventListener(
       EventName.TERMINAL_RUN_LAST_CMD,
       handleRunLastCmd
-    );
-    document.addEventListener(
-      EventName.TERMINAL_RUN_CMD_FROM_STR,
-      handleRunCmdFromStr as EventListener
     );
 
     return () => {
@@ -229,10 +210,6 @@ const Terminal = () => {
         EventName.TERMINAL_RUN_LAST_CMD,
         handleRunLastCmd
       );
-      document.removeEventListener(
-        EventName.TERMINAL_RUN_CMD_FROM_STR,
-        handleRunCmdFromStr as EventListener
-      );
     };
   }, [term]);
 
@@ -242,7 +219,6 @@ const Terminal = () => {
       minWidth="100%"
       minHeight={PgTerminal.MIN_HEIGHT}
       onResizeStop={handleResizeStop}
-      onResize={handleResize}
       enable={{
         top: true,
         right: false,
@@ -254,7 +230,7 @@ const Terminal = () => {
         topLeft: false,
       }}
     >
-      <Wrapper id={Id.TERMINAL}>
+      <Wrapper ref={termRef} id={Id.TERMINAL}>
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>

@@ -2,1053 +2,361 @@ import * as monaco from "monaco-editor";
 
 export const loadSplTokenTypes = () => {
   /* ------------------ Begin @solana/spl-token ------------------ */
-  /* ------------------ Begin imports ------------------ */
-  const splTokenActionsAmountToUiAmount = require("./spl-token/actions/amountToUiAmount.d.ts");
-  const splTokenActionsApprove = require("./spl-token/actions/approve.d.ts");
-  const splTokenActionsApproveChecked = require("./spl-token/actions/approveChecked.d.ts");
-  const splTokenActionsBurn = require("./spl-token/actions/burn.d.ts");
-  const splTokenActionsBurnChecked = require("./spl-token/actions/burnChecked.d.ts");
-  const splTokenActionsCloseAccount = require("./spl-token/actions/closeAccount.d.ts");
-  const splTokenActionsCreateAccount = require("./spl-token/actions/createAccount.d.ts");
-  const splTokenActionsCreateAssociatedTokenAccount = require("./spl-token/actions/createAssociatedTokenAccount.d.ts");
-  const splTokenActionsCreateMint = require("./spl-token/actions/createMint.d.ts");
-  const splTokenActionsCreateMultisig = require("./spl-token/actions/createMultisig.d.ts");
-  const splTokenActionsCreateNativeMint = require("./spl-token/actions/createNativeMint.d.ts");
-  const splTokenActionsCreateWrappedNativeAccount = require("./spl-token/actions/createWrappedNativeAccount.d.ts");
-  const splTokenActionsFreezeAccount = require("./spl-token/actions/freezeAccount.d.ts");
-  const splTokenActionsGetOrCreateAssociatedTokenAccount = require("./spl-token/actions/getOrCreateAssociatedTokenAccount.d.ts");
-  const splTokenActionsIndex = require("./spl-token/actions/index.d.ts");
-  const splTokenActionsInternal = require("./spl-token/actions/internal.d.ts");
-  const splTokenActionsMintTo = require("./spl-token/actions/mintTo.d.ts");
-  const splTokenActionsMintToChecked = require("./spl-token/actions/mintToChecked.d.ts");
-  const splTokenActionsRevoke = require("./spl-token/actions/revoke.d.ts");
-  const splTokenActionsSetAuthority = require("./spl-token/actions/setAuthority.d.ts");
-  const splTokenActionsSyncNative = require("./spl-token/actions/syncNative.d.ts");
-  const splTokenActionsThawAccount = require("./spl-token/actions/thawAccount.d.ts");
-  const splTokenActionsTransfer = require("./spl-token/actions/transfer.d.ts");
-  const splTokenActionsTransferChecked = require("./spl-token/actions/transferChecked.d.ts");
-  const splTokenActionsUiAmountToAmount = require("./spl-token/actions/uiAmountToAmount.d.ts");
-  const splTokenConstants = require("./spl-token/constants.d.ts");
-  const splTokenErrors = require("./spl-token/errors.d.ts");
-  const splTokenExtensionsAccountType = require("./spl-token/extensions/accountType.d.ts");
-  const splTokenExtensionsDefaultAccountStateActions = require("./spl-token/extensions/defaultAccountState/actions.d.ts");
-  const splTokenExtensionsDefaultAccountStateIndex = require("./spl-token/extensions/defaultAccountState/index.d.ts");
-  const splTokenExtensionsDefaultAccountStateInstructions = require("./spl-token/extensions/defaultAccountState/instructions.d.ts");
-  const splTokenExtensionsDefaultAccountStateState = require("./spl-token/extensions/defaultAccountState/state.d.ts");
-  const splTokenExtensionsExtensionType = require("./spl-token/extensions/extensionType.d.ts");
-  const splTokenExtensionsImmutableOwner = require("./spl-token/extensions/immutableOwner.d.ts");
-  const splTokenExtensionsIndex = require("./spl-token/extensions/index.d.ts");
-  const splTokenExtensionsInterestBearingMintActions = require("./spl-token/extensions/interestBearingMint/actions.d.ts");
-  const splTokenExtensionsInterestBearingMintIndex = require("./spl-token/extensions/interestBearingMint/index.d.ts");
-  const splTokenExtensionsInterestBearingMintInstructions = require("./spl-token/extensions/interestBearingMint/instructions.d.ts");
-  const splTokenExtensionsInterestBearingMintState = require("./spl-token/extensions/interestBearingMint/state.d.ts");
-  const splTokenExtensionsMemoTransferActions = require("./spl-token/extensions/memoTransfer/actions.d.ts");
-  const splTokenExtensionsMemoTransferIndex = require("./spl-token/extensions/memoTransfer/index.d.ts");
-  const splTokenExtensionsMemoTransferInstructions = require("./spl-token/extensions/memoTransfer/instructions.d.ts");
-  const splTokenExtensionsMemoTransferState = require("./spl-token/extensions/memoTransfer/state.d.ts");
-  const splTokenExtensionsMintCloseAuthority = require("./spl-token/extensions/mintCloseAuthority.d.ts");
-  const splTokenExtensionsNonTransferable = require("./spl-token/extensions/nonTransferable.d.ts");
-  const splTokenExtensionsTransferFeeActions = require("./spl-token/extensions/transferFee/actions.d.ts");
-  const splTokenExtensionsTransferFeeIndex = require("./spl-token/extensions/transferFee/index.d.ts");
-  const splTokenExtensionsTransferFeeInstructions = require("./spl-token/extensions/transferFee/instructions.d.ts");
-  const splTokenExtensionsTransferFeeState = require("./spl-token/extensions/transferFee/state.d.ts");
-  const splTokenIndex = require("./spl-token/index.d.ts");
-  const splTokenInstructionsAmountToUiAmount = require("./spl-token/instructions/amountToUiAmount.d.ts");
-  const splTokenInstructionsApprove = require("./spl-token/instructions/approve.d.ts");
-  const splTokenInstructionsApproveChecked = require("./spl-token/instructions/approveChecked.d.ts");
-  const splTokenInstructionsAssociatedTokenAccount = require("./spl-token/instructions/associatedTokenAccount.d.ts");
-  const splTokenInstructionsBurn = require("./spl-token/instructions/burn.d.ts");
-  const splTokenInstructionsBurnChecked = require("./spl-token/instructions/burnChecked.d.ts");
-  const splTokenInstructionsCloseAccount = require("./spl-token/instructions/closeAccount.d.ts");
-  const splTokenInstructionsCreateNativeMint = require("./spl-token/instructions/createNativeMint.d.ts");
-  const splTokenInstructionsDecode = require("./spl-token/instructions/decode.d.ts");
-  const splTokenInstructionsFreezeAccount = require("./spl-token/instructions/freezeAccount.d.ts");
-  const splTokenInstructionsIndex = require("./spl-token/instructions/index.d.ts");
-  const splTokenInstructionsInitializeAccount = require("./spl-token/instructions/initializeAccount.d.ts");
-  const splTokenInstructionsInitializeAccount2 = require("./spl-token/instructions/initializeAccount2.d.ts");
-  const splTokenInstructionsInitializeAccount3 = require("./spl-token/instructions/initializeAccount3.d.ts");
-  const splTokenInstructionsInitializeImmutableOwner = require("./spl-token/instructions/initializeImmutableOwner.d.ts");
-  const splTokenInstructionsInitializeMint = require("./spl-token/instructions/initializeMint.d.ts");
-  const splTokenInstructionsInitializeMint2 = require("./spl-token/instructions/initializeMint2.d.ts");
-  const splTokenInstructionsInitializeMintCloseAuthority = require("./spl-token/instructions/initializeMintCloseAuthority.d.ts");
-  const splTokenInstructionsInitializeMultisig = require("./spl-token/instructions/initializeMultisig.d.ts");
-  const splTokenInstructionsInitializeMultisig2 = require("./spl-token/instructions/initializeMultisig2.d.ts");
-  const splTokenInstructionsInitializeNonTransferableMint = require("./spl-token/instructions/initializeNonTransferableMint.d.ts");
-  const splTokenInstructionsInternal = require("./spl-token/instructions/internal.d.ts");
-  const splTokenInstructionsMintTo = require("./spl-token/instructions/mintTo.d.ts");
-  const splTokenInstructionsMintToChecked = require("./spl-token/instructions/mintToChecked.d.ts");
-  const splTokenInstructionsReallocate = require("./spl-token/instructions/reallocate.d.ts");
-  const splTokenInstructionsRevoke = require("./spl-token/instructions/revoke.d.ts");
-  const splTokenInstructionsSetAuthority = require("./spl-token/instructions/setAuthority.d.ts");
-  const splTokenInstructionsSyncNative = require("./spl-token/instructions/syncNative.d.ts");
-  const splTokenInstructionsThawAccount = require("./spl-token/instructions/thawAccount.d.ts");
-  const splTokenInstructionsTransfer = require("./spl-token/instructions/transfer.d.ts");
-  const splTokenInstructionsTransferChecked = require("./spl-token/instructions/transferChecked.d.ts");
-  const splTokenInstructionsTypes = require("./spl-token/instructions/types.d.ts");
-  const splTokenInstructionsUiAmountToAmount = require("./spl-token/instructions/uiAmountToAmount.d.ts");
-  const splTokenStateAccount = require("./spl-token/state/account.d.ts");
-  const splTokenStateIndex = require("./spl-token/state/index.d.ts");
-  const splTokenStateMint = require("./spl-token/state/mint.d.ts");
-  const splTokenStateMultisig = require("./spl-token/state/multisig.d.ts");
-  /* ------------------ End imports ------------------ */
-
-  /* ------------------ Begin libs ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsAmountToUiAmount,
+    require("/node_modules/@solana/spl-token/lib/types/index.d.ts"),
+    "node_modules/solana/spl-token/lib/types/old-index.d.ts"
+  );
+  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    require("/node_modules/@solana/spl-token/lib/types/actions/amountToUiAmount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/amountToUiAmount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsApprove,
+    require("/node_modules/@solana/spl-token/lib/types/actions/approve.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/approve.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsApproveChecked,
+    require("/node_modules/@solana/spl-token/lib/types/actions/approveChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/approveChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsBurn,
+    require("/node_modules/@solana/spl-token/lib/types/actions/burn.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/burn.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsBurnChecked,
+    require("/node_modules/@solana/spl-token/lib/types/actions/burnChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/burnChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCloseAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/closeAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/closeAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCreateAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/createAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/createAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCreateAssociatedTokenAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/createAssociatedTokenAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/createAssociatedTokenAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCreateMint,
+    require("/node_modules/@solana/spl-token/lib/types/actions/createMint.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/createMint.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCreateMultisig,
+    require("/node_modules/@solana/spl-token/lib/types/actions/createMultisig.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/createMultisig.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCreateNativeMint,
+    require("/node_modules/@solana/spl-token/lib/types/actions/createNativeMint.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/createNativeMint.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsCreateWrappedNativeAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/createWrappedNativeAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/createWrappedNativeAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsFreezeAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/freezeAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/freezeAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsGetOrCreateAssociatedTokenAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/getOrCreateAssociatedTokenAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/getOrCreateAssociatedTokenAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsIndex,
+    require("/node_modules/@solana/spl-token/lib/types/actions/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsInternal,
+    require("/node_modules/@solana/spl-token/lib/types/actions/internal.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/internal.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsMintTo,
+    require("/node_modules/@solana/spl-token/lib/types/actions/mintTo.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/mintTo.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsMintToChecked,
+    require("/node_modules/@solana/spl-token/lib/types/actions/mintToChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/mintToChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsRevoke,
+    require("/node_modules/@solana/spl-token/lib/types/actions/revoke.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/revoke.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsSetAuthority,
+    require("/node_modules/@solana/spl-token/lib/types/actions/setAuthority.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/setAuthority.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsSyncNative,
+    require("/node_modules/@solana/spl-token/lib/types/actions/syncNative.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/syncNative.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsThawAccount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/thawAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/thawAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsTransfer,
+    require("/node_modules/@solana/spl-token/lib/types/actions/transfer.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/transfer.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsTransferChecked,
+    require("/node_modules/@solana/spl-token/lib/types/actions/transferChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/transferChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenActionsUiAmountToAmount,
+    require("/node_modules/@solana/spl-token/lib/types/actions/uiAmountToAmount.d.ts"),
     "node_modules/solana/spl-token/lib/types/actions/uiAmountToAmount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenConstants,
+    require("/node_modules/@solana/spl-token/lib/types/constants.d.ts"),
     "node_modules/solana/spl-token/lib/types/constants.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenErrors,
+    require("/node_modules/@solana/spl-token/lib/types/errors.d.ts"),
     "node_modules/solana/spl-token/lib/types/errors.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsAccountType,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/accountType.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/accountType.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsDefaultAccountStateActions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/defaultAccountState/actions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/actions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsDefaultAccountStateIndex,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/defaultAccountState/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsDefaultAccountStateInstructions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/defaultAccountState/instructions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/instructions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsDefaultAccountStateState,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/defaultAccountState/state.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/state.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsExtensionType,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/extensionType.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/extensionType.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsImmutableOwner,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/immutableOwner.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/immutableOwner.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsIndex,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsInterestBearingMintActions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/interestBearingMint/actions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/actions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsInterestBearingMintIndex,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/interestBearingMint/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsInterestBearingMintInstructions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/interestBearingMint/instructions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/instructions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsInterestBearingMintState,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/interestBearingMint/state.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/state.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsMemoTransferActions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/memoTransfer/actions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/actions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsMemoTransferIndex,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/memoTransfer/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsMemoTransferInstructions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/memoTransfer/instructions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/instructions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsMemoTransferState,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/memoTransfer/state.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/state.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsMintCloseAuthority,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/mintCloseAuthority.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/mintCloseAuthority.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsNonTransferable,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/nonTransferable.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/nonTransferable.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsTransferFeeActions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/transferFee/actions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/transferFee/actions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsTransferFeeIndex,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/transferFee/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/transferFee/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsTransferFeeInstructions,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/transferFee/instructions.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/transferFee/instructions.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenExtensionsTransferFeeState,
+    require("/node_modules/@solana/spl-token/lib/types/extensions/transferFee/state.d.ts"),
     "node_modules/solana/spl-token/lib/types/extensions/transferFee/state.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenIndex,
-    "node_modules/solana/spl-token/lib/types/splToken.d.ts"
-  );
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsAmountToUiAmount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/amountToUiAmount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/amountToUiAmount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsApprove,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/approve.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/approve.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsApproveChecked,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/approveChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/approveChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsAssociatedTokenAccount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/associatedTokenAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/associatedTokenAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsBurn,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/burn.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/burn.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsBurnChecked,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/burnChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/burnChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsCloseAccount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/closeAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/closeAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsCreateNativeMint,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/createNativeMint.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/createNativeMint.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsDecode,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/decode.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/decode.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsFreezeAccount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/freezeAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/freezeAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsIndex,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeAccount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeAccount2,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeAccount2.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeAccount2.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeAccount3,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeAccount3.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeAccount3.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeImmutableOwner,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeImmutableOwner.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeImmutableOwner.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeMint,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeMint.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeMint.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeMint2,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeMint2.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeMint2.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeMintCloseAuthority,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeMintCloseAuthority.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeMintCloseAuthority.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeMultisig,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeMultisig.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeMultisig.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeMultisig2,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeMultisig2.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeMultisig2.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInitializeNonTransferableMint,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/initializeNonTransferableMint.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/initializeNonTransferableMint.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsInternal,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/internal.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/internal.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsMintTo,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/mintTo.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/mintTo.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsMintToChecked,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/mintToChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/mintToChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsReallocate,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/reallocate.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/reallocate.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsRevoke,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/revoke.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/revoke.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsSetAuthority,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/setAuthority.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/setAuthority.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsSyncNative,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/syncNative.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/syncNative.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsThawAccount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/thawAccount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/thawAccount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsTransfer,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/transfer.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/transfer.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsTransferChecked,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/transferChecked.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/transferChecked.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsTypes,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/types.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/types.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenInstructionsUiAmountToAmount,
+    require("/node_modules/@solana/spl-token/lib/types/instructions/uiAmountToAmount.d.ts"),
     "node_modules/solana/spl-token/lib/types/instructions/uiAmountToAmount.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenStateAccount,
+    require("/node_modules/@solana/spl-token/lib/types/state/account.d.ts"),
     "node_modules/solana/spl-token/lib/types/state/account.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenStateIndex,
+    require("/node_modules/@solana/spl-token/lib/types/state/index.d.ts"),
     "node_modules/solana/spl-token/lib/types/state/index.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenStateMint,
+    require("/node_modules/@solana/spl-token/lib/types/state/mint.d.ts"),
     "node_modules/solana/spl-token/lib/types/state/mint.d.ts"
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    splTokenStateMultisig,
+    require("/node_modules/@solana/spl-token/lib/types/state/multisig.d.ts"),
     "node_modules/solana/spl-token/lib/types/state/multisig.d.ts"
   );
+
   // Renaming exports allows us to use '@' and export everything
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     `declare module "@solana/spl-token" {
-    export * from "node_modules/solana/spl-token/lib/types/splToken"
-  }`,
+  export * from "node_modules/solana/spl-token/lib/types/old-index"
+}`,
     "node_modules/solana/spl-token/lib/types/index.d.ts"
   );
-  /* ------------------ End libs ------------------ */
-
-  /* ------------------ Begin models ------------------ */
-  monaco.editor.createModel(
-    splTokenActionsAmountToUiAmount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/amountToUiAmount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsApprove,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/approve.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsApproveChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/approveChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsBurn,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/burn.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsBurnChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/burnChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCloseAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/closeAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCreateAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/createAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCreateAssociatedTokenAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/createAssociatedTokenAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCreateMint,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/createMint.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCreateMultisig,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/createMultisig.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCreateNativeMint,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/createNativeMint.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsCreateWrappedNativeAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/createWrappedNativeAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsFreezeAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/freezeAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsGetOrCreateAssociatedTokenAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/getOrCreateAssociatedTokenAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsInternal,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/internal.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsMintTo,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/mintTo.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsMintToChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/mintToChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsRevoke,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/revoke.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsSetAuthority,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/setAuthority.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsSyncNative,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/syncNative.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsThawAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/thawAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsTransfer,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/transfer.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsTransferChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/transferChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenActionsUiAmountToAmount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/actions/uiAmountToAmount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenConstants,
-    "typescript",
-    monaco.Uri.parse("node_modules/solana/spl-token/lib/types/constants.d.ts")
-  );
-  monaco.editor.createModel(
-    splTokenErrors,
-    "typescript",
-    monaco.Uri.parse("node_modules/solana/spl-token/lib/types/errors.d.ts")
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsAccountType,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/accountType.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsDefaultAccountStateActions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/actions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsDefaultAccountStateIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsDefaultAccountStateInstructions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/instructions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsDefaultAccountStateState,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/defaultAccountState/state.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsExtensionType,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/extensionType.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsImmutableOwner,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/immutableOwner.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsInterestBearingMintActions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/actions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsInterestBearingMintIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsInterestBearingMintInstructions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/instructions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsInterestBearingMintState,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/interestBearingMint/state.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsMemoTransferActions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/actions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsMemoTransferIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsMemoTransferInstructions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/instructions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsMemoTransferState,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/memoTransfer/state.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsMintCloseAuthority,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/mintCloseAuthority.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsNonTransferable,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/nonTransferable.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsTransferFeeActions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/transferFee/actions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsTransferFeeIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/transferFee/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsTransferFeeInstructions,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/transferFee/instructions.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenExtensionsTransferFeeState,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/extensions/transferFee/state.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenIndex,
-    "typescript",
-    monaco.Uri.parse("node_modules/solana/spl-token/lib/types/splToken.d.ts")
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsAmountToUiAmount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/amountToUiAmount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsApprove,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/approve.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsApproveChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/approveChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsAssociatedTokenAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/associatedTokenAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsBurn,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/burn.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsBurnChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/burnChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsCloseAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/closeAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsCreateNativeMint,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/createNativeMint.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsDecode,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/decode.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsFreezeAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/freezeAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsIndex,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/index.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeAccount2,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeAccount2.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeAccount3,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeAccount3.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeImmutableOwner,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeImmutableOwner.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeMint,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeMint.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeMint2,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeMint2.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeMintCloseAuthority,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeMintCloseAuthority.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeMultisig,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeMultisig.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeMultisig2,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeMultisig2.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInitializeNonTransferableMint,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/initializeNonTransferableMint.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsInternal,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/internal.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsMintTo,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/mintTo.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsMintToChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/mintToChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsReallocate,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/reallocate.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsRevoke,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/revoke.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsSetAuthority,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/setAuthority.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsSyncNative,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/syncNative.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsThawAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/thawAccount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsTransfer,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/transfer.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsTransferChecked,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/transferChecked.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsTypes,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/types.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenInstructionsUiAmountToAmount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/instructions/uiAmountToAmount.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenStateAccount,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/state/account.d.ts"
-    )
-  );
-  monaco.editor.createModel(
-    splTokenStateIndex,
-    "typescript",
-    monaco.Uri.parse("node_modules/solana/spl-token/lib/types/state/index.d.ts")
-  );
-  monaco.editor.createModel(
-    splTokenStateMint,
-    "typescript",
-    monaco.Uri.parse("node_modules/solana/spl-token/lib/types/state/mint.d.ts")
-  );
-  monaco.editor.createModel(
-    splTokenStateMultisig,
-    "typescript",
-    monaco.Uri.parse(
-      "node_modules/solana/spl-token/lib/types/state/multisig.d.ts"
-    )
-  );
-  /* ------------------ End models ------------------ */
+  /* ------------------ End @solana/spl-token ------------------ */
 };

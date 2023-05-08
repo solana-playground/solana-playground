@@ -21,9 +21,7 @@ pub fn compile_seahorse(python_source: String, program_name: String) -> Vec<JsVa
         Err(e) => {
             // Log the compile error to Playground terminal
             PgTerminal::log_wasm(&e.to_string());
-            // Enable terminal
-            PgTerminal::enable();
-            return vec![];
+            vec![]
         }
     }
 }

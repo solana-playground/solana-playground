@@ -111,23 +111,23 @@ const useExplorerContextMenu = () => {
   }, [getPath, setModal]);
 
   const runClient = useCallback(() => {
-    PgTerminal.execute({ run: getPath() });
+    PgTerminal.COMMANDS.run(getPath());
   }, [getPath]);
 
   const runTest = useCallback(() => {
-    PgTerminal.execute({ test: getPath() });
+    PgTerminal.COMMANDS.test(getPath());
   }, [getPath]);
 
   const runClientFolder = useCallback(() => {
-    PgTerminal.execute({ run: "" });
+    PgTerminal.COMMANDS.run();
   }, []);
 
   const runTestFolder = useCallback(() => {
-    PgTerminal.execute({ test: "" });
+    PgTerminal.COMMANDS.test();
   }, []);
 
   const runBuild = useCallback(() => {
-    PgTerminal.execute({ build: "" });
+    PgTerminal.COMMANDS.build();
   }, []);
 
   return {

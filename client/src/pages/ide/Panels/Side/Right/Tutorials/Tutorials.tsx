@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import TutorialsSkeleton from "./TutorialsSkeleton";
@@ -9,6 +9,7 @@ import {
   TutorialData,
   TutorialMetadata,
 } from "../../../../../../utils/pg";
+import { useAsyncEffect } from "../../../../../../hooks";
 
 type TutorialFullData = (TutorialData & TutorialMetadata)[];
 type TutorialsData = { completed: TutorialFullData; ongoing: TutorialFullData };
@@ -16,26 +17,24 @@ type TutorialsData = { completed: TutorialFullData; ongoing: TutorialFullData };
 const Tutorials = () => {
   const [tutorialsData, setTutorialsData] = useState<TutorialsData>();
 
-  useEffect(() => {
-    (async () => {
-      const tutorialNames = await PgTutorial.getUserTutorialNames();
-      const data: TutorialsData = { completed: [], ongoing: [] };
-      for (const tutorialName of tutorialNames) {
-        const tutorialData = PgTutorial.getTutorialData(tutorialName);
-        if (!tutorialData) continue;
-        const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
-        if (tutorialMetadata.completed) {
-          data.completed.push({ ...tutorialData, ...tutorialMetadata });
-        } else {
-          data.ongoing.push({ ...tutorialData, ...tutorialMetadata });
-        }
+  useAsyncEffect(async () => {
+    const tutorialNames = await PgTutorial.getUserTutorialNames();
+    const data: TutorialsData = { completed: [], ongoing: [] };
+    for (const tutorialName of tutorialNames) {
+      const tutorialData = PgTutorial.getTutorialData(tutorialName);
+      if (!tutorialData) continue;
+      const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
+      if (tutorialMetadata.completed) {
+        data.completed.push({ ...tutorialData, ...tutorialMetadata });
+      } else {
+        data.ongoing.push({ ...tutorialData, ...tutorialMetadata });
       }
+    }
 
-      // Better transition
-      await PgCommon.sleep(250);
+    // Better transition
+    await PgCommon.sleep(250);
 
-      setTutorialsData(data);
-    })();
+    setTutorialsData(data);
   }, []);
 
   if (!tutorialsData) return <TutorialsSkeleton />;

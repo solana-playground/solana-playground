@@ -10,7 +10,7 @@ import {
   isIncompleteInput,
 } from "./shell-utils";
 import { PgTerminal } from "./terminal";
-import { PgCommand } from "./commands";
+import { PgCommand } from "./command";
 import { PgCommon } from "../common";
 import { EventName } from "../../../constants";
 
@@ -152,7 +152,7 @@ export class PgShell {
    *
    * @param clearCmd whether to clean the current line before parsing the command
    */
-  handleReadComplete = (clearCmd?: boolean) => {
+  handleReadComplete = async (clearCmd?: boolean) => {
     const input = this._pgTty.getInput();
     if (this._activePrompt && this._activePrompt.resolve) {
       this._activePrompt.resolve(input);
@@ -167,7 +167,7 @@ export class PgShell {
     if (this._waitingForInput) {
       PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_WAIT_FOR_INPUT);
     } else {
-      PgCommand.execute(input);
+      return await PgCommand.execute(input);
     }
   };
 

@@ -71,7 +71,7 @@ export const useAirdrop = () => {
   }, [solWalletPk, airdrop]);
 
   return {
-    pgCond: pgWalletPk && !!amount,
+    pgCond: (pgWalletPk && !!amount) ?? false,
     solCond: (solWalletPk && !!amount) ?? false,
     airdropPg: airdropPg,
     airdropSol: airdropSol,

@@ -1,5 +1,7 @@
 import * as monaco from "monaco-editor";
 
+import { ClientPackageName } from "../../../../../../../../utils/pg/client/package";
+
 let loaded = false;
 
 /**
@@ -44,12 +46,14 @@ export const declareDefaultTypes = async () => {
 
   // Optionals
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare("@solana/spl-token")
+    declare("@clockwork-xyz/sdk")
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     declare("@metaplex-foundation/js")
   );
-
+  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    declare("@solana/spl-token")
+  );
   /* -------------------------- End types -------------------------- */
 
   /* -------------------------- Begin namespaces -------------------------- */
@@ -81,7 +85,6 @@ export const declareDefaultTypes = async () => {
     require("./raw/anchor-ns.raw.d.ts"),
     "anchor-ns.raw.d.ts"
   );
-
   /* -------------------------- End namespaces -------------------------- */
 
   // Globals
@@ -96,10 +99,10 @@ export const declareDefaultTypes = async () => {
  * Some declaration files need to be declared for them to be referenced by other
  * declaration files.
  *
- * @param moduleName module name to be referenced in declaration files
+ * @param packageName package name to be referenced in declaration files
  * @param module contents of the module
  * @returns declared version  of the module with `moduleName`
  */
-const declare = (moduleName: string, module: string = "") => {
-  return `declare module "${moduleName}" { ${module} }`;
+const declare = (packageName: ClientPackageName, module: string = "") => {
+  return `declare module "${packageName}" { ${module} }`;
 };

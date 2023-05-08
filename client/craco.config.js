@@ -1,5 +1,6 @@
 const webpack = require("webpack");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+const CircularDependencyPlugin = require("circular-dependency-plugin");
 
 module.exports = {
   webpack: {
@@ -57,6 +58,25 @@ module.exports = {
           process: "process/browser",
         }),
 
+        // Monaco
+        new MonacoWebpackPlugin(),
+
+        // Circular dependencies
+        new CircularDependencyPlugin({
+          // Excluding terminal commands because circular imports will be resolved
+          // by the time the commands are executed.
+          exclude: /node_modules|terminal|sugar/,
+          // Include all src folder
+          include: /src/,
+          // Add errors to webpack instead of warnings
+          failOnError: true,
+          // Allow import cycles that include an asyncronous import,
+          // e.g. via import(/* webpackMode: "weak" */ './file.js')
+          allowAsyncCycles: false,
+          // Set the current working directory for displaying module paths
+          cwd: process.cwd(),
+        }),
+
         // Ignore `Critical dependency: the request of a dependency is an expression`
         // from typescript and mocha
         new webpack.ContextReplacementPlugin(/^\.$/, (context) => {
@@ -65,10 +85,7 @@ module.exports = {
               if (d.critical) d.critical = false;
             }
           }
-        }),
-
-        // Monaco
-        new MonacoWebpackPlugin()
+        })
       );
 
       // Ignore useless warnings

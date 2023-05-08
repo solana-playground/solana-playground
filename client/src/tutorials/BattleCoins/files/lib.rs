@@ -43,13 +43,20 @@ pub mod anchor_token {
         let cpi_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_metadata_program.to_account_info(),
             CreateMetadataAccountsV3 {
-                metadata: ctx.accounts.metadata_account.to_account_info(), // the metadata account being created
-                mint: ctx.accounts.reward_token_mint.to_account_info(), // the mint account of the metadata account
-                mint_authority: ctx.accounts.reward_token_mint.to_account_info(), // the mint authority of the mint account
-                update_authority: ctx.accounts.reward_token_mint.to_account_info(), // the update authority of the metadata account
-                payer: ctx.accounts.admin.to_account_info(), // the payer for creating the metadata account
-                system_program: ctx.accounts.system_program.to_account_info(), // the system program account
-                rent: ctx.accounts.rent.to_account_info(), // the rent sysvar account
+                 // the metadata account being created
+                metadata: ctx.accounts.metadata_account.to_account_info(),
+                 // the mint account of the metadata account
+                mint: ctx.accounts.reward_token_mint.to_account_info(),
+                // the mint authority of the mint account
+                mint_authority: ctx.accounts.reward_token_mint.to_account_info(),
+                // the update authority of the metadata account
+                update_authority: ctx.accounts.reward_token_mint.to_account_info(),
+                // the payer for creating the metadata account
+                payer: ctx.accounts.admin.to_account_info(),
+                // the system program account
+                system_program: ctx.accounts.system_program.to_account_info(),
+                // the rent sysvar account
+                rent: ctx.accounts.rent.to_account_info(),
             },
             signer,
         );

@@ -1,24 +1,24 @@
 import { ScriptTarget, transpile } from "typescript";
 import { Buffer } from "buffer";
 import * as assert from "assert";
+import * as borsh from "borsh";
 import * as mocha from "mocha";
 import * as util from "util";
-import * as borsh from "borsh";
-import * as web3 from "@solana/web3.js";
-import * as BufferLayout from "@solana/buffer-layout";
 import * as anchor from "@project-serum/anchor";
-import { AnchorWallet } from "@solana/wallet-adapter-react";
+import * as BufferLayout from "@solana/buffer-layout";
+import * as web3 from "@solana/web3.js";
+import type { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgTest } from "../test";
-import { PgTerminal } from "../terminal";
-import { PgProgramInfo } from "../program-info";
-import { PgWallet } from "../wallet";
+import { PgClientPackage } from "./package";
 import { PgCommon } from "../common";
-import { ClientPackage } from "./package";
+import { PgConnection } from "../connection";
+import { PgExplorer } from "../explorer";
+import { PgProgramInfo } from "../program-info";
+import { PgTerminal } from "../terminal";
+import { PgTest } from "../test";
+import { PgWallet } from "../wallet";
 
-/**
- * Utilities to be available under the `pg` namespace
- */
+/** Utilities to be available under the `pg` namespace */
 interface Pg {
   connection: web3.Connection;
   wallet?: PgWallet | AnchorWallet;
@@ -26,34 +26,111 @@ interface Pg {
   program?: anchor.Program;
 }
 
+/** Options to use when running a script/test */
+export interface ClientOptions {
+  /** Path to the script/test file */
+  path?: string;
+  /** Whether to run the script as a test */
+  isTest?: boolean;
+}
+
 export class PgClient {
-  private _isClientRunning: boolean;
-  private _IframeWindow?: Window;
-
-  constructor() {
-    this._isClientRunning = false;
-  }
-
   /**
    * Run or test js/ts code
    *
-   * @param code Client code to run/test
-   * @param wallet Playground or Anchor Wallet
-   * @param connection Current connection
-   * @param opts
+   * @param opts -
+   * - path: path to execute
    * - isTest: whether to run the code as test
    *
    * @returns A promise that will resolve once all tests are finished
    */
-  async run(
-    code: string,
+  static async run(opts: ClientOptions) {
+    const { path, isTest } = opts;
+
+    // Block creating multiple client/test instances at the same time
+    if (this._isClientRunning) {
+      if (isTest) {
+        throw new Error("Please wait for client to finish.");
+      }
+
+      throw new Error("Client is already running!");
+    }
+    // @ts-ignore
+    if (mocha._state === "running") {
+      if (!isTest) {
+        throw new Error("Please wait for tests to finish.");
+      }
+
+      throw new Error("Tests are already running!");
+    }
+
+    PgTerminal.log(
+      PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
+    );
+
+    const explorer = await PgExplorer.get();
+
+    // Run only the given path
+    if (path) {
+      const code = explorer.getFileContent(path);
+      if (!code) return;
+      const fileName = PgExplorer.getItemNameFromPath(path);
+      await this._runFile(fileName, code, { isTest });
+
+      return;
+    }
+
+    const folderPath = explorer.appendToCurrentWorkspacePath(
+      isTest ? PgExplorer.PATHS.TESTS_DIRNAME : PgExplorer.PATHS.CLIENT_DIRNAME
+    );
+    const folder = explorer.getFolderContent(folderPath);
+    if (!folder.files.length && !folder.folders.length) {
+      let DEFAULT;
+      if (isTest) {
+        PgTerminal.log(PgTerminal.info("Creating default test..."));
+        DEFAULT = DEFAULT_TEST;
+      } else {
+        PgTerminal.log(PgTerminal.info("Creating default client..."));
+        DEFAULT = DEFAULT_CLIENT;
+      }
+
+      const [fileName, code] = DEFAULT;
+      await explorer.newItem(PgCommon.joinPaths([folderPath, fileName]), code);
+      await this._runFile(fileName, code, {
+        isTest,
+      });
+
+      return;
+    }
+
+    // Run all files inside the folder
+    for (const fileName of folder.files) {
+      const code = explorer.getFileContent(
+        PgCommon.joinPaths([folderPath, fileName])
+      );
+      if (!code) continue;
+
+      await this._runFile(fileName, code, {
+        isTest,
+      });
+    }
+  }
+
+  /**
+   * Execute the given script/test as a single file
+   *
+   * @param fileName name of the file to run
+   * @param code code to execute
+   * @param opts run options
+   */
+  private static async _runFile(
     fileName: string,
-    wallet: PgWallet | AnchorWallet | null,
-    connection: web3.Connection,
-    opts?: { isTest?: boolean }
-  ): Promise<void> {
-    const isTest = opts?.isTest;
+    code: string,
+    { isTest }: ClientOptions
+  ) {
     await this._run(async (iframeWindow) => {
+      PgTerminal.log(`  ${fileName}:`);
+
       for (const keyword of BLACKLISTED_KEYWORDS) {
         if (code.includes(keyword)) {
           throw new Error(`'${keyword}' is not allowed`);
@@ -70,22 +147,18 @@ export class PgClient {
             )}' command to run the script.`
           );
         }
-      } else {
-        this._isClientRunning = true;
       }
-
-      PgTerminal.log(`  ${fileName}:`);
 
       // Add globally accessed objects
       const globals: [string, object][] = [
         /// Modules
+        ["anchor", anchor],
         ["assert", assert],
-        ["Buffer", Buffer],
+        ["BN", anchor.BN],
         ["borsh", borsh],
+        ["Buffer", Buffer],
         ["BufferLayout", BufferLayout],
         ["web3", web3],
-        ["anchor", anchor],
-        ["BN", anchor.BN],
 
         // https://github.com/solana-playground/solana-playground/issues/82
         ["Uint8Array", Uint8Array],
@@ -94,77 +167,10 @@ export class PgClient {
         ["sleep", PgCommon.sleep],
       ];
 
-      // Imports
-      const importRegex = new RegExp(
-        /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*}))\s+from\s+["|'](.+)["|']/gm
-      );
-      let importMatch: RegExpExecArray | null;
-
-      const setupImport = (pkg: { [key: string]: any }) => {
-        // 'import as *' syntax
-        if (importMatch?.[3]) {
-          globals.push([importMatch[3], pkg]);
-        }
-        // 'import {}' syntax
-        else if (importMatch?.[4]) {
-          const namedImports = importMatch[4]
-            .substring(1, importMatch[4].length - 1)
-            .replace(/\s+\n?/g, "")
-            .split(",");
-          for (const namedImport of namedImports) {
-            globals.push([namedImport, pkg[namedImport]]);
-          }
-        }
-      };
-
-      do {
-        importMatch = importRegex.exec(code);
-        if (importMatch) {
-          switch (importMatch[5] as ClientPackage) {
-            case ClientPackage.ANCHOR:
-              setupImport(anchor);
-              break;
-            case ClientPackage.ASSERT:
-              setupImport(assert);
-              break;
-            case ClientPackage.BN:
-              setupImport(anchor.BN);
-              break;
-            case ClientPackage.BORSH:
-              setupImport(borsh);
-              break;
-            case ClientPackage.BUFFER:
-              setupImport(Buffer);
-              break;
-            case ClientPackage.METAPLEX_JS:
-              setupImport(await import("@metaplex-foundation/js"));
-              break;
-            case ClientPackage.SOLANA_BUFFER_LAYOUT:
-              setupImport(BufferLayout);
-              break;
-            case ClientPackage.SOLANA_SPL_TOKEN:
-              setupImport(await import("@solana/spl-token"));
-              break;
-            case ClientPackage.SOLANA_WEB3JS:
-              setupImport(web3);
-              break;
-            default:
-              throw new Error(
-                importMatch[5].startsWith(".")
-                  ? "File imports are not supported."
-                  : `Package '${importMatch[5]}' is not recognized.`
-              );
-          }
-        }
-      } while (importMatch);
-
-      // Remove import statements
-      // Need to do this after we setup all the imports because of internal
-      // cursor index state the regex.exec has.
-      code = code.replace(importRegex, "");
-
-      // Playground utils namespace
-      const pg: Pg = { connection };
+      // Handle imports
+      const importResult = await PgClient._handleImports(code);
+      code = importResult.code;
+      globals.push(...importResult.imports);
 
       let endCode;
       if (isTest) {
@@ -214,7 +220,11 @@ export class PgClient {
         endCode = "_finish()";
       }
 
-      // Playground inherited
+      // Playground utils namespace
+      const connection = await PgConnection.get();
+      const wallet = await PgWallet.get();
+      const pg: Pg = { connection };
+
       if (wallet) {
         pg.wallet = wallet;
 
@@ -229,13 +239,13 @@ export class PgClient {
         pg.PROGRAM_ID = PROGRAM_ID;
       }
 
-      // Set Playground inherited object
+      // Set playground inherited object
       globals.push(["pg", pg]);
 
       // Setup iframe globals
-      for (const args of globals) {
+      for (const [name, pkg] of globals) {
         // @ts-ignore
-        iframeWindow[args[0]] = args[1];
+        iframeWindow[name] = pkg;
       }
 
       // Create script element in the iframe
@@ -288,70 +298,20 @@ export class PgClient {
           }, 1000);
         }
       });
-    }, !!isTest);
+    }, isTest);
   }
-
-  readonly DEFAULT_CLIENT = [
-    "client.ts",
-    `// Client
-console.log("My address:", pg.wallet.publicKey.toString());
-const balance = await pg.connection.getBalance(pg.wallet.publicKey);
-console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
-`,
-  ];
-
-  readonly DEFAULT_TEST = [
-    "index.test.ts",
-    `describe("Test", () => {
-  it("Airdrop", async () => {
-    // Fetch my balance
-    const balance = await pg.connection.getBalance(pg.wallet.publicKey);
-    console.log(\`My balance is \${balance} lamports\`);
-
-    // Airdrop 1 SOL
-    const airdropAmount = 1 * web3.LAMPORTS_PER_SOL;
-    const txHash = await pg.connection.requestAirdrop(pg.wallet.publicKey, airdropAmount);
-
-    // Confirm transaction
-    await pg.connection.confirmTransaction(txHash);
-
-    // Fetch new balance
-    const newBalance = await pg.connection.getBalance(pg.wallet.publicKey);
-    console.log(\`New balance is \${newBalance} lamports\`);
-
-    // Assert balances
-    assert(balance + airdropAmount === newBalance);
-  })
-})
-`,
-  ];
 
   /**
    * Wrapper function to control client running state
    *
    * @param cb callback function to run
-   * @param isTest whether running tests and not client
+   * @param isTest whether to execute as a test
    */
-  private async _run(
+  private static async _run(
     cb: (iframeWindow: Window) => Promise<void>,
-    isTest: boolean
+    isTest: ClientOptions["isTest"]
   ) {
-    // Block creating multiple client/test instances at the same time
-    if (this._isClientRunning) {
-      if (isTest) {
-        throw new Error("Please wait for client to finish.");
-      }
-
-      throw new Error("Client is already running!");
-    }
-    // @ts-ignore
-    if (mocha._state === "running") {
-      if (!isTest) {
-        throw new Error("Please wait for tests to finish.");
-      }
-
-      throw new Error("Tests are already running!");
-    }
+    if (!isTest) this._isClientRunning = true;
 
     try {
       const iframeWindow = this._getIframeWindow();
@@ -390,7 +350,7 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
    *
    * @returns Iframe's window element
    */
-  private _getIframeWindow() {
+  private static _getIframeWindow() {
     if (this._IframeWindow) return this._IframeWindow;
 
     const iframeEls = document.getElementsByTagName("iframe");
@@ -409,7 +369,100 @@ console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
 
     return this._IframeWindow;
   }
+
+  /**
+   * Handle user specified imports
+   *
+   * @param code script/test code
+   * @returns the code without import statements and the imported packages
+   */
+  private static async _handleImports(code: string) {
+    const importRegex = new RegExp(
+      /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*}))\s+from\s+["|'](.+)["|']/gm
+    );
+    let importMatch: RegExpExecArray | null;
+
+    const imports: [string, object][] = [];
+
+    const setupImport = (pkg: { [key: string]: any }) => {
+      // 'import as *' syntax
+      if (importMatch?.[3]) {
+        imports.push([importMatch[3], pkg]);
+      }
+      // 'import {}' syntax
+      else if (importMatch?.[4]) {
+        const namedImports = importMatch[4]
+          .substring(1, importMatch[4].length - 1)
+          .replace(/\s+\n?/g, "")
+          .split(",");
+        for (const namedImport of namedImports) {
+          imports.push([namedImport, pkg[namedImport]]);
+        }
+      }
+    };
+
+    do {
+      importMatch = importRegex.exec(code);
+      if (importMatch) {
+        const pkg = await PgClientPackage.import(importMatch[5]);
+        setupImport(pkg);
+      }
+    } while (importMatch);
+
+    // Remove import statements
+    // Need to do this after we setup all the imports because of internal
+    // cursor index state the regex.exec has.
+    code = code.replace(importRegex, "");
+
+    return { code, imports };
+  }
+
+  /** Whether a script is currently running */
+  private static _isClientRunning: boolean;
+
+  /** Cached `Iframe` `Window` object */
+  private static _IframeWindow: Window;
 }
+
+/** Default client files*/
+const DEFAULT_CLIENT = [
+  "client.ts",
+  `// Client
+console.log("My address:", pg.wallet.publicKey.toString());
+const balance = await pg.connection.getBalance(pg.wallet.publicKey);
+console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
+`,
+];
+
+/** Default test files */
+const DEFAULT_TEST = [
+  "index.test.ts",
+  `describe("Test", () => {
+  it("Airdrop", async () => {
+    // Fetch my balance
+    const balance = await pg.connection.getBalance(pg.wallet.publicKey);
+    console.log(\`My balance is \${balance} lamports\`);
+
+    // Airdrop 1 SOL
+    const airdropAmount = 1 * web3.LAMPORTS_PER_SOL;
+    const txHash = await pg.connection.requestAirdrop(
+      pg.wallet.publicKey,
+      airdropAmount
+    );
+
+    // Confirm transaction
+    await pg.connection.confirmTransaction(txHash);
+
+    // Fetch new balance
+    const newBalance = await pg.connection.getBalance(pg.wallet.publicKey);
+    console.log(\`New balance is \${newBalance} lamports\`);
+
+    // Assert balances
+    assert(balance + airdropAmount === newBalance);
+  });
+});
+`,
+];
 
 /** Keywords that are not allowed to be in the user code */
 const BLACKLISTED_KEYWORDS = [

@@ -1,10 +1,10 @@
 import { Idl } from "@project-serum/anchor";
 
-import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
 import { Files, PgExplorer } from "./explorer";
 import { PgProgramInfo } from "./program-info";
-import { PgPkg } from "./terminal";
+import { PgPackage } from "./terminal";
+import { SERVER_URL } from "../../constants";
 
 interface BuildResp {
   stderr: string;
@@ -41,10 +41,7 @@ export class PgBuild {
    * @returns Build output from stderr(not only errors)
    */
   private static async _buildPython(pythonFiles: Files) {
-    const { compileSeahorse } = await PgPkg.loadPkg(PgPkg.SEAHORSE_COMPILE);
-    if (!compileSeahorse) {
-      throw new Error("No compile function found in Seahorse package");
-    }
+    const { compileSeahorse } = await PgPackage.import("seahorse-compile");
 
     const rustFiles = pythonFiles.flatMap((file) => {
       const [path, content] = file;

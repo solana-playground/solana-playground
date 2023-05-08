@@ -1,49 +1,23 @@
-import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../../../components/Button";
-import { useBuild } from ".";
-import { TerminalAction, terminalStateAtom } from "../../../../../../state";
+import { terminalStateAtom } from "../../../../../../state";
+import { Fn, PgTerminal } from "../../../../../../utils/pg";
 
 const Build = () => {
-  const [terminalState, setTerminalState] = useAtom(terminalStateAtom);
-
-  const [loading, setLoading] = useState(false);
-
-  const { runBuild } = useBuild();
-
-  // Set global mount state
-  useEffect(() => {
-    setTerminalState(TerminalAction.buildMount);
-    return () => setTerminalState(TerminalAction.buildUnmount);
-  }, [setTerminalState]);
-
-  // Run build from terminal
-  useEffect(() => {
-    if (terminalState.buildMounted && terminalState.buildStart) {
-      runBuild();
-    }
-  }, [terminalState, runBuild]);
-
-  // Loading state for if the command started when the component wasn't mounted
-  useEffect(() => {
-    if (terminalState.buildMounted) {
-      if (terminalState.buildLoading) setLoading(true);
-      else setLoading(false);
-    }
-  }, [terminalState, setLoading]);
+  const [terminalState] = useAtom(terminalStateAtom);
 
   return (
     <Wrapper>
       <Button
         kind="secondary"
-        onClick={runBuild}
-        disabled={loading}
+        onClick={PgTerminal.COMMANDS.build as Fn}
+        disabled={terminalState.buildLoading}
+        btnLoading={terminalState.buildLoading}
         fullWidth
-        btnLoading={loading}
       >
-        {loading ? "Building..." : "Build"}
+        {terminalState.buildLoading ? "Building..." : "Build"}
       </Button>
     </Wrapper>
   );

@@ -11,7 +11,10 @@ import {
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 
-import { PgProgramInfo, PgTx, PgValidator, PgWallet } from "../";
+import { PgProgramInfo } from "../program-info";
+import { PgTx } from "../tx";
+import { PgValidator } from "../validator";
+import { PgWallet } from "../wallet";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;

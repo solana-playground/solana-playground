@@ -78,6 +78,29 @@ export class PgCommon {
   }
 
   /**
+   * Throttle the given callback.
+   *
+   * @param cb callback function to run
+   * @param ms amount of delay in miliseconds
+   * @returns the wrapped callback function
+   */
+  static throttle(cb: () => any, ms: number = 100) {
+    let timeoutId: NodeJS.Timer;
+    let lastCalled = Date.now();
+
+    return (...args: []) => {
+      const now = Date.now();
+      if (now < lastCalled + ms) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => cb(...args), ms);
+      } else {
+        cb(...args);
+        lastCalled = now;
+      }
+    };
+  }
+
+  /**
    * @returns the decoded string
    */
   static decodeBytes(
@@ -278,15 +301,13 @@ export class PgCommon {
    */
   static isMac() {
     const macPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
-    let isMac = false;
     for (const mac of macPlatforms) {
       if (window.navigator.userAgent.includes(mac)) {
-        isMac = true;
-        break;
+        return true;
       }
     }
 
-    return isMac;
+    return false;
   }
 
   /**
@@ -344,6 +365,16 @@ export class PgCommon {
   }
 
   /**
+   * @returns Title Case converted version of the kebab-case string
+   */
+  static toTitlefromKebab(str: string) {
+    return (
+      str[0].toUpperCase() +
+      str.slice(1).replace(/-\w/, (match) => " " + match[1].toUpperCase())
+    );
+  }
+
+  /**
    * @returns automatic airdrop amount
    */
   static getAirdropAmount(endpoint: string) {
@@ -352,24 +383,11 @@ export class PgCommon {
         return 1000;
       case Endpoint.LOCALHOST:
         return 100;
-      case Endpoint.DEVNET:
-        return 2;
       case Endpoint.TESTNET:
         return 1;
       default:
         return null;
     }
-  }
-
-  /**
-   * Dispatch a custom DOM event
-   *
-   * @param name custom event name
-   * @param detail data to send with the custom event
-   */
-  static createAndDispatchCustomEvent<T>(name: string, detail?: T) {
-    const customEvent = new CustomEvent(name, { detail });
-    document.dispatchEvent(customEvent);
   }
 
   /**
@@ -409,6 +427,17 @@ export class PgCommon {
   }
 
   /**
+   * Dispatch a custom DOM event
+   *
+   * @param name custom event name
+   * @param detail data to send with the custom event
+   */
+  static createAndDispatchCustomEvent<T>(name: string, detail?: T) {
+    const customEvent = new CustomEvent(name, { detail });
+    document.dispatchEvent(customEvent);
+  }
+
+  /**
    * Dispatch a custom event and wait for receiver to resolve
    *
    * @param eventName name of the custom event
@@ -427,17 +456,17 @@ export class PgCommon {
     // Wait for data
     return new Promise((res, rej) => {
       const handleReceive = (
-        e: UIEvent & { detail: { data: R; error?: string } }
+        ev: UIEvent & { detail: { data: R; error?: string } }
       ) => {
         document.removeEventListener(
           eventNames.receive,
           handleReceive as EventListener
         );
 
-        if (e.detail.error) {
-          rej({ message: e.detail.error });
+        if (ev.detail.error) {
+          rej({ message: ev.detail.error });
         } else {
-          res(e.detail.data);
+          res(ev.detail.data);
         }
       };
 

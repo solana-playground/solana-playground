@@ -8,11 +8,10 @@ use solana_cli_config_wasm::{Config, ConfigInput};
 use solana_cli_output_wasm::cli_output::{get_name_value_or, OutputFormat};
 use solana_client_wasm::utils::rpc_config::RpcSendTransactionConfig;
 use solana_extra_wasm::transaction_status::UiTransactionEncoding;
-use solana_playground_utils_wasm::js::{PgConnection, PgTerminal};
+use solana_playground_utils_wasm::js::{PgConnection, PgTerminal, PgWallet};
 use solana_remote_wallet::remote_wallet::RemoteWalletManager;
 use solana_sdk::signature::Keypair;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
 
 use crate::{
     clap::get_clap,
@@ -20,57 +19,49 @@ use crate::{
 };
 
 #[wasm_bindgen(js_name = "runSolana")]
-pub fn run_solana(arg: &str, endpoint: &str, commitment: &str, keypair_bytes: &[u8]) {
+pub async fn run_solana(cmd: String) {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
-    let args = arg.split_ascii_whitespace().collect::<Vec<&str>>();
-
+    let args = cmd.split_ascii_whitespace().collect::<Vec<&str>>();
     let match_result = get_clap("solana-cli", "Blockchain, Rebuilt for Scale", "1.11.0")
         .try_get_matches_from(args);
     match match_result {
         Ok(matches) => {
-            if parse_settings(&matches, endpoint, commitment) {
-                let mut wallet_manager = None;
-                let parse_result = parse_args(
-                    &matches,
-                    &mut wallet_manager,
-                    endpoint,
-                    commitment,
-                    keypair_bytes,
-                );
+            let endpoint = PgConnection::endpoint();
+            let commitment = PgConnection::commitment();
+            let keypair_bytes = PgWallet::keypair_bytes();
 
-                spawn_local(async {
-                    let output = match parse_result {
-                        Ok((mut config, signers)) => {
-                            config.signers = signers.iter().map(|s| s.as_ref()).collect();
-
-                            let process_result = process_command(&config).await;
-                            match process_result {
-                                Ok(output) => {
-                                    format!("{}", output)
-                                }
-                                Err(e) => format!("Process error: {}", e),
-                            }
-                        }
-                        Err(e) => format!("Parse error: {}", e.to_string()),
-                    };
-
-                    // Log output
-                    PgTerminal::log_wasm(&output);
-                    // Enable terminal
-                    PgTerminal::enable();
-                })
-            } else {
+            if !parse_settings(&matches, &endpoint, &commitment) {
                 // Config command
-                // Enable terminal
-                PgTerminal::enable();
+                return;
             }
+
+            let mut wallet_manager = None;
+            let parse_result = parse_args(
+                &matches,
+                &mut wallet_manager,
+                &endpoint,
+                &commitment,
+                &keypair_bytes,
+            );
+
+            let output = match parse_result {
+                Ok((mut config, signers)) => {
+                    config.signers = signers.iter().map(|s| s.as_ref()).collect();
+
+                    process_command(&config)
+                        .await
+                        .unwrap_or_else(|e| format!("Process error: {}", e))
+                }
+                Err(e) => format!("Parse error: {}", e.to_string()),
+            };
+
+            // Log output
+            PgTerminal::log_wasm(&output);
         }
         Err(e) => {
             // Help or error
             PgTerminal::log_wasm(&e.to_string());
-            // Enable terminal
-            PgTerminal::enable();
         }
     };
 }

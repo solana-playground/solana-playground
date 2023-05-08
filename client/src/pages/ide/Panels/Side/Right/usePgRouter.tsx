@@ -15,6 +15,7 @@ import {
   PgView,
   Sidebar,
 } from "../../../../../utils/pg";
+import { useAsyncEffect } from "../../../../../hooks";
 
 export const usePgRouter = () => {
   const [explorer, setExplorer] = useAtom(explorerAtom);
@@ -25,63 +26,61 @@ export const usePgRouter = () => {
   const { pathname } = useLocation();
 
   // Initialize explorer
-  useEffect(() => {
-    (async () => {
-      try {
-        // Default
-        if (pathname === Route.DEFAULT) {
-          const _explorer = new PgExplorer(refreshExplorer);
-          await _explorer.init();
+  useAsyncEffect(async () => {
+    try {
+      // Default
+      if (pathname === Route.DEFAULT) {
+        const _explorer = new PgExplorer(refreshExplorer);
+        await _explorer.init();
 
-          // If it's a tutorial, navigate to the tutorial's path
-          if (
-            _explorer.currentWorkspaceName &&
-            PgTutorial.isWorkspaceTutorial(_explorer.currentWorkspaceName)
-          ) {
-            await PgTutorial.open(_explorer.currentWorkspaceName);
-          }
-
-          setExplorer(_explorer);
-        }
-
-        // Tutorials
-        else if (pathname.startsWith(Route.TUTORIALS)) {
-          const _explorer = new PgExplorer(refreshExplorer);
-          await _explorer.init();
-          setExplorer(_explorer);
-        }
-
-        // Github
-        else if (pathname.startsWith(Route.GITHUB)) {
-          const _explorer = new PgExplorer(refreshExplorer);
-          await _explorer.init();
-
-          // Import the repository
-          await _explorer.importFromGithub(
-            pathname.split(`${Route.GITHUB}/`)?.[1]
-          );
-          // Navigate to main(will re-run current function)
-          PgRouter.navigate(Route.DEFAULT);
-        }
-
-        // Shared
-        else if (
-          PgShare.isValidPathname(pathname) &&
-          !(await PgCommon.timeout(PgExplorer.get()))?.isShared
+        // If it's a tutorial, navigate to the tutorial's path
+        if (
+          _explorer.currentWorkspaceName &&
+          PgTutorial.isWorkspaceTutorial(_explorer.currentWorkspaceName)
         ) {
-          const explorerData = await PgShare.get(pathname);
-          setExplorer(new PgExplorer(refreshExplorer, explorerData));
+          await PgTutorial.open(_explorer.currentWorkspaceName);
         }
 
-        // Not found
-        else {
-          PgRouter.navigate(Route.DEFAULT);
-        }
-      } catch (e: any) {
-        console.log(e.message);
+        setExplorer(_explorer);
+      }
+
+      // Tutorials
+      else if (pathname.startsWith(Route.TUTORIALS)) {
+        const _explorer = new PgExplorer(refreshExplorer);
+        await _explorer.init();
+        setExplorer(_explorer);
+      }
+
+      // Github
+      else if (pathname.startsWith(Route.GITHUB)) {
+        const _explorer = new PgExplorer(refreshExplorer);
+        await _explorer.init();
+
+        // Import the repository
+        await _explorer.importFromGithub(
+          pathname.split(`${Route.GITHUB}/`)?.[1]
+        );
+        // Navigate to main(will re-run current function)
         PgRouter.navigate(Route.DEFAULT);
       }
-    })();
+
+      // Shared
+      else if (
+        PgShare.isValidPathname(pathname) &&
+        !(await PgCommon.timeout(PgExplorer.get()))?.isShared
+      ) {
+        const explorerData = await PgShare.get(pathname);
+        setExplorer(new PgExplorer(refreshExplorer, explorerData));
+      }
+
+      // Not found
+      else {
+        PgRouter.navigate(Route.DEFAULT);
+      }
+    } catch (e: any) {
+      console.log(e.message);
+      PgRouter.navigate(Route.DEFAULT);
+    }
   }, [pathname, setExplorer, refreshExplorer]);
 
   // Handle workspace change/deletion
@@ -145,35 +144,33 @@ export const usePgRouter = () => {
 
   // Handle MainView
   const explorerExists = !!explorer;
-  useEffect(() => {
-    (async () => {
-      if (!explorerExists) return;
+  useAsyncEffect(async () => {
+    if (!explorerExists) return;
 
-      const explorer = await PgExplorer.get();
+    const explorer = await PgExplorer.get();
 
-      if (pathname.startsWith(Route.TUTORIALS)) {
-        if (PgRouter.comparePaths(pathname, Route.TUTORIALS)) {
-          PgView.setMain(() => <Tutorials />);
-        } else {
-          const tutorial = PgTutorial.getTutorialFromPathname(pathname);
-          if (!tutorial) {
-            PgRouter.navigate(Route.TUTORIALS);
-            return;
-          }
-          PgTutorial.setCurrent(tutorial);
-
-          PgView.setMain(async () => {
-            const { default: El } = await tutorial.elementImport();
-            return <El {...tutorial} />;
-          });
-        }
-      } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
-        const tutorialName = explorer.currentWorkspaceName;
-        PgTutorial.open(tutorialName!);
+    if (pathname.startsWith(Route.TUTORIALS)) {
+      if (PgRouter.comparePaths(pathname, Route.TUTORIALS)) {
+        PgView.setMain(() => <Tutorials />);
       } else {
-        PgView.setMain(() => <EditorWithTabs />);
+        const tutorial = PgTutorial.getTutorialFromPathname(pathname);
+        if (!tutorial) {
+          PgRouter.navigate(Route.TUTORIALS);
+          return;
+        }
+        PgTutorial.setCurrent(tutorial);
+
+        PgView.setMain(async () => {
+          const { default: El } = await tutorial.elementImport();
+          return <El {...tutorial} />;
+        });
       }
-    })();
+    } else if (await PgTutorial.isCurrentWorkspaceTutorial()) {
+      const tutorialName = explorer.currentWorkspaceName;
+      PgTutorial.open(tutorialName!);
+    } else {
+      PgView.setMain(() => <EditorWithTabs />);
+    }
   }, [pathname, explorerExists]);
 
   // Check whether the tab state is valid

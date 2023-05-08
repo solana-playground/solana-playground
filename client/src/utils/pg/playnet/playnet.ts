@@ -8,7 +8,7 @@ import { Endpoint } from "../../../constants";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgExplorer } from "../explorer";
-import { PgPkg } from "../terminal";
+import { PgPackage } from "../terminal";
 import { PgPlaynetRpc } from "./rpc";
 import { PgPlaynetUtils } from "./utils";
 import { OverrideableConnection } from "./types";
@@ -25,8 +25,8 @@ export class PgPlaynet {
     const saveData = await this._getSaveData();
 
     // Only load when Playnet needs to get initialized
-    const { Playnet } = await PgPkg.loadPkg(PgPkg.PLAYNET);
-    const playnet = new Playnet!(saveData);
+    const { Playnet } = await PgPackage.import("playnet");
+    const playnet = new Playnet(saveData);
     this._playnet = playnet;
 
     // Override fetch function for both `window` and `ConnectionProvider`

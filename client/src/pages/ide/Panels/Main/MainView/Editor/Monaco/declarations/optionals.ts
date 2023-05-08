@@ -1,26 +1,35 @@
-import { ClientPackage } from "../../../../../../../../utils/pg/client/package";
+import type { ClientPackageName } from "../../../../../../../../utils/pg/client/package";
 
-const getImportRegex = (packageName: string) =>
-  new RegExp(`("|')${packageName}("|')`, "gm");
+const getImportRegex = (name: ClientPackageName) => {
+  return new RegExp(`("|')${name}("|')`, "gm");
+};
 
-const SPL_TOKEN_REGEX = getImportRegex(ClientPackage.SOLANA_SPL_TOKEN);
-// const METAPLEX_REGEX = getImportRegex(ClientPackage.METAPLEX_JS);
+const CLOCKWORK_REGEX = getImportRegex("@clockwork-xyz/sdk");
+const METAPLEX_REGEX = getImportRegex("@metaplex-foundation/js");
+const SPL_TOKEN_REGEX = getImportRegex("@solana/spl-token");
 
 const loaded = {
-  splToken: false,
+  clockwork: false,
   metaplex: false,
+  splToken: false,
 };
 
 export const declareOptionalTypes = async (content: string) => {
+  if (!loaded.clockwork && CLOCKWORK_REGEX.test(content)) {
+    const { loadClockworkTypes } = await import("./packages/clockwork");
+    loadClockworkTypes();
+    loaded.clockwork = true;
+  }
+
+  if (!loaded.metaplex && METAPLEX_REGEX.test(content)) {
+    const { loadMetaplexTypes } = await import("./packages/metaplex");
+    loadMetaplexTypes();
+    loaded.metaplex = true;
+  }
+
   if (!loaded.splToken && SPL_TOKEN_REGEX.test(content)) {
     const { loadSplTokenTypes } = await import("./packages/spl-token");
     loadSplTokenTypes();
     loaded.splToken = true;
   }
-  // TODO: takes forever to load and doesn't work properly
-  // if (!loaded.metaplex && METAPLEX_REGEX.test(content)) {
-  //   const { loadMetaplexTypes } = await import("./packages/metaplex");
-  //   loadMetaplexTypes();
-  //   loaded.metaplex = true;
-  // }
 };

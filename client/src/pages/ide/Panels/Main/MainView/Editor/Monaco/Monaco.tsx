@@ -8,10 +8,11 @@ import {
   Lang,
   PgCommon,
   PgExplorer,
-  PgPkg,
+  PgPackage,
   PgTerminal,
 } from "../../../../../../../utils/pg";
 import { EventName } from "../../../../../../../constants";
+import { useSendAndReceiveCustomEvent } from "../../../../../../../hooks";
 
 const Monaco = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -342,265 +343,258 @@ const Monaco = () => {
   }, [editor]);
 
   // Format event
-  useEffect(() => {
-    const handleEditorFormat = (
-      e: UIEvent & { detail: { lang: Lang; fromTerminal: boolean } | null }
-    ) => {
-      PgTerminal.process(async () => {
-        if (!editor || !explorer) return;
+  useSendAndReceiveCustomEvent(
+    EventName.EDITOR_FORMAT,
+    async (ev?: { lang: Lang; fromTerminal: boolean }) => {
+      if (!editor) return;
 
-        const lang = explorer.getCurrentFileLanguage();
-        if (!lang) return;
+      const explorer = await PgExplorer.get();
+      const lang = explorer.getCurrentFileLanguage();
+      if (!lang) return;
 
-        let formatRust;
-        const isCurrentFileRust = lang === Lang.RUST;
+      let formatRust;
+      const isCurrentFileRust = lang === Lang.RUST;
+      if (isCurrentFileRust) {
+        formatRust = async () => {
+          const currentContent = editor.getValue();
+          const model = editor.getModel();
+          if (!model) return;
+
+          const { rustfmt } = await PgPackage.import("rustfmt");
+
+          let result;
+          try {
+            result = rustfmt!(currentContent);
+          } catch (e: any) {
+            result = { error: () => e.message };
+          }
+          if (result.error()) {
+            PgTerminal.log(PgTerminal.error("Unable to format the file."));
+            return;
+          }
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
+
+          const pos = editor.getPosition();
+          if (!pos) return;
+          let cursorOffset = model.getOffsetAt(pos);
+          const currentLine = model.getLineContent(pos.lineNumber);
+          const beforeLine = model.getLineContent(pos.lineNumber - 1);
+          const afterLine = model.getLineContent(pos.lineNumber + 1);
+          const searchText = [beforeLine, currentLine, afterLine].reduce(
+            (acc, cur) => acc + cur + "\n",
+            ""
+          );
+
+          const formattedCode = result.code!();
+          const searchIndex = formattedCode.indexOf(searchText);
+          if (searchIndex !== -1) {
+            // Check if there are multiple instances of the same searchText
+            const nextSearchIndex = formattedCode.indexOf(
+              searchText,
+              searchIndex + searchText.length
+            );
+            if (nextSearchIndex === -1) {
+              cursorOffset =
+                searchIndex +
+                cursorOffset -
+                model.getOffsetAt({
+                  lineNumber: pos.lineNumber - 1,
+                  column: 0,
+                });
+            }
+          }
+
+          const endLineNumber = model.getLineCount();
+          const endColumn = model.getLineContent(endLineNumber).length + 1;
+
+          // Execute edits pushes the changes to the undo stack
+          editor.executeEdits(null, [
+            {
+              text: formattedCode,
+              range: {
+                startLineNumber: 1,
+                endLineNumber,
+                startColumn: 0,
+                endColumn,
+              },
+            },
+          ]);
+
+          const resultPos = model.getPositionAt(cursorOffset);
+          editor.setPosition(resultPos);
+        };
+      }
+
+      const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
+      let formatJSTS;
+      if (isCurrentFileJsLike) {
+        formatJSTS = async () => {
+          const currentContent = editor.getValue();
+
+          const model = editor.getModel();
+          if (!model) return;
+
+          const { formatWithCursor } = await import("prettier/standalone");
+          const { default: parserTypescript } = await import(
+            "prettier/parser-typescript"
+          );
+
+          const pos = editor.getPosition() ?? { lineNumber: 1, column: 0 };
+
+          const result = formatWithCursor(currentContent, {
+            parser: "typescript",
+            plugins: [parserTypescript],
+            cursorOffset: model.getOffsetAt(pos),
+          });
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
+
+          const endLineNumber = model.getLineCount();
+          const endColumn = model.getLineContent(endLineNumber).length + 1;
+
+          // Execute edits pushes the changes to the undo stack
+          editor.executeEdits(null, [
+            {
+              text: result.formatted,
+              range: {
+                startLineNumber: 1,
+                endLineNumber,
+                startColumn: 0,
+                endColumn,
+              },
+            },
+          ]);
+
+          const resultPos = model.getPositionAt(result.cursorOffset);
+          editor.setPosition(resultPos);
+        };
+      }
+
+      const isCurrentFileJSON = lang === Lang.JSON;
+      let formatJSON;
+      if (isCurrentFileJSON) {
+        formatJSON = () => {
+          const model = editor.getModel();
+          if (!model) return;
+
+          const pos = editor.getPosition();
+          if (!pos) return;
+          let cursorOffset = model.getOffsetAt(pos);
+          const currentLine = model.getLineContent(pos.lineNumber);
+          const beforeLine = model.getLineContent(pos.lineNumber - 1);
+          const afterLine = model.getLineContent(pos.lineNumber + 1);
+          const searchText = [beforeLine, currentLine, afterLine].reduce(
+            (acc, cur) => acc + cur + "\n",
+            ""
+          );
+
+          const formattedCode = PgCommon.prettyJSON(
+            JSON.parse(editor.getValue())
+          );
+          const searchIndex = formattedCode.indexOf(searchText);
+          if (searchIndex !== -1) {
+            // Check if there are multiple instances of the same searchText
+            const nextSearchIndex = formattedCode.indexOf(
+              searchText,
+              searchIndex + searchText.length
+            );
+            if (nextSearchIndex === -1) {
+              cursorOffset =
+                searchIndex +
+                cursorOffset -
+                model.getOffsetAt({
+                  lineNumber: pos.lineNumber - 1,
+                  column: 0,
+                });
+            }
+          }
+
+          const endLineNumber = model.getLineCount();
+          const endColumn = model.getLineContent(endLineNumber).length + 1;
+
+          // Execute edits pushes the changes to the undo stack
+          editor.executeEdits(null, [
+            {
+              text: formattedCode,
+              range: {
+                startLineNumber: 1,
+                endLineNumber,
+                startColumn: 0,
+                endColumn,
+              },
+            },
+          ]);
+
+          const resultPos = model.getPositionAt(cursorOffset);
+          editor.setPosition(resultPos);
+        };
+      }
+
+      // From keybind
+      if (!ev) {
         if (isCurrentFileRust) {
-          formatRust = async () => {
-            const currentContent = editor.getValue();
-            const model = editor.getModel();
-            if (!model) return;
-
-            const { rustfmt } = await PgPkg.loadPkg(PgPkg.RUSTFMT);
-
-            let result;
-            try {
-              result = rustfmt!(currentContent);
-            } catch (e: any) {
-              result = { error: () => e.message };
-            }
-            if (result.error()) {
-              PgTerminal.log(PgTerminal.error("Unable to format the file."));
-              return;
-            }
-
-            if (e.detail?.fromTerminal) {
-              PgTerminal.log(PgTerminal.success("Format successful."));
-            }
-
-            const pos = editor.getPosition();
-            if (!pos) return;
-            let cursorOffset = model.getOffsetAt(pos);
-            const currentLine = model.getLineContent(pos.lineNumber);
-            const beforeLine = model.getLineContent(pos.lineNumber - 1);
-            const afterLine = model.getLineContent(pos.lineNumber + 1);
-            const searchText = [beforeLine, currentLine, afterLine].reduce(
-              (acc, cur) => acc + cur + "\n",
-              ""
-            );
-
-            const formattedCode = result.code!();
-            const searchIndex = formattedCode.indexOf(searchText);
-            if (searchIndex !== -1) {
-              // Check if there are multiple instances of the same searchText
-              const nextSearchIndex = formattedCode.indexOf(
-                searchText,
-                searchIndex + searchText.length
-              );
-              if (nextSearchIndex === -1) {
-                cursorOffset =
-                  searchIndex +
-                  cursorOffset -
-                  model.getOffsetAt({
-                    lineNumber: pos.lineNumber - 1,
-                    column: 0,
-                  });
-              }
-            }
-
-            const endLineNumber = model.getLineCount();
-            const endColumn = model.getLineContent(endLineNumber).length + 1;
-
-            // Execute edits pushes the changes to the undo stack
-            editor.executeEdits(null, [
-              {
-                text: formattedCode,
-                range: {
-                  startLineNumber: 1,
-                  endLineNumber,
-                  startColumn: 0,
-                  endColumn,
-                },
-              },
-            ]);
-
-            const resultPos = model.getPositionAt(cursorOffset);
-            editor.setPosition(resultPos);
-          };
+          formatRust && (await formatRust());
+        } else if (isCurrentFileJsLike) {
+          formatJSTS && (await formatJSTS());
+        } else if (isCurrentFileJSON) {
+          formatJSON && formatJSON();
         }
 
-        const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
-        let formatJSTS;
-        if (isCurrentFileJsLike) {
-          formatJSTS = async () => {
-            const currentContent = editor.getValue();
+        return;
+      }
 
-            const model = editor.getModel();
-            if (!model) return;
-
-            const { formatWithCursor } = await import("prettier/standalone");
-            const { default: parserTypescript } = await import(
-              "prettier/parser-typescript"
+      // From terminal
+      switch (ev.lang) {
+        case Lang.RUST: {
+          if (!isCurrentFileRust) {
+            PgTerminal.log(
+              PgTerminal.warning("Current file is not a Rust file.")
             );
-
-            const pos = editor.getPosition() ?? { lineNumber: 1, column: 0 };
-
-            const result = formatWithCursor(currentContent, {
-              parser: "typescript",
-              plugins: [parserTypescript],
-              cursorOffset: model.getOffsetAt(pos),
-            });
-
-            if (e.detail?.fromTerminal) {
-              PgTerminal.log(PgTerminal.success("Format successful."));
-            }
-
-            const endLineNumber = model.getLineCount();
-            const endColumn = model.getLineContent(endLineNumber).length + 1;
-
-            // Execute edits pushes the changes to the undo stack
-            editor.executeEdits(null, [
-              {
-                text: result.formatted,
-                range: {
-                  startLineNumber: 1,
-                  endLineNumber,
-                  startColumn: 0,
-                  endColumn,
-                },
-              },
-            ]);
-
-            const resultPos = model.getPositionAt(result.cursorOffset);
-            editor.setPosition(resultPos);
-          };
-        }
-
-        const isCurrentFileJSON = lang === Lang.JSON;
-        let formatJSON;
-        if (isCurrentFileJSON) {
-          formatJSON = () => {
-            const model = editor.getModel();
-            if (!model) return;
-
-            const pos = editor.getPosition();
-            if (!pos) return;
-            let cursorOffset = model.getOffsetAt(pos);
-            const currentLine = model.getLineContent(pos.lineNumber);
-            const beforeLine = model.getLineContent(pos.lineNumber - 1);
-            const afterLine = model.getLineContent(pos.lineNumber + 1);
-            const searchText = [beforeLine, currentLine, afterLine].reduce(
-              (acc, cur) => acc + cur + "\n",
-              ""
-            );
-
-            const formattedCode = PgCommon.prettyJSON(
-              JSON.parse(editor.getValue())
-            );
-            const searchIndex = formattedCode.indexOf(searchText);
-            if (searchIndex !== -1) {
-              // Check if there are multiple instances of the same searchText
-              const nextSearchIndex = formattedCode.indexOf(
-                searchText,
-                searchIndex + searchText.length
-              );
-              if (nextSearchIndex === -1) {
-                cursorOffset =
-                  searchIndex +
-                  cursorOffset -
-                  model.getOffsetAt({
-                    lineNumber: pos.lineNumber - 1,
-                    column: 0,
-                  });
-              }
-            }
-
-            const endLineNumber = model.getLineCount();
-            const endColumn = model.getLineContent(endLineNumber).length + 1;
-
-            // Execute edits pushes the changes to the undo stack
-            editor.executeEdits(null, [
-              {
-                text: formattedCode,
-                range: {
-                  startLineNumber: 1,
-                  endLineNumber,
-                  startColumn: 0,
-                  endColumn,
-                },
-              },
-            ]);
-
-            const resultPos = model.getPositionAt(cursorOffset);
-            editor.setPosition(resultPos);
-          };
-        }
-
-        // From keybind
-        if (!e.detail) {
-          if (isCurrentFileRust) {
-            formatRust && (await formatRust());
-          } else if (isCurrentFileJsLike) {
-            formatJSTS && (await formatJSTS());
-          } else if (isCurrentFileJSON) {
-            formatJSON && formatJSON();
+            return;
           }
 
-          return;
+          formatRust && (await formatRust());
+          break;
         }
 
-        // From terminal
-        switch (e.detail.lang) {
-          case Lang.RUST: {
-            if (!isCurrentFileRust) {
-              PgTerminal.log(
-                PgTerminal.warning("Current file is not a Rust file.")
-              );
-              return;
-            }
-
-            formatRust && (await formatRust());
-            break;
+        case Lang.TYPESCRIPT: {
+          if (!isCurrentFileJsLike) {
+            PgTerminal.log(
+              PgTerminal.warning("Current file is not a JS/TS file.")
+            );
+            return;
           }
 
-          case Lang.TYPESCRIPT: {
-            if (!isCurrentFileJsLike) {
-              PgTerminal.log(
-                PgTerminal.warning("Current file is not a JS/TS file.")
-              );
-              return;
-            }
-
-            formatJSTS && (await formatJSTS());
-          }
+          formatJSTS && (await formatJSTS());
         }
-      });
-    };
+      }
+    },
+    [editor]
+  );
 
+  // Format on keybind
+  useEffect(() => {
     const handleFormatOnKeybind = (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e)) {
-        const key = e.key.toUpperCase();
-        if (key === "S") {
-          e.preventDefault();
-          if (editor?.hasTextFocus()) {
-            PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FORMAT);
-          }
+      if (PgCommon.isKeyCtrlOrCmd(e) && e.key.toUpperCase() === "S") {
+        e.preventDefault();
+        if (editor?.hasTextFocus()) {
+          PgTerminal.process(async () => {
+            await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
+          });
         }
       }
     };
 
-    document.addEventListener(
-      EventName.EDITOR_FORMAT,
-      handleEditorFormat as EventListener
-    );
     document.addEventListener("keydown", handleFormatOnKeybind);
     return () => {
-      document.removeEventListener(
-        EventName.EDITOR_FORMAT,
-        handleEditorFormat as EventListener
-      );
       document.removeEventListener("keydown", handleFormatOnKeybind);
     };
-  }, [editor, explorer]);
+  }, [editor]);
 
   // Set declarations
   useEffect(() => {
