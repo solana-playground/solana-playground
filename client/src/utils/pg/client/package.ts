@@ -3,6 +3,7 @@ export type ClientPackageName =
   | "bn.js"
   | "borsh"
   | "buffer"
+  | "@clockwork-xyz/sdk"
   | "@metaplex-foundation/js"
   | "@project-serum/anchor"
   | "@solana/buffer-layout"
@@ -28,6 +29,8 @@ export class PgClientPackage {
         return await import("borsh");
       case "buffer":
         return await import("buffer");
+      case "@clockwork-xyz/sdk":
+        return await import("@clockwork-xyz/sdk");
       case "@metaplex-foundation/js":
         return await import("@metaplex-foundation/js");
       case "@project-serum/anchor":

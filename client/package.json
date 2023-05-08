@@ -6,6 +6,7 @@
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
+    "@clockwork-xyz/sdk": "^0.3.1",
     "@codemirror/autocomplete": "^6.2.0",
     "@codemirror/commands": "^6.1.0",
     "@codemirror/lang-javascript": "^6.0.2",
