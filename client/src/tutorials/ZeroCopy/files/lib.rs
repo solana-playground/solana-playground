@@ -100,7 +100,9 @@ pub struct SetData<'info> {
     pub signer: Signer<'info>,
 }
 
-#[account(zero_copy)]
+//#[account(zero_copy)] // For Anchor 0.26.0 and before. 
+// See Change log: https://github.com/coral-xyz/anchor/blob/master/CHANGELOG.md
+#[account(zero_copy(unsafe))]
 #[repr(C)]
 pub struct DataHolder {
     // 40952 = 40960 - 8 (account desciminator)
