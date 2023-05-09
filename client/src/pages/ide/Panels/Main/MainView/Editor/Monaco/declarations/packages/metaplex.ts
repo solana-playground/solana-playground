@@ -1,7 +1,8 @@
 import * as monaco from "monaco-editor";
+
 import type { TupleString } from "../../../../../../../../../utils/pg";
 
-export const loadMetaplexTypes = () => {
+export default function declareMetaplex() {
   /* ------------------ Begin @metaplex-foundation/js ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     ...addResolvedLib(
@@ -1782,7 +1783,7 @@ export const loadMetaplexTypes = () => {
     "node_modules/metaplex-foundation/js/dist/types/index.d.ts"
   );
   /* ------------------ End @metaplex-foundation/js ------------------ */
-};
+}
 
 const PATHS = [
   "node_modules/metaplex-foundation/js/dist/types/old-index.d.ts",

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
+import { Atom, useAtom } from "jotai";
 import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
@@ -15,7 +15,7 @@ import { EventName } from "../../../../../../../constants";
 import { useSendAndReceiveCustomEvent } from "../../../../../../../hooks";
 
 const Monaco = () => {
-  const [explorer] = useAtom(explorerAtom);
+  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
   const [explorerChanged] = useAtom(refreshExplorerAtom);
 
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
@@ -208,7 +208,6 @@ const Monaco = () => {
     setEditor(
       monaco.editor.create(monacoRef.current, {
         automaticLayout: true,
-        // FIXME: Coloring is not working
         bracketPairColorization: { enabled: true },
         fontLigatures: true,
         tabSize: 2,
@@ -218,7 +217,7 @@ const Monaco = () => {
 
   // Set editor state
   useEffect(() => {
-    if (!editor || !explorer) return;
+    if (!editor) return;
     let topLineIntervalId: NodeJS.Timer;
     let model: monaco.editor.ITextModel | undefined;
 
@@ -297,8 +296,8 @@ const Monaco = () => {
 
   // Auto save
   useEffect(() => {
-    if (!editor || !explorer) return;
-    const curFile = explorer?.getCurrentFile();
+    if (!editor) return;
+    const curFile = explorer.getCurrentFile();
     if (!curFile) return;
 
     let timeoutId: NodeJS.Timeout;
@@ -598,32 +597,34 @@ const Monaco = () => {
 
   // Set declarations
   useEffect(() => {
-    if (!editor || !explorer) return;
-    let declareOptionalsTimoutId: NodeJS.Timer;
+    if (!editor) return;
+    let declareImportablesTimoutId: NodeJS.Timer;
 
-    const declareOptionals = async () => {
-      const { declareOptionalTypes } = await import("./declarations/optionals");
-      await declareOptionalTypes(editor.getValue());
+    const declareImportables = async () => {
+      const { declareImportableTypes } = await import(
+        "./declarations/importable"
+      );
+      await declareImportableTypes(editor.getValue());
     };
 
     const switchFile = explorer.onDidSwitchFile(async () => {
-      const { declareDefaultTypes } = await import("./declarations/defaults");
+      const { declareDefaultTypes } = await import("./declarations/default");
       await declareDefaultTypes();
-      await declareOptionals();
+      await declareImportables();
       const { declareDisposableTypes } = await import(
-        "./declarations/disposables"
+        "./declarations/disposable"
       );
       await declareDisposableTypes();
     });
 
-    const changeContent = editor.onDidChangeModelContent(async () => {
-      clearTimeout(declareOptionalsTimoutId);
-      declareOptionalsTimoutId = setTimeout(declareOptionals, 1000);
+    const changeContent = editor.onDidChangeModelContent(() => {
+      clearTimeout(declareImportablesTimoutId);
+      declareImportablesTimoutId = setTimeout(declareImportables, 1000);
     });
 
     return () => {
       switchFile.dispose();
-      clearTimeout(declareOptionalsTimoutId);
+      clearTimeout(declareImportablesTimoutId);
       changeContent.dispose();
     };
   }, [editor, explorer]);

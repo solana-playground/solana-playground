@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor";
 
-export const loadClockworkTypes = () => {
+export default function declareClockwork() {
   /* ------------------ Begin @clockwork-xyz/sdk ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     require("/node_modules/@clockwork-xyz/sdk/lib/index.d.ts"),
@@ -71,4 +71,4 @@ export const loadClockworkTypes = () => {
     "node_modules/clockwork-xyz/sdk/lib/index.d.ts"
   );
   /* ------------------ End @clockwork-xyz/sdk ------------------ */
-};
+}

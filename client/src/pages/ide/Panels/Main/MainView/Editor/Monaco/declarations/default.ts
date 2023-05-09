@@ -1,13 +1,16 @@
 import * as monaco from "monaco-editor";
 
-import { ClientPackageName } from "../../../../../../../../utils/pg/client/package";
+import { declareModule } from "./helper";
 
 let loaded = false;
 
 /**
- * Load typescript declarations for Monaco.
+ * Load typescript declarations in the editor.
  *
- * Only default packages will be loaded by default for performance reasons.
+ * Only the packages specified in this function are loaded by default for
+ * performance reasons.
+ *
+ * This function will only declare the default types once.
  */
 export const declareDefaultTypes = async () => {
   if (loaded) return;
@@ -27,13 +30,13 @@ export const declareDefaultTypes = async () => {
     require("@types/node/buffer.d.ts")
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare("bn.js", require("@types/bn.js/index.d.ts"))
+    declareModule("bn.js", require("@types/bn.js/index.d.ts"))
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare("borsh", require("borsh/lib/index.d.ts"))
+    declareModule("borsh", require("borsh/lib/index.d.ts"))
   );
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare(
+    declareModule(
       "@solana/buffer-layout",
       require("@solana/buffer-layout/lib/Layout.d.ts")
     )
@@ -41,19 +44,8 @@ export const declareDefaultTypes = async () => {
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     require("@solana/web3.js/lib/index.d.ts")
   );
-  const { loadAnchorTypes } = await import("./packages/anchor");
-  loadAnchorTypes();
-
-  // Optionals
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare("@clockwork-xyz/sdk")
-  );
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare("@metaplex-foundation/js")
-  );
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    declare("@solana/spl-token")
-  );
+  const { default: declareAnchor } = await import("./packages/anchor");
+  declareAnchor();
   /* -------------------------- End types -------------------------- */
 
   /* -------------------------- Begin namespaces -------------------------- */
@@ -93,16 +85,4 @@ export const declareDefaultTypes = async () => {
   );
 
   loaded = true;
-};
-
-/**
- * Some declaration files need to be declared for them to be referenced by other
- * declaration files.
- *
- * @param packageName package name to be referenced in declaration files
- * @param module contents of the module
- * @returns declared version  of the module with `moduleName`
- */
-const declare = (packageName: ClientPackageName, module: string = "") => {
-  return `declare module "${packageName}" { ${module} }`;
 };

@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor";
 
-export const loadSplTokenTypes = () => {
+export default function declareSplToken() {
   /* ------------------ Begin @solana/spl-token ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     require("/node_modules/@solana/spl-token/lib/types/index.d.ts"),
@@ -359,4 +359,4 @@ export const loadSplTokenTypes = () => {
     "node_modules/solana/spl-token/lib/types/index.d.ts"
   );
   /* ------------------ End @solana/spl-token ------------------ */
-};
+}

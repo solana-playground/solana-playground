@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor";
 
-export const loadAnchorTypes = () => {
+export default function declareAnchor() {
   /* ------------------ Begin @project-serum/anchor ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     require("/node_modules/@project-serum/anchor/dist/browser/types/src/index.d.ts"),
@@ -207,4 +207,4 @@ export const loadAnchorTypes = () => {
     "node_modules/project-serum/anchor/dist/browser/types/src/index.d.ts"
   );
   /* ------------------ End @project-serum/anchor ------------------ */
-};
+}
