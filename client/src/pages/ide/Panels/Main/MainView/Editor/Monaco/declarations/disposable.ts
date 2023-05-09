@@ -1,59 +1,83 @@
 import * as monaco from "monaco-editor";
-import { PublicKey } from "@solana/web3.js";
 import { Idl } from "@project-serum/anchor";
 
-import { PgProgramInfo } from "../../../../../../../../utils/pg";
+import { declareModule } from "./helper";
+import {
+  PgDisposable,
+  PgProgramInfo,
+  PgWallet,
+} from "../../../../../../../../utils/pg";
 
-interface DeclarationState {
-  disposables: monaco.IDisposable[];
-  idl?: Idl;
-  programId?: PublicKey;
-}
+/**
+ * Declare types that can change based on outside events.
+ *
+ * For example, `pg.wallet` will be `undefined` when the wallet is not connected.
+ *
+ * @returns a dispose function to dispose all
+ */
+export const declareDisposableTypes = async (): Promise<PgDisposable> => {
+  addLib("default", require("./raw/pg.raw.d.ts"));
 
-const declarationState: DeclarationState = { disposables: [] };
+  // Program id
+  const programIdChange = PgProgramInfo.onDidChangePk((programId) => {
+    addLib(
+      "program-id",
+      `/** Your program public key from playground */\nconst PROGRAM_ID: ${
+        programId ? "web3.PublicKey" : "undefined"
+      };`
+    );
+  });
 
-export const declareDisposableTypes = async () => {
-  // Check if idl or program id changed
-  let needUpdate = !declarationState.disposables.length;
-  const programId = PgProgramInfo.getPk().programPk;
-  if (
-    programId &&
-    !programId.equals(declarationState.programId ?? PublicKey.default)
-  ) {
-    needUpdate = true;
-    declarationState.programId = programId;
-  }
-  const idl = PgProgramInfo.getProgramInfo().idl;
-  if (idl && JSON.stringify(idl) !== JSON.stringify(declarationState.idl)) {
-    needUpdate = true;
-    declarationState.idl = idl;
-  }
+  // Anchor program
+  const idlChange = PgProgramInfo.onDidChangeIdl((idl) => {
+    if (idl) {
+      addLib(
+        "program",
+        `/** Your Anchor program */\nconst program: anchor.Program<${JSON.stringify(
+          convertIdl(idl)
+        )}>;`
+      );
+    }
+  });
 
-  if (!needUpdate) return;
+  // Playground wallet
+  const wallet = await PgWallet.get();
+  const walletChange = wallet.onDidChangeConnection((connected) => {
+    addLib(
+      "wallet",
+      `  import * as web3 from "@solana/web3.js";
+  /**
+   * Playground wallet.
+   *
+   * NOTE: You can toggle connection with \`connect\` command.
+   */
+  const wallet: ${connected ? "PgWallet" : " undefined"};
+`
+    );
+  });
 
-  // Remove the old disposables
-  for (const disposable of declarationState.disposables) {
-    disposable.dispose();
-  }
-  declarationState.disposables = [];
+  return {
+    dispose: () => {
+      programIdChange.dispose();
+      idlChange.dispose();
+      walletChange.dispose();
+    },
+  };
+};
 
-  declarationState.disposables.push(
+/** Disposable types */
+type DisposableType = "default" | "program-id" | "program" | "wallet";
+
+/** Caching the disposables in order to get rid of the old declarations */
+const disposableCache: { [key in DisposableType]?: monaco.IDisposable } = {};
+
+/** Add declaration file and remove the old one if it exists */
+const addLib = (disposable: DisposableType, lib: string) => {
+  disposableCache[disposable]?.dispose();
+  disposableCache[disposable] =
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      (require("./raw/pg.raw.d.ts") as string)
-        .replace(
-          "// _programId_",
-          programId ? "const PROGRAM_ID: web3.PublicKey;" : ""
-        )
-        .replace(
-          "// _program_",
-          idl
-            ? `const program: anchor.Program<${JSON.stringify(
-                convertIdl(idl)
-              )}>;`
-            : ""
-        )
-    )
-  );
+      declareModule("solana-playground", lib)
+    );
 };
 
 /**

@@ -533,7 +533,7 @@ export class PgExplorer {
       }
     }
 
-    this._dispatchOnDidSwitchFile();
+    this._dispatchOnDidSwitchFile(this.getFullFile()!);
 
     this._refresh();
 
@@ -694,7 +694,7 @@ export class PgExplorer {
       // Save metadata to never lose default open file
       await this.saveMeta();
     } else {
-      this._dispatchOnDidSwitchFile();
+      this._dispatchOnDidSwitchFile(this.getFullFile()!);
     }
 
     this._refresh();
@@ -896,6 +896,19 @@ export class PgExplorer {
   }
 
   /**
+   * Get the full file data.
+   *
+   * @param path path of the file, defaults to the current file if it exists.
+   */
+  getFullFile(path?: string): FullFile | null {
+    if (!path) return this.getCurrentFile();
+    path = this._convertToFullPath(path);
+    const itemInfo = this.files[path];
+    if (itemInfo) return { path, ...this.files[path] };
+    return null;
+  }
+
+  /**
    * Gets the current opened file from state if it exists
    */
   getCurrentFile() {
@@ -938,7 +951,7 @@ export class PgExplorer {
       current: true,
     };
 
-    this._dispatchOnDidSwitchFile();
+    this._dispatchOnDidSwitchFile(this.getFullFile()!);
 
     this._refresh();
   }
@@ -960,6 +973,7 @@ export class PgExplorer {
    * @param topLineNumber Visible top line number
    */
   saveEditorTopLineNumber(path: string, topLineNumber: number) {
+    if (!this.files[path]) return;
     this.files[path].meta = { ...this.files[path].meta, topLineNumber };
   }
 
@@ -1255,13 +1269,25 @@ export class PgExplorer {
    * @param cb callback function to run after switching file
    * @returns a dispose function to clear the event
    */
-  onDidSwitchFile(cb: () => any, runOnMount: boolean = true): PgDisposable {
-    if (runOnMount) cb();
+  onDidSwitchFile(cb: (file: FullFile) => any): PgDisposable {
+    type Event = UIEvent & { detail: any };
 
-    document.addEventListener(EventName.EXPLORER_ON_DID_SWITCH_FILE, cb);
+    const handle = (ev: Event) => {
+      cb(ev.detail);
+    };
+
+    handle({ detail: this.getFullFile() } as Event);
+
+    document.addEventListener(
+      EventName.EXPLORER_ON_DID_SWITCH_FILE,
+      handle as EventListener
+    );
     return {
       dispose: () =>
-        document.removeEventListener(EventName.EXPLORER_ON_DID_SWITCH_FILE, cb),
+        document.removeEventListener(
+          EventName.EXPLORER_ON_DID_SWITCH_FILE,
+          handle as EventListener
+        ),
     };
   }
 
@@ -1471,9 +1497,10 @@ export class PgExplorer {
   /**
    * Dispatch onDidChangeCurrentFile custom event
    */
-  private _dispatchOnDidSwitchFile() {
+  private _dispatchOnDidSwitchFile(file: FullFile) {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.EXPLORER_ON_DID_SWITCH_FILE
+      EventName.EXPLORER_ON_DID_SWITCH_FILE,
+      file
     );
   }
 

@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Atom, useAtom } from "jotai";
 import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
-import { explorerAtom, refreshExplorerAtom } from "../../../../../../../state";
 import {
   Lang,
   PgCommon,
@@ -12,12 +10,12 @@ import {
   PgTerminal,
 } from "../../../../../../../utils/pg";
 import { EventName } from "../../../../../../../constants";
-import { useSendAndReceiveCustomEvent } from "../../../../../../../hooks";
+import {
+  useAsyncEffect,
+  useSendAndReceiveCustomEvent,
+} from "../../../../../../../hooks";
 
 const Monaco = () => {
-  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
-  const [explorerChanged] = useAtom(refreshExplorerAtom);
-
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const [isThemeSet, setIsThemeSet] = useState(false);
 
@@ -216,19 +214,16 @@ const Monaco = () => {
   }, [editor, isThemeSet]);
 
   // Set editor state
-  useEffect(() => {
+  useAsyncEffect(async () => {
     if (!editor) return;
     let topLineIntervalId: NodeJS.Timer;
-    let model: monaco.editor.ITextModel | undefined;
+    let model: monaco.editor.ITextModel;
 
-    const switchFile = explorer.onDidSwitchFile(() => {
+    const explorer = await PgExplorer.get();
+    const switchFile = explorer.onDidSwitchFile((curFile) => {
       // Clear previous state
       clearInterval(topLineIntervalId);
       model?.dispose();
-
-      // Get current file
-      const curFile = explorer.getCurrentFile();
-      if (!curFile) return;
 
       // Open all parents
       PgExplorer.openAllParents(curFile.path);
@@ -292,30 +287,32 @@ const Monaco = () => {
       model?.dispose();
       switchFile.dispose();
     };
-  }, [editor, explorer]);
+  }, [editor]);
 
   // Auto save
   useEffect(() => {
     if (!editor) return;
-    const curFile = explorer.getCurrentFile();
-    if (!curFile) return;
 
     let timeoutId: NodeJS.Timeout;
 
     const disposable = editor.onDidChangeModelContent(() => {
       timeoutId && clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(async () => {
+        const explorer = await PgExplorer.get();
+        const curFile = explorer.getCurrentFile();
+        if (!curFile) return;
+
         const args: [string, string] = [curFile.path, editor.getValue()];
 
         // Save to state
         explorer.saveFileToState(...args);
 
         // Save to IndexedDb
-        explorer
-          .saveFileToIndexedDB(...args)
-          .catch((e: any) =>
-            console.log(`Error saving file ${curFile.path}. ${e.message}`)
-          );
+        try {
+          await explorer.saveFileToIndexedDB(...args);
+        } catch (e: any) {
+          console.log(`Error saving file ${curFile.path}. ${e.message}`);
+        }
       }, 500);
     });
 
@@ -323,9 +320,7 @@ const Monaco = () => {
       clearTimeout(timeoutId);
       disposable.dispose();
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer, explorerChanged]);
+  }, [editor]);
 
   // Editor custom events
   useEffect(() => {
@@ -595,8 +590,21 @@ const Monaco = () => {
     };
   }, [editor]);
 
-  // Set declarations
-  useEffect(() => {
+  // Default and disposable declarations
+  useAsyncEffect(async () => {
+    const { declareDefaultTypes } = await import("./declarations/default");
+    await declareDefaultTypes();
+
+    const { declareDisposableTypes } = await import(
+      "./declarations/disposable"
+    );
+    const disposables = await declareDisposableTypes();
+
+    return () => disposables.dispose();
+  }, []);
+
+  // Importable declarations
+  useAsyncEffect(async () => {
     if (!editor) return;
     let declareImportablesTimoutId: NodeJS.Timer;
 
@@ -607,14 +615,9 @@ const Monaco = () => {
       await declareImportableTypes(editor.getValue());
     };
 
+    const explorer = await PgExplorer.get();
     const switchFile = explorer.onDidSwitchFile(async () => {
-      const { declareDefaultTypes } = await import("./declarations/default");
-      await declareDefaultTypes();
       await declareImportables();
-      const { declareDisposableTypes } = await import(
-        "./declarations/disposable"
-      );
-      await declareDisposableTypes();
     });
 
     const changeContent = editor.onDidChangeModelContent(() => {
@@ -623,11 +626,11 @@ const Monaco = () => {
     });
 
     return () => {
-      switchFile.dispose();
       clearTimeout(declareImportablesTimoutId);
+      switchFile.dispose();
       changeContent.dispose();
     };
-  }, [editor, explorer]);
+  }, [editor]);
 
   return <div ref={monacoRef} />;
 };

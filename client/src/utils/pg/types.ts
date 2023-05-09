@@ -52,3 +52,6 @@ export type AllRequired<T> = {
 
 /** Noop function type */
 export type Fn = () => void;
+
+/** Normal or `Promise` version of the type */
+export type SyncOrAsync<T> = T | Promise<T>;

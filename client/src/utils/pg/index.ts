@@ -19,3 +19,5 @@ export * from "./types";
 export * from "./validator";
 export * from "./view";
 export * from "./wallet";
+
+export type { ClientPackageName } from "./client";

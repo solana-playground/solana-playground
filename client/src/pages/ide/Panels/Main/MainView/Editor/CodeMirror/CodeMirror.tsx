@@ -5,11 +5,7 @@ import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 
 import { autosave, defaultExtensions, getThemeExtension } from "./extensions";
-import {
-  buildCountAtom,
-  explorerAtom,
-  refreshExplorerAtom,
-} from "../../../../../../../state";
+import { buildCountAtom } from "../../../../../../../state";
 import {
   PgExplorer,
   PgProgramInfo,
@@ -19,11 +15,12 @@ import {
   PgPackage,
 } from "../../../../../../../utils/pg";
 import { EventName } from "../../../../../../../constants";
-import { useSendAndReceiveCustomEvent } from "../../../../../../../hooks";
+import {
+  useAsyncEffect,
+  useSendAndReceiveCustomEvent,
+} from "../../../../../../../hooks";
 
 const CodeMirror = () => {
-  const [explorer] = useAtom(explorerAtom);
-  const [explorerChanged] = useAtom(refreshExplorerAtom);
   // Update programId on each build
   const [buildCount] = useAtom(buildCountAtom);
 
@@ -186,17 +183,14 @@ const CodeMirror = () => {
   }, [editorTheme]);
 
   // When user switches files or editor changed
-  useEffect(() => {
-    if (!explorer || !editor) return;
+  useAsyncEffect(async () => {
+    if (!editor) return;
     let topLineIntervalId: NodeJS.Timer;
 
-    const { dispose } = explorer.onDidSwitchFile(() => {
+    const explorer = await PgExplorer.get();
+    const { dispose } = explorer.onDidSwitchFile((curFile) => {
       // Clear previous state
       topLineIntervalId && clearInterval(topLineIntervalId);
-
-      // Get current file
-      const curFile = explorer.getCurrentFile();
-      if (!curFile) return;
 
       // Open all parents
       PgExplorer.openAllParents(curFile.path);
@@ -291,13 +285,11 @@ const CodeMirror = () => {
       clearInterval(topLineIntervalId);
       dispose();
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, explorer]);
+  }, [editor]);
 
   // Change programId
-  useEffect(() => {
-    if (!explorer || !buildCount || !editor) return;
+  useAsyncEffect(async () => {
+    if (!buildCount || !editor) return;
 
     const getProgramIdStartAndEndIndex = (
       content: string,
@@ -314,8 +306,10 @@ const CodeMirror = () => {
     };
 
     // Update in editor
-    const isRust = explorer.getCurrentFileLanguage() === Lang.RUST;
-    const isPython = explorer.getCurrentFileLanguage() === Lang.PYTHON;
+    const explorer = await PgExplorer.get();
+    const currentLang = explorer.getCurrentFileLanguage();
+    const isRust = currentLang === Lang.RUST;
+    const isPython = currentLang === Lang.PYTHON;
     if (!isRust && !isPython) return;
 
     const editorContent = editor.state.doc.toString();
@@ -338,9 +332,7 @@ const CodeMirror = () => {
     } catch (e: any) {
       console.log("Program ID update error:", e.message);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildCount, explorer, explorerChanged, editor]);
+  }, [buildCount, editor]);
 
   // Editor custom events
   useEffect(() => {

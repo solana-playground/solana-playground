@@ -1,14 +1,15 @@
 export type ClientPackageName =
-  | "assert"
-  | "bn.js"
-  | "borsh"
-  | "buffer"
   | "@clockwork-xyz/sdk"
   | "@metaplex-foundation/js"
   | "@project-serum/anchor"
   | "@solana/buffer-layout"
   | "@solana/spl-token"
-  | "@solana/web3.js";
+  | "@solana/web3.js"
+  | "assert"
+  | "bn.js"
+  | "borsh"
+  | "buffer"
+  | "solana-playground";
 
 export class PgClientPackage {
   /**
@@ -21,14 +22,6 @@ export class PgClientPackage {
    */
   static async import(name: ClientPackageName | (string & {})) {
     switch (name) {
-      case "assert":
-        return await import("assert");
-      case "bn.js":
-        return await import("bn.js");
-      case "borsh":
-        return await import("borsh");
-      case "buffer":
-        return await import("buffer");
       case "@clockwork-xyz/sdk":
         return await import("@clockwork-xyz/sdk");
       case "@metaplex-foundation/js":
@@ -41,6 +34,14 @@ export class PgClientPackage {
         return await import("@solana/spl-token");
       case "@solana/web3.js":
         return await import("@solana/web3.js");
+      case "assert":
+        return await import("assert");
+      case "bn.js":
+        return await import("bn.js");
+      case "borsh":
+        return await import("borsh");
+      case "buffer":
+        return await import("buffer");
       default:
         throw new Error(
           name.startsWith(".")

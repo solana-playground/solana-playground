@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useAtom } from "jotai";
 import { Buffer } from "buffer";
 import { Keypair } from "@solana/web3.js";
@@ -10,20 +10,16 @@ import Modal from "../../Modal/Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
 import { pgWalletAtom } from "../../../state";
-import { PgCommon, PgWallet } from "../../../utils/pg";
+import { PgCommon, PgTerminal, PgWallet } from "../../../utils/pg";
 
-interface SetupProps {
-  onSubmit: () => void;
-}
-
-const Setup: FC<SetupProps> = ({ onSubmit }) => {
+const Setup = () => {
   const [, setPgWallet] = useAtom(pgWalletAtom);
 
   const [text, setText] = useState("");
 
-  const handleSetup = () => {
+  const handleSetup = async () => {
     PgWallet.update({ setupCompleted: true });
-    onSubmit();
+    await PgTerminal.COMMANDS.connect();
     // Update global wallet state
     setPgWallet(new PgWallet());
   };

@@ -3,8 +3,8 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 import * as ed25519 from "@noble/ed25519";
 
 import { PgCommon } from "./common";
-import { PgSet } from "./types";
 import { EventName } from "../../constants";
+import type { PgDisposable, PgSet } from "./types";
 
 /** localStorage data for the wallet */
 interface LsWallet {
@@ -63,6 +63,16 @@ export class PgWallet implements AnchorWallet {
    */
   get keypair() {
     return this._kp;
+  }
+
+  /** Set whether the wallet is connected */
+  setConnected(connected: boolean) {
+    this.connected = connected;
+    PgWallet.update({ connected });
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.WALLET_ON_DID_CHANGE_CONNECTION,
+      connected
+    );
   }
 
   /**
@@ -171,6 +181,32 @@ export class PgWallet implements AnchorWallet {
       EventName.WALLET_UI_BALANCE_SET,
       balance
     );
+  }
+
+  /**
+   * @param cb callback function to run after wallet connect state change
+   * @returns a dispose function to clear the event
+   */
+  onDidChangeConnection(cb: (connected: boolean) => any): PgDisposable {
+    type Event = UIEvent & { detail: any };
+
+    const handle = (ev: Event) => {
+      cb(ev.detail);
+    };
+
+    handle({ detail: this.connected } as Event);
+
+    document.addEventListener(
+      EventName.WALLET_ON_DID_CHANGE_CONNECTION,
+      handle as EventListener
+    );
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.WALLET_ON_DID_CHANGE_CONNECTION,
+          handle as EventListener
+        ),
+    };
   }
 
   /** localStorage key for the wallet */
