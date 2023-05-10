@@ -293,7 +293,7 @@ export class PgExplorer {
    * NOTE: Only runs when the project is not shared.
    */
   async saveMeta(options?: { initial?: boolean }) {
-    if (this.isShared) return;
+    if (this.isShared || !this.currentWorkspaceName) return;
 
     if (options?.initial) {
       const metaFile: ItemMeta = {};
