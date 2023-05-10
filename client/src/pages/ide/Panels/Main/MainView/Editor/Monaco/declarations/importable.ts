@@ -41,7 +41,7 @@ export const declareImportableTypes = async (code: string) => {
 
       // Declaration is final, this package will not get declared again
       cachedTypes[packageName] = true;
-    } else {
+    } else if (!pkg) {
       // Empty declaration should get disposed if the package is used
       cachedTypes[packageName] =
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
