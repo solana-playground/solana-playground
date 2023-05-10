@@ -6,28 +6,24 @@ import Button from "../Button";
 import Link from "../Link";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon } from "../../utils/pg";
+import { PgCommon, PgWallet } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { useCurrentWallet, usePgConnection } from "../../hooks";
+import { usePgConnection } from "../../hooks";
 
 const Transactions = () => {
-  const { connection: conn } = usePgConnection();
-  const { currentWallet } = useCurrentWallet();
-
-  // State
   const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
   const [refreshCount, setRefreshCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (!currentWallet) return;
+  const { connection: conn } = usePgConnection();
 
-    const getTxs = async () => {
+  useEffect(() => {
+    const { dispose } = PgWallet.onDidChangeCurrentWallet(async (wallet) => {
       setLoading(true);
       try {
         const _signatures = await PgCommon.transition(
-          conn.getSignaturesForAddress(currentWallet.publicKey, { limit: 10 })
+          conn.getSignaturesForAddress(wallet.publicKey, { limit: 10 })
         );
 
         setSignatures(_signatures);
@@ -38,10 +34,10 @@ const Transactions = () => {
       } finally {
         setLoading(false);
       }
-    };
+    });
 
-    getTxs();
-  }, [conn, currentWallet, refreshCount]);
+    return () => dispose();
+  }, [conn, refreshCount]);
 
   const refresh = useCallback(() => {
     setRefreshCount((c) => c + 1);

@@ -40,7 +40,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   index,
 }) => {
   const { connection: conn } = usePgConnection();
-  const { currentWallet } = useCurrentWallet();
+  const { wallet } = useCurrentWallet();
 
   const [enteredAddress, setEnteredAddress] = useState("");
   const [enteredAddressError, setEnteredAddressError] = useState(false);
@@ -84,7 +84,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   };
 
   const fetchOne = async () => {
-    if (!currentWallet) return;
+    if (!wallet) return;
     setFetchOneLoading(true);
     try {
       const accountData = await PgCommon.transition(
@@ -93,7 +93,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
           new PublicKey(enteredAddress),
           idl,
           conn,
-          currentWallet
+          wallet
         )
       );
       handleFetched(accountData);
@@ -105,11 +105,11 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   };
 
   const fetchAll = async () => {
-    if (!currentWallet) return;
+    if (!wallet) return;
     setFetchAllLoading(true);
     try {
       const accountData = await PgCommon.transition(
-        PgAccount.fetchAll(accountName, idl, conn, currentWallet)
+        PgAccount.fetchAll(accountName, idl, conn, wallet)
       );
       handleFetched(accountData);
     } catch (err: any) {
@@ -135,10 +135,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
         <Button
           onClick={fetchOne}
           disabled={
-            !currentWallet ||
-            !enteredAddress ||
-            enteredAddressError ||
-            fetchOneLoading
+            !wallet || !enteredAddress || enteredAddressError || fetchOneLoading
           }
           kind="outline"
         >
@@ -146,7 +143,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
         </Button>
         <Button
           onClick={fetchAll}
-          disabled={!currentWallet || fetchAllLoading}
+          disabled={!wallet || fetchAllLoading}
           kind="outline"
         >
           Fetch All

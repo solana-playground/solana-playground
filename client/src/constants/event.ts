@@ -63,7 +63,9 @@ export enum EventName {
   VIEW_ON_DID_CHANGE_SIDEBAR_STATE = "viewondidchangesidebarstate",
 
   // Wallet
-  WALLET_STATIC = "walletstatic",
   WALLET_UI_BALANCE_SET = "walletuibalanceset",
-  WALLET_ON_DID_CHANGE_CONNECTION = "walletondidchangeconnection",
+  WALLET_ON_DID_CHANGE_CURRENT_WALLET = "walletondidchangecurrentwallet",
+  WALLET_ON_DID_UPDATE = "walletondidupdate",
+  WALLET_ON_DID_UPDATE_CONNECTION = "walletondidupdateconnection",
+  WALLET_ON_DID_UPDATE_KEYPAIR = "walletondidupdatekeypair",
 }

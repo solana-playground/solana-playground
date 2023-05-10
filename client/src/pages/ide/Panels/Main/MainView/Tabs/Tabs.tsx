@@ -93,13 +93,13 @@ const TabsWrapper = styled.div`
 const Wallet = () => {
   const [, setShowWallet] = useAtom(showWalletAtom);
 
-  const { currentWallet } = useCurrentWallet();
-
   const toggleWallet = useCallback(() => {
     setShowWallet((s) => !s);
   }, [setShowWallet]);
 
-  if (!currentWallet) return null;
+  const { wallet } = useCurrentWallet();
+
+  if (!wallet) return null;
 
   return (
     <WalletWrapper>

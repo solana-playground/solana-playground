@@ -27,14 +27,13 @@ export const processBundlr = async (
     } Retrieving balance`
   );
 
-  const wallet = await PgWallet.get();
-  const pkStr = wallet.publicKey.toBase58();
+  const pkStr = PgWallet.publicKey.toBase58();
 
   const cluster = await getCluster(rpcUrl);
   const bundlr = new Bundlr(
     cluster === "mainnet-beta" ? BundlrEnpoints.MAINNET : BundlrEnpoints.DEVNET,
     "solana",
-    wallet,
+    PgWallet,
     {
       providerUrl: rpcUrl,
     }

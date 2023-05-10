@@ -15,7 +15,7 @@ import {
  *
  * @returns a dispose function to dispose all
  */
-export const declareDisposableTypes = async (): Promise<PgDisposable> => {
+export const declareDisposableTypes = (): PgDisposable => {
   addLib("default", require("./raw/pg.raw.d.ts"));
 
   // Program id
@@ -41,8 +41,7 @@ export const declareDisposableTypes = async (): Promise<PgDisposable> => {
   });
 
   // Playground wallet
-  const wallet = await PgWallet.get();
-  const walletChange = wallet.onDidChangeConnection((connected) => {
+  const walletChange = PgWallet.onDidUpdateConnection((connected) => {
     addLib(
       "wallet",
       `  import * as web3 from "@solana/web3.js";

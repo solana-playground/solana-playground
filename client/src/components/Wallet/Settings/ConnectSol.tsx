@@ -4,9 +4,9 @@ export const useConnectSol = () => {
   const { solButtonStatus, connecting, disconnecting, handleConnect } =
     useConnect();
 
-  const connectSol = () => {
+  const connectSol = async () => {
     if (connecting || disconnecting) return;
-    handleConnect();
+    await handleConnect();
   };
 
   return { connectSol, solButtonStatus };

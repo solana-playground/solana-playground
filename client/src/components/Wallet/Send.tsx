@@ -53,28 +53,25 @@ const SendExpanded = () => {
     ) {
       setDisabled(false);
     } else setDisabled(true);
-  }, [address, amount, balance, setDisabled]);
+  }, [address, amount, balance]);
 
   const handleChangeAddress = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       setRecipient(e.target.value);
     },
-    [setRecipient]
+    []
   );
 
-  const handleChangeAmount = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setAmount(e.target.value);
-    },
-    [setAmount]
-  );
+  const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setAmount(e.target.value);
+  }, []);
 
   const { connection: conn } = usePgConnection();
-  const { currentWallet } = useCurrentWallet();
+  const { wallet } = useCurrentWallet();
 
   const send = () => {
     PgTerminal.process(async () => {
-      if (!currentWallet) return;
+      if (!wallet) return;
 
       setLoading(true);
       PgTerminal.log(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
@@ -85,16 +82,14 @@ const SendExpanded = () => {
         const pk = new PublicKey(address);
 
         const ix = SystemProgram.transfer({
-          fromPubkey: currentWallet.publicKey,
+          fromPubkey: wallet.publicKey,
           toPubkey: pk,
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
 
         const tx = new Transaction().add(ix);
 
-        const txHash = await PgCommon.transition(
-          PgTx.send(tx, conn, currentWallet)
-        );
+        const txHash = await PgCommon.transition(PgTx.send(tx, conn, wallet));
         setTxHash(txHash);
         msg = PgTerminal.success("Success.");
       } catch (e: any) {

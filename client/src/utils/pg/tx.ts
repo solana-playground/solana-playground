@@ -25,7 +25,7 @@ export class PgTx {
   static async send(
     tx: Transaction,
     conn: Connection,
-    wallet: PgWallet | AnchorWallet,
+    wallet: typeof PgWallet | AnchorWallet,
     additionalSigners?: Signer[],
     forceFetchLatestBlockhash?: boolean
   ): Promise<string> {

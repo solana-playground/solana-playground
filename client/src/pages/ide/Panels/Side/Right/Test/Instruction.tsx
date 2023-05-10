@@ -134,32 +134,29 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
     [ix.args, idl, handleErrors]
   );
 
-  const { currentWallet } = useCurrentWallet();
+  const { wallet } = useCurrentWallet();
 
   // Test submission
   const handleTest = useCallback(async () => {
     const showLogTxHash = await PgTerminal.process(async () => {
-      if (!currentWallet) return;
+      if (!wallet) return;
 
       setLoading(true);
       PgTerminal.log(PgTerminal.info(`Testing '${ix.name}'...`));
 
-      const preferences = PgPreferences.getPreferences();
-
-      let msg = "";
-
       try {
         const txHash = await PgCommon.transition(
-          PgTest.test(txVals, idl, conn, currentWallet)
+          PgTest.test(txVals, idl, conn, wallet)
         );
         setTxHash(txHash);
 
-        if (preferences.showTxDetailsInTerminal) {
+        if (PgPreferences.getPreferences().showTxDetailsInTerminal) {
           return txHash;
         }
 
         const txResult = await PgTx.confirm(txHash, conn);
 
+        let msg;
         if (txResult?.err) {
           msg = `${Emoji.CROSS} ${PgTerminal.error(
             `Test '${ix.name}' failed`
@@ -191,9 +188,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
       }
       PgTerminal.COMMANDS.solana(`confirm ${showLogTxHash} -v`);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txVals, idl, conn, currentWallet, setTxHash]);
+  }, [txVals, idl, ix.name, conn, wallet, setTxHash]);
 
   return (
     <>
@@ -236,7 +231,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         <Button
           kind="primary"
           onClick={handleTest}
-          disabled={disabled || loading || !currentWallet}
+          disabled={disabled || loading || !wallet}
           btnLoading={loading}
         >
           Test

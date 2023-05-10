@@ -25,7 +25,7 @@ export class PgAccount {
     address: PublicKey,
     idl: Idl,
     conn: Connection,
-    wallet: PgWallet | AnchorWallet
+    wallet: typeof PgWallet | AnchorWallet
   ) {
     const account = this._getAccount(accountName, idl, conn, wallet);
     const accountData = await account.fetch(address);
@@ -39,7 +39,7 @@ export class PgAccount {
     accountName: string,
     idl: Idl,
     conn: Connection,
-    wallet: PgWallet | AnchorWallet
+    wallet: typeof PgWallet | AnchorWallet
   ) {
     const account = this._getAccount(accountName, idl, conn, wallet);
     const allAccountData = await account.all();
@@ -62,7 +62,7 @@ export class PgAccount {
     accountName: string,
     idl: Idl,
     conn: Connection,
-    wallet: PgWallet | AnchorWallet
+    wallet: typeof PgWallet | AnchorWallet
   ) {
     const program = PgTest.getProgram(idl, conn, wallet);
     const account = program.account[PgCommon.toCamelCase(accountName)];

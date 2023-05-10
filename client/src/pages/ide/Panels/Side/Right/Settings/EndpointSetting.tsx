@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 
 import Input from "../../../../../../components/Input";
 import Select from "../../../../../../components/Select";
-import Modal from "../../../../../../components/Modal/Modal";
+import Modal from "../../../../../../components/Modal";
 import useModal from "../../../../../../components/Modal/useModal";
 import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
 import { connectionConfigAtom } from "../../../../../../state";

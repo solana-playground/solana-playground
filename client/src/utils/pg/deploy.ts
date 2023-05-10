@@ -10,12 +10,14 @@ import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
 
 export class PgDeploy {
-  static async deploy(wallet: PgWallet, programBuffer: Buffer) {
+  static async deploy(programBuffer: Buffer) {
     // Get program id
     const programPk = PgProgramInfo.getPk()?.programPk;
 
     // This shouldn't happen because the deploy button is disabled for this condition
     if (!programPk) throw new Error("Program id not found.");
+
+    const wallet = PgWallet;
 
     // Regular deploy without custom elf upload
     if (!programBuffer.length) {

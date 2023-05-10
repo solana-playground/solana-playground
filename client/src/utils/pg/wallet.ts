@@ -1,12 +1,12 @@
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
-import { AnchorWallet } from "@solana/wallet-adapter-react";
 import * as ed25519 from "@noble/ed25519";
+import { Keypair, Transaction } from "@solana/web3.js";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
 import type { PgDisposable, PgSet } from "./types";
 
-/** localStorage data for the wallet */
+/** `localStorage` data for the playground wallet */
 interface LsWallet {
   /** Whether the user accepted the initial setup pop-up */
   setupCompleted: boolean;
@@ -28,62 +28,88 @@ interface LsWallet {
  * This implementation allows playground to not have to wait for user confirmation
  * for transactions.
  */
-export class PgWallet implements AnchorWallet {
-  /** Keypair of the wallet */
-  private _kp: Keypair;
-
-  /**
-   * Public key of the current wallet.
-   *
-   * NOTE: This will always be set, even when the wallet is not connected.
-   */
-  publicKey: PublicKey;
-  /**
-   * Connected state of the wallet
-   */
-  connected: boolean;
-
-  constructor() {
-    let lsWallet = PgWallet.getLs();
-    if (!lsWallet) {
-      lsWallet = PgWallet._DEFAULT_LS_WALLET;
-      PgWallet.update(PgWallet._DEFAULT_LS_WALLET);
-    }
-
-    this._kp = Keypair.fromSecretKey(new Uint8Array(lsWallet.sk));
-    this.publicKey = this._kp.publicKey;
-    this.connected = lsWallet.connected;
-  }
-
+export class PgWallet {
   /**
    * Get the keypair of the wallet.
    *
    * NOTE: Direct use of this should be avoided when possible. This is made public
    * to give access for the users in code client.
    */
-  get keypair() {
+  static get keypair() {
     return this._kp;
   }
 
-  /** Set whether the wallet is connected */
-  setConnected(connected: boolean) {
-    this.connected = connected;
-    PgWallet.update({ connected });
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.WALLET_ON_DID_CHANGE_CONNECTION,
-      connected
-    );
+  /** Get keypair of the wallet as bytes */
+  static get keypairBytes() {
+    return Uint8Array.from(this.keypair.secretKey);
   }
 
   /**
-   * Sign all transactions.
+   * Public key of the current wallet.
+   *
+   * NOTE: This will always be set, even when the wallet is not connected.
+   */
+  static get publicKey() {
+    return this.keypair.publicKey;
+  }
+
+  /** Get whether the wallet is connected */
+  static get isConnected() {
+    return this._connected;
+  }
+
+  /** Get whether the user completed the wallet setup step */
+  static get isSetupCompleted() {
+    return this._setupCompleted;
+  }
+
+  /** Initialize the wallet from `localStorage` */
+  static init() {
+    const wallet = PgWallet._getLocalStorage();
+    this._kp = Keypair.fromSecretKey(new Uint8Array(wallet.sk));
+    this._connected = wallet.connected;
+    this._setupCompleted = wallet.setupCompleted;
+  }
+
+  /**
+   * Update the wallet both in `localStorage` and in state.
+   *
+   * This function will dispatch change events based on the update parameters.
+   */
+  static update(params: Partial<LsWallet>) {
+    localStorage.setItem(
+      this._WALLET_KEY,
+      JSON.stringify({ ...this._getLocalStorage(), ...params })
+    );
+
+    // Initialize with the updated data
+    this.init();
+
+    PgCommon.createAndDispatchCustomEvent(EventName.WALLET_ON_DID_UPDATE, this);
+
+    if (params.connected !== undefined) {
+      PgCommon.createAndDispatchCustomEvent(
+        EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+        this.isConnected
+      );
+    }
+    if (params.sk !== undefined) {
+      PgCommon.createAndDispatchCustomEvent(
+        EventName.WALLET_ON_DID_UPDATE_KEYPAIR,
+        this.keypair
+      );
+    }
+  }
+
+  /**
+   * Sign the given transaction.
    *
    * @param tx transaction to sign
    * @returns the signed transaction
    *
    * NOTE: The API is async to make the types compatible with `AnchorWallet`
    */
-  async signTransaction(tx: Transaction) {
+  static async signTransaction(tx: Transaction) {
     tx.partialSign(this.keypair);
     return tx;
   }
@@ -96,7 +122,7 @@ export class PgWallet implements AnchorWallet {
    *
    * NOTE: The API is async to make the types compatible with `AnchorWallet`
    */
-  async signAllTransactions(txs: Transaction[]) {
+  static async signAllTransactions(txs: Transaction[]) {
     for (const tx of txs) {
       tx.partialSign(this.keypair);
     }
@@ -105,74 +131,17 @@ export class PgWallet implements AnchorWallet {
   }
 
   /**
-   * Sign an arbitrary message
+   * Sign an arbitrary message.
    *
    * @param message message to sign
    * @returns signature of the signed message
    */
-  async signMessage(message: Uint8Array): Promise<Uint8Array> {
+  static async signMessage(message: Uint8Array): Promise<Uint8Array> {
     return await ed25519.sign(message, this.keypair.secretKey.slice(0, 32));
   }
 
-  // Statics
-
-  static get keypairBytes() {
-    return Uint8Array.from(PgWallet.getKp().secretKey);
-  }
-
   /**
-   * @returns wallet info from localStorage
-   */
-  static getLs() {
-    const lsWalletStr = localStorage.getItem(PgWallet._WALLET_KEY);
-    if (!lsWalletStr) return null;
-
-    const lsWallet: LsWallet = JSON.parse(lsWalletStr);
-    return lsWallet;
-  }
-
-  /**
-   * Update localStorage wallet
-   */
-  static update(updateParams: Partial<LsWallet>) {
-    const lsWallet = PgWallet.getLs() ?? PgWallet._DEFAULT_LS_WALLET;
-
-    if (updateParams.setupCompleted !== undefined)
-      lsWallet.setupCompleted = updateParams.setupCompleted;
-    if (updateParams.connected !== undefined)
-      lsWallet.connected = updateParams.connected;
-    if (updateParams.sk) lsWallet.sk = updateParams.sk;
-
-    localStorage.setItem(PgWallet._WALLET_KEY, JSON.stringify(lsWallet));
-  }
-
-  /**
-   * @returns wallet keypair from localStorage
-   */
-  static getKp() {
-    return Keypair.fromSecretKey(new Uint8Array(PgWallet.getLs()!.sk));
-  }
-
-  /**
-   * @returns whether Playground Wallet is connected
-   */
-  static isPgConnected() {
-    return !!PgWallet.getLs()?.connected;
-  }
-
-  /**
-   * Statically get the wallet object from state
-   *
-   * @returns the wallet object
-   */
-  static async get<T, R extends PgWallet>() {
-    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
-      PgCommon.getStaticEventNames(EventName.WALLET_STATIC).get
-    );
-  }
-
-  /**
-   * Set the wallet balance in the UI
+   * Set the wallet balance in the UI.
    *
    * @param balance setBalance type function
    */
@@ -184,38 +153,140 @@ export class PgWallet implements AnchorWallet {
   }
 
   /**
-   * @param cb callback function to run after wallet connect state change
+   * @param cb callback function to run after wallet update
    * @returns a dispose function to clear the event
    */
-  onDidChangeConnection(cb: (connected: boolean) => any): PgDisposable {
+  static onDidUpdate(cb: (wallet: typeof PgWallet) => any): PgDisposable {
     type Event = UIEvent & { detail: any };
 
     const handle = (ev: Event) => {
       cb(ev.detail);
     };
 
-    handle({ detail: this.connected } as Event);
+    handle({ detail: PgWallet } as Event);
 
     document.addEventListener(
-      EventName.WALLET_ON_DID_CHANGE_CONNECTION,
+      EventName.WALLET_ON_DID_UPDATE,
       handle as EventListener
     );
     return {
       dispose: () =>
         document.removeEventListener(
-          EventName.WALLET_ON_DID_CHANGE_CONNECTION,
+          EventName.WALLET_ON_DID_UPDATE,
           handle as EventListener
         ),
     };
   }
 
-  /** localStorage key for the wallet */
+  /**
+   * @param cb callback function to run after wallet connect state change
+   * @returns a dispose function to clear the event
+   */
+  static onDidUpdateConnection(cb: (connected: boolean) => any): PgDisposable {
+    type Event = UIEvent & { detail: any };
+
+    const handle = (ev: Event) => {
+      cb(ev.detail);
+    };
+
+    handle({ detail: PgWallet.isConnected } as Event);
+
+    document.addEventListener(
+      EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+      handle as EventListener
+    );
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+          handle as EventListener
+        ),
+    };
+  }
+
+  /**
+   * @param cb callback function to run after wallet keypair change
+   * @returns a dispose function to clear the event
+   */
+  static onDidUpdateKeypair(cb: (keypair: Keypair) => any): PgDisposable {
+    type Event = UIEvent & { detail: any };
+
+    const handle = (ev: Event) => {
+      cb(ev.detail);
+    };
+
+    handle({ detail: PgWallet.keypair } as Event);
+
+    document.addEventListener(
+      EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+      handle as EventListener
+    );
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+          handle as EventListener
+        ),
+    };
+  }
+
+  /**
+   * @param cb callback function to run after current wallet change
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeCurrentWallet(
+    cb: (wallet: typeof PgWallet | AnchorWallet) => any
+  ): PgDisposable {
+    type Event = UIEvent & { detail: any };
+
+    const handle = (ev: Event) => {
+      cb(ev.detail);
+    };
+
+    handle({ detail: PgWallet } as Event);
+
+    document.addEventListener(
+      EventName.WALLET_ON_DID_CHANGE_CURRENT_WALLET,
+      handle as EventListener
+    );
+    return {
+      dispose: () =>
+        document.removeEventListener(
+          EventName.WALLET_ON_DID_CHANGE_CURRENT_WALLET,
+          handle as EventListener
+        ),
+    };
+  }
+
+  /** Keypair of the wallet */
+  private static _kp: Keypair;
+
+  /** Connected state of the wallet */
+  private static _connected: boolean;
+
+  /** Whether the user has completed the setup step */
+  private static _setupCompleted: boolean;
+
+  /** `localStorage` key for the wallet */
   private static readonly _WALLET_KEY = "wallet";
 
-  /** Randomly generated default localStorage wallet */
-  private static readonly _DEFAULT_LS_WALLET: LsWallet = {
-    setupCompleted: false,
-    connected: false,
-    sk: Array.from(Keypair.generate().secretKey),
-  };
+  /**
+   * Get the wallet information from `localStorage`.
+   *
+   * This will create a random wallet if the wallet information doesn't exist.
+   */
+  private static _getLocalStorage() {
+    const lsWalletStr = localStorage.getItem(this._WALLET_KEY);
+    if (lsWalletStr) {
+      return JSON.parse(lsWalletStr) as LsWallet;
+    }
+
+    const defaultWallet: LsWallet = {
+      setupCompleted: false,
+      connected: false,
+      sk: Array.from(Keypair.generate().secretKey),
+    };
+    localStorage.setItem(this._WALLET_KEY, JSON.stringify(defaultWallet));
+    return defaultWallet;
+  }
 }

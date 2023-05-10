@@ -1,27 +1,20 @@
 import { ChangeEvent, useState } from "react";
-import { useAtom } from "jotai";
-import { Buffer } from "buffer";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import DownloadButton from "../../DownloadButton";
 import UploadButton from "../../UploadButton";
-import Modal from "../../Modal/Modal";
+import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { pgWalletAtom } from "../../../state";
 import { PgCommon, PgTerminal, PgWallet } from "../../../utils/pg";
 
 const Setup = () => {
-  const [, setPgWallet] = useAtom(pgWalletAtom);
-
   const [text, setText] = useState("");
 
   const handleSetup = async () => {
     PgWallet.update({ setupCompleted: true });
     await PgTerminal.COMMANDS.connect();
-    // Update global wallet state
-    setPgWallet(new PgWallet());
   };
 
   const handleImport = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +75,7 @@ const Setup = () => {
         <WalletButtonsWrapper>
           <DownloadButton
             href={PgCommon.getUtf8EncodedString(
-              Array.from(PgWallet.getKp().secretKey)
+              Array.from(PgWallet.keypairBytes)
             )}
             download="keypair.json"
             buttonKind="primary-outline"

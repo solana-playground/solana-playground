@@ -4,14 +4,14 @@ import {
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 
+import { getCluster } from "./utils";
+import { BundlrEnpoints } from "../constants";
 import { PgConnection } from "../../../connection";
 import { PgWallet } from "../../../wallet";
-import { BundlrEnpoints } from "../constants";
-import { getCluster } from "./utils";
 
 export const getMetaplex = async (endpoint: string) => {
   return Metaplex.make(PgConnection.createConnection({ endpoint }))
-    .use(walletAdapterIdentity(await PgWallet.get()))
+    .use(walletAdapterIdentity(PgWallet))
     .use(
       bundlrStorage({
         address:

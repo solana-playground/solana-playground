@@ -1,13 +1,9 @@
 import { ChangeEvent } from "react";
-import { useAtom } from "jotai";
 import { Keypair } from "@solana/web3.js";
 
-import { pgWalletAtom } from "../../../state";
 import { PgCommon, PgWallet } from "../../../utils/pg";
 
 export const useImportKeypair = () => {
-  const [, setPgWallet] = useAtom(pgWalletAtom);
-
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
@@ -26,9 +22,6 @@ export const useImportKeypair = () => {
       PgWallet.update({
         sk: Array.from(buffer),
       });
-
-      // Update global wallet state
-      setPgWallet(new PgWallet());
     } catch (err: any) {
       console.log(err.message);
     }

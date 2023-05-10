@@ -21,9 +21,9 @@ import { PgWallet } from "../wallet";
 /** Utilities to be available under the `pg` namespace */
 interface Pg {
   connection: web3.Connection;
-  wallet?: PgWallet | AnchorWallet;
   PROGRAM_ID?: web3.PublicKey;
   program?: anchor.Program;
+  wallet?: typeof PgWallet | AnchorWallet;
 }
 
 /** Options to use when running a script/test */
@@ -222,16 +222,15 @@ export class PgClient {
 
       // Playground utils namespace
       const connection = await PgConnection.get();
-      const wallet = await PgWallet.get();
       const pg: Pg = { connection };
 
-      if (wallet) {
-        pg.wallet = wallet;
+      if (PgWallet.isConnected) {
+        pg.wallet = PgWallet;
 
         // Anchor IDL
         const idl = PgProgramInfo.getProgramInfo().idl;
         if (idl) {
-          pg.program = PgTest.getProgram(idl, connection, wallet);
+          pg.program = PgTest.getProgram(idl, connection, pg.wallet);
         }
       }
       const PROGRAM_ID = PgProgramInfo.getPk().programPk;

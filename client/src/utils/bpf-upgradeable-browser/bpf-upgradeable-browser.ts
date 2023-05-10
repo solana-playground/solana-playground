@@ -439,7 +439,7 @@ export class BpfLoaderUpgradeable {
    */
   static async createBuffer(
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     buffer: Signer,
     lamports: number,
     programLen: number
@@ -469,7 +469,7 @@ export class BpfLoaderUpgradeable {
    */
   static async setBufferAuthority(
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     bufferPk: PublicKey,
     newAuthorityPk: PublicKey
   ) {
@@ -490,7 +490,7 @@ export class BpfLoaderUpgradeable {
    */
   static async loadBuffer(
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     bufferPk: PublicKey,
     programData: Buffer,
     loadConcurrency: number = 8
@@ -552,7 +552,7 @@ export class BpfLoaderUpgradeable {
    */
   static async closeBuffer(
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     bufferPk: PublicKey
   ) {
     const tx: Transaction = new Transaction();
@@ -573,7 +573,7 @@ export class BpfLoaderUpgradeable {
    */
   static async deployProgram(
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     bufferPk: PublicKey,
     program: Signer,
     programLamports: number,
@@ -608,7 +608,7 @@ export class BpfLoaderUpgradeable {
   static async setProgramAuthority(
     programPk: PublicKey,
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     newAuthorityPk: PublicKey | undefined
   ) {
     const tx: Transaction = new Transaction();
@@ -629,7 +629,7 @@ export class BpfLoaderUpgradeable {
   static async upgradeProgram(
     programPk: PublicKey,
     conn: Connection,
-    wallet: PgWallet,
+    wallet: typeof PgWallet,
     bufferPk: PublicKey,
     spillPk: PublicKey
   ) {
@@ -652,7 +652,7 @@ export class BpfLoaderUpgradeable {
   static async closeProgram(
     programPk: PublicKey,
     conn: Connection,
-    wallet: PgWallet
+    wallet: typeof PgWallet
   ) {
     const tx: Transaction = new Transaction();
     tx.add(

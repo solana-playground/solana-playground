@@ -132,8 +132,7 @@ const InitOrUpgrade = () => {
         return;
       }
 
-      const wallet = await PgWallet.get();
-      if (idlResult.authority.equals(wallet.publicKey)) {
+      if (idlResult.authority.equals(PgWallet.publicKey)) {
         setState(InitOrUpgradeState.CAN_UPGRADE);
         return;
       }

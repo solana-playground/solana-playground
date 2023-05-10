@@ -1,30 +1,24 @@
 import { useCallback } from "react";
-import { useAtom } from "jotai";
 
 import Setup from "../../../../../../components/Wallet/Modals/Setup";
-import { refreshPgWalletAtom } from "../../../../../../state";
 import { PgModal, PgTerminal, PgWallet } from "../../../../../../utils/pg";
 
 export const useConnectOrSetupPg = () => {
-  const [, refresh] = useAtom(refreshPgWalletAtom);
-
-  // Pg wallet should always be connected except first time ever
   const handleConnectPg = useCallback(async () => {
-    const setupCompleted = PgWallet.getLs()?.setupCompleted;
-    if (!setupCompleted) {
+    if (!PgWallet.isSetupCompleted) {
       await PgModal.set(() => <Setup />);
     } else {
-      const wallet = await PgWallet.get();
-      wallet.setConnected(!wallet.connected);
-      refresh();
+      PgWallet.update({
+        connected: !PgWallet.isConnected,
+      });
 
       PgTerminal.log(
-        wallet.connected
+        PgWallet.isConnected
           ? PgTerminal.success("Connected.")
           : PgTerminal.bold("Disconnected.")
       );
     }
-  }, [refresh]);
+  }, []);
 
   return { handleConnectPg };
 };

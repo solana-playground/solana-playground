@@ -343,7 +343,7 @@ export class PgTest {
   static getProgram(
     idl: Idl,
     conn: Connection,
-    wallet: PgWallet | AnchorWallet
+    wallet: typeof PgWallet | AnchorWallet
   ) {
     const provider = new Provider(conn, wallet, Provider.defaultOptions());
 
@@ -364,7 +364,7 @@ export class PgTest {
     txVals: TxVals,
     idl: Idl,
     conn: Connection,
-    wallet: PgWallet | AnchorWallet
+    wallet: typeof PgWallet | AnchorWallet
   ) {
     // Get program
     const program = this.getProgram(idl, conn, wallet);

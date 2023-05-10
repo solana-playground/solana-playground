@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Panels from "./Panels";
 import ModalBackdrop from "../../components/Modal/ModalBackdrop";
 import ClientHelper from "./ClientHelper";
-import useStatics from "./useStatics";
+import GlobalState from "./GlobalState";
 
 const IDE = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -15,13 +15,12 @@ const IDE = () => {
     }
   }, []);
 
-  useStatics();
-
   return (
     <Wrapper ref={wrapperRef}>
       <Panels />
       <ModalBackdrop />
       <ClientHelper />
+      <GlobalState />
     </Wrapper>
   );
 };

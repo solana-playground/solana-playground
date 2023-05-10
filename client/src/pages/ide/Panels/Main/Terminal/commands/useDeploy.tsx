@@ -18,7 +18,11 @@ import {
   PgTerminal,
   PgWallet,
 } from "../../../../../../utils/pg";
-import { useAsyncEffect, usePgConnection } from "../../../../../../hooks";
+import {
+  useAsyncEffect,
+  useCurrentWallet,
+  usePgConnection,
+} from "../../../../../../hooks";
 
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const [, setTxHash] = useAtom(txHashAtom);
@@ -38,7 +42,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
         )}
 Program ID: ${PgProgramInfo.getPk()!.programPk}
 Program authority: ${authority}
-Your address: ${PgWallet.getKp().publicKey}`
+Your address: ${PgWallet.publicKey}`
       );
       return;
     }
@@ -53,9 +57,8 @@ Your address: ${PgWallet.getKp().publicKey}`
 
     let msg;
     try {
-      const wallet = await PgWallet.get();
       const startTime = performance.now();
-      const txHash = await PgDeploy.deploy(wallet, program.buffer);
+      const txHash = await PgDeploy.deploy(program.buffer);
       const timePassed = (performance.now() - startTime) / 1000;
       setTxHash(txHash);
 
@@ -93,8 +96,11 @@ interface ProgramData {
 const useAuthority = () => {
   // To re-render if user changes program id
   const [programIdCount] = useAtom(refreshProgramIdAtom);
+  // To re-render after a deployment
+  const [deployCount] = useAtom(deployCountAtom);
 
   const { connection: conn } = usePgConnection();
+  const { pgWalletPk } = useCurrentWallet();
 
   const [programData, setProgramData] = useState<ProgramData>({
     upgradeable: true,
@@ -135,13 +141,14 @@ const useAuthority = () => {
     } catch (e: any) {
       console.log("Could not get authority:", e.message);
     }
-  }, [conn, programIdCount]);
+  }, [conn, programIdCount, deployCount]);
 
   return {
     authority: programData.authority,
     hasAuthority:
       programData.authority &&
-      programData.authority.equals(PgWallet.getKp().publicKey),
+      pgWalletPk &&
+      programData.authority.equals(pgWalletPk),
     upgradeable: programData.upgradeable,
   };
 };

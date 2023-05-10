@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Idl } from "@project-serum/anchor";
 import styled, { css } from "styled-components";
 
@@ -17,15 +17,10 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
   const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
 
   const { connection: conn } = usePgConnection();
-  const { currentWallet } = useCurrentWallet();
-
-  const program = useMemo(() => {
-    return idl && currentWallet
-      ? PgTest.getProgram(idl, conn, currentWallet)
-      : null;
-  }, [idl, conn, currentWallet]);
+  const { wallet } = useCurrentWallet();
 
   useEffect(() => {
+    const program = idl && wallet ? PgTest.getProgram(idl, conn, wallet) : null;
     if (!program) return;
 
     const listener = program.addEventListener(
@@ -38,7 +33,7 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
     return () => {
       program.removeEventListener(listener);
     };
-  }, [eventName, program]);
+  }, [eventName, idl, conn, wallet]);
 
   return (
     <EventWrapper index={index}>

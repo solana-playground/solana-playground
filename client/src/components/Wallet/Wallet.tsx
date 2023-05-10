@@ -19,9 +19,9 @@ import { useCurrentWallet } from "../../hooks";
 const Wallet = () => {
   const [showWallet] = useAtom(showWalletAtom);
 
-  const { currentWallet } = useCurrentWallet();
+  const { wallet } = useCurrentWallet();
 
-  if (!showWallet || !currentWallet) return null;
+  if (!showWallet || !wallet) return null;
 
   const tabHeight = document
     .getElementById(Id.TABS)
@@ -83,14 +83,16 @@ const WalletWrapper = styled.div`
 const WalletTitle = () => {
   const { walletPkStr } = useCurrentWallet();
 
-  const [copied, setCopied] = useCopy(walletPkStr);
+  const [copied, setCopied] = useCopy(walletPkStr ?? "");
 
   return (
     <TitleWrapper>
       <WalletSettings />
-      <Tooltip text={copied ? "Copied" : "Copy"}>
-        <Title onClick={setCopied}>{PgCommon.shortenPk(walletPkStr)}</Title>
-      </Tooltip>
+      {!!walletPkStr && (
+        <Tooltip text={copied ? "Copied" : "Copy"}>
+          <Title onClick={setCopied}>{PgCommon.shortenPk(walletPkStr)}</Title>
+        </Tooltip>
+      )}
       <WalletClose />
     </TitleWrapper>
   );

@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useAtom } from "jotai";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { pgWalletAtom, refreshPgWalletAtom } from "../state";
 import { ConnState } from "../constants";
+import { PgWallet } from "../utils/pg";
+import { useRenderOnChange } from "./useRenderOnChange";
 
 export const useConnect = () => {
-  // Pg
-  const [pgWallet] = useAtom(pgWalletAtom);
-  const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
+  const isPgConnected = useRenderOnChange(PgWallet.onDidUpdateConnection);
 
   // Sol
   const {
@@ -33,35 +31,28 @@ export const useConnect = () => {
   const connStatus = useMemo(() => {
     if (connected) return ConnState.CONNECTED;
     if (connecting) return ConnState.CONNECTING;
-    if (pgWallet.connected) return ConnState.PG_CONNECTED;
-
+    if (isPgConnected) return ConnState.PG_CONNECTED;
     return ConnState.NOT_CONNECTED;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pgWalletChanged, connecting, connected]);
+  }, [isPgConnected, connecting, connected]);
 
   // Sol
   const solButtonStatus = useMemo(() => {
     if (connected) return ConnState.DISCONNECT;
     if (connecting) return ConnState.CONNECTING;
-
     return ConnState.CONNECT;
   }, [connecting, connected]);
 
   // Pg
   const pgButtonStatus = useMemo(() => {
-    if (pgWallet.connected) return ConnState.PG_DISCONNECT;
-
+    if (isPgConnected) return ConnState.PG_DISCONNECT;
     return ConnState.PG_CONNECT;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pgWalletChanged]);
+  }, [isPgConnected]);
 
   // Sol
-  const handleConnect = useCallback(() => {
+  const handleConnect = useCallback(async () => {
     try {
-      if (!publicKey) connect();
-      else disconnect();
+      if (!publicKey) await connect();
+      else await disconnect();
     } catch (e: any) {
       console.log(e.message);
     }
@@ -71,7 +62,7 @@ export const useConnect = () => {
     connStatus,
     solButtonStatus,
     pgButtonStatus,
-    pgConnected: pgWallet.connected,
+    pgConnected: PgWallet.isConnected,
     handleConnect,
     connecting,
     disconnecting,

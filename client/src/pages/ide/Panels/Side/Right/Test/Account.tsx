@@ -89,7 +89,7 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
   }, [showSearch, showAta, showSeed]);
 
   const handleMyAddress = useCallback(() => {
-    setVal(walletPkStr);
+    setVal(walletPkStr ?? "");
     removeSignerKp();
     setShowSearch(false);
   }, [walletPkStr, removeSignerKp]);
@@ -465,7 +465,7 @@ interface ShowAtaProps {
   setVal: Dispatch<SetStateAction<string>>;
   closeAta: () => void;
   removeSignerKp: () => void;
-  walletPkStr: string;
+  walletPkStr?: string;
 }
 
 const ShowAta: FC<ShowAtaProps> = ({

@@ -1,31 +1,21 @@
-import { useMemo } from "react";
-import { useAtom } from "jotai";
-import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 
-import { pgWalletAtom, refreshPgWalletAtom } from "../state";
 import { PgWallet } from "../utils/pg";
+import { useRenderOnChange } from "./useRenderOnChange";
 
 export const useCurrentWallet = () => {
-  const [pgWallet] = useAtom(pgWalletAtom);
-  const [pgWalletChanged] = useAtom(refreshPgWalletAtom);
-  const wallet = useAnchorWallet();
+  const pgWallet = useRenderOnChange(PgWallet.onDidUpdate);
+  const solWallet = useAnchorWallet();
 
-  const [currentWallet, walletPkStr] = useMemo(() => {
-    let currentWallet: PgWallet | AnchorWallet | null = null;
-    // Priority is external wallet
-    if (wallet) currentWallet = wallet;
-    else if (pgWallet.connected) currentWallet = pgWallet;
-
-    return [currentWallet, currentWallet?.publicKey.toBase58() ?? ""];
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, pgWallet, pgWalletChanged]);
+  const pgWalletReturn = pgWallet?.isConnected ? PgWallet : null;
+  const wallet = solWallet ?? pgWalletReturn;
+  const walletPkStr = wallet?.publicKey.toBase58();
 
   return {
-    currentWallet,
+    wallet,
     walletPkStr,
-    pgWallet: pgWallet.connected ? pgWallet : null,
-    pgWalletPk: pgWallet.connected ? pgWallet.publicKey : null,
-    solWalletPk: wallet?.publicKey,
+    pgWallet: pgWalletReturn,
+    pgWalletPk: pgWalletReturn?.publicKey,
+    solWalletPk: solWallet?.publicKey,
   };
 };

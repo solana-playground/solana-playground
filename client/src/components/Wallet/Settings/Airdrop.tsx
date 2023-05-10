@@ -62,13 +62,13 @@ export const useAirdrop = () => {
     [amount, setTxHash]
   );
 
-  const airdropPg = useCallback(async () => {
+  const airdropPg = async () => {
     if (pgWalletPk) await airdrop(pgWalletPk);
-  }, [pgWalletPk, airdrop]);
+  };
 
-  const airdropSol = useCallback(async () => {
+  const airdropSol = async () => {
     if (solWalletPk) await airdrop(solWalletPk);
-  }, [solWalletPk, airdrop]);
+  };
 
   return {
     pgCond: (pgWalletPk && !!amount) ?? false,

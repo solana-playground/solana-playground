@@ -598,7 +598,7 @@ const Monaco = () => {
     const { declareDisposableTypes } = await import(
       "./declarations/disposable"
     );
-    const disposables = await declareDisposableTypes();
+    const disposables = declareDisposableTypes();
 
     return () => disposables.dispose();
   }, []);

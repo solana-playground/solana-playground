@@ -26,9 +26,7 @@ export const createCmd = <R>(cmd: Command<R>): Readonly<Command<R>> => cmd;
 export class PgCommandCheck {
   /** Check Playground Wallet connection */
   static isPgConnected() {
-    const isConnected = PgWallet.isPgConnected();
-
-    if (!isConnected) {
+    if (!PgWallet.isConnected) {
       PgTerminal.log(
         `${PgTerminal.bold(
           "Playground Wallet"
@@ -38,6 +36,6 @@ export class PgCommandCheck {
       );
     }
 
-    return isConnected;
+    return PgWallet.isConnected;
   }
 }

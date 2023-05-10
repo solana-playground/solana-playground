@@ -1,17 +1,13 @@
-import { useAtom } from "jotai";
 import { Keypair } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import DownloadButton from "../../DownloadButton";
-import Modal from "../../Modal/Modal";
+import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { pgWalletAtom } from "../../../state";
 import { PgCommon, PgWallet } from "../../../utils/pg";
 
 const NewWallet = () => {
-  const [, setPgWallet] = useAtom(pgWalletAtom);
-
   const generateNewKeypair = () => {
     // Generate new keypair
     const kp = Keypair.generate();
@@ -20,9 +16,6 @@ const NewWallet = () => {
     PgWallet.update({
       sk: Array.from(kp.secretKey),
     });
-
-    // Update global wallet state
-    setPgWallet(new PgWallet());
   };
 
   return (
