@@ -4,7 +4,6 @@ export enum EventName {
 
   // Commands
   COMMAND_BUILD = "commandbuild",
-  COMMAND_CONNECT = "commandconnect",
   COMMAND_DEPLOY = "commanddeploy",
 
   // Connection
