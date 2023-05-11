@@ -44,7 +44,7 @@ export const declareDisposableTypes = (): PgDisposable => {
   const walletChange = PgWallet.onDidUpdateConnection((connected) => {
     addLib(
       "wallet",
-      `  import * as web3 from "@solana/web3.js";
+      `
   /**
    * Playground wallet.
    *
@@ -75,7 +75,9 @@ const addLib = (disposable: DisposableType, lib: string) => {
   disposableCache[disposable]?.dispose();
   disposableCache[disposable] =
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      declareModule("solana-playground", lib)
+      lib.includes("declare module")
+        ? lib
+        : declareModule("solana-playground", lib)
     );
 };
 
