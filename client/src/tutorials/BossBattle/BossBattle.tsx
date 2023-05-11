@@ -10,6 +10,7 @@ const BossBattle = () => (
       { content: require("./pages/2.md") },
       { content: require("./pages/3.md") },
       { content: require("./pages/4.md") },
+      { content: require("./pages/5.md") },
     ]}
     // Initial files to have at the beginning of the tutorial
     files={[
