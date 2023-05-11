@@ -1,10 +1,10 @@
 import { JsonMetadata } from "@metaplex-foundation/js";
 import * as anchor from "@project-serum/anchor";
 
-import { PgModal } from "../../../../modal";
-import { PgValidator } from "../../../../validator";
-import { CacheItem } from "../../utils";
 import { SugarUploadScreen } from "./SugarUploadScreen";
+import { CacheItem } from "../../utils";
+import { PgValidator } from "../../../../validator";
+import { PgView } from "../../../../view";
 
 class AssetPair {
   name: string;
@@ -52,7 +52,7 @@ type GetAssetPairsResult = { assetPairs: [number, AssetPair][]; files: File[] };
 const COLLECTION_FILENAME = "collection";
 
 export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
-  const files = await PgModal.set<File[]>(SugarUploadScreen, {
+  const files = await PgView.setModal<File[]>(SugarUploadScreen, {
     title: "Upload Assets",
   });
   if (!files) throw new Error("You haven't selected files.");

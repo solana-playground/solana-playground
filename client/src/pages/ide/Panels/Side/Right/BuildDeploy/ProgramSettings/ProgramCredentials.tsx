@@ -13,7 +13,6 @@ import Text from "../../../../../../../components/Text";
 import { Warning } from "../../../../../../../components/Icons";
 import {
   explorerAtom,
-  modalAtom,
   refreshExplorerAtom,
   refreshProgramIdAtom,
 } from "../../../../../../../state";
@@ -21,6 +20,7 @@ import {
   PgProgramInfo,
   PgCommon,
   PgValidator,
+  PgView,
 } from "../../../../../../../utils/pg";
 
 const ProgramCredentials = () => (
@@ -36,12 +36,11 @@ const ProgramCredentials = () => (
 );
 
 const New = () => {
-  const [, setModal] = useAtom(modalAtom);
   const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
 
-  const handleNew = () => {
+  const handleNew = async () => {
     const kp = PgProgramInfo.getKp()?.programKp;
-    if (kp) setModal(<NewKeypairModal />);
+    if (kp) await PgView.setModal(NewKeypairModal);
     else {
       PgProgramInfo.createNewKp();
 

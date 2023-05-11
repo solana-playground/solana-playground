@@ -1,10 +1,10 @@
 import NewWallet from "../Modals/NewWallet";
-import { PgModal } from "../../../utils/pg";
+import { PgView } from "../../../utils/pg";
 
 export const useNewWallet = () => {
   return {
-    handleNewWallet: () => {
-      PgModal.set(NewWallet);
+    handleNewWallet: async () => {
+      await PgView.setModal(NewWallet);
     },
   };
 };

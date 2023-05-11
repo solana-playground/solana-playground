@@ -1,3 +1,5 @@
+import { ComponentType } from "react";
+
 import { EventName } from "../../constants";
 import { PgCommon } from "./common";
 import { PgDisposable, PgSet, SetElementAsync } from "./types";
@@ -48,6 +50,22 @@ export class PgView {
         await PgCommon.sleep(1000);
       }
     }
+  }
+
+  /**
+   * Set the current modal and wait until close
+   *
+   * @param el React component to be set as the modal
+   * @returns the data from `close` method of the modal
+   */
+  static async setModal<R>(
+    el: ComponentType<any> | null,
+    props: object = {}
+  ): Promise<R | null> {
+    return await PgCommon.sendAndReceiveCustomEvent(EventName.MODAL_SET, {
+      el,
+      props,
+    });
   }
 
   /**

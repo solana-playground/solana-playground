@@ -1,17 +1,14 @@
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../../../components/Button";
 import Text from "../../../../../../components/Text";
 import { NewWorkspace } from "./Modals";
-import { modalAtom } from "../../../../../../state";
 import { Plus } from "../../../../../../components/Icons";
+import { PgView } from "../../../../../../utils/pg";
 
 const NoWorkspace = () => {
-  const [, setModal] = useAtom(modalAtom);
-
-  const handleClick = () => {
-    setModal(<NewWorkspace />);
+  const handleClick = async () => {
+    await PgView.setModal(NewWorkspace);
   };
 
   return (

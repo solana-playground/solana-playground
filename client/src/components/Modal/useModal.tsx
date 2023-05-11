@@ -1,28 +1,22 @@
 import { useCallback } from "react";
-import { useAtom } from "jotai";
 
-import { modalAtom } from "../../state";
-import { PgCommon } from "../../utils/pg";
 import { EventName } from "../../constants";
+import { PgCommon, PgView } from "../../utils/pg";
 
 const useModal = () => {
-  const [, setModal] = useAtom(modalAtom);
+  const close = useCallback((data?: any) => {
+    // Data will be a `ClickEvent` if the modal has been closed with the default
+    // cancel button
+    if (data?.target) {
+      data = null;
+    }
+    PgCommon.createAndDispatchCustomEvent(
+      PgCommon.getSendAndReceiveEventNames(EventName.MODAL_SET).receive,
+      { data }
+    );
 
-  const close = useCallback(
-    (data?: any) => {
-      // It will be a ClickEvent if the modal has been closed with the default cancel button
-      if (data?.target) {
-        data = null;
-      }
-      setModal(null);
-
-      PgCommon.createAndDispatchCustomEvent(
-        PgCommon.getSendAndReceiveEventNames(EventName.MODAL_SET).receive,
-        { data }
-      );
-    },
-    [setModal]
-  );
+    PgView.setModal(null);
+  }, []);
 
   return { close };
 };

@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 
 import Setup from "../../../../../../components/Wallet/Modals/Setup";
-import { PgModal, PgTerminal, PgWallet } from "../../../../../../utils/pg";
+import { PgTerminal, PgView, PgWallet } from "../../../../../../utils/pg";
 
 export const useConnectOrSetupPg = () => {
   const handleConnectPg = useCallback(async () => {
     if (!PgWallet.isSetupCompleted) {
-      await PgModal.set(() => <Setup />);
+      await PgView.setModal(() => <Setup />);
     } else {
       PgWallet.update({
         connected: !PgWallet.isConnected,
