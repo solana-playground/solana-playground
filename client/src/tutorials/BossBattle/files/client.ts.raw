@@ -3,7 +3,25 @@ const [enemyBossPDA] = anchor.web3.PublicKey.findProgramAddressSync(
   pg.program.programId
 );
 
-async function respawn() {
+async function confirmAndLogTransaction(txHash) {
+  const { blockhash, lastValidBlockHeight } =
+    await pg.connection.getLatestBlockhash();
+
+  await pg.connection.confirmTransaction(
+    {
+      blockhash,
+      lastValidBlockHeight,
+      signature: txHash,
+    },
+    "confirmed"
+  );
+
+  console.log(
+    `Solana Explorer: https://explorer.solana.com/tx/${txHash}?cluster=devnet`
+  );
+}
+
+async function respawnEnemyBoss() {
   console.log("Respawning Enemy Boss");
   const tx = await pg.program.methods
     .respawn()
@@ -18,7 +36,7 @@ async function respawn() {
   console.log("Enemy Health: ", enemyBossData.health.toNumber() + "\n");
 }
 
-async function attack() {
+async function attackLoop() {
   let enemyBossData;
 
   try {
@@ -41,23 +59,5 @@ async function attack() {
   }
 }
 
-async function confirmAndLogTransaction(txHash) {
-  const { blockhash, lastValidBlockHeight } =
-    await pg.connection.getLatestBlockhash();
-
-  await pg.connection.confirmTransaction(
-    {
-      blockhash,
-      lastValidBlockHeight,
-      signature: txHash,
-    },
-    "confirmed"
-  );
-
-  console.log(
-    `Solana Explorer: https://explorer.solana.com/tx/${txHash}?cluster=devnet`
-  );
-}
-
-await respawn();
-await attack();
+await respawnEnemyBoss();
+await attackLoop();
