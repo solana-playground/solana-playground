@@ -4,7 +4,7 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { PgDisposable, PgSet } from "./types";
+import type { PgSet } from "./types";
 
 /** `localStorage` data for the playground wallet */
 interface LsWallet {
@@ -156,78 +156,36 @@ export class PgWallet {
    * @param cb callback function to run after wallet update
    * @returns a dispose function to clear the event
    */
-  static onDidUpdate(cb: (wallet: typeof PgWallet) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: PgWallet } as Event);
-
-    document.addEventListener(
-      EventName.WALLET_ON_DID_UPDATE,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.WALLET_ON_DID_UPDATE,
-          handle as EventListener
-        ),
-    };
+  static onDidUpdate(cb: (wallet: typeof PgWallet) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.WALLET_ON_DID_UPDATE,
+      initialValue: PgWallet,
+    });
   }
 
   /**
    * @param cb callback function to run after wallet connect state change
    * @returns a dispose function to clear the event
    */
-  static onDidUpdateConnection(cb: (connected: boolean) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: PgWallet.isConnected } as Event);
-
-    document.addEventListener(
-      EventName.WALLET_ON_DID_UPDATE_CONNECTION,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.WALLET_ON_DID_UPDATE_CONNECTION,
-          handle as EventListener
-        ),
-    };
+  static onDidUpdateConnection(cb: (connected: boolean) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+      initialValue: PgWallet.isConnected,
+    });
   }
 
   /**
    * @param cb callback function to run after wallet keypair change
    * @returns a dispose function to clear the event
    */
-  static onDidUpdateKeypair(cb: (keypair: Keypair) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: PgWallet.keypair } as Event);
-
-    document.addEventListener(
-      EventName.WALLET_ON_DID_UPDATE_CONNECTION,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.WALLET_ON_DID_UPDATE_CONNECTION,
-          handle as EventListener
-        ),
-    };
+  static onDidUpdateKeypair(cb: (keypair: Keypair) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.WALLET_ON_DID_UPDATE_CONNECTION,
+      initialValue: PgWallet.keypair,
+    });
   }
 
   /**
@@ -236,26 +194,12 @@ export class PgWallet {
    */
   static onDidChangeCurrentWallet(
     cb: (wallet: typeof PgWallet | AnchorWallet) => any
-  ): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: PgWallet } as Event);
-
-    document.addEventListener(
-      EventName.WALLET_ON_DID_CHANGE_CURRENT_WALLET,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.WALLET_ON_DID_CHANGE_CURRENT_WALLET,
-          handle as EventListener
-        ),
-    };
+  ) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.WALLET_ON_DID_CHANGE_CURRENT_WALLET,
+      initialValue: PgWallet,
+    });
   }
 
   /** Keypair of the wallet */

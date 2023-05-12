@@ -1,8 +1,8 @@
 import { ComponentType } from "react";
 
-import { EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { PgDisposable, PgSet, SetElementAsync } from "./types";
+import { EventName } from "../../constants";
+import type { PgSet, SetElementAsync } from "./types";
 
 /** Sidebar states */
 export enum Sidebar {
@@ -86,21 +86,10 @@ export class PgView {
    * @param cb callback function to run after changing sidebar page
    * @returns a dispose function to clear the event
    */
-  static onDidChangeSidebarState(cb: (state: Sidebar) => any): PgDisposable {
-    const handle = (e: UIEvent & { detail: { state: Sidebar } }) => {
-      cb(e.detail.state);
-    };
-
-    document.addEventListener(
-      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeSidebarState(cb: (state: Sidebar) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+    });
   }
 }

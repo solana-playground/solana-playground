@@ -1,7 +1,13 @@
-import { ChangeEvent } from "react";
-import { PublicKey } from "@solana/web3.js";
+import type { ChangeEvent } from "react";
+import type { PublicKey } from "@solana/web3.js";
 
-import { Endpoint, EXPLORER_URL, SOLSCAN_URL } from "../../constants";
+import {
+  Endpoint,
+  EventName,
+  EXPLORER_URL,
+  SOLSCAN_URL,
+} from "../../constants";
+import type { PgDisposable } from "./types";
 
 export class PgCommon {
   /**
@@ -475,6 +481,35 @@ export class PgCommon {
         handleReceive as EventListener
       );
     });
+  }
+
+  /**
+   * Handle change events.
+   *
+   * If `args.initialValue` is given, the given callback will be called on the
+   * first call. Subsequent calls are only possible with custom events.
+   *
+   * @returns a dispose function to clear the event
+   */
+  static onDidChange<T>(args: {
+    cb: (value: T) => any;
+    eventName: EventName;
+    initialValue?: T;
+  }): PgDisposable {
+    type Event = UIEvent & { detail: any };
+
+    const handle = (ev: Event) => {
+      args.cb(ev.detail);
+    };
+
+    if (args.initialValue) handle({ detail: args.initialValue } as Event);
+
+    document.addEventListener(args.eventName, handle as EventListener);
+    return {
+      dispose: () => {
+        document.removeEventListener(args.eventName, handle as EventListener);
+      },
+    };
   }
 
   /**
