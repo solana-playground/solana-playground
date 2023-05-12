@@ -379,8 +379,8 @@ export class PgTerminal {
    *
    * @returns the terminal object
    */
-  static async get<T, R extends PgTerm>() {
-    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
+  static async get() {
+    return await PgCommon.sendAndReceiveCustomEvent<PgTerm>(
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).get
     );
   }
@@ -392,10 +392,10 @@ export class PgTerminal {
    * @returns the result from the method call
    */
   static async run<
-    M extends PgMethod<PgTerm>,
-    R extends PgReturnType<PgTerm, keyof M>
+    R extends PgReturnType<PgTerm, keyof M>,
+    M extends PgMethod<PgTerm>
   >(data: M) {
-    return await PgCommon.sendAndReceiveCustomEvent<M, R>(
+    return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
       data
     );

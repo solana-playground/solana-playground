@@ -444,9 +444,9 @@ export class PgCommon {
    * @param data data to send
    * @returns the resolved data
    */
-  static async sendAndReceiveCustomEvent<A, R>(
+  static async sendAndReceiveCustomEvent<R, D = any>(
     eventName: string,
-    data?: A
+    data?: D
   ): Promise<R> {
     const eventNames = this.getSendAndReceiveEventNames(eventName);
 

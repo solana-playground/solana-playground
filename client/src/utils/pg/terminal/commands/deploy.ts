@@ -6,10 +6,9 @@ export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
   process: async () => {
-    return await PgCommon.sendAndReceiveCustomEvent<
-      undefined,
-      number | undefined
-    >(EventName.COMMAND_DEPLOY);
+    return await PgCommon.sendAndReceiveCustomEvent<number | undefined>(
+      EventName.COMMAND_DEPLOY
+    );
   },
   preCheck: PgCommandCheck.isPgConnected,
 });
