@@ -5,8 +5,8 @@ import styled from "styled-components";
 import Button from "../../../../../../components/Button";
 import useNewItem from "./useNewItem";
 import { NewItem, Share } from "./Modals";
-import { explorerAtom, modalAtom } from "../../../../../../state";
-import { PgExplorer, PgRouter } from "../../../../../../utils/pg";
+import { explorerAtom } from "../../../../../../state";
+import { PgExplorer, PgRouter, PgView } from "../../../../../../utils/pg";
 import { Route } from "../../../../../../constants";
 
 const ExplorerButtons = () => (
@@ -75,10 +75,8 @@ const CollapseAllButton = () => {
 };
 
 const ShareButton = () => {
-  const [, setModal] = useAtom(modalAtom);
-
-  const handleShare = () => {
-    setModal(<Share />);
+  const handleShare = async () => {
+    await PgView.setModal(Share);
   };
 
   return (

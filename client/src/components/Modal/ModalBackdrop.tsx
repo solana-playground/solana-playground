@@ -1,16 +1,14 @@
-import { ComponentType, useEffect } from "react";
-import { useAtom } from "jotai";
+import { ComponentType, ReactElement, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import useModal from "./useModal";
-import { modalAtom } from "../../state";
-import { PgCommon } from "../../utils/pg";
 import { EventName } from "../../constants";
-import { useOnKey } from "../../hooks";
+import { PgCommon } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
+import { useOnKey } from "../../hooks";
 
 const ModalBackdrop = () => {
-  const [modal, setModal] = useAtom(modalAtom);
+  const [modal, setModal] = useState<ReactElement | null>(null);
 
   const { close } = useModal();
 
@@ -25,7 +23,7 @@ const ModalBackdrop = () => {
       e: UIEvent & { detail: { el: ComponentType; props: object } }
     ) => {
       const El = e.detail.el;
-      El ? setModal(<El {...e.detail.props} />) : close();
+      setModal(El ? <El {...e.detail.props} /> : null);
     };
 
     document.addEventListener(eventName, handleModalSet as EventListener);
@@ -33,7 +31,7 @@ const ModalBackdrop = () => {
     return () => {
       document.removeEventListener(eventName, handleModalSet as EventListener);
     };
-  }, [setModal, close]);
+  }, []);
 
   // Close modal on ESC
   useOnKey("Escape", close);

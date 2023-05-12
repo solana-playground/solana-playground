@@ -8,7 +8,6 @@ import {
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { EventName } from "../../constants";
-import type { PgDisposable } from "./types";
 
 export interface ProgramInfo {
   uuid?: string;
@@ -198,160 +197,72 @@ export class PgProgramInfo {
    * @param cb callback function to run after program info change
    * @returns a dispose function to clear the event
    */
-  static onDidChangeProgramInfo(
-    cb: (programInfo: ProgramInfo) => any
-  ): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getProgramInfo() } as Event);
-
-    document.addEventListener(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.PROGRAM_INFO_ON_DID_CHANGE,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeProgramInfo(cb: (programInfo: ProgramInfo) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE,
+      initialValue: PgProgramInfo.getProgramInfo(),
+    });
   }
 
   /**
    * @param cb callback function to run after program uuid change
    * @returns a dispose function to clear the event
    */
-  static onDidChangeUuid(cb: (uuid: ProgramInfo["uuid"]) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getProgramInfo().uuid } as Event);
-
-    document.addEventListener(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE_UUID,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.PROGRAM_INFO_ON_DID_CHANGE_UUID,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeUuid(cb: (uuid: ProgramInfo["uuid"]) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_UUID,
+      initialValue: PgProgramInfo.getProgramInfo().uuid,
+    });
   }
 
   /**
    * @param cb callback function to run after program keypair change
    * @returns a dispose function to clear the event
    */
-  static onDidChangeKeypair(cb: (keypair: Keypair) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getKp().programKp } as Event);
-
-    document.addEventListener(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE_KP,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.PROGRAM_INFO_ON_DID_CHANGE_KP,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeKeypair(cb: (keypair: Keypair) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_KP,
+      initialValue: PgProgramInfo.getKp().programKp,
+    });
   }
 
   /**
    * @param cb callback function to run after program pubkey change
    * @returns a dispose function to clear the event
    */
-  static onDidChangePk(cb: (customPk: PublicKey) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getPk().programPk } as Event);
-
-    document.addEventListener(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE_PK,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.PROGRAM_INFO_ON_DID_CHANGE_PK,
-          handle as EventListener
-        ),
-    };
+  static onDidChangePk(cb: (customPk: PublicKey) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_PK,
+      initialValue: PgProgramInfo.getPk().programPk,
+    });
   }
 
   /**
    * @param cb callback function to run after program custom pubkey change
    * @returns a dispose function to clear the event
    */
-  static onDidChangeCustomPk(
-    cb: (customPk: PublicKey | null) => any
-  ): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getCustomPk() } as Event);
-
-    document.addEventListener(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeCustomPk(cb: (customPk: PublicKey | null) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK,
+      initialValue: PgProgramInfo.getCustomPk(),
+    });
   }
 
   /**
    * @param cb callback function to run after program idl change
    * @returns a dispose function to clear the event
    */
-  static onDidChangeIdl(cb: (idl: ProgramInfo["idl"]) => any): PgDisposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getProgramInfo().idl } as Event);
-
-    document.addEventListener(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE_IDL,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.PROGRAM_INFO_ON_DID_CHANGE_IDL,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeIdl(cb: (idl: ProgramInfo["idl"]) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_IDL,
+      initialValue: PgProgramInfo.getProgramInfo().idl,
+    });
   }
 
   /** localStorage key */

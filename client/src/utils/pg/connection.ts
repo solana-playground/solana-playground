@@ -121,8 +121,8 @@ export class PgConnection {
    *
    * @returns the connection object
    */
-  static async get<T, R extends Connection>() {
-    return await PgCommon.sendAndReceiveCustomEvent<T, R>(
+  static async get() {
+    return await PgCommon.sendAndReceiveCustomEvent<Connection>(
       PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).get
     );
   }

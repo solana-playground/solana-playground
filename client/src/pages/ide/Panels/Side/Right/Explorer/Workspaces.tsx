@@ -1,19 +1,10 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { Atom, useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../../../components/Button";
 import Text from "../../../../../../components/Text";
 import Select from "../../../../../../components/Select";
-import {
-  NewWorkspace,
-  RenameWorkspace,
-  DeleteWorkspace,
-  ImportGithub,
-  ImportFs,
-  ImportShared,
-} from "./Modals";
-import { explorerAtom, modalAtom } from "../../../../../../state";
 import {
   ExportFile,
   Github,
@@ -24,37 +15,31 @@ import {
   Rename,
   Trash,
 } from "../../../../../../components/Icons";
-import { PgExplorer, PgModal, PgTutorial } from "../../../../../../utils/pg";
+import {
+  NewWorkspace,
+  RenameWorkspace,
+  DeleteWorkspace,
+  ImportGithub,
+  ImportFs,
+  ImportShared,
+} from "./Modals";
+import { explorerAtom } from "../../../../../../state";
+import { PgExplorer, PgTutorial, PgView } from "../../../../../../utils/pg";
 
 const Workspaces = () => {
-  const [explorer] = useAtom(explorerAtom);
-  const [, setModal] = useAtom(modalAtom);
+  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
 
-  if (explorer?.isShared) return <ShareWarning />;
+  if (explorer.isShared) return <ShareWarning />;
 
-  const handleNew = () => {
-    setModal(<NewWorkspace />);
-  };
-
-  const handleRename = () => {
-    setModal(<RenameWorkspace />);
-  };
-
-  const handleDelete = () => {
-    setModal(<DeleteWorkspace />);
-  };
-
-  const handleGithub = () => {
-    setModal(<ImportGithub />);
-  };
-
-  const handleFsImport = () => {
-    setModal(<ImportFs />);
-  };
+  const handleNew = async () => await PgView.setModal(NewWorkspace);
+  const handleRename = async () => await PgView.setModal(RenameWorkspace);
+  const handleDelete = async () => await PgView.setModal(DeleteWorkspace);
+  const handleGithub = async () => await PgView.setModal(ImportGithub);
+  const handleFsImport = async () => await PgView.setModal(ImportFs);
 
   const handleFsExport = async () => {
     try {
-      await explorer?.exportWorkspace();
+      await explorer.exportWorkspace();
     } catch (e: any) {
       console.log(e.message);
     }
@@ -188,7 +173,7 @@ const SelectWrapper = styled.div`
 `;
 
 const ShareWarning = () => {
-  const handleImport = useCallback(() => PgModal.set(ImportShared), []);
+  const handleImport = async () => await PgView.setModal(ImportShared);
 
   return (
     <ShareWarningWrapper>

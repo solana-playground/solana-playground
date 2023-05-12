@@ -1,10 +1,5 @@
 import { JsonMetadata } from "@metaplex-foundation/js";
 
-import { Emoji } from "../../../../../../constants";
-import { PgModal } from "../../../../modal";
-import { PgTerminal } from "../../../../terminal";
-import { PgValidator } from "../../../../validator";
-import { SugarUploadScreen } from "../upload";
 import {
   checkCategory,
   checkCreatorsAddresses,
@@ -14,6 +9,11 @@ import {
   checkSymbol,
   checkUrl,
 } from "./parser";
+import { SugarUploadScreen } from "../upload";
+import { Emoji } from "../../../../../../constants";
+import { PgTerminal } from "../../../../terminal";
+import { PgValidator } from "../../../../validator";
+import { PgView } from "../../../../view";
 
 export const processValidate = async (
   strict: boolean,
@@ -23,7 +23,7 @@ export const processValidate = async (
 
   term.println(`[1/1] ${Emoji.ASSETS} Loading assets`);
 
-  const files = await PgModal.set<File[]>(SugarUploadScreen, {
+  const files = await PgView.setModal<File[]>(SugarUploadScreen, {
     title: "Validate Assets",
   });
   if (!files) throw new Error("You haven't selected files.");

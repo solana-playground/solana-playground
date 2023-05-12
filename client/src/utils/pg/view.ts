@@ -1,6 +1,8 @@
-import { EventName } from "../../constants";
+import { ComponentType } from "react";
+
 import { PgCommon } from "./common";
-import { PgDisposable, PgSet, SetElementAsync } from "./types";
+import { EventName } from "../../constants";
+import type { PgSet, SetElementAsync } from "./types";
 
 /** Sidebar states */
 export enum Sidebar {
@@ -51,6 +53,22 @@ export class PgView {
   }
 
   /**
+   * Set the current modal and wait until close
+   *
+   * @param el React component to be set as the modal
+   * @returns the data from `close` method of the modal
+   */
+  static async setModal<R>(
+    el: ComponentType<any> | null,
+    props: object = {}
+  ): Promise<R | null> {
+    return await PgCommon.sendAndReceiveCustomEvent(EventName.MODAL_SET, {
+      el,
+      props,
+    });
+  }
+
+  /**
    * Set the current sidebar state
    *
    * @param state sidebar state to set
@@ -68,21 +86,10 @@ export class PgView {
    * @param cb callback function to run after changing sidebar page
    * @returns a dispose function to clear the event
    */
-  static onDidChangeSidebarState(cb: (state: Sidebar) => any): PgDisposable {
-    const handle = (e: UIEvent & { detail: { state: Sidebar } }) => {
-      cb(e.detail.state);
-    };
-
-    document.addEventListener(
-      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-          handle as EventListener
-        ),
-    };
+  static onDidChangeSidebarState(cb: (state: Sidebar) => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+    });
   }
 }

@@ -3,12 +3,8 @@ import { useAtom } from "jotai";
 
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../../../constants";
-import {
-  ctxSelectedAtom,
-  modalAtom,
-  newItemAtom,
-} from "../../../../../../state";
-import { PgExplorer, PgTerminal } from "../../../../../../utils/pg";
+import { ctxSelectedAtom, newItemAtom } from "../../../../../../state";
+import { PgExplorer, PgTerminal, PgView } from "../../../../../../utils/pg";
 
 export interface ItemData {
   isFolder?: boolean;
@@ -22,7 +18,6 @@ export interface ItemData {
 const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);
   const [, setCtxSelected] = useAtom(ctxSelectedAtom);
-  const [, setModal] = useAtom(modalAtom);
 
   const [itemData, setItemData] = useState<ItemData>({});
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
@@ -97,37 +92,36 @@ const useExplorerContextMenu = () => {
     setCtxSelected(ctxSelected);
   }, [getPath, setEl, setCtxSelected]);
 
-  const renameItem = useCallback(() => {
+  const renameItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {
-      const path = getPath();
-      setModal(<RenameItem path={path} />);
+      await PgView.setModal(() => <RenameItem path={getPath()} />);
     }
-  }, [getPath, setModal]);
+  }, [getPath]);
 
-  const deleteItem = useCallback(() => {
+  const deleteItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {
-      setModal(<DeleteItem path={getPath()} />);
+      await PgView.setModal(() => <DeleteItem path={getPath()} />);
     }
-  }, [getPath, setModal]);
+  }, [getPath]);
 
-  const runClient = useCallback(() => {
+  const runClient = useCallback(async () => {
     PgTerminal.COMMANDS.run(getPath());
   }, [getPath]);
 
-  const runTest = useCallback(() => {
-    PgTerminal.COMMANDS.test(getPath());
+  const runTest = useCallback(async () => {
+    await PgTerminal.COMMANDS.test(getPath());
   }, [getPath]);
 
-  const runClientFolder = useCallback(() => {
-    PgTerminal.COMMANDS.run();
+  const runClientFolder = useCallback(async () => {
+    await PgTerminal.COMMANDS.run();
   }, []);
 
-  const runTestFolder = useCallback(() => {
-    PgTerminal.COMMANDS.test();
+  const runTestFolder = useCallback(async () => {
+    await PgTerminal.COMMANDS.test();
   }, []);
 
-  const runBuild = useCallback(() => {
-    PgTerminal.COMMANDS.build();
+  const runBuild = useCallback(async () => {
+    await PgTerminal.COMMANDS.build();
   }, []);
 
   return {

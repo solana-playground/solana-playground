@@ -9,9 +9,9 @@ import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
 import { connectionConfigAtom } from "../../../../../../state";
 import {
   PgConnection,
-  PgModal,
   PgTerminal,
   PgValidator,
+  PgView,
 } from "../../../../../../utils/pg";
 import { useOnKey } from "../../../../../../hooks";
 
@@ -40,7 +40,7 @@ const EndpointSetting = () => {
       value={value}
       onChange={(newValue) => {
         if (newValue?.value === Endpoint.CUSTOM) {
-          PgModal.set(CustomEndpoint);
+          PgView.setModal(CustomEndpoint);
         } else {
           const newEndpoint = NETWORKS.find(
             (n) => n.name === newValue?.label
