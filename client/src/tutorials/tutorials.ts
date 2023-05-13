@@ -148,4 +148,19 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./BattleCoins"),
   },
+  {
+    name: "Expense Tracker",
+    description:
+      "Learn how to create an expense tracker app and understand PDAs",
+    imageSrc: getTutorialImgSrc("expense-tracker/thumbnail.png"),
+    authors: [
+      {
+        name: "Bolt / Syed Aabis Akhtar",
+        link: "https://twitter.com/0xBolt",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.ANCHOR],
+    elementImport: () => import("./ExpenseTracker"),
+  },
 ];
