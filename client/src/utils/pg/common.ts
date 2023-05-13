@@ -486,28 +486,29 @@ export class PgCommon {
   /**
    * Handle change events.
    *
-   * If `args.initialValue` is given, the given callback will be called on the
-   * first call. Subsequent calls are only possible with custom events.
+   * If `params.initialRun` is specified, the callback will run immediately with
+   * the given `params.initialRun.value`. Any subsequent runs are only possible
+   * through the custom event listener.
    *
    * @returns a dispose function to clear the event
    */
-  static onDidChange<T>(args: {
+  static onDidChange<T>(params: {
     cb: (value: T) => any;
     eventName: EventName;
-    initialValue?: T;
+    initialRun?: { value: T };
   }): PgDisposable {
     type Event = UIEvent & { detail: any };
 
     const handle = (ev: Event) => {
-      args.cb(ev.detail);
+      params.cb(ev.detail);
     };
 
-    if (args.initialValue) handle({ detail: args.initialValue } as Event);
+    if (params.initialRun) handle({ detail: params.initialRun.value } as Event);
 
-    document.addEventListener(args.eventName, handle as EventListener);
+    document.addEventListener(params.eventName, handle as EventListener);
     return {
       dispose: () => {
-        document.removeEventListener(args.eventName, handle as EventListener);
+        document.removeEventListener(params.eventName, handle as EventListener);
       },
     };
   }

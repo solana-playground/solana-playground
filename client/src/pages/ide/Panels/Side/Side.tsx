@@ -29,7 +29,7 @@ const Side = () => {
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-      { state: sidebarState }
+      sidebarState
     );
   }, [sidebarState]);
 

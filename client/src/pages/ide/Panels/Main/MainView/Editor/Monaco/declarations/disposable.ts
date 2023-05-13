@@ -50,7 +50,7 @@ export const declareDisposableTypes = (): PgDisposable => {
    *
    * NOTE: You can toggle connection with \`connect\` command.
    */
-  const wallet: ${connected ? "PgWallet" : " undefined"};
+  const wallet: ${connected ? "PgWallet" : "undefined"};
 `
     );
   });

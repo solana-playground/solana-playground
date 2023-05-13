@@ -201,7 +201,7 @@ export class PgProgramInfo {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE,
-      initialValue: PgProgramInfo.getProgramInfo(),
+      initialRun: { value: PgProgramInfo.getProgramInfo() },
     });
   }
 
@@ -213,7 +213,7 @@ export class PgProgramInfo {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_UUID,
-      initialValue: PgProgramInfo.getProgramInfo().uuid,
+      initialRun: { value: PgProgramInfo.getProgramInfo().uuid },
     });
   }
 
@@ -221,11 +221,11 @@ export class PgProgramInfo {
    * @param cb callback function to run after program keypair change
    * @returns a dispose function to clear the event
    */
-  static onDidChangeKeypair(cb: (keypair: Keypair) => any) {
+  static onDidChangeKeypair(cb: (keypair: Keypair | undefined) => any) {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_KP,
-      initialValue: PgProgramInfo.getKp().programKp,
+      initialRun: { value: PgProgramInfo.getKp().programKp },
     });
   }
 
@@ -233,11 +233,11 @@ export class PgProgramInfo {
    * @param cb callback function to run after program pubkey change
    * @returns a dispose function to clear the event
    */
-  static onDidChangePk(cb: (customPk: PublicKey) => any) {
+  static onDidChangePk(cb: (customPk: PublicKey | undefined) => any) {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_PK,
-      initialValue: PgProgramInfo.getPk().programPk,
+      initialRun: { value: PgProgramInfo.getPk().programPk },
     });
   }
 
@@ -249,7 +249,7 @@ export class PgProgramInfo {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK,
-      initialValue: PgProgramInfo.getCustomPk(),
+      initialRun: { value: PgProgramInfo.getCustomPk() },
     });
   }
 
@@ -261,7 +261,7 @@ export class PgProgramInfo {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_IDL,
-      initialValue: PgProgramInfo.getProgramInfo().idl,
+      initialRun: { value: PgProgramInfo.getProgramInfo().idl },
     });
   }
 

@@ -160,7 +160,7 @@ export class PgWallet {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.WALLET_ON_DID_UPDATE,
-      initialValue: PgWallet,
+      initialRun: { value: PgWallet },
     });
   }
 
@@ -172,7 +172,7 @@ export class PgWallet {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.WALLET_ON_DID_UPDATE_CONNECTION,
-      initialValue: PgWallet.isConnected,
+      initialRun: { value: PgWallet.isConnected },
     });
   }
 
@@ -184,7 +184,7 @@ export class PgWallet {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.WALLET_ON_DID_UPDATE_CONNECTION,
-      initialValue: PgWallet.keypair,
+      initialRun: { value: PgWallet.keypair },
     });
   }
 
@@ -198,7 +198,7 @@ export class PgWallet {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.WALLET_ON_DID_CHANGE_CURRENT_WALLET,
-      initialValue: PgWallet,
+      initialRun: { value: PgWallet },
     });
   }
 
