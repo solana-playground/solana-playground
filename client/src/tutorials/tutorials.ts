@@ -193,7 +193,7 @@ export const TUTORIALS: TutorialData[] = [
         link: "https://twitter.com/0xBolt",
       },
     ],
-    level: TutorialLevel.BEGINNER,
+    level: TutorialLevel.INTERMEDIATE,
     categories: [TutorialCategory.ANCHOR],
     elementImport: () => import("./BankSimulator"),
   },
