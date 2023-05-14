@@ -149,6 +149,25 @@ export const TUTORIALS: TutorialData[] = [
     elementImport: () => import("./BattleCoins"),
   },
   {
+    name: "Boss Battle",
+    description:
+      "How to use XORShift random number generator in an onchain game. Spawn and attack an enemy boss, dealing pseudo-random damage utilizing the current slot as a source of randomness.",
+    imageSrc: getTutorialImgSrc("boss-battle/bossBattle.png"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+      {
+        name: "John",
+        link: "https://twitter.com/ZYJLiu",
+      },
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    elementImport: () => import("./BossBattle"),
+  },
+    {
     name: "Expense Tracker",
     description:
       "Learn how to create an expense tracker app and understand PDAs",
@@ -163,4 +182,5 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR],
     elementImport: () => import("./ExpenseTracker"),
   },
+
 ];

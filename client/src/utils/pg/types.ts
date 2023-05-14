@@ -8,7 +8,28 @@ export type PgReturnType<T, U> = U extends keyof T
     : T[U]
   : never;
 
+/** Create tuples with the same element type */
+export type Tuple<
+  T,
+  L extends number,
+  R extends unknown[] = []
+> = R["length"] extends L ? R : Tuple<T, L, [T, ...R]>;
+
+/** Tuple double string */
 export type TupleString = [string, string];
+
+/** Map union to tuple */
+export type UnionToTuple<U> = UnionReturnType<
+  U extends never ? never : (union: U) => U
+> extends (_: never) => infer R
+  ? [...UnionToTuple<Exclude<U, R>>, R]
+  : [];
+
+type UnionReturnType<U> = (
+  U extends never ? never : (union: U) => never
+) extends (ret: infer R) => never
+  ? R
+  : never;
 
 export type PgDisposable = {
   /** Clear registered events */
