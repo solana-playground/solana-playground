@@ -1,15 +1,14 @@
 import { createCmd } from "./_command";
-import { PgCommon } from "../../common";
-import { EventName } from "../../../../constants";
+import { PgClientImporter } from "../../client";
 
 export const run = createCmd({
   name: "run",
   description: "Run script(s)",
   process: async (input) => {
     const match = new RegExp(/^\w+\s?(.*)/).exec(input);
-    await PgCommon.sendAndReceiveCustomEvent(EventName.CLIENT_RUN, {
-      isTest: false,
-      path: match && match[1],
-    });
+    if (!match) return;
+
+    const { PgClient } = await PgClientImporter.import();
+    await PgClient.run({ path: match[1], isTest: false });
   },
 });

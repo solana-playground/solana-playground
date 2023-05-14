@@ -29,7 +29,7 @@ interface Pg {
 /** Options to use when running a script/test */
 export interface ClientOptions {
   /** Path to the script/test file */
-  path?: string;
+  path?: string | null;
   /** Whether to run the script as a test */
   isTest?: boolean;
 }
@@ -352,9 +352,10 @@ export class PgClient {
   private static _getIframeWindow() {
     if (this._IframeWindow) return this._IframeWindow;
 
-    const iframeEls = document.getElementsByTagName("iframe");
-    if (!iframeEls.length) throw new Error("No iframe element");
-    const iframeWindow = (iframeEls[0] as HTMLIFrameElement).contentWindow;
+    const iframeEl = document.createElement("iframe");
+    iframeEl.style.display = "none";
+    document.body.appendChild(iframeEl);
+    const iframeWindow = iframeEl.contentWindow;
     if (!iframeWindow) throw new Error("No iframe window");
 
     const handleIframeError = (e: ErrorEvent) => {

@@ -1,3 +1,4 @@
+/** All packages that are allowed to be used in client/test code */
 export type ClientPackageName =
   | "@clockwork-xyz/sdk"
   | "@metaplex-foundation/js"

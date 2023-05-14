@@ -2,9 +2,8 @@ import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import Panels from "./Panels";
-import ModalBackdrop from "../../components/Modal/ModalBackdrop";
-import ClientHelper from "./ClientHelper";
 import GlobalState from "./GlobalState";
+import ModalBackdrop from "../../components/Modal/ModalBackdrop";
 
 const IDE = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -19,7 +18,6 @@ const IDE = () => {
     <Wrapper ref={wrapperRef}>
       <Panels />
       <ModalBackdrop />
-      <ClientHelper />
       <GlobalState />
     </Wrapper>
   );
