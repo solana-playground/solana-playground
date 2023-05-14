@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{self, system_program, sysvar::rent::Rent};
 
-declare_id!("Dt1Cu5jz7UMzLFgXPNyYcP8jCcySYgLW5QXpubjKvvm3");
+// Your program Id will be added here when you enter "build" command
+declare_id!("");
 
 #[program]
 pub mod etracker {
@@ -30,7 +30,7 @@ pub mod etracker {
 
     pub fn modify_expense(
         ctx: Context<ModifyExpense>,
-        id: String,
+        _id: String,
         merchant_name: String,
         amount: u64,
     ) -> Result<()> {
@@ -41,7 +41,7 @@ pub mod etracker {
         Ok(())
     }
 
-    pub fn delete_expense(ctx: Context<DeleteExpense>, id: String) -> Result<()> {
+    pub fn delete_expense(_ctx: Context<DeleteExpense>, _id: String) -> Result<()> {
         Ok(())
     }
 }
