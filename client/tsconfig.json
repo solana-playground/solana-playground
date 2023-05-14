@@ -14,7 +14,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "experimentalDecorators": true,
+    "keyofStringsOnly": true
   },
   "include": ["src"],
   "exclude": ["/**/*.raw.d.ts", "/**/declarations/packages/"]
