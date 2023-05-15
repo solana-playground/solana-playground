@@ -1,9 +1,9 @@
 describe("Expense Tracker", async () => {
-  let merchant_name = "test";
+  let merchantName = "test";
   let amount = 100;
   let id = "10";
 
-  let merchant_name2 = "test 2";
+  let merchantName2 = "test 2";
   let amount2 = 200;
 
   let [expense_account] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -13,7 +13,7 @@ describe("Expense Tracker", async () => {
 
   it("Initialize Expense", async () => {
     await pg.program.methods
-      .initializeExpense(id, merchant_name, new anchor.BN(amount))
+      .initializeExpense(id, merchantName, new anchor.BN(amount))
       .accounts({
         expenseAccount: expense_account,
         authority: pg.wallet.publicKey,
@@ -22,10 +22,9 @@ describe("Expense Tracker", async () => {
   });
 
   it("Modify Expense", async () => {
-    // Add your test here.
 
     await pg.program.methods
-      .modifyExpense(id, merchant_name2, new anchor.BN(amount2))
+      .modifyExpense(id, merchantName2, new anchor.BN(amount2))
       .accounts({
         expenseAccount: expense_account,
         authority: pg.wallet.publicKey,

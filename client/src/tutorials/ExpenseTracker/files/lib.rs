@@ -47,7 +47,7 @@ pub mod etracker {
 }
 
 #[derive(Accounts)]
-#[instruction(id : String)]
+#[instruction(id: String)]
 pub struct InitializeExpense<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -65,7 +65,7 @@ pub struct InitializeExpense<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(id : String)]
+#[instruction(id: String)]
 pub struct ModifyExpense<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -81,7 +81,7 @@ pub struct ModifyExpense<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(id : String)]
+#[instruction(id: String)]
 pub struct DeleteExpense<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
