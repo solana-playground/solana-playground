@@ -9,7 +9,7 @@ describe("Bank Simulator", async () => {
     pg.program.provider
   );
 
-  const [bank_account] = anchor.web3.PublicKey.findProgramAddressSync(
+  const [bankAccount] = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("bank_account"), Buffer.from(threadId)],
     pg.program.programId
   );
@@ -24,7 +24,7 @@ describe("Bank Simulator", async () => {
   );
 
   console.log("Thread ID: ", threadId);
-  console.log("Bank Account: ", bank_account.toBase58());
+  console.log("Bank Account: ", bankAccount.toBase58());
   console.log("Thread Authority: ", threadAuthority.toBase58());
   console.log("Thread Address: ", threadAddress.toBase58());
   console.log(
@@ -41,7 +41,7 @@ describe("Bank Simulator", async () => {
       )
       .accounts({
         holder: pg.wallet.publicKey,
-        bankAccount: bank_account,
+        bankAccount: bankAccount,
         clockworkProgram: clockworkProvider.threadProgram.programId,
         thread: threadAddress,
         threadAuthority: threadAuthority,
@@ -53,7 +53,7 @@ describe("Bank Simulator", async () => {
     await pg.program.methods
       .deposit(Buffer.from(threadId), balance)
       .accounts({
-        bankAccount: bank_account,
+        bankAccount: bankAccount,
         holder: pg.wallet.publicKey,
       })
       .rpc();
@@ -63,7 +63,7 @@ describe("Bank Simulator", async () => {
     await pg.program.methods
       .withdraw(Buffer.from(threadId), balance)
       .accounts({
-        bankAccount: bank_account,
+        bankAccount: bankAccount,
         holder: pg.wallet.publicKey,
       })
       .rpc();
@@ -74,7 +74,7 @@ describe("Bank Simulator", async () => {
       .removeAccount(Buffer.from(threadId))
       .accounts({
         holder: pg.wallet.publicKey,
-        bankAccount: bank_account,
+        bankAccount: bankAccount,
         thread: threadAddress,
         threadAuthority: threadAuthority,
         clockworkProgram: clockworkProvider.threadProgram.programId,
