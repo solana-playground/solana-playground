@@ -15,14 +15,11 @@ const MainView = () => {
   const setElWithTransition = useCallback(async (El: SetElementAsync) => {
     setLoading(true);
 
-    await PgCommon.transition(
-      (async () => {
-        if (!El) El = EditorWithTabs;
-        El = await (El as () => Promise<JSX.Element>)();
-        setEl(El);
-      })(),
-      300
-    );
+    await PgCommon.transition(async () => {
+      if (!El) El = EditorWithTabs;
+      El = await (El as () => Promise<JSX.Element>)();
+      setEl(El);
+    }, 300);
 
     setLoading(false);
   }, []);

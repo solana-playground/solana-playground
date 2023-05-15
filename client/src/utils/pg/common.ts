@@ -7,7 +7,7 @@ import {
   EXPLORER_URL,
   SOLSCAN_URL,
 } from "../../constants";
-import type { PgDisposable } from "./types";
+import type { PgDisposable, Promiseable, SyncOrAsync } from "./types";
 
 export class PgCommon {
   /**
@@ -15,42 +15,44 @@ export class PgCommon {
    * @returns a promise that will resolve after specified ms
    */
   static async sleep(ms: number = 300) {
-    return new Promise((res) => setTimeout((s) => res(s), ms));
+    return new Promise((res) => setTimeout(res, ms));
   }
 
   /**
-   * Wait at least `ms` amount of miliseconds before resolving
+   * Wait at least `ms` amount of miliseconds before resolving.
    *
-   * @param promise promise to await
+   * @param promiseable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
    */
-  static async transition<P>(
-    promise: Promise<P>,
-    ms?: number
-  ): Promise<Awaited<P>> {
-    const result = (await Promise.allSettled([this.sleep(ms), promise]))[1];
+  static async transition<R>(promiseable: Promiseable<R>, ms?: number) {
+    if ((promiseable as () => SyncOrAsync<R>)?.call) {
+      promiseable = (promiseable as () => SyncOrAsync<R>)();
+    }
+
+    const result = (await Promise.allSettled([this.sleep(ms), promiseable]))[1];
     if (result.status === "fulfilled") {
-      return result.value;
+      return result.value as Promise<Awaited<R>>;
     }
 
     throw new Error(result.reason?.message);
   }
 
   /**
-   * Wait at least `ms` amount of miliseconds before timing out
+   * Wait at least `ms` amount of miliseconds before timing out.
    *
-   * @param promise promise to await
+   * @param promiseable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
    */
-  static async timeout<P>(
-    promise: Promise<P>,
-    ms?: number
-  ): Promise<P | undefined> {
+  static async timeout<R>(promiseable: Promiseable<R>, ms?: number) {
+    if ((promiseable as () => SyncOrAsync<R>)?.call) {
+      promiseable = (promiseable as () => SyncOrAsync<R>)();
+    }
+
     try {
       return (await Promise.race([
         new Promise((_, rej) => this.sleep(ms).then(rej)),
-        promise,
-      ])) as Awaited<P>;
+        promiseable,
+      ])) as Awaited<R>;
     } catch {
       console.log("Timed out");
     }
@@ -69,7 +71,7 @@ export class PgCommon {
    * @returns the non-nullable return value of the callback
    */
   static async tryUntilSuccess<T>(
-    cb: () => Promise<T>,
+    cb: () => Promise<NonNullable<T>>,
     tryInterval: number = 1000
   ) {
     let returnValue: T;
@@ -444,13 +446,13 @@ export class PgCommon {
   }
 
   /**
-   * Dispatch a custom event and wait for receiver to resolve
+   * Dispatch a custom event and wait for receiver to resolve.
    *
    * @param eventName name of the custom event
    * @param data data to send
    * @returns the resolved data
    */
-  static async sendAndReceiveCustomEvent<R, D = any>(
+  static async sendAndReceiveCustomEvent<R, D = unknown>(
     eventName: string,
     data?: D
   ): Promise<R> {

@@ -16,7 +16,7 @@ export type Tuple<
 > = R["length"] extends L ? R : Tuple<T, L, [T, ...R]>;
 
 /** Tuple double string */
-export type TupleString = [string, string];
+export type TupleString = Tuple<string, 2>;
 
 /** Map union to tuple */
 export type UnionToTuple<U> = UnionReturnType<
@@ -76,3 +76,6 @@ export type Fn = () => void;
 
 /** Normal or `Promise` version of the type */
 export type SyncOrAsync<T> = T | Promise<T>;
+
+/** A `Promise` or a callback that returns a `Promise` */
+export type Promiseable<T> = SyncOrAsync<T> | (() => SyncOrAsync<T>);
