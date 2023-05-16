@@ -72,20 +72,12 @@ export class PgShell {
     this._active = false;
   }
 
-  /**
-   * Enable shell:
-   *
-   * - Prompt
-   * - Enable history
-   */
+  /** Enable shell */
   enable() {
     setTimeout(() => {
       this._decrementProcessCount();
-      if (!this._processCount) {
-        this._active = true;
-        this.prompt();
-        this._pgTty.read(""); // Enables history
-      }
+      this._active = true;
+      if (!this._processCount) this.prompt();
     }, 10);
   }
 

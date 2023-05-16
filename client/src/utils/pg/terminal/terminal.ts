@@ -510,37 +510,19 @@ export class PgTerm {
     this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
     this._isOpen = true;
 
+    // Fit terminal
+    this.fit();
+
     // Print welcome text
     this.println(PgTerminal.DEFAULT_TEXT);
 
-    // Enable prompt
+    // Prompt
     this.enable();
   }
 
   /** Fit terminal */
   fit() {
     this._fitAddon.fit();
-
-    // Timeout fixes prompt message not showing in some rare cases
-    if (this._fitTimeoutId) clearTimeout(this._fitTimeoutId);
-
-    this._fitTimeoutId = setTimeout(() => {
-      if (
-        this._pgShell.isPrompting() &&
-        !this._pgTty.getInputStartsWithPrompt()
-      ) {
-        const input = this._pgTty.getInput();
-        if (input) {
-          this._pgTty.clearInput();
-          this._pgShell.prompt();
-          this._pgTty.setInput(input);
-        } else {
-          // Clear the input in case of a prompt bug where there is a text before the prompt
-          this._pgTty.clearLine();
-          this._pgShell.prompt();
-        }
-      }
-    }, 100); // time needs to be lower than specified fit interval in Terminal component
   }
 
   /** Focus terminal and scroll to cursor */
