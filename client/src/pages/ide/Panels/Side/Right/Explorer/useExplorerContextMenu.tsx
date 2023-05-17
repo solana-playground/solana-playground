@@ -6,14 +6,15 @@ import { ClassName, Id } from "../../../../../../constants";
 import { ctxSelectedAtom, newItemAtom } from "../../../../../../state";
 import { PgExplorer, PgTerminal, PgView } from "../../../../../../utils/pg";
 
-export interface ItemData {
-  isFolder?: boolean;
-  isClient?: boolean;
-  isClientFolder?: boolean;
-  isTest?: boolean;
-  isTestFolder?: boolean;
-  isProgramFolder?: boolean;
-}
+export type ItemData = {
+  [K in
+    | "isFolder"
+    | "isClient"
+    | "isClientFolder"
+    | "isTest"
+    | "isTestFolder"
+    | "isProgramFolder"]?: boolean;
+};
 
 const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);
@@ -94,13 +95,13 @@ const useExplorerContextMenu = () => {
 
   const renameItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {
-      await PgView.setModal(() => <RenameItem path={getPath()} />);
+      await PgView.setModal(<RenameItem path={getPath()} />);
     }
   }, [getPath]);
 
   const deleteItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {
-      await PgView.setModal(() => <DeleteItem path={getPath()} />);
+      await PgView.setModal(<DeleteItem path={getPath()} />);
     }
   }, [getPath]);
 

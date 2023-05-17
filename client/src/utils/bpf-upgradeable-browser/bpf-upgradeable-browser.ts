@@ -18,7 +18,7 @@ import { encodeData, InstructionType } from "./instruction";
 import * as Layout from "./layout";
 import { PgCommon } from "../pg/common";
 import { PgTerminal } from "../pg/terminal";
-import { PgTx } from "../pg/tx";
+import { PgTx } from "../pg/tx/tx";
 import { PgWallet } from "../pg/wallet";
 
 const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(

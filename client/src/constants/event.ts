@@ -45,6 +45,9 @@ export enum EventName {
   THEME_SET = "themeset",
   THEME_FONT_SET = "fontset",
 
+  // Toast
+  TOAST_SET = "toastset",
+
   // Tutorial
   TUTORIAL_STATIC = "tutorialstatic",
   TUTORIAL_PAGE_STATIC = "tutorialpagestatic",

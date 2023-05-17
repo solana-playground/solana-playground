@@ -23,7 +23,7 @@ export const processValidate = async (
 
   term.println(`[1/1] ${Emoji.ASSETS} Loading assets`);
 
-  const files = await PgView.setModal<File[]>(SugarUploadScreen, {
+  const files: File[] | null = await PgView.setModal(SugarUploadScreen, {
     title: "Validate Assets",
   });
   if (!files) throw new Error("You haven't selected files.");

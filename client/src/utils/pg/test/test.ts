@@ -12,7 +12,7 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 
 import { PgProgramInfo } from "../program-info";
-import { PgTx } from "../tx";
+import { PgTx } from "../tx/tx";
 import { PgValidator } from "../validator";
 import { PgWallet } from "../wallet";
 

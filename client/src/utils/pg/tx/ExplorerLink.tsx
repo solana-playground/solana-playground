@@ -1,17 +1,21 @@
+import { FC } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
-import Link from "../Link";
-import { connectionConfigAtom, txHashAtom } from "../../state";
-import { PgCommon } from "../../utils/pg";
+import Link from "../../../components/Link";
+import { PgCommon } from "../common";
+import { connectionConfigAtom } from "../../../state";
 
-export const ExplorerLink = () => {
-  const [txHash] = useAtom(txHashAtom);
+interface ExplorerLinkProps {
+  txHash: string;
+}
+
+export const ExplorerLink: FC<ExplorerLinkProps> = ({ txHash }) => {
   const [conn] = useAtom(connectionConfigAtom);
 
   const { explorer, solscan } = PgCommon.getExplorerTxUrls(
     txHash,
-    conn.endpoint!
+    conn.endpoint
   );
 
   return (

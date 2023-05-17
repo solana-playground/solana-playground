@@ -1,10 +1,12 @@
 import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgCommon } from "./common";
-import { PgConnection } from "./connection";
-import { PgPlaynet } from "./playnet";
-import { PgWallet } from "./wallet";
+import { PgCommon } from "../common";
+import { PgConnection } from "../connection";
+import { PgPlaynet } from "../playnet";
+import { PgWallet } from "../wallet";
+import { PgView } from "../view";
+import { ExplorerLink } from "./ExplorerLink";
 
 interface BlockhashInfo {
   /** Latest blockhash */
@@ -64,7 +66,7 @@ export class PgTx {
   }
 
   /**
-   * Confirm a transaction
+   * Confirm a transaction.
    *
    * @throws if rpc request fails
    * @returns an object with `err` property if the rpc request succeeded but tx failed
@@ -75,12 +77,25 @@ export class PgTx {
     commitment?: Commitment
   ) {
     // Don't confirm on playnet
-    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) {
-      return;
-    }
+    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) return;
 
     const result = await conn.confirmTransaction(txHash, commitment);
     if (result?.value.err) return { err: result.value.err };
+  }
+
+  /**
+   * Show a notification toast with explorer links for the transaction.
+   *
+   * @param txHash transaction signature
+   */
+  static notify(txHash: string) {
+    // Don't show on playnet
+    if (PgPlaynet.isUrlPlaynet()) return;
+
+    PgView.setToast(ExplorerLink, {
+      componentProps: { txHash },
+      options: { toastId: txHash },
+    });
   }
 
   /** Cached blockhash to reduce the amount of requests to the RPC endpoint */

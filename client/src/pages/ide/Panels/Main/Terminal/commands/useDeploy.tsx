@@ -8,7 +8,6 @@ import {
   Program,
   refreshProgramIdAtom,
   TerminalAction,
-  txHashAtom,
 } from "../../../../../../state";
 import {
   PgCommon,
@@ -16,6 +15,7 @@ import {
   PgDeploy,
   PgProgramInfo,
   PgTerminal,
+  PgTx,
   PgWallet,
 } from "../../../../../../utils/pg";
 import {
@@ -25,7 +25,6 @@ import {
 } from "../../../../../../hooks";
 
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
-  const [, setTxHash] = useAtom(txHashAtom);
   const [, setDeployCount] = useAtom(deployCountAtom);
 
   const { authority, hasAuthority, upgradeable } = useAuthority();
@@ -60,7 +59,7 @@ Your address: ${PgWallet.publicKey}`
       const startTime = performance.now();
       const txHash = await PgDeploy.deploy(program.buffer);
       const timePassed = (performance.now() - startTime) / 1000;
-      setTxHash(txHash);
+      PgTx.notify(txHash);
 
       msg = `${PgTerminal.success(
         "Deployment successful."
@@ -76,14 +75,7 @@ Your address: ${PgWallet.publicKey}`
       PgTerminal.setTerminalState(TerminalAction.deployLoadingStop);
       PgTerminal.setProgress(0);
     }
-  }, [
-    program,
-    authority,
-    hasAuthority,
-    upgradeable,
-    setTxHash,
-    setDeployCount,
-  ]);
+  }, [program, authority, hasAuthority, upgradeable, setDeployCount]);
 
   return { runDeploy, hasAuthority, upgradeable };
 };

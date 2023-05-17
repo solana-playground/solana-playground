@@ -6,7 +6,7 @@ import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgProgramInfo } from "./program-info";
 import { PgTerminal } from "./terminal/";
-import { PgTx } from "./tx";
+import { PgTx } from "./tx/tx";
 import { PgWallet } from "./wallet";
 
 export class PgDeploy {
