@@ -22,7 +22,7 @@ import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { PgValidator } from "../validator";
 import type { PrintOptions } from "./types";
-import type { PgMethod, PgReturnType } from "../types";
+import type { PgMethod, PgReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
   /** All commands */
@@ -314,22 +314,22 @@ export class PgTerminal {
   /**
    * Dispatch enable terminal custom event
    */
-  static enable() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_ENABLE);
+  static async enable() {
+    await PgTerminal.run({ enable: [] });
   }
 
   /**
    * Dispatch disable terminal custom event
    */
-  static disable() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_DISABLE);
+  static async disable() {
+    await PgTerminal.run({ disable: [] });
   }
 
   /**
    * Log terminal messages from anywhere
    */
   static async log(msg: any, opts?: PrintOptions) {
-    await this.run({ println: [msg, opts] });
+    await PgTerminal.run({ println: [msg, opts] });
   }
 
   // TODO: Remove
@@ -345,8 +345,15 @@ export class PgTerminal {
   /**
    * Dispatch scroll to bottom custom event
    */
-  static scrollToBottom() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_SCROLL_TO_BOTTOM);
+  static async scrollToBottom() {
+    await PgTerminal.run({ scrollToBottom: [] });
+  }
+
+  /**
+   * Dispatch run last command custom event
+   */
+  static async runLastCmd() {
+    await PgTerminal.run({ runLastCmd: [] });
   }
 
   /**
@@ -355,7 +362,7 @@ export class PgTerminal {
    * This function should be used as a wrapper function when calling any
    * terminal command.
    */
-  static async process<T>(cb: () => T | Promise<T>) {
+  static async process<T>(cb: () => SyncOrAsync<T>) {
     this.disable();
     this.scrollToBottom();
     try {
@@ -365,13 +372,6 @@ export class PgTerminal {
     } finally {
       this.enable();
     }
-  }
-
-  /**
-   * Dispatch run last command custom event
-   */
-  static runLastCmd() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_RUN_LAST_CMD);
   }
 
   /**

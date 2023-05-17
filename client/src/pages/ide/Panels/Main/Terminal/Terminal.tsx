@@ -88,16 +88,13 @@ const Terminal = () => {
     return () => observer.unobserve(termEl);
   }, [term]);
 
-  const handleResizeStop = useCallback(
-    (_e, _dir, _ref, d) => {
-      setHeight((h) => {
-        const result = h + d.height;
-        if (result > PgTerminal.MAX_HEIGHT) return PgTerminal.MAX_HEIGHT;
-        return result;
-      });
-    },
-    [setHeight]
-  );
+  const handleResizeStop = useCallback((_e, _dir, _ref, d) => {
+    setHeight((h) => {
+      const result = h + d.height;
+      if (result > PgTerminal.MAX_HEIGHT) return PgTerminal.MAX_HEIGHT;
+      return result;
+    });
+  }, []);
 
   // Buttons
   const clear = useCallback(() => {
@@ -115,7 +112,7 @@ const Terminal = () => {
       maxButtonRef.current?.classList.add("down");
       return PgTerminal.MAX_HEIGHT;
     });
-  }, [setHeight]);
+  }, []);
 
   const [isClosed, setIsClosed] = useState(false);
 
@@ -125,7 +122,7 @@ const Terminal = () => {
       if (h === 0) return PgTerminal.DEFAULT_HEIGHT;
       return 0;
     });
-  }, [setHeight, setIsClosed]);
+  }, []);
 
   // Keybinds
   useEffect(() => {
@@ -172,46 +169,6 @@ const Terminal = () => {
     document.addEventListener("keydown", handleKeybinds);
     return () => document.removeEventListener("keydown", handleKeybinds);
   }, [term, height, clear, toggleClose, toggleMaximize]);
-
-  // Terminal custom events
-  useEffect(() => {
-    const handleEnable = () => {
-      term.enable();
-    };
-    const handleDisable = () => {
-      term.disable();
-    };
-    const handleScrollToBottom = () => {
-      term.scrollToBottom();
-    };
-    const handleRunLastCmd = () => {
-      term.runLastCmd();
-    };
-
-    document.addEventListener(EventName.TERMINAL_ENABLE, handleEnable);
-    document.addEventListener(EventName.TERMINAL_DISABLE, handleDisable);
-    document.addEventListener(
-      EventName.TERMINAL_SCROLL_TO_BOTTOM,
-      handleScrollToBottom
-    );
-    document.addEventListener(
-      EventName.TERMINAL_RUN_LAST_CMD,
-      handleRunLastCmd
-    );
-
-    return () => {
-      document.removeEventListener(EventName.TERMINAL_ENABLE, handleEnable);
-      document.removeEventListener(EventName.TERMINAL_DISABLE, handleDisable);
-      document.removeEventListener(
-        EventName.TERMINAL_SCROLL_TO_BOTTOM,
-        handleScrollToBottom
-      );
-      document.removeEventListener(
-        EventName.TERMINAL_RUN_LAST_CMD,
-        handleRunLastCmd
-      );
-    };
-  }, [term]);
 
   return (
     <Resizable

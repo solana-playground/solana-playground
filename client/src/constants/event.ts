@@ -36,10 +36,6 @@ export enum EventName {
   ROUTER_LOCATION = "routerlocation",
 
   // Terminal
-  TERMINAL_DISABLE = "terminaldisable",
-  TERMINAL_ENABLE = "terminalenable",
-  TERMINAL_RUN_LAST_CMD = "terminalrunlastcmd",
-  TERMINAL_SCROLL_TO_BOTTOM = "terminalscrolltobottom",
   TERMINAL_STATE = "terminalstate",
   TERMINAL_STATIC = "terminalstatic",
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
