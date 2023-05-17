@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { EventName } from "../../constants";
 import {
   useCurrentWallet,
+  useDisposable,
   useExposeStatic,
   useGetAndSetStatic,
   useGetStatic,
@@ -19,7 +20,7 @@ import {
   tutorialAtom,
   connectionAtom,
 } from "../../state";
-import { PgCommon, PgWallet } from "../../utils/pg";
+import { PgCommon, PgPreferences, PgWallet } from "../../utils/pg";
 
 const GlobalState = () => {
   // Balance
@@ -33,6 +34,9 @@ const GlobalState = () => {
   // Explorer
   const [explorer] = useAtom(explorerAtom);
   useExposeStatic(explorer, EventName.EXPLORER_STATIC);
+
+  // Preferences
+  useDisposable(PgPreferences.init);
 
   // Router location
   const location = useLocation();

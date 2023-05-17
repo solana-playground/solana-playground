@@ -1,36 +1,42 @@
-interface PreferencesConfig {
+import { declareUpdateable, updateable } from "./decorators";
+
+interface Preferences {
+  /** Whether to show transaction details in terminal(only test UI) */
   showTxDetailsInTerminal: boolean;
 }
 
-interface UpdatePreferencesConfig {
-  showTxDetailsInTerminal?: boolean;
-}
+@updateable<Preferences>("showTxDetailsInTerminal")
+class _PgPreferences {
+  /** Manage storage, used inside `@updateable` */
+  private static _storage = class {
+    /** Read from storage and deserialize the data. */
+    static read() {
+      const stateStr = localStorage.getItem(this._KEY);
+      if (!stateStr) return this._DEFAULT;
 
-export class PgPreferences {
-  private static readonly _PREFERENCES_KEY = "preferences";
-  private static readonly _DEFAULT_PREFERENCES: PreferencesConfig = {
-    showTxDetailsInTerminal: false,
+      // Deserialize
+      const deserializedState = JSON.parse(stateStr) as Preferences;
+      return deserializedState;
+    }
+
+    /** Serialize the data and write to storage. */
+    static write(state: Preferences) {
+      // Serialize
+      const serializedState = JSON.stringify(state);
+      localStorage.setItem(this._KEY, serializedState);
+    }
+
+    /** Default preferences */
+    private static readonly _DEFAULT: Preferences = {
+      showTxDetailsInTerminal: false,
+    };
+
+    /** `localStorage` key */
+    private static readonly _KEY = "preferences";
   };
-
-  static getPreferences(): PreferencesConfig {
-    let preferences = localStorage.getItem(this._PREFERENCES_KEY);
-    if (!preferences) {
-      const preferencesStr = JSON.stringify(this._DEFAULT_PREFERENCES);
-      localStorage.setItem(this._PREFERENCES_KEY, preferencesStr);
-      preferences = preferencesStr;
-    }
-
-    return JSON.parse(preferences);
-  }
-
-  static update(params: UpdatePreferencesConfig) {
-    const { showTxDetailsInTerminal } = params;
-    const preferences = this.getPreferences();
-
-    if (showTxDetailsInTerminal !== undefined) {
-      preferences.showTxDetailsInTerminal = showTxDetailsInTerminal;
-    }
-
-    localStorage.setItem(this._PREFERENCES_KEY, JSON.stringify(preferences));
-  }
 }
+
+export const PgPreferences = declareUpdateable(
+  _PgPreferences,
+  {} as Preferences
+);

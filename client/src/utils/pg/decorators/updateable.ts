@@ -1,5 +1,5 @@
-import { PgCommon } from "./common";
-import type { PgDisposable, UnionToTuple } from "./types";
+import { PgCommon } from "../common";
+import type { PgDisposable, UnionToTuple } from "../types";
 
 /** State getter property */
 const STATE_PROPERTY = "state";
@@ -7,7 +7,13 @@ const STATE_PROPERTY = "state";
 /** Change event function name prefix */
 const ON_DID_CHANGE = "onDidChange";
 
-/** State property */
+/** `init` property */
+type Initialize = {
+  /** Initializer, should only be called once. */
+  init(): PgDisposable;
+};
+
+/** `state` property */
 type State<P> = Readonly<
   {
     /** All internal state */
@@ -53,6 +59,28 @@ export function updateable<T>(...properties: UnionToTuple<keyof T>) {
     const INTERNAL_STATE_PROPERTY = "_state";
     sClass[INTERNAL_STATE_PROPERTY] ??= {};
 
+    // Initializer
+    sClass.init = () => {
+      const preferences = sClass._storage.read();
+
+      for (const property in preferences) {
+        // Remove extra properties, this could happen if a property was removed
+        if (sClass._storage._DEFAULT[property] === undefined) {
+          delete preferences[property];
+        }
+      }
+
+      for (const property in sClass._storage._DEFAULT) {
+        // If any property is missing, set the default
+        if (preferences[property] === undefined) {
+          preferences[property] = sClass._storage._DEFAULT[property];
+        }
+      }
+
+      sClass.update(preferences);
+      return sClass.onDidChange((state: T) => sClass._storage.write(state));
+    };
+
     // Define state getter
     Object.defineProperty(sClass, STATE_PROPERTY, {
       get: () => sClass[INTERNAL_STATE_PROPERTY],
@@ -89,9 +117,6 @@ export function updateable<T>(...properties: UnionToTuple<keyof T>) {
 
     // Update method
     sClass.update = (params: Partial<T>) => {
-      const paramKeys = Object.keys(params);
-      if (!paramKeys) return;
-
       for (const property in params) {
         if (property !== undefined) {
           sClass[INTERNAL_STATE_PROPERTY][property] = params[property];
@@ -127,6 +152,7 @@ export function updateable<T>(...properties: UnionToTuple<keyof T>) {
  */
 export const declareUpdateable = <C, P>(sClass: C, state: P) => {
   return sClass as Omit<typeof sClass, "prototype"> &
+    Initialize &
     State<P> &
     Updateable<P> &
     OnDidChangeEventName<P>;

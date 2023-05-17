@@ -11,7 +11,7 @@ const ShowTxDetailsSetting = () => {
   return (
     <CheckBox
       onChange={handleChange}
-      checkedOnMount={PgPreferences.getPreferences().showTxDetailsInTerminal}
+      checkedOnMount={PgPreferences.showTxDetailsInTerminal}
     />
   );
 };
