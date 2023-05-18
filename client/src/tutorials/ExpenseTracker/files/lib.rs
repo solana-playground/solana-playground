@@ -10,17 +10,13 @@ pub mod etracker {
 
     pub fn initialize_expense(
         ctx: Context<InitializeExpense>,
-        id: String,
+        id: u64,
         merchant_name: String,
         amount: u64,
     ) -> Result<()> {
         let expense_account = &mut ctx.accounts.expense_account;
-        let integer_id = id.parse::<u64>().unwrap();
-        let string_id = integer_id.to_string();
 
-        require_eq!(string_id, id);
-
-        expense_account.id = integer_id;
+        expense_account.id = id;
         expense_account.merchant_name = merchant_name;
         expense_account.amount = amount;
         expense_account.owner = *ctx.accounts.authority.key;
@@ -30,7 +26,7 @@ pub mod etracker {
 
     pub fn modify_expense(
         ctx: Context<ModifyExpense>,
-        _id: String,
+        _id: u64,
         merchant_name: String,
         amount: u64,
     ) -> Result<()> {
@@ -41,13 +37,13 @@ pub mod etracker {
         Ok(())
     }
 
-    pub fn delete_expense(_ctx: Context<DeleteExpense>, _id: String) -> Result<()> {
+    pub fn delete_expense(_ctx: Context<DeleteExpense>, _id: u64) -> Result<()> {
         Ok(())
     }
 }
 
 #[derive(Accounts)]
-#[instruction(id: String)]
+#[instruction(id : u64)]
 pub struct InitializeExpense<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -56,7 +52,7 @@ pub struct InitializeExpense<'info> {
         init,
         payer = authority,
         space = 8 + 8 + 32+ (4 + 12)+ 8 + 1,
-        seeds = [b"expense", authority.key().as_ref(), id.as_ref()], 
+        seeds = [b"expense", authority.key().as_ref(), id.to_le_bytes().as_ref()], 
         bump
     )]
     pub expense_account: Account<'info, ExpenseAccount>,
@@ -65,14 +61,14 @@ pub struct InitializeExpense<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(id: String)]
+#[instruction(id : u64)]
 pub struct ModifyExpense<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
 
     #[account(
         mut,
-        seeds = [b"expense", authority.key().as_ref(), id.as_ref()], 
+        seeds = [b"expense", authority.key().as_ref(), id.to_le_bytes().as_ref()], 
         bump
     )]
     pub expense_account: Account<'info, ExpenseAccount>,
@@ -81,7 +77,7 @@ pub struct ModifyExpense<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(id: String)]
+#[instruction(id : u64)]
 pub struct DeleteExpense<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -89,7 +85,7 @@ pub struct DeleteExpense<'info> {
     #[account(
         mut,
         close = authority,
-        seeds = [b"expense", authority.key().as_ref(), id.as_ref()], 
+        seeds = [b"expense", authority.key().as_ref(), id.to_le_bytes().as_ref()], 
         bump
     )]
     pub expense_account: Account<'info, ExpenseAccount>,
