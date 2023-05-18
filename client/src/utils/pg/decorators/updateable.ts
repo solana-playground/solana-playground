@@ -7,23 +7,17 @@ const STATE_PROPERTY = "state";
 /** Change event function name prefix */
 const ON_DID_CHANGE = "onDidChange";
 
-/** `init` property */
-type Initialize = {
-  /** Initializer, should only be called once. */
-  init(): PgDisposable;
-};
-
-/** `default` property */
-type Default<T> = {
-  /** Default value to set if the value doesn't exist */
-  DEFAULT: T;
-};
-
 /** `state` property */
 type State<T> = Readonly<{
   /** All internal state */
   [K in typeof STATE_PROPERTY]: T;
 }>;
+
+/** `init` property */
+type Initialize = {
+  /** Initializer that returns a disposable */
+  init(): PgDisposable;
+};
 
 /** Updateable decorator */
 type Update<T> = {
@@ -44,6 +38,14 @@ type OnDidChangeEventName<T> = {
   ) => PgDisposable;
 };
 
+/** Custom storage type */
+type CustomStorage<T> = {
+  /** Read from storage and deserialize the data. */
+  read(): T;
+  /** Serialize the data and write to storage. */
+  write(state: T): void;
+};
+
 /**
  * Make a static class updateable.
  *
@@ -58,34 +60,36 @@ type OnDidChangeEventName<T> = {
  *
  * @param properties declare the properties of the class
  */
-export function updateable<T extends object>(defaultValue: Required<T>) {
+export function updateable<T>(params: {
+  /** Default value to set */
+  defaultState: Required<T>;
+  /** Storage that is responsible with de/serialization */
+  storage: CustomStorage<T>;
+}) {
   return (sClass: any) => {
     const INTERNAL_STATE_PROPERTY = "_state";
     sClass[INTERNAL_STATE_PROPERTY] ??= {};
 
-    // Set default value
-    (sClass as Default<T>).DEFAULT = defaultValue;
-
     // Initializer
     (sClass as Initialize).init = () => {
-      const preferences = sClass._storage.read();
+      const state = params.storage.read();
 
-      for (const property in preferences) {
+      for (const property in state) {
         // Remove extra properties, this could happen if a property was removed
-        if (sClass.DEFAULT[property] === undefined) {
-          delete preferences[property];
+        if (params.defaultState[property] === undefined) {
+          delete state[property];
         }
       }
 
-      for (const property in sClass.DEFAULT) {
+      for (const property in params.defaultState) {
         // If any property is missing, set the default
-        if (preferences[property] === undefined) {
-          preferences[property] = sClass.DEFAULT[property];
+        if (state[property as keyof T] === undefined) {
+          state[property as keyof T] = params.defaultState[property];
         }
       }
 
-      sClass.update(preferences);
-      return sClass.onDidChange((state: T) => sClass._storage.write(state));
+      sClass.update(state);
+      return sClass.onDidChange((state: T) => params.storage.write(state));
     };
 
     // Define state getter
@@ -93,7 +97,7 @@ export function updateable<T extends object>(defaultValue: Required<T>) {
       get: () => sClass[INTERNAL_STATE_PROPERTY],
     });
 
-    for (const property in defaultValue) {
+    for (const property in params.defaultState) {
       // Change event handlers
       const onDidChangeEventName =
         ON_DID_CHANGE + property[0].toUpperCase() + property.slice(1);
@@ -155,7 +159,6 @@ export function updateable<T extends object>(defaultValue: Required<T>) {
 export const declareUpdateable = <C, T>(sClass: C, state: T) => {
   return sClass as Omit<typeof sClass, "prototype"> &
     Initialize &
-    Default<T> &
     State<T> &
     Update<T> &
     OnDidChangeEventName<T>;

@@ -5,31 +5,29 @@ interface Preferences {
   showTxDetailsInTerminal: boolean;
 }
 
-@updateable<Preferences>({ showTxDetailsInTerminal: false })
-class _PgPreferences {
-  /** Manage storage, used inside `@updateable` */
-  private static _storage = class {
-    /** Read from storage and deserialize the data. */
-    static read() {
-      const stateStr = localStorage.getItem(this._KEY);
-      if (!stateStr) return PgPreferences.DEFAULT;
+const defaultState: Preferences = {
+  showTxDetailsInTerminal: false,
+};
 
-      // Deserialize
-      const deserializedState = JSON.parse(stateStr) as Preferences;
-      return deserializedState;
-    }
+const storage = {
+  /** `localStorage` key */
+  KEY: "preferences",
 
-    /** Serialize the data and write to storage. */
-    static write(state: Preferences) {
-      // Serialize
-      const serializedState = JSON.stringify(state);
-      localStorage.setItem(this._KEY, serializedState);
-    }
+  /** Read from storage and deserialize the data. */
+  read() {
+    const stateStr = localStorage.getItem(this.KEY);
+    if (!stateStr) return defaultState;
+    return JSON.parse(stateStr) as Preferences;
+  },
 
-    /** `localStorage` key */
-    private static readonly _KEY = "preferences";
-  };
-}
+  /** Serialize the data and write to storage. */
+  write(state: Preferences) {
+    localStorage.setItem(this.KEY, JSON.stringify(state));
+  },
+};
+
+@updateable({ defaultState, storage })
+class _PgPreferences {}
 
 export const PgPreferences = declareUpdateable(
   _PgPreferences,
