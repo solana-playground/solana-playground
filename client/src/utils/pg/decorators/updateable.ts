@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import type { PgDisposable, UnionToTuple } from "../types";
+import type { PgDisposable } from "../types";
 
 /** State getter property */
 const STATE_PROPERTY = "state";
@@ -13,30 +13,34 @@ type Initialize = {
   init(): PgDisposable;
 };
 
+/** `default` property */
+type Default<T> = {
+  /** Default value to set if the value doesn't exist */
+  DEFAULT: T;
+};
+
 /** `state` property */
-type State<P> = Readonly<
-  {
-    /** All internal state */
-    [K in typeof STATE_PROPERTY]: P;
-  } & { [K in keyof P]: P[K] }
->;
+type State<T> = Readonly<{
+  /** All internal state */
+  [K in typeof STATE_PROPERTY]: T;
+}>;
 
 /** Updateable decorator */
-type Updateable<P> = {
+type Update<T> = {
   /** Update state */
-  update(params: Partial<P>): void;
+  update(params: Partial<T>): void;
 };
 
 /** All `onDidChange${propertyName}` method types */
-type OnDidChangeEventName<P> = {
+type OnDidChangeEventName<T> = {
   /**
    * @param cb callback function to run after the change
    * @returns a dispose function to clear the event
    */
-  onDidChange(cb: (value: P) => void): PgDisposable;
+  onDidChange(cb: (value: T) => void): PgDisposable;
 } & {
-  [K in keyof P as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
-    cb: (value: P[K]) => void
+  [K in keyof T as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
+    cb: (value: T[K]) => void
   ) => PgDisposable;
 };
 
@@ -54,26 +58,29 @@ type OnDidChangeEventName<P> = {
  *
  * @param properties declare the properties of the class
  */
-export function updateable<T>(...properties: UnionToTuple<keyof T>) {
+export function updateable<T extends object>(defaultValue: Required<T>) {
   return (sClass: any) => {
     const INTERNAL_STATE_PROPERTY = "_state";
     sClass[INTERNAL_STATE_PROPERTY] ??= {};
 
+    // Set default value
+    (sClass as Default<T>).DEFAULT = defaultValue;
+
     // Initializer
-    sClass.init = () => {
+    (sClass as Initialize).init = () => {
       const preferences = sClass._storage.read();
 
       for (const property in preferences) {
         // Remove extra properties, this could happen if a property was removed
-        if (sClass._storage._DEFAULT[property] === undefined) {
+        if (sClass.DEFAULT[property] === undefined) {
           delete preferences[property];
         }
       }
 
-      for (const property in sClass._storage._DEFAULT) {
+      for (const property in sClass.DEFAULT) {
         // If any property is missing, set the default
         if (preferences[property] === undefined) {
-          preferences[property] = sClass._storage._DEFAULT[property];
+          preferences[property] = sClass.DEFAULT[property];
         }
       }
 
@@ -86,28 +93,23 @@ export function updateable<T>(...properties: UnionToTuple<keyof T>) {
       get: () => sClass[INTERNAL_STATE_PROPERTY],
     });
 
-    for (const property of properties) {
-      const typedProperty = property as string;
-
-      // Define property getter
-      Object.defineProperty(sClass, typedProperty, {
-        get: () => sClass[INTERNAL_STATE_PROPERTY][typedProperty],
-      });
-
+    for (const property in defaultValue) {
       // Change event handlers
       const onDidChangeEventName =
-        ON_DID_CHANGE + typedProperty[0].toUpperCase() + typedProperty.slice(1);
+        ON_DID_CHANGE + property[0].toUpperCase() + property.slice(1);
       sClass[onDidChangeEventName] = (cb: (value: any) => void) => {
         return PgCommon.onDidChange({
           cb,
           eventName: sClass._getChangeEventName(property),
-          initialRun: { value: sClass[typedProperty] },
+          initialRun: { value: sClass[property] },
         });
       };
     }
 
     // Main change event
-    sClass.onDidChange = (cb: (value: T) => void) => {
+    (sClass as OnDidChangeEventName<T>).onDidChange = (
+      cb: (value: T) => void
+    ) => {
       return PgCommon.onDidChange({
         cb,
         eventName: sClass._getChangeEventName(),
@@ -116,7 +118,7 @@ export function updateable<T>(...properties: UnionToTuple<keyof T>) {
     };
 
     // Update method
-    sClass.update = (params: Partial<T>) => {
+    (sClass as Update<T>).update = (params: Partial<T>) => {
       for (const property in params) {
         if (property !== undefined) {
           sClass[INTERNAL_STATE_PROPERTY][property] = params[property];
@@ -150,10 +152,11 @@ export function updateable<T>(...properties: UnionToTuple<keyof T>) {
  * @param state internal state type
  * @returns the static class with correct types
  */
-export const declareUpdateable = <C, P>(sClass: C, state: P) => {
+export const declareUpdateable = <C, T>(sClass: C, state: T) => {
   return sClass as Omit<typeof sClass, "prototype"> &
     Initialize &
-    State<P> &
-    Updateable<P> &
-    OnDidChangeEventName<P>;
+    Default<T> &
+    State<T> &
+    Update<T> &
+    OnDidChangeEventName<T>;
 };

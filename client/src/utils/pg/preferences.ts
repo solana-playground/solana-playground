@@ -5,14 +5,14 @@ interface Preferences {
   showTxDetailsInTerminal: boolean;
 }
 
-@updateable<Preferences>("showTxDetailsInTerminal")
+@updateable<Preferences>({ showTxDetailsInTerminal: false })
 class _PgPreferences {
   /** Manage storage, used inside `@updateable` */
   private static _storage = class {
     /** Read from storage and deserialize the data. */
     static read() {
       const stateStr = localStorage.getItem(this._KEY);
-      if (!stateStr) return this._DEFAULT;
+      if (!stateStr) return PgPreferences.DEFAULT;
 
       // Deserialize
       const deserializedState = JSON.parse(stateStr) as Preferences;
@@ -25,11 +25,6 @@ class _PgPreferences {
       const serializedState = JSON.stringify(state);
       localStorage.setItem(this._KEY, serializedState);
     }
-
-    /** Default preferences */
-    private static readonly _DEFAULT: Preferences = {
-      showTxDetailsInTerminal: false,
-    };
 
     /** `localStorage` key */
     private static readonly _KEY = "preferences";

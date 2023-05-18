@@ -149,7 +149,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         );
         PgTx.notify(txHash);
 
-        if (PgPreferences.showTxDetailsInTerminal) {
+        if (PgPreferences.state.showTxDetailsInTerminal) {
           return txHash;
         }
 
