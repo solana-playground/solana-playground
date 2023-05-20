@@ -7,7 +7,7 @@ import {
   EXPLORER_URL,
   SOLSCAN_URL,
 } from "../../constants";
-import type { PgDisposable, Promiseable, SyncOrAsync } from "./types";
+import type { Fn, PgDisposable, Promiseable, SyncOrAsync } from "./types";
 
 export class PgCommon {
   /**
@@ -86,24 +86,52 @@ export class PgCommon {
   }
 
   /**
+   * Debounce the given callback.
+   *
+   * @param cb callback to debounce
+   * @param options -
+   * - delay: how long to wait before running the callback
+   * - sharedTimeout: shared timeout object
+   */
+  static debounce(
+    cb: () => SyncOrAsync<void>,
+    options?: { delay?: number; sharedTimeout: { id?: NodeJS.Timeout } }
+  ) {
+    const delay = options?.delay ?? 100;
+    const sharedTimeout = options?.sharedTimeout ?? {};
+
+    return () => {
+      sharedTimeout.id && clearTimeout(sharedTimeout.id);
+      sharedTimeout.id = setTimeout(cb, delay);
+    };
+  }
+
+  /**
    * Throttle the given callback.
    *
    * @param cb callback function to run
    * @param ms amount of delay in miliseconds
    * @returns the wrapped callback function
    */
-  static throttle(cb: () => any, ms: number = 100) {
-    let timeoutId: NodeJS.Timer;
-    let lastCalled = Date.now();
+  static throttle(cb: Fn, ms: number = 100) {
+    let timeoutId: NodeJS.Timeout;
+    let last = Date.now();
+    let isInitial = true;
 
-    return (...args: []) => {
+    return () => {
       const now = Date.now();
-      if (now < lastCalled + ms) {
+      if (isInitial) {
+        cb();
+        isInitial = false;
+        return;
+      }
+
+      if (now < last + ms) {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => cb(...args), ms);
+        timeoutId = setTimeout(cb, ms);
       } else {
-        cb(...args);
-        lastCalled = now;
+        cb();
+        last = now;
       }
     };
   }
@@ -486,7 +514,7 @@ export class PgCommon {
   }
 
   /**
-   * Handle change events.
+   * Handle change event.
    *
    * If `params.initialRun` is specified, the callback will run immediately with
    * the given `params.initialRun.value`. Any subsequent runs are only possible
@@ -497,9 +525,10 @@ export class PgCommon {
   static onDidChange<T>(params: {
     cb: (value: T) => any;
     eventName: EventName;
+    // TODO: make it run by default
     initialRun?: { value: T };
   }): PgDisposable {
-    type Event = UIEvent & { detail: any };
+    type Event = UIEvent & { detail: T };
 
     const handle = (ev: Event) => {
       params.cb(ev.detail);
@@ -512,6 +541,29 @@ export class PgCommon {
       dispose: () => {
         document.removeEventListener(params.eventName, handle as EventListener);
       },
+    };
+  }
+
+  /**
+   * Batch changes together.
+   *
+   * @param cb callback to run
+   * @param onChanges onChange methods
+   * @returns a dispose function to clear all events
+   */
+  static batchChanges(
+    cb: () => void,
+    onChanges: Array<(value: any) => PgDisposable>
+  ): PgDisposable {
+    // Intentionally initializing outside of the closure to share `sharedTimeout`
+    const debounceOptions = { delay: 0, sharedTimeout: {} };
+
+    const disposables = onChanges.map((onChange) => {
+      return onChange(PgCommon.debounce(cb, debounceOptions));
+    });
+
+    return {
+      dispose: () => disposables.forEach((disposable) => disposable.dispose()),
     };
   }
 

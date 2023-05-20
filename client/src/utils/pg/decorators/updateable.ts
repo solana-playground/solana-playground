@@ -38,7 +38,7 @@ type OnDidChangeEventName<T> = {
   ) => PgDisposable;
 };
 
-/** Custom storage type */
+/** Custom storage implementation */
 type CustomStorage<T> = {
   /** Read from storage and deserialize the data. */
   read(): SyncOrAsync<T>;

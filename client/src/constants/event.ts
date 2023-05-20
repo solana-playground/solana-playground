@@ -1,4 +1,7 @@
 export enum EventName {
+  // Deploy
+  BUILD_ON_DID_BUILD = "buildondidbuild",
+
   // Commands
   COMMAND_BUILD = "commandbuild",
   COMMAND_DEPLOY = "commanddeploy",
@@ -6,6 +9,9 @@ export enum EventName {
   // Connection
   CONNECTION_REFRESH = "connectionrefresh",
   CONNECTION_STATIC = "connectionstatic",
+
+  // Deploy
+  DEPLOY_ON_DID_DEPLOY = "deployondiddeploy",
 
   // Editor
   EDITOR_FOCUS = "editorfocus",

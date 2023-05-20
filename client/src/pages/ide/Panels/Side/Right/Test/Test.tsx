@@ -1,4 +1,3 @@
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Instruction from "./Instruction";
@@ -7,14 +6,13 @@ import Event from "./Event";
 import TestSkeleton from "./TestSkeleton";
 import Text from "../../../../../../components/Text";
 import { ConnectionErrorText } from "../Common";
-import { PgProgramInfo } from "../../../../../../utils/pg";
-import { buildCountAtom } from "../../../../../../state";
+import { PgBuild, PgProgramInfo } from "../../../../../../utils/pg";
 import { useInitialLoading } from "..";
 import { useBigNumberJson } from "./useBigNumberJson";
+import { useRenderOnChange } from "../../../../../../hooks";
 
 const Test = () => {
-  // Refresh the component on a new build
-  useAtom(buildCountAtom);
+  useRenderOnChange(PgBuild.onDidBuild);
 
   const { initialLoading, deployed, connError } = useInitialLoading();
 

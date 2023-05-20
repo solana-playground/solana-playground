@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -6,12 +6,7 @@ import Text from "../../../../../../components/Text";
 import Button, { ButtonProps } from "../../../../../../components/Button";
 import { Skeleton } from "../../../../../../components/Loading";
 import { ConnectionErrorText } from "../Common";
-import {
-  buildCountAtom,
-  programAtom,
-  refreshProgramIdAtom,
-  terminalStateAtom,
-} from "../../../../../../state";
+import { programAtom, terminalStateAtom } from "../../../../../../state";
 import { Fn, PgProgramInfo, PgTerminal } from "../../../../../../utils/pg";
 import { useDeploy } from "../../../Main/Terminal/commands/useDeploy";
 import { useInitialLoading } from "..";
@@ -20,12 +15,9 @@ import { useConnect, useCurrentWallet } from "../../../../../../hooks";
 // TODO: Cancel deployment
 const Deploy = () => {
   const [terminalState] = useAtom(terminalStateAtom);
-  const [programIdCount] = useAtom(refreshProgramIdAtom);
-  const [buildCount] = useAtom(buildCountAtom);
   const [program] = useAtom(programAtom);
 
-  const { initialLoading, deployed, setDeployed, connError } =
-    useInitialLoading();
+  const { initialLoading, deployed, connError } = useInitialLoading();
   const { pgWallet, solWalletPk } = useCurrentWallet();
   const { hasAuthority, upgradeable } = useDeploy(program);
 
@@ -42,30 +34,19 @@ const Deploy = () => {
     return text;
   }, [terminalState.deployLoading, deployed]);
 
-  const deploy = useCallback(async () => {
-    const deployError = await PgTerminal.COMMANDS.deploy();
-    if (!deployError) setDeployed(true);
-  }, [setDeployed]);
-
   const deployButtonProps: ButtonProps = useMemo(
     () => ({
       kind: "primary",
-      onClick: deploy,
-      disabled: terminalState.deployLoading,
+      onClick: PgTerminal.COMMANDS.deploy as Fn,
+      disabled: terminalState.deployLoading || terminalState.buildLoading,
       btnLoading: terminalState.deployLoading,
     }),
-    [deploy, terminalState.deployLoading]
+    [terminalState.deployLoading, terminalState.buildLoading]
   );
 
-  const [hasProgramKp, hasUuid, hasProgramPk] = useMemo(() => {
-    const hasProgramKp = PgProgramInfo.state.kp ? true : false;
-    const hasUuid = PgProgramInfo.state.uuid ? true : false;
-    const hasProgramPk = PgProgramInfo.getPk() ? true : false;
-
-    return [hasProgramKp, hasUuid, hasProgramPk];
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [programIdCount, buildCount]);
+  const hasProgramKp = PgProgramInfo.state.kp ? true : false;
+  const hasUuid = PgProgramInfo.state.uuid ? true : false;
+  const hasProgramPk = PgProgramInfo.getPk() ? true : false;
 
   // Custom(uploaded) program deploy
   if (program.buffer.length) {
@@ -155,6 +136,13 @@ const Deploy = () => {
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
           <ConnectPgWalletButton />
+        </Wrapper>
+      );
+
+    if (terminalState.buildLoading)
+      return (
+        <Wrapper>
+          <Button {...deployButtonProps}>{deployButtonText}</Button>
         </Wrapper>
       );
 

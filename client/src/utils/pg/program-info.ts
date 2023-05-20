@@ -6,6 +6,7 @@ import {
 } from "@project-serum/anchor/dist/cjs/idl";
 
 import { declareUpdateable, updateable } from "./decorators";
+import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgExplorer } from "./explorer";
 import type { Nullable, PgDisposable } from "./types";
@@ -119,20 +120,10 @@ class _PgProgramInfo {
    * @returns a dispose function to clear the event
    */
   static onDidChangePk(cb: (pk: PublicKey | null) => any): PgDisposable {
-    const kpChange = PgProgramInfo.onDidChangeKp((kp) => {
-      if (!PgProgramInfo.state.customPk) cb(kp && kp.publicKey);
-    });
-    const customPkChange = PgProgramInfo.onDidChangeCustomPk((customPk) => {
-      if (customPk) cb(customPk);
-      else cb(PgProgramInfo.state.kp?.publicKey ?? null);
-    });
-
-    return {
-      dispose: () => {
-        kpChange.dispose();
-        customPkChange.dispose();
-      },
-    };
+    return PgCommon.batchChanges(
+      () => cb(PgProgramInfo.getPk()),
+      [PgProgramInfo.onDidChangeKp, PgProgramInfo.onDidChangeCustomPk]
+    );
   }
 
   /**

@@ -1,17 +1,16 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../../../../components/Button";
 import DownloadButton from "../../../../../../../components/DownloadButton";
 import UploadButton from "../../../../../../../components/UploadButton";
-import { buildCountAtom } from "../../../../../../../state";
 import {
   PgCommon,
   PgProgramInfo,
   PgTerminal,
   PgWallet,
 } from "../../../../../../../utils/pg";
+import { useRenderOnChange } from "../../../../../../../hooks";
 
 const IDL = () => (
   <Wrapper>
@@ -47,8 +46,7 @@ const Import = () => {
 };
 
 const Export = () => {
-  // Fixes IDL not being updated correctly after a new build
-  useAtom(buildCountAtom);
+  useRenderOnChange(PgProgramInfo.onDidChangeIdl);
 
   if (!PgProgramInfo.state.idl) return null;
 
@@ -74,9 +72,6 @@ enum InitOrUpgradeState {
 }
 
 const InitOrUpgrade = () => {
-  // Check IDL on each build
-  const [buildCount] = useAtom(buildCountAtom);
-
   const [state, setState] = useState<InitOrUpgradeState>(
     InitOrUpgradeState.NO_IDL
   );
@@ -143,7 +138,7 @@ const InitOrUpgrade = () => {
   // Initial run
   useEffect(() => {
     getIdl();
-  }, [getIdl, buildCount]);
+  }, [getIdl]);
 
   const handleInitOrUpgrade = async () => {
     switch (state) {

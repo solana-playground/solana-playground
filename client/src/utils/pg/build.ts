@@ -4,7 +4,7 @@ import { PgCommon } from "./common";
 import { Files, PgExplorer } from "./explorer";
 import { PgProgramInfo } from "./program-info";
 import { PgPackage } from "./terminal";
-import { SERVER_URL } from "../../constants";
+import { EventName, SERVER_URL } from "../../constants";
 
 interface BuildResp {
   stderr: string;
@@ -32,6 +32,18 @@ export class PgBuild {
     }
 
     return result;
+  }
+
+  /**
+   * @param cb callback function to run after program deployment
+   * @returns a dispose function to clear the event
+   */
+  static onDidBuild(cb: () => void) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.BUILD_ON_DID_BUILD,
+      initialRun: { value: null },
+    });
   }
 
   /**

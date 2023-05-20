@@ -1,5 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
@@ -11,13 +10,13 @@ import Input from "../../../../../../../components/Input";
 import Modal from "../../../../../../../components/Modal";
 import Text from "../../../../../../../components/Text";
 import { Warning } from "../../../../../../../components/Icons";
-import { refreshProgramIdAtom } from "../../../../../../../state";
 import {
   PgProgramInfo,
   PgCommon,
   PgValidator,
   PgView,
 } from "../../../../../../../utils/pg";
+import { useRenderOnChange } from "../../../../../../../hooks";
 
 const ProgramCredentials = () => (
   <Wrapper>
@@ -31,16 +30,11 @@ const ProgramCredentials = () => (
 );
 
 const New = () => {
-  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const handleNew = async () => {
     if (PgProgramInfo.state.kp) {
       await PgView.setModal(NewKeypairModal);
     } else {
       PgProgramInfo.update({ kp: Keypair.generate() });
-
-      // Refresh necessary components
-      refreshProgramId();
     }
   };
 
@@ -52,16 +46,11 @@ const New = () => {
 };
 
 const NewKeypairModal = () => {
-  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const generateNewKeypair = () => {
     PgProgramInfo.update({
       kp: Keypair.generate(),
       customPk: null,
     });
-
-    // Refresh necessary components
-    refreshProgramId();
   };
 
   return (
@@ -98,8 +87,6 @@ const NewKeypairModal = () => {
 };
 
 const Import = () => {
-  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
@@ -117,9 +104,6 @@ const Import = () => {
         customPk: null,
       });
 
-      // Refresh components
-      refreshProgramId();
-
       // Reset file
       e.target.value = "";
     } catch (err: any) {
@@ -135,7 +119,7 @@ const Import = () => {
 };
 
 const Export = () => {
-  useAtom(refreshProgramIdAtom); // To refresh program kp
+  useRenderOnChange(PgProgramInfo.onDidChangeKp);
 
   if (!PgProgramInfo.state.kp) return null;
 
@@ -157,16 +141,15 @@ interface UpdateInfoProps {
 }
 
 const InputPk = () => {
-  const [programIdCount, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const [val, setVal] = useState("");
   const [updateInfo, setUpdateInfo] = useState<UpdateInfoProps>({});
   const [changed, setChanged] = useState(false);
 
   useEffect(() => {
-    const programPkStr = PgProgramInfo.getPkStr();
-    if (programPkStr) setVal(programPkStr);
-  }, [programIdCount]);
+    PgProgramInfo.onDidChangePk((pk) => {
+      if (pk) setVal(pk.toBase58());
+    });
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setVal(e.target.value);
@@ -182,7 +165,6 @@ const InputPk = () => {
         text: "Updated program id.",
       });
       setChanged(false);
-      refreshProgramId();
     } catch {
       setUpdateInfo({ text: "Invalid public key.", error: true });
     }
@@ -193,13 +175,7 @@ const InputPk = () => {
     setUpdateInfo({
       text: "Removed custom id.",
     });
-    refreshProgramId();
   };
-
-  const hasCustomProgramId = useMemo(() => {
-    return !!PgProgramInfo.state.customPk;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [programIdCount]);
 
   return (
     <InputPkWrapper>
@@ -228,7 +204,7 @@ const InputPk = () => {
           Change program id
         </Button>
       )}
-      {hasCustomProgramId && (
+      {!!PgProgramInfo.state.customPk && (
         <Button onClick={handleRemoveCustomProgramId} kind="outline">
           Remove custom program id
         </Button>
