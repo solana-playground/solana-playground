@@ -1,7 +1,4 @@
 export enum EventName {
-  // Client
-  CLIENT_RUN = "clientrun",
-
   // Commands
   COMMAND_BUILD = "commandbuild",
   COMMAND_DEPLOY = "commanddeploy",

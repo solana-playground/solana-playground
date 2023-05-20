@@ -167,7 +167,7 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./BossBattle"),
   },
-    {
+  {
     name: "Expense Tracker",
     description:
       "Learn how to create an expense tracker app and understand PDAs",
