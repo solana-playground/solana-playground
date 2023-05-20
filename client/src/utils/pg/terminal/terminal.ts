@@ -193,7 +193,7 @@ export class PgTerminal {
     stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
 
     // Remove uuid from folders
-    const uuid = PgProgramInfo.getProgramInfo().uuid;
+    const uuid = PgProgramInfo.state.uuid;
     if (uuid) stderr = stderr.replaceAll(uuid, "");
 
     // Remove rustc error line

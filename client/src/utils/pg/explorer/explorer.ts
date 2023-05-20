@@ -1,9 +1,11 @@
 import FS, { PromisifiedFS } from "@isomorphic-git/lightning-fs";
+import { Keypair } from "@solana/web3.js";
 
 import { PgGithub } from "./github";
 import { PgWorkspace, Workspaces } from "./workspace";
-import { PgProgramInfo, ProgramInfo } from "../program-info";
-import { ShareJSON } from "../share";
+import { PgProgramInfo } from "../program-info";
+import { Lang } from "./frameworks";
+import { PgCommon } from "../common";
 import {
   ClassName,
   EventName,
@@ -11,9 +13,13 @@ import {
   ItemError,
   WorkspaceError,
 } from "../../../constants";
-import { Lang } from "./frameworks";
-import { PgDisposable, PgMethod, PgReturnType, TupleString } from "../types";
-import { PgCommon } from "../common";
+import type { ShareJSON } from "../share";
+import type {
+  PgDisposable,
+  PgMethod,
+  PgReturnType,
+  TupleString,
+} from "../types";
 
 export interface ExplorerJSON {
   files: {
@@ -126,11 +132,6 @@ export class PgExplorer {
   /** Get current workspace's tab info file path */
   private get _metadataPath() {
     return this.currentWorkspacePath + PgWorkspace.METADATA_PATH;
-  }
-
-  /** Get current workspace's program info file path */
-  private get _programInfoPath() {
-    return this.currentWorkspacePath + PgWorkspace.PROGRAM_INFO_PATH;
   }
 
   /** Public methods */
@@ -272,19 +273,6 @@ export class PgExplorer {
         this.files[this.currentWorkspacePath + path].meta = metaFile[path];
       }
     }
-
-    // Load program info from IndexedDB
-    try {
-      const programInfoStr = await this.readToString(this._programInfoPath);
-      const programInfo: ProgramInfo = JSON.parse(programInfoStr);
-
-      // Set program info in localStorage
-      PgProgramInfo.update(programInfo);
-    } catch {
-      // Program info doesn't exist in IndexedDB
-      // Create it from localStorage
-      await this.saveProgramInfo();
-    }
   }
 
   /**
@@ -319,19 +307,6 @@ export class PgExplorer {
     // Only save when relative paths are correct to not lose metadata on some rare cases
     else if (metaFilePath.startsWith(PgWorkspace.METADATA_PATH)) {
       await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
-    }
-  }
-
-  /**
-   * Write program info from localStorage to workspace in IndexedDB
-   */
-  async saveProgramInfo() {
-    if (!this.isShared) {
-      await this._writeFile(
-        this._programInfoPath,
-        JSON.stringify(PgProgramInfo.getProgramInfo()),
-        true
-      );
     }
   }
 
@@ -679,9 +654,6 @@ export class PgExplorer {
   ) {
     // Save metadata before changing the workspace to never lose data
     await this.saveMeta(options);
-
-    // Remove the current program info from localStorage
-    PgProgramInfo.reset();
 
     await this.init(name);
 
@@ -1045,9 +1017,12 @@ export class PgExplorer {
    * @returns the necessary data for the build request
    */
   getBuildFiles() {
-    const programPkStr = (
-      PgProgramInfo.getPk().programPk ?? PgProgramInfo.createNewKp().publicKey
-    ).toBase58();
+    let programPkStr = PgProgramInfo.getPkStr();
+    if (!programPkStr) {
+      const kp = Keypair.generate();
+      PgProgramInfo.update({ kp });
+      programPkStr = kp.publicKey.toBase58();
+    }
 
     const updateIdRust = (content: string) => {
       let updated = false;
@@ -1295,10 +1270,17 @@ export class PgExplorer {
    * Runs after changing the workspace
    *
    * @param cb callback function to run after changing the workspace
+   * @param initialRun whether to run the callback on first call, `true` by default
    * @returns a dispose function to clear the event
    */
-  onDidChangeWorkspace(cb: () => any): PgDisposable {
+  onDidChangeWorkspace(
+    cb: () => any,
+    initialRun: boolean = true
+  ): PgDisposable {
+    if (initialRun) cb();
+
     document.addEventListener(EventName.EXPLORER_ON_DID_CHANGE_WORKSPACE, cb);
+
     return {
       dispose: () =>
         document.removeEventListener(

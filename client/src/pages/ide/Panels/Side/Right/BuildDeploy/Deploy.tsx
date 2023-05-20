@@ -58,10 +58,9 @@ const Deploy = () => {
   );
 
   const [hasProgramKp, hasUuid, hasProgramPk] = useMemo(() => {
-    const pgProgramInfo = PgProgramInfo.getProgramInfo();
-    const hasProgramKp = pgProgramInfo.kp ? true : false;
-    const hasUuid = pgProgramInfo.uuid ? true : false;
-    const hasProgramPk = PgProgramInfo.getPk()?.programPk ? true : false;
+    const hasProgramKp = PgProgramInfo.state.kp ? true : false;
+    const hasUuid = PgProgramInfo.state.uuid ? true : false;
+    const hasProgramPk = PgProgramInfo.getPk() ? true : false;
 
     return [hasProgramKp, hasUuid, hasProgramPk];
 

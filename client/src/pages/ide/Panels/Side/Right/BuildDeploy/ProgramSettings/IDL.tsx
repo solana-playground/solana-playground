@@ -8,7 +8,6 @@ import UploadButton from "../../../../../../../components/UploadButton";
 import { buildCountAtom } from "../../../../../../../state";
 import {
   PgCommon,
-  PgExplorer,
   PgProgramInfo,
   PgTerminal,
   PgWallet,
@@ -35,7 +34,6 @@ const Import = () => {
       PgProgramInfo.update({
         idl: JSON.parse(decodedString),
       });
-      await PgExplorer.run({ saveProgramInfo: [] });
     } catch (e: any) {
       console.log(e.message);
     }
@@ -52,13 +50,11 @@ const Export = () => {
   // Fixes IDL not being updated correctly after a new build
   useAtom(buildCountAtom);
 
-  const idl = PgProgramInfo.getProgramInfo().idl;
-
-  if (!idl) return null;
+  if (!PgProgramInfo.state.idl) return null;
 
   return (
     <DownloadButton
-      href={PgCommon.getUtf8EncodedString(idl)}
+      href={PgCommon.getUtf8EncodedString(PgProgramInfo.state.idl)}
       download="idl.json"
     >
       Export
@@ -118,7 +114,7 @@ const InitOrUpgrade = () => {
 
   const getIdl = useCallback(async () => {
     try {
-      if (!PgProgramInfo.getProgramInfo().idl) {
+      if (!PgProgramInfo.state.idl) {
         setState(InitOrUpgradeState.NO_IDL);
         return;
       }

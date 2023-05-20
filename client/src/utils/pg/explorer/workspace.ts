@@ -102,10 +102,9 @@ export class PgWorkspace {
   static readonly WORKSPACES_CONFIG_PATH = "/.config/workspaces.json";
 
   /** Workspace Relative Paths */
+
   /** Relative path to file metadatas */
   static readonly METADATA_PATH = ".workspace/metadata.json";
-  /** Relative path to program info */
-  static readonly PROGRAM_INFO_PATH = ".workspace/program-info.json";
 
   /** Default name to name the projects that used to be in localStorage */
   static readonly DEFAULT_WORKSPACE_NAME = "default";

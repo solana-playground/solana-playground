@@ -39,7 +39,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
         `${PgTerminal.warning(
           "You don't have the authority to upgrade this program."
         )}
-Program ID: ${PgProgramInfo.getPk()!.programPk}
+Program ID: ${PgProgramInfo.getPkStr()}
 Program authority: ${authority}
 Your address: ${PgWallet.publicKey}`
       );
@@ -101,7 +101,7 @@ const useAuthority = () => {
   useAsyncEffect(async () => {
     if (!PgConnection.isReady(conn)) return;
 
-    const programPk = PgProgramInfo.getPk()?.programPk;
+    const programPk = PgProgramInfo.getPk();
     if (!programPk) return;
 
     try {

@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 
 import { buildCountAtom, TerminalAction } from "../../../../../../state";
-import { PgBuild, PgExplorer, PgTerminal } from "../../../../../../utils/pg";
+import { PgBuild, PgTerminal } from "../../../../../../utils/pg";
 
 export const useBuild = () => {
   const [, setBuildCount] = useAtom(buildCountAtom);
@@ -24,9 +24,6 @@ export const useBuild = () => {
     } finally {
       PgTerminal.log(msg + "\n");
       PgTerminal.setTerminalState(TerminalAction.buildLoadingStop);
-
-      // Update program info in IndexedDB
-      await PgExplorer.run({ saveProgramInfo: [] });
     }
   }, [setBuildCount]);
 

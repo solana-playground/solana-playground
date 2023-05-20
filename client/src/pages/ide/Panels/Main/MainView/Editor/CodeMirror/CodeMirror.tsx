@@ -317,9 +317,8 @@ const CodeMirror = () => {
     if (!indices) return;
     const [quoteStartIndex, quoteEndIndex] = indices;
 
-    const programPkResult = PgProgramInfo.getPk();
-    if (programPkResult?.err) return;
-    const programPkStr = programPkResult.programPk!.toBase58();
+    const programPkStr = PgProgramInfo.getPkStr();
+    if (!programPkStr) return;
 
     try {
       editor.dispatch({

@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import type { PgDisposable } from "../types";
+import type { PgDisposable, SyncOrAsync } from "../types";
 
 /** State getter property */
 const STATE_PROPERTY = "state";
@@ -16,7 +16,7 @@ type State<T> = Readonly<{
 /** `init` property */
 type Initialize = {
   /** Initializer that returns a disposable */
-  init(): PgDisposable;
+  init(): SyncOrAsync<PgDisposable>;
 };
 
 /** Updateable decorator */
@@ -41,9 +41,9 @@ type OnDidChangeEventName<T> = {
 /** Custom storage type */
 type CustomStorage<T> = {
   /** Read from storage and deserialize the data. */
-  read(): T;
+  read(): SyncOrAsync<T>;
   /** Serialize the data and write to storage. */
-  write(state: T): void;
+  write(state: T): SyncOrAsync<void>;
 };
 
 /**
@@ -57,8 +57,6 @@ type CustomStorage<T> = {
  *
  * NOTE: Types have to be added separately as decorators don't have proper
  * type support.
- *
- * @param properties declare the properties of the class
  */
 export function updateable<T>(params: {
   /** Default value to set */
@@ -68,11 +66,13 @@ export function updateable<T>(params: {
 }) {
   return (sClass: any) => {
     const INTERNAL_STATE_PROPERTY = "_state";
+    const IS_INITIALIZED_PROPERTY = "_isinitialized";
     sClass[INTERNAL_STATE_PROPERTY] ??= {};
+    sClass[IS_INITIALIZED_PROPERTY] ??= false;
 
     // Initializer
-    (sClass as Initialize).init = () => {
-      const state = params.storage.read();
+    (sClass as Initialize).init = async () => {
+      const state: T = await params.storage.read();
 
       for (const property in state) {
         // Remove extra properties, this could happen if a property was removed
@@ -89,6 +89,8 @@ export function updateable<T>(params: {
       }
 
       sClass.update(state);
+      sClass[IS_INITIALIZED_PROPERTY] = true;
+
       return sClass.onDidChange((state: T) => params.storage.write(state));
     };
 
@@ -101,11 +103,13 @@ export function updateable<T>(params: {
       // Change event handlers
       const onDidChangeEventName =
         ON_DID_CHANGE + property[0].toUpperCase() + property.slice(1);
-      sClass[onDidChangeEventName] = (cb: (value: any) => void) => {
+      sClass[onDidChangeEventName] ??= (cb: (value: any) => void) => {
         return PgCommon.onDidChange({
           cb,
           eventName: sClass._getChangeEventName(property),
-          initialRun: { value: sClass[property] },
+          initialRun: sClass[IS_INITIALIZED_PROPERTY]
+            ? { value: sClass[STATE_PROPERTY][property] }
+            : undefined,
         });
       };
     }
@@ -117,29 +121,38 @@ export function updateable<T>(params: {
       return PgCommon.onDidChange({
         cb,
         eventName: sClass._getChangeEventName(),
-        initialRun: { value: sClass[STATE_PROPERTY] },
+        initialRun: sClass[IS_INITIALIZED_PROPERTY]
+          ? { value: sClass[STATE_PROPERTY] }
+          : undefined,
       });
     };
 
     // Update method
     (sClass as Update<T>).update = (params: Partial<T>) => {
+      const updatedProperties = [];
       for (const property in params) {
-        if (property !== undefined) {
+        if (params[property] !== undefined) {
           sClass[INTERNAL_STATE_PROPERTY][property] = params[property];
-
-          PgCommon.createAndDispatchCustomEvent(
-            sClass._getChangeEventName(property),
-            sClass[property]
-          );
+          updatedProperties.push(property);
         }
       }
 
-      // Dispatch main update event, must be later than properties in order to
-      // send the latest class in the callback
+      if (!updatedProperties.length) return;
+
+      // Dispatch the main update event
       PgCommon.createAndDispatchCustomEvent(
         sClass._getChangeEventName(),
         sClass[STATE_PROPERTY]
       );
+
+      // Send the individual update events after all of the values have been set
+      // in order batch the changes before sending.
+      for (const property of updatedProperties) {
+        PgCommon.createAndDispatchCustomEvent(
+          sClass._getChangeEventName(property),
+          sClass[STATE_PROPERTY][property]
+        );
+      }
     };
 
     // Get custom event name

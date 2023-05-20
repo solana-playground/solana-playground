@@ -11,7 +11,7 @@ export const useInitialLoading = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    const isBuilt = PgProgramInfo.getKp()?.programKp;
+    const isBuilt = PgProgramInfo.state.uuid;
     const init = async () => {
       if (!isBuilt || deployed || deployed === false || connError) {
         setInitialLoading(true);
@@ -39,7 +39,7 @@ const useIsDeployed = () => {
   const [connError, setConnError] = useState(false);
 
   const getIsDeployed = useCallback(async () => {
-    const programPk = PgProgramInfo.getPk()?.programPk;
+    const programPk = PgProgramInfo.getPk();
     if (!programPk) return;
 
     try {
