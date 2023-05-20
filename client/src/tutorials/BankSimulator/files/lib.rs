@@ -46,10 +46,12 @@ pub mod bank {
                 bank_account: bank_account.key(),
                 thread: thread.key(),
                 thread_authority: thread_authority.key(),
-            }.to_account_metas(Some(true)),
+            }
+            .to_account_metas(Some(true)),
             data: crate::instruction::AddInterest {
                 _thread_id: thread_id.clone(),
-            }.data(),
+            }
+            .data(),
         };
 
         // Clockwork Trigger
