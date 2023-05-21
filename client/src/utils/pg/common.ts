@@ -7,7 +7,13 @@ import {
   EXPLORER_URL,
   SOLSCAN_URL,
 } from "../../constants";
-import type { Fn, PgDisposable, Promiseable, SyncOrAsync } from "./types";
+import type {
+  AllPartial,
+  Fn,
+  PgDisposable,
+  Promiseable,
+  SyncOrAsync,
+} from "./types";
 
 export class PgCommon {
   /**
@@ -186,16 +192,48 @@ export class PgCommon {
   }
 
   /**
-   * Compare values by `JSON.stringify`
+   * @returns whether the given values are equal
    */
-  static compareValues(val1: any, val2: any) {
-    return JSON.stringify(val1) === JSON.stringify(val2);
+  static isEqual(value1: any, value2: any) {
+    if (typeof value1 !== typeof value2) return false;
+
+    switch (typeof value1) {
+      // Default comparison
+      case "boolean":
+      case "number":
+      case "string":
+      case "undefined":
+        if (value1 !== value2) return false;
+        break;
+
+      // String comparison
+      case "bigint":
+      case "function":
+      case "symbol":
+        if (value1.toString() !== value2.toString()) return false;
+        break;
+
+      // Object keys comparison
+      case "object":
+        if (Object.keys(value1).length !== Object.keys(value2).length) {
+          return false;
+        }
+
+        for (const key in value1) {
+          if (!PgCommon.isEqual(value1[key], value2[key])) return false;
+        }
+    }
+
+    return true;
   }
 
   /**
-   * @returns whether the given colors are the same
+   * Get whether the colors are the same. Useful when comparing colors with different
+   * color formats(rgb, hex...).
+   *
+   * @returns whether the given colors are equal
    */
-  static compareColors = (bg1: string, bg2: string) => {
+  static isColorsEqual(color1: string, color2: string) {
     // Won't be reading frequently, but it gives a warning on the 2nd read.
     // Warning: Canvas2D: Multiple readback operations using getImageData are
     // faster with the willReadFrequently attribute set to true.
@@ -203,21 +241,39 @@ export class PgCommon {
       .createElement("canvas")
       .getContext("2d", { willReadFrequently: true })!;
 
-    // Fill bg1
-    ctx.fillStyle = bg1;
+    // Fill color1
+    ctx.fillStyle = color1;
     const bg1Args: [number, number, number, number] = [0, 0, 1, 1];
     ctx.fillRect(...bg1Args);
 
-    // Fill bg2
-    ctx.fillStyle = bg2;
+    // Fill color2
+    ctx.fillStyle = color2;
     const bg2Args: [number, number, number, number] = [1, 1, 1, 1];
     ctx.fillRect(...bg2Args);
 
-    return PgCommon.compareValues(
+    return PgCommon.isEqual(
       ctx.getImageData(...bg1Args).data,
       ctx.getImageData(...bg2Args).data
     );
-  };
+  }
+
+  /**
+   * Set the default value for the given object.
+   *
+   * NOTE: This method mutates the given object in place.
+   */
+  static setDefault<T, D extends AllPartial<T>>(value: T, defaultValue: D) {
+    for (const property in defaultValue) {
+      const result = defaultValue[property] as AllPartial<T[keyof T]>;
+      value[property as keyof T] ??= result as T[keyof T];
+
+      if (typeof result === "object") {
+        PgCommon.setDefault(value[property as keyof T], result);
+      }
+    }
+
+    return value as T & D;
+  }
 
   /**
    * @returns the JS number(only use it if you are certain this won't overflow)

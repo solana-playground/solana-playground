@@ -71,6 +71,24 @@ export type AllRequired<T> = {
   [K in keyof T]-?: AllRequired<T[K]>;
 };
 
+/** Make all properties partial recursively */
+export type AllPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? AllPartial<T[K]> : T[K];
+};
+
+/** Get object with only optional key-values */
+export type OnlyOptional<T> = {
+  [K in OptionalKeys<T>]?: OnlyOptional<NonNullable<T[K]>>;
+};
+
+/** Get optional property keys */
+type OptionalKeys<T> = Exclude<
+  {
+    [K in keyof T]: T extends Record<K, T[K]> ? never : K;
+  }[keyof T],
+  undefined
+>;
+
 /** Noop function type */
 export type Fn = () => void;
 

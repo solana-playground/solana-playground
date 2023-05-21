@@ -85,7 +85,7 @@ export class PgPlaynet {
             playnet.rpc.getAccountInfo(address)
           );
 
-          if (!PgCommon.compareValues(currentAccountInfo, newAccountInfo)) {
+          if (!PgCommon.isEqual(currentAccountInfo, newAccountInfo)) {
             cb(newAccountInfo, {
               slot: PgCommon.bigintToInt(playnet.rpc.getSlot()),
             });
