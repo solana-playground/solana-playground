@@ -178,7 +178,7 @@ export const TUTORIALS: TutorialData[] = [
       {
         name: "Jonas Hahn",
         link: "https://twitter.com/solplay_jonas",
-      }
+      },
     ],
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.ANCHOR],
