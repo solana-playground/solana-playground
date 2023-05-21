@@ -168,4 +168,20 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
     elementImport: () => import("./BossBattle"),
   },
+
+  {
+    name: "Spl Token Vault",
+    description:
+      "Learn how to create and SPL token with meta data and icon using metaplex sdk and saving it in an anchor program.",
+    imageSrc: getTutorialImgSrc("token-vault/tokenVault.png"),
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      }
+    ],
+    level: TutorialLevel.BEGINNER,
+    categories: [TutorialCategory.ANCHOR],
+    elementImport: () => import("./SplTokenVault"),
+  },
 ];
