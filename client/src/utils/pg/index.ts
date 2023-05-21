@@ -4,7 +4,6 @@ export * from "./connection";
 export * from "./deploy";
 export * from "./editor";
 export * from "./explorer/";
-export * from "./noti";
 export * from "./playnet/";
 export * from "./preferences";
 export * from "./program-info";
