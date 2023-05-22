@@ -3,7 +3,6 @@ export enum EventName {
   BUILD_ON_DID_BUILD = "buildondidbuild",
 
   // Commands
-  COMMAND_BUILD = "commandbuild",
   COMMAND_DEPLOY = "commanddeploy",
 
   // Connection
