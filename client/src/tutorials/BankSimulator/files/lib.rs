@@ -46,12 +46,10 @@ pub mod bank {
                 bank_account: bank_account.key(),
                 thread: thread.key(),
                 thread_authority: thread_authority.key(),
-            }
-            .to_account_metas(Some(true)),
+            }.to_account_metas(Some(true)),
             data: crate::instruction::AddInterest {
                 _thread_id: thread_id.clone(),
-            }
-            .data(),
+            }.data(),
         };
 
         // Clockwork Trigger
@@ -73,7 +71,7 @@ pub mod bank {
                 },
                 &[&[THREAD_AUTHORITY_SEED, &[bump]]],
             ),
-            AUTOMATION_FEE as u64 * LAMPORTS_PER_SOL,
+            (AUTOMATION_FEE * LAMPORTS_PER_SOL as f64) as u64,
             thread_id,
             vec![target_ix.into()],
             trigger,
@@ -154,7 +152,7 @@ pub struct Initialize<'info> {
         payer = holder,
         seeds = [BANK_ACCOUNT_SEED, thread_id.as_ref()],
         bump,
-        space = 8 + std::mem::size_of::< BankAccount > (),
+        space = 8 + std::mem::size_of::<BankAccount>(),
     )]
     pub bank_account: Account<'info, BankAccount>,
 
@@ -196,14 +194,14 @@ pub struct AddInterest<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(_thread_id : Vec<u8>)]
+#[instruction(thread_id : Vec<u8>)]
 pub struct RemoveAccount<'info> {
     #[account(mut)]
     pub holder: Signer<'info>,
 
     #[account(
         mut,
-        seeds = [BANK_ACCOUNT_SEED, _thread_id.as_ref()],
+        seeds = [BANK_ACCOUNT_SEED, thread_id.as_ref()],
         bump,
         close = holder
     )]
