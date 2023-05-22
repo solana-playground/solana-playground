@@ -10,7 +10,7 @@ import {
 import type {
   AllPartial,
   Fn,
-  PgDisposable,
+  Disposable,
   Promiseable,
   SyncOrAsync,
 } from "./types";
@@ -583,7 +583,7 @@ export class PgCommon {
     eventName: EventName;
     // TODO: make it run by default
     initialRun?: { value: T };
-  }): PgDisposable {
+  }): Disposable {
     type Event = UIEvent & { detail: T };
 
     const handle = (ev: Event) => {
@@ -609,8 +609,8 @@ export class PgCommon {
    */
   static batchChanges(
     cb: () => void,
-    onChanges: Array<(value: any) => PgDisposable>
-  ): PgDisposable {
+    onChanges: Array<(value: any) => Disposable>
+  ): Disposable {
     // Intentionally initializing outside of the closure to share `sharedTimeout`
     const debounceOptions = { delay: 0, sharedTimeout: {} };
 

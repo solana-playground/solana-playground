@@ -20,7 +20,7 @@ import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { PgValidator } from "../validator";
 import type { ExecuteCommand, PrintOptions } from "./types";
-import type { PgMethod, PgReturnType, SyncOrAsync } from "../types";
+import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 import type { TerminalAction } from "../../../state";
 
 export class PgTerminal {
@@ -374,8 +374,8 @@ export class PgTerminal {
    * @returns the result from the method call
    */
   static async run<
-    R extends PgReturnType<PgTerm, keyof M>,
-    M extends PgMethod<PgTerm>
+    R extends ClassReturnType<PgTerm, keyof M>,
+    M extends Methods<PgTerm>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,

@@ -15,9 +15,9 @@ import {
 } from "../../../constants";
 import type { ShareJSON } from "../share";
 import type {
-  PgDisposable,
-  PgMethod,
-  PgReturnType,
+  Disposable,
+  Methods,
+  ClassReturnType,
   TupleString,
 } from "../types";
 
@@ -1244,7 +1244,7 @@ export class PgExplorer {
    * @param cb callback function to run after switching file
    * @returns a dispose function to clear the event
    */
-  onDidSwitchFile(cb: (file: FullFile) => any): PgDisposable {
+  onDidSwitchFile(cb: (file: FullFile) => any): Disposable {
     type Event = UIEvent & { detail: any };
 
     const handle = (ev: Event) => {
@@ -1273,10 +1273,7 @@ export class PgExplorer {
    * @param initialRun whether to run the callback on first call, `true` by default
    * @returns a dispose function to clear the event
    */
-  onDidChangeWorkspace(
-    cb: () => any,
-    initialRun: boolean = true
-  ): PgDisposable {
+  onDidChangeWorkspace(cb: () => any, initialRun: boolean = true): Disposable {
     if (initialRun) cb();
 
     document.addEventListener(EventName.EXPLORER_ON_DID_CHANGE_WORKSPACE, cb);
@@ -1296,7 +1293,7 @@ export class PgExplorer {
    * @param cb callback function to run after deleting the current workspace
    * @returns a dispose function to clear the event
    */
-  onDidDeleteWorkspace(cb: () => any): PgDisposable {
+  onDidDeleteWorkspace(cb: () => any): Disposable {
     document.addEventListener(EventName.EXPLORER_ON_DID_DELETE_WORKSPACE, cb);
     return {
       dispose: () =>
@@ -1520,8 +1517,8 @@ export class PgExplorer {
    * @returns the result from the method call
    */
   static async run<
-    R extends PgReturnType<PgExplorer, keyof M>,
-    M extends PgMethod<PgExplorer>
+    R extends ClassReturnType<PgExplorer, keyof M>,
+    M extends Methods<PgExplorer>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(EventName.EXPLORER_STATIC).run,

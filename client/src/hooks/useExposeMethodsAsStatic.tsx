@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
 import { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
-import type { PgMethod } from "../utils/pg";
+import type { Methods } from "../utils/pg";
 
 export const useExposeMethodsAsStatic = <T,>(
   classObject: { [key: string]: any } | null,
@@ -20,6 +20,6 @@ export const useExposeMethodsAsStatic = <T,>(
   );
 
   useSendAndReceiveCustomEvent<
-    PgMethod<T> extends { [key: string]: any } ? PgMethod<T> : never
+    Methods<T> extends { [key: string]: any } ? Methods<T> : never
   >(eventName, cb);
 };

@@ -1,8 +1,8 @@
-export type PgMethod<T> = {
+export type Methods<T> = {
   [U in keyof T]?: T[U] extends (...args: any[]) => any ? Parameters<T[U]> : [];
 };
 
-export type PgReturnType<T, U> = U extends keyof T
+export type ClassReturnType<T, U> = U extends keyof T
   ? T[U] extends (...args: any[]) => any
     ? Awaited<ReturnType<T[U]>>
     : T[U]
@@ -31,7 +31,7 @@ type UnionReturnType<U> = (
   ? R
   : never;
 
-export type PgDisposable = {
+export type Disposable = {
   /** Clear registered events */
   dispose: () => void;
 };
@@ -41,7 +41,7 @@ export type SetElementAsync =
   | ((El: JSX.Element) => JSX.Element)
   | (() => Promise<JSX.Element>);
 
-export type PgSet<T> = T | ((cur: T) => T);
+export type SetState<T> = T | ((cur: T) => T);
 
 /** Make properties required for depth 1 and 2 */
 export type NestedRequired<T> = {

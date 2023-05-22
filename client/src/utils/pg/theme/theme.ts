@@ -5,23 +5,23 @@ import { PgCommon } from "../common";
 import {
   DefaultComponent,
   ImportableTheme,
-  PgFont,
-  PgThemeInternal,
-  PgThemeReady,
+  Font,
+  ThemeInternal,
+  ThemeReady,
 } from "./interface";
 
 export class PgThemeManager {
   /** Current theme */
-  private static _theme: PgThemeInternal;
+  private static _theme: ThemeInternal;
 
   /** Current font */
-  private static _font: PgFont;
+  private static _font: Font;
 
   /** All themes */
   private static _themes: ImportableTheme[];
 
   /** All fonts */
-  private static _fonts: PgFont[];
+  private static _fonts: Font[];
 
   /** Theme key in localStorage */
   private static readonly _THEME_KEY = "theme";
@@ -35,7 +35,7 @@ export class PgThemeManager {
    * @param themes all importable themes
    * @param fonts all fonts
    */
-  static async create(themes: ImportableTheme[], fonts: PgFont[]) {
+  static async create(themes: ImportableTheme[], fonts: Font[]) {
     this._themes = themes;
     this._fonts = fonts;
     await this.set();
@@ -53,8 +53,8 @@ export class PgThemeManager {
    */
   static async set(
     params: Partial<{
-      themeName: PgThemeInternal["name"];
-      fontFamily: PgFont["family"];
+      themeName: ThemeInternal["name"];
+      fontFamily: Font["family"];
     }> = {}
   ) {
     params.themeName ??=
@@ -198,13 +198,13 @@ export class PgThemeManager {
 
   /** Get the theme with default types set */
   private static get _themeReady() {
-    return this._theme as PgThemeReady;
+    return this._theme as ThemeReady;
   }
 
   /** Get and initialize component and return it with the correct type */
   private static _getComponent<
-    T extends keyof NonNullable<PgThemeInternal["components"]>
-  >(component: T): NonNullable<NonNullable<PgThemeInternal["components"]>[T]> {
+    T extends keyof NonNullable<ThemeInternal["components"]>
+  >(component: T): NonNullable<NonNullable<ThemeInternal["components"]>[T]> {
     const components = this._theme.components!;
     components[component] ??= {};
 

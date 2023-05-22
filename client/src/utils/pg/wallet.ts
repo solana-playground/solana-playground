@@ -4,7 +4,7 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { PgSet } from "./types";
+import type { SetState } from "./types";
 
 /** `localStorage` data for the playground wallet */
 interface LsWallet {
@@ -145,7 +145,7 @@ export class PgWallet {
    *
    * @param balance setBalance type function
    */
-  static setUIBalance(balance: PgSet<number | null>) {
+  static setUIBalance(balance: SetState<number | null>) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.WALLET_UI_BALANCE_SET,
       balance

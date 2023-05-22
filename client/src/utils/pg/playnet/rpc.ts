@@ -12,7 +12,7 @@ import { Endpoint, EventName } from "../../../constants";
 import { PgSerde } from "./serde";
 import { PgCommon } from "../common";
 import { RpcRequest, RpcResponse, RpcResponseWithContext } from "./types";
-import { PgSet } from "../types";
+import { SetState } from "../types";
 
 export class PgPlaynetRpc {
   /**
@@ -406,7 +406,7 @@ export class PgPlaynetRpc {
    * @param newFetch new `fetch` function to set
    */
   private static _setCustomFetch(
-    newFetch: PgSet<{ fetch: typeof window["fetch"] }>
+    newFetch: SetState<{ fetch: typeof window["fetch"] }>
   ) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.PLAYNET_FETCH_SET,

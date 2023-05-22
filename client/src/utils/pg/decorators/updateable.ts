@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import type { PgDisposable, SyncOrAsync } from "../types";
+import type { Disposable, SyncOrAsync } from "../types";
 
 /** State getter property */
 const STATE_PROPERTY = "state";
@@ -16,7 +16,7 @@ type State<T> = Readonly<{
 /** `init` property */
 type Initialize = {
   /** Initializer that returns a disposable */
-  init(): SyncOrAsync<PgDisposable>;
+  init(): SyncOrAsync<Disposable>;
 };
 
 /** Updateable decorator */
@@ -31,11 +31,11 @@ type OnDidChangeEventName<T> = {
    * @param cb callback function to run after the change
    * @returns a dispose function to clear the event
    */
-  onDidChange(cb: (value: T) => void): PgDisposable;
+  onDidChange(cb: (value: T) => void): Disposable;
 } & {
   [K in keyof T as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: T[K]) => void
-  ) => PgDisposable;
+  ) => Disposable;
 };
 
 /** Custom storage implementation */

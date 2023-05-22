@@ -23,7 +23,7 @@ import {
 } from "../../state";
 import {
   PgCommon,
-  PgDisposable,
+  Disposable,
   PgExplorer,
   PgPreferences,
   PgProgramInfo,
@@ -124,7 +124,7 @@ const useWalletStatic = () => {
 const useProgramInfoStatic = () => {
   useAsyncEffect(async () => {
     const explorer = await PgExplorer.get();
-    let disposeProgramInfo: PgDisposable;
+    let disposeProgramInfo: Disposable;
     const { dispose } = explorer.onDidChangeWorkspace(async () => {
       disposeProgramInfo?.dispose();
       disposeProgramInfo = await PgProgramInfo.init();

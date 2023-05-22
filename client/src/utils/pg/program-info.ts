@@ -9,7 +9,7 @@ import { declareUpdateable, updateable } from "./decorators";
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgExplorer } from "./explorer";
-import type { Nullable, PgDisposable } from "./types";
+import type { Nullable, Disposable } from "./types";
 
 /** Program info state */
 interface ProgramInfo
@@ -119,7 +119,7 @@ class _PgProgramInfo {
    * @param cb callback function to run after program pubkey change
    * @returns a dispose function to clear the event
    */
-  static onDidChangePk(cb: (pk: PublicKey | null) => any): PgDisposable {
+  static onDidChangePk(cb: (pk: PublicKey | null) => any): Disposable {
     return PgCommon.batchChanges(
       () => cb(PgProgramInfo.getPk()),
       [PgProgramInfo.onDidChangeKp, PgProgramInfo.onDidChangeCustomPk]
