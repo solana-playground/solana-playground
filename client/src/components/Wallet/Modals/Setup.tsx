@@ -7,14 +7,14 @@ import UploadButton from "../../UploadButton";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgCommon, PgTerminal, PgWallet } from "../../../utils/pg";
+import { PgCommand, PgCommon, PgWallet } from "../../../utils/pg";
 
 const Setup = () => {
   const [text, setText] = useState("");
 
   const handleSetup = async () => {
     PgWallet.update({ setupCompleted: true });
-    await PgTerminal.COMMANDS.connect();
+    await PgCommand.connect.run();
   };
 
   const handleImport = async (e: ChangeEvent<HTMLInputElement>) => {

@@ -1,10 +1,10 @@
-import { createCmd } from "./_command";
-import { PgTerminal } from "../terminal";
+import { createCmd } from "../create-command";
+import { PgTerminal } from "../../terminal";
 
 export const clear = createCmd({
   name: "clear",
   description: "Clear terminal",
-  process: async () => {
+  run: async () => {
     await PgTerminal.run({ clear: [{ full: true }] });
   },
 });

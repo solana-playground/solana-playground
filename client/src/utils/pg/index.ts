@@ -1,5 +1,6 @@
 export * from "./build";
 export * from "./common";
+export * from "./command";
 export * from "./connection";
 export * from "./deploy";
 export * from "./editor";

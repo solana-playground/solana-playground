@@ -3,7 +3,7 @@ import { Idl } from "@project-serum/anchor";
 import { PgCommon } from "./common";
 import { Files, PgExplorer } from "./explorer";
 import { PgProgramInfo } from "./program-info";
-import { PgPackage } from "./terminal";
+import { PgPackage } from "./command";
 import { EventName, SERVER_URL } from "../../constants";
 
 interface BuildResp {

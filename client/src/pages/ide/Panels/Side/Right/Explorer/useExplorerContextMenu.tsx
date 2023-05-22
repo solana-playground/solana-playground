@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../../../constants";
 import { ctxSelectedAtom, newItemAtom } from "../../../../../../state";
-import { PgExplorer, PgTerminal, PgView } from "../../../../../../utils/pg";
+import { PgCommand, PgExplorer, PgView } from "../../../../../../utils/pg";
 
 export type ItemData = {
   [K in
@@ -106,23 +106,23 @@ const useExplorerContextMenu = () => {
   }, [getPath]);
 
   const runClient = useCallback(async () => {
-    PgTerminal.COMMANDS.run(getPath());
+    await PgCommand.run.run(getPath());
   }, [getPath]);
 
   const runTest = useCallback(async () => {
-    await PgTerminal.COMMANDS.test(getPath());
+    await PgCommand.test.run(getPath());
   }, [getPath]);
 
   const runClientFolder = useCallback(async () => {
-    await PgTerminal.COMMANDS.run();
+    await PgCommand.run.run();
   }, []);
 
   const runTestFolder = useCallback(async () => {
-    await PgTerminal.COMMANDS.test();
+    await PgCommand.test.run();
   }, []);
 
   const runBuild = useCallback(async () => {
-    await PgTerminal.COMMANDS.build();
+    await PgCommand.build.run();
   }, []);
 
   return {

@@ -13,6 +13,7 @@ import Foldable from "../../../../../../components/Foldable";
 import { IxContext, updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName, Emoji } from "../../../../../../constants";
 import {
+  PgCommand,
   PgCommon,
   PgPreferences,
   PgTerminal,
@@ -186,7 +187,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         await PgCommon.sleep(1500);
       }
 
-      await PgTerminal.COMMANDS.solana(`confirm ${showLogTxHash} -v`);
+      await PgCommand.solana.run(`confirm ${showLogTxHash} -v`);
     }
   }, [txVals, idl, ix.name, conn, wallet]);
 

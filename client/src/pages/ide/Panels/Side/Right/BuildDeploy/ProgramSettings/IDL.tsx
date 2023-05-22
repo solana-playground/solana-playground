@@ -5,9 +5,9 @@ import Button from "../../../../../../../components/Button";
 import DownloadButton from "../../../../../../../components/DownloadButton";
 import UploadButton from "../../../../../../../components/UploadButton";
 import {
+  PgCommand,
   PgCommon,
   PgProgramInfo,
-  PgTerminal,
   PgWallet,
 } from "../../../../../../../utils/pg";
 import { useRenderOnChange } from "../../../../../../../hooks";
@@ -144,12 +144,12 @@ const InitOrUpgrade = () => {
     switch (state) {
       case InitOrUpgradeState.CAN_INIT: {
         setState(InitOrUpgradeState.IS_INITIALIZING);
-        await PgTerminal.COMMANDS.anchor("idl init");
+        await PgCommand.anchor.run("idl init");
         break;
       }
       case InitOrUpgradeState.CAN_UPGRADE: {
         setState(InitOrUpgradeState.IS_UPGRADING);
-        await PgTerminal.COMMANDS.anchor("idl upgrade");
+        await PgCommand.anchor.run("idl upgrade");
         break;
       }
     }

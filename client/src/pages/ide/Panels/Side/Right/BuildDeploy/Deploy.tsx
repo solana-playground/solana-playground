@@ -7,7 +7,7 @@ import Button, { ButtonProps } from "../../../../../../components/Button";
 import { Skeleton } from "../../../../../../components/Loading";
 import { ConnectionErrorText } from "../Common";
 import { programAtom, terminalStateAtom } from "../../../../../../state";
-import { Fn, PgProgramInfo, PgTerminal } from "../../../../../../utils/pg";
+import { Fn, PgCommand, PgProgramInfo } from "../../../../../../utils/pg";
 import { useDeploy } from "../../../Main/Terminal/commands/useDeploy";
 import { useInitialLoading } from "..";
 import { useConnect, useCurrentWallet } from "../../../../../../hooks";
@@ -37,7 +37,7 @@ const Deploy = () => {
   const deployButtonProps: ButtonProps = useMemo(
     () => ({
       kind: "primary",
-      onClick: PgTerminal.COMMANDS.deploy as Fn,
+      onClick: PgCommand.deploy.run as Fn,
       disabled: terminalState.deployLoading || terminalState.buildLoading,
       btnLoading: terminalState.deployLoading,
     }),
@@ -204,7 +204,7 @@ const ConnectPgWalletButton = () => {
   const { pgButtonStatus } = useConnect();
 
   return (
-    <Button onClick={PgTerminal.COMMANDS.connect as Fn} kind="primary">
+    <Button onClick={PgCommand.connect.run as Fn} kind="primary">
       {pgButtonStatus}
     </Button>
   );

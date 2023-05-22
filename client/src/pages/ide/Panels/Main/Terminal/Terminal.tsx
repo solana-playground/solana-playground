@@ -14,6 +14,7 @@ import {
 } from "../../../../../components/Icons";
 import { terminalProgressAtom } from "../../../../../state";
 import {
+  PgCommandExecutor,
   PgCommon,
   PgEditor,
   PgTerm,
@@ -35,7 +36,7 @@ const Terminal = () => {
   const term = useMemo(() => {
     const xterm = theme.components.terminal.xterm;
 
-    return new PgTerm({
+    return new PgTerm(PgCommandExecutor.execute, {
       convertEol: true,
       rendererType: "dom",
       fontSize: 14,

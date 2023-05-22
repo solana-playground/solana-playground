@@ -8,8 +8,8 @@ import useModal from "../../../../../../components/Modal/useModal";
 import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
 import { connectionConfigAtom } from "../../../../../../state";
 import {
+  PgCommand,
   PgConnection,
-  PgTerminal,
   PgValidator,
   PgView,
 } from "../../../../../../utils/pg";
@@ -66,7 +66,7 @@ const CustomEndpoint = () => {
   }, []);
 
   const onSubmit = () => {
-    PgTerminal.COMMANDS.solana(`config set -u ${customEndpoint}`);
+    PgCommand.solana.run(`config set -u ${customEndpoint}`);
     close();
   };
 

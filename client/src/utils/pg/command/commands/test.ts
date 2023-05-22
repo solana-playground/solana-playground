@@ -1,10 +1,10 @@
-import { createCmd } from "./_command";
+import { createCmd } from "../create-command";
 import { PgClientImporter } from "../../client";
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
-  process: async (input) => {
+  run: async (input) => {
     const match = new RegExp(/^\w+\s?(.*)/).exec(input);
     if (!match) return;
 

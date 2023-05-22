@@ -1,14 +1,14 @@
-import { createCmd } from "./_command";
+import { createCmd } from "../create-command";
 import { PgCommon } from "../../common";
 import { Lang } from "../../explorer";
 import { EventName } from "../../../../constants";
 
-export const prettier = createCmd({
-  name: "prettier",
-  description: "Format the current file with prettier",
-  process: async () => {
+export const rustfmt = createCmd({
+  name: "rustfmt",
+  description: "Format the current file with rustfmt",
+  run: async () => {
     await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT, {
-      lang: Lang.TYPESCRIPT,
+      lang: Lang.RUST,
       fromTerminal: true,
     });
   },
