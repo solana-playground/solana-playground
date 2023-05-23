@@ -203,28 +203,31 @@ export class PgCommon {
       case "number":
       case "string":
       case "undefined":
-        if (value1 !== value2) return false;
-        break;
+        return value1 === value2;
 
       // String comparison
       case "bigint":
       case "function":
       case "symbol":
-        if (value1.toString() !== value2.toString()) return false;
-        break;
+        return value1.toString() === value2.toString();
 
       // Object keys comparison
       case "object":
+        // `typeof null === "object"` -> true
+        if (value1 === value2) return true;
+
+        // Compare key lengths
         if (Object.keys(value1).length !== Object.keys(value2).length) {
           return false;
         }
 
+        // Compare key values
         for (const key in value1) {
           if (!PgCommon.isEqual(value1[key], value2[key])) return false;
         }
-    }
 
-    return true;
+        return true;
+    }
   }
 
   /**
