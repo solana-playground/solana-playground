@@ -22,11 +22,11 @@ extern "C" {
     pub type PgProgramInfo;
 
     /// Get the current program's IDL.
-    #[wasm_bindgen(static_method_of = PgProgramInfo, getter, js_name = "idlStr")]
+    #[wasm_bindgen(static_method_of = PgProgramInfo, js_name = "getIdlStr")]
     pub fn idl_string() -> Option<String>;
 
-    /// Get the current program's pubkey
-    #[wasm_bindgen(static_method_of = PgProgramInfo, getter, js_name = "pkStr")]
+    /// Get the current program's pubkey.
+    #[wasm_bindgen(static_method_of = PgProgramInfo, js_name = "getPkStr")]
     pub fn pk_string() -> Option<String>;
 }
 
@@ -49,7 +49,7 @@ extern "C" {
 extern "C" {
     pub type PgWallet;
 
-    /// Get playground wallet's keypair
+    /// Get playground wallet's keypair.
     #[wasm_bindgen(static_method_of = PgWallet, getter, js_name = "keypairBytes")]
     pub fn keypair_bytes() -> Vec<u8>;
 }

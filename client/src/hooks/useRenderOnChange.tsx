@@ -1,9 +1,9 @@
 import { useEffect, useReducer, useState } from "react";
 
-import type { PgDisposable } from "../utils/pg";
+import type { Disposable } from "../utils/pg";
 
 export const useRenderOnChange = <T,>(
-  onChange: (cb: (v: T) => any) => PgDisposable
+  onChange: (cb: (v?: T) => any) => Disposable
 ) => {
   const [value, setValue] = useState<T>();
   const [, render] = useReducer((r) => r + 1, 0);

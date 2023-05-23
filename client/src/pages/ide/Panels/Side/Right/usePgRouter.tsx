@@ -96,7 +96,7 @@ export const usePgRouter = () => {
       } else {
         PgRouter.navigate(Route.DEFAULT);
       }
-    });
+    }, false);
 
     const deleteWorkspace = explorer.onDidDeleteWorkspace(() => {
       // Set view to the default editor if there are no workspaces

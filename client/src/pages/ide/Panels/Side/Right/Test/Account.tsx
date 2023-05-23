@@ -227,21 +227,12 @@ interface ShowSeedProps {
 }
 
 const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
-  const programStr = useMemo(() => {
-    const result = PgProgramInfo.getPk();
-    if (result.err) return "";
-    return result.programPk!.toBase58();
-  }, []);
-
   const [seeds, setSeeds] = useState<Seed[]>([{ value: "", type: "string" }]);
-  const [programId, setProgramId] = useState(programStr);
+  const [programId, setProgramId] = useState(PgProgramInfo.getPkStr() ?? "");
 
-  const handleProgramId = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setProgramId(e.target.value);
-    },
-    [setProgramId]
-  );
+  const handleProgramId = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setProgramId(e.target.value);
+  }, []);
 
   const handleGen = useCallback(async () => {
     try {

@@ -97,15 +97,15 @@ impl WasmWebSocket {
     {
         self.wait_until_ready().await;
 
+        // Get the subscription id
         let id: Arc<Mutex<Option<SubscriptionId>>> = Arc::new(Mutex::new(None));
         let id_ref = id.clone();
         let subscription_id_listener = Closure::wrap(Box::new(move |event: MessageEvent| {
-            if let Some(Ok(response)) = event.data().as_string().map(|data| {
-                // SAFETY: No segfault so far -_-
-                // See https://github.com/serde-rs/serde/issues/964
-                let data = unsafe { std::mem::transmute::<&str, &'a str>(&data) };
-                serde_json::from_str::<ClientResponse>(data)
-            }) {
+            if let Some(Ok(response)) = event
+                .data()
+                .as_string()
+                .map(|data| serde_json::from_str::<ClientResponse>(&data))
+            {
                 let id_ref = id_ref.clone();
                 spawn_local(async move {
                     let subscription_id: SubscriptionId =
@@ -124,6 +124,7 @@ impl WasmWebSocket {
 
         self.send(method, params);
 
+        // Main event listener
         let listener = Closure::wrap(Box::new(move |event: MessageEvent| {
             if let Some(Ok(notification)) = event.data().as_string().map(|data| {
                 // SAFETY: No segfault so far -_-

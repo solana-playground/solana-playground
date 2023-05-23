@@ -1,18 +1,18 @@
 import { Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
-import { GITHUB_URL, SERVER_URL } from "../../constants";
+import { EventName, GITHUB_URL, SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgProgramInfo } from "./program-info";
 import { PgTerminal } from "./terminal/";
-import { PgTx } from "./tx";
+import { PgTx } from "./tx/tx";
 import { PgWallet } from "./wallet";
 
 export class PgDeploy {
   static async deploy(programBuffer: Buffer) {
     // Get program id
-    const programPk = PgProgramInfo.getPk()?.programPk;
+    const programPk = PgProgramInfo.getPk();
 
     // This shouldn't happen because the deploy button is disabled for this condition
     if (!programPk) throw new Error("Program id not found.");
@@ -21,7 +21,7 @@ export class PgDeploy {
 
     // Regular deploy without custom elf upload
     if (!programBuffer.length) {
-      const uuid = PgProgramInfo.getProgramInfo().uuid;
+      const uuid = PgProgramInfo.state.uuid;
       const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
 
       const arrayBuffer = await PgCommon.checkForRespErr(resp);
@@ -157,8 +157,8 @@ export class PgDeploy {
       try {
         if (!programExists) {
           // First deploy needs keypair
-          const programKpResult = PgProgramInfo.getKp();
-          if (programKpResult.err) {
+          const programKp = PgProgramInfo.state.kp;
+          if (!programKp) {
             errorMsg =
               "Initial deployment needs a keypair. You only provided public key.";
 
@@ -166,8 +166,7 @@ export class PgDeploy {
           }
 
           // Check whether customPk and programPk matches
-          const programKp = programKpResult.programKp!;
-          if (!programKp.publicKey.equals(PgProgramInfo.getPk().programPk!)) {
+          if (!programKp.publicKey.equals(PgProgramInfo.getPk()!)) {
             errorMsg = [
               "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.",
               "You can fix this in 3 different ways:",
@@ -269,6 +268,18 @@ export class PgDeploy {
     }
 
     return txHash;
+  }
+
+  /**
+   * @param cb callback function to run after program deployment
+   * @returns a dispose function to clear the event
+   */
+  static onDidDeploy(cb: () => void) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.DEPLOY_ON_DID_DEPLOY,
+      initialRun: { value: null },
+    });
   }
 
   /** Maximum amount of transaction retries */

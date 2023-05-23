@@ -1,31 +1,22 @@
-import { useCallback, useEffect } from "react";
-import { useAtom } from "jotai";
+import { useCallback } from "react";
 import styled, { css } from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
-import { ExplorerLink } from "./ExplorerLink";
-import { txHashAtom } from "../../state";
-import { PgPlaynet } from "../../utils/pg";
+import { EventName } from "../../constants";
 import { PgThemeManager } from "../../utils/pg/theme";
+import { useSetStatic } from "../../hooks";
 
 const Toast = () => {
-  const [txHash] = useAtom(txHashAtom);
+  const setToast = useCallback(({ Component, props }) => {
+    if (typeof Component === "function") {
+      Component = <Component {...props?.componentProps} />;
+    }
 
-  const notify = useCallback(() => {
-    if (!txHash) return;
+    toast(Component, props?.options);
+  }, []);
 
-    // Don't show on Playnet
-    if (PgPlaynet.isUrlPlaynet()) return;
-
-    toast(<ExplorerLink />, { toastId: txHash });
-  }, [txHash]);
-
-  useEffect(() => {
-    notify();
-  }, [notify]);
-
-  if (!txHash) return null;
+  useSetStatic(setToast, EventName.TOAST_SET);
 
   return (
     <StyledContainer

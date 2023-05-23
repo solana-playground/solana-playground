@@ -5,7 +5,6 @@ import { format } from "util";
 
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
-import { CommandName, Commands, PgCommand } from "./command";
 import {
   Emoji,
   EventName,
@@ -17,21 +16,14 @@ import {
   RPC_ERROR,
   SERVER_ERROR,
 } from "../../../constants";
-import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { PgValidator } from "../validator";
-import type { PrintOptions } from "./types";
-import type { PgMethod, PgReturnType } from "../types";
+import type { ExecuteCommand, PrintOptions } from "./types";
+import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
+import type { TerminalAction } from "../../../state";
 
 export class PgTerminal {
-  /** All commands */
-  static COMMANDS: {
-    [K in CommandName]: (
-      args?: string
-    ) => Promise<Awaited<ReturnType<Commands[K]["process"]>>>;
-  };
-
   /** Default height of the terminal */
   static get DEFAULT_HEIGHT() {
     return Math.floor(window.innerHeight / 4);
@@ -120,9 +112,7 @@ export class PgTerminal {
     return `\x1b[4m${text}\x1b[0m`;
   }
 
-  /**
-   * Hightlight the text before printing to terminal
-   */
+  /** Hightlight the text before printing to terminal. */
   static colorText(text: string) {
     text = text
       // Match for error
@@ -193,7 +183,7 @@ export class PgTerminal {
     stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
 
     // Remove uuid from folders
-    const uuid = PgProgramInfo.getProgramInfo().uuid;
+    const uuid = PgProgramInfo.state.uuid;
     if (uuid) stderr = stderr.replaceAll(uuid, "");
 
     // Remove rustc error line
@@ -293,43 +283,33 @@ export class PgTerminal {
     return msg;
   }
 
-  /**
-   * Gets whether the terminal is focused or in blur
-   */
+  /** Get whether the terminal is focused or in blur. */
   static isFocused() {
     return document
       .getElementsByClassName("terminal xterm xterm-dom-renderer-owner-1")[0]
       ?.classList.contains("focus");
   }
 
-  /**
-   * Set terminal state from anywhere
-   */
+  /** Set terminal state from anywhere. */
   static setTerminalState(action: TerminalAction | TerminalAction[]) {
     PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_STATE, {
       action,
     });
   }
 
-  /**
-   * Dispatch enable terminal custom event
-   */
-  static enable() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_ENABLE);
+  /** Dispatch enable terminal custom event. */
+  static async enable() {
+    await PgTerminal.run({ enable: [] });
   }
 
-  /**
-   * Dispatch disable terminal custom event
-   */
-  static disable() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_DISABLE);
+  /** Dispatch disable terminal custom event. */
+  static async disable() {
+    await PgTerminal.run({ disable: [] });
   }
 
-  /**
-   * Log terminal messages from anywhere
-   */
+  /** Log terminal messages from anywhere. */
   static async log(msg: any, opts?: PrintOptions) {
-    await this.run({ println: [msg, opts] });
+    await PgTerminal.run({ println: [msg, opts] });
   }
 
   // TODO: Remove
@@ -342,11 +322,20 @@ export class PgTerminal {
     this.log(msg);
   }
 
-  /**
-   * Dispatch scroll to bottom custom event
-   */
-  static scrollToBottom() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_SCROLL_TO_BOTTOM);
+  /** Dispatch scroll to bottom custom event. */
+  static async scrollToBottom() {
+    await PgTerminal.run({ scrollToBottom: [] });
+  }
+
+  /** Dispatch run last command custom event. */
+  static async runLastCmd() {
+    await PgTerminal.run({ runLastCmd: [] });
+  }
+
+  /** Execute the given command from string. */
+  static async executeFromStr(cmd: string) {
+    const term = await PgTerminal.get();
+    return await term.executeFromStr(cmd);
   }
 
   /**
@@ -355,7 +344,7 @@ export class PgTerminal {
    * This function should be used as a wrapper function when calling any
    * terminal command.
    */
-  static async process<T>(cb: () => T | Promise<T>) {
+  static async process<T>(cb: () => SyncOrAsync<T>) {
     this.disable();
     this.scrollToBottom();
     try {
@@ -365,13 +354,6 @@ export class PgTerminal {
     } finally {
       this.enable();
     }
-  }
-
-  /**
-   * Dispatch run last command custom event
-   */
-  static runLastCmd() {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_RUN_LAST_CMD);
   }
 
   /**
@@ -392,8 +374,8 @@ export class PgTerminal {
    * @returns the result from the method call
    */
   static async run<
-    R extends PgReturnType<PgTerm, keyof M>,
-    M extends PgMethod<PgTerm>
+    R extends ClassReturnType<PgTerm, keyof M>,
+    M extends Methods<PgTerm>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
@@ -455,9 +437,8 @@ export class PgTerm {
   private _pgTty: PgTty;
   private _pgShell: PgShell;
   private _isOpen: boolean;
-  private _fitTimeoutId?: NodeJS.Timeout;
 
-  constructor(xtermOptions?: ITerminalOptions) {
+  constructor(execute: ExecuteCommand, xtermOptions?: ITerminalOptions) {
     // Create xterm element
     this._xterm = new XTerm(xtermOptions);
 
@@ -472,7 +453,7 @@ export class PgTerm {
 
     // Create  Shell and TTY
     this._pgTty = new PgTty(this._xterm);
-    this._pgShell = new PgShell(this._pgTty);
+    this._pgShell = new PgShell(this._pgTty, execute);
 
     // XTerm events
     this._xterm.onResize(this._handleTermResize);
@@ -486,20 +467,6 @@ export class PgTerm {
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
-
-    // Command handler
-    PgTerminal.COMMANDS = new Proxy(
-      {},
-      {
-        get: (_target: any, name: CommandName) => {
-          return (args: string = "") => {
-            return this._executeFromStr(
-              `${PgCommand.COMMANDS[name].name} ${args}`
-            );
-          };
-        },
-      }
-    );
   }
 
   /** Open terminal */
@@ -510,37 +477,19 @@ export class PgTerm {
     this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
     this._isOpen = true;
 
+    // Fit terminal
+    this.fit();
+
     // Print welcome text
     this.println(PgTerminal.DEFAULT_TEXT);
 
-    // Enable prompt
+    // Prompt
     this.enable();
   }
 
   /** Fit terminal */
   fit() {
     this._fitAddon.fit();
-
-    // Timeout fixes prompt message not showing in some rare cases
-    if (this._fitTimeoutId) clearTimeout(this._fitTimeoutId);
-
-    this._fitTimeoutId = setTimeout(() => {
-      if (
-        this._pgShell.isPrompting() &&
-        !this._pgTty.getInputStartsWithPrompt()
-      ) {
-        const input = this._pgTty.getInput();
-        if (input) {
-          this._pgTty.clearInput();
-          this._pgShell.prompt();
-          this._pgTty.setInput(input);
-        } else {
-          // Clear the input in case of a prompt bug where there is a text before the prompt
-          this._pgTty.clearLine();
-          this._pgShell.prompt();
-        }
-      }
-    }, 100); // time needs to be lower than specified fit interval in Terminal component
   }
 
   /** Focus terminal and scroll to cursor */
@@ -555,7 +504,7 @@ export class PgTerm {
       return;
     }
 
-    // We don't need cursorX, since we want to start at the beginning of the terminal.
+    // We don't need `cursorX`, since we want to start at the beginning of the terminal
     const cursorY = this._pgTty.getBuffer().cursorY;
     const size = this._pgTty.getSize();
 
@@ -578,7 +527,7 @@ export class PgTerm {
     window.scrollTo(scrollX, scrollY);
   }
 
-  /** Print a message to terminal */
+  /** Print a message */
   print(msg: any, opts?: PrintOptions) {
     if (typeof msg === "string") {
       // For some reason, double new lines are not respected. Thus, fixing that here
@@ -593,7 +542,6 @@ export class PgTerm {
       // Cancel the current prompt and restart
       this._pgShell.printAndRestartPrompt(() => {
         this._pgTty.print(msg + "\n", opts);
-        return undefined;
       });
       return;
     }
@@ -658,13 +606,13 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.COMMANDS.runLastCmd.name) {
+    if (!lastCmd || lastCmd === "!!") {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
 
-    this._executeFromStr(lastCmd);
+    this.executeFromStr(lastCmd);
   }
 
   /**
@@ -810,7 +758,7 @@ export class PgTerm {
    * @param cmd command to run
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
-  private async _executeFromStr(cmd: string, clearCmd: boolean = true) {
+  async executeFromStr(cmd: string, clearCmd: boolean = true) {
     this._pgTty.setInput(cmd);
     return await this._pgShell.handleReadComplete(clearCmd);
   }

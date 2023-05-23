@@ -4,16 +4,17 @@ import { useAtom } from "jotai";
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../../../constants";
 import { ctxSelectedAtom, newItemAtom } from "../../../../../../state";
-import { PgExplorer, PgTerminal, PgView } from "../../../../../../utils/pg";
+import { PgCommand, PgExplorer, PgView } from "../../../../../../utils/pg";
 
-export interface ItemData {
-  isFolder?: boolean;
-  isClient?: boolean;
-  isClientFolder?: boolean;
-  isTest?: boolean;
-  isTestFolder?: boolean;
-  isProgramFolder?: boolean;
-}
+export type ItemData = {
+  [K in
+    | "isFolder"
+    | "isClient"
+    | "isClientFolder"
+    | "isTest"
+    | "isTestFolder"
+    | "isProgramFolder"]?: boolean;
+};
 
 const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);
@@ -94,34 +95,34 @@ const useExplorerContextMenu = () => {
 
   const renameItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {
-      await PgView.setModal(() => <RenameItem path={getPath()} />);
+      await PgView.setModal(<RenameItem path={getPath()} />);
     }
   }, [getPath]);
 
   const deleteItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {
-      await PgView.setModal(() => <DeleteItem path={getPath()} />);
+      await PgView.setModal(<DeleteItem path={getPath()} />);
     }
   }, [getPath]);
 
   const runClient = useCallback(async () => {
-    PgTerminal.COMMANDS.run(getPath());
+    await PgCommand.run.run(getPath());
   }, [getPath]);
 
   const runTest = useCallback(async () => {
-    await PgTerminal.COMMANDS.test(getPath());
+    await PgCommand.test.run(getPath());
   }, [getPath]);
 
   const runClientFolder = useCallback(async () => {
-    await PgTerminal.COMMANDS.run();
+    await PgCommand.run.run();
   }, []);
 
   const runTestFolder = useCallback(async () => {
-    await PgTerminal.COMMANDS.test();
+    await PgCommand.test.run();
   }, []);
 
   const runBuild = useCallback(async () => {
-    await PgTerminal.COMMANDS.build();
+    await PgCommand.build.run();
   }, []);
 
   return {

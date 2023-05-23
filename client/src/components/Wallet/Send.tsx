@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
-import { uiBalanceAtom, txHashAtom } from "../../state";
+import { uiBalanceAtom } from "../../state";
 import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
 import { useCurrentWallet, usePgConnection } from "../../hooks";
@@ -32,7 +32,6 @@ const Title = styled.div`
 `;
 
 const SendExpanded = () => {
-  const [, setTxHash] = useAtom(txHashAtom);
   const [balance] = useAtom(uiBalanceAtom);
 
   const [address, setRecipient] = useState("");
@@ -76,8 +75,7 @@ const SendExpanded = () => {
       setLoading(true);
       PgTerminal.log(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
 
-      let msg = "";
-
+      let msg;
       try {
         const pk = new PublicKey(address);
 
@@ -90,7 +88,8 @@ const SendExpanded = () => {
         const tx = new Transaction().add(ix);
 
         const txHash = await PgCommon.transition(PgTx.send(tx, conn, wallet));
-        setTxHash(txHash);
+        PgTx.notify(txHash);
+
         msg = PgTerminal.success("Success.");
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);

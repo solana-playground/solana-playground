@@ -1,9 +1,9 @@
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
-import { PgHighlight } from "../../../../../../../../../utils/pg/theme";
+import type { Highlight } from "../../../../../../../../../utils/pg/theme";
 
-export const getThemeExtension = (h: PgHighlight) => {
+export const getThemeExtension = (h: Highlight) => {
   return syntaxHighlighting(
     HighlightStyle.define([
       {

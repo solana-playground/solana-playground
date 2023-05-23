@@ -2,6 +2,7 @@ export { useAirdropAmount } from "./useAirdropAmount";
 export { useAsyncEffect } from "./useAsyncEffect";
 export { useConnect } from "./useConnect";
 export { useCurrentWallet } from "./useCurrentWallet";
+export { useDisposable } from "./useDisposable";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
 export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";

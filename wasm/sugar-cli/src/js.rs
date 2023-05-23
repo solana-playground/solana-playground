@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 
 type BundlrAction = u8;
 
-#[wasm_bindgen(raw_module = "/src/utils/pg/extensions/sugar/sugar.ts")]
+#[wasm_bindgen(raw_module = "/src/utils/pg/command/commands/sugar/processor.ts")]
 extern "C" {
     pub type PgSugar;
 

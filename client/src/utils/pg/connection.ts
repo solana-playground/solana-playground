@@ -3,7 +3,7 @@ import { Commitment, Connection, ConnectionConfig } from "@solana/web3.js";
 import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
 import { OverrideableConnection } from "./playnet/types";
-import { PgSet } from "./types";
+import { SetState } from "./types";
 
 export interface PgConnectionConfig {
   endpoint: Endpoint;
@@ -132,7 +132,7 @@ export class PgConnection {
    *
    * @param set setConnection
    */
-  static async set(set?: PgSet<Connection>) {
+  static async set(set?: SetState<Connection>) {
     PgCommon.createAndDispatchCustomEvent(
       PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).set,
       set

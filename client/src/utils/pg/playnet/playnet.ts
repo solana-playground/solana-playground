@@ -4,14 +4,14 @@ import {
   Connection,
 } from "@solana/web3.js";
 
-import { Endpoint } from "../../../constants";
+import { PgPlaynetRpc } from "./rpc";
+import { PgPlaynetUtils } from "./utils";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgExplorer } from "../explorer";
-import { PgPackage } from "../terminal";
-import { PgPlaynetRpc } from "./rpc";
-import { PgPlaynetUtils } from "./utils";
-import { OverrideableConnection } from "./types";
+import { PgPackage } from "../command";
+import { Endpoint } from "../../../constants";
+import type { OverrideableConnection } from "./types";
 
 export class PgPlaynet {
   /**
@@ -85,7 +85,7 @@ export class PgPlaynet {
             playnet.rpc.getAccountInfo(address)
           );
 
-          if (!PgCommon.compareValues(currentAccountInfo, newAccountInfo)) {
+          if (!PgCommon.isEqual(currentAccountInfo, newAccountInfo)) {
             cb(newAccountInfo, {
               slot: PgCommon.bigintToInt(playnet.rpc.getSlot()),
             });
