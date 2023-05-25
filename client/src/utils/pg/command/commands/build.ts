@@ -65,7 +65,7 @@ async function buildRust(rustFiles: Files) {
     },
     body: JSON.stringify({
       files: rustFiles,
-      uuid: PgProgramInfo.state.uuid,
+      uuid: PgProgramInfo.uuid,
     }),
   });
 

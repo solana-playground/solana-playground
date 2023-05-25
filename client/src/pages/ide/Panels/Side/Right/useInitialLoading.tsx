@@ -14,7 +14,7 @@ export const useInitialLoading = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useAsyncEffect(async () => {
-    const isBuilt = PgProgramInfo.state.uuid;
+    const isBuilt = PgProgramInfo.uuid;
     if (!isBuilt || deployed || deployed === false || connError) {
       setInitialLoading(true);
       // Add delay for smooth transition

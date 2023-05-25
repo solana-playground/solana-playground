@@ -228,7 +228,7 @@ export class PgClient {
         pg.wallet = PgWallet;
 
         // Anchor IDL
-        const idl = PgProgramInfo.state.idl;
+        const idl = PgProgramInfo.idl;
         if (idl) {
           pg.program = PgTest.getProgram(idl, connection, pg.wallet);
         }

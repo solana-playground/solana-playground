@@ -48,11 +48,11 @@ const Import = () => {
 const Export = () => {
   useRenderOnChange(PgProgramInfo.onDidChangeIdl);
 
-  if (!PgProgramInfo.state.idl) return null;
+  if (!PgProgramInfo.idl) return null;
 
   return (
     <DownloadButton
-      href={PgCommon.getUtf8EncodedString(PgProgramInfo.state.idl)}
+      href={PgCommon.getUtf8EncodedString(PgProgramInfo.idl)}
       download="idl.json"
     >
       Export
@@ -109,14 +109,14 @@ const InitOrUpgrade = () => {
 
   const getIdl = useCallback(async () => {
     try {
-      if (!PgProgramInfo.state.idl) {
+      if (!PgProgramInfo.idl) {
         setState(InitOrUpgradeState.NO_IDL);
         return;
       }
 
       setState(InitOrUpgradeState.IS_FETCHING);
       const idlResult = await PgCommon.transition(
-        PgProgramInfo.getIdlFromChain()
+        PgProgramInfo.utils.getIdlFromChain()
       );
       if (!idlResult) {
         setState(InitOrUpgradeState.CAN_INIT);

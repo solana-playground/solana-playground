@@ -71,6 +71,11 @@ export type AllRequired<T> = {
   [K in keyof T]-?: AllRequired<T[K]>;
 };
 
+/** Make all properties readonly recursively */
+export type AllReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? AllReadonly<T[K]> : T[K];
+};
+
 /** Make all properties partial recursively */
 export type AllPartial<T> = {
   [K in keyof T]?: T[K] extends object ? AllPartial<T[K]> : T[K];

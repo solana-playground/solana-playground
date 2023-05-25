@@ -279,6 +279,17 @@ export class PgCommon {
   }
 
   /**
+   * Access the property value from `.` seperated input.
+   *
+   * @param obj object to get property from
+   * @param property `.` seperated property input
+   */
+  static getProperty(obj: any, property: string | string[]) {
+    if (Array.isArray(property)) property = property.join(".");
+    return property.split(".").reduce((acc, cur) => acc[cur], obj);
+  }
+
+  /**
    * @returns the JS number(only use it if you are certain this won't overflow)
    */
   static bigintToInt<T extends bigint | undefined>(bigint: T) {
@@ -617,9 +628,11 @@ export class PgCommon {
     // Intentionally initializing outside of the closure to share `sharedTimeout`
     const debounceOptions = { delay: 0, sharedTimeout: {} };
 
-    const disposables = onChanges.map((onChange) => {
-      return onChange(PgCommon.debounce(cb, debounceOptions));
-    });
+    const disposables = onChanges
+      .filter((onChange) => onChange)
+      .map((onChange) => {
+        return onChange(PgCommon.debounce(cb, debounceOptions));
+      });
 
     return {
       dispose: () => disposables.forEach((disposable) => disposable.dispose()),

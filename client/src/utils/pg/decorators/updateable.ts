@@ -1,19 +1,10 @@
 import { PgCommon } from "../common";
 import type { Disposable, SyncOrAsync } from "../types";
 
-/** State getter property */
-const STATE_PROPERTY = "state";
-
 /** Change event function name prefix */
 const ON_DID_CHANGE = "onDidChange";
 
-/** `state` property */
-type State<T> = Readonly<{
-  /** All internal state */
-  [K in typeof STATE_PROPERTY]: T;
-}>;
-
-/** `init` property */
+/** `init` prop */
 type Initialize = {
   /** Initializer that returns a disposable */
   init(): SyncOrAsync<Disposable>;
@@ -49,8 +40,8 @@ type CustomStorage<T> = {
 /**
  * Make a static class updateable.
  *
- * This decorator defines getters for the given property names and adds an
- * `onDidChange${propertyName}` method for each property.
+ * This decorator defines getters for the given prop names and adds an
+ * `onDidChange${propertyName}` method for each prop.
  *
  * `update` method is responsible for both updating the state and dispatching
  * change events.
@@ -63,6 +54,8 @@ export function updateable<T>(params: {
   defaultState: Required<T>;
   /** Storage that is responsible with de/serialization */
   storage: CustomStorage<T>;
+  /** Whether to add proxy setters recursively */
+  recursive?: boolean;
 }) {
   return (sClass: any) => {
     const INTERNAL_STATE_PROPERTY = "_state";
@@ -74,45 +67,41 @@ export function updateable<T>(params: {
     (sClass as Initialize).init = async () => {
       const state: T = await params.storage.read();
 
-      for (const property in state) {
-        // Remove extra properties, this could happen if a property was removed
-        if (params.defaultState[property] === undefined) {
-          delete state[property];
+      // Set the default if any prop is missing(recursively)
+      const setMissingDefaults = (state: any, defaultState: any) => {
+        for (const prop in defaultState) {
+          if (state[prop] === undefined) {
+            state[prop] = defaultState[prop];
+          } else if (
+            typeof state[prop] === "object" &&
+            defaultState[prop] !== null
+          ) {
+            setMissingDefaults(state[prop], defaultState[prop]);
+          }
         }
-      }
+      };
+      setMissingDefaults(state, params.defaultState);
 
-      for (const property in params.defaultState) {
-        // If any property is missing, set the default
-        if (state[property as keyof T] === undefined) {
-          state[property as keyof T] = params.defaultState[property];
+      // Remove extra properties if a prop was removed(recursively)
+      const removeExtraProperties = (state: any, defaultState: any) => {
+        for (const prop in state) {
+          if (defaultState[prop] === undefined) {
+            delete state[prop];
+          } else if (
+            typeof state[prop] === "object" &&
+            defaultState[prop] !== null
+          ) {
+            removeExtraProperties(state[prop], defaultState[prop]);
+          }
         }
-      }
+      };
+      removeExtraProperties(state, params.defaultState);
 
       sClass.update(state);
       sClass[IS_INITIALIZED_PROPERTY] = true;
 
       return sClass.onDidChange((state: T) => params.storage.write(state));
     };
-
-    // Define state getter
-    Object.defineProperty(sClass, STATE_PROPERTY, {
-      get: () => sClass[INTERNAL_STATE_PROPERTY],
-    });
-
-    for (const property in params.defaultState) {
-      // Change event handlers
-      const onDidChangeEventName =
-        ON_DID_CHANGE + property[0].toUpperCase() + property.slice(1);
-      sClass[onDidChangeEventName] ??= (cb: (value: any) => void) => {
-        return PgCommon.onDidChange({
-          cb,
-          eventName: sClass._getChangeEventName(property),
-          initialRun: sClass[IS_INITIALIZED_PROPERTY]
-            ? { value: sClass[STATE_PROPERTY][property] }
-            : undefined,
-        });
-      };
-    }
 
     // Main change event
     (sClass as OnDidChangeEventName<T>).onDidChange = (
@@ -122,41 +111,161 @@ export function updateable<T>(params: {
         cb,
         eventName: sClass._getChangeEventName(),
         initialRun: sClass[IS_INITIALIZED_PROPERTY]
-          ? { value: sClass[STATE_PROPERTY] }
+          ? { value: sClass[INTERNAL_STATE_PROPERTY] }
           : undefined,
       });
     };
 
-    // Update method
-    (sClass as Update<T>).update = (params: Partial<T>) => {
-      const updatedProperties = [];
-      for (const property in params) {
-        if (params[property] !== undefined) {
-          sClass[INTERNAL_STATE_PROPERTY][property] = params[property];
-          updatedProperties.push(property);
+    let defineObjectSubProperties:
+      | ((getter: any, internal: any, propNames: string[]) => any)
+      | undefined;
+    if (params.recursive) {
+      defineObjectSubProperties = (
+        getter: any,
+        internal: any,
+        propNames: string[]
+      ) => {
+        getter = new Proxy(internal, {
+          set(target: any, prop: any, value: any) {
+            target[prop] = value;
+
+            // Setting a new value should dispatch a change event for all of
+            // the parent objects.
+            // Example:
+            // const obj = { nested: { number: 1 } };
+            // obj.a.b = 2; -> obj.OnDidChangeNestedNumber, obj.OnDidChangeNested, obj.onDidChange
+
+            // 1. [nested, number].reduce
+            // 2. [nested, nested.number].reverse
+            // 3. [nested.number, nested].forEach
+            propNames
+              .concat([prop])
+              .reduce((acc, cur, i) => {
+                acc.push(propNames.slice(0, i).concat([cur]).join("."));
+                return acc;
+              }, [] as string[])
+              .reverse()
+              .forEach((prop) => {
+                PgCommon.createAndDispatchCustomEvent(
+                  sClass._getChangeEventName(prop),
+                  PgCommon.getProperty(sClass, prop)
+                );
+              });
+
+            // Dispatch the main update event
+            PgCommon.createAndDispatchCustomEvent(
+              sClass._getChangeEventName(),
+              sClass[INTERNAL_STATE_PROPERTY]
+            );
+
+            return true;
+          },
+        });
+
+        for (const prop in getter) {
+          const currentPropNames = [...propNames, prop];
+
+          // Change event handlers
+          const onDidChangeEventName =
+            ON_DID_CHANGE +
+            currentPropNames.reduce(
+              (acc, cur) => acc + cur[0].toUpperCase() + cur.slice(1),
+              ""
+            );
+
+          sClass[onDidChangeEventName] ??= (
+            cb: (value: unknown) => unknown
+          ) => {
+            return PgCommon.onDidChange({
+              cb,
+              eventName: sClass._getChangeEventName(currentPropNames),
+              initialRun: sClass[IS_INITIALIZED_PROPERTY]
+                ? { value: getter[prop] }
+                : undefined,
+            });
+          };
+
+          // Recursively update
+          if (typeof getter[prop] === "object" && getter[prop] !== null) {
+            getter[prop] = defineObjectSubProperties!(
+              getter[prop],
+              internal[prop],
+              currentPropNames
+            );
+          } else {
+            // Trigger the setter
+            // eslint-disable-next-line no-self-assign
+            getter[prop] = getter[prop];
+          }
         }
-      }
 
-      if (!updatedProperties.length) return;
+        return getter;
+      };
+    }
 
-      // Dispatch the main update event
-      PgCommon.createAndDispatchCustomEvent(
-        sClass._getChangeEventName(),
-        sClass[STATE_PROPERTY]
-      );
+    // Update method
+    (sClass as Update<T>).update = (updateParams: Partial<T>) => {
+      for (const prop in updateParams) {
+        if (updateParams[prop] === undefined) continue;
 
-      // Send the individual update events after all of the values have been set
-      // in order batch the changes before sending.
-      for (const property of updatedProperties) {
-        PgCommon.createAndDispatchCustomEvent(
-          sClass._getChangeEventName(property),
-          sClass[STATE_PROPERTY][property]
-        );
+        // Define getter and setter once
+        if (sClass[prop] === undefined) {
+          // Define getters and setters
+          Object.defineProperty(sClass, prop, {
+            get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
+            set: (value: T[keyof T]) => {
+              sClass[INTERNAL_STATE_PROPERTY][prop] = value;
+
+              // Change event
+              PgCommon.createAndDispatchCustomEvent(
+                sClass._getChangeEventName(prop),
+                value
+              );
+
+              // Dispatch the main update event
+              PgCommon.createAndDispatchCustomEvent(
+                sClass._getChangeEventName(),
+                sClass[INTERNAL_STATE_PROPERTY]
+              );
+            },
+          });
+
+          // Change event handlers
+          const onDidChangeEventName =
+            ON_DID_CHANGE + prop[0].toUpperCase() + prop.slice(1);
+          sClass[onDidChangeEventName] ??= (
+            cb: (value: unknown) => unknown
+          ) => {
+            return PgCommon.onDidChange({
+              cb,
+              eventName: sClass._getChangeEventName(prop),
+              initialRun: sClass[IS_INITIALIZED_PROPERTY]
+                ? { value: sClass[prop] }
+                : undefined,
+            });
+          };
+        }
+
+        // Trigger the setter
+        sClass[prop] = updateParams[prop];
+
+        if (
+          defineObjectSubProperties &&
+          typeof updateParams[prop] === "object" &&
+          updateParams[prop] !== null
+        ) {
+          sClass[prop] = defineObjectSubProperties(
+            sClass[prop],
+            sClass[INTERNAL_STATE_PROPERTY][prop],
+            [prop]
+          );
+        }
       }
     };
 
     // Get custom event name
-    sClass._getChangeEventName = (name?: string) => {
+    sClass._getChangeEventName = (name?: string | string[]) => {
+      if (Array.isArray(name)) name = name.join(".");
       return "ondidchange" + sClass.name + (name ?? "");
     };
   };
@@ -171,8 +280,8 @@ export function updateable<T>(params: {
  */
 export const declareUpdateable = <C, T>(sClass: C, state: T) => {
   return sClass as Omit<typeof sClass, "prototype"> &
+    T &
     Initialize &
-    State<T> &
     Update<T> &
     OnDidChangeEventName<T>;
 };

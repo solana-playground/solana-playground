@@ -23,7 +23,7 @@ const Test = () => {
     return <TestSkeleton />;
   }
 
-  if (!PgProgramInfo.state.uuid) {
+  if (!PgProgramInfo.uuid) {
     return (
       <InitialWrapper>
         <Text>Program is not built.</Text>
@@ -47,7 +47,7 @@ const Test = () => {
     );
   }
 
-  const idl = PgProgramInfo.state.idl;
+  const idl = PgProgramInfo.idl;
 
   if (idl === null) {
     return (

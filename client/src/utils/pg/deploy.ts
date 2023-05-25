@@ -21,7 +21,7 @@ export class PgDeploy {
 
     // Regular deploy without custom elf upload
     if (!programBuffer.length) {
-      const uuid = PgProgramInfo.state.uuid;
+      const uuid = PgProgramInfo.uuid;
       const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
 
       const arrayBuffer = await PgCommon.checkForRespErr(resp);
@@ -157,7 +157,7 @@ export class PgDeploy {
       try {
         if (!programExists) {
           // First deploy needs keypair
-          const programKp = PgProgramInfo.state.kp;
+          const programKp = PgProgramInfo.kp;
           if (!programKp) {
             errorMsg =
               "Initial deployment needs a keypair. You only provided public key.";

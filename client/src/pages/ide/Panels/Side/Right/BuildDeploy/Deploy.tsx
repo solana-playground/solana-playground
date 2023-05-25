@@ -44,8 +44,8 @@ const Deploy = () => {
     [terminalState.deployLoading, terminalState.buildLoading]
   );
 
-  const hasProgramKp = PgProgramInfo.state.kp ? true : false;
-  const hasUuid = PgProgramInfo.state.uuid ? true : false;
+  const hasProgramKp = PgProgramInfo.kp ? true : false;
+  const hasUuid = PgProgramInfo.uuid ? true : false;
   const hasProgramPk = PgProgramInfo.getPk() ? true : false;
 
   // Custom(uploaded) program deploy

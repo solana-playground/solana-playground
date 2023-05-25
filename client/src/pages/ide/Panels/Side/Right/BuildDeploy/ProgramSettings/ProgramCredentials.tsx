@@ -31,7 +31,7 @@ const ProgramCredentials = () => (
 
 const New = () => {
   const handleNew = async () => {
-    if (PgProgramInfo.state.kp) {
+    if (PgProgramInfo.kp) {
       await PgView.setModal(NewKeypairModal);
     } else {
       PgProgramInfo.update({ kp: Keypair.generate() });
@@ -74,7 +74,7 @@ const NewKeypairModal = () => {
         </WarningTextWrapper>
         <DownloadButton
           href={PgCommon.getUtf8EncodedString(
-            Array.from(PgProgramInfo.state.kp!.secretKey)
+            Array.from(PgProgramInfo.kp!.secretKey)
           )}
           download="program-keypair.json"
           buttonKind="outline"
@@ -121,12 +121,12 @@ const Import = () => {
 const Export = () => {
   useRenderOnChange(PgProgramInfo.onDidChangeKp);
 
-  if (!PgProgramInfo.state.kp) return null;
+  if (!PgProgramInfo.kp) return null;
 
   return (
     <DownloadButton
       href={PgCommon.getUtf8EncodedString(
-        Array.from(PgProgramInfo.state.kp.secretKey)
+        Array.from(PgProgramInfo.kp.secretKey)
       )}
       download="program-keypair.json"
     >
@@ -204,7 +204,7 @@ const InputPk = () => {
           Change program id
         </Button>
       )}
-      {!!PgProgramInfo.state.customPk && (
+      {!!PgProgramInfo.customPk && (
         <Button onClick={handleRemoveCustomProgramId} kind="outline">
           Remove custom program id
         </Button>

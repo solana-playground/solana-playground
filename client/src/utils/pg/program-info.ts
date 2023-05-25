@@ -93,8 +93,8 @@ class _PgProgramInfo {
    * Custom public key has priority if it's specified.
    */
   static getPk() {
-    if (PgProgramInfo.state.customPk) return PgProgramInfo.state.customPk;
-    if (PgProgramInfo.state.kp) return PgProgramInfo.state.kp.publicKey;
+    if (PgProgramInfo.customPk) return PgProgramInfo.customPk;
+    if (PgProgramInfo.kp) return PgProgramInfo.kp.publicKey;
     return null;
   }
 
@@ -105,8 +105,8 @@ class _PgProgramInfo {
 
   /** Get the JSON.stringified IDL from state. */
   static getIdlStr() {
-    if (PgProgramInfo.state.idl) {
-      return JSON.stringify(PgProgramInfo.state.idl);
+    if (PgProgramInfo.idl) {
+      return JSON.stringify(PgProgramInfo.idl);
     }
 
     return null;
@@ -126,35 +126,38 @@ class _PgProgramInfo {
     );
   }
 
-  /**
-   * Fetch the Anchor IDL from chain.
-   *
-   * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
-   * function only returns the IDL without the IDL authority.
-   *
-   * @param programId optional program id
-   * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
-   */
-  static async getIdlFromChain(programId?: PublicKey | null) {
-    if (!programId) {
-      programId = PgProgramInfo.getPk();
-      if (!programId) throw new Error("Program id not found.");
+  /** Program info related utilities */
+  static utils = class {
+    /**
+     * Fetch the Anchor IDL from chain.
+     *
+     * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
+     * function only returns the IDL without the IDL authority.
+     *
+     * @param programId optional program id
+     * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
+     */
+    static async getIdlFromChain(programId?: PublicKey | null) {
+      if (!programId) {
+        programId = PgProgramInfo.getPk();
+        if (!programId) throw new Error("Program id not found.");
+      }
+
+      const idlPk = await idlAddress(programId);
+
+      const conn = await PgConnection.get();
+      const accountInfo = await conn.getAccountInfo(idlPk);
+      if (!accountInfo) return null;
+
+      // Chop off account discriminator
+      const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
+      const { inflate } = await import("pako");
+      const inflatedIdl = inflate(idlAccount.data);
+      const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
+
+      return { idl, authority: idlAccount.authority };
     }
-
-    const idlPk = await idlAddress(programId);
-
-    const conn = await PgConnection.get();
-    const accountInfo = await conn.getAccountInfo(idlPk);
-    if (!accountInfo) return null;
-
-    // Chop off account discriminator
-    const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
-    const { inflate } = await import("pako");
-    const inflatedIdl = inflate(idlAccount.data);
-    const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
-
-    return { idl, authority: idlAccount.authority };
-  }
+  };
 }
 
 export const PgProgramInfo = declareUpdateable(
