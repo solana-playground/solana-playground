@@ -29,22 +29,22 @@ mod token_vault {
 pub struct Initialize<'info> {
     // Derived PDAs
     #[account(
-            init_if_needed,
-            payer = signer,
-            seeds=[b"token_account_owner_pda".as_ref()],
-            bump,
-            space = 8
-        )]
+        init_if_needed,
+        payer = signer,
+        seeds=[b"token_account_owner_pda"],
+        bump,
+        space = 8
+    )]
     token_account_owner_pda: AccountInfo<'info>,
 
     #[account(
-            init_if_needed,
-            payer = signer,
-            seeds=[b"token_vault".as_ref(), mint_of_token_being_sent.key().as_ref()],
-            token::mint=mint_of_token_being_sent,
-            token::authority=token_account_owner_pda,
-            bump
-        )]
+        init_if_needed,
+        payer = signer,
+        seeds=[b"token_vault", mint_of_token_being_sent.key().as_ref()],
+        token::mint=mint_of_token_being_sent,
+        token::authority=token_account_owner_pda,
+        bump
+    )]
     vault_token_account: Account<'info, TokenAccount>,
 
     mint_of_token_being_sent: Account<'info, Mint>,
@@ -60,17 +60,17 @@ pub struct Initialize<'info> {
 pub struct TransferAccounts<'info> {
     // Derived PDAs
     #[account(mut,
-            seeds=[b"token_account_owner_pda".as_ref()],
-            bump
-        )]
+        seeds=[b"token_account_owner_pda"],
+        bump
+    )]
     token_account_owner_pda: AccountInfo<'info>,
 
     #[account(mut,
-            seeds=[b"token_vault".as_ref(), mint_of_token_being_sent.key().as_ref()],
-            bump,
-            token::mint=mint_of_token_being_sent,
-            token::authority=token_account_owner_pda,
-        )]
+        seeds=[b"token_vault", mint_of_token_being_sent.key().as_ref()],
+        bump,
+        token::mint=mint_of_token_being_sent,
+        token::authority=token_account_owner_pda,
+    )]
     vault_token_account: Account<'info, TokenAccount>,
 
     #[account(mut)]

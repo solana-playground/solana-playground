@@ -9,8 +9,8 @@ const mintAuthority = pg.wallet.keypair;
 
 const decimals = 9;
 
-let [tokenAccountOwnerPda, bump] = await PublicKey.findProgramAddress(
-  [Buffer.from("token_account_owner_pda", "utf8")],
+let [tokenAccountOwnerPda] = await PublicKey.findProgramAddressSync(
+  [Buffer.from("token_account_owner_pda")],
   pg.PROGRAM_ID
 );
 
@@ -59,19 +59,11 @@ let tokenAccountInfo = await getAccount(pg.connection, tokenAccount.address);
 console.log(
   "Owned token amount: " + tokenAccountInfo.amount / BigInt(mintDecimals)
 );
-let [token_vault, bump2] = await PublicKey.findProgramAddress(
+let [tokenVault] = await PublicKey.findProgramAddressSync(
   [Buffer.from("token_vault", "utf8"), createdSFT.mintAddress.toBuffer()],
   pg.PROGRAM_ID
 );
-console.log("VaultAccount: " + token_vault);
-
-let accounts = {
-  tokenAccountOwnerPda: tokenAccountOwnerPda,
-  vaultTokenAccount: token_vault,
-  senderTokenAccount: tokenAccount.address,
-  mintOfTokenBeingSent: createdSFT.mintAddress,
-  signer: pg.wallet.publicKey,
-};
+console.log("VaultAccount: " + tokenVault);
 
 let confirmOptions = {
   skipPreflight: true,
@@ -81,18 +73,39 @@ let txHash = await pg.program.methods
   .initialize()
   .accounts(accounts)
   .signers([pg.wallet.keypair])
+  .accounts({
+    tokenAccountOwnerPda: tokenAccountOwnerPda,
+    vaultTokenAccount: tokenVault,
+    senderTokenAccount: tokenAccount.address,
+    mintOfTokenBeingSent: createdSFT.mintAddress,
+    signer: pg.wallet.publicKey,
+  })
   .rpc(confirmOptions);
 
 console.log(`Initialize`);
-console.log(`solana confirm -v ${txHash}`);
-await pg.connection.confirmTransaction(txHash);
+await logTransaction(txHash);
 
 console.log(`Vault initialized.`);
 tokenAccountInfo = await getAccount(pg.connection, tokenAccount.address);
 console.log(
   "Owned token amount: " + tokenAccountInfo.amount / BigInt(mintDecimals)
 );
-tokenAccountInfo = await getAccount(pg.connection, token_vault);
+tokenAccountInfo = await getAccount(pg.connection, tokenVault);
 console.log(
   "Vault token amount: " + tokenAccountInfo.amount / BigInt(mintDecimals)
 );
+
+async function logTransaction(txHash) {
+  const { blockhash, lastValidBlockHeight } =
+    await pg.connection.getLatestBlockhash();
+
+  await pg.connection.confirmTransaction({
+    blockhash,
+    lastValidBlockHeight,
+    signature: txHash,
+  });
+
+  console.log(
+    `Solana Explorer: https://explorer.solana.com/tx/${txHash}?cluster=devnet`
+  );
+}
