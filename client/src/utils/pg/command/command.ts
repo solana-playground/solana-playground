@@ -3,7 +3,7 @@ import { PgTerminal } from "../terminal";
 
 /** Terminal command */
 export interface CommandImpl<R> {
-  /** Name of the command */
+  /** Name of the command that will be used in terminal */
   name: string;
   /** Description that will be seen in the `help` command */
   description: string;
@@ -14,14 +14,16 @@ export interface CommandImpl<R> {
 }
 
 /** All commands type */
-type Commands = typeof commands;
+type InternalCommands = typeof commands;
 
 /** Name of all the available commands(only code) */
-type CommandCodeName = keyof Commands;
+type CommandCodeName = keyof InternalCommands;
 
 /** Ready to be used commands */
-type CommandsReady = {
-  [K in keyof Commands]: Commands[K] extends CommandImpl<infer R>
+type Commands = {
+  [N in keyof InternalCommands]: InternalCommands[N] extends CommandImpl<
+    infer R
+  >
     ? Command<R>
     : never;
 };
@@ -33,14 +35,15 @@ type Command<R> = Pick<CommandImpl<R>, "name"> & {
 };
 
 /** Command manager */
-export const PgCommand: CommandsReady = new Proxy(
+export const PgCommand: Commands = new Proxy(
   {},
   {
     get: (_target: any, name: CommandCodeName): Command<unknown> => {
+      const commandName = commands[name].name;
       return {
-        name: commands[name].name,
-        run(args: string = "") {
-          return PgTerminal.executeFromStr(`${this.name} ${args}`);
+        name: commandName,
+        run: (args: string = "") => {
+          return PgTerminal.executeFromStr(`${commandName} ${args}`);
         },
       };
     },
