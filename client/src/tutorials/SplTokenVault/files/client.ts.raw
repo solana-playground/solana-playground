@@ -9,7 +9,7 @@ const mintAuthority = pg.wallet.keypair;
 
 const decimals = 9;
 
-let [tokenAccountOwnerPda] = await PublicKey.findProgramAddressSync(
+let [tokenAccountOwnerPda] = PublicKey.findProgramAddressSync(
   [Buffer.from("token_account_owner_pda")],
   pg.PROGRAM_ID
 );
@@ -59,8 +59,8 @@ let tokenAccountInfo = await getAccount(pg.connection, tokenAccount.address);
 console.log(
   "Owned token amount: " + tokenAccountInfo.amount / BigInt(mintDecimals)
 );
-let [tokenVault] = await PublicKey.findProgramAddressSync(
-  [Buffer.from("token_vault", "utf8"), createdSFT.mintAddress.toBuffer()],
+let [tokenVault] = PublicKey.findProgramAddressSync(
+  [Buffer.from("token_vault"), createdSFT.mintAddress.toBuffer()],
   pg.PROGRAM_ID
 );
 console.log("VaultAccount: " + tokenVault);

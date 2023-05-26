@@ -1,8 +1,8 @@
 // Client
 
 // The PDA adress everyone will be able to control the character if the interact with your program
-const [globalLevel1GameDataAccount, bump] =
-  await anchor.web3.PublicKey.findProgramAddress(
+const [globalLevel1GameDataAccount] =
+  anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("level1", "utf8")],
     //[pg.wallet.publicKey.toBuffer()], <- You could also add the player wallet as a seed, then you would have one instance per player. Need to also change the seed in the rust part
     pg.program.programId
