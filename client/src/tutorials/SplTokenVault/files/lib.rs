@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 // This is your program's public key and it will update
 // automatically when you build the project.
@@ -12,13 +12,13 @@ mod token_vault {
         Ok(())
     }
 
-    pub fn transfer_in(ctx: Context<TransferAccounts>, amount: u64) -> Result<()> {
+    pub fn transfer_in(_ctx: Context<TransferAccounts>, amount: u64) -> Result<()> {
         msg!("Token amount transfer in: {}!", amount);
         // See Tutorial page 6
         Ok(())
     }
 
-    pub fn transfer_out(ctx: Context<TransferAccounts>, amount: u64) -> Result<()> {
+    pub fn transfer_out(_ctx: Context<TransferAccounts>, amount: u64) -> Result<()> {
         msg!("Token amount transfer out: {}!", amount);
         // See Tutorial page 7
         Ok(())

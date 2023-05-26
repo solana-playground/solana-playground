@@ -71,7 +71,6 @@ let confirmOptions = {
 
 let txHash = await pg.program.methods
   .initialize()
-  .accounts(accounts)
   .signers([pg.wallet.keypair])
   .accounts({
     tokenAccountOwnerPda: tokenAccountOwnerPda,
