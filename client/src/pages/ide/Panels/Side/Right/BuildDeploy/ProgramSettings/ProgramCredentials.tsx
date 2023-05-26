@@ -1,5 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
@@ -12,16 +11,12 @@ import Modal from "../../../../../../../components/Modal";
 import Text from "../../../../../../../components/Text";
 import { Warning } from "../../../../../../../components/Icons";
 import {
-  explorerAtom,
-  refreshExplorerAtom,
-  refreshProgramIdAtom,
-} from "../../../../../../../state";
-import {
   PgProgramInfo,
   PgCommon,
   PgValidator,
   PgView,
 } from "../../../../../../../utils/pg";
+import { useRenderOnChange } from "../../../../../../../hooks";
 
 const ProgramCredentials = () => (
   <Wrapper>
@@ -31,21 +26,15 @@ const ProgramCredentials = () => (
       <Export />
     </ButtonsWrapper>
     <InputPk />
-    <SaveProgramInfo />
   </Wrapper>
 );
 
 const New = () => {
-  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const handleNew = async () => {
-    const kp = PgProgramInfo.getKp()?.programKp;
-    if (kp) await PgView.setModal(NewKeypairModal);
-    else {
-      PgProgramInfo.createNewKp();
-
-      // Refresh necessary components
-      refreshProgramId();
+    if (PgProgramInfo.kp) {
+      await PgView.setModal(NewKeypairModal);
+    } else {
+      PgProgramInfo.update({ kp: Keypair.generate() });
     }
   };
 
@@ -57,18 +46,11 @@ const New = () => {
 };
 
 const NewKeypairModal = () => {
-  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const generateNewKeypair = () => {
-    const kp = Keypair.generate();
-
     PgProgramInfo.update({
-      kp: Array.from(kp.secretKey),
+      kp: Keypair.generate(),
       customPk: null,
     });
-
-    // Refresh necessary components
-    refreshProgramId();
   };
 
   return (
@@ -92,7 +74,7 @@ const NewKeypairModal = () => {
         </WarningTextWrapper>
         <DownloadButton
           href={PgCommon.getUtf8EncodedString(
-            Array.from(PgProgramInfo.getKp()?.programKp!.secretKey)
+            Array.from(PgProgramInfo.kp!.secretKey)
           )}
           download="program-keypair.json"
           buttonKind="outline"
@@ -105,8 +87,6 @@ const NewKeypairModal = () => {
 };
 
 const Import = () => {
-  const [, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
@@ -120,12 +100,9 @@ const Import = () => {
 
       // Override customPk when user imports a new keypair
       PgProgramInfo.update({
-        kp: Array.from(buffer),
+        kp: Keypair.fromSecretKey(buffer),
         customPk: null,
       });
-
-      // Refresh components
-      refreshProgramId();
 
       // Reset file
       e.target.value = "";
@@ -142,15 +119,15 @@ const Import = () => {
 };
 
 const Export = () => {
-  useAtom(refreshProgramIdAtom); // To refresh program kp
+  useRenderOnChange(PgProgramInfo.onDidChangeKp);
 
-  const programKp = PgProgramInfo.getKp()?.programKp;
-
-  if (!programKp) return null;
+  if (!PgProgramInfo.kp) return null;
 
   return (
     <DownloadButton
-      href={PgCommon.getUtf8EncodedString(Array.from(programKp.secretKey))}
+      href={PgCommon.getUtf8EncodedString(
+        Array.from(PgProgramInfo.kp.secretKey)
+      )}
       download="program-keypair.json"
     >
       Export
@@ -164,23 +141,15 @@ interface UpdateInfoProps {
 }
 
 const InputPk = () => {
-  const [programIdCount, refreshProgramId] = useAtom(refreshProgramIdAtom);
-
-  const [val, setVal] = useState(
-    PgProgramInfo.getPk()?.programPk?.toBase58() ?? ""
-  );
+  const [val, setVal] = useState("");
   const [updateInfo, setUpdateInfo] = useState<UpdateInfoProps>({});
   const [changed, setChanged] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
-    const pkResult = PgProgramInfo.getPk();
-    if (pkResult?.programPk) {
-      const pkStr = pkResult.programPk.toBase58();
-      setVal(pkStr);
-    }
-  }, [programIdCount]);
+    PgProgramInfo.onDidChangePk((pk) => {
+      if (pk) setVal(pk.toBase58());
+    });
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setVal(e.target.value);
@@ -190,14 +159,12 @@ const InputPk = () => {
 
   const handleClick = () => {
     try {
-      new PublicKey(val);
-      PgProgramInfo.update({ customPk: val });
+      PgProgramInfo.update({ customPk: new PublicKey(val) });
 
       setUpdateInfo({
         text: "Updated program id.",
       });
       setChanged(false);
-      refreshProgramId();
     } catch {
       setUpdateInfo({ text: "Invalid public key.", error: true });
     }
@@ -208,19 +175,7 @@ const InputPk = () => {
     setUpdateInfo({
       text: "Removed custom id.",
     });
-    refreshProgramId();
   };
-
-  const hasCustomProgramId = useMemo(() => {
-    const customPk = PgProgramInfo.getCustomPk();
-    if (customPk) {
-      const kp = PgProgramInfo.getKp()?.programKp;
-      if (kp) return !kp.publicKey.equals(customPk);
-    }
-
-    return false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [programIdCount]);
 
   return (
     <InputPkWrapper>
@@ -233,7 +188,6 @@ const InputPk = () => {
 
       <InputWrapper>
         <Input
-          ref={inputRef}
           value={val}
           onChange={handleChange}
           validator={PgValidator.isPubkey}
@@ -250,34 +204,13 @@ const InputPk = () => {
           Change program id
         </Button>
       )}
-      {hasCustomProgramId && (
+      {!!PgProgramInfo.customPk && (
         <Button onClick={handleRemoveCustomProgramId} kind="outline">
           Remove custom program id
         </Button>
       )}
     </InputPkWrapper>
   );
-};
-
-const SaveProgramInfo = () => {
-  const [programIdCount] = useAtom(refreshProgramIdAtom);
-  const [explorer] = useAtom(explorerAtom);
-  const [explorerChanged] = useAtom(refreshExplorerAtom);
-
-  const previousProgramIdCount = useRef<number>(0);
-
-  useEffect(() => {
-    // Save program info if there is a new program id
-    if (previousProgramIdCount.current !== programIdCount) {
-      explorer?.saveProgramInfo();
-    }
-
-    previousProgramIdCount.current = programIdCount;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [programIdCount, explorer, explorerChanged]);
-
-  return null;
 };
 
 const Wrapper = styled.div`

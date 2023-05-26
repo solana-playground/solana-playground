@@ -3,7 +3,7 @@ import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { PgSet, SetElementAsync } from "./types";
+import type { SetState, SetElementAsync } from "./types";
 
 /** Sidebar states */
 export enum Sidebar {
@@ -91,7 +91,7 @@ export class PgView {
    *
    * @param state sidebar state to set
    */
-  static setSidebarState(state: PgSet<Sidebar>) {
+  static setSidebarState(state: SetState<Sidebar>) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,
       state

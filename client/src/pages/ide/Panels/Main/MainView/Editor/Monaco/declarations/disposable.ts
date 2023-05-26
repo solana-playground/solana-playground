@@ -3,7 +3,7 @@ import { Idl } from "@project-serum/anchor";
 
 import { declareModule } from "./helper";
 import {
-  PgDisposable,
+  Disposable,
   PgProgramInfo,
   PgWallet,
 } from "../../../../../../../../utils/pg";
@@ -15,7 +15,7 @@ import {
  *
  * @returns a dispose function to dispose all
  */
-export const declareDisposableTypes = (): PgDisposable => {
+export const declareDisposableTypes = (): Disposable => {
   addLib("default", require("./raw/pg.raw.d.ts"));
 
   // Program id

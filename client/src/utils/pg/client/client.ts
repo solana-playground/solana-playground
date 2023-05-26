@@ -228,14 +228,15 @@ export class PgClient {
         pg.wallet = PgWallet;
 
         // Anchor IDL
-        const idl = PgProgramInfo.getProgramInfo().idl;
+        const idl = PgProgramInfo.idl;
         if (idl) {
           pg.program = PgTest.getProgram(idl, connection, pg.wallet);
         }
       }
-      const PROGRAM_ID = PgProgramInfo.getPk().programPk;
-      if (PROGRAM_ID) {
-        pg.PROGRAM_ID = PROGRAM_ID;
+
+      const programPk = PgProgramInfo.getPk();
+      if (programPk) {
+        pg.PROGRAM_ID = programPk;
       }
 
       // Set playground inherited object

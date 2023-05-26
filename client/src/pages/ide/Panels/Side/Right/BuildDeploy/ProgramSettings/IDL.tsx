@@ -1,18 +1,16 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../../../../components/Button";
 import DownloadButton from "../../../../../../../components/DownloadButton";
 import UploadButton from "../../../../../../../components/UploadButton";
-import { buildCountAtom } from "../../../../../../../state";
 import {
+  PgCommand,
   PgCommon,
-  PgExplorer,
   PgProgramInfo,
-  PgTerminal,
   PgWallet,
 } from "../../../../../../../utils/pg";
+import { useRenderOnChange } from "../../../../../../../hooks";
 
 const IDL = () => (
   <Wrapper>
@@ -35,7 +33,6 @@ const Import = () => {
       PgProgramInfo.update({
         idl: JSON.parse(decodedString),
       });
-      await PgExplorer.run({ saveProgramInfo: [] });
     } catch (e: any) {
       console.log(e.message);
     }
@@ -49,16 +46,13 @@ const Import = () => {
 };
 
 const Export = () => {
-  // Fixes IDL not being updated correctly after a new build
-  useAtom(buildCountAtom);
+  useRenderOnChange(PgProgramInfo.onDidChangeIdl);
 
-  const idl = PgProgramInfo.getProgramInfo().idl;
-
-  if (!idl) return null;
+  if (!PgProgramInfo.idl) return null;
 
   return (
     <DownloadButton
-      href={PgCommon.getUtf8EncodedString(idl)}
+      href={PgCommon.getUtf8EncodedString(PgProgramInfo.idl)}
       download="idl.json"
     >
       Export
@@ -78,9 +72,6 @@ enum InitOrUpgradeState {
 }
 
 const InitOrUpgrade = () => {
-  // Check IDL on each build
-  const [buildCount] = useAtom(buildCountAtom);
-
   const [state, setState] = useState<InitOrUpgradeState>(
     InitOrUpgradeState.NO_IDL
   );
@@ -118,14 +109,14 @@ const InitOrUpgrade = () => {
 
   const getIdl = useCallback(async () => {
     try {
-      if (!PgProgramInfo.getProgramInfo().idl) {
+      if (!PgProgramInfo.idl) {
         setState(InitOrUpgradeState.NO_IDL);
         return;
       }
 
       setState(InitOrUpgradeState.IS_FETCHING);
       const idlResult = await PgCommon.transition(
-        PgProgramInfo.getIdlFromChain()
+        PgProgramInfo.utils.getIdlFromChain()
       );
       if (!idlResult) {
         setState(InitOrUpgradeState.CAN_INIT);
@@ -147,18 +138,18 @@ const InitOrUpgrade = () => {
   // Initial run
   useEffect(() => {
     getIdl();
-  }, [getIdl, buildCount]);
+  }, [getIdl]);
 
   const handleInitOrUpgrade = async () => {
     switch (state) {
       case InitOrUpgradeState.CAN_INIT: {
         setState(InitOrUpgradeState.IS_INITIALIZING);
-        await PgTerminal.COMMANDS.anchor("idl init");
+        await PgCommand.anchor.run("idl init");
         break;
       }
       case InitOrUpgradeState.CAN_UPGRADE: {
         setState(InitOrUpgradeState.IS_UPGRADING);
-        await PgTerminal.COMMANDS.anchor("idl upgrade");
+        await PgCommand.anchor.run("idl upgrade");
         break;
       }
     }

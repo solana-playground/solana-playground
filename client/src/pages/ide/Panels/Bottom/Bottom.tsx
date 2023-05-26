@@ -12,7 +12,7 @@ import {
   ClassName,
   ConnState,
 } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommand, PgCommon } from "../../../../utils/pg";
 import { PgThemeManager } from "../../../../utils/pg/theme";
 import { useAutoAirdrop } from "./useAutoAirdrop";
 import {
@@ -37,8 +37,8 @@ const Bottom = () => {
 
   // Using a callback because this function might be resolved later than the
   // mount of this component
-  const connect = useCallback(() => {
-    PgTerminal.COMMANDS.connect();
+  const connect = useCallback(async () => {
+    await PgCommand.connect.run();
   }, []);
 
   return (

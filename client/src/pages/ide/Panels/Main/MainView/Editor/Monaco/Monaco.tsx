@@ -25,14 +25,14 @@ const Monaco = () => {
   useEffect(() => {
     // Compiler options
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      lib: ["es2015"],
+      lib: ["es2020"],
       module: monaco.languages.typescript.ModuleKind.ESNext,
       target: monaco.languages.typescript.ScriptTarget.ES2017,
       allowNonTsExtensions: true,
     });
 
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-      lib: ["es2015"],
+      lib: ["es2020"],
       module: monaco.languages.typescript.ModuleKind.ESNext,
       target: monaco.languages.typescript.ScriptTarget.ES2017,
       allowNonTsExtensions: true,

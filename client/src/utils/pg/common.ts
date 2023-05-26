@@ -7,7 +7,13 @@ import {
   EXPLORER_URL,
   SOLSCAN_URL,
 } from "../../constants";
-import type { PgDisposable, Promiseable, SyncOrAsync } from "./types";
+import type {
+  AllPartial,
+  Fn,
+  Disposable,
+  Promiseable,
+  SyncOrAsync,
+} from "./types";
 
 export class PgCommon {
   /**
@@ -86,24 +92,52 @@ export class PgCommon {
   }
 
   /**
+   * Debounce the given callback.
+   *
+   * @param cb callback to debounce
+   * @param options -
+   * - delay: how long to wait before running the callback
+   * - sharedTimeout: shared timeout object
+   */
+  static debounce(
+    cb: () => SyncOrAsync<void>,
+    options?: { delay?: number; sharedTimeout: { id?: NodeJS.Timeout } }
+  ) {
+    const delay = options?.delay ?? 100;
+    const sharedTimeout = options?.sharedTimeout ?? {};
+
+    return () => {
+      sharedTimeout.id && clearTimeout(sharedTimeout.id);
+      sharedTimeout.id = setTimeout(cb, delay);
+    };
+  }
+
+  /**
    * Throttle the given callback.
    *
    * @param cb callback function to run
    * @param ms amount of delay in miliseconds
    * @returns the wrapped callback function
    */
-  static throttle(cb: () => any, ms: number = 100) {
-    let timeoutId: NodeJS.Timer;
-    let lastCalled = Date.now();
+  static throttle(cb: Fn, ms: number = 100) {
+    let timeoutId: NodeJS.Timeout;
+    let last = Date.now();
+    let isInitial = true;
 
-    return (...args: []) => {
+    return () => {
       const now = Date.now();
-      if (now < lastCalled + ms) {
+      if (isInitial) {
+        cb();
+        isInitial = false;
+        return;
+      }
+
+      if (now < last + ms) {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => cb(...args), ms);
+        timeoutId = setTimeout(cb, ms);
       } else {
-        cb(...args);
-        lastCalled = now;
+        cb();
+        last = now;
       }
     };
   }
@@ -158,16 +192,51 @@ export class PgCommon {
   }
 
   /**
-   * Compare values by `JSON.stringify`
+   * @returns whether the given values are equal
    */
-  static compareValues(val1: any, val2: any) {
-    return JSON.stringify(val1) === JSON.stringify(val2);
+  static isEqual(value1: any, value2: any) {
+    if (typeof value1 !== typeof value2) return false;
+
+    switch (typeof value1) {
+      // Default comparison
+      case "boolean":
+      case "number":
+      case "string":
+      case "undefined":
+        return value1 === value2;
+
+      // String comparison
+      case "bigint":
+      case "function":
+      case "symbol":
+        return value1.toString() === value2.toString();
+
+      // Object keys comparison
+      case "object":
+        // `typeof null === "object"` -> true
+        if (value1 === value2) return true;
+
+        // Compare key lengths
+        if (Object.keys(value1).length !== Object.keys(value2).length) {
+          return false;
+        }
+
+        // Compare key values
+        for (const key in value1) {
+          if (!PgCommon.isEqual(value1[key], value2[key])) return false;
+        }
+
+        return true;
+    }
   }
 
   /**
-   * @returns whether the given colors are the same
+   * Get whether the colors are the same. Useful when comparing colors with different
+   * color formats(rgb, hex...).
+   *
+   * @returns whether the given colors are equal
    */
-  static compareColors = (bg1: string, bg2: string) => {
+  static isColorsEqual(color1: string, color2: string) {
     // Won't be reading frequently, but it gives a warning on the 2nd read.
     // Warning: Canvas2D: Multiple readback operations using getImageData are
     // faster with the willReadFrequently attribute set to true.
@@ -175,21 +244,50 @@ export class PgCommon {
       .createElement("canvas")
       .getContext("2d", { willReadFrequently: true })!;
 
-    // Fill bg1
-    ctx.fillStyle = bg1;
+    // Fill color1
+    ctx.fillStyle = color1;
     const bg1Args: [number, number, number, number] = [0, 0, 1, 1];
     ctx.fillRect(...bg1Args);
 
-    // Fill bg2
-    ctx.fillStyle = bg2;
+    // Fill color2
+    ctx.fillStyle = color2;
     const bg2Args: [number, number, number, number] = [1, 1, 1, 1];
     ctx.fillRect(...bg2Args);
 
-    return PgCommon.compareValues(
+    return PgCommon.isEqual(
       ctx.getImageData(...bg1Args).data,
       ctx.getImageData(...bg2Args).data
     );
-  };
+  }
+
+  /**
+   * Set the default value for the given object.
+   *
+   * NOTE: This method mutates the given object in place.
+   */
+  static setDefault<T, D extends AllPartial<T>>(value: T, defaultValue: D) {
+    for (const property in defaultValue) {
+      const result = defaultValue[property] as AllPartial<T[keyof T]>;
+      value[property as keyof T] ??= result as T[keyof T];
+
+      if (typeof result === "object") {
+        PgCommon.setDefault(value[property as keyof T], result);
+      }
+    }
+
+    return value as T & D;
+  }
+
+  /**
+   * Access the property value from `.` seperated input.
+   *
+   * @param obj object to get property from
+   * @param property `.` seperated property input
+   */
+  static getProperty(obj: any, property: string | string[]) {
+    if (Array.isArray(property)) property = property.join(".");
+    return property.split(".").reduce((acc, cur) => acc[cur], obj);
+  }
 
   /**
    * @returns the JS number(only use it if you are certain this won't overflow)
@@ -486,7 +584,7 @@ export class PgCommon {
   }
 
   /**
-   * Handle change events.
+   * Handle change event.
    *
    * If `params.initialRun` is specified, the callback will run immediately with
    * the given `params.initialRun.value`. Any subsequent runs are only possible
@@ -497,9 +595,10 @@ export class PgCommon {
   static onDidChange<T>(params: {
     cb: (value: T) => any;
     eventName: EventName;
+    // TODO: make it run by default
     initialRun?: { value: T };
-  }): PgDisposable {
-    type Event = UIEvent & { detail: any };
+  }): Disposable {
+    type Event = UIEvent & { detail: T };
 
     const handle = (ev: Event) => {
       params.cb(ev.detail);
@@ -512,6 +611,31 @@ export class PgCommon {
       dispose: () => {
         document.removeEventListener(params.eventName, handle as EventListener);
       },
+    };
+  }
+
+  /**
+   * Batch changes together.
+   *
+   * @param cb callback to run
+   * @param onChanges onChange methods
+   * @returns a dispose function to clear all events
+   */
+  static batchChanges(
+    cb: () => void,
+    onChanges: Array<(value: any) => Disposable>
+  ): Disposable {
+    // Intentionally initializing outside of the closure to share `sharedTimeout`
+    const debounceOptions = { delay: 0, sharedTimeout: {} };
+
+    const disposables = onChanges
+      .filter((onChange) => onChange)
+      .map((onChange) => {
+        return onChange(PgCommon.debounce(cb, debounceOptions));
+      });
+
+    return {
+      dispose: () => disposables.forEach((disposable) => disposable.dispose()),
     };
   }
 

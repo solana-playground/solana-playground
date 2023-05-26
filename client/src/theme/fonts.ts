@@ -1,6 +1,6 @@
-import { PgFont } from "../utils/pg/theme";
+import { Font } from "../utils/pg/theme";
 
-const FONTS: PgFont[] = [
+const FONTS: Font[] = [
   {
     family: "JetBrains Mono",
     size: {
