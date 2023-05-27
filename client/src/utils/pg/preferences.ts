@@ -29,7 +29,6 @@ const storage = {
 @updateable({ defaultState, storage })
 class _PgPreferences {}
 
-export const PgPreferences = declareUpdateable(
-  _PgPreferences,
-  {} as Preferences
-);
+export const PgPreferences = declareUpdateable(_PgPreferences, {
+  defaultState,
+});

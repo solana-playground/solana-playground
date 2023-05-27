@@ -160,7 +160,6 @@ class _PgProgramInfo {
   };
 }
 
-export const PgProgramInfo = declareUpdateable(
-  _PgProgramInfo,
-  {} as ProgramInfo
-);
+export const PgProgramInfo = declareUpdateable(_PgProgramInfo, {
+  defaultState,
+});

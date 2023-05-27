@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import type { Disposable, SyncOrAsync } from "../types";
+import type { Disposable, SyncOrAsync, UnionToTuple } from "../types";
 
 /** Change event function name prefix */
 const ON_DID_CHANGE = "onDidChange";
@@ -22,18 +22,74 @@ type Update<T> = {
   update(params: Partial<T>): void;
 };
 
-/** All `onDidChange${propertyName}` method types */
-type OnDidChangeEventName<T> = {
+/** Default `onDidChange` type */
+type OnDidChangeDefault<T> = {
   /**
    * @param cb callback function to run after the change
    * @returns a dispose function to clear the event
    */
   onDidChange(cb: (value: T) => void): Disposable;
-} & {
+};
+
+/** Non-recursive `onDidChange${propertyName}` method types */
+type OnDidChangeProperty<T> = {
   [K in keyof T as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: T[K]) => void
   ) => Disposable;
 };
+
+/** Recursive `onDidChange${propertyName}` method types */
+type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
+  [K in keyof U as `${typeof ON_DID_CHANGE}${K}`]: (
+    cb: (value: U[K]) => void
+  ) => Disposable;
+};
+
+/**
+ * Flatten the properties of the given object.
+ *
+ * ## Input:
+ * ```ts
+ * {
+ *   isReady: boolean;
+ *   nested: {
+ *     id: number;
+ *     name: string;
+ *   };
+ * }
+ *
+ * ## Output:
+ * ```ts
+ *  * {
+ *   IsReady: boolean;
+ *   NestedId: number;
+ *   NestedName: string;
+ * }
+ */
+type FlattenObject<T, U = PropertiesToTuple<T>> = MapNestedProperties<
+  // This check solves `Type instantiation is excessively deep and possibly infinite.`
+  U extends [string[], unknown] ? U : never
+>;
+
+/** Maps the given tuple to an object */
+type MapNestedProperties<T extends [string[], unknown]> = {
+  [K in T as JoinCapitalized<K[0]>]: K[1];
+};
+
+/** Join the given string array capitalized */
+type JoinCapitalized<T extends string[]> = T extends [
+  infer Head extends string,
+  ...infer Tail extends string[]
+]
+  ? `${Capitalize<Head>}${JoinCapitalized<Tail>}`
+  : "";
+
+/** Map the property values to a tuple */
+type PropertiesToTuple<T, Acc extends string[] = []> = {
+  [K in keyof T]: T[K] extends object
+    ? PropertiesToTuple<T[K], [...Acc, K]>
+    : [[...Acc, K], T[K]];
+}[keyof T];
 
 /** Custom storage implementation */
 type CustomStorage<T> = {
@@ -108,7 +164,7 @@ export function updateable<T>(params: {
     };
 
     // Batched main change event
-    (sClass as OnDidChangeEventName<T>).onDidChange = (
+    (sClass as OnDidChangeDefault<T>).onDidChange = (
       cb: (value: T) => void
     ) => {
       return PgCommon.batchChanges(
@@ -295,13 +351,19 @@ const defineSettersRecursively = ({
  * Add the necessary types to the given updateable static class.
  *
  * @param sClass static class
- * @param state internal state type
+ * @param options type helper options
  * @returns the static class with correct types
  */
-export const declareUpdateable = <C, T>(sClass: C, state: T) => {
-  return sClass as Omit<typeof sClass, "prototype"> &
+export const declareUpdateable = <C, T, R>(
+  sClass: C,
+  options?: { defaultState: T; recursive?: R }
+) => {
+  return sClass as unknown as Omit<typeof sClass, "prototype"> &
     T &
     Initialize &
     Update<T> &
-    OnDidChangeEventName<T>;
+    OnDidChangeDefault<T> &
+    (R extends undefined
+      ? OnDidChangeProperty<T>
+      : OnDidChangePropertyRecursive<T>);
 };
