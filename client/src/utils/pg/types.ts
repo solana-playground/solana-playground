@@ -1,7 +1,9 @@
+/** Methods of the given object */
 export type Methods<T> = {
   [U in keyof T]?: T[U] extends (...args: any[]) => any ? Parameters<T[U]> : [];
 };
 
+/** Return type of the methods of an object */
 export type ClassReturnType<T, U> = U extends keyof T
   ? T[U] extends (...args: any[]) => any
     ? Awaited<ReturnType<T[U]>>

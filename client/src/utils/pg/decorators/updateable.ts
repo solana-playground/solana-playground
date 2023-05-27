@@ -1,14 +1,5 @@
 import { PgCommon } from "../common";
-import type { Disposable, SyncOrAsync, UnionToTuple } from "../types";
-
-/** Change event function name prefix */
-const ON_DID_CHANGE = "onDidChange";
-
-/** Private state property */
-const INTERNAL_STATE_PROPERTY = "_state";
-
-/** The property name for keeping track of whether the class has been initialized */
-const IS_INITIALIZED_PROPERTY = "_isinitialized";
+import type { Disposable, SyncOrAsync } from "../types";
 
 /** `init` prop */
 type Initialize = {
@@ -40,56 +31,10 @@ type OnDidChangeProperty<T> = {
 
 /** Recursive `onDidChange${propertyName}` method types */
 type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in keyof U as `${typeof ON_DID_CHANGE}${K}`]: (
+  [K in keyof U as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };
-
-/**
- * Flatten the properties of the given object.
- *
- * ## Input:
- * ```ts
- * {
- *   isReady: boolean;
- *   nested: {
- *     id: number;
- *     name: string;
- *   };
- * }
- *
- * ## Output:
- * ```ts
- *  * {
- *   IsReady: boolean;
- *   NestedId: number;
- *   NestedName: string;
- * }
- */
-type FlattenObject<T, U = PropertiesToTuple<T>> = MapNestedProperties<
-  // This check solves `Type instantiation is excessively deep and possibly infinite.`
-  U extends [string[], unknown] ? U : never
->;
-
-/** Maps the given tuple to an object */
-type MapNestedProperties<T extends [string[], unknown]> = {
-  [K in T as JoinCapitalized<K[0]>]: K[1];
-};
-
-/** Join the given string array capitalized */
-type JoinCapitalized<T extends string[]> = T extends [
-  infer Head extends string,
-  ...infer Tail extends string[]
-]
-  ? `${Capitalize<Head>}${JoinCapitalized<Tail>}`
-  : "";
-
-/** Map the property values to a tuple */
-type PropertiesToTuple<T, Acc extends string[] = []> = {
-  [K in keyof T]: T[K] extends object
-    ? PropertiesToTuple<T[K], [...Acc, K]>
-    : [[...Acc, K], T[K]];
-}[keyof T];
 
 /** Custom storage implementation */
 type CustomStorage<T> = {
@@ -98,6 +43,15 @@ type CustomStorage<T> = {
   /** Serialize the data and write to storage. */
   write(state: T): SyncOrAsync<void>;
 };
+
+/** Change event function name prefix */
+const ON_DID_CHANGE = "onDidChange";
+
+/** Private state property */
+const INTERNAL_STATE_PROPERTY = "_state";
+
+/** The property name for keeping track of whether the class has been initialized */
+const IS_INITIALIZED_PROPERTY = "_isinitialized";
 
 /**
  * Make a static class updateable.
@@ -294,7 +248,7 @@ const defineSettersRecursively = ({
         .forEach((prop) => {
           PgCommon.createAndDispatchCustomEvent(
             sClass._getChangeEventName(prop),
-            PgCommon.getProperty(sClass, prop)
+            PgCommon.getProperty(sClass[INTERNAL_STATE_PROPERTY], prop)
           );
         });
 
@@ -348,6 +302,71 @@ const defineSettersRecursively = ({
 };
 
 /**
+ * Flatten the properties of the given object.
+ *
+ * ## Input:
+ * ```ts
+ * {
+ *   isReady: boolean;
+ *   nested: {
+ *     id: number;
+ *     double: {
+ *       name: string;
+ *     };
+ *   };
+ * }
+ * ```
+ *
+ * ## Output:
+ * ```ts
+ * {
+ *   isReady: boolean;
+ *   nested: {
+ *     id: number;
+ *     double: {
+ *       name: string;
+ *     };
+ *   }
+ *   nestedId: number;
+ *   nestedDouble: {
+ *     name: string;
+ *   }
+ *   nestedDoubleName: string;
+ * }
+ * ```
+ */
+type FlattenObject<T, U = PropertiesToUnionOfTuples<T>> = MapNestedProperties<
+  // This check solves `Type instantiation is excessively deep and possibly infinite.`
+  U extends [string[], unknown] ? U : never
+>;
+
+/** Maps the given tuple to an object */
+type MapNestedProperties<T extends [string[], unknown]> = {
+  [K in T as Uncapitalize<JoinCapitalized<K[0]>>]: K[1];
+};
+
+/** Join the given string array capitalized */
+type JoinCapitalized<T extends string[]> = T extends [
+  // infer Head extends string,
+  // ...infer Tail extends string[]
+  infer Head,
+  ...infer Tail
+]
+  ? Head extends string
+    ? Tail extends string[]
+      ? `${Capitalize<Head>}${JoinCapitalized<Tail>}`
+      : never
+    : never
+  : "";
+
+/** Map the property values to a union of tuples */
+type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
+  [K in keyof T]: T[K] extends object
+    ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
+    : [[...Acc, K], T[K]];
+}[keyof T];
+
+/**
  * Add the necessary types to the given updateable static class.
  *
  * @param sClass static class
@@ -363,7 +382,7 @@ export const declareUpdateable = <C, T, R>(
     Initialize &
     Update<T> &
     OnDidChangeDefault<T> &
-    (R extends undefined
-      ? OnDidChangeProperty<T>
-      : OnDidChangePropertyRecursive<T>);
+    (R extends boolean
+      ? OnDidChangePropertyRecursive<T>
+      : OnDidChangeProperty<T>);
 };
