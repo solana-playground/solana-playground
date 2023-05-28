@@ -13,13 +13,13 @@ import {
   ItemError,
   WorkspaceError,
 } from "../../../constants";
-import type { ShareJSON } from "../share";
 import type {
   Disposable,
   Methods,
   ClassReturnType,
   TupleString,
 } from "../types";
+import type { ShareGetResponse } from "../server";
 
 export interface ExplorerJSON {
   files: {
@@ -1149,7 +1149,7 @@ export class PgExplorer {
     // Shared files are already in a valid form to share
     if (this.isShared) return { files };
 
-    const shareFiles: ShareJSON = { files: {} };
+    const shareFiles: ShareGetResponse = { files: {} };
 
     for (let path in files) {
       if (!path.startsWith(this._getCurrentSrcPath())) continue;

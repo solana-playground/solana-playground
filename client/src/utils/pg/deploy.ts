@@ -1,13 +1,14 @@
 import { Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
-import { GITHUB_URL, SERVER_URL } from "../../constants";
+import { GITHUB_URL } from "../../constants";
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgProgramInfo } from "./program-info";
 import { PgTerminal } from "./terminal";
 import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
+import { PgServer } from "./server";
 
 export class PgDeploy {
   static async deploy(programBuffer: Buffer) {
@@ -16,18 +17,13 @@ export class PgDeploy {
 
     // This shouldn't happen because the deploy button is disabled for this condition
     if (!programPk) throw new Error("Program id not found.");
+    if (!PgProgramInfo.uuid) throw new Error("Program is not built.");
 
     const wallet = PgWallet;
 
     // Regular deploy without custom elf upload
     if (!programBuffer.length) {
-      const uuid = PgProgramInfo.uuid;
-      const resp = await fetch(`${SERVER_URL}/deploy/${uuid}`);
-
-      const arrayBuffer = await PgCommon.checkForRespErr(resp);
-
-      // Need to convert ArrayBuffer to Buffer
-      programBuffer = Buffer.from(arrayBuffer);
+      programBuffer = await PgServer.deploy(PgProgramInfo.uuid);
     }
 
     // Get connection

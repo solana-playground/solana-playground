@@ -1,13 +1,10 @@
-import type { Idl } from "@project-serum/anchor";
-
 import { createCmd } from "../create-command";
 import { PgPackage } from "../package";
-import { PgCommon } from "../../common";
 import { PgTerminal } from "../../terminal";
 import { Files, PgExplorer } from "../../explorer";
 import { PgProgramInfo } from "../../program-info";
+import { PgServer } from "../../server";
 import { TerminalAction } from "../../../../state";
-import { SERVER_URL } from "../../../../constants";
 
 export const build = createCmd({
   name: "build",
@@ -51,32 +48,13 @@ async function buildInternal() {
 /**
  * Build rust files and return the output.
  *
- * @param rustFiles Rust files from `src/`
+ * @param files Rust files from `src/`
  * @returns Build output from stderr(not only errors)
  */
-async function buildRust(rustFiles: Files) {
-  if (!rustFiles.length) throw new Error("Couldn't find any Rust files.");
+async function buildRust(files: Files) {
+  if (!files.length) throw new Error("Couldn't find any Rust files.");
 
-  const resp = await fetch(`${SERVER_URL}/build`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      files: rustFiles,
-      uuid: PgProgramInfo.uuid,
-    }),
-  });
-
-  await PgCommon.checkForRespErr(resp.clone());
-
-  interface BuildResponse {
-    stderr: string;
-    uuid: string | null;
-    idl: Idl | null;
-  }
-
-  const data: BuildResponse = await resp.json();
+  const data = await PgServer.build(files, PgProgramInfo.uuid);
 
   // Update program info
   PgProgramInfo.update({

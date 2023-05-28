@@ -156,20 +156,6 @@ export class PgCommon {
   }
 
   /**
-   * Check whether the http response is OK.
-   * If there is an error, decode the array buffer and return it.
-   *
-   * @returns response array buffer if the response is OK
-   */
-  static async checkForRespErr(resp: Response) {
-    const arrayBuffer = await resp.arrayBuffer();
-
-    if (!resp.ok) throw new Error(this.decodeBytes(arrayBuffer));
-
-    return arrayBuffer;
-  }
-
-  /**
    * @returns first and last (default: 5) chars of a public key and '...' in between as string
    */
   static shortenPk(pk: PublicKey | string, chars: number = 5) {
