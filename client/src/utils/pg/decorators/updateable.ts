@@ -1,32 +1,20 @@
 import { PgCommon } from "../common";
+import {
+  INTERNAL_STATE_PROPERTY,
+  IS_INITIALIZED_PROPERTY,
+  ON_DID_CHANGE,
+} from "./common";
+import type {
+  InitializeASync,
+  OnDidChangeDefault,
+  OnDidChangeProperty,
+} from "./types";
 import type { Disposable, SyncOrAsync } from "../types";
-
-/** `init` prop */
-type Initialize = {
-  /** Initializer that returns a disposable */
-  init(): SyncOrAsync<Disposable>;
-};
 
 /** Updateable decorator */
 type Update<T> = {
   /** Update state */
   update(params: Partial<T>): void;
-};
-
-/** Default `onDidChange` type */
-type OnDidChangeDefault<T> = {
-  /**
-   * @param cb callback function to run after the change
-   * @returns a dispose function to clear the event
-   */
-  onDidChange(cb: (value: T) => void): Disposable;
-};
-
-/** Non-recursive `onDidChange${propertyName}` method types */
-type OnDidChangeProperty<T> = {
-  [K in keyof T as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
-    cb: (value: T[K]) => void
-  ) => Disposable;
 };
 
 /** Recursive `onDidChange${propertyName}` method types */
@@ -43,15 +31,6 @@ type CustomStorage<T> = {
   /** Serialize the data and write to storage. */
   write(state: T): SyncOrAsync<void>;
 };
-
-/** Change event function name prefix */
-const ON_DID_CHANGE = "onDidChange";
-
-/** Private state property */
-const INTERNAL_STATE_PROPERTY = "_state";
-
-/** The property name for keeping track of whether the class has been initialized */
-const IS_INITIALIZED_PROPERTY = "_isinitialized";
 
 /**
  * Make a static class updateable.
@@ -78,7 +57,7 @@ export function updateable<T>(params: {
     sClass[IS_INITIALIZED_PROPERTY] ??= false;
 
     // Initializer
-    (sClass as Initialize).init = async () => {
+    (sClass as InitializeASync).init = async () => {
       const state: T = await params.storage.read();
 
       // Set the default if any prop is missing(recursively)
@@ -117,7 +96,7 @@ export function updateable<T>(params: {
       return sClass.onDidChange((state: T) => params.storage.write(state));
     };
 
-    // Batched main change event
+    // Batch main change event
     (sClass as OnDidChangeDefault<T>).onDidChange = (
       cb: (value: T) => void
     ) => {
@@ -183,9 +162,8 @@ export function updateable<T>(params: {
         });
 
         // Change event handlers
-        const onDidChangeEventName =
-          ON_DID_CHANGE + prop[0].toUpperCase() + prop.slice(1);
-        sClass[onDidChangeEventName] ??= (cb: (value: unknown) => unknown) => {
+        const onDidChangeEventName = ON_DID_CHANGE + PgCommon.capitalize(prop);
+        sClass[onDidChangeEventName] = (cb: (value: unknown) => unknown) => {
           return PgCommon.onDidChange({
             cb,
             eventName: sClass._getChangeEventName(prop),
@@ -377,9 +355,9 @@ export const declareUpdateable = <C, T, R>(
   sClass: C,
   options?: { defaultState: T; recursive?: R }
 ) => {
-  return sClass as unknown as Omit<typeof sClass, "prototype"> &
+  return sClass as unknown as Omit<C, "prototype"> &
     T &
-    Initialize &
+    InitializeASync &
     Update<T> &
     OnDidChangeDefault<T> &
     (R extends boolean

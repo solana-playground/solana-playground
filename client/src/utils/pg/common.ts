@@ -481,6 +481,13 @@ export class PgCommon {
   }
 
   /**
+   * @returns the string with its first letter uppercased
+   */
+  static capitalize(str: string) {
+    return str[0].toUpperCase() + str.slice(1);
+  }
+
+  /**
    * @returns automatic airdrop amount
    */
   static getAirdropAmount(endpoint: string) {
@@ -594,7 +601,7 @@ export class PgCommon {
    */
   static onDidChange<T>(params: {
     cb: (value: T) => any;
-    eventName: EventName;
+    eventName: EventName | (string & {});
     // TODO: make it run by default
     initialRun?: { value: T };
   }): Disposable {
