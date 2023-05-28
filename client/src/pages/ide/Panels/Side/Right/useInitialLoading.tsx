@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 import {
+  PgCommand,
   PgCommon,
   PgConnection,
-  PgDeploy,
   PgProgramInfo,
 } from "../../../../../utils/pg";
 import { useAsyncEffect, usePgConnection } from "../../../../../hooks";
@@ -56,7 +56,7 @@ const useIsDeployed = () => {
 
     const { dispose } = PgCommon.batchChanges(fetchIsDeployed, [
       PgProgramInfo.onDidChangePk,
-      PgDeploy.onDidDeploy,
+      PgCommand.deploy.onDidRunFinish,
     ]);
 
     return () => dispose();

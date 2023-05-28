@@ -12,7 +12,7 @@ import {
   Lang,
   PgCommon,
   PgPackage,
-  PgBuild,
+  PgCommand,
 } from "../../../../../../../utils/pg";
 import {
   useAsyncEffect,
@@ -331,7 +331,7 @@ const CodeMirror = () => {
     };
 
     const { dispose } = PgCommon.batchChanges(updateId, [
-      PgBuild.onDidBuild,
+      PgCommand.build.onDidRunStart,
       PgProgramInfo.onDidChangePk,
     ]);
 

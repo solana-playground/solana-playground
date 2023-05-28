@@ -1,5 +1,7 @@
 import * as commands from "./commands";
+import { PgCommon } from "../common";
 import { PgTerminal } from "../terminal";
+import type { Disposable } from "../types";
 
 /** Terminal command */
 export interface CommandImpl<R> {
@@ -32,6 +34,25 @@ type Commands = {
 type Command<R> = Pick<CommandImpl<R>, "name"> & {
   /** Command processor */
   run(args?: string): Promise<Awaited<R>>;
+  /**
+   * @param cb callback function to run when the command starts running
+   * @returns a dispose function to clear the event
+   */
+  onDidRunStart(cb: (input: string | null) => void): Disposable;
+  /**
+   * @param cb callback function to run when the command finishes running
+   * @returns a dispose function to clear the event
+   */
+  onDidRunFinish(cb: (input: string | null) => void): Disposable;
+};
+
+const getEventName = (name: string, kind: "start" | "finish") => {
+  switch (kind) {
+    case "start":
+      return "ondidrunstart" + name;
+    case "finish":
+      return "ondidrunfinish" + name;
+  }
 };
 
 /** Command manager */
@@ -44,6 +65,22 @@ export const PgCommand: Commands = new Proxy(
         name: commandName,
         run: (args: string = "") => {
           return PgTerminal.executeFromStr(`${commandName} ${args}`);
+        },
+        onDidRunStart: (cb: (input: string | null) => void) => {
+          return PgCommon.onDidChange({
+            cb,
+            eventName: getEventName(name, "start"),
+            initialRun: { value: null },
+          });
+        },
+        onDidRunFinish: (
+          cb: (input: string | null) => void
+        ): ReturnType<Command<unknown>["onDidRunFinish"]> => {
+          return PgCommon.onDidChange({
+            cb,
+            eventName: getEventName(name, "finish"),
+            initialRun: { value: null },
+          });
         },
       };
     },
@@ -77,7 +114,22 @@ export class PgCommandExecutor {
         if (inputCmdName !== cmd.name) continue;
         if (cmd.preCheck && !cmd.preCheck()) return;
 
-        return await cmd.run(input);
+        // Dispatch start event
+        PgCommon.createAndDispatchCustomEvent(
+          getEventName(cmdName, "start"),
+          input
+        );
+
+        // Run the command processor
+        const result = await cmd.run(input);
+
+        // Dispatch finish event
+        PgCommon.createAndDispatchCustomEvent(
+          getEventName(cmdName, "finish"),
+          input
+        );
+
+        return result;
       }
 
       PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);

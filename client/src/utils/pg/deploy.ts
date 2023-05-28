@@ -1,12 +1,12 @@
 import { Keypair } from "@solana/web3.js";
 
 import { BpfLoaderUpgradeable } from "../bpf-upgradeable-browser";
-import { EventName, GITHUB_URL, SERVER_URL } from "../../constants";
+import { GITHUB_URL, SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgProgramInfo } from "./program-info";
-import { PgTerminal } from "./terminal/";
-import { PgTx } from "./tx/tx";
+import { PgTerminal } from "./terminal";
+import { PgTx } from "./tx";
 import { PgWallet } from "./wallet";
 
 export class PgDeploy {
@@ -268,18 +268,6 @@ export class PgDeploy {
     }
 
     return txHash;
-  }
-
-  /**
-   * @param cb callback function to run after program deployment
-   * @returns a dispose function to clear the event
-   */
-  static onDidDeploy(cb: () => void) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.DEPLOY_ON_DID_DEPLOY,
-      initialRun: { value: null },
-    });
   }
 
   /** Maximum amount of transaction retries */

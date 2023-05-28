@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 
-import { EventName } from "../../../../../../constants";
 import {
   DEFAULT_PROGRAM,
   Program,
   TerminalAction,
 } from "../../../../../../state";
 import {
+  PgCommand,
   PgCommon,
   PgConnection,
   PgDeploy,
@@ -56,8 +56,6 @@ Your address: ${PgWallet.publicKey}`
       msg = `${PgTerminal.success(
         "Deployment successful."
       )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
-
-      PgCommon.createAndDispatchCustomEvent(EventName.DEPLOY_ON_DID_DEPLOY);
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;
@@ -125,7 +123,7 @@ const useAuthority = () => {
 
     const { dispose } = PgCommon.batchChanges(fetchProgramData, [
       PgProgramInfo.onDidChangePk,
-      PgDeploy.onDidDeploy,
+      PgCommand.deploy.onDidRunFinish,
     ]);
 
     return () => dispose();

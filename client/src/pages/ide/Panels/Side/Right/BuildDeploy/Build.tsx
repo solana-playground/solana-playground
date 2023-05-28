@@ -1,18 +1,21 @@
 import { useAtom } from "jotai";
+import { useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../../../components/Button";
 import { terminalStateAtom } from "../../../../../../state";
-import { Fn, PgCommand } from "../../../../../../utils/pg";
+import { PgCommand } from "../../../../../../utils/pg";
 
 const Build = () => {
   const [terminalState] = useAtom(terminalStateAtom);
+
+  const build = useCallback(async () => await PgCommand.build.run(), []);
 
   return (
     <Wrapper>
       <Button
         kind="secondary"
-        onClick={PgCommand.build.run as Fn}
+        onClick={build}
         disabled={terminalState.buildLoading}
         btnLoading={terminalState.buildLoading}
         fullWidth

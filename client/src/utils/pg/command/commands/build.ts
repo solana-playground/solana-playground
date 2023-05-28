@@ -7,7 +7,7 @@ import { PgTerminal } from "../../terminal";
 import { Files, PgExplorer } from "../../explorer";
 import { PgProgramInfo } from "../../program-info";
 import { TerminalAction } from "../../../../state";
-import { EventName, SERVER_URL } from "../../../../constants";
+import { SERVER_URL } from "../../../../constants";
 
 export const build = createCmd({
   name: "build",
@@ -20,7 +20,6 @@ export const build = createCmd({
     try {
       const result = await buildInternal();
       msg = PgTerminal.editStderr(result.stderr);
-      PgCommon.createAndDispatchCustomEvent(EventName.BUILD_ON_DID_BUILD);
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Build error: ${convertedError}`;

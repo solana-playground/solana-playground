@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -7,7 +7,7 @@ import Button, { ButtonProps } from "../../../../../../components/Button";
 import { Skeleton } from "../../../../../../components/Loading";
 import { ConnectionErrorText } from "../Common";
 import { programAtom, terminalStateAtom } from "../../../../../../state";
-import { Fn, PgCommand, PgProgramInfo } from "../../../../../../utils/pg";
+import { PgCommand, PgProgramInfo } from "../../../../../../utils/pg";
 import { useDeploy } from "../../../Main/Terminal/commands/useDeploy";
 import { useInitialLoading } from "..";
 import { useConnect, useCurrentWallet } from "../../../../../../hooks";
@@ -37,7 +37,7 @@ const Deploy = () => {
   const deployButtonProps: ButtonProps = useMemo(
     () => ({
       kind: "primary",
-      onClick: PgCommand.deploy.run as Fn,
+      onClick: async () => await PgCommand.deploy.run(),
       disabled: terminalState.deployLoading || terminalState.buildLoading,
       btnLoading: terminalState.deployLoading,
     }),
@@ -203,8 +203,10 @@ const Deploy = () => {
 const ConnectPgWalletButton = () => {
   const { pgButtonStatus } = useConnect();
 
+  const connect = useCallback(async () => await PgCommand.connect.run(), []);
+
   return (
-    <Button onClick={PgCommand.connect.run as Fn} kind="primary">
+    <Button onClick={connect} kind="primary">
       {pgButtonStatus}
     </Button>
   );

@@ -6,13 +6,13 @@ import Event from "./Event";
 import TestSkeleton from "./TestSkeleton";
 import Text from "../../../../../../components/Text";
 import { ConnectionErrorText } from "../Common";
-import { PgBuild, PgProgramInfo } from "../../../../../../utils/pg";
+import { PgCommand, PgProgramInfo } from "../../../../../../utils/pg";
 import { useInitialLoading } from "..";
 import { useBigNumberJson } from "./useBigNumberJson";
 import { useRenderOnChange } from "../../../../../../hooks";
 
 const Test = () => {
-  useRenderOnChange(PgBuild.onDidBuild);
+  useRenderOnChange(PgCommand.build.onDidRunStart);
 
   const { initialLoading, deployed, connError } = useInitialLoading();
 
