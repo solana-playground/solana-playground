@@ -1,2 +1,2 @@
 export * from "./derivable";
-export * from "./updateable";
+export * from "./updatable";

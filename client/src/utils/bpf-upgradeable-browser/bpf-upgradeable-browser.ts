@@ -159,7 +159,7 @@ type SetUpgradeAuthorityParams = {
   programPk: PublicKey;
   /** The current authority */
   authorityPk: PublicKey;
-  /** The new authority, optional, if omitted then the program will not be upgradeable */
+  /** The new authority, optional, if omitted then the program will not be upgradable */
   newAuthorityPk: PublicKey | undefined;
 };
 

@@ -13,7 +13,7 @@ import type {
 } from "./types";
 import type { Disposable, SyncOrAsync } from "../types";
 
-/** Updateable decorator */
+/** Updatable decorator */
 type Update<T> = {
   /** Update state */
   update(params: Partial<T>): void;
@@ -35,7 +35,7 @@ type CustomStorage<T> = {
 };
 
 /**
- * Make a static class updateable.
+ * Make a static class updatable.
  *
  * This decorator defines getters for the given prop names and adds an
  * `onDidChange${propertyName}` method for each prop.
@@ -46,7 +46,7 @@ type CustomStorage<T> = {
  * NOTE: Types have to be added separately as decorators don't have proper
  * type support.
  */
-export function updateable<T>(params: {
+export function updatable<T>(params: {
   /** Default value to set */
   defaultState: Required<T>;
   /** Storage that is responsible with de/serialization */
@@ -308,7 +308,7 @@ type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
 }[keyof T];
 
 /**
- * Add the necessary types to the given updateable static class.
+ * Add the necessary types to the given updatable static class.
  *
  * @param sClass static class
  * @param options type helper options

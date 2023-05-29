@@ -10,7 +10,7 @@ import {
   declareDerivable,
   declareUpdateable,
   derivable,
-  updateable,
+  updatable,
 } from "./decorators";
 import { PgCommand } from "./command";
 import { PgConnection } from "./connection";
@@ -110,14 +110,14 @@ const deriveState = () => ({
 
   /** On-chain data of the program */
   onChain: createDerivable({
-    derive: _PgProgramInfo.utils.fetch,
+    derive: _PgProgramInfo.fetch,
     // TODO: Add connection
-    onChange: ["pk", PgCommand.connect.onDidRunFinish],
+    onChange: ["pk", PgCommand.deploy.onDidRunFinish],
   }),
 });
 
 @derivable(deriveState)
-@updateable({ defaultState, storage })
+@updatable({ defaultState, storage })
 class _PgProgramInfo {
   /** Get the current program's pubkey as base58 string. */
   static getPkStr() {
@@ -130,74 +130,71 @@ class _PgProgramInfo {
     return null;
   }
 
-  /** Program info related utilities */
-  static utils = class {
-    /**
-     * Fetch the program from chain.
-     *
-     * @param programId optional program id
-     * @returns program's authority and whether the program is upgradeable
-     */
-    static async fetch(programId?: PublicKey | null) {
-      const conn = await PgConnection.get();
-      if (!PgConnection.isReady(conn)) return;
+  /**
+   * Fetch the program from chain.
+   *
+   * @param programId optional program id
+   * @returns program's authority and whether the program is upgradable
+   */
+  static async fetch(programId?: PublicKey | null) {
+    const conn = await PgConnection.get();
+    if (!PgConnection.isReady(conn)) return;
 
-      if (!programId && !PgProgramInfo.pk) return;
-      programId = PgProgramInfo.pk as PublicKey;
+    if (!programId && !PgProgramInfo.pk) return;
+    programId = PgProgramInfo.pk as PublicKey;
 
-      try {
-        const programAccountInfo = await conn.getAccountInfo(programId);
-        const programDataPkBuffer = programAccountInfo?.data.slice(4);
-        if (!programDataPkBuffer) return { upgradeable: true };
+    try {
+      const programAccountInfo = await conn.getAccountInfo(programId);
+      const programDataPkBuffer = programAccountInfo?.data.slice(4);
+      if (!programDataPkBuffer) return { upgradable: true };
 
-        const programDataPk = new PublicKey(programDataPkBuffer);
-        const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
+      const programDataPk = new PublicKey(programDataPkBuffer);
+      const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
 
-        // Check if program authority exists
-        const authorityExists = programDataAccountInfo?.data.at(12);
-        if (!authorityExists) return { upgradeable: false };
+      // Check if program authority exists
+      const authorityExists = programDataAccountInfo?.data.at(12);
+      if (!authorityExists) return { upgradable: false };
 
-        const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
-          13,
-          45
-        );
-        const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
-        return { authority: upgradeAuthorityPk, upgradeable: true };
-      } catch (e: any) {
-        console.log("Could not get authority:", e.message);
-      }
+      const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
+        13,
+        45
+      );
+      const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
+      return { authority: upgradeAuthorityPk, upgradable: true };
+    } catch (e: any) {
+      console.log("Could not get authority:", e.message);
+    }
+  }
+
+  /**
+   * Fetch the Anchor IDL from chain.
+   *
+   * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
+   * function only returns the IDL without the IDL authority.
+   *
+   * @param programId optional program id
+   * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
+   */
+  static async fetchIdl(programId?: PublicKey | null) {
+    if (!programId) {
+      programId = PgProgramInfo.pk;
+      if (!programId) return null;
     }
 
-    /**
-     * Fetch the Anchor IDL from chain.
-     *
-     * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
-     * function only returns the IDL without the IDL authority.
-     *
-     * @param programId optional program id
-     * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
-     */
-    static async fetchIdl(programId?: PublicKey | null) {
-      if (!programId) {
-        programId = PgProgramInfo.pk;
-        if (!programId) return null;
-      }
+    const idlPk = await idlAddress(programId);
 
-      const idlPk = await idlAddress(programId);
+    const conn = await PgConnection.get();
+    const accountInfo = await conn.getAccountInfo(idlPk);
+    if (!accountInfo) return null;
 
-      const conn = await PgConnection.get();
-      const accountInfo = await conn.getAccountInfo(idlPk);
-      if (!accountInfo) return null;
+    // Chop off account discriminator
+    const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
+    const { inflate } = await import("pako");
+    const inflatedIdl = inflate(idlAccount.data);
+    const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
 
-      // Chop off account discriminator
-      const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
-      const { inflate } = await import("pako");
-      const inflatedIdl = inflate(idlAccount.data);
-      const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
-
-      return { idl, authority: idlAccount.authority };
-    }
-  };
+    return { idl, authority: idlAccount.authority };
+  }
 }
 
 export const PgProgramInfo = declareDerivable(

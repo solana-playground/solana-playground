@@ -18,7 +18,7 @@ const Deploy = () => {
 
   const { initialLoading, deployed, connError } = useInitialLoading();
   const { pgWallet, solWalletPk } = useCurrentWallet();
-  const upgradeable = PgProgramInfo.onChain?.upgradeable;
+  const upgradable = PgProgramInfo.onChain?.upgradable;
   const authority = PgProgramInfo.onChain?.authority;
   const hasAuthority = authority?.equals(PgWallet.publicKey);
 
@@ -71,10 +71,10 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    if (upgradeable === false)
+    if (upgradable === false)
       return (
         <Wrapper>
-          <Text kind="warning">The program is not upgradeable.</Text>
+          <Text kind="warning">The program is not upgradable.</Text>
         </Wrapper>
       );
 
@@ -159,10 +159,10 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    if (upgradeable === false)
+    if (upgradable === false)
       return (
         <Wrapper>
-          <Text kind="warning">The program is not upgradeable.</Text>
+          <Text kind="warning">The program is not upgradable.</Text>
         </Wrapper>
       );
 

@@ -17,12 +17,12 @@ import {
 // TODO: Remove
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
   const runDeploy = useCallback(async () => {
-    const upgradeable = PgProgramInfo.onChain?.upgradeable;
+    const upgradable = PgProgramInfo.onChain?.upgradable;
     const authority = PgProgramInfo.onChain?.authority;
     const hasAuthority = authority?.equals(PgWallet.publicKey);
 
-    if (upgradeable === false) {
-      PgTerminal.log(PgTerminal.warning("The program is not upgradeable."));
+    if (upgradable === false) {
+      PgTerminal.log(PgTerminal.warning("The program is not upgradable."));
       return;
     }
     if (hasAuthority === false) {
