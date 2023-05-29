@@ -127,7 +127,7 @@ export function updatable<T>(params: {
       if (value === undefined) return;
 
       // Define getter and setter once
-      if (sClass[prop] === undefined) {
+      if (!Object.hasOwn(sClass, prop)) {
         Object.defineProperty(sClass, prop, {
           get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
           set: (value: T[keyof T]) => {

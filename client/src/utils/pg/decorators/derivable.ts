@@ -35,9 +35,11 @@ export function derivable<T extends Derivable>(
       const disposables: Disposable[] = [];
       for (const prop in state) {
         // Define getter
-        Object.defineProperty(sClass, prop, {
-          get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
-        });
+        if (!Object.hasOwn(sClass, prop)) {
+          Object.defineProperty(sClass, prop, {
+            get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
+          });
+        }
 
         const derivable = state[prop];
         if (!Array.isArray(derivable.onChange)) {
