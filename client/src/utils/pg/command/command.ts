@@ -46,6 +46,7 @@ type Command<R> = Pick<CommandImpl<R>, "name"> & {
   onDidRunFinish(cb: (input: string | null) => void): Disposable;
 };
 
+/** Get custom event name for the given command. */
 const getEventName = (name: string, kind: "start" | "finish") => {
   switch (kind) {
     case "start":
@@ -59,9 +60,11 @@ const getEventName = (name: string, kind: "start" | "finish") => {
 export const PgCommand: Commands = new Proxy(
   {},
   {
-    get: (_target: any, name: CommandCodeName): Command<unknown> => {
+    get: (target: any, name: CommandCodeName): Command<unknown> => {
+      if (target[name]) return target[name];
+
       const commandName = commands[name].name;
-      return {
+      target[name] = {
         name: commandName,
         run: (args: string = "") => {
           return PgTerminal.executeFromStr(`${commandName} ${args}`);
@@ -73,9 +76,7 @@ export const PgCommand: Commands = new Proxy(
             initialRun: { value: null },
           });
         },
-        onDidRunFinish: (
-          cb: (input: string | null) => void
-        ): ReturnType<Command<unknown>["onDidRunFinish"]> => {
+        onDidRunFinish: (cb: (input: string | null) => void) => {
           return PgCommon.onDidChange({
             cb,
             eventName: getEventName(name, "finish"),
@@ -83,6 +84,8 @@ export const PgCommand: Commands = new Proxy(
           });
         },
       };
+
+      return target[name];
     },
   }
 );

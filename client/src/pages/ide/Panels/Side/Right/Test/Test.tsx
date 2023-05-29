@@ -12,7 +12,7 @@ import { useBigNumberJson } from "./useBigNumberJson";
 import { useRenderOnChange } from "../../../../../../hooks";
 
 const Test = () => {
-  useRenderOnChange(PgCommand.build.onDidRunStart);
+  useRenderOnChange(PgCommand.build.onDidRunFinish);
 
   const { initialLoading, deployed, connError } = useInitialLoading();
 
