@@ -5,11 +5,17 @@ import {
   idlAddress,
 } from "@project-serum/anchor/dist/cjs/idl";
 
-import { declareUpdateable, updateable } from "./decorators";
-import { PgCommon } from "./common";
+import {
+  createDerivable,
+  declareDerivable,
+  declareUpdateable,
+  derivable,
+  updateable,
+} from "./decorators";
+import { PgCommand } from "./command";
 import { PgConnection } from "./connection";
 import { PgExplorer } from "./explorer";
-import type { Nullable, Disposable } from "./types";
+import type { Nullable } from "./types";
 
 /** Program info state */
 interface ProgramInfo
@@ -71,8 +77,10 @@ const storage = {
   async write(state: ProgramInfo) {
     const explorer = await PgExplorer.get();
     if (!explorer.isShared) {
+      // Don't use spread operator(...) because of the extra derived state
       const serializedState: SerializedProgramInfo = {
-        ...state,
+        uuid: state.uuid,
+        idl: state.idl,
         kp: state.kp ? Array.from(state.kp.secretKey) : null,
         customPk: state.customPk?.toBase58() ?? null,
       };
@@ -85,49 +93,81 @@ const storage = {
   },
 };
 
-@updateable({ defaultState, storage })
-class _PgProgramInfo {
+const deriveState = () => ({
   /**
    * Get the program's public key.
    *
    * Custom public key has priority if it's specified.
    */
-  static getPk() {
-    if (PgProgramInfo.customPk) return PgProgramInfo.customPk;
-    if (PgProgramInfo.kp) return PgProgramInfo.kp.publicKey;
-    return null;
-  }
+  pk: createDerivable({
+    derive: (): PublicKey | null => {
+      if (PgProgramInfo.customPk) return PgProgramInfo.customPk;
+      if (PgProgramInfo.kp) return PgProgramInfo.kp.publicKey;
+      return null;
+    },
+    onChange: ["kp", "customPk"],
+  }),
 
+  /** On-chain data of the program */
+  onChain: createDerivable({
+    derive: _PgProgramInfo.utils.fetch,
+    // TODO: Add connection
+    onChange: ["pk", PgCommand.connect.onDidRunFinish],
+  }),
+});
+
+@derivable(deriveState)
+@updateable({ defaultState, storage })
+class _PgProgramInfo {
   /** Get the current program's pubkey as base58 string. */
   static getPkStr() {
-    return PgProgramInfo.getPk()?.toBase58() ?? null;
+    return PgProgramInfo.pk?.toBase58() ?? null;
   }
 
   /** Get the JSON.stringified IDL from state. */
   static getIdlStr() {
-    if (PgProgramInfo.idl) {
-      return JSON.stringify(PgProgramInfo.idl);
-    }
-
+    if (PgProgramInfo.idl) return JSON.stringify(PgProgramInfo.idl);
     return null;
-  }
-
-  /**
-   * This method is implemented manually because `pk` is not being updated directly
-   * and the value depends on other state values.
-   *
-   * @param cb callback function to run after program pubkey change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangePk(cb: (pk: PublicKey | null) => any): Disposable {
-    return PgCommon.batchChanges(
-      () => cb(PgProgramInfo.getPk()),
-      [PgProgramInfo.onDidChangeKp, PgProgramInfo.onDidChangeCustomPk]
-    );
   }
 
   /** Program info related utilities */
   static utils = class {
+    /**
+     * Fetch the program from chain.
+     *
+     * @param programId optional program id
+     * @returns program's authority and whether the program is upgradeable
+     */
+    static async fetch(programId?: PublicKey | null) {
+      const conn = await PgConnection.get();
+      if (!PgConnection.isReady(conn)) return;
+
+      if (!programId && !PgProgramInfo.pk) return;
+      programId = PgProgramInfo.pk as PublicKey;
+
+      try {
+        const programAccountInfo = await conn.getAccountInfo(programId);
+        const programDataPkBuffer = programAccountInfo?.data.slice(4);
+        if (!programDataPkBuffer) return { upgradeable: true };
+
+        const programDataPk = new PublicKey(programDataPkBuffer);
+        const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
+
+        // Check if program authority exists
+        const authorityExists = programDataAccountInfo?.data.at(12);
+        if (!authorityExists) return { upgradeable: false };
+
+        const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
+          13,
+          45
+        );
+        const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
+        return { authority: upgradeAuthorityPk, upgradeable: true };
+      } catch (e: any) {
+        console.log("Could not get authority:", e.message);
+      }
+    }
+
     /**
      * Fetch the Anchor IDL from chain.
      *
@@ -137,10 +177,10 @@ class _PgProgramInfo {
      * @param programId optional program id
      * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
      */
-    static async getIdlFromChain(programId?: PublicKey | null) {
+    static async fetchIdl(programId?: PublicKey | null) {
       if (!programId) {
-        programId = PgProgramInfo.getPk();
-        if (!programId) throw new Error("Program id not found.");
+        programId = PgProgramInfo.pk;
+        if (!programId) return null;
       }
 
       const idlPk = await idlAddress(programId);
@@ -160,6 +200,9 @@ class _PgProgramInfo {
   };
 }
 
-export const PgProgramInfo = declareUpdateable(_PgProgramInfo, {
-  defaultState,
-});
+export const PgProgramInfo = declareDerivable(
+  declareUpdateable(_PgProgramInfo, {
+    defaultState,
+  }),
+  deriveState
+);

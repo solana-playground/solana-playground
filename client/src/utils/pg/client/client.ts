@@ -234,9 +234,8 @@ export class PgClient {
         }
       }
 
-      const programPk = PgProgramInfo.getPk();
-      if (programPk) {
-        pg.PROGRAM_ID = programPk;
+      if (PgProgramInfo.pk) {
+        pg.PROGRAM_ID = PgProgramInfo.pk;
       }
 
       // Set playground inherited object

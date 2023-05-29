@@ -13,7 +13,7 @@ import { PgServer } from "./server";
 export class PgDeploy {
   static async deploy(programBuffer: Buffer) {
     // Get program id
-    const programPk = PgProgramInfo.getPk();
+    const programPk = PgProgramInfo.pk;
 
     // This shouldn't happen because the deploy button is disabled for this condition
     if (!programPk) throw new Error("Program id not found.");
@@ -162,7 +162,7 @@ export class PgDeploy {
           }
 
           // Check whether customPk and programPk matches
-          if (!programKp.publicKey.equals(PgProgramInfo.getPk()!)) {
+          if (!programKp.publicKey.equals(programPk)) {
             errorMsg = [
               "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.",
               "You can fix this in 3 different ways:",

@@ -1,15 +1,10 @@
 import type { ON_DID_CHANGE } from "./common";
-import type { Disposable } from "../types";
+import type { Disposable, SyncOrAsync } from "../types";
 
 /** `init` prop */
-export type InitializeSync = {
+export type Initialize = {
   /** Initializer that returns a disposable */
-  init(): Disposable;
-};
-
-export type InitializeASync = {
-  /** Initializer that returns a disposable */
-  init(): Promise<Disposable>;
+  init(): SyncOrAsync<Disposable>;
 };
 
 /** Default `onDidChange` type */

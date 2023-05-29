@@ -1,11 +1,13 @@
 import { PgCommon } from "../common";
 import {
+  addInit,
+  addOnDidChange,
   INTERNAL_STATE_PROPERTY,
   IS_INITIALIZED_PROPERTY,
   ON_DID_CHANGE,
 } from "./common";
 import type {
-  InitializeASync,
+  Initialize,
   OnDidChangeDefault,
   OnDidChangeProperty,
 } from "./types";
@@ -53,11 +55,11 @@ export function updateable<T>(params: {
   recursive?: boolean;
 }) {
   return (sClass: any) => {
-    sClass[INTERNAL_STATE_PROPERTY] ??= {};
-    sClass[IS_INITIALIZED_PROPERTY] ??= false;
+    // Add `onDidChange` methods
+    addOnDidChange(sClass, params.defaultState);
 
-    // Initializer
-    (sClass as InitializeASync).init = async () => {
+    // Add `init` method
+    addInit(sClass, async () => {
       const state: T = await params.storage.read();
 
       // Set the default if any prop is missing(recursively)
@@ -90,23 +92,13 @@ export function updateable<T>(params: {
       };
       removeExtraProperties(state, params.defaultState);
 
+      // Set the initial state
       sClass.update(state);
-      sClass[IS_INITIALIZED_PROPERTY] = true;
 
       return sClass.onDidChange((state: T) => params.storage.write(state));
-    };
+    });
 
-    // Batch main change event
-    (sClass as OnDidChangeDefault<T>).onDidChange = (
-      cb: (value: T) => void
-    ) => {
-      return PgCommon.batchChanges(
-        () => cb(sClass[INTERNAL_STATE_PROPERTY]),
-        [onDidChange]
-      );
-    };
-
-    // Update method
+    // Add `update` method
     if (params.recursive) {
       (sClass as Update<T>).update = (updateParams: Partial<T>) => {
         for (const prop in updateParams) {
@@ -129,12 +121,6 @@ export function updateable<T>(params: {
         }
       };
     }
-
-    // Get custom event name
-    sClass._getChangeEventName = (name?: string | string[]) => {
-      if (Array.isArray(name)) name = name.join(".");
-      return "ondidchange" + sClass.name + (name ?? "");
-    };
 
     // Common update method
     const update = (prop: keyof T, value?: T[keyof T]) => {
@@ -160,33 +146,10 @@ export function updateable<T>(params: {
             );
           },
         });
-
-        // Change event handlers
-        const onDidChangeEventName = ON_DID_CHANGE + PgCommon.capitalize(prop);
-        sClass[onDidChangeEventName] = (cb: (value: unknown) => unknown) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: sClass._getChangeEventName(prop),
-            initialRun: sClass[IS_INITIALIZED_PROPERTY]
-              ? { value: sClass[prop] }
-              : undefined,
-          });
-        };
       }
 
       // Trigger the setter
       sClass[prop] = value;
-    };
-
-    // Main change event
-    const onDidChange = (cb: (value: T) => void) => {
-      return PgCommon.onDidChange({
-        cb,
-        eventName: sClass._getChangeEventName(),
-        initialRun: sClass[IS_INITIALIZED_PROPERTY]
-          ? { value: sClass[INTERNAL_STATE_PROPERTY] }
-          : undefined,
-      });
     };
   };
 }
@@ -357,7 +320,7 @@ export const declareUpdateable = <C, T, R>(
 ) => {
   return sClass as unknown as Omit<C, "prototype"> &
     T &
-    InitializeASync &
+    Initialize &
     Update<T> &
     OnDidChangeDefault<T> &
     (R extends boolean

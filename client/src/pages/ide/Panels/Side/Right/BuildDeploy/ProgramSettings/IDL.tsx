@@ -116,7 +116,7 @@ const InitOrUpgrade = () => {
 
       setState(InitOrUpgradeState.IS_FETCHING);
       const idlResult = await PgCommon.transition(
-        PgProgramInfo.utils.getIdlFromChain()
+        PgProgramInfo.utils.fetchIdl()
       );
       if (!idlResult) {
         setState(InitOrUpgradeState.CAN_INIT);

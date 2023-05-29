@@ -124,7 +124,7 @@ const useWalletStatic = () => {
 const useProgramInfoStatic = () => {
   useAsyncEffect(async () => {
     const explorer = await PgExplorer.get();
-    let disposeProgramInfo: Disposable;
+    let disposeProgramInfo: Disposable | undefined;
     const { dispose } = explorer.onDidChangeWorkspace(async () => {
       disposeProgramInfo?.dispose();
       disposeProgramInfo = await PgProgramInfo.init();

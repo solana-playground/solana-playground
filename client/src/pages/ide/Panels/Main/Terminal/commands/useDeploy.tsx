@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
-import { PublicKey } from "@solana/web3.js";
+import { useCallback } from "react";
 
 import {
   DEFAULT_PROGRAM,
@@ -7,21 +6,21 @@ import {
   TerminalAction,
 } from "../../../../../../state";
 import {
-  PgCommand,
   PgCommon,
-  PgConnection,
   PgDeploy,
   PgProgramInfo,
   PgTerminal,
   PgTx,
   PgWallet,
 } from "../../../../../../utils/pg";
-import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
 
+// TODO: Remove
 export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
-  const { authority, hasAuthority, upgradeable } = useAuthority();
-
   const runDeploy = useCallback(async () => {
+    const upgradeable = PgProgramInfo.onChain?.upgradeable;
+    const authority = PgProgramInfo.onChain?.authority;
+    const hasAuthority = authority?.equals(PgWallet.publicKey);
+
     if (upgradeable === false) {
       PgTerminal.log(PgTerminal.warning("The program is not upgradeable."));
       return;
@@ -31,7 +30,7 @@ export const useDeploy = (program: Program = DEFAULT_PROGRAM) => {
         `${PgTerminal.warning(
           "You don't have the authority to upgrade this program."
         )}
-Program ID: ${PgProgramInfo.getPk()}
+Program ID: ${PgProgramInfo.pk}
 Program authority: ${authority}
 Your address: ${PgWallet.publicKey}`
       );
@@ -65,76 +64,7 @@ Your address: ${PgWallet.publicKey}`
       PgTerminal.setTerminalState(TerminalAction.deployLoadingStop);
       PgTerminal.setProgress(0);
     }
-  }, [program, authority, hasAuthority, upgradeable]);
+  }, [program]);
 
-  return { runDeploy, hasAuthority, upgradeable };
-};
-
-interface ProgramData {
-  upgradeable: boolean;
-  authority?: PublicKey;
-}
-
-const useAuthority = () => {
-  const { connection: conn } = usePgConnection();
-  const { pgWalletPk } = useCurrentWallet();
-
-  const [programData, setProgramData] = useState<ProgramData>({
-    upgradeable: true,
-  });
-
-  useEffect(() => {
-    const fetchProgramData = async () => {
-      if (!PgConnection.isReady(conn)) return;
-
-      const programPk = PgProgramInfo.getPk();
-      if (!programPk) return;
-
-      try {
-        const programAccountInfo = await conn.getAccountInfo(programPk);
-        const programDataPkBuffer = programAccountInfo?.data.slice(4);
-        if (!programDataPkBuffer) {
-          setProgramData({ upgradeable: true });
-          return;
-        }
-        const programDataPk = new PublicKey(programDataPkBuffer);
-
-        const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
-
-        // Check if program authority exists
-        const authorityExists = programDataAccountInfo?.data.at(12);
-        if (!authorityExists) {
-          setProgramData({ upgradeable: false });
-          return;
-        }
-
-        const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
-          13,
-          45
-        );
-
-        const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
-
-        setProgramData({ authority: upgradeAuthorityPk, upgradeable: true });
-      } catch (e: any) {
-        console.log("Could not get authority:", e.message);
-      }
-    };
-
-    const { dispose } = PgCommon.batchChanges(fetchProgramData, [
-      PgProgramInfo.onDidChangePk,
-      PgCommand.deploy.onDidRunFinish,
-    ]);
-
-    return () => dispose();
-  }, [conn]);
-
-  return {
-    authority: programData.authority,
-    hasAuthority:
-      programData.authority &&
-      pgWalletPk &&
-      programData.authority.equals(pgWalletPk),
-    upgradeable: programData.upgradeable,
-  };
+  return { runDeploy };
 };

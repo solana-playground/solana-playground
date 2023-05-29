@@ -7,8 +7,7 @@ import Button, { ButtonProps } from "../../../../../../components/Button";
 import { Skeleton } from "../../../../../../components/Loading";
 import { ConnectionErrorText } from "../Common";
 import { programAtom, terminalStateAtom } from "../../../../../../state";
-import { PgCommand, PgProgramInfo } from "../../../../../../utils/pg";
-import { useDeploy } from "../../../Main/Terminal/commands/useDeploy";
+import { PgCommand, PgProgramInfo, PgWallet } from "../../../../../../utils/pg";
 import { useInitialLoading } from "..";
 import { useConnect, useCurrentWallet } from "../../../../../../hooks";
 
@@ -19,7 +18,9 @@ const Deploy = () => {
 
   const { initialLoading, deployed, connError } = useInitialLoading();
   const { pgWallet, solWalletPk } = useCurrentWallet();
-  const { hasAuthority, upgradeable } = useDeploy(program);
+  const upgradeable = PgProgramInfo.onChain?.upgradeable;
+  const authority = PgProgramInfo.onChain?.authority;
+  const hasAuthority = authority?.equals(PgWallet.publicKey);
 
   const deployButtonText = useMemo(() => {
     let text;
@@ -46,7 +47,7 @@ const Deploy = () => {
 
   const hasProgramKp = PgProgramInfo.kp ? true : false;
   const hasUuid = PgProgramInfo.uuid ? true : false;
-  const hasProgramPk = PgProgramInfo.getPk() ? true : false;
+  const hasProgramPk = PgProgramInfo.pk ? true : false;
 
   // Custom(uploaded) program deploy
   if (program.buffer.length) {

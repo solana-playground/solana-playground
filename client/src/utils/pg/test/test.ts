@@ -345,11 +345,10 @@ export class PgTest {
     conn: Connection,
     wallet: typeof PgWallet | AnchorWallet
   ) {
-    const programPk = PgProgramInfo.getPk();
-    if (!programPk) throw new Error("Program id not found.");
+    if (!PgProgramInfo.pk) throw new Error("Program id not found.");
 
     const provider = new Provider(conn, wallet, Provider.defaultOptions());
-    return new Program(idl, programPk, provider);
+    return new Program(idl, PgProgramInfo.pk, provider);
   }
 
   /**

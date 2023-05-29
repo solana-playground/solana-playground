@@ -8,6 +8,7 @@ import {
 } from "../../../../../utils/pg";
 import { useAsyncEffect, usePgConnection } from "../../../../../hooks";
 
+// TODO: Remove
 export const useInitialLoading = () => {
   const { deployed, connError } = useIsDeployed();
 
@@ -39,12 +40,14 @@ const useIsDeployed = () => {
 
   useEffect(() => {
     const fetchIsDeployed = async () => {
-      const programPk = PgProgramInfo.getPk();
-      if (!programPk) return;
+      if (!PgProgramInfo.pk) return;
 
       try {
         const conn = await PgConnection.get();
-        const programExists = await conn.getAccountInfo(programPk, "processed");
+        const programExists = await conn.getAccountInfo(
+          PgProgramInfo.pk,
+          "processed"
+        );
 
         setDeployed(!!programExists);
         setConnError(false);
