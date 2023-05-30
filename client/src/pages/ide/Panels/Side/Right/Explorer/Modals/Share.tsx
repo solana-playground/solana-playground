@@ -1,5 +1,4 @@
-import { useCallback, useState } from "react";
-import { useAtom } from "jotai";
+import { useState } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../../../../components/Button";
@@ -11,7 +10,6 @@ import Text from "../../../../../../../components/Text";
 import useModal from "../../../../../../../components/Modal/useModal";
 import { Checkmark, Sad } from "../../../../../../../components/Icons";
 import { TextKind } from "../../../../../../../components/Text/Text";
-import { explorerAtom } from "../../../../../../../state";
 import { ClassName, CLIENT_URL } from "../../../../../../../constants";
 import { PgCommon, PgShare } from "../../../../../../../utils/pg";
 
@@ -21,15 +19,12 @@ interface TextState {
 }
 
 export const Share = () => {
-  const [explorer] = useAtom(explorerAtom);
   const { close } = useModal();
 
   const [textState, setTextState] = useState<TextState>({});
   const [disabled, setDisabled] = useState(false);
 
-  const share = useCallback(async () => {
-    if (!explorer) return;
-
+  const share = async () => {
     setDisabled(true);
 
     try {
@@ -44,7 +39,7 @@ export const Share = () => {
       });
       setDisabled(false);
     }
-  }, [explorer]);
+  };
 
   const shareLink = `${CLIENT_URL}/${textState.id}`;
 
@@ -91,7 +86,6 @@ export const Share = () => {
               disabled={disabled}
               btnLoading={disabled}
               kind="primary-transparent"
-              size="medium"
             >
               {disabled ? "Sharing..." : "Share"}
             </Button>

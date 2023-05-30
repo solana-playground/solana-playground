@@ -62,7 +62,7 @@ export class PgServer {
    * @returns the shared project response
    */
   static async shareGet(id: string) {
-    const response = await this._send(`/share${id}`);
+    const response = await this._send(`/share/${id}`);
     return (await response.json()) as ShareGetResponse;
   }
 
@@ -92,8 +92,8 @@ export class PgServer {
   /** Server URL that is customizable from environment variables */
   private static readonly _SERVER_URL =
     process.env.NODE_ENV === "production"
-      ? PgServer._DEFAULT_SERVER_URL
-      : process.env.REACT_APP_SERVER_URL ?? PgServer._DEFAULT_SERVER_URL;
+      ? this._DEFAULT_SERVER_URL
+      : process.env.REACT_APP_SERVER_URL ?? this._DEFAULT_SERVER_URL;
 
   /**
    * Send an HTTP request to the Playground server.
@@ -115,7 +115,7 @@ export class PgServer {
         body: options.post.body,
       };
     }
-    const response = await fetch(`${PgServer._SERVER_URL}${path}`, requestInit);
+    const response = await fetch(`${this._SERVER_URL}${path}`, requestInit);
 
     if (!response.ok) {
       const arrayBuffer = await response.arrayBuffer();

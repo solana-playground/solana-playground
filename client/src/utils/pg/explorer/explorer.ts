@@ -19,7 +19,6 @@ import type {
   ClassReturnType,
   TupleString,
 } from "../types";
-import type { ShareGetResponse } from "../server";
 
 export interface ExplorerJSON {
   files: {
@@ -421,7 +420,7 @@ export class PgExplorer {
     if (!options?.skipNameValidation && !PgExplorer.isItemNameValid(newName)) {
       throw new Error(ItemError.INVALID_NAME);
     }
-    if (fullPath === this._getCurrentSrcPath()) {
+    if (fullPath === this.getCurrentSrcPath()) {
       throw new Error(ItemError.SRC_RENAME);
     }
 
@@ -527,7 +526,7 @@ export class PgExplorer {
     fullPath = this._convertToFullPath(fullPath);
 
     // Can't delete src folder
-    if (fullPath === this._getCurrentSrcPath()) {
+    if (fullPath === this.getCurrentSrcPath()) {
       throw new Error(ItemError.SRC_DELETE);
     }
 
@@ -1118,7 +1117,7 @@ export class PgExplorer {
     } else {
       let alreadyUpdatedId = false;
       for (let path of prioritisedFilePaths) {
-        if (!path.startsWith(this._getCurrentSrcPath())) continue;
+        if (!path.startsWith(this.getCurrentSrcPath())) continue;
 
         let content = files[path].content;
         if (!alreadyUpdatedId) {
@@ -1139,40 +1138,6 @@ export class PgExplorer {
     }
 
     return buildFiles;
-  }
-
-  /**
-   * @returns the necessary data for a new share
-   */
-  getShareFiles() {
-    const files = this.files;
-    // Shared files are already in a valid form to share
-    if (this.isShared) return { files };
-
-    const shareFiles: ShareGetResponse = { files: {} };
-
-    for (let path in files) {
-      if (!path.startsWith(this._getCurrentSrcPath())) continue;
-
-      const itemInfo = files[path];
-
-      // We are removing the workspace from path because share only needs /src
-      path = path.replace(
-        this.currentWorkspacePath,
-        PgExplorer.PATHS.ROOT_DIR_PATH
-      );
-
-      // To make it backwards compatible with the old shares
-      shareFiles.files[path] = {
-        content: itemInfo.content,
-        current: itemInfo.meta?.current,
-        tabs: itemInfo.meta?.tabs,
-      };
-    }
-
-    if (!Object.keys(shareFiles.files).length) throw new Error("Empty share");
-
-    return shareFiles;
   }
 
   /**
@@ -1208,7 +1173,7 @@ export class PgExplorer {
    * @returns whether the current workspace in the state is an Anchor program
    */
   isWorkspaceAnchor() {
-    const libRsPath = this._getCurrentSrcPath() + "lib.rs";
+    const libRsPath = this.getCurrentSrcPath() + "lib.rs";
     return this.files[libRsPath]?.content?.includes("anchor") ?? false;
   }
 
@@ -1236,6 +1201,16 @@ export class PgExplorer {
     }
 
     return split[1];
+  }
+
+  /**
+   * @returns current src directory path
+   */
+  getCurrentSrcPath() {
+    const srcPath = this.isShared
+      ? PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.PATHS.SRC_DIRNAME
+      : this.appendToCurrentWorkspacePath(PgExplorer.PATHS.SRC_DIRNAME);
+    return PgCommon.appendSlash(srcPath);
   }
 
   /**
@@ -1431,16 +1406,6 @@ export class PgExplorer {
         true
       );
     }
-  }
-
-  /**
-   * @returns current src directory path
-   */
-  private _getCurrentSrcPath() {
-    const srcPath = this.isShared
-      ? PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.PATHS.SRC_DIRNAME
-      : this.appendToCurrentWorkspacePath(PgExplorer.PATHS.SRC_DIRNAME);
-    return PgCommon.appendSlash(srcPath);
   }
 
   /**
