@@ -7,19 +7,19 @@ import TestSkeleton from "./TestSkeleton";
 import Text from "../../../../../../components/Text";
 import { ConnectionErrorText } from "../Common";
 import { PgCommand, PgProgramInfo } from "../../../../../../utils/pg";
-import { useInitialLoading } from "..";
 import { useBigNumberJson } from "./useBigNumberJson";
+import { useProgramInfo } from "../useProgramInfo";
 import { useRenderOnChange } from "../../../../../../hooks";
 
 const Test = () => {
   useRenderOnChange(PgCommand.build.onDidRunFinish);
 
-  const { initialLoading, deployed, connError } = useInitialLoading();
+  const { loading, error, deployed } = useProgramInfo();
 
   // Used for both accounts and events data
   useBigNumberJson();
 
-  if (initialLoading) {
+  if (loading) {
     return <TestSkeleton />;
   }
 
@@ -31,7 +31,7 @@ const Test = () => {
     );
   }
 
-  if (connError) {
+  if (error) {
     return (
       <InitialWrapper>
         <ConnectionErrorText />

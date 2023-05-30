@@ -28,6 +28,11 @@ interface ProgramInfo
     customPk: PublicKey;
     /** Program's Anchor IDL */
     idl: Idl;
+    /** Uploaded program binary file */
+    uploadedProgram: {
+      buffer: Buffer;
+      fileName: string;
+    };
   }> {}
 
 /** Serialized program info that's used in storage */
@@ -44,6 +49,7 @@ const defaultState: ProgramInfo = {
   kp: null,
   customPk: null,
   idl: null,
+  uploadedProgram: null,
 };
 
 const storage = {
@@ -70,6 +76,7 @@ const storage = {
       customPk: serializedState.customPk
         ? new PublicKey(serializedState.customPk)
         : null,
+      uploadedProgram: defaultState.uploadedProgram,
     } as ProgramInfo;
   },
 
@@ -141,26 +148,27 @@ class _PgProgramInfo {
     if (!PgConnection.isReady(conn)) return;
 
     if (!programId && !PgProgramInfo.pk) return;
-    programId = PgProgramInfo.pk as PublicKey;
+    programId ??= PgProgramInfo.pk as PublicKey;
 
     try {
       const programAccountInfo = await conn.getAccountInfo(programId);
+      const deployed = !!programAccountInfo;
       const programDataPkBuffer = programAccountInfo?.data.slice(4);
-      if (!programDataPkBuffer) return { upgradable: true };
+      if (!programDataPkBuffer) return { deployed, upgradable: true };
 
       const programDataPk = new PublicKey(programDataPkBuffer);
       const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
 
       // Check if program authority exists
       const authorityExists = programDataAccountInfo?.data.at(12);
-      if (!authorityExists) return { upgradable: false };
+      if (!authorityExists) return { deployed, upgradable: false };
 
       const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
         13,
         45
       );
       const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
-      return { authority: upgradeAuthorityPk, upgradable: true };
+      return { deployed, authority: upgradeAuthorityPk, upgradable: true };
     } catch (e: any) {
       console.log("Could not get authority:", e.message);
     }

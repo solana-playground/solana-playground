@@ -1,7 +1,4 @@
 export enum EventName {
-  // Commands
-  COMMAND_DEPLOY = "commanddeploy",
-
   // Connection
   CONNECTION_REFRESH = "connectionrefresh",
   CONNECTION_STATIC = "connectionstatic",

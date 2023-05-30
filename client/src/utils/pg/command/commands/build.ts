@@ -15,7 +15,7 @@ export const build = createCmd({
 
     let msg;
     try {
-      const result = await buildInternal();
+      const result = await processBuild();
       msg = PgTerminal.editStderr(result.stderr);
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
@@ -32,7 +32,7 @@ export const build = createCmd({
  *
  * @returns build output from stderr(not only errors)
  */
-async function buildInternal() {
+const processBuild = async () => {
   const buildFiles = await PgExplorer.run({ getBuildFiles: [] });
   const pythonFiles = buildFiles.filter(([fileName]) =>
     fileName.toLowerCase().endsWith(".py")
@@ -43,7 +43,7 @@ async function buildInternal() {
   }
 
   return await buildRust(buildFiles);
-}
+};
 
 /**
  * Build rust files and return the output.
@@ -51,7 +51,7 @@ async function buildInternal() {
  * @param files Rust files from `src/`
  * @returns Build output from stderr(not only errors)
  */
-async function buildRust(files: Files) {
+const buildRust = async (files: Files) => {
   if (!files.length) throw new Error("Couldn't find any Rust files.");
 
   const data = await PgServer.build(files, PgProgramInfo.uuid);
@@ -63,7 +63,7 @@ async function buildRust(files: Files) {
   });
 
   return { stderr: data.stderr };
-}
+};
 
 /**
  * Convert Python files into Rust with seahorse-compile-wasm and run `_buildRust`.
@@ -71,7 +71,7 @@ async function buildRust(files: Files) {
  * @param pythonFiles Python files in `src/`
  * @returns Build output from stderr(not only errors)
  */
-async function buildPython(pythonFiles: Files) {
+const buildPython = async (pythonFiles: Files) => {
   const { compileSeahorse } = await PgPackage.import("seahorse-compile");
 
   const rustFiles = pythonFiles.flatMap(([path, content]) => {
@@ -98,4 +98,4 @@ async function buildPython(pythonFiles: Files) {
   });
 
   return await buildRust(rustFiles);
-}
+};

@@ -1,7 +1,6 @@
 export * from "./common";
 export * from "./command";
 export * from "./connection";
-export * from "./deploy";
 export * from "./editor";
 export * from "./explorer/";
 export * from "./playnet/";

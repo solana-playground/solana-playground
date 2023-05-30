@@ -6,21 +6,27 @@ import Text from "../../../../../../components/Text";
 import Button, { ButtonProps } from "../../../../../../components/Button";
 import { Skeleton } from "../../../../../../components/Loading";
 import { ConnectionErrorText } from "../Common";
-import { programAtom, terminalStateAtom } from "../../../../../../state";
-import { PgCommand, PgProgramInfo, PgWallet } from "../../../../../../utils/pg";
-import { useInitialLoading } from "..";
+import { terminalStateAtom } from "../../../../../../state";
+import { PgCommand } from "../../../../../../utils/pg";
+import { useProgramInfo } from "../useProgramInfo";
 import { useConnect, useCurrentWallet } from "../../../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {
   const [terminalState] = useAtom(terminalStateAtom);
-  const [program] = useAtom(programAtom);
 
-  const { initialLoading, deployed, connError } = useInitialLoading();
+  const {
+    loading,
+    error,
+    deployed,
+    upgradable,
+    hasAuthority,
+    hasProgramKp,
+    hasProgramPk,
+    hasUuid,
+    uploadedProgram,
+  } = useProgramInfo();
   const { pgWallet, solWalletPk } = useCurrentWallet();
-  const upgradable = PgProgramInfo.onChain?.upgradable;
-  const authority = PgProgramInfo.onChain?.authority;
-  const hasAuthority = authority?.equals(PgWallet.publicKey);
 
   const deployButtonText = useMemo(() => {
     let text;
@@ -45,12 +51,8 @@ const Deploy = () => {
     [terminalState.deployLoading, terminalState.buildLoading]
   );
 
-  const hasProgramKp = PgProgramInfo.kp ? true : false;
-  const hasUuid = PgProgramInfo.uuid ? true : false;
-  const hasProgramPk = PgProgramInfo.pk ? true : false;
-
   // Custom(uploaded) program deploy
-  if (program.buffer.length) {
+  if (uploadedProgram?.buffer.length) {
     if (!pgWallet)
       return (
         <Wrapper>
@@ -99,10 +101,12 @@ const Deploy = () => {
       );
 
     let text = ` Ready to ${deployed ? "upgrade" : "deploy"} ${
-      program.fileName
+      uploadedProgram.fileName
     }`;
     if (terminalState.deployLoading) {
-      text = `${deployed ? "Upgrading" : "Deploying"} ${program.fileName}...`;
+      text = `${deployed ? "Upgrading" : "Deploying"} ${
+        uploadedProgram.fileName
+      }...`;
     }
 
     return (
@@ -116,14 +120,14 @@ const Deploy = () => {
   // First time state
   if (!deployed && !hasProgramKp) return null;
 
-  if (initialLoading)
+  if (loading)
     return (
       <Wrapper>
         <Skeleton height="2rem" />
       </Wrapper>
     );
 
-  if (connError)
+  if (error)
     return (
       <Wrapper>
         <ConnectionErrorText />
@@ -152,7 +156,7 @@ const Deploy = () => {
         <Wrapper>
           <Text>
             <div>
-              You need to build the project first or upload a program from
+              Build the program first or upload a program from
               <Bold> Upload a program</Bold>.
             </div>
           </Text>

@@ -1,16 +1,13 @@
 import { ChangeEvent } from "react";
-import { useAtom } from "jotai";
 
-import { DEFAULT_PROGRAM, programAtom } from "../../../../../../../state";
 import UploadButton from "../../../../../../../components/UploadButton";
+import { PgProgramInfo } from "../../../../../../../utils/pg";
 
 const UploadProgram = () => {
-  const [, setProgram] = useAtom(programAtom);
-
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) {
-      setProgram(DEFAULT_PROGRAM);
+      PgProgramInfo.update({ uploadedProgram: null });
       return;
     }
 
@@ -20,7 +17,7 @@ const UploadProgram = () => {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      setProgram({ buffer, fileName });
+      PgProgramInfo.update({ uploadedProgram: { buffer, fileName } });
     } catch (err: any) {
       console.log(err.message);
     }
