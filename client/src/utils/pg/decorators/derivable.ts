@@ -42,10 +42,7 @@ export function derivable<T extends Derivable>(
         }
 
         const derivable = state[prop];
-        if (!Array.isArray(derivable.onChange)) {
-          derivable.onChange = [derivable.onChange];
-        }
-
+        derivable.onChange = PgCommon.toArray(derivable.onChange);
         derivable.onChange = derivable.onChange.map((onChange) => {
           if (typeof onChange === "string") {
             return sClass[getChangePropName(onChange)];

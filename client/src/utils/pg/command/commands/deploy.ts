@@ -10,33 +10,13 @@ import { PgTerminal } from "../../terminal";
 import { PgTx } from "../../tx";
 import { PgWallet } from "../../wallet";
 import { TerminalAction } from "../../../../state";
-import { BpfLoaderUpgradeable } from "../../../bpf-upgradeable-browser";
 import { GITHUB_URL } from "../../../../constants";
+import { BpfLoaderUpgradeable } from "../../../bpf-upgradeable-browser";
 
 export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
   run: async () => {
-    const upgradable = PgProgramInfo.onChain?.upgradable;
-    const authority = PgProgramInfo.onChain?.authority;
-    const hasAuthority = authority?.equals(PgWallet.publicKey);
-
-    if (upgradable === false) {
-      PgTerminal.log(PgTerminal.warning("The program is not upgradable."));
-      return;
-    }
-    if (hasAuthority === false) {
-      PgTerminal.log(
-        `${PgTerminal.warning(
-          "You don't have the authority to upgrade this program."
-        )}
-Program ID: ${PgProgramInfo.pk}
-Program authority: ${authority}
-Your address: ${PgWallet.publicKey}`
-      );
-      return;
-    }
-
     PgTerminal.setTerminalState(TerminalAction.deployLoadingStart);
     PgTerminal.log(
       `${PgTerminal.info(
@@ -65,8 +45,35 @@ Your address: ${PgWallet.publicKey}`
       PgTerminal.setProgress(0);
     }
   },
-  preCheck: PgCommandValidation.isPgConnected,
+  preCheck: [PgCommandValidation.isPgConnected, checkDeploy],
 });
+
+/** Checks to run before the deploy command can start processing. */
+async function checkDeploy() {
+  if (!PgProgramInfo.onChain) {
+    throw new Error(
+      `Could not fetch on-chain data. Try using a different RPC provider with '${PgTerminal.bold(
+        "solana config set -u <RPC_URL>"
+      )}' command.`
+    );
+  }
+
+  if (!PgProgramInfo.onChain.upgradable) {
+    throw new Error(PgTerminal.warning("The program is not upgradable."));
+  }
+
+  const authority = PgProgramInfo.onChain.authority!;
+  const hasAuthority = authority.equals(PgWallet.publicKey);
+
+  if (!hasAuthority) {
+    throw new Error(`${PgTerminal.warning(
+      "You don't have the authority to upgrade this program."
+    )}
+Program ID: ${PgProgramInfo.pk}
+Program authority: ${authority}
+Your address: ${PgWallet.publicKey}`);
+  }
+}
 
 /** Maximum amount of transaction retries */
 const MAX_RETRIES = 5;

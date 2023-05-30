@@ -1,7 +1,7 @@
 import * as commands from "./commands";
 import { PgCommon } from "../common";
 import { PgTerminal } from "../terminal";
-import type { Disposable } from "../types";
+import type { Arrayable, Disposable, SyncOrAsync } from "../types";
 
 /** Terminal command */
 export interface CommandImpl<R> {
@@ -12,7 +12,7 @@ export interface CommandImpl<R> {
   /** Function to run when the command is called */
   run: (input: string) => R;
   /* Only process the command if the condition passes */
-  preCheck?: () => boolean;
+  preCheck?: Arrayable<() => SyncOrAsync<void>>;
 }
 
 /** All commands type */
@@ -43,7 +43,7 @@ type Command<R> = Pick<CommandImpl<R>, "name"> & {
    * @param cb callback function to run when the command finishes running
    * @returns a dispose function to clear the event
    */
-  onDidRunFinish(cb: (input: string | null) => void): Disposable;
+  onDidRunFinish(cb: (result: Awaited<R>) => void): Disposable;
 };
 
 /** Get custom event name for the given command. */
@@ -76,7 +76,7 @@ export const PgCommand: Commands = new Proxy(
             initialRun: { value: null },
           });
         },
-        onDidRunFinish: (cb: (input: string | null) => void) => {
+        onDidRunFinish: (cb: (result: unknown) => void) => {
           return PgCommon.onDidChange({
             cb,
             eventName: getEventName(name, "finish"),
@@ -115,7 +115,14 @@ export class PgCommandExecutor {
       for (const cmdName in commands) {
         const cmd = commands[cmdName as CommandCodeName];
         if (inputCmdName !== cmd.name) continue;
-        if (cmd.preCheck && !cmd.preCheck()) return;
+
+        // Handle checks
+        if (cmd.preCheck) {
+          const preChecks = PgCommon.toArray(cmd.preCheck);
+          for (const preCheck of preChecks) {
+            await preCheck();
+          }
+        }
 
         // Dispatch start event
         PgCommon.createAndDispatchCustomEvent(
@@ -129,7 +136,7 @@ export class PgCommandExecutor {
         // Dispatch finish event
         PgCommon.createAndDispatchCustomEvent(
           getEventName(cmdName, "finish"),
-          input
+          result
         );
 
         return result;

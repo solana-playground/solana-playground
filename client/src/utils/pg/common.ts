@@ -13,6 +13,7 @@ import type {
   Disposable,
   Promiseable,
   SyncOrAsync,
+  Arrayable,
 } from "./types";
 
 export class PgCommon {
@@ -262,6 +263,16 @@ export class PgCommon {
     }
 
     return value as T & D;
+  }
+
+  /**
+   * Convert the given input to an array when the input is not an array.
+   *
+   * @param arrayable input to convert to array to
+   * @returns the array result
+   */
+  static toArray<T>(arrayable: Arrayable<T>) {
+    return Array.isArray(arrayable) ? arrayable : [arrayable];
   }
 
   /**

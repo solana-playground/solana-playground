@@ -109,3 +109,6 @@ export type Promiseable<T> = SyncOrAsync<T> | (() => SyncOrAsync<T>);
 export type Nullable<T> = {
   [K in keyof T]: T[K] | null;
 };
+
+/** Single type, or array of the same type */
+export type Arrayable<T> = T | T[];

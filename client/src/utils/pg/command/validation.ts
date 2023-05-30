@@ -7,15 +7,13 @@ export class PgCommandValidation {
   /** Check Playground Wallet connection */
   static isPgConnected() {
     if (!PgWallet.isConnected) {
-      PgTerminal.log(
+      throw new Error(
         `${PgTerminal.bold(
           "Playground Wallet"
-        )} must be connected to run this command. Run ${PgTerminal.bold(
+        )} must be connected to run this command. Run '${PgTerminal.bold(
           PgCommand.connect.name
-        )} to connect.`
+        )}' to connect.`
       );
     }
-
-    return PgWallet.isConnected;
   }
 }
