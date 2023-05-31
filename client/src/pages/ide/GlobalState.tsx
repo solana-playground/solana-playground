@@ -25,8 +25,8 @@ import {
   PgCommon,
   Disposable,
   PgExplorer,
-  PgPreferences,
   PgProgramInfo,
+  PgSettings,
   PgWallet,
 } from "../../utils/pg";
 
@@ -43,9 +43,6 @@ const GlobalState = () => {
   const [explorer] = useAtom(explorerAtom);
   useExposeStatic(explorer, EventName.EXPLORER_STATIC);
 
-  // Preferences
-  useDisposable(PgPreferences.init);
-
   // Router location
   const location = useLocation();
   useGetStatic(location, EventName.ROUTER_LOCATION);
@@ -53,6 +50,9 @@ const GlobalState = () => {
   // Router navigate
   const navigate = useNavigate();
   useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
+
+  // Settings
+  useDisposable(PgSettings.init);
 
   // Terminal progress
   const [, setProgress] = useAtom(terminalProgressAtom);

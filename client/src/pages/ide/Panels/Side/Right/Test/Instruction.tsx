@@ -15,7 +15,7 @@ import { ClassName, Emoji } from "../../../../../../constants";
 import {
   PgCommand,
   PgCommon,
-  PgPreferences,
+  PgSettings,
   PgTerminal,
   PgTest,
   PgTx,
@@ -150,7 +150,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         );
         PgTx.notify(txHash);
 
-        if (PgPreferences.showTxDetailsInTerminal) {
+        if (PgSettings.testUi.showTxDetailsInTerminal) {
           return txHash;
         }
 

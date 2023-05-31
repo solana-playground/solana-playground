@@ -126,7 +126,7 @@ const derive = () => ({
 const migrate = () => {
   // Removing the `program-info` key is enough for migration because the data
   // is already stored in `indexedDB`
-  localStorage.removeItem("program-info");
+  localStorage.removeItem("programInfo");
 };
 
 @migratable(migrate)

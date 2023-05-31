@@ -1,19 +1,13 @@
-import { ChangeEvent } from "react";
-
 import CheckBox from "../../../../../../components/CheckBox";
-import { PgPreferences } from "../../../../../../utils/pg";
+import { PgSettings } from "../../../../../../utils/pg";
 
-const ShowTxDetailsSetting = () => {
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    PgPreferences.update({ showTxDetailsInTerminal: e.target.checked });
-  };
-
-  return (
-    <CheckBox
-      onChange={handleChange}
-      checkedOnMount={PgPreferences.showTxDetailsInTerminal}
-    />
-  );
-};
+const ShowTxDetailsSetting = () => (
+  <CheckBox
+    onChange={(ev) => {
+      PgSettings.testUi.showTxDetailsInTerminal = ev.target.checked;
+    }}
+    checkedOnMount={PgSettings.testUi.showTxDetailsInTerminal}
+  />
+);
 
 export default ShowTxDetailsSetting;
