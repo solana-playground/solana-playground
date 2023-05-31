@@ -103,7 +103,7 @@ export type Fn = () => void;
 export type SyncOrAsync<T> = T | Promise<T>;
 
 /** A `Promise` or a callback that returns a `Promise` */
-export type Promiseable<T> = SyncOrAsync<T> | (() => SyncOrAsync<T>);
+export type Promisable<T> = SyncOrAsync<T> | (() => SyncOrAsync<T>);
 
 /** Make every property (... | null) */
 export type Nullable<T> = {

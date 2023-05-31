@@ -2,7 +2,7 @@ import { Commitment, Connection, ConnectionConfig } from "@solana/web3.js";
 
 import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { OverrideableConnection } from "./playnet/types";
+import { OverridableConnection } from "./playnet/types";
 import { SetState } from "./types";
 
 export interface PgConnectionConfig {
@@ -105,10 +105,10 @@ export class PgConnection {
    *
    * This will always return `true` if the endpoint is not `Endpoint.PLAYNET`.
    *
-   * @param conn overrideable web3.js `Connection`
+   * @param conn overridable web3.js `Connection`
    * @returns whether the connection is ready to be used
    */
-  static isReady(conn: OverrideableConnection) {
+  static isReady(conn: OverridableConnection) {
     if (conn.rpcEndpoint === Endpoint.PLAYNET) {
       return conn.overridden;
     }

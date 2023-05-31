@@ -88,7 +88,7 @@ export interface Theme {
     >;
 
     /** Button component */
-    button?: OverrideableComponent<ButtonKind>;
+    button?: OverridableComponent<ButtonKind>;
 
     /** Editor component */
     editor?: {
@@ -193,7 +193,7 @@ export interface Theme {
     markdown?: ExtendibleComponent<"code">;
 
     /** Menu component */
-    menu?: OverrideableComponent<MenuKind>;
+    menu?: OverridableComponent<MenuKind>;
 
     /** Modal component */
     modal?: ExtendibleComponent<"backdrop" | "title" | "content" | "bottom">;
@@ -262,7 +262,7 @@ export interface Theme {
     }>;
 
     /** Text component */
-    text?: OverrideableComponent<TextKind>;
+    text?: OverridableComponent<TextKind>;
 
     /** Notification toast component */
     toast?: ExtendibleComponent<"progress" | "closeButton">;
@@ -452,8 +452,8 @@ type ExtendibleComponents =
   | "uploadArea"
   | "wallet";
 
-/** Components that use `OverrideableComponent` type */
-type OverrideableComponents = "button" | "menu" | "text";
+/** Components that use `OverridableComponent` type */
+type OverridableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
 export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
@@ -481,10 +481,10 @@ export type ThemeReady<
   // Extendible components
   components: AllRequired<Pick<C, ExtendibleComponents>>;
 } & {
-  // Overrideable components
+  // Overridable components
   components: ChildRequired<
-    Pick<C, OverrideableComponents>,
-    OverrideableComponents,
+    Pick<C, OverridableComponents>,
+    OverridableComponents,
     "default"
   >;
 };
@@ -540,7 +540,7 @@ type ExtendibleComponent<
   : U);
 
 /** A component with multiple kinds */
-type OverrideableComponent<T extends string> = {
+type OverridableComponent<T extends string> = {
   /** Default StandardProperties values of the Button component */
   default?: DefaultComponent;
   /** Override the defaults with specificity */

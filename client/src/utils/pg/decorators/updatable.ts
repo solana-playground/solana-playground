@@ -314,7 +314,7 @@ type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
  * @param options type helper options
  * @returns the static class with correct types
  */
-export const declareUpdateable = <C, T, R>(
+export const declareUpdatable = <C, T, R>(
   sClass: C,
   options?: { defaultState: T; recursive?: R }
 ) => {

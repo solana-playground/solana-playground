@@ -11,7 +11,7 @@ import type {
   AllPartial,
   Fn,
   Disposable,
-  Promiseable,
+  Promisable,
   SyncOrAsync,
   Arrayable,
 } from "./types";
@@ -28,15 +28,15 @@ export class PgCommon {
   /**
    * Wait at least `ms` amount of miliseconds before resolving.
    *
-   * @param promiseable either `Promise` or a function that returns a `Promise`
+   * @param promisable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
    */
-  static async transition<R>(promiseable: Promiseable<R>, ms?: number) {
-    if ((promiseable as () => SyncOrAsync<R>)?.call) {
-      promiseable = (promiseable as () => SyncOrAsync<R>)();
+  static async transition<R>(promisable: Promisable<R>, ms?: number) {
+    if ((promisable as () => SyncOrAsync<R>)?.call) {
+      promisable = (promisable as () => SyncOrAsync<R>)();
     }
 
-    const result = (await Promise.allSettled([this.sleep(ms), promiseable]))[1];
+    const result = (await Promise.allSettled([this.sleep(ms), promisable]))[1];
     if (result.status === "fulfilled") {
       return result.value as Promise<Awaited<R>>;
     }
@@ -47,18 +47,18 @@ export class PgCommon {
   /**
    * Wait at least `ms` amount of miliseconds before timing out.
    *
-   * @param promiseable either `Promise` or a function that returns a `Promise`
+   * @param promisable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
    */
-  static async timeout<R>(promiseable: Promiseable<R>, ms?: number) {
-    if ((promiseable as () => SyncOrAsync<R>)?.call) {
-      promiseable = (promiseable as () => SyncOrAsync<R>)();
+  static async timeout<R>(promisable: Promisable<R>, ms?: number) {
+    if ((promisable as () => SyncOrAsync<R>)?.call) {
+      promisable = (promisable as () => SyncOrAsync<R>)();
     }
 
     try {
       return (await Promise.race([
         new Promise((_, rej) => this.sleep(ms).then(rej)),
-        promiseable,
+        promisable,
       ])) as Awaited<R>;
     } catch {
       console.log("Timed out");

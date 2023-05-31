@@ -1,4 +1,4 @@
-import { declareUpdateable, updatable } from "./decorators";
+import { declareUpdatable, updatable } from "./decorators";
 
 interface Preferences {
   /** Whether to show transaction details in terminal(only test UI) */
@@ -29,6 +29,6 @@ const storage = {
 @updatable({ defaultState, storage })
 class _PgPreferences {}
 
-export const PgPreferences = declareUpdateable(_PgPreferences, {
+export const PgPreferences = declareUpdatable(_PgPreferences, {
   defaultState,
 });

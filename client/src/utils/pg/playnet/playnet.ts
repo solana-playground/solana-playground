@@ -11,7 +11,7 @@ import { PgConnection } from "../connection";
 import { PgExplorer } from "../explorer";
 import { PgPackage } from "../command";
 import { Endpoint } from "../../../constants";
-import type { OverrideableConnection } from "./types";
+import type { OverridableConnection } from "./types";
 
 export class PgPlaynet {
   /**
@@ -41,7 +41,7 @@ export class PgPlaynet {
     // Override connection to make it compatible with Playnet
     PgConnection.set(() => {
       // Creating a new connection object to trigger re-render after this callback
-      const newConnection: OverrideableConnection =
+      const newConnection: OverridableConnection =
         PgConnection.createConnection({ fetch: newFetch });
 
       // @ts-ignore

@@ -8,7 +8,7 @@ import {
 import {
   createDerivable,
   declareDerivable,
-  declareUpdateable,
+  declareUpdatable,
   derivable,
   updatable,
 } from "./decorators";
@@ -206,7 +206,7 @@ class _PgProgramInfo {
 }
 
 export const PgProgramInfo = declareDerivable(
-  declareUpdateable(_PgProgramInfo, {
+  declareUpdatable(_PgProgramInfo, {
     defaultState,
   }),
   deriveState
