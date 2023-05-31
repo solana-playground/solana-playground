@@ -106,10 +106,10 @@ export const createDerivable = <T, R>(derivable: Derivable<T, R>) => derivable;
  * Add necessary types to the given derivable static class.
  *
  * @param sClass static class
- * @param state properties that will be added to the given class
+ * @param derive derive properties that will be added to the given class
  * @returns the static class with correct types
  */
-export const declareDerivable = <C, T>(sClass: C, deriveState: () => T) => {
+export const declareDerivable = <C, T>(sClass: C, derive: () => T) => {
   return sClass as Omit<C, "prototype"> &
     Initialize &
     DerivableState<T> &

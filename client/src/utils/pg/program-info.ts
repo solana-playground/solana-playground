@@ -10,6 +10,7 @@ import {
   declareDerivable,
   declareUpdatable,
   derivable,
+  migratable,
   updatable,
 } from "./decorators";
 import { PgCommand } from "./command";
@@ -18,31 +19,29 @@ import { PgExplorer } from "./explorer";
 import type { Nullable } from "./types";
 
 /** Program info state */
-interface ProgramInfo
-  extends Nullable<{
-    /** Program's build server uuid */
-    uuid: string;
-    /** Program's keypair */
-    kp: Keypair;
-    /** Program's custom public key */
-    customPk: PublicKey;
-    /** Program's Anchor IDL */
-    idl: Idl;
-    /** Uploaded program binary file */
-    uploadedProgram: {
-      buffer: Buffer;
-      fileName: string;
-    };
-  }> {}
+type ProgramInfo = Nullable<{
+  /** Program's build server uuid */
+  uuid: string;
+  /** Program's keypair */
+  kp: Keypair;
+  /** Program's custom public key */
+  customPk: PublicKey;
+  /** Program's Anchor IDL */
+  idl: Idl;
+  /** Uploaded program binary file */
+  uploadedProgram: {
+    buffer: Buffer;
+    fileName: string;
+  };
+}>;
 
 /** Serialized program info that's used in storage */
-interface SerializedProgramInfo
-  extends Nullable<{
-    uuid: string;
-    kp: Array<number>;
-    customPk: string;
-    idl: Idl;
-  }> {}
+type SerializedProgramInfo = Nullable<{
+  uuid: string;
+  kp: Array<number>;
+  customPk: string;
+  idl: Idl;
+}>;
 
 const defaultState: ProgramInfo = {
   uuid: null,
@@ -100,7 +99,7 @@ const storage = {
   },
 };
 
-const deriveState = () => ({
+const derive = () => ({
   /**
    * Get the program's public key.
    *
@@ -123,7 +122,15 @@ const deriveState = () => ({
   }),
 });
 
-@derivable(deriveState)
+// TODO: Remove in 2024
+const migrate = () => {
+  // Removing the `program-info` key is enough for migration because the data
+  // is already stored in `indexedDB`
+  localStorage.removeItem("program-info");
+};
+
+@migratable(migrate)
+@derivable(derive)
 @updatable({ defaultState, storage })
 class _PgProgramInfo {
   /** Get the current program's pubkey as base58 string. */
@@ -209,5 +216,5 @@ export const PgProgramInfo = declareDerivable(
   declareUpdatable(_PgProgramInfo, {
     defaultState,
   }),
-  deriveState
+  derive
 );
