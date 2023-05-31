@@ -3,7 +3,7 @@ import * as anchor from "@project-serum/anchor";
 
 import { SugarUploadScreen } from "./SugarUploadScreen";
 import { CacheItem } from "../../utils";
-import { PgValidator } from "../../../../../validator";
+import { PgCommon } from "../../../../../common";
 import { PgView } from "../../../../../view";
 
 class AssetPair {
@@ -70,7 +70,7 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
   // invalid file fileNames before entering metadata filename loop
   for (const fileName in fileNames) {
     const exec = animationExistsRegex.exec(fileName);
-    if (exec && exec[1] !== COLLECTION_FILENAME && PgValidator.isInt(exec[1])) {
+    if (exec && exec[1] !== COLLECTION_FILENAME && PgCommon.isInt(exec[1])) {
       throw new Error(
         `Couldn't parse filename '${fileName}' to a valid index number.`
       );
@@ -92,7 +92,7 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
 
     let index;
     if (isCollectionIndex) index = -1;
-    else if (PgValidator.isInt(i)) index = parseInt(i);
+    else if (PgCommon.isInt(i)) index = parseInt(i);
     else {
       throw new Error(
         `Couldn't parse filename '${metadataFileName}' to a valid index number.,`

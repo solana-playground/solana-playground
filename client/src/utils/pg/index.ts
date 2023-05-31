@@ -13,7 +13,6 @@ export * from "./test/";
 export * from "./tutorial/";
 export * from "./tx/";
 export * from "./types";
-export * from "./validator";
 export * from "./view";
 export * from "./wallet";
 

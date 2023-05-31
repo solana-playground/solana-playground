@@ -9,8 +9,8 @@ import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
 import { connectionConfigAtom } from "../../../../../../state";
 import {
   PgCommand,
+  PgCommon,
   PgConnection,
-  PgValidator,
   PgView,
 } from "../../../../../../utils/pg";
 import { useOnKey } from "../../../../../../hooks";
@@ -88,7 +88,7 @@ const CustomEndpoint = () => {
         ref={inputRef}
         placeholder="Custom endpoint"
         onChange={(e) => setCustomEndpoint(e.target.value)}
-        validator={PgValidator.isUrl}
+        validator={PgCommon.isUrl}
       />
     </Modal>
   );

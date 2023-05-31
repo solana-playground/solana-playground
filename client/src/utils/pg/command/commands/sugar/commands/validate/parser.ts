@@ -1,13 +1,13 @@
-import { Creator } from "@metaplex-foundation/js";
+import type { Creator } from "@metaplex-foundation/js";
 
-import { PgValidator } from "../../../../../validator";
 import {
   MAX_NAME_LENGTH,
   MAX_SYMBOL_LENGTH,
   MAX_URI_LENGTH,
   VALID_CATEGORIES,
 } from "../../constants";
-import { ToPrimitive } from "../../types";
+import { PgCommon } from "../../../../../common";
+import type { ToPrimitive } from "../../types";
 
 export const checkName = (name: string) => {
   if (name.length > MAX_NAME_LENGTH) {
@@ -48,7 +48,7 @@ export const checkCreatorsShares = (creators: Creator[]) => {
 
 export const checkCreatorsAddresses = (creators: ToPrimitive<Creator>[]) => {
   for (const creator of creators) {
-    if (!PgValidator.isPubkey(creator.address)) {
+    if (!PgCommon.isPk(creator.address)) {
       throw new Error(`Creator address: '${creator.address}' is invalid.`);
     }
   }

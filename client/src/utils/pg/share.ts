@@ -1,6 +1,6 @@
+import { PgCommon } from "./common";
 import { ExplorerJSON, PgExplorer } from "./explorer";
 import { PgServer, ShareGetResponse } from "./server";
-import { PgValidator } from "./validator";
 
 export class PgShare {
   /**
@@ -73,6 +73,6 @@ export class PgShare {
    * @returns whether the current pathname is in a valid format
    */
   static isValidPathname(pathname: string) {
-    return PgValidator.isHex(pathname.substring(1));
+    return PgCommon.isHex(pathname.substring(1));
   }
 }

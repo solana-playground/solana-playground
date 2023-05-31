@@ -1,9 +1,9 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
+import { PgCommon } from "../../../../../common";
 import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
-import { PgValidator } from "../../../../../validator";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
@@ -154,7 +154,7 @@ export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
   } else {
     term.println(`[1/${totalSteps}] ${Emoji.CANDY} Loading candy machine`);
 
-    if (!PgValidator.isPubkey(candyMachinePkStr)) {
+    if (!PgCommon.isPk(candyMachinePkStr)) {
       throw new Error(
         [
           `Invalid candy machine address in cache file: '${candyMachinePkStr}'.`,

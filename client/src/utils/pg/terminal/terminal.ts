@@ -18,7 +18,6 @@ import {
 } from "../../../constants";
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
-import { PgValidator } from "../validator";
 import type { ExecuteCommand, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 import type { TerminalAction } from "../../../state";
@@ -223,7 +222,7 @@ export class PgTerminal {
         const parts = msg.split(":");
 
         let ixIndex = parts[2][parts[2].length - 1];
-        if (!PgValidator.isInt(ixIndex)) ixIndex = "0";
+        if (!PgCommon.isInt(ixIndex)) ixIndex = "0";
         const programError = PROGRAM_ERROR[programErrorCode];
 
         msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
@@ -689,9 +688,7 @@ export class PgTerm {
             (opts.choice?.allowMultiple ? true : parsed.length === 1) &&
             parsed.every(
               (v) =>
-                PgValidator.isInt(v.toString()) &&
-                v >= 0 &&
-                v <= choiceMaxLength
+                PgCommon.isInt(v.toString()) && v >= 0 && v <= choiceMaxLength
             )
           );
         };

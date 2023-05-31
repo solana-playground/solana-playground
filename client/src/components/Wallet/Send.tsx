@@ -7,7 +7,7 @@ import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
 import { uiBalanceAtom } from "../../state";
-import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../utils/pg";
+import { PgCommon, PgTerminal, PgTx } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
 import { useCurrentWallet, usePgConnection } from "../../hooks";
 
@@ -45,8 +45,8 @@ const SendExpanded = () => {
   // Send button disable
   useEffect(() => {
     if (
-      PgValidator.isPubkey(address) &&
-      PgValidator.isFloat(amount) &&
+      PgCommon.isPk(address) &&
+      PgCommon.isFloat(amount) &&
       balance &&
       balance > parseFloat(amount)
     ) {
@@ -106,7 +106,7 @@ const SendExpanded = () => {
       <ExpandedInput
         ref={addressInputRef}
         onChange={handleChangeAddress}
-        validator={PgValidator.isPubkey}
+        validator={PgCommon.isPk}
         placeholder="Recipient address"
       />
       <ExpandedInput
@@ -114,7 +114,7 @@ const SendExpanded = () => {
         onChange={handleChangeAmount}
         validator={(input) => {
           if (
-            !PgValidator.isFloat(input) ||
+            !PgCommon.isFloat(input) ||
             (balance && parseFloat(input) > balance)
           ) {
             throw new Error("Invalid amount");

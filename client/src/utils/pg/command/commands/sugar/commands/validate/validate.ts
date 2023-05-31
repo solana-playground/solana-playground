@@ -1,4 +1,4 @@
-import { JsonMetadata } from "@metaplex-foundation/js";
+import type { JsonMetadata } from "@metaplex-foundation/js";
 
 import {
   checkCategory,
@@ -11,9 +11,9 @@ import {
 } from "./parser";
 import { SugarUploadScreen } from "../upload";
 import { Emoji } from "../../../../../../../constants";
-import { PgTerminal } from "../../../../../terminal";
-import { PgValidator } from "../../../../../validator";
+import { PgCommon } from "../../../../../common";
 import { PgView } from "../../../../../view";
+import { PgTerminal } from "../../../../../terminal";
 
 export const processValidate = async (
   strict: boolean,
@@ -83,7 +83,7 @@ export const processValidate = async (
   )) {
     const number = getNameWithoutExtension(fileNames[i]);
     // Check is number
-    if (!PgValidator.isInt(number)) {
+    if (!PgCommon.isInt(number)) {
       throw new Error(
         `File names must be numbers. ${PgTerminal.secondaryText(
           `(${fileNames[i]})`

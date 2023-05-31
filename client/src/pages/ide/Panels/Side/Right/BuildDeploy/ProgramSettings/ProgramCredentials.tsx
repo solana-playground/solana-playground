@@ -10,12 +10,7 @@ import Input from "../../../../../../../components/Input";
 import Modal from "../../../../../../../components/Modal";
 import Text from "../../../../../../../components/Text";
 import { Warning } from "../../../../../../../components/Icons";
-import {
-  PgProgramInfo,
-  PgCommon,
-  PgValidator,
-  PgView,
-} from "../../../../../../../utils/pg";
+import { PgProgramInfo, PgCommon, PgView } from "../../../../../../../utils/pg";
 import { useRenderOnChange } from "../../../../../../../hooks";
 
 const ProgramCredentials = () => (
@@ -190,7 +185,7 @@ const InputPk = () => {
         <Input
           value={val}
           onChange={handleChange}
-          validator={PgValidator.isPubkey}
+          validator={PgCommon.isPk}
           placeholder="Your program's public key"
         />
         <CopyButton copyText={val} />

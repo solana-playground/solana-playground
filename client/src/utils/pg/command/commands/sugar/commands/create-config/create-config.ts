@@ -1,7 +1,6 @@
-import { PgTerminal } from "../../../../../terminal";
-import { PgValidator } from "../../../../../validator";
-import { PgExplorer } from "../../../../../explorer";
 import { PgCommon } from "../../../../../common";
+import { PgExplorer } from "../../../../../explorer";
+import { PgTerminal } from "../../../../../terminal";
 import { PgSugar } from "../../processor";
 import {
   MAX_NAME_LENGTH,
@@ -30,7 +29,7 @@ export const processCreateConfig = async () => {
   configData.size = parseInt(
     await term.waitForUserInput(
       "How many NFTs will you have in your candy machine?",
-      { validator: PgValidator.isInt }
+      { validator: PgCommon.isInt }
     )
   );
 
@@ -51,7 +50,7 @@ export const processCreateConfig = async () => {
   configData.royalties = parseInt(
     await term.waitForUserInput("What is the seller fee basis points?", {
       validator: (input) => {
-        if (!PgValidator.isInt(input)) {
+        if (!PgCommon.isInt(input)) {
           throw new Error(`Couldn't parse input of '${input}' to a number.`);
         }
         if (parseInt(input) > 10_000) {
@@ -71,13 +70,13 @@ export const processCreateConfig = async () => {
   const numberOfCreators = parseInt(
     await term.waitForUserInput(
       "How many creator wallets do you have? (max limit of 4)",
-      { validator: (input) => PgValidator.isInt(input) && parseInt(input) <= 4 }
+      { validator: (input) => PgCommon.isInt(input) && parseInt(input) <= 4 }
     )
   );
 
   let totalShare = 0;
   const validateShare = (input: string, isLastCreator: boolean) => {
-    if (!PgValidator.isInt(input)) {
+    if (!PgCommon.isInt(input)) {
       throw new Error(`Couldn't parse input of '${input}' to a number.`);
     }
 
@@ -95,7 +94,7 @@ export const processCreateConfig = async () => {
     const address = await term.waitForUserInput(
       `Enter creator wallet address #${i + 1}`,
       {
-        validator: PgValidator.isPubkey,
+        validator: PgCommon.isPk,
       }
     );
     const share = parseInt(
@@ -248,7 +247,7 @@ export const processCreateConfig = async () => {
     case UploadMethod.SHDW: {
       configData.uploadConfig.shdwStorageAccount = await term.waitForUserInput(
         "What is the SHDW storage address?",
-        { validator: PgValidator.isPubkey }
+        { validator: PgCommon.isPk }
       );
       break;
     }
@@ -272,7 +271,7 @@ export const processCreateConfig = async () => {
       const parallelLimit = parseInt(
         await term.waitForUserInput(
           "How many concurrent uploads are allowed?",
-          { validator: PgValidator.isInt }
+          { validator: PgCommon.isInt }
         )
       );
 

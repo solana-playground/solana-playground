@@ -11,7 +11,6 @@ import { Emoji } from "../../../../../../../constants";
 import { PgCommon } from "../../../../../common";
 import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
-import { PgValidator } from "../../../../../validator";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { getAssetPairs } from "./assets";
 
@@ -47,16 +46,15 @@ export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
 
     if (item) {
       const imageChanged =
-        item.image_hash !== pair.image_hash ||
-        !PgValidator.isUrl(item.image_link);
+        item.image_hash !== pair.image_hash || !PgCommon.isUrl(item.image_link);
 
       const animationChanged =
         item.animation_hash !== pair.animation_hash ||
-        (!PgValidator.isUrl(item.animation_link ?? "") && pair.animation);
+        (!PgCommon.isUrl(item.animation_link ?? "") && pair.animation);
 
       const metadataChanged =
         item.metadata_hash !== pair.metadata_hash ||
-        !PgValidator.isUrl(item.metadata_link);
+        !PgCommon.isUrl(item.metadata_link);
 
       if (imageChanged) {
         // Triggers the image upload

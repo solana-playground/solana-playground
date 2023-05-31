@@ -1,8 +1,8 @@
-import { useConnection } from "@solana/wallet-adapter-react";
-import { Connection } from "@solana/web3.js";
-import { useAtom } from "jotai";
 import { Dispatch, SetStateAction, useEffect } from "react";
+import { useAtom } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Connection } from "@solana/web3.js";
+import { useConnection } from "@solana/wallet-adapter-react";
 
 import { EventName } from "../../constants";
 import {

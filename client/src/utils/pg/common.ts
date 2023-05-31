@@ -414,6 +414,70 @@ export class PgCommon {
   }
 
   /**
+   * @returns whether the given string is parsable to an integer
+   */
+  static isInt(str: string) {
+    const intRegex = /^-?\d+$/;
+    if (!intRegex.test(str)) return false;
+
+    const int = parseInt(str, 10);
+    return parseFloat(str) === int && !isNaN(int);
+  }
+
+  /**
+   * @returns whether the given string is parsable to a float
+   */
+  static isFloat(str: string) {
+    const floatRegex = /^-?\d+(?:[.,]\d*?)?$/;
+    if (!floatRegex.test(str)) return false;
+
+    const float = parseFloat(str);
+    if (isNaN(float)) return false;
+    return true;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a hexadecimal
+   */
+  static isHex(str: string) {
+    const hexRegex = /(0x)?[\da-f]+/i;
+    const result = hexRegex.exec(str);
+    if (!result) return false;
+
+    return result[0] === str;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a public key
+   */
+  static isPk(str: string) {
+    // Intentionally not using `web3.PublicKey` to not load `web3.js` at the
+    // start of the app
+
+    // Public key length is 43 or 44
+    if (!(str.length === 43 || str.length === 44)) return false;
+
+    // Exclude 0, l, I, O
+    const base58Regex = /[1-9a-km-zA-HJ-PQ-Z]+/;
+    const result = base58Regex.exec(str);
+    if (!result) return false;
+
+    return result[0] === str;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a URL
+   */
+  static isUrl(str: string) {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Changes `Ctrl` to `Cmd` if the OS is Mac
    */
   static getKeybindTextOS(text: string) {
