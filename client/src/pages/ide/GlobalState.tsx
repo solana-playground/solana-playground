@@ -8,7 +8,6 @@ import { EventName } from "../../constants";
 import {
   useAsyncEffect,
   useCurrentWallet,
-  useDisposable,
   useExposeStatic,
   useGetAndSetStatic,
   useGetStatic,
@@ -26,7 +25,6 @@ import {
   Disposable,
   PgExplorer,
   PgProgramInfo,
-  PgSettings,
   PgWallet,
 } from "../../utils/pg";
 
@@ -50,9 +48,6 @@ const GlobalState = () => {
   // Router navigate
   const navigate = useNavigate();
   useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
-
-  // Settings
-  useDisposable(PgSettings.init);
 
   // Terminal progress
   const [, setProgress] = useAtom(terminalProgressAtom);

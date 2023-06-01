@@ -112,3 +112,6 @@ export type Nullable<T> = {
 
 /** Single type, or array of the same type */
 export type Arrayable<T> = T | T[];
+
+/** Given type `T` or `string` with intellisense for the initial type */
+export type OrString<T> = T | (string & {});

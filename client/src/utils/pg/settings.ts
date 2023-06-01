@@ -1,7 +1,15 @@
+import { Endpoint } from "../../constants";
 import { declareUpdatable, migratable, updatable } from "./decorators";
+import type { OrString } from "./types";
 
 interface Settings {
-  /** Test UI related settings */
+  /** Connection settings */
+  connection: {
+    endpoint: OrString<Endpoint>;
+    commitment: "processed" | "confirmed" | "finalized";
+    preflightChecks: boolean;
+  };
+  /** Test UI settings */
   testUi: {
     /** Whether to show transaction details in terminal */
     showTxDetailsInTerminal: boolean;
@@ -9,6 +17,11 @@ interface Settings {
 }
 
 const defaultState: Settings = {
+  connection: {
+    endpoint: Endpoint.DEVNET,
+    commitment: "confirmed",
+    preflightChecks: true,
+  },
   testUi: {
     showTxDetailsInTerminal: false,
   },
@@ -35,23 +48,33 @@ const recursive = true;
 
 // TODO: Remove in 2024
 const migrate = () => {
-  const OLD_KEY = "preferences";
+  const migrateFromLocalStorage = <R>(oldKey: string) => {
+    const valueStr = localStorage.getItem(oldKey);
+    if (!valueStr) return;
 
-  const valueStr = localStorage.getItem(OLD_KEY);
-  if (!valueStr) return;
+    // Remove the old key
+    localStorage.removeItem(oldKey);
 
-  // Remove the old key
-  localStorage.removeItem(OLD_KEY);
+    return JSON.parse(valueStr) as R;
+  };
 
-  // Migrate the old layout to the new layout
+  // Old settings(preferences)
   interface OldSettings {
     showTxDetailsInTerminal: boolean;
   }
+  const oldSettings = migrateFromLocalStorage<OldSettings>("preferences");
 
-  const oldValue: OldSettings = JSON.parse(valueStr);
+  // Old connection, layout hasn't changed
+  const oldConnectionConfig =
+    migrateFromLocalStorage<Settings["connection"]>("connection");
+
+  const needsMigration = !!(oldSettings && oldConnectionConfig);
+  if (!needsMigration) return;
+
   const newValue: Settings = {
+    connection: oldConnectionConfig,
     testUi: {
-      showTxDetailsInTerminal: oldValue.showTxDetailsInTerminal,
+      showTxDetailsInTerminal: oldSettings.showTxDetailsInTerminal,
     },
   };
 

@@ -1,3 +1,5 @@
+import type { OrString } from "../types";
+
 /** All packages that are allowed to be used in client/test code */
 export type ClientPackageName =
   | "@clockwork-xyz/sdk"
@@ -21,7 +23,7 @@ export class PgClientPackage {
    * @param name package name
    * @returns the imported package
    */
-  static async import(name: ClientPackageName | (string & {})) {
+  static async import(name: OrString<ClientPackageName>) {
     switch (name) {
       case "@clockwork-xyz/sdk":
         return await import("@clockwork-xyz/sdk");

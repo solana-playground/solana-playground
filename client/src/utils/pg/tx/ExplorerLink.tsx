@@ -1,21 +1,18 @@
 import { FC } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Link from "../../../components/Link";
 import { PgCommon } from "../common";
-import { connectionConfigAtom } from "../../../state";
+import { PgSettings } from "../settings";
 
 interface ExplorerLinkProps {
   txHash: string;
 }
 
 export const ExplorerLink: FC<ExplorerLinkProps> = ({ txHash }) => {
-  const [conn] = useAtom(connectionConfigAtom);
-
   const { explorer, solscan } = PgCommon.getExplorerTxUrls(
     txHash,
-    conn.endpoint
+    PgSettings.connection.endpoint
   );
 
   return (

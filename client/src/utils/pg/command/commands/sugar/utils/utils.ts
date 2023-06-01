@@ -15,7 +15,7 @@ const MAINNET_HASH = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
  * @returns current cluster
  */
 export async function getCluster(rpcUrl: string): Promise<Cluster | null> {
-  const conn = PgConnection.createConnection({ endpoint: rpcUrl });
+  const conn = PgConnection.create({ endpoint: rpcUrl });
   const genesisHash = await conn.getGenesisHash();
   switch (genesisHash) {
     case DEVNET_HASH:

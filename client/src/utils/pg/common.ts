@@ -14,6 +14,7 @@ import type {
   Promisable,
   SyncOrAsync,
   Arrayable,
+  OrString,
 } from "./types";
 
 export class PgCommon {
@@ -79,7 +80,7 @@ export class PgCommon {
    */
   static async tryUntilSuccess<T>(
     cb: () => Promise<NonNullable<T>>,
-    tryInterval: number = 1000
+    tryInterval: number = 200
   ) {
     let returnValue: T;
     while (1) {
@@ -662,7 +663,7 @@ export class PgCommon {
    */
   static onDidChange<T>(params: {
     cb: (value: T) => any;
-    eventName: EventName | (string & {});
+    eventName: OrString<EventName>;
     // TODO: make it run by default
     initialRun?: { value: T };
   }): Disposable {

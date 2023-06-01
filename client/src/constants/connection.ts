@@ -1,5 +1,3 @@
-import { Commitment } from "@solana/web3.js";
-
 /** Name that will be showed in the UI */
 export enum NetworkName {
   PLAYNET = "playnet",
@@ -66,11 +64,11 @@ export const NETWORKS: Network[] = [
 ];
 
 /** Available commitment levels that users can choose from */
-export const COMMITMENT_LEVELS: Commitment[] = [
+export const COMMITMENT_LEVELS = [
   "processed",
   "confirmed",
   "finalized",
-];
+] as const;
 
 /** Wallet connection state */
 export enum ConnState {

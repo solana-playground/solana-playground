@@ -10,7 +10,7 @@ import { PgConnection } from "../../../../connection";
 import { PgWallet } from "../../../../wallet";
 
 export const getMetaplex = async (endpoint: string) => {
-  return Metaplex.make(PgConnection.createConnection({ endpoint }))
+  return Metaplex.make(PgConnection.create({ endpoint }))
     .use(walletAdapterIdentity(PgWallet))
     .use(
       bundlrStorage({

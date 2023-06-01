@@ -1,12 +1,12 @@
 import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
-import { PgPlaynet } from "../playnet";
-import { PgWallet } from "../wallet";
-import { PgView } from "../view";
 import { ExplorerLink } from "./ExplorerLink";
+import { PgCommon } from "../common";
+import { PgPlaynet } from "../playnet";
+import { PgSettings } from "../settings";
+import { PgView } from "../view";
+import { PgWallet } from "../wallet";
 
 interface BlockhashInfo {
   /** Latest blockhash */
@@ -50,7 +50,7 @@ export class PgTx {
     let txHash;
     try {
       txHash = await conn.sendRawTransaction(tx.serialize(), {
-        skipPreflight: !PgConnection.preflightChecks,
+        skipPreflight: !PgSettings.connection.preflightChecks,
       });
     } catch (e: any) {
       if (e.message.includes("This transaction has already been processed")) {

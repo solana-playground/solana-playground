@@ -1,23 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
 
 import Input from "../../../../../../components/Input";
 import Select from "../../../../../../components/Select";
 import Modal from "../../../../../../components/Modal";
-import useModal from "../../../../../../components/Modal/useModal";
 import { Endpoint, NetworkName, NETWORKS } from "../../../../../../constants";
-import { connectionConfigAtom } from "../../../../../../state";
 import {
   PgCommand,
   PgCommon,
-  PgConnection,
+  PgSettings,
   PgView,
 } from "../../../../../../utils/pg";
 import { useOnKey } from "../../../../../../hooks";
 
 const EndpointSetting = () => {
-  const [conn, setConn] = useAtom(connectionConfigAtom);
-
   const options = useMemo(
     () =>
       NETWORKS.map((n) => ({ value: n.endpoint, label: n.name })).filter((n) =>
@@ -27,12 +22,18 @@ const EndpointSetting = () => {
       ),
     []
   );
-  const value = useMemo(
-    () =>
-      options.find((o) => o.value === conn.endpoint) ??
-      options.find((o) => o.label === NetworkName.CUSTOM),
-    [options, conn.endpoint]
-  );
+
+  const [value, setValue] = useState<typeof options[number]>();
+
+  useEffect(() => {
+    const { dispose } = PgSettings.onDidChangeConnectionEndpoint((endpoint) => {
+      setValue(
+        options.find((o) => o.value === endpoint) ??
+          options.find((o) => o.label === NetworkName.CUSTOM)
+      );
+    });
+    return () => dispose();
+  }, [options]);
 
   return (
     <Select
@@ -45,8 +46,7 @@ const EndpointSetting = () => {
           const newEndpoint = NETWORKS.find(
             (n) => n.name === newValue?.label
           )!.endpoint;
-          setConn((c) => ({ ...c, endpoint: newEndpoint }));
-          PgConnection.update({ endpoint: newEndpoint });
+          PgSettings.connection.endpoint = newEndpoint;
         }
       }}
     />
@@ -55,8 +55,6 @@ const EndpointSetting = () => {
 
 const CustomEndpoint = () => {
   const [customEndpoint, setCustomEndpoint] = useState("");
-
-  const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +65,6 @@ const CustomEndpoint = () => {
 
   const onSubmit = () => {
     PgCommand.solana.run(`config set -u ${customEndpoint}`);
-    close();
   };
 
   // Submit on enter
@@ -80,6 +77,7 @@ const CustomEndpoint = () => {
       buttonProps={{
         text: "Add",
         onSubmit,
+        closeOnSubmit: true,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
       }}

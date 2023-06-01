@@ -1,25 +1,13 @@
-import { ChangeEvent } from "react";
-import { useAtom } from "jotai";
-
 import CheckBox from "../../../../../../components/CheckBox";
-import { connectionConfigAtom } from "../../../../../../state";
-import { PgConnection } from "../../../../../../utils/pg";
+import { PgSettings } from "../../../../../../utils/pg";
 
-const PreflightSetting = () => {
-  const [conn, setConn] = useAtom(connectionConfigAtom);
-
-  const changePreflight = (e: ChangeEvent<HTMLInputElement>) => {
-    const isPreflightEnabled = e.target.checked;
-    setConn((c) => ({ ...c, preflightChecks: isPreflightEnabled }));
-    PgConnection.update({ preflightChecks: isPreflightEnabled });
-  };
-
-  return (
-    <CheckBox
-      onChange={changePreflight}
-      checkedOnMount={conn.preflightChecks}
-    />
-  );
-};
+const PreflightSetting = () => (
+  <CheckBox
+    onChange={(ev) => {
+      PgSettings.connection.preflightChecks = ev.target.checked;
+    }}
+    checkedOnMount={PgSettings.connection.preflightChecks}
+  />
+);
 
 export default PreflightSetting;

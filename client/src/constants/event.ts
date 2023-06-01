@@ -1,6 +1,5 @@
 export enum EventName {
   // Connection
-  CONNECTION_REFRESH = "connectionrefresh",
   CONNECTION_STATIC = "connectionstatic",
 
   // Editor

@@ -1,32 +1,33 @@
-import { useMemo } from "react";
-import { useAtom } from "jotai";
-import { Commitment } from "@solana/web3.js";
+import { useEffect, useMemo, useState } from "react";
 
 import Select from "../../../../../../components/Select";
 import { COMMITMENT_LEVELS } from "../../../../../../constants";
-import { connectionConfigAtom } from "../../../../../../state";
-import { PgConnection } from "../../../../../../utils/pg";
+import { PgSettings } from "../../../../../../utils/pg";
 
 const CommitmentSetting = () => {
-  const [conn, setConn] = useAtom(connectionConfigAtom);
-
   const options = useMemo(
     () => COMMITMENT_LEVELS.map((c) => ({ value: c, label: c })),
     []
   );
-  const value = useMemo(
-    () => options.find((o) => o.value === conn.commitment),
-    [conn.commitment, options]
-  );
+
+  const [value, setValue] = useState<typeof options[number]>();
+
+  useEffect(() => {
+    const { dispose } = PgSettings.onDidChangeConnectionCommitment(
+      (commitment) => setValue(options.find((o) => o.value === commitment))
+    );
+    return () => dispose();
+  }, [options]);
 
   return (
     <Select
       options={options}
       value={value}
       onChange={(newValue) => {
-        const newCommitment = newValue?.value as Commitment;
-        setConn((c) => ({ ...c, commitment: newCommitment }));
-        PgConnection.update({ commitment: newCommitment });
+        const newCommitment = newValue?.value;
+        if (newCommitment) {
+          PgSettings.connection.commitment = newCommitment;
+        }
       }}
     />
   );

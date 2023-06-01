@@ -1,95 +1,40 @@
-import { Commitment, Connection, ConnectionConfig } from "@solana/web3.js";
+import { Connection, ConnectionConfig } from "@solana/web3.js";
 
-import { Endpoint, EventName } from "../../constants";
 import { PgCommon } from "./common";
-import { OverridableConnection } from "./playnet/types";
-import { SetState } from "./types";
-
-export interface PgConnectionConfig {
-  endpoint: Endpoint;
-  commitment: Commitment;
-  preflightChecks: boolean;
-}
+import { PgSettings } from "./settings";
+import { Endpoint, EventName } from "../../constants";
+import type { OverridableConnection } from "./playnet";
+import type { SetState } from "./types";
 
 export class PgConnection {
-  private static readonly _CONNECTION_KEY = "connection";
-  private static readonly _DEFAULT_CONNECTION: PgConnectionConfig = {
-    endpoint: Endpoint.DEVNET,
-    commitment: "confirmed",
-    preflightChecks: true,
-  };
-
-  /** Get the endpoint from localStorage */
-  static get endpoint(): Endpoint {
-    return this.getConnectionConfig().endpoint;
+  /** Connection RPC URL */
+  static get endpoint() {
+    return PgSettings.connection.endpoint;
   }
 
-  /** Get the commitment from localStorage */
-  static get commitment(): Commitment {
-    return this.getConnectionConfig().commitment;
-  }
-
-  /** Get the preflightChecks from localStorage */
-  static get preflightChecks(): boolean {
-    return this.getConnectionConfig().preflightChecks;
-  }
-
-  /**
-   * Get the connection config from localStorage or create the default connection
-   * if it doesn't exist
-   */
-  static getConnectionConfig() {
-    let conn = localStorage.getItem(this._CONNECTION_KEY);
-    if (!conn) {
-      // Remove old endpoint key if it exists
-      // TODO: Remove this when changing the domain
-      if (localStorage.getItem("endpoint")) localStorage.removeItem("endpoint");
-
-      const connStr = JSON.stringify(this._DEFAULT_CONNECTION);
-      localStorage.setItem(this._CONNECTION_KEY, connStr);
-      conn = connStr;
-    }
-
-    return JSON.parse(conn) as PgConnectionConfig;
-  }
-
-  /**
-   * Update the connection config in localStorage
-   *
-   * @param params update config values
-   */
-  static update(params: Partial<PgConnectionConfig>) {
-    const { endpoint, commitment, preflightChecks } = params;
-    const conn = this.getConnectionConfig();
-
-    if (endpoint) conn.endpoint = endpoint;
-    if (commitment) conn.commitment = commitment;
-    if (preflightChecks !== undefined) {
-      conn.preflightChecks = !!preflightChecks;
-    }
-
-    localStorage.setItem(this._CONNECTION_KEY, JSON.stringify(conn));
+  /** Connection commitment level */
+  static get commitment() {
+    return PgSettings.connection.commitment;
   }
 
   /**
    * Update the connection from WASM and refresh the UI
    */
-  static updateWasm(endpoint: string, commitment: string) {
-    this.update({
-      endpoint: endpoint as Endpoint,
-      commitment: commitment as Commitment,
-    });
-
-    PgCommon.createAndDispatchCustomEvent(EventName.CONNECTION_REFRESH);
+  static updateWasm(
+    endpoint: typeof PgSettings.connection["endpoint"],
+    commitment: typeof PgSettings.connection["commitment"]
+  ) {
+    PgSettings.connection.endpoint = endpoint;
+    PgSettings.connection.commitment = commitment;
   }
 
   /**
-   * Create a connection with project defaults from localStorage
+   * Create a connection with project defaults from `localStorage`.
    *
    * @param opts connection options
    * @returns web3.js connection
    */
-  static createConnection(opts?: { endpoint?: string } & ConnectionConfig) {
+  static create(opts?: { endpoint?: string } & ConnectionConfig) {
     return new Connection(
       opts?.endpoint ?? this.endpoint,
       opts ?? this.commitment
@@ -117,7 +62,7 @@ export class PgConnection {
   }
 
   /**
-   * Statically get the connection object in state
+   * Statically get the connection object in state.
    *
    * @returns the connection object
    */
@@ -128,7 +73,7 @@ export class PgConnection {
   }
 
   /**
-   * Statically set the connection object in state
+   * Statically set the connection object in state.
    *
    * @param set setConnection
    */

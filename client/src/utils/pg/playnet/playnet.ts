@@ -41,8 +41,9 @@ export class PgPlaynet {
     // Override connection to make it compatible with Playnet
     PgConnection.set(() => {
       // Creating a new connection object to trigger re-render after this callback
-      const newConnection: OverridableConnection =
-        PgConnection.createConnection({ fetch: newFetch });
+      const newConnection: OverridableConnection = PgConnection.create({
+        fetch: newFetch,
+      });
 
       // @ts-ignore
       newConnection.confirmTransaction = async (
@@ -136,7 +137,7 @@ export class PgPlaynet {
     await this._save();
 
     // Set the connection to default
-    PgConnection.set(PgConnection.createConnection());
+    PgConnection.set(PgConnection.create());
 
     // Set fetch to default
     PgPlaynetRpc.overrideFetch();

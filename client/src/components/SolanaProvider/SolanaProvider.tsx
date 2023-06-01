@@ -1,42 +1,26 @@
-import { FC, useEffect, useMemo } from "react";
-import { useAtom } from "jotai";
+import { FC, useMemo } from "react";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 
-import { EventName } from "../../constants";
-import { connectionConfigAtom } from "../../state";
-import { PgConnection } from "../../utils/pg";
+import { PgSettings } from "../../utils/pg";
 import { usePlaynet } from "./usePlaynet";
 
 /**
  * Connection and Wallet provider
  */
 const SolanaProvider: FC = ({ children }) => {
-  const [conn, setConn] = useAtom(connectionConfigAtom);
-
-  // Runs after connection config changes from the terminal
-  useEffect(() => {
-    const handleRefresh = () => {
-      setConn(PgConnection.getConnectionConfig());
-    };
-
-    document.addEventListener(EventName.CONNECTION_REFRESH, handleRefresh);
-    return () =>
-      document.removeEventListener(EventName.CONNECTION_REFRESH, handleRefresh);
-  }, [setConn]);
-
   const { customFetch } = usePlaynet();
 
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
 
   return (
     <ConnectionProvider
-      endpoint={conn.endpoint}
+      endpoint={PgSettings.connection.endpoint}
       config={{
-        commitment: conn.commitment,
+        commitment: PgSettings.connection.commitment,
         fetch: customFetch.fetch,
       }}
     >
