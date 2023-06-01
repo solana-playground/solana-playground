@@ -79,7 +79,7 @@ export function derivable<T extends Derivable>(
 }
 
 /** Either `onChange` method or a string that will be checked from the state */
-type OnChange<T = unknown> = ((cb: (value: T) => void) => Disposable) | string;
+type OnChange<T = unknown> = ((cb: (value?: T) => void) => Disposable) | string;
 
 /** Derivable property declaration */
 type Derivable<T = any, R = unknown> = {

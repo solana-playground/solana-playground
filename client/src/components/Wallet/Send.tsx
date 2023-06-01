@@ -7,9 +7,9 @@ import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
 import { uiBalanceAtom } from "../../state";
-import { PgCommon, PgTerminal, PgTx } from "../../utils/pg";
+import { PgCommon, PgConnection, PgTerminal, PgTx } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { useCurrentWallet, usePgConnection } from "../../hooks";
+import { useCurrentWallet } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
@@ -65,7 +65,6 @@ const SendExpanded = () => {
     setAmount(e.target.value);
   }, []);
 
-  const { connection: conn } = usePgConnection();
   const { wallet } = useCurrentWallet();
 
   const send = () => {
@@ -87,7 +86,9 @@ const SendExpanded = () => {
 
         const tx = new Transaction().add(ix);
 
-        const txHash = await PgCommon.transition(PgTx.send(tx, conn, wallet));
+        const txHash = await PgCommon.transition(
+          PgTx.send(tx, PgConnection.connection, wallet)
+        );
         PgTx.notify(txHash);
 
         msg = PgTerminal.success("Success.");

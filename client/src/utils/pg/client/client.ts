@@ -221,7 +221,7 @@ export class PgClient {
       }
 
       // Playground utils namespace
-      const connection = await PgConnection.get();
+      const connection = PgConnection.connection;
       const pg: Pg = { connection };
 
       if (PgWallet.isConnected) {

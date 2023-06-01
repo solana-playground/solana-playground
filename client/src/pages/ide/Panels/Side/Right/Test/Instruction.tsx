@@ -15,13 +15,14 @@ import { ClassName, Emoji } from "../../../../../../constants";
 import {
   PgCommand,
   PgCommon,
+  PgConnection,
   PgSettings,
   PgTerminal,
   PgTest,
   PgTx,
   TxVals,
 } from "../../../../../../utils/pg";
-import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
+import { useCurrentWallet } from "../../../../../../hooks";
 
 interface InstructionProps extends InstructionInsideProps {
   index: number;
@@ -41,8 +42,6 @@ interface InstructionInsideProps {
 }
 
 const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
-  const { connection: conn } = usePgConnection();
-
   // State
   const [txVals, setTxVals] = useState<TxVals>({
     name: ix.name,
@@ -138,6 +137,8 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
 
   // Test submission
   const handleTest = useCallback(async () => {
+    const conn = PgConnection.connection;
+
     const showLogTxHash = await PgTerminal.process(async () => {
       if (!wallet) return;
 
@@ -189,7 +190,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
 
       await PgCommand.solana.run(`confirm ${showLogTxHash} -v`);
     }
-  }, [txVals, idl, ix.name, conn, wallet]);
+  }, [txVals, idl, ix.name, wallet]);
 
   return (
     <>

@@ -117,8 +117,11 @@ const derive = () => ({
   /** On-chain data of the program */
   onChain: createDerivable({
     derive: _PgProgramInfo.fetch,
-    // TODO: Add connection
-    onChange: ["pk", PgCommand.deploy.onDidRunFinish],
+    onChange: [
+      "pk",
+      PgConnection.onDidChangeConnection,
+      PgCommand.deploy.onDidRunFinish,
+    ],
   }),
 });
 
@@ -151,7 +154,7 @@ class _PgProgramInfo {
    * @returns program's authority and whether the program is upgradable
    */
   static async fetch(programId?: PublicKey | null) {
-    const conn = await PgConnection.get();
+    const conn = PgConnection.connection;
     if (!PgConnection.isReady(conn)) return;
 
     if (!programId && !PgProgramInfo.pk) return;
@@ -198,7 +201,7 @@ class _PgProgramInfo {
 
     const idlPk = await idlAddress(programId);
 
-    const conn = await PgConnection.get();
+    const conn = PgConnection.connection;
     const accountInfo = await conn.getAccountInfo(idlPk);
     if (!accountInfo) return null;
 

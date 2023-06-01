@@ -98,7 +98,7 @@ const processDeploy = async () => {
   }
 
   // Get connection
-  const conn = await PgConnection.get();
+  const conn = PgConnection.connection;
 
   // Create buffer
   const bufferKp = Keypair.generate();

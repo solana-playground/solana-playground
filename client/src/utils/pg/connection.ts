@@ -1,12 +1,44 @@
 import { Connection, ConnectionConfig } from "@solana/web3.js";
 
-import { PgCommon } from "./common";
+import { createDerivable, declareDerivable, derivable } from "./decorators";
+import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
-import { Endpoint, EventName } from "../../constants";
-import type { OverridableConnection } from "./playnet";
-import type { SetState } from "./types";
+import { Endpoint } from "../../constants";
 
-export class PgConnection {
+const derive = () => ({
+  connection: createDerivable({
+    // It's important that this method returns immediately because connection
+    // instance is used throughout the app. For this reason, the connection for
+    // Playnet will be returned without awaiting the initialization. After the
+    // initialization, `PgPlaynet.onDidInit` will be triggered and this method
+    // will run again to return the overridden connection instance.
+    derive: () => {
+      // Check whether the endpoint is Playnet
+      if (PgPlaynet.isUrlPlaynet(PgSettings.connection.endpoint)) {
+        // Return the connection instance if it has been overridden
+        if (PgPlaynet.connection?.overridden) {
+          return PgPlaynet.connection;
+        }
+
+        // Initialize Playnet
+        PgPlaynet.init();
+      } else {
+        // Destroy Playnet(noop if it doesn't exist)
+        PgPlaynet.destroy();
+      }
+
+      return _PgConnection.create();
+    },
+    onChange: [
+      PgSettings.onDidChangeConnectionEndpoint,
+      PgSettings.onDidChangeConnectionCommitment,
+      PgPlaynet.onDidInit,
+    ],
+  }),
+});
+
+@derivable(derive)
+class _PgConnection {
   /** Connection RPC URL */
   static get endpoint() {
     return PgSettings.connection.endpoint;
@@ -60,27 +92,6 @@ export class PgConnection {
 
     return true;
   }
-
-  /**
-   * Statically get the connection object in state.
-   *
-   * @returns the connection object
-   */
-  static async get() {
-    return await PgCommon.sendAndReceiveCustomEvent<Connection>(
-      PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).get
-    );
-  }
-
-  /**
-   * Statically set the connection object in state.
-   *
-   * @param set setConnection
-   */
-  static async set(set?: SetState<Connection>) {
-    PgCommon.createAndDispatchCustomEvent(
-      PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).set,
-      set
-    );
-  }
 }
+
+export const PgConnection = declareDerivable(_PgConnection, derive);

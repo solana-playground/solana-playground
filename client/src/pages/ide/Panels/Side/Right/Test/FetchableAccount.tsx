@@ -85,6 +85,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
 
   const fetchOne = async () => {
     if (!wallet) return;
+
     setFetchOneLoading(true);
     try {
       const accountData = await PgCommon.transition(
@@ -106,6 +107,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
 
   const fetchAll = async () => {
     if (!wallet) return;
+
     setFetchAllLoading(true);
     try {
       const accountData = await PgCommon.transition(

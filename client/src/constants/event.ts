@@ -1,7 +1,4 @@
 export enum EventName {
-  // Connection
-  CONNECTION_STATIC = "connectionstatic",
-
   // Editor
   EDITOR_FOCUS = "editorfocus",
   EDITOR_FORMAT = "editorformat",
@@ -16,7 +13,7 @@ export enum EventName {
   MODAL_SET = "modalset",
 
   // Playnet
-  PLAYNET_FETCH_SET = "playnetfetchset",
+  PLAYNET_ON_DID_INIT = "playnetondidinit",
 
   // Program info
   PROGRAM_INFO_ON_DID_CHANGE_PK = "programinfoondidchangepk",

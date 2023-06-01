@@ -19,7 +19,7 @@ export const useAirdrop = () => {
         try {
           PgTerminal.log(PgTerminal.info("Sending an airdrop request..."));
 
-          const conn = await PgConnection.get();
+          const conn = PgConnection.connection;
 
           // Airdrop tx is sometimes successful even when balance hasn't changed
           // Instead of confirming the tx, we will check before and after balance

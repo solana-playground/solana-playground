@@ -1,13 +1,12 @@
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { useEffect } from "react";
 import { useAtom } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Connection } from "@solana/web3.js";
-import { useConnection } from "@solana/wallet-adapter-react";
 
 import { EventName } from "../../constants";
 import {
   useAsyncEffect,
   useCurrentWallet,
+  useDisposable,
   useExposeStatic,
   useGetAndSetStatic,
   useGetStatic,
@@ -18,7 +17,6 @@ import {
   explorerAtom,
   terminalProgressAtom,
   tutorialAtom,
-  connectionAtom,
 } from "../../state";
 import {
   PgCommon,
@@ -26,6 +24,7 @@ import {
   PgExplorer,
   PgProgramInfo,
   PgWallet,
+  PgConnection,
 } from "../../utils/pg";
 
 const GlobalState = () => {
@@ -34,12 +33,14 @@ const GlobalState = () => {
   useSetStatic(setBalance, EventName.WALLET_UI_BALANCE_SET);
 
   // Connection
-  const [connection, setConnection] = usePgConnectionStatic();
-  useGetAndSetStatic(connection, setConnection, EventName.CONNECTION_STATIC);
+  useDisposable(PgConnection.init);
 
   // Explorer
   const [explorer] = useAtom(explorerAtom);
   useExposeStatic(explorer, EventName.EXPLORER_STATIC);
+
+  // Program info
+  useProgramInfoStatic();
 
   // Router location
   const location = useLocation();
@@ -60,31 +61,7 @@ const GlobalState = () => {
   // Wallet
   useWalletStatic();
 
-  // Program info
-  useProgramInfoStatic();
-
   return null;
-};
-
-/**
- * Override connection object to make it compatible with Playnet when necessary.
- *
- * **IMPORTANT**: Should only be used once.
- */
-const usePgConnectionStatic = () => {
-  const [connection, setConnection] = useAtom(connectionAtom);
-
-  const { connection: defaultConnection } = useConnection();
-
-  // Sync new connection when connection updates
-  useEffect(() => {
-    setConnection(defaultConnection);
-  }, [defaultConnection, setConnection]);
-
-  return [connection, setConnection] as [
-    Connection,
-    Dispatch<SetStateAction<Connection>>
-  ];
 };
 
 /**

@@ -1,19 +1,15 @@
-import { TransactionStatus } from "@solana-playground/playnet";
-import {
-  BlockheightBasedTransactionConfirmationStrategy,
-  Connection,
-} from "@solana/web3.js";
-
 import { PgPlaynetRpc } from "./rpc";
-import { PgPlaynetUtils } from "./utils";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgExplorer } from "../explorer";
 import { PgPackage } from "../command";
-import { Endpoint } from "../../../constants";
+import { Endpoint, EventName } from "../../../constants";
 import type { OverridableConnection } from "./types";
 
 export class PgPlaynet {
+  /** Overridable Playnet connection */
+  static connection: OverridableConnection | null;
+
   /**
    * Initialize Playnet instance and apply the necessary changes for the client
    * to interact with the Playnet via JSON-RPC endpoints
@@ -29,87 +25,11 @@ export class PgPlaynet {
     const playnet = new Playnet(saveData);
     this._playnet = playnet;
 
-    // Override fetch function for both `window` and `ConnectionProvider`
-    const newFetch = PgPlaynetRpc.overrideFetch(this._playnet);
+    // Override `fetch` and `connection`
+    this.connection = PgPlaynetRpc.overrideConnection(playnet);
 
-    // Add a small delay because overriding `fetch` results in a new `Connection`
-    // object which results in `usePgConnectionStatic` sets the new connection
-    // object and this should happen before we are overriding the new object
-    // with `PgConnection.set`
-    await PgCommon.sleep(100);
-
-    // Override connection to make it compatible with Playnet
-    PgConnection.set(() => {
-      // Creating a new connection object to trigger re-render after this callback
-      const newConnection: OverridableConnection = PgConnection.create({
-        fetch: newFetch,
-      });
-
-      // @ts-ignore
-      newConnection.confirmTransaction = async (
-        ...params: Parameters<Connection["confirmTransaction"]>
-      ) => {
-        let signature;
-        if (typeof params[0] === "string") {
-          signature = params[0];
-        } else {
-          const strat =
-            params[0] as BlockheightBasedTransactionConfirmationStrategy;
-          signature = strat.signature;
-        }
-
-        const result = playnet.rpc.getSignatureStatuses([signature]);
-        const status: TransactionStatus | undefined = result.statuses()[0];
-        if (!status) {
-          throw new Error("Transaction not found.");
-        }
-
-        return {
-          value: { err: status.error() ?? null },
-          context: { slot: PgCommon.bigintToInt(playnet.rpc.getSlot()) },
-        };
-      };
-
-      // @ts-ignore
-      newConnection.onAccountChange = (
-        ...params: Parameters<Connection["onAccountChange"]>
-      ) => {
-        const address = params[0].toBase58();
-        const cb = params[1];
-
-        let currentAccountInfo = PgPlaynetUtils.convertAccountInfo(
-          playnet.rpc.getAccountInfo(address)
-        );
-
-        const id = PgCommon.setIntervalOnFocus(() => {
-          const newAccountInfo = PgPlaynetUtils.convertAccountInfo(
-            playnet.rpc.getAccountInfo(address)
-          );
-
-          if (!PgCommon.isEqual(currentAccountInfo, newAccountInfo)) {
-            cb(newAccountInfo, {
-              slot: PgCommon.bigintToInt(playnet.rpc.getSlot()),
-            });
-
-            currentAccountInfo = newAccountInfo;
-          }
-        }, 3000);
-
-        return id;
-      };
-
-      newConnection.removeAccountChangeListener = async (
-        ...params: Parameters<Connection["removeAccountChangeListener"]>
-      ) => {
-        const [id] = params;
-        clearInterval(id);
-      };
-
-      // `Connection` is not ready until this property is set.
-      newConnection.overridden = true;
-
-      return newConnection;
-    });
+    // Dispatch `init` event to create a new connection object
+    PgCommon.createAndDispatchCustomEvent(EventName.PLAYNET_ON_DID_INIT);
 
     // Save Playnet data periodically
     this._SAVE_INTERVAL_ID = PgCommon.setIntervalOnFocus(() => {
@@ -121,9 +41,10 @@ export class PgPlaynet {
    * Destroy the Playnet instance by:
    * 1. Clear save interval.
    * 2. Save data.
-   * 3. Set `connection` to default.
-   * 4. Set `fetch` to default.
-   * 5. Free WASM memory.
+   * 3. Set `connection`and `fetch` to default.
+   * 4. Free WASM memory.
+   *
+   * This method is noop if Playnet instance doesn't exist.
    */
   static async destroy() {
     if (!this._playnet) return;
@@ -136,11 +57,8 @@ export class PgPlaynet {
     // Save Playnet instance data
     await this._save();
 
-    // Set the connection to default
-    PgConnection.set(PgConnection.create());
-
-    // Set fetch to default
-    PgPlaynetRpc.overrideFetch();
+    // Reset to defaults
+    this.connection = PgPlaynetRpc.overrideConnection();
 
     // Free memory
     this._playnet.free();
@@ -148,7 +66,7 @@ export class PgPlaynet {
   }
 
   /**
-   * Get whether the given url belong to Playnet
+   * Get whether the given URL belongs to Playnet.
    *
    * @param url RPC endpoint
    * @returns whether the given URL or the URL in localStorage is `Endpoint.PLAYNET`
@@ -159,6 +77,17 @@ export class PgPlaynet {
     }
 
     return PgConnection.endpoint === Endpoint.PLAYNET;
+  }
+
+  /**
+   * @param cb callback function to run after Playnet has been initialialized
+   * @returns a dispose function to clear the event
+   */
+  static onDidInit(cb: () => any) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.PLAYNET_ON_DID_INIT,
+    });
   }
 
   /** Static Playnet instance */
@@ -177,7 +106,7 @@ export class PgPlaynet {
   private static _SAVE_INTERVAL_MS = 30 * 1000;
 
   /** Data saving interval that must be cleared while destroying the Playnet instance */
-  private static _SAVE_INTERVAL_ID: NodeJS.Timer | null = null;
+  private static _SAVE_INTERVAL_ID: NodeJS.Timer | null;
 
   /** Save the current playnet data */
   private static async _save() {

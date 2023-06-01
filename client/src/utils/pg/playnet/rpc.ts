@@ -1,5 +1,6 @@
-import { Playnet, TransactionStatus } from "@solana-playground/playnet";
+import type { Playnet, TransactionStatus } from "@solana-playground/playnet";
 import {
+  BlockheightBasedTransactionConfirmationStrategy,
   Connection,
   PublicKey,
   TransactionConfirmationStatus,
@@ -8,20 +9,118 @@ import {
 } from "@solana/web3.js";
 import { utils } from "@project-serum/anchor";
 
-import { Endpoint, EventName } from "../../../constants";
+import { Endpoint } from "../../../constants";
 import { PgSerde } from "./serde";
 import { PgCommon } from "../common";
-import { RpcRequest, RpcResponse, RpcResponseWithContext } from "./types";
-import { SetState } from "../types";
+import {
+  OverridableConnection,
+  RpcRequest,
+  RpcResponse,
+  RpcResponseWithContext,
+} from "./types";
+import { PgConnection } from "../connection";
+import { PgPlaynetUtils } from "./utils";
 
 export class PgPlaynetRpc {
   /**
-   * Override `window.fetch` and `fetch` that `web3.js` uses
+   * Create a Playnet compatible connection instance.
    *
-   * @param playnet Playnet instance. The default fetch will be used if `undefined`.
-   * @returns the new `fetch` function
+   * If `playnet` is specified:
+   * 1. `window.fetch` will be overridden with a Playnet compatible method.
+   * 2. A new connection instance will be created.
+   * 3. The connection instance will be overridden to make it compatible with
+   * Playnet.
+   * 4. The connection instance will be returned.
+   *
+   * If `playnet` is **NOT** specified:
+   * 1. `window.fetch` will be overridden with the default `fetch` method.
+   * 2. `null` will be returned.
+   *
+   * @param playnet Playnet instance
+   * @returns the overridden connection or `null`
    */
-  static overrideFetch(playnet?: Playnet) {
+  static overrideConnection(playnet?: Playnet) {
+    // Override `window.fetch`
+    const newFetch = this._overrideFetch(playnet);
+
+    if (!playnet) return null;
+
+    // Override connection to make it compatible with Playnet
+    const connection: OverridableConnection = PgConnection.create({
+      fetch: newFetch,
+    });
+
+    // @ts-ignore
+    connection.confirmTransaction = async (
+      ...params: Parameters<Connection["confirmTransaction"]>
+    ) => {
+      let signature;
+      if (typeof params[0] === "string") {
+        signature = params[0];
+      } else {
+        const strat =
+          params[0] as BlockheightBasedTransactionConfirmationStrategy;
+        signature = strat.signature;
+      }
+
+      const result = playnet.rpc.getSignatureStatuses([signature]);
+      const status: TransactionStatus | undefined = result.statuses()[0];
+      if (!status) throw new Error("Transaction not found.");
+
+      return {
+        value: { err: status.error() ?? null },
+        context: { slot: PgCommon.bigintToInt(playnet.rpc.getSlot()) },
+      };
+    };
+
+    // @ts-ignore
+    connection.onAccountChange = (
+      ...params: Parameters<Connection["onAccountChange"]>
+    ) => {
+      const address = params[0].toBase58();
+      const cb = params[1];
+
+      let currentAccountInfo = PgPlaynetUtils.convertAccountInfo(
+        playnet.rpc.getAccountInfo(address)
+      );
+
+      const id = PgCommon.setIntervalOnFocus(() => {
+        const newAccountInfo = PgPlaynetUtils.convertAccountInfo(
+          playnet.rpc.getAccountInfo(address)
+        );
+
+        if (!PgCommon.isEqual(currentAccountInfo, newAccountInfo)) {
+          cb(newAccountInfo, {
+            slot: PgCommon.bigintToInt(playnet.rpc.getSlot()),
+          });
+
+          currentAccountInfo = newAccountInfo;
+        }
+      }, 3000);
+
+      return id;
+    };
+
+    connection.removeAccountChangeListener = async (
+      ...params: Parameters<Connection["removeAccountChangeListener"]>
+    ) => {
+      const [id] = params;
+      clearInterval(id);
+    };
+
+    // `Connection` is not ready until this property is set
+    connection.overridden = true;
+
+    return connection;
+  }
+
+  /**
+   * Override `window.fetch` method.
+   *
+   * @param playnet Playnet instance. The default `fetch` will be used if `undefined`.
+   * @returns the new or the default `fetch` method
+   */
+  private static _overrideFetch(playnet?: Playnet) {
     let newFetch;
     if (playnet) {
       newFetch = this._getNewFetch(playnet);
@@ -29,10 +128,7 @@ export class PgPlaynetRpc {
       newFetch = defaultFetch;
     }
 
-    // This overrides web3.js methods
-    this._setCustomFetch({ fetch: newFetch });
-
-    // This overrides global fetch method(i.e solana-cli-wasm)
+    // WASM client uses global `fetch` method
     window.fetch = newFetch;
 
     return newFetch;
@@ -397,21 +493,6 @@ export class PgPlaynetRpc {
       // For every URL other than `Endpoint.PLAYNET`
       return await defaultFetch(...args);
     };
-  }
-
-  /**
-   * Dispatch a custom event that sets the `fetch` function that `ConnectionProvider`
-   * utilizes
-   *
-   * @param newFetch new `fetch` function to set
-   */
-  private static _setCustomFetch(
-    newFetch: SetState<{ fetch: typeof window["fetch"] }>
-  ) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.PLAYNET_FETCH_SET,
-      newFetch
-    );
   }
 
   /**
