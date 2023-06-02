@@ -2,8 +2,7 @@ import { PgPlaynetRpc } from "./rpc";
 import { PgPackage } from "../command";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
-import { PgSettings } from "../settings";
-import { Endpoint, EventName } from "../../../constants";
+import { EventName } from "../../../constants";
 import type { OverridableConnection } from "./types";
 
 export class PgPlaynet {
@@ -11,8 +10,10 @@ export class PgPlaynet {
   static connection: OverridableConnection | null;
 
   /**
-   * Initialize Playnet instance and apply the necessary changes for the client
-   * to interact with the Playnet via JSON-RPC endpoints
+   * Initialize Playnet and apply the necessary changes for the client to be
+   * able to interact with Playnet via JSON-RPC endpoints.
+   *
+   * This method returns early if Playnet instance already exists.
    */
   static async init() {
     if (this._playnet) return;
@@ -26,7 +27,7 @@ export class PgPlaynet {
     this._playnet = playnet;
 
     // Override `fetch` and `connection`
-    this.connection = PgPlaynetRpc.overrideConnection(playnet);
+    this.connection = PgPlaynetRpc.overrideConnection(this._playnet.rpc);
 
     // Dispatch `init` event to create a new connection object
     PgCommon.createAndDispatchCustomEvent(EventName.PLAYNET_ON_DID_INIT);
@@ -44,7 +45,7 @@ export class PgPlaynet {
    * 3. Set `connection`and `fetch` to default.
    * 4. Free WASM memory.
    *
-   * This method is noop if Playnet instance doesn't exist.
+   * This method returns early if Playnet instance doesn't exist.
    */
   static async destroy() {
     if (!this._playnet) return;
@@ -65,19 +66,8 @@ export class PgPlaynet {
     this._playnet = null;
   }
 
-  /**
-   * Get whether the given URL belongs to Playnet.
-   *
-   * @param url RPC endpoint
-   * @returns whether the given URL or the URL in localStorage is `Endpoint.PLAYNET`
-   */
-  static isUrlPlaynet(url?: string) {
-    if (url) {
-      return url === Endpoint.PLAYNET;
-    }
-
-    return PgSettings.connection.endpoint === Endpoint.PLAYNET;
-  }
+  /** {@link PgPlaynetRpc.isUrlPlaynet} */
+  static isUrlPlaynet = PgPlaynetRpc.isUrlPlaynet;
 
   /**
    * @param cb callback function to run after Playnet has been initialialized

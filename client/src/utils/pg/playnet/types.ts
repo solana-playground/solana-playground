@@ -1,5 +1,6 @@
-import { Connection } from "@solana/web3.js";
+import type { Connection } from "@solana/web3.js";
 
+/** Playnet RPC request */
 export interface RpcRequest {
   jsonrpc: string;
   method: keyof Connection;
@@ -7,6 +8,7 @@ export interface RpcRequest {
   id: string;
 }
 
+/** Playnet RPC response */
 export type RpcResponse<K extends keyof Connection> = {
   jsonrpc: string;
   result: Connection[K] extends (...args: any[]) => any
@@ -15,6 +17,7 @@ export type RpcResponse<K extends keyof Connection> = {
   id: string;
 };
 
+/** Playnet RPC response with context */
 export type RpcResponseWithContext<K extends keyof Connection> = {
   jsonrpc: string;
   result: {
@@ -26,4 +29,5 @@ export type RpcResponseWithContext<K extends keyof Connection> = {
   id: string;
 };
 
+/** Overridable `Connection` instance */
 export type OverridableConnection = Connection & { overridden?: boolean };

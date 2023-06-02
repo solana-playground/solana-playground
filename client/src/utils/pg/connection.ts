@@ -3,7 +3,6 @@ import { Connection, ConnectionConfig } from "@solana/web3.js";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
-import { Endpoint } from "../../constants";
 
 const derive = () => ({
   /** Globally sycned connection instance */
@@ -24,7 +23,7 @@ const derive = () => ({
         // Initialize Playnet
         PgPlaynet.init();
       } else {
-        // Destroy Playnet(noop if it doesn't exist)
+        // Destroy Playnet
         PgPlaynet.destroy();
       }
 
@@ -41,10 +40,10 @@ const derive = () => ({
 @derivable(derive)
 class _PgConnection {
   /**
-   * Create a connection with project defaults from `localStorage`.
+   * Create a connection with the given options or defaults from settings.
    *
    * @param opts connection options
-   * @returns web3.js connection
+   * @returns a new `Connection` instance
    */
   static create(opts?: { endpoint?: string } & ConnectionConfig) {
     return new Connection(
@@ -66,7 +65,7 @@ class _PgConnection {
    * @returns whether the connection is ready to be used
    */
   static isReady(conn: OverridableConnection) {
-    if (conn.rpcEndpoint === Endpoint.PLAYNET) {
+    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) {
       return conn.overridden;
     }
 
