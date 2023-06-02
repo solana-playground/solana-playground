@@ -3,12 +3,11 @@ import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
 import { PgCommon } from "../../../../../common";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { getMetaplex, loadCache } from "../../utils";
 
 export const processMint = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   number: bigint | undefined,
   receiver: string | undefined,
   candyMachine: string | undefined
@@ -101,8 +100,10 @@ export const processMint = async (
                     ? "NFT"
                     : `${nft.name}`
                 }: ${PgTerminal.underline(
-                  PgCommon.getExplorerTokenUrl(nft.address.toBase58(), rpcUrl)
-                    .explorer
+                  PgCommon.getExplorerTokenUrl(
+                    nft.address.toBase58(),
+                    metaplex.connection.rpcEndpoint
+                  ).explorer
                 )} `
               )
             );

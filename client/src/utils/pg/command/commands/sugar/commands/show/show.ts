@@ -3,13 +3,12 @@ import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
 import { PgCommon } from "../../../../../common";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { NULL_STRING } from "../../constants";
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 
 export const processShow = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   candyMachine: string | undefined,
   unminted: boolean
 ) => {

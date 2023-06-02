@@ -2,14 +2,13 @@ import { createSetCollectionInstruction } from "@metaplex-foundation/mpl-candy-m
 import { PublicKey, Transaction } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { assertCorrectAuthority, getMetaplex, loadCache } from "../../utils";
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
 
 export const processCollectionSet = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   candyMachine: string | undefined,
   collectionMint: string
 ) => {

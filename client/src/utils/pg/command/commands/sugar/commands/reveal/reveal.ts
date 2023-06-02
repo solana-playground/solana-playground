@@ -1,7 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import {
   getCmCreatorMetadataAccounts,
@@ -10,7 +9,7 @@ import {
   loadConfigData,
 } from "../../utils";
 
-export const processReveal = async (rpcUrl: string = PgConnection.endpoint) => {
+export const processReveal = async (rpcUrl: string | undefined) => {
   const term = await PgTerminal.get();
 
   term.println(`[1/4] ${Emoji.LOOKING_GLASS} Loading items from the cache`);

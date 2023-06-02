@@ -1,12 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { getMetaplex, loadCache } from "../../utils";
 
 export const processGuardRemove = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   candyMachine: string | undefined,
   candyGuard: string | undefined
 ) => {

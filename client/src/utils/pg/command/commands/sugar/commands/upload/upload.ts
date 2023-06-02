@@ -9,7 +9,6 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
 import { PgCommon } from "../../../../../common";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { getAssetPairs } from "./assets";
@@ -22,7 +21,7 @@ interface AssetType {
 
 const MAX_TRY = 3;
 
-export const processUpload = async (rpcUrl: string = PgConnection.endpoint) => {
+export const processUpload = async (rpcUrl: string | undefined) => {
   const configData = await loadConfigData();
   const term = await PgTerminal.get();
 

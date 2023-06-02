@@ -1,5 +1,4 @@
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { loadConfigData } from "../../utils";
 import { processCreateConfig } from "../create-config";
@@ -9,7 +8,7 @@ import { processValidate } from "../validate";
 import { processVerify } from "../verify";
 
 export const processLaunch = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   strict: boolean,
   skipCollectionPrompt: boolean
 ) => {

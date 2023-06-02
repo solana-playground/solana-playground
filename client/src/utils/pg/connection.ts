@@ -6,6 +6,7 @@ import { PgSettings } from "./settings";
 import { Endpoint } from "../../constants";
 
 const derive = () => ({
+  /** Globally sycned connection instance */
   connection: createDerivable({
     // It's important that this method returns immediately because connection
     // instance is used throughout the app. For this reason, the connection for
@@ -39,27 +40,6 @@ const derive = () => ({
 
 @derivable(derive)
 class _PgConnection {
-  /** Connection RPC URL */
-  static get endpoint() {
-    return PgSettings.connection.endpoint;
-  }
-
-  /** Connection commitment level */
-  static get commitment() {
-    return PgSettings.connection.commitment;
-  }
-
-  /**
-   * Update the connection from WASM and refresh the UI
-   */
-  static updateWasm(
-    endpoint: typeof PgSettings.connection["endpoint"],
-    commitment: typeof PgSettings.connection["commitment"]
-  ) {
-    PgSettings.connection.endpoint = endpoint;
-    PgSettings.connection.commitment = commitment;
-  }
-
   /**
    * Create a connection with project defaults from `localStorage`.
    *
@@ -68,8 +48,8 @@ class _PgConnection {
    */
   static create(opts?: { endpoint?: string } & ConnectionConfig) {
     return new Connection(
-      opts?.endpoint ?? this.endpoint,
-      opts ?? this.commitment
+      opts?.endpoint ?? PgSettings.connection.endpoint,
+      opts ?? PgSettings.connection.commitment
     );
   }
 

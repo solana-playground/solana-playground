@@ -3,12 +3,11 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
 import { PgCommon } from "../../../../../common";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 
 export const processGuardShow = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   candyGuard: string | undefined
 ) => {
   const term = await PgTerminal.get();

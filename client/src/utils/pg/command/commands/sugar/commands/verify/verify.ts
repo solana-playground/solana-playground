@@ -2,11 +2,10 @@ import { CandyMachineItem } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { CacheItem, getCluster, getMetaplex, loadCache } from "../../utils";
 
-export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
+export const processVerify = async (rpcUrl: string | undefined) => {
   // Load the cache file (this needs to have been created by
   // the upload command)
   const cache = await loadCache();
@@ -126,7 +125,7 @@ export const processVerify = async (rpcUrl: string = PgConnection.endpoint) => {
       throw new Error("Invalid cache state found.");
     }
 
-    const cluster = await getCluster(rpcUrl);
+    const cluster = await getCluster(metaplex.connection.rpcEndpoint);
     if (!cluster) {
       term.println("\nVerification successful. You're good to go!");
     } else {

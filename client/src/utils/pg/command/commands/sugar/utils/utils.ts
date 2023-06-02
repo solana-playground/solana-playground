@@ -1,11 +1,12 @@
-import { Cluster } from "@solana/web3.js";
+import type { Cluster } from "@solana/web3.js";
 
 import { PgConnection } from "../../../../connection";
+import { PgSettings } from "../../../../settings";
 
-// Hash for devnet cluster
+/** Genesis hash for devnet cluster */
 const DEVNET_HASH = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
 
-// Hash for mainnet-beta cluster
+/** Genesis for mainnet-beta cluster */
 const MAINNET_HASH = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
 
 /**
@@ -14,7 +15,9 @@ const MAINNET_HASH = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
  * @param rpcUrl endpoint
  * @returns current cluster
  */
-export async function getCluster(rpcUrl: string): Promise<Cluster | null> {
+export async function getCluster(
+  rpcUrl: string = PgSettings.connection.endpoint
+): Promise<Cluster | null> {
   const conn = PgConnection.create({ endpoint: rpcUrl });
   const genesisHash = await conn.getGenesisHash();
   switch (genesisHash) {

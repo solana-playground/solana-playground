@@ -1,7 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import {
   CandyCache,
@@ -11,7 +10,7 @@ import {
 } from "../../utils";
 
 export const processGuardAdd = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   candyMachine: string | undefined,
   candyGuard: string | undefined
 ) => {

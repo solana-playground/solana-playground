@@ -2,14 +2,13 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
 import { PgCommon } from "../../../../../common";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
 import { checkName, checkSellerFeeBasisPoints, checkSymbol } from "../validate";
 
-export const processDeploy = async (rpcUrl: string = PgConnection.endpoint) => {
+export const processDeploy = async (rpcUrl: string | undefined) => {
   const term = await PgTerminal.get();
 
   // Load the cache file (this needs to have been created by the upload command)

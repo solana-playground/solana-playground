@@ -2,14 +2,13 @@ import { Metaplex } from "@metaplex-foundation/js";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { getMetaplex } from "../../utils";
 import { PgCommon } from "../../../../../common";
 
 export const processWithdraw = async (
   candyMachine: string | undefined,
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   list: boolean
 ) => {
   // (1) Setting up connection

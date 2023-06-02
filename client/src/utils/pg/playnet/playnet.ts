@@ -1,8 +1,8 @@
 import { PgPlaynetRpc } from "./rpc";
-import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
-import { PgExplorer } from "../explorer";
 import { PgPackage } from "../command";
+import { PgCommon } from "../common";
+import { PgExplorer } from "../explorer";
+import { PgSettings } from "../settings";
 import { Endpoint, EventName } from "../../../constants";
 import type { OverridableConnection } from "./types";
 
@@ -76,7 +76,7 @@ export class PgPlaynet {
       return url === Endpoint.PLAYNET;
     }
 
-    return PgConnection.endpoint === Endpoint.PLAYNET;
+    return PgSettings.connection.endpoint === Endpoint.PLAYNET;
   }
 
   /**

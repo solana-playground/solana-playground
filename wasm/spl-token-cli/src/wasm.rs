@@ -1,7 +1,7 @@
 use std::{panic, str::FromStr};
 
 use solana_extra_wasm::program::spl_token;
-use solana_playground_utils_wasm::js::{PgConnection, PgTerminal, PgWallet};
+use solana_playground_utils_wasm::js::{PgSettings, PgTerminal, PgWallet};
 use wasm_bindgen::prelude::*;
 
 use crate::{
@@ -38,8 +38,9 @@ pub async fn run_spl_token(cmd: String) {
             let wallet_manager = None;
             let bulk_signers: BulkSigners = Vec::new();
 
-            let endpoint = PgConnection::endpoint();
-            let commitment = PgConnection::commitment();
+            let connection_settings = PgSettings::connection();
+            let endpoint = connection_settings.endpoint();
+            let commitment = connection_settings.commitment();
             let keypair_bytes = PgWallet::keypair_bytes();
 
             let config = get_config(sub_matches, &endpoint, &commitment, &keypair_bytes);

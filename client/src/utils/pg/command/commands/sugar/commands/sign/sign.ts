@@ -2,7 +2,6 @@ import { Metaplex } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import {
   getCmCreatorMetadataAccounts,
@@ -11,7 +10,7 @@ import {
 } from "../../utils";
 
 export const processSign = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   mint: string | undefined,
   candyMachineId: string | undefined
 ) => {

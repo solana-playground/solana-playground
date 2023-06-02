@@ -2,7 +2,7 @@ import Bundlr from "@bundlr-network/client";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
+import { PgSettings } from "../../../../../settings";
 import { PgTerminal } from "../../../../../terminal";
 import { PgWallet } from "../../../../../wallet";
 import { BundlrEnpoints } from "../../constants";
@@ -17,7 +17,7 @@ enum BundlrAction {
 const LIMIT = 5000;
 
 export const processBundlr = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string = PgSettings.connection.endpoint,
   action: BundlrAction
 ) => {
   // Get balance

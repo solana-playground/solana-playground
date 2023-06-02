@@ -1,12 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import { getMetaplex, loadCache, loadConfigData } from "../../utils";
 
 export const processGuardUpdate = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   candyGuard: string | undefined
 ) => {
   const term = await PgTerminal.get();

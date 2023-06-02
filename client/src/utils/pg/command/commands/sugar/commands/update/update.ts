@@ -2,7 +2,6 @@ import { toBigNumber } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 
 import { Emoji } from "../../../../../../../constants";
-import { PgConnection } from "../../../../../connection";
 import { PgTerminal } from "../../../../../terminal";
 import {
   assertCorrectAuthority,
@@ -12,7 +11,7 @@ import {
 } from "../../utils";
 
 export const processUpdate = async (
-  rpcUrl: string = PgConnection.endpoint,
+  rpcUrl: string | undefined,
   newAuthority: string | undefined,
   candyMachine: string | undefined
 ) => {

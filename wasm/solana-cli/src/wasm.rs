@@ -8,7 +8,7 @@ use solana_cli_config_wasm::{Config, ConfigInput};
 use solana_cli_output_wasm::cli_output::{get_name_value_or, OutputFormat};
 use solana_client_wasm::utils::rpc_config::RpcSendTransactionConfig;
 use solana_extra_wasm::transaction_status::UiTransactionEncoding;
-use solana_playground_utils_wasm::js::{PgConnection, PgTerminal, PgWallet};
+use solana_playground_utils_wasm::js::{PgSettings, PgTerminal, PgWallet};
 use solana_remote_wallet::remote_wallet::RemoteWalletManager;
 use solana_sdk::signature::Keypair;
 use wasm_bindgen::prelude::*;
@@ -27,8 +27,9 @@ pub async fn run_solana(cmd: String) {
         .try_get_matches_from(args);
     match match_result {
         Ok(matches) => {
-            let endpoint = PgConnection::endpoint();
-            let commitment = PgConnection::commitment();
+            let connection_settings = PgSettings::connection();
+            let endpoint = connection_settings.endpoint();
+            let commitment = connection_settings.commitment();
             let keypair_bytes = PgWallet::keypair_bytes();
 
             if !parse_settings(&matches, &endpoint, &commitment) {
@@ -142,6 +143,9 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                         // Revert to a computed `websocket_url` value when `json_rpc_url` is
                         // changed
                         config.websocket_url = "".to_string();
+
+                        // Update the setting
+                        PgSettings::connection().set_endpoint(&config.json_rpc_url);
                     }
                     if let Some(url) = subcommand_matches.value_of("websocket_url") {
                         config.websocket_url = url.to_string();
@@ -151,10 +155,10 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                     }
                     if let Some(commitment) = subcommand_matches.value_of("commitment") {
                         config.commitment = commitment.to_string();
-                    }
 
-                    // Config is coming from JS
-                    PgConnection::update_wasm(&config.json_rpc_url, &config.commitment);
+                        // Update the setting
+                        PgSettings::connection().set_commitment(&config.commitment);
+                    }
 
                     let (url_setting_type, json_rpc_url) =
                         ConfigInput::compute_json_rpc_url_setting("", &config.json_rpc_url);
