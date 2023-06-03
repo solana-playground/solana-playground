@@ -10,6 +10,7 @@ import type { PgRpc, TransactionStatus } from "@solana-playground/playnet";
 
 import { PgSerde } from "./serde";
 import { PgPlaynetUtils } from "./utils";
+import { PgBytes } from "../bytes";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgSettings } from "../settings";
@@ -201,10 +202,7 @@ export class PgPlaynetRpc {
             lamports === 0
               ? null
               : {
-                  data: [
-                    PgSerde.fromBuffer(Buffer.from(account.data), "base64"),
-                    "base64",
-                  ],
+                  data: [PgBytes.toBase64(Buffer.from(account.data)), "base64"],
                   executable: account.executable,
                   lamports,
                   owner: new PublicKey(account.owner.toBytes()),
@@ -342,11 +340,11 @@ export class PgPlaynetRpc {
           [getTxResult.transaction(), "base64"];
         if (!options?.encoding) {
           const versionedTx = VersionedTransaction.deserialize(
-            Uint8Array.from(PgSerde.toBuffer(tx[0], "base64"))
+            PgBytes.fromBase64(tx[0])
           );
 
           const signatures = versionedTx.signatures.map((signatureBytes) => {
-            return PgSerde.fromBuffer(Buffer.from(signatureBytes), "base58");
+            return PgBytes.toBase58(Buffer.from(signatureBytes));
           });
 
           tx = {
@@ -439,10 +437,7 @@ export class PgPlaynetRpc {
                   ? {
                       programId: returnData.programId.toString(),
                       data: [
-                        PgSerde.fromBuffer(
-                          Buffer.from(returnData.data),
-                          "base64"
-                        ),
+                        PgBytes.toBase64(Buffer.from(returnData.data)),
                         "base64",
                       ],
                     }

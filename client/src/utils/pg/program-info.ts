@@ -1,10 +1,13 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { utils, Idl } from "@project-serum/anchor";
 import {
   decodeIdlAccount,
   idlAddress,
 } from "@project-serum/anchor/dist/cjs/idl";
+import type { Idl } from "@project-serum/anchor";
 
+import { PgBytes } from "./bytes";
+import { PgCommand } from "./command";
+import { PgConnection } from "./connection";
 import {
   createDerivable,
   declareDerivable,
@@ -13,8 +16,6 @@ import {
   migratable,
   updatable,
 } from "./decorators";
-import { PgCommand } from "./command";
-import { PgConnection } from "./connection";
 import { PgExplorer } from "./explorer";
 import type { Nullable } from "./types";
 
@@ -209,7 +210,7 @@ class _PgProgramInfo {
     const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
     const { inflate } = await import("pako");
     const inflatedIdl = inflate(idlAccount.data);
-    const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
+    const idl: Idl = JSON.parse(PgBytes.toUtf8(Buffer.from(inflatedIdl)));
 
     return { idl, authority: idlAccount.authority };
   }

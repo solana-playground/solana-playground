@@ -1,8 +1,6 @@
 import { Message, Transaction } from "@solana/web3.js";
-import { utils } from "@project-serum/anchor";
 
-/** `Buffer` encoding */
-type Encoding = "base58" | "base64";
+import { PgBytes } from "../bytes";
 
 export class PgSerde {
   /**
@@ -14,7 +12,7 @@ export class PgSerde {
    */
   static serializeTx(txBase64: string) {
     // Decode base64 tx and get tx object
-    const txBuffer = this.toBuffer(txBase64, "base64");
+    const txBuffer = PgBytes.fromBase64(txBase64);
     const tx = Transaction.from(txBuffer);
 
     // Convert tx object into Rust Serde format
@@ -33,7 +31,7 @@ export class PgSerde {
    */
   static serializeMsg(msgBase64: string) {
     // Decode base64 msg and get msg object
-    const msgBuffer = this.toBuffer(msgBase64, "base64");
+    const msgBuffer = PgBytes.fromBase64(msgBase64);
     const msg = Message.from(msgBuffer);
 
     // Convert msg object into Rust Serde format
@@ -41,26 +39,6 @@ export class PgSerde {
 
     // Serialize Rust msg object
     return this._serializeObject(rustMsg);
-  }
-
-  /** Convert to `string` from `Buffer`. */
-  static fromBuffer(buffer: Buffer, encoding: Encoding) {
-    switch (encoding) {
-      case "base58":
-        return utils.bytes.bs58.encode(buffer);
-      case "base64":
-        return utils.bytes.base64.encode(buffer);
-    }
-  }
-
-  /** Convert to `Buffer` from `string`. */
-  static toBuffer(str: string, encoding: Encoding) {
-    switch (encoding) {
-      case "base58":
-        return utils.bytes.bs58.decode(str);
-      case "base64":
-        return utils.bytes.base64.decode(str);
-    }
   }
 
   /** Serialize the given object to bytes. */
@@ -87,13 +65,13 @@ export class PgSerde {
       accountKeys: this._convertToSerdeArray(
         msg.accountKeys.map((key) => Array.from(key.toBytes()))
       ),
-      recentBlockhash: Array.from(this.toBuffer(msg.recentBlockhash, "base58")),
+      recentBlockhash: Array.from(PgBytes.fromBase58(msg.recentBlockhash)),
       instructions: this._convertToSerdeArray(
         msg.instructions.map((ix) => ({
           ...ix,
           accounts: this._convertToSerdeArray(ix.accounts),
           data: this._convertToSerdeArray(
-            Array.from(this.toBuffer(ix.data, "base58"))
+            Array.from(PgBytes.fromBase58(ix.data))
           ),
         }))
       ),

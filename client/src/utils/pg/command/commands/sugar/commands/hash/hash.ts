@@ -1,5 +1,4 @@
-import * as anchor from "@project-serum/anchor";
-
+import { PgBytes } from "../../../../../bytes";
 import { PgCommon } from "../../../../../common";
 import { PgTerminal } from "../../../../../terminal";
 import { loadCache, loadConfigData, saveConfigData } from "../../utils";
@@ -10,7 +9,7 @@ export const processHash = async (compare: string | undefined) => {
 
   if (compare) {
     const cache = await loadCache();
-    const hashB58 = getB58Hash(PgCommon.prettyJSON(cache));
+    const hashB58 = hash(PgCommon.prettyJSON(cache));
     term.println(`Cache hash: ${hashB58}`);
 
     if (compare !== hashB58) {
@@ -37,8 +36,8 @@ export const hashAndUpdate = async () => {
   }
 
   const cache = await loadCache();
-  const hash = getB58Hash(PgCommon.prettyJSON(cache));
-  hiddenSettings.hash = Array.from(Buffer.from(hash));
+  const hashResult = hash(PgCommon.prettyJSON(cache));
+  hiddenSettings.hash = Array.from(Buffer.from(hashResult));
 
   await saveConfigData(configData);
 
@@ -46,7 +45,9 @@ export const hashAndUpdate = async () => {
 };
 
 // FIXME: This ends up not producing the same hash with the sugar cli
-const getB58Hash = (data: string) =>
-  anchor.utils.bytes.bs58
-    .encode(anchor.utils.bytes.hex.decode(anchor.utils.sha256.hash(data)))
-    .substring(0, 32);
+const hash = (data: string) => {
+  return PgBytes.toBase58(PgBytes.fromHex(PgBytes.hashSha256(data))).substring(
+    0,
+    32
+  );
+};
