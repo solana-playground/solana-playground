@@ -12,15 +12,11 @@ const ThemeSetting = () => {
     () => THEMES.map((t) => ({ value: t.name, label: t.name })),
     []
   );
-  const value = useMemo(
-    () => options.find((option) => option.value === theme.name),
-    [theme.name, options]
-  );
 
   return (
     <Select
       options={options}
-      value={value}
+      value={options.find((option) => option.value === theme.name)}
       onChange={(newValue) => {
         PgThemeManager.set({ themeName: newValue!.value });
       }}

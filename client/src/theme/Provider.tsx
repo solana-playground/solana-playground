@@ -1,4 +1,4 @@
-import { createContext, FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import styled, { css, ThemeProvider } from "styled-components";
 
 import THEMES from "./themes";
@@ -6,14 +6,6 @@ import FONTS from "./fonts";
 import { Font, PgThemeManager, ThemeReady } from "../utils/pg/theme";
 import { EventName } from "../constants/event";
 import { useSetStatic } from "../hooks/useSetStatic";
-
-interface MutThemeContextProps {
-  font: Font;
-}
-
-export const MutThemeContext = createContext<MutThemeContextProps>(
-  {} as MutThemeContextProps
-);
 
 const MutThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<ThemeReady>();
@@ -30,20 +22,16 @@ const MutThemeProvider: FC = ({ children }) => {
   // Update theme.font when theme or font changes
   useEffect(() => {
     if (theme && font && theme.font.code.family !== font.family) {
-      setTheme((t) =>
-        t ? { ...t, font: { code: font, other: t.font.other } } : t
-      );
+      setTheme((t) => t && { ...t, font: { code: font, other: t.font.other } });
     }
   }, [theme, font]);
 
   if (!theme || !font) return null;
 
   return (
-    <MutThemeContext.Provider value={{ font }}>
-      <ThemeProvider theme={theme}>
-        <Wrapper>{children}</Wrapper>
-      </ThemeProvider>
-    </MutThemeContext.Provider>
+    <ThemeProvider theme={theme}>
+      <Wrapper>{children}</Wrapper>
+    </ThemeProvider>
   );
 };
 
