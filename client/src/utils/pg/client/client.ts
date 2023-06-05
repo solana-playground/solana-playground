@@ -44,9 +44,7 @@ export class PgClient {
    *
    * @returns A promise that will resolve once all tests are finished
    */
-  static async run(opts: ClientOptions) {
-    const { path, isTest } = opts;
-
+  static async run({ path, isTest }: ClientOptions) {
     // Block creating multiple client/test instances at the same time
     if (this._isClientRunning) {
       if (isTest) {
@@ -215,9 +213,13 @@ export class PgClient {
         endCode = "_run()";
       } else {
         // Run only
-        globals.push(["_finish", () => (this._isClientRunning = false)]);
+        globals.push([
+          "_end",
+          () =>
+            PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING),
+        ]);
 
-        endCode = "_finish()";
+        endCode = "_end()";
       }
 
       // Playground utils namespace
@@ -288,13 +290,14 @@ export class PgClient {
             }
           }, 1000);
         } else {
-          const intervalId = setInterval(() => {
-            if (!this._isClientRunning) {
+          const { dispose } = PgCommon.onDidChange({
+            cb: () => {
               PgTerminal.log("");
-              clearInterval(intervalId);
+              dispose();
               res();
-            }
-          }, 1000);
+            },
+            eventName: CLIENT_ON_DID_FINISH_RUNNING,
+          });
         }
       });
     }, isTest);
@@ -476,3 +479,6 @@ const BLACKLISTED_KEYWORDS = [
 
 /** Keywords that will be set to `undefined` */
 const UNDEFINED_KEYWORDS = ["eval", "Function"];
+
+/** Event name that will be dispatched when client code completes executing */
+const CLIENT_ON_DID_FINISH_RUNNING = "clientondidfinishrunning";
