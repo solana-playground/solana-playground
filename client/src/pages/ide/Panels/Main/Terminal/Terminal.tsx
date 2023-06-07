@@ -20,7 +20,7 @@ import {
   PgTerm,
   PgTerminal,
 } from "../../../../../utils/pg";
-import { EventName, Id } from "../../../../../constants";
+import { EventName } from "../../../../../constants";
 import { PgThemeManager } from "../../../../../utils/pg/theme";
 import { useTerminal } from "./useTerminal";
 import { useExposeStatic } from "../../../../../hooks";
@@ -188,7 +188,7 @@ const Terminal = () => {
         topLeft: false,
       }}
     >
-      <Wrapper ref={termRef} id={Id.TERMINAL}>
+      <Wrapper ref={termRef}>
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>
