@@ -808,11 +808,11 @@ export class PgThemeManager {
     wallet.default ??= {};
     wallet.default.width ??= "100%";
     wallet.default.height ??= "100%";
-    wallet.default.zIndex ??= 2;
     wallet.default.bg ??= theme.colors.default.bgSecondary;
     wallet.default.border ??= `1px solid ${theme.colors.default.border}`;
     wallet.default.borderRadius ??= theme.default.borderRadius;
     wallet.default.boxShadow ??= theme.default.boxShadow;
+    wallet.default.overflow ??= "hidden";
 
     // Title
     wallet.title ??= {};
