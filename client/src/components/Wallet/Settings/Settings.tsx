@@ -5,18 +5,13 @@ import Button from "../../Button";
 import Menu from "../../Menu";
 import { ThreeDots } from "../../Icons";
 import { ClassName, Id } from "../../../constants";
-import { useAirdrop } from "./Airdrop";
-import { useNewWallet } from "./NewWallet";
-import { useConnectSol } from "./ConnectSol";
-import { useImportKeypair } from "./ImportKeypair";
-import { useExportKeypair } from "./ExportKeypair";
+import { PgView, PgWallet } from "../../../utils/pg";
+import { useAirdrop } from "./useAirdrop";
+import { useConnect } from "../../../hooks";
 
 export const WalletSettings = () => {
-  const { pgCond, solCond, airdropPg, airdropSol } = useAirdrop();
-  const { importKeypair } = useImportKeypair();
-  const { exportKeypair } = useExportKeypair();
-  const { handleNewWallet } = useNewWallet();
-  const { connectSol, solButtonStatus } = useConnectSol();
+  const { airdrop, airdropCondition } = useAirdrop();
+  const { handleConnect, solButtonStatus } = useConnect();
 
   const darken = useCallback(() => {
     document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
@@ -32,29 +27,35 @@ export const WalletSettings = () => {
         items={[
           {
             name: "Airdrop",
-            onClick: airdropPg,
-            showCondition: pgCond,
+            onClick: airdrop,
+            showCondition: airdropCondition,
           },
           {
-            name: "Airdrop Phantom",
-            onClick: airdropSol,
-            showCondition: solCond,
+            name: "Add",
+            onClick: async () => {
+              const { New } = await import("../Modals/New");
+              await PgView.setModal(New);
+            },
           },
           {
-            name: "Import Keypair",
-            onClick: importKeypair,
+            name: "Remove",
+            onClick: async () => {
+              const { Remove } = await import("../Modals/Remove");
+              await PgView.setModal(Remove);
+            },
+            kind: "error",
           },
           {
-            name: "Export Keypair",
-            onClick: exportKeypair,
+            name: "Import",
+            onClick: () => PgWallet.import(null),
           },
           {
-            name: "New Wallet",
-            onClick: handleNewWallet,
+            name: "Export",
+            onClick: () => PgWallet.export(),
           },
           {
             name: solButtonStatus,
-            onClick: connectSol,
+            onClick: handleConnect,
           },
         ]}
         onShow={darken}

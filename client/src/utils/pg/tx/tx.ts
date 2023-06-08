@@ -1,12 +1,12 @@
 import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
-import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { ExplorerLink } from "./ExplorerLink";
 import { PgCommon } from "../common";
 import { PgPlaynet } from "../playnet";
 import { PgSettings } from "../settings";
 import { PgView } from "../view";
-import { PgWallet } from "../wallet";
+import { ConnectionOption, PgConnection } from "../connection";
+import { PgWallet, WalletOption } from "../wallet";
 
 interface BlockhashInfo {
   /** Latest blockhash */
@@ -26,20 +26,26 @@ export class PgTx {
    */
   static async send(
     tx: Transaction,
-    conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet,
-    additionalSigners?: Signer[],
-    forceFetchLatestBlockhash?: boolean
+    opts?: {
+      additionalSigners?: Signer[];
+      forceFetchLatestBlockhash?: boolean;
+    } & ConnectionOption &
+      WalletOption
   ): Promise<string> {
+    const wallet = opts?.wallet ?? PgWallet.current;
+    if (!wallet) throw new Error("Wallet not connected");
+
+    const connection = opts?.connection ?? PgConnection.current;
+
     tx.recentBlockhash = await this._getLatestBlockhash(
-      conn,
-      forceFetchLatestBlockhash
+      connection,
+      opts?.forceFetchLatestBlockhash
     );
 
     tx.feePayer = wallet.publicKey;
 
-    if (additionalSigners?.length) {
-      tx.partialSign(...additionalSigners);
+    if (opts?.additionalSigners?.length) {
+      tx.partialSign(...opts.additionalSigners);
     }
 
     const signedTx = await wallet.signTransaction(tx);
@@ -49,14 +55,17 @@ export class PgTx {
     // https://github.com/solana-playground/solana-playground/issues/116
     let txHash;
     try {
-      txHash = await conn.sendRawTransaction(signedTx.serialize(), {
+      txHash = await connection.sendRawTransaction(signedTx.serialize(), {
         skipPreflight: !PgSettings.connection.preflightChecks,
       });
     } catch (e: any) {
       if (e.message.includes("This transaction has already been processed")) {
         // Reset signatures
         signedTx.signatures = [];
-        return await this.send(signedTx, conn, wallet, additionalSigners, true);
+        return await this.send(signedTx, {
+          ...opts,
+          forceFetchLatestBlockhash: true,
+        });
       }
 
       throw e;
@@ -73,13 +82,17 @@ export class PgTx {
    */
   static async confirm(
     txHash: string,
-    conn: Connection,
-    commitment?: Commitment
+    opts?: { commitment?: Commitment } & ConnectionOption
   ) {
-    // Don't confirm on playnet
-    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) return;
+    const connection = opts?.connection ?? PgConnection.current;
 
-    const result = await conn.confirmTransaction(txHash, commitment);
+    // Don't confirm on playnet
+    if (PgPlaynet.isUrlPlaynet(connection.rpcEndpoint)) return;
+
+    const result = await connection.confirmTransaction(
+      txHash,
+      opts?.commitment
+    );
     if (result?.value.err) return { err: result.value.err };
   }
 

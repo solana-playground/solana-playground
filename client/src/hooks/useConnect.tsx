@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-import { ConnState } from "../constants";
+import { WalletState } from "../constants";
 import { PgWallet } from "../utils/pg";
 import { useRenderOnChange } from "./useRenderOnChange";
 
 export const useConnect = () => {
-  const isPgConnected = useRenderOnChange(PgWallet.onDidUpdateConnection);
+  const isPgConnected = useRenderOnChange(PgWallet.onDidChangeCurrent)?.isPg;
 
   // Sol
   const {
@@ -21,45 +21,47 @@ export const useConnect = () => {
     disconnecting,
   } = useWallet();
 
-  // Select wallet here(sol)
+  // Select wallet (Sol)
   useEffect(() => {
     if (!wallets.length) return;
     if (!wallet) select(wallets[0].adapter.name);
   }, [wallet, wallets, select]);
 
   // Both
-  const connStatus = useMemo(() => {
-    if (connected) return ConnState.CONNECTED;
-    if (connecting) return ConnState.CONNECTING;
-    if (isPgConnected) return ConnState.PG_CONNECTED;
-    return ConnState.NOT_CONNECTED;
+  const connState = useMemo(() => {
+    if (connected) return WalletState.CONNECTED;
+    if (connecting) return WalletState.CONNECTING;
+    if (isPgConnected) return WalletState.PG_CONNECTED;
+    return WalletState.NOT_CONNECTED;
   }, [isPgConnected, connecting, connected]);
 
   // Sol
   const solButtonStatus = useMemo(() => {
-    if (connected) return ConnState.DISCONNECT;
-    if (connecting) return ConnState.CONNECTING;
-    return ConnState.CONNECT;
+    if (connected) return WalletState.DISCONNECT;
+    if (connecting) return WalletState.CONNECTING;
+    return WalletState.CONNECT;
   }, [connecting, connected]);
 
   // Pg
   const pgButtonStatus = useMemo(() => {
-    if (isPgConnected) return ConnState.PG_DISCONNECT;
-    return ConnState.PG_CONNECT;
+    if (isPgConnected) return WalletState.PG_DISCONNECT;
+    return WalletState.PG_CONNECT;
   }, [isPgConnected]);
 
   // Sol
   const handleConnect = useCallback(async () => {
+    if (connecting || disconnecting) return;
+
     try {
       if (!publicKey) await connect();
       else await disconnect();
     } catch (e: any) {
-      console.log(e.message);
+      console.log("Couldn't connect/disconnect", e.message);
     }
-  }, [publicKey, connect, disconnect]);
+  }, [publicKey, connecting, disconnecting, connect, disconnect]);
 
   return {
-    connStatus,
+    connState,
     solButtonStatus,
     pgButtonStatus,
     pgConnected: PgWallet.isConnected,

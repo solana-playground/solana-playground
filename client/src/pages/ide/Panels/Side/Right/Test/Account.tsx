@@ -31,7 +31,7 @@ import {
   PgTest,
   Seed,
 } from "../../../../../../utils/pg";
-import { useCurrentWallet, useOnKey } from "../../../../../../hooks";
+import { useOnKey, useWallet } from "../../../../../../hooks";
 
 interface AccountProps {
   account: IdlAccount;
@@ -40,7 +40,7 @@ interface AccountProps {
 }
 
 const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
-  const { walletPkStr } = useCurrentWallet();
+  const { walletPkStr } = useWallet();
 
   const accountStr = useMemo(
     () => PgAccount.getKnownAccount(account.name),

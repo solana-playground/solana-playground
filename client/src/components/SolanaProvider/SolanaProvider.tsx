@@ -1,6 +1,6 @@
 import { FC, useMemo } from "react";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { WalletProvider } from "@solana/wallet-adapter-react";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 
 const SolanaProvider: FC = ({ children }) => {
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);

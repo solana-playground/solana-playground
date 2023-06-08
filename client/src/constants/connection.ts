@@ -71,7 +71,7 @@ export const COMMITMENT_LEVELS = [
 ] as const;
 
 /** Wallet connection state */
-export enum ConnState {
+export enum WalletState {
   // Common
   NOT_CONNECTED = "Not connected",
   // PG

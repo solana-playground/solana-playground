@@ -1,43 +1,32 @@
-import { ChangeEvent, useState } from "react";
-import { Keypair } from "@solana/web3.js";
+import { useState } from "react";
 import styled, { css } from "styled-components";
 
-import DownloadButton from "../../DownloadButton";
-import UploadButton from "../../UploadButton";
+import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgCommand, PgCommon, PgWallet } from "../../../utils/pg";
+import { PgCommand, PgWallet } from "../../../utils/pg";
 
-const Setup = () => {
+export const Setup = () => {
   const [text, setText] = useState("");
+  const [keypair] = useState(PgWallet.generateKeypair());
 
   const handleSetup = async () => {
-    PgWallet.update({ setupCompleted: true });
+    if (!PgWallet.accounts.length) PgWallet.add(null, keypair);
+    PgWallet.isSetupCompleted = true;
     await PgCommand.connect.run();
   };
 
-  const handleImport = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files?.length) return;
+  const handleExport = () => {
+    if (!PgWallet.accounts.length) PgWallet.export(keypair);
+    else PgWallet.export();
+  };
 
+  const handleImport = async () => {
     try {
-      const file = files[0];
-      const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeBytes(arrayBuffer);
-      const buffer = Buffer.from(JSON.parse(decodedString));
-
-      // Validate keypair
-      const pkStr = Keypair.fromSecretKey(
-        Uint8Array.from(buffer)
-      ).publicKey.toBase58();
-
-      setText("Imported address: " + pkStr);
-
-      // Update local storage
-      PgWallet.update({
-        sk: Array.from(buffer),
-      });
+      if (PgWallet.accounts.length) PgWallet.remove(0);
+      const keypair = await PgWallet.import(null);
+      if (keypair) setText("Imported address: " + keypair.publicKey.toBase58());
     } catch (err: any) {
       console.log(err.message);
     }
@@ -73,18 +62,10 @@ const Setup = () => {
           </Text>
         </WarningTextWrapper>
         <WalletButtonsWrapper>
-          <DownloadButton
-            href={PgCommon.getUtf8EncodedString(
-              Array.from(PgWallet.keypairBytes)
-            )}
-            download="keypair.json"
-            buttonKind="primary-outline"
-          >
+          <Button onClick={handleExport} kind="primary-outline">
             Save keypair
-          </DownloadButton>
-          <UploadButton accept=".json" onUpload={handleImport} showUploadText>
-            Import keypair
-          </UploadButton>
+          </Button>
+          <Button onClick={handleImport}>Import keypair</Button>
         </WalletButtonsWrapper>
         {text && <KeypairText>{text}</KeypairText>}
       </Content>
@@ -138,5 +119,3 @@ const KeypairText = styled.div`
     color: ${theme.colors.default.textSecondary};
   `}
 `;
-
-export default Setup;

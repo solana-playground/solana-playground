@@ -3,7 +3,6 @@ import {
   ASSOCIATED_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from "@project-serum/anchor/dist/cjs/utils/token";
-import { AnchorWallet } from "@solana/wallet-adapter-react";
 import {
   Connection,
   PublicKey,
@@ -14,7 +13,7 @@ import {
 
 import { PgTest } from "./test";
 import { PgCommon } from "../common";
-import { PgWallet } from "../wallet";
+import type { CurrentWallet } from "../wallet";
 
 export class PgAccount {
   /**
@@ -25,7 +24,7 @@ export class PgAccount {
     address: PublicKey,
     idl: Idl,
     conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet
+    wallet: NonNullable<CurrentWallet>
   ) {
     const account = this._getAccount(accountName, idl, conn, wallet);
     const accountData = await account.fetch(address);
@@ -39,7 +38,7 @@ export class PgAccount {
     accountName: string,
     idl: Idl,
     conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet
+    wallet: NonNullable<CurrentWallet>
   ) {
     const account = this._getAccount(accountName, idl, conn, wallet);
     const allAccountData = await account.all();
@@ -62,7 +61,7 @@ export class PgAccount {
     accountName: string,
     idl: Idl,
     conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet
+    wallet: NonNullable<CurrentWallet>
   ) {
     const program = PgTest.getProgram(idl, conn, wallet);
     const account = program.account[PgCommon.toCamelCase(accountName)];

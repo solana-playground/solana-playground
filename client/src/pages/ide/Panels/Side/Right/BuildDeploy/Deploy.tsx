@@ -9,7 +9,7 @@ import { ConnectionErrorText } from "../Common";
 import { terminalStateAtom } from "../../../../../../state";
 import { PgCommand } from "../../../../../../utils/pg";
 import { useProgramInfo } from "../useProgramInfo";
-import { useConnect, useCurrentWallet } from "../../../../../../hooks";
+import { useConnect, useWallet } from "../../../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {
@@ -26,7 +26,7 @@ const Deploy = () => {
     hasUuid,
     uploadedProgram,
   } = useProgramInfo();
-  const { pgWallet, solWalletPk } = useCurrentWallet();
+  const { wallet } = useWallet();
 
   const deployButtonText = useMemo(() => {
     let text;
@@ -53,7 +53,7 @@ const Deploy = () => {
 
   // Custom(uploaded) program deploy
   if (uploadedProgram?.buffer.length) {
-    if (!pgWallet)
+    if (!wallet)
       return (
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
@@ -89,7 +89,7 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    if (solWalletPk)
+    if (!wallet.isPg)
       return (
         <Wrapper>
           <Text kind="warning">
@@ -136,7 +136,7 @@ const Deploy = () => {
 
   // Normal deploy
   if (hasProgramPk) {
-    if (!pgWallet)
+    if (!wallet)
       return (
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
@@ -179,7 +179,7 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    if (solWalletPk)
+    if (!wallet.isPg)
       return (
         <Wrapper>
           <Text kind="warning">

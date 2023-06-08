@@ -1,5 +1,5 @@
 import * as monaco from "monaco-editor";
-import { Idl } from "@project-serum/anchor";
+import type { Idl } from "@project-serum/anchor";
 
 import { declareModule } from "./helper";
 import {
@@ -41,7 +41,7 @@ export const declareDisposableTypes = (): Disposable => {
   });
 
   // Playground wallet
-  const walletChange = PgWallet.onDidUpdateConnection((connected) => {
+  const walletChange = PgWallet.onDidChangeIsConnected((isConnected) => {
     addLib(
       "wallet",
       `
@@ -50,7 +50,7 @@ export const declareDisposableTypes = (): Disposable => {
    *
    * NOTE: You can toggle connection with \`connect\` command.
    */
-  const wallet: ${connected ? "PgWallet" : "undefined"};
+  const wallet: ${isConnected ? "PgWallet" : "undefined"};
 `
     );
   });

@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { useRenderOnChange } from "../../../../../hooks";
+import { useWallet, useRenderOnChange } from "../../../../../hooks";
 
-import { PgCommon, PgProgramInfo, PgWallet } from "../../../../../utils/pg";
+import { PgCommon, PgProgramInfo } from "../../../../../utils/pg";
 
 export const useProgramInfo = () => {
   useRenderOnChange(PgProgramInfo.onDidChange);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const { wallet } = useWallet();
 
   useEffect(() => {
     const { dispose } = PgProgramInfo.onDidChangeOnChain(async (onChain) => {
@@ -28,7 +30,9 @@ export const useProgramInfo = () => {
     error,
     deployed: PgProgramInfo.onChain?.deployed,
     upgradable: PgProgramInfo.onChain?.upgradable,
-    hasAuthority: PgProgramInfo.onChain?.authority?.equals(PgWallet.publicKey),
+    hasAuthority: wallet
+      ? PgProgramInfo.onChain?.authority?.equals(wallet.publicKey)
+      : false,
     hasProgramKp: !!PgProgramInfo.kp,
     hasUuid: !!PgProgramInfo.uuid,
     hasProgramPk: !!PgProgramInfo.pk,

@@ -7,7 +7,6 @@ import * as util from "util";
 import * as anchor from "@project-serum/anchor";
 import * as BufferLayout from "@solana/buffer-layout";
 import * as web3 from "@solana/web3.js";
-import type { AnchorWallet } from "@solana/wallet-adapter-react";
 
 import { PgClientPackage } from "./package";
 import { PgCommon } from "../common";
@@ -16,14 +15,14 @@ import { PgExplorer } from "../explorer";
 import { PgProgramInfo } from "../program-info";
 import { PgTerminal } from "../terminal";
 import { PgTest } from "../test";
-import { PgWallet } from "../wallet";
+import { CurrentWallet, PgWallet } from "../wallet";
 
 /** Utilities to be available under the `pg` namespace */
 interface Pg {
   connection: web3.Connection;
+  wallet: CurrentWallet;
   PROGRAM_ID?: web3.PublicKey;
   program?: anchor.Program;
-  wallet?: typeof PgWallet | AnchorWallet;
 }
 
 /** Options to use when running a script/test */
@@ -223,17 +222,13 @@ export class PgClient {
       }
 
       // Playground utils namespace
-      const connection = PgConnection.connection;
-      const pg: Pg = { connection };
+      const connection = PgConnection.current;
+      const pg: Pg = { connection, wallet: PgWallet.current };
 
-      if (PgWallet.isConnected) {
-        pg.wallet = PgWallet;
-
+      if (pg.wallet) {
         // Anchor IDL
         const idl = PgProgramInfo.idl;
-        if (idl) {
-          pg.program = PgTest.getProgram(idl, connection, pg.wallet);
-        }
+        if (idl) pg.program = PgTest.getProgram(idl, pg.connection, pg.wallet);
       }
 
       if (PgProgramInfo.pk) {

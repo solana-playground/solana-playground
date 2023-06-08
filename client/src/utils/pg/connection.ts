@@ -4,9 +4,13 @@ import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
 
+export type ConnectionOption = {
+  connection?: typeof PgConnection["current"];
+};
+
 const derive = () => ({
   /** Globally sycned connection instance */
-  connection: createDerivable({
+  current: createDerivable({
     // It's important that this method returns immediately because connection
     // instance is used throughout the app. For this reason, the connection for
     // Playnet will be returned without awaiting the initialization. After the

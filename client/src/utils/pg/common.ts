@@ -725,31 +725,36 @@ export class PgCommon {
    * @param onChange callback function to run when file input has changed
    * @param opts optional options
    */
-  static import(
-    onChange: (e: ChangeEvent<HTMLInputElement>) => Promise<void>,
+  static async import<T>(
+    onChange: (e: ChangeEvent<HTMLInputElement>) => Promise<T>,
     opts?: { accept?: string; dir?: boolean }
-  ) {
-    const el = document.createElement("input");
-    el.type = "file";
-    if (opts?.accept) el.accept = opts.accept;
+  ): Promise<T> {
+    return new Promise((res) => {
+      const el = document.createElement("input");
+      el.type = "file";
+      if (opts?.accept) el.accept = opts.accept;
 
-    const dirProps = opts?.dir
-      ? {
-          webkitdirectory: "",
-          mozdirectory: "",
-          directory: "",
-          multiple: true,
-        }
-      : {};
-    for (const key in dirProps) {
-      // @ts-ignore
-      el[key] = dirProps[key as keyof typeof dirProps];
-    }
+      const dirProps = opts?.dir
+        ? {
+            webkitdirectory: "",
+            mozdirectory: "",
+            directory: "",
+            multiple: true,
+          }
+        : {};
+      for (const key in dirProps) {
+        // @ts-ignore
+        el[key] = dirProps[key as keyof typeof dirProps];
+      }
 
-    // @ts-ignore
-    el.onchange = onChange;
+      el.onchange = async (ev) => {
+        // @ts-ignore
+        const result = await onChange(ev);
+        res(result);
+      };
 
-    el.click();
+      el.click();
+    });
   }
 
   /**
@@ -758,7 +763,11 @@ export class PgCommon {
    * @param name name of the exported file
    * @param content content of the exported file
    */
-  static export(name: string, content: string) {
+  static export(name: string, content: string | object) {
+    if (typeof content === "object") {
+      content = PgCommon.getUtf8EncodedString(content);
+    }
+
     const el = document.createElement("a");
     el.download = name;
     el.href = content;

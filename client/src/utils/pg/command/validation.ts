@@ -4,9 +4,9 @@ import { PgWallet } from "../wallet";
 
 /** Common command checks */
 export class PgCommandValidation {
-  /** Check Playground Wallet connection */
+  /** Check whether Playground Wallet is connected. */
   static isPgConnected() {
-    if (!PgWallet.isConnected) {
+    if (!PgWallet.current?.isPg) {
       throw new Error(
         `${PgTerminal.bold(
           "Playground Wallet"

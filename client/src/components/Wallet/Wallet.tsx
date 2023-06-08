@@ -1,4 +1,3 @@
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
 
@@ -10,18 +9,17 @@ import Tooltip from "../Tooltip";
 import useCopy from "../CopyButton/useCopy";
 import { Close } from "../Icons";
 import { WalletSettings } from "./Settings";
-import { showWalletAtom } from "../../state";
 import { ClassName, Id } from "../../constants";
-import { PgCommon } from "../../utils/pg";
+import { PgCommon, PgWallet } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { useCurrentWallet } from "../../hooks";
+import { useRenderOnChange, useWallet } from "../../hooks";
 
 const Wallet = () => {
-  const [showWallet] = useAtom(showWalletAtom);
+  useRenderOnChange(PgWallet.onDidChangeShow);
 
-  const { wallet } = useCurrentWallet();
+  const { wallet } = useWallet();
 
-  if (!showWallet || !wallet) return null;
+  if (!PgWallet.show || !wallet) return null;
 
   const tabHeight = document
     .getElementById(Id.TABS)
@@ -81,7 +79,7 @@ const WalletWrapper = styled.div`
 `;
 
 const WalletTitle = () => {
-  const { walletPkStr } = useCurrentWallet();
+  const { walletPkStr } = useWallet();
 
   const [copied, setCopied] = useCopy(walletPkStr ?? "");
 
@@ -98,19 +96,11 @@ const WalletTitle = () => {
   );
 };
 
-const WalletClose = () => {
-  const [, setShowWallet] = useAtom(showWalletAtom);
-
-  const close = () => {
-    setShowWallet(false);
-  };
-
-  return (
-    <CloseButton onClick={close} kind="icon">
-      <Close />
-    </CloseButton>
-  );
-};
+const WalletClose = () => (
+  <CloseButton onClick={() => (PgWallet.show = false)} kind="icon">
+    <Close />
+  </CloseButton>
+);
 
 const TitleWrapper = styled.div`
   ${({ theme }) => css`

@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 import Foldable from "../../../../../../components/Foldable";
 import { CodeResult } from "./CodeResult";
 import { PgCommon, PgTest } from "../../../../../../utils/pg";
-import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
+import { useConnection, useWallet } from "../../../../../../hooks";
 
 interface EventProps {
   index: number;
@@ -16,11 +16,12 @@ interface EventProps {
 const Event: FC<EventProps> = ({ index, eventName, idl }) => {
   const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
 
-  const { connection: conn } = usePgConnection();
-  const { wallet } = useCurrentWallet();
+  const { connection } = useConnection();
+  const { wallet } = useWallet();
 
   useEffect(() => {
-    const program = idl && wallet ? PgTest.getProgram(idl, conn, wallet) : null;
+    const program =
+      idl && wallet ? PgTest.getProgram(idl, connection, wallet) : null;
     if (!program) return;
 
     const listener = program.addEventListener(
@@ -33,7 +34,7 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
     return () => {
       program.removeEventListener(listener);
     };
-  }, [eventName, idl, conn, wallet]);
+  }, [eventName, idl, connection, wallet]);
 
   return (
     <EventWrapper index={index}>

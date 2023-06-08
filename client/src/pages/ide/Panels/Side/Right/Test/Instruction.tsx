@@ -22,7 +22,7 @@ import {
   PgTx,
   TxVals,
 } from "../../../../../../utils/pg";
-import { useCurrentWallet } from "../../../../../../hooks";
+import { useWallet } from "../../../../../../hooks";
 
 interface InstructionProps extends InstructionInsideProps {
   index: number;
@@ -133,11 +133,11 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
     [ix.args, idl, handleErrors]
   );
 
-  const { wallet } = useCurrentWallet();
+  const { wallet } = useWallet();
 
   // Test submission
   const handleTest = useCallback(async () => {
-    const conn = PgConnection.connection;
+    const conn = PgConnection.current;
 
     const showLogTxHash = await PgTerminal.process(async () => {
       if (!wallet) return;

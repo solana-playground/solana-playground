@@ -1,6 +1,5 @@
 import { Idl, Program, Provider, BN } from "@project-serum/anchor";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
-import type { AnchorWallet } from "@solana/wallet-adapter-react";
 import type {
   IdlType,
   IdlTypeArray,
@@ -13,7 +12,7 @@ import type {
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { PgTx } from "../tx";
-import { PgWallet } from "../wallet";
+import type { CurrentWallet } from "../wallet";
 
 type KV = {
   [key: string]: string | number | BN | PublicKey | Signer;
@@ -342,7 +341,7 @@ export class PgTest {
   static getProgram(
     idl: Idl,
     conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet
+    wallet: NonNullable<CurrentWallet>
   ) {
     if (!PgProgramInfo.pk) throw new Error("Program id not found.");
 
@@ -358,11 +357,11 @@ export class PgTest {
   static async test(
     txVals: TxVals,
     idl: Idl,
-    conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet
+    connection: Connection,
+    wallet: NonNullable<CurrentWallet>
   ) {
     // Get program
-    const program = this.getProgram(idl, conn, wallet);
+    const program = this.getProgram(idl, connection, wallet);
 
     // Create method
     const method = program.methods[txVals.name](...txVals.args);
@@ -382,7 +381,11 @@ export class PgTest {
       additionalSigners.push(txVals.additionalSigners[name] as Signer);
     }
 
-    const txHash = await PgTx.send(tx, conn, wallet, additionalSigners);
+    const txHash = await PgTx.send(tx, {
+      connection,
+      wallet,
+      additionalSigners,
+    });
     return txHash;
   }
 

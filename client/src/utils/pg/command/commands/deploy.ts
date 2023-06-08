@@ -63,7 +63,7 @@ async function checkDeploy() {
   }
 
   const authority = PgProgramInfo.onChain.authority!;
-  const hasAuthority = authority.equals(PgWallet.publicKey);
+  const hasAuthority = authority.equals(PgWallet.current!.publicKey);
 
   if (!hasAuthority) {
     throw new Error(`${PgTerminal.warning(
@@ -71,7 +71,7 @@ async function checkDeploy() {
     )}
 Program ID: ${PgProgramInfo.pk}
 Program authority: ${authority}
-Your address: ${PgWallet.publicKey}`);
+Your address: ${PgWallet.current!.publicKey}`);
   }
 }
 
@@ -98,7 +98,7 @@ const processDeploy = async () => {
   }
 
   // Get connection
-  const conn = PgConnection.connection;
+  const conn = PgConnection.current;
 
   // Create buffer
   const bufferKp = Keypair.generate();
@@ -111,7 +111,7 @@ const processDeploy = async () => {
 
   // Decide whether it's an initial deployment or an upgrade and calculate
   // how much SOL user needs before creating the buffer.
-  const wallet = PgWallet;
+  const wallet = PgWallet.current!;
   const userBalance = await conn.getBalance(wallet.publicKey);
   const programExists = await conn.getAccountInfo(programPk);
 
@@ -170,11 +170,10 @@ const processDeploy = async () => {
       }
 
       await BpfLoaderUpgradeable.createBuffer(
-        conn,
-        wallet,
         bufferKp,
         bufferBalance,
-        programBuffer.length
+        programBuffer.length,
+        { wallet }
       );
 
       // Sleep before getting account info because it fails in localhost
@@ -201,12 +200,9 @@ const processDeploy = async () => {
   console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
 
   // Load buffer
-  await BpfLoaderUpgradeable.loadBuffer(
-    conn,
+  await BpfLoaderUpgradeable.loadBuffer(bufferKp.publicKey, programBuffer, {
     wallet,
-    bufferKp.publicKey,
-    programBuffer
-  );
+  });
 
   // it errors if we don't wait for the buffer to load
   // `invalid account data for instruction`
@@ -256,12 +252,11 @@ const processDeploy = async () => {
         );
 
         txHash = await BpfLoaderUpgradeable.deployProgram(
-          conn,
-          wallet,
           bufferKp.publicKey,
           programKp,
           programBalance,
-          programBuffer.length * 2
+          programBuffer.length * 2,
+          { wallet }
         );
 
         console.log("Deploy Program Tx Hash:", txHash);
@@ -270,21 +265,19 @@ const processDeploy = async () => {
         if (!result?.err) break;
 
         await BpfLoaderUpgradeable.deployProgram(
-          conn,
-          wallet,
           bufferKp.publicKey,
           programKp,
           programBalance,
-          programBuffer.length * 2
+          programBuffer.length * 2,
+          { wallet }
         );
       } else {
         // Upgrade
         txHash = await BpfLoaderUpgradeable.upgradeProgram(
           programPk,
-          conn,
-          wallet,
           bufferKp.publicKey,
-          wallet.publicKey
+          wallet.publicKey,
+          { wallet }
         );
 
         console.log("Upgrade Program Tx Hash:", txHash);
@@ -294,29 +287,20 @@ const processDeploy = async () => {
 
         txHash = await BpfLoaderUpgradeable.upgradeProgram(
           programPk,
-          conn,
-          wallet,
           bufferKp.publicKey,
-          wallet.publicKey
+          wallet.publicKey,
+          { wallet }
         );
       }
     } catch (e: any) {
       console.log(e.message);
       if (e.message.endsWith("0x0")) {
-        await BpfLoaderUpgradeable.closeBuffer(
-          conn,
-          wallet,
-          bufferKp.publicKey
-        );
+        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
 
         throw new Error("Incorrect program id.");
       } else if (e.message.endsWith("0x1")) {
         // Not enough balance
-        await BpfLoaderUpgradeable.closeBuffer(
-          conn,
-          wallet,
-          bufferKp.publicKey
-        );
+        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
 
         throw new Error(
           "Make sure you have enough SOL to complete the deployment."
@@ -330,7 +314,7 @@ const processDeploy = async () => {
 
   // Most likely the user doesn't have the upgrade authority
   if (!txHash) {
-    await BpfLoaderUpgradeable.closeBuffer(conn, wallet, bufferKp.publicKey);
+    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
 
     throw new Error(errorMsg);
   }

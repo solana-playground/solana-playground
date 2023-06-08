@@ -62,11 +62,11 @@ extern "C" {
 
 }
 
-#[wasm_bindgen(raw_module = "/src/utils/pg/wallet.ts")]
+#[wasm_bindgen(raw_module = "/src/utils/pg/wallet/wallet.ts")]
 extern "C" {
     pub type PgWallet;
 
     /// Get playground wallet's keypair.
-    #[wasm_bindgen(static_method_of = PgWallet, getter, js_name = "keypairBytes")]
+    #[wasm_bindgen(static_method_of = PgWallet, js_name = "getKeypairBytes")]
     pub fn keypair_bytes() -> Vec<u8>;
 }

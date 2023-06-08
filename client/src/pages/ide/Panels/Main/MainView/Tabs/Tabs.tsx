@@ -1,18 +1,14 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { Atom, useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../../../../../components/Button";
 import { Id } from "../../../../../../constants";
-import {
-  explorerAtom,
-  refreshExplorerAtom,
-  showWalletAtom,
-} from "../../../../../../state";
-import { PgExplorer } from "../../../../../../utils/pg";
+import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
+import { PgExplorer, PgWallet } from "../../../../../../utils/pg";
 import { PgThemeManager } from "../../../../../../utils/pg/theme";
-import { useCurrentWallet } from "../../../../../../hooks";
+import { useWallet } from "../../../../../../hooks";
 
 const Tabs = () => {
   const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
@@ -91,19 +87,17 @@ const TabsWrapper = styled.div`
 `;
 
 const Wallet = () => {
-  const [, setShowWallet] = useAtom(showWalletAtom);
-
-  const toggleWallet = useCallback(() => {
-    setShowWallet((s) => !s);
-  }, [setShowWallet]);
-
-  const { wallet } = useCurrentWallet();
+  const { wallet } = useWallet();
 
   if (!wallet) return null;
 
   return (
     <WalletWrapper>
-      <Button onClick={toggleWallet} kind="icon" fontWeight="bold">
+      <Button
+        onClick={() => (PgWallet.show = !PgWallet.show)}
+        kind="icon"
+        fontWeight="bold"
+      >
         <img src="/icons/sidebar/wallet.png" alt="Wallet" />
         Wallet
       </Button>

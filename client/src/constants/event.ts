@@ -15,9 +15,6 @@ export enum EventName {
   // Playnet
   PLAYNET_ON_DID_INIT = "playnetondidinit",
 
-  // Program info
-  PROGRAM_INFO_ON_DID_CHANGE_PK = "programinfoondidchangepk",
-
   // Router
   ROUTER_NAVIGATE = "routernavigate",
   ROUTER_LOCATION = "routerlocation",
@@ -43,11 +40,4 @@ export enum EventName {
   VIEW_MAIN_STATIC = "viewmainstatic",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
   VIEW_ON_DID_CHANGE_SIDEBAR_STATE = "viewondidchangesidebarstate",
-
-  // Wallet
-  WALLET_UI_BALANCE_SET = "walletuibalanceset",
-  WALLET_ON_DID_CHANGE_CURRENT_WALLET = "walletondidchangecurrentwallet",
-  WALLET_ON_DID_UPDATE = "walletondidupdate",
-  WALLET_ON_DID_UPDATE_CONNECTION = "walletondidupdateconnection",
-  WALLET_ON_DID_UPDATE_KEYPAIR = "walletondidupdatekeypair",
 }

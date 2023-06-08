@@ -10,7 +10,7 @@ import Input from "../../../../../../components/Input";
 import { PgAccount, PgCommon } from "../../../../../../utils/pg";
 import { SpinnerWithBg } from "../../../../../../components/Loading";
 import { CodeResult } from "./CodeResult";
-import { useCurrentWallet, usePgConnection } from "../../../../../../hooks";
+import { useConnection, useWallet } from "../../../../../../hooks";
 
 interface FetchableAccountProps {
   accountName: string;
@@ -39,8 +39,8 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   idl,
   index,
 }) => {
-  const { connection: conn } = usePgConnection();
-  const { wallet } = useCurrentWallet();
+  const { connection } = useConnection();
+  const { wallet } = useWallet();
 
   const [enteredAddress, setEnteredAddress] = useState("");
   const [enteredAddressError, setEnteredAddressError] = useState(false);
@@ -93,7 +93,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
           accountName,
           new PublicKey(enteredAddress),
           idl,
-          conn,
+          connection,
           wallet
         )
       );
@@ -111,7 +111,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
     setFetchAllLoading(true);
     try {
       const accountData = await PgCommon.transition(
-        PgAccount.fetchAll(accountName, idl, conn, wallet)
+        PgAccount.fetchAll(accountName, idl, connection, wallet)
       );
       handleFetched(accountData);
     } catch (err: any) {

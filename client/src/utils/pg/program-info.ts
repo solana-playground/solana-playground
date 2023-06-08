@@ -57,7 +57,7 @@ const storage = {
   path: ".workspace/program-info.json",
 
   /** Read from storage and deserialize the data. */
-  async read() {
+  async read(): Promise<ProgramInfo> {
     let serializedState: SerializedProgramInfo;
     try {
       const serializedStateStr = await PgExplorer.run({
@@ -77,7 +77,7 @@ const storage = {
         ? new PublicKey(serializedState.customPk)
         : null,
       uploadedProgram: defaultState.uploadedProgram,
-    } as ProgramInfo;
+    };
   },
 
   /** Serialize the data and write to storage. */
@@ -120,7 +120,7 @@ const derive = () => ({
     derive: _PgProgramInfo.fetch,
     onChange: [
       "pk",
-      PgConnection.onDidChangeConnection,
+      PgConnection.onDidChangeCurrent,
       PgCommand.deploy.onDidRunFinish,
     ],
   }),
@@ -155,7 +155,7 @@ class _PgProgramInfo {
    * @returns program's authority and whether the program is upgradable
    */
   static async fetch(programId?: PublicKey | null) {
-    const conn = PgConnection.connection;
+    const conn = PgConnection.current;
     if (!PgConnection.isReady(conn)) return;
 
     if (!programId && !PgProgramInfo.pk) return;
@@ -202,7 +202,7 @@ class _PgProgramInfo {
 
     const idlPk = await idlAddress(programId);
 
-    const conn = PgConnection.connection;
+    const conn = PgConnection.current;
     const accountInfo = await conn.getAccountInfo(idlPk);
     if (!accountInfo) return null;
 

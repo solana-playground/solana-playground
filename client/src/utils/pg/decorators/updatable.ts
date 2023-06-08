@@ -64,6 +64,8 @@ export function updatable<T>(params: {
 
       // Set the default if any prop is missing(recursively)
       const setMissingDefaults = (state: any, defaultState: any) => {
+        if (Array.isArray(state)) return;
+
         for (const prop in defaultState) {
           if (state[prop] === undefined) {
             state[prop] = defaultState[prop];
@@ -79,6 +81,8 @@ export function updatable<T>(params: {
 
       // Remove extra properties if a prop was removed(recursively)
       const removeExtraProperties = (state: any, defaultState: any) => {
+        if (Array.isArray(state)) return;
+
         for (const prop in state) {
           if (defaultState[prop] === undefined) {
             delete state[prop];

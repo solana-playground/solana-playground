@@ -1,29 +1,24 @@
-import { Keypair } from "@solana/web3.js";
+import { useState } from "react";
 import styled, { css } from "styled-components";
 
-import DownloadButton from "../../DownloadButton";
+import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
-import { Warning } from "../../Icons";
-import { PgCommon, PgWallet } from "../../../utils/pg";
+import { Info } from "../../Icons";
+import { PgWallet } from "../../../utils/pg";
 
-const NewWallet = () => {
-  const generateNewKeypair = () => {
-    // Generate new keypair
-    const kp = Keypair.generate();
+export const New = () => {
+  const [keypair] = useState(PgWallet.generateKeypair());
 
-    // Update localstorage
-    PgWallet.update({
-      sk: Array.from(kp.secretKey),
-    });
-  };
+  const handleCreate = () => PgWallet.add(null, keypair);
+  const handleExport = () => PgWallet.export(keypair);
 
   return (
     <Modal
       title
       buttonProps={{
         text: "Create",
-        onSubmit: generateNewKeypair,
+        onSubmit: handleCreate,
         closeOnSubmit: true,
       }}
     >
@@ -31,18 +26,11 @@ const NewWallet = () => {
         <MainText>Are you sure you want to create a new wallet?</MainText>
         <Desc>This will create a brand new keypair.</Desc>
         <WarningTextWrapper>
-          <Text kind="warning" IconEl={<Warning />}>
-            The old keypair will be lost if you don't save it.
+          <Text IconEl={<Info />}>
+            Saving the keypair will allow you to recover the wallet.
           </Text>
         </WarningTextWrapper>
-        <DownloadButton
-          href={PgCommon.getUtf8EncodedString(
-            Array.from(PgWallet.keypairBytes)
-          )}
-          download="wallet-keypair.json"
-        >
-          Save wallet keypair
-        </DownloadButton>
+        <Button onClick={handleExport}>Save wallet keypair</Button>
       </MainContent>
     </Modal>
   );
@@ -55,6 +43,11 @@ const MainContent = styled.div`
 
   & > a {
     margin-top: 1rem;
+  }
+
+  & > button {
+    margin-top: 1rem;
+    width: fit-content;
   }
 `;
 const MainText = styled.span`
@@ -78,8 +71,6 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
-    color: ${({ theme }) => theme.colors.state.warning.color} !important;
+    color: ${({ theme }) => theme.colors.state.info.color};
   }
 `;
-
-export default NewWallet;

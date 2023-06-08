@@ -8,7 +8,7 @@ import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
 import { PgCommon, PgWallet } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { usePgConnection } from "../../hooks";
+import { useConnection } from "../../hooks";
 
 const Transactions = () => {
   const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
@@ -16,14 +16,14 @@ const Transactions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const { connection: conn } = usePgConnection();
+  const { connection } = useConnection();
 
   useEffect(() => {
-    const { dispose } = PgWallet.onDidChangeCurrentWallet(async (wallet) => {
+    const { dispose } = PgWallet.onDidChangeCurrent(async (wallet) => {
       setLoading(true);
       try {
         const _signatures = await PgCommon.transition(
-          conn.getSignaturesForAddress(wallet.publicKey, { limit: 10 })
+          connection.getSignaturesForAddress(wallet!.publicKey, { limit: 10 })
         );
 
         setSignatures(_signatures);
@@ -37,7 +37,7 @@ const Transactions = () => {
     });
 
     return () => dispose();
-  }, [conn, refreshCount]);
+  }, [connection, refreshCount]);
 
   const refresh = useCallback(() => {
     setRefreshCount((c) => c + 1);
@@ -74,7 +74,7 @@ const Transactions = () => {
         <SpinnerWithBg loading={loading}>
           {signatures?.length ? (
             signatures.map((info, i) => (
-              <Tx key={i} {...info} endpoint={conn.rpcEndpoint} />
+              <Tx key={i} {...info} endpoint={connection.rpcEndpoint} />
             ))
           ) : (
             <NoTransaction>

@@ -27,7 +27,7 @@ export const processBundlr = async (
     } Retrieving balance`
   );
 
-  const pkStr = PgWallet.publicKey.toBase58();
+  const pkStr = PgWallet.current!.publicKey.toBase58();
 
   const cluster = await getCluster(rpcUrl);
   const bundlr = new Bundlr(

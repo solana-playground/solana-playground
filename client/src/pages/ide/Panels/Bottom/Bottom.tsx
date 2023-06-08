@@ -10,30 +10,33 @@ import {
   NETWORKS,
   NetworkName,
   ClassName,
-  ConnState,
+  WalletState,
 } from "../../../../constants";
 import { PgCommand, PgCommon } from "../../../../utils/pg";
 import { PgThemeManager } from "../../../../utils/pg/theme";
 import { useAutoAirdrop } from "./useAutoAirdrop";
 import {
+  useBalance,
   useConnect,
-  useCurrentWallet,
-  usePgConnection,
+  useConnection,
+  useWallet,
 } from "../../../../hooks";
 
 const Bottom = () => {
-  const { connection: conn } = usePgConnection();
-  const { connStatus } = useConnect();
-  const { walletPkStr } = useCurrentWallet();
-  const { balance } = useAutoAirdrop();
+  const { connection } = useConnection();
+  const { connState } = useConnect();
+  const { walletPkStr } = useWallet();
+  const { balance } = useBalance();
+
+  useAutoAirdrop();
 
   const [networkName, cluster] = useMemo(() => {
     return [
-      NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name ??
+      NETWORKS.filter((n) => n.endpoint === connection.rpcEndpoint)[0]?.name ??
         NetworkName.CUSTOM,
-      PgCommon.getExplorerClusterParam(conn.rpcEndpoint),
+      PgCommon.getExplorerClusterParam(connection.rpcEndpoint),
     ];
-  }, [conn.rpcEndpoint]);
+  }, [connection.rpcEndpoint]);
 
   // Using a callback because this function might be resolved later than the
   // mount of this component
@@ -47,9 +50,9 @@ const Bottom = () => {
         <ConnectButton
           onClick={connect}
           kind="transparent"
-          leftIcon={<ConnStatus connStatus={connStatus} />}
+          leftIcon={<ConnStatus state={connState} />}
         >
-          {connStatus}
+          {connState}
         </ConnectButton>
       </Tooltip>
 
@@ -57,7 +60,9 @@ const Bottom = () => {
         <>
           <Dash>-</Dash>
           <Tooltip text="RPC endpoint">
-            <RpcEndpoint title={conn.rpcEndpoint}>{networkName}</RpcEndpoint>
+            <RpcEndpoint title={connection.rpcEndpoint}>
+              {networkName}
+            </RpcEndpoint>
           </Tooltip>
           <Seperator>|</Seperator>
           <Tooltip text="Your address">
@@ -108,8 +113,8 @@ const ConnectButton = styled(Button)`
   `}
 `;
 
-const ConnStatus = styled.span<{ connStatus: string }>`
-  ${({ connStatus, theme }) => css`
+const ConnStatus = styled.span<{ state: WalletState }>`
+  ${({ state, theme }) => css`
     &::before {
       content: "";
       display: block;
@@ -117,9 +122,9 @@ const ConnStatus = styled.span<{ connStatus: string }>`
       height: 0.75rem;
       border-radius: 50%;
       margin-right: 0.25rem;
-      background: ${connStatus === ConnState.NOT_CONNECTED
+      background: ${state === WalletState.NOT_CONNECTED
         ? theme.colors.state.error.color
-        : connStatus === ConnState.CONNECTING
+        : state === WalletState.CONNECTING
         ? theme.colors.state.warning.color
         : theme.colors.state.success.color};
     }

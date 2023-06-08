@@ -1,15 +1,13 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
-import { uiBalanceAtom } from "../../state";
-import { PgCommon, PgConnection, PgTerminal, PgTx } from "../../utils/pg";
+import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { useCurrentWallet } from "../../hooks";
+import { useBalance } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
@@ -32,8 +30,6 @@ const Title = styled.div`
 `;
 
 const SendExpanded = () => {
-  const [balance] = useAtom(uiBalanceAtom);
-
   const [address, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
@@ -41,6 +37,8 @@ const SendExpanded = () => {
 
   const addressInputRef = useRef<HTMLInputElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
+
+  const { balance } = useBalance();
 
   // Send button disable
   useEffect(() => {
@@ -65,12 +63,8 @@ const SendExpanded = () => {
     setAmount(e.target.value);
   }, []);
 
-  const { wallet } = useCurrentWallet();
-
-  const send = () => {
-    PgTerminal.process(async () => {
-      if (!wallet) return;
-
+  const send = async () => {
+    await PgTerminal.process(async () => {
       setLoading(true);
       PgTerminal.log(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
 
@@ -79,16 +73,14 @@ const SendExpanded = () => {
         const pk = new PublicKey(address);
 
         const ix = SystemProgram.transfer({
-          fromPubkey: wallet.publicKey,
+          fromPubkey: PgWallet.current!.publicKey,
           toPubkey: pk,
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
 
         const tx = new Transaction().add(ix);
 
-        const txHash = await PgCommon.transition(
-          PgTx.send(tx, PgConnection.connection, wallet)
-        );
+        const txHash = await PgCommon.transition(PgTx.send(tx));
         PgTx.notify(txHash);
 
         msg = PgTerminal.success("Success.");

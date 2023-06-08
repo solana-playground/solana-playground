@@ -1,91 +1,84 @@
 import { useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
-import { PublicKey } from "@solana/web3.js";
 
-import { uiBalanceAtom } from "../../../../state";
 import { PgCommon, PgConnection, PgTx, PgWallet } from "../../../../utils/pg";
-import {
-  useAirdropAmount,
-  useAsyncEffect,
-  useCurrentWallet,
-  usePgConnection,
-} from "../../../../hooks";
+import { useBalance, useConnection, useWallet } from "../../../../hooks";
 
+/** Sync the balance of the current wallet and airdrop when necessary. */
 export const useAutoAirdrop = () => {
-  const [balance] = useAtom(uiBalanceAtom);
+  const { connection } = useConnection();
+  const { wallet } = useWallet();
 
-  const { connection: conn } = usePgConnection();
-  const { walletPkStr, pgWalletPk } = useCurrentWallet();
-  const pgWalletPkStr = pgWalletPk?.toBase58();
-
-  useAsyncEffect(async () => {
-    if (!PgConnection.isReady(conn) || !walletPkStr) return;
-
-    const currentPk = new PublicKey(walletPkStr);
+  useEffect(() => {
+    if (!PgConnection.isReady(connection) || !wallet) return;
 
     // Listen for balance changes
-    const id = conn.onAccountChange(currentPk, (acc) => {
-      PgWallet.setUIBalance(PgCommon.lamportsToSol(acc.lamports));
+    const id = connection.onAccountChange(wallet.publicKey, (acc) => {
+      PgWallet.balance = PgCommon.lamportsToSol(acc.lamports);
     });
 
     const fetchBalance = async () => {
-      const lamports = await conn.getBalance(currentPk);
-      PgWallet.setUIBalance(PgCommon.lamportsToSol(lamports));
+      try {
+        const lamports = await connection.getBalance(wallet.publicKey);
+        PgWallet.balance = PgCommon.lamportsToSol(lamports);
+      } catch (e: any) {
+        console.log("Couldn't fetch balance:", e.message);
+        PgWallet.balance = null;
+      }
     };
 
-    try {
-      await fetchBalance();
-    } catch (e: any) {
-      console.log("Couldn't fetch balance:", e.message);
-    }
+    fetchBalance();
 
     return () => {
-      conn.removeAccountChangeListener(id);
+      connection.removeAccountChangeListener(id);
     };
-  }, [walletPkStr, conn]);
+  }, [wallet, connection]);
 
   // Auto airdrop if balance is less than 4 SOL
   const [airdropError, setAirdropError] = useState(false);
-  const airdropAmount = useAirdropAmount();
   const airdropping = useRef(false);
 
+  const { balance } = useBalance();
+
   useEffect(() => {
-    const airdrop = async (_balance: number | null = balance) => {
+    const airdrop = async (_balance: typeof balance = balance) => {
       if (
-        !PgConnection.isReady(conn) ||
+        !PgConnection.isReady(connection) ||
+        !wallet ||
         airdropping.current ||
         airdropError ||
-        !airdropAmount ||
-        _balance === undefined ||
         _balance === null ||
-        _balance >= 4 ||
-        !pgWalletPkStr
+        _balance >= 4
       ) {
         return;
       }
 
-      const pgWalletPk = new PublicKey(pgWalletPkStr);
+      // Get cap amount for airdrop based on network
+      const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
+      if (!airdropAmount) return;
 
       try {
         airdropping.current = true;
 
-        const txHash = await conn.requestAirdrop(
-          pgWalletPk,
+        const txHash = await connection.requestAirdrop(
+          wallet.publicKey,
           PgCommon.solToLamports(airdropAmount)
         );
-        await PgTx.confirm(txHash, conn, "finalized");
+        await PgTx.confirm(txHash, {
+          connection: connection,
+          commitment: "finalized",
+        });
       } catch (e: any) {
         console.log(e.message);
         setAirdropError(true);
       } finally {
         airdropping.current = false;
-        _balance = PgCommon.lamportsToSol(await conn.getBalance(pgWalletPk));
+        _balance = PgCommon.lamportsToSol(
+          await connection.getBalance(wallet.publicKey)
+        );
         airdrop(_balance);
       }
     };
 
     airdrop();
-  }, [balance, pgWalletPkStr, airdropError, airdropAmount, conn]);
-
-  return { balance };
+  }, [wallet, connection, balance, airdropError]);
 };

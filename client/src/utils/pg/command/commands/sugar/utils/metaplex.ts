@@ -7,14 +7,14 @@ import {
 import { getCluster } from "./utils";
 import { BundlrEnpoints } from "../constants";
 import { PgConnection } from "../../../../connection";
-import { PgWallet } from "../../../../wallet";
 import { PgSettings } from "../../../../settings";
+import { PgWallet } from "../../../../wallet";
 
 export const getMetaplex = async (
   endpoint: string = PgSettings.connection.endpoint
 ) => {
   return Metaplex.make(PgConnection.create({ endpoint }))
-    .use(walletAdapterIdentity(PgWallet))
+    .use(walletAdapterIdentity(PgWallet.current!))
     .use(
       bundlrStorage({
         address:

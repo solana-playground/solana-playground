@@ -1,7 +1,7 @@
-export { useAirdropAmount } from "./useAirdropAmount";
 export { useAsyncEffect } from "./useAsyncEffect";
+export { useBalance } from "./useBalance";
 export { useConnect } from "./useConnect";
-export { useCurrentWallet } from "./useCurrentWallet";
+export { useConnection } from "./useConnection";
 export { useDisposable } from "./useDisposable";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
 export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
@@ -9,7 +9,7 @@ export { useExposeStatic } from "./useExposeStatic";
 export { useGetAndSetStatic } from "./useGetAndSetStatic";
 export { useGetStatic } from "./useGetStatic";
 export { useOnKey } from "./useOnKey";
-export { usePgConnection } from "./usePgConnection";
 export { useRenderOnChange } from "./useRenderOnChange";
 export { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
 export { useSetStatic } from "./useSetStatic";
+export { useWallet } from "./useWallet";
