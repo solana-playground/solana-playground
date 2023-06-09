@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
@@ -30,29 +30,26 @@ const Title = styled.div`
 `;
 
 const SendExpanded = () => {
-  const [address, setRecipient] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  const addressInputRef = useRef<HTMLInputElement>(null);
-  const amountInputRef = useRef<HTMLInputElement>(null);
 
   const { balance } = useBalance();
 
   // Send button disable
   useEffect(() => {
-    if (
-      PgCommon.isPk(address) &&
-      PgCommon.isFloat(amount) &&
-      balance &&
-      balance > parseFloat(amount)
-    ) {
-      setDisabled(false);
-    } else setDisabled(true);
-  }, [address, amount, balance]);
+    setDisabled(
+      !(
+        PgCommon.isPk(recipient) &&
+        PgCommon.isFloat(amount) &&
+        balance &&
+        balance > parseFloat(amount)
+      )
+    );
+  }, [recipient, amount, balance]);
 
-  const handleChangeAddress = useCallback(
+  const handleChangeRecipient = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       setRecipient(e.target.value);
     },
@@ -66,11 +63,13 @@ const SendExpanded = () => {
   const send = async () => {
     await PgTerminal.process(async () => {
       setLoading(true);
-      PgTerminal.log(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
+      PgTerminal.log(
+        PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
+      );
 
       let msg;
       try {
-        const pk = new PublicKey(address);
+        const pk = new PublicKey(recipient);
 
         const ix = SystemProgram.transfer({
           fromPubkey: PgWallet.current!.publicKey,
@@ -84,6 +83,10 @@ const SendExpanded = () => {
         PgTx.notify(txHash);
 
         msg = PgTerminal.success("Success.");
+
+        // Reset inputs
+        setRecipient("");
+        setAmount("");
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Transfer error: ${convertedError}`;
@@ -97,13 +100,13 @@ const SendExpanded = () => {
   return (
     <ExpandedWrapper>
       <ExpandedInput
-        ref={addressInputRef}
-        onChange={handleChangeAddress}
+        value={recipient}
+        onChange={handleChangeRecipient}
         validator={PgCommon.isPk}
         placeholder="Recipient address"
       />
       <ExpandedInput
-        ref={amountInputRef}
+        value={amount}
         onChange={handleChangeAmount}
         validator={(input) => {
           if (
