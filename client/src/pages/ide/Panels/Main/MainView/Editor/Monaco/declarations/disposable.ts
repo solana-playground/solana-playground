@@ -41,7 +41,7 @@ export const declareDisposableTypes = (): Disposable => {
   });
 
   // Playground wallet
-  const walletChange = PgWallet.onDidChangeIsConnected((isConnected) => {
+  const walletChange = PgWallet.onDidChangeCurrent((wallet) => {
     addLib(
       "wallet",
       `
@@ -50,7 +50,7 @@ export const declareDisposableTypes = (): Disposable => {
    *
    * NOTE: You can toggle connection with \`connect\` command.
    */
-  const wallet: ${isConnected ? "PgWallet" : "undefined"};
+  const wallet: ${wallet ? "PgWallet" : "undefined"};
 `
     );
   });

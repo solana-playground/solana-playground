@@ -5,6 +5,6 @@ export const useWallet = () => {
   useRenderOnChange(PgWallet.onDidChangeCurrent);
   return {
     wallet: PgWallet.current,
-    walletPkStr: PgWallet.current?.publicKey.toBase58(),
+    walletPkStr: PgWallet.current?.publicKey?.toBase58(),
   };
 };

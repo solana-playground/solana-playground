@@ -12,6 +12,7 @@ import {
 } from "../decorators";
 import type {
   CurrentWallet,
+  OtherWallet,
   SerializedWallet,
   Wallet,
   WalletAccountName,
@@ -21,9 +22,10 @@ const defaultState: Wallet = {
   isSetupCompleted: false,
   accounts: [],
   currentIndex: -1,
-  isConnected: false,
+  connectionState: null,
   balance: null,
   show: false,
+  otherWallet: null,
 };
 
 const storage = {
@@ -40,6 +42,7 @@ const storage = {
       ...serializedState,
       balance: defaultState.balance,
       show: defaultState.show,
+      otherWallet: defaultState.otherWallet,
     };
   },
 
@@ -50,7 +53,7 @@ const storage = {
       isSetupCompleted: state.isSetupCompleted,
       accounts: state.accounts,
       currentIndex: state.currentIndex,
-      isConnected: state.isConnected,
+      connectionState: state.connectionState,
     };
 
     localStorage.setItem(this.KEY, JSON.stringify(serializedState));
@@ -58,22 +61,38 @@ const storage = {
 };
 
 const derive = () => ({
+  /**
+   * The current active wallet.
+   *
+   * It will be one of the following:
+   * - The Playground Wallet
+   * - A Wallet Standard wallet
+   * - `null` if not connected.
+   */
   current: createDerivable({
     derive: (): CurrentWallet => {
-      if (!PgWallet.isConnected) return null;
+      switch (PgWallet.connectionState) {
+        case "pg": {
+          // Check whether the current account exists
+          const currentAccount = PgWallet.accounts[PgWallet.currentIndex];
+          if (!currentAccount) {
+            if (!PgWallet.accounts.length) PgWallet.add(null);
+            else PgWallet.switch(0);
 
-      // Check whether the current account exists
-      const currentAccount = PgWallet.accounts[PgWallet.currentIndex];
-      if (!currentAccount) {
-        if (!PgWallet.accounts.length) PgWallet.add(null);
-        else PgWallet.switch(0);
+            return null;
+          }
 
-        return null;
+          return createPgWalletInstance(currentAccount);
+        }
+
+        case "sol":
+          return PgWallet.otherWallet as OtherWallet;
+
+        case null:
+          return null;
       }
-
-      return createPgWalletInstance(currentAccount);
     },
-    onChange: ["isConnected", "currentIndex"],
+    onChange: ["connectionState", "currentIndex", "otherWallet"],
   }),
 });
 
@@ -95,7 +114,7 @@ const migrate = () => {
   const newWallet: Wallet = {
     ...defaultState,
     accounts: [{ kp: oldWallet.sk, name: null }],
-    isConnected: oldWallet.connected,
+    connectionState: oldWallet.connected ? "pg" : null,
     isSetupCompleted: oldWallet.setupCompleted,
   };
 

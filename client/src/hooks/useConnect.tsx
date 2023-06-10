@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react";
 
 import { WalletState } from "../constants";
-import { PgWallet } from "../utils/pg";
-import { useRenderOnChange } from "./useRenderOnChange";
+import { useWallet } from "./useWallet";
 
+/** Connect to a Solana Wallet. */
 export const useConnect = () => {
-  const isPgConnected = useRenderOnChange(PgWallet.onDidChangeCurrent)?.isPg;
+  const isPgConnected = useWallet().wallet?.isPg;
 
-  // Sol
+  // Other
   const {
     wallet,
     publicKey,
@@ -19,23 +19,23 @@ export const useConnect = () => {
     connecting,
     disconnect,
     disconnecting,
-  } = useWallet();
+  } = useSolanaWallet();
 
-  // Select wallet (Sol)
+  // Select wallet (Other)
   useEffect(() => {
     if (!wallets.length) return;
     if (!wallet) select(wallets[0].adapter.name);
   }, [wallet, wallets, select]);
 
   // Both
-  const connState = useMemo(() => {
+  const connectionState = useMemo(() => {
     if (connected) return WalletState.CONNECTED;
     if (connecting) return WalletState.CONNECTING;
     if (isPgConnected) return WalletState.PG_CONNECTED;
     return WalletState.NOT_CONNECTED;
   }, [isPgConnected, connecting, connected]);
 
-  // Sol
+  // Other
   const solButtonStatus = useMemo(() => {
     if (connected) return WalletState.DISCONNECT;
     if (connecting) return WalletState.CONNECTING;
@@ -48,7 +48,7 @@ export const useConnect = () => {
     return WalletState.PG_CONNECT;
   }, [isPgConnected]);
 
-  // Sol
+  // Other
   const handleConnect = useCallback(async () => {
     if (connecting || disconnecting) return;
 
@@ -61,10 +61,10 @@ export const useConnect = () => {
   }, [publicKey, connecting, disconnecting, connect, disconnect]);
 
   return {
-    connState,
+    connectionState,
     solButtonStatus,
     pgButtonStatus,
-    pgConnected: PgWallet.isConnected,
+    pgConnected: isPgConnected,
     handleConnect,
     connecting,
     disconnecting,

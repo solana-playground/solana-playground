@@ -11,15 +11,19 @@ export const connect = createCmd({
       const { Setup } = await import(
         "../../../../components/Wallet/Modals/Setup"
       );
-      await PgView.setModal(Setup);
-    } else {
-      PgWallet.isConnected = !PgWallet.isConnected;
+      return await PgView.setModal(Setup);
+    }
 
-      PgTerminal.log(
-        PgWallet.isConnected
-          ? PgTerminal.success("Connected.")
-          : PgTerminal.bold("Disconnected.")
-      );
+    if (PgWallet.current) {
+      if (!PgWallet.current.isPg) {
+        await PgWallet.current.disconnect();
+      }
+
+      PgWallet.connectionState = null;
+      PgTerminal.log(PgTerminal.bold("Disconnected."));
+    } else {
+      PgWallet.connectionState = "pg";
+      PgTerminal.log(PgTerminal.success("Connected."));
     }
   },
 });

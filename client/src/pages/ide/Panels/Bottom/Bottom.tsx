@@ -24,7 +24,7 @@ import {
 
 const Bottom = () => {
   const { connection } = useConnection();
-  const { connState } = useConnect();
+  const { connectionState } = useConnect();
   const { walletPkStr } = useWallet();
   const { balance } = useBalance();
 
@@ -50,9 +50,9 @@ const Bottom = () => {
         <ConnectButton
           onClick={connect}
           kind="transparent"
-          leftIcon={<ConnStatus state={connState} />}
+          leftIcon={<WalletStatus state={connectionState} />}
         >
-          {connState}
+          {connectionState}
         </ConnectButton>
       </Tooltip>
 
@@ -113,7 +113,7 @@ const ConnectButton = styled(Button)`
   `}
 `;
 
-const ConnStatus = styled.span<{ state: WalletState }>`
+const WalletStatus = styled.span<{ state: WalletState }>`
   ${({ state, theme }) => css`
     &::before {
       content: "";

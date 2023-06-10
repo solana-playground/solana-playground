@@ -4,9 +4,10 @@ import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
 
-export type ConnectionOption = {
+/** Optional `connection` prop */
+export interface ConnectionOption {
   connection?: typeof PgConnection["current"];
-};
+}
 
 const derive = () => ({
   /** Globally sycned connection instance */
