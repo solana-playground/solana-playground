@@ -7,6 +7,7 @@ import { Close } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
 import { PgThemeManager } from "../../utils/pg/theme";
 import { useOnKey } from "../../hooks";
+import type { SyncOrAsync } from "../../utils/pg";
 
 interface ModalProps {
   /** Modal title to show. If true, default is "Solana Playground" */
@@ -18,7 +19,7 @@ interface ModalProps {
     /** Button text to show */
     text: string;
     /** Callback function to run on submit */
-    onSubmit: () => void;
+    onSubmit: () => SyncOrAsync<unknown>;
     /** Whether the close the modal when user submits */
     closeOnSubmit?: boolean;
   };
@@ -32,11 +33,11 @@ const Modal: FC<ModalProps> = ({
 }) => {
   const { close } = useModal();
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!buttonProps) return;
 
-    buttonProps.onSubmit();
-    if (buttonProps.closeOnSubmit) close();
+    const data = await buttonProps.onSubmit();
+    if (buttonProps.closeOnSubmit) close(data);
   }, [buttonProps, close]);
 
   // Submit on Enter

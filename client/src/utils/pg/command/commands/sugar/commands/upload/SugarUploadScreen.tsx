@@ -1,7 +1,6 @@
 import { FC, useCallback, useState } from "react";
 
 import Modal from "../../../../../../../components/Modal";
-import useModal from "../../../../../../../components/Modal/useModal";
 import UploadArea from "../../../../../../../components/UploadArea";
 import { PgCommon } from "../../../../../common";
 
@@ -10,8 +9,6 @@ interface SugarUploadScreenProps {
 }
 
 export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
-  const { close } = useModal();
-
   const [files, setFiles] = useState<FileList>();
   const [error, setError] = useState("");
 
@@ -34,7 +31,8 @@ export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
       buttonProps={{
         text: "Continue",
         disabled: !files || files.length % 2 === 1,
-        onSubmit: () => close(files),
+        onSubmit: () => files,
+        closeOnSubmit: true,
       }}
       title={title}
     >
