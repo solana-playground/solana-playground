@@ -12,7 +12,7 @@ export const Setup = () => {
   const [keypair] = useState(PgWallet.generateKeypair());
 
   const handleSetup = () => {
-    if (!PgWallet.accounts.length) PgWallet.add(null, keypair);
+    if (!PgWallet.accounts.length) PgWallet.add({ keypair });
     return true;
   };
 
@@ -24,7 +24,7 @@ export const Setup = () => {
   const handleImport = async () => {
     try {
       if (PgWallet.accounts.length) PgWallet.remove(0);
-      const keypair = await PgWallet.import(null);
+      const keypair = await PgWallet.import();
       if (keypair) setText("Imported address: " + keypair.publicKey.toBase58());
     } catch (err: any) {
       console.log(err.message);

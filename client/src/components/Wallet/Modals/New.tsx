@@ -10,7 +10,7 @@ import { PgWallet } from "../../../utils/pg";
 export const New = () => {
   const [keypair] = useState(PgWallet.generateKeypair());
 
-  const handleCreate = () => PgWallet.add(null, keypair);
+  const handleCreate = () => PgWallet.add({ keypair });
   const handleExport = () => PgWallet.export(keypair);
 
   return (

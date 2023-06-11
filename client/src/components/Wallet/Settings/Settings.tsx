@@ -61,12 +61,12 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
     },
     {
       name: "Import",
-      onClick: () => PgWallet.import(null),
+      onClick: PgWallet.import,
       Icon: <ImportFile />,
     },
     {
       name: "Export",
-      onClick: () => PgWallet.export(),
+      onClick: PgWallet.export,
       Icon: <ExportFile />,
     },
   ];

@@ -254,6 +254,7 @@ export class PgCommon {
    * NOTE: This method mutates the given object in place.
    */
   static setDefault<T, D extends AllPartial<T>>(value: T, defaultValue: D) {
+    value ??= {} as T;
     for (const property in defaultValue) {
       const result = defaultValue[property] as AllPartial<T[keyof T]>;
       value[property as keyof T] ??= result as T[keyof T];

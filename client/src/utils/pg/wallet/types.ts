@@ -23,8 +23,8 @@ export interface Wallet {
      * First 32 bytes are the private key, last 32 bytes are the public key.
      */
     kp: Array<number>;
-    /** Name of the account, `null` by default */
-    name: WalletAccountName;
+    /** Name of the account */
+    name: string;
   }>;
   /** Current wallet index */
   currentIndex: number;
@@ -43,9 +43,6 @@ export type SerializedWallet = Pick<
   Wallet,
   "state" | "accounts" | "currentIndex" | "standardName"
 >;
-
-/** Custom name of the wallet or `null` */
-export type WalletAccountName = string | null;
 
 /** Legacy or versioned transaction */
 export type AnyTransaction = Transaction | VersionedTransaction;

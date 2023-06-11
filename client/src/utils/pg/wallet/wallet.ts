@@ -16,7 +16,6 @@ import type {
   StandardWallet,
   StandardWalletProps,
   Wallet,
-  WalletAccountName,
 } from "./types";
 
 const defaultState: Wallet = {
@@ -88,7 +87,7 @@ const derive = () => ({
           // Check whether the current account exists
           const currentAccount = PgWallet.accounts[PgWallet.currentIndex];
           if (!currentAccount) {
-            if (!PgWallet.accounts.length) PgWallet.add(null);
+            if (!PgWallet.accounts.length) PgWallet.add();
             else PgWallet.switch(0);
 
             return null;
@@ -133,7 +132,7 @@ const migrate = () => {
         ? "pg"
         : "disconnected"
       : "setup",
-    accounts: [{ kp: oldWallet.sk, name: null }],
+    accounts: [{ kp: oldWallet.sk, name: PgWallet.getDefaultAccountName(0) }],
   };
 
   localStorage.setItem(storage.KEY, JSON.stringify(newWallet));
@@ -149,10 +148,15 @@ class _PgWallet {
    * @param name name of the account
    * @param keypair optional keypair, default to a random keypair
    */
-  static add(
-    name: WalletAccountName,
-    keypair: Keypair = this.generateKeypair()
-  ) {
+  static add(params?: { name?: string; keypair?: Keypair }) {
+    const { name, keypair } = PgCommon.setDefault(params, {
+      name: PgWallet.getNextAvailableAccountName(),
+      keypair: Keypair.generate(),
+    });
+
+    // Validate name
+    _PgWallet._validateAccountName(name);
+
     // Check if account exists
     const accountIndex = PgWallet.accounts.findIndex((acc) => {
       return (
@@ -202,17 +206,9 @@ class _PgWallet {
    * @param name new name of the account
    * @param index account index
    */
-  static rename(
-    name: WalletAccountName,
-    index: number = PgWallet.currentIndex
-  ) {
-    if (name === "") name = null;
-
-    // Check whether the name exists
-    if (name) {
-      const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
-      if (nameExists) throw new Error(`Name ${name} already exists`);
-    }
+  static rename(name: string, index: number = PgWallet.currentIndex) {
+    // Validate name
+    _PgWallet._validateAccountName(name);
 
     PgWallet.accounts[index].name = name;
 
@@ -226,7 +222,7 @@ class _PgWallet {
    * @param name name of the account
    * @returns the imported keypair if importing was successful
    */
-  static async import(name: WalletAccountName) {
+  static async import(name?: string) {
     return await PgCommon.import(
       async (ev) => {
         const files = ev.target.files;
@@ -240,7 +236,7 @@ class _PgWallet {
           if (keypairBytes.length !== 64) throw new Error("Invalid keypair");
 
           const keypair = Keypair.fromSecretKey(keypairBytes);
-          PgWallet.add(name, keypair);
+          PgWallet.add({ name, keypair });
 
           return keypair;
         } catch (err: any) {
@@ -283,7 +279,37 @@ class _PgWallet {
    * @returns the wallet account name
    */
   static getAccountName(index: number = PgWallet.currentIndex) {
-    return PgWallet.accounts[index].name ?? `Wallet ${index + 1}`;
+    return PgWallet.accounts[index].name;
+  }
+
+  /**
+   * Get the default name of the wallet account.
+   *
+   * @param index account index
+   * @returns the wallet account name
+   */
+  static getDefaultAccountName(index: number = PgWallet.currentIndex) {
+    return `Wallet ${index + 1}`;
+  }
+
+  /**
+   * Get the next available default account name.
+   *
+   * This method recurses until it founds an available wallet account name.
+   *
+   * @param index account index
+   * @returns the next available default account name
+   */
+  static getNextAvailableAccountName(
+    index: number = PgWallet.accounts.length - 1
+  ): string {
+    try {
+      const name = PgWallet.getDefaultAccountName(index);
+      _PgWallet._validateAccountName(name);
+      return name;
+    } catch {
+      return PgWallet.getNextAvailableAccountName(index + 1);
+    }
   }
 
   /** Get the keypair bytes of the current wallet. */
@@ -297,6 +323,20 @@ class _PgWallet {
   /** Generate a random ed25519 keypair. */
   static generateKeypair() {
     return Keypair.generate();
+  }
+
+  /**
+   * Check whether the given wallet account name is is valid.
+   *
+   * @param name wallet account name
+   * @throws if the name is not valid
+   */
+  private static _validateAccountName(name: string) {
+    if (!name) throw new Error("Wallet name can't be empty");
+
+    // Check whether the name exists
+    const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
+    if (nameExists) throw new Error(`Wallet '${name}' already exists`);
   }
 }
 
