@@ -1,6 +1,5 @@
 export { useAsyncEffect } from "./useAsyncEffect";
 export { useBalance } from "./useBalance";
-export { useConnect } from "./useConnect";
 export { useConnection } from "./useConnection";
 export { useDisposable } from "./useDisposable";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";

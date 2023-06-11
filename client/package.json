@@ -33,7 +33,6 @@
     "@solana/buffer-layout": "^4.0.0",
     "@solana/spl-token": "^0.3.5",
     "@solana/wallet-adapter-base": "^0.9.22",
-    "@solana/wallet-adapter-phantom": "^0.9.22",
     "@solana/wallet-adapter-react": "^0.15.32",
     "@solana/web3.js": "^1.63.1",
     "assert": "^2.0.0",

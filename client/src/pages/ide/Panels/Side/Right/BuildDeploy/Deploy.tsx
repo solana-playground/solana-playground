@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useAtom } from "jotai";
 import styled from "styled-components";
 
@@ -9,7 +9,7 @@ import { ConnectionErrorText } from "../Common";
 import { terminalStateAtom } from "../../../../../../state";
 import { PgCommand } from "../../../../../../utils/pg";
 import { useProgramInfo } from "../useProgramInfo";
-import { useConnect, useWallet } from "../../../../../../hooks";
+import { useWallet } from "../../../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {
@@ -206,23 +206,20 @@ const Deploy = () => {
 };
 
 const ConnectPgWalletButton = () => {
-  const { pgButtonStatus } = useConnect();
-
-  const connect = useCallback(async () => await PgCommand.connect.run(), []);
-
   return (
-    <Button onClick={connect} kind="primary">
-      {pgButtonStatus}
+    <Button onClick={async () => await PgCommand.connect.run()} kind="primary">
+      Connect to Playground Wallet
     </Button>
   );
 };
 
 const DisconnectSolWalletButton = () => {
-  const { solButtonStatus, handleConnect } = useConnect();
+  const { wallet } = useWallet();
+  if (!wallet || wallet.isPg) return null;
 
   return (
-    <Button onClick={handleConnect} kind="outline">
-      {solButtonStatus}
+    <Button onClick={async () => await PgCommand.connect.run()} kind="outline">
+      Disconnect from {wallet.name}
     </Button>
   );
 };

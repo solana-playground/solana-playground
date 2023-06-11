@@ -12,20 +12,21 @@ import {
 } from "../decorators";
 import type {
   CurrentWallet,
-  OtherWallet,
   SerializedWallet,
+  StandardWallet,
+  StandardWalletProps,
   Wallet,
   WalletAccountName,
 } from "./types";
 
 const defaultState: Wallet = {
-  isSetupCompleted: false,
+  state: "setup",
   accounts: [],
   currentIndex: -1,
-  connectionState: null,
   balance: null,
   show: false,
-  otherWallet: null,
+  standardWallets: [],
+  standardName: null,
 };
 
 const storage = {
@@ -42,18 +43,18 @@ const storage = {
       ...serializedState,
       balance: defaultState.balance,
       show: defaultState.show,
-      otherWallet: defaultState.otherWallet,
+      standardWallets: defaultState.standardWallets,
     };
   },
 
   /** Serialize the data and write to storage. */
-  async write(state: Wallet) {
+  async write(wallet: Wallet) {
     // Don't use spread operator(...) because of the extra derived state
     const serializedState: SerializedWallet = {
-      isSetupCompleted: state.isSetupCompleted,
-      accounts: state.accounts,
-      currentIndex: state.currentIndex,
-      connectionState: state.connectionState,
+      accounts: wallet.accounts,
+      currentIndex: wallet.currentIndex,
+      state: wallet.state,
+      standardName: wallet.standardName,
     };
 
     localStorage.setItem(this.KEY, JSON.stringify(serializedState));
@@ -61,6 +62,17 @@ const storage = {
 };
 
 const derive = () => ({
+  // TODO: Doc
+  standard: createDerivable({
+    derive: (): StandardWallet => {
+      const otherWallet = PgWallet.standardWallets.find(
+        (wallet) => wallet.adapter.name === PgWallet.standardName
+      );
+      return otherWallet?.adapter ?? null;
+    },
+    onChange: ["standardWallets", "standardName"],
+  }),
+
   /**
    * The current active wallet.
    *
@@ -70,8 +82,8 @@ const derive = () => ({
    * - `null` if not connected.
    */
   current: createDerivable({
-    derive: (): CurrentWallet => {
-      switch (PgWallet.connectionState) {
+    derive: async (): Promise<CurrentWallet> => {
+      switch (PgWallet.state) {
         case "pg": {
           // Check whether the current account exists
           const currentAccount = PgWallet.accounts[PgWallet.currentIndex];
@@ -86,13 +98,16 @@ const derive = () => ({
         }
 
         case "sol":
-          return PgWallet.otherWallet as OtherWallet;
+          if (!PgWallet.standard || PgWallet.standard.connecting) return null;
+          if (!PgWallet.standard.connected) await PgWallet.standard.connect();
+          return PgWallet.standard as StandardWalletProps;
 
-        case null:
+        case "disconnected":
+        case "setup":
           return null;
       }
     },
-    onChange: ["connectionState", "currentIndex", "otherWallet"],
+    onChange: ["state", "currentIndex", "standard"],
   }),
 });
 
@@ -113,9 +128,12 @@ const migrate = () => {
   const oldWallet = oldOrNewWallet as OldWallet;
   const newWallet: Wallet = {
     ...defaultState,
+    state: oldWallet.setupCompleted
+      ? oldWallet.connected
+        ? "pg"
+        : "disconnected"
+      : "setup",
     accounts: [{ kp: oldWallet.sk, name: null }],
-    connectionState: oldWallet.connected ? "pg" : null,
-    isSetupCompleted: oldWallet.setupCompleted,
   };
 
   localStorage.setItem(storage.KEY, JSON.stringify(newWallet));

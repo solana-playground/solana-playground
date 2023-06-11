@@ -1,11 +1,10 @@
 import { FC, useEffect, useMemo } from "react";
 import { useWallet, WalletProvider } from "@solana/wallet-adapter-react";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 
 import { PgWallet } from "../../utils/pg";
 
 const SolanaProvider: FC = ({ children }) => {
-  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
+  const wallets = useMemo(() => [], []);
 
   return (
     <WalletProvider wallets={wallets}>
@@ -15,16 +14,16 @@ const SolanaProvider: FC = ({ children }) => {
 };
 
 const PlaygroundWalletProvider: FC = ({ children }) => {
-  const { wallet, publicKey } = useWallet();
+  const { wallets, publicKey } = useWallet();
 
   // Handle the connection of Solana wallets to Playground Wallet
   useEffect(() => {
     // Add timeout because `PgWallet` listeners are not available on mount
     const id = setTimeout(() => {
-      PgWallet.update({ otherWallet: wallet?.adapter ?? null });
+      PgWallet.standardWallets = wallets;
     });
     return () => clearTimeout(id);
-  }, [wallet, publicKey]);
+  }, [wallets, publicKey]);
 
   return <>{children}</>;
 };

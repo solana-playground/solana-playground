@@ -9,9 +9,12 @@ import type {
   SignerWalletAdapterProps,
   WalletAdapterProps,
 } from "@solana/wallet-adapter-base";
+import type { Wallet as SolanaWallet } from "@solana/wallet-adapter-react";
 
 /** Wallet state */
 export interface Wallet {
+  /** Wallet connection state */
+  state: "setup" | "disconnected" | "pg" | "sol";
   /** All accounts */
   accounts: Array<{
     /**
@@ -23,30 +26,23 @@ export interface Wallet {
     /** Name of the account, `null` by default */
     name: WalletAccountName;
   }>;
-  /** Whether the user accepted the initial setup pop-up */
-  isSetupCompleted: boolean;
-  /** Wallet connection state */
-  connectionState: "pg" | "sol" | null;
   /** Current wallet index */
   currentIndex: number;
   /** Balance of the current wallet, `null` by default */
   balance: number | null;
   /** Whether to show the `Wallet` component */
   show: boolean;
-  /** Non-Playground Wallet */
-  otherWallet: OtherWallet | Adapter | null;
+  /** Wallet Standard wallets */
+  standardWallets: SolanaWallet[];
+  /** Name of the standard wallet */
+  standardName: string | null;
 }
 
 /** Serialized wallet that's used in storage */
-export interface SerializedWallet {
-  isSetupCompleted: boolean;
-  accounts: Array<{
-    kp: Array<number>;
-    name: WalletAccountName;
-  }>;
-  currentIndex: number;
-  connectionState: "pg" | "sol" | null;
-}
+export type SerializedWallet = Pick<
+  Wallet,
+  "state" | "accounts" | "currentIndex" | "standardName"
+>;
 
 /** Custom name of the wallet or `null` */
 export type WalletAccountName = string | null;
@@ -58,7 +54,10 @@ export type AnyTransaction = Transaction | VersionedTransaction;
  * The current wallet which can be a Playground Wallet, a Wallet Standard Wallet
  * or `null` if disconnected.
  */
-export type CurrentWallet = (PgWalletProps | OtherWallet) | null;
+export type CurrentWallet = (PgWalletProps | StandardWalletProps) | null;
+
+/** Wallet Standard wallet */
+export type StandardWallet = StandardWalletProps | Adapter | null;
 
 /** Playground Wallet props */
 export interface PgWalletProps extends DefaultWalletProps {
@@ -71,7 +70,9 @@ export interface PgWalletProps extends DefaultWalletProps {
 }
 
 /** All wallets other than Playground Wallet */
-export interface OtherWallet extends DefaultWalletProps, DefaultAdapter {
+export interface StandardWalletProps
+  extends DefaultWalletProps,
+    DefaultAdapter {
   /** The wallet is not Playground Wallet */
   isPg: false;
 }

@@ -10,21 +10,16 @@ import {
   NETWORKS,
   NetworkName,
   ClassName,
-  WalletState,
 } from "../../../../constants";
 import { PgCommand, PgCommon } from "../../../../utils/pg";
 import { PgThemeManager } from "../../../../utils/pg/theme";
 import { useAutoAirdrop } from "./useAutoAirdrop";
-import {
-  useBalance,
-  useConnect,
-  useConnection,
-  useWallet,
-} from "../../../../hooks";
+import { useConnectionStatus } from "./useConnectionStatus";
+import { useBalance, useConnection, useWallet } from "../../../../hooks";
 
 const Bottom = () => {
   const { connection } = useConnection();
-  const { connectionState } = useConnect();
+  const { connectionStatus } = useConnectionStatus();
   const { walletPkStr } = useWallet();
   const { balance } = useBalance();
 
@@ -50,9 +45,9 @@ const Bottom = () => {
         <ConnectButton
           onClick={connect}
           kind="transparent"
-          leftIcon={<WalletStatus state={connectionState} />}
+          leftIcon={<WalletStatus isConnected={!!walletPkStr} />}
         >
-          {connectionState}
+          {connectionStatus}
         </ConnectButton>
       </Tooltip>
 
@@ -113,8 +108,8 @@ const ConnectButton = styled(Button)`
   `}
 `;
 
-const WalletStatus = styled.span<{ state: WalletState }>`
-  ${({ state, theme }) => css`
+const WalletStatus = styled.span<{ isConnected: boolean }>`
+  ${({ isConnected, theme }) => css`
     &::before {
       content: "";
       display: block;
@@ -122,11 +117,9 @@ const WalletStatus = styled.span<{ state: WalletState }>`
       height: 0.75rem;
       border-radius: 50%;
       margin-right: 0.25rem;
-      background: ${state === WalletState.NOT_CONNECTED
-        ? theme.colors.state.error.color
-        : state === WalletState.CONNECTING
-        ? theme.colors.state.warning.color
-        : theme.colors.state.success.color};
+      background: ${isConnected
+        ? theme.colors.state.success.color
+        : theme.colors.state.error.color};
     }
   `}
 `;

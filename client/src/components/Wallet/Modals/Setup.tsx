@@ -5,16 +5,15 @@ import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgCommand, PgWallet } from "../../../utils/pg";
+import { PgWallet } from "../../../utils/pg";
 
 export const Setup = () => {
   const [text, setText] = useState("");
   const [keypair] = useState(PgWallet.generateKeypair());
 
-  const handleSetup = async () => {
+  const handleSetup = () => {
     if (!PgWallet.accounts.length) PgWallet.add(null, keypair);
-    PgWallet.isSetupCompleted = true;
-    await PgCommand.connect.run();
+    return true;
   };
 
   const handleExport = () => {

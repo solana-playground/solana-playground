@@ -109,7 +109,8 @@ export class PgCommandExecutor {
     return await PgTerminal.process(async () => {
       // This guarantees commands only start with the specified command name.
       // `solana-keygen` would not count for inputCmdName === "solana"
-      const inputCmdName = input.trim().split(" ")?.at(0);
+      input = input.trim();
+      const inputCmdName = input.split(" ")?.at(0);
       if (!inputCmdName) return;
 
       for (const cmdName in commands) {
