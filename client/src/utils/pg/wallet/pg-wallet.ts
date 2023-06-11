@@ -17,7 +17,6 @@ export const createPgWalletInstance = (
   return {
     isPg: true,
     keypair,
-    name: account.name,
     publicKey: keypair.publicKey,
 
     async signTransaction<T extends AnyTransaction>(tx: T) {

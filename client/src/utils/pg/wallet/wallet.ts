@@ -107,7 +107,7 @@ const derive = () => ({
           return null;
       }
     },
-    onChange: ["state", "currentIndex", "standard"],
+    onChange: ["state", "accounts", "currentIndex", "standard"],
   }),
 });
 
@@ -206,6 +206,14 @@ class _PgWallet {
     name: WalletAccountName,
     index: number = PgWallet.currentIndex
   ) {
+    if (name === "") name = null;
+
+    // Check whether the name exists
+    if (name) {
+      const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
+      if (nameExists) throw new Error(`Name ${name} already exists`);
+    }
+
     PgWallet.accounts[index].name = name;
 
     // Update the accounts
@@ -266,6 +274,16 @@ class _PgWallet {
     }
 
     PgWallet.currentIndex = index;
+  }
+
+  /**
+   * Get the name of the wallet account.
+   *
+   * @param index account index
+   * @returns the wallet account name
+   */
+  static getAccountName(index: number = PgWallet.currentIndex) {
+    return PgWallet.accounts[index].name ?? `Wallet ${index + 1}`;
   }
 
   /** Get the keypair bytes of the current wallet. */

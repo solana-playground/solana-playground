@@ -8,12 +8,12 @@ const SolanaProvider: FC = ({ children }) => {
 
   return (
     <WalletProvider wallets={wallets}>
-      <PlaygroundWalletProvider>{children}</PlaygroundWalletProvider>
+      <PgWalletProvider>{children}</PgWalletProvider>
     </WalletProvider>
   );
 };
 
-const PlaygroundWalletProvider: FC = ({ children }) => {
+const PgWalletProvider: FC = ({ children }) => {
   const { wallets, publicKey } = useWallet();
 
   // Handle the connection of Solana wallets to Playground Wallet

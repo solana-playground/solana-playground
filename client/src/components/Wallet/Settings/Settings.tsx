@@ -1,22 +1,26 @@
-import { useCallback } from "react";
+import { FC, useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../Button";
-import Menu from "../../Menu";
+import Menu, { MenuItemProps } from "../../Menu";
 import {
   Airdrop,
   ExportFile,
   ImportFile,
   Plus,
+  Rename,
   ThreeDots,
   Trash,
 } from "../../Icons";
 import { ClassName, Id } from "../../../constants";
-import { PgCommand, PgView, PgWallet } from "../../../utils/pg";
+import { Fn, PgCommand, PgView, PgWallet } from "../../../utils/pg";
 import { useAirdrop } from "./useAirdrop";
-import type { MenuItemProps } from "../../Menu";
 
-export const WalletSettings = () => {
+interface WalletSettingsProps {
+  showRename: Fn;
+}
+
+export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
   const { airdrop, airdropCondition } = useAirdrop();
 
   const darken = useCallback(() => {
@@ -49,6 +53,11 @@ export const WalletSettings = () => {
       },
       kind: "error",
       Icon: <Trash />,
+    },
+    {
+      name: "Rename",
+      onClick: showRename,
+      Icon: <Rename />,
     },
     {
       name: "Import",

@@ -65,8 +65,6 @@ export interface PgWalletProps extends DefaultWalletProps {
   isPg: true;
   /** Keypair of the Playground Wallet */
   keypair: Keypair;
-  /** Custom name of the Playground Wallet */
-  name: WalletAccountName;
 }
 
 /** All wallets other than Playground Wallet */

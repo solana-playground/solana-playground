@@ -160,7 +160,7 @@ export class PgCommon {
   /**
    * @returns first and last (default: 5) chars of a public key and '...' in between as string
    */
-  static shortenPk(pk: PublicKey | string, chars: number = 5) {
+  static shortenPk(pk: PublicKey | string, chars: number = 3) {
     const pkStr = typeof pk === "object" ? pk.toBase58() : pk;
     return `${pkStr.slice(0, chars)}...${pkStr.slice(-chars)}`;
   }
@@ -881,6 +881,21 @@ export class PgCommon {
     if (opts.repeat) {
       return this._repeatPattern(str, opts.repeat.amount);
     }
+  }
+
+  /**
+   * Append "..." to the given `str` after `maxLength` bytes.
+   *
+   * @param str string to check the max length
+   * @param maxLength maximum allowed byte length
+   * @returns the original string or the part of the string until the `maxLength`
+   */
+  static withMaxLength(str: string, maxLength: number) {
+    if (str.length > maxLength) {
+      return str.slice(0, maxLength) + "...";
+    }
+
+    return str;
   }
 
   /**

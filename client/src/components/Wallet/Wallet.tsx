@@ -1,3 +1,4 @@
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
 
@@ -5,14 +6,15 @@ import Balance from "./Balance";
 import Send from "./Send";
 import Transactions from "./Transactions";
 import Button from "../Button";
+import Input from "../Input";
 import Tooltip from "../Tooltip";
 import useCopy from "../CopyButton/useCopy";
 import { Close } from "../Icons";
 import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
-import { PgCommon, PgWallet } from "../../utils/pg";
+import { Fn, PgCommon, PgWallet } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { useRenderOnChange, useWallet } from "../../hooks";
+import { useOnKey, useRenderOnChange, useWallet } from "../../hooks";
 
 const Wallet = () => {
   useRenderOnChange(PgWallet.onDidChangeShow);
@@ -79,20 +81,88 @@ const WalletWrapper = styled.div`
 `;
 
 const WalletTitle = () => {
-  const { walletPkStr } = useWallet();
+  const [rename, setRename] = useState(false);
 
-  const [copied, setCopied] = useCopy(walletPkStr ?? "");
+  const showRename = useCallback(() => {
+    setRename(true);
+  }, []);
+
+  const hideRename = useCallback(() => {
+    setRename(false);
+  }, []);
 
   return (
     <TitleWrapper>
-      <WalletSettings />
-      {!!walletPkStr && (
-        <Tooltip text={copied ? "Copied" : "Copy"}>
-          <Title onClick={setCopied}>{PgCommon.shortenPk(walletPkStr)}</Title>
-        </Tooltip>
-      )}
+      <WalletSettings showRename={showRename} />
+      {rename ? <WalletRename hideRename={hideRename} /> : <WalletName />}
       <WalletClose />
     </TitleWrapper>
+  );
+};
+
+const WalletName = () => {
+  const { walletPkStr } = useWallet();
+
+  const [copied, setCopied] = useCopy(walletPkStr!);
+
+  return (
+    <WalletNameWrapper>
+      <Tooltip text={copied ? "Copied" : "Copy"}>
+        <Title onClick={setCopied}>
+          {PgCommon.withMaxLength(PgWallet.getAccountName(), 9) +
+            ` - (${PgCommon.shortenPk(walletPkStr!)})`}
+        </Title>
+      </Tooltip>
+    </WalletNameWrapper>
+  );
+};
+
+const WalletNameWrapper = styled.div`
+  font-size: ${({ theme }) => theme.font.code.size.small};
+`;
+
+interface WalletRenameProps {
+  hideRename: Fn;
+}
+
+const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
+  const [name, setName] = useState(PgWallet.getAccountName());
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.setSelectionRange(0, inputRef.current.value.length);
+    inputRef.current?.focus();
+  }, []);
+
+  // Close on outside clicks
+  useEffect(() => {
+    const handleOutsideClick = (ev: MouseEvent) => {
+      if (ev.target && !inputRef.current?.contains(ev.target as Node)) {
+        hideRename();
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [hideRename]);
+
+  useOnKey("Enter", () => {
+    PgWallet.rename(name);
+    hideRename();
+  });
+
+  useOnKey("Escape", hideRename);
+
+  return (
+    <div>
+      <Input
+        ref={inputRef}
+        value={name}
+        onChange={(ev) => setName(ev.target.value)}
+      />
+    </div>
   );
 };
 
