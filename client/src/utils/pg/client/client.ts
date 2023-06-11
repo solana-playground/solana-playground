@@ -222,17 +222,17 @@ export class PgClient {
       }
 
       // Playground utils namespace
-      const connection = PgConnection.current;
-      const pg: Pg = { connection, wallet: PgWallet.current };
+      const pg: Pg = {
+        connection: PgConnection.current,
+        wallet: PgWallet.current,
+      };
+
+      if (PgProgramInfo.pk) pg.PROGRAM_ID = PgProgramInfo.pk;
 
       if (pg.wallet) {
         // Anchor IDL
         const idl = PgProgramInfo.idl;
         if (idl) pg.program = PgTest.getProgram(idl, pg.connection, pg.wallet);
-      }
-
-      if (PgProgramInfo.pk) {
-        pg.PROGRAM_ID = PgProgramInfo.pk;
       }
 
       // Set playground inherited object

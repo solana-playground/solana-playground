@@ -60,6 +60,12 @@ export const connect = createCmd({
   },
 });
 
+/**
+ * Connect to a standard wallet based on given input.
+ *
+ * @param input connect command input
+ * @returns whether the connected to a standard wallet
+ */
 const connectStandardIfNeeded = async (input: string) => {
   const inputSplit = input.split(/\s/);
   if (inputSplit.length === 1) return false;

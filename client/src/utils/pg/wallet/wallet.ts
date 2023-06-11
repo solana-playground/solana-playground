@@ -62,7 +62,7 @@ const storage = {
 };
 
 const derive = () => ({
-  // TODO: Doc
+  /** A Wallet Standard wallet adapter */
   standard: createDerivable({
     derive: (): StandardWallet => {
       const otherWallet = PgWallet.standardWallets.find(

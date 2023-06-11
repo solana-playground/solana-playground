@@ -42,15 +42,42 @@ export const declareDisposableTypes = (): Disposable => {
 
   // Playground wallet
   const walletChange = PgWallet.onDidChangeCurrent((wallet) => {
+    let walletType: {
+      name: string;
+      declaration?: string;
+    };
+    if (!wallet) {
+      walletType = { name: "undefined" };
+    } else if (wallet.isPg) {
+      walletType = {
+        name: "PgWallet",
+        get declaration() {
+          return `interface ${this.name} extends DefaultWallet {
+  /** Keypair of the connected Playground Wallet */
+  keypair: web3.Keypair;
+}`;
+        },
+      };
+    } else {
+      walletType = {
+        name: `${wallet.name}Wallet`,
+        get declaration() {
+          return `interface ${this.name} extends DefaultWallet {}`;
+        },
+      };
+    }
+
     addLib(
       "wallet",
       `
+  ${walletType.declaration}
+
   /**
    * Playground wallet.
    *
    * NOTE: You can toggle connection with \`connect\` command.
    */
-  const wallet: ${wallet ? "PgWallet" : "undefined"};
+  const wallet: ${walletType.name};
 `
     );
   });
