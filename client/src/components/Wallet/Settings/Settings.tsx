@@ -3,7 +3,14 @@ import styled from "styled-components";
 
 import Button from "../../Button";
 import Menu from "../../Menu";
-import { ThreeDots } from "../../Icons";
+import {
+  Airdrop,
+  ExportFile,
+  ImportFile,
+  Plus,
+  ThreeDots,
+  Trash,
+} from "../../Icons";
 import { ClassName, Id } from "../../../constants";
 import { PgCommand, PgView, PgWallet } from "../../../utils/pg";
 import { useAirdrop } from "./useAirdrop";
@@ -24,6 +31,7 @@ export const WalletSettings = () => {
       name: "Airdrop",
       onClick: airdrop,
       showCondition: airdropCondition,
+      Icon: <Airdrop />,
     },
     {
       name: "Add",
@@ -31,6 +39,7 @@ export const WalletSettings = () => {
         const { New } = await import("../Modals/New");
         await PgView.setModal(New);
       },
+      Icon: <Plus />,
     },
     {
       name: "Remove",
@@ -39,26 +48,30 @@ export const WalletSettings = () => {
         await PgView.setModal(Remove);
       },
       kind: "error",
+      Icon: <Trash />,
     },
     {
       name: "Import",
       onClick: () => PgWallet.import(null),
+      Icon: <ImportFile />,
     },
     {
       name: "Export",
       onClick: () => PgWallet.export(),
+      Icon: <ExportFile />,
     },
   ];
 
   const standardWalletSettings: MenuItemProps[] = PgWallet.standardWallets.map(
-    (standard) => ({
-      name: standard.adapter.connected
-        ? `Disconnect from ${standard.adapter.name}`
-        : `Connect to ${standard.adapter.name}`,
+    (wallet) => ({
+      name: wallet.adapter.connected
+        ? `Disconnect from ${wallet.adapter.name}`
+        : `Connect to ${wallet.adapter.name}`,
       onClick: async () => {
-        await PgCommand.connect.run(standard.adapter.name);
+        await PgCommand.connect.run(wallet.adapter.name);
       },
       kind: "secondary",
+      Icon: <img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
     })
   );
 

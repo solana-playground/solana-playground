@@ -73,6 +73,12 @@ const StyledItem = styled(MenuItem)`
       margin-right: 0.5rem;
     }
 
+    & img {
+      margin-right: 0.5rem;
+      width: 1rem;
+      height: 1rem;
+    }
+
     & span.${ItemClassName.KEYBIND} {
       font-weight: normal;
       margin-left: 1.5rem;
