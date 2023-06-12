@@ -10,6 +10,7 @@ import styled, { css } from "styled-components";
 
 import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
+import { useOnClickOutside } from "../../hooks";
 import type { OptionalMenuProps } from "./Menu"; // Circular dependency
 
 export type ContextMenuProps = {
@@ -70,24 +71,11 @@ const ContextMenu: FC<ContextMenuProps> = ({
   );
 
   useEffect(() => {
-    if (menu.state === "hide") return;
-
-    const handleClickOutside = (e: globalThis.MouseEvent) => {
-      if (!menuWrapperRef.current?.contains(e.target as Node)) {
-        hide();
-      }
-    };
-
-    document.body.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.body.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [menu.state, hide]);
-
-  useEffect(() => {
     menu.state === "show" ? onShow?.() : onHide?.();
   }, [menu.state, onShow, onHide]);
+
+  // Hide on outside click when the state is `show`
+  useOnClickOutside(menuWrapperRef, hide, menu.state === "show");
 
   return (
     <Wrapper ref={wrapperRef} onContextMenu={handleContextMenu}>

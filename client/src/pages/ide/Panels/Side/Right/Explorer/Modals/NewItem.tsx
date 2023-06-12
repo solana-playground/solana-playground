@@ -18,6 +18,7 @@ import {
   newItemAtom,
 } from "../../../../../../../state";
 import { PgExplorer } from "../../../../../../../utils/pg";
+import { useOnClickOutside } from "../../../../../../../hooks";
 
 export const NewItem = () => {
   const [explorer] = useAtom(explorerAtom);
@@ -29,18 +30,15 @@ export const NewItem = () => {
   const newFileRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleClickOut = useCallback(
-    (e: globalThis.MouseEvent) => {
-      if (!newFileRef.current?.contains(e.target as Node)) setEl(null);
-    },
-    [setEl]
-  );
+  const hide = useCallback(() => setEl(null), [setEl]);
+
+  useOnClickOutside(newFileRef, hide, !!el);
 
   // Only allow setting filename with Enter
   // Escape closes the input
   const handleKeyPress = useCallback(
-    async (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") {
+    async (ev: KeyboardEvent) => {
+      if (ev.key === "Enter") {
         if (!itemName || !explorer) return;
 
         // Check if the command is coming from context menu
@@ -70,27 +68,23 @@ export const NewItem = () => {
         } catch (e: any) {
           console.log(e.message);
         }
-      } else if (e.key === "Escape") setEl(null);
+      } else if (ev.key === "Escape") setEl(null);
     },
     [itemName, explorer, ctxSelected, setEl, setCtxSelected]
   );
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setItemName(e.target.value);
+  const handleChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
+    setItemName(ev.target.value);
   }, []);
 
   useEffect(() => {
-    if (el) {
-      document.addEventListener("mousedown", handleClickOut);
-      document.addEventListener("keydown", handleKeyPress);
-      inputRef.current?.focus();
-    }
+    if (!el) return;
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOut);
-      document.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [el, setEl, handleClickOut, handleKeyPress]);
+    inputRef.current?.focus();
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [el, handleKeyPress]);
 
   // Reset item name on element change
   useEffect(() => {

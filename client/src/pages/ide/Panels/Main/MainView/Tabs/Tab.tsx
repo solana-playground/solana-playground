@@ -23,14 +23,14 @@ const Tab: FC<TabProps> = ({ current, path }) => {
     explorer.closeTab(path);
   };
 
-  const changeTab = (e: MouseEvent<HTMLDivElement>) => {
-    if (closeButtonRef.current?.contains(e.target as Node)) return;
+  const changeTab = (ev: MouseEvent<HTMLDivElement>) => {
+    if (closeButtonRef.current?.contains(ev.target as Node)) return;
 
     explorer.changeCurrentFile(path);
   };
 
-  const handleContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
+  const handleContextMenu = (ev: MouseEvent) => {
+    ev.preventDefault();
   };
 
   const fileName = PgExplorer.getItemNameFromPath(path);

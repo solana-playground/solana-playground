@@ -51,18 +51,17 @@ const PopButton: FC<PopButtonProps> = ({ PopElement, buttonProps }) => {
   }, [isOpen, refs.reference, refs.floating, update]);
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+    if (!isOpen) return;
 
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (ev: MouseEvent) => {
       if (
         buttonWrapperRef &&
-        !buttonWrapperRef.current!.contains(e.target as Node) &&
+        !buttonWrapperRef.current!.contains(ev.target as Node) &&
         refs.floating &&
-        !refs.floating.current!.contains(e.target as Node)
-      )
+        !refs.floating.current!.contains(ev.target as Node)
+      ) {
         close();
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);

@@ -30,6 +30,7 @@ export const Add = () => {
       <MainContent>
         <MainText>Are you sure you want to create a new wallet?</MainText>
         <Desc>This will create a brand new keypair.</Desc>
+
         <WarningTextWrapper>
           <Text IconEl={<Info />}>
             Saving the keypair will allow you to recover the wallet.
@@ -62,7 +63,7 @@ const MainContent = styled.div`
   }
 
   & > button {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     width: fit-content;
   }
 `;

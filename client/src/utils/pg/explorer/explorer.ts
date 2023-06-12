@@ -1644,7 +1644,7 @@ export class PgExplorer {
   };
 
   static removeCtxSelectedEl() {
-    this.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
+    PgExplorer.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
   }
 
   static openFolder = (el: HTMLDivElement) => {

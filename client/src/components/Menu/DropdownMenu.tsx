@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
+import { useOnClickOutside } from "../../hooks";
 import type { OptionalMenuProps } from "./Menu"; // Circular dependency
 
 export type DropdownMenuProps = {} & OptionalMenuProps;
@@ -23,21 +24,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!show) return;
-
-    const handleClickOutside = (e: globalThis.MouseEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) {
-        toggle();
-      }
-    };
-
-    document.body.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.body.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [show, toggle]);
+  // Close on outside click
+  useOnClickOutside(wrapperRef, toggle, show);
 
   return (
     <Wrapper ref={wrapperRef}>

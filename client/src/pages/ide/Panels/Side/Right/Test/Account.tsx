@@ -31,7 +31,11 @@ import {
   PgTest,
   Seed,
 } from "../../../../../../utils/pg";
-import { useOnKey, useWallet } from "../../../../../../hooks";
+import {
+  useOnClickOutside,
+  useOnKey,
+  useWallet,
+} from "../../../../../../hooks";
 
 interface AccountProps {
   account: IdlAccount;
@@ -57,9 +61,7 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
   const [showSeed, setShowSeed] = useState(false);
   const [showAta, setShowAta] = useState(false);
 
-  const removeSignerKp = useCallback(() => {
-    setSignerKp(null);
-  }, []);
+  const removeSignerKp = useCallback(() => setSignerKp(null), []);
 
   // Input value change
   const handleChange = useCallback(
@@ -70,37 +72,27 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
     [removeSignerKp]
   );
 
-  const handleClick = useCallback(() => {
-    setShowSearch(true);
-  }, []);
+  const handleClick = useCallback(() => setShowSearch(true), []);
+  const hideSearch = useCallback(() => setShowSearch(false), []);
 
   const inputWrapperRef = useRef<HTMLDivElement>(null);
 
   // Outside click on dropdown
-  useEffect(() => {
-    const handleClickOut = (e: globalThis.MouseEvent) => {
-      if (!inputWrapperRef.current?.contains(e.target as Node)) {
-        setShowSearch(false);
-      }
-    };
-
-    if (showSearch) document.addEventListener("mousedown", handleClickOut);
-    return () => document.removeEventListener("mousedown", handleClickOut);
-  }, [showSearch, showAta, showSeed]);
+  useOnClickOutside(inputWrapperRef, hideSearch, showSearch);
 
   const handleMyAddress = useCallback(() => {
     setVal(walletPkStr ?? "");
     removeSignerKp();
-    setShowSearch(false);
-  }, [walletPkStr, removeSignerKp]);
+    hideSearch();
+  }, [walletPkStr, hideSearch, removeSignerKp]);
 
   const handleRandom = useCallback(() => {
     const kp = Keypair.generate();
     setVal(kp.publicKey.toBase58());
     if (account.isSigner) setSignerKp(kp);
 
-    setShowSearch(false);
-  }, [account.isSigner]);
+    hideSearch();
+  }, [account.isSigner, hideSearch]);
 
   const openSeed = useCallback(() => {
     setShowSeed(true);
@@ -119,8 +111,8 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
   }, []);
 
   useEffect(() => {
-    if (!showSeed || !showAta) setShowSearch(false);
-  }, [showSeed, showAta]);
+    if (!showSeed || !showAta) hideSearch();
+  }, [showSeed, showAta, hideSearch]);
 
   // Update values for test
   useUpdateTxVals({
@@ -361,15 +353,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
   }, []);
 
   // Close showAddSeed on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: globalThis.MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) closeAddSeed();
-    };
-
-    if (showAddSeed) document.addEventListener("mousedown", handleClickOutside);
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showAddSeed, closeAddSeed]);
+  useOnClickOutside(menuRef, closeAddSeed, showAddSeed);
 
   const isFirst = index === 0;
 

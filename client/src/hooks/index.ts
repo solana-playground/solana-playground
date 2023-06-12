@@ -7,6 +7,7 @@ export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";
 export { useGetAndSetStatic } from "./useGetAndSetStatic";
 export { useGetStatic } from "./useGetStatic";
+export { useOnClickOutside } from "./useOnClickOutside";
 export { useOnKey } from "./useOnKey";
 export { useRenderOnChange } from "./useRenderOnChange";
 export { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";

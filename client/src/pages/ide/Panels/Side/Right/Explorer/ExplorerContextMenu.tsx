@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useCallback, useEffect, useRef } from "react";
+import { FC, MouseEvent, useCallback, useRef } from "react";
 
 import Menu from "../../../../../../components/Menu";
 import {
@@ -15,6 +15,7 @@ import {
 import { PgExplorer } from "../../../../../../utils/pg";
 import { Id } from "../../../../../../constants";
 import { ItemData } from "./useExplorerContextMenu";
+import { useOnClickOutside } from "../../../../../../hooks";
 
 interface ExplorerContextMenuProps {
   itemData: ItemData;
@@ -45,21 +46,12 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Handle ctx selected if user clicks outside of the context wrapper
-  useEffect(() => {
-    const handleClick = (e: globalThis.MouseEvent) => {
-      if (e.target && !wrapperRef.current?.contains(e.target as Node)) {
-        PgExplorer.removeCtxSelectedEl();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  useOnClickOutside(wrapperRef, PgExplorer.removeCtxSelectedEl);
 
   const beforeShowCb = useCallback(
-    (e: MouseEvent<HTMLDivElement>) => {
+    (ev: MouseEvent<HTMLDivElement>) => {
       document.getElementById(Id.SIDE_RIGHT)!.style.overflowY = "visible";
-      handleMenu(e);
+      handleMenu(ev);
     },
     [handleMenu]
   );

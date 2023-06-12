@@ -14,7 +14,12 @@ import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgWallet } from "../../utils/pg";
 import { PgThemeManager } from "../../utils/pg/theme";
-import { useOnKey, useRenderOnChange, useWallet } from "../../hooks";
+import {
+  useOnClickOutside,
+  useOnKey,
+  useRenderOnChange,
+  useWallet,
+} from "../../hooks";
 
 const Wallet = () => {
   useRenderOnChange(PgWallet.onDidChangeShow);
@@ -137,23 +142,16 @@ const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
   }, []);
 
   // Close on outside clicks
-  useEffect(() => {
-    const handleOutsideClick = (ev: MouseEvent) => {
-      if (ev.target && !inputRef.current?.contains(ev.target as Node)) {
-        hideRename();
-      }
-    };
+  useOnClickOutside(inputRef, hideRename);
 
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [hideRename]);
+  // Close with `Escape`
+  useOnKey("Escape", hideRename);
 
+  // Submit with `Enter`
   useOnKey("Enter", () => {
     PgWallet.rename(name);
     hideRename();
   });
-
-  useOnKey("Escape", hideRename);
 
   return (
     <div>
