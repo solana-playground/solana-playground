@@ -161,6 +161,8 @@ const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
         ref={inputRef}
         value={name}
         onChange={(ev) => setName(ev.target.value)}
+        validator={PgWallet.validateAccountName}
+        placeholder="Rename wallet..."
       />
     </div>
   );

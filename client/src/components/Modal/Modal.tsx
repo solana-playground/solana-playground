@@ -1,4 +1,11 @@
-import { FC, useCallback, useEffect, useRef } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
@@ -20,6 +27,8 @@ interface ModalProps {
     text: string;
     /** Callback function to run on submit */
     onSubmit: () => SyncOrAsync<unknown>;
+    /** Set the error when `obSubmit` throws */
+    setError?: Dispatch<SetStateAction<any>>;
     /** Whether the close the modal when user submits */
     closeOnSubmit?: boolean;
   };
@@ -36,8 +45,20 @@ const Modal: FC<ModalProps> = ({
   const handleSubmit = useCallback(async () => {
     if (!buttonProps) return;
 
-    const data = await buttonProps.onSubmit();
-    if (buttonProps.closeOnSubmit) close(data);
+    const handle = async () => {
+      const data = await buttonProps.onSubmit();
+      if (buttonProps.closeOnSubmit) close(data);
+    };
+
+    if (buttonProps.setError) {
+      try {
+        await handle();
+      } catch (e: any) {
+        buttonProps.setError(e.message);
+      }
+    } else {
+      await handle();
+    }
   }, [buttonProps, close]);
 
   // Submit on Enter
@@ -76,7 +97,7 @@ const Modal: FC<ModalProps> = ({
           <Button
             {...buttonProps}
             onClick={handleSubmit}
-            size={buttonProps.size ?? "medium"}
+            size={buttonProps.size}
             kind={buttonProps.kind ?? "primary-transparent"}
           >
             {buttonProps.text}

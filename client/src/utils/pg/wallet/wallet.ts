@@ -155,15 +155,13 @@ class _PgWallet {
     });
 
     // Validate name
-    _PgWallet._validateAccountName(name);
+    PgWallet.validateAccountName(name);
 
     // Check if account exists
     const accountIndex = PgWallet.accounts.findIndex((acc) => {
       return (
         (name && acc.name === name) ||
-        Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.equals(
-          keypair.publicKey
-        )
+        keypair.publicKey.toBuffer().equals(Buffer.from(acc.kp))
       );
     });
     if (accountIndex !== -1) {
@@ -208,7 +206,7 @@ class _PgWallet {
    */
   static rename(name: string, index: number = PgWallet.currentIndex) {
     // Validate name
-    _PgWallet._validateAccountName(name);
+    PgWallet.validateAccountName(name);
 
     PgWallet.accounts[index].name = name;
 
@@ -301,11 +299,11 @@ class _PgWallet {
    * @returns the next available default account name
    */
   static getNextAvailableAccountName(
-    index: number = PgWallet.accounts.length - 1
+    index: number = PgWallet.accounts.length
   ): string {
     try {
       const name = PgWallet.getDefaultAccountName(index);
-      _PgWallet._validateAccountName(name);
+      PgWallet.validateAccountName(name);
       return name;
     } catch {
       return PgWallet.getNextAvailableAccountName(index + 1);
@@ -331,12 +329,13 @@ class _PgWallet {
    * @param name wallet account name
    * @throws if the name is not valid
    */
-  private static _validateAccountName(name: string) {
+  static validateAccountName(name: string) {
+    // Empty check
     if (!name) throw new Error("Wallet name can't be empty");
 
     // Check whether the name exists
     const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
-    if (nameExists) throw new Error(`Wallet '${name}' already exists`);
+    if (nameExists) throw new Error(`Account '${name}' already exists`);
   }
 }
 

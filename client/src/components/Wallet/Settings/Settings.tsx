@@ -40,8 +40,8 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
     {
       name: "Add",
       onClick: async () => {
-        const { New } = await import("../Modals/New");
-        await PgView.setModal(New);
+        const { Add } = await import("../Modals/Add");
+        await PgView.setModal(Add);
       },
       Icon: <Plus />,
     },

@@ -2,15 +2,18 @@ import { useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
+import Input from "../../Input";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Info } from "../../Icons";
 import { PgWallet } from "../../../utils/pg";
 
-export const New = () => {
+export const Add = () => {
   const [keypair] = useState(PgWallet.generateKeypair());
+  const [name, setName] = useState(PgWallet.getNextAvailableAccountName());
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreate = () => PgWallet.add({ keypair });
+  const handleCreate = () => PgWallet.add({ name, keypair });
   const handleExport = () => PgWallet.export(keypair);
 
   return (
@@ -20,6 +23,8 @@ export const New = () => {
         text: "Create",
         onSubmit: handleCreate,
         closeOnSubmit: true,
+        setError,
+        disabled: !!error,
       }}
     >
       <MainContent>
@@ -31,6 +36,17 @@ export const New = () => {
           </Text>
         </WarningTextWrapper>
         <Button onClick={handleExport}>Save wallet keypair</Button>
+
+        <InputWrapper>
+          <InputLabel>Account name</InputLabel>
+          <Input
+            value={name}
+            onChange={(ev) => setName(ev.target.value)}
+            validator={PgWallet.validateAccountName}
+            error={error}
+            setError={setError}
+          />
+        </InputWrapper>
       </MainContent>
     </Modal>
   );
@@ -73,4 +89,13 @@ const WarningTextWrapper = styled.div`
     margin-right: 1rem;
     color: ${({ theme }) => theme.colors.state.info.color};
   }
+`;
+
+const InputWrapper = styled.div`
+  margin-top: 0.75rem;
+`;
+
+const InputLabel = styled.div`
+  margin-bottom: 0.25rem;
+  font-weight: bold;
 `;

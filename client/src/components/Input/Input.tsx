@@ -14,7 +14,7 @@ type InputError = string | boolean | null;
 
 interface InputProps extends ComponentPropsWithoutRef<"input"> {
   error?: InputError;
-  setError?: Dispatch<SetStateAction<InputError>>;
+  setError?: Dispatch<SetStateAction<any>>;
   validator?: (value: string) => boolean | void;
 }
 
@@ -33,18 +33,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           // Validation
           if (validator) {
             const handleError = (err: InputError) => {
-              if (setError) {
-                setError(err);
-              } else if (err) {
-                ev.target.classList.add(ClassName.ERROR);
-              } else {
-                ev.target.classList.remove(ClassName.ERROR);
-              }
+              if (setError) setError(err);
+
+              if (err) ev.target.classList.add(ClassName.ERROR);
+              else ev.target.classList.remove(ClassName.ERROR);
             };
 
             try {
               if (validator(ev.target.value) === false) {
-                handleError("Invalid value");
+                handleError(true);
               } else {
                 handleError(null);
               }
