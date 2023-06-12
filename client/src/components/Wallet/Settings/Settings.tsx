@@ -5,6 +5,7 @@ import Button from "../../Button";
 import Menu, { MenuItemProps } from "../../Menu";
 import {
   Airdrop,
+  Copy,
   ExportFile,
   ImportFile,
   Plus,
@@ -15,6 +16,7 @@ import {
 import { ClassName, Id } from "../../../constants";
 import { Fn, PgCommand, PgView, PgWallet } from "../../../utils/pg";
 import { useAirdrop } from "./useAirdrop";
+import { useCopy } from "../../../hooks";
 
 interface WalletSettingsProps {
   showRename: Fn;
@@ -30,7 +32,14 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
     document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
   }, []);
 
+  const [, copyAddress] = useCopy(PgWallet.current?.publicKey.toBase58()!);
+
   const defaultSettings: MenuItemProps[] = [
+    {
+      name: "Copy address",
+      onClick: copyAddress,
+      Icon: <Copy />,
+    },
     {
       name: "Airdrop",
       onClick: airdrop,

@@ -14,9 +14,9 @@ export const useAirdrop = () => {
     useState<ReturnType<typeof PgCommon["getAirdropAmount"]>>(null);
 
   useEffect(() => {
-    const { dispose } = PgConnection.onDidChangeCurrent((connection) =>
-      setAirdropAmount(PgCommon.getAirdropAmount(connection.rpcEndpoint))
-    );
+    const { dispose } = PgConnection.onDidChangeCurrent((connection) => {
+      setAirdropAmount(PgCommon.getAirdropAmount(connection.rpcEndpoint));
+    });
     return () => dispose();
   }, []);
 

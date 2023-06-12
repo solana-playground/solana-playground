@@ -3,8 +3,8 @@ import styled from "styled-components";
 
 import Button from "../Button";
 import Tooltip from "../Tooltip";
-import useCopy from "./useCopy";
 import { Copy } from "../Icons";
+import { useCopy } from "../../hooks";
 
 interface CopyButtonProps {
   copyText: string;

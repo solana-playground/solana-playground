@@ -31,13 +31,6 @@ export const Add = () => {
         <MainText>Are you sure you want to create a new wallet?</MainText>
         <Desc>This will create a brand new keypair.</Desc>
 
-        <WarningTextWrapper>
-          <Text IconEl={<Info />}>
-            Saving the keypair will allow you to recover the wallet.
-          </Text>
-        </WarningTextWrapper>
-        <Button onClick={handleExport}>Save wallet keypair</Button>
-
         <InputWrapper>
           <InputLabel>Account name</InputLabel>
           <Input
@@ -48,6 +41,13 @@ export const Add = () => {
             setError={setError}
           />
         </InputWrapper>
+
+        <WarningTextWrapper>
+          <Text IconEl={<Info />}>
+            Saving the keypair will allow you to recover the wallet.
+          </Text>
+        </WarningTextWrapper>
+        <Button onClick={handleExport}>Save wallet keypair</Button>
       </MainContent>
     </Modal>
   );

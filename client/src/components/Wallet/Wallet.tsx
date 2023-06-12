@@ -1,15 +1,16 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
+import { Keypair } from "@solana/web3.js";
 
 import Balance from "./Balance";
 import Send from "./Send";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import Input from "../Input";
+import Menu from "../Menu";
 import Tooltip from "../Tooltip";
-import useCopy from "../CopyButton/useCopy";
-import { Close } from "../Icons";
+import { Arrow, Close } from "../Icons";
 import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgWallet } from "../../utils/pg";
@@ -108,16 +109,45 @@ const WalletTitle = () => {
 const WalletName = () => {
   const { walletPkStr } = useWallet();
 
-  const [copied, setCopied] = useCopy(walletPkStr!);
+  const darken = useCallback(() => {
+    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
+  }, []);
+  const lighten = useCallback(() => {
+    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
+  }, []);
+
+  const getAccountDisplayName = useCallback(
+    (accountName: string, pkStr: string) => {
+      return (
+        PgCommon.withMaxLength(accountName, 9) +
+        ` - (${PgCommon.shortenPk(pkStr)})`
+      );
+    },
+    []
+  );
 
   return (
     <WalletNameWrapper>
-      <Tooltip text={copied ? "Copied" : "Copy"}>
-        <Title onClick={setCopied}>
-          {PgCommon.withMaxLength(PgWallet.getAccountName(), 9) +
-            ` - (${PgCommon.shortenPk(walletPkStr!)})`}
-        </Title>
-      </Tooltip>
+      <Menu
+        kind="dropdown"
+        items={PgWallet.accounts.map((acc, i) => ({
+          name: getAccountDisplayName(
+            acc.name,
+            Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
+          ),
+          onClick: () => PgWallet.switch(i),
+          kind: "textPrimary",
+        }))}
+        onShow={darken}
+        onHide={lighten}
+      >
+        <Tooltip text="Accounts">
+          <Title>
+            {getAccountDisplayName(PgWallet.getAccountName(), walletPkStr!)}
+            <Arrow rotate="90deg" />
+          </Title>
+        </Tooltip>
+      </Menu>
     </WalletNameWrapper>
   );
 };
@@ -181,6 +211,17 @@ const TitleWrapper = styled.div`
 const Title = styled.span`
   ${({ theme }) => css`
     ${PgThemeManager.convertToCSS(theme.components.wallet.title.text)};
+    padding: ${theme.components.input.padding};
+    border-radius: ${theme.components.input.borderRadius};
+    display: flex;
+
+    &:hover svg {
+      color: ${theme.colors.default.textPrimary};
+    }
+
+    & > svg {
+      margin-left: 0.25rem;
+    }
   `}
 `;
 

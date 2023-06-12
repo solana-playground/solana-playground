@@ -33,9 +33,13 @@ const getStyle = (props: IconProps) => {
   return style;
 };
 
-export const Arrow = (props: IconProps) => {
+export const Arrow = (props: IconProps & RotateProps) => {
   return (
-    <svg {...defaultProps} viewBox="0 0 24 24" style={getStyle(props)}>
+    <svg
+      {...defaultProps}
+      viewBox="0 0 24 24"
+      style={{ ...getStyle(props), rotate: props.rotate }}
+    >
       <path fill="none" d="M0 0h24v24H0V0z"></path>
       <path d="M6.23 20.23L8 22l10-10L8 2 6.23 3.77 14.46 12z"></path>
     </svg>

@@ -7,7 +7,10 @@ export interface MenuItemProps {
   keybind?: string;
   Icon?: ReactNode;
   kind?:
-    | keyof Pick<DefaultTheme["colors"]["default"], "primary" | "secondary">
+    | keyof Pick<
+        DefaultTheme["colors"]["default"],
+        "primary" | "secondary" | "textPrimary"
+      >
     | keyof Omit<DefaultTheme["colors"]["state"], "hover" | "disabled">;
   showCondition?: boolean;
   className?: string;
@@ -118,6 +121,8 @@ const getHoverColor = (kind: MenuItemProps["kind"], theme: DefaultTheme) => {
       return theme.colors.state.warning.color;
     case "info":
       return theme.colors.state.info.color;
+    case "textPrimary":
+      return theme.colors.default.textPrimary;
     default:
       return theme.colors.default.primary;
   }
