@@ -47,7 +47,7 @@ export const Add = () => {
             Saving the keypair will allow you to recover the wallet.
           </Text>
         </WarningTextWrapper>
-        <Button onClick={handleExport}>Save wallet keypair</Button>
+        <Button onClick={handleExport}>Save keypair</Button>
       </MainContent>
     </Modal>
   );

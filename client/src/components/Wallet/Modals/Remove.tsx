@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
-import { Info } from "../../Icons";
+import { Warning } from "../../Icons";
 import { PgWallet } from "../../../utils/pg";
 
 export const Remove = () => {
@@ -24,11 +24,11 @@ export const Remove = () => {
         <MainText>Are you sure you want to remove the current wallet?</MainText>
         <Desc>This action is irreversable!</Desc>
         <WarningTextWrapper>
-          <Text IconEl={<Info />}>
+          <Text IconEl={<Warning />}>
             You can recover the wallet later if you save the keypair.
           </Text>
         </WarningTextWrapper>
-        <Button onClick={handleExport}>Save wallet keypair</Button>
+        <Button onClick={handleExport}>Save keypair</Button>
       </MainContent>
     </Modal>
   );
@@ -70,6 +70,6 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
-    color: ${({ theme }) => theme.colors.state.info.color};
+    color: ${({ theme }) => theme.colors.state.warning.color};
   }
 `;
