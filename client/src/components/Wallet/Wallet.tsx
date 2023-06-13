@@ -8,7 +8,7 @@ import Send from "./Send";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import Input from "../Input";
-import Menu from "../Menu";
+import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Arrow, Close } from "../Icons";
 import { WalletSettings } from "./Settings";
@@ -50,7 +50,7 @@ const Wallet = () => {
         enableUserSelectHack={false}
       >
         <WalletWrapper>
-          <WalletTitle />
+          <WalletTop />
           <WalletMain />
         </WalletWrapper>
       </Rnd>
@@ -86,7 +86,7 @@ const WalletWrapper = styled.div`
   `}
 `;
 
-const WalletTitle = () => {
+const WalletTop = () => {
   const [rename, setRename] = useState(false);
 
   const showRename = useCallback(() => {
@@ -98,22 +98,22 @@ const WalletTitle = () => {
   }, []);
 
   return (
-    <TitleWrapper>
+    <WalletTopWrapper>
       <WalletSettings showRename={showRename} />
       {rename ? <WalletRename hideRename={hideRename} /> : <WalletName />}
       <WalletClose />
-    </TitleWrapper>
+    </WalletTopWrapper>
   );
 };
 
-const TitleWrapper = styled.div`
+const WalletTopWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.title.default)};
+    ${PgThemeManager.convertToCSS(theme.components.wallet.top.default)};
   `}
 `;
 
 const WalletName = () => {
-  const { walletPkStr } = useWallet();
+  const { wallet, walletPkStr } = useWallet();
 
   const darken = useCallback(() => {
     document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
@@ -132,33 +132,73 @@ const WalletName = () => {
     []
   );
 
+  // Show al lof the Playground Wallet accounts
+  const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
+    name: getAccountDisplayName(
+      acc.name,
+      Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
+    ),
+    onClick: () => PgWallet.switch(i),
+    kind: "textPrimary",
+  }));
+
+  // Show all of the connected Wallet Standard accounts
+  const standardAccounts: MenuItemProps[] = PgWallet.standardWallets
+    .filter((wallet) => wallet.adapter.connected)
+    .map((wallet) => ({
+      name: getAccountDisplayName(
+        wallet.adapter.name,
+        wallet.adapter.publicKey!.toBase58()
+      ),
+      onClick: () => {
+        PgWallet.update({ state: "sol", standardName: wallet.adapter.name });
+      },
+      Icon: <img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
+      kind: "secondary",
+    }));
+
+  if (!wallet) return null;
+
   return (
     <Menu
       kind="dropdown"
-      items={PgWallet.accounts.map((acc, i) => ({
-        name: getAccountDisplayName(
-          acc.name,
-          Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
-        ),
-        onClick: () => PgWallet.switch(i),
-        kind: "textPrimary",
-      }))}
+      items={pgAccounts.concat(standardAccounts)}
       onShow={darken}
       onHide={lighten}
     >
       <Tooltip text="Accounts">
-        <Title>
-          {getAccountDisplayName(PgWallet.getAccountName(), walletPkStr!)}
+        <WalletTitleWrapper>
+          {!wallet.isPg && (
+            <WalletTitleIcon src={wallet.icon} alt={wallet.name} />
+          )}
+          <WalletTitleText>
+            {getAccountDisplayName(
+              wallet.isPg ? PgWallet.getAccountName() : wallet.name,
+              walletPkStr!
+            )}
+          </WalletTitleText>
           <Arrow rotate="90deg" />
-        </Title>
+        </WalletTitleWrapper>
       </Tooltip>
     </Menu>
   );
 };
 
-const Title = styled.span`
+const WalletTitleWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.title.text)};
+    ${PgThemeManager.convertToCSS(theme.components.wallet.top.title.default)};
+  `}
+`;
+
+const WalletTitleIcon = styled.img`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.wallet.top.title.icon)};
+  `}
+`;
+
+const WalletTitleText = styled.span`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.wallet.top.title.text)};
   `}
 `;
 

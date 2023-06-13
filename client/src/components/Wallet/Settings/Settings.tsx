@@ -34,6 +34,8 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
 
   const [, copyAddress] = useCopy(PgWallet.current?.publicKey.toBase58()!);
 
+  const isPg = !!PgWallet.current?.isPg;
+
   const defaultSettings: MenuItemProps[] = [
     {
       name: "Copy address",
@@ -62,11 +64,13 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
       },
       kind: "error",
       Icon: <Trash />,
+      showCondition: isPg,
     },
     {
       name: "Rename",
       onClick: showRename,
       Icon: <Rename />,
+      showCondition: isPg,
     },
     {
       name: "Import",
@@ -77,6 +81,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
       name: "Export",
       onClick: PgWallet.export,
       Icon: <ExportFile />,
+      showCondition: isPg,
     },
   ];
 

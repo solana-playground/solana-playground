@@ -813,31 +813,42 @@ export class PgThemeManager {
     wallet.default.borderRadius ??= theme.default.borderRadius;
     wallet.default.boxShadow ??= theme.default.boxShadow;
 
-    // Title
-    wallet.title ??= {};
-    // Title default
-    wallet.title.default ??= {};
-    wallet.title.default.position ??= "relative";
-    wallet.title.default.height ??= "2rem";
-    wallet.title.default.display ??= "flex";
-    wallet.title.default.justifyContent ??= "center";
-    wallet.title.default.alignItems ??= "center";
-    wallet.title.default.padding ??= "0.5rem";
-    // Title text
-    wallet.title.text ??= {};
-    wallet.title.text.display ??= "flex";
-    wallet.title.text.padding ??= "0.25rem";
-    wallet.title.text.color ??= theme.colors.default.textSecondary;
-    wallet.title.text.fontSize ??= theme.font.code.size.small;
-    wallet.title.text.fontWeight ??= "bold";
-    wallet.title.text.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
-    wallet.title.text[`& > svg`] ??= { marginLeft: "0.25rem" };
-    wallet.title.text.hover ??= {};
-    wallet.title.text.hover.cursor ??= "pointer";
-    wallet.title.text.hover.color ??= theme.colors.default.textPrimary;
-    wallet.title.text[`&:hover > svg`] = {
+    // Top
+    wallet.top ??= {};
+    // Top default
+    wallet.top.default ??= {};
+    wallet.top.default.position ??= "relative";
+    wallet.top.default.height ??= "2rem";
+    wallet.top.default.display ??= "flex";
+    wallet.top.default.justifyContent ??= "center";
+    wallet.top.default.alignItems ??= "center";
+    wallet.top.default.padding ??= "0.5rem";
+    // Top title
+    wallet.top.title ??= {};
+    // Top title default
+    wallet.top.title.default ??= {};
+    wallet.top.title.default.display ??= "flex";
+    wallet.top.title.default.justifyContent ??= "center";
+    wallet.top.title.default.alignItems ??= "center";
+    wallet.top.title.default.hover ??= {};
+    wallet.top.title.default.hover.cursor ??= "pointer";
+    wallet.top.title.default.hover[`& svg, & span`] = {
       color: theme.colors.default.textPrimary,
     };
+    // Top title icon
+    wallet.top.title.icon ??= {};
+    wallet.top.title.icon.width ??= "1rem";
+    wallet.top.title.icon.height ??= "1rem";
+    wallet.top.title.icon.marginRight ??= "0.25rem";
+    // Top title text
+    wallet.top.title.text ??= {};
+    wallet.top.title.text.display ??= "flex";
+    wallet.top.title.text.alignItems ??= "center";
+    wallet.top.title.text.padding ??= "0.25rem";
+    wallet.top.title.text.color ??= theme.colors.default.textSecondary;
+    wallet.top.title.text.fontSize ??= theme.font.code.size.small;
+    wallet.top.title.text.fontWeight ??= "bold";
+    wallet.top.title.text.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
 
     // Main
     wallet.main ??= {};

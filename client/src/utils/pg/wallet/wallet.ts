@@ -178,6 +178,7 @@ class _PgWallet {
 
     // Update the accounts
     PgWallet.update({
+      state: "pg",
       accounts: PgWallet.accounts,
       currentIndex: PgWallet.accounts.length - 1,
     });
@@ -267,7 +268,10 @@ class _PgWallet {
       throw new Error(`Account index '${index}' not found`);
     }
 
-    PgWallet.currentIndex = index;
+    PgWallet.update({
+      state: "pg",
+      currentIndex: index,
+    });
   }
 
   /**

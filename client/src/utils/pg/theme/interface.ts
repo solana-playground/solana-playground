@@ -281,7 +281,10 @@ export interface Theme {
     /** Wallet component */
     wallet?: ExtendibleComponent<{
       /** Top side of the wallet component */
-      title?: ExtendibleComponent<"text">;
+      top?: ExtendibleComponent<{
+        /** Wallet title component */
+        title?: ExtendibleComponent<"icon" | "text">;
+      }>;
       /** Main side of the wallet component */
       main?: ExtendibleComponent<{
         /** Backdrop is made with `::after` pseudo class */

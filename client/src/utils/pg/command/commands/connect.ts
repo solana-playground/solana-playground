@@ -9,7 +9,7 @@ export const connect = createCmd({
   run: async (input) => {
     switch (PgWallet.state) {
       case "pg": {
-        const isOther = await connectStandardIfNeeded(input);
+        const isOther = await toggleStandardIfNeeded(input);
         if (!isOther) {
           PgWallet.state = "disconnected";
           PgTerminal.log(PgTerminal.bold("Disconnected."));
@@ -19,21 +19,27 @@ export const connect = createCmd({
       }
 
       case "sol": {
-        if (!PgWallet.current || PgWallet.current.isPg) {
+        if (!PgWallet.current) {
+          throw new Error("Not connected");
+        }
+        if (PgWallet.current.isPg) {
           throw new Error("Current wallet is not a Solana wallet");
         }
 
-        await PgWallet.current.disconnect();
-        PgWallet.state = "pg";
-        PgTerminal.log(
-          PgTerminal.bold(`Disconnected from ${PgWallet.current.name}.`)
-        );
-        PgTerminal.log(PgTerminal.success("Connected to Playground Wallet."));
+        const isOther = await toggleStandardIfNeeded(input);
+        if (!isOther) {
+          await PgWallet.current.disconnect();
+          PgWallet.state = "pg";
+          PgTerminal.log(
+            PgTerminal.bold(`Disconnected from ${PgWallet.current.name}.`)
+          );
+        }
+
         break;
       }
 
       case "disconnected": {
-        const isOther = await connectStandardIfNeeded(input);
+        const isOther = await toggleStandardIfNeeded(input);
         if (!isOther) {
           PgWallet.state = "pg";
           PgTerminal.log(PgTerminal.success("Connected."));
@@ -48,7 +54,7 @@ export const connect = createCmd({
         );
         const setupCompleted = await PgView.setModal(Setup);
         if (setupCompleted) {
-          const isOther = await connectStandardIfNeeded(input);
+          const isOther = await toggleStandardIfNeeded(input);
           if (!isOther) PgWallet.state = "pg";
 
           PgTerminal.log(PgTerminal.success("Setup completed."));
@@ -61,12 +67,12 @@ export const connect = createCmd({
 });
 
 /**
- * Connect to a standard wallet based on given input.
+ * Connect to or disconnect from a standard wallet based on given input.
  *
  * @param input connect command input
  * @returns whether the connected to a standard wallet
  */
-const connectStandardIfNeeded = async (input: string) => {
+const toggleStandardIfNeeded = async (input: string) => {
   const inputSplit = input.split(/\s/);
   if (inputSplit.length === 1) return false;
 
@@ -81,13 +87,20 @@ const connectStandardIfNeeded = async (input: string) => {
   // The given wallet name could be different, e.g. lowercase
   const walletName = wallet.adapter.name;
 
-  // Set the other wallet name to derive the standard wallet
-  PgWallet.standardName = walletName;
+  // Check whether the wallet is already connected
+  if (!wallet.adapter.connected) {
+    await wallet.adapter.connect();
 
-  await wallet.adapter.connect();
-  PgWallet.state = "sol";
+    // Set the standard wallet name to derive the standard wallet
+    PgWallet.standardName = walletName;
+    PgWallet.state = "sol";
 
-  PgTerminal.log(PgTerminal.success(`Connected to ${walletName}.`));
+    PgTerminal.log(PgTerminal.success(`Connected to ${walletName}.`));
+  } else {
+    await wallet.adapter.disconnect();
+    PgWallet.state = "pg";
+    PgTerminal.log(PgTerminal.bold(`Disconnected from ${walletName}.`));
+  }
 
   return true;
 };
