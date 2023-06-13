@@ -812,7 +812,6 @@ export class PgThemeManager {
     wallet.default.border ??= `1px solid ${theme.colors.default.border}`;
     wallet.default.borderRadius ??= theme.default.borderRadius;
     wallet.default.boxShadow ??= theme.default.boxShadow;
-    wallet.default.overflow ??= "hidden";
 
     // Title
     wallet.title ??= {};
@@ -826,11 +825,19 @@ export class PgThemeManager {
     wallet.title.default.padding ??= "0.5rem";
     // Title text
     wallet.title.text ??= {};
+    wallet.title.text.display ??= "flex";
+    wallet.title.text.padding ??= "0.25rem";
     wallet.title.text.color ??= theme.colors.default.textSecondary;
+    wallet.title.text.fontSize ??= theme.font.code.size.small;
+    wallet.title.text.fontWeight ??= "bold";
     wallet.title.text.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
+    wallet.title.text[`& > svg`] ??= { marginLeft: "0.25rem" };
     wallet.title.text.hover ??= {};
     wallet.title.text.hover.cursor ??= "pointer";
     wallet.title.text.hover.color ??= theme.colors.default.textPrimary;
+    wallet.title.text[`&:hover > svg`] = {
+      color: theme.colors.default.textPrimary,
+    };
 
     // Main
     wallet.main ??= {};
@@ -845,6 +852,7 @@ export class PgThemeManager {
       ${wallet.default.bg} 75%,
       ${theme.colors.default.primary + theme.default.transparency.low} 100%
     )`;
+    wallet.main.default.borderRadius ??= theme.default.borderRadius;
 
     // Main backdrop
     wallet.main.backdrop ??= theme.default.backdrop;

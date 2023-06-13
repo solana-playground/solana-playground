@@ -106,6 +106,12 @@ const WalletTitle = () => {
   );
 };
 
+const TitleWrapper = styled.div`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.wallet.title.default)};
+  `}
+`;
+
 const WalletName = () => {
   const { walletPkStr } = useWallet();
 
@@ -127,33 +133,33 @@ const WalletName = () => {
   );
 
   return (
-    <WalletNameWrapper>
-      <Menu
-        kind="dropdown"
-        items={PgWallet.accounts.map((acc, i) => ({
-          name: getAccountDisplayName(
-            acc.name,
-            Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
-          ),
-          onClick: () => PgWallet.switch(i),
-          kind: "textPrimary",
-        }))}
-        onShow={darken}
-        onHide={lighten}
-      >
-        <Tooltip text="Accounts">
-          <Title>
-            {getAccountDisplayName(PgWallet.getAccountName(), walletPkStr!)}
-            <Arrow rotate="90deg" />
-          </Title>
-        </Tooltip>
-      </Menu>
-    </WalletNameWrapper>
+    <Menu
+      kind="dropdown"
+      items={PgWallet.accounts.map((acc, i) => ({
+        name: getAccountDisplayName(
+          acc.name,
+          Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
+        ),
+        onClick: () => PgWallet.switch(i),
+        kind: "textPrimary",
+      }))}
+      onShow={darken}
+      onHide={lighten}
+    >
+      <Tooltip text="Accounts">
+        <Title>
+          {getAccountDisplayName(PgWallet.getAccountName(), walletPkStr!)}
+          <Arrow rotate="90deg" />
+        </Title>
+      </Tooltip>
+    </Menu>
   );
 };
 
-const WalletNameWrapper = styled.div`
-  font-size: ${({ theme }) => theme.font.code.size.small};
+const Title = styled.span`
+  ${({ theme }) => css`
+    ${PgThemeManager.convertToCSS(theme.components.wallet.title.text)};
+  `}
 `;
 
 interface WalletRenameProps {
@@ -201,29 +207,6 @@ const WalletClose = () => (
     <Close />
   </CloseButton>
 );
-
-const TitleWrapper = styled.div`
-  ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.title.default)};
-  `}
-`;
-
-const Title = styled.span`
-  ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.title.text)};
-    padding: ${theme.components.input.padding};
-    border-radius: ${theme.components.input.borderRadius};
-    display: flex;
-
-    &:hover svg {
-      color: ${theme.colors.default.textPrimary};
-    }
-
-    & > svg {
-      margin-left: 0.25rem;
-    }
-  `}
-`;
 
 const CloseButton = styled(Button)`
   position: absolute;
