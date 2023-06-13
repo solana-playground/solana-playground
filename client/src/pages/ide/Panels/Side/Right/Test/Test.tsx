@@ -19,11 +19,17 @@ const Test = () => {
   // Used for both accounts and events data
   useBigNumberJson();
 
-  if (loading) {
-    return <TestSkeleton />;
+  if (loading) return <TestSkeleton />;
+
+  if (!PgProgramInfo.pk) {
+    return (
+      <InitialWrapper>
+        <Text>The program has no public key.</Text>
+      </InitialWrapper>
+    );
   }
 
-  if (!PgProgramInfo.uuid) {
+  if (!PgProgramInfo.uploadedProgram && !PgProgramInfo.uuid) {
     return (
       <InitialWrapper>
         <Text>Program is not built.</Text>
@@ -49,10 +55,10 @@ const Test = () => {
 
   const idl = PgProgramInfo.idl;
 
-  if (idl === null) {
+  if (!idl) {
     return (
       <InitialWrapper>
-        <Text kind="warning">Native program tests are not yet supported.</Text>
+        <Text>Anchor IDL not found.</Text>
       </InitialWrapper>
     );
   }
@@ -62,8 +68,8 @@ const Test = () => {
       return (
         <InitialWrapper>
           <Text kind="error">
-            You've imported a corrupted IDL. Please double check you are
-            importing an Anchor IDL.
+            You've imported a corrupted IDL. Please double check you've imported
+            an Anchor IDL.
           </Text>
         </InitialWrapper>
       );

@@ -93,8 +93,7 @@ const Deploy = () => {
       return (
         <Wrapper>
           <Text kind="warning">
-            Please disconnect from Phantom Wallet. Deployment can only be done
-            from Playground Wallet.
+            Deployment can only be done from Playground Wallet.
           </Text>
           <DisconnectSolWalletButton />
         </Wrapper>
@@ -183,8 +182,7 @@ const Deploy = () => {
       return (
         <Wrapper>
           <Text kind="warning">
-            Please disconnect from Phantom Wallet. Deployment can only be done
-            from Playground Wallet.
+            Deployment can only be done from Playground Wallet.
           </Text>
           <DisconnectSolWalletButton />
         </Wrapper>
