@@ -48,7 +48,7 @@ export const deploy = createCmd({
   preCheck: [PgCommandValidation.isPgConnected, checkDeploy],
 });
 
-/** Checks to run before the deploy command can start processing. */
+/** Check whether the state is valid for deployment. */
 async function checkDeploy() {
   if (!PgProgramInfo.onChain) {
     throw new Error(
@@ -62,13 +62,12 @@ async function checkDeploy() {
     throw new Error(PgTerminal.warning("The program is not upgradable."));
   }
 
-  const authority = PgProgramInfo.onChain.authority!;
-  const hasAuthority = authority.equals(PgWallet.current!.publicKey);
+  const authority = PgProgramInfo.onChain.authority;
+  const hasAuthority =
+    !authority || authority.equals(PgWallet.current!.publicKey);
 
   if (!hasAuthority) {
-    throw new Error(`${PgTerminal.warning(
-      "You don't have the authority to upgrade this program."
-    )}
+    throw new Error(`You don't have the authority to upgrade this program.
 Program ID: ${PgProgramInfo.pk}
 Program authority: ${authority}
 Your address: ${PgWallet.current!.publicKey}`);
