@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from "styled-components";
 
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 interface SkeletonProps {
   height?: string;
@@ -39,7 +39,7 @@ export const Skeleton = styled.div<SkeletonProps>`
         animation: ${skeletonAnimation} 1.25s ease-in-out infinite;
       }
 
-      ${PgThemeManager.convertToCSS(skeleton)};
+      ${PgTheme.convertToCSS(skeleton)};
     `;
   }}
 `;

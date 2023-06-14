@@ -15,8 +15,7 @@ import TestSkeleton from "./Test/TestSkeleton";
 import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
 import { Id } from "../../../../../constants";
-import { Sidebar } from "../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
+import { PgTheme, Sidebar } from "../../../../../utils/pg";
 import { usePgRouter } from "./usePgRouter";
 
 const Explorer = lazy(() => import("./Explorer"));
@@ -147,7 +146,7 @@ const Wrapper = styled.div<{ windowHeight: number }>`
     overflow-y: auto;
     height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
 
-    ${PgThemeManager.convertToCSS(theme.components.sidebar.right.default)};
+    ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
 
     /* Scrollbar */
     /* Chromium */
@@ -184,7 +183,7 @@ const StyledTitle = styled(Title)`
     align-items: center;
     min-height: ${theme.components.tabs.tab.default.height};
 
-    ${PgThemeManager.convertToCSS(theme.components.sidebar.right.title)};
+    ${PgTheme.convertToCSS(theme.components.sidebar.right.title)};
   `}
 `;
 

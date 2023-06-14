@@ -7,7 +7,7 @@ import { TutorialProps, TUTORIALS } from "./tutorials";
 import { DefaultLink } from "../../../../../../../components/Link";
 import { External } from "../../../../../../../components/Icons";
 import { Id, PROJECT_NAME } from "../../../../../../../constants";
-import { PgThemeManager } from "../../../../../../../utils/pg/theme";
+import { PgTheme } from "../../../../../../../utils/pg";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the
@@ -47,13 +47,13 @@ const Home = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.main.views.home.default)};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.default)};
   `}
 `;
 
 const ProjectTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.main.views.home.title)};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.title)};
   `}
 `;
 
@@ -65,17 +65,13 @@ const ContentWrapper = styled.div`
 
 const ResourcesWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.home.resources.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.resources.default)};
   `}
 `;
 
 const ResourcesTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.home.resources.title
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.resources.title)};
   `}
 `;
 
@@ -107,7 +103,7 @@ const Resource: FC<ResourceProps> = ({
 
 const ResourceWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.home.resources.card.default
     )};
   `}
@@ -115,7 +111,7 @@ const ResourceWrapper = styled.div`
 
 const ResourceTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.home.resources.card.title
     )};
   `}
@@ -123,7 +119,7 @@ const ResourceTitle = styled.div`
 
 const ResourceImg = styled.img<{ circleImage?: boolean }>`
   ${({ theme, circleImage }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.home.resources.card.image
     )};
 
@@ -133,7 +129,7 @@ const ResourceImg = styled.img<{ circleImage?: boolean }>`
 
 const ResourceDescription = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.home.resources.card.description
     )};
   `}
@@ -146,7 +142,7 @@ const ResourceButtonWrapper = styled.div`
 
 const ResourceButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.home.resources.card.button
     )};
   `}
@@ -154,17 +150,13 @@ const ResourceButton = styled(Button)`
 
 const TutorialsWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.home.tutorials.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.tutorials.default)};
   `}
 `;
 
 const TutorialsTitle = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.home.tutorials.title
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.tutorials.title)};
   `}
 `;
 
@@ -185,9 +177,7 @@ const Tutorial: FC<TutorialProps> = ({ title, url }) => {
 
 const TutorialWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.home.tutorials.card
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.home.tutorials.card)};
   `}
 `;
 

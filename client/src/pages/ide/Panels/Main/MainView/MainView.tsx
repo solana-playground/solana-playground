@@ -4,8 +4,7 @@ import styled, { css } from "styled-components";
 import EditorWithTabs from "./EditorWithTabs";
 import { MainViewLoading } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
-import { PgCommon, SetElementAsync } from "../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
+import { PgCommon, PgTheme, SetElementAsync } from "../../../../../utils/pg";
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
@@ -36,7 +35,7 @@ const Wrapper = styled.div`
     flex: 1;
     min-height: 0;
 
-    ${PgThemeManager.convertToCSS(theme.components.main.default)};
+    ${PgTheme.convertToCSS(theme.components.main.default)};
 
     /* Scrollbar */
     /* Chromium */

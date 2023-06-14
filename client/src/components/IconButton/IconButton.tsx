@@ -2,7 +2,7 @@ import { CSSProperties, FC, Ref } from "react";
 import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 interface IconButtonProps {
   id?: string;
@@ -42,12 +42,10 @@ const IconWrapper = styled.div`
     justify-content: center;
     align-items: center;
 
-    ${PgThemeManager.convertToCSS(
-      theme.components.sidebar.left.iconButton.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.sidebar.left.iconButton.default)};
 
     &.${ClassName.ACTIVE} {
-      ${PgThemeManager.convertToCSS(
+      ${PgTheme.convertToCSS(
         theme.components.sidebar.left.iconButton.selected
       )};
     }

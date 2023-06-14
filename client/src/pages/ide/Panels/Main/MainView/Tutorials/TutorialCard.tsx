@@ -1,8 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import { PgTutorial, TutorialData } from "../../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../../utils/pg/theme";
+import { PgTheme, PgTutorial, TutorialData } from "../../../../../../utils/pg";
 
 const TutorialCard: FC<TutorialData> = ({
   name,
@@ -76,7 +75,7 @@ const GradientWrapper = styled.div`
       }
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.card.gradient
     )};
   `}
@@ -88,9 +87,7 @@ const InsideWrapper = styled.div`
     height: 100%;
     overflow: hidden;
 
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.tutorials.card.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.card.default)};
   `}
 `;
 
@@ -110,7 +107,7 @@ const InfoWrapper = styled.div`
     width: 100%;
     height: calc(100% - var(--img-height));
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.card.info.default
     )};
   `}
@@ -118,7 +115,7 @@ const InfoWrapper = styled.div`
 
 const Name = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.card.info.name
     )};
   `}
@@ -126,7 +123,7 @@ const Name = styled.div`
 
 const Description = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.card.info.description
     )};
   `}
@@ -140,7 +137,7 @@ const CategoriesWrapper = styled.div`
 
 const Category = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.card.info.category
     )};
   `}

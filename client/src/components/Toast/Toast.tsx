@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
 import { EventName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 import { useSetStatic } from "../../hooks";
 
 const Toast = () => {
@@ -34,15 +34,15 @@ const StyledContainer = styled(ToastContainer)`
     }
 
     .Toastify__toast {
-      ${PgThemeManager.convertToCSS(theme.components.toast.default)};
+      ${PgTheme.convertToCSS(theme.components.toast.default)};
     }
 
     .Toastify__progress-bar {
-      ${PgThemeManager.convertToCSS(theme.components.toast.progress)};
+      ${PgTheme.convertToCSS(theme.components.toast.progress)};
     }
 
     .Toastify__close-button--light {
-      ${PgThemeManager.convertToCSS(theme.components.toast.closeButton)};
+      ${PgTheme.convertToCSS(theme.components.toast.closeButton)};
     }
   `}
 `;

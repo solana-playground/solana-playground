@@ -5,7 +5,7 @@ import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import DropdownMenu, { DropdownMenuProps } from "./DropdownMenu";
 import { MenuItemProps } from "./MenuItem";
 import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 export type MenuKind = MenuProps["kind"];
 
@@ -57,14 +57,14 @@ const getStyles = ({
   fullWidth,
   theme,
 }: MenuWrapperProps & Pick<MenuProps, "kind"> & { theme: DefaultTheme }) => {
-  const menu = PgThemeManager.overrideDefaults(
+  const menu = PgTheme.overrideDefaults(
     theme.components.menu.default,
     theme.components.menu.overrides?.[kind]
   );
 
   return css`
   & .${ClassName.MENU_WRAPPER} {
-    ${PgThemeManager.convertToCSS(menu)};
+    ${PgTheme.convertToCSS(menu)};
 
     ${fullWidth && "width: 100%"};
 `;

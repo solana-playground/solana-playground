@@ -8,8 +8,7 @@ import Settings from "../Right/Settings";
 import useActiveTab, { ID_PREFIX } from "./useActiveTab";
 import { sidebarData } from "./sidebar-data";
 import { GITHUB_URL } from "../../../../../constants";
-import { PgCommon, Sidebar } from "../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
+import { PgCommon, PgTheme, Sidebar } from "../../../../../utils/pg";
 
 interface LeftProps {
   sidebarState: Sidebar;
@@ -79,7 +78,7 @@ const Wrapper = styled.div`
     user-select: none;
     overflow: hidden;
 
-    ${PgThemeManager.convertToCSS(theme.components.sidebar.left.default)};
+    ${PgTheme.convertToCSS(theme.components.sidebar.left.default)};
   `}
 `;
 

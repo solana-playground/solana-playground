@@ -3,8 +3,7 @@ import styled, { css } from "styled-components";
 
 import useModal from "./useModal";
 import { EventName } from "../../constants";
-import { PgCommon } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgCommon, PgTheme } from "../../utils/pg";
 import { useOnKey, useSetStatic } from "../../hooks";
 
 const ModalBackdrop = () => {
@@ -40,7 +39,7 @@ const Wrapper = styled.div`
     align-items: center;
     inset: 0;
 
-    ${PgThemeManager.convertToCSS(theme.components.modal.backdrop)};
+    ${PgTheme.convertToCSS(theme.components.modal.backdrop)};
   `}
 `;
 

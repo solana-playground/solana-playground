@@ -3,7 +3,7 @@ import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
 import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 export type ButtonKind =
   | "primary"
@@ -193,7 +193,7 @@ const getButtonStyles = ({
 
   // Button kind specific overrides
   // NOTE: Overrides must come after setting the `ButtonKind` defaults
-  button = PgThemeManager.overrideDefaults(
+  button = PgTheme.overrideDefaults(
     button,
     theme.components.button.overrides?.[kind]
   );
@@ -309,7 +309,7 @@ const getButtonStyles = ({
     transition: all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type};
     border: 1px solid ${button.borderColor};
-    ${PgThemeManager.convertToCSS(button)};
+    ${PgTheme.convertToCSS(button)};
 
     & svg {
       color: ${button.color};

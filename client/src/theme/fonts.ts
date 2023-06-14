@@ -1,4 +1,4 @@
-import { Font } from "../utils/pg/theme";
+import type { Font } from "../utils/pg";
 
 const FONTS: Font[] = [
   {

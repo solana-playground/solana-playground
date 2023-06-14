@@ -6,8 +6,7 @@ import Home from "./Home";
 import { MainViewLoading } from "../../../../../../components/Loading";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
 import { Id } from "../../../../../../constants";
-import { Lang, PgCommon } from "../../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../../utils/pg/theme";
+import { Lang, PgCommon, PgTheme } from "../../../../../../utils/pg";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
@@ -83,7 +82,7 @@ const Wrapper = styled.div`
       theme.components.main.default.bg};
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.editor.wrapper)};
+    ${PgTheme.convertToCSS(theme.components.editor.wrapper)};
   `}
 `;
 

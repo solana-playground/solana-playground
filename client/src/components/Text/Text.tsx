@@ -1,8 +1,7 @@
 import { FC, ReactNode, useEffect, useRef } from "react";
 import styled, { css, useTheme } from "styled-components";
 
-import { PgCommon } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgCommon, PgTheme } from "../../utils/pg";
 
 export type TextKind = "normal" | "info" | "warning" | "success" | "error";
 
@@ -93,13 +92,13 @@ const Wrapper = styled.div<TextProps>`
 
     // Text kind specific overrides
     // NOTE: Overrides must come after setting the `TextProps` defaults
-    text = PgThemeManager.overrideDefaults(
+    text = PgTheme.overrideDefaults(
       text,
       theme.components.text.overrides?.[kind]
     );
 
     return css`
-      ${PgThemeManager.convertToCSS(text)};
+      ${PgTheme.convertToCSS(text)};
 
       & > div {
         display: flex;

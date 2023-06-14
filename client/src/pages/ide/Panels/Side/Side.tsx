@@ -4,9 +4,8 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, Sidebar } from "../../../../utils/pg";
+import { PgCommon, PgTheme, Sidebar } from "../../../../utils/pg";
 import { EventName, Route } from "../../../../constants";
-import { PgThemeManager } from "../../../../utils/pg/theme";
 import { useSetStatic } from "../../../../hooks";
 
 const Side = () => {
@@ -98,7 +97,7 @@ const Wrapper = styled.div`
     css`
       display: flex;
 
-      ${PgThemeManager.convertToCSS(theme.components.sidebar.default)};
+      ${PgTheme.convertToCSS(theme.components.sidebar.default)};
     `}
 `;
 

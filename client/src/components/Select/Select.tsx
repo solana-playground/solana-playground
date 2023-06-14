@@ -1,7 +1,7 @@
 import ReactSelect, { GroupBase, Props } from "react-select";
 import styled, { css, useTheme } from "styled-components";
 
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 const Select = <
   Option,
@@ -80,7 +80,7 @@ const Select = <
 
 const StyledReactSelect = styled(ReactSelect)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.select.default)};
+    ${PgTheme.convertToCSS(theme.components.select.default)};
 
     /* Scrollbar */
     /* Chromium */

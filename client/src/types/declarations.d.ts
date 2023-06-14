@@ -1,5 +1,5 @@
 import "styled-components";
-import { ThemeReady } from "../utils/pg/theme";
+import { ThemeReady } from "../utils/pg";
 
 global {
   function structuredClone<T>(obj: T): T;

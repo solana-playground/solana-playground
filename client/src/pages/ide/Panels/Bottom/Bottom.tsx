@@ -11,8 +11,7 @@ import {
   NetworkName,
   ClassName,
 } from "../../../../constants";
-import { PgCommand, PgCommon } from "../../../../utils/pg";
-import { PgThemeManager } from "../../../../utils/pg/theme";
+import { PgCommand, PgCommon, PgTheme } from "../../../../utils/pg";
 import { useAutoAirdrop } from "./useAutoAirdrop";
 import { useConnectionStatus } from "./useConnectionStatus";
 import { useBalance, useConnection, useWallet } from "../../../../hooks";
@@ -84,7 +83,7 @@ const Wrapper = styled.div`
     display: flex;
     align-items: center;
 
-    ${PgThemeManager.convertToCSS(theme.components.bottom.default)};
+    ${PgTheme.convertToCSS(theme.components.bottom.default)};
 
     & .${ClassName.TOOLTIP} {
       height: 100%;
@@ -104,7 +103,7 @@ const Wrapper = styled.div`
 
 const ConnectButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.connect)};
+    ${PgTheme.convertToCSS(theme.components.bottom.connect)};
   `}
 `;
 
@@ -134,19 +133,19 @@ const Seperator = styled.span`
 
 const RpcEndpoint = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.endpoint)};
+    ${PgTheme.convertToCSS(theme.components.bottom.endpoint)};
   `}
 `;
 
 const Address = styled(Link)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.address)};
+    ${PgTheme.convertToCSS(theme.components.bottom.address)};
   `}
 `;
 
 const Balance = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.balance)};
+    ${PgTheme.convertToCSS(theme.components.bottom.balance)};
   `}
 `;
 

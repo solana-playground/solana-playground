@@ -4,8 +4,7 @@ import { useDropzone } from "react-dropzone";
 
 import Input from "../Input";
 import { Checkmark, Upload } from "../Icons";
-import { PgCommon } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgCommon, PgTheme } from "../../utils/pg";
 
 interface UploadAreaProps {
   onDrop: (files: any) => Promise<void>;
@@ -40,14 +39,14 @@ const Wrapper = styled.div<{ isDragActive: boolean }>`
     opacity: ${isDragActive ? 0.55 : 1};
 
     & > svg {
-      ${PgThemeManager.convertToCSS(theme.components.uploadArea.icon)};
+      ${PgTheme.convertToCSS(theme.components.uploadArea.icon)};
     }
 
     &:hover > div {
       color: ${theme.colors.default.textPrimary};
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.uploadArea.default)};
+    ${PgTheme.convertToCSS(theme.components.uploadArea.default)};
   `}
 `;
 
@@ -99,11 +98,11 @@ const ImportResultText = styled.div<{
       color: inherit;
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.uploadArea.text.default)}
+    ${PgTheme.convertToCSS(theme.components.uploadArea.text.default)}
     ${result === "error" &&
-    PgThemeManager.convertToCSS(theme.components.uploadArea.text.error)};
+    PgTheme.convertToCSS(theme.components.uploadArea.text.error)};
     ${result === "success" &&
-    PgThemeManager.convertToCSS(theme.components.uploadArea.text.success)};
+    PgTheme.convertToCSS(theme.components.uploadArea.text.success)};
   `}
 `;
 

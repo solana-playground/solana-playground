@@ -5,8 +5,7 @@ import styled, { css } from "styled-components";
 import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
-import { PgCommon, PgTerminal, PgTx, PgWallet } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgCommon, PgTerminal, PgTheme, PgTx, PgWallet } from "../../utils/pg";
 import { useBalance } from "../../hooks";
 
 const Send = () => (
@@ -19,13 +18,13 @@ const Send = () => (
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.send.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.default)};
   `}
 `;
 
 const Title = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.send.title)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.title)};
   `}
 `;
 
@@ -133,23 +132,19 @@ const SendExpanded = () => {
 
 const ExpandedWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.wallet.main.send.expanded.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.expanded.default)};
   `}
 `;
 
 const ExpandedInput = styled(Input)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.wallet.main.send.expanded.input
-    )};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.expanded.input)};
   `}
 `;
 
 const ExpandedButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.send.expanded.sendButton
     )};
   `}

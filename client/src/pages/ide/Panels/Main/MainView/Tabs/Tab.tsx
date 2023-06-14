@@ -5,9 +5,8 @@ import styled, { css } from "styled-components";
 import Button from "../../../../../../components/Button";
 import LangIcon from "../../../../../../components/LangIcon";
 import { Close } from "../../../../../../components/Icons";
-import { PgExplorer } from "../../../../../../utils/pg";
 import { explorerAtom } from "../../../../../../state";
-import { PgThemeManager } from "../../../../../../utils/pg/theme";
+import { PgExplorer, PgTheme } from "../../../../../../utils/pg";
 
 interface TabProps {
   path: string;
@@ -68,9 +67,8 @@ const Wrapper = styled.div<{ current?: boolean }>`
       }
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.tabs.tab.default)};
-    ${current &&
-    PgThemeManager.convertToCSS(theme.components.tabs.tab.selected)};
+    ${PgTheme.convertToCSS(theme.components.tabs.tab.default)};
+    ${current && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
   `}
 `;
 

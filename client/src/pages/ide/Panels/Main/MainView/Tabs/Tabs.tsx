@@ -6,8 +6,7 @@ import Tab from "./Tab";
 import Button from "../../../../../../components/Button";
 import { Id } from "../../../../../../constants";
 import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
-import { PgExplorer, PgWallet } from "../../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../../utils/pg/theme";
+import { PgExplorer, PgTheme, PgWallet } from "../../../../../../utils/pg";
 import { useWallet } from "../../../../../../hooks";
 
 const Tabs = () => {
@@ -48,7 +47,7 @@ const Tabs = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.tabs.default)};
+    ${PgTheme.convertToCSS(theme.components.tabs.default)};
   `}
 `;
 

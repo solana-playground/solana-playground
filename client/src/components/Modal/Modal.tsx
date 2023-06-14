@@ -12,9 +12,8 @@ import Button, { ButtonProps } from "../Button";
 import useModal from "./useModal";
 import { Close } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme, SyncOrAsync } from "../../utils/pg";
 import { useOnKey } from "../../hooks";
-import type { SyncOrAsync } from "../../utils/pg";
 
 interface ModalProps {
   /** Modal title to show. If true, default is "Solana Playground" */
@@ -112,7 +111,7 @@ const Modal: FC<ModalProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.modal.default)};
+    ${PgTheme.convertToCSS(theme.components.modal.default)};
   `}
 `;
 
@@ -122,7 +121,7 @@ const TopWrapper = styled.div`
 
 const Title = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.modal.title)};
+    ${PgTheme.convertToCSS(theme.components.modal.title)};
   `}
 `;
 
@@ -149,7 +148,7 @@ const ContentWrapper = styled.div`
       height: 2rem;
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.modal.content)};
+    ${PgTheme.convertToCSS(theme.components.modal.content)};
   `}
 `;
 
@@ -159,7 +158,7 @@ const ButtonsWrapper = styled.div`
       margin-left: 1rem;
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.modal.bottom)};
+    ${PgTheme.convertToCSS(theme.components.modal.bottom)};
   `}
 `;
 

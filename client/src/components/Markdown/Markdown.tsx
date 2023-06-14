@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
 import CodeBlock from "./CodeBlock";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 const Markdown = ({ children }: { children: string }) => (
   <StyledMarkdown
@@ -70,7 +70,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       line-height: 1.5;
       word-wrap: break-word;
 
-      ${PgThemeManager.convertToCSS(theme.components.markdown.default)};
+      ${PgTheme.convertToCSS(theme.components.markdown.default)};
     }
 
     .octicon {
@@ -895,7 +895,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
       font-size: 85%;
       line-height: 1.45;
 
-      ${PgThemeManager.convertToCSS(theme.components.markdown.code)};
+      ${PgTheme.convertToCSS(theme.components.markdown.code)};
     }
 
     pre code,

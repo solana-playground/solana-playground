@@ -8,7 +8,7 @@ import {
 import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 type InputError = string | boolean | null;
 
@@ -90,7 +90,7 @@ const StyledInput = styled.input<InputProps>`
         border-color: ${theme.colors.state.success.color};
       }
 
-      ${PgThemeManager.convertToCSS(input)};
+      ${PgTheme.convertToCSS(input)};
     `;
   }}
 `;

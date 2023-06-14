@@ -6,8 +6,7 @@ import Button from "../Button";
 import Link from "../Link";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgWallet } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgCommon, PgTheme, PgWallet } from "../../utils/pg";
 import { useConnection } from "../../hooks";
 
 const Transactions = () => {
@@ -100,15 +99,13 @@ const Transactions = () => {
 
 const TxsWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.wallet.main.transactions.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.transactions.default)};
   `}
 `;
 
 const TxsTitleWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.title.default
     )};
   `}
@@ -116,7 +113,7 @@ const TxsTitleWrapper = styled.div`
 
 const TxsTitleText = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.title.text
     )};
   `}
@@ -124,7 +121,7 @@ const TxsTitleText = styled.span`
 
 const TxsRefreshButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.title.refreshButton
     )};
   `}
@@ -132,7 +129,7 @@ const TxsRefreshButton = styled(Button)`
 
 const TxsTable = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.default
     )};
   `}
@@ -140,7 +137,7 @@ const TxsTable = styled.div`
 
 const TxsTableHeader = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.header
     )};
   `}
@@ -204,7 +201,7 @@ const TxWrapper = styled.div`
       border-bottom: 1px solid ${theme.colors.default.border};
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.default
     )};
   `}
@@ -222,7 +219,7 @@ const Signature = styled.div`
       margin-right: 0.25rem;
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.signature
     )};
   `}
@@ -230,7 +227,7 @@ const Signature = styled.div`
 
 const Slot = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.slot
     )};
   `}
@@ -243,7 +240,7 @@ const Time = styled.div`
       color: inherit;
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.time
     )};
   `}

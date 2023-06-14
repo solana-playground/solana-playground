@@ -4,7 +4,7 @@ import TutorialCard from "./TutorialCard";
 import { TUTORIALS } from "../../../../../../tutorials";
 import { GITHUB_URL } from "../../../../../../constants";
 import { StyledDefaultLink } from "../../../../../../components/Link";
-import { PgThemeManager } from "../../../../../../utils/pg/theme";
+import { PgTheme } from "../../../../../../utils/pg";
 
 const Tutorials = () => (
   <Wrapper>
@@ -37,9 +37,7 @@ const Wrapper = styled.div`
     flex: 1;
     overflow: auto;
 
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.tutorials.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.default)};
   `}
 `;
 

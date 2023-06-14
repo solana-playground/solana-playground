@@ -13,8 +13,7 @@ import Tooltip from "../Tooltip";
 import { Arrow, Close } from "../Icons";
 import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
-import { Fn, PgCommon, PgWallet } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
 import {
   useOnClickOutside,
   useOnKey,
@@ -82,7 +81,7 @@ const WalletBound = styled.div`
 
 const WalletWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.default)};
   `}
 `;
 
@@ -108,7 +107,7 @@ const WalletTop = () => {
 
 const WalletTopWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.top.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.top.default)};
   `}
 `;
 
@@ -186,19 +185,19 @@ const WalletName = () => {
 
 const WalletTitleWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.top.title.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.top.title.default)};
   `}
 `;
 
 const WalletTitleIcon = styled.img`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.top.title.icon)};
+    ${PgTheme.convertToCSS(theme.components.wallet.top.title.icon)};
   `}
 `;
 
 const WalletTitleText = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.top.title.text)};
+    ${PgTheme.convertToCSS(theme.components.wallet.top.title.text)};
   `}
 `;
 
@@ -276,10 +275,10 @@ const MainWrapper = styled.div`
     }
 
     &.${ClassName.DARKEN}::after {
-      ${PgThemeManager.convertToCSS(theme.components.wallet.main.backdrop)};
+      ${PgTheme.convertToCSS(theme.components.wallet.main.backdrop)};
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.default)};
   `}
 `;
 

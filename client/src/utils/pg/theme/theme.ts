@@ -1,8 +1,8 @@
-import { StandardProperties } from "csstype";
+import type { StandardProperties } from "csstype";
 
-import { EventName } from "../../../constants";
 import { PgCommon } from "../common";
-import {
+import { EventName } from "../../../constants";
+import type {
   DefaultComponent,
   ImportableTheme,
   Font,
@@ -11,7 +11,7 @@ import {
   ThemeColor,
 } from "./interface";
 
-export class PgThemeManager {
+export class PgTheme {
   /** Current theme */
   private static _theme: ThemeInternal;
 
@@ -29,6 +29,16 @@ export class PgThemeManager {
 
   /** Font key in localStorage */
   private static readonly _FONT_KEY = "font";
+
+  /** All available themes */
+  static get themes() {
+    return this._themes;
+  }
+
+  /** All available fonts */
+  static get fonts() {
+    return this._fonts;
+  }
 
   /**
    * Create the initial theme and font from `localStorage`.

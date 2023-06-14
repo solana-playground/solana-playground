@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
-import { PgThemeManager, ThemeColor } from "../../utils/pg/theme";
+import { PgTheme, ThemeColor } from "../../utils/pg";
 
 export interface MenuItemProps {
   name: string;
@@ -59,7 +59,7 @@ const StyledItem = styled(MenuItem)`
     align-items: center;
     font-weight: bold;
     font-size: ${theme.font.code.size.small};
-    color: ${PgThemeManager.getColor(color)};
+    color: ${PgTheme.getColor(color)};
     border-left: 2px solid transparent;
     transition: all ${theme.default.transition.duration.short}
       ${theme.default.transition.type};
@@ -86,7 +86,7 @@ const StyledItem = styled(MenuItem)`
     }
 
     &:hover {
-      --color: ${PgThemeManager.getColor(hoverColor ?? "primary")};
+      --color: ${PgTheme.getColor(hoverColor ?? "primary")};
 
       cursor: pointer;
       background: ${theme.colors.state.hover.bg};

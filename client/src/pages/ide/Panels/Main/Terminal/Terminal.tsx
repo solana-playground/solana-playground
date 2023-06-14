@@ -19,9 +19,9 @@ import {
   PgEditor,
   PgTerm,
   PgTerminal,
+  PgTheme,
 } from "../../../../../utils/pg";
 import { EventName } from "../../../../../constants";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
 import { useTerminal } from "./useTerminal";
 import { useExposeStatic } from "../../../../../hooks";
 
@@ -225,7 +225,7 @@ const Terminal = () => {
 const Wrapper = styled.div`
   ${({ theme }) => css`
     height: 100%;
-    ${PgThemeManager.convertToCSS(theme.components.terminal.default)};
+    ${PgTheme.convertToCSS(theme.components.terminal.default)};
 
     /* Scrollbar */
     /* Chromium */

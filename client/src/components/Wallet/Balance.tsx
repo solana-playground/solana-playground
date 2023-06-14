@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 import { useBalance } from "../../hooks";
 
 const Balance = () => {
@@ -13,7 +13,7 @@ const Balance = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.balance)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.balance)};
   `}
 `;
 

@@ -1,4 +1,4 @@
-import { ImportableTheme } from "../../utils/pg/theme";
+import type { ImportableTheme } from "../../utils/pg";
 
 const THEMES: ImportableTheme[] = [
   { name: "Dracula", importTheme: () => import("./dracula") },

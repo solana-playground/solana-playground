@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 import type { FC } from "react";
 import type { SvgProperties } from "csstype";
 
-import { PgThemeManager, ThemeColor } from "../../utils/pg/theme";
+import { PgTheme, ThemeColor } from "../../utils/pg";
 
 interface IconProps {
   color?: ThemeColor;
@@ -36,7 +36,7 @@ const Svg: FC<IconPropsInternal> = ({ children, className, ...props }) => {
 
 const StyledSvg = styled.svg<IconProps>`
   ${(props) => css`
-    color: ${PgThemeManager.getColor(props.color)};
+    color: ${PgTheme.getColor(props.color)};
     rotate: ${props.rotate};
   `}
 `;

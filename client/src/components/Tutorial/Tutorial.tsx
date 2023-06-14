@@ -10,7 +10,7 @@ import { PointedArrow } from "../Icons";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
 import { EventName, Route } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 import {
   PgCommon,
   PgExplorer,
@@ -291,9 +291,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.tutorial.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorial.default)};
 
     /* Scrollbar */
     /* Chromium */
@@ -343,9 +341,7 @@ const GoBackButtonWrapper = styled.div`
 
 const TutorialAboutPage = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.tutorial.aboutPage
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorial.aboutPage)};
   `}
 `;
 
@@ -426,9 +422,7 @@ const TutorialPage = styled.div`
 
 const TutorialContent = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.main.views.tutorial.tutorialPage
-    )};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorial.tutorialPage)};
   `}
 `;
 

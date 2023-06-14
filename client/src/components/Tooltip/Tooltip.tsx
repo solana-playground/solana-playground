@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
 import { QuestionMarkOutlined } from "../Icons";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 interface TooltipProps {
   text: string;
@@ -50,7 +50,7 @@ const StyledTooltip = styled.div<TooltipProps>`
       text-align: center;
       width: max-content;
       max-width: ${maxWidth ?? "fit-content"};
-      ${PgThemeManager.convertToCSS(theme.components.tooltip)};
+      ${PgTheme.convertToCSS(theme.components.tooltip)};
       background: var(--bg);
       color: ${text !== "Copied"
         ? theme.components.tooltip.color

@@ -1,4 +1,4 @@
-import { Theme } from "../../utils/pg/theme";
+import type { Theme } from "../../utils/pg";
 
 // BG
 const BG_DEFAULT = "#151721",
