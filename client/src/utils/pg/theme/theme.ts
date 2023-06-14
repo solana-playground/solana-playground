@@ -149,7 +149,9 @@ export class PgTheme {
       }
 
       // Handle non-standard properties
-      let prop = PgCommon.toKebabFromCamel(key) as keyof StandardProperties;
+      let prop = key.startsWith("-")
+        ? key
+        : (PgCommon.toKebabFromCamel(key) as keyof StandardProperties);
       switch (key) {
         case "bg":
           prop = "background";
@@ -1276,6 +1278,10 @@ export class PgTheme {
     tutorials.card.info.description.marginTop ??= "0.5rem";
     tutorials.card.info.description.color ??=
       theme.colors.default.textSecondary;
+    tutorials.card.info.description.display ??= "-webkit-box";
+    tutorials.card.info.description["-webkit-line-clamp"] ??= "2";
+    tutorials.card.info.description["-webkit-box-orient"] ??= "vertical";
+    tutorials.card.info.description.overflow ??= "hidden";
     // Card info category
     tutorials.card.info.category ??= {};
     tutorials.card.info.category.padding ??= "0.5rem 0.75rem";

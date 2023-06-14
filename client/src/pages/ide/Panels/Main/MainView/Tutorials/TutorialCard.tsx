@@ -16,11 +16,7 @@ const TutorialCard: FC<TutorialData> = ({
       </ImgWrapper>
       <InfoWrapper>
         <Name>{name}</Name>
-        <Description>
-          {description.length < 70
-            ? description
-            : `${description.substring(0, 70)}...`}
-        </Description>
+        <Description>{description}</Description>
         <CategoriesWrapper>
           {categories.slice(0, 3).map((c, i) => (
             <Category key={i}>{c}</Category>
