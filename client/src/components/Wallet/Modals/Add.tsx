@@ -43,7 +43,7 @@ export const Add = () => {
         </InputWrapper>
 
         <WarningTextWrapper>
-          <Text IconEl={<Info />}>
+          <Text IconEl={<Info color="info" />}>
             Saving the keypair will allow you to recover the wallet.
           </Text>
         </WarningTextWrapper>
@@ -88,7 +88,6 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
-    color: ${({ theme }) => theme.colors.state.info.color};
   }
 `;
 

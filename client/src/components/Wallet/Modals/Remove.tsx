@@ -24,7 +24,7 @@ export const Remove = () => {
         <MainText>Are you sure you want to remove the current wallet?</MainText>
         <Desc>This action is irreversable!</Desc>
         <WarningTextWrapper>
-          <Text IconEl={<Warning />}>
+          <Text IconEl={<Warning color="warning" />}>
             You can recover the wallet later if you save the keypair.
           </Text>
         </WarningTextWrapper>
@@ -70,6 +70,5 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
-    color: ${({ theme }) => theme.colors.state.warning.color};
   }
 `;

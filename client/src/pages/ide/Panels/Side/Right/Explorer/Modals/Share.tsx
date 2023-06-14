@@ -10,7 +10,7 @@ import Text from "../../../../../../../components/Text";
 import useModal from "../../../../../../../components/Modal/useModal";
 import { Checkmark, Sad } from "../../../../../../../components/Icons";
 import { TextKind } from "../../../../../../../components/Text/Text";
-import { ClassName, CLIENT_URL } from "../../../../../../../constants";
+import { CLIENT_URL } from "../../../../../../../constants";
 import { PgCommon, PgShare } from "../../../../../../../utils/pg";
 
 interface TextState {
@@ -52,7 +52,7 @@ export const Share = () => {
               You are sharing too often, please try again later.
             </Text>
           ) : (
-            <Text kind={textState.kind} IconEl={<Checkmark />}>
+            <Text kind={textState.kind} IconEl={<Checkmark color="success" />}>
               Successfully shared the project.
             </Text>
           )
@@ -96,11 +96,7 @@ export const Share = () => {
   );
 };
 
-const Content = styled.div`
-  & svg.${ClassName.ICON_CHECKMARK} {
-    color: ${({ theme }) => theme.colors.state.success.color};
-  }
-`;
+const Content = styled.div``;
 
 const SuccessWrapper = styled.div``;
 

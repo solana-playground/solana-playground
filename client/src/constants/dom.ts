@@ -12,7 +12,6 @@ export enum ClassName {
   FOLDER_INSIDE = "folder-inside",
   LOADING = "loading",
   DARKEN = "darken",
-  ICON_CHECKMARK = "icon-checkmark",
   TOOLTIP = "tooltip",
   MENU_WRAPPER = "menu-wrapper",
   BUTTON_LOADING = "btn-loading",

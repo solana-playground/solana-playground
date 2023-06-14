@@ -567,3 +567,11 @@ type StateColor = {
 } & {
   bg?: Bg;
 };
+
+/** Theme color names */
+export type ThemeColor =
+  | keyof Pick<
+      ThemeReady["colors"]["default"],
+      "primary" | "secondary" | "textPrimary" | "textSecondary"
+    >
+  | keyof Omit<ThemeReady["colors"]["state"], "hover" | "disabled">;

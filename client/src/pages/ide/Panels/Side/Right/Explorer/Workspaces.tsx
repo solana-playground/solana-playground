@@ -6,13 +6,13 @@ import Button from "../../../../../../components/Button";
 import Text from "../../../../../../components/Text";
 import Select from "../../../../../../components/Select";
 import {
+  Edit,
   ExportFile,
   Github,
   ImportFile,
   ImportWorkspace,
   Info,
   Plus,
-  Rename,
   Trash,
 } from "../../../../../../components/Icons";
 import {
@@ -54,7 +54,7 @@ const Workspaces = () => {
             <Plus />
           </Button>
           <Button onClick={handleRename} kind="icon" title="Rename">
-            <Rename />
+            <Edit />
           </Button>
           <Button
             onClick={handleDelete}
@@ -177,7 +177,7 @@ const ShareWarning = () => {
 
   return (
     <ShareWarningWrapper>
-      <Text IconEl={<Info />}>
+      <Text IconEl={<Info color="info" />}>
         <div>This is a shared project, import it to persist changes.</div>
       </Text>
       <Button onClick={handleImport} leftIcon={<ImportWorkspace />} fullWidth>
@@ -189,10 +189,6 @@ const ShareWarning = () => {
 
 const ShareWarningWrapper = styled.div`
   padding: 1rem 0.5rem;
-
-  & > div:first-child svg {
-    color: ${({ theme }) => theme.colors.state.info.color};
-  }
 
   & > button {
     margin-top: 0.75rem;

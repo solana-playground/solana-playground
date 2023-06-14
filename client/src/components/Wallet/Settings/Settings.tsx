@@ -6,10 +6,10 @@ import Menu, { MenuItemProps } from "../../Menu";
 import {
   Airdrop,
   Copy,
+  Edit,
   ExportFile,
   ImportFile,
   Plus,
-  Rename,
   ThreeDots,
   Trash,
 } from "../../Icons";
@@ -62,14 +62,14 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
         const { Remove } = await import("../Modals/Remove");
         await PgView.setModal(Remove);
       },
-      kind: "error",
+      hoverColor: "error",
       Icon: <Trash />,
       showCondition: isPg,
     },
     {
       name: "Rename",
       onClick: showRename,
-      Icon: <Rename />,
+      Icon: <Edit />,
       showCondition: isPg,
     },
     {
@@ -93,7 +93,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
       onClick: async () => {
         await PgCommand.connect.run(wallet.adapter.name);
       },
-      kind: "secondary",
+      hoverColor: "secondary",
       Icon: <img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
     })
   );

@@ -30,7 +30,7 @@ export const DeleteWorkspace = () => {
     >
       <Content>
         <IconWrapper>
-          <Warning />
+          <Warning color="warning" />
         </IconWrapper>
         <ContentText>
           <Main>

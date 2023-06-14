@@ -63,7 +63,7 @@ const NewKeypairModal = () => {
         </MainText>
         <Desc>This will create a brand new keypair for your program.</Desc>
         <WarningTextWrapper>
-          <Text kind="warning" IconEl={<Warning />}>
+          <Text kind="warning" IconEl={<Warning color="warning" />}>
             The old keypair will be lost if you don't save it.
           </Text>
         </WarningTextWrapper>
@@ -191,7 +191,7 @@ const InputPk = () => {
         <CopyButton copyText={val} />
       </InputWrapper>
       <InputWarning>
-        <Warning />
+        <Warning color="warning" />
         Note that you need to have this program's authority to upgrade
       </InputWarning>
       {changed && (
@@ -248,7 +248,6 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
-    color: ${({ theme }) => theme.colors.state.warning.color};
   }
 `;
 
@@ -294,7 +293,6 @@ const InputWarning = styled.div`
     color: ${theme.colors.default.textSecondary};
 
     & > svg {
-      color: ${theme.colors.state.warning.color};
       margin-right: 0.375rem;
     }
   `}

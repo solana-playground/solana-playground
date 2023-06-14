@@ -187,7 +187,7 @@ const Tx: FC<ConfirmedSignatureInfo & { endpoint: string }> = ({
       ) : (
         <>
           <Signature>
-            {err && <ErrorIcon />}
+            {err && <ErrorIcon color="error" />}
             {signature.substring(0, 5)}...
           </Signature>
           <Slot>{slot}</Slot>
@@ -220,7 +220,6 @@ const Signature = styled.div`
   ${({ theme }) => css`
     & > svg {
       margin-right: 0.25rem;
-      color: ${theme.colors.state.error.color};
     }
 
     ${PgThemeManager.convertToCSS(

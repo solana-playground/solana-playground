@@ -1,17 +1,15 @@
 import { FC, ReactNode } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
+import styled, { css } from "styled-components";
+
+import { PgThemeManager, ThemeColor } from "../../utils/pg/theme";
 
 export interface MenuItemProps {
   name: string;
   onClick: () => void;
   keybind?: string;
+  color?: ThemeColor;
+  hoverColor?: ThemeColor;
   Icon?: ReactNode;
-  kind?:
-    | keyof Pick<
-        DefaultTheme["colors"]["default"],
-        "primary" | "secondary" | "textPrimary"
-      >
-    | keyof Omit<DefaultTheme["colors"]["state"], "hover" | "disabled">;
   showCondition?: boolean;
   className?: string;
 }
@@ -54,14 +52,14 @@ const MenuItem: FC<MenuItemPropsWithHide> = ({
 };
 
 const StyledItem = styled(MenuItem)`
-  ${({ theme, kind }) => css`
+  ${({ theme, color, hoverColor }) => css`
     padding: 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
     font-size: ${theme.font.code.size.small};
-    color: ${theme.colors.default.textSecondary};
+    color: ${PgThemeManager.getColor(color)};
     border-left: 2px solid transparent;
     transition: all ${theme.default.transition.duration.short}
       ${theme.default.transition.type};
@@ -88,7 +86,7 @@ const StyledItem = styled(MenuItem)`
     }
 
     &:hover {
-      --color: ${getHoverColor(kind, theme)};
+      --color: ${PgThemeManager.getColor(hoverColor ?? "primary")};
 
       cursor: pointer;
       background: ${theme.colors.state.hover.bg};
@@ -106,26 +104,5 @@ const StyledItem = styled(MenuItem)`
     }
   `}
 `;
-
-const getHoverColor = (kind: MenuItemProps["kind"], theme: DefaultTheme) => {
-  switch (kind) {
-    case "primary":
-      return theme.colors.default.primary;
-    case "secondary":
-      return theme.colors.default.secondary;
-    case "error":
-      return theme.colors.state.error.color;
-    case "success":
-      return theme.colors.state.success.color;
-    case "warning":
-      return theme.colors.state.warning.color;
-    case "info":
-      return theme.colors.state.info.color;
-    case "textPrimary":
-      return theme.colors.default.textPrimary;
-    default:
-      return theme.colors.default.primary;
-  }
-};
 
 export default StyledItem;

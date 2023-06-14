@@ -8,6 +8,7 @@ import {
   Font,
   ThemeInternal,
   ThemeReady,
+  ThemeColor,
 } from "./interface";
 
 export class PgThemeManager {
@@ -130,7 +131,7 @@ export class PgThemeManager {
    */
   static convertToCSS(component: DefaultComponent): string {
     return Object.keys(component).reduce((acc, key) => {
-      const value = component[key];
+      const value = component[key] as DefaultComponent;
 
       // Check for `&`
       if (key.startsWith("&")) {
@@ -194,6 +195,37 @@ export class PgThemeManager {
     }
 
     return component;
+  }
+
+  /**
+   * Get the color value from the given theme color name.
+   *
+   * @param color theme color
+   * @returns the color value from theme
+   */
+  static getColor(color: ThemeColor = "textSecondary") {
+    const theme = this._themeReady;
+
+    switch (color) {
+      case "primary":
+        return theme.colors.default.primary;
+      case "secondary":
+        return theme.colors.default.secondary;
+      case "error":
+        return theme.colors.state.error.color;
+      case "success":
+        return theme.colors.state.success.color;
+      case "warning":
+        return theme.colors.state.warning.color;
+      case "info":
+        return theme.colors.state.info.color;
+      case "textPrimary":
+        return theme.colors.default.textPrimary;
+      case "textSecondary":
+        return theme.colors.default.textSecondary;
+      default:
+        throw new Error(`Unknown color '${color}'`);
+    }
   }
 
   /** Get the theme with default types set */

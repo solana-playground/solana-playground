@@ -40,7 +40,7 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
     >
       <Content>
         <Icon>
-          <Warning fullSize />
+          <Warning color="warning" />
         </Icon>
         <ContentText>
           <Main>Are you sure you want to delete '{itemName}'?</Main>
@@ -61,6 +61,11 @@ const Content = styled.div`
 const Icon = styled.div`
   width: 2rem;
   height: 2rem;
+
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const ContentText = styled.div`

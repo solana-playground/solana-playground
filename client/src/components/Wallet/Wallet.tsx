@@ -139,7 +139,7 @@ const WalletName = () => {
       Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
     ),
     onClick: () => PgWallet.switch(i),
-    kind: "textPrimary",
+    hoverColor: "textPrimary",
   }));
 
   // Show all of the connected Wallet Standard accounts
@@ -154,7 +154,7 @@ const WalletName = () => {
         PgWallet.update({ state: "sol", standardName: wallet.adapter.name });
       },
       Icon: <img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
-      kind: "secondary",
+      hoverColor: "secondary",
     }));
 
   if (!wallet) return null;

@@ -44,7 +44,6 @@ const Wrapper = styled.div`
     font-size: ${theme.font.code.size.medium};
 
     & svg {
-      color: ${theme.colors.default.textSecondary};
       transition: color ${theme.default.transition.duration.short}
         ${theme.default.transition.type};
     }

@@ -2,9 +2,9 @@ import { FC, MouseEvent, useCallback, useRef } from "react";
 
 import Menu from "../../../../../../components/Menu";
 import {
+  Edit,
   NewFile,
   NewFolder,
-  Rename,
   RunAll,
   TestTube,
   TestPaper,
@@ -83,14 +83,14 @@ const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
             name: "Rename",
             onClick: renameItem,
             keybind: "F2",
-            Icon: <Rename />,
+            Icon: <Edit />,
           },
           {
             name: "Delete",
             onClick: deleteItem,
             keybind: "Del",
             Icon: <Trash />,
-            kind: "error",
+            hoverColor: "error",
           },
           {
             name: "Build",
