@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import styled, { css } from "styled-components";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 import Button from "../Button";
 import Input from "../Input";

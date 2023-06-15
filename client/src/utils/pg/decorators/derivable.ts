@@ -16,10 +16,10 @@ import type { Disposable } from "../types";
  * Make the given static class derivable.
  *
  * This decorator defines properties from the given state keys and they will be
- * updated based on the given `onChange` event.
+ * updated based on the given `onChange` event(s).
  *
  * The properties are read-only and the only way to update the values is
- * to trigger the given `onChange` method.
+ * to trigger the given `onChange` method(s).
  */
 export function derivable<T extends Derivable>(
   deriveState: () => { [key: string]: T }

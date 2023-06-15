@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
+import { Keypair } from "@solana/web3.js";
 
 import Button from "../../Button";
 import Modal from "../../Modal";
@@ -9,7 +10,7 @@ import { PgWallet } from "../../../utils/pg";
 
 export const Setup = () => {
   const [text, setText] = useState("");
-  const [keypair] = useState(PgWallet.generateKeypair());
+  const [keypair] = useState(Keypair.generate());
 
   const handleSetup = () => {
     if (!PgWallet.accounts.length) PgWallet.add({ keypair });

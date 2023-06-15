@@ -1,15 +1,15 @@
-import { ChangeEvent, FC, useState } from "react";
-import { Idl } from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { FC, useState } from "react";
 import styled, { css } from "styled-components";
+import { PublicKey } from "@solana/web3.js";
+import type { Idl } from "@project-serum/anchor";
 
 import Button from "../../../../../../components/Button";
 import Foldable from "../../../../../../components/Foldable";
 import InputLabel from "./InputLabel";
 import Input from "../../../../../../components/Input";
-import { PgAccount, PgCommon } from "../../../../../../utils/pg";
-import { SpinnerWithBg } from "../../../../../../components/Loading";
 import { CodeResult } from "./CodeResult";
+import { SpinnerWithBg } from "../../../../../../components/Loading";
+import { PgAccount, PgCommon } from "../../../../../../utils/pg";
 import { useConnection, useWallet } from "../../../../../../hooks";
 
 interface FetchableAccountProps {
@@ -49,20 +49,6 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
   const [fetchOneLoading, setFetchOneLoading] = useState(false);
   const [fetchAllLoading, setFetchAllLoading] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
-
-  const handleAddressChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const address = e.target.value;
-    if (address) {
-      try {
-        new PublicKey(address);
-        setEnteredAddressError(false);
-      } catch {
-        setEnteredAddressError(true);
-      }
-    }
-
-    setEnteredAddress(address);
-  };
 
   const handleFetched = (data: object) => {
     setFetchedData(data);
@@ -126,10 +112,11 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
       <InputWrapper>
         <InputLabel label="address" type="publicKey" />
         <Input
-          type="text"
-          error={enteredAddressError}
           value={enteredAddress}
-          onChange={handleAddressChange}
+          onChange={(ev) => setEnteredAddress(ev.target.value)}
+          error={enteredAddressError}
+          setError={setEnteredAddressError}
+          validator={PgCommon.isPk}
         />
       </InputWrapper>
 

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect } from "react";
 import { Keypair } from "@solana/web3.js";
-import { IdlType } from "@project-serum/anchor/dist/cjs/idl";
+import type { IdlType } from "@project-serum/anchor/dist/cjs/idl";
 
 interface IxContextProps {
   updateTxVals: (props: updateTxValsProps) => void;

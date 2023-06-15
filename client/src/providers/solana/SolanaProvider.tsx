@@ -3,7 +3,7 @@ import { useWallet, WalletProvider } from "@solana/wallet-adapter-react";
 
 import { PgWallet } from "../../utils/pg";
 
-const SolanaProvider: FC = ({ children }) => {
+export const SolanaProvider: FC = ({ children }) => {
   const wallets = useMemo(() => [], []);
 
   return (
@@ -27,5 +27,3 @@ const PgWalletProvider: FC = ({ children }) => {
 
   return <>{children}</>;
 };
-
-export default SolanaProvider;

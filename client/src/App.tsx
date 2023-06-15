@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 
-import MutThemeProvider from "./theme";
+import { ThemeProvider } from "./providers/theme";
 import { AppLoading } from "./components/Loading/App";
 import { PgSettings } from "./utils/pg/settings";
 import { useDisposable } from "./hooks/useDisposable";
@@ -12,11 +12,11 @@ const App = () => {
   useDisposable(PgSettings.init);
 
   return (
-    <MutThemeProvider>
+    <ThemeProvider>
       <Suspense fallback={<AppLoading />}>
         <AppLazy />
       </Suspense>
-    </MutThemeProvider>
+    </ThemeProvider>
   );
 };
 

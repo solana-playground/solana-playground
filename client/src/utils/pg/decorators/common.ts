@@ -49,7 +49,7 @@ export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
 /**
  * Add `onDidChange` methods to the given static class.
  *
- * @param sClass static cass
+ * @param sClass static class
  * @param state default state
  */
 export const addOnDidChange = (

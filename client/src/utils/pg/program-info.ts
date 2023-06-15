@@ -54,14 +54,14 @@ const defaultState: ProgramInfo = {
 
 const storage = {
   /** Relative path to program info */
-  path: ".workspace/program-info.json",
+  PATH: ".workspace/program-info.json",
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<ProgramInfo> {
     let serializedState: SerializedProgramInfo;
     try {
       const serializedStateStr = await PgExplorer.run({
-        readToString: [this.path],
+        readToString: [this.PATH],
       });
       serializedState = JSON.parse(serializedStateStr);
     } catch {
@@ -92,7 +92,7 @@ const storage = {
         customPk: state.customPk?.toBase58() ?? null,
       };
 
-      await explorer.newItem(this.path, JSON.stringify(serializedState), {
+      await explorer.newItem(this.PATH, JSON.stringify(serializedState), {
         override: true,
         openOptions: { dontOpen: true },
       });

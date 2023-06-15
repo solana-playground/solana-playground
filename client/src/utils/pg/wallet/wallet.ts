@@ -30,7 +30,7 @@ const defaultState: Wallet = {
 
 const storage = {
   /** Relative path to program info */
-  KEY: `wallet`,
+  KEY: "wallet",
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<Wallet> {
@@ -320,11 +320,6 @@ class _PgWallet {
     if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
 
     return Array.from(PgWallet.current.keypair.secretKey);
-  }
-
-  /** Generate a random ed25519 keypair. */
-  static generateKeypair() {
-    return Keypair.generate();
   }
 
   /**

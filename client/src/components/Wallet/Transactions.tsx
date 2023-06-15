@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import styled, { css } from "styled-components";
+import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 
 import Button from "../Button";
 import Link from "../Link";

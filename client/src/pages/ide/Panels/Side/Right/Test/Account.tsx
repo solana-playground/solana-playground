@@ -9,10 +9,10 @@ import {
   useRef,
   useState,
 } from "react";
+import styled, { css } from "styled-components";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
-import { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
-import styled, { css } from "styled-components";
+import type { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
 
 import Button from "../../../../../../components/Button";
 import CopyButton from "../../../../../../components/CopyButton";
@@ -65,8 +65,8 @@ const Account: FC<AccountProps> = ({ account, functionName, isArg }) => {
 
   // Input value change
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setVal(e.target.value);
+    (ev: ChangeEvent<HTMLInputElement>) => {
+      setVal(ev.target.value);
       removeSignerKp();
     },
     [removeSignerKp]
@@ -222,8 +222,8 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
   const [seeds, setSeeds] = useState<Seed[]>([{ value: "", type: "string" }]);
   const [programId, setProgramId] = useState(PgProgramInfo.getPkStr() ?? "");
 
-  const handleProgramId = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setProgramId(e.target.value);
+  const handleProgramId = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
+    setProgramId(ev.target.value);
   }, []);
 
   const handleGen = useCallback(async () => {
@@ -273,8 +273,8 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
   const [error, setError] = useState(false);
 
   const handleSeed = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
+    (ev: ChangeEvent<HTMLInputElement>) => {
+      const val = ev.target.value;
       setSeeds((seeds) => {
         seeds[index] = { value: val, type: seed.type };
 
@@ -460,36 +460,29 @@ const ShowAta: FC<ShowAtaProps> = ({
     seedInputRef.current?.focus();
   }, []);
 
-  const handleMint = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
-      setMint(val);
-      try {
-        if (!val) return;
-        PgTest.parse(val, "publicKey");
-        setMintError(false);
-      } catch {
-        setMintError(true);
-      }
-    },
-    [setMint]
-  );
+  const handleMint = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
+    const val = ev.target.value;
+    setMint(val);
+    try {
+      if (!val) return;
+      PgTest.parse(val, "publicKey");
+      setMintError(false);
+    } catch {
+      setMintError(true);
+    }
+  }, []);
 
-  const handleOwner = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
-      setOwner(val);
-      try {
-        if (!val) return;
-        PgTest.parse(val, "publicKey");
-        setOwnerError(false);
-      } catch {
-        setOwnerError(true);
-      }
-    },
-
-    [setOwner]
-  );
+  const handleOwner = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
+    const val = ev.target.value;
+    setOwner(val);
+    try {
+      if (!val) return;
+      PgTest.parse(val, "publicKey");
+      setOwnerError(false);
+    } catch {
+      setOwnerError(true);
+    }
+  }, []);
 
   const handleGen = useCallback(async () => {
     try {

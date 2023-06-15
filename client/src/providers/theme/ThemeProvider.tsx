@@ -4,13 +4,12 @@ import styled, {
   ThemeProvider as StyledThemeProvider,
 } from "styled-components";
 
-import THEMES from "./themes";
-import FONTS from "./fonts";
-import { Font, PgTheme, ThemeReady } from "../utils/pg/theme";
-import { EventName } from "../constants/event";
-import { useSetStatic } from "../hooks/useSetStatic";
+import { FONTS, THEMES } from "../../theme";
+import { Font, PgTheme, ThemeReady } from "../../utils/pg/theme";
+import { EventName } from "../../constants/event";
+import { useSetStatic } from "../../hooks/useSetStatic";
 
-const ThemeProvider: FC = ({ children }) => {
+export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<ThemeReady>();
   const [font, setFont] = useState<Font>();
 
@@ -57,5 +56,3 @@ const Wrapper = styled.div`
     }
   `}
 `;
-
-export default ThemeProvider;
