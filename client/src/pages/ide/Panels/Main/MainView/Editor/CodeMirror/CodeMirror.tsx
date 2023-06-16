@@ -388,7 +388,10 @@ const CodeMirror = () => {
 
           let cursorOffset = editor.state.selection.ranges[0].from;
           const currentLine = editor.state.doc.lineAt(cursorOffset);
-          if (currentLine.number !== 1) {
+          const isFirstOrLastLine =
+            currentLine.number !== 1 ||
+            currentLine.number !== editor.state.doc.lines;
+          if (!isFirstOrLastLine) {
             const beforeLine = editor.state.doc.line(currentLine.number - 1);
             const afterLine = editor.state.doc.line(currentLine.number + 1);
             const searchText = currentContent.substring(
