@@ -7,6 +7,7 @@ import type {
   Adapter,
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
+  WalletAdapter,
   WalletAdapterProps,
 } from "@solana/wallet-adapter-base";
 import type { Wallet as SolanaWallet } from "@solana/wallet-adapter-react";
@@ -73,7 +74,7 @@ export interface StandardWalletProps
 }
 
 /** Wallet adapter without `publicKey` prop */
-type DefaultAdapter = Omit<WalletAdapterProps, "publicKey">;
+type DefaultAdapter = Omit<WalletAdapter, "publicKey">;
 
 /** Common props for both Playground Wallet and other wallets */
 type DefaultWalletProps<PublicKeyProp = Pick<WalletAdapterProps, "publicKey">> =

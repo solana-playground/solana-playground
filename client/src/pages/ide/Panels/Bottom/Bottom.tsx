@@ -14,6 +14,7 @@ import {
 import { PgCommand, PgCommon, PgTheme } from "../../../../utils/pg";
 import { useAutoAirdrop } from "./useAutoAirdrop";
 import { useConnectionStatus } from "./useConnectionStatus";
+import { useStandardAccountChange } from "./useStandardAccountChange";
 import { useBalance, useConnection, useWallet } from "../../../../hooks";
 
 const Bottom = () => {
@@ -23,6 +24,7 @@ const Bottom = () => {
   const { balance } = useBalance();
 
   useAutoAirdrop();
+  useStandardAccountChange();
 
   const [networkName, cluster] = useMemo(() => {
     return [
@@ -34,9 +36,7 @@ const Bottom = () => {
 
   // Using a callback because this function might be resolved later than the
   // mount of this component
-  const connect = useCallback(async () => {
-    await PgCommand.connect.run();
-  }, []);
+  const connect = useCallback(async () => await PgCommand.connect.run(), []);
 
   return (
     <Wrapper id={Id.BOTTOM}>
