@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import { PgCommon, PgConnection, PgTx, PgWallet } from "../../../../utils/pg";
-import { useBalance, useConnection, useWallet } from "../../../../hooks";
+import { PgCommon, PgConnection, PgTx, PgWallet } from "../../../utils/pg";
+import { useBalance, useConnection, useWallet } from "../../../hooks";
 
 /** Sync the balance of the current wallet and airdrop when necessary. */
 export const useAutoAirdrop = () => {

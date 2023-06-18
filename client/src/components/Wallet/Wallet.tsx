@@ -20,11 +20,15 @@ import {
   useRenderOnChange,
   useWallet,
 } from "../../hooks";
+import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
 
 const Wallet = () => {
   useRenderOnChange(PgWallet.onDidChangeShow);
 
   const { wallet } = useWallet();
+
+  useAutoAirdrop();
+  useStandardAccountChange();
 
   if (!PgWallet.show || !wallet) return null;
 

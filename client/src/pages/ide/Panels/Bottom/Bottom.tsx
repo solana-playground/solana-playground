@@ -12,19 +12,12 @@ import {
   ClassName,
 } from "../../../../constants";
 import { PgCommand, PgCommon, PgTheme } from "../../../../utils/pg";
-import { useAutoAirdrop } from "./useAutoAirdrop";
-import { useConnectionStatus } from "./useConnectionStatus";
-import { useStandardAccountChange } from "./useStandardAccountChange";
 import { useBalance, useConnection, useWallet } from "../../../../hooks";
 
 const Bottom = () => {
   const { connection } = useConnection();
-  const { connectionStatus } = useConnectionStatus();
-  const { walletPkStr } = useWallet();
+  const { wallet, walletPkStr } = useWallet();
   const { balance } = useBalance();
-
-  useAutoAirdrop();
-  useStandardAccountChange();
 
   const [networkName, cluster] = useMemo(() => {
     return [
@@ -46,7 +39,11 @@ const Bottom = () => {
           kind="transparent"
           leftIcon={<WalletStatus isConnected={!!walletPkStr} />}
         >
-          {connectionStatus}
+          {wallet
+            ? wallet.isPg
+              ? "Connected to Playground Wallet"
+              : `Connected to ${wallet.name}`
+            : "Not connected"}
         </ConnectButton>
       </Tooltip>
 
