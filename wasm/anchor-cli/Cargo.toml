@@ -13,8 +13,8 @@ keywords = ["anchor", "cli", "solana", "wasm"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-anchor-lang = "0.27.0"
-anchor-syn = { version = "0.27.0", features = ["idl"] }
+anchor-lang = "0.28.0"
+anchor-syn = { version = "0.28.0", features = ["idl"] }
 anyhow = "*"
 clap = { version = "*", features = ["derive"] }
 console = "*"
