@@ -33,7 +33,7 @@ export const build = createCmd({
  * @returns build output from stderr(not only errors)
  */
 const processBuild = async () => {
-  const buildFiles = await PgExplorer.run({ getBuildFiles: [] });
+  const buildFiles = PgExplorer.getBuildFiles();
   const pythonFiles = buildFiles.filter(([fileName]) =>
     fileName.toLowerCase().endsWith(".py")
   );

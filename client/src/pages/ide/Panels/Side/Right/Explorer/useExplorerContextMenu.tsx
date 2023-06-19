@@ -16,7 +16,7 @@ export type ItemData = {
     | "isProgramFolder"]?: boolean;
 };
 
-const useExplorerContextMenu = () => {
+export const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);
   const [, setCtxSelected] = useAtom(ctxSelectedAtom);
 
@@ -138,5 +138,3 @@ const useExplorerContextMenu = () => {
     itemData,
   };
 };
-
-export default useExplorerContextMenu;

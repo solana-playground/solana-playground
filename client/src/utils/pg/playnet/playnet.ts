@@ -103,19 +103,17 @@ export class PgPlaynet {
     if (!this._playnet) return;
 
     try {
-      await PgExplorer.run({
-        newItem: [
-          this._PATHS.SAVE_DATA,
-          this._playnet.getSaveData(),
-          {
-            openOptions: {
-              dontOpen: true,
-            },
-            override: true,
-            skipNameValidation: true,
+      await PgExplorer.newItem(
+        this._PATHS.SAVE_DATA,
+        this._playnet.getSaveData(),
+        {
+          openOptions: {
+            dontOpen: true,
           },
-        ],
-      });
+          override: true,
+          skipNameValidation: true,
+        }
+      );
     } catch (e: any) {
       console.log("Couldn't save Playnet data:", e.message);
     }
@@ -128,8 +126,7 @@ export class PgPlaynet {
    */
   private static async _getSaveData() {
     try {
-      const explorer = await PgExplorer.get();
-      return await explorer.readToString(this._PATHS.SAVE_DATA);
+      return await PgExplorer.readToString(this._PATHS.SAVE_DATA);
     } catch (e: any) {
       console.log("Couldn't get Playnet data:", e.message);
     }

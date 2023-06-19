@@ -12,16 +12,11 @@ import styled from "styled-components";
 
 import LangIcon from "../../../../../../../components/LangIcon";
 import Input from "../../../../../../../components/Input";
-import {
-  ctxSelectedAtom,
-  explorerAtom,
-  newItemAtom,
-} from "../../../../../../../state";
+import { ctxSelectedAtom, newItemAtom } from "../../../../../../../state";
 import { PgExplorer } from "../../../../../../../utils/pg";
 import { useOnClickOutside } from "../../../../../../../hooks";
 
 export const NewItem = () => {
-  const [explorer] = useAtom(explorerAtom);
   const [el, setEl] = useAtom(newItemAtom);
   const [ctxSelected, setCtxSelected] = useAtom(ctxSelectedAtom);
 
@@ -39,7 +34,7 @@ export const NewItem = () => {
   const handleKeyPress = useCallback(
     async (ev: KeyboardEvent) => {
       if (ev.key === "Enter") {
-        if (!itemName || !explorer) return;
+        if (!itemName) return;
 
         // Check if the command is coming from context menu
         let selected = ctxSelected;
@@ -53,7 +48,7 @@ export const NewItem = () => {
         const itemPath = parentPath + convertedItemName;
 
         try {
-          await explorer.newItem(itemPath);
+          await PgExplorer.newItem(itemPath);
 
           // File add successfull
 
@@ -70,7 +65,7 @@ export const NewItem = () => {
         }
       } else if (ev.key === "Escape") setEl(null);
     },
-    [itemName, explorer, ctxSelected, setEl, setCtxSelected]
+    [itemName, ctxSelected, setEl, setCtxSelected]
   );
 
   const handleChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +87,7 @@ export const NewItem = () => {
   }, [el]);
 
   const depth = useMemo(() => {
-    if (!el || !explorer) return 0;
+    if (!el) return 0;
     let path = PgExplorer.getItemPathFromEl(el.firstChild as HTMLDivElement);
 
     // Empty folder
@@ -104,13 +99,13 @@ export const NewItem = () => {
     }
     const itemType = PgExplorer.getItemTypeFromPath(path);
 
-    if (!explorer.isShared) {
-      path = explorer.getRelativePath(path);
+    if (!PgExplorer.isShared) {
+      path = PgExplorer.getRelativePath(path);
     }
 
     const depth = path.split("/").length - (itemType.folder ? 1 : 0);
-    return !explorer.isShared ? depth : depth - 1;
-  }, [el, explorer]);
+    return !PgExplorer.isShared ? depth : depth - 1;
+  }, [el]);
 
   return el
     ? ReactDOM.createPortal(

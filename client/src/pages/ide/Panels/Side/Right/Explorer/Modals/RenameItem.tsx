@@ -1,10 +1,8 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { explorerAtom } from "../../../../../../../state";
 import { PgExplorer } from "../../../../../../../utils/pg";
 
 interface RenameItemProps {
@@ -12,13 +10,11 @@ interface RenameItemProps {
 }
 
 export const RenameItem: FC<RenameItemProps> = ({ path }) => {
-  const [explorer] = useAtom(explorerAtom);
-
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const itemName = PgExplorer.getItemNameFromPath(path) ?? "";
+  const itemName = PgExplorer.getItemNameFromPath(path);
 
   // Focus input on mount
   useEffect(() => {
@@ -35,13 +31,9 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
     setError("");
   };
 
-  const disableCond = !newName || !explorer || !!error;
-
   const rename = async () => {
-    if (disableCond) return;
-
     try {
-      await explorer.renameItem(path, newName);
+      await PgExplorer.renameItem(path, newName);
       close();
     } catch (e: any) {
       setError(e.message);
@@ -56,7 +48,7 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
         text: "Rename",
         onSubmit: rename,
         size: "small",
-        disabled: disableCond,
+        disabled: !newName || !!error,
       }}
       title={`Rename '${itemName}'`}
     >

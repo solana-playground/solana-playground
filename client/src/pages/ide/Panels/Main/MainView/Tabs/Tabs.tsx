@@ -1,25 +1,21 @@
 import { useEffect } from "react";
-import { Atom, useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../../../../../components/Button";
 import { Id } from "../../../../../../constants";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
-import { PgExplorer, PgTheme, PgWallet } from "../../../../../../utils/pg";
-import { useWallet } from "../../../../../../hooks";
+import { PgTheme, PgWallet } from "../../../../../../utils/pg";
+import { useExplorer, useWallet } from "../../../../../../hooks";
 
 const Tabs = () => {
-  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
-  useAtom(refreshExplorerAtom);
+  const { explorer } = useExplorer();
 
-  // No need for memoization
   const tabs = explorer.getTabs();
 
   // Close current tab with keybind
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.altKey && e.key.toUpperCase() === "W") {
+    const handleKey = (ev: KeyboardEvent) => {
+      if (ev.altKey && ev.key.toUpperCase() === "W") {
         const currentPath = explorer.getCurrentFile()?.path;
         if (!currentPath) return;
 
@@ -31,7 +27,7 @@ const Tabs = () => {
     return () => document.removeEventListener("keydown", handleKey);
   }, [explorer]);
 
-  if (!tabs?.length) return null;
+  if (!tabs.length) return null;
 
   return (
     <Wrapper id={Id.TABS}>

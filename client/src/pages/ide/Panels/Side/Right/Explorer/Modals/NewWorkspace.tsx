@@ -7,21 +7,18 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { explorerAtom } from "../../../../../../../state";
 import {
   Framework as FrameworkType,
   FRAMEWORKS,
+  PgExplorer,
 } from "../../../../../../../utils/pg";
 
 export const NewWorkspace = () => {
-  const [explorer] = useAtom(explorerAtom);
-
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -41,17 +38,13 @@ export const NewWorkspace = () => {
     setError("");
   };
 
-  const disableCond = !name || !selected || !explorer;
-
   const newWorkspace = async () => {
-    if (disableCond) return;
-
     try {
       const { files, defaultOpenFile } = FRAMEWORKS.find(
         (f) => f.name === selected
       )!;
 
-      await explorer.newWorkspace(name, {
+      await PgExplorer.newWorkspace(name, {
         files,
         defaultOpenFile,
       });
@@ -66,7 +59,7 @@ export const NewWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: newWorkspace,
-        disabled: disableCond,
+        disabled: !name || !selected,
       }}
     >
       <Content>

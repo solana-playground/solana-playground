@@ -1,11 +1,10 @@
-import { FC, MouseEvent, Ref, useEffect, useMemo, useRef } from "react";
-import { useAtom } from "jotai";
+import { FC, MouseEvent, useCallback, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../../components/Button";
 import LangIcon from "../../../../../../components/LangIcon";
 import ExplorerContextMenu from "./ExplorerContextMenu";
-import useExplorerContextMenu from "./useExplorerContextMenu";
+import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import {
   Arrow,
   TestTube,
@@ -13,18 +12,14 @@ import {
   Wrench,
 } from "../../../../../../components/Icons";
 import { ClassName, Id } from "../../../../../../constants";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
 import { Folder as FolderType, PgExplorer } from "../../../../../../utils/pg";
 
 const Folders = () => {
-  const [explorer] = useAtom(explorerAtom);
-  useAtom(refreshExplorerAtom); // to re-render on demand
-
   // Initial folder state on mount
   useEffect(() => {
-    if (!explorer?.getTabs().length) return;
+    if (!PgExplorer.getTabs().length) return;
 
-    const curFile = explorer.getCurrentFile();
+    const curFile = PgExplorer.getCurrentFile();
     if (!curFile) return;
 
     // Open if current file's parents are not opened
@@ -33,15 +28,15 @@ const Folders = () => {
     // Change selected
     const newEl = PgExplorer.getElFromPath(curFile.path);
     if (newEl) PgExplorer.setSelectedEl(newEl);
-  }, [explorer]);
+  }, []);
 
   const ctxMenu = useExplorerContextMenu();
 
   // No need to memoize here
-  const relativeRootPath = !explorer!.isShared
-    ? explorer!.currentWorkspacePath
+  const relativeRootPath = !PgExplorer!.isShared
+    ? PgExplorer!.currentWorkspacePath
     : "/";
-  const relativeRootDir = explorer!.getFolderContent(relativeRootPath);
+  const relativeRootDir = PgExplorer!.getFolderContent(relativeRootPath);
   const otherFolders = relativeRootDir.folders.filter(
     (f) =>
       f !== PgExplorer.PATHS.SRC_DIRNAME &&
@@ -128,15 +123,13 @@ interface FolderGroupProps {
 }
 
 const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => {
-  const [explorer] = useAtom(explorerAtom);
-
   return (
     <>
       {folders
         .sort((x, y) => x.localeCompare(y))
         .map((f, i) => {
           const path = relativeRootPath + f + "/";
-          const folder = explorer!.getFolderContent(path);
+          const folder = PgExplorer.getFolderContent(path);
 
           return (
             <RFolder
@@ -157,28 +150,20 @@ interface FolderProps extends FolderType {
 
 // RFolder = Recursive Folder
 const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
-  const [explorer] = useAtom(explorerAtom);
-
-  const folderRef = useRef<HTMLDivElement>(null);
-  const folderInsideRef = useRef<HTMLDivElement>(null);
-
   const folderName = useMemo(
     () => PgExplorer.getItemNameFromPath(path),
     [path]
   );
 
   const depth = useMemo(() => {
-    if (!explorer) return 0;
-
     return (
-      explorer.getRelativePath(path).split("/").length -
-      (explorer.isShared ? 3 : 2)
+      PgExplorer.getRelativePath(path).split("/").length -
+      (PgExplorer.isShared ? 3 : 2)
     );
-  }, [path, explorer]);
+  }, [path]);
 
-  // No need useCallback here
-  const toggle = (e: MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
+  const toggle = useCallback((ev: MouseEvent<HTMLDivElement>) => {
+    const el = ev.currentTarget;
     // Set selected
     PgExplorer.setSelectedEl(el);
     PgExplorer.setCtxSelectedEl(el);
@@ -186,9 +171,9 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     if (PgExplorer.getItemTypeFromEl(el)?.folder) {
       PgExplorer.toggleFolder(el);
     } else {
-      explorer?.changeCurrentFile(PgExplorer.getItemPathFromEl(el)!);
+      PgExplorer.changeCurrentFile(PgExplorer.getItemPathFromEl(el)!);
     }
-  };
+  }, []);
 
   return (
     <>
@@ -197,21 +182,17 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
         name={folderName}
         depth={depth}
         onClick={toggle}
-        reff={folderRef}
         className={ClassName.FOLDER}
       />
 
       <FolderInsideWrapper
-        ref={folderInsideRef}
         className={`${ClassName.FOLDER_INSIDE} ${ClassName.HIDDEN}`}
       >
         {folders
           .sort((x, y) => x.localeCompare(y))
           .map((folderName, i) => {
             const insideFolderPath = path + folderName + "/";
-            const folder = explorer?.getFolderContent(insideFolderPath);
-
-            if (!folder) return null;
+            const folder = PgExplorer.getFolderContent(insideFolderPath);
 
             return (
               <RFolder
@@ -246,7 +227,6 @@ interface FileOrFolderProps {
   depth: number;
   onClick?: (e: any) => void;
   className?: string;
-  reff?: Ref<HTMLDivElement>;
 }
 
 const Folder: FC<FileOrFolderProps> = ({
@@ -254,10 +234,9 @@ const Folder: FC<FileOrFolderProps> = ({
   name,
   depth,
   onClick,
-  reff,
   className,
 }) => (
-  <div className={className} ref={reff} onClick={onClick} data-path={path}>
+  <div className={className} onClick={onClick} data-path={path}>
     <PaddingLeft depth={depth} />
     <Arrow />
     <span>{name}</span>

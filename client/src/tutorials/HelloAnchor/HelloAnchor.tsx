@@ -24,11 +24,10 @@ const HelloAnchor = () => (
           PgView.setSidebarState(Sidebar.EXPLORER);
 
           // Create client.ts file
-          const explorer = await PgExplorer.get();
           const clientPath = "client/client.ts";
-          const clientExists = await explorer.exists(clientPath);
+          const clientExists = await PgExplorer.exists(clientPath);
           if (!clientExists) {
-            await explorer.newItem(
+            await PgExplorer.newItem(
               clientPath,
               require("./files/client.ts.raw")
             );

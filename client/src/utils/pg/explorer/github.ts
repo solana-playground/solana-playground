@@ -1,6 +1,6 @@
-import { GithubError } from "../../../constants";
 import { PgCommon } from "../common";
-import { Files } from "./explorer";
+import { GithubError } from "../../../constants";
+import type { Files } from "./types";
 
 interface GithubRepositoryInfo {
   name: string;

@@ -1,11 +1,11 @@
-import { TutorialComponentProps } from "../../../components/Tutorial";
-import { EventName, Route } from "../../../constants";
-import { TUTORIALS } from "../../../tutorials";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
 import { PgRouter } from "../router";
 import { PgView, Sidebar } from "../view";
-import { TutorialData, TutorialMetadata } from "./types";
+import { EventName, Route } from "../../../constants";
+import { TUTORIALS } from "../../../tutorials";
+import type { TutorialData, TutorialMetadata } from "./types";
+import type { TutorialComponentProps } from "../../../components/Tutorial";
 
 export class PgTutorial {
   private static readonly TUTORIAL_METADATA_FILENAME = ".tutorial.json";
@@ -52,8 +52,8 @@ export class PgTutorial {
     return TUTORIALS.some((t) => t.name === workspaceName);
   }
 
-  static async isCurrentWorkspaceTutorial() {
-    const workspaceName = (await PgExplorer.get())?.currentWorkspaceName;
+  static isCurrentWorkspaceTutorial() {
+    const workspaceName = PgExplorer.currentWorkspaceName;
     return workspaceName ? this.isWorkspaceTutorial(workspaceName) : false;
   }
 
@@ -62,6 +62,7 @@ export class PgTutorial {
     const tutorialPath = `${Route.TUTORIALS}/${PgCommon.toKebabFromTitle(
       tutorialName
     )}`;
+
     if (PgRouter.comparePaths(pathname, tutorialPath)) {
       // Open the tutorial pages view
       try {
@@ -79,13 +80,12 @@ export class PgTutorial {
       Pick<TutorialMetadata, "pageCount">
   ) {
     const tutorialName = (await this.getCurrent()).name;
-    const explorer = await PgExplorer.get();
 
     let tutorialMetaExists;
-    if (explorer.allWorkspaceNames?.includes(tutorialName)) {
+    if (PgExplorer.allWorkspaceNames?.includes(tutorialName)) {
       // Start from where the user left off
-      if (explorer.currentWorkspaceName !== tutorialName) {
-        await explorer.changeWorkspace(tutorialName);
+      if (PgExplorer.currentWorkspaceName !== tutorialName) {
+        await PgExplorer.switchWorkspace(tutorialName);
       }
 
       // Read tutorial metadata file
@@ -96,7 +96,7 @@ export class PgTutorial {
       } catch {}
     } else {
       // Initial tutorial setup
-      await explorer.newWorkspace(tutorialName, {
+      await PgExplorer.newWorkspace(tutorialName, {
         files: props.files,
         defaultOpenFile:
           props.files.length > 0
@@ -111,7 +111,7 @@ export class PgTutorial {
         pageNumber: 0,
         pageCount: props.pageCount,
       };
-      await explorer.newItem(
+      await PgExplorer.newItem(
         this._getTutorialMetadataPath(),
         JSON.stringify(metadata),
         { skipNameValidation: true, openOptions: { dontOpen: true } }
@@ -127,38 +127,29 @@ export class PgTutorial {
     PgView.setSidebarState(Sidebar.TUTORIALS);
   }
 
-  static async saveTutorialMeta(
-    updatedMeta: Partial<TutorialMetadata>,
-    tutorialName?: string
-  ) {
+  static async saveTutorialMeta(updatedMeta: Partial<TutorialMetadata>) {
     try {
-      const currentMeta = await this.getMetadata(tutorialName);
-      await PgExplorer.run({
-        newItem: [
-          this._getTutorialMetadataPath(tutorialName),
-          JSON.stringify({ ...currentMeta, ...updatedMeta }),
-          {
-            override: true,
-            skipNameValidation: true,
-            openOptions: { dontOpen: true },
-          },
-        ],
-      });
+      const currentMeta = await this.getMetadata();
+      await PgExplorer.newItem(
+        this._getTutorialMetadataPath(),
+        JSON.stringify({ ...currentMeta, ...updatedMeta }),
+        {
+          override: true,
+          skipNameValidation: true,
+          openOptions: { dontOpen: true },
+        }
+      );
     } catch {}
   }
 
   static async getMetadata(tutorialName?: string): Promise<TutorialMetadata> {
     return JSON.parse(
-      await PgExplorer.run({
-        readToString: [this._getTutorialMetadataPath(tutorialName)],
-      })
+      await PgExplorer.readToString(this._getTutorialMetadataPath(tutorialName))
     );
   }
 
-  static async getUserTutorialNames() {
-    return (await PgExplorer.get()).allWorkspaceNames!.filter(
-      this.isWorkspaceTutorial
-    );
+  static getUserTutorialNames() {
+    return PgExplorer.allWorkspaceNames!.filter(this.isWorkspaceTutorial);
   }
 
   private static _getTutorialMetadataPath(tutorialName?: string) {

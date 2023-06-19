@@ -60,9 +60,7 @@ const storage = {
   async read(): Promise<ProgramInfo> {
     let serializedState: SerializedProgramInfo;
     try {
-      const serializedStateStr = await PgExplorer.run({
-        readToString: [this.PATH],
-      });
+      const serializedStateStr = await PgExplorer.readToString(this.PATH);
       serializedState = JSON.parse(serializedStateStr);
     } catch {
       return defaultState;
@@ -82,8 +80,7 @@ const storage = {
 
   /** Serialize the data and write to storage. */
   async write(state: ProgramInfo) {
-    const explorer = await PgExplorer.get();
-    if (!explorer.isShared) {
+    if (!PgExplorer.isShared) {
       // Don't use spread operator(...) because of the extra derived state
       const serializedState: SerializedProgramInfo = {
         uuid: state.uuid,
@@ -92,7 +89,7 @@ const storage = {
         customPk: state.customPk?.toBase58() ?? null,
       };
 
-      await explorer.newItem(this.PATH, JSON.stringify(serializedState), {
+      await PgExplorer.newItem(this.PATH, JSON.stringify(serializedState), {
         override: true,
         openOptions: { dontOpen: true },
       });

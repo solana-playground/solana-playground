@@ -1,18 +1,13 @@
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import { Warning } from "../../../../../../../components/Icons";
-import { explorerAtom } from "../../../../../../../state";
+import { PgExplorer } from "../../../../../../../utils/pg";
 
 export const DeleteWorkspace = () => {
-  const [explorer] = useAtom(explorerAtom);
-
-  if (!explorer) return null;
-
   const deleteWorkspace = async () => {
     try {
-      await explorer.deleteWorkspace();
+      await PgExplorer.deleteWorkspace();
     } catch (e: any) {
       console.log(e.message);
     }
@@ -35,7 +30,7 @@ export const DeleteWorkspace = () => {
         <ContentText>
           <Main>
             Are you sure you want to delete workspace '
-            {explorer.currentWorkspaceName}'?
+            {PgExplorer.currentWorkspaceName}'?
           </Main>
           <Desc>This action is irreversable!</Desc>
           <Desc>- All files and folders will be deleted.</Desc>

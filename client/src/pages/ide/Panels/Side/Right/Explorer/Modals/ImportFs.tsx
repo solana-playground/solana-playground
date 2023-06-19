@@ -1,12 +1,10 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import UploadArea from "../../../../../../../components/UploadArea";
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { explorerAtom } from "../../../../../../../state";
 import {
   Files,
   Lang,
@@ -15,8 +13,6 @@ import {
 } from "../../../../../../../utils/pg";
 
 export const ImportFs = () => {
-  const [explorer] = useAtom(explorerAtom);
-
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -80,14 +76,9 @@ export const ImportFs = () => {
     }
   }, []);
 
-  const disableCond =
-    !explorer || !name || !files || !!filesError || !!importError;
-
   const importNewWorkspace = async () => {
-    if (disableCond) return;
-
     try {
-      await explorer.newWorkspace(name, { files });
+      await PgExplorer.newWorkspace(name, { files });
       close();
     } catch (e: any) {
       setImportError(e.message);
@@ -99,7 +90,7 @@ export const ImportFs = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importNewWorkspace,
-        disabled: disableCond,
+        disabled: !name || !files || !!filesError || !!importError,
       }}
     >
       <Content>

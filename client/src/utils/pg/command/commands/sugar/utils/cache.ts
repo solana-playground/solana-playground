@@ -28,9 +28,7 @@ export class CandyCache {
   }
 
   async syncFile(onlyOpenIfAlreadyOpen: boolean = true) {
-    await (
-      await PgExplorer.get()
-    ).newItem(
+    await PgExplorer.newItem(
       PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
       PgCommon.prettyJSON(this),
       { override: true, openOptions: { dontOpen: true, onlyOpenIfAlreadyOpen } }
@@ -172,9 +170,9 @@ export class CacheItem {
 }
 
 export const loadCache = async () => {
-  const cacheFile = await PgExplorer.run({
-    getFileContent: [PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH],
-  });
+  const cacheFile = PgExplorer.getFileContent(
+    PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH
+  );
   if (!cacheFile) {
     // Cache file doesn't exist, return default
     return new CandyCache();

@@ -6,12 +6,12 @@ import { PgExplorer } from "../../../../explorer";
 import { PgTerminal } from "../../../../terminal";
 import { PgSugar } from "../processor";
 import { parseGuards } from "./guards";
-import { ConfigData, ToPrimitive } from "../types";
+import type { ConfigData, ToPrimitive } from "../types";
 
 export const loadConfigData = async (): Promise<ConfigData> => {
-  const configStr = await PgExplorer.run({
-    getFileContent: [PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH],
-  });
+  const configStr = PgExplorer.getFileContent(
+    PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH
+  );
   if (!configStr)
     throw new Error(
       `Config file not found. Run ${PgTerminal.bold(
@@ -47,29 +47,27 @@ export const loadConfigData = async (): Promise<ConfigData> => {
 };
 
 export const saveConfigData = async (configData: ConfigData) => {
-  await PgExplorer.run({
-    newItem: [
-      PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
-      PgCommon.prettyJSON({
-        ...configData,
-        size: configData.size.toNumber(),
-        hiddenSettings: configData.hiddenSettings
-          ? {
-              ...configData.hiddenSettings,
-              hash: PgCommon.decodeBytes(
-                Uint8Array.from(configData.hiddenSettings.hash)
-              ),
-            }
-          : null,
-        creators: configData.creators.map((c) => ({
-          ...c,
-          address: c.address.toBase58(),
-        })),
-      }),
-      {
-        override: true,
-        openOptions: { onlyOpenIfAlreadyOpen: true },
-      },
-    ],
-  });
+  await PgExplorer.newItem(
+    PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
+    PgCommon.prettyJSON({
+      ...configData,
+      size: configData.size.toNumber(),
+      hiddenSettings: configData.hiddenSettings
+        ? {
+            ...configData.hiddenSettings,
+            hash: PgCommon.decodeBytes(
+              Uint8Array.from(configData.hiddenSettings.hash)
+            ),
+          }
+        : null,
+      creators: configData.creators.map((c) => ({
+        ...c,
+        address: c.address.toBase58(),
+      })),
+    }),
+    {
+      override: true,
+      openOptions: { onlyOpenIfAlreadyOpen: true },
+    }
+  );
 };

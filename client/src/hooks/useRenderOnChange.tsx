@@ -10,6 +10,10 @@ export const useRenderOnChange = <T,>(
 
   useEffect(() => {
     const { dispose } = onChange((newValue) => {
+      if (newValue === undefined) {
+        render();
+      }
+
       const valueType = typeof newValue;
 
       // Static class is type `function`. Intentionally passing a function because

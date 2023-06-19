@@ -65,11 +65,9 @@ export class PgClient {
       PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
     );
 
-    const explorer = await PgExplorer.get();
-
     // Run only the given path
     if (path) {
-      const code = explorer.getFileContent(path);
+      const code = PgExplorer.getFileContent(path);
       if (!code) return;
       const fileName = PgExplorer.getItemNameFromPath(path);
       await this._runFile(fileName, code, { isTest });
@@ -77,10 +75,10 @@ export class PgClient {
       return;
     }
 
-    const folderPath = explorer.appendToCurrentWorkspacePath(
+    const folderPath = PgExplorer.appendToCurrentWorkspacePath(
       isTest ? PgExplorer.PATHS.TESTS_DIRNAME : PgExplorer.PATHS.CLIENT_DIRNAME
     );
-    const folder = explorer.getFolderContent(folderPath);
+    const folder = PgExplorer.getFolderContent(folderPath);
     if (!folder.files.length && !folder.folders.length) {
       let DEFAULT;
       if (isTest) {
@@ -92,7 +90,10 @@ export class PgClient {
       }
 
       const [fileName, code] = DEFAULT;
-      await explorer.newItem(PgCommon.joinPaths([folderPath, fileName]), code);
+      await PgExplorer.newItem(
+        PgCommon.joinPaths([folderPath, fileName]),
+        code
+      );
       await this._runFile(fileName, code, {
         isTest,
       });
@@ -102,7 +103,7 @@ export class PgClient {
 
     // Run all files inside the folder
     for (const fileName of folder.files) {
-      const code = explorer.getFileContent(
+      const code = PgExplorer.getFileContent(
         PgCommon.joinPaths([folderPath, fileName])
       );
       if (!code) continue;

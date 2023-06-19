@@ -183,8 +183,9 @@ const CodeMirror = () => {
     if (!editor) return;
     let topLineIntervalId: NodeJS.Timer;
 
-    const explorer = await PgExplorer.get();
-    const { dispose } = explorer.onDidSwitchFile((curFile) => {
+    const { dispose } = PgExplorer.onDidSwitchFile((curFile) => {
+      if (!curFile) return;
+
       // Clear previous state
       topLineIntervalId && clearInterval(topLineIntervalId);
 
@@ -202,7 +203,7 @@ const CodeMirror = () => {
         defaultExtensions(),
         editorTheme,
         getThemeExtension(theme.highlight),
-        autosave(explorer, curFile, 500),
+        autosave(curFile, 500),
         languageCompartment.of([]),
       ];
 
@@ -217,12 +218,12 @@ const CodeMirror = () => {
       // Lazy load language extensions
       (async () => {
         let languageExtensions;
-        switch (explorer.getCurrentFileLanguage()) {
+        switch (PgExplorer.getCurrentFileLanguage()) {
           case Lang.RUST: {
             const { rustExtensions } = await import(
               "./extensions/languages/rust"
             );
-            languageExtensions = rustExtensions(explorer.isWorkspaceAnchor());
+            languageExtensions = rustExtensions(PgExplorer.isWorkspaceAnchor());
             break;
           }
 
@@ -258,7 +259,7 @@ const CodeMirror = () => {
       })();
 
       // Scroll to the top line number
-      const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
+      const topLineNumber = PgExplorer.getEditorTopLineNumber(curFile.path);
       const pos = topLineNumber ? editor.state.doc.line(topLineNumber).from : 0;
       editor.dispatch({
         effects: EditorView.scrollIntoView(pos, { y: "start", yMargin: 0 }),
@@ -266,7 +267,7 @@ const CodeMirror = () => {
 
       // Save top line number
       topLineIntervalId = PgCommon.setIntervalOnFocus(() => {
-        explorer.saveEditorTopLineNumber(
+        PgExplorer.saveEditorTopLineNumber(
           curFile.path,
           editor.state.doc.lineAt(
             editor.lineBlockAtHeight(
@@ -302,9 +303,11 @@ const CodeMirror = () => {
     };
 
     const updateId = async () => {
+      const programPkStr = PgProgramInfo.getPkStr();
+      if (!programPkStr) return;
+
       // Update in editor
-      const explorer = await PgExplorer.get();
-      const currentLang = explorer.getCurrentFileLanguage();
+      const currentLang = PgExplorer.getCurrentFileLanguage();
       const isRust = currentLang === Lang.RUST;
       const isPython = currentLang === Lang.PYTHON;
       if (!isRust && !isPython) return;
@@ -313,9 +316,6 @@ const CodeMirror = () => {
       const indices = getProgramIdStartAndEndIndex(editorContent, isPython);
       if (!indices) return;
       const [quoteStartIndex, quoteEndIndex] = indices;
-
-      const programPkStr = PgProgramInfo.getPkStr();
-      if (!programPkStr) return;
 
       try {
         editor.dispatch({
@@ -358,8 +358,7 @@ const CodeMirror = () => {
     async (ev?: { lang: Lang; fromTerminal: boolean }) => {
       if (!editor) return;
 
-      const explorer = await PgExplorer.get();
-      const lang = explorer.getCurrentFileLanguage();
+      const lang = PgExplorer.getCurrentFileLanguage();
       if (!lang) return;
 
       let formatRust;
@@ -426,7 +425,7 @@ const CodeMirror = () => {
         };
       }
 
-      const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
+      const isCurrentFileJsLike = PgExplorer.isCurrentFileJsLike();
       let formatJSTS;
       if (isCurrentFileJsLike) {
         formatJSTS = async () => {

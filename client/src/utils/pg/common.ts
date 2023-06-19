@@ -103,7 +103,7 @@ export class PgCommon {
    */
   static debounce(
     cb: () => void,
-    options?: { delay?: number; sharedTimeout: { id?: NodeJS.Timeout } }
+    options?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
   ) {
     const delay = options?.delay ?? 100;
     const sharedTimeout = options?.sharedTimeout ?? {};
@@ -693,10 +693,11 @@ export class PgCommon {
    */
   static batchChanges(
     cb: (value?: unknown) => void,
-    onChanges: Array<(value: any) => Disposable>
+    onChanges: Array<(value: any) => Disposable>,
+    opts?: { delay?: number }
   ): Disposable {
     // Intentionally initializing outside of the closure to share `sharedTimeout`
-    const debounceOptions = { delay: 0, sharedTimeout: {} };
+    const debounceOptions = { delay: opts?.delay ?? 0, sharedTimeout: {} };
 
     const disposables = onChanges.map((onChange) => {
       return onChange(PgCommon.debounce(cb, debounceOptions));

@@ -1,13 +1,11 @@
 import { FC, useCallback } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Button from "../../../../../../components/Button";
-import useNewItem from "./useNewItem";
 import { NewItem, Share } from "./Modals";
-import { explorerAtom } from "../../../../../../state";
 import { PgExplorer, PgRouter, PgView } from "../../../../../../utils/pg";
 import { Route } from "../../../../../../constants";
+import { useNewItem } from "./useNewItem";
 
 const ExplorerButtons = () => (
   <ButtonsWrapper>
@@ -54,7 +52,7 @@ const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
 
   return (
     <Button onClick={newItem} kind="icon" title={title}>
-      <img src={PgExplorer.getExplorerIconsPath(imageName)} alt={title} />
+      <img src={getExplorerIconsPath(imageName)} alt={title} />
     </Button>
   );
 };
@@ -66,10 +64,7 @@ const CollapseAllButton = () => {
 
   return (
     <Button onClick={handleCollapse} kind="icon" title="Collapse folders">
-      <img
-        src={PgExplorer.getExplorerIconsPath("collapse.png")}
-        alt="Collapse folders"
-      />
+      <img src={getExplorerIconsPath("collapse.png")} alt="Collapse folders" />
     </Button>
   );
 };
@@ -81,35 +76,29 @@ const ShareButton = () => {
 
   return (
     <Button onClick={handleShare} kind="icon" title="Share">
-      <img src={PgExplorer.getExplorerIconsPath("share.png")} alt="Share" />
+      <img src={getExplorerIconsPath("share.png")} alt="Share" />
     </Button>
   );
 };
 
 const GoBackButton = () => {
-  const [explorer, setExplorer] = useAtom(explorerAtom);
-
   const goBack = useCallback(async () => {
-    // Checking whether the user has workspaces to validate state
-    const _explorer = new PgExplorer(() => {});
-    await _explorer.init();
-    if (!_explorer.hasWorkspaces()) {
-      setExplorer(null);
-    }
     await PgRouter.navigate(Route.DEFAULT);
-  }, [setExplorer]);
+  }, []);
 
-  if (!explorer?.isShared) return null;
+  if (!PgExplorer.isShared) return null;
 
   return (
-    <Button onClick={goBack} kind="icon" title="Go back to your project">
+    <Button onClick={goBack} kind="icon" title="Go back to projects">
       <img
-        src={PgExplorer.getExplorerIconsPath("back.png")}
+        src={getExplorerIconsPath("back.png")}
         alt="Go back to your project"
         style={{ height: "0.875rem", width: "0.875rem" }}
       />
     </Button>
   );
 };
+
+const getExplorerIconsPath = (name: string) => "/icons/explorer/" + name;
 
 export default ExplorerButtons;

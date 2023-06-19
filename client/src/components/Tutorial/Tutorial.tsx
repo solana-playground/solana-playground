@@ -10,11 +10,10 @@ import { PointedArrow } from "../Icons";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
 import { EventName, Route } from "../../constants";
-import { PgTheme } from "../../utils/pg";
 import {
   PgCommon,
-  PgExplorer,
   PgRouter,
+  PgTheme,
   PgTutorial,
   PgView,
   Sidebar,
@@ -53,10 +52,9 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       const metadata = await PgCommon.transition(
         PgTutorial.getMetadata(tutorial.name)
       );
-      if (metadata.completed) {
-        setIsCompleted(true);
-      }
+      if (metadata.completed) setIsCompleted(true);
       setCurrentPage(metadata.pageNumber);
+
       PgView.setSidebarState((state) => {
         if (state === Sidebar.TUTORIALS) {
           return Sidebar.EXPLORER;
@@ -75,7 +73,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
   // Handle page number based on sidebar state change
   useEffect(() => {
-    const disposable = PgView.onDidChangeSidebarState((state) => {
+    const { dispose } = PgView.onDidChangeSidebarState((state) => {
       if (currentPage) {
         previousPageRef.current = currentPage;
       }
@@ -87,31 +85,15 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       }
     });
 
-    return () => disposable.dispose();
+    return () => dispose();
   }, [currentPage]);
 
   // Save tutorial metadata
   useEffect(() => {
-    if (!currentPage) return;
-
-    PgTutorial.saveTutorialMeta(
-      {
-        pageNumber: currentPage,
-        pageCount: pages.length,
-      },
-      tutorial.name
-    );
-  }, [tutorial.name, currentPage, pages.length]);
-
-  // Change workspace if it hasn't been changed yet
-  useAsyncEffect(async () => {
-    if (!currentPage) return;
-
-    const explorer = await PgExplorer.get();
-    if (explorer.currentWorkspaceName !== tutorial.name) {
-      await explorer.changeWorkspace(tutorial.name);
+    if (currentPage) {
+      PgTutorial.saveTutorialMeta({ pageNumber: currentPage });
     }
-  }, [currentPage, tutorial.name]);
+  }, [currentPage]);
 
   // Scroll to the top on page change
   useEffect(() => {
@@ -156,9 +138,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
     if (!currentPage) return;
 
     const page = pages[currentPage - 1];
-    if (page.onMount) {
-      page.onMount();
-    }
+    if (page.onMount) page.onMount();
   }, [currentPage, pages]);
 
   // This could happen if the saved page has been deleted

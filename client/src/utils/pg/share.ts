@@ -34,22 +34,21 @@ export class PgShare {
    * @returns object id if sharing is successful.
    */
   static async new() {
-    const explorer = await PgExplorer.get();
-    const files = explorer.files;
+    const files = PgExplorer.files;
 
     // Shared files are already in a valid form to re-share
-    if (explorer.isShared) return await PgServer.shareNew({ files });
+    if (PgExplorer.isShared) return await PgServer.shareNew({ files });
 
     const shareFiles: ShareGetResponse = { files: {} };
 
     for (let path in files) {
-      if (!path.startsWith(explorer.getCurrentSrcPath())) continue;
+      if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
 
       const itemInfo = files[path];
 
       // We are removing the workspace from path because share only needs /src
       path = path.replace(
-        explorer.currentWorkspacePath,
+        PgExplorer.currentWorkspacePath,
         PgExplorer.PATHS.ROOT_DIR_PATH
       );
 

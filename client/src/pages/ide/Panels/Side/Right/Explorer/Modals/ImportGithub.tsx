@@ -1,16 +1,12 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { explorerAtom } from "../../../../../../../state";
-import { PgCommon } from "../../../../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../../../../utils/pg";
 
 export const ImportGithub = () => {
-  const [explorer] = useAtom(explorerAtom);
-
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,11 +33,9 @@ export const ImportGithub = () => {
   };
 
   const importFromGithub = async () => {
-    if (!url || !explorer) return;
-
     setLoading(true);
     try {
-      await PgCommon.transition(explorer.importFromGithub(url));
+      await PgCommon.transition(PgExplorer.importFromGithub(url));
       close();
     } catch (e: any) {
       setLoading(false);

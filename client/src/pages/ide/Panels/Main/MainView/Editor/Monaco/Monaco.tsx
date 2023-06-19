@@ -229,8 +229,9 @@ const Monaco = () => {
     let topLineIntervalId: NodeJS.Timer;
     let model: monaco.editor.ITextModel;
 
-    const explorer = await PgExplorer.get();
-    const switchFile = explorer.onDidSwitchFile((curFile) => {
+    const switchFile = PgExplorer.onDidSwitchFile((curFile) => {
+      if (!curFile) return;
+
       // Clear previous state
       clearInterval(topLineIntervalId);
       model?.dispose();
@@ -252,7 +253,7 @@ const Monaco = () => {
       editor.setModel(model);
 
       // Set language
-      switch (explorer.getCurrentFileLanguage()) {
+      switch (PgExplorer.getCurrentFileLanguage()) {
         case Lang.RUST: {
           monaco.editor.setModelLanguage(model, "rust");
           break;
@@ -279,13 +280,13 @@ const Monaco = () => {
       }
 
       // Scroll to the top line number
-      const topLineNumber = explorer.getEditorTopLineNumber(curFile.path);
+      const topLineNumber = PgExplorer.getEditorTopLineNumber(curFile.path);
       const pos = topLineNumber ? editor.getTopForLineNumber(topLineNumber) : 0;
       editor.setScrollTop(pos);
 
       // Save top line number
       topLineIntervalId = PgCommon.setIntervalOnFocus(() => {
-        explorer.saveEditorTopLineNumber(
+        PgExplorer.saveEditorTopLineNumber(
           curFile.path,
           editor.getVisibleRanges()[0].startLineNumber
         );
@@ -308,18 +309,17 @@ const Monaco = () => {
     const disposable = editor.onDidChangeModelContent(() => {
       timeoutId && clearTimeout(timeoutId);
       timeoutId = setTimeout(async () => {
-        const explorer = await PgExplorer.get();
-        const curFile = explorer.getCurrentFile();
+        const curFile = PgExplorer.getCurrentFile();
         if (!curFile) return;
 
         const args: [string, string] = [curFile.path, editor.getValue()];
 
         // Save to state
-        explorer.saveFileToState(...args);
+        PgExplorer.saveFileToState(...args);
 
         // Save to IndexedDb
         try {
-          await explorer.saveFileToIndexedDB(...args);
+          await PgExplorer.saveFileToIndexedDB(...args);
         } catch (e: any) {
           console.log(`Error saving file ${curFile.path}. ${e.message}`);
         }
@@ -352,8 +352,7 @@ const Monaco = () => {
     async (ev?: { lang: Lang; fromTerminal: boolean }) => {
       if (!editor) return;
 
-      const explorer = await PgExplorer.get();
-      const lang = explorer.getCurrentFileLanguage();
+      const lang = PgExplorer.getCurrentFileLanguage();
       if (!lang) return;
 
       let formatRust;
@@ -432,7 +431,7 @@ const Monaco = () => {
         };
       }
 
-      const isCurrentFileJsLike = explorer.isCurrentFileJsLike();
+      const isCurrentFileJsLike = PgExplorer.isCurrentFileJsLike();
       let formatJSTS;
       if (isCurrentFileJsLike) {
         formatJSTS = async () => {
@@ -625,8 +624,7 @@ const Monaco = () => {
       await declareImportableTypes(editor.getValue());
     };
 
-    const explorer = await PgExplorer.get();
-    const switchFile = explorer.onDidSwitchFile(async () => {
+    const switchFile = PgExplorer.onDidSwitchFile(async () => {
       await declareImportables();
     });
 

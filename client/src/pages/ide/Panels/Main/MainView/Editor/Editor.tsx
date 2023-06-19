@@ -1,52 +1,55 @@
 import { useEffect, lazy, Suspense, useState } from "react";
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Home from "./Home";
 import { MainViewLoading } from "../../../../../../components/Loading";
-import { explorerAtom, refreshExplorerAtom } from "../../../../../../state";
 import { Id } from "../../../../../../constants";
-import { Lang, PgCommon, PgTheme } from "../../../../../../utils/pg";
+import {
+  Lang,
+  PgCommon,
+  PgExplorer,
+  PgTheme,
+} from "../../../../../../utils/pg";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
 
 const Editor = () => {
-  const [explorer] = useAtom(explorerAtom);
-  const [explorerChanged] = useAtom(refreshExplorerAtom);
-
   const [showHome, setShowHome] = useState<boolean>();
   const [showMonaco, setShowMonaco] = useState<boolean>();
 
   // Decide which editor to show
   useEffect(() => {
-    if (!explorer) return;
+    const { dispose } = PgExplorer.onNeedRender(
+      PgCommon.debounce(
+        () => {
+          const file = PgExplorer.getCurrentFile();
+          if (!file) setShowMonaco(false);
+          else {
+            const lang = PgExplorer.getLanguageFromPath(file.path);
+            setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
+          }
 
-    setShowHome(!explorer.getTabs().length);
+          setShowHome(!PgExplorer.getTabs().length);
+        },
+        { delay: 20 } // To fix flickering on workspace deletion
+      )
+    );
 
-    const lang = explorer.getCurrentFileLanguage();
-    setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [explorer, explorerChanged]);
+    return () => dispose();
+  }, []);
 
   // Save explorer metadata
   useEffect(() => {
-    if (!explorer) return;
-
-    // Save metadata to IndexedDB if we haven't rendered in 5s
+    // Save metadata to IndexedDB every 5s
     const saveMetadataIntervalId = PgCommon.setIntervalOnFocus(() => {
-      explorer.saveMeta().catch();
+      PgExplorer.saveMeta().catch();
     }, 5000);
 
     return () => clearInterval(saveMetadataIntervalId);
+  }, []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [explorer, explorerChanged]);
-
-  if (showHome === undefined || showMonaco === undefined) {
-    return <MainViewLoading />;
-  }
+  if (showHome === undefined || showMonaco === undefined) return null;
 
   return (
     <Suspense fallback={<MainViewLoading />}>

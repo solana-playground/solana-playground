@@ -1,4 +1,4 @@
-import { Files } from "./explorer";
+import type { Files } from "./types";
 
 export enum Lang {
   RUST = "Rust",

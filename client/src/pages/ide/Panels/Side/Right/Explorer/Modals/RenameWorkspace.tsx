@@ -1,14 +1,11 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { explorerAtom } from "../../../../../../../state";
+import { PgExplorer } from "../../../../../../../utils/pg";
 
 export const RenameWorkspace = () => {
-  const [explorer] = useAtom(explorerAtom);
-
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -19,7 +16,7 @@ export const RenameWorkspace = () => {
     inputRef.current?.focus();
   }, []);
 
-  const workspaceName = explorer?.currentWorkspaceName ?? "";
+  const workspaceName = PgExplorer.currentWorkspaceName ?? "";
 
   // Handle user input
   const [newName, setNewName] = useState(workspaceName);
@@ -30,13 +27,9 @@ export const RenameWorkspace = () => {
     setError("");
   };
 
-  const disableCond = !newName || !!error || !explorer;
-
   const renameWorkspace = async () => {
-    if (disableCond) return;
-
     try {
-      await explorer.renameWorkspace(newName);
+      await PgExplorer.renameWorkspace(newName);
       close();
     } catch (e: any) {
       setError(e.message);
@@ -48,7 +41,7 @@ export const RenameWorkspace = () => {
       buttonProps={{
         text: "Rename",
         onSubmit: renameWorkspace,
-        disabled: disableCond,
+        disabled: !newName || !!error || !PgExplorer,
         size: "small",
       }}
       title={`Rename workspace '${workspaceName}'`}

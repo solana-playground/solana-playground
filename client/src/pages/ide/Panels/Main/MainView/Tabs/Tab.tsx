@@ -1,11 +1,9 @@
 import { FC, MouseEvent, useRef } from "react";
-import { Atom, useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../../components/Button";
 import LangIcon from "../../../../../../components/LangIcon";
 import { Close } from "../../../../../../components/Icons";
-import { explorerAtom } from "../../../../../../state";
 import { PgExplorer, PgTheme } from "../../../../../../utils/pg";
 
 interface TabProps {
@@ -14,18 +12,16 @@ interface TabProps {
 }
 
 const Tab: FC<TabProps> = ({ current, path }) => {
-  const [explorer] = useAtom(explorerAtom as Atom<PgExplorer>);
-
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeTab = () => {
-    explorer.closeTab(path);
+    PgExplorer.closeTab(path);
   };
 
   const changeTab = (ev: MouseEvent<HTMLDivElement>) => {
-    if (closeButtonRef.current?.contains(ev.target as Node)) return;
-
-    explorer.changeCurrentFile(path);
+    if (!closeButtonRef.current?.contains(ev.target as Node)) {
+      PgExplorer.changeCurrentFile(path);
+    }
   };
 
   const handleContextMenu = (ev: MouseEvent) => {

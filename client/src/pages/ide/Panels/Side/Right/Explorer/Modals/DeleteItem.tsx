@@ -1,10 +1,8 @@
 import { FC } from "react";
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import { Warning } from "../../../../../../../components/Icons";
-import { explorerAtom } from "../../../../../../../state";
 import { PgExplorer } from "../../../../../../../utils/pg";
 
 interface DeleteItemProps {
@@ -12,21 +10,17 @@ interface DeleteItemProps {
 }
 
 export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
-  const [explorer] = useAtom(explorerAtom);
+  const itemName = PgExplorer.getItemNameFromPath(path);
+
+  if (!itemName) return null;
 
   const deleteItem = async () => {
-    if (!explorer) return;
-
     try {
-      await explorer.deleteItem(path);
+      await PgExplorer.deleteItem(path);
     } catch (e: any) {
       console.log(e.message);
     }
   };
-
-  const itemName = PgExplorer.getItemNameFromPath(path);
-
-  if (!itemName) return null;
 
   return (
     <Modal

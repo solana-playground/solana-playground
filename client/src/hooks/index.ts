@@ -3,6 +3,7 @@ export { useBalance } from "./useBalance";
 export { useConnection } from "./useConnection";
 export { useCopy } from "./useCopy";
 export { useDisposable } from "./useDisposable";
+export { useExplorer } from "./useExplorer";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
 export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";

@@ -1,17 +1,13 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { explorerAtom } from "../../../../../../../state";
-import { PgRouter } from "../../../../../../../utils/pg";
+import { PgExplorer, PgRouter } from "../../../../../../../utils/pg";
 import { Route } from "../../../../../../../constants";
 
 export const ImportShared = () => {
-  const [explorer] = useAtom(explorerAtom);
-
   const { close } = useModal();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,10 +25,8 @@ export const ImportShared = () => {
   };
 
   const importNewWorkspace = async () => {
-    if (!name || !explorer) return;
-
     try {
-      await explorer.newWorkspace(name, { fromShared: true });
+      await PgExplorer.newWorkspace(name, { fromShared: true });
       PgRouter.navigate(Route.DEFAULT);
       close();
     } catch (e: any) {

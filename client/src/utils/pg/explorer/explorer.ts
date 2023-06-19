@@ -6,102 +6,39 @@ import { PgWorkspace, Workspaces } from "./workspace";
 import { PgProgramInfo } from "../program-info";
 import { Lang } from "./frameworks";
 import { PgCommon } from "../common";
-import {
-  ClassName,
-  EventName,
-  Id,
-  ItemError,
-  WorkspaceError,
-} from "../../../constants";
+import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
+import { PgExplorerEvent } from "./events";
 import type {
-  Disposable,
-  Methods,
-  ClassReturnType,
-  TupleString,
-} from "../types";
-
-export interface ExplorerJSON {
-  files: {
-    [key: string]: ItemInfo;
-  };
-}
-
-export interface FullFile extends ItemInfo {
-  /** Full path to the file */
-  path: string;
-}
-
-interface ItemInfo {
-  /** Contents of the file */
-  content?: string;
-  /** Metadata about the file */
-  meta?: ItemMeta;
-}
-
-interface ItemMetaFile {
-  /** [Relative path]: ItemMeta */
-  [key: string]: ItemMeta;
-}
-
-interface ItemMeta {
-  /** Whether the file is the current file */
-  current?: boolean;
-  /** Whether the file is in tabs */
-  tabs?: boolean;
-  /** Editor's visible top line number */
-  topLineNumber?: number;
-}
-
-export interface Folder {
-  folders: string[];
-  files: string[];
-}
-
-/** Array<[Path, Content]> */
-export type Files = TupleString[];
+  ExplorerJSON,
+  Files,
+  Folder,
+  FullFile,
+  ItemMeta,
+  ItemMetaFile,
+} from "./types";
 
 /**
  * Class that has both static and non-static methods for explorer.
  */
 export class PgExplorer {
-  /** Non-static methods */
-
   /** Internal state */
-  private _explorer: ExplorerJSON;
+  private static _explorer: ExplorerJSON;
   /** IndexedDB FS object */
-  private _fs: PromisifiedFS;
+  private static _fs: PromisifiedFS;
   /** Workspace functionality */
-  private _workspace?: PgWorkspace;
+  private static _workspace: PgWorkspace | null = null;
   /** Whether the user is on a shared page */
-  private _shared?: boolean;
-  /** To update ui */
-  private _refresh: () => void;
+  private static _shared: boolean;
 
-  /**
-   * @param explorer state is shared if this param is supplied
-   */
-  constructor(refresh: () => void, explorer?: ExplorerJSON) {
-    if (explorer) {
-      this._shared = true;
-      this._explorer = explorer;
-    } else {
-      this._explorer = {
-        files: {},
-      };
-      this._workspace = new PgWorkspace();
-    }
-
-    this._fs = new FS(PgExplorer._INDEXED_DB_NAME).promises;
-    this._refresh = refresh;
-  }
+  /* ------------------------------- Getters ------------------------------- */
 
   /** Get whether the current page is shared */
-  get isShared() {
+  static get isShared() {
     return this._shared;
   }
 
   /** Get explorer files */
-  get files() {
+  static get files() {
     return this._explorer.files;
   }
 
@@ -110,7 +47,7 @@ export class PgExplorer {
    *
    * @throws if the workspace doesn't exist. Shouldn't be called on shared projects.
    */
-  get currentWorkspacePath() {
+  static get currentWorkspacePath() {
     if (!this.currentWorkspaceName) {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
     }
@@ -119,203 +56,59 @@ export class PgExplorer {
   }
 
   /** Get current workspace name */
-  get currentWorkspaceName() {
+  static get currentWorkspaceName() {
     return this._workspace?.currentName;
   }
 
   /** Get names of all workspaces */
-  get allWorkspaceNames() {
+  static get allWorkspaceNames() {
     return this._workspace?.allNames;
   }
 
   /** Get current workspace's tab info file path */
-  private get _metadataPath() {
+  private static get _metadataPath() {
     return this.currentWorkspacePath + PgWorkspace.METADATA_PATH;
   }
 
-  /** Public methods */
+  /* --------------------------- Public methods --------------------------- */
 
   /**
-   * Initialize explorer with the specified workspace or the default workspace.
+   * Initialize explorer.
    *
-   * Only the current workspace will be in the memory.
-   *
-   * @param workspace (optional) workspace name to set the current workspace
-   *
-   * IMPORTANT: This function must be called after constructing the class
-   * if the project is not shared.
+   * @param params -
+   * - `state`: Initialize from the given explorer state
+   * - `name`: Initialize the given workspace name
    */
-  async init(workspace?: string) {
-    if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
-    }
+  static async init(params?: { state?: ExplorerJSON; name?: string }) {
+    this._fs ??= new FS(PgExplorer._INDEXED_DB_NAME).promises;
 
-    if (workspace) {
-      this._workspace.setCurrentName(workspace);
+    if (params?.state) {
+      this._shared = true;
+      this._explorer = params.state;
+      this._workspace = null;
+    } else if (params?.name) {
+      this._shared = false;
+      this._explorer = { files: {} };
+      if (!this._workspace) {
+        this._workspace = new PgWorkspace();
+        await this._initWorkspaces();
+      }
 
-      // Update workspaces file
-      await this._saveWorkspaces();
-
-      this._explorer.files = {};
+      await this._initWorkspace(params.name);
     } else {
-      // Initialize workspaces
-      await this._initializeWorkspaces();
-    }
-
-    const fs = this._fs;
-
-    // Sets up the files from IndexedDB to the state
-    const setupFiles = async (path: string) => {
-      const itemNames = await fs.readdir(path);
-
-      if (!itemNames.length) {
-        // Empty directory
-        this.files[path] = {};
-        return;
+      // Check whether the workspace needs to be initialized
+      if (this.currentWorkspaceName) {
+        const workspaces = await this._getWorkspaces();
+        if (this.currentWorkspaceName === workspaces.currentName) return;
       }
 
-      const subItemPaths = itemNames.map(
-        (itemName) =>
-          PgCommon.appendSlash(path) +
-          itemName +
-          (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
-      );
-      for (const subItemPath of subItemPaths) {
-        const stat = await fs.stat(subItemPath);
-        if (stat.isFile()) {
-          try {
-            // This might fail if the user closes the window when a file delete
-            // operation has not been completed yet
-            const content = await this.readToString(subItemPath);
-            this.files[subItemPath] = { content };
-          } catch (e: any) {
-            console.log(`Couldn't read to string: ${e.message} ${subItemPath}`);
-          }
-        } else {
-          await setupFiles(subItemPath);
-        }
-      }
-    };
-
-    try {
-      await setupFiles(this.currentWorkspacePath);
-    } catch (e: any) {
-      console.log("Couldn't setup files:", e.message);
-
-      // This helps with in rare case where user logs out during rename
-      if (this._workspace.allNames.length) {
-        const rootDirs = await fs.readdir(PgExplorer.PATHS.ROOT_DIR_PATH);
-        const lastWorkspaceName = rootDirs[rootDirs.length - 1];
-        this._workspace.rename(lastWorkspaceName);
-        await this.init(lastWorkspaceName);
-
-        return;
-      }
-
-      console.log("No workspace found. Most likely needs initial setup.");
+      this._shared = false;
+      this._explorer = { files: {} };
+      this._workspace ??= new PgWorkspace();
+      await this._initWorkspace();
     }
 
-    // Runs when IndexedDB is empty
-    if (!Object.keys(this.files).length) {
-      console.log("Setting up default FS...");
-      // For backwards compatibility reasons, we check whether explorer key is used in localStorage
-      // and move the localStorage FS to IndexedDB.
-      // TODO: delete this check after moving domains
-      const lsExplorerStr = localStorage.getItem("explorer");
-      if (lsExplorerStr) {
-        // Create a default workspace
-        this._workspace.new(PgWorkspace.DEFAULT_WORKSPACE_NAME);
-        // Save workspaces
-        await this._saveWorkspaces();
-
-        const lsExplorer: ExplorerJSON = JSON.parse(lsExplorerStr);
-        const lsFiles = lsExplorer.files;
-        for (const path in lsFiles) {
-          const oldData = lsFiles[path];
-          delete lsFiles[path];
-          lsFiles[
-            path.replace(
-              PgExplorer.PATHS.ROOT_DIR_PATH,
-              this.currentWorkspacePath
-            )
-          ] = {
-            content: oldData.content,
-            // @ts-ignore // ignoring because the type of oldData changed
-            meta: { current: oldData.current, tabs: oldData.tabs },
-          };
-        }
-        this._explorer.files = lsFiles;
-      } else {
-        // There are no files in state and IndexedDB
-        // return and show create a project option
-        return;
-      }
-
-      // Save file(s) to IndexedDB
-      await this._writeAllFromState();
-
-      // Create tab info file
-      await this.saveMeta();
-    }
-
-    // Load metadata info from IndexedDB
-    let metaFile: ItemMetaFile;
-    try {
-      const metaStr = await this.readToString(this._metadataPath);
-      metaFile = JSON.parse(metaStr);
-    } catch {
-      metaFile = {};
-    }
-
-    for (const path in metaFile) {
-      if (this.files[this.currentWorkspacePath + path]?.content !== undefined) {
-        this.files[this.currentWorkspacePath + path].meta = metaFile[path];
-      }
-    }
-  }
-
-  /**
-   * Saves file metadata to IndexedDB
-   *
-   * NOTE: Only runs when the project is not shared.
-   */
-  async saveMeta(options?: { initial?: boolean }) {
-    if (this.isShared || !this.currentWorkspaceName) return;
-
-    if (options?.initial) {
-      const metaFile: ItemMeta = {};
-      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
-      return;
-    }
-
-    const files = this.files;
-
-    const metaFile: ItemMetaFile = {};
-    for (const path in files) {
-      metaFile[this.getRelativePath(path)] = { ...files[path].meta };
-    }
-
-    const metaFilePath = Object.keys(metaFile).find((k) =>
-      k.includes(PgWorkspace.METADATA_PATH)
-    );
-
-    // Save meta file if it doesn't exist
-    if (!metaFilePath) {
-      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
-    }
-    // Only save when relative paths are correct to not lose metadata on some rare cases
-    else if (metaFilePath.startsWith(PgWorkspace.METADATA_PATH)) {
-      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
-    }
-  }
-
-  /**
-   * Saves file to IndexedDB.
-   *
-   * NOTE: This function assumes parent directories exist.
-   */
-  async saveFileToIndexedDB(path: string, data: string) {
-    if (!this.isShared) await this._fs.writeFile(path, data);
+    PgExplorerEvent.dispatchOnDidInit();
   }
 
   /**
@@ -328,7 +121,7 @@ export class PgExplorer {
    * - Name and path checks
    * - Create item in the state
    */
-  async newItem(
+  static async newItem(
     fullPath: string,
     content: string = "",
     opts?: {
@@ -345,7 +138,7 @@ export class PgExplorer {
     // Invalid name
     if (
       !opts?.skipNameValidation &&
-      !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath)!)
+      !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath))
     ) {
       throw new Error(ItemError.INVALID_NAME);
     }
@@ -383,7 +176,7 @@ export class PgExplorer {
         if (!opts?.openOptions || isCurrentFile) {
           this.changeCurrentFile(fullPath);
         } else {
-          this._refresh();
+          PgExplorerEvent.dispatchOnDidCreateItem();
         }
       }
     } else {
@@ -394,7 +187,7 @@ export class PgExplorer {
 
       files[fullPath] = {};
 
-      this._refresh();
+      PgExplorerEvent.dispatchOnDidCreateItem();
     }
 
     await this.saveMeta();
@@ -410,7 +203,7 @@ export class PgExplorer {
    * - Name and path checks
    * - Rename in state
    */
-  async renameItem(
+  static async renameItem(
     fullPath: string,
     newName: string,
     options?: { skipNameValidation?: boolean }
@@ -507,9 +300,9 @@ export class PgExplorer {
       }
     }
 
-    this._dispatchOnDidSwitchFile(this.getFullFile()!);
+    PgExplorerEvent.dispatchOnDidSwitchFile(this.getFile()!);
 
-    this._refresh();
+    PgExplorerEvent.dispatchOnDidRenameItem();
 
     await this.saveMeta();
   }
@@ -522,7 +315,7 @@ export class PgExplorer {
    * If the project is shared:
    * - Delete from state
    */
-  async deleteItem(fullPath: string) {
+  static async deleteItem(fullPath: string) {
     fullPath = this._convertToFullPath(fullPath);
 
     // Can't delete src folder
@@ -555,18 +348,17 @@ export class PgExplorer {
       }
     }
 
-    // If we delete all elements from a folder, the parent folder disappears too.
-    // We are adding the folder back to mitigate that
-    const parentPath = PgExplorer.getParentPathFromPath(fullPath);
-    files[parentPath] = {};
+    // Deleting all elements from a folder results with the parent folder
+    // disappearing, add the folder back to mitigate that
+    files[PgExplorer.getParentPathFromPath(fullPath)] = {};
 
     // Change current file to the last tab when current file is deleted
     // or current file's parent is deleted
     if (isCurrentFile || isCurrentParent) this._changeCurrentFileToTheLastTab();
 
-    this._refresh();
-
     await this.saveMeta();
+
+    PgExplorerEvent.dispatchOnDidDeleteItem();
   }
 
   /**
@@ -577,7 +369,7 @@ export class PgExplorer {
    * - defaultOpenFile: Default file to open in the editor
    * - fromShared: Whether to create new workspace from a shared project
    */
-  async newWorkspace(
+  static async newWorkspace(
     name: string,
     options?: { files?: Files; defaultOpenFile?: string; fromShared?: boolean }
   ) {
@@ -590,10 +382,10 @@ export class PgExplorer {
       // are creating a valid workspace state and writing it to IndexedDB.
 
       this._shared = false;
-      this._fs = new FS(PgExplorer._INDEXED_DB_NAME).promises;
       this._workspace = new PgWorkspace();
+
       // Init workspace
-      await this._initializeWorkspaces();
+      await this._initWorkspaces();
       // Create a new workspace in state
       this._workspace.new(name);
 
@@ -610,14 +402,12 @@ export class PgExplorer {
       // Save metadata
       await this.saveMeta({ initial: true });
 
-      await this.changeWorkspace(name);
+      await this.switchWorkspace(name);
 
       return;
     }
 
-    if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
-    }
+    if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
 
     // Save metadata before initializing so data is never lost
     if (this.hasWorkspaces()) await this.saveMeta();
@@ -634,7 +424,9 @@ export class PgExplorer {
       }
     }
 
-    await this.changeWorkspace(name, {
+    PgExplorerEvent.dispatchOnDidCreateWorkspace();
+
+    await this.switchWorkspace(name, {
       initial: true,
       defaultOpenFile: options?.defaultOpenFile,
     });
@@ -647,14 +439,14 @@ export class PgExplorer {
    * - initial: if changing to the given workspace for the first time
    * - defaultOpenFile: the file to open in the editor
    */
-  async changeWorkspace(
+  static async switchWorkspace(
     name: string,
     options?: { initial?: boolean; defaultOpenFile?: string }
   ) {
     // Save metadata before changing the workspace to never lose data
     await this.saveMeta(options);
 
-    await this.init(name);
+    await this._initWorkspace(name);
 
     // Open the default file if it has been specified
     if (options?.defaultOpenFile) {
@@ -665,21 +457,17 @@ export class PgExplorer {
       // Save metadata to never lose default open file
       await this.saveMeta();
     } else {
-      this._dispatchOnDidSwitchFile(this.getFullFile()!);
+      PgExplorerEvent.dispatchOnDidSwitchFile(this.getFile()!);
     }
 
-    this._refresh();
-
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.EXPLORER_ON_DID_CHANGE_WORKSPACE
-    );
+    PgExplorerEvent.dispatchOnDidSwitchWorkspace();
   }
 
   /**
    * Rename the current workspace
    * @param newName new workspace name
    */
-  async renameWorkspace(newName: string) {
+  static async renameWorkspace(newName: string) {
     newName = newName.trim();
     if (!newName) {
       throw new Error(WorkspaceError.INVALID_NAME);
@@ -698,13 +486,13 @@ export class PgExplorer {
     // Rename workspace in state
     this._workspace.rename(newName);
 
-    await this.changeWorkspace(newName);
+    await this.switchWorkspace(newName);
   }
 
   /**
    * Delete the current workspace
    */
-  async deleteWorkspace() {
+  static async deleteWorkspace() {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
     }
@@ -720,22 +508,19 @@ export class PgExplorer {
     const workspaceCount = this._workspace.allNames.length;
     if (workspaceCount) {
       const lastWorkspace = this._workspace.allNames[workspaceCount - 1];
-      await this.changeWorkspace(lastWorkspace, { initial: true });
+      await this.switchWorkspace(lastWorkspace, { initial: true });
     } else {
       this._workspace.setCurrent({ allNames: [] });
       await this._saveWorkspaces();
-      this._refresh();
     }
 
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.EXPLORER_ON_DID_DELETE_WORKSPACE
-    );
+    PgExplorerEvent.dispatchOnDidDeleteWorkspace();
   }
 
   /**
    * Export the current workspace as a zip file
    */
-  async exportWorkspace() {
+  static async exportWorkspace() {
     const fs = this._fs;
 
     const { default: JSZip } = await import("jszip");
@@ -775,7 +560,7 @@ export class PgExplorer {
    *
    * @param url Github url to a program's content(folder or single file)
    */
-  async importFromGithub(url: string) {
+  static async importFromGithub(url: string) {
     // Get repository info
     const { files, owner, repo, path } = await PgGithub.getImportableRepository(
       url
@@ -785,7 +570,7 @@ export class PgExplorer {
     const githubWorkspaceName = `github-${owner}/${repo}/${path}`;
     if (this._workspace?.allNames.includes(githubWorkspaceName)) {
       // Switch to the existing workspace
-      await this.changeWorkspace(githubWorkspaceName);
+      await this.switchWorkspace(githubWorkspaceName);
     } else {
       // Get the default open file since there is no previous metadata saved
       let defaultOpenFile;
@@ -808,9 +593,53 @@ export class PgExplorer {
   }
 
   /**
+   * Saves file metadata to IndexedDB
+   *
+   * NOTE: Only runs when the project is not shared.
+   */
+  static async saveMeta(options?: { initial?: boolean }) {
+    if (this.isShared || !this.currentWorkspaceName) return;
+
+    if (options?.initial) {
+      const metaFile: ItemMeta = {};
+      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+      return;
+    }
+
+    const files = this.files;
+
+    const metaFile: ItemMetaFile = {};
+    for (const path in files) {
+      metaFile[this.getRelativePath(path)] = { ...files[path].meta };
+    }
+
+    const metaFilePath = Object.keys(metaFile).find((k) =>
+      k.includes(PgWorkspace.METADATA_PATH)
+    );
+
+    // Save meta file if it doesn't exist
+    if (!metaFilePath) {
+      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+    }
+    // Only save when relative paths are correct to not lose metadata on some rare cases
+    else if (metaFilePath.startsWith(PgWorkspace.METADATA_PATH)) {
+      await this._writeFile(this._metadataPath, JSON.stringify(metaFile), true);
+    }
+  }
+
+  /**
+   * Saves file to IndexedDB.
+   *
+   * NOTE: This function assumes parent directories exist.
+   */
+  static async saveFileToIndexedDB(path: string, data: string) {
+    if (!this.isShared) await this._fs.writeFile(path, data);
+  }
+
+  /**
    * @returns whether the given path exists
    */
-  async exists(path: string) {
+  static async exists(path: string) {
     path = this._convertToFullPath(path);
 
     try {
@@ -828,17 +657,17 @@ export class PgExplorer {
   /**
    * Reads file and returns the converted file string
    */
-  async readToString(path: string) {
+  static async readToString(path: string) {
     const data = await this._fs.readFile(this._convertToFullPath(path));
     return data.toString();
   }
 
-  /** State methods */
+  /* ---------------------------- State methods ---------------------------- */
 
   /**
    * Save the file to the state only.
    */
-  saveFileToState(path: string, content: string) {
+  static saveFileToState(path: string, content: string) {
     path = this._convertToFullPath(path);
     if (this.files[path]) this.files[path].content = content;
   }
@@ -846,7 +675,7 @@ export class PgExplorer {
   /**
    * @returns all the files from state that are in tabs
    */
-  getTabs() {
+  static getTabs() {
     const files = this.files;
     const tabs: FullFile[] = [];
 
@@ -871,99 +700,13 @@ export class PgExplorer {
    *
    * @param path path of the file, defaults to the current file if it exists.
    */
-  getFullFile(path?: string): FullFile | null {
+  static getFile(path?: string): FullFile | null {
     if (!path) return this.getCurrentFile();
+
     path = this._convertToFullPath(path);
     const itemInfo = this.files[path];
     if (itemInfo) return { path, ...this.files[path] };
     return null;
-  }
-
-  /**
-   * Gets the current opened file from state if it exists
-   */
-  getCurrentFile() {
-    const files = this.files;
-
-    for (const path in files) {
-      const fileInfo = files[path];
-
-      if (fileInfo.meta?.current) {
-        const currentFile: FullFile = { content: fileInfo.content, path };
-        return currentFile;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Changes the current opened file in state if it exists
-   */
-  changeCurrentFile(newPath: string) {
-    newPath = this._convertToFullPath(newPath);
-
-    const files = this.files;
-
-    const curFile = this.getCurrentFile();
-    if (curFile) {
-      if (newPath === curFile.path) return;
-
-      files[curFile.path].meta = {
-        ...files[curFile.path].meta,
-        current: false,
-      };
-    }
-
-    // Add file to the tabs and current
-    files[newPath].meta = {
-      ...files[newPath].meta,
-      tabs: true,
-      current: true,
-    };
-
-    this._dispatchOnDidSwitchFile(this.getFullFile()!);
-
-    this._refresh();
-  }
-
-  /**
-   * Get the visible top line number in Editor from state
-   *
-   * @param path Full path to the file
-   * @returns The top line number
-   */
-  getEditorTopLineNumber(path: string) {
-    return this.files[path].meta?.topLineNumber;
-  }
-
-  /**
-   * Save the first visible top line number in editor to state
-   *
-   * @param path Full path to the file
-   * @param topLineNumber Visible top line number
-   */
-  saveEditorTopLineNumber(path: string, topLineNumber: number) {
-    if (!this.files[path]) return;
-    this.files[path].meta = { ...this.files[path].meta, topLineNumber };
-  }
-
-  /**
-   * Closes the tab and changes the current file to the last opened tab if it exists
-   */
-  closeTab(path: string) {
-    path = this._convertToFullPath(path);
-
-    const files = this.files;
-    files[path].meta!.tabs = false;
-
-    // If we are closing the current file, change current file to the last tab
-    if (files[path].meta?.current) {
-      files[path].meta!.current = false;
-      this._changeCurrentFileToTheLastTab();
-    }
-
-    this._refresh();
   }
 
   /**
@@ -972,14 +715,14 @@ export class PgExplorer {
    * @param path full path to the file
    * @returns the file content from the state
    */
-  getFileContent(path: string) {
-    return this.files[this._convertToFullPath(path)]?.content;
+  static getFileContent(path: string) {
+    return this.getFile(path)?.content;
   }
 
   /**
    * Gets items inside the folder and groups them into `folders` and `files`
    */
-  getFolderContent(path: string) {
+  static getFolderContent(path: string) {
     const files = this.files;
     const filesAndFolders: Folder = { folders: [], files: [] };
 
@@ -1003,10 +746,95 @@ export class PgExplorer {
   }
 
   /**
+   * Gets the current opened file from state if it exists
+   */
+  static getCurrentFile() {
+    const files = this.files;
+
+    for (const path in files) {
+      const fileInfo = files[path];
+
+      if (fileInfo.meta?.current) {
+        const currentFile: FullFile = { content: fileInfo.content, path };
+        return currentFile;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Changes the current opened file in state if it exists
+   */
+  static changeCurrentFile(newPath: string) {
+    newPath = this._convertToFullPath(newPath);
+
+    const files = this.files;
+
+    const curFile = this.getCurrentFile();
+    if (curFile) {
+      if (newPath === curFile.path) return;
+
+      files[curFile.path].meta = {
+        ...files[curFile.path].meta,
+        current: false,
+      };
+    }
+
+    // Add file to the tabs and current
+    files[newPath].meta = {
+      ...files[newPath].meta,
+      tabs: true,
+      current: true,
+    };
+
+    PgExplorerEvent.dispatchOnDidSwitchFile(this.getFile()!);
+  }
+
+  /**
+   * Get the visible top line number in Editor from state
+   *
+   * @param path Full path to the file
+   * @returns The top line number
+   */
+  static getEditorTopLineNumber(path: string) {
+    return this.files[path].meta?.topLineNumber;
+  }
+
+  /**
+   * Save the first visible top line number in editor to state
+   *
+   * @param path Full path to the file
+   * @param topLineNumber Visible top line number
+   */
+  static saveEditorTopLineNumber(path: string, topLineNumber: number) {
+    if (!this.files[path]) return;
+    this.files[path].meta = { ...this.files[path].meta, topLineNumber };
+  }
+
+  /**
+   * Closes the tab and changes the current file to the last opened tab if it exists
+   */
+  static closeTab(path: string) {
+    path = this._convertToFullPath(path);
+
+    const files = this.files;
+    files[path].meta!.tabs = false;
+
+    // If we are closing the current file, change current file to the last tab
+    if (files[path].meta?.current) {
+      files[path].meta!.current = false;
+      this._changeCurrentFileToTheLastTab();
+    }
+
+    PgExplorerEvent.dispatchOnDidCloseTab();
+  }
+
+  /**
    * @param path path to be appended after the current workspace path
    * @returns full path based on the input
    */
-  appendToCurrentWorkspacePath(path: string) {
+  static appendToCurrentWorkspacePath(path: string) {
     return PgCommon.appendSlash(
       this.currentWorkspacePath + PgCommon.withoutPreSlash(path)
     );
@@ -1015,7 +843,7 @@ export class PgExplorer {
   /**
    * @returns the necessary data for the build request
    */
-  getBuildFiles() {
+  static getBuildFiles() {
     let programPkStr = PgProgramInfo.getPkStr();
     if (!programPkStr) {
       const kp = Keypair.generate();
@@ -1083,7 +911,7 @@ export class PgExplorer {
     };
 
     // prioritise files where we are likely to find a rust declare_id
-    const prioritiseFilePaths = (files: { [key: string]: ItemInfo }) => {
+    const prioritiseFilePaths = (files: ExplorerJSON["files"]) => {
       const prioritised: Array<string> = [];
       for (const path in files) {
         if (path.endsWith("lib.rs") || path.endsWith("id.rs")) {
@@ -1145,7 +973,7 @@ export class PgExplorer {
    *
    * @returns the current language name
    */
-  getCurrentFileLanguage() {
+  static getCurrentFileLanguage() {
     const currentPath = this.getCurrentFile()?.path;
     if (!currentPath) return null;
     const path = this.isShared
@@ -1157,7 +985,7 @@ export class PgExplorer {
   /**
    * @returns whether the current file in the state is a Typescript test file
    */
-  isCurrentFileJsLike() {
+  static isCurrentFileJsLike() {
     switch (this.getCurrentFileLanguage()) {
       case Lang.JAVASCRIPT:
       case Lang.TYPESCRIPT:
@@ -1172,7 +1000,7 @@ export class PgExplorer {
   /**
    * @returns whether the current workspace in the state is an Anchor program
    */
-  isWorkspaceAnchor() {
+  static isWorkspaceAnchor() {
     const libRsPath = this.getCurrentSrcPath() + "lib.rs";
     return this.files[libRsPath]?.content?.includes("anchor") ?? false;
   }
@@ -1180,7 +1008,7 @@ export class PgExplorer {
   /**
    * @returns whether the user has any workspaces
    */
-  hasWorkspaces() {
+  static hasWorkspaces() {
     return (this._workspace?.allNames?.length ?? 0) > 0;
   }
 
@@ -1190,7 +1018,7 @@ export class PgExplorer {
    * @param fullPath Full path
    * @returns Relative path
    */
-  getRelativePath(fullPath: string) {
+  static getRelativePath(fullPath: string) {
     if (this.isShared) {
       return fullPath;
     }
@@ -1206,85 +1034,312 @@ export class PgExplorer {
   /**
    * @returns current src directory path
    */
-  getCurrentSrcPath() {
+  static getCurrentSrcPath() {
     const srcPath = this.isShared
       ? PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.PATHS.SRC_DIRNAME
       : this.appendToCurrentWorkspacePath(PgExplorer.PATHS.SRC_DIRNAME);
     return PgCommon.appendSlash(srcPath);
   }
 
+  /* --------------------------- Change listeners --------------------------- */
+
   /**
-   * Runs after switching to a different file
+   * Runs after explorer state has changed and the UI needs to re-render.
    *
-   * @param cb callback function to run after switching file
+   * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  onDidSwitchFile(cb: (file: FullFile) => any): Disposable {
-    type Event = UIEvent & { detail: any };
-
-    const handle = (ev: Event) => {
-      cb(ev.detail);
-    };
-
-    handle({ detail: this.getFullFile() } as Event);
-
-    document.addEventListener(
-      EventName.EXPLORER_ON_DID_SWITCH_FILE,
-      handle as EventListener
-    );
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.EXPLORER_ON_DID_SWITCH_FILE,
-          handle as EventListener
-        ),
-    };
+  static onNeedRender(cb: () => unknown) {
+    return PgCommon.batchChanges(cb, [
+      PgExplorer.onDidInit,
+      PgExplorer.onDidSwitchFile,
+      PgExplorer.onDidDeleteItem,
+      PgExplorer.onDidCloseTab,
+    ]);
   }
 
   /**
-   * Runs after changing the workspace
+   * Runs after initializing explorer.
    *
-   * @param cb callback function to run after changing the workspace
-   * @param initialRun whether to run the callback on first call, `true` by default
+   * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  onDidChangeWorkspace(cb: () => any, initialRun: boolean = true): Disposable {
-    if (initialRun) cb();
-
-    document.addEventListener(EventName.EXPLORER_ON_DID_CHANGE_WORKSPACE, cb);
-
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.EXPLORER_ON_DID_CHANGE_WORKSPACE,
-          cb
-        ),
-    };
+  static onDidInit(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_INIT,
+      initialRun: { value: null },
+    });
   }
 
   /**
-   * Runs after deleting the current workspace
+   * Runs after creating a new item.
    *
-   * @param cb callback function to run after deleting the current workspace
+   * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  onDidDeleteWorkspace(cb: () => any): Disposable {
-    document.addEventListener(EventName.EXPLORER_ON_DID_DELETE_WORKSPACE, cb);
-    return {
-      dispose: () =>
-        document.removeEventListener(
-          EventName.EXPLORER_ON_DID_DELETE_WORKSPACE,
-          cb
-        ),
-    };
+  static onDidCreateItem(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_CREATE_ITEM,
+      initialRun: { value: null },
+    });
   }
 
-  /** Private methods */
+  /**
+   * Runs after renaming an item.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidRenameItem(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_RENAME_ITEM,
+      initialRun: { value: null },
+    });
+  }
+
+  /**
+   * Runs after deleting an item.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidDeleteItem(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_DELETE_ITEM,
+      initialRun: { value: null },
+    });
+  }
+
+  /**
+   * Runs after switching to a different file.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidSwitchFile(cb: (file: FullFile | null) => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_SWITCH_FILE,
+      initialRun: { value: PgExplorer.getFile() },
+    });
+  }
+
+  /**
+   * Runs after closing a tab.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidCloseTab(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_CLOSE_TAB,
+      initialRun: { value: null },
+    });
+  }
+
+  /**
+   * Runs after creating a workspace.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidCreateWorkspace(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_CREATE_WORKSPACE,
+      initialRun: { value: null },
+    });
+  }
+
+  /**
+   * Runs after renaming a workspace.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidRenameWorkspace(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_RENAME_WORKSPACE,
+      initialRun: { value: null },
+    });
+  }
+
+  /**
+   * Runs after deleting a workspace.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidDeleteWorkspace(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_DELETE_WORKSPACE,
+      initialRun: { value: null },
+    });
+  }
+
+  /**
+   * Runs after switching to a different workspace.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidSwitchWorkspace(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_SWITCH_WORKSPACE,
+      initialRun: { value: null },
+    });
+  }
+
+  /* --------------------------- Private methods --------------------------- */
+
+  /**
+   * Initialize explorer with the specified workspace or the default workspace.
+   *
+   * Only the current workspace will be in the memory.
+   *
+   * @param workspace (optional) workspace name to set the current workspace
+   */
+  private static async _initWorkspace(workspace?: string) {
+    if (!this._workspace) {
+      throw new Error(WorkspaceError.NOT_FOUND);
+    }
+
+    if (workspace) {
+      this._workspace.setCurrentName(workspace);
+
+      // Update workspaces file
+      await this._saveWorkspaces();
+
+      this._explorer.files = {};
+    } else {
+      // Initialize workspaces
+      await this._initWorkspaces();
+    }
+
+    const fs = this._fs;
+
+    // Sets up the files from IndexedDB to the state
+    const setupFiles = async (path: string) => {
+      const itemNames = await fs.readdir(path);
+
+      if (!itemNames.length) {
+        // Empty directory
+        this.files[path] = {};
+        return;
+      }
+
+      const subItemPaths = itemNames.map(
+        (itemName) =>
+          PgCommon.appendSlash(path) +
+          itemName +
+          (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
+      );
+      for (const subItemPath of subItemPaths) {
+        const stat = await fs.stat(subItemPath);
+        if (stat.isFile()) {
+          try {
+            // This might fail if the user closes the window when a file delete
+            // operation has not been completed yet
+            const content = await this.readToString(subItemPath);
+            this.files[subItemPath] = { content };
+          } catch (e: any) {
+            console.log(`Couldn't read to string: ${e.message} ${subItemPath}`);
+          }
+        } else {
+          await setupFiles(subItemPath);
+        }
+      }
+    };
+
+    try {
+      await setupFiles(this.currentWorkspacePath);
+    } catch (e: any) {
+      console.log("Couldn't setup files:", e.message);
+
+      // This helps with in rare case where user logs out during rename
+      if (this._workspace.allNames.length) {
+        const rootDirs = await fs.readdir(PgExplorer.PATHS.ROOT_DIR_PATH);
+        const lastWorkspaceName = rootDirs[rootDirs.length - 1];
+        this._workspace.rename(lastWorkspaceName);
+        await this._initWorkspace(lastWorkspaceName);
+
+        return;
+      }
+
+      console.log("No workspace found. Most likely needs initial setup.");
+    }
+
+    // Runs when IndexedDB is empty
+    if (!Object.keys(this.files).length) {
+      console.log("Setting up default FS...");
+      // For backwards compatibility reasons, we check whether explorer key is used in localStorage
+      // and move the localStorage FS to IndexedDB.
+      // TODO: delete this check after moving domains
+      const lsExplorerStr = localStorage.getItem("explorer");
+      if (lsExplorerStr) {
+        // Create a default workspace
+        this._workspace.new(PgWorkspace.DEFAULT_WORKSPACE_NAME);
+        // Save workspaces
+        await this._saveWorkspaces();
+
+        const lsExplorer: ExplorerJSON = JSON.parse(lsExplorerStr);
+        const lsFiles = lsExplorer.files;
+        for (const path in lsFiles) {
+          const oldData = lsFiles[path];
+          delete lsFiles[path];
+          lsFiles[
+            path.replace(
+              PgExplorer.PATHS.ROOT_DIR_PATH,
+              this.currentWorkspacePath
+            )
+          ] = {
+            content: oldData.content,
+            // @ts-ignore // ignoring because the type of oldData changed
+            meta: { current: oldData.current, tabs: oldData.tabs },
+          };
+        }
+        this._explorer.files = lsFiles;
+      } else {
+        // There are no files in state and IndexedDB
+        // return and show create a project option
+        return;
+      }
+
+      // Save file(s) to IndexedDB
+      await this._writeAllFromState();
+
+      // Create tab info file
+      await this.saveMeta();
+    }
+
+    // Load metadata info from IndexedDB
+    let metaFile: ItemMetaFile;
+    try {
+      const metaStr = await this.readToString(this._metadataPath);
+      metaFile = JSON.parse(metaStr);
+    } catch {
+      metaFile = {};
+    }
+
+    for (const path in metaFile) {
+      if (this.files[this.currentWorkspacePath + path]?.content !== undefined) {
+        this.files[this.currentWorkspacePath + path].meta = metaFile[path];
+      }
+    }
+  }
 
   /**
    * Creates new directory with create parents optionality
    */
-  private async _mkdir(path: string, createParents?: boolean) {
+  private static async _mkdir(path: string, createParents?: boolean) {
     const fs = this._fs;
 
     if (createParents) {
@@ -1305,7 +1360,7 @@ export class PgExplorer {
   /**
    * Write file with create parents optionality.
    */
-  private async _writeFile(
+  private static async _writeFile(
     path: string,
     data: string,
     createParents?: boolean
@@ -1321,7 +1376,7 @@ export class PgExplorer {
   /**
    * Write all data in the state to IndexedDB
    */
-  private async _writeAllFromState() {
+  private static async _writeAllFromState() {
     for (const path in this.files) {
       const itemType = PgExplorer.getItemTypeFromPath(path);
       if (itemType.file) {
@@ -1335,7 +1390,7 @@ export class PgExplorer {
   /**
    * Remove directory with recursive optionality
    */
-  private async _rmdir(path: string, recursive?: boolean) {
+  private static async _rmdir(path: string, recursive?: boolean) {
     const fs = this._fs;
 
     if (recursive) {
@@ -1372,13 +1427,11 @@ export class PgExplorer {
   }
 
   /**
-   * Initialize workspaces from IndexedDB to state
+   * Read workspaces config from `indexedDB`.
+   *
+   * @returns the workspaces state
    */
-  private async _initializeWorkspaces() {
-    if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
-    }
-
+  private static async _getWorkspaces() {
     let workspaces: Workspaces;
     try {
       const workspacesStr = await this.readToString(
@@ -1386,19 +1439,30 @@ export class PgExplorer {
       );
       workspaces = JSON.parse(workspacesStr);
     } catch {
-      // Create default workspaces file
-      const defaultWorkspaces = PgWorkspace.default();
-      workspaces = defaultWorkspaces;
+      workspaces = PgWorkspace.default();
     }
 
+    return workspaces;
+  }
+
+  /**
+   * Initialize workspaces from IndexedDB to state
+   */
+  private static async _initWorkspaces() {
+    if (!this._workspace) {
+      throw new Error(WorkspaceError.NOT_FOUND);
+    }
+
+    const workspaces = await this._getWorkspaces();
     this._workspace.setCurrent(workspaces);
+
     await this._saveWorkspaces();
   }
 
   /**
    * Saves workspaces from state to IndexedDB
    */
-  private async _saveWorkspaces() {
+  private static async _saveWorkspaces() {
     if (this._workspace) {
       await this._writeFile(
         PgWorkspace.WORKSPACES_CONFIG_PATH,
@@ -1412,14 +1476,14 @@ export class PgExplorer {
    * @param name workspace name
    * @returns the full path to the workspace root dir with '/' at the end
    */
-  private _getWorkspacePath(name: string) {
+  private static _getWorkspacePath(name: string) {
     return PgExplorer.PATHS.ROOT_DIR_PATH + PgCommon.appendSlash(name);
   }
 
   /**
    * Change current file to the last opened tab if it exists
    */
-  private _changeCurrentFileToTheLastTab() {
+  private static _changeCurrentFileToTheLastTab() {
     const tabs = this.getTabs();
     if (!tabs.length) return;
 
@@ -1427,7 +1491,13 @@ export class PgExplorer {
     this.changeCurrentFile(lastTabPath);
   }
 
-  private _convertToFullPath(path: string) {
+  /**
+   * Convert the given path to a full path.
+   *
+   * @param path path to convert
+   * @returns the full path
+   */
+  private static _convertToFullPath(path: string) {
     // Convert to absolute path if it doesn't start with '/'
     if (!path.startsWith(PgExplorer.PATHS.ROOT_DIR_PATH)) {
       path =
@@ -1438,17 +1508,7 @@ export class PgExplorer {
     return path;
   }
 
-  /**
-   * Dispatch onDidChangeCurrentFile custom event
-   */
-  private _dispatchOnDidSwitchFile(file: FullFile) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.EXPLORER_ON_DID_SWITCH_FILE,
-      file
-    );
-  }
-
-  /** Static methods */
+  /* --------------------------- Utilities --------------------------- */
 
   /** Paths */
   static readonly PATHS = {
@@ -1460,36 +1520,6 @@ export class PgExplorer {
 
   /** Don't change this! */
   private static readonly _INDEXED_DB_NAME = "solana-playground";
-
-  /**
-   * Statically get the explorer object from state. This function will wait until
-   * the explorer is not `null`.
-   *
-   * @returns the explorer object
-   */
-  static async get() {
-    return await PgCommon.tryUntilSuccess(async () => {
-      return await PgCommon.sendAndReceiveCustomEvent<PgExplorer>(
-        PgCommon.getStaticEventNames(EventName.EXPLORER_STATIC).get
-      );
-    });
-  }
-
-  /**
-   * Run any method of explorer in state from anywhere
-   *
-   * @param data method and its data to run
-   * @returns the result from the method call
-   */
-  static async run<
-    R extends ClassReturnType<PgExplorer, keyof M>,
-    M extends Methods<PgExplorer>
-  >(data: M) {
-    return await PgCommon.sendAndReceiveCustomEvent<R, M>(
-      PgCommon.getStaticEventNames(EventName.EXPLORER_STATIC).run,
-      data
-    );
-  }
 
   static getItemNameFromPath(path: string) {
     const itemsArr = path.split("/");
@@ -1524,7 +1554,7 @@ export class PgExplorer {
     return el?.getAttribute("data-path");
   }
 
-  static getLanguageFromPath(path: string = "") {
+  static getLanguageFromPath(path: string) {
     const splitByDot = path.split(".");
     if (!splitByDot?.length) {
       return null;
@@ -1711,9 +1741,5 @@ export class PgExplorer {
       !name.includes("//") &&
       !name.includes("..")
     );
-  }
-
-  static getExplorerIconsPath(name: string) {
-    return "/icons/explorer/" + name;
   }
 }

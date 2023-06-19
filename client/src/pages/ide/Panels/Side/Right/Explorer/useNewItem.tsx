@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { newItemAtom } from "../../../../../../state";
 import { PgExplorer } from "../../../../../../utils/pg";
 
-const useNewItem = () => {
+export const useNewItem = () => {
   const [, setEl] = useAtom(newItemAtom);
 
   const newItem = useCallback(() => {
@@ -39,5 +39,3 @@ const useNewItem = () => {
 
   return { newItem };
 };
-
-export default useNewItem;
