@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import { Theme } from "../../utils/pg/theme";
 
 // BG
 const BG_BLACK = "#000000",
@@ -20,7 +20,7 @@ const BG_BLACK = "#000000",
   HOVER_BG = "#2B2D39",
   SELECTION = "#232323";
 
-const SOLANA: PgTheme = {
+const SOLANA: Theme = {
   isDark: true,
   colors: {
     default: {

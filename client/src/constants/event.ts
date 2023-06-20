@@ -1,11 +1,16 @@
 export enum EventName {
+  // Deploy
+  BUILD_ON_DID_BUILD = "buildondidbuild",
+
   // Commands
-  COMMAND_BUILD = "commandbuild",
   COMMAND_DEPLOY = "commanddeploy",
 
   // Connection
   CONNECTION_REFRESH = "connectionrefresh",
   CONNECTION_STATIC = "connectionstatic",
+
+  // Deploy
+  DEPLOY_ON_DID_DEPLOY = "deployondiddeploy",
 
   // Editor
   EDITOR_FOCUS = "editorfocus",
@@ -24,22 +29,13 @@ export enum EventName {
   PLAYNET_FETCH_SET = "playnetfetchset",
 
   // Program info
-  PROGRAM_INFO_ON_DID_CHANGE = "programinfoondidchange",
-  PROGRAM_INFO_ON_DID_CHANGE_UUID = "programinfoondidchangeuuid",
-  PROGRAM_INFO_ON_DID_CHANGE_KP = "programinfoondidchangekp",
   PROGRAM_INFO_ON_DID_CHANGE_PK = "programinfoondidchangepk",
-  PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK = "programinfoondidchangecustompk",
-  PROGRAM_INFO_ON_DID_CHANGE_IDL = "programinfoondidchangeidl",
 
   // Router
   ROUTER_NAVIGATE = "routernavigate",
   ROUTER_LOCATION = "routerlocation",
 
   // Terminal
-  TERMINAL_DISABLE = "terminaldisable",
-  TERMINAL_ENABLE = "terminalenable",
-  TERMINAL_RUN_LAST_CMD = "terminalrunlastcmd",
-  TERMINAL_SCROLL_TO_BOTTOM = "terminalscrolltobottom",
   TERMINAL_STATE = "terminalstate",
   TERMINAL_STATIC = "terminalstatic",
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
@@ -48,6 +44,9 @@ export enum EventName {
   // Theme
   THEME_SET = "themeset",
   THEME_FONT_SET = "fontset",
+
+  // Toast
+  TOAST_SET = "toastset",
 
   // Tutorial
   TUTORIAL_STATIC = "tutorialstatic",

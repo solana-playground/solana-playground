@@ -6,7 +6,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { EventName } from "../../constants";
 import {
+  useAsyncEffect,
   useCurrentWallet,
+  useDisposable,
   useExposeStatic,
   useGetAndSetStatic,
   useGetStatic,
@@ -19,7 +21,14 @@ import {
   tutorialAtom,
   connectionAtom,
 } from "../../state";
-import { PgCommon, PgWallet } from "../../utils/pg";
+import {
+  PgCommon,
+  Disposable,
+  PgExplorer,
+  PgPreferences,
+  PgProgramInfo,
+  PgWallet,
+} from "../../utils/pg";
 
 const GlobalState = () => {
   // Balance
@@ -33,6 +42,9 @@ const GlobalState = () => {
   // Explorer
   const [explorer] = useAtom(explorerAtom);
   useExposeStatic(explorer, EventName.EXPLORER_STATIC);
+
+  // Preferences
+  useDisposable(PgPreferences.init);
 
   // Router location
   const location = useLocation();
@@ -53,13 +65,16 @@ const GlobalState = () => {
   // Wallet
   useWalletStatic();
 
+  // Program info
+  useProgramInfoStatic();
+
   return null;
 };
 
 /**
- * Overrides connection object to make it compatible with Playnet when necessary.
+ * Override connection object to make it compatible with Playnet when necessary.
  *
- * **IMPORTANT**: This hook should only be used once in the app.
+ * **IMPORTANT**: Should only be used once.
  */
 const usePgConnectionStatic = () => {
   const [connection, setConnection] = useAtom(connectionAtom);
@@ -99,6 +114,24 @@ const useWalletStatic = () => {
       wallet
     );
   }, [walletPkStr, pgWallet?.isConnected, wallet]);
+};
+
+/**
+ * Initialize `PgProgramInfo` each time the current workspace changes.
+ *
+ * **IMPORTANT**: Should only be used once.
+ */
+const useProgramInfoStatic = () => {
+  useAsyncEffect(async () => {
+    const explorer = await PgExplorer.get();
+    let disposeProgramInfo: Disposable;
+    const { dispose } = explorer.onDidChangeWorkspace(async () => {
+      disposeProgramInfo?.dispose();
+      disposeProgramInfo = await PgProgramInfo.init();
+    });
+
+    return () => dispose();
+  }, []);
 };
 
 export default GlobalState;

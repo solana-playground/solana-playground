@@ -1,15 +1,11 @@
 import { useCallback } from "react";
-import { useAtom } from "jotai";
 import { PublicKey } from "@solana/web3.js";
 
-import { txHashAtom } from "../../../state";
 import { Emoji } from "../../../constants";
 import { PgCommon, PgConnection, PgTerminal, PgTx } from "../../../utils/pg";
 import { useAirdropAmount, useCurrentWallet } from "../../../hooks";
 
 export const useAirdrop = () => {
-  const [, setTxHash] = useAtom(txHashAtom);
-
   // Get cap amount for airdrop based on network
   const amount = useAirdropAmount();
   const { pgWalletPk, solWalletPk } = useCurrentWallet();
@@ -33,7 +29,7 @@ export const useAirdrop = () => {
             walletPk,
             PgCommon.solToLamports(amount)
           );
-          setTxHash(txHash);
+          PgTx.notify(txHash);
 
           // Allow enough time for balance to update by waiting for confirmation
           await PgTx.confirm(txHash, conn);
@@ -59,7 +55,7 @@ export const useAirdrop = () => {
         }
       });
     },
-    [amount, setTxHash]
+    [amount]
   );
 
   const airdropPg = async () => {

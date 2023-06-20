@@ -1,4 +1,3 @@
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Instruction from "./Instruction";
@@ -7,54 +6,59 @@ import Event from "./Event";
 import TestSkeleton from "./TestSkeleton";
 import Text from "../../../../../../components/Text";
 import { ConnectionErrorText } from "../Common";
-import { PgProgramInfo } from "../../../../../../utils/pg";
-import { buildCountAtom } from "../../../../../../state";
+import { PgBuild, PgProgramInfo } from "../../../../../../utils/pg";
 import { useInitialLoading } from "..";
 import { useBigNumberJson } from "./useBigNumberJson";
+import { useRenderOnChange } from "../../../../../../hooks";
 
 const Test = () => {
-  // Refresh the component on a new build
-  useAtom(buildCountAtom);
+  useRenderOnChange(PgBuild.onDidBuild);
 
   const { initialLoading, deployed, connError } = useInitialLoading();
-
-  const idl = PgProgramInfo.getProgramInfo()?.idl;
 
   // Used for both accounts and events data
   useBigNumberJson();
 
-  if (initialLoading) return <TestSkeleton />;
+  if (initialLoading) {
+    return <TestSkeleton />;
+  }
 
-  if (idl === undefined)
+  if (!PgProgramInfo.state.uuid) {
     return (
       <InitialWrapper>
         <Text>Program is not built.</Text>
       </InitialWrapper>
     );
+  }
 
-  if (connError)
+  if (connError) {
     return (
       <InitialWrapper>
         <ConnectionErrorText />
       </InitialWrapper>
     );
+  }
 
-  if (!deployed)
+  if (!deployed) {
     return (
       <InitialWrapper>
         <Text>Program is not deployed.</Text>
       </InitialWrapper>
     );
+  }
 
-  if (idl === null)
+  const idl = PgProgramInfo.state.idl;
+
+  if (idl === null) {
     return (
       <InitialWrapper>
         <Text kind="warning">Native program tests are not yet supported.</Text>
       </InitialWrapper>
     );
+  }
 
   if (deployed) {
-    if (!idl.instructions)
+    if (!idl.instructions) {
       return (
         <InitialWrapper>
           <Text kind="error">
@@ -63,6 +67,7 @@ const Test = () => {
           </Text>
         </InitialWrapper>
       );
+    }
 
     return (
       <Wrapper>

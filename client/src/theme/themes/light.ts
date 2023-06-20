@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import { Theme } from "../../utils/pg/theme";
 
 // BG
 const BG_DARK = "#2c2c2c";
@@ -28,7 +28,7 @@ const SELECTION = "#e5ebf1";
 const HOVER = "#ecedee";
 const DISABLED = "#cccccc";
 
-const LIGHT: PgTheme = {
+const LIGHT: Theme = {
   isDark: false,
   colors: {
     default: {

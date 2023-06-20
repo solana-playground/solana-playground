@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 
 import { autosave, defaultExtensions, getThemeExtension } from "./extensions";
-import { buildCountAtom } from "../../../../../../../state";
+import { EventName } from "../../../../../../../constants";
 import {
   PgExplorer,
   PgProgramInfo,
@@ -13,17 +12,14 @@ import {
   Lang,
   PgCommon,
   PgPackage,
+  PgBuild,
 } from "../../../../../../../utils/pg";
-import { EventName } from "../../../../../../../constants";
 import {
   useAsyncEffect,
   useSendAndReceiveCustomEvent,
 } from "../../../../../../../hooks";
 
 const CodeMirror = () => {
-  // Update programId on each build
-  const [buildCount] = useAtom(buildCountAtom);
-
   const theme = useTheme();
 
   const editorTheme = useMemo(
@@ -287,9 +283,9 @@ const CodeMirror = () => {
     };
   }, [editor]);
 
-  // Change programId
-  useAsyncEffect(async () => {
-    if (!buildCount || !editor) return;
+  // Update programId
+  useEffect(() => {
+    if (!editor) return;
 
     const getProgramIdStartAndEndIndex = (
       content: string,
@@ -305,34 +301,42 @@ const CodeMirror = () => {
       return [quoteStartIndex, quoteEndIndex];
     };
 
-    // Update in editor
-    const explorer = await PgExplorer.get();
-    const currentLang = explorer.getCurrentFileLanguage();
-    const isRust = currentLang === Lang.RUST;
-    const isPython = currentLang === Lang.PYTHON;
-    if (!isRust && !isPython) return;
+    const updateId = async () => {
+      // Update in editor
+      const explorer = await PgExplorer.get();
+      const currentLang = explorer.getCurrentFileLanguage();
+      const isRust = currentLang === Lang.RUST;
+      const isPython = currentLang === Lang.PYTHON;
+      if (!isRust && !isPython) return;
 
-    const editorContent = editor.state.doc.toString();
-    const indices = getProgramIdStartAndEndIndex(editorContent, isPython);
-    if (!indices) return;
-    const [quoteStartIndex, quoteEndIndex] = indices;
+      const editorContent = editor.state.doc.toString();
+      const indices = getProgramIdStartAndEndIndex(editorContent, isPython);
+      if (!indices) return;
+      const [quoteStartIndex, quoteEndIndex] = indices;
 
-    const programPkResult = PgProgramInfo.getPk();
-    if (programPkResult?.err) return;
-    const programPkStr = programPkResult.programPk!.toBase58();
+      const programPkStr = PgProgramInfo.getPkStr();
+      if (!programPkStr) return;
 
-    try {
-      editor.dispatch({
-        changes: {
-          from: quoteStartIndex + 1,
-          to: quoteEndIndex,
-          insert: programPkStr,
-        },
-      });
-    } catch (e: any) {
-      console.log("Program ID update error:", e.message);
-    }
-  }, [buildCount, editor]);
+      try {
+        editor.dispatch({
+          changes: {
+            from: quoteStartIndex + 1,
+            to: quoteEndIndex,
+            insert: programPkStr,
+          },
+        });
+      } catch (e: any) {
+        console.log("Program ID update error:", e.message);
+      }
+    };
+
+    const { dispose } = PgCommon.batchChanges(updateId, [
+      PgBuild.onDidBuild,
+      PgProgramInfo.onDidChangePk,
+    ]);
+
+    return () => dispose();
+  }, [editor]);
 
   // Editor custom events
   useEffect(() => {

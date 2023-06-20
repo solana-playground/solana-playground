@@ -12,7 +12,7 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 
 import { PgProgramInfo } from "../program-info";
-import { PgTx } from "../tx";
+import { PgTx } from "../tx/tx";
 import { PgValidator } from "../validator";
 import { PgWallet } from "../wallet";
 
@@ -338,20 +338,17 @@ export class PgTest {
   }
 
   /**
-   * @returns Anchor program from the program id in localStorage
+   * @returns Anchor program object
    */
   static getProgram(
     idl: Idl,
     conn: Connection,
     wallet: typeof PgWallet | AnchorWallet
   ) {
+    const programPk = PgProgramInfo.getPk();
+    if (!programPk) throw new Error("Program id not found.");
+
     const provider = new Provider(conn, wallet, Provider.defaultOptions());
-
-    // Get program pk
-    const programPkResult = PgProgramInfo.getPk();
-    if (programPkResult.err) throw new Error(programPkResult.err);
-    const programPk = programPkResult.programPk!;
-
     return new Program(idl, programPk, provider);
   }
 

@@ -11,8 +11,6 @@ const Toast = lazy(() => import("../../../components/Toast"));
 
 const Panels = () => (
   <Wrapper>
-    {/* FIXME: Notification div is causing incorrect styling on other elements */}
-    {/* <Noti /> */}
     <MainWrapper>
       <Side />
       <Suspense fallback={<Wormhole size={10} circleCount={10} />}>

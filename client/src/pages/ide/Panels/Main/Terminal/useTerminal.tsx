@@ -3,14 +3,13 @@ import { useAtom } from "jotai";
 
 import { EventName } from "../../../../../constants";
 import { TerminalAction, terminalStateAtom } from "../../../../../state";
-import { useBuild, useDeploy } from "./commands";
+import { useDeploy } from "./commands";
 import { useSendAndReceiveCustomEvent } from "../../../../../hooks";
 
 // Runs build and deploy commands if those components are not mounted
 export const useTerminal = () => {
   const [, setTerminalState] = useAtom(terminalStateAtom);
 
-  const { runBuild } = useBuild();
   const { runDeploy } = useDeploy();
 
   // Listen for terminal state change
@@ -31,9 +30,6 @@ export const useTerminal = () => {
         handleState as EventListener
       );
   }, [setTerminalState]);
-
-  // Run build
-  useSendAndReceiveCustomEvent(EventName.COMMAND_BUILD, runBuild);
 
   // Run deploy
   useSendAndReceiveCustomEvent(EventName.COMMAND_DEPLOY, runDeploy);

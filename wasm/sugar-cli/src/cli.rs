@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[clap(name = "sugar-cli", version, about)]
+#[clap(version, about)]
 pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,

@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import { Theme } from "../../utils/pg/theme";
 
 // BG
 const BG_DEFAULT = "#282A36",
@@ -20,7 +20,7 @@ const BG_DEFAULT = "#282A36",
   SELECTION = "#44475A",
   HOVER = "#343746";
 
-const DRACULA: PgTheme = {
+const DRACULA: Theme = {
   isDark: true,
   colors: {
     default: {

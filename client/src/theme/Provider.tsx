@@ -3,12 +3,12 @@ import styled, { css, ThemeProvider } from "styled-components";
 
 import THEMES from "./themes";
 import FONTS from "./fonts";
-import { PgFont, PgThemeManager, PgThemeReady } from "../utils/pg/theme";
+import { Font, PgThemeManager, ThemeReady } from "../utils/pg/theme";
 import { EventName } from "../constants/event";
 import { useSetStatic } from "../hooks/useSetStatic";
 
 interface MutThemeContextProps {
-  font: PgFont;
+  font: Font;
 }
 
 export const MutThemeContext = createContext<MutThemeContextProps>(
@@ -16,8 +16,8 @@ export const MutThemeContext = createContext<MutThemeContextProps>(
 );
 
 const MutThemeProvider: FC = ({ children }) => {
-  const [theme, setTheme] = useState<PgThemeReady>();
-  const [font, setFont] = useState<PgFont>();
+  const [theme, setTheme] = useState<ThemeReady>();
+  const [font, setFont] = useState<Font>();
 
   useSetStatic(setTheme, EventName.THEME_SET);
   useSetStatic(setFont, EventName.THEME_FONT_SET);

@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import { Theme } from "../../utils/pg/theme";
 
 // BG
 const BG_DEFAULT = "#151721",
@@ -31,7 +31,7 @@ const BOX_SHADOW_LIGHT = `0px 0px 12px 0px ${TEXT_PRIMARY}30`;
 
 const PROGRESS_BG = `linear-gradient(to right, ${BLUE}, ${CYAN})`;
 
-const PLAYGROUND: PgTheme = {
+const PLAYGROUND: Theme = {
   isDark: true,
   colors: {
     default: {

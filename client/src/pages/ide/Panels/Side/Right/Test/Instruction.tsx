@@ -1,8 +1,10 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import { useAtom } from "jotai";
-import { Idl } from "@project-serum/anchor";
-import { IdlAccount, IdlInstruction } from "@project-serum/anchor/dist/cjs/idl";
 import styled, { css } from "styled-components";
+import type { Idl } from "@project-serum/anchor";
+import type {
+  IdlAccount,
+  IdlInstruction,
+} from "@project-serum/anchor/dist/cjs/idl";
 
 import Account from "./Account";
 import Arg from "./Arg";
@@ -10,8 +12,8 @@ import Button from "../../../../../../components/Button";
 import Foldable from "../../../../../../components/Foldable";
 import { IxContext, updateTxValsProps } from "./useUpdateTxVals";
 import { ClassName, Emoji } from "../../../../../../constants";
-import { txHashAtom } from "../../../../../../state";
 import {
+  PgCommand,
   PgCommon,
   PgPreferences,
   PgTerminal,
@@ -39,8 +41,6 @@ interface InstructionInsideProps {
 }
 
 const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
-  const [, setTxHash] = useAtom(txHashAtom);
-
   const { connection: conn } = usePgConnection();
 
   // State
@@ -148,9 +148,9 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         const txHash = await PgCommon.transition(
           PgTest.test(txVals, idl, conn, wallet)
         );
-        setTxHash(txHash);
+        PgTx.notify(txHash);
 
-        if (PgPreferences.getPreferences().showTxDetailsInTerminal) {
+        if (PgPreferences.state.showTxDetailsInTerminal) {
           return txHash;
         }
 
@@ -186,9 +186,10 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
       if (conn.rpcEndpoint.startsWith("https")) {
         await PgCommon.sleep(1500);
       }
-      PgTerminal.COMMANDS.solana(`confirm ${showLogTxHash} -v`);
+
+      await PgCommand.solana.run(`confirm ${showLogTxHash} -v`);
     }
-  }, [txVals, idl, ix.name, conn, wallet, setTxHash]);
+  }, [txVals, idl, ix.name, conn, wallet]);
 
   return (
     <>

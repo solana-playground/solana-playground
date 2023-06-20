@@ -66,53 +66,53 @@ const Monaco = () => {
         inherit: true,
         colors: {
           // General
-          foreground: editorStyles.default.color!,
+          foreground: editorStyles.default.color,
           errorForeground: theme.colors.state.error.color,
           descriptionForeground: theme.colors.default.textSecondary,
           focusBorder:
             theme.colors.default.primary + theme.default.transparency!.high,
 
           // Editor
-          "editor.foreground": editorStyles.default.color!,
-          "editor.background": orTransparent(editorStyles.default.bg!),
-          "editorCursor.foreground": editorStyles.default.cursorColor!,
+          "editor.foreground": editorStyles.default.color,
+          "editor.background": orTransparent(editorStyles.default.bg),
+          "editorCursor.foreground": editorStyles.default.cursorColor,
           "editor.lineHighlightBackground": orTransparent(
-            editorStyles.default.activeLine!.bg!
+            editorStyles.default.activeLine.bg
           ),
           "editor.lineHighlightBorder": orTransparent(
-            editorStyles.default.activeLine!.borderColor!
+            editorStyles.default.activeLine.borderColor
           ),
-          "editor.selectionBackground": editorStyles.default.selection!.bg!,
+          "editor.selectionBackground": editorStyles.default.selection.bg,
           "editor.inactiveSelectionBackground":
-            editorStyles.default.searchMatch!.bg!,
-          "editorGutter.background": orTransparent(editorStyles.gutter.bg!),
-          "editorLineNumber.foreground": editorStyles.gutter.color!,
+            editorStyles.default.searchMatch.bg,
+          "editorGutter.background": orTransparent(editorStyles.gutter.bg),
+          "editorLineNumber.foreground": editorStyles.gutter.color,
           "editorError.foreground": theme.colors.state.error.color,
           "editorWarning.foreground": theme.colors.state.warning.color,
 
           // Dropdown
-          "dropdown.background": editorStyles.tooltip.bg!,
-          "dropdown.foreground": editorStyles.tooltip.color!,
+          "dropdown.background": editorStyles.tooltip.bg,
+          "dropdown.foreground": editorStyles.tooltip.color,
 
           // Widget
-          "editorWidget.background": editorStyles.tooltip.bg!,
-          "editorHoverWidget.background": editorStyles.tooltip.bg!,
-          "editorHoverWidget.border": editorStyles.tooltip.borderColor!,
+          "editorWidget.background": editorStyles.tooltip.bg,
+          "editorHoverWidget.background": editorStyles.tooltip.bg,
+          "editorHoverWidget.border": editorStyles.tooltip.borderColor,
 
           // List
           "list.hoverBackground": theme.colors.state.hover.bg!,
-          "list.activeSelectionBackground": editorStyles.tooltip.selectedBg!,
-          "list.activeSelectionForeground": editorStyles.tooltip.selectedColor!,
-          "list.inactiveSelectionBackground": editorStyles.tooltip.bg!,
-          "list.inactiveSelectionForeground": editorStyles.tooltip.color!,
+          "list.activeSelectionBackground": editorStyles.tooltip.selectedBg,
+          "list.activeSelectionForeground": editorStyles.tooltip.selectedColor,
+          "list.inactiveSelectionBackground": editorStyles.tooltip.bg,
+          "list.inactiveSelectionForeground": editorStyles.tooltip.color,
           "list.highlightForeground": theme.colors.state.info.color,
 
           // Input
           "input.background": inputStyles.bg!,
-          "input.foreground": inputStyles.color!,
-          "input.border": inputStyles.borderColor!,
+          "input.foreground": inputStyles.color,
+          "input.border": inputStyles.borderColor,
           "inputOption.activeBorder":
-            theme.colors.default.primary + theme.default.transparency!.high,
+            theme.colors.default.primary + theme.default.transparency.high,
           "input.placeholderForeground": theme.colors.default.textSecondary,
           "inputValidation.infoBackground": theme.colors.state.info.bg!,
           "inputValidation.infoBorder": theme.colors.state.info.color,
@@ -122,35 +122,45 @@ const Monaco = () => {
           "inputValidation.errorBorder": theme.colors.state.error.color,
 
           // Minimap
-          "minimap.background": orTransparent(editorStyles.minimap.bg!),
-          "minimap.selectionHighlight":
-            editorStyles.minimap.selectionHighlight!,
+          "minimap.background": orTransparent(editorStyles.minimap.bg),
+          "minimap.selectionHighlight": editorStyles.minimap.selectionHighlight,
 
           // Peek view
-          "peekView.border": orTransparent(editorStyles.peekView.borderColor!),
-          "peekViewTitle.background": editorStyles.peekView.title!.bg!,
+          "peekView.border": orTransparent(editorStyles.peekView.borderColor),
+          "peekViewTitle.background": editorStyles.peekView.title.bg,
           "peekViewTitleLabel.foreground":
-            editorStyles.peekView.title!.labelColor!,
+            editorStyles.peekView.title.labelColor,
           "peekViewTitleDescription.foreground":
-            editorStyles.peekView.title!.descriptionColor!,
-          "peekViewEditor.background": editorStyles.peekView.editor!.bg!,
+            editorStyles.peekView.title.descriptionColor,
+          "peekViewEditor.background": editorStyles.peekView.editor.bg,
           "peekViewEditor.matchHighlightBackground":
-            editorStyles.peekView.editor!.matchHighlightBg!,
+            editorStyles.peekView.editor.matchHighlightBg,
           "peekViewEditorGutter.background":
-            editorStyles.peekView.editor!.gutterBg!,
-          "peekViewResult.background": editorStyles.peekView.result!.bg!,
+            editorStyles.peekView.editor.gutterBg,
+          "peekViewResult.background": editorStyles.peekView.result.bg,
           "peekViewResult.lineForeground":
-            editorStyles.peekView.result!.lineColor!,
+            editorStyles.peekView.result.lineColor,
           "peekViewResult.fileForeground":
-            editorStyles.peekView.result!.fileColor!,
+            editorStyles.peekView.result.fileColor,
           "peekViewResult.selectionBackground":
-            editorStyles.peekView.result!.selectionBg!,
+            editorStyles.peekView.result.selectionBg,
           "peekViewResult.selectionForeground":
-            editorStyles.peekView.result!.selectionColor!,
+            editorStyles.peekView.result.selectionColor,
           "peekViewResult.matchHighlightBackground":
-            editorStyles.peekView.result!.matchHighlightBg!,
+            editorStyles.peekView.result.matchHighlightBg,
         },
         rules: [
+          // Can't directly set scrollbar background.
+          // See https://github.com/microsoft/monaco-editor/issues/908#issuecomment-433739458
+          {
+            token: "",
+            background:
+              // Transparent background results with a full black background
+              editorStyles.default.bg === "transparent"
+                ? theme.colors.default.bgPrimary
+                : editorStyles.default.bg,
+          },
+
           { token: "invalid", foreground: hl.invalid.color },
           { token: "emphasis", fontStyle: "italic" },
 

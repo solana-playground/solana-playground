@@ -1,8 +1,9 @@
-import { ComponentType } from "react";
+import type { FC, ReactNode } from "react";
+import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { PgSet, SetElementAsync } from "./types";
+import type { SetState, SetElementAsync } from "./types";
 
 /** Sidebar states */
 export enum Sidebar {
@@ -53,17 +54,34 @@ export class PgView {
   }
 
   /**
-   * Set the current modal and wait until close
+   * Set the current modal and wait until close.
    *
-   * @param el React component to be set as the modal
+   * @param Component component to set as the modal
+   * @param props component props
    * @returns the data from `close` method of the modal
    */
-  static async setModal<R>(
-    el: ComponentType<any> | null,
-    props: object = {}
+  static async setModal<R, P>(
+    Component: ReactNode | FC<P>,
+    props?: P
   ): Promise<R | null> {
     return await PgCommon.sendAndReceiveCustomEvent(EventName.MODAL_SET, {
-      el,
+      Component,
+      props,
+    });
+  }
+
+  /**
+   * Show a notification toast.
+   *
+   * @param Component component to show
+   * @param props component props and toast options
+   */
+  static setToast<P>(
+    Component: ReactNode | FC<P>,
+    props?: { componentProps?: P; options?: ToastOptions }
+  ) {
+    return PgCommon.createAndDispatchCustomEvent(EventName.TOAST_SET, {
+      Component,
       props,
     });
   }
@@ -73,7 +91,7 @@ export class PgView {
    *
    * @param state sidebar state to set
    */
-  static setSidebarState(state: PgSet<Sidebar>) {
+  static setSidebarState(state: SetState<Sidebar>) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,
       state

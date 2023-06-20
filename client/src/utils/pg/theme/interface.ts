@@ -7,7 +7,7 @@ import { TextKind } from "../../../components/Text";
 import { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
-export interface PgTheme {
+export interface Theme {
   /** Whether the theme is a dark theme */
   isDark: boolean;
 
@@ -312,11 +312,11 @@ export interface PgTheme {
   };
 
   /** Code highlight styles */
-  highlight: PgHighlight;
+  highlight: Highlight;
 }
 
 /** Syntax highlighting styles */
-export interface PgHighlight {
+export interface Highlight {
   // const x: _bool_ = true;
   typeName: HighlightToken;
 
@@ -414,7 +414,7 @@ export interface PgHighlight {
 type HighlightToken = Pick<StandardProperties, "color" | "fontStyle">;
 
 /** Playground font */
-export interface PgFont {
+export interface Font {
   family: NonNullable<StandardProperties["fontFamily"]>;
   size: {
     [K in "xsmall" | "small" | "medium" | "large" | "xlarge"]: NonNullable<
@@ -429,7 +429,7 @@ export interface ImportableTheme {
   name: string;
   /** Import promise for the theme to lazy load */
   importTheme: () => Promise<{
-    default: PgTheme;
+    default: Theme;
   }>;
 }
 
@@ -456,14 +456,14 @@ type ExtendibleComponents =
 type OverrideableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
-export type PgThemeInternal = Partial<Pick<ImportableTheme, "name">> &
-  PgTheme & {
+export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
+  Theme & {
     /** Default font */
     font?: {
       /** Code font */
-      code?: PgFont;
+      code?: Font;
       /** Any font other than code(e.g Markdown) */
-      other?: PgFont;
+      other?: Font;
     };
   };
 
@@ -471,8 +471,8 @@ export type PgThemeInternal = Partial<Pick<ImportableTheme, "name">> &
  * Ready to be used theme. Some of the optional properties will be overridden
  * with default values.
  */
-export type PgThemeReady<
-  T extends PgThemeInternal = PgThemeInternal,
+export type ThemeReady<
+  T extends ThemeInternal = ThemeInternal,
   C extends NonNullable<T["components"]> = NonNullable<T["components"]>
 > = NestedRequired<T> & {
   // Default components

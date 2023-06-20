@@ -43,10 +43,10 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 
     const textBg = theme.components.text.default.bg!;
 
-    if (PgCommon.compareColors(inheritedBg, textBg)) {
+    if (PgCommon.isColorsEqual(inheritedBg, textBg)) {
       const { bgPrimary, bgSecondary } = theme.colors.default;
 
-      if (PgCommon.compareColors(inheritedBg, bgPrimary)) {
+      if (PgCommon.isColorsEqual(inheritedBg, bgPrimary)) {
         ref.current.style.background = bgSecondary;
       } else {
         ref.current.style.background = bgPrimary;
