@@ -182,4 +182,19 @@ export const TUTORIALS: TutorialData[] = [
     categories: [TutorialCategory.ANCHOR],
     elementImport: () => import("./ExpenseTracker"),
   },
+  {
+    name: "Bank Simulator",
+    description:
+      "Learn on-chain automation by creating bank program with interest returns.",
+    imageSrc: getTutorialImgSrc("bank-simulator/thumbnail.png"),
+    authors: [
+      {
+        name: "Bolt / Syed Aabis Akhtar",
+        link: "https://twitter.com/0xBolt",
+      },
+    ],
+    level: TutorialLevel.INTERMEDIATE,
+    categories: [TutorialCategory.ANCHOR],
+    elementImport: () => import("./BankSimulator"),
+  },
 ];
