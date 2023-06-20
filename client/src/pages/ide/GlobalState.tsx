@@ -12,10 +12,10 @@ import {
 import { terminalProgressAtom, tutorialAtom } from "../../state";
 import {
   Disposable,
+  PgConnection,
   PgExplorer,
   PgProgramInfo,
   PgWallet,
-  PgConnection,
 } from "../../utils/pg";
 
 const GlobalState = () => {
@@ -55,7 +55,7 @@ const GlobalState = () => {
 const useProgramInfoStatic = () => {
   useEffect(() => {
     let disposeProgramInfo: Disposable | undefined;
-    const { dispose } = PgExplorer.onDidInit(async () => {
+    const { dispose } = PgExplorer.onDidSwitchWorkspace(async () => {
       disposeProgramInfo?.dispose();
       disposeProgramInfo = await PgProgramInfo.init();
     });

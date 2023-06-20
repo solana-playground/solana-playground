@@ -1,4 +1,4 @@
-import type { Files } from "./types";
+import type { TupleFiles } from "./types";
 
 export enum Lang {
   RUST = "Rust",
@@ -14,7 +14,7 @@ export interface Framework {
   name: string;
   language: Lang;
   src: string;
-  files: Files;
+  files: TupleFiles;
   defaultOpenFile: string;
   circleImage?: boolean;
 }

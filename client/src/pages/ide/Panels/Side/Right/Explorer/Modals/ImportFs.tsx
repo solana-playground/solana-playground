@@ -6,7 +6,7 @@ import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import {
-  Files,
+  TupleFiles,
   Lang,
   PgCommon,
   PgExplorer,
@@ -24,7 +24,7 @@ export const ImportFs = () => {
 
   // Handle user input
   const [name, setName] = useState("");
-  const [files, setFiles] = useState<Files>();
+  const [files, setFiles] = useState<TupleFiles>();
   const [filesError, setFilesError] = useState("");
   const [importError, setImportError] = useState("");
 
@@ -35,7 +35,7 @@ export const ImportFs = () => {
 
   const onDrop = useCallback(async (userFiles) => {
     try {
-      const importFiles: Files = [];
+      const importFiles: TupleFiles = [];
       for (const userFile of userFiles) {
         let path: string = userFile.path;
         switch (path.split("/").length) {

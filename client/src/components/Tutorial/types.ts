@@ -1,4 +1,4 @@
-import { Files } from "../../utils/pg";
+import type { TupleFiles } from "../../utils/pg";
 
 /** String or JSX */
 type TutorialElement = string | JSX.Element;
@@ -24,7 +24,7 @@ export type TutorialComponentProps = {
   /* Tutorial pages to show next to the editor */
   pages: Page[];
   /** Initial files to have at the beginning of the tutorial */
-  files: Files;
+  files: TupleFiles;
   /** Initial open file when the tutorial/page is first loaded */
   defaultOpenFile?: string;
   /** Whether to put editor to the right instead of left */

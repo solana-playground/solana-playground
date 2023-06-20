@@ -144,7 +144,9 @@ export class PgTutorial {
 
   static async getMetadata(tutorialName?: string): Promise<TutorialMetadata> {
     return JSON.parse(
-      await PgExplorer.readToString(this._getTutorialMetadataPath(tutorialName))
+      await PgExplorer.fs.readToString(
+        this._getTutorialMetadataPath(tutorialName)
+      )
     );
   }
 

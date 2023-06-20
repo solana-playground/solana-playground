@@ -6,6 +6,10 @@ export interface ExplorerJSON {
   };
 }
 
+export type ExplorerFiles = {
+  [key: string]: ItemInfo;
+};
+
 export interface FullFile extends ItemInfo {
   /** Full path to the file */
   path: string;
@@ -23,7 +27,7 @@ export interface ItemMetaFile {
   [key: string]: ItemMeta;
 }
 
-export interface ItemMeta {
+interface ItemMeta {
   /** Whether the file is the current file */
   current?: boolean;
   /** Whether the file is in tabs */
@@ -38,4 +42,4 @@ export interface Folder {
 }
 
 /** Array<[Path, Content]> */
-export type Files = TupleString[];
+export type TupleFiles = TupleString[];

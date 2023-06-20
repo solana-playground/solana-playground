@@ -317,9 +317,12 @@ const Monaco = () => {
         // Save to state
         PgExplorer.saveFileToState(...args);
 
-        // Save to IndexedDb
+        // Only save to `indexedDB` when not shared
+        if (PgExplorer.isShared) return;
+
+        // Save to `indexedDB`
         try {
-          await PgExplorer.saveFileToIndexedDB(...args);
+          await PgExplorer.fs.writeFile(...args);
         } catch (e: any) {
           console.log(`Error saving file ${curFile.path}. ${e.message}`);
         }

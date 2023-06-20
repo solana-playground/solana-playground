@@ -1,7 +1,7 @@
 import { createCmd } from "../create-command";
 import { PgPackage } from "../package";
 import { PgTerminal } from "../../terminal";
-import { Files, PgExplorer } from "../../explorer";
+import { TupleFiles, PgExplorer } from "../../explorer";
 import { PgProgramInfo } from "../../program-info";
 import { PgServer } from "../../server";
 import { TerminalAction } from "../../../../state";
@@ -51,7 +51,7 @@ const processBuild = async () => {
  * @param files Rust files from `src/`
  * @returns Build output from stderr(not only errors)
  */
-const buildRust = async (files: Files) => {
+const buildRust = async (files: TupleFiles) => {
   if (!files.length) throw new Error("Couldn't find any Rust files.");
 
   const data = await PgServer.build(files, PgProgramInfo.uuid);
@@ -71,7 +71,7 @@ const buildRust = async (files: Files) => {
  * @param pythonFiles Python files in `src/`
  * @returns Build output from stderr(not only errors)
  */
-const buildPython = async (pythonFiles: Files) => {
+const buildPython = async (pythonFiles: TupleFiles) => {
   const { compileSeahorse } = await PgPackage.import("seahorse-compile");
 
   const rustFiles = pythonFiles.flatMap(([path, content]) => {
@@ -84,7 +84,7 @@ const buildPython = async (pythonFiles: Files) => {
     }
 
     // Seahorse compile outputs a flattened array like [filepath, content, filepath, content]
-    const files: Files = [];
+    const files: TupleFiles = [];
     for (let i = 0; i < compiledContent.length; i += 2) {
       const path = compiledContent[i];
       let content = compiledContent[i + 1];

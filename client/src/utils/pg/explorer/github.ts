@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import { GithubError } from "../../../constants";
-import type { Files } from "./types";
+import type { TupleFiles } from "./types";
 
 interface GithubRepositoryInfo {
   name: string;
@@ -42,7 +42,7 @@ export class PgGithub {
       srcUrl = srcInfo.srcUrl;
     }
 
-    const files: Files = [];
+    const files: TupleFiles = [];
 
     const recursivelyGetContent = async (
       dirData: GithubRepositoryResponse,

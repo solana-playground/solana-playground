@@ -67,7 +67,7 @@ export const saveConfigData = async (configData: ConfigData) => {
     }),
     {
       override: true,
-      openOptions: { onlyOpenIfAlreadyOpen: true },
+      openOptions: { onlyRefreshIfAlreadyOpen: true },
     }
   );
 };

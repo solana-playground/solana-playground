@@ -58,10 +58,11 @@ const storage = {
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<ProgramInfo> {
+    if (!PgExplorer.currentWorkspaceName) return defaultState;
+
     let serializedState: SerializedProgramInfo;
     try {
-      const serializedStateStr = await PgExplorer.readToString(this.PATH);
-      serializedState = JSON.parse(serializedStateStr);
+      serializedState = await PgExplorer.fs.readToJSON(this.PATH);
     } catch {
       return defaultState;
     }
@@ -80,20 +81,17 @@ const storage = {
 
   /** Serialize the data and write to storage. */
   async write(state: ProgramInfo) {
-    if (!PgExplorer.isShared) {
-      // Don't use spread operator(...) because of the extra derived state
-      const serializedState: SerializedProgramInfo = {
-        uuid: state.uuid,
-        idl: state.idl,
-        kp: state.kp ? Array.from(state.kp.secretKey) : null,
-        customPk: state.customPk?.toBase58() ?? null,
-      };
+    if (!PgExplorer.currentWorkspaceName) return;
 
-      await PgExplorer.newItem(this.PATH, JSON.stringify(serializedState), {
-        override: true,
-        openOptions: { dontOpen: true },
-      });
-    }
+    // Don't use spread operator(...) because of the extra derived state
+    const serializedState: SerializedProgramInfo = {
+      uuid: state.uuid,
+      idl: state.idl,
+      kp: state.kp ? Array.from(state.kp.secretKey) : null,
+      customPk: state.customPk?.toBase58() ?? null,
+    };
+
+    await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(serializedState));
   },
 };
 

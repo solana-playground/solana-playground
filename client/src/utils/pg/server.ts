@@ -1,7 +1,7 @@
 import type { Idl } from "@project-serum/anchor";
 
 import { PgCommon } from "./common";
-import type { Files } from "./explorer";
+import type { TupleFiles } from "./explorer";
 
 export interface ShareGetResponse {
   files: {
@@ -21,7 +21,7 @@ export class PgServer {
    * @param uuid unique project id
    * @returns the build response
    */
-  static async build(files: Files, uuid: string | null) {
+  static async build(files: TupleFiles, uuid: string | null) {
     const response = await this._send("/build", {
       post: {
         body: JSON.stringify({

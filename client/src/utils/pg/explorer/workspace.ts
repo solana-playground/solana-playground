@@ -1,6 +1,6 @@
 import { WorkspaceError } from "../../../constants";
 
-export interface Workspaces {
+interface Workspaces {
   allNames: string[];
   currentName?: string;
 }
@@ -14,7 +14,7 @@ export class PgWorkspace {
   /** Class methods */
   private _state: Workspaces;
 
-  constructor(workspaces: Workspaces = PgWorkspace.default()) {
+  constructor(workspaces: Workspaces = PgWorkspace.DEFAULT) {
     this._state = workspaces;
   }
 
@@ -98,6 +98,11 @@ export class PgWorkspace {
 
   /** Static methods */
 
+  /** Default workspaces */
+  static readonly DEFAULT: Workspaces = {
+    allNames: [],
+  };
+
   /** Path to the file that has data about all the workspaces */
   static readonly WORKSPACES_CONFIG_PATH = "/.config/workspaces.json";
 
@@ -108,13 +113,4 @@ export class PgWorkspace {
 
   /** Default name to name the projects that used to be in localStorage */
   static readonly DEFAULT_WORKSPACE_NAME = "default";
-
-  /**
-   * @returns default workspaces
-   */
-  static default(): Workspaces {
-    return {
-      allNames: [],
-    };
-  }
 }

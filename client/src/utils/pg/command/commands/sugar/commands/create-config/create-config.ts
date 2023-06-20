@@ -297,7 +297,7 @@ export const processCreateConfig = async () => {
   term.println(`\n[2/2] ${Emoji.PAPER} Saving config file\n`);
 
   let saveFile = true;
-  if (await PgExplorer.exists(PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH)) {
+  if (await PgExplorer.fs.exists(PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH)) {
     saveFile =
       (await term.waitForUserInput(
         [
@@ -324,7 +324,7 @@ export const processCreateConfig = async () => {
       prettyConfigData,
       {
         override: true,
-        openOptions: { onlyOpenIfAlreadyOpen: true },
+        openOptions: { onlyRefreshIfAlreadyOpen: true },
       }
     );
     term.println(

@@ -58,9 +58,9 @@ export const usePgRouter = () => {
       }
 
       // Shared
-      else if (PgShare.isValidPathname(pathname) && !PgExplorer.isShared) {
-        const shareData = await PgShare.get(pathname);
-        await PgExplorer.init({ state: shareData });
+      else if (!PgExplorer.isShared && PgShare.isValidPathname(pathname)) {
+        const files = await PgShare.get(pathname);
+        await PgExplorer.init({ files });
 
         PgView.setSidebarState(Sidebar.EXPLORER);
       }
@@ -104,15 +104,15 @@ export const usePgRouter = () => {
         if (!tutorial) {
           PgRouter.navigate(Route.DEFAULT);
         } else if (
+          pathname.startsWith(Route.TUTORIALS) &&
           !PgRouter.comparePaths(pathname, Route.TUTORIALS) &&
-          pathname.startsWith(Route.TUTORIALS)
+          PgExplorer.currentWorkspaceName &&
+          PgExplorer.currentWorkspaceName !== tutorial.name
         ) {
-          if (PgExplorer.currentWorkspaceName !== tutorial.name) {
-            if (PgExplorer.allWorkspaceNames?.includes(tutorial.name)) {
-              await PgExplorer.switchWorkspace(tutorial.name);
-            } else {
-              await PgRouter.navigate(Route.DEFAULT);
-            }
+          if (PgExplorer.allWorkspaceNames?.includes(tutorial.name)) {
+            await PgTutorial.open(tutorial.name);
+          } else {
+            await PgRouter.navigate(Route.DEFAULT);
           }
         }
       }
@@ -161,8 +161,14 @@ export const usePgRouter = () => {
 
   // Handle loading state
   useEffect(() => {
-    const { dispose } = PgExplorer.onDidInit(() => {
-      setLoading(false);
+    const { dispose } = PgExplorer.onDidSwitchWorkspace(() => {
+      if (
+        PgExplorer.currentWorkspaceName ||
+        PgExplorer.isShared ||
+        !PgExplorer.hasWorkspaces()
+      ) {
+        setLoading(false);
+      }
     });
     return () => dispose();
   }, []);

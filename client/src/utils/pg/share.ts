@@ -1,22 +1,24 @@
 import { PgCommon } from "./common";
-import { ExplorerJSON, PgExplorer } from "./explorer";
+import { ExplorerFiles, PgExplorer } from "./explorer";
 import { PgServer, ShareGetResponse } from "./server";
 
 export class PgShare {
   /**
-   * @returns shared project info
+   * Get the shared project files from the given path.
+   *
+   * @returns shared project files
    */
   static async get(pathname: string) {
     const id = pathname.slice(1);
     const shareData = await PgServer.shareGet(id);
 
-    // Convert `ShareGetResponse` to `ExplorerJSON` to make shares backwards
+    // Convert `ShareGetResponse` to `ExplorerFiles` to make shares backwards
     // compatible with the old shares
-    const explorer: ExplorerJSON = { files: {} };
+    const files: ExplorerFiles = {};
 
     for (const path in shareData.files) {
       const fileInfo = shareData.files[path];
-      explorer.files[path] = {
+      files[path] = {
         content: fileInfo.content,
         meta: {
           current: fileInfo.current,
@@ -25,7 +27,7 @@ export class PgShare {
       };
     }
 
-    return explorer;
+    return files;
   }
 
   /**

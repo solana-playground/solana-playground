@@ -9,16 +9,21 @@ export const autosave = (curFile: FullFile, ms: number) => {
     // Runs when the editor content changes
     if (v.docChanged) {
       timeoutId && clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(async () => {
         const args: [string, string] = [curFile.path, v.state.doc.toString()];
 
         // Save to state
         PgExplorer.saveFileToState(...args);
 
-        // Save to IndexedDb
-        PgExplorer.saveFileToIndexedDB(...args).catch((e: any) =>
-          console.log(`Error saving file ${curFile.path}. ${e.message}`)
-        );
+        // Only save to `indexedDB` when not shared
+        if (PgExplorer.isShared) return;
+
+        // Save to `indexedDB`
+        try {
+          await PgExplorer.fs.writeFile(...args);
+        } catch (e: any) {
+          console.log(`Error saving file ${curFile.path}. ${e.message}`);
+        }
       }, ms);
     }
   });
