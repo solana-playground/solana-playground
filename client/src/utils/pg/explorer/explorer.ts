@@ -22,11 +22,12 @@ import type {
  */
 export class PgExplorer {
   /** Internal state */
-  private static _explorer: ExplorerJSON = { files: {} };
+  private static readonly _explorer: ExplorerJSON = { files: {} };
   /** Workspace functionality */
   private static _workspace: PgWorkspace | null = null;
   /** Whether the user is on a shared page */
   private static _shared: boolean;
+  private static _initializedWorkspaceName: string | null = null;
 
   /** `indexedDB` file system */
   static fs = PgFs;
@@ -76,6 +77,14 @@ export class PgExplorer {
    * - `name`: Initialize the given workspace name
    */
   static async init(params?: { files?: ExplorerFiles; name?: string }) {
+    // Skip initializing if the workspace has already been initialized
+    if (
+      (params?.name && this._initializedWorkspaceName === params.name) ||
+      this._initializedWorkspaceName === this.currentWorkspaceName
+    ) {
+      return;
+    }
+
     if (params?.files) {
       this._shared = true;
       this._explorer.files = params.files;
@@ -89,7 +98,11 @@ export class PgExplorer {
       }
 
       const workspaceName = params?.name ?? this.currentWorkspaceName;
-      if (workspaceName) await this.switchWorkspace(workspaceName);
+
+      // Check whether the workspace exists
+      if (workspaceName && this._workspace.allNames.includes(workspaceName)) {
+        await this.switchWorkspace(workspaceName);
+      }
     }
   }
 
@@ -429,7 +442,7 @@ export class PgExplorer {
     await this.saveMeta(opts);
 
     // Set the workspace
-    this._workspace!.setCurrentName(name);
+    this.setWorkspaceName(name);
     await this._saveWorkspaces();
 
     // Initialize the workspace
@@ -445,6 +458,10 @@ export class PgExplorer {
       PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
     }
 
+    // Set the initialized workspace name
+    this._initializedWorkspaceName = name;
+
+    // Dispatch change event
     PgExplorerEvent.dispatchOnDidSwitchWorkspace();
   }
 
@@ -940,6 +957,15 @@ export class PgExplorer {
   static isWorkspaceAnchor() {
     const libRsPath = this.getCurrentSrcPath() + "lib.rs";
     return this.files[libRsPath]?.content?.includes("anchor") ?? false;
+  }
+
+  /**
+   * Set the current workspace name.
+   *
+   * @param name workspace name
+   */
+  static setWorkspaceName(name: string) {
+    this._workspace!.setCurrentName(name);
   }
 
   /**

@@ -67,8 +67,11 @@ export class PgTutorial {
       // Open the tutorial pages view
       try {
         const metadata = await this.getMetadata();
-        this.setPageNumber(metadata.pageNumber);
-        PgView.setSidebarState(Sidebar.EXPLORER);
+        if (metadata.pageNumber) this.setPageNumber(metadata.pageNumber);
+        PgView.setSidebarState((state) => {
+          if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
+          return state;
+        });
       } catch {}
     } else {
       PgRouter.navigate(tutorialPath);
@@ -92,6 +95,7 @@ export class PgTutorial {
       try {
         const metadata = await this.getMetadata();
         this.setPageNumber(metadata.pageNumber);
+        PgView.setSidebarState();
         tutorialMetaExists = true;
       } catch {}
     } else {
@@ -111,15 +115,12 @@ export class PgTutorial {
         pageNumber: 0,
         pageCount: props.pageCount,
       };
-      await PgExplorer.newItem(
+      await PgExplorer.fs.writeFile(
         this._getTutorialMetadataPath(),
-        JSON.stringify(metadata),
-        { skipNameValidation: true, openOptions: { dontOpen: true } }
+        JSON.stringify(metadata)
       );
       this.setPageNumber(1);
     }
-
-    PgView.setSidebarState(Sidebar.EXPLORER);
   }
 
   static async finish() {
@@ -143,10 +144,8 @@ export class PgTutorial {
   }
 
   static async getMetadata(tutorialName?: string): Promise<TutorialMetadata> {
-    return JSON.parse(
-      await PgExplorer.fs.readToString(
-        this._getTutorialMetadataPath(tutorialName)
-      )
+    return await PgExplorer.fs.readToJSON(
+      this._getTutorialMetadataPath(tutorialName)
     );
   }
 

@@ -91,7 +91,7 @@ export class PgView {
    *
    * @param state sidebar state to set
    */
-  static setSidebarState(state: SetState<Sidebar>) {
+  static setSidebarState(state: SetState<Sidebar> = Sidebar.EXPLORER) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,
       state

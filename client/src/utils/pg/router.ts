@@ -1,6 +1,6 @@
 import { Location } from "react-router-dom";
 
-import { EventName } from "../../constants";
+import { EventName, Route } from "../../constants";
 import { PgCommon } from "./common";
 
 export class PgRouter {
@@ -16,7 +16,7 @@ export class PgRouter {
    *
    * @param path pathname to navigate to
    */
-  static async navigate(path: string) {
+  static async navigate(path: string = Route.DEFAULT) {
     const location = await PgCommon.timeout(this.getLocation(), 200);
     if (!location) {
       PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);

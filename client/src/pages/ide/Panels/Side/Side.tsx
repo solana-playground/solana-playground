@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, PgTheme, Sidebar } from "../../../../utils/pg";
+import { PgCommon, PgRouter, PgTheme, Sidebar } from "../../../../utils/pg";
 import { EventName, Route } from "../../../../constants";
 import { useSetStatic } from "../../../../hooks";
 
@@ -12,14 +12,16 @@ const Side = () => {
   const { pathname } = useLocation();
 
   const [sidebarState, setSidebarState] = useState(
-    pathname.startsWith(Route.TUTORIALS) ? Sidebar.TUTORIALS : Sidebar.EXPLORER
+    PgRouter.comparePaths(pathname, Route.TUTORIALS)
+      ? Sidebar.TUTORIALS
+      : Sidebar.EXPLORER
   );
   const [width, setWidth] = useState(320);
   const [oldWidth, setOldWidth] = useState(width);
 
   useEffect(() => {
     if (width) setOldWidth(width);
-  }, [width, setOldWidth]);
+  }, [width]);
 
   const oldSidebarRef = useRef(sidebarState);
 
@@ -75,7 +77,7 @@ const Side = () => {
 
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [width, oldWidth, setSidebarState, setWidth]);
+  }, [width, oldWidth]);
 
   return (
     <Wrapper>

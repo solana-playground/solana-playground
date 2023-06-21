@@ -6,7 +6,7 @@ import { Sidebar } from "../../../../../utils/pg";
 
 export const ID_PREFIX = "Icon";
 
-const useActiveTab = (
+export const useActiveTab = (
   currentState: Sidebar,
   oldStateRef: MutableRefObject<Sidebar>,
   width: number
@@ -29,8 +29,4 @@ const changeActiveTab = (newId: string, oldId: string) => {
   newEl?.classList.add(ClassName.ACTIVE);
 };
 
-const getId = (id: string) => {
-  return ID_PREFIX + id;
-};
-
-export default useActiveTab;
+const getId = (id: string) => ID_PREFIX + id;

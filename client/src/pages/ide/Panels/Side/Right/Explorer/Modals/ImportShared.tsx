@@ -2,14 +2,11 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
-import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import { PgExplorer, PgRouter } from "../../../../../../../utils/pg";
 import { Route } from "../../../../../../../constants";
 
 export const ImportShared = () => {
-  const { close } = useModal();
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on mount
@@ -27,8 +24,7 @@ export const ImportShared = () => {
   const importNewWorkspace = async () => {
     try {
       await PgExplorer.newWorkspace(name, { fromShared: true });
-      PgRouter.navigate(Route.DEFAULT);
-      close();
+      PgRouter.navigate();
     } catch (e: any) {
       console.log(e.message);
     }
@@ -40,6 +36,7 @@ export const ImportShared = () => {
         text: "Import",
         onSubmit: importNewWorkspace,
         disabled: !name,
+        closeOnSubmit: true,
       }}
       title
     >

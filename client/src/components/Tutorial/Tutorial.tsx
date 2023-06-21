@@ -53,40 +53,21 @@ export const Tutorial: FC<TutorialComponentProps> = ({
         PgTutorial.getMetadata(tutorial.name)
       );
       if (metadata.completed) setIsCompleted(true);
+
       setCurrentPage(metadata.pageNumber);
-
       PgView.setSidebarState((state) => {
-        if (state === Sidebar.TUTORIALS) {
-          return Sidebar.EXPLORER;
-        }
-
+        if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
         return state;
       });
     } catch {
       setCurrentPage(0);
+      PgView.setSidebarState(Sidebar.TUTORIALS);
     } finally {
       if (wrapperRef.current) {
         wrapperRef.current.style.opacity = "1";
       }
     }
   }, [tutorial.name]);
-
-  // Handle page number based on sidebar state change
-  useEffect(() => {
-    const { dispose } = PgView.onDidChangeSidebarState((state) => {
-      if (currentPage) {
-        previousPageRef.current = currentPage;
-      }
-
-      if (state === Sidebar.TUTORIALS) {
-        setCurrentPage(0);
-      } else if (previousPageRef.current) {
-        setCurrentPage(previousPageRef.current);
-      }
-    });
-
-    return () => dispose();
-  }, [currentPage]);
 
   // Save tutorial metadata
   useEffect(() => {
@@ -101,7 +82,6 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }, [currentPage]);
 
   const goBackToTutorials = useCallback(() => {
-    PgView.setSidebarState(Sidebar.TUTORIALS);
     PgRouter.navigate(Route.TUTORIALS);
   }, []);
 

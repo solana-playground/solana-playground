@@ -4,7 +4,6 @@ import styled from "styled-components";
 import Button from "../../../../../../components/Button";
 import { NewItem, Share } from "./Modals";
 import { PgExplorer, PgRouter, PgView } from "../../../../../../utils/pg";
-import { Route } from "../../../../../../constants";
 import { useNewItem } from "./useNewItem";
 
 const ExplorerButtons = () => (
@@ -83,7 +82,7 @@ const ShareButton = () => {
 
 const GoBackButton = () => {
   const goBack = useCallback(async () => {
-    await PgRouter.navigate(Route.DEFAULT);
+    await PgRouter.navigate();
   }, []);
 
   if (!PgExplorer.isShared) return null;

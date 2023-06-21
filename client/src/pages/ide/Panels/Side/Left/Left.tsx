@@ -5,10 +5,10 @@ import IconButton from "../../../../../components/IconButton";
 import Link from "../../../../../components/Link";
 import PopButton from "../../../../../components/PopButton";
 import Settings from "../Right/Settings";
-import useActiveTab, { ID_PREFIX } from "./useActiveTab";
 import { sidebarData } from "./sidebar-data";
 import { GITHUB_URL } from "../../../../../constants";
 import { PgCommon, PgTheme, Sidebar } from "../../../../../utils/pg";
+import { ID_PREFIX, useActiveTab } from "./useActiveTab";
 
 interface LeftProps {
   sidebarState: Sidebar;
