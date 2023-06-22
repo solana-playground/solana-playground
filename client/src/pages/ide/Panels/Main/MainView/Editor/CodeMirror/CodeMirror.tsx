@@ -189,14 +189,6 @@ const CodeMirror = () => {
       // Clear previous state
       topLineIntervalId && clearInterval(topLineIntervalId);
 
-      // Open all parents
-      PgExplorer.openAllParents(curFile.path);
-
-      // Change selected
-      // won't work on mount
-      const newEl = PgExplorer.getElFromPath(curFile.path);
-      if (newEl) PgExplorer.setSelectedEl(newEl);
-
       // Change editor state
       const languageCompartment = new Compartment();
       const extensions = [

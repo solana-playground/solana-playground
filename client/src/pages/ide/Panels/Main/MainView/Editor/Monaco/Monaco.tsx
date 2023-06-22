@@ -236,14 +236,6 @@ const Monaco = () => {
       clearInterval(topLineIntervalId);
       model?.dispose();
 
-      // Open all parents
-      PgExplorer.openAllParents(curFile.path);
-
-      // Change selected
-      // won't work on mount
-      const newEl = PgExplorer.getElFromPath(curFile.path);
-      if (newEl) PgExplorer.setSelectedEl(newEl);
-
       // Set editor model
       model = monaco.editor.createModel(
         curFile.content!,

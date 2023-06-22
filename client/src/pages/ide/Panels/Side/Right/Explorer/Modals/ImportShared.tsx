@@ -4,7 +4,6 @@ import styled from "styled-components";
 import Modal from "../../../../../../../components/Modal";
 import Input from "../../../../../../../components/Input";
 import { PgExplorer, PgRouter } from "../../../../../../../utils/pg";
-import { Route } from "../../../../../../../constants";
 
 export const ImportShared = () => {
   const inputRef = useRef<HTMLInputElement>(null);

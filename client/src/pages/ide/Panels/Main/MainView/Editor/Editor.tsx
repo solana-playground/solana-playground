@@ -32,7 +32,7 @@ const Editor = () => {
 
           setShowHome(!PgExplorer.getTabs().length);
         },
-        { delay: 20 } // To fix flickering on workspace deletion
+        { delay: 25 } // To fix flickering on workspace deletion
       )
     );
 

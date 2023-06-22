@@ -12,31 +12,53 @@ import {
   Wrench,
 } from "../../../../../../components/Icons";
 import { ClassName, Id } from "../../../../../../constants";
-import { Folder as FolderType, PgExplorer } from "../../../../../../utils/pg";
+import {
+  Folder as FolderType,
+  PgCommon,
+  PgExplorer,
+} from "../../../../../../utils/pg";
 
 const Folders = () => {
-  // Initial folder state on mount
+  // Handle folder state
   useEffect(() => {
-    if (!PgExplorer.getTabs().length) return;
+    const switchWorkspace = PgExplorer.onDidSwitchWorkspace(() => {
+      // Reset folder open/closed state
+      PgExplorer.collapseAllFolders();
+    });
 
-    const curFile = PgExplorer.getCurrentFile();
-    if (!curFile) return;
+    const openParentsAndSelectEl = (path: string) => {
+      // Open if current file's parents are not opened
+      PgExplorer.openAllParents(path);
 
-    // Open if current file's parents are not opened
-    PgExplorer.openAllParents(curFile.path);
+      // Change selected element
+      const newEl = PgExplorer.getElFromPath(path);
+      if (newEl) PgExplorer.setSelectedEl(newEl);
+    };
 
-    // Change selected
-    const newEl = PgExplorer.getElFromPath(curFile.path);
-    if (newEl) PgExplorer.setSelectedEl(newEl);
+    const switchFile = PgExplorer.onDidSwitchFile(async (file) => {
+      if (!file) return;
+
+      openParentsAndSelectEl(file.path);
+
+      // Sleep before opening parents because switching workspace collapses
+      // all folders after file switching
+      await PgCommon.sleep(300);
+      openParentsAndSelectEl(file.path);
+    });
+
+    return () => {
+      switchWorkspace.dispose();
+      switchFile.dispose();
+    };
   }, []);
 
   const ctxMenu = useExplorerContextMenu();
 
   // No need to memoize here
-  const relativeRootPath = !PgExplorer!.isShared
-    ? PgExplorer!.currentWorkspacePath
+  const relativeRootPath = !PgExplorer.isShared
+    ? PgExplorer.currentWorkspacePath
     : "/";
-  const relativeRootDir = PgExplorer!.getFolderContent(relativeRootPath);
+  const relativeRootDir = PgExplorer.getFolderContent(relativeRootPath);
   const otherFolders = relativeRootDir.folders.filter(
     (f) =>
       f !== PgExplorer.PATHS.SRC_DIRNAME &&
