@@ -16,7 +16,7 @@ export const autosave = (curFile: FullFile, ms: number) => {
         PgExplorer.saveFileToState(...args);
 
         // Only save to `indexedDB` when not shared
-        if (PgExplorer.isShared) return;
+        if (PgExplorer.isTemporary) return;
 
         // Save to `indexedDB`
         try {

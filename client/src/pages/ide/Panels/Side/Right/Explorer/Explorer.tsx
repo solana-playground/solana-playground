@@ -27,7 +27,9 @@ const Explorer = () => {
     return () => document.removeEventListener("keydown", handleKey);
   }, [newItem, renameItem, deleteItem]);
 
-  if (!explorer.isShared && !explorer.hasWorkspaces()) return <NoWorkspace />;
+  if (!explorer.isTemporary && !explorer.hasWorkspaces()) {
+    return <NoWorkspace />;
+  }
 
   return (
     <ExplorerWrapper>

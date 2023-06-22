@@ -99,12 +99,10 @@ export const NewItem = () => {
     }
     const itemType = PgExplorer.getItemTypeFromPath(path);
 
-    if (!PgExplorer.isShared) {
-      path = PgExplorer.getRelativePath(path);
-    }
+    if (!PgExplorer.isTemporary) path = PgExplorer.getRelativePath(path);
 
     const depth = path.split("/").length - (itemType.folder ? 1 : 0);
-    return !PgExplorer.isShared ? depth : depth - 1;
+    return PgExplorer.isTemporary ? depth - 1 : depth;
   }, [el]);
 
   return el

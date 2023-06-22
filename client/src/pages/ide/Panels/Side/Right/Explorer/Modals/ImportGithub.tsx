@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Modal from "../../../../../../../components/Modal";
 import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
-import { PgCommon, PgExplorer } from "../../../../../../../utils/pg";
+import { PgCommon, PgGithub } from "../../../../../../../utils/pg";
 
 export const ImportGithub = () => {
   const { close } = useModal();
@@ -35,7 +35,7 @@ export const ImportGithub = () => {
   const importFromGithub = async () => {
     setLoading(true);
     try {
-      await PgCommon.transition(PgExplorer.importFromGithub(url));
+      await PgCommon.transition(PgGithub.import(url));
       close();
     } catch (e: any) {
       setLoading(false);

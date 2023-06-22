@@ -11,6 +11,7 @@ import {
 } from "../../hooks";
 import { terminalProgressAtom, tutorialAtom } from "../../state";
 import {
+  Disposable,
   PgConnection,
   PgExplorer,
   PgProgramInfo,
@@ -53,15 +54,15 @@ const GlobalState = () => {
  */
 const useProgramInfoStatic = () => {
   useAsyncEffect(async () => {
-    let programInfo = await PgProgramInfo.init();
-    const switchWorkspace = PgExplorer.onDidSwitchWorkspace(async () => {
+    let programInfo: Disposable | undefined;
+    const explorerInit = PgExplorer.onDidInit(async () => {
       programInfo?.dispose();
       programInfo = await PgProgramInfo.init();
     });
 
     return () => {
-      programInfo.dispose();
-      switchWorkspace.dispose();
+      programInfo?.dispose();
+      explorerInit.dispose();
     };
   }, []);
 };

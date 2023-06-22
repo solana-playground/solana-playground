@@ -3,9 +3,20 @@ import styled from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import Input from "../../../../../../../components/Input";
-import { PgExplorer, PgRouter } from "../../../../../../../utils/pg";
+import { PgExplorer } from "../../../../../../../utils/pg";
 
-export const ImportShared = () => {
+export const ImportTemporary = () => {
+  // Handle user input
+  const [name, setName] = useState("");
+
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setName(ev.target.value);
+  };
+
+  const importTemporary = async () => {
+    await PgExplorer.newWorkspace(name, { fromTemporary: true });
+  };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on mount
@@ -13,27 +24,11 @@ export const ImportShared = () => {
     inputRef.current?.focus();
   }, []);
 
-  // Handle user input
-  const [name, setName] = useState("");
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const importNewWorkspace = async () => {
-    try {
-      await PgExplorer.newWorkspace(name, { fromShared: true });
-      PgRouter.navigate();
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  };
-
   return (
     <Modal
       buttonProps={{
         text: "Import",
-        onSubmit: importNewWorkspace,
+        onSubmit: importTemporary,
         disabled: !name,
         closeOnSubmit: true,
       }}
@@ -44,7 +39,7 @@ export const ImportShared = () => {
         ref={inputRef}
         onChange={handleChange}
         value={name}
-        placeholder="shared project..."
+        placeholder="project name..."
       />
     </Modal>
   );

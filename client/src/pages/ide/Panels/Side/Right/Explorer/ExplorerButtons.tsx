@@ -1,4 +1,4 @@
-import { FC, useCallback } from "react";
+import { FC } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../../../components/Button";
@@ -13,7 +13,7 @@ const ExplorerButtons = () => (
     <NewItem />
     <CollapseAllButton />
     <ShareButton />
-    <GoBackButton />
+    {PgExplorer.isTemporary && <GoBackButton />}
   </ButtonsWrapper>
 );
 
@@ -57,9 +57,9 @@ const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
 };
 
 const CollapseAllButton = () => {
-  const handleCollapse = useCallback(() => {
+  const handleCollapse = () => {
     PgExplorer.collapseAllFolders();
-  }, []);
+  };
 
   return (
     <Button onClick={handleCollapse} kind="icon" title="Collapse folders">
@@ -81,11 +81,9 @@ const ShareButton = () => {
 };
 
 const GoBackButton = () => {
-  const goBack = useCallback(async () => {
+  const goBack = async () => {
     await PgRouter.navigate();
-  }, []);
-
-  if (!PgExplorer.isShared) return null;
+  };
 
   return (
     <Button onClick={goBack} kind="icon" title="Go back to projects">

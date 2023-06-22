@@ -1,6 +1,6 @@
-import { PgCommon } from "../common";
-import { GithubError } from "../../../constants";
-import type { TupleFiles } from "./types";
+import { PgCommon } from "./common";
+import { PgExplorer, TupleFiles } from "./explorer";
+import { GithubError } from "../../constants";
 
 interface GithubRepositoryInfo {
   name: string;
@@ -18,12 +18,55 @@ type GithubRepositoryResponse = GithubRepositoryInfo[];
 
 export class PgGithub {
   /**
-   * Get Github repository content
+   * Create a new workspace from the given GitHub URL.
+   *
+   * @param url GitHub URL
+   */
+  static async import(url: string) {
+    // Get repository info
+    const { files, owner, repo, path } = await PgGithub._getRepository(url);
+
+    // Check whether the repository already exists in user's workspaces
+    const githubWorkspaceName = `github-${owner}/${repo}/${path}`;
+    if (PgExplorer.allWorkspaceNames?.includes(githubWorkspaceName)) {
+      // Switch to the existing workspace
+      await PgExplorer.switchWorkspace(githubWorkspaceName);
+    } else {
+      // Get the default open file since there is no previous metadata saved
+      let defaultOpenFile;
+      const libRsFile = files.find((f) => f[0].endsWith("lib.rs"));
+      if (libRsFile) {
+        defaultOpenFile = libRsFile[0];
+      } else if (files.length > 0) {
+        defaultOpenFile = files[0][0];
+      }
+
+      // Create a new workspace
+      await PgExplorer.newWorkspace(githubWorkspaceName, {
+        files,
+        defaultOpenFile,
+      });
+    }
+  }
+
+  /**
+   * Get the files from the given repository and map them to `ExplorerFiles`.
+   *
+   * @param url GitHub URL
+   * @returns explorer files
+   */
+  static async getExplorerFiles(url: string) {
+    const { files } = await this._getRepository(url);
+    return PgExplorer.convertToExplorerFiles(files);
+  }
+
+  /**
+   * Get Github repository data and map the files to `TupleFiles`.
    *
    * @param url Github link to the program's folder in the repository
    * @returns files, owner, repo, path
    */
-  static async getImportableRepository(url: string) {
+  private static async _getRepository(url: string) {
     const {
       data: repositoryData,
       owner,
@@ -49,9 +92,10 @@ export class PgGithub {
       _url: string
     ) => {
       for (const data of dirData) {
+        const pathSplit = data.path.split("/src/");
+
         if (data.type === "file") {
           let path: string;
-          const pathSplit = data.path.split("/src/");
           if (pathSplit.length === 1) {
             // No src folder in the path
             // Remove the folder paths and only get the file(src prepend by default)
@@ -60,10 +104,12 @@ export class PgGithub {
           } else {
             path = pathSplit[1];
           }
-          const rawData = await this._getRawData(data.download_url!);
+
+          const rawDataResponse = await fetch(data.download_url!);
+          const rawData = await rawDataResponse.text();
           files.push([`src/${path}`, rawData]);
         } else if (data.type === "dir") {
-          const afterSrc = data.path.split("/src/")[1];
+          const afterSrc = pathSplit[1];
           _url = PgCommon.appendSlash(srcUrl) + PgCommon.appendSlash(afterSrc);
           const { data: insideDirData } = await this._getRepositoryData(_url);
           await recursivelyGetContent(insideDirData, _url);
@@ -73,14 +119,14 @@ export class PgGithub {
 
     await recursivelyGetContent(srcData, srcUrl);
 
-    return { files, owner, repo, path };
+    return { files, owner, repo, path: path.replace(/\/src\/.*/, "") };
   }
 
   /**
-   * Get Github repository content
+   * Get GitHub repository data.
    *
-   * @param url Github link to the program's folder in the repository
-   * @returns Github repository response, owner, repo, path
+   * @param url GitHub link to the program's folder in the repository
+   * @returns GitHub repository data, owner, repo, path
    */
   private static async _getRepositoryData(url: string) {
     // https://github.com/solana-labs/solana-program-library/tree/master/token/program
@@ -104,10 +150,10 @@ export class PgGithub {
   }
 
   /**
-   * Get data about the program src folder
+   * Get data about the program src folder.
    *
-   * @param url Github url to the program root
-   * @param data Existing GithubRepositoryResponse
+   * @param url GitHub URL to the program root
+   * @param data Existing `GithubRepositoryResponse`
    * @returns src folder data and url
    */
   private static async _getSrcInfo(
@@ -130,10 +176,5 @@ export class PgGithub {
 
       return { srcData: data, srcUrl: url };
     }
-  }
-
-  private static async _getRawData(url: string) {
-    const rawData = await fetch(url);
-    return await rawData.text();
   }
 }

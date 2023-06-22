@@ -55,9 +55,9 @@ const Folders = () => {
   const ctxMenu = useExplorerContextMenu();
 
   // No need to memoize here
-  const relativeRootPath = !PgExplorer.isShared
+  const relativeRootPath = !PgExplorer.isTemporary
     ? PgExplorer.currentWorkspacePath
-    : "/";
+    : PgExplorer.PATHS.ROOT_DIR_PATH;
   const relativeRootDir = PgExplorer.getFolderContent(relativeRootPath);
   const otherFolders = relativeRootDir.folders.filter(
     (f) =>
@@ -180,7 +180,7 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
   const depth = useMemo(() => {
     return (
       PgExplorer.getRelativePath(path).split("/").length -
-      (PgExplorer.isShared ? 3 : 2)
+      (PgExplorer.isTemporary ? 3 : 2)
     );
   }, [path]);
 

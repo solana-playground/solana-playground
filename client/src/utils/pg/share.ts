@@ -6,10 +6,10 @@ export class PgShare {
   /**
    * Get the shared project files from the given path.
    *
+   * @param id shared project id
    * @returns shared project files
    */
-  static async get(pathname: string) {
-    const id = pathname.slice(1);
+  static async get(id: string) {
     const shareData = await PgServer.shareGet(id);
 
     // Convert `ShareGetResponse` to `ExplorerFiles` to make shares backwards
@@ -38,8 +38,8 @@ export class PgShare {
   static async new() {
     const files = PgExplorer.files;
 
-    // Shared files are already in a valid form to re-share
-    if (PgExplorer.isShared) return await PgServer.shareNew({ files });
+    // Temporary files are already in a valid form to re-share
+    if (PgExplorer.isTemporary) return await PgServer.shareNew({ files });
 
     const shareFiles: ShareGetResponse = { files: {} };
 

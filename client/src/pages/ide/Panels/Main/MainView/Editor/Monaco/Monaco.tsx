@@ -310,7 +310,7 @@ const Monaco = () => {
         PgExplorer.saveFileToState(...args);
 
         // Only save to `indexedDB` when not shared
-        if (PgExplorer.isShared) return;
+        if (PgExplorer.isTemporary) return;
 
         // Save to `indexedDB`
         try {

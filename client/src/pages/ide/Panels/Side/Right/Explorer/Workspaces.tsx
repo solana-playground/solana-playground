@@ -20,13 +20,13 @@ import {
   DeleteWorkspace,
   ImportGithub,
   ImportFs,
-  ImportShared,
+  ImportTemporary,
 } from "./Modals";
 import { PgExplorer, PgTutorial, PgView } from "../../../../../../utils/pg";
 import { useExplorer } from "../../../../../../hooks";
 
 const Workspaces = () => {
-  if (PgExplorer.isShared) return <ShareWarning />;
+  if (PgExplorer.isTemporary) return <TemporaryWarning />;
 
   const handleNew = async () => await PgView.setModal(NewWorkspace);
   const handleRename = async () => await PgView.setModal(RenameWorkspace);
@@ -166,22 +166,22 @@ const SelectWrapper = styled.div`
   }
 `;
 
-const ShareWarning = () => {
-  const handleImport = async () => await PgView.setModal(ImportShared);
+const TemporaryWarning = () => {
+  const handleImport = async () => await PgView.setModal(ImportTemporary);
 
   return (
-    <ShareWarningWrapper>
+    <TemporaryWarningWrapper>
       <Text IconEl={<Info color="info" />}>
-        <div>This is a shared project, import it to persist changes.</div>
+        <div>This is a temporary project, import it to persist changes.</div>
       </Text>
       <Button onClick={handleImport} leftIcon={<ImportWorkspace />} fullWidth>
         Import
       </Button>
-    </ShareWarningWrapper>
+    </TemporaryWarningWrapper>
   );
 };
 
-const ShareWarningWrapper = styled.div`
+const TemporaryWarningWrapper = styled.div`
   padding: 1rem 0.5rem;
 
   & > button {

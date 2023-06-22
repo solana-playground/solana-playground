@@ -3,6 +3,9 @@ import type { FullFile } from "./types";
 
 export class PgExplorerEvent {
   /** `onDidCreateItem` event name */
+  static readonly ON_DID_INIT = "explorerondidinit";
+
+  /** `onDidCreateItem` event name */
   static readonly ON_DID_CREATE_ITEM = "explorerondidcreateitem";
   /** `onDidRenameItem` event name */
   static readonly ON_DID_RENAME_ITEM = "explorerondidrenameitem";
@@ -21,6 +24,11 @@ export class PgExplorerEvent {
   static readonly ON_DID_DELETE_WORKSPACE = "explorerondiddeleteworkspace";
   /** `onDidSwitchWorkspace` event name */
   static readonly ON_DID_SWITCH_WORKSPACE = "explorerondidswitchworkspace";
+
+  /** Dispatch an `onDidInit` event. */
+  static dispatchOnDidInit() {
+    PgCommon.createAndDispatchCustomEvent(this.ON_DID_INIT);
+  }
 
   /** Dispatch an `onDidCreateItem` event. */
   static dispatchOnDidCreateItem() {

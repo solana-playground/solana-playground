@@ -7,6 +7,7 @@ import { Route } from "../../../../../constants";
 import {
   PgCommon,
   PgExplorer,
+  PgGithub,
   PgRouter,
   PgShare,
   PgTutorial,
@@ -141,26 +142,14 @@ export const usePgRouter = () => {
         return () => dispose();
       }
 
-      // Github
-      else if (pathname.startsWith(Route.GITHUB)) {
-        // Initialize explorer
-        await PgExplorer.init();
-
-        // Import the repository
-        await PgExplorer.importFromGithub(
-          pathname.split(`${Route.GITHUB}/`)?.[1]
-        );
-
-        // Navigate to main(will re-run the current function)
-        PgRouter.navigate();
-      }
-
       // Shared
-      else if (!PgExplorer.isShared && PgShare.isValidPathname(pathname)) {
+      else if (PgShare.isValidPathname(pathname)) {
         // Set main view
         PgView.setMain(async () => {
+          setLoading(true);
+
           // Get the share data
-          const files = await PgShare.get(pathname);
+          const files = await PgShare.get(pathname.slice(1));
 
           // Initialize explorer
           await PgExplorer.init({ files });
@@ -170,6 +159,40 @@ export const usePgRouter = () => {
 
           return EditorWithTabs;
         });
+
+        // Handle sidebar
+        const { dispose } = PgView.onDidChangeSidebarState((state) => {
+          if (state === Sidebar.TUTORIALS) PgRouter.navigate(Route.TUTORIALS);
+        });
+
+        return () => dispose();
+      }
+
+      // Github
+      else if (pathname.startsWith(Route.GITHUB)) {
+        PgView.setMain(async () => {
+          setLoading(true);
+
+          // Get repository data
+          const files = await PgGithub.getExplorerFiles(
+            pathname.split(`${Route.GITHUB}/`)?.[1]
+          );
+
+          // Initialize explorer
+          await PgExplorer.init({ files });
+
+          // Set sidebar
+          PgView.setSidebarState();
+
+          return EditorWithTabs;
+        });
+
+        // Handle sidebar
+        const { dispose } = PgView.onDidChangeSidebarState((state) => {
+          if (state === Sidebar.TUTORIALS) PgRouter.navigate(Route.TUTORIALS);
+        });
+
+        return () => dispose();
       }
 
       // Not found
@@ -207,28 +230,20 @@ export const usePgRouter = () => {
   // Check whether the tab state is valid
   // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
   useEffect(() => {
+    if (loading) return;
+
     const tabs = PgExplorer.getTabs();
     if (tabs.length && !PgExplorer.getCurrentFile()) {
       PgExplorer.changeCurrentFile(tabs[0].path);
     }
-  }, []);
+  }, [loading]);
 
   // Handle loading state
   useEffect(() => {
-    const handleLoading = async () => {
-      if (
-        PgExplorer.currentWorkspaceName ||
-        PgExplorer.isShared ||
-        !PgExplorer.hasWorkspaces()
-      ) {
-        await PgCommon.sleep(500);
-        setLoading(false);
-      }
-    };
-
-    handleLoading();
-
-    const { dispose } = PgExplorer.onDidSwitchWorkspace(handleLoading);
+    const { dispose } = PgExplorer.onDidInit(async () => {
+      await PgCommon.sleep(300);
+      setLoading(false);
+    });
     return () => dispose();
   }, []);
 

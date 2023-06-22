@@ -2,6 +2,7 @@ export * from "./common";
 export * from "./command";
 export * from "./connection";
 export * from "./editor";
+export * from "./github";
 export * from "./explorer/";
 export * from "./playnet/";
 export * from "./program-info";

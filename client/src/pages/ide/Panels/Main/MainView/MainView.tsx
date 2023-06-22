@@ -4,7 +4,12 @@ import styled, { css } from "styled-components";
 import EditorWithTabs from "./EditorWithTabs";
 import { MainViewLoading } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
-import { PgCommon, PgTheme, SetElementAsync } from "../../../../../utils/pg";
+import {
+  PgCommon,
+  PgRouter,
+  PgTheme,
+  SetElementAsync,
+} from "../../../../../utils/pg";
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
@@ -25,6 +30,7 @@ const MainView = () => {
           setEl(SetEl);
         } catch (e: any) {
           console.log("MAIN VIEW ERROR:", e.message);
+          PgRouter.navigate();
         }
       }, 300);
 
