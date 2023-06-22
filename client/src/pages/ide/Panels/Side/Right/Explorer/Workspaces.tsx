@@ -22,13 +22,7 @@ import {
   ImportFs,
   ImportShared,
 } from "./Modals";
-import { Route } from "../../../../../../constants";
-import {
-  PgExplorer,
-  PgRouter,
-  PgTutorial,
-  PgView,
-} from "../../../../../../utils/pg";
+import { PgExplorer, PgTutorial, PgView } from "../../../../../../utils/pg";
 import { useExplorer } from "../../../../../../hooks";
 
 const Workspaces = () => {
@@ -133,17 +127,7 @@ const WorkspaceSelect = () => {
         onChange={async (props) => {
           const name = props?.value!;
           if (PgExplorer.currentWorkspaceName !== name) {
-            if (PgTutorial.isWorkspaceTutorial(name)) {
-              await PgTutorial.open(name);
-            } else {
-              const { pathname } = await PgRouter.getLocation();
-              if (pathname === Route.DEFAULT) {
-                await PgExplorer.switchWorkspace(name);
-              } else {
-                PgExplorer.setWorkspaceName(name);
-                await PgRouter.navigate();
-              }
-            }
+            PgExplorer.switchWorkspace(name);
           }
         }}
       />

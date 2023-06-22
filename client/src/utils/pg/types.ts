@@ -38,12 +38,11 @@ export type Disposable = {
   dispose: () => void;
 };
 
-export type SetElementAsync =
-  | JSX.Element
-  | ((El: JSX.Element) => JSX.Element)
-  | (() => Promise<JSX.Element>);
-
 export type SetState<T> = T | ((cur: T) => T);
+
+export type SetElementAsync = SetState<
+  SyncOrAsync<JSX.Element | (() => JSX.Element)>
+>;
 
 /** Make properties required for depth 1 and 2 */
 export type NestedRequired<T> = {

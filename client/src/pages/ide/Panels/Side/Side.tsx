@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, PgRouter, PgTheme, Sidebar } from "../../../../utils/pg";
+import { PgCommon, PgTheme, Sidebar } from "../../../../utils/pg";
 import { EventName, Route } from "../../../../constants";
 import { useSetStatic } from "../../../../hooks";
 
@@ -12,9 +12,7 @@ const Side = () => {
   const { pathname } = useLocation();
 
   const [sidebarState, setSidebarState] = useState(
-    PgRouter.comparePaths(pathname, Route.TUTORIALS)
-      ? Sidebar.TUTORIALS
-      : Sidebar.EXPLORER
+    pathname.startsWith(Route.TUTORIALS) ? Sidebar.TUTORIALS : Sidebar.EXPLORER
   );
   const [width, setWidth] = useState(320);
   const [oldWidth, setOldWidth] = useState(width);

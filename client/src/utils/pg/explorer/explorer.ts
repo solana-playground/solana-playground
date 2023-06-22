@@ -27,6 +27,7 @@ export class PgExplorer {
   private static _workspace: PgWorkspace | null = null;
   /** Whether the user is on a shared page */
   private static _shared: boolean;
+  /** Current initialized workspace name */
   private static _initializedWorkspaceName: string | null = null;
 
   /** `indexedDB` file system */
@@ -77,10 +78,9 @@ export class PgExplorer {
    * - `name`: Initialize the given workspace name
    */
   static async init(params?: { files?: ExplorerFiles; name?: string }) {
-    // Skip initializing if the workspace has already been initialized
     if (
-      (params?.name && this._initializedWorkspaceName === params.name) ||
-      this._initializedWorkspaceName === this.currentWorkspaceName
+      this._initializedWorkspaceName ===
+      (params?.name ?? this.currentWorkspaceName)
     ) {
       return;
     }
@@ -91,7 +91,6 @@ export class PgExplorer {
       this._workspace = null;
     } else {
       this._shared = false;
-      this._explorer.files = {};
       if (!this._workspace) {
         this._workspace = new PgWorkspace();
         await this._initWorkspaces();
@@ -100,7 +99,7 @@ export class PgExplorer {
       const workspaceName = params?.name ?? this.currentWorkspaceName;
 
       // Check whether the workspace exists
-      if (workspaceName && this._workspace.allNames.includes(workspaceName)) {
+      if (workspaceName && this.allWorkspaceNames!.includes(workspaceName)) {
         await this.switchWorkspace(workspaceName);
       }
     }
@@ -458,7 +457,7 @@ export class PgExplorer {
       PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
     }
 
-    // Set the initialized workspace name
+    // Set initialized workspace name
     this._initializedWorkspaceName = name;
 
     // Dispatch change event
@@ -514,6 +513,7 @@ export class PgExplorer {
     } else {
       this._workspace.setCurrent({ allNames: [] });
       await this._saveWorkspaces();
+      PgExplorerEvent.dispatchOnDidSwitchWorkspace();
     }
 
     PgExplorerEvent.dispatchOnDidDeleteWorkspace();
@@ -1048,7 +1048,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_CREATE_ITEM,
-      initialRun: { value: null },
     });
   }
 
@@ -1062,7 +1061,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_RENAME_ITEM,
-      initialRun: { value: null },
     });
   }
 
@@ -1076,7 +1074,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_DELETE_ITEM,
-      initialRun: { value: null },
     });
   }
 
@@ -1104,7 +1101,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_CLOSE_TAB,
-      initialRun: { value: null },
     });
   }
 
@@ -1118,7 +1114,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_CREATE_WORKSPACE,
-      initialRun: { value: null },
     });
   }
 
@@ -1132,7 +1127,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_RENAME_WORKSPACE,
-      initialRun: { value: null },
     });
   }
 
@@ -1146,7 +1140,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_DELETE_WORKSPACE,
-      initialRun: { value: null },
     });
   }
 
@@ -1160,7 +1153,6 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_SWITCH_WORKSPACE,
-      initialRun: { value: null },
     });
   }
 

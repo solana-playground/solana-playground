@@ -1,9 +1,9 @@
 import { useAtom } from "jotai";
-import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { EventName } from "../../constants";
 import {
+  useAsyncEffect,
   useDisposable,
   useGetAndSetStatic,
   useGetStatic,
@@ -11,7 +11,6 @@ import {
 } from "../../hooks";
 import { terminalProgressAtom, tutorialAtom } from "../../state";
 import {
-  Disposable,
   PgConnection,
   PgExplorer,
   PgProgramInfo,
@@ -53,14 +52,17 @@ const GlobalState = () => {
  * **IMPORTANT**: Should only be used once.
  */
 const useProgramInfoStatic = () => {
-  useEffect(() => {
-    let disposeProgramInfo: Disposable | undefined;
-    const { dispose } = PgExplorer.onDidSwitchWorkspace(async () => {
-      disposeProgramInfo?.dispose();
-      disposeProgramInfo = await PgProgramInfo.init();
+  useAsyncEffect(async () => {
+    let programInfo = await PgProgramInfo.init();
+    const switchWorkspace = PgExplorer.onDidSwitchWorkspace(async () => {
+      programInfo?.dispose();
+      programInfo = await PgProgramInfo.init();
     });
 
-    return () => dispose();
+    return () => {
+      programInfo.dispose();
+      switchWorkspace.dispose();
+    };
   }, []);
 };
 

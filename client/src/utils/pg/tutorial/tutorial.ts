@@ -8,8 +8,6 @@ import type { TutorialData, TutorialMetadata } from "./types";
 import type { TutorialComponentProps } from "../../../components/Tutorial";
 
 export class PgTutorial {
-  private static readonly TUTORIAL_METADATA_FILENAME = ".tutorial.json";
-
   static async getCurrent(): Promise<TutorialData> {
     return await PgCommon.sendAndReceiveCustomEvent(
       PgCommon.getStaticStateEventNames(EventName.TUTORIAL_STATIC).get
@@ -67,7 +65,7 @@ export class PgTutorial {
       // Open the tutorial pages view
       try {
         const metadata = await this.getMetadata();
-        if (metadata.pageNumber) this.setPageNumber(metadata.pageNumber);
+        this.setPageNumber(metadata.pageNumber);
         PgView.setSidebarState((state) => {
           if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
           return state;
@@ -95,7 +93,6 @@ export class PgTutorial {
       try {
         const metadata = await this.getMetadata();
         this.setPageNumber(metadata.pageNumber);
-        PgView.setSidebarState();
         tutorialMetaExists = true;
       } catch {}
     } else {
@@ -112,33 +109,29 @@ export class PgTutorial {
     if (!tutorialMetaExists) {
       // Create tutorial metadata file
       const metadata: TutorialMetadata = {
-        pageNumber: 0,
+        pageNumber: 1,
         pageCount: props.pageCount,
       };
       await PgExplorer.fs.writeFile(
         this._getTutorialMetadataPath(),
         JSON.stringify(metadata)
       );
-      this.setPageNumber(1);
     }
+
+    PgView.setSidebarState();
   }
 
   static async finish() {
-    await PgTutorial.saveTutorialMeta({ completed: true });
+    await PgTutorial.saveTutorialMetadata({ completed: true });
     PgView.setSidebarState(Sidebar.TUTORIALS);
   }
 
-  static async saveTutorialMeta(updatedMeta: Partial<TutorialMetadata>) {
+  static async saveTutorialMetadata(updatedMeta: Partial<TutorialMetadata>) {
     try {
       const currentMeta = await this.getMetadata();
-      await PgExplorer.newItem(
+      await PgExplorer.fs.writeFile(
         this._getTutorialMetadataPath(),
-        JSON.stringify({ ...currentMeta, ...updatedMeta }),
-        {
-          override: true,
-          skipNameValidation: true,
-          openOptions: { dontOpen: true },
-        }
+        JSON.stringify({ ...currentMeta, ...updatedMeta })
       );
     } catch {}
   }
@@ -152,6 +145,8 @@ export class PgTutorial {
   static getUserTutorialNames() {
     return PgExplorer.allWorkspaceNames!.filter(this.isWorkspaceTutorial);
   }
+
+  private static readonly TUTORIAL_METADATA_FILENAME = ".tutorial.json";
 
   private static _getTutorialMetadataPath(tutorialName?: string) {
     return tutorialName

@@ -11,17 +11,27 @@ const MainView = () => {
   const [El, setEl] = useState(EditorWithTabs);
   const [loading, setLoading] = useState(true);
 
-  const setElWithTransition = useCallback(async (El: SetElementAsync) => {
-    setLoading(true);
+  const setElWithTransition = useCallback(
+    async (SetEl: SetElementAsync) => {
+      setLoading(true);
 
-    await PgCommon.transition(async () => {
-      if (!El) El = EditorWithTabs;
-      El = await (El as () => Promise<JSX.Element>)();
-      setEl(El);
-    }, 300);
+      await PgCommon.transition(async () => {
+        if (!SetEl) SetEl = EditorWithTabs;
 
-    setLoading(false);
-  }, []);
+        try {
+          SetEl = await (SetEl as (El: JSX.Element) => Promise<JSX.Element>)(
+            El
+          );
+          setEl(SetEl);
+        } catch (e: any) {
+          console.log("MAIN VIEW ERROR:", e.message);
+        }
+      }, 300);
+
+      setLoading(false);
+    },
+    [El]
+  );
 
   useGetAndSetStatic(El, setElWithTransition, EventName.VIEW_MAIN_STATIC);
 

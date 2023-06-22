@@ -15,8 +15,6 @@ import {
   PgRouter,
   PgTheme,
   PgTutorial,
-  PgView,
-  Sidebar,
   TutorialData,
 } from "../../utils/pg";
 import { useAsyncEffect, useGetAndSetStatic } from "../../hooks";
@@ -55,13 +53,8 @@ export const Tutorial: FC<TutorialComponentProps> = ({
       if (metadata.completed) setIsCompleted(true);
 
       setCurrentPage(metadata.pageNumber);
-      PgView.setSidebarState((state) => {
-        if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
-        return state;
-      });
     } catch {
       setCurrentPage(0);
-      PgView.setSidebarState(Sidebar.TUTORIALS);
     } finally {
       if (wrapperRef.current) {
         wrapperRef.current.style.opacity = "1";
@@ -71,8 +64,9 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
   // Save tutorial metadata
   useEffect(() => {
+    previousPageRef.current = currentPage;
     if (currentPage) {
-      PgTutorial.saveTutorialMeta({ pageNumber: currentPage });
+      PgTutorial.saveTutorialMetadata({ pageNumber: currentPage });
     }
   }, [currentPage]);
 
