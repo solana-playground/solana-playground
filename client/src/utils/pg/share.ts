@@ -68,12 +68,12 @@ export class PgShare {
   }
 
   /**
-   * Get whether the current pathname is in a valid format
+   * Get whether the given id is in a valid format.
    *
-   * @param pathname current pathname
-   * @returns whether the current pathname is in a valid format
+   * @param id share id
+   * @returns whether the given id is in a valid format
    */
-  static isValidPathname(pathname: string) {
-    return PgCommon.isHex(pathname.substring(1));
+  static isValidId(id: string) {
+    return PgCommon.isHex(id);
   }
 }

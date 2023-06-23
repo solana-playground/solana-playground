@@ -99,6 +99,18 @@ export class PgView {
   }
 
   /**
+   * Set sidebar right component's loading state.
+   *
+   * @param loading set loading state
+   */
+  static setSidebarLoading(loading: SetState<boolean>) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_SIDEBAR_LOADING_SET,
+      loading
+    );
+  }
+
+  /**
    * Runs after changing sidebar state
    *
    * @param cb callback function to run after changing sidebar page

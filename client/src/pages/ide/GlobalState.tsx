@@ -1,7 +1,19 @@
 import { useAtom } from "jotai";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { ROUTES } from "../../routes";
 import { EventName } from "../../constants";
+import { terminalProgressAtom, tutorialAtom } from "../../state";
+import {
+  Disposable,
+  PgCommon,
+  PgConnection,
+  PgExplorer,
+  PgProgramInfo,
+  PgRouter,
+  PgWallet,
+} from "../../utils/pg";
 import {
   useAsyncEffect,
   useDisposable,
@@ -9,14 +21,6 @@ import {
   useGetStatic,
   useSetStatic,
 } from "../../hooks";
-import { terminalProgressAtom, tutorialAtom } from "../../state";
-import {
-  Disposable,
-  PgConnection,
-  PgExplorer,
-  PgProgramInfo,
-  PgWallet,
-} from "../../utils/pg";
 
 const GlobalState = () => {
   // Connection
@@ -25,13 +29,8 @@ const GlobalState = () => {
   // Program info
   useProgramInfoStatic();
 
-  // Router location
-  const location = useLocation();
-  useGetStatic(location, EventName.ROUTER_LOCATION);
-
-  // Router navigate
-  const navigate = useNavigate();
-  useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
+  // Router
+  useRouter();
 
   // Terminal progress
   const [, setProgress] = useAtom(terminalProgressAtom);
@@ -45,6 +44,31 @@ const GlobalState = () => {
   useDisposable(PgWallet.init);
 
   return null;
+};
+
+/** Handle URL routing. */
+const useRouter = () => {
+  // Init
+  useEffect(() => {
+    const { dispose } = PgRouter.init(ROUTES);
+    return () => dispose();
+  }, []);
+
+  // Location
+  const location = useLocation();
+  useGetStatic(location, EventName.ROUTER_LOCATION);
+
+  // Navigate
+  const navigate = useNavigate();
+  useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
+
+  // Change method
+  useEffect(() => {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.ROUTER_ON_DID_CHANGE_PATH,
+      location.pathname
+    );
+  }, [location.pathname]);
 };
 
 /**

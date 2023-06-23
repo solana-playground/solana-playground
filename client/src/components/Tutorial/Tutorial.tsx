@@ -9,7 +9,7 @@ import EditorWithTabs from "../../pages/ide/Panels/Main/MainView/EditorWithTabs"
 import { PointedArrow } from "../Icons";
 import { tutorialAtom } from "../../state";
 import { StyledDefaultLink } from "../Link";
-import { EventName, Route } from "../../constants";
+import { EventName } from "../../constants";
 import {
   PgCommon,
   PgRouter,
@@ -76,7 +76,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   }, [currentPage]);
 
   const goBackToTutorials = useCallback(() => {
-    PgRouter.navigate(Route.TUTORIALS);
+    PgRouter.navigate("/tutorials");
   }, []);
 
   const nextPage = useCallback(() => {

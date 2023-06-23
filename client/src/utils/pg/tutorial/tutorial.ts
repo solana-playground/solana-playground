@@ -2,7 +2,7 @@ import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
 import { PgRouter } from "../router";
 import { PgView, Sidebar } from "../view";
-import { EventName, Route } from "../../../constants";
+import { EventName } from "../../../constants";
 import { TUTORIALS } from "../../../tutorials";
 import type { TutorialData, TutorialMetadata } from "./types";
 import type { TutorialComponentProps } from "../../../components/Tutorial";
@@ -25,12 +25,13 @@ export class PgTutorial {
     return TUTORIALS.find((t) => t.name === tutorialName);
   }
 
-  static getTutorialFromPathname(pathname: string) {
-    return TUTORIALS.find(
-      (t) =>
-        PgCommon.appendSlash(PgCommon.toKebabFromTitle(t.name)) ===
-        PgCommon.appendSlash(pathname.split(`${Route.TUTORIALS}/`)[1])
-    );
+  static getTutorialFromKebab(tutorialName: string) {
+    return TUTORIALS.find((t) => {
+      return PgRouter.isPathsEqual(
+        PgCommon.toKebabFromTitle(t.name),
+        tutorialName
+      );
+    });
   }
 
   static async getPageNumber(): Promise<number> {
@@ -57,11 +58,11 @@ export class PgTutorial {
 
   static async open(tutorialName: string) {
     const { pathname } = await PgRouter.getLocation();
-    const tutorialPath = `${Route.TUTORIALS}/${PgCommon.toKebabFromTitle(
+    const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(
       tutorialName
     )}`;
 
-    if (PgRouter.comparePaths(pathname, tutorialPath)) {
+    if (PgRouter.isPathsEqual(pathname, tutorialPath)) {
       // Open the tutorial pages view
       try {
         const metadata = await this.getMetadata();

@@ -12,6 +12,7 @@ export enum EventName {
   // Router
   ROUTER_NAVIGATE = "routernavigate",
   ROUTER_LOCATION = "routerlocation",
+  ROUTER_ON_DID_CHANGE_PATH = "routerondidchangepath",
 
   // Terminal
   TERMINAL_STATE = "terminalstate",
@@ -33,5 +34,6 @@ export enum EventName {
   // View
   VIEW_MAIN_STATIC = "viewmainstatic",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
+  VIEW_SIDEBAR_LOADING_SET = "viewsidebarloadingset",
   VIEW_ON_DID_CHANGE_SIDEBAR_STATE = "viewondidchangesidebarstate",
 }

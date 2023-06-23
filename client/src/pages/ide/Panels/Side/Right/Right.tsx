@@ -1,13 +1,4 @@
-import {
-  FC,
-  Suspense,
-  lazy,
-  useEffect,
-  useState,
-  useCallback,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import { FC, Suspense, lazy, Dispatch, SetStateAction } from "react";
 import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
@@ -16,7 +7,8 @@ import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
 import { Id } from "../../../../../constants";
 import { PgTheme, Sidebar } from "../../../../../utils/pg";
-import { usePgRouter } from "./usePgRouter";
+import { useWorkspace } from "./useWorkspace";
+import { useResize } from "./useResize";
 
 const Explorer = lazy(() => import("./Explorer"));
 // const Search = lazy(() => import("./Search"));
@@ -34,37 +26,9 @@ interface RightProps<T = number> extends DefaultRightProps {
 }
 
 const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
-  const { loading } = usePgRouter();
+  const { loading } = useWorkspace();
 
-  const [windowHeight, setWindowHeight] = useState(
-    document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979
-  );
-
-  // Resize the sidebar on window resize event
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowHeight(
-        document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979
-      );
-    };
-
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const handleResizeStop = useCallback(
-    (e, direction, ref, d) => {
-      setWidth((w) => {
-        const newWidth = w + d.width;
-        if (newWidth < 180) return 0;
-
-        return newWidth;
-      });
-    },
-    [setWidth]
-  );
+  const { handleResizeStop, windowHeight } = useResize(setWidth);
 
   return (
     <Resizable
