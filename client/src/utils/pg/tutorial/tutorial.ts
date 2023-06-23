@@ -99,10 +99,7 @@ export class PgTutorial {
       // Initial tutorial setup
       await PgExplorer.newWorkspace(tutorialName, {
         files: props.files,
-        defaultOpenFile:
-          props.files.length > 0
-            ? props.defaultOpenFile ?? props.files[0][0]
-            : undefined,
+        defaultOpenFile: props.defaultOpenFile,
       });
     }
 

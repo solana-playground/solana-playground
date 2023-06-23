@@ -1,7 +1,6 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 
 import Modal from "../../../../../../../components/Modal";
-import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import { PgExplorer } from "../../../../../../../utils/pg";
 
@@ -10,8 +9,6 @@ interface RenameItemProps {
 }
 
 export const RenameItem: FC<RenameItemProps> = ({ path }) => {
-  const { close } = useModal();
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   const itemName = PgExplorer.getItemNameFromPath(path);
@@ -26,29 +23,24 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const [newName, setNewName] = useState(itemName);
   const [error, setError] = useState("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewName(e.target.value);
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setNewName(ev.target.value);
     setError("");
   };
 
   const rename = async () => {
-    try {
-      await PgExplorer.renameItem(path, newName);
-      close();
-    } catch (e: any) {
-      setError(e.message);
-    }
+    await PgExplorer.renameItem(path, newName);
   };
-
-  if (!itemName) return null;
 
   return (
     <Modal
       buttonProps={{
         text: "Rename",
         onSubmit: rename,
+        closeOnSubmit: true,
         size: "small",
         disabled: !newName || !!error,
+        setError,
       }}
       title={`Rename '${itemName}'`}
     >

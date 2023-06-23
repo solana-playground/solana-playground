@@ -12,14 +12,8 @@ interface DeleteItemProps {
 export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
   const itemName = PgExplorer.getItemNameFromPath(path);
 
-  if (!itemName) return null;
-
   const deleteItem = async () => {
-    try {
-      await PgExplorer.deleteItem(path);
-    } catch (e: any) {
-      console.log(e.message);
-    }
+    await PgExplorer.deleteItem(path);
   };
 
   return (

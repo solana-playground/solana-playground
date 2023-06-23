@@ -2,13 +2,10 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
-import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import { PgCommon, PgGithub } from "../../../../../../../utils/pg";
 
 export const ImportGithub = () => {
-  const { close } = useModal();
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on mount
@@ -18,29 +15,22 @@ export const ImportGithub = () => {
 
   // Handle user input
   const [url, setUrl] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    const input = ev.target.value;
     setUrl(input);
 
     if (!input.includes("github.com")) {
       setError("The URL must be a GitHub URL");
     } else {
-      setError(null);
+      setError("");
     }
   };
 
   const importFromGithub = async () => {
-    setLoading(true);
-    try {
-      await PgCommon.transition(PgGithub.import(url));
-      close();
-    } catch (e: any) {
-      setLoading(false);
-      setError(e.message);
-    }
+    await PgCommon.transition(PgGithub.import(url));
   };
 
   return (
@@ -48,11 +38,14 @@ export const ImportGithub = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importFromGithub,
+        closeOnSubmit: true,
         disabled: !url || !!error || loading,
         btnLoading: {
           state: loading,
           text: "Importing...",
         },
+        setError,
+        setLoading,
       }}
       title
     >

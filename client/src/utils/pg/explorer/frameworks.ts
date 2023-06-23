@@ -15,7 +15,7 @@ export interface Framework {
   language: Lang;
   src: string;
   files: TupleFiles;
-  defaultOpenFile: string;
+  defaultOpenFile?: string;
   circleImage?: boolean;
 }
 
@@ -179,7 +179,6 @@ describe("Test", () => {
 `,
       ],
     ],
-    defaultOpenFile: "src/lib.rs",
   },
   {
     name: "Anchor",
@@ -269,7 +268,6 @@ describe("Test", () => {
 `,
       ],
     ],
-    defaultOpenFile: "src/lib.rs",
   },
   {
     name: "Seahorse",
@@ -381,7 +379,6 @@ describe("Test", async () => {
 `,
       ],
     ],
-    defaultOpenFile: "src/fizzbuzz.py",
     circleImage: true,
   },
 ];

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import Input from "../../../../../../components/Input";
 import Select from "../../../../../../components/Select";
@@ -10,7 +10,6 @@ import {
   PgSettings,
   PgView,
 } from "../../../../../../utils/pg";
-import { useOnKey } from "../../../../../../hooks";
 
 const EndpointSetting = () => {
   const options = useMemo(
@@ -55,6 +54,7 @@ const EndpointSetting = () => {
 
 const CustomEndpoint = () => {
   const [customEndpoint, setCustomEndpoint] = useState("");
+  const [error, setError] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -63,12 +63,14 @@ const CustomEndpoint = () => {
     inputRef.current?.focus();
   }, []);
 
-  const onSubmit = () => {
-    PgCommand.solana.run(`config set -u ${customEndpoint}`);
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setCustomEndpoint(ev.target.value);
+    setError("");
   };
 
-  // Submit on enter
-  useOnKey("Enter", onSubmit);
+  const onSubmit = async () => {
+    await PgCommand.solana.run(`config set -u ${customEndpoint}`);
+  };
 
   return (
     <Modal
@@ -78,6 +80,8 @@ const CustomEndpoint = () => {
         text: "Add",
         onSubmit,
         closeOnSubmit: true,
+        disabled: !!error || error === "",
+        setError,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
       }}
@@ -85,7 +89,9 @@ const CustomEndpoint = () => {
       <Input
         ref={inputRef}
         placeholder="Custom endpoint"
-        onChange={(e) => setCustomEndpoint(e.target.value)}
+        onChange={handleChange}
+        error={error}
+        setError={setError}
         validator={PgCommon.isUrl}
       />
     </Modal>

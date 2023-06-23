@@ -12,6 +12,7 @@ import { Checkmark, Sad } from "../../../../../../../components/Icons";
 import { TextKind } from "../../../../../../../components/Text/Text";
 import { CLIENT_URL } from "../../../../../../../constants";
 import { PgCommon, PgShare } from "../../../../../../../utils/pg";
+import { useOnKey } from "../../../../../../../hooks";
 
 interface TextState {
   kind?: TextKind;
@@ -19,13 +20,11 @@ interface TextState {
 }
 
 export const Share = () => {
-  const { close } = useModal();
-
   const [textState, setTextState] = useState<TextState>({});
-  const [disabled, setDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const share = async () => {
-    setDisabled(true);
+    setLoading(true);
 
     try {
       const id = await PgCommon.transition(PgShare.new());
@@ -33,13 +32,19 @@ export const Share = () => {
         kind: "success",
         id,
       });
-    } catch (e: any) {
-      setTextState({
-        kind: "error",
-      });
-      setDisabled(false);
+    } catch {
+      setTextState({ kind: "error" });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const { close } = useModal();
+
+  useOnKey("Enter", () => {
+    if (textState.id) close();
+    else share();
+  });
 
   const shareLink = `${CLIENT_URL}/${textState.id}`;
 
@@ -59,7 +64,8 @@ export const Share = () => {
         ) : (
           <Text>Do you want to share this project?</Text>
         )}
-        {textState?.id && (
+
+        {textState.id && (
           <SuccessWrapper>
             <InputWrapper>
               <Input value={shareLink} readOnly />
@@ -71,8 +77,9 @@ export const Share = () => {
           </SuccessWrapper>
         )}
       </Content>
+
       <ButtonWrapper>
-        {textState?.id ? (
+        {textState.id ? (
           <Button onClick={close} kind="outline">
             Continue
           </Button>
@@ -83,11 +90,11 @@ export const Share = () => {
             </Button>
             <Button
               onClick={share}
-              disabled={disabled}
-              btnLoading={disabled}
+              disabled={loading}
+              btnLoading={loading}
               kind="primary-transparent"
             >
-              {disabled ? "Sharing..." : "Share"}
+              {loading ? "Sharing..." : "Share"}
             </Button>
           </>
         )}

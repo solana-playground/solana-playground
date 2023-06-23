@@ -21,7 +21,7 @@ interface InputProps extends ComponentPropsWithoutRef<"input"> {
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, error, setError, onChange, validator, ...props }, ref) => (
     <>
-      {error && <ErrorText>{error}</ErrorText>}
+      {typeof error === "string" && error && <ErrorText>{error}</ErrorText>}
       <StyledInput
         ref={ref}
         {...defaultInputProps}

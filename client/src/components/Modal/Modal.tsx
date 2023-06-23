@@ -5,12 +5,14 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useState,
 } from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
+import Text from "../Text";
 import useModal from "./useModal";
-import { Close } from "../Icons";
+import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
 import { PgTheme, SyncOrAsync } from "../../utils/pg";
 import { useOnKey } from "../../hooks";
@@ -26,10 +28,12 @@ interface ModalProps {
     text: string;
     /** Callback function to run on submit */
     onSubmit: () => SyncOrAsync<unknown>;
-    /** Set the error when `obSubmit` throws */
-    setError?: Dispatch<SetStateAction<any>>;
     /** Whether the close the modal when user submits */
     closeOnSubmit?: boolean;
+    /** Set the error when `obSubmit` throws */
+    setError?: Dispatch<SetStateAction<any>>;
+    /** Set loading state of the button based on `onSubmit` */
+    setLoading?: Dispatch<SetStateAction<boolean>>;
   };
 }
 
@@ -39,25 +43,36 @@ const Modal: FC<ModalProps> = ({
   closeButton,
   children,
 }) => {
+  const [error, setError] = useState("");
+
   const { close } = useModal();
 
   const handleSubmit = useCallback(async () => {
     if (!buttonProps) return;
 
     const handle = async () => {
+      // Await result
       const data = await buttonProps.onSubmit();
+
+      // Close if needed
       if (buttonProps.closeOnSubmit) close(data);
     };
 
-    if (buttonProps.setError) {
-      try {
-        await handle();
-      } catch (e: any) {
-        buttonProps.setError(e.message);
-      }
-    } else {
+    // Start loading
+    if (buttonProps.setLoading) buttonProps.setLoading(true);
+
+    try {
       await handle();
+    } catch (e: any) {
+      if (buttonProps.setError) buttonProps.setError(e.message);
+      else {
+        setError(e.message);
+        throw e;
+      }
     }
+
+    // End loading
+    if (buttonProps.setLoading) buttonProps.setLoading(false);
   }, [buttonProps, close]);
 
   // Submit on Enter
@@ -83,7 +98,15 @@ const Modal: FC<ModalProps> = ({
         )}
       </TopWrapper>
 
-      <ContentWrapper>{children}</ContentWrapper>
+      <ContentWrapper>
+        {error && (
+          <ErrorText kind="error" IconEl={<Sad />}>
+            {error}
+          </ErrorText>
+        )}
+
+        {children}
+      </ContentWrapper>
 
       {buttonProps && (
         <ButtonsWrapper>
@@ -150,6 +173,10 @@ const ContentWrapper = styled.div`
 
     ${PgTheme.convertToCSS(theme.components.modal.content)};
   `}
+`;
+
+const ErrorText = styled(Text)`
+  margin-bottom: 1rem;
 `;
 
 const ButtonsWrapper = styled.div`

@@ -6,16 +6,8 @@ import Input from "../../../../../../../components/Input";
 import { PgExplorer } from "../../../../../../../utils/pg";
 
 export const ImportTemporary = () => {
-  // Handle user input
   const [name, setName] = useState("");
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setName(ev.target.value);
-  };
-
-  const importTemporary = async () => {
-    await PgExplorer.newWorkspace(name, { fromTemporary: true });
-  };
+  const [error, setError] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -24,13 +16,23 @@ export const ImportTemporary = () => {
     inputRef.current?.focus();
   }, []);
 
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setName(ev.target.value);
+    setError("");
+  };
+
+  const importTemporary = async () => {
+    await PgExplorer.newWorkspace(name, { fromTemporary: true });
+  };
+
   return (
     <Modal
       buttonProps={{
         text: "Import",
         onSubmit: importTemporary,
-        disabled: !name,
         closeOnSubmit: true,
+        disabled: !name || !!error,
+        setError,
       }}
       title
     >
@@ -39,6 +41,7 @@ export const ImportTemporary = () => {
         ref={inputRef}
         onChange={handleChange}
         value={name}
+        error={error}
         placeholder="project name..."
       />
     </Modal>

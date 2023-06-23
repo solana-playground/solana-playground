@@ -24,7 +24,7 @@ export class PgGithub {
    */
   static async import(url: string) {
     // Get repository info
-    const { files, owner, repo, path } = await PgGithub._getRepository(url);
+    const { files, owner, repo, path } = await this._getRepository(url);
 
     // Check whether the repository already exists in user's workspaces
     const githubWorkspaceName = `github-${owner}/${repo}/${path}`;
@@ -32,19 +32,9 @@ export class PgGithub {
       // Switch to the existing workspace
       await PgExplorer.switchWorkspace(githubWorkspaceName);
     } else {
-      // Get the default open file since there is no previous metadata saved
-      let defaultOpenFile;
-      const libRsFile = files.find((f) => f[0].endsWith("lib.rs"));
-      if (libRsFile) {
-        defaultOpenFile = libRsFile[0];
-      } else if (files.length > 0) {
-        defaultOpenFile = files[0][0];
-      }
-
       // Create a new workspace
       await PgExplorer.newWorkspace(githubWorkspaceName, {
         files,
-        defaultOpenFile,
       });
     }
   }

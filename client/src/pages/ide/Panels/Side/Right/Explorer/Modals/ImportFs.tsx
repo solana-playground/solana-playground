@@ -1,10 +1,9 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
-import UploadArea from "../../../../../../../components/UploadArea";
-import Modal from "../../../../../../../components/Modal";
-import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
+import Modal from "../../../../../../../components/Modal";
+import UploadArea from "../../../../../../../components/UploadArea";
 import {
   TupleFiles,
   Lang,
@@ -13,8 +12,6 @@ import {
 } from "../../../../../../../utils/pg";
 
 export const ImportFs = () => {
-  const { close } = useModal();
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on mount
@@ -28,8 +25,8 @@ export const ImportFs = () => {
   const [filesError, setFilesError] = useState("");
   const [importError, setImportError] = useState("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setName(ev.target.value);
     setImportError("");
   };
 
@@ -50,10 +47,7 @@ export const ImportFs = () => {
         }
 
         const lang = PgExplorer.getLanguageFromPath(path);
-
-        if (!lang) {
-          throw new Error(`Unsupported file type (${path})`);
-        }
+        if (!lang) throw new Error(`Unsupported file type (${path})`);
 
         const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
         if (
@@ -77,12 +71,7 @@ export const ImportFs = () => {
   }, []);
 
   const importNewWorkspace = async () => {
-    try {
-      await PgExplorer.newWorkspace(name, { files });
-      close();
-    } catch (e: any) {
-      setImportError(e.message);
-    }
+    await PgExplorer.newWorkspace(name, { files });
   };
 
   return (
@@ -90,7 +79,9 @@ export const ImportFs = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importNewWorkspace,
+        closeOnSubmit: true,
         disabled: !name || !files || !!filesError || !!importError,
+        setError: setImportError,
       }}
     >
       <Content>
@@ -100,12 +91,13 @@ export const ImportFs = () => {
             ref={inputRef}
             onChange={handleChange}
             value={name}
+            error={importError}
             placeholder="my local project..."
           />
         </WorkspaceNameWrapper>
         <UploadArea
           onDrop={onDrop}
-          error={importError || filesError}
+          error={filesError}
           filesLength={files?.length}
         />
       </Content>

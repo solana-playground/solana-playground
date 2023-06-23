@@ -10,7 +10,6 @@ import {
 import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
-import useModal from "../../../../../../../components/Modal/useModal";
 import Input from "../../../../../../../components/Input";
 import {
   Framework as FrameworkType,
@@ -19,8 +18,6 @@ import {
 } from "../../../../../../../utils/pg";
 
 export const NewWorkspace = () => {
-  const { close } = useModal();
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on mount
@@ -33,25 +30,20 @@ export const NewWorkspace = () => {
   const [error, setError] = useState("");
   const [selected, setSelected] = useState("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setName(ev.target.value);
     setError("");
   };
 
   const newWorkspace = async () => {
-    try {
-      const { files, defaultOpenFile } = FRAMEWORKS.find(
-        (f) => f.name === selected
-      )!;
+    const { files, defaultOpenFile } = FRAMEWORKS.find(
+      (f) => f.name === selected
+    )!;
 
-      await PgExplorer.newWorkspace(name, {
-        files,
-        defaultOpenFile,
-      });
-      close();
-    } catch (e: any) {
-      setError(e.message);
-    }
+    await PgExplorer.newWorkspace(name, {
+      files,
+      defaultOpenFile,
+    });
   };
 
   return (
@@ -59,7 +51,9 @@ export const NewWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: newWorkspace,
-        disabled: !name || !selected,
+        closeOnSubmit: true,
+        disabled: !name || !selected || !!error,
+        setError,
       }}
     >
       <Content>

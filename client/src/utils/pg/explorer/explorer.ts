@@ -415,6 +415,11 @@ export class PgExplorer {
       for (const [path, content] of opts.files) {
         await this.fs.writeFile(path, content, { createParents: true });
       }
+
+      // Set the default open file
+      if (!opts.defaultOpenFile) {
+        opts.defaultOpenFile = PgExplorer.getDefaultOpenFile(opts.files);
+      }
     }
 
     await this.switchWorkspace(name, {
@@ -1563,6 +1568,24 @@ export class PgExplorer {
   }
 
   /**
+   * Get the default open file from the given tuple files.
+   *
+   * @param files tuple files
+   * @returns the default open file path
+   */
+  static getDefaultOpenFile(files: TupleFiles) {
+    let defaultOpenFile: string | undefined;
+    const libRsFile = files.find(([path]) => path.endsWith("lib.rs"));
+    if (libRsFile) {
+      defaultOpenFile = libRsFile[0];
+    } else if (files.length) {
+      defaultOpenFile = files[0][0];
+    }
+
+    return defaultOpenFile;
+  }
+
+  /**
    * Convert the given `TupleFiles` to `ExplorerFiles`.
    *
    * @param tupleFiles tuple files to convert
@@ -1572,13 +1595,8 @@ export class PgExplorer {
     const explorerFiles: ExplorerFiles = {};
     if (!tupleFiles.length) return explorerFiles;
 
-    let defaultOpenFile: string;
-    const libRsFile = tupleFiles.find(([path]) => path.endsWith("lib.rs"));
-    if (libRsFile) {
-      defaultOpenFile = libRsFile[0];
-    } else {
-      defaultOpenFile = tupleFiles[0][0];
-    }
+    // Get the default open file
+    const defaultOpenFile = PgExplorer.getDefaultOpenFile(tupleFiles);
 
     for (const [path, content] of tupleFiles) {
       const fullPath = PgCommon.joinPaths([

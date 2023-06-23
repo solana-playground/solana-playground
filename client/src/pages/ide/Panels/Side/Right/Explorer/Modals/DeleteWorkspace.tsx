@@ -6,11 +6,7 @@ import { PgExplorer } from "../../../../../../../utils/pg";
 
 export const DeleteWorkspace = () => {
   const deleteWorkspace = async () => {
-    try {
-      await PgExplorer.deleteWorkspace();
-    } catch (e: any) {
-      console.log(e.message);
-    }
+    await PgExplorer.deleteWorkspace();
   };
 
   return (
