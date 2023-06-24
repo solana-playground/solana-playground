@@ -1,9 +1,10 @@
 import EditorWithTabs from "../pages/ide/Panels/Main/MainView/EditorWithTabs";
-import { PgExplorer, PgGithub, PgRouter, PgView, Sidebar } from "../utils/pg";
+import { PgExplorer, PgGithub, PgRouter, PgView } from "../utils/pg";
 
 export const github = PgRouter.create({
   path: "/github/{url}",
   handle: ({ url }) => {
+    // Set main view
     PgView.setMain(async () => {
       PgView.setSidebarLoading(true);
 
@@ -18,12 +19,5 @@ export const github = PgRouter.create({
 
       return EditorWithTabs;
     });
-
-    // Handle sidebar
-    const { dispose } = PgView.onDidChangeSidebarState((state) => {
-      if (state === Sidebar.TUTORIALS) PgRouter.navigate("/tutorials");
-    });
-
-    return () => dispose();
   },
 });

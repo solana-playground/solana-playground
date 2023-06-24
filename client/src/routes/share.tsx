@@ -1,5 +1,5 @@
 import EditorWithTabs from "../pages/ide/Panels/Main/MainView/EditorWithTabs";
-import { PgExplorer, PgRouter, PgShare, PgView, Sidebar } from "../utils/pg";
+import { PgExplorer, PgRouter, PgShare, PgView } from "../utils/pg";
 
 export const share = PgRouter.create({
   path: "/{shareId}",
@@ -20,12 +20,5 @@ export const share = PgRouter.create({
 
       return EditorWithTabs;
     });
-
-    // Handle sidebar
-    const { dispose } = PgView.onDidChangeSidebarState((state) => {
-      if (state === Sidebar.TUTORIALS) PgRouter.navigate("/tutorials");
-    });
-
-    return () => dispose();
   },
 });

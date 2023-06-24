@@ -27,12 +27,5 @@ export const defaultRoute = PgRouter.create({
         throw new Error("No need to render");
       }
     });
-
-    // Handle sidebar
-    const { dispose } = PgView.onDidChangeSidebarState((state) => {
-      if (state === Sidebar.TUTORIALS) PgRouter.navigate("/tutorials");
-    });
-
-    return () => dispose();
   },
 });

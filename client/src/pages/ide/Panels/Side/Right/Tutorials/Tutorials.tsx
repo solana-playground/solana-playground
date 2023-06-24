@@ -5,6 +5,7 @@ import TutorialsSkeleton from "./TutorialsSkeleton";
 import Text from "../../../../../../components/Text";
 import {
   PgCommon,
+  PgRouter,
   PgTutorial,
   TutorialData,
   TutorialMetadata,
@@ -17,6 +18,13 @@ type TutorialsData = { completed: TutorialFullData; ongoing: TutorialFullData };
 const Tutorials = () => {
   const [tutorialsData, setTutorialsData] = useState<TutorialsData>();
 
+  // Handle path
+  useAsyncEffect(async () => {
+    const { pathname } = await PgRouter.getLocation();
+    if (!pathname.startsWith("/tutorials")) PgRouter.navigate("/tutorials");
+  }, []);
+
+  // Get tutorial data
   useAsyncEffect(async () => {
     // Better transition
     await PgCommon.sleep(300);
