@@ -79,7 +79,6 @@ const CustomEndpoint = () => {
       buttonProps={{
         text: "Add",
         onSubmit,
-        closeOnSubmit: true,
         disabled: !!error || error === "",
         setError,
         fullWidth: true,

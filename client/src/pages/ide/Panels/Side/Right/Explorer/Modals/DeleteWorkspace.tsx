@@ -15,7 +15,6 @@ export const DeleteWorkspace = () => {
       buttonProps={{
         text: "Delete",
         onSubmit: deleteWorkspace,
-        closeOnSubmit: true,
         kind: "error",
       }}
     >

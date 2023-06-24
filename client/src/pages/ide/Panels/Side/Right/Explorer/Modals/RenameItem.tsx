@@ -37,7 +37,6 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
       buttonProps={{
         text: "Rename",
         onSubmit: rename,
-        closeOnSubmit: true,
         size: "small",
         disabled: !newName || !!error,
         setError,

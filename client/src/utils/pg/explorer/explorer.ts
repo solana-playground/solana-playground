@@ -359,9 +359,9 @@ export class PgExplorer {
    * Create a new workspace and change the current workspace to the created workspace
    * @param name new workspace name
    * @param opts -
-   * - files: TupleFiles to create the workspace from
-   * - defaultOpenFile: Default file to open in the editor
-   * - fromTemporary: Whether to create new workspace from a temporary project
+   * - `files`: `TupleFiles` to create the workspace from
+   * - `defaultOpenFile`: Default file to open in the editor
+   * - `fromTemporary`: Whether to create new workspace from a temporary project
    */
   static async newWorkspace(
     name: string,
@@ -418,7 +418,7 @@ export class PgExplorer {
 
       // Set the default open file
       if (!opts.defaultOpenFile) {
-        opts.defaultOpenFile = PgExplorer.getDefaultOpenFile(opts.files);
+        opts.defaultOpenFile = this.getDefaultOpenFile(opts.files);
       }
     }
 
@@ -434,8 +434,8 @@ export class PgExplorer {
    * Change the current workspace to the given workspace
    * @param name workspace name to change to
    * @param opts -
-   * - initial: if changing to the given workspace for the first time
-   * - defaultOpenFile: the file to open in the editor
+   * - `initial`: if changing to the given workspace for the first time
+   * - `defaultOpenFile`: the file to open in the editor
    */
   static async switchWorkspace(
     name: string,
@@ -476,19 +476,14 @@ export class PgExplorer {
    */
   static async renameWorkspace(newName: string) {
     newName = newName.trim();
-    if (!newName) {
-      throw new Error(WorkspaceError.INVALID_NAME);
-    }
-    if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
-    }
+    if (!newName) throw new Error(WorkspaceError.INVALID_NAME);
+    if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
     if (this.allWorkspaceNames?.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
-    await this.renameItem(this.currentWorkspacePath, newName, {
-      skipNameValidation: true,
-    });
+    // Rename workspace folder
+    await this.renameItem(this.currentWorkspacePath, newName);
 
     // Rename workspace in state
     this._workspace.rename(newName);
@@ -903,10 +898,7 @@ export class PgExplorer {
   static getCurrentFileLanguage() {
     const currentPath = this.getCurrentFile()?.path;
     if (!currentPath) return null;
-    const path = this.isTemporary
-      ? currentPath
-      : this.getRelativePath(currentPath);
-    return PgExplorer.getLanguageFromPath(path);
+    return this.getLanguageFromPath(currentPath);
   }
 
   /**
@@ -973,14 +965,14 @@ export class PgExplorer {
    * @returns the full path
    */
   static convertToFullPath(path: string) {
+    // Return absolute path
+    if (path.startsWith(this.PATHS.ROOT_DIR_PATH)) return path;
+
     // Convert to absolute path if it doesn't start with '/'
-    if (!path.startsWith(PgExplorer.PATHS.ROOT_DIR_PATH)) {
-      path =
-        (this.isTemporary
-          ? PgExplorer.PATHS.ROOT_DIR_PATH
-          : this.currentWorkspacePath) + path;
-    }
-    return path;
+    return PgCommon.joinPaths([
+      this.isTemporary ? this.PATHS.ROOT_DIR_PATH : this.currentWorkspacePath,
+      path,
+    ]);
   }
 
   /**
@@ -988,8 +980,8 @@ export class PgExplorer {
    */
   static getCurrentSrcPath() {
     const srcPath = this.isTemporary
-      ? PgExplorer.PATHS.ROOT_DIR_PATH + PgExplorer.PATHS.SRC_DIRNAME
-      : this.appendToCurrentWorkspacePath(PgExplorer.PATHS.SRC_DIRNAME);
+      ? this.PATHS.ROOT_DIR_PATH + this.PATHS.SRC_DIRNAME
+      : this.appendToCurrentWorkspacePath(this.PATHS.SRC_DIRNAME);
     return PgCommon.appendSlash(srcPath);
   }
 
@@ -1345,6 +1337,12 @@ export class PgExplorer {
     TESTS_DIRNAME: "tests",
   };
 
+  /**
+   * Get item's name from its path.
+   *
+   * @param path item path
+   * @returns the item name
+   */
   static getItemNameFromPath(path: string) {
     const itemsArr = path.split("/");
     const itemType = this.getItemTypeFromPath(path);
@@ -1354,16 +1352,34 @@ export class PgExplorer {
   }
 
   // TODO: Implement a better identifier
+  /**
+   * Get the item's type from its name.
+   *
+   * @param itemName item name
+   * @returns the item type
+   */
   static getItemTypeFromName(itemName: string) {
     if (itemName.includes(".")) return { file: true };
     return { folder: true };
   }
 
+  /**
+   * Get the item's type from its path.
+   *
+   * @param path item path
+   * @returns the item type
+   */
   static getItemTypeFromPath(path: string) {
     if (path.endsWith("/")) return { folder: true };
     return { file: true };
   }
 
+  /**
+   * Get the item's type from the given element.
+   *
+   * @param el item element
+   * @returns the item type
+   */
   static getItemTypeFromEl(el: HTMLDivElement) {
     if (el.classList.contains(ClassName.FOLDER)) {
       return { folder: true };
@@ -1374,23 +1390,31 @@ export class PgExplorer {
     return null;
   }
 
+  /**
+   * Get the item's path from the given element.
+   *
+   * @param el item element
+   * @returns the item path
+   */
   static getItemPathFromEl(el: HTMLDivElement) {
     return el?.getAttribute("data-path");
   }
 
+  /**
+   * Get the langugage from the given path's extension.
+   *
+   * @param path item path
+   * @returns the language
+   */
   static getLanguageFromPath(path: string) {
-    const splitByDot = path.split(".");
-    if (!splitByDot?.length) {
-      return null;
-    }
-
-    let langExtension;
-    if (splitByDot.length === 2) {
-      langExtension = splitByDot[splitByDot.length - 1];
-    } else {
-      langExtension =
-        splitByDot[splitByDot.length - 2] + splitByDot[splitByDot.length - 1];
-    }
+    const langExtension = path
+      .split(".")
+      .reverse()
+      .reduce((acc, cur, i) => {
+        if (i === 0) return cur;
+        if (i === 1 && cur === "test") return acc + cur;
+        return acc;
+      });
 
     switch (langExtension) {
       case "rs":
@@ -1401,15 +1425,23 @@ export class PgExplorer {
         return Lang.JAVASCRIPT;
       case "ts":
         return Lang.TYPESCRIPT;
-      case "testjs":
+      case "tstest":
         return Lang.JAVASCRIPT_TEST;
-      case "testts":
+      case "jstest":
         return Lang.TYPESCRIPT_TEST;
       case "json":
         return Lang.JSON;
+      default:
+        return null;
     }
   }
 
+  /**
+   * Get whether the element is a JS/TS client element.
+   *
+   * @param el item element
+   * @returns whether the element can run client
+   */
   static getIsItemClientFromEl(el: HTMLDivElement) {
     const path = this.getItemPathFromEl(el);
     if (!path) return false;
@@ -1421,6 +1453,12 @@ export class PgExplorer {
     );
   }
 
+  /**
+   * Get whether the element is a JS/TS test element.
+   *
+   * @param el item element
+   * @returns whether the element can run tests
+   */
   static getIsItemTestFromEl(el: HTMLDivElement) {
     const path = this.getItemPathFromEl(el);
     if (!path) return false;
@@ -1431,7 +1469,10 @@ export class PgExplorer {
   }
 
   /**
-   * Gets the parent folder path with '/' appended at the end.
+   * Get the parent's path from the given path with `/` appended.
+   *
+   * @param path item path
+   * @returns the parent path
    */
   static getParentPathFromPath(path: string) {
     const itemType = this.getItemTypeFromPath(path);
@@ -1445,19 +1486,23 @@ export class PgExplorer {
         return acc;
       });
 
-    return parentPath + "/";
+    return PgCommon.appendSlash(parentPath);
   }
 
-  static getParentPathFromEl = (selected: HTMLDivElement | null) => {
-    if (!selected) return null;
-
-    const itemType = this.getItemTypeFromEl(selected);
+  /**
+   * Get the parent path from the given element.
+   *
+   * @param el item element
+   * @returns the parent path
+   */
+  static getParentPathFromEl = (el: HTMLDivElement) => {
+    const itemType = this.getItemTypeFromEl(el);
 
     if (itemType?.folder) {
-      return selected?.getAttribute("data-path");
+      return el?.getAttribute("data-path");
     } else if (itemType?.file) {
       // The file's owner folder is parent element's previous sibling
-      return selected.parentElement!.previousElementSibling!.getAttribute(
+      return el.parentElement!.previousElementSibling!.getAttribute(
         "data-path"
       );
     }
@@ -1465,26 +1510,40 @@ export class PgExplorer {
     return null;
   };
 
+  /**
+   * Get the eleemnt from its path.
+   *
+   * @param path item path
+   * @returns the element
+   */
   static getElFromPath(path: string) {
     return document.querySelector(`[data-path='${path}']`) as HTMLDivElement;
   }
 
+  /** Get the root folder elemement. */
   static getRootFolderEl() {
     return document.getElementById(Id.ROOT_DIR);
   }
 
+  /** Get the current selected element. */
   static getSelectedEl = () => {
     return document.getElementsByClassName(
       ClassName.SELECTED
     )[0] as HTMLDivElement;
   };
 
+  /**
+   * Set the current selected element.
+   *
+   * @param newEl new element to select
+   */
   static setSelectedEl = (newEl: HTMLDivElement) => {
     const selectedEl = this.getSelectedEl();
     selectedEl?.classList.remove(ClassName.SELECTED);
     newEl.classList.add(ClassName.SELECTED);
   };
 
+  /** Get the selected context element. */
   static getCtxSelectedEl() {
     const ctxSelectedEls = document.getElementsByClassName(
       ClassName.CTX_SELECTED
@@ -1492,15 +1551,22 @@ export class PgExplorer {
     if (ctxSelectedEls.length) return ctxSelectedEls[0];
   }
 
+  /** Set the selected context element. */
   static setCtxSelectedEl = (newEl: HTMLDivElement) => {
     this.removeCtxSelectedEl();
     newEl.classList.add(ClassName.CTX_SELECTED);
   };
 
+  /** Remove the selected context element. */
   static removeCtxSelectedEl() {
     PgExplorer.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
   }
 
+  /**
+   * Open the given folder element.
+   *
+   * @param el folder element
+   */
   static openFolder = (el: HTMLDivElement) => {
     // Folder icon
     el.classList.add(ClassName.OPEN);
@@ -1510,6 +1576,11 @@ export class PgExplorer {
     if (insideFolderEl) insideFolderEl.classList.remove(ClassName.HIDDEN);
   };
 
+  /**
+   * Toggle open/close state of the given folder element.
+   *
+   * @param el folder element
+   */
   static toggleFolder = (el: HTMLDivElement) => {
     // Folder icon
     el.classList.toggle(ClassName.OPEN);
@@ -1519,6 +1590,11 @@ export class PgExplorer {
     if (insideFolderEl) insideFolderEl.classList.toggle(ClassName.HIDDEN);
   };
 
+  /**
+   * Recursively open all parent folders of the given path.
+   *
+   * @param path item path
+   */
   static openAllParents(path: string) {
     for (;;) {
       const parentPath = this.getParentPathFromPath(path);
@@ -1533,6 +1609,7 @@ export class PgExplorer {
     }
   }
 
+  /** Collapse all folders in the UI. */
   static collapseAllFolders() {
     const rootEl = this.getRootFolderEl();
     if (!rootEl) return;
@@ -1559,9 +1636,15 @@ export class PgExplorer {
     recursivelyCollapse(rootEl);
   }
 
+  /**
+   * Get whether the given item name can be used for an item.
+   *
+   * @param name item name
+   * @returns whether the item name is valid
+   */
   static isItemNameValid(name: string) {
     return (
-      name.match(/^(?!\.)[\w.-]+$/) &&
+      !!name.match(/^(?!\.)[\w.-/]+$/) &&
       !name.includes("//") &&
       !name.includes("..")
     );

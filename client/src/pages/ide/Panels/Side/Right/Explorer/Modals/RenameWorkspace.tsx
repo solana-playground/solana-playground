@@ -33,7 +33,7 @@ export const RenameWorkspace = () => {
       buttonProps={{
         text: "Rename",
         onSubmit: renameWorkspace,
-        disabled: !newName || !!error || !PgExplorer,
+        disabled: !newName || !!error,
         size: "small",
         setError,
       }}

@@ -17,7 +17,6 @@ export const Remove = () => {
         text: "Remove",
         kind: "error",
         onSubmit: handleRemove,
-        closeOnSubmit: true,
       }}
     >
       <MainContent>

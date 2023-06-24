@@ -79,7 +79,6 @@ export const ImportFs = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importNewWorkspace,
-        closeOnSubmit: true,
         disabled: !name || !files || !!filesError || !!importError,
         setError: setImportError,
       }}

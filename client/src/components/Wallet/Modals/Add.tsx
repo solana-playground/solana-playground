@@ -23,7 +23,6 @@ export const Add = () => {
       buttonProps={{
         text: "Create",
         onSubmit: handleCreate,
-        closeOnSubmit: true,
         setError,
         disabled: !!error,
       }}

@@ -28,8 +28,8 @@ interface ModalProps {
     text: string;
     /** Callback function to run on submit */
     onSubmit: () => SyncOrAsync<unknown>;
-    /** Whether the close the modal when user submits */
-    closeOnSubmit?: boolean;
+    /** Whether to skip closing the modal when user submits */
+    skipCloseOnSubmit?: boolean;
     /** Set the error when `obSubmit` throws */
     setError?: Dispatch<SetStateAction<any>>;
     /** Set loading state of the button based on `onSubmit` */
@@ -48,21 +48,17 @@ const Modal: FC<ModalProps> = ({
   const { close } = useModal();
 
   const handleSubmit = useCallback(async () => {
-    if (!buttonProps) return;
-
-    const handle = async () => {
-      // Await result
-      const data = await buttonProps.onSubmit();
-
-      // Close if needed
-      if (buttonProps.closeOnSubmit) close(data);
-    };
+    if (!buttonProps || buttonProps.disabled) return;
 
     // Start loading
     if (buttonProps.setLoading) buttonProps.setLoading(true);
 
     try {
-      await handle();
+      // Await result
+      const data = await buttonProps.onSubmit();
+
+      // Close unless explicitly forbidden
+      if (!buttonProps.skipCloseOnSubmit) close(data);
     } catch (e: any) {
       if (buttonProps.setError) buttonProps.setError(e.message);
       else {

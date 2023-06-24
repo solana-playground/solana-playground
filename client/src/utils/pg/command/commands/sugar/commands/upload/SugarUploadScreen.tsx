@@ -32,7 +32,6 @@ export const SugarUploadScreen: FC<SugarUploadScreenProps> = ({ title }) => {
         text: "Continue",
         disabled: !files || files.length % 2 === 1,
         onSubmit: () => files,
-        closeOnSubmit: true,
       }}
       title={title}
     >

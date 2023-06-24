@@ -51,7 +51,6 @@ export const NewWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: newWorkspace,
-        closeOnSubmit: true,
         disabled: !name || !selected || !!error,
         setError,
       }}
@@ -64,7 +63,9 @@ export const NewWorkspace = () => {
             onChange={handleChange}
             value={name}
             error={error}
-            placeholder="my first project..."
+            setError={setError}
+            validator={PgExplorer.isItemNameValid}
+            placeholder="my project..."
           />
         </WorkspaceNameWrapper>
         <FrameworkSectionWrapper>

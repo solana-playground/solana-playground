@@ -109,7 +109,7 @@ export class PgGithub {
 
     await recursivelyGetContent(srcData, srcUrl);
 
-    return { files, owner, repo, path: path.replace(/\/src\/.*/, "") };
+    return { files, owner, repo, path };
   }
 
   /**

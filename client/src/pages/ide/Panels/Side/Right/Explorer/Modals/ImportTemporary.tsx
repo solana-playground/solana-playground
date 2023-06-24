@@ -30,7 +30,6 @@ export const ImportTemporary = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importTemporary,
-        closeOnSubmit: true,
         disabled: !name || !!error,
         setError,
       }}

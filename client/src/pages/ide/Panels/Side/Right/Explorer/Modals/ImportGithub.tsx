@@ -38,7 +38,6 @@ export const ImportGithub = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importFromGithub,
-        closeOnSubmit: true,
         disabled: !url || !!error || loading,
         btnLoading: {
           state: loading,

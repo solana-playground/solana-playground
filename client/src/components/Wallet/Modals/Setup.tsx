@@ -38,7 +38,6 @@ export const Setup = () => {
       buttonProps={{
         text: "Continue",
         onSubmit: handleSetup,
-        closeOnSubmit: true,
       }}
     >
       <Content>
