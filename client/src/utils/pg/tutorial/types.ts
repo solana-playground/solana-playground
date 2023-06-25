@@ -1,4 +1,6 @@
-import { ComponentType } from "react";
+import type { ComponentType } from "react";
+
+import type { Nullable } from "../types";
 
 export enum TutorialLevel {
   BEGINNER = "Beginner",
@@ -26,6 +28,14 @@ type Author = {
   /** Optional link to the author's page, e.g Twitter, Github */
   link?: string;
 };
+
+/** Program info state */
+export type TutorialState = Nullable<
+  TutorialMetadata & { view: "about" | "main"; data: TutorialData }
+>;
+
+/** Serialized program info that's used in storage */
+export type SerializedTutorialState = Nullable<TutorialMetadata>;
 
 export interface TutorialData {
   /** Tutorial name that will be shown in tutorials section */
@@ -58,5 +68,5 @@ export interface TutorialMetadata {
   /** Total page amount of the tutorial */
   pageCount: number;
   /** Whether the tutorial has been completed */
-  completed?: boolean;
+  completed: boolean;
 }

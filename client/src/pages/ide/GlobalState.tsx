@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { ROUTES } from "../../routes";
 import { EventName } from "../../constants";
-import { terminalProgressAtom, tutorialAtom } from "../../state";
+import { terminalProgressAtom } from "../../state";
 import {
   Disposable,
   PgCommon,
@@ -17,7 +17,6 @@ import {
 import {
   useAsyncEffect,
   useDisposable,
-  useGetAndSetStatic,
   useGetStatic,
   useSetStatic,
 } from "../../hooks";
@@ -35,10 +34,6 @@ const GlobalState = () => {
   // Terminal progress
   const [, setProgress] = useAtom(terminalProgressAtom);
   useSetStatic(setProgress, EventName.TERMINAL_PROGRESS_SET);
-
-  // Tutorial
-  const [tutorial, setTutorial] = useAtom(tutorialAtom);
-  useGetAndSetStatic(tutorial, setTutorial, EventName.TUTORIAL_STATIC);
 
   // Wallet
   useDisposable(PgWallet.init);

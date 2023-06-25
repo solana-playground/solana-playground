@@ -2,7 +2,7 @@ import type { Location } from "react-router-dom";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { OrString } from "./types";
+import type { Disposable, OrString } from "./types";
 
 /** Opening delimiter for path variables */
 const OPEN = "{";
@@ -15,7 +15,7 @@ type Route<P extends string> = {
   /** Route pathname, always starts with `/` */
   path: P;
   /** Handler method for the route */
-  handle: (params: PathParameter<P>) => void;
+  handle: (params: PathParameter<P>) => Disposable | void;
   /** Check whether the path is valid */
   validate?: (params: PathParameter<P>) => boolean;
 };
@@ -39,7 +39,11 @@ export class PgRouter {
    * @returns a dispose function to clear the event
    */
   static init<P extends string>(routes: Route<P>[]) {
+    let disposable: Disposable | undefined;
     return this.onDidChangePath((path) => {
+      // Dispose
+      disposable?.dispose();
+
       let params: PathParameter<P>;
       const route = routes.find((route) => {
         try {
@@ -52,7 +56,7 @@ export class PgRouter {
       });
 
       try {
-        route?.handle(params!);
+        disposable = route?.handle(params!)!;
       } catch (e: any) {
         console.log("ROUTE ERROR:", e.message);
         this.navigate();

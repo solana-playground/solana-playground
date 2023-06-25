@@ -1,26 +1,68 @@
 import { PgCommon } from "../common";
-import { PgExplorer } from "../explorer";
+import { PgExplorer, TupleFiles } from "../explorer";
 import { PgRouter } from "../router";
 import { PgView, Sidebar } from "../view";
-import { EventName } from "../../../constants";
 import { TUTORIALS } from "../../../tutorials";
-import type { TutorialData, TutorialMetadata } from "./types";
-import type { TutorialComponentProps } from "../../../components/Tutorial";
+import { declareUpdatable, updatable } from "../decorators";
+import type {
+  SerializedTutorialState,
+  TutorialMetadata,
+  TutorialState,
+} from "./types";
 
-export class PgTutorial {
-  static async getCurrent(): Promise<TutorialData> {
-    return await PgCommon.sendAndReceiveCustomEvent(
-      PgCommon.getStaticStateEventNames(EventName.TUTORIAL_STATIC).get
-    );
-  }
+const defaultState: TutorialState = {
+  pageNumber: null,
+  pageCount: null,
+  completed: null,
+  view: null,
+  data: null,
+};
 
-  static setCurrent(tutorial: TutorialData) {
-    PgCommon.createAndDispatchCustomEvent(
-      PgCommon.getStaticStateEventNames(EventName.TUTORIAL_STATIC).set,
-      tutorial
-    );
-  }
+const storage = {
+  /** Relative path to program info */
+  PATH: ".tutorial.json",
 
+  /** Read from storage and deserialize the data. */
+  async read(): Promise<TutorialState> {
+    if (
+      !PgTutorial.data?.name ||
+      !PgTutorial.isTutorialStarted(PgTutorial.data.name)
+    ) {
+      return { ...defaultState, data: PgTutorial.data };
+    }
+
+    let serializedState: SerializedTutorialState;
+    try {
+      serializedState = await PgExplorer.fs.readToJSON(this.PATH);
+    } catch {
+      return { ...defaultState, data: PgTutorial.data };
+    }
+
+    return { ...defaultState, ...serializedState, data: PgTutorial.data };
+  },
+
+  /** Serialize the data and write to storage. */
+  async write(state: TutorialState) {
+    if (
+      !PgTutorial.data?.name ||
+      !PgTutorial.isTutorialStarted(PgTutorial.data.name)
+    ) {
+      return;
+    }
+
+    // Don't use spread operator(...) because of the extra state
+    const serializedState: SerializedTutorialState = {
+      pageNumber: state.pageNumber,
+      pageCount: state.pageCount,
+      completed: state.completed,
+    };
+
+    await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(serializedState));
+  },
+};
+
+@updatable({ defaultState, storage })
+class _PgTutorial {
   static getTutorialData(tutorialName: string) {
     return TUTORIALS.find((t) => t.name === tutorialName);
   }
@@ -34,19 +76,6 @@ export class PgTutorial {
     });
   }
 
-  static async getPageNumber(): Promise<number> {
-    return await PgCommon.sendAndReceiveCustomEvent(
-      PgCommon.getStaticStateEventNames(EventName.TUTORIAL_PAGE_STATIC).get
-    );
-  }
-
-  static setPageNumber(pageNumber: number) {
-    PgCommon.createAndDispatchCustomEvent(
-      PgCommon.getStaticStateEventNames(EventName.TUTORIAL_PAGE_STATIC).set,
-      pageNumber
-    );
-  }
-
   static isWorkspaceTutorial(workspaceName: string) {
     return TUTORIALS.some((t) => t.name === workspaceName);
   }
@@ -54,6 +83,24 @@ export class PgTutorial {
   static isCurrentWorkspaceTutorial() {
     const workspaceName = PgExplorer.currentWorkspaceName;
     return workspaceName ? this.isWorkspaceTutorial(workspaceName) : false;
+  }
+
+  static getUserTutorialNames() {
+    return PgExplorer.allWorkspaceNames?.filter(this.isWorkspaceTutorial) ?? [];
+  }
+
+  static isTutorialStarted(name: string) {
+    return PgExplorer.allWorkspaceNames?.includes(name) ?? false;
+  }
+
+  static async getMetadata(name: string): Promise<TutorialMetadata> {
+    if (!PgTutorial.isWorkspaceTutorial(name)) {
+      throw new Error(`'${name}' is not a tutorial.`);
+    }
+
+    return await PgExplorer.fs.readToJSON(
+      PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, storage.PATH])
+    );
   }
 
   static async open(tutorialName: string) {
@@ -64,95 +111,54 @@ export class PgTutorial {
 
     if (PgRouter.isPathsEqual(pathname, tutorialPath)) {
       // Open the tutorial pages view
-      try {
-        const metadata = await this.getMetadata();
-        this.setPageNumber(metadata.pageNumber);
-        PgView.setSidebarState((state) => {
-          if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
-          return state;
-        });
-      } catch {}
+      PgTutorial.update({ view: "main" });
+      PgView.setSidebarState((state) => {
+        if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
+        return state;
+      });
     } else {
       PgRouter.navigate(tutorialPath);
     }
   }
 
   static async start(
-    props: Pick<TutorialComponentProps, "files" | "defaultOpenFile"> &
-      Pick<TutorialMetadata, "pageCount">
+    props: { files: TupleFiles; defaultOpenFile?: string } & Pick<
+      TutorialMetadata,
+      "pageCount"
+    >
   ) {
-    const tutorialName = (await this.getCurrent()).name;
+    const tutorialName = PgTutorial.data?.name;
+    if (!tutorialName) throw new Error("Tutorial is not selected");
 
-    let tutorialMetaExists;
-    if (PgExplorer.allWorkspaceNames?.includes(tutorialName)) {
-      // Start from where the user left off
-      if (PgExplorer.currentWorkspaceName !== tutorialName) {
+    if (PgExplorer.allWorkspaceNames!.includes(tutorialName)) {
+      if (PgExplorer.currentWorkspaceName === tutorialName) {
+        await this.open(tutorialName);
+      } else {
         await PgExplorer.switchWorkspace(tutorialName);
       }
-
-      // Read tutorial metadata file
-      try {
-        const metadata = await this.getMetadata();
-        this.setPageNumber(metadata.pageNumber);
-        tutorialMetaExists = true;
-      } catch {}
     } else {
       // Initial tutorial setup
       await PgExplorer.newWorkspace(tutorialName, {
         files: props.files,
         defaultOpenFile: props.defaultOpenFile,
       });
-    }
 
-    if (!tutorialMetaExists) {
-      // Create tutorial metadata file
-      const metadata: TutorialMetadata = {
+      PgTutorial.update({
         pageNumber: 1,
         pageCount: props.pageCount,
-      };
-      await PgExplorer.fs.writeFile(
-        this._getTutorialMetadataPath(),
-        JSON.stringify(metadata)
-      );
+        completed: false,
+        view: "main",
+      });
     }
 
     PgView.setSidebarState();
   }
 
-  static async finish() {
-    await PgTutorial.saveTutorialMetadata({ completed: true });
+  static finish() {
+    PgTutorial.completed = true;
+    PgTutorial.view = "about";
     PgView.setSidebarState(Sidebar.TUTORIALS);
   }
-
-  static async saveTutorialMetadata(updatedMeta: Partial<TutorialMetadata>) {
-    try {
-      const currentMeta = await this.getMetadata();
-      await PgExplorer.fs.writeFile(
-        this._getTutorialMetadataPath(),
-        JSON.stringify({ ...currentMeta, ...updatedMeta })
-      );
-    } catch {}
-  }
-
-  static async getMetadata(tutorialName?: string): Promise<TutorialMetadata> {
-    return await PgExplorer.fs.readToJSON(
-      this._getTutorialMetadataPath(tutorialName)
-    );
-  }
-
-  static getUserTutorialNames() {
-    return PgExplorer.allWorkspaceNames!.filter(this.isWorkspaceTutorial);
-  }
-
-  private static readonly TUTORIAL_METADATA_FILENAME = ".tutorial.json";
-
-  private static _getTutorialMetadataPath(tutorialName?: string) {
-    return tutorialName
-      ? PgCommon.joinPaths([
-          PgExplorer.PATHS.ROOT_DIR_PATH,
-          tutorialName,
-          this.TUTORIAL_METADATA_FILENAME,
-        ])
-      : this.TUTORIAL_METADATA_FILENAME;
-  }
 }
+
+export const PgTutorial = declareUpdatable(_PgTutorial, { defaultState });

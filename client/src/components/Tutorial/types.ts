@@ -1,23 +1,5 @@
 import type { TupleFiles } from "../../utils/pg";
 
-/** String or JSX */
-type TutorialElement = string | JSX.Element;
-
-type Page = {
-  /** Content of the page. Can be either:
-   * - Text string(Markdown supported)
-   * - React component
-   */
-  content: TutorialElement;
-  /** Title of the page that will be used for navigation.
-   *
-   * Defaults to `pageNumber/pageCount`, e.g 3/5
-   */
-  title?: string;
-  /** Callback to run on mount */
-  onMount?: () => any;
-};
-
 export type TutorialComponentProps = {
   /** About section that will be shown under the description of the tutorial page */
   about: TutorialElement;
@@ -32,3 +14,31 @@ export type TutorialComponentProps = {
   /** Callback to run when the tutorial is completed */
   onComplete?: () => any;
 } & Pick<Page, "onMount">;
+
+export type TutorialAboutComponentProps = Pick<
+  TutorialComponentProps,
+  "about" | "files" | "defaultOpenFile" | "pages"
+>;
+
+export type TutorialMainComponentProps = Pick<
+  TutorialComponentProps,
+  "pages" | "rtl" | "onComplete"
+>;
+
+type Page = {
+  /** Content of the page, can be either:
+   * - Text string(Markdown supported)
+   * - React component
+   */
+  content: TutorialElement;
+  /** Title of the page that will be used for navigation.
+   *
+   * Defaults to `pageNumber/pageCount`, e.g. 3/5
+   */
+  title?: string;
+  /** Callback to run on mount */
+  onMount?: () => any;
+};
+
+/** String or JSX */
+type TutorialElement = string | JSX.Element;

@@ -16,16 +16,14 @@ export const tutorials = PgRouter.create({
     });
 
     // Handle sidebar
-    const { dispose } = PgView.onDidChangeSidebarState((state) => {
+    return PgView.onDidChangeSidebarState((state) => {
       if (state === Sidebar.TUTORIALS) {
         if (PgTutorial.isCurrentWorkspaceTutorial()) {
-          PgTutorial.setPageNumber(0);
+          // PgTutorial.pageNumber = 0;
         }
       } else {
         PgRouter.navigate();
       }
     });
-
-    return () => dispose();
   },
 });

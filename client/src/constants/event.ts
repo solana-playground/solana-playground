@@ -27,10 +27,6 @@ export enum EventName {
   // Toast
   TOAST_SET = "toastset",
 
-  // Tutorial
-  TUTORIAL_STATIC = "tutorialstatic",
-  TUTORIAL_PAGE_STATIC = "tutorialpagestatic",
-
   // View
   VIEW_MAIN_STATIC = "viewmainstatic",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
