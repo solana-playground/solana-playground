@@ -29,7 +29,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
   // On component mount
   useEffect(() => {
-    if (onMount) onMount();
+    if (onMount) return onMount();
   }, [onMount]);
 
   return (

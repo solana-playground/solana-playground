@@ -31,7 +31,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
     if (!currentPage) return;
 
     const page = pages[currentPage - 1];
-    if (page.onMount) page.onMount();
+    if (page.onMount) return page.onMount();
   }, [currentPage, pages]);
 
   const nextPage = () => {
@@ -53,6 +53,8 @@ export const Main: FC<TutorialMainComponentProps> = ({
     return null;
   }
 
+  const currentContent = pages[currentPage - 1].content;
+
   return (
     <Wrapper rtl={rtl} sizes={[60, 40]}>
       <EditorWrapper>
@@ -61,11 +63,12 @@ export const Main: FC<TutorialMainComponentProps> = ({
 
       <TutorialPage ref={tutorialPageRef}>
         <TutorialContent>
-          {typeof pages[currentPage - 1].content === "string" ? (
-            <Markdown>{pages[currentPage - 1].content as string}</Markdown>
+          {typeof currentContent === "string" ? (
+            <Markdown>{currentContent}</Markdown>
           ) : (
-            pages[currentPage - 1].content
+            currentContent
           )}
+
           <NavigationButtonsOutsideWrapper>
             <NavigationButtonsInsideWrapper>
               {currentPage !== 1 && (
@@ -81,6 +84,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
                   </NavigationButton>
                 </PreviousWrapper>
               )}
+
               <NextWrapper>
                 <NextText>Next</NextText>
                 {currentPage === pages.length ? (

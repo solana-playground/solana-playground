@@ -30,7 +30,7 @@ export const About: FC<TutorialAboutComponentProps> = ({
     });
   };
 
-  if (!tutorial) return <div>No tut</div>;
+  if (!tutorial) return null;
 
   return (
     <Wrapper>
@@ -65,6 +65,7 @@ export const About: FC<TutorialAboutComponentProps> = ({
                 </Fragment>
               ))}
           </TutorialAuthorsWrapper>
+
           <TutorialDescriptionWrapper>
             <TutorialDescription>{tutorial.description}</TutorialDescription>
             <StartTutorialButtonWrapper>

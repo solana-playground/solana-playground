@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { ROUTES } from "../../routes";
+import { TUTORIALS } from "../../tutorials";
 import { EventName } from "../../constants";
 import { terminalProgressAtom } from "../../state";
 import {
@@ -12,21 +13,17 @@ import {
   PgExplorer,
   PgProgramInfo,
   PgRouter,
+  PgTutorial,
   PgWallet,
 } from "../../utils/pg";
-import {
-  useAsyncEffect,
-  useDisposable,
-  useGetStatic,
-  useSetStatic,
-} from "../../hooks";
+import { useDisposable, useGetStatic, useSetStatic } from "../../hooks";
 
 const GlobalState = () => {
   // Connection
   useDisposable(PgConnection.init);
 
   // Program info
-  useProgramInfoStatic();
+  useProgramInfo();
 
   // Router
   useRouter();
@@ -41,7 +38,31 @@ const GlobalState = () => {
   return null;
 };
 
-/** Handle URL routing. */
+/**
+ * Initialize `PgProgramInfo` each time the current workspace changes.
+ *
+ * **IMPORTANT**: Should only be used once.
+ */
+const useProgramInfo = () => {
+  useEffect(() => {
+    let programInfo: Disposable | undefined;
+    const explorerInit = PgExplorer.onDidInit(async () => {
+      programInfo?.dispose();
+      programInfo = await PgProgramInfo.init();
+    });
+
+    return () => {
+      programInfo?.dispose();
+      explorerInit.dispose();
+    };
+  }, []);
+};
+
+/**
+ * Handle URL routing.
+ *
+ * **IMPORTANT**: Should only be used once.
+ */
 const useRouter = () => {
   // Init
   useEffect(() => {
@@ -66,24 +87,7 @@ const useRouter = () => {
   }, [location.pathname]);
 };
 
-/**
- * Initialize `PgProgramInfo` each time the current workspace changes.
- *
- * **IMPORTANT**: Should only be used once.
- */
-const useProgramInfoStatic = () => {
-  useAsyncEffect(async () => {
-    let programInfo: Disposable | undefined;
-    const explorerInit = PgExplorer.onDidInit(async () => {
-      programInfo?.dispose();
-      programInfo = await PgProgramInfo.init();
-    });
-
-    return () => {
-      programInfo?.dispose();
-      explorerInit.dispose();
-    };
-  }, []);
-};
+// Set tutorials
+PgTutorial.setTutorials(TUTORIALS);
 
 export default GlobalState;
