@@ -64,7 +64,7 @@ export const NewWorkspace = () => {
             value={name}
             error={error}
             setError={setError}
-            validator={PgExplorer.isItemNameValid}
+            validator={PgExplorer.isWorkspaceNameValid}
             placeholder="my project..."
           />
         </WorkspaceNameWrapper>

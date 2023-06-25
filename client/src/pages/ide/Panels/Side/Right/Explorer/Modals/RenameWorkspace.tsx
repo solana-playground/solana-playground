@@ -44,6 +44,8 @@ export const RenameWorkspace = () => {
         onChange={handleChange}
         value={newName}
         error={error}
+        setError={setError}
+        validator={PgExplorer.isWorkspaceNameValid}
       />
     </Modal>
   );

@@ -120,7 +120,7 @@ export class PgExplorer {
    * - Create item in the state
    */
   static async newItem(
-    fullPath: string,
+    path: string,
     content: string = "",
     opts?: {
       skipNameValidation?: boolean;
@@ -131,7 +131,7 @@ export class PgExplorer {
       };
     }
   ) {
-    fullPath = this.convertToFullPath(fullPath);
+    const fullPath = this.convertToFullPath(path);
 
     // Invalid name
     if (
@@ -201,11 +201,11 @@ export class PgExplorer {
    * - Rename in state
    */
   static async renameItem(
-    fullPath: string,
+    path: string,
     newName: string,
     opts?: { skipNameValidation?: boolean }
   ) {
-    fullPath = this.convertToFullPath(fullPath);
+    const fullPath = this.convertToFullPath(path);
 
     if (!opts?.skipNameValidation && !PgExplorer.isItemNameValid(newName)) {
       throw new Error(ItemError.INVALID_NAME);
@@ -250,9 +250,7 @@ export class PgExplorer {
     if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
 
     // Rename in `indexedDB`
-    if (!this.isTemporary) {
-      await this.fs.rename(fullPath, newPath);
-    }
+    if (!this.isTemporary) await this.fs.rename(fullPath, newPath);
 
     if (itemType.file) {
       // Store the file
@@ -311,8 +309,8 @@ export class PgExplorer {
    * If the project is temporary:
    * - Delete from state
    */
-  static async deleteItem(fullPath: string) {
-    fullPath = this.convertToFullPath(fullPath);
+  static async deleteItem(path: string) {
+    const fullPath = this.convertToFullPath(path);
 
     // Can't delete src folder
     if (fullPath === this.getCurrentSrcPath()) {
@@ -337,9 +335,7 @@ export class PgExplorer {
     }
 
     for (const path in files) {
-      if (path.startsWith(fullPath)) {
-        delete files[path];
-      }
+      if (path.startsWith(fullPath)) delete files[path];
     }
 
     // Deleting all elements from a folder results with the parent folder
@@ -476,14 +472,18 @@ export class PgExplorer {
    */
   static async renameWorkspace(newName: string) {
     newName = newName.trim();
-    if (!newName) throw new Error(WorkspaceError.INVALID_NAME);
+    if (!this.isWorkspaceNameValid(newName)) {
+      throw new Error(WorkspaceError.INVALID_NAME);
+    }
     if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
     if (this.allWorkspaceNames?.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
     // Rename workspace folder
-    await this.renameItem(this.currentWorkspacePath, newName);
+    await this.renameItem(this.currentWorkspacePath, newName, {
+      skipNameValidation: true,
+    });
 
     // Rename workspace in state
     this._workspace.rename(newName);
@@ -1637,7 +1637,7 @@ export class PgExplorer {
   }
 
   /**
-   * Get whether the given item name can be used for an item.
+   * Get whether the given name can be used for an item.
    *
    * @param name item name
    * @returns whether the item name is valid
@@ -1648,6 +1648,16 @@ export class PgExplorer {
       !name.includes("//") &&
       !name.includes("..")
     );
+  }
+
+  /**
+   * Get whether the given name can be used for a workspace.
+   *
+   * @param name item name
+   * @returns whether the workspace name is valid
+   */
+  static isWorkspaceNameValid(name: string) {
+    return !!name.match(/^(?!\s)[\w\s-]+$/);
   }
 
   /**
