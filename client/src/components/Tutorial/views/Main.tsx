@@ -4,7 +4,7 @@ import Split from "react-split";
 
 import Button from "../../Button";
 import Markdown from "../../Markdown";
-import EditorWithTabs from "../../../pages/ide/Panels/Main/MainView/EditorWithTabs";
+import { EditorWithTabs } from "../../EditorWithTabs";
 import { PointedArrow } from "../../Icons";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type {

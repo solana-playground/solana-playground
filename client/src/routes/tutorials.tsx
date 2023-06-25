@@ -1,5 +1,5 @@
-import Tutorials from "../pages/ide/Panels/Main/MainView/Tutorials";
-import { PgExplorer, PgRouter, PgTutorial, PgView, Sidebar } from "../utils/pg";
+import { Tutorials } from "../components/Tutorials";
+import { PgExplorer, PgRouter, PgView, Sidebar } from "../utils/pg";
 
 export const tutorials = PgRouter.create({
   path: "/tutorials",
@@ -17,13 +17,7 @@ export const tutorials = PgRouter.create({
 
     // Handle sidebar
     return PgView.onDidChangeSidebarState((state) => {
-      if (state === Sidebar.TUTORIALS) {
-        if (PgTutorial.isCurrentWorkspaceTutorial()) {
-          // PgTutorial.pageNumber = 0;
-        }
-      } else {
-        PgRouter.navigate();
-      }
+      if (state !== Sidebar.TUTORIALS) PgRouter.navigate();
     });
   },
 });

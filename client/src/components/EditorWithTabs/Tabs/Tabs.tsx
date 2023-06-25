@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
-import Button from "../../../../../../components/Button";
-import { Id } from "../../../../../../constants";
-import { PgTheme, PgWallet } from "../../../../../../utils/pg";
-import { useExplorer, useWallet } from "../../../../../../hooks";
+import Button from "../../Button";
+import { Id } from "../../../constants";
+import { PgTheme, PgWallet } from "../../../utils/pg";
+import { useExplorer, useWallet } from "../../../hooks";
 
-const Tabs = () => {
+export const Tabs = () => {
   const { explorer } = useExplorer();
 
   const tabs = explorer.getTabs();
@@ -123,5 +123,3 @@ const WalletWrapper = styled.div`
     }
   `}
 `;
-
-export default Tabs;

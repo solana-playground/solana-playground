@@ -88,6 +88,6 @@ const useRouter = () => {
 };
 
 // Set tutorials
-PgTutorial.setTutorials(TUTORIALS);
+PgTutorial.tutorials = TUTORIALS;
 
 export default GlobalState;

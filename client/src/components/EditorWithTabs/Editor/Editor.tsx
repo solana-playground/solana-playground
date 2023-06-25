@@ -2,19 +2,14 @@ import { useEffect, lazy, Suspense, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Home from "./Home";
-import { MainViewLoading } from "../../../../../../components/Loading";
-import { Id } from "../../../../../../constants";
-import {
-  Lang,
-  PgCommon,
-  PgExplorer,
-  PgTheme,
-} from "../../../../../../utils/pg";
+import { MainViewLoading } from "../../Loading";
+import { Id } from "../../../constants";
+import { Lang, PgCommon, PgExplorer, PgTheme } from "../../../utils/pg";
 
 const CodeMirror = lazy(() => import("./CodeMirror"));
 const Monaco = lazy(() => import("./Monaco"));
 
-const Editor = () => {
+export const Editor = () => {
   const [showHome, setShowHome] = useState<boolean>();
   const [showMonaco, setShowMonaco] = useState<boolean>();
 
@@ -88,5 +83,3 @@ const Wrapper = styled.div`
     ${PgTheme.convertToCSS(theme.components.editor.wrapper)};
   `}
 `;
-
-export default Editor;

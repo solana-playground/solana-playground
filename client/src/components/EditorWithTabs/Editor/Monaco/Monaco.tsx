@@ -8,12 +8,12 @@ import {
   PgExplorer,
   PgPackage,
   PgTerminal,
-} from "../../../../../../../utils/pg";
-import { EventName } from "../../../../../../../constants";
+} from "../../../../utils/pg";
+import { EventName } from "../../../../constants";
 import {
   useAsyncEffect,
   useSendAndReceiveCustomEvent,
-} from "../../../../../../../hooks";
+} from "../../../../hooks";
 
 const Monaco = () => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();

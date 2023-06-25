@@ -1,13 +1,13 @@
 import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../../../../../components/Button";
+import Button from "../../../Button";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
-import { DefaultLink } from "../../../../../../../components/Link";
-import { External } from "../../../../../../../components/Icons";
-import { Id, PROJECT_NAME } from "../../../../../../../constants";
-import { PgTheme } from "../../../../../../../utils/pg";
+import { DefaultLink } from "../../../Link";
+import { External } from "../../../Icons";
+import { Id, PROJECT_NAME } from "../../../../constants";
+import { PgTheme } from "../../../../utils/pg";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the

@@ -24,7 +24,7 @@ const storage = {
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<TutorialState> {
-    if (!PgTutorial.isTutorialStarted(PgTutorial.data?.name)) {
+    if (!PgTutorial.isStarted(PgTutorial.data?.name)) {
       return { ...defaultState, data: PgTutorial.data };
     }
 
@@ -40,7 +40,7 @@ const storage = {
 
   /** Serialize the data and write to storage. */
   async write(state: TutorialState) {
-    if (!PgTutorial.isTutorialStarted(PgTutorial.data?.name)) return;
+    if (!PgTutorial.isStarted(PgTutorial.data?.name)) return;
 
     // Don't use spread operator(...) because of the extra state
     const serializedState: SerializedTutorialState = {
@@ -56,16 +56,7 @@ const storage = {
 @updatable({ defaultState, storage })
 class _PgTutorial {
   /** All tutorials */
-  private static _tutorials: TutorialData[];
-
-  /**
-   * Set the tutorials that will be shown in `/tutorials`.
-   *
-   * @param tutorials tutorials to set
-   */
-  static setTutorials(tutorials: TutorialData[]) {
-    this._tutorials = tutorials;
-  }
+  static tutorials: TutorialData[];
 
   /**
    * Get the tutorial's data from its name.
@@ -74,7 +65,12 @@ class _PgTutorial {
    * @returns the tutorial's data if it exists
    */
   static getTutorialData(name: string) {
-    return this._tutorials.find((t) => PgRouter.isPathsEqual(t.name, name));
+    return this.tutorials.find((t) => {
+      return PgRouter.isPathsEqual(
+        PgCommon.toKebabFromTitle(t.name),
+        PgCommon.toKebabFromTitle(name)
+      );
+    });
   }
 
   /**
@@ -84,7 +80,7 @@ class _PgTutorial {
    * @returns whether the given workspace name is a tutorial
    */
   static isWorkspaceTutorial(name: string) {
-    return _PgTutorial._tutorials.some((t) => t.name === name);
+    return _PgTutorial.tutorials.some((t) => t.name === name);
   }
 
   /**
@@ -112,7 +108,7 @@ class _PgTutorial {
    * @param name tutorial name
    * @returns whether the tutorial is started
    */
-  static isTutorialStarted(name: string | undefined) {
+  static isStarted(name: string | undefined) {
     return (!!name && PgExplorer.allWorkspaceNames?.includes(name)) ?? false;
   }
 
@@ -174,11 +170,7 @@ class _PgTutorial {
     if (!tutorialName) throw new Error("Tutorial is not selected");
 
     if (PgExplorer.allWorkspaceNames?.includes(tutorialName)) {
-      if (PgExplorer.currentWorkspaceName === tutorialName) {
-        await this.open(tutorialName);
-      } else {
-        await PgExplorer.switchWorkspace(tutorialName);
-      }
+      await this.open(tutorialName);
     } else {
       // Initial tutorial setup
       await PgExplorer.newWorkspace(tutorialName, {
@@ -193,8 +185,6 @@ class _PgTutorial {
         view: "main",
       });
     }
-
-    PgView.setSidebarState();
   }
 
   /** Finish the current tutorial. */

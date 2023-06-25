@@ -43,7 +43,7 @@ export class PgView {
         const result = await PgCommon.timeout(
           PgCommon.sendAndReceiveCustomEvent(eventNames.get)
         );
-        if (result) {
+        if (result !== undefined) {
           PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
           break;
         }

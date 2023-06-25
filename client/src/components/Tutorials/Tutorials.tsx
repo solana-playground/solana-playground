@@ -1,12 +1,11 @@
 import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
-import { TUTORIALS } from "../../../../../../tutorials";
-import { GITHUB_URL } from "../../../../../../constants";
-import { StyledDefaultLink } from "../../../../../../components/Link";
-import { PgTheme } from "../../../../../../utils/pg";
+import { StyledDefaultLink } from "../Link";
+import { GITHUB_URL } from "../../constants";
+import { PgTheme, PgTutorial } from "../../utils/pg";
 
-const Tutorials = () => (
+export const Tutorials = () => (
   <Wrapper>
     <TutorialsOuterWrapper>
       <TopSection>
@@ -14,7 +13,7 @@ const Tutorials = () => (
       </TopSection>
 
       <TutorialsInsideWrapper>
-        {TUTORIALS.map((t, i) => (
+        {PgTutorial.tutorials.map((t, i) => (
           <TutorialCard key={i} {...t} />
         ))}
       </TutorialsInsideWrapper>
@@ -71,5 +70,3 @@ const BottomSection = styled.div`
   justify-content: center;
   width: 100%;
 `;
-
-export default Tutorials;

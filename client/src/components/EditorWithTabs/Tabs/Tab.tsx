@@ -1,10 +1,10 @@
 import { FC, MouseEvent, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../../../../components/Button";
-import LangIcon from "../../../../../../components/LangIcon";
-import { Close } from "../../../../../../components/Icons";
-import { PgExplorer, PgTheme } from "../../../../../../utils/pg";
+import Button from "../../Button";
+import LangIcon from "../../LangIcon";
+import { Close } from "../../Icons";
+import { PgExplorer, PgTheme } from "../../../utils/pg";
 
 interface TabProps {
   path: string;
@@ -29,8 +29,6 @@ const Tab: FC<TabProps> = ({ current, path }) => {
   };
 
   const fileName = PgExplorer.getItemNameFromPath(path);
-
-  if (!fileName) return null;
 
   return (
     <Wrapper

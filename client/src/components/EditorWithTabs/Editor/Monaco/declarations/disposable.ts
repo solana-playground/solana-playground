@@ -2,11 +2,7 @@ import * as monaco from "monaco-editor";
 import type { Idl } from "@project-serum/anchor";
 
 import { declareModule } from "./helper";
-import {
-  Disposable,
-  PgProgramInfo,
-  PgWallet,
-} from "../../../../../../../../utils/pg";
+import { Disposable, PgProgramInfo, PgWallet } from "../../../../../utils/pg";
 
 /**
  * Declare types that can change based on outside events.

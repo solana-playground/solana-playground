@@ -4,7 +4,7 @@ import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 
 import { autosave, defaultExtensions, getThemeExtension } from "./extensions";
-import { EventName } from "../../../../../../../constants";
+import { EventName } from "../../../../constants";
 import {
   PgExplorer,
   PgProgramInfo,
@@ -13,11 +13,11 @@ import {
   PgCommon,
   PgPackage,
   PgCommand,
-} from "../../../../../../../utils/pg";
+} from "../../../../utils/pg";
 import {
   useAsyncEffect,
   useSendAndReceiveCustomEvent,
-} from "../../../../../../../hooks";
+} from "../../../../hooks";
 
 const CodeMirror = () => {
   const theme = useTheme();

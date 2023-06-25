@@ -1,7 +1,7 @@
 import * as monaco from "monaco-editor";
 
 import { declareModule } from "./helper";
-import type { ClientPackageName, Fn } from "../../../../../../../../utils/pg";
+import type { ClientPackageName, Fn } from "../../../../../utils/pg";
 
 /** All importable package types */
 const IMPORTABLE_PACKAGES: [

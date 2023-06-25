@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
-import EditorWithTabs from "./EditorWithTabs";
 import { MainViewLoading } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
 import {
@@ -13,20 +12,18 @@ import {
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
-  const [El, setEl] = useState(EditorWithTabs);
+  const [El, setEl] = useState<JSX.Element | null>(null);
   const [loading, setLoading] = useState(true);
 
   const setElWithTransition = useCallback(
-    async (SetEl: SetElementAsync) => {
+    async (SetEl: SetElementAsync | null) => {
       setLoading(true);
 
       await PgCommon.transition(async () => {
-        if (!SetEl) SetEl = EditorWithTabs;
-
         try {
-          SetEl = await (SetEl as (El: JSX.Element) => Promise<JSX.Element>)(
-            El
-          );
+          SetEl = await (
+            SetEl as (El: JSX.Element | null) => Promise<JSX.Element>
+          )(El);
           setEl(SetEl);
         } catch (e: any) {
           console.log("MAIN VIEW ERROR:", e.message);
@@ -39,7 +36,7 @@ const MainView = () => {
     [El]
   );
 
-  useGetAndSetStatic(El, setElWithTransition, EventName.VIEW_MAIN_STATIC);
+  useGetAndSetStatic(El!, setElWithTransition, EventName.VIEW_MAIN_STATIC);
 
   return <Wrapper>{loading ? <MainViewLoading /> : El}</Wrapper>;
 };

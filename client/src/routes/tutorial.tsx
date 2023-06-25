@@ -1,6 +1,5 @@
 import {
   Disposable,
-  PgCommon,
   PgExplorer,
   PgRouter,
   PgTutorial,
@@ -12,9 +11,7 @@ export const tutorial = PgRouter.create({
   path: "/tutorials/{tutorialName}",
   handle: ({ tutorialName }) => {
     // Get the tutorial
-    const tutorial = PgTutorial.getTutorialData(
-      PgCommon.toTitlefromKebab(tutorialName)
-    );
+    const tutorial = PgTutorial.getTutorialData(tutorialName);
 
     // Check whether the tutorial exists
     if (!tutorial) {
@@ -28,13 +25,13 @@ export const tutorial = PgRouter.create({
       // Initialize explorer
       await PgExplorer.init({ name: tutorial.name });
 
-      // Set the current tutorial data
+      // Set the current tutorial data, has to happen before tutorial init
       PgTutorial.data = tutorial;
 
       // Initialize tutorial
       tutorialInit = await PgTutorial.init();
 
-      if (PgTutorial.isTutorialStarted(tutorial.name)) {
+      if (PgTutorial.isStarted(tutorial.name)) {
         PgTutorial.view = "main";
         PgView.setSidebarState();
       } else {
@@ -52,11 +49,11 @@ export const tutorial = PgRouter.create({
         PgTutorial.update({ view: "about" });
       } else {
         // Get whether the tutorial has started
-        const tutorialStarted = PgTutorial.getUserTutorialNames().includes(
+        const started = PgTutorial.getUserTutorialNames().includes(
           tutorial.name
         );
-        if (!tutorialStarted) PgRouter.navigate();
-        else PgTutorial.update({ view: "main" });
+        if (started) PgTutorial.update({ view: "main" });
+        else PgRouter.navigate();
       }
     });
 

@@ -1,5 +1,5 @@
-import EditorWithTabs from "../pages/ide/Panels/Main/MainView/EditorWithTabs";
-import { PgExplorer, PgRouter, PgTutorial, PgView, Sidebar } from "../utils/pg";
+import { EditorWithTabs } from "../components/EditorWithTabs";
+import { PgExplorer, PgRouter, PgTutorial, PgView } from "../utils/pg";
 
 export const defaultRoute = PgRouter.create({
   path: "/",
@@ -11,21 +11,15 @@ export const defaultRoute = PgRouter.create({
 
       // Don't change the UI to avoid flickering if the current workspace is
       // a tutorial but the user is on route `/`
-      if (!PgTutorial.isCurrentWorkspaceTutorial()) {
-        // Set sidebar
-        PgView.setSidebarState((state) => {
-          if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
-          return state;
-        });
-
-        return EditorWithTabs;
-      } else {
+      if (PgTutorial.isCurrentWorkspaceTutorial()) {
         // Open the tutorial
         PgTutorial.open(PgExplorer.currentWorkspaceName!);
 
         // Stop the render of this method by throwing an error
         throw new Error("No need to render");
       }
+
+      return EditorWithTabs;
     });
   },
 });

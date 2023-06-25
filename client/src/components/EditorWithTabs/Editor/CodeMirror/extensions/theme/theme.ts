@@ -1,7 +1,7 @@
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
-import type { Highlight } from "../../../../../../../../../utils/pg";
+import type { Highlight } from "../../../../../../utils/pg";
 
 export const getThemeExtension = (h: Highlight) => {
   return syntaxHighlighting(

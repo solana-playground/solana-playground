@@ -1,4 +1,4 @@
-import EditorWithTabs from "../pages/ide/Panels/Main/MainView/EditorWithTabs";
+import { EditorWithTabs } from "../components/EditorWithTabs";
 import { PgExplorer, PgRouter, PgShare, PgView } from "../utils/pg";
 
 export const share = PgRouter.create({
