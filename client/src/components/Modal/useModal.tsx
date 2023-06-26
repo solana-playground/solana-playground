@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { EventName } from "../../constants";
 import { PgCommon, PgView } from "../../utils/pg";
 
-const useModal = () => {
+export const useModal = () => {
   const close = useCallback((data?: any) => {
     // Data will be a `ClickEvent` if the modal has been closed with the default
     // cancel button
@@ -20,5 +20,3 @@ const useModal = () => {
 
   return { close };
 };
-
-export default useModal;

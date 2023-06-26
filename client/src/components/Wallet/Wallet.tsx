@@ -14,13 +14,13 @@ import { Arrow, Close } from "../Icons";
 import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
 import {
   useOnClickOutside,
   useOnKey,
   useRenderOnChange,
   useWallet,
 } from "../../hooks";
-import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
 
 const Wallet = () => {
   useRenderOnChange(PgWallet.onDidChangeShow);

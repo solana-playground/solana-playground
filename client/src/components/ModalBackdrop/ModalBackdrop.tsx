@@ -1,9 +1,9 @@
 import { ReactElement, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
-import useModal from "./useModal";
 import { EventName } from "../../constants";
 import { PgCommon, PgTheme } from "../../utils/pg";
+import { useModal } from "../Modal";
 import { useOnKey, useSetStatic } from "../../hooks";
 
 const ModalBackdrop = () => {

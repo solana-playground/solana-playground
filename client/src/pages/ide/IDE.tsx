@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 
 import Panels from "./Panels";
 import GlobalState from "./GlobalState";
-import ModalBackdrop from "../../components/Modal/ModalBackdrop";
 
 const IDE = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -17,7 +16,6 @@ const IDE = () => {
   return (
     <Wrapper ref={wrapperRef}>
       <Panels />
-      <ModalBackdrop />
       <GlobalState />
     </Wrapper>
   );

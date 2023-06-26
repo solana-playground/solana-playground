@@ -11,10 +11,10 @@ import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
 import Text from "../Text";
-import useModal from "./useModal";
 import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
 import { PgTheme, SyncOrAsync } from "../../utils/pg";
+import { useModal } from "./useModal";
 import { useOnKey } from "../../hooks";
 
 interface ModalProps {
