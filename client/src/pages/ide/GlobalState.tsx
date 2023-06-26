@@ -39,21 +39,21 @@ const GlobalState = () => {
 };
 
 /**
- * Initialize `PgProgramInfo` each time the current workspace changes.
+ * Initialize `PgProgramInfo` on explorer initialization and workspace switch.
  *
  * **IMPORTANT**: Should only be used once.
  */
 const useProgramInfo = () => {
   useEffect(() => {
     let programInfo: Disposable | undefined;
-    const explorerInit = PgExplorer.onDidInit(async () => {
+    const batch = PgCommon.batchChanges(async () => {
       programInfo?.dispose();
       programInfo = await PgProgramInfo.init();
-    });
+    }, [PgExplorer.onDidInit, PgExplorer.onDidSwitchWorkspace]);
 
     return () => {
       programInfo?.dispose();
-      explorerInit.dispose();
+      batch.dispose();
     };
   }, []);
 };
