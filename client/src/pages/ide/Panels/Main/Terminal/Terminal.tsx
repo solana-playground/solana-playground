@@ -39,6 +39,7 @@ const Terminal = () => {
     return new PgTerm(PgCommandExecutor.execute, {
       convertEol: true,
       rendererType: "dom",
+      fontFamily: theme.font.code.family,
       fontSize: 14,
       cursorBlink: xterm.cursor.blink,
       cursorStyle: xterm.cursor.kind,
@@ -52,14 +53,12 @@ const Terminal = () => {
         brightRed: xterm.error,
         brightYellow: xterm.warning,
         brightBlue: xterm.info,
-        selection: xterm.selectionBg as string,
+        selection: xterm.selectionBg,
         cursor: xterm.cursor.color,
         cursorAccent: xterm.cursor.accentColor,
       },
     });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme.name]);
+  }, [theme]);
 
   useExposeStatic(term, EventName.TERMINAL_STATIC);
 
