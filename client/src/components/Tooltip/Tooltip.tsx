@@ -81,6 +81,8 @@ export const HelpTooltip: FC<TooltipProps> = (props) => (
 
 const StyledQuestionTooltip = styled(Tooltip)`
   &:hover {
+    cursor: help;
+
     & > svg {
       color: ${({ theme }) => theme.colors.default.textPrimary};
     }

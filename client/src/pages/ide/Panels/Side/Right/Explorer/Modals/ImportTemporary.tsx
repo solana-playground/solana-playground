@@ -41,6 +41,8 @@ export const ImportTemporary = () => {
         onChange={handleChange}
         value={name}
         error={error}
+        setError={setError}
+        validator={PgExplorer.isWorkspaceNameValid}
         placeholder="project name..."
       />
     </Modal>

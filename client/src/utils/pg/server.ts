@@ -3,7 +3,7 @@ import type { Idl } from "@project-serum/anchor";
 import { PgCommon } from "./common";
 import type { TupleFiles } from "./explorer";
 
-export interface ShareGetResponse {
+export interface ShareData {
   files: {
     [key: string]: {
       content?: string;
@@ -63,20 +63,20 @@ export class PgServer {
    */
   static async shareGet(id: string) {
     const response = await this._send(`/share/${id}`);
-    return (await response.json()) as ShareGetResponse;
+    return (await response.json()) as ShareData;
   }
 
   /**
    * Share a new project.
    *
-   * @param shareJSON project information in JSON format
+   * @param data project information in JSON format
    * @returns the unique share id
    */
-  static async shareNew(shareJSON: ShareGetResponse) {
+  static async shareNew(data: ShareData) {
     const response = await this._send("/new", {
       post: {
         body: JSON.stringify({
-          explorer: shareJSON,
+          explorer: data,
         }),
       },
     });

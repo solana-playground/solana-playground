@@ -1,6 +1,6 @@
 import { PgCommon } from "./common";
 import { ExplorerFiles, PgExplorer } from "./explorer";
-import { PgServer, ShareGetResponse } from "./server";
+import { PgServer, ShareData } from "./server";
 
 export class PgShare {
   /**
@@ -12,7 +12,7 @@ export class PgShare {
   static async get(id: string) {
     const shareData = await PgServer.shareGet(id);
 
-    // Convert `ShareGetResponse` to `ExplorerFiles` to make shares backwards
+    // Convert `Share` to `ExplorerFiles` to make shares backwards
     // compatible with the old shares
     const files: ExplorerFiles = {};
 
@@ -33,38 +33,33 @@ export class PgShare {
   /**
    * Share a new project.
    *
-   * @returns object id if sharing is successful.
+   * @param opts options
+   * - `includeMetadata`: Whether to include all file metadata when sharing
+   * @returns the share object id
    */
-  static async new() {
+  static async new(opts?: { includeMetadata?: boolean }) {
     const files = PgExplorer.files;
 
     // Temporary files are already in a valid form to re-share
-    if (PgExplorer.isTemporary) return await PgServer.shareNew({ files });
+    if (PgExplorer.isTemporary) return await this._new(files, opts);
 
-    const shareFiles: ShareGetResponse = { files: {} };
+    const shareFiles: ExplorerFiles = {};
 
     for (let path in files) {
       if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
 
       const itemInfo = files[path];
 
-      // We are removing the workspace from path because share only needs /src
+      // Remove workspace from path because share only needs /src
       path = path.replace(
         PgExplorer.currentWorkspacePath,
         PgExplorer.PATHS.ROOT_DIR_PATH
       );
 
-      // To make it backwards compatible with the old shares
-      shareFiles.files[path] = {
-        content: itemInfo.content,
-        current: itemInfo.meta?.current,
-        tabs: itemInfo.meta?.tabs,
-      };
+      shareFiles[path] = itemInfo;
     }
 
-    if (!Object.keys(shareFiles.files).length) throw new Error("Empty share");
-
-    return await PgServer.shareNew(shareFiles);
+    return await this._new(shareFiles, opts);
   }
 
   /**
@@ -75,5 +70,35 @@ export class PgShare {
    */
   static isValidId(id: string) {
     return PgCommon.isHex(id);
+  }
+
+  /**
+   * Share a new project.
+   *
+   * @param files share files
+   * @param opts options
+   * - `includeMetadata`: Whether to include all file metadata when sharing
+   * @returns the share object id
+   */
+  private static async _new(
+    files: ExplorerFiles,
+    opts?: { includeMetadata?: boolean }
+  ) {
+    if (!Object.keys(files).length) throw new Error("Empty share");
+
+    const data: ShareData = { files: {} };
+
+    for (const path in files) {
+      const itemInfo = files[path];
+      data.files[path] = { content: itemInfo.content };
+
+      if (opts?.includeMetadata) {
+        // To make it backwards compatible with the old shares
+        data.files[path].tabs = itemInfo.meta?.tabs;
+        data.files[path].current = itemInfo.meta?.current;
+      }
+    }
+
+    return await PgServer.shareNew(data);
   }
 }

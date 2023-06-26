@@ -80,7 +80,7 @@ export class PgExplorer {
     if (params?.files) {
       this._isTemporary = true;
       this._workspace = null;
-      this._explorer.files = params.files;
+      this._explorer.files = this.addCurrentFileIfNeeded(params.files);
     }
     // Skip initializing if the workspace has already been initialized
     else if (
@@ -368,7 +368,9 @@ export class PgExplorer {
     }
   ) {
     name = name.trim();
-    if (!name) throw new Error(WorkspaceError.INVALID_NAME);
+    if (!this.isWorkspaceNameValid(name)) {
+      throw new Error(WorkspaceError.INVALID_NAME);
+    }
 
     if (opts?.fromTemporary && this.isTemporary) {
       // The reason we are not just getting the necessary files and re-calling this
@@ -1663,10 +1665,19 @@ export class PgExplorer {
   /**
    * Get the default open file from the given tuple files.
    *
-   * @param files tuple files
+   * @param files tuple or explorer files
    * @returns the default open file path
    */
-  static getDefaultOpenFile(files: TupleFiles) {
+  static getDefaultOpenFile(files: TupleFiles | ExplorerFiles) {
+    if (!Array.isArray(files)) {
+      const tupleFiles: TupleFiles = [];
+      for (const path in files) {
+        const content = files[path].content;
+        if (content) tupleFiles.push([path, content]);
+      }
+      files = tupleFiles;
+    }
+
     let defaultOpenFile: string | undefined;
     const libRsFile = files.find(([path]) => path.endsWith("lib.rs"));
     if (libRsFile) {
@@ -1679,6 +1690,27 @@ export class PgExplorer {
   }
 
   /**
+   * Add default open file if the given files don't have file that is `current`.
+   *
+   * @param files explorer files
+   * @returns the explorer files
+   */
+  static addCurrentFileIfNeeded(files: ExplorerFiles) {
+    let hasCurrent = false;
+    for (const path in files) {
+      const current = files[path].meta?.current;
+      if (current) hasCurrent = true;
+    }
+
+    if (!hasCurrent) {
+      const currentPath = PgExplorer.getDefaultOpenFile(files);
+      if (currentPath) files[currentPath].meta = { tabs: true, current: true };
+    }
+
+    return files;
+  }
+
+  /**
    * Convert the given `TupleFiles` to `ExplorerFiles`.
    *
    * @param tupleFiles tuple files to convert
@@ -1686,22 +1718,13 @@ export class PgExplorer {
    */
   static convertToExplorerFiles(tupleFiles: TupleFiles) {
     const explorerFiles: ExplorerFiles = {};
-    if (!tupleFiles.length) return explorerFiles;
-
-    // Get the default open file
-    const defaultOpenFile = PgExplorer.getDefaultOpenFile(tupleFiles);
 
     for (const [path, content] of tupleFiles) {
       const fullPath = PgCommon.joinPaths([
         PgExplorer.PATHS.ROOT_DIR_PATH,
         path,
       ]);
-
       explorerFiles[fullPath] = { content };
-
-      if (path === defaultOpenFile) {
-        explorerFiles[fullPath].meta = { tabs: true, current: true };
-      }
     }
 
     return explorerFiles;
