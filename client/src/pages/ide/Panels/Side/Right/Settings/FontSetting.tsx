@@ -15,7 +15,9 @@ const FontSetting = () => {
   return (
     <Select
       options={options}
-      value={options.find((o) => o.value === theme.font.code.family)}
+      value={options.find((option) => {
+        return PgTheme.addFallbackFont(option.value) === theme.font.code.family;
+      })}
       onChange={(newValue) => {
         PgTheme.set({ fontFamily: newValue!.value });
       }}

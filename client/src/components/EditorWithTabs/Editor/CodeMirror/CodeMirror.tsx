@@ -31,10 +31,10 @@ const CodeMirror = () => {
           // Editor
           "&": {
             height: "100%",
-            background: editorStyles.default.bg!,
-            color: editorStyles.default.color!,
-            fontFamily: editorStyles.default.fontFamily!,
-            fontSize: editorStyles.default.fontSize!,
+            background: editorStyles.default.bg,
+            color: editorStyles.default.color,
+            fontFamily: editorStyles.default.fontFamily,
+            fontSize: editorStyles.default.fontSize,
           },
           // Cursor
           "& .cm-cursor": {
@@ -42,41 +42,41 @@ const CodeMirror = () => {
           },
           // Gutters
           "& .cm-gutters": {
-            background: editorStyles.gutter.bg!,
-            color: editorStyles.gutter.color!,
-            borderRight: editorStyles.gutter.borderRight!,
+            background: editorStyles.gutter.bg,
+            color: editorStyles.gutter.color,
+            borderRight: editorStyles.gutter.borderRight,
           },
           "& .cm-activeLineGutter": {
-            background: editorStyles.gutter.activeBg!,
-            color: editorStyles.gutter.activeColor!,
+            background: editorStyles.gutter.activeBg,
+            color: editorStyles.gutter.activeColor,
           },
           "& .cm-gutterElement:nth-child(1)": {
             padding: "0.125rem",
           },
           "& .cm-scroller": {
-            fontFamily: "inherit",
+            fontFamily: editorStyles.default.fontFamily,
           },
           // Line
           "& .cm-line": {
             border: "1.5px solid transparent",
           },
           "& .cm-activeLine": {
-            background: editorStyles.default.activeLine!.bg!,
-            borderColor: editorStyles.default.activeLine!.borderColor!,
+            background: editorStyles.default.activeLine.bg,
+            borderColor: editorStyles.default.activeLine.borderColor,
             borderRightColor: "transparent",
             borderLeftColor: "transparent",
           },
           // Selection
           "& .cm-selectionBackground, &.cm-focused .cm-selectionBackground, & .cm-selectionMatch":
             {
-              background: editorStyles.default.selection!.bg!,
-              color: editorStyles.default.selection!.color!,
+              background: editorStyles.default.selection.bg,
+              color: editorStyles.default.selection.color,
             },
           // Tooltip
           ".cm-tooltip": {
-            background: editorStyles.tooltip.bg!,
-            color: editorStyles.tooltip.color!,
-            border: "1px solid " + editorStyles.tooltip.borderColor!,
+            background: editorStyles.tooltip.bg,
+            color: editorStyles.tooltip.color,
+            border: "1px solid " + editorStyles.tooltip.borderColor,
           },
           ".cm-tooltip-autocomplete": {
             "& > ul": {
@@ -85,8 +85,8 @@ const CodeMirror = () => {
               },
 
               "& > li[aria-selected]": {
-                background: editorStyles.tooltip.selectedBg!,
-                color: editorStyles.tooltip.selectedColor!,
+                background: editorStyles.tooltip.selectedBg,
+                color: editorStyles.tooltip.selectedColor,
               },
             },
           },
@@ -104,12 +104,12 @@ const CodeMirror = () => {
           },
           // Search
           ".cm-searchMatch": {
-            background: editorStyles.default.searchMatch!.bg!,
-            color: editorStyles.default.searchMatch!.color!,
+            background: editorStyles.default.searchMatch.bg,
+            color: editorStyles.default.searchMatch.color,
           },
           ".cm-searchMatch-selected": {
-            background: editorStyles.default.searchMatch!.selectedBg!,
-            color: editorStyles.default.searchMatch!.color!,
+            background: editorStyles.default.searchMatch.selectedBg,
+            color: editorStyles.default.searchMatch.color,
           },
           // Search popup
           ".cm-panel.cm-search": {

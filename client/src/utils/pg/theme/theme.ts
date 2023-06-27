@@ -53,6 +53,16 @@ export class PgTheme {
   }
 
   /**
+   * Add fallback fonts.
+   *
+   * @param family font family
+   * @returns the font family with fallback fonts appended
+   */
+  static addFallbackFont(family: string) {
+    return `${family}, Monospace, Courier`;
+  }
+
+  /**
    * Set theme and font.
    *
    * The theme will be imported asynchronously based on the given theme name or
@@ -258,7 +268,10 @@ export class PgTheme {
   /** Set default fonts */
   private static _theme_fonts() {
     this._theme.font ??= {};
-    this._theme.font.code ??= this._font;
+    this._theme.font.code ??= {
+      ...this._font,
+      family: this.addFallbackFont(this._font.family),
+    };
     this._theme.font.other ??= {
       family: `-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
         sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`,

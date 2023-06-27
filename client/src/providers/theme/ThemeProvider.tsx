@@ -21,10 +21,23 @@ export const ThemeProvider: FC = ({ children }) => {
     PgTheme.create(THEMES, FONTS);
   }, []);
 
-  // Update theme.font when theme or font changes
+  // Update `theme.font` when theme or font changes
   useEffect(() => {
-    if (theme && font && theme.font.code.family !== font.family) {
-      setTheme((t) => t && { ...t, font: { code: font, other: t.font.other } });
+    if (theme && font) {
+      const fontFamily = PgTheme.addFallbackFont(font.family);
+      if (theme.font.code.family !== fontFamily) {
+        setTheme((t) => {
+          return (
+            t && {
+              ...t,
+              font: {
+                code: { ...font, family: fontFamily },
+                other: t.font.other,
+              },
+            }
+          );
+        });
+      }
     }
   }, [theme, font]);
 
