@@ -52,16 +52,16 @@ export type AnyTransaction = Transaction | VersionedTransaction;
  * The current wallet which can be a Playground Wallet, a Wallet Standard Wallet
  * or `null` if disconnected.
  */
-export type CurrentWallet = (PgWalletProps | StandardWalletProps) | null;
+export type CurrentWallet = PgWalletProps | StandardWalletProps;
 
 /** Wallet Standard wallet */
-export type StandardWallet = StandardWalletProps | Adapter | null;
+export type StandardWallet = StandardWalletProps | Adapter;
 
 /** Playground Wallet props */
-export interface PgWalletProps extends DefaultWalletProps {
+interface PgWalletProps extends DefaultWalletProps {
   /** The wallet is Playground Wallet */
   isPg: true;
-  /** Keypair of the Playground Wallet */
+  /** Keypair of the Playground Wallet account */
   keypair: Keypair;
 }
 
@@ -74,7 +74,7 @@ export interface StandardWalletProps
 }
 
 /** Wallet adapter without `publicKey` prop */
-type DefaultAdapter = Omit<WalletAdapter, "publicKey">;
+type DefaultAdapter = Omit<WalletAdapter, "publicKey" | "name">;
 
 /** Common props for both Playground Wallet and other wallets */
 type DefaultWalletProps<PublicKeyProp = Pick<WalletAdapterProps, "publicKey">> =
@@ -83,10 +83,13 @@ type DefaultWalletProps<PublicKeyProp = Pick<WalletAdapterProps, "publicKey">> =
     "signMessage" | "signTransaction" | "signAllTransactions"
   > & {
     [K in keyof PublicKeyProp]: NonNullable<PublicKeyProp[K]>;
+  } & {
+    /** Name of the account */
+    name: string;
   };
 
 /** Optional `wallet` prop */
 export interface WalletOption {
   /** Wallet to use */
-  wallet?: NonNullable<CurrentWallet>;
+  wallet?: CurrentWallet;
 }

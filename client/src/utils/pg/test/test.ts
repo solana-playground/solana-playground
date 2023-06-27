@@ -338,11 +338,7 @@ export class PgTest {
   /**
    * @returns Anchor program object
    */
-  static getProgram(
-    idl: Idl,
-    conn: Connection,
-    wallet: NonNullable<CurrentWallet>
-  ) {
+  static getProgram(idl: Idl, conn: Connection, wallet: CurrentWallet) {
     if (!PgProgramInfo.pk) throw new Error("Program id not found.");
 
     const provider = new Provider(conn, wallet, Provider.defaultOptions());
@@ -358,7 +354,7 @@ export class PgTest {
     txVals: TxVals,
     idl: Idl,
     connection: Connection,
-    wallet: NonNullable<CurrentWallet>
+    wallet: CurrentWallet
   ) {
     // Get program
     const program = this.getProgram(idl, connection, wallet);

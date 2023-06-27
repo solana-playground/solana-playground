@@ -146,17 +146,13 @@ const WalletName = () => {
   }));
 
   // Show all of the connected Wallet Standard accounts
-  const standardAccounts: MenuItemProps[] = PgWallet.standardWallets
-    .filter((wallet) => wallet.adapter.connected)
-    .map((wallet) => ({
-      name: getAccountDisplayName(
-        wallet.adapter.name,
-        wallet.adapter.publicKey!.toBase58()
-      ),
+  const standardAccounts: MenuItemProps[] =
+    PgWallet.getConnectedStandardWallets().map((wallet) => ({
+      name: getAccountDisplayName(wallet.name, wallet.publicKey!.toBase58()),
       onClick: () => {
-        PgWallet.update({ state: "sol", standardName: wallet.adapter.name });
+        PgWallet.update({ state: "sol", standardName: wallet.name });
       },
-      Icon: <img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
+      Icon: <img src={wallet.icon} alt={wallet.name} />,
       hoverColor: "secondary",
     }));
 
@@ -175,10 +171,7 @@ const WalletName = () => {
             <WalletTitleIcon src={wallet.icon} alt={wallet.name} />
           )}
           <WalletTitleText>
-            {getAccountDisplayName(
-              wallet.isPg ? PgWallet.getAccountName() : wallet.name,
-              walletPkStr!
-            )}
+            {getAccountDisplayName(wallet.name, walletPkStr!)}
           </WalletTitleText>
           <Arrow rotate="90deg" />
         </WalletTitleWrapper>
@@ -210,7 +203,7 @@ interface WalletRenameProps {
 }
 
 const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
-  const [name, setName] = useState(PgWallet.getAccountName());
+  const [name, setName] = useState(PgWallet.current!.name);
 
   const inputRef = useRef<HTMLInputElement>(null);
 

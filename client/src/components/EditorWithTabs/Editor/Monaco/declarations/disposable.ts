@@ -2,7 +2,12 @@ import * as monaco from "monaco-editor";
 import type { Idl } from "@project-serum/anchor";
 
 import { declareModule } from "./helper";
-import { Disposable, PgProgramInfo, PgWallet } from "../../../../../utils/pg";
+import {
+  Disposable,
+  PgCommon,
+  PgProgramInfo,
+  PgWallet,
+} from "../../../../../utils/pg";
 
 /**
  * Declare types that can change based on outside events.
@@ -19,7 +24,7 @@ export const declareDisposableTypes = (): Disposable => {
     addLib(
       "program-id",
       `/** Your program public key from playground */\nconst PROGRAM_ID: ${
-        programId ? "web3.PublicKey" : "undefined"
+        programId ? "web3.PublicKey" : "never"
       };`
     );
   });
@@ -37,58 +42,88 @@ export const declareDisposableTypes = (): Disposable => {
   });
 
   // Playground wallet
+  const PG_WALLET_TYPE = "PgWallet";
   const walletChange = PgWallet.onDidChangeCurrent((wallet) => {
-    let walletType: {
-      name: string;
-      declaration?: string;
-    };
-    if (!wallet) {
-      walletType = { name: "undefined" };
-    } else if (wallet.isPg) {
-      walletType = {
-        name: "PgWallet",
-        get declaration() {
-          return `interface ${this.name} extends DefaultWallet {
-  /** Keypair of the connected Playground Wallet */
-  keypair: web3.Keypair;
-}`;
-        },
-      };
-    } else {
-      walletType = {
-        name: `${wallet.name}Wallet`,
-        get declaration() {
-          return `interface ${this.name} extends DefaultWallet {}`;
-        },
-      };
-    }
+    let walletType: string;
+
+    if (!wallet) walletType = "never";
+    else if (wallet.isPg) walletType = PG_WALLET_TYPE;
+    else walletType = getWalletTypeName(wallet.name);
 
     addLib(
       "wallet",
       `
-  ${walletType.declaration}
-
-  /**
-   * Playground wallet.
-   *
-   * NOTE: You can toggle connection with \`connect\` command.
-   */
-  const wallet: ${walletType.name};
+  ${
+    wallet
+      ? `/**
+  * Current connected wallet.
+  *
+  * NOTE: You can toggle connection with \`connect\` command.
+  */`
+      : `/** You are not connected. Use \`connect\` command to connect. */`
+  }
+  const wallet: ${walletType};
 `
     );
   });
+
+  // Wallets
+  const accountsChange = PgCommon.batchChanges(() => {
+    // Get Playground Wallet
+    const pgWalletsType = PgWallet.accounts
+      .map((acc) => PgCommon.toCamelCase(acc.name))
+      .reduce((acc, cur, i) => {
+        if (i === 0) return `"${cur}"`;
+        return acc + ` | "${cur}"`;
+      }, "");
+
+    // Get Standard Wallets
+    const standarWalletNames = PgWallet.getConnectedStandardWallets().map(
+      (wallet) => wallet.name
+    );
+    const standardWalletsTypeDeclarations = standarWalletNames.reduce(
+      (acc, cur) =>
+        acc + `interface ${getWalletTypeName(cur)} extends DefaultWallet {}`,
+      ""
+    );
+    const standardWalletsType = standarWalletNames.reduce(
+      (acc, cur) =>
+        acc + `& { ${PgCommon.toCamelCase(cur)}: ${getWalletTypeName(cur)} }`,
+      ""
+    );
+
+    const walletsType = `{ [K in ${pgWalletsType}]: ${PG_WALLET_TYPE} } ${standardWalletsType}`;
+
+    addLib(
+      "wallets",
+      `
+  ${standardWalletsTypeDeclarations}
+
+  type Wallets = ${walletsType};
+
+  /** All available wallets by their camelCase names */
+  const wallets: ${PgWallet.current ? "Wallets" : "never"};
+`
+    );
+  }, [PgWallet.onDidChangeAccounts, PgWallet.onDidChangeCurrent]);
 
   return {
     dispose: () => {
       programIdChange.dispose();
       idlChange.dispose();
       walletChange.dispose();
+      accountsChange.dispose();
     },
   };
 };
 
 /** Disposable types */
-type DisposableType = "default" | "program-id" | "program" | "wallet";
+type DisposableType =
+  | "default"
+  | "program-id"
+  | "program"
+  | "wallet"
+  | "wallets";
 
 /** Caching the disposables in order to get rid of the old declarations */
 const disposableCache: { [key in DisposableType]?: monaco.IDisposable } = {};
@@ -124,3 +159,11 @@ const convertIdl = (idl: Idl) => {
 
   return newIdl;
 };
+
+/**
+ * Get the wallet's type name.
+ *
+ * @param walletName wallet name
+ * @returns wallet's type name
+ */
+const getWalletTypeName = (walletName: string) => walletName + "Wallet";

@@ -15,13 +15,19 @@ import { PgExplorer } from "../explorer";
 import { PgProgramInfo } from "../program-info";
 import { PgTerminal } from "../terminal";
 import { PgTest } from "../test";
-import { CurrentWallet, PgWallet } from "../wallet";
+import { CurrentWallet, PgWallet, StandardWallet } from "../wallet";
 
 /** Utilities to be available under the `pg` namespace */
 interface Pg {
+  /** Playground connection instance */
   connection: web3.Connection;
-  wallet: CurrentWallet;
+  /** Current connected wallet */
+  wallet?: CurrentWallet;
+  /** All available wallets, including the standard wallets */
+  wallets?: Record<string, CurrentWallet | StandardWallet>;
+  /** Current project's program public key */
   PROGRAM_ID?: web3.PublicKey;
+  /** Anchor program instance of the current project */
   program?: anchor.Program;
 }
 
@@ -223,10 +229,23 @@ export class PgClient {
       }
 
       // Playground utils namespace
-      const pg: Pg = {
-        connection: PgConnection.current,
-        wallet: PgWallet.current,
-      };
+      const pg: Pg = { connection: PgConnection.current };
+
+      // Wallet
+      if (PgWallet.current) pg.wallet = PgWallet.current;
+
+      // Wallets
+      if (pg.wallet) {
+        pg.wallets = {};
+
+        const pgWallets = PgWallet.accounts.map(PgWallet.createWallet);
+        const standardWallets = PgWallet.getConnectedStandardWallets();
+
+        const wallets = [...pgWallets, ...standardWallets];
+        for (const wallet of wallets) {
+          pg.wallets[PgCommon.toCamelCase(wallet.name)] = wallet;
+        }
+      }
 
       // Program ID
       if (PgProgramInfo.pk) pg.PROGRAM_ID = PgProgramInfo.pk;

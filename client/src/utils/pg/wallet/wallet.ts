@@ -1,6 +1,6 @@
-import { Keypair } from "@solana/web3.js";
+import * as ed25519 from "@noble/ed25519";
+import { Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
 
-import { createPgWalletInstance } from "./pg-wallet";
 import { PgCommon } from "../common";
 import {
   createDerivable,
@@ -11,6 +11,7 @@ import {
   updatable,
 } from "../decorators";
 import type {
+  AnyTransaction,
   CurrentWallet,
   SerializedWallet,
   StandardWallet,
@@ -63,7 +64,7 @@ const storage = {
 const derive = () => ({
   /** A Wallet Standard wallet adapter */
   standard: createDerivable({
-    derive: (): StandardWallet => {
+    derive: (): StandardWallet | null => {
       const otherWallet = PgWallet.standardWallets.find(
         (wallet) => wallet.adapter.name === PgWallet.standardName
       );
@@ -81,7 +82,7 @@ const derive = () => ({
    * - `null` if not connected.
    */
   current: createDerivable({
-    derive: async (): Promise<CurrentWallet> => {
+    derive: async (): Promise<CurrentWallet | null> => {
       switch (PgWallet.state) {
         case "pg": {
           // Check whether the current account exists
@@ -93,7 +94,7 @@ const derive = () => ({
             return null;
           }
 
-          return createPgWalletInstance(currentAccount);
+          return PgWallet.createWallet(currentAccount);
         }
 
         case "sol":
@@ -132,7 +133,7 @@ const migrate = () => {
         ? "pg"
         : "disconnected"
       : "setup",
-    accounts: [{ kp: oldWallet.sk, name: PgWallet.getDefaultAccountName(0) }],
+    accounts: [{ kp: oldWallet.sk, name: "Wallet 1" }],
   };
 
   localStorage.setItem(storage.KEY, JSON.stringify(newWallet));
@@ -275,16 +276,6 @@ class _PgWallet {
   }
 
   /**
-   * Get the name of the wallet account.
-   *
-   * @param index account index
-   * @returns the wallet account name
-   */
-  static getAccountName(index: number = PgWallet.currentIndex) {
-    return PgWallet.accounts[index].name;
-  }
-
-  /**
    * Get the default name of the wallet account.
    *
    * @param index account index
@@ -323,14 +314,66 @@ class _PgWallet {
   }
 
   /**
+   * Get all of the connected standard wallet adapters.
+   *
+   * @returns the connected standard wallet adapters
+   */
+  static getConnectedStandardWallets() {
+    return PgWallet.standardWallets
+      .map((wallet) => wallet.adapter)
+      .filter((adapter) => adapter.connected);
+  }
+
+  /**
+   * Create a Playground Wallet instance from the given account.
+   *
+   * @param account wallet account to derive the instance from
+   * @returns a Playground Wallet instance
+   */
+  static createWallet(account: Wallet["accounts"][number]): CurrentWallet {
+    const keypair = Keypair.fromSecretKey(Uint8Array.from(account.kp));
+
+    return {
+      isPg: true,
+      keypair,
+      name: account.name,
+      publicKey: keypair.publicKey,
+
+      async signTransaction<T extends AnyTransaction>(tx: T) {
+        if ((tx as VersionedTransaction).version) {
+          (tx as VersionedTransaction).sign([keypair]);
+        } else {
+          (tx as Transaction).partialSign(keypair);
+        }
+
+        return tx;
+      },
+
+      async signAllTransactions<T extends AnyTransaction>(txs: T[]) {
+        for (const tx of txs) {
+          this.signTransaction(tx);
+        }
+
+        return txs;
+      },
+
+      async signMessage(message: Uint8Array) {
+        return await ed25519.sign(message, keypair.secretKey.slice(0, 32));
+      },
+    };
+  }
+
+  /**
    * Check whether the given wallet account name is is valid.
    *
    * @param name wallet account name
    * @throws if the name is not valid
    */
   static validateAccountName(name: string) {
+    name = name.trim();
+
     // Empty check
-    if (!name) throw new Error("Wallet name can't be empty");
+    if (!name) throw new Error("Account name can't be empty");
 
     // Check whether the name exists
     const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
