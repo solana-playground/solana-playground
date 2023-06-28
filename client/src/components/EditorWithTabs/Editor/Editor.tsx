@@ -15,23 +15,26 @@ export const Editor = () => {
 
   // Decide which editor to show
   useEffect(() => {
-    const { dispose } = PgExplorer.onNeedRender(
-      PgCommon.debounce(
-        () => {
-          const file = PgExplorer.getCurrentFile();
-          if (!file) setShowMonaco(false);
-          else {
-            const lang = PgExplorer.getLanguageFromPath(file.path);
-            setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
-          }
+    const editor = PgExplorer.onNeedRender(() => {
+      const file = PgExplorer.getCurrentFile();
+      if (!file) setShowMonaco(false);
+      else {
+        const lang = PgExplorer.getLanguageFromPath(file.path);
+        setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
+      }
+    });
 
-          setShowHome(!PgExplorer.getTabs().length);
-        },
+    const home = PgExplorer.onNeedRender(
+      PgCommon.debounce(
+        () => setShowHome(!PgExplorer.getTabs().length),
         { delay: 50 } // To fix flickering on workspace deletion
       )
     );
 
-    return () => dispose();
+    return () => {
+      editor.dispose();
+      home.dispose();
+    };
   }, []);
 
   // Save explorer metadata

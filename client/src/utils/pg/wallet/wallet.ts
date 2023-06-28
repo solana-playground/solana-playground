@@ -34,7 +34,7 @@ const storage = {
   KEY: "wallet",
 
   /** Read from storage and deserialize the data. */
-  async read(): Promise<Wallet> {
+  read(): Wallet {
     const serializedStateStr = localStorage.getItem(this.KEY);
     if (!serializedStateStr) return defaultState;
 
@@ -48,7 +48,7 @@ const storage = {
   },
 
   /** Serialize the data and write to storage. */
-  async write(wallet: Wallet) {
+  write(wallet: Wallet) {
     // Don't use spread operator(...) because of the extra derived state
     const serializedState: SerializedWallet = {
       accounts: wallet.accounts,
@@ -136,7 +136,11 @@ const migrate = () => {
     accounts: [{ kp: oldWallet.sk, name: "Wallet 1" }],
   };
 
+  // Set the new wallet format
   localStorage.setItem(storage.KEY, JSON.stringify(newWallet));
+
+  // Remove wallet adapter key
+  localStorage.removeItem("walletName");
 };
 
 @migratable(migrate)

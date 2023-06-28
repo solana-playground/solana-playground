@@ -7,11 +7,19 @@ export const useRenderOnChange = <T,>(
 ) => {
   const [value, setValue] = useState<T>();
   const [, render] = useReducer((r) => r + 1, 0);
+  const [effect, runEffect] = useReducer((r) => r + 1, 0);
 
   useEffect(() => {
+    // If `onChange` doesn't exist, re-run the effect after a timeout
+    if (!onChange) {
+      setTimeout(() => runEffect(), 20);
+      return;
+    }
+
     const { dispose } = onChange((newValue) => {
       if (newValue === undefined) {
         render();
+        return;
       }
 
       const valueType = typeof newValue;
@@ -29,7 +37,7 @@ export const useRenderOnChange = <T,>(
       }
     });
     return () => dispose();
-  }, [onChange]);
+  }, [effect, onChange]);
 
   return value;
 };
