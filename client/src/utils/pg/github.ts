@@ -35,6 +35,7 @@ export class PgGithub {
       // Create a new workspace
       await PgExplorer.newWorkspace(githubWorkspaceName, {
         files,
+        skipNameValidation: true,
       });
     }
   }

@@ -360,8 +360,9 @@ export class PgExplorer {
    * @param name new workspace name
    * @param opts -
    * - `files`: `TupleFiles` to create the workspace from
-   * - `defaultOpenFile`: Default file to open in the editor
-   * - `fromTemporary`: Whether to create new workspace from a temporary project
+   * - `defaultOpenFile`: default file to open in the editor
+   * - `fromTemporary`: whether to create new workspace from a temporary project
+   * - `skipNameValidation`: whether to skip workspace name validation
    */
   static async newWorkspace(
     name: string,
@@ -369,10 +370,11 @@ export class PgExplorer {
       files?: TupleFiles;
       defaultOpenFile?: string;
       fromTemporary?: boolean;
+      skipNameValidation?: boolean;
     }
   ) {
     name = name.trim();
-    if (!this.isWorkspaceNameValid(name)) {
+    if (!opts?.skipNameValidation && !this.isWorkspaceNameValid(name)) {
       throw new Error(WorkspaceError.INVALID_NAME);
     }
 
