@@ -1,20 +1,21 @@
 import type { TupleString } from "../types";
 
-export interface ExplorerJSON {
-  files: {
-    [key: string]: ItemInfo;
-  };
+/** Playground explorer */
+export interface Explorer {
+  /** Explorer files */
+  files: ExplorerFiles;
 }
 
-export type ExplorerFiles = {
-  [key: string]: ItemInfo;
-};
+/** A record of paths and their item infos */
+export type ExplorerFiles = Record<string, ItemInfo>;
 
+/** `ItemInfo` with `path` property */
 export interface FullFile extends ItemInfo {
   /** Full path to the file */
   path: string;
 }
 
+/** File or directory item */
 interface ItemInfo {
   /** Contents of the file */
   content?: string;
@@ -22,11 +23,10 @@ interface ItemInfo {
   meta?: ItemMeta;
 }
 
-export interface ItemMetaFile {
-  /** [Relative path]: ItemMeta */
-  [key: string]: ItemMeta;
-}
+/** Relative path -> `ItemMeta` */
+export type ItemMetaFile = Record<string, ItemMeta>;
 
+/** Item metadata */
 interface ItemMeta {
   /** Whether the file is the current file */
   current?: boolean;
@@ -36,9 +36,12 @@ interface ItemMeta {
   topLineNumber?: number;
 }
 
+/** Folder content */
 export interface Folder {
-  folders: string[];
+  /** Sub file names */
   files: string[];
+  /** Sub folder names */
+  folders: string[];
 }
 
 /** Array<[Path, Content]> */

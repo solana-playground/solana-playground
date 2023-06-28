@@ -1,14 +1,14 @@
 import { Keypair } from "@solana/web3.js";
 
 import { PgExplorerEvent } from "./events";
-import { Lang } from "./frameworks";
 import { PgFs } from "./fs";
+import { Lang } from "./lang";
 import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 import type {
-  ExplorerJSON,
+  Explorer,
   TupleFiles,
   Folder,
   FullFile,
@@ -21,7 +21,7 @@ import type {
  */
 export class PgExplorer {
   /** Internal state */
-  private static readonly _explorer: ExplorerJSON = { files: {} };
+  private static readonly _explorer: Explorer = { files: {} };
   /** Workspace functionality */
   private static _workspace: PgWorkspace | null = null;
   /** Current initialized workspace name */
@@ -355,7 +355,8 @@ export class PgExplorer {
   }
 
   /**
-   * Create a new workspace and change the current workspace to the created workspace
+   * Create a new workspace and change the current workspace to the created workspace.
+   *
    * @param name new workspace name
    * @param opts -
    * - `files`: `TupleFiles` to create the workspace from
@@ -432,7 +433,8 @@ export class PgExplorer {
   }
 
   /**
-   * Change the current workspace to the given workspace
+   * Change the current workspace to the given workspace.
+   *
    * @param name workspace name to change to
    * @param opts -
    * - `initial`: if changing to the given workspace for the first time
@@ -472,7 +474,8 @@ export class PgExplorer {
   }
 
   /**
-   * Rename the current workspace
+   * Rename the current workspace.
+   *
    * @param newName new workspace name
    */
   static async renameWorkspace(newName: string) {
@@ -496,9 +499,7 @@ export class PgExplorer {
     await this.switchWorkspace(newName);
   }
 
-  /**
-   * Delete the current workspace
-   */
+  /** Delete the current workspace. */
   static async deleteWorkspace() {
     if (!this._workspace) {
       throw new Error(WorkspaceError.NOT_FOUND);
@@ -525,9 +526,7 @@ export class PgExplorer {
     PgExplorerEvent.dispatchOnDidDeleteWorkspace();
   }
 
-  /**
-   * Export the current workspace as a zip file
-   */
+  /** Export the current workspace as a zip file. */
   static async exportWorkspace() {
     const { default: JSZip } = await import("jszip");
     const zip = new JSZip();
@@ -1228,7 +1227,7 @@ export class PgExplorer {
         // Save workspaces
         await this._saveWorkspaces();
 
-        const lsExplorer: ExplorerJSON = JSON.parse(lsExplorerStr);
+        const lsExplorer: Explorer = JSON.parse(lsExplorerStr);
         const lsFiles = lsExplorer.files;
         for (const path in lsFiles) {
           const oldData = lsFiles[path];

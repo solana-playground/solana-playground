@@ -11,9 +11,9 @@ import styled, { css } from "styled-components";
 
 import Modal from "../../../../../../../components/Modal";
 import Input from "../../../../../../../components/Input";
+import { FRAMEWORKS } from "../../../../../../../frameworks";
 import {
   Framework as FrameworkType,
-  FRAMEWORKS,
   PgExplorer,
 } from "../../../../../../../utils/pg";
 
@@ -36,9 +36,11 @@ export const NewWorkspace = () => {
   };
 
   const newWorkspace = async () => {
-    const { files, defaultOpenFile } = FRAMEWORKS.find(
+    const { importFiles, defaultOpenFile } = FRAMEWORKS.find(
       (f) => f.name === selected
     )!;
+
+    const { files } = await importFiles();
 
     await PgExplorer.newWorkspace(name, {
       files,
