@@ -121,18 +121,18 @@ export class PgGithub {
   private static async _getRepositoryData(url: string) {
     // https://github.com/solana-labs/solana-program-library/tree/master/token/program
     const regex = new RegExp(
-      /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/\w+)?(\/)?([\w-/.]*)/
+      /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/
     );
     const res = regex.exec(url);
     if (!res) throw new Error(GithubError.INVALID_URL);
-    const owner = res[3];
-    const repo = res[4];
-    const path = res[9].endsWith("/")
-      ? res[9].substring(0, res[9].length - 1)
-      : res[9];
+
+    const owner = res[3]; // solana-labs
+    const repo = res[4]; // solana-program-library
+    const ref = res[8]; // master
+    const path = res[10]; // token/program
 
     const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`
     );
     const data: GithubRepositoryResponse = await response.json();
 
@@ -143,7 +143,7 @@ export class PgGithub {
    * Get data about the program src folder.
    *
    * @param url GitHub URL to the program root
-   * @param data Existing `GithubRepositoryResponse`
+   * @param data existing `GithubRepositoryResponse`
    * @returns src folder data and url
    */
   private static async _getSrcInfo(
@@ -154,15 +154,13 @@ export class PgGithub {
     const hasSrc = data.some((d) => d.name === "src" && d.type === "dir");
     if (hasSrc) {
       // Get src folder content
-      const srcUrl = `${url}/src`.replaceAll("//", "/");
+      const srcUrl = PgCommon.joinPaths([url, "src"]);
       const { data: srcData } = await this._getRepositoryData(srcUrl);
       return { srcData, srcUrl };
     } else {
       // Option 2: src folder
       const hasLibRs = data.some((d) => d.name === "lib.rs");
-      if (!hasLibRs) {
-        throw new Error(GithubError.INVALID_REPO);
-      }
+      if (!hasLibRs) throw new Error(GithubError.INVALID_REPO);
 
       return { srcData: data, srcUrl: url };
     }
