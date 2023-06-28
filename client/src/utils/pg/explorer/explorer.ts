@@ -54,7 +54,10 @@ export class PgExplorer {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
     }
 
-    return this._getWorkspacePath(this.currentWorkspaceName);
+    return (
+      PgExplorer.PATHS.ROOT_DIR_PATH +
+      PgCommon.appendSlash(this.currentWorkspaceName)
+    );
   }
 
   /** Get current workspace name */
@@ -626,7 +629,7 @@ export class PgExplorer {
   /**
    * Get the full file data.
    *
-   * @param path path of the file, defaults to the current file if it exists.
+   * @param path path of the file, defaults to the current file if it exists
    */
   static getFile(path: string): FullFile | null {
     path = this.convertToFullPath(path);
@@ -636,19 +639,25 @@ export class PgExplorer {
   }
 
   /**
-   * Get file content from the state
+   * Get file content from state.
    *
-   * @param path full path to the file
-   * @returns the file content from the state
+   * @param path file path
+   * @returns the file content from state
    */
   static getFileContent(path: string) {
-    return this.getFile(path)?.content;
+    return this.getFile(this.convertToFullPath(path))?.content;
   }
 
   /**
-   * Gets items inside the folder and groups them into `folders` and `files`
+   * Get the item names from inside the given folder and group them into
+   * `files` and `folders`.
+   *
+   * @param path folder path
+   * @returns the groupped folder items
    */
   static getFolderContent(path: string) {
+    path = PgCommon.appendSlash(this.convertToFullPath(path));
+
     const files = this.files;
     const filesAndFolders: Folder = { folders: [], files: [] };
 
@@ -671,9 +680,7 @@ export class PgExplorer {
     return filesAndFolders;
   }
 
-  /**
-   * Gets the current opened file from state if it exists
-   */
+  /** Get the current opened file from state if it exists. */
   static getCurrentFile() {
     const files = this.files;
 
@@ -690,7 +697,9 @@ export class PgExplorer {
   }
 
   /**
-   * Changes the current opened file in state if it exists
+   * Change the current opened file in state if it exists.
+   *
+   * @param newPath new file path
    */
   static changeCurrentFile(newPath: string) {
     newPath = this.convertToFullPath(newPath);
@@ -718,13 +727,13 @@ export class PgExplorer {
   }
 
   /**
-   * Get the visible top line number in Editor from state
+   * Get the visible top line number in editor from state.
    *
-   * @param path Full path to the file
-   * @returns The top line number
+   * @param path file path
+   * @returns the file's top line number
    */
   static getEditorTopLineNumber(path: string) {
-    return this.files[path].meta?.topLineNumber;
+    return this.getFile(path)?.meta?.topLineNumber;
   }
 
   /**
@@ -739,7 +748,9 @@ export class PgExplorer {
   }
 
   /**
-   * Closes the tab and changes the current file to the last opened tab if it exists
+   * Close the tab and change the current file to the last opened tab.
+   *
+   * @param path file path
    */
   static closeTab(path: string) {
     path = this.convertToFullPath(path);
@@ -1308,14 +1319,6 @@ export class PgExplorer {
         { createParents: true }
       );
     }
-  }
-
-  /**
-   * @param name workspace name
-   * @returns the full path to the workspace root dir with '/' at the end
-   */
-  private static _getWorkspacePath(name: string) {
-    return PgExplorer.PATHS.ROOT_DIR_PATH + PgCommon.appendSlash(name);
   }
 
   /**

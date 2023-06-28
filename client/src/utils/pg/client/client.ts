@@ -41,29 +41,23 @@ export interface ClientOptions {
 
 export class PgClient {
   /**
-   * Run or test js/ts code
+   * Run or test JS/TS code.
    *
    * @param opts -
-   * - path: path to execute
-   * - isTest: whether to run the code as test
+   * - `path`: path to execute
+   * - `isTest`: whether to run the code as test
    *
-   * @returns A promise that will resolve once all tests are finished
+   * @returns a promise that will resolve once scripts finishes executing
    */
   static async run({ path, isTest }: ClientOptions) {
     // Block creating multiple client/test instances at the same time
     if (this._isClientRunning) {
-      if (isTest) {
-        throw new Error("Please wait for client to finish.");
-      }
-
+      if (isTest) throw new Error("Please wait for client to finish.");
       throw new Error("Client is already running!");
     }
     // @ts-ignore
     if (mocha._state === "running") {
-      if (!isTest) {
-        throw new Error("Please wait for tests to finish.");
-      }
-
+      if (!isTest) throw new Error("Please wait for tests to finish.");
       throw new Error("Tests are already running!");
     }
 
@@ -71,12 +65,13 @@ export class PgClient {
       PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
     );
 
-    // Run only the given path
+    // Run the script only at the given path
     if (path) {
-      const code = PgExplorer.getFileContent(path);
-      if (!code) return;
+      const file = PgExplorer.getFile(path);
+      if (!file) throw new Error(`File '${path}' doesn't exist`);
+
       const fileName = PgExplorer.getItemNameFromPath(path);
-      await this._runFile(fileName, code, { isTest });
+      await this._runFile(fileName, file.content!, { isTest });
 
       return;
     }
@@ -121,7 +116,7 @@ export class PgClient {
   }
 
   /**
-   * Execute the given script/test as a single file
+   * Execute the given script/test as a single file.
    *
    * @param fileName name of the file to run
    * @param code code to execute
@@ -141,16 +136,14 @@ export class PgClient {
         }
       }
 
-      if (isTest) {
-        if (!code.includes("describe")) {
-          throw new Error(
-            `Tests must use '${PgTerminal.bold(
-              "describe"
-            )}' function. Use '${PgTerminal.bold(
-              "run"
-            )}' command to run the script.`
-          );
-        }
+      if (isTest && !code.includes("describe")) {
+        throw new Error(
+          `Tests must use '${PgTerminal.bold(
+            "describe"
+          )}' function. Use '${PgTerminal.bold(
+            "run"
+          )}' command to run the script.`
+        );
       }
 
       // Add globally accessed objects
@@ -323,7 +316,7 @@ export class PgClient {
   }
 
   /**
-   * Wrapper function to control client running state
+   * Wrapper function to control client running state.
    *
    * @param cb callback function to run
    * @param isTest whether to execute as a test
@@ -367,9 +360,9 @@ export class PgClient {
   }
 
   /**
-   * Get the window element of the script Iframe
+   * Get the window element of the script `Iframe`.
    *
-   * @returns Iframe's window element
+   * @returns `Iframe`'s window element
    */
   private static _getIframeWindow() {
     if (this._IframeWindow) return this._IframeWindow;
@@ -393,7 +386,7 @@ export class PgClient {
   }
 
   /**
-   * Handle user specified imports
+   * Handle user specified imports.
    *
    * @param code script/test code
    * @returns the code without import statements and the imported packages
