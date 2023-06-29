@@ -175,8 +175,8 @@ fn write_block_time<W: io::Write>(
 ) -> io::Result<()> {
     if let Some(block_time) = block_time {
         let block_time_output = match timezone {
-            CliTimezone::Local => format!("{:?}", Local.timestamp(block_time, 0)),
-            CliTimezone::Utc => format!("{:?}", Utc.timestamp(block_time, 0)),
+            CliTimezone::Local => format!("{:?}", Local.timestamp_opt(block_time, 0).unwrap()),
+            CliTimezone::Utc => format!("{:?}", Utc.timestamp_opt(block_time, 0).unwrap()),
         };
         writeln!(w, "{}Block Time: {}", prefix, block_time_output,)?;
     }
@@ -1276,7 +1276,11 @@ impl fmt::Display for CliBlock {
             self.encoded_confirmed_block.previous_blockhash
         )?;
         if let Some(block_time) = self.encoded_confirmed_block.block_time {
-            writeln!(f, "Block Time: {:?}", Local.timestamp(block_time, 0))?;
+            writeln!(
+                f,
+                "Block Time: {:?}",
+                Local.timestamp_opt(block_time, 0).unwrap()
+            )?;
         }
         if let Some(block_height) = self.encoded_confirmed_block.block_height {
             writeln!(f, "Block Height: {:?}", block_height)?;

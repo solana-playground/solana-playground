@@ -5,7 +5,7 @@ use wasm_bindgen::prelude::*;
 use crate::commands::idl::{process_idl, IdlCommand};
 
 #[derive(Parser)]
-#[clap(name = "sugar-cli", version, about)]
+#[clap(version, about)]
 enum Cli {
     /// Commands for interacting with interface definitions
     Idl {

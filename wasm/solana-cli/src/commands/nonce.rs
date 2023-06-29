@@ -19,7 +19,6 @@ use solana_sdk::{
     account::Account,
     feature_set::merge_nonce_error_into_system_error,
     hash::Hash,
-    instruction::InstructionError,
     message::Message,
     native_token::lamports_to_sol,
     nonce::{self, State},
@@ -28,8 +27,7 @@ use solana_sdk::{
     signer::Signer,
     system_instruction::{
         advance_nonce_account, authorize_nonce_account, create_nonce_account,
-        create_nonce_account_with_seed, instruction_to_nonce_error, withdraw_nonce_account,
-        NonceError, SystemError,
+        create_nonce_account_with_seed, withdraw_nonce_account, SystemError,
     },
     system_program,
     transaction::Transaction,
@@ -37,8 +35,8 @@ use solana_sdk::{
 
 use crate::{
     cli::{
-        log_instruction_custom_error, log_instruction_custom_error_ex, CliCommand, CliCommandInfo,
-        CliConfig, CliError, ProcessResult,
+        log_instruction_custom_error, CliCommand, CliCommandInfo, CliConfig, CliError,
+        ProcessResult,
     },
     utils::{
         checks::{check_account_for_fee_with_commitment, check_unique_pubkeys},
@@ -387,23 +385,11 @@ pub async fn process_authorize_nonce_account(
         config.commitment_config,
     )
     .await?;
-    let merge_errors =
-        get_feature_is_active(rpc_client, &merge_nonce_error_into_system_error::id()).await?;
     // TODO:
     // let result = rpc_client.send_and_confirm_transaction_with_spinner(&tx);
     let result = rpc_client.send_and_confirm_transaction(&tx).await;
 
-    if merge_errors {
-        log_instruction_custom_error::<SystemError>(result, config)
-    } else {
-        log_instruction_custom_error_ex::<NonceError, _>(result, config, |ix_error| {
-            if let InstructionError::Custom(_) = ix_error {
-                instruction_to_nonce_error(&ix_error, merge_errors)
-            } else {
-                None
-            }
-        })
-    }
+    log_instruction_custom_error::<SystemError>(result, config)
 }
 
 pub async fn process_create_nonce_account(
@@ -592,23 +578,11 @@ pub async fn process_new_nonce(
         config.commitment_config,
     )
     .await?;
-    let merge_errors =
-        get_feature_is_active(rpc_client, &merge_nonce_error_into_system_error::id()).await?;
     // TODO:
     // let result = rpc_client.send_and_confirm_transaction_with_spinner(&tx);
     let result = rpc_client.send_and_confirm_transaction(&tx).await;
 
-    if merge_errors {
-        log_instruction_custom_error::<SystemError>(result, config)
-    } else {
-        log_instruction_custom_error_ex::<NonceError, _>(result, config, |ix_error| {
-            if let InstructionError::Custom(_) = ix_error {
-                instruction_to_nonce_error(ix_error, merge_errors)
-            } else {
-                None
-            }
-        })
-    }
+    log_instruction_custom_error::<SystemError>(result, config)
 }
 
 pub async fn process_show_nonce_account(
@@ -676,21 +650,9 @@ pub async fn process_withdraw_from_nonce_account(
         config.commitment_config,
     )
     .await?;
-    let merge_errors =
-        get_feature_is_active(rpc_client, &merge_nonce_error_into_system_error::id()).await?;
     // TODO:
     // let result = rpc_client.send_and_confirm_transaction_with_spinner(&tx);
     let result = rpc_client.send_and_confirm_transaction(&tx).await;
 
-    if merge_errors {
-        log_instruction_custom_error::<SystemError>(result, config)
-    } else {
-        log_instruction_custom_error_ex::<NonceError, _>(result, config, |ix_error| {
-            if let InstructionError::Custom(_) = ix_error {
-                instruction_to_nonce_error(ix_error, merge_errors)
-            } else {
-                None
-            }
-        })
-    }
+    log_instruction_custom_error::<SystemError>(result, config)
 }

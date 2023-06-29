@@ -521,10 +521,6 @@ impl<'data, S: BaseState> StateWithExtensionsMut<'data, S> {
             // ConfidentialTransfers are currently opt-in only, so this is a no-op for extra safety
             // on InitializeAccount
             ExtensionType::ConfidentialTransferAccount => Ok(()),
-            #[cfg(test)]
-            ExtensionType::AccountPaddingTest => {
-                self.init_extension::<AccountPaddingTest>(true).map(|_| ())
-            }
             _ => unreachable!(),
         }
     }
@@ -672,9 +668,9 @@ impl ExtensionType {
             ExtensionType::NonTransferable => pod_get_packed_len::<NonTransferable>(),
             ExtensionType::InterestBearingConfig => pod_get_packed_len::<InterestBearingConfig>(),
             #[cfg(test)]
-            ExtensionType::AccountPaddingTest => pod_get_packed_len::<AccountPaddingTest>(),
+            ExtensionType::AccountPaddingTest => 0,
             #[cfg(test)]
-            ExtensionType::MintPaddingTest => pod_get_packed_len::<MintPaddingTest>(),
+            ExtensionType::MintPaddingTest => 0,
         }
     }
 

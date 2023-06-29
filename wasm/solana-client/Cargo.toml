@@ -1,6 +1,6 @@
 [package]
 name = "solana-client-wasm"
-version = "1.14.16" # mirror solana-sdk version
+version = "1.16.1" # mirror solana-sdk version
 description = "Solana non-blocking WASM RPC client."
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"
@@ -17,17 +17,17 @@ bincode = "1.3"
 bs58 = "0.4"
 clap = "3.1.18"
 futures = "0.3"
-js-sys = { version = "0.3.60", optional = true }
+js-sys = { version = "0.3.63", optional = true }
 reqwest = { version = "0.11.9", features = ["json"] }
 serde = "1"
 serde_derive = "1"
 serde_json = "1"
-solana-extra-wasm = { path = "../utils/solana-extra", version = "=1.14.16" }
-solana-sdk = "=1.14.16"
-thiserror = "1.0"
-web-sys = { version = "0.3.60", features = ["WebSocket"], optional = true }
-wasm-bindgen = { version = "0.2.83", optional = true }
+solana-extra-wasm = { path = "../utils/solana-extra", version = "=1.16.1" }
+solana-sdk = "=1.16.1"
+thiserror = "1"
+wasm-bindgen = { version = "0.2.86", optional = true }
 wasm-bindgen-futures = { version = "0.4.33", optional = true }
+web-sys = { version = "0.3.63", features = ["WebSocket"], optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.33"

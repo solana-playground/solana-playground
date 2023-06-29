@@ -2598,7 +2598,7 @@
     js-base64 "^3.7.2"
 
 "@solana-playground/anchor-cli@../wasm/anchor-cli/pkg":
-  version "0.27.0"
+  version "0.28.0"
 
 "@solana-playground/playnet@../wasm/pkgs/playnet":
   version "0.1.0"
