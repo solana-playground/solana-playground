@@ -214,8 +214,9 @@ export class PgClient {
         // Run only
         globals.push([
           "_end",
-          () =>
-            PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING),
+          () => {
+            PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
+          },
         ]);
 
         endCode = "_end()";
@@ -286,12 +287,6 @@ export class PgClient {
   finally { ${endCode} }
 }()`;
 
-      // Transpile and inject the script to the iframe element
-      scriptEl.textContent = transpile(code, {
-        target: ScriptTarget.ES5,
-        removeComments: true,
-      });
-
       return new Promise((res) => {
         if (isTest) {
           const intervalId = setInterval(() => {
@@ -311,6 +306,12 @@ export class PgClient {
             eventName: CLIENT_ON_DID_FINISH_RUNNING,
           });
         }
+
+        // Transpile and inject the script to the iframe element
+        scriptEl.textContent = transpile(code, {
+          target: ScriptTarget.ES5,
+          removeComments: true,
+        });
       });
     }, isTest);
   }
@@ -375,7 +376,7 @@ export class PgClient {
 
     const handleIframeError = (e: ErrorEvent) => {
       PgTerminal.log(`    ${e.message}`);
-      this._isClientRunning = false;
+      PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
     };
 
     iframeWindow.addEventListener("error", handleIframeError);
