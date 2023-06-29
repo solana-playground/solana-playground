@@ -7,6 +7,8 @@ import {
   PgCommon,
   PgRouter,
   PgTutorial,
+  PgView,
+  Sidebar,
   TutorialData,
   TutorialMetadata,
 } from "../../../../../../utils/pg";
@@ -20,8 +22,24 @@ const Tutorials = () => {
 
   // Handle path
   useAsyncEffect(async () => {
+    const TUTORIALS_PATH: RoutePath = "/tutorials";
     const { pathname } = await PgRouter.getLocation();
-    if (!pathname.startsWith("/tutorials")) PgRouter.navigate("/tutorials");
+    if (!pathname.startsWith(TUTORIALS_PATH)) {
+      await PgRouter.navigate(TUTORIALS_PATH);
+    }
+
+    // This will fix the case where going back from `/tutorials` to `/` with
+    // browser's navigations would cause this component to be still mounted
+    // instead of switching to `Sidebar.EXPLORER`
+    const { dispose } = PgRouter.onDidChangePath((path) => {
+      if (!path.startsWith(TUTORIALS_PATH)) {
+        PgView.setSidebarState((state) => {
+          if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
+          return state;
+        });
+      }
+    });
+    return () => dispose();
   }, []);
 
   // Get tutorial data

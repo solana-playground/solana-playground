@@ -122,7 +122,7 @@ export class PgRouter {
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidChangePath(cb: (path: string) => unknown) {
+  static onDidChangePath(cb: (path: RoutePath) => unknown) {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.ROUTER_ON_DID_CHANGE_PATH,
