@@ -183,11 +183,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
     });
 
     if (showLogTxHash) {
-      // Wait before confirming the transaction on live clusters
-      if (conn.rpcEndpoint.startsWith("https")) {
-        await PgCommon.sleep(1500);
-      }
-
+      await PgCommon.sleep(conn.rpcEndpoint.startsWith("https") ? 1500 : 200);
       await PgCommand.solana.run(`confirm ${showLogTxHash} -v`);
     }
   }, [txVals, idl, ix.name, wallet]);
