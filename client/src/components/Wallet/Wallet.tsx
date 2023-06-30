@@ -128,8 +128,8 @@ const WalletName = () => {
   const getAccountDisplayName = useCallback(
     (accountName: string, pkStr: string) => {
       return (
-        PgCommon.withMaxLength(accountName, 9) +
-        ` - (${PgCommon.shortenPk(pkStr)})`
+        PgCommon.withMaxLength(accountName, 12) +
+        ` - (${PgCommon.shorten(pkStr)})`
       );
     },
     []

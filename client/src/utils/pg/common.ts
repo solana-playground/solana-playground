@@ -1,5 +1,4 @@
 import type { ChangeEvent } from "react";
-import type { PublicKey } from "@solana/web3.js";
 
 import {
   Endpoint,
@@ -155,14 +154,6 @@ export class PgCommon {
     const decodedString = decoder.decode(b);
 
     return decodedString;
-  }
-
-  /**
-   * @returns first and last (default: 5) chars of a public key and '...' in between as string
-   */
-  static shortenPk(pk: PublicKey | string, chars: number = 3) {
-    const pkStr = typeof pk === "object" ? pk.toBase58() : pk;
-    return `${pkStr.slice(0, chars)}...${pkStr.slice(-chars)}`;
   }
 
   /**
@@ -893,11 +884,23 @@ export class PgCommon {
    * @returns the original string or the part of the string until the `maxLength`
    */
   static withMaxLength(str: string, maxLength: number) {
+    const FILLER = "...";
     if (str.length > maxLength) {
-      return str.slice(0, maxLength) + "...";
+      return str.slice(0, maxLength - FILLER.length) + FILLER;
     }
 
     return str;
+  }
+
+  /**
+   * Shorten the given string by only showing the first and last `chars` character.
+   *
+   * @param str string to shorten
+   * @param amount amount of chars to show from beginning and end
+   * @returns first and last (default: 3) chars of the given string and '...' in between
+   */
+  static shorten(str: string, amount: number = 3) {
+    return str.slice(0, amount) + "..." + str.slice(-amount);
   }
 
   /**
