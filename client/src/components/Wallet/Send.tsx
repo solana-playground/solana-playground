@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
@@ -6,7 +6,7 @@ import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
 import { PgCommon, PgTerminal, PgTheme, PgTx, PgWallet } from "../../utils/pg";
-import { useBalance } from "../../hooks";
+import { useBalance, useOnKey } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
@@ -48,18 +48,9 @@ const SendExpanded = () => {
     );
   }, [recipient, amount, balance]);
 
-  const handleChangeRecipient = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setRecipient(e.target.value);
-    },
-    []
-  );
-
-  const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setAmount(e.target.value);
-  }, []);
-
   const send = async () => {
+    if (disabled) return;
+
     await PgTerminal.process(async () => {
       setLoading(true);
       PgTerminal.log(
@@ -96,17 +87,19 @@ const SendExpanded = () => {
     });
   };
 
+  useOnKey("Enter", send);
+
   return (
     <ExpandedWrapper>
       <ExpandedInput
         value={recipient}
-        onChange={handleChangeRecipient}
+        onChange={(ev) => setRecipient(ev.target.value)}
         validator={PgCommon.isPk}
         placeholder="Recipient address"
       />
       <ExpandedInput
         value={amount}
-        onChange={handleChangeAmount}
+        onChange={(ev) => setAmount(ev.target.value)}
         validator={(input) => {
           if (
             !PgCommon.isFloat(input) ||
