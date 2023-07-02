@@ -4,15 +4,16 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, PgTheme, Sidebar } from "../../../../utils/pg";
+import { PgCommon, PgTheme } from "../../../../utils/pg";
 import { EventName } from "../../../../constants";
 import { useSetStatic } from "../../../../hooks";
+import { SIDEBAR } from "../../../../views";
 
 const Side = () => {
   const { pathname } = useLocation();
 
-  const [sidebarState, setSidebarState] = useState(
-    pathname.startsWith("/tutorials") ? Sidebar.TUTORIALS : Sidebar.EXPLORER
+  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>(
+    pathname.startsWith("/tutorials") ? "Tutorials" : "Explorer"
   );
   const [width, setWidth] = useState(320);
   const [oldWidth, setOldWidth] = useState(width);
@@ -21,56 +22,60 @@ const Side = () => {
     if (width) setOldWidth(width);
   }, [width]);
 
-  const oldSidebarRef = useRef(sidebarState);
+  const oldSidebarRef = useRef(sidebarPage);
 
-  useSetStatic(setSidebarState, EventName.VIEW_SIDEBAR_STATE_SET);
+  useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);
 
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-      sidebarState
+      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
+      sidebarPage
     );
-  }, [sidebarState]);
+  }, [sidebarPage]);
 
-  // Keybinds
+  // Handle keybinds
   useEffect(() => {
-    const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.shiftKey) {
-        setSidebarState((state) => {
-          const key = e.key.toUpperCase();
-          const closeCondition =
-            width !== 0 &&
-            ((state === Sidebar.EXPLORER && key === "E") ||
-              (state === Sidebar.BUILD_DEPLOY && key === "B") ||
-              (state === Sidebar.TEST && key === "D") ||
-              (state === Sidebar.TUTORIALS && key === "L"));
+    const isKeybindValid = (keybind: string, ev: KeyboardEvent) => {
+      let isValid = true;
 
-          const preventDefaultAndSetWidth = (w: number = oldWidth) => {
-            e.preventDefault();
-            setWidth(w);
-          };
+      const keys = keybind.toUpperCase().replaceAll(" ", "").split("+");
+      for (const key of keys) {
+        switch (key) {
+          case "CTRL":
+          case "CONTROL":
+            isValid &&= ev.ctrlKey || ev.metaKey;
+            break;
 
-          if (closeCondition) {
-            preventDefaultAndSetWidth(0);
-          } else if (key === "E") {
-            preventDefaultAndSetWidth();
-            return Sidebar.EXPLORER;
-          } else if (key === "B") {
-            preventDefaultAndSetWidth();
-            return Sidebar.BUILD_DEPLOY;
-          } else if (key === "D") {
-            // T doesn't work
-            preventDefaultAndSetWidth();
-            return Sidebar.TEST;
-          } else if (key === "L") {
-            // T doesn't work
-            preventDefaultAndSetWidth();
-            return Sidebar.TUTORIALS;
-          }
+          case "ALT":
+            isValid &&= ev.altKey;
+            break;
 
-          return state;
-        });
+          case "SHIFT":
+            isValid &&= ev.shiftKey;
+            break;
+
+          default:
+            isValid &&= key === ev.key.toUpperCase();
+        }
       }
+
+      return isValid;
+    };
+
+    const handleKey = (ev: KeyboardEvent) => {
+      setSidebarPage((page) => {
+        const keybindPage = SIDEBAR.find(
+          (p) => p.keybind && isKeybindValid(p.keybind, ev)
+        );
+        if (!keybindPage) return page;
+
+        // Prevent default keybind
+        ev.preventDefault();
+
+        const closeCondition = width !== 0 && page === keybindPage.name;
+        setWidth(closeCondition ? 0 : oldWidth);
+        return keybindPage.name;
+      });
     };
 
     document.addEventListener("keydown", handleKey);
@@ -80,14 +85,14 @@ const Side = () => {
   return (
     <Wrapper>
       <Left
-        sidebarState={sidebarState}
-        setSidebarState={setSidebarState}
+        sidebarPage={sidebarPage}
+        setSidebarPage={setSidebarPage}
         oldSidebarRef={oldSidebarRef}
         width={width}
         setWidth={setWidth}
         oldWidth={oldWidth}
       />
-      <Right sidebarState={sidebarState} width={width} setWidth={setWidth} />
+      <Right sidebarPage={sidebarPage} width={width} setWidth={setWidth} />
     </Wrapper>
   );
 };

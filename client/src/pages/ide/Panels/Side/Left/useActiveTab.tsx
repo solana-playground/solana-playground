@@ -2,23 +2,21 @@ import { MutableRefObject, useEffect } from "react";
 import { useTheme } from "styled-components";
 
 import { ClassName } from "../../../../../constants";
-import { Sidebar } from "../../../../../utils/pg";
 
-export const ID_PREFIX = "Icon";
+export const ID_PREFIX = "sidebar";
 
 export const useActiveTab = (
-  currentState: Sidebar,
-  oldStateRef: MutableRefObject<Sidebar>,
+  currentPage: SidebarPageName,
+  oldPageRef: MutableRefObject<SidebarPageName>,
   width: number
 ) => {
   const theme = useTheme();
 
   useEffect(() => {
-    const current = width !== 0 ? currentState : "Closed";
-
-    changeActiveTab(getId(current), getId(oldStateRef.current));
-    oldStateRef.current = currentState;
-  }, [currentState, oldStateRef, width, theme.name]);
+    const current = width !== 0 ? currentPage : "Closed";
+    changeActiveTab(getId(current), getId(oldPageRef.current));
+    oldPageRef.current = currentPage;
+  }, [currentPage, oldPageRef, width, theme.name]);
 };
 
 const changeActiveTab = (newId: string, oldId: string) => {

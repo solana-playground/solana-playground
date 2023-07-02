@@ -1,7 +1,7 @@
 import { PgCommon } from "../common";
 import { PgExplorer, TupleFiles } from "../explorer";
 import { PgRouter } from "../router";
-import { PgView, Sidebar } from "../view";
+import { PgView } from "../view";
 import { declareUpdatable, updatable } from "../decorators";
 import type {
   SerializedTutorialState,
@@ -144,8 +144,8 @@ class _PgTutorial {
       // Sleep before setting the sidebar state to avoid flickering when the
       // current page modifies the sidebar state, e.g. inside `onMount`
       await PgCommon.sleep(0);
-      PgView.setSidebarState((state) => {
-        if (state === Sidebar.TUTORIALS) return Sidebar.EXPLORER;
+      PgView.setSidebarPage((state) => {
+        if (state === "Tutorials") return "Explorer";
         return state;
       });
     } else {
@@ -190,7 +190,7 @@ class _PgTutorial {
   /** Finish the current tutorial. */
   static finish() {
     PgTutorial.completed = true;
-    PgView.setSidebarState(Sidebar.TUTORIALS);
+    PgView.setSidebarPage("Tutorials");
   }
 }
 

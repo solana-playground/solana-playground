@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { ClassName } from "../../constants";
 import { PgTheme } from "../../utils/pg";
 
-interface IconButtonProps {
+export interface IconButtonProps {
   id?: string;
   src?: string;
   style?: CSSProperties;
@@ -22,13 +22,7 @@ const IconButton: FC<IconButtonProps> = ({
   onClick,
   reff,
 }) => (
-  <IconWrapper
-    id={id}
-    title={title}
-    onClick={onClick}
-    ref={reff}
-    style={style ? { ...style } : {}}
-  >
+  <IconWrapper id={id} title={title} onClick={onClick} ref={reff} style={style}>
     <Icon src={src} style={style ? { ...style, padding: "0.25rem" } : {}} />
   </IconWrapper>
 );

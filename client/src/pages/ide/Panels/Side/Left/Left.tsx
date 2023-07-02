@@ -4,33 +4,33 @@ import styled, { css } from "styled-components";
 import IconButton from "../../../../../components/IconButton";
 import Link from "../../../../../components/Link";
 import PopButton from "../../../../../components/PopButton";
-import Settings from "../Right/Settings";
-import { sidebarData } from "./sidebar-data";
+import Settings from "./Settings";
+import { SIDEBAR } from "../../../../../views/sidebar";
 import { GITHUB_URL } from "../../../../../constants";
-import { PgCommon, PgTheme, Sidebar } from "../../../../../utils/pg";
+import { PgCommon, PgTheme } from "../../../../../utils/pg";
 import { ID_PREFIX, useActiveTab } from "./useActiveTab";
 
-interface LeftProps {
-  sidebarState: Sidebar;
-  setSidebarState: Dispatch<SetStateAction<Sidebar>>;
-  oldSidebarRef: MutableRefObject<Sidebar>;
-  width: number;
-  setWidth: Dispatch<SetStateAction<number>>;
-  oldWidth: number;
+interface LeftProps<P = SidebarPageName, W = number> {
+  sidebarPage: P;
+  setSidebarPage: Dispatch<SetStateAction<P>>;
+  oldSidebarRef: MutableRefObject<P>;
+  width: W;
+  setWidth: Dispatch<SetStateAction<W>>;
+  oldWidth: W;
 }
 
 const Left: FC<LeftProps> = ({
-  sidebarState,
-  setSidebarState,
+  sidebarPage,
+  setSidebarPage,
   oldSidebarRef,
   width,
   setWidth,
   oldWidth,
 }) => {
-  useActiveTab(sidebarState, oldSidebarRef, width);
+  useActiveTab(sidebarPage, oldSidebarRef, width);
 
-  const handleSidebarChange = (value: Sidebar) => {
-    setSidebarState((state) => {
+  const handleSidebarChange = (value: SidebarPageName) => {
+    setSidebarPage((state) => {
       if (!width) setWidth(oldWidth);
       else if (state === value) setWidth(0);
 
@@ -42,29 +42,29 @@ const Left: FC<LeftProps> = ({
     <Wrapper>
       <Icons>
         <Top>
-          {sidebarData.top.map((data, i) => (
+          {SIDEBAR.map((page, i) => (
             <IconButton
               key={i}
-              id={ID_PREFIX + data.value}
-              title={PgCommon.getKeybindTextOS(data.title)}
-              src={data.src}
-              onClick={() => handleSidebarChange(data.value)}
+              id={ID_PREFIX + page.name}
+              title={PgCommon.getKeybindTextOS(page.title)}
+              src={page.icon}
+              onClick={() => handleSidebarChange(page.name)}
             />
           ))}
         </Top>
-        <Bottom>
-          {sidebarData.bottom.map((data, i) => {
-            if (data.value === Sidebar.GITHUB)
-              return (
-                <Link key={i} href={GITHUB_URL} showExternalIcon={false}>
-                  <IconButton title={data.title} src={data.src} />
-                </Link>
-              );
 
-            return (
-              <PopButton key={i} PopElement={Settings} buttonProps={data} />
-            );
-          })}
+        <Bottom>
+          <Link href={GITHUB_URL} showExternalIcon={false}>
+            <IconButton title="GitHub" src="/icons/sidebar/github.png" />
+          </Link>
+
+          <PopButton
+            PopElement={Settings}
+            buttonProps={{
+              title: "Settings",
+              src: "/icons/sidebar/settings.webp",
+            }}
+          />
         </Bottom>
       </Icons>
     </Wrapper>

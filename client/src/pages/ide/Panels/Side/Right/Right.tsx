@@ -1,33 +1,24 @@
-import { FC, Suspense, lazy, Dispatch, SetStateAction } from "react";
+import { FC, Dispatch, SetStateAction, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
-import TestSkeleton from "./Test/TestSkeleton";
-import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
 import { Wormhole } from "../../../../../components/Loading";
-import { Id } from "../../../../../constants";
-import { PgTheme, Sidebar } from "../../../../../utils/pg";
-import { useWorkspace } from "./useWorkspace";
+import { EventName, Id } from "../../../../../constants";
+import { PgTheme, PgView } from "../../../../../utils/pg";
 import { useResize } from "./useResize";
-
-const Explorer = lazy(() => import("./Explorer"));
-// const Search = lazy(() => import("./Search"));
-const BuildDeploy = lazy(() => import("./BuildDeploy"));
-const Test = lazy(() => import("./Test"));
-const Tutorials = lazy(() => import("./Tutorials"));
+import { SIDEBAR } from "../../../../../views/sidebar";
+import { useSetStatic } from "../../../../../hooks";
 
 interface DefaultRightProps {
-  sidebarState: string;
+  sidebarPage: SidebarPageName;
 }
 
-interface RightProps<T = number> extends DefaultRightProps {
-  width: T;
-  setWidth: Dispatch<SetStateAction<T>>;
+interface RightProps<W = number> extends DefaultRightProps {
+  width: W;
+  setWidth: Dispatch<SetStateAction<W>>;
 }
 
-const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
-  const { loading } = useWorkspace();
-
+const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
   const { handleResizeStop, windowHeight } = useResize(setWidth);
 
   return (
@@ -48,59 +39,48 @@ const Right: FC<RightProps> = ({ sidebarState, width, setWidth }) => {
       onResizeStop={handleResizeStop}
     >
       <Wrapper id={Id.SIDE_RIGHT} windowHeight={windowHeight}>
-        <StyledTitle sidebarState={sidebarState} />
-        <Suspense fallback={<RightLoading sidebarState={sidebarState} />}>
-          {loading ? (
-            <RightLoading sidebarState={sidebarState} />
-          ) : (
-            <Inside sidebarState={sidebarState} />
-          )}
-        </Suspense>
+        <Title sidebarPage={sidebarPage} />
+        <Content sidebarPage={sidebarPage} />
       </Wrapper>
     </Resizable>
   );
 };
 
-const Inside: FC<DefaultRightProps> = ({ sidebarState }) => {
-  switch (sidebarState) {
-    case Sidebar.EXPLORER:
-      return <Explorer />;
-    // case Sidebar.SEARCH:
-    //   return <Search />;
-    case Sidebar.BUILD_DEPLOY:
-      return <BuildDeploy />;
-    case Sidebar.TEST:
-      return <Test />;
-    case Sidebar.TUTORIALS:
-      return <Tutorials />;
-    default:
-      return null;
-  }
-};
+const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
+  const [El, setEl] = useState<JSX.Element | null>(null);
+  const [loading, setLoading] = useState(true);
 
-interface TitleProps extends DefaultRightProps {
-  className?: string;
-}
+  useSetStatic(setLoading, EventName.VIEW_SIDEBAR_LOADING_SET);
 
-const Title: FC<TitleProps> = ({ sidebarState, className }) => (
-  <div className={className}>
-    <span>{sidebarState.toUpperCase()}</span>
-  </div>
-);
+  useEffect(() => {
+    const ids: boolean[] = [];
 
-const RightLoading: FC<DefaultRightProps> = ({ sidebarState }) => {
-  switch (sidebarState) {
-    case Sidebar.TEST:
-      return <TestSkeleton />;
-    case Sidebar.TUTORIALS:
-      return <TutorialsSkeleton />;
-    default:
-      return (
-        <LoadingWrapper>
-          <Wormhole />
-        </LoadingWrapper>
-      );
-  }
+    const { dispose } = PgView.onDidChangeSidebarPage(async (page) => {
+      const currentId = ids.length;
+      const nextId = currentId + 1;
+      ids[currentId] ??= false;
+
+      setLoading(true);
+
+      try {
+        const { importElement } = SIDEBAR.find((s) => s.name === page)!;
+
+        const { default: PageComponent } = await importElement();
+        if (ids[nextId] !== undefined) return;
+
+        setEl(<PageComponent />);
+      } catch (e: any) {
+        console.log("SIDEBAR ERROR", e.message);
+      }
+
+      setLoading(false);
+    });
+    return () => dispose();
+  }, []);
+
+  if (loading) return <Loading sidebarPage={sidebarPage} />;
+
+  return El;
 };
 
 const Wrapper = styled.div<{ windowHeight: number }>`
@@ -140,7 +120,13 @@ const Wrapper = styled.div<{ windowHeight: number }>`
   `}
 `;
 
-const StyledTitle = styled(Title)`
+const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
+  <TitleWrapper>
+    <span>{sidebarPage.toUpperCase()}</span>
+  </TitleWrapper>
+);
+
+const TitleWrapper = styled.div`
   ${({ theme }) => css`
     display: flex;
     justify-content: center;
@@ -150,6 +136,20 @@ const StyledTitle = styled(Title)`
     ${PgTheme.convertToCSS(theme.components.sidebar.right.title)};
   `}
 `;
+
+const Loading: FC<DefaultRightProps> = ({ sidebarPage }) => {
+  const LoadingElement = SIDEBAR.find(
+    (p) => p.name === sidebarPage
+  )!.LoadingElement;
+
+  if (LoadingElement) return <LoadingElement />;
+
+  return (
+    <LoadingWrapper>
+      <Wormhole />
+    </LoadingWrapper>
+  );
+};
 
 const LoadingWrapper = styled.div`
   margin-top: 2rem;

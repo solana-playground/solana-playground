@@ -1,5 +1,5 @@
 import { Tutorials } from "../components/Tutorials";
-import { PgExplorer, PgRouter, PgView, Sidebar } from "../utils/pg";
+import { PgExplorer, PgRouter, PgView } from "../utils/pg";
 
 export const tutorials = PgRouter.create({
   path: "/tutorials",
@@ -10,14 +10,14 @@ export const tutorials = PgRouter.create({
       await PgExplorer.init();
 
       // Set sidebar
-      PgView.setSidebarState(Sidebar.TUTORIALS);
+      PgView.setSidebarPage("Tutorials");
 
       return Tutorials;
     });
 
     // Handle sidebar
-    return PgView.onDidChangeSidebarState((state) => {
-      if (state !== Sidebar.TUTORIALS) PgRouter.navigate();
+    return PgView.onDidChangeSidebarPage((state) => {
+      if (state !== "Tutorials") PgRouter.navigate();
     });
   },
 });

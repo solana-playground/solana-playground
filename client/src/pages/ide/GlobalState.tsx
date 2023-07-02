@@ -14,6 +14,7 @@ import {
   PgProgramInfo,
   PgRouter,
   PgTutorial,
+  PgView,
   PgWallet,
 } from "../../utils/pg";
 import { useDisposable, useGetStatic, useSetStatic } from "../../hooks";
@@ -35,14 +36,13 @@ const GlobalState = () => {
   // Wallet
   useDisposable(PgWallet.init);
 
+  // Workspace
+  useWorkspace();
+
   return null;
 };
 
-/**
- * Initialize `PgProgramInfo` on explorer initialization and workspace switch.
- *
- * **IMPORTANT**: Should only be used once.
- */
+/** Initialize `PgProgramInfo` on explorer initialization and workspace switch. */
 const useProgramInfo = () => {
   useEffect(() => {
     let programInfo: Disposable | undefined;
@@ -58,11 +58,7 @@ const useProgramInfo = () => {
   }, []);
 };
 
-/**
- * Handle URL routing.
- *
- * **IMPORTANT**: Should only be used once.
- */
+/** Handle URL routing. */
 const useRouter = () => {
   // Init
   useEffect(() => {
@@ -85,6 +81,47 @@ const useRouter = () => {
       location.pathname
     );
   }, [location.pathname]);
+};
+
+/** Handle workspaces/tutorials. */
+const useWorkspace = () => {
+  // Handle loading state
+  useEffect(() => {
+    const { dispose } = PgExplorer.onDidInit(async () => {
+      // Check whether the tab state is valid
+      // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
+      const tabs = PgExplorer.getTabs();
+      if (tabs.length && !PgExplorer.getCurrentFile()) {
+        PgExplorer.changeCurrentFile(tabs[0].path);
+      }
+
+      await PgCommon.sleep(300);
+      PgView.setSidebarLoading(false);
+    });
+    return () => dispose();
+  }, []);
+
+  // Handle workspace switch
+  useEffect(() => {
+    const { dispose } = PgExplorer.onDidSwitchWorkspace(async () => {
+      const name = PgExplorer.currentWorkspaceName;
+      if (!name) {
+        PgRouter.navigate();
+        return;
+      }
+
+      const { pathname } = await PgRouter.getLocation();
+      if (PgRouter.isPathsEqual(pathname, "/tutorials")) return;
+
+      if (PgTutorial.isWorkspaceTutorial(name)) {
+        await PgTutorial.open(name);
+      } else {
+        PgExplorer.setWorkspaceName(name);
+        await PgRouter.navigate();
+      }
+    });
+    return () => dispose();
+  }, []);
 };
 
 // Set tutorials

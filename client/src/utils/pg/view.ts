@@ -5,30 +5,63 @@ import { PgCommon } from "./common";
 import { EventName } from "../../constants";
 import type { SetState, SetElementAsync } from "./types";
 
-/** Sidebar states */
-export enum Sidebar {
-  CLOSED = "Closed",
-  EXPLORER = "Explorer",
-  // SEARCH = "Search",
-  BUILD_DEPLOY = "Build & Deploy",
-  TEST = "Test",
-  TUTORIALS = "Tutorials",
-  GITHUB = "Github",
-  WALLET = "Wallet",
-  SETTINGS = "Settings",
-}
+/** Sidebar page */
+type SidebarPage<N extends string> = {
+  /** Name of the page */
+  name: N;
+  /** `src` of the image */
+  icon: string;
+  /** Lazy loader for the element */
+  importElement: () => Promise<{ default: () => JSX.Element }>;
+  /** Loading element to until the element is ready to show */
+  LoadingElement?: () => JSX.Element;
+  /** Title of the page, defaults to `name` */
+  title?: string;
+  /** Keybind for the page */
+  keybind?: string;
+};
 
-/** Each item props in left sidebar */
-export interface SidebarIcon {
-  title: string;
-  src: string;
-  value: Sidebar;
-}
-
-/** Left sidebar data */
-export type SidebarData = { [K in "top" | "bottom"]: SidebarIcon[] };
+/** Created sidebar page */
+type CreatedSidebarPage<N extends string> = Omit<SidebarPage<N>, "title"> &
+  Required<Pick<SidebarPage<N>, "title">>;
 
 export class PgView {
+  /**
+   * Create a sidebar page.
+   *
+   * @param page sidebar page
+   * @returns the page with correct types
+   */
+  static createSidebarPage<N extends string>(page: SidebarPage<N>) {
+    page.title ??= page.keybind ? `${page.name} (${page.keybind})` : page.name;
+    page.icon = "/icons/sidebar/" + page.icon;
+    return page as CreatedSidebarPage<N>;
+  }
+
+  /**
+   * Set the current sidebar state
+   *
+   * @param state sidebar state to set
+   */
+  static setSidebarPage(state: SetState<SidebarPageName> = "Explorer") {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_SIDEBAR_STATE_SET,
+      state
+    );
+  }
+
+  /**
+   * Set sidebar right component's loading state.
+   *
+   * @param loading set loading state
+   */
+  static setSidebarLoading(loading: SetState<boolean>) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_SIDEBAR_LOADING_SET,
+      loading
+    );
+  }
+
   /**
    * Set main view(next to the sidebar and above the terminal)
    *
@@ -87,39 +120,15 @@ export class PgView {
   }
 
   /**
-   * Set the current sidebar state
-   *
-   * @param state sidebar state to set
-   */
-  static setSidebarState(state: SetState<Sidebar> = Sidebar.EXPLORER) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_SIDEBAR_STATE_SET,
-      state
-    );
-  }
-
-  /**
-   * Set sidebar right component's loading state.
-   *
-   * @param loading set loading state
-   */
-  static setSidebarLoading(loading: SetState<boolean>) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_SIDEBAR_LOADING_SET,
-      loading
-    );
-  }
-
-  /**
-   * Runs after changing sidebar state
+   * Runs after changing sidebar page
    *
    * @param cb callback function to run after changing sidebar page
    * @returns a dispose function to clear the event
    */
-  static onDidChangeSidebarState(cb: (state: Sidebar) => any) {
+  static onDidChangeSidebarPage(cb: (page: SidebarPageName) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
     });
   }
 }

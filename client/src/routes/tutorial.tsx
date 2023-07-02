@@ -4,7 +4,6 @@ import {
   PgRouter,
   PgTutorial,
   PgView,
-  Sidebar,
 } from "../utils/pg";
 
 export const tutorial = PgRouter.create({
@@ -33,10 +32,10 @@ export const tutorial = PgRouter.create({
 
       if (PgTutorial.isStarted(tutorial.name)) {
         PgTutorial.view = "main";
-        PgView.setSidebarState();
+        PgView.setSidebarPage();
       } else {
         PgTutorial.view = "about";
-        PgView.setSidebarState(Sidebar.TUTORIALS);
+        PgView.setSidebarPage("Tutorials");
       }
 
       const { default: Tutorial } = await tutorial.elementImport();
@@ -44,8 +43,8 @@ export const tutorial = PgRouter.create({
     });
 
     // Handle sidebar
-    const sidebarState = PgView.onDidChangeSidebarState((state) => {
-      if (state === Sidebar.TUTORIALS) {
+    const sidebarPage = PgView.onDidChangeSidebarPage((state) => {
+      if (state === "Tutorials") {
         PgTutorial.update({ view: "about" });
       } else {
         // Get whether the tutorial has started
@@ -60,7 +59,7 @@ export const tutorial = PgRouter.create({
     return {
       dispose: () => {
         tutorialInit?.dispose();
-        sidebarState.dispose();
+        sidebarPage.dispose();
       },
     };
   },

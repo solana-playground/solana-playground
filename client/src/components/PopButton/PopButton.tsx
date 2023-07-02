@@ -9,12 +9,11 @@ import {
 import { useFloating, shift, arrow, autoUpdate } from "@floating-ui/react-dom";
 import styled, { css } from "styled-components";
 
-import IconButton from "../IconButton";
-import { SidebarIcon } from "../../utils/pg";
+import IconButton, { IconButtonProps } from "../IconButton";
 
 interface PopButtonProps {
   PopElement: ComponentType;
-  buttonProps: SidebarIcon;
+  buttonProps: IconButtonProps;
 }
 
 const PopButton: FC<PopButtonProps> = ({ PopElement, buttonProps }) => {

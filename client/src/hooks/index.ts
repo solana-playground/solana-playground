@@ -11,6 +11,7 @@ export { useGetAndSetStatic } from "./useGetAndSetStatic";
 export { useGetStatic } from "./useGetStatic";
 export { useOnClickOutside } from "./useOnClickOutside";
 export { useOnKey } from "./useOnKey";
+export { useProgramInfo } from "./useProgramInfo";
 export { useRenderOnChange } from "./useRenderOnChange";
 export { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
 export { useSetStatic } from "./useSetStatic";
