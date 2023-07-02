@@ -1,3 +1,5 @@
+export * from "./bytes";
+export * from "./client";
 export * from "./common";
 export * from "./command";
 export * from "./connection";
@@ -8,6 +10,7 @@ export * from "./github";
 export * from "./playnet/";
 export * from "./program-info";
 export * from "./router";
+export * from "./server";
 export * from "./settings";
 export * from "./share";
 export * from "./terminal/";

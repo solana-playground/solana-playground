@@ -1,50 +1,37 @@
-import * as commands from "./commands";
 import { PgCommon } from "../common";
 import { PgTerminal } from "../terminal";
-import type { Arrayable, Disposable, SyncOrAsync } from "../types";
 
-/** Terminal command */
-export interface CommandImpl<R> {
-  /** Name of the command that will be used in terminal */
-  name: string;
-  /** Description that will be seen in the `help` command */
-  description: string;
-  /** Function to run when the command is called */
-  run: (input: string) => R;
-  /* Only process the command if the condition passes */
-  preCheck?: Arrayable<() => SyncOrAsync<void>>;
-}
+/** All commands */
+export const PgCommand: Commands = new Proxy(
+  {},
+  {
+    get: (target: any, cmdName: CommandCodeName): Command<unknown> => {
+      if (target[cmdName]) return target[cmdName];
 
-/** All commands type */
-type InternalCommands = typeof commands;
+      const commandName = PgCommandExecutor.commands[cmdName].name;
+      target[cmdName] = {
+        name: commandName,
+        run: (args: string = "") => {
+          return PgTerminal.executeFromStr(`${commandName} ${args}`);
+        },
+        onDidRunStart: (cb: (input: string | null) => void) => {
+          return PgCommon.onDidChange({
+            cb,
+            eventName: getEventName(cmdName, "start"),
+          });
+        },
+        onDidRunFinish: (cb: (result: unknown) => void) => {
+          return PgCommon.onDidChange({
+            cb,
+            eventName: getEventName(cmdName, "finish"),
+          });
+        },
+      };
 
-/** Name of all the available commands(only code) */
-type CommandCodeName = keyof InternalCommands;
-
-/** Ready to be used commands */
-type Commands = {
-  [N in keyof InternalCommands]: InternalCommands[N] extends CommandImpl<
-    infer R
-  >
-    ? Command<R>
-    : never;
-};
-
-/** Command type for external usage */
-type Command<R> = Pick<CommandImpl<R>, "name"> & {
-  /** Command processor */
-  run(args?: string): Promise<Awaited<R>>;
-  /**
-   * @param cb callback function to run when the command starts running
-   * @returns a dispose function to clear the event
-   */
-  onDidRunStart(cb: (input: string | null) => void): Disposable;
-  /**
-   * @param cb callback function to run when the command finishes running
-   * @returns a dispose function to clear the event
-   */
-  onDidRunFinish(cb: (result: Awaited<R>) => void): Disposable;
-};
+      return target[cmdName];
+    },
+  }
+);
 
 /** Get custom event name for the given command. */
 const getEventName = (name: string, kind: "start" | "finish") => {
@@ -56,39 +43,15 @@ const getEventName = (name: string, kind: "start" | "finish") => {
   }
 };
 
-/** Command manager */
-export const PgCommand: Commands = new Proxy(
-  {},
-  {
-    get: (target: any, name: CommandCodeName): Command<unknown> => {
-      if (target[name]) return target[name];
-
-      const commandName = commands[name].name;
-      target[name] = {
-        name: commandName,
-        run: (args: string = "") => {
-          return PgTerminal.executeFromStr(`${commandName} ${args}`);
-        },
-        onDidRunStart: (cb: (input: string | null) => void) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: getEventName(name, "start"),
-            initialRun: { value: null },
-          });
-        },
-        onDidRunFinish: (cb: (result: unknown) => void) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: getEventName(name, "finish"),
-            initialRun: { value: null },
-          });
-        },
-      };
-
-      return target[name];
-    },
-  }
-);
+/**
+ * Create a command. This is only a type helper function.
+ *
+ * @param cmd command to create
+ * @returns the command with `Command` type
+ */
+export const createCmd = <R>(cmd: CommandImpl<R>): Readonly<CommandImpl<R>> => {
+  return cmd;
+};
 
 /**
  * Command executor.
@@ -97,6 +60,8 @@ export const PgCommand: Commands = new Proxy(
  * `PgCommand` instead.
  */
 export class PgCommandExecutor {
+  static commands: InternalCommands;
+
   /**
    * Execute from the given input.
    *
@@ -113,8 +78,8 @@ export class PgCommandExecutor {
       const inputCmdName = input.split(" ")?.at(0);
       if (!inputCmdName) return;
 
-      for (const cmdName in commands) {
-        const cmd = commands[cmdName as CommandCodeName];
+      for (const cmdName in PgCommandExecutor.commands) {
+        const cmd = PgCommandExecutor.commands[cmdName as CommandCodeName];
         if (inputCmdName !== cmd.name) continue;
 
         // Handle checks
