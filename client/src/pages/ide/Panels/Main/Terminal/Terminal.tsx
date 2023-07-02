@@ -4,9 +4,9 @@ import styled, { css, useTheme } from "styled-components";
 import { Resizable } from "re-resizable";
 import "xterm/css/xterm.css";
 
-import * as commands from "../../../../../commands";
 import Button from "../../../../../components/Button";
 import ProgressBar from "../../../../../components/ProgressBar";
+import { COMMANDS } from "../../../../../commands";
 import {
   Clear,
   Close,
@@ -38,7 +38,7 @@ const Terminal = () => {
     const xterm = theme.components.terminal.xterm;
 
     // Set the available commands
-    PgCommandExecutor.commands = commands;
+    PgCommandExecutor.commands = COMMANDS;
 
     return new PgTerm(PgCommandExecutor.execute, {
       convertEol: true,

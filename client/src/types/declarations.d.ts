@@ -1,9 +1,9 @@
 import "styled-components";
 
-import * as commands from "../commands";
+import { COMMANDS } from "../commands";
 import { ROUTES } from "../routes";
 import { SIDEBAR } from "../views";
-import { Disposable, ThemeReady } from "../utils/pg";
+import { Arrayable, Disposable, SyncOrAsync, ThemeReady } from "../utils/pg";
 
 global {
   function structuredClone<T>(obj: T): T;
@@ -24,7 +24,7 @@ global {
 // Commands
 global {
   /** All internal commands type */
-  type InternalCommands = typeof commands;
+  type InternalCommands = typeof COMMANDS;
 
   /** Name of all the available commands(only code) */
   type CommandCodeName = keyof InternalCommands;
