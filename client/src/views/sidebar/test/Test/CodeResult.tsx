@@ -1,5 +1,7 @@
 import styled, { css } from "styled-components";
 
+import { PgTheme } from "../../../../utils/pg";
+
 interface CodeResultProps {
   index: number;
 }
@@ -16,29 +18,6 @@ export const CodeResult = styled.pre<CodeResultProps>`
       : theme.components.sidebar.right.default.bg};
     border-radius: ${theme.default.borderRadius};
 
-    /* Scrollbar */
-    /* Chromium */
-    &::-webkit-scrollbar {
-      height: 0.5rem;
-    }
-
-    &::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
+    ${PgTheme.getScrollbarCSS()};
   `}
 `;

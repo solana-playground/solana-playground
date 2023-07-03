@@ -135,10 +135,6 @@ const Wrapper = styled(Split)<Pick<TutorialComponentProps, "rtl">>`
 const EditorWrapper = styled.div`
   display: flex;
   flex-direction: column;
-
-  & > div:nth-child(2) {
-    flex: 1;
-  }
 `;
 
 const TutorialPage = styled.div`

@@ -13,6 +13,7 @@ import {
   PgCommon,
   PgPackage,
   PgCommand,
+  PgTheme,
 } from "../../../../utils/pg";
 import {
   useAsyncEffect,
@@ -561,26 +562,16 @@ const CodeMirror = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    /* Scrollbar */
-    /* Chromium */
-    & ::-webkit-scrollbar {
-      width: 0.75rem;
-      height: 0.75rem;
-    }
+    ${PgTheme.getScrollbarCSS({
+      allChildren: true,
+      borderRadius: 0,
+      height: "0.75rem",
+      width: "0.75rem",
+    })};
 
     & ::-webkit-scrollbar-track {
       background: ${theme.components.main.default.bg};
       border-left: 1px solid ${theme.colors.default.border};
-    }
-
-    & ::-webkit-scrollbar-thumb {
-      background: ${theme.default.scrollbar.thumb.color};
-      border: 0.25rem solid transparent;
-      border-radius: 0;
-    }
-
-    & ::-webkit-scrollbar-thumb:hover {
-      background: ${theme.default.scrollbar.thumb.hoverColor};
     }
 
     & ::-webkit-scrollbar-corner {

@@ -250,6 +250,61 @@ export class PgTheme {
     }
   }
 
+  /**
+   * Create CSS for scrollbar.
+   *
+   * @param opts -
+   * `allChildren`: Whether to add the scrollbar changes to all children components
+   * @returns the scrollbar CSS
+   */
+  static getScrollbarCSS(
+    opts?: {
+      allChildren?: boolean;
+    } & Pick<StandardProperties, "width" | "height" | "borderRadius">
+  ) {
+    const theme = this._themeReady;
+    const scrollbar = theme.default.scrollbar;
+
+    const { allChildren, borderRadius, height, width } = PgCommon.setDefault(
+      opts,
+      {
+        allChildren: false,
+        borderRadius: theme.default.borderRadius,
+        height: "0.5rem",
+        width: "0.5rem",
+      }
+    );
+    const prefix = allChildren ? "& " : "&";
+
+    return `
+    /* Scrollbar */
+    /* Chromium */
+    ${prefix}::-webkit-scrollbar {
+      width: ${width};
+      height: ${height};
+    }
+
+    ${prefix}::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    ${prefix}::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      border-radius: ${borderRadius};
+      background-color: ${scrollbar.thumb.color};
+    }
+
+    ${prefix}::-webkit-scrollbar-thumb:hover {
+      background-color: ${scrollbar.thumb.hoverColor};
+    }
+
+    /* Firefox */
+    ${prefix} * {
+      scrollbar-color: ${scrollbar.thumb.color};
+    }
+`;
+  }
+
   /** Get the theme with default types set */
   private static get _themeReady() {
     return this._theme as ThemeReady;
@@ -833,6 +888,7 @@ export class PgTheme {
 
     // Default
     terminal.default ??= {};
+    terminal.default.height ??= "100%";
     terminal.default.bg ??= theme.colors.default.bgPrimary;
     terminal.default.color ??= theme.colors.default.textPrimary;
     terminal.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;

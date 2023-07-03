@@ -80,33 +80,12 @@ const Select = <
 
 const StyledReactSelect = styled(ReactSelect)`
   ${({ theme }) => css`
+    ${PgTheme.getScrollbarCSS({
+      allChildren: true,
+      width: "0.25rem",
+      height: "0.25rem",
+    })};
     ${PgTheme.convertToCSS(theme.components.select.default)};
-
-    /* Scrollbar */
-    /* Chromium */
-    & ::-webkit-scrollbar {
-      width: 0.25rem;
-      height: 0.25rem;
-    }
-
-    & ::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-
-    & ::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
   `}
 `;
 

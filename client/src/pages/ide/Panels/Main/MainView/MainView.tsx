@@ -48,33 +48,8 @@ const Wrapper = styled.div`
     flex: 1;
     min-height: 0;
 
+    ${PgTheme.getScrollbarCSS({ allChildren: true })};
     ${PgTheme.convertToCSS(theme.components.main.default)};
-
-    /* Scrollbar */
-    /* Chromium */
-    & ::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
-
-    & ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    & ::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background: ${theme.default.scrollbar.thumb.color};
-    }
-
-    & ::-webkit-scrollbar-thumb:hover {
-      background: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
   `}
 `;
 

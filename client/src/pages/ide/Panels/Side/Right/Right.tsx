@@ -90,33 +90,8 @@ const Wrapper = styled.div<{ windowHeight: number }>`
     overflow-y: auto;
     height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
 
+    ${PgTheme.getScrollbarCSS()};
     ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
-
-    /* Scrollbar */
-    /* Chromium */
-    &::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
-
-    &::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
   `}
 `;
 

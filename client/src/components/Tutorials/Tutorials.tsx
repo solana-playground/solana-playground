@@ -33,7 +33,6 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     display: flex;
     justify-content: center;
-    flex: 1;
     overflow: auto;
 
     ${PgTheme.convertToCSS(theme.components.main.views.tutorials.default)};

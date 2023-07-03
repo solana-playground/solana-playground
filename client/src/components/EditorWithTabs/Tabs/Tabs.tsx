@@ -48,37 +48,12 @@ const Wrapper = styled.div`
 `;
 
 const TabsWrapper = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 
-    /* Scrollbar */
-    /* Chromium */
-    &::-webkit-scrollbar {
-      height: 0.25rem !important;
-    }
-
-    &::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent !important;
-      border-radius: ${theme.default.borderRadius};
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
-  `}
+  ${PgTheme.getScrollbarCSS({ height: "0.25rem !important" })};
 `;
 
 const Wallet = () => {
