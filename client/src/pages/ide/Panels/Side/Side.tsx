@@ -4,10 +4,10 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, PgTheme } from "../../../../utils/pg";
 import { EventName } from "../../../../constants";
-import { useSetStatic } from "../../../../hooks";
 import { SIDEBAR } from "../../../../views";
+import { PgCommon, PgTheme } from "../../../../utils/pg";
+import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
   const { pathname } = useLocation();
@@ -34,53 +34,19 @@ const Side = () => {
   }, [sidebarPage]);
 
   // Handle keybinds
-  useEffect(() => {
-    const isKeybindValid = (keybind: string, ev: KeyboardEvent) => {
-      let isValid = true;
-
-      const keys = keybind.toUpperCase().replaceAll(" ", "").split("+");
-      for (const key of keys) {
-        switch (key) {
-          case "CTRL":
-          case "CONTROL":
-            isValid &&= ev.ctrlKey || ev.metaKey;
-            break;
-
-          case "ALT":
-            isValid &&= ev.altKey;
-            break;
-
-          case "SHIFT":
-            isValid &&= ev.shiftKey;
-            break;
-
-          default:
-            isValid &&= key === ev.key.toUpperCase();
-        }
-      }
-
-      return isValid;
-    };
-
-    const handleKey = (ev: KeyboardEvent) => {
-      setSidebarPage((page) => {
-        const keybindPage = SIDEBAR.find(
-          (p) => p.keybind && isKeybindValid(p.keybind, ev)
-        );
-        if (!keybindPage) return page;
-
-        // Prevent default keybind
-        ev.preventDefault();
-
-        const closeCondition = width !== 0 && page === keybindPage.name;
-        setWidth(closeCondition ? 0 : oldWidth);
-        return keybindPage.name;
-      });
-    };
-
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [width, oldWidth]);
+  useKeybind(
+    SIDEBAR.filter((p) => !!p.keybind).map((p) => ({
+      keybind: p.keybind!,
+      handle: () => {
+        setSidebarPage((page) => {
+          const closeCondition = width !== 0 && page === p.name;
+          setWidth(closeCondition ? 0 : oldWidth);
+          return p.name;
+        });
+      },
+    })),
+    [width, oldWidth]
+  );
 
   return (
     <Wrapper>

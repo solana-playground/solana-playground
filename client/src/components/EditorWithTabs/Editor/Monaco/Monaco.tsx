@@ -12,6 +12,7 @@ import {
 import { EventName } from "../../../../constants";
 import {
   useAsyncEffect,
+  useKeybind,
   useSendAndReceiveCustomEvent,
 } from "../../../../hooks";
 
@@ -576,23 +577,19 @@ const Monaco = () => {
   );
 
   // Format on keybind
-  useEffect(() => {
-    const handleFormatOnKeybind = (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.key.toUpperCase() === "S") {
-        e.preventDefault();
+  useKeybind(
+    {
+      keybind: "Ctrl+S",
+      handle: () => {
         if (editor?.hasTextFocus()) {
           PgTerminal.process(async () => {
             await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
           });
         }
-      }
-    };
-
-    document.addEventListener("keydown", handleFormatOnKeybind);
-    return () => {
-      document.removeEventListener("keydown", handleFormatOnKeybind);
-    };
-  }, [editor]);
+      },
+    },
+    [editor]
+  );
 
   // Default and disposable declarations
   useAsyncEffect(async () => {

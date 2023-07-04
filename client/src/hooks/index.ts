@@ -9,6 +9,7 @@ export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";
 export { useGetAndSetStatic } from "./useGetAndSetStatic";
 export { useGetStatic } from "./useGetStatic";
+export { useKeybind } from "./useKeybind";
 export { useOnClickOutside } from "./useOnClickOutside";
 export { useOnKey } from "./useOnKey";
 export { useProgramInfo } from "./useProgramInfo";

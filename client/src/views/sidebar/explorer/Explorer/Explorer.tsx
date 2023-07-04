@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import styled from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
@@ -7,7 +6,7 @@ import NoWorkspace from "./NoWorkspace";
 import Workspaces from "./Workspaces";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useNewItem } from "./useNewItem";
-import { useExplorer } from "../../../../hooks";
+import { useExplorer, useKeybind } from "../../../../hooks";
 
 const Explorer = () => {
   const { explorer } = useExplorer();
@@ -15,17 +14,11 @@ const Explorer = () => {
   const { newItem } = useNewItem();
   const { renameItem, deleteItem } = useExplorerContextMenu();
 
-  // Explorer keybinds
-  useEffect(() => {
-    const handleKey = (ev: KeyboardEvent) => {
-      if (ev.altKey && ev.key.toUpperCase() === "N") newItem();
-      else if (ev.key === "F2") renameItem();
-      else if (ev.key === "Delete") deleteItem();
-    };
-
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [newItem, renameItem, deleteItem]);
+  useKeybind([
+    { keybind: "Alt+N", handle: newItem },
+    { keybind: "F2", handle: renameItem },
+    { keybind: "Delete", handle: deleteItem },
+  ]);
 
   if (!explorer.isTemporary && !explorer.hasWorkspaces()) {
     return <NoWorkspace />;

@@ -2,13 +2,11 @@ import { useEffect } from "react";
 
 export const useOnKey = (
   key: KeyboardEvent["key"],
-  handle: (e: KeyboardEvent) => any
+  handle: (ev: KeyboardEvent) => unknown
 ) => {
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === key) {
-        handle(e);
-      }
+    const handleKey = (ev: KeyboardEvent) => {
+      if (ev.key === key) handle(ev);
     };
 
     document.addEventListener("keydown", handleKey);

@@ -17,6 +17,7 @@ import {
 } from "../../../../utils/pg";
 import {
   useAsyncEffect,
+  useKeybind,
   useSendAndReceiveCustomEvent,
 } from "../../../../hooks";
 
@@ -538,24 +539,19 @@ const CodeMirror = () => {
   );
 
   // Format on keybind
-  useEffect(() => {
-    const handleFormatOnKeybind = (e: KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.key.toUpperCase() === "S") {
-        e.preventDefault();
+  useKeybind(
+    {
+      keybind: "Ctrl+S",
+      handle: () => {
         if (editor?.hasFocus) {
           PgTerminal.process(async () => {
             await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
           });
         }
-      }
-    };
-
-    document.addEventListener("keydown", handleFormatOnKeybind);
-
-    return () => {
-      document.removeEventListener("keydown", handleFormatOnKeybind);
-    };
-  }, [editor]);
+      },
+    },
+    [editor]
+  );
 
   return <Wrapper ref={codemirrorRef} />;
 };

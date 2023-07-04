@@ -7,6 +7,7 @@ export * from "./editor";
 export * from "./explorer/";
 export * from "./framework";
 export * from "./github";
+export * from "./keybind";
 export * from "./playnet/";
 export * from "./program-info";
 export * from "./router";

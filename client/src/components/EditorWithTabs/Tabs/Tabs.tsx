@@ -1,31 +1,24 @@
-import { useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../Button";
 import { Id } from "../../../constants";
 import { PgTheme, PgWallet } from "../../../utils/pg";
-import { useExplorer, useWallet } from "../../../hooks";
+import { useExplorer, useKeybind, useWallet } from "../../../hooks";
 
 export const Tabs = () => {
   const { explorer } = useExplorer();
 
-  const tabs = explorer.getTabs();
-
   // Close current tab with keybind
-  useEffect(() => {
-    const handleKey = (ev: KeyboardEvent) => {
-      if (ev.altKey && ev.key.toUpperCase() === "W") {
-        const currentPath = explorer.getCurrentFile()?.path;
-        if (!currentPath) return;
+  useKeybind({
+    keybind: "Alt+W",
+    handle: () => {
+      const currentPath = explorer.getCurrentFile()?.path;
+      if (currentPath) explorer.closeTab(currentPath);
+    },
+  });
 
-        explorer.closeTab(currentPath);
-      }
-    };
-
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [explorer]);
+  const tabs = explorer.getTabs();
 
   if (!tabs.length) return null;
 

@@ -1,11 +1,4 @@
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
@@ -14,9 +7,15 @@ import Input from "../../../../../components/Input";
 import LangIcon from "../../../../../components/LangIcon";
 import { ctxSelectedAtom, newItemAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
-import { useOnClickOutside } from "../../../../../hooks";
+import { useKeybind, useOnClickOutside } from "../../../../../hooks";
 
 export const NewItem = () => {
+  const [el] = useAtom(newItemAtom);
+
+  return el ? ReactDOM.createPortal(<NewItemInput />, el) : null;
+};
+
+const NewItemInput = () => {
   const [el, setEl] = useAtom(newItemAtom);
   const [ctxSelected, setCtxSelected] = useAtom(ctxSelectedAtom);
 
@@ -27,64 +26,53 @@ export const NewItem = () => {
 
   const hide = useCallback(() => setEl(null), [setEl]);
 
-  useOnClickOutside(newFileRef, hide, !!el);
+  useOnClickOutside(newFileRef, hide);
 
-  // Only allow setting filename with Enter
-  // Escape closes the input
-  const handleKeyPress = useCallback(
-    async (ev: KeyboardEvent) => {
-      if (ev.key === "Enter") {
-        if (!itemName) return;
+  // Handle keybinds
+  useKeybind(
+    [
+      {
+        keybind: "Enter",
+        handle: async () => {
+          if (!itemName) return;
 
-        // Check if the command is coming from context menu
-        let selected = ctxSelected;
-        if (!selected) selected = PgExplorer.getSelectedEl();
-        const parentPath =
-          PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ?? "/";
+          // Check if the command is coming from context menu
+          const selected = ctxSelected ?? PgExplorer.getSelectedEl();
+          const parentPath =
+            PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ?? "/";
 
-        const convertedItemName =
-          itemName + (PgExplorer.getItemTypeFromName(itemName).file ? "" : "/");
+          const convertedItemName =
+            itemName +
+            (PgExplorer.getItemTypeFromName(itemName).file ? "" : "/");
 
-        const itemPath = parentPath + convertedItemName;
+          const itemPath = parentPath + convertedItemName;
 
-        try {
-          await PgExplorer.newItem(itemPath);
+          try {
+            // Create item
+            await PgExplorer.newItem(itemPath);
 
-          // File add successfull
+            // Remove input
+            setEl(null);
 
-          // Remove input
+            // Reset Ctx Selected
+            setCtxSelected(null);
+
+            // Select new file
+            PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
+          } catch (e: any) {
+            console.log(e.message);
+          }
+        },
+      },
+      {
+        keybind: "Escape",
+        handle: () => {
           setEl(null);
-
-          // Reset Ctx Selected
-          setCtxSelected(null);
-
-          // Select new file
-          PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
-        } catch (e: any) {
-          console.log(e.message);
-        }
-      } else if (ev.key === "Escape") setEl(null);
-    },
-    [itemName, ctxSelected, setEl, setCtxSelected]
+        },
+      },
+    ],
+    [itemName, ctxSelected]
   );
-
-  const handleChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
-    setItemName(ev.target.value);
-  }, []);
-
-  useEffect(() => {
-    if (!el) return;
-
-    inputRef.current?.focus();
-
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [el, handleKeyPress]);
-
-  // Reset item name on element change
-  useEffect(() => {
-    if (!el) setItemName("");
-  }, [el]);
 
   const depth = useMemo(() => {
     if (!el) return 0;
@@ -105,15 +93,17 @@ export const NewItem = () => {
     return PgExplorer.isTemporary ? depth - 1 : depth;
   }, [el]);
 
-  return el
-    ? ReactDOM.createPortal(
-        <Wrapper ref={newFileRef} depth={depth}>
-          <LangIcon fileName={itemName} />
-          <Input ref={inputRef} onChange={handleChange} />
-        </Wrapper>,
-        el
-      )
-    : null;
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <Wrapper ref={newFileRef} depth={depth}>
+      <LangIcon fileName={itemName} />
+      <Input ref={inputRef} onChange={(ev) => setItemName(ev.target.value)} />
+    </Wrapper>
+  );
 };
 
 const Wrapper = styled.div<{ depth: number }>`

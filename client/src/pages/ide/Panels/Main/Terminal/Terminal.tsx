@@ -24,7 +24,7 @@ import {
 } from "../../../../../utils/pg";
 import { EventName } from "../../../../../constants";
 import { useTerminal } from "./useTerminal";
-import { useExposeStatic } from "../../../../../hooks";
+import { useExposeStatic, useKeybind } from "../../../../../hooks";
 
 const Terminal = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -129,50 +129,42 @@ const Terminal = () => {
   }, []);
 
   // Keybinds
-  useEffect(() => {
-    const handleKeybinds = (e: KeyboardEvent) => {
-      const key = e.key.toUpperCase();
-      if (PgCommon.isKeyCtrlOrCmd(e)) {
-        switch (key) {
-          case "L":
-            e.preventDefault();
-            if (PgTerminal.isFocused()) {
-              clear();
-            }
-            break;
-
-          case "`":
-            e.preventDefault();
-            if (PgTerminal.isFocused()) {
-              toggleClose();
-              PgEditor.focus();
-            } else if (!height) {
-              // Terminal is minimized
-              toggleClose();
-              term.focus();
-            } else term.focus();
-
-            break;
-
-          case "M":
-            e.preventDefault();
-            toggleMaximize();
-            break;
-
-          case "J":
-            e.preventDefault();
+  useKeybind(
+    [
+      {
+        keybind: "Ctrl+L",
+        handle: () => {
+          if (PgTerminal.isFocused()) clear();
+        },
+      },
+      {
+        keybind: "Ctrl+`",
+        handle: () => {
+          if (PgTerminal.isFocused()) {
             toggleClose();
-            if (!height) term.focus();
-            else PgEditor.focus();
+            PgEditor.focus();
+          } else {
+            if (!height) toggleClose(); // Minimized
 
-            break;
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeybinds);
-    return () => document.removeEventListener("keydown", handleKeybinds);
-  }, [term, height, clear, toggleClose, toggleMaximize]);
+            term.focus();
+          }
+        },
+      },
+      {
+        keybind: "Ctrl+M",
+        handle: toggleMaximize,
+      },
+      {
+        keybind: "Ctrl+J",
+        handle: () => {
+          toggleClose();
+          if (!height) term.focus();
+          else PgEditor.focus();
+        },
+      },
+    ],
+    [term, height, clear, toggleClose, toggleMaximize]
+  );
 
   return (
     <Resizable
