@@ -3,20 +3,21 @@ import styled, { css } from "styled-components";
 import Tab from "./Tab";
 import Button from "../../Button";
 import { Id } from "../../../constants";
-import { PgTheme, PgWallet } from "../../../utils/pg";
+import { PgExplorer, PgTheme, PgWallet } from "../../../utils/pg";
 import { useExplorer, useKeybind, useWallet } from "../../../hooks";
 
 export const Tabs = () => {
   const { explorer } = useExplorer();
 
   // Close current tab with keybind
-  useKeybind({
-    keybind: "Alt+W",
-    handle: () => {
-      const currentPath = explorer.getCurrentFile()?.path;
-      if (currentPath) explorer.closeTab(currentPath);
+  useKeybind(
+    "Alt+W",
+    () => {
+      const currentPath = PgExplorer.getCurrentFile()?.path;
+      if (currentPath) PgExplorer.closeTab(currentPath);
     },
-  });
+    []
+  );
 
   const tabs = explorer.getTabs();
 

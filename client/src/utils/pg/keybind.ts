@@ -1,19 +1,33 @@
 import { PgCommon } from "./common";
 import type { Arrayable, Disposable } from "./types";
 
+/** Keys of the keybind */
+type Keybind = string;
+
+/** Handler callback for the keybind */
+type HandleKeybind = (ev: KeyboardEvent) => unknown;
+
+/** A single keybind parameters */
+type SingleKeybind = [Keybind, HandleKeybind];
+
+/** Multiple keybinds parameters */
+type MultipleKeybinds = [
+  Arrayable<{ keybind: Keybind; handle: HandleKeybind }>
+];
+
 export class PgKeybind {
   /**
-   * Add a keybind.
+   * Add keybind(s).
    *
-   * @param keybinds keybinds to add
+   * @param args keybind(s) to add
    * @returns a dispose function to clear the event
    */
-  static add(
-    keybinds: Arrayable<{
-      keybind: string;
-      handle: (ev: KeyboardEvent) => unknown;
-    }>
-  ): Disposable {
+  static add(...args: SingleKeybind | MultipleKeybinds): Disposable {
+    const keybinds =
+      typeof args[0] === "string"
+        ? { keybind: args[0], handle: args[1]! }
+        : args[0];
+
     const keybindsArray = PgCommon.toArray(keybinds);
 
     const handle = (ev: KeyboardEvent) => {

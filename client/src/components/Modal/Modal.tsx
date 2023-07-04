@@ -15,7 +15,7 @@ import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
 import { PgTheme, SyncOrAsync } from "../../utils/pg";
 import { useModal } from "./useModal";
-import { useOnKey } from "../../hooks";
+import { useKeybind } from "../../hooks";
 
 interface ModalProps {
   /** Modal title to show. If true, default is "Solana Playground" */
@@ -72,7 +72,7 @@ const Modal: FC<ModalProps> = ({
   }, [buttonProps, close]);
 
   // Submit on Enter
-  useOnKey("Enter", handleSubmit);
+  useKeybind("Enter", handleSubmit);
 
   // Take away the focus of other buttons when modal is mounted
   const focusButtonRef = useRef<HTMLButtonElement>(null);

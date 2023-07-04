@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { EventName } from "../../constants";
 import { PgCommon, PgTheme } from "../../utils/pg";
 import { useModal } from "../Modal";
-import { useOnKey, useSetStatic } from "../../hooks";
+import { useKeybind, useSetStatic } from "../../hooks";
 
 const ModalBackdrop = () => {
   const [modal, setModal] = useState<ReactElement | null>(null);
@@ -24,7 +24,7 @@ const ModalBackdrop = () => {
 
   // Close modal on ESC
   const { close } = useModal();
-  useOnKey("Escape", close);
+  useKeybind("Escape", close);
 
   return modal ? <Wrapper>{modal}</Wrapper> : null;
 };

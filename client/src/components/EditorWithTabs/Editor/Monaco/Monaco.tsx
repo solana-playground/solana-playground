@@ -578,15 +578,13 @@ const Monaco = () => {
 
   // Format on keybind
   useKeybind(
-    {
-      keybind: "Ctrl+S",
-      handle: () => {
-        if (editor?.hasTextFocus()) {
-          PgTerminal.process(async () => {
-            await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
-          });
-        }
-      },
+    "Ctrl+S",
+    () => {
+      if (editor?.hasTextFocus()) {
+        PgTerminal.process(async () => {
+          await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
+        });
+      }
     },
     [editor]
   );

@@ -22,7 +22,7 @@ import Input from "../../../../components/Input";
 import useUpdateTxVals, { Identifiers } from "./useUpdateTxVals";
 import { Close, MinusFilled, PlusFilled } from "../../../../components/Icons";
 import { PgAccount, PgProgramInfo, PgTest, Seed } from "../../../../utils/pg";
-import { useOnClickOutside, useOnKey, useWallet } from "../../../../hooks";
+import { useKeybind, useOnClickOutside, useWallet } from "../../../../hooks";
 
 interface AccountProps {
   account: IdlAccount;
@@ -227,7 +227,7 @@ const ShowSeed: FC<ShowSeedProps> = ({ setVal, closeSeed, removeSignerKp }) => {
   }, [seeds, programId, setVal, removeSignerKp, closeSeed]);
 
   // Submit on Enter
-  useOnKey("Enter", handleGen);
+  useKeybind("Enter", handleGen);
 
   return (
     <ShowGenWrapper>
@@ -488,7 +488,7 @@ const ShowAta: FC<ShowAtaProps> = ({
   }, [mint, owner, setVal, removeSignerKp, closeAta]);
 
   // Submit on Enter
-  useOnKey("Enter", handleGen);
+  useKeybind("Enter", handleGen);
 
   return (
     <ShowGenWrapper>

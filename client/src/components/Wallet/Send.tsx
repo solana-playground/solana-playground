@@ -6,7 +6,7 @@ import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
 import { PgCommon, PgTerminal, PgTheme, PgTx, PgWallet } from "../../utils/pg";
-import { useBalance, useOnKey } from "../../hooks";
+import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
@@ -87,7 +87,7 @@ const SendExpanded = () => {
     });
   };
 
-  useOnKey("Enter", send);
+  useKeybind("Enter", send);
 
   return (
     <ExpandedWrapper>

@@ -540,15 +540,13 @@ const CodeMirror = () => {
 
   // Format on keybind
   useKeybind(
-    {
-      keybind: "Ctrl+S",
-      handle: () => {
-        if (editor?.hasFocus) {
-          PgTerminal.process(async () => {
-            await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
-          });
-        }
-      },
+    "Ctrl+S",
+    () => {
+      if (editor?.hasFocus) {
+        PgTerminal.process(async () => {
+          await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
+        });
+      }
     },
     [editor]
   );

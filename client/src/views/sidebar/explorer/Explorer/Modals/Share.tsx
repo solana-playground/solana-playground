@@ -12,7 +12,7 @@ import { Checkmark, Sad } from "../../../../../components/Icons";
 import { HelpTooltip } from "../../../../../components/Tooltip";
 import { CLIENT_URL } from "../../../../../constants";
 import { PgCommon, PgShare } from "../../../../../utils/pg";
-import { useOnKey } from "../../../../../hooks";
+import { useKeybind } from "../../../../../hooks";
 
 interface TextState {
   kind?: "success" | "error";
@@ -40,7 +40,7 @@ export const Share = () => {
 
   const { close } = useModal();
 
-  useOnKey("Enter", () => {
+  useKeybind("Enter", () => {
     if (textState.id) close();
     else share();
   });

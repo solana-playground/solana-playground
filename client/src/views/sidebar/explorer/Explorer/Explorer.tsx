@@ -14,11 +14,14 @@ const Explorer = () => {
   const { newItem } = useNewItem();
   const { renameItem, deleteItem } = useExplorerContextMenu();
 
-  useKeybind([
-    { keybind: "Alt+N", handle: newItem },
-    { keybind: "F2", handle: renameItem },
-    { keybind: "Delete", handle: deleteItem },
-  ]);
+  useKeybind(
+    [
+      { keybind: "Alt+N", handle: newItem },
+      { keybind: "F2", handle: renameItem },
+      { keybind: "Delete", handle: deleteItem },
+    ],
+    []
+  );
 
   if (!explorer.isTemporary && !explorer.hasWorkspaces()) {
     return <NoWorkspace />;

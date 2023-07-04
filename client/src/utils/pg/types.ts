@@ -114,3 +114,8 @@ export type Arrayable<T> = T | T[];
 
 /** Given type `T` or `string` with intellisense for the initial type */
 export type OrString<T> = T | (string & {});
+
+/** Add optional `React.DependencyList` for parameters */
+export type WithOptionalDependencyList<T extends unknown[]> =
+  | T
+  | [...T, React.DependencyList];

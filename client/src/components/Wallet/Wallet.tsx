@@ -16,8 +16,8 @@ import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
 import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
 import {
+  useKeybind,
   useOnClickOutside,
-  useOnKey,
   useRenderOnChange,
   useWallet,
 } from "../../hooks";
@@ -216,14 +216,20 @@ const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
   // Close on outside clicks
   useOnClickOutside(inputRef, hideRename);
 
-  // Close with `Escape`
-  useOnKey("Escape", hideRename);
-
-  // Submit with `Enter`
-  useOnKey("Enter", () => {
-    PgWallet.rename(name);
-    hideRename();
-  });
+  // Keybinds
+  useKeybind([
+    {
+      keybind: "Enter",
+      handle: () => {
+        PgWallet.rename(name);
+        hideRename();
+      },
+    },
+    {
+      keybind: "Escape",
+      handle: hideRename,
+    },
+  ]);
 
   return (
     <div>

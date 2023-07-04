@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled from "styled-components";
 
 import { ClassName } from "../../constants";
-import { useOnKey } from "../../hooks";
+import { useKeybind } from "../../hooks";
 
 interface MenuWrapperProps extends ComponentPropsWithoutRef<"div"> {
   hide: () => void;
@@ -10,7 +10,7 @@ interface MenuWrapperProps extends ComponentPropsWithoutRef<"div"> {
 
 export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
   ({ hide, className, children, ...props }, ref) => {
-    useOnKey("Escape", hide);
+    useKeybind("Escape", hide);
 
     return (
       <Wrapper
