@@ -39,7 +39,8 @@ const NewItemInput = () => {
           // Check if the command is coming from context menu
           const selected = ctxSelected ?? PgExplorer.getSelectedEl();
           const parentPath =
-            PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ?? "/";
+            PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ??
+            PgExplorer.PATHS.ROOT_DIR_PATH;
 
           const convertedItemName =
             itemName +
@@ -77,6 +78,7 @@ const NewItemInput = () => {
   const depth = useMemo(() => {
     if (!el) return 0;
     let path = PgExplorer.getItemPathFromEl(el.firstChild as HTMLDivElement);
+    const isEmptyFolder = !path;
 
     // Empty folder
     if (!path) {
@@ -87,10 +89,11 @@ const NewItemInput = () => {
     }
     const itemType = PgExplorer.getItemTypeFromPath(path);
 
-    if (!PgExplorer.isTemporary) path = PgExplorer.getRelativePath(path);
+    // Make `path` relative for consistency between temporary and normal projects
+    if (PgExplorer.isTemporary) path = path.slice(1);
+    else path = PgExplorer.getRelativePath(path);
 
-    const depth = path.split("/").length - (itemType.folder ? 1 : 0);
-    return PgExplorer.isTemporary ? depth - 1 : depth;
+    return path.split("/").length - (itemType.file || isEmptyFolder ? 0 : 1);
   }, [el]);
 
   // Focus input on mount
