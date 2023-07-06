@@ -373,10 +373,6 @@ const CodeMirror = () => {
             return;
           }
 
-          if (ev?.fromTerminal) {
-            PgTerminal.log(PgTerminal.success("Format successful."));
-          }
-
           const formattedCode = result.code!();
 
           let cursorOffset = editor.state.selection.ranges[0].from;
@@ -416,6 +412,10 @@ const CodeMirror = () => {
               head: cursorOffset,
             },
           });
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
         };
       }
 
@@ -434,10 +434,6 @@ const CodeMirror = () => {
             cursorOffset: editor.state.selection.ranges[0].from,
           });
 
-          if (ev?.fromTerminal) {
-            PgTerminal.log(PgTerminal.success("Format successful."));
-          }
-
           editor.dispatch({
             changes: {
               from: 0,
@@ -449,6 +445,10 @@ const CodeMirror = () => {
               head: result.cursorOffset,
             },
           });
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
         };
       }
 

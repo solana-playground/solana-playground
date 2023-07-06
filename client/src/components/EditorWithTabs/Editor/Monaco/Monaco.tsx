@@ -365,7 +365,7 @@ const Monaco = () => {
 
           let result;
           try {
-            result = rustfmt!(currentContent);
+            result = rustfmt(currentContent);
           } catch (e: any) {
             result = { error: () => e.message };
           }
@@ -374,16 +374,16 @@ const Monaco = () => {
             return;
           }
 
-          if (ev?.fromTerminal) {
-            PgTerminal.log(PgTerminal.success("Format successful."));
-          }
-
           const pos = editor.getPosition();
           if (!pos) return;
           let cursorOffset = model.getOffsetAt(pos);
+
           const currentLine = model.getLineContent(pos.lineNumber);
           const beforeLine = model.getLineContent(pos.lineNumber - 1);
-          const afterLine = model.getLineContent(pos.lineNumber + 1);
+          const afterLine =
+            pos.lineNumber === model.getLineCount()
+              ? ""
+              : model.getLineContent(pos.lineNumber + 1);
           const searchText = [beforeLine, currentLine, afterLine].reduce(
             (acc, cur) => acc + cur + "\n",
             ""
@@ -426,6 +426,10 @@ const Monaco = () => {
 
           const resultPos = model.getPositionAt(cursorOffset);
           editor.setPosition(resultPos);
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
         };
       }
 
@@ -451,10 +455,6 @@ const Monaco = () => {
             cursorOffset: model.getOffsetAt(pos),
           });
 
-          if (ev?.fromTerminal) {
-            PgTerminal.log(PgTerminal.success("Format successful."));
-          }
-
           const endLineNumber = model.getLineCount();
           const endColumn = model.getLineContent(endLineNumber).length + 1;
 
@@ -473,6 +473,10 @@ const Monaco = () => {
 
           const resultPos = model.getPositionAt(result.cursorOffset);
           editor.setPosition(resultPos);
+
+          if (ev?.fromTerminal) {
+            PgTerminal.log(PgTerminal.success("Format successful."));
+          }
         };
       }
 
