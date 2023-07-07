@@ -15,11 +15,7 @@ import {
   PgCommand,
   PgTheme,
 } from "../../../../utils/pg";
-import {
-  useAsyncEffect,
-  useKeybind,
-  useSendAndReceiveCustomEvent,
-} from "../../../../hooks";
+import { useKeybind, useSendAndReceiveCustomEvent } from "../../../../hooks";
 
 const CodeMirror = () => {
   const theme = useTheme();
@@ -181,7 +177,7 @@ const CodeMirror = () => {
   }, [editorTheme]);
 
   // When user switches files or editor changed
-  useAsyncEffect(async () => {
+  useEffect(() => {
     if (!editor) return;
     let topLineIntervalId: NodeJS.Timer;
 
@@ -270,66 +266,17 @@ const CodeMirror = () => {
           ).number
         );
       }, 1000);
+
+      // Focus the editor
+      editor.focus();
     });
 
     return () => {
       clearInterval(topLineIntervalId);
       dispose();
     };
-  }, [editor]);
 
-  // Update programId
-  useEffect(() => {
-    if (!editor) return;
-
-    const getProgramIdStartAndEndIndex = (
-      content: string,
-      isPython?: boolean
-    ) => {
-      const findText = isPython ? "declare_id" : "declare_id!";
-      const findTextIndex = content.indexOf(findText);
-      if (!content || !findTextIndex || findTextIndex === -1) return;
-      const quoteStartIndex = findTextIndex + findText.length + 1;
-      const quoteChar = content[quoteStartIndex];
-      const quoteEndIndex = content.indexOf(quoteChar, quoteStartIndex + 1);
-
-      return [quoteStartIndex, quoteEndIndex];
-    };
-
-    const updateId = async () => {
-      const programPkStr = PgProgramInfo.getPkStr();
-      if (!programPkStr) return;
-
-      // Update in editor
-      const currentLang = PgExplorer.getCurrentFileLanguage();
-      const isRust = currentLang === Lang.RUST;
-      const isPython = currentLang === Lang.PYTHON;
-      if (!isRust && !isPython) return;
-
-      const editorContent = editor.state.doc.toString();
-      const indices = getProgramIdStartAndEndIndex(editorContent, isPython);
-      if (!indices) return;
-      const [quoteStartIndex, quoteEndIndex] = indices;
-
-      try {
-        editor.dispatch({
-          changes: {
-            from: quoteStartIndex + 1,
-            to: quoteEndIndex,
-            insert: programPkStr,
-          },
-        });
-      } catch (e: any) {
-        console.log("Program ID update error:", e.message);
-      }
-    };
-
-    const { dispose } = PgCommon.batchChanges(updateId, [
-      PgCommand.build.onDidRunStart,
-      PgProgramInfo.onDidChangePk,
-    ]);
-
-    return () => dispose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
   // Editor custom events
@@ -550,6 +497,60 @@ const CodeMirror = () => {
     },
     [editor]
   );
+
+  // Update program id
+  useEffect(() => {
+    if (!editor) return;
+
+    const getProgramIdStartAndEndIndex = (
+      content: string,
+      isPython?: boolean
+    ) => {
+      const findText = isPython ? "declare_id" : "declare_id!";
+      const findTextIndex = content.indexOf(findText);
+      if (!content || !findTextIndex || findTextIndex === -1) return;
+      const quoteStartIndex = findTextIndex + findText.length + 1;
+      const quoteChar = content[quoteStartIndex];
+      const quoteEndIndex = content.indexOf(quoteChar, quoteStartIndex + 1);
+
+      return [quoteStartIndex, quoteEndIndex];
+    };
+
+    const updateId = async () => {
+      const programPkStr = PgProgramInfo.getPkStr();
+      if (!programPkStr) return;
+
+      // Update in editor
+      const currentLang = PgExplorer.getCurrentFileLanguage();
+      const isRust = currentLang === Lang.RUST;
+      const isPython = currentLang === Lang.PYTHON;
+      if (!isRust && !isPython) return;
+
+      const editorContent = editor.state.doc.toString();
+      const indices = getProgramIdStartAndEndIndex(editorContent, isPython);
+      if (!indices) return;
+      const [quoteStartIndex, quoteEndIndex] = indices;
+
+      try {
+        editor.dispatch({
+          changes: {
+            from: quoteStartIndex + 1,
+            to: quoteEndIndex,
+            insert: programPkStr,
+          },
+        });
+      } catch (e: any) {
+        console.log("Program ID update error:", e.message);
+      }
+    };
+
+    const { dispose } = PgCommon.batchChanges(updateId, [
+      PgCommand.build.onDidRunStart,
+      PgProgramInfo.onDidChangePk,
+    ]);
+
+    return () => dispose();
+  }, [editor]);
 
   return <Wrapper ref={codemirrorRef} />;
 };

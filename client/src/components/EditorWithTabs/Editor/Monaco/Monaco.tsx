@@ -227,7 +227,7 @@ const Monaco = () => {
   }, [editor, isThemeSet]);
 
   // Set editor state
-  useAsyncEffect(async () => {
+  useEffect(() => {
     if (!editor) return;
     let topLineIntervalId: NodeJS.Timer;
     let model: monaco.editor.ITextModel;
@@ -286,6 +286,9 @@ const Monaco = () => {
           editor.getVisibleRanges()[0].startLineNumber
         );
       }, 1000);
+
+      // Focus the editor
+      editor.focus();
     });
 
     return () => {
@@ -609,7 +612,7 @@ const Monaco = () => {
   }, []);
 
   // Importable declarations
-  useAsyncEffect(async () => {
+  useEffect(() => {
     if (!editor) return;
     let declareImportablesTimoutId: NodeJS.Timer;
 
@@ -620,9 +623,7 @@ const Monaco = () => {
       await declareImportableTypes(editor.getValue());
     };
 
-    const switchFile = PgExplorer.onDidSwitchFile(async () => {
-      await declareImportables();
-    });
+    const switchFile = PgExplorer.onDidSwitchFile(declareImportables);
 
     const changeContent = editor.onDidChangeModelContent(() => {
       clearTimeout(declareImportablesTimoutId);
