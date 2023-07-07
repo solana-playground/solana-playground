@@ -32,8 +32,21 @@ interface ItemMeta {
   current?: boolean;
   /** Whether the file is in tabs */
   tabs?: boolean;
+  /** Position data */
+  position?: Position;
+}
+
+/** Editor position data */
+export interface Position {
   /** Editor's visible top line number */
-  topLineNumber?: number;
+  topLineNumber: number;
+  /** Editor cursor position */
+  cursor: {
+    /** Start index */
+    from: number;
+    /** End index */
+    to: number;
+  };
 }
 
 /** Folder content */

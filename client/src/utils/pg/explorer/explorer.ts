@@ -11,6 +11,7 @@ import type {
   FullFile,
   ItemMetaFile,
   ExplorerFiles,
+  Position,
 } from "./types";
 
 /**
@@ -605,7 +606,9 @@ export class PgExplorer {
   }
 
   /**
-   * @returns all the files from state that are in tabs
+   * Get all files that are in tabs.
+   *
+   * @returns tab files from state
    */
   static getTabs() {
     const files = this.files;
@@ -613,15 +616,7 @@ export class PgExplorer {
 
     for (const path in files) {
       const meta = files[path].meta;
-
-      if (meta?.tabs)
-        tabs.push({
-          path,
-          meta: {
-            current: meta.current,
-            topLineNumber: meta.topLineNumber,
-          },
-        });
+      if (meta?.tabs) tabs.push({ path, meta });
     }
 
     return tabs;
@@ -728,24 +723,31 @@ export class PgExplorer {
   }
 
   /**
-   * Get the visible top line number in editor from state.
+   * Get the position data for the file from state.
    *
    * @param path file path
-   * @returns the file's top line number
+   * @returns the file's position data
    */
-  static getEditorTopLineNumber(path: string) {
-    return this.getFile(path)?.meta?.topLineNumber;
+  static getEditorPosition(path: string): Position {
+    return (
+      this.getFile(path)?.meta?.position ?? {
+        cursor: { from: 0, to: 0 },
+        topLineNumber: 1,
+      }
+    );
   }
 
   /**
-   * Save the first visible top line number in editor to state
+   * Save editor position data to state.
    *
-   * @param path Full path to the file
-   * @param topLineNumber Visible top line number
+   * @param path file path
+   * @param position position data
    */
-  static saveEditorTopLineNumber(path: string, topLineNumber: number) {
-    if (!this.files[path]) return;
-    this.files[path].meta = { ...this.files[path].meta, topLineNumber };
+  static saveEditorPosition(path: string, position: Position) {
+    path = this.convertToFullPath(path);
+
+    this.files[path].meta ??= {};
+    this.files[path].meta!.position = position;
   }
 
   /**

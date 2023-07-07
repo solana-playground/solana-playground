@@ -179,13 +179,13 @@ const CodeMirror = () => {
   // When user switches files or editor changed
   useEffect(() => {
     if (!editor) return;
-    let topLineIntervalId: NodeJS.Timer;
+    let positionDataIntervalId: NodeJS.Timer;
 
     const { dispose } = PgExplorer.onDidSwitchFile((curFile) => {
       if (!curFile) return;
 
       // Clear previous state
-      topLineIntervalId && clearInterval(topLineIntervalId);
+      positionDataIntervalId && clearInterval(positionDataIntervalId);
 
       // Change editor state
       const languageCompartment = new Compartment();
@@ -248,31 +248,43 @@ const CodeMirror = () => {
         }
       })();
 
-      // Scroll to the top line number
-      const topLineNumber = PgExplorer.getEditorTopLineNumber(curFile.path);
-      const pos = topLineNumber ? editor.state.doc.line(topLineNumber).from : 0;
-      editor.dispatch({
-        effects: EditorView.scrollIntoView(pos, { y: "start", yMargin: 0 }),
-      });
+      // Get position data
+      const position = PgExplorer.getEditorPosition(curFile.path);
 
-      // Save top line number
-      topLineIntervalId = PgCommon.setIntervalOnFocus(() => {
-        PgExplorer.saveEditorTopLineNumber(
-          curFile.path,
-          editor.state.doc.lineAt(
-            editor.lineBlockAtHeight(
-              editor.scrollDOM.getBoundingClientRect().top - editor.documentTop
-            ).from
-          ).number
-        );
-      }, 1000);
+      // Scroll to the saved position and set the cursor position
+      editor.dispatch(
+        {
+          effects: EditorView.scrollIntoView(position.topLineNumber, {
+            y: "start",
+            yMargin: 0,
+          }),
+        },
+        {
+          selection: { anchor: position.cursor.from, head: position.cursor.to },
+        }
+      );
 
       // Focus the editor
       editor.focus();
+
+      // Save position data
+      positionDataIntervalId = setInterval(() => {
+        PgExplorer.saveEditorPosition(curFile.path, {
+          cursor: {
+            from: editor.state.selection.main.anchor,
+            to: editor.state.selection.main.head,
+          },
+          topLineNumber: editor.state.doc.lineAt(
+            editor.lineBlockAtHeight(
+              editor.scrollDOM.getBoundingClientRect().top - editor.documentTop
+            ).from
+          ).number,
+        });
+      }, 1000);
     });
 
     return () => {
-      clearInterval(topLineIntervalId);
+      clearInterval(positionDataIntervalId);
       dispose();
     };
 

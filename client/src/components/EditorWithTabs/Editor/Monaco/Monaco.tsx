@@ -229,14 +229,14 @@ const Monaco = () => {
   // Set editor state
   useEffect(() => {
     if (!editor) return;
-    let topLineIntervalId: NodeJS.Timer;
     let model: monaco.editor.ITextModel;
+    let positionDataIntervalId: NodeJS.Timer;
 
     const switchFile = PgExplorer.onDidSwitchFile((curFile) => {
       if (!curFile) return;
 
       // Clear previous state
-      clearInterval(topLineIntervalId);
+      positionDataIntervalId && clearInterval(positionDataIntervalId);
       model?.dispose();
 
       // Set editor model
@@ -274,25 +274,46 @@ const Monaco = () => {
         }
       }
 
-      // Scroll to the top line number
-      const topLineNumber = PgExplorer.getEditorTopLineNumber(curFile.path);
-      const pos = topLineNumber ? editor.getTopForLineNumber(topLineNumber) : 0;
-      editor.setScrollTop(pos);
+      // Get position data
+      const position = PgExplorer.getEditorPosition(curFile.path);
 
-      // Save top line number
-      topLineIntervalId = PgCommon.setIntervalOnFocus(() => {
-        PgExplorer.saveEditorTopLineNumber(
-          curFile.path,
-          editor.getVisibleRanges()[0].startLineNumber
-        );
-      }, 1000);
+      // Scroll to the saved line
+      editor.setScrollTop(
+        position.topLineNumber
+          ? editor.getTopForLineNumber(position.topLineNumber)
+          : 0
+      );
+
+      // Set the cursor position
+      const startPosition = model.getPositionAt(position.cursor.from);
+      const endPosition = model.getPositionAt(position.cursor.to);
+      editor.setSelection({
+        startLineNumber: startPosition.lineNumber,
+        startColumn: startPosition.column,
+        endLineNumber: endPosition.lineNumber,
+        endColumn: endPosition.column,
+      });
 
       // Focus the editor
       editor.focus();
+
+      // Save position data
+      positionDataIntervalId = setInterval(() => {
+        const selection = editor.getSelection();
+        if (!selection) return;
+
+        PgExplorer.saveEditorPosition(curFile.path, {
+          cursor: {
+            from: model.getOffsetAt(selection.getStartPosition()),
+            to: model.getOffsetAt(selection.getEndPosition()),
+          },
+          topLineNumber: editor.getVisibleRanges()[0].startLineNumber,
+        });
+      }, 1000);
     });
 
     return () => {
-      clearInterval(topLineIntervalId);
+      clearInterval(positionDataIntervalId);
       model?.dispose();
       switchFile.dispose();
     };
