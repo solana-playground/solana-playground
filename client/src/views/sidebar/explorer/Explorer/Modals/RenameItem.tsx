@@ -45,9 +45,11 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
     >
       <Input
         ref={inputRef}
-        onChange={handleChange}
         value={newName}
+        onChange={handleChange}
         error={error}
+        setError={setError}
+        validator={PgExplorer.isItemNameValid}
       />
     </Modal>
   );

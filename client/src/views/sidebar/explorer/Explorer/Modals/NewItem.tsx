@@ -104,7 +104,11 @@ const NewItemInput = () => {
   return (
     <Wrapper ref={newFileRef} depth={depth}>
       <LangIcon fileName={itemName} />
-      <Input ref={inputRef} onChange={(ev) => setItemName(ev.target.value)} />
+      <Input
+        ref={inputRef}
+        onChange={(ev) => setItemName(ev.target.value)}
+        validator={PgExplorer.isItemNameValid}
+      />
     </Wrapper>
   );
 };
