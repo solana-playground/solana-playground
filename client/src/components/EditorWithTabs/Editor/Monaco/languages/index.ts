@@ -1,0 +1,1 @@
+export { initLanguages } from "./init";

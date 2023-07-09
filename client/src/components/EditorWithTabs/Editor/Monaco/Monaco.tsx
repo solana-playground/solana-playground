@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
+import { EventName } from "../../../../constants";
 import {
   Lang,
   PgCommand,
@@ -11,7 +12,6 @@ import {
   PgProgramInfo,
   PgTerminal,
 } from "../../../../utils/pg";
-import { EventName } from "../../../../constants";
 import {
   useAsyncEffect,
   useKeybind,

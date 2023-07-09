@@ -28,10 +28,17 @@ module.exports = {
           test: /@lezer\/lr\/dist\/\w+\.js$/,
           resolve: { fullySpecified: false },
         },
+
         // Raw imports
         {
           test: /\.(d\.ts|raw|rs|py|md)$/,
           type: "asset/source",
+        },
+
+        // Resource query
+        {
+          resourceQuery: /resource/,
+          type: "asset/resource",
         }
       );
 
