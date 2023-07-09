@@ -1524,7 +1524,7 @@ export class PgExplorer {
    */
   static isItemNameValid(name: string) {
     return (
-      !!name.match(/^(?![./])[\w.-/]+(?![./])$/) &&
+      !!name.match(/^(?![./])[\w.-/]+/) &&
       !name.includes("//") &&
       !name.includes("..") &&
       !name.endsWith("/") &&

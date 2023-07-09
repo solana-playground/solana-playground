@@ -20,6 +20,7 @@ const NewItemInput = () => {
   const [ctxSelected, setCtxSelected] = useAtom(ctxSelectedAtom);
 
   const [itemName, setItemName] = useState("");
+  const [error, setError] = useState(false);
 
   const newFileRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,6 +36,8 @@ const NewItemInput = () => {
         keybind: "Enter",
         handle: async () => {
           if (!itemName) return;
+
+          setError(false);
 
           // Check if the command is coming from context menu
           const selected = ctxSelected ?? PgExplorer.getSelectedEl();
@@ -62,6 +65,7 @@ const NewItemInput = () => {
             PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
           } catch (e: any) {
             console.log(e.message);
+            setError(true);
           }
         },
       },
@@ -106,8 +110,12 @@ const NewItemInput = () => {
       <LangIcon fileName={itemName} />
       <Input
         ref={inputRef}
-        onChange={(ev) => setItemName(ev.target.value)}
-        validator={PgExplorer.isItemNameValid}
+        onChange={(ev) => {
+          setItemName(ev.target.value);
+          setError(false);
+        }}
+        error={error}
+        setError={setError}
       />
     </Wrapper>
   );
