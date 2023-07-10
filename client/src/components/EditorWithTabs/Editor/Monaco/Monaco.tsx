@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
+import { initLanguages } from "./languages";
 import { EventName } from "../../../../constants";
 import {
+  Highlight,
   Lang,
   PgCommand,
   PgCommon,
@@ -53,16 +55,262 @@ const Monaco = () => {
   const theme = useTheme();
 
   // Set theme
-  useEffect(() => {
+  useAsyncEffect(async () => {
+    const editorStyles = theme.components.editor;
+    const hl = theme.highlight;
+
+    const createSettings = (token: Highlight[keyof Highlight]) => ({
+      foreground: token.color,
+      fontStyle: token.fontStyle,
+    });
+
+    // Initialize language grammars and configurations
+    await initLanguages({
+      name: theme.name,
+      settings: [
+        /////////////////////////////// Default ///////////////////////////////
+        {
+          // Can't directly set scrollbar background.
+          // See https://github.com/microsoft/monaco-editor/issues/908#issuecomment-433739458
+          name: "Defaults",
+
+          settings: {
+            background:
+              // Transparent background results with a full black background
+              editorStyles.default.bg === "transparent"
+                ? theme.colors.default.bgPrimary
+                : editorStyles.default.bg,
+            foreground: editorStyles.default.color,
+          },
+        },
+
+        /////////////////////////////// Boolean //////////////////////////////
+        {
+          name: "Boolean",
+          scope: ["constant.language.bool", "constant.language.boolean"],
+          settings: createSettings(hl.bool),
+        },
+
+        /////////////////////////////// Integer //////////////////////////////
+        {
+          name: "Integers",
+          scope: [
+            "constant.numeric.decimal",
+            "constant.numeric.dec",
+            "constant.numeric.hex",
+            "constant.numeric.oct",
+            "constant.numeric.bin",
+          ],
+          settings: createSettings(hl.integer),
+        },
+
+        /////////////////////////////// String ///////////////////////////////
+        {
+          name: "Strings",
+          scope: [
+            "string.quoted.single",
+            "string.quoted.double",
+            "string.template.ts",
+          ],
+          settings: createSettings(hl.string),
+        },
+
+        //////////////////////////////// Regex ////////////////////////////////
+        {
+          name: "Regular expressions",
+          scope: ["string.regexp.ts"],
+          settings: createSettings(hl.regexp),
+        },
+
+        ////////////////////////////// Function //////////////////////////////
+        {
+          name: "Functions",
+          scope: ["entity.name.function", "meta.function-call.generic.python"],
+          settings: createSettings(hl.functionCall),
+        },
+        {
+          name: "Function parameter",
+          scope: [
+            "variable.parameter",
+            "variable.parameter.ts",
+            "entity.name.variable.parameter",
+            "variable.other.jsdoc",
+          ],
+          settings: createSettings(hl.functionArg),
+        },
+
+        ////////////////////////////// Constant //////////////////////////////
+        {
+          name: "Constants",
+          scope: [
+            "variable.other.constant.ts",
+            "variable.other.constant.property.ts",
+          ],
+          settings: createSettings(hl.constant),
+        },
+
+        ////////////////////////////// Variable //////////////////////////////
+        {
+          name: "Variables",
+          scope: [
+            "variable.other",
+            "variable.object.property.ts",
+            "meta.object-literal.key.ts",
+          ],
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: "Special variable",
+          scope: [
+            "variable.language.self.rust",
+            "variable.language.super.rust",
+            "variable.language.this.ts",
+          ],
+          settings: createSettings(hl.specialVariable),
+        },
+
+        ////////////////////////////// Keyword ///////////////////////////////
+        {
+          name: "Storage types",
+          scope: "storage.type",
+          settings: createSettings(hl.keyword),
+        },
+        {
+          name: "Storage modifiers",
+          scope: "storage.modifier",
+          settings: createSettings(hl.modifier),
+        },
+        {
+          name: "Control keywords",
+          scope: "keyword.control",
+          settings: createSettings(hl.controlKeyword),
+        },
+        {
+          name: "Other",
+          scope: ["keyword.other", "keyword.operator.new.ts"],
+          settings: createSettings(hl.keyword),
+        },
+
+        ////////////////////////////// Operator ///////////////////////////////
+        {
+          name: "Operators",
+          scope: [
+            "keyword.operator",
+            "punctuation.separator.key-value",
+            "storage.type.function.arrow.ts",
+          ],
+          settings: createSettings(hl.operator),
+        },
+
+        //////////////////////////////// Type ////////////////////////////////
+        {
+          name: "Types",
+          scope: [
+            "entity.name.type",
+            "support.type",
+            "entity.other.inherited-class.python",
+          ],
+          settings: createSettings(hl.typeName),
+        },
+
+        ///////////////////////////// Punctuation //////////////////////////////
+        {
+          name: ".",
+          scope: ["punctuation.accessor", "punctuation.separator.period"],
+          settings: createSettings(hl.operator),
+        },
+        {
+          name: ",",
+          scope: "punctuation.separator.comma",
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: ";",
+          scope: "punctuation.terminator.statement",
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: "${}",
+          scope: [
+            "punctuation.definition.template-expression.begin.ts",
+            "punctuation.definition.template-expression.end.ts",
+          ],
+          settings: createSettings(hl.modifier),
+        },
+
+        /////////////////////////////// Import ///////////////////////////////
+        {
+          name: "`import`",
+          scope: "keyword.control.import.ts",
+          settings: createSettings(hl.keyword),
+        },
+        {
+          name: "import `*`",
+          scope: "constant.language.import-export-all.ts",
+          settings: createSettings(hl.constant),
+        },
+        {
+          name: "import * `as`",
+          scope: "keyword.control.as.ts",
+          settings: createSettings(hl.controlKeyword),
+        },
+        {
+          name: "import * as `alias`",
+          scope: "variable.other.readwrite.alias.ts",
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: "import * as alias `from`",
+          scope: "keyword.control.from.ts",
+          settings: createSettings(hl.keyword),
+        },
+
+        //////////////////////////////// Macros ///////////////////////////////
+        {
+          name: "Macros",
+          scope: [
+            "meta.attribute.rust",
+            "entity.name.function.decorator.python",
+          ],
+          settings: createSettings(hl.meta),
+        },
+
+        ////////////////////////////// Comment //////////////////////////////
+        {
+          name: "Comments",
+          scope: [
+            "comment.line",
+            "comment.block.documentation",
+            "punctuation.definition.comment.ts",
+          ],
+          settings: createSettings(hl.lineComment),
+        },
+        {
+          name: "JSDoc comments",
+          scope: [
+            "punctuation.definition.block.tag.jsdoc",
+            "storage.type.class.jsdoc",
+          ],
+          settings: createSettings(hl.keyword),
+        },
+
+        //////////////////////////////// Rust /////////////////////////////////
+        {
+          name: "Lifetimes",
+          scope: [
+            "punctuation.definition.lifetime.rust",
+            "entity.name.type.lifetime.rust",
+          ],
+          settings: createSettings(hl.specialVariable),
+        },
+      ],
+    });
+
     if (theme.isDark) {
       // Monaco only takes hex values
       const orTransparent = (v: string) => {
         return v === "transparent" || v === "inherit" ? "#00000000" : v;
       };
-
-      const editorStyles = theme.components.editor;
-      const inputStyles = theme.components.input;
-      const hl = theme.highlight;
 
       monaco.editor.defineTheme(theme.name, {
         base: "vs-dark",
@@ -111,9 +359,9 @@ const Monaco = () => {
           "list.highlightForeground": theme.colors.state.info.color,
 
           // Input
-          "input.background": inputStyles.bg!,
-          "input.foreground": inputStyles.color,
-          "input.border": inputStyles.borderColor,
+          "input.background": theme.components.input.bg!,
+          "input.foreground": theme.components.input.color,
+          "input.border": theme.components.input.borderColor,
           "inputOption.activeBorder":
             theme.colors.default.primary + theme.default.transparency.high,
           "input.placeholderForeground": theme.colors.default.textSecondary,
@@ -152,56 +400,15 @@ const Monaco = () => {
           "peekViewResult.matchHighlightBackground":
             editorStyles.peekView.result.matchHighlightBg,
         },
-        rules: [
-          // Can't directly set scrollbar background.
-          // See https://github.com/microsoft/monaco-editor/issues/908#issuecomment-433739458
-          {
-            token: "",
-            background:
-              // Transparent background results with a full black background
-              editorStyles.default.bg === "transparent"
-                ? theme.colors.default.bgPrimary
-                : editorStyles.default.bg,
-          },
-
-          { token: "invalid", foreground: hl.invalid.color },
-          { token: "emphasis", fontStyle: "italic" },
-
-          { token: "variable", foreground: hl.variableName.color },
-          { token: "variable.predefined", foreground: hl.variableName.color },
-          { token: "variable.parameter", foreground: hl.functionArg.color },
-          { token: "constant", foreground: hl.constant.color },
-          { token: "comment", foreground: hl.lineComment.color },
-          { token: "number", foreground: hl.integer.color },
-          { token: "number.hex", foreground: hl.integer.color },
-          { token: "regexp", foreground: hl.regexp.color },
-          { token: "annotation", foreground: hl.annotion.color },
-          { token: "type", foreground: hl.typeName.color },
-
-          { token: "tag", foreground: hl.tagName.color },
-          { token: "tag.id.pug", foreground: hl.tagName.color },
-          { token: "tag.class.pug", foreground: hl.tagName.color },
-          { token: "meta.tag", foreground: hl.meta.color },
-          { token: "metatag", foreground: hl.meta.color },
-
-          { token: "key", foreground: hl.keyword.color },
-          { token: "string.key.json", foreground: hl.typeName.color },
-          { token: "string.value.json", foreground: hl.string.color },
-
-          { token: "attribute.name", foreground: hl.attributeName.color },
-          { token: "attribute.value", foreground: hl.attributeValue.color },
-
-          { token: "string", foreground: hl.string.color },
-
-          { token: "keyword", foreground: hl.keyword.color },
-          { token: "keyword.json", foreground: hl.moduleKeyword.color },
-        ],
+        rules: [],
       });
       monaco.editor.setTheme(theme.name);
     } else {
       monaco.editor.setTheme("vs");
     }
 
+    // Sleep to go give enough time for grammars to fully take effect
+    await PgCommon.sleep(100);
     setIsThemeSet(true);
   }, [theme]);
 
@@ -219,7 +426,6 @@ const Monaco = () => {
     setEditor(
       monaco.editor.create(monacoRef.current, {
         automaticLayout: true,
-        bracketPairColorization: { enabled: true },
         fontLigatures: true,
         tabSize: 2,
       })
