@@ -435,7 +435,6 @@ const Monaco = () => {
   // Set editor state
   useEffect(() => {
     if (!editor) return;
-    let model: monaco.editor.ITextModel;
     let positionDataIntervalId: NodeJS.Timer;
 
     const switchFile = PgExplorer.onDidSwitchFile((curFile) => {
@@ -443,42 +442,19 @@ const Monaco = () => {
 
       // Clear previous state
       positionDataIntervalId && clearInterval(positionDataIntervalId);
-      model?.dispose();
+
+      // Check whether the model has already been created
+      const uriPath = curFile.path.replace(/\s*/g, "");
+      const model =
+        monaco.editor.getModels().find((model) => model.uri.path === uriPath) ??
+        monaco.editor.createModel(
+          curFile.content!,
+          undefined,
+          monaco.Uri.parse(uriPath)
+        );
 
       // Set editor model
-      model = monaco.editor.createModel(
-        curFile.content!,
-        undefined,
-        monaco.Uri.parse(curFile.path.replace(/\s*/g, ""))
-      );
       editor.setModel(model);
-
-      // Set language
-      switch (PgExplorer.getCurrentFileLanguage()) {
-        case Lang.RUST: {
-          monaco.editor.setModelLanguage(model, "rust");
-          break;
-        }
-
-        case Lang.PYTHON: {
-          monaco.editor.setModelLanguage(model, "python");
-          break;
-        }
-
-        case Lang.JAVASCRIPT: {
-          monaco.editor.setModelLanguage(model, "javascript");
-          break;
-        }
-
-        case Lang.TYPESCRIPT: {
-          monaco.editor.setModelLanguage(model, "typescript");
-          break;
-        }
-
-        case Lang.JSON: {
-          monaco.editor.setModelLanguage(model, "json");
-        }
-      }
 
       // Get position data
       const position = PgExplorer.getEditorPosition(curFile.path);
@@ -520,7 +496,7 @@ const Monaco = () => {
 
     return () => {
       clearInterval(positionDataIntervalId);
-      model?.dispose();
+      monaco.editor.getModels().forEach((model) => model.dispose());
       switchFile.dispose();
     };
   }, [editor]);
