@@ -1,2 +1,2 @@
 /** All languages with grammars and configurations */
-export const LANGUAGES = ["typescript", "rust", "python"];
+export const LANGUAGES = ["javascript", "python", "rust", "typescript"];
