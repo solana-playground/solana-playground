@@ -68,7 +68,7 @@ const Monaco = () => {
     await initLanguages({
       name: theme.name,
       settings: [
-        /////////////////////////////// Default ///////////////////////////////
+        //////////////////////////////// Default ///////////////////////////////
         {
           // Can't directly set scrollbar background.
           // See https://github.com/microsoft/monaco-editor/issues/908#issuecomment-433739458
@@ -84,14 +84,14 @@ const Monaco = () => {
           },
         },
 
-        /////////////////////////////// Boolean //////////////////////////////
+        //////////////////////////////// Boolean ///////////////////////////////
         {
           name: "Boolean",
           scope: ["constant.language.bool", "constant.language.boolean"],
           settings: createSettings(hl.bool),
         },
 
-        /////////////////////////////// Integer //////////////////////////////
+        //////////////////////////////// Integer ///////////////////////////////
         {
           name: "Integers",
           scope: [
@@ -104,7 +104,7 @@ const Monaco = () => {
           settings: createSettings(hl.integer),
         },
 
-        /////////////////////////////// String ///////////////////////////////
+        //////////////////////////////// String ////////////////////////////////
         {
           name: "Strings",
           scope: [
@@ -115,14 +115,14 @@ const Monaco = () => {
           settings: createSettings(hl.string),
         },
 
-        //////////////////////////////// Regex ////////////////////////////////
+        ///////////////////////////////// Regex ////////////////////////////////
         {
           name: "Regular expressions",
           scope: ["string.regexp.ts"],
           settings: createSettings(hl.regexp),
         },
 
-        ////////////////////////////// Function //////////////////////////////
+        /////////////////////////////// Function ///////////////////////////////
         {
           name: "Functions",
           scope: ["entity.name.function", "meta.function-call.generic.python"],
@@ -139,7 +139,7 @@ const Monaco = () => {
           settings: createSettings(hl.functionArg),
         },
 
-        ////////////////////////////// Constant //////////////////////////////
+        /////////////////////////////// Constant ///////////////////////////////
         {
           name: "Constants",
           scope: [
@@ -149,7 +149,7 @@ const Monaco = () => {
           settings: createSettings(hl.constant),
         },
 
-        ////////////////////////////// Variable //////////////////////////////
+        /////////////////////////////// Variable ///////////////////////////////
         {
           name: "Variables",
           scope: [
@@ -169,7 +169,7 @@ const Monaco = () => {
           settings: createSettings(hl.specialVariable),
         },
 
-        ////////////////////////////// Keyword ///////////////////////////////
+        //////////////////////////////// Keyword ///////////////////////////////
         {
           name: "Storage types",
           scope: "storage.type",
@@ -191,7 +191,7 @@ const Monaco = () => {
           settings: createSettings(hl.keyword),
         },
 
-        ////////////////////////////// Operator ///////////////////////////////
+        /////////////////////////////// Operator ///////////////////////////////
         {
           name: "Operators",
           scope: [
@@ -202,7 +202,7 @@ const Monaco = () => {
           settings: createSettings(hl.operator),
         },
 
-        //////////////////////////////// Type ////////////////////////////////
+        ///////////////////////////////// Type /////////////////////////////////
         {
           name: "Types",
           scope: [
@@ -213,7 +213,7 @@ const Monaco = () => {
           settings: createSettings(hl.typeName),
         },
 
-        ///////////////////////////// Punctuation //////////////////////////////
+        ////////////////////////////// Punctuation /////////////////////////////
         {
           name: ".",
           scope: ["punctuation.accessor", "punctuation.separator.period"],
@@ -238,7 +238,7 @@ const Monaco = () => {
           settings: createSettings(hl.modifier),
         },
 
-        /////////////////////////////// Import ///////////////////////////////
+        //////////////////////////////// Import ////////////////////////////////
         {
           name: "`import`",
           scope: "keyword.control.import.ts",
@@ -265,7 +265,7 @@ const Monaco = () => {
           settings: createSettings(hl.keyword),
         },
 
-        //////////////////////////////// Macros ///////////////////////////////
+        //////////////////////////////// Macros ////////////////////////////////
         {
           name: "Macros",
           scope: [
@@ -275,7 +275,7 @@ const Monaco = () => {
           settings: createSettings(hl.meta),
         },
 
-        ////////////////////////////// Comment //////////////////////////////
+        //////////////////////////////// Comment ///////////////////////////////
         {
           name: "Comments",
           scope: [
@@ -294,7 +294,7 @@ const Monaco = () => {
           settings: createSettings(hl.keyword),
         },
 
-        //////////////////////////////// Rust /////////////////////////////////
+        ///////////////////////////////// Rust /////////////////////////////////
         {
           name: "Lifetimes",
           scope: [

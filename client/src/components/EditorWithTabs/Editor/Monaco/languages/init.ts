@@ -40,6 +40,9 @@ export const initLanguages = async (theme: IRawTheme) => {
     },
   });
 
+  // Set color map
+  monaco.languages.setColorMap(registry.getColorMap());
+
   const loadGrammarAndConfiguration = async (languageId: string) => {
     // Using `loadGrammar` cause `onEnterRules` to not be respected. Using
     // `loadGrammarWithConfiguration` solves the problem.
@@ -65,21 +68,17 @@ export const initLanguages = async (theme: IRawTheme) => {
     // Set configuration
     const configuration = await import(`./${languageId}/configuration.json`);
     monaco.languages.setLanguageConfiguration(languageId, configuration);
-
-    // Set color map
-    monaco.languages.setColorMap(registry.getColorMap());
   };
 
-  // Register languages
+  // Register languages(only runs once per language)
   for (const languageId of LANGUAGES) {
     monaco.languages.onLanguage(languageId, async () => {
-      loadGrammarAndConfiguration(languageId);
+      await loadGrammarAndConfiguration(languageId);
     });
   }
 
-  // This is to set the grammars if the language hasn't changed but theme has
-  const models = monaco.editor.getModels();
-  if (models.length) {
-    loadGrammarAndConfiguration(models[0].getLanguageId());
+  // Initialize language of each model
+  for (const model of monaco.editor.getModels()) {
+    await loadGrammarAndConfiguration(model.getLanguageId());
   }
 };
