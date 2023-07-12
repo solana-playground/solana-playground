@@ -280,7 +280,7 @@ const Monaco = () => {
           name: "Comments",
           scope: [
             "comment.line",
-            "comment.block.documentation",
+            "comment.block",
             "punctuation.definition.comment.ts",
           ],
           settings: createSettings(hl.lineComment),
