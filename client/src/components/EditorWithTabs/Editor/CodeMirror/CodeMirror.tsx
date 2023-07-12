@@ -254,10 +254,15 @@ const CodeMirror = () => {
       // Scroll to the saved position and set the cursor position
       editor.dispatch(
         {
-          effects: EditorView.scrollIntoView(position.topLineNumber, {
-            y: "start",
-            yMargin: 0,
-          }),
+          effects: EditorView.scrollIntoView(
+            position.topLineNumber
+              ? editor.state.doc.line(position.topLineNumber).from
+              : 0,
+            {
+              y: "start",
+              yMargin: 0,
+            }
+          ),
         },
         {
           selection: { anchor: position.cursor.from, head: position.cursor.to },
