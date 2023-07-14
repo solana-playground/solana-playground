@@ -28,6 +28,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
   const darken = useCallback(() => {
     document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
   }, []);
+
   const lighten = useCallback(() => {
     document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
   }, []);
@@ -57,6 +58,12 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
       Icon: <Plus />,
     },
     {
+      name: "Rename",
+      onClick: showRename,
+      Icon: <Edit />,
+      showCondition: isPg,
+    },
+    {
       name: "Remove",
       onClick: async () => {
         const { Remove } = await import("../Modals/Remove");
@@ -64,12 +71,6 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
       },
       hoverColor: "error",
       Icon: <Trash />,
-      showCondition: isPg,
-    },
-    {
-      name: "Rename",
-      onClick: showRename,
-      Icon: <Edit />,
       showCondition: isPg,
     },
     {
