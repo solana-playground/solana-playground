@@ -55,8 +55,7 @@
   "colorizedBracketPairs": [
     ["(", ")"],
     ["[", "]"],
-    ["{", "}"],
-    ["<", ">"]
+    ["{", "}"]
   ],
   "autoCloseBefore": ";:.,=}])>` \n\t",
   "folding": {

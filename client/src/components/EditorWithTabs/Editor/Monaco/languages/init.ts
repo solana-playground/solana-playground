@@ -11,8 +11,16 @@ import {
   StateStack,
   IRawTheme,
 } from "vscode-textmate";
+import { KeyRequired, PgExplorer } from "../../../../../utils/pg";
 
-import { LANGUAGES } from "./languages";
+/** Language grammar and configuration cache based on theme name */
+const cache: {
+  themeName: string | null;
+  languageIds: string[];
+} = {
+  themeName: null,
+  languageIds: [],
+};
 
 /**
  * Initialize language grammars and configurations.
@@ -21,7 +29,7 @@ import { LANGUAGES } from "./languages";
  *
  * @param theme TextMate theme
  */
-export const initLanguages = async (theme: IRawTheme) => {
+export const initLanguages = async (theme: KeyRequired<IRawTheme, "name">) => {
   // Load oniguruma
   const resp = await fetch(
     require("vscode-oniguruma/release/onig.wasm?resource")
@@ -33,17 +41,24 @@ export const initLanguages = async (theme: IRawTheme) => {
       createOnigScanner,
       createOnigString,
     }),
-    theme,
     loadGrammar: async (scopeName: string) => {
       const grammar = await import(`./${scopeName}/grammar.json`);
       return parseRawGrammar(JSON.stringify(grammar), "grammar.json");
     },
+    theme,
   });
 
-  // Set color map
-  monaco.languages.setColorMap(registry.getColorMap());
-
   const loadGrammarAndConfiguration = async (languageId: string) => {
+    if (cache.themeName !== theme.name) {
+      cache.themeName = theme.name;
+      cache.languageIds = [];
+
+      // Set color map
+      monaco.languages.setColorMap(registry.getColorMap());
+    }
+
+    if (cache.languageIds.includes(languageId)) return;
+
     // Using `loadGrammar` cause `onEnterRules` to not be respected. Using
     // `loadGrammarWithConfiguration` solves the problem.
     const grammar = await registry.loadGrammarWithConfiguration(
@@ -68,17 +83,32 @@ export const initLanguages = async (theme: IRawTheme) => {
     // Set configuration
     const configuration = await import(`./${languageId}/configuration.json`);
     monaco.languages.setLanguageConfiguration(languageId, configuration);
+
+    // Cache
+    cache.languageIds.push(languageId);
   };
 
-  // Register languages(only runs once per language)
-  for (const languageId of LANGUAGES) {
-    monaco.languages.onLanguage(languageId, async () => {
-      await loadGrammarAndConfiguration(languageId);
-    });
-  }
+  return PgExplorer.onDidSwitchFile(async (file) => {
+    if (!file) return;
 
-  // Initialize language of each model
-  for (const model of monaco.editor.getModels()) {
-    await loadGrammarAndConfiguration(model.getLanguageId());
-  }
+    const lang = monaco.languages.getLanguages().find((lang) => {
+      return lang.extensions
+        ?.map((ext) => ext.slice(1))
+        .includes(
+          PgExplorer.getExtensionFromPath(file.path).split(".").reverse()[0]
+        );
+    });
+    if (!lang) return;
+
+    await loadGrammarAndConfiguration(lang.id);
+  });
 };
+
+// Remove defaults https://github.com/Microsoft/monaco-editor/issues/252#issuecomment-482786867
+monaco.languages.getLanguages().forEach((lang) => {
+  // @ts-ignore
+  lang.loader = () => ({ then: () => {} });
+});
+
+// FIXME: Builtin languages such as JSON override existing TextMate tokens.
+// https://github.com/Microsoft/monaco-editor/issues/884

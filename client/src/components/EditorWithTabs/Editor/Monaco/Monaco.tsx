@@ -59,13 +59,114 @@ const Monaco = () => {
     const editorStyles = theme.components.editor;
     const hl = theme.highlight;
 
+    if (theme.isDark) {
+      // Monaco only takes hex values
+      const orTransparent = (v: string) => {
+        return v === "transparent" || v === "inherit" ? "#00000000" : v;
+      };
+
+      monaco.editor.defineTheme(theme.name, {
+        base: "vs-dark",
+        inherit: true,
+        colors: {
+          /////////////////////////////// General //////////////////////////////
+          foreground: editorStyles.default.color,
+          errorForeground: theme.colors.state.error.color,
+          descriptionForeground: theme.colors.default.textSecondary,
+          focusBorder:
+            theme.colors.default.primary + theme.default.transparency!.high,
+
+          /////////////////////////////// Editor ///////////////////////////////
+          "editor.foreground": editorStyles.default.color,
+          "editor.background": orTransparent(editorStyles.default.bg),
+          "editorCursor.foreground": editorStyles.default.cursorColor,
+          "editor.lineHighlightBackground": orTransparent(
+            editorStyles.default.activeLine.bg
+          ),
+          "editor.lineHighlightBorder": orTransparent(
+            editorStyles.default.activeLine.borderColor
+          ),
+          "editor.selectionBackground": editorStyles.default.selection.bg,
+          "editor.inactiveSelectionBackground":
+            editorStyles.default.searchMatch.bg,
+          "editorGutter.background": orTransparent(editorStyles.gutter.bg),
+          "editorLineNumber.foreground": editorStyles.gutter.color,
+          "editorError.foreground": theme.colors.state.error.color,
+          "editorWarning.foreground": theme.colors.state.warning.color,
+
+          ////////////////////////////// Dropdown //////////////////////////////
+          "dropdown.background": editorStyles.tooltip.bg,
+          "dropdown.foreground": editorStyles.tooltip.color,
+
+          /////////////////////////////// Widget ///////////////////////////////
+          "editorWidget.background": editorStyles.tooltip.bg,
+          "editorHoverWidget.background": editorStyles.tooltip.bg,
+          "editorHoverWidget.border": editorStyles.tooltip.borderColor,
+
+          //////////////////////////////// List ////////////////////////////////
+          "list.hoverBackground": theme.colors.state.hover.bg!,
+          "list.activeSelectionBackground": editorStyles.tooltip.selectedBg,
+          "list.activeSelectionForeground": editorStyles.tooltip.selectedColor,
+          "list.inactiveSelectionBackground": editorStyles.tooltip.bg,
+          "list.inactiveSelectionForeground": editorStyles.tooltip.color,
+          "list.highlightForeground": theme.colors.state.info.color,
+
+          //////////////////////////////// Input ///////////////////////////////
+          "input.background": theme.components.input.bg!,
+          "input.foreground": theme.components.input.color,
+          "input.border": theme.components.input.borderColor,
+          "inputOption.activeBorder":
+            theme.colors.default.primary + theme.default.transparency.high,
+          "input.placeholderForeground": theme.colors.default.textSecondary,
+          "inputValidation.infoBackground": theme.colors.state.info.bg!,
+          "inputValidation.infoBorder": theme.colors.state.info.color,
+          "inputValidation.warningBackground": theme.colors.state.warning.bg!,
+          "inputValidation.warningBorder": theme.colors.state.warning.color,
+          "inputValidation.errorBackground": theme.colors.state.error.bg!,
+          "inputValidation.errorBorder": theme.colors.state.error.color,
+
+          /////////////////////////////// Minimap //////////////////////////////
+          "minimap.background": orTransparent(editorStyles.minimap.bg),
+          "minimap.selectionHighlight": editorStyles.minimap.selectionHighlight,
+
+          ////////////////////////////// Peek view /////////////////////////////
+          "peekView.border": orTransparent(editorStyles.peekView.borderColor),
+          "peekViewTitle.background": editorStyles.peekView.title.bg,
+          "peekViewTitleLabel.foreground":
+            editorStyles.peekView.title.labelColor,
+          "peekViewTitleDescription.foreground":
+            editorStyles.peekView.title.descriptionColor,
+          "peekViewEditor.background": editorStyles.peekView.editor.bg,
+          "peekViewEditor.matchHighlightBackground":
+            editorStyles.peekView.editor.matchHighlightBg,
+          "peekViewEditorGutter.background":
+            editorStyles.peekView.editor.gutterBg,
+          "peekViewResult.background": editorStyles.peekView.result.bg,
+          "peekViewResult.lineForeground":
+            editorStyles.peekView.result.lineColor,
+          "peekViewResult.fileForeground":
+            editorStyles.peekView.result.fileColor,
+          "peekViewResult.selectionBackground":
+            editorStyles.peekView.result.selectionBg,
+          "peekViewResult.selectionForeground":
+            editorStyles.peekView.result.selectionColor,
+          "peekViewResult.matchHighlightBackground":
+            editorStyles.peekView.result.matchHighlightBg,
+        },
+        rules: [],
+      });
+      monaco.editor.setTheme(theme.name);
+    } else {
+      monaco.editor.setTheme("vs");
+    }
+
     const createSettings = (token: Highlight[keyof Highlight]) => ({
       foreground: token.color,
       fontStyle: token.fontStyle,
     });
 
     // Initialize language grammars and configurations
-    await initLanguages({
+    const { dispose } = await initLanguages({
       name: theme.name,
       settings: [
         //////////////////////////////// Default ///////////////////////////////
@@ -87,20 +188,18 @@ const Monaco = () => {
         //////////////////////////////// Boolean ///////////////////////////////
         {
           name: "Boolean",
-          scope: ["constant.language.bool", "constant.language.boolean"],
+          scope: [
+            "constant.language.bool",
+            "constant.language.boolean",
+            "constant.language.json",
+          ],
           settings: createSettings(hl.bool),
         },
 
         //////////////////////////////// Integer ///////////////////////////////
         {
           name: "Integers",
-          scope: [
-            "constant.numeric.decimal",
-            "constant.numeric.dec",
-            "constant.numeric.hex",
-            "constant.numeric.oct",
-            "constant.numeric.bin",
-          ],
+          scope: "constant.numeric",
           settings: createSettings(hl.integer),
         },
 
@@ -306,110 +405,9 @@ const Monaco = () => {
       ],
     });
 
-    if (theme.isDark) {
-      // Monaco only takes hex values
-      const orTransparent = (v: string) => {
-        return v === "transparent" || v === "inherit" ? "#00000000" : v;
-      };
-
-      monaco.editor.defineTheme(theme.name, {
-        base: "vs-dark",
-        inherit: true,
-        colors: {
-          // General
-          foreground: editorStyles.default.color,
-          errorForeground: theme.colors.state.error.color,
-          descriptionForeground: theme.colors.default.textSecondary,
-          focusBorder:
-            theme.colors.default.primary + theme.default.transparency!.high,
-
-          // Editor
-          "editor.foreground": editorStyles.default.color,
-          "editor.background": orTransparent(editorStyles.default.bg),
-          "editorCursor.foreground": editorStyles.default.cursorColor,
-          "editor.lineHighlightBackground": orTransparent(
-            editorStyles.default.activeLine.bg
-          ),
-          "editor.lineHighlightBorder": orTransparent(
-            editorStyles.default.activeLine.borderColor
-          ),
-          "editor.selectionBackground": editorStyles.default.selection.bg,
-          "editor.inactiveSelectionBackground":
-            editorStyles.default.searchMatch.bg,
-          "editorGutter.background": orTransparent(editorStyles.gutter.bg),
-          "editorLineNumber.foreground": editorStyles.gutter.color,
-          "editorError.foreground": theme.colors.state.error.color,
-          "editorWarning.foreground": theme.colors.state.warning.color,
-
-          // Dropdown
-          "dropdown.background": editorStyles.tooltip.bg,
-          "dropdown.foreground": editorStyles.tooltip.color,
-
-          // Widget
-          "editorWidget.background": editorStyles.tooltip.bg,
-          "editorHoverWidget.background": editorStyles.tooltip.bg,
-          "editorHoverWidget.border": editorStyles.tooltip.borderColor,
-
-          // List
-          "list.hoverBackground": theme.colors.state.hover.bg!,
-          "list.activeSelectionBackground": editorStyles.tooltip.selectedBg,
-          "list.activeSelectionForeground": editorStyles.tooltip.selectedColor,
-          "list.inactiveSelectionBackground": editorStyles.tooltip.bg,
-          "list.inactiveSelectionForeground": editorStyles.tooltip.color,
-          "list.highlightForeground": theme.colors.state.info.color,
-
-          // Input
-          "input.background": theme.components.input.bg!,
-          "input.foreground": theme.components.input.color,
-          "input.border": theme.components.input.borderColor,
-          "inputOption.activeBorder":
-            theme.colors.default.primary + theme.default.transparency.high,
-          "input.placeholderForeground": theme.colors.default.textSecondary,
-          "inputValidation.infoBackground": theme.colors.state.info.bg!,
-          "inputValidation.infoBorder": theme.colors.state.info.color,
-          "inputValidation.warningBackground": theme.colors.state.warning.bg!,
-          "inputValidation.warningBorder": theme.colors.state.warning.color,
-          "inputValidation.errorBackground": theme.colors.state.error.bg!,
-          "inputValidation.errorBorder": theme.colors.state.error.color,
-
-          // Minimap
-          "minimap.background": orTransparent(editorStyles.minimap.bg),
-          "minimap.selectionHighlight": editorStyles.minimap.selectionHighlight,
-
-          // Peek view
-          "peekView.border": orTransparent(editorStyles.peekView.borderColor),
-          "peekViewTitle.background": editorStyles.peekView.title.bg,
-          "peekViewTitleLabel.foreground":
-            editorStyles.peekView.title.labelColor,
-          "peekViewTitleDescription.foreground":
-            editorStyles.peekView.title.descriptionColor,
-          "peekViewEditor.background": editorStyles.peekView.editor.bg,
-          "peekViewEditor.matchHighlightBackground":
-            editorStyles.peekView.editor.matchHighlightBg,
-          "peekViewEditorGutter.background":
-            editorStyles.peekView.editor.gutterBg,
-          "peekViewResult.background": editorStyles.peekView.result.bg,
-          "peekViewResult.lineForeground":
-            editorStyles.peekView.result.lineColor,
-          "peekViewResult.fileForeground":
-            editorStyles.peekView.result.fileColor,
-          "peekViewResult.selectionBackground":
-            editorStyles.peekView.result.selectionBg,
-          "peekViewResult.selectionForeground":
-            editorStyles.peekView.result.selectionColor,
-          "peekViewResult.matchHighlightBackground":
-            editorStyles.peekView.result.matchHighlightBg,
-        },
-        rules: [],
-      });
-      monaco.editor.setTheme(theme.name);
-    } else {
-      monaco.editor.setTheme("vs");
-    }
-
-    // Sleep to go give enough time for grammars to fully take effect
-    await PgCommon.sleep(100);
     setIsThemeSet(true);
+
+    return () => dispose();
   }, [theme]);
 
   // Set font

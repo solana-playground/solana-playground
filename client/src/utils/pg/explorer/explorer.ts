@@ -1281,22 +1281,28 @@ export class PgExplorer {
   }
 
   /**
+   * Get file extension of the given path.
+   *
+   * @param path file path
+   * @returns the file extension
+   */
+  static getExtensionFromPath(path: string) {
+    return path
+      .split(".")
+      .reverse()
+      .filter((cur, i) => i === 0 || (i === 1 && cur === "test"))
+      .reverse()
+      .join(".");
+  }
+
+  /**
    * Get the langugage from the given path's extension.
    *
    * @param path item path
    * @returns the language
    */
   static getLanguageFromPath(path: string) {
-    const langExtension = path
-      .split(".")
-      .reverse()
-      .reduce((acc, cur, i) => {
-        if (i === 0) return cur;
-        if (i === 1 && cur === "test") return acc + cur;
-        return acc;
-      });
-
-    switch (langExtension) {
+    switch (PgExplorer.getExtensionFromPath(path)) {
       case "rs":
         return Lang.RUST;
       case "py":
@@ -1305,9 +1311,9 @@ export class PgExplorer {
         return Lang.JAVASCRIPT;
       case "ts":
         return Lang.TYPESCRIPT;
-      case "tstest":
+      case "test.ts":
         return Lang.JAVASCRIPT_TEST;
-      case "jstest":
+      case "test.js":
         return Lang.TYPESCRIPT_TEST;
       case "json":
         return Lang.JSON;

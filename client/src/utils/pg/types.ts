@@ -44,6 +44,11 @@ export type SetElementAsync = SetState<
   SyncOrAsync<JSX.Element | (() => JSX.Element)>
 >;
 
+/** Make the given keys required */
+export type KeyRequired<T, R extends keyof T> = Omit<T, R> & {
+  [K in R]-?: NonNullable<T[K]>;
+};
+
 /** Make properties required for depth 1 and 2 */
 export type NestedRequired<T> = {
   [K in keyof T]-?: Required<T[K]>;
