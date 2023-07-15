@@ -23,8 +23,9 @@ const Explorer = () => {
     []
   );
 
-  if (!explorer.isTemporary && !explorer.hasWorkspaces()) {
-    return <NoWorkspace />;
+  if (!explorer.isTemporary) {
+    if (!explorer.currentWorkspaceName) return null;
+    if (!explorer.hasWorkspaces()) return <NoWorkspace />;
   }
 
   return (

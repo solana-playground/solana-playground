@@ -3,7 +3,7 @@ import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { SetState, SetElementAsync } from "./types";
+import type { SetState, SetElementAsync, Element } from "./types";
 
 /** Sidebar page */
 type SidebarPage<N extends string> = {
@@ -12,9 +12,9 @@ type SidebarPage<N extends string> = {
   /** `src` of the image */
   icon: string;
   /** Lazy loader for the element */
-  importElement: () => Promise<{ default: () => JSX.Element }>;
+  importElement: () => Promise<{ default: Element }>;
   /** Loading element to until the element is ready to show */
-  LoadingElement?: () => JSX.Element;
+  LoadingElement?: Element;
   /** Title of the page, defaults to `name` */
   title?: string;
   /** Keybind for the page */

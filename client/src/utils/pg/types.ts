@@ -38,11 +38,14 @@ export type Disposable = {
   dispose: () => void;
 };
 
+/** JSX element */
+export type Element = () => JSX.Element | null;
+
+/** Set state type */
 export type SetState<T> = T | ((cur: T) => T);
 
-export type SetElementAsync = SetState<
-  SyncOrAsync<JSX.Element | (() => JSX.Element)>
->;
+/** Set element asynchronously */
+export type SetElementAsync = SetState<SyncOrAsync<JSX.Element | Element>>;
 
 /** Make the given keys required */
 export type KeyRequired<T, R extends keyof T> = Omit<T, R> & {
