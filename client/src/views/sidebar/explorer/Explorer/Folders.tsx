@@ -17,6 +17,8 @@ import {
   PgExplorer,
 } from "../../../../utils/pg";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
+import { useNewItem } from "./useNewItem";
+import { useKeybind } from "../../../../hooks";
 
 const Folders = () => {
   // Handle folder state
@@ -53,6 +55,17 @@ const Folders = () => {
   }, []);
 
   const ctxMenu = useExplorerContextMenu();
+
+  const { newItem } = useNewItem();
+
+  useKeybind(
+    [
+      { keybind: "Alt+N", handle: newItem },
+      { keybind: "F2", handle: ctxMenu.renameItem },
+      { keybind: "Delete", handle: ctxMenu.deleteItem },
+    ],
+    []
+  );
 
   // No need to memoize here
   const relativeRootPath = !PgExplorer.isTemporary

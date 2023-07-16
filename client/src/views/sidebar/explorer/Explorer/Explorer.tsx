@@ -1,31 +1,29 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Folders from "./Folders";
 import NoWorkspace from "./NoWorkspace";
 import Workspaces from "./Workspaces";
-import { useExplorerContextMenu } from "./useExplorerContextMenu";
-import { useNewItem } from "./useNewItem";
-import { useExplorer, useKeybind } from "../../../../hooks";
+import { PgExplorer } from "../../../../utils/pg";
+import { useExplorer } from "../../../../hooks";
 
 const Explorer = () => {
+  const [isReady, setIsReady] = useState(false);
+
   const { explorer } = useExplorer();
 
-  const { newItem } = useNewItem();
-  const { renameItem, deleteItem } = useExplorerContextMenu();
+  useEffect(() => {
+    const { dispose } = PgExplorer.onDidInit(() => {
+      setIsReady(true);
+    });
+    return () => dispose();
+  }, []);
 
-  useKeybind(
-    [
-      { keybind: "Alt+N", handle: newItem },
-      { keybind: "F2", handle: renameItem },
-      { keybind: "Delete", handle: deleteItem },
-    ],
-    []
-  );
+  if (!isReady) return null;
 
-  if (!explorer.isTemporary) {
-    if (!explorer.currentWorkspaceName) return null;
-    if (!explorer.hasWorkspaces()) return <NoWorkspace />;
+  if (!explorer.isTemporary && !explorer.hasWorkspaces()) {
+    return <NoWorkspace />;
   }
 
   return (
