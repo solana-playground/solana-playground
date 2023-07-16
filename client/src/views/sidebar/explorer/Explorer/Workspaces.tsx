@@ -142,6 +142,7 @@ const WorkspaceSelect = () => {
 
 const Wrapper = styled.div`
   margin: 1.5rem 0.5rem 0 0.5rem;
+  padding: 0 0.5rem;
 `;
 
 const TopWrapper = styled.div`

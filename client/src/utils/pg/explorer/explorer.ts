@@ -101,8 +101,8 @@ export class PgExplorer {
       if (workspaceName && this.allWorkspaceNames!.includes(workspaceName)) {
         await this.switchWorkspace(workspaceName);
       }
-      // Reset files when there is no workspaces
-      else if (!this.hasWorkspaces()) {
+      // Reset files when there are no workspaces
+      else if (this.allWorkspaceNames!.length === 0) {
         this._explorer.files = {};
       }
     }
@@ -484,7 +484,7 @@ export class PgExplorer {
       throw new Error(WorkspaceError.INVALID_NAME);
     }
     if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
-    if (this.allWorkspaceNames?.includes(newName)) {
+    if (this.allWorkspaceNames!.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
@@ -819,13 +819,6 @@ export class PgExplorer {
    */
   static setWorkspaceName(name: string) {
     this._workspace!.setCurrentName(name);
-  }
-
-  /**
-   * @returns whether the user has any workspaces
-   */
-  static hasWorkspaces() {
-    return (this._workspace?.allNames?.length ?? 0) > 0;
   }
 
   /**
