@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../constants";
-import { ctxSelectedAtom, newItemAtom } from "../../../../state";
+import { newItemAtom } from "../../../../state";
 import { PgCommand, PgExplorer, PgView } from "../../../../utils/pg";
 
 export type ItemData = {
@@ -18,41 +18,33 @@ export type ItemData = {
 
 export const useExplorerContextMenu = () => {
   const [, setEl] = useAtom(newItemAtom);
-  const [, setCtxSelected] = useAtom(ctxSelectedAtom);
 
   const [itemData, setItemData] = useState<ItemData>({});
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
 
-  const handleMenu = useCallback((e: MouseEvent<HTMLDivElement>) => {
+  const handleMenu = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     // Add selected style to the item
-    let itemEl = e.target as Node;
+    let itemEl = ev.target as Node;
     while (itemEl.nodeName !== "DIV") {
       itemEl = itemEl.parentNode!;
     }
+    const selectedEl = itemEl as HTMLDivElement;
 
     // Root dir is not allowed to be selected as it cannot be renamed or deleted
-    if ((itemEl as Element).id === Id.ROOT_DIR) {
-      throw new Error();
-    }
+    if (selectedEl.id === Id.ROOT_DIR) throw new Error();
 
-    const itemType = PgExplorer.getItemTypeFromEl(itemEl as HTMLDivElement);
-    if (!itemType) {
-      throw new Error();
-    }
+    const itemType = PgExplorer.getItemTypeFromEl(selectedEl);
+    if (!itemType) throw new Error();
 
-    const itemPath = PgExplorer.getItemPathFromEl(itemEl as HTMLDivElement)!;
+    const itemPath = PgExplorer.getItemPathFromEl(selectedEl)!;
     const itemName = PgExplorer.getItemNameFromPath(itemPath);
 
     const itemData: ItemData = {
       isFolder: itemType.folder,
-      isClient:
-        itemType.file &&
-        PgExplorer.getIsItemClientFromEl(itemEl as HTMLDivElement),
+      isClient: itemType.file && PgExplorer.getIsItemClientFromEl(selectedEl),
       isClientFolder:
         itemType.folder && itemName === PgExplorer.PATHS.CLIENT_DIRNAME,
-      isTest:
-        itemType.file &&
-        PgExplorer.getIsItemTestFromEl(itemEl as HTMLDivElement),
+      isTest: itemType.file && PgExplorer.getIsItemTestFromEl(selectedEl),
       isTestFolder:
         itemType.folder && itemName === PgExplorer.PATHS.TESTS_DIRNAME,
       isProgramFolder:
@@ -62,16 +54,12 @@ export const useExplorerContextMenu = () => {
     // Convert the `undefined` values to `false` in order to show them only
     // when necessary. (`undefined` defaults to `true` for `showCondition`)
     for (const key in itemData) {
-      if (itemData[key as keyof typeof itemData] === undefined) {
-        itemData[key as keyof typeof itemData] = false;
-      }
+      itemData[key as keyof typeof itemData] ??= false;
     }
     setItemData(itemData);
 
-    PgExplorer.setCtxSelectedEl(itemEl as HTMLDivElement);
-    setCtxSelectedPath(
-      PgExplorer.getItemPathFromEl(itemEl as HTMLDivElement) ?? ""
-    );
+    PgExplorer.setCtxSelectedEl(selectedEl);
+    setCtxSelectedPath(PgExplorer.getItemPathFromEl(selectedEl) ?? "");
   }, []);
 
   const getPath = useCallback(() => {
@@ -90,8 +78,8 @@ export const useExplorerContextMenu = () => {
       ctxSelected.nextElementSibling?.classList.remove(ClassName.HIDDEN);
     }
     setEl(ctxSelected.nextElementSibling);
-    setCtxSelected(ctxSelected);
-  }, [getPath, setEl, setCtxSelected]);
+    PgExplorer.setCtxSelectedEl(ctxSelected);
+  }, [getPath, setEl]);
 
   const renameItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {

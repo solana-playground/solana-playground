@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
 import LangIcon from "../../../../../components/LangIcon";
-import { ctxSelectedAtom, newItemAtom } from "../../../../../state";
+import { newItemAtom } from "../../../../../state";
 import { PgExplorer } from "../../../../../utils/pg";
 import { useKeybind, useOnClickOutside } from "../../../../../hooks";
 
@@ -17,7 +17,6 @@ export const NewItem = () => {
 
 const NewItemInput = () => {
   const [el, setEl] = useAtom(newItemAtom);
-  const [ctxSelected, setCtxSelected] = useAtom(ctxSelectedAtom);
 
   const [itemName, setItemName] = useState("");
   const [error, setError] = useState(false);
@@ -40,16 +39,16 @@ const NewItemInput = () => {
           setError(false);
 
           // Check if the command is coming from context menu
-          const selected = ctxSelected ?? PgExplorer.getSelectedEl();
+          const selected =
+            PgExplorer.getCtxSelectedEl() ?? PgExplorer.getSelectedEl();
           const parentPath =
             PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ??
             PgExplorer.PATHS.ROOT_DIR_PATH;
 
-          const convertedItemName =
+          const itemPath =
+            parentPath +
             itemName +
             (PgExplorer.getItemTypeFromName(itemName).file ? "" : "/");
-
-          const itemPath = parentPath + convertedItemName;
 
           try {
             // Create item
@@ -59,7 +58,7 @@ const NewItemInput = () => {
             setEl(null);
 
             // Reset Ctx Selected
-            setCtxSelected(null);
+            PgExplorer.removeCtxSelectedEl();
 
             // Select new file
             PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
@@ -76,7 +75,7 @@ const NewItemInput = () => {
         },
       },
     ],
-    [itemName, ctxSelected]
+    [itemName]
   );
 
   const depth = useMemo(() => {
@@ -89,7 +88,7 @@ const NewItemInput = () => {
       path = PgExplorer.getItemPathFromEl(
         el.parentElement?.firstChild as HTMLDivElement
       );
-      if (!path) return 0;
+      if (!path) return 2;
     }
     const itemType = PgExplorer.getItemTypeFromPath(path);
 
