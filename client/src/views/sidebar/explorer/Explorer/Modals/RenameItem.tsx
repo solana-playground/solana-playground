@@ -9,17 +9,8 @@ interface RenameItemProps {
 }
 
 export const RenameItem: FC<RenameItemProps> = ({ path }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const itemName = PgExplorer.getItemNameFromPath(path);
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.setSelectionRange(0, itemName.indexOf("."));
-    inputRef.current?.focus();
-  }, [itemName]);
-
   // Handle user input
+  const itemName = PgExplorer.getItemNameFromPath(path);
   const [newName, setNewName] = useState(itemName);
   const [error, setError] = useState("");
 
@@ -31,6 +22,13 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const rename = async () => {
     await PgExplorer.renameItem(path, newName);
   };
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.setSelectionRange(0, inputRef.current.value.indexOf("."));
+  }, []);
 
   return (
     <Modal
@@ -45,6 +43,7 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
     >
       <Input
         ref={inputRef}
+        autoFocus
         value={newName}
         onChange={handleChange}
         error={error}

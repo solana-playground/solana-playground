@@ -10,7 +10,6 @@ export const RenameWorkspace = () => {
   // Focus and select input on mount
   useEffect(() => {
     inputRef.current?.select();
-    inputRef.current?.focus();
   }, []);
 
   const workspaceName = PgExplorer.currentWorkspaceName ?? "";

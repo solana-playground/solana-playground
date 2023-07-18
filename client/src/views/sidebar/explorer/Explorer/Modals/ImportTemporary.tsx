@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
@@ -8,13 +8,6 @@ import { PgExplorer } from "../../../../../utils/pg";
 export const ImportTemporary = () => {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     setName(ev.target.value);
@@ -37,7 +30,7 @@ export const ImportTemporary = () => {
     >
       <MainText>Project name</MainText>
       <Input
-        ref={inputRef}
+        autoFocus
         onChange={handleChange}
         value={name}
         error={error}

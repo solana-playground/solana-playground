@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Input from "../../../../../components/Input";
@@ -6,13 +6,6 @@ import Modal from "../../../../../components/Modal";
 import { PgCommon, PgGithub } from "../../../../../utils/pg";
 
 export const ImportGithub = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   // Handle user input
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -50,7 +43,7 @@ export const ImportGithub = () => {
     >
       <Text>GitHub URL</Text>
       <Input
-        ref={inputRef}
+        autoFocus
         onChange={handleChange}
         value={url}
         error={error}

@@ -1,12 +1,4 @@
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, FC, SetStateAction, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
@@ -74,15 +66,11 @@ const Modal: FC<ModalProps> = ({
   // Submit on Enter
   useKeybind("Enter", handleSubmit);
 
-  // Take away the focus of other buttons when modal is mounted
-  const focusButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    focusButtonRef.current?.focus();
-  }, []);
-
   return (
     <Wrapper>
+      {/* Take away the focus of other buttons when the modal is mounted */}
+      <FocusButton autoFocus />
+
       <TopWrapper>
         {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
         {closeButton && (
@@ -122,8 +110,6 @@ const Modal: FC<ModalProps> = ({
           </Button>
         </ButtonsWrapper>
       )}
-
-      <FocusButton ref={focusButtonRef} />
     </Wrapper>
   );
 };

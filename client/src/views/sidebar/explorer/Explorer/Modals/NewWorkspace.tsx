@@ -1,12 +1,4 @@
-import {
-  ChangeEvent,
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, Dispatch, FC, SetStateAction, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Input from "../../../../../components/Input";
@@ -18,13 +10,6 @@ import {
 } from "../../../../../utils/pg";
 
 export const NewWorkspace = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   // Handle user input
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -61,7 +46,7 @@ export const NewWorkspace = () => {
         <WorkspaceNameWrapper>
           <MainText>Project name</MainText>
           <Input
-            ref={inputRef}
+            autoFocus
             onChange={handleChange}
             value={name}
             error={error}

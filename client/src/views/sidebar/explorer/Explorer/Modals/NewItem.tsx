@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { useAtom } from "jotai";
 import styled from "styled-components";
@@ -22,7 +22,6 @@ const NewItemInput = () => {
   const [error, setError] = useState(false);
 
   const newFileRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const hide = useCallback(() => setEl(null), [setEl]);
 
@@ -99,16 +98,11 @@ const NewItemInput = () => {
     return path.split("/").length - (itemType.file || isEmptyFolder ? 0 : 1);
   }, [el]);
 
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   return (
     <Wrapper ref={newFileRef} depth={depth}>
       <LangIcon fileName={itemName} />
       <Input
-        ref={inputRef}
+        autoFocus
         onChange={(ev) => {
           setItemName(ev.target.value);
           setError(false);

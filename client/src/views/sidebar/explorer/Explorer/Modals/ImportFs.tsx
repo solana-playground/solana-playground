@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
@@ -12,13 +12,6 @@ import {
 } from "../../../../../utils/pg";
 
 export const ImportFs = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   // Handle user input
   const [name, setName] = useState("");
   const [files, setFiles] = useState<TupleFiles>();
@@ -87,7 +80,7 @@ export const ImportFs = () => {
         <WorkspaceNameWrapper>
           <MainText>Project name</MainText>
           <Input
-            ref={inputRef}
+            autoFocus
             onChange={handleChange}
             value={name}
             error={importError}

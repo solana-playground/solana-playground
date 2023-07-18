@@ -331,13 +331,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
     setSeeds((seeds) => [...seeds.filter((_s, i) => i !== index)]);
   }, [index, setSeeds]);
 
-  const seedInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  // Focus on mount
-  useEffect(() => {
-    seedInputRef.current?.focus();
-  }, []);
 
   // Close showAddSeed on outside click
   useOnClickOutside(menuRef, closeAddSeed, showAddSeed);
@@ -349,7 +343,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
       <InputLabel label={`Seed(${index + 1})`} type={seed.type} />
       <SeedInputWrapper>
         <Input
-          ref={seedInputRef}
+          autoFocus
           value={seed.value}
           onChange={handleSeed}
           error={error}
@@ -441,12 +435,6 @@ const ShowAta: FC<ShowAtaProps> = ({
   const [mintError, setMintError] = useState(false);
   const [ownerError, setOwnerError] = useState(false);
 
-  const seedInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    seedInputRef.current?.focus();
-  }, []);
-
   const handleMint = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     const val = ev.target.value;
     setMint(val);
@@ -496,12 +484,7 @@ const ShowAta: FC<ShowAtaProps> = ({
       <ShowGenTitle>Generate ATA</ShowGenTitle>
       <ShowGenInputWrapper>
         <InputLabel label="Mint" type="publicKey" />
-        <Input
-          ref={seedInputRef}
-          value={mint}
-          onChange={handleMint}
-          error={mintError}
-        />
+        <Input autoFocus value={mint} onChange={handleMint} error={mintError} />
       </ShowGenInputWrapper>
       <ShowGenInputWrapper>
         <InputLabel label="Owner" type="publicKey" />

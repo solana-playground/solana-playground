@@ -209,8 +209,7 @@ const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
 
   // Focus input on mount
   useEffect(() => {
-    inputRef.current?.setSelectionRange(0, inputRef.current.value.length);
-    inputRef.current?.focus();
+    inputRef.current?.select();
   }, []);
 
   // Close on outside clicks

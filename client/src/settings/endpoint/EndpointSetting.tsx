@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 
 import Input from "../../components/Input";
 import Select from "../../components/Select";
@@ -51,13 +51,6 @@ const CustomEndpoint = () => {
   const [customEndpoint, setCustomEndpoint] = useState("");
   const [error, setError] = useState("");
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus the input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     setCustomEndpoint(ev.target.value);
     setError("");
@@ -81,7 +74,7 @@ const CustomEndpoint = () => {
       }}
     >
       <Input
-        ref={inputRef}
+        autoFocus
         placeholder="Custom endpoint"
         onChange={handleChange}
         error={error}
