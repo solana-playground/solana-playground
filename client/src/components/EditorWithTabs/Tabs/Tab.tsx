@@ -53,12 +53,17 @@ const Tab: FC<TabProps> = ({ current, path }) => {
 const Wrapper = styled.div<{ current?: boolean }>`
   ${({ theme, current }) => css`
     & button {
+      ${!current && "opacity: 0;"}
       margin: 0 0.25rem 0 0.5rem;
 
       & svg {
         width: 0.875rem;
         height: 0.875rem;
       }
+    }
+
+    &:hover button {
+      opacity: 1;
     }
 
     ${PgTheme.convertToCSS(theme.components.tabs.tab.default)};
