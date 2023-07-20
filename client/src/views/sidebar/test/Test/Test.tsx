@@ -19,6 +19,14 @@ const Test = () => {
 
   if (loading) return <TestSkeleton />;
 
+  if (!PgProgramInfo.uploadedProgram && !PgProgramInfo.uuid) {
+    return (
+      <InitialWrapper>
+        <Text>Program is not built.</Text>
+      </InitialWrapper>
+    );
+  }
+
   if (!PgProgramInfo.pk) {
     return (
       <InitialWrapper>
@@ -27,10 +35,23 @@ const Test = () => {
     );
   }
 
-  if (!PgProgramInfo.uploadedProgram && !PgProgramInfo.uuid) {
+  const idl = PgProgramInfo.idl;
+
+  if (!idl) {
     return (
       <InitialWrapper>
-        <Text>Program is not built.</Text>
+        <Text>Anchor IDL not found.</Text>
+      </InitialWrapper>
+    );
+  }
+
+  if (!idl.instructions) {
+    return (
+      <InitialWrapper>
+        <Text kind="error">
+          You've imported a corrupted IDL. Please double check you've imported
+          an Anchor IDL.
+        </Text>
       </InitialWrapper>
     );
   }
@@ -54,75 +75,45 @@ const Test = () => {
     );
   }
 
-  const idl = PgProgramInfo.idl;
+  return (
+    <Wrapper>
+      <ProgramWrapper>
+        <ProgramNameWrapper>
+          Program:
+          <ProgramName>{idl.name}</ProgramName>
+        </ProgramNameWrapper>
 
-  if (!idl) {
-    return (
-      <InitialWrapper>
-        <Text>Anchor IDL not found.</Text>
-      </InitialWrapper>
-    );
-  }
+        <ProgramInteractionWrapper>
+          <Subheading>Instructions</Subheading>
+          {idl.instructions.map((ix, i) => (
+            <Instruction key={i} idl={idl} index={i} ix={ix} />
+          ))}
+        </ProgramInteractionWrapper>
 
-  if (deployed) {
-    if (!idl.instructions) {
-      return (
-        <InitialWrapper>
-          <Text kind="error">
-            You've imported a corrupted IDL. Please double check you've imported
-            an Anchor IDL.
-          </Text>
-        </InitialWrapper>
-      );
-    }
-
-    return (
-      <Wrapper>
-        <ProgramWrapper>
-          <ProgramNameWrapper>
-            Program:
-            <ProgramName>{idl.name}</ProgramName>
-          </ProgramNameWrapper>
-
+        {idl.accounts && (
           <ProgramInteractionWrapper>
-            <Subheading>Instructions</Subheading>
-            {idl.instructions.map((ix, i) => (
-              <Instruction key={i} idl={idl} index={i} ix={ix} />
+            <Subheading>Accounts</Subheading>
+            {idl.accounts.map((acc, i) => (
+              <FetchableAccount
+                key={i}
+                index={i}
+                accountName={acc.name}
+                idl={idl}
+              />
             ))}
           </ProgramInteractionWrapper>
+        )}
 
-          {idl.accounts && (
-            <ProgramInteractionWrapper>
-              <Subheading>Accounts</Subheading>
-              {idl.accounts.map((acc, i) => (
-                <FetchableAccount
-                  key={i}
-                  index={i}
-                  accountName={acc.name}
-                  idl={idl}
-                />
-              ))}
-            </ProgramInteractionWrapper>
-          )}
-
-          {idl.events && (
-            <ProgramInteractionWrapper>
-              <Subheading>Events</Subheading>
-              {idl.events.map((event, i) => (
-                <Event key={i} index={i} eventName={event.name} idl={idl} />
-              ))}
-            </ProgramInteractionWrapper>
-          )}
-        </ProgramWrapper>
-      </Wrapper>
-    );
-  }
-
-  // Shouldn't come here
-  return (
-    <InitialWrapper>
-      <Text kind="error">Something went wrong.</Text>
-    </InitialWrapper>
+        {idl.events && (
+          <ProgramInteractionWrapper>
+            <Subheading>Events</Subheading>
+            {idl.events.map((event, i) => (
+              <Event key={i} index={i} eventName={event.name} idl={idl} />
+            ))}
+          </ProgramInteractionWrapper>
+        )}
+      </ProgramWrapper>
+    </Wrapper>
   );
 };
 
