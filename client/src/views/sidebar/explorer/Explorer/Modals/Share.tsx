@@ -2,14 +2,12 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../../components/Button";
-import CheckBox from "../../../../../components/CheckBox";
 import CopyButton from "../../../../../components/CopyButton";
 import Input from "../../../../../components/Input";
 import Link from "../../../../../components/Link";
 import Modal, { useModal } from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Checkmark, Sad } from "../../../../../components/Icons";
-import { HelpTooltip } from "../../../../../components/Tooltip";
 import { CLIENT_URL } from "../../../../../constants";
 import { PgCommon, PgShare } from "../../../../../utils/pg";
 import { useKeybind } from "../../../../../hooks";
@@ -22,13 +20,12 @@ interface TextState {
 export const Share = () => {
   const [textState, setTextState] = useState<TextState>({});
   const [loading, setLoading] = useState(false);
-  const [includeMetadata, setIncludeMetadata] = useState(false);
 
   const share = async () => {
     setLoading(true);
 
     try {
-      const id = await PgCommon.transition(PgShare.new({ includeMetadata }));
+      const id = await PgCommon.transition(PgShare.new());
       setTextState({ kind: "success", id });
     } catch (e: any) {
       console.log("SHARE ERROR:", e.message);
@@ -82,33 +79,19 @@ export const Share = () => {
           </ButtonWrapper>
         </>
       ) : (
-        <>
-          <OptionsWrapper>
-            <CheckBox
-              label="Include metadata"
-              checkedOnMount={includeMetadata}
-              onChange={(ev) => setIncludeMetadata(ev.target.checked)}
-            />
-            <HelpTooltip
-              maxWidth="16.5rem"
-              text="If checked, all file metadata will be included on shares, e.g. which file is the current one"
-            />
-          </OptionsWrapper>
-
-          <ButtonWrapper>
-            <Button onClick={close} kind="transparent">
-              Cancel
-            </Button>
-            <Button
-              onClick={share}
-              disabled={loading}
-              btnLoading={loading}
-              kind="primary-transparent"
-            >
-              {loading ? "Sharing..." : "Share"}
-            </Button>
-          </ButtonWrapper>
-        </>
+        <ButtonWrapper>
+          <Button onClick={close} kind="transparent">
+            Cancel
+          </Button>
+          <Button
+            onClick={share}
+            disabled={loading}
+            btnLoading={loading}
+            kind="primary-transparent"
+          >
+            {loading ? "Sharing..." : "Share"}
+          </Button>
+        </ButtonWrapper>
       )}
     </Modal>
   );
@@ -133,16 +116,6 @@ const LinkWrapper = styled.div`
   & a,
   & svg {
     color: ${({ theme }) => theme.colors.state.info.color};
-  }
-`;
-
-const OptionsWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  margin-top: 0.5rem;
-
-  & > :last-child {
-    margin-left: 0.5rem;
   }
 `;
 
