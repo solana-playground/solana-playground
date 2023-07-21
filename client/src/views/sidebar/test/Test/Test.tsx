@@ -19,7 +19,7 @@ const Test = () => {
 
   if (loading) return <TestSkeleton />;
 
-  if (!PgProgramInfo.uploadedProgram && !PgProgramInfo.uuid) {
+  if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
     return (
       <InitialWrapper>
         <Text>Program is not built.</Text>

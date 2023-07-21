@@ -29,8 +29,8 @@ type ProgramInfo = Nullable<{
   customPk: PublicKey;
   /** Program's Anchor IDL */
   idl: Idl;
-  /** Uploaded program binary file */
-  uploadedProgram: {
+  /** Imported program binary file */
+  importedProgram: {
     buffer: Buffer;
     fileName: string;
   };
@@ -49,7 +49,7 @@ const defaultState: ProgramInfo = {
   kp: null,
   customPk: null,
   idl: null,
-  uploadedProgram: null,
+  importedProgram: null,
 };
 
 const storage = {
@@ -75,7 +75,7 @@ const storage = {
       customPk: serializedState.customPk
         ? new PublicKey(serializedState.customPk)
         : null,
-      uploadedProgram: defaultState.uploadedProgram,
+      importedProgram: defaultState.importedProgram,
     };
   },
 

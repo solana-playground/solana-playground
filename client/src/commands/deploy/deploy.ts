@@ -92,7 +92,7 @@ const processDeploy = async () => {
   if (!programPk) throw new Error("Program id not found.");
 
   // Regular deploy without custom elf upload
-  let programBuffer = PgProgramInfo.uploadedProgram?.buffer;
+  let programBuffer = PgProgramInfo.importedProgram?.buffer;
   if (!programBuffer?.length) {
     if (!PgProgramInfo.uuid) throw new Error("Program is not built.");
     programBuffer = await PgServer.deploy(PgProgramInfo.uuid);

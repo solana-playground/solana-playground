@@ -2,21 +2,21 @@ import { FC, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
 import Foldable from "../../../../../components/Foldable";
-import ProgramCredentials from "./ProgramCredentials";
-import UploadProgram from "./UploadProgram";
 import IDL from "./IDL";
+import ProgramBinary from "./ProgramBinary";
+import ProgramCredentials from "./ProgramCredentials";
 
 const ProgramSettings = () => (
   <Wrapper>
     <ProgramSetting
-      title="Program credentials"
+      title="Program ID"
       text="Import/export program keypair or input a public key for the program."
       InsideEl={<ProgramCredentials />}
     />
     <ProgramSetting
-      title="Upload a program"
-      text="Upload your program and deploy without failure."
-      InsideEl={<UploadProgram />}
+      title="Program binary"
+      text="Import your program and deploy without failure."
+      InsideEl={<ProgramBinary />}
     />
     <ProgramSetting
       title="IDL"
@@ -25,6 +25,14 @@ const ProgramSettings = () => (
     />
   </Wrapper>
 );
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 1rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.default.border};
+`;
 
 interface ProgramSettingProps {
   title: string;
@@ -40,15 +48,6 @@ const ProgramSetting: FC<ProgramSettingProps> = ({ title, text, InsideEl }) => (
     </Foldable>
   </ProgramSettingWrapper>
 );
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid ${({ theme }) => theme.colors.default.border};
-`;
 
 const ProgramSettingWrapper = styled.div`
   margin-top: 1rem;

@@ -4,8 +4,8 @@ import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
 import CopyButton from "../../../../../components/CopyButton";
-import DownloadButton from "../../../../../components/DownloadButton";
-import UploadButton from "../../../../../components/UploadButton";
+import ExportButton from "../../../../../components/ExportButton";
+import ImportButton from "../../../../../components/ImportButton";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
@@ -66,23 +66,23 @@ const NewKeypairModal = () => {
             The old keypair will be lost if you don't save it.
           </Text>
         </WarningTextWrapper>
-        <DownloadButton
+        <ExportButton
           href={PgCommon.getUtf8EncodedString(
             Array.from(PgProgramInfo.kp!.secretKey)
           )}
-          download="program-keypair.json"
+          fileName="program-keypair.json"
           buttonKind="outline"
         >
           Save keypair
-        </DownloadButton>
+        </ExportButton>
       </MainContent>
     </Modal>
   );
 };
 
 const Import = () => {
-  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const handleImport = async (ev: ChangeEvent<HTMLInputElement>) => {
+    const files = ev.target.files;
     if (!files?.length) return;
 
     try {
@@ -99,16 +99,16 @@ const Import = () => {
       });
 
       // Reset file
-      e.target.value = "";
+      ev.target.value = "";
     } catch (err: any) {
       console.log(err.message);
     }
   };
 
   return (
-    <UploadButton accept=".json" onUpload={handleUpload}>
+    <ImportButton accept=".json" onImport={handleImport}>
       Import
-    </UploadButton>
+    </ImportButton>
   );
 };
 
@@ -118,14 +118,14 @@ const Export = () => {
   if (!PgProgramInfo.kp) return null;
 
   return (
-    <DownloadButton
+    <ExportButton
       href={PgCommon.getUtf8EncodedString(
         Array.from(PgProgramInfo.kp.secretKey)
       )}
-      download="program-keypair.json"
+      fileName="program-keypair.json"
     >
       Export
-    </DownloadButton>
+    </ExportButton>
   );
 };
 

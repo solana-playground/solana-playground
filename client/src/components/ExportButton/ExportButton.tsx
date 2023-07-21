@@ -4,23 +4,23 @@ import styled from "styled-components";
 import Button, { ButtonKind } from "../Button";
 import { PgCommon } from "../../utils/pg";
 
-interface DownloadButtonProps {
+interface ExportButtonProps {
   href: string | object;
-  download: string;
+  fileName: string;
   buttonKind?: ButtonKind;
   noButton?: boolean;
 }
 
-const DownloadButton: FC<DownloadButtonProps> = ({
+const ExportButton: FC<ExportButtonProps> = ({
   href,
-  download,
+  fileName,
   buttonKind = "outline",
   noButton = false,
   children,
 }) => (
   <Wrapper
     href={typeof href === "string" ? href : PgCommon.getUtf8EncodedString(href)}
-    download={download}
+    download={fileName}
   >
     {noButton ? (
       <div>{children}</div>
@@ -34,4 +34,4 @@ const Wrapper = styled.a`
   width: fit-content;
 `;
 
-export default DownloadButton;
+export default ExportButton;

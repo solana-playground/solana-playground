@@ -22,7 +22,7 @@ const Deploy = () => {
     hasProgramKp,
     hasProgramPk,
     hasUuid,
-    uploadedProgram,
+    importedProgram,
   } = useProgramInfo();
   const { wallet } = useWallet();
 
@@ -50,7 +50,7 @@ const Deploy = () => {
   );
 
   // Custom(uploaded) program deploy
-  if (uploadedProgram?.buffer.length) {
+  if (importedProgram?.buffer.length) {
     if (!wallet)
       return (
         <Wrapper>
@@ -64,8 +64,8 @@ const Deploy = () => {
         <Wrapper>
           <Text>
             <div>
-              First deployment needs a keypair. You can import it from
-              <Bold> Program credentials</Bold>.
+              Initial deployment needs a keypair. You can import it from
+              <Bold> Program ID</Bold>.
             </div>
           </Text>
         </Wrapper>
@@ -98,11 +98,11 @@ const Deploy = () => {
       );
 
     let text = ` Ready to ${deployed ? "upgrade" : "deploy"} ${
-      uploadedProgram.fileName
+      importedProgram.fileName
     }`;
     if (terminalState.deployLoading) {
       text = `${deployed ? "Upgrading" : "Deploying"} ${
-        uploadedProgram.fileName
+        importedProgram.fileName
       }...`;
     }
 
@@ -156,8 +156,8 @@ const Deploy = () => {
         <Wrapper>
           <Text>
             <div>
-              Build the program first or upload a program from
-              <Bold> Upload a program</Bold>.
+              Build the program first or import a program from
+              <Bold> Program binary</Bold>.
             </div>
           </Text>
         </Wrapper>

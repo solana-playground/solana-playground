@@ -2,8 +2,8 @@ import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../../components/Button";
-import DownloadButton from "../../../../../components/DownloadButton";
-import UploadButton from "../../../../../components/UploadButton";
+import ExportButton from "../../../../../components/ExportButton";
+import ImportButton from "../../../../../components/ImportButton";
 import {
   PgCommand,
   PgCommon,
@@ -21,8 +21,8 @@ const IDL = () => (
 );
 
 const Import = () => {
-  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const handleImport = async (ev: ChangeEvent<HTMLInputElement>) => {
+    const files = ev.target.files;
     if (!files?.length) return;
 
     try {
@@ -39,9 +39,9 @@ const Import = () => {
   };
 
   return (
-    <UploadButton accept=".json" onUpload={handleUpload} showUploadText>
+    <ImportButton accept=".json" onImport={handleImport} showImportText>
       Import
-    </UploadButton>
+    </ImportButton>
   );
 };
 
@@ -51,12 +51,12 @@ const Export = () => {
   if (!PgProgramInfo.idl) return null;
 
   return (
-    <DownloadButton
+    <ExportButton
       href={PgCommon.getUtf8EncodedString(PgProgramInfo.idl)}
-      download="idl.json"
+      fileName="idl.json"
     >
       Export
-    </DownloadButton>
+    </ExportButton>
   );
 };
 

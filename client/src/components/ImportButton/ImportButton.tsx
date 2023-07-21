@@ -3,37 +3,37 @@ import styled, { css } from "styled-components";
 
 import Button, { ButtonKind } from "../Button";
 
-interface UploadButtonProps {
-  onUpload: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
+interface ImportButtonProps {
+  onImport: (ev: ChangeEvent<HTMLInputElement>) => Promise<void>;
   accept?: string;
-  showUploadText?: boolean;
+  showImportText?: boolean;
   buttonKind?: ButtonKind;
   noButton?: boolean;
   dir?: boolean;
 }
 
-const UploadButton: FC<UploadButtonProps> = ({
-  onUpload,
+const ImportButton: FC<ImportButtonProps> = ({
+  onImport,
   accept,
   buttonKind = "outline",
-  showUploadText,
+  showImportText,
   noButton,
   dir,
   children,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [uploadText, setUploadText] = useState("");
+  const [importText, setImportText] = useState("");
 
   const handleClick = () => {
     inputRef.current?.click();
   };
 
-  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    await onUpload(e);
-    const files = e.target.files;
-    if (!files?.length) setUploadText("");
-    else setUploadText(files[0].name);
+  const handleChange = async (ev: ChangeEvent<HTMLInputElement>) => {
+    await onImport(ev);
+    const files = ev.target.files;
+    if (!files?.length) setImportText("");
+    else setImportText(files[0].name);
   };
 
   const dirProps = dir
@@ -56,7 +56,7 @@ const UploadButton: FC<UploadButtonProps> = ({
           {children}
         </Button>
       )}
-      {showUploadText && uploadText && <UploadInfo>{uploadText}</UploadInfo>}
+      {showImportText && importText && <ImportInfo>{importText}</ImportInfo>}
     </Wrapper>
   );
 };
@@ -74,7 +74,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const UploadInfo = styled.span`
+const ImportInfo = styled.span`
   ${({ theme }) => css`
     color: ${theme.colors.default.textSecondary};
     font-size: ${theme.font.code.size.small};
@@ -82,4 +82,4 @@ const UploadInfo = styled.span`
   `}
 `;
 
-export default UploadButton;
+export default ImportButton;
