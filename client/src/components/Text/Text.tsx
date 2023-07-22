@@ -3,7 +3,7 @@ import styled, { css, useTheme } from "styled-components";
 
 import { PgCommon, PgTheme } from "../../utils/pg";
 
-export type TextKind = "normal" | "info" | "warning" | "success" | "error";
+export type TextKind = "default" | "info" | "warning" | "success" | "error";
 
 interface TextProps {
   kind?: TextKind;
@@ -24,27 +24,23 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
     let inheritedBg = "";
     while (1) {
       parent = parent?.parentElement;
+      if (!parent) continue;
 
-      if (parent) {
-        const style = getComputedStyle(parent);
+      const style = getComputedStyle(parent);
+      if (style.backgroundImage !== "none") {
+        inheritedBg = style.backgroundImage;
+        break;
+      }
 
-        if (style.backgroundImage !== "none") {
-          inheritedBg = style.backgroundImage;
-          break;
-        }
-
-        if (style.backgroundColor !== "rgba(0, 0, 0, 0)") {
-          inheritedBg = style.backgroundColor;
-          break;
-        }
+      if (style.backgroundColor !== "rgba(0, 0, 0, 0)") {
+        inheritedBg = style.backgroundColor;
+        break;
       }
     }
 
     const textBg = theme.components.text.default.bg!;
-
     if (PgCommon.isColorsEqual(inheritedBg, textBg)) {
       const { bgPrimary, bgSecondary } = theme.colors.default;
-
       if (PgCommon.isColorsEqual(inheritedBg, bgPrimary)) {
         ref.current.style.background = bgSecondary;
       } else {
@@ -67,27 +63,17 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 
 const Wrapper = styled.div<TextProps>`
   ${({ theme, kind, IconEl }) => {
-    kind ??= "normal";
+    kind ??= "default";
 
     // Clone the default Text theme to not override the global object
     let text = structuredClone(theme.components.text.default);
 
     switch (kind) {
       case "info":
-        text.color = theme.colors.state.info.color;
-        break;
-
       case "warning":
-        text.color = theme.colors.state.warning.color;
-        break;
-
       case "success":
-        text.color = theme.colors.state.success.color;
-        break;
-
       case "error":
-        text.color = theme.colors.state.error.color;
-        break;
+        text.color = theme.colors.state[kind].color;
     }
 
     // Text kind specific overrides
