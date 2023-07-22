@@ -1,6 +1,7 @@
 import { Idl, Program, Provider, BN } from "@project-serum/anchor";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 import type {
+  IdlField,
   IdlType,
   IdlTypeArray,
   IdlTypeCOption,
@@ -81,18 +82,17 @@ export class PgTest {
           ?.filter((t) => t.name === customTypeName)
           .at(0)?.type;
         if (!typeInfo) {
-          typeInfo = idl.accounts?.filter((t) => t.name === customTypeName)[0]
-            .type;
+          typeInfo = idl.accounts?.find((t) => t.name === customTypeName)?.type;
+          if (!typeInfo) throw new Error(`Type ${customTypeName} not found`);
         }
 
-        const kind = typeInfo?.kind;
-        if (kind === "enum") {
+        if (typeInfo.kind === "enum") {
           return (customTypeName + "(Enum)") as IdlType;
           // TODO: Error handling based on variants
           // TODO: Show possible enum options
           // const variants = typeInfo.variants;
           // ...
-        } else if (kind === "struct") {
+        } else if (typeInfo.kind === "struct") {
           return customTypeName as IdlType;
 
           // TODO: Implement error handling based on properties
@@ -113,12 +113,12 @@ export class PgTest {
           //     .replaceAll('"', "");
           // return fullType as IdlType;
         }
-      } else if ((type as IdlTypeVec)?.vec) {
+      } else if ((type as IdlTypeVec).vec) {
         // Vec<T>
         const innerType = this.getFullType((type as IdlTypeVec).vec, idl);
 
         return ("Vec<" + innerType + ">") as IdlType;
-      } else if ((type as IdlTypeArray)?.array) {
+      } else if ((type as IdlTypeArray).array) {
         // Array = [<T>; n];
         const array = (type as IdlTypeArray).array;
         const innerType = this.getFullType(array[0], idl);
@@ -222,31 +222,81 @@ export class PgTest {
         // The program will not be able to deserialize if the size of the array is not sufficient
         if (parsedV.length !== arraySize) throw new Error("Invalid array size");
       } else if (typeString.endsWith("(Enum)")) {
+        // Enum
+        if (!idl?.types) {
+          throw new Error("Enum requires IDL types to exist");
+        }
         if (v.includes("[")) throw new Error("Invalid " + type);
 
-        if (v.includes("{")) parsedV = JSON.parse(v);
-        else {
-          parsedV = {};
-          (parsedV as { [key: string]: {} })[v.toLowerCase()] = {};
+        const enumType = idl.types.find(
+          (type) =>
+            this.getFullType(type.name as IdlType, idl) ===
+            this.getFullType(v as IdlType, idl)
+        )?.type;
+        if (!enumType) {
+          throw new Error(`Type ${type} not found in the IDL`);
+        }
+        if (enumType.kind !== "enum") {
+          throw new Error("IDL type kind must be enum");
+        }
+
+        if (v.includes("{")) {
+          parsedV = JSON.parse(v);
+
+          // Parse values that needs to be parsed(e.g i64)
+          for (const key in parsedV) {
+            const variant = enumType.variants.find((variant) => {
+              return (
+                PgCommon.toCamelCase(variant.name) === PgCommon.toCamelCase(key)
+              );
+            });
+            if (!variant) throw new Error(`Variant ${key} not found`);
+
+            if (variant.fields) {
+              for (const _field of variant.fields) {
+                const field = _field as IdlField;
+                parsedV[key][field.name] = this.parse(
+                  typeof parsedV[key][field.name] === "string"
+                    ? parsedV[key][field.name]
+                    : JSON.stringify(parsedV[key][field.name]),
+                  this.getFullType(field.type, idl),
+                  idl
+                );
+              }
+            }
+          }
+        } else {
+          const variant = enumType.variants.find(
+            (variant) =>
+              PgCommon.toCamelCase(variant.name) === PgCommon.toCamelCase(v)
+          );
+          if (!variant) throw new Error(`Variant ${v} not found`);
+          if (variant.fields?.length) {
+            throw new Error(
+              `Variant ${v} has fields, should use the JSON format`
+            );
+          }
+          parsedV = { [PgCommon.toCamelCase(v)]: {} };
         }
       } else {
         // Custom Struct
         if (!idl?.types) {
-          throw new Error("Custom struct requires IDL types to exist.");
+          throw new Error("Custom struct requires IDL types to exist");
         }
 
-        const idlType = idl.types.find((t) => (t.name as IdlType) === type);
-        if (!idlType) {
+        const structType = idl.types.find(
+          (t) => (t.name as IdlType) === type
+        )?.type;
+        if (!structType) {
           throw new Error(`Type ${type} not found in the IDL`);
         }
-
-        if (idlType.type.kind === "enum") {
-          throw new Error("IDL type kind should not be enum");
+        if (structType.kind !== "struct") {
+          throw new Error("IDL type kind must be struct");
         }
 
         parsedV = JSON.parse(v);
         // Parse values that needs to be parsed(e.g i64)
-        for (const field of idlType.type.fields) {
+        for (const field of structType.fields) {
           parsedV[field.name] = this.parse(
             typeof parsedV[field.name] === "string"
               ? parsedV[field.name]
