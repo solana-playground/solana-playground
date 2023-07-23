@@ -21,8 +21,8 @@ export const build = createCmd({
 
     let msg;
     try {
-      const result = await processBuild();
-      msg = PgTerminal.editStderr(result.stderr);
+      const output = await processBuild();
+      msg = improveOutput(output.stderr);
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Build error: ${convertedError}`;
@@ -231,4 +231,38 @@ const getBuildFiles = () => {
   }
 
   return buildFiles;
+};
+
+/** Improve build output to stderr that is returned from the build request. */
+const improveOutput = (stderr: string) => {
+  // Remove full path
+  stderr = stderr
+    .replace(/\s\(\/home.+?(?=\s)/gm, "")
+    .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
+    .replace("Compiling solpg v0.1.0\n", "");
+
+  // Remove uuid from folders
+  const uuid = PgProgramInfo.uuid;
+  if (uuid) stderr = stderr.replaceAll(uuid, "");
+
+  // Remove `rustc` error line
+  let startIndex = stderr.indexOf("For more");
+  if (startIndex !== -1) {
+    const endIndex = stderr.indexOf("\n", startIndex);
+    stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
+  }
+
+  // Remove whitespace before `rustc` finished text
+  startIndex = stderr.indexOf("Finished release");
+  if (startIndex !== -1) {
+    const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
+    stderr =
+      stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
+      stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
+      PgTerminal.success("Build successful. ") +
+      "Completed" +
+      stderr.substring(stderr.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
+  }
+
+  return stderr.substring(0, stderr.length - 1);
 };

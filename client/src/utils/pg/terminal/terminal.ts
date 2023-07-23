@@ -17,7 +17,6 @@ import {
   SERVER_ERROR,
 } from "../../../constants";
 import { PgCommon } from "../common";
-import { PgProgramInfo } from "../program-info";
 import type { ExecuteCommand, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 import type { TerminalAction } from "../../../state";
@@ -172,44 +171,6 @@ export class PgTerminal {
       .replace(/\[\d+\/\d+\]/, (match) => this.bold(this.secondaryText(match)));
 
     return text;
-  }
-
-  /**
-   * Edit build stderr that is returned from the build request
-   */
-  static editStderr(stderr: string) {
-    // Remove full path
-    stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
-
-    // Remove uuid from folders
-    const uuid = PgProgramInfo.uuid;
-    if (uuid) stderr = stderr.replaceAll(uuid, "");
-
-    // Remove rustc error line
-    let startIndex = stderr.indexOf("For more");
-    if (startIndex !== -1) {
-      const endIndex = stderr.indexOf("\n", startIndex);
-      stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
-    }
-
-    // Remove Compiling message
-    stderr = stderr.replace("Compiling solpg v0.1.0\n", "");
-
-    // Remove whitespace before 'Finished'
-    startIndex = stderr.indexOf("Finished release");
-    if (startIndex !== -1) {
-      const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
-      stderr =
-        stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
-        stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
-        this.success("Build successful. ") +
-        "Completed" +
-        stderr
-          .substring(stderr.indexOf(" in", startIndex))
-          .replace("\n", ".\n"); // Time passed
-    }
-
-    return stderr.substring(0, stderr.length - 1);
   }
 
   /**
