@@ -239,7 +239,8 @@ const improveOutput = (stderr: string) => {
   stderr = stderr
     .replace(/\s\(\/home.+?(?=\s)/gm, "")
     .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
-    .replace("Compiling solpg v0.1.0\n", "");
+    .replace("Compiling solpg v0.1.0\n", "")
+    .replace("solpg", PgExplorer.currentWorkspaceName ?? "temp");
 
   // Remove uuid from folders
   const uuid = PgProgramInfo.uuid;
