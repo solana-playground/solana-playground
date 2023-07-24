@@ -39,13 +39,13 @@ export type Disposable = {
 };
 
 /** JSX element */
-export type Element = () => JSX.Element | null;
+export type CallableJSX = () => JSX.Element | null;
 
 /** Set state type */
 export type SetState<T> = T | ((cur: T) => T);
 
 /** Set element asynchronously */
-export type SetElementAsync = SetState<SyncOrAsync<JSX.Element | Element>>;
+export type SetElementAsync = SetState<SyncOrAsync<JSX.Element | CallableJSX>>;
 
 /** Make the given keys required */
 export type KeyRequired<T, R extends keyof T> = Omit<T, R> & {

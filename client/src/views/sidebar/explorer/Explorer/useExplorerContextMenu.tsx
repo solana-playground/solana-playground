@@ -1,9 +1,7 @@
 import { MouseEvent, useCallback, useState } from "react";
-import { useAtom } from "jotai";
 
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../constants";
-import { newItemAtom } from "../../../../state";
 import { PgCommand, PgExplorer, PgView } from "../../../../utils/pg";
 
 export type ItemData = {
@@ -17,8 +15,6 @@ export type ItemData = {
 };
 
 export const useExplorerContextMenu = () => {
-  const [, setEl] = useAtom(newItemAtom);
-
   const [itemData, setItemData] = useState<ItemData>({});
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
 
@@ -77,9 +73,9 @@ export const useExplorerContextMenu = () => {
       ctxSelected.classList.add(ClassName.OPEN);
       ctxSelected.nextElementSibling?.classList.remove(ClassName.HIDDEN);
     }
-    setEl(ctxSelected.nextElementSibling);
+    PgView.setNewItemPortal(ctxSelected.nextElementSibling);
     PgExplorer.setCtxSelectedEl(ctxSelected);
-  }, [getPath, setEl]);
+  }, [getPath]);
 
   const renameItem = useCallback(async () => {
     if (PgExplorer.getCtxSelectedEl()) {

@@ -3,7 +3,7 @@ import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { SetState, SetElementAsync, Element } from "./types";
+import type { SetState, SetElementAsync, CallableJSX } from "./types";
 
 /** Sidebar page */
 type SidebarPage<N extends string> = {
@@ -12,9 +12,9 @@ type SidebarPage<N extends string> = {
   /** `src` of the image */
   icon: string;
   /** Lazy loader for the element */
-  importElement: () => Promise<{ default: Element }>;
+  importElement: () => Promise<{ default: CallableJSX }>;
   /** Loading element to until the element is ready to show */
-  LoadingElement?: Element;
+  LoadingElement?: CallableJSX;
   /** Title of the page, defaults to `name` */
   title?: string;
   /** Keybind for the page */
@@ -117,6 +117,20 @@ export class PgView {
       Component,
       props,
     });
+  }
+
+  /**
+   * Set the new item portal container.
+   *
+   * New item input will be shown if an element is given.
+   *
+   * @param Element element to set the portal container to
+   */
+  static setNewItemPortal(Element: Element | null) {
+    return PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_NEW_ITEM_PORTAL_SET,
+      Element
+    );
   }
 
   /**

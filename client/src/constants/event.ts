@@ -29,6 +29,7 @@ export enum EventName {
 
   // View
   VIEW_MAIN_STATIC = "viewmainstatic",
+  VIEW_NEW_ITEM_PORTAL_SET = "viewnewitemportalset",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
   VIEW_SIDEBAR_LOADING_SET = "viewsidebarloadingset",
   VIEW_ON_DID_CHANGE_SIDEBAR_PAGE = "viewondidchangesidebarpage",

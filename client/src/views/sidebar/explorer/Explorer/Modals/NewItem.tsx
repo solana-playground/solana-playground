@@ -1,29 +1,39 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
 import LangIcon from "../../../../../components/LangIcon";
-import { newItemAtom } from "../../../../../state";
-import { PgExplorer } from "../../../../../utils/pg";
-import { useKeybind, useOnClickOutside } from "../../../../../hooks";
+import { EventName } from "../../../../../constants";
+import { Fn, PgExplorer } from "../../../../../utils/pg";
+import {
+  useKeybind,
+  useOnClickOutside,
+  useSetStatic,
+} from "../../../../../hooks";
 
 export const NewItem = () => {
-  const [el] = useAtom(newItemAtom);
+  const [El, setEl] = useState<Element | null>(null);
 
-  return el ? ReactDOM.createPortal(<NewItemInput />, el) : null;
+  useSetStatic(setEl, EventName.VIEW_NEW_ITEM_PORTAL_SET);
+
+  const hide = useCallback(() => setEl(null), []);
+
+  return El
+    ? ReactDOM.createPortal(<NewItemInput El={El} hide={hide} />, El)
+    : null;
 };
 
-const NewItemInput = () => {
-  const [el, setEl] = useAtom(newItemAtom);
+interface NewItemInputProps {
+  El: Element;
+  hide: Fn;
+}
 
+const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
   const [itemName, setItemName] = useState("");
   const [error, setError] = useState(false);
 
   const newFileRef = useRef<HTMLDivElement>(null);
-
-  const hide = useCallback(() => setEl(null), [setEl]);
 
   useOnClickOutside(newFileRef, hide);
 
@@ -53,8 +63,8 @@ const NewItemInput = () => {
             // Create item
             await PgExplorer.newItem(itemPath);
 
-            // Remove input
-            setEl(null);
+            // Hide input
+            hide();
 
             // Reset Ctx Selected
             PgExplorer.removeCtxSelectedEl();
@@ -69,23 +79,21 @@ const NewItemInput = () => {
       },
       {
         keybind: "Escape",
-        handle: () => {
-          setEl(null);
-        },
+        handle: hide,
       },
     ],
     [itemName]
   );
 
   const depth = useMemo(() => {
-    if (!el) return 0;
-    let path = PgExplorer.getItemPathFromEl(el.firstChild as HTMLDivElement);
+    if (!El) return 0;
+    let path = PgExplorer.getItemPathFromEl(El.firstChild as HTMLDivElement);
     const isEmptyFolder = !path;
 
     // Empty folder
     if (!path) {
       path = PgExplorer.getItemPathFromEl(
-        el.parentElement?.firstChild as HTMLDivElement
+        El.parentElement?.firstChild as HTMLDivElement
       );
       if (!path) return 2;
     }
@@ -96,7 +104,7 @@ const NewItemInput = () => {
     else path = PgExplorer.getRelativePath(path);
 
     return path.split("/").length - (itemType.file || isEmptyFolder ? 0 : 1);
-  }, [el]);
+  }, [El]);
 
   return (
     <Wrapper ref={newFileRef} depth={depth}>
