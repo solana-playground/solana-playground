@@ -187,7 +187,8 @@ impl WasmClient {
         let hash = response
             .value
             .blockhash
-            .parse().map_err(|_| ClientError::new("Hash not parsable."))?;
+            .parse()
+            .map_err(|_| ClientError::new("Hash not parsable."))?;
 
         Ok((hash, response.value.last_valid_block_height))
     }
