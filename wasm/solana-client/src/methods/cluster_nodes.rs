@@ -1,24 +1,24 @@
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetClusterNodesRequest {}
 
 impl GetClusterNodesRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetClusterNodesRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetClusterNodesRequest> for serde_json::Value {
+    fn from(_: GetClusterNodesRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetClusterNodesRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetClusterNodesRequest> for ClientRequest {
+    fn from(value: GetClusterNodesRequest) -> Self {
         let mut request = ClientRequest::new("getClusterNodes");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -53,8 +53,8 @@ impl From<ClientResponse> for GetClusterNodesResponse {
     }
 }
 
-impl Into<Vec<RpcContactInfoWasm>> for GetClusterNodesResponse {
-    fn into(self) -> Vec<RpcContactInfoWasm> {
-        self.0
+impl From<GetClusterNodesResponse> for Vec<RpcContactInfoWasm> {
+    fn from(value: GetClusterNodesResponse) -> Self {
+        value.0
     }
 }

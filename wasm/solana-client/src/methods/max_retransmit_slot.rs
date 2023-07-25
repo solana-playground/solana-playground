@@ -1,24 +1,24 @@
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetMaxRetransmitSlotRequest {}
 
 impl GetMaxRetransmitSlotRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetMaxRetransmitSlotRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetMaxRetransmitSlotRequest> for serde_json::Value {
+    fn from(_val: GetMaxRetransmitSlotRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetMaxRetransmitSlotRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetMaxRetransmitSlotRequest> for ClientRequest {
+    fn from(val: GetMaxRetransmitSlotRequest) -> Self {
         let mut request = ClientRequest::new("getMaxRetransmitSlot");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

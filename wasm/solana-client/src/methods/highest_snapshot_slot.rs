@@ -1,24 +1,24 @@
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetHighestSnapshotSlotRequest {}
 
 impl GetHighestSnapshotSlotRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetHighestSnapshotSlotRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetHighestSnapshotSlotRequest> for serde_json::Value {
+    fn from(_val: GetHighestSnapshotSlotRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetHighestSnapshotSlotRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetHighestSnapshotSlotRequest> for ClientRequest {
+    fn from(val: GetHighestSnapshotSlotRequest) -> Self {
         let mut request = ClientRequest::new("getHighestSnapshotSlot");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

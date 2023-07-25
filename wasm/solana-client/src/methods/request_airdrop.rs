@@ -32,21 +32,21 @@ impl RequestAirdropRequest {
     }
 }
 
-impl Into<serde_json::Value> for RequestAirdropRequest {
-    fn into(self) -> serde_json::Value {
-        let pubkey = self.pubkey.to_string();
+impl From<RequestAirdropRequest> for serde_json::Value {
+    fn from(value: RequestAirdropRequest) -> Self {
+        let pubkey = value.pubkey.to_string();
 
-        match self.config {
-            Some(config) => serde_json::json!([pubkey, self.lamports, config]),
-            None => serde_json::json!([pubkey, self.lamports]),
+        match value.config {
+            Some(config) => serde_json::json!([pubkey, value.lamports, config]),
+            None => serde_json::json!([pubkey, value.lamports]),
         }
     }
 }
 
-impl Into<ClientRequest> for RequestAirdropRequest {
-    fn into(self) -> ClientRequest {
+impl From<RequestAirdropRequest> for ClientRequest {
+    fn from(val: RequestAirdropRequest) -> Self {
         let mut request = ClientRequest::new("requestAirdrop");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -55,9 +55,9 @@ impl Into<ClientRequest> for RequestAirdropRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RequestAirdropResponse(Signature);
 
-impl Into<Signature> for RequestAirdropResponse {
-    fn into(self) -> Signature {
-        self.0
+impl From<RequestAirdropResponse> for Signature {
+    fn from(val: RequestAirdropResponse) -> Self {
+        val.0
     }
 }
 

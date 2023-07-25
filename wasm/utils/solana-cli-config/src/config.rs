@@ -104,11 +104,11 @@ impl Default for Config {
 impl Config {
     /// WASM
     pub fn new(json_rpc_url: &str, commitment: &str) -> Self {
-        let mut config = Self::default();
-        config.json_rpc_url = json_rpc_url.to_string();
-        config.commitment = commitment.to_string();
-
-        config
+        Self {
+            json_rpc_url: json_rpc_url.to_string(),
+            commitment: commitment.to_string(),
+            ..Default::default()
+        }
     }
 
     /// Load a configuration from file.

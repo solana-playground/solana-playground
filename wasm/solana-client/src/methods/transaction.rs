@@ -25,21 +25,21 @@ impl GetTransactionRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetTransactionRequest {
-    fn into(self) -> serde_json::Value {
-        let signature = self.signature.to_string();
+impl From<GetTransactionRequest> for serde_json::Value {
+    fn from(value: GetTransactionRequest) -> Self {
+        let signature = value.signature.to_string();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([signature, config]),
             None => serde_json::json!([signature]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetTransactionRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetTransactionRequest> for ClientRequest {
+    fn from(value: GetTransactionRequest) -> Self {
         let mut request = ClientRequest::new("getTransaction");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -54,8 +54,8 @@ impl From<ClientResponse> for GetTransactionResponse {
     }
 }
 
-impl Into<Option<EncodedConfirmedTransactionWithStatusMeta>> for GetTransactionResponse {
-    fn into(self) -> Option<EncodedConfirmedTransactionWithStatusMeta> {
-        self.0
+impl From<GetTransactionResponse> for Option<EncodedConfirmedTransactionWithStatusMeta> {
+    fn from(value: GetTransactionResponse) -> Self {
+        value.0
     }
 }

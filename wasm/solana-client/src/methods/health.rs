@@ -1,24 +1,24 @@
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetHealthRequest {}
 
 impl GetHealthRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetHealthRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetHealthRequest> for serde_json::Value {
+    fn from(_val: GetHealthRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetHealthRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetHealthRequest> for ClientRequest {
+    fn from(val: GetHealthRequest) -> Self {
         let mut request = ClientRequest::new("getHealth");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

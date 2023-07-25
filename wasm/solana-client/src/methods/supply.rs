@@ -4,7 +4,7 @@ use crate::{
     ClientRequest, ClientResponse,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Default, Deserialize)]
 pub struct GetSupplyRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     config: Option<RpcSupplyConfig>,
@@ -12,7 +12,7 @@ pub struct GetSupplyRequest {
 
 impl GetSupplyRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
 
     pub fn new_with_config(config: RpcSupplyConfig) -> Self {
@@ -22,19 +22,19 @@ impl GetSupplyRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetSupplyRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetSupplyRequest> for serde_json::Value {
+    fn from(value: GetSupplyRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
 }
 
-impl Into<ClientRequest> for GetSupplyRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetSupplyRequest> for ClientRequest {
+    fn from(value: GetSupplyRequest) -> Self {
         let mut request = ClientRequest::new("getSupply");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

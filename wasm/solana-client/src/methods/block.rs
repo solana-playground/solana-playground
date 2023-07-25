@@ -22,19 +22,19 @@ impl GetBlockRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlockRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
-            Some(config) => serde_json::json!([self.slot, config]),
-            None => serde_json::json!([self.slot]),
+impl From<GetBlockRequest> for serde_json::Value {
+    fn from(value: GetBlockRequest) -> Self {
+        match value.config {
+            Some(config) => serde_json::json!([value.slot, config]),
+            None => serde_json::json!([value.slot]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetBlockRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlockRequest> for ClientRequest {
+    fn from(val: GetBlockRequest) -> Self {
         let mut request = ClientRequest::new("getBlock");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -49,8 +49,8 @@ impl From<ClientResponse> for GetBlockResponse {
     }
 }
 
-impl Into<UiConfirmedBlock> for GetBlockResponse {
-    fn into(self) -> UiConfirmedBlock {
-        self.0
+impl From<GetBlockResponse> for UiConfirmedBlock {
+    fn from(value: GetBlockResponse) -> Self {
+        value.0
     }
 }

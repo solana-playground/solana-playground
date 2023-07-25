@@ -25,21 +25,21 @@ impl GetTokenLargestAccountsRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetTokenLargestAccountsRequest {
-    fn into(self) -> serde_json::Value {
-        let pubkey = self.pubkey.to_string();
+impl From<GetTokenLargestAccountsRequest> for serde_json::Value {
+    fn from(value: GetTokenLargestAccountsRequest) -> Self {
+        let pubkey = value.pubkey.to_string();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([pubkey, config]),
             None => serde_json::json!([pubkey]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetTokenLargestAccountsRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetTokenLargestAccountsRequest> for ClientRequest {
+    fn from(val: GetTokenLargestAccountsRequest) -> Self {
         let mut request = ClientRequest::new("getTokenLargestAccounts");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

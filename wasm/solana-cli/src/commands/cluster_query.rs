@@ -353,7 +353,7 @@ impl ClusterQuerySubCommands for Command<'_> {
                             Arg::new("sort")
                                 .long("sort")
                                 .takes_value(true)
-                                .possible_values(&[
+                                .possible_values([
                                     "delinquent",
                                     "commission",
                                     "credits",
@@ -444,7 +444,7 @@ impl ClusterQuerySubCommands for Command<'_> {
                                 .value_name("DATA_LENGTH_OR_MONIKER")
                                 .required(true)
                                  .validator(|s| {
-                                    RentLengthValue::from_str(&s)
+                                    RentLengthValue::from_str(s)
                                         .map(|_| ())
                                         .map_err(|e| e.to_string())
                                 })
@@ -1125,7 +1125,7 @@ pub async fn process_get_epoch_info(
                 .get_blocks_with_limit(epoch_expected_start_slot, 1)
                 .await
                 .ok()
-                .and_then(|slot_vec| slot_vec.get(0).cloned())
+                .and_then(|slot_vec| slot_vec.first().cloned())
                 .unwrap_or(epoch_expected_start_slot);
             let start_block_time = rpc_client
                 .get_block_time(first_block_in_epoch)
@@ -1869,6 +1869,7 @@ pub async fn process_show_stakes(
 //     Ok(format!("Done waiting, took: {}s", now.elapsed().as_secs()))
 // }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn process_show_validators(
     rpc_client: &WasmClient,
     config: &CliConfig<'_>,
@@ -2073,10 +2074,10 @@ pub async fn process_transaction_history(
                         Some(status) => format!("{:?}", status),
                     }
                 },
-                result.memo.unwrap_or_else(|| "".to_string()),
+                result.memo.unwrap_or_default(),
             ));
         } else {
-            PgTerminal::log_wasm(&format!("{}", result.signature));
+            PgTerminal::log_wasm(&result.signature.to_string());
         }
 
         if show_transactions {

@@ -28,16 +28,16 @@ impl GetAccountInfoRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetAccountInfoRequest {
-    fn into(self) -> serde_json::Value {
-        serde_json::json!([self.pubkey.to_string(), self.config])
+impl From<GetAccountInfoRequest> for serde_json::Value {
+    fn from(value: GetAccountInfoRequest) -> Self {
+        serde_json::json!([value.pubkey.to_string(), value.config])
     }
 }
 
-impl Into<ClientRequest> for GetAccountInfoRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetAccountInfoRequest> for ClientRequest {
+    fn from(value: GetAccountInfoRequest) -> Self {
         let mut request = ClientRequest::new("getAccountInfo");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

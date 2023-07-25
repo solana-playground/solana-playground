@@ -15,11 +15,7 @@ pub struct GetBlockProductionRequest {
 impl GetBlockProductionRequest {
     pub fn new() -> Self {
         Self {
-            config: Some(RpcBlockProductionConfig {
-                commitment: None,
-                range: None,
-                identity: None,
-            }),
+            config: Some(RpcBlockProductionConfig::default()),
         }
     }
     pub fn new_with_config(config: RpcBlockProductionConfig) -> Self {
@@ -29,16 +25,22 @@ impl GetBlockProductionRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlockProductionRequest {
-    fn into(self) -> serde_json::Value {
-        serde_json::json!([self.config])
+impl Default for GetBlockProductionRequest {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-impl Into<ClientRequest> for GetBlockProductionRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlockProductionRequest> for serde_json::Value {
+    fn from(value: GetBlockProductionRequest) -> Self {
+        serde_json::json!([value.config])
+    }
+}
+
+impl From<GetBlockProductionRequest> for ClientRequest {
+    fn from(value: GetBlockProductionRequest) -> Self {
         let mut request = ClientRequest::new("getBlockProduction");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

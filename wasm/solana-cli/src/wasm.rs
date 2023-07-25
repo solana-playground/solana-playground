@@ -54,7 +54,7 @@ pub async fn run_solana(cmd: String) {
                         .await
                         .unwrap_or_else(|e| format!("Process error: {}", e))
                 }
-                Err(e) => format!("Parse error: {}", e.to_string()),
+                Err(e) => format!("Parse error: {e}"),
             };
 
             // Log output
@@ -100,10 +100,10 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                             ),
                             _ => unreachable!(),
                         };
-                        PgTerminal::log_wasm(&format!(
-                            "{}",
-                            get_name_value_or(&format!("{}:", field_name), &value, setting_type),
-                        ));
+                        PgTerminal::log_wasm(
+                            &get_name_value_or(&format!("{}:", field_name), &value, setting_type)
+                                .to_string(),
+                        );
                     } else {
                         // Appending log messages because of terminal issue with unnecessary
                         // prompt messages in browser
@@ -121,14 +121,12 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                         //     "{}",
                         //     get_name_value_or("Keypair Path:", &keypair_path, keypair_setting_type)
                         // );
-                        let commitment_msg = format!(
-                            "{}",
-                            get_name_value_or(
-                                "Commitment:",
-                                &commitment.commitment.to_string(),
-                                commitment_setting_type,
-                            ),
-                        );
+                        let commitment_msg = get_name_value_or(
+                            "Commitment:",
+                            &commitment.commitment.to_string(),
+                            commitment_setting_type,
+                        )
+                        .to_string();
 
                         msg.push_str(&rpc_msg);
                         msg.push_str(&ws_msg);
@@ -188,14 +186,12 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                     //     "{}",
                     //     get_name_value_or("Keypair Path:", &keypair_path, keypair_setting_type)
                     // );
-                    let commitment_msg = format!(
-                        "{}",
-                        get_name_value_or(
-                            "Commitment:",
-                            &commitment.commitment.to_string(),
-                            commitment_setting_type,
-                        ),
-                    );
+                    let commitment_msg = get_name_value_or(
+                        "Commitment:",
+                        &commitment.commitment.to_string(),
+                        commitment_setting_type,
+                    )
+                    .to_string();
 
                     msg.push_str(&rpc_msg);
                     msg.push_str(&ws_msg);

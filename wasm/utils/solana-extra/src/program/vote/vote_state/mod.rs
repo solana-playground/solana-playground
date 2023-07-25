@@ -1266,6 +1266,7 @@ fn verify_authorized_signer<S: std::hash::BuildHasher>(
 }
 
 /// Withdraw funds from the vote account
+#[allow(clippy::too_many_arguments)]
 pub fn withdraw<S: std::hash::BuildHasher>(
     transaction_context: &TransactionContext,
     instruction_context: &InstructionContext,

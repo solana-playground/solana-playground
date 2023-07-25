@@ -1751,10 +1751,7 @@ async fn command_accounts(
     let aux_len = if includes_aux { 10 } else { 0 };
 
     let cli_token_accounts = CliTokenAccounts {
-        accounts: mint_accounts
-            .into_iter()
-            .map(|(_mint, accounts_list)| accounts_list)
-            .collect(),
+        accounts: mint_accounts.into_values().collect(),
         unsupported_accounts,
         max_len_balance,
         aux_len,

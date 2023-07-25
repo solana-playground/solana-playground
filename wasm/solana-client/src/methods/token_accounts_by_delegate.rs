@@ -69,19 +69,19 @@ impl GetTokenAccountsByDelegateRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetTokenAccountsByDelegateRequest {
-    fn into(self) -> serde_json::Value {
-        let pubkey = self.pubkey.to_string();
-        let account_key = match self.account_type {
+impl From<GetTokenAccountsByDelegateRequest> for serde_json::Value {
+    fn from(value: GetTokenAccountsByDelegateRequest) -> Self {
+        let pubkey = value.pubkey.to_string();
+        let account_key = match value.account_type {
             AccountType::MintAccount => {
-                serde_json::json!({"mint": self.account_key.to_string()})
+                serde_json::json!({"mint": value.account_key.to_string()})
             }
             AccountType::ProgramAccount => {
-                serde_json::json!({"programId": self.account_key.to_string()})
+                serde_json::json!({"programId": value.account_key.to_string()})
             }
         };
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([pubkey, account_key, config]),
             None => {
                 let config = serde_json::json!({ "encoding": UiTransactionEncoding::JsonParsed });
@@ -91,10 +91,10 @@ impl Into<serde_json::Value> for GetTokenAccountsByDelegateRequest {
     }
 }
 
-impl Into<ClientRequest> for GetTokenAccountsByDelegateRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetTokenAccountsByDelegateRequest> for ClientRequest {
+    fn from(value: GetTokenAccountsByDelegateRequest) -> Self {
         let mut request = ClientRequest::new("getTokenAccountsByDelegate");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

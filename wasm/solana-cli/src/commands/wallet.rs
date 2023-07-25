@@ -197,7 +197,7 @@ impl WalletSubCommands for Command<'_> {
                             Arg::new("encoding")
                                 .index(2)
                                 .value_name("ENCODING")
-                                .possible_values(&["base58", "base64"]) // Variants of `TransactionBinaryEncoding` enum
+                                .possible_values(["base58", "base64"]) // Variants of `TransactionBinaryEncoding` enum
                                 .default_value("base58")
                                 .takes_value(true)
                                 .required(true)
@@ -535,7 +535,7 @@ pub async fn process_airdrop(
     let result = request_and_confirm_airdrop(rpc_client, config, &pubkey, lamports).await;
     if let Ok(signature) = result {
         let signature_cli_message = log_instruction_custom_error::<SystemError>(result, config)?;
-        PgTerminal::log_wasm(&format!("{}", signature_cli_message));
+        PgTerminal::log_wasm(&signature_cli_message.to_string());
 
         let current_balance = rpc_client
             .get_balance_with_commitment(&pubkey, config.commitment_config)

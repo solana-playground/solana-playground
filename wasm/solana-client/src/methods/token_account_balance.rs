@@ -27,21 +27,21 @@ impl GetTokenAccountBalanceRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetTokenAccountBalanceRequest {
-    fn into(self) -> serde_json::Value {
-        let account = self.account.to_string();
+impl From<GetTokenAccountBalanceRequest> for serde_json::Value {
+    fn from(value: GetTokenAccountBalanceRequest) -> Self {
+        let account = value.account.to_string();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([account, config]),
             None => serde_json::json!([account]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetTokenAccountBalanceRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetTokenAccountBalanceRequest> for ClientRequest {
+    fn from(value: GetTokenAccountBalanceRequest) -> Self {
         let mut request = ClientRequest::new("getTokenAccountBalance");
-        let params = self.into();
+        let params: serde_json::Value = value.into();
 
         request.params(params).clone()
     }

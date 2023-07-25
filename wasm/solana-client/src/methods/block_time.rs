@@ -13,16 +13,16 @@ impl GetBlockTimeRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlockTimeRequest {
-    fn into(self) -> serde_json::Value {
-        serde_json::json!([self.slot])
+impl From<GetBlockTimeRequest> for serde_json::Value {
+    fn from(value: GetBlockTimeRequest) -> Self {
+        serde_json::json!([value.slot])
     }
 }
 
-impl Into<ClientRequest> for GetBlockTimeRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlockTimeRequest> for ClientRequest {
+    fn from(value: GetBlockTimeRequest) -> Self {
         let mut request = ClientRequest::new("getBlockTime");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -37,8 +37,8 @@ impl From<ClientResponse> for GetBlockTimeResponse {
     }
 }
 
-impl Into<Option<UnixTimestamp>> for GetBlockTimeResponse {
-    fn into(self) -> Option<UnixTimestamp> {
-        self.0
+impl From<GetBlockTimeResponse> for Option<UnixTimestamp> {
+    fn from(val: GetBlockTimeResponse) -> Self {
+        val.0
     }
 }
