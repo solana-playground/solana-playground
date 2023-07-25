@@ -3,41 +3,9 @@ import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { SetState, SetElementAsync, CallableJSX } from "./types";
-
-/** Sidebar page */
-type SidebarPage<N extends string> = {
-  /** Name of the page */
-  name: N;
-  /** `src` of the image */
-  icon: string;
-  /** Lazy loader for the element */
-  importElement: () => Promise<{ default: CallableJSX }>;
-  /** Loading element to until the element is ready to show */
-  LoadingElement?: CallableJSX;
-  /** Title of the page, defaults to `name` */
-  title?: string;
-  /** Keybind for the page */
-  keybind?: string;
-};
-
-/** Created sidebar page */
-type CreatedSidebarPage<N extends string> = Omit<SidebarPage<N>, "title"> &
-  Required<Pick<SidebarPage<N>, "title">>;
+import type { SetState, SetElementAsync } from "./types";
 
 export class PgView {
-  /**
-   * Create a sidebar page.
-   *
-   * @param page sidebar page
-   * @returns the page with correct types
-   */
-  static createSidebarPage<N extends string>(page: SidebarPage<N>) {
-    page.title ??= page.keybind ? `${page.name} (${page.keybind})` : page.name;
-    page.icon = "/icons/sidebar/" + page.icon;
-    return page as CreatedSidebarPage<N>;
-  }
-
   /**
    * Set the current sidebar state
    *

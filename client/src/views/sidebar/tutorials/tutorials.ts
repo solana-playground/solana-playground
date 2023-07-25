@@ -1,10 +1,9 @@
-import TutorialsSkeleton from "./Tutorials/TutorialsSkeleton";
-import { PgView } from "../../../utils/pg";
+import TutorialsSkeleton from "./Component/TutorialsSkeleton";
+import { createSidebarPage } from "../create";
 
-export const tutorials = PgView.createSidebarPage({
+export const tutorials = createSidebarPage({
   name: "Tutorials",
   icon: "tutorials.webp",
-  importElement: () => import("./Tutorials"),
+  keybind: "Ctrl+Shift+X",
   LoadingElement: TutorialsSkeleton,
-  keybind: "Ctrl+Shift+T",
 });

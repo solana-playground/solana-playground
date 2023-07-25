@@ -1,10 +1,9 @@
-import TestSkeleton from "./Test/TestSkeleton";
-import { PgView } from "../../../utils/pg";
+import TestSkeleton from "./Component/TestSkeleton";
+import { createSidebarPage } from "../create";
 
-export const test = PgView.createSidebarPage({
+export const test = createSidebarPage({
   name: "Test",
   icon: "test.png",
-  importElement: () => import("./Test"),
-  LoadingElement: TestSkeleton,
   keybind: "Ctrl+Shift+D",
+  LoadingElement: TestSkeleton,
 });

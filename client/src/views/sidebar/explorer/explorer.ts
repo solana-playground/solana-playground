@@ -1,8 +1,7 @@
-import { PgView } from "../../../utils/pg";
+import { createSidebarPage } from "../create";
 
-export const explorer = PgView.createSidebarPage({
+export const explorer = createSidebarPage({
   name: "Explorer",
   icon: "explorer.png",
-  importElement: () => import("./Explorer"),
   keybind: "Ctrl+Shift+E",
 });

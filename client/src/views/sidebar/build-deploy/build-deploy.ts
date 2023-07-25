@@ -1,8 +1,7 @@
-import { PgView } from "../../../utils/pg";
+import { createSidebarPage } from "../create";
 
-export const buildDeploy = PgView.createSidebarPage({
+export const buildDeploy = createSidebarPage({
   name: "Build & Deploy",
   icon: "build.png",
-  importElement: () => import("./BuildDeploy"),
   keybind: "Ctrl+Shift+B",
 });
