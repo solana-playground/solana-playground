@@ -790,18 +790,13 @@ export class PgExplorer {
   }
 
   /**
-   * @returns whether the current file in the state is a Typescript test file
+   * Get whether current file is a regular JS/TS or test JS/TS file.
+   *
+   * @returns whether the current file is a JavaScript-like file
    */
   static isCurrentFileJsLike() {
-    switch (this.getCurrentFileLanguage()) {
-      case Lang.JAVASCRIPT:
-      case Lang.TYPESCRIPT:
-      case Lang.JAVASCRIPT_TEST:
-      case Lang.TYPESCRIPT_TEST:
-        return true;
-      default:
-        return false;
-    }
+    const currentPath = this.getCurrentFile()?.path;
+    if (currentPath) return this.isFileJsLike(currentPath);
   }
 
   /**
@@ -1312,6 +1307,24 @@ export class PgExplorer {
         return Lang.JSON;
       default:
         return null;
+    }
+  }
+
+  /**
+   * Get whether the given path is a regular JS/TS or test JS/TS file.
+   *
+   * @path file path
+   * @returns whether the given file is a JavaScript-like file
+   */
+  static isFileJsLike(path: string) {
+    switch (PgExplorer.getLanguageFromPath(path)) {
+      case Lang.JAVASCRIPT:
+      case Lang.TYPESCRIPT:
+      case Lang.JAVASCRIPT_TEST:
+      case Lang.TYPESCRIPT_TEST:
+        return true;
+      default:
+        return false;
     }
   }
 

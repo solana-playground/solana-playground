@@ -95,23 +95,17 @@ export class PgClient {
         PgCommon.joinPaths([folderPath, fileName]),
         code
       );
-      await this._runFile(fileName, code, {
-        isTest,
-      });
+      await this._runFile(fileName, code, { isTest });
 
       return;
     }
 
     // Run all files inside the folder
-    for (const fileName of folder.files) {
+    for (const fileName of folder.files.filter(PgExplorer.isFileJsLike)) {
       const code = PgExplorer.getFileContent(
         PgCommon.joinPaths([folderPath, fileName])
       );
-      if (!code) continue;
-
-      await this._runFile(fileName, code, {
-        isTest,
-      });
+      if (code) await this._runFile(fileName, code, { isTest });
     }
   }
 
@@ -127,6 +121,10 @@ export class PgClient {
     code: string,
     { isTest }: ClientOptions
   ) {
+    if (!PgExplorer.isFileJsLike(fileName)) {
+      throw new Error(`File '${fileName}' is not a script file`);
+    }
+
     await this._run(async (iframeWindow) => {
       PgTerminal.log(`  ${fileName}:`);
 
