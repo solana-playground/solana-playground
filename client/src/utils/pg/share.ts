@@ -17,14 +17,7 @@ export class PgShare {
     const files: ExplorerFiles = {};
 
     for (const path in shareData.files) {
-      const fileInfo = shareData.files[path];
-      files[path] = {
-        content: fileInfo.content,
-        meta: {
-          current: fileInfo.current,
-          tabs: fileInfo.tabs,
-        },
-      };
+      files[path] = { content: shareData.files[path].content };
     }
 
     return files;
