@@ -43,9 +43,9 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
           <EventName>{`${eventName} (${receivedEvents.length})`}</EventName>
         }
       >
-        <StyledCodeResult index={index}>
+        <CodeResult index={index}>
           {receivedEvents.map((e) => PgCommon.prettyJSON(e)).join("\n")}
-        </StyledCodeResult>
+        </CodeResult>
       </Foldable>
     </EventWrapper>
   );
@@ -70,10 +70,6 @@ const EventWrapper = styled.div<EventWrapperProps>`
 
 const EventName = styled.span`
   font-weight: bold;
-`;
-
-const StyledCodeResult = styled(CodeResult)`
-  margin-top: 0.5rem;
 `;
 
 export default Event;

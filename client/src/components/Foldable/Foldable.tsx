@@ -53,7 +53,7 @@ const Foldable: FC<FoldableProps> = ({
         {ClickEl}
       </ClickElWrapper>
 
-      {show && children}
+      {show && <InsideWrapper>{children}</InsideWrapper>}
     </>
   );
 };
@@ -75,6 +75,10 @@ const ClickElWrapper = styled.div`
   &:hover {
     cursor: pointer;
   }
+`;
+
+const InsideWrapper = styled.div`
+  margin-top: 0.5rem;
 `;
 
 export default Foldable;

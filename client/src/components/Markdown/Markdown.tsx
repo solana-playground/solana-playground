@@ -5,12 +5,19 @@ import remarkGfm from "remark-gfm";
 import CodeBlock from "./CodeBlock";
 import { PgTheme } from "../../utils/pg";
 
-const Markdown = ({ children }: { children: string }) => (
+const Markdown = ({
+  children,
+  className,
+}: {
+  children: string;
+  className?: string;
+}) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
       pre: CodeBlock,
     }}
+    className={className}
   >
     {children}
   </StyledMarkdown>

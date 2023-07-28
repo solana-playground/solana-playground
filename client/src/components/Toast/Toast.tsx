@@ -30,7 +30,7 @@ const StyledContainer = styled(ToastContainer)`
   ${({ theme }) => css`
     &&&.Toastify__toast-container {
       left: ${theme.components.sidebar.left.default.width};
-      z-index: 1;
+      z-index: 2;
     }
 
     .Toastify__toast {

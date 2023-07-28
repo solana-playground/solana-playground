@@ -204,6 +204,7 @@ const getButtonStyles = ({
   if (size || !button.padding) {
     if (size === "large") button.padding = "0.75rem 1.5rem";
     else if (size === "medium") button.padding = "0.5rem 1.25rem";
+    else if (size === "small") button.padding = "0.25rem 0.75rem";
     else button.padding = "0.5rem 0.75rem";
   }
 
