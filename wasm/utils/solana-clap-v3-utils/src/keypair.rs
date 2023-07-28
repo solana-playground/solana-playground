@@ -454,7 +454,7 @@ pub(crate) fn parse_signer_source<S: AsRef<str>>(
                     break;
                 }
             }
-            source.replace("\\", "/")
+            source.replace('\\', "/")
         }
         #[cfg(not(target_family = "windows"))]
         {
@@ -1054,11 +1054,10 @@ pub fn keypair_from_seed_phrase(
     derivation_path: Option<DerivationPath>,
     legacy: bool,
 ) -> Result<Keypair, Box<dyn error::Error>> {
-    let seed_phrase = prompt_password(&format!("[{}] seed phrase: ", keypair_name))?;
+    let seed_phrase = prompt_password(format!("[{keypair_name}] seed phrase: "))?;
     let seed_phrase = seed_phrase.trim();
     let passphrase_prompt = format!(
-        "[{}] If this seed phrase has an associated passphrase, enter it now. Otherwise, press ENTER to continue: ",
-        keypair_name,
+        "[{keypair_name}] If this seed phrase has an associated passphrase, enter it now. Otherwise, press ENTER to continue: "
     );
 
     let keypair = if skip_validation {

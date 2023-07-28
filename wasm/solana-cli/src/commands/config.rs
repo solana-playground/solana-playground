@@ -20,7 +20,7 @@ impl ConfigSubCommands for Command<'_> {
                                 .index(1)
                                 .value_name("CONFIG_FIELD")
                                 .takes_value(true)
-                                .possible_values(&[
+                                .possible_values([
                                     "json_rpc_url",
                                     "websocket_url",
                                     // "keypair",

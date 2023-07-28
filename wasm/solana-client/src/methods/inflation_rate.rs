@@ -1,24 +1,24 @@
 use crate::{utils::rpc_response::RpcInflationRate, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetInflationRateRequest {}
 
 impl GetInflationRateRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetInflationRateRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetInflationRateRequest> for serde_json::Value {
+    fn from(_val: GetInflationRateRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetInflationRateRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetInflationRateRequest> for ClientRequest {
+    fn from(val: GetInflationRateRequest) -> Self {
         let mut request = ClientRequest::new("getInflationRate");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -34,8 +34,8 @@ impl From<ClientResponse> for GetInflationRateResponse {
     }
 }
 
-impl Into<RpcInflationRate> for GetInflationRateResponse {
-    fn into(self) -> RpcInflationRate {
-        self.0
+impl From<GetInflationRateResponse> for RpcInflationRate {
+    fn from(value: GetInflationRateResponse) -> Self {
+        value.0
     }
 }

@@ -36,7 +36,7 @@ fn build_src_tree(tree: &Tree<String>, path: PathBuf) -> Vec<String> {
         Tree::Leaf(src) => {
             // We add the `.rs` extension to each file
             let path = path.with_extension("rs").to_str().unwrap().to_owned();
-            return vec![path, src.to_string()];
+            vec![path, src.to_string()]
         }
 
         Tree::Node(node) => node

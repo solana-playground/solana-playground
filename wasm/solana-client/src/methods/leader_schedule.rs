@@ -5,7 +5,7 @@ use crate::{
     ClientRequest, ClientResponse,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetLeaderScheduleRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub slot: Option<Slot>,
@@ -15,10 +15,7 @@ pub struct GetLeaderScheduleRequest {
 
 impl GetLeaderScheduleRequest {
     pub fn new() -> Self {
-        Self {
-            slot: None,
-            config: None,
-        }
+        Self::default()
     }
     pub fn new_with_slot_and_config(slot: Slot, config: RpcLeaderScheduleConfig) -> Self {
         Self {
@@ -34,9 +31,9 @@ impl GetLeaderScheduleRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetLeaderScheduleRequest {
-    fn into(self) -> serde_json::Value {
-        match (self.slot, self.config) {
+impl From<GetLeaderScheduleRequest> for serde_json::Value {
+    fn from(value: GetLeaderScheduleRequest) -> Self {
+        match (value.slot, value.config) {
             (Some(slot), Some(config)) => serde_json::json!([slot, config]),
             (Some(slot), None) => serde_json::json!([slot]),
             (None, Some(config)) => serde_json::json!([config]),
@@ -45,10 +42,10 @@ impl Into<serde_json::Value> for GetLeaderScheduleRequest {
     }
 }
 
-impl Into<ClientRequest> for GetLeaderScheduleRequest {
-    fn into(self) -> ClientRequest {
-        let mut request = ClientRequest::new("getLeaderSchedule");
-        let params = self.into();
+impl From<GetLeaderScheduleRequest> for ClientRequest {
+    fn from(value: GetLeaderScheduleRequest) -> Self {
+        let mut request: ClientRequest = ClientRequest::new("getLeaderSchedule");
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -63,8 +60,8 @@ impl From<ClientResponse> for GetLeaderScheduleResponse {
     }
 }
 
-impl Into<Option<RpcLeaderSchedule>> for GetLeaderScheduleResponse {
-    fn into(self) -> Option<RpcLeaderSchedule> {
-        self.0
+impl From<GetLeaderScheduleResponse> for Option<RpcLeaderSchedule> {
+    fn from(value: GetLeaderScheduleResponse) -> Self {
+        value.0
     }
 }

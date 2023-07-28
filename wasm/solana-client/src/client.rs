@@ -171,7 +171,6 @@ impl WasmClient {
         self.get_account_with_commitment(pubkey, self.commitment_config())
             .await?
             .ok_or_else(|| ClientError::new(&format!("Account {} not found.", pubkey)))
-            .and_then(|acc| Ok(acc))
     }
 
     pub async fn get_account_data(&self, pubkey: &Pubkey) -> ClientResult<Vec<u8>> {
@@ -189,7 +188,7 @@ impl WasmClient {
             .value
             .blockhash
             .parse()
-            .or_else(|_| Err(ClientError::new("Hash not parsable.")))?;
+            .map_err(|_| ClientError::new("Hash not parsable."))?;
 
         Ok((hash, response.value.last_valid_block_height))
     }
@@ -291,31 +290,26 @@ impl WasmClient {
         for _ in 0..MAX_RETRIES {
             let signature_statuses = self.get_signature_statuses(&[*signature]).await?;
 
-            match signature_statuses[0].as_ref() {
-                Some(signature_status) => {
-                    if signature_status.confirmation_status.is_some() {
-                        let current_commitment =
-                            signature_status.confirmation_status.as_ref().unwrap();
+            if let Some(signature_status) = signature_statuses[0].as_ref() {
+                if signature_status.confirmation_status.is_some() {
+                    let current_commitment = signature_status.confirmation_status.as_ref().unwrap();
 
-                        let commitment_matches = match commitment_config.commitment {
-                            CommitmentLevel::Finalized => match current_commitment {
-                                TransactionConfirmationStatus::Finalized => true,
-                                _ => false,
-                            },
-                            CommitmentLevel::Confirmed => match current_commitment {
-                                TransactionConfirmationStatus::Finalized
-                                | TransactionConfirmationStatus::Confirmed => true,
-                                _ => false,
-                            },
-                            _ => true,
-                        };
-                        if commitment_matches {
-                            is_success = signature_status.err.is_none();
-                            break;
+                    let commitment_matches = match commitment_config.commitment {
+                        CommitmentLevel::Finalized => {
+                            matches!(current_commitment, TransactionConfirmationStatus::Finalized)
                         }
+                        CommitmentLevel::Confirmed => matches!(
+                            current_commitment,
+                            TransactionConfirmationStatus::Finalized
+                                | TransactionConfirmationStatus::Confirmed
+                        ),
+                        _ => true,
+                    };
+                    if commitment_matches {
+                        is_success = signature_status.err.is_none();
+                        break;
                     }
                 }
-                None => (),
             }
 
             sleep(SLEEP_MS).await;
@@ -397,7 +391,7 @@ impl WasmClient {
             .ok_or_else(|| ClientError::new("Program account doesnt' exist."))?;
 
         let mut pubkey_accounts: Vec<(Pubkey, Account)> = Vec::with_capacity(accounts.len());
-        for RpcKeyedAccount { pubkey, account } in accounts.into_iter() {
+        for RpcKeyedAccount { pubkey, account } in accounts.iter() {
             let pubkey = pubkey
                 .parse()
                 .map_err(|_| ClientError::new(&format!("{pubkey} is not a valid pubkey.")))?;

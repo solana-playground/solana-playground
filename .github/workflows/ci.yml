@@ -48,10 +48,27 @@ jobs:
       - name: Check format
         run: cargo fmt --check
 
+  clippy_wasm:
+    runs-on: ubuntu-latest
+    name: Clippy WASM
+
+    defaults:
+      run:
+        working-directory: wasm
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add clippy
+        run: rustup component add clippy
+        
+      - name: Check clippy warnings
+        run: cargo clippy --all-targets -- -D warnings
+
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [format_client, format_wasm]
+    needs: [format_client, format_wasm, clippy_wasm]
 
     defaults:
       run:

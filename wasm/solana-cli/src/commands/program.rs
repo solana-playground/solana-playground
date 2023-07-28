@@ -270,7 +270,7 @@ impl ProgramSubCommands for Command<'_> {
                                 .long("programs")
                                 .conflicts_with("account")
                                 .conflicts_with("buffers")
-                                .required_unless_present_any(&["account", "buffers"])
+                                .required_unless_present_any(["account", "buffers"])
                                 .help("Show every upgradeable program that matches the authority"),
                         )
                         .arg(
@@ -278,7 +278,7 @@ impl ProgramSubCommands for Command<'_> {
                                 .long("buffers")
                                 .conflicts_with("account")
                                 .conflicts_with("programs")
-                                .required_unless_present_any(&["account", "programs"])
+                                .required_unless_present_any(["account", "programs"])
                                 .help("Show every upgradeable buffer that matches the authority"),
                         )
                         .arg(
@@ -684,7 +684,7 @@ pub async fn process_program_subcommand(
             new_buffer_authority,
         } => {
             process_set_authority(
-                &rpc_client,
+                rpc_client,
                 config,
                 None,
                 Some(*buffer_pubkey),
@@ -699,7 +699,7 @@ pub async fn process_program_subcommand(
             new_upgrade_authority,
         } => {
             process_set_authority(
-                &rpc_client,
+                rpc_client,
                 config,
                 Some(*program_pubkey),
                 None,
@@ -717,7 +717,7 @@ pub async fn process_program_subcommand(
             use_lamports_unit,
         } => {
             process_show(
-                &rpc_client,
+                rpc_client,
                 config,
                 *account_pubkey,
                 *authority_pubkey,
@@ -739,7 +739,7 @@ pub async fn process_program_subcommand(
             use_lamports_unit,
         } => {
             process_close(
-                &rpc_client,
+                rpc_client,
                 config,
                 *account_pubkey,
                 *recipient_pubkey,
@@ -1315,6 +1315,7 @@ async fn get_accounts_with_filter(
     Ok(results)
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn process_show(
     rpc_client: &WasmClient,
     config: &CliConfig<'_>,
@@ -1503,7 +1504,7 @@ async fn close(
         .await;
 
     if let Err(e) = result {
-        return Err(format!("Close failed: {}", e.to_string()).into());
+        return Err(format!("Close failed: {e}").into());
     }
 
     Ok(())
@@ -1572,12 +1573,12 @@ async fn process_close(
                         }) = account.state()
                         {
                             if authority_pubkey != Some(authority_signer.pubkey()) {
-                                return Err(format!(
+                                Err(format!(
                                     "Program authority {:?} does not match {:?}",
                                     authority_pubkey,
                                     Some(authority_signer.pubkey())
                                 )
-                                .into());
+                                .into())
                             } else {
                                 close(
                                     rpc_client,
@@ -1597,22 +1598,16 @@ async fn process_close(
                                 ))
                             }
                         } else {
-                            return Err(
-                                format!("Program {} has been closed", account_pubkey).into()
-                            );
+                            Err(format!("Program {} has been closed", account_pubkey).into())
                         }
                     } else {
-                        return Err(format!("Program {} has been closed", account_pubkey).into());
+                        Err(format!("Program {} has been closed", account_pubkey).into())
                     }
                 }
-                _ => {
-                    return Err(
-                        format!("{} is not a Program or Buffer account", account_pubkey).into(),
-                    );
-                }
+                _ => Err(format!("{} is not a Program or Buffer account", account_pubkey).into()),
             }
         } else {
-            return Err(format!("Unable to find the account {}", account_pubkey).into());
+            Err(format!("Unable to find the account {}", account_pubkey).into())
         }
     } else {
         let buffers = get_buffers(

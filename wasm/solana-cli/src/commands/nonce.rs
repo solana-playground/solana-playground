@@ -484,7 +484,7 @@ pub async fn process_create_nonce_account(
     let result = rpc_client.send_and_confirm_transaction(&tx).await?;
     PgTerminal::log_wasm(&format!(
         "Created nonce account {} with {} SOL",
-        nonce_account_pubkey.to_string(),
+        nonce_account_pubkey,
         lamports_to_sol(lamports),
     ));
 

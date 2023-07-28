@@ -53,7 +53,7 @@ pub async fn run_spl_token(cmd: String) {
                 bulk_signers,
             )
             .await
-            .unwrap_or_else(|e| format!("Process error: {}", e.to_string()));
+            .unwrap_or_else(|e| format!("Process error: {e}"));
 
             // Log output
             PgTerminal::log_wasm(&output);

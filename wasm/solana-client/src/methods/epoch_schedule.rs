@@ -2,25 +2,25 @@ use solana_sdk::epoch_schedule::EpochSchedule;
 
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetEpochScheduleRequest {}
 
 impl GetEpochScheduleRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetEpochScheduleRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetEpochScheduleRequest> for serde_json::Value {
+    fn from(_: GetEpochScheduleRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetEpochScheduleRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetEpochScheduleRequest> for ClientRequest {
+    fn from(value: GetEpochScheduleRequest) -> Self {
         let mut request = ClientRequest::new("getEpochSchedule");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -35,8 +35,8 @@ impl From<ClientResponse> for GetEpochScheduleResponse {
     }
 }
 
-impl Into<EpochSchedule> for GetEpochScheduleResponse {
-    fn into(self) -> EpochSchedule {
-        self.0
+impl From<GetEpochScheduleResponse> for EpochSchedule {
+    fn from(value: GetEpochScheduleResponse) -> Self {
+        value.0
     }
 }

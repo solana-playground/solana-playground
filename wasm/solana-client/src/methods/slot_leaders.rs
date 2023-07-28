@@ -16,16 +16,16 @@ impl GetSlotLeadersRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetSlotLeadersRequest {
-    fn into(self) -> serde_json::Value {
-        serde_json::json!([self.start_slot, self.limit])
+impl From<GetSlotLeadersRequest> for serde_json::Value {
+    fn from(value: GetSlotLeadersRequest) -> Self {
+        serde_json::json!([value.start_slot, value.limit])
     }
 }
 
-impl Into<ClientRequest> for GetSlotLeadersRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetSlotLeadersRequest> for ClientRequest {
+    fn from(val: GetSlotLeadersRequest) -> Self {
         let mut request = ClientRequest::new("getSlotLeaders");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

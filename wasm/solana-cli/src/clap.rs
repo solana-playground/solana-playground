@@ -71,7 +71,7 @@ pub fn get_clap<'a>(name: &str, about: &'a str, version: &'a str) -> Command<'a>
             Arg::new("commitment")
                 .long("commitment")
                 .takes_value(true)
-                .possible_values(&[
+                .possible_values([
                     "processed",
                     "confirmed",
                     "finalized",
@@ -100,7 +100,7 @@ pub fn get_clap<'a>(name: &str, about: &'a str, version: &'a str) -> Command<'a>
                 .value_name("FORMAT")
                 .global(true)
                 .takes_value(true)
-                .possible_values(&["json", "json-compact"])
+                .possible_values(["json", "json-compact"])
                 .help("Return information in specified output format"),
         )
         .arg(

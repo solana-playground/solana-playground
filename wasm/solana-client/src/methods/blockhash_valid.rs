@@ -25,21 +25,21 @@ impl IsBlockhashValidRequest {
     }
 }
 
-impl Into<serde_json::Value> for IsBlockhashValidRequest {
-    fn into(self) -> serde_json::Value {
-        let blockhash = self.blockhash.to_string();
+impl From<IsBlockhashValidRequest> for serde_json::Value {
+    fn from(value: IsBlockhashValidRequest) -> Self {
+        let blockhash = value.blockhash.to_string();
 
-        match self.config {
-            Some(_) => serde_json::json!([blockhash, self.config]),
+        match value.config {
+            Some(_) => serde_json::json!([blockhash, value.config]),
             None => serde_json::json!([blockhash]),
         }
     }
 }
 
-impl Into<ClientRequest> for IsBlockhashValidRequest {
-    fn into(self) -> ClientRequest {
+impl From<IsBlockhashValidRequest> for ClientRequest {
+    fn from(value: IsBlockhashValidRequest) -> Self {
         let mut request = ClientRequest::new("isBlockhashValid");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

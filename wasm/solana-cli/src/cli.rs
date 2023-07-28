@@ -798,13 +798,11 @@ pub async fn process_command(config: &CliConfig<'_>) -> ProcessResult {
         //         .unwrap_or_else(|_| "Unavailable".to_string());
         //     PgTerminal::log_wasm(&format!("{}", get_name_value("Pubkey:", &pubkey)));
         // }
-        let commitment_msg = format!(
-            "{}",
-            get_name_value(
-                "Commitment:",
-                &config.commitment_config.commitment.to_string()
-            )
-        );
+        let commitment_msg = get_name_value(
+            "Commitment:",
+            &config.commitment_config.commitment.to_string(),
+        )
+        .to_string();
 
         msg.push_str(&rpc_msg);
         msg.push_str(&default_signer_msg);

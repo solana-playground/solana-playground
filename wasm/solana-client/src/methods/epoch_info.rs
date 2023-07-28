@@ -2,7 +2,7 @@ use solana_sdk::{commitment_config::CommitmentConfig, epoch_info::EpochInfo};
 
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetEpochInfoRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
@@ -10,7 +10,7 @@ pub struct GetEpochInfoRequest {
 
 impl GetEpochInfoRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
     pub fn new_with_config(config: CommitmentConfig) -> Self {
         Self {
@@ -19,19 +19,19 @@ impl GetEpochInfoRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetEpochInfoRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetEpochInfoRequest> for serde_json::Value {
+    fn from(value: GetEpochInfoRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::json!([]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetEpochInfoRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetEpochInfoRequest> for ClientRequest {
+    fn from(value: GetEpochInfoRequest) -> Self {
         let mut request = ClientRequest::new("getEpochInfo");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -46,8 +46,8 @@ impl From<ClientResponse> for GetEpochInfoResponse {
     }
 }
 
-impl Into<EpochInfo> for GetEpochInfoResponse {
-    fn into(self) -> EpochInfo {
-        self.0
+impl From<GetEpochInfoResponse> for EpochInfo {
+    fn from(value: GetEpochInfoResponse) -> Self {
+        value.0
     }
 }

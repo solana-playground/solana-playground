@@ -953,7 +953,7 @@ pub fn return_signers_data(tx: &Transaction, config: &ReturnSignersConfig) -> Cl
         });
     let message = if config.dump_transaction_message {
         let message_data = tx.message_data();
-        Some(base64::encode(&message_data))
+        Some(base64::encode(message_data))
     } else {
         None
     };
@@ -2639,7 +2639,7 @@ fn show_votes_and_credits(
     }
 
     // Existence of this should guarantee the occurrence of vote truncation
-    let newest_history_entry = epoch_voting_history.iter().rev().next();
+    let newest_history_entry = epoch_voting_history.iter().next_back();
 
     writeln!(
         f,
