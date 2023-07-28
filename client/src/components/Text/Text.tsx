@@ -1,7 +1,8 @@
-import { FC, ReactNode, useEffect, useRef } from "react";
-import styled, { css, useTheme } from "styled-components";
+import { FC, ReactNode } from "react";
+import styled, { css } from "styled-components";
 
-import { PgCommon, PgTheme } from "../../utils/pg";
+import { useDifferentBackground } from "../../hooks";
+import { PgTheme } from "../../utils/pg";
 
 export type TextKind = "default" | "info" | "warning" | "success" | "error";
 
@@ -12,46 +13,7 @@ interface TextProps {
 
 /** A text component that always have a different background than its parent */
 const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
-  const theme = useTheme();
-
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Handle background(different background than its parent)
-  useEffect(() => {
-    if (!ref.current) return;
-
-    let parent: HTMLElement | null | undefined = ref.current;
-    let inheritedBg = "";
-    while (1) {
-      parent = parent?.parentElement;
-      if (!parent) continue;
-
-      const style = getComputedStyle(parent);
-      if (style.backgroundImage !== "none") {
-        inheritedBg = style.backgroundImage;
-        break;
-      }
-
-      if (style.backgroundColor !== "rgba(0, 0, 0, 0)") {
-        inheritedBg = style.backgroundColor;
-        break;
-      }
-    }
-
-    const textBg = theme.components.text.default.bg!;
-    if (PgCommon.isColorsEqual(inheritedBg, textBg)) {
-      const { bgPrimary, bgSecondary } = theme.colors.default;
-      if (PgCommon.isColorsEqual(inheritedBg, bgPrimary)) {
-        ref.current.style.background = bgSecondary;
-      } else {
-        ref.current.style.background = bgPrimary;
-      }
-    } else {
-      ref.current.style.background = textBg;
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme.name]);
+  const { ref } = useDifferentBackground();
 
   return (
     <Wrapper ref={ref} IconEl={IconEl} {...rest}>

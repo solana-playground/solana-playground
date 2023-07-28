@@ -2,6 +2,7 @@ import { DetailedHTMLProps, HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 
 import CopyButton from "../CopyButton";
+import { useDifferentBackground } from "../../hooks";
 
 const CodeBlock = ({
   children,
@@ -9,12 +10,16 @@ const CodeBlock = ({
 }: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>) => {
   const code = (props as any).node.children[0].children[0].value;
 
+  const { ref } = useDifferentBackground<HTMLPreElement>();
+
   return (
     <Wrapper>
       <CopyButtonWrapper>
         <CopyButton copyText={code} />
       </CopyButtonWrapper>
-      <pre {...props}>{children}</pre>
+      <pre ref={ref} {...props}>
+        {children}
+      </pre>
     </Wrapper>
   );
 };

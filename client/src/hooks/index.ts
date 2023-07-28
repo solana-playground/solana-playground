@@ -2,6 +2,7 @@ export { useAsyncEffect } from "./useAsyncEffect";
 export { useBalance } from "./useBalance";
 export { useConnection } from "./useConnection";
 export { useCopy } from "./useCopy";
+export { useDifferentBackground } from "./useDifferentBackground";
 export { useDisposable } from "./useDisposable";
 export { useExplorer } from "./useExplorer";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
