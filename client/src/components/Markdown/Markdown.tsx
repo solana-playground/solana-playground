@@ -5,26 +5,28 @@ import remarkGfm from "remark-gfm";
 import CodeBlock from "./CodeBlock";
 import { PgTheme } from "../../utils/pg";
 
-const Markdown = ({
-  children,
-  className,
-}: {
+interface MarkdownProps {
+  /** Markdown string */
   children: string;
+  /** Make all fonts the code font */
+  codeFontOnly?: boolean;
   className?: string;
-}) => (
+}
+
+const Markdown = ({ children, ...props }: MarkdownProps) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
       pre: CodeBlock,
     }}
-    className={className}
+    {...props}
   >
     {children}
   </StyledMarkdown>
 );
 
-const StyledMarkdown = styled(ReactMarkdown)`
-  ${({ theme }) => css`
+const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
+  ${({ theme, codeFontOnly }) => css`
     --border-radius: ${theme.default.borderRadius};
     --color-prettylights-syntax-comment: #8b949e;
     --color-prettylights-syntax-constant: #79c0ff;
@@ -78,6 +80,11 @@ const StyledMarkdown = styled(ReactMarkdown)`
       word-wrap: break-word;
 
       ${PgTheme.convertToCSS(theme.components.markdown.default)};
+      ${codeFontOnly &&
+      `
+        font-family: ${theme.font.code.family} !important;
+        font-size: ${theme.font.code.size.medium} !important;
+      `}
     }
 
     .octicon {

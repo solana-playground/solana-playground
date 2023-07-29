@@ -2,6 +2,7 @@ import { DetailedHTMLProps, HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 
 import CopyButton from "../CopyButton";
+import { PgTheme } from "../../utils/pg";
 import { useDifferentBackground } from "../../hooks";
 
 const CodeBlock = ({
@@ -27,6 +28,10 @@ const CodeBlock = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     position: relative;
+
+    & > pre {
+      ${PgTheme.getScrollbarCSS()};
+    }
 
     & > :first-child {
       opacity: 0;
