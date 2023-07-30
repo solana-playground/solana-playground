@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import styled from "styled-components";
 
 import Side from "./Side";
+import Delayed from "../../../components/Delayed";
 import { Wormhole } from "../../../components/Loading";
 
 const Main = lazy(() => import("./Main"));
@@ -19,7 +20,15 @@ const Panels = () => (
       </Suspense>
     </MainWrapper>
 
-    <DelayedBottomAndWallet />
+    {/* Add a delay to the mount of `Bottom` and `Wallet` components because some of
+        the globals used in that component doesn't become initialized until the next
+        even loop on Firefox. */}
+    <Delayed>
+      <Suspense fallback={null}>
+        <Bottom />
+        <Wallet />
+      </Suspense>
+    </Delayed>
 
     <Suspense fallback={null}>
       <Toast />
@@ -27,29 +36,6 @@ const Panels = () => (
     </Suspense>
   </Wrapper>
 );
-
-/**
- * Add a delay to the mount of `Bottom` and `Wallet` components because some of
- * the globals used in that component doesn't become initialized until the next
- * even loop on Firefox.
- */
-const DelayedBottomAndWallet = () => {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const id = setTimeout(() => setShow(true));
-    return () => clearTimeout(id);
-  }, []);
-
-  if (!show) return null;
-
-  return (
-    <Suspense fallback={null}>
-      <Bottom />
-      <Wallet />
-    </Suspense>
-  );
-};
 
 const Wrapper = styled.div`
   width: 100vw;

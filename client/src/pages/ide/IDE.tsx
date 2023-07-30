@@ -2,7 +2,9 @@ import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import Panels from "./Panels";
-import GlobalState from "./GlobalState";
+import Global from "./Global";
+import Helpers from "./Helpers";
+import Delayed from "../../components/Delayed";
 
 const IDE = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -16,7 +18,10 @@ const IDE = () => {
   return (
     <Wrapper ref={wrapperRef}>
       <Panels />
-      <GlobalState />
+      <Global />
+      <Delayed delay={1000}>
+        <Helpers />
+      </Delayed>
     </Wrapper>
   );
 };

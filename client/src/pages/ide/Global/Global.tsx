@@ -2,10 +2,10 @@ import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { ROUTES } from "../../routes";
-import { TUTORIALS } from "../../tutorials";
-import { EventName } from "../../constants";
-import { terminalProgressAtom } from "../../state";
+import { ROUTES } from "../../../routes";
+import { TUTORIALS } from "../../../tutorials";
+import { EventName } from "../../../constants";
+import { terminalProgressAtom } from "../../../state";
 import {
   Disposable,
   PgCommon,
@@ -16,8 +16,8 @@ import {
   PgTutorial,
   PgView,
   PgWallet,
-} from "../../utils/pg";
-import { useDisposable, useGetStatic, useSetStatic } from "../../hooks";
+} from "../../../utils/pg";
+import { useDisposable, useGetStatic, useSetStatic } from "../../../hooks";
 
 const GlobalState = () => {
   // Connection
