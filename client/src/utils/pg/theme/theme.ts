@@ -700,8 +700,9 @@ export class PgTheme {
     modal.default.border ??= `1px solid ${theme.colors.default.border}`;
     modal.default.borderRadius ??= theme.default.borderRadius;
     modal.default.padding ??= "0.25rem 1.5rem";
-    modal.default.minWidth ??= "min-content";
     modal.default.maxWidth ??= "max(40%, 20rem)";
+    modal.default.maxHeight ??= "max(80%, 40rem)";
+    modal.default.overflow ??= "auto";
 
     // Backdrop
     modal.backdrop ??= theme.default.backdrop;

@@ -386,24 +386,46 @@ export class PgCommon {
   }
 
   /**
-   * @returns true if the pressed key is `Ctrl` or `Cmd`
+   * Get the operating system of the user.
+   *
+   * @returns the operating system of the user
    */
-  static isKeyCtrlOrCmd(e: globalThis.KeyboardEvent) {
-    return e.ctrlKey || e.metaKey;
+  static getOS() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes("win")) return "Windows";
+    if (userAgent.includes("mac")) return "MacOS";
+    if (userAgent.includes("linux")) return "Linux";
   }
 
   /**
-   * @returns true if the OS is Mac
+   * Change `Ctrl` to `Cmd` if the OS is Mac.
+   *
+   * @param keybind keybind text
+   * @returns the correct text based on OS
    */
-  static isMac() {
-    const macPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
-    for (const mac of macPlatforms) {
-      if (window.navigator.userAgent.includes(mac)) {
-        return true;
-      }
+  static getKeybindTextOS(keybind: string) {
+    if (this.getOS() === "MacOS") {
+      keybind = keybind.replace("Ctrl", "Cmd");
     }
+    return keybind;
+  }
 
-    return false;
+  /**
+   * Get the user's browser name.
+   *
+   * @returns the browser name
+   */
+  static getBrowser() {
+    if ((navigator as any).brave) return "Brave";
+    if (navigator.userAgent.includes("Chrome")) return "Chrome";
+    if (navigator.userAgent.includes("Firefox")) return "Firefox";
+  }
+
+  /**
+   * @returns true if the pressed key is `Ctrl` or `Cmd`
+   */
+  static isKeyCtrlOrCmd(ev: KeyboardEvent) {
+    return ev.ctrlKey || ev.metaKey;
   }
 
   /**
@@ -468,23 +490,6 @@ export class PgCommon {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Changes `Ctrl` to `Cmd` if the OS is Mac
-   */
-  static getKeybindTextOS(text: string) {
-    if (this.isMac()) {
-      text = text.replace("Ctrl", "Cmd");
-    }
-    return text;
-  }
-
-  /**
-   * @returns whether the browser is Firefox
-   */
-  static isFirefox() {
-    return window.navigator.userAgent.includes("Firefox");
   }
 
   /**

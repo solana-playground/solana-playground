@@ -722,23 +722,23 @@ export class PgTerm {
   }
 
   /**
-   * Custom keyboard events. Only runs when terminal is in focus.
+   * Handle custom keyboard events. Only runs when terminal is in focus.
    *
-   * @param e keyboard event
+   * @param ev keyboard event
    * @returns whether to keep the defaults
    *
    * NOTE: This function is intentionally uses arrow functions for `this` to be
    * defined from the outer class (PgTerm) otherwise `this` is being defined from
    * XTerm's instance
    */
-  private _handleCustomEvent = (e: KeyboardEvent) => {
-    if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
-      const key = e.key.toUpperCase();
+  private _handleCustomEvent = (ev: KeyboardEvent) => {
+    if (PgCommon.isKeyCtrlOrCmd(ev) && ev.type === "keydown") {
+      const key = ev.key.toUpperCase();
 
       switch (key) {
         case "C":
-          if (e.shiftKey) {
-            e.preventDefault();
+          if (ev.shiftKey) {
+            ev.preventDefault();
             const selection = this._xterm.getSelection();
             navigator.clipboard.writeText(selection);
             return false;
@@ -749,7 +749,7 @@ export class PgTerm {
         case "V":
           // Ctrl+Shift+V does not work with Firefox but works with Chromium.
           // We fallback to Ctrl+V for Firefox
-          if (e.shiftKey || PgCommon.isFirefox()) return false;
+          if (ev.shiftKey || PgCommon.getBrowser() === "Firefox") return false;
 
           return true;
 

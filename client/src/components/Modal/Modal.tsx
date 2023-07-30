@@ -117,6 +117,7 @@ const Modal: FC<ModalProps> = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.modal.default)};
+    ${PgTheme.getScrollbarCSS()};
   `}
 `;
 

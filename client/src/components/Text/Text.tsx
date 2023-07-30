@@ -17,8 +17,8 @@ const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
 
   return (
     <Wrapper ref={ref} IconEl={IconEl} {...rest}>
-      <div>{IconEl}</div>
-      <div>{children}</div>
+      {IconEl && <IconWrapper>{IconEl}</IconWrapper>}
+      <ContentWrapper>{children}</ContentWrapper>
     </Wrapper>
   );
 };
@@ -48,12 +48,6 @@ const Wrapper = styled.div<TextProps>`
     return css`
       ${PgTheme.convertToCSS(text)};
 
-      & > div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
       ${!!IconEl &&
       `& div > svg {
       width: 1.5rem;
@@ -62,6 +56,18 @@ const Wrapper = styled.div<TextProps>`
     }`}
     `;
   }}
+`;
+
+const IconWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ContentWrapper = styled.div`
+  & > p:not(:first-child) {
+    margin-top: 1rem;
+  }
 `;
 
 export default Text;
