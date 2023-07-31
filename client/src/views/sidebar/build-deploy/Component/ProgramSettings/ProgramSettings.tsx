@@ -4,25 +4,33 @@ import styled, { css } from "styled-components";
 import Foldable from "../../../../../components/Foldable";
 import IDL from "./IDL";
 import ProgramBinary from "./ProgramBinary";
-import ProgramCredentials from "./ProgramCredentials";
+import ProgramID from "./ProgramID";
+
+/** All program settings */
+const PROGRAM_SETTINGS: ProgramSettingProps[] = [
+  {
+    title: "Program ID",
+    description:
+      "Import/export program keypair or input a public key for the program.",
+    InsideEl: <ProgramID />,
+  },
+  {
+    title: "Program binary",
+    description: "Import your program and deploy without failure.",
+    InsideEl: <ProgramBinary />,
+  },
+  {
+    title: "IDL",
+    description: "Anchor IDL interactions.",
+    InsideEl: <IDL />,
+  },
+];
 
 const ProgramSettings = () => (
   <Wrapper>
-    <ProgramSetting
-      title="Program ID"
-      text="Import/export program keypair or input a public key for the program."
-      InsideEl={<ProgramCredentials />}
-    />
-    <ProgramSetting
-      title="Program binary"
-      text="Import your program and deploy without failure."
-      InsideEl={<ProgramBinary />}
-    />
-    <ProgramSetting
-      title="IDL"
-      text="Anchor IDL interactions."
-      InsideEl={<IDL />}
-    />
+    {PROGRAM_SETTINGS.map((setting) => (
+      <ProgramSetting key={setting.title} {...setting} />
+    ))}
   </Wrapper>
 );
 
@@ -35,16 +43,23 @@ const Wrapper = styled.div`
 `;
 
 interface ProgramSettingProps {
+  /** Title text that will be shown as a foldable title */
   title: string;
-  text: string;
+  /** Description of the setting that will be shown after unfolding */
+  description: string;
+  /** Component that will be shown inside the foldable and under the description */
   InsideEl: ReactNode;
 }
 
-const ProgramSetting: FC<ProgramSettingProps> = ({ title, text, InsideEl }) => (
+const ProgramSetting: FC<ProgramSettingProps> = ({
+  title,
+  description,
+  InsideEl,
+}) => (
   <ProgramSettingWrapper>
     <Foldable ClickEl={<ProgramSettingTitle>{title}</ProgramSettingTitle>}>
-      <ProgramSettingText>{text}</ProgramSettingText>
-      {InsideEl}
+      <ProgramSettingDescription>{description}</ProgramSettingDescription>
+      <ProgramSettingContent>{InsideEl}</ProgramSettingContent>
     </Foldable>
   </ProgramSettingWrapper>
 );
@@ -52,20 +67,19 @@ const ProgramSetting: FC<ProgramSettingProps> = ({ title, text, InsideEl }) => (
 const ProgramSettingWrapper = styled.div`
   margin-top: 1rem;
   margin-left: 0.5rem;
-
-  /* Button Wrapper */
-  & > div:nth-child(3) {
-    margin-top: 0.75rem;
-  }
 `;
 
 const ProgramSettingTitle = styled.span``;
 
-const ProgramSettingText = styled.div`
+const ProgramSettingDescription = styled.div`
   ${({ theme }) => css`
     color: ${theme.colors.default.textSecondary};
     font-size: ${theme.font.code.size.small};
   `}
+`;
+
+const ProgramSettingContent = styled.div`
+  margin-top: 0.5rem;
 `;
 
 export default ProgramSettings;

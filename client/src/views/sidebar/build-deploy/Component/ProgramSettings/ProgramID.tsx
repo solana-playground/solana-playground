@@ -13,7 +13,7 @@ import { Warning } from "../../../../../components/Icons";
 import { PgProgramInfo, PgCommon, PgView } from "../../../../../utils/pg";
 import { useRenderOnChange } from "../../../../../hooks";
 
-const ProgramCredentials = () => (
+const ProgramID = () => (
   <Wrapper>
     <ButtonsWrapper>
       <New />
@@ -145,8 +145,8 @@ const InputPk = () => {
     });
   }, []);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setVal(e.target.value);
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setVal(ev.target.value);
     setChanged(true);
     setUpdateInfo({});
   };
@@ -155,9 +155,7 @@ const InputPk = () => {
     try {
       PgProgramInfo.update({ customPk: new PublicKey(val) });
 
-      setUpdateInfo({
-        text: "Updated program id.",
-      });
+      setUpdateInfo({ text: "Updated program id." });
       setChanged(false);
     } catch {
       setUpdateInfo({ text: "Invalid public key.", error: true });
@@ -166,9 +164,7 @@ const InputPk = () => {
 
   const handleRemoveCustomProgramId = () => {
     PgProgramInfo.update({ customPk: null });
-    setUpdateInfo({
-      text: "Removed custom id.",
-    });
+    setUpdateInfo({ text: "Removed custom id." });
   };
 
   return (
@@ -297,4 +293,4 @@ const InputWarning = styled.div`
   `}
 `;
 
-export default ProgramCredentials;
+export default ProgramID;
