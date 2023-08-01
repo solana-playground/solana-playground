@@ -1,40 +1,26 @@
 import { useEffect, lazy, Suspense, useState } from "react";
 import styled, { css } from "styled-components";
 
-import Home from "./Home";
 import { MainViewLoading } from "../../Loading";
 import { Id } from "../../../constants";
-import { Lang, PgCommon, PgExplorer, PgTheme } from "../../../utils/pg";
+import { PgCommon, PgExplorer, PgTheme } from "../../../utils/pg";
 
-const CodeMirror = lazy(() => import("./CodeMirror"));
+const Home = lazy(() => import("./Home"));
 const Monaco = lazy(() => import("./Monaco"));
 
 export const Editor = () => {
   const [showHome, setShowHome] = useState<boolean>();
-  const [showMonaco, setShowMonaco] = useState<boolean>();
 
   // Decide which editor to show
   useEffect(() => {
-    const editor = PgExplorer.onNeedRender(() => {
-      const file = PgExplorer.getCurrentFile();
-      if (!file) setShowMonaco(false);
-      else {
-        const lang = PgExplorer.getLanguageFromPath(file.path);
-        setShowMonaco(!(lang === Lang.RUST || lang === Lang.PYTHON));
-      }
-    });
-
-    const home = PgExplorer.onNeedRender(
+    const { dispose } = PgExplorer.onNeedRender(
       PgCommon.debounce(
         () => setShowHome(!PgExplorer.getTabs().length),
         { delay: 50 } // To fix flickering on workspace deletion
       )
     );
 
-    return () => {
-      editor.dispose();
-      home.dispose();
-    };
+    return () => dispose();
   }, []);
 
   // Save explorer metadata
@@ -47,13 +33,11 @@ export const Editor = () => {
     return () => clearInterval(saveMetadataIntervalId);
   }, []);
 
-  if (showHome === undefined || showMonaco === undefined) return null;
+  if (showHome === undefined) return null;
 
   return (
     <Suspense fallback={<MainViewLoading />}>
-      <Wrapper>
-        {showHome ? <Home /> : showMonaco ? <Monaco /> : <CodeMirror />}
-      </Wrapper>
+      <Wrapper>{showHome ? <Home /> : <Monaco />}</Wrapper>
     </Suspense>
   );
 };

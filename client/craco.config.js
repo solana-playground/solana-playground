@@ -31,7 +31,7 @@ module.exports = {
 
         // Raw imports
         {
-          test: /\.(d\.ts|raw|rs|py|md)$/,
+          test: /\.(d\.ts|raw|rs|py|md|toml)$/,
           type: "asset/source",
         },
 
@@ -95,13 +95,48 @@ module.exports = {
               if (d.critical) d.critical = false;
             }
           }
+        }),
+
+        // Define globals
+        new webpack.DefinePlugin({
+          // Rust Analyzer supported crates
+          CRATES: (() => {
+            const fs = require("fs");
+            const path = require("path");
+
+            const CRATES_PATH = path.join("public", "crates");
+
+            if (!fs.existsSync(CRATES_PATH)) {
+              fs.mkdirSync(CRATES_PATH);
+            }
+
+            return JSON.stringify(
+              fs
+                .readdirSync(CRATES_PATH)
+                .filter((name) => name.endsWith(".toml"))
+                .map((name) => name.replace(".toml", ""))
+            );
+          })(),
         })
       );
 
       // Ignore useless warnings
-      webpackConfig.ignoreWarnings = [/Failed to parse source map/];
+      webpackConfig.ignoreWarnings = [
+        /Failed to parse source map/,
+        /snippets_wasm-bindgen-rayon/,
+      ];
 
       return webpackConfig;
     },
+  },
+
+  devServer: (devServerConfig) => {
+    devServerConfig.headers = {
+      ...devServerConfig.headers,
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Opener-Policy": "same-origin",
+    };
+
+    return devServerConfig;
   },
 };

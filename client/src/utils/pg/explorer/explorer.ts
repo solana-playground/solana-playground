@@ -173,8 +173,6 @@ export class PgExplorer {
 
         if (!opts?.openOptions || isCurrentFile) {
           this.changeCurrentFile(fullPath);
-        } else {
-          PgExplorerEvent.dispatchOnDidCreateItem();
         }
       }
     } else {
@@ -184,9 +182,9 @@ export class PgExplorer {
       }
 
       files[fullPath] = {};
-
-      PgExplorerEvent.dispatchOnDidCreateItem();
     }
+
+    PgExplorerEvent.dispatchOnDidCreateItem();
 
     await this.saveMeta();
   }
@@ -296,7 +294,6 @@ export class PgExplorer {
     }
 
     PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
-
     PgExplorerEvent.dispatchOnDidRenameItem();
 
     await this.saveMeta();

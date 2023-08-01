@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor";
 
-import type { TupleString } from "../../../../../../utils/pg";
+import type { TupleString } from "../../../../../../../../utils/pg";
 
 export default function declareMetaplex() {
   /* ------------------ Begin @metaplex-foundation/js ------------------ */

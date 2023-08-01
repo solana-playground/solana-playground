@@ -44,12 +44,13 @@ done
 # All package names
 all_packages=(
     "anchor-cli"
+    "rust-analyzer"
     "seahorse-compile"
     "solana-cli"
     "spl-token-cli"
     "sugar-cli"
 )
-vscode_packages=(${all_packages[1]})
+vscode_packages=(${all_packages[2]})
 
 # Get script directory (which is wasm/), and root directory (which is one level higher).
 # This allows the script to be run from any directory.
@@ -69,24 +70,31 @@ build() {
     fi
 
     pushd $package_dir
-    wasm-pack build
-    popd
 
-    # Handle a WASM bug from `solana_sdk::instruction::SystemInstruction`
-    package_name=$(
-        awk "/^name/" $package_dir/Cargo.toml |
-            cut -d "\"" -f 2 |
-            sed "s/-/_/g"
-    )
-
-    # Comment out the following line
-    line="wasm.__wbg_systeminstruction_free(ptr);"
-
-    if [[ "$(uname)" == "Darwin" ]]; then
-        sed -i '' "s/$line/\/\/$line/" "$package_dir/pkg/${package_name}_bg.js"
+    # Rust Analyzer requires `--target web`
+    if [ "$package" = "rust-analyzer" ]; then
+        wasm-pack build --target web
     else
-        sed -i "s/$line/\/\/$line/" "$package_dir/pkg/${package_name}_bg.js"
+         wasm-pack build
+
+        # Handle a WASM bug from `solana_sdk::instruction::SystemInstruction`
+        package_name=$(
+            awk "/^name/" Cargo.toml |
+                cut -d "\"" -f 2 |
+                sed "s/-/_/g"
+        )
+
+        # Comment out the following line
+        line="wasm.__wbg_systeminstruction_free(ptr);"
+
+        if [[ "$(uname)" == "Darwin" ]]; then
+            sed -i '' "s/$line/\/\/$line/" "pkg/${package_name}_bg.js"
+        else
+            sed -i "s/$line/\/\/$line/" "pkg/${package_name}_bg.js"
+        fi
     fi
+
+    popd
 }
 
 if [ ${#args[@]} -ne 0 ]; then
@@ -103,6 +111,7 @@ for package in $packages; do
     client_package_names="${client_package_names}@solana-playground/$package "
 done
 
+# Exit early if `--update` is not specified
 if [ "$update" != true ]; then
     exit 0
 fi

@@ -7,7 +7,7 @@ import {
   PgCommon,
   PgProgramInfo,
   PgWallet,
-} from "../../../../../utils/pg";
+} from "../../../../../../../utils/pg";
 
 /**
  * Declare types that can change based on outside events.

@@ -3,6 +3,13 @@ export type Methods<T> = {
   [U in keyof T]?: T[U] extends (...args: any[]) => any ? Parameters<T[U]> : [];
 };
 
+/** Convert the return types of the methods of the object to `Promise` */
+export type AsyncMethods<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => infer R
+    ? (...args: Parameters<T[K]>) => Promise<Awaited<R>>
+    : never;
+};
+
 /** Return type of the methods of an object */
 export type ClassReturnType<T, U> = U extends keyof T
   ? T[U] extends (...args: any[]) => any
@@ -48,7 +55,7 @@ export type SetState<T> = T | ((cur: T) => T);
 export type SetElementAsync = SetState<SyncOrAsync<JSX.Element | CallableJSX>>;
 
 /** Make the given keys required */
-export type KeyRequired<T, R extends keyof T> = Omit<T, R> & {
+export type RequiredKey<T, R extends keyof T> = Omit<T, R> & {
   [K in R]-?: NonNullable<T[K]>;
 };
 

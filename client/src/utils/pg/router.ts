@@ -92,13 +92,13 @@ export class PgRouter {
    * @param path pathname to navigate to
    */
   static async navigate(path: OrString<RoutePath> = "/") {
-    const location = await PgCommon.timeout(this.getLocation(), 200);
-    if (!location) {
-      PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
-    } else {
+    try {
+      const location = await PgCommon.timeout(this.getLocation(), 200);
       if (!this.isPathsEqual(location.pathname + location.search, path)) {
         PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
       }
+    } catch {
+      PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
     }
   }
 

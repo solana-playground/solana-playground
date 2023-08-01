@@ -1,4 +1,4 @@
-import type { ClientPackageName } from "../../../../../utils/pg";
+import type { ClientPackageName } from "../../../../../../../utils/pg";
 
 /**
  * Some declaration files need to be declared for them to be referenced by other

@@ -25,6 +25,7 @@
     "@project-serum/anchor": "^0.23.0",
     "@solana-playground/anchor-cli": "../wasm/anchor-cli/pkg",
     "@solana-playground/playnet": "../wasm/pkgs/playnet",
+    "@solana-playground/rust-analyzer": "../wasm/rust-analyzer/pkg",
     "@solana-playground/rustfmt": "../wasm/pkgs/rustfmt",
     "@solana-playground/seahorse-compile": "../wasm/seahorse-compile/pkg",
     "@solana-playground/solana-cli": "../wasm/solana-cli/pkg",

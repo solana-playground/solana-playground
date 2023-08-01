@@ -11,7 +11,7 @@ import {
   StateStack,
   IRawTheme,
 } from "vscode-textmate";
-import { KeyRequired, PgExplorer } from "../../../../../utils/pg";
+import { RequiredKey, PgExplorer } from "../../../../../utils/pg";
 
 /** Language grammar and configuration cache based on theme name */
 const cache: {
@@ -29,7 +29,7 @@ const cache: {
  *
  * @param theme TextMate theme
  */
-export const initLanguages = async (theme: KeyRequired<IRawTheme, "name">) => {
+export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
   // Load oniguruma
   const resp = await fetch(
     require("vscode-oniguruma/release/onig.wasm?resource")
@@ -98,9 +98,7 @@ export const initLanguages = async (theme: KeyRequired<IRawTheme, "name">) => {
           PgExplorer.getExtensionFromPath(file.path).split(".").reverse()[0]
         );
     });
-    if (!lang) return;
-
-    await loadGrammarAndConfiguration(lang.id);
+    if (lang) await loadGrammarAndConfiguration(lang.id);
   });
 };
 

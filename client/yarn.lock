@@ -2603,6 +2603,9 @@
 "@solana-playground/playnet@../wasm/pkgs/playnet":
   version "0.1.0"
 
+"@solana-playground/rust-analyzer@../wasm/rust-analyzer/pkg":
+  version "0.0.94"
+
 "@solana-playground/rustfmt@../wasm/pkgs/rustfmt":
   version "0.99.4"
 

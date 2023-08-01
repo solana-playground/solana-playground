@@ -48,6 +48,7 @@ export class PgCommon {
    * Wait at least `ms` amount of miliseconds before timing out.
    *
    * @param promisable either `Promise` or a function that returns a `Promise`
+   * @throws on timeout
    * @returns the result of the promise parameter
    */
   static async timeout<R>(promisable: Promisable<R>, ms?: number) {
@@ -55,14 +56,10 @@ export class PgCommon {
       promisable = (promisable as () => SyncOrAsync<R>)();
     }
 
-    try {
-      return (await Promise.race([
-        new Promise((_, rej) => this.sleep(ms).then(rej)),
-        promisable,
-      ])) as Awaited<R>;
-    } catch {
-      console.log("Timed out");
-    }
+    return (await Promise.race([
+      new Promise((_, rej) => this.sleep(ms).then(() => rej("Timed out"))),
+      promisable,
+    ])) as Awaited<R>;
   }
 
   /**
@@ -141,6 +138,62 @@ export class PgCommon {
         last = now;
       }
     };
+  }
+
+  /**
+   * Execute the given callback in order.
+   *
+   * This is particularly useful when the desired behavior of an `onChange`
+   * event is to execute its callback in order.
+   *
+   * @param cb callback to run
+   * @returns the wrapped callback function
+   */
+  static executeInOrder<T>(cb: (...args: [T]) => SyncOrAsync<unknown>) {
+    type Callback = typeof cb;
+    type CallbackWithArgs = [Callback, Parameters<Callback>];
+
+    const queue: CallbackWithArgs[] = [];
+    let isExecuting = false;
+
+    const execute = async () => {
+      isExecuting = true;
+
+      while (queue.length !== 0) {
+        for (const index in queue) {
+          const [cb, args] = queue[index];
+          try {
+            await cb(...args);
+          } catch (e) {
+            throw e;
+          } finally {
+            queue.splice(+index, 1);
+          }
+        }
+      }
+
+      isExecuting = false;
+    };
+
+    const pushQueue = (item: CallbackWithArgs) => {
+      queue.push(item);
+      if (!isExecuting) execute();
+    };
+
+    return async (...args: Parameters<Callback>) => {
+      pushQueue([cb, args]);
+    };
+  }
+
+  /**
+   * Fetch the response from the given URL and return the text response.
+   *
+   * @param url URL
+   * @returns the text response
+   */
+  static async fetchText(url: string) {
+    const response = await fetch(url);
+    return await response.text();
   }
 
   /**
@@ -503,6 +556,15 @@ export class PgCommon {
   }
 
   /**
+   * Convert the given string to snake_case.
+   *
+   * @returns snake_case converted version of the string
+   */
+  static toSnakeCase(str: string) {
+    return PgCommon.toKebabFromTitle(str).replaceAll("-", "_");
+  }
+
+  /**
    * @returns kebab-case converted version of the Title Case string
    */
   static toKebabFromTitle(str: string) {
@@ -702,6 +764,26 @@ export class PgCommon {
     return {
       dispose: () => disposables.forEach((disposable) => disposable.dispose()),
     };
+  }
+
+  /**
+   * Execute the given callback initially and on change.
+   *
+   * This is useful when an on change method doesn't fire an initial change event
+   * but the use case requires to run the callback at start.
+   *
+   * @param onChange on change method
+   * @param cb callback to run initially and on change
+   * @param args callback arguments
+   * @returns a dispose function to clear all events
+   */
+  static async executeInitial<A extends unknown[]>(
+    onChange: (cb: (...args: A) => SyncOrAsync<void>) => Disposable,
+    cb: (...args: A) => SyncOrAsync<void>,
+    ...args: A
+  ) {
+    await cb(...args);
+    return onChange(cb);
   }
 
   /**

@@ -19,6 +19,7 @@ import {
   useKeybind,
   useSendAndReceiveCustomEvent,
 } from "../../../../hooks";
+import { MainViewLoading } from "../../../Loading";
 
 const Monaco = () => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
@@ -425,10 +426,14 @@ const Monaco = () => {
       monaco.editor.create(monacoRef.current, {
         automaticLayout: true,
         fontLigatures: true,
-        tabSize: 2,
       })
     );
   }, [editor, isThemeSet]);
+
+  // Dispose editor
+  useEffect(() => {
+    if (editor) return () => editor.dispose();
+  }, [editor]);
 
   // Set editor state
   useEffect(() => {
@@ -450,8 +455,6 @@ const Monaco = () => {
           undefined,
           monaco.Uri.parse(uriPath)
         );
-
-      // Set editor model
       editor.setModel(model);
 
       // Get position data
@@ -799,44 +802,23 @@ const Monaco = () => {
     [editor]
   );
 
-  // Default and disposable declarations
-  useAsyncEffect(async () => {
-    const { declareDefaultTypes } = await import("./declarations/default");
-    await declareDefaultTypes();
-
-    const { declareDisposableTypes } = await import(
-      "./declarations/disposable"
-    );
-    const disposables = declareDisposableTypes();
-
-    return () => disposables.dispose();
-  }, []);
-
-  // Importable declarations
+  // Initialize language extensions
   useEffect(() => {
-    if (!editor) return;
-    let declareImportablesTimoutId: NodeJS.Timer;
-
-    const declareImportables = async () => {
-      const { declareImportableTypes } = await import(
-        "./declarations/importable"
-      );
-      await declareImportableTypes(editor.getValue());
-    };
-
-    const switchFile = PgExplorer.onDidSwitchFile(declareImportables);
-
-    const changeContent = editor.onDidChangeModelContent(() => {
-      clearTimeout(declareImportablesTimoutId);
-      declareImportablesTimoutId = setTimeout(declareImportables, 1000);
+    const disposables = monaco.languages.getLanguages().map((language) => {
+      return monaco.languages.onLanguage(language.id, async () => {
+        try {
+          const { init } = await import(`./languages/${language.id}/init`);
+          await init();
+        } catch (e: any) {
+          if (!e.message?.includes("Cannot find module")) {
+            throw new Error(`Failed to initialize '${language.id}': ${e}`);
+          }
+        }
+      });
     });
 
-    return () => {
-      clearTimeout(declareImportablesTimoutId);
-      switchFile.dispose();
-      changeContent.dispose();
-    };
-  }, [editor]);
+    return () => disposables.forEach(({ dispose }) => dispose());
+  }, []);
 
   // Update program id
   useEffect(() => {
@@ -892,6 +874,8 @@ const Monaco = () => {
 
     return () => dispose();
   }, [editor]);
+
+  if (!isThemeSet) return <MainViewLoading />;
 
   return <div ref={monacoRef} />;
 };

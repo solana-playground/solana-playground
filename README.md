@@ -9,8 +9,8 @@
 | [anchor-lang](https://docs.rs/anchor-lang/0.27.0)                                  | 0.27.0  |
 | [anchor-spl](https://docs.rs/anchor-spl/0.27.0)                                    | 0.27.0  |
 | [arrayref](https://docs.rs/arrayref/0.3.7)                                         | 0.3.7   |
-| [borsh](https://docs.rs/borsh/0.10.3)                                              | 0.10.3  |
-| [borsh-derive](https://docs.rs/borsh-derive/0.10.3)                                | 0.10.3  |
+| [borsh](https://docs.rs/borsh/0.9.3)                                               | 0.9.3   |
+| [borsh-derive](https://docs.rs/borsh-derive/0.9.3)                                 | 0.9.3   |
 | [bytemuck](https://docs.rs/bytemuck/1.13.1)                                        | 1.13.1  |
 | [bytemuck-derive](https://docs.rs/bytemuck-derive/1.4.1)                           | 1.4.1   |
 | [clockwork-sdk](https://docs.rs/clockwork-sdk/2.0.17)                              | 2.0.17  |

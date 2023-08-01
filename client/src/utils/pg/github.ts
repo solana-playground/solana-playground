@@ -96,8 +96,7 @@ export class PgGithub {
             path = pathSplit[1];
           }
 
-          const rawDataResponse = await fetch(data.download_url!);
-          const rawData = await rawDataResponse.text();
+          const rawData = await PgCommon.fetchText(data.download_url!);
           files.push([`src/${path}`, rawData]);
         } else if (data.type === "dir") {
           const afterSrc = pathSplit[1];

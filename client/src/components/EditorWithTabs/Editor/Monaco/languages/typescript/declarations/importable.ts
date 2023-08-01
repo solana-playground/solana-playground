@@ -1,17 +1,26 @@
 import * as monaco from "monaco-editor";
 
 import { declareModule } from "./helper";
-import type { ClientPackageName, Fn } from "../../../../../utils/pg";
+import { importTypes } from "../../common";
+import type { ClientPackageName, Fn } from "../../../../../../../utils/pg";
 
-/** All importable package types */
-const IMPORTABLE_PACKAGES: [
-  ClientPackageName,
-  () => Promise<{ default: Fn }>
-][] = [
+/** All importable packages */
+const PACKAGES: [ClientPackageName, () => Promise<{ default: Fn }>][] = [
   ["@clockwork-xyz/sdk", () => import("./packages/clockwork")],
   ["@metaplex-foundation/js", () => import("./packages/metaplex")],
   ["@solana/spl-token", () => import("./packages/spl-token")],
 ];
+
+/**
+ * Declare importable types in the editor and update them based on file switch
+ * or the current editor model's content change.
+ */
+export const declareImportableTypes = () => {
+  return importTypes(
+    (model) => update(model.getValue()),
+    ["javascript", "typescript"]
+  );
+};
 
 /** Mapping of package name -> imported */
 const cachedTypes: {
@@ -19,16 +28,16 @@ const cachedTypes: {
 } = {};
 
 /**
- * Declare importable types in the editor.
+ * Update declared types in the editor(with cache).
  *
- * This function declares the module as empty when the package is not used in
+ * This function declares modules as empty when the package is not used in
  * the code. This allows autocompletion when importing packages and the type
- * declarations will only load when the code contains the package name.
+ * declarations will only get loaded when the code contains the package name.
  *
  * @param code current editor content
  */
-export const declareImportableTypes = async (code: string) => {
-  for (const [packageName, importPackage] of IMPORTABLE_PACKAGES) {
+const update = async (code: string) => {
+  for (const [packageName, importPackage] of PACKAGES) {
     const pkg = cachedTypes[packageName];
     if (pkg === true) continue;
 

@@ -1,11 +1,10 @@
-# client
-# dependencies
+# Dependencies
 */node_modules
 
-# production
+# Production
 */build
 
-# misc
+# Misc
 */.env
 */deploy.sh
 
@@ -13,10 +12,12 @@
 */yarn-debug.log*
 */yarn-error.log*
 
-# server
+# Server
 server
 
-# wasm
+# WASM
 **/target
 **/www
 
+# Rust Analyzer crates
+client/public/crates
