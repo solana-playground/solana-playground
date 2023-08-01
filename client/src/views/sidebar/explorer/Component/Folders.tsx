@@ -1,5 +1,5 @@
 import { FC, MouseEvent, useCallback, useEffect, useMemo } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Button from "../../../../components/Button";
@@ -22,6 +22,8 @@ import { useNewItem } from "./useNewItem";
 import { useKeybind } from "../../../../hooks";
 
 const Folders = () => {
+  const theme = useTheme();
+
   // Handle folder state
   useEffect(() => {
     const switchWorkspace = PgExplorer.onDidSwitchWorkspace(() => {
@@ -53,7 +55,9 @@ const Folders = () => {
       switchWorkspace.dispose();
       switchFile.dispose();
     };
-  }, []);
+
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme.name]);
 
   const ctxMenu = useExplorerContextMenu();
 
