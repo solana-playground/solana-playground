@@ -1,10 +1,11 @@
-import { ChangeEvent, Dispatch, FC, SetStateAction, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import { FRAMEWORKS } from "../../../../../frameworks";
 import {
+  Fn,
   Framework as FrameworkType,
   PgExplorer,
 } from "../../../../../utils/pg";
@@ -13,7 +14,7 @@ export const NewWorkspace = () => {
   // Handle user input
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState<string | null>(null);
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     setName(ev.target.value);
@@ -24,7 +25,6 @@ export const NewWorkspace = () => {
     const { importFiles, defaultOpenFile } = FRAMEWORKS.find(
       (f) => f.name === selected
     )!;
-
     const { files } = await importFiles();
 
     await PgExplorer.newWorkspace(name, {
@@ -55,14 +55,17 @@ export const NewWorkspace = () => {
             placeholder="my project..."
           />
         </WorkspaceNameWrapper>
+
         <FrameworkSectionWrapper>
           <MainText>Choose a framework</MainText>
           <FrameworksWrapper>
-            {FRAMEWORKS.map((f, i) => (
+            {FRAMEWORKS.map((f) => (
               <Framework
-                key={i}
+                key={f.name}
                 isSelected={selected === f.name}
-                setSelected={setSelected}
+                select={() =>
+                  setSelected((s) => (s === f.name ? null : f.name))
+                }
                 {...f}
               />
             ))}
@@ -98,7 +101,7 @@ const FrameworksWrapper = styled.div`
 
 interface FrameworkProps extends FrameworkType {
   isSelected: boolean;
-  setSelected: Dispatch<SetStateAction<string>>;
+  select: Fn;
 }
 
 const Framework: FC<FrameworkProps> = ({
@@ -107,14 +110,11 @@ const Framework: FC<FrameworkProps> = ({
   src,
   circleImage,
   isSelected,
-  setSelected,
+  select,
 }) => (
-  <FrameworkWrapper
-    isSelected={isSelected}
-    onClick={() => setSelected((s) => (s === name ? "" : name))}
-  >
+  <FrameworkWrapper isSelected={isSelected} onClick={select}>
     <FrameworkImageWrapper circle={circleImage}>
-      <img src={src} alt={name} />
+      <img src={src} alt={name} crossOrigin="anonymous" />
     </FrameworkImageWrapper>
     <FrameworkName>
       {name}({language})
