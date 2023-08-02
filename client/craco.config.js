@@ -123,7 +123,9 @@ module.exports = {
       // Ignore useless warnings
       webpackConfig.ignoreWarnings = [
         /Failed to parse source map/,
-        /snippets_wasm-bindgen-rayon/,
+
+        // https://github.com/GoogleChromeLabs/wasm-bindgen-rayon/issues/23
+        /Circular dependency between chunks with runtime/,
       ];
 
       return webpackConfig;
