@@ -63,6 +63,7 @@ build() {
 
     package_dir="$wasm_dir/$package"
 
+    # Check whether the package directory exists
     if [ ! -d "$package_dir" ]; then
         echo "Error: no package named '$package' found in wasm/"
         echo "Valid packages: ${packages[@]}"
@@ -70,6 +71,13 @@ build() {
     fi
 
     pushd $package_dir
+
+    # Set the toolchain based on the `rust-toolchain.toml` file
+    if [ -f "rust-toolchain.toml" ]; then
+        echo "Installing rust toolchain"
+        toolchain=$(awk '/"[stable|nightly]/{gsub(/"/, ""); print $3 }' rust-toolchain.toml)
+        rustup toolchain install $toolchain --component rust-src
+    fi
 
     # Rust Analyzer requires `--target web`
     if [ "$package" = "rust-analyzer" ]; then
