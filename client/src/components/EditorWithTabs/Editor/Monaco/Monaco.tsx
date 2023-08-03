@@ -3,6 +3,7 @@ import { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
 import { initLanguages } from "./languages";
+import { MainViewLoading } from "../../../Loading";
 import { EventName } from "../../../../constants";
 import {
   Highlight,
@@ -19,7 +20,6 @@ import {
   useKeybind,
   useSendAndReceiveCustomEvent,
 } from "../../../../hooks";
-import { MainViewLoading } from "../../../Loading";
 
 const Monaco = () => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();

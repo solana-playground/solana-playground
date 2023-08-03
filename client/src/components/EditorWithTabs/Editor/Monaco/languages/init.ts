@@ -11,6 +11,7 @@ import {
   StateStack,
   IRawTheme,
 } from "vscode-textmate";
+
 import { RequiredKey, PgExplorer } from "../../../../../utils/pg";
 
 /** Language grammar and configuration cache based on theme name */
@@ -64,7 +65,10 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
     const grammar = await registry.loadGrammarWithConfiguration(
       languageId,
       monaco.languages.getEncodedLanguageId(languageId),
-      {}
+      {
+        // Otherwise bracket colorization doesn't work
+        balancedBracketSelectors: ["*"],
+      }
     );
     if (!grammar) return;
 

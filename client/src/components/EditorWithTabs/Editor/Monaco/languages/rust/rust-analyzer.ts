@@ -1,5 +1,6 @@
 // @ts-nocheck
 import * as monaco from "monaco-editor";
+import type { WorldState } from "@solana-playground/rust-analyzer";
 
 import { importTypes } from "../common";
 import {
@@ -8,7 +9,6 @@ import {
   PgCommon,
   PgExplorer,
 } from "../../../../../../utils/pg";
-import type { WorldState } from "@solana-playground/rust-analyzer";
 
 /** Monaco language id for Rust */
 const LANGUAGE_ID = "rust";
