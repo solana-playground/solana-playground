@@ -37,7 +37,9 @@ let state: AsyncMethods<WorldState>;
  * @returns a disposable to dispose all events
  */
 export const initRustAnalyzer = async (): Promise<Disposable> => {
-  state = await createWorker();
+  // Creating thread pool with `wasm-bindgen-rayon` sometimes hangs forever for
+  // unknown reasons. Retry until success in order to mitigate this problem.
+  state = await PgCommon.tryUntilSuccess(createWorker, 2000);
 
   // Initialize and load the default crates
   await state.loadDefaultCrates(
@@ -105,7 +107,6 @@ const createWorker = () => {
 
   const pendingResolve = {};
   let id = 1;
-  let resolve;
 
   const callWorker = async (method, ...args) => {
     return new Promise((res) => {
@@ -122,6 +123,7 @@ const createWorker = () => {
     },
   };
 
+  let resolve;
   worker.onmessage = (ev) => {
     if (ev.data.id === "ra-worker-ready") {
       resolve(new Proxy({}, proxyHandler));

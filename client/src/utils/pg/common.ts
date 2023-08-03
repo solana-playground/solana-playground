@@ -63,27 +63,22 @@ export class PgCommon {
   }
 
   /**
-   * Try the callback until the return value of the callback is a non-falsy value.
-   *
-   * NOTE: Only use this function if you are certain the return value of the
-   * callback will eventually be a non-falsy value. It's not a good idea to use
-   * this function when the return value can be a falsy value due to possible
-   * infinite loop from this function.
+   * Try the given callback until success.
    *
    * @param cb callback function to try
    * @param tryInterval optional try interval
-   * @returns the non-nullable return value of the callback
+   * @returns the return value of the callback
    */
   static async tryUntilSuccess<T>(
-    cb: () => Promise<NonNullable<T>>,
-    tryInterval: number = 200
-  ) {
+    cb: () => Promise<T>,
+    tryInterval?: number
+  ): Promise<T> {
     let returnValue: T;
     while (1) {
-      returnValue = await cb();
-      if (returnValue) break;
-
-      await this.sleep(tryInterval);
+      try {
+        returnValue = await this.timeout(cb, tryInterval);
+        break;
+      } catch {}
     }
 
     return returnValue!;
