@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../Button";
+import Img from "../../Img";
 import { Id } from "../../../constants";
 import { PgExplorer, PgTheme, PgWallet } from "../../../utils/pg";
 import { useExplorer, useKeybind, useWallet } from "../../../hooks";
@@ -62,7 +63,7 @@ const Wallet = () => {
         kind="icon"
         fontWeight="bold"
       >
-        <img src="/icons/sidebar/wallet.png" alt="Wallet" />
+        <Img src="/icons/sidebar/wallet.png" alt="Wallet" />
         Wallet
       </Button>
     </WalletWrapper>

@@ -1,6 +1,7 @@
 import { CSSProperties, FC, Ref } from "react";
 import styled, { css } from "styled-components";
 
+import Img from "../Img";
 import { ClassName } from "../../constants";
 import { PgTheme } from "../../utils/pg";
 
@@ -51,7 +52,7 @@ const IconWrapper = styled.div`
   `}
 `;
 
-const Icon = styled.img`
+const Icon = styled(Img)`
   width: 2rem;
   height: 2rem;
   padding: 0.25rem;

@@ -1,6 +1,7 @@
 import { ChangeEvent, FC, useState } from "react";
 import styled, { css } from "styled-components";
 
+import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import { FRAMEWORKS } from "../../../../../frameworks";
@@ -114,7 +115,7 @@ const Framework: FC<FrameworkProps> = ({
 }) => (
   <FrameworkWrapper isSelected={isSelected} onClick={select}>
     <FrameworkImageWrapper circle={circleImage}>
-      <img src={src} alt={name} crossOrigin="anonymous" />
+      <Img src={src} alt={name} />
     </FrameworkImageWrapper>
     <FrameworkName>
       {name}({language})

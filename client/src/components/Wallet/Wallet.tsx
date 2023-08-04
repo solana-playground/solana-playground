@@ -7,6 +7,7 @@ import Balance from "./Balance";
 import Send from "./Send";
 import Transactions from "./Transactions";
 import Button from "../Button";
+import Img from "../Img";
 import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
@@ -152,7 +153,7 @@ const WalletName = () => {
       onClick: () => {
         PgWallet.update({ state: "sol", standardName: wallet.name });
       },
-      Icon: <img src={wallet.icon} alt={wallet.name} />,
+      Icon: <Img src={wallet.icon} alt={wallet.name} />,
       hoverColor: "secondary",
     }));
 
@@ -186,7 +187,7 @@ const WalletTitleWrapper = styled.div`
   `}
 `;
 
-const WalletTitleIcon = styled.img`
+const WalletTitleIcon = styled(Img)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.wallet.top.title.icon)};
   `}

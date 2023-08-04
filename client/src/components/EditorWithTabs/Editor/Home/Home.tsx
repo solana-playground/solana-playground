@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../Button";
+import Img from "../../../Img";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { DefaultLink } from "../../../Link";
@@ -89,7 +90,7 @@ const Resource: FC<ResourceProps> = ({
 }) => (
   <ResourceWrapper>
     <ResourceTitle>
-      <ResourceImg src={src} circleImage={circleImage} />
+      <ResourceImg src={src} $circleImage={circleImage} />
       {title}
     </ResourceTitle>
     <ResourceDescription>{text}</ResourceDescription>
@@ -117,13 +118,13 @@ const ResourceTitle = styled.div`
   `}
 `;
 
-const ResourceImg = styled.img<{ circleImage?: boolean }>`
-  ${({ theme, circleImage }) => css`
+const ResourceImg = styled(Img)<{ $circleImage?: boolean }>`
+  ${({ theme, $circleImage }) => css`
     ${PgTheme.convertToCSS(
       theme.components.main.views.home.resources.card.image
     )};
 
-    ${circleImage && "border-radius: 50%"};
+    ${$circleImage && "border-radius: 50%"};
   `};
 `;
 
@@ -181,7 +182,7 @@ const TutorialWrapper = styled.div`
   `}
 `;
 
-const TutorialIcon = styled.img`
+const TutorialIcon = styled(Img)`
   height: 1rem;
   margin-right: 0.75rem;
 `;
@@ -189,7 +190,7 @@ const TutorialIcon = styled.img`
 const TutorialTitle = styled.span``;
 
 const getSrc = (url: string) => {
-  let src: string = "";
+  let src = "";
 
   if (url.includes("youtube.com")) src = "youtube.png";
   else if (url.includes("dev.to")) src = "devto.png";

@@ -1,6 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import Img from "../Img";
 import { PgTheme, PgTutorial, TutorialData } from "../../utils/pg";
 
 const TutorialCard: FC<TutorialData> = ({
@@ -12,7 +13,7 @@ const TutorialCard: FC<TutorialData> = ({
   <GradientWrapper onClick={() => PgTutorial.open(name)}>
     <InsideWrapper>
       <ImgWrapper>
-        <Img src={imageSrc} />
+        <TutorialImg src={imageSrc} />
       </ImgWrapper>
       <InfoWrapper>
         <Name>{name}</Name>
@@ -92,7 +93,7 @@ const ImgWrapper = styled.div`
   height: var(--img-height);
 `;
 
-const Img = styled.img`
+const TutorialImg = styled(Img)`
   width: 100%;
   height: 100%;
   object-fit: cover;

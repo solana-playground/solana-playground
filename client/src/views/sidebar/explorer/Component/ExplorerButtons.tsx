@@ -2,6 +2,7 @@ import { FC } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../components/Button";
+import Img from "../../../../components/Img";
 import { NewItem, Share } from "./Modals";
 import { PgExplorer, PgRouter, PgView } from "../../../../utils/pg";
 import { useNewItem } from "./useNewItem";
@@ -51,50 +52,40 @@ const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
 
   return (
     <Button onClick={newItem} kind="icon" title={title}>
-      <img src={getExplorerIconsPath(imageName)} alt={title} />
+      <Img src={getExplorerIconsPath(imageName)} alt={title} />
     </Button>
   );
 };
 
-const CollapseAllButton = () => {
-  const handleCollapse = () => {
-    PgExplorer.collapseAllFolders();
-  };
+const CollapseAllButton = () => (
+  <Button
+    onClick={() => PgExplorer.collapseAllFolders()}
+    kind="icon"
+    title="Collapse folders"
+  >
+    <Img src={getExplorerIconsPath("collapse.png")} alt="Collapse folders" />
+  </Button>
+);
 
-  return (
-    <Button onClick={handleCollapse} kind="icon" title="Collapse folders">
-      <img src={getExplorerIconsPath("collapse.png")} alt="Collapse folders" />
-    </Button>
-  );
-};
+const ShareButton = () => (
+  <Button onClick={() => PgView.setModal(Share)} kind="icon" title="Share">
+    <Img src={getExplorerIconsPath("share.png")} alt="Share" />
+  </Button>
+);
 
-const ShareButton = () => {
-  const handleShare = async () => {
-    await PgView.setModal(Share);
-  };
-
-  return (
-    <Button onClick={handleShare} kind="icon" title="Share">
-      <img src={getExplorerIconsPath("share.png")} alt="Share" />
-    </Button>
-  );
-};
-
-const GoBackButton = () => {
-  const goBack = async () => {
-    await PgRouter.navigate();
-  };
-
-  return (
-    <Button onClick={goBack} kind="icon" title="Go back to projects">
-      <img
-        src={getExplorerIconsPath("back.png")}
-        alt="Go back to your project"
-        style={{ height: "0.875rem", width: "0.875rem" }}
-      />
-    </Button>
-  );
-};
+const GoBackButton = () => (
+  <Button
+    onClick={() => PgRouter.navigate()}
+    kind="icon"
+    title="Go back to projects"
+  >
+    <Img
+      src={getExplorerIconsPath("back.png")}
+      alt="Go back to your project"
+      style={{ height: "0.875rem", width: "0.875rem" }}
+    />
+  </Button>
+);
 
 const getExplorerIconsPath = (name: string) => "/icons/explorer/" + name;
 

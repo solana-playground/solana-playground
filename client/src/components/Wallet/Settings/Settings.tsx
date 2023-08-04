@@ -2,6 +2,7 @@ import { FC, useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../Button";
+import Img from "../../Img";
 import Menu, { MenuItemProps } from "../../Menu";
 import {
   Airdrop,
@@ -95,7 +96,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
         await PgCommand.connect.run(wallet.adapter.name);
       },
       hoverColor: "secondary",
-      Icon: <img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
+      Icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
     })
   );
 
