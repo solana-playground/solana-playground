@@ -294,7 +294,7 @@ export class PgExplorer {
     }
 
     PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
-    PgExplorerEvent.dispatchOnDidRenameItem();
+    PgExplorerEvent.dispatchOnDidRenameItem(fullPath);
 
     await this.saveMeta();
   }
@@ -344,7 +344,7 @@ export class PgExplorer {
     // or current file's parent is deleted
     if (isCurrentFile || isCurrentParent) this._changeCurrentFileToTheLastTab();
 
-    PgExplorerEvent.dispatchOnDidDeleteItem();
+    PgExplorerEvent.dispatchOnDidDeleteItem(fullPath);
 
     await this.saveMeta();
   }
@@ -494,6 +494,8 @@ export class PgExplorer {
     this._workspace.rename(newName);
 
     await this.switchWorkspace(newName);
+
+    PgExplorerEvent.dispatchOnDidRenameWorkspace();
   }
 
   /** Delete the current workspace. */
@@ -907,7 +909,7 @@ export class PgExplorer {
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidRenameItem(cb: () => unknown) {
+  static onDidRenameItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_RENAME_ITEM,
@@ -920,7 +922,7 @@ export class PgExplorer {
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidDeleteItem(cb: () => unknown) {
+  static onDidDeleteItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_DELETE_ITEM,

@@ -36,13 +36,13 @@ export class PgExplorerEvent {
   }
 
   /** Dispatch an `onDidRenameItem` event. */
-  static dispatchOnDidRenameItem() {
-    PgCommon.createAndDispatchCustomEvent(this.ON_DID_RENAME_ITEM);
+  static dispatchOnDidRenameItem(path: string) {
+    PgCommon.createAndDispatchCustomEvent(this.ON_DID_RENAME_ITEM, path);
   }
 
   /** Dispatch an `onDidDeleteItem` event. */
-  static dispatchOnDidDeleteItem() {
-    PgCommon.createAndDispatchCustomEvent(this.ON_DID_DELETE_ITEM);
+  static dispatchOnDidDeleteItem(path: string) {
+    PgCommon.createAndDispatchCustomEvent(this.ON_DID_DELETE_ITEM, path);
   }
 
   /** Dispatch an `onDidSwitchFile` event. */

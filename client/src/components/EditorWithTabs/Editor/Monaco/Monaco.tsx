@@ -495,10 +495,18 @@ const Monaco = () => {
       }, 1000);
     });
 
+    const disposeModelFromPath = (path: string) => {
+      monaco.editor.getModel(monaco.Uri.parse(path))?.dispose();
+    };
+    const renameItem = PgExplorer.onDidRenameItem(disposeModelFromPath);
+    const deleteItem = PgExplorer.onDidDeleteItem(disposeModelFromPath);
+
     return () => {
       clearInterval(positionDataIntervalId);
-      monaco.editor.getModels().forEach((model) => model.dispose());
       switchFile.dispose();
+      renameItem.dispose();
+      deleteItem.dispose();
+      monaco.editor.getModels().forEach((model) => model.dispose());
     };
   }, [editor]);
 
