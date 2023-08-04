@@ -1,6 +1,6 @@
 [package]
 name = "rust-analyzer-wasm"
-version = "0.0.94" # mirror RA version
+version = "0.0.100" # mirror RA version
 description = "Rust Analyzer WASM"
 authors = ["Acheron <acheroncrypto@gmail.com>"]
 repository = "https://github.com/solana-playground/solana-playground"
@@ -14,10 +14,10 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # Rust Analyzer crates
-base_db = { package = "ra_ap_base_db", version = "0.0.94" }
-cfg = { package = "ra_ap_cfg", version = "0.0.94" }
-ide = { package = "ra_ap_ide", version = "0.0.94" }
-ide_db = { package = "ra_ap_ide_db", version = "0.0.94" }
+base_db = { package = "ra_ap_base_db", version = "0.0.100" }
+cfg = { package = "ra_ap_cfg", version = "0.0.100" }
+ide = { package = "ra_ap_ide", version = "0.0.100" }
+ide_db = { package = "ra_ap_ide_db", version = "0.0.100" }
 
 console_error_panic_hook = "0.1.7"
 instant = { version = "0.1.12", features = ["wasm-bindgen"] }

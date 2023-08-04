@@ -10,11 +10,9 @@ use ide::{
 };
 use ide_db::{
     base_db::{CrateName, Dependency, Env, FileSet, VfsPath},
-    helpers::{
-        insert_use::{ImportGranularity, InsertUseConfig, PrefixKind},
-        SnippetCap,
-    },
+    imports::insert_use::{ImportGranularity, InsertUseConfig, PrefixKind},
     search::SearchScope,
+    SnippetCap,
 };
 use wasm_bindgen::prelude::*;
 
@@ -192,15 +190,12 @@ impl WorldState {
         manifest: Option<String>,
     ) -> JsValue {
         let mut change = Change::new();
-        let manifest = Manifest::from_str(
-            &manifest.unwrap_or(
-                r#"
+        let manifest = Manifest::from_str(&manifest.unwrap_or(format!(
+            r#"
 [package]
-name = "empty"
+name = "{name}"
 version = "0.0.0""#
-                    .to_owned(),
-            ),
-        )
+        )))
         .unwrap();
 
         let (file_id, crate_id) = match get_file_id(&name, &self.source_roots) {
@@ -352,9 +347,11 @@ version = "0.0.0""#
                     parameter_hints: true,
                     chaining_hints: true,
                     hide_named_constructor_hints: true,
+                    render_colons: true,
                     max_length: Some(25),
                 },
                 self.file_id,
+                None,
             )
             .unwrap()
             .into_iter()
@@ -379,6 +376,7 @@ version = "0.0.0""#
             enable_postfix_completions: true,
             enable_imports_on_the_fly: true,
             enable_self_on_the_fly: true,
+            enable_private_editable: true,
             snippet_cap: SnippetCap::new(true),
             insert_use: InsertUseConfig {
                 granularity: ImportGranularity::Module,
@@ -425,14 +423,18 @@ version = "0.0.0""#
                 ide::FileRange {
                     file_id: self.file_id,
                     range: ide::TextRange::new(
-                        line_index.offset(ide::LineCol {
-                            line: line_number - 1,
-                            col: column - 1,
-                        }),
-                        line_index.offset(ide::LineCol {
-                            line: line_number - 1,
-                            col: column - 1,
-                        }),
+                        line_index
+                            .offset(ide::LineCol {
+                                line: line_number - 1,
+                                col: column - 1,
+                            })
+                            .unwrap(),
+                        line_index
+                            .offset(ide::LineCol {
+                                line: line_number - 1,
+                                col: column - 1,
+                            })
+                            .unwrap(),
                     ),
                 },
             )
@@ -806,6 +808,7 @@ impl WorldState {
             Default::default(),
             Env::default(),
             vec![],
+            false,
             CrateOrigin::default(),
         )
     }

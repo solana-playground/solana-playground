@@ -2604,7 +2604,7 @@
   version "0.1.0"
 
 "@solana-playground/rust-analyzer@../wasm/rust-analyzer/pkg":
-  version "0.0.94"
+  version "0.0.100"
 
 "@solana-playground/rustfmt@../wasm/pkgs/rustfmt":
   version "0.99.4"

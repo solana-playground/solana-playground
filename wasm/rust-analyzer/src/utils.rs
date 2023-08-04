@@ -37,10 +37,12 @@ pub(crate) fn get_file_position(
 ) -> ide::FilePosition {
     ide::FilePosition {
         file_id,
-        offset: line_index.offset(ide::LineCol {
-            line: line_number - 1,
-            col: column - 1,
-        }),
+        offset: line_index
+            .offset(ide::LineCol {
+                line: line_number - 1,
+                col: column - 1,
+            })
+            .unwrap(),
     }
 }
 

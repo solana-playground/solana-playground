@@ -46,6 +46,7 @@ pub(crate) fn completion_item_kind(
             ide::SymbolKind::Macro => Function,
             ide::SymbolKind::Module => Module,
             ide::SymbolKind::SelfParam => Value,
+            ide::SymbolKind::SelfType => TypeParameter,
             ide::SymbolKind::Static => Value,
             ide::SymbolKind::Struct => Struct,
             ide::SymbolKind::Trait => Interface,
@@ -136,7 +137,7 @@ pub(crate) fn signature_information(
     let label = call_info.signature.clone();
     let documentation = call_info.doc.as_ref().map(|it| markdown_string(it));
 
-    let parameters: Vec<ParameterInformation> = call_info
+    let parameters = call_info
         .parameter_labels()
         .into_iter()
         .map(|param| ParameterInformation {
@@ -187,16 +188,16 @@ pub(crate) fn symbol_kind(kind: ide::StructureNodeKind) -> return_types::SymbolK
     };
 
     match kind {
-        ide::SymbolKind::Attribute => SymbolKind::Method,
-        ide::SymbolKind::BuiltinAttr => SymbolKind::Method,
+        ide::SymbolKind::Attribute => SymbolKind::Function,
+        ide::SymbolKind::BuiltinAttr => SymbolKind::Function,
         ide::SymbolKind::Const => SymbolKind::Constant,
         ide::SymbolKind::ConstParam => SymbolKind::Constant,
-        ide::SymbolKind::Derive => SymbolKind::Method,
+        ide::SymbolKind::Derive => SymbolKind::Function,
         ide::SymbolKind::Enum => SymbolKind::Enum,
         ide::SymbolKind::Field => SymbolKind::Field,
         ide::SymbolKind::Function => SymbolKind::Function,
         ide::SymbolKind::Impl => SymbolKind::Interface,
-        ide::SymbolKind::Label => SymbolKind::Constant,
+        ide::SymbolKind::Label => SymbolKind::Variable,
         ide::SymbolKind::LifetimeParam => SymbolKind::TypeParameter,
         ide::SymbolKind::Local => SymbolKind::Variable,
         ide::SymbolKind::Macro => SymbolKind::Function,
@@ -206,10 +207,11 @@ pub(crate) fn symbol_kind(kind: ide::StructureNodeKind) -> return_types::SymbolK
         ide::SymbolKind::Struct => SymbolKind::Struct,
         ide::SymbolKind::ToolModule => SymbolKind::Module,
         ide::SymbolKind::Trait => SymbolKind::Interface,
-        ide::SymbolKind::TypeAlias => SymbolKind::TypeParameter,
-        ide::SymbolKind::TypeParam => SymbolKind::TypeParameter,
+        ide::SymbolKind::TypeAlias | ide::SymbolKind::TypeParam | ide::SymbolKind::SelfType => {
+            SymbolKind::TypeParameter
+        }
         ide::SymbolKind::Union => SymbolKind::Struct,
-        ide::SymbolKind::ValueParam => SymbolKind::TypeParameter,
+        ide::SymbolKind::ValueParam => SymbolKind::Variable,
         ide::SymbolKind::Variant => SymbolKind::EnumMember,
     }
 }
