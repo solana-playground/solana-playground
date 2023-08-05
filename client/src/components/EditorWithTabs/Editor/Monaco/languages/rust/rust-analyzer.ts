@@ -43,9 +43,9 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
 
   // Initialize and load the default crates
   await state.loadDefaultCrates(
-    await PgCommon.fetchText("/crates/std.rs"),
     await PgCommon.fetchText("/crates/core.rs"),
-    await PgCommon.fetchText("/crates/alloc.rs")
+    await PgCommon.fetchText("/crates/alloc.rs"),
+    await PgCommon.fetchText("/crates/std.rs")
   );
 
   const { dispose: disposeInitWorkspace } = await PgCommon.executeInitial(

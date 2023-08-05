@@ -46,74 +46,69 @@ impl WorldState {
             crate_graph: CrateGraph::default(),
             source_roots: vec![],
             needed_deps: BTreeMap::new(),
-            file_id: Self::default_file_id(),
+            file_id: Self::LOCAL_FILE_ID,
         }
     }
 
     /// Load `std`, `core` and `alloc` libraries and initialize a default local crate.
     #[wasm_bindgen(js_name = loadDefaultCrates)]
-    pub fn load_default_crates(&mut self, std_lib: String, core_lib: String, alloc_lib: String) {
+    pub fn load_default_crates(&mut self, core_lib: String, alloc_lib: String, std_lib: String) {
         const DEFAULT_NAME: &str = "solpg";
-        const STD_NAME: &str = "std";
-        const CORE_NAME: &str = "core";
-        const ALLOC_NAME: &str = "alloc";
+        const CORE_FILE_ID: FileId = FileId(1);
+        const ALLOC_FILE_ID: FileId = FileId(2);
+        const STD_FILE_ID: FileId = FileId(3);
 
         let mut change = Change::new();
-
-        // Create file ids
-        let file_id = Self::default_file_id();
-        let std_id = FileId(1);
-        let core_id = FileId(2);
-        let alloc_id = FileId(3);
 
         // Add source roots
         let local_source_root = {
             let mut file_set = FileSet::default();
             file_set.insert(
-                file_id,
+                Self::LOCAL_FILE_ID,
                 VfsPath::new_virtual_path(format!("/{DEFAULT_NAME}/src/lib.rs")),
             );
             SourceRoot::new_local(file_set)
         };
         self.source_roots = vec![
             local_source_root,
-            create_source_root(STD_NAME, std_id),
-            create_source_root(CORE_NAME, core_id),
-            create_source_root(ALLOC_NAME, alloc_id),
+            create_source_root(Self::CORE_NAME, CORE_FILE_ID),
+            create_source_root(Self::ALLOC_NAME, ALLOC_FILE_ID),
+            create_source_root(Self::STD_NAME, STD_FILE_ID),
         ];
         change.set_roots(self.source_roots.clone());
 
         // Add crate roots to the crate graph
-        let my_crate = self.add_crate_from_name(file_id, DEFAULT_NAME);
-        let std_crate = self.add_crate_from_name(std_id, STD_NAME);
-        let core_crate = self.add_crate_from_name(core_id, CORE_NAME);
-        let alloc_crate = self.add_crate_from_name(alloc_id, ALLOC_NAME);
+        let my_crate_id = self.add_crate_from_name(DEFAULT_NAME, Self::LOCAL_FILE_ID);
+        let core_crate_id = self.add_crate_from_name(Self::CORE_NAME, CORE_FILE_ID);
+        let alloc_crate_id = self.add_crate_from_name(Self::ALLOC_NAME, ALLOC_FILE_ID);
+        let std_crate_id = self.add_crate_from_name(Self::STD_NAME, STD_FILE_ID);
 
         // Add dependencies
-        let core_dep = Dependency::new(CrateName::new(CORE_NAME).unwrap(), core_crate);
-        let alloc_dep = Dependency::new(CrateName::new(ALLOC_NAME).unwrap(), alloc_crate);
-        let std_dep = Dependency::new(CrateName::new(STD_NAME).unwrap(), std_crate);
+        let core_dep = Dependency::new(CrateName::new(Self::CORE_NAME).unwrap(), core_crate_id);
+        let alloc_dep = Dependency::new(CrateName::new(Self::ALLOC_NAME).unwrap(), alloc_crate_id);
+        let std_dep = Dependency::new(CrateName::new(Self::STD_NAME).unwrap(), std_crate_id);
 
         self.crate_graph
-            .add_dep(std_crate, core_dep.clone())
+            .add_dep(alloc_crate_id, core_dep.clone())
             .unwrap();
         self.crate_graph
-            .add_dep(std_crate, alloc_dep.clone())
+            .add_dep(std_crate_id, core_dep.clone())
             .unwrap();
         self.crate_graph
-            .add_dep(alloc_crate, core_dep.clone())
+            .add_dep(std_crate_id, alloc_dep.clone())
             .unwrap();
 
-        self.crate_graph.add_dep(my_crate, core_dep).unwrap();
-        self.crate_graph.add_dep(my_crate, alloc_dep).unwrap();
-        self.crate_graph.add_dep(my_crate, std_dep).unwrap();
+        self.crate_graph.add_dep(my_crate_id, core_dep).unwrap();
+        self.crate_graph.add_dep(my_crate_id, alloc_dep).unwrap();
+        self.crate_graph.add_dep(my_crate_id, std_dep).unwrap();
+
         change.set_crate_graph(self.crate_graph.clone());
 
         // Set file contents
-        change.change_file(file_id, Some(Arc::new("".into())));
-        change.change_file(std_id, Some(Arc::new(std_lib)));
-        change.change_file(core_id, Some(Arc::new(core_lib)));
-        change.change_file(alloc_id, Some(Arc::new(alloc_lib)));
+        change.change_file(Self::LOCAL_FILE_ID, Some(Arc::new("".into())));
+        change.change_file(CORE_FILE_ID, Some(Arc::new(core_lib)));
+        change.change_file(ALLOC_FILE_ID, Some(Arc::new(alloc_lib)));
+        change.change_file(STD_FILE_ID, Some(Arc::new(std_lib)));
 
         self.host.apply_change(change);
     }
@@ -142,7 +137,7 @@ impl WorldState {
         // else depends on this code, this is going to be the solution until if/when we decide to
         // support multiple local crates(workspace) in playground.
         unsafe {
-            let mut_ptr = self.crate_graph[Self::default_crate_id()]
+            let mut_ptr = self.crate_graph[Self::LOCAL_CRATE_ID]
                 .display_name
                 .as_ref()
                 .unwrap() as *const CrateDisplayName
@@ -167,7 +162,7 @@ impl WorldState {
         for [path, content] in files {
             let path = VfsPath::new_virtual_path(path);
             let file_id = match path.name_and_extension() {
-                Some((name, _)) if name == "lib" => Self::default_file_id(),
+                Some((name, _)) if name == "lib" => Self::LOCAL_FILE_ID,
                 _ => self.file_id_from_path(&path).unwrap_or(self.next_file_id()),
             };
             file_set.insert(file_id, path);
@@ -214,7 +209,7 @@ version = "0.0.0""#
                 let crate_id = self.add_crate(file_id, &manifest);
                 self.crate_graph
                     .add_dep(
-                        Self::default_crate_id(),
+                        Self::LOCAL_CRATE_ID,
                         Dependency::new(CrateName::new(&name).unwrap(), crate_id),
                     )
                     .unwrap();
@@ -223,13 +218,26 @@ version = "0.0.0""#
             }
         };
 
+        // Add default dependencies on full load
+        if code.is_some() {
+            for crate_name in [Self::CORE_NAME, Self::ALLOC_NAME, Self::STD_NAME] {
+                let dep = Dependency::new(
+                    CrateName::new(crate_name).unwrap(),
+                    get_crate_id(crate_name, &self.source_roots, &self.crate_graph).unwrap(),
+                );
+                self.crate_graph.add_dep(crate_id, dep).unwrap();
+            }
+        }
+
         // Change file
         change.change_file(file_id, Some(Arc::new(code.unwrap_or_default())));
 
         // Handle transitive dependencies
         let mut needed_deps = vec![];
         for (dep_name, _) in manifest.dependencies {
+            // Only snake_case crate names are allowed
             let dep_name = dep_name.replace('-', "_");
+
             // Get whether the dependency already exists
             match get_file_id(&dep_name, &self.source_roots) {
                 Some(file_id) if !self.host.raw_database().file_text(*file_id).is_empty() => {
@@ -728,15 +736,20 @@ version = "0.0.0""#
 }
 
 impl WorldState {
+    /// `core` library name
+    const CORE_NAME: &str = "core";
+
+    /// `alloc` library name
+    const ALLOC_NAME: &str = "alloc";
+
+    /// `std` library name
+    const STD_NAME: &str = "std";
+
     /// Default local file id.
-    fn default_file_id() -> FileId {
-        FileId(0)
-    }
+    const LOCAL_FILE_ID: FileId = FileId(0);
 
     /// Default local crate id.
-    fn default_crate_id() -> CrateId {
-        CrateId(0)
-    }
+    const LOCAL_CRATE_ID: CrateId = CrateId(0);
 
     /// Get the current analysis.
     fn analysis(&self) -> Analysis {
@@ -748,7 +761,7 @@ impl WorldState {
         self.analysis().file_line_index(self.file_id).unwrap()
     }
 
-    /// Get the last file id.
+    /// Get the last file id from source roots.
     fn last_file_id(&self) -> FileId {
         FileId(
             self.source_roots
@@ -767,13 +780,12 @@ impl WorldState {
     /// Get the file id from the given path.
     fn file_id_from_path(&self, path: &VfsPath) -> Option<FileId> {
         if self.source_roots.len() == 0 {
-            return Some(Self::default_file_id());
+            return Some(Self::LOCAL_FILE_ID);
         }
 
         self.source_roots
             .iter()
-            .filter_map(|root| root.file_for_path(path))
-            .next()
+            .find_map(|root| root.file_for_path(path))
             .map(|file_id| *file_id)
     }
 
@@ -814,7 +826,7 @@ impl WorldState {
     }
 
     /// Add crate root from its name.
-    fn add_crate_from_name<D: Display>(&mut self, file_id: FileId, name: D) -> CrateId {
+    fn add_crate_from_name<D: Display>(&mut self, name: D, file_id: FileId) -> CrateId {
         self.add_crate(
             file_id,
             Manifest::from_str(&format!(
