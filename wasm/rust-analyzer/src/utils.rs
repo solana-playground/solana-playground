@@ -1,18 +1,14 @@
 use base_db::{CrateGraph, CrateId, FileId, FileSet, SourceRoot, VfsPath};
 
 /// Search the given source roots to find the crate with a matching name.
-pub(crate) fn get_file_id<'a, 'b>(
-    name: &'a str,
-    source_roots: &'b Vec<SourceRoot>,
-) -> Option<&'b FileId> {
+pub fn get_file_id<'a, 'b>(name: &'a str, source_roots: &'b Vec<SourceRoot>) -> Option<&'b FileId> {
     source_roots
         .iter()
-        .filter_map(|root| root.file_for_path(&get_crate_path(name)))
-        .next()
+        .find_map(|root| root.file_for_path(&get_crate_path(name)))
 }
 
 /// Get the file id from [get_file_id] and find the crate id from the given crate graph.
-pub(crate) fn get_crate_id(
+pub fn get_crate_id(
     name: &str,
     source_roots: &Vec<SourceRoot>,
     crate_graph: &CrateGraph,
@@ -22,14 +18,14 @@ pub(crate) fn get_crate_id(
 }
 
 /// Create a source root for a library with one file.
-pub(crate) fn create_source_root(name: &str, file_id: FileId) -> SourceRoot {
+pub fn create_source_root(name: &str, file_id: FileId) -> SourceRoot {
     let mut file_set = FileSet::default();
     file_set.insert(file_id, get_crate_path(name));
     SourceRoot::new_library(file_set)
 }
 
 /// Get the file position.
-pub(crate) fn get_file_position(
+pub fn get_file_position(
     line_number: u32,
     column: u32,
     line_index: &ide::LineIndex,

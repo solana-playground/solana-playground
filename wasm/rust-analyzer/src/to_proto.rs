@@ -1,5 +1,7 @@
 //! Conversion of `rust-analyzer` specific types to `return_types` equivalents.
 
+use ide_db::rust_doc::is_rust_fence;
+
 use crate::return_types;
 
 /// Convert text range.
@@ -135,7 +137,7 @@ pub(crate) fn signature_information(
     use return_types::{ParameterInformation, SignatureInformation};
 
     let label = call_info.signature.clone();
-    let documentation = call_info.doc.as_ref().map(|it| markdown_string(it));
+    let documentation = call_info.doc.as_ref().map(|doc| markdown_string(doc));
 
     let parameters = call_info
         .parameter_labels()
@@ -232,28 +234,34 @@ pub(crate) fn folding_range(fold: ide::Fold, ctx: &ide::LineIndex) -> return_typ
 }
 
 /// Convert markdown string.
-fn markdown_string(s: &str) -> return_types::MarkdownString {
-    fn code_line_ignored_by_rustdoc(line: &str) -> bool {
-        let trimmed = line.trim();
-        trimmed == "#" || trimmed.starts_with("# ") || trimmed.starts_with("#\t")
-    }
-
+pub(crate) fn markdown_string(src: &str) -> return_types::MarkdownString {
     let mut processed_lines = Vec::new();
     let mut in_code_block = false;
-    for line in s.lines() {
-        if in_code_block && code_line_ignored_by_rustdoc(line) {
+    let mut is_rust = false;
+
+    for mut line in src.lines() {
+        if in_code_block && is_rust && code_line_ignored_by_rustdoc(line) {
             continue;
         }
 
-        if line.starts_with("```") {
-            in_code_block ^= true
+        if let Some(header) = line.strip_prefix("```") {
+            in_code_block ^= true;
+
+            if in_code_block {
+                is_rust = is_rust_fence(header);
+
+                if is_rust {
+                    line = "```rust";
+                }
+            }
         }
 
-        let line = if in_code_block && line.starts_with("```") && !line.contains("rust") {
-            "```rust"
-        } else {
-            line
-        };
+        if in_code_block {
+            let trimmed = line.trim_start();
+            if trimmed.starts_with("##") {
+                line = &trimmed[1..];
+            }
+        }
 
         processed_lines.push(line);
     }
@@ -261,4 +269,10 @@ fn markdown_string(s: &str) -> return_types::MarkdownString {
     return_types::MarkdownString {
         value: processed_lines.join("\n"),
     }
+}
+
+/// Ignore the lines that start with `#`.
+fn code_line_ignored_by_rustdoc(line: &str) -> bool {
+    let trimmed = line.trim();
+    trimmed == "#" || trimmed.starts_with("# ") || trimmed.starts_with("#\t")
 }

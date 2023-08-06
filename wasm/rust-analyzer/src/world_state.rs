@@ -459,9 +459,9 @@ version = "0.0.0""#
         };
 
         let hover = return_types::Hover {
-            contents: vec![return_types::MarkdownString {
-                value: hover_result.info.markup.to_string(),
-            }],
+            contents: vec![to_proto::markdown_string(
+                &hover_result.info.markup.to_string(),
+            )],
             range: to_proto::text_range(hover_result.range, &line_index),
         };
 
