@@ -293,9 +293,15 @@ version = "0.0.0""#
         // Set the current file id
         self.file_id = file_id;
 
-        let mut change = Change::new();
-        change.change_file(file_id, Some(Arc::new(content)));
-        self.host.apply_change(change);
+        // Set the file content
+        {
+            let mut change: Change = Change::new();
+
+            // Append a new line to the content in order to fix cursor index out of bound panic when
+            // importing when on the last character of the file.
+            change.change_file(file_id, Some(Arc::new(format!("{content}\n"))));
+            self.host.apply_change(change);
+        }
 
         let line_index = self.analysis().file_line_index(file_id).unwrap();
         let highlights = self
