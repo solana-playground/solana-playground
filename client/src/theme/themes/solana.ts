@@ -18,7 +18,9 @@ const BG_BLACK = "#000000",
   // State
   DISABLED = "#111114",
   HOVER_BG = "#2B2D39",
-  SELECTION = "#232323";
+  SELECTION = "#232323",
+  // Highlight
+  COMMENT = "#859188";
 
 const SOLANA: Theme = {
   isDark: true,
@@ -196,8 +198,8 @@ const SOLANA: Theme = {
     operator: { color: PINK },
     derefOperator: { color: PINK },
     specialVariable: { color: PURPLE },
-    lineComment: { color: TEXT_SECONDARY },
-    blockComment: { color: TEXT_SECONDARY },
+    lineComment: { color: COMMENT },
+    blockComment: { color: COMMENT },
     meta: { color: PURPLE },
     invalid: { color: RED },
     constant: { color: TEXT_PRIMARY },

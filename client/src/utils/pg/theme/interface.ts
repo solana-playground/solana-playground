@@ -109,6 +109,14 @@ export interface Theme {
         activeColor?: Color;
       } & Pick<StandardProperties, "borderRight">;
 
+      /** Inlay hints */
+      inlayHint?: BgAndColor & {
+        parameterBg?: Bg;
+        parameterColor?: Color;
+        typeBg?: Bg;
+        typeColor?: Color;
+      };
+
       /** Minimap component */
       minimap?: {
         bg?: Bg;
@@ -396,8 +404,6 @@ export interface Highlight {
   meta: HighlightToken;
 
   invalid: HighlightToken;
-
-  /// Unused in Rust
 
   // const _x_: bool = true;
   constant: HighlightToken;

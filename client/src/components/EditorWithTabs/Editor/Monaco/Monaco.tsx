@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
 import { initLanguages } from "./languages";
@@ -61,15 +61,23 @@ const Monaco = () => {
     const hl = theme.highlight;
 
     if (theme.isDark) {
-      // Monaco only takes hex values
-      const orTransparent = (v: string) => {
-        return v === "transparent" || v === "inherit" ? "#00000000" : v;
+      /** Convert the colors to hex values when necessary */
+      const toHexColors = (colors: Record<string, string>) => {
+        for (const key in colors) {
+          const color = colors[key];
+          colors[key] =
+            color === "transparent" || color === "inherit"
+              ? "#00000000"
+              : color;
+        }
+
+        return colors;
       };
 
       monaco.editor.defineTheme(theme.name, {
         base: "vs-dark",
         inherit: true,
-        colors: {
+        colors: toHexColors({
           /////////////////////////////// General //////////////////////////////
           foreground: editorStyles.default.color,
           errorForeground: theme.colors.state.error.color,
@@ -79,18 +87,15 @@ const Monaco = () => {
 
           /////////////////////////////// Editor ///////////////////////////////
           "editor.foreground": editorStyles.default.color,
-          "editor.background": orTransparent(editorStyles.default.bg),
+          "editor.background": editorStyles.default.bg,
           "editorCursor.foreground": editorStyles.default.cursorColor,
-          "editor.lineHighlightBackground": orTransparent(
-            editorStyles.default.activeLine.bg
-          ),
-          "editor.lineHighlightBorder": orTransparent(
-            editorStyles.default.activeLine.borderColor
-          ),
+          "editor.lineHighlightBackground": editorStyles.default.activeLine.bg,
+          "editor.lineHighlightBorder":
+            editorStyles.default.activeLine.borderColor,
           "editor.selectionBackground": editorStyles.default.selection.bg,
           "editor.inactiveSelectionBackground":
             editorStyles.default.searchMatch.bg,
-          "editorGutter.background": orTransparent(editorStyles.gutter.bg),
+          "editorGutter.background": editorStyles.gutter.bg,
           "editorLineNumber.foreground": editorStyles.gutter.color,
           "editorError.foreground": theme.colors.state.error.color,
           "editorWarning.foreground": theme.colors.state.warning.color,
@@ -127,11 +132,11 @@ const Monaco = () => {
           "inputValidation.errorBorder": theme.colors.state.error.color,
 
           /////////////////////////////// Minimap //////////////////////////////
-          "minimap.background": orTransparent(editorStyles.minimap.bg),
+          "minimap.background": editorStyles.minimap.bg,
           "minimap.selectionHighlight": editorStyles.minimap.selectionHighlight,
 
           ////////////////////////////// Peek view /////////////////////////////
-          "peekView.border": orTransparent(editorStyles.peekView.borderColor),
+          "peekView.border": editorStyles.peekView.borderColor,
           "peekViewTitle.background": editorStyles.peekView.title.bg,
           "peekViewTitleLabel.foreground":
             editorStyles.peekView.title.labelColor,
@@ -153,7 +158,17 @@ const Monaco = () => {
             editorStyles.peekView.result.selectionColor,
           "peekViewResult.matchHighlightBackground":
             editorStyles.peekView.result.matchHighlightBg,
-        },
+
+          ////////////////////////////// Inlay hint ////////////////////////////
+          "editorInlayHint.background": editorStyles.inlayHint.bg,
+          "editorInlayHint.foreground": editorStyles.inlayHint.color,
+          "editorInlayHint.parameterBackground":
+            editorStyles.inlayHint.parameterBg,
+          "editorInlayHint.parameterForeground":
+            editorStyles.inlayHint.parameterColor,
+          "editorInlayHint.typeBackground": editorStyles.inlayHint.typeBg,
+          "editorInlayHint.typeForeground": editorStyles.inlayHint.typeColor,
+        }),
         rules: [],
       });
       monaco.editor.setTheme(theme.name);
@@ -886,7 +901,15 @@ const Monaco = () => {
 
   if (!isThemeSet) return <MainViewLoading />;
 
-  return <div ref={monacoRef} />;
+  return <Wrapper ref={monacoRef} />;
 };
+
+const Wrapper = styled.div`
+  /** Inlay hints */
+  & span[class^="dyn-rule"],
+  span[class*=" dyn-rule"] {
+    font-size: 12px;
+  }
+`;
 
 export default Monaco;

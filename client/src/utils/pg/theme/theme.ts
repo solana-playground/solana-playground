@@ -836,6 +836,15 @@ export class PgTheme {
     editor.gutter.activeColor ??= theme.colors.default.textPrimary;
     editor.gutter.borderRight ??= "none";
 
+    // Editor inlay hint
+    editor.inlayHint ??= {};
+    editor.inlayHint.bg ??= "#262730aa";
+    editor.inlayHint.color ??= theme.colors.default.textSecondary;
+    editor.inlayHint.parameterBg ??= editor.inlayHint.bg;
+    editor.inlayHint.parameterColor ??= editor.inlayHint.color;
+    editor.inlayHint.typeBg ??= editor.inlayHint.bg;
+    editor.inlayHint.typeColor ??= editor.inlayHint.color;
+
     // Editor minimap
     editor.minimap ??= {};
     editor.minimap.bg ??= editor.default.bg;
