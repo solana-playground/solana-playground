@@ -447,13 +447,14 @@ const Monaco = () => {
       positionDataIntervalId && clearInterval(positionDataIntervalId);
 
       // Check whether the model has already been created
-      const uriPath = curFile.path.replace(/\s*/g, "");
       const model =
-        monaco.editor.getModels().find((model) => model.uri.path === uriPath) ??
+        monaco.editor
+          .getModels()
+          .find((model) => model.uri.path === curFile.path) ??
         monaco.editor.createModel(
           curFile.content!,
           undefined,
-          monaco.Uri.parse(uriPath)
+          monaco.Uri.parse(curFile.path)
         );
       editor.setModel(model);
 
