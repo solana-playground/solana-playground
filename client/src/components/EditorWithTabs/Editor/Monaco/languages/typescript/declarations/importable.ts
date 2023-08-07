@@ -7,7 +7,11 @@ import type { ClientPackageName, Fn } from "../../../../../../../utils/pg";
 /** All importable packages */
 const PACKAGES: [ClientPackageName, () => Promise<{ default: Fn }>][] = [
   ["@clockwork-xyz/sdk", () => import("./packages/clockwork")],
-  ["@metaplex-foundation/js", () => import("./packages/metaplex")],
+  ["@metaplex-foundation/js", () => import("./packages/metaplex-js")],
+  [
+    "@metaplex-foundation/mpl-token-metadata",
+    () => import("./packages/metaplex-mpl-token-metadata"),
+  ],
   ["@solana/spl-token", () => import("./packages/spl-token")],
 ];
 

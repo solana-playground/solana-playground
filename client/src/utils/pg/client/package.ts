@@ -4,6 +4,7 @@ import type { OrString } from "../types";
 export type ClientPackageName =
   | "@clockwork-xyz/sdk"
   | "@metaplex-foundation/js"
+  | "@metaplex-foundation/mpl-token-metadata"
   | "@project-serum/anchor"
   | "@solana/buffer-layout"
   | "@solana/spl-token"
@@ -29,6 +30,8 @@ export class PgClientPackage {
         return await import("@clockwork-xyz/sdk");
       case "@metaplex-foundation/js":
         return await import("@metaplex-foundation/js");
+      case "@metaplex-foundation/mpl-token-metadata":
+        return await import("@metaplex-foundation/mpl-token-metadata");
       case "@project-serum/anchor":
         return await import("@project-serum/anchor");
       case "@solana/buffer-layout":

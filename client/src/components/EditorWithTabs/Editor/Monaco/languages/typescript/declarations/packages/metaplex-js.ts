@@ -2,7 +2,7 @@ import * as monaco from "monaco-editor";
 
 import type { TupleString } from "../../../../../../../../utils/pg";
 
-export default function declareMetaplex() {
+export default function declareMetaplexJs() {
   /* ------------------ Begin @metaplex-foundation/js ------------------ */
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     ...addResolvedLib(
