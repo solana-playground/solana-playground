@@ -28,13 +28,14 @@ export type Tuple<
 export type TupleString = Tuple<string, 2>;
 
 /** Map union to tuple */
-export type UnionToTuple<U> = UnionReturnType<
+export type UnionToTuple<U> = MergeUnion<
   U extends never ? never : (union: U) => U
 > extends (_: never) => infer R
   ? [...UnionToTuple<Exclude<U, R>>, R]
   : [];
 
-type UnionReturnType<U> = (
+/** Merge union */
+export type MergeUnion<U> = (
   U extends never ? never : (union: U) => never
 ) extends (ret: infer R) => never
   ? R

@@ -21,3 +21,6 @@ server
 
 # Rust Analyzer crates
 client/public/crates
+
+# TypeScript declarations
+client/public/packages

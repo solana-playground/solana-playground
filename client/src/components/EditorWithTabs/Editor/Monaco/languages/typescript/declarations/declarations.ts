@@ -12,8 +12,8 @@ import type { Disposable } from "../../../../../../../utils/pg";
  */
 export const initDeclarations = async (): Promise<Disposable> => {
   // Default declarations
-  const { declareDefaultTypes } = await import("./default");
-  await declareDefaultTypes();
+  const { declareGlobalTypes } = await import("./global");
+  await declareGlobalTypes();
 
   // Disposable declarations
   const { declareDisposableTypes } = await import("./disposable");

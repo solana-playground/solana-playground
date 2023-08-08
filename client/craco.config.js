@@ -1,6 +1,8 @@
 const webpack = require("webpack");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
   webpack: {
@@ -99,24 +101,27 @@ module.exports = {
 
         // Define globals
         new webpack.DefinePlugin({
-          // Rust Analyzer supported crates
-          CRATES: (() => {
-            const fs = require("fs");
-            const path = require("path");
+          /** Supported crates(Rust Analyzer) */
+          CRATES: defineFromPublicDir("crates", (dirItems) => {
+            return dirItems
+              .filter((name) => name.endsWith(".toml"))
+              .map((name) => name.replace(".toml", ""));
+          }),
 
-            const CRATES_PATH = path.join("public", "crates");
+          /** Supported packages(TypeScript) */
+          PACKAGES: defineFromPublicDir(
+            "packages",
+            (dirItems, packagesPath) => {
+              return dirItems.flatMap((name) => {
+                if (name.startsWith("@")) {
+                  const names = fs.readdirSync(path.join(packagesPath, name));
+                  return names.map((n) => path.join(name, n));
+                }
 
-            if (!fs.existsSync(CRATES_PATH)) {
-              fs.mkdirSync(CRATES_PATH);
+                return name;
+              });
             }
-
-            return JSON.stringify(
-              fs
-                .readdirSync(CRATES_PATH)
-                .filter((name) => name.endsWith(".toml"))
-                .map((name) => name.replace(".toml", ""))
-            );
-          })(),
+          ),
         })
       );
 
@@ -141,4 +146,21 @@ module.exports = {
 
     return devServerConfig;
   },
+};
+
+/**
+ * Define global variable based on the items in `public` directory.
+ *
+ * @param {string} dirName directory name inside `public` directory
+ * @param {(dirItems: string, path: string) => string} cb callback to run
+ * @returns the stringified result of the callback
+ */
+const defineFromPublicDir = (dirName, cb) => {
+  const publicPath = path.join("public", dirName);
+
+  if (!fs.existsSync(publicPath)) {
+    fs.mkdirSync(publicPath);
+  }
+
+  return JSON.stringify(cb(fs.readdirSync(publicPath), publicPath));
 };

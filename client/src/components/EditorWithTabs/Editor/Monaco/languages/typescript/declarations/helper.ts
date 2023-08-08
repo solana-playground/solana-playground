@@ -4,7 +4,6 @@ import {
   ClientPackageName,
   Disposable,
   PgCommon,
-  PgExplorer,
   TupleString,
   TupleFiles,
 } from "../../../../../../../utils/pg";
@@ -28,15 +27,11 @@ export const declareModule = (
  * Declare a full package.
  *
  * @param packageName package name t obe referenced in declaration files
- * @param indexPath index declaration file path(Monaco)
- * @param files declaration files
  * @returns a dispose method to dispose all events
  */
-export const declareFullModule = (
-  packageName: ClientPackageName,
-  indexPath: string,
-  files: TupleFiles
-): Disposable => {
+export const declareFullModule = async (
+  packageName: ClientPackageName
+): Promise<Disposable> => {
   /**
    * Monaco TS worker is not able to use imports/exports if indexes are not
    * explicit, e.g. "./common" will not translate to "./common/index".
@@ -46,19 +41,22 @@ export const declareFullModule = (
    * @returns the [content, path] tuple
    */
   const resolveFile = (path: string, content: string): TupleString => {
-    return [
-      content
-        // Module imports/exports
-        .replace(
-          /^[import|export].*from\s(.+["|'])/gm,
-          (...match: TupleString) => addIndex(path, ...match)
-        )
-        // import("...")
-        .replace(/import\((.*)\)/gm, (...match: TupleString) =>
-          addIndex(path, ...match)
-        ),
-      path,
-    ];
+    content = content
+      // Module imports/exports
+      .replace(/^[import|export].*from\s(.+["|'])/gm, (...match: TupleString) =>
+        addIndex(path, ...match)
+      )
+      // import("...")
+      .replace(/import\((.*)\)/gm, (...match: TupleString) =>
+        addIndex(path, ...match)
+      );
+
+    // Declare module on `index.d.ts` if it's not declared
+    if (files.length === 1 && !content.includes("declare module")) {
+      content = declareModule(packageName, content);
+    }
+
+    return [content, path];
   };
 
   /**
@@ -94,22 +92,32 @@ export const declareFullModule = (
     return match;
   };
 
+  const files: TupleFiles = await PgCommon.fetchJSON(
+    `/packages/${packageName}/declaration.json`
+  );
+
   const disposables = files.map(([path, content]) => {
     return monaco.languages.typescript.typescriptDefaults.addExtraLib(
       ...resolveFile(path, content)
     );
   });
 
-  // Renaming exports allows us to use '@' and export everything
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    `declare module "${packageName}" {
-  export * from "${PgCommon.joinPaths([
-    PgExplorer.getParentPathFromPath(indexPath),
-    "old-index",
-  ])}"
-}`,
-    indexPath
-  );
+  if (files.length > 1) {
+    const [oldIndexPath] = files.find(([path]) => {
+      return path.endsWith("old-index.d.ts");
+    })!;
+
+    disposables.push(
+      // Renaming exports allows us to use '@' and export everything
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        declareModule(
+          packageName,
+          `export * from "${oldIndexPath.replace(".d.ts", "")}"`
+        ),
+        oldIndexPath.replace("old-index", "index")
+      )
+    );
+  }
 
   return {
     dispose: () => disposables.forEach(({ dispose }) => dispose()),

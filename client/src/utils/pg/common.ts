@@ -192,6 +192,17 @@ export class PgCommon {
   }
 
   /**
+   * Fetch the response from the given URL and return the JSON response.
+   *
+   * @param url URL
+   * @returns the JSON response
+   */
+  static async fetchJSON(url: string) {
+    const response = await fetch(url);
+    return await response.json();
+  }
+
+  /**
    * @returns the decoded string
    */
   static decodeBytes(

@@ -1,0 +1,14 @@
+[
+  "@clockwork-xyz/sdk",
+  "@metaplex-foundation/js",
+  "@metaplex-foundation/mpl-token-metadata",
+  "@project-serum/anchor",
+  "@solana/buffer-layout",
+  "@solana/spl-token",
+  "@solana/web3.js",
+  "assert",
+  "bn.js",
+  "borsh",
+  "buffer",
+  "mocha"
+]

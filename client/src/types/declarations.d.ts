@@ -8,8 +8,11 @@ import { Arrayable, Disposable, SyncOrAsync, ThemeReady } from "../utils/pg";
 global {
   function structuredClone<T>(obj: T): T;
 
-  /** Rust Analyzer crates. */
+  /** Supported Rust Analyzer crates */
   const CRATES: string[];
+
+  /** Supported client packages */
+  const PACKAGES: string[];
 }
 
 // Route
