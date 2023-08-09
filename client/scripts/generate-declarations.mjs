@@ -3,6 +3,9 @@
 import * as fs from "fs/promises";
 import pathModule from "path";
 
+/** Packages output directory */
+const PACKAGES_PATH = pathModule.join("..", "public", "packages");
+
 /** Renamed index file name(for re-exporting) */
 const OLD_INDEX_FILENAME = "old-index.d.ts";
 
@@ -12,49 +15,38 @@ const packages = JSON.parse(
 );
 
 for (const name of packages) {
-  console.log({ name });
-
   // Get all declaration file paths
   const paths = [];
-
-  const getPaths = (path) => {
-    const webpack = path.replace(/^.*node_modules\//, "/node_modules/");
-
-    // Monaco has problems with @ in the path
-    const monaco = webpack.slice(1).replace("@", "").replace("//", "/");
-
-    return { webpack, monaco };
-  };
 
   const packagePath = pathModule.join("..", "node_modules", name);
   let indexPath = await getIndexPath(packagePath);
   if (!indexPath) {
-    const path =
-      packagePath.replace(
-        "node_modules",
-        pathModule.join("node_modules", "@types", "node")
-      ) + ".d.ts";
-    paths.push(getPaths(path));
+    // `@types/node` is handled differently because each file is a different module
+    // and we don't want all of them
+    paths.push(
+      convertPath(
+        packagePath.replace(
+          "node_modules",
+          pathModule.join("node_modules", "@types", "node")
+        ) + ".d.ts"
+      )
+    );
   } else {
     // Parent of `indexPath`, // "../node_modules/@coral-xyz/anchor/dist/cjs"
     const typeRootPath = pathModule.join(indexPath, "..");
     await recursivelyReadDir(typeRootPath, (path) => {
-      const adjustedPaths = getPaths(path);
+      const convertedPaths = convertPath(path);
 
       if (path === indexPath) {
         // Rename the index to the project name and re-export it from a new index.d.ts
-        indexPath = adjustedPaths.monaco;
+        indexPath = convertedPaths.monaco;
 
         paths.unshift({
-          ...adjustedPaths,
-          monaco:
-            adjustedPaths.monaco.substring(
-              0,
-              adjustedPaths.monaco.length - path.split("/").pop().length
-            ) + OLD_INDEX_FILENAME,
+          ...convertedPaths,
+          monaco: pathModule.join(indexPath, "..", OLD_INDEX_FILENAME),
         });
       } else {
-        paths.push(adjustedPaths);
+        paths.push(convertedPaths);
       }
     });
   }
@@ -67,23 +59,31 @@ for (const name of packages) {
     );
     files.push([path.monaco, content]);
   }
+
+  // Don't use old index file name if there is only one file
   if (files.length === 1) {
     files[0][0] = files[0][0].replace(OLD_INDEX_FILENAME, "index.d.ts");
   }
+  console.log({ name, fileCount: files.length });
 
-  const packagesDirPath = pathModule.join("..", "public", "packages");
-  const packageDir = pathModule.join(packagesDirPath, name);
+  const packageOutPath = pathModule.join(PACKAGES_PATH, name);
   try {
-    await fs.mkdir(packageDir, { recursive: true });
+    await fs.mkdir(packageOutPath, { recursive: true });
   } catch {
   } finally {
     await fs.writeFile(
-      pathModule.join(packageDir, "declaration.json"),
+      pathModule.join(packageOutPath, "declaration.json"),
       JSON.stringify(files)
     );
   }
 }
 
+/**
+ * Get the type declaration root file from `package.json`.
+ *
+ * @param {string} path
+ * @returns the index path
+ */
 async function getIndexPath(path) {
   const getTypesPath = async (path) => {
     try {
@@ -102,6 +102,22 @@ async function getIndexPath(path) {
       path.replace("node_modules", pathModule.join("node_modules", "@types"))
     ))
   );
+}
+
+/**
+ * Convert the given path into a Webpack path(`/` is the client directory) and
+ * a Monaco path(without '@').
+ *
+ * @param {string} path path to convert
+ * @returns the converted Webpack and Monaco path
+ */
+function convertPath(path) {
+  const webpack = path.replace(/^.*node_modules\//, "/node_modules/");
+
+  // Monaco has problems with '@' in the path
+  const monaco = webpack.slice(1).replace("@", "").replace("//", "/");
+
+  return { webpack, monaco };
 }
 
 /**

@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor";
 
-import { declareFullModule, declareModule } from "./helper";
+import { declareModule, declarePackage } from "./helper";
 import { importTypes } from "../../common";
 import type { ClientPackageName } from "../../../../../../../utils/pg";
 
@@ -35,7 +35,7 @@ const update = async (code: string) => {
     if (pkg === true) continue;
 
     if (new RegExp(`("|')${packageName}("|')`, "gm").test(code)) {
-      await declareFullModule(packageName);
+      await declarePackage(packageName);
 
       // Dispose the old filler declaration if it exists
       pkg?.dispose();

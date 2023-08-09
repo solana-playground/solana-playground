@@ -29,7 +29,7 @@ export const declareModule = (
  * @param packageName package name t obe referenced in declaration files
  * @returns a dispose method to dispose all events
  */
-export const declareFullModule = async (
+export const declarePackage = async (
   packageName: ClientPackageName
 ): Promise<Disposable> => {
   /**
