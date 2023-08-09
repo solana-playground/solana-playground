@@ -1,8 +1,8 @@
-import { Lang, PgFramework } from "../../utils/pg";
+import { createFramework } from "../create";
+import { Lang } from "../../utils/pg";
 
-export const native = PgFramework.create({
+export const native = createFramework({
   name: "Native",
   language: Lang.RUST,
   src: "/icons/platforms/solana.png",
-  importFiles: () => import("./files"),
 });

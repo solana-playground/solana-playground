@@ -1,6 +1,8 @@
 import "styled-components";
 
 import { COMMANDS } from "../commands";
+import { FRAMEWORKS } from "../frameworks";
+import { Framework } from "../frameworks/create";
 import { ROUTES } from "../routes";
 import { SIDEBAR } from "../views";
 import { Arrayable, Disposable, SyncOrAsync, ThemeReady } from "../utils/pg";
@@ -13,6 +15,14 @@ global {
 
   /** Supported client packages */
   const PACKAGES: string[];
+}
+
+// Framework
+global {
+  export { Framework } from "../frameworks/create";
+
+  /** Framework names */
+  type FrameworkName = typeof FRAMEWORKS[number]["name"];
 }
 
 // Route

@@ -1,7 +1,7 @@
-import { CallableJSX, PgCommon } from "../../utils/pg";
+import { CallableJSX, PgCommon, RequiredKey } from "../../utils/pg";
 
-/** Sidebar page */
-type SidebarPage<N extends string> = {
+/** Sidebar page param */
+type SidebarPageParam<N extends string> = {
   /** Name of the page */
   name: N;
   /** `src` of the image */
@@ -17,10 +17,10 @@ type SidebarPage<N extends string> = {
 };
 
 /** Created sidebar page */
-type CreatedSidebarPage<
-  N extends string,
-  R extends keyof SidebarPage<N> = "title" | "importElement"
-> = Omit<SidebarPage<N>, R> & Required<Pick<SidebarPage<N>, R>>;
+type SidebarPage<N extends string> = RequiredKey<
+  SidebarPageParam<N>,
+  "title" | "importElement"
+>;
 
 /**
  * Create a sidebar page.
@@ -28,7 +28,9 @@ type CreatedSidebarPage<
  * @param page sidebar page
  * @returns the page with correct types
  */
-export const createSidebarPage = <N extends string>(page: SidebarPage<N>) => {
+export const createSidebarPage = <N extends string>(
+  page: SidebarPageParam<N>
+) => {
   page.icon = "/icons/sidebar/" + page.icon;
   page.title ??= page.keybind ? `${page.name} (${page.keybind})` : page.name;
   page.importElement ??= () => {
@@ -36,5 +38,5 @@ export const createSidebarPage = <N extends string>(page: SidebarPage<N>) => {
       `./${PgCommon.toKebabFromTitle(page.name.replace("& ", ""))}/Component`
     );
   };
-  return page as CreatedSidebarPage<N>;
+  return page as SidebarPage<N>;
 };
