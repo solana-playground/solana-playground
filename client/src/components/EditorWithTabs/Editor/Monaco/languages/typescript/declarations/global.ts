@@ -3,6 +3,7 @@ import * as monaco from "monaco-editor";
 import { declarePackage } from "./helper";
 import type {
   ClientPackageName,
+  Disposable,
   MergeUnion,
 } from "../../../../../../../utils/pg";
 
@@ -21,9 +22,6 @@ const GLOBAL_PACKAGES: GlobalPackage[] = [
   ["mocha", { as: "mocha" }],
 ];
 
-/** Whether the global types have been declared */
-let loaded = false;
-
 /**
  * Load typescript declarations in the editor.
  *
@@ -32,25 +30,25 @@ let loaded = false;
  *
  * This function will only declare the default types once.
  */
-export const declareGlobalTypes = async () => {
-  if (loaded) return;
-
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    require("./raw/globals.raw.d.ts")
-  );
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    require("./raw/console.raw.d.ts")
-  );
+export const declareGlobalTypes = async (): Promise<Disposable> => {
+  const disposables = [
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      require("./raw/globals.raw.d.ts")
+    ),
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      require("./raw/console.raw.d.ts")
+    ),
+    declareNamespace("solana-playground", { as: "pg" }),
+  ];
 
   for (const globalPackage of GLOBAL_PACKAGES) {
-    await declarePackage(globalPackage[0]);
-    declareNamespace(...globalPackage);
+    disposables.push(
+      (await declarePackage(globalPackage[0]),
+      declareNamespace(...globalPackage))
+    );
   }
 
-  // Playground utilities
-  declareNamespace("solana-playground", { as: "pg" });
-
-  loaded = true;
+  return { dispose: () => disposables.forEach(({ dispose }) => dispose()) };
 };
 
 /**
