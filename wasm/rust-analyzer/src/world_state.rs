@@ -17,7 +17,9 @@ use ide_db::{
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    return_types, to_proto,
+    return_types,
+    snippet::get_snippets_from_str,
+    to_proto,
     utils::{create_source_root, get_crate_id, get_file_id, get_file_position},
 };
 
@@ -34,6 +36,8 @@ pub struct WorldState {
     needed_deps: BTreeMap<String, Vec<String>>,
     /// Current file id
     file_id: FileId,
+    /// Completion config
+    completion_config: CompletionConfig,
 }
 
 #[wasm_bindgen]
@@ -47,7 +51,81 @@ impl WorldState {
             source_roots: vec![],
             needed_deps: BTreeMap::new(),
             file_id: Self::LOCAL_FILE_ID,
+            completion_config: CompletionConfig {
+                enable_postfix_completions: true,
+                enable_imports_on_the_fly: true,
+                enable_self_on_the_fly: true,
+                enable_private_editable: false,
+                insert_use: InsertUseConfig {
+                    granularity: ImportGranularity::Module,
+                    enforce_granularity: false,
+                    prefix_kind: PrefixKind::Plain,
+                    group: true,
+                    skip_glob_imports: false,
+                },
+                snippets: vec![],
+                snippet_cap: SnippetCap::new(true),
+                add_call_argument_snippets: true,
+                add_call_parenthesis: true,
+            },
         }
+    }
+
+    /// Set custom snippets from the given JSON string.
+    ///
+    /// Example input:
+    ///
+    /// ```json
+    /// {
+    ///   "declare_id!": {
+    ///     "prefix": "di",
+    ///     "body": "declare_id!(\"${receiver}\");",
+    ///     "requires": "solana_program",
+    ///     "description": "Declare program id",
+    ///     "scope": "item"
+    ///   }
+    /// }
+    /// ```
+    #[wasm_bindgen(js_name = setSnippets)]
+    pub fn set_snippets(&mut self, snippets: String) {
+        self.completion_config.snippets = get_snippets_from_str(&snippets);
+    }
+
+    /// Set the current local crate's display name.
+    #[wasm_bindgen(js_name = setLocalCrateName)]
+    pub fn set_local_crate_name(&mut self, name: String) {
+        // SAFETY: Undefined Behavior.
+        //
+        // From https://doc.rust-lang.org/nomicon/transmutes.html
+        // Transmuting an `&` to `&mut` is Undefined Behavior. While certain usages may appear
+        // safe, note that the Rust optimizer is free to assume that a shared reference won't
+        // change through its lifetime and thus such transmutation will run afoul of those
+        // assumptions. So:
+        // - Transmuting an `&` to `&mut` is *always* Undefined Behavior.
+        // - No you can't do it.
+        // - No you're not special.
+        //
+        // Problem is that there is no way to update a crate's display name from `CrateGraph` since
+        // it's only possible to get reference to the underlying `CrateData`.
+        //
+        // Playground currently allows one local crate at a time, and all local crates have the same
+        // settings/dependencies. Instead of adding a new local crate for each workspace change,
+        // and thus creating a new crate graph each time, we change the display name of the current
+        // crate. This has been tested to work without any noticable problems and since nothing
+        // else depends on this code, this is going to be the solution until if/when we decide to
+        // support multiple local crates(workspace) in playground.
+        unsafe {
+            let mut_ptr = self.crate_graph[Self::LOCAL_CRATE_ID]
+                .display_name
+                .as_ref()
+                .unwrap() as *const CrateDisplayName
+                as *mut CrateDisplayName;
+            *mut_ptr = CrateDisplayName::from_canonical_name(name)
+        }
+
+        let mut change = Change::new();
+        change.set_crate_graph(self.crate_graph.clone());
+        self.host.apply_change(change);
     }
 
     /// Load `std`, `core` and `alloc` libraries and initialize a default local crate.
@@ -110,43 +188,6 @@ impl WorldState {
         change.change_file(ALLOC_FILE_ID, Some(Arc::new(alloc_lib)));
         change.change_file(STD_FILE_ID, Some(Arc::new(std_lib)));
 
-        self.host.apply_change(change);
-    }
-
-    /// Set the current local crate's display name.
-    #[wasm_bindgen(js_name = setLocalCrateName)]
-    pub fn set_local_crate_name(&mut self, name: String) {
-        // SAFETY: Undefined Behavior.
-        //
-        // From https://doc.rust-lang.org/nomicon/transmutes.html
-        // Transmuting an `&` to `&mut` is Undefined Behavior. While certain usages may appear
-        // safe, note that the Rust optimizer is free to assume that a shared reference won't
-        // change through its lifetime and thus such transmutation will run afoul of those
-        // assumptions. So:
-        // - Transmuting an `&` to `&mut` is *always* Undefined Behavior.
-        // - No you can't do it.
-        // - No you're not special.
-        //
-        // Problem is that there is no way to update a crate's display name from `CrateGraph` since
-        // it's only possible to get reference to the underlying `CrateData`.
-        //
-        // Playground currently allows one local crate at a time, and all local crates have the same
-        // settings/dependencies. Instead of adding a new local crate for each workspace change,
-        // and thus creating a new crate graph each time, we change the display name of the current
-        // crate. This has been tested to work without any noticable problems and since nothing
-        // else depends on this code, this is going to be the solution until if/when we decide to
-        // support multiple local crates(workspace) in playground.
-        unsafe {
-            let mut_ptr = self.crate_graph[Self::LOCAL_CRATE_ID]
-                .display_name
-                .as_ref()
-                .unwrap() as *const CrateDisplayName
-                as *mut CrateDisplayName;
-            *mut_ptr = CrateDisplayName::from_canonical_name(name)
-        }
-
-        let mut change = Change::new();
-        change.set_crate_graph(self.crate_graph.clone());
         self.host.apply_change(change);
     }
 
@@ -386,30 +427,12 @@ version = "0.0.0""#
 
     /// Get completions.
     pub fn completions(&self, line_number: u32, column: u32) -> JsValue {
-        const COMPLETION_CONFIG: CompletionConfig = CompletionConfig {
-            enable_postfix_completions: true,
-            enable_imports_on_the_fly: true,
-            enable_self_on_the_fly: true,
-            enable_private_editable: true,
-            snippet_cap: SnippetCap::new(true),
-            insert_use: InsertUseConfig {
-                granularity: ImportGranularity::Module,
-                enforce_granularity: false,
-                prefix_kind: PrefixKind::Plain,
-                group: true,
-                skip_glob_imports: false,
-            },
-            snippets: Vec::new(),
-            add_call_argument_snippets: true,
-            add_call_parenthesis: true,
-        };
-
         let line_index = self.line_index();
 
         let pos = get_file_position(line_number, column, &line_index, self.file_id);
         let res = match self
             .analysis()
-            .completions(&COMPLETION_CONFIG, pos)
+            .completions(&self.completion_config, pos)
             .unwrap()
         {
             Some(items) => items,

@@ -5,11 +5,7 @@ import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import { FRAMEWORKS } from "../../../../../frameworks";
-import {
-  Fn,
-  Framework as FrameworkType,
-  PgExplorer,
-} from "../../../../../utils/pg";
+import { Fn, PgExplorer } from "../../../../../utils/pg";
 
 export const NewWorkspace = () => {
   // Handle user input
@@ -100,7 +96,7 @@ const FrameworksWrapper = styled.div`
   gap: 2rem;
 `;
 
-interface FrameworkProps extends FrameworkType {
+interface FrameworkProps extends Framework {
   isSelected: boolean;
   select: Fn;
 }

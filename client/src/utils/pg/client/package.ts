@@ -13,6 +13,7 @@ export type ClientPackageName =
   | "bn.js"
   | "borsh"
   | "buffer"
+  | "mocha"
   | "solana-playground";
 
 export class PgClientPackage {
@@ -48,6 +49,8 @@ export class PgClientPackage {
         return await import("borsh");
       case "buffer":
         return await import("buffer");
+      case "mocha":
+        return await import("mocha");
       default:
         throw new Error(
           name.startsWith(".")

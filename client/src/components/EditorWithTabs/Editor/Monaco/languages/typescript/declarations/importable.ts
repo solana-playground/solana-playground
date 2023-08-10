@@ -1,19 +1,8 @@
 import * as monaco from "monaco-editor";
 
-import { declareModule } from "./helper";
+import { declareModule, declarePackage } from "./helper";
 import { importTypes } from "../../common";
-import type { ClientPackageName, Fn } from "../../../../../../../utils/pg";
-
-/** All importable packages */
-const PACKAGES: [ClientPackageName, () => Promise<{ default: Fn }>][] = [
-  ["@clockwork-xyz/sdk", () => import("./packages/clockwork")],
-  ["@metaplex-foundation/js", () => import("./packages/metaplex-js")],
-  [
-    "@metaplex-foundation/mpl-token-metadata",
-    () => import("./packages/metaplex-mpl-token-metadata"),
-  ],
-  ["@solana/spl-token", () => import("./packages/spl-token")],
-];
+import type { ClientPackageName } from "../../../../../../../utils/pg";
 
 /**
  * Declare importable types in the editor and update them based on file switch
@@ -41,13 +30,12 @@ const cachedTypes: {
  * @param code current editor content
  */
 const update = async (code: string) => {
-  for (const [packageName, importPackage] of PACKAGES) {
+  for (const packageName of PACKAGES as ClientPackageName[]) {
     const pkg = cachedTypes[packageName];
     if (pkg === true) continue;
 
     if (new RegExp(`("|')${packageName}("|')`, "gm").test(code)) {
-      const { default: declareTypes } = await importPackage();
-      declareTypes();
+      await declarePackage(packageName);
 
       // Dispose the old filler declaration if it exists
       pkg?.dispose();
