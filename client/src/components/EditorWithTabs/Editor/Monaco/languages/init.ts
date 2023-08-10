@@ -14,6 +14,15 @@ import {
 
 import { RequiredKey, PgExplorer } from "../../../../../utils/pg";
 
+// Remove defaults https://github.com/Microsoft/monaco-editor/issues/252#issuecomment-482786867
+monaco.languages.getLanguages().forEach((lang) => {
+  // @ts-ignore
+  lang.loader = () => ({ then: () => {} });
+});
+
+// FIXME: Builtin languages e.g. JSON override existing TextMate tokens.
+// https://github.com/Microsoft/monaco-editor/issues/884
+
 /** Language grammar and configuration cache based on theme name */
 const cache: {
   themeName: string | null;
@@ -86,7 +95,10 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
 
     // Set configuration
     const configuration = await import(`./${languageId}/configuration.json`);
-    monaco.languages.setLanguageConfiguration(languageId, configuration);
+    monaco.languages.setLanguageConfiguration(
+      languageId,
+      parseConfiguration(configuration)
+    );
 
     // Cache
     cache.languageIds.push(languageId);
@@ -106,11 +118,79 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
   });
 };
 
-// Remove defaults https://github.com/Microsoft/monaco-editor/issues/252#issuecomment-482786867
-monaco.languages.getLanguages().forEach((lang) => {
-  // @ts-ignore
-  lang.loader = () => ({ then: () => {} });
-});
+/**
+ * Parse VSCode language configuration file to Monaco editor.
+ *
+ * @param configuration language configuration file
+ * @returns the configuration in format that Monaco expects
+ */
+const parseConfiguration = (
+  configuration: any
+): monaco.languages.LanguageConfiguration => {
+  // Clone because properties are read-only
+  configuration = { ...configuration };
 
-// FIXME: Builtin languages such as JSON override existing TextMate tokens.
-// https://github.com/Microsoft/monaco-editor/issues/884
+  /** Recursively parse object values to `RegExp` when necessary */
+  const recursivelyParseRegex = (obj: Record<string, any>) => {
+    for (const key in obj) {
+      const value = obj[key];
+      // Check whether the key is a string
+      if (typeof value === "string") {
+        if (
+          !(
+            value.startsWith("^") ||
+            value.endsWith("$") ||
+            value.includes("\\\\")
+          )
+        ) {
+          continue;
+        }
+
+        obj[key] = new RegExp(value);
+      }
+
+      if (typeof value === "object" && value !== null) {
+        // Check for "pattern" property
+        const pattern = value.pattern;
+        if (pattern) obj[key] = new RegExp(pattern);
+        else recursivelyParseRegex(obj[key]);
+      }
+    }
+  };
+  recursivelyParseRegex(configuration);
+
+  // `onEnterRules` is not mapped properly
+  configuration.onEnterRules &&= configuration.onEnterRules.map((rule: any) => {
+    switch (rule.action.indent) {
+      case "none":
+        rule.action.indentAction = monaco.languages.IndentAction.None;
+        break;
+      case "indent":
+        rule.action.indentAction = monaco.languages.IndentAction.Indent;
+        break;
+      case "indentOutdent":
+        rule.action.indentAction = monaco.languages.IndentAction.IndentOutdent;
+        break;
+      case "outdent":
+        rule.action.indentAction = monaco.languages.IndentAction.Outdent;
+    }
+
+    rule.beforeText = convertToRegex(rule.beforeText);
+    rule.afterText &&= convertToRegex(rule.afterText);
+    rule.previousLineText &&= convertToRegex(rule.previousLineText);
+
+    return rule;
+  });
+
+  return configuration;
+};
+
+/**
+ * Convert the given field to Regex if needed.
+ *
+ * @param field field to convert
+ * @returns converted `RegExp`
+ */
+const convertToRegex = (field: string | RegExp) => {
+  return typeof field === "string" ? new RegExp(field) : field;
+};
