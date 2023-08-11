@@ -461,6 +461,33 @@ const Monaco = () => {
       // Clear previous state
       positionDataIntervalId && clearInterval(positionDataIntervalId);
 
+      // FIXME: TS assumes the file is a script(with global scoping rules) if
+      // there are no `import` or `export` statements. This results with problems
+      // such as conflicting declarations and getting autocompletion for variables
+      // that are not actually in scope.
+      //
+      // `moduleDetection` compiler option has been added in TypeScript 4.7
+      // (https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html#control-over-module-detection)
+      // but it is not yet available in Monaco editor.
+      //
+      // In order to fix this issue, dispose all of the other JS/TS models if
+      // the current file is a JS/TS file. Unfortunately, this causes flickering
+      // when switching between JS/TS files because models are being disposed and
+      // recreated each time instead of only the first time.
+      // https://github.com/microsoft/monaco-editor/issues/1083
+      if (PgExplorer.isFileJsLike(curFile.path)) {
+        monaco.editor
+          .getModels()
+          .filter((model) => {
+            return (
+              PgExplorer.isFileJsLike(model.uri.path) &&
+              model.uri.path !== curFile.path &&
+              !model.getValue().includes("import")
+            );
+          })
+          .forEach((model) => model.dispose());
+      }
+
       // Check whether the model has already been created
       const model =
         monaco.editor
