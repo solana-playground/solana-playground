@@ -1,6 +1,6 @@
 use std::{collections::BTreeMap, fmt::Display, sync::Arc};
 
-use base_db::{CrateDisplayName, CrateOrigin, FileLoader};
+use base_db::{CrateData, CrateDisplayName, CrateOrigin, FileLoader};
 use cargo_toml::Manifest;
 use cfg::CfgOptions;
 use ide::{
@@ -17,9 +17,7 @@ use ide_db::{
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    return_types,
-    snippet::get_snippets_from_str,
-    to_proto,
+    proc_macro, return_types, snippet, to_proto,
     utils::{create_source_root, get_crate_id, get_file_id, get_file_position},
 };
 
@@ -88,40 +86,14 @@ impl WorldState {
     /// ```
     #[wasm_bindgen(js_name = setSnippets)]
     pub fn set_snippets(&mut self, snippets: String) {
-        self.completion_config.snippets = get_snippets_from_str(&snippets);
+        self.completion_config.snippets = snippet::get_snippets_from_str(&snippets);
     }
 
     /// Set the current local crate's display name.
     #[wasm_bindgen(js_name = setLocalCrateName)]
     pub fn set_local_crate_name(&mut self, name: String) {
-        // SAFETY: Undefined Behavior.
-        //
-        // From https://doc.rust-lang.org/nomicon/transmutes.html
-        // Transmuting an `&` to `&mut` is Undefined Behavior. While certain usages may appear
-        // safe, note that the Rust optimizer is free to assume that a shared reference won't
-        // change through its lifetime and thus such transmutation will run afoul of those
-        // assumptions. So:
-        // - Transmuting an `&` to `&mut` is *always* Undefined Behavior.
-        // - No you can't do it.
-        // - No you're not special.
-        //
-        // Problem is that there is no way to update a crate's display name from `CrateGraph` since
-        // it's only possible to get reference to the underlying `CrateData`.
-        //
-        // Playground currently allows one local crate at a time, and all local crates have the same
-        // settings/dependencies. Instead of adding a new local crate for each workspace change,
-        // and thus creating a new crate graph each time, we change the display name of the current
-        // crate. This has been tested to work without any noticable problems and since nothing
-        // else depends on this code, this is going to be the solution until if/when we decide to
-        // support multiple local crates(workspace) in playground.
-        unsafe {
-            let mut_ptr = self.crate_graph[Self::LOCAL_CRATE_ID]
-                .display_name
-                .as_ref()
-                .unwrap() as *const CrateDisplayName
-                as *mut CrateDisplayName;
-            *mut_ptr = CrateDisplayName::from_canonical_name(name)
-        }
+        let crate_data = self.get_mut_crate_data(Self::LOCAL_CRATE_ID);
+        crate_data.display_name = Some(CrateDisplayName::from_canonical_name(name));
 
         let mut change = Change::new();
         change.set_crate_graph(self.crate_graph.clone());
@@ -259,14 +231,22 @@ version = "0.0.0""#
             }
         };
 
-        // Add default dependencies on full load
+        // Load full crate
         if code.is_some() {
+            // Add default dependencies
             for crate_name in [Self::CORE_NAME, Self::ALLOC_NAME, Self::STD_NAME] {
                 let dep = Dependency::new(
                     CrateName::new(crate_name).unwrap(),
                     get_crate_id(crate_name, &self.source_roots, &self.crate_graph).unwrap(),
                 );
                 self.crate_graph.add_dep(crate_id, dep).unwrap();
+            }
+
+            // Set proc macros
+            if proc_macro::get_is_proc_macro(&manifest) {
+                let crate_data = self.get_mut_crate_data(crate_id);
+                crate_data.is_proc_macro = true;
+                crate_data.proc_macro = proc_macro::get_proc_macros(code.as_ref().unwrap());
             }
         }
 
@@ -849,7 +829,7 @@ impl WorldState {
             Default::default(),
             Env::default(),
             vec![],
-            false,
+            proc_macro::get_is_proc_macro(&manifest),
             CrateOrigin::default(),
         )
     }
@@ -868,5 +848,34 @@ version = "0.0.0"
             .as_ref()
             .unwrap(),
         )
+    }
+
+    /// Get mutable reference to the crate data.
+    fn get_mut_crate_data(&self, crate_id: CrateId) -> &mut CrateData {
+        let ptr = &self.crate_graph[crate_id] as *const CrateData as *mut CrateData;
+
+        // SAFETY: Undefined Behavior.
+        //
+        // From https://doc.rust-lang.org/nomicon/transmutes.html
+        // Transmuting an `&` to `&mut` is Undefined Behavior. While certain usages may appear
+        // safe, note that the Rust optimizer is free to assume that a shared reference won't
+        // change through its lifetime and thus such transmutation will run afoul of those
+        // assumptions. So:
+        // - Transmuting an `&` to `&mut` is *always* Undefined Behavior.
+        // - No you can't do it.
+        // - No you're not special.
+        //
+        // Problem is that there is no way to get a mutable reference to the underlying `CrateData`
+        // and creating a new crate graph each time a small change in the `CrateData` happens is
+        // not a viable option in browsers because of how long it takes to initialize after such
+        // changes.
+        //
+        // For example, playground currently allows one local crate at a time, and all local crates
+        // have the same settings/dependencies. Instead of adding a new local crate for each
+        // workspace change, and thus creating a new crate graph each time, we change the display
+        // name of the current crate. This has been tested to work without any noticable problems
+        // and because nothing else depends on this code, this is going to be the solution until
+        // if/when we decide to support multiple local crates(workspace) in playground.
+        unsafe { &mut *ptr }
     }
 }

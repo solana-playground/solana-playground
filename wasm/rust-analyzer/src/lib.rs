@@ -1,5 +1,6 @@
 //! This crate is a fork of https://github.com/rust-analyzer/rust-analyzer-wasm
 
+mod proc_macro;
 mod return_types;
 mod snippet;
 mod to_proto;
