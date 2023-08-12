@@ -5,8 +5,7 @@ import fs from "fs/promises";
 import { homedir } from "os";
 import { execSync, spawnSync } from "child_process";
 
-/** Repository root directory path */
-const REPO_ROOT_PATH = path.join("..", "..");
+import { exists, readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
 
 /** Crates output directory path */
 const CRATES_PATH = path.join(REPO_ROOT_PATH, "client", "public", "crates");
@@ -39,8 +38,8 @@ const lockFile = await parseLockFile(LOCK_FILE_PATH);
 const registry = await getRegistry();
 
 /** All supported crates */
-const crates = JSON.parse(
-  await fs.readFile(path.join(REPO_ROOT_PATH, "supported-crates.json"))
+const crates = await readJSON(
+  path.join(REPO_ROOT_PATH, "supported-crates.json")
 );
 
 /** Cached crate names */
@@ -67,9 +66,7 @@ async function withReset(cb) {
   }
 
   // Reset crates directory
-  const cratesDirExists = await exists(CRATES_PATH);
-  if (cratesDirExists) await fs.rm(CRATES_PATH, { recursive: true });
-  await fs.mkdir(CRATES_PATH);
+  await resetDir(CRATES_PATH);
 
   // Execute callback
   await cb();
@@ -203,14 +200,4 @@ async function getRegistry() {
   const registryCrates = await fs.readdir(cratesIoRegistryPath);
 
   return { path: cratesIoRegistryPath, crates: registryCrates };
-}
-
-/**
- * Get whether the given path exists.
- *
- * @param {string} path item path
- * @returns whether the path exists
- */
-async function exists(path) {
-  return !!(await fs.stat(path).catch(() => false));
 }

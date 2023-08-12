@@ -118,18 +118,9 @@ module.exports = {
           }),
 
           /** Supported packages(TypeScript) */
-          PACKAGES: defineFromPublicDir(
-            "packages",
-            (dirItems, packagesPath) => {
-              return dirItems.flatMap((name) => {
-                if (name.startsWith("@")) {
-                  const names = fs.readdirSync(path.join(packagesPath, name));
-                  return names.map((n) => path.join(name, n));
-                }
-
-                return name;
-              });
-            }
+          PACKAGES: fs.readFileSync(
+            path.join("..", "supported-packages.json"),
+            "utf8"
           ),
         })
       );

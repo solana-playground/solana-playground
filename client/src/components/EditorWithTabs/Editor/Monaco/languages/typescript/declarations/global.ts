@@ -1,26 +1,16 @@
 import * as monaco from "monaco-editor";
 
 import { declarePackage } from "./helper";
-import type {
-  ClientPackageName,
-  Disposable,
-  MergeUnion,
-} from "../../../../../../../utils/pg";
+import type { Disposable, MergeUnion } from "../../../../../../../utils/pg";
 
-/** Global package in `[package name, import style]` format */
-type GlobalPackage = Parameters<typeof declareNamespace>;
+/** Global packages */
+type GlobalPackages = typeof PACKAGES["global"];
 
-/** Packages that are available globally(without importing) */
-const GLOBAL_PACKAGES: GlobalPackage[] = [
-  ["@project-serum/anchor", { as: "anchor" }],
-  ["@solana/buffer-layout", { as: "BufferLayout" }],
-  ["@solana/web3.js", { as: "web3" }],
-  ["assert", { as: "assert" }],
-  ["bn.js", { as: "BN" }],
-  ["borsh", { as: "borsh" }],
-  ["buffer", { named: "Buffer" }],
-  ["mocha", { as: "mocha" }],
-];
+/** Global package name */
+type GlobalPackageName = keyof GlobalPackages;
+
+/** ESM import style */
+type PackageImportStyle = GlobalPackages[GlobalPackageName];
 
 /**
  * Load typescript declarations in the editor.
@@ -41,10 +31,10 @@ export const declareGlobalTypes = async (): Promise<Disposable> => {
     declareNamespace("solana-playground", { as: "pg" }),
   ];
 
-  for (const globalPackage of GLOBAL_PACKAGES) {
+  for (const [packageName, importStyle] of Object.entries(PACKAGES.global)) {
     disposables.push(
-      (await declarePackage(globalPackage[0]),
-      declareNamespace(...globalPackage))
+      (await declarePackage(packageName as GlobalPackageName),
+      declareNamespace(packageName as GlobalPackageName, importStyle))
     );
   }
 
@@ -59,10 +49,10 @@ export const declareGlobalTypes = async (): Promise<Disposable> => {
  * @returns a dispose method to dispose all events
  */
 const declareNamespace = (
-  packageName: ClientPackageName,
-  importStyle: { as: string } | { named: string }
+  packageName: GlobalPackageName,
+  importStyle: PackageImportStyle
 ) => {
-  const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
+  const style = importStyle as Partial<MergeUnion<PackageImportStyle>>;
   const name = style.as ?? style.named;
   const importStyleText = style.as ? `* as ${style.as}` : `{ ${style.named} }`;
 

@@ -1,26 +1,41 @@
 // Generate TypeScript declarations for the supported packages.
 
-import * as fs from "fs/promises";
+import fs from "fs/promises";
 import pathModule from "path";
 
+import { readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
+
 /** Packages output directory */
-const PACKAGES_PATH = pathModule.join("..", "public", "packages");
+const PACKAGES_PATH = pathModule.join(
+  REPO_ROOT_PATH,
+  "client",
+  "public",
+  "packages"
+);
 
 /** Renamed index file name(for re-exporting) */
 const OLD_INDEX_FILENAME = "old-index.d.ts";
 
 /** All supported packages */
-const packages = JSON.parse(
-  await fs.readFile(pathModule.join("..", "..", "supported-packages.json"))
+const packages = await readJSON(
+  pathModule.join(REPO_ROOT_PATH, "supported-packages.json")
 );
 
-for (const name of packages) {
+// Reset packages directory
+await resetDir(PACKAGES_PATH);
+
+for (const name of packages.importable) {
   // Get all declaration file paths
   const paths = [];
 
-  const packagePath = pathModule.join("..", "node_modules", name);
-  let indexPath = await getIndexPath(packagePath);
-  if (!indexPath) {
+  const packagePath = pathModule.join(
+    REPO_ROOT_PATH,
+    "client",
+    "node_modules",
+    name
+  );
+  const pkg = await getPackage(packagePath);
+  if (!pkg) {
     // `@types/node` is handled differently because each file is a different module
     // and we don't want all of them
     paths.push(
@@ -33,17 +48,17 @@ for (const name of packages) {
     );
   } else {
     // Parent of `indexPath`, // "../node_modules/@coral-xyz/anchor/dist/cjs"
-    const typeRootPath = pathModule.join(indexPath, "..");
+    const typeRootPath = pathModule.join(pkg.indexPath, "..");
     await recursivelyReadDir(typeRootPath, (path) => {
       const convertedPaths = convertPath(path);
 
-      if (path === indexPath) {
+      if (path === pkg.indexPath) {
         // Rename the index to the project name and re-export it from a new index.d.ts
-        indexPath = convertedPaths.monaco;
+        pkg.indexPath = convertedPaths.monaco;
 
         paths.unshift({
           ...convertedPaths,
-          monaco: pathModule.join(indexPath, "..", OLD_INDEX_FILENAME),
+          monaco: pathModule.join(pkg.indexPath, "..", OLD_INDEX_FILENAME),
         });
       } else {
         paths.push(convertedPaths);
@@ -54,7 +69,7 @@ for (const name of packages) {
   const files = [];
   for (const path of paths) {
     const content = await fs.readFile(
-      pathModule.join("..", path.webpack),
+      pathModule.join(REPO_ROOT_PATH, "client", path.webpack),
       "utf8"
     );
     files.push([path.monaco, content]);
@@ -64,7 +79,6 @@ for (const name of packages) {
   if (files.length === 1) {
     files[0][0] = files[0][0].replace(OLD_INDEX_FILENAME, "index.d.ts");
   }
-  console.log({ name, fileCount: files.length });
 
   const packageOutPath = pathModule.join(PACKAGES_PATH, name);
   try {
@@ -76,22 +90,28 @@ for (const name of packages) {
       JSON.stringify(files)
     );
   }
+
+  // Declarations from `@types/node` don't have a version
+  const logData = { name, version: pkg?.version, fileCount: files.length };
+  if (!logData.version) delete logData.version;
+  console.log(logData);
 }
 
 /**
  * Get the type declaration root file from `package.json`.
  *
- * @param {string} path
- * @returns the index path
+ * @param {string} path package path
+ * @returns the index path and package version
  */
-async function getIndexPath(path) {
+async function getPackage(path) {
   const getTypesPath = async (path) => {
     try {
-      const packageJSON = JSON.parse(
-        await fs.readFile(pathModule.join(path, "package.json"))
-      );
+      const packageJSON = await readJSON(pathModule.join(path, "package.json"));
       if (packageJSON.types) {
-        return pathModule.join(path, packageJSON.types);
+        return {
+          indexPath: pathModule.join(path, packageJSON.types),
+          version: packageJSON.version,
+        };
       }
     } catch {}
   };

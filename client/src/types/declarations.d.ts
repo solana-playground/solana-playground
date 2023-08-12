@@ -5,7 +5,13 @@ import { FRAMEWORKS } from "../frameworks";
 import { Framework } from "../frameworks/create";
 import { ROUTES } from "../routes";
 import { SIDEBAR } from "../views";
-import { Arrayable, Disposable, SyncOrAsync, ThemeReady } from "../utils/pg";
+import {
+  Arrayable,
+  ClientPackageName,
+  Disposable,
+  SyncOrAsync,
+  ThemeReady,
+} from "../utils/pg";
 
 global {
   function structuredClone<T>(obj: T): T;
@@ -14,7 +20,10 @@ global {
   const CRATES: { importable: string[]; transitive: string[] };
 
   /** Supported client packages */
-  const PACKAGES: string[];
+  const PACKAGES: {
+    global: { [K in ClientPackageName]: { as: string } | { named: string } };
+    importable: string[];
+  };
 }
 
 // Framework
