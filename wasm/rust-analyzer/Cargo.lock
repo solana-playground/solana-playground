@@ -1029,6 +1029,7 @@ dependencies = [
  "cargo_toml",
  "console_error_panic_hook",
  "instant",
+ "parking_lot_core 0.8.5",
  "parking_lot_core 0.9.8",
  "ra_ap_base_db",
  "ra_ap_cfg",
