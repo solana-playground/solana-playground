@@ -329,14 +329,14 @@ const loadLocalFiles = async () => {
  * @param model monaco editor model
  */
 const update = async (model: monaco.editor.IModel) => {
-  for (const crate of CRATES) {
+  for (const crate of CRATES.importable) {
     const status = cachedNames.get(crate);
     if (status === "full") continue;
 
     if (new RegExp(`${crate}::`, "gm").test(model.getValue())) {
       await loadDependency(crate);
     } else if (status !== "empty") {
-      await state.loadDependency(crate);
+      await loadDependency(crate, { empty: true });
       cachedNames.set(crate, "empty");
     }
   }
@@ -349,9 +349,18 @@ const update = async (model: monaco.editor.IModel) => {
  * Load crate and its dependencies(if any) recursively.
  *
  * @param name crate name(snake_case)
+ * @param opts load options
+ * - `empty`: Load the dependency with no content
+ * - `transitive`: Load the dependency as transitive
  */
-const loadDependency = async (name: string) => {
+const loadDependency = async (
+  name: string,
+  opts?: { empty?: boolean; transitive?: boolean }
+) => {
   if (cachedNames.get(name) === "full") return;
+
+  // Load empty
+  if (opts?.empty) return await state.loadDependency(name);
 
   const code = await PgCommon.fetchText(`/crates/${name}.rs`);
   const manifest = await PgCommon.fetchText(`/crates/${name}.toml`);
@@ -359,11 +368,16 @@ const loadDependency = async (name: string) => {
   const neededCrates: string[] = await state.loadDependency(
     name,
     code,
-    manifest
+    manifest,
+    !!opts?.transitive
   );
   cachedNames.set(name, "full");
 
   for (const crate of neededCrates) {
-    if (CRATES.includes(crate)) await loadDependency(crate);
+    if (CRATES.importable.includes(crate)) {
+      await loadDependency(crate);
+    } else if (CRATES.transitive.includes(crate)) {
+      await loadDependency(crate, { transitive: true });
+    }
   }
 };

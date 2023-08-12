@@ -196,6 +196,7 @@ impl WorldState {
         name: String,
         code: Option<String>,
         manifest: Option<String>,
+        transitive: bool,
     ) -> JsValue {
         let mut change = Change::new();
         let manifest = Manifest::from_str(&manifest.unwrap_or(format!(
@@ -220,12 +221,14 @@ version = "0.0.0""#
 
                 // Add crate root
                 let crate_id = self.add_crate(file_id, &manifest);
-                self.crate_graph
-                    .add_dep(
-                        Self::LOCAL_CRATE_ID,
-                        Dependency::new(CrateName::new(&name).unwrap(), crate_id),
-                    )
-                    .unwrap();
+                if !transitive {
+                    self.crate_graph
+                        .add_dep(
+                            Self::LOCAL_CRATE_ID,
+                            Dependency::new(CrateName::new(&name).unwrap(), crate_id),
+                        )
+                        .unwrap();
+                }
 
                 (file_id, crate_id)
             }

@@ -101,11 +101,20 @@ module.exports = {
 
         // Define globals
         new webpack.DefinePlugin({
-          /** Supported crates(Rust Analyzer) */
+          /** All supported crates(Rust Analyzer) */
           CRATES: defineFromPublicDir("crates", (dirItems) => {
-            return dirItems
+            const importable = Object.keys(
+              JSON.parse(
+                fs.readFileSync(path.join("..", "supported-crates.json"))
+              )
+            ).map((name) => name.replaceAll("-", "_"));
+
+            const transitive = dirItems
               .filter((name) => name.endsWith(".toml"))
-              .map((name) => name.replace(".toml", ""));
+              .map((name) => name.replace(".toml", ""))
+              .filter((name) => !importable.includes(name));
+
+            return { importable, transitive };
           }),
 
           /** Supported packages(TypeScript) */
@@ -152,7 +161,7 @@ module.exports = {
  * Define global variable based on the items in `public` directory.
  *
  * @param {string} dirName directory name inside `public` directory
- * @param {(dirItems: string, path: string) => string} cb callback to run
+ * @param {(dirItems: string[], path: string) => string} cb callback to run
  * @returns the stringified result of the callback
  */
 const defineFromPublicDir = (dirName, cb) => {
