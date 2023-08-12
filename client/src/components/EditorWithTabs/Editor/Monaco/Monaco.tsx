@@ -433,6 +433,27 @@ const Monaco = () => {
     });
   }, [editor, theme]);
 
+  // Set tab size
+  useEffect(() => {
+    if (!editor) return;
+
+    const { dispose } = editor.onDidChangeModel((ev) => {
+      if (!ev.newModelUrl) return;
+
+      const model = monaco.editor.getModel(ev.newModelUrl);
+      if (!model) return;
+
+      switch (model.getLanguageId()) {
+        case "javascript":
+        case "typescript":
+        case "json":
+          model.updateOptions({ tabSize: 2 });
+      }
+    });
+
+    return () => dispose();
+  }, [editor]);
+
   // Create editor
   useEffect(() => {
     if (editor || !isThemeSet || !monacoRef.current) return;
