@@ -7,6 +7,12 @@ import { execSync, spawnSync } from "child_process";
 
 import { exists, readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
 
+/** Supported program crates path */
+const SUPPORTED_CRATES_PATH = path.join(
+  REPO_ROOT_PATH,
+  "supported-crates.json"
+);
+
 /** Crates output directory path */
 const CRATES_PATH = path.join(REPO_ROOT_PATH, "client", "public", "crates");
 
@@ -38,9 +44,7 @@ const lockFile = await parseLockFile(LOCK_FILE_PATH);
 const registry = await getRegistry();
 
 /** All supported crates */
-const crates = await readJSON(
-  path.join(REPO_ROOT_PATH, "supported-crates.json")
-);
+const crates = await getCrates();
 
 /** Cached crate names */
 const cachedCrates = [];
@@ -152,11 +156,51 @@ function getDependencies(name, version) {
     throw new Error(`Crate \`${name}(v${version})\` not found in lock file`);
   }
 
-  return crate.dependencies.reduce((acc, name) => {
-    const dep = lockFile.find((crate) => crate.name === name);
-    if (dep) acc[name] = dep.version;
+  return crate.dependencies.reduce((acc, { name, version }) => {
+    const deps = lockFile.filter((crate) => crate.name === name);
+    if (deps.length) acc[name] = version ?? deps[0].version;
     return acc;
   }, {});
+}
+
+/** Get all supported crates. */
+async function getCrates() {
+  if (hasLockFile) {
+    const dependencies = lockFile
+      .find((crate) => crate.name === "solpg")
+      .dependencies.reduce((acc, dep) => {
+        acc[dep.name] =
+          dep.version ??
+          lockFile.find((crate) => crate.name === dep.name).version;
+        return acc;
+      }, {});
+
+    await fs.writeFile(
+      SUPPORTED_CRATES_PATH,
+      JSON.stringify(dependencies, null, 2)
+    );
+  }
+
+  return await readJSON(SUPPORTED_CRATES_PATH);
+}
+
+/**
+ * Get the local crates.io registry data.
+ *
+ * @returns the registry path and crates
+ */
+async function getRegistry() {
+  const registryPath = path.join(homedir(), ".cargo", "registry", "src");
+  const registries = await fs.readdir(registryPath);
+  const cratesIoRegistry = registries.find((registry) => {
+    return registry.startsWith("index.crates.io");
+  });
+  if (!cratesIoRegistry) throw new Error("crates.io registry not found");
+
+  const cratesIoRegistryPath = path.join(registryPath, cratesIoRegistry);
+  const registryCrates = await fs.readdir(cratesIoRegistryPath);
+
+  return { path: cratesIoRegistryPath, crates: registryCrates };
 }
 
 /**
@@ -178,26 +222,13 @@ async function parseLockFile(lockPath) {
       const version = /version\s=\s"([\w\d-\.\+]+)"/.exec(pkg)[1];
       const dependencies = JSON.parse(
         /dependencies\s=\s(.*)/.exec(pkg)?.[1].replace(",]", "]") ?? "[]"
-      );
+      ).map((dep) => {
+        const result = /([\w-]+)\s?(\S*)?\s?(\S*)?/.exec(dep);
+        const name = result[1];
+        const version = result[2];
+        const registry = result[3];
+        return { name, version, registry };
+      });
       return { name, version, dependencies };
     });
-}
-
-/**
- * Get the local crates.io registry data.
- *
- * @returns the registry path and crates
- */
-async function getRegistry() {
-  const registryPath = path.join(homedir(), ".cargo", "registry", "src");
-  const registries = await fs.readdir(registryPath);
-  const cratesIoRegistry = registries.find((registry) => {
-    return registry.startsWith("index.crates.io");
-  });
-  if (!cratesIoRegistry) throw new Error("crates.io registry not found");
-
-  const cratesIoRegistryPath = path.join(registryPath, cratesIoRegistry);
-  const registryCrates = await fs.readdir(cratesIoRegistryPath);
-
-  return { path: cratesIoRegistryPath, crates: registryCrates };
 }

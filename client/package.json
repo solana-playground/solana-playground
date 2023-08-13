@@ -92,9 +92,9 @@
     "setup": "yarn build-wasm && yarn generate-crates && yarn generate-packages",
     "start": "craco start",
     "build": "GENERATE_SOURCEMAP=false craco build",
+    "build-wasm": "build=\"../wasm/build.sh\" && chmod +x $build && $build --update",
     "format": "prettier --write src/",
     "check-format": "prettier --check src/",
-    "build-wasm": "build=\"../wasm/build.sh\" && chmod +x $build && $build --update",
     "generate-crates": "node scripts/generate-crates.mjs",
     "generate-packages": "node scripts/generate-packages.mjs"
   },

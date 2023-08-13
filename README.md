@@ -2,29 +2,29 @@
 
 [SolPg](https://beta.solpg.io) allows you to quickly develop, deploy and test [Solana](https://docs.solana.com/introduction) programs(smart contracts) from the browser.
 
-## Supported crates:
+## Supported crates
 
-| Package                                                                            | Version |
+| Crate                                                                              | Version |
 | ---------------------------------------------------------------------------------- | ------- |
-| [anchor-lang](https://docs.rs/anchor-lang/0.27.0)                                  | 0.27.0  |
-| [anchor-spl](https://docs.rs/anchor-spl/0.27.0)                                    | 0.27.0  |
+| [anchor-lang](https://docs.rs/anchor-lang/0.28.0)                                  | 0.28.0  |
+| [anchor-spl](https://docs.rs/anchor-spl/0.28.0)                                    | 0.28.0  |
 | [arrayref](https://docs.rs/arrayref/0.3.7)                                         | 0.3.7   |
-| [borsh](https://docs.rs/borsh/0.9.3)                                               | 0.9.3   |
-| [borsh-derive](https://docs.rs/borsh-derive/0.9.3)                                 | 0.9.3   |
+| [borsh](https://docs.rs/borsh/0.10.3)                                              | 0.10.3  |
+| [borsh-derive](https://docs.rs/borsh-derive/0.10.3)                                | 0.10.3  |
 | [bytemuck](https://docs.rs/bytemuck/1.13.1)                                        | 1.13.1  |
 | [bytemuck-derive](https://docs.rs/bytemuck-derive/1.4.1)                           | 1.4.1   |
-| [clockwork-sdk](https://docs.rs/clockwork-sdk/2.0.17)                              | 2.0.17  |
-| [mpl-token-metadata](https://docs.rs/mpl-token-metadata/1.10.0)                    | 1.10.0  |
-| [mpl-token-vault](https://docs.rs/mpl-token-vault/0.2.0)                           | 0.2.0   |
-| [num-derive](https://docs.rs/num-derive/0.3.3)                                     | 0.3.3   |
-| [num-traits](https://docs.rs/num-traits/0.2.15)                                    | 0.2.15  |
-| [pyth-sdk](https://docs.rs/pyth-sdk/0.7.0)                                         | 0.7.0   |
-| [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.7.1)                           | 0.7.1   |
-| [solana-program](https://docs.rs/solana-program/1.14.17)                           | 1.14.17 |
-| [spl-associated-token-account](https://docs.rs/spl-associated-token-account/1.1.3) | 1.1.3   |
-| [spl-token](https://docs.rs/spl-token/3.5.0)                                       | 3.5.0   |
-| [switchboard-v2](https://docs.rs/switchboard-v2/0.1.23)                            | 0.1.23  |
-| [thiserror](https://docs.rs/thiserror/1.0.40)                                      | 1.0.40  |
+| [clockwork-sdk](https://docs.rs/clockwork-sdk/2.0.18)                              | 2.0.18  |
+| [mpl-token-metadata](https://docs.rs/mpl-token-metadata/1.13.1)                    | 1.13.1  |
+| [num-derive](https://docs.rs/num-derive/0.4.0)                                     | 0.4.0   |
+| [num-traits](https://docs.rs/num-traits/0.2.16)                                    | 0.2.16  |
+| [pyth-sdk](https://docs.rs/pyth-sdk/0.8.0)                                         | 0.8.0   |
+| [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.8.0)                           | 0.8.0   |
+| [solana-program](https://docs.rs/solana-program/1.16.8)                            | 1.16.8  |
+| [spl-associated-token-account](https://docs.rs/spl-associated-token-account/2.0.0) | 2.0.0   |
+| [spl-token](https://docs.rs/spl-token/4.0.0)                                       | 4.0.0   |
+| [spl-token-2022](https://docs.rs/spl-token-2022/0.7.0)                             | 0.7.0   |
+| [switchboard-v2](https://docs.rs/switchboard-v2/0.4.0)                             | 0.4.0   |
+| [thiserror](https://docs.rs/thiserror/1.0.44)                                      | 1.0.44  |
 
 You can open an issue to request more crates.
 
@@ -64,5 +64,4 @@ Anyone is welcome to contribute to **Solana Playground** no matter how big or sm
 
 ## License
 
-`client` and `vscode` is licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
-`wasm` packages are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE) unless specified otherwise in their respective `Cargo.toml`.
+Public libraries(e.g. [solana-client-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/solana-client), [solana-extra-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/utils/solana-extra)) are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE) and the rest are licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).

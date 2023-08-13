@@ -5,7 +5,13 @@ import pathModule from "path";
 
 import { readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
 
-/** Packages output directory */
+/** Supported packages path */
+const SUPPORTED_PACKAGES_PATH = pathModule.join(
+  REPO_ROOT_PATH,
+  "supported-packages.json"
+);
+
+/** Packages output directory path */
 const PACKAGES_PATH = pathModule.join(
   REPO_ROOT_PATH,
   "client",
@@ -17,9 +23,7 @@ const PACKAGES_PATH = pathModule.join(
 const OLD_INDEX_FILENAME = "old-index.d.ts";
 
 /** All supported packages */
-const packages = await readJSON(
-  pathModule.join(REPO_ROOT_PATH, "supported-packages.json")
-);
+const packages = await readJSON(SUPPORTED_PACKAGES_PATH);
 
 // Reset packages directory
 await resetDir(PACKAGES_PATH);
