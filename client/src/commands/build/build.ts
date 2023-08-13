@@ -233,10 +233,15 @@ const getBuildFiles = () => {
   return buildFiles;
 };
 
-/** Improve build output to stderr that is returned from the build request. */
-const improveOutput = (stderr: string) => {
+/**
+ * Improve build output that is returned from the build request.
+ *
+ * @param output build output(stderr)
+ * @returns the improved output
+ */
+const improveOutput = (output: string) => {
   // Remove full path
-  stderr = stderr
+  output = output
     .replace(/\s\(\/home.+?(?=\s)/gm, "")
     .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
     .replace("Compiling solpg v0.1.0\n", "")
@@ -244,26 +249,32 @@ const improveOutput = (stderr: string) => {
 
   // Remove uuid from folders
   const uuid = PgProgramInfo.uuid;
-  if (uuid) stderr = stderr.replaceAll(uuid, "");
+  if (uuid) output = output.replaceAll(uuid, "");
 
   // Remove `rustc` error line
-  let startIndex = stderr.indexOf("For more");
+  let startIndex = output.indexOf("For more");
   if (startIndex !== -1) {
-    const endIndex = stderr.indexOf("\n", startIndex);
-    stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
+    const endIndex = output.indexOf("\n", startIndex);
+    output = output.substring(0, startIndex) + output.substring(endIndex + 1);
   }
 
   // Remove whitespace before `rustc` finished text
-  startIndex = stderr.indexOf("Finished release");
+  startIndex = output.indexOf("Finished release");
   if (startIndex !== -1) {
     const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
-    stderr =
-      stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
-      stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
+    output =
+      output.substring(0, whiteSpaceStartIndex) + // Until whitespace start
+      output.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
       PgTerminal.success("Build successful. ") +
       "Completed" +
-      stderr.substring(stderr.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
+      output.substring(output.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
   }
 
-  return stderr.substring(0, stderr.length - 1);
+  // Stack size error
+  const stackSizeRegex = /^Error:\sFunction.*/gm;
+  if (stackSizeRegex.test(output)) {
+    output = output.replace(stackSizeRegex, "").replace("\n", "");
+  }
+
+  return output.substring(0, output.length - 1);
 };
