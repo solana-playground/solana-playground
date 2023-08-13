@@ -3,10 +3,12 @@ import type { OrString } from "../types";
 /** All packages that are allowed to be used in client/test code */
 export type ClientPackageName =
   | "@clockwork-xyz/sdk"
+  | "@metaplex-foundation/mpl-bubblegum"
   | "@metaplex-foundation/js"
   | "@metaplex-foundation/mpl-token-metadata"
   | "@project-serum/anchor"
   | "@solana/buffer-layout"
+  | "@solana/spl-account-compression"
   | "@solana/spl-token"
   | "@solana/web3.js"
   | "assert"
@@ -29,6 +31,8 @@ export class PgClientPackage {
     switch (name) {
       case "@clockwork-xyz/sdk":
         return await import("@clockwork-xyz/sdk");
+      case "@metaplex-foundation/mpl-bubblegum":
+        return await import("@metaplex-foundation/mpl-bubblegum");
       case "@metaplex-foundation/js":
         return await import("@metaplex-foundation/js");
       case "@metaplex-foundation/mpl-token-metadata":
@@ -37,6 +41,8 @@ export class PgClientPackage {
         return await import("@project-serum/anchor");
       case "@solana/buffer-layout":
         return await import("@solana/buffer-layout");
+      case "@solana/spl-account-compression":
+        return await import("@solana/spl-account-compression");
       case "@solana/spl-token":
         return await import("@solana/spl-token");
       case "@solana/web3.js":
