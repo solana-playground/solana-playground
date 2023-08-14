@@ -23,7 +23,7 @@ pub async fn run_solana(cmd: String) {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     let args = cmd.split_ascii_whitespace().collect::<Vec<&str>>();
-    let match_result = get_clap("solana-cli", "Blockchain, Rebuilt for Scale", "1.11.0")
+    let match_result = get_clap("solana-cli-wasm", "Blockchain, Rebuilt for Scale", "1.11.0")
         .try_get_matches_from(args);
     match match_result {
         Ok(matches) => {
