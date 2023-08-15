@@ -388,7 +388,7 @@ export class PgClient {
    * Handle user specified imports.
    *
    * @param code script/test code
-   * @returns the code without import statements and the imported packages
+   * @returns the imported packages and the code without the import statements
    */
   private static async _handleImports(code: string) {
     const importRegex = new RegExp(
@@ -399,18 +399,22 @@ export class PgClient {
     const imports: [string, object][] = [];
 
     const setupImport = (pkg: { [key: string]: any }) => {
-      // 'import as *' syntax
+      // `import as *` syntax
       if (importMatch?.[3]) {
         imports.push([importMatch[3], pkg]);
       }
-      // 'import {}' syntax
+      // `import {}` syntax
       else if (importMatch?.[4]) {
         const namedImports = importMatch[4]
           .substring(1, importMatch[4].length - 1)
-          .replace(/\s+\n?/g, "")
-          .split(",");
-        for (const namedImport of namedImports) {
-          imports.push([namedImport, pkg[namedImport]]);
+          .replace(/\n?/g, "")
+          .split(",")
+          .map((statement) => {
+            const result = /(\w+)(\s+as\s+(\w+))?/.exec(statement.trim())!;
+            return { named: result[1], renamed: result[3] };
+          });
+        for (const { named, renamed } of namedImports) {
+          imports.push([renamed ?? named, pkg[named]]);
         }
       }
     };
@@ -424,8 +428,8 @@ export class PgClient {
     } while (importMatch);
 
     // Remove import statements
-    // Need to do this after we setup all the imports because of internal
-    // cursor index state the regex.exec has.
+    // Need to do this after we setup all the imports because of the internal
+    // cursor index state the `regex.exec` has.
     code = code.replace(importRegex, "");
 
     return { code, imports };
