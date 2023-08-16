@@ -1298,9 +1298,9 @@ export class PgExplorer {
         return Lang.JAVASCRIPT;
       case "ts":
         return Lang.TYPESCRIPT;
-      case "test.ts":
-        return Lang.JAVASCRIPT_TEST;
       case "test.js":
+        return Lang.JAVASCRIPT_TEST;
+      case "test.ts":
         return Lang.TYPESCRIPT_TEST;
       case "json":
         return Lang.JSON;
