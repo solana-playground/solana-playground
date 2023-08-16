@@ -1,4 +1,4 @@
-use base_db::{CrateGraph, CrateId, FileId, FileSet, SourceRoot, VfsPath};
+use ide_db::base_db::{CrateGraph, CrateId, FileId, FileSet, SourceRoot, VfsPath};
 
 /// Search the given source roots to find the crate with a matching name.
 pub fn get_file_id<'a, 'b>(name: &'a str, source_roots: &'b Vec<SourceRoot>) -> Option<&'b FileId> {

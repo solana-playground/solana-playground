@@ -142,6 +142,75 @@ const createWorker = () => {
   });
 };
 
+/** Load all local Rust files in the workspace. */
+const loadLocalFiles = async () => {
+  const files = Object.keys(PgExplorer.files)
+    .filter((path) => path.endsWith(".rs"))
+    .map((path) => [path, PgExplorer.getFileContent(path)]);
+  await state.loadLocalFiles(files);
+};
+
+/**
+ * Jobs:
+ * - Load crates when necessary based on the model content
+ * - Set model markers for diagnostics
+ *
+ * @param model monaco editor model
+ */
+const update = async (model: monaco.editor.IModel) => {
+  for (const crate of CRATES.importable) {
+    const status = cachedNames.get(crate);
+    if (status === "full") continue;
+
+    if (new RegExp(`${crate}::`, "gm").test(model.getValue())) {
+      await loadDependency(crate);
+    } else if (status !== "empty") {
+      await loadDependency(crate, { empty: true });
+      cachedNames.set(crate, "empty");
+    }
+  }
+
+  const { diagnostics } = await state.update(model.uri.path, model.getValue());
+  monaco.editor.setModelMarkers(model, LANGUAGE_ID, diagnostics);
+};
+
+/**
+ * Load crate and its dependencies(if any) recursively.
+ *
+ * @param name crate name(snake_case)
+ * @param opts load options
+ * - `empty`: Load the dependency with no content
+ * - `transitive`: Load the dependency as transitive
+ */
+const loadDependency = async (
+  name: string,
+  opts?: { empty?: boolean; transitive?: boolean }
+) => {
+  if (cachedNames.get(name) === "full") return;
+
+  // Load empty
+  if (opts?.empty) return await state.loadDependency(name);
+
+  const code = await PgCommon.fetchText(`/crates/${name}.rs`);
+  const manifest = await PgCommon.fetchText(`/crates/${name}.toml`);
+
+  const neededCrates: string[] = await state.loadDependency(
+    name,
+    code,
+    manifest,
+    !!opts?.transitive
+  );
+  cachedNames.set(name, "full");
+
+  for (const crate of neededCrates) {
+    if (CRATES.importable.includes(crate)) {
+      await loadDependency(crate);
+    } else if (CRATES.transitive.includes(crate)) {
+      await loadDependency(crate, { transitive: true });
+    }
+  }
+};
+
 /**
  * Register editor providers.
  *
@@ -311,73 +380,4 @@ const registerProviders = (): Disposable => {
   ];
 
   return { dispose: () => disposables.forEach(({ dispose }) => dispose()) };
-};
-
-/** Load all local Rust files in the workspace. */
-const loadLocalFiles = async () => {
-  const files = Object.keys(PgExplorer.files)
-    .filter((path) => path.endsWith(".rs"))
-    .map((path) => [path, PgExplorer.getFileContent(path)]);
-  await state.loadLocalFiles(files);
-};
-
-/**
- * Jobs:
- * - Load crates when necessary based on the model content
- * - Set model markers for diagnostics
- *
- * @param model monaco editor model
- */
-const update = async (model: monaco.editor.IModel) => {
-  for (const crate of CRATES.importable) {
-    const status = cachedNames.get(crate);
-    if (status === "full") continue;
-
-    if (new RegExp(`${crate}::`, "gm").test(model.getValue())) {
-      await loadDependency(crate);
-    } else if (status !== "empty") {
-      await loadDependency(crate, { empty: true });
-      cachedNames.set(crate, "empty");
-    }
-  }
-
-  const { diagnostics } = await state.update(model.uri.path, model.getValue());
-  monaco.editor.setModelMarkers(model, LANGUAGE_ID, diagnostics);
-};
-
-/**
- * Load crate and its dependencies(if any) recursively.
- *
- * @param name crate name(snake_case)
- * @param opts load options
- * - `empty`: Load the dependency with no content
- * - `transitive`: Load the dependency as transitive
- */
-const loadDependency = async (
-  name: string,
-  opts?: { empty?: boolean; transitive?: boolean }
-) => {
-  if (cachedNames.get(name) === "full") return;
-
-  // Load empty
-  if (opts?.empty) return await state.loadDependency(name);
-
-  const code = await PgCommon.fetchText(`/crates/${name}.rs`);
-  const manifest = await PgCommon.fetchText(`/crates/${name}.toml`);
-
-  const neededCrates: string[] = await state.loadDependency(
-    name,
-    code,
-    manifest,
-    !!opts?.transitive
-  );
-  cachedNames.set(name, "full");
-
-  for (const crate of neededCrates) {
-    if (CRATES.importable.includes(crate)) {
-      await loadDependency(crate);
-    } else if (CRATES.transitive.includes(crate)) {
-      await loadDependency(crate, { transitive: true });
-    }
-  }
 };

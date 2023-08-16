@@ -1,6 +1,5 @@
 use std::{collections::BTreeMap, fmt::Display, sync::Arc};
 
-use base_db::{CrateData, CrateDisplayName, CrateOrigin, FileLoader};
 use cargo_toml::Manifest;
 use cfg::CfgOptions;
 use ide::{
@@ -9,7 +8,10 @@ use ide::{
     LineIndex, SourceRoot, TextSize,
 };
 use ide_db::{
-    base_db::{CrateName, Dependency, Env, FileSet, VfsPath},
+    base_db::{
+        CrateData, CrateDisplayName, CrateName, CrateOrigin, Dependency, Env, FileLoader, FileSet,
+        VfsPath,
+    },
     imports::insert_use::{ImportGranularity, InsertUseConfig, PrefixKind},
     search::SearchScope,
     SnippetCap,
@@ -742,6 +744,7 @@ version = "0.0.0""#
             Ok(Some(it)) => it,
             _ => return JsValue::NULL,
         };
+
         let res = to_proto::location_links(nav_info, &line_index);
         serde_wasm_bindgen::to_value(&res).unwrap()
     }
