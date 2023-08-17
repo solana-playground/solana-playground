@@ -1,8 +1,5 @@
-use std::sync::Arc;
-
 use cargo_toml::Manifest;
-use ide_db::base_db::{Env, ProcMacro, ProcMacroExpander, ProcMacroExpansionError, ProcMacroKind};
-use tt::{Delimiter, DelimiterKind, Ident, Leaf, Punct, Spacing, Subtree, TokenId, TokenTree};
+use ide_db::base_db::ProcMacro;
 
 /// Get whether the crate is a proc macro crate from manifest.
 pub fn get_is_proc_macro(manifest: &Manifest) -> bool {
@@ -60,8 +57,10 @@ pub fn get_proc_macros(lib: &str) -> Vec<ProcMacro> {
     }};
 }
 
+    use manual_expansions::*;
     match_proc_macros!(
         "#[account]" => Account,
+        "#[program]" => Program,
 
         "#[derive(BorshSerialize)]" => BorshSerialize,
         "#[derive(BorshDeserialize)]" => BorshDeserialize,
@@ -73,13 +72,22 @@ pub fn get_proc_macros(lib: &str) -> Vec<ProcMacro> {
     )
 }
 
-/// Implement dummy `ProcMacroExpander` for types.
-#[macro_export]
-macro_rules! expand {
+/// Manual proc macro expansions for completion hints.
+mod manual_expansions {
+    use std::sync::Arc;
+
+    use ide_db::base_db::{
+        Env, ProcMacro, ProcMacroExpander, ProcMacroExpansionError, ProcMacroKind,
+    };
+    use tt::{Delimiter, DelimiterKind, Ident, Leaf, Punct, Spacing, Subtree, TokenId, TokenTree};
+
+    /// Implement dummy `ProcMacroExpander` for types.
+    #[macro_export]
+    macro_rules! expand {
     // Derive
     ($struct_name:ident) => {
         #[derive(Debug)]
-        struct $struct_name;
+        pub(super) struct $struct_name;
 
         impl ToProcMacro for $struct_name {
             fn to_proc_macro() -> ProcMacro {
@@ -108,7 +116,7 @@ macro_rules! expand {
     // Derive with different trait names
     ($struct_name:ident, [$( $trait:literal ),+]) => {
         #[derive(Debug)]
-        struct $struct_name;
+        pub(super) struct $struct_name;
 
         impl ToProcMacro for $struct_name {
             fn to_proc_macro() -> ProcMacro {
@@ -143,7 +151,7 @@ macro_rules! expand {
     // Function like(!)
     ($struct_name:ident, $name:literal, $expansion:literal) => {
         #[derive(Debug)]
-        struct $struct_name;
+        pub(super) struct $struct_name;
 
         impl ToProcMacro for $struct_name {
             fn to_proc_macro() -> ProcMacro {
@@ -170,7 +178,7 @@ macro_rules! expand {
     // Attribute
     ($struct_name:ident, $name:literal, [$( $trait:literal ),*]) => {
         #[derive(Debug)]
-        struct $struct_name;
+        pub(super) struct $struct_name;
 
         impl ToProcMacro for $struct_name {
             fn to_proc_macro() -> ProcMacro {
@@ -189,8 +197,10 @@ macro_rules! expand {
                 _: Option<&Subtree>,
                 _: &Env,
             ) -> Result<Subtree, ProcMacroExpansionError> {
+                #[allow(unused_variables)]
                 let name = get_name_from_subtree(subtree);
-                let mut traits = vec![];
+                #[allow(unused_mut)]
+                let mut traits: Vec<String> = vec![];
 
                 $(
                     let expansion = format!("impl {} for {} {{ }}", $trait, name);
@@ -208,183 +218,189 @@ macro_rules! expand {
     };
 }
 
-// Attribute
-expand!(
-    Account,
-    "account",
-    [
-        "AccountDeserialize",
-        "AccountSerialize",
-        "AnchorDeserialize",
-        "AnchorSerialize",
-        "Clone",
-        "Discriminator",
-        "Owner"
-    ]
-);
+    // Attribute
+    expand!(
+        Account,
+        "account",
+        [
+            "AccountDeserialize",
+            "AccountSerialize",
+            "AnchorDeserialize",
+            "AnchorSerialize",
+            "Clone",
+            "Discriminator",
+            "Owner"
+        ]
+    );
+    expand!(Program, "program", []);
 
-// Derive
-expand!(BorshDeserialize);
-expand!(BorshSerialize);
-expand!(
-    Accounts,
-    [
-        "Accounts",
-        "ToAccountInfos",
-        "ToAccountMetas",
-        "AccountsExit"
-    ]
-);
-expand!(InitSpace, ["Space"]);
+    // Derive
+    expand!(BorshDeserialize);
+    expand!(BorshSerialize);
+    expand!(
+        Accounts,
+        [
+            "Accounts",
+            "ToAccountInfos",
+            "ToAccountMetas",
+            "AccountsExit"
+        ]
+    );
+    expand!(InitSpace, ["Space"]);
 
-// Function like
-expand!(DeclareId, "declare_id", "pub static ID : Pubkey ;");
-expand!(
-    ProgramDeclareId,
-    "program_declare_id",
-    "pub static ID : Pubkey ;"
-);
+    // Function like
+    expand!(DeclareId, "declare_id", "pub static ID : Pubkey ;");
+    expand!(
+        ProgramDeclareId,
+        "program_declare_id",
+        "pub static ID : Pubkey ;"
+    );
 
-/// Create a [`ProcMacro`], supertrait of [`ProcMacroExpander`]
-trait ToProcMacro: ProcMacroExpander {
-    /// Create a proc macro.
-    fn to_proc_macro() -> ProcMacro;
-}
-
-/// Create a subtree from the given string.
-///
-/// NOTE: This doesn't represent full parsing of a subtree.
-fn create_subtree<S: AsRef<str>>(s: S) -> Subtree {
-    let s = s.as_ref().trim();
-    let (tokens, delimiter) = s
-        .chars()
-        .next()
-        .and_then(|char| get_matching_close_char(char).map(|close_char| (char, close_char)))
-        .map(|(open_char, close_char)| {
-            let tokens = s.trim_start_matches(open_char).trim_end_matches(close_char);
-            let delimiter = Delimiter {
-                id: TokenId::unspecified(),
-                kind: match open_char {
-                    '{' => DelimiterKind::Brace,
-                    '(' => DelimiterKind::Parenthesis,
-                    '[' => DelimiterKind::Bracket,
-                    _ => unreachable!(),
-                },
-            };
-
-            (tokens, Some(delimiter))
-        })
-        .unwrap_or((s, None));
-
-    let mut remaining_tokens = tokens.to_owned();
-    let mut matching_count = 0usize;
-
-    Subtree {
-        delimiter,
-        token_trees: tokens
-            .split_whitespace()
-            .filter_map(|token| {
-                let char = token.chars().next().unwrap();
-                if ['}', ')', ']'].contains(&char) {
-                    matching_count -= 1;
-                    return None;
-                }
-
-                if matching_count != 0 {
-                    None
-                } else if ['{', '(', '['].contains(&char) {
-                    matching_count += 1;
-                    let (inside, remaining) =
-                        get_wrapping_subtree(&remaining_tokens, char).unwrap();
-                    let subtree = create_subtree(inside);
-                    remaining_tokens = remaining.to_owned();
-                    Some(TokenTree::Subtree(subtree))
-                } else if [':', ';', ','].contains(&char) {
-                    Some(TokenTree::Leaf(Leaf::Punct(Punct {
-                        char,
-                        id: TokenId::unspecified(),
-                        spacing: Spacing::Alone,
-                    })))
-                } else {
-                    Some(TokenTree::Leaf(Leaf::Ident(Ident {
-                        text: token.into(),
-                        id: TokenId::unspecified(),
-                    })))
-                }
-            })
-            .collect(),
+    /// Create a [`ProcMacro`], supertrait of [`ProcMacroExpander`]
+    pub(super) trait ToProcMacro: ProcMacroExpander {
+        /// Create a proc macro.
+        fn to_proc_macro() -> ProcMacro;
     }
-}
 
-/// Get inside of the subtree.
-///
-/// # Example
-///
-/// ```
-/// get_wrapping_subtree("pub struct MyAccount { field : u64 }", '{'); // Some(("{ field : u64 }", ""))
-/// ```
-///
-/// Returns a tuple of (inside, remaining).
-fn get_wrapping_subtree(content: &str, open_char: char) -> Option<(&str, &str)> {
-    let open_indices = content
-        .match_indices(open_char)
-        .map(|(i, _)| i)
-        .enumerate()
-        .collect::<Vec<(usize, usize)>>();
+    /// Create a subtree from the given string.
+    ///
+    /// NOTE: This doesn't represent full parsing of a subtree.
+    fn create_subtree<S: AsRef<str>>(s: S) -> Subtree {
+        let s = s.as_ref().trim();
+        let (tokens, delimiter) = s
+            .chars()
+            .next()
+            .and_then(|char| get_matching_close_char(char).map(|close_char| (char, close_char)))
+            .map(|(open_char, close_char)| {
+                let tokens = s.trim_start_matches(open_char).trim_end_matches(close_char);
+                let delimiter = Delimiter {
+                    id: TokenId::unspecified(),
+                    kind: match open_char {
+                        '{' => DelimiterKind::Brace,
+                        '(' => DelimiterKind::Parenthesis,
+                        '[' => DelimiterKind::Bracket,
+                        _ => unreachable!(),
+                    },
+                };
 
-    let close_char = get_matching_close_char(open_char);
-    let close_char = match close_char {
-        Some(c) => c,
-        None => return None,
-    };
-    let close_indices = content
-        .match_indices(close_char)
-        .map(|(i, _)| i)
-        .collect::<Vec<usize>>();
+                (tokens, Some(delimiter))
+            })
+            .unwrap_or((s, None));
 
-    for (i, open_index) in &open_indices {
-        let close_index = close_indices[*i];
-        let is_ok = open_indices
-            .iter()
-            .any(|(_, open_index)| *open_index < close_index);
-        if is_ok {
-            let inside = content.get(*open_index..close_index + 1).unwrap();
-            let remaining = content.get(close_index + 1..).unwrap();
-            return Some((inside, remaining));
+        let mut remaining_tokens = tokens.to_owned();
+        let mut matching_count = 0usize;
+
+        Subtree {
+            delimiter,
+            token_trees: tokens
+                .split_whitespace()
+                .filter_map(|token| {
+                    let char = match token.chars().next() {
+                        Some(c) => c,
+                        _ => return None,
+                    };
+
+                    if ['}', ')', ']'].contains(&char) {
+                        matching_count -= 1;
+                        return None;
+                    }
+
+                    if matching_count != 0 {
+                        None
+                    } else if ['{', '(', '['].contains(&char) {
+                        matching_count += 1;
+                        let (inside, remaining) =
+                            get_wrapping_subtree(&remaining_tokens, char).unwrap_or_default();
+                        let subtree = create_subtree(inside);
+                        remaining_tokens = remaining.to_owned();
+                        Some(TokenTree::Subtree(subtree))
+                    } else if [':', ';', ','].contains(&char) {
+                        Some(TokenTree::Leaf(Leaf::Punct(Punct {
+                            char,
+                            id: TokenId::unspecified(),
+                            spacing: Spacing::Alone,
+                        })))
+                    } else {
+                        Some(TokenTree::Leaf(Leaf::Ident(Ident {
+                            text: token.into(),
+                            id: TokenId::unspecified(),
+                        })))
+                    }
+                })
+                .collect(),
         }
     }
 
-    None
-}
+    /// Get inside of the subtree.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// get_wrapping_subtree("pub struct MyAccount { field : u64 }", '{'); // Some(("{ field : u64 }", ""))
+    /// ```
+    ///
+    /// Returns a tuple of (inside, remaining).
+    fn get_wrapping_subtree(content: &str, open_char: char) -> Option<(&str, &str)> {
+        let open_indices = content
+            .match_indices(open_char)
+            .map(|(i, _)| i)
+            .enumerate()
+            .collect::<Vec<(usize, usize)>>();
 
-/// Get the matching closing char.
-const fn get_matching_close_char(open_char: char) -> Option<char> {
-    const INVALID: char = '_';
-    let close_char = match open_char {
-        '(' => ')',
-        '{' => '}',
-        '[' => ']',
-        _ => INVALID,
-    };
+        let close_char = get_matching_close_char(open_char);
+        let close_char = match close_char {
+            Some(c) => c,
+            None => return None,
+        };
+        let close_indices = content
+            .match_indices(close_char)
+            .map(|(i, _)| i)
+            .collect::<Vec<usize>>();
 
-    match close_char {
-        INVALID => None,
-        _ => Some(close_char),
-    }
-}
-
-/// Get name from the given subtree of a `struct` or `enum`.
-fn get_name_from_subtree(subtree: &Subtree) -> String {
-    subtree
-        .token_trees
-        .iter()
-        .enumerate()
-        .find_map(|(i, tree)| {
-            if ["struct", "enum"].contains(&tree.to_string().as_str()) {
-                Some(subtree.token_trees[i + 1].to_string())
-            } else {
-                None
+        for (i, open_index) in &open_indices {
+            let close_index = close_indices[*i];
+            let is_ok = open_indices
+                .iter()
+                .any(|(_, open_index)| *open_index < close_index);
+            if is_ok {
+                let inside = content.get(*open_index..close_index + 1).unwrap();
+                let remaining = content.get(close_index + 1..).unwrap();
+                return Some((inside, remaining));
             }
-        })
-        .unwrap()
+        }
+
+        None
+    }
+
+    /// Get the matching closing char.
+    const fn get_matching_close_char(open_char: char) -> Option<char> {
+        const INVALID: char = '_';
+        let close_char = match open_char {
+            '(' => ')',
+            '{' => '}',
+            '[' => ']',
+            _ => INVALID,
+        };
+
+        match close_char {
+            INVALID => None,
+            _ => Some(close_char),
+        }
+    }
+
+    /// Get item name from the given subtree.
+    fn get_name_from_subtree(subtree: &Subtree) -> String {
+        subtree
+            .token_trees
+            .iter()
+            .enumerate()
+            .find_map(|(i, tree)| {
+                if ["struct", "enum", "mod"].contains(&tree.to_string().as_str()) {
+                    Some(subtree.token_trees[i + 1].to_string())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default()
+    }
 }
