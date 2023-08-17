@@ -2,6 +2,7 @@ use std::{collections::BTreeMap, fmt::Display, sync::Arc};
 
 use cargo_toml::Manifest;
 use cfg::CfgOptions;
+use hir::db::DefDatabase;
 use ide::{
     Analysis, AnalysisHost, Change, CompletionConfig, CrateGraph, CrateId, DiagnosticsConfig,
     Edition, FileId, FilePosition, HoverConfig, HoverDocFormat, Indel, InlayHintsConfig, InlayKind,
@@ -45,8 +46,19 @@ impl WorldState {
     /// Create a default world state.
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
+        let mut host = AnalysisHost::default();
+
+        // Debugged why attribute macros don't expand for an eternity only to find out they are
+        // disabled by default when other proc macros are not :(
+        // https://github.com/rust-lang/rust-analyzer/blob/5e8515870674983cce5b945946045bc1e9b80200/crates/ide_db/src/lib.rs#L137
+        // https://github.com/rust-lang/rust-analyzer/blob/5e8515870674983cce5b945946045bc1e9b80200/crates/hir_def/src/nameres/collector.rs#L1220-L1222
+        //
+        // `hir::db::DefDatabase` must be in scope in order to have the option to enable proc
+        // attribute macros.
+        host.raw_database_mut().set_enable_proc_attr_macros(true);
+
         Self {
-            host: AnalysisHost::default(),
+            host,
             crate_graph: CrateGraph::default(),
             source_roots: vec![],
             needed_deps: BTreeMap::new(),

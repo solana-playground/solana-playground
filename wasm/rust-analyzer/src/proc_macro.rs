@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use cargo_toml::Manifest;
 use ide_db::base_db::{Env, ProcMacro, ProcMacroExpander, ProcMacroExpansionError, ProcMacroKind};
-use tt::{Ident, Leaf, Punct, Spacing, Subtree, TokenId, TokenTree};
+use tt::{Delimiter, DelimiterKind, Ident, Leaf, Punct, Spacing, Subtree, TokenId, TokenTree};
 
 /// Get whether the crate is a proc macro crate from manifest.
 pub fn get_is_proc_macro(manifest: &Manifest) -> bool {
@@ -18,8 +18,8 @@ pub fn get_is_proc_macro(manifest: &Manifest) -> bool {
 /// Full macro expansion depends on `rustc`, which is not available in browsers. In order to get
 /// at least some of the type benefits, we manually expand the most used proc macros.
 ///
-/// For example, without manual expansion of `#[account]` macro from the `anchor-lang` crate, there
-/// is no type hint for the accounts in `ctx.accounts.<NAME>.<MISSING_TYPE_HINTS>`.
+/// For example, without manual expansion of `#[account]` macro of the `anchor-lang` crate, there
+/// are no completion hints for the accounts e.g. `ctx.accounts.<NAME>.<FIELD>`.
 pub fn get_proc_macros(lib: &str) -> Vec<ProcMacro> {
     /// Get implementations of the proc macros.
     #[macro_export]
@@ -197,13 +197,17 @@ macro_rules! expand {
                     traits.push(expansion);
                 )*
 
-                Ok(create_subtree(traits.join(" ")))
+                let mut subtree = subtree.clone();
+                subtree
+                    .token_trees
+                    .extend(create_subtree(traits.join(" ")).token_trees);
+
+                Ok(subtree)
             }
         }
     };
 }
 
-// FIXME: Fix attribute macros not expanding
 // Attribute
 expand!(
     Account,
@@ -248,29 +252,124 @@ trait ToProcMacro: ProcMacroExpander {
 }
 
 /// Create a subtree from the given string.
+///
+/// NOTE: This doesn't represent full parsing of a subtree.
 fn create_subtree<S: AsRef<str>>(s: S) -> Subtree {
+    let s = s.as_ref().trim();
+    let (tokens, delimiter) = s
+        .chars()
+        .next()
+        .and_then(|char| get_matching_close_char(char).map(|close_char| (char, close_char)))
+        .map(|(open_char, close_char)| {
+            let tokens = s.trim_start_matches(open_char).trim_end_matches(close_char);
+            let delimiter = Delimiter {
+                id: TokenId::unspecified(),
+                kind: match open_char {
+                    '{' => DelimiterKind::Brace,
+                    '(' => DelimiterKind::Parenthesis,
+                    '[' => DelimiterKind::Bracket,
+                    _ => unreachable!(),
+                },
+            };
+
+            (tokens, Some(delimiter))
+        })
+        .unwrap_or((s, None));
+
+    let mut remaining_tokens = tokens.to_owned();
+    let mut matching_count = 0usize;
+
     Subtree {
-        delimiter: None,
-        token_trees: s
-            .as_ref()
+        delimiter,
+        token_trees: tokens
             .split_whitespace()
-            .map(|token| {
+            .filter_map(|token| {
                 let char = token.chars().next().unwrap();
-                // TODO: Recursively parse subtrees
-                if [':', ';', '{', '}'].contains(&char) {
-                    TokenTree::Leaf(Leaf::Punct(Punct {
+                if ['}', ')', ']'].contains(&char) {
+                    matching_count -= 1;
+                    return None;
+                }
+
+                if matching_count != 0 {
+                    None
+                } else if ['{', '(', '['].contains(&char) {
+                    matching_count += 1;
+                    let (inside, remaining) =
+                        get_wrapping_subtree(&remaining_tokens, char).unwrap();
+                    let subtree = create_subtree(inside);
+                    remaining_tokens = remaining.to_owned();
+                    Some(TokenTree::Subtree(subtree))
+                } else if [':', ';', ','].contains(&char) {
+                    Some(TokenTree::Leaf(Leaf::Punct(Punct {
                         char,
                         id: TokenId::unspecified(),
                         spacing: Spacing::Alone,
-                    }))
+                    })))
                 } else {
-                    TokenTree::Leaf(Leaf::Ident(Ident {
+                    Some(TokenTree::Leaf(Leaf::Ident(Ident {
                         text: token.into(),
                         id: TokenId::unspecified(),
-                    }))
+                    })))
                 }
             })
             .collect(),
+    }
+}
+
+/// Get inside of the subtree.
+///
+/// # Example
+///
+/// ```
+/// get_wrapping_subtree("pub struct MyAccount { field : u64 }", '{'); // Some(("{ field : u64 }", ""))
+/// ```
+///
+/// Returns a tuple of (inside, remaining).
+fn get_wrapping_subtree(content: &str, open_char: char) -> Option<(&str, &str)> {
+    let open_indices = content
+        .match_indices(open_char)
+        .map(|(i, _)| i)
+        .enumerate()
+        .collect::<Vec<(usize, usize)>>();
+
+    let close_char = get_matching_close_char(open_char);
+    let close_char = match close_char {
+        Some(c) => c,
+        None => return None,
+    };
+    let close_indices = content
+        .match_indices(close_char)
+        .map(|(i, _)| i)
+        .collect::<Vec<usize>>();
+
+    for (i, open_index) in &open_indices {
+        let close_index = close_indices[*i];
+        let is_ok = open_indices
+            .iter()
+            .any(|(_, open_index)| *open_index < close_index);
+        if is_ok {
+            let inside = content.get(*open_index..close_index + 1).unwrap();
+            let remaining = content.get(close_index + 1..).unwrap();
+            return Some((inside, remaining));
+        }
+    }
+
+    None
+}
+
+/// Get the matching closing char.
+const fn get_matching_close_char(open_char: char) -> Option<char> {
+    const INVALID: char = '_';
+    let close_char = match open_char {
+        '(' => ')',
+        '{' => '}',
+        '[' => ']',
+        _ => INVALID,
+    };
+
+    match close_char {
+        INVALID => None,
+        _ => Some(close_char),
     }
 }
 

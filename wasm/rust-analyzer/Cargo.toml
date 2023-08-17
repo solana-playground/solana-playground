@@ -17,6 +17,7 @@ crate-type = ["cdylib", "rlib"]
 cfg = { package = "ra_ap_cfg", version = "0.0.100" }
 ide = { package = "ra_ap_ide", version = "0.0.100" }
 ide_db = { package = "ra_ap_ide_db", version = "0.0.100" }
+hir = { package = "ra_ap_hir", version = "0.0.100" }
 tt = { package = "ra_ap_tt", version = "0.0.100" }
 
 cargo_toml = "0.14.1"

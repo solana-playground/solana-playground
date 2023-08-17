@@ -1032,6 +1032,7 @@ dependencies = [
  "parking_lot_core 0.8.5",
  "parking_lot_core 0.9.8",
  "ra_ap_cfg",
+ "ra_ap_hir",
  "ra_ap_ide",
  "ra_ap_ide_db",
  "ra_ap_tt",
