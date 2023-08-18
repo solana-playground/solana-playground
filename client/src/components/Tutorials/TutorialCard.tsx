@@ -7,13 +7,13 @@ import { PgTheme, PgTutorial, TutorialData } from "../../utils/pg";
 const TutorialCard: FC<TutorialData> = ({
   name,
   description,
-  imageSrc,
+  thumbnail,
   categories,
 }) => (
   <GradientWrapper onClick={() => PgTutorial.open(name)}>
     <InsideWrapper>
       <ImgWrapper>
-        <TutorialImg src={imageSrc} />
+        <TutorialImg src={thumbnail} />
       </ImgWrapper>
       <InfoWrapper>
         <Name>{name}</Name>

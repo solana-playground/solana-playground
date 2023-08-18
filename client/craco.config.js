@@ -122,6 +122,20 @@ module.exports = {
             path.join("..", "supported-packages.json"),
             "utf8"
           ),
+
+          /** Map of kebab-case tutorial names to thumbnail file names */
+          TUTORIAL_THUMBNAIL_MAP: defineFromPublicDir(
+            "tutorials",
+            (dirItems, tutorialsPath) => {
+              return dirItems.reduce((acc, tutorialName) => {
+                const thumbnailFileName = fs
+                  .readdirSync(path.join(tutorialsPath, tutorialName))
+                  .find((name) => name.startsWith("thumbnail"));
+                if (thumbnailFileName) acc[tutorialName] = thumbnailFileName;
+                return acc;
+              }, {});
+            }
+          ),
         })
       );
 

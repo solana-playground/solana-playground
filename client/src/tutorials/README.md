@@ -28,9 +28,8 @@ Open `tutorials.ts` and add an entry to the `TUTORIALS` array like in the existi
 
 ```ts
 {
-    name: "Template Tutorial",
+    name: "Template",
     description: "Simple template tutorial.",
-    imageSrc: getTutorialImgSrc("template/thumbnail.png"),
     authors: [
       {
         name: "acheron",
@@ -39,11 +38,10 @@ Open `tutorials.ts` and add an entry to the `TUTORIALS` array like in the existi
     ],
     level: TutorialLevel.BEGINNER,
     categories: [TutorialCategory.OTHER],
-    elementImport: () => import("./Template"),
   },
 ```
 
-You can either use an existing url for the `imageSrc` or create one inside `/public/tutorials/<TUTORIAL_NAME>` folder like in the template example (inside client root directory).
+For the thumbnail of the tutorial, you can either use an existing URL, or create one at `/client/public/tutorials/<tutorial-name>/thumbnail.(png|jpg)`.
 
 ## Advanced tutorials
 

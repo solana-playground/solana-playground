@@ -608,6 +608,13 @@ export class PgCommon {
   }
 
   /**
+   * @returns PascalCase converted version of the Title Case string
+   */
+  static toPascalFromTitle(str: string) {
+    return str.replaceAll(" ", "");
+  }
+
+  /**
    * @returns the string with its first letter uppercased
    */
   static capitalize(str: string) {

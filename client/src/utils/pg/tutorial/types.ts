@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 
-import type { Nullable } from "../types";
+import type { Nullable, RequiredKey } from "../types";
 
 export enum TutorialLevel {
   BEGINNER = "Beginner",
@@ -37,30 +37,47 @@ export type TutorialState = Nullable<
 /** Serialized program info that's used in storage */
 export type SerializedTutorialState = Nullable<TutorialMetadata>;
 
-export interface TutorialData {
+/** Tutorial data with optional fields. */
+export interface TutorialDataInit {
   /** Tutorial name that will be shown in tutorials section */
   name: string;
-  /** Tutorial description that will be shown in tutorials section.
+  /**
+   * Tutorial description that will be shown in tutorials section.
+   *
    * Only the first 72 characters will be shown in the tutorials page.
    */
   description: string;
-  /** Tutorial cover image that will be shown in tutorials section.
-   * It can either be `/tutorials/...` or full url to the image.
-   *
-   * Thumbnails are displayed at 4:3 aspect ratio(320x240).
-   */
-  imageSrc: string;
   /** Authors of the tutorial */
   authors: Author[];
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
   /** Category of the tutorial. Can specify up to 3 categories. */
   categories: TutorialCategory[];
-  /** Tutorial component async import */
-  elementImport: () => Promise<{
+  /**
+   * Tutorial cover image that will be shown in tutorials section.
+   *
+   * It can either be `/tutorials/...` or full url to the image.
+   *
+   * Thumbnails are displayed at 4:3 aspect ratio(320x240).
+   *
+   * Defaults to `/tutorials/<tutorial-name>/thumbnail.*`.
+   */
+  thumbnail?: string;
+  /**
+   * Tutorial component async import.
+   *
+   * Defaults to `./<TutorialName>`.
+   */
+  elementImport?: () => Promise<{
     default: ComponentType<Omit<TutorialData, "elementImport">>;
   }>;
 }
+
+/** Tutorial data with optional fields filled with defaults. */
+export type TutorialData = RequiredKey<
+  TutorialDataInit,
+  "thumbnail" | "elementImport"
+>;
 
 export interface TutorialMetadata {
   /** Current page number */

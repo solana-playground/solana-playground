@@ -24,6 +24,9 @@ global {
     global: { [K in ClientPackageName]: { as: string } | { named: string } };
     importable: string[];
   };
+
+  /** Map of kebab-case tutorial names to thumbnail file names */
+  const TUTORIAL_THUMBNAIL_MAP: { [tutorialName: string]: string };
 }
 
 // Framework
