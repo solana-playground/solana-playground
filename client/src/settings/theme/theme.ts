@@ -1,7 +1,7 @@
 import ThemeSetting from "./ThemeSetting";
-import type { Setting } from "../";
+import { createSetting } from "../create";
 
-export const theme: Setting = {
+export const theme = createSetting({
   name: "Theme",
-  Element: ThemeSetting,
-};
+  Component: ThemeSetting,
+});

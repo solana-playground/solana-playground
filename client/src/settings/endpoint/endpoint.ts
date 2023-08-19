@@ -1,11 +1,11 @@
 import EndpointSetting from "./EndpointSetting";
-import type { Setting } from "../";
+import { createSetting } from "../create";
 
-export const endpoint: Setting = {
+export const endpoint = createSetting({
   name: "Endpoint",
-  Element: EndpointSetting,
+  Component: EndpointSetting,
   tooltip: {
     text: "RPC URL that lets you interact with a specific Solana cluster",
     maxWidth: "10rem",
   },
-};
+});

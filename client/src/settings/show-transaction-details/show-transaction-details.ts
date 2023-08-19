@@ -1,12 +1,12 @@
 import ShowTxDetailsSetting from "./ShowTxDetailsSetting";
-import type { Setting } from "../";
+import { createSetting } from "../create";
 
-export const showTransactionDetails: Setting = {
+export const showTransactionDetails = createSetting({
   name: "Show transaction details",
-  Element: ShowTxDetailsSetting,
+  Component: ShowTxDetailsSetting,
   tooltip: {
     text: "Whether to automatically fetch transaction details and show them in terminal(only applies to test UI)",
     maxWidth: "18rem",
   },
   isCheckBox: true,
-};
+});

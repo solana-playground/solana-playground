@@ -25,7 +25,7 @@ const Wrapper = styled.div`
   `}
 `;
 
-const Setting: FC<SettingType> = ({ name, Element, tooltip, isCheckBox }) => (
+const Setting: FC<SettingType> = ({ name, Component, tooltip, isCheckBox }) => (
   <SettingWrapper isCheckBox={isCheckBox}>
     <Left>
       <SettingName>{name}</SettingName>
@@ -39,7 +39,7 @@ const Setting: FC<SettingType> = ({ name, Element, tooltip, isCheckBox }) => (
     </Left>
 
     <Right>
-      <Element />
+      <Component />
     </Right>
   </SettingWrapper>
 );

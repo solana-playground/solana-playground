@@ -1,7 +1,7 @@
 import FontSetting from "./FontSetting";
-import type { Setting } from "../";
+import { createSetting } from "../create";
 
-export const font: Setting = {
+export const font = createSetting({
   name: "Font",
-  Element: FontSetting,
-};
+  Component: FontSetting,
+});

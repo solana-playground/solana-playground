@@ -1,11 +1,11 @@
 import CommitmentSetting from "./CommitmentSetting";
-import type { Setting } from "../";
+import { createSetting } from "../create";
 
-export const commitment: Setting = {
+export const commitment = createSetting({
   name: "Commitment",
-  Element: CommitmentSetting,
+  Component: CommitmentSetting,
   tooltip: {
     text: "Commitment level to use when interacting with the endpoint",
     maxWidth: "12rem",
   },
-};
+});
