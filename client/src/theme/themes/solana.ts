@@ -55,6 +55,9 @@ const SOLANA: Theme = {
       warning: { color: YELLOW },
     },
   },
+  default: {
+    borderRadius: "12px",
+  },
   components: {
     bottom: {
       default: {
@@ -62,11 +65,31 @@ const SOLANA: Theme = {
       },
     },
     button: {
+      default: {
+        hover: {
+          transform: "translateY(-3px)",
+        },
+      },
       overrides: {
         primary: {
           color: BG_BLACK,
           hover: {
             color: TEXT_PRIMARY,
+          },
+        },
+        outline: {
+          border: `1px solid ${TEXT_PRIMARY}`,
+          hover: {
+            bg: TEXT_PRIMARY,
+            borderColor: BG_BLACK,
+            boxShadow:
+              "0 1rem 2.5rem rgba(35, 35, 35, 0.1), 0 .5rem 1rem -0.75rem rgba(35, 35, 35, 0.1)",
+            color: BG_BLACK,
+          },
+        },
+        icon: {
+          hover: {
+            transform: "translateY(0)",
           },
         },
       },
@@ -90,6 +113,9 @@ const SOLANA: Theme = {
       tooltip: {
         bg: BG_BLACK,
       },
+    },
+    input: {
+      padding: "0.375rem 0.5rem",
     },
     main: {
       default: {
