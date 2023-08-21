@@ -9,6 +9,7 @@ import { Info, Sad } from "../../../../../components/Icons";
 import {
   PgCommon,
   PgConnection,
+  PgSettings,
   PgView,
   PgWallet,
 } from "../../../../../utils/pg";
@@ -30,7 +31,14 @@ export const Local = () => {
           );
         }
 
-        // Close the model
+        // Connection error in the UI depends on whether the `onChain` field
+        // exists, and it doesn't get updated after we make the connection to
+        // localnet. To get rid of the connection error, we trigger a re-derive
+        // of the `onChain` field by updating the connection settings.
+        // TODO: Maybe add a `refresh` method for derivables?
+        PgSettings.update({ connection: PgSettings.connection });
+
+        // Close the modal
         PgView.setModal(null);
       } catch {}
     }, 5000);

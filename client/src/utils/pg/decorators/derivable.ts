@@ -26,7 +26,7 @@ export function derivable<T extends Derivable>(
 ) {
   return (sClass: any) => {
     // Add `init` method
-    addInit(sClass, async () => {
+    addInit(sClass, () => {
       const state = deriveState();
 
       // Add `onDidChange` methods
@@ -70,9 +70,7 @@ export function derivable<T extends Derivable>(
       }
 
       return {
-        dispose: () => {
-          disposables.forEach((disposable) => disposable.dispose());
-        },
+        dispose: () => disposables.forEach(({ dispose }) => dispose()),
       };
     });
   };

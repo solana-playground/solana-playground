@@ -212,8 +212,6 @@ class _PgProgramInfo {
 }
 
 export const PgProgramInfo = declareDerivable(
-  declareUpdatable(_PgProgramInfo, {
-    defaultState,
-  }),
+  declareUpdatable(_PgProgramInfo, { defaultState }),
   derive
 );
