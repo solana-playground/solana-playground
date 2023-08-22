@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: 18
           cache: "yarn"
           cache-dependency-path: "client/yarn.lock"
 
@@ -55,13 +55,13 @@ jobs:
     defaults:
       run:
         working-directory: wasm
-    
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Add clippy
         run: rustup component add clippy
-        
+
       - name: Check clippy warnings
         run: cargo clippy --all-targets -- -D warnings
 
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: 18
           cache: "yarn"
           cache-dependency-path: "client/yarn.lock"
 
