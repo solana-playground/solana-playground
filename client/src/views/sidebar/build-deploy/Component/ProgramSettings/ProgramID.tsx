@@ -140,9 +140,11 @@ const InputPk = () => {
   const [changed, setChanged] = useState(false);
 
   useEffect(() => {
-    PgProgramInfo.onDidChangePk((pk) => {
+    const { dispose } = PgProgramInfo.onDidChangePk((pk) => {
       if (pk) setVal(pk.toBase58());
     });
+
+    return () => dispose();
   }, []);
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -204,7 +206,7 @@ const InputPk = () => {
 };
 
 const Wrapper = styled.div`
-  & > div:first-child button {
+  & > div:first-child > * {
     margin-right: 1rem;
   }
 `;
