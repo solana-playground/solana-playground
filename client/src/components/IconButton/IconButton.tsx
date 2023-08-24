@@ -30,13 +30,6 @@ const IconButton: FC<IconButtonProps> = ({
 
 const IconWrapper = styled.div`
   ${({ theme }) => css`
-    cursor: pointer;
-    width: 100%;
-    height: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
     ${PgTheme.convertToCSS(theme.components.sidebar.left.iconButton.default)};
 
     &.${ClassName.ACTIVE} {

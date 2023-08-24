@@ -1146,6 +1146,13 @@ export class PgTheme {
     sidebar.left.iconButton ??= {};
     // Left icon button default
     sidebar.left.iconButton.default ??= {};
+    sidebar.left.iconButton.default.display ??= "flex";
+    sidebar.left.iconButton.default.justifyContent ??= "center";
+    sidebar.left.iconButton.default.alignItems ??= "center";
+    sidebar.left.iconButton.default.width ??= "100%";
+    sidebar.left.iconButton.default.height ??= "3rem";
+    sidebar.left.iconButton.default.cursor ??= "pointer";
+
     // Left icon button selected
     sidebar.left.iconButton.selected ??= {};
     sidebar.left.iconButton.selected.bg ??= theme.colors.state.hover.bg;
