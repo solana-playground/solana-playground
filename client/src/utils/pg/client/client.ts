@@ -392,17 +392,17 @@ export class PgClient {
    */
   private static async _handleImports(code: string) {
     const importRegex = new RegExp(
-      /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*}))\s+from\s+["|'](.+)["|']/gm
+      /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+["|'](.+)["|']/gm
     );
     let importMatch: RegExpExecArray | null;
 
     const imports: [string, object][] = [];
-
     const setupImport = (pkg: { [key: string]: any }) => {
       // `import as *` syntax
       if (importMatch?.[3]) {
         imports.push([importMatch[3], pkg]);
       }
+
       // `import {}` syntax
       else if (importMatch?.[4]) {
         const namedImports = importMatch[4]
@@ -417,12 +417,17 @@ export class PgClient {
           imports.push([renamed ?? named, pkg[named]]);
         }
       }
+
+      // `import Default` syntax
+      else if (importMatch?.[5]) {
+        imports.push([importMatch[5], pkg.default ?? pkg]);
+      }
     };
 
     do {
       importMatch = importRegex.exec(code);
       if (importMatch) {
-        const pkg = await PgClientPackage.import(importMatch[5]);
+        const pkg = await PgClientPackage.import(importMatch[6]);
         setupImport(pkg);
       }
     } while (importMatch);

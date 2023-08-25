@@ -21,7 +21,12 @@ global {
 
   /** Supported client packages */
   const PACKAGES: {
-    global: { [K in ClientPackageName]: { as: string } | { named: string } };
+    global: {
+      [K in ClientPackageName]:
+        | { as: string }
+        | { named: string }
+        | { default: string };
+    };
     importable: string[];
   };
 

@@ -30,19 +30,19 @@ const Monaco = () => {
   // Set default options
   useEffect(() => {
     // Compiler options
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    const compilerOptions: monaco.languages.typescript.CompilerOptions = {
       lib: ["es2020"],
       module: monaco.languages.typescript.ModuleKind.ESNext,
       target: monaco.languages.typescript.ScriptTarget.ES2017,
       allowNonTsExtensions: true,
-    });
-
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-      lib: ["es2020"],
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      target: monaco.languages.typescript.ScriptTarget.ES2017,
-      allowNonTsExtensions: true,
-    });
+      allowSyntheticDefaultImports: true,
+    };
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
+      compilerOptions
+    );
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
+      compilerOptions
+    );
 
     // Diagnostic options
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({

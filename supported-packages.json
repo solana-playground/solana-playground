@@ -3,8 +3,8 @@
     "@project-serum/anchor": { "as": "anchor" },
     "@solana/buffer-layout": { "as": "BufferLayout" },
     "@solana/web3.js": { "as": "web3" },
-    "assert": { "as": "assert" },
-    "bn.js": { "as": "BN" },
+    "assert": { "default": "assert" },
+    "bn.js": { "default": "BN" },
     "borsh": { "as": "borsh" },
     "buffer": { "named": "Buffer" },
     "mocha": { "as": "mocha" }

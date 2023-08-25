@@ -53,8 +53,12 @@ const declareNamespace = (
   importStyle: PackageImportStyle
 ) => {
   const style = importStyle as Partial<MergeUnion<PackageImportStyle>>;
-  const name = style.as ?? style.named;
-  const importStyleText = style.as ? `* as ${style.as}` : `{ ${style.named} }`;
+  const name = style.as ?? style.named ?? style.default;
+  const importStyleText = style.as
+    ? `* as ${style.as}`
+    : style.named
+    ? `{ ${style.named} }`
+    : style.default;
 
   return monaco.languages.typescript.typescriptDefaults.addExtraLib(
     `import ${importStyleText} from "${packageName}";
