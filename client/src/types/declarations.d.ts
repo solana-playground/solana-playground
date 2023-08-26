@@ -27,7 +27,7 @@ global {
         | { named: string }
         | { default: string };
     };
-    importable: string[];
+    importable: ClientPackageName[];
   };
 
   /** Map of kebab-case tutorial names to thumbnail file names */

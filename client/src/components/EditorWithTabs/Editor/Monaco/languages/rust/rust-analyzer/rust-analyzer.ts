@@ -2,13 +2,13 @@
 import * as monaco from "monaco-editor";
 import type { WorldState } from "@solana-playground/rust-analyzer";
 
-import { importTypes } from "../common";
+import { importTypes } from "../../common";
 import {
   AsyncMethods,
   Disposable,
   PgCommon,
   PgExplorer,
-} from "../../../../../../utils/pg";
+} from "../../../../../../../utils/pg";
 
 /** Monaco language id for Rust */
 const LANGUAGE_ID = "rust";
@@ -101,9 +101,7 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
 
 /** Create Rust Analyzer web worker. */
 const createWorker = () => {
-  const worker = new Worker(
-    new URL("./rust-analyzer-worker.ts", import.meta.url)
-  );
+  const worker = new Worker(new URL("./worker.ts", import.meta.url));
 
   const pendingResolve = {};
   let id = 1;
@@ -166,7 +164,6 @@ const update = async (model: monaco.editor.IModel) => {
       await loadDependency(crate);
     } else if (status !== "empty") {
       await loadDependency(crate, { empty: true });
-      cachedNames.set(crate, "empty");
     }
   }
 
@@ -186,11 +183,17 @@ const loadDependency = async (
   name: string,
   opts?: { empty?: boolean; transitive?: boolean }
 ) => {
+  // Check if the crate is already loaded
   if (cachedNames.get(name) === "full") return;
 
-  // Load empty
-  if (opts?.empty) return await state.loadDependency(name);
+  // Load empty crate
+  if (opts?.empty) {
+    await state.loadDependency(name);
+    cachedNames.set(name, "empty");
+    return;
+  }
 
+  // Load full crate
   const code = await PgCommon.fetchText(`/crates/${name}.rs`);
   const manifest = await PgCommon.fetchText(`/crates/${name}.toml`);
 
@@ -219,7 +222,9 @@ const loadDependency = async (
 const registerProviders = (): Disposable => {
   const disposables = [
     monaco.languages.registerHoverProvider(LANGUAGE_ID, {
-      provideHover: (_, pos) => state.hover(pos.lineNumber, pos.column),
+      provideHover: async (_, pos) => {
+        return await state.hover(pos.lineNumber, pos.column);
+      },
     }),
 
     monaco.languages.registerCodeLensProvider(LANGUAGE_ID, {

@@ -17,7 +17,7 @@ export const declareImportableTypes = () => {
 
 /** Mapping of package name -> imported */
 const cachedTypes: {
-  [key in ClientPackageName]?: true | monaco.IDisposable;
+  [K in ClientPackageName]?: true | monaco.IDisposable;
 } = {};
 
 /**
