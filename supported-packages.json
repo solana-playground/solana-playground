@@ -11,6 +11,7 @@
   },
   "importable": [
     "@clockwork-xyz/sdk",
+    "@coral-xyz/anchor",
     "@metaplex-foundation/mpl-bubblegum",
     "@metaplex-foundation/js",
     "@metaplex-foundation/mpl-token-metadata",

@@ -3,6 +3,7 @@ import type { OrString } from "../types";
 /** All packages that are allowed to be used in client/test code */
 export type ClientPackageName =
   | "@clockwork-xyz/sdk"
+  | "@coral-xyz/anchor"
   | "@metaplex-foundation/mpl-bubblegum"
   | "@metaplex-foundation/js"
   | "@metaplex-foundation/mpl-token-metadata"
@@ -27,36 +28,38 @@ export class PgClientPackage {
    * @param name package name
    * @returns the imported package
    */
-  static async import(name: OrString<ClientPackageName>) {
+  static import(name: OrString<ClientPackageName>) {
     switch (name) {
       case "@clockwork-xyz/sdk":
-        return await import("@clockwork-xyz/sdk");
+        return import("@clockwork-xyz/sdk");
+      case "@coral-xyz/anchor":
+        return import("@coral-xyz/anchor");
       case "@metaplex-foundation/mpl-bubblegum":
-        return await import("@metaplex-foundation/mpl-bubblegum");
+        return import("@metaplex-foundation/mpl-bubblegum");
       case "@metaplex-foundation/js":
-        return await import("@metaplex-foundation/js");
+        return import("@metaplex-foundation/js");
       case "@metaplex-foundation/mpl-token-metadata":
-        return await import("@metaplex-foundation/mpl-token-metadata");
+        return import("@metaplex-foundation/mpl-token-metadata");
       case "@project-serum/anchor":
-        return await import("@project-serum/anchor");
+        return import("@project-serum/anchor");
       case "@solana/buffer-layout":
-        return await import("@solana/buffer-layout");
+        return import("@solana/buffer-layout");
       case "@solana/spl-account-compression":
-        return await import("@solana/spl-account-compression");
+        return import("@solana/spl-account-compression");
       case "@solana/spl-token":
-        return await import("@solana/spl-token");
+        return import("@solana/spl-token");
       case "@solana/web3.js":
-        return await import("@solana/web3.js");
+        return import("@solana/web3.js");
       case "assert":
-        return await import("assert");
+        return import("assert");
       case "bn.js":
-        return await import("bn.js");
+        return import("bn.js");
       case "borsh":
-        return await import("borsh");
+        return import("borsh");
       case "buffer":
-        return await import("buffer");
+        return import("buffer");
       case "mocha":
-        return await import("mocha");
+        return import("mocha");
       default:
         throw new Error(
           name.startsWith(".")
