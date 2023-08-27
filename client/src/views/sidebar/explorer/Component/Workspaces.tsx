@@ -22,25 +22,23 @@ import {
   Plus,
   Trash,
 } from "../../../../components/Icons";
-import { PgExplorer, PgTutorial, PgView } from "../../../../utils/pg";
+import {
+  PgExplorer,
+  PgFramework,
+  PgTutorial,
+  PgView,
+} from "../../../../utils/pg";
 import { useExplorer } from "../../../../hooks";
 
 const Workspaces = () => {
   if (PgExplorer.isTemporary) return <TemporaryWarning />;
 
-  const handleNew = async () => await PgView.setModal(NewWorkspace);
-  const handleRename = async () => await PgView.setModal(RenameWorkspace);
-  const handleDelete = async () => await PgView.setModal(DeleteWorkspace);
-  const handleGithub = async () => await PgView.setModal(ImportGithub);
-  const handleFsImport = async () => await PgView.setModal(ImportFs);
-
-  const handleFsExport = async () => {
-    try {
-      await PgExplorer.exportWorkspace();
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  };
+  const handleNew = () => PgView.setModal(NewWorkspace);
+  const handleRename = () => PgView.setModal(RenameWorkspace);
+  const handleDelete = () => PgView.setModal(DeleteWorkspace);
+  const handleGithub = () => PgView.setModal(ImportGithub);
+  const handleFsImport = () => PgView.setModal(ImportFs);
+  const handleFsExport = () => PgFramework.exportWorkspace();
 
   return (
     <Wrapper>
@@ -173,7 +171,7 @@ const SelectWrapper = styled.div`
 `;
 
 const TemporaryWarning = () => {
-  const handleImport = async () => await PgView.setModal(ImportTemporary);
+  const handleImport = () => PgView.setModal(ImportTemporary);
 
   return (
     <TemporaryWarningWrapper>

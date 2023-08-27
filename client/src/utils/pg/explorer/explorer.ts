@@ -525,40 +525,6 @@ export class PgExplorer {
     PgExplorerEvent.dispatchOnDidDeleteWorkspace();
   }
 
-  /** Export the current workspace as a zip file. */
-  static async exportWorkspace() {
-    const { default: JSZip } = await import("jszip");
-    const zip = new JSZip();
-
-    const recursivelyGetItems = async (path: string) => {
-      const itemNames = await this.fs.readDir(path);
-      if (!itemNames.length) return;
-
-      const subItemPaths = itemNames
-        .filter((itemName) => !itemName.startsWith("."))
-        .map((itemName) => PgCommon.appendSlash(path) + itemName);
-
-      for (const subItemPath of subItemPaths) {
-        const metadata = await this.fs.getMetadata(subItemPath);
-        const relativePath = this.getRelativePath(subItemPath);
-        if (metadata.isFile()) {
-          const content = await this.fs.readToString(subItemPath);
-          zip.file(relativePath, content);
-        } else {
-          zip.folder(relativePath);
-          await recursivelyGetItems(subItemPath);
-        }
-      }
-    };
-
-    await recursivelyGetItems(this.currentWorkspacePath);
-
-    const content = await zip.generateAsync({ type: "blob" });
-
-    const { default: saveAs } = await import("file-saver");
-    saveAs(content, this.currentWorkspaceName + ".zip");
-  }
-
   /**
    * Saves file metadata to `indexedDB`
    *
@@ -796,14 +762,6 @@ export class PgExplorer {
   static isCurrentFileJsLike() {
     const currentPath = this.getCurrentFile()?.path;
     if (currentPath) return this.isFileJsLike(currentPath);
-  }
-
-  /**
-   * @returns whether the current workspace in the state is an Anchor program
-   */
-  static isWorkspaceAnchor() {
-    const libRsPath = this.getCurrentSrcPath() + "lib.rs";
-    return this.files[libRsPath]?.content?.includes("anchor") ?? false;
   }
 
   /**

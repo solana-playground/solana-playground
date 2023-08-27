@@ -1,3 +1,6 @@
+/** Get value of the given object */
+export type ValueOf<T extends Record<string, unknown>> = T[keyof T];
+
 /** Methods of the given object */
 export type Methods<T> = {
   [U in keyof T]?: T[U] extends (...args: any[]) => any ? Parameters<T[U]> : [];

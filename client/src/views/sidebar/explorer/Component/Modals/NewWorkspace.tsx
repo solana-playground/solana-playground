@@ -4,8 +4,7 @@ import styled, { css } from "styled-components";
 import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { FRAMEWORKS } from "../../../../../frameworks";
-import { Fn, PgExplorer } from "../../../../../utils/pg";
+import { Fn, PgExplorer, PgFramework } from "../../../../../utils/pg";
 
 export const NewWorkspace = () => {
   // Handle user input
@@ -19,7 +18,7 @@ export const NewWorkspace = () => {
   };
 
   const newWorkspace = async () => {
-    const { importFiles, defaultOpenFile } = FRAMEWORKS.find(
+    const { importFiles, defaultOpenFile } = PgFramework.frameworks.find(
       (f) => f.name === selected
     )!;
     const { files } = await importFiles();
@@ -56,7 +55,7 @@ export const NewWorkspace = () => {
         <FrameworkSectionWrapper>
           <MainText>Choose a framework</MainText>
           <FrameworksWrapper>
-            {FRAMEWORKS.map((f) => (
+            {PgFramework.frameworks.map((f) => (
               <Framework
                 key={f.name}
                 isSelected={selected === f.name}
@@ -104,14 +103,14 @@ interface FrameworkProps extends Framework {
 const Framework: FC<FrameworkProps> = ({
   name,
   language,
-  src,
+  icon,
   circleImage,
   isSelected,
   select,
 }) => (
   <FrameworkWrapper isSelected={isSelected} onClick={select}>
     <FrameworkImageWrapper circle={circleImage}>
-      <Img src={src} alt={name} />
+      <Img src={icon} alt={name} />
     </FrameworkImageWrapper>
     <FrameworkName>
       {name}({language})

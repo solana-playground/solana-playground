@@ -63,9 +63,7 @@ export const ImportFs = () => {
     }
   }, []);
 
-  const importNewWorkspace = async () => {
-    await PgExplorer.newWorkspace(name, { files });
-  };
+  const importNewWorkspace = () => PgExplorer.newWorkspace(name, { files });
 
   return (
     <Modal

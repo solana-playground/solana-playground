@@ -598,6 +598,13 @@ export class PgCommon {
   }
 
   /**
+   * @returns kebab-case converted version of the snake_case string
+   */
+  static toKebabFromSnake(str: string) {
+    return str.replaceAll("_", "-");
+  }
+
+  /**
    * @returns Title Case converted version of the kebab-case string
    */
   static toTitlefromKebab(str: string) {
@@ -612,6 +619,22 @@ export class PgCommon {
    */
   static toPascalFromTitle(str: string) {
     return str.replaceAll(" ", "");
+  }
+
+  /**
+   * @returns PascalCase converted version of the kebab-case string
+   */
+  static toPascalFromKebab(str: string) {
+    return PgCommon.capitalize(str).replace(/-\w/g, (match) => {
+      return match[1].toUpperCase();
+    });
+  }
+
+  /**
+   * @returns PascalCase converted version of the snake_case string
+   */
+  static toPascalFromSnake(str: string) {
+    return PgCommon.toPascalFromKebab(PgCommon.toKebabFromSnake(str));
   }
 
   /**

@@ -79,11 +79,8 @@ describe("Test", () => {
 
     // Assertions
     assert.equal(greetingAccount.lamports, lamports);
-
     assert(greetingAccount.owner.equals(pg.PROGRAM_ID));
-
     assert.deepEqual(greetingAccount.data, Buffer.from([1, 0, 0, 0]));
-
     assert.equal(deserializedAccountData.counter, 1);
   });
 });

@@ -2,15 +2,17 @@ import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { EventName } from "../../../constants";
+import { FRAMEWORKS } from "../../../frameworks";
 import { ROUTES } from "../../../routes";
 import { TUTORIALS } from "../../../tutorials";
-import { EventName } from "../../../constants";
 import { terminalProgressAtom } from "../../../state";
 import {
   Disposable,
   PgCommon,
   PgConnection,
   PgExplorer,
+  PgFramework,
   PgProgramInfo,
   PgRouter,
   PgTutorial,
@@ -123,6 +125,9 @@ const useWorkspace = () => {
     return () => dispose();
   }, []);
 };
+
+// Set frameworks
+PgFramework.frameworks = FRAMEWORKS;
 
 // Set tutorials
 PgTutorial.tutorials = TUTORIALS;

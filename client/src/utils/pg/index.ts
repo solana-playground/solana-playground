@@ -5,6 +5,7 @@ export * from "./command";
 export * from "./connection";
 export * from "./editor";
 export * from "./explorer/";
+export * from "./framework";
 export * from "./github";
 export * from "./keybind";
 export * from "./playnet/";

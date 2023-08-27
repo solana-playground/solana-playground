@@ -14,6 +14,7 @@ import {
   PgPackage,
   PgCommand,
   PgTheme,
+  PgFramework,
 } from "../../../../utils/pg";
 import { useKeybind, useSendAndReceiveCustomEvent } from "../../../../hooks";
 
@@ -213,7 +214,8 @@ const CodeMirror = () => {
             const { rustExtensions } = await import(
               "./extensions/languages/rust"
             );
-            languageExtensions = rustExtensions(PgExplorer.isWorkspaceAnchor());
+            const framework = await PgFramework.getCurrent();
+            languageExtensions = rustExtensions(framework?.name === "Anchor");
             break;
           }
 
