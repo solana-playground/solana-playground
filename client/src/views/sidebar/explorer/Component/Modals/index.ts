@@ -1,5 +1,6 @@
 export { DeleteItem } from "./DeleteItem";
 export { DeleteWorkspace } from "./DeleteWorkspace";
+export { ExportWorkspace } from "./ExportWorkspace";
 export { ImportFs } from "./ImportFs";
 export { ImportGithub } from "./ImportGithub";
 export { ImportTemporary } from "./ImportTemporary";

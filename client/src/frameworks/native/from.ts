@@ -89,7 +89,9 @@ test-ledger
       `{
   "scripts": {
     "lint:fix": "prettier */*.js \\"*/**/*{.js,.ts}\\" -w",
-    "lint": "prettier */*.js \\"*/**/*{.js,.ts}\\" --check"
+    "lint": "prettier */*.js \\"*/**/*{.js,.ts}\\" --check",
+    "client": "yarn run ts-node client/*.ts",
+    "test": "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
   },
 ${getJSDependencies(frameworkFiles)}
 }

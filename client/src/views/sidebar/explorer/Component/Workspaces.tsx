@@ -11,6 +11,7 @@ import {
   ImportGithub,
   ImportFs,
   ImportTemporary,
+  ExportWorkspace,
 } from "./Modals";
 import {
   Edit,
@@ -22,12 +23,7 @@ import {
   Plus,
   Trash,
 } from "../../../../components/Icons";
-import {
-  PgExplorer,
-  PgFramework,
-  PgTutorial,
-  PgView,
-} from "../../../../utils/pg";
+import { PgExplorer, PgTutorial, PgView } from "../../../../utils/pg";
 import { useExplorer } from "../../../../hooks";
 
 const Workspaces = () => {
@@ -38,7 +34,7 @@ const Workspaces = () => {
   const handleDelete = () => PgView.setModal(DeleteWorkspace);
   const handleGithub = () => PgView.setModal(ImportGithub);
   const handleFsImport = () => PgView.setModal(ImportFs);
-  const handleFsExport = () => PgFramework.exportWorkspace();
+  const handleFsExport = () => PgView.setModal(ExportWorkspace);
 
   return (
     <Wrapper>

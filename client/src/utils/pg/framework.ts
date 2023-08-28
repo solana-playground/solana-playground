@@ -20,9 +20,13 @@ export class PgFramework {
   /**
    * Export the current workspace as a zip file based on the current framework
    * layout.
+   *
+   * @param opts options
+   * - `convert`: whether to convert the playground layout to the framework's layout
+   * @returns README Markdown text if conversion is true
    */
-  static async exportWorkspace() {
-    const files: TupleFiles = [];
+  static async exportWorkspace(opts?: { convert?: boolean }) {
+    let files: TupleFiles = [];
     const recursivelyGetItems = async (path: string) => {
       const itemNames = await PgExplorer.fs.readDir(path);
       const subItemPaths = itemNames
@@ -43,14 +47,19 @@ export class PgFramework {
     await recursivelyGetItems(PgExplorer.currentWorkspacePath);
 
     // Convert to framework layout
-    const framework = await this.getCurrent();
-    const { convertFromPlayground } = await framework!.importFromPlayground();
-    const frameWorkFiles = await convertFromPlayground(files);
+    let readme: string | undefined;
+    if (opts?.convert) {
+      const framework = await this.getCurrent();
+      const { convertFromPlayground, readme: _readme } =
+        await framework!.importFromPlayground();
+      readme = _readme;
+      files = await convertFromPlayground(files);
+    }
 
     // Compress Zip
     const { default: JSZip } = await import("jszip");
     const zip = new JSZip();
-    frameWorkFiles.forEach(([path, content]) => {
+    files.forEach(([path, content]) => {
       const isFile = PgExplorer.getItemTypeFromName(path).file;
       if (isFile) zip.file(path, content);
       else zip.folder(path);
@@ -59,5 +68,7 @@ export class PgFramework {
 
     const { default: saveAs } = await import("file-saver");
     saveAs(blob, PgExplorer.currentWorkspaceName + ".zip");
+
+    return { readme };
   }
 }

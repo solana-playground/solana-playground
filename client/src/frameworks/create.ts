@@ -36,6 +36,8 @@ type FrameworkParam<N extends string> = {
      * @returns the frameworks' original layout files
      */
     convertFromPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
+    /** Markdown text to show after conversion */
+    readme: string;
   }>;
 };
 
@@ -56,6 +58,11 @@ export const createFramework = <N extends string>(
 ) => {
   const folderPath = `./${PgCommon.toKebabFromTitle(framework.name)}/`;
   framework.importFiles ??= () => import(folderPath + "files");
-  framework.importFromPlayground ??= () => import(folderPath + "from");
+  framework.importFromPlayground ??= async () => {
+    const { convertFromPlayground } = await import(folderPath + "from");
+    const { default: readme } = await import(folderPath + "from.md");
+
+    return { convertFromPlayground, readme };
+  };
   return framework as Framework<N>;
 };
