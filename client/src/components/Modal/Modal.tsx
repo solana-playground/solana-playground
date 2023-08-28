@@ -12,8 +12,6 @@ import { useKeybind } from "../../hooks";
 interface ModalProps {
   /** Modal title to show. If true, default is "Solana Playground" */
   title?: boolean | string;
-  /** Whether to show a close button on top-right */
-  closeButton?: boolean;
   /** Modal's submit button props */
   buttonProps?: ButtonProps & {
     /** Button text to show */
@@ -27,12 +25,18 @@ interface ModalProps {
     /** Set loading state of the button based on `onSubmit` */
     setLoading?: Dispatch<SetStateAction<boolean>>;
   };
+  /**
+   * Whether to show a close button on top-right.
+   *
+   * Defaults to `!buttonProps`.
+   */
+  closeButton?: boolean;
 }
 
 const Modal: FC<ModalProps> = ({
   title,
   buttonProps,
-  closeButton,
+  closeButton = !buttonProps,
   children,
 }) => {
   const [error, setError] = useState("");

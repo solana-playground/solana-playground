@@ -47,7 +47,7 @@ export const Local = () => {
   }, []);
 
   return (
-    <Modal title="Connect to localnet" closeButton>
+    <Modal title="Connect to localnet">
       <Text kind="error" IconEl={<Sad />}>
         Unable to connect to localnet
       </Text>

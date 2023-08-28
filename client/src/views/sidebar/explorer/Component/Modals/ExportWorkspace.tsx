@@ -12,7 +12,7 @@ export const ExportWorkspace = () => {
   const [readme, setReadme] = useState<string>();
 
   return (
-    <Modal title closeButton>
+    <Modal title>
       {readme ? (
         <InstructionsPage readme={readme} />
       ) : (
