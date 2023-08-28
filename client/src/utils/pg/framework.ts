@@ -45,7 +45,7 @@ export class PgFramework {
     // Convert to framework layout
     const framework = await this.getCurrent();
     const { convertFromPlayground } = await framework!.importFromPlayground();
-    const frameWorkFiles = convertFromPlayground(files);
+    const frameWorkFiles = await convertFromPlayground(files);
 
     // Compress Zip
     const { default: JSZip } = await import("jszip");

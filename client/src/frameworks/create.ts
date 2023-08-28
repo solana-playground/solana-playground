@@ -35,7 +35,7 @@ type FrameworkParam<N extends string> = {
      * @param files playground layout files
      * @returns the frameworks' original layout files
      */
-    convertFromPlayground: (files: TupleFiles) => TupleFiles;
+    convertFromPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
   }>;
 };
 

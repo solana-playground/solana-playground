@@ -78,7 +78,7 @@ export const getRustDependencies = (files: TupleFiles) => {
  * @returns the dependency list
  */
 export const getJSDependencies = (files: TupleFiles) => {
-  const getVersionOfPackage = (packageName: string) => {
+  const getVersion = (packageName: string) => {
     // TODO: Correct version
     return "*";
   };
@@ -95,13 +95,13 @@ export const getJSDependencies = (files: TupleFiles) => {
         !dependencies[packageName] &&
         new RegExp(`("|')${packageName}("|')`, "gm").test(content)
       ) {
-        dependencies[packageName] = getVersionOfPackage(packageName);
+        dependencies[packageName] = getVersion(packageName);
       }
     }
 
     // Globals
     for (const packageName of Object.keys(getGlobalPackages(content))) {
-      dependencies[packageName] = getVersionOfPackage(packageName);
+      dependencies[packageName] = getVersion(packageName);
     }
   }
 
