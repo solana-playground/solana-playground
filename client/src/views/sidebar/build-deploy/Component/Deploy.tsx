@@ -42,8 +42,8 @@ const Deploy = () => {
   const deployButtonProps: ButtonProps = useMemo(
     () => ({
       kind: "primary",
-      onClick: async () => await PgCommand.deploy.run(),
-      disabled: terminalState.deployLoading || terminalState.buildLoading,
+      onClick: () => PgCommand.deploy.run(),
+      disabled: terminalState.buildLoading,
       btnLoading: terminalState.deployLoading,
     }),
     [terminalState.deployLoading, terminalState.buildLoading]
@@ -204,20 +204,18 @@ const Deploy = () => {
   );
 };
 
-const ConnectPgWalletButton = () => {
-  return (
-    <Button onClick={async () => await PgCommand.connect.run()} kind="primary">
-      Connect to Playground Wallet
-    </Button>
-  );
-};
+const ConnectPgWalletButton = () => (
+  <Button onClick={() => PgCommand.connect.run()} kind="primary">
+    Connect to Playground Wallet
+  </Button>
+);
 
 const DisconnectSolWalletButton = () => {
   const { wallet } = useWallet();
   if (!wallet || wallet.isPg) return null;
 
   return (
-    <Button onClick={async () => await PgCommand.connect.run()} kind="outline">
+    <Button onClick={() => PgCommand.connect.run()} kind="outline">
       Disconnect from {wallet.name}
     </Button>
   );

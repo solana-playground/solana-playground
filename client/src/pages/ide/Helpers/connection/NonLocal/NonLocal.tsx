@@ -16,7 +16,7 @@ export const NonLocal = () => (
     <ButtonsWrapper>
       <Button
         onClick={() => {
-          PgCommand.solana.run(`config set -u ${Endpoint.LOCALHOST}`);
+          return PgCommand.solana.run(`config set -u ${Endpoint.LOCALHOST}`);
         }}
         kind="secondary-transparent"
         size="small"

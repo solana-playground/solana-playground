@@ -1,4 +1,11 @@
-import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
+import {
+  ComponentPropsWithoutRef,
+  forwardRef,
+  MouseEvent,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
@@ -68,24 +75,67 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   fontWeight?: CSSProperties["fontWeight"];
 }
 
+const getIsLoading = (btnLoading: ButtonProps["btnLoading"]) => {
+  return typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+};
+
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, btnLoading, leftIcon, rightIcon, children, ...props }, ref) => {
-    const isLoading =
-      typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+  (
+    {
+      btnLoading,
+      className,
+      disabled,
+      leftIcon,
+      rightIcon,
+      onClick,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const [isLoading, setIsLoading] = useState(getIsLoading(btnLoading));
+    const [isDisabled, setIsDisabled] = useState(disabled);
+
+    // Manage manual loading state
+    useEffect(() => {
+      const res = getIsLoading(btnLoading);
+      if (res !== undefined) setIsLoading(res);
+    }, [btnLoading]);
+
+    // Disable when manually set or is loading
+    useEffect(() => {
+      setIsDisabled(disabled || isLoading);
+    }, [disabled, isLoading]);
+
+    const onClickWithLoader = async (ev: MouseEvent<HTMLButtonElement>) => {
+      const shouldSetIsLoading =
+        getIsLoading(btnLoading) === undefined && props.kind !== "icon";
+
+      try {
+        if (shouldSetIsLoading) setIsLoading(true);
+        await onClick?.(ev);
+      } finally {
+        if (shouldSetIsLoading) setIsLoading(false);
+      }
+    };
 
     return (
       <StyledButton
         ref={ref}
         className={`${className} ${isLoading ? ClassName.BUTTON_LOADING : ""}`}
+        disabled={isDisabled}
+        onClick={onClickWithLoader}
         {...props}
       >
         <span className="btn-spinner" />
         {leftIcon && <span className="left-icon">{leftIcon}</span>}
+
         {isLoading
           ? typeof btnLoading === "object"
             ? btnLoading.text ?? children
             : children
           : children}
+
         {rightIcon && <span className="right-icon">{rightIcon}</span>}
       </StyledButton>
     );

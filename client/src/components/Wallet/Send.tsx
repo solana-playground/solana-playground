@@ -32,7 +32,6 @@ const SendExpanded = () => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
 
   const { balance } = useBalance();
 
@@ -52,23 +51,18 @@ const SendExpanded = () => {
     if (disabled) return;
 
     await PgTerminal.process(async () => {
-      setLoading(true);
       PgTerminal.log(
         PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
       );
 
       let msg;
       try {
-        const pk = new PublicKey(recipient);
-
         const ix = SystemProgram.transfer({
           fromPubkey: PgWallet.current!.publicKey,
-          toPubkey: pk,
+          toPubkey: new PublicKey(recipient),
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
-
         const tx = new Transaction().add(ix);
-
         const txHash = await PgCommon.transition(PgTx.send(tx));
         PgTx.notify(txHash);
 
@@ -81,7 +75,6 @@ const SendExpanded = () => {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Transfer error: ${convertedError}`;
       } finally {
-        setLoading(false);
         PgTerminal.log(msg + "\n");
       }
     });
@@ -112,8 +105,8 @@ const SendExpanded = () => {
       />
       <ExpandedButton
         onClick={send}
-        disabled={disabled || loading}
-        btnLoading={loading}
+        btnLoading={{ text: "Sending..." }}
+        disabled={disabled}
         kind="primary-transparent"
         fullWidth
       >

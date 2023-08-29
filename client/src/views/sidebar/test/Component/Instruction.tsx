@@ -50,7 +50,6 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
     accs: {},
   });
   const [errors, setErrors] = useState<{ [key: string]: number }>({});
-  const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
   // Set errors
@@ -142,7 +141,6 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
     const showLogTxHash = await PgTerminal.process(async () => {
       if (!wallet) return;
 
-      setLoading(true);
       PgTerminal.log(PgTerminal.info(`Testing '${ix.name}'...`));
 
       try {
@@ -177,8 +175,6 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
           )}: ${convertedError}\n`,
           { noColor: true }
         );
-      } finally {
-        setLoading(false);
       }
     });
 
@@ -229,8 +225,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         <Button
           kind="primary"
           onClick={handleTest}
-          disabled={disabled || loading || !wallet}
-          btnLoading={loading}
+          disabled={disabled || !wallet}
         >
           Test
         </Button>

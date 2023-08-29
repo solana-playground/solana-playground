@@ -7,15 +7,13 @@ import { Plus } from "../../../../components/Icons";
 import { PgView } from "../../../../utils/pg";
 
 const NoWorkspace = () => {
-  const handleClick = async () => {
-    await PgView.setModal(NewWorkspace);
-  };
+  const newWorkspace = () => PgView.setModal(NewWorkspace);
 
   return (
     <Wrapper>
       <Text>Start by creating a new project.</Text>
       <Button
-        onClick={handleClick}
+        onClick={newWorkspace}
         kind="outline"
         fullWidth
         leftIcon={<Plus />}

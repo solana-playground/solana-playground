@@ -123,18 +123,12 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
       <ButtonsWrapper>
         <Button
           onClick={fetchOne}
-          disabled={
-            !wallet || !enteredAddress || enteredAddressError || fetchOneLoading
-          }
+          disabled={!wallet || !enteredAddress || enteredAddressError}
           kind="outline"
         >
           Fetch
         </Button>
-        <Button
-          onClick={fetchAll}
-          disabled={!wallet || fetchAllLoading}
-          kind="outline"
-        >
+        <Button onClick={fetchAll} disabled={!wallet} kind="outline">
           Fetch All
         </Button>
       </ButtonsWrapper>

@@ -839,13 +839,15 @@ export class PgCommon {
    * Import file(s) from the user's file system
    *
    * @param onChange callback function to run when file input has changed
-   * @param opts optional options
+   * @param opts options
+   * - `accept`: file extensions to accept
+   * - `dir`: whether to accept directories
    */
   static async import<T>(
-    onChange: (e: ChangeEvent<HTMLInputElement>) => Promise<T>,
+    onChange: (ev: ChangeEvent<HTMLInputElement>) => Promise<T>,
     opts?: { accept?: string; dir?: boolean }
   ): Promise<T> {
-    return new Promise((res) => {
+    return new Promise((res, rej) => {
       const el = document.createElement("input");
       el.type = "file";
       if (opts?.accept) el.accept = opts.accept;
@@ -867,6 +869,10 @@ export class PgCommon {
         // @ts-ignore
         const result = await onChange(ev);
         res(result);
+      };
+
+      el.oncancel = () => {
+        rej({ message: "User cancelled the request" });
       };
 
       el.click();

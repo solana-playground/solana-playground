@@ -29,7 +29,7 @@ const Bottom = () => {
 
   // Using a callback because this function might be resolved later than the
   // mount of this component
-  const connect = useCallback(async () => await PgCommand.connect.run(), []);
+  const connect = useCallback(() => PgCommand.connect.run(), []);
 
   return (
     <Wrapper id={Id.BOTTOM}>

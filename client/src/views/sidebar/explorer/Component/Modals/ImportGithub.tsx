@@ -9,7 +9,6 @@ export const ImportGithub = () => {
   // Handle user input
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     const input = ev.target.value;
@@ -22,22 +21,16 @@ export const ImportGithub = () => {
     }
   };
 
-  const importFromGithub = async () => {
-    await PgCommon.transition(PgGithub.import(url));
-  };
+  const importFromGithub = () => PgCommon.transition(PgGithub.import(url));
 
   return (
     <Modal
       buttonProps={{
         text: "Import",
         onSubmit: importFromGithub,
-        disabled: !url || !!error || loading,
-        btnLoading: {
-          state: loading,
-          text: "Importing...",
-        },
+        disabled: !url || !!error,
+        btnLoading: { text: "Importing..." },
         setError,
-        setLoading,
       }}
       title
     >

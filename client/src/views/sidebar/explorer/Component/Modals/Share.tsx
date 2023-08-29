@@ -19,19 +19,14 @@ interface TextState {
 
 export const Share = () => {
   const [textState, setTextState] = useState<TextState>({});
-  const [loading, setLoading] = useState(false);
 
   const share = async () => {
-    setLoading(true);
-
     try {
       const id = await PgCommon.transition(PgShare.new());
       setTextState({ kind: "success", id });
     } catch (e: any) {
       console.log("SHARE ERROR:", e.message);
       setTextState({ kind: "error" });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -85,11 +80,10 @@ export const Share = () => {
           </Button>
           <Button
             onClick={share}
-            disabled={loading}
-            btnLoading={loading}
+            btnLoading={{ text: "Sharing..." }}
             kind="primary-transparent"
           >
-            {loading ? "Sharing..." : "Share"}
+            Share
           </Button>
         </ButtonWrapper>
       )}
