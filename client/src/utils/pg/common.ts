@@ -14,6 +14,7 @@ import type {
   SyncOrAsync,
   Arrayable,
   OrString,
+  ValueOf,
 } from "./types";
 
 export class PgCommon {
@@ -336,6 +337,26 @@ export class PgCommon {
   static getProperty(obj: any, property: string | string[]) {
     if (Array.isArray(property)) property = property.join(".");
     return property.split(".").reduce((acc, cur) => acc[cur], obj);
+  }
+
+  /**
+   * Get the keys of an object with better types rather than `string[]`.
+   *
+   * @param obj object
+   * @returns the object keys as an array
+   */
+  static keys<T extends Record<string, unknown>>(obj: T) {
+    return Object.keys(obj) as Array<keyof T>;
+  }
+
+  /**
+   * Get the entries of an object with better types rather than `Array<[string, T]`.
+   *
+   * @param obj object
+   * @returns the object entries as an array of [key, value] tuples
+   */
+  static entries<T extends Record<string, unknown>>(obj: T) {
+    return Object.entries(obj) as Array<[keyof T, ValueOf<T>]>;
   }
 
   /**
@@ -862,7 +883,7 @@ export class PgCommon {
         : {};
       for (const key in dirProps) {
         // @ts-ignore
-        el[key] = dirProps[key as keyof typeof dirProps];
+        el[key] = dirProps[key];
       }
 
       el.onchange = async (ev) => {

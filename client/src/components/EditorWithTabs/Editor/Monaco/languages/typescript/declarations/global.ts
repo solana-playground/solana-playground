@@ -1,7 +1,11 @@
 import * as monaco from "monaco-editor";
 
 import { declarePackage } from "./helper";
-import type { Disposable, MergeUnion } from "../../../../../../../utils/pg";
+import {
+  Disposable,
+  MergeUnion,
+  PgCommon,
+} from "../../../../../../../utils/pg";
 
 /** Global packages */
 type GlobalPackages = typeof PACKAGES["global"];
@@ -31,10 +35,10 @@ export const declareGlobalTypes = async (): Promise<Disposable> => {
     declareNamespace("solana-playground", { as: "pg" }),
   ];
 
-  for (const [packageName, importStyle] of Object.entries(PACKAGES.global)) {
+  for (const [packageName, importStyle] of PgCommon.entries(PACKAGES.global)) {
     disposables.push(
-      (await declarePackage(packageName as GlobalPackageName),
-      declareNamespace(packageName as GlobalPackageName, importStyle))
+      (await declarePackage(packageName),
+      declareNamespace(packageName, importStyle))
     );
   }
 

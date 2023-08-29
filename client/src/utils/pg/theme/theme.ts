@@ -151,17 +151,15 @@ export class PgTheme {
    */
   static convertToCSS(component: DefaultComponent): string {
     return Object.keys(component).reduce((acc, key) => {
-      const value = component[key] as DefaultComponent;
+      const value = component[key];
 
       // Check for `&`
       if (key.startsWith("&")) {
-        return `${acc}${key}{${this.convertToCSS(value as DefaultComponent)}}`;
+        return `${acc}${key}{${this.convertToCSS(value)}}`;
       }
 
       // Handle non-standard properties
-      let prop = key.startsWith("-")
-        ? key
-        : (PgCommon.toKebabFromCamel(key) as keyof StandardProperties);
+      let prop = key.startsWith("-") ? key : PgCommon.toKebabFromCamel(key);
       switch (key) {
         case "bg":
           prop = "background";
@@ -171,15 +169,11 @@ export class PgTheme {
         case "active":
         case "focus":
         case "focusWithin":
-          return `${acc}&:${prop}{${this.convertToCSS(
-            value as DefaultComponent
-          )}}`;
+          return `${acc}&:${prop}{${this.convertToCSS(value)}}`;
 
         case "before":
         case "after":
-          return `${acc}&::${prop}{${this.convertToCSS(
-            value as DefaultComponent
-          )}}`;
+          return `${acc}&::${prop}{${this.convertToCSS(value)}}`;
       }
 
       // Only allow string and number values

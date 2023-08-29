@@ -1,12 +1,15 @@
-import { createCmd, PgCommandExecutor, PgTerminal } from "../../utils/pg";
+import {
+  createCmd,
+  PgCommandExecutor,
+  PgCommon,
+  PgTerminal,
+} from "../../utils/pg";
 
 export const help = createCmd({
   name: "help",
   description: "Print help message",
   run: () => {
-    const commandNames = Object.keys(
-      PgCommandExecutor.commands
-    ) as Array<CommandCodeName>;
+    const commandNames = PgCommon.keys(PgCommandExecutor.commands);
 
     const helpMessage =
       "COMMANDS:\n" +

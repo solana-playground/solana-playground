@@ -159,11 +159,9 @@ export const addImports = (content: string) => {
  */
 const getGlobalPackages = (content: string) => {
   const packages: Record<string, ValueOf<typeof PACKAGES["global"]>> = {};
-  for (const [_packageName, importStyle] of Object.entries(PACKAGES.global)) {
-    // TODO: Add typed keys for `Object.entries`
-    const typedName = _packageName as ClientPackageName;
-    if (PACKAGES_MAP[typedName] === null) continue;
-    const packageName = PACKAGES_MAP[typedName] ?? typedName;
+  for (const [_packageName, importStyle] of PgCommon.entries(PACKAGES.global)) {
+    if (PACKAGES_MAP[_packageName] === null) continue;
+    const packageName = PACKAGES_MAP[_packageName] ?? _packageName;
 
     const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
     const name = style.as ?? style.named ?? style.default;

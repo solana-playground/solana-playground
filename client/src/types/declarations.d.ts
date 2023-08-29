@@ -13,9 +13,14 @@ import {
   ThemeReady,
 } from "../utils/pg";
 
+/** Global overrides */
 global {
+  /** Deep clone an object with correct return type. */
   function structuredClone<T>(obj: T): T;
+}
 
+/** Webpack defined globals */
+global {
   /** Rust Analyzer crates */
   const CRATES: { importable: string[]; transitive: string[] };
 
