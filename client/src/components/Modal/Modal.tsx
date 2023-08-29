@@ -86,34 +86,36 @@ const Modal: FC<ModalProps> = ({
         )}
       </TopWrapper>
 
-      <ContentWrapper>
-        {error && (
-          <ErrorText kind="error" IconEl={<Sad />}>
-            {error}
-          </ErrorText>
-        )}
-
-        {children}
-      </ContentWrapper>
-
-      {buttonProps && (
-        <ButtonsWrapper>
-          {!closeButton && (
-            <Button onClick={close} kind="transparent">
-              Cancel
-            </Button>
+      <ScrollableWrapper>
+        <ContentWrapper>
+          {error && (
+            <ErrorText kind="error" IconEl={<Sad />}>
+              {error}
+            </ErrorText>
           )}
 
-          <Button
-            {...buttonProps}
-            onClick={handleSubmit}
-            size={buttonProps.size}
-            kind={buttonProps.kind ?? "primary-transparent"}
-          >
-            {buttonProps.text}
-          </Button>
-        </ButtonsWrapper>
-      )}
+          {children}
+        </ContentWrapper>
+
+        {buttonProps && (
+          <ButtonsWrapper>
+            {!closeButton && (
+              <Button onClick={close} kind="transparent">
+                Cancel
+              </Button>
+            )}
+
+            <Button
+              {...buttonProps}
+              onClick={handleSubmit}
+              size={buttonProps.size}
+              kind={buttonProps.kind ?? "primary-transparent"}
+            >
+              {buttonProps.text}
+            </Button>
+          </ButtonsWrapper>
+        )}
+      </ScrollableWrapper>
     </Wrapper>
   );
 };
@@ -121,17 +123,21 @@ const Modal: FC<ModalProps> = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.modal.default)};
-    ${PgTheme.getScrollbarCSS()};
   `}
 `;
 
 const TopWrapper = styled.div`
-  position: relative;
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.modal.top)};
+  `}
 `;
 
 const Title = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.modal.title)};
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid ${theme.colors.default.border};
   `}
 `;
 
@@ -141,7 +147,11 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
       ? css`
           position: absolute;
           top: 0;
-          right: 0;
+          right: 1.5rem;
+          bottom: 0;
+          margin: auto;
+          display: flex;
+          align-items: center;
         `
       : css`
           width: 100%;
@@ -149,6 +159,11 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
           justify-content: flex-end;
           margin-top: 0.5rem;
         `}
+`;
+
+const ScrollableWrapper = styled.div`
+  overflow: auto;
+  ${PgTheme.getScrollbarCSS()};
 `;
 
 const ContentWrapper = styled.div`

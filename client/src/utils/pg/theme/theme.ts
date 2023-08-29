@@ -696,37 +696,37 @@ export class PgTheme {
 
     // Default
     modal.default ??= {};
+    modal.default.display ??= "flex";
+    modal.default.flexDirection ??= "column";
     modal.default.bg ??= theme.colors.default.bgPrimary;
     modal.default.border ??= `1px solid ${theme.colors.default.border}`;
     modal.default.borderRadius ??= theme.default.borderRadius;
-    modal.default.padding ??= "0.25rem 1.5rem";
     modal.default.maxWidth ??= "max(40%, 40rem)";
     modal.default.maxHeight ??= "max(80%, 40rem)";
-    modal.default.overflow ??= "auto";
 
     // Backdrop
     modal.backdrop ??= theme.default.backdrop;
 
-    // Title
-    modal.title ??= {};
-    modal.title.display ??= "flex";
-    modal.title.justifyContent ??= "center";
-    modal.title.alignItems ??= "center";
-    modal.title.padding ??= "0.5rem 0";
-    modal.title.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    modal.title.fontWeight ??= "bold";
+    // Top
+    modal.top ??= {};
+    modal.top.position ??= "relative";
+    modal.top.display ??= "flex";
+    modal.top.justifyContent ??= "center";
+    modal.top.alignItems ??= "center";
+    modal.top.padding ??= "0 1.5rem";
+    modal.top.fontWeight ??= "bold";
 
     // Content
     modal.content ??= {};
-    modal.content.padding ??= "0.75rem 0";
-    modal.content.minWidth ??= "20rem";
+    modal.content.padding ??= "1rem 1.5rem";
+    modal.content.minWidth ??= "23rem";
     modal.content.minHeight ??= "3rem";
 
     // Bottom
     modal.bottom ??= {};
     modal.bottom.display ??= "flex";
     modal.bottom.justifyContent ??= "flex-end";
-    modal.bottom.padding ??= "0.5rem 0";
+    modal.bottom.padding ??= "0.75rem 1.5rem";
     modal.bottom.marginBottom ??= "0.25rem";
 
     return this;

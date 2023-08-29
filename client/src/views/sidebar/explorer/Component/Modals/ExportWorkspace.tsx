@@ -73,7 +73,6 @@ const ConversionPage: FC<ConversionPageProps> = ({ setReadme }) => {
 
 const ConversionContent = styled.div`
   max-width: 26rem;
-  line-height: 1rem;
 `;
 
 const ConversionQuestion = styled.p`
