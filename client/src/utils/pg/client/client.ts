@@ -8,7 +8,7 @@ import * as anchor from "@project-serum/anchor";
 import * as BufferLayout from "@solana/buffer-layout";
 import * as web3 from "@solana/web3.js";
 
-import { PgClientPackage } from "./package";
+import { ClientPackageName, PgClientPackage } from "./package";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgExplorer } from "../explorer";
@@ -16,6 +16,7 @@ import { PgProgramInfo } from "../program-info";
 import { PgTerminal } from "../terminal";
 import { PgTest } from "../test";
 import { CurrentWallet, PgWallet, StandardWallet } from "../wallet";
+import type { OrString } from "../types";
 
 /** Utilities to be available under the `pg` namespace */
 interface Pg {
@@ -145,6 +146,7 @@ export class PgClient {
       }
 
       // Add globally accessed objects
+      this._overridePackage("@project-serum/anchor", anchor);
       const globals: [string, object][] = [
         /// Modules
         ["anchor", anchor],
@@ -163,7 +165,7 @@ export class PgClient {
       ];
 
       // Handle imports
-      const importResult = await PgClient._handleImports(code);
+      const importResult = await this._handleImports(code);
       code = importResult.code;
       globals.push(...importResult.imports);
 
@@ -220,39 +222,8 @@ export class PgClient {
         endCode = "_end()";
       }
 
-      // Playground utils namespace
-      const pg: Pg = { connection: PgConnection.current };
-
-      // Wallet
-      if (PgWallet.current) pg.wallet = PgWallet.current;
-
-      // Wallets
-      if (pg.wallet) {
-        pg.wallets = {};
-
-        const pgWallets = PgWallet.accounts.map(PgWallet.createWallet);
-        const standardWallets = PgWallet.getConnectedStandardWallets();
-
-        const wallets = [...pgWallets, ...standardWallets];
-        for (const wallet of wallets) {
-          pg.wallets[PgCommon.toCamelCase(wallet.name)] = wallet;
-        }
-      }
-
-      // Program ID
-      if (PgProgramInfo.pk) pg.PROGRAM_ID = PgProgramInfo.pk;
-
-      // Anchor Program
-      if (pg.wallet && PgProgramInfo.idl) {
-        pg.program = PgTest.getProgram(
-          PgProgramInfo.idl,
-          pg.connection,
-          pg.wallet
-        );
-      }
-
       // Set playground inherited object
-      globals.push(["pg", pg]);
+      globals.push(["pg", this._getPg()]);
 
       // Setup iframe globals
       for (const [name, pkg] of globals) {
@@ -372,12 +343,10 @@ export class PgClient {
     const iframeWindow = iframeEl.contentWindow;
     if (!iframeWindow) throw new Error("No iframe window");
 
-    const handleIframeError = (e: ErrorEvent) => {
-      PgTerminal.log(`    ${e.message}`);
+    iframeWindow.addEventListener("error", (ev) => {
+      PgTerminal.log(`    ${ev.message}`);
       PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
-    };
-
-    iframeWindow.addEventListener("error", handleIframeError);
+    });
 
     this._IframeWindow = iframeWindow;
 
@@ -427,7 +396,9 @@ export class PgClient {
     do {
       importMatch = importRegex.exec(code);
       if (importMatch) {
-        const pkg = await PgClientPackage.import(importMatch[6]);
+        const packageName = importMatch[6];
+        const pkg = await PgClientPackage.import(packageName);
+        this._overridePackage(packageName, pkg);
         setupImport(pkg);
       }
     } while (importMatch);
@@ -438,6 +409,75 @@ export class PgClient {
     code = code.replace(importRegex, "");
 
     return { code, imports };
+  }
+
+  /**
+   * Override the package.
+   *
+   * NOTE: This method mutates the given `pkg` in place.
+   *
+   * @param name package name
+   * @param pkg package
+   * @returns the overridden package
+   */
+  private static _overridePackage(name: OrString<ClientPackageName>, pkg: any) {
+    // Add support for `anchor.workspace` in browsers
+    if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
+      if (PgProgramInfo.idl) {
+        const snakeCaseName = PgProgramInfo.idl.name;
+        const names = [
+          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
+          PgCommon.toCamelFromSnake(snakeCaseName),
+          PgCommon.toKebabFromSnake(snakeCaseName),
+          snakeCaseName,
+        ];
+        const program = this._getPg().program;
+        pkg.workspace = {};
+        for (const name of names) pkg.workspace[name] = program;
+      }
+    }
+
+    return pkg;
+  }
+
+  /**
+   * Get `pg` global object.
+   *
+   * @returns the `pg` global object
+   */
+  private static _getPg() {
+    // Playground utils namespace
+    const pg: Pg = { connection: PgConnection.current };
+
+    // Wallet
+    if (PgWallet.current) pg.wallet = PgWallet.current;
+
+    // Wallets
+    if (pg.wallet) {
+      pg.wallets = {};
+
+      const pgWallets = PgWallet.accounts.map(PgWallet.createWallet);
+      const standardWallets = PgWallet.getConnectedStandardWallets();
+
+      const wallets = [...pgWallets, ...standardWallets];
+      for (const wallet of wallets) {
+        pg.wallets[PgCommon.toCamelCase(wallet.name)] = wallet;
+      }
+    }
+
+    // Program ID
+    if (PgProgramInfo.pk) pg.PROGRAM_ID = PgProgramInfo.pk;
+
+    // Anchor Program
+    if (pg.wallet && PgProgramInfo.idl) {
+      pg.program = PgTest.getProgram(
+        PgProgramInfo.idl,
+        pg.connection,
+        pg.wallet
+      );
+    }
+
+    return pg;
   }
 
   /** Whether a script is currently running */

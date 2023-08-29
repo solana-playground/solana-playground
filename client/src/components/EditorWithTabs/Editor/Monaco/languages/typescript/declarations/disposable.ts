@@ -31,14 +31,25 @@ export const declareDisposableTypes = (): Disposable => {
 
   // Anchor program
   const idlChange = PgProgramInfo.onDidChangeIdl((idl) => {
-    if (idl) {
-      addLib(
-        "program",
-        `/** Your Anchor program */\nconst program: anchor.Program<${JSON.stringify(
-          convertIdl(idl)
-        )}>;`
-      );
-    }
+    if (!idl) return;
+
+    const programType = `anchor.Program<${JSON.stringify(convertIdl(idl))}>`;
+    addLib(
+      "program",
+      `/** Your Anchor program */\nconst program: ${programType};`
+    );
+
+    const workspace = `const workspace: { ${PgCommon.toPascalFromSnake(
+      idl.name
+    )}: ${programType} };`;
+    addLib(
+      "@coral-xyz/anchor.workspace",
+      declareModule("@coral-xyz/anchor", workspace)
+    );
+    addLib(
+      "@project-serum/anchor.workspace",
+      declareModule("@project-serum/anchor", workspace)
+    );
   });
 
   // Playground wallet
@@ -122,11 +133,13 @@ type DisposableType =
   | "default"
   | "program-id"
   | "program"
+  | "@coral-xyz/anchor.workspace"
+  | "@project-serum/anchor.workspace"
   | "wallet"
   | "wallets";
 
 /** Caching the disposables in order to get rid of the old declarations */
-const disposableCache: { [key in DisposableType]?: monaco.IDisposable } = {};
+const disposableCache: { [K in DisposableType]?: monaco.IDisposable } = {};
 
 /** Add declaration file and remove the old one if it exists */
 const addLib = (disposable: DisposableType, lib: string) => {

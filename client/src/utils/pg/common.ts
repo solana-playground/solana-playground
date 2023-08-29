@@ -583,6 +583,20 @@ export class PgCommon {
   }
 
   /**
+   * @returns camelCase converted version of the PascalCase string
+   */
+  static toCamelFromPascal(str: string) {
+    return str[0].toLowerCase() + str.slice(1);
+  }
+
+  /**
+   * @returns camelCase converted version of the snake_case string
+   */
+  static toCamelFromSnake(str: string) {
+    return PgCommon.toCamelFromPascal(PgCommon.toPascalFromSnake(str));
+  }
+
+  /**
    * Convert the given string to snake_case.
    *
    * @returns snake_case converted version of the string
