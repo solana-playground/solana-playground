@@ -9,7 +9,7 @@ import { Info, Sad } from "../../../../../components/Icons";
 import {
   PgCommon,
   PgConnection,
-  PgSettings,
+  PgProgramInfo,
   PgView,
   PgWallet,
 } from "../../../../../utils/pg";
@@ -17,11 +17,17 @@ import {
 export const Local = () => {
   // Check localnet connection
   useEffect(() => {
-    const id = setInterval(async () => {
-      try {
-        await PgConnection.current.getVersion();
+    // When this modal shows up, it means there was a connection error to
+    // localnet but because `PgProgramInfo.onChain` gets refreshed every
+    // minute, `PgProgramInfo.onChain` could still be a truthy value.
+    //
+    // TODO: Remove after making change events not fire on mount by default
+    let initial = true;
 
-        // Successfully connected to localnet
+    const { dispose } = PgProgramInfo.onDidChangeOnChain(async (onChain) => {
+      // Only close the modal if it's not `initial` and `onChain` is truthy
+      if (!initial && onChain) {
+        // Airdrop to update the balance
         if (PgWallet.current) {
           await PgConnection.current.requestAirdrop(
             PgWallet.current.publicKey,
@@ -31,19 +37,13 @@ export const Local = () => {
           );
         }
 
-        // Connection error in the UI depends on whether the `onChain` field
-        // exists, and it doesn't get updated after we make the connection to
-        // localnet. To get rid of the connection error, we trigger a re-derive
-        // of the `onChain` field by updating the connection settings.
-        // TODO: Maybe add a `refresh` method for derivables?
-        PgSettings.update({ connection: PgSettings.connection });
-
-        // Close the modal
         PgView.setModal(null);
-      } catch {}
-    }, 5000);
+      }
 
-    return () => clearInterval(id);
+      initial = false;
+    });
+
+    return () => dispose();
   }, []);
 
   return (
