@@ -5,7 +5,7 @@ import { useBalance, useConnection, useWallet } from "../../../hooks";
 
 /** Sync the balance of the current wallet and airdrop when necessary. */
 export const useAutoAirdrop = () => {
-  const { connection } = useConnection();
+  const { connection, isConnected } = useConnection();
   const { wallet } = useWallet();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const useAutoAirdrop = () => {
     return () => {
       connection.removeAccountChangeListener(id);
     };
-  }, [wallet, connection]);
+  }, [wallet, connection, isConnected]);
 
   // Auto airdrop if balance is less than 4 SOL
   const [airdropError, setAirdropError] = useState(false);

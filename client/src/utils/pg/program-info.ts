@@ -113,30 +113,7 @@ const derive = () => ({
   /** On-chain data of the program */
   onChain: createDerivable({
     derive: _PgProgramInfo.fetch,
-    onChange: [
-      "pk",
-      PgConnection.onDidChangeCurrent,
-      PgCommand.deploy.onDidRunFinish,
-      // Refresh on interval
-      (cb) => {
-        // Refresh every 60 seconds on success
-        const successId = setInterval(() => {
-          if (PgProgramInfo.onChain) cb();
-        }, 60000);
-
-        // Refresh every 5 seconds on error
-        const errorId = setInterval(() => {
-          if (!PgProgramInfo.onChain) cb();
-        }, 5000);
-
-        return {
-          dispose: () => {
-            clearInterval(successId);
-            clearInterval(errorId);
-          },
-        };
-      },
-    ],
+    onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidRunFinish],
   }),
 });
 

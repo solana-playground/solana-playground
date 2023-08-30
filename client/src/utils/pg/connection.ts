@@ -40,6 +40,35 @@ const derive = () => ({
       PgPlaynet.onDidInit,
     ],
   }),
+  /** Get whether there is a successful connection */
+  isConnected: createDerivable({
+    derive: async () => {
+      try {
+        await PgConnection.current.getVersion();
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    onChange: (cb) => {
+      // Refresh every 60 seconds on success
+      const successId = setInterval(() => {
+        if (PgConnection.isConnected) cb();
+      }, 60000);
+
+      // Refresh every 5 seconds on error
+      const errorId = setInterval(() => {
+        if (!PgConnection.isConnected) cb();
+      }, 5000);
+
+      return {
+        dispose: () => {
+          clearInterval(successId);
+          clearInterval(errorId);
+        },
+      };
+    },
+  }),
 });
 
 @derivable(derive)

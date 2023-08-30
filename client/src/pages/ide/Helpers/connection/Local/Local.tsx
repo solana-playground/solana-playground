@@ -6,42 +6,26 @@ import Markdown from "../../../../../components/Markdown";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Info, Sad } from "../../../../../components/Icons";
-import {
-  PgCommon,
-  PgConnection,
-  PgProgramInfo,
-  PgView,
-  PgWallet,
-} from "../../../../../utils/pg";
+import { PgCommon, PgConnection, PgView } from "../../../../../utils/pg";
 
 export const Local = () => {
   // Check localnet connection
   useEffect(() => {
     // When this modal shows up, it means there was a connection error to
-    // localnet but because `PgProgramInfo.onChain` gets refreshed every
-    // minute, `PgProgramInfo.onChain` could still be a truthy value.
+    // localnet but because `PgConnection.isConnected` gets refreshed every
+    // minute, `PgConnection.isConnected` could still be a truthy value.
     //
     // TODO: Remove after making change events not fire on mount by default
     let initial = true;
 
-    const { dispose } = PgProgramInfo.onDidChangeOnChain(async (onChain) => {
-      // Only close the modal if it's not `initial` and `onChain` is truthy
-      if (!initial && onChain) {
-        // Airdrop to update the balance
-        if (PgWallet.current) {
-          await PgConnection.current.requestAirdrop(
-            PgWallet.current.publicKey,
-            PgCommon.solToLamports(
-              PgCommon.getAirdropAmount(PgConnection.current.rpcEndpoint)!
-            )
-          );
-        }
+    const { dispose } = PgConnection.onDidChangeIsConnected(
+      async (isConnected) => {
+        // Only close the modal if it's not `initial` and `isConnected` is true
+        if (!initial && isConnected) PgView.setModal(null);
 
-        PgView.setModal(null);
+        initial = false;
       }
-
-      initial = false;
-    });
+    );
 
     return () => dispose();
   }, []);
