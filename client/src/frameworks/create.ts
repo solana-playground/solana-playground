@@ -1,5 +1,4 @@
 import {
-  ExplorerFiles,
   Lang,
   PgCommon,
   RequiredKey,
@@ -20,7 +19,7 @@ type FrameworkParam<N extends string> = {
   /** Whether to make the image circular */
   circleImage?: boolean;
   /** Get whether the given files have this framework's layout */
-  getIsCurrent: (files: ExplorerFiles) => SyncOrAsync<boolean>;
+  getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
   /** Lazy load default framework files, defaults to `./files` */
   importFiles?: () => Promise<{
     /** Default framework files to create on a new project */

@@ -7,8 +7,9 @@ export const seahorse = createFramework({
   icon: "https://pbs.twimg.com/profile_images/1556384244598964226/S3cx06I2_400x400.jpg",
   circleImage: true,
   getIsCurrent: (files) => {
-    for (const path in files) {
-      const isSeahorse = files[path].content?.includes("seahorse.prelude");
+    for (const [path, content] of files) {
+      if (!path.endsWith(".py")) continue;
+      const isSeahorse = content.includes("seahorse.prelude");
       if (isSeahorse) return true;
     }
 

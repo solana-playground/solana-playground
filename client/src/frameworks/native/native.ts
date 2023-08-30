@@ -6,8 +6,9 @@ export const native = createFramework({
   language: Lang.RUST,
   icon: "/icons/platforms/solana.png",
   getIsCurrent: (files) => {
-    for (const path in files) {
-      const hasEntryPointMacro = files[path].content?.includes("entrypoint!");
+    for (const [path, content] of files) {
+      if (!path.endsWith(".rs")) continue;
+      const hasEntryPointMacro = content.includes("entrypoint!");
       if (hasEntryPointMacro) return true;
     }
 

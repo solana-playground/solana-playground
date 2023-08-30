@@ -81,7 +81,7 @@ export class PgExplorer {
     if (params?.files) {
       this._isTemporary = true;
       this._workspace = null;
-      this._explorer.files = this.addCurrentFileIfNeeded(params.files);
+      this._explorer.files = this._addCurrentFileIfNeeded(params.files);
     }
     // Skip initializing if the workspace has already been initialized
     else if (
@@ -417,7 +417,7 @@ export class PgExplorer {
 
       // Set the default open file
       if (!opts.defaultOpenFile) {
-        opts.defaultOpenFile = this.getDefaultOpenFile(opts.files);
+        opts.defaultOpenFile = this._getDefaultOpenFile(opts.files);
       }
     }
 
@@ -531,11 +531,7 @@ export class PgExplorer {
    * NOTE: Only runs when the project is not temporary.
    */
   static async saveMeta(opts?: { initial?: boolean }) {
-    if (
-      this.isTemporary ||
-      !this.currentWorkspaceName ||
-      !Object.keys(this.files).length
-    ) {
+    if (!this.currentWorkspaceName || !Object.keys(this.files).length) {
       return;
     }
 
@@ -1152,6 +1148,47 @@ export class PgExplorer {
     this.changeCurrentFile(lastTabPath);
   }
 
+  /**
+   * Get the default open file from the given tuple files.
+   *
+   * @param files tuple or explorer files
+   * @returns the default open file path
+   */
+  private static _getDefaultOpenFile(files: TupleFiles | ExplorerFiles) {
+    if (!Array.isArray(files)) files = this.convertToTupleFiles(files);
+
+    let defaultOpenFile: string | undefined;
+    const libRsFile = files.find(([path]) => path.endsWith("lib.rs"));
+    if (libRsFile) {
+      defaultOpenFile = libRsFile[0];
+    } else if (files.length) {
+      defaultOpenFile = files[0][0];
+    }
+
+    return defaultOpenFile;
+  }
+
+  /**
+   * Add default open file if the given files don't have file that is `current`.
+   *
+   * @param files explorer files
+   * @returns the explorer files
+   */
+  private static _addCurrentFileIfNeeded(files: ExplorerFiles) {
+    let hasCurrent = false;
+    for (const path in files) {
+      const current = files[path].meta?.current;
+      if (current) hasCurrent = true;
+    }
+
+    if (!hasCurrent) {
+      const currentPath = this._getDefaultOpenFile(files);
+      if (currentPath) files[currentPath].meta = { tabs: true, current: true };
+    }
+
+    return files;
+  }
+
   /* --------------------------- Utilities --------------------------- */
 
   /** Paths */
@@ -1416,28 +1453,28 @@ export class PgExplorer {
    *
    * @param el folder element
    */
-  static openFolder = (el: HTMLDivElement) => {
+  static openFolder(el: HTMLDivElement) {
     // Folder icon
     el.classList.add(ClassName.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
     if (insideFolderEl) insideFolderEl.classList.remove(ClassName.HIDDEN);
-  };
+  }
 
   /**
    * Toggle open/close state of the given folder element.
    *
    * @param el folder element
    */
-  static toggleFolder = (el: HTMLDivElement) => {
+  static toggleFolder(el: HTMLDivElement) {
     // Folder icon
     el.classList.toggle(ClassName.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
     if (insideFolderEl) insideFolderEl.classList.toggle(ClassName.HIDDEN);
-  };
+  }
 
   /**
    * Recursively open all parent folders of the given path.
@@ -1512,51 +1549,27 @@ export class PgExplorer {
   }
 
   /**
-   * Get the default open file from the given tuple files.
+   * Get all files as `TupleFiles`
    *
-   * @param files tuple or explorer files
-   * @returns the default open file path
+   * @returns all files as an array of [path, content] tuples
    */
-  static getDefaultOpenFile(files: TupleFiles | ExplorerFiles) {
-    if (!Array.isArray(files)) {
-      const tupleFiles: TupleFiles = [];
-      for (const path in files) {
-        const content = files[path].content;
-        if (content) tupleFiles.push([path, content]);
-      }
-      files = tupleFiles;
-    }
-
-    let defaultOpenFile: string | undefined;
-    const libRsFile = files.find(([path]) => path.endsWith("lib.rs"));
-    if (libRsFile) {
-      defaultOpenFile = libRsFile[0];
-    } else if (files.length) {
-      defaultOpenFile = files[0][0];
-    }
-
-    return defaultOpenFile;
+  static getAllFiles() {
+    return this.convertToTupleFiles(this.files);
   }
 
   /**
-   * Add default open file if the given files don't have file that is `current`.
+   * Convert the given `ExplorerFiles` to `TupleFiles`
    *
-   * @param files explorer files
-   * @returns the explorer files
+   * @returns all files as an array of [path, content] tuples
    */
-  static addCurrentFileIfNeeded(files: ExplorerFiles) {
-    let hasCurrent = false;
-    for (const path in files) {
-      const current = files[path].meta?.current;
-      if (current) hasCurrent = true;
+  static convertToTupleFiles(explorerFiles: ExplorerFiles) {
+    const tupleFiles: TupleFiles = [];
+    for (const path in explorerFiles) {
+      const content = explorerFiles[path].content;
+      if (content !== undefined) tupleFiles.push([path, content]);
     }
 
-    if (!hasCurrent) {
-      const currentPath = PgExplorer.getDefaultOpenFile(files);
-      if (currentPath) files[currentPath].meta = { tabs: true, current: true };
-    }
-
-    return files;
+    return tupleFiles;
   }
 
   /**

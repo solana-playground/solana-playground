@@ -11,8 +11,9 @@ export class PgFramework {
    * @returns the current framework
    */
   static async getCurrent() {
+    const files = PgExplorer.getAllFiles();
     for (const framework of this.frameworks) {
-      const isCurrent = await framework.getIsCurrent(PgExplorer.files);
+      const isCurrent = await framework.getIsCurrent(files);
       if (isCurrent) return framework;
     }
   }
