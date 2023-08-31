@@ -421,8 +421,9 @@ export class PgClient {
    * @returns the overridden package
    */
   private static _overridePackage(name: OrString<ClientPackageName>, pkg: any) {
-    // Add support for `anchor.workspace` in browsers
+    // Anchor
     if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
+      // Add `anchor.workspace`
       if (PgProgramInfo.idl) {
         const snakeCaseName = PgProgramInfo.idl.name;
         const names = [
@@ -435,6 +436,31 @@ export class PgClient {
         pkg.workspace = {};
         for (const name of names) pkg.workspace[name] = program;
       }
+
+      // Add `AnchorProvider.local()`
+      const providerName =
+        name === "@coral-xyz/anchor" ? "AnchorProvider" : "Provider";
+      pkg[providerName].local = (
+        url?: string,
+        opts: web3.ConfirmOptions = anchor.Provider.defaultOptions()
+      ) => {
+        const connection = PgConnection.create({
+          endpoint: url ?? "http://localhost:8899",
+          commitment: opts.commitment,
+        });
+
+        const wallet = this._getPg().wallet;
+        if (!wallet) throw new Error("Wallet not connected");
+
+        return new anchor.Provider(connection, wallet, opts);
+      };
+
+      // Add `AnchorProvider.env()`
+      pkg[providerName].env = () => {
+        const provider = this._getPg().program?.provider;
+        if (!provider) throw new Error("Wallet not connected");
+        return provider;
+      };
     }
 
     return pkg;
