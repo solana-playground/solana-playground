@@ -30,7 +30,7 @@ const cachedTypes: {
  * @param code current editor content
  */
 const update = async (code: string) => {
-  for (const packageName of PACKAGES.importable as ClientPackageName[]) {
+  for (const packageName of PACKAGES.importable) {
     const pkg = cachedTypes[packageName];
     if (pkg === true) continue;
 

@@ -12,9 +12,9 @@ import {
 /**
  * Declare types that can change based on outside events.
  *
- * For example, `pg.wallet` will be `undefined` when the wallet is not connected.
+ * For example, `pg.wallet` will be `never` when the wallet is not connected.
  *
- * @returns a dispose function to dispose all
+ * @returns a disposable to dispose all events
  */
 export const declareDisposableTypes = (): Disposable => {
   addLib("default", require("./raw/pg.raw.d.ts"));
@@ -141,14 +141,21 @@ type DisposableType =
 /** Caching the disposables in order to get rid of the old declarations */
 const disposableCache: { [K in DisposableType]?: monaco.IDisposable } = {};
 
-/** Add declaration file and remove the old one if it exists */
-const addLib = (disposable: DisposableType, lib: string) => {
-  disposableCache[disposable]?.dispose();
-  disposableCache[disposable] =
+/**
+ * Add declaration file and remove the old one if it exists.
+ *
+ * @param disposableType name to keep track of the disposable in `disposableCache`
+ * @param lib content
+ */
+const addLib = (disposableType: DisposableType, lib: string) => {
+  disposableCache[disposableType]?.dispose();
+  disposableCache[disposableType] =
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       lib.includes("declare module")
         ? lib
-        : declareModule("solana-playground", lib)
+        : declareModule("solana-playground", lib),
+      // `@coral-xyz/anchor.workspace` is not getting disposed without file path
+      `/disposables/${disposableType}.d.ts`
     );
 };
 
