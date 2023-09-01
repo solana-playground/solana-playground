@@ -423,23 +423,10 @@ export class PgClient {
   private static _overridePackage(name: OrString<ClientPackageName>, pkg: any) {
     // Anchor
     if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
-      // Add `anchor.workspace`
-      if (PgProgramInfo.idl) {
-        const snakeCaseName = PgProgramInfo.idl.name;
-        const names = [
-          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
-          PgCommon.toCamelFromSnake(snakeCaseName),
-          PgCommon.toKebabFromSnake(snakeCaseName),
-          snakeCaseName,
-        ];
-        const program = this._getPg().program;
-        pkg.workspace = {};
-        for (const name of names) pkg.workspace[name] = program;
-      }
-
-      // Add `AnchorProvider.local()`
       const providerName =
         name === "@coral-xyz/anchor" ? "AnchorProvider" : "Provider";
+
+      // Add `AnchorProvider.local()`
       pkg[providerName].local = (
         url?: string,
         opts: web3.ConfirmOptions = anchor.Provider.defaultOptions()
@@ -461,6 +448,31 @@ export class PgClient {
         if (!provider) throw new Error("Wallet not connected");
         return provider;
       };
+
+      // Add `anchor.workspace`
+      if (PgProgramInfo.idl) {
+        const snakeCaseName = PgProgramInfo.idl.name;
+        const names = [
+          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
+          PgCommon.toCamelFromSnake(snakeCaseName),
+          PgCommon.toKebabFromSnake(snakeCaseName),
+          snakeCaseName,
+        ];
+
+        pkg.workspace = {};
+        for (const name of names) {
+          Object.defineProperty(pkg.workspace, name, {
+            get: () => {
+              let program = this._getPg().program;
+              if (program) {
+                const { idl, programId } = program;
+                program = new anchor.Program(idl, programId, pkg.getProvider());
+              }
+              return program;
+            },
+          });
+        }
+      }
     }
 
     return pkg;
