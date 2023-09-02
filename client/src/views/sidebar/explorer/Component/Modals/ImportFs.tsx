@@ -1,81 +1,84 @@
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import styled from "styled-components";
+import { Info } from "../../../../../components/Icons";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
+import Text from "../../../../../components/Text";
 import UploadArea from "../../../../../components/UploadArea";
+import { useMounted } from "../../../../../hooks";
 import {
-  Lang,
-  PgCommon,
   PgExplorer,
+  PgFramework,
+  PgView,
   TupleFiles,
 } from "../../../../../utils/pg";
 
-export const ImportFs = () => {
+interface ImportFsProps {
+  name?: string;
+  files?: TupleFiles;
+  filesError?: string;
+}
+
+export const ImportFs: FC<ImportFsProps> = (props) => {
   // Handle user input
-  const [name, setName] = useState("");
-  const [files, setFiles] = useState<TupleFiles>();
-  const [filesError, setFilesError] = useState("");
+  const [name, setName] = useState(props.name ?? "");
+  const [files, setFiles] = useState(props.files);
+  const [filesError, setFilesError] = useState(props.filesError ?? "");
   const [importError, setImportError] = useState("");
+
+  const mounted = useMounted();
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     setName(ev.target.value);
     setImportError("");
   };
 
-  const onDrop = useCallback(async (userFiles) => {
+  const onDrop = async (userFiles: Array<File & { path: string }>) => {
     try {
       const importFiles: TupleFiles = [];
       for (const userFile of userFiles) {
-        let path: string = userFile.path;
-        switch (path.split("/").length) {
-          case 1:
-            path = `${PgExplorer.PATHS.SRC_DIRNAME}/${path}`;
-            break;
-          case 3:
-            path = path.substring(1);
-            break;
-          default:
-            path = path.replace(/\/[\w-]+\//, "");
-        }
+        let path = userFile.path;
+        const shouldSkip = /(\/\.|node_modules|target)/.test(path);
+        if (shouldSkip) continue;
 
-        const lang = PgExplorer.getLanguageFromPath(path);
-        if (!lang) throw new Error(`Unsupported file type (${path})`);
-
-        const arrayBuffer: ArrayBuffer = await userFile.arrayBuffer();
-        if (
-          (lang === Lang.RUST || lang === Lang.PYTHON) &&
-          arrayBuffer.byteLength > 1024 * 128
-        ) {
-          throw new Error(
-            `File '${path}' is too big.(${arrayBuffer.byteLength})`
-          );
-        }
-
-        const content = PgCommon.decodeBytes(arrayBuffer);
+        const content = await userFile.text();
         importFiles.push([path, content]);
       }
 
-      setFiles(importFiles);
-      setFilesError("");
-    } catch (e: any) {
-      setFilesError(e.message);
-    }
-  }, []);
+      const pgFiles = await PgFramework.convertToPlaygroundLayout(importFiles);
 
-  const importNewWorkspace = () => PgExplorer.newWorkspace(name, { files });
+      // Multiple programs require selecting the program to import which closes
+      // the current modal
+      if (!mounted.current) {
+        PgView.setModal(<ImportFs name={name} files={pgFiles} />);
+      } else {
+        setFiles(pgFiles);
+        setFilesError("");
+      }
+    } catch (e: any) {
+      if (!mounted.current) {
+        PgView.setModal(<ImportFs name={name} filesError={e.message} />);
+      } else {
+        setFilesError(e.message);
+      }
+    }
+  };
+
+  const importFs = () => PgExplorer.newWorkspace(name, { files });
 
   return (
     <Modal
+      title="Import project"
       buttonProps={{
         text: "Import",
-        onSubmit: importNewWorkspace,
+        onSubmit: importFs,
         disabled: !name || !files || !!filesError || !!importError,
         setError: setImportError,
       }}
     >
       <Content>
-        <WorkspaceNameWrapper>
+        <ProjectNameWrapper>
           <MainText>Project name</MainText>
           <Input
             autoFocus
@@ -84,12 +87,20 @@ export const ImportFs = () => {
             error={importError}
             placeholder="my local project..."
           />
-        </WorkspaceNameWrapper>
-        <UploadArea
-          onDrop={onDrop}
-          error={filesError}
-          filesLength={files?.length}
-        />
+        </ProjectNameWrapper>
+
+        <UploadAreaWrapper>
+          <UploadArea
+            onDrop={onDrop}
+            error={filesError}
+            filesLength={files?.length}
+            text="Drop a program or a workspace"
+          />
+        </UploadAreaWrapper>
+
+        <StyledText IconEl={<Info color="info" />}>
+          You can drag & drop a Cargo workspace directory.
+        </StyledText>
       </Content>
     </Modal>
   );
@@ -101,11 +112,19 @@ const Content = styled.div`
   justify-content: center;
 `;
 
-const WorkspaceNameWrapper = styled.div`
+const ProjectNameWrapper = styled.div`
   margin-bottom: 0.25rem;
 `;
 
 const MainText = styled.div`
   margin-bottom: 0.5rem;
   font-weight: bold;
+`;
+
+const UploadAreaWrapper = styled.div`
+  margin-top: 1rem;
+`;
+
+const StyledText = styled(Text)`
+  margin-top: 1rem;
 `;

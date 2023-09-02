@@ -11,6 +11,7 @@ export { useExposeStatic } from "./useExposeStatic";
 export { useGetAndSetStatic } from "./useGetAndSetStatic";
 export { useGetStatic } from "./useGetStatic";
 export { useKeybind } from "./useKeybind";
+export { useMounted } from "./useMounted";
 export { useOnClickOutside } from "./useOnClickOutside";
 export { useProgramInfo } from "./useProgramInfo";
 export { useRenderOnChange } from "./useRenderOnChange";

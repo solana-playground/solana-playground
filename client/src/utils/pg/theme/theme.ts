@@ -621,7 +621,6 @@ export class PgTheme {
     // Default
     uploadArea.default ??= {};
     uploadArea.default.padding ??= "2rem";
-    uploadArea.default.maxWidth ??= "20rem";
     uploadArea.default.bg ??=
       theme.colors.default.primary + theme.default.transparency.low;
     uploadArea.default.border ??= `2px dashed

@@ -6,16 +6,33 @@ export class PgFramework {
   static frameworks: Framework[];
 
   /**
-   * Get the current framework.
+   * Get the framework from the given files.
    *
-   * @returns the current framework
+   * @param files files to check, defaults to current project files
+   * @returns the framework
    */
-  static async getCurrent() {
-    const files = PgExplorer.getAllFiles();
+  static async get(files: TupleFiles = PgExplorer.getAllFiles()) {
     for (const framework of this.frameworks) {
       const isCurrent = await framework.getIsCurrent(files);
       if (isCurrent) return framework;
     }
+  }
+
+  /**
+   * Convert files with the framework layout to the playground layout.
+   *
+   * @param files framework files
+   * @returns the playground layout converted files
+   */
+  static async convertToPlaygroundLayout(files: TupleFiles) {
+    const framework = await this.get(files);
+    if (!framework) throw new Error("Could not identify framework");
+
+    const { convertToPlayground } = await framework.importToPlayground();
+    const convertedFiles = await convertToPlayground(files);
+    if (!convertedFiles.length) throw new Error("Could not convert files");
+
+    return convertedFiles;
   }
 
   /**
@@ -24,7 +41,7 @@ export class PgFramework {
    *
    * @param opts options
    * - `convert`: whether to convert the playground layout to the framework's layout
-   * @returns README Markdown text if conversion is true
+   * @returns README Markdown text if `opts.convert` is true
    */
   static async exportWorkspace(opts?: { convert?: boolean }) {
     let files: TupleFiles = [];
@@ -50,7 +67,7 @@ export class PgFramework {
     // Convert to framework layout
     let readme: string | undefined;
     if (opts?.convert) {
-      const framework = await this.getCurrent();
+      const framework = await this.get(files);
       const { convertFromPlayground, readme: _readme } =
         await framework!.importFromPlayground();
       readme = _readme;

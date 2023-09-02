@@ -461,6 +461,7 @@ export class PgClient {
 
         pkg.workspace = {};
         for (const name of names) {
+          if (pkg.workspace[name]) continue;
           Object.defineProperty(pkg.workspace, name, {
             get: () => {
               let program = this._getPg().program;

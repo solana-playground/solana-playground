@@ -3,9 +3,11 @@ import {
   MergeUnion,
   PgCommon,
   PgExplorer,
+  PgView,
   TupleFiles,
   ValueOf,
 } from "../utils/pg";
+import { SelectProgram } from "./SelectProgram";
 
 /** Map of dependency name -> version */
 type Dependencies = { [dependencyName: string]: string };
@@ -182,4 +184,60 @@ const PACKAGES_MAP: { [K in ClientPackageName]?: ClientPackageName | null } = {
   // TODO: Remove after upgrading to `@coral-xyz/anchor`
   "@project-serum/anchor": "@coral-xyz/anchor",
   buffer: null, // No need to import
+};
+
+/**
+ * Show select program modal.
+ *
+ * @param programNames program names to select from
+ * @throws if the user cancels the selection
+ * @returns the selected program name
+ */
+export const selectProgram = async (programNames: string[]) => {
+  const programName: string | null = await PgView.setModal(SelectProgram, {
+    programNames,
+  });
+  if (!programName) throw new Error("Program not selected");
+
+  return programName;
+};
+
+/**
+ * Convert the given `files` to playground layout.
+ *
+ * @param files files with the framework layout
+ * @returns the files with playground layout
+ */
+export const convertToPlaygroundCommon = (files: TupleFiles) => {
+  const pgFiles: TupleFiles = [];
+  for (const [path, content] of files) {
+    // */programs/*/src/**/*.rs -> src/**/*.rs
+    const programPathResult = /(src.*\.rs)/.exec(path);
+    if (programPathResult) {
+      const programFilePath = programPathResult[1];
+      pgFiles.push([programFilePath, content]);
+      continue;
+    }
+
+    // */client/**/*.ts -> client/**/*.ts
+    const clientPathResult = /(client.*\.(js|ts)$)/.exec(path);
+    if (clientPathResult) {
+      const clientFilePath = clientPathResult[1];
+      pgFiles.push([clientFilePath, content]);
+      continue;
+    }
+
+    // */tests/**/*.ts -> tests/**/*.test.ts
+    const testPathResult = /(tests.*\.(js|ts)$)/.exec(path);
+    if (testPathResult) {
+      const testPath = testPathResult[1].replace(
+        /(\.test)?\.(js|ts)$/,
+        ".test.ts"
+      );
+      pgFiles.push([testPath, content]);
+      continue;
+    }
+  }
+
+  return pgFiles;
 };

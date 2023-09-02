@@ -119,7 +119,7 @@ ${getJSDependencies(frameworkFiles)}
 };
 
 /**
- * Try to make the JS file work in a local `node` environment by making the
+ * Try to make the JS/TS file work in a local `node` environment by making the
  * necesary conversions.
  *
  * @param content JS/TS code

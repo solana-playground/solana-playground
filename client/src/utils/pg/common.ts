@@ -329,6 +329,18 @@ export class PgCommon {
   }
 
   /**
+   * Convert the given array to an array with unique elements(set).
+   *
+   * This method doesn't mutate the given array and returns a new array instead.
+   *
+   * @param array array to convert
+   * @returns an array with only the unique elements
+   */
+  static toUniqueArray<T extends unknown[]>(array: T) {
+    return [...new Set(array)] as T;
+  }
+
+  /**
    * Access the property value from `.` seperated input.
    *
    * @param obj object to get property from
