@@ -37,7 +37,6 @@ const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 1rem;
-  max-width: 30rem;
 
   & > a {
     margin-top: 1rem;

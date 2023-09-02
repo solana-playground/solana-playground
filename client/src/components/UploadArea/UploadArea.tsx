@@ -10,15 +10,25 @@ interface UploadAreaProps {
   onDrop: (files: any) => Promise<void>;
   error: string;
   filesLength?: number;
+  className?: string;
 }
 
-const UploadArea: FC<UploadAreaProps> = ({ onDrop, error, filesLength }) => {
+const UploadArea: FC<UploadAreaProps> = ({
+  onDrop,
+  error,
+  filesLength,
+  className,
+}) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
   });
 
   return (
-    <Wrapper {...getRootProps()} isDragActive={isDragActive}>
+    <Wrapper
+      className={className}
+      {...getRootProps()}
+      isDragActive={isDragActive}
+    >
       <Input {...getInputProps()} />
       <Upload />
       <ImportResult

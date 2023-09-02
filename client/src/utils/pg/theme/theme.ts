@@ -620,7 +620,6 @@ export class PgTheme {
 
     // Default
     uploadArea.default ??= {};
-    uploadArea.default.margin ??= "1rem 0 0.5rem 0";
     uploadArea.default.padding ??= "2rem";
     uploadArea.default.maxWidth ??= "20rem";
     uploadArea.default.bg ??=
@@ -720,7 +719,7 @@ export class PgTheme {
     modal.bottom ??= {};
     modal.bottom.display ??= "flex";
     modal.bottom.justifyContent ??= "flex-end";
-    modal.bottom.padding ??= "0.75rem 1.5rem";
+    modal.bottom.padding ??= "0.25rem 1.5rem 0.75rem";
     modal.bottom.marginBottom ??= "0.25rem";
 
     return this;
