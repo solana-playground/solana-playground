@@ -1,8 +1,9 @@
 import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
+import { PgFramework } from "./framework";
 import { GithubError } from "../../constants";
 
-interface GithubRepositoryInfo {
+type GithubRepositoryData = {
   name: string;
   path: string;
   sha: string;
@@ -10,11 +11,18 @@ interface GithubRepositoryInfo {
   url: string;
   html_url: string;
   git_url: string;
-  download_url: string | null;
-  type: "dir" | "file";
-}
+} & (
+  | {
+      type: "file";
+      download_url: string;
+    }
+  | {
+      type: "dir";
+      download_url: null;
+    }
+);
 
-type GithubRepositoryResponse = GithubRepositoryInfo[];
+type GithubRepositoryResponse = GithubRepositoryData[];
 
 export class PgGithub {
   /**
@@ -23,7 +31,7 @@ export class PgGithub {
    * @param url GitHub URL
    */
   static async import(url: string) {
-    // Get repository info
+    // Get repository
     const { files, owner, repo, path } = await this._getRepository(url);
 
     // Check whether the repository already exists in user's workspaces
@@ -33,8 +41,9 @@ export class PgGithub {
       await PgExplorer.switchWorkspace(githubWorkspaceName);
     } else {
       // Create a new workspace
+      const convertedFiles = await PgFramework.convertToPlaygroundLayout(files);
       await PgExplorer.newWorkspace(githubWorkspaceName, {
-        files,
+        files: convertedFiles,
         skipNameValidation: true,
       });
     }
@@ -48,7 +57,8 @@ export class PgGithub {
    */
   static async getExplorerFiles(url: string) {
     const { files } = await this._getRepository(url);
-    return PgExplorer.convertToExplorerFiles(files);
+    const convertedFiles = await PgFramework.convertToPlaygroundLayout(files);
+    return PgExplorer.convertToExplorerFiles(convertedFiles);
   }
 
   /**
@@ -58,56 +68,33 @@ export class PgGithub {
    * @returns files, owner, repo, path
    */
   private static async _getRepository(url: string) {
-    const {
-      data: repositoryData,
-      owner,
-      repo,
-      path,
-    } = await this._getRepositoryData(url);
-    let srcData: GithubRepositoryResponse;
-    let srcUrl: string;
-    if (path.includes(".")) {
-      // If it's a single file fetch request, github returns an object instead of an array
-      srcData = [repositoryData as unknown as GithubRepositoryInfo];
-      srcUrl = "";
-    } else {
-      const srcInfo = await this._getSrcInfo(url, repositoryData);
-      srcData = srcInfo.srcData;
-      srcUrl = srcInfo.srcUrl;
-    }
+    const { data, owner, repo, path } = await this._getRepositoryData(url);
 
     const files: TupleFiles = [];
-
-    const recursivelyGetContent = async (
+    const recursivelyGetFiles = async (
       dirData: GithubRepositoryResponse,
-      _url: string
+      currentUrl: string
     ) => {
-      for (const data of dirData) {
-        const pathSplit = data.path.split("/src/");
-
-        if (data.type === "file") {
-          let path: string;
-          if (pathSplit.length === 1) {
-            // No src folder in the path
-            // Remove the folder paths and only get the file(src prepend by default)
-            // This will convert examples/fizzbuzz.py -> src/fizzbuzz.py
-            path = data.name;
-          } else {
-            path = pathSplit[1];
-          }
-
-          const rawData = await PgCommon.fetchText(data.download_url!);
-          files.push([`src/${path}`, rawData]);
-        } else if (data.type === "dir") {
-          const afterSrc = pathSplit[1];
-          _url = PgCommon.appendSlash(srcUrl) + PgCommon.appendSlash(afterSrc);
-          const { data: insideDirData } = await this._getRepositoryData(_url);
-          await recursivelyGetContent(insideDirData, _url);
+      // TODO: Filter `dirData` to only include the files we could need
+      // Fetching all files one by one and just returning them without dealing
+      // with any of the framework related checks is great here but it comes
+      // with the cost of using excessive amounts of network requests to fetch
+      // bigger repositories. This is especially a problem if the repository we
+      // are fetching have unrelated files in their program workspace folder.
+      for (const itemData of dirData) {
+        if (itemData.type === "file") {
+          const content = await PgCommon.fetchText(itemData.download_url!);
+          files.push([itemData.path, content]);
+        } else if (itemData.type === "dir") {
+          const insideDirUrl = PgCommon.joinPaths([currentUrl, itemData.name]);
+          const { data: insideDirData } = await this._getRepositoryData(
+            insideDirUrl
+          );
+          await recursivelyGetFiles(insideDirData, insideDirUrl);
         }
       }
     };
-
-    await recursivelyGetContent(srcData, srcUrl);
+    await recursivelyGetFiles(data, url);
 
     return { files, owner, repo, path };
   }
@@ -131,38 +118,12 @@ export class PgGithub {
     const ref = res[8]; // master
     const path = res[10]; // token/program
 
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`
-    );
-    const data: GithubRepositoryResponse = await response.json();
+    // If it's a single file fetch request, Github returns an object instead of an array
+    const data: GithubRepositoryResponse | GithubRepositoryData =
+      await PgCommon.fetchJSON(
+        `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`
+      );
 
-    return { data, owner, repo, path };
-  }
-
-  /**
-   * Get data about the program src folder.
-   *
-   * @param url GitHub URL to the program root
-   * @param data existing `GithubRepositoryResponse`
-   * @returns src folder data and url
-   */
-  private static async _getSrcInfo(
-    url: string,
-    data: GithubRepositoryResponse
-  ): Promise<{ srcData: GithubRepositoryResponse; srcUrl: string }> {
-    // Option 1: program root folder(Cargo.toml)
-    const hasSrc = data.some((d) => d.name === "src" && d.type === "dir");
-    if (hasSrc) {
-      // Get src folder content
-      const srcUrl = PgCommon.joinPaths([url, "src"]);
-      const { data: srcData } = await this._getRepositoryData(srcUrl);
-      return { srcData, srcUrl };
-    } else {
-      // Option 2: src folder
-      const hasLibRs = data.some((d) => d.name === "lib.rs");
-      if (!hasLibRs) throw new Error(GithubError.INVALID_REPO);
-
-      return { srcData: data, srcUrl: url };
-    }
+    return { data: PgCommon.toArray(data), owner, repo, path };
   }
 }
