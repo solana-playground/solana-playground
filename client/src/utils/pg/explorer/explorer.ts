@@ -776,14 +776,11 @@ export class PgExplorer {
    * @returns the relative path
    */
   static getRelativePath(fullPath: string) {
-    if (this.isTemporary) return fullPath;
+    // /src/lib.rs -> src/lib.rs
+    if (this.isTemporary) return fullPath.substring(1);
 
-    const split = fullPath.split(this.currentWorkspacePath);
-    if (split.length === 1) {
-      return split[0];
-    }
-
-    return split[1];
+    // /name/src/lib.rs -> src/lib.rs
+    return fullPath.replace(this.currentWorkspacePath, "");
   }
 
   // TODO: Path module

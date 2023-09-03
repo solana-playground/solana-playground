@@ -201,12 +201,10 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     [path]
   );
 
-  const depth = useMemo(() => {
-    return (
-      PgExplorer.getRelativePath(path).split("/").length -
-      (PgExplorer.isTemporary ? 3 : 2)
-    );
-  }, [path]);
+  const depth = useMemo(
+    () => PgExplorer.getRelativePath(path).split("/").length - 2,
+    [path]
+  );
 
   const toggle = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     const el = ev.currentTarget;
