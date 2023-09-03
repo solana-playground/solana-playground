@@ -2,6 +2,7 @@ import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
 import { PgFramework } from "./framework";
 import { GithubError } from "../../constants";
+import type { Arrayable } from "./types";
 
 type GithubRepositoryData = {
   name: string;
@@ -21,8 +22,6 @@ type GithubRepositoryData = {
       download_url: null;
     }
 );
-
-type GithubRepositoryResponse = GithubRepositoryData[];
 
 export class PgGithub {
   /**
@@ -72,7 +71,7 @@ export class PgGithub {
 
     const files: TupleFiles = [];
     const recursivelyGetFiles = async (
-      dirData: GithubRepositoryResponse,
+      dirData: GithubRepositoryData[],
       currentUrl: string
     ) => {
       // TODO: Filter `dirData` to only include the files we could need
@@ -83,6 +82,9 @@ export class PgGithub {
       // are fetching have unrelated files in their program workspace folder.
       for (const itemData of dirData) {
         if (itemData.type === "file") {
+          // Skip fetching the content if the language is not supported
+          if (!PgExplorer.getLanguageFromPath(itemData.path)) continue;
+
           const content = await PgCommon.fetchText(itemData.download_url!);
           files.push([itemData.path, content]);
         } else if (itemData.type === "dir") {
@@ -115,14 +117,14 @@ export class PgGithub {
 
     const owner = res[3]; // solana-labs
     const repo = res[4]; // solana-program-library
-    const ref = res[8]; // master
+    const ref = res[8]; // master or `undefined` on root e.g. https://github.com/coral-xyz/xnft
+    const refParam = ref ? `?ref=${ref}` : "";
     const path = res[10]; // token/program
 
     // If it's a single file fetch request, Github returns an object instead of an array
-    const data: GithubRepositoryResponse | GithubRepositoryData =
-      await PgCommon.fetchJSON(
-        `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`
-      );
+    const data: Arrayable<GithubRepositoryData> = await PgCommon.fetchJSON(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}${refParam}`
+    );
 
     return { data: PgCommon.toArray(data), owner, repo, path };
   }
