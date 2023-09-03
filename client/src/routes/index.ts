@@ -1,16 +1,17 @@
 import { defaultRoute } from "./default";
-import { tutorials } from "./tutorials";
-import { tutorial } from "./tutorial";
-import { github } from "./github";
-import { share } from "./share";
+import { github, githubDefault } from "./github";
 import { notFound } from "./not-found";
+import { share } from "./share";
+import { tutorial } from "./tutorial";
+import { tutorials } from "./tutorials";
 
 /** All availabe routes, order matters */
 export const ROUTES = [
   defaultRoute,
   tutorials,
   tutorial,
-  github,
   share,
+  githubDefault,
+  github,
   notFound,
 ];

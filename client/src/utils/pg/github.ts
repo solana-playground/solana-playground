@@ -25,6 +25,16 @@ type GithubRepositoryData = {
 
 export class PgGithub {
   /**
+   * Get whether the given URL is a GitHub URL.
+   *
+   * @param url URL to check
+   * @returns whether the URL is a GitHub URL
+   */
+  static isValidUrl(url: string) {
+    return /^(https:\/\/)?(www\.)?github\.com\/.+?\/.+/.test(url);
+  }
+
+  /**
    * Create a new workspace from the given GitHub URL.
    *
    * @param url GitHub URL
