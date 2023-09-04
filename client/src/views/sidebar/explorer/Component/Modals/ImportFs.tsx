@@ -1,18 +1,18 @@
 import { ChangeEvent, FC, useState } from "react";
 import styled from "styled-components";
-import { Info } from "../../../../../components/Icons";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import UploadArea from "../../../../../components/UploadArea";
-import { useMounted } from "../../../../../hooks";
+import { ImportWorkspace, Info } from "../../../../../components/Icons";
 import {
   PgExplorer,
   PgFramework,
   PgView,
   TupleFiles,
 } from "../../../../../utils/pg";
+import { useMounted } from "../../../../../hooks";
 
 interface ImportFsProps {
   name?: string;
@@ -75,6 +75,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
         onSubmit: importFs,
         disabled: !name || !files || !!filesError || !!importError,
         setError: setImportError,
+        rightIcon: <ImportWorkspace />,
       }}
     >
       <Content>

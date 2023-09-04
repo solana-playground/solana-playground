@@ -1,9 +1,25 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import styled, { css } from "styled-components";
 
+import Button from "../../../../../components/Button";
+import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgCommon, PgGithub } from "../../../../../utils/pg";
+import Text from "../../../../../components/Text";
+import { DefaultLink, StyledDefaultLink } from "../../../../../components/Link";
+import {
+  Eye,
+  Github,
+  ImportWorkspace,
+  Info,
+} from "../../../../../components/Icons";
+import {
+  PgCommon,
+  PgFramework,
+  PgGithub,
+  PgRouter,
+  PgView,
+} from "../../../../../utils/pg";
 
 export const ImportGithub = () => {
   // Handle user input
@@ -30,65 +46,170 @@ export const ImportGithub = () => {
         onSubmit: importFromGithub,
         disabled: !url || !!error,
         btnLoading: { text: "Importing..." },
+        rightIcon: <ImportWorkspace />,
         setError,
       }}
       title
     >
-      <Text>GitHub URL</Text>
-      <Input
-        autoFocus
-        onChange={handleChange}
-        value={url}
-        error={error}
-        placeholder="https://github.com/..."
-      />
-      <DescriptionWrapper>
-        <Desc>
-          If the program in the url is written in <Emphasis>Rust</Emphasis>:
-        </Desc>
-        <Desc>- Can import single file or full program folder.</Desc>
-        <Desc>
-          e.g
-          https://github.com/solana-labs/example-helloworld/blob/master/src/program-rust/src/lib.rs
-          (Native)
-        </Desc>
-        <Desc>
-          https://github.com/coral-xyz/anchor/tree/master/examples/tutorial/basic-0/programs/basic-0
-          (Anchor)
-        </Desc>
-        <Desc>
-          If the program in the url is written in <Emphasis>Python</Emphasis>:
-        </Desc>
-        <Desc>- Given url must be a single Python file.</Desc>
-        <Desc>
-          e.g
-          https://github.com/ameliatastic/seahorse-lang/blob/main/examples/fizzbuzz.py
-          (Seahorse)
-        </Desc>
-      </DescriptionWrapper>
+      <Wrapper>
+        <GithubUrlWrapper>
+          <GithubUrlInputLabel>GitHub URL</GithubUrlInputLabel>
+          <Input
+            autoFocus
+            onChange={handleChange}
+            value={url}
+            validator={PgGithub.isValidUrl}
+            setError={setError}
+            placeholder="https://github.com/..."
+          />
+        </GithubUrlWrapper>
+
+        <Description>
+          Projects can be imported or viewed from their GitHub URL.
+        </Description>
+
+        <ExamplesSectionWrapper>
+          <ExamplesTitle>Examples</ExamplesTitle>
+          <ExamplesWrapper>
+            {PgFramework.frameworks.map((framework) => (
+              <Example key={framework.name} framework={framework} />
+            ))}
+          </ExamplesWrapper>
+        </ExamplesSectionWrapper>
+
+        <Text IconEl={<Info color="info" />}>
+          <p>
+            Program repositories can be viewed in playground by combining the
+            playground URL with their GitHub URL. For example, from{" "}
+            <StyledDefaultLink href={GITHUB_PROGRAM_URL}>
+              this repository
+            </StyledDefaultLink>
+            :
+          </p>
+
+          <p style={{ wordBreak: "break-all" }}>
+            <StyledDefaultLink href={VIEW_URL}>{VIEW_URL}</StyledDefaultLink>
+          </p>
+        </Text>
+      </Wrapper>
     </Modal>
   );
 };
 
-const Text = styled.div`
+const GITHUB_PROGRAM_URL =
+  "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor";
+
+const VIEW_URL = window.location.href + GITHUB_PROGRAM_URL;
+
+const Wrapper = styled.div`
+  max-width: 39rem;
+`;
+
+const GithubUrlWrapper = styled.div``;
+
+const GithubUrlInputLabel = styled.div`
   margin-bottom: 0.5rem;
   font-weight: bold;
 `;
 
-const DescriptionWrapper = styled.div`
-  margin-top: 1rem;
-`;
-
-const Desc = styled.p`
+const Description = styled.div`
   ${({ theme }) => css`
+    margin: 1rem 0;
     font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
-    margin-bottom: 0.5rem;
     word-break: break-all;
   `}
 `;
 
-const Emphasis = styled.span`
+const ExamplesSectionWrapper = styled.div`
+  margin: 1rem 0;
+`;
+
+const ExamplesTitle = styled.div`
   font-weight: bold;
-  color: ${({ theme }) => theme.colors.default.textPrimary};
+`;
+
+const ExamplesWrapper = styled.div`
+  margin-top: 0.5rem;
+`;
+
+interface ExampleProps {
+  framework: Framework;
+}
+
+const Example: FC<ExampleProps> = ({ framework }) => (
+  <ExampleWrapper>
+    <FrameworkWrapper>
+      <FrameworkImage src={framework.icon} $circle={framework.circleImage} />
+      <FrameworkName>
+        {framework.name} - {framework.githubExample.name}
+      </FrameworkName>
+    </FrameworkWrapper>
+
+    <ExampleButtonsWrapper>
+      <Button
+        onClick={async () => {
+          await PgGithub.import(framework.githubExample.url);
+          PgView.setModal(null);
+        }}
+        rightIcon={<ImportWorkspace />}
+      >
+        Import
+      </Button>
+
+      <Button
+        onClick={async () => {
+          await PgRouter.navigate("/" + framework.githubExample.url);
+          PgView.setModal(null);
+        }}
+        rightIcon={<Eye />}
+      >
+        Open
+      </Button>
+
+      <DefaultLink href={framework.githubExample.url}>
+        <Button rightIcon={<Github />}>Open in GitHub</Button>
+      </DefaultLink>
+    </ExampleButtonsWrapper>
+  </ExampleWrapper>
+);
+
+const ExampleWrapper = styled.div`
+  margin: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ExampleButtonsWrapper = styled.div`
+  display: flex;
+
+  & > * {
+    margin-left: 1.5rem;
+  }
+`;
+
+const FrameworkWrapper = styled.div`
+  ${({ theme }) => css`
+    padding: 0.5rem 1rem;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: ${theme.default.borderRadius};
+  `}
+`;
+
+const FrameworkImage = styled(Img)<{ $circle?: boolean }>`
+  ${({ $circle }) => css`
+    width: 1rem;
+    height: 1rem;
+    border-radius: ${$circle && "50%"};
+  `}
+`;
+
+const FrameworkName = styled.span`
+  margin-left: 0.5rem;
+  font-weight: bold;
+  color: ${({ theme }) => theme.colors.default.textSecondary};
 `;

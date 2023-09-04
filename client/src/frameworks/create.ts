@@ -10,14 +10,27 @@ import {
 type FrameworkParam<N extends string> = {
   /** Framework name */
   name: N;
+
   /** Framework program language */
   language: Lang;
+
   /** Image icon src */
   icon: string;
+
+  /** Example GitHub project */
+  githubExample: {
+    /** Project name */
+    name: string;
+    /** Project GitHub URL */
+    url: string;
+  };
+
   /** Default file to open after loading the default framework files */
   defaultOpenFile?: string;
+
   /** Whether to make the image circular */
   circleImage?: boolean;
+
   /**
    * Get whether the given files have this framework's layout.
    *
@@ -25,11 +38,13 @@ type FrameworkParam<N extends string> = {
    * @returns whether the given files belong to this framework
    */
   getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
+
   /** Lazy load default framework files, defaults to `./files` */
   importFiles?: () => Promise<{
     /** Default framework files to create on a new project */
     files: TupleFiles;
   }>;
+
   /** Lazy load the **from** playground conversion module, defaults to `./from` */
   importFromPlayground?: () => Promise<{
     /**
@@ -43,6 +58,7 @@ type FrameworkParam<N extends string> = {
     /** Markdown text to show after conversion */
     readme: string;
   }>;
+
   /** Lazy load the **to** playground conversion module, defaults to `./to` */
   importToPlayground?: () => Promise<{
     /**

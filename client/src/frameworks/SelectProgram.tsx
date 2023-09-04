@@ -53,8 +53,8 @@ const ProgramsWrapper = styled.div`
 
 const Program = styled.div<{ isSelected: boolean }>`
   ${({ theme, isSelected }) => css`
-    padding: 0.5rem 1rem;
     margin: 0.75rem 0;
+    padding: 0.5rem 1rem;
     border: 1px solid ${theme.colors.default.border};
     border-radius: ${theme.default.borderRadius};
     color: ${theme.colors.default.textSecondary};
@@ -64,6 +64,7 @@ const Program = styled.div<{ isSelected: boolean }>`
 
     &:hover {
       cursor: pointer;
+      border-color: ${!isSelected && theme.colors.default.textPrimary};
       color: ${theme.colors.default.textPrimary};
     }
 

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { External } from "../Icons";
 
@@ -42,7 +42,12 @@ const StyledLink = styled.a`
   }
 `;
 
-export const DefaultLink: FC<LinkProps> = ({ href, className, children }) => (
+export const DefaultLink: FC<LinkProps> = ({
+  href,
+  showExternalIcon,
+  className,
+  children,
+}) => (
   <a
     className={className}
     href={href}
@@ -50,15 +55,23 @@ export const DefaultLink: FC<LinkProps> = ({ href, className, children }) => (
     rel="noopener noreferrer"
   >
     {children}
+    {showExternalIcon && <External />}
   </a>
 );
 
 export const StyledDefaultLink = styled(DefaultLink)`
-  color: ${({ theme }) => theme.colors.default.primary};
+  ${({ theme }) => css`
+    color: ${theme.colors.default.primary};
 
-  &:hover {
-    text-decoration: underline;
-  }
+    &:hover {
+      text-decoration: underline;
+    }
+
+    & svg {
+      margin-left: 0.25rem;
+      color: ${theme.colors.default.primary};
+    }
+  `}
 `;
 
 export default Link;
