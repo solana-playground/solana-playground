@@ -1,11 +1,18 @@
-import { Dispatch, FC, SetStateAction, useCallback, useState } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
 import Text from "../Text";
 import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
-import { PgTheme, SyncOrAsync } from "../../utils/pg";
+import { OrString, PgTheme, SyncOrAsync } from "../../utils/pg";
 import { useModal } from "./useModal";
 import { useKeybind } from "../../hooks";
 
@@ -15,11 +22,11 @@ interface ModalProps {
   /** Modal's submit button props */
   buttonProps?: ButtonProps & {
     /** Button text to show */
-    text: string;
+    text: OrString<"Continue">;
     /** Callback function to run on submit */
-    onSubmit: () => SyncOrAsync<unknown>;
+    onSubmit?: () => SyncOrAsync;
     /** Whether to skip closing the modal when user submits */
-    skipCloseOnSubmit?: boolean;
+    noCloseOnSubmit?: boolean;
     /** Set the error when `obSubmit` throws */
     setError?: Dispatch<SetStateAction<any>>;
     /** Set loading state of the button based on `onSubmit` */
@@ -28,7 +35,7 @@ interface ModalProps {
   /**
    * Whether to show a close button on top-right.
    *
-   * Defaults to `!buttonProps`.
+   * Defaults to `!buttonProps?.onSubmit`.
    */
   closeButton?: boolean;
 }
@@ -36,7 +43,7 @@ interface ModalProps {
 const Modal: FC<ModalProps> = ({
   title,
   buttonProps,
-  closeButton = !buttonProps,
+  closeButton = !buttonProps?.onSubmit,
   children,
 }) => {
   const [error, setError] = useState("");
@@ -46,15 +53,13 @@ const Modal: FC<ModalProps> = ({
   const handleSubmit = useCallback(async () => {
     if (!buttonProps || buttonProps.disabled) return;
 
-    // Start loading
-    if (buttonProps.setLoading) buttonProps.setLoading(true);
-
     try {
-      // Await result
-      const data = await buttonProps.onSubmit();
+      // Get result
+      const onSubmit: () => SyncOrAsync = buttonProps.onSubmit ?? close;
+      const data = await onSubmit();
 
       // Close unless explicitly forbidden
-      if (!buttonProps.skipCloseOnSubmit) close(data);
+      if (!buttonProps.noCloseOnSubmit) close(data);
     } catch (e: any) {
       if (buttonProps.setError) buttonProps.setError(e.message);
       else {
@@ -62,13 +67,14 @@ const Modal: FC<ModalProps> = ({
         throw e;
       }
     }
-
-    // End loading
-    if (buttonProps.setLoading) buttonProps.setLoading(false);
   }, [buttonProps, close]);
 
   // Submit on Enter
-  useKeybind("Enter", handleSubmit);
+  // Intentionally clicking the button in order to trigger the button's loading
+  // state on Enter as opposed to using `handleSubmit` which wouldn't change
+  // submit button's state.
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  useKeybind("Enter", () => buttonRef.current?.click());
 
   return (
     <Wrapper>
@@ -99,7 +105,7 @@ const Modal: FC<ModalProps> = ({
 
         {buttonProps && (
           <ButtonsWrapper>
-            {!closeButton && (
+            {!closeButton && buttonProps.onSubmit && (
               <Button onClick={close} kind="transparent">
                 Cancel
               </Button>
@@ -109,7 +115,12 @@ const Modal: FC<ModalProps> = ({
               {...buttonProps}
               onClick={handleSubmit}
               size={buttonProps.size}
-              kind={buttonProps.kind ?? "primary-transparent"}
+              kind={
+                buttonProps.onSubmit
+                  ? buttonProps.kind ?? "primary-transparent"
+                  : "outline"
+              }
+              ref={buttonRef}
             >
               {buttonProps.text}
             </Button>

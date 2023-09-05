@@ -118,7 +118,7 @@ type OptionalKeys<T> = Exclude<
 export type Fn = () => void;
 
 /** Normal or `Promise` version of the type */
-export type SyncOrAsync<T> = T | Promise<T>;
+export type SyncOrAsync<T = unknown> = T | Promise<T>;
 
 /** A `Promise` or a callback that returns a `Promise` */
 export type Promisable<T> = SyncOrAsync<T> | (() => SyncOrAsync<T>);

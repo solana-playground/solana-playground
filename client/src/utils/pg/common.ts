@@ -145,7 +145,7 @@ export class PgCommon {
    * @param cb callback to run
    * @returns the wrapped callback function
    */
-  static executeInOrder<T>(cb: (...args: [T]) => SyncOrAsync<unknown>) {
+  static executeInOrder<T>(cb: (...args: [T]) => SyncOrAsync) {
     type Callback = typeof cb;
     type CallbackWithArgs = [Callback, Parameters<Callback>];
 
