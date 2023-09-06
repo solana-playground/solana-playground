@@ -1,4 +1,5 @@
 import { WorkspaceError } from "../../../constants";
+import { PgCommon } from "../common";
 
 interface Workspaces {
   allNames: string[];
@@ -96,7 +97,7 @@ export class PgWorkspace {
     this._state.currentName = newName;
   }
 
-  /** Static methods */
+  /* ---------------------------- Static methods ---------------------------- */
 
   /** Default workspaces */
   static readonly DEFAULT: Workspaces = {
@@ -106,10 +107,16 @@ export class PgWorkspace {
   /** Path to the file that has data about all the workspaces */
   static readonly WORKSPACES_CONFIG_PATH = "/.config/workspaces.json";
 
-  /** Workspace Relative Paths */
+  /* ----------------------- Workspace relative paths ----------------------- */
+
+  /** Relative PATH to workspace data */
+  static readonly WORKSPACE_PATH = ".workspace";
 
   /** Relative path to file metadatas */
-  static readonly METADATA_PATH = ".workspace/metadata.json";
+  static readonly METADATA_PATH = PgCommon.joinPaths([
+    this.WORKSPACE_PATH,
+    "metadata.json",
+  ]);
 
   /** Default name to name the projects that used to be in localStorage */
   static readonly DEFAULT_WORKSPACE_NAME = "default";

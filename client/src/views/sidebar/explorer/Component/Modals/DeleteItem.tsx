@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Modal from "../../../../../components/Modal";
 import { Warning } from "../../../../../components/Icons";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../../utils/pg";
 
 interface DeleteItemProps {
   path: string;
@@ -14,6 +14,18 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
 
   const deleteItem = async () => {
     await PgExplorer.deleteItem(path);
+
+    // Select element if there is no selected element
+    if (!PgExplorer.getSelectedEl()) {
+      const itemPathToSelect =
+        PgExplorer.getCurrentFile()?.path ??
+        PgCommon.joinPaths([
+          PgExplorer.getProjectRootPath(),
+          PgExplorer.PATHS.SRC_DIRNAME,
+          "/",
+        ]);
+      PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPathToSelect));
+    }
   };
 
   return (

@@ -57,7 +57,7 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
           const itemPath =
             parentPath +
             itemName +
-            (PgExplorer.getItemTypeFromName(itemName).file ? "" : "/");
+            (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "");
 
           try {
             // Create item

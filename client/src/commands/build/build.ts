@@ -4,6 +4,7 @@ import { TerminalAction } from "../../state";
 import {
   createCmd,
   ExplorerFiles,
+  PgCommon,
   PgExplorer,
   PgPackage,
   PgProgramInfo,
@@ -134,17 +135,13 @@ const getBuildFiles = () => {
       return (res[1] ?? "\n") + `declare_id!("${programPkStr}")`;
     });
 
-    return {
-      content: newContent,
-      updated,
-    };
+    return { content: newContent, updated };
   };
 
   const updateIdPython = (content: string) => {
     let updated = false;
 
     const pythonDeclareIdRegex = new RegExp(/^declare_id\(("|')(\w*)("|')\)/gm);
-
     const newContent = content.replace(pythonDeclareIdRegex, (match) => {
       const res = pythonDeclareIdRegex.exec(match);
       if (!res) return match;
@@ -152,10 +149,7 @@ const getBuildFiles = () => {
       return `declare_id('${programPkStr}')`;
     });
 
-    return {
-      content: newContent,
-      updated,
-    };
+    return { content: newContent, updated };
   };
 
   const getUpdatedProgramIdContent = (path: string) => {
@@ -192,42 +186,25 @@ const getBuildFiles = () => {
   const files = PgExplorer.files;
   const prioritisedFilePaths = prioritiseFilePaths(files);
   const buildFiles: TupleFiles = [];
-
   let alreadyUpdatedId = false;
-  if (PgExplorer.isTemporary) {
-    for (const path of prioritisedFilePaths) {
-      let content;
-      // Shared files are already in correct format, we only update program id
-      if (!alreadyUpdatedId) {
-        const updateIdResult = getUpdatedProgramIdContent(path);
-        content = updateIdResult.content;
-        alreadyUpdatedId = updateIdResult.updated;
-      } else {
-        content = files[path].content;
-      }
-      if (!content) continue;
-      buildFiles.push([path, content]);
+
+  for (const path of prioritisedFilePaths) {
+    if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
+
+    let content = files[path].content;
+    if (!alreadyUpdatedId) {
+      const updateIdResult = getUpdatedProgramIdContent(path);
+      content = updateIdResult.content;
+      alreadyUpdatedId = updateIdResult.updated;
     }
-  } else {
-    for (let path of prioritisedFilePaths) {
-      if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
+    if (!content) continue;
 
-      let content = files[path].content;
-      if (!alreadyUpdatedId) {
-        const updateIdResult = getUpdatedProgramIdContent(path);
-        content = updateIdResult.content;
-        alreadyUpdatedId = updateIdResult.updated;
-      }
-      if (!content) continue;
-
-      // Remove the workspace from path because build only needs /src
-      path = path.replace(
-        PgExplorer.currentWorkspacePath,
-        PgExplorer.PATHS.ROOT_DIR_PATH
-      );
-
-      buildFiles.push([path, content]);
-    }
+    // Remove the workspace from path because build only needs /src
+    const buildPath = PgCommon.joinPaths([
+      PgExplorer.PATHS.ROOT_DIR_PATH,
+      PgExplorer.getRelativePath(path),
+    ]);
+    buildFiles.push([buildPath, content]);
   }
 
   return buildFiles;

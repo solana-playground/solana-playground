@@ -1,4 +1,11 @@
-import { FC, MouseEvent, useCallback, useEffect, useMemo } from "react";
+import {
+  FC,
+  MouseEvent,
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import styled, { css, useTheme } from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
@@ -12,11 +19,7 @@ import {
   Wrench,
 } from "../../../../components/Icons";
 import { ClassName, Id } from "../../../../constants";
-import {
-  Folder as FolderType,
-  PgCommon,
-  PgExplorer,
-} from "../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../utils/pg";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useNewItem } from "./useNewItem";
 import { useKeybind } from "../../../../hooks";
@@ -73,9 +76,7 @@ const Folders = () => {
   );
 
   // No need to memoize here
-  const relativeRootPath = !PgExplorer.isTemporary
-    ? PgExplorer.currentWorkspacePath
-    : PgExplorer.PATHS.ROOT_DIR_PATH;
+  const relativeRootPath = PgExplorer.getProjectRootPath();
   const relativeRootDir = PgExplorer.getFolderContent(relativeRootPath);
   const otherFolders = relativeRootDir.folders.filter(
     (f) =>
@@ -168,34 +169,25 @@ interface FolderGroupProps {
   relativeRootPath: string;
 }
 
-const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => {
-  return (
-    <>
-      {folders
-        .sort((x, y) => x.localeCompare(y))
-        .map((f, i) => {
-          const path = relativeRootPath + f + "/";
-          const folder = PgExplorer.getFolderContent(path);
+const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
+  <>
+    {folders
+      .sort((x, y) => x.localeCompare(y))
+      .map((f) => (
+        <RFolder
+          key={f}
+          path={PgCommon.joinPaths([relativeRootPath, f, "/"])}
+        />
+      ))}
+  </>
+);
 
-          return (
-            <RFolder
-              key={i}
-              path={path}
-              folders={folder.folders}
-              files={folder.files}
-            />
-          );
-        })}
-    </>
-  );
-};
-
-interface FolderProps extends FolderType {
+interface FolderProps {
   path: string;
 }
 
 // RFolder = Recursive Folder
-const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
+const RFolder: FC<FolderProps> = ({ path }) => {
   const folderName = useMemo(
     () => PgExplorer.getItemNameFromPath(path),
     [path]
@@ -205,6 +197,9 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
     () => PgExplorer.getRelativePath(path).split("/").length - 2,
     [path]
   );
+
+  // Intentionally don't memoize in order to re-render
+  const { files, folders } = PgExplorer.getFolderContent(path);
 
   const toggle = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     const el = ev.currentTarget;
@@ -234,26 +229,19 @@ const RFolder: FC<FolderProps> = ({ path, folders, files }) => {
       >
         {folders
           .sort((x, y) => x.localeCompare(y))
-          .map((folderName, i) => {
-            const insideFolderPath = path + folderName + "/";
-            const folder = PgExplorer.getFolderContent(insideFolderPath);
-
-            return (
-              <RFolder
-                key={i}
-                path={insideFolderPath}
-                folders={folder.folders}
-                files={folder.files}
-              />
-            );
-          })}
+          .map((folderName) => (
+            <RFolder
+              key={folderName}
+              path={PgCommon.joinPaths([path, folderName, "/"])}
+            />
+          ))}
 
         {files
           .sort((x, y) => x.localeCompare(y))
-          .map((fileName, i) => (
+          .map((fileName) => (
             <StyledFile
-              key={i}
-              path={path}
+              key={fileName}
+              path={PgCommon.joinPaths([path, fileName])}
               name={fileName}
               depth={depth + 1}
               onClick={toggle}
@@ -269,7 +257,7 @@ interface FileOrFolderProps {
   path: string;
   name: string;
   depth: number;
-  onClick?: (e: any) => void;
+  onClick: MouseEventHandler<HTMLDivElement>;
   className?: string;
 }
 
@@ -294,7 +282,7 @@ const File: FC<FileOrFolderProps> = ({
   onClick,
   className,
 }) => (
-  <div className={className} onClick={onClick} data-path={path + name}>
+  <div className={className} onClick={onClick} data-path={path}>
     <PaddingLeft depth={depth} />
     <LangIcon fileName={name} />
     <span>{name}</span>

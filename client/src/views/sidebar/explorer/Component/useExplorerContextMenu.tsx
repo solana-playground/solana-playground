@@ -59,10 +59,11 @@ export const useExplorerContextMenu = () => {
   }, []);
 
   const getPath = useCallback(() => {
-    return !ctxSelectedPath
-      ? PgExplorer.getItemPathFromEl(PgExplorer.getSelectedEl()) ??
-          ctxSelectedPath
-      : ctxSelectedPath;
+    if (!ctxSelectedPath) {
+      return PgExplorer.getItemPathFromEl(PgExplorer.getSelectedEl()!)!;
+    }
+
+    return ctxSelectedPath;
   }, [ctxSelectedPath]);
 
   // Functions

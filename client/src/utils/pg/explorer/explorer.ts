@@ -52,10 +52,10 @@ export class PgExplorer {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
     }
 
-    return (
-      PgExplorer.PATHS.ROOT_DIR_PATH +
-      PgCommon.appendSlash(this.currentWorkspaceName)
-    );
+    return PgCommon.joinPaths([
+      PgExplorer.PATHS.ROOT_DIR_PATH,
+      PgCommon.appendSlash(this.currentWorkspaceName),
+    ]);
   }
 
   /** Get current workspace name */
@@ -233,9 +233,10 @@ export class PgExplorer {
     ) {
       // Github workspace name or any other workspace name with additional '/'
       // is causing problems. We are mitigating that by directly replacing it.
-      newPath = PgCommon.appendSlash(
-        PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, newName])
-      );
+      newPath = PgCommon.joinPaths([
+        PgExplorer.PATHS.ROOT_DIR_PATH,
+        PgCommon.appendSlash(newName),
+      ]);
     } else {
       newPath = itemType.file
         ? parentFolder + newName
@@ -777,10 +778,10 @@ export class PgExplorer {
    */
   static getRelativePath(fullPath: string) {
     // /src/lib.rs -> src/lib.rs
-    if (this.isTemporary) return fullPath.substring(1);
+    if (PgExplorer.isTemporary) return fullPath.substring(1);
 
     // /name/src/lib.rs -> src/lib.rs
-    return fullPath.replace(this.currentWorkspacePath, "");
+    return fullPath.replace(PgExplorer.currentWorkspacePath, "");
   }
 
   // TODO: Path module
@@ -795,19 +796,32 @@ export class PgExplorer {
     if (path.startsWith(this.PATHS.ROOT_DIR_PATH)) return path;
 
     // Convert to absolute path if it doesn't start with '/'
-    return PgCommon.joinPaths([
-      this.isTemporary ? this.PATHS.ROOT_DIR_PATH : this.currentWorkspacePath,
-      path,
-    ]);
+    return PgCommon.joinPaths([this.getProjectRootPath(), path]);
   }
 
   /**
-   * @returns current src directory path
+   * Get the project root path.
+   *
+   * This is not to be confused with root path(`/`).
+   *
+   * @returns the project root path
+   */
+  static getProjectRootPath() {
+    return this.isTemporary
+      ? this.PATHS.ROOT_DIR_PATH
+      : this.currentWorkspacePath;
+  }
+
+  /**
+   * Get the current `src` directory path.
+   *
+   * @returns the current `src` directory path with `/` appended
    */
   static getCurrentSrcPath() {
-    const srcPath = this.isTemporary
-      ? this.PATHS.ROOT_DIR_PATH + this.PATHS.SRC_DIRNAME
-      : this.appendToCurrentWorkspacePath(this.PATHS.SRC_DIRNAME);
+    const srcPath = PgCommon.joinPaths([
+      this.getProjectRootPath(),
+      this.PATHS.SRC_DIRNAME,
+    ]);
     return PgCommon.appendSlash(srcPath);
   }
 
@@ -823,6 +837,7 @@ export class PgExplorer {
     return PgCommon.batchChanges(cb, [
       PgExplorer.onDidInit,
       PgExplorer.onDidSwitchFile,
+      PgExplorer.onDidCreateItem,
       PgExplorer.onDidDeleteItem,
       PgExplorer.onDidCloseTab,
     ]);
@@ -984,12 +999,14 @@ export class PgExplorer {
         return;
       }
 
-      const subItemPaths = itemNames.map(
-        (itemName) =>
-          PgCommon.appendSlash(path) +
-          itemName +
-          (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
-      );
+      const subItemPaths = itemNames
+        .filter((itemName) => !itemName.includes(PgWorkspace.WORKSPACE_PATH))
+        .map((itemName) => {
+          return (
+            PgCommon.joinPaths([path, itemName]) +
+            (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
+          );
+        });
       for (const subItemPath of subItemPaths) {
         const metadata = await this.fs.getMetadata(subItemPath);
         if (metadata.isFile()) {
@@ -1079,9 +1096,7 @@ export class PgExplorer {
 
     for (const path in metaFile) {
       const file = this.files[this.appendToCurrentWorkspacePath(path)];
-      if (file?.content !== undefined) {
-        file.meta = metaFile[path];
-      }
+      if (file?.content !== undefined) file.meta = metaFile[path];
     }
   }
 
@@ -1203,11 +1218,9 @@ export class PgExplorer {
    * @returns the item name
    */
   static getItemNameFromPath(path: string) {
-    const itemsArr = path.split("/");
-    const itemType = this.getItemTypeFromPath(path);
-
-    if (itemType.file) return itemsArr[itemsArr.length - 1];
-    else return itemsArr[itemsArr.length - 2];
+    const items = path.split("/");
+    const name = path.endsWith("/") ? items.at(-2) : items.at(-1);
+    return name!;
   }
 
   // TODO: Implement a better identifier
@@ -1229,8 +1242,7 @@ export class PgExplorer {
    * @returns the item type
    */
   static getItemTypeFromPath(path: string) {
-    if (path.endsWith("/")) return { folder: true };
-    return { file: true };
+    return PgExplorer.getItemTypeFromName(PgExplorer.getItemNameFromPath(path));
   }
 
   /**
@@ -1410,9 +1422,9 @@ export class PgExplorer {
 
   /** Get the current selected element. */
   static getSelectedEl = () => {
-    return document.getElementsByClassName(
-      ClassName.SELECTED
-    )[0] as HTMLDivElement;
+    return document.getElementsByClassName(ClassName.SELECTED)[0] as
+      | HTMLDivElement
+      | undefined;
   };
 
   /**
@@ -1482,7 +1494,6 @@ export class PgExplorer {
     for (;;) {
       const parentPath = this.getParentPathFromPath(path);
       const parentEl = this.getElFromPath(parentPath);
-
       if (!parentEl) break;
 
       this.openFolder(parentEl);
@@ -1498,8 +1509,7 @@ export class PgExplorer {
     if (!rootEl) return;
 
     // Remove selected
-    const selectedEl = this.getSelectedEl();
-    if (selectedEl) selectedEl.classList.remove(ClassName.SELECTED);
+    this.getSelectedEl()?.classList.remove(ClassName.SELECTED);
 
     const recursivelyCollapse = (el: HTMLElement) => {
       if (!el || !el.childElementCount) return;
