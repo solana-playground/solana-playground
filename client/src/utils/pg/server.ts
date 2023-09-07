@@ -1,6 +1,5 @@
 import type { Idl } from "@project-serum/anchor";
 
-import { PgCommon } from "./common";
 import type { TupleFiles } from "./explorer";
 
 export interface ShareData {
@@ -81,8 +80,7 @@ export class PgServer {
       },
     });
 
-    const arrayBuffer = await response.arrayBuffer();
-    const shareId = PgCommon.decodeBytes(arrayBuffer);
+    const shareId = await response.text();
     return shareId;
   }
 
@@ -118,8 +116,8 @@ export class PgServer {
     const response = await fetch(`${this._SERVER_URL}${path}`, requestInit);
 
     if (!response.ok) {
-      const arrayBuffer = await response.arrayBuffer();
-      throw new Error(PgCommon.decodeBytes(arrayBuffer));
+      const message = await response.text();
+      throw new Error(message);
     }
 
     return response;

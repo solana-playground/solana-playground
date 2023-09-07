@@ -1,12 +1,12 @@
-import CheckBox from "../../components/CheckBox";
+import Checkbox from "../../components/Checkbox";
 import { PgSettings } from "../../utils/pg";
 
 const PreflightSetting = () => (
-  <CheckBox
+  <Checkbox
     onChange={(ev) => {
       PgSettings.connection.preflightChecks = ev.target.checked;
     }}
-    checkedOnMount={PgSettings.connection.preflightChecks}
+    defaultChecked={PgSettings.connection.preflightChecks}
   />
 );
 

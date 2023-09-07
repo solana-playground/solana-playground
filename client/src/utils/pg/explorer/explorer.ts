@@ -614,7 +614,7 @@ export class PgExplorer {
    * @returns the groupped folder items
    */
   static getFolderContent(path: string) {
-    path = PgCommon.appendSlash(this.convertToFullPath(path));
+    path = PgCommon.appendSlash(PgExplorer.convertToFullPath(path));
 
     const files = this.files;
     const filesAndFolders: Folder = { folders: [], files: [] };
@@ -1252,13 +1252,8 @@ export class PgExplorer {
    * @returns the item type
    */
   static getItemTypeFromEl(el: HTMLDivElement) {
-    if (el.classList.contains(ClassName.FOLDER)) {
-      return { folder: true };
-    } else if (el.classList.contains(ClassName.FILE)) {
-      return { file: true };
-    }
-
-    return null;
+    const path = PgExplorer.getItemPathFromEl(el);
+    if (path) return PgExplorer.getItemTypeFromPath(path);
   }
 
   /**
@@ -1390,20 +1385,18 @@ export class PgExplorer {
    * @param el item element
    * @returns the parent path
    */
-  static getParentPathFromEl = (el: HTMLDivElement) => {
-    const itemType = this.getItemTypeFromEl(el);
+  static getParentPathFromEl(el: HTMLDivElement) {
+    const itemType = PgExplorer.getItemTypeFromEl(el);
 
     if (itemType?.folder) {
-      return el?.getAttribute("data-path");
+      return PgExplorer.getItemPathFromEl(el);
     } else if (itemType?.file) {
       // The file's owner folder is parent element's previous sibling
-      return el.parentElement!.previousElementSibling!.getAttribute(
-        "data-path"
+      return PgExplorer.getItemPathFromEl(
+        el.parentElement!.previousElementSibling as HTMLDivElement
       );
     }
-
-    return null;
-  };
+  }
 
   /**
    * Get the eleemnt from its path.

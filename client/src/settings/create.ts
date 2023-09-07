@@ -11,7 +11,7 @@ export interface Setting {
     /** Max allowed with for the tooltip text */
     maxWidth: string;
   };
-  /** Whether the `Element` is a `CheckBox` */
+  /** Whether the `Element` is a `Checkbox` */
   isCheckBox?: boolean;
 }
 

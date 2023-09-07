@@ -26,28 +26,31 @@ export class PgShare {
   /**
    * Share a new project.
    *
+   * @param filePaths file paths to include in the shared project
    * @returns the share object id
    */
-  static async new() {
-    const files = PgExplorer.files;
+  static async new(filePaths: string[]) {
+    const files = Object.entries(PgExplorer.files).reduce(
+      (acc, [path, item]) => {
+        if (filePaths.includes(path)) acc[path] = item;
+        return acc;
+      },
+      {} as ExplorerFiles
+    );
 
     // Temporary files are already in a valid form to re-share
     if (PgExplorer.isTemporary) return await this._new(files);
 
     const shareFiles: ExplorerFiles = {};
-
-    for (let path in files) {
-      if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
-
+    for (const path in files) {
       const itemInfo = files[path];
 
       // Remove workspace from path because share only needs /src
-      path = path.replace(
-        PgExplorer.currentWorkspacePath,
-        PgExplorer.PATHS.ROOT_DIR_PATH
-      );
-
-      shareFiles[path] = itemInfo;
+      const sharePath = PgCommon.joinPaths([
+        PgExplorer.PATHS.ROOT_DIR_PATH,
+        PgExplorer.getRelativePath(path),
+      ]);
+      shareFiles[sharePath] = itemInfo;
     }
 
     return await this._new(shareFiles);
@@ -72,12 +75,11 @@ export class PgShare {
   private static async _new(files: ExplorerFiles) {
     if (!Object.keys(files).length) throw new Error("Empty share");
 
-    const data: ShareData = { files: {} };
-
+    const shareData: ShareData = { files: {} };
     for (const path in files) {
-      data.files[path] = { content: files[path].content };
+      shareData.files[path] = { content: files[path].content };
     }
 
-    return await PgServer.shareNew(data);
+    return await PgServer.shareNew(shareData);
   }
 }

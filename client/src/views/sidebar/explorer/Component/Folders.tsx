@@ -174,7 +174,7 @@ const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
     {folders
       .sort((x, y) => x.localeCompare(y))
       .map((f) => (
-        <RFolder
+        <RecursiveFolder
           key={f}
           path={PgCommon.joinPaths([relativeRootPath, f, "/"])}
         />
@@ -186,8 +186,7 @@ interface FolderProps {
   path: string;
 }
 
-// RFolder = Recursive Folder
-const RFolder: FC<FolderProps> = ({ path }) => {
+const RecursiveFolder: FC<FolderProps> = ({ path }) => {
   const folderName = useMemo(
     () => PgExplorer.getItemNameFromPath(path),
     [path]
@@ -230,7 +229,7 @@ const RFolder: FC<FolderProps> = ({ path }) => {
         {folders
           .sort((x, y) => x.localeCompare(y))
           .map((folderName) => (
-            <RFolder
+            <RecursiveFolder
               key={folderName}
               path={PgCommon.joinPaths([path, folderName, "/"])}
             />
