@@ -559,11 +559,15 @@ const Monaco = () => {
       }, 1000);
     });
 
-    const disposeModelFromPath = (path: string) => {
-      monaco.editor.getModel(monaco.Uri.parse(path))?.dispose();
+    const disposeModelsFromPath = (path: string) => {
+      // Dispose self and all child models
+      monaco.editor
+        .getModels()
+        .filter((model) => model.uri.path.startsWith(path))
+        .forEach((model) => model.dispose());
     };
-    const renameItem = PgExplorer.onDidRenameItem(disposeModelFromPath);
-    const deleteItem = PgExplorer.onDidDeleteItem(disposeModelFromPath);
+    const renameItem = PgExplorer.onDidRenameItem(disposeModelsFromPath);
+    const deleteItem = PgExplorer.onDidDeleteItem(disposeModelsFromPath);
 
     return () => {
       clearInterval(positionDataIntervalId);
@@ -580,7 +584,7 @@ const Monaco = () => {
 
     let timeoutId: NodeJS.Timeout;
 
-    const disposable = editor.onDidChangeModelContent(() => {
+    const { dispose } = editor.onDidChangeModelContent(() => {
       timeoutId && clearTimeout(timeoutId);
       timeoutId = setTimeout(async () => {
         const curFile = PgExplorer.getCurrentFile();
@@ -591,7 +595,7 @@ const Monaco = () => {
         // Save to state
         PgExplorer.saveFileToState(...args);
 
-        // Only save to `indexedDB` when not shared
+        // Saving to state is enough if it's a temporary project
         if (PgExplorer.isTemporary) return;
 
         // Save to `indexedDB`
@@ -605,7 +609,7 @@ const Monaco = () => {
 
     return () => {
       clearTimeout(timeoutId);
-      disposable.dispose();
+      dispose();
     };
   }, [editor]);
 

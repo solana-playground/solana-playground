@@ -15,7 +15,7 @@ export const autosave = (curFile: FullFile, ms: number) => {
         // Save to state
         PgExplorer.saveFileToState(...args);
 
-        // Only save to `indexedDB` when not shared
+        // Saving to state is enough if it's a temporary project
         if (PgExplorer.isTemporary) return;
 
         // Save to `indexedDB`
