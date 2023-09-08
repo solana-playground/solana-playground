@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 
-import { PgExplorer, PgView } from "../../../../utils/pg";
+import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 
 export const useNewItem = () => {
-  const newItem = useCallback(() => {
+  const newItem = useCallback(async () => {
     const selected = PgExplorer.getSelectedEl();
 
     if (selected) {
@@ -13,21 +13,40 @@ export const useNewItem = () => {
         PgView.setNewItemPortal(selected.nextElementSibling);
       } else {
         // Selected is a file
-        // The owner folder is parent element's previous sibling
+        // The parent folder is the parent element
         PgView.setNewItemPortal(selected.parentElement);
       }
     } else {
-      // Create in the first dir(src)
-      const rootEl = PgExplorer.getRootFolderEl();
-      const srcFolderEl = rootEl?.children[1];
-      if (!srcFolderEl) return;
+      // Create in the first dir
+      const projectRootPath = PgExplorer.getProjectRootPath();
+      const { folders } = PgExplorer.getFolderContent(projectRootPath);
+      // Create a new `src` dir if there are no folders
+      if (!folders.length) {
+        await PgExplorer.newItem(PgExplorer.PATHS.SRC_DIRNAME);
+        folders.push(PgExplorer.PATHS.SRC_DIRNAME);
 
-      PgExplorer.openFolder(srcFolderEl as HTMLDivElement);
-      const folderInside = srcFolderEl.nextElementSibling;
-      if (!folderInside) return;
+        // Sleep to give time for the UI to update
+        await PgCommon.sleep(100);
+      }
 
-      PgExplorer.setSelectedEl(srcFolderEl as HTMLDivElement);
-      PgView.setNewItemPortal(folderInside);
+      // Select the first folder(prioritize `src`)
+      const folderName =
+        folders.find((name) => name === PgExplorer.PATHS.SRC_DIRNAME) ??
+        folders[0];
+      const folderPath = PgCommon.appendSlash(
+        PgCommon.joinPaths([projectRootPath, folderName])
+      );
+
+      const rootFolderEl = PgExplorer.getRootFolderEl()!;
+      const divs = rootFolderEl.getElementsByTagName("div");
+      for (const div of divs) {
+        const path = PgExplorer.getItemPathFromEl(div);
+        if (path === folderPath) {
+          PgExplorer.setSelectedEl(div);
+          newItem();
+          break;
+        }
+      }
     }
   }, []);
 

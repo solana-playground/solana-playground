@@ -2,6 +2,7 @@ import {
   FC,
   MouseEvent,
   MouseEventHandler,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -9,11 +10,12 @@ import {
 import styled, { css, useTheme } from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
-import Button from "../../../../components/Button";
+import Button, { ButtonProps } from "../../../../components/Button";
 import LangIcon from "../../../../components/LangIcon";
 import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import {
   Arrow,
+  Plus,
   TestTube,
   Triangle,
   Wrench,
@@ -77,8 +79,8 @@ const Folders = () => {
 
   // No need to memoize here
   const relativeRootPath = PgExplorer.getProjectRootPath();
-  const relativeRootDir = PgExplorer.getFolderContent(relativeRootPath);
-  const otherFolders = relativeRootDir.folders.filter(
+  const { folders } = PgExplorer.getFolderContent(relativeRootPath);
+  const otherFolders = folders.filter(
     (f) =>
       f !== PgExplorer.PATHS.SRC_DIRNAME &&
       f !== PgExplorer.PATHS.CLIENT_DIRNAME &&
@@ -94,53 +96,54 @@ const Folders = () => {
           {/* Program */}
           <SectionTopWrapper>
             <SectionHeader>Program</SectionHeader>
-            <Button onClick={ctxMenu.runBuild} kind="icon">
-              <Wrench />
-              <BuildButtonText>Build</BuildButtonText>
-            </Button>
+            {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
+              <SectionButton onClick={ctxMenu.runBuild} Icon={<Wrench />}>
+                <span style={{ marginLeft: "0.25rem" }}>Build</span>
+              </SectionButton>
+            ) : (
+              <SectionButton onClick={ctxMenu.addProgram} Icon={<Plus />}>
+                Add
+              </SectionButton>
+            )}
           </SectionTopWrapper>
           <FolderGroup
-            folders={relativeRootDir.folders.filter(
-              (f) => f === PgExplorer.PATHS.SRC_DIRNAME
-            )}
+            folders={folders.filter((f) => f === PgExplorer.PATHS.SRC_DIRNAME)}
             relativeRootPath={relativeRootPath}
           />
 
           {/* Client and tests */}
-          {(relativeRootDir.folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ||
-            relativeRootDir.folders.includes(
-              PgExplorer.PATHS.TESTS_DIRNAME
-            )) && (
-            <SectionTopWrapper>
-              <SectionHeader>Client</SectionHeader>
-              {relativeRootDir.folders.includes(
-                PgExplorer.PATHS.CLIENT_DIRNAME
-              ) && (
-                <Button
-                  onClick={ctxMenu.runClientFolder}
-                  kind="icon"
-                  title="Run All (in client dir)"
-                >
-                  <Triangle rotate="90deg" />
-                  <span>Run</span>
-                </Button>
-              )}
-              {relativeRootDir.folders.includes(
-                PgExplorer.PATHS.TESTS_DIRNAME
-              ) && (
-                <Button
-                  onClick={ctxMenu.runTestFolder}
-                  kind="icon"
-                  title="Test All (in tests dir)"
-                >
-                  <TestTube />
-                  <span>Test</span>
-                </Button>
-              )}
-            </SectionTopWrapper>
-          )}
+          <SectionTopWrapper>
+            <SectionHeader>Client</SectionHeader>
+            {folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ? (
+              <SectionButton
+                onClick={ctxMenu.runClientFolder}
+                Icon={<Triangle rotate="90deg" />}
+                title="Run All (in client dir)"
+              >
+                Run
+              </SectionButton>
+            ) : (
+              <SectionButton onClick={ctxMenu.addClient} Icon={<Plus />}>
+                Add client
+              </SectionButton>
+            )}
+
+            {folders.includes(PgExplorer.PATHS.TESTS_DIRNAME) ? (
+              <SectionButton
+                onClick={ctxMenu.runTestFolder}
+                Icon={<TestTube />}
+                title="Test All (in tests dir)"
+              >
+                Test
+              </SectionButton>
+            ) : (
+              <SectionButton onClick={ctxMenu.addTests} Icon={<Plus />}>
+                Add tests
+              </SectionButton>
+            )}
+          </SectionTopWrapper>
           <FolderGroup
-            folders={relativeRootDir.folders.filter(
+            folders={folders.filter(
               (f) =>
                 f === PgExplorer.PATHS.CLIENT_DIRNAME ||
                 f === PgExplorer.PATHS.TESTS_DIRNAME
@@ -164,6 +167,22 @@ const Folders = () => {
   );
 };
 
+const SectionButton: FC<ButtonProps & { Icon: ReactNode }> = ({
+  onClick,
+  Icon,
+  children,
+  ...props
+}) => (
+  <Button onClick={onClick} kind="icon" {...props}>
+    {Icon}
+    <SectionButtonText>{children}</SectionButtonText>
+  </Button>
+);
+
+const SectionButtonText = styled.span`
+  margin: 0 0.25rem;
+`;
+
 interface FolderGroupProps {
   folders: string[];
   relativeRootPath: string;
@@ -173,10 +192,12 @@ const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
   <>
     {folders
       .sort((x, y) => x.localeCompare(y))
-      .map((f) => (
+      .map((foldername) => (
         <RecursiveFolder
-          key={f}
-          path={PgCommon.joinPaths([relativeRootPath, f, "/"])}
+          key={foldername}
+          path={PgCommon.appendSlash(
+            PgCommon.joinPaths([relativeRootPath, foldername])
+          )}
         />
       ))}
   </>
@@ -231,7 +252,9 @@ const RecursiveFolder: FC<FolderProps> = ({ path }) => {
           .map((folderName) => (
             <RecursiveFolder
               key={folderName}
-              path={PgCommon.joinPaths([path, folderName, "/"])}
+              path={PgCommon.appendSlash(
+                PgCommon.joinPaths([path, folderName])
+              )}
             />
           ))}
 
@@ -346,10 +369,6 @@ const SectionTopWrapper = styled.div`
 
 const SectionHeader = styled.div`
   font-size: ${({ theme }) => theme.font.code.size.large};
-`;
-
-const BuildButtonText = styled.span`
-  margin-left: 0.5rem !important;
 `;
 
 const FolderInsideWrapper = styled.div`

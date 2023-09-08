@@ -70,7 +70,8 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
             PgExplorer.removeCtxSelectedEl();
 
             // Select new file
-            PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPath));
+            const newEl = PgExplorer.getElFromPath(itemPath);
+            if (newEl) PgExplorer.setSelectedEl(newEl);
           } catch (e: any) {
             console.log(e.message);
             setError(true);

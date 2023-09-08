@@ -13,20 +13,20 @@ import {
   Wrench,
 } from "../../../../components/Icons";
 import { Id } from "../../../../constants";
-import { PgExplorer } from "../../../../utils/pg";
+import { Fn, PgExplorer } from "../../../../utils/pg";
 import { ItemData } from "./useExplorerContextMenu";
 import { useOnClickOutside } from "../../../../hooks";
 
 interface ExplorerContextMenuProps {
   itemData: ItemData;
-  ctxNewItem: () => void;
-  renameItem: () => void;
-  deleteItem: () => void;
-  runBuild: () => void;
-  runClient: () => void;
-  runClientFolder: () => void;
-  runTest: () => void;
-  runTestFolder: () => void;
+  ctxNewItem: Fn;
+  renameItem: Fn;
+  deleteItem: Fn;
+  runBuild: Fn;
+  runClient: Fn;
+  runClientFolder: Fn;
+  runTest: Fn;
+  runTestFolder: Fn;
   handleMenu: (e: MouseEvent<HTMLDivElement>) => void;
 }
 

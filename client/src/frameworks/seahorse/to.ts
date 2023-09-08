@@ -1,5 +1,5 @@
 import { convertToPlayground as convertFromAnchor } from "../anchor/to";
-import { PgCommon, TupleFiles } from "../../utils/pg";
+import { PgCommon, PgExplorer, TupleFiles } from "../../utils/pg";
 
 /**
  * {@link Framework.importToPlayground}
@@ -14,7 +14,10 @@ export const convertToPlayground = async (files: TupleFiles) => {
       files.reduce((acc, file) => {
         const result = /.*programs_py\/([\w\d]+\.py)/.exec(file[0]);
         if (result) {
-          file[0] = PgCommon.joinPaths(["src", result[1]]);
+          file[0] = PgCommon.joinPaths([
+            PgExplorer.PATHS.SRC_DIRNAME,
+            result[1],
+          ]);
           acc.push(file);
         }
 

@@ -438,8 +438,12 @@ const getButtonStyles = ({
         height: 1rem;
       }
 
-      & > span:not(.btn-spinner) {
-        margin: 0 0.25rem 0 0.375rem;
+      & > span.left-icon {
+        margin-right: 0.25rem;
+      }
+
+      & > span.right-icon {
+        margin-left: 0.25rem;
       }
     `);
   }

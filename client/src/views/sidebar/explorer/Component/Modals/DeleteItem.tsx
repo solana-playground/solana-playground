@@ -19,12 +19,14 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
     if (!PgExplorer.getSelectedEl()) {
       const itemPathToSelect =
         PgExplorer.getCurrentFile()?.path ??
-        PgCommon.joinPaths([
-          PgExplorer.getProjectRootPath(),
-          PgExplorer.PATHS.SRC_DIRNAME,
-          "/",
-        ]);
-      PgExplorer.setSelectedEl(PgExplorer.getElFromPath(itemPathToSelect));
+        PgCommon.appendSlash(
+          PgCommon.joinPaths([
+            PgExplorer.getProjectRootPath(),
+            PgExplorer.PATHS.SRC_DIRNAME,
+          ])
+        );
+      const itemToSelect = PgExplorer.getElFromPath(itemPathToSelect);
+      if (itemToSelect) PgExplorer.setSelectedEl(itemToSelect);
     }
   };
 

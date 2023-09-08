@@ -2,7 +2,7 @@ import { MouseEvent, useCallback, useState } from "react";
 
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../constants";
-import { PgCommand, PgExplorer, PgView } from "../../../../utils/pg";
+import { PgCommand, PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 
 export type ItemData = {
   [K in
@@ -49,8 +49,8 @@ export const useExplorerContextMenu = () => {
 
     // Convert the `undefined` values to `false` in order to show them only
     // when necessary. (`undefined` defaults to `true` for `showCondition`)
-    for (const key in itemData) {
-      itemData[key as keyof typeof itemData] ??= false;
+    for (const key of PgCommon.keys(itemData)) {
+      itemData[key] ??= false;
     }
     setItemData(itemData);
 
@@ -68,7 +68,7 @@ export const useExplorerContextMenu = () => {
 
   // Functions
   const ctxNewItem = useCallback(() => {
-    const ctxSelected = PgExplorer.getElFromPath(getPath());
+    const ctxSelected = PgExplorer.getElFromPath(getPath())!;
 
     if (!ctxSelected.classList.contains(ClassName.OPEN)) {
       ctxSelected.classList.add(ClassName.OPEN);
@@ -98,6 +98,24 @@ export const useExplorerContextMenu = () => {
     await PgCommand.test.run(getPath());
   }, [getPath]);
 
+  const addProgram = useCallback(async () => {
+    await PgExplorer.newItem(
+      PgCommon.joinPaths([PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"])
+    );
+  }, []);
+
+  const addClient = useCallback(async () => {
+    await PgCommand.run.run();
+  }, []);
+
+  const addTests = useCallback(async () => {
+    await PgCommand.test.run();
+  }, []);
+
+  const runBuild = useCallback(async () => {
+    await PgCommand.build.run();
+  }, []);
+
   const runClientFolder = useCallback(async () => {
     await PgCommand.run.run();
   }, []);
@@ -106,15 +124,14 @@ export const useExplorerContextMenu = () => {
     await PgCommand.test.run();
   }, []);
 
-  const runBuild = useCallback(async () => {
-    await PgCommand.build.run();
-  }, []);
-
   return {
     handleMenu,
     ctxNewItem,
     renameItem,
     deleteItem,
+    addProgram,
+    addClient,
+    addTests,
     runClient,
     runTest,
     runClientFolder,

@@ -233,10 +233,9 @@ export class PgExplorer {
     ) {
       // Github workspace name or any other workspace name with additional '/'
       // is causing problems. We are mitigating that by directly replacing it.
-      newPath = PgCommon.joinPaths([
-        PgExplorer.PATHS.ROOT_DIR_PATH,
-        PgCommon.appendSlash(newName),
-      ]);
+      newPath = PgCommon.appendSlash(
+        PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, newName])
+      );
     } else {
       newPath = itemType.file
         ? parentFolder + newName
@@ -1405,7 +1404,9 @@ export class PgExplorer {
    * @returns the element
    */
   static getElFromPath(path: string) {
-    return document.querySelector(`[data-path='${path}']`) as HTMLDivElement;
+    return document.querySelector(`[data-path='${path}']`) as
+      | HTMLDivElement
+      | undefined;
   }
 
   /** Get the root folder elemement. */
@@ -1414,22 +1415,21 @@ export class PgExplorer {
   }
 
   /** Get the current selected element. */
-  static getSelectedEl = () => {
+  static getSelectedEl() {
     return document.getElementsByClassName(ClassName.SELECTED)[0] as
       | HTMLDivElement
       | undefined;
-  };
+  }
 
   /**
    * Set the current selected element.
    *
    * @param newEl new element to select
    */
-  static setSelectedEl = (newEl: HTMLDivElement) => {
-    const selectedEl = this.getSelectedEl();
-    selectedEl?.classList.remove(ClassName.SELECTED);
+  static setSelectedEl(newEl: HTMLDivElement) {
+    this.getSelectedEl()?.classList.remove(ClassName.SELECTED);
     newEl.classList.add(ClassName.SELECTED);
-  };
+  }
 
   /** Get the selected context element. */
   static getCtxSelectedEl() {

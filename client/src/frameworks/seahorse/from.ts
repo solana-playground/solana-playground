@@ -1,4 +1,4 @@
-import { PgCommon, TupleFiles } from "../../utils/pg";
+import { PgCommon, PgExplorer, TupleFiles } from "../../utils/pg";
 import { convertFromPlayground as convertToAnchor } from "../anchor/from";
 import { addAfter } from "../common";
 
@@ -18,7 +18,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   // with the expected program name as the program module name so that we can
   // convert the files to Anchor to avoid duplicating file generation logic.
   files.push([
-    PgCommon.joinPaths(["src", "lib.rs"]),
+    PgCommon.joinPaths([PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"]),
     `use anchor_lang::prelude::*;\n#[program] mod ${programName} {}`,
   ]);
 
