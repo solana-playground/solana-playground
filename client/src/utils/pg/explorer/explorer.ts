@@ -1262,7 +1262,7 @@ export class PgExplorer {
    * @param el item element
    * @returns the item path
    */
-  static getItemPathFromEl(el: HTMLDivElement) {
+  static getItemPathFromEl(el: Element) {
     return el?.getAttribute("data-path");
   }
 
