@@ -3,8 +3,10 @@ import type { Idl } from "@project-serum/anchor";
 
 import { declareModule } from "./helper";
 import {
+  ClientPackageName,
   Disposable,
   PgCommon,
+  PgExplorer,
   PgProgramInfo,
   PgWallet,
 } from "../../../../../../../utils/pg";
@@ -26,29 +28,6 @@ export const declareDisposableTypes = (): Disposable => {
       `/** Your program public key from playground */\nconst PROGRAM_ID: ${
         programId ? "web3.PublicKey" : "never"
       };`
-    );
-  });
-
-  // Anchor program
-  const idlChange = PgProgramInfo.onDidChangeIdl((idl) => {
-    if (!idl) return;
-
-    const programType = `anchor.Program<${JSON.stringify(convertIdl(idl))}>`;
-    addLib(
-      "program",
-      `/** Your Anchor program */\nconst program: ${programType};`
-    );
-
-    const workspace = `const workspace: { ${PgCommon.toPascalFromSnake(
-      idl.name
-    )}: ${programType} };`;
-    addLib(
-      "@coral-xyz/anchor.workspace",
-      declareModule("@coral-xyz/anchor", workspace)
-    );
-    addLib(
-      "@project-serum/anchor.workspace",
-      declareModule("@project-serum/anchor", workspace)
     );
   });
 
@@ -118,12 +97,55 @@ export const declareDisposableTypes = (): Disposable => {
     );
   }, [PgWallet.onDidChangeAccounts, PgWallet.onDidChangeCurrent]);
 
+  // Anchor program
+  const idlChange = PgProgramInfo.onDidChangeIdl((idl) => {
+    if (!idl) return;
+
+    const convertedIdl = JSON.stringify(convertIdl(idl));
+
+    // Program
+    const programType = `Program<${convertedIdl}>`;
+    addLib(
+      "program",
+      `/** Your Anchor program */
+const program: anchor.${programType};`
+    );
+
+    // Workspace
+    const getWorkspace = (packageName: ClientPackageName) => {
+      return `import { Program } from "${packageName}";
+      const workspace: { ${PgCommon.toPascalFromSnake(
+        idl.name
+      )}: ${programType} };`;
+    };
+    addLib(
+      "@coral-xyz/anchor.workspace",
+      declareModule("@coral-xyz/anchor", getWorkspace("@coral-xyz/anchor"))
+    );
+    addLib(
+      "@project-serum/anchor.workspace",
+      declareModule(
+        "@project-serum/anchor",
+        getWorkspace("@project-serum/anchor")
+      )
+    );
+
+    // target/types
+    const idlTypeName = PgCommon.toPascalFromSnake(idl.name);
+    addModel(
+      "target/types",
+      `export type ${idlTypeName} = ${convertedIdl};
+export const IDL: ${idlTypeName} = ${convertedIdl};`,
+      PgExplorer.convertToFullPath(`target/types/${idl.name}.ts`)
+    );
+  });
+
   return {
     dispose: () => {
       programIdChange.dispose();
-      idlChange.dispose();
       walletChange.dispose();
       accountsChange.dispose();
+      idlChange.dispose();
     },
   };
 };
@@ -132,11 +154,12 @@ export const declareDisposableTypes = (): Disposable => {
 type DisposableType =
   | "default"
   | "program-id"
+  | "wallet"
+  | "wallets"
   | "program"
   | "@coral-xyz/anchor.workspace"
   | "@project-serum/anchor.workspace"
-  | "wallet"
-  | "wallets";
+  | "target/types";
 
 /** Caching the disposables in order to get rid of the old declarations */
 const disposableCache: { [K in DisposableType]?: monaco.IDisposable } = {};
@@ -154,9 +177,29 @@ const addLib = (disposableType: DisposableType, lib: string) => {
       lib.includes("declare module")
         ? lib
         : declareModule("solana-playground", lib),
-      // `@coral-xyz/anchor.workspace` is not getting disposed without file path
+      // `anchor.workspace` is not getting disposed without file path
       `/disposables/${disposableType}.d.ts`
     );
+};
+
+/**
+ * Add model and remove the old one if it exists.
+ *
+ * @param disposableType name to keep track of the disposable in `disposableCache`
+ * @param content code
+ * @param filePath model URI
+ */
+const addModel = (
+  disposableType: DisposableType,
+  content: string,
+  filePath: string
+) => {
+  disposableCache[disposableType]?.dispose();
+  disposableCache[disposableType] = monaco.editor.createModel(
+    content,
+    undefined,
+    monaco.Uri.parse(filePath)
+  );
 };
 
 /**

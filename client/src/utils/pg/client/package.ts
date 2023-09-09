@@ -1,3 +1,4 @@
+import { PgProgramInfo } from "../program-info";
 import type { OrString } from "../types";
 
 /** All packages that are allowed to be used in client/test code */
@@ -61,6 +62,18 @@ export class PgClientPackage {
       case "mocha":
         return import("mocha");
       default:
+        // TODO: Remove after adding general support for local imports.
+        // Add a special case for Anchor's `target/types`
+        if (name.includes("target/types")) {
+          if (!PgProgramInfo.idl) {
+            throw new Error(
+              "IDL not found, build the program to create the IDL."
+            );
+          }
+
+          return { IDL: PgProgramInfo.idl };
+        }
+
         throw new Error(
           name.startsWith(".")
             ? "File imports are not supported."

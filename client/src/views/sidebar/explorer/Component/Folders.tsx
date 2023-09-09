@@ -42,7 +42,10 @@ const Folders = () => {
 
       // Change selected element
       const newEl = PgExplorer.getElFromPath(path);
-      if (newEl) PgExplorer.setSelectedEl(newEl);
+      if (newEl) {
+        PgExplorer.setSelectedEl(newEl);
+        PgExplorer.removeCtxSelectedEl();
+      }
     };
 
     const switchFile = PgExplorer.onDidSwitchFile(async (file) => {

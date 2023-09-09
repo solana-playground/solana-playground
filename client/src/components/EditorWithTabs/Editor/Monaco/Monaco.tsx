@@ -501,6 +501,10 @@ const Monaco = () => {
           .getModels()
           .filter((model) => {
             return (
+              // Only check client and tests dir otherwise `target/types` model
+              // will also get disposed
+              (model.uri.path.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ||
+                model.uri.path.includes(PgExplorer.PATHS.TESTS_DIRNAME)) &&
               PgExplorer.isFileJsLike(model.uri.path) &&
               model.uri.path !== curFile.path &&
               !model.getValue().includes("import")
