@@ -453,9 +453,7 @@ export class PgExplorer {
 
     // Open the default file if it has been specified
     if (opts?.defaultOpenFile) {
-      this.changeCurrentFile(
-        this.appendToCurrentWorkspacePath(opts.defaultOpenFile)
-      );
+      this.changeCurrentFile(opts.defaultOpenFile);
 
       // Save metadata to never lose default open file
       await this.saveMeta();
@@ -539,7 +537,7 @@ export class PgExplorer {
     if (!opts?.initial) {
       for (const path in this.files) {
         // Check whether all of the files start with the correct path
-        if (!path.startsWith(PgExplorer.currentWorkspacePath)) return;
+        if (!path.startsWith(this.currentWorkspacePath)) return;
 
         metaFile[this.getRelativePath(path)] = { ...this.files[path].meta };
       }
@@ -732,14 +730,6 @@ export class PgExplorer {
   }
 
   /**
-   * @param path path to be appended after the current workspace path
-   * @returns full path based on the input
-   */
-  static appendToCurrentWorkspacePath(path: string) {
-    return PgCommon.joinPaths([this.currentWorkspacePath, path]);
-  }
-
-  /**
    * Get the current file's language from it's path.
    *
    * @returns the current language name
@@ -799,11 +789,11 @@ export class PgExplorer {
   }
 
   /**
-   * Get the project root path.
+   * Get the current project root path.
    *
    * This is not to be confused with root path(`/`).
    *
-   * @returns the project root path
+   * @returns the current project root path
    */
   static getProjectRootPath() {
     return this.isTemporary
@@ -992,14 +982,14 @@ export class PgExplorer {
     const setupFiles = async (path: string) => {
       const itemNames = await this.fs.readDir(path);
 
+      // Empty directory
       if (!itemNames.length) {
-        // Empty directory
         this.files[path] = {};
         return;
       }
 
       const subItemPaths = itemNames
-        .filter((itemName) => !itemName.includes(PgWorkspace.WORKSPACE_PATH))
+        .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
           return (
             PgCommon.joinPaths([path, itemName]) +
@@ -1094,7 +1084,7 @@ export class PgExplorer {
     );
 
     for (const path in metaFile) {
-      const file = this.files[this.appendToCurrentWorkspacePath(path)];
+      const file = this.files[this.convertToFullPath(path)];
       if (file?.content !== undefined) file.meta = metaFile[path];
     }
   }
@@ -1148,9 +1138,7 @@ export class PgExplorer {
     }
   }
 
-  /**
-   * Change current file to the last opened tab if it exists
-   */
+  /** Change current file to the last opened tab if it exists. */
   private static _changeCurrentFileToTheLastTab() {
     const tabs = this.getTabs();
     if (!tabs.length) return;

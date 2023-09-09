@@ -1,56 +1,151 @@
 import { ScriptTarget, transpile } from "typescript";
-import { Buffer } from "buffer";
-import * as assert from "assert";
-import * as borsh from "borsh";
 import * as mocha from "mocha";
 import * as util from "util";
 import * as anchor from "@project-serum/anchor";
-import * as BufferLayout from "@solana/buffer-layout";
 import * as web3 from "@solana/web3.js";
 
 import { ClientPackageName, PgClientPackage } from "./package";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
-import { PgExplorer } from "../explorer";
 import { PgProgramInfo } from "../program-info";
 import { PgTerminal } from "../terminal";
 import { PgTest } from "../test";
 import { CurrentWallet, PgWallet, StandardWallet } from "../wallet";
-import type { OrString } from "../types";
-
-/** Utilities to be available under the `pg` namespace */
-interface Pg {
-  /** Playground connection instance */
-  connection: web3.Connection;
-  /** Current connected wallet */
-  wallet?: CurrentWallet;
-  /** All available wallets, including the standard wallets */
-  wallets?: Record<string, CurrentWallet | StandardWallet>;
-  /** Current project's program public key */
-  PROGRAM_ID?: web3.PublicKey;
-  /** Anchor program instance of the current project */
-  program?: anchor.Program;
-}
+import type { MergeUnion, OrString } from "../types";
 
 /** Options to use when running a script/test */
-export interface ClientOptions {
-  /** Path to the script/test file */
-  path?: string | null;
+interface ClientParams {
+  /** Name of the file to execute */
+  fileName: string;
+  /** JS/TS code to execute */
+  code: string;
   /** Whether to run the script as a test */
-  isTest?: boolean;
+  isTest: boolean;
 }
 
 export class PgClient {
   /**
    * Run or test JS/TS code.
    *
-   * @param opts -
-   * - `path`: path to execute
-   * - `isTest`: whether to run the code as test
-   *
-   * @returns a promise that will resolve once scripts finishes executing
+   * @param params client parameters
    */
-  static async run({ path, isTest }: ClientOptions) {
+  static async execute({ fileName, code, isTest }: ClientParams) {
+    await this._executeBlocking(
+      async () => {
+        PgTerminal.log(`  ${fileName}:`);
+
+        // Get Iframe window
+        const iframeWindow = this._getIframeWindow();
+
+        // Remove everything from the iframe window object
+        for (const key in iframeWindow) {
+          try {
+            delete iframeWindow[key];
+          } catch {
+            // Not every key can be deleted from the window object
+          }
+        }
+
+        // Get globals
+        const { globals, endCode } = await this._getGlobals({ isTest });
+
+        // Handle imports
+        const importResult = await this._importPackages(code);
+        globals.push(...importResult.imports);
+        code = importResult.code;
+
+        // Set iframe globals
+        for (const [name, pkg] of globals) {
+          // @ts-ignore
+          iframeWindow[name] = pkg;
+        }
+
+        // `describe` is only available when as test
+        if (isTest && !code.includes("describe")) {
+          throw new Error(
+            `Tests must use '${PgTerminal.bold(
+              "describe"
+            )}' function. Use '${PgTerminal.bold(
+              "run"
+            )}' command to run the script.`
+          );
+        }
+
+        // Handle blacklisted globals
+        for (const keyword of BLACKLISTED_GLOBALS) {
+          if (code.includes(keyword)) {
+            throw new Error(`'${keyword}' is not allowed`);
+          }
+        }
+
+        // Handle globals to set `undefined` to
+        for (const keyword of UNDEFINED_GLOBALS) {
+          code = `${keyword} = undefined;` + code;
+        }
+
+        // This approach:
+        // 1- Wraps the code in a class to block window access from `this`
+        // 2- Allows top-level async
+        // 3- Helps detecting when tests finish
+        code = `(async () => {
+  class __Pg { async __run() {\n${code}\n} }
+  const __pg = new __Pg();
+  try { await __pg.__run(); }
+  catch (e) { console.log("Uncaught error:", e.message); }
+  finally { ${endCode} }
+})()`;
+
+        // Transpile the code
+        code = transpile(code, {
+          target: ScriptTarget.ES5,
+          removeComments: true,
+        });
+
+        // Create script element in the iframe
+        const iframeDocument = iframeWindow.document;
+        const scriptEls = iframeDocument.getElementsByTagName("script");
+        if (scriptEls.length) iframeDocument.head.removeChild(scriptEls[0]);
+        const scriptEl = document.createElement("script");
+        iframeDocument.head.appendChild(scriptEl);
+
+        return new Promise<void>((res) => {
+          if (isTest) {
+            const intervalId = setInterval(() => {
+              // @ts-ignore
+              if (mocha._state === "init") {
+                clearInterval(intervalId);
+                res();
+              }
+            }, 1000);
+          } else {
+            const { dispose } = PgCommon.onDidChange({
+              cb: () => {
+                PgTerminal.log("");
+                dispose();
+                res();
+              },
+              eventName: CLIENT_ON_DID_FINISH_RUNNING,
+            });
+          }
+
+          // Inject the script to the iframe element
+          scriptEl.textContent = code;
+        });
+      },
+      { isTest }
+    );
+  }
+
+  /**
+   * Wrapper method to control client running state.
+   *
+   * @param cb callback function to run
+   * @param isTest whether to execute as a test
+   */
+  private static async _executeBlocking(
+    cb: () => Promise<void>,
+    { isTest }: Pick<ClientParams, "isTest">
+  ) {
     // Block creating multiple client/test instances at the same time
     if (this._isClientRunning) {
       if (isTest) throw new Error("Please wait for client to finish.");
@@ -62,266 +157,9 @@ export class PgClient {
       throw new Error("Tests are already running!");
     }
 
-    PgTerminal.log(
-      PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
-    );
-
-    // Run the script only at the given path
-    if (path) {
-      const file = PgExplorer.getFile(path);
-      if (!file) throw new Error(`File '${path}' doesn't exist`);
-
-      const fileName = PgExplorer.getItemNameFromPath(path);
-      await this._runFile(fileName, file.content!, { isTest });
-
-      return;
-    }
-
-    const folderPath = PgExplorer.appendToCurrentWorkspacePath(
-      isTest ? PgExplorer.PATHS.TESTS_DIRNAME : PgExplorer.PATHS.CLIENT_DIRNAME
-    );
-    const folder = PgExplorer.getFolderContent(folderPath);
-    if (!folder.files.length && !folder.folders.length) {
-      let DEFAULT;
-      if (isTest) {
-        PgTerminal.log(PgTerminal.info("Creating default test..."));
-        DEFAULT = DEFAULT_TEST;
-      } else {
-        PgTerminal.log(PgTerminal.info("Creating default client..."));
-        DEFAULT = DEFAULT_CLIENT;
-      }
-
-      const [fileName, code] = DEFAULT;
-      await PgExplorer.newItem(
-        PgCommon.joinPaths([folderPath, fileName]),
-        code
-      );
-      await this._runFile(fileName, code, { isTest });
-
-      return;
-    }
-
-    // Run all files inside the folder
-    for (const fileName of folder.files.filter(PgExplorer.isFileJsLike)) {
-      const code = PgExplorer.getFileContent(
-        PgCommon.joinPaths([folderPath, fileName])
-      );
-      if (code) await this._runFile(fileName, code, { isTest });
-    }
-  }
-
-  /**
-   * Execute the given script/test as a single file.
-   *
-   * @param fileName name of the file to run
-   * @param code code to execute
-   * @param opts run options
-   */
-  private static async _runFile(
-    fileName: string,
-    code: string,
-    { isTest }: ClientOptions
-  ) {
-    if (!PgExplorer.isFileJsLike(fileName)) {
-      throw new Error(`File '${fileName}' is not a script file`);
-    }
-
-    await this._run(async (iframeWindow) => {
-      PgTerminal.log(`  ${fileName}:`);
-
-      for (const keyword of BLACKLISTED_KEYWORDS) {
-        if (code.includes(keyword)) {
-          throw new Error(`'${keyword}' is not allowed`);
-        }
-      }
-
-      if (isTest && !code.includes("describe")) {
-        throw new Error(
-          `Tests must use '${PgTerminal.bold(
-            "describe"
-          )}' function. Use '${PgTerminal.bold(
-            "run"
-          )}' command to run the script.`
-        );
-      }
-
-      // Add globally accessed objects
-      this._overridePackage("@project-serum/anchor", anchor);
-      const globals: [string, object][] = [
-        /// Modules
-        ["anchor", anchor],
-        ["assert", assert],
-        ["BN", anchor.BN],
-        ["borsh", borsh],
-        ["Buffer", Buffer],
-        ["BufferLayout", BufferLayout],
-        ["web3", web3],
-
-        // https://github.com/solana-playground/solana-playground/issues/82
-        ["Uint8Array", Uint8Array],
-
-        /// Functions
-        ["sleep", PgCommon.sleep],
-      ];
-
-      // Handle imports
-      const importResult = await this._handleImports(code);
-      code = importResult.code;
-      globals.push(...importResult.imports);
-
-      let endCode;
-      if (isTest) {
-        // Setup mocha
-        try {
-          if (describe !== undefined) {
-            // Reset suite
-            // @ts-ignore
-            mocha.suite.suites = [];
-            // @ts-ignore
-            mocha.suite.tests = [];
-          }
-        } catch {}
-
-        // @ts-ignore
-        mocha.setup({
-          ui: "bdd",
-          timeout: "30000",
-          // Mocha disposes itself after the `run` function without this option
-          cleanReferencesAfterRun: false,
-          // Logs the test output to the browser console
-          reporter: "spec",
-        });
-
-        // Set mocha globals
-        globals.push(
-          ["after", after],
-          ["afterEach", afterEach],
-          ["before", before],
-          ["beforeEach", beforeEach],
-          ["context", context],
-          ["describe", describe],
-          ["it", it],
-          ["specify", specify],
-          ["xcontext", xcontext],
-          ["xdescribe", xdescribe],
-          ["xit", xit],
-          ["xspecify", xspecify],
-          ["_run", mocha.run]
-        );
-
-        endCode = "_run()";
-      } else {
-        // Run only
-        globals.push([
-          "_end",
-          () => {
-            PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
-          },
-        ]);
-
-        endCode = "_end()";
-      }
-
-      // Set playground inherited object
-      globals.push(["pg", this._getPg()]);
-
-      // Setup iframe globals
-      for (const [name, pkg] of globals) {
-        // @ts-ignore
-        iframeWindow[name] = pkg;
-      }
-
-      // Create script element in the iframe
-      const iframeDocument = iframeWindow.document;
-      const scriptEls = iframeDocument.getElementsByTagName("script");
-      if (scriptEls.length) {
-        iframeDocument.head.removeChild(scriptEls[0]);
-      }
-      const scriptEl = document.createElement("script");
-      iframeDocument.head.appendChild(scriptEl);
-
-      for (const keyword of UNDEFINED_KEYWORDS) {
-        code = `${keyword} = undefined;` + code;
-      }
-
-      // This approach:
-      // 1- Wraps the code in a class to block window access from `this`
-      // 2- Allows top-level async
-      // 3- Helps detecting when tests finish
-      code = `(async () => {
-  class __Pg { async __run() {\n${code}\n} }
-  const __pg = new __Pg();
-  try { await __pg.__run(); }
-  catch (e) { console.log("Uncaught error:", e.message) }
-  finally { ${endCode} }
-}()`;
-
-      return new Promise((res) => {
-        if (isTest) {
-          const intervalId = setInterval(() => {
-            // @ts-ignore
-            if (mocha._state === "init") {
-              clearInterval(intervalId);
-              res();
-            }
-          }, 1000);
-        } else {
-          const { dispose } = PgCommon.onDidChange({
-            cb: () => {
-              PgTerminal.log("");
-              dispose();
-              res();
-            },
-            eventName: CLIENT_ON_DID_FINISH_RUNNING,
-          });
-        }
-
-        // Transpile and inject the script to the iframe element
-        scriptEl.textContent = transpile(code, {
-          target: ScriptTarget.ES5,
-          removeComments: true,
-        });
-      });
-    }, isTest);
-  }
-
-  /**
-   * Wrapper function to control client running state.
-   *
-   * @param cb callback function to run
-   * @param isTest whether to execute as a test
-   */
-  private static async _run(
-    cb: (iframeWindow: Window) => Promise<void>,
-    isTest: ClientOptions["isTest"]
-  ) {
-    if (!isTest) this._isClientRunning = true;
-
     try {
-      const iframeWindow = this._getIframeWindow();
-
-      // Remove everything from the iframe window object
-      for (const key in iframeWindow) {
-        try {
-          delete iframeWindow[key];
-        } catch {
-          // Not every key can be deleted from the window object
-        }
-      }
-
-      // Redefine console inside the iframe to log in the terminal
-      const padding = "    ";
-      // @ts-ignore
-      iframeWindow["console"] = {
-        log: (msg: string, ...rest: any[]) => {
-          PgTerminal.log(padding + util.format(msg, ...rest));
-        },
-        error: (msg: string, ...rest: any[]) => {
-          PgTerminal.log(padding + PgTerminal.error(util.format(msg, ...rest)));
-        },
-      };
-
-      await cb(iframeWindow);
+      if (!isTest) this._isClientRunning = true;
+      await cb();
     } catch (e) {
       throw e;
     } finally {
@@ -330,7 +168,7 @@ export class PgClient {
   }
 
   /**
-   * Get the window element of the script `Iframe`.
+   * Get or create the window object of the `Iframe` element.
    *
    * @returns `Iframe`'s window element
    */
@@ -354,12 +192,118 @@ export class PgClient {
   }
 
   /**
+   * Get global variables.
+   *
+   * @param isTest whether to execute as a test
+   * @returns the globals and the end code to indicate when the execution is over
+   */
+  private static async _getGlobals({ isTest }: Pick<ClientParams, "isTest">) {
+    // Redefine console inside the iframe to log in the terminal
+    const padding = "    ";
+    const iframeConsole = {
+      log: (msg: string, ...rest: any[]) => {
+        PgTerminal.log(padding + util.format(msg, ...rest));
+      },
+      error: (msg: string, ...rest: any[]) => {
+        PgTerminal.log(padding + PgTerminal.error(util.format(msg, ...rest)));
+      },
+    };
+
+    const globals: [string, object][] = [
+      // Playground global
+      ["pg", this._getPg()],
+
+      // Namespaces
+      ["console", iframeConsole],
+
+      // https://github.com/solana-playground/solana-playground/issues/82
+      ["Uint8Array", Uint8Array],
+
+      // Functions
+      ["sleep", PgCommon.sleep],
+    ];
+
+    // Set global packages
+    for (const [packageName, importStyle] of PgCommon.entries(
+      PACKAGES.global
+    )) {
+      const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
+      const pkg: { [name: string]: any } = await PgClientPackage.import(
+        packageName
+      );
+      this._overridePackage(packageName, pkg);
+
+      let global: typeof globals[number];
+      if (style.as) global = [style.as, pkg];
+      else if (style.named) global = [style.named, pkg[style.named]];
+      else if (style.default) global = [style.default, pkg.default ?? pkg];
+      else throw new Error("Unreachable");
+
+      globals.push(global);
+    }
+
+    let endCode: string;
+    if (isTest) {
+      endCode = "_run()";
+
+      // Setup mocha
+      try {
+        if (describe !== undefined) {
+          // Reset suite
+          // @ts-ignore
+          mocha.suite.suites = [];
+          // @ts-ignore
+          mocha.suite.tests = [];
+        }
+      } catch {}
+
+      // @ts-ignore
+      mocha.setup({
+        ui: "bdd",
+        timeout: "30000",
+        // Mocha disposes itself after the `run` function without this option
+        cleanReferencesAfterRun: false,
+        // Logs the test output to the browser console
+        reporter: "spec",
+      });
+
+      // Set mocha globals
+      globals.push(
+        ["after", after],
+        ["afterEach", afterEach],
+        ["before", before],
+        ["beforeEach", beforeEach],
+        ["context", context],
+        ["describe", describe],
+        ["it", it],
+        ["specify", specify],
+        ["xcontext", xcontext],
+        ["xdescribe", xdescribe],
+        ["xit", xit],
+        ["xspecify", xspecify],
+        ["_run", mocha.run]
+      );
+    } else {
+      // Run only
+      endCode = "__end()";
+      globals.push([
+        "__end",
+        () => {
+          PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
+        },
+      ]);
+    }
+
+    return { globals, endCode };
+  }
+
+  /**
    * Handle user specified imports.
    *
    * @param code script/test code
    * @returns the imported packages and the code without the import statements
    */
-  private static async _handleImports(code: string) {
+  private static async _importPackages(code: string) {
     const importRegex = new RegExp(
       /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+["|'](.+)["|']/gm
     );
@@ -485,6 +429,20 @@ export class PgClient {
    * @returns the `pg` global object
    */
   private static _getPg() {
+    /** Utilities to be available under the `pg` namespace */
+    interface Pg {
+      /** Playground connection instance */
+      connection: web3.Connection;
+      /** Current connected wallet */
+      wallet?: CurrentWallet;
+      /** All available wallets, including the standard wallets */
+      wallets?: Record<string, CurrentWallet | StandardWallet>;
+      /** Current project's program public key */
+      PROGRAM_ID?: web3.PublicKey;
+      /** Anchor program instance of the current project */
+      program?: anchor.Program;
+    }
+
     // Playground utils namespace
     const pg: Pg = { connection: PgConnection.current };
 
@@ -526,48 +484,8 @@ export class PgClient {
   private static _IframeWindow: Window;
 }
 
-/** Default client files*/
-const DEFAULT_CLIENT = [
-  "client.ts",
-  `// Client
-console.log("My address:", pg.wallet.publicKey.toString());
-const balance = await pg.connection.getBalance(pg.wallet.publicKey);
-console.log(\`My balance: \${balance / web3.LAMPORTS_PER_SOL} SOL\`);
-`,
-];
-
-/** Default test files */
-const DEFAULT_TEST = [
-  "index.test.ts",
-  `describe("Test", () => {
-  it("Airdrop", async () => {
-    // Fetch my balance
-    const balance = await pg.connection.getBalance(pg.wallet.publicKey);
-    console.log(\`My balance is \${balance} lamports\`);
-
-    // Airdrop 1 SOL
-    const airdropAmount = 1 * web3.LAMPORTS_PER_SOL;
-    const txHash = await pg.connection.requestAirdrop(
-      pg.wallet.publicKey,
-      airdropAmount
-    );
-
-    // Confirm transaction
-    await pg.connection.confirmTransaction(txHash);
-
-    // Fetch new balance
-    const newBalance = await pg.connection.getBalance(pg.wallet.publicKey);
-    console.log(\`New balance is \${newBalance} lamports\`);
-
-    // Assert balances
-    assert(balance + airdropAmount === newBalance);
-  });
-});
-`,
-];
-
 /** Keywords that are not allowed to be in the user code */
-const BLACKLISTED_KEYWORDS = [
+const BLACKLISTED_GLOBALS = [
   "window",
   "globalThis",
   "document",
@@ -576,8 +494,8 @@ const BLACKLISTED_KEYWORDS = [
   "chrome",
 ];
 
-/** Keywords that will be set to `undefined` */
-const UNDEFINED_KEYWORDS = ["eval", "Function"];
+/** Globals that will be set to `undefined` */
+const UNDEFINED_GLOBALS = ["eval", "Function"];
 
 /** Event name that will be dispatched when client code completes executing */
 const CLIENT_ON_DID_FINISH_RUNNING = "clientondidfinishrunning";
