@@ -2,7 +2,9 @@ import { WorkspaceError } from "../../../constants";
 import { PgCommon } from "../common";
 
 interface Workspaces {
+  /** All workspace names */
   allNames: string[];
+  /** Current workspace name */
   currentName?: string;
 }
 
@@ -30,7 +32,9 @@ export class PgWorkspace {
   }
 
   /**
-   * @returns workspaces state
+   * Get the current workspaces.
+   *
+   * @returns the current workspaces state
    */
   get(): Workspaces {
     return {
@@ -40,7 +44,8 @@ export class PgWorkspace {
   }
 
   /**
-   * Set the current workspaces
+   * Set the current workspaces.
+   *
    * @param workspaces new workspaces config to set the state to
    */
   setCurrent(workspaces: Workspaces) {
@@ -49,7 +54,8 @@ export class PgWorkspace {
   }
 
   /**
-   * Set the current workspace name
+   * Set the current workspace name.
+   *
    * @param name new workspace name to set the current name to
    */
   setCurrentName(name: string) {
@@ -59,7 +65,8 @@ export class PgWorkspace {
   }
 
   /**
-   * Create a new workspace in state and set the current state
+   * Create a new workspace in state and set the current state.
+   *
    * @param name workspace name
    */
   new(name: string) {
@@ -72,7 +79,8 @@ export class PgWorkspace {
   }
 
   /**
-   * Delete the given workspace in state
+   * Delete the given workspace in state.
+   *
    * @param name workspace name
    */
   delete(name: string) {
@@ -80,7 +88,8 @@ export class PgWorkspace {
   }
 
   /**
-   * Rename the given workspace and make it current
+   * Rename the given workspace and make it current.
+   *
    * @param newName new workspace name
    */
   rename(newName: string) {
@@ -89,7 +98,6 @@ export class PgWorkspace {
     }
 
     const oldName = this._state.currentName;
-
     this._state.allNames = this._state.allNames.map((n) =>
       n === oldName ? newName : n
     );

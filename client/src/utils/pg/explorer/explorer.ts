@@ -554,6 +554,15 @@ export class PgExplorer {
   /* ---------------------------- State methods ---------------------------- */
 
   /**
+   * Get all files as `TupleFiles`
+   *
+   * @returns all files as an array of [path, content] tuples
+   */
+  static getAllFiles() {
+    return this.convertToTupleFiles(this.files);
+  }
+
+  /**
    * Save the file to the state only.
    *
    * @param path file path
@@ -600,7 +609,7 @@ export class PgExplorer {
    * @returns the file content from state
    */
   static getFileContent(path: string) {
-    return this.getFile(this.convertToFullPath(path))?.content;
+    return this.getFile(path)?.content;
   }
 
   /**
@@ -721,7 +730,7 @@ export class PgExplorer {
     files[path].meta!.tabs = false;
 
     // If we are closing the current file, change current file to the last tab
-    if (files[path].meta?.current) {
+    if (files[path].meta!.current) {
       files[path].meta!.current = false;
       this._changeCurrentFileToTheLastTab();
     }
@@ -991,10 +1000,11 @@ export class PgExplorer {
       const subItemPaths = itemNames
         .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
-          return (
-            PgCommon.joinPaths([path, itemName]) +
-            (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
-          );
+          return PgCommon.joinPaths([
+            path,
+            itemName,
+            PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "",
+          ]);
         });
       for (const subItemPath of subItemPaths) {
         const metadata = await this.fs.getMetadata(subItemPath);
@@ -1322,6 +1332,7 @@ export class PgExplorer {
   static getIsItemClientFromEl(el: HTMLDivElement) {
     const path = this.getItemPathFromEl(el);
     if (!path) return false;
+
     const lang = this.getLanguageFromPath(path);
     return (
       !!path &&
@@ -1339,6 +1350,7 @@ export class PgExplorer {
   static getIsItemTestFromEl(el: HTMLDivElement) {
     const path = this.getItemPathFromEl(el);
     if (!path) return false;
+
     const lang = this.getLanguageFromPath(path);
     return (
       !!path && (lang === Lang.JAVASCRIPT_TEST || lang === Lang.TYPESCRIPT_TEST)
@@ -1478,7 +1490,7 @@ export class PgExplorer {
       if (!parentEl) break;
 
       this.openFolder(parentEl);
-      if (parentPath === "/") break;
+      if (parentPath === this.PATHS.ROOT_DIR_PATH) break;
 
       path = parentPath;
     }
@@ -1534,15 +1546,6 @@ export class PgExplorer {
    */
   static isWorkspaceNameValid(name: string) {
     return !!name.match(/^(?!\s)[\w\s-]+$/);
-  }
-
-  /**
-   * Get all files as `TupleFiles`
-   *
-   * @returns all files as an array of [path, content] tuples
-   */
-  static getAllFiles() {
-    return this.convertToTupleFiles(this.files);
   }
 
   /**
