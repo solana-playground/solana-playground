@@ -43,13 +43,20 @@ const lockFile = await parseLockFile(LOCK_FILE_PATH);
 /** Local crates.io registry */
 const registry = await getRegistry();
 
-/** All supported crates */
-const crates = await getCrates();
-
 /** Cached crate names */
 const cachedCrates = [];
 
-await withReset(() => generateDependencies(crates));
+await withReset(async () => {
+  // Generate crates
+  const crates = await getCrates();
+  await generateDependencies(crates);
+
+  // Save versions
+  await fs.writeFile(
+    path.join(CRATES_PATH, "versions.json"),
+    JSON.stringify(crates)
+  );
+});
 
 /**
  * Execute the given callback after crates directory has been reset.

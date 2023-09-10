@@ -49,7 +49,10 @@ export const addAfter = (
  * @param files all files
  * @returns the dependency list
  */
-export const getRustDependencies = (files: TupleFiles) => {
+export const getRustDependencies = async (files: TupleFiles) => {
+  const versions = await getVersions("crates");
+  const getVersion = (crateName: string) => versions[crateName] ?? "*";
+
   const dependencies: Dependencies = {};
   const rustContents = files
     .filter(([path]) => path.endsWith(".rs"))
@@ -62,8 +65,7 @@ export const getRustDependencies = (files: TupleFiles) => {
         !dependencies[dependencyName] &&
         new RegExp(`${crateName}::`, "gm").test(content)
       ) {
-        // TODO: Correct version
-        dependencies[dependencyName] = "*";
+        dependencies[dependencyName] = getVersion(dependencyName);
       }
     }
   }
@@ -79,11 +81,9 @@ export const getRustDependencies = (files: TupleFiles) => {
  * @param files all files
  * @returns the dependency list
  */
-export const getJSDependencies = (files: TupleFiles) => {
-  const getVersion = (packageName: string) => {
-    // TODO: Correct version
-    return "*";
-  };
+export const getJSDependencies = async (files: TupleFiles) => {
+  const versions = await getVersions("packages");
+  const getVersion = (packageName: string) => versions[packageName] ?? "*";
 
   const dependencies: Dependencies = {};
   const jsContents = files
@@ -119,6 +119,18 @@ export const getJSDependencies = (files: TupleFiles) => {
   };
 
   return PgCommon.prettyJSON({ dependencies, devDependencies }).slice(2, -2);
+};
+
+/**
+ * Get a map of names to versions.
+ *
+ * @param kind `crates` or `packages`
+ * @returns versions map
+ */
+const getVersions = async (
+  kind: "crates" | "packages"
+): Promise<Record<string, string>> => {
+  return await PgCommon.fetchJSON(`/${kind}/versions.json`);
 };
 
 /**

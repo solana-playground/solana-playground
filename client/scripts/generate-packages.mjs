@@ -25,6 +25,9 @@ const OLD_INDEX_FILENAME = "old-index.d.ts";
 /** All supported packages */
 const packages = await readJSON(SUPPORTED_PACKAGES_PATH);
 
+/** Map of package name to version */
+const versions = {};
+
 // Reset packages directory
 await resetDir(PACKAGES_PATH);
 
@@ -68,6 +71,9 @@ for (const name of packages.importable) {
         paths.push(convertedPaths);
       }
     });
+
+    // Add version
+    versions[pkg.name] = pkg.version;
   }
 
   const files = [];
@@ -101,6 +107,11 @@ for (const name of packages.importable) {
   console.log(logData);
 }
 
+await fs.writeFile(
+  pathModule.join(PACKAGES_PATH, "versions.json"),
+  JSON.stringify(versions)
+);
+
 /**
  * Get the type declaration root file from `package.json`.
  *
@@ -113,8 +124,9 @@ async function getPackage(path) {
       const packageJSON = await readJSON(pathModule.join(path, "package.json"));
       if (packageJSON.types) {
         return {
-          indexPath: pathModule.join(path, packageJSON.types),
+          name: packageJSON.name,
           version: packageJSON.version,
+          indexPath: pathModule.join(path, packageJSON.types),
         };
       }
     } catch {}

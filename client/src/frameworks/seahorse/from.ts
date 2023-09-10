@@ -22,7 +22,8 @@ export const convertFromPlayground = async (files: TupleFiles) => {
     `use anchor_lang::prelude::*;\n#[program] mod ${programName} {}`,
   ]);
 
-  const frameworkFiles = convertToAnchor(files).map((file) => {
+  const anchorFiles = await convertToAnchor(files);
+  const frameworkFiles = anchorFiles.map((file) => {
     // programs/<program-name>/src/**/*.py -> programs_py/<program-name>.py
     file[0] = file[0].replace(/programs\/.*\/src\/(.*\.py)/, (_, name) => {
       return PgCommon.joinPaths(["programs_py", name]);

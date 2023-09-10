@@ -15,7 +15,7 @@ import {
 /**
  * {@link Framework.importFromPlayground}
  */
-export const convertFromPlayground = (files: TupleFiles) => {
+export const convertFromPlayground = async (files: TupleFiles) => {
   const PROGRAM_PATH = "program";
 
   const frameworkFiles: TupleFiles = [];
@@ -60,7 +60,7 @@ crate-type = ["cdylib", "lib"]
 [features]
 no-entrypoint = []
 
-${getRustDependencies(files)}
+${await getRustDependencies(files)}
 `,
     ],
 
@@ -93,7 +93,7 @@ test-ledger
     "client": "yarn run ts-node client/*.ts",
     "test": "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
   },
-${getJSDependencies(frameworkFiles)}
+${await getJSDependencies(frameworkFiles)}
 }
 `,
     ],

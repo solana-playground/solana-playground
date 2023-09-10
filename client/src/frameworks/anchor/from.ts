@@ -14,7 +14,7 @@ import {
 /**
  * {@link Framework.importFromPlayground}
  */
-export const convertFromPlayground = (files: TupleFiles) => {
+export const convertFromPlayground = async (files: TupleFiles) => {
   // Program manifest's lib name must match the `#[program]` module name and
   // Anchor.toml programs definition
   const libContent = files.find(([path]) => path.endsWith("lib.rs"))?.[1];
@@ -93,7 +93,7 @@ no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
 
-${getRustDependencies(frameworkFiles)}
+${await getRustDependencies(frameworkFiles)}
 `,
     ],
 
@@ -185,7 +185,7 @@ codegen-units = 1
     "lint:fix": "prettier */*.js \\"*/**/*{.js,.ts}\\" -w",
     "lint": "prettier */*.js \\"*/**/*{.js,.ts}\\" --check"
   },
-${getJSDependencies(frameworkFiles)}
+${await getJSDependencies(frameworkFiles)}
 }
 `,
     ],
