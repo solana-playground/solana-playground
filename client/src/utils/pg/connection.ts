@@ -40,25 +40,36 @@ const derive = () => ({
       PgPlaynet.onDidInit,
     ],
   }),
+
   /** Get whether there is a successful connection */
   isConnected: createDerivable({
-    derive: async () => {
-      try {
-        await PgConnection.current.getVersion();
-        return true;
-      } catch {
-        return false;
-      }
-    },
+    derive: _PgConnection.getIsConnected,
     onChange: (cb) => {
+      // Keep track of `isConnected` and only run the `cb` when the value
+      // actually changes. This is because the decorators such as `derivable`
+      // and `updatable` trigger a change event each time the value is set
+      // independent of whether the value has changed unlike React which only
+      // re-renders when the memory location of the value changes.
+      //
+      // TODO: Allow specifying whether the value should be compared with the
+      // previous value and trigger the change event **only if** there is a
+      // difference in comparison.
+      let isConnected = false;
+
       // Refresh every 60 seconds on success
-      const successId = setInterval(() => {
-        if (PgConnection.isConnected) cb();
+      const successId = setInterval(async () => {
+        if (!isConnected) return;
+
+        isConnected = await PgConnection.getIsConnected();
+        if (!isConnected) cb();
       }, 60000);
 
       // Refresh every 5 seconds on error
-      const errorId = setInterval(() => {
-        if (!PgConnection.isConnected) cb();
+      const errorId = setInterval(async () => {
+        if (isConnected) return;
+
+        isConnected = await PgConnection.getIsConnected();
+        if (isConnected) cb();
       }, 5000);
 
       return {
@@ -73,6 +84,20 @@ const derive = () => ({
 
 @derivable(derive)
 class _PgConnection {
+  /**
+   * Get whether there is a successful connection to the current endpoint.
+   *
+   * @returns whether there is a successful connection
+   */
+  static async getIsConnected() {
+    try {
+      await PgConnection.current.getVersion();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   /**
    * Create a connection with the given options or defaults from settings.
    *
