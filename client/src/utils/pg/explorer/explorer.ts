@@ -1000,11 +1000,10 @@ export class PgExplorer {
       const subItemPaths = itemNames
         .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
-          return PgCommon.joinPaths([
-            path,
-            itemName,
-            PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "",
-          ]);
+          return (
+            PgCommon.joinPaths([path, itemName]) +
+            (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
+          );
         });
       for (const subItemPath of subItemPaths) {
         const metadata = await this.fs.getMetadata(subItemPath);
