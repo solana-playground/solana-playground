@@ -30,11 +30,8 @@ export const ImportGithub = () => {
     const input = ev.target.value;
     setUrl(input);
 
-    if (!input.includes("github.com")) {
-      setError("The URL must be a GitHub URL");
-    } else {
-      setError("");
-    }
+    if (!input.includes("github.com")) setError("The URL must be a GitHub URL");
+    else setError("");
   };
 
   const importFromGithub = () => PgCommon.transition(PgGithub.import(url));
@@ -99,7 +96,10 @@ export const ImportGithub = () => {
 const GITHUB_PROGRAM_URL =
   "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor";
 
-const VIEW_URL = window.location.href + GITHUB_PROGRAM_URL;
+const VIEW_URL = PgCommon.joinPaths([
+  window.location.origin,
+  GITHUB_PROGRAM_URL,
+]);
 
 const Wrapper = styled.div`
   max-width: 39rem;
