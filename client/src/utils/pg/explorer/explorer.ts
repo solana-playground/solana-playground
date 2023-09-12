@@ -1044,7 +1044,7 @@ export class PgExplorer {
     }
 
     // Runs when `indexedDB` is empty
-    if (!Object.keys(this.files).length) {
+    if (!Object.keys(this.files).length && !this.allWorkspaceNames?.length) {
       console.log("Setting up default FS...");
       // For backwards compatibility reasons, we check whether explorer key is used in localStorage
       // and move the localStorage FS to `indexedDB`.
