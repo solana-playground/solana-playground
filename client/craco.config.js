@@ -139,6 +139,16 @@ module.exports = {
         })
       );
 
+      // Do not mangle class names that start with "_Pg" because decorators'
+      // main change event name is derived from the class name.
+      const terserPlugin = webpackConfig.optimization.minimizer[0];
+
+      // Instead of `keep_classnames` we use `keep_fnames` because decorator
+      // classes transform into functions.
+      // See: https://github.com/terser/terser#minify-options-structure
+      // terserPlugin.options.minimizer.options.keep_classnames = /^_Pg/;
+      terserPlugin.options.minimizer.options.keep_fnames = /^_Pg/;
+
       // Ignore useless warnings
       webpackConfig.ignoreWarnings = [
         /Failed to parse source map/,

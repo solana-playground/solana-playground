@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { Endpoint } from "../../../../constants";
-import { PgCommon, PgConnection, PgView } from "../../../../utils/pg";
+import { PgCommon, PgConnection, PgView, PgWallet } from "../../../../utils/pg";
 
 /** Show helpers when there is a connection error with the current endpoint. */
 export const useHelpConnection = () => {
@@ -12,13 +12,15 @@ export const useHelpConnection = () => {
       nonLocal: false,
     };
 
-    const { dispose } = PgConnection.onDidChange(async () => {
+    const { dispose } = PgCommon.batchChanges(async () => {
       if (helperCache.local && helperCache.nonLocal) return;
+      if (!PgWallet.current) return;
       if (PgConnection.current.rpcEndpoint === Endpoint.PLAYNET) return;
 
       const RETRY_AMOUNT = 2;
       for (let i = 0; i < RETRY_AMOUNT; i++) {
-        if (PgConnection.isConnected) return;
+        const isConnected = await PgConnection.getIsConnected();
+        if (isConnected) return;
 
         // Don't sleep on the last iteration
         if (i !== RETRY_AMOUNT - 1) await PgCommon.sleep(5000);
@@ -42,7 +44,7 @@ export const useHelpConnection = () => {
 
         helperCache.nonLocal = true;
       }
-    });
+    }, [PgConnection.onDidChange, PgWallet.onDidChangeCurrent]);
 
     return () => dispose();
   }, []);
