@@ -39,7 +39,9 @@ let state: AsyncMethods<WorldState>;
 export const initRustAnalyzer = async (): Promise<Disposable> => {
   // Creating thread pool with `wasm-bindgen-rayon` sometimes hangs forever for
   // unknown reasons. Retry until success in order to mitigate this problem.
-  state = await PgCommon.tryUntilSuccess(createWorker, 2000);
+  // The try interval should take into account the initial download time of the
+  // Rust Analyzer WASM files(~9MB) on slower connections.
+  state = await PgCommon.tryUntilSuccess(createWorker, 10000);
 
   // Initialize and load the default crates
   await state.loadDefaultCrates(
