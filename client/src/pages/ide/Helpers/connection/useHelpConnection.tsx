@@ -1,19 +1,33 @@
 import { useEffect } from "react";
 
 import { Endpoint } from "../../../../constants";
-import { PgCommon, PgConnection, PgView, PgWallet } from "../../../../utils/pg";
+import {
+  PgCommon,
+  PgConnection,
+  PgView,
+  PgWallet,
+  SyncOrAsync,
+} from "../../../../utils/pg";
 
 /** Show helpers when there is a connection error with the current endpoint. */
 export const useHelpConnection = () => {
   useEffect(() => {
-    // Only show this helper once to not be annoying with pop-ups
-    const helperCache = {
+    // Only show each helper once to not be annoying with pop-ups
+    const cache = {
       local: false,
       nonLocal: false,
     };
+    const executeOnce = async (
+      kind: keyof typeof cache,
+      cb: () => SyncOrAsync
+    ) => {
+      if (cache[kind]) return;
+      await cb();
+      cache[kind] = true;
+    };
 
     const { dispose } = PgCommon.batchChanges(async () => {
-      if (helperCache.local && helperCache.nonLocal) return;
+      if (cache.local && cache.nonLocal) return;
       if (!PgWallet.current) return;
       if (PgConnection.current.rpcEndpoint === Endpoint.PLAYNET) return;
 
@@ -28,21 +42,17 @@ export const useHelpConnection = () => {
 
       // Connection failed
       if (PgConnection.current.rpcEndpoint === Endpoint.LOCALHOST) {
-        if (helperCache.local) return;
-
-        const { Local } = await import("./Local");
-        await PgView.setModal(Local);
-
-        helperCache.local = true;
-      } else {
-        if (helperCache.nonLocal) return;
-
-        const { NonLocal } = await import("./NonLocal");
-        PgView.setToast(NonLocal, {
-          options: { autoClose: false, closeOnClick: true },
+        executeOnce("local", async () => {
+          const { Local } = await import("./Local");
+          await PgView.setModal(Local);
         });
-
-        helperCache.nonLocal = true;
+      } else {
+        executeOnce("nonLocal", async () => {
+          const { NonLocal } = await import("./NonLocal");
+          PgView.setToast(NonLocal, {
+            options: { autoClose: false, closeOnClick: true },
+          });
+        });
       }
     }, [PgConnection.onDidChange, PgWallet.onDidChangeCurrent]);
 

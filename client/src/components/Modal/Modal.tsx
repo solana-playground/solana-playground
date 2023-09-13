@@ -12,8 +12,7 @@ import Button, { ButtonProps } from "../Button";
 import Text from "../Text";
 import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
-import { OrString, PgTheme, SyncOrAsync } from "../../utils/pg";
-import { useModal } from "./useModal";
+import { OrString, PgTheme, PgView, SyncOrAsync } from "../../utils/pg";
 import { useKeybind } from "../../hooks";
 
 interface ModalProps {
@@ -48,18 +47,15 @@ const Modal: FC<ModalProps> = ({
 }) => {
   const [error, setError] = useState("");
 
-  const { close } = useModal();
-
   const handleSubmit = useCallback(async () => {
     if (!buttonProps || buttonProps.disabled) return;
 
     try {
       // Get result
-      const onSubmit: () => SyncOrAsync = buttonProps.onSubmit ?? close;
-      const data = await onSubmit();
+      const data = await buttonProps.onSubmit?.();
 
       // Close unless explicitly forbidden
-      if (!buttonProps.noCloseOnSubmit) close(data);
+      if (!buttonProps.noCloseOnSubmit) PgView.closeModal(data);
     } catch (e: any) {
       if (buttonProps.setError) buttonProps.setError(e.message);
       else {
@@ -67,7 +63,7 @@ const Modal: FC<ModalProps> = ({
         throw e;
       }
     }
-  }, [buttonProps, close]);
+  }, [buttonProps]);
 
   // Submit on Enter
   // Intentionally clicking the button in order to trigger the button's loading
@@ -85,7 +81,7 @@ const Modal: FC<ModalProps> = ({
         {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
         {closeButton && (
           <CloseButtonWrapper hasTitle={!!title}>
-            <Button kind="icon" onClick={close}>
+            <Button kind="icon" onClick={PgView.closeModal}>
               <Close />
             </Button>
           </CloseButtonWrapper>
@@ -106,7 +102,7 @@ const Modal: FC<ModalProps> = ({
         {buttonProps && (
           <ButtonsWrapper>
             {!closeButton && buttonProps.onSubmit && (
-              <Button onClick={close} kind="transparent">
+              <Button onClick={PgView.closeModal} kind="transparent">
                 Cancel
               </Button>
             )}

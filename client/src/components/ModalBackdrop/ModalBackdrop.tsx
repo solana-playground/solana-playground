@@ -2,8 +2,7 @@ import { ReactElement, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { EventName } from "../../constants";
-import { PgCommon, PgTheme } from "../../utils/pg";
-import { useModal } from "../Modal";
+import { PgCommon, PgTheme, PgView } from "../../utils/pg";
 import { useKeybind, useSetStatic } from "../../hooks";
 
 const ModalBackdrop = () => {
@@ -23,8 +22,7 @@ const ModalBackdrop = () => {
   );
 
   // Close modal on ESC
-  const { close } = useModal();
-  useKeybind("Escape", close);
+  useKeybind("Escape", PgView.closeModal);
 
   return modal ? <Wrapper>{modal}</Wrapper> : null;
 };

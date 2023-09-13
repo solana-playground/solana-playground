@@ -18,14 +18,12 @@ export const Local = () => {
     // TODO: Remove after making change events not fire on mount by default
     let initial = true;
 
-    const { dispose } = PgConnection.onDidChangeIsConnected(
-      async (isConnected) => {
-        // Only close the modal if it's not `initial` and `isConnected` is true
-        if (!initial && isConnected) PgView.setModal(null);
+    const { dispose } = PgConnection.onDidChangeIsConnected((isConnected) => {
+      // Only close the modal if it's not `initial` and `isConnected` is true
+      if (!initial && isConnected) PgView.closeModal();
 
-        initial = false;
-      }
-    );
+      initial = false;
+    });
 
     return () => dispose();
   }, []);

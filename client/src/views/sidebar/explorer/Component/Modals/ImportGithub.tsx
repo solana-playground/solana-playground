@@ -150,7 +150,7 @@ const Example: FC<ExampleProps> = ({ framework }) => (
       <Button
         onClick={async () => {
           await PgGithub.import(framework.githubExample.url);
-          PgView.setModal(null);
+          PgView.closeModal();
         }}
         rightIcon={<ImportWorkspace />}
       >
@@ -160,7 +160,7 @@ const Example: FC<ExampleProps> = ({ framework }) => (
       <Button
         onClick={async () => {
           await PgRouter.navigate("/" + framework.githubExample.url);
-          PgView.setModal(null);
+          PgView.closeModal();
         }}
         rightIcon={<Eye />}
       >

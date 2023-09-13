@@ -17,7 +17,7 @@ export const ExportWorkspace = () => {
 
   const exportWithoutChanges = async () => {
     await PgFramework.exportWorkspace();
-    await PgView.setModal(null);
+    PgView.closeModal();
   };
 
   return (

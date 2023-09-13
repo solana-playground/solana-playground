@@ -72,6 +72,24 @@ export class PgView {
   }
 
   /**
+   * Close the current modal.
+   *
+   * @param data data to be resolved from the modal
+   */
+  static closeModal(data?: any) {
+    // `data` will be a `ClickEvent` if the modal has been closed with the
+    // default Cancel button
+    if (data?.target) data = null;
+
+    PgCommon.createAndDispatchCustomEvent(
+      PgCommon.getSendAndReceiveEventNames(EventName.MODAL_SET).receive,
+      { data }
+    );
+
+    PgView.setModal(null);
+  }
+
+  /**
    * Show a notification toast.
    *
    * @param Component component to show
