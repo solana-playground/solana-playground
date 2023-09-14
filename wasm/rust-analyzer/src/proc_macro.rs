@@ -335,7 +335,7 @@ mod manual_expansions {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// get_wrapping_subtree("pub struct MyAccount { field : u64 }", '{'); // Some(("{ field : u64 }", ""))
     /// ```
     ///
@@ -347,8 +347,7 @@ mod manual_expansions {
             .enumerate()
             .collect::<Vec<(usize, usize)>>();
 
-        let close_char = get_matching_close_char(open_char);
-        let close_char = match close_char {
+        let close_char = match get_matching_close_char(open_char) {
             Some(c) => c,
             None => return None,
         };
@@ -396,7 +395,10 @@ mod manual_expansions {
             .enumerate()
             .find_map(|(i, tree)| {
                 if ["struct", "enum", "mod"].contains(&tree.to_string().as_str()) {
-                    Some(subtree.token_trees[i + 1].to_string())
+                    subtree
+                        .token_trees
+                        .get(i + 1)
+                        .map(|token| token.to_string())
                 } else {
                     None
                 }
