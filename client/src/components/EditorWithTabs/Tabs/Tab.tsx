@@ -29,10 +29,12 @@ const Tab: FC<TabProps> = ({ current, path }) => {
   };
 
   const fileName = PgExplorer.getItemNameFromPath(path);
+  const relativePath = PgExplorer.getRelativePath(path);
 
   return (
     <Wrapper
       current={current}
+      title={relativePath}
       onClick={changeTab}
       onContextMenu={handleContextMenu}
     >
