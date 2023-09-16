@@ -11,22 +11,23 @@
 | [arrayref](https://docs.rs/arrayref/0.3.7)                                         | 0.3.7   |
 | [borsh](https://docs.rs/borsh/0.10.3)                                              | 0.10.3  |
 | [borsh-derive](https://docs.rs/borsh-derive/0.10.3)                                | 0.10.3  |
-| [bytemuck](https://docs.rs/bytemuck/1.13.1)                                        | 1.13.1  |
-| [bytemuck-derive](https://docs.rs/bytemuck-derive/1.4.1)                           | 1.4.1   |
+| [bytemuck](https://docs.rs/bytemuck/1.14.0)                                        | 1.14.0  |
+| [bytemuck-derive](https://docs.rs/bytemuck-derive/1.5.0)                           | 1.5.0   |
 | [clockwork-sdk](https://docs.rs/clockwork-sdk/2.0.18)                              | 2.0.18  |
-| [mpl-bubblegum](https://docs.rs/mpl-bubblegum/0.10.1)                              | 0.10.1  |
+| [mpl-bubblegum](https://docs.rs/mpl-bubblegum/0.11.0)                              | 0.11.0  |
 | [mpl-token-metadata](https://docs.rs/mpl-token-metadata/1.13.1)                    | 1.13.1  |
 | [num-derive](https://docs.rs/num-derive/0.4.0)                                     | 0.4.0   |
 | [num-traits](https://docs.rs/num-traits/0.2.16)                                    | 0.2.16  |
 | [pyth-sdk](https://docs.rs/pyth-sdk/0.8.0)                                         | 0.8.0   |
 | [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.8.0)                           | 0.8.0   |
-| [solana-program](https://docs.rs/solana-program/1.16.8)                            | 1.16.8  |
-| [spl-account-compression](https://docs.rs/sspl-account-compression/2.0.0)          | 0.2.0   |
-| [spl-associated-token-account](https://docs.rs/spl-associated-token-account/2.0.0) | 2.0.0   |
+| [solana-program](https://docs.rs/solana-program/1.16.13)                           | 1.16.13 |
+| [spl-account-compression](https://docs.rs/sspl-account-compression/0.2.0)          | 0.2.0   |
+| [spl-associated-token-account](https://docs.rs/spl-associated-token-account/2.1.0) | 2.1.0   |
 | [spl-token](https://docs.rs/spl-token/4.0.0)                                       | 4.0.0   |
-| [spl-token-2022](https://docs.rs/spl-token-2022/0.7.0)                             | 0.7.0   |
+| [spl-token-2022](https://docs.rs/spl-token-2022/0.8.0)                             | 0.8.0   |
+| [switchboard-solana](https://docs.rs/switchboard-solana/0.28.18)                   | 0.28.18 |
 | [switchboard-v2](https://docs.rs/switchboard-v2/0.4.0)                             | 0.4.0   |
-| [thiserror](https://docs.rs/thiserror/1.0.44)                                      | 1.0.44  |
+| [thiserror](https://docs.rs/thiserror/1.0.48)                                      | 1.0.48  |
 
 You can open an issue to request more crates.
 
