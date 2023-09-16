@@ -10,7 +10,7 @@ export const githubDefault = PgRouter.create({
       PgView.setSidebarLoading(true);
 
       // Get repository data
-      const files = await PgGithub.getExplorerFiles(githubUrl);
+      const files = await PgGithub.getFiles(githubUrl);
 
       // Initialize explorer
       await PgExplorer.init({ files });

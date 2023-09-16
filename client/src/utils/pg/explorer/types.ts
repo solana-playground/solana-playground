@@ -4,14 +4,18 @@ import type { TupleString } from "../types";
 export interface Explorer {
   /** Explorer files */
   files: ExplorerFiles;
+  /** Full path of the files in tabs */
+  tabs: string[];
+  /** Current file index(in tabs) */
+  currentIndex: number;
 }
 
-/** A record of paths and their item infos */
+/** Full path -> `ItemInfo` */
 export type ExplorerFiles = Record<string, ItemInfo>;
 
 /** `ItemInfo` with `path` property */
 export interface FullFile extends ItemInfo {
-  /** Full path to the file */
+  /** Path to the file */
   path: string;
 }
 
@@ -23,15 +27,24 @@ interface ItemInfo {
   meta?: ItemMeta;
 }
 
-/** Relative path -> `ItemMeta` */
-export type ItemMetaFile = Record<string, ItemMeta>;
+/**
+ * Item metadata file.
+ *
+ * Intentionally using an `Array` instead of a map to keep the tab order.
+ */
+export type ItemMetaFile = Array<
+  {
+    /** Relative path */
+    path: string;
+    /** Whether the file is in tabs */
+    isTabs?: boolean;
+    /** Whether the file is the current file */
+    isCurrent?: boolean;
+  } & ItemMeta
+>;
 
 /** Item metadata */
 interface ItemMeta {
-  /** Whether the file is the current file */
-  current?: boolean;
-  /** Whether the file is in tabs */
-  tabs?: boolean;
   /** Position data */
   position?: Position;
 }

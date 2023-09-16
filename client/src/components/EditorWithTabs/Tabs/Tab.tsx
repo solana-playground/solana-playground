@@ -8,10 +8,10 @@ import { PgExplorer, PgTheme } from "../../../utils/pg";
 
 interface TabProps {
   path: string;
-  current?: boolean;
+  isCurrent: boolean;
 }
 
-const Tab: FC<TabProps> = ({ current, path }) => {
+const Tab: FC<TabProps> = ({ path, isCurrent }) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeTab = () => {
@@ -33,7 +33,7 @@ const Tab: FC<TabProps> = ({ current, path }) => {
 
   return (
     <Wrapper
-      current={current}
+      isCurrent={isCurrent}
       title={relativePath}
       onClick={changeTab}
       onContextMenu={handleContextMenu}
@@ -52,10 +52,10 @@ const Tab: FC<TabProps> = ({ current, path }) => {
   );
 };
 
-const Wrapper = styled.div<{ current?: boolean }>`
-  ${({ theme, current }) => css`
+const Wrapper = styled.div<{ isCurrent?: boolean }>`
+  ${({ theme, isCurrent }) => css`
     & button {
-      ${!current && "opacity: 0;"}
+      ${!isCurrent && "opacity: 0;"}
       margin: 0 0.25rem 0 0.5rem;
 
       & svg {
@@ -69,7 +69,7 @@ const Wrapper = styled.div<{ current?: boolean }>`
     }
 
     ${PgTheme.convertToCSS(theme.components.tabs.tab.default)};
-    ${current && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
+    ${isCurrent && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
   `}
 `;
 

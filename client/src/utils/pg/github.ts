@@ -59,15 +59,15 @@ export class PgGithub {
   }
 
   /**
-   * Get the files from the given repository and map them to `ExplorerFiles`.
+   * Get the files from the given repository and map them to `TupleFiles`.
    *
    * @param url GitHub URL
    * @returns explorer files
    */
-  static async getExplorerFiles(url: string) {
+  static async getFiles(url: string) {
     const { files } = await this._getRepository(url);
     const convertedFiles = await PgFramework.convertToPlaygroundLayout(files);
-    return PgExplorer.convertToExplorerFiles(convertedFiles);
+    return convertedFiles;
   }
 
   /**

@@ -19,7 +19,7 @@ import type {
  */
 export class PgExplorer {
   /** Internal state */
-  private static readonly _explorer: Explorer = { files: {} };
+  private static _explorer = this._getDefaultState();
   /** Workspace functionality */
   private static _workspace: PgWorkspace | null = null;
   /** Current initialized workspace name */
@@ -30,7 +30,7 @@ export class PgExplorer {
   /** `indexedDB` file system */
   static fs = PgFs;
 
-  /* ------------------------------- Getters ------------------------------- */
+  /* -------------------------------- Getters ------------------------------- */
 
   /** Get whether the current workspace is temporary */
   static get isTemporary() {
@@ -68,20 +68,33 @@ export class PgExplorer {
     return this._workspace?.allNames;
   }
 
-  /* --------------------------- Public methods --------------------------- */
+  /* ---------------------------- Public methods ---------------------------- */
 
   /**
    * Initialize explorer.
    *
    * @param params -
-   * - `files`: Initialize from the given explorer files
+   * - `files`: Files to initialize the explorer from
    * - `name`: Initialize the given workspace name
    */
-  static async init(params?: { files?: ExplorerFiles; name?: string }) {
+  static async init(params?: {
+    files?: ExplorerFiles | TupleFiles;
+    name?: string;
+  }) {
     if (params?.files) {
       this._isTemporary = true;
-      this._workspace = null;
-      this._explorer.files = this._addCurrentFileIfNeeded(params.files);
+
+      // Reset the explorer state
+      this._explorer = this._getDefaultState();
+
+      // Files
+      this._explorer.files = Array.isArray(params.files)
+        ? this._convertToExplorerFiles(params.files)
+        : params.files;
+
+      // Tabs, current
+      const currentFilePath = this._getDefaultOpenFile(this._explorer.files);
+      if (currentFilePath) this.changeCurrentFile(currentFilePath);
     }
     // Skip initializing if the workspace has already been initialized
     else if (
@@ -90,20 +103,21 @@ export class PgExplorer {
     ) {
     } else {
       this._isTemporary = false;
+
       if (!this._workspace) {
         this._workspace = new PgWorkspace();
         await this._initWorkspaces();
       }
 
-      const workspaceName = params?.name ?? this.currentWorkspaceName;
-
       // Check whether the workspace exists
+      const workspaceName = params?.name ?? this.currentWorkspaceName;
       if (workspaceName && this.allWorkspaceNames!.includes(workspaceName)) {
         await this.switchWorkspace(workspaceName);
       }
-      // Reset files when there are no workspaces
+      // Reset files if there are no workspaces
       else if (this.allWorkspaceNames!.length === 0) {
-        this._explorer.files = {};
+        // Reset the explorer state
+        this._explorer = this._getDefaultState();
       }
     }
 
@@ -175,11 +189,10 @@ export class PgExplorer {
           this.changeCurrentFile(fullPath);
         }
       }
-    } else {
-      // Folder
-      if (!this.isTemporary) {
-        await this.fs.createDir(fullPath);
-      }
+    }
+    // Folder
+    else {
+      if (!this.isTemporary) await this.fs.createDir(fullPath);
 
       files[fullPath] = {};
     }
@@ -225,7 +238,7 @@ export class PgExplorer {
     const parentFolder = PgExplorer.getParentPathFromPath(fullPath);
 
     // Get new path
-    let newPath;
+    let newPath: string;
     if (
       this._workspace?.allNames.includes(
         fullPath.substring(1, fullPath.length - 1)
@@ -242,24 +255,38 @@ export class PgExplorer {
         : parentFolder + newName + "/";
     }
 
-    // Check to see if newName already exists
+    // Return if there is no change
     if (newPath === fullPath) return;
-
-    const files = this.files;
-    if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
 
     // Rename in `indexedDB`
     if (!this.isTemporary) await this.fs.rename(fullPath, newPath);
 
-    if (itemType.file) {
-      // Store the file
-      const file = files[fullPath];
+    const files = this.files;
+    let currentFilePath = this.getCurrentFile()?.path;
+    const rename = (oldPath: string, newPath: string) => {
+      if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
 
-      // Delete the old path and data
-      delete files[fullPath];
+      if (oldPath === currentFilePath) currentFilePath = newPath;
+
+      // Store the item
+      const item = files[oldPath];
+
+      // Delete the old item
+      delete files[oldPath];
 
       // Set the new path
-      files[newPath] = file;
+      files[newPath] = item;
+
+      // Handle tabs if it's a file
+      if (PgExplorer.getItemTypeFromPath(newPath).file) {
+        this.closeTab(oldPath);
+        this.changeCurrentFile(newPath);
+      }
+    };
+
+    // Rename in state
+    if (itemType.file) {
+      rename(fullPath, newPath);
     } else {
       // We need to loop through all files in order to change every child path
       for (const path in files) {
@@ -272,25 +299,19 @@ export class PgExplorer {
             .filter((_itemName, i) => i !== namesArr.length - 2)
             .reduce((acc, itemName) => (acc += `/${itemName}`));
 
-          // This is the folder path
-          const newFolderPath = pathWithoutName + newName + "/";
+          const newFolderPath = PgCommon.appendSlash(
+            PgCommon.joinPaths([pathWithoutName, newName])
+          );
 
-          // This is the full path that could be a children(newFolderPath + ...)
+          // Full path that could be a children(newFolderPath + ...)
           const newFullPath = path.replace(fullPath, newFolderPath);
 
-          // Check if newPath exists
-          if (files[newFullPath]) throw new Error(ItemError.ALREADY_EXISTS);
-
-          // Store the data
-          const data = files[path];
-
-          // Delete the old path and data
-          delete files[path];
-
-          // Set the new path with the data
-          files[newFullPath] = data;
+          rename(path, newFullPath);
         }
       }
+
+      // Keep the same current file after rename
+      if (currentFilePath) this.changeCurrentFile(currentFilePath);
     }
 
     PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
@@ -321,24 +342,22 @@ export class PgExplorer {
       else await this.fs.removeDir(fullPath, { recursive: true });
     }
 
-    const files = this.files;
+    // If we are deleting current file's parent(s), we need to set the current
+    // file to the last tab
+    const currentFilePath = this.getCurrentFile()?.path;
+    const isCurrentFile = currentFilePath === fullPath;
+    const isCurrentParent = currentFilePath?.startsWith(fullPath);
 
-    const isCurrentFile = files[fullPath]?.meta?.current;
-
-    // If we are deleting current file's parent(s)
-    // we need to update the current file to the last tab
-    let isCurrentParent = false;
-    if (this.getCurrentFile()?.path.startsWith(fullPath)) {
-      isCurrentParent = true;
-    }
-
-    for (const path in files) {
-      if (path.startsWith(fullPath)) delete files[path];
+    for (const path in this.files) {
+      if (path.startsWith(fullPath)) {
+        delete this.files[path];
+        this.closeTab(path);
+      }
     }
 
     // Deleting all elements from a folder results with the parent folder
     // disappearing, add the folder back to mitigate that
-    files[PgExplorer.getParentPathFromPath(fullPath)] = {};
+    this.files[PgExplorer.getParentPathFromPath(fullPath)] = {};
 
     // Change current file to the last tab when current file is deleted
     // or current file's parent is deleted
@@ -533,13 +552,20 @@ export class PgExplorer {
       return;
     }
 
-    const metaFile: ItemMetaFile = {};
+    const metaFile: ItemMetaFile = [];
     if (!opts?.initial) {
       for (const path in this.files) {
         // Check whether all of the files start with the correct path
         if (!path.startsWith(this.currentWorkspacePath)) return;
 
-        metaFile[this.getRelativePath(path)] = { ...this.files[path].meta };
+        const itemMeta: ItemMetaFile[number] = {
+          path: this.getRelativePath(path),
+          isTabs: this._explorer.tabs.includes(path),
+          isCurrent: this.getCurrentFile()?.path === path,
+          position: this.files[path].meta?.position,
+        };
+
+        metaFile.push(itemMeta);
       }
     }
 
@@ -551,7 +577,7 @@ export class PgExplorer {
     );
   }
 
-  /* ---------------------------- State methods ---------------------------- */
+  /* ----------------------------- State methods ---------------------------- */
 
   /**
    * Get all files as `TupleFiles`
@@ -559,7 +585,7 @@ export class PgExplorer {
    * @returns all files as an array of [path, content] tuples
    */
   static getAllFiles() {
-    return this.convertToTupleFiles(this.files);
+    return this._convertToTupleFiles(this.files);
   }
 
   /**
@@ -579,15 +605,10 @@ export class PgExplorer {
    * @returns tab files from state
    */
   static getTabs() {
-    const files = this.files;
-    const tabs: FullFile[] = [];
-
-    for (const path in files) {
-      const meta = files[path].meta;
-      if (meta?.tabs) tabs.push({ path, meta });
-    }
-
-    return tabs;
+    return this._explorer.tabs.map((path, i) => ({
+      path,
+      isCurrent: i === this._explorer.currentIndex,
+    }));
   }
 
   /**
@@ -646,48 +667,70 @@ export class PgExplorer {
 
   /** Get the current opened file from state if it exists. */
   static getCurrentFile() {
-    const files = this.files;
-
-    for (const path in files) {
-      const fileInfo = files[path];
-
-      if (fileInfo.meta?.current) {
-        const currentFile: FullFile = { content: fileInfo.content, path };
-        return currentFile;
-      }
-    }
-
+    const currentFilePath = this._explorer.tabs.at(this._explorer.currentIndex);
+    if (currentFilePath) return this.getFile(currentFilePath);
     return null;
+  }
+
+  /**
+   * Get the current file's language from it's path.
+   *
+   * @returns the current language name
+   */
+  static getCurrentFileLanguage() {
+    const currentPath = this.getCurrentFile()?.path;
+    if (currentPath) return this.getLanguageFromPath(currentPath);
+  }
+
+  /**
+   * Get whether current file is a regular JS/TS or test JS/TS file.
+   *
+   * @returns whether the current file is a JavaScript-like file
+   */
+  static isCurrentFileJsLike() {
+    const currentPath = this.getCurrentFile()?.path;
+    if (currentPath) return this.isFileJsLike(currentPath);
   }
 
   /**
    * Change the current opened file in state if it exists.
    *
-   * @param newPath new file path
+   * @param path new file path
    */
-  static changeCurrentFile(newPath: string) {
-    newPath = this.convertToFullPath(newPath);
+  static changeCurrentFile(path: string) {
+    path = this.convertToFullPath(path);
 
-    const files = this.files;
+    const isCurrentFile = this.getCurrentFile()?.path === path;
+    if (isCurrentFile) return;
 
-    const curFile = this.getCurrentFile();
-    if (curFile) {
-      if (newPath === curFile.path) return;
-
-      files[curFile.path].meta = {
-        ...files[curFile.path].meta,
-        current: false,
-      };
+    // Check whether the file is in tabs
+    const isInTabs = this._explorer.tabs.includes(path);
+    if (!isInTabs) {
+      // Add the path to the tabs
+      this._explorer.tabs.push(path);
     }
 
-    // Add file to the tabs and current
-    files[newPath].meta = {
-      ...files[newPath].meta,
-      tabs: true,
-      current: true,
-    };
+    // Change the current
+    this._explorer.currentIndex = this._explorer.tabs.indexOf(path);
 
     PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
+  }
+
+  /**
+   * Close the tab and change the current file to the last opened tab.
+   *
+   * @param path file path
+   */
+  static closeTab(path: string) {
+    path = this.convertToFullPath(path);
+
+    const isCurrent = this.getCurrentFile()?.path === path;
+    this._explorer.tabs = this._explorer.tabs.filter((p) => p !== path);
+
+    // If we are closing the current file, change current file to the last tab
+    if (isCurrent) this._changeCurrentFileToTheLastTab();
+
+    PgExplorerEvent.dispatchOnDidCloseTab();
   }
 
   /**
@@ -716,47 +759,6 @@ export class PgExplorer {
 
     this.files[path].meta ??= {};
     this.files[path].meta!.position = position;
-  }
-
-  /**
-   * Close the tab and change the current file to the last opened tab.
-   *
-   * @param path file path
-   */
-  static closeTab(path: string) {
-    path = this.convertToFullPath(path);
-
-    const files = this.files;
-    files[path].meta!.tabs = false;
-
-    // If we are closing the current file, change current file to the last tab
-    if (files[path].meta!.current) {
-      files[path].meta!.current = false;
-      this._changeCurrentFileToTheLastTab();
-    }
-
-    PgExplorerEvent.dispatchOnDidCloseTab();
-  }
-
-  /**
-   * Get the current file's language from it's path.
-   *
-   * @returns the current language name
-   */
-  static getCurrentFileLanguage() {
-    const currentPath = this.getCurrentFile()?.path;
-    if (!currentPath) return null;
-    return this.getLanguageFromPath(currentPath);
-  }
-
-  /**
-   * Get whether current file is a regular JS/TS or test JS/TS file.
-   *
-   * @returns whether the current file is a JavaScript-like file
-   */
-  static isCurrentFileJsLike() {
-    const currentPath = this.getCurrentFile()?.path;
-    if (currentPath) return this.isFileJsLike(currentPath);
   }
 
   /**
@@ -972,7 +974,7 @@ export class PgExplorer {
     });
   }
 
-  /* --------------------------- Private methods --------------------------- */
+  /* ---------------------------- Private methods --------------------------- */
 
   /**
    * Initialize explorer with the current workspace.
@@ -1087,14 +1089,59 @@ export class PgExplorer {
     }
 
     // Load metadata info from `indexedDB`
-    const metaFile = await this.fs.readToJSONOrDefault<ItemMetaFile>(
+    let metaFile = await this.fs.readToJSONOrDefault<ItemMetaFile>(
       PgWorkspace.METADATA_PATH,
-      {}
+      []
     );
 
-    for (const path in metaFile) {
-      const file = this.files[this.convertToFullPath(path)];
-      if (file?.content !== undefined) file.meta = metaFile[path];
+    // Convert the old metadata file
+    // TODO: Delete in 2024
+    if (!Array.isArray(metaFile)) {
+      type OldItemMetaFile = Record<
+        string,
+        {
+          current?: boolean;
+          tabs?: boolean;
+          position?: Position;
+        }
+      >;
+
+      const oldMetaFile = metaFile as OldItemMetaFile;
+      metaFile = [];
+      for (const path in oldMetaFile) {
+        const meta = oldMetaFile[path];
+        metaFile.push({
+          path,
+          isTabs: meta.tabs,
+          isCurrent: meta.current,
+          position: meta.position,
+        });
+      }
+    }
+
+    // Metadata file paths are relative, convert to full path
+    const fullPathMetaFile = metaFile.map((meta) => ({
+      ...meta,
+      path: this.convertToFullPath(meta.path),
+    }));
+
+    // Tabs
+    this._explorer.tabs = fullPathMetaFile
+      .filter((meta) => meta.isTabs)
+      .map((meta) => meta.path);
+
+    // Current
+    const current = fullPathMetaFile.find((meta) => meta.isCurrent);
+    this._explorer.currentIndex = current
+      ? this._explorer.tabs.indexOf(current.path)
+      : -1;
+
+    // Metadata
+    for (const itemMeta of fullPathMetaFile) {
+      const file = this.files[itemMeta.path];
+      if (file?.content !== undefined) {
+        file.meta = { position: itemMeta.position };
+      }
     }
   }
 
@@ -1157,47 +1204,22 @@ export class PgExplorer {
   }
 
   /**
-   * Get the default open file from the given tuple files.
+   * Get the default explorer state.
    *
-   * @param files tuple or explorer files
-   * @returns the default open file path
+   * NOTE: This is intentionally a method instead of a property in order to create a
+   * new object each time since explorer methods mutate the existing object.
+   *
+   * @returns the default explorer state
    */
-  private static _getDefaultOpenFile(files: TupleFiles | ExplorerFiles) {
-    if (!Array.isArray(files)) files = this.convertToTupleFiles(files);
-
-    let defaultOpenFile: string | undefined;
-    const libRsFile = files.find(([path]) => path.endsWith("lib.rs"));
-    if (libRsFile) {
-      defaultOpenFile = libRsFile[0];
-    } else if (files.length) {
-      defaultOpenFile = files[0][0];
-    }
-
-    return defaultOpenFile;
+  private static _getDefaultState(): Explorer {
+    return {
+      files: {},
+      tabs: [],
+      currentIndex: -1,
+    };
   }
 
-  /**
-   * Add default open file if the given files don't have file that is `current`.
-   *
-   * @param files explorer files
-   * @returns the explorer files
-   */
-  private static _addCurrentFileIfNeeded(files: ExplorerFiles) {
-    let hasCurrent = false;
-    for (const path in files) {
-      const current = files[path].meta?.current;
-      if (current) hasCurrent = true;
-    }
-
-    if (!hasCurrent) {
-      const currentPath = this._getDefaultOpenFile(files);
-      if (currentPath) files[currentPath].meta = { tabs: true, current: true };
-    }
-
-    return files;
-  }
-
-  /* --------------------------- Utilities --------------------------- */
+  /* ------------------------------- Utilities ------------------------------ */
 
   /** Paths */
   static readonly PATHS = {
@@ -1547,12 +1569,14 @@ export class PgExplorer {
     return !!name.match(/^(?!\s)[\w\s-]+$/);
   }
 
+  /* --------------------------- Private utilities -------------------------- */
+
   /**
-   * Convert the given `ExplorerFiles` to `TupleFiles`
+   * Convert the given `ExplorerFiles` to `TupleFiles`.
    *
    * @returns all files as an array of [path, content] tuples
    */
-  static convertToTupleFiles(explorerFiles: ExplorerFiles) {
+  private static _convertToTupleFiles(explorerFiles: ExplorerFiles) {
     const tupleFiles: TupleFiles = [];
     for (const path in explorerFiles) {
       const content = explorerFiles[path].content;
@@ -1568,7 +1592,7 @@ export class PgExplorer {
    * @param tupleFiles tuple files to convert
    * @returns the converted `ExplorerFiles`
    */
-  static convertToExplorerFiles(tupleFiles: TupleFiles) {
+  private static _convertToExplorerFiles(tupleFiles: TupleFiles) {
     const explorerFiles: ExplorerFiles = {};
 
     for (const [path, content] of tupleFiles) {
@@ -1580,5 +1604,25 @@ export class PgExplorer {
     }
 
     return explorerFiles;
+  }
+
+  /**
+   * Get the default open file from the given tuple files.
+   *
+   * @param files tuple or explorer files
+   * @returns the default open file path
+   */
+  private static _getDefaultOpenFile(files: TupleFiles | ExplorerFiles) {
+    if (!Array.isArray(files)) files = this._convertToTupleFiles(files);
+
+    let defaultOpenFile: string | undefined;
+    const libRsFile = files.find(([path]) => path.endsWith("lib.rs"));
+    if (libRsFile) {
+      defaultOpenFile = libRsFile[0];
+    } else if (files.length) {
+      defaultOpenFile = files[0][0];
+    }
+
+    return defaultOpenFile;
   }
 }

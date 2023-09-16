@@ -27,8 +27,8 @@ export const Tabs = () => {
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        {tabs.map((t, i) => (
-          <Tab key={i} current={t.meta?.current} path={t.path} />
+        {tabs.map((tab) => (
+          <Tab key={tab.path} {...tab} />
         ))}
       </TabsWrapper>
       <Wallet />
