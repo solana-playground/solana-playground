@@ -13,21 +13,16 @@ export enum ClassName {
   LOADING = "loading",
   DARKEN = "darken",
   TOOLTIP = "tooltip",
-  MENU_WRAPPER = "menu-wrapper",
   BUTTON_LOADING = "btn-loading",
-
-  // Editor
-  CM_CLASSNAME = "cm-editor",
-  CM_ACTIVE_CLASSNAME = "cm-focused",
 }
 
 export enum Id {
   ROOT = "root",
   ROOT_DIR = "root-dir",
   BOTTOM = "bottom",
-  SIDE_RIGHT = "side-right",
   TABS = "tabs",
   WALLET_MAIN = "wallet-main",
   WALLET_BOUND = "wallet-bound",
   HOME = "home",
+  CTX_MENU = "ctx-menu",
 }

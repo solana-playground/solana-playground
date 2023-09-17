@@ -169,7 +169,8 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
 `;
 
 const ScrollableWrapper = styled.div`
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   ${PgTheme.getScrollbarCSS()};
 `;
 

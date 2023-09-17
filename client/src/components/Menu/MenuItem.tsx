@@ -34,12 +34,19 @@ const MenuItem: FC<MenuItemPropsWithHide> = ({
 }) => {
   if (!showCondition) return null;
 
+  const handleClick = () => {
+    onClick();
+    hide?.();
+  };
+
   return (
     <div
       className={className}
-      onClick={() => {
-        onClick();
-        hide?.();
+      onClick={handleClick}
+      onContextMenu={(ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        handleClick();
       }}
     >
       <div>

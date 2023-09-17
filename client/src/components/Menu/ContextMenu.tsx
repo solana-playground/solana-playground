@@ -3,18 +3,21 @@ import {
   MouseEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
+import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 
 import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
+import { Id } from "../../constants";
 import { useOnClickOutside } from "../../hooks";
 import type { OptionalMenuProps } from "./Menu"; // Circular dependency
 
 export type ContextMenuProps = {
-  beforeShowCb?: (e: MouseEvent<HTMLDivElement>) => void;
+  onContextMenu?: (ev: MouseEvent<HTMLDivElement>) => void;
 } & OptionalMenuProps;
 
 type MenuState =
@@ -33,7 +36,7 @@ type Position = {
 
 const ContextMenu: FC<ContextMenuProps> = ({
   items,
-  beforeShowCb,
+  onContextMenu,
   onShow,
   onHide,
   children,
@@ -42,7 +45,6 @@ const ContextMenu: FC<ContextMenuProps> = ({
     state: "hide",
   });
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const menuWrapperRef = useRef<HTMLDivElement>(null);
 
   const hide = useCallback(() => {
@@ -50,58 +52,76 @@ const ContextMenu: FC<ContextMenuProps> = ({
   }, []);
 
   const handleContextMenu = useCallback(
-    (e: MouseEvent<HTMLDivElement>) => {
-      e.preventDefault();
+    (ev: MouseEvent<HTMLDivElement>) => {
+      ev.preventDefault();
 
       try {
-        beforeShowCb?.(e);
+        onContextMenu?.(ev);
       } catch {
         return;
       }
 
-      const rect = wrapperRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
       setMenu({
         state: "show",
-        position: { x: e.clientX - rect.x, y: e.clientY - rect.y },
+        position: { x: ev.clientX, y: ev.clientY },
       });
     },
-    [beforeShowCb]
+    [onContextMenu]
   );
 
+  // Handle show or hide callbacks
   useEffect(() => {
     menu.state === "show" ? onShow?.() : onHide?.();
   }, [menu.state, onShow, onHide]);
+
+  // Always show the menu inside the window
+  useLayoutEffect(() => {
+    setMenu((menu) => {
+      if (menu.state !== "show") return menu;
+
+      const rect = menuWrapperRef.current!.getBoundingClientRect();
+      const extraWidth = rect.right - window.innerWidth;
+      const extraHeight = rect.bottom - window.innerHeight;
+
+      if (extraWidth > 0 || extraHeight > 0) {
+        menu = structuredClone(menu);
+        if (extraWidth > 0) menu.position.x -= extraWidth;
+        if (extraHeight > 0) menu.position.y -= extraHeight;
+      }
+
+      return menu;
+    });
+  }, [menu]);
 
   // Hide on outside click when the state is `show`
   useOnClickOutside(menuWrapperRef, hide, menu.state === "show");
 
   return (
-    <Wrapper ref={wrapperRef} onContextMenu={handleContextMenu}>
+    <Wrapper onContextMenu={handleContextMenu}>
       {children}
-      {menu.state === "show" && (
-        <MenuWrapperWithPosition
-          ref={menuWrapperRef}
-          hide={hide}
-          {...menu.position}
-        >
-          {items?.map((item, i) => (
-            <MenuItem key={i} {...item} hide={hide} />
-          ))}
-        </MenuWrapperWithPosition>
-      )}
+
+      {menu.state === "show" &&
+        ReactDOM.createPortal(
+          <MenuWrapperWithPosition
+            kind="context"
+            ref={menuWrapperRef}
+            hide={hide}
+            {...menu.position}
+          >
+            {items?.map((item, i) => (
+              <MenuItem key={i} {...item} hide={hide} />
+            ))}
+          </MenuWrapperWithPosition>,
+          document.getElementById(Id.CTX_MENU)!
+        )}
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div`
-  position: relative;
-`;
+const Wrapper = styled.div``;
 
 const MenuWrapperWithPosition = styled(MenuWrapper)<Position>`
   ${({ x, y }) => css`
-    position: absolute;
     top: ${y}px;
     left: ${x}px;
   `}

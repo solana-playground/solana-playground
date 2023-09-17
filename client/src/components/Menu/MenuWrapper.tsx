@@ -1,30 +1,41 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
-import styled from "styled-components";
+import styled, { css, DefaultTheme } from "styled-components";
 
-import { ClassName } from "../../constants";
+import { Fn, PgTheme } from "../../utils/pg";
 import { useKeybind } from "../../hooks";
+import type { MenuKind } from "./Menu";
 
 interface MenuWrapperProps extends ComponentPropsWithoutRef<"div"> {
-  hide: () => void;
+  hide: Fn;
+  kind: MenuKind;
 }
 
 export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
-  ({ hide, className, children, ...props }, ref) => {
+  ({ hide, children, ...props }, ref) => {
     useKeybind("Escape", hide);
 
     return (
-      <Wrapper
-        ref={ref}
-        className={`${className} ${ClassName.MENU_WRAPPER}`}
-        {...props}
-      >
+      <Wrapper ref={ref} {...props}>
         {children}
       </Wrapper>
     );
   }
 );
 
-const Wrapper = styled.div`
-  position: absolute;
-  z-index: 3;
+const Wrapper = styled.div<Pick<MenuWrapperProps, "kind">>`
+  ${(props) => getStyles(props)}
 `;
+
+const getStyles = ({
+  kind,
+  theme,
+}: Pick<MenuWrapperProps, "kind"> & { theme: DefaultTheme }) => {
+  const menu = PgTheme.overrideDefaults(
+    theme.components.menu.default,
+    theme.components.menu.overrides?.[kind]
+  );
+
+  return css`
+    ${PgTheme.convertToCSS(menu)};
+  `;
+};

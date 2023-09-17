@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Side from "./Side";
 import Delayed from "../../../components/Delayed";
 import { Wormhole } from "../../../components/Loading";
+import { Id } from "../../../constants";
 
 const Main = lazy(() => import("./Main"));
 const Bottom = lazy(() => import("./Bottom"));
@@ -20,9 +21,9 @@ const Panels = () => (
       </Suspense>
     </MainWrapper>
 
-    {/* Add a delay to the mount of `Bottom` and `Wallet` components because some of
-        the globals used in that component doesn't become initialized until the next
-        even loop on Firefox. */}
+    {/* Add a delay to the mount of `Bottom` and `Wallet` components because
+    some of  the globals used in that component doesn't become initialized until
+    the next even loop on Firefox */}
     <Delayed>
       <Suspense fallback={null}>
         <Bottom />
@@ -34,6 +35,10 @@ const Panels = () => (
       <Toast />
       <ModalBackdrop />
     </Suspense>
+
+    {/* Context menu portal helps to make the menu always appear on top of the
+    other elements */}
+    <ContextMenuPortal id={Id.CTX_MENU} />
   </Wrapper>
 );
 
@@ -51,5 +56,7 @@ const MainWrapper = styled.div`
   width: 100%;
   flex: 1;
 `;
+
+const ContextMenuPortal = styled.div``;
 
 export default Panels;

@@ -450,6 +450,8 @@ export class PgTheme {
 
     // Default
     menu.default ??= {};
+    menu.default.position ??= "absolute";
+    menu.default.zIndex ??= 2;
     menu.default.bg ??= theme.colors.default.bgPrimary;
     menu.default.borderRadius ??= theme.default.borderRadius;
     menu.default.padding ??= "0.25rem 0";

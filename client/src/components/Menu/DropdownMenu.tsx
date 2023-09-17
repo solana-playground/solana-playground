@@ -30,8 +30,9 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   return (
     <Wrapper ref={wrapperRef}>
       <ClickableWrapper onClick={toggle}>{children}</ClickableWrapper>
+
       {show && (
-        <MenuWrapper hide={toggle}>
+        <MenuWrapper kind="dropdown" hide={toggle}>
           {items?.map((item, i) => (
             <MenuItem key={i} {...item} hide={toggle} />
           ))}

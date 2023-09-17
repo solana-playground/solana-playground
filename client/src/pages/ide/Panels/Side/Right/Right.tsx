@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
 import { Wormhole } from "../../../../../components/Loading";
-import { EventName, Id } from "../../../../../constants";
+import { EventName } from "../../../../../constants";
 import { PgTheme, PgView } from "../../../../../utils/pg";
 import { useResize } from "./useResize";
 import { SIDEBAR } from "../../../../../views/sidebar";
@@ -38,7 +38,7 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
       }}
       onResizeStop={handleResizeStop}
     >
-      <Wrapper id={Id.SIDE_RIGHT} windowHeight={windowHeight}>
+      <Wrapper windowHeight={windowHeight}>
         <Title sidebarPage={sidebarPage} />
         <Content sidebarPage={sidebarPage} />
       </Wrapper>
