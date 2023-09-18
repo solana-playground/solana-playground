@@ -243,7 +243,7 @@ export interface Theme {
 
     /** Tabs component */
     tabs?: ExtendibleComponent<{
-      tab?: ExtendibleComponent<"selected">;
+      tab?: ExtendibleComponent<"selected" | "current">;
     }>;
 
     /** Terminal component */

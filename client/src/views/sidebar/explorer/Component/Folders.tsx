@@ -233,7 +233,7 @@ const RecursiveFolder: FC<FolderProps> = ({ path }) => {
     if (PgExplorer.getItemTypeFromEl(el)?.folder) {
       PgExplorer.toggleFolder(el);
     } else {
-      PgExplorer.changeCurrentFile(PgExplorer.getItemPathFromEl(el)!);
+      PgExplorer.openFile(PgExplorer.getItemPathFromEl(el)!);
     }
   }, []);
 

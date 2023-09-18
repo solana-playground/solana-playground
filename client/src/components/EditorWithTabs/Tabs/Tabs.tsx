@@ -10,25 +10,22 @@ import { useExplorer, useKeybind, useWallet } from "../../../hooks";
 export const Tabs = () => {
   const { explorer } = useExplorer();
 
-  // Close current tab with keybind
+  // Close the current tab with keybind
   useKeybind(
     "Alt+W",
     () => {
-      const currentPath = PgExplorer.getCurrentFile()?.path;
-      if (currentPath) PgExplorer.closeTab(currentPath);
+      if (PgExplorer.currentFilePath) {
+        PgExplorer.closeFile(PgExplorer.currentFilePath);
+      }
     },
     []
   );
 
-  const tabs = explorer.getTabs();
-
-  if (!tabs.length) return null;
-
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        {tabs.map((tab) => (
-          <Tab key={tab.path} {...tab} />
+        {explorer.tabs.map((path, i) => (
+          <Tab key={path} path={path} index={i} />
         ))}
       </TabsWrapper>
       <Wallet />

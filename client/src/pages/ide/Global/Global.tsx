@@ -92,9 +92,8 @@ const useWorkspace = () => {
     const { dispose } = PgExplorer.onDidInit(async () => {
       // Check whether the tab state is valid
       // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
-      const tabs = PgExplorer.getTabs();
-      if (tabs.length && !PgExplorer.getCurrentFile()) {
-        PgExplorer.changeCurrentFile(tabs[0].path);
+      if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
+        PgExplorer.openFile(PgExplorer.tabs[0]);
       }
 
       await PgCommon.sleep(300);

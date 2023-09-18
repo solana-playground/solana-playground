@@ -1,59 +1,107 @@
-import { FC, MouseEvent, useRef } from "react";
+import { FC, MouseEvent, useCallback, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
 import LangIcon from "../../LangIcon";
+import Menu from "../../Menu";
 import { Close } from "../../Icons";
 import { PgExplorer, PgTheme } from "../../../utils/pg";
 
 interface TabProps {
   path: string;
-  isCurrent: boolean;
+  index: number;
 }
 
-const Tab: FC<TabProps> = ({ path, isCurrent }) => {
+const Tab: FC<TabProps> = ({ path, index }) => {
+  const [isSelected, setIsSelected] = useState(false);
+
+  const [fileName, relativePath] = useMemo(
+    () => [
+      PgExplorer.getItemNameFromPath(path),
+      PgExplorer.getRelativePath(path),
+    ],
+    [path]
+  );
+
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const changeTab = useCallback(
+    (ev: MouseEvent<HTMLDivElement>) => {
+      if (!closeButtonRef.current?.contains(ev.target as Node)) {
+        PgExplorer.openFile(path);
+      }
+    },
+    [path]
+  );
 
-  const closeTab = () => {
-    PgExplorer.closeTab(path);
-  };
+  const closeFile = useCallback(() => PgExplorer.closeFile(path), [path]);
 
-  const changeTab = (ev: MouseEvent<HTMLDivElement>) => {
-    if (!closeButtonRef.current?.contains(ev.target as Node)) {
-      PgExplorer.changeCurrentFile(path);
-    }
-  };
+  const closeOthers = useCallback(() => {
+    PgExplorer.tabs
+      .filter((tabPath) => tabPath !== path)
+      .forEach((tabPath) => PgExplorer.closeFile(tabPath));
+  }, [path]);
 
-  const handleContextMenu = (ev: MouseEvent) => {
-    ev.preventDefault();
-  };
+  const closeToTheRight = useCallback(() => {
+    const tabIndex = PgExplorer.tabs.findIndex((tabPath) => tabPath === path);
+    PgExplorer.tabs
+      .slice(tabIndex + 1)
+      .forEach((tabPath) => PgExplorer.closeFile(tabPath));
+  }, [path]);
 
-  const fileName = PgExplorer.getItemNameFromPath(path);
-  const relativePath = PgExplorer.getRelativePath(path);
+  const closeAll = useCallback(() => {
+    PgExplorer.tabs.forEach((tabPath) => PgExplorer.closeFile(tabPath));
+  }, []);
 
   return (
-    <Wrapper
-      isCurrent={isCurrent}
-      title={relativePath}
-      onClick={changeTab}
-      onContextMenu={handleContextMenu}
+    <Menu
+      kind="context"
+      items={[
+        {
+          name: "Close",
+          onClick: closeFile,
+          keybind: "ALT+W",
+        },
+        {
+          name: "Close Others",
+          onClick: closeOthers,
+          showCondition: PgExplorer.tabs.length > 1,
+        },
+        {
+          name: "Close To The Right",
+          onClick: closeToTheRight,
+          showCondition: PgExplorer.tabs.length - 1 > index,
+        },
+        {
+          name: "Close All",
+          onClick: closeAll,
+        },
+      ]}
+      onShow={() => setIsSelected(true)}
+      onHide={() => setIsSelected(false)}
     >
-      <LangIcon fileName={fileName} />
-      <Name>{fileName}</Name>
-      <Button
-        ref={closeButtonRef}
-        kind="icon"
-        onClick={closeTab}
-        title="Close (Alt+W)"
+      <Wrapper
+        isSelected={isSelected}
+        isCurrent={path === PgExplorer.currentFilePath}
+        onClick={changeTab}
+        title={relativePath}
       >
-        <Close />
-      </Button>
-    </Wrapper>
+        <LangIcon fileName={fileName} />
+        <Name>{fileName}</Name>
+        <Button
+          ref={closeButtonRef}
+          kind="icon"
+          onClick={closeFile}
+          title="Close (Alt+W)"
+        >
+          <Close />
+        </Button>
+      </Wrapper>
+    </Menu>
   );
 };
 
-const Wrapper = styled.div<{ isCurrent?: boolean }>`
-  ${({ theme, isCurrent }) => css`
+const Wrapper = styled.div<{ isSelected: boolean; isCurrent: boolean }>`
+  ${({ theme, isSelected, isCurrent }) => css`
     & button {
       ${!isCurrent && "opacity: 0;"}
       margin: 0 0.25rem 0 0.5rem;
@@ -69,7 +117,8 @@ const Wrapper = styled.div<{ isCurrent?: boolean }>`
     }
 
     ${PgTheme.convertToCSS(theme.components.tabs.tab.default)};
-    ${isCurrent && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
+    ${isSelected && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
+    ${isCurrent && PgTheme.convertToCSS(theme.components.tabs.tab.current)};
   `}
 `;
 

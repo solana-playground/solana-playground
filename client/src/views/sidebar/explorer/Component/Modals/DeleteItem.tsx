@@ -18,7 +18,7 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
     // Select element if there is no selected element
     if (!PgExplorer.getSelectedEl()) {
       const itemPathToSelect =
-        PgExplorer.getCurrentFile()?.path ??
+        PgExplorer.currentFilePath ??
         PgCommon.appendSlash(
           PgCommon.joinPaths([
             PgExplorer.getProjectRootPath(),

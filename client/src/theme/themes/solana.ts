@@ -164,7 +164,7 @@ const SOLANA: Theme = {
     },
     tabs: {
       tab: {
-        selected: {
+        current: {
           bg: BG_GRAY,
         },
       },

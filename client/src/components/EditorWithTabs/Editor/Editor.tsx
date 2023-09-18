@@ -15,7 +15,7 @@ export const Editor = () => {
   useEffect(() => {
     const { dispose } = PgExplorer.onNeedRender(
       PgCommon.debounce(
-        () => setShowHome(!PgExplorer.getTabs().length),
+        () => setShowHome(!PgExplorer.tabs.length),
         { delay: 50 } // To fix flickering on workspace deletion
       )
     );

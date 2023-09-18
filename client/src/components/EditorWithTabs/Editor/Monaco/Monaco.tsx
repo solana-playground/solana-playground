@@ -591,10 +591,12 @@ const Monaco = () => {
     const { dispose } = editor.onDidChangeModelContent(() => {
       timeoutId && clearTimeout(timeoutId);
       timeoutId = setTimeout(async () => {
-        const curFile = PgExplorer.getCurrentFile();
-        if (!curFile) return;
+        if (!PgExplorer.currentFilePath) return;
 
-        const args: [string, string] = [curFile.path, editor.getValue()];
+        const args: [string, string] = [
+          PgExplorer.currentFilePath,
+          editor.getValue(),
+        ];
 
         // Save to state
         PgExplorer.saveFileToState(...args);
@@ -606,7 +608,9 @@ const Monaco = () => {
         try {
           await PgExplorer.fs.writeFile(...args);
         } catch (e: any) {
-          console.log(`Error saving file ${curFile.path}. ${e.message}`);
+          console.log(
+            `Error saving file ${PgExplorer.currentFilePath}. ${e.message}`
+          );
         }
       }, 500);
     });

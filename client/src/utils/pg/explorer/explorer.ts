@@ -42,6 +42,21 @@ export class PgExplorer {
     return this._explorer.files;
   }
 
+  /** Get explorer tabs */
+  static get tabs() {
+    return this._explorer.tabs as Readonly<Explorer["tabs"]>;
+  }
+
+  /** Get current file path */
+  static get currentFilePath() {
+    return this.tabs.at(this._currentIndex);
+  }
+
+  /** Get current file path index */
+  private static get _currentIndex() {
+    return this._explorer.currentIndex;
+  }
+
   /**
    * Get full path of current workspace('/' appended)
    *
@@ -94,7 +109,7 @@ export class PgExplorer {
 
       // Tabs, current
       const currentFilePath = this._getDefaultOpenFile(this._explorer.files);
-      if (currentFilePath) this.changeCurrentFile(currentFilePath);
+      if (currentFilePath) this.openFile(currentFilePath);
     }
     // Skip initializing if the workspace has already been initialized
     else if (
@@ -177,17 +192,14 @@ export class PgExplorer {
         meta: files[fullPath]?.meta ?? {},
       };
 
-      const isCurrentFile = this.getCurrentFile()?.path === fullPath;
-
       if (!opts?.openOptions || opts?.openOptions?.onlyRefreshIfAlreadyOpen) {
-        // Close the file if we are overriding to correctly display the new content
-        if (opts?.override && isCurrentFile) {
-          this.closeTab(fullPath);
-        }
+        const isCurrentFile = this.currentFilePath === fullPath;
 
-        if (!opts?.openOptions || isCurrentFile) {
-          this.changeCurrentFile(fullPath);
-        }
+        // Close the file if we are overriding to correctly display the new content
+        if (opts?.override && isCurrentFile) this.closeFile(fullPath);
+
+        // Open if it's the current file or there is no open options
+        if (!opts?.openOptions || isCurrentFile) this.openFile(fullPath);
       }
     }
     // Folder
@@ -262,7 +274,7 @@ export class PgExplorer {
     if (!this.isTemporary) await this.fs.rename(fullPath, newPath);
 
     const files = this.files;
-    let currentFilePath = this.getCurrentFile()?.path;
+    let currentFilePath = this.currentFilePath;
     const rename = (oldPath: string, newPath: string) => {
       if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
 
@@ -279,8 +291,10 @@ export class PgExplorer {
 
       // Handle tabs if it's a file
       if (PgExplorer.getItemTypeFromPath(newPath).file) {
-        this.closeTab(oldPath);
-        this.changeCurrentFile(newPath);
+        // Rename tabs manually instead of closing the old file and opening the
+        // new file in order to keep the tab order
+        const tabIndex = this._explorer.tabs.indexOf(oldPath);
+        if (tabIndex !== -1) this._explorer.tabs[tabIndex] = newPath;
       }
     };
 
@@ -311,7 +325,7 @@ export class PgExplorer {
       }
 
       // Keep the same current file after rename
-      if (currentFilePath) this.changeCurrentFile(currentFilePath);
+      if (currentFilePath) this.openFile(currentFilePath);
     }
 
     PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
@@ -344,24 +358,26 @@ export class PgExplorer {
 
     // If we are deleting current file's parent(s), we need to set the current
     // file to the last tab
-    const currentFilePath = this.getCurrentFile()?.path;
-    const isCurrentFile = currentFilePath === fullPath;
-    const isCurrentParent = currentFilePath?.startsWith(fullPath);
+    const isCurrentFile = this.currentFilePath === fullPath;
+    const isCurrentParent = this.currentFilePath?.startsWith(fullPath);
 
     for (const path in this.files) {
       if (path.startsWith(fullPath)) {
         delete this.files[path];
-        this.closeTab(path);
+        this.closeFile(path);
       }
     }
 
     // Deleting all elements from a folder results with the parent folder
-    // disappearing, add the folder back to mitigate that
+    // disappearing, add the folder back to mitigate
     this.files[PgExplorer.getParentPathFromPath(fullPath)] = {};
 
-    // Change current file to the last tab when current file is deleted
-    // or current file's parent is deleted
-    if (isCurrentFile || isCurrentParent) this._changeCurrentFileToTheLastTab();
+    // Change the current file to the closest tab when current file or its
+    // parent is deleted
+    if (isCurrentFile || isCurrentParent) {
+      const lastTabPath = this.tabs.at(-1);
+      if (lastTabPath) this.openFile(lastTabPath);
+    }
 
     PgExplorerEvent.dispatchOnDidDeleteItem(fullPath);
 
@@ -472,7 +488,7 @@ export class PgExplorer {
 
     // Open the default file if it has been specified
     if (opts?.defaultOpenFile) {
-      this.changeCurrentFile(opts.defaultOpenFile);
+      this.openFile(opts.defaultOpenFile);
 
       // Save metadata to never lose default open file
       await this.saveMeta();
@@ -560,8 +576,8 @@ export class PgExplorer {
 
         const itemMeta: ItemMetaFile[number] = {
           path: this.getRelativePath(path),
-          isTabs: this._explorer.tabs.includes(path),
-          isCurrent: this.getCurrentFile()?.path === path,
+          isTabs: this.tabs.includes(path),
+          isCurrent: this.currentFilePath === path,
           position: this.files[path].meta?.position,
         };
 
@@ -597,18 +613,6 @@ export class PgExplorer {
   static saveFileToState(path: string, content: string) {
     path = this.convertToFullPath(path);
     if (this.files[path]) this.files[path].content = content;
-  }
-
-  /**
-   * Get all files that are in tabs.
-   *
-   * @returns tab files from state
-   */
-  static getTabs() {
-    return this._explorer.tabs.map((path, i) => ({
-      path,
-      isCurrent: i === this._explorer.currentIndex,
-    }));
   }
 
   /**
@@ -665,10 +669,13 @@ export class PgExplorer {
     return filesAndFolders;
   }
 
-  /** Get the current opened file from state if it exists. */
+  /**
+   * Get the current open file from state if it exists.
+   *
+   * @returns the current file
+   */
   static getCurrentFile() {
-    const currentFilePath = this._explorer.tabs.at(this._explorer.currentIndex);
-    if (currentFilePath) return this.getFile(currentFilePath);
+    if (this.currentFilePath) return this.getFile(this.currentFilePath);
     return null;
   }
 
@@ -678,8 +685,9 @@ export class PgExplorer {
    * @returns the current language name
    */
   static getCurrentFileLanguage() {
-    const currentPath = this.getCurrentFile()?.path;
-    if (currentPath) return this.getLanguageFromPath(currentPath);
+    if (this.currentFilePath) {
+      return this.getLanguageFromPath(this.currentFilePath);
+    }
   }
 
   /**
@@ -688,49 +696,51 @@ export class PgExplorer {
    * @returns whether the current file is a JavaScript-like file
    */
   static isCurrentFileJsLike() {
-    const currentPath = this.getCurrentFile()?.path;
-    if (currentPath) return this.isFileJsLike(currentPath);
+    if (this.currentFilePath) return this.isFileJsLike(this.currentFilePath);
   }
 
   /**
-   * Change the current opened file in state if it exists.
+   * Open the file at the given path.
    *
-   * @param path new file path
+   * @param path file path
    */
-  static changeCurrentFile(path: string) {
+  static openFile(path: string) {
     path = this.convertToFullPath(path);
 
-    const isCurrentFile = this.getCurrentFile()?.path === path;
-    if (isCurrentFile) return;
+    // Return if it's already the current file
+    if (this.currentFilePath === path) return;
 
-    // Check whether the file is in tabs
-    const isInTabs = this._explorer.tabs.includes(path);
-    if (!isInTabs) {
-      // Add the path to the tabs
-      this._explorer.tabs.push(path);
-    }
+    // Add to tabs if it hasn't yet been added
+    if (!this.tabs.includes(path)) this._explorer.tabs.push(path);
 
-    // Change the current
-    this._explorer.currentIndex = this._explorer.tabs.indexOf(path);
+    // Update the current file index
+    this._explorer.currentIndex = this.tabs.indexOf(path);
 
     PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
   }
 
   /**
-   * Close the tab and change the current file to the last opened tab.
+   * Close the file at the given path.
    *
    * @param path file path
    */
-  static closeTab(path: string) {
+  static closeFile(path: string) {
     path = this.convertToFullPath(path);
 
-    const isCurrent = this.getCurrentFile()?.path === path;
-    this._explorer.tabs = this._explorer.tabs.filter((p) => p !== path);
+    // If closing the current file, change the current file to the next tab
+    if (this.currentFilePath === path) {
+      const pathToOpen =
+        this.tabs.at(this._currentIndex + 1) ?? this.tabs.at(-2);
+      if (pathToOpen) this.openFile(pathToOpen);
+    }
 
-    // If we are closing the current file, change current file to the last tab
-    if (isCurrent) this._changeCurrentFileToTheLastTab();
+    // Update tabs and the current index
+    if (this.currentFilePath) {
+      this._explorer.tabs.splice(this.tabs.indexOf(path), 1);
+      this._explorer.currentIndex = this.tabs.indexOf(this.currentFilePath);
+    }
 
-    PgExplorerEvent.dispatchOnDidCloseTab();
+    PgExplorerEvent.dispatchOnDidCloseFile();
   }
 
   /**
@@ -839,7 +849,7 @@ export class PgExplorer {
       PgExplorer.onDidSwitchFile,
       PgExplorer.onDidCreateItem,
       PgExplorer.onDidDeleteItem,
-      PgExplorer.onDidCloseTab,
+      PgExplorer.onDidCloseFile,
     ]);
   }
 
@@ -910,15 +920,15 @@ export class PgExplorer {
   }
 
   /**
-   * Runs after closing a tab.
+   * Runs after closing a file.
    *
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidCloseTab(cb: () => unknown) {
+  static onDidCloseFile(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CLOSE_TAB,
+      eventName: PgExplorerEvent.ON_DID_CLOSE_FILE,
     });
   }
 
@@ -1133,7 +1143,7 @@ export class PgExplorer {
     // Current
     const current = fullPathMetaFile.find((meta) => meta.isCurrent);
     this._explorer.currentIndex = current
-      ? this._explorer.tabs.indexOf(current.path)
+      ? this.tabs.indexOf(current.path)
       : -1;
 
     // Metadata
@@ -1192,15 +1202,6 @@ export class PgExplorer {
         { createParents: true }
       );
     }
-  }
-
-  /** Change current file to the last opened tab if it exists. */
-  private static _changeCurrentFileToTheLastTab() {
-    const tabs = this.getTabs();
-    if (!tabs.length) return;
-
-    const lastTabPath = tabs[tabs.length - 1].path;
-    this.changeCurrentFile(lastTabPath);
   }
 
   /**

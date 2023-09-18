@@ -782,9 +782,13 @@ export class PgTheme {
     tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
     // Tab selected
     tabs.tab.selected ??= {};
-    tabs.tab.selected.bg ??= theme.colors.default.bgPrimary;
-    tabs.tab.selected.color ??= theme.colors.default.textPrimary;
-    tabs.tab.selected.borderTopColor ??= theme.colors.default.secondary;
+    tabs.tab.selected.borderColor ??=
+      theme.colors.default.secondary + theme.default.transparency.medium;
+    // Tab current
+    tabs.tab.current ??= {};
+    tabs.tab.current.bg ??= theme.colors.default.bgPrimary;
+    tabs.tab.current.color ??= theme.colors.default.textPrimary;
+    tabs.tab.current.borderTopColor ??= theme.colors.default.secondary;
 
     return this;
   }

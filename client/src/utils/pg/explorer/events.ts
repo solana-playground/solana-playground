@@ -13,8 +13,8 @@ export class PgExplorerEvent {
   static readonly ON_DID_DELETE_ITEM = "explorerondiddeleteitem";
   /** `onDidSwitchFile` event name */
   static readonly ON_DID_SWITCH_FILE = "explorerondidswitchfile";
-  /** `onDidCloseTab` event name */
-  static readonly ON_DID_CLOSE_TAB = "explorerondidclosetab";
+  /** `onDidCloseFile` event name */
+  static readonly ON_DID_CLOSE_FILE = "explorerondidclosetab";
 
   /** `onDidCreateWorkspace` event name */
   static readonly ON_DID_CREATE_WORKSPACE = "explorerondidcreateworkspace";
@@ -50,9 +50,9 @@ export class PgExplorerEvent {
     PgCommon.createAndDispatchCustomEvent(this.ON_DID_SWITCH_FILE, file);
   }
 
-  /** Dispatch an `onDidCloseTab` event. */
-  static dispatchOnDidCloseTab() {
-    PgCommon.createAndDispatchCustomEvent(this.ON_DID_CLOSE_TAB);
+  /** Dispatch an `onDidCloseFile` event. */
+  static dispatchOnDidCloseFile() {
+    PgCommon.createAndDispatchCustomEvent(this.ON_DID_CLOSE_FILE);
   }
 
   /** Dispatch an `onDidCreateWorkspace` event. */
