@@ -568,22 +568,29 @@ export class PgExplorer {
       return;
     }
 
-    const metaFile: ItemMetaFile = [];
-    if (!opts?.initial) {
-      for (const path in this.files) {
-        // Check whether all of the files start with the correct path
-        if (!path.startsWith(this.currentWorkspacePath)) return;
+    const metaFile = opts?.initial
+      ? []
+      : Object.keys(this.files)
+          .reduce((acc, path) => {
+            // Check whether all of the files start with the correct path
+            if (path.startsWith(this.currentWorkspacePath)) {
+              acc.push({
+                path,
+                isTabs: this.tabs.includes(path),
+                isCurrent: this.currentFilePath === path,
+                position: this.files[path].meta?.position,
+              });
+            }
 
-        const itemMeta: ItemMetaFile[number] = {
-          path: this.getRelativePath(path),
-          isTabs: this.tabs.includes(path),
-          isCurrent: this.currentFilePath === path,
-          position: this.files[path].meta?.position,
-        };
-
-        metaFile.push(itemMeta);
-      }
-    }
+            return acc;
+          }, [] as ItemMetaFile)
+          .sort((a, b) => {
+            // Sort based on tab order
+            if (!a.isTabs) return 1;
+            if (!b.isTabs) return -1;
+            return this.tabs.indexOf(a.path) - this.tabs.indexOf(b.path);
+          })
+          .map((meta) => ({ ...meta, path: this.getRelativePath(meta.path) }));
 
     // Save file
     await this.fs.writeFile(
