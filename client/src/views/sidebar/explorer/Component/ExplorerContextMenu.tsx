@@ -1,10 +1,11 @@
-import { FC, MouseEvent, useRef } from "react";
+import { FC, useRef } from "react";
 
 import Menu from "../../../../components/Menu";
 import {
   Edit,
   NewFile,
   NewFolder,
+  Rocket,
   RunAll,
   TestPaper,
   TestTube,
@@ -12,21 +13,10 @@ import {
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { Fn, PgExplorer } from "../../../../utils/pg";
-import { ItemData } from "./useExplorerContextMenu";
+import { PgExplorer } from "../../../../utils/pg";
+import type { useExplorerContextMenu } from "./useExplorerContextMenu";
 
-interface ExplorerContextMenuProps {
-  itemData: ItemData;
-  ctxNewItem: Fn;
-  renameItem: Fn;
-  deleteItem: Fn;
-  runBuild: Fn;
-  runClient: Fn;
-  runClientFolder: Fn;
-  runTest: Fn;
-  runTestFolder: Fn;
-  handleMenu: (ev: MouseEvent<HTMLDivElement>) => void;
-}
+type ExplorerContextMenuProps = ReturnType<typeof useExplorerContextMenu>;
 
 export const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   itemData,
@@ -34,6 +24,7 @@ export const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   renameItem,
   deleteItem,
   runBuild,
+  runDeploy,
   runClient,
   runClientFolder,
   runTest,
@@ -79,6 +70,12 @@ export const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
           name: "Build",
           onClick: runBuild,
           Icon: <Wrench />,
+          showCondition: itemData.isProgramFolder,
+        },
+        {
+          name: "Deploy",
+          onClick: runDeploy,
+          Icon: <Rocket />,
           showCondition: itemData.isProgramFolder,
         },
         {

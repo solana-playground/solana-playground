@@ -100,8 +100,12 @@ const Folders = () => {
           <SectionTopWrapper>
             <SectionHeader>Program</SectionHeader>
             {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
-              <SectionButton onClick={ctxMenu.runBuild} Icon={<Wrench />}>
-                <span style={{ marginLeft: "0.25rem" }}>Build</span>
+              <SectionButton
+                onClick={ctxMenu.runBuild}
+                Icon={<Wrench />}
+                addTextMargin
+              >
+                Build
               </SectionButton>
             ) : (
               <SectionButton onClick={ctxMenu.addProgram} Icon={<Plus />}>
@@ -170,20 +174,33 @@ const Folders = () => {
   );
 };
 
-const SectionButton: FC<ButtonProps & { Icon: ReactNode }> = ({
+interface SectionButtonProps extends ButtonProps {
+  Icon: ReactNode;
+  addTextMargin?: boolean;
+}
+
+const SectionButton: FC<SectionButtonProps> = ({
   onClick,
   Icon,
+  addTextMargin,
   children,
   ...props
 }) => (
   <Button onClick={onClick} kind="icon" {...props}>
     {Icon}
-    <SectionButtonText>{children}</SectionButtonText>
+    <SectionButtonText addTextMargin={addTextMargin}>
+      {children}
+    </SectionButtonText>
   </Button>
 );
 
-const SectionButtonText = styled.span`
-  margin: 0 0.25rem;
+const SectionButtonText = styled.span<
+  Pick<SectionButtonProps, "addTextMargin">
+>`
+  ${({ addTextMargin }) => css`
+    margin: 0 0.25rem;
+    ${addTextMargin && "margin-left: 0.50rem"};
+  `}
 `;
 
 interface FolderGroupProps {

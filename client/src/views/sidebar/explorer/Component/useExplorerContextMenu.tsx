@@ -7,11 +7,11 @@ import { PgCommand, PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 export type ItemData = {
   [K in
     | "isFolder"
+    | "isProgramFolder"
     | "isClient"
     | "isClientFolder"
     | "isTest"
-    | "isTestFolder"
-    | "isProgramFolder"]?: boolean;
+    | "isTestFolder"]?: boolean;
 };
 
 export const useExplorerContextMenu = () => {
@@ -37,14 +37,14 @@ export const useExplorerContextMenu = () => {
 
     const itemData: ItemData = {
       isFolder: itemType.folder,
+      isProgramFolder:
+        itemType.folder && itemName === PgExplorer.PATHS.SRC_DIRNAME,
       isClient: itemType.file && PgExplorer.getIsItemClientFromEl(selectedEl),
       isClientFolder:
         itemType.folder && itemName === PgExplorer.PATHS.CLIENT_DIRNAME,
       isTest: itemType.file && PgExplorer.getIsItemTestFromEl(selectedEl),
       isTestFolder:
         itemType.folder && itemName === PgExplorer.PATHS.TESTS_DIRNAME,
-      isProgramFolder:
-        itemType.folder && itemName === PgExplorer.PATHS.SRC_DIRNAME,
     };
 
     // Convert the `undefined` values to `false` in order to show them only
@@ -90,14 +90,6 @@ export const useExplorerContextMenu = () => {
     }
   }, [getPath]);
 
-  const runClient = useCallback(async () => {
-    await PgCommand.run.run(getPath());
-  }, [getPath]);
-
-  const runTest = useCallback(async () => {
-    await PgCommand.test.run(getPath());
-  }, [getPath]);
-
   const addProgram = useCallback(async () => {
     await PgExplorer.newItem(
       PgCommon.joinPaths([PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"])
@@ -116,6 +108,18 @@ export const useExplorerContextMenu = () => {
     await PgCommand.build.run();
   }, []);
 
+  const runDeploy = useCallback(async () => {
+    await PgCommand.deploy.run();
+  }, []);
+
+  const runClient = useCallback(async () => {
+    await PgCommand.run.run(getPath());
+  }, [getPath]);
+
+  const runTest = useCallback(async () => {
+    await PgCommand.test.run(getPath());
+  }, [getPath]);
+
   const runClientFolder = useCallback(async () => {
     await PgCommand.run.run();
   }, []);
@@ -132,11 +136,12 @@ export const useExplorerContextMenu = () => {
     addProgram,
     addClient,
     addTests,
+    runBuild,
+    runDeploy,
     runClient,
     runTest,
     runClientFolder,
     runTestFolder,
-    runBuild,
     itemData,
   };
 };
