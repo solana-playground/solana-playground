@@ -709,6 +709,8 @@ export class PgExplorer {
   /**
    * Open the file at the given path.
    *
+   * This method mutates the existing tabs array.
+   *
    * @param path file path
    */
   static openFile(path: string) {
@@ -728,6 +730,8 @@ export class PgExplorer {
 
   /**
    * Close the file at the given path.
+
+   * This method mutates the existing tabs array.
    *
    * @param path file path
    */
@@ -872,7 +876,6 @@ export class PgExplorer {
       PgExplorer.onDidDeleteItem,
       PgExplorer.onDidOpenFile,
       PgExplorer.onDidCloseFile,
-      PgExplorer.onDidSetTabs,
     ]);
   }
 
@@ -1172,9 +1175,10 @@ export class PgExplorer {
     }));
 
     // Tabs
-    this._explorer.tabs = fullPathMetaFile
+    const tabs = fullPathMetaFile
       .filter((meta) => meta.isTabs)
       .map((meta) => meta.path);
+    this.setTabs(tabs);
 
     // Current
     const current = fullPathMetaFile.find((meta) => meta.isCurrent);

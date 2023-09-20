@@ -59,7 +59,9 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
     }, [path]);
 
     const closeAll = useCallback(() => {
-      PgExplorer.tabs.forEach((tabPath) => PgExplorer.closeFile(tabPath));
+      // Clone the tabs before closing because `PgExplorer.closeFile` mutates
+      // the existing tabs array
+      [...PgExplorer.tabs].forEach((tabPath) => PgExplorer.closeFile(tabPath));
     }, []);
 
     return (
@@ -95,8 +97,7 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
           onClick={changeTab}
           title={relativePath}
           ref={ref}
-          {...(props as ComponentPropsWithoutRef<"div"> &
-            SortableItemProvidedProps)}
+          {...(props as SortableItemProvidedProps)}
         >
           <LangIcon fileName={fileName} />
           <Name>{fileName}</Name>

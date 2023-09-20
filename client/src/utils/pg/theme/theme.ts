@@ -775,7 +775,8 @@ export class PgTheme {
     tabs.tab.default.color ??= theme.colors.default.textSecondary;
     tabs.tab.default.border ??= "1px solid transparent";
     tabs.tab.default.borderRightColor ??= theme.colors.default.border;
-    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
+    // Adding transition for `translate` property cause flickering after sorting
+    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}, translate: none`;
     tabs.tab.default.hover ??= {};
     tabs.tab.default.hover.cursor ??= "pointer";
     tabs.tab.default.hover.bg ??= theme.colors.state.hover.bg;

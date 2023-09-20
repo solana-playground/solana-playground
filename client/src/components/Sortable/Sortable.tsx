@@ -1,8 +1,15 @@
-import { Dispatch, FC, ForwardRefExoticComponent, SetStateAction } from "react";
+import {
+  Dispatch,
+  ForwardRefExoticComponent,
+  SetStateAction,
+  useState,
+} from "react";
 import {
   closestCenter,
   DndContext,
   DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
   MouseSensor,
   UniqueIdentifier,
   useSensor,
@@ -17,14 +24,28 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 
-interface SortableProps {
+interface SortableProps<P> {
   items: UniqueIdentifier[];
   setItems: Dispatch<SetStateAction<UniqueIdentifier[]>>;
+
+  Item: ForwardRefExoticComponent<P>;
+  getItemProps: (item: UniqueIdentifier, index: number) => P;
 }
 
-export const Sortable: FC<SortableProps> = ({ items, setItems, children }) => {
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+const Sortable = <P,>({
+  items,
+  setItems,
+  Item,
+  getItemProps,
+}: SortableProps<P>) => {
+  const [activeItemProps, setActiveItemProps] = useState<any | null>(null);
+
+  const handleDragStart = (ev: DragStartEvent) => {
+    setActiveItemProps(ev.active.data.current);
+  };
+
+  const handleDragEnd = (ev: DragEndEvent) => {
+    const { active, over } = ev;
     if (!over || active.id === over.id) return;
 
     setItems((items) => {
@@ -33,6 +54,8 @@ export const Sortable: FC<SortableProps> = ({ items, setItems, children }) => {
 
       return arrayMove(items, oldIndex, newIndex);
     });
+
+    setActiveItemProps(null);
   };
 
   const sensors = useSensors(
@@ -45,14 +68,28 @@ export const Sortable: FC<SortableProps> = ({ items, setItems, children }) => {
 
   return (
     <DndContext
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       collisionDetection={closestCenter}
-      modifiers={[restrictToHorizontalAxis]}
       sensors={sensors}
+      modifiers={[restrictToHorizontalAxis]}
     >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
-        {children}
+        {items.map((item, i) => (
+          <SortableItem
+            key={item}
+            id={item}
+            Item={Item}
+            {...getItemProps(item, i)}
+          />
+        ))}
       </SortableContext>
+
+      {activeItemProps && (
+        <DragOverlay>
+          <Item {...activeItemProps} />
+        </DragOverlay>
+      )}
     </DndContext>
   );
 };
@@ -62,7 +99,7 @@ interface SortableItemProps<P> {
   Item: ForwardRefExoticComponent<P>;
 }
 
-export const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
+const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
   const {
     attributes,
     listeners,
@@ -70,7 +107,7 @@ export const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: props.id });
+  } = useSortable({ id: props.id, data: props });
 
   return (
     <props.Item
@@ -82,7 +119,7 @@ export const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
           ? CSS.Transform.toString({ ...transform, scaleX: 1 })
           : undefined,
         transition,
-        cursor: isDragging ? "grabbing" : "grab",
+        cursor: isDragging ? "grabbing" : "pointer",
       }}
       isDragging={isDragging}
       {...attributes}
@@ -95,3 +132,5 @@ export const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
 export interface SortableItemProvidedProps {
   isDragging: boolean;
 }
+
+export default Sortable;

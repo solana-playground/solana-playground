@@ -4,16 +4,23 @@ import styled, { css } from "styled-components";
 import Tab from "./Tab";
 import Button from "../../Button";
 import Img from "../../Img";
-import { Sortable, SortableItem } from "../../Sortable";
+import Sortable from "../../Sortable";
 import { Id } from "../../../constants";
 import { PgExplorer, PgTheme, PgWallet } from "../../../utils/pg";
-import { useExplorer, useKeybind, useWallet } from "../../../hooks";
+import {
+  useExplorer,
+  useKeybind,
+  useRenderOnChange,
+  useWallet,
+} from "../../../hooks";
 
 export const Tabs = () => {
+  // Without this, tabs flicker after reorder
+  useRenderOnChange(PgExplorer.onDidSetTabs);
+
   const { explorer } = useExplorer();
 
-  // Set tabs, only runs after reorder
-  const setTabs = useCallback((action: SetStateAction<readonly string[]>) => {
+  const setItems = useCallback((action: SetStateAction<readonly string[]>) => {
     const newTabs =
       typeof action === "function" ? action(PgExplorer.tabs) : action;
     PgExplorer.setTabs(newTabs as string[]);
@@ -33,18 +40,16 @@ export const Tabs = () => {
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        {/* @ts-ignore */}
-        <Sortable items={explorer.tabs} setItems={setTabs}>
-          {explorer.tabs.map((path, i) => (
-            <SortableItem
-              key={path}
-              Item={Tab}
-              id={path}
-              path={path}
-              index={i}
-            />
-          ))}
-        </Sortable>
+        {/* TODO: Remove @ts-ignore */}
+        <Sortable
+          // @ts-ignore
+          items={explorer.tabs}
+          // @ts-ignore
+          setItems={setItems}
+          Item={Tab}
+          // @ts-ignore
+          getItemProps={(path, index) => ({ path, index })}
+        />
       </TabsWrapper>
 
       <Wallet />
