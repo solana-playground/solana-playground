@@ -11,10 +11,12 @@ export class PgExplorerEvent {
   static readonly ON_DID_RENAME_ITEM = "explorerondidrenameitem";
   /** `onDidDeleteItem` event name */
   static readonly ON_DID_DELETE_ITEM = "explorerondiddeleteitem";
-  /** `onDidSwitchFile` event name */
-  static readonly ON_DID_SWITCH_FILE = "explorerondidswitchfile";
+  /** `onDidOpenFile` event name */
+  static readonly ON_DID_OPEN_FILE = "explorerondidopenfile";
   /** `onDidCloseFile` event name */
-  static readonly ON_DID_CLOSE_FILE = "explorerondidclosetab";
+  static readonly ON_DID_CLOSE_FILE = "explorerondidclosefile";
+  /** `onDidSetTabs` event name */
+  static readonly ON_DID_SET_TABS = "explorerondidsettabs";
 
   /** `onDidCreateWorkspace` event name */
   static readonly ON_DID_CREATE_WORKSPACE = "explorerondidcreateworkspace";
@@ -45,14 +47,19 @@ export class PgExplorerEvent {
     PgCommon.createAndDispatchCustomEvent(this.ON_DID_DELETE_ITEM, path);
   }
 
-  /** Dispatch an `onDidSwitchFile` event. */
-  static dispatchOnDidSwitchFile(file: FullFile | null) {
-    PgCommon.createAndDispatchCustomEvent(this.ON_DID_SWITCH_FILE, file);
+  /** Dispatch an `onDidOpenFile` event. */
+  static dispatchOnDidOpenFile(file: FullFile | null) {
+    PgCommon.createAndDispatchCustomEvent(this.ON_DID_OPEN_FILE, file);
   }
 
   /** Dispatch an `onDidCloseFile` event. */
   static dispatchOnDidCloseFile() {
     PgCommon.createAndDispatchCustomEvent(this.ON_DID_CLOSE_FILE);
+  }
+
+  /** Dispatch an `onDidSetTabs` event. */
+  static dispatchOnDidSetTabs() {
+    PgCommon.createAndDispatchCustomEvent(this.ON_DID_SET_TABS);
   }
 
   /** Dispatch an `onDidCreateWorkspace` event. */

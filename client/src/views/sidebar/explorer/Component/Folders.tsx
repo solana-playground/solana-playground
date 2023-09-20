@@ -48,7 +48,7 @@ const Folders = () => {
       }
     };
 
-    const switchFile = PgExplorer.onDidSwitchFile(async (file) => {
+    const switchFile = PgExplorer.onDidOpenFile(async (file) => {
       if (!file) return;
 
       openParentsAndSelectEl(file.path);

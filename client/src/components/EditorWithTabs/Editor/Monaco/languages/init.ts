@@ -104,7 +104,7 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
     cache.languageIds.push(languageId);
   };
 
-  return PgExplorer.onDidSwitchFile(async (file) => {
+  return PgExplorer.onDidOpenFile(async (file) => {
     if (!file) return;
 
     const lang = monaco.languages.getLanguages().find((lang) => {

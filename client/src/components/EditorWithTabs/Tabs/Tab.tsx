@@ -1,4 +1,12 @@
-import { FC, MouseEvent, useCallback, useMemo, useRef, useState } from "react";
+import {
+  ComponentPropsWithoutRef,
+  forwardRef,
+  MouseEvent,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
@@ -6,102 +14,112 @@ import LangIcon from "../../LangIcon";
 import Menu from "../../Menu";
 import { Close } from "../../Icons";
 import { PgExplorer, PgTheme } from "../../../utils/pg";
+import type { SortableItemProvidedProps } from "../../Sortable";
 
-interface TabProps {
+interface TabProps extends ComponentPropsWithoutRef<"div"> {
   path: string;
   index: number;
 }
 
-const Tab: FC<TabProps> = ({ path, index }) => {
-  const [isSelected, setIsSelected] = useState(false);
+const Tab = forwardRef<HTMLDivElement, TabProps>(
+  ({ path, index, ...props }, ref) => {
+    const [isSelected, setIsSelected] = useState(false);
 
-  const [fileName, relativePath] = useMemo(
-    () => [
-      PgExplorer.getItemNameFromPath(path),
-      PgExplorer.getRelativePath(path),
-    ],
-    [path]
-  );
+    const [fileName, relativePath] = useMemo(
+      () => [
+        PgExplorer.getItemNameFromPath(path),
+        PgExplorer.getRelativePath(path),
+      ],
+      [path]
+    );
 
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const changeTab = useCallback(
-    (ev: MouseEvent<HTMLDivElement>) => {
-      if (!closeButtonRef.current?.contains(ev.target as Node)) {
-        PgExplorer.openFile(path);
-      }
-    },
-    [path]
-  );
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
+    const changeTab = useCallback(
+      (ev: MouseEvent<HTMLDivElement>) => {
+        if (!closeButtonRef.current?.contains(ev.target as Node)) {
+          PgExplorer.openFile(path);
+        }
+      },
+      [path]
+    );
 
-  const closeFile = useCallback(() => PgExplorer.closeFile(path), [path]);
+    const closeFile = useCallback(() => PgExplorer.closeFile(path), [path]);
 
-  const closeOthers = useCallback(() => {
-    PgExplorer.tabs
-      .filter((tabPath) => tabPath !== path)
-      .forEach((tabPath) => PgExplorer.closeFile(tabPath));
-  }, [path]);
+    const closeOthers = useCallback(() => {
+      PgExplorer.tabs
+        .filter((tabPath) => tabPath !== path)
+        .forEach((tabPath) => PgExplorer.closeFile(tabPath));
+    }, [path]);
 
-  const closeToTheRight = useCallback(() => {
-    const tabIndex = PgExplorer.tabs.findIndex((tabPath) => tabPath === path);
-    PgExplorer.tabs
-      .slice(tabIndex + 1)
-      .forEach((tabPath) => PgExplorer.closeFile(tabPath));
-  }, [path]);
+    const closeToTheRight = useCallback(() => {
+      const tabIndex = PgExplorer.tabs.findIndex((tabPath) => tabPath === path);
+      PgExplorer.tabs
+        .slice(tabIndex + 1)
+        .forEach((tabPath) => PgExplorer.closeFile(tabPath));
+    }, [path]);
 
-  const closeAll = useCallback(() => {
-    PgExplorer.tabs.forEach((tabPath) => PgExplorer.closeFile(tabPath));
-  }, []);
+    const closeAll = useCallback(() => {
+      PgExplorer.tabs.forEach((tabPath) => PgExplorer.closeFile(tabPath));
+    }, []);
 
-  return (
-    <Menu
-      kind="context"
-      items={[
-        {
-          name: "Close",
-          onClick: closeFile,
-          keybind: "ALT+W",
-        },
-        {
-          name: "Close Others",
-          onClick: closeOthers,
-          showCondition: PgExplorer.tabs.length > 1,
-        },
-        {
-          name: "Close To The Right",
-          onClick: closeToTheRight,
-          showCondition: PgExplorer.tabs.length - 1 > index,
-        },
-        {
-          name: "Close All",
-          onClick: closeAll,
-        },
-      ]}
-      onShow={() => setIsSelected(true)}
-      onHide={() => setIsSelected(false)}
-    >
-      <Wrapper
-        isSelected={isSelected}
-        isCurrent={path === PgExplorer.currentFilePath}
-        onClick={changeTab}
-        title={relativePath}
+    return (
+      <Menu
+        kind="context"
+        items={[
+          {
+            name: "Close",
+            onClick: closeFile,
+            keybind: "ALT+W",
+          },
+          {
+            name: "Close Others",
+            onClick: closeOthers,
+            showCondition: PgExplorer.tabs.length > 1,
+          },
+          {
+            name: "Close To The Right",
+            onClick: closeToTheRight,
+            showCondition: PgExplorer.tabs.length - 1 > index,
+          },
+          {
+            name: "Close All",
+            onClick: closeAll,
+          },
+        ]}
+        onShow={() => setIsSelected(true)}
+        onHide={() => setIsSelected(false)}
       >
-        <LangIcon fileName={fileName} />
-        <Name>{fileName}</Name>
-        <Button
-          ref={closeButtonRef}
-          kind="icon"
-          onClick={closeFile}
-          title="Close (Alt+W)"
+        <Wrapper
+          isSelected={isSelected}
+          isCurrent={path === PgExplorer.currentFilePath}
+          onClick={changeTab}
+          title={relativePath}
+          ref={ref}
+          {...(props as ComponentPropsWithoutRef<"div"> &
+            SortableItemProvidedProps)}
         >
-          <Close />
-        </Button>
-      </Wrapper>
-    </Menu>
-  );
-};
+          <LangIcon fileName={fileName} />
+          <Name>{fileName}</Name>
+          <Button
+            ref={closeButtonRef}
+            kind="icon"
+            onClick={closeFile}
+            title="Close (Alt+W)"
+          >
+            <Close />
+          </Button>
+        </Wrapper>
+      </Menu>
+    );
+  }
+);
 
-const Wrapper = styled.div<{ isSelected: boolean; isCurrent: boolean }>`
-  ${({ theme, isSelected, isCurrent }) => css`
+const Wrapper = styled.div<{
+  isSelected: boolean;
+  isCurrent: boolean;
+  isDragging: boolean;
+}>`
+  ${({ theme, isSelected, isCurrent, isDragging }) => css`
     & button {
       ${!isCurrent && "opacity: 0;"}
       margin: 0 0.25rem 0 0.5rem;
@@ -119,6 +137,7 @@ const Wrapper = styled.div<{ isSelected: boolean; isCurrent: boolean }>`
     ${PgTheme.convertToCSS(theme.components.tabs.tab.default)};
     ${isSelected && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
     ${isCurrent && PgTheme.convertToCSS(theme.components.tabs.tab.current)};
+    ${isDragging && PgTheme.convertToCSS(theme.components.tabs.tab.drag)};
   `}
 `;
 

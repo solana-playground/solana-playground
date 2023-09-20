@@ -328,7 +328,7 @@ export class PgExplorer {
       if (currentFilePath) this.openFile(currentFilePath);
     }
 
-    PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
+    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
     PgExplorerEvent.dispatchOnDidRenameItem(fullPath);
 
     await this.saveMeta();
@@ -493,7 +493,7 @@ export class PgExplorer {
       // Save metadata to never lose default open file
       await this.saveMeta();
     } else {
-      PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
+      PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
     }
 
     // Set initialized workspace name
@@ -723,7 +723,7 @@ export class PgExplorer {
     // Update the current file index
     this._explorer.currentIndex = this.tabs.indexOf(path);
 
-    PgExplorerEvent.dispatchOnDidSwitchFile(this.getCurrentFile()!);
+    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
   }
 
   /**
@@ -748,6 +748,21 @@ export class PgExplorer {
     }
 
     PgExplorerEvent.dispatchOnDidCloseFile();
+  }
+
+  /**
+   * Set the tab paths.
+   *
+   * @param tabs tab paths to set
+   */
+  static setTabs(tabs: string[]) {
+    const currentPath = this.currentFilePath;
+    this._explorer.tabs = tabs;
+    if (currentPath) {
+      this._explorer.currentIndex = this.tabs.indexOf(currentPath);
+    }
+
+    PgExplorerEvent.dispatchOnDidSetTabs();
   }
 
   /**
@@ -853,10 +868,11 @@ export class PgExplorer {
   static onNeedRender(cb: () => unknown) {
     return PgCommon.batchChanges(cb, [
       PgExplorer.onDidInit,
-      PgExplorer.onDidSwitchFile,
       PgExplorer.onDidCreateItem,
       PgExplorer.onDidDeleteItem,
+      PgExplorer.onDidOpenFile,
       PgExplorer.onDidCloseFile,
+      PgExplorer.onDidSetTabs,
     ]);
   }
 
@@ -918,10 +934,10 @@ export class PgExplorer {
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidSwitchFile(cb: (file: FullFile | null) => unknown) {
+  static onDidOpenFile(cb: (file: FullFile | null) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_SWITCH_FILE,
+      eventName: PgExplorerEvent.ON_DID_OPEN_FILE,
       initialRun: { value: PgExplorer.getCurrentFile() },
     });
   }
@@ -936,6 +952,19 @@ export class PgExplorer {
     return PgCommon.onDidChange({
       cb,
       eventName: PgExplorerEvent.ON_DID_CLOSE_FILE,
+    });
+  }
+
+  /**
+   * Runs after setting tabs.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidSetTabs(cb: () => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgExplorerEvent.ON_DID_SET_TABS,
     });
   }
 

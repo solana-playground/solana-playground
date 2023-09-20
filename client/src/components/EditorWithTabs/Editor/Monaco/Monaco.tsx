@@ -476,7 +476,7 @@ const Monaco = () => {
     if (!editor) return;
     let positionDataIntervalId: NodeJS.Timer;
 
-    const switchFile = PgExplorer.onDidSwitchFile((curFile) => {
+    const switchFile = PgExplorer.onDidOpenFile((curFile) => {
       if (!curFile) return;
 
       // Clear previous state

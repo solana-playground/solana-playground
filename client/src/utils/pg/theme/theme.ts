@@ -789,6 +789,9 @@ export class PgTheme {
     tabs.tab.current.bg ??= theme.colors.default.bgPrimary;
     tabs.tab.current.color ??= theme.colors.default.textPrimary;
     tabs.tab.current.borderTopColor ??= theme.colors.default.secondary;
+    // Tab drag
+    tabs.tab.drag ??= {};
+    tabs.tab.drag.bg ??= theme.colors.state.hover.bg;
 
     return this;
   }

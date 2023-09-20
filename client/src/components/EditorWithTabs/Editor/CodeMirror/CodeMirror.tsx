@@ -182,7 +182,7 @@ const CodeMirror = () => {
     if (!editor) return;
     let positionDataIntervalId: NodeJS.Timer;
 
-    const { dispose } = PgExplorer.onDidSwitchFile((curFile) => {
+    const { dispose } = PgExplorer.onDidOpenFile((curFile) => {
       if (!curFile) return;
 
       // Clear previous state

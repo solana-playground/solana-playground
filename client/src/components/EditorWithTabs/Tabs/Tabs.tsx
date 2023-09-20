@@ -1,14 +1,23 @@
+import { SetStateAction, useCallback } from "react";
 import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../Button";
 import Img from "../../Img";
+import { Sortable, SortableItem } from "../../Sortable";
 import { Id } from "../../../constants";
 import { PgExplorer, PgTheme, PgWallet } from "../../../utils/pg";
 import { useExplorer, useKeybind, useWallet } from "../../../hooks";
 
 export const Tabs = () => {
   const { explorer } = useExplorer();
+
+  // Set tabs, only runs after reorder
+  const setTabs = useCallback((action: SetStateAction<readonly string[]>) => {
+    const newTabs =
+      typeof action === "function" ? action(PgExplorer.tabs) : action;
+    PgExplorer.setTabs(newTabs as string[]);
+  }, []);
 
   // Close the current tab with keybind
   useKeybind(
@@ -24,10 +33,20 @@ export const Tabs = () => {
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        {explorer.tabs.map((path, i) => (
-          <Tab key={path} path={path} index={i} />
-        ))}
+        {/* @ts-ignore */}
+        <Sortable items={explorer.tabs} setItems={setTabs}>
+          {explorer.tabs.map((path, i) => (
+            <SortableItem
+              key={path}
+              Item={Tab}
+              id={path}
+              path={path}
+              index={i}
+            />
+          ))}
+        </Sortable>
       </TabsWrapper>
+
       <Wallet />
     </Wrapper>
   );
