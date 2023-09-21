@@ -20,10 +20,12 @@ export const Tabs = () => {
 
   const { explorer } = useExplorer();
 
-  const setItems = useCallback((action: SetStateAction<readonly string[]>) => {
+  const setItems = useCallback((action: SetStateAction<string[]>) => {
     const newTabs =
-      typeof action === "function" ? action(PgExplorer.tabs) : action;
-    PgExplorer.setTabs(newTabs as string[]);
+      typeof action === "function"
+        ? action(PgExplorer.tabs as string[])
+        : action;
+    PgExplorer.setTabs(newTabs);
   }, []);
 
   // Close the current tab with keybind
@@ -40,14 +42,10 @@ export const Tabs = () => {
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        {/* TODO: Remove @ts-ignore */}
         <Sortable
-          // @ts-ignore
-          items={explorer.tabs}
-          // @ts-ignore
+          items={explorer.tabs as string[]}
           setItems={setItems}
           Item={Tab}
-          // @ts-ignore
           getItemProps={(path, index) => ({ path, index })}
         />
       </TabsWrapper>

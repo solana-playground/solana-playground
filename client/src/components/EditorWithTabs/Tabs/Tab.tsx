@@ -119,8 +119,9 @@ const Wrapper = styled.div<{
   isSelected: boolean;
   isCurrent: boolean;
   isDragging: boolean;
+  isDragOverlay: boolean;
 }>`
-  ${({ theme, isSelected, isCurrent, isDragging }) => css`
+  ${({ theme, isSelected, isCurrent, isDragging, isDragOverlay }) => css`
     & button {
       ${!isCurrent && "opacity: 0;"}
       margin: 0 0.25rem 0 0.5rem;
@@ -139,6 +140,8 @@ const Wrapper = styled.div<{
     ${isSelected && PgTheme.convertToCSS(theme.components.tabs.tab.selected)};
     ${isCurrent && PgTheme.convertToCSS(theme.components.tabs.tab.current)};
     ${isDragging && PgTheme.convertToCSS(theme.components.tabs.tab.drag)};
+    ${isDragOverlay &&
+    PgTheme.convertToCSS(theme.components.tabs.tab.dragOverlay)};
   `}
 `;
 

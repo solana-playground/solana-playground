@@ -123,13 +123,13 @@ export class PgTheme {
       ._toast()
       ._modal()
       ._markdown()
-      ._tabs()
-      ._editor()
       ._terminal()
       ._wallet()
       ._bottom()
       ._sidebar()
       ._main()
+      ._tabs()
+      ._editor()
       ._home()
       ._tutorial()
       ._tutorials();
@@ -749,150 +749,6 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default tabs component */
-  private static _tabs() {
-    const tabs = this._getComponent("tabs");
-    const theme = this._themeReady;
-
-    // Default
-    tabs.default ??= {};
-    tabs.default.display ??= "flex";
-    tabs.default.justifyContent ??= "space-between";
-    tabs.default.userSelect ??= "none";
-    tabs.default.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    tabs.default.fontSize ??= theme.font.code.size.small;
-
-    // Tab
-    tabs.tab ??= {};
-    // Tab default
-    tabs.tab.default ??= {};
-    tabs.tab.default.display ??= "flex";
-    tabs.tab.default.justifyContent ??= "center";
-    tabs.tab.default.alignItems ??= "center";
-    tabs.tab.default.width ??= "fit-content";
-    tabs.tab.default.height ??= "2rem";
-    tabs.tab.default.paddingLeft ??= "0.5rem";
-    tabs.tab.default.color ??= theme.colors.default.textSecondary;
-    tabs.tab.default.border ??= "1px solid transparent";
-    tabs.tab.default.borderRightColor ??= theme.colors.default.border;
-    // Adding transition for `translate` property cause flickering after sorting
-    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}, translate: none`;
-    tabs.tab.default.hover ??= {};
-    tabs.tab.default.hover.cursor ??= "pointer";
-    tabs.tab.default.hover.bg ??= theme.colors.state.hover.bg;
-    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
-    // Tab selected
-    tabs.tab.selected ??= {};
-    tabs.tab.selected.borderColor ??=
-      theme.colors.default.secondary + theme.default.transparency.medium;
-    // Tab current
-    tabs.tab.current ??= {};
-    tabs.tab.current.bg ??= theme.colors.default.bgPrimary;
-    tabs.tab.current.color ??= theme.colors.default.textPrimary;
-    tabs.tab.current.borderTopColor ??= theme.colors.default.secondary;
-    // Tab drag
-    tabs.tab.drag ??= {};
-    tabs.tab.drag.bg ??= theme.colors.state.hover.bg;
-
-    return this;
-  }
-
-  /** Set default editor component */
-  private static _editor() {
-    const editor = this._getComponent("editor");
-    const theme = this._themeReady;
-
-    editor.default ??= {};
-    editor.default.bg ??= theme.colors.default.bgPrimary;
-    editor.default.color ??= theme.colors.default.textPrimary;
-    editor.default.fontFamily ??= theme.font.code.family;
-    editor.default.fontSize ??= theme.font.code.size.large;
-
-    // Editor cursor color
-    editor.default.cursorColor ??= theme.colors.default.textSecondary;
-
-    // Editor active line
-    editor.default.activeLine ??= {};
-    editor.default.activeLine.bg ??= "inherit";
-    editor.default.activeLine.borderColor ??= theme.colors.default.border;
-
-    // Editor selection
-    editor.default.selection ??= {};
-    editor.default.selection.bg ??=
-      theme.colors.default.primary + theme.default.transparency.medium;
-    editor.default.selection.color ??= "inherit";
-
-    // Editor search match
-    editor.default.searchMatch ??= {};
-    editor.default.searchMatch.bg ??=
-      theme.colors.default.textSecondary + theme.default.transparency.medium;
-    editor.default.searchMatch.color ??= "inherit";
-    editor.default.searchMatch.selectedBg ??= "inherit";
-    editor.default.searchMatch.selectedColor ??= "inherit";
-
-    // Editor gutter
-    editor.gutter ??= {};
-    editor.gutter.bg ??= editor.default.bg;
-    editor.gutter.color ??= theme.colors.default.textSecondary;
-    editor.gutter.activeBg ??= "inherit";
-    editor.gutter.activeColor ??= theme.colors.default.textPrimary;
-    editor.gutter.borderRight ??= "none";
-
-    // Editor inlay hint
-    editor.inlayHint ??= {};
-    editor.inlayHint.bg ??= "#262730aa";
-    editor.inlayHint.color ??= theme.colors.default.textSecondary;
-    editor.inlayHint.parameterBg ??= editor.inlayHint.bg;
-    editor.inlayHint.parameterColor ??= editor.inlayHint.color;
-    editor.inlayHint.typeBg ??= editor.inlayHint.bg;
-    editor.inlayHint.typeColor ??= editor.inlayHint.color;
-
-    // Editor minimap
-    editor.minimap ??= {};
-    editor.minimap.bg ??= editor.default.bg;
-    editor.minimap.selectionHighlight ??= theme.colors.default.secondary;
-
-    // Editor peek view
-    editor.peekView ??= {};
-    editor.peekView.borderColor ??= theme.colors.default.primary;
-    // Editor peek view title
-    editor.peekView.title ??= {};
-    editor.peekView.title.bg ??= theme.colors.default.bgSecondary;
-    editor.peekView.title.labelColor ??= theme.colors.default.textPrimary;
-    editor.peekView.title.descriptionColor ??=
-      theme.colors.default.textSecondary;
-    // Editor peek view editor
-    editor.peekView.editor ??= {};
-    editor.peekView.editor.bg ??= theme.colors.default.bgSecondary;
-    editor.peekView.editor.matchHighlightBg ??=
-      theme.colors.state.warning.color + theme.default.transparency.medium;
-    editor.peekView.editor.gutterBg ??= editor.peekView.editor.bg;
-    // Editor peek view result
-    editor.peekView.result ??= {};
-    editor.peekView.result.bg ??= theme.colors.default.bgPrimary;
-    editor.peekView.result.lineColor ??= theme.colors.default.textSecondary;
-    editor.peekView.result.fileColor ??= theme.colors.default.textSecondary;
-    editor.peekView.result.selectionBg ??=
-      theme.colors.default.primary + theme.default.transparency.low;
-    editor.peekView.result.selectionColor ??= theme.colors.default.textPrimary;
-    editor.peekView.result.matchHighlightBg ??=
-      theme.colors.state.warning.color + theme.default.transparency.medium;
-
-    // Editor tooltip/widget
-    editor.tooltip ??= {};
-    editor.tooltip.bg ??= theme.colors.default.bgSecondary;
-    editor.tooltip.color ??= theme.colors.default.textPrimary;
-    editor.tooltip.selectedBg ??=
-      theme.colors.default.primary + theme.default.transparency.medium;
-    editor.tooltip.selectedColor ??= theme.colors.default.textPrimary;
-    editor.tooltip.borderColor ??= theme.colors.default.border;
-
-    // Editor wrapper
-    editor.wrapper ??= {};
-
-    return this;
-  }
-
   /** Set default terminal component */
   private static _terminal() {
     const terminal = this._getComponent("terminal");
@@ -1190,6 +1046,163 @@ export class PgTheme {
 
     // Views
     main.views ??= {};
+
+    return this;
+  }
+
+  /** Set default tabs component */
+  private static _tabs() {
+    const tabs = this._getComponent("tabs");
+    const theme = this._themeReady;
+
+    // Default
+    tabs.default ??= {};
+    tabs.default.display ??= "flex";
+    tabs.default.justifyContent ??= "space-between";
+    tabs.default.userSelect ??= "none";
+    tabs.default.bg ??= theme.components.main.default.bg;
+    tabs.default.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    tabs.default.fontSize ??= theme.font.code.size.small;
+
+    // Tab
+    tabs.tab ??= {};
+    // Tab default
+    tabs.tab.default ??= {};
+    tabs.tab.default.display ??= "flex";
+    tabs.tab.default.justifyContent ??= "center";
+    tabs.tab.default.alignItems ??= "center";
+    tabs.tab.default.width ??= "fit-content";
+    tabs.tab.default.height ??= "2rem";
+    tabs.tab.default.paddingLeft ??= "0.5rem";
+    tabs.tab.default.color ??= theme.colors.default.textSecondary;
+    tabs.tab.default.border ??= "1px solid transparent";
+    tabs.tab.default.borderRightColor ??= theme.colors.default.border;
+    // Adding transition for `translate` property cause flickering after sorting
+    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}, translate: none`;
+    tabs.tab.default.hover ??= {};
+    tabs.tab.default.hover.cursor ??= "pointer";
+    tabs.tab.default.hover.bg ??= theme.colors.state.hover.bg;
+    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
+    // Tab selected
+    tabs.tab.selected ??= {};
+    tabs.tab.selected.borderColor ??=
+      theme.colors.default.secondary + theme.default.transparency.medium;
+    // Tab current
+    tabs.tab.current ??= {};
+    tabs.tab.current.bg ??= theme.colors.default.bgPrimary;
+    tabs.tab.current.color ??= theme.colors.default.textPrimary;
+    tabs.tab.current.borderTopColor ??= theme.colors.default.secondary;
+    // Tab drag
+    tabs.tab.drag ??= {};
+    tabs.tab.drag.position ??= "relative";
+    tabs.tab.drag.borderColor ??=
+      theme.colors.default.secondary + theme.default.transparency.high;
+    tabs.tab.drag.after ??= {};
+    tabs.tab.drag.after.content ??= '""';
+    tabs.tab.drag.after.position ??= "absolute";
+    tabs.tab.drag.after.inset ??= 0;
+    tabs.tab.drag.after.width ??= "100%";
+    tabs.tab.drag.after.height ??= "100%";
+    tabs.tab.drag.after.bg ??= tabs.default.bg;
+    // Tab drag overlay
+    tabs.tab.dragOverlay ??= {};
+    tabs.tab.dragOverlay.opacity ??= 0.6;
+
+    return this;
+  }
+
+  /** Set default editor component */
+  private static _editor() {
+    const editor = this._getComponent("editor");
+    const theme = this._themeReady;
+
+    editor.default ??= {};
+    editor.default.bg ??= theme.colors.default.bgPrimary;
+    editor.default.color ??= theme.colors.default.textPrimary;
+    editor.default.fontFamily ??= theme.font.code.family;
+    editor.default.fontSize ??= theme.font.code.size.large;
+
+    // Editor cursor color
+    editor.default.cursorColor ??= theme.colors.default.textSecondary;
+
+    // Editor active line
+    editor.default.activeLine ??= {};
+    editor.default.activeLine.bg ??= "inherit";
+    editor.default.activeLine.borderColor ??= theme.colors.default.border;
+
+    // Editor selection
+    editor.default.selection ??= {};
+    editor.default.selection.bg ??=
+      theme.colors.default.primary + theme.default.transparency.medium;
+    editor.default.selection.color ??= "inherit";
+
+    // Editor search match
+    editor.default.searchMatch ??= {};
+    editor.default.searchMatch.bg ??=
+      theme.colors.default.textSecondary + theme.default.transparency.medium;
+    editor.default.searchMatch.color ??= "inherit";
+    editor.default.searchMatch.selectedBg ??= "inherit";
+    editor.default.searchMatch.selectedColor ??= "inherit";
+
+    // Editor gutter
+    editor.gutter ??= {};
+    editor.gutter.bg ??= editor.default.bg;
+    editor.gutter.color ??= theme.colors.default.textSecondary;
+    editor.gutter.activeBg ??= "inherit";
+    editor.gutter.activeColor ??= theme.colors.default.textPrimary;
+    editor.gutter.borderRight ??= "none";
+
+    // Editor inlay hint
+    editor.inlayHint ??= {};
+    editor.inlayHint.bg ??= "#262730aa";
+    editor.inlayHint.color ??= theme.colors.default.textSecondary;
+    editor.inlayHint.parameterBg ??= editor.inlayHint.bg;
+    editor.inlayHint.parameterColor ??= editor.inlayHint.color;
+    editor.inlayHint.typeBg ??= editor.inlayHint.bg;
+    editor.inlayHint.typeColor ??= editor.inlayHint.color;
+
+    // Editor minimap
+    editor.minimap ??= {};
+    editor.minimap.bg ??= editor.default.bg;
+    editor.minimap.selectionHighlight ??= theme.colors.default.secondary;
+
+    // Editor peek view
+    editor.peekView ??= {};
+    editor.peekView.borderColor ??= theme.colors.default.primary;
+    // Editor peek view title
+    editor.peekView.title ??= {};
+    editor.peekView.title.bg ??= theme.colors.default.bgSecondary;
+    editor.peekView.title.labelColor ??= theme.colors.default.textPrimary;
+    editor.peekView.title.descriptionColor ??=
+      theme.colors.default.textSecondary;
+    // Editor peek view editor
+    editor.peekView.editor ??= {};
+    editor.peekView.editor.bg ??= theme.colors.default.bgSecondary;
+    editor.peekView.editor.matchHighlightBg ??=
+      theme.colors.state.warning.color + theme.default.transparency.medium;
+    editor.peekView.editor.gutterBg ??= editor.peekView.editor.bg;
+    // Editor peek view result
+    editor.peekView.result ??= {};
+    editor.peekView.result.bg ??= theme.colors.default.bgPrimary;
+    editor.peekView.result.lineColor ??= theme.colors.default.textSecondary;
+    editor.peekView.result.fileColor ??= theme.colors.default.textSecondary;
+    editor.peekView.result.selectionBg ??=
+      theme.colors.default.primary + theme.default.transparency.low;
+    editor.peekView.result.selectionColor ??= theme.colors.default.textPrimary;
+    editor.peekView.result.matchHighlightBg ??=
+      theme.colors.state.warning.color + theme.default.transparency.medium;
+
+    // Editor tooltip/widget
+    editor.tooltip ??= {};
+    editor.tooltip.bg ??= theme.colors.default.bgSecondary;
+    editor.tooltip.color ??= theme.colors.default.textPrimary;
+    editor.tooltip.selectedBg ??=
+      theme.colors.default.primary + theme.default.transparency.medium;
+    editor.tooltip.selectedColor ??= theme.colors.default.textPrimary;
+    editor.tooltip.borderColor ??= theme.colors.default.border;
+
+    // Editor wrapper
+    editor.wrapper ??= {};
 
     return this;
   }

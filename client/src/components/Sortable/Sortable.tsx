@@ -22,22 +22,20 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 
-interface SortableProps<P> {
-  items: UniqueIdentifier[];
-  setItems: Dispatch<SetStateAction<UniqueIdentifier[]>>;
-
+interface SortableProps<P, I extends UniqueIdentifier> {
+  items: I[];
+  setItems: Dispatch<SetStateAction<I[]>>;
   Item: ForwardRefExoticComponent<P>;
-  getItemProps: (item: UniqueIdentifier, index: number) => P;
+  getItemProps: (item: I, index: number) => P;
 }
 
-const Sortable = <P,>({
+const Sortable = <P, I extends UniqueIdentifier>({
   items,
   setItems,
   Item,
   getItemProps,
-}: SortableProps<P>) => {
+}: SortableProps<P, I>) => {
   const [activeItemProps, setActiveItemProps] = useState<any | null>(null);
 
   const handleDragStart = (ev: DragStartEvent) => {
@@ -49,8 +47,8 @@ const Sortable = <P,>({
     if (!over || active.id === over.id) return;
 
     setItems((items) => {
-      const oldIndex = items.indexOf(active.id);
-      const newIndex = items.indexOf(over.id);
+      const oldIndex = items.indexOf(active.id as I);
+      const newIndex = items.indexOf(over.id as I);
 
       return arrayMove(items, oldIndex, newIndex);
     });
@@ -72,7 +70,6 @@ const Sortable = <P,>({
       onDragEnd={handleDragEnd}
       collisionDetection={closestCenter}
       sensors={sensors}
-      modifiers={[restrictToHorizontalAxis]}
     >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         {items.map((item, i) => (
@@ -87,7 +84,7 @@ const Sortable = <P,>({
 
       {activeItemProps && (
         <DragOverlay>
-          <Item {...activeItemProps} />
+          <Item isDragOverlay {...activeItemProps} />
         </DragOverlay>
       )}
     </DndContext>
@@ -131,6 +128,7 @@ const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
 
 export interface SortableItemProvidedProps {
   isDragging: boolean;
+  isDragOverlay: boolean;
 }
 
 export default Sortable;

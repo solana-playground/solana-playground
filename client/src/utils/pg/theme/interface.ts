@@ -243,7 +243,9 @@ export interface Theme {
 
     /** Tabs component */
     tabs?: ExtendibleComponent<{
-      tab?: ExtendibleComponent<"selected" | "current" | "drag">;
+      tab?: ExtendibleComponent<
+        "selected" | "current" | "drag" | "dragOverlay"
+      >;
     }>;
 
     /** Terminal component */
