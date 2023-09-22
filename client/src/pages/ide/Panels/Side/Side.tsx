@@ -10,28 +10,26 @@ import { PgCommon, PgTheme } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
+  // TODO: Handle initial sidebar page state from routes
   const { pathname } = useLocation();
-
   const [sidebarPage, setSidebarPage] = useState<SidebarPageName>(
     pathname.startsWith("/tutorials") ? "Tutorials" : "Explorer"
   );
-  const [width, setWidth] = useState(320);
-  const [oldWidth, setOldWidth] = useState(width);
-
-  useEffect(() => {
-    if (width) setOldWidth(width);
-  }, [width]);
-
   const oldSidebarRef = useRef(sidebarPage);
 
   useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);
-
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
       sidebarPage
     );
   }, [sidebarPage]);
+
+  const [width, setWidth] = useState(320);
+  const [oldWidth, setOldWidth] = useState(width);
+  useEffect(() => {
+    if (width) setOldWidth(width);
+  }, [width]);
 
   // Handle keybinds
   useKeybind(
@@ -64,12 +62,9 @@ const Side = () => {
 };
 
 const Wrapper = styled.div`
-  ${({ theme }) =>
-    css`
-      display: flex;
-
-      ${PgTheme.convertToCSS(theme.components.sidebar.default)};
-    `}
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.sidebar.default)};
+  `}
 `;
 
 export default Side;

@@ -1,14 +1,19 @@
-import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
-import styled, { css } from "styled-components";
+import {
+  FC,
+  SetStateAction,
+  Dispatch,
+  MutableRefObject,
+  useEffect,
+} from "react";
+import styled, { css, useTheme } from "styled-components";
 
 import IconButton from "../../../../../components/IconButton";
 import Link from "../../../../../components/Link";
 import PopButton from "../../../../../components/PopButton";
 import Settings from "./Settings";
 import { SIDEBAR } from "../../../../../views/sidebar";
-import { GITHUB_URL } from "../../../../../constants";
+import { ClassName, GITHUB_URL } from "../../../../../constants";
 import { PgCommon, PgTheme } from "../../../../../utils/pg";
-import { ID_PREFIX, useActiveTab } from "./useActiveTab";
 
 interface LeftProps<P = SidebarPageName, W = number> {
   sidebarPage: P;
@@ -45,7 +50,7 @@ const Left: FC<LeftProps> = ({
           {SIDEBAR.map((page, i) => (
             <IconButton
               key={i}
-              id={ID_PREFIX + page.name}
+              id={getId(page.name)}
               title={PgCommon.getKeybindTextOS(page.title)}
               src={page.icon}
               onClick={() => handleSidebarChange(page.name)}
@@ -70,6 +75,27 @@ const Left: FC<LeftProps> = ({
     </Wrapper>
   );
 };
+
+const useActiveTab = <P extends SidebarPageName>(
+  currentPage: P,
+  oldPageRef: MutableRefObject<P>,
+  width: number
+) => {
+  const theme = useTheme();
+
+  useEffect(() => {
+    const oldEl = document.getElementById(getId(oldPageRef.current));
+    oldEl?.classList.remove(ClassName.ACTIVE);
+
+    const current = width !== 0 ? currentPage : "Closed";
+    const newEl = document.getElementById(getId(current));
+    newEl?.classList.add(ClassName.ACTIVE);
+
+    oldPageRef.current = currentPage;
+  }, [currentPage, oldPageRef, width, theme.name]);
+};
+
+const getId = (id: string) => "sidebar" + id;
 
 const Wrapper = styled.div`
   ${({ theme }) => css`

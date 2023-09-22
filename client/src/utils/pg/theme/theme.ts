@@ -991,6 +991,7 @@ export class PgTheme {
 
     // Default
     sidebar.default ??= {};
+    sidebar.default.display ??= "flex";
 
     // Left
     sidebar.left ??= {};
