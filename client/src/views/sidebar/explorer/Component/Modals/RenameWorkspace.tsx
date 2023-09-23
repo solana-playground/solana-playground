@@ -2,19 +2,10 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer, PgView } from "../../../../../utils/pg";
 
 export const RenameWorkspace = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus and select input on mount
-  useEffect(() => {
-    inputRef.current?.select();
-  }, []);
-
-  const workspaceName = PgExplorer.currentWorkspaceName ?? "";
-
-  // Handle user input
+  const workspaceName = PgExplorer.currentWorkspaceName!;
   const [newName, setNewName] = useState(workspaceName);
   const [error, setError] = useState("");
 
@@ -24,8 +15,18 @@ export const RenameWorkspace = () => {
   };
 
   const renameWorkspace = async () => {
-    await PgExplorer.renameWorkspace(newName);
+    try {
+      PgView.setSidebarLoading(true);
+      await PgCommon.transition(PgExplorer.renameWorkspace(newName));
+    } finally {
+      PgView.setSidebarLoading(false);
+    }
   };
+  // Select input text on mount
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inputRef.current?.select();
+  }, []);
 
   return (
     <Modal

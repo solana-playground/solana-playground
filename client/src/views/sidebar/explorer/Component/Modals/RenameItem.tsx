@@ -2,14 +2,13 @@ import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../../utils/pg";
 
 interface RenameItemProps {
   path: string;
 }
 
 export const RenameItem: FC<RenameItemProps> = ({ path }) => {
-  // Handle user input
   const itemName = PgExplorer.getItemNameFromPath(path);
   const [newName, setNewName] = useState(itemName);
   const [error, setError] = useState("");
@@ -20,12 +19,15 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   };
 
   const rename = async () => {
-    await PgExplorer.renameItem(path, newName);
+    const newPath = PgCommon.joinPaths([
+      PgExplorer.getParentPathFromPath(path),
+      newName,
+    ]);
+    await PgExplorer.renameItem(path, newPath);
   };
 
+  // Select the file name without the extension on mount
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Focus input on mount
   useEffect(() => {
     inputRef.current?.setSelectionRange(0, inputRef.current.value.indexOf("."));
   }, []);

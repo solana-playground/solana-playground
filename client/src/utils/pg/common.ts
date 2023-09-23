@@ -1008,7 +1008,7 @@ export class PgCommon {
   }
 
   /**
-   * Join the paths without caring about incorrect '/' inside paths
+   * Join the paths without caring about incorrect '/' inside paths.
    *
    * @param paths paths to join
    * @returns the joined path
@@ -1017,6 +1017,17 @@ export class PgCommon {
     return paths.reduce(
       (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
     );
+  }
+
+  /**
+   * Compare paths to each other.
+   *
+   * @param pathOne first path
+   * @param pathTwo second path
+   * @returns whether the paths are equal
+   */
+  static isPathsEqual(pathOne: string, pathTwo: string) {
+    return PgCommon.appendSlash(pathOne) === PgCommon.appendSlash(pathTwo);
   }
 
   /**

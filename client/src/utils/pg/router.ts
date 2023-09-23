@@ -113,7 +113,7 @@ export class PgRouter {
     pathOne: OrString<RoutePath>,
     pathTwo: OrString<RoutePath>
   ) {
-    return PgCommon.appendSlash(pathOne) === PgCommon.appendSlash(pathTwo);
+    return PgCommon.isPathsEqual(pathOne, pathTwo);
   }
 
   /**

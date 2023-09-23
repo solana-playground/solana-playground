@@ -225,21 +225,25 @@ export class PgExplorer {
    * - Rename in state
    */
   static async renameItem(
-    path: string,
-    newName: string,
+    oldPath: string,
+    newPath: string,
     opts?: { skipNameValidation?: boolean }
   ) {
-    const fullPath = this.convertToFullPath(path);
+    oldPath = this.convertToFullPath(oldPath);
+    newPath = this.convertToFullPath(newPath);
 
-    if (!opts?.skipNameValidation && !PgExplorer.isItemNameValid(newName)) {
+    // Return if there is no change
+    if (PgCommon.isPathsEqual(newPath, oldPath)) return;
+
+    if (!opts?.skipNameValidation && !PgExplorer.isItemNameValid(newPath)) {
       throw new Error(ItemError.INVALID_NAME);
     }
-    if (fullPath === this.getCurrentSrcPath()) {
+    if (PgCommon.isPathsEqual(oldPath, this.getCurrentSrcPath())) {
       throw new Error(ItemError.SRC_RENAME);
     }
 
-    const itemType = PgExplorer.getItemTypeFromPath(fullPath);
-    const newItemType = PgExplorer.getItemTypeFromName(newName);
+    const itemType = PgExplorer.getItemTypeFromPath(oldPath);
+    const newItemType = PgExplorer.getItemTypeFromPath(newPath);
     if (
       (itemType.file && !newItemType.file) ||
       (itemType.folder && !newItemType.folder)
@@ -247,31 +251,8 @@ export class PgExplorer {
       throw new Error(ItemError.TYPE_MISMATCH);
     }
 
-    const parentFolder = PgExplorer.getParentPathFromPath(fullPath);
-
-    // Get new path
-    let newPath: string;
-    if (
-      this._workspace?.allNames.includes(
-        fullPath.substring(1, fullPath.length - 1)
-      )
-    ) {
-      // Github workspace name or any other workspace name with additional '/'
-      // is causing problems. We are mitigating that by directly replacing it.
-      newPath = PgCommon.appendSlash(
-        PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, newName])
-      );
-    } else {
-      newPath = itemType.file
-        ? parentFolder + newName
-        : parentFolder + newName + "/";
-    }
-
-    // Return if there is no change
-    if (newPath === fullPath) return;
-
     // Rename in `indexedDB`
-    if (!this.isTemporary) await this.fs.rename(fullPath, newPath);
+    if (!this.isTemporary) await this.fs.rename(oldPath, newPath);
 
     const files = this.files;
     let currentFilePath = this.currentFilePath;
@@ -293,43 +274,35 @@ export class PgExplorer {
       if (PgExplorer.getItemTypeFromPath(newPath).file) {
         // Rename tabs manually instead of closing the old file and opening the
         // new file in order to keep the tab order
-        const tabIndex = this._explorer.tabs.indexOf(oldPath);
+        const tabIndex = this.tabs.indexOf(oldPath);
         if (tabIndex !== -1) this._explorer.tabs[tabIndex] = newPath;
       }
     };
 
     // Rename in state
     if (itemType.file) {
-      rename(fullPath, newPath);
+      rename(oldPath, newPath);
     } else {
       // We need to loop through all files in order to change every child path
       for (const path in files) {
         // /programs/my_program/logs/logfile.log
         // If we are renaming 'my_program' then we can replace '/programs/my_program/'
         // with '/programs/<new_name>/'
-        if (path.startsWith(fullPath)) {
-          const namesArr = fullPath.split("/");
-          const pathWithoutName = namesArr
-            .filter((_itemName, i) => i !== namesArr.length - 2)
-            .reduce((acc, itemName) => (acc += `/${itemName}`));
-
-          const newFolderPath = PgCommon.appendSlash(
-            PgCommon.joinPaths([pathWithoutName, newName])
+        if (path.startsWith(oldPath)) {
+          const childPath = path.replace(
+            oldPath,
+            oldPath.endsWith("/") ? PgCommon.appendSlash(newPath) : newPath
           );
-
-          // Full path that could be a children(newFolderPath + ...)
-          const newFullPath = path.replace(fullPath, newFolderPath);
-
-          rename(path, newFullPath);
+          rename(path, childPath);
         }
       }
-
-      // Keep the same current file after rename
-      if (currentFilePath) this.openFile(currentFilePath);
     }
 
-    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
-    PgExplorerEvent.dispatchOnDidRenameItem(fullPath);
+    // Keep the same current file after rename
+    if (currentFilePath) {
+      PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
+    }
+    PgExplorerEvent.dispatchOnDidRenameItem(oldPath);
 
     await this.saveMeta();
   }
@@ -346,7 +319,7 @@ export class PgExplorer {
     const fullPath = this.convertToFullPath(path);
 
     // Can't delete src folder
-    if (fullPath === this.getCurrentSrcPath()) {
+    if (PgCommon.isPathsEqual(fullPath, this.getCurrentSrcPath())) {
       throw new Error(ItemError.SRC_DELETE);
     }
 
@@ -510,16 +483,25 @@ export class PgExplorer {
    */
   static async renameWorkspace(newName: string) {
     newName = newName.trim();
+    if (!this._workspace) {
+      throw new Error(WorkspaceError.NOT_FOUND);
+    }
+    if (!this.currentWorkspaceName) {
+      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+    }
     if (!this.isWorkspaceNameValid(newName)) {
       throw new Error(WorkspaceError.INVALID_NAME);
     }
-    if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
     if (this.allWorkspaceNames!.includes(newName)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }
 
     // Rename workspace folder
-    await this.renameItem(this.currentWorkspacePath, newName, {
+    const newPath = this.currentWorkspacePath.replace(
+      this.currentWorkspaceName,
+      newName
+    );
+    await this.renameItem(this.currentWorkspacePath, newPath, {
       skipNameValidation: true,
     });
 
@@ -1592,7 +1574,7 @@ export class PgExplorer {
    */
   static isItemNameValid(name: string) {
     return (
-      !!name.match(/^(?![./])[\w.-/]+/) &&
+      /^(?![.])[\w\d.-/]+/.test(name) &&
       !name.includes("//") &&
       !name.includes("..") &&
       !name.endsWith("/") &&

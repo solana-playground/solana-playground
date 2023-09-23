@@ -78,6 +78,7 @@ export class PgFs {
    */
   static async rename(oldPath: string, newPath: string) {
     oldPath = PgExplorer.convertToFullPath(oldPath);
+    newPath = PgExplorer.convertToFullPath(newPath);
     await this._fs.rename(oldPath, newPath);
   }
 
