@@ -1,9 +1,11 @@
-/** UI Setting */
-export interface Setting {
+import { PgCommon, RequiredKey } from "../utils/pg";
+
+/** UI setting parameter */
+interface SettingParam {
   /** Name of the setting */
   name: string;
-  /** Setting component */
-  Component: () => JSX.Element;
+  /** Setting component, default to `./setting-name/Component` */
+  Component?: () => JSX.Element;
   /** Help tooltip */
   tooltip?: {
     /** Tooltip text */
@@ -15,10 +17,18 @@ export interface Setting {
   isCheckBox?: boolean;
 }
 
+/** UI Setting */
+export type Setting = RequiredKey<SettingParam, "Component">;
+
 /**
  * Create a UI setting.
  *
  * @param setting UI setting
  * @returns the setting with correct types
  */
-export const createSetting = (setting: Setting) => setting;
+export const createSetting = (setting: SettingParam) => {
+  setting.Component ??= require(`./${PgCommon.toKebabFromTitle(
+    setting.name
+  )}/Component`).default;
+  return setting as Setting;
+};
