@@ -25,11 +25,8 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
   ({ path, index, ...props }, ref) => {
     const [isSelected, setIsSelected] = useState(false);
 
-    const [fileName, relativePath] = useMemo(
-      () => [
-        PgExplorer.getItemNameFromPath(path),
-        PgExplorer.getRelativePath(path),
-      ],
+    const fileName = useMemo(
+      () => PgExplorer.getItemNameFromPath(path),
       [path]
     );
 
@@ -95,7 +92,7 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
           isSelected={isSelected}
           isCurrent={path === PgExplorer.currentFilePath}
           onClick={changeTab}
-          title={relativePath}
+          title={path}
           ref={ref}
           {...(props as SortableItemProvidedProps)}
         >
