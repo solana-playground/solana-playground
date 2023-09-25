@@ -98,6 +98,7 @@ export class PgExplorer {
   }) {
     if (params?.files) {
       this._isTemporary = true;
+      this._workspace = null;
 
       // Reset the explorer state
       this._explorer = this._getDefaultState();
@@ -385,7 +386,6 @@ export class PgExplorer {
       // The reason we are not just getting the necessary files and re-calling this
       // function with { files } is because we would lose the tab info. Instead we
       // are creating a valid workspace state and writing it to `indexedDB`.
-
       this._isTemporary = false;
       this._workspace = new PgWorkspace();
 
@@ -395,17 +395,18 @@ export class PgExplorer {
       this._workspace.new(name);
 
       // Change state paths(temporary projects start with /src)
+      const getFullPath = (path: string) => {
+        return PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, path]);
+      };
       for (const path in this.files) {
         const data = this.files[path];
         delete this.files[path];
-        this.files[`/${name}${path}`] = data;
+        this.files[getFullPath(path)] = data;
       }
+      this.setTabs(this.tabs.map(getFullPath));
 
-      // Save everything from state to `indexedDB`
+      // Save files from state to `indexedDB`
       await this._writeAllFromState();
-
-      // Save metadata
-      await this.saveMeta({ initial: true });
 
       await this.switchWorkspace(name);
 
@@ -424,13 +425,10 @@ export class PgExplorer {
       }
 
       // Set the default open file
-      if (!opts.defaultOpenFile) {
-        opts.defaultOpenFile = this._getDefaultOpenFile(opts.files);
-      }
+      opts.defaultOpenFile ??= this._getDefaultOpenFile(opts.files);
     }
 
     await this.switchWorkspace(name, {
-      initial: true,
       defaultOpenFile: opts?.defaultOpenFile,
     });
 
@@ -442,15 +440,14 @@ export class PgExplorer {
    *
    * @param name workspace name to change to
    * @param opts -
-   * - `initial`: if changing to the given workspace for the first time
    * - `defaultOpenFile`: the file to open in the editor
    */
   static async switchWorkspace(
     name: string,
-    opts?: { initial?: boolean; defaultOpenFile?: string }
+    opts?: { defaultOpenFile?: string }
   ) {
     // Save metadata before changing the workspace to never lose data
-    await this.saveMeta(opts);
+    await this.saveMeta();
 
     // Set the workspace
     this.setWorkspaceName(name);
@@ -522,15 +519,16 @@ export class PgExplorer {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
     }
 
+    // Delete from `indexedDB`
+    await this.deleteItem(this.currentWorkspacePath);
+
     // Delete from state
     this._workspace.delete(this.currentWorkspaceName);
-
-    await this.deleteItem(this.currentWorkspacePath);
 
     const workspaceCount = this._workspace.allNames.length;
     if (workspaceCount) {
       const lastWorkspace = this._workspace.allNames[workspaceCount - 1];
-      await this.switchWorkspace(lastWorkspace, { initial: true });
+      await this.switchWorkspace(lastWorkspace);
     } else {
       this._workspace.setCurrent({ allNames: [] });
       await this._saveWorkspaces();
@@ -545,34 +543,37 @@ export class PgExplorer {
    *
    * NOTE: Only runs when the project is not temporary.
    */
-  static async saveMeta(opts?: { initial?: boolean }) {
-    if (!this.currentWorkspaceName || !Object.keys(this.files).length) {
-      return;
-    }
+  static async saveMeta() {
+    const paths = Object.keys(this.files);
+    if (!this.currentWorkspaceName || !paths.length) return;
 
-    const metaFile = opts?.initial
-      ? []
-      : Object.keys(this.files)
-          .reduce((acc, path) => {
-            // Check whether all of the files start with the correct path
-            if (path.startsWith(this.currentWorkspacePath)) {
-              acc.push({
-                path,
-                isTabs: this.tabs.includes(path),
-                isCurrent: this.currentFilePath === path,
-                position: this.files[path].meta?.position,
-              });
-            }
+    // Check whether the files start with the correct workspace path
+    const isInvalidState = paths.some(
+      (path) => !path.startsWith(this.currentWorkspacePath)
+    );
+    if (isInvalidState) return;
 
-            return acc;
-          }, [] as ItemMetaFile)
-          .sort((a, b) => {
-            // Sort based on tab order
-            if (!a.isTabs) return 1;
-            if (!b.isTabs) return -1;
-            return this.tabs.indexOf(a.path) - this.tabs.indexOf(b.path);
-          })
-          .map((meta) => ({ ...meta, path: this.getRelativePath(meta.path) }));
+    const metaFile = paths
+      .reduce((acc, path) => {
+        // Only save the files in the current workspace
+        if (path.startsWith(this.currentWorkspacePath)) {
+          acc.push({
+            path,
+            isTabs: this.tabs.includes(path),
+            isCurrent: this.currentFilePath === path,
+            position: this.files[path].meta?.position,
+          });
+        }
+
+        return acc;
+      }, [] as ItemMetaFile)
+      .sort((a, b) => {
+        // Sort based on tab order
+        if (!a.isTabs) return 1;
+        if (!b.isTabs) return -1;
+        return this.tabs.indexOf(a.path) - this.tabs.indexOf(b.path);
+      })
+      .map((meta) => ({ ...meta, path: this.getRelativePath(meta.path) }));
 
     // Save file
     await this.fs.writeFile(
