@@ -75,10 +75,6 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   fontWeight?: CSSProperties["fontWeight"];
 }
 
-const getIsLoading = (btnLoading: ButtonProps["btnLoading"]) => {
-  return typeof btnLoading === "object" ? btnLoading.state : btnLoading;
-};
-
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -107,14 +103,16 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       setIsDisabled(disabled || isLoading);
     }, [disabled, isLoading]);
 
-    const onClickWithLoader = async (ev: MouseEvent<HTMLButtonElement>) => {
-      const shouldSetIsLoading =
-        getIsLoading(btnLoading) === undefined && props.kind !== "icon";
+    const handleOnClick = async (ev: MouseEvent<HTMLButtonElement>) => {
+      const shouldSetIsDisabled = getIsLoading(btnLoading) === undefined;
+      const shouldSetIsLoading = shouldSetIsDisabled && props.kind !== "icon";
 
       try {
+        if (shouldSetIsDisabled) setIsDisabled(true);
         if (shouldSetIsLoading) setIsLoading(true);
         await onClick?.(ev);
       } finally {
+        if (shouldSetIsDisabled) setIsDisabled(false);
         if (shouldSetIsLoading) setIsLoading(false);
       }
     };
@@ -124,7 +122,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={`${className} ${isLoading ? ClassName.BUTTON_LOADING : ""}`}
         disabled={isDisabled}
-        onClick={onClickWithLoader}
+        onClick={handleOnClick}
         {...props}
       >
         <span className="btn-spinner" />
@@ -141,6 +139,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
+
+/** Get whether the button is currently in a loading state */
+const getIsLoading = (btnLoading: ButtonProps["btnLoading"]) => {
+  return typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+};
 
 const StyledButton = styled.button<ButtonProps>`
   ${(props) => getButtonStyles(props)}
@@ -379,6 +382,10 @@ const getButtonStyles = ({
         cursor: not-allowed;
         background: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
+
+        & svg {
+          color: ${theme.colors.state.disabled.color};
+        }
       }
     }
 
