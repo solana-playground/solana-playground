@@ -14,7 +14,7 @@ import LangIcon from "../../LangIcon";
 import Menu from "../../Menu";
 import { Close } from "../../Icons";
 import { PgExplorer, PgTheme } from "../../../utils/pg";
-import type { SortableItemProvidedProps } from "../../Sortable";
+import type { SortableItemProvidedProps } from "../../Dnd/Sortable";
 
 interface TabProps extends ComponentPropsWithoutRef<"div"> {
   path: string;

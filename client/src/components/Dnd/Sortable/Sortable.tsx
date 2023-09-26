@@ -5,41 +5,48 @@ import {
   useState,
 } from "react";
 import {
-  closestCenter,
-  DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  MouseSensor,
   UniqueIdentifier,
-  useSensor,
-  useSensors,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   horizontalListSortingStrategy,
+  rectSortingStrategy,
+  rectSwappingStrategy,
   SortableContext,
   useSortable,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import DndContext from "../Context/DndContext";
 
 interface SortableProps<P, I extends UniqueIdentifier> {
   items: I[];
   setItems: Dispatch<SetStateAction<I[]>>;
   Item: ForwardRefExoticComponent<P>;
   getItemProps: (item: I, index: number) => P;
+  strategy?: SortStrategy;
 }
+
+type SortStrategy =
+  | "rect-sorting"
+  | "rect-swapping"
+  | "horizontal"
+  | "vertical";
 
 const Sortable = <P, I extends UniqueIdentifier>({
   items,
   setItems,
   Item,
   getItemProps,
+  strategy = "rect-sorting",
 }: SortableProps<P, I>) => {
-  const [activeItemProps, setActiveItemProps] = useState<any | null>(null);
+  const [activeItemProps, setActiveItemProps] = useState<P | null>(null);
 
   const handleDragStart = (ev: DragStartEvent) => {
-    setActiveItemProps(ev.active.data.current);
+    setActiveItemProps(ev.active.data.current as P | null);
   };
 
   const handleDragEnd = (ev: DragEndEvent) => {
@@ -56,22 +63,9 @@ const Sortable = <P, I extends UniqueIdentifier>({
     setActiveItemProps(null);
   };
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
-
   return (
-    <DndContext
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      collisionDetection={closestCenter}
-      sensors={sensors}
-    >
-      <SortableContext items={items} strategy={horizontalListSortingStrategy}>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <SortableContext items={items} strategy={getSortingStrategy(strategy)}>
         {items.map((item, i) => (
           <SortableItem
             key={item}
@@ -124,6 +118,19 @@ const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
       {...props}
     />
   );
+};
+
+const getSortingStrategy = (strategy: SortStrategy) => {
+  switch (strategy) {
+    case "rect-sorting":
+      return rectSortingStrategy;
+    case "rect-swapping":
+      return rectSwappingStrategy;
+    case "horizontal":
+      return horizontalListSortingStrategy;
+    case "vertical":
+      return verticalListSortingStrategy;
+  }
 };
 
 export interface SortableItemProvidedProps {

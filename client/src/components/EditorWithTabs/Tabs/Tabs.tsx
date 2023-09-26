@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Tab from "./Tab";
 import Button from "../../Button";
 import Img from "../../Img";
-import Sortable from "../../Sortable";
+import Sortable from "../../Dnd/Sortable";
 import { Id } from "../../../constants";
 import { PgExplorer, PgTheme, PgWallet } from "../../../utils/pg";
 import {
@@ -47,6 +47,7 @@ export const Tabs = () => {
           setItems={setItems}
           Item={Tab}
           getItemProps={(path, index) => ({ path, index })}
+          strategy="horizontal"
         />
       </TabsWrapper>
 
