@@ -283,6 +283,10 @@ export class PgExplorer {
     // Rename in state
     if (itemType.file) {
       rename(oldPath, newPath);
+
+      // Moving all elements from a folder results with the parent folder
+      // disappearing, add the folder back to mitigate
+      files[PgExplorer.getParentPathFromPath(oldPath)] = {};
     } else {
       // We need to loop through all files in order to change every child path
       for (const path in files) {
@@ -803,6 +807,19 @@ export class PgExplorer {
     return fullPath.replace(PgExplorer.currentWorkspacePath, "");
   }
 
+  /**
+   * Get the canonical path, i.e. the full path from the project root and
+   * directory paths end with `/`.
+   *
+   * @param path item path
+   * @returns the canonical path
+   */
+  static getCanonicalPath(path: string) {
+    path = PgExplorer.convertToFullPath(path);
+    if (PgExplorer.getItemTypeFromPath(path).file) return path;
+    return PgCommon.appendSlash(path);
+  }
+
   // TODO: Path module
   /**
    * Convert the given path to a full path.
@@ -1034,9 +1051,8 @@ export class PgExplorer {
       const subItemPaths = itemNames
         .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
-          return (
-            PgCommon.joinPaths([path, itemName]) +
-            (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "")
+          return PgExplorer.getCanonicalPath(
+            PgCommon.joinPaths([path, itemName])
           );
         });
       for (const subItemPath of subItemPaths) {

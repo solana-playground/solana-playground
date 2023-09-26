@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Input from "../../../../../components/Input";
 import LangIcon from "../../../../../components/LangIcon";
 import { EventName } from "../../../../../constants";
-import { Fn, PgExplorer } from "../../../../../utils/pg";
+import { Fn, PgCommon, PgExplorer } from "../../../../../utils/pg";
 import {
   useKeybind,
   useOnClickOutside,
@@ -54,13 +54,11 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
             PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ??
             PgExplorer.PATHS.ROOT_DIR_PATH;
 
-          const itemPath =
-            parentPath +
-            itemName +
-            (PgExplorer.getItemTypeFromName(itemName).folder ? "/" : "");
-
           try {
             // Create item
+            const itemPath = PgExplorer.getCanonicalPath(
+              PgCommon.joinPaths([parentPath, itemName])
+            );
             await PgExplorer.newItem(itemPath);
 
             // Hide input

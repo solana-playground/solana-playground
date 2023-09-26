@@ -1,7 +1,9 @@
 import {
+  ComponentPropsWithoutRef,
+  CSSProperties,
   FC,
+  forwardRef,
   MouseEvent,
-  MouseEventHandler,
   ReactNode,
   useCallback,
   useEffect,
@@ -11,6 +13,9 @@ import styled, { css, useTheme } from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Button, { ButtonProps } from "../../../../components/Button";
+import DndContext, { DragEndEvent } from "../../../../components/Dnd/Context";
+import Droppable from "../../../../components/Dnd/Droppable";
+import Draggable from "../../../../components/Dnd/Draggable";
 import LangIcon from "../../../../components/LangIcon";
 import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import {
@@ -68,7 +73,6 @@ const Folders = () => {
   }, [theme.name]);
 
   const ctxMenu = useExplorerContextMenu();
-
   const { newItem } = useNewItem();
 
   useKeybind(
@@ -79,6 +83,29 @@ const Folders = () => {
     ],
     []
   );
+
+  // Move
+  const handleDragEnd = useCallback(async (ev: DragEndEvent) => {
+    const { active, over } = ev;
+    if (!over) return;
+
+    const fromPath = active.id as string;
+    const toPath = over.id as string;
+    if (PgCommon.isPathsEqual(fromPath, toPath)) return;
+
+    const isToPathFolder = PgExplorer.getItemTypeFromPath(toPath).folder;
+    if (!isToPathFolder) return;
+
+    const itemName = PgExplorer.getItemNameFromPath(fromPath);
+    const newPath = PgExplorer.getCanonicalPath(
+      PgCommon.joinPaths([toPath, itemName])
+    );
+    if (PgCommon.isPathsEqual(fromPath, newPath)) return;
+
+    await PgExplorer.renameItem(fromPath, newPath, {
+      skipNameValidation: true,
+    });
+  }, []);
 
   // No need to memoize here
   const relativeRootPath = PgExplorer.getProjectRootPath();
@@ -94,82 +121,86 @@ const Folders = () => {
     <>
       <ExplorerButtons />
 
-      <ExplorerContextMenu {...ctxMenu}>
-        <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
-          {/* Program */}
-          <SectionTopWrapper>
-            <SectionHeader>Program</SectionHeader>
-            {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
-              <SectionButton
-                onClick={ctxMenu.runBuild}
-                Icon={<Wrench />}
-                addTextMargin
-              >
-                Build
-              </SectionButton>
-            ) : (
-              <SectionButton onClick={ctxMenu.addProgram} Icon={<Plus />}>
-                Add
-              </SectionButton>
-            )}
-          </SectionTopWrapper>
-          <FolderGroup
-            folders={folders.filter((f) => f === PgExplorer.PATHS.SRC_DIRNAME)}
-            relativeRootPath={relativeRootPath}
-          />
-
-          {/* Client and tests */}
-          <SectionTopWrapper>
-            <SectionHeader>Client</SectionHeader>
-            {folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ? (
-              <SectionButton
-                onClick={ctxMenu.runClientFolder}
-                Icon={<Triangle rotate="90deg" />}
-                title="Run All (in client dir)"
-              >
-                Run
-              </SectionButton>
-            ) : (
-              <SectionButton onClick={ctxMenu.addClient} Icon={<Plus />}>
-                Add client
-              </SectionButton>
-            )}
-
-            {folders.includes(PgExplorer.PATHS.TESTS_DIRNAME) ? (
-              <SectionButton
-                onClick={ctxMenu.runTestFolder}
-                Icon={<TestTube />}
-                title="Test All (in tests dir)"
-              >
-                Test
-              </SectionButton>
-            ) : (
-              <SectionButton onClick={ctxMenu.addTests} Icon={<Plus />}>
-                Add tests
-              </SectionButton>
-            )}
-          </SectionTopWrapper>
-          <FolderGroup
-            folders={folders.filter(
-              (f) =>
-                f === PgExplorer.PATHS.CLIENT_DIRNAME ||
-                f === PgExplorer.PATHS.TESTS_DIRNAME
-            )}
-            relativeRootPath={relativeRootPath}
-          />
-
-          {/* Other */}
-          {otherFolders.length > 0 && (
+      <DndContext onDragEnd={handleDragEnd}>
+        <ExplorerContextMenu {...ctxMenu}>
+          <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
+            {/* Program */}
             <SectionTopWrapper>
-              <SectionHeader>Other</SectionHeader>
+              <SectionHeader>Program</SectionHeader>
+              {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
+                <SectionButton
+                  onClick={ctxMenu.runBuild}
+                  Icon={<Wrench />}
+                  addTextMargin
+                >
+                  Build
+                </SectionButton>
+              ) : (
+                <SectionButton onClick={ctxMenu.addProgram} Icon={<Plus />}>
+                  Add
+                </SectionButton>
+              )}
             </SectionTopWrapper>
-          )}
-          <FolderGroup
-            folders={otherFolders}
-            relativeRootPath={relativeRootPath}
-          />
-        </RootWrapper>
-      </ExplorerContextMenu>
+            <FolderGroup
+              folders={folders.filter(
+                (f) => f === PgExplorer.PATHS.SRC_DIRNAME
+              )}
+              relativeRootPath={relativeRootPath}
+            />
+
+            {/* Client and tests */}
+            <SectionTopWrapper>
+              <SectionHeader>Client</SectionHeader>
+              {folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ? (
+                <SectionButton
+                  onClick={ctxMenu.runClientFolder}
+                  Icon={<Triangle rotate="90deg" />}
+                  title="Run All (in client dir)"
+                >
+                  Run
+                </SectionButton>
+              ) : (
+                <SectionButton onClick={ctxMenu.addClient} Icon={<Plus />}>
+                  Add client
+                </SectionButton>
+              )}
+
+              {folders.includes(PgExplorer.PATHS.TESTS_DIRNAME) ? (
+                <SectionButton
+                  onClick={ctxMenu.runTestFolder}
+                  Icon={<TestTube />}
+                  title="Test All (in tests dir)"
+                >
+                  Test
+                </SectionButton>
+              ) : (
+                <SectionButton onClick={ctxMenu.addTests} Icon={<Plus />}>
+                  Add tests
+                </SectionButton>
+              )}
+            </SectionTopWrapper>
+            <FolderGroup
+              folders={folders.filter(
+                (f) =>
+                  f === PgExplorer.PATHS.CLIENT_DIRNAME ||
+                  f === PgExplorer.PATHS.TESTS_DIRNAME
+              )}
+              relativeRootPath={relativeRootPath}
+            />
+
+            {/* Other */}
+            {otherFolders.length > 0 && (
+              <SectionTopWrapper>
+                <SectionHeader>Other</SectionHeader>
+              </SectionTopWrapper>
+            )}
+            <FolderGroup
+              folders={otherFolders}
+              relativeRootPath={relativeRootPath}
+            />
+          </RootWrapper>
+        </ExplorerContextMenu>
+      </DndContext>
     </>
   );
 };
@@ -211,7 +242,7 @@ interface FolderGroupProps {
 const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
   <>
     {folders
-      .sort((x, y) => x.localeCompare(y))
+      .sort((a, b) => a.localeCompare(b))
       .map((foldername) => (
         <RecursiveFolder
           key={foldername}
@@ -223,11 +254,11 @@ const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
   </>
 );
 
-interface FolderProps {
+interface RecursiveFolderProps {
   path: string;
 }
 
-const RecursiveFolder: FC<FolderProps> = ({ path }) => {
+const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
   const folderName = useMemo(
     () => PgExplorer.getItemNameFromPath(path),
     [path]
@@ -254,21 +285,34 @@ const RecursiveFolder: FC<FolderProps> = ({ path }) => {
     }
   }, []);
 
+  const theme = useTheme();
+  const overStyle: CSSProperties = useMemo(
+    () => ({
+      background: theme.colors.default.primary + theme.default.transparency.low,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [theme.name]
+  );
+
   return (
-    <>
-      <StyledFolder
-        path={path}
-        name={folderName}
-        depth={depth}
-        onClick={toggle}
-        className={ClassName.FOLDER}
+    <Droppable id={path} overStyle={overStyle}>
+      <Draggable
+        id={path}
+        Item={StyledFolder}
+        itemProps={{
+          path,
+          name: folderName,
+          depth,
+          onClick: toggle,
+          className: ClassName.FOLDER,
+        }}
       />
 
       <FolderInsideWrapper
         className={`${ClassName.FOLDER_INSIDE} ${ClassName.HIDDEN}`}
       >
         {folders
-          .sort((x, y) => x.localeCompare(y))
+          .sort((a, b) => a.localeCompare(b))
           .map((folderName) => (
             <RecursiveFolder
               key={folderName}
@@ -279,19 +323,23 @@ const RecursiveFolder: FC<FolderProps> = ({ path }) => {
           ))}
 
         {files
-          .sort((x, y) => x.localeCompare(y))
+          .sort((a, b) => a.localeCompare(b))
           .map((fileName) => (
-            <StyledFile
+            <Draggable
               key={fileName}
-              path={PgCommon.joinPaths([path, fileName])}
-              name={fileName}
-              depth={depth + 1}
-              onClick={toggle}
-              className={ClassName.FILE}
+              id={PgCommon.joinPaths([path, fileName])}
+              Item={StyledFile}
+              itemProps={{
+                path: PgCommon.joinPaths([path, fileName]),
+                name: fileName,
+                depth: depth + 1,
+                onClick: toggle,
+                className: ClassName.FILE,
+              }}
             />
           ))}
       </FolderInsideWrapper>
-    </>
+    </Droppable>
   );
 };
 
@@ -299,36 +347,30 @@ interface FileOrFolderProps {
   path: string;
   name: string;
   depth: number;
-  onClick: MouseEventHandler<HTMLDivElement>;
-  className?: string;
 }
 
-const Folder: FC<FileOrFolderProps> = ({
-  path,
-  name,
-  depth,
-  onClick,
-  className,
-}) => (
-  <div className={className} onClick={onClick} data-path={path}>
-    <PaddingLeft depth={depth} />
-    <Arrow />
-    <span>{name}</span>
-  </div>
+type FolderProps = FileOrFolderProps & ComponentPropsWithoutRef<"div">;
+
+const Folder = forwardRef<HTMLDivElement, FolderProps>(
+  ({ path, name, depth, ...props }, ref) => (
+    <div ref={ref} data-path={path} {...props}>
+      <PaddingLeft depth={depth} />
+      <Arrow />
+      <span>{name}</span>
+    </div>
+  )
 );
 
-const File: FC<FileOrFolderProps> = ({
-  path,
-  name,
-  depth,
-  onClick,
-  className,
-}) => (
-  <div className={className} onClick={onClick} data-path={path}>
-    <PaddingLeft depth={depth} />
-    <LangIcon fileName={name} />
-    <span>{name}</span>
-  </div>
+type FileProps = FileOrFolderProps & ComponentPropsWithoutRef<"div">;
+
+const File = forwardRef<HTMLDivElement, FileProps>(
+  ({ path, name, depth, ...props }, ref) => (
+    <div ref={ref} data-path={path} {...props}>
+      <PaddingLeft depth={depth} />
+      <LangIcon fileName={name} />
+      <span>{name}</span>
+    </div>
+  )
 );
 
 const RootWrapper = styled.div`

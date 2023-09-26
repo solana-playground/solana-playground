@@ -1,5 +1,9 @@
 import { ForwardRefExoticComponent } from "react";
-import { UniqueIdentifier, useDraggable } from "@dnd-kit/core";
+import {
+  UniqueIdentifier,
+  useDraggable,
+  UseDraggableArguments,
+} from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
 interface DraggableProps<P> {
@@ -11,15 +15,13 @@ interface DraggableProps<P> {
 const Draggable = <P,>({ Item, itemProps, id }: DraggableProps<P>) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
-    data: itemProps as any,
+    data: itemProps as UseDraggableArguments["data"],
   });
 
   return (
     <Item
       ref={setNodeRef}
-      style={{
-        transform: CSS.Translate.toString(transform),
-      }}
+      style={{ transform: CSS.Translate.toString(transform) }}
       {...listeners}
       {...attributes}
       {...itemProps}
