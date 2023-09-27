@@ -1488,7 +1488,7 @@ export class PgExplorer {
    * @param newEl new element to select
    */
   static setSelectedEl(newEl: HTMLDivElement) {
-    this.getSelectedEl()?.classList.remove(ClassName.SELECTED);
+    PgExplorer.getSelectedEl()?.classList.remove(ClassName.SELECTED);
     newEl.classList.add(ClassName.SELECTED);
   }
 
@@ -1501,10 +1501,10 @@ export class PgExplorer {
   }
 
   /** Set the selected context element. */
-  static setCtxSelectedEl = (newEl: HTMLDivElement) => {
-    this.removeCtxSelectedEl();
+  static setCtxSelectedEl(newEl: HTMLDivElement) {
+    PgExplorer.removeCtxSelectedEl();
     newEl.classList.add(ClassName.CTX_SELECTED);
-  };
+  }
 
   /** Remove the selected context element. */
   static removeCtxSelectedEl() {

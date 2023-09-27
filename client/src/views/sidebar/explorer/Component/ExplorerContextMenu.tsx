@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import { FC } from "react";
 
 import Menu from "../../../../components/Menu";
 import {
@@ -32,11 +32,8 @@ export const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   handleMenu,
   children,
 }) => {
-  const menuRef = useRef<HTMLDivElement>(null);
-
   return (
     <Menu
-      menuRef={menuRef}
       kind="context"
       items={[
         {

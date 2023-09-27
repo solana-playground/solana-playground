@@ -15,6 +15,8 @@ export const RenameWorkspace = () => {
   };
 
   const renameWorkspace = async () => {
+    if (PgExplorer.currentWorkspaceName === newName) return;
+
     try {
       PgView.setSidebarLoading(true);
       await PgCommon.transition(PgExplorer.renameWorkspace(newName));

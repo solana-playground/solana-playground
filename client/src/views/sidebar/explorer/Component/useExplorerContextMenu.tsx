@@ -54,8 +54,9 @@ export const useExplorerContextMenu = () => {
     }
     setItemData(itemData);
 
+    const ctxPath = PgExplorer.getItemPathFromEl(selectedEl);
+    if (ctxPath) setCtxSelectedPath(ctxPath);
     PgExplorer.setCtxSelectedEl(selectedEl);
-    setCtxSelectedPath(PgExplorer.getItemPathFromEl(selectedEl) ?? "");
   }, []);
 
   const getPath = useCallback(() => {
@@ -69,13 +70,13 @@ export const useExplorerContextMenu = () => {
   // Functions
   const ctxNewItem = useCallback(() => {
     const ctxSelected = PgExplorer.getElFromPath(getPath())!;
-
     if (!ctxSelected.classList.contains(ClassName.OPEN)) {
       ctxSelected.classList.add(ClassName.OPEN);
       ctxSelected.nextElementSibling?.classList.remove(ClassName.HIDDEN);
     }
+
     PgView.setNewItemPortal(ctxSelected.nextElementSibling);
-    PgExplorer.setCtxSelectedEl(ctxSelected);
+    setTimeout(() => PgExplorer.setCtxSelectedEl(ctxSelected));
   }, [getPath]);
 
   const renameItem = useCallback(async () => {
