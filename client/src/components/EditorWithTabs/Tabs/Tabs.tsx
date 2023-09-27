@@ -3,8 +3,8 @@ import styled, { css } from "styled-components";
 
 import Tab from "./Tab";
 import Button from "../../Button";
+import Dnd from "../../Dnd";
 import Img from "../../Img";
-import Sortable from "../../Dnd/Sortable";
 import { Id } from "../../../constants";
 import { PgExplorer, PgTheme, PgWallet } from "../../../utils/pg";
 import {
@@ -42,7 +42,7 @@ export const Tabs = () => {
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>
-        <Sortable
+        <Dnd.Sortable
           items={explorer.tabs as string[]}
           setItems={setItems}
           Item={Tab}

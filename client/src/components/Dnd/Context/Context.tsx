@@ -1,14 +1,13 @@
 import { FC } from "react";
 import {
-  closestCenter,
-  DndContext as DndKitContext,
+  DndContext,
   MouseSensor,
   useSensor,
   useSensors,
   DndContextProps,
 } from "@dnd-kit/core";
 
-const DndContext: FC<DndContextProps> = ({ children, ...props }) => {
+const Context: FC<DndContextProps> = ({ children, ...props }) => {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -18,14 +17,10 @@ const DndContext: FC<DndContextProps> = ({ children, ...props }) => {
   );
 
   return (
-    <DndKitContext
-      collisionDetection={closestCenter}
-      sensors={sensors}
-      {...props}
-    >
+    <DndContext sensors={sensors} {...props}>
       {children}
-    </DndKitContext>
+    </DndContext>
   );
 };
 
-export default DndContext;
+export default Context;

@@ -13,15 +13,19 @@ interface DraggableProps<P> {
 }
 
 const Draggable = <P,>({ Item, itemProps, id }: DraggableProps<P>) => {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id,
-    data: itemProps as UseDraggableArguments["data"],
-  });
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id,
+      data: itemProps as UseDraggableArguments["data"],
+    });
 
   return (
     <Item
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform) }}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        cursor: isDragging ? "grabbing" : "pointer",
+      }}
       {...listeners}
       {...attributes}
       {...itemProps}

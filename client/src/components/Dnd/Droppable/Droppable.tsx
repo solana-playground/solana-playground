@@ -1,11 +1,10 @@
 import { CSSProperties, FC, useEffect } from "react";
 import { UniqueIdentifier, useDroppable } from "@dnd-kit/core";
-import { Fn } from "../../../utils/pg";
 
 interface DroppableProps {
   id: UniqueIdentifier;
   overStyle?: CSSProperties;
-  onDragOver?: Fn;
+  onDragOver?: (ref: HTMLElement) => void;
 }
 
 const Droppable: FC<DroppableProps> = ({
@@ -14,11 +13,11 @@ const Droppable: FC<DroppableProps> = ({
   onDragOver,
   children,
 }) => {
-  const { isOver, setNodeRef } = useDroppable({ id });
+  const { isOver, node, setNodeRef } = useDroppable({ id });
 
   useEffect(() => {
-    if (isOver) onDragOver?.();
-  }, [isOver, onDragOver]);
+    if (isOver && node.current) onDragOver?.(node.current);
+  }, [isOver, node, onDragOver]);
 
   return (
     <div ref={setNodeRef} style={isOver ? overStyle : undefined}>

@@ -13,9 +13,7 @@ import styled, { css, useTheme } from "styled-components";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Button, { ButtonProps } from "../../../../components/Button";
-import DndContext, { DragEndEvent } from "../../../../components/Dnd/Context";
-import Droppable from "../../../../components/Dnd/Droppable";
-import Draggable from "../../../../components/Dnd/Draggable";
+import Dnd, { DragEndEvent } from "../../../../components/Dnd";
 import LangIcon from "../../../../components/LangIcon";
 import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import {
@@ -93,8 +91,13 @@ const Folders = () => {
     const toPath = over.id as string;
     if (PgCommon.isPathsEqual(fromPath, toPath)) return;
 
+    // Destination should be a folder
     const isToPathFolder = PgExplorer.getItemTypeFromPath(toPath).folder;
     if (!isToPathFolder) return;
+
+    // Should not be able to move parent dir into child
+    const isFromPathFolder = PgExplorer.getItemTypeFromPath(fromPath).folder;
+    if (isFromPathFolder && toPath.startsWith(fromPath)) return;
 
     const itemName = PgExplorer.getItemNameFromPath(fromPath);
     const newPath = PgExplorer.getCanonicalPath(
@@ -121,7 +124,7 @@ const Folders = () => {
     <>
       <ExplorerButtons />
 
-      <DndContext onDragEnd={handleDragEnd}>
+      <Dnd.Context onDragEnd={handleDragEnd}>
         <ExplorerContextMenu {...ctxMenu}>
           <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
             {/* Program */}
@@ -156,6 +159,7 @@ const Folders = () => {
                   onClick={ctxMenu.runClientFolder}
                   Icon={<Triangle rotate="90deg" />}
                   title="Run All (in client dir)"
+                  addTextMargin
                 >
                   Run
                 </SectionButton>
@@ -200,7 +204,7 @@ const Folders = () => {
             />
           </RootWrapper>
         </ExplorerContextMenu>
-      </DndContext>
+      </Dnd.Context>
     </>
   );
 };
@@ -285,6 +289,11 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
     }
   }, []);
 
+  // Open the folder on drag over
+  const handleDragOver = useCallback((el) => {
+    PgExplorer.openFolder(el.firstChild);
+  }, []);
+
   const theme = useTheme();
   const overStyle: CSSProperties = useMemo(
     () => ({
@@ -295,8 +304,8 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
   );
 
   return (
-    <Droppable id={path} overStyle={overStyle}>
-      <Draggable
+    <Dnd.Droppable id={path} onDragOver={handleDragOver} overStyle={overStyle}>
+      <Dnd.Draggable
         id={path}
         Item={StyledFolder}
         itemProps={{
@@ -325,7 +334,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
         {files
           .sort((a, b) => a.localeCompare(b))
           .map((fileName) => (
-            <Draggable
+            <Dnd.Draggable
               key={fileName}
               id={PgCommon.joinPaths([path, fileName])}
               Item={StyledFile}
@@ -339,7 +348,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
             />
           ))}
       </FolderInsideWrapper>
-    </Droppable>
+    </Dnd.Droppable>
   );
 };
 
