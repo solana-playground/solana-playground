@@ -6,7 +6,6 @@ import {
   MouseEvent,
   ReactNode,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -16,7 +15,7 @@ import { DragOverlay } from "@dnd-kit/core";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Button, { ButtonProps } from "../../../../components/Button";
-import Dnd, { DragEndEvent } from "../../../../components/Dnd";
+import Dnd, { DragStartEvent, DragEndEvent } from "../../../../components/Dnd";
 import LangIcon from "../../../../components/LangIcon";
 import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import {
@@ -29,49 +28,12 @@ import {
 import { ClassName, Id } from "../../../../constants";
 import { PgCommon, PgExplorer } from "../../../../utils/pg";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
+import { useHandleItemState } from "./useHandleItemState";
 import { useNewItem } from "./useNewItem";
 import { useKeybind } from "../../../../hooks";
 
 const Folders = () => {
-  const theme = useTheme();
-
-  // Handle folder state
-  useEffect(() => {
-    const switchWorkspace = PgExplorer.onDidSwitchWorkspace(() => {
-      // Reset folder open/closed state
-      PgExplorer.collapseAllFolders();
-    });
-
-    const openParentsAndSelectEl = (path: string) => {
-      // Open if current file's parents are not opened
-      PgExplorer.openAllParents(path);
-
-      // Change selected element
-      const newEl = PgExplorer.getElFromPath(path);
-      if (newEl) {
-        PgExplorer.setSelectedEl(newEl);
-        PgExplorer.removeCtxSelectedEl();
-      }
-    };
-
-    const switchFile = PgExplorer.onDidOpenFile(async (file) => {
-      if (!file) return;
-
-      openParentsAndSelectEl(file.path);
-
-      // Sleep before opening parents because switching workspace collapses
-      // all folders after file switching
-      await PgCommon.sleep(300);
-      openParentsAndSelectEl(file.path);
-    });
-
-    return () => {
-      switchWorkspace.dispose();
-      switchFile.dispose();
-    };
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme.name]);
+  useHandleItemState();
 
   const ctxMenu = useExplorerContextMenu();
   const { newItem } = useNewItem();
@@ -84,56 +46,6 @@ const Folders = () => {
     ],
     []
   );
-
-  // Drag and drop
-  const [activeItem, setActiveItem] = useState<ReactNode>(null);
-  const [parentFolderEl, setParentFolderEl] = useState<HTMLElement | null>(
-    null
-  );
-
-  const handleDragStart = useCallback((ev) => {
-    const props = ev.active.data.current;
-    if (!props) return;
-
-    const el = PgExplorer.getElFromPath(props.path);
-    if (!el) return;
-    setParentFolderEl(el.parentElement!);
-
-    const El = PgExplorer.getItemTypeFromPath(props.path).file
-      ? StyledFile
-      : StyledFolder;
-    // @ts-ignore
-    setActiveItem(<El {...props} />);
-  }, []);
-
-  const handleDragEnd = useCallback(async (ev: DragEndEvent) => {
-    const { active, over } = ev;
-    if (!over) return;
-
-    const fromPath = active.id as string;
-    const toPath = over.id as string;
-    if (PgCommon.isPathsEqual(fromPath, toPath)) return;
-
-    // Destination should be a folder
-    const isToPathFolder = PgExplorer.getItemTypeFromPath(toPath).folder;
-    if (!isToPathFolder) return;
-
-    // Should not be able to move parent dir into child
-    const isFromPathFolder = PgExplorer.getItemTypeFromPath(fromPath).folder;
-    if (isFromPathFolder && toPath.startsWith(fromPath)) return;
-
-    const itemName = PgExplorer.getItemNameFromPath(fromPath);
-    const newPath = PgExplorer.getCanonicalPath(
-      PgCommon.joinPaths([toPath, itemName])
-    );
-    if (PgCommon.isPathsEqual(fromPath, newPath)) return;
-
-    await PgExplorer.renameItem(fromPath, newPath, {
-      skipNameValidation: true,
-    });
-
-    setActiveItem(null);
-  }, []);
 
   // No need to memoize here
   const relativeRootPath = PgExplorer.getProjectRootPath();
@@ -149,7 +61,7 @@ const Folders = () => {
     <>
       <ExplorerButtons />
 
-      <Dnd.Context onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <ExplorerDndContext>
         <ExplorerContextMenu {...ctxMenu}>
           <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
             {/* Program */}
@@ -229,13 +141,71 @@ const Folders = () => {
             />
           </RootWrapper>
         </ExplorerContextMenu>
-
-        {ReactDOM.createPortal(
-          <DragOverlay>{activeItem}</DragOverlay>,
-          parentFolderEl ?? document.body
-        )}
-      </Dnd.Context>
+      </ExplorerDndContext>
     </>
+  );
+};
+
+const ExplorerDndContext: FC = ({ children }) => {
+  const [activeItemProps, setActiveItemProps] = useState<any>(null);
+  const [parentFolderEl, setParentFolderEl] = useState<HTMLElement | null>(
+    null
+  );
+
+  const handleDragStart = useCallback((ev: DragStartEvent) => {
+    const props: any = ev.active.data.current;
+    const el = PgExplorer.getElFromPath(props.path);
+    if (!el) return;
+
+    // Get the class name from the element to persist the folder open state
+    setActiveItemProps({ ...props, className: el.className });
+    setParentFolderEl(el.parentElement!);
+  }, []);
+
+  const handleDragEnd = useCallback(async (ev: DragEndEvent) => {
+    const { active, over } = ev;
+    if (!over) return;
+
+    const fromPath = active.id as string;
+    const toPath = over.id as string;
+    if (PgCommon.isPathsEqual(fromPath, toPath)) return;
+
+    // Destination should be a folder
+    const isToPathFolder = PgExplorer.getItemTypeFromPath(toPath).folder;
+    if (!isToPathFolder) return;
+
+    // Should not be able to move parent dir into child
+    const isFromPathFolder = PgExplorer.getItemTypeFromPath(fromPath).folder;
+    if (isFromPathFolder && toPath.startsWith(fromPath)) return;
+
+    const itemName = PgExplorer.getItemNameFromPath(fromPath);
+    const newPath = PgExplorer.getCanonicalPath(
+      PgCommon.joinPaths([toPath, itemName])
+    );
+    if (PgCommon.isPathsEqual(fromPath, newPath)) return;
+
+    await PgExplorer.renameItem(fromPath, newPath, {
+      skipNameValidation: true,
+    });
+  }, []);
+
+  const Item = activeItemProps
+    ? PgExplorer.getItemTypeFromPath(activeItemProps.path).file
+      ? StyledFile
+      : StyledFolder
+    : null;
+
+  return (
+    <Dnd.Context onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      {children}
+
+      {ReactDOM.createPortal(
+        <DragOverlay dropAnimation={null}>
+          {Item && <Item {...activeItemProps} />}
+        </DragOverlay>,
+        parentFolderEl ?? document.body
+      )}
+    </Dnd.Context>
   );
 };
 
