@@ -8,8 +8,11 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
 } from "react";
+import ReactDOM from "react-dom";
 import styled, { css, useTheme } from "styled-components";
+import { DragOverlay } from "@dnd-kit/core";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Button, { ButtonProps } from "../../../../components/Button";
@@ -82,7 +85,27 @@ const Folders = () => {
     []
   );
 
-  // Move
+  // Drag and drop
+  const [activeItem, setActiveItem] = useState<ReactNode>(null);
+  const [parentFolderEl, setParentFolderEl] = useState<HTMLElement | null>(
+    null
+  );
+
+  const handleDragStart = useCallback((ev) => {
+    const props = ev.active.data.current;
+    if (!props) return;
+
+    const el = PgExplorer.getElFromPath(props.path);
+    if (!el) return;
+    setParentFolderEl(el.parentElement!);
+
+    const El = PgExplorer.getItemTypeFromPath(props.path).file
+      ? StyledFile
+      : StyledFolder;
+    // @ts-ignore
+    setActiveItem(<El {...props} />);
+  }, []);
+
   const handleDragEnd = useCallback(async (ev: DragEndEvent) => {
     const { active, over } = ev;
     if (!over) return;
@@ -108,6 +131,8 @@ const Folders = () => {
     await PgExplorer.renameItem(fromPath, newPath, {
       skipNameValidation: true,
     });
+
+    setActiveItem(null);
   }, []);
 
   // No need to memoize here
@@ -124,7 +149,7 @@ const Folders = () => {
     <>
       <ExplorerButtons />
 
-      <Dnd.Context onDragEnd={handleDragEnd}>
+      <Dnd.Context onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <ExplorerContextMenu {...ctxMenu}>
           <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
             {/* Program */}
@@ -204,6 +229,11 @@ const Folders = () => {
             />
           </RootWrapper>
         </ExplorerContextMenu>
+
+        {ReactDOM.createPortal(
+          <DragOverlay>{activeItem}</DragOverlay>,
+          parentFolderEl ?? document.body
+        )}
       </Dnd.Context>
     </>
   );

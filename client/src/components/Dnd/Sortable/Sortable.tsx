@@ -80,11 +80,9 @@ const Sortable = <P, I extends UniqueIdentifier>({
         ))}
       </SortableContext>
 
-      {activeItemProps && (
-        <DragOverlay>
-          <Item isDragOverlay {...activeItemProps} />
-        </DragOverlay>
-      )}
+      <DragOverlay>
+        {activeItemProps && <Item isDragOverlay {...activeItemProps} />}
+      </DragOverlay>
     </DndContext>
   );
 };
@@ -110,9 +108,7 @@ const SortableItem = <P,>(props: SortableItemProps<P> & P) => {
       style={{
         position: "relative",
         zIndex: isDragging ? 1 : undefined,
-        transform: transform
-          ? CSS.Transform.toString({ ...transform, scaleX: 1 })
-          : undefined,
+        transform: CSS.Translate.toString(transform),
         transition,
         cursor: isDragging ? "grabbing" : "pointer",
       }}
