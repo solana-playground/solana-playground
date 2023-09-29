@@ -5,12 +5,7 @@ import {
   useCallback,
   useState,
 } from "react";
-import {
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  UniqueIdentifier,
-} from "@dnd-kit/core";
+import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import {
   arrayMove,
   horizontalListSortingStrategy,
@@ -21,7 +16,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import DndContext from "../Context/Context";
+
+import DndContext from "../Context";
 
 interface SortableProps<P, I extends UniqueIdentifier> {
   items: I[];
@@ -68,7 +64,13 @@ const Sortable = <P, I extends UniqueIdentifier>({
   );
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      dragOverlay={{
+        Element: activeItemProps && <Item isDragOverlay {...activeItemProps} />,
+      }}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       <SortableContext items={items} strategy={getSortingStrategy(strategy)}>
         {items.map((item, i) => (
           <SortableItem
@@ -79,10 +81,6 @@ const Sortable = <P, I extends UniqueIdentifier>({
           />
         ))}
       </SortableContext>
-
-      <DragOverlay>
-        {activeItemProps && <Item isDragOverlay {...activeItemProps} />}
-      </DragOverlay>
     </DndContext>
   );
 };

@@ -9,9 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import ReactDOM from "react-dom";
 import styled, { css, useTheme } from "styled-components";
-import { DragOverlay } from "@dnd-kit/core";
 
 import ExplorerButtons from "./ExplorerButtons";
 import Button, { ButtonProps } from "../../../../components/Button";
@@ -196,15 +194,16 @@ const ExplorerDndContext: FC = ({ children }) => {
     : null;
 
   return (
-    <Dnd.Context onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <Dnd.Context
+      dragOverlay={{
+        Element: Item && <Item {...activeItemProps} />,
+        portalContainer: parentFolderEl,
+        dropAnimation: null,
+      }}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       {children}
-
-      {ReactDOM.createPortal(
-        <DragOverlay dropAnimation={null}>
-          {Item && <Item {...activeItemProps} />}
-        </DragOverlay>,
-        parentFolderEl ?? document.body
-      )}
     </Dnd.Context>
   );
 };
