@@ -1559,28 +1559,19 @@ export class PgExplorer {
 
   /** Collapse all folders in the UI. */
   static collapseAllFolders() {
-    const rootEl = this.getRootFolderEl();
-    if (!rootEl) return;
+    // Close all folders
+    const folderElements = document.getElementsByClassName(ClassName.FOLDER);
+    for (const folder of folderElements) {
+      folder.classList.remove(ClassName.OPEN);
+    }
 
-    // Remove selected
-    this.getSelectedEl()?.classList.remove(ClassName.SELECTED);
-
-    const recursivelyCollapse = (el: HTMLElement) => {
-      if (!el || !el.childElementCount) return;
-
-      // Close folders
-      el.childNodes.forEach((child) => {
-        const c = child as HTMLElement;
-        if (c.classList.contains(ClassName.FOLDER)) {
-          c.classList.remove(ClassName.OPEN);
-        } else if (c.classList.contains(ClassName.FOLDER_INSIDE)) {
-          c.classList.add(ClassName.HIDDEN);
-          recursivelyCollapse(c);
-        }
-      });
-    };
-
-    recursivelyCollapse(rootEl);
+    // Hide all folder inside elements
+    const insideElements = document.getElementsByClassName(
+      ClassName.FOLDER_INSIDE
+    );
+    for (const folderInside of insideElements) {
+      folderInside.classList.add(ClassName.HIDDEN);
+    }
   }
 
   /**

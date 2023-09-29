@@ -13,6 +13,10 @@ export const useNewItem = () => {
         PgView.setNewItemPortal(selected.nextElementSibling);
       } else {
         // Selected is a file
+        // Open all parents
+        const path = PgExplorer.getItemPathFromEl(selected)!;
+        PgExplorer.openAllParents(path);
+
         // The parent folder is the parent element
         PgView.setNewItemPortal(selected.parentElement);
       }
@@ -33,15 +37,13 @@ export const useNewItem = () => {
       const folderName =
         folders.find((name) => name === PgExplorer.PATHS.SRC_DIRNAME) ??
         folders[0];
-      const folderPath = PgCommon.appendSlash(
-        PgCommon.joinPaths([projectRootPath, folderName])
-      );
+      const folderPath = PgExplorer.getCanonicalPath(folderName);
 
       const rootFolderEl = PgExplorer.getRootFolderEl()!;
       const divs = rootFolderEl.getElementsByTagName("div");
       for (const div of divs) {
         const path = PgExplorer.getItemPathFromEl(div);
-        if (path === folderPath) {
+        if (path && PgCommon.isPathsEqual(path, folderPath)) {
           PgExplorer.setSelectedEl(div);
           newItem();
           break;
