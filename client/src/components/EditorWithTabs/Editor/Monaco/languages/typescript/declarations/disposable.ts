@@ -34,11 +34,11 @@ export const declareDisposableTypes = (): Disposable => {
   // Playground wallet
   const PG_WALLET_TYPE = "PgWallet";
   const walletChange = PgWallet.onDidChangeCurrent((wallet) => {
-    let walletType: string;
-
-    if (!wallet) walletType = "never";
-    else if (wallet.isPg) walletType = PG_WALLET_TYPE;
-    else walletType = getWalletTypeName(wallet.name);
+    const walletType = wallet
+      ? wallet.isPg
+        ? PG_WALLET_TYPE
+        : getWalletTypeName(wallet.name)
+      : "never";
 
     addLib(
       "wallet",
@@ -98,17 +98,38 @@ export const declareDisposableTypes = (): Disposable => {
   }, [PgWallet.onDidChangeAccounts, PgWallet.onDidChangeCurrent]);
 
   // Anchor program
+  let programDisposables: monaco.IDisposable[] = [];
   const idlChange = PgProgramInfo.onDidChangeIdl((idl) => {
-    if (!idl) return;
+    if (!idl) {
+      // Dispose the program types if there is no IDL otherwise the types will
+      // leak between workspaces if the previous workspace has an IDL but the
+      // current doesn't.
+      programDisposables.forEach(({ dispose }) => dispose());
+      programDisposables = [];
+      return;
+    }
 
     const convertedIdl = JSON.stringify(convertIdl(idl));
 
     // Program
     const programType = `Program<${convertedIdl}>`;
-    addLib(
-      "program",
-      `/** Your Anchor program */
+    programDisposables.push(
+      addLib(
+        "program",
+        `/** Your Anchor program */
 const program: anchor.${programType};`
+      )
+    );
+
+    // target/types
+    const idlTypeName = PgCommon.toPascalFromSnake(idl.name);
+    programDisposables.push(
+      addModel(
+        "target/types",
+        `export type ${idlTypeName} = ${convertedIdl};
+export const IDL: ${idlTypeName} = ${convertedIdl};`,
+        PgExplorer.convertToFullPath(`target/types/${idl.name}.ts`)
+      )
     );
 
     // Workspace
@@ -118,25 +139,18 @@ const program: anchor.${programType};`
         idl.name
       )}: ${programType} };`;
     };
-    addLib(
-      "@coral-xyz/anchor.workspace",
-      declareModule("@coral-xyz/anchor", getWorkspace("@coral-xyz/anchor"))
-    );
-    addLib(
-      "@project-serum/anchor.workspace",
-      declareModule(
-        "@project-serum/anchor",
-        getWorkspace("@project-serum/anchor")
+    programDisposables.push(
+      addLib(
+        "@coral-xyz/anchor.workspace",
+        declareModule("@coral-xyz/anchor", getWorkspace("@coral-xyz/anchor"))
+      ),
+      addLib(
+        "@project-serum/anchor.workspace",
+        declareModule(
+          "@project-serum/anchor",
+          getWorkspace("@project-serum/anchor")
+        )
       )
-    );
-
-    // target/types
-    const idlTypeName = PgCommon.toPascalFromSnake(idl.name);
-    addModel(
-      "target/types",
-      `export type ${idlTypeName} = ${convertedIdl};
-export const IDL: ${idlTypeName} = ${convertedIdl};`,
-      PgExplorer.convertToFullPath(`target/types/${idl.name}.ts`)
     );
   });
 
@@ -169,6 +183,7 @@ const disposableCache: { [K in DisposableType]?: monaco.IDisposable } = {};
  *
  * @param disposableType name to keep track of the disposable in `disposableCache`
  * @param lib content
+ * @returns a disposable to dispose the library
  */
 const addLib = (disposableType: DisposableType, lib: string) => {
   disposableCache[disposableType]?.dispose();
@@ -180,6 +195,8 @@ const addLib = (disposableType: DisposableType, lib: string) => {
       // `anchor.workspace` is not getting disposed without file path
       `/disposables/${disposableType}.d.ts`
     );
+
+  return disposableCache[disposableType]!;
 };
 
 /**
@@ -188,6 +205,7 @@ const addLib = (disposableType: DisposableType, lib: string) => {
  * @param disposableType name to keep track of the disposable in `disposableCache`
  * @param content code
  * @param filePath model URI
+ * @returns a disposable to dispose the model
  */
 const addModel = (
   disposableType: DisposableType,
@@ -200,10 +218,12 @@ const addModel = (
     undefined,
     monaco.Uri.parse(filePath)
   );
+
+  return disposableCache[disposableType]!;
 };
 
 /**
- * Convert Anchor IDL's account names into camelCase to be used accuretely for types
+ * Convert Anchor IDL's account names into camelCase to be used accuretely for types.
  *
  * @param idl Anchor IDL
  * @returns converted Anchor IDL
