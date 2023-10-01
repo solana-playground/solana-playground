@@ -104,7 +104,7 @@ export const declareDisposableTypes = (): Disposable => {
       // Dispose the program types if there is no IDL otherwise the types will
       // leak between workspaces if the previous workspace has an IDL but the
       // current doesn't.
-      programDisposables.forEach(({ dispose }) => dispose());
+      programDisposables.forEach((disposable) => disposable.dispose());
       programDisposables = [];
       return;
     }

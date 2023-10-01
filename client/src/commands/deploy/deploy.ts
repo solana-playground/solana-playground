@@ -99,22 +99,21 @@ const processDeploy = async () => {
   }
 
   // Get connection
-  const conn = PgConnection.current;
+  const connection = PgConnection.current;
 
   // Create buffer
   const bufferKp = Keypair.generate();
-  const bufferSize = BpfLoaderUpgradeable.getBufferAccountSize(
-    programBuffer.length
-  );
-  const bufferBalance = await conn.getMinimumBalanceForRentExemption(
+  const programLen = programBuffer.length;
+  const bufferSize = BpfLoaderUpgradeable.getBufferAccountSize(programLen);
+  const bufferBalance = await connection.getMinimumBalanceForRentExemption(
     bufferSize
   );
 
   // Decide whether it's an initial deployment or an upgrade and calculate
   // how much SOL user needs before creating the buffer.
   const wallet = PgWallet.current!;
-  const userBalance = await conn.getBalance(wallet.publicKey);
-  const programExists = await conn.getAccountInfo(programPk);
+  const userBalance = await connection.getBalance(wallet.publicKey);
+  const programExists = await connection.getAccountInfo(programPk);
 
   if (!programExists) {
     // Initial deploy
@@ -128,7 +127,7 @@ const processDeploy = async () => {
         PgCommon.lamportsToSol(bufferBalance).toFixed(2)
       )} SOL will be refunded at the end.`;
 
-      const airdropAmount = PgCommon.getAirdropAmount(conn.rpcEndpoint);
+      const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
       if (airdropAmount !== null) {
         throw new Error(
           errMsg +
@@ -136,7 +135,9 @@ const processDeploy = async () => {
               `solana airdrop ${airdropAmount}`
             )}' to airdrop some SOL.`
         );
-      } else throw new Error(errMsg);
+      }
+
+      throw new Error(errMsg);
     }
   } else {
     // Upgrade
@@ -149,7 +150,7 @@ const processDeploy = async () => {
         PgCommon.lamportsToSol(bufferBalance).toFixed(2)
       )} SOL will be refunded at the end.`;
 
-      const airdropAmount = PgCommon.getAirdropAmount(conn.rpcEndpoint);
+      const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
       if (airdropAmount !== null) {
         throw new Error(
           errMsg +
@@ -157,7 +158,9 @@ const processDeploy = async () => {
               `solana airdrop ${airdropAmount}`
             )}' to airdrop some SOL.`
         );
-      } else throw new Error(errMsg);
+      }
+
+      throw new Error(errMsg);
     }
   }
 
@@ -166,14 +169,14 @@ const processDeploy = async () => {
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       if (i !== 0) {
-        const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
+        const bufferInit = await connection.getAccountInfo(bufferKp.publicKey);
         if (bufferInit) break;
       }
 
       await BpfLoaderUpgradeable.createBuffer(
         bufferKp,
         bufferBalance,
-        programBuffer.length,
+        programLen,
         { wallet }
       );
 
@@ -182,7 +185,7 @@ const processDeploy = async () => {
       await PgCommon.sleep(500);
 
       // Confirm the buffer has been created
-      const bufferInit = await conn.getAccountInfo(bufferKp.publicKey);
+      const bufferInit = await connection.getAccountInfo(bufferKp.publicKey);
       if (bufferInit) break;
     } catch (e: any) {
       console.log("Create buffer error: ", e.message);
@@ -202,13 +205,22 @@ const processDeploy = async () => {
 
   // Load buffer
   await BpfLoaderUpgradeable.loadBuffer(bufferKp.publicKey, programBuffer, {
+    connection,
     wallet,
+    onWrite: (bytesOffset) => {
+      PgTerminal.setProgress((bytesOffset / programLen) * 100);
+    },
+    onMissing: (missingCount) => {
+      PgTerminal.log(
+        `Warning: ${PgTerminal.bold(
+          missingCount.toString()
+        )} ${PgCommon.makePlural(
+          "transaction",
+          missingCount
+        )} not confirmed, retrying...`
+      );
+    },
   });
-
-  // it errors if we don't wait for the buffer to load
-  // `invalid account data for instruction`
-  // wait for the next block(~500ms blocktime on mainnet as of 2022-04-05)
-  await PgCommon.sleep(500);
 
   let txHash;
   let errorMsg =
@@ -248,30 +260,21 @@ const processDeploy = async () => {
         const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
           BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
         );
-        const programBalance = await conn.getMinimumBalanceForRentExemption(
-          programSize
-        );
+        const programBalance =
+          await connection.getMinimumBalanceForRentExemption(programSize);
 
         txHash = await BpfLoaderUpgradeable.deployProgram(
           bufferKp.publicKey,
           programKp,
           programBalance,
-          programBuffer.length * 2,
+          programLen * 2,
           { wallet }
         );
 
         console.log("Deploy Program Tx Hash:", txHash);
 
-        const result = await PgTx.confirm(txHash, conn);
+        const result = await PgTx.confirm(txHash, connection);
         if (!result?.err) break;
-
-        await BpfLoaderUpgradeable.deployProgram(
-          bufferKp.publicKey,
-          programKp,
-          programBalance,
-          programBuffer.length * 2,
-          { wallet }
-        );
       } else {
         // Upgrade
         txHash = await BpfLoaderUpgradeable.upgradeProgram(
@@ -283,15 +286,8 @@ const processDeploy = async () => {
 
         console.log("Upgrade Program Tx Hash:", txHash);
 
-        const result = await PgTx.confirm(txHash, conn);
+        const result = await PgTx.confirm(txHash, connection);
         if (!result?.err) break;
-
-        txHash = await BpfLoaderUpgradeable.upgradeProgram(
-          programPk,
-          bufferKp.publicKey,
-          wallet.publicKey,
-          { wallet }
-        );
       }
     } catch (e: any) {
       console.log(e.message);

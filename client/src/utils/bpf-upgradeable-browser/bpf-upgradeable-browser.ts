@@ -15,7 +15,14 @@ import {
 
 import { encodeData, InstructionType } from "./instruction";
 import * as Layout from "./layout";
-import { PgCommon, PgTerminal, PgTx, PgWallet, WalletOption } from "../pg";
+import {
+  ConnectionOption,
+  PgCommon,
+  PgConnection,
+  PgTx,
+  PgWallet,
+  WalletOption,
+} from "../pg";
 
 const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
@@ -397,7 +404,7 @@ export class BpfLoaderUpgradeable {
     programLen: number,
     opts?: WalletOption
   ) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -428,7 +435,7 @@ export class BpfLoaderUpgradeable {
     newAuthorityPk: PublicKey,
     opts?: WalletOption
   ) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -446,65 +453,88 @@ export class BpfLoaderUpgradeable {
   static async loadBuffer(
     bufferPk: PublicKey,
     programData: Buffer,
-    opts?: { loadConcurrency?: number } & WalletOption
+    opts?: {
+      loadConcurrency?: number;
+      onWrite?: (bytesOffset: number) => void;
+      onMissing?: (missingCount: number) => void;
+    } & ConnectionOption &
+      WalletOption
   ) {
-    const { wallet } = this._getWallet(opts);
+    const { connection, wallet } = this._getOptions(opts);
+    const { loadConcurrency } = PgCommon.setDefault(opts, {
+      loadConcurrency: 8,
+    });
 
-    let bytesOffset = 0;
-    await Promise.all(
-      new Array(opts?.loadConcurrency ?? 8).fill(null).map(async () => {
-        for (;;) {
-          const offset = bytesOffset;
-          bytesOffset += BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+    const loadBuffer = async (indices: number[], isMissing?: boolean) => {
+      if (isMissing) opts?.onMissing?.(indices.length);
 
-          const bytes = programData.slice(
-            offset,
-            offset + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE
-          );
-          if (bytes.length === 0) {
-            break;
-          }
+      let i = 0;
+      await Promise.all(
+        new Array(loadConcurrency).fill(null).map(async () => {
+          while (1) {
+            const offset = indices[i] * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+            i++;
+            const endOffset = offset + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+            const bytes = programData.slice(offset, endOffset);
+            if (bytes.length === 0) break;
 
-          const tx = new Transaction();
-          tx.add(
-            BpfLoaderUpgradeableProgram.write({
-              offset,
-              bytes,
-              bufferPk,
-              authorityPk: wallet.publicKey,
-            })
-          );
+            const tx = new Transaction();
+            tx.add(
+              BpfLoaderUpgradeableProgram.write({
+                offset,
+                bytes,
+                bufferPk,
+                authorityPk: wallet.publicKey,
+              })
+            );
 
-          let sleepAmount = 1000;
-          // Retry until writing is successful
-          for (;;) {
             try {
-              const writeTxHash = await PgTx.send(tx, { wallet });
-
-              console.count("buffer write");
-
-              const txResult = await PgTx.confirm(writeTxHash);
-              if (!txResult?.err) break;
+              await PgTx.send(tx, { connection, wallet });
+              if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
-
-              await PgCommon.sleep(sleepAmount);
-              // Incrementally sleep incase of being rate-limited
-              if (sleepAmount < 60000) sleepAmount *= 1.5;
             }
           }
+        })
+      );
+    };
 
-          PgTerminal.setProgress((bytesOffset / programData.length) * 100);
-        }
-      })
+    const txCount = Math.ceil(
+      programData.length / BpfLoaderUpgradeable.WRITE_CHUNK_SIZE
     );
+    const indices = new Array(txCount).fill(null).map((_, i) => i);
+    await loadBuffer(indices);
 
-    console.countReset("buffer write");
+    // Verify all bytes have been written
+    while (1) {
+      // Wait for last transaction to confirm
+      await PgCommon.sleep(500);
+
+      const bufferAccount = await connection.getAccountInfo(bufferPk);
+      const onChainProgramData = bufferAccount!.data.slice(
+        BpfLoaderUpgradeable.BUFFER_HEADER_SIZE,
+        BpfLoaderUpgradeable.BUFFER_HEADER_SIZE + programData.length
+      );
+      if (onChainProgramData.equals(programData)) break;
+
+      const missingIndices = indices
+        .map((i) => {
+          const start = i * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+          const end = start + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+          const actualSlice = programData.slice(start, end);
+          const onChainSlice = onChainProgramData.slice(start, end);
+          if (!actualSlice.equals(onChainSlice)) return i;
+
+          return null;
+        })
+        .filter((i) => i !== null) as number[];
+      await loadBuffer(missingIndices, true);
+    }
   }
 
   /** Close the buffer account and withdraw funds. */
   static async closeBuffer(bufferPk: PublicKey, opts?: WalletOption) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -527,7 +557,7 @@ export class BpfLoaderUpgradeable {
     maxDataLen: number,
     opts?: WalletOption
   ) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -561,7 +591,7 @@ export class BpfLoaderUpgradeable {
     newAuthorityPk: PublicKey | undefined,
     opts?: WalletOption
   ) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -582,7 +612,7 @@ export class BpfLoaderUpgradeable {
     spillPk: PublicKey,
     opts?: WalletOption
   ) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -599,7 +629,7 @@ export class BpfLoaderUpgradeable {
 
   /** Close the program account and withdraw funds. */
   static async closeProgram(programPk: PublicKey, opts?: WalletOption) {
-    const { wallet } = this._getWallet(opts);
+    const { wallet } = this._getOptions(opts);
 
     const tx = new Transaction();
     tx.add(
@@ -617,10 +647,12 @@ export class BpfLoaderUpgradeable {
   }
 
   /** Get the connection and wallet instance. */
-  private static _getWallet(opts?: WalletOption) {
+  private static _getOptions(opts?: ConnectionOption & WalletOption) {
+    const connection = opts?.connection ?? PgConnection.current;
+
     const wallet = opts?.wallet ?? PgWallet.current;
     if (!wallet) throw new Error("Wallet is not connected");
 
-    return { wallet };
+    return { connection, wallet };
   }
 }
