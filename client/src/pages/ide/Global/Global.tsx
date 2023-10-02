@@ -1,4 +1,3 @@
-import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -6,7 +5,6 @@ import { EventName } from "../../../constants";
 import { FRAMEWORKS } from "../../../frameworks";
 import { ROUTES } from "../../../routes";
 import { TUTORIALS } from "../../../tutorials";
-import { terminalProgressAtom } from "../../../state";
 import {
   Disposable,
   PgCommon,
@@ -30,10 +28,6 @@ const GlobalState = () => {
 
   // Router
   useRouter();
-
-  // Terminal progress
-  const [, setProgress] = useAtom(terminalProgressAtom);
-  useSetStatic(setProgress, EventName.TERMINAL_PROGRESS_SET);
 
   // Wallet
   useDisposable(PgWallet.init);

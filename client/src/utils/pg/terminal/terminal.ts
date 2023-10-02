@@ -19,7 +19,6 @@ import {
 import { PgCommon } from "../common";
 import type { ExecuteCommand, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
-import type { TerminalAction } from "../../../state";
 
 export class PgTerminal {
   /** Default height of the terminal */
@@ -248,13 +247,6 @@ export class PgTerminal {
     return document
       .getElementsByClassName("terminal xterm xterm-dom-renderer-owner-1")[0]
       ?.classList.contains("focus");
-  }
-
-  /** Set terminal state from anywhere. */
-  static setTerminalState(action: TerminalAction | TerminalAction[]) {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_STATE, {
-      action,
-    });
   }
 
   /** Dispatch enable terminal custom event. */

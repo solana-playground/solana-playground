@@ -1,11 +1,11 @@
 import { Keypair } from "@solana/web3.js";
 
-import { TerminalAction } from "../../state";
 import {
   createCmd,
   ExplorerFiles,
   PgCommon,
   PgExplorer,
+  PgGlobal,
   PgPackage,
   PgProgramInfo,
   PgServer,
@@ -17,7 +17,7 @@ export const build = createCmd({
   name: "build",
   description: "Build your program",
   run: async () => {
-    PgTerminal.setTerminalState(TerminalAction.buildLoadingStart);
+    PgGlobal.update({ buildLoading: true });
     PgTerminal.log(PgTerminal.info("Building..."));
 
     let msg;
@@ -29,7 +29,7 @@ export const build = createCmd({
       msg = `Build error: ${convertedError}`;
     } finally {
       PgTerminal.log(msg + "\n");
-      PgTerminal.setTerminalState(TerminalAction.buildLoadingStop);
+      PgGlobal.update({ buildLoading: false });
     }
   },
 });

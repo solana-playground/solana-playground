@@ -15,7 +15,6 @@ export enum EventName {
   ROUTER_ON_DID_CHANGE_PATH = "routerondidchangepath",
 
   // Terminal
-  TERMINAL_STATE = "terminalstate",
   TERMINAL_STATIC = "terminalstatic",
   TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
   TERMINAL_PROGRESS_SET = "terminalprogressset",

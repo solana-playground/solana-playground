@@ -3,9 +3,10 @@ import { useEffect, useReducer, useState } from "react";
 import type { Disposable } from "../utils/pg";
 
 export const useRenderOnChange = <T,>(
-  onChange: (cb: (v?: T) => any) => Disposable
+  onChange: (cb: (v?: T) => any) => Disposable,
+  defaultValue?: T
 ) => {
-  const [value, setValue] = useState<T>();
+  const [value, setValue] = useState<T | undefined>(defaultValue);
   const [, render] = useReducer((r) => r + 1, 0);
   const [effect, runEffect] = useReducer((r) => r + 1, 0);
 

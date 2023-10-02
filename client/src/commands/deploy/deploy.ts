@@ -1,6 +1,5 @@
 import { Keypair } from "@solana/web3.js";
 
-import { TerminalAction } from "../../state";
 import { GITHUB_URL } from "../../constants";
 import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-browser";
 import {
@@ -8,6 +7,7 @@ import {
   PgCommandValidation,
   PgCommon,
   PgConnection,
+  PgGlobal,
   PgProgramInfo,
   PgServer,
   PgTerminal,
@@ -19,7 +19,7 @@ export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
   run: async () => {
-    PgTerminal.setTerminalState(TerminalAction.deployLoadingStart);
+    PgGlobal.update({ deployLoading: true });
     PgTerminal.log(
       `${PgTerminal.info(
         "Deploying..."
@@ -43,8 +43,8 @@ export const deploy = createCmd({
       return 1; // To indicate error
     } finally {
       PgTerminal.log(msg + "\n");
-      PgTerminal.setTerminalState(TerminalAction.deployLoadingStop);
       PgTerminal.setProgress(0);
+      PgGlobal.update({ deployLoading: false });
     }
   },
   preCheck: [PgCommandValidation.isPgConnected, checkDeploy],
@@ -189,12 +189,13 @@ const processDeploy = async () => {
       if (bufferInit) break;
     } catch (e: any) {
       console.log("Create buffer error: ", e.message);
-      if (i === MAX_RETRIES - 1)
+      if (i === MAX_RETRIES - 1) {
         throw new Error(
           `Exceeded maximum amount of retries(${PgTerminal.bold(
             MAX_RETRIES.toString()
           )}). Please change RPC endpoint from the settings.`
         );
+      }
 
       await PgCommon.sleep(sleepAmount);
       sleepAmount *= SLEEP_MULTIPLIER;
@@ -237,7 +238,7 @@ const processDeploy = async () => {
         const programKp = PgProgramInfo.kp;
         if (!programKp) {
           errorMsg =
-            "Initial deployment needs a keypair, you only provided a public key.";
+            "Initial deployment needs a keypair but you've only provided a public key.";
 
           break;
         }

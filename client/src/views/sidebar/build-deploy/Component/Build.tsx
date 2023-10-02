@@ -1,14 +1,15 @@
-import { useAtom } from "jotai";
 import { useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../components/Button";
-import { terminalStateAtom } from "../../../../state";
-import { PgCommand } from "../../../../utils/pg";
+import { useRenderOnChange } from "../../../../hooks";
+import { PgCommand, PgGlobal } from "../../../../utils/pg";
 
 const Build = () => {
-  const [terminalState] = useAtom(terminalStateAtom);
-
+  const buildLoading = useRenderOnChange(
+    PgGlobal.onDidChangeBuildLoading,
+    PgGlobal.buildLoading
+  );
   const build = useCallback(() => PgCommand.build.run(), []);
 
   return (
@@ -16,10 +17,10 @@ const Build = () => {
       <Button
         kind="secondary"
         onClick={build}
-        btnLoading={terminalState.buildLoading}
+        btnLoading={buildLoading}
         fullWidth
       >
-        {terminalState.buildLoading ? "Building..." : "Build"}
+        {buildLoading ? "Building..." : "Build"}
       </Button>
     </Wrapper>
   );

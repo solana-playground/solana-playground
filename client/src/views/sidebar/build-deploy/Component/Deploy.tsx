@@ -1,17 +1,26 @@
 import { useMemo } from "react";
-import { useAtom } from "jotai";
 import styled from "styled-components";
 
 import Text from "../../../../components/Text";
 import Button, { ButtonProps } from "../../../../components/Button";
 import { Skeleton } from "../../../../components/Loading";
-import { terminalStateAtom } from "../../../../state";
-import { PgCommand } from "../../../../utils/pg";
-import { useProgramInfo, useWallet } from "../../../../hooks";
+import { PgCommand, PgGlobal } from "../../../../utils/pg";
+import {
+  useProgramInfo,
+  useRenderOnChange,
+  useWallet,
+} from "../../../../hooks";
 
 // TODO: Cancel deployment
 const Deploy = () => {
-  const [terminalState] = useAtom(terminalStateAtom);
+  const buildLoading = useRenderOnChange(
+    PgGlobal.onDidChangeBuildLoading,
+    PgGlobal.buildLoading
+  );
+  const deployLoading = useRenderOnChange(
+    PgGlobal.onDidChangeDeployLoading,
+    PgGlobal.deployLoading
+  );
 
   const {
     loading,
@@ -27,26 +36,23 @@ const Deploy = () => {
   const { wallet } = useWallet();
 
   const deployButtonText = useMemo(() => {
-    let text;
-    if (terminalState.deployLoading) {
-      if (deployed) text = "Upgrading...";
-      else text = "Deploying...";
-    } else {
-      if (deployed) text = "Upgrade";
-      else text = "Deploy";
-    }
-
-    return text;
-  }, [terminalState.deployLoading, deployed]);
+    return deployLoading
+      ? deployed
+        ? "Upgrading..."
+        : "Deploying..."
+      : deployed
+      ? "Upgrade"
+      : "Deploy";
+  }, [deployLoading, deployed]);
 
   const deployButtonProps: ButtonProps = useMemo(
     () => ({
       kind: "primary",
       onClick: () => PgCommand.deploy.run(),
-      disabled: terminalState.buildLoading,
-      btnLoading: terminalState.deployLoading,
+      disabled: buildLoading,
+      btnLoading: deployLoading,
     }),
-    [terminalState.deployLoading, terminalState.buildLoading]
+    [buildLoading, deployLoading]
   );
 
   // Custom(uploaded) program deploy
@@ -97,14 +103,11 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    let text = ` Ready to ${deployed ? "upgrade" : "deploy"} ${
-      importedProgram.fileName
-    }`;
-    if (terminalState.deployLoading) {
-      text = `${deployed ? "Upgrading" : "Deploying"} ${
-        importedProgram.fileName
-      }...`;
-    }
+    const text = deployLoading
+      ? `${deployed ? "Upgrading" : "Deploying"} ${importedProgram.fileName}...`
+      : ` Ready to ${deployed ? "upgrade" : "deploy"} ${
+          importedProgram.fileName
+        }`;
 
     return (
       <Wrapper>
@@ -144,7 +147,7 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    if (terminalState.buildLoading)
+    if (buildLoading)
       return (
         <Wrapper>
           <Button {...deployButtonProps}>{deployButtonText}</Button>

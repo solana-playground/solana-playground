@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { Resizable } from "re-resizable";
 import "xterm/css/xterm.css";
@@ -13,7 +12,6 @@ import {
   DoubleArrow,
   Tick,
 } from "../../../../../components/Icons";
-import { terminalProgressAtom } from "../../../../../state";
 import {
   PgCommandExecutor,
   PgCommon,
@@ -23,13 +21,14 @@ import {
   PgTheme,
 } from "../../../../../utils/pg";
 import { EventName } from "../../../../../constants";
-import { useTerminal } from "./useTerminal";
-import { useExposeStatic, useKeybind } from "../../../../../hooks";
+import {
+  useExposeStatic,
+  useKeybind,
+  useSetStatic,
+} from "../../../../../hooks";
 
 const Terminal = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
-
-  useTerminal();
 
   const theme = useTheme();
 
@@ -225,7 +224,8 @@ const Wrapper = styled.div`
 `;
 
 const TerminalProgress = () => {
-  const [progress] = useAtom(terminalProgressAtom);
+  const [progress, setProgress] = useState(0);
+  useSetStatic(setProgress, EventName.TERMINAL_PROGRESS_SET);
   return <ProgressBar value={progress} />;
 };
 
