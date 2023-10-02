@@ -285,9 +285,9 @@ export class PgTerminal {
   }
 
   /** Execute the given command from string. */
-  static async executeFromStr(cmd: string) {
+  static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
     const term = await PgTerminal.get();
-    return await term.executeFromStr(cmd);
+    return await term.executeFromStr(...args);
   }
 
   /**
@@ -564,7 +564,7 @@ export class PgTerm {
       else this.println("Unable to run last command.");
     }
 
-    this.executeFromStr(lastCmd);
+    this.executeFromStr(lastCmd, true);
   }
 
   /**
@@ -606,6 +606,8 @@ export class PgTerm {
         : number
       : string
   > {
+    this.focus();
+
     let convertedMsg = msg;
     if (opts?.default) {
       convertedMsg += ` (default: ${opts.default})`;
@@ -708,7 +710,7 @@ export class PgTerm {
    * @param cmd command to run
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
-  async executeFromStr(cmd: string, clearCmd: boolean = true) {
+  async executeFromStr(cmd: string, clearCmd?: boolean) {
     this._pgTty.setInput(cmd);
     return await this._pgShell.handleReadComplete(clearCmd);
   }

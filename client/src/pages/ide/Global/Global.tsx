@@ -11,6 +11,7 @@ import {
   PgConnection,
   PgExplorer,
   PgFramework,
+  PgGlobal,
   PgProgramInfo,
   PgRouter,
   PgTutorial,
@@ -22,6 +23,9 @@ import { useDisposable, useGetStatic, useSetStatic } from "../../../hooks";
 const GlobalState = () => {
   // Connection
   useDisposable(PgConnection.init);
+
+  // Global
+  useDisposable(PgGlobal.init);
 
   // Program info
   useProgramInfo();

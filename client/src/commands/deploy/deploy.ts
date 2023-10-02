@@ -19,7 +19,8 @@ export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
   run: async () => {
-    PgGlobal.update({ deployLoading: true });
+    PgGlobal.update({ deployState: "loading" });
+
     PgTerminal.log(
       `${PgTerminal.info(
         "Deploying..."
@@ -30,21 +31,40 @@ export const deploy = createCmd({
     let msg;
     try {
       const startTime = performance.now();
-      const txHash = await processDeploy();
-      const timePassed = (performance.now() - startTime) / 1000;
-      PgTx.notify(txHash);
+      const { txHash, closeBuffer } = await processDeploy();
+      if (txHash) {
+        const timePassed = (performance.now() - startTime) / 1000;
+        PgTx.notify(txHash);
 
-      msg = `${PgTerminal.success(
-        "Deployment successful."
-      )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
+        msg = `${PgTerminal.success(
+          "Deployment successful."
+        )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
+      } else if (closeBuffer) {
+        const term = await PgTerminal.get();
+        const shouldCloseBufferAccount = await term.waitForUserInput(
+          PgTerminal.warning("Cancelled deployment.") +
+            " Would you like to close the buffer account and reclaim SOL?",
+          { confirm: true, default: "yes" }
+        );
+        if (shouldCloseBufferAccount) {
+          await closeBuffer();
+          PgTerminal.log(PgTerminal.success("Reclaim successful."));
+        } else {
+          PgTerminal.log(
+            `${PgTerminal.error(
+              "Reclaim rejected."
+            )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`
+          );
+        }
+      }
     } catch (e: any) {
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Deployment error: ${convertedError}`;
       return 1; // To indicate error
     } finally {
-      PgTerminal.log(msg + "\n");
+      if (msg) PgTerminal.log(msg + "\n");
       PgTerminal.setProgress(0);
-      PgGlobal.update({ deployLoading: false });
+      PgGlobal.update({ deployState: "ready" });
     }
   },
   preCheck: [PgCommandValidation.isPgConnected, checkDeploy],
@@ -80,7 +100,7 @@ Your address: ${PgWallet.current!.publicKey}`);
 const MAX_RETRIES = 5;
 
 /** Sleep amount multiplier each time a transaction fails */
-const SLEEP_MULTIPLIER = 1.6;
+const SLEEP_MULTIPLIER = 1.8;
 
 /**
  * Deploy the current program.
@@ -179,14 +199,6 @@ const processDeploy = async () => {
         programLen,
         { wallet }
       );
-
-      // Sleep before getting account info because it fails in localhost
-      // if we do it right away
-      await PgCommon.sleep(500);
-
-      // Confirm the buffer has been created
-      const bufferInit = await connection.getAccountInfo(bufferKp.publicKey);
-      if (bufferInit) break;
     } catch (e: any) {
       console.log("Create buffer error: ", e.message);
       if (i === MAX_RETRIES - 1) {
@@ -205,25 +217,34 @@ const processDeploy = async () => {
   console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
 
   // Load buffer
-  await BpfLoaderUpgradeable.loadBuffer(bufferKp.publicKey, programBuffer, {
-    connection,
-    wallet,
-    onWrite: (bytesOffset) => {
-      PgTerminal.setProgress((bytesOffset / programLen) * 100);
-    },
-    onMissing: (missingCount) => {
-      PgTerminal.log(
-        `Warning: ${PgTerminal.bold(
-          missingCount.toString()
-        )} ${PgCommon.makePlural(
-          "transaction",
-          missingCount
-        )} not confirmed, retrying...`
-      );
-    },
-  });
+  const loadBufferResult = await loadBufferWithControl(
+    bufferKp.publicKey,
+    programBuffer,
+    {
+      connection,
+      wallet,
+      onWrite: (offset) => PgTerminal.setProgress((offset / programLen) * 100),
+      onMissing: (missingCount) => {
+        PgTerminal.log(
+          `Warning: ${PgTerminal.bold(
+            missingCount.toString()
+          )} ${PgCommon.makePlural(
+            "transaction",
+            missingCount
+          )} not confirmed, retrying...`
+        );
+      },
+    }
+  );
+  if (loadBufferResult.cancelled) {
+    return {
+      closeBuffer: async () => {
+        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+      },
+    };
+  }
 
-  let txHash;
+  let txHash: string | undefined;
   let errorMsg =
     "Please check the browser console. If the problem persists, you can report the issue in " +
     GITHUB_URL +
@@ -317,5 +338,64 @@ const processDeploy = async () => {
     throw new Error(errorMsg);
   }
 
-  return txHash;
+  return { txHash };
+};
+
+/** Load buffer with the ability to pause, resume and cancel on demand. */
+const loadBufferWithControl = (
+  ...args: Parameters<typeof BpfLoaderUpgradeable["loadBuffer"]>
+) => {
+  return new Promise<
+    | {
+        cancelled: true;
+        success?: never;
+      }
+    | {
+        cancelled?: never;
+        success: true;
+      }
+  >(async (res) => {
+    const abortController = new AbortController();
+    args[2] = { ...args[2], abortController };
+
+    const term = await PgTerminal.get();
+    const handle = async () => {
+      if (abortController.signal.aborted) {
+        await term.executeFromStr("yes");
+      } else {
+        abortController.abort();
+        const shouldContinue = await term.waitForUserInput(
+          "Continue deployment?",
+          { confirm: true, default: "yes" }
+        );
+        dispose();
+
+        if (shouldContinue) {
+          PgGlobal.deployState = "loading";
+          loadBufferWithControl(...args).then(res);
+        } else {
+          PgGlobal.deployState = "cancelled";
+          res({ cancelled: true });
+        }
+      }
+    };
+
+    let prevState = PgGlobal.deployState;
+    const { dispose } = PgGlobal.onDidChangeDeployState((state) => {
+      if (
+        prevState !== state &&
+        (prevState === "paused" || state === "paused")
+      ) {
+        handle();
+      }
+      prevState = state;
+    });
+
+    await BpfLoaderUpgradeable.loadBuffer(...args);
+
+    if (!abortController.signal.aborted) {
+      dispose();
+      res({ success: true });
+    }
+  });
 };

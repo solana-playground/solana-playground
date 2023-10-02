@@ -10,16 +10,16 @@ import {
   useRenderOnChange,
   useWallet,
 } from "../../../../hooks";
+import { Pause, Triangle } from "../../../../components/Icons";
 
-// TODO: Cancel deployment
 const Deploy = () => {
   const buildLoading = useRenderOnChange(
     PgGlobal.onDidChangeBuildLoading,
     PgGlobal.buildLoading
   );
-  const deployLoading = useRenderOnChange(
-    PgGlobal.onDidChangeDeployLoading,
-    PgGlobal.deployLoading
+  const deployState = useRenderOnChange(
+    PgGlobal.onDidChangeDeployState,
+    PgGlobal.deployState
   );
 
   const {
@@ -36,23 +36,50 @@ const Deploy = () => {
   const { wallet } = useWallet();
 
   const deployButtonText = useMemo(() => {
-    return deployLoading
+    return deployState === "cancelled"
+      ? "Cancelling..."
+      : deployState === "paused"
+      ? "Continue"
+      : deployState === "loading"
       ? deployed
         ? "Upgrading..."
         : "Deploying..."
       : deployed
       ? "Upgrade"
       : "Deploy";
-  }, [deployLoading, deployed]);
+  }, [deployState, deployed]);
 
   const deployButtonProps: ButtonProps = useMemo(
     () => ({
       kind: "primary",
-      onClick: () => PgCommand.deploy.run(),
+      onClick: () => {
+        switch (deployState) {
+          case "ready":
+            // TODO: Run commands without writing to terminal and handle the
+            // `PgGlobal.deployState` inside the command implementation. The
+            // state has to be handled outside of the command because the deploy
+            // command is waiting for user input and re-running the command here
+            // would overwrite the user input.
+            return PgCommand.deploy.run();
+
+          case "loading":
+            PgGlobal.update({ deployState: "paused" });
+            break;
+
+          case "paused":
+            PgGlobal.update({ deployState: "loading" });
+        }
+      },
+      btnLoading: deployState === "cancelled",
       disabled: buildLoading,
-      btnLoading: deployLoading,
+      leftIcon:
+        deployState === "loading" ? (
+          <Pause />
+        ) : deployState === "paused" ? (
+          <Triangle rotate="90deg" />
+        ) : null,
     }),
-    [buildLoading, deployLoading]
+    [buildLoading, deployState]
   );
 
   // Custom(uploaded) program deploy
@@ -103,11 +130,18 @@ const Deploy = () => {
         </Wrapper>
       );
 
-    const text = deployLoading
-      ? `${deployed ? "Upgrading" : "Deploying"} ${importedProgram.fileName}...`
-      : ` Ready to ${deployed ? "upgrade" : "deploy"} ${
-          importedProgram.fileName
-        }`;
+    const text =
+      deployState === "cancelled"
+        ? `Cancelling the ${deployed ? "upgrade" : "deployment"} of ${
+            importedProgram.fileName
+          }...`
+        : deployState === "loading"
+        ? `${deployed ? "Upgrading" : "Deploying"} ${
+            importedProgram.fileName
+          }...`
+        : ` Ready to ${deployed ? "upgrade" : "deploy"} ${
+            importedProgram.fileName
+          }`;
 
     return (
       <Wrapper>
@@ -144,13 +178,6 @@ const Deploy = () => {
         <Wrapper>
           <Text>Deployment can only be done from Playground Wallet.</Text>
           <ConnectPgWalletButton />
-        </Wrapper>
-      );
-
-    if (buildLoading)
-      return (
-        <Wrapper>
-          <Button {...deployButtonProps}>{deployButtonText}</Button>
         </Wrapper>
       );
 

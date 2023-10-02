@@ -455,7 +455,8 @@ export class BpfLoaderUpgradeable {
     programData: Buffer,
     opts?: {
       loadConcurrency?: number;
-      onWrite?: (bytesOffset: number) => void;
+      abortController?: AbortController;
+      onWrite?: (offset: number) => void;
       onMissing?: (missingCount: number) => void;
     } & ConnectionOption &
       WalletOption
@@ -472,6 +473,8 @@ export class BpfLoaderUpgradeable {
       await Promise.all(
         new Array(loadConcurrency).fill(null).map(async () => {
           while (1) {
+            if (opts?.abortController?.signal.aborted) return;
+
             const offset = indices[i] * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
             i++;
             const endOffset = offset + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
@@ -503,10 +506,12 @@ export class BpfLoaderUpgradeable {
       programData.length / BpfLoaderUpgradeable.WRITE_CHUNK_SIZE
     );
     const indices = new Array(txCount).fill(null).map((_, i) => i);
-    await loadBuffer(indices);
+    let isMissing = false;
 
-    // Verify all bytes have been written
+    // Retry until all bytes are written
     while (1) {
+      if (opts?.abortController?.signal.aborted) return;
+
       // Wait for last transaction to confirm
       await PgCommon.sleep(500);
 
@@ -528,7 +533,8 @@ export class BpfLoaderUpgradeable {
           return null;
         })
         .filter((i) => i !== null) as number[];
-      await loadBuffer(missingIndices, true);
+      await loadBuffer(missingIndices, isMissing);
+      isMissing = true;
     }
   }
 

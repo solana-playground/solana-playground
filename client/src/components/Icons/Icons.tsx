@@ -377,6 +377,14 @@ export const QuestionMark = (props: IconProps) => {
   );
 };
 
+export const Pause = (props: IconProps) => {
+  return (
+    <Svg {...props} viewBox="0 0 512 512">
+      <path d="M96 448h106.7V64H96v384zM309.3 64v384H416V64H309.3z"></path>
+    </Svg>
+  );
+};
+
 export const QuestionMarkOutlined = (props: IconProps) => {
   return (
     <Svg {...props} viewBox="0 0 16 16">

@@ -2,12 +2,12 @@ import { declareUpdatable, updatable } from "./decorators";
 
 interface GlobalState {
   buildLoading: boolean;
-  deployLoading: boolean;
+  deployState: "ready" | "loading" | "paused" | "cancelled";
 }
 
 const defaultState: GlobalState = {
   buildLoading: false,
-  deployLoading: false,
+  deployState: "ready",
 };
 
 /** Nothing to persist. */

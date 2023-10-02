@@ -6,7 +6,7 @@ export const useRenderOnChange = <T,>(
   onChange: (cb: (v?: T) => any) => Disposable,
   defaultValue?: T
 ) => {
-  const [value, setValue] = useState<T | undefined>(defaultValue);
+  const [value, setValue] = useState(defaultValue);
   const [, render] = useReducer((r) => r + 1, 0);
   const [effect, runEffect] = useReducer((r) => r + 1, 0);
 

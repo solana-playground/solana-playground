@@ -12,7 +12,7 @@ export const PgCommand: Commands = new Proxy(
       target[cmdName] = {
         name: commandName,
         run: (args: string = "") => {
-          return PgTerminal.executeFromStr(`${commandName} ${args}`);
+          return PgTerminal.executeFromStr(`${commandName} ${args}`, true);
         },
         onDidRunStart: (cb: (input: string | null) => void) => {
           return PgCommon.onDidChange({
