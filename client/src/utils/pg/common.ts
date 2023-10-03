@@ -67,19 +67,23 @@ export class PgCommon {
    * Try the given callback until success.
    *
    * @param cb callback function to try
-   * @param tryInterval optional try interval
+   * @param tryInterval try interval in miliseconds
    * @returns the return value of the callback
    */
   static async tryUntilSuccess<T>(
     cb: () => Promise<T>,
-    tryInterval?: number
+    tryInterval: number
   ): Promise<T> {
     let returnValue: T;
     while (1) {
+      const start = performance.now();
       try {
         returnValue = await this.timeout(cb, tryInterval);
         break;
-      } catch {}
+      } catch {
+        const remaining = tryInterval - (performance.now() - start);
+        if (remaining > 0) await this.sleep(remaining);
+      }
     }
 
     return returnValue!;

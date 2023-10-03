@@ -515,7 +515,10 @@ export class BpfLoaderUpgradeable {
       // Wait for last transaction to confirm
       await PgCommon.sleep(500);
 
-      const bufferAccount = await connection.getAccountInfo(bufferPk);
+      const bufferAccount = await PgCommon.tryUntilSuccess(
+        () => connection.getAccountInfo(bufferPk),
+        5000
+      );
       const onChainProgramData = bufferAccount!.data.slice(
         BpfLoaderUpgradeable.BUFFER_HEADER_SIZE,
         BpfLoaderUpgradeable.BUFFER_HEADER_SIZE + programData.length
