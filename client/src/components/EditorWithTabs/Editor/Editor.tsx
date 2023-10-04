@@ -1,7 +1,7 @@
 import { useEffect, lazy, Suspense, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { MainViewLoading } from "../../Loading";
+import { SpinnerWithBg } from "../../Loading";
 import { Id } from "../../../constants";
 import { PgCommon, PgExplorer, PgTheme } from "../../../utils/pg";
 
@@ -36,7 +36,7 @@ export const Editor = () => {
   if (showHome === undefined) return null;
 
   return (
-    <Suspense fallback={<MainViewLoading />}>
+    <Suspense fallback={<SpinnerWithBg loading size="2rem" />}>
       <Wrapper>{showHome ? <Home /> : <Monaco />}</Wrapper>
     </Suspense>
   );
@@ -44,12 +44,9 @@ export const Editor = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    flex: 1;
+    width: 100%;
+    height: 100%;
     overflow: auto;
-
-    & > div {
-      height: 100%;
-    }
 
     /**
      * Changing the home background only changes the part that is in view and

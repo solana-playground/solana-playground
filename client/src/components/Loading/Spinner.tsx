@@ -2,23 +2,30 @@ import { FC } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import { ClassName } from "../../constants";
+import { PgTheme } from "../../utils/pg";
 
-interface SpinnerWithBgProps {
-  loading?: boolean;
+interface SpinnerWithBgProps extends SpinnerProps {
+  loading: boolean;
+  className?: string;
 }
 
 export const SpinnerWithBg: FC<SpinnerWithBgProps> = ({
   loading,
+  className,
   children,
+  ...spinnerProps
 }) => (
-  <Background className={loading ? ClassName.LOADING : ""}>
-    <Spinner className="spinner" />
+  <Wrapper className={`${className ?? ""} ${loading ? ClassName.LOADING : ""}`}>
+    <Spinner className="spinner" {...spinnerProps} />
     {children}
-  </Background>
+  </Wrapper>
 );
 
-const Background = styled.div`
+const Wrapper = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    width: 100%;
+    height: 100%;
     position: relative;
 
     &::after {
@@ -27,8 +34,7 @@ const Background = styled.div`
       inset: 0;
       width: 100%;
       height: 100%;
-      background: #000;
-      opacity: 0;
+      background: #00000000;
       z-index: -1;
       transition: all ${theme.default.transition.duration.medium}
         ${theme.default.transition.type};
@@ -40,8 +46,8 @@ const Background = styled.div`
 
     &.${ClassName.LOADING} {
       &::after {
-        opacity: 0.5;
         z-index: 1;
+        ${PgTheme.convertToCSS(theme.default.backdrop)};
       }
 
       & > .spinner {

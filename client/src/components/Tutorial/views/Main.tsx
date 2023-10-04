@@ -57,9 +57,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
 
   return (
     <Wrapper rtl={rtl} sizes={[60, 40]}>
-      <EditorWrapper>
-        <EditorWithTabs />
-      </EditorWrapper>
+      <EditorWithTabs />
 
       <TutorialPage ref={tutorialPageRef}>
         <TutorialContent>
@@ -130,11 +128,6 @@ const Wrapper = styled(Split)<Pick<TutorialComponentProps, "rtl">>`
   & > .gutter {
     cursor: col-resize;
   }
-`;
-
-const EditorWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
 `;
 
 const TutorialPage = styled.div`

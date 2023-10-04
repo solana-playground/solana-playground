@@ -69,7 +69,6 @@ const PLAYGROUND: Theme = {
   default: {
     backdrop: {
       backdropFilter: "blur(8px)",
-      bg: "#00000080",
     },
     borderRadius: "8px",
     boxShadow: "#0d081680 -1px 4px 8px",

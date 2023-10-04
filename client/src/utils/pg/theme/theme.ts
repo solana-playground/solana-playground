@@ -342,9 +342,8 @@ export class PgTheme {
     const def = this._theme.default;
 
     // Backdrop
-    def.backdrop ??= {
-      bg: "#00000080",
-    };
+    def.backdrop ??= {};
+    def.backdrop.bg ??= "#00000080";
 
     // Border radius
     def.borderRadius ??= "4px";
@@ -1044,6 +1043,9 @@ export class PgTheme {
     main.default ??= {};
     main.default.bg ??= theme.colors.default.bgSecondary;
     main.default.color ??= theme.colors.default.textPrimary;
+    main.default.display ??= "flex";
+    main.default.flex ??= "1";
+    main.default.minHeight ??= 0;
 
     // Views
     main.views ??= {};
