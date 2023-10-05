@@ -17,22 +17,22 @@ export const Main: FC<TutorialMainComponentProps> = ({
   rtl,
   onComplete,
 }) => {
-  const currentPage = PgTutorial.pageNumber!;
+  const pageNumber = PgTutorial.pageNumber;
 
   const tutorialPageRef = useRef<HTMLDivElement>(null);
 
   // Scroll to the top on page change
   useEffect(() => {
     tutorialPageRef.current?.scrollTo({ top: 0, left: 0 });
-  }, [currentPage]);
+  }, [pageNumber]);
 
   // Specific page events
   useEffect(() => {
-    if (!currentPage) return;
+    if (!pageNumber) return;
 
-    const page = pages[currentPage - 1];
+    const page = pages[pageNumber - 1];
     if (page.onMount) return page.onMount();
-  }, [currentPage, pages]);
+  }, [pageNumber, pages]);
 
   const nextPage = () => {
     PgTutorial.pageNumber! += 1;
@@ -47,13 +47,17 @@ export const Main: FC<TutorialMainComponentProps> = ({
     if (onComplete) onComplete();
   };
 
+  if (!pageNumber) return null;
+
+  const currentPage = pages.at(pageNumber - 1);
+
   // This could happen if the saved page has been deleted
-  if (currentPage && !pages[currentPage - 1]) {
+  if (!currentPage) {
     PgTutorial.pageNumber = 1;
     return null;
   }
 
-  const currentContent = pages[currentPage - 1].content;
+  const currentContent = currentPage.content;
 
   return (
     <Wrapper rtl={rtl} sizes={[60, 40]}>
@@ -69,7 +73,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
 
           <NavigationButtonsOutsideWrapper>
             <NavigationButtonsInsideWrapper>
-              {currentPage !== 1 && (
+              {pageNumber !== 1 && (
                 <PreviousWrapper>
                   <PreviousText>Previous</PreviousText>
                   <NavigationButton
@@ -77,15 +81,15 @@ export const Main: FC<TutorialMainComponentProps> = ({
                     kind="no-border"
                     leftIcon={<PointedArrow rotate="180deg" />}
                   >
-                    {pages[currentPage - 2].title ??
-                      `${currentPage - 1}/${pages.length}`}
+                    {pages[pageNumber - 2].title ??
+                      `${pageNumber - 1}/${pages.length}`}
                   </NavigationButton>
                 </PreviousWrapper>
               )}
 
               <NextWrapper>
                 <NextText>Next</NextText>
-                {currentPage === pages.length ? (
+                {pageNumber === pages.length ? (
                   <NavigationButton
                     onClick={finishTutorial}
                     kind="no-border"
@@ -100,8 +104,8 @@ export const Main: FC<TutorialMainComponentProps> = ({
                     kind="no-border"
                     rightIcon={<PointedArrow />}
                   >
-                    {pages[currentPage].title ??
-                      `${currentPage + 1}/${pages.length}`}
+                    {pages[pageNumber].title ??
+                      `${pageNumber + 1}/${pages.length}`}
                   </NavigationButton>
                 )}
               </NextWrapper>
