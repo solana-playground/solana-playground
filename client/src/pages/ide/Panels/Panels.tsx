@@ -1,40 +1,30 @@
-import { lazy, Suspense } from "react";
 import styled from "styled-components";
 
+import Bottom from "./Bottom";
+import Main from "./Main";
 import Side from "./Side";
 import Delayed from "../../../components/Delayed";
-import { Wormhole } from "../../../components/Loading";
+import ModalBackdrop from "../../../components/ModalBackdrop";
+import Toast from "../../../components/Toast";
+import Wallet from "../../../components/Wallet";
 import { Id } from "../../../constants";
-
-const Main = lazy(() => import("./Main"));
-const Bottom = lazy(() => import("./Bottom"));
-const Wallet = lazy(() => import("../../../components/Wallet"));
-const Toast = lazy(() => import("../../../components/Toast"));
-const ModalBackdrop = lazy(() => import("../../../components/ModalBackdrop"));
 
 const Panels = () => (
   <Wrapper>
     <MainWrapper>
       <Side />
-      <Suspense fallback={<Wormhole size={10} circleCount={10} />}>
-        <Main />
-      </Suspense>
+      <Main />
     </MainWrapper>
 
     {/* Add a delay to the mount of `Bottom` and `Wallet` components because
-    some of  the globals used in that component doesn't become initialized until
-    the next even loop on Firefox */}
-    <Delayed>
-      <Suspense fallback={null}>
-        <Bottom />
-        <Wallet />
-      </Suspense>
+    some of the globals used in those component doesn't get initialized */}
+    <Delayed delay={10}>
+      <Bottom />
+      <Wallet />
     </Delayed>
 
-    <Suspense fallback={null}>
-      <Toast />
-      <ModalBackdrop />
-    </Suspense>
+    <Toast />
+    <ModalBackdrop />
 
     {/* Context menu portal helps to make the menu always appear on top of the
     other elements */}
