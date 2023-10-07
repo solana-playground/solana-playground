@@ -31,27 +31,22 @@ export class PgView {
   }
 
   /**
-   * Set main view(next to the sidebar and above the terminal)
+   * Set the main view(next to the sidebar and above the terminal).
    *
-   * @param SetEl element to set the main view to. (default: Editor)
+   * @param SetEl element to set the main view to
    */
-  static async setMain(SetEl?: SetElementAsync) {
-    while (1) {
-      try {
-        const eventNames = PgCommon.getStaticStateEventNames(
-          EventName.VIEW_MAIN_STATIC
-        );
-        const result = await PgCommon.timeout(
-          PgCommon.sendAndReceiveCustomEvent(eventNames.get)
-        );
-        if (result !== undefined) {
-          PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
-          break;
-        }
-      } catch {
-        await PgCommon.sleep(1000);
-      }
-    }
+  static async setMain(SetEl: SetElementAsync) {
+    await PgCommon.tryUntilSuccess(async () => {
+      const eventNames = PgCommon.getStaticStateEventNames(
+        EventName.VIEW_MAIN_STATIC
+      );
+      const result = await PgCommon.timeout(
+        PgCommon.sendAndReceiveCustomEvent(eventNames.get)
+      );
+      if (result === undefined) throw new Error();
+
+      PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
+    }, 1000);
   }
 
   /**

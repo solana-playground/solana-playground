@@ -4,6 +4,7 @@ import styled, { css, keyframes } from "styled-components";
 import { SpinnerWithBg } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
 import {
+  NullableJSX,
   PgCommon,
   PgRouter,
   PgTheme,
@@ -12,31 +13,28 @@ import {
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
-  const [El, setEl] = useState<JSX.Element | null>(null);
+  const [El, setEl] = useState<NullableJSX>(null);
   const [loading, setLoading] = useState(true);
 
-  const setElWithTransition = useCallback(
-    async (SetEl: SetElementAsync) => {
-      setLoading(true);
+  const setElWithTransition = useCallback(async (SetEl: SetElementAsync) => {
+    setLoading(true);
+    setEl(null);
 
-      const TransitionedEl = await PgCommon.transition(async () => {
-        try {
-          return await (
-            SetEl as (El: JSX.Element | null) => Promise<JSX.Element>
-          )(El);
-        } catch (e: any) {
-          console.log("MAIN VIEW ERROR:", e.message);
-          PgRouter.navigate();
-        }
-      }, 300);
-      if (TransitionedEl) setEl(TransitionedEl);
+    const TransitionedEl = await PgCommon.transition(async () => {
+      try {
+        const ElPromise = typeof SetEl === "function" ? SetEl(null) : SetEl;
+        return await ElPromise;
+      } catch (e: any) {
+        console.log("MAIN VIEW ERROR:", e.message);
+        PgRouter.navigate();
+      }
+    }, 300);
+    if (TransitionedEl) setEl(TransitionedEl);
 
-      setLoading(false);
-    },
-    [El]
-  );
+    setLoading(false);
+  }, []);
 
-  useGetAndSetStatic(El!, setElWithTransition, EventName.VIEW_MAIN_STATIC);
+  useGetAndSetStatic(El, setElWithTransition, EventName.VIEW_MAIN_STATIC);
 
   return (
     <Wrapper>

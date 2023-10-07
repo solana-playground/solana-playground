@@ -4,7 +4,7 @@ import { Resizable } from "re-resizable";
 
 import { Wormhole } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
-import { PgTheme, PgView } from "../../../../../utils/pg";
+import { NullableJSX, PgTheme, PgView } from "../../../../../utils/pg";
 import { useResize } from "./useResize";
 import { SIDEBAR } from "../../../../../views/sidebar";
 import { useSetStatic } from "../../../../../hooks";
@@ -47,7 +47,7 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
 };
 
 const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
-  const [El, setEl] = useState<JSX.Element | null>(null);
+  const [El, setEl] = useState<NullableJSX>(null);
   const [loading, setLoading] = useState(true);
 
   useSetStatic(setLoading, EventName.VIEW_SIDEBAR_LOADING_SET);
