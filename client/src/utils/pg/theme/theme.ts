@@ -739,7 +739,6 @@ export class PgTheme {
 
     // Code block
     markdown.code ??= {};
-    markdown.code.bg ??= theme.colors.default.bgSecondary;
     markdown.code.color ??= theme.colors.default.textPrimary;
     markdown.code.borderRadius ??= theme.default.borderRadius;
     markdown.code.fontFamily ??= theme.font.code.family;

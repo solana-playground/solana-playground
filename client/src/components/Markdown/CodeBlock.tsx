@@ -2,25 +2,24 @@ import { DetailedHTMLProps, HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 
 import CopyButton from "../CopyButton";
-import { PgTheme } from "../../utils/pg";
 import { useDifferentBackground } from "../../hooks";
 
-const CodeBlock = ({
-  children,
-  ...props
-}: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>) => {
-  const code = (props as any).node.children[0].children[0].value;
+const CodeBlock = (
+  props: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>
+) => {
+  const code = (props as any).children[0].props.children[0];
 
-  const { ref } = useDifferentBackground<HTMLPreElement>();
+  const { ref: wrapperRef } = useDifferentBackground<HTMLDivElement>();
+  const { ref: copyButtonWrapperRef } =
+    useDifferentBackground<HTMLDivElement>();
 
   return (
-    <Wrapper>
-      <CopyButtonWrapper>
+    <Wrapper ref={wrapperRef}>
+      <CopyButtonWrapper ref={copyButtonWrapperRef}>
         <CopyButton copyText={code} />
       </CopyButtonWrapper>
-      <pre ref={ref} {...props}>
-        {children}
-      </pre>
+
+      <pre {...props} />
     </Wrapper>
   );
 };
@@ -28,10 +27,7 @@ const CodeBlock = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     position: relative;
-
-    & > pre {
-      ${PgTheme.getScrollbarCSS()};
-    }
+    border-radius: ${theme.default.borderRadius};
 
     & > :first-child {
       opacity: 0;
@@ -50,7 +46,6 @@ const CopyButtonWrapper = styled.div`
     position: absolute;
     top: 0.5rem;
     right: 1rem;
-    background: ${theme.components.main.views.tutorial.tutorialPage.bg};
     border-radius: ${theme.default.borderRadius};
     box-shadow: ${theme.default.boxShadow};
 

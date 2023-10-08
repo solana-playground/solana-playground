@@ -10,7 +10,6 @@ interface MarkdownProps {
   children: string;
   /** Make all fonts the code font */
   codeFontOnly?: boolean;
-  className?: string;
 }
 
 const Markdown = ({ children, ...props }: MarkdownProps) => (
@@ -910,6 +909,7 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
       line-height: 1.45;
 
       ${PgTheme.convertToCSS(theme.components.markdown.code)};
+      ${PgTheme.getScrollbarCSS()};
     }
 
     pre code,
