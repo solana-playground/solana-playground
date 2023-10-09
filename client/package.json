@@ -63,6 +63,7 @@
     "react-use-clipboard": "^1.0.8",
     "remark-gfm": "^3.0.1",
     "shell-quote": "^1.7.3",
+    "shiki": "^0.14.4",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",
     "typescript": "=4.9.5",

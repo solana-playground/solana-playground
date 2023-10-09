@@ -12,7 +12,7 @@ import {
   IRawTheme,
 } from "vscode-textmate";
 
-import { RequiredKey, PgExplorer } from "../../../../../utils/pg";
+import { RequiredKey, PgExplorer, PgCommon } from "../../../../../utils/pg";
 
 // Remove defaults https://github.com/Microsoft/monaco-editor/issues/252#issuecomment-482786867
 monaco.languages.getLanguages().forEach((lang) => {
@@ -52,7 +52,14 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
       createOnigString,
     }),
     loadGrammar: async (scopeName: string) => {
-      const grammar = await import(`./${scopeName}/grammar.json`);
+      const grammar = await PgCommon.fetchJSON(
+        `/grammars/${scopeName}.tmLanguage.json`
+      );
+      // `registry.loadGrammarWithConfiguration` expects `scopeName` as the
+      // first argument but we provide language id instead because grammars
+      // exist in `/grammars/<LANGUAGE_ID>.tmLanguage.json`. This format allows
+      // sharing grammars in `monaco` and `shiki`.
+      grammar.scopeName = scopeName;
       return parseRawGrammar(JSON.stringify(grammar), "grammar.json");
     },
     theme,
@@ -107,12 +114,11 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
   return PgExplorer.onDidOpenFile(async (file) => {
     if (!file) return;
 
+    const extension = PgExplorer.getExtensionFromPath(file.path)
+      .split(".")
+      .at(-1)!;
     const lang = monaco.languages.getLanguages().find((lang) => {
-      return lang.extensions
-        ?.map((ext) => ext.slice(1))
-        .includes(
-          PgExplorer.getExtensionFromPath(file.path).split(".").reverse()[0]
-        );
+      return lang.extensions?.map((ext) => ext.slice(1)).includes(extension);
     });
     if (lang) await loadGrammarAndConfiguration(lang.id);
   });

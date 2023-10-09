@@ -1,13 +1,17 @@
-import { DetailedHTMLProps, HTMLAttributes } from "react";
-import styled, { css } from "styled-components";
+import { DetailedHTMLProps, HTMLAttributes, useState } from "react";
+import styled, { css, useTheme } from "styled-components";
 
 import CopyButton from "../CopyButton";
-import { useDifferentBackground } from "../../hooks";
+import { highlight } from "./highlight";
+import { NullableJSX, PgTheme } from "../../utils/pg";
+import { useAsyncEffect, useDifferentBackground } from "../../hooks";
 
 const CodeBlock = (
   props: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>
 ) => {
-  const code = (props as any).children[0].props.children[0];
+  const codeProps = (props as any).children[0].props;
+  const lang = codeProps.className?.split("-")?.at(1);
+  const code = codeProps.children[0];
 
   const { ref: wrapperRef } = useDifferentBackground<HTMLDivElement>();
   const { ref: copyButtonWrapperRef } =
@@ -19,7 +23,9 @@ const CodeBlock = (
         <CopyButton copyText={code} />
       </CopyButtonWrapper>
 
-      <pre {...props} />
+      <Code lang={lang} Fallback={<pre {...props} />}>
+        {code}
+      </Code>
     </Wrapper>
   );
 };
@@ -28,6 +34,10 @@ const Wrapper = styled.div`
   ${({ theme }) => css`
     position: relative;
     border-radius: ${theme.default.borderRadius};
+
+    & pre {
+      background: transparent !important;
+    }
 
     & > :first-child {
       opacity: 0;
@@ -59,5 +69,37 @@ const CopyButtonWrapper = styled.div`
     }
   `}
 `;
+
+interface CodeProps {
+  /** Code */
+  children: string;
+  /** Language or alias */
+  lang: string | null;
+  /** Fallback JSX */
+  Fallback: NullableJSX;
+}
+
+const Code = ({ children, lang, Fallback }: CodeProps) => {
+  const [html, setHtml] = useState("");
+
+  const theme = useTheme();
+
+  useAsyncEffect(async () => {
+    if (lang) {
+      const highlightedHtml = await highlight(
+        children,
+        lang,
+        PgTheme.convertToTextMateTheme(theme)
+      );
+      setHtml(highlightedHtml);
+    } else {
+      setHtml("");
+    }
+  }, [children, lang, theme]);
+
+  if (!html) return Fallback;
+
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+};
 
 export default CodeBlock;

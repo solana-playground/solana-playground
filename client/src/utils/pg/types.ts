@@ -1,5 +1,5 @@
 /** Get value of the given object */
-export type ValueOf<T extends Record<string, unknown>> = T[keyof T];
+export type ValueOf<T extends object> = T[keyof T];
 
 /** Methods of the given object */
 export type Methods<T> = {

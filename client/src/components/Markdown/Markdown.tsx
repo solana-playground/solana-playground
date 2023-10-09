@@ -12,16 +12,14 @@ interface MarkdownProps {
   codeFontOnly?: boolean;
 }
 
-const Markdown = ({ children, ...props }: MarkdownProps) => (
+const Markdown = (props: MarkdownProps) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
       pre: CodeBlock,
     }}
     {...props}
-  >
-    {children}
-  </StyledMarkdown>
+  />
 );
 
 const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
