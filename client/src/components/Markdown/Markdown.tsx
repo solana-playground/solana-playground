@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
-import CodeBlock from "./CodeBlock";
+import CodeBlock from "../CodeBlock";
 import { PgTheme } from "../../utils/pg";
 
 interface MarkdownProps {
@@ -16,7 +16,13 @@ const Markdown = (props: MarkdownProps) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
-      pre: CodeBlock,
+      pre: (props) => {
+        const codeProps = (props as any).children[0].props;
+        const lang = codeProps.className?.split("-")?.at(1);
+        const code = codeProps.children[0];
+
+        return <CodeBlock lang={lang}>{code}</CodeBlock>;
+      },
     }}
     {...props}
   />
@@ -59,7 +65,7 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
     --color-fg-muted: ${theme.colors.default.textSecondary};
     --color-fg-subtle: #484f58;
     --color-canvas-default: ${theme.components.markdown.default.bg};
-    --color-canvas-subtle: ${theme.components.markdown.code.bg};
+    --color-canvas-subtle: ${theme.components.codeBlock.bg};
     --color-border-default: ${theme.colors.default.border};
     --color-border-muted: ${theme.colors.default.border +
     theme.default.transparency.high};
@@ -906,7 +912,8 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
       font-size: 85%;
       line-height: 1.45;
 
-      ${PgTheme.convertToCSS(theme.components.markdown.code)};
+      ${PgTheme.convertToCSS(theme.components.codeBlock)};
+      background: ${theme.components.codeBlock.bg} !important;
       ${PgTheme.getScrollbarCSS()};
     }
 

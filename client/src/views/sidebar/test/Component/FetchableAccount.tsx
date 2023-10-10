@@ -7,6 +7,7 @@ import Button from "../../../../components/Button";
 import Foldable from "../../../../components/Foldable";
 import InputLabel from "./InputLabel";
 import Input from "../../../../components/Input";
+import Text from "../../../../components/Text";
 import { CodeResult } from "./CodeResult";
 import { SpinnerWithBg } from "../../../../components/Loading";
 import { PgAccount, PgCommon } from "../../../../utils/pg";
@@ -141,13 +142,13 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
             setOpen={setResultOpen}
           >
             <SpinnerWithBg loading={fetchOneLoading || fetchAllLoading}>
-              <CodeResult index={index}>
-                {fetchError ? (
-                  <ErrorWrapper>{fetchError}</ErrorWrapper>
-                ) : (
-                  PgCommon.prettyJSON(fetchedData!)
-                )}
-              </CodeResult>
+              {fetchError ? (
+                <FetchError kind="error">{fetchError}</FetchError>
+              ) : (
+                <CodeResult index={index}>
+                  {PgCommon.prettyJSON(fetchedData!)}
+                </CodeResult>
+              )}
             </SpinnerWithBg>
           </Foldable>
         </ResultWrapper>
@@ -192,12 +193,8 @@ const ResultWrapper = styled.div`
   width: 100%;
 `;
 
-const ErrorWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 0.5rem 0.25rem;
-    color: ${theme.colors.state.error.color};
-    text-align: center;
-  `}
+const FetchError = styled(Text)`
+  width: 100%;
 `;
 
 export default FetchableAccount;

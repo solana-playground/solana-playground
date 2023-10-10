@@ -24,12 +24,9 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
       idl && wallet ? PgTest.getProgram(idl, connection, wallet) : null;
     if (!program) return;
 
-    const listener = program.addEventListener(
-      eventName,
-      (emittedEvent, _slot) => {
-        setReceivedEvents((eventsSoFar) => [...eventsSoFar, emittedEvent]);
-      }
-    );
+    const listener = program.addEventListener(eventName, (emittedEvent) => {
+      setReceivedEvents((eventsSoFar) => [...eventsSoFar, emittedEvent]);
+    });
 
     return () => {
       program.removeEventListener(listener);
@@ -44,7 +41,7 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
         }
       >
         <CodeResult index={index}>
-          {receivedEvents.map((e) => PgCommon.prettyJSON(e)).join("\n")}
+          {receivedEvents.map((ev) => PgCommon.prettyJSON(ev)).join("\n")}
         </CodeResult>
       </Foldable>
     </EventWrapper>

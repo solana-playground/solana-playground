@@ -1,31 +1,32 @@
-import { DetailedHTMLProps, HTMLAttributes, useState } from "react";
+import { useState } from "react";
 import styled, { css, useTheme } from "styled-components";
 
 import CopyButton from "../CopyButton";
 import { highlight } from "./highlight";
-import { NullableJSX, PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils/pg";
 import { useAsyncEffect, useDifferentBackground } from "../../hooks";
 
-const CodeBlock = (
-  props: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>
-) => {
-  const codeProps = (props as any).children[0].props;
-  const lang = codeProps.className?.split("-")?.at(1);
-  const code = codeProps.children[0];
+export interface CodeBlockProps {
+  /** Code */
+  children: string;
+  /** Language or alias */
+  lang?: string;
+}
+
+const CodeBlock = ({ lang, children, ...props }: CodeBlockProps) => {
+  const code = children;
 
   const { ref: wrapperRef } = useDifferentBackground<HTMLDivElement>();
   const { ref: copyButtonWrapperRef } =
     useDifferentBackground<HTMLDivElement>();
 
   return (
-    <Wrapper ref={wrapperRef}>
+    <Wrapper ref={wrapperRef} {...props}>
       <CopyButtonWrapper ref={copyButtonWrapperRef}>
         <CopyButton copyText={code} />
       </CopyButtonWrapper>
 
-      <Code lang={lang} Fallback={<pre {...props} />}>
-        {code}
-      </Code>
+      <Code lang={lang}>{code}</Code>
     </Wrapper>
   );
 };
@@ -70,16 +71,7 @@ const CopyButtonWrapper = styled.div`
   `}
 `;
 
-interface CodeProps {
-  /** Code */
-  children: string;
-  /** Language or alias */
-  lang: string | null;
-  /** Fallback JSX */
-  Fallback: NullableJSX;
-}
-
-const Code = ({ children, lang, Fallback }: CodeProps) => {
+const Code = ({ children, lang }: CodeBlockProps) => {
   const [html, setHtml] = useState("");
 
   const theme = useTheme();
@@ -97,7 +89,7 @@ const Code = ({ children, lang, Fallback }: CodeProps) => {
     }
   }, [children, lang, theme]);
 
-  if (!html) return Fallback;
+  if (!html) return <pre>{children}</pre>;
 
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 };
