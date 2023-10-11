@@ -22,7 +22,7 @@ export class PgCommon {
    * @param ms amount of time to sleep in ms
    * @returns a promise that will resolve after specified ms
    */
-  static async sleep(ms: number = 300) {
+  static async sleep(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
   }
 
@@ -32,7 +32,7 @@ export class PgCommon {
    * @param promisable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
    */
-  static async transition<R>(promisable: Promisable<R>, ms?: number) {
+  static async transition<R>(promisable: Promisable<R>, ms: number = 300) {
     if ((promisable as () => SyncOrAsync<R>)?.call) {
       promisable = (promisable as () => SyncOrAsync<R>)();
     }
@@ -52,7 +52,7 @@ export class PgCommon {
    * @throws on timeout
    * @returns the result of the promise parameter
    */
-  static async timeout<R>(promisable: Promisable<R>, ms?: number) {
+  static async timeout<R>(promisable: Promisable<R>, ms: number) {
     if ((promisable as () => SyncOrAsync<R>)?.call) {
       promisable = (promisable as () => SyncOrAsync<R>)();
     }

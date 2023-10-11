@@ -23,7 +23,6 @@ export const SpinnerWithBg: FC<SpinnerWithBgProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
     width: 100%;
     height: 100%;
     position: relative;
@@ -52,6 +51,9 @@ const Wrapper = styled.div`
 
       & > .spinner {
         display: block;
+        position: absolute;
+        inset: 0;
+        margin: auto;
         z-index: 2;
       }
     }

@@ -994,6 +994,7 @@ export class PgTheme {
     codeBlock.borderRadius ??= theme.default.borderRadius;
     codeBlock.fontFamily ??= theme.font.code.family;
     codeBlock.fontSize ??= theme.font.code.size.medium;
+    codeBlock.overflow ??= "auto";
 
     return this;
   }

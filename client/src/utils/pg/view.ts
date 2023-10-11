@@ -41,7 +41,8 @@ export class PgView {
         EventName.VIEW_MAIN_STATIC
       );
       const result = await PgCommon.timeout(
-        PgCommon.sendAndReceiveCustomEvent(eventNames.get)
+        PgCommon.sendAndReceiveCustomEvent(eventNames.get),
+        100
       );
       if (result === undefined) throw new Error();
 

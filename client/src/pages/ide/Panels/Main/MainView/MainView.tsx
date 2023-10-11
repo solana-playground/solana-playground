@@ -28,7 +28,7 @@ const MainView = () => {
         console.log("MAIN VIEW ERROR:", e.message);
         PgRouter.navigate();
       }
-    }, 300);
+    });
     if (TransitionedEl) setEl(TransitionedEl);
 
     setLoading(false);
@@ -54,9 +54,9 @@ const Wrapper = styled.div`
 
 const StyledSpinnerWithBg = styled(SpinnerWithBg)`
   ${({ theme }) => css`
-    width: 100%;
+    display: flex;
 
-    & > div:last-child {
+    & > *:last-child {
       flex: 1;
       opacity: 0;
       animation: ${fadeInAnimation} ${theme.default.transition.duration.long}

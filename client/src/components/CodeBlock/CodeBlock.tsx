@@ -37,7 +37,8 @@ const Wrapper = styled.div`
     border-radius: ${theme.default.borderRadius};
 
     & pre {
-      background: transparent !important;
+      ${PgTheme.convertToCSS(theme.components.codeBlock)}
+      ${PgTheme.getScrollbarCSS()};
     }
 
     & > :first-child {
