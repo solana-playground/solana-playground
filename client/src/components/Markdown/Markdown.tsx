@@ -61,11 +61,11 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
     --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
     --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
     --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-    --color-fg-default: ${theme.components.markdown.default.color};
+    --color-fg-default: ${theme.components.markdown.color};
     --color-fg-muted: ${theme.colors.default.textSecondary};
     --color-fg-subtle: #484f58;
-    --color-canvas-default: ${theme.components.markdown.default.bg};
-    --color-canvas-subtle: ${theme.components.codeBlock.bg};
+    --color-canvas-default: ${theme.components.markdown.bg};
+    --color-canvas-subtle: ${theme.components.markdown.subtleBg};
     --color-border-default: ${theme.colors.default.border};
     --color-border-muted: ${theme.colors.default.border +
     theme.default.transparency.high};
@@ -82,7 +82,7 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
       line-height: 1.5;
       word-wrap: break-word;
 
-      ${PgTheme.convertToCSS(theme.components.markdown.default)};
+      ${PgTheme.convertToCSS(theme.components.markdown)};
       ${codeFontOnly &&
       `
         font-family: ${theme.font.code.family} !important;
@@ -911,10 +911,6 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
       overflow: auto;
       font-size: 85%;
       line-height: 1.45;
-
-      ${PgTheme.convertToCSS(theme.components.codeBlock)};
-      background: ${theme.components.codeBlock.bg} !important;
-      ${PgTheme.getScrollbarCSS()};
     }
 
     pre code,

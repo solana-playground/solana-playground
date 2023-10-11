@@ -2,6 +2,7 @@ import {
   getHighlighter,
   Highlighter,
   Lang,
+  renderToHtml,
   setCDN,
   setWasm,
   Theme,
@@ -28,7 +29,8 @@ export const highlight = async (
   await loadLanguage(lang as Lang);
   await loadTheme(theme);
 
-  return highlighter.codeToHtml(code, { lang, theme: theme.name! });
+  const tokens = highlighter.codeToThemedTokens(code, lang, theme.name);
+  return renderToHtml(tokens, { bg: "inherit", themeName: theme.name });
 };
 
 /** `shiki` highlighter */

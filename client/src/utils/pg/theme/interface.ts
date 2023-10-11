@@ -90,9 +90,6 @@ export interface Theme {
     /** Button component */
     button?: OverridableComponent<ButtonKind>;
 
-    /** Code block component */
-    codeBlock?: DefaultComponent;
-
     /** Editor component */
     editor?: {
       /** Editor defaults */
@@ -201,7 +198,7 @@ export interface Theme {
     }>;
 
     /** Markdown component */
-    markdown?: DefaultComponent;
+    markdown?: DefaultComponent & { subtleBg?: Bg };
 
     /** Menu component */
     menu?: OverridableComponent<MenuKind>;

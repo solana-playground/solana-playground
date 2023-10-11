@@ -37,7 +37,11 @@ const Wrapper = styled.div`
     border-radius: ${theme.default.borderRadius};
 
     & pre {
-      ${PgTheme.convertToCSS(theme.components.codeBlock)}
+      border-radius: ${theme.default.borderRadius};
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
+      overflow: auto;
+
       ${PgTheme.getScrollbarCSS()};
     }
 

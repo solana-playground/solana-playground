@@ -124,7 +124,6 @@ export class PgTheme {
       ._uploadArea()
       ._toast()
       ._modal()
-      ._codeBlock()
       ._markdown()
       ._terminal()
       ._wallet()
@@ -983,33 +982,17 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default code block component */
-  private static _codeBlock() {
-    const codeBlock = this._getComponent("codeBlock");
-    const theme = this._themeReady;
-
-    // Default
-    codeBlock.bg ??= theme.colors.default.bgSecondary;
-    codeBlock.color ??= theme.colors.default.textPrimary;
-    codeBlock.borderRadius ??= theme.default.borderRadius;
-    codeBlock.fontFamily ??= theme.font.code.family;
-    codeBlock.fontSize ??= theme.font.code.size.medium;
-    codeBlock.overflow ??= "auto";
-
-    return this;
-  }
-
   /** Set default markdown component */
   private static _markdown() {
     const markdown = this._getComponent("markdown");
     const theme = this._themeReady;
 
     // Default
-    markdown.default ??= {};
-    markdown.default.bg ??= "inherit";
-    markdown.default.color ??= theme.colors.default.textPrimary;
-    markdown.default.fontFamily ??= theme.font.other.family;
-    markdown.default.fontSize ??= theme.font.other.size.medium;
+    markdown.bg ??= "inherit";
+    markdown.subtleBg ??= theme.colors.default.bgSecondary;
+    markdown.color ??= theme.colors.default.textPrimary;
+    markdown.fontFamily ??= theme.font.other.family;
+    markdown.fontSize ??= theme.font.other.size.medium;
 
     return this;
   }
