@@ -172,7 +172,7 @@ const InputPk = () => {
   return (
     <InputPkWrapper>
       <InputLabelWrapper>
-        <InputLabel>Program id:</InputLabel>
+        <InputLabel>Program ID:</InputLabel>
         {updateInfo.text && (
           <UpdateInfo error={updateInfo?.error}>{updateInfo.text}</UpdateInfo>
         )}
