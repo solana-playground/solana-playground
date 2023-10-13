@@ -8,7 +8,6 @@ import {
 } from "../../constants";
 import type {
   AllPartial,
-  Fn,
   Disposable,
   Promisable,
   SyncOrAsync,
@@ -117,24 +116,27 @@ export class PgCommon {
    * @param ms amount of delay in miliseconds
    * @returns the wrapped callback function
    */
-  static throttle(cb: Fn, ms: number = 100) {
+  static throttle<T extends unknown[]>(
+    cb: (...args: T) => void,
+    ms: number = 100
+  ) {
     let timeoutId: NodeJS.Timeout;
     let last = Date.now();
     let isInitial = true;
 
-    return () => {
+    return (...args: T) => {
       const now = Date.now();
       if (isInitial) {
-        cb();
+        cb(...args);
         isInitial = false;
         return;
       }
 
       if (now < last + ms) {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(cb, ms);
+        timeoutId = setTimeout(() => cb(...args), ms);
       } else {
-        cb();
+        cb(...args);
         last = now;
       }
     };

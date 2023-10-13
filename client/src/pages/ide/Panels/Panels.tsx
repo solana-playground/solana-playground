@@ -26,9 +26,8 @@ const Panels = () => (
     <Toast />
     <ModalBackdrop />
 
-    {/* Context menu portal helps to make the menu always appear on top of the
-    other elements */}
-    <ContextMenuPortal id={Id.CTX_MENU} />
+    {/* Portal to escape the stacking context */}
+    <Portal id={Id.PORTAL} />
   </Wrapper>
 );
 
@@ -37,6 +36,8 @@ const Wrapper = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 `;
 
 const MainWrapper = styled.div`
@@ -47,6 +48,8 @@ const MainWrapper = styled.div`
   flex: 1;
 `;
 
-const ContextMenuPortal = styled.div``;
+const Portal = styled.div`
+  z-index: 2;
+`;
 
 export default Panels;

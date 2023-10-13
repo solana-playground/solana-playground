@@ -4,13 +4,7 @@ import styled, { css } from "styled-components";
 import Button from "../../../../components/Button";
 import Link from "../../../../components/Link";
 import Tooltip from "../../../../components/Tooltip";
-import {
-  EXPLORER_URL,
-  Id,
-  NETWORKS,
-  NetworkName,
-  ClassName,
-} from "../../../../constants";
+import { EXPLORER_URL, Id, NETWORKS, NetworkName } from "../../../../constants";
 import { PgCommand, PgCommon, PgTheme } from "../../../../utils/pg";
 import { useBalance, useConnection, useWallet } from "../../../../hooks";
 
@@ -50,17 +44,18 @@ const Bottom = () => {
       {walletPkStr && (
         <>
           <Dash>-</Dash>
-          <Tooltip text="RPC endpoint">
-            <RpcEndpoint title={connection.rpcEndpoint}>
-              {networkName}
-            </RpcEndpoint>
+          <Tooltip text={`RPC endpoint (${connection.rpcEndpoint})`}>
+            <RpcEndpoint>{networkName}</RpcEndpoint>
           </Tooltip>
+
           <Seperator>|</Seperator>
+
           <Tooltip text="Your address">
             <Address href={`${EXPLORER_URL}/address/${walletPkStr}${cluster}`}>
               {walletPkStr}
             </Address>
           </Tooltip>
+
           {balance !== undefined && balance !== null && (
             <>
               <Seperator>|</Seperator>
@@ -77,24 +72,17 @@ const Bottom = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-
-    ${PgTheme.convertToCSS(theme.components.bottom.default)};
-
-    & .${ClassName.TOOLTIP} {
-      height: 100%;
-      display: flex;
-      align-items: center;
-
-      & button {
-        height: 100%;
-      }
-    }
-
     & svg {
       color: inherit;
     }
+
+    & > div {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    ${PgTheme.convertToCSS(theme.components.bottom.default)};
   `}
 `;
 

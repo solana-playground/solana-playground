@@ -13,7 +13,6 @@ interface IconProps {
 interface IconPropsInternal extends SvgProperties {
   viewBox: string;
   baseProfile?: string;
-  className?: string;
 }
 
 const defaultProps = {
@@ -26,9 +25,9 @@ const defaultProps = {
 };
 
 /** `<Svg>` that works with `styled-components` and better defaults */
-const Svg: FC<IconPropsInternal> = ({ children, className, ...props }) => {
+const Svg: FC<IconPropsInternal> = ({ children, ...props }) => {
   return (
-    <StyledSvg {...defaultProps} className={className} {...(props as {})}>
+    <StyledSvg {...defaultProps} {...(props as {})}>
       {children}
     </StyledSvg>
   );

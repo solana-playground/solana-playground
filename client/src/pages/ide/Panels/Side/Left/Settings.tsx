@@ -29,13 +29,7 @@ const Setting: FC<SettingType> = ({ name, Component, tooltip, isCheckBox }) => (
   <SettingWrapper isCheckBox={isCheckBox}>
     <Left>
       <SettingName>{name}</SettingName>
-      {tooltip && (
-        <HelpTooltip
-          text={tooltip.text}
-          maxWidth={tooltip.maxWidth}
-          bgSecondary
-        />
-      )}
+      {tooltip && <HelpTooltip {...tooltip} bgSecondary />}
     </Left>
 
     <Right>

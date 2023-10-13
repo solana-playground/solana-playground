@@ -1211,11 +1211,14 @@ export class PgTheme {
     bottom.default.bg ??= theme.colors.default.primary;
     bottom.default.color ??= theme.colors.default.textPrimary;
     bottom.default.fontSize ??= theme.font.code.size.small;
+    bottom.default.display ??= "flex";
+    bottom.default.alignItems ??= "center";
 
     // Connect button
     bottom.connect ??= {};
-    bottom.connect.border ??= "none";
+    bottom.connect.height = "100%";
     bottom.connect.padding ??= "0 0.75rem";
+    bottom.connect.border ??= "none";
     bottom.connect.hover ??= {};
     bottom.connect.hover.bg ??=
       bottom.default.color + theme.default.transparency.low;

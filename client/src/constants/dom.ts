@@ -12,7 +12,6 @@ export enum ClassName {
   FOLDER_INSIDE = "folder-inside",
   LOADING = "loading",
   DARKEN = "darken",
-  TOOLTIP = "tooltip",
   BUTTON_LOADING = "btn-loading",
 }
 
@@ -24,5 +23,5 @@ export enum Id {
   WALLET_MAIN = "wallet-main",
   WALLET_BOUND = "wallet-bound",
   HOME = "home",
-  CTX_MENU = "ctx-menu",
+  PORTAL = "portal",
 }

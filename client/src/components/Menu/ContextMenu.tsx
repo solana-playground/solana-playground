@@ -91,7 +91,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
 
       return menu;
     });
-  }, [menu]);
+  }, [menu.state]);
 
   // Hide on outside click when the state is `show`
   useOnClickOutside(menuWrapperRef, hide, menu.state === "show");
@@ -112,7 +112,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
               <MenuItem key={i} {...item} hide={hide} />
             ))}
           </MenuWrapperWithPosition>,
-          document.getElementById(Id.CTX_MENU)!
+          document.getElementById(Id.PORTAL)!
         )}
     </Wrapper>
   );
