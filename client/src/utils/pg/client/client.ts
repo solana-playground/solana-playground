@@ -322,8 +322,10 @@ export class PgClient {
           .substring(1, importMatch[4].length - 1)
           .replace(/\n?/g, "")
           .split(",")
+          .map((statement) => statement.trim())
+          .filter(Boolean)
           .map((statement) => {
-            const result = /(\w+)(\s+as\s+(\w+))?/.exec(statement.trim())!;
+            const result = /(\w+)(\s+as\s+(\w+))?/.exec(statement)!;
             return { named: result[1], renamed: result[3] };
           });
         for (const { named, renamed } of namedImports) {
