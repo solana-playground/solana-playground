@@ -8,23 +8,23 @@ export type TextKind = "default" | "info" | "warning" | "success" | "error";
 
 interface TextProps {
   kind?: TextKind;
-  IconEl?: ReactNode;
+  icon?: ReactNode;
 }
 
 /** A text component that always have a different background than its parent */
-const Text: FC<TextProps> = ({ IconEl, children, ...rest }) => {
+const Text: FC<TextProps> = ({ icon, children, ...rest }) => {
   const { ref } = useDifferentBackground();
 
   return (
-    <Wrapper ref={ref} IconEl={IconEl} {...rest}>
-      {IconEl && <IconWrapper>{IconEl}</IconWrapper>}
+    <Wrapper ref={ref} icon={icon} {...rest}>
+      {icon && <IconWrapper>{icon}</IconWrapper>}
       <ContentWrapper>{children}</ContentWrapper>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div<TextProps>`
-  ${({ theme, kind, IconEl }) => {
+  ${({ kind, icon, theme }) => {
     kind ??= "default";
 
     // Clone the default Text theme to not override the global object
@@ -48,7 +48,7 @@ const Wrapper = styled.div<TextProps>`
     return css`
       ${PgTheme.convertToCSS(text)};
 
-      ${!!IconEl &&
+      ${!!icon &&
       `& div > svg {
       width: 1.5rem;
       height: 1.5rem;

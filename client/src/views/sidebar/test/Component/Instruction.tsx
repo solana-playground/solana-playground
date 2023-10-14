@@ -30,7 +30,7 @@ interface InstructionProps extends InstructionInsideProps {
 
 const Instruction: FC<InstructionProps> = ({ ix, idl, index }) => (
   <InstructionWrapper index={index}>
-    <Foldable ClickEl={<InstructionName>{ix.name}</InstructionName>}>
+    <Foldable element={<InstructionName>{ix.name}</InstructionName>}>
       <InstructionInside idl={idl} ix={ix} />
     </Foldable>
   </InstructionWrapper>
@@ -194,7 +194,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
         >
           {ix.args.length > 0 && (
             <ArgsWrapper>
-              <Foldable ClickEl={<ArgsText>Args:</ArgsText>} open>
+              <Foldable element={<ArgsText>Args:</ArgsText>} open>
                 {ix.args.map((a, i) => (
                   <Arg
                     key={i}
@@ -208,7 +208,7 @@ const InstructionInside: FC<InstructionInsideProps> = ({ ix, idl }) => {
           )}
           {ix.accounts.length > 0 && (
             <AccountsWrapper>
-              <Foldable ClickEl={<AccountsText>Accounts:</AccountsText>} open>
+              <Foldable element={<AccountsText>Accounts:</AccountsText>} open>
                 {ix.accounts.map((a, i) => (
                   <Account
                     key={i}

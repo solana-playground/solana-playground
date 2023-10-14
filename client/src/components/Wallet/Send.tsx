@@ -10,7 +10,7 @@ import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
-    <Foldable ClickEl={<Title>Send</Title>}>
+    <Foldable element={<Title>Send</Title>}>
       <SendExpanded />
     </Foldable>
   </Wrapper>

@@ -63,7 +63,7 @@ interface ErrorPageProps {
 
 const ErrorPage: FC<ErrorPageProps> = ({ message }) => (
   <Modal title buttonProps={{ text: "Continue" }}>
-    <Text kind="error" IconEl={<Sad />}>
+    <Text kind="error" icon={<Sad />}>
       Share error: {message}
     </Text>
   </Modal>
@@ -79,7 +79,7 @@ const SuccessPage: FC<SuccessPageProps> = ({ shareId }) => {
   return (
     <Modal title buttonProps={{ text: "Continue" }}>
       <SuccessWrapper>
-        <Text kind="success" IconEl={<Checkmark color="success" />}>
+        <Text kind="success" icon={<Checkmark color="success" />}>
           Successfully shared the project.
         </Text>
 

@@ -350,7 +350,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
         />
         {isFirst ? (
           <AddSeedWrapper>
-            <Tooltip text="Add seed">
+            <Tooltip element="Add seed">
               <Button onClick={toggleAddSeed} kind="icon">
                 <PlusFilled />
               </Button>
@@ -369,7 +369,7 @@ const SeedInput: FC<SeedInputProps> = ({ index, seed, setSeeds }) => {
             )}
           </AddSeedWrapper>
         ) : (
-          <Tooltip text="Remove seed">
+          <Tooltip element="Remove seed">
             <Button onClick={removeSeed} kind="icon">
               <MinusFilled />
             </Button>

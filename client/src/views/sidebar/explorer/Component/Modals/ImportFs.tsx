@@ -99,7 +99,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
           />
         </UploadAreaWrapper>
 
-        <StyledText IconEl={<Info color="info" />}>
+        <StyledText icon={<Info color="info" />}>
           You can drag & drop a Cargo workspace directory.
         </StyledText>
       </Content>

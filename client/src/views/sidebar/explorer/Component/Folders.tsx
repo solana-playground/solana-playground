@@ -68,13 +68,13 @@ const Folders = () => {
               {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
                 <SectionButton
                   onClick={ctxMenu.runBuild}
-                  Icon={<Wrench />}
+                  icon={<Wrench />}
                   addTextMargin
                 >
                   Build
                 </SectionButton>
               ) : (
-                <SectionButton onClick={ctxMenu.addProgram} Icon={<Plus />}>
+                <SectionButton onClick={ctxMenu.addProgram} icon={<Plus />}>
                   Add
                 </SectionButton>
               )}
@@ -92,14 +92,14 @@ const Folders = () => {
               {folders.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ? (
                 <SectionButton
                   onClick={ctxMenu.runClientFolder}
-                  Icon={<Triangle rotate="90deg" />}
+                  icon={<Triangle rotate="90deg" />}
                   title="Run All (in client dir)"
                   addTextMargin
                 >
                   Run
                 </SectionButton>
               ) : (
-                <SectionButton onClick={ctxMenu.addClient} Icon={<Plus />}>
+                <SectionButton onClick={ctxMenu.addClient} icon={<Plus />}>
                   Add client
                 </SectionButton>
               )}
@@ -107,13 +107,13 @@ const Folders = () => {
               {folders.includes(PgExplorer.PATHS.TESTS_DIRNAME) ? (
                 <SectionButton
                   onClick={ctxMenu.runTestFolder}
-                  Icon={<TestTube />}
+                  icon={<TestTube />}
                   title="Test All (in tests dir)"
                 >
                   Test
                 </SectionButton>
               ) : (
-                <SectionButton onClick={ctxMenu.addTests} Icon={<Plus />}>
+                <SectionButton onClick={ctxMenu.addTests} icon={<Plus />}>
                   Add tests
                 </SectionButton>
               )}
@@ -209,19 +209,19 @@ const ExplorerDndContext: FC = ({ children }) => {
 };
 
 interface SectionButtonProps extends ButtonProps {
-  Icon: ReactNode;
+  icon: ReactNode;
   addTextMargin?: boolean;
 }
 
 const SectionButton: FC<SectionButtonProps> = ({
   onClick,
-  Icon,
+  icon,
   addTextMargin,
   children,
   ...props
 }) => (
   <Button onClick={onClick} kind="icon" {...props}>
-    {Icon}
+    {icon}
     <SectionButtonText addTextMargin={addTextMargin}>
       {children}
     </SectionButtonText>

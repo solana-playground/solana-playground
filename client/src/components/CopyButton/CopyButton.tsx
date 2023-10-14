@@ -14,7 +14,13 @@ const CopyButton: FC<CopyButtonProps> = ({ copyText }) => {
   const [copied, setCopied] = useCopy(copyText);
 
   return (
-    <Tooltip text={copied ? "Copied" : "Copy"}>
+    <Tooltip
+      element={
+        <TooltipElement copied={copied}>
+          {copied ? "Copied" : "Copy"}
+        </TooltipElement>
+      }
+    >
       <StyledButton onClick={setCopied} kind="icon" copied={copied}>
         <Copy />
       </StyledButton>
@@ -32,6 +38,12 @@ const StyledButton = styled(Button)<{ copied: boolean }>`
       ${copied && `& svg { color: ${theme.colors.state.success.color}; }`}
     }
   `};
+`;
+
+const TooltipElement = styled.span<{ copied: boolean }>`
+  ${({ copied, theme }) => css`
+    ${copied && `color: ${theme.colors.state.success.color}`};
+  `}
 `;
 
 export default CopyButton;

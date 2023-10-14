@@ -1,18 +1,14 @@
-import { PgCommon, RequiredKey } from "../utils/pg";
+import { CallableJSX, PgCommon, RequiredKey } from "../utils/pg";
+import type { TooltipProps } from "../components/Tooltip";
 
 /** UI setting parameter */
 interface SettingParam {
   /** Name of the setting */
   name: string;
   /** Setting component, default to `./setting-name/Component` */
-  Component?: () => JSX.Element;
+  Component?: CallableJSX;
   /** Help tooltip */
-  tooltip?: {
-    /** Tooltip text */
-    text: string;
-    /** Max allowed with for the tooltip text */
-    maxWidth: string;
-  };
+  tooltip?: TooltipProps;
   /** Whether the `Element` is a `Checkbox` */
   isCheckBox?: boolean;
 }

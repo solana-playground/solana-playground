@@ -25,7 +25,7 @@ const FetchableAccount: FC<FetchableAccountProps> = ({
   index,
 }) => (
   <FetchableAccountWrapper index={index}>
-    <Foldable ClickEl={<AccountName>{accountName}</AccountName>}>
+    <Foldable element={<AccountName>{accountName}</AccountName>}>
       <FetchableAccountInside
         idl={idl}
         accountName={accountName}
@@ -137,7 +137,7 @@ const FetchableAccountInside: FC<FetchableAccountProps> = ({
       {(fetchedData || fetchError) && (
         <ResultWrapper>
           <Foldable
-            ClickEl={<span>Result</span>}
+            element={<span>Result</span>}
             open={resultOpen}
             setOpen={setResultOpen}
           >

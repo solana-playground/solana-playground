@@ -36,7 +36,7 @@ const Event: FC<EventProps> = ({ index, eventName, idl }) => {
   return (
     <EventWrapper index={index}>
       <Foldable
-        ClickEl={
+        element={
           <EventName>{`${eventName} (${receivedEvents.length})`}</EventName>
         }
       >

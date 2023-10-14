@@ -91,7 +91,7 @@ const Modal: FC<ModalProps> = ({
       <ScrollableWrapper>
         <ContentWrapper>
           {error && (
-            <ErrorText kind="error" IconEl={<Sad />}>
+            <ErrorText kind="error" icon={<Sad />}>
               {error}
             </ErrorText>
           )}

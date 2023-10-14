@@ -35,7 +35,7 @@ export const ExportWorkspace = () => {
           before exporting.
         </Description>
 
-        <InfoText IconEl={<Info color="info" />}>
+        <InfoText icon={<Info color="info" />}>
           Conversion may involve modifying JS/TS code to make the code work in
           local Node environment.
         </InfoText>

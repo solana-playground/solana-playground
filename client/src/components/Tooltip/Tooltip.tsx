@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   MouseEvent as ReactMouseEvent,
+  ReactNode,
 } from "react";
 import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
@@ -14,9 +15,12 @@ import { QuestionMarkOutlined } from "../Icons";
 import { Id } from "../../constants";
 import { PgCommon, PgTheme, ValueOf } from "../../utils/pg";
 
-interface TooltipProps {
-  text: string;
+export interface TooltipProps {
+  /** Tooltip element to show on hover */
+  element: ReactNode;
+  /** Max allowed with for the tooltip text */
   maxWidth?: number | string;
+  /** Whether to use secondary background color for the tooltip */
   bgSecondary?: boolean;
 }
 
@@ -24,9 +28,6 @@ interface Position {
   x: number;
   y: number;
 }
-
-/** Tooltip radius in px */
-const ARROW_RADIUS = 8;
 
 const Tooltip: FC<TooltipProps> = ({ children, ...props }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -178,13 +179,16 @@ const Tooltip: FC<TooltipProps> = ({ children, ...props }) => {
           {...position}
           {...props}
         >
-          {props.text}
+          {props.element}
         </StyledTooltip>,
         document.getElementById(Id.PORTAL)!
       )}
     </Wrapper>
   );
 };
+
+/** Tooltip radius in px */
+const ARROW_RADIUS = 8;
 
 const Wrapper = styled.div``;
 

@@ -74,7 +74,7 @@ export const ImportGithub = () => {
           </ExamplesWrapper>
         </ExamplesSectionWrapper>
 
-        <Text IconEl={<Info color="info" />}>
+        <Text icon={<Info color="info" />}>
           <p>
             Program repositories can be viewed in playground by combining the
             playground URL with their GitHub URL. For example, from{" "}

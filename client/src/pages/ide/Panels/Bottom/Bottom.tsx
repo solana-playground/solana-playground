@@ -27,7 +27,7 @@ const Bottom = () => {
 
   return (
     <Wrapper id={Id.BOTTOM}>
-      <Tooltip text="Toggle Playground Wallet">
+      <Tooltip element="Toggle Playground Wallet">
         <ConnectButton
           onClick={connect}
           kind="transparent"
@@ -44,13 +44,13 @@ const Bottom = () => {
       {walletPkStr && (
         <>
           <Dash>-</Dash>
-          <Tooltip text={`RPC endpoint (${connection.rpcEndpoint})`}>
+          <Tooltip element={`RPC endpoint (${connection.rpcEndpoint})`}>
             <RpcEndpoint>{networkName}</RpcEndpoint>
           </Tooltip>
 
           <Seperator>|</Seperator>
 
-          <Tooltip text="Your address">
+          <Tooltip element="Your address">
             <Address href={`${EXPLORER_URL}/address/${walletPkStr}${cluster}`}>
               {walletPkStr}
             </Address>
@@ -59,7 +59,7 @@ const Bottom = () => {
           {balance !== undefined && balance !== null && (
             <>
               <Seperator>|</Seperator>
-              <Tooltip text="Current balance">
+              <Tooltip element="Current balance">
                 <Balance>{`${balance} SOL`}</Balance>
               </Tooltip>
             </>
@@ -72,14 +72,14 @@ const Bottom = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    & svg {
-      color: inherit;
-    }
-
     & > div {
       height: 100%;
       display: flex;
       align-items: center;
+    }
+
+    & svg {
+      color: inherit;
     }
 
     ${PgTheme.convertToCSS(theme.components.bottom.default)};

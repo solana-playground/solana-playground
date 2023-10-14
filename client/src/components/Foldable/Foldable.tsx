@@ -14,13 +14,13 @@ import { ClassName } from "../../constants";
 import { Arrow } from "../Icons";
 
 interface FoldableProps {
-  ClickEl: ReactNode;
+  element: ReactNode;
   open?: boolean;
   setOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 const Foldable: FC<FoldableProps> = ({
-  ClickEl,
+  element,
   open = false,
   setOpen,
   children,
@@ -50,7 +50,7 @@ const Foldable: FC<FoldableProps> = ({
     <>
       <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
         <Arrow />
-        {ClickEl}
+        {element}
       </ClickElWrapper>
 
       {show && <InsideWrapper>{children}</InsideWrapper>}

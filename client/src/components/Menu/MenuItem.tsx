@@ -9,7 +9,7 @@ export interface MenuItemProps {
   keybind?: string;
   color?: ThemeColor;
   hoverColor?: ThemeColor;
-  Icon?: ReactNode;
+  icon?: ReactNode;
   showCondition?: boolean;
   className?: string;
 }
@@ -28,7 +28,7 @@ const MenuItem: FC<MenuItemPropsWithHide> = ({
   onClick,
   hide,
   keybind,
-  Icon,
+  icon,
   showCondition = true,
   className,
 }) => {
@@ -50,7 +50,7 @@ const MenuItem: FC<MenuItemPropsWithHide> = ({
       }}
     >
       <div>
-        {Icon && Icon}
+        {icon && icon}
         <span className={ItemClassName.NAME}>{name}</span>
       </div>
       {keybind && <span className={ItemClassName.KEYBIND}>{keybind}</span>}

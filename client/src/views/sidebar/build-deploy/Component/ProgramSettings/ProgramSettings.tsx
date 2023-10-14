@@ -12,18 +12,18 @@ const PROGRAM_SETTINGS: ProgramSettingProps[] = [
     title: "Program ID",
     description:
       "Import/export program keypair or input a public key for the program.",
-    Component: <ProgramID />,
+    element: <ProgramID />,
     open: true,
   },
   {
     title: "Program binary",
     description: "Import your program and deploy without failure.",
-    Component: <ProgramBinary />,
+    element: <ProgramBinary />,
   },
   {
     title: "IDL",
     description: "Anchor IDL interactions.",
-    Component: <IDL />,
+    element: <IDL />,
   },
 ];
 
@@ -49,7 +49,7 @@ interface ProgramSettingProps {
   /** Description of the setting that will be shown after unfolding */
   description: string;
   /** Component that will be shown inside the foldable and under the description */
-  Component: ReactNode;
+  element: ReactNode;
   /** Whether the foldable is open by default */
   open?: boolean;
 }
@@ -57,16 +57,16 @@ interface ProgramSettingProps {
 const ProgramSetting: FC<ProgramSettingProps> = ({
   title,
   description,
-  Component,
+  element,
   open,
 }) => (
   <ProgramSettingWrapper>
     <Foldable
       open={open}
-      ClickEl={<ProgramSettingTitle>{title}</ProgramSettingTitle>}
+      element={<ProgramSettingTitle>{title}</ProgramSettingTitle>}
     >
       <ProgramSettingDescription>{description}</ProgramSettingDescription>
-      <ProgramSettingContent>{Component}</ProgramSettingContent>
+      <ProgramSettingContent>{element}</ProgramSettingContent>
     </Foldable>
   </ProgramSettingWrapper>
 );

@@ -153,7 +153,7 @@ const WalletName = () => {
       onClick: () => {
         PgWallet.update({ state: "sol", standardName: wallet.name });
       },
-      Icon: <Img src={wallet.icon} alt={wallet.name} />,
+      icon: <Img src={wallet.icon} alt={wallet.name} />,
       hoverColor: "secondary",
     }));
 
@@ -166,7 +166,7 @@ const WalletName = () => {
       onShow={darken}
       onHide={lighten}
     >
-      <Tooltip text="Accounts">
+      <Tooltip element="Accounts">
         <WalletTitleWrapper>
           {!wallet.isPg && (
             <WalletTitleIcon src={wallet.icon} alt={wallet.name} />

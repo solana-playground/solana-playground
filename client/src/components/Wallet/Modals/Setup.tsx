@@ -54,7 +54,7 @@ export const Setup = () => {
           use. You can also choose to import an existing wallet.
         </ContentText>
         <WarningTextWrapper>
-          <Text kind="warning" IconEl={<Warning color="warning" />}>
+          <Text kind="warning" icon={<Warning color="warning" />}>
             Wallet information is stored in your browser's local storage. You
             are going to lose the wallet if you clear your browser history
             unless you save the keypair.

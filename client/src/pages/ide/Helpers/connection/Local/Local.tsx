@@ -30,7 +30,7 @@ export const Local = () => {
 
   return (
     <Modal title="Connect to localnet">
-      <Text kind="error" IconEl={<Sad />}>
+      <Text kind="error" icon={<Sad />}>
         Unable to connect to localnet
       </Text>
 
@@ -83,8 +83,8 @@ const Issues = () => {
   if (browser === "Firefox") return null;
 
   return (
-    <Foldable ClickEl={<strong>Having issues?</strong>}>
-      <Text IconEl={<Info color="info" />}>
+    <Foldable element={<strong>Having issues?</strong>}>
+      <Text icon={<Info color="info" />}>
         <p>
           If you have a running test validator, it means your browser is
           blocking localhost access and you'll need to enable it in order to

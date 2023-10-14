@@ -171,7 +171,7 @@ const TemporaryWarning = () => {
 
   return (
     <TemporaryWarningWrapper>
-      <Text IconEl={<Info color="info" />}>
+      <Text icon={<Info color="info" />}>
         This is a temporary project, import it to persist changes.
       </Text>
       <Button onClick={handleImport} leftIcon={<ImportWorkspace />} fullWidth>

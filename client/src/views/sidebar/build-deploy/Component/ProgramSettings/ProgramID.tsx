@@ -62,7 +62,7 @@ const NewKeypairModal = () => {
         </MainText>
         <Desc>This will create a brand new keypair for your program.</Desc>
         <WarningTextWrapper>
-          <Text kind="warning" IconEl={<Warning color="warning" />}>
+          <Text kind="warning" icon={<Warning color="warning" />}>
             The old keypair will be lost if you don't save it.
           </Text>
         </WarningTextWrapper>

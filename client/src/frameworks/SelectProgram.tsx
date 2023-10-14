@@ -22,7 +22,7 @@ export const SelectProgram: FC<SelectProgramProps> = ({ programNames }) => {
       }}
     >
       <Content>
-        <Text IconEl={<Info color="info" />}>
+        <Text icon={<Info color="info" />}>
           Multiple programs have been found but playground currently supports
           one program per project.
         </Text>

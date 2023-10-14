@@ -42,13 +42,13 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
     {
       name: "Copy address",
       onClick: copyAddress,
-      Icon: <Copy />,
+      icon: <Copy />,
     },
     {
       name: "Airdrop",
       onClick: airdrop,
       showCondition: airdropCondition,
-      Icon: <Airdrop />,
+      icon: <Airdrop />,
     },
     {
       name: "Add",
@@ -56,12 +56,12 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
         const { Add } = await import("../Modals/Add");
         await PgView.setModal(Add);
       },
-      Icon: <Plus />,
+      icon: <Plus />,
     },
     {
       name: "Rename",
       onClick: showRename,
-      Icon: <Edit />,
+      icon: <Edit />,
       showCondition: isPg,
     },
     {
@@ -71,18 +71,18 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
         await PgView.setModal(Remove);
       },
       hoverColor: "error",
-      Icon: <Trash />,
+      icon: <Trash />,
       showCondition: isPg,
     },
     {
       name: "Import",
       onClick: PgWallet.import,
-      Icon: <ImportFile />,
+      icon: <ImportFile />,
     },
     {
       name: "Export",
       onClick: PgWallet.export,
-      Icon: <ExportFile />,
+      icon: <ExportFile />,
       showCondition: isPg,
     },
   ];
@@ -96,7 +96,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
         await PgCommand.connect.run(wallet.adapter.name);
       },
       hoverColor: "secondary",
-      Icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
+      icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
     })
   );
 
