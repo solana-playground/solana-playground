@@ -8,11 +8,14 @@ import { PgFramework, PgView } from "../../../../../utils/pg";
 
 export const ExportWorkspace = () => {
   const convertAndExport = async () => {
-    const { readme } = await PgFramework.exportWorkspace({ convert: true });
-    const { ExportWorkspaceInstructions } = await import(
-      "./ExportWorkspaceInstructions"
-    );
-    await PgView.setModal(<ExportWorkspaceInstructions text={readme!} />);
+    try {
+      const { readme } = await PgFramework.exportWorkspace({ convert: true });
+      const { ExportWorkspaceReadme } = await import("./ExportWorkspaceReadme");
+      await PgView.setModal(<ExportWorkspaceReadme text={readme!} />);
+    } catch (e) {
+      console.error("Convert and export error:", e);
+      await exportWithoutChanges();
+    }
   };
 
   const exportWithoutChanges = async () => {

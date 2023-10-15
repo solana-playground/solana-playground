@@ -64,14 +64,15 @@ export class PgFramework {
     };
     await recursivelyGetItems(PgExplorer.currentWorkspacePath);
 
-    // Convert to framework layout
+    // Convert from playground layout to framework layout
     let readme: string | undefined;
     if (opts?.convert) {
       const framework = await this.get(files);
-      const { convertFromPlayground, readme: _readme } =
-        await framework!.importFromPlayground();
-      readme = _readme;
-      files = await convertFromPlayground(files);
+      if (!framework) throw new Error("Could not identify framework");
+
+      const frameworkFrom = await framework.importFromPlayground();
+      readme = frameworkFrom.readme;
+      files = await frameworkFrom.convertFromPlayground(files);
     }
 
     // Compress Zip

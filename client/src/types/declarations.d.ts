@@ -42,7 +42,10 @@ global {
 // Framework
 global {
   export { Framework } from "../frameworks/create";
+}
 
+// Framework name
+global {
   /** Framework names */
   type FrameworkName = typeof FRAMEWORKS[number]["name"];
 }

@@ -4,14 +4,14 @@ import { FC } from "react";
 import Markdown from "../../../../../components/Markdown";
 import Modal from "../../../../../components/Modal";
 
-interface ExportWorkspaceInstructionsProps {
+interface ExportWorkspaceReadmeProps {
   /** Markdown text */
   text: string;
 }
 
-export const ExportWorkspaceInstructions: FC<
-  ExportWorkspaceInstructionsProps
-> = ({ text }) => (
+export const ExportWorkspaceReadme: FC<ExportWorkspaceReadmeProps> = ({
+  text,
+}) => (
   <Modal title buttonProps={{ text: "Continue" }}>
     <Markdown>{text}</Markdown>
   </Modal>
