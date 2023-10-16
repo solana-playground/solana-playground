@@ -17,8 +17,8 @@ import Dnd, { DragStartEvent, DragEndEvent } from "../../../../components/Dnd";
 import LangIcon from "../../../../components/LangIcon";
 import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import {
-  Arrow,
   Plus,
+  ShortArrow,
   TestTube,
   Triangle,
   Wrench,
@@ -363,7 +363,7 @@ const Folder = forwardRef<HTMLDivElement, FolderProps>(
   ({ path, name, depth, ...props }, ref) => (
     <div ref={ref} data-path={path} {...props}>
       <PaddingLeft depth={depth} />
-      <Arrow />
+      <ShortArrow />
       <span>{name}</span>
     </div>
   )

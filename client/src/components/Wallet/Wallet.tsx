@@ -11,7 +11,7 @@ import Img from "../Img";
 import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
-import { Arrow, Close } from "../Icons";
+import { Close, ShortArrow } from "../Icons";
 import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
@@ -174,7 +174,7 @@ const WalletName = () => {
           <WalletTitleText>
             {getAccountDisplayName(wallet.name, walletPkStr!)}
           </WalletTitleText>
-          <Arrow rotate="90deg" />
+          <ShortArrow rotate="90deg" />
         </WalletTitleWrapper>
       </Tooltip>
     </Menu>

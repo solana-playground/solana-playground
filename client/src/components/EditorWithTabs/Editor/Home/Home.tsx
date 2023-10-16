@@ -6,9 +6,9 @@ import Img from "../../../Img";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { DefaultLink } from "../../../Link";
-import { External } from "../../../Icons";
+import { External, ShortArrow } from "../../../Icons";
 import { Id, PROJECT_NAME } from "../../../../constants";
-import { PgTheme } from "../../../../utils/pg";
+import { PgRouter, PgTheme } from "../../../../utils/pg";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the
@@ -24,6 +24,7 @@ const Home = () => {
   return (
     <Wrapper id={Id.HOME}>
       <ProjectTitle>{PROJECT_NAME}</ProjectTitle>
+
       <ContentWrapper>
         <ResourcesWrapper>
           <ResourcesTitle>Resources</ResourcesTitle>
@@ -33,6 +34,7 @@ const Home = () => {
             ))}
           </ResourceCardsWrapper>
         </ResourcesWrapper>
+
         <TutorialsWrapper>
           <TutorialsTitle>Tutorials</TutorialsTitle>
           <TutorialCardsWrapper>
@@ -40,6 +42,14 @@ const Home = () => {
               <Tutorial key={i} {...t} />
             ))}
           </TutorialCardsWrapper>
+
+          <PlaygroundTutorialsButton
+            onClick={() => PgRouter.navigate("/tutorials")}
+            kind="icon"
+          >
+            Playground tutorials
+            <ShortArrow />
+          </PlaygroundTutorialsButton>
         </TutorialsWrapper>
       </ContentWrapper>
     </Wrapper>
@@ -176,6 +186,15 @@ const Tutorial: FC<TutorialProps> = ({ title, url }) => {
   );
 };
 
+const getSrc = (url: string) => {
+  let src = "";
+
+  if (url.includes("youtube.com")) src = "youtube.png";
+  else if (url.includes("dev.to")) src = "devto.png";
+
+  if (src) return "/icons/platforms/" + src;
+};
+
 const TutorialWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.main.views.home.tutorials.card)};
@@ -189,13 +208,20 @@ const TutorialIcon = styled(Img)`
 
 const TutorialTitle = styled.span``;
 
-const getSrc = (url: string) => {
-  let src = "";
+const PlaygroundTutorialsButton = styled(Button)`
+  ${({ theme }) => css`
+    color: ${theme.colors.default.primary};
+    padding: 0.25rem 0.5rem;
 
-  if (url.includes("youtube.com")) src = "youtube.png";
-  else if (url.includes("dev.to")) src = "devto.png";
+    svg {
+      margin-left: 0.25rem;
+      color: ${theme.colors.default.primary};
+    }
 
-  if (src) return "/icons/platforms/" + src;
-};
+    &::hover {
+      text-decoration: underline;
+    }
+  `}
+`;
 
 export default Home;

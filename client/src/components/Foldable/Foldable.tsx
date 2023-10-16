@@ -11,7 +11,7 @@ import {
 import styled from "styled-components";
 
 import { ClassName } from "../../constants";
-import { Arrow } from "../Icons";
+import { ShortArrow } from "../Icons";
 
 interface FoldableProps {
   element: ReactNode;
@@ -49,7 +49,7 @@ const Foldable: FC<FoldableProps> = ({
   return (
     <>
       <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
-        <Arrow />
+        <ShortArrow />
         {element}
       </ClickElWrapper>
 
