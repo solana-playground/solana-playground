@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error, sync::Arc, time::Duration};
+use std::{collections::HashMap, error, rc::Rc, time::Duration};
 
 use clap::ArgMatches;
 use num_traits::FromPrimitive;
@@ -520,7 +520,7 @@ impl CliConfig<'_> {
 pub fn parse_command(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, Box<dyn error::Error>> {
     let response = match matches.subcommand() {
         // // Autocompletion Command

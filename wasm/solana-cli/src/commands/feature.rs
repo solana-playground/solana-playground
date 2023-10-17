@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::HashMap, fmt, str::FromStr, sync::Arc};
+use std::{cmp::Ordering, collections::HashMap, fmt, rc::Rc, str::FromStr};
 
 use clap::{Arg, ArgMatches, Command};
 use console::style;
@@ -464,7 +464,7 @@ fn known_feature(feature: &Pubkey) -> Result<(), CliError> {
 pub fn parse_feature_subcommand(
     matches: &ArgMatches,
     _default_signer: Box<dyn Signer>,
-    _wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    _wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let response = match matches.subcommand() {
         // Some(("activate",matches)) => {

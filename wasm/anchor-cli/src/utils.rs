@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use anchor_lang::prelude::Pubkey;
-use anchor_syn::idl::Idl;
+use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
 use solana_client_wasm::WasmClient;
 use solana_playground_utils_wasm::js::{PgProgramInfo, PgSettings, PgWallet};
