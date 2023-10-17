@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{rc::Rc, sync::Arc};
 
 use clap::ArgMatches;
 use solana_clap_v3_utils_wasm::{
@@ -39,7 +39,7 @@ impl<'a> Config<'a> {
         &self,
         arg_matches: &ArgMatches,
         override_name: &str,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     ) -> Pubkey {
         let token = pubkey_of_signer(arg_matches, "token", wallet_manager).unwrap();
         self.associated_token_address_for_token_or_override(
@@ -56,7 +56,7 @@ impl<'a> Config<'a> {
         &self,
         arg_matches: &ArgMatches,
         override_name: &str,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
         token: Option<Pubkey>,
     ) -> Pubkey {
         if let Some(address) = pubkey_of_signer(arg_matches, override_name, wallet_manager).unwrap()
@@ -79,7 +79,7 @@ impl<'a> Config<'a> {
         &self,
         arg_matches: &ArgMatches,
         address_name: &str,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     ) -> Pubkey {
         if address_name != "owner" {
             if let Some(address) =
@@ -103,7 +103,7 @@ impl<'a> Config<'a> {
         &self,
         _arg_matches: &ArgMatches,
         _authority_name: &str,
-        _wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        _wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     ) -> (Box<dyn Signer>, Pubkey) {
         // If there are `--multisig-signers` on the command line, allow `NullSigner`s to
         // be returned for multisig account addresses
@@ -136,7 +136,7 @@ impl<'a> Config<'a> {
     fn default_address(
         &self,
         matches: &ArgMatches,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     ) -> Result<Pubkey, Box<dyn std::error::Error>> {
         // for backwards compatibility, check owner before cli config default
         if let Some(address) = pubkey_of_signer(matches, "owner", wallet_manager).unwrap() {
@@ -190,7 +190,7 @@ impl<'a> Config<'a> {
 pub fn get_signer(
     matches: &ArgMatches,
     keypair_name: &str,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Option<(Box<dyn Signer>, Pubkey)> {
     matches.value_of(keypair_name).map(|path| {
         let signer =

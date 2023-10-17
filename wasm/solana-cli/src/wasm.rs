@@ -1,4 +1,4 @@
-use std::{collections::HashMap, panic, sync::Arc, time::Duration};
+use std::{collections::HashMap, panic, rc::Rc, time::Duration};
 
 use clap::ArgMatches;
 use solana_clap_v3_utils_wasm::{
@@ -222,7 +222,7 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
 
 fn parse_args<'a>(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     endpoint: &str,
     commitment: &str,
     keypair_bytes: &[u8],

@@ -1,4 +1,4 @@
-use std::{mem::size_of, str::FromStr, sync::Arc};
+use std::{mem::size_of, rc::Rc, str::FromStr};
 
 use clap::{Arg, ArgMatches, Command};
 use solana_clap_v3_utils_wasm::{
@@ -407,7 +407,7 @@ impl ProgramSubCommands for Command<'_> {
 pub fn parse_program_subcommand(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let (subcommand, sub_matches) = matches.subcommand().unwrap();
     let matches_skip_fee_check = matches.is_present("skip_fee_check");

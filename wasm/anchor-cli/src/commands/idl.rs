@@ -5,7 +5,7 @@ use anchor_lang::{
     prelude::AccountMeta,
     AccountDeserialize, AnchorDeserialize, AnchorSerialize,
 };
-use anchor_syn::idl::Idl;
+use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
 use clap::Parser;
 use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};

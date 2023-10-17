@@ -1,8 +1,8 @@
 use std::{
     collections::{BTreeMap, HashMap},
     fmt,
+    rc::Rc,
     str::FromStr,
-    sync::Arc,
     time::Duration,
 };
 
@@ -54,7 +54,7 @@ use solana_sdk::{
     rent::Rent,
     signature::Signature,
     slot_history,
-    stake::{self, state::StakeState},
+    stake::{self, state::StakeStateV2},
     sysvar::{
         self,
         slot_history::SlotHistory,
@@ -604,7 +604,7 @@ pub fn parse_get_transaction_count(_matches: &ArgMatches) -> Result<CliCommandIn
 
 pub fn parse_show_stakes(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let use_lamports_unit = matches.is_present("lamports");
     let vote_account_pubkeys =
@@ -655,7 +655,7 @@ pub fn parse_show_validators(matches: &ArgMatches) -> Result<CliCommandInfo, Cli
 
 pub fn parse_transaction_history(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let address = pubkey_of_signer(matches, "address", wallet_manager)?.unwrap();
 
@@ -1818,7 +1818,7 @@ pub async fn process_show_stakes(
     for (stake_pubkey, stake_account) in all_stake_accounts {
         if let Ok(stake_state) = stake_account.state() {
             match stake_state {
-                StakeState::Initialized(_) => {
+                StakeStateV2::Initialized(_) => {
                     if vote_account_pubkeys.is_none() {
                         stake_accounts.push(CliKeyedStakeState {
                             stake_pubkey: stake_pubkey.to_string(),
@@ -1832,7 +1832,7 @@ pub async fn process_show_stakes(
                         });
                     }
                 }
-                StakeState::Stake(_, stake) => {
+                StakeStateV2::Stake(_, stake, _) => {
                     if vote_account_pubkeys.is_none()
                         || vote_account_pubkeys
                             .unwrap()
@@ -2161,7 +2161,7 @@ impl RentLengthValue {
     pub fn length(&self) -> usize {
         match self {
             Self::Nonce => NonceState::size(),
-            Self::Stake => StakeState::size_of(),
+            Self::Stake => StakeStateV2::size_of(),
             Self::System => 0,
             Self::Vote => VoteState::size_of(),
             Self::Bytes(l) => *l,
