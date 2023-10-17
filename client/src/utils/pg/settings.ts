@@ -14,6 +14,10 @@ interface Settings {
     /** Whether to show transaction details in terminal */
     showTxDetailsInTerminal: boolean;
   };
+  /** Notification settings */
+  notification: {
+    showTx: boolean;
+  };
 }
 
 const defaultState: Settings = {
@@ -24,6 +28,9 @@ const defaultState: Settings = {
   },
   testUi: {
     showTxDetailsInTerminal: false,
+  },
+  notification: {
+    showTx: true,
   },
 };
 
@@ -72,6 +79,7 @@ const migrate = () => {
   if (!needsMigration) return;
 
   const newValue: Settings = {
+    ...defaultState,
     connection: oldConnectionConfig,
     testUi: {
       showTxDetailsInTerminal: oldSettings.showTxDetailsInTerminal,

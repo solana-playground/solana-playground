@@ -102,6 +102,9 @@ export class PgTx {
    * @param txHash transaction signature
    */
   static notify(txHash: string) {
+    // Check setting
+    if (!PgSettings.notification.showTx) return;
+
     // Don't show on playnet
     if (PgPlaynet.isUrlPlaynet()) return;
 
