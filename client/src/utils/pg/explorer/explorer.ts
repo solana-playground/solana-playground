@@ -228,7 +228,7 @@ export class PgExplorer {
   static async renameItem(
     oldPath: string,
     newPath: string,
-    opts?: { skipNameValidation?: boolean }
+    opts?: { skipNameValidation?: boolean; override?: boolean }
   ) {
     oldPath = this.convertToFullPath(oldPath);
     newPath = this.convertToFullPath(newPath);
@@ -252,14 +252,19 @@ export class PgExplorer {
       throw new Error(ItemError.TYPE_MISMATCH);
     }
 
+    if (!opts?.override) {
+      // Check whether `newPath` exists because `fs.rename` doesn't throw when
+      // `newPath` exists
+      const newPathExists = this.getFile(newPath);
+      if (newPathExists) throw new Error(ItemError.ALREADY_EXISTS);
+    }
+
     // Rename in `indexedDB`
     if (!this.isTemporary) await this.fs.rename(oldPath, newPath);
 
     const files = this.files;
     let currentFilePath = this.currentFilePath;
     const rename = (oldPath: string, newPath: string) => {
-      if (files[newPath]) throw new Error(ItemError.ALREADY_EXISTS);
-
       if (oldPath === currentFilePath) currentFilePath = newPath;
 
       // Store the item

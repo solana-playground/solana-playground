@@ -16,6 +16,7 @@ import Button, { ButtonProps } from "../../../../components/Button";
 import Dnd, { DragStartEvent, DragEndEvent } from "../../../../components/Dnd";
 import LangIcon from "../../../../components/LangIcon";
 import { ExplorerContextMenu } from "./ExplorerContextMenu";
+import { ReplaceItem } from "./Modals";
 import {
   Plus,
   ShortArrow,
@@ -23,8 +24,8 @@ import {
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { ClassName, Id } from "../../../../constants";
-import { PgCommon, PgExplorer } from "../../../../utils/pg";
+import { ClassName, Id, ItemError } from "../../../../constants";
+import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";
 import { useNewItem } from "./useNewItem";
@@ -182,9 +183,17 @@ const ExplorerDndContext: FC = ({ children }) => {
     );
     if (PgCommon.isPathsEqual(fromPath, newPath)) return;
 
-    await PgExplorer.renameItem(fromPath, newPath, {
-      skipNameValidation: true,
-    });
+    try {
+      await PgExplorer.renameItem(fromPath, newPath, {
+        skipNameValidation: true,
+      });
+    } catch (e: any) {
+      if (e.message === ItemError.ALREADY_EXISTS) {
+        await PgView.setModal(
+          <ReplaceItem fromPath={fromPath} toPath={newPath} />
+        );
+      }
+    }
   }, []);
 
   const Item = activeItemProps
