@@ -255,13 +255,20 @@ export class PgExplorer {
     if (!opts?.override) {
       // Check whether `newPath` exists because `fs.rename` doesn't throw when
       // `newPath` exists
-      const newPathExists = this.getFile(newPath);
+      let newPathExists: boolean;
+      if (itemType.file) {
+        newPathExists = !this.getFile(newPath);
+      } else {
+        const { files, folders } = this.getFolderContent(newPath);
+        newPathExists = files.length > 0 || folders.length > 0;
+      }
       if (newPathExists) throw new Error(ItemError.ALREADY_EXISTS);
     }
 
     // Rename in `indexedDB`
     if (!this.isTemporary) await this.fs.rename(oldPath, newPath);
 
+    // Rename in state
     const files = this.files;
     let currentFilePath = this.currentFilePath;
     const rename = (oldPath: string, newPath: string) => {
@@ -308,10 +315,11 @@ export class PgExplorer {
       }
     }
 
+    // Set tabs to close the duplicate paths
+    if (opts?.override) this.setTabs(this.tabs);
+
     // Keep the same current file after rename
-    if (currentFilePath) {
-      PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
-    }
+    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
     PgExplorerEvent.dispatchOnDidRenameItem(oldPath);
 
     await this.saveMeta();
@@ -747,13 +755,13 @@ export class PgExplorer {
   }
 
   /**
-   * Set the tab paths.
+   * Set the tab paths without duplication.
    *
    * @param tabs tab paths to set
    */
-  static setTabs(tabs: string[]) {
+  static setTabs(tabs: readonly string[]) {
     const currentPath = this.currentFilePath;
-    this._explorer.tabs = tabs;
+    this._explorer.tabs = [...new Set(tabs)];
     if (currentPath) {
       this._explorer.currentIndex = this.tabs.indexOf(currentPath);
     }
