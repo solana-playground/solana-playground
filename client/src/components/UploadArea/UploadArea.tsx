@@ -108,7 +108,6 @@ const ImportResultText = styled.div<{
 
     & > svg {
       margin-right: 0.5rem;
-      color: inherit;
     }
 
     ${PgTheme.convertToCSS(theme.components.uploadArea.text.default)}

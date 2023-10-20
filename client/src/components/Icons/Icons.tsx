@@ -7,7 +7,6 @@ import { PgTheme, ThemeColor } from "../../utils/pg";
 interface IconProps {
   color?: ThemeColor;
   rotate?: "90deg" | "180deg" | "270deg";
-  className?: string;
 }
 
 interface IconPropsInternal extends SvgProperties {
@@ -34,9 +33,9 @@ const Svg: FC<IconPropsInternal> = ({ children, ...props }) => {
 };
 
 const StyledSvg = styled.svg<IconProps>`
-  ${(props) => css`
-    color: ${PgTheme.getColor(props.color)};
-    rotate: ${props.rotate};
+  ${({ color, rotate }) => css`
+    ${color && `color: ${PgTheme.getColor(color)}`};
+    ${rotate && `rotate: ${rotate}`};
   `}
 `;
 

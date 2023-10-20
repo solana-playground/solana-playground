@@ -78,10 +78,6 @@ const Wrapper = styled.div`
       align-items: center;
     }
 
-    & svg {
-      color: inherit;
-    }
-
     ${PgTheme.convertToCSS(theme.components.bottom.default)};
   `}
 `;

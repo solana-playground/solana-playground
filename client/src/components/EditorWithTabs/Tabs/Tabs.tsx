@@ -39,6 +39,8 @@ export const Tabs = () => {
     []
   );
 
+  if (!explorer.tabs.length) return null;
+
   return (
     <Wrapper id={Id.TABS}>
       <TabsWrapper>

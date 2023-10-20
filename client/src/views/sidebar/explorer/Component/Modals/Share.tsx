@@ -20,7 +20,7 @@ export const Share = () => {
   const [disabled, setDisabled] = useState(!filePaths.length);
 
   // Sync disabled state
-  useEffect(() => setDisabled(!filePaths.length), [filePaths]);
+  useEffect(() => setDisabled(!filePaths.length), [filePaths.length]);
 
   const share = async () => {
     try {
@@ -109,9 +109,4 @@ const SuccessLinkWrapper = styled.div`
   justify-content: flex-start;
   margin-top: 0.75rem;
   margin-left: 0.25rem;
-
-  & a,
-  & svg {
-    color: ${({ theme }) => theme.colors.state.info.color};
-  }
 `;

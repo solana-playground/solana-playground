@@ -372,7 +372,7 @@ const Folder = forwardRef<HTMLDivElement, FolderProps>(
   ({ path, name, depth, ...props }, ref) => (
     <div ref={ref} data-path={path} {...props}>
       <PaddingLeft depth={depth} />
-      <ShortArrow />
+      <ShortArrow color="textSecondary" />
       <span>{name}</span>
     </div>
   )

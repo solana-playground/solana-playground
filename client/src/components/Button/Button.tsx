@@ -365,14 +365,6 @@ const getButtonStyles = ({
     border: 1px solid ${button.borderColor};
     ${PgTheme.convertToCSS(button)};
 
-    & svg {
-      color: ${button.color};
-    }
-
-    &:hover svg {
-      ${button.hover?.color && `color: ${button.hover.color}`};
-    }
-
     &:disabled {
       cursor: not-allowed;
       background: ${theme.colors.state.disabled.bg};
@@ -382,10 +374,6 @@ const getButtonStyles = ({
         cursor: not-allowed;
         background: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
-
-        & svg {
-          color: ${theme.colors.state.disabled.color};
-        }
       }
     }
 

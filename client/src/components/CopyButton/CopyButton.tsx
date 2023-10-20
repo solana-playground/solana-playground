@@ -30,12 +30,12 @@ const CopyButton: FC<CopyButtonProps> = ({ copyText }) => {
 
 const StyledButton = styled(Button)<{ copied: boolean }>`
   ${({ theme, copied }) => css`
-    ${copied && `& svg { color: ${theme.colors.state.success.color}; }`}
+    ${copied && `color: ${theme.colors.state.success.color}`};
 
     &:hover {
       background: transparent;
 
-      ${copied && `& svg { color: ${theme.colors.state.success.color}; }`}
+      ${copied && `color: ${theme.colors.state.success.color}`};
     }
   `};
 `;

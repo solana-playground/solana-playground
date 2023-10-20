@@ -241,7 +241,7 @@ const StyledTooltip = styled.div<
 
 export const HelpTooltip: FC<TooltipProps> = (props) => (
   <Tooltip {...props}>
-    <StyledQuestionMarkOutlined />
+    <StyledQuestionMarkOutlined color="textSecondary" />
   </Tooltip>
 );
 

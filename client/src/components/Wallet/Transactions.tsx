@@ -237,7 +237,6 @@ const Time = styled.div`
   ${({ theme }) => css`
     & > svg {
       margin-left: 0.25rem;
-      color: inherit;
     }
 
     ${PgTheme.convertToCSS(
