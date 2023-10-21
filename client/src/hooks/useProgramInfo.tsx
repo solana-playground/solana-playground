@@ -36,7 +36,6 @@ export const useProgramInfo = () => {
       : false,
     hasProgramKp: !!PgProgramInfo.kp,
     hasUuid: !!PgProgramInfo.uuid,
-    hasProgramPk: !!PgProgramInfo.pk,
     importedProgram: PgProgramInfo.importedProgram,
   };
 };

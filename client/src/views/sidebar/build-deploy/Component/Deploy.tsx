@@ -29,7 +29,6 @@ const Deploy = () => {
     upgradable,
     hasAuthority,
     hasProgramKp,
-    hasProgramPk,
     hasUuid,
     importedProgram,
   } = useProgramInfo();
@@ -154,6 +153,37 @@ const Deploy = () => {
   // First time state
   if (!deployed && !hasProgramKp) return null;
 
+  // Normal deploy
+  if (!wallet)
+    return (
+      <Wrapper>
+        <Text>Deployment can only be done from Playground Wallet.</Text>
+        <ConnectPgWalletButton />
+      </Wrapper>
+    );
+
+  if (!hasUuid)
+    return (
+      <Wrapper>
+        <Text>
+          <div>
+            Build the program first or import a program from
+            <Bold> Program binary</Bold>.
+          </div>
+        </Text>
+      </Wrapper>
+    );
+
+  if (!wallet.isPg)
+    return (
+      <Wrapper>
+        <Text kind="warning">
+          Deployment can only be done from Playground Wallet.
+        </Text>
+        <DisconnectSolWalletButton />
+      </Wrapper>
+    );
+
   if (loading)
     return (
       <Wrapper>
@@ -171,65 +201,25 @@ const Deploy = () => {
       </Wrapper>
     );
 
-  // Normal deploy
-  if (hasProgramPk) {
-    if (!wallet)
-      return (
-        <Wrapper>
-          <Text>Deployment can only be done from Playground Wallet.</Text>
-          <ConnectPgWalletButton />
-        </Wrapper>
-      );
-
-    if (!hasUuid)
-      return (
-        <Wrapper>
-          <Text>
-            <div>
-              Build the program first or import a program from
-              <Bold> Program binary</Bold>.
-            </div>
-          </Text>
-        </Wrapper>
-      );
-
-    if (upgradable === false)
-      return (
-        <Wrapper>
-          <Text kind="warning">The program is not upgradable.</Text>
-        </Wrapper>
-      );
-
-    if (hasAuthority === false)
-      return (
-        <Wrapper>
-          <Text kind="warning">
-            You don't have the authority to upgrade this program.
-          </Text>
-        </Wrapper>
-      );
-
-    if (!wallet.isPg)
-      return (
-        <Wrapper>
-          <Text kind="warning">
-            Deployment can only be done from Playground Wallet.
-          </Text>
-          <DisconnectSolWalletButton />
-        </Wrapper>
-      );
-
+  if (upgradable === false)
     return (
       <Wrapper>
-        <Button {...deployButtonProps}>{deployButtonText}</Button>
+        <Text kind="warning">The program is not upgradable.</Text>
       </Wrapper>
     );
-  }
 
-  // Shouldn't come here
+  if (hasAuthority === false)
+    return (
+      <Wrapper>
+        <Text kind="warning">
+          You don't have the authority to upgrade this program.
+        </Text>
+      </Wrapper>
+    );
+
   return (
     <Wrapper>
-      <Text kind="error">Something went wrong.</Text>
+      <Button {...deployButtonProps}>{deployButtonText}</Button>
     </Wrapper>
   );
 };

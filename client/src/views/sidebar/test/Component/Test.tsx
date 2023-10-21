@@ -17,8 +17,6 @@ const Test = () => {
   // Used for both accounts and events data
   useBigNumberJson();
 
-  if (loading) return <TestSkeleton />;
-
   if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
     return (
       <InitialWrapper>
@@ -55,6 +53,8 @@ const Test = () => {
       </InitialWrapper>
     );
   }
+
+  if (loading) return <TestSkeleton />;
 
   if (error) {
     return (
