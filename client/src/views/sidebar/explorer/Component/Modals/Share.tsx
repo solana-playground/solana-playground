@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import styled from "styled-components";
 
 import CopyButton from "../../../../../components/CopyButton";
@@ -17,10 +17,6 @@ export const Share = () => {
       (path) => PgExplorer.getItemTypeFromPath(path).file
     )
   );
-  const [disabled, setDisabled] = useState(!filePaths.length);
-
-  // Sync disabled state
-  useEffect(() => setDisabled(!filePaths.length), [filePaths.length]);
 
   const share = async () => {
     try {
@@ -38,7 +34,7 @@ export const Share = () => {
       buttonProps={{
         text: "Share",
         onSubmit: share,
-        disabled,
+        disabled: !filePaths.length,
         noCloseOnSubmit: true,
       }}
     >

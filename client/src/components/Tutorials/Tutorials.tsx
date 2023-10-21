@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
-import { StyledDefaultLink } from "../Link";
+import Link from "../Link";
 import { GITHUB_URL } from "../../constants";
 import { PgTheme, PgTutorial } from "../../utils/pg";
 
@@ -19,11 +19,9 @@ export const Tutorials = () => (
       </TutorialsInsideWrapper>
 
       <BottomSection>
-        <StyledDefaultLink
-          href={`${GITHUB_URL}/tree/master/client/src/tutorials`}
-        >
+        <Link href={`${GITHUB_URL}/tree/master/client/src/tutorials`}>
           Contribute
-        </StyledDefaultLink>
+        </Link>
       </BottomSection>
     </TutorialsOuterWrapper>
   </Wrapper>

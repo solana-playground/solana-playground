@@ -59,7 +59,7 @@ const Left: FC<LeftProps> = ({
         </Top>
 
         <Bottom>
-          <Link href={GITHUB_URL} showExternalIcon={false}>
+          <Link href={GITHUB_URL}>
             <IconButton title="GitHub" src="/icons/sidebar/github.png" />
           </Link>
 

@@ -3,12 +3,12 @@ import styled, { css } from "styled-components";
 
 import Button from "../../../Button";
 import Img from "../../../Img";
+import Link from "../../../Link";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
-import { DefaultLink } from "../../../Link";
 import { External, ShortArrow } from "../../../Icons";
 import { Id, PROJECT_NAME } from "../../../../constants";
-import { PgRouter, PgTheme } from "../../../../utils/pg";
+import { PgTheme } from "../../../../utils/pg";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the
@@ -43,13 +43,12 @@ const Home = () => {
             ))}
           </TutorialCardsWrapper>
 
-          <PlaygroundTutorialsButton
-            onClick={() => PgRouter.navigate("/tutorials")}
-            kind="icon"
-          >
-            Playground tutorials
-            <ShortArrow />
-          </PlaygroundTutorialsButton>
+          <Link href="/tutorials">
+            <PlaygroundTutorialsButton kind="icon">
+              Playground tutorials
+              <ShortArrow />
+            </PlaygroundTutorialsButton>
+          </Link>
         </TutorialsWrapper>
       </ContentWrapper>
     </Wrapper>
@@ -105,9 +104,9 @@ const Resource: FC<ResourceProps> = ({
     </ResourceTitle>
     <ResourceDescription>{text}</ResourceDescription>
     <ResourceButtonWrapper>
-      <DefaultLink href={url}>
+      <Link href={url}>
         <ResourceButton rightIcon={<External />}>Learn more</ResourceButton>
-      </DefaultLink>
+      </Link>
     </ResourceButtonWrapper>
   </ResourceWrapper>
 );
@@ -177,12 +176,12 @@ const Tutorial: FC<TutorialProps> = ({ title, url }) => {
   const src = getSrc(url);
 
   return (
-    <DefaultLink href={url}>
+    <Link href={url}>
       <TutorialWrapper>
         {src && <TutorialIcon src={src} />}
         <TutorialTitle>{title}</TutorialTitle>
       </TutorialWrapper>
-    </DefaultLink>
+    </Link>
   );
 };
 
@@ -215,7 +214,6 @@ const PlaygroundTutorialsButton = styled(Button)`
 
     svg {
       margin-left: 0.25rem;
-      color: ${theme.colors.default.primary};
     }
 
     &::hover {

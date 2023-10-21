@@ -2,10 +2,10 @@ import { FC, Fragment } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
+import Link from "../../Link";
 import Markdown from "../../Markdown";
 import { PointedArrow } from "../../Icons";
-import { StyledDefaultLink } from "../../Link";
-import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
+import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialAboutComponentProps } from "../types";
 
 export const About: FC<TutorialAboutComponentProps> = ({
@@ -17,10 +17,6 @@ export const About: FC<TutorialAboutComponentProps> = ({
   const tutorial = PgTutorial.data;
   const isStarted = !!PgTutorial.pageNumber;
   const isFinished = PgTutorial.completed!;
-
-  const goBackToTutorials = () => {
-    PgRouter.navigate("/tutorials");
-  };
 
   const startTutorial = async () => {
     await PgTutorial.start({
@@ -35,13 +31,11 @@ export const About: FC<TutorialAboutComponentProps> = ({
   return (
     <Wrapper>
       <GoBackButtonWrapper>
-        <Button
-          onClick={goBackToTutorials}
-          kind="no-border"
-          leftIcon={<PointedArrow rotate="180deg" />}
-        >
-          Go back to tutorials
-        </Button>
+        <Link href="/tutorials">
+          <Button kind="no-border" leftIcon={<PointedArrow rotate="180deg" />}>
+            Go back to tutorials
+          </Button>
+        </Link>
       </GoBackButtonWrapper>
 
       <TutorialAboutPage>
@@ -132,7 +126,7 @@ const TutorialAuthorsByText = styled.span``;
 
 const TutorialAuthorSeperator = styled.span``;
 
-const TutorialAuthorLink = styled(StyledDefaultLink)``;
+const TutorialAuthorLink = styled(Link)``;
 
 const TutorialWithoutLink = styled.span``;
 

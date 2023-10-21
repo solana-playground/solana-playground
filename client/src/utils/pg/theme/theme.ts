@@ -1228,6 +1228,7 @@ export class PgTheme {
 
     // Address
     bottom.address ??= {};
+    bottom.address.color ??= bottom.default.color;
 
     // Balance
     bottom.balance ??= {};

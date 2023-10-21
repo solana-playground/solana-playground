@@ -4,9 +4,9 @@ import styled, { css } from "styled-components";
 import Button from "../../../../../components/Button";
 import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
+import Link from "../../../../../components/Link";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
-import { DefaultLink, StyledDefaultLink } from "../../../../../components/Link";
 import {
   Eye,
   Github,
@@ -78,14 +78,11 @@ export const ImportGithub = () => {
           <p>
             Program repositories can be viewed in playground by combining the
             playground URL with their GitHub URL. For example, from{" "}
-            <StyledDefaultLink href={GITHUB_PROGRAM_URL}>
-              this repository
-            </StyledDefaultLink>
-            :
+            <Link href={GITHUB_PROGRAM_URL}>this repository</Link>:
           </p>
 
           <p style={{ wordBreak: "break-all" }}>
-            <StyledDefaultLink href={VIEW_URL}>{VIEW_URL}</StyledDefaultLink>
+            <Link href={VIEW_URL}>{VIEW_URL}</Link>
           </p>
         </Text>
       </Wrapper>
@@ -167,9 +164,9 @@ const Example: FC<ExampleProps> = ({ framework }) => (
         Open
       </Button>
 
-      <DefaultLink href={framework.githubExample.url}>
+      <Link href={framework.githubExample.url}>
         <Button rightIcon={<Github />}>Open in GitHub</Button>
-      </DefaultLink>
+      </Link>
     </ExampleButtonsWrapper>
   </ExampleWrapper>
 );
