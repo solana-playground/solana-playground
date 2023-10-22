@@ -740,11 +740,13 @@ export class PgTheme {
     const input = this._getComponent("input");
     const theme = this._themeReady;
 
+    input.width ??= "100%";
+    input.padding ??= "0.25rem 0.5rem";
     input.bg ??= theme.colors.default.bgPrimary;
     input.color ??= theme.colors.default.textPrimary;
-    input.borderColor ??= theme.colors.default.border;
+    input.border ??= `1px solid ${theme.colors.default.border}`;
+    input.borderColor ??= theme.colors.default.border; // Monaco inputs also use this
     input.borderRadius ??= theme.default.borderRadius;
-    input.padding ??= "0.25rem 0.5rem";
     input.boxShadow ??= "none";
     input.fontWeight ??= "normal";
     input.fontSize ??= theme.font.code.size.medium;

@@ -4,6 +4,7 @@ import styled, { css, keyframes } from "styled-components";
 import { SpinnerWithBg } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
 import {
+  CallableJSX,
   NullableJSX,
   PgCommon,
   PgRouter,
@@ -13,7 +14,7 @@ import {
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
-  const [El, setEl] = useState<NullableJSX>(null);
+  const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
   const [loading, setLoading] = useState(true);
 
   const setElWithTransition = useCallback(async (SetEl: SetElementAsync) => {
@@ -29,17 +30,25 @@ const MainView = () => {
         PgRouter.navigate();
       }
     });
-    if (TransitionedEl) setEl(TransitionedEl);
+    if (TransitionedEl) {
+      setEl(
+        typeof TransitionedEl === "function" ? (
+          <TransitionedEl />
+        ) : (
+          TransitionedEl
+        )
+      );
+    }
 
     setLoading(false);
   }, []);
 
-  useGetAndSetStatic(El, setElWithTransition, EventName.VIEW_MAIN_STATIC);
+  useGetAndSetStatic(el, setElWithTransition, EventName.VIEW_MAIN_STATIC);
 
   return (
     <Wrapper>
       <StyledSpinnerWithBg loading={loading} size="2rem">
-        {El}
+        {el}
       </StyledSpinnerWithBg>
     </Wrapper>
   );

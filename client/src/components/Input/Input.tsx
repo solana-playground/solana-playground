@@ -12,7 +12,7 @@ import { PgTheme } from "../../utils/pg";
 
 type InputError = string | boolean | null;
 
-interface InputProps extends ComponentPropsWithoutRef<"input"> {
+export interface InputProps extends ComponentPropsWithoutRef<"input"> {
   error?: InputError;
   setError?: Dispatch<SetStateAction<any>>;
   validator?: (value: string) => boolean | void;
@@ -51,9 +51,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             }
           }
         }}
-      >
-        {props.children}
-      </StyledInput>
+      />
     </>
   )
 );
@@ -67,32 +65,25 @@ const ErrorText = styled.div`
 `;
 
 const StyledInput = styled.input<InputProps>`
-  ${({ theme }) => {
-    const input = theme.components.input;
+  ${({ theme }) => css`
+    &:disabled {
+      background: ${theme.colors.state.disabled.bg};
+      color: ${theme.colors.state.disabled.color};
+      cursor: not-allowed;
+    }
 
-    return css`
-      width: 100%;
-      border: 1px solid ${input.borderColor};
+    &.${ClassName.ERROR} {
+      outline-color: transparent;
+      border-color: ${theme.colors.state.error.color};
+    }
 
-      &:disabled {
-        background: ${theme.colors.state.disabled.bg};
-        color: ${theme.colors.state.disabled.color};
-        cursor: not-allowed;
-      }
+    &.${ClassName.SUCCESS} {
+      outline-color: transparent;
+      border-color: ${theme.colors.state.success.color};
+    }
 
-      &.${ClassName.ERROR} {
-        outline-color: transparent;
-        border-color: ${theme.colors.state.error.color};
-      }
-
-      &.${ClassName.SUCCESS} {
-        outline-color: transparent;
-        border-color: ${theme.colors.state.success.color};
-      }
-
-      ${PgTheme.convertToCSS(input)};
-    `;
-  }}
+    ${PgTheme.convertToCSS(theme.components.input)};
+  `}}
 `;
 
 const defaultInputProps = {
