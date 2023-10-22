@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
 import CodeBlock from "../CodeBlock";
+import Link, { LinkProps } from "../Link";
 import { PgTheme } from "../../utils/pg";
 
 interface MarkdownProps {
@@ -16,6 +17,10 @@ const Markdown = (props: MarkdownProps) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
+      /** Links */
+      a: (props) => <Link {...(props as LinkProps)} />,
+
+      /** Code blocks */
       pre: (props) => {
         const codeProps = (props as any).children[0].props;
         const lang = codeProps.className?.split("-")?.at(1);

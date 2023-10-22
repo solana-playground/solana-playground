@@ -5,7 +5,7 @@ import styled, { css, DefaultTheme } from "styled-components";
 import { External } from "../Icons";
 import type { OrString } from "../../utils/pg";
 
-interface LinkProps extends ComponentPropsWithoutRef<"a"> {
+export interface LinkProps extends ComponentPropsWithoutRef<"a"> {
   href: OrString<RoutePath>;
 }
 
