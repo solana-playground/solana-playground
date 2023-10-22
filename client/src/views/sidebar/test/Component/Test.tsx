@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Event from "./Event";
 import FetchableAccount from "./FetchableAccount";
 import Instruction from "./Instruction";
-import TestSkeleton from "./TestSkeleton";
 import Text from "../../../../components/Text";
 import { PgCommand, PgProgramInfo } from "../../../../utils/pg";
 import { useBigNumberJson } from "./useBigNumberJson";
@@ -12,10 +11,21 @@ import { useProgramInfo, useRenderOnChange } from "../../../../hooks";
 const Test = () => {
   useRenderOnChange(PgCommand.build.onDidRunFinish);
 
-  const { loading, error, deployed } = useProgramInfo();
+  const { error, deployed } = useProgramInfo();
 
   // Used for both accounts and events data
   useBigNumberJson();
+
+  if (error) {
+    return (
+      <InitialWrapper>
+        <Text kind="error">
+          Connection error. Please try changing the RPC endpoint from the
+          settings.
+        </Text>
+      </InitialWrapper>
+    );
+  }
 
   if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
     return (
@@ -49,19 +59,6 @@ const Test = () => {
         <Text kind="error">
           You've imported a corrupted IDL. Please double check you've imported
           an Anchor IDL.
-        </Text>
-      </InitialWrapper>
-    );
-  }
-
-  if (loading) return <TestSkeleton />;
-
-  if (error) {
-    return (
-      <InitialWrapper>
-        <Text kind="error">
-          Connection error. Please try changing the RPC endpoint from the
-          settings.
         </Text>
       </InitialWrapper>
     );

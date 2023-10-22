@@ -3,7 +3,6 @@ import styled from "styled-components";
 
 import Text from "../../../../components/Text";
 import Button, { ButtonProps } from "../../../../components/Button";
-import { Skeleton } from "../../../../components/Loading";
 import { PgCommand, PgGlobal } from "../../../../utils/pg";
 import {
   useProgramInfo,
@@ -23,7 +22,6 @@ const Deploy = () => {
   );
 
   const {
-    loading,
     error,
     deployed,
     upgradable,
@@ -81,54 +79,87 @@ const Deploy = () => {
     [buildLoading, deployState]
   );
 
-  // Custom(uploaded) program deploy
-  if (importedProgram?.buffer.length) {
-    if (!wallet)
-      return (
-        <Wrapper>
-          <Text>Deployment can only be done from Playground Wallet.</Text>
-          <ConnectPgWalletButton />
-        </Wrapper>
-      );
+  const isImportedProgram = !!importedProgram?.buffer.length;
 
-    if (!deployed && !hasProgramKp)
+  // First time state
+  if (!deployed && !hasProgramKp) {
+    if (isImportedProgram)
       return (
         <Wrapper>
           <Text>
             <div>
               Initial deployment needs a keypair. You can import it from
-              <Bold> Program ID</Bold>.
+              <Bold> Program ID</Bold> settings.
             </div>
           </Text>
         </Wrapper>
       );
 
-    if (upgradable === false)
-      return (
-        <Wrapper>
-          <Text kind="warning">The program is not upgradable.</Text>
-        </Wrapper>
-      );
+    return null;
+  }
 
-    if (hasAuthority === false)
-      return (
-        <Wrapper>
-          <Text kind="warning">
-            You don't have the authority to upgrade this program.
-          </Text>
-        </Wrapper>
-      );
+  if (error)
+    return (
+      <Wrapper>
+        <Text kind="error">
+          Connection error. Please try changing the RPC endpoint from the
+          settings.
+        </Text>
+      </Wrapper>
+    );
 
-    if (!wallet.isPg)
-      return (
-        <Wrapper>
-          <Text kind="warning">
-            Deployment can only be done from Playground Wallet.
-          </Text>
-          <DisconnectSolWalletButton />
-        </Wrapper>
-      );
+  if (!wallet)
+    return (
+      <Wrapper>
+        <Text>Deployment can only be done from Playground Wallet.</Text>
+        <Button onClick={() => PgCommand.connect.run()} kind="primary">
+          Connect to Playground Wallet
+        </Button>
+      </Wrapper>
+    );
 
+  if (!wallet.isPg)
+    return (
+      <Wrapper>
+        <Text kind="warning">
+          Deployment can only be done from Playground Wallet.
+        </Text>
+        <Button onClick={() => PgCommand.connect.run()} kind="outline">
+          Disconnect from {wallet.name}
+        </Button>
+      </Wrapper>
+    );
+
+  if (!hasUuid && !isImportedProgram)
+    return (
+      <Wrapper>
+        <Text>
+          <div>
+            Build the program first or import a program from
+            <Bold> Program binary</Bold>.
+          </div>
+        </Text>
+      </Wrapper>
+    );
+
+  if (upgradable === false)
+    return (
+      <Wrapper>
+        <Text kind="warning">The program is not upgradable.</Text>
+      </Wrapper>
+    );
+
+  if (hasAuthority === false)
+    return (
+      <Wrapper>
+        <Text kind="warning">
+          You don't have the authority to upgrade this program.
+        </Text>
+      </Wrapper>
+    );
+
+  // Custom(uploaded) program deploy
+  if (isImportedProgram) {
     const text =
       deployState === "cancelled"
         ? `Cancelling the ${deployed ? "upgrade" : "deployment"} of ${
@@ -150,94 +181,10 @@ const Deploy = () => {
     );
   }
 
-  // First time state
-  if (!deployed && !hasProgramKp) return null;
-
-  // Normal deploy
-  if (!wallet)
-    return (
-      <Wrapper>
-        <Text>Deployment can only be done from Playground Wallet.</Text>
-        <ConnectPgWalletButton />
-      </Wrapper>
-    );
-
-  if (!hasUuid)
-    return (
-      <Wrapper>
-        <Text>
-          <div>
-            Build the program first or import a program from
-            <Bold> Program binary</Bold>.
-          </div>
-        </Text>
-      </Wrapper>
-    );
-
-  if (!wallet.isPg)
-    return (
-      <Wrapper>
-        <Text kind="warning">
-          Deployment can only be done from Playground Wallet.
-        </Text>
-        <DisconnectSolWalletButton />
-      </Wrapper>
-    );
-
-  if (loading)
-    return (
-      <Wrapper>
-        <Skeleton height="2rem" />
-      </Wrapper>
-    );
-
-  if (error)
-    return (
-      <Wrapper>
-        <Text kind="error">
-          Connection error. Please try changing the RPC endpoint from the
-          settings.
-        </Text>
-      </Wrapper>
-    );
-
-  if (upgradable === false)
-    return (
-      <Wrapper>
-        <Text kind="warning">The program is not upgradable.</Text>
-      </Wrapper>
-    );
-
-  if (hasAuthority === false)
-    return (
-      <Wrapper>
-        <Text kind="warning">
-          You don't have the authority to upgrade this program.
-        </Text>
-      </Wrapper>
-    );
-
   return (
     <Wrapper>
       <Button {...deployButtonProps}>{deployButtonText}</Button>
     </Wrapper>
-  );
-};
-
-const ConnectPgWalletButton = () => (
-  <Button onClick={() => PgCommand.connect.run()} kind="primary">
-    Connect to Playground Wallet
-  </Button>
-);
-
-const DisconnectSolWalletButton = () => {
-  const { wallet } = useWallet();
-  if (!wallet || wallet.isPg) return null;
-
-  return (
-    <Button onClick={() => PgCommand.connect.run()} kind="outline">
-      Disconnect from {wallet.name}
-    </Button>
   );
 };
 
