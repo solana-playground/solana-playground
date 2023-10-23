@@ -2,7 +2,7 @@
 
 - Install tools
 
-Instructions on how to install [Seahorse](https://github.com/ameliatastic/seahorse-lang) can be found [here](https://seahorse-lang.org/docs/installation).
+Instructions on how to install [Seahorse](https://www.seahorse.dev) can be found [here](https://www.seahorse.dev/introduction/installation).
 
 - Install dependencies
 

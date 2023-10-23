@@ -1,6 +1,6 @@
 use std::{panic, path::PathBuf, str::FromStr};
 
-use seahorse_lang::core::{compile, Tree};
+use seahorse_dev::core::{compile, Tree};
 use solana_playground_utils_wasm::js::PgTerminal;
 use wasm_bindgen::prelude::*;
 

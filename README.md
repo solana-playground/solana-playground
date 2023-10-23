@@ -20,6 +20,7 @@
 | [num-traits](https://docs.rs/num-traits/0.2.16)                                    | 0.2.16  |
 | [pyth-sdk](https://docs.rs/pyth-sdk/0.8.0)                                         | 0.8.0   |
 | [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.8.0)                           | 0.8.0   |
+| [seahorse-dev](https://docs.rs/seahorse-dev/0.1.1)                                 | 0.1.1   |
 | [solana-program](https://docs.rs/solana-program/1.16.13)                           | 1.16.13 |
 | [spl-account-compression](https://docs.rs/sspl-account-compression/0.2.0)          | 0.2.0   |
 | [spl-associated-token-account](https://docs.rs/spl-associated-token-account/2.1.0) | 2.1.0   |

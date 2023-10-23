@@ -51,7 +51,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
     [
       PgCommon.joinPaths([SEAHORSE_PATH, "prelude.py"]),
       await PgCommon.fetchText(
-        "https://raw.githubusercontent.com/ameliatastic/seahorse-lang/main/data/const/seahorse_prelude.py"
+        "https://raw.githubusercontent.com/solana-developers/seahorse/main/data/const/seahorse_prelude.py"
       ),
     ]
   );
