@@ -247,6 +247,23 @@ export class PgTheme {
   }
 
   /**
+   * Get a different background than the one given based on the current theme.
+   *
+   * @param bg background to compare to
+   * @returns a different background based on the current theme
+   */
+  static getDifferentBackground(bg: string) {
+    const theme = this._themeReady;
+
+    const textBg = theme.components.text.default.bg!;
+    if (!PgCommon.isColorsEqual(bg, textBg)) return textBg;
+
+    const { bgPrimary, bgSecondary } = theme.colors.default;
+    if (PgCommon.isColorsEqual(bg, bgPrimary)) return bgSecondary;
+    return bgPrimary;
+  }
+
+  /**
    * Create CSS for scrollbar.
    *
    * @param opts -
@@ -729,6 +746,7 @@ export class PgTheme {
     text.default.bg ??= theme.colors.default.bgPrimary;
     text.default.padding ??= "1rem";
     text.default.borderRadius ??= theme.default.borderRadius;
+    text.default.fontFamily ??= theme.font.code.family;
     text.default.fontSize ??= theme.font.code.size.small;
     text.default.lineHeight ??= 1.5;
 
@@ -1606,51 +1624,77 @@ export class PgTheme {
 
     // Default
     tutorials.default ??= {};
+    tutorials.default.display ??= "flex";
+    tutorials.default.justifyContent ??= "center";
+    tutorials.default.overflow ??= "auto";
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
 
-    // Card
-    tutorials.card ??= {};
-    // Card default
-    tutorials.card.default ??= {};
-    tutorials.card.default.bg ??= theme.colors.default.bgPrimary;
-    tutorials.card.default.color ??= theme.colors.default.textPrimary;
-    tutorials.card.default.border ??= `1px solid ${
+    // Main
+    tutorials.main ??= {};
+
+    // Main default
+    tutorials.main.default ??= {};
+    tutorials.main.default.display ??= "flex";
+    tutorials.main.default.flexWrap ??= "wrap";
+    tutorials.main.default.gap ??= "2rem";
+    tutorials.main.default.flex ??= "1";
+    tutorials.main.default.margin ??= "2rem 0";
+    tutorials.main.default.padding ??= "2rem";
+    tutorials.main.default.bg ??= this.getDifferentBackground(
+      theme.components.main.views.tutorials.default.bg
+    );
+    tutorials.main.default.border ??= `1px solid ${theme.colors.default.border}`;
+    tutorials.main.default.borderRadius ??= theme.default.borderRadius;
+
+    // Main card
+    tutorials.main.card ??= {};
+    // Main card default
+    tutorials.main.card.default ??= {};
+    tutorials.main.card.default.bg ??= this.getDifferentBackground(
+      theme.components.main.views.tutorials.main.default.bg
+    );
+    tutorials.main.card.default.color ??= theme.colors.default.textPrimary;
+    tutorials.main.card.default.border ??= `1px solid ${
       theme.colors.default.border + theme.default.transparency.medium
     }`;
-    tutorials.card.default.borderRadius ??= theme.default.borderRadius;
-    tutorials.card.default.boxShadow ??= theme.default.boxShadow;
-    tutorials.card.default.transition ??= `all ${theme.default.transition.duration.medium}
+    tutorials.main.card.default.borderRadius ??= theme.default.borderRadius;
+    tutorials.main.card.default.boxShadow ??= theme.default.boxShadow;
+    tutorials.main.card.default.transition ??= `all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type}`;
-    // Card gradient
-    tutorials.card.gradient ??= {};
-    // Card info
-    tutorials.card.info ??= {};
-    // Card info default
-    tutorials.card.info.default ??= {};
-    tutorials.card.info.default.padding ??= " 1rem 0.75rem";
-    // Card info name
-    tutorials.card.info.name ??= {};
-    tutorials.card.info.name.fontWeight ??= "bold";
-    // Card info description
-    tutorials.card.info.description ??= {};
-    tutorials.card.info.description.marginTop ??= "0.5rem";
-    tutorials.card.info.description.color ??=
+    // Main card gradient
+    tutorials.main.card.gradient ??= {};
+    // Main card info
+    tutorials.main.card.info ??= {};
+    // Main card info default
+    tutorials.main.card.info.default ??= {};
+    tutorials.main.card.info.default.padding ??= " 1rem 0.75rem";
+    // Main card info name
+    tutorials.main.card.info.name ??= {};
+    tutorials.main.card.info.name.fontWeight ??= "bold";
+    // Main card info description
+    tutorials.main.card.info.description ??= {};
+    tutorials.main.card.info.description.marginTop ??= "0.5rem";
+    tutorials.main.card.info.description.color ??=
       theme.colors.default.textSecondary;
-    tutorials.card.info.description.display ??= "-webkit-box";
-    tutorials.card.info.description["-webkit-line-clamp"] ??= "2";
-    tutorials.card.info.description["-webkit-box-orient"] ??= "vertical";
-    tutorials.card.info.description.overflow ??= "hidden";
-    // Card info category
-    tutorials.card.info.category ??= {};
-    tutorials.card.info.category.padding ??= "0.5rem 0.75rem";
-    tutorials.card.info.category.bg ??= main.default!.bg;
-    tutorials.card.info.category.color ??= theme.colors.default.textSecondary;
-    tutorials.card.info.category.fontSize ??= theme.font.other.size.small;
-    tutorials.card.info.category.fontWeight ??= "bold";
-    tutorials.card.info.category.borderRadius ??= theme.default.borderRadius;
-    tutorials.card.info.category.boxShadow ??= theme.default.boxShadow;
-    tutorials.card.info.category.width ??= "fit-content";
+    tutorials.main.card.info.description.display ??= "-webkit-box";
+    tutorials.main.card.info.description["-webkit-line-clamp"] ??= "2";
+    tutorials.main.card.info.description["-webkit-box-orient"] ??= "vertical";
+    tutorials.main.card.info.description.overflow ??= "hidden";
+    // Main card info category
+    tutorials.main.card.info.category ??= {};
+    tutorials.main.card.info.category.padding ??= "0.5rem 0.75rem";
+    tutorials.main.card.info.category.bg ??= this.getDifferentBackground(
+      theme.components.main.views.tutorials.main.card.info.default.bg
+    );
+    tutorials.main.card.info.category.color ??=
+      theme.colors.default.textSecondary;
+    tutorials.main.card.info.category.fontSize ??= theme.font.other.size.small;
+    tutorials.main.card.info.category.fontWeight ??= "bold";
+    tutorials.main.card.info.category.borderRadius ??=
+      theme.default.borderRadius;
+    tutorials.main.card.info.category.boxShadow ??= theme.default.boxShadow;
+    tutorials.main.card.info.category.width ??= "fit-content";
 
     return this;
   }

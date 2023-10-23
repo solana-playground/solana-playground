@@ -73,7 +73,7 @@ const GradientWrapper = styled.div`
     }
 
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.card.gradient
+      theme.components.main.views.tutorials.main.card.gradient
     )};
   `}
 `;
@@ -84,7 +84,9 @@ const InsideWrapper = styled.div`
     height: 100%;
     overflow: hidden;
 
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.card.default)};
+    ${PgTheme.convertToCSS(
+      theme.components.main.views.tutorials.main.card.default
+    )};
   `}
 `;
 
@@ -105,7 +107,7 @@ const InfoWrapper = styled.div`
     height: calc(100% - var(--img-height));
 
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.card.info.default
+      theme.components.main.views.tutorials.main.card.info.default
     )};
   `}
 `;
@@ -113,7 +115,7 @@ const InfoWrapper = styled.div`
 const Name = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.card.info.name
+      theme.components.main.views.tutorials.main.card.info.name
     )};
   `}
 `;
@@ -121,7 +123,7 @@ const Name = styled.div`
 const Description = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.card.info.description
+      theme.components.main.views.tutorials.main.card.info.description
     )};
   `}
 `;
@@ -135,7 +137,7 @@ const CategoriesWrapper = styled.div`
 const Category = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.card.info.category
+      theme.components.main.views.tutorials.main.card.info.category
     )};
   `}
 `;

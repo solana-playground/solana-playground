@@ -186,12 +186,14 @@ export interface Theme {
 
         /** Tutorials page component */
         tutorials?: ExtendibleComponent<{
-          /** Tutorial card component */
-          card?: ExtendibleComponent<{
-            /** Wrapper gradient */
-            gradient?: DefaultComponent;
-            /** Wrapper bottom section of the card */
-            info?: ExtendibleComponent<"name" | "description" | "category">;
+          main?: ExtendibleComponent<{
+            /** Tutorial card component */
+            card?: ExtendibleComponent<{
+              /** Wrapper gradient */
+              gradient?: DefaultComponent;
+              /** Wrapper bottom section of the card */
+              info?: ExtendibleComponent<"name" | "description" | "category">;
+            }>;
           }>;
         }>;
       };

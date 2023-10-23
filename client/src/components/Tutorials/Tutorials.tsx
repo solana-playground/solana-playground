@@ -4,6 +4,8 @@ import styled, { css } from "styled-components";
 import TutorialCard from "./TutorialCard";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
+import Text from "../Text";
+import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
 import { PgTheme, PgTutorial } from "../../utils/pg";
 
@@ -23,6 +25,7 @@ export const Tutorials = () => {
         <TopSection>
           <Title>Learn</Title>
           <SearchBar
+            placeholder="Search tutorials"
             value={search}
             onChange={(ev) => {
               const hasNoQuery =
@@ -38,9 +41,11 @@ export const Tutorials = () => {
         </TopSection>
 
         <TutorialsInsideWrapper>
-          {filteredTutorials.map((t) => (
-            <TutorialCard key={t.name} {...t} />
-          ))}
+          {filteredTutorials.length ? (
+            filteredTutorials.map((t) => <TutorialCard key={t.name} {...t} />)
+          ) : (
+            <NoMatch />
+          )}
         </TutorialsInsideWrapper>
 
         <BottomSection>
@@ -55,10 +60,6 @@ export const Tutorials = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
-    justify-content: center;
-    overflow: auto;
-
     ${PgTheme.convertToCSS(theme.components.main.views.tutorials.default)};
   `}
 `;
@@ -80,11 +81,9 @@ const TopSection = styled.div`
 const Title = styled.h1``;
 
 const TutorialsInsideWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  margin: 2rem 0;
-  flex: 1;
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.default)};
+  `}
 `;
 
 const BottomSection = styled.div`
@@ -94,4 +93,24 @@ const BottomSection = styled.div`
   width: 100%;
   min-height: 5rem;
   max-height: 5rem;
+`;
+
+const NoMatch = () => (
+  <NoMatchWrapper>
+    <NoMatchText delay={5} icon={<Sad />}>
+      No match found
+    </NoMatchText>
+  </NoMatchWrapper>
+);
+
+const NoMatchWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const NoMatchText = styled(Text)`
+  width: 21rem;
+  height: 5rem;
 `;

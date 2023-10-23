@@ -119,6 +119,21 @@ const LIGHT: Theme = {
         activeColor: TEXT_PRIMARY,
       },
     },
+    main: {
+      views: {
+        tutorials: {
+          main: {
+            card: {
+              info: {
+                default: {
+                  bg: BG_WHITE,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     sidebar: {
       left: {
         default: {

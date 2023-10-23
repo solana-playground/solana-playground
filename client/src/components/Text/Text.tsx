@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
 import { useDifferentBackground } from "../../hooks";
@@ -6,22 +6,25 @@ import { PgTheme } from "../../utils/pg";
 
 export type TextKind = "default" | "info" | "warning" | "success" | "error";
 
-interface TextProps {
+interface TextProps extends ComponentPropsWithoutRef<"div"> {
   kind?: TextKind;
   icon?: ReactNode;
+  delay?: number;
 }
 
 /** A text component that always have a different background than its parent */
-const Text: FC<TextProps> = ({ icon, children, ...rest }) => {
-  const { ref } = useDifferentBackground();
+const Text = forwardRef<HTMLDivElement, TextProps>(
+  ({ delay, icon, children, ...props }, refProp) => {
+    const { ref } = useDifferentBackground(delay);
 
-  return (
-    <Wrapper ref={ref} icon={icon} {...rest}>
-      {icon && <IconWrapper>{icon}</IconWrapper>}
-      <ContentWrapper>{children}</ContentWrapper>
-    </Wrapper>
-  );
-};
+    return (
+      <Wrapper ref={refProp ?? ref} icon={icon} {...props}>
+        {icon && <IconWrapper>{icon}</IconWrapper>}
+        <ContentWrapper>{children}</ContentWrapper>
+      </Wrapper>
+    );
+  }
+);
 
 const Wrapper = styled.div<TextProps>`
   ${({ kind, icon, theme }) => {

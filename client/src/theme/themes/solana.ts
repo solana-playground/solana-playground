@@ -136,13 +136,6 @@ const SOLANA: Theme = {
             },
           },
         },
-        tutorials: {
-          card: {
-            default: {
-              bg: BG_GRAY,
-            },
-          },
-        },
       },
     },
     menu: {
