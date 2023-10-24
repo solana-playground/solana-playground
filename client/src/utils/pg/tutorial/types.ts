@@ -1,26 +1,12 @@
 import type { ComponentType } from "react";
 
 import type { Nullable, RequiredKey } from "../types";
-
-export enum TutorialLevel {
-  BEGINNER = "Beginner",
-  INTERMEDIATE = "Intermediate",
-  ADVANCED = "Advanced",
-}
-
-export enum TutorialCategory {
-  DEFI = "DeFi",
-  NFT = "NFT",
-  PAYMENT = "Payment",
-  STAKING = "Staking",
-  GAMING = "Gaming",
-  NATIVE = "Native",
-  ANCHOR = "Anchor",
-  SEAHORSE = "Seahorse",
-  JAVASCRIPT = "JS",
-  TYPESCRIPT = "TS",
-  OTHER = "Other",
-}
+import {
+  TUTORIAL_CATEGORIES,
+  TUTORIAL_FRAMEWORKS,
+  TUTORIAL_LANGUAGES,
+  TUTORIAL_LEVELS,
+} from "./filters";
 
 type Author = {
   /** Author's name that will be displayed as one of the creators of the tutorial */
@@ -51,8 +37,12 @@ export interface TutorialDataInit {
   authors: Author[];
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
+  /** Programming languages used in the tutorial */
+  languages: TutorialLanguage[];
+  /** Solana program framework */
+  framework: TutorialFramework;
   /** Category of the tutorial. Can specify up to 3 categories. */
-  categories: TutorialCategory[];
+  categories?: TutorialCategory[];
   /**
    * Tutorial cover image that will be shown in tutorials section.
    *
@@ -76,7 +66,7 @@ export interface TutorialDataInit {
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
   TutorialDataInit,
-  "thumbnail" | "elementImport"
+  "categories" | "thumbnail" | "elementImport"
 >;
 
 export interface TutorialMetadata {
@@ -87,3 +77,8 @@ export interface TutorialMetadata {
   /** Whether the tutorial has been completed */
   completed: boolean;
 }
+
+type TutorialFramework = typeof TUTORIAL_FRAMEWORKS[number];
+type TutorialLanguage = typeof TUTORIAL_LANGUAGES[number];
+type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
+type TutorialLevel = typeof TUTORIAL_LEVELS[number];

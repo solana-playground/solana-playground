@@ -3,6 +3,8 @@ import { PgCommon, TutorialData, TutorialDataInit } from "../utils/pg";
 /** Create tutorials with defaults. */
 export const createTutorials = (...tutorials: TutorialDataInit[]) => {
   return tutorials.map((tutorial) => {
+    if (!tutorial.categories) tutorial.categories = [];
+
     if (!tutorial.thumbnail) {
       const kebabCaseName = PgCommon.toKebabFromTitle(tutorial.name);
       tutorial.thumbnail =

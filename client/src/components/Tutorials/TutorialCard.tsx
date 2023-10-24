@@ -8,6 +8,7 @@ const TutorialCard: FC<TutorialData> = ({
   name,
   description,
   thumbnail,
+  level,
   categories,
 }) => (
   <GradientWrapper onClick={() => PgTutorial.open(name)}>
@@ -15,8 +16,12 @@ const TutorialCard: FC<TutorialData> = ({
       <ImgWrapper>
         <TutorialImg src={thumbnail} />
       </ImgWrapper>
+
       <InfoWrapper>
-        <Name>{name}</Name>
+        <NameRow>
+          <Name>{name}</Name>
+          <Level level={level}>{level}</Level>
+        </NameRow>
         <Description>{description}</Description>
         <CategoriesWrapper>
           {categories.slice(0, 3).map((c, i) => (
@@ -30,12 +35,12 @@ const TutorialCard: FC<TutorialData> = ({
 
 const GradientWrapper = styled.div`
   ${({ theme }) => css`
-    --img-height: 15rem;
+    --img-height: 13.5rem;
 
-    padding: 0.25rem;
-    width: 20rem;
-    height: 24rem;
     position: relative;
+    width: calc(var(--img-height) * 4 / 3);
+    height: 22.5rem;
+    padding: 0.25rem;
     transform-style: preserve-3d;
     transition: transform ${theme.default.transition.duration.medium}
       ${theme.default.transition.type};
@@ -73,7 +78,7 @@ const GradientWrapper = styled.div`
     }
 
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.card.gradient
+      theme.components.main.views.tutorials.main.tutorials.card.gradient
     )};
   `}
 `;
@@ -85,7 +90,7 @@ const InsideWrapper = styled.div`
     overflow: hidden;
 
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.card.default
+      theme.components.main.views.tutorials.main.tutorials.card.default
     )};
   `}
 `;
@@ -102,29 +107,47 @@ const TutorialImg = styled(Img)`
 `;
 
 const InfoWrapper = styled.div`
-  ${({ theme }) => css`
-    width: 100%;
-    height: calc(100% - var(--img-height));
-
-    ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.card.info.default
-    )};
-  `}
+  width: 100%;
+  height: calc(100% - var(--img-height));
+  padding: 1rem 0.75rem;
 `;
 
-const Name = styled.div`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.card.info.name
-    )};
-  `}
+const NameRow = styled.div``;
+
+const Name = styled.span`
+  font-weight: bold;
+`;
+
+const Level = styled.span<{ level: TutorialData["level"] }>`
+  ${({ level, theme }) => {
+    const state =
+      level === "Beginner"
+        ? "success"
+        : level === "Intermediate"
+        ? "warning"
+        : "info";
+    return css`
+      margin-left: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      background: ${theme.colors.state[state].bg};
+      color: ${theme.colors.state[state].color};
+      border-radius: ${theme.default.borderRadius};
+      font-size: ${theme.font.other.size.xsmall};
+      font-weight: bold;
+      text-transform: uppercase;
+    `;
+  }}
 `;
 
 const Description = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.card.info.description
-    )};
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+    margin-top: 0.75rem;
+    color: ${theme.colors.default.textSecondary};
   `}
 `;
 
@@ -136,9 +159,17 @@ const CategoriesWrapper = styled.div`
 
 const Category = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.card.info.category
+    padding: 0.5rem 0.75rem;
+    width: fit-content;
+    background: ${PgTheme.getDifferentBackground(
+      theme.components.main.views.tutorials.main.tutorials.card.default.bg
     )};
+    color: ${theme.colors.default.textSecondary};
+    border-radius: ${theme.default.borderRadius};
+    box-shadow: ${theme.default.boxShadow};
+    font-size: ${theme.font.other.size.xsmall};
+    font-weight: bold;
+    text-transform: uppercase;
   `}
 `;
 

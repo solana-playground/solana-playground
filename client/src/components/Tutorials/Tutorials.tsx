@@ -1,59 +1,99 @@
-import { URLSearchParamsInit, useSearchParams } from "react-router-dom";
+import { FC } from "react";
+import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import TutorialCard from "./TutorialCard";
+import Checkbox from "../Checkbox";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
 import Text from "../Text";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
-import { PgTheme, PgTutorial } from "../../utils/pg";
+import {
+  PgTheme,
+  PgTutorial,
+  TUTORIAL_CATEGORIES,
+  TUTORIAL_FRAMEWORKS,
+  TUTORIAL_LANGUAGES,
+  TUTORIAL_LEVELS,
+} from "../../utils/pg";
 
 const SEARCH_QUERY = "search";
+const FRAMEWORK_QUERY = "framework";
+const LANGUAGE_QUERY = "language";
+const LEVEL_QUERY = "level";
+const CATEGORY_QUERY = "category";
 
 export const Tutorials = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get(SEARCH_QUERY) ?? "";
+  const frameworks = searchParams.getAll(FRAMEWORK_QUERY);
+  const languages = searchParams.getAll(LANGUAGE_QUERY);
+  const levels = searchParams.getAll(LEVEL_QUERY);
+  const categories = searchParams.getAll(CATEGORY_QUERY);
 
   const filteredTutorials = PgTutorial.tutorials.filter((t) => {
-    return t.name.toLowerCase().includes(search.toLowerCase());
+    return (
+      t.name.toLowerCase().includes(search.toLowerCase()) &&
+      (!frameworks.length || frameworks.includes(t.framework)) &&
+      (!languages.length ||
+        languages.some((l) => t.languages.includes(l as any))) &&
+      (!levels.length || levels.includes(t.level)) &&
+      (!categories.length ||
+        categories.some((c) => t.categories.includes(c as any)))
+    );
   });
 
   return (
     <Wrapper>
-      <TutorialsOuterWrapper>
+      <InnerWrapper>
         <TopSection>
           <Title>Learn</Title>
           <SearchBar
             placeholder="Search tutorials"
             value={search}
             onChange={(ev) => {
-              const hasNoQuery =
-                [...searchParams.entries()]
-                  .filter(([param]) => param !== SEARCH_QUERY)
-                  .every(([_, value]) => !value) && !ev.target.value;
-              const params: URLSearchParamsInit = hasNoQuery
-                ? {}
-                : { [SEARCH_QUERY]: ev.target.value };
-              setSearchParams(params, { replace: true });
+              const value = ev.target.value;
+              if (!value) searchParams.delete(SEARCH_QUERY);
+              else searchParams.set(SEARCH_QUERY, value);
+
+              setSearchParams(searchParams, { replace: true });
             }}
           />
         </TopSection>
 
-        <TutorialsInsideWrapper>
-          {filteredTutorials.length ? (
-            filteredTutorials.map((t) => <TutorialCard key={t.name} {...t} />)
-          ) : (
-            <NoMatch />
-          )}
-        </TutorialsInsideWrapper>
+        <MainSection>
+          <FiltersWrapper>
+            <FilterSection
+              query={FRAMEWORK_QUERY}
+              filters={TUTORIAL_FRAMEWORKS}
+            />
+            <FilterSection
+              query={LANGUAGE_QUERY}
+              filters={TUTORIAL_LANGUAGES}
+            />
+            <FilterSection query={LEVEL_QUERY} filters={TUTORIAL_LEVELS} />
+            <FilterSection
+              query={CATEGORY_QUERY}
+              filters={TUTORIAL_CATEGORIES}
+            />
+          </FiltersWrapper>
+
+          <TutorialsWrapper>
+            {filteredTutorials.length ? (
+              filteredTutorials.map((t) => <TutorialCard key={t.name} {...t} />)
+            ) : (
+              <NoMatch />
+            )}
+          </TutorialsWrapper>
+        </MainSection>
 
         <BottomSection>
           <Link href={`${GITHUB_URL}/tree/master/client/src/tutorials`}>
             Contribute
           </Link>
         </BottomSection>
-      </TutorialsOuterWrapper>
+      </InnerWrapper>
     </Wrapper>
   );
 };
@@ -64,12 +104,12 @@ const Wrapper = styled.div`
   `}
 `;
 
-const TutorialsOuterWrapper = styled.div`
+const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 2rem 3rem;
+  padding: 2rem 2.5rem;
 `;
 
 const TopSection = styled.div`
@@ -80,9 +120,89 @@ const TopSection = styled.div`
 
 const Title = styled.h1``;
 
-const TutorialsInsideWrapper = styled.div`
+const MainSection = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.default)};
+  `}
+`;
+
+const FiltersWrapper = styled.div`
+  ${({ theme }) => css`
+    width: 15rem;
+    padding: 0.5rem;
+    border-top-left-radius: ${theme.default.borderRadius};
+    border-bottom-left-radius: ${theme.default.borderRadius};
+    border-right: 1px solid ${theme.colors.default.border};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.filters)};
+  `}
+`;
+
+interface FilterSectionProps {
+  query: string;
+  filters: readonly string[];
+}
+
+const FilterSection: FC<FilterSectionProps> = ({ query, filters }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterParams = searchParams.getAll(query);
+
+  return (
+    <FilterSectionWrapper>
+      <FilterSectionTitle>{query}</FilterSectionTitle>
+      {(filters as string[])
+        .sort((a, b) => a.localeCompare(b))
+        .map((filter) => (
+          <Checkbox
+            key={filter}
+            label={filter}
+            checked={filterParams.includes(filter)}
+            onChange={(ev) => {
+              if (ev.target.checked) {
+                searchParams.append(query, filter);
+              } else {
+                const otherParams = filterParams.filter((f) => f !== filter);
+                searchParams.delete(query);
+                for (const otherParam of otherParams) {
+                  searchParams.append(query, otherParam);
+                }
+              }
+
+              setSearchParams(searchParams, { replace: true });
+            }}
+          />
+        ))}
+    </FilterSectionWrapper>
+  );
+};
+
+const FilterSectionWrapper = styled.div`
+  ${({ theme }) => css`
+    padding: 1rem;
+
+    & label {
+      margin: 0.75rem 0;
+      font-size: ${theme.font.other.size.medium};
+    }
+  `}
+`;
+
+const FilterSectionTitle = styled.div`
+  ${({ theme }) => css`
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: ${theme.font.other.size.small};
+  `}
+`;
+
+const TutorialsWrapper = styled.div`
+  ${({ theme }) => css`
+    border-top-right-radius: ${theme.default.borderRadius};
+    border-bottom-right-radius: ${theme.default.borderRadius};
+    padding: 1.5rem 1rem;
+    ${PgTheme.convertToCSS(
+      theme.components.main.views.tutorials.main.tutorials.default
+    )};
   `}
 `;
 
@@ -97,9 +217,7 @@ const BottomSection = styled.div`
 
 const NoMatch = () => (
   <NoMatchWrapper>
-    <NoMatchText delay={5} icon={<Sad />}>
-      No match found
-    </NoMatchText>
+    <NoMatchText icon={<Sad />}>No match found</NoMatchText>
   </NoMatchWrapper>
 );
 

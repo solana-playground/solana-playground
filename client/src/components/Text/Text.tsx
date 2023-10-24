@@ -9,13 +9,12 @@ export type TextKind = "default" | "info" | "warning" | "success" | "error";
 interface TextProps extends ComponentPropsWithoutRef<"div"> {
   kind?: TextKind;
   icon?: ReactNode;
-  delay?: number;
 }
 
 /** A text component that always have a different background than its parent */
 const Text = forwardRef<HTMLDivElement, TextProps>(
-  ({ delay, icon, children, ...props }, refProp) => {
-    const { ref } = useDifferentBackground(delay);
+  ({ icon, children, ...props }, refProp) => {
+    const { ref } = useDifferentBackground();
 
     return (
       <Wrapper ref={refProp ?? ref} icon={icon} {...props}>

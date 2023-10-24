@@ -123,8 +123,8 @@ const LIGHT: Theme = {
       views: {
         tutorials: {
           main: {
-            card: {
-              info: {
+            tutorials: {
+              card: {
                 default: {
                   bg: BG_WHITE,
                 },

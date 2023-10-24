@@ -1,4 +1,3 @@
-import { TutorialCategory, TutorialLevel } from "../utils/pg/tutorial/types";
 import { createTutorials } from "./create";
 
 /** All visible tutorials at `/tutorials`(in order) */
@@ -12,8 +11,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/acheroncrypto",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.NATIVE],
+    framework: "Native",
+    languages: ["Rust", "TypeScript"],
+    level: "Beginner",
   },
 
   {
@@ -25,8 +25,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/acheroncrypto",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.ANCHOR],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Beginner",
   },
 
   {
@@ -38,8 +39,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/acheroncrypto",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.SEAHORSE],
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+    level: "Beginner",
   },
 
   {
@@ -52,8 +54,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/0xCleon",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.ANCHOR],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Beginner",
     thumbnail: "counter-easy/thumbnail.jpg",
     elementImport: () => import("./CounterEasy"),
   },
@@ -69,8 +72,10 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Beginner",
+    categories: ["Gaming"],
   },
 
   {
@@ -82,8 +87,10 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Beginner",
+    categories: ["Gaming"],
   },
 
   {
@@ -95,8 +102,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
-    level: TutorialLevel.ADVANCED,
-    categories: [TutorialCategory.ANCHOR],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Advanced",
   },
 
   {
@@ -108,8 +116,10 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
-    level: TutorialLevel.INTERMEDIATE,
-    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Intermediate",
+    categories: ["Gaming"],
   },
 
   {
@@ -126,8 +136,10 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/ZYJLiu",
       },
     ],
-    level: TutorialLevel.INTERMEDIATE,
-    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Intermediate",
+    categories: ["Gaming"],
   },
 
   {
@@ -144,8 +156,10 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/ZYJLiu",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.ANCHOR, TutorialCategory.GAMING],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Intermediate",
+    categories: ["Gaming"],
   },
 
   {
@@ -158,8 +172,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/0xBolt",
       },
     ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.ANCHOR],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Beginner",
   },
 
   {
@@ -172,7 +187,8 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/0xBolt",
       },
     ],
-    level: TutorialLevel.INTERMEDIATE,
-    categories: [TutorialCategory.ANCHOR],
+    framework: "Anchor",
+    languages: ["Rust", "TypeScript"],
+    level: "Intermediate",
   }
 );
