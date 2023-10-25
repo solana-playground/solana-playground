@@ -6,45 +6,19 @@ import TutorialCard from "./TutorialCard";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
 import Text from "../Text";
+import {
+  CATEGORY_QUERY,
+  filterQuery,
+  FILTERS,
+  FRAMEWORK_QUERY,
+  LANGUAGE_QUERY,
+  LEVEL_QUERY,
+  SEARCH_QUERY,
+  sortByLevel,
+} from "./filters";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
-import {
-  Arrayable,
-  PgCommon,
-  PgTheme,
-  PgTutorial,
-  TUTORIAL_CATEGORIES,
-  TUTORIAL_FRAMEWORKS,
-  TUTORIAL_LANGUAGES,
-  TUTORIAL_LEVELS,
-} from "../../utils/pg";
-
-const SEARCH_QUERY = "search";
-const LEVEL_QUERY = "level";
-const FRAMEWORK_QUERY = "framework";
-const LANGUAGE_QUERY = "language";
-const CATEGORY_QUERY = "category";
-
-const FILTERS = [
-  { query: LEVEL_QUERY, filters: TUTORIAL_LEVELS },
-  { query: FRAMEWORK_QUERY, filters: TUTORIAL_FRAMEWORKS },
-  { query: LANGUAGE_QUERY, filters: TUTORIAL_LANGUAGES },
-  { query: CATEGORY_QUERY, filters: TUTORIAL_CATEGORIES },
-] as const;
-
-export type FilterQuery = typeof FILTERS[number]["query"];
-
-const filterQuery = (
-  queries: Arrayable<string>,
-  values: Arrayable<string> = []
-) => {
-  queries = PgCommon.toArray(queries);
-  values = PgCommon.toArray(values);
-  return (
-    !queries.length ||
-    (values.length && queries.some((l) => values.includes(l as any)))
-  );
-};
+import { PgTheme, PgTutorial } from "../../utils/pg";
 
 export const Tutorials = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,15 +28,17 @@ export const Tutorials = () => {
   const languages = searchParams.getAll(LANGUAGE_QUERY);
   const categories = searchParams.getAll(CATEGORY_QUERY);
 
-  const filteredTutorials = PgTutorial.tutorials.filter((t) => {
-    return (
-      t.name.toLowerCase().includes(search.toLowerCase()) &&
-      filterQuery(levels, t.level) &&
-      filterQuery(frameworks, t.framework) &&
-      filterQuery(languages, t.languages) &&
-      filterQuery(categories, t.categories)
-    );
-  });
+  const filteredTutorials = PgTutorial.tutorials
+    .filter((t) => {
+      return (
+        t.name.toLowerCase().includes(search.toLowerCase()) &&
+        filterQuery(levels, t.level) &&
+        filterQuery(frameworks, t.framework) &&
+        filterQuery(languages, t.languages) &&
+        filterQuery(categories, t.categories)
+      );
+    })
+    .sort((a, b) => sortByLevel(a.level, b.level));
 
   return (
     <Wrapper>

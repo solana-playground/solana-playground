@@ -2,7 +2,13 @@ import { FC, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../Img";
-import { PgFramework, PgTheme, PgTutorial, TutorialData } from "../../utils/pg";
+import {
+  PgFramework,
+  PgTheme,
+  PgTutorial,
+  TutorialData,
+  TutorialLevel,
+} from "../../utils/pg";
 
 const TutorialCard: FC<TutorialData> = ({
   name,
@@ -124,7 +130,7 @@ const Name = styled.span`
   font-weight: bold;
 `;
 
-export const Level = styled.span<{ children: TutorialData["level"] }>`
+export const Level = styled.span<{ children: TutorialLevel }>`
   ${({ children, theme }) => {
     const state =
       children === "Beginner"

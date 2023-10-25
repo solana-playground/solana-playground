@@ -5,23 +5,25 @@ import styled, { css } from "styled-components";
 import Checkbox from "../Checkbox";
 import LangIcon from "../LangIcon";
 import { Framework, Level } from "./TutorialCard";
-import type { FilterQuery } from "./Tutorials"; // Type-only circular import
-import type { TutorialData } from "../../utils/pg";
+import type { FilterQuery } from "./filters";
+import type { TutorialLanguage } from "../../utils/pg";
 
 interface FilterSectionProps {
   query: FilterQuery;
   filters: readonly string[];
+  sortFn?: (a: string, b: string) => number;
 }
 
-const FilterSection: FC<FilterSectionProps> = ({ query, filters }) => {
+const FilterSection: FC<FilterSectionProps> = ({ query, filters, sortFn }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const filterParams = searchParams.getAll(query);
 
   return (
     <FilterSectionWrapper>
       <FilterSectionTitle>{query}</FilterSectionTitle>
-      {(filters as string[])
-        .sort((a, b) => a.localeCompare(b))
+      {filters
+        .filter(Boolean)
+        .sort(sortFn)
         .map((filter) => (
           <Checkbox
             key={filter}
@@ -47,14 +49,12 @@ const FilterSection: FC<FilterSectionProps> = ({ query, filters }) => {
 };
 
 const FilterSectionWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 1rem;
+  padding: 1rem;
 
-    & label {
-      margin: 0.75rem 0;
-      font-size: ${theme.font.other.size.medium};
-    }
-  `}
+  & label {
+    margin: 0.5rem 0;
+    padding: 0.25rem;
+  }
 `;
 
 const FilterSectionTitle = styled.div`
@@ -85,29 +85,24 @@ const FilterLabel: FC<FilterLabelProps> = ({ query, ...props }) => {
 };
 
 const FilterLabelFramework = styled(Framework)`
-  padding: 0.25rem;
+  padding: 0 0.25rem;
   background: none;
   box-shadow: none;
 `;
-
-type TutorialLanguage = NonNullable<TutorialData["languages"]>[number];
 
 interface LanguageProps {
   children: TutorialLanguage;
 }
 
-const Language: FC<LanguageProps> = ({ children }) => {
-  return (
-    <LanguageWrapper>
-      <LangIcon fileName={getLanguageExtension(children)} />
-      {children}
-    </LanguageWrapper>
-  );
-};
+const Language: FC<LanguageProps> = ({ children }) => (
+  <LanguageWrapper>
+    <LangIcon fileName={getLanguageExtension(children)} />
+    {children}
+  </LanguageWrapper>
+);
 
 const LanguageWrapper = styled.div`
   ${({ theme }) => css`
-    padding: 0.25rem;
     display: flex;
     align-items: center;
     font-size: ${theme.font.other.size.small};
