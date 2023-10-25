@@ -28,17 +28,19 @@ Open `tutorials.ts` and add an entry to the `TUTORIALS` array like in the existi
 
 ```ts
 {
-    name: "Template",
-    description: "Simple template tutorial.",
-    authors: [
-      {
-        name: "acheron",
-        link: "https://twitter.com/acheroncrypto",
-      },
-    ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.OTHER],
-  },
+  name: "Template",
+  description: "Simple template tutorial.",
+  authors: [
+    {
+      name: "acheron",
+      link: "https://twitter.com/acheroncrypto",
+    },
+  ],
+  level: "Beginner",
+  framework: "Anchor",
+  languages: ["Rust", "TypeScript"],
+  categories: ["Gaming", "Payments"],
+},
 ```
 
 For the thumbnail of the tutorial, you can either use an existing URL, or create one at `/client/public/tutorials/<tutorial-name>/thumbnail.(png|jpg)`.

@@ -6,12 +6,22 @@ export class PgFramework {
   static frameworks: Framework[];
 
   /**
+   * Get the framework from its name.
+   *
+   * @param name framework name
+   * @returns the framework
+   */
+  static get(name: FrameworkName) {
+    return this.frameworks.find((f) => f.name === name)!;
+  }
+
+  /**
    * Get the framework from the given files.
    *
    * @param files files to check, defaults to current project files
    * @returns the framework
    */
-  static async get(files: TupleFiles = PgExplorer.getAllFiles()) {
+  static async getFromFiles(files: TupleFiles = PgExplorer.getAllFiles()) {
     for (const framework of this.frameworks) {
       const isCurrent = await framework.getIsCurrent(files);
       if (isCurrent) return framework;
@@ -25,7 +35,7 @@ export class PgFramework {
    * @returns the playground layout converted files
    */
   static async convertToPlaygroundLayout(files: TupleFiles) {
-    const framework = await this.get(files);
+    const framework = await this.getFromFiles(files);
     if (!framework) throw new Error("Could not identify framework");
 
     const { convertToPlayground } = await framework.importToPlayground();
@@ -67,7 +77,7 @@ export class PgFramework {
     // Convert from playground layout to framework layout
     let readme: string | undefined;
     if (opts?.convert) {
-      const framework = await this.get(files);
+      const framework = await this.getFromFiles(files);
       if (!framework) throw new Error("Could not identify framework");
 
       const frameworkFrom = await framework.importFromPlayground();

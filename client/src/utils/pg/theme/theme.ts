@@ -1645,6 +1645,10 @@ export class PgTheme {
 
     // Main filters
     tutorials.main.filters ??= {};
+    tutorials.main.filters.borderTopLeftRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
+    tutorials.main.filters.borderBottomLeftRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
 
     // Main tutorials
     tutorials.main.tutorials ??= {};
@@ -1654,14 +1658,19 @@ export class PgTheme {
     tutorials.main.tutorials.default.display ??= "flex";
     tutorials.main.tutorials.default.flexWrap ??= "wrap";
     tutorials.main.tutorials.default.gap ??= "0.5rem";
+    tutorials.main.tutorials.default.borderTopRightRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
+    tutorials.main.tutorials.default.borderBottomRightRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
     //Main tutorials card
     tutorials.main.tutorials.card ??= {};
     const card = tutorials.main.tutorials.card;
     //Main tutorials card default
     card.default ??= {};
-    card.default.bg ??= this.getDifferentBackground(
-      theme.components.main.views.tutorials.main.default.bg
-    );
+    card.default.width ??= "100%";
+    card.default.height ??= "100%";
+    card.default.overflow ??= "hidden";
+    card.default.bg ??= theme.components.main.views.tutorials.main.default.bg;
     card.default.color ??= theme.colors.default.textPrimary;
     card.default.border ??= `1px solid ${
       theme.colors.default.border + theme.default.transparency.medium

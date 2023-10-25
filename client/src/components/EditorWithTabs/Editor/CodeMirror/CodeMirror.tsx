@@ -214,7 +214,7 @@ const CodeMirror = () => {
             const { rustExtensions } = await import(
               "./extensions/languages/rust"
             );
-            const framework = await PgFramework.get();
+            const framework = await PgFramework.getFromFiles();
             languageExtensions = rustExtensions(framework?.name === "Anchor");
             break;
           }

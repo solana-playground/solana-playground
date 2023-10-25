@@ -11,9 +11,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/acheroncrypto",
       },
     ],
+    level: "Beginner",
     framework: "Native",
     languages: ["Rust", "TypeScript"],
-    level: "Beginner",
   },
 
   {
@@ -25,9 +25,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/acheroncrypto",
       },
     ],
+    level: "Beginner",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Beginner",
   },
 
   {
@@ -39,9 +39,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/acheroncrypto",
       },
     ],
+    level: "Beginner",
     framework: "Seahorse",
     languages: ["Python", "TypeScript"],
-    level: "Beginner",
   },
 
   {
@@ -54,9 +54,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/0xCleon",
       },
     ],
+    level: "Beginner",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Beginner",
     thumbnail: "counter-easy/thumbnail.jpg",
     elementImport: () => import("./CounterEasy"),
   },
@@ -72,9 +72,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
+    level: "Beginner",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Beginner",
     categories: ["Gaming"],
   },
 
@@ -87,9 +87,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
+    level: "Beginner",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Beginner",
     categories: ["Gaming"],
   },
 
@@ -102,9 +102,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
+    level: "Advanced",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Advanced",
   },
 
   {
@@ -116,9 +116,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
+    level: "Intermediate",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Intermediate",
     categories: ["Gaming"],
   },
 
@@ -136,9 +136,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/ZYJLiu",
       },
     ],
+    level: "Intermediate",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Intermediate",
     categories: ["Gaming"],
   },
 
@@ -156,9 +156,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/ZYJLiu",
       },
     ],
+    level: "Intermediate",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Intermediate",
     categories: ["Gaming"],
   },
 
@@ -172,9 +172,9 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/0xBolt",
       },
     ],
+    level: "Beginner",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Beginner",
   },
 
   {
@@ -187,8 +187,8 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/0xBolt",
       },
     ],
+    level: "Intermediate",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
-    level: "Intermediate",
   }
 );

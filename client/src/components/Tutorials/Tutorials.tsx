@@ -35,12 +35,14 @@ export const Tutorials = () => {
   const filteredTutorials = PgTutorial.tutorials.filter((t) => {
     return (
       t.name.toLowerCase().includes(search.toLowerCase()) &&
-      (!frameworks.length || frameworks.includes(t.framework)) &&
+      (!frameworks.length ||
+        (t.framework && frameworks.includes(t.framework))) &&
       (!languages.length ||
-        languages.some((l) => t.languages.includes(l as any))) &&
+        (t.languages &&
+          languages.some((l) => t.languages?.includes(l as any)))) &&
       (!levels.length || levels.includes(t.level)) &&
       (!categories.length ||
-        categories.some((c) => t.categories.includes(c as any)))
+        categories.some((c) => t.categories?.includes(c as any)))
     );
   });
 
@@ -64,6 +66,7 @@ export const Tutorials = () => {
 
         <MainSection>
           <FiltersWrapper>
+            <FilterSection query={LEVEL_QUERY} filters={TUTORIAL_LEVELS} />
             <FilterSection
               query={FRAMEWORK_QUERY}
               filters={TUTORIAL_FRAMEWORKS}
@@ -72,7 +75,6 @@ export const Tutorials = () => {
               query={LANGUAGE_QUERY}
               filters={TUTORIAL_LANGUAGES}
             />
-            <FilterSection query={LEVEL_QUERY} filters={TUTORIAL_LEVELS} />
             <FilterSection
               query={CATEGORY_QUERY}
               filters={TUTORIAL_CATEGORIES}
@@ -128,10 +130,8 @@ const MainSection = styled.div`
 
 const FiltersWrapper = styled.div`
   ${({ theme }) => css`
-    width: 15rem;
+    width: 14.875rem;
     padding: 0.5rem;
-    border-top-left-radius: ${theme.default.borderRadius};
-    border-bottom-left-radius: ${theme.default.borderRadius};
     border-right: 1px solid ${theme.colors.default.border};
     ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.filters)};
   `}
@@ -197,22 +197,11 @@ const FilterSectionTitle = styled.div`
 
 const TutorialsWrapper = styled.div`
   ${({ theme }) => css`
-    border-top-right-radius: ${theme.default.borderRadius};
-    border-bottom-right-radius: ${theme.default.borderRadius};
-    padding: 1.5rem 1rem;
+    padding: 1.5rem;
     ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.main.tutorials.default
     )};
   `}
-`;
-
-const BottomSection = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: 5rem;
-  max-height: 5rem;
 `;
 
 const NoMatch = () => (
@@ -231,4 +220,13 @@ const NoMatchWrapper = styled.div`
 const NoMatchText = styled(Text)`
   width: 21rem;
   height: 5rem;
+`;
+
+const BottomSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 5rem;
+  max-height: 5rem;
 `;

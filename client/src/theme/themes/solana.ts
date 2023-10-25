@@ -136,6 +136,21 @@ const SOLANA: Theme = {
             },
           },
         },
+        tutorials: {
+          main: {
+            default: {
+              bg: BG_BLACK,
+              border: `1px solid ${SELECTION}`,
+            },
+            tutorials: {
+              card: {
+                default: {
+                  bg: BG_GRAY,
+                },
+              },
+            },
+          },
+        },
       },
     },
     menu: {

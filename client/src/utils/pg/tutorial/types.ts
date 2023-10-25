@@ -37,10 +37,10 @@ export interface TutorialDataInit {
   authors: Author[];
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
-  /** Programming languages used in the tutorial */
-  languages: TutorialLanguage[];
   /** Solana program framework */
-  framework: TutorialFramework;
+  framework?: TutorialFramework;
+  /** Programming languages used in the tutorial */
+  languages?: TutorialLanguage[];
   /** Category of the tutorial. Can specify up to 3 categories. */
   categories?: TutorialCategory[];
   /**
@@ -66,7 +66,7 @@ export interface TutorialDataInit {
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
   TutorialDataInit,
-  "categories" | "thumbnail" | "elementImport"
+  "thumbnail" | "elementImport"
 >;
 
 export interface TutorialMetadata {
