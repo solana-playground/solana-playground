@@ -746,7 +746,6 @@ export class PgTheme {
     text.default.bg ??= theme.colors.default.bgPrimary;
     text.default.padding ??= "1rem";
     text.default.borderRadius ??= theme.default.borderRadius;
-    text.default.fontFamily ??= theme.font.code.family;
     text.default.fontSize ??= theme.font.code.size.small;
     text.default.lineHeight ??= 1.5;
 
@@ -1645,6 +1644,9 @@ export class PgTheme {
 
     // Main filters
     tutorials.main.filters ??= {};
+    tutorials.main.filters.width ??= "14.875rem";
+    tutorials.main.filters.padding ??= "0.5rem";
+    tutorials.main.filters.borderRight ??= `1px solid ${theme.colors.default.border}`;
     tutorials.main.filters.borderTopLeftRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
     tutorials.main.filters.borderBottomLeftRadius ??=
@@ -1654,6 +1656,7 @@ export class PgTheme {
     tutorials.main.tutorials ??= {};
     // Main tutorials default
     tutorials.main.tutorials.default ??= {};
+    tutorials.main.tutorials.default.padding ??= "1.5rem";
     tutorials.main.tutorials.default.flex ??= "1";
     tutorials.main.tutorials.default.display ??= "flex";
     tutorials.main.tutorials.default.flexWrap ??= "wrap";

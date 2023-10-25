@@ -27,7 +27,7 @@ const TutorialCard: FC<TutorialData> = ({
         </InfoTopSection>
 
         <InfoBottomSection>
-          {framework && <Framework name={framework} />}
+          {framework && <Framework>{framework}</Framework>}
         </InfoBottomSection>
       </InfoWrapper>
     </InsideWrapper>
@@ -114,25 +114,30 @@ const InfoWrapper = styled.div`
 
 const InfoTopSection = styled.div``;
 
-const NameRow = styled.div``;
+const NameRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
 
 const Name = styled.span`
   font-weight: bold;
 `;
 
-const Level = styled.span<{ children: TutorialData["level"] }>`
+export const Level = styled.span<{ children: TutorialData["level"] }>`
   ${({ children, theme }) => {
     const state =
       children === "Beginner"
         ? "success"
         : children === "Intermediate"
         ? "warning"
-        : "info";
+        : children === "Advanced"
+        ? "info"
+        : "error";
     return css`
-      margin-left: 0.5rem;
       padding: 0.25rem 0.5rem;
       background: ${theme.colors.state[state].bg};
-      color: ${theme.colors.state[state].color};
+      color: ${theme.colors.state[state].color} !important;
       border-radius: ${theme.default.borderRadius};
       font-size: ${theme.font.other.size.xsmall};
       font-weight: bold;
@@ -155,15 +160,15 @@ const Description = styled.div`
 const InfoBottomSection = styled.div``;
 
 interface FrameworkProps {
-  name: FrameworkName;
+  children: FrameworkName;
 }
 
-const Framework: FC<FrameworkProps> = ({ name }) => {
-  const framework = useMemo(() => PgFramework.get(name), [name]);
+export const Framework: FC<FrameworkProps> = ({ children, ...props }) => {
+  const framework = useMemo(() => PgFramework.get(children), [children]);
   return (
-    <FrameworkWrapper>
+    <FrameworkWrapper {...props}>
       <FrameworkImage src={framework.icon} $circle={framework.circleImage} />
-      {name}
+      {children}
     </FrameworkWrapper>
   );
 };
@@ -190,7 +195,7 @@ const FrameworkImage = styled(Img)<{ $circle?: boolean }>`
     margin-right: 0.5rem;
     width: 1rem;
     height: 1rem;
-    border-radius: ${$circle && "50%"};
+    ${$circle && "border-radius: 50%"};
   `}
 `;
 

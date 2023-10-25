@@ -1,20 +1,22 @@
+import type { UnionToTuple } from "../types";
+
 export const TUTORIAL_LEVELS = [
   "Beginner",
   "Intermediate",
   "Advanced",
 ] as const;
 
-export const TUTORIAL_FRAMEWORKS: readonly FrameworkName[] = [
+export const TUTORIAL_FRAMEWORKS: UnionToTuple<FrameworkName> = [
   "Native",
   "Anchor",
   "Seahorse",
-] as const;
+];
 
 export const TUTORIAL_LANGUAGES = ["Rust", "Python", "TypeScript"] as const;
 
 export const TUTORIAL_CATEGORIES = [
   "DeFi",
-  "NFT",
+  "NFTs",
   "Gaming",
   "Payments",
   "Staking",

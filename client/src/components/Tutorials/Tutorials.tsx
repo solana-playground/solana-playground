@@ -1,15 +1,16 @@
-import { FC } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
+import FilterSection from "./FilterSection";
 import TutorialCard from "./TutorialCard";
-import Checkbox from "../Checkbox";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
 import Text from "../Text";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
 import {
+  Arrayable,
+  PgCommon,
   PgTheme,
   PgTutorial,
   TUTORIAL_CATEGORIES,
@@ -19,30 +20,47 @@ import {
 } from "../../utils/pg";
 
 const SEARCH_QUERY = "search";
+const LEVEL_QUERY = "level";
 const FRAMEWORK_QUERY = "framework";
 const LANGUAGE_QUERY = "language";
-const LEVEL_QUERY = "level";
 const CATEGORY_QUERY = "category";
+
+const FILTERS = [
+  { query: LEVEL_QUERY, filters: TUTORIAL_LEVELS },
+  { query: FRAMEWORK_QUERY, filters: TUTORIAL_FRAMEWORKS },
+  { query: LANGUAGE_QUERY, filters: TUTORIAL_LANGUAGES },
+  { query: CATEGORY_QUERY, filters: TUTORIAL_CATEGORIES },
+] as const;
+
+export type FilterQuery = typeof FILTERS[number]["query"];
+
+const filterQuery = (
+  queries: Arrayable<string>,
+  values: Arrayable<string> = []
+) => {
+  queries = PgCommon.toArray(queries);
+  values = PgCommon.toArray(values);
+  return (
+    !queries.length ||
+    (values.length && queries.some((l) => values.includes(l as any)))
+  );
+};
 
 export const Tutorials = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get(SEARCH_QUERY) ?? "";
+  const levels = searchParams.getAll(LEVEL_QUERY);
   const frameworks = searchParams.getAll(FRAMEWORK_QUERY);
   const languages = searchParams.getAll(LANGUAGE_QUERY);
-  const levels = searchParams.getAll(LEVEL_QUERY);
   const categories = searchParams.getAll(CATEGORY_QUERY);
 
   const filteredTutorials = PgTutorial.tutorials.filter((t) => {
     return (
       t.name.toLowerCase().includes(search.toLowerCase()) &&
-      (!frameworks.length ||
-        (t.framework && frameworks.includes(t.framework))) &&
-      (!languages.length ||
-        (t.languages &&
-          languages.some((l) => t.languages?.includes(l as any)))) &&
-      (!levels.length || levels.includes(t.level)) &&
-      (!categories.length ||
-        categories.some((c) => t.categories?.includes(c as any)))
+      filterQuery(levels, t.level) &&
+      filterQuery(frameworks, t.framework) &&
+      filterQuery(languages, t.languages) &&
+      filterQuery(categories, t.categories)
     );
   });
 
@@ -66,19 +84,9 @@ export const Tutorials = () => {
 
         <MainSection>
           <FiltersWrapper>
-            <FilterSection query={LEVEL_QUERY} filters={TUTORIAL_LEVELS} />
-            <FilterSection
-              query={FRAMEWORK_QUERY}
-              filters={TUTORIAL_FRAMEWORKS}
-            />
-            <FilterSection
-              query={LANGUAGE_QUERY}
-              filters={TUTORIAL_LANGUAGES}
-            />
-            <FilterSection
-              query={CATEGORY_QUERY}
-              filters={TUTORIAL_CATEGORIES}
-            />
+            {FILTERS.map((f) => (
+              <FilterSection key={f.query} {...f} />
+            ))}
           </FiltersWrapper>
 
           <TutorialsWrapper>
@@ -130,74 +138,12 @@ const MainSection = styled.div`
 
 const FiltersWrapper = styled.div`
   ${({ theme }) => css`
-    width: 14.875rem;
-    padding: 0.5rem;
-    border-right: 1px solid ${theme.colors.default.border};
     ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.filters)};
-  `}
-`;
-
-interface FilterSectionProps {
-  query: string;
-  filters: readonly string[];
-}
-
-const FilterSection: FC<FilterSectionProps> = ({ query, filters }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const filterParams = searchParams.getAll(query);
-
-  return (
-    <FilterSectionWrapper>
-      <FilterSectionTitle>{query}</FilterSectionTitle>
-      {(filters as string[])
-        .sort((a, b) => a.localeCompare(b))
-        .map((filter) => (
-          <Checkbox
-            key={filter}
-            label={filter}
-            checked={filterParams.includes(filter)}
-            onChange={(ev) => {
-              if (ev.target.checked) {
-                searchParams.append(query, filter);
-              } else {
-                const otherParams = filterParams.filter((f) => f !== filter);
-                searchParams.delete(query);
-                for (const otherParam of otherParams) {
-                  searchParams.append(query, otherParam);
-                }
-              }
-
-              setSearchParams(searchParams, { replace: true });
-            }}
-          />
-        ))}
-    </FilterSectionWrapper>
-  );
-};
-
-const FilterSectionWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 1rem;
-
-    & label {
-      margin: 0.75rem 0;
-      font-size: ${theme.font.other.size.medium};
-    }
-  `}
-`;
-
-const FilterSectionTitle = styled.div`
-  ${({ theme }) => css`
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    font-size: ${theme.font.other.size.small};
   `}
 `;
 
 const TutorialsWrapper = styled.div`
   ${({ theme }) => css`
-    padding: 1.5rem;
     ${PgTheme.convertToCSS(
       theme.components.main.views.tutorials.main.tutorials.default
     )};
@@ -218,8 +164,11 @@ const NoMatchWrapper = styled.div`
 `;
 
 const NoMatchText = styled(Text)`
-  width: 21rem;
-  height: 5rem;
+  ${({ theme }) => css`
+    width: 21rem;
+    height: 5rem;
+    font-size: ${theme.font.other.size.small};
+  `}
 `;
 
 const BottomSection = styled.div`

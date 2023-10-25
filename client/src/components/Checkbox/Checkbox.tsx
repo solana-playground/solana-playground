@@ -32,13 +32,20 @@ const Label = styled.label`
     transition: all ${theme.default.transition.type}
       ${theme.default.transition.duration.short};
 
+    &:hover {
+      cursor: pointer;
+      color: ${theme.colors.default.textPrimary};
+    }
+
     &:has(> input[type="checkbox"]:checked) {
       color: ${theme.colors.default.textPrimary};
     }
 
-    &:hover {
-      cursor: pointer;
-      color: ${theme.colors.default.textPrimary};
+    &:hover,
+    &:has(> input[type="checkbox"]:checked) {
+      & * {
+        color: inherit;
+      }
     }
   `}
 `;
@@ -52,7 +59,11 @@ const StyledCheckbox = styled.input`
 `;
 
 const LabelText = styled.span`
-  margin-left: 0.5rem;
+  ${({ theme }) => css`
+    margin-left: 0.5rem;
+    transition: all ${theme.default.transition.type}
+      ${theme.default.transition.duration.short};
+  `}
 `;
 
 export default Checkbox;
