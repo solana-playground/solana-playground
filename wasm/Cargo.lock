@@ -2826,19 +2826,19 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "seahorse-compile-wasm"
-version = "0.2.7"
+version = "0.1.1"
 dependencies = [
  "console_error_panic_hook",
- "seahorse-lang",
+ "seahorse-dev",
  "solana-playground-utils-wasm",
  "wasm-bindgen",
 ]
 
 [[package]]
-name = "seahorse-lang"
-version = "0.2.7"
+name = "seahorse-dev"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "272f119e5b1f4ae2ba6c8b0eef3c2e1ef214df58b7c16f7c8e5e2e94b55bb407"
+checksum = "49a695b5e3fbfa72d504721e1c82f2d2b16a5a20c726be4992ef1bed66b76d50"
 dependencies = [
  "base58",
  "clap",

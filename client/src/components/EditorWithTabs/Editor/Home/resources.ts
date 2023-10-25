@@ -24,7 +24,7 @@ export const RESOURCES: ResourceProps[] = [
   {
     title: "Seahorse",
     text: "Write Anchor-compatible Solana programs in Python.",
-    url: "https://seahorse-lang.org/docs/accounts/",
+    url: "https://www.seahorse.dev/using-seahorse/accounts",
     src: "https://pbs.twimg.com/profile_images/1556384244598964226/S3cx06I2_400x400.jpg",
     circleImage: true,
   },
