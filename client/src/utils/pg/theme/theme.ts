@@ -1644,7 +1644,7 @@ export class PgTheme {
 
     // Main filters
     tutorials.main.filters ??= {};
-    tutorials.main.filters.width ??= "14.875rem";
+    tutorials.main.filters.width ??= "14.75rem";
     tutorials.main.filters.padding ??= "0.5rem";
     tutorials.main.filters.borderRight ??= `1px solid ${theme.colors.default.border}`;
     tutorials.main.filters.borderTopLeftRadius ??=

@@ -2,43 +2,56 @@ import {
   Arrayable,
   PgCommon,
   TutorialLevel,
-  TUTORIAL_CATEGORIES,
   TUTORIAL_FRAMEWORKS,
   TUTORIAL_LANGUAGES,
   TUTORIAL_LEVELS,
 } from "../../utils/pg";
 
-export const SEARCH_QUERY = "search";
-export const LEVEL_QUERY = "level";
-export const FRAMEWORK_QUERY = "framework";
-export const LANGUAGE_QUERY = "language";
-export const CATEGORY_QUERY = "category";
-
+/** All tutorial filters */
 export const FILTERS = [
   {
-    query: LEVEL_QUERY,
+    param: "level",
     filters: TUTORIAL_LEVELS,
     sortFn: sortByLevel,
   },
-  { query: FRAMEWORK_QUERY, filters: TUTORIAL_FRAMEWORKS },
-  { query: LANGUAGE_QUERY, filters: TUTORIAL_LANGUAGES },
-  { query: CATEGORY_QUERY, filters: TUTORIAL_CATEGORIES },
+  { param: "framework", filters: TUTORIAL_FRAMEWORKS },
+  {
+    param: "language",
+    filters: TUTORIAL_LANGUAGES,
+    tutorialKey: "languages",
+  },
+  // TODO: Enable once there are more tutorials with various categories
+  // {
+  //   param: "category",
+  //   filters: TUTORIAL_CATEGORIES,
+  //   tutorialKey: "categories",
+  // },
 ] as const;
 
-export type FilterQuery = typeof FILTERS[number]["query"];
+/** Tutorial search parameters */
+export type FilterParam = typeof FILTERS[number]["param"];
 
+/**
+ * Filter the query based on the search values and the tutorial values.
+ *
+ * @param searchValues values in the URL
+ * @param tutorialValues values declared for the tutorial
+ * @returns whether the tutorial passes the checks
+ */
 export const filterQuery = (
-  queries: Arrayable<string>,
-  values: Arrayable<string> = []
+  searchValues: Arrayable<string>,
+  tutorialValues: Arrayable<string> = []
 ) => {
-  queries = PgCommon.toArray(queries);
-  values = PgCommon.toArray(values);
+  searchValues = PgCommon.toArray(searchValues);
+  tutorialValues = PgCommon.toArray(tutorialValues);
   return (
-    !queries.length ||
-    (values.length && queries.some((l) => values.includes(l as any)))
+    !searchValues.length ||
+    (!!tutorialValues.length &&
+      searchValues.some((l) => tutorialValues.includes(l as any)))
   );
 };
 
+/** Sort based on `TutorialLevel`. */
 export function sortByLevel(a: string, b: string) {
   return (
     TUTORIAL_LEVELS.indexOf(a as TutorialLevel) -

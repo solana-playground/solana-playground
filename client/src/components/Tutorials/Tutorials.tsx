@@ -6,36 +6,27 @@ import TutorialCard from "./TutorialCard";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
 import Text from "../Text";
-import {
-  CATEGORY_QUERY,
-  filterQuery,
-  FILTERS,
-  FRAMEWORK_QUERY,
-  LANGUAGE_QUERY,
-  LEVEL_QUERY,
-  SEARCH_QUERY,
-  sortByLevel,
-} from "./filters";
+import { filterQuery, FILTERS, sortByLevel } from "./filters";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
 import { PgTheme, PgTutorial } from "../../utils/pg";
 
+const SEARCH_PARAM = "search";
+
 export const Tutorials = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get(SEARCH_QUERY) ?? "";
-  const levels = searchParams.getAll(LEVEL_QUERY);
-  const frameworks = searchParams.getAll(FRAMEWORK_QUERY);
-  const languages = searchParams.getAll(LANGUAGE_QUERY);
-  const categories = searchParams.getAll(CATEGORY_QUERY);
+  const search = searchParams.get(SEARCH_PARAM) ?? "";
+
+  const filters = FILTERS.map((f: { param: string; tutorialKey?: string }) => ({
+    key: (f.tutorialKey ?? f.param) as "level",
+    value: searchParams.getAll(f.param),
+  }));
 
   const filteredTutorials = PgTutorial.tutorials
     .filter((t) => {
       return (
         t.name.toLowerCase().includes(search.toLowerCase()) &&
-        filterQuery(levels, t.level) &&
-        filterQuery(frameworks, t.framework) &&
-        filterQuery(languages, t.languages) &&
-        filterQuery(categories, t.categories)
+        filters.every((f) => filterQuery(f.value, t[f.key]))
       );
     })
     .sort((a, b) => sortByLevel(a.level, b.level));
@@ -50,8 +41,8 @@ export const Tutorials = () => {
             value={search}
             onChange={(ev) => {
               const value = ev.target.value;
-              if (!value) searchParams.delete(SEARCH_QUERY);
-              else searchParams.set(SEARCH_QUERY, value);
+              if (!value) searchParams.delete(SEARCH_PARAM);
+              else searchParams.set(SEARCH_PARAM, value);
 
               setSearchParams(searchParams, { replace: true });
             }}
@@ -61,7 +52,7 @@ export const Tutorials = () => {
         <MainSection>
           <FiltersWrapper>
             {FILTERS.map((f) => (
-              <FilterSection key={f.query} {...f} />
+              <FilterSection key={f.param} {...f} />
             ))}
           </FiltersWrapper>
 

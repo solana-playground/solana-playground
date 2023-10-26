@@ -5,38 +5,38 @@ import styled, { css } from "styled-components";
 import Checkbox from "../Checkbox";
 import LangIcon from "../LangIcon";
 import { Framework, Level } from "./TutorialCard";
-import type { FilterQuery } from "./filters";
+import type { FilterParam } from "./filters";
 import type { TutorialLanguage } from "../../utils/pg";
 
 interface FilterSectionProps {
-  query: FilterQuery;
+  param: FilterParam;
   filters: readonly string[];
   sortFn?: (a: string, b: string) => number;
 }
 
-const FilterSection: FC<FilterSectionProps> = ({ query, filters, sortFn }) => {
+const FilterSection: FC<FilterSectionProps> = ({ param, filters, sortFn }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const filterParams = searchParams.getAll(query);
+  const searchValues = searchParams.getAll(param);
 
   return (
     <FilterSectionWrapper>
-      <FilterSectionTitle>{query}</FilterSectionTitle>
+      <FilterSectionTitle>{param}</FilterSectionTitle>
       {filters
         .filter(Boolean)
         .sort(sortFn)
         .map((filter) => (
           <Checkbox
             key={filter}
-            label={<FilterLabel query={query}>{filter}</FilterLabel>}
-            checked={filterParams.includes(filter)}
+            label={<FilterLabel query={param}>{filter}</FilterLabel>}
+            checked={searchValues.includes(filter)}
             onChange={(ev) => {
               if (ev.target.checked) {
-                searchParams.append(query, filter);
+                searchParams.append(param, filter);
               } else {
-                const otherParams = filterParams.filter((f) => f !== filter);
-                searchParams.delete(query);
-                for (const otherParam of otherParams) {
-                  searchParams.append(query, otherParam);
+                const otherValues = searchValues.filter((f) => f !== filter);
+                searchParams.delete(param);
+                for (const otherValue of otherValues) {
+                  searchParams.append(param, otherValue);
                 }
               }
 
@@ -67,7 +67,7 @@ const FilterSectionTitle = styled.div`
 `;
 
 interface FilterLabelProps {
-  query: FilterQuery;
+  query: FilterParam;
   children: any;
 }
 
@@ -79,8 +79,8 @@ const FilterLabel: FC<FilterLabelProps> = ({ query, ...props }) => {
       return <FilterLabelFramework {...props} />;
     case "language":
       return <Language {...props} />;
-    case "category":
-      return <Category {...props} />;
+    // case "category":
+    //   return <Category {...props} />;
   }
 };
 
@@ -125,11 +125,11 @@ const getLanguageExtension = (lang: TutorialLanguage) => {
   }
 };
 
-const Category = styled.span`
-  ${({ theme }) => css`
-    font-size: ${theme.font.other.size.small};
-    font-weight: bold;
-  `}
-`;
+// const Category = styled.span`
+//   ${({ theme }) => css`
+//     font-size: ${theme.font.other.size.small};
+//     font-weight: bold;
+//   `}
+// `;
 
 export default FilterSection;
