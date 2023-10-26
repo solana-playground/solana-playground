@@ -7,14 +7,11 @@ import Markdown from "../../Markdown";
 import { EditorWithTabs } from "../../EditorWithTabs";
 import { PointedArrow } from "../../Icons";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
-import type {
-  TutorialComponentProps,
-  TutorialMainComponentProps,
-} from "../types";
+import type { TutorialMainComponentProps } from "../types";
 
 export const Main: FC<TutorialMainComponentProps> = ({
   pages,
-  rtl,
+  layout = "editor-content",
   onComplete,
 }) => {
   const pageNumber = PgTutorial.pageNumber;
@@ -50,18 +47,26 @@ export const Main: FC<TutorialMainComponentProps> = ({
   if (!pageNumber) return null;
 
   const currentPage = pages.at(pageNumber - 1);
-
-  // This could happen if the saved page has been deleted
   if (!currentPage) {
+    // This could happen if the saved page has been deleted
     PgTutorial.pageNumber = 1;
     return null;
   }
 
   const currentContent = currentPage.content;
+  const currentLayout = currentPage.layout ?? layout;
+
+  // TODO: Add a custom `Split` component because `react-split` doesn't properly
+  // handle size and `children.length` changes
+  const [Wrapper, props] = (
+    currentLayout === "content-only"
+      ? [RegularWrapper, {}]
+      : [SplitWrapper, { sizes: [60, 40] }]
+  ) as [typeof RegularWrapper, {}];
 
   return (
-    <Wrapper rtl={rtl} sizes={[60, 40]}>
-      <EditorWithTabs />
+    <Wrapper {...props}>
+      {currentLayout === "editor-content" && <EditorWithTabs />}
 
       <TutorialPage ref={tutorialPageRef}>
         <TutorialContent>
@@ -117,9 +122,10 @@ export const Main: FC<TutorialMainComponentProps> = ({
   );
 };
 
-const Wrapper = styled(Split)<Pick<TutorialComponentProps, "rtl">>`
+const RegularWrapper = styled.div``;
+
+const SplitWrapper = styled(Split)`
   display: flex;
-  flex-direction: ${({ rtl }) => (rtl ? "row-reverse" : "row")};
   width: 100%;
   height: -webkit-fill-available;
   max-height: 100%;

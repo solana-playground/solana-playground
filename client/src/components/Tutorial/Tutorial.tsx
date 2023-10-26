@@ -11,7 +11,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   pages,
   files,
   defaultOpenFile,
-  rtl,
+  layout,
   onMount,
   onComplete,
 }) => {
@@ -32,7 +32,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           defaultOpenFile={defaultOpenFile}
         />
       ) : (
-        <Main pages={pages} rtl={rtl} onComplete={onComplete} />
+        <Main pages={pages} layout={layout} onComplete={onComplete} />
       )}
     </Wrapper>
   );

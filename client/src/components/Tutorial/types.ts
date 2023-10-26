@@ -9,11 +9,9 @@ export type TutorialComponentProps = {
   files: TupleFiles;
   /** Initial open file when the tutorial/page is first loaded */
   defaultOpenFile?: string;
-  /** Whether to put editor to the right instead of left */
-  rtl?: boolean;
   /** Callback to run when the tutorial is completed */
   onComplete?: () => any;
-} & Pick<Page, "onMount">;
+} & Pick<Page, "layout" | "onMount">;
 
 export type TutorialAboutComponentProps = Pick<
   TutorialComponentProps,
@@ -22,7 +20,7 @@ export type TutorialAboutComponentProps = Pick<
 
 export type TutorialMainComponentProps = Pick<
   TutorialComponentProps,
-  "pages" | "rtl" | "onComplete"
+  "pages" | "layout" | "onComplete"
 >;
 
 type Page = {
@@ -36,9 +34,15 @@ type Page = {
    * Defaults to `pageNumber/pageCount`, e.g. 3/5
    */
   title?: string;
+  /**
+   * Layout of the tutorial component.
+   *
+   * @default "editor-content"
+   */
+  layout?: "editor-content" | "content-only";
   /** Callback to run on mount */
   onMount?: () => any;
 };
 
-/** String or JSX */
+/** Markdown string or JSX Element */
 type TutorialElement = string | JSX.Element;
