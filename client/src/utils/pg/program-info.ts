@@ -112,7 +112,11 @@ const derive = () => ({
 
   /** On-chain data of the program */
   onChain: createDerivable({
-    derive: _PgProgramInfo.fetch,
+    derive: async () => {
+      try {
+        return await _PgProgramInfo.fetch();
+      } catch {}
+    },
     onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidRunFinish],
   }),
 });
@@ -147,33 +151,28 @@ class _PgProgramInfo {
    */
   static async fetch(programId?: PublicKey | null) {
     const conn = PgConnection.current;
-    if (!PgConnection.isReady(conn)) return;
+    if (!PgConnection.isReady(conn)) throw new Error("Connection is not ready");
 
-    if (!programId && !PgProgramInfo.pk) return;
+    if (!programId && !PgProgramInfo.pk) {
+      throw new Error("Program id doesn't exist");
+    }
     programId ??= PgProgramInfo.pk as PublicKey;
 
-    try {
-      const programAccountInfo = await conn.getAccountInfo(programId);
-      const deployed = !!programAccountInfo;
-      const programDataPkBuffer = programAccountInfo?.data.slice(4);
-      if (!programDataPkBuffer) return { deployed, upgradable: true };
+    const programAccountInfo = await conn.getAccountInfo(programId);
+    const deployed = !!programAccountInfo;
+    if (!programAccountInfo) return { deployed, upgradable: true };
 
-      const programDataPk = new PublicKey(programDataPkBuffer);
-      const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
+    const programDataPkBuffer = programAccountInfo.data.slice(4);
+    const programDataPk = new PublicKey(programDataPkBuffer);
+    const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
 
-      // Check if program authority exists
-      const authorityExists = programDataAccountInfo?.data.at(12);
-      if (!authorityExists) return { deployed, upgradable: false };
+    // Check if program authority exists
+    const authorityExists = programDataAccountInfo?.data.at(12);
+    if (!authorityExists) return { deployed, upgradable: false };
 
-      const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(
-        13,
-        45
-      );
-      const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
-      return { deployed, authority: upgradeAuthorityPk, upgradable: true };
-    } catch (e: any) {
-      console.log("Could not get authority:", e.message);
-    }
+    const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(13, 45);
+    const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
+    return { deployed, authority: upgradeAuthorityPk, upgradable: true };
   }
 
   /**

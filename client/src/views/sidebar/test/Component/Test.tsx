@@ -16,17 +16,6 @@ const Test = () => {
   // Used for both accounts and events data
   useBigNumberJson();
 
-  if (error) {
-    return (
-      <InitialWrapper>
-        <Text kind="error">
-          Connection error. Please try changing the RPC endpoint from the
-          settings.
-        </Text>
-      </InitialWrapper>
-    );
-  }
-
   if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
     return (
       <InitialWrapper>
@@ -59,6 +48,17 @@ const Test = () => {
         <Text kind="error">
           You've imported a corrupted IDL. Please double check you've imported
           an Anchor IDL.
+        </Text>
+      </InitialWrapper>
+    );
+  }
+
+  if (error) {
+    return (
+      <InitialWrapper>
+        <Text kind="error">
+          Connection error. Please try changing the RPC endpoint from the
+          settings.
         </Text>
       </InitialWrapper>
     );
