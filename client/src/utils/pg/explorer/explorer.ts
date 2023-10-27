@@ -257,7 +257,7 @@ export class PgExplorer {
       // `newPath` exists
       let newPathExists: boolean;
       if (itemType.file) {
-        newPathExists = !this.getFile(newPath);
+        newPathExists = !!this.getFile(newPath);
       } else {
         const { files, folders } = this.getFolderContent(newPath);
         newPathExists = files.length > 0 || folders.length > 0;
@@ -270,10 +270,7 @@ export class PgExplorer {
 
     // Rename in state
     const files = this.files;
-    let currentFilePath = this.currentFilePath;
     const rename = (oldPath: string, newPath: string) => {
-      if (oldPath === currentFilePath) currentFilePath = newPath;
-
       // Store the item
       const item = files[oldPath];
 
