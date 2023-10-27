@@ -44,21 +44,21 @@ const Tutorials = () => {
   // Get tutorial data
   useAsyncEffect(async () => {
     // Better transition
-    await PgCommon.sleep(300);
+    const data = await PgCommon.transition(async () => {
+      const tutorialNames = PgTutorial.getUserTutorialNames();
+      const data: TutorialsData = { completed: [], ongoing: [] };
+      for (const tutorialName of tutorialNames) {
+        const tutorialData = PgTutorial.getTutorialData(tutorialName);
+        if (!tutorialData) continue;
 
-    const tutorialNames = PgTutorial.getUserTutorialNames();
-    const data: TutorialsData = { completed: [], ongoing: [] };
-    for (const tutorialName of tutorialNames) {
-      const tutorialData = PgTutorial.getTutorialData(tutorialName);
-      if (!tutorialData) continue;
-
-      const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
-      if (tutorialMetadata.completed) {
-        data.completed.push({ ...tutorialData, ...tutorialMetadata });
-      } else {
-        data.ongoing.push({ ...tutorialData, ...tutorialMetadata });
+        const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
+        const tutorialFullData = { ...tutorialData, ...tutorialMetadata };
+        if (tutorialMetadata.completed) data.completed.push(tutorialFullData);
+        else data.ongoing.push(tutorialFullData);
       }
-    }
+
+      return data;
+    });
 
     setTutorialsData(data);
   }, []);

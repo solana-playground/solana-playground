@@ -382,7 +382,7 @@ const getButtonStyles = ({
       display: flex;
 
       & > * {
-        margin-right: 0.25rem;
+        margin-right: 0.375rem;
       }
     }
 
@@ -391,7 +391,7 @@ const getButtonStyles = ({
       display: flex;
 
       & > * {
-        margin-left: 0.25rem;
+        margin-left: 0.375rem;
       }
     }
 
@@ -421,9 +421,6 @@ const getButtonStyles = ({
 
   if (kind === "icon") {
     defaultCss = defaultCss.concat(css`
-      display: flex;
-      justify-content: center;
-      align-items: center;
       height: fit-content;
       width: fit-content;
 
@@ -431,14 +428,6 @@ const getButtonStyles = ({
       svg {
         width: 1rem;
         height: 1rem;
-      }
-
-      & > span.left-icon {
-        margin-right: 0.25rem;
-      }
-
-      & > span.right-icon {
-        margin-left: 0.25rem;
       }
     `);
   }

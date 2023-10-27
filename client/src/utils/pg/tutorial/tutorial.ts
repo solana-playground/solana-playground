@@ -19,12 +19,12 @@ const defaultState: TutorialState = {
 };
 
 const storage = {
-  /** Relative path to program info */
+  /** Relative path to the tutorial info */
   PATH: ".tutorial.json",
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<TutorialState> {
-    if (!PgTutorial.isStarted(PgTutorial.data?.name)) {
+    if (!PgTutorial.data || !PgTutorial.isStarted(PgTutorial.data.name)) {
       return { ...defaultState, data: PgTutorial.data };
     }
 
@@ -40,7 +40,9 @@ const storage = {
 
   /** Serialize the data and write to storage. */
   async write(state: TutorialState) {
-    if (!PgTutorial.isStarted(PgTutorial.data?.name)) return;
+    if (!PgTutorial.data || !PgTutorial.isStarted(PgTutorial.data.name)) {
+      return;
+    }
 
     // Don't use spread operator(...) because of the extra state
     const serializedState: SerializedTutorialState = {
@@ -108,8 +110,8 @@ class _PgTutorial {
    * @param name tutorial name
    * @returns whether the tutorial is started
    */
-  static isStarted(name: string | undefined) {
-    return (!!name && PgExplorer.allWorkspaceNames?.includes(name)) ?? false;
+  static isStarted(name: string) {
+    return PgExplorer.allWorkspaceNames?.includes(name) ?? false;
   }
 
   /**
@@ -118,12 +120,8 @@ class _PgTutorial {
    * @param name tutorial name
    * @returns tutorial metadata
    */
-  static async getMetadata(name: string): Promise<TutorialMetadata> {
-    if (!this.isWorkspaceTutorial(name)) {
-      throw new Error(`'${name}' is not a tutorial.`);
-    }
-
-    return await PgExplorer.fs.readToJSON(
+  static async getMetadata(name: string) {
+    return await PgExplorer.fs.readToJSON<TutorialMetadata>(
       PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, storage.PATH])
     );
   }
@@ -156,7 +154,7 @@ class _PgTutorial {
   /**
    * Start the current tutorial.
    *
-   * This method doesn't can only start the current selected tutorial.
+   * This method can only start the current selected tutorial.
    *
    * @param props tutorial properties
    */
@@ -169,7 +167,7 @@ class _PgTutorial {
     const tutorialName = PgTutorial.data?.name;
     if (!tutorialName) throw new Error("Tutorial is not selected");
 
-    if (PgExplorer.allWorkspaceNames?.includes(tutorialName)) {
+    if (PgTutorial.isStarted(tutorialName)) {
       await this.open(tutorialName);
     } else {
       // Initial tutorial setup

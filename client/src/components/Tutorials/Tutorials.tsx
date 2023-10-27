@@ -17,8 +17,8 @@ export const Tutorials = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get(SEARCH_PARAM) ?? "";
 
-  const filters = FILTERS.map((f: { param: string; tutorialKey?: string }) => ({
-    key: (f.tutorialKey ?? f.param) as "level",
+  const filters = FILTERS.map((f) => ({
+    key: f.param,
     value: searchParams.getAll(f.param),
   }));
 

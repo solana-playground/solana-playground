@@ -14,22 +14,20 @@ export const FILTERS = [
     filters: TUTORIAL_LEVELS,
     sortFn: sortByLevel,
   },
-  { param: "framework", filters: TUTORIAL_FRAMEWORKS },
   {
-    param: "language",
+    param: "framework",
+    filters: TUTORIAL_FRAMEWORKS,
+  },
+  {
+    param: "languages",
     filters: TUTORIAL_LANGUAGES,
-    tutorialKey: "languages",
   },
   // TODO: Enable once there are more tutorials with various categories
   // {
-  //   param: "category",
+  //   param: "categories",
   //   filters: TUTORIAL_CATEGORIES,
-  //   tutorialKey: "categories",
   // },
 ] as const;
-
-/** Tutorial search parameters */
-export type FilterParam = typeof FILTERS[number]["param"];
 
 /**
  * Filter the query based on the search values and the tutorial values.

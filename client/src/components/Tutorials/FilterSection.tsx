@@ -3,13 +3,11 @@ import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import Checkbox from "../Checkbox";
-import LangIcon from "../LangIcon";
-import { Framework, Level } from "./TutorialCard";
-import type { FilterParam } from "./filters";
-import type { TutorialLanguage } from "../../utils/pg";
+import TutorialDetail from "../Tutorial/TutorialDetail";
+import type { TutorialDetailKey } from "../../utils/pg";
 
 interface FilterSectionProps {
-  param: FilterParam;
+  param: TutorialDetailKey;
   filters: readonly string[];
   sortFn?: (a: string, b: string) => number;
 }
@@ -27,7 +25,7 @@ const FilterSection: FC<FilterSectionProps> = ({ param, filters, sortFn }) => {
         .map((filter) => (
           <Checkbox
             key={filter}
-            label={<FilterLabel query={param}>{filter}</FilterLabel>}
+            label={<FilterLabel kind={param}>{filter}</FilterLabel>}
             checked={searchValues.includes(filter)}
             onChange={(ev) => {
               if (ev.target.checked) {
@@ -66,70 +64,17 @@ const FilterSectionTitle = styled.div`
   `}
 `;
 
-interface FilterLabelProps {
-  query: FilterParam;
-  children: any;
-}
-
-const FilterLabel: FC<FilterLabelProps> = ({ query, ...props }) => {
-  switch (query) {
-    case "level":
-      return <Level {...props} />;
-    case "framework":
-      return <FilterLabelFramework {...props} />;
-    case "language":
-      return <Language {...props} />;
-    // case "category":
-    //   return <Category {...props} />;
-  }
-};
-
-const FilterLabelFramework = styled(Framework)`
-  padding: 0 0.25rem;
-  background: none;
-  box-shadow: none;
-`;
-
-interface LanguageProps {
-  children: TutorialLanguage;
-}
-
-const Language: FC<LanguageProps> = ({ children }) => (
-  <LanguageWrapper>
-    <LangIcon fileName={getLanguageExtension(children)} />
-    {children}
-  </LanguageWrapper>
-);
-
-const LanguageWrapper = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-    font-size: ${theme.font.other.size.small};
-    font-weight: bold;
-
-    & *:first-child {
-      margin-right: 0.375rem;
+const FilterLabel = styled(TutorialDetail)`
+  ${({ kind }) => {
+    // Reset the default box styles except `level`
+    if (kind !== "level") {
+      return css`
+        padding: 0 0.25rem;
+        background: none !important;
+        box-shadow: none;
+      `;
     }
-  `}
+  }}
 `;
-
-const getLanguageExtension = (lang: TutorialLanguage) => {
-  switch (lang) {
-    case "Python":
-      return ".py";
-    case "Rust":
-      return ".rs";
-    case "TypeScript":
-      return ".ts";
-  }
-};
-
-// const Category = styled.span`
-//   ${({ theme }) => css`
-//     font-size: ${theme.font.other.size.small};
-//     font-weight: bold;
-//   `}
-// `;
 
 export default FilterSection;

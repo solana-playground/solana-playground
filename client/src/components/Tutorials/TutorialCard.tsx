@@ -1,14 +1,9 @@
-import { FC, useMemo } from "react";
+import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../Img";
-import {
-  PgFramework,
-  PgTheme,
-  PgTutorial,
-  TutorialData,
-  TutorialLevel,
-} from "../../utils/pg";
+import { PgTheme, PgTutorial, TutorialData } from "../../utils/pg";
+import TutorialDetail from "../Tutorial/TutorialDetail";
 
 const TutorialCard: FC<TutorialData> = ({
   name,
@@ -27,13 +22,15 @@ const TutorialCard: FC<TutorialData> = ({
         <InfoTopSection>
           <NameRow>
             <Name>{name}</Name>
-            <Level>{level}</Level>
+            <TutorialDetail kind="level">{level}</TutorialDetail>
           </NameRow>
           <Description>{description}</Description>
         </InfoTopSection>
 
         <InfoBottomSection>
-          {framework && <Framework>{framework}</Framework>}
+          {framework && (
+            <TutorialDetail kind="framework">{framework}</TutorialDetail>
+          )}
         </InfoBottomSection>
       </InfoWrapper>
     </InsideWrapper>
@@ -130,28 +127,6 @@ const Name = styled.span`
   font-weight: bold;
 `;
 
-export const Level = styled.span<{ children: TutorialLevel }>`
-  ${({ children, theme }) => {
-    const state =
-      children === "Beginner"
-        ? "success"
-        : children === "Intermediate"
-        ? "warning"
-        : children === "Advanced"
-        ? "info"
-        : "error";
-    return css`
-      padding: 0.25rem 0.5rem;
-      background: ${theme.colors.state[state].bg};
-      color: ${theme.colors.state[state].color} !important;
-      border-radius: ${theme.default.borderRadius};
-      font-size: ${theme.font.other.size.xsmall};
-      font-weight: bold;
-      text-transform: uppercase;
-    `;
-  }}
-`;
-
 const Description = styled.div`
   ${({ theme }) => css`
     margin-top: 0.75rem;
@@ -164,45 +139,5 @@ const Description = styled.div`
 `;
 
 const InfoBottomSection = styled.div``;
-
-interface FrameworkProps {
-  children: FrameworkName;
-}
-
-export const Framework: FC<FrameworkProps> = ({ children, ...props }) => {
-  const framework = useMemo(() => PgFramework.get(children), [children]);
-  return (
-    <FrameworkWrapper {...props}>
-      <FrameworkImage src={framework.icon} $circle={framework.circleImage} />
-      {children}
-    </FrameworkWrapper>
-  );
-};
-
-const FrameworkWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 0.5rem 0.75rem;
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    background: ${PgTheme.getDifferentBackground(
-      theme.components.main.views.tutorials.main.tutorials.card.default.bg
-    )};
-    color: ${theme.colors.default.textSecondary};
-    border-radius: ${theme.default.borderRadius};
-    box-shadow: ${theme.default.boxShadow};
-    font-size: ${theme.font.other.size.small};
-    font-weight: bold;
-  `}
-`;
-
-const FrameworkImage = styled(Img)<{ $circle?: boolean }>`
-  ${({ $circle }) => css`
-    margin-right: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-    ${$circle && "border-radius: 50%"};
-  `}
-`;
 
 export default TutorialCard;

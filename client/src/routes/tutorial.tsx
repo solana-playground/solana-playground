@@ -48,9 +48,7 @@ export const tutorial = PgRouter.create({
         PgTutorial.update({ view: "about" });
       } else {
         // Get whether the tutorial has started
-        const started = PgTutorial.getUserTutorialNames().includes(
-          tutorial.name
-        );
+        const started = PgTutorial.isStarted(tutorial.name);
         if (started) PgTutorial.update({ view: "main" });
         else PgRouter.navigate();
       }

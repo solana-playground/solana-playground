@@ -5,17 +5,17 @@ export const TUTORIAL_LEVELS = [
 ] as const;
 
 export const TUTORIAL_FRAMEWORKS: readonly FrameworkName[] = [
-  "Native",
   "Anchor",
+  "Native",
   "Seahorse",
 ] as const;
 
-export const TUTORIAL_LANGUAGES = ["Rust", "Python", "TypeScript"] as const;
+export const TUTORIAL_LANGUAGES = ["Python", "Rust", "TypeScript"] as const;
 
 export const TUTORIAL_CATEGORIES = [
   "DeFi",
-  "NFTs",
   "Gaming",
+  "NFTs",
   "Payments",
   "Staking",
   "Other",
