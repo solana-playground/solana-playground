@@ -6,19 +6,19 @@ import Checkbox from "../Checkbox";
 import TutorialDetail from "../Tutorial/TutorialDetail";
 import type { TutorialDetailKey } from "../../utils/pg";
 
-interface FilterSectionProps {
+interface FilterGroupProps {
   param: TutorialDetailKey;
   filters: readonly string[];
   sortFn?: (a: string, b: string) => number;
 }
 
-const FilterSection: FC<FilterSectionProps> = ({ param, filters, sortFn }) => {
+const FilterGroup: FC<FilterGroupProps> = ({ param, filters, sortFn }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchValues = searchParams.getAll(param);
 
   return (
-    <FilterSectionWrapper>
-      <FilterSectionTitle>{param}</FilterSectionTitle>
+    <FilterGroupWrapper>
+      <FilterGroupTitle>{param}</FilterGroupTitle>
       {filters
         .filter(Boolean)
         .sort(sortFn)
@@ -42,11 +42,11 @@ const FilterSection: FC<FilterSectionProps> = ({ param, filters, sortFn }) => {
             }}
           />
         ))}
-    </FilterSectionWrapper>
+    </FilterGroupWrapper>
   );
 };
 
-const FilterSectionWrapper = styled.div`
+const FilterGroupWrapper = styled.div`
   padding: 1rem;
 
   & label {
@@ -55,7 +55,7 @@ const FilterSectionWrapper = styled.div`
   }
 `;
 
-const FilterSectionTitle = styled.div`
+const FilterGroupTitle = styled.div`
   ${({ theme }) => css`
     font-weight: bold;
     text-transform: uppercase;
@@ -77,4 +77,4 @@ const FilterLabel = styled(TutorialDetail)`
   }}
 `;
 
-export default FilterSection;
+export default FilterGroup;

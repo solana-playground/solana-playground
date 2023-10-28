@@ -43,6 +43,8 @@ export interface TutorialDataInit {
   languages?: TutorialLanguage[];
   /** Category of the tutorial. Can specify up to 3 categories. */
   categories?: TutorialCategory[];
+  /** Whether the tutorial is featured */
+  featured?: boolean;
   /**
    * Tutorial cover image that will be shown in tutorials section.
    *

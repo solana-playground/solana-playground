@@ -125,6 +125,9 @@ const PLAYGROUND: Theme = {
                   boxShadow: BOX_SHADOW_LIGHT,
                 },
               },
+              featured: {
+                boxShadow: BOX_SHADOW_LIGHT,
+              },
             },
           },
         },

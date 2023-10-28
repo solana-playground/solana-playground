@@ -23,7 +23,7 @@ import {
   Plus,
   Trash,
 } from "../../../../components/Icons";
-import { PgExplorer, PgTutorial, PgView } from "../../../../utils/pg";
+import { PgCommon, PgExplorer, PgTutorial, PgView } from "../../../../utils/pg";
 import { useExplorer } from "../../../../hooks";
 
 const Workspaces = () => {
@@ -84,10 +84,8 @@ const WorkspaceSelect = () => {
   const { explorer } = useExplorer();
 
   const options = useMemo(() => {
-    const projects = PgExplorer.allWorkspaceNames!.filter(
-      (name) => !PgTutorial.isWorkspaceTutorial(name)
-    );
-    const tutorials = PgExplorer.allWorkspaceNames!.filter(
+    const [tutorials, projects] = PgCommon.filterWithRemaining(
+      PgExplorer.allWorkspaceNames!,
       PgTutorial.isWorkspaceTutorial
     );
 

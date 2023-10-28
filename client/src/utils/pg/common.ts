@@ -342,8 +342,52 @@ export class PgCommon {
    * @param array array to convert
    * @returns an array with only the unique elements
    */
-  static toUniqueArray<T extends unknown[]>(array: T) {
-    return [...new Set(array)] as T;
+  static toUniqueArray<A extends unknown[]>(array: A) {
+    return [...new Set(array)] as A;
+  }
+
+  /**
+   * Split the given array at the given index.
+   *
+   * # Ranges
+   *
+   * - First array: `[0, index)`
+   * - Second array: `[index, len)`
+   *
+   * # Example
+   *
+   * ```ts
+   * const result = PgCommon.splitAtIndex(["a", "b", "c"], 1);
+   * // [["a"], ["b", "c"]]
+   * ```
+   *
+   * @param array array to split
+   * @param index split index
+   * @returns the splitted 2 arrays
+   */
+  static splitAtIndex<A extends unknown[]>(array: A, index: number) {
+    return [array.slice(0, index), array.slice(index)] as [A, A];
+  }
+
+  /**
+   * Filter the array but also return the remaining array.
+   *
+   * @param array array to filter
+   * @param predicate callback function for each of the array elements
+   * @returns a tuple of `[filtered, remaining]`
+   */
+  static filterWithRemaining<T>(
+    array: T[],
+    predicate: (value: T, index: number) => unknown
+  ) {
+    return array.reduce(
+      (acc, cur, i) => {
+        const filterIndex = predicate(cur, i) ? 0 : 1;
+        acc[filterIndex].push(cur);
+        return acc;
+      },
+      [[], []] as [T[], T[]]
+    );
   }
 
   /**

@@ -4,14 +4,9 @@ import styled, { css } from "styled-components";
 import Button from "../../Button";
 import Link from "../../Link";
 import Markdown from "../../Markdown";
-import TutorialDetail from "../TutorialDetail";
+import TutorialDetails from "../TutorialDetails";
 import { PointedArrow, Triangle } from "../../Icons";
-import {
-  Arrayable,
-  PgTheme,
-  PgTutorial,
-  TutorialDetailKey,
-} from "../../../utils/pg";
+import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialAboutComponentProps } from "../types";
 
 export const About: FC<TutorialAboutComponentProps> = ({
@@ -175,91 +170,6 @@ const GeneratedBottomWrapper = styled.div`
 const TutorialDescription = styled.p`
   color: ${({ theme }) => theme.colors.default.textSecondary};
   line-height: 1.5;
-`;
-
-interface TutorialDetailsProps {
-  details: ClickableTutorialDetailProps[];
-}
-
-const TutorialDetails: FC<TutorialDetailsProps> = ({ details }) => (
-  <TutorialDetailsWrapper>
-    {details.map(({ kind, data }) => {
-      return (
-        data && (
-          <TutorialDetailSection key={kind}>
-            <TutorialDetailName>{kind}</TutorialDetailName>
-
-            <TutorialDetailWrapper>
-              {Array.isArray(data) ? (
-                data.map((data) => (
-                  <ClickableTutorialDetail key={data} kind={kind} data={data} />
-                ))
-              ) : (
-                <ClickableTutorialDetail kind={kind} data={data} />
-              )}
-            </TutorialDetailWrapper>
-          </TutorialDetailSection>
-        )
-      );
-    })}
-  </TutorialDetailsWrapper>
-);
-
-const TutorialDetailsWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 2rem;
-    background: ${PgTheme.getDifferentBackground(
-      theme.components.main.views.tutorial.aboutPage.bg
-    )};
-    border-radius: ${theme.default.borderRadius};
-  `}
-`;
-
-const TutorialDetailSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const TutorialDetailName = styled.span`
-  ${({ theme }) => css`
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    font-size: ${theme.font.other.size.small};
-  `}
-`;
-
-const TutorialDetailWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
-
-interface ClickableTutorialDetailProps {
-  kind: TutorialDetailKey;
-  data: Arrayable<string> | undefined;
-}
-
-const ClickableTutorialDetail: FC<ClickableTutorialDetailProps> = ({
-  data,
-  ...props
-}) => (
-  <ClickableTutorialDetailWrapper href={`/tutorials?${props.kind}=${data}`}>
-    <TutorialDetail {...props}>{data}</TutorialDetail>
-  </ClickableTutorialDetailWrapper>
-);
-
-const ClickableTutorialDetailWrapper = styled(Link)`
-  ${({ theme }) => css`
-    &:hover * {
-      color: ${theme.colors.default.textPrimary};
-    }
-  `}
 `;
 
 const CustomWrapper = styled.div``;

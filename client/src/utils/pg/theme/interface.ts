@@ -197,6 +197,8 @@ export interface Theme {
                 /** Wrapper gradient */
                 gradient?: DefaultComponent;
               }>;
+              /** Featured tutorial component */
+              featured?: DefaultComponent;
             }>;
           }>;
         }>;

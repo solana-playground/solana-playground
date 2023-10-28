@@ -1654,13 +1654,15 @@ export class PgTheme {
 
     // Main tutorials
     tutorials.main.tutorials ??= {};
+
     // Main tutorials default
     tutorials.main.tutorials.default ??= {};
-    tutorials.main.tutorials.default.padding ??= "1.5rem";
     tutorials.main.tutorials.default.flex ??= "1";
+    tutorials.main.tutorials.default.padding ??= "1.5rem";
     tutorials.main.tutorials.default.display ??= "flex";
-    tutorials.main.tutorials.default.flexWrap ??= "wrap";
-    tutorials.main.tutorials.default.gap ??= "0.5rem";
+    tutorials.main.tutorials.default.flexDirection ??= "column";
+    tutorials.main.tutorials.default.gap ??= "2rem";
+    tutorials.main.tutorials.default.bg ??= tutorials.main.default.bg;
     tutorials.main.tutorials.default.borderTopRightRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
     tutorials.main.tutorials.default.borderBottomRightRadius ??=
@@ -1684,6 +1686,15 @@ export class PgTheme {
       ${theme.default.transition.type}`;
     //Main tutorials card gradient
     card.gradient ??= {};
+    // Main tutorials featured tutorial
+    tutorials.main.tutorials.featured ??= {};
+    const featured = tutorials.main.tutorials.featured;
+    featured.height ??= "20rem";
+    featured.display ??= "flex";
+    featured.border ??= `1px solid ${theme.colors.default.border}`;
+    featured.borderRadius ??= theme.default.borderRadius;
+    featured.boxShadow ??= theme.default.boxShadow;
+    featured.overflow ??= "hidden";
 
     return this;
   }

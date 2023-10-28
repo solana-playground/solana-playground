@@ -1,7 +1,7 @@
 import { useLocation, useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
-import FilterSection from "./FilterSection";
+import FilterGroup from "./FilterGroup";
 import TutorialCard from "./TutorialCard";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
@@ -9,7 +9,8 @@ import Text from "../Text";
 import { filterQuery, FILTERS, sortByLevel } from "./filters";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
-import { PgRouter, PgTheme, PgTutorial } from "../../utils/pg";
+import { PgCommon, PgRouter, PgTheme, PgTutorial } from "../../utils/pg";
+import FeaturedTutorial from "./FeaturedTutorial";
 
 const SEARCH_PARAM = "search";
 
@@ -21,14 +22,17 @@ export const Tutorials = () => {
     key: f.param,
     value: searchParams.getAll(f.param),
   }));
-  const filteredTutorials = PgTutorial.tutorials
-    .filter((t) => {
-      return (
-        t.name.toLowerCase().includes(search.toLowerCase()) &&
-        filters.every((f) => filterQuery(f.value, t[f.key]))
-      );
-    })
-    .sort((a, b) => sortByLevel(a.level, b.level));
+  const [featuredTutorials, regularTutorials] = PgCommon.filterWithRemaining(
+    PgTutorial.tutorials
+      .filter((t) => {
+        return (
+          t.name.toLowerCase().includes(search.toLowerCase()) &&
+          filters.every((f) => filterQuery(f.value, t[f.key]))
+        );
+      })
+      .sort((a, b) => sortByLevel(a.level, b.level)),
+    (t) => t.featured
+  );
 
   // If the user clicks a tutorial, the `pathname` will be the tutorial's path.
   // This causes flickering when filters are applied before the click because
@@ -59,15 +63,25 @@ export const Tutorials = () => {
         <MainSection>
           <FiltersWrapper>
             {FILTERS.map((f) => (
-              <FilterSection key={f.param} {...f} />
+              <FilterGroup key={f.param} {...f} />
             ))}
           </FiltersWrapper>
 
           <TutorialsWrapper>
-            {filteredTutorials.length ? (
-              filteredTutorials.map((t) => <TutorialCard key={t.name} {...t} />)
-            ) : (
+            {!featuredTutorials.length && !regularTutorials.length && (
               <NoMatch />
+            )}
+
+            {featuredTutorials.length > 0 && (
+              <FeaturedTutorial tutorial={featuredTutorials[0]} />
+            )}
+
+            {regularTutorials.length > 0 && (
+              <RegularTutorialsWrapper>
+                {regularTutorials.map((t) => (
+                  <TutorialCard key={t.name} {...t} />
+                ))}
+              </RegularTutorialsWrapper>
             )}
           </TutorialsWrapper>
         </MainSection>
@@ -122,6 +136,12 @@ const TutorialsWrapper = styled.div`
       theme.components.main.views.tutorials.main.tutorials.default
     )};
   `}
+`;
+
+const RegularTutorialsWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
 const NoMatch = () => (

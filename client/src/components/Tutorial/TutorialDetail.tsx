@@ -77,7 +77,7 @@ interface FrameworkProps {
 
 const Framework: FC<FrameworkProps> = ({ children, ...props }) => {
   const framework = useMemo(() => PgFramework.get(children), [children]);
-  const { ref } = useDifferentBackground();
+  const { ref } = useDelayedDifferentBackground();
 
   return (
     <Boxed ref={ref} {...props}>
@@ -100,7 +100,7 @@ interface LanguageProps {
 }
 
 const Language: FC<LanguageProps> = ({ children, ...props }) => {
-  const { ref } = useDifferentBackground();
+  const { ref } = useDelayedDifferentBackground();
 
   return (
     <Boxed ref={ref} {...props}>
@@ -124,8 +124,14 @@ const getLanguageExtension = (lang: TutorialLanguage) => {
 interface CategoryProps {}
 
 const Category: FC<CategoryProps> = (props) => {
-  const { ref } = useDifferentBackground();
+  const { ref } = useDelayedDifferentBackground();
   return <Boxed ref={ref} {...props} />;
 };
+
+/**
+ * Add a delay to decide the parent background because the parent background may
+ * also be using `useDifferentBackground` hook.
+ */
+const useDelayedDifferentBackground = () => useDifferentBackground(10);
 
 export default TutorialDetail;
