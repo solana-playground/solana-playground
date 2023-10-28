@@ -45,7 +45,10 @@ const Tutorials = () => {
   useAsyncEffect(async () => {
     // Better transition
     const data = await PgCommon.transition(async () => {
-      const tutorialNames = PgTutorial.getUserTutorialNames();
+      const tutorialNames = await PgCommon.tryUntilSuccess(
+        () => PgTutorial.getUserTutorialNames(),
+        100
+      );
       const data: TutorialsData = { completed: [], ongoing: [] };
       for (const tutorialName of tutorialNames) {
         const tutorialData = PgTutorial.getTutorialData(tutorialName);

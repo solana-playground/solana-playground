@@ -100,8 +100,11 @@ class _PgTutorial {
    *
    * @returns user tutorial names
    */
-  static getUserTutorialNames() {
-    return PgExplorer.allWorkspaceNames?.filter(this.isWorkspaceTutorial) ?? [];
+  static async getUserTutorialNames() {
+    if (!PgExplorer.allWorkspaceNames) {
+      throw new Error("Explorer not initialized");
+    }
+    return PgExplorer.allWorkspaceNames.filter(this.isWorkspaceTutorial);
   }
 
   /**

@@ -70,7 +70,7 @@ export class PgCommon {
    * @returns the return value of the callback
    */
   static async tryUntilSuccess<T>(
-    cb: () => Promise<T>,
+    cb: () => SyncOrAsync<T>,
     tryInterval: number
   ): Promise<T> {
     let returnValue: T;

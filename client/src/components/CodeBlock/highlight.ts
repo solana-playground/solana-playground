@@ -44,7 +44,7 @@ const initializeHighlighter = async () => {
   if (highlighter) return;
 
   if (isInitializing) {
-    return await PgCommon.tryUntilSuccess(async () => {
+    return await PgCommon.tryUntilSuccess(() => {
       if (!highlighter) throw new Error();
     }, 100);
   }

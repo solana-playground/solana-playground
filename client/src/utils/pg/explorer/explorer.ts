@@ -14,23 +14,27 @@ import type {
   Position,
 } from "./types";
 
-/**
- * Class that has both static and non-static methods for explorer.
- */
 export class PgExplorer {
   /** Internal state */
   private static _explorer = this._getDefaultState();
+  /** Whether the explorer is initialized */
+  private static _isInitialized = false;
+  /** Whether the current explorer state is temporary */
+  private static _isTemporary: boolean;
   /** Workspace functionality */
   private static _workspace: PgWorkspace | null = null;
   /** Current initialized workspace name */
   private static _initializedWorkspaceName: string | null = null;
-  /** Whether the current explorer state is temporary */
-  private static _isTemporary: boolean;
 
   /** `indexedDB` file system */
   static fs = PgFs;
 
   /* -------------------------------- Getters ------------------------------- */
+
+  /** Get whether the explorer is initialized */
+  static get isInitialized() {
+    return this._isInitialized;
+  }
 
   /** Get whether the current workspace is temporary */
   static get isTemporary() {
@@ -119,11 +123,7 @@ export class PgExplorer {
     ) {
     } else {
       this._isTemporary = false;
-
-      if (!this._workspace) {
-        this._workspace = new PgWorkspace();
-        await this._initWorkspaces();
-      }
+      if (!this._workspace) await this._initWorkspaces();
 
       // Check whether the workspace exists
       const workspaceName = params?.name ?? this.currentWorkspaceName;
@@ -136,6 +136,8 @@ export class PgExplorer {
         this._explorer = this._getDefaultState();
       }
     }
+
+    this._isInitialized = true;
 
     PgExplorerEvent.dispatchOnDidInit();
   }
@@ -401,12 +403,11 @@ export class PgExplorer {
       // function with { files } is because we would lose the tab info. Instead we
       // are creating a valid workspace state and writing it to `indexedDB`.
       this._isTemporary = false;
-      this._workspace = new PgWorkspace();
 
       // Init workspace
       await this._initWorkspaces();
       // Create a new workspace in state
-      this._workspace.new(name);
+      this._workspace!.new(name);
 
       // Change state paths(temporary projects start with /src)
       const getFullPath = (path: string) => {
@@ -1232,11 +1233,8 @@ export class PgExplorer {
 
   /** Initialize workspaces from `indexedDB` to state. */
   private static async _initWorkspaces() {
-    if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
-    }
-
     const workspaces = await this._getWorkspaces();
+    this._workspace ??= new PgWorkspace();
     this._workspace.setCurrent(workspaces);
 
     await this._saveWorkspaces();
