@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import FilterSection from "./FilterSection";
@@ -9,7 +9,7 @@ import Text from "../Text";
 import { filterQuery, FILTERS, sortByLevel } from "./filters";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
-import { PgTheme, PgTutorial } from "../../utils/pg";
+import { PgRouter, PgTheme, PgTutorial } from "../../utils/pg";
 
 const SEARCH_PARAM = "search";
 
@@ -21,7 +21,6 @@ export const Tutorials = () => {
     key: f.param,
     value: searchParams.getAll(f.param),
   }));
-
   const filteredTutorials = PgTutorial.tutorials
     .filter((t) => {
       return (
@@ -30,6 +29,14 @@ export const Tutorials = () => {
       );
     })
     .sort((a, b) => sortByLevel(a.level, b.level));
+
+  // If the user clicks a tutorial, the `pathname` will be the tutorial's path.
+  // This causes flickering when filters are applied before the click because
+  // filters will get reset before the component unmounts which makes the
+  // unfiltered tutorials show up just before the component unmounts.
+  // TODO: Make sure routes don't leak
+  const { pathname } = useLocation();
+  if (!PgRouter.isPathsEqual(pathname, "/tutorials")) return null;
 
   return (
     <Wrapper>
