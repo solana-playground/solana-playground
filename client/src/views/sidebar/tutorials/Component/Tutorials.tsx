@@ -43,25 +43,26 @@ const Tutorials = () => {
 
   // Get tutorial data
   useAsyncEffect(async () => {
-    // Better transition
-    const data = await PgCommon.transition(async () => {
-      const tutorialNames = await PgCommon.tryUntilSuccess(
-        () => PgTutorial.getUserTutorialNames(),
-        100
-      );
-      const data: TutorialsData = { completed: [], ongoing: [] };
-      for (const tutorialName of tutorialNames) {
-        const tutorialData = PgTutorial.getTutorialData(tutorialName);
-        if (!tutorialData) continue;
+    // Sleep here because:
+    // - If user starts on the `tutorials` route, the workspaces might not get
+    // initialized before this callback runs which causes errors while getting
+    // tutorial names with `PgTutorial.getUserTutorialNames`
+    // - The current tutorial's `completed` state might not have been saved yet
+    // after finishing the tutorial
+    // - Better transition
+    await PgCommon.sleep(300);
 
-        const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
-        const tutorialFullData = { ...tutorialData, ...tutorialMetadata };
-        if (tutorialMetadata.completed) data.completed.push(tutorialFullData);
-        else data.ongoing.push(tutorialFullData);
-      }
+    const tutorialNames = PgTutorial.getUserTutorialNames();
+    const data: TutorialsData = { completed: [], ongoing: [] };
+    for (const tutorialName of tutorialNames) {
+      const tutorialData = PgTutorial.getTutorialData(tutorialName);
+      if (!tutorialData) continue;
 
-      return data;
-    });
+      const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
+      const tutorialFullData = { ...tutorialData, ...tutorialMetadata };
+      if (tutorialMetadata.completed) data.completed.push(tutorialFullData);
+      else data.ongoing.push(tutorialFullData);
+    }
 
     setTutorialsData(data);
   }, []);

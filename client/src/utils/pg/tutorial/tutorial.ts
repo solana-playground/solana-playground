@@ -100,7 +100,7 @@ class _PgTutorial {
    *
    * @returns user tutorial names
    */
-  static async getUserTutorialNames() {
+  static getUserTutorialNames() {
     if (!PgExplorer.allWorkspaceNames) {
       throw new Error("Explorer not initialized");
     }
