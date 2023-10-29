@@ -1,12 +1,12 @@
 import type { ComponentType } from "react";
 
-import type { Nullable, RequiredKey } from "../types";
 import {
   TUTORIAL_CATEGORIES,
   TUTORIAL_FRAMEWORKS,
   TUTORIAL_LANGUAGES,
   TUTORIAL_LEVELS,
-} from "./filters";
+} from "./details";
+import type { Nullable, RequiredKey } from "../types";
 
 type Author = {
   /** Author's name that will be displayed as one of the creators of the tutorial */
@@ -50,7 +50,7 @@ export interface TutorialDataInit {
    *
    * It can either be `/tutorials/...` or full url to the image.
    *
-   * Thumbnails are displayed at 4:3 aspect ratio(320x240).
+   * Thumbnails are displayed at 4:3 aspect ratio(278x216).
    *
    * Defaults to `/tutorials/<tutorial-name>/thumbnail.*`.
    */
