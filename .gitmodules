@@ -1,0 +1,4 @@
+[submodule "client/public"]
+	path = client/public
+	url = git@github.com:solana-playground/assets.git
+	branch = master

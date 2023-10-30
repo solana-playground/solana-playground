@@ -18,9 +18,3 @@ server
 # WASM
 **/target
 **/www
-
-# Rust Analyzer crates
-client/public/crates
-
-# TypeScript declarations
-client/public/packages

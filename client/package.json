@@ -93,9 +93,9 @@
     "styled-components": "^5"
   },
   "scripts": {
-    "setup": "yarn build-wasm && yarn generate-crates && yarn generate-packages",
+    "setup": "git submodule update --init && yarn build-wasm && yarn generate-crates && yarn generate-packages",
     "start": "craco start",
-    "build": "GENERATE_SOURCEMAP=false craco build",
+    "build": "GENERATE_SOURCEMAP=false craco build && rm build/.gitignore",
     "build-wasm": "build=\"../wasm/build.sh\" && chmod +x $build && $build --update",
     "format": "prettier --write src/",
     "check-format": "prettier --check src/",
