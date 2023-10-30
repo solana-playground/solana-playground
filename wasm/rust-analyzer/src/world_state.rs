@@ -446,44 +446,30 @@ version = "0.0.0""#
     /// Get hover info.
     pub fn hover(&self, line_number: u32, column: u32) -> JsValue {
         let line_index = self.line_index();
-
-        let hover_result = match self
-            .analysis()
-            .hover(
-                &HoverConfig {
-                    links_in_hover: true,
-                    documentation: Some(HoverDocFormat::Markdown),
-                },
-                ide::FileRange {
-                    file_id: self.file_id,
-                    range: ide::TextRange::new(
-                        line_index
-                            .offset(ide::LineCol {
-                                line: line_number - 1,
-                                col: column - 1,
-                            })
-                            .unwrap(),
-                        line_index
-                            .offset(ide::LineCol {
-                                line: line_number - 1,
-                                col: column - 1,
-                            })
-                            .unwrap(),
-                    ),
-                },
-            )
-            .unwrap()
-        {
-            Some(hover_result) => hover_result,
-            _ => return JsValue::NULL,
-        };
-
-        let hover = return_types::Hover {
-            contents: vec![to_proto::markdown_string(
-                &hover_result.info.markup.to_string(),
-            )],
-            range: to_proto::text_range(hover_result.range, &line_index),
-        };
+        let hover = line_index
+            .offset(ide::LineCol {
+                line: line_number - 1,
+                col: column - 1,
+            })
+            .map(|offset| ide::TextRange::new(offset, offset))
+            .and_then(|range| {
+                self.analysis()
+                    .hover(
+                        &HoverConfig {
+                            links_in_hover: true,
+                            documentation: Some(HoverDocFormat::Markdown),
+                        },
+                        ide::FileRange {
+                            file_id: self.file_id,
+                            range,
+                        },
+                    )
+                    .unwrap()
+            })
+            .map(|hover_result| return_types::Hover {
+                contents: vec![to_proto::markdown_string(hover_result.info.markup.as_str())],
+                range: to_proto::text_range(hover_result.range, &line_index),
+            });
 
         serde_wasm_bindgen::to_value(&hover).unwrap()
     }
