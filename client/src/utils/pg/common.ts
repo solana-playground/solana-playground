@@ -455,13 +455,21 @@ export class PgCommon {
   }
 
   /**
-   * @returns utf-8 encoded string from the arg
+   * Encode the given content to data URL.
+   *
+   * @param content content to encode
+   * @returns the encoded data URL
    */
-  static getUtf8EncodedString(object: object) {
-    return (
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(object))
-    );
+  static getDataUrl(content: string | object) {
+    if (content instanceof Buffer) {
+      return `data:text/plain;base64,${content.toString("base64")}`;
+    }
+
+    if (typeof content !== "string") {
+      content = JSON.stringify(content);
+    }
+
+    return "data:text/json;charset=utf-8," + encodeURIComponent(content);
   }
 
   /**
@@ -977,19 +985,15 @@ export class PgCommon {
   }
 
   /**
-   * Export the content as a file
+   * Export the given content as a file.
    *
    * @param name name of the exported file
    * @param content content of the exported file
    */
   static export(name: string, content: string | object) {
-    if (typeof content === "object") {
-      content = PgCommon.getUtf8EncodedString(content);
-    }
-
     const el = document.createElement("a");
     el.download = name;
-    el.href = content;
+    el.href = PgCommon.getDataUrl(content);
     el.click();
   }
 

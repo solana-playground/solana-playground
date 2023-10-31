@@ -67,9 +67,7 @@ const NewKeypairModal = () => {
           </Text>
         </WarningTextWrapper>
         <ExportButton
-          href={PgCommon.getUtf8EncodedString(
-            Array.from(PgProgramInfo.kp!.secretKey)
-          )}
+          href={Array.from(PgProgramInfo.kp!.secretKey)}
           fileName="program-keypair.json"
           buttonKind="outline"
         >
@@ -119,9 +117,7 @@ const Export = () => {
 
   return (
     <ExportButton
-      href={PgCommon.getUtf8EncodedString(
-        Array.from(PgProgramInfo.kp.secretKey)
-      )}
+      href={PgCommon.getDataUrl(Array.from(PgProgramInfo.kp.secretKey))}
       fileName="program-keypair.json"
     >
       Export

@@ -51,10 +51,7 @@ const Export = () => {
   if (!PgProgramInfo.idl) return null;
 
   return (
-    <ExportButton
-      href={PgCommon.getUtf8EncodedString(PgProgramInfo.idl)}
-      fileName="idl.json"
-    >
+    <ExportButton href={PgProgramInfo.idl} fileName="idl.json">
       Export
     </ExportButton>
   );

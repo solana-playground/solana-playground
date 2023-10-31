@@ -18,10 +18,7 @@ const ExportButton: FC<ExportButtonProps> = ({
   noButton = false,
   children,
 }) => (
-  <Wrapper
-    href={typeof href === "string" ? href : PgCommon.getUtf8EncodedString(href)}
-    download={fileName}
-  >
+  <Wrapper href={PgCommon.getDataUrl(href)} download={fileName}>
     {noButton ? (
       <div>{children}</div>
     ) : (
