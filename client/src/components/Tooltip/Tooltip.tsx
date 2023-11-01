@@ -18,6 +18,8 @@ import { PgCommon, PgTheme, ValueOf } from "../../utils/pg";
 export interface TooltipProps {
   /** Tooltip element to show on hover */
   element: ReactNode;
+  /** The amount of miliseconds to hover before the tooltip is visible */
+  delay?: number;
   /** Max allowed with for the tooltip text */
   maxWidth?: number | string;
   /** Whether to use secondary background color for the tooltip */
@@ -29,7 +31,7 @@ interface Position {
   y: number;
 }
 
-const Tooltip: FC<TooltipProps> = ({ children, ...props }) => {
+const Tooltip: FC<TooltipProps> = ({ delay = 300, children, ...props }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [midPoint, setMidPoint] = useState(0);
@@ -104,35 +106,6 @@ const Tooltip: FC<TooltipProps> = ({ children, ...props }) => {
   useEffect(() => {
     if (!isVisible) return;
 
-    const getRoundedClientRect = (el: HTMLDivElement) => {
-      type RoundedRect = Omit<DOMRect, "toJSON">;
-      const addPadding = (
-        key: keyof RoundedRect,
-        value: ValueOf<RoundedRect>
-      ) => {
-        const PADDING = 1;
-        switch (key) {
-          case "top":
-            return value - PADDING;
-          case "right":
-            return value + PADDING;
-          case "bottom":
-            return value + PADDING;
-          case "left":
-            return value - PADDING;
-          default:
-            return value;
-        }
-      };
-
-      return PgCommon.entries(
-        el.getBoundingClientRect().toJSON() as RoundedRect
-      ).reduce((acc, [key, value]) => {
-        acc[key] = Math.round(addPadding(key, value));
-        return acc;
-      }, {} as { -readonly [K in keyof RoundedRect]: RoundedRect[K] });
-    };
-
     const hide = PgCommon.throttle((ev: MouseEvent) => {
       if (!wrapperRef.current || !tooltipRef.current) return;
 
@@ -162,9 +135,38 @@ const Tooltip: FC<TooltipProps> = ({ children, ...props }) => {
   const handleMouseEnter = useCallback(
     (ev: ReactMouseEvent<HTMLDivElement>) => {
       const el = ev.target as Element;
-      if (!el.contains(tooltipRef.current)) setIsVisible(true);
+      if (el.contains(tooltipRef.current)) return;
+
+      let pos: Position = { x: ev.clientX, y: ev.clientY };
+      const updateMousePosition = PgCommon.throttle((ev: MouseEvent) => {
+        pos = { x: ev.x, y: ev.y };
+      });
+      document.addEventListener("mousemove", updateMousePosition);
+
+      const id = setTimeout(() => {
+        if (wrapperRef.current) {
+          // Get the rect inside the callback because element size can change
+          const wrapperRect = getRoundedClientRect(wrapperRef.current);
+
+          if (
+            pos.x > wrapperRect.left &&
+            pos.x < wrapperRect.right &&
+            pos.y < wrapperRect.bottom &&
+            pos.y > wrapperRect.top
+          ) {
+            setIsVisible(true);
+          }
+        }
+
+        document.removeEventListener("mousemove", updateMousePosition);
+      }, delay);
+
+      return () => {
+        clearTimeout(id);
+        document.removeEventListener("mousemove", updateMousePosition);
+      };
     },
-    []
+    [delay]
   );
 
   return (
@@ -251,5 +253,37 @@ const StyledQuestionMarkOutlined = styled(QuestionMarkOutlined)`
     color: ${({ theme }) => theme.colors.default.textPrimary};
   }
 `;
+
+/**
+ * Get the `DOMRect` of the given element with extra padding.
+ *
+ * @param el element to get the rect of
+ * @returns
+ */
+const getRoundedClientRect = (el: HTMLDivElement) => {
+  type RoundedRect = Omit<DOMRect, "toJSON">;
+  const addPadding = (key: keyof RoundedRect, value: ValueOf<RoundedRect>) => {
+    const PADDING = 1;
+    switch (key) {
+      case "top":
+        return value - PADDING;
+      case "right":
+        return value + PADDING;
+      case "bottom":
+        return value + PADDING;
+      case "left":
+        return value - PADDING;
+      default:
+        return value;
+    }
+  };
+
+  return PgCommon.entries(
+    el.getBoundingClientRect().toJSON() as RoundedRect
+  ).reduce((acc, [key, value]) => {
+    acc[key] = Math.round(addPadding(key, value));
+    return acc;
+  }, {} as { -readonly [K in keyof RoundedRect]: RoundedRect[K] });
+};
 
 export default Tooltip;
