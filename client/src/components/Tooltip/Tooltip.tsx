@@ -1,35 +1,27 @@
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+import { FC, ReactNode } from "react";
+import styled, { css } from "styled-components";
 
-import Popover, { PopoverProps } from "../Popover/Popover";
+import Popover, { PopoverProps } from "../Popover";
 import { QuestionMarkOutlined } from "../Icons";
+import { PgTheme } from "../../utils/pg";
 
-export interface TooltipProps extends Omit<PopoverProps, "anchorEl"> {
+export type TooltipProps = Omit<PopoverProps, "showOnHover" | "popEl"> & {
   /** Tooltip element to show on hover */
-  element?: ReactNode;
-}
-
-const Tooltip: FC<TooltipProps> = ({ element, children, ...props }) => {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const anchorRef = useRef<HTMLDivElement>(null);
-
-  return (
-    <Wrapper ref={anchorRef}>
-      {children}
-      {mounted && (
-        <Popover {...props} anchorEl={anchorRef.current!} showOnHover>
-          {element}
-        </Popover>
-      )}
-    </Wrapper>
-  );
+  element: ReactNode;
 };
 
-const Wrapper = styled.div``;
+const Tooltip: FC<TooltipProps> = (props) => (
+  <StyledPopover {...props} popEl={props.element} showOnHover />
+);
+
+const StyledPopover = styled(Popover)<Pick<TooltipProps, "bgSecondary">>`
+  ${({ bgSecondary, theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.tooltip)};
+    background: ${bgSecondary
+      ? theme.components.tooltip.bgSecondary
+      : theme.components.tooltip.bg};
+  `}
+`;
 
 export const HelpTooltip: FC<TooltipProps> = (props) => (
   <Tooltip {...props}>

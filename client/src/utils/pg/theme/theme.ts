@@ -856,12 +856,15 @@ export class PgTheme {
     const tooltip = this._getComponent("tooltip");
     const theme = this._themeReady;
 
+    tooltip.padding ??= "0.375rem 0.5rem";
     tooltip.bg ??= theme.colors.default.bgPrimary;
-    tooltip.color ??= theme.colors.default.textPrimary;
     tooltip.bgSecondary ??= theme.colors.default.bgSecondary;
+    tooltip.color ??= theme.colors.default.textPrimary;
     tooltip.borderRadius ??= theme.default.borderRadius;
     tooltip.boxShadow ??= theme.default.boxShadow;
+    tooltip.fontFamily ??= theme.font.code.family;
     tooltip.fontSize ??= theme.font.code.size.small;
+    tooltip.textAlign ??= "center";
 
     return this;
   }

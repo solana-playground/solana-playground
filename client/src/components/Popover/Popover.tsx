@@ -1,5 +1,6 @@
 import {
   FC,
+  ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -10,11 +11,13 @@ import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 
 import { Id } from "../../constants";
-import { PgCommon, PgTheme, ValueOf } from "../../utils/pg";
+import { PgCommon, RequiredKey, ValueOf } from "../../utils/pg";
 
 export interface PopoverProps {
+  /** Popover element to show on trigger */
+  popEl?: ReactNode;
   /** Element to anchor to */
-  anchorEl: HTMLElement;
+  anchorEl?: HTMLElement;
   /** Whether to show the pop-up on hover */
   showOnHover?: boolean;
   /** The amount of miliseconds to hover before the pop-up is visible */
@@ -25,12 +28,54 @@ export interface PopoverProps {
   bgSecondary?: boolean;
 }
 
-interface Position {
-  x: number;
-  y: number;
-}
+const Popover: FC<PopoverProps> = ({ anchorEl, ...props }) => {
+  return anchorEl ? (
+    <AnchoredPopover {...props} anchorEl={anchorEl} />
+  ) : (
+    <ChildPopover {...props} />
+  );
+};
 
-const Popover: FC<PopoverProps> = ({ anchorEl, delay = 300, ...props }) => {
+type AnchoredPopoverProps = RequiredKey<PopoverProps, "anchorEl">;
+
+const AnchoredPopover: FC<AnchoredPopoverProps> = ({
+  popEl,
+  children,
+  ...props
+}) => <InternalPopover {...props}>{popEl}</InternalPopover>;
+
+type ChildPopoverProps = Omit<PopoverProps, "anchorEl">;
+
+const ChildPopover: FC<ChildPopoverProps> = ({ popEl, children, ...props }) => {
+  // Requires re-render on-mount to make sure `anchorRef.current` exists
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const anchorRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <Wrapper ref={anchorRef}>
+      {children}
+      {mounted && (
+        <InternalPopover {...props} anchorEl={anchorRef.current!}>
+          {popEl}
+        </InternalPopover>
+      )}
+    </Wrapper>
+  );
+};
+
+const Wrapper = styled.div``;
+
+type InternalPopoverProps = RequiredKey<PopoverProps, "anchorEl">;
+
+const InternalPopover: FC<InternalPopoverProps> = ({
+  anchorEl,
+  delay = 300,
+  ...props
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [midPoint, setMidPoint] = useState(0);
@@ -65,6 +110,8 @@ const Popover: FC<PopoverProps> = ({ anchorEl, delay = 300, ...props }) => {
 
   // Set popover and arrow position on resize
   useEffect(() => {
+    if (!isVisible) return;
+
     const popoverEl = popoverRef.current;
     if (!popoverEl) return;
 
@@ -97,7 +144,7 @@ const Popover: FC<PopoverProps> = ({ anchorEl, delay = 300, ...props }) => {
       midPointResizeObserver.unobserve(anchorEl);
       midPointResizeObserver.unobserve(popoverEl);
     };
-  }, [anchorEl, reposition]);
+  }, [anchorEl, isVisible, reposition]);
 
   // Handle open
   useEffect(() => {
@@ -184,10 +231,11 @@ const Popover: FC<PopoverProps> = ({ anchorEl, delay = 300, ...props }) => {
     }
   }, [isVisible, props.showOnHover, anchorEl]);
 
+  if (!isVisible) return null;
+
   return ReactDOM.createPortal(
     <StyledPopover
       ref={popoverRef}
-      isVisible={isVisible}
       midPoint={midPoint}
       {...position}
       {...props}
@@ -199,11 +247,16 @@ const Popover: FC<PopoverProps> = ({ anchorEl, delay = 300, ...props }) => {
 /** Popover radius in px */
 const ARROW_RADIUS = 8;
 
+interface Position {
+  x: number;
+  y: number;
+}
+
 const StyledPopover = styled.div<
   Pick<PopoverProps, "maxWidth" | "bgSecondary"> &
-    Position & { isVisible: boolean; midPoint: number }
+    Position & { midPoint: number }
 >`
-  ${({ maxWidth, bgSecondary, x, y, isVisible, midPoint, theme }) => css`
+  ${({ maxWidth, bgSecondary, x, y, midPoint, theme }) => css`
     position: absolute;
     left: ${x}px;
     top: ${y}px;
@@ -216,21 +269,6 @@ const StyledPopover = styled.div<
     width: fit-content;
     height: fit-content;
 
-    padding: 0.375rem 0.5rem;
-    border-radius: ${theme.default.borderRadius};
-    font-family: ${theme.font.code.family};
-    font-size: ${theme.font.code.size.small};
-    text-align: center;
-
-    opacity: ${isVisible ? 1 : 0};
-    ${!isVisible && "pointer-events: none"};
-    transition: opacity ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type};
-
-    --bg: ${bgSecondary
-      ? theme.components.tooltip.bgSecondary
-      : theme.components.tooltip.bg};
-
     &::after {
       position: absolute;
       left: ${midPoint - ARROW_RADIUS}px;
@@ -238,12 +276,11 @@ const StyledPopover = styled.div<
 
       content: "";
       border: ${ARROW_RADIUS}px solid transparent;
-      border-top-color: var(--bg);
+      border-top-color: ${bgSecondary
+        ? theme.components.tooltip.bgSecondary
+        : theme.components.tooltip.bg};
       pointer-events: none;
     }
-
-    ${PgTheme.convertToCSS(theme.components.tooltip)};
-    background: var(--bg);
   `}
 `;
 
@@ -251,7 +288,7 @@ const StyledPopover = styled.div<
  * Get the `DOMRect` of the given element with extra padding.
  *
  * @param el element to get the rect of
- * @returns
+ * @returns the rounded `DOMRect`
  */
 const getRoundedClientRect = (el: HTMLElement) => {
   type RoundedRect = Omit<DOMRect, "toJSON">;
