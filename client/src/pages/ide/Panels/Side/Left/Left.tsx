@@ -7,10 +7,10 @@ import {
 } from "react";
 import styled, { css, useTheme } from "styled-components";
 
-import IconButton from "../../../../../components/IconButton";
-import Link from "../../../../../components/Link";
-import PopButton from "../../../../../components/PopButton";
+import SidebarButton from "./SidebarButton";
 import Settings from "./Settings";
+import Link from "../../../../../components/Link";
+import Popover from "../../../../../components/Popover";
 import { SIDEBAR } from "../../../../../views/sidebar";
 import { ClassName, GITHUB_URL } from "../../../../../constants";
 import { PgCommon, PgTheme } from "../../../../../utils/pg";
@@ -48,7 +48,7 @@ const Left: FC<LeftProps> = ({
       <Icons>
         <Top>
           {SIDEBAR.map((page, i) => (
-            <IconButton
+            <SidebarButton
               key={i}
               id={getId(page.name)}
               title={PgCommon.getKeybindTextOS(page.title)}
@@ -60,16 +60,15 @@ const Left: FC<LeftProps> = ({
 
         <Bottom>
           <Link href={GITHUB_URL}>
-            <IconButton title="GitHub" src="/icons/sidebar/github.png" />
+            <SidebarButton title="GitHub" src="/icons/sidebar/github.png" />
           </Link>
 
-          <PopButton
-            PopElement={Settings}
-            buttonProps={{
-              title: "Settings",
-              src: "/icons/sidebar/settings.webp",
-            }}
-          />
+          <Popover popEl={<Settings />}>
+            <SidebarButton
+              title="Settings"
+              src="/icons/sidebar/settings.webp"
+            />
+          </Popover>
         </Bottom>
       </Icons>
     </Wrapper>

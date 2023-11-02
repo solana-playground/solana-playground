@@ -1276,21 +1276,21 @@ export class PgTheme {
     sidebar.left.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
 
     // Left icon button
-    sidebar.left.iconButton ??= {};
+    sidebar.left.button ??= {};
     // Left icon button default
-    sidebar.left.iconButton.default ??= {};
-    sidebar.left.iconButton.default.display ??= "flex";
-    sidebar.left.iconButton.default.justifyContent ??= "center";
-    sidebar.left.iconButton.default.alignItems ??= "center";
-    sidebar.left.iconButton.default.width ??= "100%";
-    sidebar.left.iconButton.default.height ??= "3rem";
-    sidebar.left.iconButton.default.cursor ??= "pointer";
+    sidebar.left.button.default ??= {};
+    sidebar.left.button.default.display ??= "flex";
+    sidebar.left.button.default.justifyContent ??= "center";
+    sidebar.left.button.default.alignItems ??= "center";
+    sidebar.left.button.default.width ??= "100%";
+    sidebar.left.button.default.height ??= "3rem";
+    sidebar.left.button.default.cursor ??= "pointer";
 
     // Left icon button selected
-    sidebar.left.iconButton.selected ??= {};
-    sidebar.left.iconButton.selected.bg ??= theme.colors.state.hover.bg;
-    sidebar.left.iconButton.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
-    sidebar.left.iconButton.selected.borderRight ??= "2px solid transparent";
+    sidebar.left.button.selected ??= {};
+    sidebar.left.button.selected.bg ??= theme.colors.state.hover.bg;
+    sidebar.left.button.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
+    sidebar.left.button.selected.borderRight ??= "2px solid transparent";
 
     // Right
     sidebar.right ??= {};

@@ -233,8 +233,8 @@ export interface Theme {
     sidebar?: ExtendibleComponent<{
       /** Left side of the side panel(icon panel) */
       left?: ExtendibleComponent<{
-        /** Left sidebar IconButton */
-        iconButton?: ExtendibleComponent<"selected">;
+        /** Left sidebar icon button */
+        button?: ExtendibleComponent<"selected">;
       }>;
 
       /** Right side of the side panel */

@@ -78,7 +78,7 @@ const DRACULA: Theme = {
     },
     sidebar: {
       left: {
-        iconButton: {
+        button: {
           selected: {
             bg: SELECTION,
           },

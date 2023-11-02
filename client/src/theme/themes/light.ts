@@ -124,7 +124,7 @@ const LIGHT: Theme = {
         default: {
           bg: BG_DARK,
         },
-        iconButton: {
+        button: {
           selected: {
             bg: "#00000020",
             borderLeft: `2px solid ${BG_LIGHT}`,
