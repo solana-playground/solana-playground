@@ -20,6 +20,11 @@ export interface PopoverProps {
   anchorEl?: HTMLElement;
   /** Whether to show the pop-up on hover */
   showOnHover?: boolean;
+  /**
+   * Whether to continue to show the pop-up when the mouse is out of the anchor
+   * element but inside the pop-up element.
+   */
+  continueToShowOnPopupHover?: boolean;
   /** The amount of miliseconds to hover before the pop-up is visible */
   delay?: number;
   /** Max allowed with for the popover text */
@@ -73,7 +78,7 @@ type InternalPopoverProps = RequiredKey<PopoverProps, "anchorEl">;
 
 const InternalPopover: FC<InternalPopoverProps> = ({
   anchorEl,
-  delay = 300,
+  delay = 500,
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -194,23 +199,38 @@ const InternalPopover: FC<InternalPopoverProps> = ({
 
         // Get the rect inside the callback because element size can change
         const anchorRect = getRoundedClientRect(anchorEl);
-        const popoverRect = getRoundedClientRect(popoverRef.current);
 
-        // Pointer must be:
-        // - Within the left and right side of the `anchorRect`
-        // - Above the bottom of the `anchorRect`
-        // - Below the top of the `popoverRect`
-        if (
-          ev.y > anchorRect.bottom ||
-          ev.y < popoverRect.top ||
-          (ev.y > anchorRect.top &&
-            (ev.x < anchorRect.left || ev.x > anchorRect.right)) ||
-          (ev.y < anchorRect.top &&
-            (ev.x < popoverRect.left || ev.x > popoverRect.right))
-        ) {
-          setIsVisible(false);
+        if (props.continueToShowOnPopupHover) {
+          const popoverRect = getRoundedClientRect(popoverRef.current);
+
+          // Pointer must be:
+          // - Within the left and right side of the `anchorRect`
+          // - Above the bottom of the `anchorRect`
+          // - Below the top of the `popoverRect`
+          if (
+            ev.y > anchorRect.bottom ||
+            ev.y < popoverRect.top ||
+            (ev.y > anchorRect.top &&
+              (ev.x < anchorRect.left || ev.x > anchorRect.right)) ||
+            (ev.y < anchorRect.top &&
+              (ev.x < popoverRect.left || ev.x > popoverRect.right))
+          ) {
+            setIsVisible(false);
+          }
+        } else {
+          if (
+            !(
+              ev.x > anchorRect.left &&
+              ev.x < anchorRect.right &&
+              ev.y < anchorRect.bottom &&
+              ev.y > anchorRect.top
+            )
+          ) {
+            setIsVisible(false);
+          }
         }
       });
+
       document.addEventListener("mousemove", hide);
       return () => document.removeEventListener("mousemove", hide);
     } else {
@@ -226,10 +246,16 @@ const InternalPopover: FC<InternalPopoverProps> = ({
         const isOutside = !popoverRef.current?.contains(ev.target as Node);
         if (isOutside) setIsVisible(false);
       };
+
       document.addEventListener("mousedown", hide);
       return () => document.removeEventListener("mousedown", hide);
     }
-  }, [isVisible, props.showOnHover, anchorEl]);
+  }, [
+    isVisible,
+    props.showOnHover,
+    props.continueToShowOnPopupHover,
+    anchorEl,
+  ]);
 
   if (!isVisible) return null;
 
