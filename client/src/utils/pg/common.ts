@@ -464,6 +464,9 @@ export class PgCommon {
     if (content instanceof Buffer) {
       return `data:text/plain;base64,${content.toString("base64")}`;
     }
+    if (content instanceof Blob) {
+      return URL.createObjectURL(content);
+    }
 
     if (typeof content !== "string") {
       content = JSON.stringify(content);

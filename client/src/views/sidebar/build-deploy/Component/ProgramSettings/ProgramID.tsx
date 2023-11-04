@@ -117,7 +117,7 @@ const Export = () => {
 
   return (
     <ExportButton
-      href={PgCommon.getDataUrl(Array.from(PgProgramInfo.kp.secretKey))}
+      href={Array.from(PgProgramInfo.kp.secretKey)}
       fileName="program-keypair.json"
     >
       Export

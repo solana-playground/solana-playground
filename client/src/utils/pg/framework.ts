@@ -94,9 +94,7 @@ export class PgFramework {
       else zip.folder(path);
     });
     const blob = await zip.generateAsync({ type: "blob" });
-
-    const { default: saveAs } = await import("file-saver");
-    saveAs(blob, PgExplorer.currentWorkspaceName + ".zip");
+    PgCommon.export(PgExplorer.currentWorkspaceName + ".zip", blob);
 
     return { readme };
   }
