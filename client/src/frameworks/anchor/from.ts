@@ -9,6 +9,7 @@ import {
   addImports,
   getJSDependencies,
   getRustDependencies,
+  IMPORT_STATEMENT_REGEX,
 } from "../common";
 
 /**
@@ -243,14 +244,14 @@ const convertJS = (
   const pascalCaseProgramName = PgCommon.toPascalFromSnake(programName);
   content = addAfter(
     content,
-    /import\s/,
+    IMPORT_STATEMENT_REGEX,
     `import type { ${pascalCaseProgramName} } from "../target/types/${programName}";`
   );
 
   content = opts?.isTest
     ? addAfter(
         content,
-        /describe\(/,
+        /describe\(.*/,
         `  // Configure the client to use the local cluster
   anchor.setProvider(anchor.AnchorProvider.env());\n
   const program = anchor.workspace.${pascalCaseProgramName} as anchor.Program<${pascalCaseProgramName}>;
@@ -259,7 +260,7 @@ const convertJS = (
       )
     : addAfter(
         content,
-        /import\s/,
+        IMPORT_STATEMENT_REGEX,
         `\n// Configure the client to use the local cluster
 anchor.setProvider(anchor.AnchorProvider.env());\n
 const program = anchor.workspace.${pascalCaseProgramName} as anchor.Program<${pascalCaseProgramName}>;

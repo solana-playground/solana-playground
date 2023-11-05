@@ -33,7 +33,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
     if (/programs\/.*Cargo\.toml/.test(file[0])) {
       file[1] = addAfter(
         file[1],
-        /anchor-lang/,
+        /anchor-lang.*/,
         [
           `anchor-spl = "*"`,
           `pyth-sdk-solana = { version = "*", optional = true }`,

@@ -12,6 +12,9 @@ import { SelectProgram } from "./SelectProgram";
 /** Map of dependency name -> version */
 type Dependencies = { [dependencyName: string]: string };
 
+/** Import statement regular expression with multi-line support */
+export const IMPORT_STATEMENT_REGEX = /import(.|\n)*?["|'].*["|'](;?)/;
+
 /**
  * Add the given content after the regular expression.
  *
@@ -29,16 +32,15 @@ export const addAfter = (
   opts?: { firstOccurance?: boolean }
 ) => {
   const occuranceIndex = opts?.firstOccurance ? 0 : -1;
-  const index =
-    [...content.matchAll(new RegExp(afterRegex, "g"))].at(occuranceIndex)
-      ?.index ?? 0;
-
-  const nextLineStartIndex = index + content.slice(index).indexOf("\n") + 1;
+  const match = [...content.matchAll(new RegExp(afterRegex, "g"))].at(
+    occuranceIndex
+  );
+  const afterStartIndex = (match?.index ?? 0) + (match?.at(0)?.length ?? 0) + 1;
   content =
-    content.slice(0, nextLineStartIndex) +
+    content.slice(0, afterStartIndex) +
     newContent +
     "\n" +
-    content.slice(nextLineStartIndex);
+    content.slice(afterStartIndex);
 
   return content;
 };

@@ -10,6 +10,7 @@ import {
   addImports,
   getJSDependencies,
   getRustDependencies,
+  IMPORT_STATEMENT_REGEX,
 } from "../common";
 
 /**
@@ -132,7 +133,7 @@ const convertJS = (content: string) => {
   // Define Playground globals
   content = addAfter(
     content,
-    /import\s/,
+    IMPORT_STATEMENT_REGEX,
     `// Manually initialize variables that are automatically defined in Playground
 const PROGRAM_ID = new web3.PublicKey(${
       PgProgramInfo.pk ? `"${PgProgramInfo.pk.toBase58()}"` : "/* Program id */"
