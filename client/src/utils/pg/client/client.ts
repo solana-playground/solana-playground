@@ -1,7 +1,7 @@
 import { ScriptTarget, transpile } from "typescript";
 import * as mocha from "mocha";
 import * as util from "util";
-import * as anchor from "@project-serum/anchor";
+import * as anchor from "@coral-xyz/anchor";
 import * as web3 from "@solana/web3.js";
 
 import { ClientPackageName, PgClientPackage } from "./package";
@@ -375,7 +375,7 @@ export class PgClient {
       // Add `AnchorProvider.local()`
       pkg[providerName].local = (
         url?: string,
-        opts: web3.ConfirmOptions = anchor.Provider.defaultOptions()
+        opts: web3.ConfirmOptions = anchor.AnchorProvider.defaultOptions()
       ) => {
         const connection = PgConnection.create({
           endpoint: url ?? "http://localhost:8899",
@@ -385,7 +385,7 @@ export class PgClient {
         const wallet = this._getPg().wallet;
         if (!wallet) throw new Error("Wallet not connected");
 
-        return new anchor.Provider(connection, wallet, opts);
+        return new anchor.AnchorProvider(connection, wallet, opts);
       };
 
       // Add `AnchorProvider.env()`

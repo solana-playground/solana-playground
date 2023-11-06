@@ -1,4 +1,4 @@
-import type { Idl } from "@project-serum/anchor";
+import type { Idl } from "@coral-xyz/anchor";
 
 import type { TupleFiles } from "./explorer";
 

@@ -1,8 +1,8 @@
-import { Idl } from "@project-serum/anchor";
+import { Idl } from "@coral-xyz/anchor";
 import {
   ASSOCIATED_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
-} from "@project-serum/anchor/dist/cjs/utils/token";
+} from "@coral-xyz/anchor/dist/cjs/utils/token";
 import {
   Connection,
   PublicKey,

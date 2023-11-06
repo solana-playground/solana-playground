@@ -11,8 +11,8 @@ import {
 } from "react";
 import styled, { css } from "styled-components";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { associatedAddress } from "@project-serum/anchor/dist/cjs/utils/token";
-import type { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
+import { associatedAddress } from "@coral-xyz/anchor/dist/cjs/utils/token";
+import type { IdlAccount, IdlType } from "@coral-xyz/anchor/dist/cjs/idl";
 
 import Button from "../../../../components/Button";
 import CopyButton from "../../../../components/CopyButton";

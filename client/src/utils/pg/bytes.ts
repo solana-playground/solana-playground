@@ -1,4 +1,4 @@
-import { utils } from "@project-serum/anchor";
+import { utils } from "@coral-xyz/anchor";
 
 export class PgBytes {
   /** Convert the given hex string to `Buffer`. */

@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import type { Idl } from "@project-serum/anchor";
+import type { Idl } from "@coral-xyz/anchor";
 
 import Foldable from "../../../../components/Foldable";
 import { CodeResult } from "./CodeResult";

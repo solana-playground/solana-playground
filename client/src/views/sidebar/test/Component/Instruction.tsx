@@ -1,10 +1,10 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import type { Idl } from "@project-serum/anchor";
+import type { Idl } from "@coral-xyz/anchor";
 import type {
   IdlAccount,
   IdlInstruction,
-} from "@project-serum/anchor/dist/cjs/idl";
+} from "@coral-xyz/anchor/dist/cjs/idl";
 
 import Account from "./Account";
 import Arg from "./Arg";

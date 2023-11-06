@@ -1,6 +1,6 @@
 import { FC } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
-import type { IdlAccount, IdlType } from "@project-serum/anchor/dist/cjs/idl";
+import type { IdlAccount, IdlType } from "@coral-xyz/anchor/dist/cjs/idl";
 
 interface InputLabelProps {
   label: string;

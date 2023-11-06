@@ -1,4 +1,4 @@
-import { Idl, Program, Provider, BN } from "@project-serum/anchor";
+import { Idl, Program, BN, AnchorProvider } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Signer, Transaction } from "@solana/web3.js";
 import type {
   IdlField,
@@ -8,7 +8,7 @@ import type {
   IdlTypeDefined,
   IdlTypeOption,
   IdlTypeVec,
-} from "@project-serum/anchor/dist/cjs/idl";
+} from "@coral-xyz/anchor/dist/cjs/idl";
 
 import { PgCommon } from "../common";
 import { PgProgramInfo } from "../program-info";
@@ -391,7 +391,11 @@ export class PgTest {
   static getProgram(idl: Idl, conn: Connection, wallet: CurrentWallet) {
     if (!PgProgramInfo.pk) throw new Error("Program id not found.");
 
-    const provider = new Provider(conn, wallet, Provider.defaultOptions());
+    const provider = new AnchorProvider(
+      conn,
+      wallet,
+      AnchorProvider.defaultOptions()
+    );
     return new Program(idl, PgProgramInfo.pk, provider);
   }
 

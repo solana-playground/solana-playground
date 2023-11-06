@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import styled, { css } from "styled-components";
 import { PublicKey } from "@solana/web3.js";
-import type { Idl } from "@project-serum/anchor";
+import type { Idl } from "@coral-xyz/anchor";
 
 import Button from "../../../../components/Button";
 import Foldable from "../../../../components/Foldable";

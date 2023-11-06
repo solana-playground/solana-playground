@@ -1,6 +1,6 @@
 {
   "global": {
-    "@project-serum/anchor": { "as": "anchor" },
+    "@coral-xyz/anchor": { "as": "anchor" },
     "@solana/buffer-layout": { "as": "BufferLayout" },
     "@solana/web3.js": { "as": "web3" },
     "assert": { "default": "assert" },

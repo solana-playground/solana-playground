@@ -1,5 +1,5 @@
 import { JsonMetadata } from "@metaplex-foundation/js";
-import * as anchor from "@project-serum/anchor";
+import * as anchor from "@coral-xyz/anchor";
 
 import { SugarUploadScreen } from "./SugarUploadScreen";
 import { CacheItem } from "../../utils";

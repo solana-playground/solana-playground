@@ -17,6 +17,7 @@
     "@codemirror/search": "^6.2.0",
     "@codemirror/state": "^6.1.1",
     "@codemirror/view": "^6.2.3",
+    "@coral-xyz/anchor": "^0.29.0",
     "@dnd-kit/core": "^6.0.8",
     "@dnd-kit/sortable": "^7.0.2",
     "@isomorphic-git/lightning-fs": "^4.6.0",

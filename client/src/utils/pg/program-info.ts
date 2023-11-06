@@ -1,9 +1,6 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import {
-  decodeIdlAccount,
-  idlAddress,
-} from "@project-serum/anchor/dist/cjs/idl";
-import type { Idl } from "@project-serum/anchor";
+import { decodeIdlAccount, idlAddress } from "@coral-xyz/anchor/dist/cjs/idl";
+import type { Idl } from "@coral-xyz/anchor";
 
 import { PgBytes } from "./bytes";
 import { PgCommand } from "./command";

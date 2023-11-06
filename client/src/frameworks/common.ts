@@ -195,8 +195,6 @@ const getGlobalPackages = (content: string) => {
 
 /** Map packages to a different package on exports or completely ignore them */
 const PACKAGES_MAP: { [K in ClientPackageName]?: ClientPackageName | null } = {
-  // TODO: Remove after upgrading to `@coral-xyz/anchor`
-  "@project-serum/anchor": "@coral-xyz/anchor",
   buffer: null, // No need to import
 };
 

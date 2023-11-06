@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import type { IdlType } from "@project-serum/anchor/dist/cjs/idl";
+import type { IdlType } from "@coral-xyz/anchor/dist/cjs/idl";
 
 import Account from "./Account";
 import InputLabel from "./InputLabel";
