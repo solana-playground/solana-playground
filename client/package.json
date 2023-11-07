@@ -40,6 +40,8 @@
     "@solana/wallet-adapter-base": "^0.9.22",
     "@solana/wallet-adapter-react": "^0.15.32",
     "@solana/web3.js": "*",
+    "@solana/web3.js-tp": "npm:@solana/web3.js@tp",
+    "@solana/webcrypto-ed25519-polyfill": "2.0.0-experimental.f1279e6",
     "assert": "^2.0.0",
     "crypto-browserify": "^3.12.0",
     "jszip": "^3.10.1",
