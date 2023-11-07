@@ -305,7 +305,7 @@ export class PgClient {
    */
   private static async _importPackages(code: string) {
     const importRegex = new RegExp(
-      /import\s+((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+["|'](.+)["|']/gm
+      /import\s+(?:((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+)?["|'](.+)["|']/gm
     );
     let importMatch: RegExpExecArray | null;
 
