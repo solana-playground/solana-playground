@@ -11,14 +11,10 @@ interface MenuWrapperProps extends ComponentPropsWithoutRef<"div"> {
 }
 
 export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
-  ({ hide, children, ...props }, ref) => {
+  ({ hide, ...props }, ref) => {
     useKeybind("Escape", hide);
 
-    return (
-      <Wrapper ref={ref} {...props}>
-        {children}
-      </Wrapper>
-    );
+    return <Wrapper ref={ref} {...props} />;
   }
 );
 

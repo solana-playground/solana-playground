@@ -33,8 +33,7 @@ export const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
   children,
 }) => {
   return (
-    <Menu
-      kind="context"
+    <Menu.Context
       items={[
         {
           name: "New File",
@@ -104,6 +103,6 @@ export const ExplorerContextMenu: FC<ExplorerContextMenuProps> = ({
       onHide={PgExplorer.removeCtxSelectedEl}
     >
       {children}
-    </Menu>
+    </Menu.Context>
   );
 };

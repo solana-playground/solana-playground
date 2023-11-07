@@ -102,8 +102,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
 
   return (
     <Wrapper>
-      <Menu
-        kind="dropdown"
+      <Menu.Dropdown
         items={defaultSettings.concat(standardWalletSettings)}
         onShow={darken}
         onHide={lighten}
@@ -111,7 +110,7 @@ export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
         <Button kind="icon" title="More">
           <ThreeDots />
         </Button>
-      </Menu>
+      </Menu.Dropdown>
     </Wrapper>
   );
 };

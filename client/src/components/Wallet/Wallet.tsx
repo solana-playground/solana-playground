@@ -160,8 +160,7 @@ const WalletName = () => {
   if (!wallet) return null;
 
   return (
-    <Menu
-      kind="dropdown"
+    <Menu.Dropdown
       items={pgAccounts.concat(standardAccounts)}
       onShow={darken}
       onHide={lighten}
@@ -177,7 +176,7 @@ const WalletName = () => {
           <ShortArrow rotate="90deg" />
         </WalletTitleWrapper>
       </Tooltip>
-    </Menu>
+    </Menu.Dropdown>
   );
 };
 

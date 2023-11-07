@@ -14,11 +14,11 @@ import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
 import { Id } from "../../constants";
 import { useOnClickOutside } from "../../hooks";
-import type { OptionalMenuProps } from "./Menu"; // Circular dependency
+import type { CommonMenuProps } from "./Menu"; // Circular dependency
 
 export type ContextMenuProps = {
   onContextMenu?: (ev: MouseEvent<HTMLDivElement>) => void;
-} & OptionalMenuProps;
+} & CommonMenuProps;
 
 type MenuState =
   | {
@@ -108,7 +108,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
             hide={hide}
             {...menu.position}
           >
-            {items?.map((item, i) => (
+            {items.map((item, i) => (
               <MenuItem key={i} {...item} hide={hide} />
             ))}
           </MenuWrapperWithPosition>,

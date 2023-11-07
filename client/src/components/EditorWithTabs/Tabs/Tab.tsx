@@ -62,8 +62,7 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
     }, []);
 
     return (
-      <Menu
-        kind="context"
+      <Menu.Context
         items={[
           {
             name: "Close",
@@ -107,7 +106,7 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
             <Close />
           </Button>
         </Wrapper>
-      </Menu>
+      </Menu.Context>
     );
   }
 );

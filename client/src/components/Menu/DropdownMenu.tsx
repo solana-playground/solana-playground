@@ -4,9 +4,9 @@ import styled from "styled-components";
 import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
 import { useOnClickOutside } from "../../hooks";
-import type { OptionalMenuProps } from "./Menu"; // Circular dependency
+import type { CommonMenuProps } from "./Menu"; // Circular dependency
 
-export type DropdownMenuProps = {} & OptionalMenuProps;
+export type DropdownMenuProps = {} & CommonMenuProps;
 
 const DropdownMenu: FC<DropdownMenuProps> = ({
   items,
@@ -33,7 +33,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
       {show && (
         <MenuWrapper kind="dropdown" hide={toggle}>
-          {items?.map((item, i) => (
+          {items.map((item, i) => (
             <MenuItem key={i} {...item} hide={toggle} />
           ))}
         </MenuWrapper>
