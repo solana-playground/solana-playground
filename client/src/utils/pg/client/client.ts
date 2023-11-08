@@ -224,23 +224,25 @@ export class PgClient {
     ];
 
     // Set global packages
-    for (const [packageName, importStyle] of PgCommon.entries(
-      PACKAGES.global
-    )) {
-      const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
-      const pkg: { [name: string]: any } = await PgClientPackage.import(
-        packageName
-      );
-      this._overridePackage(packageName, pkg);
+    await Promise.all(
+      PgCommon.entries(PACKAGES.global).map(
+        async ([packageName, importStyle]) => {
+          const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
+          const pkg: { [name: string]: any } = await PgClientPackage.import(
+            packageName
+          );
+          this._overridePackage(packageName, pkg);
 
-      let global: typeof globals[number];
-      if (style.as) global = [style.as, pkg];
-      else if (style.named) global = [style.named, pkg[style.named]];
-      else if (style.default) global = [style.default, pkg.default ?? pkg];
-      else throw new Error("Unreachable");
+          let global: typeof globals[number];
+          if (style.as) global = [style.as, pkg];
+          else if (style.named) global = [style.named, pkg[style.named]];
+          else if (style.default) global = [style.default, pkg.default ?? pkg];
+          else throw new Error("Unreachable");
 
-      globals.push(global);
-    }
+          globals.push(global);
+        }
+      )
+    );
 
     let endCode: string;
     if (isTest) {
@@ -339,15 +341,21 @@ export class PgClient {
       }
     };
 
+    const packageNames = [];
     do {
       importMatch = importRegex.exec(code);
       if (importMatch) {
-        const packageName = importMatch[6];
+        packageNames.push(importMatch[6]);
+      }
+    } while (importMatch);
+
+    await Promise.all(
+      packageNames.map(async (packageName) => {
         const pkg = await PgClientPackage.import(packageName);
         this._overridePackage(packageName, pkg);
         setupImport(pkg);
-      }
-    } while (importMatch);
+      })
+    );
 
     // Remove import statements
     // Need to do this after we setup all the imports because of the internal
