@@ -13,6 +13,10 @@ import {
 /** Monaco language id for Rust */
 const LANGUAGE_ID = "rust";
 
+function nonNullable<T>(value: T): value is NonNullable<T> {
+  return value !== null && value !== undefined;
+}
+
 /**
  * Cached crate names for Rust Analyzer.
  *
@@ -45,9 +49,11 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
 
   // Initialize and load the default crates
   await state.loadDefaultCrates(
-    await PgCommon.fetchText("/crates/core.rs"),
-    await PgCommon.fetchText("/crates/alloc.rs"),
-    await PgCommon.fetchText("/crates/std.rs")
+    ...(await Promise.all([
+      PgCommon.fetchText("/crates/core.rs"),
+      PgCommon.fetchText("/crates/alloc.rs"),
+      PgCommon.fetchText("/crates/std.rs"),
+    ]))
   );
 
   const { dispose: disposeInitWorkspace } = await PgCommon.executeInitial(
@@ -158,15 +164,22 @@ const loadLocalFiles = async () => {
  * @param model monaco editor model
  */
 const update = async (model: monaco.editor.IModel) => {
-  for (const crate of CRATES.importable) {
-    const status = cachedNames.get(crate);
-    if (status === "full") continue;
+  const crateImportPromises = CRATES.importable
+    .map((crate) => {
+      const status = cachedNames.get(crate);
+      if (status === "full") return null;
 
-    if (new RegExp(`${crate}::`, "gm").test(model.getValue())) {
-      await loadDependency(crate);
-    } else if (status !== "empty") {
-      await loadDependency(crate, { empty: true });
-    }
+      if (new RegExp(`${crate}::`, "gm").test(model.getValue())) {
+        return loadDependency(crate);
+      } else if (status !== "empty") {
+        return loadDependency(crate, { empty: true });
+      } else {
+        return null;
+      }
+    })
+    .filter(nonNullable);
+  if (crateImportPromises.length) {
+    await Promise.all(crateImportPromises);
   }
 
   const { diagnostics } = await state.update(model.uri.path, model.getValue());
@@ -196,8 +209,10 @@ const loadDependency = async (
   }
 
   // Load full crate
-  const code = await PgCommon.fetchText(`/crates/${name}.rs`);
-  const manifest = await PgCommon.fetchText(`/crates/${name}.toml`);
+  const [code, manifest] = await Promise.all([
+    PgCommon.fetchText(`/crates/${name}.rs`),
+    PgCommon.fetchText(`/crates/${name}.toml`),
+  ]);
 
   const neededCrates: string[] = await state.loadDependency(
     name,
@@ -207,12 +222,19 @@ const loadDependency = async (
   );
   cachedNames.set(name, "full");
 
-  for (const crate of neededCrates) {
-    if (CRATES.importable.includes(crate)) {
-      await loadDependency(crate);
-    } else if (CRATES.transitive.includes(crate)) {
-      await loadDependency(crate, { transitive: true });
-    }
+  const crateImportPromises = neededCrates
+    .map((crate) => {
+      if (CRATES.importable.includes(crate)) {
+        return loadDependency(crate);
+      } else if (CRATES.transitive.includes(crate)) {
+        return loadDependency(crate, { transitive: true });
+      } else {
+        return null;
+      }
+    })
+    .filter(nonNullable);
+  if (crateImportPromises.length) {
+    await Promise.all(crateImportPromises);
   }
 };
 
