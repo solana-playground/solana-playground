@@ -11,17 +11,23 @@ import type { Disposable } from "../../../../../../../utils/pg";
  * @returns a disposable to dispose all events
  */
 export const initDeclarations = async (): Promise<Disposable> => {
-  // Global declarations
-  const { declareGlobalTypes } = await import("./global");
-  const global = await declareGlobalTypes();
-
-  // Disposable declarations
-  const { declareDisposableTypes } = await import("./disposable");
-  const disposable = declareDisposableTypes();
-
-  // Importable declarations
-  const { declareImportableTypes } = await import("./importable");
-  const importable = await declareImportableTypes();
+  const [disposable, global, importable] = await Promise.all([
+    // Disposable declarations
+    (async () => {
+      const { declareDisposableTypes } = await import("./disposable");
+      return declareDisposableTypes();
+    })(),
+    // Global declarations
+    (async () => {
+      const { declareGlobalTypes } = await import("./global");
+      return await declareGlobalTypes();
+    })(),
+    // Importable declarations
+    (async () => {
+      const { declareImportableTypes } = await import("./importable");
+      return await declareImportableTypes();
+    })(),
+  ]);
 
   return {
     dispose: () => {

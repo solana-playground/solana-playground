@@ -35,12 +35,16 @@ export const declareGlobalTypes = async (): Promise<Disposable> => {
     declareNamespace("solana-playground", { as: "pg" }),
   ];
 
-  for (const [packageName, importStyle] of PgCommon.entries(PACKAGES.global)) {
-    disposables.push(
-      (await declarePackage(packageName),
-      declareNamespace(packageName, importStyle))
-    );
-  }
+  await Promise.all(
+    PgCommon.entries(PACKAGES.global).map(
+      async ([packageName, importStyle]) => {
+        disposables.push(
+          (await declarePackage(packageName),
+          declareNamespace(packageName, importStyle))
+        );
+      }
+    )
+  );
 
   return { dispose: () => disposables.forEach(({ dispose }) => dispose()) };
 };
