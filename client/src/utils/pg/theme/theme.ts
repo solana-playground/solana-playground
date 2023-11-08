@@ -723,7 +723,6 @@ export class PgTheme {
 
     // Default
     menu.default ??= {};
-    menu.default.minWidth ??= "100%";
     menu.default.position ??= "absolute";
     menu.default.zIndex ??= 2;
     menu.default.bg ??= theme.colors.default.bgPrimary;

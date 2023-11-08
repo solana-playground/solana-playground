@@ -32,11 +32,11 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       <ClickableWrapper onClick={toggle}>{children}</ClickableWrapper>
 
       {show && (
-        <MenuWrapper kind="dropdown" hide={toggle}>
+        <StyledMenuWrapper kind="dropdown" hide={toggle}>
           {items.map((item, i) => (
             <MenuItem key={i} {...item} hide={toggle} />
           ))}
-        </MenuWrapper>
+        </StyledMenuWrapper>
       )}
     </Wrapper>
   );
@@ -47,5 +47,9 @@ const Wrapper = styled.div`
 `;
 
 const ClickableWrapper = styled.div``;
+
+const StyledMenuWrapper = styled(MenuWrapper)`
+  min-width: 100%;
+`;
 
 export default DropdownMenu;
