@@ -13,6 +13,8 @@ export type ClientPackageName =
   | "@solana/spl-account-compression"
   | "@solana/spl-token"
   | "@solana/web3.js"
+  | "@solana/web3.js-tp"
+  | "@solana/webcrypto-ed25519-polyfill"
   | "assert"
   | "bn.js"
   | "borsh"
