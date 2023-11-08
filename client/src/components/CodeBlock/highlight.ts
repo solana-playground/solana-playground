@@ -26,8 +26,7 @@ export const highlight = async (
   theme: IRawTheme
 ) => {
   await initializeHighlighter();
-  await loadLanguage(lang as Lang);
-  await loadTheme(theme);
+  await Promise.all([loadLanguage(lang as Lang), loadTheme(theme)]);
 
   const tokens = highlighter.codeToThemedTokens(code, lang, theme.name);
   return renderToHtml(tokens, { bg: "inherit", themeName: theme.name });
