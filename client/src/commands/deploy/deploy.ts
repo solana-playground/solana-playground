@@ -132,8 +132,10 @@ const processDeploy = async () => {
   // Decide whether it's an initial deployment or an upgrade and calculate
   // how much SOL user needs before creating the buffer.
   const wallet = PgWallet.current!;
-  const userBalance = await connection.getBalance(wallet.publicKey);
-  const programExists = await connection.getAccountInfo(programPk);
+  const [programExists, userBalance] = await Promise.all([
+    connection.getAccountInfo(programPk),
+    connection.getBalance(wallet.publicKey),
+  ]);
 
   if (!programExists) {
     // Initial deploy
