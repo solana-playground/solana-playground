@@ -25,13 +25,34 @@ const OLD_INDEX_FILENAME = "old-index.d.ts";
 /** All supported packages */
 const packages = await readJSON(SUPPORTED_PACKAGES_PATH);
 
+/** Generated packages cache */
+const generatedCache = new Set();
+
 /** Map of package name to version */
 const versions = {};
 
 // Reset packages directory
 await resetDir(PACKAGES_PATH);
 
+// Generate packages
 for (const name of packages.importable) {
+  await generatePackage(name);
+}
+
+// Save package versions
+await fs.writeFile(
+  pathModule.join(PACKAGES_PATH, "versions.json"),
+  JSON.stringify(versions)
+);
+
+/**
+ * Generate package types.
+ *
+ * @param {string} name package name
+ */
+async function generatePackage(name) {
+  if (generatedCache.has(name)) return;
+
   // Get all declaration file paths
   const paths = [];
 
@@ -95,22 +116,51 @@ for (const name of packages.importable) {
     await fs.mkdir(packageOutPath, { recursive: true });
   } catch {
   } finally {
+    // Save type declarations
     await fs.writeFile(
-      pathModule.join(packageOutPath, "declaration.json"),
+      pathModule.join(packageOutPath, "types.json"),
       JSON.stringify(files)
     );
+
+    if (pkg) {
+      // Generate transitive type dependencies
+      const deps = Object.entries(pkg)
+        .reduce((acc, [key, value]) => {
+          switch (key) {
+            case "dependencies":
+            case "devDependencies":
+            case "peerDependencies":
+            case "optionalDependencies":
+              acc.push(...Object.keys(value));
+          }
+          return acc;
+        }, [])
+        .filter((dep) => files.some(([_, content]) => content.includes(dep)));
+      for (const dep of deps) {
+        try {
+          // Some package types may not exist
+          await generatePackage(dep, { transitive: true });
+        } catch {}
+      }
+
+      // Save type dependencies
+      await fs.writeFile(
+        pathModule.join(packageOutPath, "deps.json"),
+        JSON.stringify(deps)
+      );
+    }
+
+    generatedCache.add(name);
   }
 
-  // Declarations from `@types/node` don't have a version
-  const logData = { name, version: pkg?.version, fileCount: files.length };
-  if (!logData.version) delete logData.version;
-  console.log(logData);
+  // Only log the packages that are specified(not transitive deps)
+  if (packages.importable.includes(name)) {
+    // Declarations from `@types/node` don't have a version
+    const logData = { name, version: pkg?.version, fileCount: files.length };
+    if (!logData.version) delete logData.version;
+    console.log(logData);
+  }
 }
-
-await fs.writeFile(
-  pathModule.join(PACKAGES_PATH, "versions.json"),
-  JSON.stringify(versions)
-);
 
 /**
  * Get the type declaration root file from `package.json`.
@@ -124,8 +174,7 @@ async function getPackage(path) {
       const packageJSON = await readJSON(pathModule.join(path, "package.json"));
       if (packageJSON.types) {
         return {
-          name: packageJSON.name,
-          version: packageJSON.version,
+          ...packageJSON,
           indexPath: pathModule.join(path, packageJSON.types),
         };
       }

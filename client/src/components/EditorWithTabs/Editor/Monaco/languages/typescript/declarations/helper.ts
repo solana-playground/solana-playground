@@ -93,12 +93,11 @@ export const declarePackage = async (
   };
 
   const files: TupleFiles = await PgCommon.fetchJSON(
-    `/packages/${packageName}/declaration.json`
+    `/packages/${packageName}/types.json`
   );
-
-  const disposables = files.map(([path, content]) => {
+  const disposables = files.map((file) => {
     return monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ...resolveFile(path, content)
+      ...resolveFile(...file)
     );
   });
 
@@ -117,6 +116,17 @@ export const declarePackage = async (
         oldIndexPath.replace("old-index", "index")
       )
     );
+  }
+
+  // Get the transitive dependencies
+  try {
+    const deps: ClientPackageName[] = await PgCommon.fetchJSON(
+      `/packages/${packageName}/deps.json`
+    );
+    const transitiveDisposables = await Promise.all(deps.map(declarePackage));
+    disposables.push(...transitiveDisposables);
+  } catch {
+    // Not all packages have dependencies
   }
 
   return {
