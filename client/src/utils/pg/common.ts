@@ -646,6 +646,17 @@ export class PgCommon {
   }
 
   /**
+   * Get whether the given value is non-nullish i.e. **not** `null` or
+   * `undefined`.
+   *
+   * @param value value to check
+   * @returns whether the given value is non-nullish
+   */
+  static isNonNullish<T>(value: T): value is NonNullable<T> {
+    return value !== null && value !== undefined;
+  }
+
+  /**
    * @returns camelCase converted version of the string input
    */
   static toCamelCase(str: string) {

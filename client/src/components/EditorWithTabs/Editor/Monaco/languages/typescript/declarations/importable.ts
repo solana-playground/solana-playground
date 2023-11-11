@@ -30,24 +30,26 @@ const cachedTypes: {
  * @param code current editor content
  */
 const update = async (code: string) => {
-  for (const packageName of PACKAGES.importable) {
-    const pkg = cachedTypes[packageName];
-    if (pkg === true) continue;
+  await Promise.all(
+    PACKAGES.importable.map(async (packageName) => {
+      const pkg = cachedTypes[packageName];
+      if (pkg === true) return;
 
-    if (new RegExp(`("|')${packageName}("|')`, "gm").test(code)) {
-      await declarePackage(packageName);
+      if (new RegExp(`("|')${packageName}("|')`, "gm").test(code)) {
+        await declarePackage(packageName);
 
-      // Dispose the old filler declaration if it exists
-      pkg?.dispose();
+        // Dispose the old filler declaration if it exists
+        pkg?.dispose();
 
-      // Declaration is final, this package will not get declared again
-      cachedTypes[packageName] = true;
-    } else if (!pkg) {
-      // Empty declaration should get disposed if the package is used
-      cachedTypes[packageName] =
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          declareModule(packageName)
-        );
-    }
-  }
+        // Declaration is final, this package will not get declared again
+        cachedTypes[packageName] = true;
+      } else if (!pkg) {
+        // Empty declaration should get disposed if the package is used
+        cachedTypes[packageName] =
+          monaco.languages.typescript.typescriptDefaults.addExtraLib(
+            declareModule(packageName)
+          );
+      }
+    })
+  );
 };

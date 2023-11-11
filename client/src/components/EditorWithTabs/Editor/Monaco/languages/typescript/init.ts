@@ -1,3 +1,4 @@
-import { initDeclarations } from "./declarations";
-
-export const init = () => initDeclarations();
+export const init = async () => {
+  const { initDeclarations } = await import("./declarations");
+  return await initDeclarations();
+};

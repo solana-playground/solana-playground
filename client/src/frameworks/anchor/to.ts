@@ -9,7 +9,7 @@ export const convertToPlayground = async (files: TupleFiles) => {
   const programNames = PgCommon.toUniqueArray(
     files
       .map(([path]) => /programs\/(.*?)\/src/.exec(path)?.[1])
-      .filter(Boolean) as string[]
+      .filter(PgCommon.isNonNullish)
   );
 
   // Handle multiple programs
