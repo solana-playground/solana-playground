@@ -13,10 +13,6 @@ import {
 /** Monaco language id for Rust */
 const LANGUAGE_ID = "rust";
 
-function nonNullable<T>(value: T): value is NonNullable<T> {
-  return value !== null && value !== undefined;
-}
-
 /**
  * Cached crate names for Rust Analyzer.
  *
@@ -177,7 +173,7 @@ const update = async (model: monaco.editor.IModel) => {
         return null;
       }
     })
-    .filter(nonNullable);
+    .filter(PgCommon.isNonNullish);
   if (crateImportPromises.length) {
     await Promise.all(crateImportPromises);
   }
@@ -232,7 +228,7 @@ const loadDependency = async (
         return null;
       }
     })
-    .filter(nonNullable);
+    .filter(PgCommon.isNonNullish);
   if (crateImportPromises.length) {
     await Promise.all(crateImportPromises);
   }
