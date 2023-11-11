@@ -224,7 +224,7 @@ export const convertToPlaygroundCommon = (files: TupleFiles) => {
   const pgFiles: TupleFiles = [];
   for (const [path, content] of files) {
     // */programs/*/src/**/*.rs -> src/**/*.rs
-    const programPathResult = /(src)(?!.*src).*\.rs$/.exec(path);
+    const programPathResult = /(src)(?!.*src\/).*\.rs$/.exec(path);
     if (programPathResult) {
       const programFilePath = programPathResult[0];
       pgFiles.push([programFilePath, content]);
@@ -232,7 +232,7 @@ export const convertToPlaygroundCommon = (files: TupleFiles) => {
     }
 
     // */client/**/*.ts -> client/**/*.ts
-    const clientPathResult = /(client)(?!.*client).*\.(js|ts)$/.exec(path);
+    const clientPathResult = /(client)(?!.*client\/).*\.(js|ts)$/.exec(path);
     if (clientPathResult) {
       const clientFilePath = clientPathResult[0];
       pgFiles.push([clientFilePath, content]);
@@ -240,7 +240,7 @@ export const convertToPlaygroundCommon = (files: TupleFiles) => {
     }
 
     // */tests/**/*.ts -> tests/**/*.test.ts
-    const testPathResult = /(tests)(?!.*tests).*\.(js|ts)$/.exec(path);
+    const testPathResult = /(tests)(?!.*tests\/).*\.(js|ts)$/.exec(path);
     if (testPathResult) {
       const testPath = testPathResult[0].replace(
         /(\.test)?\.(js|ts)$/,
