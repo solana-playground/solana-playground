@@ -119,15 +119,11 @@ export const declarePackage = async (
   }
 
   // Get the transitive dependencies
-  try {
-    const deps: ClientPackageName[] = await PgCommon.fetchJSON(
-      `/packages/${packageName}/deps.json`
-    );
-    const transitiveDisposables = await Promise.all(deps.map(declarePackage));
-    disposables.push(...transitiveDisposables);
-  } catch {
-    // Not all packages have dependencies
-  }
+  const deps: ClientPackageName[] = await PgCommon.fetchJSON(
+    `/packages/${packageName}/deps.json`
+  );
+  const transitiveDisposables = await Promise.all(deps.map(declarePackage));
+  disposables.push(...transitiveDisposables);
 
   return {
     dispose: () => disposables.forEach(({ dispose }) => dispose()),

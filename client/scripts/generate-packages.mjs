@@ -3,7 +3,7 @@
 import fs from "fs/promises";
 import pathModule from "path";
 
-import { readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
+import { exists, readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
 
 /** Supported packages path */
 const SUPPORTED_PACKAGES_PATH = pathModule.join(
@@ -37,6 +37,18 @@ await resetDir(PACKAGES_PATH);
 // Generate packages
 for (const name of packages.importable) {
   await generatePackage(name);
+}
+
+// Remove the dependencies that we don't have the types for
+for (const name of generatedCache) {
+  const depsPath = pathModule.join(PACKAGES_PATH, name, "deps.json");
+  let deps = await readJSON(depsPath);
+  for (const dep of deps) {
+    const depExists = await exists(pathModule.join(PACKAGES_PATH, dep));
+    if (!depExists) deps = deps.filter((d) => d !== dep);
+  }
+
+  await fs.writeFile(depsPath, JSON.stringify(deps));
 }
 
 // Save package versions
@@ -122,33 +134,38 @@ async function generatePackage(name) {
       JSON.stringify(files)
     );
 
+    const deps = [];
     if (pkg) {
-      // Generate transitive type dependencies
-      const deps = Object.entries(pkg)
-        .reduce((acc, [key, value]) => {
-          switch (key) {
-            case "dependencies":
-            case "devDependencies":
-            case "peerDependencies":
-            case "optionalDependencies":
-              acc.push(...Object.keys(value));
-          }
-          return acc;
-        }, [])
-        .filter((dep) => files.some(([_, content]) => content.includes(dep)));
-      for (const dep of deps) {
-        try {
-          // Some package types may not exist
-          await generatePackage(dep, { transitive: true });
-        } catch {}
-      }
-
-      // Save type dependencies
-      await fs.writeFile(
-        pathModule.join(packageOutPath, "deps.json"),
-        JSON.stringify(deps)
+      // Get transitive dependency names that are being used in types
+      deps.push(
+        ...Object.entries(pkg)
+          .reduce((acc, [key, value]) => {
+            switch (key) {
+              case "dependencies":
+              case "devDependencies":
+              case "peerDependencies":
+              case "optionalDependencies":
+                acc.push(...Object.keys(value));
+            }
+            return acc;
+          }, [])
+          .filter((dep) => files.some(([_, content]) => content.includes(dep)))
       );
     }
+
+    // Generate transitive type dependencies
+    for (const dep of deps) {
+      try {
+        // Some package types may not exist
+        await generatePackage(dep, { transitive: true });
+      } catch {}
+    }
+
+    // Save type dependencies
+    await fs.writeFile(
+      pathModule.join(packageOutPath, "deps.json"),
+      JSON.stringify(deps)
+    );
 
     generatedCache.add(name);
   }
