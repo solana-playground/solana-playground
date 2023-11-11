@@ -33,43 +33,42 @@ export const createCollection = async (
 
   const payer = metaplex.identity().publicKey;
 
-  const [
-    blockhashInfo,
-    [createAtaIx, mintToIx],
-    createMintAccountIx,
-    initMintIx,
-  ] = await Promise.all([
-    // Fetch the latest blockhash to use to specify the transaction lifetime
-    metaplex.connection.getLatestBlockhash(),
-    // Get the [createAta, mintTo] instructions
-    (async () => {
-      const ataPk = await getAssociatedTokenAddress(collectionMintPk, payer);
-      return await Promise.all([
-        // Create associated account
-        createAssociatedTokenAccountInstruction(
-          payer,
-          ataPk,
-          payer,
-          collectionMintPk
-        ),
-        // Mint
-        createMintToInstruction(collectionMintPk, ataPk, payer, 1),
-      ]);
-    })(),
-    // Create mint account
-    (async () =>
-      SystemProgram.createAccount({
-        fromPubkey: payer,
-        lamports: await metaplex.connection.getMinimumBalanceForRentExemption(
-          MINT_SIZE
-        ),
-        newAccountPubkey: collectionMintPk,
-        programId: TOKEN_PROGRAM_ID,
-        space: MINT_SIZE,
-      }))(),
-    // Initialize mint
-    createInitializeMintInstruction(collectionMintPk, 0, payer, payer),
-  ]);
+  // Create mint account
+  const createMintAccountIx = await SystemProgram.createAccount({
+    fromPubkey: payer,
+    lamports: await metaplex.connection.getMinimumBalanceForRentExemption(
+      MINT_SIZE
+    ),
+    newAccountPubkey: collectionMintPk,
+    programId: TOKEN_PROGRAM_ID,
+    space: MINT_SIZE,
+  });
+
+  // Initialize mint
+  const initMintIx = await createInitializeMintInstruction(
+    collectionMintPk,
+    0,
+    payer,
+    payer
+  );
+
+  const ataPk = await getAssociatedTokenAddress(collectionMintPk, payer);
+
+  // Create associated account
+  const createAtaIx = await createAssociatedTokenAccountInstruction(
+    payer,
+    ataPk,
+    payer,
+    collectionMintPk
+  );
+
+  // Mint
+  const mintToIx = await createMintToInstruction(
+    collectionMintPk,
+    ataPk,
+    payer,
+    1
+  );
 
   const creator: Creator = {
     address: payer,
@@ -136,6 +135,8 @@ export const createCollection = async (
     ]
   );
   tx.feePayer = payer;
+
+  const blockhashInfo = await metaplex.connection.getLatestBlockhash();
   tx.recentBlockhash = blockhashInfo.blockhash;
 
   await metaplex
