@@ -215,10 +215,7 @@ async function getPackage(path) {
  */
 function convertPath(path) {
   const webpack = path.replace(/^.*node_modules\//, "/node_modules/");
-
-  // Monaco has problems with '@' in the path
-  const monaco = webpack.slice(1).replace("@", "").replace("//", "/");
-
+  const monaco = webpack.slice(1).replace("//", "/");
   return { webpack, monaco };
 }
 

@@ -56,7 +56,7 @@ export const declarePackage = async (
       content = declareModule(packageName, content);
     }
 
-    return [content, path];
+    return [content, "file:///" + path];
   };
 
   /**
@@ -111,9 +111,11 @@ export const declarePackage = async (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         declareModule(
           packageName,
-          `export * from "${oldIndexPath.replace(".d.ts", "")}"`
+          `export * from "${oldIndexPath
+            .replace("node_modules/", "")
+            .replace(".d.ts", "")}"`
         ),
-        oldIndexPath.replace("old-index", "index")
+        "file:///" + oldIndexPath.replace("old-index", "index")
       )
     );
   }
