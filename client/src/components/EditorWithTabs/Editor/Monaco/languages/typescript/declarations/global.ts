@@ -38,10 +38,10 @@ export const declareGlobalTypes = async (): Promise<Disposable> => {
   await Promise.all(
     PgCommon.entries(PACKAGES.global).map(
       async ([packageName, importStyle]) => {
-        disposables.push(
-          (await declarePackage(packageName),
-          declareNamespace(packageName, importStyle))
-        );
+        const pkg = await declarePackage(packageName);
+        if (pkg) {
+          disposables.push(pkg, declareNamespace(packageName, importStyle));
+        }
       }
     )
   );

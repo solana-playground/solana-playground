@@ -24,17 +24,21 @@ export const declareModule = (
 };
 
 /**
- * Declare a full package.
+ * Declare a full package(cached).
  *
  * @param packageName package name to be referenced in declaration files
  * @param opts declare options
  * - `transitive`: Whether the package is a transitive package
- * @returns a dispose method to dispose all events
+ * @returns a dispose method to dispose all events or `undefined` if the
+ * package has already been declared
  */
 export const declarePackage = async (
   packageName: ClientPackageName,
   opts?: { transitive?: boolean }
-): Promise<Disposable> => {
+): Promise<Disposable | undefined> => {
+  if (cache.has(packageName)) return;
+  cache.add(packageName);
+
   /**
    * Monaco TS worker is not able to use imports/exports if indexes are not
    * explicit, e.g. "./common" will not translate to "./common/index".
@@ -134,10 +138,16 @@ export const declarePackage = async (
     const transitiveDisposables = await Promise.all(
       deps.map((dep) => declarePackage(dep, { transitive: true }))
     );
-    disposables.push(...transitiveDisposables);
+    disposables.push(...transitiveDisposables.filter(PgCommon.isNonNullish));
   }
 
   return {
-    dispose: () => disposables.forEach(({ dispose }) => dispose()),
+    dispose: () => {
+      disposables.forEach(({ dispose }) => dispose());
+      cache.delete(packageName);
+    },
   };
 };
+
+/** Declared package names cache */
+const cache = new Set<ClientPackageName>();
