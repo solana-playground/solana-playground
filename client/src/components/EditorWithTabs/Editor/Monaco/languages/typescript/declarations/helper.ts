@@ -26,11 +26,14 @@ export const declareModule = (
 /**
  * Declare a full package.
  *
- * @param packageName package name t obe referenced in declaration files
+ * @param packageName package name to be referenced in declaration files
+ * @param opts declare options
+ * - `transitive`: Whether the package is a transitive package
  * @returns a dispose method to dispose all events
  */
 export const declarePackage = async (
-  packageName: ClientPackageName
+  packageName: ClientPackageName,
+  opts?: { transitive?: boolean }
 ): Promise<Disposable> => {
   /**
    * Monaco TS worker is not able to use imports/exports if indexes are not
@@ -120,12 +123,19 @@ export const declarePackage = async (
     );
   }
 
-  // Get the transitive dependencies
-  const deps: ClientPackageName[] = await PgCommon.fetchJSON(
-    `/packages/${packageName}/deps.json`
-  );
-  const transitiveDisposables = await Promise.all(deps.map(declarePackage));
-  disposables.push(...transitiveDisposables);
+  // Get the transitive dependencies of global and importable packages but do
+  // not continue the recursion to get the transitive dependencies of the
+  // transitive dependencies because that results in excessive amount of
+  // requests without adding much benefit.
+  if (!opts?.transitive) {
+    const deps: ClientPackageName[] = await PgCommon.fetchJSON(
+      `/packages/${packageName}/deps.json`
+    );
+    const transitiveDisposables = await Promise.all(
+      deps.map((dep) => declarePackage(dep, { transitive: true }))
+    );
+    disposables.push(...transitiveDisposables);
+  }
 
   return {
     dispose: () => disposables.forEach(({ dispose }) => dispose()),
