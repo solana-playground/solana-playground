@@ -13,6 +13,8 @@ export type ClientPackageName =
   | "@solana/spl-account-compression"
   | "@solana/spl-token"
   | "@solana/web3.js"
+  | "@solana/web3.js-tp"
+  | "@solana/webcrypto-ed25519-polyfill"
   | "assert"
   | "bn.js"
   | "borsh"
@@ -51,6 +53,10 @@ export class PgClientPackage {
         return import("@solana/spl-token");
       case "@solana/web3.js":
         return import("@solana/web3.js");
+      case "@solana/web3.js-tp":
+        return import("@solana/web3.js-tp");
+      case "@solana/webcrypto-ed25519-polyfill":
+        return import("@solana/webcrypto-ed25519-polyfill");
       case "assert":
         return import("assert");
       case "bn.js":
