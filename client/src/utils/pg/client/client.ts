@@ -341,18 +341,30 @@ export class PgClient {
       }
     };
 
-    const packageNames = [];
+    // Path or package name
+    const importPaths = [];
     do {
       importMatch = importRegex.exec(code);
-      if (importMatch) {
-        packageNames.push(importMatch[6]);
-      }
+      if (importMatch) importPaths.push(importMatch[6]);
     } while (importMatch);
 
     await Promise.all(
-      packageNames.map(async (packageName) => {
-        const pkg = await PgClientPackage.import(packageName);
-        this._overridePackage(packageName, pkg);
+      importPaths.map(async (importPath) => {
+        if (importPath.startsWith(".")) {
+          // TODO: Remove after adding general support for local imports.
+          // Add a special case for Anchor's `target/types`
+          if (importPath.includes("target/types")) {
+            if (PgProgramInfo.idl) return { IDL: PgProgramInfo.idl };
+            throw new Error(
+              "IDL not found, build the program to create the IDL."
+            );
+          }
+
+          throw new Error("File imports are not supported.");
+        }
+
+        const pkg = await PgClientPackage.import(importPath);
+        this._overridePackage(importPath, pkg);
         setupImport(pkg);
       })
     );

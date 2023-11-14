@@ -11,13 +11,11 @@ const SUPPORTED_PACKAGES_PATH = pathModule.join(
   "supported-packages.json"
 );
 
+/** Playground client directory path */
+const CLIENT_PATH = pathModule.join(REPO_ROOT_PATH, "client");
+
 /** Packages output directory path */
-const PACKAGES_PATH = pathModule.join(
-  REPO_ROOT_PATH,
-  "client",
-  "public",
-  "packages"
-);
+const PACKAGES_PATH = pathModule.join(CLIENT_PATH, "public", "packages");
 
 /** Renamed index file name(for re-exporting) */
 const OLD_INDEX_FILENAME = "old-index.d.ts";
@@ -35,7 +33,7 @@ const versions = {};
 await resetDir(PACKAGES_PATH);
 
 // Generate packages
-for (const name of packages.importable) {
+for (const name of packages.importable.sort()) {
   await generatePackage(name);
 }
 
@@ -55,6 +53,26 @@ for (const name of generatedCache) {
 await fs.writeFile(
   pathModule.join(PACKAGES_PATH, "versions.json"),
   JSON.stringify(versions)
+);
+
+// Sync client package imports
+const packageImportFile = await fs.readFile(
+  pathModule.join(CLIENT_PATH, "scripts", "package-import-template.ts.raw"),
+  "utf8"
+);
+await fs.writeFile(
+  pathModule.join(CLIENT_PATH, "src", "utils", "pg", "client", "package.ts"),
+  packageImportFile
+    .replace(
+      "<PACKAGE_NAMES>",
+      packages.importable.reduce((acc, cur) => acc + `\n  | "${cur}"`, "")
+    )
+    .replace(
+      "<IMPORTS>",
+      packages.importable.reduce((acc, cur) => {
+        return acc + `\n      case "${cur}":\n        return import("${cur}");`;
+      }, "")
+    )
 );
 
 /**

@@ -1,6 +1,9 @@
 # Dependencies
 */node_modules
 
+# Generated package imports
+**/client/package.ts
+
 # Production
 */build
 
