@@ -50,7 +50,7 @@ export class PgClient {
         const { globals, endCode } = await this._getGlobals({ isTest });
 
         // Handle imports
-        const importResult = await this._importPackages(code);
+        const importResult = await this._getImports(code);
         globals.push(...importResult.imports);
         code = importResult.code;
 
@@ -305,7 +305,7 @@ export class PgClient {
    * @param code script/test code
    * @returns the imported packages and the code without the import statements
    */
-  private static async _importPackages(code: string) {
+  private static async _getImports(code: string) {
     const importRegex = new RegExp(
       /import\s+(?:((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+)?["|'](.+)["|']/gm
     );
@@ -341,33 +341,18 @@ export class PgClient {
       }
     };
 
-    // Path or package name
-    const importPaths = [];
     do {
       importMatch = importRegex.exec(code);
-      if (importMatch) importPaths.push(importMatch[6]);
+      if (!importMatch) continue;
+
+      const importPath = importMatch[6];
+      const getPackage = importPath.startsWith(".")
+        ? this._importFromPath
+        : PgClientPackage.import;
+      const pkg = await getPackage(importPath);
+      this._overridePackage(importPath, pkg);
+      setupImport(pkg);
     } while (importMatch);
-
-    await Promise.all(
-      importPaths.map(async (importPath) => {
-        if (importPath.startsWith(".")) {
-          // TODO: Remove after adding general support for local imports.
-          // Add a special case for Anchor's `target/types`
-          if (importPath.includes("target/types")) {
-            if (PgProgramInfo.idl) return { IDL: PgProgramInfo.idl };
-            throw new Error(
-              "IDL not found, build the program to create the IDL."
-            );
-          }
-
-          throw new Error("File imports are not supported.");
-        }
-
-        const pkg = await PgClientPackage.import(importPath);
-        this._overridePackage(importPath, pkg);
-        setupImport(pkg);
-      })
-    );
 
     // Remove import statements
     // Need to do this after we setup all the imports because of the internal
@@ -375,6 +360,23 @@ export class PgClient {
     code = code.replace(importRegex, "");
 
     return { code, imports };
+  }
+
+  /**
+   * Import module from the given path.
+   *
+   * @param path import path
+   * @returns the imported module
+   */
+  private static async _importFromPath(path: string) {
+    // TODO: Remove after adding general support for local imports.
+    // Add a special case for Anchor's `target/types`
+    if (path.includes("target/types")) {
+      if (PgProgramInfo.idl) return { IDL: PgProgramInfo.idl };
+      throw new Error("IDL not found, build the program to create the IDL.");
+    }
+
+    throw new Error("File imports are not yet supported.");
   }
 
   /**
