@@ -407,13 +407,29 @@ export class PgClient {
         const wallet = this._getPg().wallet;
         if (!wallet) throw new Error("Wallet not connected");
 
-        return new anchor.AnchorProvider(connection, wallet, opts);
+        const provider = new anchor.AnchorProvider(connection, wallet, opts);
+        return setAnchorWallet(provider);
       };
 
       // Add `AnchorProvider.env()`
       pkg[providerName].env = () => {
         const provider = this._getPg().program?.provider;
-        if (!provider) throw new Error("Wallet not connected");
+        if (!provider) throw new Error("Provider not ready");
+        return setAnchorWallet(provider);
+      };
+
+      /**
+       * Override `provider.wallet` to have `payer` field with the wallet
+       * keypair in order to have the same behavior as local.
+       */
+      const setAnchorWallet = (provider: any) => {
+        if (provider.wallet.isPg) {
+          provider.wallet = {
+            ...provider.wallet,
+            payer: provider.wallet.keypair,
+          };
+        }
+
         return provider;
       };
 
