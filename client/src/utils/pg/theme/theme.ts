@@ -1234,6 +1234,7 @@ export class PgTheme {
     bottom.default.color ??= theme.colors.default.textPrimary;
     bottom.default.fontSize ??= theme.font.code.size.small;
     bottom.default.display ??= "flex";
+    bottom.default.flexWrap ??= "wrap";
     bottom.default.alignItems ??= "center";
 
     // Connect button
