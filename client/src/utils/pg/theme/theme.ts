@@ -1239,7 +1239,7 @@ export class PgTheme {
 
     // Connect button
     bottom.connect ??= {};
-    bottom.connect.height = "100%";
+    bottom.connect.height ??= "100%";
     bottom.connect.padding ??= "0 0.75rem";
     bottom.connect.border ??= "none";
     bottom.connect.hover ??= {};
