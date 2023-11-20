@@ -32,6 +32,9 @@ export const declareGlobalTypes = async (): Promise<Disposable> => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       require("./raw/console.raw.d.ts")
     ),
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      require("./raw/light-dom.raw.d.ts")
+    ),
     declareNamespace("solana-playground", { as: "pg" }),
   ];
 
