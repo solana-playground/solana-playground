@@ -34,8 +34,14 @@ export const declareModule = (
  */
 export const declarePackage = async (
   packageName: ClientPackageName,
-  opts?: { transitive?: boolean }
+  opts?: { empty?: boolean; transitive?: boolean }
 ): Promise<Disposable | undefined> => {
+  if (opts?.empty) {
+    return monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      declareModule(packageName)
+    );
+  }
+
   if (cache.has(packageName)) return;
   cache.add(packageName);
 

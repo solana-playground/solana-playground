@@ -1,8 +1,9 @@
-import * as monaco from "monaco-editor";
-
-import { declareModule, declarePackage } from "./helper";
+import { declarePackage } from "./helper";
 import { importTypes } from "../../common";
-import type { ClientPackageName } from "../../../../../../../utils/pg";
+import type {
+  ClientPackageName,
+  Disposable,
+} from "../../../../../../../utils/pg";
 
 /**
  * Declare importable types in the editor and update them based on file switch
@@ -17,7 +18,7 @@ export const declareImportableTypes = () => {
 
 /** Mapping of package name -> imported */
 const cachedTypes: {
-  [K in ClientPackageName]?: true | monaco.IDisposable;
+  [K in ClientPackageName]?: true | Disposable;
 } = {};
 
 /**
@@ -44,11 +45,11 @@ const update = async (code: string) => {
         // Declaration is final, this package will not get declared again
         cachedTypes[packageName] = true;
       } else if (!pkg) {
-        // Empty declaration should get disposed if the package is used
-        cachedTypes[packageName] =
-          monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            declareModule(packageName)
-          );
+        // Declare empty package to give the completion hint that the package
+        // can be imported
+        cachedTypes[packageName] = await declarePackage(packageName, {
+          empty: true,
+        });
       }
     })
   );
