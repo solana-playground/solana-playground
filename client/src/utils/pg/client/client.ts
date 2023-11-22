@@ -199,13 +199,16 @@ export class PgClient {
    */
   private static async _getGlobals({ isTest }: Pick<ClientParams, "isTest">) {
     // Redefine console inside the iframe to log in the terminal
-    const padding = "    ";
+    const PADDING = "    ";
     const iframeConsole = {
       log: (msg: string, ...rest: any[]) => {
-        PgTerminal.log(padding + util.format(msg, ...rest));
+        PgTerminal.log(PADDING + util.format(msg, ...rest));
       },
       error: (msg: string, ...rest: any[]) => {
-        PgTerminal.log(padding + PgTerminal.error(util.format(msg, ...rest)));
+        PgTerminal.log(PADDING + PgTerminal.error(util.format(msg, ...rest)));
+      },
+      warn: (msg: string, ...rest: any[]) => {
+        PgTerminal.log(PADDING + PgTerminal.warning(util.format(msg, ...rest)));
       },
     };
 

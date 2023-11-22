@@ -36,6 +36,25 @@ declare global {
      * @since v0.1.100
      */
     log(message?: any, ...optionalParams: any[]): void;
+
+    /**
+     * Prints to `stderr` with newline. Multiple arguments can be passed, with the
+     * first used as the primary message and all additional used as substitution
+     * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html) (the arguments are all passed to `util.format()`).
+     *
+     * ```js
+     * const code = 5;
+     * console.warn('warn #%d', code);
+     * // Prints: warn #5, to stderr
+     * console.warn('warn', code);
+     * // Prints: warn 5, to stderr
+     * ```
+     *
+     * If formatting elements (e.g. `%d`) are not found in the first string then `util.inspect()` is called on each argument and the resulting string
+     * values are concatenated. See `util.format()` for more information.
+     * @since v0.1.100
+     */
+    warn(message?: any, ...optionalParams: any[]): void;
   }
 
   /**
