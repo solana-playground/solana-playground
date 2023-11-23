@@ -72,7 +72,10 @@ const ChildPopover: FC<ChildPopoverProps> = ({ popEl, children, ...props }) => {
   );
 };
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  width: fit-content;
+  height: fit-content;
+`;
 
 type InternalPopoverProps = RequiredKey<PopoverProps, "anchorEl">;
 
