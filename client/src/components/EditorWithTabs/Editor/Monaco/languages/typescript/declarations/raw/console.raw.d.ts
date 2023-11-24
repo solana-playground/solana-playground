@@ -26,6 +26,24 @@ declare global {
      *
      * ```js
      * const count = 5;
+     * console.info('count: %d', count);
+     * // Prints: count: 5, to stdout
+     * console.info('count:', count);
+     * // Prints: count: 5, to stdout
+     * ```
+     *
+     * See `util.format()` for more information.
+     * @since v0.1.100
+     */
+    info(message?: any, ...optionalParams: any[]): void;
+
+    /**
+     * Prints to `stdout` with newline. Multiple arguments can be passed, with the
+     * first used as the primary message and all additional used as substitution
+     * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html) (the arguments are all passed to `util.format()`).
+     *
+     * ```js
+     * const count = 5;
      * console.log('count: %d', count);
      * // Prints: count: 5, to stdout
      * console.log('count:', count);
