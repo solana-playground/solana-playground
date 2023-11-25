@@ -22,6 +22,12 @@ const BG_BLACK = "#000000",
   // Highlight
   COMMENT = "#859188";
 
+const NO_TRANSFORM = {
+  "&:not(:disabled):hover": {
+    transform: "none",
+  },
+};
+
 const SOLANA: Theme = {
   isDark: true,
   colors: {
@@ -66,11 +72,14 @@ const SOLANA: Theme = {
     },
     button: {
       default: {
-        hover: {
+        "&:not(:disabled):hover": {
           transform: "translateY(-3px)",
         },
       },
       overrides: {
+        icon: NO_TRANSFORM,
+        "no-border": NO_TRANSFORM,
+        transparent: NO_TRANSFORM,
         primary: {
           color: BG_BLACK,
           hover: {
@@ -85,11 +94,6 @@ const SOLANA: Theme = {
             boxShadow:
               "0 1rem 2.5rem rgba(35, 35, 35, 0.1), 0 .5rem 1rem -0.75rem rgba(35, 35, 35, 0.1)",
             color: BG_BLACK,
-          },
-        },
-        icon: {
-          hover: {
-            transform: "translateY(0)",
           },
         },
       },
