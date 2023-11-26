@@ -13,7 +13,7 @@ import Text from "../Text";
 import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
 import { OrString, PgTheme, PgView, SyncOrAsync } from "../../utils/pg";
-import { useKeybind } from "../../hooks";
+import { useKeybind, useOnClickOutside } from "../../hooks";
 
 interface ModalProps {
   /** Modal title to show. If true, default is "Solana Playground" */
@@ -72,8 +72,11 @@ const Modal: FC<ModalProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   useKeybind("Enter", () => buttonRef.current?.click());
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(wrapperRef, PgView.closeModal);
+
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
       {/* Take away the focus of other buttons when the modal is mounted */}
       <FocusButton autoFocus />
 
