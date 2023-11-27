@@ -18,6 +18,8 @@ export interface PopoverProps {
   popEl?: ReactNode;
   /** Element to anchor to */
   anchorEl?: HTMLElement;
+  /** Where to place the popover element relative to the anchor point */
+  placement?: "top" | "right" | "bottom" | "left";
   /** Whether to show the pop-up on hover */
   showOnHover?: boolean;
   /**
@@ -47,7 +49,7 @@ const AnchoredPopover: FC<AnchoredPopoverProps> = ({
   popEl,
   children,
   ...props
-}) => <InternalPopover {...props}>{popEl}</InternalPopover>;
+}) => <CommonPopover {...props}>{popEl}</CommonPopover>;
 
 type ChildPopoverProps = Omit<PopoverProps, "anchorEl">;
 
@@ -64,9 +66,9 @@ const ChildPopover: FC<ChildPopoverProps> = ({ popEl, children, ...props }) => {
     <Wrapper ref={anchorRef}>
       {children}
       {mounted && (
-        <InternalPopover {...props} anchorEl={anchorRef.current!}>
+        <CommonPopover {...props} anchorEl={anchorRef.current!}>
           {popEl}
-        </InternalPopover>
+        </CommonPopover>
       )}
     </Wrapper>
   );
@@ -77,16 +79,17 @@ const Wrapper = styled.div`
   height: fit-content;
 `;
 
-type InternalPopoverProps = RequiredKey<PopoverProps, "anchorEl">;
+type CommonPopoverProps = RequiredKey<PopoverProps, "anchorEl">;
 
-const InternalPopover: FC<InternalPopoverProps> = ({
+const CommonPopover: FC<CommonPopoverProps> = ({
   anchorEl,
   delay = 500,
+  placement = "top",
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [midPoint, setMidPoint] = useState(0);
+  const [relativeMidPoint, setRelativeMidPoint] = useState(0);
 
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -95,21 +98,82 @@ const InternalPopover: FC<InternalPopoverProps> = ({
     if (!popoverRef.current) return;
 
     const anchorRect = anchorEl.getBoundingClientRect();
-    const popoverRect = popoverRef.current.getBoundingClientRect();
+    let popoverRect = popoverRef.current.getBoundingClientRect();
 
-    // Mid-point of the popover and the wrapped element should be the same
-    const x = anchorRect.x + (anchorRect.width - popoverRect.width) / 2;
+    switch (placement) {
+      case "top":
+      case "bottom": {
+        // Mid-point of the popover and the anchor element should be the same
+        const x = Math.max(
+          0,
+          anchorRect.x + (anchorRect.width - popoverRect.width) / 2
+        );
+        const y = Math.max(
+          0,
+          placement === "top"
+            ? anchorRect.top - (popoverRect.height + ARROW_RADIUS)
+            : anchorRect.bottom + ARROW_RADIUS
+        );
+        setPosition({
+          x:
+            Math.round(x + popoverRect.width) > window.innerWidth
+              ? Math.round(window.innerWidth - popoverRect.width)
+              : x,
+          y,
+        });
 
-    setPosition({
-      x:
-        x < 0
-          ? 0
-          : Math.round(x + popoverRect.width) > window.innerWidth
-          ? Math.round(window.innerWidth - popoverRect.width)
-          : x,
-      y: anchorRect.y - (popoverRect.height + ARROW_RADIUS),
-    });
-  }, [anchorEl]);
+        // Get the rect again because `setPosition` above could affect the result
+        popoverRect = popoverRef.current.getBoundingClientRect();
+        if (popoverRect.left === 0) {
+          const distanceToLeftEdge = anchorRect.left;
+          const totalDistance = distanceToLeftEdge + anchorRect.width / 2;
+          setRelativeMidPoint(totalDistance);
+        } else if (Math.round(popoverRect.right) === window.innerWidth) {
+          const distanceToRightEdge = window.innerWidth - anchorRect.right;
+          const totalDistance = distanceToRightEdge + anchorRect.width / 2;
+          setRelativeMidPoint(popoverRect.width - totalDistance);
+        } else {
+          setRelativeMidPoint(popoverRect.width / 2);
+        }
+        break;
+      }
+      case "right":
+      case "left": {
+        // Mid-point of the popover and the anchor element should be the same
+        const x = Math.max(
+          0,
+          placement === "left"
+            ? anchorRect.left - (popoverRect.width + ARROW_RADIUS)
+            : anchorRect.right + ARROW_RADIUS
+        );
+        const y = Math.max(
+          0,
+          anchorRect.y + (anchorRect.height - popoverRect.height) / 2
+        );
+        setPosition({
+          x,
+          y:
+            Math.round(y + popoverRect.height) > window.innerHeight
+              ? Math.round(window.innerHeight - popoverRect.height)
+              : y,
+        });
+
+        // Get the rect again because `setPosition` above could affect the result
+        popoverRect = popoverRef.current.getBoundingClientRect();
+        if (popoverRect.top === 0) {
+          const distanceToTopEdge = anchorRect.top;
+          const totalDistance = distanceToTopEdge + anchorRect.height / 2;
+          setRelativeMidPoint(totalDistance);
+        } else if (Math.round(popoverRect.bottom) === window.innerHeight) {
+          const distanceToBottomEdge = popoverRect.height;
+          const totalDistance = distanceToBottomEdge - anchorRect.height / 2;
+          setRelativeMidPoint(totalDistance);
+        } else {
+          setRelativeMidPoint(popoverRect.height / 2);
+        }
+      }
+    }
+  }, [anchorEl, placement]);
 
   // Reposition on `maxWidth` or `isVisible` change
   useLayoutEffect(() => {
@@ -127,30 +191,9 @@ const InternalPopover: FC<InternalPopoverProps> = ({
     repositionResizeObserver.observe(anchorEl);
     repositionResizeObserver.observe(popoverEl);
 
-    const midPointResizeObserver = new ResizeObserver(() => {
-      const anchorRect = anchorEl.getBoundingClientRect();
-      const popoverRect = popoverEl.getBoundingClientRect();
-
-      if (popoverRect.x === 0) {
-        const distanceToLeftEdge = anchorRect.x;
-        const totalDistance = distanceToLeftEdge + anchorRect.width / 2;
-        setMidPoint(totalDistance);
-      } else if (Math.round(popoverRect.right) === window.innerWidth) {
-        const distanceToRightEdge = window.innerWidth - anchorRect.right;
-        const totalDistance = distanceToRightEdge + anchorRect.width / 2;
-        setMidPoint(popoverRect.width - totalDistance);
-      } else {
-        setMidPoint(popoverRect.width / 2);
-      }
-    });
-    midPointResizeObserver.observe(anchorEl);
-    midPointResizeObserver.observe(popoverEl);
-
     return () => {
       repositionResizeObserver.unobserve(anchorEl);
       repositionResizeObserver.unobserve(popoverEl);
-      midPointResizeObserver.unobserve(anchorEl);
-      midPointResizeObserver.unobserve(popoverEl);
     };
   }, [anchorEl, isVisible, reposition]);
 
@@ -202,35 +245,68 @@ const InternalPopover: FC<InternalPopoverProps> = ({
 
         // Get the rect inside the callback because element size can change
         const anchorRect = getRoundedClientRect(anchorEl);
+        const isInsideAnchorHorizontal =
+          ev.x > anchorRect.left && ev.x < anchorRect.right;
+        const isInsideAnchorVertical =
+          ev.y > anchorRect.top && ev.y < anchorRect.bottom;
+        const isInsideAnchor =
+          isInsideAnchorHorizontal && isInsideAnchorVertical;
+        if (isInsideAnchor) return;
 
         if (props.continueToShowOnPopupHover) {
           const popoverRect = getRoundedClientRect(popoverRef.current);
+          let isAnchorAligned;
+          let isInsidePopover;
 
-          // Pointer must be:
-          // - Within the left and right side of the `anchorRect`
-          // - Above the bottom of the `anchorRect`
-          // - Below the top of the `popoverRect`
-          if (
-            ev.y > anchorRect.bottom ||
-            ev.y < popoverRect.top ||
-            (ev.y > anchorRect.top &&
-              (ev.x < anchorRect.left || ev.x > anchorRect.right)) ||
-            (ev.y < anchorRect.top &&
-              (ev.x < popoverRect.left || ev.x > popoverRect.right))
-          ) {
-            setIsVisible(false);
+          switch (placement) {
+            case "top":
+              isAnchorAligned =
+                ev.y < anchorRect.bottom ||
+                (isInsideAnchorVertical && !isInsideAnchorHorizontal);
+              isInsidePopover =
+                ev.x > popoverRect.left &&
+                ev.x < popoverRect.right &&
+                ev.y > popoverRect.top &&
+                ev.y < popoverRect.bottom + ARROW_RADIUS;
+              break;
+
+            case "bottom":
+              isAnchorAligned =
+                ev.y > anchorRect.top ||
+                (isInsideAnchorVertical && !isInsideAnchorHorizontal);
+              isInsidePopover =
+                ev.x > popoverRect.left &&
+                ev.x < popoverRect.right &&
+                ev.y > popoverRect.top - ARROW_RADIUS &&
+                ev.y < popoverRect.bottom;
+              break;
+
+            case "left":
+              isAnchorAligned =
+                ev.x < anchorRect.left ||
+                (isInsideAnchorVertical && !isInsideAnchorHorizontal);
+              isInsidePopover =
+                ev.x > popoverRect.left &&
+                ev.x < popoverRect.right + ARROW_RADIUS &&
+                ev.y > popoverRect.top &&
+                ev.y < popoverRect.bottom;
+              break;
+
+            case "right":
+              isAnchorAligned =
+                ev.x > anchorRect.right ||
+                (isInsideAnchorVertical && !isInsideAnchorHorizontal);
+              isInsidePopover =
+                ev.x > popoverRect.left - ARROW_RADIUS &&
+                ev.x < popoverRect.right &&
+                ev.y > popoverRect.top &&
+                ev.y < popoverRect.bottom;
           }
+
+          if (!(isAnchorAligned && isInsidePopover)) setIsVisible(false);
         } else {
-          if (
-            !(
-              ev.x > anchorRect.left &&
-              ev.x < anchorRect.right &&
-              ev.y < anchorRect.bottom &&
-              ev.y > anchorRect.top
-            )
-          ) {
-            setIsVisible(false);
-          }
+          // Close outside of `anchorRect`
+          if (!isInsideAnchor) setIsVisible(false);
         }
       });
 
@@ -255,6 +331,7 @@ const InternalPopover: FC<InternalPopoverProps> = ({
     }
   }, [
     isVisible,
+    placement,
     props.showOnHover,
     props.continueToShowOnPopupHover,
     anchorEl,
@@ -265,7 +342,8 @@ const InternalPopover: FC<InternalPopoverProps> = ({
   return ReactDOM.createPortal(
     <StyledPopover
       ref={popoverRef}
-      midPoint={midPoint}
+      relativeMidPoint={relativeMidPoint}
+      placement={placement}
       {...position}
       {...props}
     />,
@@ -282,32 +360,47 @@ interface Position {
 }
 
 const StyledPopover = styled.div<
-  Pick<PopoverProps, "maxWidth" | "bgSecondary"> &
-    Position & { midPoint: number }
+  Required<Pick<PopoverProps, "placement">> &
+    Pick<PopoverProps, "maxWidth" | "bgSecondary"> &
+    Position & { relativeMidPoint: number }
 >`
-  ${({ maxWidth, bgSecondary, x, y, midPoint, theme }) => css`
+  ${({
+    placement,
+    x,
+    y,
+    relativeMidPoint,
+    maxWidth,
+    bgSecondary,
+    theme,
+  }) => css`
     position: absolute;
     left: ${x}px;
     top: ${y}px;
 
-    max-width: ${!maxWidth
-      ? "fit-content"
-      : typeof maxWidth === "number"
-      ? `${maxWidth}px`
-      : maxWidth};
+    max-width: ${
+      !maxWidth
+        ? "fit-content"
+        : typeof maxWidth === "number"
+        ? `${maxWidth}px`
+        : maxWidth
+    };
     width: fit-content;
     height: fit-content;
 
     &::after {
       position: absolute;
-      left: ${midPoint - ARROW_RADIUS}px;
-      top: 100%;
+      ${placement}: 100%;
+      ${placement === "top" || placement === "bottom" ? "left" : "top"}: ${
+    relativeMidPoint - ARROW_RADIUS
+  }px;
 
       content: "";
       border: ${ARROW_RADIUS}px solid transparent;
-      border-top-color: ${bgSecondary
-        ? theme.components.tooltip.bgSecondary
-        : theme.components.tooltip.bg};
+      border-${placement}-color: ${
+    bgSecondary
+      ? theme.components.tooltip.bgSecondary
+      : theme.components.tooltip.bg
+  };
       pointer-events: none;
     }
   `}
