@@ -47,11 +47,11 @@ const Left: FC<LeftProps> = ({
     <Wrapper>
       <Icons>
         <Top>
-          {SIDEBAR.map((page, i) => (
+          {SIDEBAR.map((page) => (
             <SidebarButton
-              key={i}
+              key={page.name}
+              tooltipEl={PgCommon.getKeybindTextOS(page.title)}
               id={getId(page.name)}
-              title={PgCommon.getKeybindTextOS(page.title)}
               src={page.icon}
               onClick={() => handleSidebarChange(page.name)}
             />
@@ -60,12 +60,12 @@ const Left: FC<LeftProps> = ({
 
         <Bottom>
           <Link href={GITHUB_URL}>
-            <SidebarButton title="GitHub" src="/icons/sidebar/github.png" />
+            <SidebarButton tooltipEl="GitHub" src="/icons/sidebar/github.png" />
           </Link>
 
           <Popover popEl={<Settings />}>
             <SidebarButton
-              title="Settings"
+              tooltipEl="Settings"
               src="/icons/sidebar/settings.webp"
             />
           </Popover>

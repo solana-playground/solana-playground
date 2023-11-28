@@ -1283,7 +1283,7 @@ export class PgTheme {
     sidebar.left.button.default.display ??= "flex";
     sidebar.left.button.default.justifyContent ??= "center";
     sidebar.left.button.default.alignItems ??= "center";
-    sidebar.left.button.default.width ??= "100%";
+    sidebar.left.button.default.width ??= sidebar.left.default.width;
     sidebar.left.button.default.height ??= "3rem";
     sidebar.left.button.default.cursor ??= "pointer";
 

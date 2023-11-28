@@ -1,18 +1,26 @@
-import { ComponentPropsWithoutRef, FC } from "react";
+import { ComponentPropsWithoutRef, FC, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../../../../../components/Img";
+import Tooltip from "../../../../../components/Tooltip";
 import { ClassName } from "../../../../../constants";
 import { PgTheme } from "../../../../../utils/pg";
 
 interface SidebarButtonProps extends ComponentPropsWithoutRef<"div"> {
   src: string;
+  tooltipEl: ReactNode;
 }
 
-const SidebarButton: FC<SidebarButtonProps> = ({ src, ...props }) => (
-  <IconWrapper {...props}>
-    <Icon src={src} />
-  </IconWrapper>
+const SidebarButton: FC<SidebarButtonProps> = ({
+  src,
+  tooltipEl,
+  ...props
+}) => (
+  <Tooltip element={tooltipEl} placement="right">
+    <IconWrapper {...props}>
+      <Icon src={src} />
+    </IconWrapper>
+  </Tooltip>
 );
 
 const IconWrapper = styled.div`
