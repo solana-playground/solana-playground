@@ -16,7 +16,7 @@ const SidebarButton: FC<SidebarButtonProps> = ({
   tooltipEl,
   ...props
 }) => (
-  <Tooltip element={tooltipEl} placement="right">
+  <Tooltip element={tooltipEl} placement="right" arrow={{ size: 4 }}>
     <IconWrapper {...props}>
       <Icon src={src} />
     </IconWrapper>

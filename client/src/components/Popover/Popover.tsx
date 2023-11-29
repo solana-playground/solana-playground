@@ -20,6 +20,11 @@ export interface PopoverProps {
   anchorEl?: HTMLElement;
   /** Where to place the popover element relative to the anchor point */
   placement?: "top" | "right" | "bottom" | "left";
+  /** Arrow pointing to the `anchorEl` from the `popEl` */
+  arrow?: {
+    /** Arrow size in px */
+    size: number;
+  };
   /** Whether to show the pop-up on hover */
   showOnHover?: boolean;
   /**
@@ -85,6 +90,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
   anchorEl,
   delay = 500,
   placement = "top",
+  arrow = { size: 8 },
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -111,8 +117,8 @@ const CommonPopover: FC<CommonPopoverProps> = ({
         const y = Math.max(
           0,
           placement === "top"
-            ? anchorRect.top - (popoverRect.height + ARROW_RADIUS)
-            : anchorRect.bottom + ARROW_RADIUS
+            ? anchorRect.top - (popoverRect.height + arrow.size)
+            : anchorRect.bottom + arrow.size
         );
         setPosition({
           x:
@@ -143,8 +149,8 @@ const CommonPopover: FC<CommonPopoverProps> = ({
         const x = Math.max(
           0,
           placement === "left"
-            ? anchorRect.left - (popoverRect.width + ARROW_RADIUS)
-            : anchorRect.right + ARROW_RADIUS
+            ? anchorRect.left - (popoverRect.width + arrow.size)
+            : anchorRect.right + arrow.size
         );
         const y = Math.max(
           0,
@@ -173,7 +179,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
         }
       }
     }
-  }, [anchorEl, placement]);
+  }, [anchorEl, placement, arrow.size]);
 
   // Reposition on `maxWidth` or `isVisible` change
   useLayoutEffect(() => {
@@ -267,7 +273,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
                 ev.x > popoverRect.left &&
                 ev.x < popoverRect.right &&
                 ev.y > popoverRect.top &&
-                ev.y < popoverRect.bottom + ARROW_RADIUS;
+                ev.y < popoverRect.bottom + arrow.size;
               break;
 
             case "bottom":
@@ -277,7 +283,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
               isInsidePopover =
                 ev.x > popoverRect.left &&
                 ev.x < popoverRect.right &&
-                ev.y > popoverRect.top - ARROW_RADIUS &&
+                ev.y > popoverRect.top - arrow.size &&
                 ev.y < popoverRect.bottom;
               break;
 
@@ -287,7 +293,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
                 (isInsideAnchorVertical && !isInsideAnchorHorizontal);
               isInsidePopover =
                 ev.x > popoverRect.left &&
-                ev.x < popoverRect.right + ARROW_RADIUS &&
+                ev.x < popoverRect.right + arrow.size &&
                 ev.y > popoverRect.top &&
                 ev.y < popoverRect.bottom;
               break;
@@ -297,7 +303,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
                 ev.x > anchorRect.right ||
                 (isInsideAnchorVertical && !isInsideAnchorHorizontal);
               isInsidePopover =
-                ev.x > popoverRect.left - ARROW_RADIUS &&
+                ev.x > popoverRect.left - arrow.size &&
                 ev.x < popoverRect.right &&
                 ev.y > popoverRect.top &&
                 ev.y < popoverRect.bottom;
@@ -332,9 +338,10 @@ const CommonPopover: FC<CommonPopoverProps> = ({
   }, [
     isVisible,
     placement,
+    anchorEl,
+    arrow.size,
     props.showOnHover,
     props.continueToShowOnPopupHover,
-    anchorEl,
   ]);
 
   if (!isVisible) return null;
@@ -344,6 +351,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
       ref={popoverRef}
       relativeMidPoint={relativeMidPoint}
       placement={placement}
+      arrow={arrow}
       {...position}
       {...props}
     />,
@@ -351,21 +359,19 @@ const CommonPopover: FC<CommonPopoverProps> = ({
   );
 };
 
-/** Popover radius in px */
-const ARROW_RADIUS = 8;
-
 interface Position {
   x: number;
   y: number;
 }
 
 const StyledPopover = styled.div<
-  Required<Pick<PopoverProps, "placement">> &
+  Required<Pick<PopoverProps, "placement" | "arrow">> &
     Pick<PopoverProps, "maxWidth" | "bgSecondary"> &
     Position & { relativeMidPoint: number }
 >`
   ${({
     placement,
+    arrow,
     x,
     y,
     relativeMidPoint,
@@ -391,11 +397,11 @@ const StyledPopover = styled.div<
       position: absolute;
       ${placement}: 100%;
       ${placement === "top" || placement === "bottom" ? "left" : "top"}: ${
-    relativeMidPoint - ARROW_RADIUS
+    relativeMidPoint - arrow.size
   }px;
 
       content: "";
-      border: ${ARROW_RADIUS}px solid transparent;
+      border: ${arrow.size}px solid transparent;
       border-${placement}-color: ${
     bgSecondary
       ? theme.components.tooltip.bgSecondary
