@@ -246,7 +246,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
     if (!isVisible) return;
 
     if (props.showOnHover) {
-      const hide = PgCommon.throttle((ev: MouseEvent) => {
+      const hideOnMoveOutside = PgCommon.throttle((ev: MouseEvent) => {
         if (!popoverRef.current) return;
 
         // Get the rect inside the callback because element size can change
@@ -315,9 +315,14 @@ const CommonPopover: FC<CommonPopoverProps> = ({
           if (!isInsideAnchor) setIsVisible(false);
         }
       });
+      const hideOnClick = () => setIsVisible(false);
 
-      document.addEventListener("mousemove", hide);
-      return () => document.removeEventListener("mousemove", hide);
+      document.addEventListener("mousemove", hideOnMoveOutside);
+      document.addEventListener("mouseup", hideOnClick);
+      return () => {
+        document.removeEventListener("mousemove", hideOnMoveOutside);
+        document.removeEventListener("mouseup", hideOnClick);
+      };
     } else {
       // Ignore the initial open click because the initial open click also
       // triggers the `hide` callback run
