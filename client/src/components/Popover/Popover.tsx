@@ -10,6 +10,7 @@ import {
 import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 
+import FadeIn from "../FadeIn";
 import { Id } from "../../constants";
 import { PgCommon, RequiredKey, ValueOf } from "../../utils/pg";
 
@@ -369,7 +370,7 @@ interface Position {
   y: number;
 }
 
-const StyledPopover = styled.div<
+const StyledPopover = styled(FadeIn)<
   Required<Pick<PopoverProps, "placement" | "arrow">> &
     Pick<PopoverProps, "maxWidth" | "bgSecondary"> &
     Position & { relativeMidPoint: number }

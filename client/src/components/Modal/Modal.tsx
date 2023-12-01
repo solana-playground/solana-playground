@@ -9,6 +9,7 @@ import {
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
+import FadeIn from "../FadeIn";
 import Text from "../Text";
 import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
@@ -130,7 +131,7 @@ const Modal: FC<ModalProps> = ({
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled(FadeIn)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.modal.default)};
   `}

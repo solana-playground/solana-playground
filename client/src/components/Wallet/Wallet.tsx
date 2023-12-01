@@ -7,6 +7,7 @@ import Balance from "./Balance";
 import Send from "./Send";
 import Transactions from "./Transactions";
 import Button from "../Button";
+import FadeIn from "../FadeIn";
 import Img from "../Img";
 import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
@@ -84,7 +85,7 @@ const WalletBound = styled.div`
   `}
 `;
 
-const WalletWrapper = styled.div`
+const WalletWrapper = styled(FadeIn)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.wallet.default)};
   `}

@@ -1,6 +1,7 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
+import FadeIn from "../FadeIn";
 import { Fn, PgTheme } from "../../utils/pg";
 import { useKeybind } from "../../hooks";
 import type { MenuKind } from "./Menu";
@@ -18,7 +19,7 @@ export const MenuWrapper = forwardRef<HTMLDivElement, MenuWrapperProps>(
   }
 );
 
-const Wrapper = styled.div<Pick<MenuWrapperProps, "kind">>`
+const Wrapper = styled(FadeIn)<Pick<MenuWrapperProps, "kind">>`
   ${(props) => getStyles(props)}
 `;
 
