@@ -211,28 +211,15 @@ const CommonPopover: FC<CommonPopoverProps> = ({
         const el = ev.target as Element;
         if (el.contains(popoverRef.current)) return;
 
-        const pos: Position = { x: ev.clientX, y: ev.clientY };
-        const updateMousePosition = PgCommon.throttle((ev: MouseEvent) => {
-          pos.x = ev.x;
-          pos.y = ev.y;
-        });
-        document.addEventListener("mousemove", updateMousePosition);
+        let isInside = true;
+        const handleOut = () => {
+          isInside = false;
+        };
+        anchorEl.addEventListener("mouseleave", handleOut);
 
         setTimeout(() => {
-          if (anchorEl) {
-            // Get the rect inside the callback because element size can change
-            const anchorRect = getRoundedClientRect(anchorEl);
-            if (
-              pos.x > anchorRect.left &&
-              pos.x < anchorRect.right &&
-              pos.y < anchorRect.bottom &&
-              pos.y > anchorRect.top
-            ) {
-              setIsVisible(true);
-            }
-          }
-
-          document.removeEventListener("mousemove", updateMousePosition);
+          if (isInside) setIsVisible(true);
+          anchorEl.removeEventListener("mouseleave", handleOut);
         }, delay);
       };
     } else {
@@ -316,13 +303,21 @@ const CommonPopover: FC<CommonPopoverProps> = ({
           if (!isInsideAnchor) setIsVisible(false);
         }
       });
-      const hideOnClick = () => setIsVisible(false);
+      const hideOnClick = () => {
+        setIsVisible(false);
+      };
+      const closeOutsideWindow = (ev: MouseEvent) => {
+        if (ev.x < 0 || ev.y < 0) setIsVisible(false);
+      };
 
       document.addEventListener("mousemove", hideOnMoveOutside);
-      document.addEventListener("mouseup", hideOnClick);
+      anchorEl.addEventListener("mouseup", hideOnClick);
+      anchorEl.addEventListener("mouseleave", closeOutsideWindow);
+
       return () => {
         document.removeEventListener("mousemove", hideOnMoveOutside);
-        document.removeEventListener("mouseup", hideOnClick);
+        anchorEl.removeEventListener("mouseup", hideOnClick);
+        anchorEl.removeEventListener("mouseleave", closeOutsideWindow);
       };
     } else {
       // Ignore the initial open click because the initial open click also
