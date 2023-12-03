@@ -146,14 +146,11 @@ class _PgProgramInfo {
    * @param programId optional program id
    * @returns program's authority and whether the program is upgradable
    */
-  static async fetch(programId?: PublicKey | null) {
+  static async fetch(programId: PublicKey | null = PgProgramInfo.pk) {
+    if (!programId) throw new Error("Program id doesn't exist");
+
     const conn = PgConnection.current;
     if (!PgConnection.isReady(conn)) throw new Error("Connection is not ready");
-
-    if (!programId && !PgProgramInfo.pk) {
-      throw new Error("Program id doesn't exist");
-    }
-    programId ??= PgProgramInfo.pk as PublicKey;
 
     const programAccountInfo = await conn.getAccountInfo(programId);
     const deployed = !!programAccountInfo;
@@ -181,16 +178,11 @@ class _PgProgramInfo {
    * @param programId optional program id
    * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
    */
-  static async fetchIdl(programId?: PublicKey | null) {
-    if (!programId) {
-      programId = PgProgramInfo.pk;
-      if (!programId) return null;
-    }
+  static async fetchIdl(programId: PublicKey | null = PgProgramInfo.pk) {
+    if (!programId) throw new Error("Program id doesn't exist");
 
     const idlPk = await idlAddress(programId);
-
-    const conn = PgConnection.current;
-    const accountInfo = await conn.getAccountInfo(idlPk);
+    const accountInfo = await PgConnection.current.getAccountInfo(idlPk);
     if (!accountInfo) return null;
 
     // Chop off account discriminator

@@ -58,7 +58,7 @@ const Export = () => {
 };
 
 enum InitOrUpgradeState {
-  NO_IDL,
+  HIDDEN,
   HAS_ERROR,
   INCORRECT_AUTHORITY,
   IS_FETCHING,
@@ -70,7 +70,7 @@ enum InitOrUpgradeState {
 
 const InitOrUpgrade = () => {
   const [state, setState] = useState<InitOrUpgradeState>(
-    InitOrUpgradeState.NO_IDL
+    InitOrUpgradeState.HIDDEN
   );
 
   const buttonText = useMemo(() => {
@@ -106,8 +106,8 @@ const InitOrUpgrade = () => {
 
   const getIdl = useCallback(async () => {
     try {
-      if (!PgProgramInfo.idl) {
-        setState(InitOrUpgradeState.NO_IDL);
+      if (!PgProgramInfo.idl || !PgProgramInfo.pk || !PgWallet.current) {
+        setState(InitOrUpgradeState.HIDDEN);
         return;
       }
 
@@ -118,7 +118,7 @@ const InitOrUpgrade = () => {
         return;
       }
 
-      if (idlResult.authority.equals(PgWallet.current!.publicKey)) {
+      if (idlResult.authority.equals(PgWallet.current.publicKey)) {
         setState(InitOrUpgradeState.CAN_UPGRADE);
         return;
       }
@@ -130,9 +130,13 @@ const InitOrUpgrade = () => {
     }
   }, []);
 
-  // Initial run
+  // Execute the `getIdl` function
   useEffect(() => {
-    getIdl();
+    const { dispose } = PgCommon.batchChanges(getIdl, [
+      PgProgramInfo.onDidChange,
+      PgWallet.onDidChangeCurrent,
+    ]);
+    return () => dispose();
   }, [getIdl]);
 
   const handleInitOrUpgrade = async () => {
@@ -152,7 +156,7 @@ const InitOrUpgrade = () => {
     await getIdl();
   };
 
-  if (state === InitOrUpgradeState.NO_IDL) return null;
+  if (state === InitOrUpgradeState.HIDDEN) return null;
 
   return (
     <Button
