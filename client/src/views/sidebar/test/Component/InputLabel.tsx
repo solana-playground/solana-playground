@@ -1,63 +1,59 @@
 import { FC } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
-import type { IdlAccount, IdlType } from "@coral-xyz/anchor/dist/cjs/idl";
+import styled, { css } from "styled-components";
 
 interface InputLabelProps {
-  label: string;
-  type: IdlType | "number";
-  account?: IdlAccount;
+  name: string;
+  type: string;
+  isMut?: boolean;
+  isSigner?: boolean;
 }
 
-const InputLabel: FC<InputLabelProps> = ({ label, account, type }) => {
-  return (
-    <Wrapper>
-      <Label>{label}:</Label>
-      <TypesWrapper>
-        <Type>{type}</Type>
-        {account?.isMut && <Type>Mut</Type>}
-        {account?.isSigner && <Type>Signer</Type>}
-      </TypesWrapper>
-    </Wrapper>
-  );
-};
+const InputLabel: FC<InputLabelProps> = ({ name, type, isMut, isSigner }) => (
+  <Wrapper>
+    <NameWrapper>
+      <Name>{name}:</Name>
+    </NameWrapper>
+
+    <TypesWrapper>
+      <Type>{type}</Type>
+      {isMut && <Type isMut>mut</Type>}
+      {isSigner && <Type isSigner>signer</Type>}
+    </TypesWrapper>
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
-  margin-bottom: 0.25rem;
-  display: flex;
-  align-items: center;
-  width: 100%;
+  ${({ theme }) => css`
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: ${theme.font.code.size.small};
+  `}
 `;
 
-const Label = styled.span``;
+const NameWrapper = styled.div``;
+
+const Name = styled.span`
+  ${({ theme }) => css`
+    color: ${theme.colors.default.textSecondary};
+  `}
+`;
 
 const TypesWrapper = styled.div`
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-
-  & span {
-    margin-left: 0.75rem;
-    font-size: ${({ theme }) => theme.font.code.size.small};
-  }
+  gap: 0.75rem;
 `;
 
-const Type = styled.span`
-  ${({ theme, children }) => getTypeStyles(theme, children as IdlType)}
+const Type = styled.span<Pick<InputLabelProps, "isMut" | "isSigner">>`
+  ${({ theme, isMut, isSigner }) => css`
+    color: ${isMut
+      ? theme.highlight.modifier.color
+      : isSigner
+      ? theme.colors.state.success.color
+      : theme.highlight.typeName.color};
+  `}
 `;
-
-const getTypeStyles = (
-  theme: DefaultTheme,
-  type: IdlType | "Mut" | "Signer"
-) => {
-  let color;
-
-  if (type === "Mut") color = theme.colors.default.secondary;
-  else if (type === "Signer") color = theme.colors.state.success.color;
-  else color = theme.colors.state.info.color;
-
-  return css`
-    color: ${color};
-  `;
-};
 
 export default InputLabel;

@@ -57,6 +57,7 @@ export const Tutorials = () => {
 
               setSearchParams(searchParams, { replace: true });
             }}
+            searchButton={{ position: "right", width: "2.5rem" }}
           />
         </TopSection>
 
@@ -114,6 +115,11 @@ const TopSection = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
+
+  /** Search bar */
+  & > div {
+    width: max(12rem, 50%);
+  }
 `;
 
 const Title = styled.h1``;

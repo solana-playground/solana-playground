@@ -8,8 +8,8 @@ import { ClientPackageName, PgClientPackage } from "./package";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgProgramInfo } from "../program-info";
+import { PgProgramInteraction } from "../program-interaction";
 import { PgTerminal } from "../terminal";
-import { PgTest } from "../test";
 import { CurrentWallet, PgWallet, StandardWallet } from "../wallet";
 import type { MergeUnion, OrString } from "../types";
 
@@ -511,11 +511,7 @@ export class PgClient {
 
     // Anchor Program
     if (pg.wallet && PgProgramInfo.idl) {
-      pg.program = PgTest.getProgram(
-        PgProgramInfo.idl,
-        pg.connection,
-        pg.wallet
-      );
+      pg.program = PgProgramInteraction.getAnchorProgram();
     }
 
     return pg;

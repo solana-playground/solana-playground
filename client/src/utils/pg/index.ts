@@ -16,7 +16,6 @@ export * from "./server";
 export * from "./settings";
 export * from "./share";
 export * from "./terminal/";
-export * from "./test/";
 export * from "./theme/";
 export * from "./tutorial/";
 export * from "./tx/";

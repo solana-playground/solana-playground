@@ -84,7 +84,7 @@ If the problem continues, consider filing a bug report in ${PgTerminal.underline
       case "spl-token-cli":
         return "SPL Token CLI";
       default:
-        return PgCommon.toTitlefromKebab(name).replace("Cli", "CLI");
+        return PgCommon.toTitleFromKebab(name).replace("Cli", "CLI");
     }
   }
 

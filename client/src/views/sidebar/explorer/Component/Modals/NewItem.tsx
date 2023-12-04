@@ -110,6 +110,7 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
       <LangIcon fileName={itemName} />
       <Input
         autoFocus
+        value={itemName}
         onChange={(ev) => {
           setItemName(ev.target.value);
           setError(false);

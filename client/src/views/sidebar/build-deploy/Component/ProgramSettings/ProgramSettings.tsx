@@ -13,7 +13,7 @@ const PROGRAM_SETTINGS: ProgramSettingProps[] = [
     description:
       "Import/export program keypair or input a public key for the program.",
     element: <ProgramID />,
-    open: true,
+    isOpen: true,
   },
   {
     title: "Program binary",
@@ -51,18 +51,18 @@ interface ProgramSettingProps {
   /** Component that will be shown inside the foldable and under the description */
   element: ReactNode;
   /** Whether the foldable is open by default */
-  open?: boolean;
+  isOpen?: boolean;
 }
 
 const ProgramSetting: FC<ProgramSettingProps> = ({
   title,
   description,
   element,
-  open,
+  isOpen,
 }) => (
   <ProgramSettingWrapper>
     <Foldable
-      open={open}
+      isOpen={isOpen}
       element={<ProgramSettingTitle>{title}</ProgramSettingTitle>}
     >
       <ProgramSettingDescription>{description}</ProgramSettingDescription>

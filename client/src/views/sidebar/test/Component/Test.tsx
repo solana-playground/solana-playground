@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
+import Account from "./Account";
 import Event from "./Event";
-import FetchableAccount from "./FetchableAccount";
 import Instruction from "./Instruction";
+import IdlProvider from "./IdlProvider";
 import Text from "../../../../components/Text";
 import { PgCommand, PgProgramInfo } from "../../../../utils/pg";
 import { useBigNumberJson } from "./useBigNumberJson";
@@ -73,54 +74,47 @@ const Test = () => {
   }
 
   return (
-    <Wrapper>
-      <ProgramWrapper>
+    <IdlProvider idl={idl}>
+      <Wrapper>
         <ProgramNameWrapper>
           Program:
           <ProgramName>{idl.name}</ProgramName>
         </ProgramNameWrapper>
 
         <ProgramInteractionWrapper>
-          <Subheading>Instructions</Subheading>
+          <ProgramInteractionHeader>Instructions</ProgramInteractionHeader>
           {idl.instructions.map((ix, i) => (
-            <Instruction key={i} idl={idl} index={i} ix={ix} />
+            <Instruction key={ix.name} index={i} idlInstruction={ix} />
           ))}
         </ProgramInteractionWrapper>
 
         {idl.accounts && (
           <ProgramInteractionWrapper>
-            <Subheading>Accounts</Subheading>
+            <ProgramInteractionHeader>Accounts</ProgramInteractionHeader>
             {idl.accounts.map((acc, i) => (
-              <FetchableAccount
-                key={i}
-                index={i}
-                accountName={acc.name}
-                idl={idl}
-              />
+              <Account key={acc.name} index={i} accountName={acc.name} />
             ))}
           </ProgramInteractionWrapper>
         )}
 
         {idl.events && (
           <ProgramInteractionWrapper>
-            <Subheading>Events</Subheading>
+            <ProgramInteractionHeader>Events</ProgramInteractionHeader>
             {idl.events.map((event, i) => (
-              <Event key={i} index={i} eventName={event.name} idl={idl} />
+              <Event key={event.name} index={i} eventName={event.name} />
             ))}
           </ProgramInteractionWrapper>
         )}
-      </ProgramWrapper>
-    </Wrapper>
+      </Wrapper>
+    </IdlProvider>
   );
 };
-
-const Wrapper = styled.div``;
 
 const InitialWrapper = styled.div`
   padding: 1.5rem;
 `;
 
-const ProgramWrapper = styled.div`
+const Wrapper = styled.div`
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -137,15 +131,16 @@ const ProgramName = styled.span`
   margin-left: 0.25rem;
 `;
 
-const Subheading = styled.h4`
+const ProgramInteractionWrapper = styled.div``;
+
+const ProgramInteractionHeader = styled.div`
   ${({ theme }) => `
     margin: 0.5rem 1rem;
     color: ${theme.colors.default.primary};
     font-size: ${theme.font.code.size.large};
+    font-weight: bold;
   `};
 `;
-
-const ProgramInteractionWrapper = styled.div``;
 
 export default Test;
 

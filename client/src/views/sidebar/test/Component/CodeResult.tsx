@@ -6,9 +6,9 @@ interface CodeResultProps extends CodeBlockProps {
   index: number;
 }
 
-export const CodeResult = (props: CodeResultProps) => {
-  return <StyledCodeBlock lang="json" {...props} />;
-};
+const CodeResult = (props: CodeResultProps) => (
+  <StyledCodeBlock lang="json" {...props} />
+);
 
 const StyledCodeBlock = styled(CodeBlock)<CodeResultProps>`
   ${({ theme, index }) => css`
@@ -23,3 +23,5 @@ const StyledCodeBlock = styled(CodeBlock)<CodeResultProps>`
     }
   `}
 `;
+
+export default CodeResult;

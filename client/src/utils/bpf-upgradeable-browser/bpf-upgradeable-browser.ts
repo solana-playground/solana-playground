@@ -424,7 +424,7 @@ export class BpfLoaderUpgradeable {
     );
 
     return await PgTx.send(tx, {
-      additionalSigners: [buffer],
+      keypairSigners: [buffer],
       wallet,
     });
   }
@@ -589,7 +589,7 @@ export class BpfLoaderUpgradeable {
     );
 
     return await PgTx.send(tx, {
-      additionalSigners: [program],
+      keypairSigners: [program],
       wallet,
     });
   }

@@ -13,6 +13,7 @@ import { PgTheme } from "../../utils/pg";
 type InputError = string | boolean | null;
 
 export interface InputProps extends ComponentPropsWithoutRef<"input"> {
+  value: string;
   error?: InputError;
   setError?: Dispatch<SetStateAction<any>>;
   validator?: (value: string) => boolean | void;

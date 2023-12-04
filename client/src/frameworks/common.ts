@@ -32,9 +32,7 @@ export const addAfter = (
   opts?: { firstOccurance?: boolean }
 ) => {
   const occuranceIndex = opts?.firstOccurance ? 0 : -1;
-  const match = [...content.matchAll(new RegExp(afterRegex, "g"))].at(
-    occuranceIndex
-  );
+  const match = PgCommon.matchAll(content, afterRegex).at(occuranceIndex);
   const afterStartIndex = (match?.index ?? 0) + (match?.at(0)?.length ?? 0) + 1;
   content =
     content.slice(0, afterStartIndex) +

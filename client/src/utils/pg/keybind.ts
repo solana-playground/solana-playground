@@ -70,6 +70,10 @@ export class PgKeybind {
           isMatch &&= ev.shiftKey;
           break;
 
+        case "SPACE":
+          isMatch &&= ev.key === " ";
+          break;
+
         default:
           isMatch &&= key === ev.key.toUpperCase();
       }

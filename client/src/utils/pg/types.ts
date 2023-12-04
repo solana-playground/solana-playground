@@ -124,7 +124,7 @@ export type Fn = () => void;
 export type SyncOrAsync<T = unknown> = T | Promise<T>;
 
 /** A `Promise` or a callback that returns a `Promise` */
-export type Promisable<T> = SyncOrAsync<T> | (() => SyncOrAsync<T>);
+export type Promisable<T> = Getable<SyncOrAsync<T>>;
 
 /** Make every property (... | null) */
 export type Nullable<T> = {
@@ -133,6 +133,9 @@ export type Nullable<T> = {
 
 /** Single type, or array of the same type */
 export type Arrayable<T> = T | T[];
+
+/** Property or a function to get the property */
+export type Getable<T> = T | (() => T);
 
 /** Given type `T` or `string` with intellisense for the initial type */
 export type OrString<T> = T | (string & {});

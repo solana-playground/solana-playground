@@ -315,13 +315,9 @@ export class PgCommon {
     for (const property in defaultValue) {
       const result = defaultValue[property] as AllPartial<T[keyof T]>;
       value[property as keyof T] ??= result as T[keyof T];
-
-      if (typeof result === "object") {
-        PgCommon.setDefault(value[property as keyof T], result);
-      }
     }
 
-    return value as T & D;
+    return value as NonNullable<T & D>;
   }
 
   /**
@@ -657,6 +653,40 @@ export class PgCommon {
   }
 
   /**
+   * Generate a random integer in the range of [`min`, `max`].
+   *
+   * @param min minimum(inclusive)
+   * @param max maximum(inclusive)
+   * @returns a random integer between the specified range
+   */
+  static generateRandomInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  /**
+   * Generate a random bigint in the range of [`min`, `max`].
+   *
+   * @param min minimum(inclusive)
+   * @param max maximum(inclusive)
+   * @returns a random bigint between the specified range
+   */
+  static generateRandomBigInt(min: bigint, max: bigint) {
+    return (
+      new Uint8Array(new BigUint64Array([max - min]).buffer).reduce(
+        (acc, cur, i) => {
+          if (!cur) return acc;
+          return (
+            acc +
+            BigInt(PgCommon.generateRandomInt(0, cur)) *
+              BigInt(2) ** BigInt(8 * i)
+          );
+        },
+        0n
+      ) + min
+    );
+  }
+
+  /**
    * @returns camelCase converted version of the string input
    */
   static toCamelCase(str: string) {
@@ -726,7 +756,7 @@ export class PgCommon {
   /**
    * @returns Title Case converted version of the kebab-case string
    */
-  static toTitlefromKebab(str: string) {
+  static toTitleFromKebab(str: string) {
     return (
       str[0].toUpperCase() +
       str.slice(1).replace(/-\w/, (match) => " " + match[1].toUpperCase())
@@ -1012,6 +1042,23 @@ export class PgCommon {
   }
 
   /**
+   * Change the given input's value and dispatch `change` event correctly.
+   *
+   * @param inputEl input element
+   * @param value input value to set
+   */
+  static changeInputValue(inputEl: HTMLInputElement, value: string) {
+    // `input.value = value` does not trigger `Input` component's `onChange`
+    Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    )?.set?.call(inputEl, value);
+
+    // `bubbles: true` is required in order to trigger `onChange`
+    inputEl.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  /**
    * Make a noun plural
    *
    * @param noun name of the noun
@@ -1096,6 +1143,17 @@ export class PgCommon {
    */
   static isPathsEqual(pathOne: string, pathTwo: string) {
     return PgCommon.appendSlash(pathOne) === PgCommon.appendSlash(pathTwo);
+  }
+
+  /**
+   * Get all of the matches of the `given` value from the `content`.
+   *
+   * @param content content to match all from
+   * @param value value to match
+   * @returns the match result
+   */
+  static matchAll(content: string, value: string | RegExp) {
+    return [...content.matchAll(new RegExp(value, "g"))];
   }
 
   /**

@@ -6,7 +6,7 @@ import { PgPlaynet } from "../playnet";
 import { PgSettings } from "../settings";
 import { PgView } from "../view";
 import { ConnectionOption, PgConnection } from "../connection";
-import { PgWallet, WalletOption } from "../wallet";
+import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
 
 interface BlockhashInfo {
   /** Latest blockhash */
@@ -27,7 +27,8 @@ export class PgTx {
   static async send(
     tx: Transaction,
     opts?: {
-      additionalSigners?: Signer[];
+      keypairSigners?: Signer[];
+      walletSigners?: CurrentWallet[];
       forceFetchLatestBlockhash?: boolean;
     } & ConnectionOption &
       WalletOption
@@ -41,28 +42,34 @@ export class PgTx {
       connection,
       opts?.forceFetchLatestBlockhash
     );
-
     tx.feePayer = wallet.publicKey;
 
-    if (opts?.additionalSigners?.length) {
-      tx.partialSign(...opts.additionalSigners);
+    // Add keypair signers
+    if (opts?.keypairSigners?.length) tx.partialSign(...opts.keypairSigners);
+
+    // Add wallet signers
+    if (opts?.walletSigners) {
+      for (const walletSigner of opts.walletSigners) {
+        tx = await walletSigner.signTransaction(tx);
+      }
     }
 
-    const signedTx = await wallet.signTransaction(tx);
+    // Sign with the current wallet as it's always the fee payer
+    tx = await wallet.signTransaction(tx);
 
     // Caching the blockhash will result in getting the same tx signature when
     // using the same tx data.
     // https://github.com/solana-playground/solana-playground/issues/116
     let txHash;
     try {
-      txHash = await connection.sendRawTransaction(signedTx.serialize(), {
+      txHash = await connection.sendRawTransaction(tx.serialize(), {
         skipPreflight: !PgSettings.connection.preflightChecks,
       });
     } catch (e: any) {
       if (e.message.includes("This transaction has already been processed")) {
         // Reset signatures
-        signedTx.signatures = [];
-        return await this.send(signedTx, {
+        tx.signatures = [];
+        return await this.send(tx, {
           ...opts,
           forceFetchLatestBlockhash: true,
         });

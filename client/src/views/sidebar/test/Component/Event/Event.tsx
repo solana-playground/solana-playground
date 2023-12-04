@@ -1,29 +1,29 @@
 import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import type { Idl } from "@coral-xyz/anchor";
 
-import Foldable from "../../../../components/Foldable";
-import { CodeResult } from "./CodeResult";
-import { PgCommon, PgTest } from "../../../../utils/pg";
-import { useConnection, useWallet } from "../../../../hooks";
+import CodeResult from "../CodeResult";
+import Foldable from "../../../../../components/Foldable";
+import { PgCommon } from "../../../../../utils/pg";
+import { PgProgramInteraction } from "../../../../../utils/pg/program-interaction";
+import { useConnection, useWallet } from "../../../../../hooks";
+import { useIdl } from "../IdlProvider";
 
 interface EventProps {
   index: number;
   eventName: string;
-  idl: Idl;
 }
 
-const Event: FC<EventProps> = ({ index, eventName, idl }) => {
-  const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
-
+const Event: FC<EventProps> = ({ index, eventName }) => {
   const { connection } = useConnection();
   const { wallet } = useWallet();
+  const { idl } = useIdl();
+
+  const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
 
   useEffect(() => {
-    const program =
-      idl && wallet ? PgTest.getProgram(idl, connection, wallet) : null;
-    if (!program) return;
+    if (!(idl && connection && wallet)) return;
 
+    const program = PgProgramInteraction.getAnchorProgram();
     const listener = program.addEventListener(eventName, (emittedEvent) => {
       setReceivedEvents((eventsSoFar) => [...eventsSoFar, emittedEvent]);
     });

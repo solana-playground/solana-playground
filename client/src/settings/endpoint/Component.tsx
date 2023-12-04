@@ -76,6 +76,7 @@ const CustomEndpoint = () => {
       <Input
         autoFocus
         placeholder="Custom endpoint"
+        value={customEndpoint}
         onChange={handleChange}
         error={error}
         setError={setError}
