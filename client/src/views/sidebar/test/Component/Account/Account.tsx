@@ -1,9 +1,10 @@
 import { FC, useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { PublicKey } from "@solana/web3.js";
 
 import CodeResult from "../CodeResult";
 import InputLabel from "../InputLabel";
+import Interaction from "../Interaction";
 import Button from "../../../../../components/Button";
 import Foldable from "../../../../../components/Foldable";
 import SearchBar from "../../../../../components/SearchBar";
@@ -80,75 +81,52 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
   };
 
   return (
-    <AccountWrapper index={index}>
-      <Foldable element={<AccountName>{accountName}</AccountName>}>
-        <InputWrapper>
-          <InputLabel name="address" type="publicKey" />
-          <SearchBar
-            value={enteredAddress}
-            onChange={(ev) => setEnteredAddress(ev.target.value)}
-            error={enteredAddressError}
-            setError={setEnteredAddressError}
-            validator={PgCommon.isPk}
-          />
-        </InputWrapper>
+    <Interaction name={accountName} index={index}>
+      <InputWrapper>
+        <InputLabel name="address" type="publicKey" />
+        <SearchBar
+          value={enteredAddress}
+          onChange={(ev) => setEnteredAddress(ev.target.value)}
+          error={enteredAddressError}
+          setError={setEnteredAddressError}
+          validator={PgCommon.isPk}
+        />
+      </InputWrapper>
 
-        <ButtonsWrapper>
-          <Button
-            onClick={fetchOne}
-            disabled={!wallet || !enteredAddress || enteredAddressError}
+      <ButtonsWrapper>
+        <Button
+          onClick={fetchOne}
+          disabled={!wallet || !enteredAddress || enteredAddressError}
+        >
+          Fetch
+        </Button>
+        <Button onClick={fetchAll} disabled={!wallet}>
+          Fetch All
+        </Button>
+      </ButtonsWrapper>
+
+      {(fetchedData || fetchError) && (
+        <ResultWrapper>
+          <Foldable
+            element={<span>Result</span>}
+            isOpen={resultOpen}
+            setIsOpen={setResultOpen}
           >
-            Fetch
-          </Button>
-          <Button onClick={fetchAll} disabled={!wallet}>
-            Fetch All
-          </Button>
-        </ButtonsWrapper>
-
-        {(fetchedData || fetchError) && (
-          <ResultWrapper>
-            <Foldable
-              element={<span>Result</span>}
-              isOpen={resultOpen}
-              setIsOpen={setResultOpen}
-            >
-              <SpinnerWithBg loading={fetchOneLoading || fetchAllLoading}>
-                {fetchError ? (
-                  <FetchError kind="error">{fetchError}</FetchError>
-                ) : (
-                  <CodeResult index={index}>
-                    {PgCommon.prettyJSON(fetchedData!)}
-                  </CodeResult>
-                )}
-              </SpinnerWithBg>
-            </Foldable>
-          </ResultWrapper>
-        )}
-      </Foldable>
-    </AccountWrapper>
+            <SpinnerWithBg loading={fetchOneLoading || fetchAllLoading}>
+              {fetchError ? (
+                <FetchError kind="error">{fetchError}</FetchError>
+              ) : (
+                <CodeResult index={index}>
+                  {PgCommon.prettyJSON(fetchedData!)}
+                </CodeResult>
+              )}
+            </SpinnerWithBg>
+          </Foldable>
+        </ResultWrapper>
+      )}
+    </Interaction>
   );
 };
-
-interface IndexProp {
-  index: number;
-}
-
-const AccountWrapper = styled.div<IndexProp>`
-  ${({ theme, index }) => css`
-    padding: 1rem;
-    border-top: 1px solid ${theme.colors.default.border};
-    background: ${index % 2 === 0 &&
-    theme.components.sidebar.right.default.otherBg};
-
-    &:last-child {
-      border-bottom: 1px solid ${theme.colors.default.border};
-    }
-  `}
-`;
-
-const AccountName = styled.span`
-  font-weight: bold;
-`;
 
 const InputWrapper = styled.div`
   margin: 0.5rem 0;

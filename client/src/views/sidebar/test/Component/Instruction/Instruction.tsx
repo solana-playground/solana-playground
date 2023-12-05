@@ -1,8 +1,9 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import InstructionInput from "./InstructionInput";
 import InstructionProvider from "./InstructionProvider";
+import Interaction from "../Interaction";
 import Button from "../../../../../components/Button";
 import Foldable from "../../../../../components/Foldable";
 import { Emoji } from "../../../../../constants";
@@ -23,8 +24,8 @@ import {
 import { useWallet } from "../../../../../hooks";
 
 interface InstructionProps {
-  index: number;
   idlInstruction: IdlInstruction;
+  index: number;
 }
 
 const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
@@ -105,94 +106,69 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
       instruction={instruction}
       setInstruction={setInstruction}
     >
-      <InstructionWrapper index={index}>
-        <Foldable
-          element={<InstructionName>{instruction.name}</InstructionName>}
-        >
-          <ArgsAndAccountsWrapper>
-            {instruction.values.args.length > 0 && (
-              <Foldable element={<ArgsText>Args</ArgsText>} isOpen>
-                <InstructionInputsWrapper>
-                  {instruction.values.args.map((arg) => (
-                    <InstructionInput
-                      key={arg.name}
-                      prefix="args"
-                      updateInstruction={({
-                        updateGenerator,
-                        updateRefs,
-                        checkErrors,
-                      }) => {
-                        updateGenerator(arg);
-                        updateRefs(arg, "Arguments");
-                        setDisabled(checkErrors());
-                      }}
-                      {...arg}
-                    />
-                  ))}
-                </InstructionInputsWrapper>
-              </Foldable>
-            )}
+      <Interaction name={instruction.name} index={index}>
+        <ArgsAndAccountsWrapper>
+          {instruction.values.args.length > 0 && (
+            <Foldable element={<ArgsText>Args</ArgsText>} isOpen>
+              <InstructionInputsWrapper>
+                {instruction.values.args.map((arg) => (
+                  <InstructionInput
+                    key={arg.name}
+                    prefix="args"
+                    updateInstruction={({
+                      updateGenerator,
+                      updateRefs,
+                      checkErrors,
+                    }) => {
+                      updateGenerator(arg);
+                      updateRefs(arg, "Arguments");
+                      setDisabled(checkErrors());
+                    }}
+                    {...arg}
+                  />
+                ))}
+              </InstructionInputsWrapper>
+            </Foldable>
+          )}
 
-            {instruction.values.accounts.length > 0 && (
-              <Foldable element={<AccountsText>Accounts</AccountsText>} isOpen>
-                <InstructionInputsWrapper>
-                  {instruction.values.accounts.map((acc) => (
-                    <InstructionInput
-                      key={acc.name}
-                      prefix="accounts"
-                      type="publicKey"
-                      updateInstruction={({
-                        updateGenerator,
-                        updateRefs,
-                        checkErrors,
-                      }) => {
-                        updateGenerator(acc);
-                        updateRefs(acc, "Accounts");
-                        setDisabled(checkErrors());
-                      }}
-                      {...acc}
-                    />
-                  ))}
-                </InstructionInputsWrapper>
-              </Foldable>
-            )}
-          </ArgsAndAccountsWrapper>
+          {instruction.values.accounts.length > 0 && (
+            <Foldable element={<AccountsText>Accounts</AccountsText>} isOpen>
+              <InstructionInputsWrapper>
+                {instruction.values.accounts.map((acc) => (
+                  <InstructionInput
+                    key={acc.name}
+                    prefix="accounts"
+                    type="publicKey"
+                    updateInstruction={({
+                      updateGenerator,
+                      updateRefs,
+                      checkErrors,
+                    }) => {
+                      updateGenerator(acc);
+                      updateRefs(acc, "Accounts");
+                      setDisabled(checkErrors());
+                    }}
+                    {...acc}
+                  />
+                ))}
+              </InstructionInputsWrapper>
+            </Foldable>
+          )}
+        </ArgsAndAccountsWrapper>
 
-          <ButtonWrapper>
-            <Button
-              kind="primary"
-              onClick={handleTest}
-              disabled={!wallet || disabled}
-            >
-              Test
-            </Button>
-          </ButtonWrapper>
-        </Foldable>
-      </InstructionWrapper>
+        <ButtonWrapper>
+          <Button
+            kind="primary"
+            onClick={handleTest}
+            disabled={!wallet || disabled}
+          >
+            Test
+          </Button>
+        </ButtonWrapper>
+      </Interaction>
     </InstructionProvider>
   );
 };
-
-interface InstructionWrapperProps {
-  index: number;
-}
-
-const InstructionWrapper = styled.div<InstructionWrapperProps>`
-  ${({ theme, index }) => css`
-    padding: 1rem;
-    border-top: 1px solid ${theme.colors.default.border};
-    background: ${index % 2 === 0 &&
-    theme.components.sidebar.right.default.otherBg};
-
-    &:last-child {
-      border-bottom: 1px solid ${theme.colors.default.border};
-    }
-  `}
-`;
-
-const InstructionName = styled.span`
-  font-weight: bold;
-`;
 
 const ArgsAndAccountsWrapper = styled.div`
   padding-left: 0.25rem;

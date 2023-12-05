@@ -1,16 +1,15 @@
 import { FC, useEffect, useState } from "react";
-import styled, { css } from "styled-components";
 
 import CodeResult from "../CodeResult";
-import Foldable from "../../../../../components/Foldable";
+import Interaction from "../Interaction";
 import { PgCommon } from "../../../../../utils/pg";
 import { PgProgramInteraction } from "../../../../../utils/pg/program-interaction";
 import { useConnection, useWallet } from "../../../../../hooks";
 import { useIdl } from "../IdlProvider";
 
 interface EventProps {
-  index: number;
   eventName: string;
+  index: number;
 }
 
 const Event: FC<EventProps> = ({ index, eventName }) => {
@@ -34,39 +33,12 @@ const Event: FC<EventProps> = ({ index, eventName }) => {
   }, [eventName, idl, connection, wallet]);
 
   return (
-    <EventWrapper index={index}>
-      <Foldable
-        element={
-          <EventName>{`${eventName} (${receivedEvents.length})`}</EventName>
-        }
-      >
-        <CodeResult index={index}>
-          {receivedEvents.map((ev) => PgCommon.prettyJSON(ev)).join("\n")}
-        </CodeResult>
-      </Foldable>
-    </EventWrapper>
+    <Interaction name={`${eventName} (${receivedEvents.length})`} index={index}>
+      <CodeResult index={index}>
+        {receivedEvents.map((ev) => PgCommon.prettyJSON(ev)).join("\n")}
+      </CodeResult>
+    </Interaction>
   );
 };
-
-interface EventWrapperProps {
-  index: number;
-}
-
-const EventWrapper = styled.div<EventWrapperProps>`
-  ${({ theme, index }) => css`
-    padding: 1rem;
-    border-top: 1px solid ${theme.colors.default.border};
-    background: ${index % 2 === 0 &&
-    theme.components.sidebar.right.default.otherBg};
-
-    &:last-child {
-      border-bottom: 1px solid ${theme.colors.default.border};
-    }
-  `}
-`;
-
-const EventName = styled.span`
-  font-weight: bold;
-`;
 
 export default Event;
