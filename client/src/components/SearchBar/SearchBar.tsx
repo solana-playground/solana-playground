@@ -33,6 +33,7 @@ export interface SearchBarProps extends InputProps {
   setSelectedItems?: Dispatch<SetStateAction<NormalizedItem[]>>;
 }
 
+export type NormalizedItem = Exclude<Item, string> & { isSelected?: boolean };
 type Item = string | (CommonItemProps & (NestableItem | DropdownableItem));
 
 type CommonItemProps = {
@@ -60,17 +61,15 @@ export type DropdownProps = {
   search: (item: Item) => void;
 };
 
-export type NormalizedItem = Exclude<Item, string> & { isSelected?: boolean };
-
 const SearchBar: FC<SearchBarProps> = ({
   items,
+  initialSelectedItems,
+  labelToSelectOnPaste,
+  showSearchOnMount,
   searchButton,
   onSearch,
   filter,
   setSelectedItems: _setSelectedItems,
-  showSearchOnMount,
-  initialSelectedItems,
-  labelToSelectOnPaste,
   onClick,
   onPaste,
   ...props
@@ -157,20 +156,22 @@ const SearchBar: FC<SearchBarProps> = ({
   const searchCommon = (_item: Item) => {
     const item = normalizeItem(_item);
 
-    let noReset = false;
+    let isInSubSearch = false;
     let isCompleted = false;
 
     if (item.items) {
       setInputValue("", { focus: true });
       setItemState({ items: item.items, isInSubSearch: true });
-      noReset = true;
+
+      isInSubSearch = true;
     } else if (item.DropdownComponent) {
       setItemState({
         items: null,
         isInSubSearch: true,
         Component: item.DropdownComponent,
       });
-      noReset = true;
+
+      isInSubSearch = true;
     } else {
       setInputValue(
         item.value !== undefined
@@ -181,6 +182,7 @@ const SearchBar: FC<SearchBarProps> = ({
             : inputRef.current!.value
           : item.label
       );
+
       isCompleted = true;
     }
 
@@ -196,26 +198,71 @@ const SearchBar: FC<SearchBarProps> = ({
       setSelectedItems((items) => ({ ...items, pending: [item] }));
     }
 
-    if (!noReset) reset();
+    if (isInSubSearch) setKeyboardSelectionIndex(null);
+    else reset();
   };
   const searchTopResult = () => {
-    if (filteredItems) {
-      const selectedItem = selectedItems.completed.at(
-        itemState.isInSubSearch ? -1 : 0
-      );
-      const selectedItemLabel =
-        selectedItem && normalizeItem(selectedItem).label;
-      const resultItem =
-        filteredItems.find(
-          (filteredItem) => filteredItem.label === selectedItemLabel
-        ) ?? filteredItems.at(0);
-
-      if (resultItem) searchCommon(resultItem);
+    if (filteredItems && keyboardSelectionIndex !== null) {
+      const selectedItem = filteredItems.at(keyboardSelectionIndex);
+      if (selectedItem) searchCommon(selectedItem);
     } else setIsVisible(true);
   };
   useKeybind("Enter", () => {
     if (document.activeElement === inputRef.current) searchTopResult();
   });
+
+  // Keyboard navigation
+  const [keyboardSelectionIndex, setKeyboardSelectionIndex] = useState<
+    number | null
+  >(null);
+
+  // Only update the selection index when the dropdown is first visible
+  useEffect(() => {
+    if (!filteredItems) {
+      setKeyboardSelectionIndex(null);
+      return;
+    }
+    if (keyboardSelectionIndex !== null) return;
+
+    const index = filteredItems.findIndex((item) => item.isSelected);
+    setKeyboardSelectionIndex(index === -1 ? 0 : index);
+  }, [filteredItems, keyboardSelectionIndex]);
+
+  useKeybind(
+    [
+      {
+        keybind: "ArrowDown",
+        handle: () => {
+          if (!filteredItems?.length) {
+            if (document.activeElement === inputRef.current) setIsVisible(true);
+            return;
+          }
+
+          setKeyboardSelectionIndex((i) => {
+            if (i === null || !filteredItems.length) return null;
+            if (i === filteredItems.length - 1) return 0;
+            return i + 1;
+          });
+        },
+      },
+      {
+        keybind: "ArrowUp",
+        handle: () => {
+          if (!filteredItems?.length) {
+            if (document.activeElement === inputRef.current) setIsVisible(true);
+            return;
+          }
+
+          setKeyboardSelectionIndex((i) => {
+            if (i === null || !filteredItems.length) return null;
+            if (i === 0) return filteredItems.length - 1;
+            return i - 1;
+          });
+        },
+      },
+    ],
+    [filteredItems?.length]
+  );
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -285,6 +332,7 @@ const SearchBar: FC<SearchBarProps> = ({
               onClick={() => {
                 setItemState({ items, isInSubSearch: false });
                 setSelectedItems((items) => ({ ...items, pending: [] }));
+                inputRef.current?.focus();
               }}
               kind="no-border"
             >
@@ -295,11 +343,13 @@ const SearchBar: FC<SearchBarProps> = ({
           {itemState.Component ? (
             <itemState.Component search={searchCommon} />
           ) : filteredItems?.length ? (
-            filteredItems.map((item) => (
+            filteredItems.map((item, i) => (
               <DropdownItem
                 key={item.label}
                 onClick={() => searchCommon(item)}
+                onMouseEnter={() => setKeyboardSelectionIndex(i)}
                 isSelected={item.isSelected}
+                isKeyboardSelected={keyboardSelectionIndex === i}
               >
                 {item.element ?? item.label}
               </DropdownItem>
@@ -387,8 +437,11 @@ const GoBackButton = styled(Button)`
   }
 `;
 
-const DropdownItem = styled.div<{ isSelected: boolean }>`
-  ${({ isSelected, theme }) => css`
+const DropdownItem = styled.div<{
+  isSelected: boolean;
+  isKeyboardSelected: boolean;
+}>`
+  ${({ isSelected, isKeyboardSelected, theme }) => css`
     padding: 0.5rem 1rem;
     color: ${theme.colors.default.textSecondary};
     font-weight: bold;
@@ -397,11 +450,13 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 
     &:hover {
       background: ${theme.colors.state.hover.bg};
-      color: ${theme.colors.default.primary};
+      color: ${theme.colors.default.textPrimary};
       cursor: pointer;
     }
 
-    ${isSelected && `color:${theme.colors.default.primary}`};
+    ${isKeyboardSelected &&
+    `background: ${theme.colors.state.hover.bg}; color: ${theme.colors.default.textPrimary}`};
+    ${isSelected && `color: ${theme.colors.default.primary} !important`};
   `}
 `;
 
