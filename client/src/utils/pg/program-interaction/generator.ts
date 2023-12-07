@@ -162,13 +162,12 @@ export const generateValue = (
       return generator.value;
 
     case "Current wallet":
-      return PgWallet.current?.publicKey.toBase58() ?? "";
+      return PgWallet.current!.publicKey.toBase58();
 
     case "All wallets": {
       const walletAcc = PgWallet.accounts.find(
         (acc) => acc.name === generator.name
-      );
-      if (!walletAcc) return "";
+      )!;
       return PgWallet.createWallet(walletAcc).publicKey.toBase58();
     }
 
@@ -180,7 +179,7 @@ export const generateValue = (
       ).toBase58();
 
     case "Current program":
-      return PgProgramInfo.getPkStr() ?? "";
+      return PgProgramInfo.getPkStr()!;
 
     case "Accounts": {
       const accRef = values.accounts.find(

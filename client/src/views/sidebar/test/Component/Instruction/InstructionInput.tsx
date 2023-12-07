@@ -221,38 +221,63 @@ const getSearchBarProps = (
     },
   ];
 
+  // Generate values via `PgProgramInteraction.generateValue` method and push to items.
+  const pushGeneratorItem = (
+    generator:
+      | (Pick<Exclude<InstructionValueGenerator, { name: string }>, "type"> & {
+          names?: never;
+        })
+      | (Pick<Extract<InstructionValueGenerator, { name: string }>, "type"> & {
+          names: string[];
+        })
+  ) => {
+    if (!searchBarProps.items) return;
+
+    if (!generator.names) {
+      searchBarProps.items.push({
+        label: generator.type,
+        value: PgProgramInteraction.generateValue(
+          generator as InstructionValueGenerator,
+          instruction.values
+        ),
+      });
+    } else if (generator.names.length) {
+      searchBarProps.items.push({
+        label: generator.type,
+        items: generator.names.map((name) => ({
+          label: name,
+          value: PgProgramInteraction.generateValue(
+            { ...generator, name },
+            instruction.values
+          ),
+        })),
+      });
+    }
+  };
+
   if (customizable.displayType === "bool") {
     searchBarProps.items = ["false", "true"];
     searchBarProps.noCustomOption = true;
   } else if (customizable.displayType === "publicKey") {
+    // Handle "Random" for "publicKey" differently in order to be able to
+    // sign the transaction later with the generated key
+    searchBarProps.items[0] = {
+      label: "Random",
+      data: Keypair.generate(),
+      get value() {
+        return (this as { data: Keypair }).data.publicKey.toBase58();
+      },
+    };
+
     if (PgWallet.current) {
-      // Handle "Random" for "publicKey" differently in order to be able to
-      // sign the transaction later with the generated key
-      searchBarProps.items[0] = {
-        label: "Random",
-        data: Keypair.generate(),
-        get value() {
-          return (this as { data: Keypair }).data.publicKey.toBase58();
-        },
-      };
-
-      searchBarProps.items.push({
-        label: "Current wallet",
-        value: PgWallet.current.publicKey.toBase58(),
+      pushGeneratorItem({ type: "Current wallet" });
+      pushGeneratorItem({
+        type: "All wallets",
+        names: PgWallet.accounts.map((acc) => acc.name),
       });
-
-      // Only show all wallets if there are multiple wallets
-      if (PgWallet.accounts.length > 1) {
-        searchBarProps.items.push({
-          label: "All wallets",
-          items: PgWallet.accounts.map((acc) => ({
-            label: acc.name,
-            value: PgWallet.createWallet(acc).publicKey.toBase58(),
-          })),
-        });
-      }
     }
 
+    // From seed
     searchBarProps.items.push({
       label: "From seed",
       DropdownComponent: FromSeed,
@@ -296,33 +321,20 @@ const getSearchBarProps = (
   }
 
   // Add argument refs
-  const values = instruction.values;
-  const argRefs = values.args.filter(
-    (arg) => arg.name !== name && PgCommon.isEqual(arg.type, type)
-  );
-  if (argRefs.length) {
-    searchBarProps.items.push({
-      label: "Arguments",
-      items: argRefs.map((arg) => ({
-        label: arg.name,
-        value: () => PgProgramInteraction.generateValue(arg.generator, values),
-      })),
-    });
-  }
+  pushGeneratorItem({
+    type: "Arguments",
+    names: instruction.values.args
+      .filter((arg) => arg.name !== name && PgCommon.isEqual(arg.type, type))
+      .map((arg) => arg.name),
+  });
 
   // Add account refs
-  const accRefs = values.accounts.filter(
-    (acc) => acc.name !== name && type === "publicKey"
-  );
-  if (accRefs.length) {
-    searchBarProps.items.push({
-      label: "Accounts",
-      items: accRefs.map((acc) => ({
-        label: acc.name,
-        value: () => PgProgramInteraction.generateValue(acc.generator, values),
-      })),
-    });
-  }
+  pushGeneratorItem({
+    type: "Accounts",
+    names: instruction.values.accounts
+      .filter((acc) => acc.name !== name && type === "publicKey")
+      .map((acc) => acc.name),
+  });
 
   // Validator
   searchBarProps.validator = (...args) => {
