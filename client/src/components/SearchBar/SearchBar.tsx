@@ -12,6 +12,7 @@ import styled, { css } from "styled-components";
 import Button from "../Button";
 import Input, { InputProps } from "../Input";
 import { Close, PointedArrow, Search } from "../Icons";
+import { SpinnerWithBg } from "../Loading";
 import { useKeybind, useOnClickOutside } from "../../hooks";
 import { Arrayable, Getable, PgCommon } from "../../utils/pg";
 
@@ -46,7 +47,7 @@ type CommonItemProps = {
 type NestableItem = {
   value?: Getable<string> | { current: true };
   data?: any;
-  items?: Item[] | null;
+  items?: Getable<Item[]> | (() => Promise<Item[]>) | null;
   DropdownComponent?: never;
 };
 
@@ -153,15 +154,26 @@ const SearchBar: FC<SearchBarProps> = ({
         })
     : null;
 
-  const searchCommon = (_item: Item) => {
+  const [loading, setLoading] = useState(false);
+  const searchCommon = async (_item: Item) => {
     const item = normalizeItem(_item);
 
     let isInSubSearch = false;
     let isCompleted = false;
 
     if (item.items) {
+      setLoading(true);
+      try {
+        setItemState({
+          items: await PgCommon.callIfNeeded(item.items),
+          isInSubSearch: true,
+        });
+      } catch (e: any) {
+        console.log("Failed to get items:", e.message);
+      } finally {
+        setLoading(false);
+      }
       setInputValue("", { focus: true });
-      setItemState({ items: item.items, isInSubSearch: true });
 
       isInSubSearch = true;
     } else if (item.DropdownComponent) {
@@ -327,36 +339,40 @@ const SearchBar: FC<SearchBarProps> = ({
 
       {(filteredItems || itemState.Component) && (
         <DropdownWrapper>
-          {itemState.isInSubSearch && (
-            <GoBackButton
-              onClick={() => {
-                setItemState({ items, isInSubSearch: false });
-                setSelectedItems((items) => ({ ...items, pending: [] }));
-                inputRef.current?.focus();
-              }}
-              kind="no-border"
-            >
-              <PointedArrow rotate="180deg" />
-            </GoBackButton>
-          )}
+          {
+            <SpinnerWithBg loading={loading}>
+              {itemState.isInSubSearch && (
+                <GoBackButton
+                  onClick={() => {
+                    setItemState({ items, isInSubSearch: false });
+                    setSelectedItems((items) => ({ ...items, pending: [] }));
+                    inputRef.current?.focus();
+                  }}
+                  kind="no-border"
+                >
+                  <PointedArrow rotate="180deg" />
+                </GoBackButton>
+              )}
 
-          {itemState.Component ? (
-            <itemState.Component search={searchCommon} />
-          ) : filteredItems?.length ? (
-            filteredItems.map((item, i) => (
-              <DropdownItem
-                key={item.label}
-                onClick={() => searchCommon(item)}
-                onMouseEnter={() => setKeyboardSelectionIndex(i)}
-                isSelected={item.isSelected}
-                isKeyboardSelected={keyboardSelectionIndex === i}
-              >
-                {item.element ?? item.label}
-              </DropdownItem>
-            ))
-          ) : (
-            <NoMatch>No match</NoMatch>
-          )}
+              {itemState.Component ? (
+                <itemState.Component search={searchCommon} />
+              ) : filteredItems?.length ? (
+                filteredItems.map((item, i) => (
+                  <DropdownItem
+                    key={item.label}
+                    onClick={() => searchCommon(item)}
+                    onMouseEnter={() => setKeyboardSelectionIndex(i)}
+                    isSelected={item.isSelected}
+                    isKeyboardSelected={keyboardSelectionIndex === i}
+                  >
+                    {item.element ?? item.label}
+                  </DropdownItem>
+                ))
+              ) : (
+                <NoMatch>No match</NoMatch>
+              )}
+            </SpinnerWithBg>
+          }
         </DropdownWrapper>
       )}
     </Wrapper>

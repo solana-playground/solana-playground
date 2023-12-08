@@ -188,6 +188,18 @@ export class PgCommon {
   }
 
   /**
+   * Call the value and return it if the input is a function or simply return
+   * the given value.
+   *
+   * @param maybeFunction value to check
+   * @returns either the given value or the called value if it's a function
+   */
+  static callIfNeeded<T>(maybeFunction: T): T extends () => infer R ? R : T {
+    if (typeof maybeFunction === "function") return maybeFunction();
+    return maybeFunction as T extends () => infer R ? R : T;
+  }
+
+  /**
    * Fetch the response from the given URL and return the text response.
    *
    * @param url URL
@@ -650,6 +662,16 @@ export class PgCommon {
    */
   static isNonNullish<T>(value: T): value is NonNullable<T> {
     return value !== null && value !== undefined;
+  }
+
+  /**
+   * Get whether the given value is an asynchronous function.
+   *
+   * @param value value to check
+   * @returns whether the given value is an asynchronous function
+   */
+  static isAsyncFunction(value: any): value is () => Promise<unknown> {
+    return value?.constructor?.name === "AsyncFunction";
   }
 
   /**
