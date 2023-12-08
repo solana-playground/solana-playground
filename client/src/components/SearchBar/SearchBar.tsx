@@ -14,7 +14,7 @@ import Input, { InputProps } from "../Input";
 import { Close, PointedArrow, Search } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
 import { useKeybind, useOnClickOutside } from "../../hooks";
-import { Arrayable, Getable, PgCommon } from "../../utils/pg";
+import { Arrayable, Getable, PgCommon, PgTheme } from "../../utils/pg";
 
 export interface SearchBarProps extends InputProps {
   items?: Item[] | null;
@@ -88,6 +88,7 @@ const SearchBar: FC<SearchBarProps> = ({
 
   const [isVisible, setIsVisible] = useState(showSearchOnMount);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const selectedItemRef = useRef<HTMLDivElement>(null);
   const reset = () => {
     // Hide search results
     setIsVisible(false);
@@ -131,7 +132,7 @@ const SearchBar: FC<SearchBarProps> = ({
     isVisible &&
     itemState.items?.map(normalizeItem).map((item) => {
       const isSelected = selectedItems.completed.some((selectedItem) => {
-        return normalizeItem(selectedItem).label === item.label;
+        return selectedItem.label === item.label;
       });
 
       return { ...item, isSelected };
@@ -210,8 +211,10 @@ const SearchBar: FC<SearchBarProps> = ({
       setSelectedItems((items) => ({ ...items, pending: [item] }));
     }
 
-    if (isInSubSearch) setKeyboardSelectionIndex(null);
-    else reset();
+    if (isInSubSearch) {
+      setKeyboardSelectionIndex(null);
+      selectedItemRef.current?.scrollIntoView({ block: "center" });
+    } else reset();
   };
   const searchTopResult = () => {
     if (filteredItems && keyboardSelectionIndex !== null) {
@@ -338,20 +341,22 @@ const SearchBar: FC<SearchBarProps> = ({
       </SearchInputWrapper>
 
       {(filteredItems || itemState.Component) && (
-        <DropdownWrapper>
+        <DropdownWrapper isCustomComponent={!!itemState.Component}>
           {
             <SpinnerWithBg loading={loading}>
               {itemState.isInSubSearch && (
-                <GoBackButton
-                  onClick={() => {
-                    setItemState({ items, isInSubSearch: false });
-                    setSelectedItems((items) => ({ ...items, pending: [] }));
-                    inputRef.current?.focus();
-                  }}
-                  kind="no-border"
-                >
-                  <PointedArrow rotate="180deg" />
-                </GoBackButton>
+                <SubSearchTopWrapper>
+                  <GoBackButton
+                    onClick={() => {
+                      setItemState({ items, isInSubSearch: false });
+                      setSelectedItems((items) => ({ ...items, pending: [] }));
+                      inputRef.current?.focus();
+                    }}
+                    kind="no-border"
+                  >
+                    <PointedArrow rotate="180deg" />
+                  </GoBackButton>
+                </SubSearchTopWrapper>
               )}
 
               {itemState.Component ? (
@@ -360,6 +365,7 @@ const SearchBar: FC<SearchBarProps> = ({
                 filteredItems.map((item, i) => (
                   <DropdownItem
                     key={item.label}
+                    ref={item.isSelected ? selectedItemRef : null}
                     onClick={() => searchCommon(item)}
                     onMouseEnter={() => setKeyboardSelectionIndex(i)}
                     isSelected={item.isSelected}
@@ -431,8 +437,8 @@ const SearchButton = styled(Button)<SearchButtonPosition>`
   }}
 `;
 
-const DropdownWrapper = styled.div`
-  ${({ theme }) => css`
+const DropdownWrapper = styled.div<{ isCustomComponent: boolean }>`
+  ${({ isCustomComponent, theme }) => css`
     flex: 1;
     padding: 0.5rem 0;
     background: ${theme.components.input.bg};
@@ -440,13 +446,26 @@ const DropdownWrapper = styled.div`
     outline: 1px solid
       ${theme.colors.default.primary + theme.default.transparency.medium};
     user-select: none;
+
+    ${!isCustomComponent &&
+    `
+      max-height: 15rem;
+      overflow: auto;
+      ${PgTheme.getScrollbarCSS()};
+    `};
+  `}
+`;
+
+const SubSearchTopWrapper = styled.div`
+  ${({ theme }) => css`
+    position: sticky;
+    top: -0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: ${theme.components.input.bg};
   `}
 `;
 
 const GoBackButton = styled(Button)`
-  margin-left: 0.5rem;
-  margin-bottom: 0.25rem;
-
   & svg {
     width: 1.25rem;
     height: 1.25rem;
