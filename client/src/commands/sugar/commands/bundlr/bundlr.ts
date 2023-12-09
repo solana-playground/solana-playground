@@ -2,9 +2,13 @@ import Bundlr from "@bundlr-network/client";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { BundlrEnpoints } from "../../constants";
-import { getCluster } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgSettings, PgTerminal, PgWallet } from "../../../../utils/pg";
+import {
+  PgConnection,
+  PgSettings,
+  PgTerminal,
+  PgWallet,
+} from "../../../../utils/pg";
 
 enum BundlrAction {
   Balance = 0,
@@ -27,14 +31,12 @@ export const processBundlr = async (
 
   const pkStr = PgWallet.current!.publicKey.toBase58();
 
-  const cluster = await getCluster(rpcUrl);
+  const cluster = await PgConnection.getCluster(rpcUrl);
   const bundlr = new Bundlr(
     cluster === "mainnet-beta" ? BundlrEnpoints.MAINNET : BundlrEnpoints.DEVNET,
     "solana",
     PgWallet,
-    {
-      providerUrl: rpcUrl,
-    }
+    { providerUrl: rpcUrl }
   );
 
   const balance = await bundlr.getBalance(pkStr);

@@ -282,6 +282,18 @@ const getSearchBarProps = (
       label: "From seed",
       DropdownComponent: FromSeed,
     });
+
+    // Pyth
+    searchBarProps.items.push({
+      label: "Pyth",
+      items: async () => {
+        const accounts = await PgProgramInteraction.getOrInitPythAccounts();
+        return Object.entries(accounts).map(([label, value]) => ({
+          label,
+          value,
+        }));
+      },
+    });
   } else {
     // Handle enum
     const definedType = idl.types?.find(

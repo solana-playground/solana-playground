@@ -1,4 +1,9 @@
-import { Connection, ConnectionConfig } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  Cluster as PublicCluster,
+  Connection,
+  ConnectionConfig,
+} from "@solana/web3.js";
 
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
@@ -8,6 +13,9 @@ import { PgSettings } from "./settings";
 export interface ConnectionOption {
   connection?: typeof PgConnection["current"];
 }
+
+/** Solana public clusters or "localnet" */
+export type Cluster = "localnet" | PublicCluster;
 
 const derive = () => ({
   /** Globally sycned connection instance */
@@ -41,7 +49,7 @@ const derive = () => ({
     ],
   }),
 
-  /** Get whether there is a successful connection */
+  /** Whether there is a successful connection */
   isConnected: createDerivable({
     derive: _PgConnection.getIsConnected,
     onChange: (cb) => {
@@ -80,6 +88,12 @@ const derive = () => ({
       };
     },
   }),
+
+  /** Current cluster name based on the current endpoint */
+  cluster: createDerivable({
+    derive: _PgConnection.getCluster,
+    onChange: PgSettings.onDidChangeConnectionEndpoint,
+  }),
 });
 
 @derivable(derive)
@@ -95,6 +109,48 @@ class _PgConnection {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Get the cluster name from the given `endpoint`.
+   *
+   * @param endpoint RPC endpoint
+   * @returns the cluster name
+   */
+  static async getCluster(
+    endpoint: string = PgConnection.current.rpcEndpoint
+  ): Promise<Cluster> {
+    // Local
+    if (endpoint.includes("localhost") || endpoint.includes("127.0.0.1")) {
+      return "localnet";
+    }
+
+    // Public
+    switch (endpoint) {
+      case clusterApiUrl("devnet"):
+        return "devnet";
+      case clusterApiUrl("testnet"):
+        return "testnet";
+      case clusterApiUrl("mainnet-beta"):
+        return "mainnet-beta";
+    }
+
+    // Decide custom endpoints from the genesis hash of the cluster
+    const genesisHash = await PgConnection.create({
+      endpoint,
+    }).getGenesisHash();
+    switch (genesisHash) {
+      case "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG":
+        return "devnet";
+      case "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
+        return "testnet";
+      case "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d":
+        return "mainnet-beta";
+      default:
+        throw new Error(
+          `Genesis hash ${genesisHash} did not match any cluster`
+        );
     }
   }
 

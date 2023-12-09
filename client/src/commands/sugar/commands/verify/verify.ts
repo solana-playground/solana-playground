@@ -1,9 +1,9 @@
 import { CandyMachineItem } from "@metaplex-foundation/js";
 import { PublicKey } from "@solana/web3.js";
 
-import { CacheItem, getCluster, getMetaplex, loadCache } from "../../utils";
+import { CacheItem, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgConnection, PgTerminal } from "../../../../utils/pg";
 
 export const processVerify = async (rpcUrl: string | undefined) => {
   // Load the cache file (this needs to have been created by
@@ -125,10 +125,10 @@ export const processVerify = async (rpcUrl: string | undefined) => {
       throw new Error("Invalid cache state found.");
     }
 
-    const cluster = await getCluster(metaplex.connection.rpcEndpoint);
-    if (!cluster) {
-      term.println("\nVerification successful. You're good to go!");
-    } else {
+    const cluster = await PgConnection.getCluster(
+      metaplex.connection.rpcEndpoint
+    );
+    if (cluster === "devnet" || cluster === "mainnet-beta") {
       term.println(
         [
           `\nVerification successful. You're good to go!\n\nSee your candy machine at:\n`,
@@ -140,6 +140,8 @@ export const processVerify = async (rpcUrl: string | undefined) => {
         ].join(""),
         { noColor: true }
       );
+    } else {
+      term.println("\nVerification successful. You're good to go!");
     }
   }
 };

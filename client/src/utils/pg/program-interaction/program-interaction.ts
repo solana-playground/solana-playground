@@ -7,6 +7,7 @@ import {
 } from "./generator";
 import { getIdlType } from "./idl-types";
 import { getAnchorProgram, getPrograms } from "./programs";
+import { getOrInitPythAccounts } from "./pyth";
 import { PgCommon } from "../common";
 import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
@@ -84,4 +85,7 @@ export class PgProgramInteraction {
 
   /** {@link getKnownAccountKey} */
   static getKnownAccountKey = getKnownAccountKey;
+
+  /** {@link getOrInitPythAccounts} */
+  static getOrInitPythAccounts = getOrInitPythAccounts;
 }

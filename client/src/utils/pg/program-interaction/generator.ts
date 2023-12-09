@@ -1,6 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 
 import { IdlType, getIdlType } from "./idl-types";
+import { getPythAccounts } from "./pyth";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
 
@@ -95,7 +96,8 @@ type PublicKeyGenerator =
       type: "From seed";
       seeds: Seed[];
       programId: WithGenerator<ProgramGenerator>;
-    };
+    }
+  | { type: "Pyth"; name: string };
 
 /** Program public key generator */
 type ProgramGenerator = { type: "Current program" };
@@ -129,6 +131,7 @@ export const createGenerator = (
       return { type };
 
     case "All wallets":
+    case "Pyth":
     case "Accounts":
     case "Arguments":
       if (selectedItems.length !== 2) return null;
@@ -180,6 +183,9 @@ export const generateValue = (
 
     case "Current program":
       return PgProgramInfo.getPkStr()!;
+
+    case "Pyth":
+      return getPythAccounts()[generator.name];
 
     case "Accounts": {
       const accRef = values.accounts.find(
