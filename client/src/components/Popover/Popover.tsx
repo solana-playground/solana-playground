@@ -35,6 +35,8 @@ export interface PopoverProps {
   continueToShowOnPopupHover?: boolean;
   /** The amount of miliseconds to hover before the pop-up is visible */
   delay?: number;
+  /** Always take full width of the `anchorEl` */
+  alwaysTakeFullWidth?: boolean;
   /** Max allowed with for the popover text */
   maxWidth?: number | string;
   /** Whether to use secondary background color for the popover */
@@ -345,6 +347,24 @@ const CommonPopover: FC<CommonPopoverProps> = ({
     props.continueToShowOnPopupHover,
   ]);
 
+  // Handle always take full width
+  useEffect(() => {
+    if (!isVisible || !props.alwaysTakeFullWidth) return;
+
+    const popoverEl = popoverRef.current;
+    if (!popoverEl) return;
+
+    const repositionResizeObserver = new ResizeObserver((entries) => {
+      popoverEl.style.width = entries[0].contentRect.width + "px";
+      console.log(entries[0].contentRect.width, popoverEl.style.width);
+    });
+    repositionResizeObserver.observe(anchorEl);
+
+    return () => {
+      repositionResizeObserver.unobserve(anchorEl);
+    };
+  }, [props.alwaysTakeFullWidth, anchorEl, isVisible]);
+
   if (!isVisible) return null;
 
   return ReactDOM.createPortal(
@@ -367,7 +387,7 @@ interface Position {
 
 const StyledPopover = styled(FadeIn)<
   Required<Pick<PopoverProps, "placement" | "arrow">> &
-    Pick<PopoverProps, "maxWidth" | "bgSecondary"> &
+    Pick<PopoverProps, "alwaysTakeFullWidth" | "maxWidth" | "bgSecondary"> &
     Position & { relativeMidPoint: number }
 >`
   ${({
@@ -376,6 +396,7 @@ const StyledPopover = styled(FadeIn)<
     x,
     y,
     relativeMidPoint,
+    alwaysTakeFullWidth,
     maxWidth,
     bgSecondary,
     theme,
@@ -384,15 +405,16 @@ const StyledPopover = styled(FadeIn)<
     left: ${x}px;
     top: ${y}px;
 
-    max-width: ${
-      !maxWidth
-        ? "fit-content"
-        : typeof maxWidth === "number"
-        ? `${maxWidth}px`
-        : maxWidth
+    ${
+      !alwaysTakeFullWidth &&
+      `max-width: ${
+        !maxWidth
+          ? "fit-content"
+          : typeof maxWidth === "number"
+          ? `${maxWidth}px`
+          : maxWidth
+      }`
     };
-    width: fit-content;
-    height: fit-content;
 
     &::after {
       position: absolute;
