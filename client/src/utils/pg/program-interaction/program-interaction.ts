@@ -1,3 +1,5 @@
+import { Keypair } from "@solana/web3.js";
+
 import { getKnownAccountKey, fetchAccount, fetchAllAccounts } from "./account";
 import {
   GeneratableInstruction,
@@ -5,9 +7,10 @@ import {
   generateValue,
   generateProgramAddressFromSeeds,
 } from "./generator";
-import { getIdlType } from "./idl-types";
+import { getIdlType, IdlAccount, IdlInstruction } from "./idl-types";
 import { getAnchorProgram, getPrograms } from "./programs";
 import { getOrInitPythAccounts } from "./pyth";
+import { getInstruction, saveInstruction } from "./storage";
 import { PgCommon } from "../common";
 import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
@@ -37,7 +40,7 @@ export class PgProgramInteraction {
     const keypairSigners = signerAccounts
       .map((acc) => {
         if (acc.generator.type !== "Random") return null;
-        return acc.generator.data;
+        return Keypair.fromSecretKey(Uint8Array.from(acc.generator.data));
       })
       .filter(PgCommon.isNonNullish);
     const walletSigners = signerAccounts
@@ -57,6 +60,37 @@ export class PgProgramInteraction {
       .transaction();
     const txHash = await PgTx.send(tx, { keypairSigners, walletSigners });
     return txHash;
+  }
+
+  /**
+   * Get the saved generatable instruction or create a new one if it doesn't
+   * exist in storage.
+   *
+   * @param idlIx IDL instruction
+   * @returns the saved or default created generatable instruction
+   */
+  static getOrCreateInstruction(idlIx: IdlInstruction): GeneratableInstruction {
+    const savedIx = getInstruction(idlIx);
+    if (savedIx) return savedIx;
+
+    // Not saved, create default
+    return {
+      name: idlIx.name,
+      values: {
+        programId: { generator: { type: "Current program" } },
+        accounts: (idlIx.accounts as IdlAccount[]).map((acc) => ({
+          ...acc,
+          generator: {
+            type: "Custom",
+            value: getKnownAccountKey(acc.name) ?? "",
+          },
+        })),
+        args: idlIx.args.map((arg) => ({
+          ...arg,
+          generator: { type: "Custom", value: "" },
+        })),
+      },
+    };
   }
 
   /** {@link createGenerator} */
@@ -83,9 +117,9 @@ export class PgProgramInteraction {
   /** {@link fetchAllAccounts} */
   static fetchAllAccounts = fetchAllAccounts;
 
-  /** {@link getKnownAccountKey} */
-  static getKnownAccountKey = getKnownAccountKey;
-
   /** {@link getOrInitPythAccounts} */
   static getOrInitPythAccounts = getOrInitPythAccounts;
+
+  /** {@link saveInstruction} */
+  static saveInstruction = saveInstruction;
 }

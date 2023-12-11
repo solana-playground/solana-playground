@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Keypair } from "@solana/web3.js";
 
@@ -58,17 +58,26 @@ const InstructionInput: FC<InstructionInputProps> = ({
   const { instruction, setInstruction } = useInstruction();
   const { idl } = useIdl();
 
-  const initialValue = useMemo(
-    () => PgProgramInteraction.generateValue(generator, instruction.values),
+  const initialValue = useMemo(() => {
+    try {
+      return PgProgramInteraction.generateValue(generator, instruction.values);
+    } catch (e) {
+      console.log("Failed to create initialValue:", e);
+      return "";
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  }, []);
   const [value, setValue] = useState(initialValue);
   const [error, setError] = useState(initialError);
   const [selectedItems, setSelectedItems] = useState<SearchBarItem[]>([]);
+  const lastValue = useRef({ value, error, selectedItems });
 
   // Handle syncing with transaction context without re-render
   useEffect(() => {
+    const newValue = { value, error, selectedItems };
+    if (PgCommon.isEqual(newValue, lastValue.current)) return;
+    lastValue.current = newValue;
+
     setInstruction((instruction) => {
       updateInstruction({
         updateGenerator: (data) => {
@@ -263,18 +272,23 @@ const getSearchBarProps = (
     // sign the transaction later with the generated key
     searchBarProps.items[0] = {
       label: "Random",
-      data: Keypair.generate(),
+      data: Array.from(Keypair.generate().secretKey),
       get value() {
-        return (this as { data: Keypair }).data.publicKey.toBase58();
+        return Keypair.fromSecretKey(
+          Uint8Array.from((this as { data: number[] }).data)
+        ).publicKey.toBase58();
       },
     };
 
     if (PgWallet.current) {
       pushGeneratorItem({ type: "Current wallet" });
-      pushGeneratorItem({
-        type: "All wallets",
-        names: PgWallet.accounts.map((acc) => acc.name),
-      });
+
+      if (PgWallet.accounts.length > 1) {
+        pushGeneratorItem({
+          type: "All wallets",
+          names: PgWallet.accounts.map((acc) => acc.name),
+        });
+      }
     }
 
     // From seed
@@ -378,6 +392,8 @@ const getSearchBarProps = (
       : generator.type
     : generator.name
     ? [generator.type, generator.name]
+    : generator.type === "Random"
+    ? { label: generator.type, data: generator.data }
     : generator.type;
 
   return searchBarProps;

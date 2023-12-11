@@ -16,8 +16,6 @@ import {
   PgTx,
 } from "../../../../../utils/pg";
 import {
-  GeneratableInstruction,
-  IdlAccount,
   IdlInstruction,
   PgProgramInteraction,
 } from "../../.././../../utils/pg/program-interaction";
@@ -29,39 +27,29 @@ interface InstructionProps {
 }
 
 const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
-  const [instruction, setInstruction] = useState<GeneratableInstruction>({
-    name: idlInstruction.name,
-    values: {
-      programId: { generator: { type: "Current program" } },
-      accounts: (idlInstruction.accounts as IdlAccount[]).map((acc) => ({
-        ...acc,
-        generator: {
-          type: "Custom",
-          value: PgProgramInteraction.getKnownAccountKey(acc.name),
-        },
-      })),
-      args: idlInstruction.args.map((arg) => ({
-        ...arg,
-        generator: { type: "Custom", value: "" },
-      })),
-    },
-  });
+  const [instruction, setInstruction] = useState(
+    PgProgramInteraction.getOrCreateInstruction(idlInstruction)
+  );
   const [disabled, setDisabled] = useState(true);
 
-  // Refresh instruction on interval in order to pass the latest generators to
-  // `InstructionInput`, otherwise the inital values are being generated from
-  // stale data.
-  useEffect(() => {
-    const id = PgCommon.setIntervalOnFocus(
-      () => setInstruction((ix) => ({ ...ix })),
-      2000
-    );
-    return () => clearInterval(id);
-  }, []);
+  // Refresh instruction in order to pass the latest generators to
+  // `InstructionInput`, otherwise the inital values are being generated
+  // from stale data.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const refreshInstruction = useCallback(
+    PgCommon.debounce(() => setInstruction((ix) => ({ ...ix })), {
+      delay: 1000,
+    }),
+    []
+  );
 
-  const handleTest = useCallback(async () => {
-    const conn = PgConnection.current;
+  // Save instruction on change
+  useEffect(
+    () => PgProgramInteraction.saveInstruction(instruction),
+    [instruction]
+  );
 
+  const handleTest = async () => {
     const showLogTxHash = await PgTerminal.process(async () => {
       PgTerminal.log(PgTerminal.info(`Testing '${instruction.name}'...`));
 
@@ -72,7 +60,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
         PgTx.notify(txHash);
         if (PgSettings.testUi.showTxDetailsInTerminal) return txHash;
 
-        const txResult = await PgTx.confirm(txHash, conn);
+        const txResult = await PgTx.confirm(txHash);
         const msg = txResult?.err
           ? `${Emoji.CROSS} ${PgTerminal.error(
               `Test '${instruction.name}' failed`
@@ -82,8 +70,8 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
             )}.`;
         PgTerminal.log(msg + "\n", { noColor: true });
       } catch (e: any) {
+        console.log(e);
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        console.log(e.message, convertedError);
         PgTerminal.log(
           `${Emoji.CROSS} ${PgTerminal.error(
             `Test '${instruction.name}' failed`
@@ -94,10 +82,12 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
     });
 
     if (showLogTxHash) {
-      await PgCommon.sleep(conn.rpcEndpoint.startsWith("https") ? 1500 : 200);
+      await PgCommon.sleep(
+        PgConnection.current.rpcEndpoint.startsWith("https") ? 1500 : 200
+      );
       await PgCommand.solana.run(`confirm ${showLogTxHash} -v`);
     }
-  }, [instruction]);
+  };
 
   const { wallet } = useWallet();
 
@@ -123,6 +113,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                       updateGenerator(arg);
                       updateRefs(arg, "Arguments");
                       setDisabled(checkErrors());
+                      refreshInstruction();
                     }}
                     {...arg}
                   />
@@ -147,6 +138,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                       updateGenerator(acc);
                       updateRefs(acc, "Accounts");
                       setDisabled(checkErrors());
+                      refreshInstruction();
                     }}
                     {...acc}
                   />

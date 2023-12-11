@@ -169,14 +169,15 @@ const SearchBar: FC<SearchBarProps> = ({
           items: await PgCommon.callIfNeeded(item.items),
           isInSubSearch: true,
         });
+        isInSubSearch = true;
       } catch (e: any) {
         console.log("Failed to get items:", e.message);
+        return;
       } finally {
         setLoading(false);
       }
-      setInputValue("", { focus: true });
 
-      isInSubSearch = true;
+      setInputValue("", { focus: true });
     } else if (item.DropdownComponent) {
       setItemState({
         items: null,
