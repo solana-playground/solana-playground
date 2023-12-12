@@ -397,7 +397,7 @@ const createIdlType = <T extends IdlType>(idlType: PgIdlType<T>) => {
 
 const publicKey = createIdlType({
   displayType: "publicKey",
-  parse: (value) => new PublicKey(value),
+  parse: (value) => new PublicKey(string.parse(value)),
   toBuffer: (value) => value.toBuffer(),
   generateRandom: () => Keypair.generate().publicKey.toBase58(),
 });
