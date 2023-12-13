@@ -50,7 +50,6 @@ const InstructionInput: FC<InstructionInputProps> = ({
   name,
   type,
   generator,
-  error: initialError,
   searchBarProps,
   noLabel,
   ...labelProps
@@ -58,6 +57,10 @@ const InstructionInput: FC<InstructionInputProps> = ({
   const { instruction, setInstruction } = useInstruction();
   const { idl } = useIdl();
 
+  const { displayType, parse } = useMemo(
+    () => PgProgramInteraction.getIdlType(type, idl),
+    [type, idl]
+  );
   const initialValue = useMemo(() => {
     try {
       return PgProgramInteraction.generateValue(generator, instruction.values);
@@ -67,12 +70,21 @@ const InstructionInput: FC<InstructionInputProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const initialError = useMemo(() => {
+    try {
+      parse(initialValue);
+      return false;
+    } catch {
+      return true;
+    }
+  }, [initialValue, parse]);
+
   const [value, setValue] = useState(initialValue);
   const [error, setError] = useState(initialError);
   const [selectedItems, setSelectedItems] = useState<SearchBarItem[]>([]);
-  const lastValue = useRef({ value, error, selectedItems });
 
   // Handle syncing with transaction context without re-render
+  const lastValue = useRef({ value, error, selectedItems });
   useEffect(() => {
     const newValue = { value, error, selectedItems };
     if (PgCommon.isEqual(newValue, lastValue.current)) return;
@@ -149,11 +161,6 @@ const InstructionInput: FC<InstructionInputProps> = ({
       return instruction;
     });
   }, [value, error, selectedItems, updateInstruction, setInstruction]);
-
-  const { displayType } = useMemo(
-    () => PgProgramInteraction.getIdlType(type, idl),
-    [type, idl]
-  );
 
   return (
     <Wrapper>

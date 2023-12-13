@@ -46,7 +46,7 @@ export interface GeneratableInstruction {
 
 type WithGenerator<T extends { type: string }> = {
   generator: T;
-  error?: string;
+  error?: string | boolean;
 };
 
 /** All possible generators for an instruction */
