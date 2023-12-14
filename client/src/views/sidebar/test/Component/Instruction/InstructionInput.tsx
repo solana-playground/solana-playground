@@ -71,6 +71,9 @@ const InstructionInput: FC<InstructionInputProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const initialError = useMemo(() => {
+    // Don't show errors when the initial input is empty
+    if (!initialValue) return false;
+
     try {
       parse(initialValue);
       return false;
