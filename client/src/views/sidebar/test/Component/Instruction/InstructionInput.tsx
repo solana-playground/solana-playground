@@ -65,7 +65,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
     try {
       return PgProgramInteraction.generateValue(generator, instruction.values);
     } catch (e) {
-      console.log("Failed to create initialValue:", e);
+      console.log("Failed to generate `initialValue`:", e);
       return "";
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

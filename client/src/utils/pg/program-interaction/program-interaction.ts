@@ -10,7 +10,11 @@ import {
 import { getIdlType, IdlAccount, IdlInstruction } from "./idl-types";
 import { getAnchorProgram, getPrograms } from "./programs";
 import { getOrInitPythAccounts } from "./pyth";
-import { getInstruction, saveInstruction } from "./storage";
+import {
+  getInstruction,
+  saveInstruction,
+  syncAllInstructions,
+} from "./storage";
 import { PgCommon } from "../common";
 import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
@@ -122,4 +126,7 @@ export class PgProgramInteraction {
 
   /** {@link saveInstruction} */
   static saveInstruction = saveInstruction;
+
+  /** {@link syncAllInstructions} */
+  static syncAllInstructions = syncAllInstructions;
 }

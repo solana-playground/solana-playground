@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import styled from "styled-components";
+import BN from "bn.js";
 
 import Account from "./Account";
 import Event from "./Event";
@@ -6,7 +8,7 @@ import Instruction from "./Instruction";
 import IdlProvider from "./IdlProvider";
 import Text from "../../../../components/Text";
 import { PgCommand, PgProgramInfo } from "../../../../utils/pg";
-import { useBigNumberJson } from "./useBigNumberJson";
+import { PgProgramInteraction } from "../../../../utils/pg/program-interaction";
 import { useProgramInfo, useRenderOnChange } from "../../../../hooks";
 
 const Test = () => {
@@ -16,6 +18,9 @@ const Test = () => {
 
   // Used for both accounts and events data
   useBigNumberJson();
+
+  // Handle instruction storage
+  useSyncInstructionStorage();
 
   if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
     return (
@@ -141,6 +146,34 @@ const ProgramInteractionHeader = styled.div`
     font-weight: bold;
   `};
 `;
+
+/**
+ * Temporarily change `BN.toJSON` method to `BN.toString` in order to have
+ * human-readable output rather than hex values.
+ */
+const useBigNumberJson = () => {
+  useEffect(() => {
+    const oldBNPrototypeToJSON = BN.prototype.toJSON;
+    BN.prototype.toJSON = function (this: BN) {
+      return this.toString();
+    };
+
+    // Change the toJSON prototype back on unmount
+    return () => {
+      BN.prototype.toJSON = oldBNPrototypeToJSON;
+    };
+  }, []);
+};
+
+/** Sync the instruction storage. */
+const useSyncInstructionStorage = () => {
+  useEffect(() => {
+    const { dispose } = PgProgramInfo.onDidChangeIdl((idl) => {
+      if (idl) PgProgramInteraction.syncAllInstructions(idl);
+    });
+    return () => dispose();
+  }, []);
+};
 
 export default Test;
 
