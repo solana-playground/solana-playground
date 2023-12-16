@@ -89,7 +89,11 @@ const Test = () => {
         <ProgramInteractionWrapper>
           <ProgramInteractionHeader>Instructions</ProgramInteractionHeader>
           {idl.instructions.map((ix, i) => (
-            <Instruction key={ix.name} index={i} idlInstruction={ix} />
+            <Instruction
+              key={JSON.stringify(ix)}
+              index={i}
+              idlInstruction={ix}
+            />
           ))}
         </ProgramInteractionWrapper>
 
@@ -169,7 +173,7 @@ const useBigNumberJson = () => {
 const useSyncInstructionStorage = () => {
   useEffect(() => {
     const { dispose } = PgProgramInfo.onDidChangeIdl((idl) => {
-      if (idl) PgProgramInteraction.syncAllInstructions(idl);
+      if (idl) PgProgramInteraction.syncAllInstructions(idl.instructions);
     });
     return () => dispose();
   }, []);

@@ -32,11 +32,6 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
   );
   const [disabled, setDisabled] = useState(true);
 
-  // Always keep the instruction in sync with storage
-  useEffect(() => {
-    setInstruction(PgProgramInteraction.getOrCreateInstruction(idlInstruction));
-  }, [idlInstruction]);
-
   // Refresh instruction in order to pass the latest generators to
   // `InstructionInput`, otherwise the inital values are being generated
   // from stale data.

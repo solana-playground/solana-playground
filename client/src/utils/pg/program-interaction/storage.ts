@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import type { GeneratableInstruction } from "./generator";
-import type { Idl, IdlAccount, IdlInstruction } from "./idl-types";
+import type { IdlAccount, IdlInstruction } from "./idl-types";
 
 /**
  * Get the instruction from the configured {@link storage}.
@@ -29,19 +29,19 @@ export const saveInstruction = (ix: GeneratableInstruction) => {
 /**
  * Sync all instructions in storage based on the given IDL.
  *
- * @param idl IDL
+ * @param idlIxs IDL instructions
  */
-export const syncAllInstructions = (idl: Idl) => {
+export const syncAllInstructions = (idlIxs: IdlInstruction[]) => {
   // Delete the instructions that exists in storage but doesn't exist in the IDL
   const savedIxs = getAllInstructions();
-  const ixNames = idl.instructions.map((ix) => ix.name);
+  const ixNames = idlIxs.map((ix) => ix.name);
   const ixNamesToRemove = Object.keys(savedIxs).filter(
     (ixName) => !ixNames.includes(ixName)
   );
   for (const ixName of ixNamesToRemove) delete savedIxs[ixName];
 
   // Update the instructions that changed
-  const ixsNamesToUpdate = idl.instructions
+  const ixsNamesToUpdate = idlIxs
     .filter((ix) => {
       const savedIx = savedIxs[ix.name];
       if (!savedIx) return true;
