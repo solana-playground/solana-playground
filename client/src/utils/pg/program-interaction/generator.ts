@@ -116,7 +116,7 @@ export const createGenerator = (
   selectedItems: Array<{ label: string; data?: any }>,
   value: string
 ): InstructionValueGenerator | null => {
-  if (!selectedItems.length) return null;
+  if (!selectedItems.length) return { type: "Custom", value };
 
   const type = selectedItems[0].label as InstructionValueGenerator["type"];
   switch (type) {

@@ -79,24 +79,32 @@ const SearchBar: FC<SearchBarProps> = ({
   const searchButtonWidth = searchButton?.width ?? "2rem";
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastValue = useRef(props.value);
   const setInputValue = (value: string, opts?: { focus: boolean }) => {
     const input = inputRef.current!;
     PgCommon.changeInputValue(input, value);
+
+    // Last value should only be updated when `setInputValue` function runs and
+    // not when `onChange` callback runs because we want to restore to the last
+    // valid value when the user clicks outside of the search bar.
+    lastValue.current = value;
 
     if (opts?.focus) input.focus();
   };
 
   const [isVisible, setIsVisible] = useState(showSearchOnMount);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const selectedItemRef = useRef<HTMLDivElement>(null);
   const reset = () => {
     // Hide search results
     setIsVisible(false);
 
     // Reset back to the original items
     setItemState({ items, isInSubSearch: false });
+
+    // Reset the input to its last saved value
+    setInputValue(lastValue.current);
   };
-  useOnClickOutside(wrapperRef, reset);
+  useOnClickOutside(wrapperRef, reset, isVisible);
   useKeybind("Escape", () => {
     if (document.activeElement === inputRef.current) reset();
   });
@@ -116,6 +124,7 @@ const SearchBar: FC<SearchBarProps> = ({
     pending: [],
     completed: PgCommon.toArray(initialSelectedItems ?? []).map(normalizeItem),
   });
+  const selectedItemRef = useRef<HTMLDivElement>(null);
 
   // Sync changes
   useEffect(() => {
