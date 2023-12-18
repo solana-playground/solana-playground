@@ -241,16 +241,25 @@ const SearchBar: FC<SearchBarProps> = ({
     number | null
   >(null);
 
-  // Only update the selection index when the dropdown is first visible
+  // Handle the keyboard selection index
   useEffect(() => {
     if (!filteredItems) {
+      // No `filteredItems` means dropdown is not visible so the keyboard
+      // selection should not exist
       setKeyboardSelectionIndex(null);
-      return;
+    } else if (keyboardSelectionIndex === null) {
+      // If the selection index was set to `null`, it means the dropdown has
+      // just got mounted, therefore, either set the selection index to the
+      // actual selected item, or if the selected item doesn't exist, select
+      // the first item
+      const index = filteredItems.findIndex((item) => item.isSelected);
+      setKeyboardSelectionIndex(index === -1 ? 0 : index);
+    } else {
+      // If there is a selection, check whether the selected item exists in the
+      // `filteredItems`, if it doesn't exist, select the first item
+      const keyboardSelectedItem = filteredItems.at(keyboardSelectionIndex);
+      if (!keyboardSelectedItem) setKeyboardSelectionIndex(0);
     }
-    if (keyboardSelectionIndex !== null) return;
-
-    const index = filteredItems.findIndex((item) => item.isSelected);
-    setKeyboardSelectionIndex(index === -1 ? 0 : index);
   }, [filteredItems, keyboardSelectionIndex]);
 
   useKeybind(
