@@ -119,9 +119,8 @@ export class PgGithub {
    */
   private static async _getRepositoryData(url: string) {
     // https://github.com/solana-labs/solana-program-library/tree/master/token/program
-    const regex = new RegExp(
-      /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/
-    );
+    const regex =
+      /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/;
     const res = regex.exec(url);
     if (!res) throw new Error(GithubError.INVALID_URL);
 

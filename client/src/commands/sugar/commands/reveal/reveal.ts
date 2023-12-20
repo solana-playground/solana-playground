@@ -65,7 +65,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
 
   const CONCURRENT = 4;
 
-  const nftNumberRegex = new RegExp(/#(\d+)/);
+  const nftNumberRegex = /#(\d+)/;
   await Promise.all(
     new Array(CONCURRENT).fill(null).map(async (_, i) => {
       for (let j = 0; j + i < metadataAccounts.length; j += CONCURRENT) {

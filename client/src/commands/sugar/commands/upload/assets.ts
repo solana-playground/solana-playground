@@ -58,12 +58,9 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
 
   // Sort files based on their name
   files.sort((a, b) => a.name.localeCompare(b.name));
-
   const fileNames = files.map((f) => f.name);
 
-  const animationExistsRegex = new RegExp(
-    /^(.+)\.((mp3)|(mp4)|(mov)|(webm)|(glb))$/
-  );
+  const animationExistsRegex = /^(.+)\.((mp3)|(mp4)|(mov)|(webm)|(glb))$/;
 
   // Since there doesn't have to be video for each image/json pair, need to get rid of
   // invalid file fileNames before entering metadata filename loop

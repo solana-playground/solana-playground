@@ -123,9 +123,7 @@ const getBuildFiles = () => {
   const updateIdRust = (content: string) => {
     let updated = false;
 
-    const rustDeclareIdRegex = new RegExp(
-      /^(([\w]+::)*)declare_id!\("(\w*)"\)/gm
-    );
+    const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/gm;
     const newContent = content.replace(rustDeclareIdRegex, (match) => {
       const res = rustDeclareIdRegex.exec(match);
       if (!res) return match;
@@ -141,7 +139,7 @@ const getBuildFiles = () => {
   const updateIdPython = (content: string) => {
     let updated = false;
 
-    const pythonDeclareIdRegex = new RegExp(/^declare_id\(("|')(\w*)("|')\)/gm);
+    const pythonDeclareIdRegex = /^declare_id\(("|')(\w*)("|')\)/gm;
     const newContent = content.replace(pythonDeclareIdRegex, (match) => {
       const res = pythonDeclareIdRegex.exec(match);
       if (!res) return match;
