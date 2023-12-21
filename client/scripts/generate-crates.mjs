@@ -46,6 +46,17 @@ const registry = await getRegistry();
 /** Cached crate names */
 const cachedCrates = [];
 
+/**
+ * Crates to skip.
+ *
+ * [`mpl-token-metadata`] adds `r#` prefix to the module declarations for some
+ * reason which results in `syn-file-expand-cli` trying to find instruction
+ * files starting with `r#`.
+ *
+ * [`mpl-token-metadata`]: https://github.com/metaplex-foundation/mpl-token-metadata/blob/4e5bcca44000f151fe64682826bbe2eb61cd7b87/clients/rust/src/generated/instructions/mod.rs#L8
+ */
+const skippedCrates = ["mpl-token-metadata"];
+
 await withReset(async () => {
   // Generate crates
   const crates = await getCrates();
@@ -100,7 +111,7 @@ async function withReset(cb) {
  */
 async function generateDependencies(crates, transitive) {
   for (const name in crates) {
-    if (cachedCrates.includes(name)) continue;
+    if (cachedCrates.includes(name) || skippedCrates.includes(name)) continue;
 
     const version = crates[name];
     const dirName = registry.crates.find(

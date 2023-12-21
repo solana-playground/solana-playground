@@ -19,6 +19,7 @@
     "@solana/buffer-layout",
     "@solana/spl-account-compression",
     "@solana/spl-token",
+    "@solana/spl-token-metadata",
     "@solana/web3.js",
     "assert",
     "bn.js",
