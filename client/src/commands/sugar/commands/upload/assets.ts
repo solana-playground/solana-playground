@@ -1,9 +1,8 @@
 import { JsonMetadata } from "@metaplex-foundation/js";
-import * as anchor from "@coral-xyz/anchor";
 
 import { SugarUploadScreen } from "./SugarUploadScreen";
 import { CacheItem } from "../../utils";
-import { PgCommon, PgView } from "../../../../utils/pg";
+import { PgBytes, PgCommon, PgView } from "../../../../utils/pg";
 
 class AssetPair {
   name: string;
@@ -148,4 +147,5 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
   return result;
 };
 
-const encode = (fileName: string) => anchor.utils.sha256.hash(fileName);
+/** Encode with SHA-256 hash algorithm. */
+const encode = PgBytes.hashSha256;
