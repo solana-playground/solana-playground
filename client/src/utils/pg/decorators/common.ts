@@ -103,8 +103,10 @@ export const addOnDidChange = (
     // https://github.com/mishoo/UglifyJS/issues/3263
     //
     // The solution is to avoid minimizing the decorator class names in production
-    // by overriding  the Terser plugin's `keep_fnames` option to include only the
-    // function names(decorator classes end up being functions) that start with "_Pg".
+    // by overriding the Terser plugin's `keep_classnames` and `keep_fnames` option
+    // to include only the class/function names(decorator classes can be transpiled
+    // to either classes or functions depending on the browser version) that start
+    // with "_Pg".
     return "ondidchange" + sClass.name + (name ?? "");
   };
 };

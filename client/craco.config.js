@@ -143,10 +143,10 @@ module.exports = {
       // main change event name is derived from the class name.
       const terserPlugin = webpackConfig.optimization.minimizer[0];
 
-      // Instead of `keep_classnames` we use `keep_fnames` because decorator
-      // classes transform into functions.
+      // Decarators can be transpiled to either classses or functions, exclude
+      // all class/function names that start with "_Pg".
       // See: https://github.com/terser/terser#minify-options-structure
-      // terserPlugin.options.minimizer.options.keep_classnames = /^_Pg/;
+      terserPlugin.options.minimizer.options.keep_classnames = /^_Pg/;
       terserPlugin.options.minimizer.options.keep_fnames = /^_Pg/;
 
       // Ignore useless warnings
