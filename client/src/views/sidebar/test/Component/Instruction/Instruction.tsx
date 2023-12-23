@@ -32,6 +32,19 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
   );
   const [disabled, setDisabled] = useState(true);
 
+  // Enable when there is no args and no accounts.
+  //
+  // This is intentionally done in a `useEffect` instead of changing the
+  // setting the default value of the `disabled`'s `useState` in order to:
+  // - Enable the button when `idlInstruction` changes
+  // - Avoid flickering of the Test button i.e. the button renders as enabled
+  // and switches to disabled state after.
+  useEffect(() => {
+    if (!idlInstruction.args.length && !idlInstruction.accounts.length) {
+      setDisabled(false);
+    }
+  }, [idlInstruction]);
+
   // Refresh instruction in order to pass the latest generators to
   // `InstructionInput`, otherwise the inital values are being generated
   // from stale data.
