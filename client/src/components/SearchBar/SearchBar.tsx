@@ -19,8 +19,9 @@ import { Arrayable, Getable, PgCommon, PgTheme } from "../../utils/pg";
 export interface SearchBarProps extends InputProps {
   items?: Item[] | null;
   initialSelectedItems?: Arrayable<Item>;
-  labelToSelectOnPaste?: string;
   showSearchOnMount?: boolean;
+  labelToSelectOnPaste?: string;
+  restoreIfNotSelected?: boolean;
   searchButton?: {
     position?: "left" | "right";
     width?: string;
@@ -65,8 +66,9 @@ export type DropdownProps = {
 const SearchBar: FC<SearchBarProps> = ({
   items,
   initialSelectedItems,
-  labelToSelectOnPaste,
   showSearchOnMount,
+  labelToSelectOnPaste,
+  restoreIfNotSelected,
   searchButton,
   onSearch,
   filter,
@@ -102,7 +104,7 @@ const SearchBar: FC<SearchBarProps> = ({
     setItemState({ items, isInSubSearch: false });
 
     // Reset the input to its last saved value
-    setInputValue(lastValue.current);
+    if (restoreIfNotSelected) setInputValue(lastValue.current);
   };
   useOnClickOutside(wrapperRef, reset, isVisible);
   useKeybind("Escape", () => {

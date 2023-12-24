@@ -182,6 +182,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
             error={error}
             setError={setError}
             setSelectedItems={setSelectedItems}
+            restoreIfNotSelected
             labelToSelectOnPaste="Custom"
             {...getSearchBarProps(name, type, generator, instruction, idl)}
             {...searchBarProps}
