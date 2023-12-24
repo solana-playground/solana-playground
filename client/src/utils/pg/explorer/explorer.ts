@@ -1088,14 +1088,24 @@ export class PgExplorer {
     } catch (e: any) {
       console.log("Couldn't setup files:", e.message);
 
-      // This helps with in rare case where user logs out during rename
+      // The most likely cause for `setupFiles` failure is if the current
+      // workspace doesn't exist in the filesystem but it's saved as the
+      // current workspace. To fix this, set the current workspace name to
+      // either the last workspace, or reset all workspaces in the case of no
+      // valid workspace directory in `/`.
       if (this._workspace.allNames.length) {
         const rootDirs = await this.fs.readDir(PgExplorer.PATHS.ROOT_DIR_PATH);
-        const lastWorkspaceName = rootDirs[rootDirs.length - 1];
-        this._workspace.rename(lastWorkspaceName);
-        // Update workspaces file
-        await this._saveWorkspaces();
+        const workspaceDirs = rootDirs.filter(PgExplorer.isItemNameValid);
+        if (!workspaceDirs.length) {
+          // Reset workspaces since there is no workspace directories
+          this._workspace = new PgWorkspace();
+        } else {
+          // Open the last workspace
+          const lastWorkspaceName = workspaceDirs[workspaceDirs.length - 1];
+          this._workspace.rename(lastWorkspaceName);
+        }
 
+        await this._saveWorkspaces();
         await this._initCurrentWorkspace();
 
         return;
