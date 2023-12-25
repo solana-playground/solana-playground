@@ -3,11 +3,10 @@ import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import Checkbox from "../Checkbox";
-import TutorialDetail from "../Tutorial/TutorialDetail";
-import type { TutorialDetailKey } from "../../utils/pg";
+import Tag from "../Tag";
 
 interface FilterGroupProps {
-  param: TutorialDetailKey;
+  param: string;
   filters: readonly string[];
   sortFn?: (a: string, b: string) => number;
 }
@@ -25,7 +24,7 @@ const FilterGroup: FC<FilterGroupProps> = ({ param, filters, sortFn }) => {
         .map((filter) => (
           <Checkbox
             key={filter}
-            label={<FilterLabel kind={param}>{filter}</FilterLabel>}
+            label={<FilterLabel kind={param} value={filter} />}
             checked={searchValues.includes(filter)}
             onChange={(ev) => {
               if (ev.target.checked) {
@@ -64,7 +63,7 @@ const FilterGroupTitle = styled.div`
   `}
 `;
 
-const FilterLabel = styled(TutorialDetail)`
+const FilterLabel = styled(Tag)`
   ${({ kind }) => {
     // Reset the default box styles except `level`
     if (kind !== "level") {

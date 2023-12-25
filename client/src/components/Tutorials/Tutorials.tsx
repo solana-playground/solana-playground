@@ -1,8 +1,9 @@
 import { useLocation, useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
-import FilterGroup from "./FilterGroup";
+import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
+import FilterGroup from "../FilterGroup";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
 import Text from "../Text";
@@ -10,7 +11,6 @@ import { filterQuery, FILTERS, sortByLevel } from "./filters";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
 import { PgCommon, PgRouter, PgTheme, PgTutorial } from "../../utils/pg";
-import FeaturedTutorial from "./FeaturedTutorial";
 
 const SEARCH_PARAM = "search";
 

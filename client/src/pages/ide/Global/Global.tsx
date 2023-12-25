@@ -109,8 +109,16 @@ const useWorkspace = () => {
         return;
       }
 
+      // Non-editor views should not handle tutorials
+      // TODO: Add ability to handle this from route creation instead of making
+      // changes to the implementation
       const { pathname } = await PgRouter.getLocation();
-      if (PgRouter.isPathsEqual(pathname, "/tutorials")) return;
+      if (
+        PgRouter.isPathsEqual(pathname, "/tutorials") ||
+        PgRouter.isPathsEqual(pathname, "/programs")
+      ) {
+        return;
+      }
 
       if (PgTutorial.isWorkspaceTutorial(name)) {
         await PgTutorial.open(name);

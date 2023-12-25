@@ -67,6 +67,7 @@ const StyledSpinnerWithBg = styled(SpinnerWithBg)`
 
     & > *:last-child {
       flex: 1;
+      overflow: auto;
       opacity: 0;
       animation: ${fadeInAnimation} ${theme.default.transition.duration.long}
         ${theme.default.transition.type} forwards;

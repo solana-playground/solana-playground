@@ -2,7 +2,7 @@ import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import Link from "../Link";
-import TutorialDetail from "./TutorialDetail";
+import Tag from "../Tag";
 import { Arrayable, TutorialDetailKey } from "../../utils/pg";
 import { useDifferentBackground } from "../../hooks";
 
@@ -85,19 +85,8 @@ const ClickableTutorialDetail: FC<ClickableTutorialDetailProps> = ({
   ...props
 }) => (
   <Link href={`/tutorials?${props.kind}=${data}`}>
-    <StyledTutorialDetail {...props}>{data}</StyledTutorialDetail>
+    <Tag {...props} value={data} />
   </Link>
 );
-
-const StyledTutorialDetail = styled(TutorialDetail)`
-  ${({ theme }) => css`
-    transition: color ${theme.default.transition.duration.short}
-      ${theme.default.transition.type};
-
-    &:hover {
-      color: ${theme.colors.default.textPrimary};
-    }
-  `}
-`;
 
 export default TutorialDetails;

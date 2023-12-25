@@ -35,6 +35,26 @@ export class PgGithub {
   }
 
   /**
+   * Parse the given URL to get owner, repository name, ref, and path.
+   *
+   * @param url GitHub URL
+   * @returns the parsed URL
+   */
+  static parseUrl(url: string) {
+    // https://github.com/solana-labs/solana-program-library/tree/master/token/program
+    const regex =
+      /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/;
+    const res = regex.exec(url);
+    if (!res) throw new Error(GithubError.INVALID_URL);
+
+    const owner = res[3]; // solana-labs
+    const repo = res[4]; // solana-program-library
+    const ref = res.at(8); // master or `undefined` on root e.g. https://github.com/coral-xyz/xnft
+    const path = res[10]; // token/program
+    return { owner, repo, ref, path };
+  }
+
+  /**
    * Create a new workspace from the given GitHub URL.
    *
    * @param url GitHub URL
@@ -118,17 +138,8 @@ export class PgGithub {
    * @returns GitHub repository data, owner, repo, path
    */
   private static async _getRepositoryData(url: string) {
-    // https://github.com/solana-labs/solana-program-library/tree/master/token/program
-    const regex =
-      /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/;
-    const res = regex.exec(url);
-    if (!res) throw new Error(GithubError.INVALID_URL);
-
-    const owner = res[3]; // solana-labs
-    const repo = res[4]; // solana-program-library
-    const ref = res[8]; // master or `undefined` on root e.g. https://github.com/coral-xyz/xnft
+    const { owner, repo, ref, path } = this.parseUrl(url);
     const refParam = ref ? `?ref=${ref}` : "";
-    const path = res[10]; // token/program
 
     // If it's a single file fetch request, Github returns an object instead of an array
     const data: Arrayable<GithubRepositoryData> = await PgCommon.fetchJSON(

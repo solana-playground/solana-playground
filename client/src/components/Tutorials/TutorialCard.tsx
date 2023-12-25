@@ -2,8 +2,8 @@ import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../Img";
+import Tag from "../Tag";
 import { PgTheme, PgTutorial, TutorialData } from "../../utils/pg";
-import TutorialDetail from "../Tutorial/TutorialDetail";
 
 const TutorialCard: FC<TutorialData> = ({
   name,
@@ -22,15 +22,13 @@ const TutorialCard: FC<TutorialData> = ({
         <InfoTopSection>
           <NameRow>
             <Name>{name}</Name>
-            <TutorialDetail kind="level">{level}</TutorialDetail>
+            <Tag kind="level" value={level} />
           </NameRow>
           <Description>{description}</Description>
         </InfoTopSection>
 
         <InfoBottomSection>
-          {framework && (
-            <TutorialDetail kind="framework">{framework}</TutorialDetail>
-          )}
+          {framework && <Tag kind="framework" value={framework} />}
         </InfoBottomSection>
       </InfoWrapper>
     </InsideWrapper>

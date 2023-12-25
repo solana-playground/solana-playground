@@ -45,11 +45,28 @@ const getStyles = ({
   $isWrapper: boolean;
   theme: DefaultTheme;
 }) => {
-  if ($isWrapper) return;
+  if ($isWrapper) {
+    return css`
+      & svg {
+        color: ${theme.colors.default.textSecondary};
+      }
+
+      & > * {
+        transition: color ${theme.default.transition.duration.short}
+          ${theme.default.transition.type};
+
+        &:hover {
+          color: ${theme.colors.default.textPrimary};
+        }
+      }
+    `;
+  }
 
   return css`
     color: ${theme.colors.default.primary};
     border-bottom: 1px solid transparent;
+    transition: border-bottom-color ${theme.default.transition.duration.short}
+      ${theme.default.transition.type};
 
     & svg {
       margin-left: 0.25rem;

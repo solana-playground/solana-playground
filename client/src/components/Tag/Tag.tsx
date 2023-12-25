@@ -4,22 +4,24 @@ import styled, { css } from "styled-components";
 import Img from "../Img";
 import LangIcon from "../LangIcon";
 import {
+  OrString,
   PgFramework,
+  TutorialCategory,
   TutorialDetailKey,
   TutorialLanguage,
   TutorialLevel,
 } from "../../utils/pg";
 import { useDifferentBackground } from "../../hooks";
 
-interface TutorialDetailProps {
-  kind: TutorialDetailKey;
-  children: any;
+interface TagProps {
+  kind: OrString<TutorialDetailKey>;
+  value: any;
 }
 
-const TutorialDetail: FC<TutorialDetailProps> = ({ kind, ...props }) => {
+const Tag: FC<TagProps> = ({ kind, ...props }) => {
   switch (kind) {
     case "level":
-      return <Level {...props} />;
+      return <Level {...props} children={props.value} />;
     case "framework":
       return <Framework {...props} />;
     case "languages":
@@ -72,17 +74,17 @@ const Boxed = styled.div`
 `;
 
 interface FrameworkProps {
-  children: FrameworkName;
+  value: FrameworkName;
 }
 
-const Framework: FC<FrameworkProps> = ({ children, ...props }) => {
-  const framework = useMemo(() => PgFramework.get(children), [children]);
+const Framework: FC<FrameworkProps> = ({ value, ...props }) => {
+  const framework = useMemo(() => PgFramework.get(value), [value]);
   const { ref } = useDelayedDifferentBackground();
 
   return (
     <Boxed ref={ref} {...props}>
       <FrameworkImage src={framework.icon} $circle={framework.circleImage} />
-      {children}
+      {value}
     </Boxed>
   );
 };
@@ -96,16 +98,16 @@ const FrameworkImage = styled(Img)<{ $circle?: boolean }>`
 `;
 
 interface LanguageProps {
-  children: TutorialLanguage;
+  value: TutorialLanguage;
 }
 
-const Language: FC<LanguageProps> = ({ children, ...props }) => {
+const Language: FC<LanguageProps> = ({ value, ...props }) => {
   const { ref } = useDelayedDifferentBackground();
 
   return (
     <Boxed ref={ref} {...props}>
-      <LangIcon fileName={getLanguageExtension(children)} />
-      {children}
+      <LangIcon fileName={getLanguageExtension(value)} />
+      {value}
     </Boxed>
   );
 };
@@ -121,11 +123,17 @@ const getLanguageExtension = (lang: TutorialLanguage) => {
   }
 };
 
-interface CategoryProps {}
+interface CategoryProps {
+  value: TutorialCategory;
+}
 
-const Category: FC<CategoryProps> = (props) => {
+const Category: FC<CategoryProps> = ({ value, ...props }) => {
   const { ref } = useDelayedDifferentBackground();
-  return <Boxed ref={ref} {...props} />;
+  return (
+    <Boxed ref={ref} {...props}>
+      {value}
+    </Boxed>
+  );
 };
 
 /**
@@ -134,4 +142,4 @@ const Category: FC<CategoryProps> = (props) => {
  */
 const useDelayedDifferentBackground = () => useDifferentBackground(10);
 
-export default TutorialDetail;
+export default Tag;

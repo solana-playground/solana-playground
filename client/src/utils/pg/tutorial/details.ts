@@ -17,6 +17,8 @@ export const TUTORIAL_CATEGORIES = [
   "Gaming",
   "NFTs",
   "Payments",
+  "SPL",
   "Staking",
+  "Token",
   "Other",
 ] as const;

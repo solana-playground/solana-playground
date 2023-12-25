@@ -13,7 +13,11 @@ const Side = () => {
   // TODO: Handle initial sidebar page state from routes
   const { pathname } = useLocation();
   const [sidebarPage, setSidebarPage] = useState<SidebarPageName>(
-    pathname.startsWith("/tutorials") ? "Tutorials" : "Explorer"
+    pathname.startsWith("/tutorials")
+      ? "Tutorials"
+      : pathname.startsWith("/programs")
+      ? "Programs"
+      : "Explorer"
   );
   const oldSidebarRef = useRef(sidebarPage);
 

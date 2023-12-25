@@ -119,6 +119,17 @@ const LIGHT: Theme = {
         activeColor: TEXT_PRIMARY,
       },
     },
+    main: {
+      views: {
+        programs: {
+          main: {
+            card: {
+              bg: BG_WHITE,
+            },
+          },
+        },
+      },
+    },
     sidebar: {
       left: {
         default: {

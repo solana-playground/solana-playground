@@ -45,7 +45,7 @@ export const filterQuery = (
   return (
     !searchValues.length ||
     (!!tutorialValues.length &&
-      searchValues.some((l) => tutorialValues.includes(l as any)))
+      searchValues.some((v) => tutorialValues.includes(v)))
   );
 };
 

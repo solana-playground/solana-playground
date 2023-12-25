@@ -134,7 +134,8 @@ export class PgTheme {
       ._editor()
       ._home()
       ._tutorial()
-      ._tutorials();
+      ._tutorials()
+      ._programs();
 
     // Set theme
     localStorage.setItem(this._THEME_KEY, params.themeName);
@@ -1629,7 +1630,6 @@ export class PgTheme {
     tutorials.default ??= {};
     tutorials.default.display ??= "flex";
     tutorials.default.justifyContent ??= "center";
-    tutorials.default.overflow ??= "auto";
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
 
@@ -1699,6 +1699,44 @@ export class PgTheme {
     featured.borderRadius ??= theme.default.borderRadius;
     featured.boxShadow ??= theme.default.boxShadow;
     featured.overflow ??= "hidden";
+
+    return this;
+  }
+
+  /** Set default programs view */
+  private static _programs() {
+    const main = this._getComponent("main");
+    const theme = this._themeReady;
+
+    main.views!.programs ??= {};
+    const programs = main.views!.programs;
+
+    // Default
+    programs.default ??= {};
+    programs.default.padding ??= "2rem 2.5rem";
+    programs.default.fontFamily ??= theme.font.other.family;
+    programs.default.fontSize ??= theme.font.other.size.medium;
+
+    // Main
+    programs.main ??= {};
+    // Main default
+    programs.main.default ??= {};
+    programs.main.default.marginTop ??= "2rem";
+    programs.main.default.display ??= "flex";
+    programs.main.default.flexWrap ??= "wrap";
+    programs.main.default.gap ??= "1.5rem";
+    // Main card
+    programs.main.card ??= {};
+    programs.main.card.flexGrow ??= "1";
+    programs.main.card.flexBasis ??= "50%";
+    programs.main.card.display ??= "flex";
+    programs.main.card.flexDirection ??= "column";
+    programs.main.card.gap ??= "0.5rem";
+    programs.main.card.maxWidth ??= "45rem";
+    programs.main.card.height ??= "fit-content";
+    programs.main.card.padding ??= "1rem";
+    programs.main.card.border ??= `1px solid ${theme.colors.default.border}`;
+    programs.main.card.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }

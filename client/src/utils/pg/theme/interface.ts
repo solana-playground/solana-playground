@@ -202,6 +202,15 @@ export interface Theme {
             }>;
           }>;
         }>;
+
+        /** Programs page component */
+        programs?: ExtendibleComponent<{
+          /** Programs main section */
+          main?: ExtendibleComponent<{
+            /** Program card component */
+            card?: DefaultComponent;
+          }>;
+        }>;
       };
     }>;
 

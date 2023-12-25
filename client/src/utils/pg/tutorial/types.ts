@@ -80,10 +80,10 @@ export interface TutorialMetadata {
   completed: boolean;
 }
 
+export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
 export type TutorialFramework = typeof TUTORIAL_FRAMEWORKS[number];
 export type TutorialLanguage = typeof TUTORIAL_LANGUAGES[number];
 export type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
-export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
 
 export type TutorialDetailKey = keyof Pick<
   TutorialData,
