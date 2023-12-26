@@ -8,6 +8,7 @@ export { useExplorer } from "./useExplorer";
 export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
 export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";
+export { useFilteredSearch } from "./useFilteredSearch";
 export { useGetAndSetStatic } from "./useGetAndSetStatic";
 export { useGetStatic } from "./useGetStatic";
 export { useKeybind } from "./useKeybind";

@@ -10,6 +10,7 @@ const Img = forwardRef<HTMLImageElement, ImgProps>(
     <img
       ref={ref}
       alt=""
+      loading="lazy"
       crossOrigin={noCrossOrigin ? undefined : "anonymous"}
       {...props}
     />

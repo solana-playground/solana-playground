@@ -1,4 +1,3 @@
-import { useLocation, useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import FeaturedTutorial from "./FeaturedTutorial";
@@ -7,40 +6,22 @@ import FilterGroup from "../FilterGroup";
 import Link from "../Link";
 import SearchBar from "../SearchBar";
 import Text from "../Text";
-import { filterQuery, FILTERS, sortByLevel } from "./filters";
+import { FILTERS, sortByLevel } from "./filters";
 import { Sad } from "../Icons";
 import { GITHUB_URL } from "../../constants";
-import { PgCommon, PgRouter, PgTheme, PgTutorial } from "../../utils/pg";
-
-const SEARCH_PARAM = "search";
+import { PgTheme, PgTutorial } from "../../utils/pg";
+import { useFilteredSearch } from "../../hooks";
 
 export const Tutorials = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get(SEARCH_PARAM) ?? "";
+  const filteredSearch = useFilteredSearch({
+    route: "/tutorials",
+    items: PgTutorial.tutorials,
+    filters: FILTERS,
+    sortFn: sortByLevel,
+  });
+  if (!filteredSearch) return null;
 
-  const filters = FILTERS.map((f) => ({
-    key: f.param,
-    value: searchParams.getAll(f.param),
-  }));
-  const [featuredTutorials, regularTutorials] = PgCommon.filterWithRemaining(
-    PgTutorial.tutorials
-      .filter((t) => {
-        return (
-          t.name.toLowerCase().includes(search.toLowerCase()) &&
-          filters.every((f) => filterQuery(f.value, t[f.key]))
-        );
-      })
-      .sort((a, b) => sortByLevel(a.level, b.level)),
-    (t) => t.featured
-  );
-
-  // If the user clicks a tutorial, the `pathname` will be the tutorial's path.
-  // This causes flickering when filters are applied before the click because
-  // filters will get reset before the component unmounts which makes the
-  // unfiltered tutorials show up just before the component unmounts.
-  // TODO: Make sure routes don't leak
-  const { pathname } = useLocation();
-  if (!PgRouter.isPathsEqual(pathname, "/tutorials")) return null;
+  const { featuredItems, regularItems, searchBarProps } = filteredSearch;
 
   return (
     <Wrapper>
@@ -48,15 +29,8 @@ export const Tutorials = () => {
         <TopSection>
           <Title>Learn</Title>
           <SearchBar
+            {...searchBarProps}
             placeholder="Search tutorials"
-            value={search}
-            onChange={(ev) => {
-              const value = ev.target.value;
-              if (!value) searchParams.delete(SEARCH_PARAM);
-              else searchParams.set(SEARCH_PARAM, value);
-
-              setSearchParams(searchParams, { replace: true });
-            }}
             searchButton={{ position: "right", width: "2.5rem" }}
           />
         </TopSection>
@@ -69,17 +43,15 @@ export const Tutorials = () => {
           </FiltersWrapper>
 
           <TutorialsWrapper>
-            {!featuredTutorials.length && !regularTutorials.length && (
-              <NoMatch />
+            {!featuredItems.length && !regularItems.length && <NoMatch />}
+
+            {featuredItems.length > 0 && (
+              <FeaturedTutorial tutorial={featuredItems[0]} />
             )}
 
-            {featuredTutorials.length > 0 && (
-              <FeaturedTutorial tutorial={featuredTutorials[0]} />
-            )}
-
-            {regularTutorials.length > 0 && (
+            {regularItems.length > 0 && (
               <RegularTutorialsWrapper>
-                {regularTutorials.map((t) => (
+                {regularItems.map((t) => (
                   <TutorialCard key={t.name} {...t} />
                 ))}
               </RegularTutorialsWrapper>

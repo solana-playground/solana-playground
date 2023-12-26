@@ -1,6 +1,4 @@
 import {
-  Arrayable,
-  PgCommon,
   TutorialLevel,
   TUTORIAL_FRAMEWORKS,
   TUTORIAL_LANGUAGES,
@@ -29,30 +27,10 @@ export const FILTERS = [
   // },
 ] as const;
 
-/**
- * Filter the query based on the search values and the tutorial values.
- *
- * @param searchValues values in the URL
- * @param tutorialValues values declared for the tutorial
- * @returns whether the tutorial passes the checks
- */
-export const filterQuery = (
-  searchValues: Arrayable<string>,
-  tutorialValues: Arrayable<string> = []
-) => {
-  searchValues = PgCommon.toArray(searchValues);
-  tutorialValues = PgCommon.toArray(tutorialValues);
-  return (
-    !searchValues.length ||
-    (!!tutorialValues.length &&
-      searchValues.some((v) => tutorialValues.includes(v)))
-  );
-};
-
 /** Sort based on `TutorialLevel`. */
-export function sortByLevel(a: string, b: string) {
+export function sortByLevel<T extends { name: string }>(a: T, b: T) {
   return (
-    TUTORIAL_LEVELS.indexOf(a as TutorialLevel) -
-    TUTORIAL_LEVELS.indexOf(b as TutorialLevel)
+    TUTORIAL_LEVELS.indexOf(a.name as TutorialLevel) -
+    TUTORIAL_LEVELS.indexOf(b.name as TutorialLevel)
   );
 }

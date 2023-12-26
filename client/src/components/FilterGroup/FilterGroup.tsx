@@ -8,39 +8,35 @@ import Tag from "../Tag";
 interface FilterGroupProps {
   param: string;
   filters: readonly string[];
-  sortFn?: (a: string, b: string) => number;
 }
 
-const FilterGroup: FC<FilterGroupProps> = ({ param, filters, sortFn }) => {
+const FilterGroup: FC<FilterGroupProps> = ({ param, filters }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchValues = searchParams.getAll(param);
 
   return (
     <FilterGroupWrapper>
       <FilterGroupTitle>{param}</FilterGroupTitle>
-      {filters
-        .filter(Boolean)
-        .sort(sortFn)
-        .map((filter) => (
-          <Checkbox
-            key={filter}
-            label={<FilterLabel kind={param} value={filter} />}
-            checked={searchValues.includes(filter)}
-            onChange={(ev) => {
-              if (ev.target.checked) {
-                searchParams.append(param, filter);
-              } else {
-                const otherValues = searchValues.filter((f) => f !== filter);
-                searchParams.delete(param);
-                for (const otherValue of otherValues) {
-                  searchParams.append(param, otherValue);
-                }
+      {filters.filter(Boolean).map((filter) => (
+        <Checkbox
+          key={filter}
+          label={<FilterLabel kind={param} value={filter} />}
+          checked={searchValues.includes(filter)}
+          onChange={(ev) => {
+            if (ev.target.checked) {
+              searchParams.append(param, filter);
+            } else {
+              const otherValues = searchValues.filter((f) => f !== filter);
+              searchParams.delete(param);
+              for (const otherValue of otherValues) {
+                searchParams.append(param, otherValue);
               }
+            }
 
-              setSearchParams(searchParams, { replace: true });
-            }}
-          />
-        ))}
+            setSearchParams(searchParams, { replace: true });
+          }}
+        />
+      ))}
     </FilterGroupWrapper>
   );
 };
