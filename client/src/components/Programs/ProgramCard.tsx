@@ -32,7 +32,7 @@ export type ProgramCardProps = {
    * ```
    */
   icon: string;
-} & Required<Pick<TutorialData, "framework" | "languages" | "categories">>;
+} & Required<Pick<TutorialData, "framework" | "categories">>;
 
 const ProgramCard: FC<ProgramCardProps> = ({
   name,
@@ -40,16 +40,15 @@ const ProgramCard: FC<ProgramCardProps> = ({
   repo,
   icon,
   framework,
-  languages,
   categories,
 }) => (
   <Wrapper>
     <Header>
       <HeaderLeft>
-        <Link href={`/github/${repo}`}>
+        <Link href={`/${repo}`}>
           <ProgramImg src={icon} />
         </Link>
-        <Title href={`/github/${repo}`}>{name}</Title>
+        <Title href={`/${repo}`}>{name}</Title>
       </HeaderLeft>
 
       <HeaderRight>
@@ -65,12 +64,6 @@ const ProgramCard: FC<ProgramCardProps> = ({
 
     <Tags>
       <ClickableTag kind="framework" value={framework} />
-
-      {languages
-        .sort((a, b) => a.localeCompare(b))
-        .map((lang) => (
-          <ClickableTag key={lang} kind="languages" value={lang} />
-        ))}
 
       {categories
         .sort((a, b) => a.localeCompare(b))
