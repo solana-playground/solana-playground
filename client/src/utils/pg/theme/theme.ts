@@ -320,6 +320,22 @@ export class PgTheme {
   }
 
   /**
+   * Clamp the lines i.e. hide all lines after `max` and append "..." to the
+   * text.
+   *
+   * @param max maximum number of lines
+   * @returns the CSS string
+   */
+  static getClampLinesCSS(max: number) {
+    return `
+      display: -webkit-box;
+      -webkit-line-clamp: ${max};
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    `;
+  }
+
+  /**
    * Convert playground theme to a TextMate theme.
    *
    * @param theme ready theme
@@ -1732,7 +1748,7 @@ export class PgTheme {
     programs.main.card.display ??= "flex";
     programs.main.card.flexDirection ??= "column";
     programs.main.card.gap ??= "0.5rem";
-    programs.main.card.maxWidth ??= "45rem";
+    programs.main.card.maxWidth ??= "44.95rem";
     programs.main.card.height ??= "fit-content";
     programs.main.card.padding ??= "1rem";
     programs.main.card.border ??= `1px solid ${theme.colors.default.border}`;

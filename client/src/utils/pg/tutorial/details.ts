@@ -13,12 +13,16 @@ export const TUTORIAL_FRAMEWORKS: readonly FrameworkName[] = [
 export const TUTORIAL_LANGUAGES = ["Python", "Rust", "TypeScript"] as const;
 
 export const TUTORIAL_CATEGORIES = [
+  "Compression",
   "DeFi",
   "Gaming",
-  "NFTs",
+  "Governance",
+  "Lending",
+  "Multisig",
+  "NFT",
   "Payments",
   "SPL",
   "Staking",
   "Token",
-  "Other",
+  "Trading",
 ] as const;

@@ -128,11 +128,8 @@ const Name = styled.span`
 const Description = styled.div`
   ${({ theme }) => css`
     margin-top: 0.75rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
     color: ${theme.colors.default.textSecondary};
+    ${PgTheme.getClampLinesCSS(2)};
   `}
 `;
 

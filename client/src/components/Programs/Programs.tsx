@@ -2,7 +2,9 @@ import { useSearchParams } from "react-router-dom";
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import Img from "../Img";
 import Link from "../Link";
+import Markdown from "../Markdown";
 import SearchBar from "../SearchBar";
 import Tag from "../Tag";
 import Tooltip from "../Tooltip";
@@ -17,9 +19,11 @@ import {
 
 const SEARCH_PARAM = "search";
 
-const PROGRAMS: ProgramProps[] = [];
+interface ProgramsProps {
+  programs: ProgramProps[];
+}
 
-export const Programs = () => {
+export const Programs: FC<ProgramsProps> = ({ programs }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get(SEARCH_PARAM) ?? "";
 
@@ -27,12 +31,14 @@ export const Programs = () => {
     key: f.param,
     value: searchParams.getAll(f.param),
   }));
-  const filteredPrograms = PROGRAMS.filter((p) => {
-    return (
-      p.name.toLowerCase().includes(search.toLowerCase()) &&
-      filters.every((f) => filterQuery(f.value, p[f.key]))
-    );
-  }).sort((a, b) => a.name.localeCompare(b.name));
+  const filteredPrograms = programs
+    .filter((p) => {
+      return (
+        p.name.toLowerCase().includes(search.toLowerCase()) &&
+        filters.every((f) => filterQuery(f.value, p[f.key]))
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <Wrapper>
@@ -86,15 +92,30 @@ const MainSection = styled.div`
 `;
 
 type ProgramProps = {
+  /** Program name */
   name: string;
+  /** Program description */
   description: string;
+  /** Repository URL */
   repo: string;
+  /**
+   * Theoratically we should be able to get the icon URL from the repository
+   * URL e.g. "https://github.com/solana-playground.png", but unfortunately
+   * github.com doesn't respond with CORS headers so we can't use it with the
+   * following request headers:
+   * ```
+   * "Cross-Origin-Embedder-Policy": "require-corp",
+   * "Cross-Origin-Opener-Policy": "same-origin"
+   * ```
+   */
+  icon: string;
 } & Required<Pick<TutorialData, "framework" | "languages" | "categories">>;
 
 const Program: FC<ProgramProps> = ({
   name,
   description,
   repo,
+  icon,
   framework,
   languages,
   categories,
@@ -102,6 +123,9 @@ const Program: FC<ProgramProps> = ({
   <ProgramWrapper>
     <ProgramHeader>
       <ProgramHeaderLeft>
+        <Link href={`/github/${repo}`}>
+          <ProgramImg src={icon} />
+        </Link>
         <ProgramTitle href={`/github/${repo}`}>{name}</ProgramTitle>
       </ProgramHeaderLeft>
 
@@ -119,13 +143,17 @@ const Program: FC<ProgramProps> = ({
     <ProgramTags>
       <ClickableTag kind="framework" value={framework} />
 
-      {languages.map((lang) => (
-        <ClickableTag key={lang} kind="languages" value={lang} />
-      ))}
+      {languages
+        .sort((a, b) => a.localeCompare(b))
+        .map((lang) => (
+          <ClickableTag key={lang} kind="languages" value={lang} />
+        ))}
 
-      {categories.map((category) => (
-        <ClickableTag key={category} kind="categories" value={category} />
-      ))}
+      {categories
+        .sort((a, b) => a.localeCompare(b))
+        .map((category) => (
+          <ClickableTag key={category} kind="categories" value={category} />
+        ))}
     </ProgramTags>
   </ProgramWrapper>
 );
@@ -150,17 +178,28 @@ const ProgramHeaderLeft = styled.div``;
 
 const ProgramHeaderRight = styled.div``;
 
+const ProgramImg = styled(Img)`
+  ${({ theme }) => css`
+    border-radius: ${theme.default.borderRadius};
+    width: 2rem;
+    height: 2rem;
+  `}
+`;
+
 const ProgramTitle = styled(Link)`
   ${({ theme }) => css`
     font-size: ${theme.font.other.size.medium};
+    margin-left: 0.75rem;
     font-weight: bold;
     color: inherit;
   `}
 `;
 
-const ProgramDescription = styled.div`
+const ProgramDescription = styled(Markdown)`
   ${({ theme }) => css`
+    height: 3rem;
     color: ${theme.colors.default.textSecondary};
+    ${PgTheme.getClampLinesCSS(2)};
   `}
 `;
 

@@ -1,5 +1,5 @@
 import { Programs } from "../components/Programs";
-import { PgExplorer, PgRouter, PgView } from "../utils/pg";
+import { PgCommon, PgExplorer, PgRouter, PgView } from "../utils/pg";
 
 export const programs = PgRouter.create({
   path: "/programs",
@@ -12,7 +12,9 @@ export const programs = PgRouter.create({
       // Set sidebar
       PgView.setSidebarPage("Programs");
 
-      return Programs;
+      // Fetch programs
+      const programs = await PgCommon.fetchJSON("/programs/programs.json");
+      return <Programs programs={programs} />;
     });
 
     // Handle sidebar
