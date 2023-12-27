@@ -17,6 +17,7 @@ export const share = PgRouter.create({
 
       // Set sidebar
       PgView.setSidebarPage();
+      PgView.setSidebarLoading(false);
 
       return EditorWithTabs;
     });

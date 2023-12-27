@@ -16,8 +16,14 @@ export const tutorials = PgRouter.create({
     });
 
     // Handle sidebar
+    // TODO: Handle this in a better way
     return PgView.onDidChangeSidebarPage((state) => {
-      if (state !== "Tutorials") PgRouter.navigate();
+      switch (state) {
+        case "Explorer":
+        case "Build & Deploy":
+        case "Test":
+          PgRouter.navigate();
+      }
     });
   },
 });

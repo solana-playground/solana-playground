@@ -15,7 +15,6 @@ import {
   PgProgramInfo,
   PgRouter,
   PgTutorial,
-  PgView,
   PgWallet,
 } from "../../../utils/pg";
 import { useDisposable, useGetStatic, useSetStatic } from "../../../hooks";
@@ -87,15 +86,12 @@ const useRouter = () => {
 const useWorkspace = () => {
   // Handle loading state
   useEffect(() => {
-    const { dispose } = PgExplorer.onDidInit(async () => {
+    const { dispose } = PgExplorer.onDidInit(() => {
       // Check whether the tab state is valid
       // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
       if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
         PgExplorer.openFile(PgExplorer.tabs[0]);
       }
-
-      await PgCommon.sleep(300);
-      PgView.setSidebarLoading(false);
     });
     return () => dispose();
   }, []);

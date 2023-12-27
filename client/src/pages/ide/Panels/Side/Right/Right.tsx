@@ -57,16 +57,14 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
 
     const { dispose } = PgView.onDidChangeSidebarPage(async (page) => {
       const currentId = ids.length;
-      const nextId = currentId + 1;
       ids[currentId] ??= false;
 
       setLoading(true);
 
       try {
         const { importElement } = SIDEBAR.find((s) => s.name === page)!;
-
         const { default: PageComponent } = await importElement();
-        if (ids[nextId] !== undefined) return;
+        if (ids[currentId + 1] !== undefined) return;
 
         setEl(<PageComponent />);
       } catch (e: any) {

@@ -18,8 +18,14 @@ export const programs = PgRouter.create({
     });
 
     // Handle sidebar
+    // TODO: Handle this in a better way
     return PgView.onDidChangeSidebarPage((state) => {
-      if (state !== "Programs") PgRouter.navigate();
+      switch (state) {
+        case "Explorer":
+        case "Build & Deploy":
+        case "Test":
+          PgRouter.navigate();
+      }
     });
   },
 });

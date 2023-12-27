@@ -17,6 +17,7 @@ export const githubDefault = PgRouter.create({
 
       // Set sidebar
       PgView.setSidebarPage();
+      PgView.setSidebarLoading(false);
 
       return EditorWithTabs;
     });
