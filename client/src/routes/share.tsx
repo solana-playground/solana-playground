@@ -9,17 +9,19 @@ export const share = PgRouter.create({
     PgView.setMain(async () => {
       PgView.setSidebarLoading(true);
 
-      // Get the share data
-      const files = await PgShare.get(shareId);
+      try {
+        // Get the share data
+        const files = await PgShare.get(shareId);
 
-      // Initialize explorer
-      await PgExplorer.init({ files });
+        // Initialize explorer
+        await PgExplorer.init({ files });
 
-      // Set sidebar
-      PgView.setSidebarPage();
-      PgView.setSidebarLoading(false);
-
-      return EditorWithTabs;
+        return EditorWithTabs;
+      } finally {
+        // Set sidebar
+        PgView.setSidebarPage();
+        PgView.setSidebarLoading(false);
+      }
     });
   },
 });

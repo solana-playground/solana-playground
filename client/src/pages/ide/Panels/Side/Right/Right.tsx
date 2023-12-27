@@ -1,10 +1,23 @@
-import { FC, Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  FC,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import styled, { css } from "styled-components";
 import { Resizable } from "re-resizable";
 
+import ErrorBoundary from "../../../../../components/ErrorBoundary";
 import { Wormhole } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
-import { NullableJSX, PgTheme, PgView } from "../../../../../utils/pg";
+import {
+  NullableJSX,
+  PgTheme,
+  PgView,
+  SetState,
+} from "../../../../../utils/pg";
 import { useResize } from "./useResize";
 import { SIDEBAR } from "../../../../../views/sidebar";
 import { useSetStatic } from "../../../../../hooks";
@@ -47,8 +60,17 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
 };
 
 const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
-  const [El, setEl] = useState<NullableJSX>(null);
-  const [loading, setLoading] = useState(true);
+  const [el, setEl] = useState<NullableJSX>(null);
+  const [loadingCount, setLoadingCount] = useState<number>(0);
+
+  // There could be multiple processes that change the loading state and the
+  // overall loading state should only be disabled when all processes complete.
+  const setLoading = useCallback((set: SetState<boolean>) => {
+    setLoadingCount((prev) => {
+      const val = typeof set === "function" ? set(!!prev) : set;
+      return val ? prev + 1 : prev - 1;
+    });
+  }, []);
 
   useSetStatic(setLoading, EventName.VIEW_SIDEBAR_LOADING_SET);
 
@@ -56,29 +78,27 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
     const ids: boolean[] = [];
 
     const { dispose } = PgView.onDidChangeSidebarPage(async (page) => {
+      setLoading(true);
+
       const currentId = ids.length;
       ids[currentId] ??= false;
-
-      setLoading(true);
 
       try {
         const { importElement } = SIDEBAR.find((s) => s.name === page)!;
         const { default: PageComponent } = await importElement();
-        if (ids[currentId + 1] !== undefined) return;
-
-        setEl(<PageComponent />);
+        if (ids[currentId + 1] === undefined) setEl(<PageComponent />);
       } catch (e: any) {
         console.log("SIDEBAR ERROR", e.message);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     });
     return () => dispose();
-  }, []);
+  }, [setLoading]);
 
-  if (loading) return <Loading sidebarPage={sidebarPage} />;
+  if (loadingCount) return <Loading sidebarPage={sidebarPage} />;
 
-  return El;
+  return <ErrorBoundary>{el}</ErrorBoundary>;
 };
 
 const Wrapper = styled.div<{ windowHeight: number }>`

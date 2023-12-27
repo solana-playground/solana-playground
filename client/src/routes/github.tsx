@@ -9,17 +9,19 @@ export const githubDefault = PgRouter.create({
     PgView.setMain(async () => {
       PgView.setSidebarLoading(true);
 
-      // Get repository data
-      const files = await PgGithub.getFiles(githubUrl);
+      try {
+        // Get repository data
+        const files = await PgGithub.getFiles(githubUrl);
 
-      // Initialize explorer
-      await PgExplorer.init({ files });
+        // Initialize explorer
+        await PgExplorer.init({ files });
 
-      // Set sidebar
-      PgView.setSidebarPage();
-      PgView.setSidebarLoading(false);
-
-      return EditorWithTabs;
+        return EditorWithTabs;
+      } finally {
+        // Set sidebar
+        PgView.setSidebarPage();
+        PgView.setSidebarLoading(false);
+      }
     });
   },
 });

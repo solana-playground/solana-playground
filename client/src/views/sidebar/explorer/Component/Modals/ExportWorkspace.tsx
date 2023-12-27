@@ -35,7 +35,7 @@ export const ExportWorkspace = () => {
 
         <Description>
           To make the project work locally, playground can make the necessary
-          before exporting.
+          conversion before exporting.
         </Description>
 
         <InfoText icon={<Info color="info" />}>

@@ -21,6 +21,11 @@ export class PgView {
   /**
    * Set sidebar right component's loading state.
    *
+   * **NOTE:** The boolean values are used to either increment or decrement the
+   * ongoing process count. Setting the `loading` to `false` only decrements
+   * the process count and the loading state is only disabled if there is no
+   * other ongoing process.
+   *
    * @param loading set loading state
    */
   static setSidebarLoading(loading: SetState<boolean>) {
