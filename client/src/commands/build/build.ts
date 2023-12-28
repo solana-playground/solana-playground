@@ -215,16 +215,27 @@ const getBuildFiles = () => {
  * @returns the improved output
  */
 const improveOutput = (output: string) => {
-  // Remove full path
   output = output
+    // Blocking "waiting for file lock on package cache"
+    .replaceAll("Blocking waiting for file lock on package cache\n", "")
+
+    // Remove full paths
+    .replace(/(\S*\/)src/gm, (match, head) => match.replace(head, ""))
     .replace(/\s\(\/home.+?(?=\s)/gm, "")
     .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
+
+    // Remove compiling output
     .replace("Compiling solpg v0.1.0\n", "")
-    .replace("solpg", PgExplorer.currentWorkspaceName ?? "temp");
+
+    // Replace `solpg` name with the current workspace name
+    .replaceAll("solpg", PgExplorer.currentWorkspaceName ?? "solpg")
+
+    // Remove stack size error
+    .replace(/^\s*Error:\sFunction.*\n/gm, "");
 
   // Remove uuid from folders
   const uuid = PgProgramInfo.uuid;
-  if (uuid) output = output.replaceAll(uuid, "");
+  if (uuid) output = output.replace(new RegExp(`${uuid}\\/?`, "gm"), "");
 
   // Remove `rustc` error line
   let startIndex = output.indexOf("For more");
@@ -243,12 +254,6 @@ const improveOutput = (output: string) => {
       PgTerminal.success("Build successful. ") +
       "Completed" +
       output.substring(output.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
-  }
-
-  // Stack size error
-  const stackSizeRegex = /^Error:\sFunction.*/gm;
-  if (stackSizeRegex.test(output)) {
-    output = output.replace(stackSizeRegex, "").replace("\n", "");
   }
 
   return output.substring(0, output.length - 1);
