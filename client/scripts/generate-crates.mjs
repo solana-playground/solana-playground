@@ -20,7 +20,7 @@ const CRATES_PATH = path.join(REPO_ROOT_PATH, "client", "public", "crates");
 const LOCK_FILE_PATH = path.join(
   REPO_ROOT_PATH,
   "server",
-  "solpg",
+  "programs",
   "Cargo.lock"
 );
 

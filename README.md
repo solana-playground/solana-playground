@@ -1,6 +1,6 @@
 # Solana Playground
 
-[SolPg](https://beta.solpg.io) allows you to quickly develop, deploy and test [Solana](https://docs.solana.com/introduction) programs(smart contracts) from the browser.
+[SolPg](https://beta.solpg.io) allows you to quickly develop, deploy and test [Solana](https://docs.solana.com/introduction) programs(smart contracts) from browsers.
 
 ## Supported crates
 
@@ -13,7 +13,6 @@
 | [borsh-derive](https://docs.rs/borsh-derive/0.10.3)                                | 0.10.3  |
 | [bytemuck](https://docs.rs/bytemuck/1.14.0)                                        | 1.14.0  |
 | [bytemuck-derive](https://docs.rs/bytemuck-derive/1.5.0)                           | 1.5.0   |
-| [clockwork-sdk](https://docs.rs/clockwork-sdk/2.0.18)                              | 2.0.18  |
 | [mpl-bubblegum](https://docs.rs/mpl-bubblegum/1.0.0)                               | 1.0.0   |
 | [mpl-token-auth-rules](https://docs.rs/mpl-token-auth-rules/1.4.3)                 | 1.4.3   |
 | [mpl-token-metadata](https://docs.rs/mpl-token-metadata/3.2.3)                     | 3.2.3   |

@@ -1,0 +1,42 @@
+[package]
+name = "solpg"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+path = "default/src/lib.rs"
+
+[profile.release]
+overflow-checks = true
+incremental = true
+
+[dependencies]
+anchor-lang = { version = "*", features = ["anchor-debug", "allow-missing-optionals", "init-if-needed"] }
+anchor-spl = { version = "*", features = ["dex", "governance", "metadata"] }
+arrayref = "*"
+borsh = "*"
+borsh-derive = "*"
+bytemuck = "*"
+bytemuck_derive = "*"
+mpl-bubblegum = "*"
+mpl-token-auth-rules = { version = "*", features = ["no-entrypoint"] }
+mpl-token-metadata = "*"
+num-derive = "*"
+num-traits = "*"
+pyth-sdk = "*"
+pyth-sdk-solana = "*"
+serde = "*"
+solana-program = "*"
+spl-account-compression = { version = "*", features = ["cpi"] }
+spl-associated-token-account = "*"
+spl-pod = "*"
+spl-tlv-account-resolution = "*"
+spl-token = "*"
+spl-token-2022 = "*"
+spl-token-metadata-interface = "*"
+spl-transfer-hook-interface = "*"
+spl-type-length-value = "*"
+switchboard-solana = "*"
+switchboard-v2 = "*"
+thiserror = "*"

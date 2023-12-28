@@ -1,5 +1,6 @@
 # Dependencies
 */node_modules
+**/target
 
 # Generated package imports
 **/client/package.ts
@@ -16,8 +17,10 @@
 */yarn-error.log*
 
 # Server
-server
+server/mongodb
+server/programs/*
+!server/programs/Cargo.*
+!server/programs/default
 
 # WASM
-**/target
 **/www
