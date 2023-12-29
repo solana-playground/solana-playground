@@ -1,3 +1,6 @@
+// Settings are getting loaded at the start of the application, so any non-type
+// import should be avoided.
+
 import { Endpoint } from "../../constants";
 import { declareUpdatable, migratable, updatable } from "./decorators";
 import type { OrString } from "./types";
@@ -5,9 +8,25 @@ import type { OrString } from "./types";
 interface Settings {
   /** Connection settings */
   connection: {
+    /** Connection RPC URL */
     endpoint: OrString<Endpoint>;
+    /** Connection commitment */
     commitment: "processed" | "confirmed" | "finalized";
+    /** Whether to enable preflight checks */
     preflightChecks: boolean;
+  };
+  /** Build settings */
+  // TODO: Re-evalute whether build settings should be stored in `PgProgramInfo`
+  // to allow the ability to set program specific settings instead of global?
+  build: {
+    flags: {
+      /** Whether to enable Anchor `seeds` feature */
+      seedsFeature: boolean;
+      /** Whether to remove docs from the Anchor IDL */
+      noDocs: boolean;
+      /** Whether to enable Anchor safety checks */
+      safetyChecks: boolean;
+    };
   };
   /** Test UI settings */
   testUi: {
@@ -16,6 +35,7 @@ interface Settings {
   };
   /** Notification settings */
   notification: {
+    /** Whether to show transaction toast notification */
     showTx: boolean;
   };
 }
@@ -25,6 +45,13 @@ const defaultState: Settings = {
     endpoint: Endpoint.DEVNET,
     commitment: "confirmed",
     preflightChecks: true,
+  },
+  build: {
+    flags: {
+      seedsFeature: false,
+      noDocs: true,
+      safetyChecks: false,
+    },
   },
   testUi: {
     showTxDetailsInTerminal: false,

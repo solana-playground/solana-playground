@@ -2,12 +2,31 @@ import type { Idl } from "@coral-xyz/anchor";
 
 import type { TupleFiles } from "./explorer";
 
-export interface ShareData {
-  files: {
-    [key: string]: {
-      content?: string;
-      current?: boolean;
-      tabs?: boolean;
+/** Rust `Option` type */
+type Option<T> = T | null | undefined;
+
+/** `/build` request */
+interface BuildRequest {
+  /** Program files */
+  files: TupleFiles;
+  /** UUID of the program */
+  uuid?: Option<string>;
+  /** Build flags */
+  flags?: Option<{
+    /** Whether to enable Anchor `seeds` feature */
+    seedsFeature?: Option<boolean>;
+    /** Whether to remove docs from the Anchor IDL */
+    noDocs?: Option<boolean>;
+    /** Whether to enable Anchor safety checks */
+    safetyChecks?: Option<boolean>;
+  }>;
+}
+
+/** `/new` request */
+interface ShareNewRequest {
+  explorer: {
+    files: {
+      [key: string]: { content?: string };
     };
   };
 }
@@ -16,25 +35,23 @@ export class PgServer {
   /**
    * Build the program files.
    *
-   * @param files files to send to the server
-   * @param uuid unique project id
+   * @param req build request
    * @returns the build response
    */
-  static async build(files: TupleFiles, uuid: string | null) {
-    const response = await this._send("/build", {
-      post: {
-        body: JSON.stringify({
-          files,
-          uuid,
-        }),
-      },
-    });
-
+  static async build(req: BuildRequest) {
+    /** `/build` response */
     interface BuildResponse {
+      /** Build output */
       stderr: string;
+      /** UUID of the program */
       uuid: string | null;
+      /** Anchor IDL */
       idl: Idl | null;
     }
+
+    const response = await this._send("/build", {
+      post: { body: JSON.stringify(req) },
+    });
 
     return (await response.json()) as BuildResponse;
   }
@@ -61,27 +78,28 @@ export class PgServer {
    * @returns the shared project response
    */
   static async shareGet(id: string) {
+    /** `/share` response */
+    type ShareResponse = ShareNewRequest["explorer"];
+
     const response = await this._send(`/share/${id}`);
-    return (await response.json()) as ShareData;
+    return (await response.json()) as ShareResponse;
   }
 
   /**
    * Share a new project.
    *
-   * @param data project information in JSON format
+   * @param req share request
    * @returns the unique share id
    */
-  static async shareNew(data: ShareData) {
+  static async shareNew(req: ShareNewRequest) {
+    /** `/new` response is the share id */
+    type ShareNewResponse = string;
+
     const response = await this._send("/new", {
-      post: {
-        body: JSON.stringify({
-          explorer: data,
-        }),
-      },
+      post: { body: JSON.stringify(req) },
     });
 
-    const shareId = await response.text();
-    return shareId;
+    return (await response.text()) as ShareNewResponse;
   }
 
   /** Default playground server URL */

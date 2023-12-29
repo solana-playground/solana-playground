@@ -9,6 +9,7 @@ import {
   PgPackage,
   PgProgramInfo,
   PgServer,
+  PgSettings,
   PgTerminal,
   TupleFiles,
 } from "../../utils/pg";
@@ -61,15 +62,19 @@ const processBuild = async () => {
 const buildRust = async (files: TupleFiles) => {
   if (!files.length) throw new Error("Couldn't find any Rust files.");
 
-  const data = await PgServer.build(files, PgProgramInfo.uuid);
+  const resp = await PgServer.build({
+    files,
+    uuid: PgProgramInfo.uuid,
+    flags: PgSettings.build.flags,
+  });
 
   // Update program info
   PgProgramInfo.update({
-    uuid: data.uuid ?? undefined,
-    idl: data.idl,
+    uuid: resp.uuid ?? undefined,
+    idl: resp.idl,
   });
 
-  return { stderr: data.stderr };
+  return { stderr: resp.stderr };
 };
 
 /**

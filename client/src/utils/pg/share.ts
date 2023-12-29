@@ -1,6 +1,6 @@
 import { PgCommon } from "./common";
 import { ExplorerFiles, PgExplorer } from "./explorer";
-import { PgServer, ShareData } from "./server";
+import { PgServer } from "./server";
 
 export class PgShare {
   /**
@@ -75,11 +75,11 @@ export class PgShare {
   private static async _new(files: ExplorerFiles) {
     if (!Object.keys(files).length) throw new Error("Empty share");
 
-    const shareData: ShareData = { files: {} };
-    for (const path in files) {
-      shareData.files[path] = { content: files[path].content };
-    }
+    const shareFiles = Object.entries(files).reduce((acc, [path, data]) => {
+      if (data.content) acc[path] = { content: data.content };
+      return acc;
+    }, {} as Record<string, { content?: string }>);
 
-    return await PgServer.shareNew(shareData);
+    return await PgServer.shareNew({ explorer: { files: shareFiles } });
   }
 }

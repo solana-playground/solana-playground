@@ -25,7 +25,13 @@ pub type Files = Vec<[String; 2]>;
 /// otherwise.
 ///
 /// NOTE: This function doesn't return an error in the case of a compiler error.
-pub fn build(program_name: &str, files: &Files) -> anyhow::Result<(String, Option<Idl>)> {
+pub fn build(
+    program_name: &str,
+    files: &Files,
+    seeds_feature: bool,
+    no_docs: bool,
+    safety_checks: bool,
+) -> anyhow::Result<(String, Option<Idl>)> {
     // Check file count
     if files.len() > MAX_FILE_AMOUNT {
         return Err(anyhow!("Exceeded maximum file amount({MAX_FILE_AMOUNT})"));
@@ -81,21 +87,29 @@ pub fn build(program_name: &str, files: &Files) -> anyhow::Result<(String, Optio
             "--offline",
         ])
         .output()?;
-    let stderr = String::from_utf8(output.stderr)?;
 
     // Check compile errors
+    let stderr = String::from_utf8(output.stderr)?;
     if stderr.rfind("error: could not compile").is_some() {
         return Ok((stderr, None));
     }
 
     // Generate IDL if it's an Anchor program
     let lib_path = program_path.join("src").join("lib.rs");
-    let idl = fs::read_to_string(&lib_path)?
+    let ret = fs::read_to_string(&lib_path)?
         .contains("anchor_lang")
-        .then(|| parse_idl(lib_path, "0.1.0".into(), false, true, false))
-        .transpose()?;
-
-    Ok((stderr, idl))
+        .then(|| {
+            parse_idl(
+                lib_path,
+                "0.1.0".into(),
+                seeds_feature,
+                no_docs,
+                safety_checks,
+            )
+        })
+        .transpose()
+        .map_or_else(|e| (format!("Error: {e}"), None), |idl| (stderr, idl));
+    Ok(ret)
 }
 
 /// Read the program ELF and return its bytes.
