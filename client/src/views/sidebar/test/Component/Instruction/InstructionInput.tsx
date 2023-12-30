@@ -61,15 +61,11 @@ const InstructionInput: FC<InstructionInputProps> = ({
     () => PgProgramInteraction.getIdlType(type, idl),
     [type, idl]
   );
-  const initialValue = useMemo(() => {
-    try {
-      return PgProgramInteraction.generateValue(generator, instruction.values);
-    } catch (e) {
-      console.log("Failed to generate `initialValue`:", e);
-      return "";
-    }
+  const initialValue = useMemo(
+    () => generateValueOrDefault(generator, instruction.values),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
   const initialError = useMemo(() => {
     // Don't show errors when the initial input is empty
     if (!initialValue) return false;
@@ -133,15 +129,11 @@ const InstructionInput: FC<InstructionInputProps> = ({
                 const inputEl = document.getElementById(
                   instruction.name + key + instructionValue.name
                 ) as HTMLInputElement;
-                try {
-                  const newValue = PgProgramInteraction.generateValue(
-                    instructionValue.generator,
-                    instruction.values
-                  );
-                  PgCommon.changeInputValue(inputEl, newValue);
-                } catch (e: any) {
-                  console.log("Failed to generate value:", e.message);
-                }
+                const newValue = generateValueOrDefault(
+                  instructionValue.generator,
+                  instruction.values
+                );
+                PgCommon.changeInputValue(inputEl, newValue);
               }
             }
           }
@@ -241,7 +233,7 @@ const getSearchBarProps = (
     },
   ];
 
-  // Generate values via `PgProgramInteraction.generateValue` method and push to items.
+  // Generate values via `generateValueOrDefault` method and push to items.
   const pushGeneratorItem = (
     generator:
       | (Pick<Exclude<InstructionValueGenerator, { name: string }>, "type"> & {
@@ -256,7 +248,7 @@ const getSearchBarProps = (
     if (!generator.names) {
       searchBarProps.items.push({
         label: generator.type,
-        value: PgProgramInteraction.generateValue(
+        value: generateValueOrDefault(
           generator as InstructionValueGenerator,
           instruction.values
         ),
@@ -266,7 +258,7 @@ const getSearchBarProps = (
         label: generator.type,
         items: generator.names.map((name) => ({
           label: name,
-          value: PgProgramInteraction.generateValue(
+          value: generateValueOrDefault(
             { ...generator, name },
             instruction.values
           ),
@@ -291,6 +283,7 @@ const getSearchBarProps = (
       },
     };
 
+    // Wallet(s)
     if (PgWallet.current) {
       pushGeneratorItem({ type: "Current wallet" });
 
@@ -408,6 +401,19 @@ const getSearchBarProps = (
     : generator.type;
 
   return searchBarProps;
+};
+
+/** Generate the value or default to an empty string in the case of an error. */
+const generateValueOrDefault = (
+  generator: InstructionValueGenerator,
+  values: GeneratableInstruction["values"]
+) => {
+  try {
+    return PgProgramInteraction.generateValue(generator, values);
+  } catch (e: any) {
+    console.log("Failed to generate:", e.message);
+    return "";
+  }
 };
 
 export default InstructionInput;

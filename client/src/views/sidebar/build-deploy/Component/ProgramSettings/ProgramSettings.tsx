@@ -73,18 +73,23 @@ const ProgramSetting: FC<ProgramSettingProps> = ({
       isOpen={isOpen}
       element={<ProgramSettingTitle>{title}</ProgramSettingTitle>}
     >
-      <ProgramSettingDescription>{description}</ProgramSettingDescription>
-      <ProgramSettingContent>{element}</ProgramSettingContent>
+      <ProgramSettingsInside>
+        <ProgramSettingDescription>{description}</ProgramSettingDescription>
+        <ProgramSettingContent>{element}</ProgramSettingContent>
+      </ProgramSettingsInside>
     </Foldable>
   </ProgramSettingWrapper>
 );
 
 const ProgramSettingWrapper = styled.div`
   margin-top: 1rem;
-  margin-left: 0.5rem;
 `;
 
 const ProgramSettingTitle = styled.span``;
+
+const ProgramSettingsInside = styled.div`
+  padding: 0 0.5rem;
+`;
 
 const ProgramSettingDescription = styled.div`
   ${({ theme }) => css`

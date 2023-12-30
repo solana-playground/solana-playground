@@ -1,13 +1,14 @@
 import { Keypair } from "@solana/web3.js";
 
-import { getKnownAccountKey, fetchAccount, fetchAllAccounts } from "./account";
+import { fetchAccount, fetchAllAccounts } from "./account";
 import {
   GeneratableInstruction,
   createGenerator,
   generateValue,
   generateProgramAddressFromSeeds,
 } from "./generator";
-import { getIdlType, IdlAccount, IdlInstruction } from "./idl-types";
+import { getIdlType, IdlInstruction } from "./idl-types";
+import { createGeneratableInstruction } from "./instruction";
 import { getAnchorProgram, getPrograms } from "./programs";
 import { getOrInitPythAccounts } from "./pyth";
 import {
@@ -78,23 +79,7 @@ export class PgProgramInteraction {
     if (savedIx) return savedIx;
 
     // Not saved, create default
-    return {
-      name: idlIx.name,
-      values: {
-        programId: { generator: { type: "Current program" } },
-        accounts: (idlIx.accounts as IdlAccount[]).map((acc) => ({
-          ...acc,
-          generator: {
-            type: "Custom",
-            value: getKnownAccountKey(acc.name) ?? "",
-          },
-        })),
-        args: idlIx.args.map((arg) => ({
-          ...arg,
-          generator: { type: "Custom", value: "" },
-        })),
-      },
-    };
+    return createGeneratableInstruction(idlIx);
   }
 
   /** {@link createGenerator} */
