@@ -52,8 +52,15 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
     ]))
   );
 
-  const { dispose: disposeInitWorkspace } = await PgCommon.executeInitial(
-    PgExplorer.onDidSwitchWorkspace,
+  const { dispose: disposeUpdateCurrentCrate } = await PgCommon.executeInitial(
+    (cb) => {
+      // Both `onDidInit` and `onDidSwitchWorkspace` is required to catch all
+      // cases in which the current crate needs to be updated
+      return PgCommon.batchChanges(cb, [
+        PgExplorer.onDidInit,
+        PgExplorer.onDidSwitchWorkspace,
+      ]);
+    },
     async () => {
       // Return early if `lib.rs` file doesn't exist
       const file = PgExplorer.getFile("src/lib.rs");
@@ -95,7 +102,7 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
 
   return {
     dispose: () => {
-      disposeInitWorkspace();
+      disposeUpdateCurrentCrate();
       disposeLoadLocalFiles();
       disposeImportTypes();
       disposeProviders();
