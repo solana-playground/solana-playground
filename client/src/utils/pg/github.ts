@@ -60,17 +60,16 @@ export class PgGithub {
    * @param url GitHub URL
    */
   static async import(url: string) {
-    // Get repository
-    const { files, owner, repo, path } = await this._getRepository(url);
-
     // Check whether the repository already exists in user's workspaces
+    const { owner, repo, path } = this.parseUrl(url);
     const githubWorkspaceName = `github-${owner}/${repo}/${path}`;
+
     if (PgExplorer.allWorkspaceNames?.includes(githubWorkspaceName)) {
       // Switch to the existing workspace
       await PgExplorer.switchWorkspace(githubWorkspaceName);
     } else {
       // Create a new workspace
-      const convertedFiles = await PgFramework.convertToPlaygroundLayout(files);
+      const convertedFiles = await this.getFiles(url);
       await PgExplorer.newWorkspace(githubWorkspaceName, {
         files: convertedFiles,
         skipNameValidation: true,
