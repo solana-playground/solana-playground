@@ -36,12 +36,12 @@ class ErrorBoundary extends Component<Props, State> {
    * @param info information about the error, e.g. stack trace
    */
   componentDidCatch(error: Error, info: ErrorInfo) {
-    // Example `componentStack`:
+    // Example `info.componentStack`:
     //   in ComponentThatThrows (created by App)
     //   in ErrorBoundary (created by App)
     //   in div (created by App)
     //   in App
-    console.error("Error boundary:", error, info.componentStack);
+    // There is no need to log the error because it's logged automatically
   }
 
   /** Render `fallback` if there is an error, `children` otherwise. */
