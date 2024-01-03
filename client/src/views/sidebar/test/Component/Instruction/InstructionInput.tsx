@@ -301,6 +301,12 @@ const getSearchBarProps = (
       DropdownComponent: FromSeed,
     });
 
+    // Programs
+    pushGeneratorItem({
+      type: "All programs",
+      names: PgProgramInteraction.getPrograms().map((p) => p.name),
+    });
+
     // Pyth
     searchBarProps.items.push({
       label: "Pyth",

@@ -1,27 +1,69 @@
-import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import { AnchorProvider, Program as AnchorProgram } from "@coral-xyz/anchor";
+import {
+  ASSOCIATED_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "@coral-xyz/anchor/dist/cjs/utils/token";
+import { SystemProgram } from "@solana/web3.js";
 
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
+import type { Arrayable } from "../types";
+
+/** Program data */
+interface Program {
+  /** Title Case name of the program */
+  name: string;
+  /** Program's public key */
+  programId: string;
+  /** Program name alias to match against account name */
+  alias?: Arrayable<string>;
+}
+
+/** Known programs */
+const PROGRAMS: Readonly<Program[]> = [
+  {
+    name: "System",
+    programId: SystemProgram.programId.toBase58(),
+  },
+  {
+    name: "Token",
+    programId: TOKEN_PROGRAM_ID.toBase58(),
+  },
+  {
+    name: "Token 2022",
+    programId: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  },
+  {
+    name: "Associated Token",
+    programId: ASSOCIATED_PROGRAM_ID.toBase58(),
+  },
+  {
+    name: "Token Metadata",
+    programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+  },
+].map((program) => {
+  const nameCamel = PgCommon.toCamelCase(program.name);
+  const alias = [nameCamel, nameCamel + "Program"];
+  return { ...program, alias };
+});
 
 /**
  * Get known program names and their public keys.
  *
  * @returns the programs
  */
-// TODO: Add more programs
 export const getPrograms = () => {
   if (PgProgramInfo.idl && PgProgramInfo.pk) {
-    return [
-      {
-        name: PgProgramInfo.idl.name,
-        programId: PgProgramInfo.getPkStr()!,
-      },
-    ];
+    const currentProgram: Readonly<Program> = {
+      name: PgCommon.toTitleFromSnake(PgProgramInfo.idl.name),
+      programId: PgProgramInfo.getPkStr()!,
+    };
+    return [currentProgram].concat(PROGRAMS);
   }
 
-  return [];
+  return PROGRAMS;
 };
 
 /**
@@ -52,5 +94,5 @@ export const getAnchorProgram = (params?: {
     wallet,
     AnchorProvider.defaultOptions()
   );
-  return new Program(idl, programId, provider);
+  return new AnchorProgram(idl, programId, provider);
 };

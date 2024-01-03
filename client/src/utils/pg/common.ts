@@ -793,6 +793,13 @@ export class PgCommon {
   }
 
   /**
+   * @returns Title Case converted version of the snake_case string
+   */
+  static toTitleFromSnake(str: string) {
+    return PgCommon.toTitleFromKebab(PgCommon.toKebabFromSnake(str));
+  }
+
+  /**
    * @returns PascalCase converted version of the Title Case string
    */
   static toPascalFromTitle(str: string) {

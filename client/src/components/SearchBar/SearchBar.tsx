@@ -472,7 +472,7 @@ const DropdownWrapper = styled.div<{ isCustomComponent: boolean }>`
     `
       max-height: 15rem;
       overflow: auto;
-      ${PgTheme.getScrollbarCSS()};
+      ${PgTheme.getScrollbarCSS({ width: "0.25rem" })};
     `};
   `}
 `;
