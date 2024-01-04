@@ -1,10 +1,10 @@
 import { SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 
+import { getPrograms } from "./generators";
 import type {
   GeneratableInstruction,
   InstructionValueGenerator,
 } from "./generator";
-import { getPrograms } from "./programs";
 import type { IdlAccount, IdlInstruction } from "./idl-types";
 import type { OrString } from "../types";
 

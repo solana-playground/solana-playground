@@ -1,5 +1,5 @@
-import { PgCommon } from "../common";
-import { Cluster, PgConnection } from "../connection";
+import { PgCommon } from "../../common";
+import { Cluster, PgConnection } from "../../connection";
 
 /** Pyth feed accounts per cluster */
 const PYTH_ACCOUNTS: {

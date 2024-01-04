@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 
-import { getAnchorProgram } from "./programs";
+import { getAnchorProgram } from "./program";
 import { PgCommon } from "../common";
 
 /**

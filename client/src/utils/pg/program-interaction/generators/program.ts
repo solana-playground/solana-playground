@@ -1,15 +1,12 @@
-import { AnchorProvider, Program as AnchorProgram } from "@coral-xyz/anchor";
 import {
   ASSOCIATED_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import { SystemProgram } from "@solana/web3.js";
 
-import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
-import { PgProgramInfo } from "../program-info";
-import { PgWallet } from "../wallet";
-import type { Arrayable } from "../types";
+import { PgCommon } from "../../common";
+import { PgProgramInfo } from "../../program-info";
+import type { Arrayable } from "../../types";
 
 /** Program data */
 interface Program {
@@ -64,35 +61,4 @@ export const getPrograms = () => {
   }
 
   return PROGRAMS;
-};
-
-/**
- * Create an Anchor program instance.
- *
- * @param params optional overrides of the default playground values
- * @returns the created Anchor program instance.
- */
-export const getAnchorProgram = (params?: {
-  connection?: typeof PgConnection["current"];
-  wallet?: typeof PgWallet["current"];
-  programId?: typeof PgProgramInfo["pk"];
-  idl?: typeof PgProgramInfo["idl"];
-}) => {
-  const { connection, wallet, programId, idl } = PgCommon.setDefault(params, {
-    connection: PgConnection.current,
-    wallet: PgWallet.current,
-    programId: PgProgramInfo.pk,
-    idl: PgProgramInfo.idl,
-  });
-
-  if (!wallet) throw new Error("Not connected");
-  if (!programId) throw new Error("Program ID not found");
-  if (!idl) throw new Error("Anchor IDL not found");
-
-  const provider = new AnchorProvider(
-    connection,
-    wallet,
-    AnchorProvider.defaultOptions()
-  );
-  return new AnchorProgram(idl, programId, provider);
 };

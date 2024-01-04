@@ -7,10 +7,10 @@ import {
   generateValue,
   generateProgramAddressFromSeeds,
 } from "./generator";
+import { getPrograms, getOrInitPythAccounts } from "./generators";
 import { getIdlType, IdlInstruction } from "./idl-types";
 import { createGeneratableInstruction } from "./instruction";
-import { getAnchorProgram, getPrograms } from "./programs";
-import { getOrInitPythAccounts } from "./pyth";
+import { getAnchorProgram } from "./program";
 import {
   getInstruction,
   saveInstruction,
@@ -21,6 +21,21 @@ import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
 
 export class PgProgramInteraction {
+  /**
+   * Get the saved generatable instruction or create a new one if it doesn't
+   * exist in storage.
+   *
+   * @param idlIx IDL instruction
+   * @returns the saved or default created generatable instruction
+   */
+  static getOrCreateInstruction(idlIx: IdlInstruction) {
+    const savedIx = getInstruction(idlIx);
+    if (savedIx) return savedIx;
+
+    // Not saved, create default
+    return createGeneratableInstruction(idlIx);
+  }
+
   /**
    * Send a test transaction to the current program.
    *
@@ -65,21 +80,6 @@ export class PgProgramInteraction {
       .transaction();
     const txHash = await PgTx.send(tx, { keypairSigners, walletSigners });
     return txHash;
-  }
-
-  /**
-   * Get the saved generatable instruction or create a new one if it doesn't
-   * exist in storage.
-   *
-   * @param idlIx IDL instruction
-   * @returns the saved or default created generatable instruction
-   */
-  static getOrCreateInstruction(idlIx: IdlInstruction): GeneratableInstruction {
-    const savedIx = getInstruction(idlIx);
-    if (savedIx) return savedIx;
-
-    // Not saved, create default
-    return createGeneratableInstruction(idlIx);
   }
 
   /** {@link createGenerator} */

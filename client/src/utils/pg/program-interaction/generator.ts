@@ -1,8 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 
 import { IdlType, getIdlType } from "./idl-types";
-import { getPrograms } from "./programs";
-import { getPythAccounts } from "./pyth";
+import { getPrograms, getPythAccounts } from "./generators";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
 
@@ -45,6 +44,7 @@ export interface GeneratableInstruction {
   };
 }
 
+/** Common generator definition utility type */
 type WithGenerator<T extends { type: string }> = {
   generator: T;
   error?: string | boolean;
