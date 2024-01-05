@@ -61,7 +61,7 @@ pub mod bank_simulator {
         };
 
         // Clockwork thread CPI
-        let bump = *ctx.bumps.get("thread_authority").unwrap();
+        let bump = ctx.bumps.thread_authority;
         clockwork_sdk::cpi::thread_create(
             CpiContext::new_with_signer(
                 clockwork_program.to_account_info(),
@@ -129,7 +129,7 @@ pub mod bank_simulator {
         let thread_authority = &ctx.accounts.thread_authority;
 
         // Delete thread via CPI
-        let bump = *ctx.bumps.get("thread_authority").unwrap();
+        let bump = ctx.bumps.thread_authority;
         clockwork_sdk::cpi::thread_delete(CpiContext::new_with_signer(
             clockwork_program.to_account_info(),
             clockwork_sdk::cpi::ThreadDelete {

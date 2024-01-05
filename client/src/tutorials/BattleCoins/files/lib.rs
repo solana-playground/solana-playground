@@ -25,7 +25,7 @@ pub mod anchor_token {
     ) -> Result<()> {
         // PDA seeds and bump to "sign" for CPI
         let seeds = b"reward";
-        let bump = *ctx.bumps.get("reward_token_mint").unwrap();
+        let bump = ctx.bumps.reward_token_mint;
         let signer: &[&[&[u8]]] = &[&[seeds, &[bump]]];
 
         // On-chain token metadata for the mint
@@ -89,7 +89,7 @@ pub mod anchor_token {
 
         // PDA seeds and bump to "sign" for CPI
         let seeds = b"reward";
-        let bump = *ctx.bumps.get("reward_token_mint").unwrap();
+        let bump = ctx.bumps.reward_token_mint;
         let signer: &[&[&[u8]]] = &[&[seeds, &[bump]]];
 
         // CPI Context
