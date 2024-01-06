@@ -115,7 +115,7 @@ export class PgTerminal {
       text
         // Match for error
         .replace(
-          /\w*\s(\w*)error(\[|:)/gim,
+          /\w*\s?(\w*)error(:|\[.*?:)/gim,
           (match) =>
             this.error(match.substring(0, match.length - 1)) +
             match[match.length - 1]

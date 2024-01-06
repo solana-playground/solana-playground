@@ -1,6 +1,7 @@
 import { commitment } from "./commitment";
 import { endpoint } from "./endpoint";
 import { font } from "./font";
+import { improveBuildErrors } from "./improve-build-errors";
 import { preflightChecks } from "./preflight-checks";
 import { showTransactionDetails } from "./show-transaction-details";
 import { showTransactionNotifications } from "./show-transaction-notifications";
@@ -15,4 +16,5 @@ export const SETTINGS = [
   preflightChecks,
   showTransactionDetails,
   showTransactionNotifications,
+  improveBuildErrors,
 ];

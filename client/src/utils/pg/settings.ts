@@ -27,6 +27,8 @@ interface Settings {
       /** Whether to enable Anchor safety checks */
       safetyChecks: boolean;
     };
+    /** Whether to improve build error logs */
+    improveErrors: boolean;
   };
   /** Test UI settings */
   testUi: {
@@ -52,6 +54,7 @@ const defaultState: Settings = {
       noDocs: true,
       safetyChecks: false,
     },
+    improveErrors: true,
   },
   testUi: {
     showTxDetailsInTerminal: false,

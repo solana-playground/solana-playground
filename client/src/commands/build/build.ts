@@ -230,13 +230,22 @@ const improveOutput = (output: string) => {
     .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
 
     // Remove compiling output
-    .replace("Compiling solpg v0.1.0\n", "")
+    .replace(/\s*Compiling\ssolpg.*/, "")
 
     // Replace `solpg` name with the current workspace name
     .replaceAll("solpg", PgExplorer.currentWorkspaceName ?? "solpg")
 
     // Remove stack size error
-    .replace(/^\s*Error:\sFunction.*\n/gm, "");
+    .replace(/^\s*Error:\sFunction.*\n/gm, "")
+
+    // Remove nightly macro backtrace
+    .replaceAll(
+      "(in Nightly builds, run with -Z macro-backtrace for more info)",
+      ""
+    )
+
+    // Remove `Some errors have detailed explanations: E0412, E0432, E0433.`
+    .replace(/Some\serrors\shave\sdetailed\sexplanations:.*/, "");
 
   // Remove uuid from folders
   const uuid = PgProgramInfo.uuid;
@@ -261,5 +270,75 @@ const improveOutput = (output: string) => {
       output.substring(output.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
   }
 
-  return output.substring(0, output.length - 1);
+  output = output.substring(0, output.length - 1);
+
+  // Improve errors
+  if (PgSettings.build.improveErrors) {
+    const MAX_ERROR_AMOUNT = 3;
+
+    const errorIndices = PgCommon.matchAll(output, /error[:[]/)
+      .map((match) => match.index)
+      .filter(PgCommon.isNonNullish);
+    if (errorIndices.length) {
+      const errors = errorIndices
+        .map((errorIndex, i) => output.slice(errorIndex, errorIndices[i + 1]))
+        .filter((err) => !err.includes("could not compile"));
+
+      // Hide common useless errors i.e. some errors such as:
+      // ```
+      //   error[E0432]: unresolved import `crate`
+      //   --> src/lib.rs:7:1
+      //   |
+      // 7 | #[program]
+      //   | ^^^^^^^^^^ could not find `__client_accounts_initialize` in the crate root
+      // ```
+      //
+      // Macro errors like the above are not the cause of the error, they are a
+      // symptom of another error.
+      const HIDDEN_PATTERNS = [
+        "__client_accounts",
+        "__cpi_client_accounts",
+        /`\S*Bumps`/,
+      ];
+      const hiddenErrors = errors.reduce((acc, cur) => {
+        const isHidden = HIDDEN_PATTERNS.some((pat) => {
+          return typeof pat === "string" ? cur.includes(pat) : pat.test(cur);
+        });
+        if (isHidden) acc.push(cur);
+
+        return acc;
+      }, [] as string[]);
+
+      // Prioritize the most common errors, order matters
+      const prioritizedErrors: string[] = [];
+      for (const error of errors) {
+        if (hiddenErrors.includes(error)) continue;
+        if (error.includes("cannot find")) prioritizedErrors.unshift(error);
+      }
+      prioritizedErrors.reverse();
+
+      const remainingErrors = errors.filter(
+        (err) => !prioritizedErrors.includes(err) && !hiddenErrors.includes(err)
+      );
+      const displayErrors = prioritizedErrors.concat(remainingErrors);
+      output = displayErrors.reduce(
+        (acc, cur, i) => (i < MAX_ERROR_AMOUNT ? acc + cur : acc),
+        ""
+      );
+
+      if (displayErrors.length > MAX_ERROR_AMOUNT) {
+        output += [
+          "Note: This is a shorter version of the error logs to make it easier to debug.",
+          `Currently ${PgTerminal.bold(
+            MAX_ERROR_AMOUNT.toString()
+          )} errors are displayed but there are ${PgTerminal.bold(
+            displayErrors.length.toString()
+          )} errors.`,
+          'Disable "Improve build errors" setting to see the full error output.',
+        ].join(" ");
+      }
+    }
+  }
+
+  return output;
 };
