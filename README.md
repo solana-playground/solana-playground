@@ -12,7 +12,7 @@
 | [borsh](https://docs.rs/borsh/0.10.3)                                              | 0.10.3  |
 | [borsh-derive](https://docs.rs/borsh-derive/0.10.3)                                | 0.10.3  |
 | [bytemuck](https://docs.rs/bytemuck/1.14.0)                                        | 1.14.0  |
-| [bytemuck-derive](https://docs.rs/bytemuck-derive/1.5.0)                           | 1.5.0   |
+| [bytemuck_derive](https://docs.rs/bytemuck_derive/1.5.0)                           | 1.5.0   |
 | [mpl-bubblegum](https://docs.rs/mpl-bubblegum/1.0.0)                               | 1.0.0   |
 | [mpl-token-auth-rules](https://docs.rs/mpl-token-auth-rules/1.4.3)                 | 1.4.3   |
 | [mpl-token-metadata](https://docs.rs/mpl-token-metadata/3.2.3)                     | 3.2.3   |
@@ -25,7 +25,7 @@
 | [spl-account-compression](https://docs.rs/spl-account-compression/0.2.0)           | 0.2.0   |
 | [spl-associated-token-account](https://docs.rs/spl-associated-token-account/2.2.0) | 2.2.0   |
 | [spl-pod](https://docs.rs/spl-pod/0.1.0)                                           | 0.1.0   |
-| [spl-tlv-account-resolution](https://docs.rs/[spl-tlv-account-resolution/0.4.0)    | 0.4.0   |
+| [spl-tlv-account-resolution](https://docs.rs/spl-tlv-account-resolution/0.4.0)     | 0.4.0   |
 | [spl-token](https://docs.rs/spl-token/4.0.0)                                       | 4.0.0   |
 | [spl-token-2022](https://docs.rs/spl-token-2022/0.9.0)                             | 0.9.0   |
 | [spl-token-metadata-interface](https://docs.rs/spl-token-metadata-interface/0.2.0) | 0.2.0   |

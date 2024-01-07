@@ -5,13 +5,13 @@ import fs from "fs/promises";
 import { homedir } from "os";
 import { execSync, spawnSync } from "child_process";
 
-import { exists, readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
-
-/** Supported program crates path */
-const SUPPORTED_CRATES_PATH = path.join(
+import {
+  exists,
+  readJSON,
   REPO_ROOT_PATH,
-  "supported-crates.json"
-);
+  resetDir,
+  SUPPORTED_CRATES_PATH,
+} from "./utils.mjs";
 
 /** Crates output directory path */
 const CRATES_PATH = path.join(REPO_ROOT_PATH, "client", "public", "crates");
@@ -182,7 +182,7 @@ function getDependencies(name, version) {
 }
 
 /** Get all supported crates. */
-async function getCrates() {
+export async function getCrates() {
   if (hasLockFile) {
     const dependencies = lockFile
       .find((crate) => crate.name === "solpg")

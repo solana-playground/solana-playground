@@ -4,6 +4,12 @@ import path from "path";
 /** Repository root directory path */
 export const REPO_ROOT_PATH = path.join(process.argv[1], "..", "..", "..");
 
+/** Supported program crates path */
+export const SUPPORTED_CRATES_PATH = path.join(
+  REPO_ROOT_PATH,
+  "supported-crates.json"
+);
+
 /**
  * Remove the contents of the given directory.
  *
@@ -33,4 +39,38 @@ export async function exists(path) {
  */
 export async function readJSON(filePath) {
   return JSON.parse(await fs.readFile(filePath));
+}
+
+/** Utility class to handle markdown table related operations */
+export class MarkdownTable {
+  /** Markdown rows stored as array of arrays */
+  #rows;
+
+  /**
+   * Create a markdown table.
+   *
+   * @param {string[]} rows
+   */
+  constructor(...rows) {
+    this.#rows = [rows];
+    this.insert("-", "-", "-");
+  }
+
+  /**
+   * Insert a new row to the markdown table.
+   *
+   * @param {string[]} args
+   */
+  insert(...args) {
+    this.#rows.push(args);
+  }
+
+  /** Convert the stored rows to a markdown table. */
+  toString() {
+    return this.#rows.reduce(
+      (acc, row) =>
+        acc + row.reduce((acc, cur) => `${acc} ${cur} |`, "|") + "\n",
+      ""
+    );
+  }
 }
