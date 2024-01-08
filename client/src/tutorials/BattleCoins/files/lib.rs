@@ -1,10 +1,13 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    metadata::{create_metadata_accounts_v3, CreateMetadataAccountsV3, Metadata},
+    metadata::{
+        create_metadata_accounts_v3,
+        mpl_token_metadata::{accounts::Metadata as MetadataAccount, types::DataV2},
+        CreateMetadataAccountsV3, Metadata,
+    },
     token::{burn, mint_to, Burn, Mint, MintTo, Token, TokenAccount},
 };
-use mpl_token_metadata::{pda::find_metadata_account, state::DataV2};
 use solana_program::{pubkey, pubkey::Pubkey};
 
 declare_id!("CCLnXJAJYFjCHLCugpBCEQKrpiSApiRM4UxkBUHJRrv4");
@@ -25,7 +28,7 @@ pub mod anchor_token {
     ) -> Result<()> {
         // PDA seeds and bump to "sign" for CPI
         let seeds = b"reward";
-        let bump = *ctx.bumps.get("reward_token_mint").unwrap();
+        let bump = ctx.bumps.reward_token_mint;
         let signer: &[&[&[u8]]] = &[&[seeds, &[bump]]];
 
         // On-chain token metadata for the mint
@@ -43,9 +46,9 @@ pub mod anchor_token {
         let cpi_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_metadata_program.to_account_info(),
             CreateMetadataAccountsV3 {
-                 // the metadata account being created
+                // the metadata account being created
                 metadata: ctx.accounts.metadata_account.to_account_info(),
-                 // the mint account of the metadata account
+                // the mint account of the metadata account
                 mint: ctx.accounts.reward_token_mint.to_account_info(),
                 // the mint authority of the mint account
                 mint_authority: ctx.accounts.reward_token_mint.to_account_info(),
@@ -89,7 +92,7 @@ pub mod anchor_token {
 
         // PDA seeds and bump to "sign" for CPI
         let seeds = b"reward";
-        let bump = *ctx.bumps.get("reward_token_mint").unwrap();
+        let bump = ctx.bumps.reward_token_mint;
         let signer: &[&[&[u8]]] = &[&[seeds, &[bump]]];
 
         // CPI Context
@@ -159,7 +162,7 @@ pub struct CreateMint<'info> {
     ///CHECK: Using "address" constraint to validate metadata account address
     #[account(
         mut,
-        address=find_metadata_account(&reward_token_mint.key()).0
+         address = MetadataAccount::find_pda(&reward_token_mint.key()).0,
     )]
     pub metadata_account: UncheckedAccount<'info>,
 
