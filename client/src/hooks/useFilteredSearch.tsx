@@ -6,17 +6,21 @@ import { Arrayable, PgCommon, PgRouter } from "../utils/pg";
 type Filterable = { name: string; featured?: boolean } & Record<string, any>;
 
 interface FilterSearchProps<T extends Filterable> {
+  /** Global route path */
   route: RoutePath;
+  /** All filterable items */
   items: T[];
+  /** All filters */
   filters: Readonly<Array<{ param: string }>>;
-  sortFn: (a: T, b: T) => number;
+  /** Sort function for the items */
+  sort: (a: T, b: T) => number;
 }
 
 export const useFilteredSearch = <T extends Filterable>({
   route,
   items,
   filters,
-  sortFn,
+  sort,
 }: FilterSearchProps<T>) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -41,7 +45,7 @@ export const useFilteredSearch = <T extends Filterable>({
           queries.every((f) => filterQuery(f.value, item[f.key]))
         );
       })
-      .sort(sortFn),
+      .sort(sort),
     (t) => t.featured
   );
 

@@ -17,7 +17,7 @@ export const Tutorials = () => {
     route: "/tutorials",
     items: PgTutorial.tutorials,
     filters: FILTERS,
-    sortFn: sortByLevel,
+    sort: sortByLevel,
   });
   if (!filteredSearch) return null;
 

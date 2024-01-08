@@ -28,9 +28,6 @@ export const FILTERS = [
 ] as const;
 
 /** Sort based on `TutorialLevel`. */
-export function sortByLevel<T extends { name: string }>(a: T, b: T) {
-  return (
-    TUTORIAL_LEVELS.indexOf(a.name as TutorialLevel) -
-    TUTORIAL_LEVELS.indexOf(b.name as TutorialLevel)
-  );
+export function sortByLevel<T extends { level: TutorialLevel }>(a: T, b: T) {
+  return TUTORIAL_LEVELS.indexOf(a.level) - TUTORIAL_LEVELS.indexOf(b.level);
 }

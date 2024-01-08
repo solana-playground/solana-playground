@@ -18,7 +18,7 @@ export const Programs: FC<ProgramsProps> = ({ programs }) => {
     route: "/programs",
     items: programs,
     filters: FILTERS,
-    sortFn: (a, b) => a.name.localeCompare(b.name),
+    sort: (a, b) => a.name.localeCompare(b.name),
   });
   if (!filteredSearch) return null;
 
