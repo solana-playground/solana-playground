@@ -1,11 +1,14 @@
-# client
-# dependencies
+# Dependencies
 */node_modules
+**/target
 
-# production
+# Generated package imports
+**/client/package.ts
+
+# Production
 */build
 
-# misc
+# Misc
 */.env
 */deploy.sh
 
@@ -13,10 +16,11 @@
 */yarn-debug.log*
 */yarn-error.log*
 
-# server
-server
+# Server
+server/mongodb
+server/programs/*
+!server/programs/Cargo.*
+!server/programs/default
 
-# wasm
-**/target
+# WASM
 **/www
-

@@ -10,9 +10,9 @@ import {
   isIncompleteInput,
 } from "./shell-utils";
 import { PgTerminal } from "./terminal";
-import { PgCommand } from "./command";
 import { PgCommon } from "../common";
 import { EventName } from "../../../constants";
+import type { ExecuteCommand } from "./types";
 
 type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -27,33 +27,39 @@ type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
  */
 export class PgShell {
   private _pgTty: PgTty;
-  private _history: PgShellHistory;
+  private _execute: ExecuteCommand;
   private _active: boolean;
   private _waitingForInput: boolean;
-  private _processCount: number;
+  private _history: PgShellHistory;
   private _maxAutocompleteEntries: number;
   private _autocompleteHandlers: AutoCompleteHandler[];
-  private _activePrompt?: ActivePrompt;
-  private _activeCharPrompt?: ActiveCharPrompt;
+  private _activePrompt: ActivePrompt | null;
+  private _activeCharPrompt: ActiveCharPrompt | null;
+  private _processCount: number;
 
   constructor(
     pgTty: PgTty,
+    execute: ExecuteCommand,
     options: ShellOptions = {
       historySize: 30,
       maxAutocompleteEntries: 100,
     }
   ) {
     this._pgTty = pgTty;
-    this._history = new PgShellHistory(options.historySize);
+    this._execute = execute;
+    this._active = false;
+    this._waitingForInput = false;
 
+    this._history = new PgShellHistory(options.historySize);
     this._maxAutocompleteEntries = options.maxAutocompleteEntries;
     this._autocompleteHandlers = [
       (index, tokens) => {
         return this._history.getEntries();
       },
     ];
-    this._active = false;
-    this._waitingForInput = false;
+
+    this._activePrompt = null;
+    this._activeCharPrompt = null;
     this._processCount = 0;
   }
 
@@ -110,15 +116,16 @@ export class PgShell {
     }
   }
 
+  /** Get whether the shell is active */
   isPrompting() {
     return this._active;
   }
 
   /**
-   * This function completes the current input, calls the given callback
-   * and then re-displays the prompt.
+   * Complete the current input, call the given callback and then re-display
+   * the old prompt.
    */
-  printAndRestartPrompt(callback: () => Promise<any> | undefined) {
+  printAndRestartPrompt(cb: () => Promise<any> | void) {
     // Complete input
     this._pgTty.setCursor(this._pgTty.getInput().length);
     this._pgTty.print("\r\n");
@@ -131,7 +138,7 @@ export class PgShell {
 
     // Call the given callback to echo something, and if there is a promise
     // returned, wait for the resolution before resuming prompt.
-    const ret = callback();
+    const ret = cb();
     if (ret) {
       ret.then(resume);
     } else {
@@ -140,15 +147,51 @@ export class PgShell {
   }
 
   /**
+   * Wait for user input
+   *
+   * @param msg message to print to the terminal before prompting user
+   * @returns user input
+   */
+  async waitForUserInput(msg: string): Promise<string> {
+    return new Promise((res, rej) => {
+      if (this._waitingForInput) rej("Already waiting for input.");
+      else {
+        this._waitingForInput = true;
+        this._pgTty.clearLine();
+        this._pgTty.println(
+          PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
+        );
+        this.enable();
+
+        // This will happen once user sends the input
+        const handleInput = () => {
+          document.removeEventListener(
+            EventName.TERMINAL_WAIT_FOR_INPUT,
+            handleInput
+          );
+          this._waitingForInput = false;
+          const input = this._pgTty.getInput();
+          res(input);
+        };
+
+        document.addEventListener(
+          EventName.TERMINAL_WAIT_FOR_INPUT,
+          handleInput
+        );
+      }
+    });
+  }
+
+  /**
    * Handle input completion
    *
    * @param clearCmd whether to clean the current line before parsing the command
    */
-  handleReadComplete = async (clearCmd?: boolean) => {
+  async handleReadComplete(clearCmd?: boolean) {
     const input = this._pgTty.getInput();
     if (this._activePrompt && this._activePrompt.resolve) {
       this._activePrompt.resolve(input);
-      this._activePrompt = undefined;
+      this._activePrompt = null;
     }
 
     if (clearCmd) this._pgTty.clearLine();
@@ -159,9 +202,9 @@ export class PgShell {
     if (this._waitingForInput) {
       PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_WAIT_FOR_INPUT);
     } else {
-      return await PgCommand.execute(input);
+      return await this._execute(input);
     }
-  };
+  }
 
   /**
    * Handle terminal -> tty input
@@ -193,7 +236,7 @@ export class PgShell {
     // If we have an active character prompt, satisfy it in priority
     if (this._activeCharPrompt && this._activeCharPrompt.resolve) {
       this._activeCharPrompt.resolve(data);
-      this._activeCharPrompt = undefined;
+      this._activeCharPrompt = null;
       this._pgTty.print("\r\n");
       return;
     }
@@ -206,42 +249,6 @@ export class PgShell {
       this._handleData(data);
     }
   };
-
-  /**
-   * Wait for user input
-   *
-   * @param msg message to print to the terminal before prompting user
-   * @returns user input
-   */
-  async waitForUserInput(msg: string): Promise<string> {
-    return new Promise((res, rej) => {
-      if (this._waitingForInput) rej("Already waiting for input.");
-      else {
-        this._waitingForInput = true;
-        this._pgTty.clearLine();
-        this._pgTty.println(
-          PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
-        );
-        this.enable();
-
-        // This will happen once user submits the input
-        const handleInput = () => {
-          document.removeEventListener(
-            EventName.TERMINAL_WAIT_FOR_INPUT,
-            handleInput
-          );
-          this._waitingForInput = false;
-          const input = this._pgTty.getInput();
-          res(input);
-        };
-
-        document.addEventListener(
-          EventName.TERMINAL_WAIT_FOR_INPUT,
-          handleInput
-        );
-      }
-    });
-  }
 
   /**
    * Move cursor at given direction
@@ -425,7 +432,6 @@ export class PgShell {
               // them to the user and re-start prompt
               this.printAndRestartPrompt(() => {
                 this._pgTty.printWide(candidates);
-                return undefined;
               });
             } else {
               // If we have more than maximum auto-complete candidates, print

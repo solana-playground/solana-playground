@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import type { Theme } from "../../utils/pg";
 
 // BG
 const BG_DEFAULT = "#282A36",
@@ -20,7 +20,7 @@ const BG_DEFAULT = "#282A36",
   SELECTION = "#44475A",
   HOVER = "#343746";
 
-const DRACULA: PgTheme = {
+const DRACULA: Theme = {
   isDark: true,
   colors: {
     default: {
@@ -78,7 +78,7 @@ const DRACULA: PgTheme = {
     },
     sidebar: {
       left: {
-        iconButton: {
+        button: {
           selected: {
             bg: SELECTION,
           },
@@ -120,12 +120,12 @@ const DRACULA: PgTheme = {
     character: { color: YELLOW },
     operator: { color: PINK },
     derefOperator: { color: PINK },
-    specialVariable: { color: PINK },
+    specialVariable: { color: PURPLE },
     lineComment: { color: COMMENT },
     blockComment: { color: COMMENT },
     meta: { color: PURPLE },
     invalid: { color: RED },
-    constant: { color: PURPLE },
+    constant: { color: TEXT_PRIMARY },
     regexp: { color: ORANGE },
     tagName: { color: YELLOW },
     attributeName: { color: YELLOW },

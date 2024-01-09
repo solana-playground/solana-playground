@@ -2,7 +2,7 @@ use solana_sdk::commitment_config::CommitmentConfig;
 
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetBlockHeightRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
@@ -10,7 +10,7 @@ pub struct GetBlockHeightRequest {
 
 impl GetBlockHeightRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
     pub fn new_with_config(config: CommitmentConfig) -> Self {
         Self {
@@ -19,19 +19,19 @@ impl GetBlockHeightRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlockHeightRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetBlockHeightRequest> for serde_json::Value {
+    fn from(value: GetBlockHeightRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
 }
 
-impl Into<ClientRequest> for GetBlockHeightRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlockHeightRequest> for ClientRequest {
+    fn from(val: GetBlockHeightRequest) -> Self {
         let mut request = ClientRequest::new("getBlockHeight");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -46,8 +46,8 @@ impl From<ClientResponse> for GetBlockHeightResponse {
     }
 }
 
-impl Into<u64> for GetBlockHeightResponse {
-    fn into(self) -> u64 {
-        self.0
+impl From<GetBlockHeightResponse> for u64 {
+    fn from(value: GetBlockHeightResponse) -> Self {
+        value.0
     }
 }

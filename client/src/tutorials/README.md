@@ -1,49 +1,79 @@
 # Tutorials
 
-Playground now supports tutorials directly inside it with Markdown text or custom React components.
+Playground now supports [tutorials](https://beta.solpg.io/tutorials) natively with Markdown text or custom React components.
 
 ## How to add a tutorial
 
-The easiest way to add a tutorial is with _Markdown_ text.
+The easiest way to add a tutorial is with Markdown text.
+
+> **Note**
+>
+> You do **NOT** need to know anything about the playground codebase.
 
 There are **3** steps for adding a tutorial:
 
-- Fork the repository
-- Create a tutorial component
-- Add an entry for your tutorial in `tutorials.ts`
+1. Fork the repository
 
-You do **NOT** need to know anything about the playground codebase.
+   Fork the playground repository on Github and [run locally](https://github.com/solana-playground/solana-playground/blob/master/README.md#run-locally).
 
-### 1. Fork the repository
+2. Create a tutorial component
 
-Fork the playground repository on Github and [run locally](https://github.com/solana-playground/solana-playground/blob/master/README.md#run-locally).
+   There is a ready to use template component in `./Template`. You can copy the entire directory and change it based on your needs. Component lives in `Template.tsx`, everything else is tutorial contents.
 
-### 2. Create a tutorial component
+3. Add an entry for your tutorial
 
-There is a ready to use template component in `./Template`. You can copy the entire directory and change it based on your needs. Component lives in `Template.tsx`, everything else is tutorial contents.
+   Open `tutorials.ts` and add an entry to the `TUTORIALS` array like in the existing template.
 
-### 3. Add an entry for your tutorial
+   ```ts
+   {
+     name: "Template",
+     description: "Simple template tutorial.",
+     authors: [
+       {
+         name: "acheron",
+         link: "https://twitter.com/acheroncrypto",
+       },
+     ],
+     level: "Beginner",
+     framework: "Anchor",
+     languages: ["Rust", "TypeScript"],
+     categories: ["Gaming", "Payments"],
+   },
+   ```
 
-Open `tutorials.ts` and add an entry to the `TUTORIALS` array like in the existing template.
+## Storing assets
 
-```ts
-{
-    name: "Template Tutorial",
-    description: "Simple template tutorial.",
-    imageSrc: getTutorialImgSrc("template/thumbnail.png"),
-    authors: [
-      {
-        name: "acheron",
-        link: "https://twitter.com/acheroncrypto",
-      },
-    ],
-    level: TutorialLevel.BEGINNER,
-    categories: [TutorialCategory.OTHER],
-    elementImport: () => import("./Template"),
-  },
+Tutorial assets can be added to the [assets repository](https://github.com/solana-playground/assets) by creating a pull request.
+
+After your assets are approved, run:
+
+```
+git submodule update --remote
 ```
 
-You can either use an existing url for the `imageSrc` or create one inside `/public/tutorials/<TUTORIAL_NAME>` folder like in the template example (inside client root directory).
+And commit the changes for the tutorial PR.
+
+> **Warning**
+>
+> Please try to keep each image less than 1MB, especially the thumbnail. Tutorial thumbnails are shown as `278x216` pixels by default and the assets are used as-is(no altering in order to reduce size) which means there is no reason to upload a 4K 10MB image as a thumbnail.
+
+### Thumbnail
+
+In order to add a thumbnail for your tutorial, put a file named `thumbnail.(png|jpg)` in your tutorial's asset folder. For example, if you have a tutorial named `Cool Tutorial`, add the image to the `/tutorials/cool-tutorial/` directory.
+
+### Show assets in Markdown
+
+The assets can be included in the Markdown files with the following syntax:
+
+```
+![<DESCRIPTION>](/tutorials/<TUTORIAL_NAME>/<IMAGE_NAME>)
+```
+
+**Example:**
+
+```
+![Test UI](/tutorials/hello-seahorse/test-ui.png)
+```
 
 ## Advanced tutorials
 

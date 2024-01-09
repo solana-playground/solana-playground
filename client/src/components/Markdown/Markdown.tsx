@@ -2,22 +2,39 @@ import ReactMarkdown from "react-markdown";
 import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
-import CodeBlock from "./CodeBlock";
-import { PgThemeManager } from "../../utils/pg/theme";
+import CodeBlock from "../CodeBlock";
+import Link, { LinkProps } from "../Link";
+import { PgTheme } from "../../utils/pg";
 
-const Markdown = ({ children }: { children: string }) => (
+interface MarkdownProps {
+  /** Markdown string */
+  children: string;
+  /** Make all fonts the code font */
+  codeFontOnly?: boolean;
+}
+
+const Markdown = (props: MarkdownProps) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
-      pre: CodeBlock,
+      /** Links */
+      a: (props) => <Link {...(props as LinkProps)} />,
+
+      /** Code blocks */
+      pre: (props) => {
+        const codeProps = (props as any).children[0].props;
+        const lang = codeProps.className?.split("-")?.at(1);
+        const code = codeProps.children[0];
+
+        return <CodeBlock lang={lang}>{code}</CodeBlock>;
+      },
     }}
-  >
-    {children}
-  </StyledMarkdown>
+    {...props}
+  />
 );
 
-const StyledMarkdown = styled(ReactMarkdown)`
-  ${({ theme }) => css`
+const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
+  ${({ theme, codeFontOnly }) => css`
     --border-radius: ${theme.default.borderRadius};
     --color-prettylights-syntax-comment: #8b949e;
     --color-prettylights-syntax-constant: #79c0ff;
@@ -49,11 +66,11 @@ const StyledMarkdown = styled(ReactMarkdown)`
     --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
     --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
     --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-    --color-fg-default: ${theme.components.markdown.default.color};
+    --color-fg-default: ${theme.components.markdown.color};
     --color-fg-muted: ${theme.colors.default.textSecondary};
     --color-fg-subtle: #484f58;
-    --color-canvas-default: ${theme.components.markdown.default.bg};
-    --color-canvas-subtle: ${theme.components.markdown.code.bg};
+    --color-canvas-default: ${theme.components.markdown.bg};
+    --color-canvas-subtle: ${theme.components.markdown.subtleBg};
     --color-border-default: ${theme.colors.default.border};
     --color-border-muted: ${theme.colors.default.border +
     theme.default.transparency.high};
@@ -70,7 +87,12 @@ const StyledMarkdown = styled(ReactMarkdown)`
       line-height: 1.5;
       word-wrap: break-word;
 
-      ${PgThemeManager.convertToCSS(theme.components.markdown.default)};
+      ${PgTheme.convertToCSS(theme.components.markdown)};
+      ${codeFontOnly &&
+      `
+        font-family: ${theme.font.code.family} !important;
+        font-size: ${theme.font.code.size.medium} !important;
+      `}
     }
 
     .octicon {
@@ -894,8 +916,6 @@ const StyledMarkdown = styled(ReactMarkdown)`
       overflow: auto;
       font-size: 85%;
       line-height: 1.45;
-
-      ${PgThemeManager.convertToCSS(theme.components.markdown.code)};
     }
 
     pre code,

@@ -1,0 +1,36 @@
+[package]
+name = "rust-analyzer-wasm"
+version = "0.0.100" # mirror RA version
+description = "Rust Analyzer WASM"
+authors = ["Acheron <acheroncrypto@gmail.com>"]
+repository = "https://github.com/solana-playground/solana-playground"
+license = "GPL-3.0"
+homepage = "https://beta.solpg.io"
+edition = "2021"
+keywords = ["rust", "analyzer", "wasm"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Rust Analyzer crates
+cfg = { package = "ra_ap_cfg", version = "0.0.100" }
+ide = { package = "ra_ap_ide", version = "0.0.100" }
+ide_db = { package = "ra_ap_ide_db", version = "0.0.100" }
+hir = { package = "ra_ap_hir", version = "0.0.100" }
+tt = { package = "ra_ap_tt", version = "0.0.100" }
+
+cargo_toml = "0.14.1"
+console_error_panic_hook = "0.1.7"
+instant = { version = "0.1.12", features = ["wasm-bindgen"] }
+serde = { version = "1.0.180", features = ["derive"] }
+serde_json = "1.0.104"
+serde_repr = "0.1.6"
+serde-wasm-bindgen = "0.1.3"
+wasm-bindgen = "0.2.87"
+wasm-bindgen-rayon = "1.0.3"
+
+# Rust Analyzer has transitive dependency for `parking_lot` which pulls `parking_lot_core` without
+# its `nightly` feature which has a default implementation of `panic!` on `wasm32`.
+parking_lot_core_8 = { package = "parking_lot_core", version = "0.8.5", features = ["nightly"] }
+parking_lot_core_9 = { package = "parking_lot_core", version = "0.9.8", features = ["nightly"] }

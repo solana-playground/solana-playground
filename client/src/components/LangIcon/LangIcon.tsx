@@ -19,7 +19,7 @@ const LangIcon: FC<LangIconProps> = ({ fileName }) => {
   const Icon = useMemo(() => {
     switch (PgExplorer.getLanguageFromPath(fileName)) {
       case Lang.RUST:
-        return <Rust />;
+        return <Rust color="textSecondary" />;
       case Lang.PYTHON:
         return <Python />;
       case Lang.JAVASCRIPT:

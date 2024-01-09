@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr, string::ToString, sync::Arc};
+use std::{collections::HashMap, rc::Rc, str::FromStr, string::ToString};
 
 use clap::ArgMatches;
 use solana_clap_v3_utils_wasm::{
@@ -153,7 +153,7 @@ pub async fn process_command<'a>(
     sub_command: CommandName,
     sub_matches: &'a ArgMatches,
     config: Config<'a>,
-    mut wallet_manager: Option<Arc<RemoteWalletManager>>,
+    mut wallet_manager: Option<Rc<RemoteWalletManager>>,
     mut bulk_signers: BulkSigners,
 ) -> CommandResult {
     // NOTE: Client signs by default, could change in the future
@@ -1751,10 +1751,7 @@ async fn command_accounts(
     let aux_len = if includes_aux { 10 } else { 0 };
 
     let cli_token_accounts = CliTokenAccounts {
-        accounts: mint_accounts
-            .into_iter()
-            .map(|(_mint, accounts_list)| accounts_list)
-            .collect(),
+        accounts: mint_accounts.into_values().collect(),
         unsupported_accounts,
         max_len_balance,
         aux_len,

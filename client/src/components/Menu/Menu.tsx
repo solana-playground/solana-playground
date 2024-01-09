@@ -1,73 +1,19 @@
-import { FC } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
+import ContextMenu from "./ContextMenu";
+import DropdownMenu from "./DropdownMenu";
+import type { MenuItemProps } from "./MenuItem";
+import type { Fn } from "../../utils/pg";
 
-import ContextMenu, { ContextMenuProps } from "./ContextMenu";
-import DropdownMenu, { DropdownMenuProps } from "./DropdownMenu";
-import { MenuItemProps } from "./MenuItem";
-import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+export type MenuKind = "context" | "dropdown";
 
-export type MenuKind = MenuProps["kind"];
-
-export type OptionalMenuProps = {
-  items?: MenuItemProps[];
-  onShow?: () => void;
-  onHide?: () => void;
-} & MenuWrapperProps;
-
-type MenuWrapperProps = {
-  fullWidth?: boolean;
+export type CommonMenuProps = {
+  items: MenuItemProps[];
+  onShow?: Fn;
+  onHide?: Fn;
 };
 
-type MenuProps =
-  | ({
-      kind: "context";
-    } & ContextMenuProps)
-  | ({
-      kind: "dropdown";
-    } & DropdownMenuProps);
-
-const Menu: FC<MenuProps> = ({ kind, fullWidth, children, ...props }) => {
-  let MenuEl;
-
-  switch (kind) {
-    case "context":
-      MenuEl = ContextMenu;
-      break;
-    case "dropdown":
-      MenuEl = DropdownMenu;
-      break;
-    default:
-      throw new Error("Menu kind is not selected");
-  }
-
-  return (
-    <Wrapper kind={kind} fullWidth={fullWidth}>
-      <MenuEl {...props}>{children}</MenuEl>
-    </Wrapper>
-  );
-};
-
-const Wrapper = styled.div<MenuWrapperProps & Pick<MenuProps, "kind">>`
-  ${(props) => getStyles(props)}
-`;
-
-const getStyles = ({
-  kind,
-  fullWidth,
-  theme,
-}: MenuWrapperProps & Pick<MenuProps, "kind"> & { theme: DefaultTheme }) => {
-  const menu = PgThemeManager.overrideDefaults(
-    theme.components.menu.default,
-    theme.components.menu.overrides?.[kind]
-  );
-
-  return css`
-  & .${ClassName.MENU_WRAPPER} {
-    ${PgThemeManager.convertToCSS(menu)};
-
-    ${fullWidth && "width: 100%"};
-`;
+const Menu = {
+  Context: ContextMenu,
+  Dropdown: DropdownMenu,
 };
 
 export default Menu;

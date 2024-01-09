@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef } from "react";
 import styled, { css, useTheme } from "styled-components";
 
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 interface ProgressBarProps {
   value: number;
@@ -32,13 +32,13 @@ const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.progressbar.default)};
+    ${PgTheme.convertToCSS(theme.components.progressbar.default)};
   `}
 `;
 
 const Indicator = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.progressbar.indicator)};
+    ${PgTheme.convertToCSS(theme.components.progressbar.indicator)};
   `}
 `;
 

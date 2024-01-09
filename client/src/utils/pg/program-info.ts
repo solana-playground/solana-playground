@@ -1,270 +1,201 @@
-import { Idl, utils } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import {
-  decodeIdlAccount,
-  idlAddress,
-} from "@project-serum/anchor/dist/cjs/idl";
+import { decodeIdlAccount, idlAddress } from "@coral-xyz/anchor/dist/cjs/idl";
+import type { Idl } from "@coral-xyz/anchor";
 
-import { PgCommon } from "./common";
+import { PgBytes } from "./bytes";
+import { PgCommand } from "./command";
 import { PgConnection } from "./connection";
-import { EventName } from "../../constants";
+import {
+  createDerivable,
+  declareDerivable,
+  declareUpdatable,
+  derivable,
+  migratable,
+  updatable,
+} from "./decorators";
+import { PgExplorer } from "./explorer";
+import type { Nullable } from "./types";
 
-export interface ProgramInfo {
-  uuid?: string;
-  kp?: Array<number> | null;
-  customPk?: string | null;
-  idl?: Idl | null;
-}
+/** Program info state */
+type ProgramInfo = Nullable<{
+  /** Program's build server uuid */
+  uuid: string;
+  /** Program's keypair */
+  kp: Keypair;
+  /** Program's custom public key */
+  customPk: PublicKey;
+  /** Program's Anchor IDL */
+  idl: Idl;
+  /** Imported program binary file */
+  importedProgram: {
+    buffer: Buffer;
+    fileName: string;
+  };
+}>;
 
-export class PgProgramInfo {
-  /**
-   * @returns the JSON.stringified IDL from localStorage
-   */
-  static get idlStr() {
-    const idl = this.getProgramInfo().idl;
-    if (!idl) return null;
+/** Serialized program info that's used in storage */
+type SerializedProgramInfo = Nullable<{
+  uuid: string;
+  kp: Array<number>;
+  customPk: string;
+  idl: Idl;
+}>;
 
-    return JSON.stringify(idl);
-  }
+const defaultState: ProgramInfo = {
+  uuid: null,
+  kp: null,
+  customPk: null,
+  idl: null,
+  importedProgram: null,
+};
 
-  /**
-   * @returns the current program's pubkey as base58 string
-   */
-  static get pkStr() {
-    const result = this.getPk();
-    if (!result.programPk) return null;
+const storage = {
+  /** Relative path to program info */
+  PATH: ".workspace/program-info.json",
 
-    return result.programPk.toBase58();
-  }
+  /** Read from storage and deserialize the data. */
+  async read(): Promise<ProgramInfo> {
+    if (!PgExplorer.currentWorkspaceName) return defaultState;
 
-  /**
-   * @returns program info if it exists in localStorage
-   */
-  static getProgramInfo() {
-    const programInfo: ProgramInfo = JSON.parse(
-      localStorage.getItem(this._PROGRAM_INFO_KEY) || "{}"
-    );
-    return programInfo;
-  }
-
-  /**
-   * Update localStorage program info
-   */
-  static update(params: ProgramInfo) {
-    const newProgramInfo = this.getProgramInfo();
-    for (const key in params) {
-      // @ts-ignore
-      if (params[key] !== undefined) newProgramInfo[key] = params[key];
+    let serializedState: SerializedProgramInfo;
+    try {
+      serializedState = await PgExplorer.fs.readToJSON(this.PATH);
+    } catch {
+      return defaultState;
     }
 
-    localStorage.setItem(
-      this._PROGRAM_INFO_KEY,
-      JSON.stringify(newProgramInfo)
-    );
+    return {
+      ...serializedState,
+      kp: serializedState.kp
+        ? Keypair.fromSecretKey(Uint8Array.from(serializedState.kp))
+        : null,
+      customPk: serializedState.customPk
+        ? new PublicKey(serializedState.customPk)
+        : null,
+      importedProgram: defaultState.importedProgram,
+    };
+  },
 
-    // Dispatch change events
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.PROGRAM_INFO_ON_DID_CHANGE,
-      newProgramInfo
-    );
+  /** Serialize the data and write to storage. */
+  async write(state: ProgramInfo) {
+    if (!PgExplorer.currentWorkspaceName) return;
 
-    if (params.uuid !== undefined) {
-      PgCommon.createAndDispatchCustomEvent(
-        EventName.PROGRAM_INFO_ON_DID_CHANGE_UUID,
-        params.uuid
-      );
-    }
-    if (params.kp !== undefined) {
-      PgCommon.createAndDispatchCustomEvent(
-        EventName.PROGRAM_INFO_ON_DID_CHANGE_KP,
-        params.kp
-      );
-    }
-    if (params.customPk !== undefined) {
-      PgCommon.createAndDispatchCustomEvent(
-        EventName.PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK,
-        params.customPk
-      );
-    }
-    if (params.kp !== undefined || params.customPk !== undefined) {
-      PgCommon.createAndDispatchCustomEvent(
-        EventName.PROGRAM_INFO_ON_DID_CHANGE_PK,
-        this.getPk().programPk
-      );
-    }
-    if (params.idl !== undefined) {
-      PgCommon.createAndDispatchCustomEvent(
-        EventName.PROGRAM_INFO_ON_DID_CHANGE_IDL,
-        params.idl
-      );
-    }
-  }
+    // Don't use spread operator(...) because of the extra derived state
+    const serializedState: SerializedProgramInfo = {
+      uuid: state.uuid,
+      idl: state.idl,
+      kp: state.kp ? Array.from(state.kp.secretKey) : null,
+      customPk: state.customPk?.toBase58() ?? null,
+    };
 
+    await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(serializedState));
+  },
+};
+
+const derive = () => ({
   /**
-   * Remove program info from localStorage
-   */
-  static reset() {
-    localStorage.removeItem(this._PROGRAM_INFO_KEY);
-  }
-
-  /**
-   * @returns program keypair from localStorage
-   */
-  static getKp() {
-    const kpBuffer = this.getProgramInfo().kp;
-    if (!kpBuffer) return { err: "Invalid keypair" };
-
-    const programKp = Keypair.fromSecretKey(new Uint8Array(kpBuffer));
-    return { programKp };
-  }
-
-  /**
-   * Create a new program keypair and override the previous one if it exists
-   * @returns the new generated keypair
-   */
-  static createNewKp() {
-    const kp = Keypair.generate();
-    this.update({
-      kp: Array.from(kp.secretKey),
-    });
-    return kp;
-  }
-
-  /**
-   * Gets public key that was set by user.
+   * Get the program's public key.
    *
-   * This has higher priority than default generated program public key.
-   *
-   * @returns custom program public key if it exists
+   * Custom public key has priority if it's specified.
    */
-  static getCustomPk() {
-    const customPkStr = this.getProgramInfo().customPk;
-    if (customPkStr) return new PublicKey(customPkStr);
+  pk: createDerivable({
+    derive: (): PublicKey | null => {
+      if (PgProgramInfo.customPk) return PgProgramInfo.customPk;
+      if (PgProgramInfo.kp) return PgProgramInfo.kp.publicKey;
+      return null;
+    },
+    onChange: ["kp", "customPk"],
+  }),
+
+  /** On-chain data of the program */
+  onChain: createDerivable({
+    derive: async () => {
+      try {
+        return await _PgProgramInfo.fetch();
+      } catch {}
+    },
+    onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidRunFinish],
+  }),
+});
+
+// TODO: Remove in 2024
+const migrate = () => {
+  // Removing the `program-info` key is enough for migration because the data
+  // is already stored in `indexedDB`
+  localStorage.removeItem("programInfo");
+};
+
+@migratable(migrate)
+@derivable(derive)
+@updatable({ defaultState, storage })
+class _PgProgramInfo {
+  /** Get the current program's pubkey as base58 string. */
+  static getPkStr() {
+    return PgProgramInfo.pk?.toBase58() ?? null;
+  }
+
+  /** Get the JSON.stringified IDL from state. */
+  static getIdlStr() {
+    if (PgProgramInfo.idl) return JSON.stringify(PgProgramInfo.idl);
     return null;
   }
 
   /**
-   * Gets program public key.
+   * Fetch the program from chain.
    *
-   * Prioritizes custom public key if it exists
+   * @param programId optional program id
+   * @returns program's authority and whether the program is upgradable
    */
-  static getPk() {
-    const result = this.getKp();
-    const customPk = this.getCustomPk();
-    if (result.err && !customPk) return { err: result.err };
+  static async fetch(programId: PublicKey | null = PgProgramInfo.pk) {
+    if (!programId) throw new Error("Program id doesn't exist");
 
-    const programPk = customPk ?? result.programKp!.publicKey;
+    const conn = PgConnection.current;
+    if (!PgConnection.isReady(conn)) throw new Error("Connection is not ready");
 
-    return { programPk };
+    const programAccountInfo = await conn.getAccountInfo(programId);
+    const deployed = !!programAccountInfo;
+    if (!programAccountInfo) return { deployed, upgradable: true };
+
+    const programDataPkBuffer = programAccountInfo.data.slice(4);
+    const programDataPk = new PublicKey(programDataPkBuffer);
+    const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
+
+    // Check if program authority exists
+    const authorityExists = programDataAccountInfo?.data.at(12);
+    if (!authorityExists) return { deployed, upgradable: false };
+
+    const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(13, 45);
+    const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
+    return { deployed, authority: upgradeAuthorityPk, upgradable: true };
   }
 
   /**
    * Fetch the Anchor IDL from chain.
    *
    * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
-   * function only returns the IDL and not the IDL authority.
+   * function only returns the IDL without the IDL authority.
    *
    * @param programId optional program id
    * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
    */
-  static async getIdlFromChain(programId?: PublicKey) {
-    if (!programId) {
-      const programPkResult = PgProgramInfo.getPk();
-      if (programPkResult.err) {
-        throw new Error(programPkResult.err);
-      }
-      programId = programPkResult.programPk!;
-    }
+  static async fetchIdl(programId: PublicKey | null = PgProgramInfo.pk) {
+    if (!programId) throw new Error("Program id doesn't exist");
 
     const idlPk = await idlAddress(programId);
-
-    const conn = await PgConnection.get();
-    const accountInfo = await conn.getAccountInfo(idlPk);
-    if (!accountInfo) {
-      return null;
-    }
+    const accountInfo = await PgConnection.current.getAccountInfo(idlPk);
+    if (!accountInfo) return null;
 
     // Chop off account discriminator
     const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
     const { inflate } = await import("pako");
     const inflatedIdl = inflate(idlAccount.data);
-    const idl: Idl = JSON.parse(utils.bytes.utf8.decode(inflatedIdl));
+    const idl: Idl = JSON.parse(PgBytes.toUtf8(Buffer.from(inflatedIdl)));
 
     return { idl, authority: idlAccount.authority };
   }
-
-  /**
-   * @param cb callback function to run after program info change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangeProgramInfo(cb: (programInfo: ProgramInfo) => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE,
-      initialRun: { value: PgProgramInfo.getProgramInfo() },
-    });
-  }
-
-  /**
-   * @param cb callback function to run after program uuid change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangeUuid(cb: (uuid: ProgramInfo["uuid"]) => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_UUID,
-      initialRun: { value: PgProgramInfo.getProgramInfo().uuid },
-    });
-  }
-
-  /**
-   * @param cb callback function to run after program keypair change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangeKeypair(cb: (keypair: Keypair | undefined) => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_KP,
-      initialRun: { value: PgProgramInfo.getKp().programKp },
-    });
-  }
-
-  /**
-   * @param cb callback function to run after program pubkey change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangePk(cb: (customPk: PublicKey | undefined) => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_PK,
-      initialRun: { value: PgProgramInfo.getPk().programPk },
-    });
-  }
-
-  /**
-   * @param cb callback function to run after program custom pubkey change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangeCustomPk(cb: (customPk: PublicKey | null) => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_CUSTOM_PK,
-      initialRun: { value: PgProgramInfo.getCustomPk() },
-    });
-  }
-
-  /**
-   * @param cb callback function to run after program idl change
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangeIdl(cb: (idl: ProgramInfo["idl"]) => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: EventName.PROGRAM_INFO_ON_DID_CHANGE_IDL,
-      initialRun: { value: PgProgramInfo.getProgramInfo().idl },
-    });
-  }
-
-  /** localStorage key */
-  private static readonly _PROGRAM_INFO_KEY = "programInfo";
 }
+
+export const PgProgramInfo = declareDerivable(
+  declareUpdatable(_PgProgramInfo, { defaultState }),
+  derive
+);

@@ -1,15 +1,28 @@
 import { useEffect, useReducer, useState } from "react";
 
-import type { PgDisposable } from "../utils/pg";
+import type { Disposable } from "../utils/pg";
 
 export const useRenderOnChange = <T,>(
-  onChange: (cb: (v: T) => any) => PgDisposable
+  onChange: (cb: (v?: T) => any) => Disposable,
+  defaultValue?: T
 ) => {
-  const [value, setValue] = useState<T>();
+  const [value, setValue] = useState(defaultValue);
   const [, render] = useReducer((r) => r + 1, 0);
+  const [effect, runEffect] = useReducer((r) => r + 1, 0);
 
   useEffect(() => {
+    // If `onChange` doesn't exist, re-run the effect after a timeout
+    if (!onChange) {
+      setTimeout(() => runEffect(), 20);
+      return;
+    }
+
     const { dispose } = onChange((newValue) => {
+      if (newValue === undefined) {
+        render();
+        return;
+      }
+
       const valueType = typeof newValue;
 
       // Static class is type `function`. Intentionally passing a function because
@@ -25,7 +38,7 @@ export const useRenderOnChange = <T,>(
       }
     });
     return () => dispose();
-  }, [onChange]);
+  }, [effect, onChange]);
 
   return value;
 };

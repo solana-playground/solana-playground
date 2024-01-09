@@ -521,10 +521,6 @@ impl<'data, S: BaseState> StateWithExtensionsMut<'data, S> {
             // ConfidentialTransfers are currently opt-in only, so this is a no-op for extra safety
             // on InitializeAccount
             ExtensionType::ConfidentialTransferAccount => Ok(()),
-            #[cfg(test)]
-            ExtensionType::AccountPaddingTest => {
-                self.init_extension::<AccountPaddingTest>(true).map(|_| ())
-            }
             _ => unreachable!(),
         }
     }
@@ -584,19 +580,15 @@ pub fn set_account_type<S: BaseState>(input: &mut [u8]) -> Result<(), ProgramErr
 /// the account data. `AccountType` is only included if extensions have been
 /// initialized.
 #[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, TryFromPrimitive, IntoPrimitive)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, TryFromPrimitive, IntoPrimitive)]
 pub enum AccountType {
     /// Marker for 0 data
+    #[default]
     Uninitialized,
     /// Mint account with additional extensions
     Mint,
     /// Token holding account with additional extensions
     Account,
-}
-impl Default for AccountType {
-    fn default() -> Self {
-        Self::Uninitialized
-    }
 }
 
 /// Extensions that can be applied to mints or accounts.  Mint extensions must only be
@@ -672,9 +664,9 @@ impl ExtensionType {
             ExtensionType::NonTransferable => pod_get_packed_len::<NonTransferable>(),
             ExtensionType::InterestBearingConfig => pod_get_packed_len::<InterestBearingConfig>(),
             #[cfg(test)]
-            ExtensionType::AccountPaddingTest => pod_get_packed_len::<AccountPaddingTest>(),
+            ExtensionType::AccountPaddingTest => 0,
             #[cfg(test)]
-            ExtensionType::MintPaddingTest => pod_get_packed_len::<MintPaddingTest>(),
+            ExtensionType::MintPaddingTest => 0,
         }
     }
 

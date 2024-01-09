@@ -3,25 +3,25 @@ use solana_sdk::pubkey::Pubkey;
 use super::serde_utils::deserialize_public_key;
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetIdentityRequest {}
 
 impl GetIdentityRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetIdentityRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetIdentityRequest> for serde_json::Value {
+    fn from(_val: GetIdentityRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetIdentityRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetIdentityRequest> for ClientRequest {
+    fn from(val: GetIdentityRequest) -> Self {
         let mut request = ClientRequest::new("getIdentity");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

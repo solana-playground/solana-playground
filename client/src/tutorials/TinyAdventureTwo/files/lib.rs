@@ -88,7 +88,7 @@ pub struct InitializeLevelOne<'info> {
     // We must specify the space in order to initialize an account.
     // First 8 bytes are default account discriminator,
     // next 1 byte come from NewAccount.data being type u8.
-    // (u8 = 8 bits unsigned integer = 8 bytes)
+    // (u8 = 8 bits unsigned integer = 1 byte)
     // You can also use the signer as seed [signer.key().as_ref()],
     #[account(
         init_if_needed,

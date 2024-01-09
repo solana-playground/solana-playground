@@ -142,7 +142,7 @@ pub fn multisig_signer_arg<'a>() -> Arg<'a> {
 }
 
 fn is_multisig_minimum_signers(string: &str) -> Result<(), String> {
-    let v = u8::from_str(&string).map_err(|e| e.to_string())? as usize;
+    let v = u8::from_str(string).map_err(|e| e.to_string())? as usize;
     if v < MIN_SIGNERS {
         Err(format!("must be at least {}", MIN_SIGNERS))
     } else if v > MAX_SIGNERS {
@@ -213,7 +213,7 @@ pub fn get_clap<'a>(
                 .value_name("FORMAT")
                 .global(true)
                 .takes_value(true)
-                .possible_values(&["json", "json-compact"])
+                .possible_values(["json", "json-compact"])
                 .help("Return information in specified output format"),
         )
         .arg(
@@ -384,7 +384,7 @@ pub fn get_clap<'a>(
                     Arg::new("authority_type")
                         .value_name("AUTHORITY_TYPE")
                         .takes_value(true)
-                        .possible_values(&["mint", "freeze", "owner", "close"])
+                        .possible_values(["mint", "freeze", "owner", "close"])
                         .index(2)
                         .required(true)
                         .help("The new authority type. \

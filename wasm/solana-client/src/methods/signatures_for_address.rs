@@ -31,21 +31,21 @@ impl GetSignaturesForAddressRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetSignaturesForAddressRequest {
-    fn into(self) -> serde_json::Value {
-        let pubkey = self.pubkey.to_string();
+impl From<GetSignaturesForAddressRequest> for serde_json::Value {
+    fn from(value: GetSignaturesForAddressRequest) -> Self {
+        let pubkey = value.pubkey.to_string();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([pubkey, config]),
             None => serde_json::json!([pubkey]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetSignaturesForAddressRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetSignaturesForAddressRequest> for ClientRequest {
+    fn from(val: GetSignaturesForAddressRequest) -> Self {
         let mut request = ClientRequest::new("getSignaturesForAddress");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -60,8 +60,8 @@ impl From<ClientResponse> for GetSignaturesForAddressResponse {
     }
 }
 
-impl Into<Vec<RpcConfirmedTransactionStatusWithSignature>> for GetSignaturesForAddressResponse {
-    fn into(self) -> Vec<RpcConfirmedTransactionStatusWithSignature> {
-        self.0
+impl From<GetSignaturesForAddressResponse> for Vec<RpcConfirmedTransactionStatusWithSignature> {
+    fn from(val: GetSignaturesForAddressResponse) -> Self {
+        val.0
     }
 }

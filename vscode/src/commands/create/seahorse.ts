@@ -13,7 +13,7 @@ export const processCreateSeahorse = async () => {
     [
       path.join(PATHS.DIRS.PROGRAMS_PY, `${name}.py`),
       `# ${name}
-# Built with Seahorse v0.2.4
+# Built with Seahorse v0.1.1
 
 from seahorse.prelude import *
 

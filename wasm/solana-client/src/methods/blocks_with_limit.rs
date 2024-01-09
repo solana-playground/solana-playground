@@ -29,19 +29,19 @@ impl GetBlocksWithLimitRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlocksWithLimitRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
-            Some(config) => serde_json::json!([self.start_slot, self.limit, config]),
-            None => serde_json::json!([self.start_slot, self.limit]),
+impl From<GetBlocksWithLimitRequest> for serde_json::Value {
+    fn from(value: GetBlocksWithLimitRequest) -> Self {
+        match value.config {
+            Some(config) => serde_json::json!([value.start_slot, value.limit, config]),
+            None => serde_json::json!([value.start_slot, value.limit]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetBlocksWithLimitRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlocksWithLimitRequest> for ClientRequest {
+    fn from(value: GetBlocksWithLimitRequest) -> Self {
         let mut request = ClientRequest::new("getBlocksWithLimit");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -56,8 +56,8 @@ impl From<ClientResponse> for GetBlocksWithLimitResponse {
     }
 }
 
-impl Into<Vec<Slot>> for GetBlocksWithLimitResponse {
-    fn into(self) -> Vec<Slot> {
-        self.0
+impl From<GetBlocksWithLimitResponse> for Vec<Slot> {
+    fn from(value: GetBlocksWithLimitResponse) -> Self {
+        value.0
     }
 }

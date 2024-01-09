@@ -1,24 +1,24 @@
 use crate::{utils::rpc_response::RpcVersionInfo, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetVersionRequest {}
 
 impl GetVersionRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetVersionRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetVersionRequest> for serde_json::Value {
+    fn from(_: GetVersionRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetVersionRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetVersionRequest> for ClientRequest {
+    fn from(value: GetVersionRequest) -> Self {
         let mut request = ClientRequest::new("getVersion");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -33,8 +33,8 @@ impl From<ClientResponse> for GetVersionResponse {
     }
 }
 
-impl Into<RpcVersionInfo> for GetVersionResponse {
-    fn into(self) -> RpcVersionInfo {
-        self.0
+impl From<GetVersionResponse> for RpcVersionInfo {
+    fn from(value: GetVersionResponse) -> Self {
+        value.0
     }
 }

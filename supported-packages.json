@@ -1,0 +1,30 @@
+{
+  "global": {
+    "@coral-xyz/anchor": { "as": "anchor" },
+    "@solana/buffer-layout": { "as": "BufferLayout" },
+    "@solana/web3.js": { "as": "web3" },
+    "assert": { "default": "assert" },
+    "bn.js": { "default": "BN" },
+    "borsh": { "as": "borsh" },
+    "buffer": { "named": "Buffer" },
+    "mocha": { "as": "mocha" }
+  },
+  "importable": [
+    "@clockwork-xyz/sdk",
+    "@coral-xyz/anchor",
+    "@metaplex-foundation/js",
+    "@metaplex-foundation/mpl-bubblegum",
+    "@metaplex-foundation/mpl-token-metadata",
+    "@project-serum/anchor",
+    "@solana/buffer-layout",
+    "@solana/spl-account-compression",
+    "@solana/spl-token",
+    "@solana/spl-token-metadata",
+    "@solana/web3.js",
+    "assert",
+    "bn.js",
+    "borsh",
+    "buffer",
+    "mocha"
+  ]
+}

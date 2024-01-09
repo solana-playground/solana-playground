@@ -1,98 +1,169 @@
-import { Commitment, Connection, ConnectionConfig } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  Cluster as PublicCluster,
+  Connection,
+  ConnectionConfig,
+} from "@solana/web3.js";
 
-import { Endpoint, EventName } from "../../constants";
-import { PgCommon } from "./common";
-import { OverrideableConnection } from "./playnet/types";
-import { PgSet } from "./types";
+import { createDerivable, declareDerivable, derivable } from "./decorators";
+import { OverridableConnection, PgPlaynet } from "./playnet";
+import { PgSettings } from "./settings";
 
-export interface PgConnectionConfig {
-  endpoint: Endpoint;
-  commitment: Commitment;
-  preflightChecks: boolean;
+/** Optional `connection` prop */
+export interface ConnectionOption {
+  connection?: typeof PgConnection["current"];
 }
 
-export class PgConnection {
-  private static readonly _CONNECTION_KEY = "connection";
-  private static readonly _DEFAULT_CONNECTION: PgConnectionConfig = {
-    endpoint: Endpoint.DEVNET,
-    commitment: "confirmed",
-    preflightChecks: true,
-  };
+/** Solana public clusters or "localnet" */
+export type Cluster = "localnet" | PublicCluster;
 
-  /** Get the endpoint from localStorage */
-  static get endpoint(): Endpoint {
-    return this.getConnectionConfig().endpoint;
-  }
+const derive = () => ({
+  /** Globally sycned connection instance */
+  current: createDerivable({
+    // It's important that this method returns immediately because connection
+    // instance is used throughout the app. For this reason, the connection for
+    // Playnet will be returned without awaiting the initialization. After the
+    // initialization, `PgPlaynet.onDidInit` will be triggered and this method
+    // will run again to return the overridden connection instance.
+    derive: () => {
+      // Check whether the endpoint is Playnet
+      if (PgPlaynet.isUrlPlaynet(PgSettings.connection.endpoint)) {
+        // Return the connection instance if it has been overridden
+        if (PgPlaynet.connection?.overridden) {
+          return PgPlaynet.connection;
+        }
 
-  /** Get the commitment from localStorage */
-  static get commitment(): Commitment {
-    return this.getConnectionConfig().commitment;
-  }
+        // Initialize Playnet
+        PgPlaynet.init();
+      } else {
+        // Destroy Playnet
+        PgPlaynet.destroy();
+      }
 
-  /** Get the preflightChecks from localStorage */
-  static get preflightChecks(): boolean {
-    return this.getConnectionConfig().preflightChecks;
-  }
+      return _PgConnection.create();
+    },
+    onChange: [
+      PgSettings.onDidChangeConnectionEndpoint,
+      PgSettings.onDidChangeConnectionCommitment,
+      PgPlaynet.onDidInit,
+    ],
+  }),
 
+  /** Whether there is a successful connection */
+  isConnected: createDerivable({
+    derive: _PgConnection.getIsConnected,
+    onChange: (cb) => {
+      // Keep track of `isConnected` and only run the `cb` when the value
+      // actually changes. This is because the decorators such as `derivable`
+      // and `updatable` trigger a change event each time the value is set
+      // independent of whether the value has changed unlike React which only
+      // re-renders when the memory location of the value changes.
+      //
+      // TODO: Allow specifying whether the value should be compared with the
+      // previous value and trigger the change event **only if** there is a
+      // difference in comparison.
+      let isConnected = false;
+
+      // Refresh every 60 seconds on success
+      const successId = setInterval(async () => {
+        if (!isConnected) return;
+
+        isConnected = await PgConnection.getIsConnected();
+        if (!isConnected) cb();
+      }, 60000);
+
+      // Refresh every 5 seconds on error
+      const errorId = setInterval(async () => {
+        if (isConnected) return;
+
+        isConnected = await PgConnection.getIsConnected();
+        if (isConnected) cb();
+      }, 5000);
+
+      return {
+        dispose: () => {
+          clearInterval(successId);
+          clearInterval(errorId);
+        },
+      };
+    },
+  }),
+
+  /** Current cluster name based on the current endpoint */
+  cluster: createDerivable({
+    derive: _PgConnection.getCluster,
+    onChange: PgSettings.onDidChangeConnectionEndpoint,
+  }),
+});
+
+@derivable(derive)
+class _PgConnection {
   /**
-   * Get the connection config from localStorage or create the default connection
-   * if it doesn't exist
-   */
-  static getConnectionConfig() {
-    let conn = localStorage.getItem(this._CONNECTION_KEY);
-    if (!conn) {
-      // Remove old endpoint key if it exists
-      // TODO: Remove this when changing the domain
-      if (localStorage.getItem("endpoint")) localStorage.removeItem("endpoint");
-
-      const connStr = JSON.stringify(this._DEFAULT_CONNECTION);
-      localStorage.setItem(this._CONNECTION_KEY, connStr);
-      conn = connStr;
-    }
-
-    return JSON.parse(conn) as PgConnectionConfig;
-  }
-
-  /**
-   * Update the connection config in localStorage
+   * Get whether there is a successful connection to the current endpoint.
    *
-   * @param params update config values
+   * @returns whether there is a successful connection
    */
-  static update(params: Partial<PgConnectionConfig>) {
-    const { endpoint, commitment, preflightChecks } = params;
-    const conn = this.getConnectionConfig();
+  static async getIsConnected() {
+    try {
+      await PgConnection.current.getVersion();
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
-    if (endpoint) conn.endpoint = endpoint;
-    if (commitment) conn.commitment = commitment;
-    if (preflightChecks !== undefined) {
-      conn.preflightChecks = !!preflightChecks;
+  /**
+   * Get the cluster name from the given `endpoint`.
+   *
+   * @param endpoint RPC endpoint
+   * @returns the cluster name
+   */
+  static async getCluster(
+    endpoint: string = PgConnection.current.rpcEndpoint
+  ): Promise<Cluster> {
+    // Local
+    if (endpoint.includes("localhost") || endpoint.includes("127.0.0.1")) {
+      return "localnet";
     }
 
-    localStorage.setItem(this._CONNECTION_KEY, JSON.stringify(conn));
+    // Public
+    switch (endpoint) {
+      case clusterApiUrl("devnet"):
+        return "devnet";
+      case clusterApiUrl("testnet"):
+        return "testnet";
+      case clusterApiUrl("mainnet-beta"):
+        return "mainnet-beta";
+    }
+
+    // Decide custom endpoints from the genesis hash of the cluster
+    const genesisHash = await PgConnection.create({
+      endpoint,
+    }).getGenesisHash();
+    switch (genesisHash) {
+      case "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG":
+        return "devnet";
+      case "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
+        return "testnet";
+      case "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d":
+        return "mainnet-beta";
+      default:
+        throw new Error(
+          `Genesis hash ${genesisHash} did not match any cluster`
+        );
+    }
   }
 
   /**
-   * Update the connection from WASM and refresh the UI
-   */
-  static updateWasm(endpoint: string, commitment: string) {
-    this.update({
-      endpoint: endpoint as Endpoint,
-      commitment: commitment as Commitment,
-    });
-
-    PgCommon.createAndDispatchCustomEvent(EventName.CONNECTION_REFRESH);
-  }
-
-  /**
-   * Create a connection with project defaults from localStorage
+   * Create a connection with the given options or defaults from settings.
    *
    * @param opts connection options
-   * @returns web3.js connection
+   * @returns a new `Connection` instance
    */
-  static createConnection(opts?: { endpoint?: string } & ConnectionConfig) {
+  static create(opts?: { endpoint?: string } & ConnectionConfig) {
     return new Connection(
-      opts?.endpoint ?? this.endpoint,
-      opts ?? this.commitment
+      opts?.endpoint ?? PgSettings.connection.endpoint,
+      opts ?? PgSettings.connection.commitment
     );
   }
 
@@ -105,37 +176,16 @@ export class PgConnection {
    *
    * This will always return `true` if the endpoint is not `Endpoint.PLAYNET`.
    *
-   * @param conn overrideable web3.js `Connection`
+   * @param conn overridable web3.js `Connection`
    * @returns whether the connection is ready to be used
    */
-  static isReady(conn: OverrideableConnection) {
-    if (conn.rpcEndpoint === Endpoint.PLAYNET) {
+  static isReady(conn: OverridableConnection) {
+    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) {
       return conn.overridden;
     }
 
     return true;
   }
-
-  /**
-   * Statically get the connection object in state
-   *
-   * @returns the connection object
-   */
-  static async get() {
-    return await PgCommon.sendAndReceiveCustomEvent<Connection>(
-      PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).get
-    );
-  }
-
-  /**
-   * Statically set the connection object in state
-   *
-   * @param set setConnection
-   */
-  static async set(set?: PgSet<Connection>) {
-    PgCommon.createAndDispatchCustomEvent(
-      PgCommon.getStaticStateEventNames(EventName.CONNECTION_STATIC).set,
-      set
-    );
-  }
 }
+
+export const PgConnection = declareDerivable(_PgConnection, derive);

@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import type { Theme } from "../../utils/pg";
 
 // BG
 const BG_DEFAULT = "#151721",
@@ -31,7 +31,7 @@ const BOX_SHADOW_LIGHT = `0px 0px 12px 0px ${TEXT_PRIMARY}30`;
 
 const PROGRESS_BG = `linear-gradient(to right, ${BLUE}, ${CYAN})`;
 
-const PLAYGROUND: PgTheme = {
+const PLAYGROUND: Theme = {
   isDark: true,
   colors: {
     default: {
@@ -69,7 +69,6 @@ const PLAYGROUND: PgTheme = {
   default: {
     backdrop: {
       backdropFilter: "blur(8px)",
-      bg: "#00000080",
     },
     borderRadius: "8px",
     boxShadow: "#0d081680 -1px 4px 8px",
@@ -119,9 +118,16 @@ const PLAYGROUND: PgTheme = {
           },
         },
         tutorials: {
-          card: {
-            default: {
-              boxShadow: BOX_SHADOW_LIGHT,
+          main: {
+            tutorials: {
+              card: {
+                default: {
+                  boxShadow: BOX_SHADOW_LIGHT,
+                },
+              },
+              featured: {
+                boxShadow: BOX_SHADOW_LIGHT,
+              },
             },
           },
         },
@@ -199,7 +205,7 @@ const PLAYGROUND: PgTheme = {
     blockComment: { color: COMMENT, fontStyle: "italic" },
     meta: { color: H_LIGHT_BLUE },
     invalid: { color: RED },
-    constant: { color: BLUE },
+    constant: { color: TEXT_PRIMARY },
     regexp: { color: YELLOW },
     tagName: { color: YELLOW },
     attributeName: { color: YELLOW },

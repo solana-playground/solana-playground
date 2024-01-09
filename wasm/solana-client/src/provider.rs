@@ -29,10 +29,10 @@ impl HttpProvider {
             .json(&request)
             .send()
             .await
-            .map_err(|e| ClientError::from(e))?
+            .map_err(ClientError::from)?
             .json()
             .await
-            .map_err(|e| ClientError::from(e))?;
+            .map_err(ClientError::from)?;
 
         match serde_json::from_value::<ClientResponse>(request_result.clone()) {
             Ok(response) => Ok(response),

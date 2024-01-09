@@ -28,27 +28,27 @@ impl SendTransactionRequest {
     }
 }
 
-impl Into<serde_json::Value> for SendTransactionRequest {
-    fn into(self) -> serde_json::Value {
-        let encoding = match self.config {
+impl From<SendTransactionRequest> for serde_json::Value {
+    fn from(value: SendTransactionRequest) -> Self {
+        let encoding = match value.config {
             Some(ref c) => c.encoding.unwrap_or(UiTransactionEncoding::Base64),
             None => UiTransactionEncoding::Base64,
         };
 
         let serialized_encoded =
-            serialize_and_encode::<Transaction>(&self.transaction, encoding).unwrap();
+            serialize_and_encode::<Transaction>(&value.transaction, encoding).unwrap();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([serialized_encoded, config]),
             None => serde_json::json!([serialized_encoded]),
         }
     }
 }
 
-impl Into<ClientRequest> for SendTransactionRequest {
-    fn into(self) -> ClientRequest {
+impl From<SendTransactionRequest> for ClientRequest {
+    fn from(val: SendTransactionRequest) -> Self {
         let mut request = ClientRequest::new("sendTransaction");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -57,9 +57,9 @@ impl Into<ClientRequest> for SendTransactionRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SendTransactionResponse(Signature);
 
-impl Into<Signature> for SendTransactionResponse {
-    fn into(self) -> Signature {
-        self.0
+impl From<SendTransactionResponse> for Signature {
+    fn from(val: SendTransactionResponse) -> Self {
+        val.0
     }
 }
 

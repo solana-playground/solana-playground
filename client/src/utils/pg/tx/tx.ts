@@ -1,12 +1,12 @@
 import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
-import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
-import { PgPlaynet } from "../playnet";
-import { PgWallet } from "../wallet";
-import { PgView } from "../view";
 import { ExplorerLink } from "./ExplorerLink";
+import { PgCommon } from "../common";
+import { PgPlaynet } from "../playnet";
+import { PgSettings } from "../settings";
+import { PgView } from "../view";
+import { ConnectionOption, PgConnection } from "../connection";
+import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
 
 interface BlockhashInfo {
   /** Latest blockhash */
@@ -26,37 +26,53 @@ export class PgTx {
    */
   static async send(
     tx: Transaction,
-    conn: Connection,
-    wallet: typeof PgWallet | AnchorWallet,
-    additionalSigners?: Signer[],
-    forceFetchLatestBlockhash?: boolean
+    opts?: {
+      keypairSigners?: Signer[];
+      walletSigners?: CurrentWallet[];
+      forceFetchLatestBlockhash?: boolean;
+    } & ConnectionOption &
+      WalletOption
   ): Promise<string> {
-    tx.recentBlockhash = await this._getLatestBlockhash(
-      conn,
-      forceFetchLatestBlockhash
-    );
+    const wallet = opts?.wallet ?? PgWallet.current;
+    if (!wallet) throw new Error("Wallet not connected");
 
+    const connection = opts?.connection ?? PgConnection.current;
+
+    tx.recentBlockhash = await this._getLatestBlockhash(
+      connection,
+      opts?.forceFetchLatestBlockhash
+    );
     tx.feePayer = wallet.publicKey;
 
-    if (additionalSigners?.length) {
-      tx.partialSign(...additionalSigners);
+    // Add keypair signers
+    if (opts?.keypairSigners?.length) tx.partialSign(...opts.keypairSigners);
+
+    // Add wallet signers
+    if (opts?.walletSigners) {
+      for (const walletSigner of opts.walletSigners) {
+        tx = await walletSigner.signTransaction(tx);
+      }
     }
 
-    await wallet.signTransaction(tx);
+    // Sign with the current wallet as it's always the fee payer
+    tx = await wallet.signTransaction(tx);
 
     // Caching the blockhash will result in getting the same tx signature when
     // using the same tx data.
     // https://github.com/solana-playground/solana-playground/issues/116
     let txHash;
     try {
-      txHash = await conn.sendRawTransaction(tx.serialize(), {
-        skipPreflight: !PgConnection.preflightChecks,
+      txHash = await connection.sendRawTransaction(tx.serialize(), {
+        skipPreflight: !PgSettings.connection.preflightChecks,
       });
     } catch (e: any) {
       if (e.message.includes("This transaction has already been processed")) {
         // Reset signatures
         tx.signatures = [];
-        return await this.send(tx, conn, wallet, additionalSigners, true);
+        return await this.send(tx, {
+          ...opts,
+          forceFetchLatestBlockhash: true,
+        });
       }
 
       throw e;
@@ -73,13 +89,17 @@ export class PgTx {
    */
   static async confirm(
     txHash: string,
-    conn: Connection,
-    commitment?: Commitment
+    opts?: { commitment?: Commitment } & ConnectionOption
   ) {
-    // Don't confirm on playnet
-    if (PgPlaynet.isUrlPlaynet(conn.rpcEndpoint)) return;
+    const connection = opts?.connection ?? PgConnection.current;
 
-    const result = await conn.confirmTransaction(txHash, commitment);
+    // Don't confirm on playnet
+    if (PgPlaynet.isUrlPlaynet(connection.rpcEndpoint)) return;
+
+    const result = await connection.confirmTransaction(
+      txHash,
+      opts?.commitment
+    );
     if (result?.value.err) return { err: result.value.err };
   }
 
@@ -89,6 +109,9 @@ export class PgTx {
    * @param txHash transaction signature
    */
   static notify(txHash: string) {
+    // Check setting
+    if (!PgSettings.notification.showTx) return;
+
     // Don't show on playnet
     if (PgPlaynet.isUrlPlaynet()) return;
 

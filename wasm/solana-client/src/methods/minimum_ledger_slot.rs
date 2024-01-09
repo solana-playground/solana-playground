@@ -2,25 +2,25 @@ use solana_sdk::clock::Slot;
 
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MinimumLedgerSlotRequest {}
 
 impl MinimumLedgerSlotRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for MinimumLedgerSlotRequest {
-    fn into(self) -> serde_json::Value {
+impl From<MinimumLedgerSlotRequest> for serde_json::Value {
+    fn from(_val: MinimumLedgerSlotRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for MinimumLedgerSlotRequest {
-    fn into(self) -> ClientRequest {
+impl From<MinimumLedgerSlotRequest> for ClientRequest {
+    fn from(val: MinimumLedgerSlotRequest) -> Self {
         let mut request = ClientRequest::new("minimumLedgerSlot");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -35,8 +35,8 @@ impl From<ClientResponse> for MinimumLedgerSlotResponse {
     }
 }
 
-impl Into<Slot> for MinimumLedgerSlotResponse {
-    fn into(self) -> Slot {
-        self.0
+impl From<MinimumLedgerSlotResponse> for Slot {
+    fn from(val: MinimumLedgerSlotResponse) -> Self {
+        val.0
     }
 }

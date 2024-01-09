@@ -1,89 +1,38 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
-import { ClassName } from "../../constants";
+import Popover, { PopoverProps } from "../Popover";
 import { QuestionMarkOutlined } from "../Icons";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
-interface TooltipProps {
-  text: string;
-  maxWidth?: string;
-  bgSecondary?: boolean;
-  className?: string;
-}
+export type TooltipProps = Omit<PopoverProps, "showOnHover" | "popEl"> & {
+  /** Tooltip element to show on hover */
+  element: ReactNode;
+};
 
-const Tooltip: FC<TooltipProps> = ({ className, children, ...props }) => (
-  <StyledTooltip className={`${ClassName.TOOLTIP} ${className}`} {...props}>
-    {children}
-  </StyledTooltip>
+const Tooltip: FC<TooltipProps> = (props) => (
+  <StyledPopover {...props} popEl={props.element} showOnHover />
 );
 
-const StyledTooltip = styled.div<TooltipProps>`
-  ${({ text, maxWidth, bgSecondary, theme }) => css`
-    position: relative;
-    height: fit-content;
-    width: fit-content;
-
-    &::before,
-    &::after {
-      --scale: 0;
-      --arrow-size: 0.5rem;
-      --bg: ${bgSecondary
-        ? theme.components.tooltip.bgSecondary
-        : theme.components.tooltip.bg};
-
-      position: absolute;
-      top: -0.25rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(var(--translate-y, 0))
-        scale(var(--scale));
-      transition: all ${theme.default.transition.duration.medium}
-        ${theme.default.transition.type};
-      transform-origin: bottom center;
-    }
-
-    &::before {
-      --translate-y: calc(-100% - var(--arrow-size));
-
-      content: "${text}";
-      padding: 0.375rem 0.5rem;
-      text-align: center;
-      width: max-content;
-      max-width: ${maxWidth ?? "fit-content"};
-      ${PgThemeManager.convertToCSS(theme.components.tooltip)};
-      background: var(--bg);
-      color: ${text !== "Copied"
-        ? theme.components.tooltip.color
-        : theme.colors.state.success.color};
-    }
-
-    &::after {
-      --translate-y: calc(-1 * var(--arrow-size));
-
-      content: "";
-      border: var(--arrow-size) solid transparent;
-      border-top-color: var(--bg);
-      transform-origin: top center;
-    }
-
-    &:hover::before,
-    &:hover::after {
-      --scale: 1;
-    }
+const StyledPopover = styled(Popover)<Pick<TooltipProps, "bgSecondary">>`
+  ${({ bgSecondary, theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.tooltip)};
+    background: ${bgSecondary
+      ? theme.components.tooltip.bgSecondary
+      : theme.components.tooltip.bg};
   `}
 `;
 
 export const HelpTooltip: FC<TooltipProps> = (props) => (
-  <StyledQuestionTooltip {...props}>
-    <QuestionMarkOutlined />
-  </StyledQuestionTooltip>
+  <Tooltip {...props}>
+    <StyledQuestionMarkOutlined color="textSecondary" />
+  </Tooltip>
 );
 
-const StyledQuestionTooltip = styled(Tooltip)`
+const StyledQuestionMarkOutlined = styled(QuestionMarkOutlined)`
   &:hover {
-    & > svg {
-      color: ${({ theme }) => theme.colors.default.textPrimary};
-    }
+    cursor: help;
+    color: ${({ theme }) => theme.colors.default.textPrimary};
   }
 `;
 

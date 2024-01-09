@@ -6,8 +6,11 @@ export class PgClientImporter {
    * import `PgClient`.
    */
   static async import() {
-    // This must happen before `PgClient` is first imported.
-    if (!this._isOverridden) console.log = PgTerminal.consoleLog;
+    if (!this._isOverridden) {
+      // Override the `console.log` before the initial `PgClient` import
+      console.log = PgTerminal.consoleLog;
+      this._isOverridden = true;
+    }
 
     return await import("./client");
   }

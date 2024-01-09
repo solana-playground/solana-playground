@@ -175,8 +175,8 @@ fn write_block_time<W: io::Write>(
 ) -> io::Result<()> {
     if let Some(block_time) = block_time {
         let block_time_output = match timezone {
-            CliTimezone::Local => format!("{:?}", Local.timestamp(block_time, 0)),
-            CliTimezone::Utc => format!("{:?}", Utc.timestamp(block_time, 0)),
+            CliTimezone::Local => format!("{:?}", Local.timestamp_opt(block_time, 0).unwrap()),
+            CliTimezone::Utc => format!("{:?}", Utc.timestamp_opt(block_time, 0).unwrap()),
         };
         writeln!(w, "{}Block Time: {}", prefix, block_time_output,)?;
     }
@@ -953,7 +953,7 @@ pub fn return_signers_data(tx: &Transaction, config: &ReturnSignersConfig) -> Cl
         });
     let message = if config.dump_transaction_message {
         let message_data = tx.message_data();
-        Some(base64::encode(&message_data))
+        Some(base64::encode(message_data))
     } else {
         None
     };
@@ -1276,7 +1276,11 @@ impl fmt::Display for CliBlock {
             self.encoded_confirmed_block.previous_blockhash
         )?;
         if let Some(block_time) = self.encoded_confirmed_block.block_time {
-            writeln!(f, "Block Time: {:?}", Local.timestamp(block_time, 0))?;
+            writeln!(
+                f,
+                "Block Time: {:?}",
+                Local.timestamp_opt(block_time, 0).unwrap()
+            )?;
         }
         if let Some(block_height) = self.encoded_confirmed_block.block_height {
             writeln!(f, "Block Height: {:?}", block_height)?;
@@ -1355,7 +1359,8 @@ impl fmt::Display for CliBlock {
 
 pub fn unix_timestamp_to_string(unix_timestamp: UnixTimestamp) -> String {
     match NaiveDateTime::from_timestamp_opt(unix_timestamp, 0) {
-        Some(ndt) => DateTime::<Utc>::from_utc(ndt, Utc).to_rfc3339_opts(SecondsFormat::Secs, true),
+        Some(ndt) => DateTime::<Utc>::from_naive_utc_and_offset(ndt, Utc)
+            .to_rfc3339_opts(SecondsFormat::Secs, true),
         None => format!("UnixTimestamp {}", unix_timestamp),
     }
 }
@@ -2635,7 +2640,7 @@ fn show_votes_and_credits(
     }
 
     // Existence of this should guarantee the occurrence of vote truncation
-    let newest_history_entry = epoch_voting_history.iter().rev().next();
+    let newest_history_entry = epoch_voting_history.iter().next_back();
 
     writeln!(
         f,

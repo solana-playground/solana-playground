@@ -1,19 +1,16 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useAtom } from "jotai";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
-import { uiBalanceAtom } from "../../state";
-import { PgCommon, PgTerminal, PgTx, PgValidator } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
-import { useCurrentWallet, usePgConnection } from "../../hooks";
+import { PgCommon, PgTerminal, PgTheme, PgTx, PgWallet } from "../../utils/pg";
+import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (
   <Wrapper>
-    <Foldable ClickEl={<Title>Send</Title>}>
+    <Foldable element={<Title>Send</Title>}>
       <SendExpanded />
     </Foldable>
   </Wrapper>
@@ -21,100 +18,84 @@ const Send = () => (
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.send.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.default)};
   `}
 `;
 
 const Title = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.send.title)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.title)};
   `}
 `;
 
 const SendExpanded = () => {
-  const [balance] = useAtom(uiBalanceAtom);
-
-  const [address, setRecipient] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
 
-  const addressInputRef = useRef<HTMLInputElement>(null);
-  const amountInputRef = useRef<HTMLInputElement>(null);
+  const { balance } = useBalance();
 
   // Send button disable
   useEffect(() => {
-    if (
-      PgValidator.isPubkey(address) &&
-      PgValidator.isFloat(amount) &&
-      balance &&
-      balance > parseFloat(amount)
-    ) {
-      setDisabled(false);
-    } else setDisabled(true);
-  }, [address, amount, balance]);
+    setDisabled(
+      !(
+        PgCommon.isPk(recipient) &&
+        PgCommon.isFloat(amount) &&
+        balance &&
+        balance > parseFloat(amount)
+      )
+    );
+  }, [recipient, amount, balance]);
 
-  const handleChangeAddress = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setRecipient(e.target.value);
-    },
-    []
-  );
+  const send = async () => {
+    if (disabled) return;
 
-  const handleChangeAmount = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setAmount(e.target.value);
-  }, []);
-
-  const { connection: conn } = usePgConnection();
-  const { wallet } = useCurrentWallet();
-
-  const send = () => {
-    PgTerminal.process(async () => {
-      if (!wallet) return;
-
-      setLoading(true);
-      PgTerminal.log(PgTerminal.info(`Sending ${amount} SOL to ${address}...`));
+    await PgTerminal.process(async () => {
+      PgTerminal.log(
+        PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
+      );
 
       let msg;
       try {
-        const pk = new PublicKey(address);
-
         const ix = SystemProgram.transfer({
-          fromPubkey: wallet.publicKey,
-          toPubkey: pk,
+          fromPubkey: PgWallet.current!.publicKey,
+          toPubkey: new PublicKey(recipient),
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
-
         const tx = new Transaction().add(ix);
-
-        const txHash = await PgCommon.transition(PgTx.send(tx, conn, wallet));
+        const txHash = await PgCommon.transition(PgTx.send(tx));
         PgTx.notify(txHash);
 
         msg = PgTerminal.success("Success.");
+
+        // Reset inputs
+        setRecipient("");
+        setAmount("");
       } catch (e: any) {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Transfer error: ${convertedError}`;
       } finally {
-        setLoading(false);
         PgTerminal.log(msg + "\n");
       }
     });
   };
 
+  useKeybind("Enter", send);
+
   return (
     <ExpandedWrapper>
       <ExpandedInput
-        ref={addressInputRef}
-        onChange={handleChangeAddress}
-        validator={PgValidator.isPubkey}
+        value={recipient}
+        onChange={(ev) => setRecipient(ev.target.value)}
+        validator={PgCommon.isPk}
         placeholder="Recipient address"
       />
       <ExpandedInput
-        ref={amountInputRef}
-        onChange={handleChangeAmount}
+        value={amount}
+        onChange={(ev) => setAmount(ev.target.value)}
         validator={(input) => {
           if (
-            !PgValidator.isFloat(input) ||
+            !PgCommon.isFloat(input) ||
             (balance && parseFloat(input) > balance)
           ) {
             throw new Error("Invalid amount");
@@ -124,8 +105,8 @@ const SendExpanded = () => {
       />
       <ExpandedButton
         onClick={send}
-        disabled={disabled || loading}
-        btnLoading={loading}
+        btnLoading={{ text: "Sending..." }}
+        disabled={disabled}
         kind="primary-transparent"
         fullWidth
       >
@@ -137,23 +118,19 @@ const SendExpanded = () => {
 
 const ExpandedWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.wallet.main.send.expanded.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.expanded.default)};
   `}
 `;
 
 const ExpandedInput = styled(Input)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.wallet.main.send.expanded.input
-    )};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.send.expanded.input)};
   `}
 `;
 
 const ExpandedButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.send.expanded.sendButton
     )};
   `}

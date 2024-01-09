@@ -1,4 +1,4 @@
-import { PgTheme } from "../../utils/pg/theme";
+import type { Theme } from "../../utils/pg";
 
 // BG
 const BG_DARK = "#2c2c2c";
@@ -28,7 +28,7 @@ const SELECTION = "#e5ebf1";
 const HOVER = "#ecedee";
 const DISABLED = "#cccccc";
 
-const LIGHT: PgTheme = {
+const LIGHT: Theme = {
   isDark: false,
   colors: {
     default: {
@@ -119,12 +119,23 @@ const LIGHT: PgTheme = {
         activeColor: TEXT_PRIMARY,
       },
     },
+    main: {
+      views: {
+        programs: {
+          main: {
+            card: {
+              bg: BG_WHITE,
+            },
+          },
+        },
+      },
+    },
     sidebar: {
       left: {
         default: {
           bg: BG_DARK,
         },
-        iconButton: {
+        button: {
           selected: {
             bg: "#00000020",
             borderLeft: `2px solid ${BG_LIGHT}`,

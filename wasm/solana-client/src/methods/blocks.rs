@@ -33,19 +33,19 @@ impl GetBlocksRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlocksRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
-            Some(config) => serde_json::json!([self.start_slot, self.end_slot, config]),
-            None => serde_json::json!([self.start_slot, self.end_slot]),
+impl From<GetBlocksRequest> for serde_json::Value {
+    fn from(value: GetBlocksRequest) -> Self {
+        match value.config {
+            Some(config) => serde_json::json!([value.start_slot, value.end_slot, config]),
+            None => serde_json::json!([value.start_slot, value.end_slot]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetBlocksRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlocksRequest> for ClientRequest {
+    fn from(value: GetBlocksRequest) -> Self {
         let mut request = ClientRequest::new("getBlocks");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -60,8 +60,8 @@ impl From<ClientResponse> for GetBlocksResponse {
     }
 }
 
-impl Into<Vec<Slot>> for GetBlocksResponse {
-    fn into(self) -> Vec<Slot> {
-        self.0
+impl From<GetBlocksResponse> for Vec<Slot> {
+    fn from(value: GetBlocksResponse) -> Self {
+        value.0
     }
 }

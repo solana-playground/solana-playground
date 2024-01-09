@@ -14,16 +14,16 @@ impl GetBlockCommitmentRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBlockCommitmentRequest {
-    fn into(self) -> serde_json::Value {
-        serde_json::json!([self.slot])
+impl From<GetBlockCommitmentRequest> for serde_json::Value {
+    fn from(value: GetBlockCommitmentRequest) -> Self {
+        serde_json::json!([value.slot])
     }
 }
 
-impl Into<ClientRequest> for GetBlockCommitmentRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBlockCommitmentRequest> for ClientRequest {
+    fn from(value: GetBlockCommitmentRequest) -> Self {
         let mut request = ClientRequest::new("getBlockCommitment");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

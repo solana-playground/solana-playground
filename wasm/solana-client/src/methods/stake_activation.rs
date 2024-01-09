@@ -28,21 +28,21 @@ impl GetStakeActivationRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetStakeActivationRequest {
-    fn into(self) -> serde_json::Value {
-        let pubkey = self.pubkey.to_string();
+impl From<GetStakeActivationRequest> for serde_json::Value {
+    fn from(value: GetStakeActivationRequest) -> Self {
+        let pubkey = value.pubkey.to_string();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([pubkey, config]),
             None => serde_json::json!([pubkey]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetStakeActivationRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetStakeActivationRequest> for ClientRequest {
+    fn from(val: GetStakeActivationRequest) -> Self {
         let mut request = ClientRequest::new("getStakeActivation");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -57,8 +57,8 @@ impl From<ClientResponse> for GetStakeActivationResponse {
     }
 }
 
-impl Into<RpcStakeActivation> for GetStakeActivationResponse {
-    fn into(self) -> RpcStakeActivation {
-        self.0
+impl From<GetStakeActivationResponse> for RpcStakeActivation {
+    fn from(value: GetStakeActivationResponse) -> Self {
+        value.0
     }
 }

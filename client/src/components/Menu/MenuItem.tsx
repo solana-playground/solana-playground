@@ -1,14 +1,15 @@
 import { FC, ReactNode } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
+import styled, { css } from "styled-components";
+
+import { PgTheme, ThemeColor } from "../../utils/pg";
 
 export interface MenuItemProps {
   name: string;
   onClick: () => void;
   keybind?: string;
-  Icon?: ReactNode;
-  kind?:
-    | keyof Pick<DefaultTheme["colors"]["default"], "primary" | "secondary">
-    | keyof Omit<DefaultTheme["colors"]["state"], "hover" | "disabled">;
+  color?: ThemeColor;
+  hoverColor?: ThemeColor;
+  icon?: ReactNode;
   showCondition?: boolean;
   className?: string;
 }
@@ -27,22 +28,29 @@ const MenuItem: FC<MenuItemPropsWithHide> = ({
   onClick,
   hide,
   keybind,
-  Icon,
+  icon,
   showCondition = true,
   className,
 }) => {
   if (!showCondition) return null;
 
+  const handleClick = () => {
+    onClick();
+    hide?.();
+  };
+
   return (
     <div
       className={className}
-      onClick={() => {
-        onClick();
-        hide?.();
+      onClick={handleClick}
+      onContextMenu={(ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        handleClick();
       }}
     >
       <div>
-        {Icon && Icon}
+        {icon && icon}
         <span className={ItemClassName.NAME}>{name}</span>
       </div>
       {keybind && <span className={ItemClassName.KEYBIND}>{keybind}</span>}
@@ -51,14 +59,14 @@ const MenuItem: FC<MenuItemPropsWithHide> = ({
 };
 
 const StyledItem = styled(MenuItem)`
-  ${({ theme, kind }) => css`
+  ${({ theme, color, hoverColor }) => css`
     padding: 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
     font-size: ${theme.font.code.size.small};
-    color: ${theme.colors.default.textSecondary};
+    color: ${PgTheme.getColor(color)};
     border-left: 2px solid transparent;
     transition: all ${theme.default.transition.duration.short}
       ${theme.default.transition.type};
@@ -73,13 +81,19 @@ const StyledItem = styled(MenuItem)`
       margin-right: 0.5rem;
     }
 
+    & img {
+      margin-right: 0.5rem;
+      width: 1rem;
+      height: 1rem;
+    }
+
     & span.${ItemClassName.KEYBIND} {
       font-weight: normal;
       margin-left: 1.5rem;
     }
 
     &:hover {
-      --color: ${getHoverColor(kind, theme)};
+      --color: ${PgTheme.getColor(hoverColor ?? "primary")};
 
       cursor: pointer;
       background: ${theme.colors.state.hover.bg};
@@ -97,24 +111,5 @@ const StyledItem = styled(MenuItem)`
     }
   `}
 `;
-
-const getHoverColor = (kind: MenuItemProps["kind"], theme: DefaultTheme) => {
-  switch (kind) {
-    case "primary":
-      return theme.colors.default.primary;
-    case "secondary":
-      return theme.colors.default.secondary;
-    case "error":
-      return theme.colors.state.error.color;
-    case "success":
-      return theme.colors.state.success.color;
-    case "warning":
-      return theme.colors.state.warning.color;
-    case "info":
-      return theme.colors.state.info.color;
-    default:
-      return theme.colors.default.primary;
-  }
-};
 
 export default StyledItem;

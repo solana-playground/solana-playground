@@ -1,27 +1,30 @@
-import { StandardProperties } from "csstype";
+import type { StandardProperties } from "csstype";
 
-import { EventName } from "../../../constants";
 import { PgCommon } from "../common";
-import {
+import { EventName } from "../../../constants";
+import type {
   DefaultComponent,
   ImportableTheme,
-  PgFont,
-  PgThemeInternal,
-  PgThemeReady,
+  Font,
+  ThemeInternal,
+  ThemeReady,
+  ThemeColor,
+  Highlight,
 } from "./interface";
+import type { ValueOf } from "../types";
 
-export class PgThemeManager {
+export class PgTheme {
   /** Current theme */
-  private static _theme: PgThemeInternal;
+  private static _theme: ThemeInternal;
 
   /** Current font */
-  private static _font: PgFont;
+  private static _font: Font;
 
   /** All themes */
   private static _themes: ImportableTheme[];
 
   /** All fonts */
-  private static _fonts: PgFont[];
+  private static _fonts: Font[];
 
   /** Theme key in localStorage */
   private static readonly _THEME_KEY = "theme";
@@ -29,16 +32,36 @@ export class PgThemeManager {
   /** Font key in localStorage */
   private static readonly _FONT_KEY = "font";
 
+  /** All available themes */
+  static get themes() {
+    return this._themes;
+  }
+
+  /** All available fonts */
+  static get fonts() {
+    return this._fonts;
+  }
+
   /**
    * Create the initial theme and font from `localStorage`.
    *
    * @param themes all importable themes
    * @param fonts all fonts
    */
-  static async create(themes: ImportableTheme[], fonts: PgFont[]) {
+  static async create(themes: ImportableTheme[], fonts: Font[]) {
     this._themes = themes;
     this._fonts = fonts;
     await this.set();
+  }
+
+  /**
+   * Add fallback fonts.
+   *
+   * @param family font family
+   * @returns the font family with fallback fonts appended
+   */
+  static addFallbackFont(family: string) {
+    return `${family}, Monospace, Courier`;
   }
 
   /**
@@ -53,8 +76,8 @@ export class PgThemeManager {
    */
   static async set(
     params: Partial<{
-      themeName: PgThemeInternal["name"];
-      fontFamily: PgFont["family"];
+      themeName: ThemeInternal["name"];
+      fontFamily: Font["family"];
     }> = {}
   ) {
     params.themeName ??=
@@ -102,16 +125,17 @@ export class PgThemeManager {
       ._toast()
       ._modal()
       ._markdown()
-      ._tabs()
-      ._editor()
       ._terminal()
       ._wallet()
       ._bottom()
       ._sidebar()
       ._main()
+      ._tabs()
+      ._editor()
       ._home()
       ._tutorial()
-      ._tutorials();
+      ._tutorials()
+      ._programs();
 
     // Set theme
     localStorage.setItem(this._THEME_KEY, params.themeName);
@@ -134,11 +158,11 @@ export class PgThemeManager {
 
       // Check for `&`
       if (key.startsWith("&")) {
-        return `${acc}${key}{${this.convertToCSS(value as DefaultComponent)}}`;
+        return `${acc}${key}{${this.convertToCSS(value)}}`;
       }
 
       // Handle non-standard properties
-      let prop = PgCommon.toKebabFromCamel(key) as keyof StandardProperties;
+      let prop = key.startsWith("-") ? key : PgCommon.toKebabFromCamel(key);
       switch (key) {
         case "bg":
           prop = "background";
@@ -148,15 +172,11 @@ export class PgThemeManager {
         case "active":
         case "focus":
         case "focusWithin":
-          return `${acc}&:${prop}{${this.convertToCSS(
-            value as DefaultComponent
-          )}}`;
+          return `${acc}&:${prop}{${this.convertToCSS(value)}}`;
 
         case "before":
         case "after":
-          return `${acc}&::${prop}{${this.convertToCSS(
-            value as DefaultComponent
-          )}}`;
+          return `${acc}&::${prop}{${this.convertToCSS(value)}}`;
       }
 
       // Only allow string and number values
@@ -196,15 +216,389 @@ export class PgThemeManager {
     return component;
   }
 
+  /**
+   * Get the color value from the given theme color name.
+   *
+   * @param color theme color
+   * @returns the color value from theme
+   */
+  static getColor(color: ThemeColor = "textSecondary") {
+    const theme = this._themeReady;
+
+    switch (color) {
+      case "primary":
+        return theme.colors.default.primary;
+      case "secondary":
+        return theme.colors.default.secondary;
+      case "error":
+        return theme.colors.state.error.color;
+      case "success":
+        return theme.colors.state.success.color;
+      case "warning":
+        return theme.colors.state.warning.color;
+      case "info":
+        return theme.colors.state.info.color;
+      case "textPrimary":
+        return theme.colors.default.textPrimary;
+      case "textSecondary":
+        return theme.colors.default.textSecondary;
+      default:
+        throw new Error(`Unknown color '${color}'`);
+    }
+  }
+
+  /**
+   * Get a different background than the one given based on the current theme.
+   *
+   * @param bg background to compare to
+   * @returns a different background based on the current theme
+   */
+  static getDifferentBackground(bg: string) {
+    const theme = this._themeReady;
+
+    const textBg = theme.components.text.default.bg!;
+    if (!PgCommon.isColorsEqual(bg, textBg)) return textBg;
+
+    const { bgPrimary, bgSecondary } = theme.colors.default;
+    if (PgCommon.isColorsEqual(bg, bgPrimary)) return bgSecondary;
+    return bgPrimary;
+  }
+
+  /**
+   * Create CSS for scrollbar.
+   *
+   * @param opts -
+   * `allChildren`: Whether to add the scrollbar changes to all children components
+   * @returns the scrollbar CSS
+   */
+  static getScrollbarCSS(
+    opts?: {
+      allChildren?: boolean;
+    } & Pick<StandardProperties, "width" | "height" | "borderRadius">
+  ) {
+    const theme = this._themeReady;
+    const scrollbar = theme.default.scrollbar;
+
+    const { allChildren, borderRadius, height, width } = PgCommon.setDefault(
+      opts,
+      {
+        allChildren: false,
+        borderRadius: theme.default.borderRadius,
+        height: "0.5rem",
+        width: "0.5rem",
+      }
+    );
+    const prefix = allChildren ? "& " : "&";
+
+    return `
+    /* Scrollbar */
+    /* Chromium */
+    ${prefix}::-webkit-scrollbar {
+      width: ${width};
+      height: ${height};
+    }
+
+    ${prefix}::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    ${prefix}::-webkit-scrollbar-thumb {
+      border: 0.25rem solid transparent;
+      border-radius: ${borderRadius};
+      background-color: ${scrollbar.thumb.color};
+    }
+
+    ${prefix}::-webkit-scrollbar-thumb:hover {
+      background-color: ${scrollbar.thumb.hoverColor};
+    }
+
+    /* Firefox */
+    ${prefix} * {
+      scrollbar-color: ${scrollbar.thumb.color};
+    }
+`;
+  }
+
+  /**
+   * Clamp the lines i.e. hide all lines after `max` and append "..." to the
+   * text.
+   *
+   * @param max maximum number of lines
+   * @returns the CSS string
+   */
+  static getClampLinesCSS(max: number) {
+    return `
+      display: -webkit-box;
+      -webkit-line-clamp: ${max};
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    `;
+  }
+
+  /**
+   * Convert playground theme to a TextMate theme.
+   *
+   * @param theme ready theme
+   * @returns the converted TextMate theme
+   */
+  static convertToTextMateTheme(theme: ThemeReady) {
+    const editorStyles = theme.components.editor;
+    const hl = theme.highlight;
+
+    const createSettings = (token: ValueOf<Highlight>) => ({
+      foreground: token.color,
+      fontStyle: token.fontStyle,
+    });
+
+    return {
+      name: theme.name,
+      settings: [
+        //////////////////////////////// Default ///////////////////////////////
+        {
+          // Can't directly set scrollbar background.
+          // See https://github.com/microsoft/monaco-editor/issues/908#issuecomment-433739458
+          name: "Defaults",
+
+          settings: {
+            background:
+              // Transparent background results with a full black background
+              editorStyles.default.bg === "transparent"
+                ? theme.colors.default.bgPrimary
+                : editorStyles.default.bg,
+            foreground: editorStyles.default.color,
+          },
+        },
+
+        //////////////////////////////// Boolean ///////////////////////////////
+        {
+          name: "Boolean",
+          scope: [
+            "constant.language.bool",
+            "constant.language.boolean",
+            "constant.language.json",
+          ],
+          settings: createSettings(hl.bool),
+        },
+
+        /////////////////////////////// Integer ////////////////////////////////
+        {
+          name: "Integers",
+          scope: "constant.numeric",
+          settings: createSettings(hl.integer),
+        },
+
+        //////////////////////////////// String ////////////////////////////////
+        {
+          name: "Strings",
+          scope: [
+            "string.quoted.single",
+            "string.quoted.double",
+            "string.template.ts",
+          ],
+          settings: createSettings(hl.string),
+        },
+
+        ///////////////////////////////// Regex ////////////////////////////////
+        {
+          name: "Regular expressions",
+          scope: ["string.regexp.ts"],
+          settings: createSettings(hl.regexp),
+        },
+
+        /////////////////////////////// Function ///////////////////////////////
+        {
+          name: "Functions",
+          scope: ["entity.name.function", "meta.function-call.generic.python"],
+          settings: createSettings(hl.functionCall),
+        },
+        {
+          name: "Function parameter",
+          scope: [
+            "variable.parameter",
+            "variable.parameter.ts",
+            "entity.name.variable.parameter",
+            "variable.other.jsdoc",
+          ],
+          settings: createSettings(hl.functionArg),
+        },
+
+        /////////////////////////////// Constant ///////////////////////////////
+        {
+          name: "Constants",
+          scope: [
+            "variable.other.constant.ts",
+            "variable.other.constant.property.ts",
+          ],
+          settings: createSettings(hl.constant),
+        },
+
+        /////////////////////////////// Variable ///////////////////////////////
+        {
+          name: "Variables",
+          scope: [
+            "variable.other",
+            "variable.object.property.ts",
+            "meta.object-literal.key.ts",
+          ],
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: "Special variable",
+          scope: [
+            "variable.language.self.rust",
+            "variable.language.super.rust",
+            "variable.language.this.ts",
+          ],
+          settings: createSettings(hl.specialVariable),
+        },
+
+        //////////////////////////////// Keyword ///////////////////////////////
+        {
+          name: "Storage types",
+          scope: "storage.type",
+          settings: createSettings(hl.keyword),
+        },
+        {
+          name: "Storage modifiers",
+          scope: "storage.modifier",
+          settings: createSettings(hl.modifier),
+        },
+        {
+          name: "Control keywords",
+          scope: "keyword.control",
+          settings: createSettings(hl.controlKeyword),
+        },
+        {
+          name: "Other",
+          scope: ["keyword.other", "keyword.operator.new.ts"],
+          settings: createSettings(hl.keyword),
+        },
+
+        /////////////////////////////// Operator ///////////////////////////////
+        {
+          name: "Operators",
+          scope: [
+            "keyword.operator",
+            "punctuation.separator.key-value",
+            "storage.type.function.arrow.ts",
+          ],
+          settings: createSettings(hl.operator),
+        },
+
+        ///////////////////////////////// Type /////////////////////////////////
+        {
+          name: "Types",
+          scope: [
+            "entity.name.type",
+            "support.type",
+            "entity.other.inherited-class.python",
+          ],
+          settings: createSettings(hl.typeName),
+        },
+
+        ////////////////////////////// Punctuation /////////////////////////////
+        {
+          name: ".",
+          scope: ["punctuation.accessor", "punctuation.separator.period"],
+          settings: createSettings(hl.operator),
+        },
+        {
+          name: ",",
+          scope: "punctuation.separator.comma",
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: ";",
+          scope: "punctuation.terminator.statement",
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: "${}",
+          scope: [
+            "punctuation.definition.template-expression.begin.ts",
+            "punctuation.definition.template-expression.end.ts",
+          ],
+          settings: createSettings(hl.modifier),
+        },
+
+        //////////////////////////////// Import ////////////////////////////////
+        {
+          name: "`import`",
+          scope: "keyword.control.import.ts",
+          settings: createSettings(hl.keyword),
+        },
+        {
+          name: "import `*`",
+          scope: "constant.language.import-export-all.ts",
+          settings: createSettings(hl.constant),
+        },
+        {
+          name: "import * `as`",
+          scope: "keyword.control.as.ts",
+          settings: createSettings(hl.controlKeyword),
+        },
+        {
+          name: "import * as `alias`",
+          scope: "variable.other.readwrite.alias.ts",
+          settings: createSettings(hl.variableName),
+        },
+        {
+          name: "import * as alias `from`",
+          scope: "keyword.control.from.ts",
+          settings: createSettings(hl.keyword),
+        },
+
+        //////////////////////////////// Macros ////////////////////////////////
+        {
+          name: "Macros",
+          scope: [
+            "meta.attribute.rust",
+            "entity.name.function.decorator.python",
+          ],
+          settings: createSettings(hl.meta),
+        },
+
+        //////////////////////////////// Comment ///////////////////////////////
+        {
+          name: "Comments",
+          scope: [
+            "comment.line",
+            "comment.block",
+            "punctuation.definition.comment.ts",
+          ],
+          settings: createSettings(hl.lineComment),
+        },
+        {
+          name: "JSDoc comments",
+          scope: [
+            "punctuation.definition.block.tag.jsdoc",
+            "storage.type.class.jsdoc",
+          ],
+          settings: createSettings(hl.keyword),
+        },
+
+        ///////////////////////////////// Rust /////////////////////////////////
+        {
+          name: "Lifetimes",
+          scope: [
+            "punctuation.definition.lifetime.rust",
+            "entity.name.type.lifetime.rust",
+          ],
+          settings: createSettings(hl.specialVariable),
+        },
+      ],
+    };
+  }
+
   /** Get the theme with default types set */
   private static get _themeReady() {
-    return this._theme as PgThemeReady;
+    return this._theme as ThemeReady;
   }
 
   /** Get and initialize component and return it with the correct type */
   private static _getComponent<
-    T extends keyof NonNullable<PgThemeInternal["components"]>
-  >(component: T): NonNullable<NonNullable<PgThemeInternal["components"]>[T]> {
+    T extends keyof NonNullable<ThemeInternal["components"]>
+  >(component: T): NonNullable<NonNullable<ThemeInternal["components"]>[T]> {
     const components = this._theme.components!;
     components[component] ??= {};
 
@@ -214,7 +608,10 @@ export class PgThemeManager {
   /** Set default fonts */
   private static _theme_fonts() {
     this._theme.font ??= {};
-    this._theme.font.code ??= this._font;
+    this._theme.font.code ??= {
+      ...this._font,
+      family: this.addFallbackFont(this._font.family),
+    };
     this._theme.font.other ??= {
       family: `-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
         sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`,
@@ -236,9 +633,8 @@ export class PgThemeManager {
     const def = this._theme.default;
 
     // Backdrop
-    def.backdrop ??= {
-      bg: "#00000080",
-    };
+    def.backdrop ??= {};
+    def.backdrop.bg ??= "#00000080";
 
     // Border radius
     def.borderRadius ??= "4px";
@@ -344,6 +740,8 @@ export class PgThemeManager {
 
     // Default
     menu.default ??= {};
+    menu.default.position ??= "absolute";
+    menu.default.zIndex ??= 2;
     menu.default.bg ??= theme.colors.default.bgPrimary;
     menu.default.borderRadius ??= theme.default.borderRadius;
     menu.default.padding ??= "0.25rem 0";
@@ -376,11 +774,13 @@ export class PgThemeManager {
     const input = this._getComponent("input");
     const theme = this._themeReady;
 
+    input.width ??= "100%";
+    input.padding ??= "0.25rem 0.5rem";
     input.bg ??= theme.colors.default.bgPrimary;
     input.color ??= theme.colors.default.textPrimary;
-    input.borderColor ??= theme.colors.default.border;
+    input.border ??= `1px solid ${theme.colors.default.border}`;
+    input.borderColor ??= theme.colors.default.border; // Monaco inputs also use this
     input.borderRadius ??= theme.default.borderRadius;
-    input.padding ??= "0.25rem 0.5rem";
     input.boxShadow ??= "none";
     input.fontWeight ??= "normal";
     input.fontSize ??= theme.font.code.size.medium;
@@ -473,12 +873,15 @@ export class PgThemeManager {
     const tooltip = this._getComponent("tooltip");
     const theme = this._themeReady;
 
+    tooltip.padding ??= "0.375rem 0.5rem";
     tooltip.bg ??= theme.colors.default.bgPrimary;
-    tooltip.color ??= theme.colors.default.textPrimary;
     tooltip.bgSecondary ??= theme.colors.default.bgSecondary;
+    tooltip.color ??= theme.colors.default.textPrimary;
     tooltip.borderRadius ??= theme.default.borderRadius;
     tooltip.boxShadow ??= theme.default.boxShadow;
+    tooltip.fontFamily ??= theme.font.code.family;
     tooltip.fontSize ??= theme.font.code.size.small;
+    tooltip.textAlign ??= "center";
 
     return this;
   }
@@ -514,9 +917,7 @@ export class PgThemeManager {
 
     // Default
     uploadArea.default ??= {};
-    uploadArea.default.margin ??= "1rem 0 0.5rem 0";
     uploadArea.default.padding ??= "2rem";
-    uploadArea.default.maxWidth ??= "20rem";
     uploadArea.default.bg ??=
       theme.colors.default.primary + theme.default.transparency.low;
     uploadArea.default.border ??= `2px dashed
@@ -584,36 +985,37 @@ export class PgThemeManager {
 
     // Default
     modal.default ??= {};
+    modal.default.display ??= "flex";
+    modal.default.flexDirection ??= "column";
     modal.default.bg ??= theme.colors.default.bgPrimary;
     modal.default.border ??= `1px solid ${theme.colors.default.border}`;
     modal.default.borderRadius ??= theme.default.borderRadius;
-    modal.default.padding ??= "0.25rem 1.5rem";
-    modal.default.minWidth ??= "min-content";
-    modal.default.maxWidth ??= "max(40%, 20rem)";
+    modal.default.maxWidth ??= "max(40%, 40rem)";
+    modal.default.maxHeight ??= "max(80%, 40rem)";
 
     // Backdrop
     modal.backdrop ??= theme.default.backdrop;
 
-    // Title
-    modal.title ??= {};
-    modal.title.display ??= "flex";
-    modal.title.justifyContent ??= "center";
-    modal.title.alignItems ??= "center";
-    modal.title.padding ??= "0.5rem 0";
-    modal.title.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    modal.title.fontWeight ??= "bold";
+    // Top
+    modal.top ??= {};
+    modal.top.position ??= "relative";
+    modal.top.display ??= "flex";
+    modal.top.justifyContent ??= "center";
+    modal.top.alignItems ??= "center";
+    modal.top.padding ??= "0 1.5rem";
+    modal.top.fontWeight ??= "bold";
 
     // Content
     modal.content ??= {};
-    modal.content.padding ??= "0.75rem 0";
-    modal.content.minWidth ??= "20rem";
+    modal.content.padding ??= "1rem 1.5rem";
+    modal.content.minWidth ??= "23rem";
     modal.content.minHeight ??= "3rem";
 
     // Bottom
     modal.bottom ??= {};
     modal.bottom.display ??= "flex";
     modal.bottom.justifyContent ??= "flex-end";
-    modal.bottom.padding ??= "0.5rem 0";
+    modal.bottom.padding ??= "0.25rem 1.5rem 0.75rem";
     modal.bottom.marginBottom ??= "0.25rem";
 
     return this;
@@ -625,146 +1027,11 @@ export class PgThemeManager {
     const theme = this._themeReady;
 
     // Default
-    markdown.default ??= {};
-    markdown.default.bg ??= "inherit";
-    markdown.default.color ??= theme.colors.default.textPrimary;
-    markdown.default.fontFamily ??= theme.font.other.family;
-    markdown.default.fontSize ??= theme.font.other.size.medium;
-
-    // Code block
-    markdown.code ??= {};
-    markdown.code.bg ??= theme.colors.default.bgSecondary;
-    markdown.code.color ??= theme.colors.default.textPrimary;
-    markdown.code.borderRadius ??= theme.default.borderRadius;
-    markdown.code.fontFamily ??= theme.font.code.family;
-    markdown.code.fontSize ??= theme.font.code.size.medium;
-
-    return this;
-  }
-
-  /** Set default tabs component */
-  private static _tabs() {
-    const tabs = this._getComponent("tabs");
-    const theme = this._themeReady;
-
-    // Default
-    tabs.default ??= {};
-    tabs.default.display ??= "flex";
-    tabs.default.justifyContent ??= "space-between";
-    tabs.default.userSelect ??= "none";
-    tabs.default.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    tabs.default.fontSize ??= theme.font.code.size.small;
-
-    // Tab
-    tabs.tab ??= {};
-    // Tab default
-    tabs.tab.default ??= {};
-    tabs.tab.default.display ??= "flex";
-    tabs.tab.default.justifyContent ??= "center";
-    tabs.tab.default.alignItems ??= "center";
-    tabs.tab.default.width ??= "fit-content";
-    tabs.tab.default.height ??= "2rem";
-    tabs.tab.default.paddingLeft ??= "0.5rem";
-    tabs.tab.default.color ??= theme.colors.default.textSecondary;
-    tabs.tab.default.border ??= "1px solid transparent";
-    tabs.tab.default.borderRightColor ??= theme.colors.default.border;
-    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
-    tabs.tab.default.hover ??= {};
-    tabs.tab.default.hover.cursor ??= "pointer";
-    tabs.tab.default.hover.bg ??= theme.colors.state.hover.bg;
-    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
-    // Tab selected
-    tabs.tab.selected ??= {};
-    tabs.tab.selected.bg ??= theme.colors.default.bgPrimary;
-    tabs.tab.selected.color ??= theme.colors.default.textPrimary;
-    tabs.tab.selected.borderTopColor ??= theme.colors.default.secondary;
-
-    return this;
-  }
-
-  /** Set default editor component */
-  private static _editor() {
-    const editor = this._getComponent("editor");
-    const theme = this._themeReady;
-
-    editor.default ??= {};
-    editor.default.bg ??= theme.colors.default.bgPrimary;
-    editor.default.color ??= theme.colors.default.textPrimary;
-    editor.default.fontFamily ??= theme.font.code.family;
-    editor.default.fontSize ??= theme.font.code.size.large;
-
-    // Editor cursor color
-    editor.default.cursorColor ??= theme.colors.default.textSecondary;
-
-    // Editor active line
-    editor.default.activeLine ??= {};
-    editor.default.activeLine.bg ??= "inherit";
-    editor.default.activeLine.borderColor ??= theme.colors.default.border;
-
-    // Editor selection
-    editor.default.selection ??= {};
-    editor.default.selection.bg ??=
-      theme.colors.default.primary + theme.default.transparency.medium;
-    editor.default.selection.color ??= "inherit";
-
-    // Editor search match
-    editor.default.searchMatch ??= {};
-    editor.default.searchMatch.bg ??=
-      theme.colors.default.textSecondary + theme.default.transparency.medium;
-    editor.default.searchMatch.color ??= "inherit";
-    editor.default.searchMatch.selectedBg ??= "inherit";
-    editor.default.searchMatch.selectedColor ??= "inherit";
-
-    // Editor gutter
-    editor.gutter ??= {};
-    editor.gutter.bg ??= editor.default.bg;
-    editor.gutter.color ??= theme.colors.default.textSecondary;
-    editor.gutter.activeBg ??= "inherit";
-    editor.gutter.activeColor ??= theme.colors.default.textPrimary;
-    editor.gutter.borderRight ??= "none";
-
-    // Editor minimap
-    editor.minimap ??= {};
-    editor.minimap.bg ??= editor.default.bg;
-    editor.minimap.selectionHighlight ??= theme.colors.default.secondary;
-
-    // Editor peek view
-    editor.peekView ??= {};
-    editor.peekView.borderColor ??= theme.colors.default.primary;
-    // Editor peek view title
-    editor.peekView.title ??= {};
-    editor.peekView.title.bg ??= theme.colors.default.bgSecondary;
-    editor.peekView.title.labelColor ??= theme.colors.default.textPrimary;
-    editor.peekView.title.descriptionColor ??=
-      theme.colors.default.textSecondary;
-    // Editor peek view editor
-    editor.peekView.editor ??= {};
-    editor.peekView.editor.bg ??= theme.colors.default.bgSecondary;
-    editor.peekView.editor.matchHighlightBg ??=
-      theme.colors.state.warning.color + theme.default.transparency.medium;
-    editor.peekView.editor.gutterBg ??= editor.peekView.editor.bg;
-    // Editor peek view result
-    editor.peekView.result ??= {};
-    editor.peekView.result.bg ??= theme.colors.default.bgPrimary;
-    editor.peekView.result.lineColor ??= theme.colors.default.textSecondary;
-    editor.peekView.result.fileColor ??= theme.colors.default.textSecondary;
-    editor.peekView.result.selectionBg ??=
-      theme.colors.default.primary + theme.default.transparency.low;
-    editor.peekView.result.selectionColor ??= theme.colors.default.textPrimary;
-    editor.peekView.result.matchHighlightBg ??=
-      theme.colors.state.warning.color + theme.default.transparency.medium;
-
-    // Editor tooltip/widget
-    editor.tooltip ??= {};
-    editor.tooltip.bg ??= theme.colors.default.bgSecondary;
-    editor.tooltip.color ??= theme.colors.default.textPrimary;
-    editor.tooltip.selectedBg ??=
-      theme.colors.default.primary + theme.default.transparency.medium;
-    editor.tooltip.selectedColor ??= theme.colors.default.textPrimary;
-    editor.tooltip.borderColor ??= theme.colors.default.border;
-
-    // Editor wrapper
-    editor.wrapper ??= {};
+    markdown.bg ??= "inherit";
+    markdown.subtleBg ??= theme.colors.default.bgSecondary;
+    markdown.color ??= theme.colors.default.textPrimary;
+    markdown.fontFamily ??= theme.font.other.family;
+    markdown.fontSize ??= theme.font.other.size.medium;
 
     return this;
   }
@@ -776,6 +1043,7 @@ export class PgThemeManager {
 
     // Default
     terminal.default ??= {};
+    terminal.default.height ??= "100%";
     terminal.default.bg ??= theme.colors.default.bgPrimary;
     terminal.default.color ??= theme.colors.default.textPrimary;
     terminal.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
@@ -808,29 +1076,47 @@ export class PgThemeManager {
     wallet.default ??= {};
     wallet.default.width ??= "100%";
     wallet.default.height ??= "100%";
-    wallet.default.zIndex ??= 2;
     wallet.default.bg ??= theme.colors.default.bgSecondary;
     wallet.default.border ??= `1px solid ${theme.colors.default.border}`;
     wallet.default.borderRadius ??= theme.default.borderRadius;
     wallet.default.boxShadow ??= theme.default.boxShadow;
 
-    // Title
-    wallet.title ??= {};
-    // Title default
-    wallet.title.default ??= {};
-    wallet.title.default.position ??= "relative";
-    wallet.title.default.height ??= "2rem";
-    wallet.title.default.display ??= "flex";
-    wallet.title.default.justifyContent ??= "center";
-    wallet.title.default.alignItems ??= "center";
-    wallet.title.default.padding ??= "0.5rem";
-    // Title text
-    wallet.title.text ??= {};
-    wallet.title.text.color ??= theme.colors.default.textSecondary;
-    wallet.title.text.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
-    wallet.title.text.hover ??= {};
-    wallet.title.text.hover.cursor ??= "pointer";
-    wallet.title.text.hover.color ??= theme.colors.default.textPrimary;
+    // Top
+    wallet.top ??= {};
+    // Top default
+    wallet.top.default ??= {};
+    wallet.top.default.position ??= "relative";
+    wallet.top.default.height ??= "2rem";
+    wallet.top.default.display ??= "flex";
+    wallet.top.default.justifyContent ??= "center";
+    wallet.top.default.alignItems ??= "center";
+    wallet.top.default.padding ??= "0.5rem";
+    // Top title
+    wallet.top.title ??= {};
+    // Top title default
+    wallet.top.title.default ??= {};
+    wallet.top.title.default.display ??= "flex";
+    wallet.top.title.default.justifyContent ??= "center";
+    wallet.top.title.default.alignItems ??= "center";
+    wallet.top.title.default.hover ??= {};
+    wallet.top.title.default.hover.cursor ??= "pointer";
+    wallet.top.title.default.hover[`& svg, & span`] = {
+      color: theme.colors.default.textPrimary,
+    };
+    // Top title icon
+    wallet.top.title.icon ??= {};
+    wallet.top.title.icon.width ??= "1rem";
+    wallet.top.title.icon.height ??= "1rem";
+    wallet.top.title.icon.marginRight ??= "0.25rem";
+    // Top title text
+    wallet.top.title.text ??= {};
+    wallet.top.title.text.display ??= "flex";
+    wallet.top.title.text.alignItems ??= "center";
+    wallet.top.title.text.padding ??= "0.25rem";
+    wallet.top.title.text.color ??= theme.colors.default.textSecondary;
+    wallet.top.title.text.fontSize ??= theme.font.code.size.small;
+    wallet.top.title.text.fontWeight ??= "bold";
+    wallet.top.title.text.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
 
     // Main
     wallet.main ??= {};
@@ -845,6 +1131,7 @@ export class PgThemeManager {
       ${wallet.default.bg} 75%,
       ${theme.colors.default.primary + theme.default.transparency.low} 100%
     )`;
+    wallet.main.default.borderRadius ??= theme.default.borderRadius;
 
     // Main backdrop
     wallet.main.backdrop ??= theme.default.backdrop;
@@ -963,11 +1250,15 @@ export class PgThemeManager {
     bottom.default.bg ??= theme.colors.default.primary;
     bottom.default.color ??= theme.colors.default.textPrimary;
     bottom.default.fontSize ??= theme.font.code.size.small;
+    bottom.default.display ??= "flex";
+    bottom.default.flexWrap ??= "wrap";
+    bottom.default.alignItems ??= "center";
 
     // Connect button
     bottom.connect ??= {};
-    bottom.connect.border ??= "none";
+    bottom.connect.height ??= "100%";
     bottom.connect.padding ??= "0 0.75rem";
+    bottom.connect.border ??= "none";
     bottom.connect.hover ??= {};
     bottom.connect.hover.bg ??=
       bottom.default.color + theme.default.transparency.low;
@@ -977,6 +1268,7 @@ export class PgThemeManager {
 
     // Address
     bottom.address ??= {};
+    bottom.address.color ??= bottom.default.color;
 
     // Balance
     bottom.balance ??= {};
@@ -991,6 +1283,7 @@ export class PgThemeManager {
 
     // Default
     sidebar.default ??= {};
+    sidebar.default.display ??= "flex";
 
     // Left
     sidebar.left ??= {};
@@ -1001,14 +1294,21 @@ export class PgThemeManager {
     sidebar.left.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
 
     // Left icon button
-    sidebar.left.iconButton ??= {};
+    sidebar.left.button ??= {};
     // Left icon button default
-    sidebar.left.iconButton.default ??= {};
+    sidebar.left.button.default ??= {};
+    sidebar.left.button.default.display ??= "flex";
+    sidebar.left.button.default.justifyContent ??= "center";
+    sidebar.left.button.default.alignItems ??= "center";
+    sidebar.left.button.default.width ??= sidebar.left.default.width;
+    sidebar.left.button.default.height ??= "3rem";
+    sidebar.left.button.default.cursor ??= "pointer";
+
     // Left icon button selected
-    sidebar.left.iconButton.selected ??= {};
-    sidebar.left.iconButton.selected.bg ??= theme.colors.state.hover.bg;
-    sidebar.left.iconButton.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
-    sidebar.left.iconButton.selected.borderRight ??= "2px solid transparent";
+    sidebar.left.button.selected ??= {};
+    sidebar.left.button.selected.bg ??= theme.colors.state.hover.bg;
+    sidebar.left.button.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
+    sidebar.left.button.selected.borderRight ??= "2px solid transparent";
 
     // Right
     sidebar.right ??= {};
@@ -1036,9 +1336,169 @@ export class PgThemeManager {
     main.default ??= {};
     main.default.bg ??= theme.colors.default.bgSecondary;
     main.default.color ??= theme.colors.default.textPrimary;
+    main.default.display ??= "flex";
+    main.default.flex ??= "1";
+    main.default.minHeight ??= 0;
 
     // Views
     main.views ??= {};
+
+    return this;
+  }
+
+  /** Set default tabs component */
+  private static _tabs() {
+    const tabs = this._getComponent("tabs");
+    const theme = this._themeReady;
+
+    // Default
+    tabs.default ??= {};
+    tabs.default.display ??= "flex";
+    tabs.default.justifyContent ??= "space-between";
+    tabs.default.userSelect ??= "none";
+    tabs.default.bg ??= theme.components.main.default.bg;
+    tabs.default.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    tabs.default.fontSize ??= theme.font.code.size.small;
+
+    // Tab
+    tabs.tab ??= {};
+    // Tab default
+    tabs.tab.default ??= {};
+    tabs.tab.default.display ??= "flex";
+    tabs.tab.default.justifyContent ??= "center";
+    tabs.tab.default.alignItems ??= "center";
+    tabs.tab.default.width ??= "fit-content";
+    tabs.tab.default.height ??= "2rem";
+    tabs.tab.default.paddingLeft ??= "0.5rem";
+    tabs.tab.default.color ??= theme.colors.default.textSecondary;
+    tabs.tab.default.border ??= "1px solid transparent";
+    tabs.tab.default.borderRightColor ??= theme.colors.default.border;
+    // Adding transition for `translate` property cause flickering after sorting
+    tabs.tab.default.transition ??= `all ${theme.default.transition.duration.short} ${theme.default.transition.type}, translate: none`;
+    tabs.tab.default.hover ??= {};
+    tabs.tab.default.hover.cursor ??= "pointer";
+    tabs.tab.default.hover.bg ??= theme.colors.state.hover.bg;
+    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
+    // Tab selected
+    tabs.tab.selected ??= {};
+    tabs.tab.selected.borderColor ??=
+      theme.colors.default.secondary + theme.default.transparency.medium;
+    // Tab current
+    tabs.tab.current ??= {};
+    tabs.tab.current.bg ??= theme.colors.default.bgPrimary;
+    tabs.tab.current.color ??= theme.colors.default.textPrimary;
+    tabs.tab.current.borderTopColor ??= theme.colors.default.secondary;
+    // Tab drag
+    tabs.tab.drag ??= {};
+    tabs.tab.drag.position ??= "relative";
+    tabs.tab.drag.borderColor ??=
+      theme.colors.default.secondary + theme.default.transparency.high;
+    tabs.tab.drag.after ??= {};
+    tabs.tab.drag.after.content ??= '""';
+    tabs.tab.drag.after.position ??= "absolute";
+    tabs.tab.drag.after.inset ??= 0;
+    tabs.tab.drag.after.width ??= "100%";
+    tabs.tab.drag.after.height ??= "100%";
+    tabs.tab.drag.after.bg ??= tabs.default.bg;
+    // Tab drag overlay
+    tabs.tab.dragOverlay ??= {};
+    tabs.tab.dragOverlay.opacity ??= 0.6;
+
+    return this;
+  }
+
+  /** Set default editor component */
+  private static _editor() {
+    const editor = this._getComponent("editor");
+    const theme = this._themeReady;
+
+    editor.default ??= {};
+    editor.default.bg ??= theme.colors.default.bgPrimary;
+    editor.default.color ??= theme.colors.default.textPrimary;
+    editor.default.fontFamily ??= theme.font.code.family;
+    editor.default.fontSize ??= theme.font.code.size.large;
+
+    // Editor cursor color
+    editor.default.cursorColor ??= theme.colors.default.textSecondary;
+
+    // Editor active line
+    editor.default.activeLine ??= {};
+    editor.default.activeLine.bg ??= "inherit";
+    editor.default.activeLine.borderColor ??= theme.colors.default.border;
+
+    // Editor selection
+    editor.default.selection ??= {};
+    editor.default.selection.bg ??=
+      theme.colors.default.primary + theme.default.transparency.medium;
+    editor.default.selection.color ??= "inherit";
+
+    // Editor search match
+    editor.default.searchMatch ??= {};
+    editor.default.searchMatch.bg ??=
+      theme.colors.default.textSecondary + theme.default.transparency.medium;
+    editor.default.searchMatch.color ??= "inherit";
+    editor.default.searchMatch.selectedBg ??= "inherit";
+    editor.default.searchMatch.selectedColor ??= "inherit";
+
+    // Editor gutter
+    editor.gutter ??= {};
+    editor.gutter.bg ??= editor.default.bg;
+    editor.gutter.color ??= theme.colors.default.textSecondary;
+    editor.gutter.activeBg ??= "inherit";
+    editor.gutter.activeColor ??= theme.colors.default.textPrimary;
+    editor.gutter.borderRight ??= "none";
+
+    // Editor inlay hint
+    editor.inlayHint ??= {};
+    editor.inlayHint.bg ??= "#262730aa";
+    editor.inlayHint.color ??= theme.colors.default.textSecondary;
+    editor.inlayHint.parameterBg ??= editor.inlayHint.bg;
+    editor.inlayHint.parameterColor ??= editor.inlayHint.color;
+    editor.inlayHint.typeBg ??= editor.inlayHint.bg;
+    editor.inlayHint.typeColor ??= editor.inlayHint.color;
+
+    // Editor minimap
+    editor.minimap ??= {};
+    editor.minimap.bg ??= editor.default.bg;
+    editor.minimap.selectionHighlight ??= theme.colors.default.secondary;
+
+    // Editor peek view
+    editor.peekView ??= {};
+    editor.peekView.borderColor ??= theme.colors.default.primary;
+    // Editor peek view title
+    editor.peekView.title ??= {};
+    editor.peekView.title.bg ??= theme.colors.default.bgSecondary;
+    editor.peekView.title.labelColor ??= theme.colors.default.textPrimary;
+    editor.peekView.title.descriptionColor ??=
+      theme.colors.default.textSecondary;
+    // Editor peek view editor
+    editor.peekView.editor ??= {};
+    editor.peekView.editor.bg ??= theme.colors.default.bgSecondary;
+    editor.peekView.editor.matchHighlightBg ??=
+      theme.colors.state.warning.color + theme.default.transparency.medium;
+    editor.peekView.editor.gutterBg ??= editor.peekView.editor.bg;
+    // Editor peek view result
+    editor.peekView.result ??= {};
+    editor.peekView.result.bg ??= theme.colors.default.bgPrimary;
+    editor.peekView.result.lineColor ??= theme.colors.default.textSecondary;
+    editor.peekView.result.fileColor ??= theme.colors.default.textSecondary;
+    editor.peekView.result.selectionBg ??=
+      theme.colors.default.primary + theme.default.transparency.low;
+    editor.peekView.result.selectionColor ??= theme.colors.default.textPrimary;
+    editor.peekView.result.matchHighlightBg ??=
+      theme.colors.state.warning.color + theme.default.transparency.medium;
+
+    // Editor tooltip/widget
+    editor.tooltip ??= {};
+    editor.tooltip.bg ??= theme.colors.default.bgSecondary;
+    editor.tooltip.color ??= theme.colors.default.textPrimary;
+    editor.tooltip.selectedBg ??=
+      theme.colors.default.primary + theme.default.transparency.medium;
+    editor.tooltip.selectedColor ??= theme.colors.default.textPrimary;
+    editor.tooltip.borderColor ??= theme.colors.default.border;
+
+    // Editor wrapper
+    editor.wrapper ??= {};
 
     return this;
   }
@@ -1184,47 +1644,115 @@ export class PgThemeManager {
 
     // Default
     tutorials.default ??= {};
+    tutorials.default.display ??= "flex";
+    tutorials.default.justifyContent ??= "center";
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
 
-    // Card
-    tutorials.card ??= {};
-    // Card default
-    tutorials.card.default ??= {};
-    tutorials.card.default.bg ??= theme.colors.default.bgPrimary;
-    tutorials.card.default.color ??= theme.colors.default.textPrimary;
-    tutorials.card.default.border ??= `1px solid ${
+    // Main
+    tutorials.main ??= {};
+
+    // Main default
+    tutorials.main.default ??= {};
+    tutorials.main.default.flex ??= "1";
+    tutorials.main.default.display ??= "flex";
+    tutorials.main.default.margin ??= "2rem 0";
+    tutorials.main.default.bg ??= this.getDifferentBackground(
+      theme.components.main.default.bg
+    );
+    tutorials.main.default.borderRadius ??= theme.default.borderRadius;
+
+    // Main filters
+    tutorials.main.filters ??= {};
+    tutorials.main.filters.width ??= "14.75rem";
+    tutorials.main.filters.padding ??= "0.5rem";
+    tutorials.main.filters.borderRight ??= `1px solid ${theme.colors.default.border}`;
+    tutorials.main.filters.borderTopLeftRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
+    tutorials.main.filters.borderBottomLeftRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
+
+    // Main tutorials
+    tutorials.main.tutorials ??= {};
+
+    // Main tutorials default
+    tutorials.main.tutorials.default ??= {};
+    tutorials.main.tutorials.default.flex ??= "1";
+    tutorials.main.tutorials.default.padding ??= "1.5rem";
+    tutorials.main.tutorials.default.display ??= "flex";
+    tutorials.main.tutorials.default.flexDirection ??= "column";
+    tutorials.main.tutorials.default.gap ??= "2rem";
+    tutorials.main.tutorials.default.bg ??= tutorials.main.default.bg;
+    tutorials.main.tutorials.default.borderTopRightRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
+    tutorials.main.tutorials.default.borderBottomRightRadius ??=
+      theme.components.main.views.tutorials.main.default.borderRadius;
+    //Main tutorials card
+    tutorials.main.tutorials.card ??= {};
+    const card = tutorials.main.tutorials.card;
+    //Main tutorials card default
+    card.default ??= {};
+    card.default.width ??= "100%";
+    card.default.height ??= "100%";
+    card.default.overflow ??= "hidden";
+    card.default.bg ??= theme.components.main.views.tutorials.main.default.bg;
+    card.default.color ??= theme.colors.default.textPrimary;
+    card.default.border ??= `1px solid ${
       theme.colors.default.border + theme.default.transparency.medium
     }`;
-    tutorials.card.default.borderRadius ??= theme.default.borderRadius;
-    tutorials.card.default.boxShadow ??= theme.default.boxShadow;
-    tutorials.card.default.transition ??= `all ${theme.default.transition.duration.medium}
+    card.default.borderRadius ??= theme.default.borderRadius;
+    card.default.boxShadow ??= theme.default.boxShadow;
+    card.default.transition ??= `all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type}`;
-    // Card gradient
-    tutorials.card.gradient ??= {};
-    // Card info
-    tutorials.card.info ??= {};
-    // Card info default
-    tutorials.card.info.default ??= {};
-    tutorials.card.info.default.padding ??= " 1rem 0.75rem";
-    // Card info name
-    tutorials.card.info.name ??= {};
-    tutorials.card.info.name.fontWeight ??= "bold";
-    // Card info description
-    tutorials.card.info.description ??= {};
-    tutorials.card.info.description.marginTop ??= "0.5rem";
-    tutorials.card.info.description.color ??=
-      theme.colors.default.textSecondary;
-    // Card info category
-    tutorials.card.info.category ??= {};
-    tutorials.card.info.category.padding ??= "0.5rem 0.75rem";
-    tutorials.card.info.category.bg ??= main.default!.bg;
-    tutorials.card.info.category.color ??= theme.colors.default.textSecondary;
-    tutorials.card.info.category.fontSize ??= theme.font.other.size.small;
-    tutorials.card.info.category.fontWeight ??= "bold";
-    tutorials.card.info.category.borderRadius ??= theme.default.borderRadius;
-    tutorials.card.info.category.boxShadow ??= theme.default.boxShadow;
-    tutorials.card.info.category.width ??= "fit-content";
+    //Main tutorials card gradient
+    card.gradient ??= {};
+    // Main tutorials featured tutorial
+    tutorials.main.tutorials.featured ??= {};
+    const featured = tutorials.main.tutorials.featured;
+    featured.height ??= "20rem";
+    featured.display ??= "flex";
+    featured.border ??= `1px solid ${theme.colors.default.border}`;
+    featured.borderRadius ??= theme.default.borderRadius;
+    featured.boxShadow ??= theme.default.boxShadow;
+    featured.overflow ??= "hidden";
+
+    return this;
+  }
+
+  /** Set default programs view */
+  private static _programs() {
+    const main = this._getComponent("main");
+    const theme = this._themeReady;
+
+    main.views!.programs ??= {};
+    const programs = main.views!.programs;
+
+    // Default
+    programs.default ??= {};
+    programs.default.padding ??= "2rem 2.5rem";
+    programs.default.fontFamily ??= theme.font.other.family;
+    programs.default.fontSize ??= theme.font.other.size.medium;
+
+    // Main
+    programs.main ??= {};
+    // Main default
+    programs.main.default ??= {};
+    programs.main.default.marginTop ??= "2rem";
+    programs.main.default.display ??= "flex";
+    programs.main.default.flexWrap ??= "wrap";
+    programs.main.default.gap ??= "1.5rem";
+    // Main card
+    programs.main.card ??= {};
+    programs.main.card.flexGrow ??= "1";
+    programs.main.card.flexBasis ??= "50%";
+    programs.main.card.display ??= "flex";
+    programs.main.card.flexDirection ??= "column";
+    programs.main.card.gap ??= "0.5rem";
+    programs.main.card.maxWidth ??= "44.95rem";
+    programs.main.card.height ??= "fit-content";
+    programs.main.card.padding ??= "1rem";
+    programs.main.card.border ??= `1px solid ${theme.colors.default.border}`;
+    programs.main.card.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }

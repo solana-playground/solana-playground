@@ -4,71 +4,62 @@ import styled, { css } from "styled-components";
 import Button from "../../../../components/Button";
 import Link from "../../../../components/Link";
 import Tooltip from "../../../../components/Tooltip";
-import {
-  EXPLORER_URL,
-  Id,
-  NETWORKS,
-  NetworkName,
-  ClassName,
-  ConnState,
-} from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
-import { PgThemeManager } from "../../../../utils/pg/theme";
-import { useAutoAirdrop } from "./useAutoAirdrop";
-import {
-  useConnect,
-  useCurrentWallet,
-  usePgConnection,
-} from "../../../../hooks";
+import { EXPLORER_URL, Id, NETWORKS, NetworkName } from "../../../../constants";
+import { PgCommand, PgCommon, PgTheme } from "../../../../utils/pg";
+import { useBalance, useConnection, useWallet } from "../../../../hooks";
 
 const Bottom = () => {
-  const { connection: conn } = usePgConnection();
-  const { connStatus } = useConnect();
-  const { walletPkStr } = useCurrentWallet();
-  const { balance } = useAutoAirdrop();
+  const { connection } = useConnection();
+  const { wallet, walletPkStr } = useWallet();
+  const { balance } = useBalance();
 
   const [networkName, cluster] = useMemo(() => {
     return [
-      NETWORKS.filter((n) => n.endpoint === conn.rpcEndpoint)[0]?.name ??
+      NETWORKS.filter((n) => n.endpoint === connection.rpcEndpoint)[0]?.name ??
         NetworkName.CUSTOM,
-      PgCommon.getExplorerClusterParam(conn.rpcEndpoint),
+      PgCommon.getExplorerClusterParam(connection.rpcEndpoint),
     ];
-  }, [conn.rpcEndpoint]);
+  }, [connection.rpcEndpoint]);
 
   // Using a callback because this function might be resolved later than the
   // mount of this component
-  const connect = useCallback(() => {
-    PgTerminal.COMMANDS.connect();
-  }, []);
+  const connect = useCallback(() => PgCommand.connect.run(), []);
 
   return (
     <Wrapper id={Id.BOTTOM}>
-      <Tooltip text="Toggle Playground Wallet">
+      <Tooltip element="Toggle Playground Wallet">
         <ConnectButton
           onClick={connect}
           kind="transparent"
-          leftIcon={<ConnStatus connStatus={connStatus} />}
+          leftIcon={<WalletStatus isConnected={!!walletPkStr} />}
         >
-          {connStatus}
+          {wallet
+            ? wallet.isPg
+              ? "Connected to Playground Wallet"
+              : `Connected to ${wallet.name}`
+            : "Not connected"}
         </ConnectButton>
       </Tooltip>
 
       {walletPkStr && (
         <>
           <Dash>-</Dash>
-          <Tooltip text="RPC endpoint">
-            <RpcEndpoint title={conn.rpcEndpoint}>{networkName}</RpcEndpoint>
+          <Tooltip element={`RPC endpoint (${connection.rpcEndpoint})`}>
+            <RpcEndpoint>{networkName}</RpcEndpoint>
           </Tooltip>
+
           <Seperator>|</Seperator>
-          <Tooltip text="Your address">
+
+          <Tooltip element="Your address">
             <Address href={`${EXPLORER_URL}/address/${walletPkStr}${cluster}`}>
               {walletPkStr}
             </Address>
           </Tooltip>
+
           {balance !== undefined && balance !== null && (
             <>
               <Seperator>|</Seperator>
-              <Tooltip text="Current balance">
+              <Tooltip element="Current balance">
                 <Balance>{`${balance} SOL`}</Balance>
               </Tooltip>
             </>
@@ -81,35 +72,24 @@ const Bottom = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-
-    ${PgThemeManager.convertToCSS(theme.components.bottom.default)};
-
-    & .${ClassName.TOOLTIP} {
+    & > div {
       height: 100%;
       display: flex;
       align-items: center;
-
-      & button {
-        height: 100%;
-      }
     }
 
-    & svg {
-      color: inherit;
-    }
+    ${PgTheme.convertToCSS(theme.components.bottom.default)};
   `}
 `;
 
 const ConnectButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.connect)};
+    ${PgTheme.convertToCSS(theme.components.bottom.connect)};
   `}
 `;
 
-const ConnStatus = styled.span<{ connStatus: string }>`
-  ${({ connStatus, theme }) => css`
+const WalletStatus = styled.span<{ isConnected: boolean }>`
+  ${({ isConnected, theme }) => css`
     &::before {
       content: "";
       display: block;
@@ -117,11 +97,9 @@ const ConnStatus = styled.span<{ connStatus: string }>`
       height: 0.75rem;
       border-radius: 50%;
       margin-right: 0.25rem;
-      background: ${connStatus === ConnState.NOT_CONNECTED
-        ? theme.colors.state.error.color
-        : connStatus === ConnState.CONNECTING
-        ? theme.colors.state.warning.color
-        : theme.colors.state.success.color};
+      background: ${isConnected
+        ? theme.colors.state.success.color
+        : theme.colors.state.error.color};
     }
   `}
 `;
@@ -136,19 +114,19 @@ const Seperator = styled.span`
 
 const RpcEndpoint = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.endpoint)};
+    ${PgTheme.convertToCSS(theme.components.bottom.endpoint)};
   `}
 `;
 
 const Address = styled(Link)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.address)};
+    ${PgTheme.convertToCSS(theme.components.bottom.address)};
   `}
 `;
 
 const Balance = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.bottom.balance)};
+    ${PgTheme.convertToCSS(theme.components.bottom.balance)};
   `}
 `;
 

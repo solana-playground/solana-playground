@@ -1,2 +1,2 @@
-export { PgThemeManager } from "./theme";
+export { PgTheme } from "./theme";
 export * from "./interface";

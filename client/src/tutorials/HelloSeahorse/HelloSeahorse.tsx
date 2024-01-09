@@ -1,5 +1,5 @@
 import { Tutorial } from "../../components/Tutorial";
-import { PgExplorer, PgView, Sidebar } from "../../utils/pg";
+import { PgExplorer, PgView } from "../../utils/pg";
 
 const HelloSeahorse = () => (
   <Tutorial
@@ -13,7 +13,7 @@ const HelloSeahorse = () => (
         title: "Build & Deploy",
         onMount: () => {
           // Switch sidebar state to Build & Deploy
-          PgView.setSidebarState(Sidebar.BUILD_DEPLOY);
+          PgView.setSidebarPage("Build & Deploy");
         },
       },
       {
@@ -21,14 +21,13 @@ const HelloSeahorse = () => (
         title: "Client",
         onMount: async () => {
           // Switch sidebar state to Explorer
-          PgView.setSidebarState(Sidebar.EXPLORER);
+          PgView.setSidebarPage("Explorer");
 
           // Create client.ts file
-          const explorer = await PgExplorer.get();
           const clientPath = "client/client.ts";
-          const clientExists = await explorer.exists(clientPath);
+          const clientExists = await PgExplorer.fs.exists(clientPath);
           if (!clientExists) {
-            await explorer.newItem(
+            await PgExplorer.newItem(
               clientPath,
               require("./files/client.ts.raw")
             );
@@ -40,7 +39,7 @@ const HelloSeahorse = () => (
         title: "Test UI",
         onMount: () => {
           // Switch sidebar state to Test
-          PgView.setSidebarState(Sidebar.TEST);
+          PgView.setSidebarPage("Test");
         },
       },
     ]}

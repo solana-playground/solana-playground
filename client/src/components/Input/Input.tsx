@@ -8,20 +8,21 @@ import {
 import styled, { css } from "styled-components";
 
 import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 type InputError = string | boolean | null;
 
-interface InputProps extends ComponentPropsWithoutRef<"input"> {
+export interface InputProps extends ComponentPropsWithoutRef<"input"> {
+  value: string;
   error?: InputError;
-  setError?: Dispatch<SetStateAction<InputError>>;
+  setError?: Dispatch<SetStateAction<any>>;
   validator?: (value: string) => boolean | void;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, error, setError, onChange, validator, ...props }, ref) => (
     <>
-      {error && <ErrorText>{error}</ErrorText>}
+      {typeof error === "string" && error && <ErrorText>{error}</ErrorText>}
       <StyledInput
         ref={ref}
         {...defaultInputProps}
@@ -33,18 +34,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           // Validation
           if (validator) {
             const handleError = (err: InputError) => {
-              if (setError) {
-                setError(err);
-              } else if (err) {
-                ev.target.classList.add(ClassName.ERROR);
-              } else {
-                ev.target.classList.remove(ClassName.ERROR);
-              }
+              if (setError) setError(err);
+
+              if (err) ev.target.classList.add(ClassName.ERROR);
+              else ev.target.classList.remove(ClassName.ERROR);
             };
 
             try {
               if (validator(ev.target.value) === false) {
-                handleError("Invalid value");
+                handleError(true);
               } else {
                 handleError(null);
               }
@@ -54,9 +52,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             }
           }
         }}
-      >
-        {props.children}
-      </StyledInput>
+      />
     </>
   )
 );
@@ -70,32 +66,25 @@ const ErrorText = styled.div`
 `;
 
 const StyledInput = styled.input<InputProps>`
-  ${({ theme }) => {
-    const input = theme.components.input;
+  ${({ theme }) => css`
+    &:disabled {
+      background: ${theme.colors.state.disabled.bg};
+      color: ${theme.colors.state.disabled.color};
+      cursor: not-allowed;
+    }
 
-    return css`
-      width: 100%;
-      border: 1px solid ${input.borderColor};
+    &.${ClassName.ERROR} {
+      outline-color: transparent;
+      border-color: ${theme.colors.state.error.color};
+    }
 
-      &:disabled {
-        background: ${theme.colors.state.disabled.bg};
-        color: ${theme.colors.state.disabled.color};
-        cursor: not-allowed;
-      }
+    &.${ClassName.SUCCESS} {
+      outline-color: transparent;
+      border-color: ${theme.colors.state.success.color};
+    }
 
-      &.${ClassName.ERROR} {
-        outline-color: transparent;
-        border-color: ${theme.colors.state.error.color};
-      }
-
-      &.${ClassName.SUCCESS} {
-        outline-color: transparent;
-        border-color: ${theme.colors.state.success.color};
-      }
-
-      ${PgThemeManager.convertToCSS(input)};
-    `;
-  }}
+    ${PgTheme.convertToCSS(theme.components.input)};
+  `}}
 `;
 
 const defaultInputProps = {

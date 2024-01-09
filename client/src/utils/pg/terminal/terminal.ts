@@ -5,7 +5,6 @@ import { format } from "util";
 
 import { PgTty } from "./tty";
 import { PgShell } from "./shell";
-import { CommandName, Commands, PgCommand } from "./command";
 import {
   Emoji,
   EventName,
@@ -17,21 +16,11 @@ import {
   RPC_ERROR,
   SERVER_ERROR,
 } from "../../../constants";
-import { TerminalAction } from "../../../state";
 import { PgCommon } from "../common";
-import { PgProgramInfo } from "../program-info";
-import { PgValidator } from "../validator";
-import type { PrintOptions } from "./types";
-import type { PgMethod, PgReturnType, SyncOrAsync } from "../types";
+import type { ExecuteCommand, PrintOptions } from "./types";
+import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
-  /** All commands */
-  static COMMANDS: {
-    [K in CommandName]: (
-      args?: string
-    ) => Promise<Awaited<ReturnType<Commands[K]["process"]>>>;
-  };
-
   /** Default height of the terminal */
   static get DEFAULT_HEIGHT() {
     return Math.floor(window.innerHeight / 4);
@@ -120,107 +109,69 @@ export class PgTerminal {
     return `\x1b[4m${text}\x1b[0m`;
   }
 
-  /**
-   * Hightlight the text before printing to terminal
-   */
+  /** Hightlight the text before printing to terminal. */
   static colorText(text: string) {
-    text = text
-      // Match for error
-      .replace(
-        /\w*\s(\w*)error(\[|:)/gim,
-        (match) =>
-          this.error(match.substring(0, match.length - 1)) +
-          match[match.length - 1]
-      )
-
-      // Match for warning
-      .replace(/(\d\s)?warning(s|:)?/gim, (match) => {
-        // warning:
-        if (match.endsWith(":")) {
-          return (
-            this.warning(match.substring(0, match.length - 1)) +
+    return (
+      text
+        // Match for error
+        .replace(
+          /\w*\s?(\w*)error(:|\[.*?:)/gim,
+          (match) =>
+            this.error(match.substring(0, match.length - 1)) +
             match[match.length - 1]
-          );
-        }
+        )
 
-        // 1 warning, 2 warnings
-        return this.warning(match);
-      })
+        // Match for warning
+        .replace(/(\d+\s)?warning(s|:)?/gim, (match) => {
+          // warning:
+          if (match.endsWith(":")) {
+            return (
+              this.warning(match.substring(0, match.length - 1)) +
+              match[match.length - 1]
+            );
+          }
 
-      // Match until ':' from the start of the line: e.g SUBCOMMANDS:
-      // TODO: Highlight the text from WASM so we don't have to do this.
-      .replace(/^(.*?:)/gm, (match) => {
-        if (
-          new RegExp(/(http|{|})/).test(match) ||
-          new RegExp(/"\w+":/).test(match) ||
-          new RegExp(/\(\w+:/).test(match) ||
-          new RegExp(/^\s*\|/).test(match) ||
-          new RegExp(/^\s?\d+/).test(match)
-        ) {
+          // 1 warning, 2 warnings
+          return this.warning(match);
+        })
+
+        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+        // TODO: Highlight the text from WASM so we don't have to do this.
+        .replace(/^(.*?:)/gm, (match) => {
+          if (
+            new RegExp(/(http|{|})/).test(match) ||
+            new RegExp(/"\w+":/).test(match) ||
+            new RegExp(/\(\w+:/).test(match) ||
+            new RegExp(/^\s*\|/).test(match) ||
+            new RegExp(/^\s?\d+/).test(match)
+          ) {
+            return match;
+          }
+          if (!match.includes("   ")) {
+            if (match.startsWith(" ")) {
+              return this.bold(match); // Indented
+            }
+            if (!match.toLowerCase().includes("error")) {
+              return this.primary(match);
+            }
+          }
+
           return match;
-        }
-        if (!match.includes("   ")) {
-          if (match.startsWith(" ")) {
-            return this.bold(match); // Indented
-          }
-          if (!match.toLowerCase().includes("error")) {
-            return this.primary(match);
-          }
-        }
+        })
 
-        return match;
-      })
+        // Secondary text color for (...)
+        .replace(/\(.+\)/gm, (match) =>
+          match === "(s)" ? match : this.secondaryText(match)
+        )
 
-      // Secondary text color for (...)
-      .replace(/\(.+\)/gm, (match) =>
-        match === "(s)" ? match : this.secondaryText(match)
-      )
+        // Numbers
+        .replace(/^\s*\d+$/, (match) => this.secondary(match))
 
-      // Numbers
-      .replace(/^\s*\d+$/, (match) => this.secondary(match))
-
-      // Progression [1/5]
-      .replace(/\[\d+\/\d+\]/, (match) => this.bold(this.secondaryText(match)));
-
-    return text;
-  }
-
-  /**
-   * Edit build stderr that is returned from the build request
-   */
-  static editStderr(stderr: string) {
-    // Remove full path
-    stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
-
-    // Remove uuid from folders
-    const uuid = PgProgramInfo.getProgramInfo().uuid;
-    if (uuid) stderr = stderr.replaceAll(uuid, "");
-
-    // Remove rustc error line
-    let startIndex = stderr.indexOf("For more");
-    if (startIndex !== -1) {
-      const endIndex = stderr.indexOf("\n", startIndex);
-      stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
-    }
-
-    // Remove Compiling message
-    stderr = stderr.replace("Compiling solpg v0.1.0\n", "");
-
-    // Remove whitespace before 'Finished'
-    startIndex = stderr.indexOf("Finished release");
-    if (startIndex !== -1) {
-      const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
-      stderr =
-        stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
-        stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
-        this.success("Build successful. ") +
-        "Completed" +
-        stderr
-          .substring(stderr.indexOf(" in", startIndex))
-          .replace("\n", ".\n"); // Time passed
-    }
-
-    return stderr.substring(0, stderr.length - 1);
+        // Progression [1/5]
+        .replace(/\[\d+\/\d+\]/, (match) =>
+          this.bold(this.secondaryText(match))
+        )
+    );
   }
 
   /**
@@ -233,7 +184,7 @@ export class PgTerminal {
         const parts = msg.split(":");
 
         let ixIndex = parts[2][parts[2].length - 1];
-        if (!PgValidator.isInt(ixIndex)) ixIndex = "0";
+        if (!PgCommon.isInt(ixIndex)) ixIndex = "0";
         const programError = PROGRAM_ERROR[programErrorCode];
 
         msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
@@ -293,41 +244,24 @@ export class PgTerminal {
     return msg;
   }
 
-  /**
-   * Gets whether the terminal is focused or in blur
-   */
+  /** Get whether the terminal is focused or in blur. */
   static isFocused() {
     return document
       .getElementsByClassName("terminal xterm xterm-dom-renderer-owner-1")[0]
       ?.classList.contains("focus");
   }
 
-  /**
-   * Set terminal state from anywhere
-   */
-  static setTerminalState(action: TerminalAction | TerminalAction[]) {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_STATE, {
-      action,
-    });
-  }
-
-  /**
-   * Dispatch enable terminal custom event
-   */
+  /** Dispatch enable terminal custom event. */
   static async enable() {
     await PgTerminal.run({ enable: [] });
   }
 
-  /**
-   * Dispatch disable terminal custom event
-   */
+  /** Dispatch disable terminal custom event. */
   static async disable() {
     await PgTerminal.run({ disable: [] });
   }
 
-  /**
-   * Log terminal messages from anywhere
-   */
+  /** Log terminal messages from anywhere. */
   static async log(msg: any, opts?: PrintOptions) {
     await PgTerminal.run({ println: [msg, opts] });
   }
@@ -342,18 +276,20 @@ export class PgTerminal {
     this.log(msg);
   }
 
-  /**
-   * Dispatch scroll to bottom custom event
-   */
+  /** Dispatch scroll to bottom custom event. */
   static async scrollToBottom() {
     await PgTerminal.run({ scrollToBottom: [] });
   }
 
-  /**
-   * Dispatch run last command custom event
-   */
+  /** Dispatch run last command custom event. */
   static async runLastCmd() {
     await PgTerminal.run({ runLastCmd: [] });
+  }
+
+  /** Execute the given command from string. */
+  static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
+    const term = await PgTerminal.get();
+    return await term.executeFromStr(...args);
   }
 
   /**
@@ -392,8 +328,8 @@ export class PgTerminal {
    * @returns the result from the method call
    */
   static async run<
-    R extends PgReturnType<PgTerm, keyof M>,
-    M extends PgMethod<PgTerm>
+    R extends ClassReturnType<PgTerm, keyof M>,
+    M extends Methods<PgTerm>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
@@ -455,9 +391,8 @@ export class PgTerm {
   private _pgTty: PgTty;
   private _pgShell: PgShell;
   private _isOpen: boolean;
-  private _fitTimeoutId?: NodeJS.Timeout;
 
-  constructor(xtermOptions?: ITerminalOptions) {
+  constructor(execute: ExecuteCommand, xtermOptions?: ITerminalOptions) {
     // Create xterm element
     this._xterm = new XTerm(xtermOptions);
 
@@ -472,7 +407,7 @@ export class PgTerm {
 
     // Create  Shell and TTY
     this._pgTty = new PgTty(this._xterm);
-    this._pgShell = new PgShell(this._pgTty);
+    this._pgShell = new PgShell(this._pgTty, execute);
 
     // XTerm events
     this._xterm.onResize(this._handleTermResize);
@@ -486,20 +421,6 @@ export class PgTerm {
     this._xterm.onData(this._pgShell.handleTermData);
 
     this._isOpen = false;
-
-    // Command handler
-    PgTerminal.COMMANDS = new Proxy(
-      {},
-      {
-        get: (_target: any, name: CommandName) => {
-          return (args: string = "") => {
-            return this._executeFromStr(
-              `${PgCommand.COMMANDS[name].name} ${args}`
-            );
-          };
-        },
-      }
-    );
   }
 
   /** Open terminal */
@@ -537,7 +458,7 @@ export class PgTerm {
       return;
     }
 
-    // We don't need cursorX, since we want to start at the beginning of the terminal.
+    // We don't need `cursorX`, since we want to start at the beginning of the terminal
     const cursorY = this._pgTty.getBuffer().cursorY;
     const size = this._pgTty.getSize();
 
@@ -560,7 +481,7 @@ export class PgTerm {
     window.scrollTo(scrollX, scrollY);
   }
 
-  /** Print a message to terminal */
+  /** Print a message */
   print(msg: any, opts?: PrintOptions) {
     if (typeof msg === "string") {
       // For some reason, double new lines are not respected. Thus, fixing that here
@@ -575,7 +496,6 @@ export class PgTerm {
       // Cancel the current prompt and restart
       this._pgShell.printAndRestartPrompt(() => {
         this._pgTty.print(msg + "\n", opts);
-        return undefined;
       });
       return;
     }
@@ -640,13 +560,13 @@ export class PgTerm {
   runLastCmd() {
     // Last command is the current input
     let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === PgCommand.COMMANDS.runLastCmd.name) {
+    if (!lastCmd || lastCmd === "!!") {
       const maybeLastCmd = this._pgShell.getHistory().getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
 
-    this._executeFromStr(lastCmd);
+    this.executeFromStr(lastCmd, true);
   }
 
   /**
@@ -688,6 +608,8 @@ export class PgTerm {
         : number
       : string
   > {
+    this.focus();
+
     let convertedMsg = msg;
     if (opts?.default) {
       convertedMsg += ` (default: ${opts.default})`;
@@ -723,9 +645,7 @@ export class PgTerm {
             (opts.choice?.allowMultiple ? true : parsed.length === 1) &&
             parsed.every(
               (v) =>
-                PgValidator.isInt(v.toString()) &&
-                v >= 0 &&
-                v <= choiceMaxLength
+                PgCommon.isInt(v.toString()) && v >= 0 && v <= choiceMaxLength
             )
           );
         };
@@ -792,29 +712,29 @@ export class PgTerm {
    * @param cmd command to run
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
-  private async _executeFromStr(cmd: string, clearCmd: boolean = true) {
+  async executeFromStr(cmd: string, clearCmd?: boolean) {
     this._pgTty.setInput(cmd);
     return await this._pgShell.handleReadComplete(clearCmd);
   }
 
   /**
-   * Custom keyboard events. Only runs when terminal is in focus.
+   * Handle custom keyboard events. Only runs when terminal is in focus.
    *
-   * @param e keyboard event
+   * @param ev keyboard event
    * @returns whether to keep the defaults
    *
    * NOTE: This function is intentionally uses arrow functions for `this` to be
    * defined from the outer class (PgTerm) otherwise `this` is being defined from
    * XTerm's instance
    */
-  private _handleCustomEvent = (e: KeyboardEvent) => {
-    if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
-      const key = e.key.toUpperCase();
+  private _handleCustomEvent = (ev: KeyboardEvent) => {
+    if (PgCommon.isKeyCtrlOrCmd(ev) && ev.type === "keydown") {
+      const key = ev.key.toUpperCase();
 
       switch (key) {
         case "C":
-          if (e.shiftKey) {
-            e.preventDefault();
+          if (ev.shiftKey) {
+            ev.preventDefault();
             const selection = this._xterm.getSelection();
             navigator.clipboard.writeText(selection);
             return false;
@@ -825,7 +745,7 @@ export class PgTerm {
         case "V":
           // Ctrl+Shift+V does not work with Firefox but works with Chromium.
           // We fallback to Ctrl+V for Firefox
-          if (e.shiftKey || PgCommon.isFirefox()) return false;
+          if (ev.shiftKey || PgCommon.getBrowser() === "Firefox") return false;
 
           return true;
 

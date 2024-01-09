@@ -26,19 +26,19 @@ impl GetBalanceRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetBalanceRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
-            Some(config) => serde_json::json!([self.pubkey.to_string(), config]),
-            None => serde_json::json!([self.pubkey.to_string()]),
+impl From<GetBalanceRequest> for serde_json::Value {
+    fn from(value: GetBalanceRequest) -> Self {
+        match value.config {
+            Some(config) => serde_json::json!([value.pubkey.to_string(), config]),
+            None => serde_json::json!([value.pubkey.to_string()]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetBalanceRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetBalanceRequest> for ClientRequest {
+    fn from(value: GetBalanceRequest) -> Self {
         let mut request = ClientRequest::new("getBalance");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

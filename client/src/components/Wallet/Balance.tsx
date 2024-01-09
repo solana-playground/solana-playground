@@ -1,22 +1,19 @@
-import { useAtom } from "jotai";
 import styled, { css } from "styled-components";
 
-import { uiBalanceAtom } from "../../state";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
+import { useBalance } from "../../hooks";
 
 const Balance = () => {
-  const [balance] = useAtom(uiBalanceAtom);
+  const { balance } = useBalance();
 
-  if (balance === null || balance === undefined) return null;
+  if (balance === null) return null;
 
-  const uiBalance = balance === 0 ? 0 : balance.toFixed(3);
-
-  return <Wrapper>{uiBalance} SOL</Wrapper>;
+  return <Wrapper>{balance === 0 ? 0 : balance.toFixed(3)} SOL</Wrapper>;
 };
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.balance)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.balance)};
   `}
 `;
 

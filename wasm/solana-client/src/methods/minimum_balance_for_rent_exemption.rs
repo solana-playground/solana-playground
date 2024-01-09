@@ -24,21 +24,21 @@ impl GetMinimumBalanceForRentExemptionRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetMinimumBalanceForRentExemptionRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetMinimumBalanceForRentExemptionRequest> for serde_json::Value {
+    fn from(value: GetMinimumBalanceForRentExemptionRequest) -> Self {
+        match value.config {
             Some(config) => {
-                serde_json::json!([self.data_length, config])
+                serde_json::json!([value.data_length, config])
             }
-            None => serde_json::json!([self.data_length]),
+            None => serde_json::json!([value.data_length]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetMinimumBalanceForRentExemptionRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetMinimumBalanceForRentExemptionRequest> for ClientRequest {
+    fn from(val: GetMinimumBalanceForRentExemptionRequest) -> Self {
         let mut request = ClientRequest::new("getMinimumBalanceForRentExemption");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -53,8 +53,8 @@ impl From<ClientResponse> for GetMinimumBalanceForRentExemptionResponse {
     }
 }
 
-impl Into<u64> for GetMinimumBalanceForRentExemptionResponse {
-    fn into(self) -> u64 {
-        self.0
+impl From<GetMinimumBalanceForRentExemptionResponse> for u64 {
+    fn from(val: GetMinimumBalanceForRentExemptionResponse) -> Self {
+        val.0
     }
 }

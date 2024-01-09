@@ -1,10 +1,10 @@
 use std::str::FromStr;
 
 use anchor_lang::prelude::Pubkey;
-use anchor_syn::idl::Idl;
+use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
 use solana_client_wasm::WasmClient;
-use solana_playground_utils_wasm::js::{PgConnection, PgProgramInfo, PgWallet};
+use solana_playground_utils_wasm::js::{PgProgramInfo, PgSettings, PgWallet};
 use solana_sdk::{
     commitment_config::{CommitmentConfig, CommitmentLevel},
     signature::Keypair,
@@ -13,10 +13,11 @@ use solana_sdk::{
 use crate::cli::CliResult;
 
 pub fn get_client() -> WasmClient {
+    let connection_settings = PgSettings::connection();
     WasmClient::new_with_commitment(
-        &PgConnection::endpoint(),
+        &connection_settings.endpoint(),
         CommitmentConfig {
-            commitment: match PgConnection::commitment().as_str() {
+            commitment: match connection_settings.commitment().as_str() {
                 "processed" => CommitmentLevel::Processed,
                 "confirmed" => CommitmentLevel::Confirmed,
                 "finalized" => CommitmentLevel::Finalized,

@@ -37,16 +37,16 @@ impl GetTokenAccountsByOwnerRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetTokenAccountsByOwnerRequest {
-    fn into(self) -> serde_json::Value {
-        serde_json::json!([self.owner.to_string(), self.filter, self.config])
+impl From<GetTokenAccountsByOwnerRequest> for serde_json::Value {
+    fn from(value: GetTokenAccountsByOwnerRequest) -> Self {
+        serde_json::json!([value.owner.to_string(), value.filter, value.config])
     }
 }
 
-impl Into<ClientRequest> for GetTokenAccountsByOwnerRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetTokenAccountsByOwnerRequest> for ClientRequest {
+    fn from(value: GetTokenAccountsByOwnerRequest) -> Self {
         let mut request = ClientRequest::new("getTokenAccountsByOwner");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
