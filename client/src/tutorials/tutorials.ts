@@ -173,7 +173,7 @@ export const TUTORIALS = createTutorials(
       },
     ],
     level: "Intermediate",
-    languages: ["Rust", "TypeScript"]
+    languages: ["Rust", "TypeScript"],
   },
 
   {
