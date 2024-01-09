@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use clap::{Arg, ArgMatches, Command};
 use solana_clap_v3_utils_wasm::{
@@ -197,7 +197,7 @@ impl WalletSubCommands for Command<'_> {
                             Arg::new("encoding")
                                 .index(2)
                                 .value_name("ENCODING")
-                                .possible_values(&["base58", "base64"]) // Variants of `TransactionBinaryEncoding` enum
+                                .possible_values(["base58", "base64"]) // Variants of `TransactionBinaryEncoding` enum
                                 .default_value("base58")
                                 .takes_value(true)
                                 .required(true)
@@ -295,7 +295,7 @@ fn resolve_derived_address_program_id(matches: &ArgMatches, arg_name: &str) -> O
 
 pub fn parse_account(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let account_pubkey = pubkey_of_signer(matches, "account_pubkey", wallet_manager)?.unwrap();
     let output_file = matches.value_of("output_file");
@@ -313,7 +313,7 @@ pub fn parse_account(
 pub fn parse_airdrop(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let pubkey = pubkey_of_signer(matches, "to", wallet_manager)?;
     let signers = if pubkey.is_some() {
@@ -331,7 +331,7 @@ pub fn parse_airdrop(
 pub fn parse_balance(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let pubkey = pubkey_of_signer(matches, "pubkey", wallet_manager)?;
     let signers = if pubkey.is_some() {
@@ -383,7 +383,7 @@ pub fn parse_decode_transaction(matches: &ArgMatches) -> Result<CliCommandInfo, 
 pub fn parse_create_address_with_seed(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let from_pubkey = pubkey_of_signer(matches, "from", wallet_manager)?;
     let signers = if from_pubkey.is_some() {
@@ -409,7 +409,7 @@ pub fn parse_create_address_with_seed(
 pub fn parse_transfer(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let amount = SpendAmount::new_from_matches(matches, "amount");
     let to = pubkey_of_signer(matches, "to", wallet_manager)?.unwrap();
@@ -535,7 +535,7 @@ pub async fn process_airdrop(
     let result = request_and_confirm_airdrop(rpc_client, config, &pubkey, lamports).await;
     if let Ok(signature) = result {
         let signature_cli_message = log_instruction_custom_error::<SystemError>(result, config)?;
-        PgTerminal::log_wasm(&format!("{}", signature_cli_message));
+        PgTerminal::log_wasm(&signature_cli_message.to_string());
 
         let current_balance = rpc_client
             .get_balance_with_commitment(&pubkey, config.commitment_config)

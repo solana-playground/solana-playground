@@ -1,4 +1,4 @@
-import { Theme } from "../../utils/pg/theme";
+import type { Theme } from "../../utils/pg";
 
 // BG
 const BG_BLACK = "#000000",
@@ -18,7 +18,15 @@ const BG_BLACK = "#000000",
   // State
   DISABLED = "#111114",
   HOVER_BG = "#2B2D39",
-  SELECTION = "#232323";
+  SELECTION = "#232323",
+  // Highlight
+  COMMENT = "#859188";
+
+const NO_TRANSFORM = {
+  "&:not(:disabled):hover": {
+    transform: "none",
+  },
+};
 
 const SOLANA: Theme = {
   isDark: true,
@@ -53,6 +61,9 @@ const SOLANA: Theme = {
       warning: { color: YELLOW },
     },
   },
+  default: {
+    borderRadius: "12px",
+  },
   components: {
     bottom: {
       default: {
@@ -60,11 +71,29 @@ const SOLANA: Theme = {
       },
     },
     button: {
+      default: {
+        "&:not(:disabled):hover": {
+          transform: "translateY(-3px)",
+        },
+      },
       overrides: {
+        icon: NO_TRANSFORM,
+        "no-border": NO_TRANSFORM,
+        transparent: NO_TRANSFORM,
         primary: {
           color: BG_BLACK,
           hover: {
             color: TEXT_PRIMARY,
+          },
+        },
+        outline: {
+          border: `1px solid ${TEXT_PRIMARY}`,
+          hover: {
+            bg: TEXT_PRIMARY,
+            borderColor: BG_BLACK,
+            boxShadow:
+              "0 1rem 2.5rem rgba(35, 35, 35, 0.1), 0 .5rem 1rem -0.75rem rgba(35, 35, 35, 0.1)",
+            color: BG_BLACK,
           },
         },
       },
@@ -89,6 +118,9 @@ const SOLANA: Theme = {
         bg: BG_BLACK,
       },
     },
+    input: {
+      padding: "0.375rem 0.5rem",
+    },
     main: {
       default: {
         bg: BG_BLACK,
@@ -109,9 +141,17 @@ const SOLANA: Theme = {
           },
         },
         tutorials: {
-          card: {
+          main: {
             default: {
-              bg: BG_GRAY,
+              bg: BG_BLACK,
+              border: `1px solid ${SELECTION}`,
+            },
+            tutorials: {
+              card: {
+                default: {
+                  bg: BG_GRAY,
+                },
+              },
             },
           },
         },
@@ -136,7 +176,7 @@ const SOLANA: Theme = {
     },
     tabs: {
       tab: {
-        selected: {
+        current: {
           bg: BG_GRAY,
         },
       },
@@ -180,7 +220,7 @@ const SOLANA: Theme = {
     macroName: { color: GREEN },
     functionCall: { color: GREEN },
     functionDef: { color: GREEN },
-    functionArg: { color: ORANGE },
+    functionArg: { color: TEXT_PRIMARY },
     definitionKeyword: { color: PINK },
     moduleKeyword: { color: PINK },
     modifier: { color: PINK },
@@ -196,11 +236,11 @@ const SOLANA: Theme = {
     operator: { color: PINK },
     derefOperator: { color: PINK },
     specialVariable: { color: PURPLE },
-    lineComment: { color: TEXT_SECONDARY },
-    blockComment: { color: TEXT_SECONDARY },
+    lineComment: { color: COMMENT },
+    blockComment: { color: COMMENT },
     meta: { color: PURPLE },
     invalid: { color: RED },
-    constant: { color: PURPLE },
+    constant: { color: TEXT_PRIMARY },
     regexp: { color: ORANGE },
     tagName: { color: YELLOW },
     attributeName: { color: YELLOW },

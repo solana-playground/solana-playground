@@ -17,11 +17,8 @@ import {
   SERVER_ERROR,
 } from "../../../constants";
 import { PgCommon } from "../common";
-import { PgProgramInfo } from "../program-info";
-import { PgValidator } from "../validator";
 import type { ExecuteCommand, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
-import type { TerminalAction } from "../../../state";
 
 export class PgTerminal {
   /** Default height of the terminal */
@@ -114,103 +111,67 @@ export class PgTerminal {
 
   /** Hightlight the text before printing to terminal. */
   static colorText(text: string) {
-    text = text
-      // Match for error
-      .replace(
-        /\w*\s(\w*)error(\[|:)/gim,
-        (match) =>
-          this.error(match.substring(0, match.length - 1)) +
-          match[match.length - 1]
-      )
-
-      // Match for warning
-      .replace(/(\d\s)?warning(s|:)?/gim, (match) => {
-        // warning:
-        if (match.endsWith(":")) {
-          return (
-            this.warning(match.substring(0, match.length - 1)) +
+    return (
+      text
+        // Match for error
+        .replace(
+          /\w*\s?(\w*)error(:|\[.*?:)/gim,
+          (match) =>
+            this.error(match.substring(0, match.length - 1)) +
             match[match.length - 1]
-          );
-        }
+        )
 
-        // 1 warning, 2 warnings
-        return this.warning(match);
-      })
+        // Match for warning
+        .replace(/(\d+\s)?warning(s|:)?/gim, (match) => {
+          // warning:
+          if (match.endsWith(":")) {
+            return (
+              this.warning(match.substring(0, match.length - 1)) +
+              match[match.length - 1]
+            );
+          }
 
-      // Match until ':' from the start of the line: e.g SUBCOMMANDS:
-      // TODO: Highlight the text from WASM so we don't have to do this.
-      .replace(/^(.*?:)/gm, (match) => {
-        if (
-          new RegExp(/(http|{|})/).test(match) ||
-          new RegExp(/"\w+":/).test(match) ||
-          new RegExp(/\(\w+:/).test(match) ||
-          new RegExp(/^\s*\|/).test(match) ||
-          new RegExp(/^\s?\d+/).test(match)
-        ) {
+          // 1 warning, 2 warnings
+          return this.warning(match);
+        })
+
+        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+        // TODO: Highlight the text from WASM so we don't have to do this.
+        .replace(/^(.*?:)/gm, (match) => {
+          if (
+            new RegExp(/(http|{|})/).test(match) ||
+            new RegExp(/"\w+":/).test(match) ||
+            new RegExp(/\(\w+:/).test(match) ||
+            new RegExp(/^\s*\|/).test(match) ||
+            new RegExp(/^\s?\d+/).test(match)
+          ) {
+            return match;
+          }
+          if (!match.includes("   ")) {
+            if (match.startsWith(" ")) {
+              return this.bold(match); // Indented
+            }
+            if (!match.toLowerCase().includes("error")) {
+              return this.primary(match);
+            }
+          }
+
           return match;
-        }
-        if (!match.includes("   ")) {
-          if (match.startsWith(" ")) {
-            return this.bold(match); // Indented
-          }
-          if (!match.toLowerCase().includes("error")) {
-            return this.primary(match);
-          }
-        }
+        })
 
-        return match;
-      })
+        // Secondary text color for (...)
+        .replace(/\(.+\)/gm, (match) =>
+          match === "(s)" ? match : this.secondaryText(match)
+        )
 
-      // Secondary text color for (...)
-      .replace(/\(.+\)/gm, (match) =>
-        match === "(s)" ? match : this.secondaryText(match)
-      )
+        // Numbers
+        .replace(/^\s*\d+$/, (match) => this.secondary(match))
 
-      // Numbers
-      .replace(/^\s*\d+$/, (match) => this.secondary(match))
-
-      // Progression [1/5]
-      .replace(/\[\d+\/\d+\]/, (match) => this.bold(this.secondaryText(match)));
-
-    return text;
-  }
-
-  /**
-   * Edit build stderr that is returned from the build request
-   */
-  static editStderr(stderr: string) {
-    // Remove full path
-    stderr = stderr.replace(/\s\(\/home.+?(?=\s)/g, "");
-
-    // Remove uuid from folders
-    const uuid = PgProgramInfo.uuid;
-    if (uuid) stderr = stderr.replaceAll(uuid, "");
-
-    // Remove rustc error line
-    let startIndex = stderr.indexOf("For more");
-    if (startIndex !== -1) {
-      const endIndex = stderr.indexOf("\n", startIndex);
-      stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
-    }
-
-    // Remove Compiling message
-    stderr = stderr.replace("Compiling solpg v0.1.0\n", "");
-
-    // Remove whitespace before 'Finished'
-    startIndex = stderr.indexOf("Finished release");
-    if (startIndex !== -1) {
-      const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
-      stderr =
-        stderr.substring(0, whiteSpaceStartIndex) + // Until whitespace start
-        stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
-        this.success("Build successful. ") +
-        "Completed" +
-        stderr
-          .substring(stderr.indexOf(" in", startIndex))
-          .replace("\n", ".\n"); // Time passed
-    }
-
-    return stderr.substring(0, stderr.length - 1);
+        // Progression [1/5]
+        .replace(/\[\d+\/\d+\]/, (match) =>
+          this.bold(this.secondaryText(match))
+        )
+    );
   }
 
   /**
@@ -223,7 +184,7 @@ export class PgTerminal {
         const parts = msg.split(":");
 
         let ixIndex = parts[2][parts[2].length - 1];
-        if (!PgValidator.isInt(ixIndex)) ixIndex = "0";
+        if (!PgCommon.isInt(ixIndex)) ixIndex = "0";
         const programError = PROGRAM_ERROR[programErrorCode];
 
         msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
@@ -290,13 +251,6 @@ export class PgTerminal {
       ?.classList.contains("focus");
   }
 
-  /** Set terminal state from anywhere. */
-  static setTerminalState(action: TerminalAction | TerminalAction[]) {
-    PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_STATE, {
-      action,
-    });
-  }
-
   /** Dispatch enable terminal custom event. */
   static async enable() {
     await PgTerminal.run({ enable: [] });
@@ -333,9 +287,9 @@ export class PgTerminal {
   }
 
   /** Execute the given command from string. */
-  static async executeFromStr(cmd: string) {
+  static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
     const term = await PgTerminal.get();
-    return await term.executeFromStr(cmd);
+    return await term.executeFromStr(...args);
   }
 
   /**
@@ -612,7 +566,7 @@ export class PgTerm {
       else this.println("Unable to run last command.");
     }
 
-    this.executeFromStr(lastCmd);
+    this.executeFromStr(lastCmd, true);
   }
 
   /**
@@ -654,6 +608,8 @@ export class PgTerm {
         : number
       : string
   > {
+    this.focus();
+
     let convertedMsg = msg;
     if (opts?.default) {
       convertedMsg += ` (default: ${opts.default})`;
@@ -689,9 +645,7 @@ export class PgTerm {
             (opts.choice?.allowMultiple ? true : parsed.length === 1) &&
             parsed.every(
               (v) =>
-                PgValidator.isInt(v.toString()) &&
-                v >= 0 &&
-                v <= choiceMaxLength
+                PgCommon.isInt(v.toString()) && v >= 0 && v <= choiceMaxLength
             )
           );
         };
@@ -758,29 +712,29 @@ export class PgTerm {
    * @param cmd command to run
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
-  async executeFromStr(cmd: string, clearCmd: boolean = true) {
+  async executeFromStr(cmd: string, clearCmd?: boolean) {
     this._pgTty.setInput(cmd);
     return await this._pgShell.handleReadComplete(clearCmd);
   }
 
   /**
-   * Custom keyboard events. Only runs when terminal is in focus.
+   * Handle custom keyboard events. Only runs when terminal is in focus.
    *
-   * @param e keyboard event
+   * @param ev keyboard event
    * @returns whether to keep the defaults
    *
    * NOTE: This function is intentionally uses arrow functions for `this` to be
    * defined from the outer class (PgTerm) otherwise `this` is being defined from
    * XTerm's instance
    */
-  private _handleCustomEvent = (e: KeyboardEvent) => {
-    if (PgCommon.isKeyCtrlOrCmd(e) && e.type === "keydown") {
-      const key = e.key.toUpperCase();
+  private _handleCustomEvent = (ev: KeyboardEvent) => {
+    if (PgCommon.isKeyCtrlOrCmd(ev) && ev.type === "keydown") {
+      const key = ev.key.toUpperCase();
 
       switch (key) {
         case "C":
-          if (e.shiftKey) {
-            e.preventDefault();
+          if (ev.shiftKey) {
+            ev.preventDefault();
             const selection = this._xterm.getSelection();
             navigator.clipboard.writeText(selection);
             return false;
@@ -791,7 +745,7 @@ export class PgTerm {
         case "V":
           // Ctrl+Shift+V does not work with Firefox but works with Chromium.
           // We fallback to Ctrl+V for Firefox
-          if (e.shiftKey || PgCommon.isFirefox()) return false;
+          if (ev.shiftKey || PgCommon.getBrowser() === "Firefox") return false;
 
           return true;
 

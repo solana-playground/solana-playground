@@ -1,27 +1,38 @@
-import { useAtom } from "jotai";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
+import { Keypair } from "@solana/web3.js";
 
 import Balance from "./Balance";
 import Send from "./Send";
 import Transactions from "./Transactions";
 import Button from "../Button";
+import FadeIn from "../FadeIn";
+import Img from "../Img";
+import Input from "../Input";
+import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
-import useCopy from "../CopyButton/useCopy";
-import { Close } from "../Icons";
+import { Close, ShortArrow } from "../Icons";
 import { WalletSettings } from "./Settings";
-import { showWalletAtom } from "../../state";
 import { ClassName, Id } from "../../constants";
-import { PgCommon } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
-import { useCurrentWallet } from "../../hooks";
+import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
+import {
+  useKeybind,
+  useOnClickOutside,
+  useRenderOnChange,
+  useWallet,
+} from "../../hooks";
 
 const Wallet = () => {
-  const [showWallet] = useAtom(showWalletAtom);
+  useRenderOnChange(PgWallet.onDidChangeShow);
 
-  const { wallet } = useCurrentWallet();
+  const { wallet } = useWallet();
 
-  if (!showWallet || !wallet) return null;
+  useAutoAirdrop();
+  useStandardAccountChange();
+
+  if (!PgWallet.show || !wallet) return null;
 
   const tabHeight = document
     .getElementById(Id.TABS)
@@ -44,7 +55,7 @@ const Wallet = () => {
         enableUserSelectHack={false}
       >
         <WalletWrapper>
-          <WalletTitle />
+          <WalletTop />
           <WalletMain />
         </WalletWrapper>
       </Rnd>
@@ -74,55 +85,170 @@ const WalletBound = styled.div`
   `}
 `;
 
-const WalletWrapper = styled.div`
+const WalletWrapper = styled(FadeIn)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.default)};
   `}
 `;
 
-const WalletTitle = () => {
-  const { walletPkStr } = useCurrentWallet();
+const WalletTop = () => {
+  const [rename, setRename] = useState(false);
 
-  const [copied, setCopied] = useCopy(walletPkStr ?? "");
+  const showRename = useCallback(() => {
+    setRename(true);
+  }, []);
+
+  const hideRename = useCallback(() => {
+    setRename(false);
+  }, []);
 
   return (
-    <TitleWrapper>
-      <WalletSettings />
-      {!!walletPkStr && (
-        <Tooltip text={copied ? "Copied" : "Copy"}>
-          <Title onClick={setCopied}>{PgCommon.shortenPk(walletPkStr)}</Title>
-        </Tooltip>
-      )}
+    <WalletTopWrapper>
+      <WalletSettings showRename={showRename} />
+      {rename ? <WalletRename hideRename={hideRename} /> : <WalletName />}
       <WalletClose />
-    </TitleWrapper>
+    </WalletTopWrapper>
   );
 };
 
-const WalletClose = () => {
-  const [, setShowWallet] = useAtom(showWalletAtom);
+const WalletTopWrapper = styled.div`
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.wallet.top.default)};
+  `}
+`;
 
-  const close = () => {
-    setShowWallet(false);
-  };
+const WalletName = () => {
+  const { wallet, walletPkStr } = useWallet();
+
+  const darken = useCallback(() => {
+    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
+  }, []);
+  const lighten = useCallback(() => {
+    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
+  }, []);
+
+  const getAccountDisplayName = useCallback(
+    (accountName: string, pkStr: string) => {
+      return (
+        PgCommon.withMaxLength(accountName, 12) +
+        ` - (${PgCommon.shorten(pkStr)})`
+      );
+    },
+    []
+  );
+
+  // Show al lof the Playground Wallet accounts
+  const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
+    name: getAccountDisplayName(
+      acc.name,
+      Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
+    ),
+    onClick: () => PgWallet.switch(i),
+    hoverColor: "textPrimary",
+  }));
+
+  // Show all of the connected Wallet Standard accounts
+  const standardAccounts: MenuItemProps[] =
+    PgWallet.getConnectedStandardWallets().map((wallet) => ({
+      name: getAccountDisplayName(wallet.name, wallet.publicKey!.toBase58()),
+      onClick: () => {
+        PgWallet.update({ state: "sol", standardName: wallet.name });
+      },
+      icon: <Img src={wallet.icon} alt={wallet.name} />,
+      hoverColor: "secondary",
+    }));
+
+  if (!wallet) return null;
 
   return (
-    <CloseButton onClick={close} kind="icon">
-      <Close />
-    </CloseButton>
+    <Menu.Dropdown
+      items={pgAccounts.concat(standardAccounts)}
+      onShow={darken}
+      onHide={lighten}
+    >
+      <Tooltip element="Accounts">
+        <WalletTitleWrapper>
+          {!wallet.isPg && (
+            <WalletTitleIcon src={wallet.icon} alt={wallet.name} />
+          )}
+          <WalletTitleText>
+            {getAccountDisplayName(wallet.name, walletPkStr!)}
+          </WalletTitleText>
+          <ShortArrow rotate="90deg" />
+        </WalletTitleWrapper>
+      </Tooltip>
+    </Menu.Dropdown>
   );
 };
 
-const TitleWrapper = styled.div`
+const WalletTitleWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.title.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.top.title.default)};
   `}
 `;
 
-const Title = styled.span`
+const WalletTitleIcon = styled(Img)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.wallet.title.text)};
+    ${PgTheme.convertToCSS(theme.components.wallet.top.title.icon)};
   `}
 `;
+
+const WalletTitleText = styled.span`
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.wallet.top.title.text)};
+  `}
+`;
+
+interface WalletRenameProps {
+  hideRename: Fn;
+}
+
+const WalletRename: FC<WalletRenameProps> = ({ hideRename }) => {
+  const [name, setName] = useState(PgWallet.current!.name);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.select();
+  }, []);
+
+  // Close on outside clicks
+  useOnClickOutside(inputRef, hideRename);
+
+  // Keybinds
+  useKeybind([
+    {
+      keybind: "Enter",
+      handle: () => {
+        PgWallet.rename(name);
+        hideRename();
+      },
+    },
+    {
+      keybind: "Escape",
+      handle: hideRename,
+    },
+  ]);
+
+  return (
+    <div>
+      <Input
+        ref={inputRef}
+        value={name}
+        onChange={(ev) => setName(ev.target.value)}
+        validator={PgWallet.validateAccountName}
+        placeholder="Rename wallet..."
+      />
+    </div>
+  );
+};
+
+const WalletClose = () => (
+  <CloseButton onClick={() => (PgWallet.show = false)} kind="icon">
+    <Close />
+  </CloseButton>
+);
 
 const CloseButton = styled(Button)`
   position: absolute;
@@ -152,10 +278,10 @@ const MainWrapper = styled.div`
     }
 
     &.${ClassName.DARKEN}::after {
-      ${PgThemeManager.convertToCSS(theme.components.wallet.main.backdrop)};
+      ${PgTheme.convertToCSS(theme.components.wallet.main.backdrop)};
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.wallet.main.default)};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.default)};
   `}
 `;
 

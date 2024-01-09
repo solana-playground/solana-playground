@@ -1,14 +1,13 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import styled, { css } from "styled-components";
+import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 
 import Button from "../Button";
 import Link from "../Link";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgWallet } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
-import { usePgConnection } from "../../hooks";
+import { PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import { useConnection } from "../../hooks";
 
 const Transactions = () => {
   const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
@@ -16,14 +15,14 @@ const Transactions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const { connection: conn } = usePgConnection();
+  const { connection } = useConnection();
 
   useEffect(() => {
-    const { dispose } = PgWallet.onDidChangeCurrentWallet(async (wallet) => {
+    const { dispose } = PgWallet.onDidChangeCurrent(async (wallet) => {
       setLoading(true);
       try {
         const _signatures = await PgCommon.transition(
-          conn.getSignaturesForAddress(wallet.publicKey, { limit: 10 })
+          connection.getSignaturesForAddress(wallet!.publicKey, { limit: 10 })
         );
 
         setSignatures(_signatures);
@@ -37,7 +36,7 @@ const Transactions = () => {
     });
 
     return () => dispose();
-  }, [conn, refreshCount]);
+  }, [connection, refreshCount]);
 
   const refresh = useCallback(() => {
     setRefreshCount((c) => c + 1);
@@ -74,7 +73,7 @@ const Transactions = () => {
         <SpinnerWithBg loading={loading}>
           {signatures?.length ? (
             signatures.map((info, i) => (
-              <Tx key={i} {...info} endpoint={conn.rpcEndpoint} />
+              <Tx key={i} {...info} endpoint={connection.rpcEndpoint} />
             ))
           ) : (
             <NoTransaction>
@@ -100,15 +99,13 @@ const Transactions = () => {
 
 const TxsWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
-      theme.components.wallet.main.transactions.default
-    )};
+    ${PgTheme.convertToCSS(theme.components.wallet.main.transactions.default)};
   `}
 `;
 
 const TxsTitleWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.title.default
     )};
   `}
@@ -116,7 +113,7 @@ const TxsTitleWrapper = styled.div`
 
 const TxsTitleText = styled.span`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.title.text
     )};
   `}
@@ -124,7 +121,7 @@ const TxsTitleText = styled.span`
 
 const TxsRefreshButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.title.refreshButton
     )};
   `}
@@ -132,7 +129,7 @@ const TxsRefreshButton = styled(Button)`
 
 const TxsTable = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.default
     )};
   `}
@@ -140,7 +137,7 @@ const TxsTable = styled.div`
 
 const TxsTableHeader = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.header
     )};
   `}
@@ -187,7 +184,7 @@ const Tx: FC<ConfirmedSignatureInfo & { endpoint: string }> = ({
       ) : (
         <>
           <Signature>
-            {err && <ErrorIcon />}
+            {err && <ErrorIcon color="error" />}
             {signature.substring(0, 5)}...
           </Signature>
           <Slot>{slot}</Slot>
@@ -204,7 +201,7 @@ const TxWrapper = styled.div`
       border-bottom: 1px solid ${theme.colors.default.border};
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.default
     )};
   `}
@@ -220,10 +217,9 @@ const Signature = styled.div`
   ${({ theme }) => css`
     & > svg {
       margin-right: 0.25rem;
-      color: ${theme.colors.state.error.color};
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.signature
     )};
   `}
@@ -231,7 +227,7 @@ const Signature = styled.div`
 
 const Slot = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.slot
     )};
   `}
@@ -241,10 +237,9 @@ const Time = styled.div`
   ${({ theme }) => css`
     & > svg {
       margin-left: 0.25rem;
-      color: inherit;
     }
 
-    ${PgThemeManager.convertToCSS(
+    ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.time
     )};
   `}

@@ -4,18 +4,16 @@ import { PgWallet } from "../wallet";
 
 /** Common command checks */
 export class PgCommandValidation {
-  /** Check Playground Wallet connection */
+  /** Check whether Playground Wallet is connected. */
   static isPgConnected() {
-    if (!PgWallet.isConnected) {
-      PgTerminal.log(
+    if (!PgWallet.current?.isPg) {
+      throw new Error(
         `${PgTerminal.bold(
           "Playground Wallet"
-        )} must be connected to run this command. Run ${PgTerminal.bold(
+        )} must be connected to run this command. Run '${PgTerminal.bold(
           PgCommand.connect.name
-        )} to connect.`
+        )}' to connect.`
       );
     }
-
-    return PgWallet.isConnected;
   }
 }

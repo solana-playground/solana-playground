@@ -1,4 +1,4 @@
-use std::{ops::Deref, sync::Arc};
+use std::{ops::Deref, rc::Rc};
 
 use clap::{Arg, ArgMatches, Command};
 use solana_clap_v3_utils_wasm::{input_parsers::*, input_validators::*};
@@ -17,7 +17,7 @@ use solana_sdk::{
     pubkey::Pubkey,
     stake::{
         self,
-        state::{Meta, StakeActivationStatus, StakeState},
+        state::{Meta, StakeActivationStatus, StakeStateV2},
     },
     stake_history::StakeHistory,
     sysvar::{clock, stake_history},
@@ -599,7 +599,7 @@ impl StakeSubCommands for Command<'_> {
                         .long("num-rewards-epochs")
                         .takes_value(true)
                         .value_name("NUM")
-                        .validator(|s| is_within_range(s.into(), 1, 10))
+                        .validator(|s| is_within_range(s, 1, 10))
                         .default_value_if("with_rewards", None, Some("1"))
                         .requires("with_rewards")
                         .help("Display rewards for NUM recent epochs, max 10 [default: latest epoch only]"),
@@ -1136,7 +1136,7 @@ impl StakeSubCommands for Command<'_> {
 
 pub fn parse_show_stake_account(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let stake_account_pubkey =
         pubkey_of_signer(matches, "stake_account_pubkey", wallet_manager)?.unwrap();
@@ -2043,28 +2043,31 @@ fn u64_some_if_not_zero(n: u64) -> Option<u64> {
 
 pub fn build_stake_state(
     account_balance: u64,
-    stake_state: &StakeState,
+    stake_state: &StakeStateV2,
     use_lamports_unit: bool,
     stake_history: &StakeHistory,
     clock: &Clock,
 ) -> CliStakeState {
     match stake_state {
-        StakeState::Stake(
+        StakeStateV2::Stake(
             Meta {
                 rent_exempt_reserve,
                 authorized,
                 lockup,
             },
             stake,
+            _,
         ) => {
             let current_epoch = clock.epoch;
             let StakeActivationStatus {
                 effective,
                 activating,
                 deactivating,
-            } = stake
-                .delegation
-                .stake_activating_and_deactivating(current_epoch, Some(stake_history));
+            } = stake.delegation.stake_activating_and_deactivating(
+                current_epoch,
+                Some(stake_history),
+                None,
+            );
             let lockup = if lockup.is_in_force(clock, None) {
                 Some(lockup.into())
             } else {
@@ -2103,16 +2106,16 @@ pub fn build_stake_state(
                 ..CliStakeState::default()
             }
         }
-        StakeState::RewardsPool => CliStakeState {
+        StakeStateV2::RewardsPool => CliStakeState {
             stake_type: CliStakeType::RewardsPool,
             account_balance,
             ..CliStakeState::default()
         },
-        StakeState::Uninitialized => CliStakeState {
+        StakeStateV2::Uninitialized => CliStakeState {
             account_balance,
             ..CliStakeState::default()
         },
-        StakeState::Initialized(Meta {
+        StakeStateV2::Initialized(Meta {
             rent_exempt_reserve,
             authorized,
             lockup,

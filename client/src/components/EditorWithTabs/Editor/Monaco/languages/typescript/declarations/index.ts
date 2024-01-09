@@ -1,0 +1,1 @@
+export { initDeclarations } from "./declarations";

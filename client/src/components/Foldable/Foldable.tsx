@@ -11,33 +11,32 @@ import {
 import styled from "styled-components";
 
 import { ClassName } from "../../constants";
-import { Arrow } from "../Icons";
+import { ShortArrow } from "../Icons";
 
 interface FoldableProps {
-  ClickEl: ReactNode;
-  open?: boolean;
-  setOpen?: Dispatch<SetStateAction<boolean>>;
+  element: ReactNode;
+  isOpen?: boolean;
+  setIsOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 const Foldable: FC<FoldableProps> = ({
-  ClickEl,
-  open = false,
-  setOpen,
+  element,
+  isOpen = false,
+  setIsOpen,
   children,
 }) => {
   const [show, setShow] = useState(false);
 
-  const clickWrapperRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    setShow(open);
-  }, [open]);
+    setShow(isOpen);
+  }, [isOpen]);
 
   const handleClick = useCallback(() => {
-    if (setOpen) setOpen((o) => !o);
+    if (setIsOpen) setIsOpen((o) => !o);
     else setShow((s) => !s);
-  }, [setOpen]);
+  }, [setIsOpen]);
 
+  const clickWrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (show) {
       clickWrapperRef.current?.classList.add(ClassName.OPEN);
@@ -49,11 +48,11 @@ const Foldable: FC<FoldableProps> = ({
   return (
     <>
       <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
-        <Arrow />
-        {ClickEl}
+        <ShortArrow />
+        {element}
       </ClickElWrapper>
 
-      {show && children}
+      {show && <InsideWrapper>{children}</InsideWrapper>}
     </>
   );
 };
@@ -63,18 +62,23 @@ const ClickElWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
   width: fit-content;
+  user-select: none;
 
-  & svg {
+  & svg:first-child {
     margin-right: 0.5rem;
   }
 
-  &.${ClassName.OPEN} svg {
+  &.${ClassName.OPEN} svg:first-child {
     transform: rotate(90deg);
   }
 
   &:hover {
     cursor: pointer;
   }
+`;
+
+const InsideWrapper = styled.div`
+  margin-top: 0.5rem;
 `;
 
 export default Foldable;

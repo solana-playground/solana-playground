@@ -100,7 +100,7 @@ pub fn is_prompt_signer_source(string: &str) -> Result<(), String> {
 
 // Return an error if string cannot be parsed as pubkey string or keypair file location
 pub fn is_pubkey_or_keypair(string: &str) -> Result<(), String> {
-    is_pubkey(string).or_else(|_| is_keypair(&string))
+    is_pubkey(string).or_else(|_| is_keypair(string))
 }
 
 // Return an error if string cannot be parsed as a pubkey string, or a valid Signer that can

@@ -4,102 +4,71 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, Sidebar } from "../../../../utils/pg";
-import { EventName, Route } from "../../../../constants";
-import { PgThemeManager } from "../../../../utils/pg/theme";
-import { useSetStatic } from "../../../../hooks";
+import { EventName } from "../../../../constants";
+import { SIDEBAR } from "../../../../views";
+import { PgCommon, PgTheme } from "../../../../utils/pg";
+import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
+  // TODO: Handle initial sidebar page state from routes
   const { pathname } = useLocation();
-
-  const [sidebarState, setSidebarState] = useState(
-    pathname.startsWith(Route.TUTORIALS) ? Sidebar.TUTORIALS : Sidebar.EXPLORER
+  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>(
+    pathname.startsWith("/tutorials")
+      ? "Tutorials"
+      : pathname.startsWith("/programs")
+      ? "Programs"
+      : "Explorer"
   );
-  const [width, setWidth] = useState(320);
-  const [oldWidth, setOldWidth] = useState(width);
+  const oldSidebarRef = useRef(sidebarPage);
 
-  useEffect(() => {
-    if (width) setOldWidth(width);
-  }, [width, setOldWidth]);
-
-  const oldSidebarRef = useRef(sidebarState);
-
-  useSetStatic(setSidebarState, EventName.VIEW_SIDEBAR_STATE_SET);
-
+  useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
-      sidebarState
+      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
+      sidebarPage
     );
-  }, [sidebarState]);
+  }, [sidebarPage]);
 
-  // Keybinds
+  const [width, setWidth] = useState(320);
+  const [oldWidth, setOldWidth] = useState(width);
   useEffect(() => {
-    const handleKey = (e: globalThis.KeyboardEvent) => {
-      if (PgCommon.isKeyCtrlOrCmd(e) && e.shiftKey) {
-        setSidebarState((state) => {
-          const key = e.key.toUpperCase();
-          const closeCondition =
-            width !== 0 &&
-            ((state === Sidebar.EXPLORER && key === "E") ||
-              (state === Sidebar.BUILD_DEPLOY && key === "B") ||
-              (state === Sidebar.TEST && key === "D") ||
-              (state === Sidebar.TUTORIALS && key === "L"));
+    if (width) setOldWidth(width);
+  }, [width]);
 
-          const preventDefaultAndSetWidth = (w: number = oldWidth) => {
-            e.preventDefault();
-            setWidth(w);
-          };
-
-          if (closeCondition) {
-            preventDefaultAndSetWidth(0);
-          } else if (key === "E") {
-            preventDefaultAndSetWidth();
-            return Sidebar.EXPLORER;
-          } else if (key === "B") {
-            preventDefaultAndSetWidth();
-            return Sidebar.BUILD_DEPLOY;
-          } else if (key === "D") {
-            // T doesn't work
-            preventDefaultAndSetWidth();
-            return Sidebar.TEST;
-          } else if (key === "L") {
-            // T doesn't work
-            preventDefaultAndSetWidth();
-            return Sidebar.TUTORIALS;
-          }
-
-          return state;
+  // Handle keybinds
+  useKeybind(
+    SIDEBAR.filter((p) => !!p.keybind).map((p) => ({
+      keybind: p.keybind!,
+      handle: () => {
+        setSidebarPage((page) => {
+          const closeCondition = width !== 0 && page === p.name;
+          setWidth(closeCondition ? 0 : oldWidth);
+          return p.name;
         });
-      }
-    };
-
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [width, oldWidth, setSidebarState, setWidth]);
+      },
+    })),
+    [width, oldWidth]
+  );
 
   return (
     <Wrapper>
       <Left
-        sidebarState={sidebarState}
-        setSidebarState={setSidebarState}
+        sidebarPage={sidebarPage}
+        setSidebarPage={setSidebarPage}
         oldSidebarRef={oldSidebarRef}
         width={width}
         setWidth={setWidth}
         oldWidth={oldWidth}
       />
-      <Right sidebarState={sidebarState} width={width} setWidth={setWidth} />
+      <Right sidebarPage={sidebarPage} width={width} setWidth={setWidth} />
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  ${({ theme }) =>
-    css`
-      display: flex;
-
-      ${PgThemeManager.convertToCSS(theme.components.sidebar.default)};
-    `}
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.sidebar.default)};
+  `}
 `;
 
 export default Side;

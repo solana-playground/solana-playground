@@ -1,106 +1,154 @@
-import { FC, useCallback, useEffect, useRef } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
-import useModal from "./useModal";
-import { Close } from "../Icons";
+import FadeIn from "../FadeIn";
+import Text from "../Text";
+import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
-import { useOnKey } from "../../hooks";
+import { OrString, PgTheme, PgView, SyncOrAsync } from "../../utils/pg";
+import { useKeybind, useOnClickOutside } from "../../hooks";
 
 interface ModalProps {
   /** Modal title to show. If true, default is "Solana Playground" */
   title?: boolean | string;
-  /** Whether to show a close button on top-right */
-  closeButton?: boolean;
   /** Modal's submit button props */
   buttonProps?: ButtonProps & {
     /** Button text to show */
-    text: string;
+    text: OrString<"Continue">;
     /** Callback function to run on submit */
-    onSubmit: () => void;
-    /** Whether the close the modal when user submits */
-    closeOnSubmit?: boolean;
+    onSubmit?: () => SyncOrAsync;
+    /** Whether to skip closing the modal when user submits */
+    noCloseOnSubmit?: boolean;
+    /** Set the error when `obSubmit` throws */
+    setError?: Dispatch<SetStateAction<any>>;
+    /** Set loading state of the button based on `onSubmit` */
+    setLoading?: Dispatch<SetStateAction<boolean>>;
   };
+  /**
+   * Whether to show a close button on top-right.
+   *
+   * Defaults to `!buttonProps?.onSubmit`.
+   */
+  closeButton?: boolean;
 }
 
 const Modal: FC<ModalProps> = ({
   title,
   buttonProps,
-  closeButton,
+  closeButton = !buttonProps?.onSubmit,
   children,
 }) => {
-  const { close } = useModal();
+  const [error, setError] = useState("");
 
-  const handleSubmit = useCallback(() => {
-    if (!buttonProps) return;
+  const handleSubmit = useCallback(async () => {
+    if (!buttonProps || buttonProps.disabled) return;
 
-    buttonProps.onSubmit();
-    if (buttonProps.closeOnSubmit) close();
-  }, [buttonProps, close]);
+    try {
+      // Get result
+      const data = await buttonProps.onSubmit?.();
+
+      // Close unless explicitly forbidden
+      if (!buttonProps.noCloseOnSubmit) PgView.closeModal(data);
+    } catch (e: any) {
+      if (buttonProps.setError) buttonProps.setError(e.message);
+      else {
+        setError(e.message);
+        throw e;
+      }
+    }
+  }, [buttonProps]);
 
   // Submit on Enter
-  useOnKey("Enter", handleSubmit);
+  // Intentionally clicking the button in order to trigger the button's loading
+  // state on Enter as opposed to using `handleSubmit` which wouldn't change
+  // submit button's state.
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  useKeybind("Enter", () => buttonRef.current?.click());
 
-  // Take away the focus of other buttons when modal is mounted
-  const focusButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    focusButtonRef.current?.focus();
-  }, []);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(wrapperRef, PgView.closeModal);
 
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
+      {/* Take away the focus of other buttons when the modal is mounted */}
+      <FocusButton autoFocus />
+
       <TopWrapper>
         {title && <Title>{title === true ? PROJECT_NAME : title}</Title>}
         {closeButton && (
           <CloseButtonWrapper hasTitle={!!title}>
-            <Button kind="icon" onClick={close}>
+            <Button kind="icon" onClick={PgView.closeModal}>
               <Close />
             </Button>
           </CloseButtonWrapper>
         )}
       </TopWrapper>
 
-      <ContentWrapper>{children}</ContentWrapper>
-
-      {buttonProps && (
-        <ButtonsWrapper>
-          {!closeButton && (
-            <Button onClick={close} kind="transparent">
-              Cancel
-            </Button>
+      <ScrollableWrapper>
+        <ContentWrapper>
+          {error && (
+            <ErrorText kind="error" icon={<Sad />}>
+              {error}
+            </ErrorText>
           )}
 
-          <Button
-            {...buttonProps}
-            onClick={handleSubmit}
-            size={buttonProps.size ?? "medium"}
-            kind={buttonProps.kind ?? "primary-transparent"}
-          >
-            {buttonProps.text}
-          </Button>
-        </ButtonsWrapper>
-      )}
+          {children}
+        </ContentWrapper>
 
-      <FocusButton ref={focusButtonRef} />
+        {buttonProps && (
+          <ButtonsWrapper>
+            {!closeButton && buttonProps.onSubmit && (
+              <Button onClick={PgView.closeModal} kind="transparent">
+                Cancel
+              </Button>
+            )}
+
+            <Button
+              {...buttonProps}
+              onClick={handleSubmit}
+              size={buttonProps.size}
+              kind={
+                buttonProps.onSubmit
+                  ? buttonProps.kind ?? "primary-transparent"
+                  : "outline"
+              }
+              ref={buttonRef}
+            >
+              {buttonProps.text}
+            </Button>
+          </ButtonsWrapper>
+        )}
+      </ScrollableWrapper>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled(FadeIn)`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.modal.default)};
+    ${PgTheme.convertToCSS(theme.components.modal.default)};
   `}
 `;
 
 const TopWrapper = styled.div`
-  position: relative;
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.modal.top)};
+  `}
 `;
 
 const Title = styled.div`
   ${({ theme }) => css`
-    ${PgThemeManager.convertToCSS(theme.components.modal.title)};
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid ${theme.colors.default.border};
   `}
 `;
 
@@ -110,7 +158,11 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
       ? css`
           position: absolute;
           top: 0;
-          right: 0;
+          right: 1.5rem;
+          bottom: 0;
+          margin: auto;
+          display: flex;
+          align-items: center;
         `
       : css`
           width: 100%;
@@ -120,6 +172,12 @@ const CloseButtonWrapper = styled.div<{ hasTitle: boolean }>`
         `}
 `;
 
+const ScrollableWrapper = styled.div`
+  overflow-y: auto;
+  overflow-x: hidden;
+  ${PgTheme.getScrollbarCSS()};
+`;
+
 const ContentWrapper = styled.div`
   ${({ theme }) => css`
     & input {
@@ -127,8 +185,12 @@ const ContentWrapper = styled.div`
       height: 2rem;
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.modal.content)};
+    ${PgTheme.convertToCSS(theme.components.modal.content)};
   `}
+`;
+
+const ErrorText = styled(Text)`
+  margin-bottom: 1rem;
 `;
 
 const ButtonsWrapper = styled.div`
@@ -137,7 +199,7 @@ const ButtonsWrapper = styled.div`
       margin-left: 1rem;
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.modal.bottom)};
+    ${PgTheme.convertToCSS(theme.components.modal.bottom)};
   `}
 `;
 

@@ -1,5 +1,4 @@
 import type { ChangeEvent } from "react";
-import type { PublicKey } from "@solana/web3.js";
 
 import {
   Endpoint,
@@ -9,10 +8,12 @@ import {
 } from "../../constants";
 import type {
   AllPartial,
-  Fn,
   Disposable,
-  Promiseable,
+  Promisable,
   SyncOrAsync,
+  Arrayable,
+  OrString,
+  ValueOf,
 } from "./types";
 
 export class PgCommon {
@@ -20,22 +21,22 @@ export class PgCommon {
    * @param ms amount of time to sleep in ms
    * @returns a promise that will resolve after specified ms
    */
-  static async sleep(ms: number = 300) {
+  static async sleep(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
   }
 
   /**
    * Wait at least `ms` amount of miliseconds before resolving.
    *
-   * @param promiseable either `Promise` or a function that returns a `Promise`
+   * @param promisable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
    */
-  static async transition<R>(promiseable: Promiseable<R>, ms?: number) {
-    if ((promiseable as () => SyncOrAsync<R>)?.call) {
-      promiseable = (promiseable as () => SyncOrAsync<R>)();
+  static async transition<R>(promisable: Promisable<R>, ms: number = 300) {
+    if ((promisable as () => SyncOrAsync<R>)?.call) {
+      promisable = (promisable as () => SyncOrAsync<R>)();
     }
 
-    const result = (await Promise.allSettled([this.sleep(ms), promiseable]))[1];
+    const result = (await Promise.allSettled([this.sleep(ms), promisable]))[1];
     if (result.status === "fulfilled") {
       return result.value as Promise<Awaited<R>>;
     }
@@ -46,46 +47,42 @@ export class PgCommon {
   /**
    * Wait at least `ms` amount of miliseconds before timing out.
    *
-   * @param promiseable either `Promise` or a function that returns a `Promise`
+   * @param promisable either `Promise` or a function that returns a `Promise`
+   * @throws on timeout
    * @returns the result of the promise parameter
    */
-  static async timeout<R>(promiseable: Promiseable<R>, ms?: number) {
-    if ((promiseable as () => SyncOrAsync<R>)?.call) {
-      promiseable = (promiseable as () => SyncOrAsync<R>)();
+  static async timeout<R>(promisable: Promisable<R>, ms: number) {
+    if ((promisable as () => SyncOrAsync<R>)?.call) {
+      promisable = (promisable as () => SyncOrAsync<R>)();
     }
 
-    try {
-      return (await Promise.race([
-        new Promise((_, rej) => this.sleep(ms).then(rej)),
-        promiseable,
-      ])) as Awaited<R>;
-    } catch {
-      console.log("Timed out");
-    }
+    return (await Promise.race([
+      new Promise((_, rej) => this.sleep(ms).then(() => rej("Timed out"))),
+      promisable,
+    ])) as Awaited<R>;
   }
 
   /**
-   * Try the callback until the return value of the callback is a non-falsy value.
-   *
-   * NOTE: Only use this function if you are certain the return value of the
-   * callback will eventually be a non-falsy value. It's not a good idea to use
-   * this function when the return value can be a falsy value due to possible
-   * infinite loop from this function.
+   * Try the given callback until success.
    *
    * @param cb callback function to try
-   * @param tryInterval optional try interval
-   * @returns the non-nullable return value of the callback
+   * @param tryInterval try interval in miliseconds
+   * @returns the return value of the callback
    */
   static async tryUntilSuccess<T>(
-    cb: () => Promise<NonNullable<T>>,
-    tryInterval: number = 1000
-  ) {
+    cb: () => SyncOrAsync<T>,
+    tryInterval: number
+  ): Promise<T> {
     let returnValue: T;
     while (1) {
-      returnValue = await cb();
-      if (returnValue) break;
-
-      await this.sleep(tryInterval);
+      const start = performance.now();
+      try {
+        returnValue = await this.timeout(cb, tryInterval);
+        break;
+      } catch {
+        const remaining = tryInterval - (performance.now() - start);
+        if (remaining > 0) await this.sleep(remaining);
+      }
     }
 
     return returnValue!;
@@ -100,8 +97,8 @@ export class PgCommon {
    * - sharedTimeout: shared timeout object
    */
   static debounce(
-    cb: () => SyncOrAsync<void>,
-    options?: { delay?: number; sharedTimeout: { id?: NodeJS.Timeout } }
+    cb: () => void,
+    options?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
   ) {
     const delay = options?.delay ?? 100;
     const sharedTimeout = options?.sharedTimeout ?? {};
@@ -119,27 +116,109 @@ export class PgCommon {
    * @param ms amount of delay in miliseconds
    * @returns the wrapped callback function
    */
-  static throttle(cb: Fn, ms: number = 100) {
+  static throttle<T extends unknown[]>(
+    cb: (...args: T) => void,
+    ms: number = 100
+  ) {
     let timeoutId: NodeJS.Timeout;
     let last = Date.now();
     let isInitial = true;
 
-    return () => {
+    return (...args: T) => {
       const now = Date.now();
       if (isInitial) {
-        cb();
+        cb(...args);
         isInitial = false;
         return;
       }
 
       if (now < last + ms) {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(cb, ms);
+        timeoutId = setTimeout(() => cb(...args), ms);
       } else {
-        cb();
+        cb(...args);
         last = now;
       }
     };
+  }
+
+  /**
+   * Execute the given callback in order.
+   *
+   * This is particularly useful when the desired behavior of an `onChange`
+   * event is to execute its callback in order.
+   *
+   * @param cb callback to run
+   * @returns the wrapped callback function
+   */
+  static executeInOrder<T>(cb: (...args: [T]) => SyncOrAsync) {
+    type Callback = typeof cb;
+    type CallbackWithArgs = [Callback, Parameters<Callback>];
+
+    const queue: CallbackWithArgs[] = [];
+    let isExecuting = false;
+
+    const execute = async () => {
+      isExecuting = true;
+
+      while (queue.length !== 0) {
+        for (const index in queue) {
+          const [cb, args] = queue[index];
+          try {
+            await cb(...args);
+          } catch (e) {
+            throw e;
+          } finally {
+            queue.splice(+index, 1);
+          }
+        }
+      }
+
+      isExecuting = false;
+    };
+
+    const pushQueue = (item: CallbackWithArgs) => {
+      queue.push(item);
+      if (!isExecuting) execute();
+    };
+
+    return async (...args: Parameters<Callback>) => {
+      pushQueue([cb, args]);
+    };
+  }
+
+  /**
+   * Call the value and return it if the input is a function or simply return
+   * the given value.
+   *
+   * @param maybeFunction value to check
+   * @returns either the given value or the called value if it's a function
+   */
+  static callIfNeeded<T>(maybeFunction: T): T extends () => infer R ? R : T {
+    if (typeof maybeFunction === "function") return maybeFunction();
+    return maybeFunction as T extends () => infer R ? R : T;
+  }
+
+  /**
+   * Fetch the response from the given URL and return the text response.
+   *
+   * @param url URL
+   * @returns the text response
+   */
+  static async fetchText(url: string) {
+    const response = await fetch(url);
+    return await response.text();
+  }
+
+  /**
+   * Fetch the response from the given URL and return the JSON response.
+   *
+   * @param url URL
+   * @returns the JSON response
+   */
+  static async fetchJSON(url: string) {
+    const response = await fetch(url);
+    return await response.json();
   }
 
   /**
@@ -153,28 +232,6 @@ export class PgCommon {
     const decodedString = decoder.decode(b);
 
     return decodedString;
-  }
-
-  /**
-   * Check whether the http response is OK.
-   * If there is an error, decode the array buffer and return it.
-   *
-   * @returns response array buffer if the response is OK
-   */
-  static async checkForRespErr(resp: Response) {
-    const arrayBuffer = await resp.arrayBuffer();
-
-    if (!resp.ok) throw new Error(this.decodeBytes(arrayBuffer));
-
-    return arrayBuffer;
-  }
-
-  /**
-   * @returns first and last (default: 5) chars of a public key and '...' in between as string
-   */
-  static shortenPk(pk: PublicKey | string, chars: number = 5) {
-    const pkStr = typeof pk === "object" ? pk.toBase58() : pk;
-    return `${pkStr.slice(0, chars)}...${pkStr.slice(-chars)}`;
   }
 
   /**
@@ -266,16 +323,79 @@ export class PgCommon {
    * NOTE: This method mutates the given object in place.
    */
   static setDefault<T, D extends AllPartial<T>>(value: T, defaultValue: D) {
+    value ??= {} as T;
     for (const property in defaultValue) {
       const result = defaultValue[property] as AllPartial<T[keyof T]>;
       value[property as keyof T] ??= result as T[keyof T];
-
-      if (typeof result === "object") {
-        PgCommon.setDefault(value[property as keyof T], result);
-      }
     }
 
-    return value as T & D;
+    return value as NonNullable<T & D>;
+  }
+
+  /**
+   * Convert the given input to an array when the input is not an array.
+   *
+   * @param arrayable input to convert to array to
+   * @returns the array result
+   */
+  static toArray<T>(arrayable: Arrayable<T>) {
+    return Array.isArray(arrayable) ? arrayable : [arrayable];
+  }
+
+  /**
+   * Convert the given array to an array with unique elements(set).
+   *
+   * This method doesn't mutate the given array and returns a new array instead.
+   *
+   * @param array array to convert
+   * @returns an array with only the unique elements
+   */
+  static toUniqueArray<A extends unknown[]>(array: A) {
+    return [...new Set(array)] as A;
+  }
+
+  /**
+   * Split the given array at the given index.
+   *
+   * # Ranges
+   *
+   * - First array: `[0, index)`
+   * - Second array: `[index, len)`
+   *
+   * # Example
+   *
+   * ```ts
+   * const result = PgCommon.splitAtIndex(["a", "b", "c"], 1);
+   * // [["a"], ["b", "c"]]
+   * ```
+   *
+   * @param array array to split
+   * @param index split index
+   * @returns the splitted 2 arrays
+   */
+  static splitAtIndex<A extends unknown[]>(array: A, index: number) {
+    return [array.slice(0, index), array.slice(index)] as [A, A];
+  }
+
+  /**
+   * Filter the array but also return the remaining array.
+   *
+   * @param array array to filter
+   * @param predicate callback function for each of the array elements
+   * @returns a tuple of `[filtered, remaining]`
+   */
+  static filterWithRemaining<T>(
+    array: T[],
+    predicate: (value: T, index: number) => unknown
+  ) {
+    return array.reduce(
+      (acc, cur, i) => {
+        const filterIndex = predicate(cur, i) ? 0 : 1;
+        acc[filterIndex].push(cur);
+        return acc;
+      },
+      [[], []] as [T[], T[]]
+    );
   }
 
   /**
@@ -287,6 +407,26 @@ export class PgCommon {
   static getProperty(obj: any, property: string | string[]) {
     if (Array.isArray(property)) property = property.join(".");
     return property.split(".").reduce((acc, cur) => acc[cur], obj);
+  }
+
+  /**
+   * Get the keys of an object with better types rather than `string[]`.
+   *
+   * @param obj object
+   * @returns the object keys as an array
+   */
+  static keys<T extends Record<string, unknown>>(obj: T) {
+    return Object.keys(obj) as Array<keyof T>;
+  }
+
+  /**
+   * Get the entries of an object with better types rather than `Array<[string, T]`.
+   *
+   * @param obj object
+   * @returns the object entries as an array of [key, value] tuples
+   */
+  static entries<T extends Record<string, unknown>>(obj: T) {
+    return Object.entries(obj) as Array<[keyof T, ValueOf<T>]>;
   }
 
   /**
@@ -323,13 +463,24 @@ export class PgCommon {
   }
 
   /**
-   * @returns utf-8 encoded string from the arg
+   * Encode the given content to data URL.
+   *
+   * @param content content to encode
+   * @returns the encoded data URL
    */
-  static getUtf8EncodedString(object: object) {
-    return (
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(object))
-    );
+  static getDataUrl(content: string | object) {
+    if (content instanceof Buffer) {
+      return `data:text/plain;base64,${content.toString("base64")}`;
+    }
+    if (content instanceof Blob) {
+      return URL.createObjectURL(content);
+    }
+
+    if (typeof content !== "string") {
+      content = JSON.stringify(content);
+    }
+
+    return "data:text/json;charset=utf-8," + encodeURIComponent(content);
   }
 
   /**
@@ -396,41 +547,165 @@ export class PgCommon {
   }
 
   /**
+   * Get the operating system of the user.
+   *
+   * @returns the operating system of the user
+   */
+  static getOS() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes("win")) return "Windows";
+    if (userAgent.includes("mac")) return "MacOS";
+    if (userAgent.includes("linux")) return "Linux";
+  }
+
+  /**
+   * Change `Ctrl` to `Cmd` if the OS is Mac.
+   *
+   * @param keybind keybind text
+   * @returns the correct text based on OS
+   */
+  static getKeybindTextOS(keybind: string) {
+    if (this.getOS() === "MacOS") {
+      keybind = keybind.replace("Ctrl", "Cmd");
+    }
+    return keybind;
+  }
+
+  /**
+   * Get the user's browser name.
+   *
+   * @returns the browser name
+   */
+  static getBrowser() {
+    if ((navigator as any).brave) return "Brave";
+    if (navigator.userAgent.includes("Chrome")) return "Chrome";
+    if (navigator.userAgent.includes("Firefox")) return "Firefox";
+  }
+
+  /**
    * @returns true if the pressed key is `Ctrl` or `Cmd`
    */
-  static isKeyCtrlOrCmd(e: globalThis.KeyboardEvent) {
-    return e.ctrlKey || e.metaKey;
+  static isKeyCtrlOrCmd(ev: KeyboardEvent) {
+    return ev.ctrlKey || ev.metaKey;
   }
 
   /**
-   * @returns true if the OS is Mac
+   * @returns whether the given string is parsable to an integer
    */
-  static isMac() {
-    const macPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
-    for (const mac of macPlatforms) {
-      if (window.navigator.userAgent.includes(mac)) {
-        return true;
-      }
+  static isInt(str: string) {
+    const intRegex = /^-?\d+$/;
+    if (!intRegex.test(str)) return false;
+
+    const int = parseInt(str, 10);
+    return parseFloat(str) === int && !isNaN(int);
+  }
+
+  /**
+   * @returns whether the given string is parsable to a float
+   */
+  static isFloat(str: string) {
+    const floatRegex = /^-?\d+(?:[.,]\d*?)?$/;
+    if (!floatRegex.test(str)) return false;
+
+    const float = parseFloat(str);
+    if (isNaN(float)) return false;
+    return true;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a hexadecimal
+   */
+  static isHex(str: string) {
+    const hexRegex = /(0x)?[\da-f]+/i;
+    const result = hexRegex.exec(str);
+    if (!result) return false;
+
+    return result[0] === str;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a public key
+   */
+  static isPk(str: string) {
+    // Intentionally not using `web3.PublicKey` to not load `web3.js` at the
+    // start of the app
+
+    // Public key length is 43 or 44
+    if (!(str.length === 43 || str.length === 44)) return false;
+
+    // Exclude 0, l, I, O
+    const base58Regex = /[1-9a-km-zA-HJ-PQ-Z]+/;
+    const result = base58Regex.exec(str);
+    if (!result) return false;
+
+    return result[0] === str;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a URL
+   */
+  static isUrl(str: string) {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
     }
-
-    return false;
   }
 
   /**
-   * Changes `Ctrl` to `Cmd` if the OS is Mac
+   * Get whether the given value is non-nullish i.e. **not** `null` or
+   * `undefined`.
+   *
+   * @param value value to check
+   * @returns whether the given value is non-nullish
    */
-  static getKeybindTextOS(text: string) {
-    if (this.isMac()) {
-      text = text.replace("Ctrl", "Cmd");
-    }
-    return text;
+  static isNonNullish<T>(value: T): value is NonNullable<T> {
+    return value !== null && value !== undefined;
   }
 
   /**
-   * @returns whether the browser is Firefox
+   * Get whether the given value is an asynchronous function.
+   *
+   * @param value value to check
+   * @returns whether the given value is an asynchronous function
    */
-  static isFirefox() {
-    return window.navigator.userAgent.includes("Firefox");
+  static isAsyncFunction(value: any): value is () => Promise<unknown> {
+    return value?.constructor?.name === "AsyncFunction";
+  }
+
+  /**
+   * Generate a random integer in the range of [`min`, `max`].
+   *
+   * @param min minimum(inclusive)
+   * @param max maximum(inclusive)
+   * @returns a random integer between the specified range
+   */
+  static generateRandomInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  /**
+   * Generate a random bigint in the range of [`min`, `max`].
+   *
+   * @param min minimum(inclusive)
+   * @param max maximum(inclusive)
+   * @returns a random bigint between the specified range
+   */
+  static generateRandomBigInt(min: bigint, max: bigint) {
+    return (
+      new Uint8Array(new BigUint64Array([max - min]).buffer).reduce(
+        (acc, cur, i) => {
+          if (!cur) return acc;
+          return (
+            acc +
+            BigInt(PgCommon.generateRandomInt(0, cur)) *
+              BigInt(2) ** BigInt(8 * i)
+          );
+        },
+        0n
+      ) + min
+    );
   }
 
   /**
@@ -441,6 +716,29 @@ export class PgCommon {
       if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
       return index === 0 ? match.toLowerCase() : match.toUpperCase();
     });
+  }
+
+  /**
+   * @returns camelCase converted version of the PascalCase string
+   */
+  static toCamelFromPascal(str: string) {
+    return str[0].toLowerCase() + str.slice(1);
+  }
+
+  /**
+   * @returns camelCase converted version of the snake_case string
+   */
+  static toCamelFromSnake(str: string) {
+    return PgCommon.toCamelFromPascal(PgCommon.toPascalFromSnake(str));
+  }
+
+  /**
+   * Convert the given string to snake_case.
+   *
+   * @returns snake_case converted version of the string
+   */
+  static toSnakeCase(str: string) {
+    return PgCommon.toKebabFromTitle(str).replaceAll("-", "_");
   }
 
   /**
@@ -471,13 +769,64 @@ export class PgCommon {
   }
 
   /**
+   * @returns kebab-case converted version of the snake_case string
+   */
+  static toKebabFromSnake(str: string) {
+    return str.replaceAll("_", "-");
+  }
+
+  /**
    * @returns Title Case converted version of the kebab-case string
    */
-  static toTitlefromKebab(str: string) {
+  static toTitleFromKebab(str: string) {
     return (
       str[0].toUpperCase() +
       str.slice(1).replace(/-\w/, (match) => " " + match[1].toUpperCase())
     );
+  }
+
+  /**
+   * @returns Title Case converted version of the camelCase string
+   */
+  static toTitleFromCamel(str: string) {
+    return PgCommon.toTitleFromKebab(PgCommon.toKebabFromCamel(str));
+  }
+
+  /**
+   * @returns Title Case converted version of the snake_case string
+   */
+  static toTitleFromSnake(str: string) {
+    return PgCommon.toTitleFromKebab(PgCommon.toKebabFromSnake(str));
+  }
+
+  /**
+   * @returns PascalCase converted version of the Title Case string
+   */
+  static toPascalFromTitle(str: string) {
+    return str.replaceAll(" ", "");
+  }
+
+  /**
+   * @returns PascalCase converted version of the kebab-case string
+   */
+  static toPascalFromKebab(str: string) {
+    return PgCommon.capitalize(str).replace(/-\w/g, (match) => {
+      return match[1].toUpperCase();
+    });
+  }
+
+  /**
+   * @returns PascalCase converted version of the snake_case string
+   */
+  static toPascalFromSnake(str: string) {
+    return PgCommon.toPascalFromKebab(PgCommon.toKebabFromSnake(str));
+  }
+
+  /**
+   * @returns the string with its first letter uppercased
+   */
+  static capitalize(str: string) {
+    return str[0].toUpperCase() + str.slice(1);
   }
 
   /**
@@ -594,7 +943,7 @@ export class PgCommon {
    */
   static onDidChange<T>(params: {
     cb: (value: T) => any;
-    eventName: EventName;
+    eventName: OrString<EventName>;
     // TODO: make it run by default
     initialRun?: { value: T };
   }): Disposable {
@@ -622,21 +971,40 @@ export class PgCommon {
    * @returns a dispose function to clear all events
    */
   static batchChanges(
-    cb: () => void,
-    onChanges: Array<(value: any) => Disposable>
+    cb: (value?: unknown) => void,
+    onChanges: Array<(value: any) => Disposable>,
+    opts?: { delay?: number }
   ): Disposable {
     // Intentionally initializing outside of the closure to share `sharedTimeout`
-    const debounceOptions = { delay: 0, sharedTimeout: {} };
+    const debounceOptions = { delay: opts?.delay ?? 0, sharedTimeout: {} };
 
-    const disposables = onChanges
-      .filter((onChange) => onChange)
-      .map((onChange) => {
-        return onChange(PgCommon.debounce(cb, debounceOptions));
-      });
+    const disposables = onChanges.map((onChange) => {
+      return onChange(PgCommon.debounce(cb, debounceOptions));
+    });
 
     return {
       dispose: () => disposables.forEach((disposable) => disposable.dispose()),
     };
+  }
+
+  /**
+   * Execute the given callback initially and on change.
+   *
+   * This is useful when an on change method doesn't fire an initial change event
+   * but the use case requires to run the callback at start.
+   *
+   * @param onChange on change method
+   * @param cb callback to run initially and on change
+   * @param args callback arguments
+   * @returns a dispose function to clear all events
+   */
+  static async executeInitial<A extends unknown[]>(
+    onChange: (cb: (...args: A) => SyncOrAsync<void>) => Disposable,
+    cb: (...args: A) => SyncOrAsync<void>,
+    ...args: A
+  ) {
+    await cb(...args);
+    return onChange(cb);
   }
 
   /**
@@ -656,46 +1024,74 @@ export class PgCommon {
    * Import file(s) from the user's file system
    *
    * @param onChange callback function to run when file input has changed
-   * @param opts optional options
+   * @param opts options
+   * - `accept`: file extensions to accept
+   * - `dir`: whether to accept directories
    */
-  static import(
-    onChange: (e: ChangeEvent<HTMLInputElement>) => Promise<void>,
+  static async import<T>(
+    onChange: (ev: ChangeEvent<HTMLInputElement>) => Promise<T>,
     opts?: { accept?: string; dir?: boolean }
-  ) {
-    const el = document.createElement("input");
-    el.type = "file";
-    if (opts?.accept) el.accept = opts.accept;
+  ): Promise<T> {
+    return new Promise((res, rej) => {
+      const el = document.createElement("input");
+      el.type = "file";
+      if (opts?.accept) el.accept = opts.accept;
 
-    const dirProps = opts?.dir
-      ? {
-          webkitdirectory: "",
-          mozdirectory: "",
-          directory: "",
-          multiple: true,
-        }
-      : {};
-    for (const key in dirProps) {
-      // @ts-ignore
-      el[key] = dirProps[key as keyof typeof dirProps];
-    }
+      const dirProps = opts?.dir
+        ? {
+            webkitdirectory: "",
+            mozdirectory: "",
+            directory: "",
+            multiple: true,
+          }
+        : {};
+      for (const key in dirProps) {
+        // @ts-ignore
+        el[key] = dirProps[key];
+      }
 
-    // @ts-ignore
-    el.onchange = onChange;
+      el.onchange = async (ev) => {
+        // @ts-ignore
+        const result = await onChange(ev);
+        res(result);
+      };
 
-    el.click();
+      el.oncancel = () => {
+        rej({ message: "User cancelled the request" });
+      };
+
+      el.click();
+    });
   }
 
   /**
-   * Export the content as a file
+   * Export the given content as a file.
    *
    * @param name name of the exported file
    * @param content content of the exported file
    */
-  static export(name: string, content: string) {
+  static export(name: string, content: string | object) {
     const el = document.createElement("a");
     el.download = name;
-    el.href = content;
+    el.href = PgCommon.getDataUrl(content);
     el.click();
+  }
+
+  /**
+   * Change the given input's value and dispatch `change` event correctly.
+   *
+   * @param inputEl input element
+   * @param value input value to set
+   */
+  static changeInputValue(inputEl: HTMLInputElement, value: string) {
+    // `input.value = value` does not trigger `Input` component's `onChange`
+    Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    )?.set?.call(inputEl, value);
+
+    // `bubbles: true` is required in order to trigger `onChange`
+    inputEl.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   /**
@@ -763,7 +1159,7 @@ export class PgCommon {
   }
 
   /**
-   * Join the paths without caring about incorrect '/' inside paths
+   * Join the paths without caring about incorrect '/' inside paths.
    *
    * @param paths paths to join
    * @returns the joined path
@@ -772,6 +1168,28 @@ export class PgCommon {
     return paths.reduce(
       (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
     );
+  }
+
+  /**
+   * Compare paths to each other.
+   *
+   * @param pathOne first path
+   * @param pathTwo second path
+   * @returns whether the paths are equal
+   */
+  static isPathsEqual(pathOne: string, pathTwo: string) {
+    return PgCommon.appendSlash(pathOne) === PgCommon.appendSlash(pathTwo);
+  }
+
+  /**
+   * Get all of the matches of the `given` value from the `content`.
+   *
+   * @param content content to match all from
+   * @param value value to match
+   * @returns the match result
+   */
+  static matchAll(content: string, value: string | RegExp) {
+    return [...content.matchAll(new RegExp(value, "g"))];
   }
 
   /**
@@ -805,6 +1223,33 @@ export class PgCommon {
     if (opts.repeat) {
       return this._repeatPattern(str, opts.repeat.amount);
     }
+  }
+
+  /**
+   * Append "..." to the given `str` after `maxLength` bytes.
+   *
+   * @param str string to check the max length
+   * @param maxLength maximum allowed byte length
+   * @returns the original string or the part of the string until the `maxLength`
+   */
+  static withMaxLength(str: string, maxLength: number) {
+    const FILLER = "...";
+    if (str.length > maxLength) {
+      return str.slice(0, maxLength - FILLER.length) + FILLER;
+    }
+
+    return str;
+  }
+
+  /**
+   * Shorten the given string by only showing the first and last `chars` character.
+   *
+   * @param str string to shorten
+   * @param amount amount of chars to show from beginning and end
+   * @returns first and last (default: 3) chars of the given string and '...' in between
+   */
+  static shorten(str: string, amount: number = 3) {
+    return str.slice(0, amount) + "..." + str.slice(-amount);
   }
 
   /**

@@ -27,25 +27,25 @@ impl GetMultipleAccountsRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetMultipleAccountsRequest {
-    fn into(self) -> serde_json::Value {
-        let addresses = self
+impl From<GetMultipleAccountsRequest> for serde_json::Value {
+    fn from(value: GetMultipleAccountsRequest) -> Self {
+        let addresses = value
             .addresses
             .iter()
             .map(|address| address.to_string())
             .collect::<Vec<String>>();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([addresses, config]),
             None => serde_json::json!([addresses]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetMultipleAccountsRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetMultipleAccountsRequest> for ClientRequest {
+    fn from(val: GetMultipleAccountsRequest) -> Self {
         let mut request = ClientRequest::new("getMultipleAccounts");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

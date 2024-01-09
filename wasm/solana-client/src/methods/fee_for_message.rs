@@ -26,22 +26,22 @@ impl GetFeeForMessageRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetFeeForMessageRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetFeeForMessageRequest> for serde_json::Value {
+    fn from(value: GetFeeForMessageRequest) -> Self {
         let message =
-            serialize_and_encode::<Message>(&self.message, UiTransactionEncoding::Base64).unwrap();
+            serialize_and_encode::<Message>(&value.message, UiTransactionEncoding::Base64).unwrap();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([message, config]),
             None => serde_json::json!([message]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetFeeForMessageRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetFeeForMessageRequest> for ClientRequest {
+    fn from(val: GetFeeForMessageRequest) -> Self {
         let mut request = ClientRequest::new("getFeeForMessage");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -62,8 +62,8 @@ impl From<ClientResponse> for GetFeeForMessageResponse {
     }
 }
 
-impl Into<u64> for GetFeeForMessageResponse {
-    fn into(self) -> u64 {
-        self.value.0.unwrap_or_default()
+impl From<GetFeeForMessageResponse> for u64 {
+    fn from(val: GetFeeForMessageResponse) -> Self {
+        val.value.0.unwrap_or_default()
     }
 }

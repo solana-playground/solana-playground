@@ -4,7 +4,7 @@ use crate::{
     ClientRequest, ClientResponse,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetLargestAccountsRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<RpcLargestAccountsConfig>,
@@ -12,7 +12,7 @@ pub struct GetLargestAccountsRequest {
 
 impl GetLargestAccountsRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
     pub fn new_with_config(config: RpcLargestAccountsConfig) -> Self {
         Self {
@@ -21,19 +21,19 @@ impl GetLargestAccountsRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetLargestAccountsRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetLargestAccountsRequest> for serde_json::Value {
+    fn from(value: GetLargestAccountsRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
 }
 
-impl Into<ClientRequest> for GetLargestAccountsRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetLargestAccountsRequest> for ClientRequest {
+    fn from(value: GetLargestAccountsRequest) -> Self {
         let mut request = ClientRequest::new("getLargestAccounts");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

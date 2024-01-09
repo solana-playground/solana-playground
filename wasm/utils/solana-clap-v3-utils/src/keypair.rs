@@ -9,6 +9,8 @@
 //! sources supported by the Solana CLI. Many other functions here are
 //! variations on, or delegate to, `signer_from_path`.
 
+use std::rc::Rc;
+
 use {
     crate::{
         input_parsers::{pubkeys_sigs_of, STDOUT_OUTFILE_TOKEN},
@@ -41,7 +43,6 @@ use {
         io::{stdin, stdout, Write},
         ops::Deref,
         str::FromStr,
-        sync::Arc,
     },
     thiserror::Error,
 };
@@ -241,7 +242,7 @@ impl DefaultSigner {
         &self,
         bulk_signers: Vec<Option<Box<dyn Signer>>>,
         matches: &ArgMatches,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     ) -> Result<CliSignerInfo, Box<dyn error::Error>> {
         let mut unique_signers = vec![];
 
@@ -303,7 +304,7 @@ impl DefaultSigner {
     pub fn signer_from_path(
         &self,
         matches: &ArgMatches,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     ) -> Result<Box<dyn Signer>, Box<dyn std::error::Error>> {
         signer_from_path(matches, self.path()?, &self.arg_name, wallet_manager)
     }
@@ -356,7 +357,7 @@ impl DefaultSigner {
     pub fn signer_from_path_with_config(
         &self,
         matches: &ArgMatches,
-        wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+        wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
         config: &SignerFromPathConfig,
     ) -> Result<Box<dyn Signer>, Box<dyn std::error::Error>> {
         signer_from_path_with_config(
@@ -454,7 +455,7 @@ pub(crate) fn parse_signer_source<S: AsRef<str>>(
                     break;
                 }
             }
-            source.replace("\\", "/")
+            source.replace('\\', "/")
         }
         #[cfg(not(target_family = "windows"))]
         {
@@ -685,7 +686,7 @@ pub fn signer_from_path(
     matches: &ArgMatches,
     path: &str,
     keypair_name: &str,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<Box<dyn Signer>, Box<dyn error::Error>> {
     let config = SignerFromPathConfig::default();
     signer_from_path_with_config(matches, path, keypair_name, wallet_manager, &config)
@@ -752,7 +753,7 @@ pub fn signer_from_path_with_config(
     matches: &ArgMatches,
     path: &str,
     keypair_name: &str,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     config: &SignerFromPathConfig,
 ) -> Result<Box<dyn Signer>, Box<dyn error::Error>> {
     let SignerSource {
@@ -859,7 +860,7 @@ pub fn pubkey_from_path(
     matches: &ArgMatches,
     path: &str,
     keypair_name: &str,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<Pubkey, Box<dyn error::Error>> {
     let SignerSource { kind, .. } = parse_signer_source(path)?;
     match kind {
@@ -872,7 +873,7 @@ pub fn resolve_signer_from_path(
     matches: &ArgMatches,
     path: &str,
     keypair_name: &str,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<Option<String>, Box<dyn error::Error>> {
     let SignerSource {
         kind,
@@ -1054,11 +1055,10 @@ pub fn keypair_from_seed_phrase(
     derivation_path: Option<DerivationPath>,
     legacy: bool,
 ) -> Result<Keypair, Box<dyn error::Error>> {
-    let seed_phrase = prompt_password(&format!("[{}] seed phrase: ", keypair_name))?;
+    let seed_phrase = prompt_password(format!("[{keypair_name}] seed phrase: "))?;
     let seed_phrase = seed_phrase.trim();
     let passphrase_prompt = format!(
-        "[{}] If this seed phrase has an associated passphrase, enter it now. Otherwise, press ENTER to continue: ",
-        keypair_name,
+        "[{keypair_name}] If this seed phrase has an associated passphrase, enter it now. Otherwise, press ENTER to continue: "
     );
 
     let keypair = if skip_validation {

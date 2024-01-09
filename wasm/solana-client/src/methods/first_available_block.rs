@@ -2,25 +2,25 @@ use solana_sdk::clock::Slot;
 
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetFirstAvailableBlockRequest {}
 
 impl GetFirstAvailableBlockRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetFirstAvailableBlockRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetFirstAvailableBlockRequest> for serde_json::Value {
+    fn from(_val: GetFirstAvailableBlockRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetFirstAvailableBlockRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetFirstAvailableBlockRequest> for ClientRequest {
+    fn from(val: GetFirstAvailableBlockRequest) -> Self {
         let mut request = ClientRequest::new("getFirstAvailableBlock");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -35,8 +35,8 @@ impl From<ClientResponse> for GetFirstAvailableBlockResponse {
     }
 }
 
-impl Into<Slot> for GetFirstAvailableBlockResponse {
-    fn into(self) -> Slot {
-        self.0
+impl From<GetFirstAvailableBlockResponse> for Slot {
+    fn from(val: GetFirstAvailableBlockResponse) -> Self {
+        val.0
     }
 }

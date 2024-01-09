@@ -1,37 +1,41 @@
-import { FC, SetStateAction, Dispatch, MutableRefObject } from "react";
-import styled, { css } from "styled-components";
+import {
+  FC,
+  SetStateAction,
+  Dispatch,
+  MutableRefObject,
+  useEffect,
+} from "react";
+import styled, { css, useTheme } from "styled-components";
 
-import IconButton from "../../../../../components/IconButton";
+import SidebarButton from "./SidebarButton";
+import Settings from "./Settings";
 import Link from "../../../../../components/Link";
-import PopButton from "../../../../../components/PopButton";
-import Settings from "../Right/Settings";
-import useActiveTab, { ID_PREFIX } from "./useActiveTab";
-import { sidebarData } from "./sidebar-data";
-import { GITHUB_URL } from "../../../../../constants";
-import { PgCommon, Sidebar } from "../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
+import Popover from "../../../../../components/Popover";
+import { SIDEBAR } from "../../../../../views/sidebar";
+import { ClassName, GITHUB_URL } from "../../../../../constants";
+import { PgCommon, PgTheme } from "../../../../../utils/pg";
 
-interface LeftProps {
-  sidebarState: Sidebar;
-  setSidebarState: Dispatch<SetStateAction<Sidebar>>;
-  oldSidebarRef: MutableRefObject<Sidebar>;
-  width: number;
-  setWidth: Dispatch<SetStateAction<number>>;
-  oldWidth: number;
+interface LeftProps<P = SidebarPageName, W = number> {
+  sidebarPage: P;
+  setSidebarPage: Dispatch<SetStateAction<P>>;
+  oldSidebarRef: MutableRefObject<P>;
+  width: W;
+  setWidth: Dispatch<SetStateAction<W>>;
+  oldWidth: W;
 }
 
 const Left: FC<LeftProps> = ({
-  sidebarState,
-  setSidebarState,
+  sidebarPage,
+  setSidebarPage,
   oldSidebarRef,
   width,
   setWidth,
   oldWidth,
 }) => {
-  useActiveTab(sidebarState, oldSidebarRef, width);
+  useActiveTab(sidebarPage, oldSidebarRef, width);
 
-  const handleSidebarChange = (value: Sidebar) => {
-    setSidebarState((state) => {
+  const handleSidebarChange = (value: SidebarPageName) => {
+    setSidebarPage((state) => {
       if (!width) setWidth(oldWidth);
       else if (state === value) setWidth(0);
 
@@ -43,34 +47,54 @@ const Left: FC<LeftProps> = ({
     <Wrapper>
       <Icons>
         <Top>
-          {sidebarData.top.map((data, i) => (
-            <IconButton
-              key={i}
-              id={ID_PREFIX + data.value}
-              title={PgCommon.getKeybindTextOS(data.title)}
-              src={data.src}
-              onClick={() => handleSidebarChange(data.value)}
+          {SIDEBAR.map((page) => (
+            <SidebarButton
+              key={page.name}
+              tooltipEl={PgCommon.getKeybindTextOS(page.title)}
+              id={getId(page.name)}
+              src={page.icon}
+              onClick={() => handleSidebarChange(page.name)}
             />
           ))}
         </Top>
-        <Bottom>
-          {sidebarData.bottom.map((data, i) => {
-            if (data.value === Sidebar.GITHUB)
-              return (
-                <Link key={i} href={GITHUB_URL} showExternalIcon={false}>
-                  <IconButton title={data.title} src={data.src} />
-                </Link>
-              );
 
-            return (
-              <PopButton key={i} PopElement={Settings} buttonProps={data} />
-            );
-          })}
+        <Bottom>
+          <Link href={GITHUB_URL}>
+            <SidebarButton tooltipEl="GitHub" src="/icons/sidebar/github.png" />
+          </Link>
+
+          <Popover popEl={<Settings />}>
+            <SidebarButton
+              tooltipEl="Settings"
+              src="/icons/sidebar/settings.webp"
+            />
+          </Popover>
         </Bottom>
       </Icons>
     </Wrapper>
   );
 };
+
+const useActiveTab = <P extends SidebarPageName>(
+  currentPage: P,
+  oldPageRef: MutableRefObject<P>,
+  width: number
+) => {
+  const theme = useTheme();
+
+  useEffect(() => {
+    const oldEl = document.getElementById(getId(oldPageRef.current));
+    oldEl?.classList.remove(ClassName.ACTIVE);
+
+    const current = width !== 0 ? currentPage : "Closed";
+    const newEl = document.getElementById(getId(current));
+    newEl?.classList.add(ClassName.ACTIVE);
+
+    oldPageRef.current = currentPage;
+  }, [currentPage, oldPageRef, width, theme.name]);
+};
+
+const getId = (id: string) => "sidebar" + id;
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
@@ -79,7 +103,7 @@ const Wrapper = styled.div`
     user-select: none;
     overflow: hidden;
 
-    ${PgThemeManager.convertToCSS(theme.components.sidebar.left.default)};
+    ${PgTheme.convertToCSS(theme.components.sidebar.left.default)};
   `}
 `;
 

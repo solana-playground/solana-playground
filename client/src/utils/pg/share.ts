@@ -1,77 +1,85 @@
-import { SERVER_URL } from "../../constants";
 import { PgCommon } from "./common";
-import { PgExplorer, ExplorerJSON } from "./explorer";
-import { PgValidator } from "./validator";
-
-export interface ShareJSON {
-  files: {
-    [key: string]: {
-      content?: string;
-      current?: boolean;
-      tabs?: boolean;
-    };
-  };
-}
+import { ExplorerFiles, PgExplorer } from "./explorer";
+import { PgServer } from "./server";
 
 export class PgShare {
   /**
-   * @returns shared project info
+   * Get the shared project files from the given path.
+   *
+   * @param id shared project id
+   * @returns shared project files
    */
   static async get(id: string) {
-    const resp = await fetch(`${SERVER_URL}/share${id}`);
+    const shareData = await PgServer.shareGet(id);
 
-    await PgCommon.checkForRespErr(resp.clone());
-
-    const shareData: ShareJSON = await resp.json();
-
-    // Convert ShareJSON into new ExplorerJSON to make shares backwards compatible
-    // with the old shares
-    const newData: ExplorerJSON = { files: {} };
+    // Convert `Share` to `ExplorerFiles` to make shares backwards
+    // compatible with the old shares
+    const files: ExplorerFiles = {};
 
     for (const path in shareData.files) {
-      const fileInfo = shareData.files[path];
-      newData.files[path] = {
-        content: fileInfo.content,
-        meta: {
-          current: fileInfo.current,
-          tabs: fileInfo.tabs,
-        },
-      };
+      files[path] = { content: shareData.files[path].content };
     }
 
-    return newData;
+    return files;
   }
 
   /**
    * Share a new project.
    *
-   * @returns object id if sharing is successful.
+   * @param filePaths file paths to include in the shared project
+   * @returns the share object id
    */
-  static async new(explorer: PgExplorer) {
-    const resp = await fetch(`${SERVER_URL}/new`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  static async new(filePaths: string[]) {
+    const files = Object.entries(PgExplorer.files).reduce(
+      (acc, [path, item]) => {
+        if (filePaths.includes(path)) acc[path] = item;
+        return acc;
       },
-      body: JSON.stringify({
-        explorer: explorer.getShareFiles(),
-      }),
-    });
+      {} as ExplorerFiles
+    );
 
-    const arrayBuffer = await PgCommon.checkForRespErr(resp.clone());
+    // Temporary files are already in a valid form to re-share
+    if (PgExplorer.isTemporary) return await this._new(files);
 
-    const objectId = PgCommon.decodeBytes(arrayBuffer);
+    const shareFiles: ExplorerFiles = {};
+    for (const path in files) {
+      const itemInfo = files[path];
 
-    return objectId;
+      // Remove workspace from path because share only needs /src
+      const sharePath = PgCommon.joinPaths([
+        PgExplorer.PATHS.ROOT_DIR_PATH,
+        PgExplorer.getRelativePath(path),
+      ]);
+      shareFiles[sharePath] = itemInfo;
+    }
+
+    return await this._new(shareFiles);
   }
 
   /**
-   * Get whether the current pathname is in a valid format
+   * Get whether the given id is in a valid format.
    *
-   * @param pathname current pathname
-   * @returns whether the current pathname is in a valid format
+   * @param id share id
+   * @returns whether the given id is in a valid format
    */
-  static isValidPathname(pathname: string) {
-    return PgValidator.isHex(pathname.substring(1));
+  static isValidId(id: string) {
+    return PgCommon.isHex(id);
+  }
+
+  /**
+   * Share a new project.
+   *
+   * @param files share files
+   * @returns the share object id
+   */
+  private static async _new(files: ExplorerFiles) {
+    if (!Object.keys(files).length) throw new Error("Empty share");
+
+    const shareFiles = Object.entries(files).reduce((acc, [path, data]) => {
+      if (data.content) acc[path] = { content: data.content };
+      return acc;
+    }, {} as Record<string, { content?: string }>);
+
+    return await PgServer.shareNew({ explorer: { files: shareFiles } });
   }
 }

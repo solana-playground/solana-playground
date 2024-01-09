@@ -1,3 +1,3 @@
 export * from "./explorer";
-export * from "./frameworks";
-export * from "./github";
+export { Lang } from "./lang";
+export * from "./types";

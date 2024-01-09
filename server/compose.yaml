@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  server:
+    depends_on:
+      - db
+    build: .
+    network_mode: host
+  db:
+    image: mongo:7
+    volumes:
+      - ./mongodb:/data/db
+    network_mode: host
+    # Override the default command because it logs a lot and setting `logging`
+    # `driver` to `none` doesn't work
+    command: mongod --quiet --logpath /dev/null

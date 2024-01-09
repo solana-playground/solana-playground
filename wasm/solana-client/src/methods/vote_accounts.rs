@@ -3,7 +3,7 @@ use crate::{
     ClientRequest, ClientResponse,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetVoteAccountsRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<RpcGetVoteAccountsConfig>,
@@ -11,7 +11,7 @@ pub struct GetVoteAccountsRequest {
 
 impl GetVoteAccountsRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
     pub fn new_with_config(config: RpcGetVoteAccountsConfig) -> Self {
         Self {
@@ -20,19 +20,19 @@ impl GetVoteAccountsRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetVoteAccountsRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetVoteAccountsRequest> for serde_json::Value {
+    fn from(value: GetVoteAccountsRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
 }
 
-impl Into<ClientRequest> for GetVoteAccountsRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetVoteAccountsRequest> for ClientRequest {
+    fn from(value: GetVoteAccountsRequest) -> Self {
         let mut request = ClientRequest::new("getVoteAccounts");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -47,8 +47,8 @@ impl From<ClientResponse> for GetVoteAccountsResponse {
     }
 }
 
-impl Into<RpcVoteAccountStatus> for GetVoteAccountsResponse {
-    fn into(self) -> RpcVoteAccountStatus {
-        self.0
+impl From<GetVoteAccountsResponse> for RpcVoteAccountStatus {
+    fn from(value: GetVoteAccountsResponse) -> Self {
+        value.0
     }
 }

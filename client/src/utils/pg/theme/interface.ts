@@ -88,7 +88,7 @@ export interface Theme {
     >;
 
     /** Button component */
-    button?: OverrideableComponent<ButtonKind>;
+    button?: OverridableComponent<ButtonKind>;
 
     /** Editor component */
     editor?: {
@@ -108,6 +108,14 @@ export interface Theme {
         activeBg?: Bg;
         activeColor?: Color;
       } & Pick<StandardProperties, "borderRight">;
+
+      /** Inlay hints */
+      inlayHint?: BgAndColor & {
+        parameterBg?: Bg;
+        parameterColor?: Color;
+        typeBg?: Bg;
+        typeColor?: Color;
+      };
 
       /** Minimap component */
       minimap?: {
@@ -178,25 +186,42 @@ export interface Theme {
 
         /** Tutorials page component */
         tutorials?: ExtendibleComponent<{
-          /** Tutorial card component */
-          card?: ExtendibleComponent<{
-            /** Wrapper gradient */
-            gradient?: DefaultComponent;
-            /** Wrapper bottom section of the card */
-            info?: ExtendibleComponent<"name" | "description" | "category">;
+          /** Tutorials main section */
+          main?: ExtendibleComponent<{
+            /** Filters section */
+            filters?: DefaultComponent;
+            /** Tutorials section */
+            tutorials?: ExtendibleComponent<{
+              /** Tutorial card component */
+              card?: ExtendibleComponent<{
+                /** Wrapper gradient */
+                gradient?: DefaultComponent;
+              }>;
+              /** Featured tutorial component */
+              featured?: DefaultComponent;
+            }>;
+          }>;
+        }>;
+
+        /** Programs page component */
+        programs?: ExtendibleComponent<{
+          /** Programs main section */
+          main?: ExtendibleComponent<{
+            /** Program card component */
+            card?: DefaultComponent;
           }>;
         }>;
       };
     }>;
 
     /** Markdown component */
-    markdown?: ExtendibleComponent<"code">;
+    markdown?: DefaultComponent & { subtleBg?: Bg };
 
     /** Menu component */
-    menu?: OverrideableComponent<MenuKind>;
+    menu?: OverridableComponent<MenuKind>;
 
     /** Modal component */
-    modal?: ExtendibleComponent<"backdrop" | "title" | "content" | "bottom">;
+    modal?: ExtendibleComponent<"backdrop" | "top" | "content" | "bottom">;
 
     /** Progress bar component */
     progressbar?: ExtendibleComponent<"indicator">;
@@ -217,8 +242,8 @@ export interface Theme {
     sidebar?: ExtendibleComponent<{
       /** Left side of the side panel(icon panel) */
       left?: ExtendibleComponent<{
-        /** Left sidebar IconButton */
-        iconButton?: ExtendibleComponent<"selected">;
+        /** Left sidebar icon button */
+        button?: ExtendibleComponent<"selected">;
       }>;
 
       /** Right side of the side panel */
@@ -235,7 +260,9 @@ export interface Theme {
 
     /** Tabs component */
     tabs?: ExtendibleComponent<{
-      tab?: ExtendibleComponent<"selected">;
+      tab?: ExtendibleComponent<
+        "selected" | "current" | "drag" | "dragOverlay"
+      >;
     }>;
 
     /** Terminal component */
@@ -262,7 +289,7 @@ export interface Theme {
     }>;
 
     /** Text component */
-    text?: OverrideableComponent<TextKind>;
+    text?: OverridableComponent<TextKind>;
 
     /** Notification toast component */
     toast?: ExtendibleComponent<"progress" | "closeButton">;
@@ -281,7 +308,10 @@ export interface Theme {
     /** Wallet component */
     wallet?: ExtendibleComponent<{
       /** Top side of the wallet component */
-      title?: ExtendibleComponent<"text">;
+      top?: ExtendibleComponent<{
+        /** Wallet title component */
+        title?: ExtendibleComponent<"icon" | "text">;
+      }>;
       /** Main side of the wallet component */
       main?: ExtendibleComponent<{
         /** Backdrop is made with `::after` pseudo class */
@@ -394,8 +424,6 @@ export interface Highlight {
 
   invalid: HighlightToken;
 
-  /// Unused in Rust
-
   // const _x_: bool = true;
   constant: HighlightToken;
 
@@ -452,8 +480,8 @@ type ExtendibleComponents =
   | "uploadArea"
   | "wallet";
 
-/** Components that use `OverrideableComponent` type */
-type OverrideableComponents = "button" | "menu" | "text";
+/** Components that use `OverridableComponent` type */
+type OverridableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
 export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
@@ -481,10 +509,10 @@ export type ThemeReady<
   // Extendible components
   components: AllRequired<Pick<C, ExtendibleComponents>>;
 } & {
-  // Overrideable components
+  // Overridable components
   components: ChildRequired<
-    Pick<C, OverrideableComponents>,
-    OverrideableComponents,
+    Pick<C, OverridableComponents>,
+    OverridableComponents,
     "default"
   >;
 };
@@ -540,7 +568,7 @@ type ExtendibleComponent<
   : U);
 
 /** A component with multiple kinds */
-type OverrideableComponent<T extends string> = {
+type OverridableComponent<T extends string> = {
   /** Default StandardProperties values of the Button component */
   default?: DefaultComponent;
   /** Override the defaults with specificity */
@@ -564,3 +592,11 @@ type StateColor = {
 } & {
   bg?: Bg;
 };
+
+/** Theme color names */
+export type ThemeColor =
+  | keyof Pick<
+      ThemeReady["colors"]["default"],
+      "primary" | "secondary" | "textPrimary" | "textSecondary"
+    >
+  | keyof Omit<ThemeReady["colors"]["state"], "hover" | "disabled">;

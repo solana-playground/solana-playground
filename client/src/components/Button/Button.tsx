@@ -1,9 +1,16 @@
-import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
+import {
+  ComponentPropsWithoutRef,
+  forwardRef,
+  MouseEvent,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
 import { ClassName } from "../../constants";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgTheme } from "../../utils/pg";
 
 export type ButtonKind =
   | "primary"
@@ -69,28 +76,74 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, btnLoading, leftIcon, rightIcon, children, ...props }, ref) => {
-    const isLoading =
-      typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+  (
+    {
+      btnLoading,
+      className,
+      disabled,
+      leftIcon,
+      rightIcon,
+      onClick,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const [isLoading, setIsLoading] = useState(getIsLoading(btnLoading));
+    const [isDisabled, setIsDisabled] = useState(disabled);
+
+    // Manage manual loading state
+    useEffect(() => {
+      const res = getIsLoading(btnLoading);
+      if (res !== undefined) setIsLoading(res);
+    }, [btnLoading]);
+
+    // Disable when manually set or is loading
+    useEffect(() => {
+      setIsDisabled(disabled || isLoading);
+    }, [disabled, isLoading]);
+
+    const handleOnClick = async (ev: MouseEvent<HTMLButtonElement>) => {
+      const shouldSetIsDisabled = getIsLoading(btnLoading) === undefined;
+      const shouldSetIsLoading = shouldSetIsDisabled && props.kind !== "icon";
+
+      try {
+        if (shouldSetIsDisabled) setIsDisabled(true);
+        if (shouldSetIsLoading) setIsLoading(true);
+        await onClick?.(ev);
+      } finally {
+        if (shouldSetIsDisabled) setIsDisabled(false);
+        if (shouldSetIsLoading) setIsLoading(false);
+      }
+    };
 
     return (
       <StyledButton
         ref={ref}
         className={`${className} ${isLoading ? ClassName.BUTTON_LOADING : ""}`}
+        disabled={isDisabled}
+        onClick={handleOnClick}
         {...props}
       >
         <span className="btn-spinner" />
         {leftIcon && <span className="left-icon">{leftIcon}</span>}
+
         {isLoading
           ? typeof btnLoading === "object"
             ? btnLoading.text ?? children
             : children
           : children}
+
         {rightIcon && <span className="right-icon">{rightIcon}</span>}
       </StyledButton>
     );
   }
 );
+
+/** Get whether the button is currently in a loading state */
+const getIsLoading = (btnLoading: ButtonProps["btnLoading"]) => {
+  return typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+};
 
 const StyledButton = styled.button<ButtonProps>`
   ${(props) => getButtonStyles(props)}
@@ -193,7 +246,7 @@ const getButtonStyles = ({
 
   // Button kind specific overrides
   // NOTE: Overrides must come after setting the `ButtonKind` defaults
-  button = PgThemeManager.overrideDefaults(
+  button = PgTheme.overrideDefaults(
     button,
     theme.components.button.overrides?.[kind]
   );
@@ -204,6 +257,7 @@ const getButtonStyles = ({
   if (size || !button.padding) {
     if (size === "large") button.padding = "0.75rem 1.5rem";
     else if (size === "medium") button.padding = "0.5rem 1.25rem";
+    else if (size === "small") button.padding = "0.25rem 0.75rem";
     else button.padding = "0.5rem 0.75rem";
   }
 
@@ -309,15 +363,7 @@ const getButtonStyles = ({
     transition: all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type};
     border: 1px solid ${button.borderColor};
-    ${PgThemeManager.convertToCSS(button)};
-
-    & svg {
-      color: ${button.color};
-    }
-
-    &:hover svg {
-      ${button.hover?.color && `color: ${button.hover.color}`};
-    }
+    ${PgTheme.convertToCSS(button)};
 
     &:disabled {
       cursor: not-allowed;
@@ -336,7 +382,7 @@ const getButtonStyles = ({
       display: flex;
 
       & > * {
-        margin-right: 0.25rem;
+        margin-right: 0.375rem;
       }
     }
 
@@ -345,7 +391,7 @@ const getButtonStyles = ({
       display: flex;
 
       & > * {
-        margin-left: 0.25rem;
+        margin-left: 0.375rem;
       }
     }
 
@@ -375,9 +421,6 @@ const getButtonStyles = ({
 
   if (kind === "icon") {
     defaultCss = defaultCss.concat(css`
-      display: flex;
-      justify-content: center;
-      align-items: center;
       height: fit-content;
       width: fit-content;
 
@@ -385,10 +428,6 @@ const getButtonStyles = ({
       svg {
         width: 1rem;
         height: 1rem;
-      }
-
-      & > span:not(.btn-spinner) {
-        margin: 0 0.25rem 0 0.375rem;
       }
     `);
   }

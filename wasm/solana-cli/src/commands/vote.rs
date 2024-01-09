@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use clap::{Arg, ArgMatches, Command};
 use solana_clap_v3_utils_wasm::{
@@ -482,7 +482,7 @@ impl VoteSubCommands for Command<'_> {
 pub fn parse_vote_authorize(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     vote_authorize: VoteAuthorize,
     checked: bool,
 ) -> Result<CliCommandInfo, CliError> {
@@ -631,7 +631,7 @@ pub fn parse_vote_authorize(
 
 pub fn parse_vote_get_account_command(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let vote_account_pubkey =
         pubkey_of_signer(matches, "vote_account_pubkey", wallet_manager)?.unwrap();

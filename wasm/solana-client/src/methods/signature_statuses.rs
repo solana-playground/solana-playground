@@ -27,25 +27,25 @@ impl GetSignatureStatusesRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetSignatureStatusesRequest {
-    fn into(self) -> serde_json::Value {
-        let signatures = self
+impl From<GetSignatureStatusesRequest> for serde_json::Value {
+    fn from(value: GetSignatureStatusesRequest) -> Self {
+        let signatures = value
             .signatures
             .iter()
             .map(|s| s.to_string())
             .collect::<Vec<String>>();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([signatures, config]),
             None => serde_json::json!([signatures]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetSignatureStatusesRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetSignatureStatusesRequest> for ClientRequest {
+    fn from(val: GetSignatureStatusesRequest) -> Self {
         let mut request = ClientRequest::new("getSignatureStatuses");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

@@ -1,34 +1,17 @@
-import { useEffect, useRef } from "react";
-import styled, { css } from "styled-components";
-
 import Panels from "./Panels";
-import GlobalState from "./GlobalState";
-import ModalBackdrop from "../../components/Modal/ModalBackdrop";
+import Global from "./Global";
+import Helpers from "./Helpers";
+import Delayed from "../../components/Delayed";
+import FadeIn from "../../components/FadeIn";
 
-const IDE = () => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (wrapperRef.current) {
-      wrapperRef.current.style.opacity = "1";
-    }
-  }, []);
-
-  return (
-    <Wrapper ref={wrapperRef}>
-      <Panels />
-      <ModalBackdrop />
-      <GlobalState />
-    </Wrapper>
-  );
-};
-
-const Wrapper = styled.div`
-  ${({ theme }) => css`
-    opacity: 0;
-    transition: opacity ${theme.default.transition.duration.long}
-      ${theme.default.transition.type};
-  `}
-`;
+const IDE = () => (
+  <FadeIn>
+    <Panels />
+    <Global />
+    <Delayed delay={1000}>
+      <Helpers />
+    </Delayed>
+  </FadeIn>
+);
 
 export default IDE;

@@ -1,43 +1,32 @@
-import { ChangeEvent, useState } from "react";
-import { Keypair } from "@solana/web3.js";
+import { useState } from "react";
 import styled, { css } from "styled-components";
+import { Keypair } from "@solana/web3.js";
 
-import DownloadButton from "../../DownloadButton";
-import UploadButton from "../../UploadButton";
+import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgCommand, PgCommon, PgWallet } from "../../../utils/pg";
+import { PgWallet } from "../../../utils/pg";
 
-const Setup = () => {
+export const Setup = () => {
   const [text, setText] = useState("");
+  const [keypair] = useState(Keypair.generate());
 
-  const handleSetup = async () => {
-    PgWallet.update({ setupCompleted: true });
-    await PgCommand.connect.run();
+  const handleSetup = () => {
+    if (!PgWallet.accounts.length) PgWallet.add({ keypair });
+    return true;
   };
 
-  const handleImport = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files?.length) return;
+  const handleExport = () => {
+    if (!PgWallet.accounts.length) PgWallet.export(keypair);
+    else PgWallet.export();
+  };
 
+  const handleImport = async () => {
     try {
-      const file = files[0];
-      const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeBytes(arrayBuffer);
-      const buffer = Buffer.from(JSON.parse(decodedString));
-
-      // Validate keypair
-      const pkStr = Keypair.fromSecretKey(
-        Uint8Array.from(buffer)
-      ).publicKey.toBase58();
-
-      setText("Imported address: " + pkStr);
-
-      // Update local storage
-      PgWallet.update({
-        sk: Array.from(buffer),
-      });
+      if (PgWallet.accounts.length) PgWallet.remove(0);
+      const keypair = await PgWallet.import();
+      if (keypair) setText("Imported address: " + keypair.publicKey.toBase58());
     } catch (err: any) {
       console.log(err.message);
     }
@@ -49,7 +38,6 @@ const Setup = () => {
       buttonProps={{
         text: "Continue",
         onSubmit: handleSetup,
-        closeOnSubmit: true,
       }}
     >
       <Content>
@@ -66,25 +54,17 @@ const Setup = () => {
           use. You can also choose to import an existing wallet.
         </ContentText>
         <WarningTextWrapper>
-          <Text kind="warning" IconEl={<Warning />}>
+          <Text kind="warning" icon={<Warning color="warning" />}>
             Wallet information is stored in your browser's local storage. You
             are going to lose the wallet if you clear your browser history
             unless you save the keypair.
           </Text>
         </WarningTextWrapper>
         <WalletButtonsWrapper>
-          <DownloadButton
-            href={PgCommon.getUtf8EncodedString(
-              Array.from(PgWallet.keypairBytes)
-            )}
-            download="keypair.json"
-            buttonKind="primary-outline"
-          >
+          <Button onClick={handleExport} kind="primary-outline">
             Save keypair
-          </DownloadButton>
-          <UploadButton accept=".json" onUpload={handleImport} showUploadText>
-            Import keypair
-          </UploadButton>
+          </Button>
+          <Button onClick={handleImport}>Import keypair</Button>
         </WalletButtonsWrapper>
         {text && <KeypairText>{text}</KeypairText>}
       </Content>
@@ -118,7 +98,6 @@ const WarningTextWrapper = styled.div`
     height: 2rem;
     width: 2rem;
     margin-right: 1rem;
-    color: ${({ theme }) => theme.colors.state.warning.color};
   }
 `;
 
@@ -138,5 +117,3 @@ const KeypairText = styled.div`
     color: ${theme.colors.default.textSecondary};
   `}
 `;
-
-export default Setup;

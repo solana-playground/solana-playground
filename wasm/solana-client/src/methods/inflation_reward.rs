@@ -27,25 +27,25 @@ impl GetInflationRewardRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetInflationRewardRequest {
-    fn into(self) -> serde_json::Value {
-        let addresses = self
+impl From<GetInflationRewardRequest> for serde_json::Value {
+    fn from(value: GetInflationRewardRequest) -> Self {
+        let addresses = value
             .addresses
             .iter()
             .map(|o| o.to_string())
             .collect::<Vec<String>>();
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([addresses, config]),
             None => serde_json::json!([addresses]),
         }
     }
 }
 
-impl Into<ClientRequest> for GetInflationRewardRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetInflationRewardRequest> for ClientRequest {
+    fn from(value: GetInflationRewardRequest) -> Self {
         let mut request = ClientRequest::new("getInflationReward");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }
@@ -60,8 +60,8 @@ impl From<ClientResponse> for GetInflationRewardResponse {
     }
 }
 
-impl Into<Vec<Option<RpcInflationReward>>> for GetInflationRewardResponse {
-    fn into(self) -> Vec<Option<RpcInflationReward>> {
-        self.0
+impl From<GetInflationRewardResponse> for Vec<Option<RpcInflationReward>> {
+    fn from(value: GetInflationRewardResponse) -> Self {
+        value.0
     }
 }

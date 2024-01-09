@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error, sync::Arc, time::Duration};
+use std::{collections::HashMap, error, rc::Rc, time::Duration};
 
 use clap::ArgMatches;
 use num_traits::FromPrimitive;
@@ -520,7 +520,7 @@ impl CliConfig<'_> {
 pub fn parse_command(
     matches: &ArgMatches,
     default_signer: Box<dyn Signer>,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, Box<dyn error::Error>> {
     let response = match matches.subcommand() {
         // // Autocompletion Command
@@ -798,13 +798,11 @@ pub async fn process_command(config: &CliConfig<'_>) -> ProcessResult {
         //         .unwrap_or_else(|_| "Unavailable".to_string());
         //     PgTerminal::log_wasm(&format!("{}", get_name_value("Pubkey:", &pubkey)));
         // }
-        let commitment_msg = format!(
-            "{}",
-            get_name_value(
-                "Commitment:",
-                &config.commitment_config.commitment.to_string()
-            )
-        );
+        let commitment_msg = get_name_value(
+            "Commitment:",
+            &config.commitment_config.commitment.to_string(),
+        )
+        .to_string();
 
         msg.push_str(&rpc_msg);
         msg.push_str(&default_signer_msg);

@@ -5,52 +5,54 @@ import { PgCommon } from "./common";
 import { EventName } from "../../constants";
 import type { SetState, SetElementAsync } from "./types";
 
-/** Sidebar states */
-export enum Sidebar {
-  CLOSED = "Closed",
-  EXPLORER = "Explorer",
-  // SEARCH = "Search",
-  BUILD_DEPLOY = "Build & Deploy",
-  TEST = "Test",
-  TUTORIALS = "Tutorials",
-  GITHUB = "Github",
-  WALLET = "Wallet",
-  SETTINGS = "Settings",
-}
-
-/** Each item props in left sidebar */
-export interface SidebarIcon {
-  title: string;
-  src: string;
-  value: Sidebar;
-}
-
-/** Left sidebar data */
-export type SidebarData = { [K in "top" | "bottom"]: SidebarIcon[] };
-
 export class PgView {
   /**
-   * Set main view(next to the sidebar and above the terminal)
+   * Set the current sidebar state
    *
-   * @param SetEl element to set the main view to. (default: Editor)
+   * @param state sidebar state to set
    */
-  static async setMain(SetEl?: SetElementAsync) {
-    while (1) {
-      try {
-        const eventNames = PgCommon.getStaticStateEventNames(
-          EventName.VIEW_MAIN_STATIC
-        );
-        const result = await PgCommon.timeout(
-          PgCommon.sendAndReceiveCustomEvent(eventNames.get)
-        );
-        if (result) {
-          PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
-          break;
-        }
-      } catch {
-        await PgCommon.sleep(1000);
-      }
-    }
+  static setSidebarPage(state: SetState<SidebarPageName> = "Explorer") {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_SIDEBAR_STATE_SET,
+      state
+    );
+  }
+
+  /**
+   * Set sidebar right component's loading state.
+   *
+   * **NOTE:** The boolean values are used to either increment or decrement the
+   * ongoing process count. Setting the `loading` to `false` only decrements
+   * the process count and the loading state is only disabled if there is no
+   * other ongoing process.
+   *
+   * @param loading set loading state
+   */
+  static setSidebarLoading(loading: SetState<boolean>) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_SIDEBAR_LOADING_SET,
+      loading
+    );
+  }
+
+  /**
+   * Set the main view(next to the sidebar and above the terminal).
+   *
+   * @param SetEl element to set the main view to
+   */
+  static async setMain(SetEl: SetElementAsync) {
+    await PgCommon.tryUntilSuccess(async () => {
+      const eventNames = PgCommon.getStaticStateEventNames(
+        EventName.VIEW_MAIN_STATIC
+      );
+      const result = await PgCommon.timeout(
+        PgCommon.sendAndReceiveCustomEvent(eventNames.get),
+        100
+      );
+      if (result === undefined) throw new Error();
+
+      PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
+    }, 1000);
   }
 
   /**
@@ -71,6 +73,24 @@ export class PgView {
   }
 
   /**
+   * Close the current modal.
+   *
+   * @param data data to be resolved from the modal
+   */
+  static closeModal(data?: any) {
+    // `data` will be a `ClickEvent` if the modal has been closed with the
+    // default Cancel button
+    if (data?.target) data = null;
+
+    PgCommon.createAndDispatchCustomEvent(
+      PgCommon.getSendAndReceiveEventNames(EventName.MODAL_SET).receive,
+      { data }
+    );
+
+    PgView.setModal(null);
+  }
+
+  /**
    * Show a notification toast.
    *
    * @param Component component to show
@@ -87,27 +107,29 @@ export class PgView {
   }
 
   /**
-   * Set the current sidebar state
+   * Set the new item portal container.
    *
-   * @param state sidebar state to set
+   * New item input will be shown if an element is given.
+   *
+   * @param Element element to set the portal container to
    */
-  static setSidebarState(state: SetState<Sidebar>) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_SIDEBAR_STATE_SET,
-      state
+  static setNewItemPortal(Element: Element | null) {
+    return PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_NEW_ITEM_PORTAL_SET,
+      Element
     );
   }
 
   /**
-   * Runs after changing sidebar state
+   * Runs after changing sidebar page
    *
    * @param cb callback function to run after changing sidebar page
    * @returns a dispose function to clear the event
    */
-  static onDidChangeSidebarState(cb: (state: Sidebar) => any) {
+  static onDidChangeSidebarPage(cb: (page: SidebarPageName) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_STATE,
+      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
     });
   }
 }

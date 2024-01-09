@@ -1,27 +1,33 @@
-import { lazy, Suspense } from "react";
 import styled from "styled-components";
 
+import Bottom from "./Bottom";
+import Main from "./Main";
 import Side from "./Side";
-import { Wormhole } from "../../../components/Loading";
-
-const Main = lazy(() => import("./Main"));
-const Bottom = lazy(() => import("./Bottom"));
-const Wallet = lazy(() => import("../../../components/Wallet"));
-const Toast = lazy(() => import("../../../components/Toast"));
+import Delayed from "../../../components/Delayed";
+import ModalBackdrop from "../../../components/ModalBackdrop";
+import Toast from "../../../components/Toast";
+import Wallet from "../../../components/Wallet";
+import { Id } from "../../../constants";
 
 const Panels = () => (
   <Wrapper>
     <MainWrapper>
       <Side />
-      <Suspense fallback={<Wormhole size={10} circleCount={10} />}>
-        <Main />
-        <Wallet />
-      </Suspense>
+      <Main />
     </MainWrapper>
-    <Suspense fallback={false}>
+
+    {/* Add a delay to the mount of `Bottom` and `Wallet` components because
+    some of the globals used in those component doesn't get initialized */}
+    <Delayed delay={10}>
       <Bottom />
-      <Toast />
-    </Suspense>
+      <Wallet />
+    </Delayed>
+
+    <Toast />
+    <ModalBackdrop />
+
+    {/* Portal to escape the stacking context */}
+    <Portal id={Id.PORTAL} />
   </Wrapper>
 );
 
@@ -30,6 +36,8 @@ const Wrapper = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 `;
 
 const MainWrapper = styled.div`
@@ -38,6 +46,10 @@ const MainWrapper = styled.div`
   overflow: hidden;
   width: 100%;
   flex: 1;
+`;
+
+const Portal = styled.div`
+  z-index: 2;
 `;
 
 export default Panels;

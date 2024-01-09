@@ -610,7 +610,7 @@ impl<'a> TokenInstruction<'a> {
             }
             1 => Self::InitializeAccount,
             2 => {
-                let &m = rest.get(0).ok_or(InvalidInstruction)?;
+                let &m = rest.first().ok_or(InvalidInstruction)?;
                 Self::InitializeMultisig { m }
             }
             3 | 4 | 7 | 8 => {
@@ -670,7 +670,7 @@ impl<'a> TokenInstruction<'a> {
                 Self::InitializeAccount3 { owner }
             }
             19 => {
-                let &m = rest.get(0).ok_or(InvalidInstruction)?;
+                let &m = rest.first().ok_or(InvalidInstruction)?;
                 Self::InitializeMultisig2 { m }
             }
             20 => {
@@ -817,9 +817,7 @@ impl<'a> TokenInstruction<'a> {
                 buf.extend_from_slice(mint_authority.as_ref());
                 Self::pack_pubkey_option(freeze_authority, &mut buf);
             }
-            &Self::GetAccountDataSize {
-                ref extension_types,
-            } => {
+            Self::GetAccountDataSize { extension_types } => {
                 buf.push(21);
                 for extension_type in extension_types {
                     buf.extend_from_slice(&<[u8; 2]>::from(*extension_type));
@@ -836,23 +834,21 @@ impl<'a> TokenInstruction<'a> {
                 buf.push(24);
                 buf.extend_from_slice(ui_amount.as_bytes());
             }
-            &Self::InitializeMintCloseAuthority {
-                ref close_authority,
-            } => {
+            Self::InitializeMintCloseAuthority { close_authority } => {
                 buf.push(25);
                 Self::pack_pubkey_option(close_authority, &mut buf);
             }
-            &Self::TransferFeeExtension(ref instruction) => {
+            Self::TransferFeeExtension(instruction) => {
                 buf.push(26);
                 TransferFeeInstruction::pack(instruction, &mut buf);
             }
-            &Self::ConfidentialTransferExtension => {
+            Self::ConfidentialTransferExtension => {
                 buf.push(27);
             }
-            &Self::DefaultAccountStateExtension => {
+            Self::DefaultAccountStateExtension => {
                 buf.push(28);
             }
-            &Self::Reallocate {
+            Self::Reallocate {
                 ref extension_types,
             } => {
                 buf.push(29);
@@ -860,16 +856,16 @@ impl<'a> TokenInstruction<'a> {
                     buf.extend_from_slice(&<[u8; 2]>::from(*extension_type));
                 }
             }
-            &Self::MemoTransferExtension => {
+            Self::MemoTransferExtension => {
                 buf.push(30);
             }
-            &Self::CreateNativeMint => {
+            Self::CreateNativeMint => {
                 buf.push(31);
             }
-            &Self::InitializeNonTransferableMint => {
+            Self::InitializeNonTransferableMint => {
                 buf.push(32);
             }
-            &Self::InterestBearingMintExtension => {
+            Self::InterestBearingMintExtension => {
                 buf.push(33);
             }
         };

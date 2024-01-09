@@ -29,22 +29,22 @@ impl SimulateTransactionRequest {
     }
 }
 
-impl Into<serde_json::Value> for SimulateTransactionRequest {
-    fn into(self) -> serde_json::Value {
-        let transaction_data = bincode::serialize(&self.transaction).unwrap();
-        let encoded_transaction = base64::encode(&transaction_data);
+impl From<SimulateTransactionRequest> for serde_json::Value {
+    fn from(value: SimulateTransactionRequest) -> Self {
+        let transaction_data = bincode::serialize(&value.transaction).unwrap();
+        let encoded_transaction = base64::encode(transaction_data);
 
-        match self.config {
+        match value.config {
             Some(config) => serde_json::json!([encoded_transaction, config]),
             None => serde_json::json!([encoded_transaction]),
         }
     }
 }
 
-impl Into<ClientRequest> for SimulateTransactionRequest {
-    fn into(self) -> ClientRequest {
+impl From<SimulateTransactionRequest> for ClientRequest {
+    fn from(val: SimulateTransactionRequest) -> Self {
         let mut request = ClientRequest::new("simulateTransaction");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }

@@ -29,9 +29,9 @@ solana-cli-output-wasm = { path = "../utils/solana-cli-output" }
 solana-client-wasm = { path = "../solana-client" }
 solana-extra-wasm = { path = "../utils/solana-extra" }
 solana-playground-utils-wasm = { path = "../utils/solana-playground-utils" }
-solana-remote-wallet = { version = "=1.14.16", default-features = false }
+solana-remote-wallet = { version = "=1.17.4", default-features = false }
 solana-sdk = "*"
-solana-version = "=1.14.16"
+solana-version = "=1.17.4"
 thiserror = "1.0.31"
-wasm-bindgen = "=0.2.83"
-wasm-bindgen-futures = "=0.4.33"
+wasm-bindgen = "*"
+wasm-bindgen-futures = "*"

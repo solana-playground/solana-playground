@@ -1,0 +1,1 @@
+export { clear } from "./clear";

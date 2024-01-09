@@ -1,10 +1,10 @@
 import { FC } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import Button from "../Button";
 import Tooltip from "../Tooltip";
-import useCopy from "./useCopy";
 import { Copy } from "../Icons";
+import { useCopy } from "../../hooks";
 
 interface CopyButtonProps {
   copyText: string;
@@ -14,25 +14,36 @@ const CopyButton: FC<CopyButtonProps> = ({ copyText }) => {
   const [copied, setCopied] = useCopy(copyText);
 
   return (
-    <Tooltip text={copied ? "Copied" : "Copy"}>
-      <Wrapper copied={copied}>
-        <Button onClick={setCopied} kind="icon">
-          <Copy />
-        </Button>
-      </Wrapper>
+    <Tooltip
+      element={
+        <TooltipElement copied={copied}>
+          {copied ? "Copied" : "Copy"}
+        </TooltipElement>
+      }
+    >
+      <StyledButton onClick={setCopied} kind="icon" copied={copied}>
+        <Copy />
+      </StyledButton>
     </Tooltip>
   );
 };
 
-const Wrapper = styled.div<{ copied: boolean }>`
-  & > button {
+const StyledButton = styled(Button)<{ copied: boolean }>`
+  ${({ theme, copied }) => css`
+    ${copied && `color: ${theme.colors.state.success.color}`};
+
     &:hover {
       background: transparent;
 
-      ${({ theme, copied }) =>
-        copied && `& svg { color: ${theme.colors.state.success.color}; }`}
+      ${copied && `color: ${theme.colors.state.success.color}`};
     }
-  }
+  `};
+`;
+
+const TooltipElement = styled.span<{ copied: boolean }>`
+  ${({ copied, theme }) => css`
+    ${copied && `color: ${theme.colors.state.success.color}`};
+  `}
 `;
 
 export default CopyButton;

@@ -3,7 +3,7 @@ use solana_sdk::commitment_config::CommitmentConfig;
 use super::Context;
 use crate::{utils::rpc_response::RpcBlockhash, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetLatestBlockhashRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
@@ -11,7 +11,7 @@ pub struct GetLatestBlockhashRequest {
 
 impl GetLatestBlockhashRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
     pub fn new_with_config(config: CommitmentConfig) -> Self {
         Self {
@@ -20,19 +20,19 @@ impl GetLatestBlockhashRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetLatestBlockhashRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetLatestBlockhashRequest> for serde_json::Value {
+    fn from(value: GetLatestBlockhashRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
 }
 
-impl Into<ClientRequest> for GetLatestBlockhashRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetLatestBlockhashRequest> for ClientRequest {
+    fn from(value: GetLatestBlockhashRequest) -> Self {
         let mut request = ClientRequest::new("getLatestBlockhash");
-        let params = self.into();
+        let params = value.into();
 
         request.params(params).clone()
     }

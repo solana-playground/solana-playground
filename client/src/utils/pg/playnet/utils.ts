@@ -1,5 +1,5 @@
-import { WasmAccount } from "@solana-playground/playnet";
 import { AccountInfo, PublicKey } from "@solana/web3.js";
+import type { WasmAccount } from "@solana-playground/playnet";
 
 import { PgCommon } from "../common";
 

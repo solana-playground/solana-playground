@@ -1,24 +1,24 @@
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetGenesisHashRequest {}
 
 impl GetGenesisHashRequest {
     pub fn new() -> Self {
-        Self {}
+        Self::default()
     }
 }
 
-impl Into<serde_json::Value> for GetGenesisHashRequest {
-    fn into(self) -> serde_json::Value {
+impl From<GetGenesisHashRequest> for serde_json::Value {
+    fn from(_val: GetGenesisHashRequest) -> Self {
         serde_json::Value::Null
     }
 }
 
-impl Into<ClientRequest> for GetGenesisHashRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetGenesisHashRequest> for ClientRequest {
+    fn from(val: GetGenesisHashRequest) -> Self {
         let mut request = ClientRequest::new("getGenesisHash");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -33,8 +33,8 @@ impl From<ClientResponse> for GetGenesisHashResponse {
     }
 }
 
-impl Into<String> for GetGenesisHashResponse {
-    fn into(self) -> String {
-        self.0
+impl From<GetGenesisHashResponse> for String {
+    fn from(val: GetGenesisHashResponse) -> Self {
+        val.0
     }
 }

@@ -1,32 +1,35 @@
 import { FC } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
-import { useDropzone } from "react-dropzone";
+import { DropzoneOptions, DropzoneState, useDropzone } from "react-dropzone";
 
 import Input from "../Input";
 import { Checkmark, Upload } from "../Icons";
-import { PgCommon } from "../../utils/pg";
-import { PgThemeManager } from "../../utils/pg/theme";
+import { PgCommon, PgTheme } from "../../utils/pg";
 
-interface UploadAreaProps {
+interface UploadAreaProps extends DropzoneOptions {
+  /** Callback to run on drop or import */
   onDrop: (files: any) => Promise<void>;
+  /** Error message to show */
   error: string;
+  /** Default message to show */
+  text?: string;
+  /** The amount of files that are uploaded */
   filesLength?: number;
+  className?: string;
 }
 
-const UploadArea: FC<UploadAreaProps> = ({ onDrop, error, filesLength }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-  });
+const UploadArea: FC<UploadAreaProps> = ({ className, ...props }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone(props);
 
   return (
-    <Wrapper {...getRootProps()} isDragActive={isDragActive}>
+    <Wrapper
+      className={className}
+      {...getRootProps()}
+      isDragActive={isDragActive}
+    >
       <Input {...getInputProps()} />
       <Upload />
-      <ImportResult
-        error={error}
-        filesLength={filesLength}
-        isDragActive={isDragActive}
-      />
+      <ImportResult isDragActive={isDragActive} {...props} />
     </Wrapper>
   );
 };
@@ -40,36 +43,40 @@ const Wrapper = styled.div<{ isDragActive: boolean }>`
     opacity: ${isDragActive ? 0.55 : 1};
 
     & > svg {
-      ${PgThemeManager.convertToCSS(theme.components.uploadArea.icon)};
+      ${PgTheme.convertToCSS(theme.components.uploadArea.icon)};
     }
 
     &:hover > div {
       color: ${theme.colors.default.textPrimary};
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.uploadArea.default)};
+    ${PgTheme.convertToCSS(theme.components.uploadArea.default)};
   `}
 `;
 
-interface ImportResultProps {
-  error: string;
-  isDragActive: boolean;
-  filesLength?: number;
-}
+type ImportResultProps = Pick<
+  UploadAreaProps,
+  "error" | "filesLength" | "text"
+> &
+  Pick<DropzoneState, "isDragActive"> &
+  Pick<DropzoneOptions, "noClick">;
 
 const ImportResult: FC<ImportResultProps> = ({
   error,
+  text,
   filesLength,
   isDragActive,
+  noClick,
 }) => {
-  if (error)
+  if (error) {
     return (
       <ImportResultWrapper>
         <ImportResultText result="error">{error}</ImportResultText>
       </ImportResultWrapper>
     );
+  }
 
-  if (filesLength)
+  if (filesLength) {
     return (
       <ImportResultWrapper>
         <ImportResultText result="success">
@@ -78,10 +85,15 @@ const ImportResult: FC<ImportResultProps> = ({
         </ImportResultText>
       </ImportResultWrapper>
     );
+  }
 
   if (isDragActive) return <ImportResultText>Drop here</ImportResultText>;
 
-  return <ImportResultText>Select or drop files</ImportResultText>;
+  return (
+    <ImportResultText>
+      {text ?? (noClick ? "Drop files" : "Select or drop files")}
+    </ImportResultText>
+  );
 };
 
 /** Adding this div in order to only change the color when result is not defined */
@@ -96,14 +108,13 @@ const ImportResultText = styled.div<{
 
     & > svg {
       margin-right: 0.5rem;
-      color: inherit;
     }
 
-    ${PgThemeManager.convertToCSS(theme.components.uploadArea.text.default)}
+    ${PgTheme.convertToCSS(theme.components.uploadArea.text.default)}
     ${result === "error" &&
-    PgThemeManager.convertToCSS(theme.components.uploadArea.text.error)};
+    PgTheme.convertToCSS(theme.components.uploadArea.text.error)};
     ${result === "success" &&
-    PgThemeManager.convertToCSS(theme.components.uploadArea.text.success)};
+    PgTheme.convertToCSS(theme.components.uploadArea.text.success)};
   `}
 `;
 

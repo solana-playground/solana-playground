@@ -1,64 +1,89 @@
-import { FC } from "react";
-import styled from "styled-components";
+import { ComponentPropsWithoutRef, forwardRef } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import styled, { css, DefaultTheme } from "styled-components";
 
 import { External } from "../Icons";
+import type { OrString } from "../../utils/pg";
 
-interface LinkProps {
-  href: string;
-  showExternalIcon?: boolean;
-  className?: string;
+export interface LinkProps extends ComponentPropsWithoutRef<"a"> {
+  href: OrString<RoutePath>;
 }
 
-const Link: FC<LinkProps> = ({
-  href,
-  className,
-  showExternalIcon = true,
-  children,
-}) => {
+const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
+  const isWrapper = typeof props.children !== "string";
+
+  if (props.href.startsWith("/")) {
+    return (
+      <StyledRouterLink
+        ref={ref}
+        to={props.href}
+        {...props}
+        $isWrapper={isWrapper}
+      />
+    );
+  }
+
   return (
-    <StyledLink
-      className={className}
-      href={href}
+    <StyledAnchor
+      ref={ref}
       target="_blank"
-      rel="noopener"
+      rel="noopener noreferrer"
+      {...props}
+      $isWrapper={isWrapper}
     >
-      {children}
-      {showExternalIcon && <External />}
-    </StyledLink>
+      {props.children}
+
+      {!isWrapper && <External />}
+    </StyledAnchor>
   );
+});
+
+const getStyles = ({
+  $isWrapper,
+  theme,
+}: {
+  $isWrapper: boolean;
+  theme: DefaultTheme;
+}) => {
+  if ($isWrapper) {
+    return css`
+      & svg {
+        color: ${theme.colors.default.textSecondary};
+      }
+
+      & > * {
+        transition: color ${theme.default.transition.duration.short}
+          ${theme.default.transition.type};
+
+        &:hover {
+          color: ${theme.colors.default.textPrimary};
+        }
+      }
+    `;
+  }
+
+  return css`
+    color: ${theme.colors.default.primary};
+    border-bottom: 1px solid transparent;
+    transition: border-bottom-color ${theme.default.transition.duration.short}
+      ${theme.default.transition.type};
+
+    & svg {
+      margin-left: 0.25rem;
+    }
+
+    &:hover {
+      border-bottom-color: ${theme.colors.default.primary};
+    }
+  `;
 };
 
-const StyledLink = styled.a`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  & > svg {
-    margin-left: 0.125rem;
-  }
+const StyledAnchor = styled.a`
+  ${getStyles}
 `;
 
-export const DefaultLink: FC<LinkProps> = ({ href, className, children }) => (
-  <a
-    className={className}
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {children}
-  </a>
-);
-
-export const StyledDefaultLink = styled(DefaultLink)`
-  color: ${({ theme }) => theme.colors.default.primary};
-
-  &:hover {
-    text-decoration: underline;
-  }
+const StyledRouterLink = styled(RouterLink)`
+  ${getStyles}
 `;
 
 export default Link;

@@ -70,6 +70,7 @@ where
     .await
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn resolve_spend_tx_and_check_account_balances<F>(
     rpc_client: &WasmClient,
     sign_only: bool,
@@ -153,6 +154,7 @@ where
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn resolve_spend_message<F>(
     rpc_client: &WasmClient,
     amount: SpendAmount,

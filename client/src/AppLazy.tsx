@@ -1,6 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 
-import SolanaProvider from "./components/SolanaProvider";
+import { SolanaProvider } from "./providers/solana";
 import IDE from "./pages/ide";
 
 const AppLazy = () => (

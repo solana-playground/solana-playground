@@ -1,4 +1,4 @@
-use std::{collections::HashMap, panic, sync::Arc, time::Duration};
+use std::{collections::HashMap, panic, rc::Rc, time::Duration};
 
 use clap::ArgMatches;
 use solana_clap_v3_utils_wasm::{
@@ -8,7 +8,7 @@ use solana_cli_config_wasm::{Config, ConfigInput};
 use solana_cli_output_wasm::cli_output::{get_name_value_or, OutputFormat};
 use solana_client_wasm::utils::rpc_config::RpcSendTransactionConfig;
 use solana_extra_wasm::transaction_status::UiTransactionEncoding;
-use solana_playground_utils_wasm::js::{PgConnection, PgTerminal, PgWallet};
+use solana_playground_utils_wasm::js::{PgSettings, PgTerminal, PgWallet};
 use solana_remote_wallet::remote_wallet::RemoteWalletManager;
 use solana_sdk::signature::Keypair;
 use wasm_bindgen::prelude::*;
@@ -23,12 +23,13 @@ pub async fn run_solana(cmd: String) {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     let args = cmd.split_ascii_whitespace().collect::<Vec<&str>>();
-    let match_result = get_clap("solana-cli", "Blockchain, Rebuilt for Scale", "1.11.0")
+    let match_result = get_clap("solana-cli-wasm", "Blockchain, Rebuilt for Scale", "1.11.0")
         .try_get_matches_from(args);
     match match_result {
         Ok(matches) => {
-            let endpoint = PgConnection::endpoint();
-            let commitment = PgConnection::commitment();
+            let connection_settings = PgSettings::connection();
+            let endpoint = connection_settings.endpoint();
+            let commitment = connection_settings.commitment();
             let keypair_bytes = PgWallet::keypair_bytes();
 
             if !parse_settings(&matches, &endpoint, &commitment) {
@@ -53,7 +54,7 @@ pub async fn run_solana(cmd: String) {
                         .await
                         .unwrap_or_else(|e| format!("Process error: {}", e))
                 }
-                Err(e) => format!("Parse error: {}", e.to_string()),
+                Err(e) => format!("Parse error: {e}"),
             };
 
             // Log output
@@ -99,10 +100,10 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                             ),
                             _ => unreachable!(),
                         };
-                        PgTerminal::log_wasm(&format!(
-                            "{}",
-                            get_name_value_or(&format!("{}:", field_name), &value, setting_type),
-                        ));
+                        PgTerminal::log_wasm(
+                            &get_name_value_or(&format!("{}:", field_name), &value, setting_type)
+                                .to_string(),
+                        );
                     } else {
                         // Appending log messages because of terminal issue with unnecessary
                         // prompt messages in browser
@@ -120,14 +121,12 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                         //     "{}",
                         //     get_name_value_or("Keypair Path:", &keypair_path, keypair_setting_type)
                         // );
-                        let commitment_msg = format!(
-                            "{}",
-                            get_name_value_or(
-                                "Commitment:",
-                                &commitment.commitment.to_string(),
-                                commitment_setting_type,
-                            ),
-                        );
+                        let commitment_msg = get_name_value_or(
+                            "Commitment:",
+                            &commitment.commitment.to_string(),
+                            commitment_setting_type,
+                        )
+                        .to_string();
 
                         msg.push_str(&rpc_msg);
                         msg.push_str(&ws_msg);
@@ -142,6 +141,9 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                         // Revert to a computed `websocket_url` value when `json_rpc_url` is
                         // changed
                         config.websocket_url = "".to_string();
+
+                        // Update the setting
+                        PgSettings::connection().set_endpoint(&config.json_rpc_url);
                     }
                     if let Some(url) = subcommand_matches.value_of("websocket_url") {
                         config.websocket_url = url.to_string();
@@ -151,10 +153,10 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                     }
                     if let Some(commitment) = subcommand_matches.value_of("commitment") {
                         config.commitment = commitment.to_string();
-                    }
 
-                    // Config is coming from JS
-                    PgConnection::update_wasm(&config.json_rpc_url, &config.commitment);
+                        // Update the setting
+                        PgSettings::connection().set_commitment(&config.commitment);
+                    }
 
                     let (url_setting_type, json_rpc_url) =
                         ConfigInput::compute_json_rpc_url_setting("", &config.json_rpc_url);
@@ -184,14 +186,12 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
                     //     "{}",
                     //     get_name_value_or("Keypair Path:", &keypair_path, keypair_setting_type)
                     // );
-                    let commitment_msg = format!(
-                        "{}",
-                        get_name_value_or(
-                            "Commitment:",
-                            &commitment.commitment.to_string(),
-                            commitment_setting_type,
-                        ),
-                    );
+                    let commitment_msg = get_name_value_or(
+                        "Commitment:",
+                        &commitment.commitment.to_string(),
+                        commitment_setting_type,
+                    )
+                    .to_string();
 
                     msg.push_str(&rpc_msg);
                     msg.push_str(&ws_msg);
@@ -222,7 +222,7 @@ fn parse_settings(matches: &ArgMatches, endpoint: &str, commitment: &str) -> boo
 
 fn parse_args<'a>(
     matches: &ArgMatches,
-    wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
     endpoint: &str,
     commitment: &str,
     keypair_bytes: &[u8],

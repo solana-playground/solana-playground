@@ -1,34 +1,34 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAtom } from "jotai";
 import styled, { css, useTheme } from "styled-components";
 import { Resizable } from "re-resizable";
 import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
 import ProgressBar from "../../../../../components/ProgressBar";
+import { COMMANDS } from "../../../../../commands";
 import {
   Clear,
   Close,
   DoubleArrow,
   Tick,
 } from "../../../../../components/Icons";
-import { terminalProgressAtom } from "../../../../../state";
 import {
   PgCommandExecutor,
   PgCommon,
   PgEditor,
   PgTerm,
   PgTerminal,
+  PgTheme,
 } from "../../../../../utils/pg";
-import { EventName, Id } from "../../../../../constants";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
-import { useTerminal } from "./useTerminal";
-import { useExposeStatic } from "../../../../../hooks";
+import { EventName } from "../../../../../constants";
+import {
+  useExposeStatic,
+  useKeybind,
+  useSetStatic,
+} from "../../../../../hooks";
 
 const Terminal = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
-
-  useTerminal();
 
   const theme = useTheme();
 
@@ -36,9 +36,13 @@ const Terminal = () => {
   const term = useMemo(() => {
     const xterm = theme.components.terminal.xterm;
 
+    // Set the available commands
+    PgCommandExecutor.commands = COMMANDS;
+
     return new PgTerm(PgCommandExecutor.execute, {
       convertEol: true,
       rendererType: "dom",
+      fontFamily: theme.font.code.family,
       fontSize: 14,
       cursorBlink: xterm.cursor.blink,
       cursorStyle: xterm.cursor.kind,
@@ -52,14 +56,12 @@ const Terminal = () => {
         brightRed: xterm.error,
         brightYellow: xterm.warning,
         brightBlue: xterm.info,
-        selection: xterm.selectionBg as string,
+        selection: xterm.selectionBg,
         cursor: xterm.cursor.color,
         cursorAccent: xterm.cursor.accentColor,
       },
     });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme.name]);
+  }, [theme]);
 
   useExposeStatic(term, EventName.TERMINAL_STATIC);
 
@@ -126,50 +128,42 @@ const Terminal = () => {
   }, []);
 
   // Keybinds
-  useEffect(() => {
-    const handleKeybinds = (e: KeyboardEvent) => {
-      const key = e.key.toUpperCase();
-      if (PgCommon.isKeyCtrlOrCmd(e)) {
-        switch (key) {
-          case "L":
-            e.preventDefault();
-            if (PgTerminal.isFocused()) {
-              clear();
-            }
-            break;
-
-          case "`":
-            e.preventDefault();
-            if (PgTerminal.isFocused()) {
-              toggleClose();
-              PgEditor.focus();
-            } else if (!height) {
-              // Terminal is minimized
-              toggleClose();
-              term.focus();
-            } else term.focus();
-
-            break;
-
-          case "M":
-            e.preventDefault();
-            toggleMaximize();
-            break;
-
-          case "J":
-            e.preventDefault();
+  useKeybind(
+    [
+      {
+        keybind: "Ctrl+L",
+        handle: () => {
+          if (PgTerminal.isFocused()) clear();
+        },
+      },
+      {
+        keybind: "Ctrl+`",
+        handle: () => {
+          if (PgTerminal.isFocused()) {
             toggleClose();
-            if (!height) term.focus();
-            else PgEditor.focus();
+            PgEditor.focus();
+          } else {
+            if (!height) toggleClose(); // Minimized
 
-            break;
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeybinds);
-    return () => document.removeEventListener("keydown", handleKeybinds);
-  }, [term, height, clear, toggleClose, toggleMaximize]);
+            term.focus();
+          }
+        },
+      },
+      {
+        keybind: "Ctrl+M",
+        handle: toggleMaximize,
+      },
+      {
+        keybind: "Ctrl+J",
+        handle: () => {
+          toggleClose();
+          if (!height) term.focus();
+          else PgEditor.focus();
+        },
+      },
+    ],
+    [term, height, clear, toggleClose, toggleMaximize]
+  );
 
   return (
     <Resizable
@@ -188,7 +182,7 @@ const Terminal = () => {
         topLeft: false,
       }}
     >
-      <Wrapper ref={termRef} id={Id.TERMINAL}>
+      <Wrapper ref={termRef}>
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>
@@ -224,38 +218,14 @@ const Terminal = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    height: 100%;
-    ${PgThemeManager.convertToCSS(theme.components.terminal.default)};
-
-    /* Scrollbar */
-    /* Chromium */
-    & ::-webkit-scrollbar {
-      width: 0.5rem;
-    }
-
-    & ::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
-
-    & ::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background-color: ${theme.default.scrollbar.thumb.color};
-    }
-
-    & ::-webkit-scrollbar-thumb:hover {
-      background-color: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
-    }
+    ${PgTheme.getScrollbarCSS({ allChildren: true })};
+    ${PgTheme.convertToCSS(theme.components.terminal.default)};
   `}
 `;
 
 const TerminalProgress = () => {
-  const [progress] = useAtom(terminalProgressAtom);
+  const [progress, setProgress] = useState(0);
+  useSetStatic(setProgress, EventName.TERMINAL_PROGRESS_SET);
   return <ProgressBar value={progress} />;
 };
 

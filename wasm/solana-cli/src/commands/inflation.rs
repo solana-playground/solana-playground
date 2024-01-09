@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use clap::{Arg, ArgMatches, Command};
 use solana_clap_v3_utils_wasm::input_parsers::{pubkeys_of, value_of};
@@ -53,7 +53,7 @@ impl InflationSubCommands for Command<'_> {
 pub fn parse_inflation_subcommand(
     matches: &ArgMatches,
     _default_signer: Box<dyn Signer>,
-    _wallet_manager: &mut Option<Arc<RemoteWalletManager>>,
+    _wallet_manager: &mut Option<Rc<RemoteWalletManager>>,
 ) -> Result<CliCommandInfo, CliError> {
     let command = match matches.subcommand() {
         Some(("rewards", matches)) => {

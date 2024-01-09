@@ -10,24 +10,25 @@ import {
   SystemProgram,
   Transaction,
   TransactionInstruction,
-  Connection,
   Signer,
 } from "@solana/web3.js";
 
 import { encodeData, InstructionType } from "./instruction";
 import * as Layout from "./layout";
-import { PgCommon } from "../pg/common";
-import { PgTerminal } from "../pg/terminal";
-import { PgTx } from "../pg/tx/tx";
-import { PgWallet } from "../pg/wallet";
+import {
+  ConnectionOption,
+  PgCommon,
+  PgConnection,
+  PgTx,
+  PgWallet,
+  WalletOption,
+} from "../pg";
 
 const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
 );
 
-/**
- * An enumeration of valid BpfUpgradeableLoaderInstructionType's
- */
+/** An enumeration of valid BpfUpgradeableLoaderInstructionType's */
 type BpfUpgradeableLoaderInstructionType =
   | "InitializeBuffer"
   | "Write"
@@ -85,9 +86,7 @@ const BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS: {
   },
 });
 
-/**
- * Initialize buffer tx params
- */
+/** Initialize buffer tx params */
 type InitializeBufferParams = {
   /** Public key of the buffer account */
   bufferPk: PublicKey;
@@ -95,9 +94,7 @@ type InitializeBufferParams = {
   authorityPk: PublicKey;
 };
 
-/**
- * Write tx params
- */
+/** Write tx params */
 type WriteParams = {
   /** Offset at which to write the given bytes. */
   offset: number;
@@ -109,9 +106,7 @@ type WriteParams = {
   authorityPk: PublicKey;
 };
 
-/**
- * Deploy a program tx params
- */
+/** Deploy program tx params */
 type DeployWithMaxProgramLenParams = {
   /** Maximum length that the program can be upgraded to. */
   maxDataLen: number;
@@ -125,9 +120,7 @@ type DeployWithMaxProgramLenParams = {
   payerPk: PublicKey;
 };
 
-/**
- * Upgrade tx params
- */
+/** Upgrade tx params */
 type UpgradeParams = {
   /** The program account */
   programPk: PublicKey;
@@ -139,9 +132,7 @@ type UpgradeParams = {
   authorityPk: PublicKey;
 };
 
-/**
- * Update buffer authority tx params
- */
+/** Update buffer authority tx params */
 type SetBufferAuthorityParams = {
   /** The buffer account where the program data has been written */
   bufferPk: PublicKey;
@@ -151,21 +142,17 @@ type SetBufferAuthorityParams = {
   newAuthorityPk: PublicKey;
 };
 
-/**
- * Update program authority tx params
- */
+/** Update program authority tx params */
 type SetUpgradeAuthorityParams = {
   /** The program account */
   programPk: PublicKey;
   /** The current authority */
   authorityPk: PublicKey;
-  /** The new authority, optional, if omitted then the program will not be upgradeable */
+  /** The new authority, optional, if omitted then the program will not be upgradable */
   newAuthorityPk: PublicKey | undefined;
 };
 
-/**
- * Close account tx params
- */
+/** Close account tx params */
 type CloseParams = {
   /** The account to close */
   closePk: PublicKey;
@@ -181,23 +168,17 @@ type CloseParams = {
  * Factory class for txs to interact with the BpfLoaderUpgradeable program
  */
 class BpfLoaderUpgradeableProgram {
-  /**
-   * Public key that identifies the BpfLoaderUpgradeable program
-   */
-  static programId: PublicKey = BPF_LOADER_UPGRADEABLE_PROGRAM_ID;
+  /** Public key that identifies the BpfLoaderUpgradeable program */
+  static programId = BPF_LOADER_UPGRADEABLE_PROGRAM_ID;
 
-  /**
-   * Derive programData address from program
-   */
+  /** Derive programData address from program. */
   static async getProgramDataAddress(programPk: PublicKey): Promise<PublicKey> {
     return (
       await PublicKey.findProgramAddress([programPk.toBuffer()], this.programId)
     )[0];
   }
 
-  /**
-   * Generate a tx instruction that initialize buffer account
-   */
+  /** Generate a tx instruction that initialize buffer account. */
   static initializeBuffer(
     params: InitializeBufferParams
   ): TransactionInstruction {
@@ -215,8 +196,8 @@ class BpfLoaderUpgradeableProgram {
   }
 
   /**
-   * Generate a tx instruction that write a chunk of program data
-   *   to a buffer account
+   * Generate a tx instruction that write a chunk of program data to a buffer
+   * account.
    */
   static write(params: WriteParams): TransactionInstruction {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Write;
@@ -236,8 +217,8 @@ class BpfLoaderUpgradeableProgram {
   }
 
   /**
-   * Generate a tx instruction that deploy a program with a specified
-   *   maximum program length
+   * Generate a tx instruction that deploy a program with a specified maximum
+   * program length.
    */
   static async deployWithMaxProgramLen(
     params: DeployWithMaxProgramLenParams
@@ -271,9 +252,7 @@ class BpfLoaderUpgradeableProgram {
     });
   }
 
-  /**
-   * Generate a tx instruction that upgrade a program
-   */
+  /** Generate a tx instruction that upgrade a program. */
   static async upgrade(params: UpgradeParams): Promise<TransactionInstruction> {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Upgrade;
     const data = encodeData(type, {});
@@ -299,9 +278,7 @@ class BpfLoaderUpgradeableProgram {
     });
   }
 
-  /**
-   * Generate a tx instruction that set a new buffer authority
-   */
+  /** Generate a tx instruction that set a new buffer authority. */
   static setBufferAuthority(
     params: SetBufferAuthorityParams
   ): TransactionInstruction {
@@ -327,9 +304,7 @@ class BpfLoaderUpgradeableProgram {
     });
   }
 
-  /**
-   * Generate a tx instruction that set a new program authority
-   */
+  /** Generate a tx instruction that set a new program authority. */
   static async setUpgradeAuthority(
     params: SetUpgradeAuthorityParams
   ): Promise<TransactionInstruction> {
@@ -363,8 +338,8 @@ class BpfLoaderUpgradeableProgram {
   }
 
   /**
-   * Generate a tx instruction that close program, buffer, or
-   *   uninitialized account
+   * Generate a tx instruction that close a program, a buffer, or an
+   * uninitialized account.
    */
   static close(params: CloseParams): TransactionInstruction {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Close;
@@ -403,48 +378,35 @@ class BpfLoaderUpgradeableProgram {
   }
 }
 
-/**
- * BpfLoaderUpgradeable program interface
- */
+/** BpfLoaderUpgradeable program interface */
 export class BpfLoaderUpgradeable {
-  /**
-   * Buffer account size without data
-   */
+  /** Buffer account size without data */
   static BUFFER_HEADER_SIZE: number = 37; // Option<Pk>
 
-  /**
-   * Program account size
-   */
+  /** Program account size */
   static BUFFER_PROGRAM_SIZE: number = 36; // Pk
 
-  /**
-   * ProgramData account size without data
-   */
+  /** ProgramData account size without data */
   static BUFFER_PROGRAM_DATA_HEADER_SIZE: number = 45; // usize + Option<Pk>
 
-  /**
-   * Maximal chunk of the data per tx
-   */
+  /** Maximal chunk of the data per tx */
   static WRITE_CHUNK_SIZE: number = PACKET_DATA_SIZE - 220; // Data with 1 signature
 
-  /**
-   * Get buffer account size
-   */
-  static getBufferAccountSize(programLen: number): number {
+  /** Get buffer account size. */
+  static getBufferAccountSize(programLen: number) {
     return this.BUFFER_HEADER_SIZE + programLen;
   }
 
-  /**
-   * Create and initialize buffer account
-   */
+  /** Create and initialize a buffer account. */
   static async createBuffer(
-    conn: Connection,
-    wallet: typeof PgWallet,
     buffer: Signer,
     lamports: number,
-    programLen: number
+    programLen: number,
+    opts?: WalletOption
   ) {
-    const tx: Transaction = new Transaction();
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       SystemProgram.createAccount({
         fromPubkey: wallet.publicKey,
@@ -461,19 +423,21 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet, [buffer]);
+    return await PgTx.send(tx, {
+      keypairSigners: [buffer],
+      wallet,
+    });
   }
 
-  /**
-   * Update buffer authority
-   */
+  /** Update the buffer authority. */
   static async setBufferAuthority(
-    conn: Connection,
-    wallet: typeof PgWallet,
     bufferPk: PublicKey,
-    newAuthorityPk: PublicKey
+    newAuthorityPk: PublicKey,
+    opts?: WalletOption
   ) {
-    const tx: Transaction = new Transaction();
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       BpfLoaderUpgradeableProgram.setBufferAuthority({
         bufferPk,
@@ -482,80 +446,106 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet);
+    return await PgTx.send(tx, { wallet });
   }
 
-  /**
-   * Load programData to initialized buffer account
-   */
+  /** Load programData to the initialized buffer account. */
   static async loadBuffer(
-    conn: Connection,
-    wallet: typeof PgWallet,
     bufferPk: PublicKey,
     programData: Buffer,
-    loadConcurrency: number = 8
+    opts?: {
+      loadConcurrency?: number;
+      abortController?: AbortController;
+      onWrite?: (offset: number) => void;
+      onMissing?: (missingCount: number) => void;
+    } & ConnectionOption &
+      WalletOption
   ) {
-    let bytesOffset = 0;
-    await Promise.all(
-      new Array(loadConcurrency).fill(null).map(async () => {
-        for (;;) {
-          const offset = bytesOffset;
-          bytesOffset += BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+    const { connection, wallet } = this._getOptions(opts);
+    const { loadConcurrency } = PgCommon.setDefault(opts, {
+      loadConcurrency: 8,
+    });
 
-          const bytes = programData.slice(
-            offset,
-            offset + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE
-          );
-          if (bytes.length === 0) {
-            break;
-          }
+    const loadBuffer = async (indices: number[], isMissing?: boolean) => {
+      if (isMissing) opts?.onMissing?.(indices.length);
 
-          const tx: Transaction = new Transaction();
-          tx.add(
-            BpfLoaderUpgradeableProgram.write({
-              offset,
-              bytes,
-              bufferPk,
-              authorityPk: wallet.publicKey,
-            })
-          );
+      let i = 0;
+      await Promise.all(
+        new Array(loadConcurrency).fill(null).map(async () => {
+          while (1) {
+            if (opts?.abortController?.signal.aborted) return;
 
-          let sleepAmount = 1000;
-          // Retry until writing is successful
-          for (;;) {
+            const offset = indices[i] * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+            i++;
+            const endOffset = offset + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+            const bytes = programData.slice(offset, endOffset);
+            if (bytes.length === 0) break;
+
+            const tx = new Transaction();
+            tx.add(
+              BpfLoaderUpgradeableProgram.write({
+                offset,
+                bytes,
+                bufferPk,
+                authorityPk: wallet.publicKey,
+              })
+            );
+
             try {
-              const writeTxHash = await PgTx.send(tx, conn, wallet);
-
-              console.count("buffer write");
-
-              const txResult = await PgTx.confirm(writeTxHash, conn);
-              if (!txResult?.err) break;
+              await PgTx.send(tx, { connection, wallet });
+              if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
-
-              await PgCommon.sleep(sleepAmount);
-              // Incrementally sleep incase of being rate-limited
-              if (sleepAmount < 60000) sleepAmount *= 1.5;
             }
           }
+        })
+      );
+    };
 
-          PgTerminal.setProgress((bytesOffset / programData.length) * 100);
-        }
-      })
+    const txCount = Math.ceil(
+      programData.length / BpfLoaderUpgradeable.WRITE_CHUNK_SIZE
     );
+    const indices = new Array(txCount).fill(null).map((_, i) => i);
+    let isMissing = false;
 
-    console.countReset("buffer write");
+    // Retry until all bytes are written
+    while (1) {
+      if (opts?.abortController?.signal.aborted) return;
+
+      // Wait for last transaction to confirm
+      await PgCommon.sleep(500);
+
+      const bufferAccount = await PgCommon.tryUntilSuccess(
+        () => connection.getAccountInfo(bufferPk),
+        5000
+      );
+      const onChainProgramData = bufferAccount!.data.slice(
+        BpfLoaderUpgradeable.BUFFER_HEADER_SIZE,
+        BpfLoaderUpgradeable.BUFFER_HEADER_SIZE + programData.length
+      );
+      if (onChainProgramData.equals(programData)) break;
+
+      const missingIndices = indices
+        .map((i) => {
+          const start = i * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+          const end = start + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+          const actualSlice = programData.slice(start, end);
+          const onChainSlice = onChainProgramData.slice(start, end);
+          if (!actualSlice.equals(onChainSlice)) return i;
+
+          return null;
+        })
+        .filter((i) => i !== null) as number[];
+      await loadBuffer(missingIndices, isMissing);
+      isMissing = true;
+    }
   }
 
-  /**
-   * Close buffer account and withdraw funds
-   */
-  static async closeBuffer(
-    conn: Connection,
-    wallet: typeof PgWallet,
-    bufferPk: PublicKey
-  ) {
-    const tx: Transaction = new Transaction();
+  /** Close the buffer account and withdraw funds. */
+  static async closeBuffer(bufferPk: PublicKey, opts?: WalletOption) {
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       BpfLoaderUpgradeableProgram.close({
         closePk: bufferPk,
@@ -565,21 +555,20 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet);
+    return await PgTx.send(tx, { wallet });
   }
 
-  /**
-   * create program account from initialized buffer
-   */
+  /** Create a program account from initialized buffer. */
   static async deployProgram(
-    conn: Connection,
-    wallet: typeof PgWallet,
     bufferPk: PublicKey,
     program: Signer,
     programLamports: number,
-    maxDataLen: number
+    maxDataLen: number,
+    opts?: WalletOption
   ) {
-    const tx: Transaction = new Transaction();
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       SystemProgram.createAccount({
         fromPubkey: wallet.publicKey,
@@ -599,19 +588,21 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet, [program]);
+    return await PgTx.send(tx, {
+      keypairSigners: [program],
+      wallet,
+    });
   }
 
-  /**
-   * Update program authority
-   */
+  /** Update the program authority. */
   static async setProgramAuthority(
     programPk: PublicKey,
-    conn: Connection,
-    wallet: typeof PgWallet,
-    newAuthorityPk: PublicKey | undefined
+    newAuthorityPk: PublicKey | undefined,
+    opts?: WalletOption
   ) {
-    const tx: Transaction = new Transaction();
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       await BpfLoaderUpgradeableProgram.setUpgradeAuthority({
         programPk,
@@ -620,20 +611,19 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet);
+    return await PgTx.send(tx, { wallet });
   }
 
-  /**
-   * Upgrade a program
-   */
+  /** Upgrade a program. */
   static async upgradeProgram(
     programPk: PublicKey,
-    conn: Connection,
-    wallet: typeof PgWallet,
     bufferPk: PublicKey,
-    spillPk: PublicKey
+    spillPk: PublicKey,
+    opts?: WalletOption
   ) {
-    const tx: Transaction = new Transaction();
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       await BpfLoaderUpgradeableProgram.upgrade({
         programPk,
@@ -643,18 +633,14 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet);
+    return await PgTx.send(tx, { wallet });
   }
 
-  /**
-   * Close program account and withdraw funds
-   */
-  static async closeProgram(
-    programPk: PublicKey,
-    conn: Connection,
-    wallet: typeof PgWallet
-  ) {
-    const tx: Transaction = new Transaction();
+  /** Close the program account and withdraw funds. */
+  static async closeProgram(programPk: PublicKey, opts?: WalletOption) {
+    const { wallet } = this._getOptions(opts);
+
+    const tx = new Transaction();
     tx.add(
       BpfLoaderUpgradeableProgram.close({
         closePk: await BpfLoaderUpgradeableProgram.getProgramDataAddress(
@@ -666,6 +652,16 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, conn, wallet);
+    return await PgTx.send(tx, { wallet });
+  }
+
+  /** Get the connection and wallet instance. */
+  private static _getOptions(opts?: ConnectionOption & WalletOption) {
+    const connection = opts?.connection ?? PgConnection.current;
+
+    const wallet = opts?.wallet ?? PgWallet.current;
+    if (!wallet) throw new Error("Wallet is not connected");
+
+    return { connection, wallet };
   }
 }

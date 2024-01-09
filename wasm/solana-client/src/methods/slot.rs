@@ -2,7 +2,7 @@ use solana_sdk::{clock::Slot, commitment_config::CommitmentConfig};
 
 use crate::{ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GetSlotRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     config: Option<CommitmentConfig>,
@@ -10,7 +10,7 @@ pub struct GetSlotRequest {
 
 impl GetSlotRequest {
     pub fn new() -> Self {
-        Self { config: None }
+        Self::default()
     }
 
     pub fn new_with_config(config: CommitmentConfig) -> Self {
@@ -20,19 +20,19 @@ impl GetSlotRequest {
     }
 }
 
-impl Into<serde_json::Value> for GetSlotRequest {
-    fn into(self) -> serde_json::Value {
-        match self.config {
+impl From<GetSlotRequest> for serde_json::Value {
+    fn from(value: GetSlotRequest) -> Self {
+        match value.config {
             Some(config) => serde_json::json!([config]),
             None => serde_json::Value::Null,
         }
     }
 }
 
-impl Into<ClientRequest> for GetSlotRequest {
-    fn into(self) -> ClientRequest {
+impl From<GetSlotRequest> for ClientRequest {
+    fn from(val: GetSlotRequest) -> Self {
         let mut request = ClientRequest::new("getSlot");
-        let params = self.into();
+        let params = val.into();
 
         request.params(params).clone()
     }
@@ -47,8 +47,8 @@ impl From<ClientResponse> for GetSlotResponse {
     }
 }
 
-impl Into<Slot> for GetSlotResponse {
-    fn into(self) -> Slot {
-        self.0
+impl From<GetSlotResponse> for Slot {
+    fn from(val: GetSlotResponse) -> Self {
+        val.0
     }
 }

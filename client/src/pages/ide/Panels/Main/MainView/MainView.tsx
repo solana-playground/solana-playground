@@ -1,69 +1,84 @@
 import { useCallback, useState } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
-import EditorWithTabs from "./EditorWithTabs";
-import { MainViewLoading } from "../../../../../components/Loading";
+import { SpinnerWithBg } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
-import { PgCommon, SetElementAsync } from "../../../../../utils/pg";
-import { PgThemeManager } from "../../../../../utils/pg/theme";
+import {
+  CallableJSX,
+  NullableJSX,
+  PgCommon,
+  PgRouter,
+  PgTheme,
+  SetElementAsync,
+} from "../../../../../utils/pg";
 import { useGetAndSetStatic } from "../../../../../hooks";
 
 const MainView = () => {
-  const [El, setEl] = useState(EditorWithTabs);
+  const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
   const [loading, setLoading] = useState(true);
 
-  const setElWithTransition = useCallback(async (El: SetElementAsync) => {
+  const setElWithTransition = useCallback(async (SetEl: SetElementAsync) => {
     setLoading(true);
+    setEl(null);
 
-    await PgCommon.transition(async () => {
-      if (!El) El = EditorWithTabs;
-      El = await (El as () => Promise<JSX.Element>)();
-      setEl(El);
-    }, 300);
+    const TransitionedEl = await PgCommon.transition(async () => {
+      try {
+        const ElPromise = typeof SetEl === "function" ? SetEl(null) : SetEl;
+        return await ElPromise;
+      } catch (e: any) {
+        console.log("MAIN VIEW ERROR:", e.message);
+        PgRouter.navigate();
+      }
+    });
+    if (TransitionedEl) {
+      setEl(
+        typeof TransitionedEl === "function" ? (
+          <TransitionedEl />
+        ) : (
+          TransitionedEl
+        )
+      );
+    }
 
     setLoading(false);
   }, []);
 
-  useGetAndSetStatic(El, setElWithTransition, EventName.VIEW_MAIN_STATIC);
+  useGetAndSetStatic(el, setElWithTransition, EventName.VIEW_MAIN_STATIC);
 
-  return <Wrapper>{loading ? <MainViewLoading /> : El}</Wrapper>;
+  return (
+    <Wrapper>
+      <StyledSpinnerWithBg loading={loading} size="2rem">
+        {el}
+      </StyledSpinnerWithBg>
+    </Wrapper>
+  );
 };
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    ${PgTheme.getScrollbarCSS({ allChildren: true })};
+    ${PgTheme.convertToCSS(theme.components.main.default)};
+  `}
+`;
+
+const StyledSpinnerWithBg = styled(SpinnerWithBg)`
+  ${({ theme }) => css`
     display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
 
-    ${PgThemeManager.convertToCSS(theme.components.main.default)};
-
-    /* Scrollbar */
-    /* Chromium */
-    & ::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
-
-    & ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    & ::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${theme.default.borderRadius};
-      background: ${theme.default.scrollbar.thumb.color};
-    }
-
-    & ::-webkit-scrollbar-thumb:hover {
-      background: ${theme.default.scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    & * {
-      scrollbar-color: ${theme.default.scrollbar.thumb.color};
+    & > *:last-child {
+      flex: 1;
+      overflow: auto;
+      opacity: 0;
+      animation: ${fadeInAnimation} ${theme.default.transition.duration.long}
+        ${theme.default.transition.type} forwards;
     }
   `}
+`;
+
+const fadeInAnimation = keyframes`
+  0% { opacity: 0 }
+  40% { opacity : 0 }
+  100% { opacity: 1 }
 `;
 
 export default MainView;
