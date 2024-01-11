@@ -16,7 +16,11 @@ import { Close, ShortArrow } from "../Icons";
 import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
-import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
+import {
+  useAutoAirdrop,
+  useStandardAccountChange,
+  useSyncBalance,
+} from "./hooks";
 import {
   useKeybind,
   useOnClickOutside,
@@ -29,8 +33,9 @@ const Wallet = () => {
 
   const { wallet } = useWallet();
 
-  useAutoAirdrop();
   useStandardAccountChange();
+  useSyncBalance();
+  useAutoAirdrop();
 
   if (!PgWallet.show || !wallet) return null;
 

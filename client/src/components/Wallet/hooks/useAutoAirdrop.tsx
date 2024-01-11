@@ -1,37 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
-import { PgCommon, PgConnection, PgTx, PgWallet } from "../../../utils/pg";
+import { PgCommon, PgConnection, PgTx } from "../../../utils/pg";
 import { useBalance, useConnection, useWallet } from "../../../hooks";
 
-/** Sync the balance of the current wallet and airdrop when necessary. */
+/** Request airdrop when necessary. */
 export const useAutoAirdrop = () => {
-  const { connection, isConnected } = useConnection();
+  const { connection } = useConnection();
   const { wallet } = useWallet();
-
-  useEffect(() => {
-    if (!PgConnection.isReady(connection) || !wallet) return;
-
-    // Listen for balance changes
-    const id = connection.onAccountChange(wallet.publicKey, (acc) => {
-      PgWallet.balance = PgCommon.lamportsToSol(acc.lamports);
-    });
-
-    const fetchBalance = async () => {
-      try {
-        const lamports = await connection.getBalance(wallet.publicKey);
-        PgWallet.balance = PgCommon.lamportsToSol(lamports);
-      } catch (e: any) {
-        console.log("Couldn't fetch balance:", e.message);
-        PgWallet.balance = null;
-      }
-    };
-
-    fetchBalance();
-
-    return () => {
-      connection.removeAccountChangeListener(id);
-    };
-  }, [wallet, connection, isConnected]);
 
   // Auto airdrop if balance is less than 4 SOL
   const [airdropError, setAirdropError] = useState(false);
