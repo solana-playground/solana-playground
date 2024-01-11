@@ -172,8 +172,10 @@ export const TUTORIALS = createTutorials(
         link: "https://twitter.com/solplay_jonas",
       },
     ],
+    framework: "Anchor",
     level: "Intermediate",
     languages: ["Rust", "TypeScript"],
+    categories: ["SPL", "Token"],
   },
 
   {
