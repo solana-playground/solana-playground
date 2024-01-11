@@ -42,8 +42,8 @@ export const RESOURCES: ResourceProps[] = [
   },
   {
     title: "Metaplex Docs",
-    text: "Documentation for understanding how to work with NFTs on Solana.",
-    url: "https://docs.metaplex.com/",
+    text: "Documentation for understanding how to work with NFTs on Solana using the Metaplex Standards.",
+    url: "https://developers.metaplex.com/",
     src: ROOT_DIR + "metaplex.png",
   },
 ];
