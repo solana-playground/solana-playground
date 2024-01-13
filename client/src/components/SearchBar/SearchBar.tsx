@@ -424,13 +424,13 @@ const SearchInputWrapper = styled.div<SearchButtonPositionWidth>`
 `;
 
 const SearchInput = styled(Input)<SearchButtonPosition>`
-  padding: 0.5rem;
-  ${({ position }) => {
-    return position === "left"
+  ${({ theme, position }) => css`
+    padding: ${theme.components.input.padding};
+    ${position === "left"
       ? `padding-left: var(--search-button-width);
     padding-right: var(--search-button-width);`
-      : `padding-right: calc(2 * var(--search-button-width))`;
-  }}
+      : `padding-right: calc(2 * var(--search-button-width))`}
+  `}
 `;
 
 const CloseButton = styled(Button)<SearchButtonPosition>`

@@ -180,11 +180,6 @@ const ScrollableWrapper = styled.div`
 
 const ContentWrapper = styled.div`
   ${({ theme }) => css`
-    & input {
-      padding: 0.375rem 0.5rem;
-      height: 2rem;
-    }
-
     ${PgTheme.convertToCSS(theme.components.modal.content)};
   `}
 `;

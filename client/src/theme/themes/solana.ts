@@ -119,7 +119,7 @@ const SOLANA: Theme = {
       },
     },
     input: {
-      padding: "0.375rem 0.5rem",
+      padding: "0.375rem 0.625rem",
     },
     main: {
       default: {

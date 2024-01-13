@@ -129,6 +129,7 @@ const Wrapper = styled.div<{ depth: number }>`
   padding-left: ${({ depth }) => depth + "rem"};
 
   & > input {
+    height: 1.5rem;
     margin-left: 0.375rem;
   }
 `;

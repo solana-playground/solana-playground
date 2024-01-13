@@ -775,7 +775,8 @@ export class PgTheme {
     const theme = this._themeReady;
 
     input.width ??= "100%";
-    input.padding ??= "0.25rem 0.5rem";
+    input.height ??= "2rem";
+    input.padding ??= "0.375rem 0.5rem";
     input.bg ??= theme.colors.default.bgPrimary;
     input.color ??= theme.colors.default.textPrimary;
     input.border ??= `1px solid ${theme.colors.default.border}`;
