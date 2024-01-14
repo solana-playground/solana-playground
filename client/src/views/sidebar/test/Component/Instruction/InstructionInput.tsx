@@ -298,7 +298,7 @@ const getSearchBarProps = (
     // From seed
     searchBarProps.items.push({
       label: "From seed",
-      DropdownComponent: FromSeed,
+      DropdownComponent: (props) => <FromSeed {...props} name={name} />,
     });
 
     // Programs
