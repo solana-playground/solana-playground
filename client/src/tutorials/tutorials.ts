@@ -163,6 +163,22 @@ export const TUTORIALS = createTutorials(
   },
 
   {
+    name: "Spl Token Vault",
+    description:
+      "Learn how to create and SPL token with meta data and icon using metaplex sdk and saving it in an anchor program.",
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    framework: "Anchor",
+    level: "Intermediate",
+    languages: ["Rust", "TypeScript"],
+    categories: ["SPL", "Token"],
+  },
+
+  {
     name: "Expense Tracker",
     description:
       "Learn how to create an expense tracker app and understand PDAs",
