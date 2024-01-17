@@ -27,10 +27,11 @@ interface InstructionProps {
 }
 
 const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
-  const [instruction, setInstruction] = useState(
+  const [instruction, setInstruction] = useState(() =>
     PgProgramInteraction.getOrCreateInstruction(idlInstruction)
   );
   const [disabled, setDisabled] = useState(true);
+  const [resetCount, setResetCount] = useState(0);
 
   // Enable when there is no args and no accounts.
   //
@@ -49,7 +50,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
   // `InstructionInput`, otherwise the inital values are being generated
   // from stale data.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const refreshInstruction = useCallback(
+  const refresh = useCallback(
     PgCommon.debounce(() => setInstruction((ix) => ({ ...ix })), {
       delay: 1000,
     }),
@@ -61,6 +62,18 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
     () => PgProgramInteraction.saveInstruction(instruction),
     [instruction]
   );
+
+  // Reset the current instruction and re-crate it from default values
+  const reset = useCallback(() => {
+    // Reset and re-crate instruction
+    setInstruction((ix) => {
+      PgProgramInteraction.resetInstruction(ix);
+      return PgProgramInteraction.getOrCreateInstruction(idlInstruction);
+    });
+
+    // Increase the reset count in order to re-render mapped elements
+    setResetCount((c) => c + 1);
+  }, [idlInstruction]);
 
   const handleTest = async () => {
     const showLogTxHash = await PgTerminal.process(async () => {
@@ -116,7 +129,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
               <InstructionInputsWrapper>
                 {instruction.values.args.map((arg) => (
                   <InstructionInput
-                    key={arg.name}
+                    key={arg.name + resetCount}
                     prefix="args"
                     updateInstruction={({
                       updateGenerator,
@@ -126,7 +139,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                       updateGenerator(arg);
                       updateRefs(arg, "Arguments");
                       setDisabled(checkErrors());
-                      refreshInstruction();
+                      refresh();
                     }}
                     {...arg}
                   />
@@ -140,7 +153,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
               <InstructionInputsWrapper>
                 {instruction.values.accounts.map((acc) => (
                   <InstructionInput
-                    key={acc.name}
+                    key={acc.name + resetCount}
                     prefix="accounts"
                     type="publicKey"
                     updateInstruction={({
@@ -151,7 +164,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                       updateGenerator(acc);
                       updateRefs(acc, "Accounts");
                       setDisabled(checkErrors());
-                      refreshInstruction();
+                      refresh();
                     }}
                     {...acc}
                   />
@@ -168,6 +181,10 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
             disabled={!wallet || disabled}
           >
             Test
+          </Button>
+
+          <Button kind="outline" onClick={reset}>
+            Reset
           </Button>
         </ButtonWrapper>
       </Interaction>
@@ -198,6 +215,7 @@ const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 1rem;
+  gap: 1rem;
 
   & > button {
     padding: 0.5rem 1.5rem;

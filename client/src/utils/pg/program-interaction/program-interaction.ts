@@ -13,6 +13,7 @@ import { createGeneratableInstruction } from "./instruction";
 import { getAnchorProgram } from "./program";
 import {
   getInstruction,
+  resetInstruction,
   saveInstruction,
   syncAllInstructions,
 } from "./storage";
@@ -114,4 +115,7 @@ export class PgProgramInteraction {
 
   /** {@link syncAllInstructions} */
   static syncAllInstructions = syncAllInstructions;
+
+  /** {@link resetInstruction} */
+  static resetInstruction = resetInstruction;
 }

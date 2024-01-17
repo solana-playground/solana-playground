@@ -83,6 +83,17 @@ export const syncAllInstructions = (idlIxs: IdlInstruction[]) => {
   }
 };
 
+/**
+ * Reset the given instruction in storage {@link storage}.
+ *
+ * @param ix generatable instruction
+ */
+export const resetInstruction = (ix: GeneratableInstruction) => {
+  const savedIxs = getAllInstructions();
+  delete savedIxs[ix.name];
+  saveAllInstructions(savedIxs);
+};
+
 /** A map of instruction names to generatable instruction values */
 type SavedInstructions = Record<string, GeneratableInstruction["values"]>;
 
