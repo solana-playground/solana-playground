@@ -1,5 +1,6 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useReducer, useState } from "react";
 import styled from "styled-components";
+import { Keypair } from "@solana/web3.js";
 
 import InstructionInput from "./InstructionInput";
 import InstructionProvider from "./InstructionProvider";
@@ -20,6 +21,7 @@ import {
   PgProgramInteraction,
 } from "../../.././../../utils/pg/program-interaction";
 import { useWallet } from "../../../../../hooks";
+import { useIdl } from "../IdlProvider";
 
 interface InstructionProps {
   idlInstruction: IdlInstruction;
@@ -31,7 +33,9 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
     PgProgramInteraction.getOrCreateInstruction(idlInstruction)
   );
   const [disabled, setDisabled] = useState(true);
-  const [resetCount, setResetCount] = useState(0);
+  const [refreshCount, refreshFields] = useReducer((r) => r + 1, 0);
+
+  const { idl } = useIdl();
 
   // Enable when there is no args and no accounts.
   //
@@ -63,6 +67,55 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
     [instruction]
   );
 
+  // Fill empty fields with Random generator
+  const fillRandom = useCallback(() => {
+    setInstruction((ix) => ({
+      ...ix,
+      values: {
+        ...ix.values,
+        accounts: ix.values.accounts.map((acc) => {
+          // Only override empty fields
+          if (acc.generator.type === "Custom" && !acc.generator.value) {
+            return {
+              ...acc,
+              generator: {
+                type: "Random",
+                data: Array.from(Keypair.generate().secretKey),
+                get value() {
+                  return Keypair.fromSecretKey(
+                    Uint8Array.from((this as { data: number[] }).data)
+                  ).publicKey.toBase58();
+                },
+              },
+            };
+          }
+
+          return acc;
+        }),
+        args: ix.values.args.map((arg) => {
+          // Only override empty fields
+          if (arg.generator.type === "Custom" && !arg.generator.value) {
+            return {
+              ...arg,
+              generator: {
+                type: "Random",
+                value: PgProgramInteraction.getIdlType(
+                  arg.type,
+                  idl
+                ).generateRandom(),
+              },
+            };
+          }
+
+          return arg;
+        }),
+      },
+    }));
+
+    // Refresh fields in order to re-render mapped elements
+    refreshFields();
+  }, [idl]);
+
   // Reset the current instruction and re-crate it from default values
   const reset = useCallback(() => {
     // Reset and re-crate instruction
@@ -71,8 +124,8 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
       return PgProgramInteraction.getOrCreateInstruction(idlInstruction);
     });
 
-    // Increase the reset count in order to re-render mapped elements
-    setResetCount((c) => c + 1);
+    // Refresh fields in order to re-render mapped elements
+    refreshFields();
   }, [idlInstruction]);
 
   const handleTest = async () => {
@@ -129,7 +182,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
               <InstructionInputsWrapper>
                 {instruction.values.args.map((arg) => (
                   <InstructionInput
-                    key={arg.name + resetCount}
+                    key={arg.name + refreshCount}
                     prefix="args"
                     updateInstruction={({
                       updateGenerator,
@@ -153,7 +206,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
               <InstructionInputsWrapper>
                 {instruction.values.accounts.map((acc) => (
                   <InstructionInput
-                    key={acc.name + resetCount}
+                    key={acc.name + refreshCount}
                     prefix="accounts"
                     type="publicKey"
                     updateInstruction={({
@@ -181,6 +234,10 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
             disabled={!wallet || disabled}
           >
             Test
+          </Button>
+
+          <Button kind="outline" onClick={fillRandom}>
+            Fill
           </Button>
 
           <Button kind="outline" onClick={reset}>
