@@ -44,10 +44,14 @@ const FromSeed = ({ name, search }: FromSeedProps) => {
 
   // Get whether the seeds are set initially in order to decide whether to
   // show seed input dropdowns
-  const showSelectedSeedDropdown = useMemo(
-    () => seeds.at(0)?.state === "selecting",
+  const [isDefault, initialSeedsLength] = useMemo(
+    () => [seeds.at(0)?.state === "selecting", seeds.length],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
+  );
+  const showSelectedSeedDropdown = useMemo(
+    () => isDefault || initialSeedsLength !== seeds.length,
+    [isDefault, initialSeedsLength, seeds.length]
   );
 
   // Default to instruction program ID but create a new object in order to
