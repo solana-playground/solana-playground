@@ -236,13 +236,18 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
             Test
           </Button>
 
-          <Button kind="outline" onClick={fillRandom}>
-            Fill
-          </Button>
+          {instruction.values.accounts.length > 0 &&
+            instruction.values.args.length > 0 && (
+              <>
+                <Button kind="outline" onClick={fillRandom}>
+                  Fill
+                </Button>
 
-          <Button kind="outline" onClick={reset}>
-            Reset
-          </Button>
+                <Button kind="outline" onClick={reset}>
+                  Reset
+                </Button>
+              </>
+            )}
         </ButtonWrapper>
       </Interaction>
     </InstructionProvider>
