@@ -33,11 +33,7 @@ const New = () => {
     }
   };
 
-  return (
-    <Button onClick={handleNew} kind="outline">
-      New
-    </Button>
-  );
+  return <Button onClick={handleNew}>New</Button>;
 };
 
 const NewKeypairModal = () => {
@@ -187,13 +183,10 @@ const InputPk = () => {
         <Warning color="warning" />
         Note that you need to have this program's authority to upgrade
       </InputWarning>
-      {changed && (
-        <Button onClick={handleClick} kind="outline">
-          Change program id
-        </Button>
-      )}
+      {changed && <Button onClick={handleClick}>Change program id</Button>}
+
       {!!PgProgramInfo.customPk && (
-        <Button onClick={handleRemoveCustomProgramId} kind="outline">
+        <Button onClick={handleRemoveCustomProgramId}>
           Remove custom program id
         </Button>
       )}

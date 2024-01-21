@@ -174,7 +174,6 @@ const FromSeed = ({ name, search }: FromSeedProps) => {
           onClick={() => {
             setSeeds((seeds) => [...seeds, { state: "selecting" }]);
           }}
-          kind="outline"
           leftIcon={<Plus />}
         >
           Add Seed

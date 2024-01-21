@@ -122,7 +122,7 @@ const Deploy = () => {
         <Text kind="warning">
           Deployment can only be done from Playground Wallet.
         </Text>
-        <Button onClick={() => PgCommand.connect.run()} kind="outline">
+        <Button onClick={() => PgCommand.connect.run()}>
           Disconnect from {wallet.name}
         </Button>
       </Wrapper>
