@@ -20,4 +20,8 @@ export const TUTORIALS: TutorialProps[] = [
     title: "A Guide to Full Stack Development on Solana",
     url: "https://dev.to/edge-and-node/the-complete-guide-to-full-stack-solana-development-with-react-anchor-rust-and-phantom-3291",
   },
+  {
+    title: "Learn how to build production-ready Dapps, Tokens and NFTs on Solana.",
+    url: "https://calyptus.co/learn-solana/",
+  },
 ];
