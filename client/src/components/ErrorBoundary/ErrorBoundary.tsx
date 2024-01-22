@@ -6,7 +6,7 @@ interface Props {
   /** Node to render as children */
   children?: ReactNode;
   /** Fallback node when there is an error */
-  fallback?: ReactNode;
+  Fallback?: (props: { error: Error }) => JSX.Element;
 }
 
 interface State {
@@ -47,7 +47,11 @@ class ErrorBoundary extends Component<Props, State> {
   /** Render `fallback` if there is an error, `children` otherwise. */
   render() {
     if (this.state.error) {
-      return this.props.fallback ?? <Fallback error={this.state.error} />;
+      if (this.props.Fallback) {
+        return <this.props.Fallback error={this.state.error} />;
+      }
+
+      return <Fallback error={this.state.error} />;
     }
 
     return this.props.children;

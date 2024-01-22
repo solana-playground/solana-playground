@@ -1,5 +1,7 @@
 import styled, { css } from "styled-components";
 
+import ErrorBoundary from "../../../../components/ErrorBoundary";
+import Tooltip from "../../../../components/Tooltip";
 import { Id } from "../../../../constants";
 import { BOTTOM } from "../../../../views";
 import { PgTheme } from "../../../../utils/pg";
@@ -7,7 +9,21 @@ import { PgTheme } from "../../../../utils/pg";
 const Bottom = () => (
   <Wrapper id={Id.BOTTOM}>
     {BOTTOM.map((Component, i) => (
-      <Component key={i} />
+      <ErrorBoundary
+        key={i}
+        Fallback={({ error }) => (
+          <Tooltip
+            element={error.message || "Unknown error"}
+            alwaysTakeFullWidth
+          >
+            <FallbackText>
+              Extension crashed{error.message ? `: ${error.message}` : ""}
+            </FallbackText>
+          </Tooltip>
+        )}
+      >
+        <Component />
+      </ErrorBoundary>
     ))}
   </Wrapper>
 );
@@ -21,6 +37,18 @@ const Wrapper = styled.div`
     }
 
     ${PgTheme.convertToCSS(theme.components.bottom.default)};
+  `}
+`;
+
+const FallbackText = styled.span`
+  ${({ theme }) => css`
+    padding: 0 0.75rem;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 15rem;
+    color: ${theme.colors.state.error.color};
   `}
 `;
 
