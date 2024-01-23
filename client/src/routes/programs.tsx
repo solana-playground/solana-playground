@@ -1,4 +1,3 @@
-import { Programs } from "../components/Programs";
 import { PgCommon, PgExplorer, PgRouter, PgView } from "../utils/pg";
 
 export const programs = PgRouter.create({
@@ -14,6 +13,7 @@ export const programs = PgRouter.create({
 
       // Fetch programs
       const programs = await PgCommon.fetchJSON("/programs/programs.json");
+      const { Programs } = await import("../views/main/Programs");
       return <Programs programs={programs} />;
     });
 

@@ -1,4 +1,3 @@
-import { EditorWithTabs } from "../components/EditorWithTabs";
 import { PgExplorer, PgRouter, PgShare, PgView } from "../utils/pg";
 
 export const share = PgRouter.create({
@@ -16,6 +15,7 @@ export const share = PgRouter.create({
         // Initialize explorer
         await PgExplorer.init({ files });
 
+        const { EditorWithTabs } = await import("../views/main/EditorWithTabs");
         return EditorWithTabs;
       } finally {
         // Set sidebar
