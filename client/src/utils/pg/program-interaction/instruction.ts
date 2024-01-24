@@ -76,11 +76,15 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
     };
   }
 
+  // Set common wallet account names to current wallet
+  const COMMON_WALLET_ACCOUNT_NAMES = ["signer", "payer"];
+  if (acc.isSigner && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
+    return { type: "Current wallet" };
+  }
+
   // Check whether it's a known program
   const knownProgram = getPrograms().find((p) => p.alias?.includes(acc.name));
-  if (knownProgram) {
-    return { type: "All programs", name: knownProgram.name };
-  }
+  if (knownProgram) return { type: "All programs", name: knownProgram.name };
 
   return { type: "Custom", value: getKnownAccountKey(acc.name) ?? "" };
 };
