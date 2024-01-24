@@ -40,13 +40,14 @@ type Item = string | (CommonItemProps & (NestableItem | DropdownableItem));
 
 type CommonItemProps = {
   label: string;
-  matches?: string[];
+  matches?: Array<string | RegExp> | ((value: string) => boolean);
+  onlyShowIfValid?: boolean;
   element?: ReactNode;
   onSelect?: (item: Item) => void;
 };
 
 type NestableItem = {
-  value?: Getable<string> | { current: true };
+  value?: string | ((value: string) => string) | { current: true };
   data?: any;
   items?: Getable<Item[]> | (() => Promise<Item[]>) | null;
   DropdownComponent?: never;
@@ -92,6 +93,15 @@ const SearchBar: FC<SearchBarProps> = ({
     lastValue.current = value;
 
     if (opts?.focus) input.focus();
+  };
+  const getItemValue = (item: NormalizedItem) => {
+    return item.value !== undefined
+      ? typeof item.value === "string"
+        ? item.value
+        : typeof item.value === "function"
+        ? item.value(props.value)
+        : props.value
+      : item.label;
   };
 
   const [isVisible, setIsVisible] = useState(showSearchOnMount);
@@ -158,11 +168,24 @@ const SearchBar: FC<SearchBarProps> = ({
           })
         )
       : normalizedItems.filter((item) => {
+          if (item.onlyShowIfValid) {
+            return props.validator?.(getItemValue(item));
+          }
+
+          // Show all optinos if the input is valid
+          if (props.validator?.(props.value)) return true;
+
+          if (typeof item.matches === "function") {
+            return item.matches(props.value);
+          }
+
           const matches = item.matches ?? [item.label];
           const lowerCaseValue = props.value.toLowerCase();
-          return matches.some((item) =>
-            item.toLowerCase().includes(lowerCaseValue)
-          );
+          return matches.some((match) => {
+            return typeof match === "string"
+              ? match.toLowerCase().includes(lowerCaseValue)
+              : match.test(lowerCaseValue);
+          });
         })
     : null;
 
@@ -195,19 +218,9 @@ const SearchBar: FC<SearchBarProps> = ({
         isInSubSearch: true,
         Component: item.DropdownComponent,
       });
-
       isInSubSearch = true;
     } else {
-      setInputValue(
-        item.value !== undefined
-          ? typeof item.value === "string"
-            ? item.value
-            : typeof item.value === "function"
-            ? item.value()
-            : inputRef.current!.value
-          : item.label
-      );
-
+      setInputValue(getItemValue(item));
       isCompleted = true;
     }
 
