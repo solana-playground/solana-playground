@@ -326,21 +326,38 @@ const getSearchBarProps = (
     if (definedType?.kind === "enum") {
       const enumItems = definedType.variants.map((variant) => {
         const camelCaseName = PgCommon.toCamelCase(variant.name);
+
         // Unit
         if (!variant.fields?.length) return camelCaseName;
+
+        const lowerCaseName = camelCaseName.toLowerCase();
+        const createValue = (value: string, defaultValue: string) => {
+          if (value.toLowerCase().includes(lowerCaseName)) return value;
+          return defaultValue;
+        };
+        const matches = (value: string) => {
+          if (!value) return true;
+
+          const lowerCaseValue = value.toLowerCase();
+          if (lowerCaseName.includes(lowerCaseValue)) return true;
+
+          return new RegExp(lowerCaseName).test(lowerCaseValue);
+        };
 
         // Named
         if ((variant.fields[0] as { name?: string }).name) {
           return {
             label: camelCaseName,
-            value: `{ ${camelCaseName}: {...} }`,
+            value: (v: string) => createValue(v, `{ ${camelCaseName}: {...} }`),
+            matches,
           };
         }
 
         // Tuple
         return {
           label: camelCaseName,
-          value: `{ ${camelCaseName}: [...] }`,
+          value: (v: string) => createValue(v, `{ ${camelCaseName}: [...] }`),
+          matches,
         };
       });
       searchBarProps.items.push(...enumItems);
@@ -353,6 +370,7 @@ const getSearchBarProps = (
     searchBarProps.items.unshift({
       label: "Custom",
       value: { current: true },
+      onlyShowIfValid: true,
     });
   }
 
@@ -380,17 +398,6 @@ const getSearchBarProps = (
     } catch {
       return false;
     }
-  };
-
-  // Filter
-  searchBarProps.filter = ({ input, item }) => {
-    // Show all options if the input is valid
-    if (searchBarProps.validator!(input)) return true;
-
-    return (
-      item.label !== "Custom" &&
-      item.label.toLowerCase().includes(input.toLowerCase())
-    );
   };
 
   // Initial items to select
