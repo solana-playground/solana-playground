@@ -248,8 +248,11 @@ const SearchBar: FC<SearchBarProps> = ({
       if (selectedItem) searchCommon(selectedItem);
     } else setIsVisible(true);
   };
-  useKeybind("Enter", () => {
-    if (document.activeElement === inputRef.current) searchTopResult();
+  useKeybind("Enter", {
+    handle: () => {
+      if (document.activeElement === inputRef.current) searchTopResult();
+    },
+    opts: { noPreventDefault: true },
   });
 
   // Keyboard navigation
