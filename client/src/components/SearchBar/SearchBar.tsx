@@ -95,12 +95,13 @@ const SearchBar: FC<SearchBarProps> = ({
     if (opts?.focus) input.focus();
   };
   const getItemValue = (item: NormalizedItem) => {
+    const currentValue = inputRef.current?.value ?? props.value;
     return item.value !== undefined
       ? typeof item.value === "string"
         ? item.value
         : typeof item.value === "function"
-        ? item.value(props.value)
-        : props.value
+        ? item.value(currentValue)
+        : currentValue
       : item.label;
   };
 
