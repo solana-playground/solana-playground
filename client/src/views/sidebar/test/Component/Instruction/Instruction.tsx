@@ -1,6 +1,5 @@
 import { FC, useCallback, useEffect, useReducer, useState } from "react";
 import styled from "styled-components";
-import { Keypair } from "@solana/web3.js";
 
 import InstructionInput from "./InstructionInput";
 import InstructionProvider from "./InstructionProvider";
@@ -69,48 +68,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
 
   // Fill empty fields with Random generator
   const fillRandom = useCallback(() => {
-    setInstruction((ix) => ({
-      ...ix,
-      values: {
-        ...ix.values,
-        accounts: ix.values.accounts.map((acc) => {
-          // Only override empty fields
-          if (acc.generator.type === "Custom" && !acc.generator.value) {
-            return {
-              ...acc,
-              generator: {
-                type: "Random",
-                data: Array.from(Keypair.generate().secretKey),
-                get value() {
-                  return Keypair.fromSecretKey(
-                    Uint8Array.from((this as { data: number[] }).data)
-                  ).publicKey.toBase58();
-                },
-              },
-            };
-          }
-
-          return acc;
-        }),
-        args: ix.values.args.map((arg) => {
-          // Only override empty fields
-          if (arg.generator.type === "Custom" && !arg.generator.value) {
-            return {
-              ...arg,
-              generator: {
-                type: "Random",
-                value: PgProgramInteraction.getIdlType(
-                  arg.type,
-                  idl
-                ).generateRandom(),
-              },
-            };
-          }
-
-          return arg;
-        }),
-      },
-    }));
+    setInstruction((ix) => PgProgramInteraction.fillRandom(ix, idl));
 
     // Refresh fields in order to re-render mapped elements
     refreshFields();
