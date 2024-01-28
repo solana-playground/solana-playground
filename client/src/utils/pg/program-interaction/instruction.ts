@@ -5,11 +5,11 @@ import {
 } from "@solana/web3.js";
 
 import { getPrograms } from "./generators";
+import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
 import type {
   GeneratableInstruction,
   InstructionValueGenerator,
 } from "./generator";
-import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
 import type { OrString } from "../types";
 
 /**
