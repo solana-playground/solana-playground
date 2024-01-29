@@ -515,11 +515,15 @@ export class BpfLoaderUpgradeable {
       // Wait for last transaction to confirm
       await PgCommon.sleep(500);
 
-      const bufferAccount = await PgCommon.tryUntilSuccess(
-        () => connection.getAccountInfo(bufferPk),
-        5000
-      );
-      const onChainProgramData = bufferAccount!.data.slice(
+      // Even though we only get to this function after buffer account creation
+      // gets confirmed, the RPC can still return `null` here if it's behind.
+      const bufferAccount = await PgCommon.tryUntilSuccess(async () => {
+        const acc = await connection.getAccountInfo(bufferPk);
+        if (!acc) throw new Error();
+        return acc;
+      }, 2000);
+
+      const onChainProgramData = bufferAccount.data.slice(
         BpfLoaderUpgradeable.BUFFER_HEADER_SIZE,
         BpfLoaderUpgradeable.BUFFER_HEADER_SIZE + programData.length
       );
