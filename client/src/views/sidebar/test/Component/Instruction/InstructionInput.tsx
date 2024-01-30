@@ -52,7 +52,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
   generator,
   searchBarProps,
   noLabel,
-  ...labelProps
+  ...accountProps
 }) => {
   const { instruction, setInstruction } = useInstruction();
   const { idl } = useIdl();
@@ -161,7 +161,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
     <Wrapper>
       {!noLabel && (
         <Row>
-          <Label name={name} type={displayType} {...labelProps} />
+          <Label name={name} type={displayType} {...accountProps} />
         </Row>
       )}
 
@@ -176,7 +176,14 @@ const InstructionInput: FC<InstructionInputProps> = ({
             setSelectedItems={setSelectedItems}
             restoreIfNotSelected
             labelToSelectOnPaste="Custom"
-            {...getSearchBarProps(name, type, generator, instruction, idl)}
+            {...getSearchBarProps(
+              name,
+              type,
+              generator,
+              accountProps,
+              instruction,
+              idl
+            )}
             {...searchBarProps}
           />
           <CopyButtonWrapper>
@@ -217,6 +224,7 @@ const getSearchBarProps = (
   name: string,
   type: IdlType,
   generator: InstructionValueGenerator & { name?: string; value?: string },
+  accountProps: Partial<Pick<InstructionInputAccount, "isMut" | "isSigner">>,
   instruction: GeneratableInstruction,
   idl: Idl
 ) => {
@@ -302,22 +310,26 @@ const getSearchBarProps = (
     });
 
     // Programs
-    pushGeneratorItem({
-      type: "All programs",
-      names: PgProgramInteraction.getPrograms().map((p) => p.name),
-    });
+    if (!(accountProps.isMut || accountProps.isSigner)) {
+      pushGeneratorItem({
+        type: "All programs",
+        names: PgProgramInteraction.getPrograms().map((p) => p.name),
+      });
+    }
 
     // Pyth
-    searchBarProps.items.push({
-      label: "Pyth",
-      items: async () => {
-        const accounts = await PgProgramInteraction.getOrInitPythAccounts();
-        return Object.entries(accounts).map(([label, value]) => ({
-          label,
-          value,
-        }));
-      },
-    });
+    if (!(accountProps.isMut || accountProps.isSigner)) {
+      searchBarProps.items.push({
+        label: "Pyth",
+        items: async () => {
+          const accounts = await PgProgramInteraction.getOrInitPythAccounts();
+          return Object.entries(accounts).map(([label, value]) => ({
+            label,
+            value,
+          }));
+        },
+      });
+    }
   } else {
     // Handle enum
     const definedType = idl.types?.find(
@@ -365,15 +377,6 @@ const getSearchBarProps = (
     }
   }
 
-  // Add custom value after type overrides to get `noCustomOption`
-  if (!searchBarProps.noCustomOption) {
-    searchBarProps.items.unshift({
-      label: "Custom",
-      value: { current: true },
-      onlyShowIfValid: true,
-    });
-  }
-
   // Add argument refs
   pushGeneratorItem({
     type: "Arguments",
@@ -390,15 +393,14 @@ const getSearchBarProps = (
       .map((acc) => acc.name),
   });
 
-  // Validator
-  searchBarProps.validator = (...args) => {
-    try {
-      customizable.parse(...args);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  // Add custom value after type overrides to get `noCustomOption`
+  if (!searchBarProps.noCustomOption) {
+    searchBarProps.items.unshift({
+      label: "Custom",
+      value: { current: true },
+      onlyShowIfValid: true,
+    });
+  }
 
   // Initial items to select
   searchBarProps.initialSelectedItems = searchBarProps.noCustomOption
@@ -413,13 +415,23 @@ const getSearchBarProps = (
     ? { label: generator.type, data: generator.data }
     : generator.type;
 
+  // Validator
+  searchBarProps.validator = (...args) => {
+    try {
+      customizable.parse(...args);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return searchBarProps;
 };
 
 /** Generate the value or default to an empty string in the case of an error. */
 const generateValueOrDefault = (
   generator: InstructionValueGenerator,
-  values: GeneratableInstruction["values"]
+  values: InstructionValues
 ) => {
   try {
     return PgProgramInteraction.generateValue(generator, values);
