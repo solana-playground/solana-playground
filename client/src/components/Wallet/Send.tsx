@@ -63,8 +63,11 @@ const SendExpanded = () => {
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
         const tx = new Transaction().add(ix);
-        const txHash = await PgCommon.transition(PgTx.send(tx));
+        const txHash = await PgTx.send(tx);
         PgTx.notify(txHash);
+
+        const txResult = await PgCommon.transition(PgTx.confirm(txHash));
+        if (txResult?.err) throw txResult.err;
 
         msg = PgTerminal.success("Success.");
 
