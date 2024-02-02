@@ -276,7 +276,7 @@ const getSearchBarProps = (
   };
 
   if (customizable.displayType === "bool") {
-    searchBarProps.items = ["false", "true"];
+    searchBarProps.items.push("false", "true");
     searchBarProps.noCustomOption = true;
   } else if (customizable.displayType === "publicKey") {
     // Handle "Random" for "publicKey" differently in order to be able to
