@@ -186,8 +186,8 @@ const processDeploy = async () => {
     }
   }
 
-  let sleepAmount = 1000;
   // Retry until it's successful or exceeds max tries
+  let sleepAmount = 1000;
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       if (i !== 0) {
@@ -202,12 +202,14 @@ const processDeploy = async () => {
         { wallet }
       );
     } catch (e: any) {
-      console.log("Create buffer error: ", e.message);
+      console.log("Create buffer error:", e.message);
       if (i === MAX_RETRIES - 1) {
         throw new Error(
           `Exceeded maximum amount of retries(${PgTerminal.bold(
             MAX_RETRIES.toString()
-          )}). Please change RPC endpoint from the settings.`
+          )}) to create the program buffer account. \
+Please change RPC endpoint from the settings.
+Reason: ${e.message}`
         );
       }
 
