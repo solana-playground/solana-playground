@@ -132,7 +132,7 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
   }
 
   // Set common wallet account names to current wallet
-  const COMMON_WALLET_ACCOUNT_NAMES = ["signer", "payer"];
+  const COMMON_WALLET_ACCOUNT_NAMES = ["authority", "owner", "payer", "signer"];
   if (acc.isSigner && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
     return { type: "Current wallet" };
   }
