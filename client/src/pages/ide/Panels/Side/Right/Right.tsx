@@ -23,7 +23,7 @@ import { SIDEBAR } from "../../../../../views/sidebar";
 import { useSetStatic } from "../../../../../hooks";
 
 interface DefaultRightProps {
-  sidebarPage: SidebarPageName;
+  sidebarPage: SidebarPageName | undefined;
 }
 
 interface RightProps<W = number> extends DefaultRightProps {
@@ -58,6 +58,22 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
     </Resizable>
   );
 };
+
+const Wrapper = styled.div<{ windowHeight: number }>`
+  ${({ theme, windowHeight }) => css`
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
+
+    ${PgTheme.getScrollbarCSS()};
+    ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
+  `}
+`;
+
+const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
+  <TitleWrapper>{sidebarPage?.toUpperCase()}</TitleWrapper>
+);
 
 const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
   const [el, setEl] = useState<NullableJSX>(null);
@@ -100,24 +116,6 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
 
   return <ErrorBoundary>{el}</ErrorBoundary>;
 };
-
-const Wrapper = styled.div<{ windowHeight: number }>`
-  ${({ theme, windowHeight }) => css`
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
-
-    ${PgTheme.getScrollbarCSS()};
-    ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
-  `}
-`;
-
-const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
-  <TitleWrapper>
-    <span>{sidebarPage.toUpperCase()}</span>
-  </TitleWrapper>
-);
 
 const TitleWrapper = styled.div`
   ${({ theme }) => css`

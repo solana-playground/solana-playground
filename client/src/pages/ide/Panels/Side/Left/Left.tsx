@@ -15,7 +15,7 @@ import { SIDEBAR } from "../../../../../views/sidebar";
 import { ClassName, GITHUB_URL } from "../../../../../constants";
 import { PgCommon, PgTheme } from "../../../../../utils/pg";
 
-interface LeftProps<P = SidebarPageName, W = number> {
+interface LeftProps<P = SidebarPageName | undefined, W = number> {
   sidebarPage: P;
   setSidebarPage: Dispatch<SetStateAction<P>>;
   oldSidebarRef: MutableRefObject<P>;
@@ -32,7 +32,7 @@ const Left: FC<LeftProps> = ({
   setWidth,
   oldWidth,
 }) => {
-  useActiveTab(sidebarPage, oldSidebarRef, width);
+  useActiveTab({ sidebarPage, oldSidebarRef, width });
 
   const handleSidebarChange = (value: SidebarPageName) => {
     setSidebarPage((state) => {
@@ -75,23 +75,27 @@ const Left: FC<LeftProps> = ({
   );
 };
 
-const useActiveTab = <P extends SidebarPageName>(
-  currentPage: P,
-  oldPageRef: MutableRefObject<P>,
-  width: number
-) => {
+const useActiveTab = <P extends SidebarPageName | undefined>({
+  sidebarPage,
+  oldSidebarRef,
+  width,
+}: Pick<LeftProps<P>, "sidebarPage" | "oldSidebarRef" | "width">) => {
   const theme = useTheme();
 
   useEffect(() => {
-    const oldEl = document.getElementById(getId(oldPageRef.current));
-    oldEl?.classList.remove(ClassName.ACTIVE);
+    if (!sidebarPage) return;
 
-    const current = width !== 0 ? currentPage : "Closed";
+    if (oldSidebarRef.current) {
+      const oldEl = document.getElementById(getId(oldSidebarRef.current));
+      oldEl?.classList.remove(ClassName.ACTIVE);
+    }
+
+    const current = width !== 0 ? sidebarPage : "Closed";
     const newEl = document.getElementById(getId(current));
     newEl?.classList.add(ClassName.ACTIVE);
 
-    oldPageRef.current = currentPage;
-  }, [currentPage, oldPageRef, width, theme.name]);
+    oldSidebarRef.current = sidebarPage;
+  }, [sidebarPage, oldSidebarRef, width, theme.name]);
 };
 
 const getId = (id: string) => "sidebar" + id;
