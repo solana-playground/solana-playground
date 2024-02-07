@@ -9,7 +9,7 @@ import { PgCommon, PgTheme } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
-  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>();
+  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>("Explorer");
   const oldSidebarRef = useRef(sidebarPage);
 
   useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);

@@ -23,7 +23,7 @@ import { SIDEBAR } from "../../../../../views/sidebar";
 import { useSetStatic } from "../../../../../hooks";
 
 interface DefaultRightProps {
-  sidebarPage: SidebarPageName | undefined;
+  sidebarPage: SidebarPageName;
 }
 
 interface RightProps<W = number> extends DefaultRightProps {
@@ -59,20 +59,8 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
   );
 };
 
-const Wrapper = styled.div<{ windowHeight: number }>`
-  ${({ theme, windowHeight }) => css`
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
-
-    ${PgTheme.getScrollbarCSS()};
-    ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
-  `}
-`;
-
 const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
-  <TitleWrapper>{sidebarPage?.toUpperCase()}</TitleWrapper>
+  <TitleWrapper>{sidebarPage.toUpperCase()}</TitleWrapper>
 );
 
 const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
@@ -116,6 +104,18 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
 
   return <ErrorBoundary>{el}</ErrorBoundary>;
 };
+
+const Wrapper = styled.div<{ windowHeight: number }>`
+  ${({ theme, windowHeight }) => css`
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
+
+    ${PgTheme.getScrollbarCSS()};
+    ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
+  `}
+`;
 
 const TitleWrapper = styled.div`
   ${({ theme }) => css`

@@ -15,7 +15,7 @@ import { SIDEBAR } from "../../../../../views/sidebar";
 import { ClassName, GITHUB_URL } from "../../../../../constants";
 import { PgCommon, PgTheme } from "../../../../../utils/pg";
 
-interface LeftProps<P = SidebarPageName | undefined, W = number> {
+interface LeftProps<P = SidebarPageName, W = number> {
   sidebarPage: P;
   setSidebarPage: Dispatch<SetStateAction<P>>;
   oldSidebarRef: MutableRefObject<P>;
@@ -75,7 +75,7 @@ const Left: FC<LeftProps> = ({
   );
 };
 
-const useActiveTab = <P extends SidebarPageName | undefined>({
+const useActiveTab = <P extends SidebarPageName>({
   sidebarPage,
   oldSidebarRef,
   width,
@@ -83,12 +83,8 @@ const useActiveTab = <P extends SidebarPageName | undefined>({
   const theme = useTheme();
 
   useEffect(() => {
-    if (!sidebarPage) return;
-
-    if (oldSidebarRef.current) {
-      const oldEl = document.getElementById(getId(oldSidebarRef.current));
-      oldEl?.classList.remove(ClassName.ACTIVE);
-    }
+    const oldEl = document.getElementById(getId(oldSidebarRef.current));
+    oldEl?.classList.remove(ClassName.ACTIVE);
 
     const current = width !== 0 ? sidebarPage : "Closed";
     const newEl = document.getElementById(getId(current));
