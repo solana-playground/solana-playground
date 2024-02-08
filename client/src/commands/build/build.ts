@@ -321,21 +321,26 @@ const improveOutput = (output: string) => {
         (err) => !prioritizedErrors.includes(err) && !hiddenErrors.includes(err)
       );
       const displayErrors = prioritizedErrors.concat(remainingErrors);
-      output = displayErrors.reduce(
-        (acc, cur, i) => (i < MAX_ERROR_AMOUNT ? acc + cur : acc),
-        ""
-      );
 
-      if (displayErrors.length > MAX_ERROR_AMOUNT) {
-        output += [
-          "Note: This is a shorter version of the error logs to make it easier to debug.",
-          `Currently ${PgTerminal.bold(
-            MAX_ERROR_AMOUNT.toString()
-          )} errors are displayed but there are ${PgTerminal.bold(
-            displayErrors.length.toString()
-          )} errors.`,
-          'Disable "Improve build errors" setting to see the full error output.',
-        ].join(" ");
+      // Output should be overridden only in the case of display errors length
+      // being non-zero
+      if (displayErrors.length) {
+        output = displayErrors.reduce(
+          (acc, cur, i) => (i < MAX_ERROR_AMOUNT ? acc + cur : acc),
+          ""
+        );
+
+        if (displayErrors.length > MAX_ERROR_AMOUNT) {
+          output += [
+            "Note: This is a shorter version of the error logs to make it easier to debug.",
+            `Currently ${PgTerminal.bold(
+              MAX_ERROR_AMOUNT.toString()
+            )} errors are displayed but there are ${PgTerminal.bold(
+              displayErrors.length.toString()
+            )} errors.`,
+            'Disable "Improve build errors" setting to see the full error output.',
+          ].join(" ");
+        }
       }
     }
   }
