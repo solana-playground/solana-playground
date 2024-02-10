@@ -1,7 +1,6 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
-import { Keypair } from "@solana/web3.js";
 
 import Balance from "./Balance";
 import Send from "./Send";
@@ -146,7 +145,7 @@ const WalletName = () => {
   const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
     name: getAccountDisplayName(
       acc.name,
-      Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
+      PgWallet.createWallet(acc).publicKey.toBase58()
     ),
     onClick: () => PgWallet.switch(i),
     hoverColor: "textPrimary",
