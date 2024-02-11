@@ -1,4 +1,5 @@
-import { createCmd, PgCommandValidation, PgPackage } from "../../utils/pg";
+import { PgCommandValidation, PgPackage } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const sugar = createCmd({
   name: "sugar",

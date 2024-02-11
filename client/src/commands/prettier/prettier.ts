@@ -1,5 +1,6 @@
 import { EventName } from "../../constants";
-import { createCmd, Lang, PgCommon } from "../../utils/pg";
+import { Lang, PgCommon } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const prettier = createCmd({
   name: "prettier",

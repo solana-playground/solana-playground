@@ -1,4 +1,5 @@
-import { createCmd, PgCommandValidation, PgPackage } from "../../utils/pg";
+import { PgCommandValidation, PgPackage } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const splToken = createCmd({
   name: "spl-token",

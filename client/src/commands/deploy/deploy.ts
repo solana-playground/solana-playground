@@ -3,7 +3,6 @@ import { Keypair } from "@solana/web3.js";
 import { GITHUB_URL } from "../../constants";
 import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-browser";
 import {
-  createCmd,
   PgCommandValidation,
   PgCommon,
   PgConnection,
@@ -14,6 +13,7 @@ import {
   PgTx,
   PgWallet,
 } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const deploy = createCmd({
   name: "deploy",

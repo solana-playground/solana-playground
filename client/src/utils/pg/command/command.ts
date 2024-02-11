@@ -33,26 +33,6 @@ export const PgCommand: Commands = new Proxy(
   }
 );
 
-/** Get custom event name for the given command. */
-const getEventName = (name: string, kind: "start" | "finish") => {
-  switch (kind) {
-    case "start":
-      return "ondidrunstart" + name;
-    case "finish":
-      return "ondidrunfinish" + name;
-  }
-};
-
-/**
- * Create a command. This is only a type helper function.
- *
- * @param cmd command to create
- * @returns the command with `Command` type
- */
-export const createCmd = <R>(cmd: CommandImpl<R>): Readonly<CommandImpl<R>> => {
-  return cmd;
-};
-
 /**
  * Command executor.
  *
@@ -112,3 +92,13 @@ export class PgCommandExecutor {
     });
   }
 }
+
+/** Get custom event name for the given command. */
+const getEventName = (name: string, kind: "start" | "finish") => {
+  switch (kind) {
+    case "start":
+      return "ondidrunstart" + name;
+    case "finish":
+      return "ondidrunfinish" + name;
+  }
+};

@@ -1,4 +1,5 @@
-import { createCmd, PgTerminal, PgView, PgWallet } from "../../utils/pg";
+import { PgTerminal, PgView, PgWallet } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const connect = createCmd({
   name: "connect",

@@ -1,10 +1,10 @@
 import {
-  createCmd,
   PgClientImporter,
   PgCommon,
   PgExplorer,
   PgTerminal,
 } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const run = createCmd({
   name: "run",
