@@ -245,9 +245,7 @@ export const getIdlType: <T extends IdlType>(
             const parsedValue = handleVariant(
               getVariant(variantKey),
               () => ({}),
-              (fields) => {
-                return getStructFromNamedEnum(fields).parse(variantValue);
-              },
+              (fields) => getStructFromNamedEnum(fields).parse(variantValue),
               (fields) => {
                 const inputElements = variantValue.slice(1, -1).split(",");
                 if (inputElements.length !== fields.length) {
@@ -258,12 +256,16 @@ export const getIdlType: <T extends IdlType>(
                 });
               }
             );
+
             return { [variantKey]: parsedValue };
           },
           toBuffer: (value: any) => {
             const variantName = Object.keys(value)[0];
             const variantValue = value[variantName];
-            return handleVariant(
+            const disc = variants.findIndex(
+              (v) => PgCommon.toCamelCase(v.name) === variantName
+            );
+            const data = handleVariant(
               getVariant(variantName),
               () => Buffer.alloc(0),
               (fields) => {
@@ -279,6 +281,8 @@ export const getIdlType: <T extends IdlType>(
                 return Buffer.concat(buffers);
               }
             );
+
+            return Buffer.concat([Buffer.from([disc]), data]);
           },
           generateRandom: () => {
             const index = PgCommon.generateRandomInt(0, variants.length - 1);
