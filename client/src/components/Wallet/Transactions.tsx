@@ -201,6 +201,10 @@ const TxWrapper = styled.div`
       border-bottom: 1px solid ${theme.colors.default.border};
     }
 
+    & > div {
+      height: 1rem;
+    }
+
     ${PgTheme.convertToCSS(
       theme.components.wallet.main.transactions.table.row.default
     )};
