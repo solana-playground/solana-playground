@@ -20,8 +20,7 @@ describe("Tictactoe game", async () => {
       .initGame(player1, player2)
       .accounts({
         owner: pg.wallet.publicKey,
-        game: game,
-        systemProgram: systemProgram.programId,
+        game: game
       })
       .rpc();
 
