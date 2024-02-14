@@ -44,7 +44,7 @@ describe("Tictactoe game", async () => {
     await pg.connection.confirmTransaction(tx);
     console.log("Turn 1 signature", tx);
 
-    const game_account = await pg.program.account.game.fetch(game);
+    const gameAccount = await pg.program.account.game.fetch(game);
     printgame(game_account.grid);
   });
 
