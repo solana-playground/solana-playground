@@ -14,7 +14,7 @@ const TicTacToeSeahorse = () => (
     ]}
     // Initial files to have at the beginning of the tutorial
     files={[
-      ["src/lib.rs", require("./files/tictactoe.py")],
+      ["src/hello.py", require("./files/tictactoe.py")],
       ["tests/index.test.ts", require("./files/index.test.ts.raw")],
     ]}
   />

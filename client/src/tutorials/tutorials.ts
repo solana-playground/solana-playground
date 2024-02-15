@@ -206,5 +206,21 @@ export const TUTORIALS = createTutorials(
     level: "Intermediate",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
+  },
+
+  {
+    name: "Tictactoe Seahorse",
+    description: "Create your own 2 player on-chain classic game of tic-tac-toe.",
+    authors: [
+      {
+        name: "lostin",
+        link: "https://twitter.com/__lostin__",
+      },
+    ],
+    level: "Beginner",
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+    categories: ["Gaming"],
   }
+
 );

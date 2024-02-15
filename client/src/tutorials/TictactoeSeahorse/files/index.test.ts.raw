@@ -44,7 +44,7 @@ describe("Tictactoe game", async () => {
     console.log("Turn 1 signature", tx);
 
     const gameAccount = await pg.program.account.game.fetch(game);
-    printgame(game_account.grid);
+    printgame(gameAccount.grid);
   });
 
   it("Turn 2", async () => {
@@ -63,6 +63,6 @@ describe("Tictactoe game", async () => {
     console.log("Turn 2 signature", tx);
 
     const gameAccount = await pg.program.account.game.fetch(game);
-    printgame(game_account.grid);
+    printgame(gameAccount.grid);
   });
 });
