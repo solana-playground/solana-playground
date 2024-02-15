@@ -34,14 +34,15 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   return (
     <Modal
+      title={`Rename '${itemName}'`}
       buttonProps={{
         text: "Rename",
         onSubmit: rename,
         size: "small",
-        disabled: !newName || !!error,
-        setError,
+        disabled: !newName,
       }}
-      title={`Rename '${itemName}'`}
+      error={error}
+      setError={setError}
     >
       <Input
         ref={inputRef}

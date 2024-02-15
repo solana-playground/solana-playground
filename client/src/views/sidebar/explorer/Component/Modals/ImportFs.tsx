@@ -73,10 +73,11 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
       buttonProps={{
         text: "Import",
         onSubmit: importFs,
-        disabled: !name || !files || !!filesError || !!importError,
-        setError: setImportError,
+        disabled: !name || !files || !!filesError,
         rightIcon: <ImportWorkspace />,
       }}
+      error={importError}
+      setError={setImportError}
     >
       <Content>
         <ProjectNameWrapper>

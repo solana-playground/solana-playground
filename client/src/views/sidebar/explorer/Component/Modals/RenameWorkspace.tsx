@@ -32,14 +32,15 @@ export const RenameWorkspace = () => {
 
   return (
     <Modal
+      title={`Rename workspace '${workspaceName}'`}
       buttonProps={{
         text: "Rename",
         onSubmit: renameWorkspace,
-        disabled: !newName || !!error,
+        disabled: !newName,
         size: "small",
-        setError,
       }}
-      title={`Rename workspace '${workspaceName}'`}
+      error={error}
+      setError={setError}
     >
       <Input
         ref={inputRef}

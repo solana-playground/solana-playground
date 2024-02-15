@@ -67,11 +67,12 @@ const CustomEndpoint = () => {
       buttonProps={{
         text: "Add",
         onSubmit: () => PgCommand.solana.run(`config set -u ${customEndpoint}`),
-        disabled: !!error || error === "",
-        setError,
+        disabled: error === "",
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
       }}
+      error={error}
+      setError={setError}
     >
       <Content>
         <InputLabel>RPC URL</InputLabel>
