@@ -34,9 +34,10 @@ export const NewWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: newWorkspace,
-        disabled: !name || !selected || !!error,
-        setError,
+        disabled: !name || !selected,
       }}
+      error={error}
+      setError={setError}
     >
       <Content>
         <WorkspaceNameWrapper>

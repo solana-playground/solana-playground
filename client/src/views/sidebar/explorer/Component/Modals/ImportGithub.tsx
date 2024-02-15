@@ -38,15 +38,16 @@ export const ImportGithub = () => {
 
   return (
     <Modal
+      title
       buttonProps={{
         text: "Import",
         onSubmit: importFromGithub,
-        disabled: !url || !!error,
+        disabled: !url,
         btnLoading: { text: "Importing..." },
         rightIcon: <ImportWorkspace />,
-        setError,
       }}
-      title
+      error={error}
+      setError={setError}
     >
       <Wrapper>
         <GithubUrlWrapper>
