@@ -3,7 +3,7 @@ use {
     bytemuck::{Pod, Zeroable},
 };
 
-/// Indicates that the tokens from this mint can't be transfered
+/// Indicates that the tokens from this mint can't be transferred
 #[derive(Clone, Copy, Debug, Default, PartialEq, Pod, Zeroable)]
 #[repr(transparent)]
 pub struct NonTransferable;

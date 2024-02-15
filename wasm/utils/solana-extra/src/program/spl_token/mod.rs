@@ -44,7 +44,7 @@ pub fn amount_to_ui_amount_string_trimmed(amount: u64, decimals: u8) -> String {
     s
 }
 
-/// Try to convert a UI represenation of a token amount to its raw amount using the given decimals
+/// Try to convert a UI representation of a token amount to its raw amount using the given decimals
 /// field
 pub fn try_ui_amount_into_amount(ui_amount: String, decimals: u8) -> Result<u64, ProgramError> {
     let decimals = decimals as usize;
