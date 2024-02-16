@@ -1,7 +1,7 @@
 import { PgPlaynetRpc } from "./rpc";
-import { PgPackage } from "../command";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
+import { PgPackage } from "../package";
 import { EventName } from "../../../constants";
 import type { OverridableConnection } from "./types";
 

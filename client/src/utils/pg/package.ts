@@ -1,6 +1,6 @@
-import { PgCommon } from "../common";
-import { PgTerminal } from "../terminal";
-import { GITHUB_URL } from "../../../constants";
+import { PgCommon } from "./common";
+import { PgTerminal } from "./terminal";
+import { GITHUB_URL } from "../../constants";
 
 /** Mapped import results */
 interface ImportResult {
@@ -67,7 +67,7 @@ If the problem continues, consider filing a bug report in ${PgTerminal.underline
       case "sugar-cli":
         return await import("@solana-playground/sugar-cli");
       default:
-        throw new Error(`Unknown package '${name}'`);
+        throw new Error(`Unknown package \`${name}\``);
     }
   }
 
