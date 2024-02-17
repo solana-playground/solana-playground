@@ -9,6 +9,7 @@ export * from "./framework";
 export * from "./github";
 export * from "./global";
 export * from "./keybind";
+export * from "./package";
 export * from "./playnet/";
 export * from "./program-info";
 export * from "./router";
