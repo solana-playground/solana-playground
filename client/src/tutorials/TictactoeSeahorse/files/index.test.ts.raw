@@ -1,6 +1,5 @@
 
 describe("Tictactoe game", async () => {
-  const systemProgram = anchor.web3.SystemProgram;
   const player1 = pg.wallet.publicKey;
   const player2 = pg.wallet.publicKey;
 
