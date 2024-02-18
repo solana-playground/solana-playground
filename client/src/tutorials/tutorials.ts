@@ -210,7 +210,8 @@ export const TUTORIALS = createTutorials(
 
   {
     name: "Tictactoe Seahorse",
-    description: "Create your own 2 player on-chain classic game of tic-tac-toe.",
+    description:
+      "Create your own 2 player on-chain classic game of tic-tac-toe.",
     authors: [
       {
         name: "lostin",
@@ -222,5 +223,4 @@ export const TUTORIALS = createTutorials(
     languages: ["Python", "TypeScript"],
     categories: ["Gaming"],
   }
-
 );
