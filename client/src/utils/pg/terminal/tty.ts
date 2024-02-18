@@ -7,9 +7,8 @@ import { PrintOptions } from "./types";
 import { PgCommon } from "../common";
 
 /**
- * A tty is a particular device file, that sits between the shell and the terminal.
- * It acts an an interface for the shell and terminal to read/write from
- * and communicate with one another
+ * TTY manages text I/O related things such as prompting, input parsing and
+ * printing logs to the terminal.
  */
 export class PgTty {
   private _xterm: XTerm;
@@ -17,7 +16,7 @@ export class PgTty {
     cols: number;
     rows: number;
   };
-  private _firstInit: boolean = true;
+  private _firstInit = true;
   private _promptPrefix: string;
   private _continuationPromptPrefix: string;
   private _cursor: number;
@@ -90,7 +89,7 @@ export class PgTty {
     msg = msg.replace(/[\r\n]+/g, "\n").replace(/\n/g, "\r\n");
 
     // Color text
-    if (!opts?.noColor) msg = PgTerminal.colorText(msg);
+    if (!opts?.noColor) msg = PgTty._highlightText(msg);
     if (opts?.newLine) msg += "\n";
 
     if (opts?.sync) {
@@ -487,5 +486,71 @@ export class PgTty {
 
     // Set new offset
     this._cursor = newCursor;
+  }
+
+  /** Add highighting to the given text based on ANSI escape sequences. */
+  private static _highlightText(text: string) {
+    return (
+      text
+        // Match for error
+        .replace(
+          /\w*\s?(\w*)error(:|\[.*?:)/gim,
+          (match) =>
+            PgTerminal.error(match.substring(0, match.length - 1)) +
+            match[match.length - 1]
+        )
+
+        // Match for warning
+        .replace(/(\d+\s)?warning(s|:)?/gim, (match) => {
+          // warning:
+          if (match.endsWith(":")) {
+            return (
+              PgTerminal.warning(match.substring(0, match.length - 1)) +
+              match[match.length - 1]
+            );
+          }
+
+          // 1 warning, 2 warnings
+          return PgTerminal.warning(match);
+        })
+
+        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+        // TODO: Highlight the text from WASM so we don't have to do PgTerminal.
+        .replace(/^(.*?:)/gm, (match) => {
+          if (
+            /(http|{|})/.test(match) ||
+            /"\w+":/.test(match) ||
+            /\(\w+:/.test(match) ||
+            /^\s*\|/.test(match) ||
+            /^\s?\d+/.test(match)
+          ) {
+            return match;
+          }
+
+          if (!match.includes("   ")) {
+            if (match.startsWith(" ")) {
+              return PgTerminal.bold(match); // Indented
+            }
+            if (!match.toLowerCase().includes("error")) {
+              return PgTerminal.primary(match);
+            }
+          }
+
+          return match;
+        })
+
+        // Secondary text color for (...)
+        .replace(/\(.+\)/gm, (match) =>
+          match === "(s)" ? match : PgTerminal.secondaryText(match)
+        )
+
+        // Numbers
+        .replace(/^\s*\d+$/, (match) => PgTerminal.secondary(match))
+
+        // Progression [1/5]
+        .replace(/\[\d+\/\d+\]/, (match) =>
+          PgTerminal.bold(PgTerminal.secondaryText(match))
+        )
+    );
   }
 }
