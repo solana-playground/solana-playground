@@ -10,3 +10,17 @@ export interface PrintOptions {
 
 /** Executor */
 export type ExecuteCommand<R = unknown> = (input: string) => Promise<R>;
+
+export interface ActiveCharPrompt {
+  promptPrefix: string;
+  promise: Promise<any>;
+  resolve?: (input: string) => any;
+  reject?: (error: Error) => any;
+}
+
+export interface ActivePrompt extends ActiveCharPrompt {
+  continuationPromptPrefix: string;
+}
+
+/** Callback to create the autocomplete candidates based on the given tokens */
+export type AutoCompleteHandler = (tokens: string[], index: number) => string[];

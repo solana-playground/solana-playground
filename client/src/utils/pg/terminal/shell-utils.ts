@@ -1,15 +1,6 @@
 import { parse } from "shell-quote";
 
-export interface ActiveCharPrompt {
-  promptPrefix: string;
-  promise: Promise<any>;
-  resolve?: (what: string) => any;
-  reject?: (error: Error) => any;
-}
-
-export interface ActivePrompt extends ActiveCharPrompt {
-  continuationPromptPrefix: string;
-}
+import type { AutoCompleteHandler } from "./types";
 
 /**
  * Detects all the word boundaries on the given input
@@ -108,9 +99,9 @@ export const getLastToken = (input: string) => {
  * @returns the auto-complete candidates for the given input
  */
 export const collectAutocompleteCandidates = (
-  callbacks: ((index: number, tokens: string[]) => string[])[],
+  cbs: AutoCompleteHandler[],
   input: string
-): string[] => {
+) => {
   const tokens = parse(input);
   let index = tokens.length - 1;
 
@@ -123,18 +114,15 @@ export const collectAutocompleteCandidates = (
   }
 
   // Collect all auto-complete candidates from the callbacks
-  const all = callbacks.reduce((candidates, fn) => {
-    try {
-      let v = fn(index, tokens as string[]);
-      return candidates.concat(v as never[]);
-    } catch (e) {
-      console.error("Auto-complete error:", e);
-      return candidates;
-    }
-  }, []);
-
-  // Filter only the ones starting with the input
-  const canditates = all.filter((txt) => (txt as string).startsWith(input));
-
-  return canditates;
+  return cbs
+    .reduce((acc, cb) => {
+      try {
+        const text = cb(tokens as string[], index);
+        return acc.concat(text);
+      } catch (e) {
+        console.log("Autocomplete error:", e);
+        return acc;
+      }
+    }, [] as string[])
+    .filter((text) => text.startsWith(input));
 };

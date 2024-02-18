@@ -1,8 +1,6 @@
 import { PgTty } from "./tty";
 import { PgShellHistory } from "./shell-history";
 import {
-  ActiveCharPrompt,
-  ActivePrompt,
   closestLeftBoundary,
   closestRightBoundary,
   collectAutocompleteCandidates,
@@ -12,55 +10,50 @@ import {
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
 import { EventName } from "../../../constants";
-import type { ExecuteCommand } from "./types";
+import type {
+  ActiveCharPrompt,
+  ActivePrompt,
+  AutoCompleteHandler,
+  ExecuteCommand,
+} from "./types";
 
-type AutoCompleteHandler = (index: number, tokens: string[]) => string[];
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
 
 /**
  * A shell is the primary interface that is used to start other programs.
- * It's purpose to handle:
+ *
+ * Its purpose is to handle:
  * - Job control (control of child processes),
  * - Line editing and history
  * - Output text to the tty -> terminal
  * - Interpret text within the tty to launch processes and interpret programs
  */
 export class PgShell {
-  private _pgTty: PgTty;
+  private _tty: PgTty;
   private _execute: ExecuteCommand;
-  private _active: boolean;
-  private _waitingForInput: boolean;
+  private _active = false;
+  private _waitingForInput = false;
+  private _processCount = 0;
+  private _activePrompt: ActivePrompt | null = null;
+  private _activeCharPrompt: ActiveCharPrompt | null = null;
   private _history: PgShellHistory;
   private _maxAutocompleteEntries: number;
   private _autocompleteHandlers: AutoCompleteHandler[];
-  private _activePrompt: ActivePrompt | null;
-  private _activeCharPrompt: ActiveCharPrompt | null;
-  private _processCount: number;
 
   constructor(
-    pgTty: PgTty,
+    tty: PgTty,
     execute: ExecuteCommand,
     options: ShellOptions = {
       historySize: 30,
       maxAutocompleteEntries: 100,
     }
   ) {
-    this._pgTty = pgTty;
+    this._tty = tty;
     this._execute = execute;
-    this._active = false;
-    this._waitingForInput = false;
 
     this._history = new PgShellHistory(options.historySize);
     this._maxAutocompleteEntries = options.maxAutocompleteEntries;
-    this._autocompleteHandlers = [
-      (index, tokens) => {
-        return this._history.getEntries();
-      },
-    ];
-
-    this._activePrompt = null;
-    this._activeCharPrompt = null;
-    this._processCount = 0;
+    this._autocompleteHandlers = [() => this._history.getEntries()];
   }
 
   /**
@@ -70,15 +63,13 @@ export class PgShell {
     return this._history;
   }
 
-  /**
-   * Disable shell
-   */
+  /** Disable shell. */
   disable() {
     this._incrementProcessCount();
     this._active = false;
   }
 
-  /** Enable shell */
+  /** Enable shell. */
   enable() {
     setTimeout(() => {
       this._decrementProcessCount();
@@ -88,13 +79,13 @@ export class PgShell {
   }
 
   /**
-   * Prompt terminal
+   * Prompt terminal.
    *
    * This function also helps with command history.
    */
   async prompt() {
     // If we are already prompting, do nothing
-    if (this._activePrompt && this._pgTty.getInputStartsWithPrompt()) {
+    if (this._activePrompt && this._tty.getInputStartsWithPrompt()) {
       return;
     }
 
@@ -102,21 +93,21 @@ export class PgShell {
       const promptText = this._waitingForInput
         ? PgTerminal.WAITING_INPUT_PROMPT_PREFIX
         : PgTerminal.PROMPT_PREFIX;
-      this._activePrompt = this._pgTty.read(promptText);
+      this._activePrompt = this._tty.read(promptText);
       this._active = true;
 
       if (this._history) {
         await this._activePrompt.promise;
-        const input = this._pgTty.getInput().trim();
+        const input = this._tty.getInput().trim();
         this._history.push(input);
       }
     } catch (e: any) {
-      this._pgTty.println(e.message);
+      this._tty.println(e.message);
       this.prompt();
     }
   }
 
-  /** Get whether the shell is active */
+  /** Get whether the shell is active. */
   isPrompting() {
     return this._active;
   }
@@ -127,13 +118,13 @@ export class PgShell {
    */
   printAndRestartPrompt(cb: () => Promise<any> | void) {
     // Complete input
-    this._pgTty.setCursor(this._pgTty.getInput().length);
-    this._pgTty.print("\r\n");
+    this._tty.setCursor(this._tty.getInput().length);
+    this._tty.print("\r\n");
 
     // Prepare a function that will resume prompt
     const resume = () => {
-      this._pgTty.setCursor(this._pgTty.getCursor());
-      this._pgTty.setInput(this._pgTty.getInput());
+      this._tty.setCursor(this._tty.getCursor());
+      this._tty.setInput(this._tty.getInput());
     };
 
     // Call the given callback to echo something, and if there is a promise
@@ -147,7 +138,7 @@ export class PgShell {
   }
 
   /**
-   * Wait for user input
+   * Wait for user input.
    *
    * @param msg message to print to the terminal before prompting user
    * @returns user input
@@ -157,8 +148,8 @@ export class PgShell {
       if (this._waitingForInput) rej("Already waiting for input.");
       else {
         this._waitingForInput = true;
-        this._pgTty.clearLine();
-        this._pgTty.println(
+        this._tty.clearLine();
+        this._tty.println(
           PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
         );
         this.enable();
@@ -170,7 +161,7 @@ export class PgShell {
             handleInput
           );
           this._waitingForInput = false;
-          const input = this._pgTty.getInput();
+          const input = this._tty.getInput();
           res(input);
         };
 
@@ -183,19 +174,19 @@ export class PgShell {
   }
 
   /**
-   * Handle input completion
+   * Handle input completion.
    *
    * @param clearCmd whether to clean the current line before parsing the command
    */
   async handleReadComplete(clearCmd?: boolean) {
-    const input = this._pgTty.getInput();
+    const input = this._tty.getInput();
     if (this._activePrompt && this._activePrompt.resolve) {
       this._activePrompt.resolve(input);
       this._activePrompt = null;
     }
 
-    if (clearCmd) this._pgTty.clearLine();
-    else this._pgTty.print("\r\n");
+    if (clearCmd) this._tty.clearLine();
+    else this._tty.print("\r\n");
 
     this._active = false;
 
@@ -206,38 +197,34 @@ export class PgShell {
     }
   }
 
-  /**
-   * Handle terminal -> tty input
-   */
+  /** Handle terminal -> tty input. */
   handleTermData = (data: string) => {
     // Only Allow CTRL+C through
     if (!this._active && data !== "\x03") {
       return;
     }
 
-    if (this._pgTty.getFirstInit() && this._activePrompt) {
-      const line = this._pgTty
+    if (this._tty.getFirstInit() && this._activePrompt) {
+      const line = this._tty
         .getBuffer()
-        .getLine(
-          this._pgTty.getBuffer().cursorY + this._pgTty.getBuffer().baseY
-        );
+        .getLine(this._tty.getBuffer().cursorY + this._tty.getBuffer().baseY);
       if (!line) return;
 
       const promptRead = line.translateToString(
         false,
         0,
-        this._pgTty.getBuffer().cursorX
+        this._tty.getBuffer().cursorX
       );
       this._activePrompt.promptPrefix = promptRead;
-      this._pgTty.setPromptPrefix(promptRead);
-      this._pgTty.setFirstInit(false);
+      this._tty.setPromptPrefix(promptRead);
+      this._tty.setFirstInit(false);
     }
 
     // If we have an active character prompt, satisfy it in priority
     if (this._activeCharPrompt && this._activeCharPrompt.resolve) {
       this._activeCharPrompt.resolve(data);
       this._activeCharPrompt = null;
-      this._pgTty.print("\r\n");
+      this._tty.print("\r\n");
       return;
     }
 
@@ -250,57 +237,50 @@ export class PgShell {
     }
   };
 
-  /**
-   * Move cursor at given direction
-   */
+  /** Move cursor at given direction. */
   private _handleCursorMove = (dir: number) => {
     if (dir > 0) {
       const num = Math.min(
         dir,
-        this._pgTty.getInput().length - this._pgTty.getCursor()
+        this._tty.getInput().length - this._tty.getCursor()
       );
-      this._pgTty.setCursorDirectly(this._pgTty.getCursor() + num);
+      this._tty.setCursorDirectly(this._tty.getCursor() + num);
     } else if (dir < 0) {
-      const num = Math.max(dir, -this._pgTty.getCursor());
-      this._pgTty.setCursorDirectly(this._pgTty.getCursor() + num);
+      const num = Math.max(dir, -this._tty.getCursor());
+      this._tty.setCursorDirectly(this._tty.getCursor() + num);
     }
   };
 
-  /**
-   * Insert character at cursor location
-   */
+  /** Insert character at cursor location. */
   private _handleCursorInsert = (data: string) => {
     const newInput =
-      this._pgTty.getInput().substring(0, this._pgTty.getCursor()) +
+      this._tty.getInput().substring(0, this._tty.getCursor()) +
       data +
-      this._pgTty.getInput().substring(this._pgTty.getCursor());
-    this._pgTty.setCursorDirectly(this._pgTty.getCursor() + data.length);
-    this._pgTty.setInput(newInput);
+      this._tty.getInput().substring(this._tty.getCursor());
+    this._tty.setCursorDirectly(this._tty.getCursor() + data.length);
+    this._tty.setInput(newInput);
   };
 
-  /**
-   * Erase a character at cursor location
-   */
+  /** Erase a character at cursor location. */
   private _handleCursorErase = (backspace: boolean) => {
     if (backspace) {
-      if (this._pgTty.getCursor() <= 0) return;
+      if (this._tty.getCursor() <= 0) return;
+
       const newInput =
-        this._pgTty.getInput().substring(0, this._pgTty.getCursor() - 1) +
-        this._pgTty.getInput().substring(this._pgTty.getCursor());
-      this._pgTty.clearInput();
-      this._pgTty.setCursorDirectly(this._pgTty.getCursor() - 1);
-      this._pgTty.setInput(newInput, true);
+        this._tty.getInput().substring(0, this._tty.getCursor() - 1) +
+        this._tty.getInput().substring(this._tty.getCursor());
+      this._tty.clearInput();
+      this._tty.setCursorDirectly(this._tty.getCursor() - 1);
+      this._tty.setInput(newInput, true);
     } else {
       const newInput =
-        this._pgTty.getInput().substring(0, this._pgTty.getCursor()) +
-        this._pgTty.getInput().substring(this._pgTty.getCursor() + 1);
-      this._pgTty.setInput(newInput);
+        this._tty.getInput().substring(0, this._tty.getCursor()) +
+        this._tty.getInput().substring(this._tty.getCursor() + 1);
+      this._tty.setInput(newInput);
     }
   };
 
-  /**
-   * Handle a single piece of information from the terminal -> tty.
-   */
+  /** Handle a single piece of information from the terminal -> tty. */
   private _handleData = (data: string) => {
     // Only Allow CTRL+C Through
     if (!this._active && data !== "\x03") {
@@ -317,8 +297,8 @@ export class PgShell {
           if (this._history) {
             let value = this._history.getPrevious();
             if (value) {
-              this._pgTty.setInput(value);
-              this._pgTty.setCursor(value.length);
+              this._tty.setInput(value);
+              this._tty.setCursor(value.length);
             }
           }
           break;
@@ -327,8 +307,8 @@ export class PgShell {
           if (this._history) {
             let value = this._history.getNext();
             if (!value) value = "";
-            this._pgTty.setInput(value);
-            this._pgTty.setCursor(value.length);
+            this._tty.setInput(value);
+            this._tty.setCursor(value.length);
           }
           break;
 
@@ -345,40 +325,40 @@ export class PgShell {
           break;
 
         case "[F": // End
-          this._pgTty.setCursor(this._pgTty.getInput().length);
+          this._tty.setCursor(this._tty.getInput().length);
           break;
 
         case "[H": // Home
-          this._pgTty.setCursor(0);
+          this._tty.setCursor(0);
           break;
 
         case "b": // ALT + LEFT
           ofs = closestLeftBoundary(
-            this._pgTty.getInput(),
-            this._pgTty.getCursor()
+            this._tty.getInput(),
+            this._tty.getCursor()
           );
-          if (ofs) this._pgTty.setCursor(ofs);
+          if (ofs) this._tty.setCursor(ofs);
           break;
 
         case "f": // ALT + RIGHT
           ofs = closestRightBoundary(
-            this._pgTty.getInput(),
-            this._pgTty.getCursor()
+            this._tty.getInput(),
+            this._tty.getCursor()
           );
-          if (ofs) this._pgTty.setCursor(ofs);
+          if (ofs) this._tty.setCursor(ofs);
           break;
 
         case "\x7F": // CTRL + BACKSPACE
           ofs = closestLeftBoundary(
-            this._pgTty.getInput(),
-            this._pgTty.getCursor()
+            this._tty.getInput(),
+            this._tty.getCursor()
           );
           if (ofs) {
-            this._pgTty.setInput(
-              this._pgTty.getInput().substring(0, ofs) +
-                this._pgTty.getInput().substring(this._pgTty.getCursor())
+            this._tty.setInput(
+              this._tty.getInput().substring(0, ofs) +
+                this._tty.getInput().substring(this._tty.getCursor())
             );
-            this._pgTty.setCursor(ofs);
+            this._tty.setCursor(ofs);
           }
           break;
       }
@@ -387,7 +367,7 @@ export class PgShell {
     else if (ord < 32 || ord === 0x7f) {
       switch (data) {
         case "\r": // ENTER
-          if (isIncompleteInput(this._pgTty.getInput())) {
+          if (isIncompleteInput(this._tty.getInput())) {
             this._handleCursorInsert("\n");
           } else {
             this.handleReadComplete();
@@ -402,9 +382,9 @@ export class PgShell {
 
         case "\t": // TAB
           if (this._autocompleteHandlers.length > 0) {
-            const inputFragment = this._pgTty
+            const inputFragment = this._tty
               .getInput()
-              .substring(0, this._pgTty.getCursor());
+              .substring(0, this._tty.getCursor());
             const hasTrailingSpace = hasTrailingWhitespace(inputFragment);
             const candidates = collectAutocompleteCandidates(
               this._autocompleteHandlers,
@@ -423,27 +403,27 @@ export class PgShell {
               }
             } else if (candidates.length === 1) {
               // Set the input
-              this._pgTty.setInput(candidates[0]);
+              this._tty.setInput(candidates[0]);
 
               // Move the cursor to the end
-              this._pgTty.setCursor(candidates[0].length);
+              this._tty.setCursor(candidates[0].length);
             } else if (candidates.length <= this._maxAutocompleteEntries) {
               // If we are less than maximum auto-complete candidates, print
               // them to the user and re-start prompt
               this.printAndRestartPrompt(() => {
-                this._pgTty.printWide(candidates);
+                this._tty.printWide(candidates);
               });
             } else {
               // If we have more than maximum auto-complete candidates, print
               // them only if the user acknowledges a warning
               this.printAndRestartPrompt(() =>
-                this._pgTty
+                this._tty
                   .readChar(
                     `Display all ${candidates.length} possibilities? (y or n)`
                   )
                   .promise.then((yn: string) => {
                     if (yn === "y" || yn === "Y") {
-                      this._pgTty.printWide(candidates);
+                      this._tty.printWide(candidates);
                     }
                   })
               );
@@ -454,7 +434,7 @@ export class PgShell {
           break;
 
         case "\x01": // CTRL+A
-          this._pgTty.setCursor(0);
+          this._tty.setCursor(0);
           break;
 
         case "\x02": // CTRL+B
@@ -465,7 +445,7 @@ export class PgShell {
         // case "\x03": // CTRL+C
 
         case "\x05": // CTRL+E
-          this._pgTty.setCursor(this._pgTty.getInput().length);
+          this._tty.setCursor(this._tty.getInput().length);
           break;
 
         case "\x06": // CTRL+F
@@ -474,22 +454,22 @@ export class PgShell {
 
         case "\x07": // CTRL+G
           if (this._history) this._history.getPrevious();
-          this._pgTty.setInput("");
+          this._tty.setInput("");
           break;
 
         case "\x0b": // CTRL+K
-          this._pgTty.setInput(
-            this._pgTty.getInput().substring(0, this._pgTty.getCursor())
+          this._tty.setInput(
+            this._tty.getInput().substring(0, this._tty.getCursor())
           );
-          this._pgTty.setCursor(this._pgTty.getInput().length);
+          this._tty.setCursor(this._tty.getInput().length);
           break;
 
         case "\x0e": // CTRL+N
           if (this._history) {
             let value = this._history.getNext();
             if (!value) value = "";
-            this._pgTty.setInput(value);
-            this._pgTty.setCursor(value.length);
+            this._tty.setInput(value);
+            this._tty.setCursor(value.length);
           }
           break;
 
@@ -497,17 +477,17 @@ export class PgShell {
           if (this._history) {
             let value = this._history.getPrevious();
             if (value) {
-              this._pgTty.setInput(value);
-              this._pgTty.setCursor(value.length);
+              this._tty.setInput(value);
+              this._tty.setCursor(value.length);
             }
           }
           break;
 
         case "\x15": // CTRL+U
-          this._pgTty.setInput(
-            this._pgTty.getInput().substring(this._pgTty.getCursor())
+          this._tty.setInput(
+            this._tty.getInput().substring(this._tty.getCursor())
           );
-          this._pgTty.setCursor(0);
+          this._tty.setCursor(0);
           break;
       }
 
@@ -517,16 +497,12 @@ export class PgShell {
     }
   };
 
-  /**
-   * Increments active process count
-   */
+  /** Increment active process count. */
   private _incrementProcessCount() {
     this._processCount++;
   }
 
-  /**
-   * Decrements active process count if process count is gt 0
-   */
+  /** Decrement active process count if process count is greater than 0. */
   private _decrementProcessCount() {
     if (this._processCount) {
       this._processCount--;

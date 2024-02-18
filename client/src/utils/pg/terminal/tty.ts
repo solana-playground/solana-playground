@@ -1,10 +1,9 @@
 import { Terminal as XTerm } from "xterm";
 
 import { countLines, offsetToColRow } from "./tty-utils";
-import { ActiveCharPrompt, ActivePrompt } from "./shell-utils";
 import { PgTerminal } from "./terminal";
-import { PrintOptions } from "./types";
 import { PgCommon } from "../common";
+import type { ActiveCharPrompt, ActivePrompt, PrintOptions } from "./types";
 
 /**
  * TTY manages text I/O related things such as prompting, input parsing and
@@ -17,10 +16,10 @@ export class PgTty {
     rows: number;
   };
   private _firstInit = true;
-  private _promptPrefix: string;
-  private _continuationPromptPrefix: string;
-  private _cursor: number;
-  private _input: string;
+  private _promptPrefix = "";
+  private _continuationPromptPrefix = "";
+  private _cursor = 0;
+  private _input = "";
 
   constructor(xterm: XTerm) {
     this._xterm = xterm;
@@ -29,10 +28,6 @@ export class PgTty {
       cols: this._xterm.cols,
       rows: this._xterm.rows,
     };
-    this._promptPrefix = "";
-    this._continuationPromptPrefix = "";
-    this._input = "";
-    this._cursor = 0;
   }
 
   /**

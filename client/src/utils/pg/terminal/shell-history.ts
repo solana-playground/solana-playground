@@ -1,16 +1,14 @@
 /** Manage shell history */
 export class PgShellHistory {
-  /** Cursor index */
-  private _cursor: number;
   /** Maximum allowed size */
   private _size: number;
+  /** Cursor index */
+  private _cursor = 0;
   /** All history entries */
-  private _entries: string[];
+  private _entries: string[] = [];
 
   constructor(size: number) {
-    this._cursor = 0;
     this._size = size;
-    this._entries = [];
   }
 
   /** Get all entries */
