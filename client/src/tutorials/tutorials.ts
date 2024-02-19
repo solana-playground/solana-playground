@@ -222,5 +222,34 @@ export const TUTORIALS = createTutorials(
     framework: "Seahorse",
     languages: ["Python", "TypeScript"],
     categories: ["Gaming"],
+  },
+
+  {
+    name: "Todo App Seahorse",
+    description: "Build a todo app to keep track of tasks.",
+    authors: [
+      {
+        name: "lostin",
+        link: "https://twitter.com/__lostin__",
+      },
+    ],
+    level: "Beginner",
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+  },
+
+  {
+    name: "Faucet Seahorse",
+    description: "Build a token faucet with a price oracle.",
+    authors: [
+      {
+        name: "lostin",
+        link: "https://twitter.com/__lostin__",
+      },
+    ],
+    level: "Intermediate",
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+    categories: ["SPL", "Token"],
   }
 );
