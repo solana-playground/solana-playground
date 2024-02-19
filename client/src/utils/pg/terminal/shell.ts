@@ -288,7 +288,6 @@ export class PgShell {
     }
 
     const ord = data.charCodeAt(0);
-    let ofs;
 
     // Handle ANSI escape sequences
     if (ord === 0x1b) {
@@ -305,8 +304,7 @@ export class PgShell {
 
         case "[B": // Down arrow
           if (this._history) {
-            let value = this._history.getNext();
-            if (!value) value = "";
+            const value = this._history.getNext() ?? "";
             this._tty.setInput(value);
             this._tty.setCursor(value.length);
           }
@@ -332,35 +330,40 @@ export class PgShell {
           this._tty.setCursor(0);
           break;
 
-        case "b": // ALT + LEFT
-          ofs = closestLeftBoundary(
+        case "b": {
+          // ALT + LEFT
+          const offset = closestLeftBoundary(
             this._tty.getInput(),
             this._tty.getCursor()
           );
-          if (ofs) this._tty.setCursor(ofs);
+          this._tty.setCursor(offset);
           break;
+        }
 
-        case "f": // ALT + RIGHT
-          ofs = closestRightBoundary(
+        case "f": {
+          // ALT + RIGHT
+          const offset = closestRightBoundary(
             this._tty.getInput(),
             this._tty.getCursor()
           );
-          if (ofs) this._tty.setCursor(ofs);
+          this._tty.setCursor(offset);
           break;
+        }
 
-        case "\x7F": // CTRL + BACKSPACE
-          ofs = closestLeftBoundary(
+        case "\x7F": {
+          // CTRL + BACKSPACE
+          const offset = closestLeftBoundary(
             this._tty.getInput(),
             this._tty.getCursor()
           );
-          if (ofs) {
-            this._tty.setInput(
-              this._tty.getInput().substring(0, ofs) +
-                this._tty.getInput().substring(this._tty.getCursor())
-            );
-            this._tty.setCursor(ofs);
-          }
+          this._tty.setInput(
+            this._tty.getInput().substring(0, offset) +
+              this._tty.getInput().substring(this._tty.getCursor())
+          );
+          this._tty.setCursor(offset);
+
           break;
+        }
       }
     }
     // Handle special characters
@@ -421,8 +424,8 @@ export class PgShell {
                   .readChar(
                     `Display all ${candidates.length} possibilities? (y or n)`
                   )
-                  .promise.then((yn: string) => {
-                    if (yn === "y" || yn === "Y") {
+                  .promise.then((answer: string) => {
+                    if (answer.toLowerCase() === "y") {
                       this._tty.printWide(candidates);
                     }
                   })
@@ -466,8 +469,7 @@ export class PgShell {
 
         case "\x0e": // CTRL+N
           if (this._history) {
-            let value = this._history.getNext();
-            if (!value) value = "";
+            const value = this._history.getNext() ?? "";
             this._tty.setInput(value);
             this._tty.setCursor(value.length);
           }
@@ -475,7 +477,7 @@ export class PgShell {
 
         case "\x10": // CTRL+P
           if (this._history) {
-            let value = this._history.getPrevious();
+            const value = this._history.getPrevious();
             if (value) {
               this._tty.setInput(value);
               this._tty.setCursor(value.length);
