@@ -13,7 +13,7 @@ import {
   Tick,
 } from "../../../../../components/Icons";
 import {
-  PgCommandExecutor,
+  PgCommandManager,
   PgCommon,
   PgEditor,
   PgTerm,
@@ -37,9 +37,9 @@ const Terminal = () => {
     const xterm = theme.components.terminal.xterm;
 
     // Set the available commands
-    PgCommandExecutor.commands = COMMANDS;
+    PgCommandManager.commands = COMMANDS;
 
-    return new PgTerm(PgCommandExecutor.execute, {
+    return new PgTerm(PgCommandManager, {
       convertEol: true,
       rendererType: "dom",
       fontFamily: theme.font.code.family,

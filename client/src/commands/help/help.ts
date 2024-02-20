@@ -1,25 +1,25 @@
-import { PgCommandExecutor, PgCommon, PgTerminal } from "../../utils/pg";
+import { PgCommandManager, PgCommon, PgTerminal } from "../../utils/pg";
 import { createCmd } from "../create";
 
 export const help = createCmd({
   name: "help",
   description: "Print help message",
   run: () => {
-    const commandNames = PgCommon.keys(PgCommandExecutor.commands);
+    const commandNames = PgCommon.keys(PgCommandManager.commands);
 
     const helpMessage =
       "COMMANDS:\n" +
       commandNames
         .sort((a, b) => {
           // Put non-letter commands to the end
-          if (!/^[a-zA-Z-]+$/.test(PgCommandExecutor.commands[b].name)) {
+          if (!/^[a-zA-Z-]+$/.test(PgCommandManager.commands[b].name)) {
             return -1;
           }
 
           return a.localeCompare(b);
         })
         .reduce((acc, cmdName) => {
-          const cmd = PgCommandExecutor.commands[cmdName];
+          const cmd = PgCommandManager.commands[cmdName];
 
           return (
             acc +

@@ -17,7 +17,7 @@ import {
   SERVER_ERROR,
 } from "../../../constants";
 import { PgCommon } from "../common";
-import type { ExecuteCommand, PrintOptions } from "./types";
+import type { CommandManager, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
@@ -327,7 +327,7 @@ export class PgTerm {
   private _pgShell: PgShell;
   private _isOpen: boolean;
 
-  constructor(execute: ExecuteCommand, xtermOptions?: ITerminalOptions) {
+  constructor(cmdManager: CommandManager, xtermOptions?: ITerminalOptions) {
     // Create xterm element
     this._xterm = new XTerm(xtermOptions);
 
@@ -342,7 +342,7 @@ export class PgTerm {
 
     // Create  Shell and TTY
     this._pgTty = new PgTty(this._xterm);
-    this._pgShell = new PgShell(this._pgTty, execute);
+    this._pgShell = new PgShell(this._pgTty, cmdManager);
 
     // XTerm events
     this._xterm.onResize(this._handleTermResize);
