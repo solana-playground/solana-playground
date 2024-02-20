@@ -16,8 +16,7 @@ const FaucetSeahorse = () => (
     ]}
     // Initial files to have at the beginning of the tutorial
     files={[
-      ["src/faucet.py", require("./files/faucet.py")],
-      ["tests/index.test.ts", require("./files/index.test.ts.raw")],
+      ["src/faucet.py", require("./files/faucet.py")]
     ]}
   />
 );
