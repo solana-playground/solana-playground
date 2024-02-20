@@ -48,7 +48,14 @@ impl WasmWebSocket {
                     // Replace to wss
                     let first_index = url.find(':').expect("Invalid URL");
                     let mut url = url.to_string();
-                    url.replace_range(..first_index, "ws");
+                    url.replace_range(
+                        ..first_index,
+                        if url.starts_with("https") {
+                            "wss"
+                        } else {
+                            "ws"
+                        },
+                    );
 
                     // Increase the port number by 1 if the port is specified
                     let last_index = url.rfind(':').unwrap();
