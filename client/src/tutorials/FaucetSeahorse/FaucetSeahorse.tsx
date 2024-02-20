@@ -15,9 +15,7 @@ const FaucetSeahorse = () => (
       { content: require("./pages/7.md") },
     ]}
     // Initial files to have at the beginning of the tutorial
-    files={[
-      ["src/faucet.py", require("./files/faucet.py")]
-    ]}
+    files={[["src/faucet.py", require("./files/faucet.py")]]}
   />
 );
 
