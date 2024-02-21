@@ -1,6 +1,5 @@
 import { Terminal as XTerm } from "xterm";
 
-import { countLines, offsetToColRow } from "./tty-utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
 import type { ActiveCharPrompt, ActivePrompt, PrintOptions } from "./types";
@@ -109,8 +108,8 @@ export class PgTty {
 
     // Move the cursor to the appropriate row/col
     const newCursor = this._applyPromptOffset(newInput, this._cursor);
-    const newLines = countLines(newPrompt, this._termSize.cols);
-    const { col, row } = offsetToColRow(
+    const newLines = PgTty._countLines(newPrompt, this._termSize.cols);
+    const { col, row } = PgTty._offsetToColRow(
       newPrompt,
       newCursor,
       this._termSize.cols
@@ -287,11 +286,11 @@ export class PgTty {
     const currentPrompt = this._applyPrompts(this._input);
 
     // Get the overall number of lines to clear
-    const allRows = countLines(currentPrompt, this._termSize.cols);
+    const allRows = PgTty._countLines(currentPrompt, this._termSize.cols);
 
     // Get the line we are currently in
     const promptCursor = this._applyPromptOffset(this._input, this._cursor);
-    const { row } = offsetToColRow(
+    const { row } = PgTty._offsetToColRow(
       currentPrompt,
       promptCursor,
       this._termSize.cols
@@ -405,7 +404,7 @@ export class PgTty {
 
     // Estimate previous cursor position
     const prevPromptOffset = this._applyPromptOffset(this._input, this._cursor);
-    const { col: prevCol, row: prevRow } = offsetToColRow(
+    const { col: prevCol, row: prevRow } = PgTty._offsetToColRow(
       inputWithPrompt,
       prevPromptOffset,
       this._termSize.cols
@@ -413,7 +412,7 @@ export class PgTty {
 
     // Estimate next cursor position
     const newPromptOffset = this._applyPromptOffset(this._input, newCursor);
-    const { col: newCol, row: newRow } = offsetToColRow(
+    const { col: newCol, row: newRow } = PgTty._offsetToColRow(
       inputWithPrompt,
       newPromptOffset,
       this._termSize.cols
@@ -435,6 +434,42 @@ export class PgTty {
 
     // Set new offset
     this._cursor = newCursor;
+  }
+
+  /**
+   * Convert offset at the given input to col/row location.
+   *
+   * This function is not optimized and practically emulates via brute-force
+   * the navigation on the terminal, wrapping when they reach the column width.
+   */
+  private static _offsetToColRow(
+    input: string,
+    offset: number,
+    maxCols: number
+  ) {
+    let row = 0;
+    let col = 0;
+
+    for (let i = 0; i < offset; ++i) {
+      const chr = input.charAt(i);
+      if (chr === "\n") {
+        col = 0;
+        row += 1;
+      } else {
+        col += 1;
+        if (col > maxCols) {
+          col = 0;
+          row += 1;
+        }
+      }
+    }
+
+    return { row, col };
+  }
+
+  /** Count the lines of the given input. */
+  private static _countLines(input: string, maxCols: number) {
+    return PgTty._offsetToColRow(input, input.length, maxCols).row + 1;
   }
 
   /** Add highighting to the given text based on ANSI escape sequences. */
