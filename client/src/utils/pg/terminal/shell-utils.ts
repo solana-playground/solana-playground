@@ -1,4 +1,5 @@
 import { parse } from "shell-quote";
+import { PgCommon } from "../common";
 
 import type { AutoCompleteHandler } from "./types";
 
@@ -114,15 +115,18 @@ export const collectAutocompleteCandidates = (
   }
 
   // Collect all auto-complete candidates from the callbacks
-  return cbs
+  const candidates = cbs
     .reduce((acc, cb) => {
       try {
-        const text = cb(tokens as string[], index);
-        return acc.concat(text);
+        const candidates = cb(tokens as string[], index);
+        return acc.concat(candidates);
       } catch (e) {
         console.log("Autocomplete error:", e);
         return acc;
       }
     }, [] as string[])
     .filter((text) => text.startsWith(input));
+
+  // Candidates might not be unique
+  return PgCommon.toUniqueArray(candidates);
 };
