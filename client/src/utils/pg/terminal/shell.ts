@@ -414,11 +414,27 @@ export class PgShell {
               // Move the cursor to the end
               this._tty.setCursor(candidates[0].length);
             } else if (candidates.length <= this._maxAutocompleteEntries) {
-              // If we are less than maximum auto-complete candidates, print
-              // them to the user and re-start prompt
-              this.printAndRestartPrompt(() => {
-                this._tty.printWide(candidates);
-              });
+              // If the candidate count is less than maximum auto-complete
+              // candidates, find the common candidate
+              let commonCandidate = "";
+              for (let i = 0; i < candidates[0].length; i++) {
+                const char = candidates[0][i];
+                const matches = candidates.every((cand) => cand[i] === char);
+                if (matches) commonCandidate += char;
+                else break;
+              }
+
+              // If the input is already the common candidate, print all
+              // candidates to the user and re-start prompt
+              if (this._tty.getInput() === commonCandidate) {
+                this.printAndRestartPrompt(() => {
+                  this._tty.printWide(candidates);
+                });
+              } else {
+                // Set the input to the common candidate
+                this._tty.setInput(commonCandidate);
+                this._tty.setCursor(commonCandidate.length);
+              }
             } else {
               // If we have more than maximum auto-complete candidates, print
               // them only if the user acknowledges a warning
