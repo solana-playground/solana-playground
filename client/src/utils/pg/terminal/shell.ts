@@ -14,7 +14,7 @@ import type {
   ActiveCharPrompt,
   ActivePrompt,
   AutoCompleteHandler,
-  ExecuteCommand,
+  CommandManager,
 } from "./types";
 
 type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
@@ -30,7 +30,7 @@ type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
  */
 export class PgShell {
   private _tty: PgTty;
-  private _execute: ExecuteCommand;
+  private _cmdManager: CommandManager;
   private _active = false;
   private _waitingForInput = false;
   private _processCount = 0;
@@ -42,18 +42,21 @@ export class PgShell {
 
   constructor(
     tty: PgTty,
-    execute: ExecuteCommand,
+    cmdManager: CommandManager,
     options: ShellOptions = {
       historySize: 30,
       maxAutocompleteEntries: 100,
     }
   ) {
     this._tty = tty;
-    this._execute = execute;
+    this._cmdManager = cmdManager;
 
     this._history = new PgShellHistory(options.historySize);
     this._maxAutocompleteEntries = options.maxAutocompleteEntries;
-    this._autocompleteHandlers = [() => this._history.getEntries()];
+    this._autocompleteHandlers = [
+      () => this._history.getEntries(),
+      () => this._cmdManager.getNames(),
+    ];
   }
 
   /**
@@ -193,7 +196,7 @@ export class PgShell {
     if (this._waitingForInput) {
       PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_WAIT_FOR_INPUT);
     } else {
-      return await this._execute(input);
+      return await this._cmdManager.execute(input);
     }
   }
 

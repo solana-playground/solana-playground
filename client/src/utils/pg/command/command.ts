@@ -8,7 +8,7 @@ export const PgCommand: Commands = new Proxy(
     get: (target: any, cmdName: CommandCodeName): Command<unknown> => {
       if (target[cmdName]) return target[cmdName];
 
-      const commandName = PgCommandExecutor.commands[cmdName].name;
+      const commandName = PgCommandManager.commands[cmdName].name;
       target[cmdName] = {
         name: commandName,
         run: (args: string = "") => {
@@ -34,13 +34,23 @@ export const PgCommand: Commands = new Proxy(
 );
 
 /**
- * Command executor.
+ * Terminal command manager.
  *
  * This is intended for internal usage. Running commands should be done with
  * `PgCommand` instead.
  */
-export class PgCommandExecutor {
+export class PgCommandManager {
+  /** Internal commands */
   static commands: InternalCommands;
+
+  /**
+   * Get the available command names.
+   *
+   * @returns the command names
+   */
+  static getNames() {
+    return Object.values(PgCommandManager.commands).map((cmd) => cmd.name);
+  }
 
   /**
    * Execute from the given input.
@@ -58,8 +68,8 @@ export class PgCommandExecutor {
       const inputCmdName = input.split(" ")?.at(0);
       if (!inputCmdName) return;
 
-      for (const cmdName in PgCommandExecutor.commands) {
-        const cmd = PgCommandExecutor.commands[cmdName as CommandCodeName];
+      for (const cmdName in PgCommandManager.commands) {
+        const cmd = PgCommandManager.commands[cmdName as CommandCodeName];
         if (inputCmdName !== cmd.name) continue;
 
         // Handle checks

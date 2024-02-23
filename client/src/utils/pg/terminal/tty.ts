@@ -1,13 +1,12 @@
 import { Terminal as XTerm } from "xterm";
 
-import { countLines, offsetToColRow } from "./tty-utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
 import type { ActiveCharPrompt, ActivePrompt, PrintOptions } from "./types";
 
 /**
  * TTY manages text I/O related things such as prompting, input parsing and
- * printing logs to the terminal.
+ * printing messages to the terminal.
  */
 export class PgTty {
   private _xterm: XTerm;
@@ -30,9 +29,131 @@ export class PgTty {
     };
   }
 
+  /** Get whether it is the initial read. */
+  getFirstInit() {
+    return this._firstInit;
+  }
+
+  /** Get the current input in the line. */
+  getInput() {
+    return this._input;
+  }
+
+  /** Get the current cursor position. */
+  getCursor() {
+    return this._cursor;
+  }
+
+  /** Get the TTY size (columns and rows). */
+  getSize() {
+    return this._termSize;
+  }
+
+  /** Get the active terminal buffer. */
+  getBuffer() {
+    return this._xterm.buffer.active;
+  }
+
   /**
-   * Return a promise that will resolve when the user has completed
-   * typing a single line
+   * Get current line as string.
+   *
+   * @param offset how many lines before the current line
+   *
+   * @returns the current line as string
+   */
+  getCurrentLineString(offset: number = 0) {
+    return this._getCurrentLine(offset)?.translateToString();
+  }
+
+  /**
+   * Get whether the current input starts with prompt.
+   *
+   * Useful for `PgTerm.fit()`.
+   */
+  getInputStartsWithPrompt() {
+    for (let i = 0; i < 10; i++) {
+      const currentLine = this._getCurrentLine(i);
+      if (!currentLine) return;
+
+      if (!currentLine.isWrapped) {
+        const currentLineStr = currentLine.translateToString();
+        return (
+          currentLineStr.startsWith(PgTerminal.PROMPT_PREFIX) ||
+          currentLineStr.startsWith(PgTerminal.CONTINUATION_PROMPT_PREFIX) ||
+          currentLineStr.startsWith(PgTerminal.WAITING_INPUT_PROMPT_PREFIX)
+        );
+      }
+    }
+  }
+
+  /**
+   * Replace input with the new input given
+   *
+   * This function clears all the lines that the current input occupies and
+   * then replaces them with the new input.
+   */
+  setInput(newInput: string, shouldNotClearInput: boolean = false) {
+    if (!shouldNotClearInput) {
+      this.clearInput();
+    }
+
+    // Write the new input lines, including the current prompt
+    const newPrompt = this._applyPrompts(newInput);
+    this.print(newPrompt);
+
+    // Trim cursor overflow
+    if (this._cursor > newInput.length) {
+      this._cursor = newInput.length;
+    }
+
+    // Move the cursor to the appropriate row/col
+    const newCursor = this._applyPromptOffset(newInput, this._cursor);
+    const newLines = PgTty._countLines(newPrompt, this._termSize.cols);
+    const { col, row } = PgTty._offsetToColRow(
+      newPrompt,
+      newCursor,
+      this._termSize.cols
+    );
+    const moveUpRows = newLines - row - 1;
+
+    this._xterm.write("\r");
+    for (let i = 0; i < moveUpRows; ++i) this._xterm.write("\x1b[F");
+    for (let i = 0; i < col; ++i) this._xterm.write("\x1b[C");
+
+    // Replace input
+    this._input = newInput;
+  }
+
+  /** Set the new cursor position, as an offset on the input string. */
+  setCursor(newCursor: number) {
+    if (newCursor < 0) newCursor = 0;
+    if (newCursor > this._input.length) newCursor = this._input.length;
+    this._writeCursorPosition(newCursor);
+  }
+
+  /** Set the direct cursor value. Should only be used in keystroke contexts. */
+  setCursorDirectly(newCursor: number) {
+    this._writeCursorPosition(newCursor);
+  }
+
+  /** Set the terminal TTY size. */
+  setTermSize(cols: number, rows: number) {
+    this._termSize = { cols, rows };
+  }
+
+  /** Set the first init. */
+  setFirstInit(value: boolean) {
+    this._firstInit = value;
+  }
+
+  /** Set the prompt prefix. */
+  setPromptPrefix(value: string) {
+    this._promptPrefix = value;
+  }
+
+  /**
+   * Return a promise that will resolve when the user has completed typing a
+   * single line.
    */
   read(
     promptPrefix: string,
@@ -73,9 +194,7 @@ export class PgTty {
     };
   }
 
-  /**
-   * Prints a message and properly handles new-lines
-   */
+  /** Print a message and properly handle new-lines. */
   print(msg: any, opts?: PrintOptions) {
     if (typeof msg === "object") msg = PgCommon.prettyJSON(msg);
     else msg = `${msg}`;
@@ -101,16 +220,12 @@ export class PgTty {
     }
   }
 
-  /**
-   * Prints a message and changes line
-   */
+  /** Print a message with an extra line appended. */
   println(msg: string, opts?: PrintOptions) {
     this.print(msg, { ...opts, newLine: true });
   }
 
-  /**
-   * Prints a list of items using a wide-format
-   */
+  /** Print a list of items using a wide-format. */
   printWide(items: Array<string>, padding = 2) {
     if (items.length === 0) return this.println("");
 
@@ -138,7 +253,9 @@ export class PgTty {
   }
 
   /**
-   * Prints a status message on the current line. Meant to be used with clearStatus()
+   * Print a status message on the current line.
+   *
+   * This function meant to be used with `clearStatus()`.
    */
   printStatus(message: string, sync?: boolean) {
     // Save the cursor position
@@ -147,7 +264,9 @@ export class PgTty {
   }
 
   /**
-   * Clears the current status on the line, meant to be run after printStatus
+   * Clear the current status on the line.
+   *
+   * This function is meant to be run after `printStatus()`.
    */
   clearStatus(sync?: boolean) {
     // Restore the cursor position
@@ -158,7 +277,7 @@ export class PgTty {
   }
 
   /**
-   * Clears the current prompt
+   * Clear the current prompt.
    *
    * This function will erase all the lines that display the current prompt
    * and move the cursor in the beginning of the first line of the prompt.
@@ -167,11 +286,11 @@ export class PgTty {
     const currentPrompt = this._applyPrompts(this._input);
 
     // Get the overall number of lines to clear
-    const allRows = countLines(currentPrompt, this._termSize.cols);
+    const allRows = PgTty._countLines(currentPrompt, this._termSize.cols);
 
     // Get the line we are currently in
     const promptCursor = this._applyPromptOffset(this._input, this._cursor);
-    const { row } = offsetToColRow(
+    const { row } = PgTty._offsetToColRow(
       currentPrompt,
       promptCursor,
       this._termSize.cols
@@ -186,15 +305,13 @@ export class PgTty {
     for (let i = 1; i < allRows; ++i) this._xterm.write("\x1b[F\x1b[K");
   }
 
-  /**
-   * This function clears all xterm buffer
-   */
+  /** Clear the entire XTerm buffer. */
   clear() {
     this._xterm.clear();
   }
 
   /**
-   * Clears the entire Tty
+   * Clear the entire TTY.
    *
    * This function will erase all the lines that display on the tty,
    * and move the cursor in the beginning of the first line of the prompt.
@@ -209,7 +326,7 @@ export class PgTty {
   }
 
   /**
-   * Clear the entire current line
+   * Clear the current line.
    *
    * @param offset amount of lines before the current line
    */
@@ -226,7 +343,7 @@ export class PgTty {
   }
 
   /**
-   * Change the specified line with the new input
+   * Change the specified line with the new input.
    *
    * @param newInput input to change the line to
    * @param offset line offset. 0 is current, 1 is last. Defaults to 1.
@@ -236,168 +353,7 @@ export class PgTty {
     this.println(newInput);
   }
 
-  /**
-   * Function to return if it is the initial read
-   */
-  getFirstInit(): boolean {
-    return this._firstInit;
-  }
-
-  /**
-   * Function to get the current Prompt prefix
-   */
-  getPromptPrefix(): string {
-    return this._promptPrefix;
-  }
-
-  /**
-   * Function to get the current Continuation Prompt prefix
-   */
-  getContinuationPromptPrefix(): string {
-    return this._continuationPromptPrefix;
-  }
-
-  /**
-   * Function to get the terminal size
-   */
-  getTermSize(): { rows: number; cols: number } {
-    return this._termSize;
-  }
-
-  /**
-   * Function to get the current input in the line
-   */
-  getInput(): string {
-    return this._input;
-  }
-
-  /**
-   * Function to get the current cursor
-   */
-  getCursor(): number {
-    return this._cursor;
-  }
-
-  /**
-   * Function to get the size (columns and rows)
-   */
-  getSize(): { cols: number; rows: number } {
-    return this._termSize;
-  }
-
-  /**
-   * Function to return the terminal buffer
-   */
-  getBuffer() {
-    return this._xterm.buffer.active;
-  }
-
-  /**
-   * @param offset how many lines before the current line
-   *
-   * @returns the current line as string
-   */
-  getCurrentLineString(offset: number = 0) {
-    return this._getCurrentLine(offset)?.translateToString();
-  }
-
-  /**
-   * Gets whether the current input starts with prompt
-   *
-   * Useful for PgTerm.fit()
-   */
-  getInputStartsWithPrompt() {
-    for (let i = 0; i < 10; i++) {
-      const currentLine = this._getCurrentLine(i);
-      if (!currentLine) return;
-
-      if (!currentLine.isWrapped) {
-        const currentLineStr = currentLine.translateToString();
-        return (
-          currentLineStr.startsWith(PgTerminal.PROMPT_PREFIX) ||
-          currentLineStr.startsWith(PgTerminal.CONTINUATION_PROMPT_PREFIX) ||
-          currentLineStr.startsWith(PgTerminal.WAITING_INPUT_PROMPT_PREFIX)
-        );
-      }
-    }
-  }
-
-  /**
-   * Replace input with the new input given
-   *
-   * This function clears all the lines that the current input occupies and
-   * then replaces them with the new input.
-   */
-  setInput(newInput: string, shouldNotClearInput: boolean = false) {
-    if (!shouldNotClearInput) {
-      this.clearInput();
-    }
-
-    // Write the new input lines, including the current prompt
-    const newPrompt = this._applyPrompts(newInput);
-    this.print(newPrompt);
-
-    // Trim cursor overflow
-    if (this._cursor > newInput.length) {
-      this._cursor = newInput.length;
-    }
-
-    // Move the cursor to the appropriate row/col
-    const newCursor = this._applyPromptOffset(newInput, this._cursor);
-    const newLines = countLines(newPrompt, this._termSize.cols);
-    const { col, row } = offsetToColRow(
-      newPrompt,
-      newCursor,
-      this._termSize.cols
-    );
-    const moveUpRows = newLines - row - 1;
-
-    this._xterm.write("\r");
-    for (let i = 0; i < moveUpRows; ++i) this._xterm.write("\x1b[F");
-    for (let i = 0; i < col; ++i) this._xterm.write("\x1b[C");
-
-    // Replace input
-    this._input = newInput;
-  }
-
-  /**
-   * Set the new cursor position, as an offset on the input string
-   *
-   * This function:
-   * - Calculates the previous and current
-   */
-  setCursor(newCursor: number) {
-    if (newCursor < 0) newCursor = 0;
-    if (newCursor > this._input.length) newCursor = this._input.length;
-    this._writeCursorPosition(newCursor);
-  }
-
-  /**
-   * Sets the direct cursor value. Should only be used in keystroke contexts
-   */
-  setCursorDirectly(newCursor: number) {
-    this._writeCursorPosition(newCursor);
-  }
-
-  setTermSize(cols: number, rows: number) {
-    this._termSize = { cols, rows };
-  }
-
-  setFirstInit(value: boolean) {
-    this._firstInit = value;
-  }
-
-  setPromptPrefix(value: string) {
-    this._promptPrefix = value;
-  }
-
-  setContinuationPromptPrefix(value: string) {
-    this._continuationPromptPrefix = value;
-  }
-
-  /**
-   * Function to return a deconstructed readPromise
-   */
+  /** Create a deconstructed read promise. */
   private _getAsyncRead() {
     let readResolve;
     let readReject;
@@ -417,9 +373,7 @@ export class PgTty {
     };
   }
 
-  /**
-   * Apply prompts to the given input
-   */
+  /** Apply prompts to the given input. */
   private _applyPrompts(input: string): string {
     return (
       this._promptPrefix +
@@ -427,16 +381,14 @@ export class PgTty {
     );
   }
 
-  /**
-   * Function to get the current line
-   */
+  /** Get the current line. */
   private _getCurrentLine(offset: number = 0) {
     const buffer = this.getBuffer();
     return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
   }
 
   /**
-   * Advances the `offset` as required in order to accompany the prompt
+   * Advance the `offset` as required in order to accompany the prompt
    * additions to the input.
    */
   private _applyPromptOffset(input: string, offset: number): number {
@@ -444,6 +396,7 @@ export class PgTty {
     return newInput.length;
   }
 
+  /** Write the new cursor position. */
   private _writeCursorPosition(newCursor: number) {
     // Apply prompt formatting to get the visual status of the display
     const inputWithPrompt = this._applyPrompts(this._input);
@@ -451,7 +404,7 @@ export class PgTty {
 
     // Estimate previous cursor position
     const prevPromptOffset = this._applyPromptOffset(this._input, this._cursor);
-    const { col: prevCol, row: prevRow } = offsetToColRow(
+    const { col: prevCol, row: prevRow } = PgTty._offsetToColRow(
       inputWithPrompt,
       prevPromptOffset,
       this._termSize.cols
@@ -459,7 +412,7 @@ export class PgTty {
 
     // Estimate next cursor position
     const newPromptOffset = this._applyPromptOffset(this._input, newCursor);
-    const { col: newCol, row: newRow } = offsetToColRow(
+    const { col: newCol, row: newRow } = PgTty._offsetToColRow(
       inputWithPrompt,
       newPromptOffset,
       this._termSize.cols
@@ -481,6 +434,42 @@ export class PgTty {
 
     // Set new offset
     this._cursor = newCursor;
+  }
+
+  /**
+   * Convert offset at the given input to col/row location.
+   *
+   * This function is not optimized and practically emulates via brute-force
+   * the navigation on the terminal, wrapping when they reach the column width.
+   */
+  private static _offsetToColRow(
+    input: string,
+    offset: number,
+    maxCols: number
+  ) {
+    let row = 0;
+    let col = 0;
+
+    for (let i = 0; i < offset; ++i) {
+      const chr = input.charAt(i);
+      if (chr === "\n") {
+        col = 0;
+        row += 1;
+      } else {
+        col += 1;
+        if (col > maxCols) {
+          col = 0;
+          row += 1;
+        }
+      }
+    }
+
+    return { row, col };
+  }
+
+  /** Count the lines of the given input. */
+  private static _countLines(input: string, maxCols: number) {
+    return PgTty._offsetToColRow(input, input.length, maxCols).row + 1;
   }
 
   /** Add highighting to the given text based on ANSI escape sequences. */

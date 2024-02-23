@@ -8,8 +8,13 @@ export interface PrintOptions {
   noColor?: boolean;
 }
 
-/** Executor */
-export type ExecuteCommand<R = unknown> = (input: string) => Promise<R>;
+/** Manage terminal commands */
+export type CommandManager<R = unknown> = {
+  /** Get the available command names. */
+  getNames: () => string[];
+  /** Execute the given input. */
+  execute: (input: string) => Promise<R>;
+};
 
 export interface ActiveCharPrompt {
   promptPrefix: string;
