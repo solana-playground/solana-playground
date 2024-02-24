@@ -42,6 +42,7 @@ type CommonItemProps = {
   label: string;
   matches?: Array<string | RegExp> | ((value: string) => boolean);
   onlyShowIfValid?: boolean;
+  closeButton?: boolean;
   element?: ReactNode;
   onSelect?: (item: Item) => void;
 };
@@ -117,7 +118,6 @@ const SearchBar: FC<SearchBarProps> = ({
     // Reset the input to its last saved value
     if (restoreIfNotSelected) setInputValue(lastValue.current);
   };
-  useOnClickOutside(wrapperRef, reset, isVisible);
   useKeybind("Escape", () => {
     if (document.activeElement === inputRef.current) reset();
   });
@@ -125,6 +125,7 @@ const SearchBar: FC<SearchBarProps> = ({
   const [itemState, setItemState] = useState<{
     items: typeof items;
     isInSubSearch: boolean;
+    closeButton?: boolean;
     Component?: (props: DropdownProps) => JSX.Element;
   }>({
     items,
@@ -203,6 +204,7 @@ const SearchBar: FC<SearchBarProps> = ({
         setItemState({
           items: await PgCommon.callIfNeeded(item.items),
           isInSubSearch: true,
+          closeButton: item.closeButton,
         });
         isInSubSearch = true;
       } catch (e: any) {
@@ -217,6 +219,7 @@ const SearchBar: FC<SearchBarProps> = ({
       setItemState({
         items: null,
         isInSubSearch: true,
+        closeButton: item.closeButton,
         Component: item.DropdownComponent,
       });
       isInSubSearch = true;
@@ -317,6 +320,9 @@ const SearchBar: FC<SearchBarProps> = ({
     [filteredItems?.length]
   );
 
+  // Close on outside click
+  useOnClickOutside(wrapperRef, reset, isVisible && !itemState.closeButton);
+
   return (
     <Wrapper ref={wrapperRef}>
       <SearchInputWrapper width={searchButtonWidth}>
@@ -356,7 +362,7 @@ const SearchBar: FC<SearchBarProps> = ({
         />
 
         {props.value && (
-          <CloseButton
+          <InputCloseButton
             kind="no-border"
             onClick={() => {
               setInputValue("", { focus: true });
@@ -366,7 +372,7 @@ const SearchBar: FC<SearchBarProps> = ({
             position={searchButtonPosition}
           >
             <Close />
-          </CloseButton>
+          </InputCloseButton>
         )}
 
         <SearchButton
@@ -394,6 +400,12 @@ const SearchBar: FC<SearchBarProps> = ({
                   >
                     <PointedArrow rotate="180deg" />
                   </GoBackButton>
+
+                  {itemState.closeButton && (
+                    <SubSearchCloseButton kind="icon" onClick={reset}>
+                      <Close />
+                    </SubSearchCloseButton>
+                  )}
                 </SubSearchTopWrapper>
               )}
 
@@ -450,7 +462,7 @@ const SearchInput = styled(Input)<SearchButtonPosition>`
   `}
 `;
 
-const CloseButton = styled(Button)<SearchButtonPosition>`
+const InputCloseButton = styled(Button)<SearchButtonPosition>`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -499,6 +511,9 @@ const SubSearchTopWrapper = styled.div`
     position: sticky;
     top: -0.5rem;
     padding: 0.25rem 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: ${theme.components.input.bg};
   `}
 `;
@@ -509,6 +524,8 @@ const GoBackButton = styled(Button)`
     height: 1.25rem;
   }
 `;
+
+const SubSearchCloseButton = styled(Button)``;
 
 const DropdownItem = styled.div<{
   isSelected: boolean;
