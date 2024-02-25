@@ -99,11 +99,9 @@ export class PgShell {
       this._activePrompt = this._tty.read(promptText);
       this._active = true;
 
-      if (this._history) {
-        await this._activePrompt.promise;
-        const input = this._tty.getInput().trim();
-        this._history.push(input);
-      }
+      await this._activePrompt.promise;
+      const input = this._tty.getInput().trim();
+      this._history.push(input);
     } catch (e: any) {
       this._tty.println(e.message);
       this.prompt();
@@ -295,23 +293,23 @@ export class PgShell {
     // Handle ANSI escape sequences
     if (ord === 0x1b) {
       switch (data.substring(1)) {
-        case "[A": // Up arrow
-          if (this._history) {
-            let value = this._history.getPrevious();
-            if (value) {
-              this._tty.setInput(value);
-              this._tty.setCursor(value.length);
-            }
-          }
-          break;
-
-        case "[B": // Down arrow
-          if (this._history) {
-            const value = this._history.getNext() ?? "";
+        case "[A": {
+          // Up arrow
+          const value = this._history.getPrevious();
+          if (value) {
             this._tty.setInput(value);
             this._tty.setCursor(value.length);
           }
           break;
+        }
+
+        case "[B": {
+          // Down arrow
+          const value = this._history.getNext() ?? "";
+          this._tty.setInput(value);
+          this._tty.setCursor(value.length);
+          break;
+        }
 
         case "[D": // Left Arrow
           this._handleCursorMove(-1);
@@ -475,7 +473,7 @@ export class PgShell {
           break;
 
         case "\x07": // CTRL+G
-          if (this._history) this._history.getPrevious();
+          this._history.getPrevious();
           this._tty.setInput("");
           break;
 
@@ -486,23 +484,23 @@ export class PgShell {
           this._tty.setCursor(this._tty.getInput().length);
           break;
 
-        case "\x0e": // CTRL+N
-          if (this._history) {
-            const value = this._history.getNext() ?? "";
+        case "\x0e": {
+          // CTRL+N
+          const value = this._history.getNext() ?? "";
+          this._tty.setInput(value);
+          this._tty.setCursor(value.length);
+          break;
+        }
+
+        case "\x10": {
+          // CTRL+P
+          const value = this._history.getPrevious();
+          if (value) {
             this._tty.setInput(value);
             this._tty.setCursor(value.length);
           }
           break;
-
-        case "\x10": // CTRL+P
-          if (this._history) {
-            const value = this._history.getPrevious();
-            if (value) {
-              this._tty.setInput(value);
-              this._tty.setCursor(value.length);
-            }
-          }
-          break;
+        }
 
         case "\x15": // CTRL+U
           this._tty.setInput(
