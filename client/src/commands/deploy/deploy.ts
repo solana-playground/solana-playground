@@ -3,7 +3,6 @@ import { Keypair } from "@solana/web3.js";
 import { GITHUB_URL } from "../../constants";
 import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-browser";
 import {
-  PgCommandValidation,
   PgCommon,
   PgConnection,
   PgGlobal,
@@ -14,6 +13,7 @@ import {
   PgWallet,
 } from "../../utils/pg";
 import { createCmd } from "../create";
+import { isPgConnected } from "../validation";
 
 export const deploy = createCmd({
   name: "deploy",
@@ -67,7 +67,7 @@ export const deploy = createCmd({
       PgGlobal.update({ deployState: "ready" });
     }
   },
-  preCheck: [PgCommandValidation.isPgConnected, checkDeploy],
+  preCheck: [isPgConnected, checkDeploy],
 });
 
 /** Check whether the state is valid for deployment. */

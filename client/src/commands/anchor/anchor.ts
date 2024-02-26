@@ -1,5 +1,6 @@
-import { PgCommandValidation, PgPackage } from "../../utils/pg";
+import { PgPackage } from "../../utils/pg";
 import { createCmd } from "../create";
+import { isPgConnected } from "../validation";
 
 export const anchor = createCmd({
   name: "anchor",
@@ -11,5 +12,5 @@ export const anchor = createCmd({
 
     await runAnchor(input);
   },
-  preCheck: PgCommandValidation.isPgConnected,
+  preCheck: isPgConnected,
 });

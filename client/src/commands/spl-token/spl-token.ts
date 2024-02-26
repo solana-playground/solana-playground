@@ -1,5 +1,6 @@
-import { PgCommandValidation, PgPackage } from "../../utils/pg";
+import { PgPackage } from "../../utils/pg";
 import { createCmd } from "../create";
+import { isPgConnected } from "../validation";
 
 export const splToken = createCmd({
   name: "spl-token",
@@ -11,5 +12,5 @@ export const splToken = createCmd({
 
     await runSplToken(input);
   },
-  preCheck: PgCommandValidation.isPgConnected,
+  preCheck: isPgConnected,
 });

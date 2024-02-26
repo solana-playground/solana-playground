@@ -1,5 +1,6 @@
-import { PgCommandValidation, PgPackage } from "../../utils/pg";
+import { PgPackage } from "../../utils/pg";
 import { createCmd } from "../create";
+import { isPgConnected } from "../validation";
 
 export const solana = createCmd({
   name: "solana",
@@ -11,5 +12,5 @@ export const solana = createCmd({
 
     await runSolana(input);
   },
-  preCheck: PgCommandValidation.isPgConnected,
+  preCheck: isPgConnected,
 });
