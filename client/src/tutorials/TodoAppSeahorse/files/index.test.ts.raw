@@ -1,6 +1,6 @@
 describe("Todo App", async () => {
   const task = "ship product";
-  const lastTodo: anchor.BN = new anchor.BN(0);
+  const lastTodo = new anchor.BN(0);
   const lastTodoBuffer = lastTodo.toArrayLike(Buffer, "le", 1);
 
   const [userProfile] = web3.PublicKey.findProgramAddressSync(
