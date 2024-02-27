@@ -22,7 +22,7 @@ export const useAutoAirdrop = () => {
         airdropping.current ||
         airdropError ||
         _balance === null ||
-        _balance >= 4
+        _balance >= 5
       ) {
         return;
       }
