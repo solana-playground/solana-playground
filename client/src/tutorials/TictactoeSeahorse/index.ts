@@ -1,1 +1,1 @@
-export { default } from "./TicTacToeSeahorse";
+export { default } from "./TictactoeSeahorse";
