@@ -40,7 +40,7 @@ use crate::{
         rpc_response::{
             RpcAccountBalance, RpcBlockProduction, RpcConfirmedTransactionStatusWithSignature,
             RpcInflationGovernor, RpcInflationRate, RpcInflationReward, RpcLeaderSchedule,
-            RpcPerfSample, RpcSupply, RpcVersionInfo, RpcVoteAccountStatus,
+            RpcPerfSample, RpcSupply, RpcTokenAccountBalance, RpcVersionInfo, RpcVoteAccountStatus,
         },
     },
     ClientError, ClientRequest, ClientResponse, ClientResult,
@@ -950,7 +950,7 @@ impl WasmClient {
     pub async fn get_token_largest_accounts(
         &self,
         pubkey: &Pubkey,
-    ) -> ClientResult<Vec<TokenLargestAccountsValue>> {
+    ) -> ClientResult<Vec<RpcTokenAccountBalance>> {
         let request = GetTokenLargestAccountsRequest::new(*pubkey).into();
         let response = GetTokenLargestAccountsResponse::from(self.send(request).await?);
         Ok(response.value)
