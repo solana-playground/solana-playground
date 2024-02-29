@@ -16,7 +16,6 @@ export enum EventName {
 
   // Terminal
   TERMINAL_STATIC = "terminalstatic",
-  TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
   // Theme

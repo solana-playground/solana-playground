@@ -9,7 +9,6 @@ import {
 } from "./shell-utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
-import { EventName } from "../../../constants";
 import type {
   ActiveCharPrompt,
   ActivePrompt,
@@ -158,7 +157,7 @@ export class PgShell {
         // This will happen once user sends the input
         const handleInput = () => {
           document.removeEventListener(
-            EventName.TERMINAL_WAIT_FOR_INPUT,
+            PgShell._TERMINAL_WAIT_FOR_INPUT,
             handleInput
           );
           this._waitingForInput = false;
@@ -167,7 +166,7 @@ export class PgShell {
         };
 
         document.addEventListener(
-          EventName.TERMINAL_WAIT_FOR_INPUT,
+          PgShell._TERMINAL_WAIT_FOR_INPUT,
           handleInput
         );
       }
@@ -192,7 +191,7 @@ export class PgShell {
     this._active = false;
 
     if (this._waitingForInput) {
-      PgCommon.createAndDispatchCustomEvent(EventName.TERMINAL_WAIT_FOR_INPUT);
+      PgCommon.createAndDispatchCustomEvent(PgShell._TERMINAL_WAIT_FOR_INPUT);
     } else {
       return await this._cmdManager.execute(input);
     }
@@ -527,4 +526,7 @@ export class PgShell {
       this._processCount--;
     }
   }
+
+  /** Event name of terminal input wait */
+  private static readonly _TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput";
 }
