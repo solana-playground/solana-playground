@@ -947,6 +947,15 @@ impl WasmClient {
             .await
     }
 
+    pub async fn get_token_largest_accounts(
+        &self,
+        pubkey: &Pubkey,
+    ) -> ClientResult<Vec<TokenLargestAccountsValue>> {
+        let request = GetTokenLargestAccountsRequest::new(*pubkey).into();
+        let response = GetTokenLargestAccountsResponse::from(self.send(request).await?);
+        Ok(response.value)
+    }
+
     pub async fn get_token_supply_with_commitment(
         &self,
         mint: &Pubkey,

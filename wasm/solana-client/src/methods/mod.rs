@@ -105,7 +105,9 @@ pub use {
         GetTokenAccountsByDelegateRequest, GetTokenAccountsByDelegateResponse,
     },
     token_accounts_by_owner::{GetTokenAccountsByOwnerRequest, GetTokenAccountsByOwnerResponse},
-    token_largest_accounts::{GetTokenLargestAccountsRequest, GetTokenLargestAccountsResponse},
+    token_largest_accounts::{
+        GetTokenLargestAccountsRequest, GetTokenLargestAccountsResponse, TokenLargestAccountsValue,
+    },
     token_supply::{GetTokenSupplyRequest, GetTokenSupplyResponse},
     transaction::{GetTransactionRequest, GetTransactionResponse},
     transaction_count::{GetTransactionCountRequest, GetTransactionCountResponse},
