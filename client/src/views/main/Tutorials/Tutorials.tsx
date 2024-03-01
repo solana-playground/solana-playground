@@ -12,10 +12,22 @@ import { useFilteredSearch } from "../../../hooks";
 import { GITHUB_URL } from "../../../constants";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
 
+/**
+ * Tutorial items sorted by date.
+ *
+ * The first 3 tutorials are kept in order because they are essential "Hello
+ * world" tutorials. The remaining tutorials are sorted from the newest to the
+ * oldest.
+ */
+const tutorials = [
+  ...PgTutorial.tutorials.slice(0, 3),
+  ...PgTutorial.tutorials.slice(3).sort(() => -1),
+];
+
 export const Tutorials = () => {
   const filteredSearch = useFilteredSearch({
     route: "/tutorials",
-    items: PgTutorial.tutorials,
+    items: tutorials,
     filters: FILTERS,
     sort: sortByLevel,
   });
