@@ -40,6 +40,11 @@ interface Settings {
     /** Whether to show transaction toast notification */
     showTx: boolean;
   };
+  /** Wallet settings */
+  wallet: {
+    /** Whether to airdrop automatically */
+    automaticAirdrop: boolean;
+  };
 }
 
 const defaultState: Settings = {
@@ -61,6 +66,9 @@ const defaultState: Settings = {
   },
   notification: {
     showTx: true,
+  },
+  wallet: {
+    automaticAirdrop: true,
   },
 };
 
