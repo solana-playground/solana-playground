@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 
 import { PgCommon, PgConnection, PgSettings, PgTx } from "../../../utils/pg";
-import { useBalance, useConnection, useWallet } from "../../../hooks";
+import {
+  useBalance,
+  useConnection,
+  useRenderOnChange,
+  useWallet,
+} from "../../../hooks";
 
 /** Request airdrop when necessary. */
 export const useAutoAirdrop = () => {
+  const automaticAirdrop = useRenderOnChange(
+    PgSettings.onDidChangeWalletAutomaticAirdrop
+  );
+
   const { connection } = useConnection();
   const { wallet } = useWallet();
 
@@ -17,7 +26,7 @@ export const useAutoAirdrop = () => {
   useEffect(() => {
     const airdrop = async (_balance: typeof balance = balance) => {
       if (
-        !PgSettings.wallet.automaticAirdrop ||
+        !automaticAirdrop ||
         !PgConnection.isReady(connection) ||
         !wallet ||
         airdropping.current ||
@@ -56,5 +65,5 @@ export const useAutoAirdrop = () => {
     };
 
     airdrop();
-  }, [wallet, connection, balance, airdropError]);
+  }, [automaticAirdrop, wallet, connection, balance, airdropError]);
 };
