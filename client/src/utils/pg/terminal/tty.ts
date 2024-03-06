@@ -87,15 +87,13 @@ export class PgTty {
   }
 
   /**
-   * Replace input with the new input given
+   * Replace input with the given input.
    *
    * This function clears all the lines that the current input occupies and
    * then replaces them with the new input.
    */
-  setInput(newInput: string, shouldNotClearInput: boolean = false) {
-    if (!shouldNotClearInput) {
-      this.clearInput();
-    }
+  setInput(newInput: string, noClearInput?: boolean) {
+    if (!noClearInput) this.clearInput();
 
     // Write the new input lines, including the current prompt
     const newPrompt = this._applyPrompts(newInput);
@@ -374,7 +372,7 @@ export class PgTty {
   }
 
   /** Apply prompts to the given input. */
-  private _applyPrompts(input: string): string {
+  private _applyPrompts(input: string) {
     return (
       this._promptPrefix +
       input.replace(/\n/g, "\n" + this._continuationPromptPrefix)
@@ -391,7 +389,7 @@ export class PgTty {
    * Advance the `offset` as required in order to accompany the prompt
    * additions to the input.
    */
-  private _applyPromptOffset(input: string, offset: number): number {
+  private _applyPromptOffset(input: string, offset: number) {
     const newInput = this._applyPrompts(input.substring(0, offset));
     return newInput.length;
   }
@@ -400,7 +398,6 @@ export class PgTty {
   private _writeCursorPosition(newCursor: number) {
     // Apply prompt formatting to get the visual status of the display
     const inputWithPrompt = this._applyPrompts(this._input);
-    // const inputLines = countLines(inputWithPrompt, this._termSize.cols);
 
     // Estimate previous cursor position
     const prevPromptOffset = this._applyPromptOffset(this._input, this._cursor);

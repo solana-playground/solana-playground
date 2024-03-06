@@ -340,18 +340,30 @@ export class PgTerm {
     this._xterm.loadAddon(this._fitAddon);
     this._xterm.loadAddon(this._webLinksAddon);
 
-    // Create  Shell and TTY
+    // Create Shell and TTY
     this._pgTty = new PgTty(this._xterm);
     this._pgShell = new PgShell(this._pgTty, cmdManager);
 
-    // XTerm events
-    this._xterm.onResize(this._handleTermResize);
-    this._xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
-      if (keyEvent.key === " ") {
-        keyEvent.domEvent.preventDefault();
+    // Add a custom resize handler that clears the prompt using the previous
+    // configuration, updates the cached terminal size information and then
+    // re-renders the input. This leads (most of the times) into a better
+    // formatted input.
+    //
+    // Also stops multiline inputs rendering unnecessarily.
+    this._xterm.onResize(({ rows, cols }) => {
+      this._pgTty.clearInput();
+      this._pgTty.setTermSize(cols, rows);
+      this._pgTty.setInput(this._pgTty.getInput(), true);
+    });
+
+    // Add a custom key handler in order to fix a bug with spaces
+    this._xterm.onKey((ev) => {
+      if (ev.key === " ") {
+        ev.domEvent.preventDefault();
         return false;
       }
     });
+
     // Any data event (key, paste...)
     this._xterm.onData(this._pgShell.handleTermData);
 
@@ -692,21 +704,5 @@ export class PgTerm {
     }
 
     return true;
-  };
-
-  /**
-   * Handle terminal resize
-   *
-   * This function clears the prompt using the previous configuration,
-   * updates the cached terminal size information and then re-renders the
-   * input. This leads (most of the times) into a better formatted input.
-   *
-   * Also stops multiline inputs rendering unnecessarily.
-   */
-  private _handleTermResize = (data: { rows: number; cols: number }) => {
-    const { rows, cols } = data;
-    this._pgTty.clearInput();
-    this._pgTty.setTermSize(cols, rows);
-    this._pgTty.setInput(this._pgTty.getInput(), true);
   };
 }
