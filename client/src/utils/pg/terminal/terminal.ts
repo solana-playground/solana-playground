@@ -321,7 +321,6 @@ const _log = console.log;
 export class PgTerm {
   private _xterm: XTerm;
   private _container: HTMLElement | null;
-  private _webLinksAddon: WebLinksAddon;
   private _fitAddon: FitAddon;
   private _pgTty: PgTty;
   private _pgShell: PgShell;
@@ -335,10 +334,9 @@ export class PgTerm {
     this._container = null;
 
     // Load xterm addons
-    this._webLinksAddon = new WebLinksAddon();
     this._fitAddon = new FitAddon();
     this._xterm.loadAddon(this._fitAddon);
-    this._xterm.loadAddon(this._webLinksAddon);
+    this._xterm.loadAddon(new WebLinksAddon());
 
     // Create Shell and TTY
     this._pgTty = new PgTty(this._xterm);
