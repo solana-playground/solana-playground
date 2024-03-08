@@ -4,6 +4,7 @@ import { Rnd } from "react-rnd";
 
 import Balance from "./Balance";
 import Send from "./Send";
+import Settings from "./Settings";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import FadeIn from "../FadeIn";
@@ -12,7 +13,6 @@ import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Close, ShortArrow } from "../Icons";
-import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
 import {
@@ -108,7 +108,7 @@ const WalletTop = () => {
 
   return (
     <WalletTopWrapper>
-      <WalletSettings showRename={showRename} />
+      <Settings showRename={showRename} />
       {rename ? <WalletRename hideRename={hideRename} /> : <WalletName />}
       <WalletClose />
     </WalletTopWrapper>

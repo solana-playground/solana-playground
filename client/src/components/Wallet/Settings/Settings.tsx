@@ -19,11 +19,11 @@ import { Fn, PgCommand, PgView, PgWallet } from "../../../utils/pg";
 import { useAirdrop } from "./useAirdrop";
 import { useCopy } from "../../../hooks";
 
-interface WalletSettingsProps {
+interface SettingsProps {
   showRename: Fn;
 }
 
-export const WalletSettings: FC<WalletSettingsProps> = ({ showRename }) => {
+const Settings: FC<SettingsProps> = ({ showRename }) => {
   const { airdrop, airdropCondition } = useAirdrop();
 
   const darken = useCallback(() => {
@@ -119,3 +119,5 @@ const Wrapper = styled.div`
   position: absolute;
   left: 1rem;
 `;
+
+export default Settings;
