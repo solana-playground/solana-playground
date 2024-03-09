@@ -640,15 +640,15 @@ export class PgTerm {
       returnValue = userInput;
     }
 
-    let visibleText = PgTerminal.success(userInput);
-    if (returnValue === "" || returnValue?.length === 0) {
-      visibleText = PgTerminal.secondaryText("empty");
-    }
+    const visibleText =
+      returnValue?.length === 0
+        ? PgTerminal.secondaryText("empty")
+        : PgTerminal.success(userInput);
 
     this._pgTty.changeLine(
       PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText
     );
-    return returnValue as any;
+    return returnValue;
   }
 
   /**
