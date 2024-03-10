@@ -20,13 +20,13 @@ mod tiny_adventure_two {
     const CHEST_REWARD: u64 = LAMPORTS_PER_SOL / 10; // 0.1 SOL
 
     pub fn initialize_level_one(_ctx: Context<InitializeLevelOne>) -> Result<()> {
-        // Usually in your production code you would not print lots of text because it cost compute units.
+        // Usually in your production code you would not print lots of text because it costs compute units.
         msg!("A Journey Begins!");
         msg!("o.......💎");
         Ok(())
     }
 
-    // this will the player position of the given level back to 0 and fill up the chest with sol
+    // this will set the player position of the given level back to 0 and fill up the chest with sol
     pub fn reset_level_and_spawn_chest(ctx: Context<SpawnChest>) -> Result<()> {
         ctx.accounts.game_data_account.player_position = 0;
 
