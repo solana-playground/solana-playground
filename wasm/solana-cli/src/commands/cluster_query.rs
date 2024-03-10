@@ -138,7 +138,7 @@ impl ClusterQuerySubCommands for Command<'_> {
         //                     .takes_value(true)
         //                     .value_name("BLOCKHASH")
         //                      .validator(is_hash)
-        //                     .help("Query fees for BLOCKHASH instead of the the most recent blockhash")
+        //                     .help("Query fees for BLOCKHASH instead of the most recent blockhash")
         //             ),
         //         )
         .subcommand(

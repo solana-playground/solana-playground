@@ -26,7 +26,7 @@ mod tiny_adventure_two {
         Ok(())
     }
 
-    // this will the the player position of the given level back to 0 and fill up the chest with sol
+    // this will the player position of the given level back to 0 and fill up the chest with sol
     pub fn reset_level_and_spawn_chest(ctx: Context<SpawnChest>) -> Result<()> {
         ctx.accounts.game_data_account.player_position = 0;
 
