@@ -55,7 +55,7 @@ yarn start # start local dev server
 
 ```sh
 rustc --version
-# rustc 1.71.0 (8ede3aae2 2023-07-12)
+# rustc 1.75.0 (82e1608df 2023-12-21)
 
 wasm-pack --version
 # wasm-pack 0.10.3
