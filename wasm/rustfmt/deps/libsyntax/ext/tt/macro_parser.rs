@@ -122,7 +122,7 @@ impl<'a> TokenTreeOrTokenTreeSlice<'a> {
         }
     }
 
-    /// the `index`-th token tree of `self`.
+    /// The `index`-th token tree of `self`.
     fn get_tt(&self, index: usize) -> TokenTree {
         match *self {
             TtSeq(ref v) => v[index].clone(),
@@ -419,7 +419,7 @@ fn token_name_eq(t1: &Token, t2: &Token) -> bool {
 /// Process the matcher positions of `cur_items` until it is empty. In the process, this will
 /// produce more items in `next_items`, `eof_items`, and `bb_items`.
 ///
-/// For more info about the how this happens, see the module-level doc comments and the inline
+/// For more info about how this happens, see the module-level doc comments and the inline
 /// comments of this function.
 ///
 /// # Parameters
