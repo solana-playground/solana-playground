@@ -1,4 +1,4 @@
-import { FC, useCallback } from "react";
+import { FC } from "react";
 import styled from "styled-components";
 
 import Button from "../../Button";
@@ -14,9 +14,9 @@ import {
   ThreeDots,
   Trash,
 } from "../../Icons";
-import { ClassName, Id } from "../../../constants";
 import { Fn, PgCommand, PgView, PgWallet } from "../../../utils/pg";
 import { useAirdrop } from "./useAirdrop";
+import { useDarken } from "../hooks";
 import { useCopy } from "../../../hooks";
 
 interface SettingsProps {
@@ -25,14 +25,7 @@ interface SettingsProps {
 
 const Settings: FC<SettingsProps> = ({ showRename }) => {
   const { airdrop, airdropCondition } = useAirdrop();
-
-  const darken = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
-  }, []);
-
-  const lighten = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
-  }, []);
+  const { darken, lighten } = useDarken();
 
   const [, copyAddress] = useCopy(PgWallet.current?.publicKey.toBase58()!);
 

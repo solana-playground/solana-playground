@@ -17,6 +17,7 @@ import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
 import {
   useAutoAirdrop,
+  useDarken,
   useStandardAccountChange,
   useSyncBalance,
 } from "./hooks";
@@ -124,12 +125,7 @@ const WalletTopWrapper = styled.div`
 const WalletName = () => {
   const { wallet, walletPkStr } = useWallet();
 
-  const darken = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
-  }, []);
-  const lighten = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
-  }, []);
+  const { darken, lighten } = useDarken();
 
   const getAccountDisplayName = useCallback(
     (accountName: string, pkStr: string) => {
