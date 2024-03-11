@@ -89,12 +89,11 @@ impl<'a> Config<'a> {
             }
         }
 
-        return self
-            .default_address(arg_matches, wallet_manager)
+        self.default_address(arg_matches, wallet_manager)
             .unwrap_or_else(|e| {
                 eprintln!("error: {}", e);
                 panic!();
-            });
+            })
     }
 
     // TODO: Implement specifying --owner keypair
