@@ -58,10 +58,8 @@ export class PgShell {
     ];
   }
 
-  /**
-   * @returns terminal history
-   */
-  getHistory() {
+  /** Terminal history */
+  get history() {
     return this._history;
   }
 
@@ -99,7 +97,7 @@ export class PgShell {
       this._active = true;
 
       await this._activePrompt.promise;
-      const input = this._tty.getInput().trim();
+      const input = this._tty.input.trim();
       this._history.push(input);
     } catch (e: any) {
       this._tty.println(e.message);
@@ -118,13 +116,13 @@ export class PgShell {
    */
   printAndRestartPrompt(cb: () => Promise<any> | void) {
     // Complete input
-    this._tty.setCursor(this._tty.getInput().length);
+    this._tty.setCursor(this._tty.input.length);
     this._tty.print("\r\n");
 
     // Prepare a function that will resume prompt
     const resume = () => {
-      this._tty.setCursor(this._tty.getCursor());
-      this._tty.setInput(this._tty.getInput());
+      this._tty.setCursor(this._tty.cursor);
+      this._tty.setInput(this._tty.input);
     };
 
     // Call the given callback to echo something, and if there is a promise
@@ -161,7 +159,7 @@ export class PgShell {
             handleInput
           );
           this._waitingForInput = false;
-          const input = this._tty.getInput();
+          const input = this._tty.input;
           res(input);
         };
 
@@ -179,7 +177,7 @@ export class PgShell {
    * @param clearCmd whether to clean the current line before parsing the command
    */
   async handleReadComplete(clearCmd?: boolean) {
-    const input = this._tty.getInput();
+    const input = this._tty.input;
     if (this._activePrompt && this._activePrompt.resolve) {
       this._activePrompt.resolve(input);
       this._activePrompt = null;
@@ -204,16 +202,16 @@ export class PgShell {
       return;
     }
 
-    if (this._tty.getFirstInit() && this._activePrompt) {
-      const line = this._tty
-        .getBuffer()
-        .getLine(this._tty.getBuffer().cursorY + this._tty.getBuffer().baseY);
+    if (this._tty.firstInit && this._activePrompt) {
+      const line = this._tty.buffer.getLine(
+        this._tty.buffer.cursorY + this._tty.buffer.baseY
+      );
       if (!line) return;
 
       const promptRead = line.translateToString(
         false,
         0,
-        this._tty.getBuffer().cursorX
+        this._tty.buffer.cursorX
       );
       this._activePrompt.promptPrefix = promptRead;
       this._tty.setPromptPrefix(promptRead);
@@ -240,42 +238,39 @@ export class PgShell {
   /** Move cursor at given direction. */
   private _handleCursorMove = (dir: number) => {
     if (dir > 0) {
-      const num = Math.min(
-        dir,
-        this._tty.getInput().length - this._tty.getCursor()
-      );
-      this._tty.setCursorDirectly(this._tty.getCursor() + num);
+      const num = Math.min(dir, this._tty.input.length - this._tty.cursor);
+      this._tty.setCursorDirectly(this._tty.cursor + num);
     } else if (dir < 0) {
-      const num = Math.max(dir, -this._tty.getCursor());
-      this._tty.setCursorDirectly(this._tty.getCursor() + num);
+      const num = Math.max(dir, -this._tty.cursor);
+      this._tty.setCursorDirectly(this._tty.cursor + num);
     }
   };
 
   /** Insert character at cursor location. */
   private _handleCursorInsert = (data: string) => {
     const newInput =
-      this._tty.getInput().substring(0, this._tty.getCursor()) +
+      this._tty.input.substring(0, this._tty.cursor) +
       data +
-      this._tty.getInput().substring(this._tty.getCursor());
-    this._tty.setCursorDirectly(this._tty.getCursor() + data.length);
+      this._tty.input.substring(this._tty.cursor);
+    this._tty.setCursorDirectly(this._tty.cursor + data.length);
     this._tty.setInput(newInput);
   };
 
   /** Erase a character at cursor location. */
   private _handleCursorErase = (backspace: boolean) => {
     if (backspace) {
-      if (this._tty.getCursor() <= 0) return;
+      if (this._tty.cursor <= 0) return;
 
       const newInput =
-        this._tty.getInput().substring(0, this._tty.getCursor() - 1) +
-        this._tty.getInput().substring(this._tty.getCursor());
+        this._tty.input.substring(0, this._tty.cursor - 1) +
+        this._tty.input.substring(this._tty.cursor);
       this._tty.clearInput();
-      this._tty.setCursorDirectly(this._tty.getCursor() - 1);
+      this._tty.setCursorDirectly(this._tty.cursor - 1);
       this._tty.setInput(newInput, true);
     } else {
       const newInput =
-        this._tty.getInput().substring(0, this._tty.getCursor()) +
-        this._tty.getInput().substring(this._tty.getCursor() + 1);
+        this._tty.input.substring(0, this._tty.cursor) +
+        this._tty.input.substring(this._tty.cursor + 1);
       this._tty.setInput(newInput);
     }
   };
@@ -323,7 +318,7 @@ export class PgShell {
           break;
 
         case "[F": // End
-          this._tty.setCursor(this._tty.getInput().length);
+          this._tty.setCursor(this._tty.input.length);
           break;
 
         case "[H": // Home
@@ -332,10 +327,7 @@ export class PgShell {
 
         case "b": {
           // ALT + LEFT
-          const offset = closestLeftBoundary(
-            this._tty.getInput(),
-            this._tty.getCursor()
-          );
+          const offset = closestLeftBoundary(this._tty.input, this._tty.cursor);
           this._tty.setCursor(offset);
           break;
         }
@@ -343,8 +335,8 @@ export class PgShell {
         case "f": {
           // ALT + RIGHT
           const offset = closestRightBoundary(
-            this._tty.getInput(),
-            this._tty.getCursor()
+            this._tty.input,
+            this._tty.cursor
           );
           this._tty.setCursor(offset);
           break;
@@ -352,13 +344,10 @@ export class PgShell {
 
         case "\x7F": {
           // CTRL + BACKSPACE
-          const offset = closestLeftBoundary(
-            this._tty.getInput(),
-            this._tty.getCursor()
-          );
+          const offset = closestLeftBoundary(this._tty.input, this._tty.cursor);
           this._tty.setInput(
-            this._tty.getInput().substring(0, offset) +
-              this._tty.getInput().substring(this._tty.getCursor())
+            this._tty.input.substring(0, offset) +
+              this._tty.input.substring(this._tty.cursor)
           );
           this._tty.setCursor(offset);
 
@@ -370,7 +359,7 @@ export class PgShell {
     else if (ord < 32 || ord === 0x7f) {
       switch (data) {
         case "\r": // ENTER
-          if (isIncompleteInput(this._tty.getInput())) {
+          if (isIncompleteInput(this._tty.input)) {
             this._handleCursorInsert("\n");
           } else {
             this.handleReadComplete();
@@ -385,9 +374,10 @@ export class PgShell {
 
         case "\t": // TAB
           if (this._autocompleteHandlers.length > 0) {
-            const inputFragment = this._tty
-              .getInput()
-              .substring(0, this._tty.getCursor());
+            const inputFragment = this._tty.input.substring(
+              0,
+              this._tty.cursor
+            );
             const hasTrailingSpace = hasTrailingWhitespace(inputFragment);
             const candidates = collectAutocompleteCandidates(
               this._autocompleteHandlers,
@@ -423,7 +413,7 @@ export class PgShell {
 
               // If the input is already the common candidate, print all
               // candidates to the user and re-start prompt
-              if (this._tty.getInput() === commonCandidate) {
+              if (this._tty.input === commonCandidate) {
                 this.printAndRestartPrompt(() => {
                   this._tty.printWide(candidates);
                 });
@@ -464,7 +454,7 @@ export class PgShell {
         // case "\x03": // CTRL+C
 
         case "\x05": // CTRL+E
-          this._tty.setCursor(this._tty.getInput().length);
+          this._tty.setCursor(this._tty.input.length);
           break;
 
         case "\x06": // CTRL+F
@@ -477,10 +467,8 @@ export class PgShell {
           break;
 
         case "\x0b": // CTRL+K
-          this._tty.setInput(
-            this._tty.getInput().substring(0, this._tty.getCursor())
-          );
-          this._tty.setCursor(this._tty.getInput().length);
+          this._tty.setInput(this._tty.input.substring(0, this._tty.cursor));
+          this._tty.setCursor(this._tty.input.length);
           break;
 
         case "\x0e": {
@@ -502,9 +490,7 @@ export class PgShell {
         }
 
         case "\x15": // CTRL+U
-          this._tty.setInput(
-            this._tty.getInput().substring(this._tty.getCursor())
-          );
+          this._tty.setInput(this._tty.input.substring(this._tty.cursor));
           this._tty.setCursor(0);
           break;
       }

@@ -29,28 +29,28 @@ export class PgTty {
     };
   }
 
-  /** Get whether it is the initial read. */
-  getFirstInit() {
+  /** Whether it is the initial read */
+  get firstInit() {
     return this._firstInit;
   }
 
-  /** Get the current input in the line. */
-  getInput() {
+  /** Current input in the terminal */
+  get input() {
     return this._input;
   }
 
-  /** Get the current cursor position. */
-  getCursor() {
+  /** Current cursor position */
+  get cursor() {
     return this._cursor;
   }
 
-  /** Get the TTY size (columns and rows). */
-  getSize() {
+  /** TTY size (columns and rows) */
+  get size() {
     return this._termSize;
   }
 
-  /** Get the active terminal buffer. */
-  getBuffer() {
+  /** Active terminal buffer */
+  get buffer() {
     return this._xterm.buffer.active;
   }
 
@@ -381,7 +381,7 @@ export class PgTty {
 
   /** Get the current line. */
   private _getCurrentLine(offset: number = 0) {
-    const buffer = this.getBuffer();
+    const buffer = this.buffer;
     return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
   }
 

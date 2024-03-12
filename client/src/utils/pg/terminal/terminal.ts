@@ -351,7 +351,7 @@ export class PgTerm {
     this._xterm.onResize(({ rows, cols }) => {
       this._pgTty.clearInput();
       this._pgTty.setTermSize(cols, rows);
-      this._pgTty.setInput(this._pgTty.getInput(), true);
+      this._pgTty.setInput(this._pgTty.input, true);
     });
 
     // Add a custom key handler in order to fix a bug with spaces
@@ -404,8 +404,8 @@ export class PgTerm {
     }
 
     // We don't need `cursorX`, since we want to start at the beginning of the terminal
-    const cursorY = this._pgTty.getBuffer().cursorY;
-    const size = this._pgTty.getSize();
+    const cursorY = this._pgTty.buffer.cursorY;
+    const size = this._pgTty.size;
 
     const containerBoundingClientRect = this._container.getBoundingClientRect();
 
@@ -465,7 +465,7 @@ export class PgTerm {
     if (opts?.full) {
       this._pgTty.clear();
     } else {
-      this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.getInput()}`);
+      this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.input}`);
     }
   }
 
@@ -504,9 +504,9 @@ export class PgTerm {
    */
   runLastCmd() {
     // Last command is the current input
-    let lastCmd = this._pgTty.getInput();
+    let lastCmd = this._pgTty.input;
     if (!lastCmd || lastCmd === "!!") {
-      const maybeLastCmd = this._pgShell.getHistory().getPrevious();
+      const maybeLastCmd = this._pgShell.history.getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
