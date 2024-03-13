@@ -390,7 +390,10 @@ export class BpfLoaderUpgradeable {
   static BUFFER_PROGRAM_DATA_HEADER_SIZE: number = 45; // usize + Option<Pk>
 
   /** Maximal chunk of the data per tx */
-  static WRITE_CHUNK_SIZE: number = PACKET_DATA_SIZE - 220; // Data with 1 signature
+  static WRITE_CHUNK_SIZE: number =
+    PACKET_DATA_SIZE - // Maximum transaction size
+    220 - // Data with 1 signature
+    44; // Priority fee instruction size
 
   /** Get buffer account size. */
   static getBufferAccountSize(programLen: number) {

@@ -1,4 +1,10 @@
-import { Commitment, Connection, Signer, Transaction } from "@solana/web3.js";
+import {
+  Commitment,
+  ComputeBudgetProgram,
+  Connection,
+  Signer,
+  Transaction,
+} from "@solana/web3.js";
 
 import { ExplorerLink } from "./ExplorerLink";
 import { PgCommon } from "../common";
@@ -8,12 +14,24 @@ import { PgView } from "../view";
 import { ConnectionOption, PgConnection } from "../connection";
 import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
 
-interface BlockhashInfo {
-  /** Latest blockhash */
-  blockhash: string;
+type WithTimeStamp<T> = T & {
   /** UNIX timestamp of when the blockhash was last cached */
   timestamp: number;
-}
+};
+
+type BlockhashInfo = WithTimeStamp<{
+  /** Latest blockhash */
+  blockhash: string;
+}>;
+
+type PriorityFeeInfo = WithTimeStamp<{
+  /** Average priority fee paid in the latest slots */
+  avg: number;
+  /** Minimum priority fee paid in the latest slots */
+  min: number;
+  /** Maximum priority fee paid in the latest slots */
+  max: number;
+}>;
 
 export class PgTx {
   /**
@@ -37,6 +55,23 @@ export class PgTx {
     if (!wallet) throw new Error("Wallet not connected");
 
     const connection = opts?.connection ?? PgConnection.current;
+
+    // Set priority fees if the transaction doesn't already have it
+    const existingsetComputeUnitPriceIx = tx.instructions.find(
+      (ix) =>
+        ix.programId.equals(ComputeBudgetProgram.programId) &&
+        ix.data.at(0) === 3 // setComputeUnitPrice
+    );
+    if (!existingsetComputeUnitPriceIx) {
+      const priorityFeeInfo = await this._getPriorityFee(connection);
+      const priorityFee = priorityFeeInfo[PgSettings.connection.priorityFee];
+      if (priorityFee) {
+        const setComputeUnitPriceIx = ComputeBudgetProgram.setComputeUnitPrice({
+          microLamports: priorityFee,
+        });
+        tx.instructions = [setComputeUnitPriceIx, ...tx.instructions];
+      }
+    }
 
     tx.recentBlockhash = await this._getLatestBlockhash(
       connection,
@@ -124,32 +159,66 @@ export class PgTx {
   /** Cached blockhash to reduce the amount of requests to the RPC endpoint */
   private static _cachedBlockhashInfo: BlockhashInfo | null = null;
 
+  /** Cached priority fee to reduce the amount of requests to the RPC endpoint */
+  private static _cachedPriorityFee: PriorityFeeInfo | null = null;
+
   /**
    * Get the latest blockhash from the cache or fetch the latest if the cached
-   * blockhash has expired
+   * blockhash has expired.
    *
-   * @param conn Connection object to use
+   * @param conn `Connection` object to use
    * @param force whether to force fetch the latest blockhash
    *
    * @returns the latest blockhash
    */
   private static async _getLatestBlockhash(conn: Connection, force?: boolean) {
     // Check whether the latest saved blockhash is still valid
-    const currentTs = PgCommon.getUnixTimstamp();
+    const timestamp = PgCommon.getUnixTimstamp();
 
     // Blockhashes are valid for 150 slots, optimal block time is ~400ms
     // For finalized: (150 - 32) * 0.4 = 47.2s ~= 45s (to be safe)
     if (
       force ||
       !this._cachedBlockhashInfo ||
-      currentTs > this._cachedBlockhashInfo.timestamp + 45
+      timestamp > this._cachedBlockhashInfo.timestamp + 45
     ) {
       this._cachedBlockhashInfo = {
         blockhash: (await conn.getLatestBlockhash()).blockhash,
-        timestamp: currentTs,
+        timestamp,
       };
     }
 
     return this._cachedBlockhashInfo.blockhash;
+  }
+
+  /**
+   * Get the priority fee information from the cache or fetch the latest if the
+   * cache has expired.
+   *
+   * @param conn `Connection` object to use
+   * @returns the priority fee information
+   */
+  private static async _getPriorityFee(conn: Connection) {
+    // Check whether the priority fee info has expired
+    const timestamp = PgCommon.getUnixTimstamp();
+
+    // There is not a perfect way to estimate for how long the priority fee will
+    // be valid since it's a guess about the future based on the past data
+    if (
+      !this._cachedPriorityFee ||
+      timestamp > this._cachedPriorityFee.timestamp + 60
+    ) {
+      const result = await conn.getRecentPrioritizationFees();
+      const fees = result.map((fee) => fee.prioritizationFee);
+
+      this._cachedPriorityFee = {
+        min: Math.min(...fees),
+        max: Math.max(...fees),
+        avg: Math.ceil(fees.reduce((acc, cur) => acc + cur) / fees.length),
+        timestamp,
+      };
+    }
+
+    return this._cachedPriorityFee;
   }
 }
