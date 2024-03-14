@@ -14,8 +14,8 @@ interface Settings {
     commitment: "processed" | "confirmed" | "finalized";
     /** Whether to enable preflight checks */
     preflightChecks: boolean;
-    /** Priority fee calculcation method */
-    priorityFee: "average" | "median" | "min" | "max";
+    /** Priority fee calculcation method, or `number` for custom */
+    priorityFee: "average" | "median" | "min" | "max" | number;
   };
   /** Build settings */
   // TODO: Re-evalute whether build settings should be stored in `PgProgramInfo`

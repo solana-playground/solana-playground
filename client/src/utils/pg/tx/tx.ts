@@ -15,7 +15,7 @@ import { ConnectionOption, PgConnection } from "../connection";
 import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
 
 type WithTimeStamp<T> = T & {
-  /** UNIX timestamp of when the blockhash was last cached */
+  /** UNIX timestamp of the last cache */
   timestamp: number;
 };
 
@@ -66,10 +66,14 @@ export class PgTx {
     );
     if (!existingsetComputeUnitPriceIx) {
       const priorityFeeInfo = await this._getPriorityFee(connection);
-      const priorityFee = priorityFeeInfo[PgSettings.connection.priorityFee];
+      const priorityFeeSetting = PgSettings.connection.priorityFee;
+      const priorityFee =
+        typeof priorityFeeSetting === "number"
+          ? priorityFeeSetting
+          : priorityFeeInfo[priorityFeeSetting];
       if (priorityFee) {
         const setComputeUnitPriceIx = ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: priorityFee + 1,
+          microLamports: priorityFee,
         });
         tx.instructions = [setComputeUnitPriceIx, ...tx.instructions];
       }
