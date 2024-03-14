@@ -26,7 +26,9 @@ type BlockhashInfo = WithTimeStamp<{
 
 type PriorityFeeInfo = WithTimeStamp<{
   /** Average priority fee paid in the latest slots */
-  avg: number;
+  average: number;
+  /** Median priority fee paid in the latest slots */
+  median: number;
   /** Minimum priority fee paid in the latest slots */
   min: number;
   /** Maximum priority fee paid in the latest slots */
@@ -67,7 +69,7 @@ export class PgTx {
       const priorityFee = priorityFeeInfo[PgSettings.connection.priorityFee];
       if (priorityFee) {
         const setComputeUnitPriceIx = ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: priorityFee,
+          microLamports: priorityFee + 1,
         });
         tx.instructions = [setComputeUnitPriceIx, ...tx.instructions];
       }
@@ -214,7 +216,8 @@ export class PgTx {
       this._cachedPriorityFee = {
         min: Math.min(...fees),
         max: Math.max(...fees),
-        avg: Math.ceil(fees.reduce((acc, cur) => acc + cur) / fees.length),
+        average: Math.ceil(fees.reduce((acc, cur) => acc + cur) / fees.length),
+        median: fees[Math.floor(fees.length / 2)],
         timestamp,
       };
     }

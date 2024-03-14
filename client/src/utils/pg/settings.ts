@@ -15,7 +15,7 @@ interface Settings {
     /** Whether to enable preflight checks */
     preflightChecks: boolean;
     /** Priority fee calculcation method */
-    priorityFee: "avg" | "min" | "max";
+    priorityFee: "average" | "median" | "min" | "max";
   };
   /** Build settings */
   // TODO: Re-evalute whether build settings should be stored in `PgProgramInfo`
@@ -54,7 +54,7 @@ const defaultState: Settings = {
     endpoint: Endpoint.DEVNET,
     commitment: "confirmed",
     preflightChecks: true,
-    priorityFee: "avg",
+    priorityFee: "median",
   },
   build: {
     flags: {

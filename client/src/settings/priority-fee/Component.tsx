@@ -5,7 +5,11 @@ import { PgSettings } from "../../utils/pg";
 
 const PriorityFee = () => {
   const options = useMemo(
-    () => (["avg", "min", "max"] as const).map((c) => ({ value: c, label: c })),
+    () =>
+      (["average", "median", "min", "max"] as const).map((c) => ({
+        value: c,
+        label: c,
+      })),
     []
   );
 
