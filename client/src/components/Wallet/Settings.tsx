@@ -1,9 +1,9 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import Button from "../../Button";
-import Img from "../../Img";
-import Menu, { MenuItemProps } from "../../Menu";
+import Button from "../Button";
+import Img from "../Img";
+import Menu, { MenuItemProps } from "../Menu";
 import {
   Airdrop,
   Copy,
@@ -13,11 +13,10 @@ import {
   Plus,
   ThreeDots,
   Trash,
-} from "../../Icons";
-import { Fn, PgCommand, PgView, PgWallet } from "../../../utils/pg";
-import { useAirdrop } from "./useAirdrop";
-import { useDarken } from "../hooks";
-import { useCopy } from "../../../hooks";
+} from "../Icons";
+import { Fn, PgCommand, PgView, PgWallet } from "../../utils/pg";
+import { useAirdrop, useDarken } from "./hooks";
+import { useCopy } from "../../hooks";
 
 interface SettingsProps {
   showRename: Fn;
@@ -46,7 +45,7 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
     {
       name: "Add",
       onClick: async () => {
-        const { Add } = await import("../Modals/Add");
+        const { Add } = await import("./Modals/Add");
         await PgView.setModal(Add);
       },
       icon: <Plus />,
@@ -60,7 +59,7 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
     {
       name: "Remove",
       onClick: async () => {
-        const { Remove } = await import("../Modals/Remove");
+        const { Remove } = await import("./Modals/Remove");
         await PgView.setModal(Remove);
       },
       hoverColor: "error",
@@ -85,9 +84,7 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
       name: wallet.adapter.connected
         ? `Disconnect from ${wallet.adapter.name}`
         : `Connect to ${wallet.adapter.name}`,
-      onClick: async () => {
-        await PgCommand.connect.run(wallet.adapter.name);
-      },
+      onClick: () => PgCommand.connect.run(wallet.adapter.name),
       hoverColor: "secondary",
       icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
     })
