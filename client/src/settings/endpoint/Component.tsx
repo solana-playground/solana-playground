@@ -52,11 +52,11 @@ const EndpointSetting = () => {
 };
 
 const CustomEndpoint = () => {
-  const [customEndpoint, setCustomEndpoint] = useState("");
+  const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setCustomEndpoint(ev.target.value);
+    setValue(ev.target.value);
     setError("");
   };
 
@@ -66,8 +66,8 @@ const CustomEndpoint = () => {
       closeButton
       buttonProps={{
         text: "Add",
-        onSubmit: () => PgCommand.solana.run(`config set -u ${customEndpoint}`),
-        disabled: error === "",
+        onSubmit: () => PgCommand.solana.run(`config set -u ${value}`),
+        disabled: !value,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
       }}
@@ -79,7 +79,7 @@ const CustomEndpoint = () => {
         <Input
           autoFocus
           placeholder="https://..."
-          value={customEndpoint}
+          value={value}
           onChange={handleChange}
           error={error}
           setError={setError}
