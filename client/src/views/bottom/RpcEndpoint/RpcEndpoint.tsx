@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Tooltip from "../../../components/Tooltip";
-import { NETWORKS } from "../../../constants";
+import { NETWORKS, NetworkName } from "../../../constants";
 import { useConnection, useWallet } from "../../../hooks";
 import { PgTheme } from "../../../utils/pg";
 
@@ -23,7 +23,7 @@ export const RpcEndpoint = () => {
     <>
       <Dash>-</Dash>
       <Tooltip element={`RPC endpoint (${connection.rpcEndpoint})`}>
-        <NetworkName>{networkName}</NetworkName>
+        <NetworkNameText>{networkName}</NetworkNameText>
       </Tooltip>
     </>
   );
@@ -33,7 +33,7 @@ const Dash = styled.span`
   margin-right: 0.75rem;
 `;
 
-const NetworkName = styled.span`
+const NetworkNameText = styled.span`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.components.bottom.endpoint)};
   `}

@@ -26,8 +26,9 @@ const EndpointSetting = () => {
   useEffect(() => {
     const { dispose } = PgSettings.onDidChangeConnectionEndpoint((endpoint) => {
       setValue(
-        options.find((o) => o.value === endpoint) ??
-          options.find((o) => o.label === NetworkName.CUSTOM)
+        options.find(
+          (o) => o.value === endpoint || o.label === NetworkName.CUSTOM
+        )
       );
     });
     return () => dispose();
