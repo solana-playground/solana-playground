@@ -215,7 +215,7 @@ export class PgTx {
       timestamp > this._cachedPriorityFee.timestamp + 60
     ) {
       const result = await conn.getRecentPrioritizationFees();
-      const fees = result.map((fee) => fee.prioritizationFee);
+      const fees = result.map((fee) => fee.prioritizationFee).sort();
 
       this._cachedPriorityFee = {
         min: Math.min(...fees),
