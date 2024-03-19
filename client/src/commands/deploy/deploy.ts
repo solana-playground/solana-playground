@@ -191,8 +191,8 @@ const processDeploy = async () => {
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       if (i !== 0) {
-        const bufferInit = await connection.getAccountInfo(bufferKp.publicKey);
-        if (bufferInit) break;
+        const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+        if (bufferAcc) break;
       }
 
       await BpfLoaderUpgradeable.createBuffer(
@@ -296,11 +296,6 @@ Reason: ${e.message}`
           programLen * 2,
           { wallet }
         );
-
-        console.log("Deploy Program Tx Hash:", txHash);
-
-        const result = await PgTx.confirm(txHash, connection);
-        if (!result?.err) break;
       } else {
         // Upgrade
         txHash = await BpfLoaderUpgradeable.upgradeProgram(
@@ -309,19 +304,26 @@ Reason: ${e.message}`
           wallet.publicKey,
           { wallet }
         );
+      }
 
-        console.log("Upgrade Program Tx Hash:", txHash);
+      console.log("Deploy/upgrade tx hash:", txHash);
 
-        const result = await PgTx.confirm(txHash, connection);
-        if (!result?.err) break;
+      const result = await PgTx.confirm(txHash);
+      if (!result?.err) {
+        // Also check whether the buffer account was because `PgTx.confirm` can
+        // be unreliable
+        const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+        if (!bufferAcc) break;
       }
     } catch (e: any) {
-      console.log(e.message);
+      console.log("Deploy/upgrade error:", e.message);
+
       if (e.message.endsWith("0x0")) {
         await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
 
         throw new Error("Incorrect program id.");
-      } else if (e.message.endsWith("0x1")) {
+      }
+      if (e.message.endsWith("0x1")) {
         // Not enough balance
         await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
 
@@ -332,6 +334,16 @@ Reason: ${e.message}`
 
       await PgCommon.sleep(sleepAmount);
       sleepAmount *= SLEEP_MULTIPLIER;
+    }
+
+    if (i === MAX_RETRIES - 1) {
+      await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+
+      throw new Error(
+        `Failed to deploy with ${PgTerminal.bold(
+          MAX_RETRIES.toString()
+        )} retries.`
+      );
     }
   }
 
