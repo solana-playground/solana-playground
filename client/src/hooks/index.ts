@@ -5,8 +5,6 @@ export { useCopy } from "./useCopy";
 export { useDifferentBackground } from "./useDifferentBackground";
 export { useDisposable } from "./useDisposable";
 export { useExplorer } from "./useExplorer";
-export { useExposeMethodsAsStatic } from "./useExposeMethodsAsStatic";
-export { useExposeGetClassAsStatic } from "./useExposeGetClassAsStatic";
 export { useExposeStatic } from "./useExposeStatic";
 export { useFilteredSearch } from "./useFilteredSearch";
 export { useGetAndSetStatic } from "./useGetAndSetStatic";
