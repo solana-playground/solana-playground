@@ -107,7 +107,10 @@ export class PgTx {
         skipPreflight: !PgSettings.connection.preflightChecks,
       });
     } catch (e: any) {
-      if (e.message.includes("This transaction has already been processed")) {
+      if (
+        e.message.includes("This transaction has already been processed") ||
+        e.message.includes("Blockhash not found")
+      ) {
         // Reset signatures
         tx.signatures = [];
         return await this.send(tx, {
