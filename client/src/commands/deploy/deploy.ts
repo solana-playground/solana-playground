@@ -218,7 +218,10 @@ Reason: ${e.message}`
     }
   }
 
-  console.log("Buffer pk: " + bufferKp.publicKey.toBase58());
+  console.log("Buffer pk:", bufferKp.publicKey.toBase58());
+  const closeBuffer = async () => {
+    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+  };
 
   // Load buffer
   const loadBufferResult = await loadBufferWithControl(
@@ -240,13 +243,7 @@ Reason: ${e.message}`
       },
     }
   );
-  if (loadBufferResult.cancelled) {
-    return {
-      closeBuffer: async () => {
-        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
-      },
-    };
-  }
+  if (loadBufferResult.cancelled) return { closeBuffer };
 
   let txHash: string | undefined;
   let errorMsg =
@@ -319,13 +316,13 @@ Reason: ${e.message}`
       console.log("Deploy/upgrade error:", e.message);
 
       if (e.message.endsWith("0x0")) {
-        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+        await closeBuffer();
 
         throw new Error("Incorrect program id.");
       }
       if (e.message.endsWith("0x1")) {
         // Not enough balance
-        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+        await closeBuffer();
 
         throw new Error(
           "Make sure you have enough SOL to complete the deployment."
@@ -337,7 +334,7 @@ Reason: ${e.message}`
     }
 
     if (i === MAX_RETRIES - 1) {
-      await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+      await closeBuffer();
 
       throw new Error(
         `Failed to deploy with ${PgTerminal.bold(
@@ -349,7 +346,7 @@ Reason: ${e.message}`
 
   // Most likely the user doesn't have the upgrade authority
   if (!txHash) {
-    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+    await closeBuffer();
 
     throw new Error(errorMsg);
   }
