@@ -494,10 +494,7 @@ export class PgCommon {
 
     if (endpoint === Endpoint.LOCALHOST) {
       cluster = "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
-    } else if (
-      endpoint === Endpoint.DEVNET ||
-      endpoint === Endpoint.DEVNET_GENESYSGO
-    ) {
+    } else if (endpoint === Endpoint.DEVNET) {
       cluster = "?cluster=devnet";
     } else if (endpoint === Endpoint.TESTNET) {
       cluster = "?cluster=testnet";
