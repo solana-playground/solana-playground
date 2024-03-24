@@ -107,6 +107,15 @@ export class PgView {
   }
 
   /**
+   * Close either the given toast or, all toasts if `id` is not given.
+   *
+   * @param id toast id
+   */
+  static closeToast(id?: number) {
+    return PgCommon.createAndDispatchCustomEvent(EventName.TOAST_CLOSE, id);
+  }
+
+  /**
    * Set the new item portal container.
    *
    * New item input will be shown if an element is given.

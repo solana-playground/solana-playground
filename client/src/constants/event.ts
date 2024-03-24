@@ -24,6 +24,7 @@ export enum EventName {
 
   // Toast
   TOAST_SET = "toastset",
+  TOAST_CLOSE = "toastclose",
 
   // View
   VIEW_MAIN_STATIC = "viewmainstatic",
