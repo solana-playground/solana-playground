@@ -1,34 +1,48 @@
+import { FC, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
 import { Endpoint } from "../../../../../constants";
-import { PgCommand } from "../../../../../utils/pg";
+import { PgCommand, PgConnection, PgView } from "../../../../../utils/pg";
+import type { ToastChildProps } from "../../../../../components/Toast";
 
-export const NonLocal = () => (
-  <Wrapper>
-    <HelpTextWrapper>
-      <HelpTextTitle>Switch to localnet?</HelpTextTitle>
-      <HelpTextDescription>
-        Current endpoint is not responsive.
-      </HelpTextDescription>
-    </HelpTextWrapper>
+export const NonLocal: FC<ToastChildProps> = ({ id }) => {
+  // Close the toast if the user changes the cluster
+  useEffect(() => {
+    let isInitial = true;
+    const { dispose } = PgConnection.onDidChangeCluster(() => {
+      if (!isInitial) PgView.closeToast(id);
+      isInitial = false;
+    });
+    return () => dispose();
+  }, [id]);
 
-    <ButtonsWrapper>
-      <Button
-        onClick={() => {
-          return PgCommand.solana.run(`config set -u ${Endpoint.LOCALHOST}`);
-        }}
-        kind="secondary-transparent"
-        size="small"
-      >
-        Yes
-      </Button>
-      <Button kind="no-border" size="small">
-        No
-      </Button>
-    </ButtonsWrapper>
-  </Wrapper>
-);
+  return (
+    <Wrapper>
+      <HelpTextWrapper>
+        <HelpTextTitle>Switch to localnet?</HelpTextTitle>
+        <HelpTextDescription>
+          Current endpoint is not responsive.
+        </HelpTextDescription>
+      </HelpTextWrapper>
+
+      <ButtonsWrapper>
+        <Button
+          onClick={() => {
+            return PgCommand.solana.run(`config set -u ${Endpoint.LOCALHOST}`);
+          }}
+          kind="secondary-transparent"
+          size="small"
+        >
+          Yes
+        </Button>
+        <Button kind="no-border" size="small">
+          No
+        </Button>
+      </ButtonsWrapper>
+    </Wrapper>
+  );
+};
 
 const Wrapper = styled.div``;
 
