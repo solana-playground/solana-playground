@@ -3,7 +3,6 @@ export enum NetworkName {
   PLAYNET = "playnet",
   LOCALHOST = "localhost",
   DEVNET = "devnet",
-  DEVNET_ALCHEMY = "devnet-alchemy",
   TESTNET = "testnet",
   MAINNET_BETA = "mainnet-beta",
   CUSTOM = "custom",
@@ -14,7 +13,6 @@ export enum Endpoint {
   PLAYNET = "http://playnet",
   LOCALHOST = "http://localhost:8899",
   DEVNET = "https://api.devnet.solana.com",
-  DEVNET_ALCHEMY = "https://solana-devnet.g.alchemy.com/v2/demo",
   TESTNET = "https://api.testnet.solana.com",
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
   CUSTOM = "CUSTOM",
@@ -38,10 +36,6 @@ export const NETWORKS: Network[] = [
   {
     name: NetworkName.DEVNET,
     endpoint: Endpoint.DEVNET,
-  },
-  {
-    name: NetworkName.DEVNET_ALCHEMY,
-    endpoint: Endpoint.DEVNET_ALCHEMY,
   },
   {
     name: NetworkName.TESTNET,
