@@ -10,9 +10,12 @@ export const NonLocal: FC<ToastChildProps> = ({ id }) => {
   // Close the toast if the user changes the cluster
   useEffect(() => {
     let isInitial = true;
-    const { dispose } = PgConnection.onDidChangeCluster(() => {
-      if (!isInitial) PgView.closeToast(id);
+    let prevCluster = PgConnection.cluster;
+    const { dispose } = PgConnection.onDidChangeCluster((cluster) => {
+      // Only close the toast if it's not initial and it's a different cluster
+      if (!isInitial && prevCluster !== cluster) PgView.closeToast(id);
       isInitial = false;
+      prevCluster = cluster;
     });
     return () => dispose();
   }, [id]);
