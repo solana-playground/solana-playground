@@ -6,7 +6,7 @@ import Button from "../Button";
 import Link from "../Link";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import { PgBlockExplorer, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
 import { useConnection } from "../../hooks";
 
 const Transactions = () => {
@@ -172,7 +172,7 @@ const Tx: FC<ConfirmedSignatureInfo & { endpoint: string }> = ({
   const now = new Date().getTime() / 1000;
   const timePassed = blockTime ? PgCommon.secondsToTime(now - blockTime) : null;
 
-  const { explorer, solscan } = PgCommon.getExplorerTxUrls(signature, endpoint);
+  const { explorer, solscan } = PgBlockExplorer.getTxUrl(signature, endpoint);
 
   return (
     <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>

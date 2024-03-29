@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 
 import { getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgBlockExplorer, PgTerminal } from "../../../../utils/pg";
 
 export const processMint = async (
   rpcUrl: string | undefined,
@@ -99,7 +99,7 @@ export const processMint = async (
                     ? "NFT"
                     : `${nft.name}`
                 }: ${PgTerminal.underline(
-                  PgCommon.getExplorerTokenUrl(
+                  PgBlockExplorer.getTokenUrl(
                     nft.address.toBase58(),
                     metaplex.connection.rpcEndpoint
                   ).explorer

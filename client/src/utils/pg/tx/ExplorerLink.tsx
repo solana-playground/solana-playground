@@ -2,7 +2,7 @@ import { FC } from "react";
 import styled from "styled-components";
 
 import Link from "../../../components/Link";
-import { PgCommon } from "../common";
+import { PgBlockExplorer } from "../block-explorer";
 import { PgSettings } from "../settings";
 
 interface ExplorerLinkProps {
@@ -10,7 +10,7 @@ interface ExplorerLinkProps {
 }
 
 export const ExplorerLink: FC<ExplorerLinkProps> = ({ txHash }) => {
-  const { explorer, solscan } = PgCommon.getExplorerTxUrls(
+  const { explorer, solscan } = PgBlockExplorer.getTxUrl(
     txHash,
     PgSettings.connection.endpoint
   );

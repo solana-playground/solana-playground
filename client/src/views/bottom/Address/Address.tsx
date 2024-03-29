@@ -5,14 +5,14 @@ import Link from "../../../components/Link";
 import Tooltip from "../../../components/Tooltip";
 import { EXPLORER_URL } from "../../../constants";
 import { useConnection, useWallet } from "../../../hooks";
-import { PgCommon, PgTheme } from "../../../utils/pg";
+import { PgBlockExplorer, PgTheme } from "../../../utils/pg";
 
 export const Address = () => {
   const { connection } = useConnection();
   const { walletPkStr } = useWallet();
 
   const cluster = useMemo(() => {
-    return PgCommon.getExplorerClusterParam(connection.rpcEndpoint);
+    return PgBlockExplorer.getClusterParam(connection.rpcEndpoint);
   }, [connection.rpcEndpoint]);
 
   if (!walletPkStr) return null;
