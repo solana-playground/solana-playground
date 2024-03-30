@@ -1,19 +1,13 @@
-import { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Link from "../../../components/Link";
 import Tooltip from "../../../components/Tooltip";
-import { EXPLORER_URL } from "../../../constants";
-import { useConnection, useWallet } from "../../../hooks";
-import { PgBlockExplorer, PgTheme } from "../../../utils/pg";
+import { useBlockExplorer, useWallet } from "../../../hooks";
+import { PgTheme } from "../../../utils/pg";
 
 export const Address = () => {
-  const { connection } = useConnection();
+  const blockExplorer = useBlockExplorer();
   const { walletPkStr } = useWallet();
-
-  const cluster = useMemo(() => {
-    return PgBlockExplorer.getClusterParam(connection.rpcEndpoint);
-  }, [connection.rpcEndpoint]);
 
   if (!walletPkStr) return null;
 
@@ -22,7 +16,7 @@ export const Address = () => {
       <Seperator>|</Seperator>
 
       <Tooltip element="Your address">
-        <AddressLink href={`${EXPLORER_URL}/address/${walletPkStr}${cluster}`}>
+        <AddressLink href={blockExplorer.getAddressUrl(walletPkStr)}>
           {walletPkStr}
         </AddressLink>
       </Tooltip>

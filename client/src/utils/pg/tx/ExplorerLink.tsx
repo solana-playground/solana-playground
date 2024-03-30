@@ -2,23 +2,18 @@ import { FC } from "react";
 import styled from "styled-components";
 
 import Link from "../../../components/Link";
-import { PgBlockExplorer } from "../block-explorer";
-import { PgSettings } from "../settings";
+import { useBlockExplorer } from "../../../hooks";
 
 interface ExplorerLinkProps {
   txHash: string;
 }
 
 export const ExplorerLink: FC<ExplorerLinkProps> = ({ txHash }) => {
-  const { explorer, solscan } = PgBlockExplorer.getTxUrl(
-    txHash,
-    PgSettings.connection.endpoint
-  );
+  const blockExplorer = useBlockExplorer();
 
   return (
     <Wrapper>
-      <Link href={explorer}>Solana Explorer</Link>
-      {solscan && <Link href={solscan}>Solscan</Link>}
+      <Link href={blockExplorer.getTxUrl(txHash)}>{blockExplorer.name}</Link>
     </Wrapper>
   );
 };

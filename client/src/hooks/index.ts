@@ -1,5 +1,6 @@
 export { useAsyncEffect } from "./useAsyncEffect";
 export { useBalance } from "./useBalance";
+export { useBlockExplorer } from "./useBlockExplorer";
 export { useConnection } from "./useConnection";
 export { useCopy } from "./useCopy";
 export { useDifferentBackground } from "./useDifferentBackground";

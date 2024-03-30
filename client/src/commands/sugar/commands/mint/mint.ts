@@ -99,10 +99,9 @@ export const processMint = async (
                     ? "NFT"
                     : `${nft.name}`
                 }: ${PgTerminal.underline(
-                  PgBlockExplorer.getTokenUrl(
-                    nft.address.toBase58(),
-                    metaplex.connection.rpcEndpoint
-                  ).explorer
+                  // The explorer URL will be based on the current cluster
+                  // rather than the cluster of the custom URL argument
+                  PgBlockExplorer.get().getTokenUrl(nft.address.toBase58())
                 )} `
               )
             );

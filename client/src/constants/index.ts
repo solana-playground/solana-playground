@@ -1,4 +1,3 @@
-export * from "./common";
 export * from "./connection";
 export * from "./dom";
 export * from "./emoji";

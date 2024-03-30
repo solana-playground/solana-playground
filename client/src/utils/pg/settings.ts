@@ -42,6 +42,11 @@ interface Settings {
     /** Whether to show transaction toast notification */
     showTx: boolean;
   };
+  /** Other settings */
+  other: {
+    /** Default block explorer */
+    blockExplorer: "Solana Explorer" | "Solscan";
+  };
   /** Wallet settings */
   wallet: {
     /** Whether to airdrop automatically */
@@ -69,6 +74,9 @@ const defaultState: Settings = {
   },
   notification: {
     showTx: true,
+  },
+  other: {
+    blockExplorer: "Solana Explorer",
   },
   wallet: {
     automaticAirdrop: true,

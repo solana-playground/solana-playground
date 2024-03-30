@@ -1,4 +1,5 @@
 import { automaticAirdrop } from "./automatic-airdrop";
+import { blockExplorer } from "./block-explorer";
 import { commitment } from "./commitment";
 import { endpoint } from "./endpoint";
 import { font } from "./font";
@@ -16,6 +17,7 @@ export const SETTINGS = [
   endpoint,
   commitment,
   priorityFee,
+  blockExplorer,
   preflightChecks,
   automaticAirdrop,
   showTransactionDetails,
