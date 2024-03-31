@@ -1,27 +1,29 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Select from "../../components/Select";
-import { COMMITMENT_LEVELS } from "../../constants";
-import { PgSettings } from "../../utils/pg";
+import { PgSettings, UnionToTuple } from "../../utils/pg";
+
+type Option = UnionToTuple<typeof PgSettings["connection"]["commitment"]>;
+const OPTIONS = (["processed", "confirmed", "finalized"] as Option).map(
+  (o) => ({
+    value: o,
+    label: o,
+  })
+);
 
 const CommitmentSetting = () => {
-  const options = useMemo(
-    () => COMMITMENT_LEVELS.map((c) => ({ value: c, label: c })),
-    []
-  );
-
-  const [value, setValue] = useState<typeof options[number]>();
+  const [value, setValue] = useState<typeof OPTIONS[number]>();
 
   useEffect(() => {
     const { dispose } = PgSettings.onDidChangeConnectionCommitment(
-      (commitment) => setValue(options.find((o) => o.value === commitment))
+      (commitment) => setValue(OPTIONS.find((o) => o.value === commitment))
     );
     return () => dispose();
-  }, [options]);
+  }, [OPTIONS]);
 
   return (
     <Select
-      options={options}
+      options={OPTIONS}
       value={value}
       onChange={(newValue) => {
         const newCommitment = newValue?.value;

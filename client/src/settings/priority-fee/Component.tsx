@@ -7,34 +7,35 @@ import Modal from "../../components/Modal";
 import Select from "../../components/Select";
 import Text from "../../components/Text";
 import { Info } from "../../components/Icons";
-import { PgCommon, PgSettings, PgView } from "../../utils/pg";
+import { PgCommon, PgSettings, PgView, UnionToTuple } from "../../utils/pg";
+
+type Option = UnionToTuple<
+  Exclude<typeof PgSettings["connection"]["priorityFee"], number> | "custom"
+>;
+const OPTIONS = (["average", "median", "min", "max", "custom"] as Option).map(
+  (o) => ({
+    value: o,
+    label: o,
+  })
+);
 
 const PriorityFee = () => {
-  const options = useMemo(
-    () =>
-      (["average", "median", "min", "max", "custom"] as const).map((c) => ({
-        value: c,
-        label: c,
-      })),
-    []
-  );
-
-  const [value, setValue] = useState<typeof options[number]>();
+  const [value, setValue] = useState<typeof OPTIONS[number]>();
 
   useEffect(() => {
     const { dispose } = PgSettings.onDidChangeConnectionPriorityFee((fee) =>
       setValue(
         typeof fee === "number"
           ? { label: `custom (${fee})` as "custom", value: "custom" }
-          : options.find((o) => o.value === fee)
+          : OPTIONS.find((o) => o.value === fee)
       )
     );
     return () => dispose();
-  }, [options]);
+  }, [OPTIONS]);
 
   return (
     <Select
-      options={options}
+      options={OPTIONS}
       value={value}
       onChange={(newValue) => {
         const newPriorityFee = newValue?.value;

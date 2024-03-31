@@ -50,10 +50,3 @@ export const NETWORKS: Network[] = [
     endpoint: Endpoint.CUSTOM,
   },
 ];
-
-/** Available commitment levels that users can choose from */
-export const COMMITMENT_LEVELS = [
-  "processed",
-  "confirmed",
-  "finalized",
-] as const;
