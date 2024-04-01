@@ -19,7 +19,7 @@ const CommitmentSetting = () => {
       (commitment) => setValue(OPTIONS.find((o) => o.value === commitment))
     );
     return () => dispose();
-  }, [OPTIONS]);
+  }, []);
 
   return (
     <Select
