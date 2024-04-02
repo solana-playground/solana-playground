@@ -7,6 +7,7 @@ import { ROUTES } from "../../../routes";
 import { TUTORIALS } from "../../../tutorials";
 import {
   Disposable,
+  PgBlockExplorer,
   PgCommon,
   PgConnection,
   PgExplorer,
@@ -20,6 +21,9 @@ import {
 import { useDisposable, useGetStatic, useSetStatic } from "../../../hooks";
 
 const GlobalState = () => {
+  // Block explorer
+  useDisposable(PgBlockExplorer.init);
+
   // Connection
   useDisposable(PgConnection.init);
 

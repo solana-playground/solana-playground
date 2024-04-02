@@ -1,5 +1,6 @@
 import { Endpoint } from "../../constants";
 import { PgConnection } from "./connection";
+import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { PgSettings } from "./settings";
 
 interface BlockExplorerImpl {
@@ -110,11 +111,22 @@ const SOLSCAN: BlockExplorerImpl = {
 
 const EXPLORERS = [SOLANA_EXPLORER, SOLSCAN];
 
-export class PgBlockExplorer {
-  /** Get the current block explorer based on user's block explorer setting. */
-  static get() {
-    return EXPLORERS.find(
-      (be) => be.name === PgSettings.other.blockExplorer
-    ) as BlockExplorer;
-  }
-}
+const derive = () => ({
+  /** The current block explorer based on user's block explorer setting */
+  current: createDerivable({
+    derive: () => {
+      return EXPLORERS.find(
+        (be) => be.name === PgSettings.other.blockExplorer
+      ) as BlockExplorer;
+    },
+    onChange: [
+      PgSettings.onDidChangeOtherBlockExplorer,
+      PgConnection.onDidChangeCluster,
+    ],
+  }),
+});
+
+@derivable(derive)
+class _PgBlockExplorer {}
+
+export const PgBlockExplorer = declareDerivable(_PgBlockExplorer, derive);
