@@ -36,7 +36,8 @@ impl HttpProvider {
 
         match serde_json::from_value::<ClientResponse>(request_result.clone()) {
             Ok(response) => Ok(response),
-            Err(_) => Err(serde_json::from_value::<ClientError>(request_result).unwrap()),
+            Err(_) => Err(serde_json::from_value::<ClientError>(request_result)
+                .or(Err(ClientError::new("Unknown error")))),
         }
     }
 }
