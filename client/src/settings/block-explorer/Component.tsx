@@ -4,10 +4,12 @@ import Select from "../../components/Select";
 import { PgSettings, UnionToTuple } from "../../utils/pg";
 
 type Option = UnionToTuple<typeof PgSettings["other"]["blockExplorer"]>;
-const OPTIONS = (["Solana Explorer", "Solscan"] as Option).map((o) => ({
-  value: o,
-  label: o,
-}));
+const OPTIONS = (["Solana Explorer", "Solscan", "Solana FM"] as Option).map(
+  (o) => ({
+    value: o,
+    label: o,
+  })
+);
 
 const BlockExplorer = () => {
   const [value, setValue] = useState<typeof OPTIONS[number]>();

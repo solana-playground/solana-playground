@@ -109,7 +109,28 @@ const SOLSCAN: BlockExplorerImpl = {
   },
 };
 
-const EXPLORERS = [SOLANA_EXPLORER, SOLSCAN];
+const SOLANA_FM: BlockExplorerImpl = {
+  name: "Solana FM",
+  url: "https://solana.fm",
+  getAddressUrl(address) {
+    return this.getCommonUrl("address", address);
+  },
+  getTxUrl(txHash) {
+    return this.getCommonUrl("tx", txHash);
+  },
+  getTokenUrl(mint) {
+    return this.getCommonUrl("address", mint);
+  },
+  getCommonUrl(path, value) {
+    return this.url + "/" + path + "/" + value + this.getClusterParam();
+  },
+  getClusterParam() {
+    // Solana FM doesn't switch networks from the URL
+    return "";
+  },
+};
+
+const EXPLORERS = [SOLANA_EXPLORER, SOLSCAN, SOLANA_FM];
 
 const derive = () => ({
   /** The current block explorer based on user's block explorer setting */
