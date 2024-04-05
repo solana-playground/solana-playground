@@ -9,26 +9,11 @@ interface BlockExplorerImpl {
   /** Base URL of the explorer website */
   url: string;
   /**
-   * Get address URL for the configured explorer.
+   * Get the cluster URL parameter to add to the explorer URLs.
    *
-   * @param address public key
-   * @returns the address URL
+   * @returns the cluster URL parameter
    */
-  getAddressUrl(address: string): string;
-  /**
-   * Get transaction URL for the configured explorer.
-   *
-   * @param txHash transaction signature
-   * @returns the transaction URL
-   */
-  getTxUrl(txHash: string): string;
-  /**
-   *  Get mint URL for the configured explorer.
-   *
-   * @param mint mint (token) public key
-   * @returns the mint URL
-   */
-  getTokenUrl(mint: string): string;
+  getClusterParam(): string;
   /**
    * Get the common URL i.e. a URL that follows simple enough `path` and
    * `value` in order to be able to derive the full URLs.
@@ -36,35 +21,47 @@ interface BlockExplorerImpl {
    * @param path URL path
    * @param value last path value
    */
-  getCommonUrl(path: string, value: string): string;
+  getCommonUrl?(path: string, value: string): string;
   /**
-   * Get the cluster URL parameter to add to the explorer URLs.
+   * Get address URL for the configured explorer.
    *
-   * @returns the cluster URL parameter
+   * @param address public key
+   * @returns the address URL
    */
-  getClusterParam(): string;
+  getAddressUrl?(address: string): string;
+  /**
+   * Get transaction URL for the configured explorer.
+   *
+   * @param txHash transaction signature
+   * @returns the transaction URL
+   */
+  getTxUrl?(txHash: string): string;
+  /**
+   *  Get mint URL for the configured explorer.
+   *
+   * @param mint mint (token) public key
+   * @returns the mint URL
+   */
+  getTokenUrl?(mint: string): string;
 }
 
 type BlockExplorer = Omit<
-  BlockExplorerImpl,
+  Required<BlockExplorerImpl>,
   "getClusterParam" | "getCommonUrl"
 >;
 
-const SOLANA_EXPLORER: BlockExplorerImpl = {
+const createBlockExplorer = (b: BlockExplorerImpl) => {
+  b.getCommonUrl ??= (p, v) => b.url + "/" + p + "/" + v + b.getClusterParam();
+  b.getAddressUrl ??= (address) => b.getCommonUrl!("address", address);
+  b.getTxUrl ??= (txHash) => b.getCommonUrl!("tx", txHash);
+  b.getTokenUrl ??= (mint) => b.getCommonUrl!("address", mint);
+
+  return b as BlockExplorer;
+};
+
+const SOLANA_EXPLORER = createBlockExplorer({
   name: "Solana Explorer",
   url: "https://explorer.solana.com",
-  getAddressUrl(address) {
-    return this.getCommonUrl("address", address);
-  },
-  getTxUrl(txHash) {
-    return this.getCommonUrl("tx", txHash);
-  },
-  getTokenUrl(mint) {
-    return this.getCommonUrl("address", mint);
-  },
-  getCommonUrl(path, value) {
-    return this.url + "/" + path + "/" + value + this.getClusterParam();
-  },
   getClusterParam: () => {
     switch (PgConnection.cluster) {
       case "mainnet-beta":
@@ -77,22 +74,13 @@ const SOLANA_EXPLORER: BlockExplorerImpl = {
         return "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
     }
   },
-};
+});
 
-const SOLSCAN: BlockExplorerImpl = {
+const SOLSCAN = createBlockExplorer({
   name: "Solscan",
   url: "https://solscan.io",
-  getAddressUrl(address) {
-    return this.getCommonUrl("address", address);
-  },
-  getTxUrl(txHash) {
-    return this.getCommonUrl("tx", txHash);
-  },
   getTokenUrl(mint) {
-    return this.getCommonUrl("token", mint);
-  },
-  getCommonUrl(path, value) {
-    return this.url + "/" + path + "/" + value + this.getClusterParam();
+    return this.getCommonUrl!("token", mint);
   },
   getClusterParam() {
     switch (PgConnection.cluster) {
@@ -107,28 +95,16 @@ const SOLSCAN: BlockExplorerImpl = {
         return "";
     }
   },
-};
+});
 
-const SOLANA_FM: BlockExplorerImpl = {
+const SOLANA_FM = createBlockExplorer({
   name: "Solana FM",
   url: "https://solana.fm",
-  getAddressUrl(address) {
-    return this.getCommonUrl("address", address);
-  },
-  getTxUrl(txHash) {
-    return this.getCommonUrl("tx", txHash);
-  },
-  getTokenUrl(mint) {
-    return this.getCommonUrl("address", mint);
-  },
-  getCommonUrl(path, value) {
-    return this.url + "/" + path + "/" + value + this.getClusterParam();
-  },
   getClusterParam() {
     // Solana FM doesn't switch networks from the URL
     return "";
   },
-};
+});
 
 const EXPLORERS = [SOLANA_EXPLORER, SOLSCAN, SOLANA_FM];
 
@@ -138,7 +114,7 @@ const derive = () => ({
     derive: () => {
       return EXPLORERS.find(
         (be) => be.name === PgSettings.other.blockExplorer
-      ) as BlockExplorer;
+      )!;
     },
     onChange: [
       PgSettings.onDidChangeOtherBlockExplorer,
