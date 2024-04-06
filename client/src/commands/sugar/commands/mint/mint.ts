@@ -101,7 +101,7 @@ export const processMint = async (
                 }: ${PgTerminal.underline(
                   // The explorer URL will be based on the current cluster
                   // rather than the cluster of the custom URL argument
-                  PgBlockExplorer.current.getTokenUrl(nft.address.toBase58())
+                  PgBlockExplorer.current.getAddressUrl(nft.address.toBase58())
                 )} `
               )
             );

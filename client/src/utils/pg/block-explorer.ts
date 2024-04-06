@@ -36,13 +36,6 @@ interface BlockExplorerImpl {
    * @returns the transaction URL
    */
   getTxUrl?(txHash: string): string;
-  /**
-   *  Get mint URL for the configured explorer.
-   *
-   * @param mint mint (token) public key
-   * @returns the mint URL
-   */
-  getTokenUrl?(mint: string): string;
 }
 
 type BlockExplorer = Omit<
@@ -54,7 +47,6 @@ const createBlockExplorer = (b: BlockExplorerImpl) => {
   b.getCommonUrl ??= (p, v) => b.url + "/" + p + "/" + v + b.getClusterParam();
   b.getAddressUrl ??= (address) => b.getCommonUrl!("address", address);
   b.getTxUrl ??= (txHash) => b.getCommonUrl!("tx", txHash);
-  b.getTokenUrl ??= (mint) => b.getCommonUrl!("address", mint);
 
   return b as BlockExplorer;
 };
@@ -79,9 +71,6 @@ const SOLANA_EXPLORER = createBlockExplorer({
 const SOLSCAN = createBlockExplorer({
   name: "Solscan",
   url: "https://solscan.io",
-  getTokenUrl(mint) {
-    return this.getCommonUrl!("token", mint);
-  },
   getClusterParam() {
     switch (PgConnection.cluster) {
       case "mainnet-beta":
