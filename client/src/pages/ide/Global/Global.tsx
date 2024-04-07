@@ -21,26 +21,13 @@ import {
 import { useDisposable, useGetStatic, useSetStatic } from "../../../hooks";
 
 const GlobalState = () => {
-  // Block explorer
-  useDisposable(PgBlockExplorer.init);
-
-  // Connection
-  useDisposable(PgConnection.init);
-
-  // Global
   useDisposable(PgGlobal.init);
-
-  // Program info
-  useProgramInfo();
-
-  // Router
   useRouter();
-
-  // Wallet
-  useDisposable(PgWallet.init);
-
-  // Workspace
   useWorkspace();
+  useDisposable(PgConnection.init);
+  useDisposable(PgBlockExplorer.init); // Must be after `PgConnection` init
+  useDisposable(PgWallet.init);
+  useProgramInfo();
 
   return null;
 };
