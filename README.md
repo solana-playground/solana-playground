@@ -45,7 +45,9 @@ You can run the client locally by cloning the repository and running the followi
 
 Setup and start the dev server:
 
-```sh
+```shcd client # change directory to client
+yarn setup # run the setup script(only once)
+yarn start # start local dev server
 cd client # change directory to client
 yarn setup # run the setup script(only once)
 yarn start # start local dev server
@@ -53,7 +55,17 @@ yarn start # start local dev server
 
 ##### Recommended versions
 
-```sh
+```shrustc --version
+# rustc 1.75.0 (82e1608df 2023-12-21)
+
+wasm-pack --version
+# wasm-pack 0.10.3
+
+node --version
+# v18.15.0
+
+yarn --version
+# 1.22.19
 rustc --version
 # rustc 1.75.0 (82e1608df 2023-12-21)
 
@@ -65,7 +77,9 @@ node --version
 
 yarn --version
 # 1.22.19
-```
+```$ curl https://sh.rustup.rs -sSf | sh
+$ source $HOME/.cargo/env
+$ rustup component add rustfmt
 
 ## Contributing
 
