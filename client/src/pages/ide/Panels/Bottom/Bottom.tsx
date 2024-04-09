@@ -11,6 +11,7 @@ const Bottom = () => (
     {BOTTOM.map((Component, i) => (
       <ErrorBoundary
         key={i}
+        refreshButton={{ margin: "0 0.25rem 0 0.5rem" }}
         Fallback={({ error }) => (
           <Tooltip
             element={error.message || "Unknown error"}
@@ -42,7 +43,6 @@ const Wrapper = styled.div`
 
 const FallbackText = styled.span`
   ${({ theme }) => css`
-    padding: 0 0.75rem;
     display: inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
