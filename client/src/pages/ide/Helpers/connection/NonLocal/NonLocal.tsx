@@ -11,13 +11,23 @@ export const NonLocal: FC<ToastChildProps> = ({ id }) => {
   useEffect(() => {
     let isInitial = true;
     let prevCluster = PgConnection.cluster;
-    const { dispose } = PgConnection.onDidChangeCluster((cluster) => {
+    const changeCluster = PgConnection.onDidChangeCluster((cluster) => {
       // Only close the toast if it's not initial and it's a different cluster
       if (!isInitial && prevCluster !== cluster) PgView.closeToast(id);
       isInitial = false;
       prevCluster = cluster;
     });
-    return () => dispose();
+
+    const changeIsConnected = PgConnection.onDidChangeIsConnected(
+      (isConnected) => {
+        if (!isInitial && isConnected) PgView.closeToast(id);
+      }
+    );
+
+    return () => {
+      changeCluster.dispose();
+      changeIsConnected.dispose();
+    };
   }, [id]);
 
   return (
