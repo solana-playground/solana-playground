@@ -101,9 +101,10 @@ const derive = () => ({
   /** The current block explorer based on user's block explorer setting */
   current: createDerivable({
     derive: () => {
-      return EXPLORERS.find(
-        (be) => be.name === PgSettings.other.blockExplorer
-      )!;
+      return (
+        EXPLORERS.find((be) => be.name === PgSettings.other.blockExplorer) ??
+        SOLANA_EXPLORER
+      );
     },
     onChange: [
       PgSettings.onDidChangeOtherBlockExplorer,
