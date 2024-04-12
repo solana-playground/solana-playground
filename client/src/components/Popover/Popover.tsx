@@ -357,7 +357,6 @@ const CommonPopover: FC<CommonPopoverProps> = ({
 
     const repositionResizeObserver = new ResizeObserver((entries) => {
       popoverEl.style.width = entries[0].contentRect.width + "px";
-      console.log(entries[0].contentRect.width, popoverEl.style.width);
     });
     repositionResizeObserver.observe(anchorEl);
 
