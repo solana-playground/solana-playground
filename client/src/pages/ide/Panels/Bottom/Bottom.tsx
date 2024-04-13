@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components";
 
+import Delayed from "../../../../components/Delayed";
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Tooltip from "../../../../components/Tooltip";
 import { Id } from "../../../../constants";
@@ -8,24 +9,27 @@ import { PgTheme } from "../../../../utils/pg";
 
 const Bottom = () => (
   <Wrapper id={Id.BOTTOM}>
-    {BOTTOM.map((Component, i) => (
-      <ErrorBoundary
-        key={i}
-        refreshButton={{ margin: "0 0.25rem 0 0.5rem" }}
-        Fallback={({ error }) => (
-          <Tooltip
-            element={error.message || "Unknown error"}
-            alwaysTakeFullWidth
-          >
-            <FallbackText>
-              Extension crashed{error.message ? `: ${error.message}` : ""}
-            </FallbackText>
-          </Tooltip>
-        )}
-      >
-        <Component />
-      </ErrorBoundary>
-    ))}
+    {/* Add delay to give enough time for component dependencies to initialize */}
+    <Delayed delay={60}>
+      {BOTTOM.map((Component, i) => (
+        <ErrorBoundary
+          key={i}
+          refreshButton={{ margin: "0 0.25rem 0 0.5rem" }}
+          Fallback={({ error }) => (
+            <Tooltip
+              element={error.message || "Unknown error"}
+              alwaysTakeFullWidth
+            >
+              <FallbackText>
+                Extension crashed{error.message ? `: ${error.message}` : ""}
+              </FallbackText>
+            </Tooltip>
+          )}
+        >
+          <Component />
+        </ErrorBoundary>
+      ))}
+    </Delayed>
   </Wrapper>
 );
 

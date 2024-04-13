@@ -16,10 +16,11 @@ const Panels = () => (
       <Main />
     </MainWrapper>
 
-    {/* Add a delay to the mount of `Bottom` and `Wallet` components because
-    some of the globals used in those component doesn't get initialized */}
+    <Bottom />
+
+    {/* Add a delay to the mount of the `Wallet` component because some of the
+    globals used in that component doesn't get initialized in time */}
     <Delayed delay={10}>
-      <Bottom />
       <Wallet />
     </Delayed>
 
