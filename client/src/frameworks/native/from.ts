@@ -23,7 +23,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   for (let [path, content] of files) {
     // src -> program/src
     if (path.startsWith(PgExplorer.PATHS.SRC_DIRNAME)) {
-      path = PgCommon.joinPaths([PROGRAM_PATH, path]);
+      path = PgCommon.joinPaths(PROGRAM_PATH, path);
     }
 
     // client -> client
@@ -46,7 +46,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   frameworkFiles.push(
     // Program Cargo.toml
     [
-      PgCommon.joinPaths([PROGRAM_PATH, "Cargo.toml"]),
+      PgCommon.joinPaths(PROGRAM_PATH, "Cargo.toml"),
       `[package]
 name = "${PgCommon.toKebabFromTitle(
         PgExplorer.currentWorkspaceName ?? "solpg"

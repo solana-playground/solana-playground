@@ -1098,7 +1098,7 @@ export class PgCommon {
    * @param paths paths to join
    * @returns the joined path
    */
-  static joinPaths(paths: string[]) {
+  static joinPaths(...paths: string[]) {
     return paths.reduce(
       (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
     );

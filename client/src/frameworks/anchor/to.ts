@@ -20,7 +20,7 @@ export const convertToPlayground = async (files: TupleFiles) => {
     // Filter out other programs
     files = files.filter(([path]) => {
       if (path.includes("programs")) {
-        return path.includes(PgCommon.joinPaths(["programs", programName]));
+        return path.includes(PgCommon.joinPaths("programs", programName));
       }
 
       return true;

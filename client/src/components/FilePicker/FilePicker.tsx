@@ -119,7 +119,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path, setFilePaths }) => {
         .map((name) => (
           <RecursiveFolder
             key={name}
-            path={PgCommon.joinPaths([path, name, "/"])}
+            path={PgCommon.joinPaths(path, name, "/")}
             setFilePaths={setFilePaths}
           />
         ))}
@@ -138,7 +138,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path, setFilePaths }) => {
               }
               onChange={toggleCheck}
               defaultChecked
-              data-path={PgCommon.joinPaths([path, name])}
+              data-path={PgCommon.joinPaths(path, name)}
             />
           </File>
         ))}

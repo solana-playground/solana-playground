@@ -71,10 +71,10 @@ export class PgExplorer {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
     }
 
-    return PgCommon.joinPaths([
+    return PgCommon.joinPaths(
       PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgCommon.appendSlash(this.currentWorkspaceName),
-    ]);
+      PgCommon.appendSlash(this.currentWorkspaceName)
+    );
   }
 
   /** Get current workspace name */
@@ -411,7 +411,7 @@ export class PgExplorer {
 
       // Change state paths(temporary projects start with /src)
       const getFullPath = (path: string) => {
-        return PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, path]);
+        return PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, name, path);
       };
       for (const path in this.files) {
         const data = this.files[path];
@@ -843,7 +843,7 @@ export class PgExplorer {
     if (path.startsWith(this.PATHS.ROOT_DIR_PATH)) return path;
 
     // Convert to absolute path if it doesn't start with '/'
-    return PgCommon.joinPaths([this.getProjectRootPath(), path]);
+    return PgCommon.joinPaths(this.getProjectRootPath(), path);
   }
 
   /**
@@ -865,10 +865,10 @@ export class PgExplorer {
    * @returns the current `src` directory path with `/` appended
    */
   static getCurrentSrcPath() {
-    const srcPath = PgCommon.joinPaths([
+    const srcPath = PgCommon.joinPaths(
       this.getProjectRootPath(),
-      this.PATHS.SRC_DIRNAME,
-    ]);
+      this.PATHS.SRC_DIRNAME
+    );
     return PgCommon.appendSlash(srcPath);
   }
 
@@ -1063,7 +1063,7 @@ export class PgExplorer {
         .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
           return PgExplorer.getCanonicalPath(
-            PgCommon.joinPaths([path, itemName])
+            PgCommon.joinPaths(path, itemName)
           );
         });
       for (const subItemPath of subItemPaths) {
@@ -1645,10 +1645,7 @@ export class PgExplorer {
     const explorerFiles: ExplorerFiles = {};
 
     for (const [path, content] of tupleFiles) {
-      const fullPath = PgCommon.joinPaths([
-        PgExplorer.PATHS.ROOT_DIR_PATH,
-        path,
-      ]);
+      const fullPath = PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, path);
       explorerFiles[fullPath] = { content };
     }
 

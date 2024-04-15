@@ -117,7 +117,7 @@ export class PgGithub {
           const content = await PgCommon.fetchText(itemData.download_url!);
           files.push([itemData.path, content]);
         } else if (itemData.type === "dir") {
-          const insideDirUrl = PgCommon.joinPaths([currentUrl, itemData.name]);
+          const insideDirUrl = PgCommon.joinPaths(currentUrl, itemData.name);
           const { data: insideDirData } = await this._getRepositoryData(
             insideDirUrl
           );

@@ -67,7 +67,7 @@ const processCommon = async ({
     }
 
     const [fileName, code] = DEFAULT;
-    await PgExplorer.newItem(PgCommon.joinPaths([folderPath, fileName]), code);
+    await PgExplorer.newItem(PgCommon.joinPaths(folderPath, fileName), code);
 
     return await PgClient.execute({ fileName, code, isTest });
   }
@@ -75,7 +75,7 @@ const processCommon = async ({
   // Run all files inside the folder
   for (const fileName of folder.files.filter(PgExplorer.isFileJsLike)) {
     const code = PgExplorer.getFileContent(
-      PgCommon.joinPaths([folderPath, fileName])
+      PgCommon.joinPaths(folderPath, fileName)
     )!;
     await PgClient.execute({ fileName, code, isTest });
   }

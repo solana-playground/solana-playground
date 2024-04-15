@@ -203,10 +203,10 @@ const getBuildFiles = () => {
     if (!content) continue;
 
     // Remove the workspace from path because build only needs /src
-    const buildPath = PgCommon.joinPaths([
+    const buildPath = PgCommon.joinPaths(
       PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgExplorer.getRelativePath(path),
-    ]);
+      PgExplorer.getRelativePath(path)
+    );
     buildFiles.push([buildPath, content]);
   }
 

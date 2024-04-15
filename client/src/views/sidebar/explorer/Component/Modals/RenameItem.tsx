@@ -19,10 +19,10 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   };
 
   const rename = async () => {
-    const newPath = PgCommon.joinPaths([
+    const newPath = PgCommon.joinPaths(
       PgExplorer.getParentPathFromPath(path),
-      newName,
-    ]);
+      newName
+    );
     await PgExplorer.renameItem(path, newPath);
   };
 

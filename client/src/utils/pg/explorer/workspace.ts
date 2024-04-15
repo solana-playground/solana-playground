@@ -121,10 +121,10 @@ export class PgWorkspace {
   static readonly WORKSPACE_PATH = ".workspace";
 
   /** Relative path to file metadatas */
-  static readonly METADATA_PATH = PgCommon.joinPaths([
+  static readonly METADATA_PATH = PgCommon.joinPaths(
     this.WORKSPACE_PATH,
-    "metadata.json",
-  ]);
+    "metadata.json"
+  );
 
   /** Default name to name the projects that used to be in localStorage */
   static readonly DEFAULT_WORKSPACE_NAME = "default";
