@@ -97,6 +97,7 @@ const SuccessWrapper = styled.div`
 const SuccessInputWrapper = styled.div`
   display: flex;
   margin-top: 1rem;
+  align-items: center;
 `;
 
 const SuccessLinkWrapper = styled.div`
