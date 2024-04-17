@@ -368,7 +368,7 @@ class _PgWallet {
   }
 
   /**
-   * Check whether the given wallet account name is is valid.
+   * Check whether the given wallet account name is valid.
    *
    * @param name wallet account name
    * @throws if the name is not valid

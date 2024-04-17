@@ -388,7 +388,7 @@ impl WasmClient {
         // Parse keyed accounts
         let accounts = response
             .keyed_accounts()
-            .ok_or_else(|| ClientError::new("Program account doesnt' exist."))?;
+            .ok_or_else(|| ClientError::new("Program account doesn't exist."))?;
 
         let mut pubkey_accounts: Vec<(Pubkey, Account)> = Vec::with_capacity(accounts.len());
         for RpcKeyedAccount { pubkey, account } in accounts.iter() {
