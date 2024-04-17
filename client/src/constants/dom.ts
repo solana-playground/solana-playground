@@ -23,5 +23,6 @@ export enum Id {
   WALLET_MAIN = "wallet-main",
   WALLET_BOUND = "wallet-bound",
   HOME = "home",
-  PORTAL = "portal",
+  PORTAL_ABOVE = "portal-above",
+  PORTAL_BELOW = "portal-below",
 }

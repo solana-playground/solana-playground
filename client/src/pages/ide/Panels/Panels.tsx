@@ -24,11 +24,15 @@ const Panels = () => (
       <Wallet />
     </Delayed>
 
-    <Toast />
+    {/* A portal that is *above* the modal backdrop stacking context */}
+    <PortalAbove id={Id.PORTAL_ABOVE} />
+
     <ModalBackdrop />
 
-    {/* Portal to escape the stacking context */}
-    <Portal id={Id.PORTAL} />
+    {/* A portal that is *below* the modal backdrop stacking context */}
+    <PortalBelow id={Id.PORTAL_BELOW}>
+      <Toast />
+    </PortalBelow>
   </Wrapper>
 );
 
@@ -49,7 +53,11 @@ const MainWrapper = styled.div`
   flex: 1;
 `;
 
-const Portal = styled.div`
+const PortalAbove = styled.div`
+  z-index: 4;
+`;
+
+const PortalBelow = styled.div`
   z-index: 2;
 `;
 

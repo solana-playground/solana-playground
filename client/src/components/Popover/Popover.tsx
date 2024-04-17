@@ -376,7 +376,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
       {...position}
       {...props}
     />,
-    document.getElementById(Id.PORTAL)!
+    document.getElementById(Id.PORTAL_ABOVE)!
   );
 };
 
