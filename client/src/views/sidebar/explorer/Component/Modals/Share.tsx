@@ -69,7 +69,7 @@ interface SuccessPageProps {
 }
 
 const SuccessPage: FC<SuccessPageProps> = ({ shareId }) => {
-  const shareLink = PgCommon.joinPaths(window.location.origin, shareId);
+  const shareLink = PgCommon.getPathUrl(shareId);
 
   return (
     <Modal title buttonProps={{ text: "Continue" }}>

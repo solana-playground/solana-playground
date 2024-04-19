@@ -94,7 +94,7 @@ export const ImportGithub = () => {
 const GITHUB_PROGRAM_URL =
   "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor";
 
-const VIEW_URL = PgCommon.joinPaths(window.location.origin, GITHUB_PROGRAM_URL);
+const VIEW_URL = PgCommon.getPathUrl(GITHUB_PROGRAM_URL);
 
 const Wrapper = styled.div`
   max-width: 39rem;
