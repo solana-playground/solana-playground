@@ -4,8 +4,8 @@ import {
   Connection,
   ConnectionConfig,
 } from "@solana/web3.js";
-import { PgCommon } from "./common";
 
+import { PgCommon } from "./common";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";

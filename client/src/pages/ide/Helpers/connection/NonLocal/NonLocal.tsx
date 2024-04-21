@@ -18,15 +18,18 @@ export const NonLocal: FC<ToastChildProps> = ({ id }) => {
       prevCluster = cluster;
     });
 
-    const changeIsConnected = PgConnection.onDidChangeIsConnected(
-      (isConnected) => {
-        if (!isInitial && isConnected) PgView.closeToast(id);
+    const changeIsClusterDown = PgConnection.onDidChangeIsClusterDown(
+      (isClusterDown) => {
+        // Anything other than `isClusterDown === false` means either the cluster
+        // is down, or there is a connection error, which means we don't need to
+        // close the toast.
+        if (!isInitial && isClusterDown === false) PgView.closeToast(id);
       }
     );
 
     return () => {
       changeCluster.dispose();
-      changeIsConnected.dispose();
+      changeIsClusterDown.dispose();
     };
   }, [id]);
 
