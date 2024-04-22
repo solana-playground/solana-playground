@@ -21,6 +21,8 @@ export interface PopoverProps {
   anchorEl?: HTMLElement;
   /** Where to place the popover element relative to the anchor point */
   placement?: "top" | "right" | "bottom" | "left";
+  /** Element stacking context */
+  stackingContext?: "above-modal" | "below-modal";
   /** Arrow pointing to the `anchorEl` from the `popEl` */
   arrow?: {
     /** Arrow size in px */
@@ -95,6 +97,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
   delay = 500,
   placement = "top",
   arrow = { size: 8 },
+  stackingContext = "above-modal",
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -376,7 +379,9 @@ const CommonPopover: FC<CommonPopoverProps> = ({
       {...position}
       {...props}
     />,
-    document.getElementById(Id.PORTAL_ABOVE)!
+    document.getElementById(
+      stackingContext === "above-modal" ? Id.PORTAL_ABOVE : Id.PORTAL_BELOW
+    )!
   );
 };
 
