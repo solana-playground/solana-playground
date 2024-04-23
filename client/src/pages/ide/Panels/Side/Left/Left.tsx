@@ -63,7 +63,7 @@ const Left: FC<LeftProps> = ({
             <SidebarButton tooltipEl="GitHub" src="/icons/sidebar/github.png" />
           </Link>
 
-          <Popover popEl={<Settings />}>
+          <Popover popEl={<Settings />} stackingContext="below-modal">
             <SidebarButton
               tooltipEl="Settings"
               src="/icons/sidebar/settings.webp"
