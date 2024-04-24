@@ -71,7 +71,7 @@ const SOLANA_EXPLORER = createBlockExplorer({
 const SOLSCAN = createBlockExplorer({
   name: "Solscan",
   url: "https://solscan.io",
-  getClusterParam() {
+  getClusterParam: () => {
     switch (PgConnection.cluster) {
       case "mainnet-beta":
         return "";
@@ -89,9 +89,18 @@ const SOLSCAN = createBlockExplorer({
 const SOLANA_FM = createBlockExplorer({
   name: "Solana FM",
   url: "https://solana.fm",
-  getClusterParam() {
-    // Solana FM doesn't switch networks from the URL
-    return "";
+  getClusterParam: () => {
+    switch (PgConnection.cluster) {
+      case "mainnet-beta":
+        return "";
+      case "testnet":
+        return "?cluster=testnet-solana";
+      case "devnet":
+        return "?cluster=devnet-solana";
+      case "localnet":
+        // Doesn't work with protocol ("http") prefix
+        return "?cluster=custom-" + new URL(Endpoint.LOCALHOST).host;
+    }
   },
 });
 
