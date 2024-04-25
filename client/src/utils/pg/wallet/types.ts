@@ -17,16 +17,7 @@ export interface Wallet {
   /** Wallet connection state */
   state: "setup" | "disconnected" | "pg" | "sol";
   /** All accounts */
-  accounts: Array<{
-    /**
-     * ed25519 keypair of the account.
-     *
-     * First 32 bytes are the private key, last 32 bytes are the public key.
-     */
-    kp: Array<number>;
-    /** Name of the account */
-    name: string;
-  }>;
+  accounts: WalletAccount[];
   /** Current wallet index */
   currentIndex: number;
   /** Balance of the current wallet, `null` by default */
@@ -37,6 +28,18 @@ export interface Wallet {
   standardWallets: SolanaWallet[];
   /** Name of the standard wallet */
   standardName: string | null;
+}
+
+/** Playground wallet accounts (with keypair) */
+export interface WalletAccount {
+  /**
+   * ed25519 keypair of the account.
+   *
+   * First 32 bytes are the private key, last 32 bytes are the public key.
+   */
+  kp: number[];
+  /** Name of the account */
+  name: string;
 }
 
 /** Serialized wallet that's used in storage */
