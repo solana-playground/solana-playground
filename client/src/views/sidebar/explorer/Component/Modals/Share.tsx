@@ -11,7 +11,7 @@ import { Checkmark, Sad } from "../../../../../components/Icons";
 import { PgCommon, PgExplorer, PgShare, PgView } from "../../../../../utils/pg";
 
 export const Share = () => {
-  const [filePaths, setFilePaths] = useState(
+  const [filePaths, setFilePaths] = useState(() =>
     Object.keys(PgExplorer.files).filter(
       (path) => PgExplorer.getItemTypeFromPath(path).file
     )
