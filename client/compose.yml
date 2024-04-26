@@ -1,0 +1,5 @@
+services:
+  aelf-playground:
+    image: aelf-playground
+    ports:
+      - 8080:8080

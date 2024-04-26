@@ -4,6 +4,17 @@
 
 > **Note:** Playground is still in **alpha** and everything is subject to change.
 
+## Pre-requisites
+
+- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+- [rustup](https://rustup.rs/)
+- If you have rust installed, uninstall it first before installing rustup.
+
+```sh
+npm install -g wasm-pack # or `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
 ## Run locally
 
 You can run the client locally by cloning the repository and running the following commands in the project directory.
