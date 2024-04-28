@@ -67,6 +67,8 @@ const SettingWrapper = styled.div<Pick<SettingType, "isCheckBox">>`
 
 const Left = styled.div`
   display: flex;
+  color: ${({ theme }) => theme.colors.default.textSecondary};
+  font-weight: bold;
 
   & > :nth-child(2) {
     margin-left: 0.5rem;
