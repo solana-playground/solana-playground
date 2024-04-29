@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 
 import Select from "../../components/Select";
-import { PgSettings, UnionToTuple } from "../../utils/pg";
+import { PgBlockExplorer, PgSettings } from "../../utils/pg";
 
-type Option = UnionToTuple<typeof PgSettings["other"]["blockExplorer"]>;
-const OPTIONS = (["Solana Explorer", "Solscan", "Solana FM"] as Option).map(
-  (o) => ({
-    value: o,
-    label: o,
-  })
-);
+const OPTIONS = PgBlockExplorer.ALL.map((be) => ({
+  value: be.name,
+  label: be.name,
+}));
 
 const BlockExplorer = () => {
   const [value, setValue] = useState<typeof OPTIONS[number]>();

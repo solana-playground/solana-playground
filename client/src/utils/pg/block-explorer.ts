@@ -104,15 +104,14 @@ const SOLANA_FM = createBlockExplorer({
   },
 });
 
-const EXPLORERS = [SOLANA_EXPLORER, SOLSCAN, SOLANA_FM];
-
 const derive = () => ({
   /** The current block explorer based on user's block explorer setting */
   current: createDerivable({
     derive: () => {
       return (
-        EXPLORERS.find((be) => be.name === PgSettings.other.blockExplorer) ??
-        SOLANA_EXPLORER
+        _PgBlockExplorer.ALL.find(
+          (be) => be.name === PgSettings.other.blockExplorer
+        ) ?? SOLANA_EXPLORER
       );
     },
     onChange: [
@@ -123,6 +122,9 @@ const derive = () => ({
 });
 
 @derivable(derive)
-class _PgBlockExplorer {}
+class _PgBlockExplorer {
+  /** All block explorers */
+  static readonly ALL = [SOLANA_EXPLORER, SOLSCAN, SOLANA_FM];
+}
 
 export const PgBlockExplorer = declareDerivable(_PgBlockExplorer, derive);
