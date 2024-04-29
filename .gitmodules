@@ -1,4 +1,4 @@
 [submodule "client/public"]
 	path = client/public
-	url = https://github.com/solana-playground/assets.git
+	url = https://github.com/yongenaelf/aelf-playground-assets.git
 	branch = master
