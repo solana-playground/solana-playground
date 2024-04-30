@@ -9,18 +9,11 @@ import {
 import { Id } from "../../../../../constants";
 
 export const useResize = (setWidth: Dispatch<SetStateAction<number>>) => {
-  const [windowHeight, setWindowHeight] = useState(
-    document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979
-  );
+  const [windowHeight, setWindowHeight] = useState(getWindowHeight);
 
   // Resize the sidebar on window resize event
   useEffect(() => {
-    const handleResize = () => {
-      setWindowHeight(
-        document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979
-      );
-    };
-
+    const handleResize = () => setWindowHeight(getWindowHeight);
     handleResize();
 
     window.addEventListener("resize", handleResize);
@@ -40,4 +33,8 @@ export const useResize = (setWidth: Dispatch<SetStateAction<number>>) => {
   );
 
   return { windowHeight, handleResizeStop };
+};
+
+const getWindowHeight = () => {
+  return document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979;
 };
