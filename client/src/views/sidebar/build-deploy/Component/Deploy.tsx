@@ -109,21 +109,9 @@ const Deploy = () => {
   if (!wallet)
     return (
       <Wrapper>
-        <Text>Deployment can only be done from Playground Wallet.</Text>
+        <Text>Your wallet must be connected for program deployments.</Text>
         <Button onClick={() => PgCommand.connect.run()} kind="primary">
           Connect to Playground Wallet
-        </Button>
-      </Wrapper>
-    );
-
-  if (!wallet.isPg)
-    return (
-      <Wrapper>
-        <Text kind="warning">
-          Deployment can only be done from Playground Wallet.
-        </Text>
-        <Button onClick={() => PgCommand.connect.run()}>
-          Disconnect from {wallet.name}
         </Button>
       </Wrapper>
     );
