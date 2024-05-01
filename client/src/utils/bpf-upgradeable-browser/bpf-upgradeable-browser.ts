@@ -567,8 +567,8 @@ export class BpfLoaderUpgradeable {
 
   /** Create a program account from initialized buffer. */
   static async deployProgram(
-    bufferPk: PublicKey,
     program: Signer,
+    bufferPk: PublicKey,
     programLamports: number,
     maxDataLen: number,
     opts?: WalletOption
@@ -596,8 +596,8 @@ export class BpfLoaderUpgradeable {
     );
 
     return await PgTx.send(tx, {
-      keypairSigners: [program],
       wallet,
+      keypairSigners: [program],
     });
   }
 
@@ -625,7 +625,6 @@ export class BpfLoaderUpgradeable {
   static async upgradeProgram(
     programPk: PublicKey,
     bufferPk: PublicKey,
-    spillPk: PublicKey,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
@@ -635,8 +634,8 @@ export class BpfLoaderUpgradeable {
       await BpfLoaderUpgradeableProgram.upgrade({
         programPk,
         bufferPk,
-        spillPk,
         authorityPk: wallet.publicKey,
+        spillPk: wallet.publicKey,
       })
     );
 

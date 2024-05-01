@@ -1,8 +1,14 @@
-import { Keypair } from "@solana/web3.js";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 
 import { GITHUB_URL } from "../../constants";
 import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-browser";
 import {
+  PgCommand,
   PgCommon,
   PgConnection,
   PgGlobal,
@@ -13,7 +19,6 @@ import {
   PgWallet,
 } from "../../utils/pg";
 import { createCmd } from "../create";
-import { isPgConnected } from "../validation";
 
 export const deploy = createCmd({
   name: "deploy",
@@ -67,8 +72,18 @@ export const deploy = createCmd({
       PgGlobal.update({ deployState: "ready" });
     }
   },
-  preCheck: [isPgConnected, checkDeploy],
+  preCheck: [checkWallet, checkDeploy],
 });
+
+async function checkWallet() {
+  if (!PgWallet.current) {
+    throw new Error(
+      `Wallet must be connected to run this command. Run \`${PgTerminal.bold(
+        PgCommand.connect.name
+      )}\` to connect.`
+    );
+  }
+}
 
 /** Check whether the state is valid for deployment. */
 async function checkDeploy() {
@@ -129,20 +144,26 @@ const processDeploy = async () => {
     bufferSize
   );
 
+  const wallet = PgWallet.current!;
+  const [pgWallet, standardWallet] = wallet.isPg
+    ? [wallet, null]
+    : [PgWallet.createWallet(PgWallet.accounts[0]), wallet];
+
   // Decide whether it's an initial deployment or an upgrade and calculate
   // how much SOL user needs before creating the buffer.
-  const wallet = PgWallet.current!;
   const [programExists, userBalance] = await Promise.all([
     connection.getAccountInfo(programPk),
     connection.getBalance(wallet.publicKey),
   ]);
 
+  // Balance required to deploy/upgrade (without fees)
+  let requiredBalanceWithoutFees;
   if (!programExists) {
     // Initial deploy
-    const neededBalance = 3 * bufferBalance;
-    if (userBalance < neededBalance) {
+    requiredBalanceWithoutFees = 3 * bufferBalance;
+    if (userBalance < requiredBalanceWithoutFees) {
       const errMsg = `Initial deployment costs ${PgTerminal.bold(
-        PgCommon.lamportsToSol(neededBalance).toFixed(2)
+        PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
       )} SOL but you have ${PgTerminal.bold(
         PgCommon.lamportsToSol(userBalance).toFixed(2)
       )} SOL. ${PgTerminal.bold(
@@ -163,6 +184,7 @@ const processDeploy = async () => {
     }
   } else {
     // Upgrade
+    requiredBalanceWithoutFees = bufferBalance;
     if (userBalance < bufferBalance) {
       const errMsg = `Upgrading costs ${PgTerminal.bold(
         PgCommon.lamportsToSol(bufferBalance).toFixed(2)
@@ -186,8 +208,53 @@ const processDeploy = async () => {
     }
   }
 
-  // Retry until it's successful or exceeds max tries
   let sleepAmount = 1000;
+
+  // If deploying from a standard wallet, transfer the required lamports for
+  // deployment to the first playground wallet, which allows to deploy without
+  // asking for approval.
+  if (standardWallet) {
+    // Transfer extra 0.1 SOL for fees (doesn't have to get used)
+    const requiredBalance = requiredBalanceWithoutFees + LAMPORTS_PER_SOL / 10;
+    const transferIx = SystemProgram.transfer({
+      fromPubkey: standardWallet.publicKey,
+      toPubkey: pgWallet.publicKey,
+      lamports: requiredBalance,
+    });
+    const transferTx = new Transaction().add(transferIx);
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        if (i !== 0) {
+          const currentBalance = await connection.getBalance(
+            standardWallet.publicKey
+          );
+          if (currentBalance < userBalance - requiredBalance) break;
+        }
+
+        const txHash = await PgTx.send(transferTx);
+        await PgTx.confirm(txHash);
+
+        break;
+      } catch (e: any) {
+        console.log("Transfer to standard wallet error:", e.message);
+        if (i === MAX_RETRIES - 1) {
+          throw new Error(
+            `Exceeded maximum amount of retries(${PgTerminal.bold(
+              MAX_RETRIES.toString()
+            )}) to transfer the required lamports for deployment. \
+Please change RPC endpoint from the settings.
+Reason: ${e.message}`
+          );
+        }
+
+        await PgCommon.sleep(sleepAmount);
+        sleepAmount *= SLEEP_MULTIPLIER;
+      }
+    }
+  }
+
+  // Retry until it's successful or exceeds max tries
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       if (i !== 0) {
@@ -195,12 +262,13 @@ const processDeploy = async () => {
         if (bufferAcc) break;
       }
 
-      await BpfLoaderUpgradeable.createBuffer(
+      const txHash = await BpfLoaderUpgradeable.createBuffer(
         bufferKp,
         bufferBalance,
         programLen,
-        { wallet }
+        { wallet: pgWallet }
       );
+      await PgTx.confirm(txHash);
     } catch (e: any) {
       console.log("Create buffer error:", e.message);
       if (i === MAX_RETRIES - 1) {
@@ -220,7 +288,9 @@ Reason: ${e.message}`
 
   console.log("Buffer pk:", bufferKp.publicKey.toBase58());
   const closeBuffer = async () => {
-    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, { wallet });
+    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
+      wallet: pgWallet,
+    });
   };
 
   // Load buffer
@@ -228,8 +298,7 @@ Reason: ${e.message}`
     bufferKp.publicKey,
     programBuffer,
     {
-      connection,
-      wallet,
+      wallet: pgWallet,
       onWrite: (offset) => PgTerminal.setProgress((offset / programLen) * 100),
       onMissing: (missingCount) => {
         PgTerminal.log(
@@ -245,14 +314,55 @@ Reason: ${e.message}`
   );
   if (loadBufferResult.cancelled) return { closeBuffer };
 
+  // If deploying from a standard wallet, transfer the buffer authority
+  // to the standard wallet before deployment, otherwise it doesn't
+  // pass on-chain checks.
+  if (standardWallet) {
+    sleepAmount = 1000;
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        // Verify buffer authority is not already set to the standard wallet
+        if (i !== 0) {
+          const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+          const isBufferAuthority = bufferAcc?.data
+            .slice(5, 37)
+            .equals(standardWallet.publicKey.toBuffer());
+          if (isBufferAuthority) break;
+        }
+
+        const txHash = await BpfLoaderUpgradeable.setBufferAuthority(
+          bufferKp.publicKey,
+          standardWallet.publicKey,
+          { wallet: pgWallet }
+        );
+        await PgTx.confirm(txHash);
+      } catch (e: any) {
+        console.log("Set buffer authority error:", e.message);
+        if (i === MAX_RETRIES - 1) {
+          throw new Error(
+            `Exceeded maximum amount of retries(${PgTerminal.bold(
+              MAX_RETRIES.toString()
+            )}) to set the buffer account authority to the current wallet. \
+  Please change RPC endpoint from the settings.
+  Reason: ${e.message}`
+          );
+        }
+
+        await PgCommon.sleep(sleepAmount);
+        sleepAmount *= SLEEP_MULTIPLIER;
+      }
+    }
+  }
+
+  // Deploy/upgrade
   let txHash: string | undefined;
   let errorMsg =
     "Please check the browser console. If the problem persists, you can report the issue in " +
     GITHUB_URL +
     "/issues";
-  sleepAmount = 1000;
 
   // Retry until it's successful or exceeds max tries
+  sleepAmount = 1000;
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       if (!programExists) {
@@ -287,19 +397,16 @@ Reason: ${e.message}`
           await connection.getMinimumBalanceForRentExemption(programSize);
 
         txHash = await BpfLoaderUpgradeable.deployProgram(
-          bufferKp.publicKey,
           programKp,
+          bufferKp.publicKey,
           programBalance,
-          programLen * 2,
-          { wallet }
+          programLen * 2
         );
       } else {
         // Upgrade
         txHash = await BpfLoaderUpgradeable.upgradeProgram(
           programPk,
-          bufferKp.publicKey,
-          wallet.publicKey,
-          { wallet }
+          bufferKp.publicKey
         );
       }
 
