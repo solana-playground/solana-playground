@@ -75,6 +75,7 @@ export const deploy = createCmd({
   preCheck: [checkWallet, checkDeploy],
 });
 
+/** Check whether the wallet is connected (playground or standard). */
 async function checkWallet() {
   if (!PgWallet.current) {
     throw new Error(
@@ -287,11 +288,8 @@ Reason: ${e.message}`
   }
 
   console.log("Buffer pk:", bufferKp.publicKey.toBase58());
-  const closeBuffer = async () => {
-    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
-      wallet: pgWallet,
-    });
-  };
+  const closeBuffer = () =>
+    BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey);
 
   // Load buffer
   const loadBufferResult = await loadBufferWithControl(
@@ -312,7 +310,15 @@ Reason: ${e.message}`
       },
     }
   );
-  if (loadBufferResult.cancelled) return { closeBuffer };
+  if (loadBufferResult.cancelled) {
+    return {
+      closeBuffer: async () => {
+        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
+          wallet: pgWallet,
+        });
+      },
+    };
+  }
 
   // If deploying from a standard wallet, transfer the buffer authority
   // to the standard wallet before deployment, otherwise it doesn't
@@ -339,6 +345,8 @@ Reason: ${e.message}`
       } catch (e: any) {
         console.log("Set buffer authority error:", e.message);
         if (i === MAX_RETRIES - 1) {
+          await closeBuffer();
+
           throw new Error(
             `Exceeded maximum amount of retries(${PgTerminal.bold(
               MAX_RETRIES.toString()
@@ -414,8 +422,8 @@ Reason: ${e.message}`
 
       const result = await PgTx.confirm(txHash);
       if (!result?.err) {
-        // Also check whether the buffer account was because `PgTx.confirm` can
-        // be unreliable
+        // Also check whether the buffer account was closed because
+        // `PgTx.confirm` can be unreliable
         const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
         if (!bufferAcc) break;
       }
