@@ -5,7 +5,6 @@ import {
   Transaction,
 } from "@solana/web3.js";
 
-import { GITHUB_URL } from "../../constants";
 import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-browser";
 import {
   PgCommand,
@@ -209,8 +208,6 @@ const processDeploy = async () => {
     }
   }
 
-  let sleepAmount = 1000;
-
   // If deploying from a standard wallet, transfer the required lamports for
   // deployment to the first playground wallet, which allows to deploy without
   // asking for approval.
@@ -223,73 +220,37 @@ const processDeploy = async () => {
       lamports: requiredBalance,
     });
     const transferTx = new Transaction().add(transferIx);
-
-    for (let i = 0; i < MAX_RETRIES; i++) {
-      try {
-        if (i !== 0) {
-          const currentBalance = await connection.getBalance(
-            standardWallet.publicKey
-          );
-          if (currentBalance < userBalance - requiredBalance) break;
-        }
-
-        const txHash = await PgTx.send(transferTx);
-        await PgTx.confirm(txHash);
-
-        break;
-      } catch (e: any) {
-        console.log("Transfer to standard wallet error:", e.message);
-        if (i === MAX_RETRIES - 1) {
-          throw new Error(
-            `Exceeded maximum amount of retries(${PgTerminal.bold(
-              MAX_RETRIES.toString()
-            )}) to transfer the required lamports for deployment. \
-Please change RPC endpoint from the settings.
-Reason: ${e.message}`
-          );
-        }
-
-        await PgCommon.sleep(sleepAmount);
-        sleepAmount *= SLEEP_MULTIPLIER;
+    await sendAndConfirmTxWithRetries(
+      () => PgTx.send(transferTx),
+      async () => {
+        const currentBalance = await connection.getBalance(
+          standardWallet.publicKey
+        );
+        return currentBalance < userBalance - requiredBalance;
       }
-    }
+    );
   }
 
-  // Retry until it's successful or exceeds max tries
-  for (let i = 0; i < MAX_RETRIES; i++) {
-    try {
-      if (i !== 0) {
-        const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
-        if (bufferAcc) break;
-      }
-
-      const txHash = await BpfLoaderUpgradeable.createBuffer(
+  // Create buffer
+  await sendAndConfirmTxWithRetries(
+    async () => {
+      return await BpfLoaderUpgradeable.createBuffer(
         bufferKp,
         bufferBalance,
         programLen,
         { wallet: pgWallet }
       );
-      await PgTx.confirm(txHash);
-    } catch (e: any) {
-      console.log("Create buffer error:", e.message);
-      if (i === MAX_RETRIES - 1) {
-        throw new Error(
-          `Exceeded maximum amount of retries(${PgTerminal.bold(
-            MAX_RETRIES.toString()
-          )}) to create the program buffer account. \
-Please change RPC endpoint from the settings.
-Reason: ${e.message}`
-        );
-      }
-
-      await PgCommon.sleep(sleepAmount);
-      sleepAmount *= SLEEP_MULTIPLIER;
+    },
+    async () => {
+      const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+      return !!bufferAcc;
     }
-  }
+  );
 
   console.log("Buffer pk:", bufferKp.publicKey.toBase58());
-  const closeBuffer = () =>
-    BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey);
+  const closeBuffer = async () => {
+    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey);
+  };
 
   // Load buffer
   const loadBufferResult = await loadBufferWithControl(
@@ -324,147 +285,88 @@ Reason: ${e.message}`
   // to the standard wallet before deployment, otherwise it doesn't
   // pass on-chain checks.
   if (standardWallet) {
-    sleepAmount = 1000;
-    for (let i = 0; i < MAX_RETRIES; i++) {
-      try {
-        // Verify buffer authority is not already set to the standard wallet
-        if (i !== 0) {
-          const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
-          const isBufferAuthority = bufferAcc?.data
-            .slice(5, 37)
-            .equals(standardWallet.publicKey.toBuffer());
-          if (isBufferAuthority) break;
-        }
-
-        const txHash = await BpfLoaderUpgradeable.setBufferAuthority(
+    await sendAndConfirmTxWithRetries(
+      async () => {
+        return await BpfLoaderUpgradeable.setBufferAuthority(
           bufferKp.publicKey,
           standardWallet.publicKey,
           { wallet: pgWallet }
         );
-        await PgTx.confirm(txHash);
-      } catch (e: any) {
-        console.log("Set buffer authority error:", e.message);
-        if (i === MAX_RETRIES - 1) {
-          await closeBuffer();
-
-          throw new Error(
-            `Exceeded maximum amount of retries(${PgTerminal.bold(
-              MAX_RETRIES.toString()
-            )}) to set the buffer account authority to the current wallet. \
-  Please change RPC endpoint from the settings.
-  Reason: ${e.message}`
-          );
-        }
-
-        await PgCommon.sleep(sleepAmount);
-        sleepAmount *= SLEEP_MULTIPLIER;
+      },
+      async () => {
+        const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+        const isBufferAuthority = bufferAcc?.data
+          .slice(5, 37)
+          .equals(standardWallet.publicKey.toBuffer());
+        return !!isBufferAuthority;
       }
-    }
+    );
   }
 
   // Deploy/upgrade
-  let txHash: string | undefined;
-  let errorMsg =
-    "Please check the browser console. If the problem persists, you can report the issue in " +
-    GITHUB_URL +
-    "/issues";
+  let txHash;
+  try {
+    txHash = await sendAndConfirmTxWithRetries(
+      async () => {
+        if (!programExists) {
+          // First deploy needs keypair
+          const programKp = PgProgramInfo.kp;
+          if (!programKp) {
+            // TODO: Break out of the retries
+            throw new Error(
+              "Initial deployment needs a keypair but you've only provided a public key."
+            );
+          }
 
-  // Retry until it's successful or exceeds max tries
-  sleepAmount = 1000;
-  for (let i = 0; i < MAX_RETRIES; i++) {
-    try {
-      if (!programExists) {
-        // First deploy needs keypair
-        const programKp = PgProgramInfo.kp;
-        if (!programKp) {
-          errorMsg =
-            "Initial deployment needs a keypair but you've only provided a public key.";
+          // Check whether customPk and programPk matches
+          if (!programKp.publicKey.equals(programPk)) {
+            // TODO: Break out of the retries
+            throw new Error(
+              [
+                "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.",
+                "You can fix this in 3 different ways:",
+                `1. Remove the custom program id from ${PgTerminal.bold(
+                  "Program Credentials"
+                )}`,
+                "2. Import the program keypair for the current program id",
+                "3. Create a new program keypair",
+              ].join("\n")
+            );
+          }
 
-          break;
+          const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
+            BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
+          );
+          const programBalance =
+            await connection.getMinimumBalanceForRentExemption(programSize);
+
+          return await BpfLoaderUpgradeable.deployProgram(
+            programKp,
+            bufferKp.publicKey,
+            programBalance,
+            programLen * 2
+          );
+        } else {
+          // Upgrade
+          return await BpfLoaderUpgradeable.upgradeProgram(
+            programPk,
+            bufferKp.publicKey
+          );
         }
-
-        // Check whether customPk and programPk matches
-        if (!programKp.publicKey.equals(programPk)) {
-          errorMsg = [
-            "Entered program id doesn't match program id derived from program's keypair. Initial deployment can only be done from a keypair.",
-            "You can fix this in 3 different ways:",
-            `1. Remove the custom program id from ${PgTerminal.bold(
-              "Program Credentials"
-            )}`,
-            "2. Import the program keypair for the current program id",
-            "3. Create a new program keypair",
-          ].join("\n");
-
-          break;
-        }
-
-        const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
-          BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
-        );
-        const programBalance =
-          await connection.getMinimumBalanceForRentExemption(programSize);
-
-        txHash = await BpfLoaderUpgradeable.deployProgram(
-          programKp,
-          bufferKp.publicKey,
-          programBalance,
-          programLen * 2
-        );
-      } else {
-        // Upgrade
-        txHash = await BpfLoaderUpgradeable.upgradeProgram(
-          programPk,
-          bufferKp.publicKey
-        );
-      }
-
-      console.log("Deploy/upgrade tx hash:", txHash);
-
-      const result = await PgTx.confirm(txHash);
-      if (!result?.err) {
+      },
+      async () => {
         // Also check whether the buffer account was closed because
         // `PgTx.confirm` can be unreliable
         const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
-        if (!bufferAcc) break;
+        return !bufferAcc;
       }
-    } catch (e: any) {
-      console.log("Deploy/upgrade error:", e.message);
-
-      if (e.message.endsWith("0x0")) {
-        await closeBuffer();
-
-        throw new Error("Incorrect program id.");
-      }
-      if (e.message.endsWith("0x1")) {
-        // Not enough balance
-        await closeBuffer();
-
-        throw new Error(
-          "Make sure you have enough SOL to complete the deployment."
-        );
-      }
-
-      await PgCommon.sleep(sleepAmount);
-      sleepAmount *= SLEEP_MULTIPLIER;
-    }
-
-    if (i === MAX_RETRIES - 1) {
-      await closeBuffer();
-
-      throw new Error(
-        `Failed to deploy with ${PgTerminal.bold(
-          MAX_RETRIES.toString()
-        )} retries.`
-      );
-    }
-  }
-
-  // Most likely the user doesn't have the upgrade authority
-  if (!txHash) {
+    );
+  } catch (e) {
     await closeBuffer();
-
-    throw new Error(errorMsg);
+    throw e;
   }
+
+  console.log("Deploy/upgrade tx hash:", txHash);
 
   return { txHash };
 };
@@ -526,4 +428,41 @@ const loadBufferWithControl = (
       res({ success: true });
     }
   });
+};
+
+/**
+ * Send and confirm transaction with retries based on `checkConfirmation`
+ * condition.
+ *
+ * @param sendTx send transaction callback
+ * @param checkConfirmation only confirm the transaction if this callback returns truthy
+ * @returns the transaction signature
+ */
+const sendAndConfirmTxWithRetries = async (
+  sendTx: () => Promise<string>,
+  checkConfirmation: () => Promise<boolean>
+) => {
+  let sleepAmount = 1000;
+  let errMsg;
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      const txHash = await sendTx();
+      const result = await PgTx.confirm(txHash);
+      if (!result?.err) return txHash;
+      if (await checkConfirmation()) return txHash;
+    } catch (e: any) {
+      errMsg = e.message;
+      console.log(errMsg);
+      await PgCommon.sleep(sleepAmount);
+      sleepAmount *= SLEEP_MULTIPLIER;
+    }
+  }
+
+  throw new Error(
+    `Exceeded maximum amount of retries (${PgTerminal.bold(
+      MAX_RETRIES.toString()
+    )}).
+This might be an RPC related issue. Consider changing the endpoint from the settings.
+Reason: ${errMsg}`
+  );
 };
