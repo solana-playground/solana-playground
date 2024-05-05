@@ -157,55 +157,37 @@ const processDeploy = async () => {
   ]);
 
   // Balance required to deploy/upgrade (without fees)
-  let requiredBalanceWithoutFees;
-  if (!programExists) {
-    // Initial deploy
-    requiredBalanceWithoutFees = 3 * bufferBalance;
-    if (userBalance < requiredBalanceWithoutFees) {
-      const errMsg = `Initial deployment costs ${PgTerminal.bold(
-        PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
-      )} SOL but you have ${PgTerminal.bold(
-        PgCommon.lamportsToSol(userBalance).toFixed(2)
-      )} SOL. ${PgTerminal.bold(
-        PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-      )} SOL will be refunded at the end.`;
+  const requiredBalanceWithoutFees = programExists
+    ? bufferBalance
+    : 3 * bufferBalance;
+  if (userBalance < requiredBalanceWithoutFees) {
+    const errMsg = programExists
+      ? `Initial deployment costs ${PgTerminal.bold(
+          PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
+        )} SOL but you have ${PgTerminal.bold(
+          PgCommon.lamportsToSol(userBalance).toFixed(2)
+        )} SOL. ${PgTerminal.bold(
+          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+        )} SOL will be refunded at the end.`
+      : `Upgrading costs ${PgTerminal.bold(
+          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+        )} SOL but you have ${PgTerminal.bold(
+          PgCommon.lamportsToSol(userBalance).toFixed(2)
+        )} SOL. ${PgTerminal.bold(
+          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+        )} SOL will be refunded at the end.`;
 
-      const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
-      if (airdropAmount !== null) {
-        throw new Error(
-          errMsg +
-            `\nYou can use '${PgTerminal.bold(
-              `solana airdrop ${airdropAmount}`
-            )}' to airdrop some SOL.`
-        );
-      }
-
-      throw new Error(errMsg);
+    const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
+    if (airdropAmount !== null) {
+      throw new Error(
+        errMsg +
+          `\nYou can use '${PgTerminal.bold(
+            `solana airdrop ${airdropAmount}`
+          )}' to airdrop some SOL.`
+      );
     }
-  } else {
-    // Upgrade
-    requiredBalanceWithoutFees = bufferBalance;
-    if (userBalance < bufferBalance) {
-      const errMsg = `Upgrading costs ${PgTerminal.bold(
-        PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-      )} SOL but you have ${PgTerminal.bold(
-        PgCommon.lamportsToSol(userBalance).toFixed(2)
-      )} SOL. ${PgTerminal.bold(
-        PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-      )} SOL will be refunded at the end.`;
 
-      const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
-      if (airdropAmount !== null) {
-        throw new Error(
-          errMsg +
-            `\nYou can use '${PgTerminal.bold(
-              `solana airdrop ${airdropAmount}`
-            )}' to airdrop some SOL.`
-        );
-      }
-
-      throw new Error(errMsg);
-    }
+    throw new Error(errMsg);
   }
 
   // If deploying from a standard wallet, transfer the required lamports for
