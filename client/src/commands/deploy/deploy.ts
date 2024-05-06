@@ -96,7 +96,7 @@ async function checkDeploy() {
   }
 
   if (!PgProgramInfo.onChain.upgradable) {
-    throw new Error(PgTerminal.warning("The program is not upgradable."));
+    throw new Error("The program is not upgradable.");
   }
 
   const authority = PgProgramInfo.onChain.authority;
