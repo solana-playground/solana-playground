@@ -161,33 +161,33 @@ const processDeploy = async () => {
     ? bufferBalance
     : 3 * bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
-    const errMsg = programExists
-      ? `Initial deployment costs ${PgTerminal.bold(
-          PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
-        )} SOL but you have ${PgTerminal.bold(
-          PgCommon.lamportsToSol(userBalance).toFixed(2)
-        )} SOL. ${PgTerminal.bold(
-          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-        )} SOL will be refunded at the end.`
-      : `Upgrading costs ${PgTerminal.bold(
-          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-        )} SOL but you have ${PgTerminal.bold(
-          PgCommon.lamportsToSol(userBalance).toFixed(2)
-        )} SOL. ${PgTerminal.bold(
-          PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-        )} SOL will be refunded at the end.`;
-
     const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
     if (airdropAmount !== null) {
-      throw new Error(
-        errMsg +
-          `\nYou can use '${PgTerminal.bold(
-            `solana airdrop ${airdropAmount}`
-          )}' to airdrop some SOL.`
+      const term = await PgTerminal.get();
+      const msg = programExists
+        ? `Initial deployment costs ${PgTerminal.bold(
+            PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
+          )} SOL but you have ${PgTerminal.bold(
+            PgCommon.lamportsToSol(userBalance).toFixed(2)
+          )} SOL. ${PgTerminal.bold(
+            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+          )} SOL will be refunded at the end.`
+        : `Upgrading costs ${PgTerminal.bold(
+            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+          )} SOL but you have ${PgTerminal.bold(
+            PgCommon.lamportsToSol(userBalance).toFixed(2)
+          )} SOL. ${PgTerminal.bold(
+            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+          )} SOL will be refunded at the end.`;
+      term.println(`Warning: ${msg}`);
+      const confirmed = await term.waitForUserInput(
+        "You don't have enough SOL to complete the deployment. Would you like to request an airdrop?",
+        { confirm: true }
       );
-    }
+      if (!confirmed) throw new Error("Insufficient balance");
 
-    throw new Error(errMsg);
+      await term.executeFromStr(`solana airdrop ${airdropAmount}`);
+    }
   }
 
   // If deploying from a standard wallet, transfer the required lamports for
