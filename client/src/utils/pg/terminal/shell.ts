@@ -30,7 +30,6 @@ type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
 export class PgShell {
   private _tty: PgTty;
   private _cmdManager: CommandManager;
-  private _active = false;
   private _waitingForInput = false;
   private _processCount = 0;
   private _activePrompt: ActivePrompt | null = null;
@@ -66,14 +65,12 @@ export class PgShell {
   /** Disable shell. */
   disable() {
     this._incrementProcessCount();
-    this._active = false;
   }
 
   /** Enable shell. */
   enable() {
     setTimeout(() => {
       this._decrementProcessCount();
-      this._active = true;
       if (!this._processCount) this.prompt();
     }, 10);
   }
@@ -94,7 +91,6 @@ export class PgShell {
         ? PgTerminal.WAITING_INPUT_PROMPT_PREFIX
         : PgTerminal.PROMPT_PREFIX;
       this._activePrompt = this._tty.read(promptText);
-      this._active = true;
 
       await this._activePrompt.promise;
       const input = this._tty.input.trim();
@@ -105,9 +101,9 @@ export class PgShell {
     }
   }
 
-  /** Get whether the shell is active. */
+  /** Get whether the shell is active, and the user can type. */
   isPrompting() {
-    return this._active;
+    return !this._processCount || this._waitingForInput;
   }
 
   /**
@@ -141,16 +137,16 @@ export class PgShell {
    * @param msg message to print to the terminal before prompting user
    * @returns user input
    */
-  async waitForUserInput(msg: string): Promise<string> {
-    return new Promise((res, rej) => {
+  async waitForUserInput(msg: string) {
+    return new Promise<string>((res, rej) => {
       if (this._waitingForInput) rej("Already waiting for input.");
       else {
-        this._waitingForInput = true;
         this._tty.clearLine();
         this._tty.println(
           PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
         );
-        this.enable();
+        this._waitingForInput = true;
+        this.prompt();
 
         // This will happen once user sends the input
         const handleInput = () => {
@@ -159,8 +155,7 @@ export class PgShell {
             handleInput
           );
           this._waitingForInput = false;
-          const input = this._tty.input;
-          res(input);
+          res(this._tty.input);
         };
 
         document.addEventListener(
@@ -186,8 +181,6 @@ export class PgShell {
     if (clearCmd) this._tty.clearLine();
     else this._tty.print("\r\n");
 
-    this._active = false;
-
     if (this._waitingForInput) {
       PgCommon.createAndDispatchCustomEvent(PgShell._TERMINAL_WAIT_FOR_INPUT);
     } else {
@@ -198,9 +191,7 @@ export class PgShell {
   /** Handle terminal -> tty input. */
   handleTermData = (data: string) => {
     // Only Allow CTRL+C through
-    if (!this._active && data !== "\x03") {
-      return;
-    }
+    if (!this.isPrompting() && data !== "\x03") return;
 
     if (this._tty.firstInit && this._activePrompt) {
       const line = this._tty.buffer.getLine(
@@ -278,9 +269,7 @@ export class PgShell {
   /** Handle a single piece of information from the terminal -> tty. */
   private _handleData = (data: string) => {
     // Only Allow CTRL+C Through
-    if (!this._active && data !== "\x03") {
-      return;
-    }
+    if (!this.isPrompting() && data !== "\x03") return;
 
     const ord = data.charCodeAt(0);
 
@@ -508,9 +497,7 @@ export class PgShell {
 
   /** Decrement active process count if process count is greater than 0. */
   private _decrementProcessCount() {
-    if (this._processCount) {
-      this._processCount--;
-    }
+    if (this._processCount) this._processCount--;
   }
 
   /** Event name of terminal input wait */
