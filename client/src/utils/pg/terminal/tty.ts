@@ -471,29 +471,25 @@ export class PgTty {
 
   /** Add highighting to the given text based on ANSI escape sequences. */
   private static _highlightText(text: string) {
+    const highlight = (s: string, colorCb: (s: string) => string) => {
+      if (s.endsWith(":")) {
+        return colorCb(s.substring(0, s.length - 1)) + s[s.length - 1];
+      }
+
+      return colorCb(s);
+    };
+
     return (
       text
         // Match for error
-        .replace(
-          /\w*\s?(\w*)error(:|\[.*?:)/gim,
-          (match) =>
-            PgTerminal.error(match.substring(0, match.length - 1)) +
-            match[match.length - 1]
+        .replace(/\w*\s?(\w*)error(:|\[.*?:)/gim, (match) =>
+          highlight(match, PgTerminal.error)
         )
 
         // Match for warning
-        .replace(/(\d+\s)?warning(s|:)?/gim, (match) => {
-          // warning:
-          if (match.endsWith(":")) {
-            return (
-              PgTerminal.warning(match.substring(0, match.length - 1)) +
-              match[match.length - 1]
-            );
-          }
-
-          // 1 warning, 2 warnings
-          return PgTerminal.warning(match);
-        })
+        .replace(/(\d+\s)?warning(s|:)?/gim, (match) =>
+          highlight(match, PgTerminal.warning)
+        )
 
         // Match until ':' from the start of the line: e.g SUBCOMMANDS:
         // TODO: Highlight the text from WASM so we don't have to do PgTerminal.
@@ -510,10 +506,11 @@ export class PgTty {
 
           if (!match.includes("   ")) {
             if (match.startsWith(" ")) {
-              return PgTerminal.bold(match); // Indented
+              // Indented
+              return highlight(match, PgTerminal.bold);
             }
             if (!match.toLowerCase().includes("error")) {
-              return PgTerminal.primary(match);
+              return highlight(match, PgTerminal.primary);
             }
           }
 
