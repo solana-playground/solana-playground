@@ -3,6 +3,14 @@ import { createTutorials } from "./create";
 /** All visible tutorials at `/tutorials`(in order) */
 export const TUTORIALS = createTutorials(
   {
+    name: "Hello AElf",
+    description: "Hello world program with Native AElf.",
+    authors: [],
+    level: "Beginner",
+    framework: "Native",
+    languages: ["CSharp", "TypeScript"],
+  },
+  {
     name: "Hello Solana",
     description: "Hello world program with Native Solana/Rust.",
     authors: [

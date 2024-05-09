@@ -120,6 +120,8 @@ const getLanguageExtension = (lang: TutorialLanguage) => {
       return ".rs";
     case "TypeScript":
       return ".ts";
+    case "CSharp":
+      return ".cs";
   }
 };
 

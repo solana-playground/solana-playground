@@ -33,7 +33,7 @@ module.exports = {
 
         // Raw imports
         {
-          test: /\.(d\.ts|raw|rs|py|md|toml)$/,
+          test: /\.(d\.ts|raw|rs|py|md|toml|cs)$/,
           type: "asset/source",
         },
 
