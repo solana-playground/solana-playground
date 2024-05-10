@@ -339,7 +339,7 @@ export class PgTerm {
     this._xterm.loadAddon(new WebLinksAddon());
 
     // Create Shell and TTY
-    this._pgTty = new PgTty(this._xterm);
+    this._pgTty = new PgTty(this._xterm, cmdManager);
     this._pgShell = new PgShell(this._pgTty, cmdManager);
 
     // Add a custom resize handler that clears the prompt using the previous

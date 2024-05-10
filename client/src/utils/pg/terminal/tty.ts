@@ -2,7 +2,12 @@ import { Terminal as XTerm } from "xterm";
 
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
-import type { ActiveCharPrompt, ActivePrompt, PrintOptions } from "./types";
+import type {
+  ActiveCharPrompt,
+  ActivePrompt,
+  CommandManager,
+  PrintOptions,
+} from "./types";
 
 /**
  * TTY manages text I/O related things such as prompting, input parsing and
@@ -10,6 +15,7 @@ import type { ActiveCharPrompt, ActivePrompt, PrintOptions } from "./types";
  */
 export class PgTty {
   private _xterm: XTerm;
+  private _cmdManager: CommandManager;
   private _termSize: {
     cols: number;
     rows: number;
@@ -20,8 +26,9 @@ export class PgTty {
   private _cursor = 0;
   private _input = "";
 
-  constructor(xterm: XTerm) {
+  constructor(xterm: XTerm, cmdManager: CommandManager) {
     this._xterm = xterm;
+    this._cmdManager = cmdManager;
 
     this._termSize = {
       cols: this._xterm.cols,
@@ -201,7 +208,7 @@ export class PgTty {
     msg = msg.replace(/[\r\n]+/g, "\n").replace(/\n/g, "\r\n");
 
     // Color text
-    if (!opts?.noColor) msg = PgTty._highlightText(msg);
+    if (!opts?.noColor) msg = this._highlightText(msg);
     if (opts?.newLine) msg += "\n";
 
     if (opts?.sync) {
@@ -433,6 +440,76 @@ export class PgTty {
     this._cursor = newCursor;
   }
 
+  /** Add highighting to the given text based on ANSI escape sequences. */
+  private _highlightText(text: string) {
+    // Command based highlighting
+    for (const cmd of this._cmdManager.getNames()) {
+      if (text.startsWith(PgTerminal.PROMPT_PREFIX + cmd)) {
+        return text.replace(cmd, PgTerminal.secondary);
+      }
+    }
+
+    const hl = (s: string, colorCb: (s: string) => string) => {
+      if (s.endsWith(":")) {
+        return colorCb(s.substring(0, s.length - 1)) + s[s.length - 1];
+      }
+
+      return colorCb(s);
+    };
+
+    return (
+      text
+        // Match for error
+        .replace(/\w*\s?(\w*)error(:|\[.*?:)/gim, (match) =>
+          hl(match, PgTerminal.error)
+        )
+
+        // Match for warning
+        .replace(/(\d+\s)?warning(s|:)?/gim, (match) =>
+          hl(match, PgTerminal.warning)
+        )
+
+        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+        // TODO: Highlight the text from WASM so we don't have to do PgTerminal.
+        .replace(/^(.*?:)/gm, (match) => {
+          if (
+            /(http|{|})/.test(match) ||
+            /"\w+":/.test(match) ||
+            /\(\w+:/.test(match) ||
+            /^\s*\|/.test(match) ||
+            /^\s?\d+/.test(match)
+          ) {
+            return match;
+          }
+
+          if (!match.includes("   ")) {
+            if (match.startsWith(" ")) {
+              // Indented
+              return hl(match, PgTerminal.bold);
+            }
+            if (!match.toLowerCase().includes("error")) {
+              return hl(match, PgTerminal.primary);
+            }
+          }
+
+          return match;
+        })
+
+        // Secondary text color for (...)
+        .replace(/\(.+\)/gm, (match) =>
+          match === "(s)" ? match : PgTerminal.secondaryText(match)
+        )
+
+        // Numbers
+        .replace(/^\s*\d+$/, (match) => PgTerminal.secondary(match))
+
+        // Progression [1/5]
+        .replace(/\[\d+\/\d+\]/, (match) =>
+          PgTerminal.bold(PgTerminal.secondaryText(match))
+        )
+    );
+  }
+
   /**
    * Convert offset at the given input to col/row location.
    *
@@ -467,68 +544,5 @@ export class PgTty {
   /** Count the lines of the given input. */
   private static _countLines(input: string, maxCols: number) {
     return PgTty._offsetToColRow(input, input.length, maxCols).row + 1;
-  }
-
-  /** Add highighting to the given text based on ANSI escape sequences. */
-  private static _highlightText(text: string) {
-    const highlight = (s: string, colorCb: (s: string) => string) => {
-      if (s.endsWith(":")) {
-        return colorCb(s.substring(0, s.length - 1)) + s[s.length - 1];
-      }
-
-      return colorCb(s);
-    };
-
-    return (
-      text
-        // Match for error
-        .replace(/\w*\s?(\w*)error(:|\[.*?:)/gim, (match) =>
-          highlight(match, PgTerminal.error)
-        )
-
-        // Match for warning
-        .replace(/(\d+\s)?warning(s|:)?/gim, (match) =>
-          highlight(match, PgTerminal.warning)
-        )
-
-        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
-        // TODO: Highlight the text from WASM so we don't have to do PgTerminal.
-        .replace(/^(.*?:)/gm, (match) => {
-          if (
-            /(http|{|})/.test(match) ||
-            /"\w+":/.test(match) ||
-            /\(\w+:/.test(match) ||
-            /^\s*\|/.test(match) ||
-            /^\s?\d+/.test(match)
-          ) {
-            return match;
-          }
-
-          if (!match.includes("   ")) {
-            if (match.startsWith(" ")) {
-              // Indented
-              return highlight(match, PgTerminal.bold);
-            }
-            if (!match.toLowerCase().includes("error")) {
-              return highlight(match, PgTerminal.primary);
-            }
-          }
-
-          return match;
-        })
-
-        // Secondary text color for (...)
-        .replace(/\(.+\)/gm, (match) =>
-          match === "(s)" ? match : PgTerminal.secondaryText(match)
-        )
-
-        // Numbers
-        .replace(/^\s*\d+$/, (match) => PgTerminal.secondary(match))
-
-        // Progression [1/5]
-        .replace(/\[\d+\/\d+\]/, (match) =>
-          PgTerminal.bold(PgTerminal.secondaryText(match))
-        )
-    );
   }
 }
