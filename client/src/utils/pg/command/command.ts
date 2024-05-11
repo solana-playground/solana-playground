@@ -75,9 +75,7 @@ export class PgCommandManager {
         // Handle checks
         if (cmd.preCheck) {
           const preChecks = PgCommon.toArray(cmd.preCheck);
-          for (const preCheck of preChecks) {
-            await preCheck();
-          }
+          for (const preCheck of preChecks) await preCheck();
         }
 
         // Dispatch start event
@@ -98,7 +96,9 @@ export class PgCommandManager {
         return result;
       }
 
-      PgTerminal.log(`Command '${PgTerminal.italic(input)}' not found.`);
+      PgTerminal.log(
+        `Command \`${PgTerminal.italic(inputCmdName)}\` not found.`
+      );
     });
   }
 }
