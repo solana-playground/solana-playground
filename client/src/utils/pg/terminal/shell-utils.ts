@@ -1,7 +1,4 @@
 import { parse } from "shell-quote";
-import { PgCommon } from "../common";
-
-import type { AutoCompleteHandler } from "./types";
 
 /**
  * Detects all the word boundaries on the given input
@@ -94,39 +91,4 @@ export const getLastToken = (input: string) => {
   // Last token
   const tokens = parse(input);
   return (tokens.pop() as string) || "";
-};
-
-/**
- * @returns the auto-complete candidates for the given input
- */
-export const collectAutocompleteCandidates = (
-  cbs: AutoCompleteHandler[],
-  input: string
-) => {
-  const tokens = parse(input);
-  let index = tokens.length - 1;
-
-  // Empty expressions
-  if (input.trim() === "") {
-    index = 0;
-  } else if (hasTrailingWhitespace(input)) {
-    // Expressions with danging space
-    index += 1;
-  }
-
-  // Collect all auto-complete candidates from the callbacks
-  const candidates = cbs
-    .reduce((acc, cb) => {
-      try {
-        const candidates = cb(tokens as string[], index);
-        return acc.concat(candidates);
-      } catch (e) {
-        console.log("Autocomplete error:", e);
-        return acc;
-      }
-    }, [] as string[])
-    .filter((text) => text.startsWith(input));
-
-  // Candidates might not be unique
-  return PgCommon.toUniqueArray(candidates);
 };

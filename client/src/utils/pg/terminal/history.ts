@@ -1,5 +1,5 @@
-/** Manage shell history */
-export class PgShellHistory {
+/** Manage terminal history */
+export class PgHistory {
   /** Maximum allowed size */
   private _size: number;
   /** Cursor index */

@@ -1,5 +1,6 @@
 import { Terminal as XTerm } from "xterm";
 
+import { PgAutocomplete } from "./autocomplete";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
 import type {
@@ -16,6 +17,7 @@ import type {
 export class PgTty {
   private _xterm: XTerm;
   private _cmdManager: CommandManager;
+  private _autocomplete: PgAutocomplete;
   private _termSize: {
     cols: number;
     rows: number;
@@ -26,10 +28,14 @@ export class PgTty {
   private _cursor = 0;
   private _input = "";
 
-  constructor(xterm: XTerm, cmdManager: CommandManager) {
+  constructor(
+    xterm: XTerm,
+    cmdManager: CommandManager,
+    autocomplete: PgAutocomplete
+  ) {
     this._xterm = xterm;
     this._cmdManager = cmdManager;
-
+    this._autocomplete = autocomplete;
     this._termSize = {
       cols: this._xterm.cols,
       rows: this._xterm.rows,
@@ -442,10 +448,24 @@ export class PgTty {
 
   /** Add highighting to the given text based on ANSI escape sequences. */
   private _highlightText(text: string) {
-    // Command based highlighting
-    for (const cmd of this._cmdManager.getNames()) {
-      if (text.startsWith(PgTerminal.PROMPT_PREFIX + cmd)) {
-        return text.replace(cmd, PgTerminal.secondary);
+    const inputWithoutPrefix = text.replace(this._promptPrefix, "");
+    if (inputWithoutPrefix) {
+      // Autocomplete hints
+      const candidates = this._autocomplete.getCandidates(inputWithoutPrefix);
+      if (candidates.length) {
+        const candidate = candidates[0];
+        const candidateMissingText = candidate.replace(inputWithoutPrefix, "");
+        return text.replace(
+          inputWithoutPrefix,
+          inputWithoutPrefix + PgTerminal.secondaryText(candidateMissingText)
+        );
+      }
+
+      // Command based highlighting
+      for (const cmd of this._cmdManager.getNames()) {
+        if (inputWithoutPrefix.startsWith(cmd)) {
+          return text.replace(cmd, PgTerminal.secondary);
+        }
       }
     }
 
@@ -501,7 +521,7 @@ export class PgTty {
         )
 
         // Numbers
-        .replace(/^\s*\d+$/, (match) => PgTerminal.secondary(match))
+        .replace(/^\s*\d+$/, PgTerminal.secondary)
 
         // Progression [1/5]
         .replace(/\[\d+\/\d+\]/, (match) =>

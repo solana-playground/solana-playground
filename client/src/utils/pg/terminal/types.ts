@@ -26,6 +26,3 @@ export interface ActiveCharPrompt {
 export interface ActivePrompt extends ActiveCharPrompt {
   continuationPromptPrefix: string;
 }
-
-/** Callback to create the autocomplete candidates based on the given tokens */
-export type AutoCompleteHandler = (tokens: string[], index: number) => string[];

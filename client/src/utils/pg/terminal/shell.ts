@@ -1,22 +1,16 @@
+import { PgAutocomplete } from "./autocomplete";
+import { PgHistory } from "./history";
 import { PgTty } from "./tty";
-import { PgShellHistory } from "./shell-history";
 import {
   closestLeftBoundary,
   closestRightBoundary,
-  collectAutocompleteCandidates,
   hasTrailingWhitespace,
   isIncompleteInput,
 } from "./shell-utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
-import type {
-  ActiveCharPrompt,
-  ActivePrompt,
-  AutoCompleteHandler,
-  CommandManager,
-} from "./types";
 
-type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
+import type { ActiveCharPrompt, ActivePrompt, CommandManager } from "./types";
 
 /**
  * A shell is the primary interface that is used to start other programs.
@@ -30,31 +24,23 @@ type ShellOptions = { historySize: number; maxAutocompleteEntries: number };
 export class PgShell {
   private _tty: PgTty;
   private _cmdManager: CommandManager;
+  private _autocomplete: PgAutocomplete;
+  private _history: PgHistory;
   private _waitingForInput = false;
   private _processCount = 0;
   private _activePrompt: ActivePrompt | null = null;
   private _activeCharPrompt: ActiveCharPrompt | null = null;
-  private _history: PgShellHistory;
-  private _maxAutocompleteEntries: number;
-  private _autocompleteHandlers: AutoCompleteHandler[];
 
   constructor(
     tty: PgTty,
     cmdManager: CommandManager,
-    options: ShellOptions = {
-      historySize: 30,
-      maxAutocompleteEntries: 100,
-    }
+    autocomplete: PgAutocomplete,
+    history: PgHistory
   ) {
     this._tty = tty;
     this._cmdManager = cmdManager;
-
-    this._history = new PgShellHistory(options.historySize);
-    this._maxAutocompleteEntries = options.maxAutocompleteEntries;
-    this._autocompleteHandlers = [
-      () => this._history.getEntries(),
-      () => this._cmdManager.getNames(),
-    ];
+    this._autocomplete = autocomplete;
+    this._history = history;
   }
 
   /** Terminal history */
@@ -362,25 +348,18 @@ export class PgShell {
           break;
 
         case "\t": // TAB
-          if (this._autocompleteHandlers.length > 0) {
+          if (this._autocomplete.hasAnyHandler()) {
             const inputFragment = this._tty.input.substring(
               0,
               this._tty.cursor
             );
-            const hasTrailingSpace = hasTrailingWhitespace(inputFragment);
-            const candidates = collectAutocompleteCandidates(
-              this._autocompleteHandlers,
-              inputFragment
-            );
+            const candidates = this._autocomplete.getCandidates(inputFragment);
 
-            // Sort candidates
-            candidates.sort();
-
-            // Depending on the number of candidates, we are handing them in
-            // a different way.
+            // Depending on the number of candidates, we are handing them in a
+            // different way.
             if (candidates.length === 0) {
-              // No candidates? Just add a space if there is none already
-              if (!hasTrailingSpace) {
+              // Add a space if there is none already
+              if (!hasTrailingWhitespace(inputFragment)) {
                 this._handleCursorInsert(" ");
               }
             } else if (candidates.length === 1) {
@@ -389,7 +368,7 @@ export class PgShell {
 
               // Move the cursor to the end
               this._tty.setCursor(candidates[0].length);
-            } else if (candidates.length <= this._maxAutocompleteEntries) {
+            } else if (candidates.length <= 100) {
               // If the candidate count is less than maximum auto-complete
               // candidates, find the common candidate
               let commonCandidate = "";

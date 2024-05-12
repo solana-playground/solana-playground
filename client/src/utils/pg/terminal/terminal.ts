@@ -3,8 +3,10 @@ import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import { format } from "util";
 
-import { PgTty } from "./tty";
+import { PgAutocomplete } from "./autocomplete";
+import { PgHistory } from "./history";
 import { PgShell } from "./shell";
+import { PgTty } from "./tty";
 import {
   Emoji,
   EventName,
@@ -339,8 +341,13 @@ export class PgTerm {
     this._xterm.loadAddon(new WebLinksAddon());
 
     // Create Shell and TTY
-    this._pgTty = new PgTty(this._xterm, cmdManager);
-    this._pgShell = new PgShell(this._pgTty, cmdManager);
+    const history = new PgHistory(20);
+    const autocomplete = new PgAutocomplete([
+      () => history.getEntries(),
+      () => cmdManager.getNames(),
+    ]);
+    this._pgTty = new PgTty(this._xterm, cmdManager, autocomplete);
+    this._pgShell = new PgShell(this._pgTty, cmdManager, autocomplete, history);
 
     // Add a custom resize handler that clears the prompt using the previous
     // configuration, updates the cached terminal size information and then
