@@ -18,7 +18,7 @@ const SidebarButton: FC<SidebarButtonProps> = ({
 }) => (
   <Tooltip element={tooltipEl} placement="right" arrow={{ size: 4 }}>
     <IconWrapper {...props}>
-      <Icon src={src} />
+      <Icon src={src} className="menu-item" />
     </IconWrapper>
   </Tooltip>
 );

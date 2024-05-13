@@ -50,7 +50,7 @@ export class PgTerminal {
   /** Welcome text */
   static readonly DEFAULT_TEXT = [
     `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
-    `Popular crates for Solana development are available to use.`,
+    `Popular crates for AElf development are available to use.`,
     `See the list of available crates and request new crates from ${PgTerminal.underline(
       GITHUB_URL
     )}`,

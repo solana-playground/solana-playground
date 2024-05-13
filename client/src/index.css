@@ -15,3 +15,6 @@ a {
   text-decoration: none;
   color: inherit;
 }
+img.menu-item {
+  filter: invert(0.9);
+}
