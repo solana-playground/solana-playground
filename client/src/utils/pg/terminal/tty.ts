@@ -454,11 +454,16 @@ export class PgTty {
       const candidates = this._autocomplete.getCandidates(inputWithoutPrefix);
       if (candidates.length) {
         const candidate = candidates[0];
-        const candidateMissingText = candidate.replace(inputWithoutPrefix, "");
-        return text.replace(
-          inputWithoutPrefix,
-          inputWithoutPrefix + PgTerminal.secondaryText(candidateMissingText)
-        );
+        if (candidate !== inputWithoutPrefix) {
+          const candidateMissingText = candidate.replace(
+            inputWithoutPrefix,
+            ""
+          );
+          return text.replace(
+            inputWithoutPrefix,
+            inputWithoutPrefix + PgTerminal.secondaryText(candidateMissingText)
+          );
+        }
       }
 
       // Command based highlighting
