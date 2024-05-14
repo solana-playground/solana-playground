@@ -448,28 +448,32 @@ export class PgTty {
 
   /** Add highighting to the given text based on ANSI escape sequences. */
   private _highlightText(text: string) {
-    const inputWithoutPrefix = text.replace(this._promptPrefix, "");
-    if (inputWithoutPrefix) {
-      // Autocomplete hints
-      const candidates = this._autocomplete.getCandidates(inputWithoutPrefix);
-      if (candidates.length) {
-        const candidate = candidates[0];
-        if (candidate !== inputWithoutPrefix) {
-          const candidateMissingText = candidate.replace(
-            inputWithoutPrefix,
-            ""
-          );
-          return text.replace(
-            inputWithoutPrefix,
-            inputWithoutPrefix + PgTerminal.secondaryText(candidateMissingText)
-          );
+    // Prompt highlighting
+    if (text.startsWith(this._promptPrefix)) {
+      const inputWithoutPrefix = text.replace(this._promptPrefix, "");
+      if (inputWithoutPrefix) {
+        // Autocomplete hints
+        const candidates = this._autocomplete.getCandidates(inputWithoutPrefix);
+        if (candidates.length) {
+          const candidate = candidates[0];
+          if (candidate !== inputWithoutPrefix) {
+            const candidateMissingText = candidate.replace(
+              inputWithoutPrefix,
+              ""
+            );
+            return text.replace(
+              inputWithoutPrefix,
+              inputWithoutPrefix +
+                PgTerminal.secondaryText(candidateMissingText)
+            );
+          }
         }
-      }
 
-      // Command based highlighting
-      for (const cmd of this._cmdManager.getNames()) {
-        if (inputWithoutPrefix.startsWith(cmd)) {
-          return text.replace(cmd, PgTerminal.secondary);
+        // Command based highlighting
+        for (const cmd of this._cmdManager.getNames()) {
+          if (inputWithoutPrefix.startsWith(cmd)) {
+            return text.replace(cmd, PgTerminal.secondary);
+          }
         }
       }
     }
