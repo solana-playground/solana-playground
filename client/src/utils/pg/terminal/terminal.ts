@@ -324,8 +324,8 @@ export class PgTerm {
   private _xterm: XTerm;
   private _container: HTMLElement | null;
   private _fitAddon: FitAddon;
-  private _pgTty: PgTty;
-  private _pgShell: PgShell;
+  private _tty: PgTty;
+  private _shell: PgShell;
   private _isOpen: boolean;
 
   constructor(cmdManager: CommandManager, xtermOptions?: ITerminalOptions) {
@@ -346,8 +346,8 @@ export class PgTerm {
       () => history.getEntries(),
       () => cmdManager.getNames(),
     ]);
-    this._pgTty = new PgTty(this._xterm, cmdManager, autocomplete);
-    this._pgShell = new PgShell(this._pgTty, cmdManager, autocomplete, history);
+    this._tty = new PgTty(this._xterm, cmdManager, autocomplete);
+    this._shell = new PgShell(this._tty, cmdManager, autocomplete, history);
 
     // Add a custom resize handler that clears the prompt using the previous
     // configuration, updates the cached terminal size information and then
@@ -356,9 +356,9 @@ export class PgTerm {
     //
     // Also stops multiline inputs rendering unnecessarily.
     this._xterm.onResize(({ rows, cols }) => {
-      this._pgTty.clearInput();
-      this._pgTty.setTermSize(cols, rows);
-      this._pgTty.setInput(this._pgTty.input, true);
+      this._tty.clearInput();
+      this._tty.setTermSize(cols, rows);
+      this._tty.setInput(this._tty.input, true);
     });
 
     // Add a custom key handler in order to fix a bug with spaces
@@ -370,7 +370,7 @@ export class PgTerm {
     });
 
     // Any data event (key, paste...)
-    this._xterm.onData(this._pgShell.handleTermData);
+    this._xterm.onData(this._shell.handleTermData);
 
     this._isOpen = false;
   }
@@ -411,8 +411,8 @@ export class PgTerm {
     }
 
     // We don't need `cursorX`, since we want to start at the beginning of the terminal
-    const cursorY = this._pgTty.buffer.cursorY;
-    const size = this._pgTty.size;
+    const cursorY = this._tty.buffer.cursorY;
+    const size = this._tty.size;
 
     const containerBoundingClientRect = this._container.getBoundingClientRect();
 
@@ -444,15 +444,15 @@ export class PgTerm {
       return;
     }
 
-    if (this._pgShell.isPrompting()) {
+    if (this._shell.isPrompting()) {
       // Cancel the current prompt and restart
-      this._pgShell.printAndRestartPrompt(() => {
-        this._pgTty.print(msg + "\n", opts);
+      this._shell.printAndRestartPrompt(() => {
+        this._tty.print(msg + "\n", opts);
       });
       return;
     }
 
-    this._pgTty.print(msg, opts);
+    this._tty.print(msg, opts);
   }
 
   /** Print a message with end line character appended */
@@ -468,11 +468,11 @@ export class PgTerm {
    *
    */
   clear(opts?: { full?: boolean }) {
-    this._pgTty.clearTty();
+    this._tty.clearTty();
     if (opts?.full) {
-      this._pgTty.clear();
+      this._tty.clear();
     } else {
-      this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.input}`);
+      this._tty.print(`${PgTerminal.PROMPT_PREFIX}${this._tty.input}`);
     }
   }
 
@@ -483,13 +483,13 @@ export class PgTerm {
    * like pressing build button
    */
   disable() {
-    this._pgShell.disable();
-    this._pgTty.clearLine();
+    this._shell.disable();
+    this._tty.clearLine();
   }
 
   /** Enable shell */
   enable() {
-    this._pgShell.enable();
+    this._shell.enable();
   }
 
   /** Scroll the terminal to bottom */
@@ -511,9 +511,9 @@ export class PgTerm {
    */
   runLastCmd() {
     // Last command is the current input
-    let lastCmd = this._pgTty.input;
+    let lastCmd = this._tty.input;
     if (!lastCmd || lastCmd === "!!") {
-      const maybeLastCmd = this._pgShell.history.getPrevious();
+      const maybeLastCmd = this._shell.history.getPrevious();
       if (maybeLastCmd) lastCmd = maybeLastCmd;
       else this.println("Unable to run last command.");
     }
@@ -576,7 +576,7 @@ export class PgTerm {
       convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
     }
 
-    let userInput = await this._pgShell.waitForUserInput(convertedMsg);
+    let userInput = await this._shell.waitForUserInput(convertedMsg);
     if (!userInput && opts?.default) {
       userInput = opts.default;
     }
@@ -652,9 +652,7 @@ export class PgTerm {
         ? PgTerminal.secondaryText("empty")
         : PgTerminal.success(userInput);
 
-    this._pgTty.changeLine(
-      PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText
-    );
+    this._tty.changeLine(PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText);
     return returnValue;
   }
 
@@ -665,8 +663,8 @@ export class PgTerm {
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
   async executeFromStr(cmd: string, clearCmd?: boolean) {
-    this._pgTty.setInput(cmd);
-    return await this._pgShell.handleReadComplete(clearCmd);
+    this._tty.setInput(cmd);
+    return await this._shell.handleReadComplete(clearCmd);
   }
 
   /**
