@@ -461,7 +461,7 @@ export class PgTty {
               inputWithoutPrefix,
               ""
             );
-            return text.replace(
+            text = text.replace(
               inputWithoutPrefix,
               inputWithoutPrefix +
                 PgTerminal.secondaryText(candidateMissingText)
@@ -472,7 +472,8 @@ export class PgTty {
         // Command based highlighting
         for (const cmd of this._cmdManager.getNames()) {
           if (inputWithoutPrefix.startsWith(cmd)) {
-            return text.replace(cmd, PgTerminal.secondary);
+            text = text.replace(cmd, PgTerminal.secondary);
+            break;
           }
         }
       }
