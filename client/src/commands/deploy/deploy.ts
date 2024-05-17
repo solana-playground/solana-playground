@@ -77,11 +77,21 @@ export const deploy = createCmd({
 /** Check whether the wallet is connected (playground or standard). */
 async function checkWallet() {
   if (!PgWallet.current) {
-    throw new Error(
-      `Wallet must be connected to run this command. Run \`${PgTerminal.bold(
-        PgCommand.connect.name
-      )}\` to connect.`
+    const term = await PgTerminal.get();
+    const confirmed = await term.waitForUserInput(
+      "Your wallet must be connected to deploy programs. Would you like to connect?",
+      { confirm: true }
     );
+    if (!confirmed) {
+      throw new Error(
+        `Connection rejected. Run \`${PgTerminal.bold(
+          PgCommand.connect.name
+        )}\` to connect.`
+      );
+    }
+
+    await PgCommand.connect.run();
+    term.println("");
   }
 }
 
