@@ -8,7 +8,7 @@ type AutoCompleteHandler = (tokens: string[], index: number) => string[];
 
 /** Terminal autocomplete functionality */
 export class PgAutocomplete {
-  _handlers: AutoCompleteHandler[];
+  private _handlers: AutoCompleteHandler[];
 
   constructor(handlers: AutoCompleteHandler[]) {
     this._handlers = handlers;
