@@ -8,6 +8,7 @@ type AutoCompleteHandler = (tokens: string[], index: number) => string[];
 
 /** Terminal autocomplete functionality */
 export class PgAutocomplete {
+  /** Autocomplete handlers */
   private _handlers: AutoCompleteHandler[];
 
   constructor(handlers: AutoCompleteHandler[]) {
@@ -21,6 +22,27 @@ export class PgAutocomplete {
    */
   hasAnyHandler() {
     return this._handlers.length > 0;
+  }
+
+  /**
+   * Temporarily set autocomplete handlers to the given handler.
+   *
+   * @param handler handler to set
+   * @param opts handler options:
+   * - `append`: whether to append the handler to the existing handlers
+   * @returns an object with `restore` callback to restore the handlers
+   */
+  temporarilySetHandlers(
+    handler: AutoCompleteHandler,
+    opts?: { append?: boolean }
+  ) {
+    const initialHandlers = this._handlers;
+    this._handlers = opts?.append ? [...initialHandlers, handler] : [handler];
+    return {
+      restore: () => {
+        this._handlers = initialHandlers;
+      },
+    };
   }
 
   /**

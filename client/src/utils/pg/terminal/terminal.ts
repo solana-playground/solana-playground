@@ -326,6 +326,7 @@ export class PgTerm {
   private _fitAddon: FitAddon;
   private _tty: PgTty;
   private _shell: PgShell;
+  private _autocomplete: PgAutocomplete;
   private _isOpen: boolean;
 
   constructor(cmdManager: CommandManager, xtermOptions?: ITerminalOptions) {
@@ -342,12 +343,17 @@ export class PgTerm {
 
     // Create Shell and TTY
     const history = new PgHistory(20);
-    const autocomplete = new PgAutocomplete([
+    this._autocomplete = new PgAutocomplete([
       () => history.getEntries(),
       () => cmdManager.getNames(),
     ]);
-    this._tty = new PgTty(this._xterm, cmdManager, autocomplete);
-    this._shell = new PgShell(this._tty, cmdManager, autocomplete, history);
+    this._tty = new PgTty(this._xterm, cmdManager, this._autocomplete);
+    this._shell = new PgShell(
+      this._tty,
+      cmdManager,
+      this._autocomplete,
+      history
+    );
 
     // Add a custom resize handler that clears the prompt using the previous
     // configuration, updates the cached terminal size information and then
@@ -563,23 +569,41 @@ export class PgTerm {
     this.focus();
 
     let convertedMsg = msg;
+    let restore;
     if (opts?.default) {
-      convertedMsg += ` (default: ${opts.default})`;
+      const value = opts.default;
+      convertedMsg += ` (default: ${value})`;
+      restore = this._autocomplete.temporarilySetHandlers(() => [value], {
+        append: true,
+      }).restore;
     }
     if (opts?.choice) {
       // Show multi choice items
-      convertedMsg += opts.choice.items.reduce(
+      const items = opts.choice.items;
+      convertedMsg += items.reduce(
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
+      restore = this._autocomplete.temporarilySetHandlers(() =>
+        items.map((_, i) => i.toString())
+      ).restore;
     } else if (opts?.confirm) {
       convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
+      restore = this._autocomplete.temporarilySetHandlers(() => [
+        "yes",
+        "no",
+      ]).restore;
     }
 
-    let userInput = await this._shell.waitForUserInput(convertedMsg);
-    if (!userInput && opts?.default) {
-      userInput = opts.default;
+    let userInput;
+    try {
+      userInput = await this._shell.waitForUserInput(convertedMsg);
+    } finally {
+      restore?.();
     }
+
+    // Set the input to the default if it exists on empty input
+    if (!userInput && opts?.default) userInput = opts.default;
 
     // Default validators
     if (opts && !opts.validator) {
