@@ -80,7 +80,7 @@ async function checkWallet() {
     const term = await PgTerminal.get();
     const confirmed = await term.waitForUserInput(
       "Your wallet must be connected to deploy programs. Would you like to connect?",
-      { confirm: true }
+      { confirm: true, default: "yes" }
     );
     if (!confirmed) {
       throw new Error(
@@ -192,7 +192,7 @@ const processDeploy = async () => {
       term.println(`Warning: ${msg}`);
       const confirmed = await term.waitForUserInput(
         "You don't have enough SOL to complete the deployment. Would you like to request an airdrop?",
-        { confirm: true }
+        { confirm: true, default: "yes" }
       );
       if (!confirmed) throw new Error("Insufficient balance");
 

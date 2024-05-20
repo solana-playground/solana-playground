@@ -25,7 +25,7 @@ export const processLaunch = async (
     if (
       await term.waitForUserInput(
         "Could not load config file. Would you like to create a new config file?",
-        { confirm: true }
+        { confirm: true, default: "yes" }
       )
     ) {
       term.println(`\n${PgTerminal.secondary(">>>")} sugar create-config\n`);
