@@ -1,4 +1,4 @@
-import { PgTerminal, PgView, PgWallet } from "../../utils/pg";
+import { PgCommon, PgTerminal, PgView, PgWallet } from "../../utils/pg";
 import { createCmd } from "../create";
 
 export const connect = createCmd({
@@ -13,6 +13,7 @@ export const connect = createCmd({
           PgTerminal.log(PgTerminal.bold("Disconnected."));
         }
 
+        await confirmDisconnect();
         break;
       }
 
@@ -33,6 +34,7 @@ export const connect = createCmd({
           );
         }
 
+        await confirmDisconnect();
         break;
       }
 
@@ -43,6 +45,7 @@ export const connect = createCmd({
           PgTerminal.log(PgTerminal.success("Connected."));
         }
 
+        await confirmConnect();
         break;
       }
 
@@ -54,6 +57,7 @@ export const connect = createCmd({
           if (!isOther) PgWallet.state = "pg";
 
           PgTerminal.log(PgTerminal.success("Setup completed."));
+          await confirmConnect();
         } else {
           PgTerminal.log(PgTerminal.error("Setup rejected."));
         }
@@ -99,4 +103,18 @@ const toggleStandardIfNeeded = async (input: string) => {
   }
 
   return true;
+};
+
+/** Wait until the wallet is connected. */
+const confirmConnect = async () => {
+  await PgCommon.tryUntilSuccess(() => {
+    if (!PgWallet.current) throw new Error();
+  }, 50);
+};
+
+/** Wait until the wallet is disconnected. */
+const confirmDisconnect = async () => {
+  await PgCommon.tryUntilSuccess(() => {
+    if (PgWallet.current) throw new Error();
+  }, 50);
 };
