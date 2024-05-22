@@ -196,7 +196,7 @@ const processDeploy = async () => {
       );
       if (!confirmed) throw new Error("Insufficient balance");
 
-      await term.executeFromStr(`solana airdrop ${airdropAmount}`);
+      await PgCommand.solana.run(`airdrop ${airdropAmount}`);
     }
   }
 
