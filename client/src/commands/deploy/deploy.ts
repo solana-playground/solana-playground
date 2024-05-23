@@ -90,8 +90,13 @@ async function checkWallet() {
       );
     }
 
+    const needsSetup = PgWallet.state === "setup";
     await PgCommand.connect.run();
     term.println("");
+
+    // When it's the first ever deployment, add extra sleep to give time for
+    // the automatic airdrop request to confirm
+    if (needsSetup) await PgCommon.sleep(2000);
   }
 }
 
