@@ -12,6 +12,26 @@ export interface PrintOptions {
 export type CommandManager<R = unknown> = {
   /** Get the available command names. */
   getNames: () => string[];
+  /**
+   * Get command completions.
+   *
+   * Command completions are defined as an object with properties defined as
+   * commands/subcommands (subcommand if depth > 0).
+   *
+   * # Example
+   *
+   * ```ts
+   * {
+   *   anchor: {
+   *     idl: {
+   *       init: {},
+   *       upgrade: {}
+   *     }
+   *   }
+   * }
+   * ```
+   */
+  getCompletions: () => Record<string, any>;
   /** Execute the given input. */
   execute: (input: string) => Promise<R>;
 };

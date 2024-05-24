@@ -500,7 +500,6 @@ export class PgTty {
         )
 
         // Match until ':' from the start of the line: e.g SUBCOMMANDS:
-        // TODO: Highlight the text from WASM so we don't have to do PgTerminal.
         .replace(/^(.*?:)/gm, (match) => {
           if (
             /(http|{|})/.test(match) ||

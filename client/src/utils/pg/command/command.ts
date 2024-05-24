@@ -53,6 +53,17 @@ export class PgCommandManager {
   }
 
   /**
+   * Get the available command completions.
+   *
+   * @returns the command completions
+   */
+  static getCompletions() {
+    const completes: Record<string, object> = {};
+    for (const name of PgCommandManager.getNames()) completes[name] = {};
+    return completes;
+  }
+
+  /**
    * Execute from the given input.
    *
    * All command processing logic happens in this method.

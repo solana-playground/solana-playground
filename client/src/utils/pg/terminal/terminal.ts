@@ -345,7 +345,7 @@ export class PgTerm {
     const history = new PgHistory(20);
     this._autocomplete = new PgAutocomplete([
       () => history.getEntries(),
-      () => cmdManager.getNames(),
+      cmdManager.getCompletions(),
     ]);
     this._tty = new PgTty(this._xterm, cmdManager, this._autocomplete);
     this._shell = new PgShell(

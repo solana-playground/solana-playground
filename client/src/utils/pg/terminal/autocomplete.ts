@@ -4,15 +4,64 @@ import { hasTrailingWhitespace } from "./shell-utils";
 import { PgCommon } from "../common";
 
 /** Callback to create the autocomplete candidates based on the given tokens */
-type AutoCompleteHandler = (tokens: string[], index: number) => string[];
+type AutocompleteHandler = (tokens: string[], index: number) => string[];
 
 /** Terminal autocomplete functionality */
 export class PgAutocomplete {
   /** Autocomplete handlers */
-  private _handlers: AutoCompleteHandler[];
+  private _handlers: AutocompleteHandler[];
 
-  constructor(handlers: AutoCompleteHandler[]) {
-    this._handlers = handlers;
+  constructor(handlers: Array<AutocompleteHandler | object>) {
+    this._handlers = handlers.map((handler) => {
+      if (typeof handler === "object") {
+        return (tokens, index) => {
+          // Example:
+          // ```ts
+          // handler = {
+          //   anchor: {
+          //     idl: {
+          //       init: {},
+          //       upgrade: {}
+          //     }
+          //   }
+          // }
+          // ```
+          //
+          // index: 0
+          // tokens: []
+          // return: ["anchor"]
+          //
+          // index: 1
+          // tokens: ["anchor"]
+          // return: ["anchor idl"]
+          //
+          // index: 2
+          // tokens: ["anchor", "idl"]
+          // return: ["anchor idl init", "anchor idl upgrade"]
+          const recursivelyGetCandidates = (obj: any, i = 0): string[] => {
+            if (i > index) return [];
+
+            const candidates = [];
+            for (const [key, value] of PgCommon.entries(obj)) {
+              if (i === index && (!tokens[i] || key.startsWith(tokens[i]))) {
+                candidates.push(key);
+              }
+
+              // Check subcommands
+              candidates.push(
+                ...recursivelyGetCandidates(value, i + 1).map(
+                  (subCmd) => `${key} ${subCmd}`
+                )
+              );
+            }
+            return candidates;
+          };
+          return recursivelyGetCandidates(handler);
+        };
+      }
+
+      return handler;
+    });
   }
 
   /**
@@ -33,7 +82,7 @@ export class PgAutocomplete {
    * @returns an object with `restore` callback to restore the handlers
    */
   temporarilySetHandlers(
-    handler: AutoCompleteHandler,
+    handler: AutocompleteHandler,
     opts?: { append?: boolean }
   ) {
     const initialHandlers = this._handlers;
