@@ -1,3 +1,5 @@
+import type { CommandImpl } from "../utils/pg";
+
 /**
  * Create a command. This is only a type helper function.
  *
