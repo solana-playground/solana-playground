@@ -71,7 +71,7 @@ export const deploy = createCmd({
       PgGlobal.update({ deployState: "ready" });
     }
   },
-  preCheck: [checkWallet, checkDeploy],
+  preCheck: [checkWallet, checkProgram],
 });
 
 /** Check whether the wallet is connected (playground or standard). */
@@ -101,7 +101,18 @@ async function checkWallet() {
 }
 
 /** Check whether the state is valid for deployment. */
-async function checkDeploy() {
+async function checkProgram() {
+  if (!PgProgramInfo.uuid && !PgProgramInfo.importedProgram?.buffer.length) {
+    PgTerminal.log("Warning: Program is not built.");
+    await PgCommand.build.run();
+  }
+
+  if (!PgProgramInfo.pk) {
+    throw new Error(
+      "Program ID not found. Go to 'Build & Deploy' tab and set the program ID."
+    );
+  }
+
   if (!PgProgramInfo.onChain) {
     throw new Error(
       `Could not fetch on-chain data. Try using a different RPC provider with '${PgTerminal.bold(
@@ -138,15 +149,10 @@ const SLEEP_MULTIPLIER = 1.8;
  * @returns the deployment transaction signature if the deployment succeeds
  */
 const processDeploy = async () => {
-  const programPk = PgProgramInfo.pk;
-  if (!programPk) throw new Error("Program id not found.");
-
-  // Regular deploy without custom elf upload
-  let programBuffer = PgProgramInfo.importedProgram?.buffer;
-  if (!programBuffer?.length) {
-    if (!PgProgramInfo.uuid) throw new Error("Program is not built.");
-    programBuffer = await PgServer.deploy(PgProgramInfo.uuid);
-  }
+  const programPk = PgProgramInfo.pk!;
+  const programBuffer =
+    PgProgramInfo.importedProgram?.buffer ??
+    (await PgServer.deploy(PgProgramInfo.uuid!));
 
   // Get connection
   const connection = PgConnection.current;
