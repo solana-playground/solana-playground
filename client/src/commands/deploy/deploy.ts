@@ -77,22 +77,15 @@ export const deploy = createCmd({
 /** Check whether the wallet is connected (playground or standard). */
 async function checkWallet() {
   if (!PgWallet.current) {
-    const term = await PgTerminal.get();
-    const confirmed = await term.waitForUserInput(
-      "Your wallet must be connected to deploy programs. Would you like to connect?",
-      { confirm: true, default: "yes" }
+    PgTerminal.log(
+      PgTerminal.info(
+        "Your wallet must be connected to deploy programs. Connecting..."
+      )
     );
-    if (!confirmed) {
-      throw new Error(
-        `Connection rejected. Run \`${PgTerminal.bold(
-          PgCommand.connect.name
-        )}\` to connect.`
-      );
-    }
 
     const needsSetup = PgWallet.state === "setup";
     await PgCommand.connect.run();
-    term.println("");
+    PgTerminal.log("");
 
     // When it's the first ever deployment, add extra sleep to give time for
     // the automatic airdrop request to confirm
