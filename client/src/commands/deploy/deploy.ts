@@ -84,7 +84,9 @@ async function checkWallet() {
     );
 
     const needsSetup = PgWallet.state === "setup";
-    await PgCommand.connect.run();
+    const connected = await PgCommand.connect.run();
+    if (!connected) throw new Error("Wallet must be connected.");
+
     PgTerminal.log("");
 
     // When it's the first ever deployment, add extra sleep to give time for

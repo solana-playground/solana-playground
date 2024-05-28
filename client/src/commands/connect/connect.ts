@@ -14,7 +14,7 @@ export const connect = createCmd({
         }
 
         await confirmDisconnect();
-        break;
+        return true;
       }
 
       case "sol": {
@@ -35,7 +35,7 @@ export const connect = createCmd({
         }
 
         await confirmDisconnect();
-        break;
+        return true;
       }
 
       case "disconnected": {
@@ -46,12 +46,12 @@ export const connect = createCmd({
         }
 
         await confirmConnect();
-        break;
+        return true;
       }
 
       case "setup": {
         const { Setup } = await import("../../components/Wallet/Modals/Setup");
-        const setupCompleted = await PgView.setModal(Setup);
+        const setupCompleted = await PgView.setModal<boolean>(Setup);
         if (setupCompleted) {
           const isOther = await toggleStandardIfNeeded(input);
           if (!isOther) PgWallet.state = "pg";
@@ -61,6 +61,8 @@ export const connect = createCmd({
         } else {
           PgTerminal.log(PgTerminal.error("Setup rejected."));
         }
+
+        return !!setupCompleted;
       }
     }
   },
