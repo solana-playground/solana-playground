@@ -66,9 +66,6 @@ global {
 global {
   /** All internal commands type */
   type InternalCommands = typeof COMMANDS;
-
-  /** Name of all the available commands(only code) */
-  type CommandCodeName = keyof InternalCommands;
 }
 
 declare module "styled-components" {

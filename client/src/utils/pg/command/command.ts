@@ -30,6 +30,9 @@ type Command<R> = Pick<CommandImpl<R>, "name"> & {
   onDidRunFinish(cb: (result: Awaited<R>) => void): Disposable;
 };
 
+/** Name of all the available commands (only code) */
+type CommandCodeName = keyof InternalCommands;
+
 /** Ready to be used commands */
 type Commands = {
   [N in keyof InternalCommands]: InternalCommands[N] extends CommandImpl<
@@ -43,30 +46,30 @@ type Commands = {
 export const PgCommand: Commands = new Proxy(
   {},
   {
-    get: (target: any, cmdName: CommandCodeName): Command<unknown> => {
-      if (target[cmdName]) return target[cmdName];
+    get: (target: any, cmdCodeName: CommandCodeName): Command<unknown> => {
+      if (!target[cmdCodeName]) {
+        const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
+        target[cmdCodeName] = {
+          name: cmdUiName,
+          run: (args = "") => {
+            return PgTerminal.executeFromStr(`${cmdUiName} ${args}`, true);
+          },
+          onDidRunStart: (cb: (input: string | null) => void) => {
+            return PgCommon.onDidChange({
+              cb,
+              eventName: getEventName(cmdCodeName, "start"),
+            });
+          },
+          onDidRunFinish: (cb: (result: unknown) => void) => {
+            return PgCommon.onDidChange({
+              cb,
+              eventName: getEventName(cmdCodeName, "finish"),
+            });
+          },
+        };
+      }
 
-      const commandName = PgCommandManager.commands[cmdName].name;
-      target[cmdName] = {
-        name: commandName,
-        run: (args: string = "") => {
-          return PgTerminal.executeFromStr(`${commandName} ${args}`, true);
-        },
-        onDidRunStart: (cb: (input: string | null) => void) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: getEventName(cmdName, "start"),
-          });
-        },
-        onDidRunFinish: (cb: (result: unknown) => void) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: getEventName(cmdName, "finish"),
-          });
-        },
-      };
-
-      return target[cmdName];
+      return target[cmdCodeName];
     },
   }
 );
@@ -117,8 +120,9 @@ export class PgCommandManager {
       const inputCmdName = input.split(" ")?.at(0);
       if (!inputCmdName) return;
 
-      for (const cmdName in PgCommandManager.commands) {
-        const cmd = PgCommandManager.commands[cmdName as CommandCodeName];
+      for (const [cmdName, cmd] of PgCommon.entries(
+        PgCommandManager.commands
+      )) {
         if (inputCmdName !== cmd.name) continue;
 
         // Handle checks
