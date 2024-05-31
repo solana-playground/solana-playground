@@ -77,11 +77,8 @@ export const deploy = createCmd({
 /** Check whether the wallet is connected (playground or standard). */
 async function checkWallet() {
   if (!PgWallet.current) {
-    PgTerminal.log(
-      PgTerminal.info(
-        "Your wallet must be connected to deploy programs. Connecting..."
-      )
-    );
+    PgTerminal.log("Warning: Wallet is not connected.");
+    PgTerminal.log(PgTerminal.info("Connecting..."));
 
     const needsSetup = PgWallet.state === "setup";
     const connected = await PgCommand.connect.run();
