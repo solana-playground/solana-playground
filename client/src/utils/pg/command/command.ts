@@ -3,19 +3,68 @@ import { PgTerminal } from "../terminal";
 import type { Arrayable, Disposable, SyncOrAsync } from "../types";
 
 /** Terminal command implementation */
-export type CommandImpl<R> = {
+export type CommandImpl<N extends string, A, S, R> = {
   /** Name of the command that will be used in terminal */
-  name: string;
+  name: N;
   /** Description that will be seen in the `help` command */
   description: string;
-  /** Function to run when the command is called */
-  run: (input: string) => R;
   /* Only process the command if the condition passes */
   preCheck?: Arrayable<() => SyncOrAsync<void>>;
+  /** Command arguments */
+  args?: A[];
+} & (WithSubcommands<S> | WithRun<A, R>);
+
+type WithSubcommands<S> = {
+  /** Function to run when the command is called */
+  run?: never;
+  /** Subcommands */
+  subcommands?: S;
+};
+
+type WithRun<A, R> = {
+  /** Function to run when the command is called */
+  run: (input: string, parsed: ParsedInput<A>) => R;
+  /** Subcommands */
+  subcommands?: never;
+};
+
+type ParsedInput<A> = {
+  /** Parsed arguments */
+  args: A extends Arg<infer N>
+    ? {
+        [K in N]: string;
+      }
+    : {};
+};
+
+/** Command argument */
+export type Arg<N extends string> = {
+  /** Name of the argument */
+  name: N;
+  /** Whether the argument can be omitted */
+  optional?: boolean;
+};
+
+/** Terminal command inferred implementation */
+export type CommandInferredImpl<N extends string, A, S, R> = Omit<
+  CommandImpl<N, A, S, R>,
+  "subcommands"
+> & {
+  subcommands?: S extends CommandInferredImpl<
+    infer N2,
+    infer A2,
+    infer S2,
+    infer R2
+  >
+    ? CommandInferredImpl<N2, A2, S2, R2>
+    : any[];
 };
 
 /** Command type for external usage */
-type Command<R> = Pick<CommandImpl<R>, "name"> & {
+type Command<N extends string, A, S, R> = Pick<
+  CommandInferredImpl<N, A, S, R>,
+  "name"
+> & {
   /** Command processor */
   run(args?: string): Promise<Awaited<R>>;
   /**
@@ -35,10 +84,13 @@ type CommandCodeName = keyof InternalCommands;
 
 /** Ready to be used commands */
 type Commands = {
-  [N in keyof InternalCommands]: InternalCommands[N] extends CommandImpl<
+  [N in keyof InternalCommands]: InternalCommands[N] extends CommandInferredImpl<
+    infer N,
+    infer A,
+    infer S,
     infer R
   >
-    ? Command<R>
+    ? Command<N, A, S, R>
     : never;
 };
 
@@ -46,7 +98,10 @@ type Commands = {
 export const PgCommand: Commands = new Proxy(
   {},
   {
-    get: (target: any, cmdCodeName: CommandCodeName): Command<unknown> => {
+    get: (
+      target: any,
+      cmdCodeName: CommandCodeName
+    ): Command<string, unknown, unknown, unknown> => {
       if (!target[cmdCodeName]) {
         const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
         target[cmdCodeName] = {
@@ -117,13 +172,56 @@ export class PgCommandManager {
       // This guarantees commands only start with the specified command name.
       // `solana-keygen` would not count for inputCmdName === "solana"
       input = input.trim();
-      const inputCmdName = input.split(" ")?.at(0);
+      const tokens = input.split(" ");
+      const inputCmdName = tokens.at(0);
       if (!inputCmdName) return;
 
-      for (const [cmdName, cmd] of PgCommon.entries(
-        PgCommandManager.commands
-      )) {
-        if (inputCmdName !== cmd.name) continue;
+      const cmdDef = PgCommon.entries(PgCommandManager.commands).find(
+        ([cmdName]) => cmdName === inputCmdName
+      );
+      if (!cmdDef) {
+        throw new Error(
+          `Command \`${PgTerminal.italic(inputCmdName)}\` not found.`
+        );
+      }
+      const cmdName = cmdDef[0];
+      let cmd = cmdDef[1];
+      let args: string[] = [];
+
+      // Dispatch start event
+      PgCommon.createAndDispatchCustomEvent(
+        getEventName(cmdName, "start"),
+        input
+      );
+
+      for (const i in tokens) {
+        // Get subcommand
+        const token = tokens[i];
+        const nextToken = tokens[+i + 1];
+
+        const subCmd = cmd.subcommands?.find((cmd) => cmd.name === token);
+        if (subCmd) cmd = subCmd;
+        if (nextToken) {
+          const isNextTokenSubcommand = cmd.subcommands?.some(
+            (cmd) => cmd.name === nextToken
+          );
+          if (!isNextTokenSubcommand) {
+            args = tokens.slice(+i + 1);
+
+            if (!cmd.args) {
+              throw new Error(
+                `Subcommand doesn't exist: \`${nextToken}\`
+
+Available subcommands: ${cmd.subcommands?.map((cmd) => cmd.name).join(", ")}`
+              );
+            }
+            if (args.length > (cmd.args.length ?? 0)) {
+              throw new Error(
+                `Provided argument count is higher than expected: ${args.length}`
+              );
+            }
+          }
+        }
 
         // Handle checks
         if (cmd.preCheck) {
@@ -131,14 +229,38 @@ export class PgCommandManager {
           for (const preCheck of preChecks) await preCheck();
         }
 
-        // Dispatch start event
-        PgCommon.createAndDispatchCustomEvent(
-          getEventName(cmdName, "start"),
-          input
-        );
+        // Early continue if it's not the end of the command
+        const isLast = +i === tokens.length - 1;
+        if (!isLast && !args.length) continue;
+
+        // Check missing command processor
+        if (!cmd.run) {
+          PgTerminal.log(`
+${cmd.description}
+
+Usage: ${[...tokens.slice(0, +i), cmd.name].join(" ")} <COMMAND>
+
+Commands:
+
+${formatCmdList(cmd.subcommands!)}`);
+          break;
+        }
+
+        const parsedArgs = {} as Record<string, string>;
+        for (const i in cmd.args as Arg<any>[]) {
+          const arg = (cmd.args as Arg<any>[])[i];
+          const inputArg = args[i];
+          if (!inputArg && !arg.optional) {
+            throw new Error(`Argument not specified: \`${arg.name}\``);
+          }
+
+          parsedArgs[arg.name] = inputArg;
+        }
 
         // Run the command processor
-        const result = await cmd.run(input);
+        const result = await cmd.run(input, {
+          args: parsedArgs,
+        });
 
         // Dispatch finish event
         PgCommon.createAndDispatchCustomEvent(
@@ -148,13 +270,39 @@ export class PgCommandManager {
 
         return result;
       }
-
-      PgTerminal.log(
-        `Command \`${PgTerminal.italic(inputCmdName)}\` not found.`
-      );
     });
   }
 }
+
+/**
+ * Format the given list for terminal view.
+ *
+ * @param list list to format
+ * @returns the formatted list
+ */
+export const formatCmdList = (
+  list: Array<{ name: string; description: string }>
+) => {
+  return list
+    .sort((a, b) => {
+      // Put non-letter commands to the end
+      if (!/^[a-zA-Z-]+$/.test(b.name)) {
+        return -1;
+      }
+
+      return a.name.localeCompare(b.name);
+    })
+    .reduce((acc, cmd) => {
+      return (
+        acc +
+        "    " +
+        cmd.name +
+        new Array(25 - cmd.name.length).fill(" ").reduce((acc, v) => acc + v) +
+        cmd.description +
+        "\n"
+      );
+    }, "");
+};
 
 /** Get custom event name for the given command. */
 const getEventName = (name: string, kind: "start" | "finish") => {
