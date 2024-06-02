@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import { PgTerminal } from "../terminal";
-import type { Arrayable, Disposable, SyncOrAsync } from "../types";
+import type { Arrayable, Disposable, SyncOrAsync, ValueOf } from "../types";
 
 /** Terminal command implementation */
 export type CommandImpl<N extends string, A, S, R> = {
@@ -154,9 +154,23 @@ export class PgCommandManager {
    * @returns the command completions
    */
   static getCompletions() {
-    const completes: Record<string, object> = {};
-    for (const name of PgCommandManager.getNames()) completes[name] = {};
-    return completes;
+    interface Completions {
+      [key: string]: Completions;
+    }
+    const recursivelyGetCompletions = (
+      commands: ValueOf<InternalCommands>[],
+      completions: Completions = {}
+    ) => {
+      for (const cmd of commands) {
+        completions[cmd.name] = {};
+        if (cmd.subcommands) {
+          recursivelyGetCompletions(cmd.subcommands, completions[cmd.name]);
+        }
+      }
+
+      return completions;
+    };
+    return recursivelyGetCompletions(Object.values(PgCommandManager.commands));
   }
 
   /**
