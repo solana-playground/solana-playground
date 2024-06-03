@@ -222,14 +222,14 @@ export class PgCommandManager {
           if (!isNextTokenSubcommand) {
             args = tokens.slice(+i + 1);
 
-            if (!cmd.args) {
+            if (!cmd.args && cmd.subcommands) {
               throw new Error(
                 `Subcommand doesn't exist: \`${nextToken}\`
 
-Available subcommands: ${cmd.subcommands?.map((cmd) => cmd.name).join(", ")}`
+Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               );
             }
-            if (args.length > (cmd.args.length ?? 0)) {
+            if (cmd.args?.length && args.length > cmd.args.length) {
               throw new Error(
                 `Provided argument count is higher than expected: ${args.length}`
               );
