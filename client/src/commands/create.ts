@@ -30,10 +30,18 @@ export const createSubcmds = <N extends string, A, S, R>(
 
 /**
  * Create command arguments.
-
- * NOTE: This is only a type helper function.
  *
  * @param arg arg to create
  * @returns the arg with its inferred type
  */
-export const createArgs = <N extends string>(...arg: Arg<N>[]) => arg;
+export const createArgs = <N extends string>(...args: Arg<N>[]) => {
+  let isOptional;
+  for (const arg of args) {
+    if (isOptional && !arg.optional) {
+      throw new Error("Optional arguments must come after required arguments");
+    }
+    if (arg.optional) isOptional = true;
+  }
+
+  return args;
+};
