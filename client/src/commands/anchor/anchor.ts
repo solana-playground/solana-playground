@@ -10,7 +10,7 @@ export const anchor = createCmd({
       log: true,
     });
 
-    await runAnchor(input);
+    await runAnchor(input.raw);
   },
   preCheck: isPgConnected,
 });

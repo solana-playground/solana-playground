@@ -11,7 +11,7 @@ export const sugar = createCmd({
       log: true,
     });
 
-    await runSugar(input);
+    await runSugar(input.raw);
   },
   preCheck: isPgConnected,
 });

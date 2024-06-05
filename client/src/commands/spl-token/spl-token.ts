@@ -10,7 +10,7 @@ export const splToken = createCmd({
       log: true,
     });
 
-    await runSplToken(input);
+    await runSplToken(input.raw);
   },
   preCheck: isPgConnected,
 });

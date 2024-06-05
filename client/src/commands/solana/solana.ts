@@ -10,7 +10,7 @@ export const solana = createCmd({
       log: true,
     });
 
-    await runSolana(input);
+    await runSolana(input.raw);
   },
   preCheck: isPgConnected,
 });

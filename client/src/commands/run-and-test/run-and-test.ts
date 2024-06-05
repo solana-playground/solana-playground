@@ -9,13 +9,13 @@ import { createCmd } from "../create";
 export const run = createCmd({
   name: "run",
   description: "Run script(s)",
-  run: (input) => processCommon({ input, isTest: false }),
+  run: (input) => processCommon({ input: input.raw, isTest: false }),
 });
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
-  run: (input) => processCommon({ input, isTest: true }),
+  run: (input) => processCommon({ input: input.raw, isTest: true }),
 });
 
 /**

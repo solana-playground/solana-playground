@@ -7,7 +7,7 @@ export const connect = createCmd({
   run: async (input) => {
     switch (PgWallet.state) {
       case "pg": {
-        const isOther = await toggleStandardIfNeeded(input);
+        const isOther = await toggleStandardIfNeeded(input.raw);
         if (!isOther) {
           PgWallet.state = "disconnected";
           PgTerminal.log(PgTerminal.bold("Disconnected."));
@@ -25,7 +25,7 @@ export const connect = createCmd({
           throw new Error("Current wallet is not a Solana wallet");
         }
 
-        const isOther = await toggleStandardIfNeeded(input);
+        const isOther = await toggleStandardIfNeeded(input.raw);
         if (!isOther) {
           await PgWallet.current.disconnect();
           PgWallet.state = "pg";
@@ -39,7 +39,7 @@ export const connect = createCmd({
       }
 
       case "disconnected": {
-        const isOther = await toggleStandardIfNeeded(input);
+        const isOther = await toggleStandardIfNeeded(input.raw);
         if (!isOther) {
           PgWallet.state = "pg";
           PgTerminal.log(PgTerminal.success("Connected."));
@@ -53,7 +53,7 @@ export const connect = createCmd({
         const { Setup } = await import("../../components/Wallet/Modals/Setup");
         const setupCompleted = await PgView.setModal<boolean>(Setup);
         if (setupCompleted) {
-          const isOther = await toggleStandardIfNeeded(input);
+          const isOther = await toggleStandardIfNeeded(input.raw);
           if (!isOther) PgWallet.state = "pg";
 
           PgTerminal.log(PgTerminal.success("Setup completed."));

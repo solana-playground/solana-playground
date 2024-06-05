@@ -23,12 +23,14 @@ type WithSubcommands<S> = {
 
 type WithRun<A, R> = {
   /** Function to run when the command is called */
-  run: (input: string, parsed: ParsedInput<A>) => R;
+  run: (input: ParsedInput<A>) => R;
   /** Subcommands */
   subcommands?: never;
 };
 
 type ParsedInput<A> = {
+  /** Raw input */
+  raw: string;
   /** Parsed arguments */
   args: A extends Arg<infer N>
     ? {
@@ -272,7 +274,8 @@ ${formatCmdList(cmd.subcommands!)}`);
         }
 
         // Run the command processor
-        const result = await cmd.run(input, {
+        const result = await cmd.run({
+          raw: input,
           args: parsedArgs,
         });
 
