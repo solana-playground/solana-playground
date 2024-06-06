@@ -3,7 +3,12 @@ import { PgTerminal } from "../terminal";
 import type { Arrayable, Disposable, SyncOrAsync, ValueOf } from "../types";
 
 /** Terminal command implementation */
-export type CommandImpl<N extends string, A, S, R> = {
+export type CommandImpl<
+  N extends string,
+  A extends Arg<string, boolean>[],
+  S,
+  R
+> = {
   /** Name of the command that will be used in terminal */
   name: N;
   /** Description that will be seen in the `help` command */
@@ -11,7 +16,7 @@ export type CommandImpl<N extends string, A, S, R> = {
   /* Only process the command if the condition passes */
   preCheck?: Arrayable<() => SyncOrAsync<void>>;
   /** Command arguments */
-  args?: A[];
+  args?: A;
 } & (WithSubcommands<S> | WithRun<A, R>);
 
 type WithSubcommands<S> = {
@@ -32,26 +37,32 @@ type ParsedInput<A> = {
   /** Raw input */
   raw: string;
   /** Parsed arguments */
-  args: A extends Arg<infer N>
-    ? {
-        [K in N]: string;
-      }
-    : {};
+  args: MapArgs<A>;
 };
 
+/** Recursively map argument types */
+type MapArgs<A> = A extends [infer Head, ...infer Tail]
+  ? Head extends Arg<infer N, infer O>
+    ? (O extends true ? { [K in N]?: string } : { [K in N]: string }) &
+        MapArgs<Tail>
+    : never
+  : {};
+
 /** Command argument */
-export type Arg<N extends string> = {
+export type Arg<N extends string, O> = {
   /** Name of the argument */
   name: N;
   /** Whether the argument can be omitted */
-  optional?: boolean;
+  optional?: O;
 };
 
 /** Terminal command inferred implementation */
-export type CommandInferredImpl<N extends string, A, S, R> = Omit<
-  CommandImpl<N, A, S, R>,
-  "subcommands"
-> & {
+export type CommandInferredImpl<
+  N extends string,
+  A extends Arg<string, boolean>[],
+  S,
+  R
+> = Omit<CommandImpl<N, A, S, R>, "subcommands"> & {
   subcommands?: S extends CommandInferredImpl<
     infer N2,
     infer A2,
@@ -63,7 +74,7 @@ export type CommandInferredImpl<N extends string, A, S, R> = Omit<
 };
 
 /** Command type for external usage */
-type Command<N extends string, A, S, R> = Pick<
+type Command<N extends string, A extends Arg<string, boolean>[], S, R> = Pick<
   CommandInferredImpl<N, A, S, R>,
   "name"
 > & {
@@ -103,7 +114,7 @@ export const PgCommand: Commands = new Proxy(
     get: (
       target: any,
       cmdCodeName: CommandCodeName
-    ): Command<string, unknown, unknown, unknown> => {
+    ): Command<string, Arg<string, boolean>[], unknown, unknown> => {
       if (!target[cmdCodeName]) {
         const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
         target[cmdCodeName] = {
@@ -262,15 +273,17 @@ ${formatCmdList(cmd.subcommands!)}`);
           break;
         }
 
-        const parsedArgs = {} as Record<string, string>;
-        for (const i in cmd.args as Arg<any>[]) {
-          const arg = (cmd.args as Arg<any>[])[i];
-          const inputArg = args[i];
-          if (!inputArg && !arg.optional) {
-            throw new Error(`Argument not specified: \`${arg.name}\``);
-          }
+        const parsedArgs: Record<string, string> = {};
+        if (cmd.args) {
+          for (const i in cmd.args) {
+            const arg = cmd.args[i];
+            const inputArg = args[i];
+            if (!inputArg && !arg.optional) {
+              throw new Error(`Argument not specified: \`${arg.name}\``);
+            }
 
-          parsedArgs[arg.name] = inputArg;
+            parsedArgs[arg.name] = inputArg;
+          }
         }
 
         // Run the command processor
