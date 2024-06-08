@@ -4,37 +4,39 @@ import {
   PgExplorer,
   PgTerminal,
 } from "../../utils/pg";
-import { createCmd } from "../create";
+import { createArgs, createCmd } from "../create";
+
+/** Common arguments */
+const args = createArgs([{ name: "path", optional: true }]);
 
 export const run = createCmd({
   name: "run",
   description: "Run script(s)",
-  run: (input) => processCommon({ input: input.raw, isTest: false }),
+  args,
+  run: (input) => processCommon({ path: input.args.path, isTest: false }),
 });
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
-  run: (input) => processCommon({ input: input.raw, isTest: true }),
+  args,
+  run: (input) => processCommon({ path: input.args.path, isTest: true }),
 });
 
 /**
  * Process `run` or `test` command.
  *
- * @param param -
- * - `input`: Command input(full)
+ * @param params -
+ * - `path`: Path to run or test
  * - `isTest`: Whether to execute as test
  */
-const processCommon = async ({
-  input,
-  isTest,
-}: {
-  input: string;
+const processCommon = async (params: {
+  path: string | undefined;
   isTest: boolean;
 }) => {
+  const { path, isTest } = params;
   PgTerminal.log(PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`));
 
-  const path = /^\w+\s?(.*)/.exec(input)?.at(1);
   const { PgClient } = await PgClientImporter.import();
 
   // Run the script only at the given path
