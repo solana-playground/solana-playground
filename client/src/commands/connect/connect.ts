@@ -1,13 +1,14 @@
 import { PgCommon, PgTerminal, PgView, PgWallet } from "../../utils/pg";
-import { createCmd } from "../create";
+import { createArgs, createCmd } from "../create";
 
 export const connect = createCmd({
   name: "connect",
   description: "Toggle connection to Playground Wallet",
+  args: createArgs([{ name: "wallet", optional: true }]),
   run: async (input) => {
     switch (PgWallet.state) {
       case "pg": {
-        const isOther = await toggleStandardIfNeeded(input.raw);
+        const isOther = await toggleStandardIfNeeded(input.args.wallet);
         if (!isOther) {
           PgWallet.state = "disconnected";
           PgTerminal.log(PgTerminal.bold("Disconnected."));
@@ -25,7 +26,7 @@ export const connect = createCmd({
           throw new Error("Current wallet is not a Solana wallet");
         }
 
-        const isOther = await toggleStandardIfNeeded(input.raw);
+        const isOther = await toggleStandardIfNeeded(input.args.wallet);
         if (!isOther) {
           await PgWallet.current.disconnect();
           PgWallet.state = "pg";
@@ -39,7 +40,7 @@ export const connect = createCmd({
       }
 
       case "disconnected": {
-        const isOther = await toggleStandardIfNeeded(input.raw);
+        const isOther = await toggleStandardIfNeeded(input.args.wallet);
         if (!isOther) {
           PgWallet.state = "pg";
           PgTerminal.log(PgTerminal.success("Connected."));
@@ -53,7 +54,7 @@ export const connect = createCmd({
         const { Setup } = await import("../../components/Wallet/Modals/Setup");
         const setupCompleted = await PgView.setModal<boolean>(Setup);
         if (setupCompleted) {
-          const isOther = await toggleStandardIfNeeded(input.raw);
+          const isOther = await toggleStandardIfNeeded(input.args.wallet);
           if (!isOther) PgWallet.state = "pg";
 
           PgTerminal.log(PgTerminal.success("Setup completed."));
@@ -71,14 +72,12 @@ export const connect = createCmd({
 /**
  * Connect to or disconnect from a standard wallet based on given input.
  *
- * @param input connect command input
+ * @param inputWalletName wallet name from the command input
  * @returns whether the connected to a standard wallet
  */
-const toggleStandardIfNeeded = async (input: string) => {
-  const inputSplit = input.split(/\s/);
-  if (inputSplit.length === 1) return false;
+const toggleStandardIfNeeded = async (inputWalletName: string | undefined) => {
+  if (!inputWalletName) return false;
 
-  const inputWalletName = inputSplit.slice(1).join(" ");
   const wallet = PgWallet.standardWallets.find((wallet) => {
     return wallet.adapter.name.toLowerCase() === inputWalletName.toLowerCase();
   });
