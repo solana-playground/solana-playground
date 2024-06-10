@@ -54,6 +54,8 @@ export type Arg<N extends string, O> = {
   name: N;
   /** Whether the argument can be omitted */
   optional?: O;
+  /** Accepted values */
+  values?: string[];
 };
 
 /** Terminal command inferred implementation */
@@ -178,6 +180,17 @@ export class PgCommandManager {
         completions[cmd.name] = {};
         if (cmd.subcommands) {
           recursivelyGetCompletions(cmd.subcommands, completions[cmd.name]);
+        }
+        if (cmd.args) {
+          for (const i in cmd.args) {
+            const arg = cmd.args[i] as Arg<string, boolean>;
+            if (arg.values) {
+              completions[cmd.name][i] = arg.values.reduce((acc, cur) => {
+                acc[cur] = {};
+                return acc;
+              }, {} as Record<string, {}>);
+            }
+          }
         }
       }
 

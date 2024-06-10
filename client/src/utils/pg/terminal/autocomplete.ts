@@ -43,15 +43,20 @@ export class PgAutocomplete {
 
             const candidates = [];
             for (const [key, value] of PgCommon.entries(obj)) {
-              if (
-                // Current index
-                i === index &&
-                // Empty token or key starts with
-                (!tokens[i] || key.startsWith(tokens[i])) &&
-                // Only show options when the current token starts with `-`
-                !(key.startsWith("-") && !tokens[i]?.startsWith("-"))
-              ) {
-                candidates.push(key);
+              if (i === index) {
+                // Argument values
+                if (PgCommon.isInt(key)) {
+                  candidates.push(...Object.keys(value));
+                }
+                // Commands and options
+                else if (
+                  // Empty token or key starts with
+                  (!tokens[i] || key.startsWith(tokens[i])) &&
+                  // Only show options when the current token starts with `-`
+                  !(key.startsWith("-") && !tokens[i]?.startsWith("-"))
+                ) {
+                  candidates.push(key);
+                }
               }
 
               // Check subcommands
