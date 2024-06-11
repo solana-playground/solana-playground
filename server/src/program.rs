@@ -1,6 +1,8 @@
 use std::{fs, path::Path, process::Command, sync::OnceLock};
 
-use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
+// use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
+
+use anchor_lang_idl::{build::build_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
 
@@ -39,7 +41,9 @@ pub fn build(
 
     // Check file paths
     static ALLOWED_REGEX: OnceLock<Regex> = OnceLock::new();
-    let allowed_regex = ALLOWED_REGEX.get_or_init(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
+    let allowed_regex = ALLOWED_REGEX
+        .get_or_init(|| Regex::new(r"^(?:/src/[\w/-]+\.rs|/idls/[\w/-]+\.json)$").unwrap());
+    // let allowed_regex = ALLOWED_REGEX.get_or_init(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
     let is_valid = files.iter().all(|[path, _]| {
         allowed_regex.is_match(path)
             && path.len() <= MAX_PATH_LENGTH
@@ -50,12 +54,17 @@ pub fn build(
         return Err(anyhow!("Invalid path"));
     }
 
-    // Write files
+    // Write files, with /idls for declare_program()
     let program_path = Path::new(PROGRAMS_DIR).join(program_name);
     for [path, content] in files {
-        // TODO: Send relative path from client and remove this line
         let relative_path = path.trim_start_matches('/');
-        let item_path = program_path.join(relative_path);
+        let item_path = if relative_path.starts_with("idls/") {
+            Path::new(PROGRAMS_DIR).join(relative_path)
+        } else {
+            program_path.join(relative_path)
+        };
+
+        println!("Writing file to: {:?}", item_path); // Add logging
 
         // Create directories when necessary
         let parent_path = item_path.parent().expect("Should have parent");
@@ -64,6 +73,21 @@ pub fn build(
         // Write file
         fs::write(item_path, content)?;
     }
+
+    // // Write files
+    // let program_path = Path::new(PROGRAMS_DIR).join(program_name);
+    // for [path, content] in files {
+    //     // TODO: Send relative path from client and remove this line
+    //     let relative_path = path.trim_start_matches('/');
+    //     let item_path = program_path.join(relative_path);
+
+    //     // Create directories when necessary
+    //     let parent_path = item_path.parent().expect("Should have parent");
+    //     fs::create_dir_all(parent_path)?;
+
+    //     // Write file
+    //     fs::write(item_path, content)?;
+    // }
 
     // Update manifest path
     static MANIFEST: OnceLock<String> = OnceLock::new();
@@ -96,19 +120,26 @@ pub fn build(
 
     // Generate IDL if it's an Anchor program
     let lib_path = program_path.join("src").join("lib.rs");
-    let ret = fs::read_to_string(&lib_path)?
+    // 0.30.0 IDL
+    let ret = fs::read_to_string(lib_path)?
         .contains("anchor_lang")
-        .then(|| {
-            parse_idl(
-                lib_path,
-                "0.1.0".into(),
-                seeds_feature,
-                no_docs,
-                safety_checks,
-            )
-        })
+        .then(|| build_idl(&program_path, seeds_feature, !safety_checks, no_docs))
         .transpose()
         .map_or_else(|e| (format!("Error: {e}"), None), |idl| (stderr, idl));
+
+    // let ret = fs::read_to_string(&lib_path)?
+    //     .contains("anchor_lang")
+    //     .then(|| {
+    //         parse_idl(
+    //             lib_path,
+    //             "0.1.0".into(),
+    //             seeds_feature,
+    //             no_docs,
+    //             safety_checks,
+    //         )
+    //     })
+    //     .transpose()
+    //     .map_or_else(|e| (format!("Error: {e}"), None), |idl| (stderr, idl));
     Ok(ret)
 }
 
