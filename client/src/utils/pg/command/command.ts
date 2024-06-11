@@ -5,7 +5,7 @@ import type { Arrayable, Disposable, SyncOrAsync, ValueOf } from "../types";
 /** Terminal command implementation */
 export type CommandImpl<
   N extends string,
-  A extends Arg<string, boolean>[],
+  A extends Arg<string, boolean, string>[],
   S,
   R
 > = {
@@ -37,31 +37,30 @@ type ParsedInput<A> = {
   /** Raw input */
   raw: string;
   /** Parsed arguments */
-  args: MapArgs<A>;
+  args: ParsedArgs<A>;
 };
 
 /** Recursively map argument types */
-type MapArgs<A> = A extends [infer Head, ...infer Tail]
-  ? Head extends Arg<infer N, infer O>
-    ? (O extends true ? { [K in N]?: string } : { [K in N]: string }) &
-        MapArgs<Tail>
+type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
+  ? Head extends Arg<infer N, infer O, infer V>
+    ? (O extends true ? { [K in N]?: V } : { [K in N]: V }) & ParsedArgs<Tail>
     : never
   : {};
 
 /** Command argument */
-export type Arg<N extends string, O> = {
+export type Arg<N extends string, O, V extends string> = {
   /** Name of the argument */
   name: N;
   /** Whether the argument can be omitted */
   optional?: O;
   /** Accepted values */
-  values?: string[];
+  values?: V[];
 };
 
 /** Terminal command inferred implementation */
 export type CommandInferredImpl<
   N extends string,
-  A extends Arg<string, boolean>[],
+  A extends Arg<string, boolean, string>[],
   S,
   R
 > = Omit<CommandImpl<N, A, S, R>, "subcommands"> & {
@@ -76,10 +75,12 @@ export type CommandInferredImpl<
 };
 
 /** Command type for external usage */
-type Command<N extends string, A extends Arg<string, boolean>[], S, R> = Pick<
-  CommandInferredImpl<N, A, S, R>,
-  "name"
-> & {
+type Command<
+  N extends string,
+  A extends Arg<string, boolean, string>[],
+  S,
+  R
+> = Pick<CommandInferredImpl<N, A, S, R>, "name"> & {
   /** Command processor */
   run(args?: string): Promise<Awaited<R>>;
   /**
@@ -116,7 +117,7 @@ export const PgCommand: Commands = new Proxy(
     get: (
       target: any,
       cmdCodeName: CommandCodeName
-    ): Command<string, Arg<string, boolean>[], unknown, unknown> => {
+    ): Command<string, Arg<string, boolean, string>[], unknown, unknown> => {
       if (!target[cmdCodeName]) {
         const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
         target[cmdCodeName] = {
@@ -183,7 +184,7 @@ export class PgCommandManager {
         }
         if (cmd.args) {
           for (const i in cmd.args) {
-            const arg = cmd.args[i] as Arg<string, boolean>;
+            const arg = cmd.args[i] as Arg<string, boolean, string>;
             if (arg.values) {
               completions[cmd.name][i] = arg.values.reduce((acc, cur) => {
                 acc[cur] = {};

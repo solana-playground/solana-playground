@@ -10,7 +10,7 @@ import type { Arg, CommandImpl, CommandInferredImpl } from "../utils/pg";
  */
 export const createCmd = <
   N extends string,
-  A extends Arg<string, boolean>[],
+  A extends Arg<string, boolean, string>[],
   S,
   R
 >(
@@ -29,7 +29,7 @@ export const createCmd = <
  */
 export const createSubcmds = <
   N extends string,
-  A extends Arg<string, boolean>[],
+  A extends Arg<string, boolean, string>[],
   S,
   R
 >(
@@ -47,7 +47,8 @@ export const createSubcmds = <
 export const createArgs = <
   N extends string,
   O extends boolean,
-  A extends Arg<N, O>[]
+  V extends string,
+  A extends Arg<N, O, V>[]
 >(
   args: [...A]
 ) => {
