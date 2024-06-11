@@ -30,7 +30,7 @@ pub type Files = Vec<[String; 2]>;
 pub fn build(
     program_name: &str,
     files: &Files,
-    seeds_feature: bool,
+    resolution: bool,
     no_docs: bool,
     safety_checks: bool,
 ) -> anyhow::Result<(String, Option<Idl>)> {
@@ -123,7 +123,7 @@ pub fn build(
     // 0.30.0 IDL
     let ret = fs::read_to_string(lib_path)?
         .contains("anchor_lang")
-        .then(|| build_idl(&program_path, seeds_feature, !safety_checks, no_docs))
+        .then(|| build_idl(&program_path, resolution, !safety_checks, no_docs))
         .transpose()
         .map_or_else(|e| (format!("Error: {e}"), None), |idl| (stderr, idl));
 

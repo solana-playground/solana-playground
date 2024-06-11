@@ -29,8 +29,8 @@ pub struct BuildRequest {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildFlags {
-    /// Enable Anchor `seeds` feature, defaults to `false`
-    seeds_feature: Option<bool>,
+    /// Enable Anchor PDA `resolution` feature, defaults to `true`
+    resolution: Option<bool>,
     /// Remove doc comments from the IDL, defaults to `true`
     no_docs: Option<bool>,
     /// Enable safety checks, defaults to `false`
@@ -64,7 +64,7 @@ pub async fn build(Json(payload): Json<BuildRequest>) -> Result<impl IntoRespons
             program::build(
                 &uuid,
                 &payload.files,
-                flags.and_then(|f| f.seeds_feature).unwrap_or_default(),
+                flags.and_then(|f| f.resolution).unwrap_or(true),
                 flags.and_then(|f| f.no_docs).unwrap_or(true),
                 flags.and_then(|f| f.safety_checks).unwrap_or_default(),
             ),
