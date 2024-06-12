@@ -122,13 +122,13 @@ const program: anchor.${programType};`
     );
 
     // target/types
-    const idlTypeName = PgCommon.toPascalFromSnake(idl.name);
+    const idlTypeName = PgCommon.toPascalFromSnake(idl.metadata.name);
     programDisposables.push(
       addModel(
         "target/types",
         `export type ${idlTypeName} = ${convertedIdl};
 export const IDL: ${idlTypeName} = ${convertedIdl};`,
-        PgExplorer.convertToFullPath(`target/types/${idl.name}.ts`)
+        PgExplorer.convertToFullPath(`target/types/${idl.metadata.name}.ts`)
       )
     );
 
@@ -136,7 +136,7 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
     const getWorkspace = (packageName: ClientPackageName) => {
       return `import { Program } from "${packageName}";
       const workspace: { ${PgCommon.toPascalFromSnake(
-        idl.name
+        idl.metadata.name
       )}: ${programType} };`;
     };
     programDisposables.push(
