@@ -21,6 +21,7 @@ incremental = true
 
 [dependencies]
 anchor-lang = { version = "*", features = [
+    "interface-instructions",
     "anchor-debug",
     "allow-missing-optionals",
     "init-if-needed",
