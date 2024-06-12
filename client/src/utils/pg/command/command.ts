@@ -15,11 +15,11 @@ export type CommandImpl<
   description: string;
   /* Only process the command if the condition passes */
   preCheck?: Arrayable<() => SyncOrAsync<void>>;
-  /** Command arguments */
-  args?: A;
 } & (WithSubcommands<S> | WithRun<A, R>);
 
 type WithSubcommands<S> = {
+  /** Command arguments */
+  args?: never;
   /** Function to run when the command is called */
   run?: never;
   /** Subcommands */
@@ -27,6 +27,8 @@ type WithSubcommands<S> = {
 };
 
 type WithRun<A, R> = {
+  /** Command arguments */
+  args?: A;
   /** Function to run when the command is called */
   run: (input: ParsedInput<A>) => R;
   /** Subcommands */
