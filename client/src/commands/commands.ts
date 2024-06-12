@@ -6,6 +6,7 @@ export * from "./clear";
 export * from "./connect";
 export * from "./deploy";
 export * from "./help";
+export * from "./idls";
 export * from "./prettier";
 export * from "./run-and-test";
 export * from "./run-last-cmd";

@@ -1285,6 +1285,7 @@ export class PgExplorer {
     SRC_DIRNAME: "src",
     CLIENT_DIRNAME: "client",
     TESTS_DIRNAME: "tests",
+    IDLS_DIRNAME: "idls",
   };
 
   /**
