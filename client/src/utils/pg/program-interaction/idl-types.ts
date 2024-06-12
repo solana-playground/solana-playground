@@ -2,8 +2,8 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN, DecodeType } from "@coral-xyz/anchor";
 import type {
   Idl,
-  IdlEnumFieldsNamed,
-  IdlEnumFieldsTuple,
+  IdlDefinedFieldsNamed,
+  IdlDefinedFieldsTuple,
   IdlEnumVariant,
   IdlType,
 } from "@coral-xyz/anchor/dist/cjs/idl";
@@ -13,9 +13,9 @@ import type { MergeUnion, OrString } from "../types";
 
 export type {
   Idl,
-  IdlAccount,
   IdlInstruction,
   IdlType,
+  IdlInstructionAccount,
 } from "@coral-xyz/anchor/dist/cjs/idl";
 
 interface PgIdlType<
@@ -62,8 +62,8 @@ export const getIdlType: <T extends IdlType>(
   idl?: Idl
 ) => PgIdlType<T> = (idlType, idl) => {
   switch (idlType) {
-    case "publicKey":
-      return publicKey;
+    case "pubkey":
+      return pubkey;
     case "string":
       return string;
     case "bool":
@@ -105,12 +105,16 @@ export const getIdlType: <T extends IdlType>(
       throw new Error(`Defined type \`${defined}\` requires idl.types`);
     }
 
-    const definedType = idl.types.find((type) => type.name === defined);
+    const definedType = idl.types.find((type) => type.name === defined.name);
     if (!definedType) throw new Error(`Type \`${defined}\` not found`);
 
     switch (definedType.type.kind) {
       case "struct": {
+        if (!definedType.type.fields) {
+          throw new Error("Struct type does not have fields");
+        }
         const fields = definedType.type.fields;
+
         return createIdlType({
           displayType: definedType.name,
           parse: (value) => {
@@ -184,22 +188,22 @@ export const getIdlType: <T extends IdlType>(
         const handleVariant = <U, N, T>(
           variant: IdlEnumVariant,
           unitCb: () => U,
-          namedCb: (fields: IdlEnumFieldsNamed) => N,
-          tupleCb: (fields: IdlEnumFieldsTuple) => T
+          namedCb: (fields: IdlDefinedFieldsNamed) => N,
+          tupleCb: (fields: IdlDefinedFieldsTuple) => T
         ) => {
           // Unit
           if (!variant.fields?.length) return unitCb();
 
           // Named
-          if ((variant.fields as IdlEnumFieldsNamed)[0].name) {
-            return namedCb(variant.fields as IdlEnumFieldsNamed);
+          if ((variant.fields as IdlDefinedFieldsNamed)[0].name) {
+            return namedCb(variant.fields as IdlDefinedFieldsNamed);
           }
 
           // Tuple
-          return tupleCb(variant.fields as IdlEnumFieldsTuple);
+          return tupleCb(variant.fields as IdlDefinedFieldsTuple);
         };
 
-        const getStructFromNamedEnum = (fields: IdlEnumFieldsNamed) => {
+        const getStructFromNamedEnum = (fields: IdlDefinedFieldsNamed) => {
           return getIdlType(
             { defined: "__" },
             {
@@ -399,8 +403,8 @@ const createIdlType = <T extends IdlType>(idlType: PgIdlType<T>) => {
   return idlType;
 };
 
-const publicKey = createIdlType({
-  displayType: "publicKey",
+const pubkey = createIdlType({
+  displayType: "pubkey",
   parse: (value) => new PublicKey(string.parse(value)),
   toBuffer: (value) => value.toBuffer(),
   generateRandom: () => Keypair.generate().publicKey.toBase58(),

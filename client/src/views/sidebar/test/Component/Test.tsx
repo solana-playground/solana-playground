@@ -83,8 +83,6 @@ const Test = () => {
       <Wrapper>
         <ProgramNameWrapper>
           Program:
-          {/* UPDATED
-          <ProgramName>{idl.name}</ProgramName> */}
           <ProgramName>{idl.metadata.name}</ProgramName>
         </ProgramNameWrapper>
 

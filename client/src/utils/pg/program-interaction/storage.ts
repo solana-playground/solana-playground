@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import type { GeneratableInstruction } from "./generator";
-import type { IdlAccount, IdlInstruction } from "./idl-types";
+import type { IdlInstructionAccount, IdlInstruction } from "./idl-types";
 
 /**
  * Get the instruction from the configured {@link storage}.
@@ -64,8 +64,8 @@ export const syncAllInstructions = (idlIxs: IdlInstruction[]) => {
         if (!acc) return false;
 
         // TODO: Handle composite accounts?
-        const { isMut, isSigner } = acc as IdlAccount;
-        return savedAcc.isMut === isMut && savedAcc.isSigner === isSigner;
+        const { writable, signer } = acc as IdlInstructionAccount;
+        return savedAcc.writable === writable && savedAcc.signer === signer;
       });
       if (!isAllAccsEqual) return true;
 

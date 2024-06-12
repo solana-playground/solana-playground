@@ -5,7 +5,12 @@ import {
 } from "@solana/web3.js";
 
 import { getPrograms } from "./generators";
-import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
+import {
+  getIdlType,
+  Idl,
+  IdlInstructionAccount,
+  IdlInstruction,
+} from "./idl-types";
 import type {
   GeneratableInstruction,
   InstructionValueGenerator,
@@ -26,8 +31,10 @@ export const createGeneratableInstruction = (
     values: {
       programId: { generator: { type: "Current program" } },
       // TODO: Handle composite accounts?
-      accounts: (idlIx.accounts as IdlAccount[]).map((acc) => ({
-        ...acc,
+      accounts: (idlIx.accounts as IdlInstructionAccount[]).map((acc) => ({
+        name: acc.name,
+        writable: acc.writable ?? false,
+        signer: acc.signer ?? false,
         generator: createAccountGenerator(acc),
       })),
       args: idlIx.args.map((arg) => ({
@@ -95,7 +102,9 @@ export const fillRandom = (
  * @param acc IDL account
  * @returns the account generator
  */
-const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
+const createAccountGenerator = (
+  acc: IdlInstructionAccount
+): InstructionValueGenerator => {
   // Handle `seeds` feature
   // TODO: Re-evaluate this once Anchor package has proper types for PDA seeds
   // https://github.com/coral-xyz/anchor/issues/2750
@@ -133,7 +142,7 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
 
   // Set common wallet account names to current wallet
   const COMMON_WALLET_ACCOUNT_NAMES = ["authority", "owner", "payer", "signer"];
-  if (acc.isSigner && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
+  if (acc.signer && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
     return { type: "Current wallet" };
   }
 

@@ -159,7 +159,7 @@ const FromSeed = ({ name, search }: FromSeedProps) => {
       </SeedsWrapper>
 
       <InstructionInput
-        type="publicKey"
+        type="pubkey"
         prefix="seed"
         name="program"
         updateInstruction={({ updateGenerator }) => {

@@ -224,7 +224,7 @@ const getSearchBarProps = (
   name: string,
   type: IdlType,
   generator: InstructionValueGenerator & { name?: string; value?: string },
-  accountProps: Partial<Pick<InstructionInputAccount, "isMut" | "isSigner">>,
+  accountProps: Partial<Pick<InstructionInputAccount, "writable" | "signer">>,
   instruction: GeneratableInstruction,
   idl: Idl
 ) => {
@@ -311,7 +311,7 @@ const getSearchBarProps = (
     });
 
     // Programs
-    if (!(accountProps.isMut || accountProps.isSigner)) {
+    if (!(accountProps.writable || accountProps.signer)) {
       pushGeneratorItem({
         type: "All programs",
         names: PgProgramInteraction.getPrograms().map((p) => p.name),
@@ -319,7 +319,7 @@ const getSearchBarProps = (
     }
 
     // Pyth
-    if (!(accountProps.isMut || accountProps.isSigner)) {
+    if (!(accountProps.writable || accountProps.signer)) {
       searchBarProps.items.push({
         label: "Pyth",
         items: async () => {
@@ -390,7 +390,7 @@ const getSearchBarProps = (
   pushGeneratorItem({
     type: "Accounts",
     names: instruction.values.accounts
-      .filter((acc) => acc.name !== name && type === "publicKey")
+      .filter((acc) => acc.name !== name && type === "pubkey")
       .map((acc) => acc.name),
   });
 
