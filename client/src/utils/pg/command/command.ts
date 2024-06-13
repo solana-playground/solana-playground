@@ -1,6 +1,12 @@
 import { PgCommon } from "../common";
 import { PgTerminal } from "../terminal";
-import type { Arrayable, Disposable, SyncOrAsync, ValueOf } from "../types";
+import type {
+  Arrayable,
+  Disposable,
+  Getable,
+  SyncOrAsync,
+  ValueOf,
+} from "../types";
 
 /** Terminal command implementation */
 export type CommandImpl<
@@ -56,7 +62,7 @@ export type Arg<N extends string, O, V extends string> = {
   /** Whether the argument can be omitted */
   optional?: O;
   /** Accepted values */
-  values?: V[];
+  values?: Getable<V[]>;
 };
 
 /** Terminal command inferred implementation */
@@ -173,7 +179,7 @@ export class PgCommandManager {
    */
   static getCompletions() {
     interface Completions {
-      [key: string]: Completions;
+      [key: string]: Completions | Getable<string[]>;
     }
     const recursivelyGetCompletions = (
       commands: ValueOf<InternalCommands>[],
@@ -181,18 +187,13 @@ export class PgCommandManager {
     ) => {
       for (const cmd of commands) {
         completions[cmd.name] = {};
+        const completion = completions[cmd.name] as Completions;
         if (cmd.subcommands) {
-          recursivelyGetCompletions(cmd.subcommands, completions[cmd.name]);
-        }
-        if (cmd.args) {
+          recursivelyGetCompletions(cmd.subcommands, completion);
+        } else if (cmd.args) {
           for (const i in cmd.args) {
             const arg = cmd.args[i] as Arg<string, boolean, string>;
-            if (arg.values) {
-              completions[cmd.name][i] = arg.values.reduce((acc, cur) => {
-                acc[cur] = {};
-                return acc;
-              }, {} as Record<string, {}>);
-            }
+            if (arg.values) completion[i] = arg.values;
           }
         }
       }

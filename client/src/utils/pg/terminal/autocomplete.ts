@@ -46,7 +46,7 @@ export class PgAutocomplete {
               if (i === index) {
                 // Argument values
                 if (PgCommon.isInt(key)) {
-                  candidates.push(...Object.keys(value));
+                  candidates.push(...PgCommon.callIfNeeded(value));
                 }
                 // Commands and options
                 else if (
