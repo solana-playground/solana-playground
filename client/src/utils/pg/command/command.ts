@@ -9,12 +9,7 @@ import type {
 } from "../types";
 
 /** Terminal command implementation */
-export type CommandImpl<
-  N extends string,
-  A extends Arg<string, boolean, string>[],
-  S,
-  R
-> = {
+export type CommandImpl<N extends string, A extends Arg[], S, R> = {
   /** Name of the command that will be used in terminal */
   name: N;
   /** Description that will be seen in the `help` command */
@@ -56,7 +51,11 @@ type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
   : {};
 
 /** Command argument */
-export type Arg<N extends string, O, V extends string> = {
+export type Arg<
+  N extends string = string,
+  O = boolean,
+  V extends string = string
+> = {
   /** Name of the argument */
   name: N;
   /** Whether the argument can be omitted */
@@ -66,12 +65,10 @@ export type Arg<N extends string, O, V extends string> = {
 };
 
 /** Terminal command inferred implementation */
-export type CommandInferredImpl<
-  N extends string,
-  A extends Arg<string, boolean, string>[],
-  S,
-  R
-> = Omit<CommandImpl<N, A, S, R>, "subcommands"> & {
+export type CommandInferredImpl<N extends string, A extends Arg[], S, R> = Omit<
+  CommandImpl<N, A, S, R>,
+  "subcommands"
+> & {
   subcommands?: S extends CommandInferredImpl<
     infer N2,
     infer A2,
@@ -83,12 +80,10 @@ export type CommandInferredImpl<
 };
 
 /** Command type for external usage */
-type Command<
-  N extends string,
-  A extends Arg<string, boolean, string>[],
-  S,
-  R
-> = Pick<CommandInferredImpl<N, A, S, R>, "name"> & {
+type Command<N extends string, A extends Arg[], S, R> = Pick<
+  CommandInferredImpl<N, A, S, R>,
+  "name"
+> & {
   /** Command processor */
   run(args?: string): Promise<Awaited<R>>;
   /**
@@ -125,7 +120,7 @@ export const PgCommand: Commands = new Proxy(
     get: (
       target: any,
       cmdCodeName: CommandCodeName
-    ): Command<string, Arg<string, boolean, string>[], unknown, unknown> => {
+    ): Command<string, Arg[], unknown, unknown> => {
       if (!target[cmdCodeName]) {
         const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
         target[cmdCodeName] = {
@@ -192,7 +187,7 @@ export class PgCommandManager {
           recursivelyGetCompletions(cmd.subcommands, completion);
         } else if (cmd.args) {
           for (const i in cmd.args) {
-            const arg = cmd.args[i] as Arg<string, boolean, string>;
+            const arg = cmd.args[i] as Arg;
             if (arg.values) completion[i] = arg.values;
           }
         }

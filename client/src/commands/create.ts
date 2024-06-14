@@ -8,12 +8,7 @@ import type { Arg, CommandImpl, CommandInferredImpl } from "../utils/pg";
  * @param cmd command to create
  * @returns the command with its inferred type
  */
-export const createCmd = <
-  N extends string,
-  A extends Arg<string, boolean, string>[],
-  S,
-  R
->(
+export const createCmd = <N extends string, A extends Arg[], S, R>(
   cmd: CommandImpl<N, A, S, R>
 ) => {
   return cmd as CommandInferredImpl<N, A, S, R>;
@@ -27,12 +22,7 @@ export const createCmd = <
  * @param cmd command to create
  * @returns the command with its inferred type
  */
-export const createSubcmds = <
-  N extends string,
-  A extends Arg<string, boolean, string>[],
-  S,
-  R
->(
+export const createSubcmds = <N extends string, A extends Arg[], S, R>(
   ...cmd: CommandImpl<N, A, S, R>[]
 ) => {
   return cmd as CommandInferredImpl<N, A, S, R>[];
