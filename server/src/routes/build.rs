@@ -1,4 +1,3 @@
-// use anchor_syn::idl::types::Idl;
 use anchor_lang_idl::types::Idl;
 use anyhow::anyhow;
 use axum::{extract::Json, response::IntoResponse};

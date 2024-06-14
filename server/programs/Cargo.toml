@@ -12,7 +12,6 @@ no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
-a3dfa2bc-9057-4e4d-93e1-7597887f0047 = []
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [profile.release]

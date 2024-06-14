@@ -32,7 +32,7 @@ FROM rust
 ARG SOLANA_VERSION="1.18.16"
 
 # Install Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)" \
+RUN sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"
 ENV PATH="${HOME}/.local/share/solana/install/active_release/bin:${PATH}"
 
 
