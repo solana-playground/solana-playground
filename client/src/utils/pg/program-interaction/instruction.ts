@@ -16,6 +16,7 @@ import type {
   InstructionValueGenerator,
 } from "./generator";
 import type { OrString } from "../types";
+import { PgCommon } from "../common";
 
 /**
  * Create a generatable instruction from the given IDL instruction.
@@ -27,12 +28,12 @@ export const createGeneratableInstruction = (
   idlIx: IdlInstruction
 ): GeneratableInstruction => {
   return {
-    name: idlIx.name,
+    name: PgCommon.toCamelFromSnake(idlIx.name),
     values: {
       programId: { generator: { type: "Current program" } },
       // TODO: Handle composite accounts?
       accounts: (idlIx.accounts as IdlInstructionAccount[]).map((acc) => ({
-        name: acc.name,
+        name: PgCommon.toCamelFromSnake(acc.name),
         writable: acc.writable ?? false,
         signer: acc.signer ?? false,
         generator: createAccountGenerator(acc),
@@ -105,34 +106,41 @@ export const fillRandom = (
 const createAccountGenerator = (
   acc: IdlInstructionAccount
 ): InstructionValueGenerator => {
+  // If address (pubkey) included in IDL, use it
+  if (acc.address) {
+    return { type: "Custom", value: acc.address };
+  }
+
   // Handle `seeds` feature
   // TODO: Re-evaluate this once Anchor package has proper types for PDA seeds
   // https://github.com/coral-xyz/anchor/issues/2750
   if (acc.pda) {
     return {
       type: "From seed",
+      // @ts-ignore IDK
       seeds: acc.pda.seeds.map((seed) => {
         switch (seed.kind) {
           case "const":
             return {
-              type: seed.type,
-              generator: { type: "Custom", value: seed.value },
+              type: seed,
+              generator: {
+                type: "Custom",
+                // Test UI requires the brackets for bytes
+                value: `[${seed.value.join(", ")}]`,
+              },
             };
-
           case "arg":
             return {
-              type: seed.type,
-              generator: { type: "Arguments", name: seed.path },
+              type: seed,
+              generator: { type: "Argument", name: seed.path },
             };
-
           case "account":
             return {
-              type: seed.type,
-              generator: { type: "Accounts", name: seed.path },
+              type: seed,
+              generator: { type: "Account", name: seed.path },
             };
-
           default:
-            throw new Error(`Unknown seed kind: \`${seed.kind}\``);
+            throw new Error(`Unknown seed kind: \`${seed}\``);
         }
       }),
       // TODO: Handle `acc.pda.programId`

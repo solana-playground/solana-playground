@@ -182,7 +182,7 @@ const SearchBar: FC<SearchBarProps> = ({
           }
 
           const matches = item.matches ?? [item.label];
-          const lowerCaseValue = props.value.toLowerCase();
+          const lowerCaseValue = props.value ? props.value.toLowerCase() : "";
           return matches.some((match) => {
             return typeof match === "string"
               ? match.toLowerCase().includes(lowerCaseValue)

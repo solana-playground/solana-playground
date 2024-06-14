@@ -13,10 +13,57 @@ import { Edit, Plus, Trash } from "../../../../../components/Icons";
 import {
   IdlType,
   PgProgramInteraction,
+  Seed,
   Seed as SeedType,
 } from "../../../../../utils/pg/program-interaction";
 import { useInstruction } from "./InstructionProvider";
 import { useKeybind } from "../../../../../hooks";
+import { useIdl } from "../IdlProvider";
+import {
+  Idl,
+  IdlSeed,
+  IdlSeedArg,
+  IdlSeedConst,
+} from "@coral-xyz/anchor/dist/cjs/idl";
+
+// Attempt to prefill seeds using PDA types from IDL
+const processSeed = (seed: Seed, idl: Idl): { state: "selected" } & Seed => {
+  switch ((seed.type as IdlSeed).kind) {
+    // `const` are stored as bytes on the IDL
+    case "const":
+      return {
+        state: "selected",
+        ...seed,
+        type: "bytes",
+        value: (seed.type as IdlSeedConst).value.toString(),
+      };
+    // `accounts` are pubkey
+    case "account":
+      return {
+        state: "selected",
+        ...seed,
+        type: "pubkey",
+      };
+    // If `arg`, find the type of the argument specified in the IDL
+    case "arg":
+      const arg = idl.instructions
+        .flatMap((instruction) => instruction.args)
+        .find((arg) => arg.name === (seed.type as IdlSeedArg).path);
+      if (!arg) {
+        throw new Error(`Type for argument ${seed} not found`);
+      }
+      return {
+        state: "selected",
+        ...seed,
+        type: arg.type,
+      };
+    default:
+      return {
+        state: "selected",
+        ...seed,
+      };
+  }
+};
 
 type FromSeedProps = {
   name: string;
@@ -24,6 +71,7 @@ type FromSeedProps = {
 
 const FromSeed = ({ name, search }: FromSeedProps) => {
   const { values } = useInstruction().instruction;
+  const { idl } = useIdl();
 
   const [seeds, setSeeds] = useState<
     Array<
@@ -34,10 +82,8 @@ const FromSeed = ({ name, search }: FromSeedProps) => {
     // Restore if seeds are already set
     const acc = values.accounts.find((acc) => acc.name === name);
     if (acc && acc.generator.type === "From seed") {
-      return acc.generator.seeds.map((seed) => ({
-        state: "selected",
-        ...seed,
-      }));
+      // If seeds, check the IDL
+      return acc.generator.seeds.map((seed) => processSeed(seed, idl));
     }
     return [{ state: "selecting" }];
   });
@@ -232,7 +278,7 @@ const SeedSearchBar: FC<SeedSearchBarProps> = ({ select }) => {
       onChange={(ev) => setValue(ev.target.value)}
       items={[
         "string",
-        "publicKey",
+        "pubkey",
         "bytes",
         { label: "uint", items: ["u8", "u16", "u32", "u64", "u128"] },
         { label: "int", items: ["i8", "i16", "i32", "i64", "i128"] },
@@ -256,6 +302,7 @@ const SelectedSeed: FC<SelectedSeedProps> = ({
   searchBarProps,
 }) => (
   <SelectedSeedWrapper>
+    {/* @ts-ignore IDK */}
     <InstructionInput
       prefix="seed"
       name={index.toString()}

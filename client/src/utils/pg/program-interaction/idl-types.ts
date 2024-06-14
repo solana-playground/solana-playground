@@ -5,6 +5,7 @@ import type {
   IdlDefinedFieldsNamed,
   IdlDefinedFieldsTuple,
   IdlEnumVariant,
+  IdlSeed,
   IdlType,
 } from "@coral-xyz/anchor/dist/cjs/idl";
 
@@ -100,20 +101,68 @@ export const getIdlType: <T extends IdlType>(
     MergeUnion<Exclude<IdlType, string>>
   >;
 
+  // TODO: not sure how to handle arg, account
+  const handleIdlSeed = (idlType: IdlSeed) => {
+    switch (idlType.kind) {
+      case "const":
+        return {
+          displayType: "const",
+          parse: (value: string) => ({
+            kind: "const",
+            value: bytes.parse(value),
+          }),
+          toBuffer: (value: { kind: "const"; value: number[] }) =>
+            Buffer.from(value.value),
+        };
+      case "arg":
+        return {
+          displayType: "arg",
+          parse: () => ({
+            kind: "arg",
+            path: "",
+          }),
+        };
+      case "account":
+        return {
+          displayType: "account",
+          parse: () => ({
+            kind: "account",
+            path: "",
+          }),
+        };
+      default:
+        throw new Error(`Unknown IdlSeed type: ${idlType}`);
+    }
+  };
+
+  const isIdlSeed = (idlType: any): idlType is IdlSeed => {
+    return ["const", "arg", "account"].includes(idlType?.kind);
+  };
+
+  if (isIdlSeed(idlType)) {
+    return handleIdlSeed(idlType);
+  }
+
   if (defined) {
     if (!idl?.types) {
       throw new Error(`Defined type \`${defined}\` requires idl.types`);
     }
 
-    const definedType = idl.types.find((type) => type.name === defined.name);
-    if (!definedType) throw new Error(`Type \`${defined}\` not found`);
+    // Convert both names to lowercase to ensure case-insensitive comparison,
+    // (e.g., "tokenMetadataArgs" vs. "TokenMetadataArgs").
+    const definedType = idl.types.find(
+      (type) => type.name.toLowerCase() === defined.name.toLowerCase()
+    );
+
+    if (!definedType)
+      throw new Error(`Type \`${JSON.stringify(defined)}\` not found`);
 
     switch (definedType.type.kind) {
       case "struct": {
         if (!definedType.type.fields) {
           throw new Error("Struct type does not have fields");
         }
-        const fields = definedType.type.fields;
+        const fields = definedType.type.fields as IdlDefinedFieldsNamed;
 
         return createIdlType({
           displayType: definedType.name,
@@ -205,7 +254,7 @@ export const getIdlType: <T extends IdlType>(
 
         const getStructFromNamedEnum = (fields: IdlDefinedFieldsNamed) => {
           return getIdlType(
-            { defined: "__" },
+            { defined: { name: "__" } },
             {
               ...idl,
               types: [
@@ -321,9 +370,9 @@ export const getIdlType: <T extends IdlType>(
         });
       }
 
-      case "alias": {
+      case "type": {
         return {
-          ...getIdlType(definedType.type.value, idl),
+          ...getIdlType(definedType.type.alias, idl),
           displayType: definedType.name,
         };
       }
@@ -381,8 +430,9 @@ export const getIdlType: <T extends IdlType>(
         return Buffer.concat(value.map(inner.toBuffer));
       },
       generateRandom: () => {
+        const arrayLength = array ? (len as number | undefined) : 4;
         const stringifiedArray = JSON.stringify(
-          new Array(array ? len : 4).fill(null).map(inner.generateRandom)
+          new Array(arrayLength || 4).fill(null).map(inner.generateRandom)
         );
         if (inner.displayType === "string") return stringifiedArray;
         return stringifiedArray.replaceAll('"', "");
@@ -390,7 +440,7 @@ export const getIdlType: <T extends IdlType>(
     });
   }
 
-  throw new Error(`Unknown IDL type: ${idlType}`);
+  throw new Error(`Unknown IDL type: ${JSON.stringify(idlType)}`);
 };
 
 /**

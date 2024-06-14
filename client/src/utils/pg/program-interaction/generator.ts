@@ -4,6 +4,7 @@ import { IdlType, getIdlType } from "./idl-types";
 import { getPrograms, getPythAccounts } from "./generators";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
+import { IdlSeed } from "@coral-xyz/anchor/dist/cjs/idl";
 
 /**
  * Generatable instruction, i.e. the values of the instruction can be derived
@@ -106,7 +107,7 @@ type ProgramGenerator = { type: "Current program" };
 
 /** Generatable derivation seed */
 export type Seed = {
-  type: IdlType;
+  type: IdlType | IdlSeed;
   generator: InstructionValueGenerator;
   value?: string;
   name?: string;
@@ -230,7 +231,7 @@ export const generateProgramAddressFromSeeds = (
 
   const buffers = seeds.map((seed) => {
     const value = generateValue(seed.generator, values);
-    const { parse, toBuffer } = getIdlType(seed.type);
+    const { parse, toBuffer } = getIdlType(seed.type as IdlType);
     return toBuffer(parse(value));
   });
 

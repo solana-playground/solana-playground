@@ -278,7 +278,7 @@ const getSearchBarProps = (
   if (customizable.displayType === "bool") {
     searchBarProps.items.push("false", "true");
     searchBarProps.noCustomOption = true;
-  } else if (customizable.displayType === "publicKey") {
+  } else if (customizable.displayType === "pubkey") {
     // Handle "Random" for "publicKey" differently in order to be able to
     // sign the transaction later with the generated key
     searchBarProps.items[0] = {

@@ -1,5 +1,4 @@
 import { PublicKey } from "@solana/web3.js";
-
 import { getAnchorProgram } from "./program";
 import { PgCommon } from "../common";
 
@@ -34,5 +33,11 @@ export const fetchAllAccounts = async (accountName: string) => {
  */
 const getAccountClient = (accountName: string) => {
   const program = getAnchorProgram();
-  return program.account[PgCommon.toCamelCase(accountName)];
+
+  // Cast the program.account to any to bypass TypeScript's type checking
+  const accountClient = (program.account as any)[
+    PgCommon.toCamelCase(accountName)
+  ];
+
+  return accountClient;
 };
