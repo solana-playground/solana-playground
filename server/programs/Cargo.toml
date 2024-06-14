@@ -28,7 +28,8 @@ anchor-lang = { version = "*", features = [
 ] }
 anchor-spl = { version = "*", features = ["dex", "governance", "metadata"] }
 arrayref = "*"
-borsh = "*"
+# borsh version to match anchor-lang to avoid "`borsh` is ambiguous" error
+borsh = ">=0.9, <0.11"
 borsh-derive = "*"
 bytemuck = "*"
 bytemuck_derive = "*"
