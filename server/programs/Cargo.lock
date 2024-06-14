@@ -2355,7 +2355,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "arrayref",
- "borsh 1.5.1",
+ "borsh 0.10.3",
  "borsh-derive 1.5.1",
  "bytemuck",
  "bytemuck_derive",

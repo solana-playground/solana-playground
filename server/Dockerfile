@@ -12,8 +12,6 @@ RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq \
 # Install rustup and the nightly toolchain (required to generate 0.30.0 IDL)
 # docker buildx build --platform linux/amd64, throws Segmentation fault on Mac
 # https://github.com/docker/for-mac/issues/7295
-# RUN sh -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y \
-#     && rustup default nightly
 
 # Install Rust
 RUN sh -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y \
