@@ -215,21 +215,21 @@ export class PgCommandManager {
       const inputCmdName = tokens.at(0);
       if (!inputCmdName) return;
 
-      const cmdDef = PgCommon.entries(PgCommandManager.commands).find(
-        ([cmdName]) => cmdName === inputCmdName
+      const topCmd = Object.values(PgCommandManager.commands).find(
+        (cmd) => cmd.name === inputCmdName
       );
-      if (!cmdDef) {
+      if (!topCmd) {
         throw new Error(
           `Command \`${PgTerminal.italic(inputCmdName)}\` not found.`
         );
       }
-      const cmdName = cmdDef[0];
-      let cmd = cmdDef[1];
+
+      let cmd = topCmd;
       let args: string[] = [];
 
       // Dispatch start event
       PgCommon.createAndDispatchCustomEvent(
-        getEventName(cmdName, "start"),
+        getEventName(topCmd.name, "start"),
         input
       );
 
@@ -306,7 +306,7 @@ ${formatCmdList(cmd.subcommands!)}`);
 
         // Dispatch finish event
         PgCommon.createAndDispatchCustomEvent(
-          getEventName(cmdName, "finish"),
+          getEventName(topCmd.name, "finish"),
           result
         );
 
