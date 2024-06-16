@@ -19,6 +19,7 @@ import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import { ReplaceItem } from "./Modals";
 import {
   Plus,
+  Rocket,
   ShortArrow,
   TestTube,
   Triangle,
@@ -67,13 +68,22 @@ const Folders = () => {
             <SectionTopWrapper>
               <SectionHeader>Program</SectionHeader>
               {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
-                <SectionButton
-                  onClick={ctxMenu.runBuild}
-                  icon={<Wrench />}
-                  addTextMargin
-                >
-                  Build
-                </SectionButton>
+                <>
+                  <SectionButton
+                    onClick={ctxMenu.runBuild}
+                    icon={<Wrench />}
+                    addTextMargin
+                  >
+                    Build
+                  </SectionButton>
+                  <SectionButton
+                    onClick={ctxMenu.runDeploy}
+                    icon={<Rocket />}
+                    addTextMargin
+                  >
+                    Deploy
+                  </SectionButton>
+                </>
               ) : (
                 <SectionButton onClick={ctxMenu.addProgram} icon={<Plus />}>
                   Add
@@ -390,6 +400,8 @@ const File = forwardRef<HTMLDivElement, FileProps>(
 
 const RootWrapper = styled.div`
   ${({ theme }) => css`
+  padding: 0.375rem 0;
+
   & .${ClassName.FOLDER}, & .${ClassName.FILE} {
     display: flex;
     align-items: center;
