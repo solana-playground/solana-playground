@@ -455,12 +455,12 @@ export class PgTty {
         // Autocomplete hints
         const candidates = this._autocomplete.getCandidates(inputWithoutPrefix);
         if (candidates.length) {
-          const candidate = candidates[0];
-          if (candidate !== inputWithoutPrefix) {
-            const candidateMissingText = candidate.replace(
-              inputWithoutPrefix,
-              ""
-            );
+          const [candidate] = candidates;
+          const lastToken = inputWithoutPrefix.split(" ").at(-1);
+          if (candidate !== lastToken) {
+            const candidateMissingText = lastToken
+              ? candidate.replace(lastToken, "")
+              : candidate;
             text = text.replace(
               inputWithoutPrefix,
               inputWithoutPrefix +

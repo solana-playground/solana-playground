@@ -1,3 +1,5 @@
+import { parse } from "shell-quote";
+
 import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgTty } from "./tty";
@@ -363,11 +365,17 @@ export class PgShell {
                 this._handleCursorInsert(" ");
               }
             } else if (candidates.length === 1) {
-              // Set the input
-              this._tty.setInput(candidates[0]);
+              const tokens = parse(this._tty.input);
+              const newInput = [
+                ...(this._tty.input.endsWith(" ")
+                  ? tokens
+                  : tokens.slice(0, -1)),
+                candidates[0],
+              ].join(" ");
 
-              // Move the cursor to the end
-              this._tty.setCursor(candidates[0].length);
+              // Set the input
+              this._tty.setInput(newInput);
+              this._tty.setCursor(newInput.length);
             } else if (candidates.length <= 100) {
               // If the candidate count is less than maximum auto-complete
               // candidates, find the common candidate
@@ -381,7 +389,7 @@ export class PgShell {
 
               // If the input is already the common candidate, print all
               // candidates to the user and re-start prompt
-              if (this._tty.input === commonCandidate) {
+              if (!commonCandidate) {
                 this.printAndRestartPrompt(() => {
                   this._tty.printWide(candidates);
                 });

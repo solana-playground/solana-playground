@@ -33,41 +33,35 @@ export class PgAutocomplete {
           //
           // index: 1
           // tokens: ["anchor"]
-          // return: ["anchor idl"]
+          // return: ["idl"]
           //
           // index: 2
           // tokens: ["anchor", "idl"]
-          // return: ["anchor idl init", "anchor idl upgrade"]
+          // return: ["init", "upgrade"]
           const recursivelyGetCandidates = (obj: any, i = 0): string[] => {
             if (i > index) return [];
 
             const candidates = [];
             for (const [key, value] of PgCommon.entries(obj)) {
-              if (i === index) {
-                // Argument values
-                if (PgCommon.isInt(key)) {
+              // Argument values
+              if (PgCommon.isInt(key) && i === index) {
+                if (+key === i) {
                   candidates.push(...PgCommon.callIfNeeded(value));
                 }
+              } else if (
+                // Empty token or key starts with
+                (!tokens[i] || key.startsWith(tokens[i])) &&
+                // Only show options when the current token starts with `-`
+                !(key.startsWith("-") && !tokens[i]?.startsWith("-"))
+              ) {
                 // Commands and options
-                else if (
-                  // Empty token or key starts with
-                  (!tokens[i] || key.startsWith(tokens[i])) &&
-                  // Only show options when the current token starts with `-`
-                  !(key.startsWith("-") && !tokens[i]?.startsWith("-"))
-                ) {
-                  candidates.push(key);
-                }
+                if (i === index) candidates.push(key);
+                candidates.push(...recursivelyGetCandidates(value, i + 1));
               }
-
-              // Check subcommands
-              candidates.push(
-                ...recursivelyGetCandidates(value, i + 1).map(
-                  (subCmd) => `${key} ${subCmd}`
-                )
-              );
             }
             return candidates;
           };
+
           return recursivelyGetCandidates(handler);
         };
       }
@@ -125,17 +119,15 @@ export class PgAutocomplete {
     }
 
     // Collect all auto-complete candidates from the callbacks
-    const candidates = this._handlers
-      .reduce((acc, cb) => {
-        try {
-          const candidates = cb(tokens as string[], index);
-          return acc.concat(candidates);
-        } catch (e) {
-          console.log("Autocomplete error:", e);
-          return acc;
-        }
-      }, [] as string[])
-      .filter((text) => text.startsWith(input));
+    const candidates = this._handlers.reduce((acc, cb) => {
+      try {
+        const candidates = cb(tokens as string[], index);
+        return acc.concat(candidates);
+      } catch (e) {
+        console.log("Autocomplete error:", e);
+        return acc;
+      }
+    }, [] as string[]);
 
     // Candidates might not be unique
     return PgCommon.toUniqueArray(candidates).sort();
