@@ -449,7 +449,7 @@ export class PgTty {
   /** Add highighting to the given text based on ANSI escape sequences. */
   private _highlightText(text: string) {
     // Prompt highlighting
-    if (text.startsWith(this._promptPrefix)) {
+    if (this._promptPrefix && text.startsWith(this._promptPrefix)) {
       const inputWithoutPrefix = text.replace(this._promptPrefix, "");
       if (inputWithoutPrefix) {
         // Autocomplete hints
