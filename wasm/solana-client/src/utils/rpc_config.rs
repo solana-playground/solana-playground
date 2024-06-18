@@ -1,5 +1,4 @@
 use bincode::serialize;
-use clap::ArgMatches;
 use solana_extra_wasm::{
     account_decoder::{UiAccount, UiAccountEncoding, UiDataSliceConfig},
     transaction_status::{TransactionDetails, UiTransactionEncoding},
@@ -12,14 +11,17 @@ use solana_sdk::{
     signature::Signature,
 };
 
-use super::{
-    clap::{
-        input_parsers::{pubkey_of, value_of},
-        nonce::NONCE_ARG,
-        offline::{BLOCKHASH_ARG, SIGN_ONLY_ARG},
-    },
-    rpc_filter::RpcFilterType,
+#[cfg(feature = "cli")]
+use clap::ArgMatches;
+
+#[cfg(feature = "cli")]
+use super::clap::{
+    input_parsers::{pubkey_of, value_of},
+    nonce::NONCE_ARG,
+    offline::{BLOCKHASH_ARG, SIGN_ONLY_ARG},
 };
+
+use super::rpc_filter::RpcFilterType;
 use crate::{utils::nonce_utils, ClientError, ClientResult, WasmClient};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -103,11 +105,14 @@ impl BlockhashQuery {
         }
     }
 
+    #[cfg(feature = "cli")]
     pub fn new_from_matches(matches: &ArgMatches) -> Self {
         let blockhash = value_of(matches, BLOCKHASH_ARG.name);
-        let sign_only = matches.is_present(SIGN_ONLY_ARG.name);
+        let sign_only = matches
+            .get_one(SIGN_ONLY_ARG.name)
+            .expect("`sign_only`is required");
         let nonce_account = pubkey_of(matches, NONCE_ARG.name);
-        BlockhashQuery::new(blockhash, sign_only, nonce_account)
+        BlockhashQuery::new(blockhash, *sign_only, nonce_account)
     }
 
     pub async fn get_blockhash(

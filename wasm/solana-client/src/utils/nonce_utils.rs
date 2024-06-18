@@ -106,9 +106,9 @@ pub fn account_identity_ok<T: ReadableAccount>(account: &T) -> Result<(), NonceE
 /// Determine if a nonce account is initialized:
 ///
 /// ```no_run
-/// use solana_client::{
-///     rpc_client::WasmClient,
-///     nonce_utils,
+/// use solana_client_wasm::{
+///     WasmClient,
+///     utils::nonce_utils::{self, NonceError},
 /// };
 /// use solana_sdk::{
 ///     nonce::State,
@@ -116,24 +116,25 @@ pub fn account_identity_ok<T: ReadableAccount>(account: &T) -> Result<(), NonceE
 /// };
 /// use anyhow::Result;
 ///
-/// fn is_nonce_initialized(
+/// #[tokio::main]
+/// async fn is_nonce_initialized(
 ///     client: &WasmClient,
 ///     nonce_account_pubkey: &Pubkey,
 /// ) -> Result<bool> {
 ///
 ///     // Sign the tx with nonce_account's `blockhash` instead of the
 ///     // network's latest blockhash.
-///     let nonce_account = client.get_account(nonce_account_pubkey)?;
+///     let nonce_account = client.get_account(nonce_account_pubkey).await.unwrap();
 ///     let nonce_state = nonce_utils::state_from_account(&nonce_account)?;
 ///
 ///     Ok(!matches!(nonce_state, State::Uninitialized))
 /// }
-/// #
-/// # let client = WasmClient::new(String::new());
-/// # let nonce_account_pubkey = Pubkey::new_unique();
-/// # is_nonce_initialized(&client, &nonce_account_pubkey)?;
-/// #
-/// # Ok::<(), anyhow::NonceError>(())
+///
+/// let client = WasmClient::new(&String::new());
+/// let nonce_account_pubkey = Pubkey::new_unique();
+/// is_nonce_initialized(&client, &nonce_account_pubkey).unwrap();
+///
+/// Ok::<(), NonceError>(())
 /// ```
 pub fn state_from_account<T: ReadableAccount + StateMut<Versions>>(
     account: &T,
@@ -157,9 +158,9 @@ pub fn state_from_account<T: ReadableAccount + StateMut<Versions>>(
 /// Create and sign a transaction with a durable nonce:
 ///
 /// ```no_run
-/// use solana_client::{
-///     rpc_client::WasmClient,
-///     nonce_utils,
+/// use solana_client_wasm::{
+///     WasmClient,
+///     utils::nonce_utils::{self, NonceError},
 /// };
 /// use solana_sdk::{
 ///     message::Message,
@@ -170,9 +171,9 @@ pub fn state_from_account<T: ReadableAccount + StateMut<Versions>>(
 /// };
 /// use std::path::Path;
 /// use anyhow::Result;
-/// # use anyhow::anyhow;
 ///
-/// fn create_transfer_tx_with_nonce(
+/// #[tokio::main]
+/// async fn create_transfer_tx_with_nonce(
 ///     client: &WasmClient,
 ///     nonce_account_pubkey: &Pubkey,
 ///     payer: &Keypair,
@@ -207,7 +208,7 @@ pub fn state_from_account<T: ReadableAccount + StateMut<Versions>>(
 ///
 ///     // Sign the tx with nonce_account's `blockhash` instead of the
 ///     // network's latest blockhash.
-///     let nonce_account = client.get_account(nonce_account_pubkey)?;
+///     let nonce_account = client.get_account(nonce_account_pubkey).await.unwrap();
 ///     let nonce_data = nonce_utils::data_from_account(&nonce_account)?;
 ///     let blockhash = nonce_data.blockhash();
 ///
@@ -218,18 +219,18 @@ pub fn state_from_account<T: ReadableAccount + StateMut<Versions>>(
 ///
 ///     Ok(())
 /// }
-/// #
-/// # fn save_tx_to_file(path: &Path, tx: &Transaction) -> Result<()> {
-/// #     Ok(())
-/// # }
-/// #
-/// # let client = WasmClient::new(String::new());
-/// # let nonce_account_pubkey = Pubkey::new_unique();
-/// # let payer = Keypair::new();
-/// # let receiver = Pubkey::new_unique();
-/// # create_transfer_tx_with_nonce(&client, &nonce_account_pubkey, &payer, &receiver, 1024, Path::new("new_tx"))?;
-/// #
-/// # Ok::<(), anyhow::NonceError>(())
+///
+/// fn save_tx_to_file(path: &Path, tx: &Transaction) -> Result<()> {
+///     Ok(())
+/// }
+///
+/// let client = WasmClient::new(&String::new());
+/// let nonce_account_pubkey = Pubkey::new_unique();
+/// let payer = Keypair::new();
+/// let receiver = Pubkey::new_unique();
+/// create_transfer_tx_with_nonce(&client, &nonce_account_pubkey, &payer, &receiver, 1024, Path::new("new_tx")).unwrap();
+///
+/// Ok::<(), NonceError>(())
 /// ```
 pub fn data_from_account<T: ReadableAccount + StateMut<Versions>>(
     account: &T,

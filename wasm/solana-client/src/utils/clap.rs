@@ -1,12 +1,14 @@
-// These utilities are copied from solana-clap-v3-utils-wasm
+// These utilities are copied and adapted from solana-clap-v3-utils-wasm
 // We don't need/want to upload solana-clap-v3-utils-wasm to crates.io
 
+#[cfg(feature = "cli")]
 pub struct ArgConstant<'a> {
     pub long: &'a str,
     pub name: &'a str,
     pub help: &'a str,
 }
 
+#[cfg(feature = "cli")]
 pub mod input_parsers {
     use clap::ArgMatches;
     use solana_sdk::{
@@ -19,7 +21,7 @@ pub mod input_parsers {
         T: std::str::FromStr,
         <T as std::str::FromStr>::Err: std::fmt::Debug,
     {
-        if let Some(value) = matches.value_of(name) {
+        if let Some(value) = matches.get_one::<String>(name) {
             value.parse::<T>().ok()
         } else {
             None
@@ -37,6 +39,7 @@ pub mod input_parsers {
     }
 }
 
+#[cfg(feature = "cli")]
 pub mod nonce {
     use super::ArgConstant;
 
@@ -50,6 +53,7 @@ pub mod nonce {
     };
 }
 
+#[cfg(feature = "cli")]
 pub mod offline {
     use super::ArgConstant;
 
