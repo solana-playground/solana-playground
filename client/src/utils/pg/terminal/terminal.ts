@@ -1,6 +1,7 @@
 import { ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
+import { parse } from "shell-quote";
 import { format } from "util";
 
 import { PgAutocomplete } from "./autocomplete";
@@ -344,8 +345,18 @@ export class PgTerm {
     // Create Shell and TTY
     const history = new PgHistory(20);
     this._autocomplete = new PgAutocomplete([
-      () => history.getEntries(),
       cmdManager.getCompletions(),
+      (tokens) => {
+        return history
+          .getEntries()
+          .map((entry) => parse(entry) as string[])
+          .map((entryTokens) => {
+            const condition = entryTokens.join().startsWith(tokens.join());
+            if (condition) return entryTokens.at(-1);
+            return null;
+          })
+          .filter(PgCommon.isNonNullish);
+      },
     ]);
     this._tty = new PgTty(this._xterm, cmdManager, this._autocomplete);
     this._shell = new PgShell(
