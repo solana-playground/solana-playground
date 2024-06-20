@@ -44,9 +44,14 @@ export class PgAutocomplete {
             const candidates = [];
             for (const [key, value] of PgCommon.entries(obj)) {
               // Argument values
-              if (PgCommon.isInt(key) && i === index) {
-                if (+key === i) {
-                  candidates.push(...PgCommon.callIfNeeded(value));
+              if (PgCommon.isInt(key)) {
+                if (+key === index - i) {
+                  const token = tokens[index];
+                  const args: string[] = PgCommon.callIfNeeded(value);
+                  const filteredArgs = args.filter(
+                    (arg) => !token || arg.startsWith(token)
+                  );
+                  candidates.push(...filteredArgs);
                 }
               } else if (
                 // Empty token or key starts with
