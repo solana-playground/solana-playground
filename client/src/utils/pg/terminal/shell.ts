@@ -365,11 +365,9 @@ export class PgShell {
                 this._handleCursorInsert(" ");
               }
             } else if (candidates.length === 1) {
-              const tokens = parse(this._tty.input);
+              const tokens = parse(inputFragment);
               const newInput = [
-                ...(this._tty.input.endsWith(" ")
-                  ? tokens
-                  : tokens.slice(0, -1)),
+                ...(inputFragment.endsWith(" ") ? tokens : tokens.slice(0, -1)),
                 candidates[0],
               ].join(" ");
 
@@ -387,16 +385,22 @@ export class PgShell {
                 else break;
               }
 
+              const tokens = parse(inputFragment);
+              const newInput = [
+                ...(inputFragment.endsWith(" ") ? tokens : tokens.slice(0, -1)),
+                commonCandidate,
+              ].join(" ");
+
               // If the input is already the common candidate, print all
               // candidates to the user and re-start prompt
-              if (!commonCandidate) {
+              if (inputFragment === newInput) {
                 this.printAndRestartPrompt(() => {
                   this._tty.printWide(candidates);
                 });
               } else {
                 // Set the input to the common candidate
-                this._tty.setInput(commonCandidate);
-                this._tty.setCursor(commonCandidate.length);
+                this._tty.setInput(newInput);
+                this._tty.setCursor(newInput.length);
               }
             } else {
               // If we have more than maximum auto-complete candidates, print
