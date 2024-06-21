@@ -22,6 +22,7 @@ use solana_sdk::{
     signature::Signature,
     transaction::Transaction,
 };
+use std::time::Duration;
 
 use crate::{
     constants::{MAX_RETRIES, SLEEP_MS},
@@ -59,7 +60,16 @@ impl WasmClient {
     /// Default commitment is `confirmed` unlike default Solana Client.
     pub fn new(endpoint: &str) -> Self {
         Self {
-            provider: Provider::new(endpoint),
+            provider: Provider::new(endpoint, Duration::from_secs(60)),
+            commitment_config: CommitmentConfig::confirmed(),
+            #[cfg(feature = "pubsub")]
+            ws: crate::pubsub::WasmWebSocket::new(endpoint),
+        }
+    }
+
+    pub fn new_with_timeout(endpoint: &str, timeout: u64) -> Self {
+        Self {
+            provider: Provider::new(endpoint, Duration::from_secs(timeout)),
             commitment_config: CommitmentConfig::confirmed(),
             #[cfg(feature = "pubsub")]
             ws: crate::pubsub::WasmWebSocket::new(endpoint),
@@ -68,7 +78,7 @@ impl WasmClient {
 
     pub fn new_with_commitment(endpoint: &str, commitment_config: CommitmentConfig) -> Self {
         Self {
-            provider: Provider::new(endpoint),
+            provider: Provider::new(endpoint, Duration::from_secs(60)),
             commitment_config,
             #[cfg(feature = "pubsub")]
             ws: crate::pubsub::WasmWebSocket::new(endpoint),
