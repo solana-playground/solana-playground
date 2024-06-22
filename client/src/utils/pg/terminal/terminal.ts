@@ -346,13 +346,17 @@ export class PgTerm {
     const history = new PgHistory(20);
     this._autocomplete = new PgAutocomplete([
       cmdManager.getCompletions(),
-      (tokens) => {
+      (tokens, i) => {
         return history
           .getEntries()
           .map((entry) => parse(entry) as string[])
           .map((entryTokens) => {
-            const condition = entryTokens.join().startsWith(tokens.join());
-            if (condition) return entryTokens.at(-1);
+            const matches = tokens.every((token, i) =>
+              i === tokens.length - 1
+                ? entryTokens[i]?.startsWith(token)
+                : token === entryTokens[i]
+            );
+            if (matches) return entryTokens.at(i);
             return null;
           })
           .filter(PgCommon.isNonNullish);
