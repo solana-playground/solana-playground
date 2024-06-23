@@ -1,9 +1,25 @@
 import { parse } from "shell-quote";
 
 /**
- * Detects all the word boundaries on the given input
+ * Get the closest *left* word boundary of the given input at the given offset.
  */
-export const wordBoundaries = (input: string, leftSide: boolean = true) => {
+export const closestLeftBoundary = (input: string, offset: number) => {
+  const found = getWordBoundaries(input, true)
+    .reverse()
+    .find((x) => x < offset);
+  return found === undefined ? 0 : found;
+};
+
+/**
+ * Get the closest *right* word boundary of the given input at the given offset.
+ */
+export const closestRightBoundary = (input: string, offset: number) => {
+  const found = getWordBoundaries(input, false).find((x) => x > offset);
+  return found === undefined ? input.length : found;
+};
+
+/** Get all the word boundaries from the given input. */
+const getWordBoundaries = (input: string, leftSide: boolean = true) => {
   let match;
   const words = [];
   const regex = /\w+/g;
@@ -20,21 +36,6 @@ export const wordBoundaries = (input: string, leftSide: boolean = true) => {
   }
 
   return words;
-};
-
-/**
- * The closest left (or right) word boundary of the given input at the
- * given offset.
- */
-export const closestLeftBoundary = (input: string, offset: number) => {
-  const found = wordBoundaries(input, true)
-    .reverse()
-    .find((x) => x < offset);
-  return found === undefined ? 0 : found;
-};
-export const closestRightBoundary = (input: string, offset: number) => {
-  const found = wordBoundaries(input, false).find((x) => x > offset);
-  return found === undefined ? input.length : found;
 };
 
 /**

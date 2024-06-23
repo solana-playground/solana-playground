@@ -8,7 +8,7 @@ import {
   closestRightBoundary,
   hasTrailingWhitespace,
   isIncompleteInput,
-} from "./shell-utils";
+} from "./utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
 
@@ -367,7 +367,9 @@ export class PgShell {
             } else if (candidates.length === 1) {
               const tokens = parse(inputFragment);
               const newInput = [
-                ...(inputFragment.endsWith(" ") ? tokens : tokens.slice(0, -1)),
+                ...(hasTrailingWhitespace(inputFragment)
+                  ? tokens
+                  : tokens.slice(0, -1)),
                 candidates[0],
               ].join(" ");
 
@@ -387,7 +389,9 @@ export class PgShell {
 
               const tokens = parse(inputFragment);
               const newInput = [
-                ...(inputFragment.endsWith(" ") ? tokens : tokens.slice(0, -1)),
+                ...(hasTrailingWhitespace(inputFragment)
+                  ? tokens
+                  : tokens.slice(0, -1)),
                 commonCandidate,
               ].join(" ");
 

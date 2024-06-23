@@ -1,6 +1,6 @@
 import { parse } from "shell-quote";
 
-import { hasTrailingWhitespace } from "./shell-utils";
+import { hasTrailingWhitespace } from "./utils";
 import { PgCommon } from "../common";
 
 /** Callback to create the autocomplete candidates based on the given tokens */
