@@ -1,7 +1,7 @@
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
 
-use super::{serde_utils::deserialize_public_key, Context};
-use crate::{ClientRequest, ClientResponse};
+use super::Context;
+use crate::{utils::rpc_response::RpcTokenAccountBalance, ClientRequest, ClientResponse};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetTokenLargestAccountsRequest {
@@ -46,20 +46,9 @@ impl From<GetTokenLargestAccountsRequest> for ClientRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct TokenLargestAccountsValue {
-    #[serde(deserialize_with = "deserialize_public_key")]
-    pub address: Pubkey,
-    pub amount: String,
-    pub decimals: u8,
-    pub ui_amount: Option<u64>,
-    pub ui_amount_string: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetTokenLargestAccountsResponse {
     pub context: Context,
-    pub value: Vec<TokenLargestAccountsValue>,
+    pub value: Vec<RpcTokenAccountBalance>,
 }
 
 impl From<ClientResponse> for GetTokenLargestAccountsResponse {
