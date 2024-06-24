@@ -1,6 +1,4 @@
-import { parse } from "shell-quote";
-
-import { hasTrailingWhitespace } from "./utils";
+import { hasTrailingWhitespace, parse } from "./utils";
 import { PgCommon } from "../common";
 
 /** Callback to create the autocomplete candidates based on the given tokens */
@@ -126,7 +124,7 @@ export class PgAutocomplete {
     // Collect all auto-complete candidates from the callbacks
     const candidates = this._handlers.reduce((acc, cb) => {
       try {
-        const candidates = cb(tokens as string[], index);
+        const candidates = cb(tokens, index);
         return acc.concat(candidates);
       } catch (e) {
         console.log("Autocomplete error:", e);

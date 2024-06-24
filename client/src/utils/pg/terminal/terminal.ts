@@ -1,13 +1,13 @@
 import { ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
-import { parse } from "shell-quote";
 import { format } from "util";
 
 import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgShell } from "./shell";
 import { PgTty } from "./tty";
+import { parse } from "./utils";
 import {
   Emoji,
   EventName,
@@ -349,7 +349,7 @@ export class PgTerm {
       (tokens, i) => {
         return history
           .getEntries()
-          .map((entry) => parse(entry) as string[])
+          .map(parse)
           .map((entryTokens) => {
             const matches = tokens.every((token, i) =>
               i === tokens.length - 1

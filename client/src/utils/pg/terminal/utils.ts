@@ -1,4 +1,12 @@
-import { parse } from "shell-quote";
+import { parse as shellParse } from "shell-quote";
+
+/**
+ * Parse the given input to tokens.
+ *
+ * @param input command input
+ * @returns the parsed tokens
+ */
+export const parse = (input: string) => shellParse(input) as string[];
 
 /**
  * Get the closest *left* word boundary of the given input at the given offset.
@@ -91,5 +99,5 @@ export const getLastToken = (input: string) => {
 
   // Last token
   const tokens = parse(input);
-  return (tokens.pop() as string) || "";
+  return tokens.pop() || "";
 };

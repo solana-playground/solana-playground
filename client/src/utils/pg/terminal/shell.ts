@@ -1,5 +1,3 @@
-import { parse } from "shell-quote";
-
 import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgTty } from "./tty";
@@ -8,6 +6,7 @@ import {
   closestRightBoundary,
   hasTrailingWhitespace,
   isIncompleteInput,
+  parse,
 } from "./utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
