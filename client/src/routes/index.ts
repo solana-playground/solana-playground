@@ -6,7 +6,7 @@ import { share } from "./share";
 import { tutorial } from "./tutorial";
 import { tutorials } from "./tutorials";
 
-/** All availabe routes, order matters */
+/** All available routes, order matters */
 export const ROUTES = [
   defaultRoute,
   tutorials,
