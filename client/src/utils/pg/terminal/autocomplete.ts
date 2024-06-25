@@ -114,12 +114,9 @@ export class PgAutocomplete {
     let index = tokens.length - 1;
 
     // Empty expressions
-    if (input.trim() === "") {
-      index = 0;
-    } else if (hasTrailingWhitespace(input)) {
-      // Expressions with danging space
-      index += 1;
-    }
+    if (!input.trim()) index = 0;
+    // Expressions with danging space
+    else if (hasTrailingWhitespace(input)) index += 1;
 
     // Collect all auto-complete candidates from the callbacks
     const candidates = this._handlers.reduce((acc, cb) => {

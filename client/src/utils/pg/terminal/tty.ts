@@ -459,13 +459,10 @@ export class PgTty {
           const [candidate] = candidates;
           const lastToken = getLastToken(inputWithoutPrefix);
           if (candidate !== lastToken) {
-            const candidateMissingText = lastToken
-              ? candidate.replace(lastToken, "")
-              : candidate;
+            const missingText = candidate.replace(lastToken, "");
             text = text.replace(
               inputWithoutPrefix,
-              inputWithoutPrefix +
-                PgTerminal.secondaryText(candidateMissingText)
+              inputWithoutPrefix + PgTerminal.secondaryText(missingText)
             );
           }
         }
