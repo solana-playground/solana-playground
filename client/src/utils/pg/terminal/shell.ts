@@ -171,7 +171,7 @@ export class PgShell {
     if (this._waitingForInput) {
       PgCommon.createAndDispatchCustomEvent(PgShell._TERMINAL_WAIT_FOR_INPUT);
     } else {
-      return await this._cmdManager.execute(input);
+      return await this._cmdManager.execute(parse(input));
     }
   }
 

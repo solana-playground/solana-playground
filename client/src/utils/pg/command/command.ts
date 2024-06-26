@@ -199,19 +199,15 @@ export class PgCommandManager {
   }
 
   /**
-   * Execute from the given input.
+   * Execute from the given tokens.
    *
    * All command processing logic happens in this method.
    *
-   * @param input full user input starting with the command name
+   * @param tokens parsed input tokens
    * @returns the return value of the command
    */
-  static async execute(input: string) {
+  static async execute(tokens: string[]) {
     return await PgTerminal.process(async () => {
-      // This guarantees commands only start with the specified command name.
-      // `solana-keygen` would not count for inputCmdName === "solana"
-      input = input.trim();
-      const tokens = input.split(" ");
       const inputCmdName = tokens.at(0);
       if (!inputCmdName) return;
 
@@ -224,14 +220,15 @@ export class PgCommandManager {
         );
       }
 
-      let cmd = topCmd;
-      let args: string[] = [];
-
       // Dispatch start event
+      const input = tokens.join(" ");
       PgCommon.createAndDispatchCustomEvent(
         getEventName(topCmd.name, "start"),
         input
       );
+
+      let cmd = topCmd;
+      let args: string[] = [];
 
       for (const i in tokens) {
         // Get subcommand

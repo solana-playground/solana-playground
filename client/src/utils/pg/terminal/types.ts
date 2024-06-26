@@ -32,8 +32,8 @@ export type CommandManager<R = unknown> = {
    * ```
    */
   getCompletions: () => Record<string, any>;
-  /** Execute the given input. */
-  execute: (input: string) => Promise<R>;
+  /** Execute from the given tokens. */
+  execute: (tokens: string[]) => Promise<R>;
 };
 
 export interface ActiveCharPrompt {
