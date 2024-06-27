@@ -45,7 +45,12 @@ export const NonLocal: FC<ToastChildProps> = ({ id }) => {
       <ButtonsWrapper>
         <Button
           onClick={() => {
-            return PgCommand.solana.run(`config set -u ${Endpoint.LOCALHOST}`);
+            return PgCommand.solana.run(
+              "config",
+              "set",
+              "-u",
+              Endpoint.LOCALHOST
+            );
           }}
           kind="secondary-transparent"
           size="small"
