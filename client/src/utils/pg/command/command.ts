@@ -84,7 +84,7 @@ type Command<N extends string, A extends Arg[], S, R> = Pick<
   CommandInferredImpl<N, A, S, R>,
   "name"
 > & {
-  /** Process the command */
+  /** Process the command. */
   run(...args: string[]): Promise<Awaited<R>>;
   /**
    * @param cb callback function to run when the command starts running
@@ -126,10 +126,7 @@ export const PgCommand: Commands = new Proxy(
         target[cmdCodeName] = {
           name: cmdUiName,
           run: (...args: string[]) => {
-            return PgTerminal.executeFromStr(
-              `${cmdUiName} ${args.join(" ")}`,
-              true
-            );
+            return PgCommandManager.execute([cmdUiName, ...args]);
           },
           onDidRunStart: (cb: (input: string | null) => void) => {
             return PgCommon.onDidChange({
