@@ -51,12 +51,9 @@ export class PgAutocomplete {
                   );
                   candidates.push(...filteredArgs);
                 }
-              } else if (
-                // Empty token or key starts with
-                (!tokens[i] || key.startsWith(tokens[i])) &&
-                // Only show options when the current token starts with `-`
-                !(key.startsWith("-") && !tokens[i]?.startsWith("-"))
-              ) {
+              }
+              // Subcommands or options
+              else if (!tokens[i] || key.startsWith(tokens[i])) {
                 // Commands and options
                 if (i === index) candidates.push(key);
                 candidates.push(...recursivelyGetCandidates(value, i + 1));
@@ -129,7 +126,17 @@ export class PgAutocomplete {
       }
     }, [] as string[]);
 
-    // Candidates might not be unique
-    return PgCommon.toUniqueArray(candidates).sort();
+    return (
+      // Candidates might include duplicates
+      PgCommon.toUniqueArray(candidates)
+        // Sort for consistent output
+        .sort()
+        // Only show options when the current token starts with '-'
+        .filter((candidate) => {
+          return candidate.startsWith("-")
+            ? tokens.at(-1)?.startsWith("-")
+            : true;
+        })
+    );
   }
 }
