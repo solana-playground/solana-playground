@@ -1323,12 +1323,12 @@
     superstruct "^0.15.4"
     toml "^3.0.0"
 
-"@coral-xyz/anchor@^0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@coral-xyz/anchor/-/anchor-0.29.0.tgz#bd0be95bedfb30a381c3e676e5926124c310ff12"
-  integrity sha512-eny6QNG0WOwqV0zQ7cs/b1tIuzZGmP7U7EcH+ogt4Gdbl8HDmIYVMh/9aTmYZPaFWjtUaI8qSn73uYEXWfATdA==
+"@coral-xyz/anchor@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/@coral-xyz/anchor/-/anchor-0.30.0.tgz#52acdba504b0008f1026d3a4bbbcb2d4feb5c69e"
+  integrity sha512-qreDh5ztiRHVnCbJ+RS70NJ6aSTPBYDAgFeQ7Z5QvaT5DcDIhNyt4onOciVz2ieIE1XWePOJDDu9SbNvPGBkvQ==
   dependencies:
-    "@coral-xyz/borsh" "^0.29.0"
+    "@coral-xyz/borsh" "^0.30.0"
     "@noble/hashes" "^1.3.1"
     "@solana/web3.js" "^1.68.0"
     bn.js "^5.1.2"
@@ -1351,10 +1351,10 @@
     bn.js "^5.1.2"
     buffer-layout "^1.2.0"
 
-"@coral-xyz/borsh@^0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@coral-xyz/borsh/-/borsh-0.29.0.tgz#79f7045df2ef66da8006d47f5399c7190363e71f"
-  integrity sha512-s7VFVa3a0oqpkuRloWVPdCK7hMbAMY270geZOGfCnaqexrP5dTIpbEHL33req6IYPPJ0hYa71cdvJ1h6V55/oQ==
+"@coral-xyz/borsh@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/@coral-xyz/borsh/-/borsh-0.30.0.tgz#3e6f23e944ef6c89f2c9cbead383358752ac5e73"
+  integrity sha512-OrcV+7N10cChhgDRUxM4iEIuwxUHHs52XD85R8cFCUqE0vbLYrcoPPPs+VF6kZ9DhdJGVW2I6DHJOp5TykyZog==
   dependencies:
     bn.js "^5.1.2"
     buffer-layout "^1.2.0"

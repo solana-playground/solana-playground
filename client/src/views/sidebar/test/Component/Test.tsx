@@ -83,7 +83,7 @@ const Test = () => {
       <Wrapper>
         <ProgramNameWrapper>
           Program:
-          <ProgramName>{idl.name}</ProgramName>
+          <ProgramName>{idl.metadata.name}</ProgramName>
         </ProgramNameWrapper>
 
         <ProgramInteractionWrapper>

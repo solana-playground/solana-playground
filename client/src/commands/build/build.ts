@@ -169,7 +169,6 @@ const getBuildFiles = () => {
         updated = updateIdResult.updated;
       }
     }
-
     return { content, updated };
   };
 
@@ -186,28 +185,40 @@ const getBuildFiles = () => {
     return prioritised;
   };
 
-  const files = PgExplorer.files;
-  const prioritisedFilePaths = prioritiseFilePaths(files);
-  const buildFiles: TupleFiles = [];
-  let alreadyUpdatedId = false;
-
-  for (const path of prioritisedFilePaths) {
-    if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
-
-    let content = files[path].content;
-    if (!alreadyUpdatedId) {
-      const updateIdResult = getUpdatedProgramIdContent(path);
-      content = updateIdResult.content;
-      alreadyUpdatedId = updateIdResult.updated;
-    }
-    if (!content) continue;
-
-    // Remove the workspace from path because build only needs /src
+  function addToBuildFiles(path: string, content: string) {
     const buildPath = PgCommon.joinPaths(
       PgExplorer.PATHS.ROOT_DIR_PATH,
       PgExplorer.getRelativePath(path)
     );
     buildFiles.push([buildPath, content]);
+  }
+
+  const files = PgExplorer.files;
+  const prioritisedFilePaths = prioritiseFilePaths(files);
+  const buildFiles: TupleFiles = [];
+  let alreadyUpdatedId = false;
+
+  // Matches any path ending with /{project}/idls/{filename}.json
+  const idlFileRegex = /\/[^\/]+\/idls\/[^\/]+\.json$/;
+
+  for (const path of prioritisedFilePaths) {
+    let content = files[path].content;
+
+    // Handle source files
+    if (path.startsWith(PgExplorer.getCurrentSrcPath())) {
+      if (!alreadyUpdatedId) {
+        const updateIdResult = getUpdatedProgramIdContent(path);
+        content = updateIdResult.content;
+        alreadyUpdatedId = updateIdResult.updated;
+      }
+      if (!content) continue;
+      addToBuildFiles(path, content);
+    }
+    // Handle IDL files
+    else if (idlFileRegex.test(path)) {
+      if (!content) continue;
+      addToBuildFiles(path, content);
+    }
   }
 
   return buildFiles;

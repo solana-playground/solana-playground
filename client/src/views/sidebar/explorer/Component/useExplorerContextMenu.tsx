@@ -97,6 +97,10 @@ export const useExplorerContextMenu = () => {
     );
   }, []);
 
+  const addIdls = useCallback(async () => {
+    await PgCommand.idls.run();
+  }, []);
+
   const addClient = useCallback(async () => {
     await PgCommand.run.run();
   }, []);
@@ -135,6 +139,7 @@ export const useExplorerContextMenu = () => {
     renameItem,
     deleteItem,
     addProgram,
+    addIdls,
     addClient,
     addTests,
     runBuild,
