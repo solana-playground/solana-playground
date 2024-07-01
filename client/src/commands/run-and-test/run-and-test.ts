@@ -7,7 +7,18 @@ import {
 import { createArgs, createCmd } from "../create";
 
 /** Common arguments */
-const args = createArgs([{ name: "path", optional: true }]);
+const args = createArgs([
+  {
+    name: "path",
+    optional: true,
+    values: () => {
+      return PgExplorer.getAllFiles()
+        .map(([path]) => path)
+        .filter(PgExplorer.isFileJsLike)
+        .map(PgExplorer.getRelativePath);
+    },
+  },
+]);
 
 export const run = createCmd({
   name: "run",
