@@ -54,9 +54,10 @@ export class PgAutocomplete {
               }
               // Subcommands or options
               else if (!tokens[i] || key.startsWith(tokens[i])) {
-                // Commands and options
                 if (i === index) candidates.push(key);
-                candidates.push(...recursivelyGetCandidates(value, i + 1));
+                if (key === tokens[i]) {
+                  candidates.push(...recursivelyGetCandidates(value, i + 1));
+                }
               }
             }
             return candidates;
