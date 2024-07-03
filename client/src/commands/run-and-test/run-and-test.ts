@@ -6,31 +6,39 @@ import {
 } from "../../utils/pg";
 import { createArgs, createCmd } from "../create";
 
-/** Common arguments */
-const args = createArgs([
-  {
-    name: "path",
-    optional: true,
-    values: () => {
-      return PgExplorer.getAllFiles()
-        .map(([path]) => path)
-        .filter(PgExplorer.isFileJsLike)
-        .map(PgExplorer.getRelativePath);
+/**
+ * Crate common arguments.
+ *
+ * @param parentPath path that is expected to be run inside of
+ * @returns the common arguments
+ */
+const createCommonArgs = (parentPath: string) =>
+  createArgs([
+    {
+      name: "path",
+      optional: true,
+      values: () => {
+        return PgExplorer.getAllFiles()
+          .map(([path]) => path)
+          .filter(PgExplorer.isFileJsLike)
+          .map(PgExplorer.getRelativePath)
+          .filter((path) => path.startsWith(parentPath))
+          .map((path) => path.replace(PgCommon.appendSlash(parentPath), ""));
+      },
     },
-  },
-]);
+  ]);
 
 export const run = createCmd({
   name: "run",
   description: "Run script(s)",
-  args,
+  args: createCommonArgs(PgExplorer.PATHS.CLIENT_DIRNAME),
   run: (input) => processCommon({ path: input.args.path, isTest: false }),
 });
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
-  args,
+  args: createCommonArgs(PgExplorer.PATHS.TESTS_DIRNAME),
   run: (input) => processCommon({ path: input.args.path, isTest: true }),
 });
 
@@ -50,9 +58,17 @@ const processCommon = async (params: {
 
   const { PgClient } = await PgClientImporter.import();
 
+  const folderPath = isTest
+    ? PgExplorer.PATHS.TESTS_DIRNAME
+    : PgExplorer.PATHS.CLIENT_DIRNAME;
+
   // Run the script only at the given path
   if (path) {
-    const code = PgExplorer.getFileContent(path);
+    // The path can be a file name that's expected to run inside the `client`
+    // or `tests` directory based on the command that's running
+    const code =
+      PgExplorer.getFileContent(path) ??
+      PgExplorer.getFileContent(PgCommon.joinPaths(folderPath, path));
     if (!code) throw new Error(`File '${path}' doesn't exist`);
 
     const fileName = PgExplorer.getItemNameFromPath(path);
@@ -63,12 +79,8 @@ const processCommon = async (params: {
     return await PgClient.execute({ fileName, code, isTest });
   }
 
-  const folderPath = isTest
-    ? PgExplorer.PATHS.TESTS_DIRNAME
-    : PgExplorer.PATHS.CLIENT_DIRNAME;
-  const folder = PgExplorer.getFolderContent(folderPath);
-
   // Create default client/test if the folder is empty
+  const folder = PgExplorer.getFolderContent(folderPath);
   if (!folder.files.length && !folder.folders.length) {
     let DEFAULT;
     if (isTest) {
@@ -81,7 +93,6 @@ const processCommon = async (params: {
 
     const [fileName, code] = DEFAULT;
     await PgExplorer.newItem(PgCommon.joinPaths(folderPath, fileName), code);
-
     return await PgClient.execute({ fileName, code, isTest });
   }
 
