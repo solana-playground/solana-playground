@@ -4,7 +4,31 @@
  * @param input command input
  * @returns the parsed tokens
  */
-export const parse = (input: string) => input.split(/\s/).filter(Boolean);
+export const parse = (input: string) => {
+  const tokens = [];
+  let currentTokenIndex = 0;
+  let isInQuotes = false;
+  for (const char of input) {
+    switch (char) {
+      case '"':
+      case "'":
+        isInQuotes = !isInQuotes;
+        break;
+
+      case " ":
+        if (!isInQuotes) currentTokenIndex++;
+        else if (!tokens[currentTokenIndex]) tokens[currentTokenIndex] = char;
+        else tokens[currentTokenIndex] += char;
+        break;
+
+      default:
+        if (!tokens[currentTokenIndex]) tokens[currentTokenIndex] = char;
+        else tokens[currentTokenIndex] += char;
+    }
+  }
+
+  return tokens;
+};
 
 /**
  * Get the closest *left* word boundary of the given input at the given offset.
