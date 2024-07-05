@@ -4,7 +4,13 @@ import { createArgs, createCmd } from "../create";
 export const connect = createCmd({
   name: "connect",
   description: "Toggle connection to Playground Wallet",
-  args: createArgs([{ name: "wallet", optional: true }]),
+  args: createArgs([
+    {
+      name: "wallet",
+      optional: true,
+      values: () => PgWallet.standardWallets.map((w) => w.adapter.name),
+    },
+  ]),
   run: async (input) => {
     switch (PgWallet.state) {
       case "pg": {
