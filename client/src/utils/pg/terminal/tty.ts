@@ -69,17 +69,6 @@ export class PgTty {
   }
 
   /**
-   * Get current line as string.
-   *
-   * @param offset how many lines before the current line
-   *
-   * @returns the current line as string
-   */
-  getCurrentLineString(offset: number = 0) {
-    return this._getCurrentLine(offset)?.translateToString();
-  }
-
-  /**
    * Get whether the current input starts with prompt.
    *
    * Useful for `PgTerm.fit()`.
