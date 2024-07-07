@@ -105,7 +105,7 @@ export const isIncompleteInput = (input: string) => {
 };
 
 /**
- * @returns true if the expression ends on a tailing whitespace
+ * @returns whether the input ends with trailing whitespace
  */
 export const hasTrailingWhitespace = (input: string) => {
   return input.match(/[^\\][ \t]$/m) !== null;
@@ -115,8 +115,7 @@ export const hasTrailingWhitespace = (input: string) => {
  * @returns the last expression in the given input
  */
 export const getLastToken = (input: string) => {
-  // Empty expressions
-  if (input.trim() === "") return "";
+  if (!input.trim()) return "";
   if (hasTrailingWhitespace(input)) return "";
 
   // Last token

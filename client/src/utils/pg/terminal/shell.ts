@@ -354,6 +354,19 @@ export class PgShell {
               0,
               this._tty.cursor
             );
+
+            const createNewInput = (candidate: string) => {
+              const tokens = parse(inputFragment);
+              return [
+                ...(hasTrailingWhitespace(inputFragment)
+                  ? tokens
+                  : tokens.slice(0, -1)),
+                candidate,
+              ]
+                .map((token) => (token.includes(" ") ? `"${token}"` : token))
+                .join(" ");
+            };
+
             const candidates = this._autocomplete.getCandidates(inputFragment);
 
             // Depending on the number of candidates, we are handing them in a
@@ -364,15 +377,8 @@ export class PgShell {
                 this._handleCursorInsert(" ");
               }
             } else if (candidates.length === 1) {
-              const tokens = parse(inputFragment);
-              const newInput = [
-                ...(hasTrailingWhitespace(inputFragment)
-                  ? tokens
-                  : tokens.slice(0, -1)),
-                candidates[0],
-              ].join(" ");
-
               // Set the input
+              const newInput = createNewInput(candidates[0]);
               this._tty.setInput(newInput);
               this._tty.setCursor(newInput.length);
             } else if (candidates.length <= 100) {
@@ -386,13 +392,7 @@ export class PgShell {
                 else break;
               }
 
-              const tokens = parse(inputFragment);
-              const newInput = [
-                ...(hasTrailingWhitespace(inputFragment)
-                  ? tokens
-                  : tokens.slice(0, -1)),
-                commonCandidate,
-              ].join(" ");
+              const newInput = createNewInput(commonCandidate);
 
               // If the input is already the common candidate, print all
               // candidates to the user and re-start prompt
