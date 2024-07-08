@@ -8,7 +8,8 @@ export const connect = createCmd({
     {
       name: "wallet",
       optional: true,
-      values: () => PgWallet.standardWallets.map((w) => w.adapter.name),
+      values: () =>
+        PgWallet.standardWallets.map((w) => w.adapter.name.toLowerCase()),
     },
   ]),
   run: async (input) => {
