@@ -9,44 +9,63 @@ import type {
 } from "../types";
 
 /** Terminal command implementation */
-export type CommandImpl<N extends string, A extends Arg[], S, R> = {
+export type CommandImpl<
+  N extends string,
+  A extends Arg[],
+  O extends Option[],
+  S,
+  R
+> = {
   /** Name of the command that will be used in terminal */
   name: N;
   /** Description that will be seen in the `help` command */
   description: string;
   /* Only process the command if the condition passes */
   preCheck?: Arrayable<() => SyncOrAsync<void>>;
-} & (WithSubcommands<S> | WithRun<A, R>);
+} & (WithSubcommands<S> | WithRun<A, O, R>);
 
 type WithSubcommands<S> = {
   /** Command arguments */
   args?: never;
+  /** Command options */
+  options?: never;
   /** Function to run when the command is called */
   run?: never;
   /** Subcommands */
   subcommands?: S;
 };
 
-type WithRun<A, R> = {
+type WithRun<A, O, R> = {
   /** Command arguments */
   args?: A;
+  /** Command options */
+  options?: O;
   /** Function to run when the command is called */
-  run: (input: ParsedInput<A>) => R;
+  run: (input: ParsedInput<A, O>) => R;
   /** Subcommands */
   subcommands?: never;
 };
 
-type ParsedInput<A> = {
+type ParsedInput<A, O> = {
   /** Raw input */
   raw: string;
   /** Parsed arguments */
   args: ParsedArgs<A>;
+  /** Parsed options */
+  options: ParsedOptions<O>;
 };
 
 /** Recursively map argument types */
 type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
   ? Head extends Arg<infer N, infer O, infer V>
     ? (O extends true ? { [K in N]?: V } : { [K in N]: V }) & ParsedArgs<Tail>
+    : never
+  : {};
+
+/** Recursively map option types */
+type ParsedOptions<O> = O extends [infer Head, ...infer Tail]
+  ? Head extends Option<infer N>
+    ? { [K in N]?: boolean } & ParsedOptions<Tail>
     : never
   : {};
 
@@ -64,26 +83,39 @@ export type Arg<
   values?: Getable<V[]>;
 };
 
+/** Command option */
+export type Option<N extends string = string> = {
+  /** Name of the option */
+  name: N;
+};
+
 /** Terminal command inferred implementation */
-export type CommandInferredImpl<N extends string, A extends Arg[], S, R> = Omit<
-  CommandImpl<N, A, S, R>,
-  "subcommands"
-> & {
+export type CommandInferredImpl<
+  N extends string,
+  A extends Arg[],
+  O extends Option[],
+  S,
+  R
+> = Omit<CommandImpl<N, A, O, S, R>, "subcommands"> & {
   subcommands?: S extends CommandInferredImpl<
     infer N2,
     infer A2,
+    infer O2,
     infer S2,
     infer R2
   >
-    ? CommandInferredImpl<N2, A2, S2, R2>
+    ? CommandInferredImpl<N2, A2, O2, S2, R2>
     : any[];
 };
 
 /** Command type for external usage */
-type Command<N extends string, A extends Arg[], S, R> = Pick<
-  CommandInferredImpl<N, A, S, R>,
-  "name"
-> & {
+type Command<
+  N extends string,
+  A extends Arg[],
+  O extends Option[],
+  S,
+  R
+> = Pick<CommandInferredImpl<N, A, O, S, R>, "name"> & {
   /** Process the command. */
   run(...args: string[]): Promise<Awaited<R>>;
   /**
@@ -106,10 +138,11 @@ type Commands = {
   [N in keyof InternalCommands]: InternalCommands[N] extends CommandInferredImpl<
     infer N,
     infer A,
+    infer O,
     infer S,
     infer R
   >
-    ? Command<N, A, S, R>
+    ? Command<N, A, O, S, R>
     : never;
 };
 
@@ -120,7 +153,7 @@ export const PgCommand: Commands = new Proxy(
     get: (
       target: any,
       cmdCodeName: CommandCodeName
-    ): Command<string, Arg[], unknown, unknown> => {
+    ): Command<string, Arg[], Option[], unknown, unknown> => {
       if (!target[cmdCodeName]) {
         const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
         target[cmdCodeName] = {
@@ -228,7 +261,8 @@ export class PgCommandManager {
       );
 
       let cmd = topCmd;
-      let args: string[] = [];
+      const args = [];
+      const opts = [];
 
       for (const i in tokens) {
         // Get subcommand
@@ -242,7 +276,11 @@ export class PgCommandManager {
             (cmd) => cmd.name === nextToken
           );
           if (!isNextTokenSubcommand) {
-            args = tokens.slice(+i + 1);
+            for (const argOrOpt of tokens.slice(+i + 1)) {
+              const isOpt = argOrOpt.startsWith("-");
+              if (isOpt) opts.push(argOrOpt);
+              else args.push(argOrOpt);
+            }
 
             if (!cmd.args && cmd.subcommands) {
               throw new Error(
@@ -282,6 +320,7 @@ ${formatCmdList(cmd.subcommands!)}`);
           break;
         }
 
+        // Parse args
         const parsedArgs: Record<string, string> = {};
         if (cmd.args) {
           for (const i in cmd.args) {
@@ -295,10 +334,20 @@ ${formatCmdList(cmd.subcommands!)}`);
           }
         }
 
+        // Parse options
+        const parsedOpts: Record<string, boolean> = {};
+        if (cmd.options) {
+          for (const opt of cmd.options) {
+            const inputOpt = opts.some((o) => o === "--" + opt.name);
+            if (inputOpt) parsedOpts[opt.name] = inputOpt;
+          }
+        }
+
         // Run the command processor
         const result = await cmd.run({
           raw: input,
           args: parsedArgs,
+          options: parsedOpts,
         });
 
         // Dispatch finish event

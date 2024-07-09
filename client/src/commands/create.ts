@@ -1,4 +1,9 @@
-import type { Arg, CommandImpl, CommandInferredImpl } from "../utils/pg";
+import type {
+  Arg,
+  CommandImpl,
+  CommandInferredImpl,
+  Option,
+} from "../utils/pg";
 
 /**
  * Create a command.
@@ -8,10 +13,16 @@ import type { Arg, CommandImpl, CommandInferredImpl } from "../utils/pg";
  * @param cmd command to create
  * @returns the command with its inferred type
  */
-export const createCmd = <N extends string, A extends Arg[], S, R>(
-  cmd: CommandImpl<N, A, S, R>
+export const createCmd = <
+  N extends string,
+  A extends Arg[],
+  O extends Option[],
+  S,
+  R
+>(
+  cmd: CommandImpl<N, A, O, S, R>
 ) => {
-  return cmd as CommandInferredImpl<N, A, S, R>;
+  return cmd as CommandInferredImpl<N, A, O, S, R>;
 };
 
 /**
@@ -22,10 +33,16 @@ export const createCmd = <N extends string, A extends Arg[], S, R>(
  * @param cmd command to create
  * @returns the command with its inferred type
  */
-export const createSubcmds = <N extends string, A extends Arg[], S, R>(
-  ...cmd: CommandImpl<N, A, S, R>[]
+export const createSubcmds = <
+  N extends string,
+  A extends Arg[],
+  O extends Option[],
+  S,
+  R
+>(
+  ...cmd: CommandImpl<N, A, O, S, R>[]
 ) => {
-  return cmd as CommandInferredImpl<N, A, S, R>[];
+  return cmd as CommandInferredImpl<N, A, O, S, R>[];
 };
 
 /**
@@ -51,4 +68,16 @@ export const createArgs = <
   }
 
   return args;
+};
+
+/**
+ * Create command options.
+ *
+ * @param opts option to create
+ * @returns the options with their inferred types
+ */
+export const createOptions = <N extends string, O extends Option<N>[]>(
+  opts: [...O]
+) => {
+  return opts;
 };
