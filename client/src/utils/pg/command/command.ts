@@ -218,10 +218,16 @@ export class PgCommandManager {
         const completion = completions[cmd.name] as Completions;
         if (cmd.subcommands) {
           recursivelyGetCompletions(cmd.subcommands, completion);
-        } else if (cmd.args) {
-          for (const i in cmd.args) {
-            const arg = cmd.args[i] as Arg;
-            if (arg.values) completion[i] = arg.values;
+        } else {
+          if (cmd.args) {
+            for (const [i, arg] of Object.entries(cmd.args)) {
+              if (arg.values) completion[i] = arg.values;
+            }
+          }
+          if (cmd.options) {
+            for (const opt of cmd.options) {
+              completion[`--${opt.name}`] = {};
+            }
           }
         }
       }
