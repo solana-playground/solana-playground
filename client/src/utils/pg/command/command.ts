@@ -65,7 +65,10 @@ type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
 /** Recursively map option types */
 type ParsedOptions<O> = O extends [infer Head, ...infer Tail]
   ? Head extends Option<infer N>
-    ? { [K in N]?: boolean } & ParsedOptions<Tail>
+    ? (Head["takeValue"] extends true
+        ? { [K in N]?: string }
+        : { [K in N]?: boolean }) &
+        ParsedOptions<Tail>
     : never
   : {};
 
@@ -87,6 +90,8 @@ export type Arg<
 export type Option<N extends string = string> = {
   /** Name of the option */
   name: N;
+  /** Whether to take value for the option */
+  takeValue?: boolean;
 };
 
 /** Terminal command inferred implementation */
@@ -273,7 +278,8 @@ export class PgCommandManager {
       for (const i in tokens) {
         // Get subcommand
         const token = tokens[i];
-        const nextToken = tokens[+i + 1];
+        const nextIndex = +i + 1;
+        const nextToken = tokens[nextIndex];
 
         const subCmd = cmd.subcommands?.find((cmd) => cmd.name === token);
         if (subCmd) cmd = subCmd;
@@ -282,9 +288,11 @@ export class PgCommandManager {
             (cmd) => cmd.name === nextToken
           );
           if (!isNextTokenSubcommand) {
-            for (const argOrOpt of tokens.slice(+i + 1)) {
+            for (const [i, argOrOpt] of Object.entries(
+              tokens.slice(nextIndex)
+            )) {
               const isOpt = argOrOpt.startsWith("-");
-              if (isOpt) opts.push(argOrOpt);
+              if (isOpt) opts.push(argOrOpt, tokens[nextIndex + +i + 1]);
               else args.push(argOrOpt);
             }
 
@@ -341,11 +349,22 @@ ${formatCmdList(cmd.subcommands!)}`);
         }
 
         // Parse options
-        const parsedOpts: Record<string, boolean> = {};
+        const parsedOpts: Record<string, string | boolean> = {};
         if (cmd.options) {
           for (const opt of cmd.options) {
-            const inputOpt = opts.some((o) => o === "--" + opt.name);
-            if (inputOpt) parsedOpts[opt.name] = inputOpt;
+            const i = opts.findIndex((o) => o === "--" + opt.name);
+            if (i === -1) continue;
+
+            if (opt.takeValue) {
+              const val = opts.at(i + 1);
+              if (!val) {
+                throw new Error(`Option value not given: \`${opt.name}\``);
+              }
+
+              parsedOpts[opt.name] = val;
+            } else {
+              parsedOpts[opt.name] = true;
+            }
           }
         }
 
