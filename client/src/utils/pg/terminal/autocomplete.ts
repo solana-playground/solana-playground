@@ -56,7 +56,17 @@ export class PgAutocomplete {
               else if (!tokens[i] || key.startsWith(tokens[i])) {
                 if (i === index) candidates.push(key);
                 if (key === tokens[i]) {
-                  candidates.push(...recursivelyGetCandidates(value, i + 1));
+                  const isOpt = key.startsWith("-");
+                  if (isOpt) {
+                    // Same option should not be recommended again
+                    const objWithoutOpt = structuredClone(obj);
+                    delete objWithoutOpt[key];
+                    candidates.push(
+                      ...recursivelyGetCandidates(objWithoutOpt, i + 1)
+                    );
+                  } else {
+                    candidates.push(...recursivelyGetCandidates(value, i + 1));
+                  }
                 }
               }
             }
