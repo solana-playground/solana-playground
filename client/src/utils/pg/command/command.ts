@@ -211,8 +211,10 @@ export class PgCommandManager {
    * @returns the command completions
    */
   static getCompletions() {
+    type CompletionArg = Getable<string[]>;
+    type CompletionOption = { takeValue?: boolean };
     interface Completions {
-      [key: string]: Completions | Getable<string[]>;
+      [key: string]: Completions | CompletionArg | CompletionOption;
     }
     const recursivelyGetCompletions = (
       commands: ValueOf<InternalCommands>[],
@@ -231,7 +233,7 @@ export class PgCommandManager {
           }
           if (cmd.options) {
             for (const opt of cmd.options) {
-              completion[`--${opt.name}`] = {};
+              completion[`--${opt.name}`] = { takeValue: opt.takeValue };
             }
           }
         }
@@ -239,6 +241,7 @@ export class PgCommandManager {
 
       return completions;
     };
+
     return recursivelyGetCompletions(Object.values(PgCommandManager.commands));
   }
 

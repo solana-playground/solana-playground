@@ -58,11 +58,18 @@ export class PgAutocomplete {
                 if (key === tokens[i]) {
                   const isOpt = key.startsWith("-");
                   if (isOpt) {
+                    // Decide the next index based on whether the option takes
+                    // in a value
+                    const { takeValue } = obj[key];
+
                     // Same option should not be recommended again
                     const objWithoutOpt = structuredClone(obj);
                     delete objWithoutOpt[key];
                     candidates.push(
-                      ...recursivelyGetCandidates(objWithoutOpt, i + 1)
+                      ...recursivelyGetCandidates(
+                        objWithoutOpt,
+                        takeValue ? i + 2 : i + 1
+                      )
                     );
                   } else {
                     candidates.push(...recursivelyGetCandidates(value, i + 1));
