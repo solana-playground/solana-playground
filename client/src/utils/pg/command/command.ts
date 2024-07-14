@@ -57,8 +57,9 @@ type ParsedInput<A, O> = {
 
 /** Recursively map argument types */
 type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
-  ? Head extends Arg<infer N, infer O, infer V>
-    ? (O extends true ? { [K in N]?: V } : { [K in N]: V }) & ParsedArgs<Tail>
+  ? Head extends Arg<infer N, infer V>
+    ? (Head["optional"] extends true ? { [K in N]?: V } : { [K in N]: V }) &
+        ParsedArgs<Tail>
     : never
   : {};
 
@@ -73,15 +74,11 @@ type ParsedOptions<O> = O extends [infer Head, ...infer Tail]
   : {};
 
 /** Command argument */
-export type Arg<
-  N extends string = string,
-  O = boolean,
-  V extends string = string
-> = {
+export type Arg<N extends string = string, V extends string = string> = {
   /** Name of the argument */
   name: N;
   /** Whether the argument can be omitted */
-  optional?: O;
+  optional?: boolean;
   /** Accepted values */
   values?: Getable<V[]>;
 };

@@ -53,9 +53,8 @@ export const createSubcmds = <
  */
 export const createArgs = <
   N extends string,
-  O extends boolean,
   V extends string,
-  A extends Arg<N, O, V>[]
+  A extends Arg<N, V>[]
 >(
   args: [...A]
 ) => {
