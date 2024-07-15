@@ -303,7 +303,7 @@ export class PgCommandManager {
 Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               );
             }
-            if (cmd.args?.length && args.length > cmd.args.length) {
+            if (args.length > (cmd.args?.length ?? 0)) {
               throw new Error(
                 `Provided argument count is higher than expected: ${args.length}`
               );
