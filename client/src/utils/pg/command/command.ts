@@ -279,35 +279,45 @@ export class PgCommandManager {
         // Get subcommand
         const token = tokens[i];
         const nextIndex = +i + 1;
-        const nextToken = tokens[nextIndex];
+        const nextToken = tokens.at(nextIndex);
+        const subcmd = cmd.subcommands?.find((cmd) => cmd.name === token);
+        if (subcmd) cmd = subcmd;
 
-        const subCmd = cmd.subcommands?.find((cmd) => cmd.name === token);
-        if (subCmd) cmd = subCmd;
-        if (nextToken) {
-          const isNextTokenSubcommand = cmd.subcommands?.some(
-            (cmd) => cmd.name === nextToken
-          );
-          if (!isNextTokenSubcommand) {
-            for (const [i, argOrOpt] of Object.entries(
-              tokens.slice(nextIndex)
-            )) {
-              const isOpt = argOrOpt.startsWith("-");
-              if (isOpt) opts.push(argOrOpt, tokens[nextIndex + +i + 1]);
-              else args.push(argOrOpt);
+        const isNextTokenSubcmd = cmd.subcommands?.some(
+          (cmd) => cmd.name === nextToken
+        );
+        if (nextToken && !isNextTokenSubcmd) {
+          let takeValue = false;
+          for (const argOrOpt of tokens.slice(nextIndex)) {
+            if (takeValue) {
+              opts.push(argOrOpt);
+              takeValue = false;
+              continue;
             }
 
-            if (!cmd.args && cmd.subcommands) {
-              throw new Error(
-                `Subcommand doesn't exist: \`${nextToken}\`
+            const isOpt = argOrOpt.startsWith("-");
+            if (isOpt) {
+              const opt = cmd.options?.find((o) => "--" + o.name === argOrOpt);
+              if (!opt) throw new Error(`Unexpected option: \`${argOrOpt}\``);
+
+              opts.push(argOrOpt);
+              if (opt.takeValue) takeValue = true;
+            } else {
+              args.push(argOrOpt);
+            }
+          }
+
+          if (!cmd.args && cmd.subcommands) {
+            throw new Error(
+              `Subcommand doesn't exist: \`${nextToken}\`
 
 Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
-              );
-            }
-            if (args.length > (cmd.args?.length ?? 0)) {
-              throw new Error(
-                `Provided argument count is higher than expected: ${args.length}`
-              );
-            }
+            );
+          }
+          if (args.length > (cmd.args?.length ?? 0)) {
+            throw new Error(
+              `Provided argument count is higher than expected: ${args.length}`
+            );
           }
         }
 
@@ -319,7 +329,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
 
         // Early continue if it's not the end of the command
         const isLast = +i === tokens.length - 1;
-        if (!isLast && !args.length) continue;
+        if (!isLast && isNextTokenSubcmd) continue;
 
         // Check missing command processor
         if (!cmd.run) {
