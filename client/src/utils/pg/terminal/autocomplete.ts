@@ -73,6 +73,16 @@ export class PgAutocomplete {
                     );
                   } else {
                     candidates.push(...recursivelyGetCandidates(value, i + 1));
+
+                    // Options are also valid after arguments
+                    const opts = Object.entries(value).reduce(
+                      (acc, [prop, val]) => {
+                        if (prop.startsWith("-")) acc[prop] = val;
+                        return acc;
+                      },
+                      {} as any
+                    );
+                    candidates.push(...recursivelyGetCandidates(opts, i + 2));
                   }
                 }
               }
