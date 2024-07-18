@@ -43,6 +43,9 @@ export class PgAutocomplete {
             for (const [key, value] of PgCommon.entries(obj)) {
               // Argument values
               if (PgCommon.isInt(key)) {
+                // Skip options
+                if (tokens.at(i)?.startsWith("-")) continue;
+
                 if (+key === index - i) {
                   const token = tokens[index];
                   const args: string[] = PgCommon.callIfNeeded(value);
@@ -50,39 +53,56 @@ export class PgAutocomplete {
                     (arg) => !token || arg.startsWith(token)
                   );
                   candidates.push(...filteredArgs);
+                } else {
+                  // Options are also valid after arguments
+                  const opts = Object.entries(obj).reduce(
+                    (acc, [prop, val]) => {
+                      if (prop.startsWith("-")) acc[prop] = val;
+                      return acc;
+                    },
+                    {} as typeof obj
+                  );
+
+                  // The completion index for the next option is the sum of `i`
+                  // and how many previous arguments exist.
+                  //
+                  // The calculation below assumes all arguments have been
+                  // passed beforehand, which means option completions between
+                  // arguments won't work. Supplying options before or after
+                  // all arguments work expected.
+                  //
+                  // TODO: Calculate how many arguments exist properly to make
+                  // option completions between arguments work
+                  const argAmount = Object.keys(obj).filter(
+                    PgCommon.isInt
+                  ).length;
+                  candidates.push(
+                    ...recursivelyGetCandidates(opts, i + argAmount)
+                  );
                 }
               }
               // Subcommands or options
               else if (!tokens[i] || key.startsWith(tokens[i])) {
-                if (i === index) candidates.push(key);
+                // Current key and doesn't exist previously in tokens
+                if (i === index && !tokens.slice(0, i).includes(key)) {
+                  candidates.push(key);
+                }
+                // Next candidates
                 if (key === tokens[i]) {
                   const isOpt = key.startsWith("-");
                   if (isOpt) {
                     // Decide the next index based on whether the option takes
                     // in a value
                     const { takeValue } = obj[key];
-
-                    // Same option should not be recommended again
-                    const objWithoutOpt = structuredClone(obj);
-                    delete objWithoutOpt[key];
                     candidates.push(
                       ...recursivelyGetCandidates(
-                        objWithoutOpt,
+                        obj,
                         takeValue ? i + 2 : i + 1
                       )
                     );
                   } else {
+                    // Subcommand
                     candidates.push(...recursivelyGetCandidates(value, i + 1));
-
-                    // Options are also valid after arguments
-                    const opts = Object.entries(value).reduce(
-                      (acc, [prop, val]) => {
-                        if (prop.startsWith("-")) acc[prop] = val;
-                        return acc;
-                      },
-                      {} as any
-                    );
-                    candidates.push(...recursivelyGetCandidates(opts, i + 2));
                   }
                 }
               }
