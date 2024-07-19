@@ -1,4 +1,4 @@
-import { hasTrailingWhitespace, parse } from "./utils";
+import { getIsOption, hasTrailingWhitespace, parse } from "./utils";
 import { PgCommon } from "../common";
 
 /** Callback to create the autocomplete candidates based on the given tokens */
@@ -44,7 +44,7 @@ export class PgAutocomplete {
               // Argument values
               if (PgCommon.isInt(key)) {
                 // Skip options
-                if (tokens.at(i)?.startsWith("-")) continue;
+                if (tokens[i] && getIsOption(tokens[i])) continue;
 
                 if (+key === index - i) {
                   const token = tokens[index];
@@ -57,7 +57,7 @@ export class PgAutocomplete {
                   // Options are also valid after arguments
                   const opts = Object.entries(obj).reduce(
                     (acc, [prop, val]) => {
-                      if (prop.startsWith("-")) acc[prop] = val;
+                      if (getIsOption(prop)) acc[prop] = val;
                       return acc;
                     },
                     {} as typeof obj
@@ -89,8 +89,7 @@ export class PgAutocomplete {
                 }
                 // Next candidates
                 if (key === tokens[i]) {
-                  const isOpt = key.startsWith("-");
-                  if (isOpt) {
+                  if (getIsOption(key)) {
                     // Decide the next index based on whether the option takes
                     // in a value
                     const { takeValue } = obj[key];
@@ -152,7 +151,7 @@ export class PgAutocomplete {
    * Collect the autocomplete canditates from the given input.
    *
    * @param input terminal input
-   *  @returns the sorted autocomplete candidates for the given input
+   * @returns the sorted autocomplete candidates for the given input
    */
   getCandidates(input: string) {
     const tokens = parse(input);
@@ -179,11 +178,14 @@ export class PgAutocomplete {
       PgCommon.toUniqueArray(candidates)
         // Sort for consistent output
         .sort()
-        // Only show options when the current token starts with '-'
+        // Only show options when the last token starts with '-'
         .filter((candidate) => {
-          return candidate.startsWith("-")
-            ? tokens.at(-1)?.startsWith("-")
-            : true;
+          if (getIsOption(candidate)) {
+            const lastToken = tokens.at(-1);
+            if (lastToken) return getIsOption(lastToken);
+          }
+
+          return true;
         })
     );
   }

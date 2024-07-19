@@ -31,6 +31,11 @@ export const parse = (input: string) => {
 };
 
 /**
+ * @returns whether the given token is a command option
+ */
+export const getIsOption = (token: string) => token.startsWith("-");
+
+/**
  * Get the closest *left* word boundary of the given input at the given offset.
  */
 export const closestLeftBoundary = (input: string, offset: number) => {
@@ -56,11 +61,8 @@ const getWordBoundaries = (input: string, leftSide: boolean = true) => {
 
   match = regex.exec(input);
   while (match) {
-    if (leftSide) {
-      words.push(match.index);
-    } else {
-      words.push(match.index + match[0].length);
-    }
+    if (leftSide) words.push(match.index);
+    else words.push(match.index + match[0].length);
 
     match = regex.exec(input);
   }
