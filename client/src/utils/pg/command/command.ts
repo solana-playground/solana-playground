@@ -87,6 +87,8 @@ export type Arg<N extends string = string, V extends string = string> = {
 export type Option<N extends string = string> = {
   /** Name of the option */
   name: N;
+  /** Short form of the option passed with a single dash (`-`) */
+  short?: boolean | string;
   /** Whether to take value for the option */
   takeValue?: boolean;
 };
@@ -231,6 +233,9 @@ export class PgCommandManager {
           if (cmd.options) {
             for (const opt of cmd.options) {
               completion[`--${opt.name}`] = { takeValue: opt.takeValue };
+              if (opt.short) {
+                completion[`-${opt.short}`] = completion[`--${opt.name}`];
+              }
             }
           }
         }
@@ -297,7 +302,9 @@ export class PgCommandManager {
 
             const isOpt = argOrOpt.startsWith("-");
             if (isOpt) {
-              const opt = cmd.options?.find((o) => "--" + o.name === argOrOpt);
+              const opt = cmd.options?.find(
+                (o) => "--" + o.name === argOrOpt || "-" + o.short === argOrOpt
+              );
               if (!opt) throw new Error(`Unexpected option: \`${argOrOpt}\``);
 
               opts.push(argOrOpt);
@@ -362,7 +369,9 @@ ${formatCmdList(cmd.subcommands!)}`);
         const parsedOpts: Record<string, string | boolean> = {};
         if (cmd.options) {
           for (const opt of cmd.options) {
-            const i = opts.findIndex((o) => o === "--" + opt.name);
+            const i = opts.findIndex(
+              (o) => o === "--" + opt.name || o === "-" + opt.short
+            );
             if (i === -1) continue;
 
             if (opt.takeValue) {

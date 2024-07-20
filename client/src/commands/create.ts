@@ -78,5 +78,27 @@ export const createArgs = <
 export const createOptions = <N extends string, O extends Option<N>[]>(
   opts: [...O]
 ) => {
+  const createShort = (opt: O[number]) => {
+    const short = typeof opt.short === "string" ? opt.short : opt.name[0];
+    if (short.length !== 1) {
+      throw new Error(`Short option must be exactly 1 letter: \`${opt.name}\``);
+    }
+
+    return short;
+  };
+
+  // Normalize shorts and verify uniqueness
+  for (const opt of opts) {
+    if (!opt.short) continue;
+
+    const short = createShort(opt);
+    const exists = opts
+      .filter((o) => o.name !== opt.name)
+      .some((o) => createShort(o) === short);
+    if (exists) throw new Error(`Duplicate short option: \`${opt.name}\``);
+
+    opt.short = short;
+  }
+
   return opts;
 };
