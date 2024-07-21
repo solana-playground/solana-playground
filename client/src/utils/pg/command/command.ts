@@ -301,15 +301,15 @@ export class PgCommandManager {
             }
 
             const isOpt = argOrOpt.startsWith("-");
-            if (isOpt) {
-              const opt = cmd.options?.find(
+            if (isOpt && cmd.options) {
+              const opt = cmd.options.find(
                 (o) => "--" + o.name === argOrOpt || "-" + o.short === argOrOpt
               );
               if (!opt) throw new Error(`Unexpected option: \`${argOrOpt}\``);
 
               opts.push(argOrOpt);
               if (opt.takeValue) takeValue = true;
-            } else {
+            } else if (cmd.args) {
               args.push(argOrOpt);
             }
           }
