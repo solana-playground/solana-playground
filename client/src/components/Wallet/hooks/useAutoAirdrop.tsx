@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { PgCommon, PgConnection, PgSettings, PgTx } from "../../../utils/pg";
 import {
@@ -18,13 +18,12 @@ export const useAutoAirdrop = () => {
   const { wallet } = useWallet();
 
   // Auto airdrop if balance is less than 4 SOL
-  const [airdropError, setAirdropError] = useState(false);
   const airdropping = useRef(false);
 
   const { balance } = useBalance();
 
   useEffect(() => {
-    const airdrop = async (_balance: typeof balance = balance) => {
+    const airdrop = async (_balance = balance, airdropError = false) => {
       if (
         !automaticAirdrop ||
         !PgConnection.isReady(connection) ||
@@ -54,16 +53,16 @@ export const useAutoAirdrop = () => {
         });
       } catch (e: any) {
         console.log(e.message);
-        setAirdropError(true);
+        airdropError = true;
       } finally {
         airdropping.current = false;
         _balance = PgCommon.lamportsToSol(
           await connection.getBalance(wallet.publicKey)
         );
-        airdrop(_balance);
+        airdrop(_balance, airdropError);
       }
     };
 
     airdrop();
-  }, [automaticAirdrop, wallet, connection, balance, airdropError]);
+  }, [automaticAirdrop, wallet, connection, balance]);
 };
