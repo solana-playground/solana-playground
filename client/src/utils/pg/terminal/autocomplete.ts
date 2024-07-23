@@ -92,7 +92,14 @@ export class PgAutocomplete {
                   if (getIsOption(key)) {
                     // Decide the next index based on whether the option takes
                     // in a value
-                    const { takeValue } = obj[key];
+                    const { takeValue, other } = obj[key];
+
+                    // Remove long/short to not suggest duplicates
+                    if (other) {
+                      obj = { ...obj };
+                      delete obj[other];
+                    }
+
                     candidates.push(
                       ...recursivelyGetCandidates(
                         obj,

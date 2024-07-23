@@ -211,7 +211,7 @@ export class PgCommandManager {
    */
   static getCompletions() {
     type CompletionArg = Getable<string[]>;
-    type CompletionOption = { takeValue?: boolean };
+    type CompletionOption = { takeValue?: boolean; other?: string };
     interface Completions {
       [key: string]: Completions | CompletionArg | CompletionOption;
     }
@@ -232,9 +232,16 @@ export class PgCommandManager {
           }
           if (cmd.options) {
             for (const opt of cmd.options) {
-              completion[`--${opt.name}`] = { takeValue: opt.takeValue };
+              const long = `--${opt.name}`;
+              completion[long] = { takeValue: opt.takeValue };
+
               if (opt.short) {
-                completion[`-${opt.short}`] = completion[`--${opt.name}`];
+                const short = `-${opt.short}`;
+                completion[long] = { ...completion[long], other: short };
+                completion[short] = {
+                  ...completion[long],
+                  other: long,
+                };
               }
             }
           }
