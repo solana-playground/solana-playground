@@ -184,7 +184,12 @@ export class PgAutocomplete {
       // Candidates might include duplicates
       PgCommon.toUniqueArray(candidates)
         // Sort for consistent output
-        .sort()
+        .sort((a, b) => {
+          // Prioritize arguments over options
+          if (getIsOption(a) && !getIsOption(b)) return 1;
+          if (getIsOption(b)) return -1;
+          return a.localeCompare(b);
+        })
         // Only show options when the last token starts with '-'
         .filter((candidate) => {
           if (getIsOption(candidate)) {
