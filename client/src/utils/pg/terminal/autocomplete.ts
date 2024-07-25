@@ -194,7 +194,10 @@ export class PgAutocomplete {
         .filter((candidate) => {
           if (getIsOption(candidate)) {
             const lastToken = tokens.at(-1);
-            if (lastToken) return getIsOption(lastToken);
+            if (lastToken) {
+              if (candidate.startsWith("--")) return lastToken.startsWith("--");
+              if (candidate.startsWith("-")) return lastToken.startsWith("-");
+            }
           }
 
           return true;
