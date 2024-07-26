@@ -22,6 +22,7 @@ export const createCmd = <
 >(
   cmd: CommandImpl<N, A, O, S, R>
 ) => {
+  addHelpOption(cmd);
   return cmd as CommandInferredImpl<N, A, O, S, R>;
 };
 
@@ -40,9 +41,20 @@ export const createSubcmds = <
   S,
   R
 >(
-  ...cmd: CommandImpl<N, A, O, S, R>[]
+  ...subcmds: CommandImpl<N, A, O, S, R>[]
 ) => {
-  return cmd as CommandInferredImpl<N, A, O, S, R>[];
+  for (const subcmd of subcmds) addHelpOption(subcmd);
+  return subcmds as CommandInferredImpl<N, A, O, S, R>[];
+};
+
+/**
+ * Add built-in help option to the commands options list.
+ *
+ * @param cmd command or subcommand
+ */
+const addHelpOption = (cmd: { options?: Option[] }) => {
+  cmd.options ??= [];
+  cmd.options.push({ name: "help", short: "h" });
 };
 
 /**

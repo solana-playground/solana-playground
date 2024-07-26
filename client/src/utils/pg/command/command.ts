@@ -224,25 +224,24 @@ export class PgCommandManager {
         const completion = completions[cmd.name] as Completions;
         if (cmd.subcommands) {
           recursivelyGetCompletions(cmd.subcommands, completion);
-        } else {
-          if (cmd.args) {
-            for (const [i, arg] of Object.entries(cmd.args)) {
-              if (arg.values) completion[i] = arg.values;
-            }
+        }
+        if (cmd.args) {
+          for (const [i, arg] of Object.entries(cmd.args)) {
+            if (arg.values) completion[i] = arg.values;
           }
-          if (cmd.options) {
-            for (const opt of cmd.options) {
-              const long = `--${opt.name}`;
-              completion[long] = { takeValue: opt.takeValue };
+        }
+        if (cmd.options) {
+          for (const opt of cmd.options) {
+            const long = `--${opt.name}`;
+            completion[long] = { takeValue: opt.takeValue };
 
-              if (opt.short) {
-                const short = `-${opt.short}`;
-                completion[long] = { ...completion[long], other: short };
-                completion[short] = {
-                  ...completion[long],
-                  other: long,
-                };
-              }
+            if (opt.short) {
+              const short = `-${opt.short}`;
+              completion[long] = { ...completion[long], other: short };
+              completion[short] = {
+                ...completion[long],
+                other: long,
+              };
             }
           }
         }
@@ -283,7 +282,8 @@ export class PgCommandManager {
         input
       );
 
-      let cmd = topCmd;
+      let cmd: CommandInferredImpl<string, Arg[], Option[], any[], any> =
+        topCmd;
       const args = [];
       const opts = [];
 
@@ -294,6 +294,43 @@ export class PgCommandManager {
         const nextToken = tokens.at(nextIndex);
         const subcmd = cmd.subcommands?.find((cmd) => cmd.name === token);
         if (subcmd) cmd = subcmd;
+
+        // Handle help option
+        if (nextToken === "--help" || nextToken === "-h") {
+          const usagePrefix = `Usage: ${[...tokens.slice(0, +i), cmd.name].join(
+            " "
+          )} [OPTIONS]`;
+          const lines = [cmd.description];
+          if (cmd.subcommands) {
+            lines.push(
+              `${usagePrefix} <COMMAND>`,
+              "Commands:",
+              formatCmdList(cmd.subcommands)
+            );
+          }
+          if (cmd.args) {
+            const usageArgs = cmd.args.reduce(
+              (acc, arg) => acc + `<${arg.name.toUpperCase()}> `,
+              ""
+            );
+            const argList = cmd.args.reduce(
+              (acc, arg) => acc + `<${arg.name.toUpperCase()}>\n`,
+              ""
+            );
+            lines.push(`${usagePrefix} ${usageArgs}`, "Arguments:", argList);
+          }
+          if (cmd.options) {
+            const optList = cmd.options.reduce(
+              (acc, opt) =>
+                acc + `${opt.short ? `-${opt.short}, ` : ""}--${opt.name}\n`,
+              ""
+            );
+            lines.push("Options:", optList);
+          }
+
+          PgTerminal.log(lines.join("\n\n"));
+          return;
+        }
 
         const isNextTokenSubcmd = cmd.subcommands?.some(
           (cmd) => cmd.name === nextToken
