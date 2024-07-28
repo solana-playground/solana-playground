@@ -77,6 +77,8 @@ type ParsedOptions<O> = O extends [infer Head, ...infer Tail]
 export type Arg<N extends string = string, V extends string = string> = {
   /** Name of the argument */
   name: N;
+  /** Description of the argument */
+  description?: string;
   /** Whether the argument can be omitted */
   optional?: boolean;
   /** Accepted values */
@@ -87,6 +89,8 @@ export type Arg<N extends string = string, V extends string = string> = {
 export type Option<N extends string = string> = {
   /** Name of the option */
   name: N;
+  /** Description of the option */
+  description?: string;
   /** Short form of the option passed with a single dash (`-`) */
   short?: boolean | string;
   /** Whether to take value for the option */
@@ -314,7 +318,9 @@ export class PgCommandManager {
               ""
             );
             const argList = cmd.args.reduce(
-              (acc, arg) => acc + `<${arg.name.toUpperCase()}>\n`,
+              (acc, arg) =>
+                acc +
+                `<${arg.name.toUpperCase()}>\t\t${arg.description ?? ""}\n`,
               ""
             );
             lines.push(`${usagePrefix} ${usageArgs}`, "Arguments:", argList);
@@ -322,7 +328,10 @@ export class PgCommandManager {
           if (cmd.options) {
             const optList = cmd.options.reduce(
               (acc, opt) =>
-                acc + `${opt.short ? `-${opt.short}, ` : ""}--${opt.name}\n`,
+                acc +
+                `${opt.short ? `-${opt.short}, ` : ""}--${opt.name}\t\t${
+                  opt.description ?? ""
+                }\n`,
               ""
             );
             lines.push("Options:", optList);
