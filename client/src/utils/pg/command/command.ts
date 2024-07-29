@@ -309,7 +309,7 @@ export class PgCommandManager {
             lines.push(
               `${usagePrefix} <COMMAND>`,
               "Commands:",
-              formatCmdList(cmd.subcommands)
+              formatList(cmd.subcommands)
             );
           }
           if (cmd.args) {
@@ -317,24 +317,22 @@ export class PgCommandManager {
               (acc, arg) => acc + `<${arg.name.toUpperCase()}> `,
               ""
             );
-            const argList = cmd.args.reduce(
-              (acc, arg) =>
-                acc +
-                `<${arg.name.toUpperCase()}>\t\t${arg.description ?? ""}\n`,
-              ""
+            const argList = cmd.args.map((arg) => ({
+              name: `<${arg.name.toUpperCase()}>`,
+              description: arg.description ?? "",
+            }));
+            lines.push(
+              `${usagePrefix} ${usageArgs}`,
+              "Arguments:",
+              formatList(argList)
             );
-            lines.push(`${usagePrefix} ${usageArgs}`, "Arguments:", argList);
           }
           if (cmd.options) {
-            const optList = cmd.options.reduce(
-              (acc, opt) =>
-                acc +
-                `${opt.short ? `-${opt.short}, ` : ""}--${opt.name}\t\t${
-                  opt.description ?? ""
-                }\n`,
-              ""
-            );
-            lines.push("Options:", optList);
+            const optList = cmd.options.map((opt) => ({
+              name: `${opt.short ? `-${opt.short}, ` : "    "}--${opt.name}`,
+              description: opt.description ?? "",
+            }));
+            lines.push("Options:", formatList(optList));
           }
 
           PgTerminal.log(lines.join("\n\n"));
@@ -400,7 +398,7 @@ Usage: ${[...tokens.slice(0, +i), cmd.name].join(" ")} <COMMAND>
 
 Commands:
 
-${formatCmdList(cmd.subcommands!)}`);
+${formatList(cmd.subcommands!)}`);
           break;
         }
 
@@ -465,7 +463,7 @@ ${formatCmdList(cmd.subcommands!)}`);
  * @param list list to format
  * @returns the formatted list
  */
-export const formatCmdList = (
+export const formatList = (
   list: Array<{ name: string; description: string }>
 ) => {
   return list
