@@ -221,7 +221,7 @@ ${await getJSDependencies(frameworkFiles)}
 
 /**
  * Try to make the JS/TS file work in a local `node` environment by making the
- * necesary conversions.
+ * necessary conversions.
  *
  * @param content JS/TS code
  * @param programName  snake case program name
