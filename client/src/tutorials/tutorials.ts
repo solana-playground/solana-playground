@@ -109,7 +109,7 @@ export const TUTORIALS = createTutorials(
 
   {
     name: "Lumberjack",
-    description: "How to build and energy system on chain.",
+    description: "How to build an energy system on chain.",
     authors: [
       {
         name: "Jonas Hahn",
