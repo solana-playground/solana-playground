@@ -366,6 +366,10 @@ export class PgCommandManager {
           }
 
           if (!cmd.args && cmd.subcommands) {
+            if (nextToken.startsWith("-")) {
+              throw new Error(`Unexpected option: \`${nextToken}\``);
+            }
+
             throw new Error(
               `Subcommand doesn't exist: \`${nextToken}\`
 
