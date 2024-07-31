@@ -163,17 +163,10 @@ export class PgAutocomplete {
    * @returns an object with `restore` callback to restore the original handlers
    */
   temporarilySetCandidates(candidates: string[], opts?: { append?: boolean }) {
-    const handler: AutocompleteHandler = (tokens, i) => {
+    return this.temporarilySetHandlers((tokens, i) => {
       const token = tokens[i];
       return candidates.filter((c) => !token || c.startsWith(token));
-    };
-    const initialHandlers = this._handlers;
-    this._handlers = opts?.append ? [...initialHandlers, handler] : [handler];
-    return {
-      restore: () => {
-        this._handlers = initialHandlers;
-      },
-    };
+    }, opts);
   }
 
   /**
