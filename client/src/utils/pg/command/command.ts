@@ -299,8 +299,9 @@ export class PgCommandManager {
         const subcmd = cmd.subcommands?.find((cmd) => cmd.name === token);
         if (subcmd) cmd = subcmd;
 
-        // Handle help option
-        if (nextToken === "--help" || nextToken === "-h") {
+        // Handle `help` option
+        const hasArgsOrOpts = cmd.args?.length || cmd.options!.length > 1;
+        if (hasArgsOrOpts && (nextToken === "--help" || nextToken === "-h")) {
           const usagePrefix = `Usage: ${[...tokens.slice(0, +i), cmd.name].join(
             " "
           )} [OPTIONS]`;
