@@ -473,11 +473,9 @@ export const formatList = (
 ) => {
   return list
     .sort((a, b) => {
-      // Put non-letter commands to the end
-      if (!/^[a-zA-Z-]+$/.test(b.name)) {
-        return -1;
-      }
-
+      const allowedRegex = /^[a-zA-Z-]+$/;
+      if (!allowedRegex.test(a.name)) return 1;
+      if (!allowedRegex.test(b.name)) return -1;
       return a.name.localeCompare(b.name);
     })
     .reduce((acc, cmd) => {
