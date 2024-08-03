@@ -417,6 +417,20 @@ ${formatList(cmd.subcommands!)}`);
               throw new Error(`Argument not specified: \`${arg.name}\``);
             }
 
+            // Validate values if specified
+            if (arg.values) {
+              const values = PgCommon.callIfNeeded(arg.values);
+              const isValidValue = values.some((v) => v === inputArg);
+              if (!isValidValue) {
+                throw new Error(
+                  [
+                    `Incorrect argument value given: \`${inputArg}\``,
+                    `(possible values: ${values.join(", ")})`,
+                  ].join(" ")
+                );
+              }
+            }
+
             parsedArgs[arg.name] = inputArg;
           }
         }
