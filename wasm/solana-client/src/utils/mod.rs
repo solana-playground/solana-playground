@@ -4,4 +4,5 @@ pub mod rpc_filter;
 pub mod rpc_request;
 pub mod rpc_response;
 
+#[cfg(feature = "cli")]
 mod clap;
