@@ -1,11 +1,16 @@
+use serde_tuple::Serialize_tuple;
+use serde_with::skip_serializing_none;
 use solana_sdk::clock::UnixTimestamp;
 
-use crate::{ClientRequest, ClientResponse};
+use crate::{impl_method, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize_tuple)]
+#[serde(rename_all = "camelCase")]
 pub struct GetBlockTimeRequest {
     pub slot: u64,
 }
+
+impl_method!(GetBlockTimeRequest, "getBlockTime");
 
 impl GetBlockTimeRequest {
     pub fn new(slot: u64) -> Self {
@@ -13,32 +18,52 @@ impl GetBlockTimeRequest {
     }
 }
 
-impl From<GetBlockTimeRequest> for serde_json::Value {
-    fn from(value: GetBlockTimeRequest) -> Self {
-        serde_json::json!([value.slot])
-    }
-}
-
-impl From<GetBlockTimeRequest> for ClientRequest {
-    fn from(value: GetBlockTimeRequest) -> Self {
-        let mut request = ClientRequest::new("getBlockTime");
-        let params = value.into();
-
-        request.params(params).clone()
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetBlockTimeResponse(Option<UnixTimestamp>);
-
-impl From<ClientResponse> for GetBlockTimeResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
-    }
-}
 
 impl From<GetBlockTimeResponse> for Option<UnixTimestamp> {
     fn from(val: GetBlockTimeResponse) -> Self {
         val.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use serde_json::Value;
+    use solana_extra_wasm::account_decoder::UiAccountData;
+    use solana_sdk::pubkey;
+
+    use crate::{
+        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
+        ClientResponse,
+    };
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetBlockTimeRequest::NAME)
+            .id(1)
+            .params(GetBlockTimeRequest::new(5));
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getBlockTime","params":[5]}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":1574721591,"id":1}"#;
+
+        let response: ClientResponse<GetBlockTimeResponse> =
+            serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        assert_eq!(response.result.0.unwrap(), 1574721591);
     }
 }

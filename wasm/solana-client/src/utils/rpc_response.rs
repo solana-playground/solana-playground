@@ -1,5 +1,4 @@
-use std::{collections::HashMap, fmt};
-
+use serde_with::{serde_as, DisplayFromStr};
 use solana_extra_wasm::{
     account_decoder::parse_token::UiTokenAmount,
     transaction_status::{TransactionConfirmationStatus, UiConfirmedBlock},
@@ -7,8 +6,10 @@ use solana_extra_wasm::{
 use solana_sdk::{
     clock::{Epoch, Slot, UnixTimestamp},
     inflation::Inflation,
+    pubkey::Pubkey,
     transaction::TransactionError,
 };
+use std::{collections::HashMap, fmt};
 use thiserror::Error;
 
 // pub type RpcResult<T> = client_error::Result<Response<T>>;
@@ -242,7 +243,7 @@ pub struct RpcBlockProduction {
     pub range: RpcBlockProductionRange,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct RpcVersionInfo {
     /// The current version of solana-core
@@ -284,14 +285,14 @@ pub struct RpcVote {
     pub signature: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcVoteAccountStatus {
     pub current: Vec<RpcVoteAccountInfo>,
     pub delinquent: Vec<RpcVoteAccountInfo>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcVoteAccountInfo {
     /// Vote account address, as base-58 encoded string
@@ -314,9 +315,11 @@ pub struct RpcVoteAccountInfo {
     pub epoch_credits: Vec<(Epoch, u64, u64)>,
 
     /// Most recent slot voted on by this vote account (0 if no votes exist)
+    #[serde(default)]
     pub last_vote: u64,
 
     /// Current root slot for this vote account (0 if not root slot exists)
+    #[serde(default)]
     pub root_slot: Slot,
 }
 
@@ -334,10 +337,12 @@ pub struct RpcVoteAccountInfo {
 //     pub slot: Slot,
 // }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcAccountBalance {
-    pub address: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub address: Pubkey,
     pub lamports: u64,
 }
 
@@ -393,6 +398,7 @@ pub struct RpcPerfSample {
     pub num_transactions: u64,
     pub num_slots: u64,
     pub sample_period_secs: u16,
+    pub num_non_vote_transaction: u64,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

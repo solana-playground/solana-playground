@@ -1,41 +1,56 @@
-use crate::{ClientRequest, ClientResponse};
+use crate::{impl_method, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GetHealthRequest {}
+#[derive(Debug, Serialize)]
+pub struct GetHealthRequest;
 
-impl GetHealthRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
+impl_method!(GetHealthRequest, "getHealth");
 
-impl From<GetHealthRequest> for serde_json::Value {
-    fn from(_val: GetHealthRequest) -> Self {
-        serde_json::Value::Null
-    }
-}
-
-impl From<GetHealthRequest> for ClientRequest {
-    fn from(val: GetHealthRequest) -> Self {
-        let mut request = ClientRequest::new("getHealth");
-        let params = val.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ErrorValue {
     pub code: i32,
     pub message: String,
     pub data: serde_json::Value,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetHealthResponse(String);
 
-impl From<ClientResponse> for GetHealthResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, str::FromStr};
+
+    use serde_json::Value;
+    use solana_extra_wasm::{account_decoder::UiAccountData, transaction_status::Encodable};
+    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
+
+    use crate::{
+        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
+        ClientResponse,
+    };
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetHealthRequest::NAME)
+            .id(1)
+            .params(GetHealthRequest);
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getHealth"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{ "jsonrpc": "2.0", "result": "ok", "id": 1 }"#;
+
+        let response: ClientResponse<GetHealthResponse> = serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        assert_eq!(response.result.0, "ok");
     }
 }

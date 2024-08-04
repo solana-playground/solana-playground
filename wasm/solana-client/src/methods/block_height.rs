@@ -1,17 +1,24 @@
+use serde::Serialize;
+use serde_tuple::Serialize_tuple;
+use serde_with::skip_serializing_none;
 use solana_sdk::commitment_config::CommitmentConfig;
 
-use crate::{ClientRequest, ClientResponse};
+use crate::{impl_method, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Serialize_tuple, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct GetBlockHeightRequest {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
 }
+
+impl_method!(GetBlockHeightRequest, "getBlockHeight");
 
 impl GetBlockHeightRequest {
     pub fn new() -> Self {
         Self::default()
     }
+
     pub fn new_with_config(config: CommitmentConfig) -> Self {
         Self {
             config: Some(config),
@@ -19,35 +26,48 @@ impl GetBlockHeightRequest {
     }
 }
 
-impl From<GetBlockHeightRequest> for serde_json::Value {
-    fn from(value: GetBlockHeightRequest) -> Self {
-        match value.config {
-            Some(config) => serde_json::json!([config]),
-            None => serde_json::Value::Null,
-        }
-    }
-}
-
-impl From<GetBlockHeightRequest> for ClientRequest {
-    fn from(val: GetBlockHeightRequest) -> Self {
-        let mut request = ClientRequest::new("getBlockHeight");
-        let params = val.into();
-
-        request.params(params).clone()
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetBlockHeightResponse(u64);
-
-impl From<ClientResponse> for GetBlockHeightResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
-    }
-}
 
 impl From<GetBlockHeightResponse> for u64 {
     fn from(value: GetBlockHeightResponse) -> Self {
         value.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::Value;
+    use solana_extra_wasm::account_decoder::UiAccountData;
+    use solana_sdk::pubkey;
+
+    use crate::{methods::Method, ClientRequest, ClientResponse};
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetBlockHeightRequest::NAME)
+            .id(1)
+            .params(GetBlockHeightRequest::new());
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getBlockHeight"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":1233,"id":1}"#;
+
+        let response: ClientResponse<GetBlockHeightResponse> =
+            serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+
+        assert_eq!(response.result.0, 1233);
     }
 }

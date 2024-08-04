@@ -1,40 +1,61 @@
-use crate::{ClientRequest, ClientResponse};
+use crate::{impl_method, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GetGenesisHashRequest {}
+#[derive(Debug, Serialize)]
+pub struct GetGenesisHashRequest;
 
-impl GetGenesisHashRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
+impl_method!(GetGenesisHashRequest, "getGenesisHash");
 
-impl From<GetGenesisHashRequest> for serde_json::Value {
-    fn from(_val: GetGenesisHashRequest) -> Self {
-        serde_json::Value::Null
-    }
-}
-
-impl From<GetGenesisHashRequest> for ClientRequest {
-    fn from(val: GetGenesisHashRequest) -> Self {
-        let mut request = ClientRequest::new("getGenesisHash");
-        let params = val.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetGenesisHashResponse(String);
-
-impl From<ClientResponse> for GetGenesisHashResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
-    }
-}
 
 impl From<GetGenesisHashResponse> for String {
     fn from(val: GetGenesisHashResponse) -> Self {
         val.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, str::FromStr};
+
+    use serde_json::Value;
+    use solana_extra_wasm::{account_decoder::UiAccountData, transaction_status::Encodable};
+    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
+
+    use crate::{
+        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
+        ClientResponse,
+    };
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetGenesisHashRequest::NAME)
+            .id(1)
+            .params(GetGenesisHashRequest);
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getGenesisHash"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json =
+            r#"{"jsonrpc":"2.0","result":"GH7ome3EiwEr7tu9JuTh2dpYWBJK3z69Xm1ZE3MEE6JC","id":1}"#;
+
+        let response: ClientResponse<GetGenesisHashResponse> =
+            serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+
+        assert_eq!(
+            response.result.0,
+            "GH7ome3EiwEr7tu9JuTh2dpYWBJK3z69Xm1ZE3MEE6JC"
+        );
     }
 }

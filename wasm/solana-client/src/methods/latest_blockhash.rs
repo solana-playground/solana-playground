@@ -1,13 +1,17 @@
+use serde_tuple::Serialize_tuple;
+use serde_with::skip_serializing_none;
 use solana_sdk::commitment_config::CommitmentConfig;
 
 use super::Context;
-use crate::{utils::rpc_response::RpcBlockhash, ClientRequest, ClientResponse};
+use crate::{impl_method, utils::rpc_response::RpcBlockhash, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize_tuple)]
 pub struct GetLatestBlockhashRequest {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
 }
+
+impl_method!(GetLatestBlockhashRequest, "getLatestBlockhash");
 
 impl GetLatestBlockhashRequest {
     pub fn new() -> Self {
@@ -20,32 +24,57 @@ impl GetLatestBlockhashRequest {
     }
 }
 
-impl From<GetLatestBlockhashRequest> for serde_json::Value {
-    fn from(value: GetLatestBlockhashRequest) -> Self {
-        match value.config {
-            Some(config) => serde_json::json!([config]),
-            None => serde_json::Value::Null,
-        }
-    }
-}
-
-impl From<GetLatestBlockhashRequest> for ClientRequest {
-    fn from(value: GetLatestBlockhashRequest) -> Self {
-        let mut request = ClientRequest::new("getLatestBlockhash");
-        let params = value.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetLatestBlockhashResponse {
     pub context: Context,
     pub value: RpcBlockhash,
 }
 
-impl From<ClientResponse> for GetLatestBlockhashResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, str::FromStr};
+
+    use serde_json::Value;
+    use solana_extra_wasm::{account_decoder::UiAccountData, transaction_status::Encodable};
+    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
+
+    use crate::{
+        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
+        ClientResponse,
+    };
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetLatestBlockhashRequest::NAME)
+            .id(1)
+            .params(GetLatestBlockhashRequest::new_with_config(
+                CommitmentConfig::processed(),
+            ));
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"id":1,"jsonrpc":"2.0","method":"getLatestBlockhash","params":[{"commitment":"processed"}]}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":{"context":{"slot":2792},"value":{"blockhash":"EkSnNWid2cvwEVnVx9aBqawnmiCNiDgp3gUdkDPTKN1N","lastValidBlockHeight":3090}},"id":1}"#;
+
+        let response: ClientResponse<GetLatestBlockhashResponse> =
+            serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        assert_eq!(response.result.context.slot, 2792);
+        let value = response.result.value;
+        assert_eq!(
+            value.blockhash,
+            "EkSnNWid2cvwEVnVx9aBqawnmiCNiDgp3gUdkDPTKN1N"
+        );
+        assert_eq!(value.last_valid_block_height, 3090);
     }
 }

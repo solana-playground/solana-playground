@@ -1,12 +1,18 @@
+use serde_tuple::Serialize_tuple;
+use serde_with::skip_serializing_none;
 use solana_sdk::commitment_config::CommitmentConfig;
 
-use crate::{utils::rpc_response::RpcInflationGovernor, ClientRequest, ClientResponse};
+use crate::{
+    impl_method, utils::rpc_response::RpcInflationGovernor, ClientRequest, ClientResponse,
+};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize_tuple)]
 pub struct GetInflationGovernorRequest {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
 }
+
+impl_method!(GetInflationGovernorRequest, "getInflationGovernor");
 
 impl GetInflationGovernorRequest {
     pub fn new() -> Self {
@@ -20,36 +26,57 @@ impl GetInflationGovernorRequest {
     }
 }
 
-impl From<GetInflationGovernorRequest> for serde_json::Value {
-    fn from(value: GetInflationGovernorRequest) -> Self {
-        match value.config {
-            Some(config) => serde_json::json!([config]),
-            None => serde_json::Value::Null,
-        }
-    }
-}
-
-impl From<GetInflationGovernorRequest> for ClientRequest {
-    fn from(val: GetInflationGovernorRequest) -> Self {
-        let mut request = ClientRequest::new("getInflationGovernor");
-        let params = val.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Deserialize)]
 pub struct GetInflationGovernorResponse(RpcInflationGovernor);
-
-impl From<ClientResponse> for GetInflationGovernorResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
-    }
-}
 
 impl From<GetInflationGovernorResponse> for RpcInflationGovernor {
     fn from(value: GetInflationGovernorResponse) -> Self {
         value.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, str::FromStr};
+
+    use serde_json::Value;
+    use solana_extra_wasm::{account_decoder::UiAccountData, transaction_status::Encodable};
+    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
+
+    use crate::{
+        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
+        ClientResponse,
+    };
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetInflationGovernorRequest::NAME)
+            .id(1)
+            .params(GetInflationGovernorRequest::new());
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getInflationGovernor"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":{"foundation":0.05,"foundationTerm":7,"initial":0.15,"taper":0.15,"terminal":0.015},"id":1}"#;
+
+        let response: ClientResponse<GetInflationGovernorResponse> =
+            serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        let value = response.result.0;
+        assert_eq!(value.foundation, 0.05);
+        assert_eq!(value.foundation_term, 7.0);
+        assert_eq!(value.initial, 0.15);
+        assert_eq!(value.taper, 0.15);
+        assert_eq!(value.terminal, 0.015);
     }
 }

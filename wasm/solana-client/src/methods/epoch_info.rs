@@ -1,17 +1,23 @@
+use serde_tuple::Serialize_tuple;
+use serde_with::skip_serializing_none;
 use solana_sdk::{commitment_config::CommitmentConfig, epoch_info::EpochInfo};
 
-use crate::{ClientRequest, ClientResponse};
+use crate::{impl_method, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Serialize_tuple, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct GetEpochInfoRequest {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<CommitmentConfig>,
 }
+
+impl_method!(GetEpochInfoRequest, "getEpochInfo");
 
 impl GetEpochInfoRequest {
     pub fn new() -> Self {
         Self::default()
     }
+
     pub fn new_with_config(config: CommitmentConfig) -> Self {
         Self {
             config: Some(config),
@@ -19,35 +25,62 @@ impl GetEpochInfoRequest {
     }
 }
 
-impl From<GetEpochInfoRequest> for serde_json::Value {
-    fn from(value: GetEpochInfoRequest) -> Self {
-        match value.config {
-            Some(config) => serde_json::json!([config]),
-            None => serde_json::json!([]),
-        }
-    }
-}
-
-impl From<GetEpochInfoRequest> for ClientRequest {
-    fn from(value: GetEpochInfoRequest) -> Self {
-        let mut request = ClientRequest::new("getEpochInfo");
-        let params = value.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetEpochInfoResponse(EpochInfo);
-
-impl From<ClientResponse> for GetEpochInfoResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
-    }
-}
 
 impl From<GetEpochInfoResponse> for EpochInfo {
     fn from(value: GetEpochInfoResponse) -> Self {
         value.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, str::FromStr};
+
+    use serde_json::Value;
+    use solana_extra_wasm::account_decoder::UiAccountData;
+    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
+
+    use crate::{
+        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
+        ClientResponse,
+    };
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetEpochInfoRequest::NAME)
+            .id(1)
+            .params(GetEpochInfoRequest::new());
+
+        let ser_value = serde_json::to_value(&request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getEpochInfo"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":{"absoluteSlot":166598,"blockHeight":166500,"epoch":27,"slotIndex":2790,"slotsInEpoch":8192,"transactionCount":22661093},"id":1}"#;
+
+        let response: ClientResponse<GetEpochInfoResponse> =
+            serde_json::from_str(&raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        assert_eq!(
+            response.result.0,
+            EpochInfo {
+                absolute_slot: 166598,
+                block_height: 166500,
+                epoch: 27,
+                slot_index: 2790,
+                slots_in_epoch: 8192,
+                transaction_count: Some(22661093)
+            }
+        );
     }
 }

@@ -33,7 +33,6 @@ mod program_accounts;
 mod recent_performance_samples;
 mod request_airdrop;
 mod send_transaction;
-mod serde_utils;
 mod signature_statuses;
 mod signatures_for_address;
 mod simulate_transaction;
@@ -51,8 +50,13 @@ mod transaction;
 mod transaction_count;
 mod version;
 mod vote_accounts;
+// TODO getMaxShredInsertSlot
+// TODO getRecentPrioritizationFees
+// TODO getStakeMinimumDelegation
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
+use solana_sdk::pubkey::Pubkey;
 pub use {
     account_info::{GetAccountInfoRequest, GetAccountInfoResponse},
     balance::{GetBalanceRequest, GetBalanceResponse},
@@ -87,8 +91,7 @@ pub use {
     multiple_accounts::{GetMultipleAccountsRequest, GetMultipleAccountsResponse},
     program_accounts::{GetProgramAccountsRequest, GetProgramAccountsResponse},
     recent_performance_samples::{
-        GetRecentPerformanceSamplesRequest, GetRecentPerformanceSamplesRequestConfig,
-        GetRecentPerformanceSamplesResponse,
+        GetRecentPerformanceSamplesRequest, GetRecentPerformanceSamplesResponse,
     },
     request_airdrop::{RequestAirdropRequest, RequestAirdropResponse},
     send_transaction::{SendTransactionRequest, SendTransactionResponse},
@@ -115,7 +118,7 @@ pub use {
     vote_accounts::{GetVoteAccountsRequest, GetVoteAccountsResponse},
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub struct Context {
     slot: u64,
 }
@@ -126,4 +129,17 @@ pub struct BlockProductionRange {
     pub first_slot: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_slot: Option<u64>,
+}
+
+pub trait Method: Serialize {
+    const NAME: &'static str;
+}
+
+#[macro_export]
+macro_rules! impl_method {
+    ($ident:ident, $name:literal) => {
+        impl $crate::methods::Method for $ident {
+            const NAME: &'static str = $name;
+        }
+    };
 }

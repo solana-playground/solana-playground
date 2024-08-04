@@ -1,5 +1,6 @@
 use bincode::serialize;
 use clap::ArgMatches;
+use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use solana_extra_wasm::{
     account_decoder::{UiAccount, UiAccountEncoding, UiDataSliceConfig},
     transaction_status::{TransactionDetails, UiTransactionEncoding},
@@ -182,13 +183,14 @@ pub struct RpcSimulateTransactionAccountsConfig {
     pub addresses: Vec<String>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcSimulateTransactionConfig {
     #[serde(default)]
-    pub sig_verify: bool,
+    pub sig_verify: Option<bool>,
     #[serde(default)]
-    pub replace_recent_blockhash: bool,
+    pub replace_recent_blockhash: Option<bool>,
     #[serde(flatten)]
     pub commitment: Option<CommitmentConfig>,
     pub encoding: Option<UiTransactionEncoding>,
@@ -204,10 +206,12 @@ pub struct RpcRequestAirdropConfig {
     pub commitment: Option<CommitmentConfig>,
 }
 
+#[serde_as]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcLeaderScheduleConfig {
-    pub identity: Option<String>, // validator identity, as a base-58 encoded string
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub identity: Option<Pubkey>, // validator identity, as a base-58 encoded string
     #[serde(flatten)]
     pub commitment: Option<CommitmentConfig>,
 }
@@ -219,6 +223,7 @@ pub struct RpcBlockProductionConfigRange {
     pub last_slot: Option<Slot>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcBlockProductionConfig {
@@ -228,6 +233,7 @@ pub struct RpcBlockProductionConfig {
     pub commitment: Option<CommitmentConfig>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcGetVoteAccountsConfig {
@@ -278,6 +284,7 @@ pub struct RpcSupplyConfig {
     pub exclude_non_circulating_accounts_list: bool,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcEpochConfig {
@@ -287,6 +294,7 @@ pub struct RpcEpochConfig {
     pub min_context_slot: Option<Slot>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcAccountInfoConfig {
@@ -297,6 +305,7 @@ pub struct RpcAccountInfoConfig {
     pub min_context_slot: Option<Slot>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcProgramAccountsConfig {
@@ -306,13 +315,7 @@ pub struct RpcProgramAccountsConfig {
     pub with_context: Option<bool>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum RpcTokenAccountsFilter {
-    Mint(String),
-    ProgramId(String),
-}
-
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcSignaturesForAddressConfig {
@@ -355,6 +358,7 @@ pub trait EncodingConfig {
     fn new_with_encoding(encoding: &Option<UiTransactionEncoding>) -> Self;
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcBlockConfig {
@@ -398,6 +402,7 @@ impl From<RpcBlockConfig> for RpcEncodingConfigWrapper<RpcBlockConfig> {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcTransactionConfig {
@@ -432,6 +437,7 @@ impl RpcBlocksConfigWrapper {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcContextConfig {
