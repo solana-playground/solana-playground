@@ -80,7 +80,7 @@ mod tests {
                 CommitmentConfig::processed(),
             ));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"id":1,"jsonrpc":"2.0","method":"getFeeForMessage","params":["AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQAA",{"commitment":"processed"}]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

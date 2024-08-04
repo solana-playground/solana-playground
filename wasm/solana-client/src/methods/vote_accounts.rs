@@ -63,7 +63,7 @@ mod tests {
                 },
             ));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getVoteAccounts","params":[{"votePubkey":"3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"}]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

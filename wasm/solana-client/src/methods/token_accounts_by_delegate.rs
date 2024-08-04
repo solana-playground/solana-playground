@@ -105,7 +105,7 @@ mod tests {
                 },
             ));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getTokenAccountsByDelegate","params":["4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T",{"programId":"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"},{"encoding":"jsonParsed"}]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

@@ -69,7 +69,7 @@ mod tests {
     //             ..Default::default()
     //         }));
 
-    //     let ser_value = serde_json::to_value(&request).unwrap();
+    //     let ser_value = serde_json::to_value(request).unwrap();
     //     let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getTransaction","params":["2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv","json"]}"#;
     //     let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

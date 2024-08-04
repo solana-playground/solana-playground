@@ -58,7 +58,7 @@ mod tests {
             .id(1)
             .params(GetAccountInfoRequest::new(pubkey));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getAccountInfo","params":["vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg",{"encoding":"base58"}]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 
@@ -77,7 +77,7 @@ mod tests {
         assert_eq!(response.result.context.slot, 1);
 
         let value = response.result.value.unwrap();
-        assert_eq!(value.executable, false);
+        assert!(!value.executable);
         assert_eq!(value.lamports, 1000000000);
         assert_eq!(value.owner, "11111111111111111111111111111111");
         assert_eq!(value.rent_epoch, 2);

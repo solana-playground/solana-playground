@@ -67,7 +67,7 @@ mod tests {
             .id(1)
             .params(GetBlocksRequest::new(5, Some(10)));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getBlocks","params":[5,10]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

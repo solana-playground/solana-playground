@@ -61,7 +61,7 @@ mod tests {
                 "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
             )));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getTokenSupply","params":["3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

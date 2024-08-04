@@ -49,7 +49,7 @@ mod tests {
             .id(1)
             .params(GetSlotLeadersRequest::new_with_config(100, 10));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getSlotLeaders","params":[100,10]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

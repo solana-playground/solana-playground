@@ -73,7 +73,7 @@ mod tests {
                 },
             ));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getInflationReward","params":[["6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu","BGsqMegLpV6n6Ve146sSX2dTjUMj3M92HnU8BbNRMhF2"],{"epoch":2}]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 

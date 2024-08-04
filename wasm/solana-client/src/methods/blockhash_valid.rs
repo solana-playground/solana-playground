@@ -65,7 +65,7 @@ mod tests {
                 },
             ));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"id":45,"jsonrpc":"2.0","method":"isBlockhashValid","params":["J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW",{"commitment":"processed"}]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 
@@ -82,6 +82,6 @@ mod tests {
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");
-        assert_eq!(response.result.value, false);
+        assert!(!response.result.value);
     }
 }

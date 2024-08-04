@@ -37,7 +37,7 @@ mod tests {
             .id(1)
             .params(GetEpochScheduleRequest);
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getEpochSchedule"}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 
@@ -59,6 +59,6 @@ mod tests {
         assert_eq!(value.first_normal_slot, 8160);
         assert_eq!(value.leader_schedule_slot_offset, 8192);
         assert_eq!(value.slots_per_epoch, 8192);
-        assert_eq!(value.warmup, true);
+        assert!(value.warmup);
     }
 }

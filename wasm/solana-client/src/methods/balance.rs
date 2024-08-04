@@ -54,7 +54,7 @@ mod tests {
             .id(1)
             .params(GetBalanceRequest::new(pubkey));
 
-        let ser_value = serde_json::to_value(&request).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
         let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getBalance","params":["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"]}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 
