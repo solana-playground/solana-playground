@@ -61,7 +61,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":["ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n","ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n","ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n","ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n","Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM","Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM","Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM","Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM","DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP","DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"],"id":1}"#;
 
         let response: ClientResponse<GetSlotLeadersResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

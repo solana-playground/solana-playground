@@ -61,7 +61,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":[{"gossip":"10.239.6.48:8001","pubkey":"9QzsJf7LPLj8GkXbYT3LFDKqsj2hHG7TA3xinJHu8epQ","rpc":"10.239.6.48:8899","tpu":"10.239.6.48:8856","version":"1.0.0 c375ce1f"}],"id":1}"#;
 
         let response: ClientResponse<GetClusterNodesResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

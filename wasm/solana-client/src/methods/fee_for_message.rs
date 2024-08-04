@@ -33,8 +33,8 @@ impl GetFeeForMessageRequest {
 }
 
 fn ser_message<S: Serializer>(msg: &Message, ser: S) -> Result<S::Ok, S::Error> {
-    let message = serialize_and_encode::<Message>(&msg, UiTransactionEncoding::Base64)
-        .map_err(|err| serde::ser::Error::custom(err))?;
+    let message = serialize_and_encode::<Message>(msg, UiTransactionEncoding::Base64)
+        .map_err(serde::ser::Error::custom)?;
     ser.serialize_str(&message)
 }
 
@@ -93,7 +93,7 @@ mod tests {
             r#"{"jsonrpc":"2.0","result":{"context":{"slot":5068},"value":5000},"id":1}"#;
 
         let response: ClientResponse<GetFeeForMessageResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

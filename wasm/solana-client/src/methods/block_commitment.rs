@@ -54,7 +54,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"commitment":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,32],"totalStake":42},"id":1}"#;
 
         let response: ClientResponse<GetBlockCommitmentResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

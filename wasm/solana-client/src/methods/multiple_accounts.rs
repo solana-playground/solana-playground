@@ -84,7 +84,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"context":{"slot":1},"value":[{"data":["","base64"],"executable":false,"lamports":1000000000,"owner":"11111111111111111111111111111111","rentEpoch":2,"space":16},{"data":["","base64"],"executable":false,"lamports":5000000000,"owner":"11111111111111111111111111111111","rentEpoch":2,"space":0}]},"id":1}"#;
 
         let response: ClientResponse<GetMultipleAccountsResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

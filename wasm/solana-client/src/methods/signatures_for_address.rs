@@ -83,7 +83,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":[{"err":null,"memo":null,"signature":"5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv","slot":114,"blockTime":null}],"id":1}"#;
 
         let response: ClientResponse<GetSignaturesForAddressResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

@@ -41,7 +41,7 @@ mod tests {
         let raw_json = r#"{ "jsonrpc": "2.0", "result": 1234, "id": 1 }"#;
 
         let response: ClientResponse<GetMaxRetransmitSlotResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

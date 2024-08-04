@@ -69,7 +69,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"context":{"slot":9887},"value":{"byIdentity":{"85iYT5RuzRTDgjyRa3cP8SYhM2j21fj7NhfJ3peu1DPr":[9888,9886]},"range":{"firstSlot":0,"lastSlot":9887}}},"id":1}"#;
 
         let response: ClientResponse<GetBlockProductionResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

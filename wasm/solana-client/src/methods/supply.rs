@@ -65,7 +65,7 @@ mod tests {
     fn response() {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"context":{"slot":1114},"value":{"circulating":16000,"nonCirculating":1000000,"nonCirculatingAccounts":["FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5","9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA","3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9","BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"],"total":1016000}},"id":1}"#;
 
-        let response: ClientResponse<GetSupplyResponse> = serde_json::from_str(&raw_json).unwrap();
+        let response: ClientResponse<GetSupplyResponse> = serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

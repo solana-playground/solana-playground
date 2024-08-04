@@ -82,7 +82,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"active":124429280,"inactive":73287840,"state":"activating"},"id":1}"#;
 
         let response: ClientResponse<GetStakeActivationResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

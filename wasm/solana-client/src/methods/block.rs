@@ -85,7 +85,7 @@ mod tests {
     fn response() {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"blockHeight":428,"blockTime":null,"blockhash":"3Eq21vXNB5s86c62bVuUfTeaMif1N2kUqRPBmGRJhyTA","parentSlot":429,"previousBlockhash":"mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B","transactions":[{"meta":{"err":null,"fee":5000,"innerInstructions":[],"logMessages":[],"postBalances":[499998932500,26858640,1,1,1],"postTokenBalances":[],"preBalances":[499998937500,26858640,1,1,1],"preTokenBalances":[],"rewards":null,"status":{"Ok":null}},"transaction":{"message":{"accountKeys":["3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe","AjozzgE83A3x1sHNUR64hfH7zaEBWeMaFuAN9kQgujrc","SysvarS1otHashes111111111111111111111111111","SysvarC1ock11111111111111111111111111111111","Vote111111111111111111111111111111111111111"],"header":{"numReadonlySignedAccounts":0,"numReadonlyUnsignedAccounts":3,"numRequiredSignatures":1},"instructions":[{"accounts":[1,2,3,0],"data":"37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1","programIdIndex":4}],"recentBlockhash":"mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"},"signatures":["2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"]}}]},"id":1}"#;
 
-        let response: ClientResponse<GetBlockResponse> = serde_json::from_str(&raw_json).unwrap();
+        let response: ClientResponse<GetBlockResponse> = serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

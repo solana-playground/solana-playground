@@ -67,7 +67,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"absoluteSlot":166598,"blockHeight":166500,"epoch":27,"slotIndex":2790,"slotsInEpoch":8192,"transactionCount":22661093},"id":1}"#;
 
         let response: ClientResponse<GetEpochInfoResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

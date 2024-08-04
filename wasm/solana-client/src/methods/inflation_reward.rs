@@ -85,7 +85,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":[{"amount":2500,"effectiveSlot":224,"epoch":2,"postBalance":499999442500},null],"id":1}"#;
 
         let response: ClientResponse<GetInflationRewardResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

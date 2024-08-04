@@ -65,7 +65,7 @@ mod tests {
     fn response() {
         let raw_json = r#"{"jsonrpc":"2.0","result":{"context":{"slot":1},"value":0},"id":1}"#;
 
-        let response: ClientResponse<GetBalanceResponse> = serde_json::from_str(&raw_json).unwrap();
+        let response: ClientResponse<GetBalanceResponse> = serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");

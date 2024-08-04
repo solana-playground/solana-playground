@@ -74,7 +74,7 @@ mod tests {
         let raw_json = r#"{"jsonrpc":"2.0","result":[{"numSlots":126,"numTransactions":126,"numNonVoteTransaction":1,"samplePeriodSecs":60,"slot":348125},{"numSlots":126,"numTransactions":126,"numNonVoteTransaction":1,"samplePeriodSecs":60,"slot":347999},{"numSlots":125,"numTransactions":125,"numNonVoteTransaction":0,"samplePeriodSecs":60,"slot":347873},{"numSlots":125,"numTransactions":125,"numNonVoteTransaction":0,"samplePeriodSecs":60,"slot":347748}],"id":1}"#;
 
         let response: ClientResponse<GetRecentPerformanceSamplesResponse> =
-            serde_json::from_str(&raw_json).unwrap();
+            serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);
         assert_eq!(response.jsonrpc, "2.0");
