@@ -7,7 +7,6 @@ import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgShell } from "./shell";
 import { PgTty } from "./tty";
-import { parse } from "./utils";
 import {
   Emoji,
   EventName,
@@ -346,22 +345,7 @@ export class PgTerm {
     const history = new PgHistory(20);
     this._autocomplete = new PgAutocomplete([
       cmdManager.getCompletions(),
-      (tokens, index) => {
-        return history
-          .getEntries()
-          .map(parse)
-          .map((entryTokens) => {
-            const lastIndex = tokens.length - 1;
-            const matches = tokens.every((token, i) =>
-              i === lastIndex && index <= lastIndex
-                ? entryTokens[i]?.startsWith(token)
-                : token === entryTokens[i]
-            );
-            if (matches) return entryTokens.at(index);
-            return null;
-          })
-          .filter(PgCommon.isNonNullish);
-      },
+      () => history.getEntries(),
     ]);
     this._tty = new PgTty(this._xterm, cmdManager, this._autocomplete);
     this._shell = new PgShell(
