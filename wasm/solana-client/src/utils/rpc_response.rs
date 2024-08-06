@@ -436,6 +436,13 @@ pub struct RpcBlockUpdate {
     pub err: Option<RpcBlockUpdateError>,
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct RpcPrioritizationFee {
+    pub slot: Slot,
+    pub prioritization_fee: u64,
+}
+
 // impl From<ConfirmedTransactionStatusWithSignature> for RpcConfirmedTransactionStatusWithSignature {
 //     fn from(value: ConfirmedTransactionStatusWithSignature) -> Self {
 //         let ConfirmedTransactionStatusWithSignature {

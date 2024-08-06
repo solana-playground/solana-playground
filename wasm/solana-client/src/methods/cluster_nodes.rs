@@ -30,16 +30,9 @@ impl From<GetClusterNodesResponse> for Vec<RpcContactInfoWasm> {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, str::FromStr};
-
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
-    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
 
-    use crate::{
-        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
-        ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 

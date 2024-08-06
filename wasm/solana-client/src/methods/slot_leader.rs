@@ -37,10 +37,7 @@ impl From<GetSlotLeaderResponse> for Pubkey {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
     use solana_sdk::pubkey;
 
     use crate::{methods::Method, ClientRequest, ClientResponse};

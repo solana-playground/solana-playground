@@ -6,7 +6,6 @@ use crate::{impl_method, ClientRequest, ClientResponse};
 
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct GetEpochInfoRequest {
     pub config: Option<CommitmentConfig>,
 }
@@ -36,16 +35,9 @@ impl From<GetEpochInfoResponse> for EpochInfo {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, str::FromStr};
-
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
-    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
 
-    use crate::{
-        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
-        ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 

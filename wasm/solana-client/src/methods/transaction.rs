@@ -43,38 +43,33 @@ impl From<GetTransactionResponse> for Option<EncodedConfirmedTransactionWithStat
 #[cfg(test)]
 mod tests {
     use serde_json::Value;
-    use solana_extra_wasm::{
-        account_decoder::{ParsedAccount, UiAccount, UiAccountData, UiAccountEncoding},
-        transaction_status::{
-            EncodedTransaction, UiCompiledInstruction, UiMessage, UiRawMessage, UiTransaction,
-            UiTransactionEncoding, UiTransactionStatusMeta,
-        },
+    use solana_extra_wasm::transaction_status::{
+        EncodedTransaction, UiCompiledInstruction, UiMessage, UiRawMessage, UiTransaction,
+        UiTransactionEncoding, UiTransactionStatusMeta,
     };
-    use solana_sdk::{message::MessageHeader, pubkey};
+    use solana_sdk::message::MessageHeader;
     use std::str::FromStr;
 
-    use crate::{
-        methods::Method, utils::rpc_response::StakeActivationState, ClientRequest, ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 
-    //TODO successful serialization
-    // #[test]
-    // fn request() {
-    //     let request = ClientRequest::new(GetTransactionRequest::NAME)
-    //         .id(1)
-    //         .params(GetTransactionRequest::new_with_config(Signature::from_str("2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv").unwrap(), RpcTransactionConfig {
-    //             encoding: Some(UiTransactionEncoding::Json),
-    //             ..Default::default()
-    //         }));
+    // Serialization differs a bit from the RPC API but it is allowed too
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetTransactionRequest::NAME)
+            .id(1)
+            .params(GetTransactionRequest::new_with_config(Signature::from_str("2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv").unwrap(), RpcTransactionConfig {
+                encoding: Some(UiTransactionEncoding::Json),
+                ..Default::default()
+            }));
 
-    //     let ser_value = serde_json::to_value(request).unwrap();
-    //     let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getTransaction","params":["2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv","json"]}"#;
-    //     let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+        let ser_value = serde_json::to_value(request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1,"method":"getTransaction","params":["2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv",{"encoding": "json"}]}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 
-    //     assert_eq!(ser_value, raw_value);
-    // }
+        assert_eq!(ser_value, raw_value);
+    }
 
     #[test]
     fn response() {

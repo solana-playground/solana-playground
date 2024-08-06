@@ -8,7 +8,6 @@ use crate::{impl_method, utils::rpc_config::RpcContextConfig, ClientRequest, Cli
 #[serde_as]
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct IsBlockhashValidRequest {
     #[serde_as(as = "DisplayFromStr")]
     blockhash: Hash,

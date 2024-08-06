@@ -7,7 +7,6 @@ use crate::{impl_method, ClientRequest, ClientResponse};
 
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBlockHeightRequest {
     pub config: Option<CommitmentConfig>,
 }
@@ -26,7 +25,7 @@ impl GetBlockHeightRequest {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetBlockHeightResponse(u64);
 
 impl From<GetBlockHeightResponse> for u64 {
@@ -38,8 +37,6 @@ impl From<GetBlockHeightResponse> for u64 {
 #[cfg(test)]
 mod tests {
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
-    use solana_sdk::pubkey;
 
     use crate::{methods::Method, ClientRequest, ClientResponse};
 

@@ -11,7 +11,6 @@ use crate::{
 #[serde_as]
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple)]
-#[serde(rename_all = "camelCase")]
 pub struct GetSignatureStatusesRequest {
     #[serde_as(as = "Vec<DisplayFromStr>")]
     pub signatures: Vec<Signature>,
@@ -56,8 +55,6 @@ mod tests {
     use std::str::FromStr;
 
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
-    use solana_sdk::pubkey;
 
     use crate::{methods::Method, ClientRequest, ClientResponse};
 

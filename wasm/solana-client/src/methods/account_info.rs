@@ -9,7 +9,6 @@ use crate::{impl_method, utils::rpc_config::RpcAccountInfoConfig, ClientRequest,
 
 #[serde_as]
 #[derive(Debug, Serialize_tuple)]
-#[serde(rename_all = "camelCase")]
 pub struct GetAccountInfoRequest {
     #[serde_as(as = "DisplayFromStr")]
     pub pubkey: Pubkey,

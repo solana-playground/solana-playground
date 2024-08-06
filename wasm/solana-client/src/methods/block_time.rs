@@ -5,7 +5,6 @@ use solana_sdk::clock::UnixTimestamp;
 use crate::{impl_method, ClientRequest, ClientResponse};
 
 #[derive(Debug, Serialize_tuple)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBlockTimeRequest {
     pub slot: u64,
 }
@@ -18,7 +17,7 @@ impl GetBlockTimeRequest {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetBlockTimeResponse(Option<UnixTimestamp>);
 
 impl From<GetBlockTimeResponse> for Option<UnixTimestamp> {
@@ -29,16 +28,9 @@ impl From<GetBlockTimeResponse> for Option<UnixTimestamp> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
-    use solana_sdk::pubkey;
 
-    use crate::{
-        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
-        ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 

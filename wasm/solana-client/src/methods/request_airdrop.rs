@@ -11,7 +11,6 @@ use crate::{impl_method, ClientRequest, ClientResponse};
 #[serde_as]
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple)]
-#[serde(rename_all = "camelCase")]
 pub struct RequestAirdropRequest {
     #[serde_as(as = "DisplayFromStr")]
     pub pubkey: Pubkey,

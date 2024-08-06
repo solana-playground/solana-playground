@@ -11,7 +11,6 @@ use crate::{
 
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBlockProductionRequest {
     pub config: Option<RpcBlockProductionConfig>,
 }
@@ -38,11 +37,8 @@ pub struct GetBlockProductionResponse {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use serde_json::Value;
-    use solana_extra_wasm::account_decoder::UiAccountData;
-    use solana_sdk::pubkey;
+    use std::collections::HashMap;
 
     use crate::{
         methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,

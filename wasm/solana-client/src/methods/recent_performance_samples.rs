@@ -34,24 +34,9 @@ impl From<GetRecentPerformanceSamplesResponse> for Vec<RpcPerfSample> {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, str::FromStr};
-
     use serde_json::Value;
-    use solana_extra_wasm::{
-        account_decoder::{UiAccount, UiAccountData, UiAccountEncoding},
-        transaction_status::Encodable,
-    };
-    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
 
-    use crate::{
-        methods::Method,
-        utils::{
-            rpc_config::RpcAccountInfoConfig,
-            rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
-            rpc_response::RpcBlockProductionRange,
-        },
-        ClientRequest, ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 

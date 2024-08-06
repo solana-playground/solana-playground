@@ -7,7 +7,6 @@ use crate::{impl_method, utils::rpc_config::RpcBlockConfig, ClientRequest, Clien
 
 #[skip_serializing_none]
 #[derive(Debug, Serialize_tuple)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBlockRequest {
     pub slot: Slot,
     pub config: Option<RpcBlockConfig>,
@@ -27,7 +26,7 @@ impl GetBlockRequest {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetBlockResponse(UiConfirmedBlock);
 
 impl From<GetBlockResponse> for UiConfirmedBlock {
@@ -38,24 +37,15 @@ impl From<GetBlockResponse> for UiConfirmedBlock {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use serde_json::Value;
-    use solana_extra_wasm::{
-        account_decoder::{ParsedAccount, UiAccountData},
-        transaction_status::{
-            EncodedTransaction, EncodedTransactionWithStatusMeta, ParsedInstruction,
-            TransactionDetails, UiCompiledInstruction, UiInstruction, UiMessage,
-            UiParsedInstruction, UiParsedMessage, UiRawMessage, UiTransaction,
-            UiTransactionEncoding, UiTransactionStatusMeta,
-        },
+    use solana_extra_wasm::transaction_status::{
+        EncodedTransaction, EncodedTransactionWithStatusMeta, TransactionDetails,
+        UiCompiledInstruction, UiMessage, UiRawMessage, UiTransaction, UiTransactionEncoding,
+        UiTransactionStatusMeta,
     };
-    use solana_sdk::{message::MessageHeader, pubkey, transaction::Transaction};
+    use solana_sdk::message::MessageHeader;
 
-    use crate::{
-        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
-        ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 

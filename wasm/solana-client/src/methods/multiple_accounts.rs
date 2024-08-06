@@ -41,19 +41,11 @@ pub struct GetMultipleAccountsResponse {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, str::FromStr};
-
     use serde_json::Value;
-    use solana_extra_wasm::{
-        account_decoder::{UiAccountData, UiAccountEncoding},
-        transaction_status::Encodable,
-    };
-    use solana_sdk::{commitment_config::CommitmentConfig, pubkey};
+    use solana_extra_wasm::account_decoder::{UiAccountData, UiAccountEncoding};
+    use solana_sdk::pubkey;
 
-    use crate::{
-        methods::Method, utils::rpc_response::RpcBlockProductionRange, ClientRequest,
-        ClientResponse,
-    };
+    use crate::{methods::Method, ClientRequest, ClientResponse};
 
     use super::*;
 
