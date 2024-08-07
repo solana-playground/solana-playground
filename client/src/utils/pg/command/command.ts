@@ -422,7 +422,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
             }
 
             // Validate values if specified
-            if (arg.values) {
+            if (inputArg && arg.values) {
               const values = PgCommon.callIfNeeded(arg.values);
               const isValidValue = values.some((v) => v === inputArg);
               if (!isValidValue) {
