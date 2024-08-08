@@ -1,10 +1,12 @@
 import { getIsOption, hasTrailingWhitespace, parse } from "./utils";
 import { PgCommon } from "../common";
+import { Getable } from "../types";
 
 /** Autocomplete handler input type */
 type AutocompleteHandler =
   | AutocompleteHandlerCallback
-  | AutocompleteHandlerObject;
+  | AutocompleteHandlerObject
+  | AutocompleteHandlerArray;
 
 /** Callback to create the autocomplete candidates based on the given tokens */
 type AutocompleteHandlerCallback = (
@@ -15,13 +17,16 @@ type AutocompleteHandlerCallback = (
 /** Nested command definitions */
 type AutocompleteHandlerObject = object;
 
+/** Entry based handlers */
+type AutocompleteHandlerArray = Getable<string[]>;
+
 /** Terminal autocomplete functionality */
 export class PgAutocomplete {
   /** Normalized (callback) autocomplete handlers */
   private _handlers: AutocompleteHandlerCallback[] = [];
 
   constructor(handlers: AutocompleteHandler[]) {
-    this._addHandler(handlers);
+    this._addHandler(...handlers);
   }
 
   /**
@@ -130,31 +135,64 @@ export class PgAutocomplete {
   private _addHandler(...handlers: AutocompleteHandler[]) {
     this._handlers.push(
       ...handlers.map((handler): AutocompleteHandlerCallback => {
-        if (typeof handler === "object") {
+        handler = PgCommon.callIfNeeded(handler);
+        if (Array.isArray(handler)) {
+          // Example:
+          //
+          // handler = ["anchor idl init", "anchor idl upgrade"]
+          //
+          // index: 0
+          // tokens: []
+          // return: ["anchor"]
+          //
+          // index: 1
+          // tokens: ["anchor"]
+          // return: ["idl"]
+          //
+          // index: 2
+          // tokens: ["anchor", "idl"]
+          // return: ["init", "upgrade"]
           return (tokens, index) => {
-            // Example:
-            // ```ts
-            // handler = {
-            //   anchor: {
-            //     idl: {
-            //       init: {},
-            //       upgrade: {}
-            //     }
-            //   }
-            // }
-            // ```
-            //
-            // index: 0
-            // tokens: []
-            // return: ["anchor"]
-            //
-            // index: 1
-            // tokens: ["anchor"]
-            // return: ["idl"]
-            //
-            // index: 2
-            // tokens: ["anchor", "idl"]
-            // return: ["init", "upgrade"]
+            return (handler as string[])
+              .map(parse)
+              .map((entryTokens) => {
+                const lastIndex = tokens.length - 1;
+                const matches = tokens.every((token, i) =>
+                  i === lastIndex && index <= lastIndex
+                    ? entryTokens[i]?.startsWith(token)
+                    : token === entryTokens[i]
+                );
+                if (matches) return entryTokens.at(index);
+                return null;
+              })
+              .filter(PgCommon.isNonNullish);
+          };
+        }
+
+        if (typeof handler === "object") {
+          // Example:
+          //
+          // handler = {
+          //   anchor: {
+          //     idl: {
+          //       init: {},
+          //       upgrade: {}
+          //     }
+          //   }
+          // }
+          //
+          // index: 0
+          // tokens: []
+          // return: ["anchor"]
+          //
+          // index: 1
+          // tokens: ["anchor"]
+          // return: ["idl"]
+          //
+          // index: 2
+          // tokens: ["anchor", "idl"]
+          // return: ["init", "upgrade"]
+          return (tokens, index) => {
             const recursivelyGetCandidates = (obj: any, i = 0): string[] => {
               if (i > index) return [];
 
