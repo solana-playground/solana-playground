@@ -61,21 +61,6 @@ export class PgAutocomplete {
   }
 
   /**
-   * Temporarily set autocomplete handlers to a handler that uses the given candidates.
-   *
-   * @param candidates candidates to recommend
-   * @param opts options:
-   * - `append`: whether to append the candidates to the existing candidates
-   * @returns an object with `restore` callback to restore the original handlers
-   */
-  temporarilySetCandidates(candidates: string[], opts?: { append?: boolean }) {
-    return this.temporarilySetHandlers((tokens, i) => {
-      const token = tokens[i];
-      return candidates.filter((c) => !token || c.startsWith(token));
-    }, opts);
-  }
-
-  /**
    * Collect the autocomplete canditates from the given input.
    *
    * @param input terminal input

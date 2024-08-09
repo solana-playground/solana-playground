@@ -573,7 +573,7 @@ export class PgTerm {
     if (opts?.default) {
       const value = opts.default;
       convertedMsg += ` (default: ${value})`;
-      restore = this._autocomplete.temporarilySetCandidates([value], {
+      restore = this._autocomplete.temporarilySetHandlers([value], {
         append: true,
       }).restore;
     }
@@ -584,12 +584,12 @@ export class PgTerm {
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
-      restore = this._autocomplete.temporarilySetCandidates(
+      restore = this._autocomplete.temporarilySetHandlers(
         items.map((_, i) => i.toString())
       ).restore;
     } else if (opts?.confirm) {
       convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
-      restore = this._autocomplete.temporarilySetCandidates([
+      restore = this._autocomplete.temporarilySetHandlers([
         "yes",
         "no",
       ]).restore;
