@@ -1,8 +1,8 @@
-use serde_json::Value;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ClientResponse {
+#[derive(Debug, Deserialize)]
+pub struct ClientResponse<T> {
     pub id: u32,
     pub jsonrpc: String,
-    pub result: Value,
+    pub result: T,
 }

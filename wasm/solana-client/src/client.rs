@@ -1,3 +1,4 @@
+use serde::de::DeserializeOwned;
 use solana_extra_wasm::{
     account_decoder::{
         parse_token::UiTokenAccount,
@@ -33,17 +34,16 @@ use crate::{
             RpcBlockProductionConfig, RpcContextConfig, RpcEpochConfig, RpcGetVoteAccountsConfig,
             RpcKeyedAccount, RpcLargestAccountsConfig, RpcLeaderScheduleConfig,
             RpcProgramAccountsConfig, RpcSendTransactionConfig, RpcSignaturesForAddressConfig,
-            RpcSimulateTransactionConfig, RpcSupplyConfig, RpcTokenAccountsFilter,
-            RpcTransactionConfig,
+            RpcSimulateTransactionConfig, RpcSupplyConfig, RpcTransactionConfig,
         },
-        rpc_filter::TokenAccountsFilter,
+        rpc_filter::RpcTokenAccountsFilter,
         rpc_response::{
             RpcAccountBalance, RpcBlockProduction, RpcConfirmedTransactionStatusWithSignature,
             RpcInflationGovernor, RpcInflationRate, RpcInflationReward, RpcLeaderSchedule,
             RpcPerfSample, RpcSupply, RpcVersionInfo, RpcVoteAccountStatus,
         },
     },
-    ClientError, ClientRequest, ClientResponse, ClientResult,
+    ClientError, ClientResponse, ClientResult,
 };
 
 pub struct WasmClient {
@@ -83,9 +83,9 @@ impl WasmClient {
         self.commitment_config
     }
 
-    async fn send(&self, request: ClientRequest) -> ClientResult<ClientResponse> {
+    async fn send<T: Method, R: DeserializeOwned>(&self, request: T) -> ClientResult<R> {
         let Provider::Http(provider) = &self.provider;
-        provider.send(&request).await
+        provider.send(&request).await?.result
     }
 
     pub async fn get_balance_with_commitment(
@@ -93,8 +93,8 @@ impl WasmClient {
         pubkey: &Pubkey,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<u64> {
-        let request = GetBalanceRequest::new_with_config(*pubkey, commitment_config).into();
-        let response = GetBalanceResponse::from(self.send(request).await?);
+        let request = GetBalanceRequest::new_with_config(*pubkey, commitment_config);
+        let response: GetBalanceResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -105,18 +105,18 @@ impl WasmClient {
     }
 
     pub async fn request_airdrop(&self, pubkey: &Pubkey, lamports: u64) -> ClientResult<Signature> {
-        let request = RequestAirdropRequest::new(*pubkey, lamports).into();
-        let response = RequestAirdropResponse::from(self.send(request).await?);
+        let request = RequestAirdropRequest::new(*pubkey, lamports);
+        let response: ClientResponse<RequestAirdropResponse> = self.send(request).await?;
 
-        Ok(response.into())
+        Ok(response.result.into())
     }
 
     pub async fn get_signature_statuses(
         &self,
         signatures: &[Signature],
     ) -> ClientResult<Vec<Option<SignatureStatusesValue>>> {
-        let request = GetSignatureStatusesRequest::new(signatures.into()).into();
-        let response = GetSignatureStatusesResponse::from(self.send(request).await?);
+        let request = GetSignatureStatusesRequest::new(signatures.into());
+        let response: GetSignatureStatusesResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -126,8 +126,8 @@ impl WasmClient {
         signature: &Signature,
         config: RpcTransactionConfig,
     ) -> ClientResult<EncodedConfirmedTransactionWithStatusMeta> {
-        let request = GetTransactionRequest::new_with_config(*signature, config).into();
-        let response = GetTransactionResponse::from(self.send(request).await?);
+        let request = GetTransactionRequest::new_with_config(*signature, config);
+        let response: GetTransactionResponse = self.send(request).await?;
 
         match response.into() {
             Some(result) => Ok(result),
@@ -142,8 +142,8 @@ impl WasmClient {
         pubkey: &Pubkey,
         config: RpcAccountInfoConfig,
     ) -> ClientResult<Option<Account>> {
-        let request = GetAccountInfoRequest::new_with_config(*pubkey, config).into();
-        let response = GetAccountInfoResponse::from(self.send(request).await?);
+        let request = GetAccountInfoRequest::new_with_config(*pubkey, config);
+        let response: GetAccountInfoResponse = self.send(request).await?;
 
         match response.value {
             Some(ui_account) => Ok(ui_account.decode()),
@@ -181,8 +181,8 @@ impl WasmClient {
         &self,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<(Hash, u64)> {
-        let request = GetLatestBlockhashRequest::new_with_config(commitment_config).into();
-        let response = GetLatestBlockhashResponse::from(self.send(request).await?);
+        let request = GetLatestBlockhashRequest::new_with_config(commitment_config);
+        let response: GetLatestBlockhashResponse = self.send(request).await?;
 
         let hash = response
             .value
@@ -220,9 +220,8 @@ impl WasmClient {
                 commitment: Some(commitment_config),
                 min_context_slot: None,
             },
-        )
-        .into();
-        let response = IsBlockhashValidResponse::from(self.send(request).await?);
+        );
+        let response: IsBlockhashValidResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -231,15 +230,15 @@ impl WasmClient {
         &self,
         data_len: usize,
     ) -> ClientResult<u64> {
-        let request = GetMinimumBalanceForRentExemptionRequest::new(data_len).into();
-        let response = GetMinimumBalanceForRentExemptionResponse::from(self.send(request).await?);
+        let request = GetMinimumBalanceForRentExemptionRequest::new(data_len);
+        let response: GetMinimumBalanceForRentExemptionResponse = self.send(request).await?;
 
         Ok(response.into())
     }
 
     pub async fn get_fee_for_message(&self, message: &Message) -> ClientResult<u64> {
-        let request = GetFeeForMessageRequest::new(message.to_owned()).into();
-        let response = GetFeeForMessageResponse::from(self.send(request).await?);
+        let request = GetFeeForMessageRequest::new(message.to_owned());
+        let response: GetFeeForMessageResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -249,9 +248,8 @@ impl WasmClient {
         transaction: &Transaction,
         config: RpcSendTransactionConfig,
     ) -> ClientResult<Signature> {
-        let request =
-            SendTransactionRequest::new_with_config(transaction.to_owned(), config).into();
-        let response = SendTransactionResponse::from(self.send(request).await?);
+        let request = SendTransactionRequest::new_with_config(transaction.to_owned(), config);
+        let response: SendTransactionResponse = self.send(request).await?;
 
         let signature: Signature = response.into();
 
@@ -382,8 +380,8 @@ impl WasmClient {
             ..config
         };
 
-        let request = GetProgramAccountsRequest::new_with_config(*pubkey, config).into();
-        let response = GetProgramAccountsResponse::from(self.send(request).await?);
+        let request = GetProgramAccountsRequest::new_with_config(*pubkey, config);
+        let response: GetProgramAccountsResponse = self.send(request).await?;
 
         // Parse keyed accounts
         let accounts = response
@@ -426,8 +424,8 @@ impl WasmClient {
         &self,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<Slot> {
-        let request = GetSlotRequest::new_with_config(commitment_config).into();
-        let response = GetSlotResponse::from(self.send(request).await?);
+        let request = GetSlotRequest::new_with_config(commitment_config);
+        let response: GetSlotResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -442,29 +440,29 @@ impl WasmClient {
         slot: Slot,
         config: RpcBlockConfig,
     ) -> ClientResult<UiConfirmedBlock> {
-        let request = GetBlockRequest::new_with_config(slot, config).into();
-        let response = GetBlockResponse::from(self.send(request).await?);
+        let request = GetBlockRequest::new_with_config(slot, config);
+        let response: GetBlockResponse = self.send(request).await?;
 
         Ok(response.into())
     }
 
     pub async fn get_version(&self) -> ClientResult<RpcVersionInfo> {
-        let request = GetVersionRequest::new().into();
-        let response = GetVersionResponse::from(self.send(request).await?);
+        let request = GetVersionRequest;
+        let response: GetVersionResponse = self.send(request).await?;
 
         Ok(response.into())
     }
 
     pub async fn get_first_available_block(&self) -> ClientResult<Slot> {
-        let request = GetFirstAvailableBlockRequest::new().into();
-        let response = GetFirstAvailableBlockResponse::from(self.send(request).await?);
+        let request = GetFirstAvailableBlockRequest;
+        let response: GetFirstAvailableBlockResponse = self.send(request).await?;
 
         Ok(response.into())
     }
 
     pub async fn get_block_time(&self, slot: Slot) -> ClientResult<UnixTimestamp> {
-        let request = GetBlockTimeRequest::new(slot).into();
-        let response = GetBlockTimeResponse::from(self.send(request).await?);
+        let request = GetBlockTimeRequest::new(slot);
+        let response: GetBlockTimeResponse = self.send(request).await?;
 
         let maybe_ts: Option<UnixTimestamp> = response.into();
         match maybe_ts {
@@ -477,8 +475,8 @@ impl WasmClient {
         &self,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<u64> {
-        let request = GetBlockHeightRequest::new_with_config(commitment_config).into();
-        let response = GetBlockHeightResponse::from(self.send(request).await?);
+        let request = GetBlockHeightRequest::new_with_config(commitment_config);
+        let response: GetBlockHeightResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -489,8 +487,8 @@ impl WasmClient {
     }
 
     pub async fn get_genesis_hash(&self) -> ClientResult<Hash> {
-        let request = GetGenesisHashRequest::new().into();
-        let response = GetGenesisHashResponse::from(self.send(request).await?);
+        let request = GetGenesisHashRequest;
+        let response: GetGenesisHashResponse = self.send(request).await?;
 
         let hash_string: String = response.into();
         let hash = hash_string
@@ -504,8 +502,8 @@ impl WasmClient {
         &self,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<EpochInfo> {
-        let request = GetEpochInfoRequest::new_with_config(commitment_config).into();
-        let response = GetEpochInfoResponse::from(self.send(request).await?);
+        let request = GetEpochInfoRequest::new_with_config(commitment_config);
+        let response: GetEpochInfoResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -519,11 +517,8 @@ impl WasmClient {
         &self,
         limit: Option<usize>,
     ) -> ClientResult<Vec<RpcPerfSample>> {
-        let request = GetRecentPerformanceSamplesRequest::new_with_config(
-            GetRecentPerformanceSamplesRequestConfig { limit },
-        )
-        .into();
-        let response = GetRecentPerformanceSamplesResponse::from(self.send(request).await?);
+        let request = GetRecentPerformanceSamplesRequest { limit };
+        let response: GetRecentPerformanceSamplesResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -535,8 +530,8 @@ impl WasmClient {
         commitment_config: CommitmentConfig,
     ) -> ClientResult<Vec<Slot>> {
         let request =
-            GetBlocksWithLimitRequest::new_with_config(start_slot, limit, commitment_config).into();
-        let response = GetBlocksWithLimitResponse::from(self.send(request).await?);
+            GetBlocksWithLimitRequest::new_with_config(start_slot, limit, commitment_config);
+        let response: GetBlocksWithLimitResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -559,15 +554,15 @@ impl WasmClient {
             ..config
         };
 
-        let request = GetLargestAccountsRequest::new_with_config(config).into();
-        let response = GetLargestAccountsResponse::from(self.send(request).await?);
+        let request = GetLargestAccountsRequest::new_with_config(config);
+        let response: GetLargestAccountsResponse = self.send(request).await?;
 
         Ok(response.value)
     }
 
     pub async fn get_supply_with_config(&self, config: RpcSupplyConfig) -> ClientResult<RpcSupply> {
-        let request = GetSupplyRequest::new_with_config(config).into();
-        let response = GetSupplyResponse::from(self.send(request).await?);
+        let request = GetSupplyRequest::new_with_config(config);
+        let response: GetSupplyResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -592,8 +587,8 @@ impl WasmClient {
         &self,
         config: RpcContextConfig,
     ) -> ClientResult<u64> {
-        let request = GetTransactionCountRequest::new_with_config(config).into();
-        let response = GetTransactionCountResponse::from(self.send(request).await?);
+        let request = GetTransactionCountRequest::new_with_config(config);
+        let response: GetTransactionCountResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -624,8 +619,8 @@ impl WasmClient {
             ..config
         };
 
-        let request = GetMultipleAccountsRequest::new_with_config(pubkeys.to_vec(), config).into();
-        let response = GetMultipleAccountsResponse::from(self.send(request).await?);
+        let request = GetMultipleAccountsRequest::new_with_config(pubkeys.to_vec(), config);
+        let response: GetMultipleAccountsResponse = self.send(request).await?;
 
         Ok(response
             .value
@@ -659,8 +654,8 @@ impl WasmClient {
     }
 
     pub async fn get_cluster_nodes(&self) -> ClientResult<Vec<RpcContactInfoWasm>> {
-        let request = GetClusterNodesRequest::new().into();
-        let response = GetClusterNodesResponse::from(self.send(request).await?);
+        let request = GetClusterNodesRequest;
+        let response: GetClusterNodesResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -669,8 +664,8 @@ impl WasmClient {
         &self,
         config: RpcGetVoteAccountsConfig,
     ) -> ClientResult<RpcVoteAccountStatus> {
-        let request = GetVoteAccountsRequest::new_with_config(config).into();
-        let response = GetVoteAccountsResponse::from(self.send(request).await?);
+        let request = GetVoteAccountsRequest::new_with_config(config);
+        let response: GetVoteAccountsResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -692,8 +687,8 @@ impl WasmClient {
     }
 
     pub async fn get_epoch_schedule(&self) -> ClientResult<EpochSchedule> {
-        let request = GetEpochScheduleRequest::new().into();
-        let response = GetEpochScheduleResponse::from(self.send(request).await?);
+        let request = GetEpochScheduleRequest;
+        let response: GetEpochScheduleResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -711,15 +706,15 @@ impl WasmClient {
             min_context_slot: None,
         };
 
-        let request = GetSignaturesForAddressRequest::new_with_config(*address, config).into();
-        let response = GetSignaturesForAddressResponse::from(self.send(request).await?);
+        let request = GetSignaturesForAddressRequest::new_with_config(*address, config);
+        let response: GetSignaturesForAddressResponse = self.send(request).await?;
 
         Ok(response.into())
     }
 
     pub async fn minimum_ledger_slot(&self) -> ClientResult<Slot> {
-        let request = MinimumLedgerSlotRequest::new().into();
-        let response = MinimumLedgerSlotResponse::from(self.send(request).await?);
+        let request = MinimumLedgerSlotRequest;
+        let response: MinimumLedgerSlotResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -730,9 +725,8 @@ impl WasmClient {
         end_slot: Option<Slot>,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<Vec<Slot>> {
-        let request =
-            GetBlocksRequest::new_with_config(start_slot, end_slot, commitment_config).into();
-        let response = GetBlocksResponse::from(self.send(request).await?);
+        let request = GetBlocksRequest::new_with_config(start_slot, end_slot, commitment_config);
+        let response: GetBlocksResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -752,10 +746,10 @@ impl WasmClient {
         config: RpcLeaderScheduleConfig,
     ) -> ClientResult<Option<RpcLeaderSchedule>> {
         let request = match slot {
-            Some(s) => GetLeaderScheduleRequest::new_with_slot_and_config(s, config).into(),
-            None => GetLeaderScheduleRequest::new_with_config(config).into(),
+            Some(s) => GetLeaderScheduleRequest::new_with_slot_and_config(s, config),
+            None => GetLeaderScheduleRequest::new_with_config(config),
         };
-        let response = GetLeaderScheduleResponse::from(self.send(request).await?);
+        let response: GetLeaderScheduleResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -779,8 +773,8 @@ impl WasmClient {
         &self,
         config: RpcBlockProductionConfig,
     ) -> ClientResult<RpcBlockProduction> {
-        let request = GetBlockProductionRequest::new_with_config(config).into();
-        let response = GetBlockProductionResponse::from(self.send(request).await?);
+        let request = GetBlockProductionRequest::new_with_config(config);
+        let response: GetBlockProductionResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -805,8 +799,8 @@ impl WasmClient {
         &self,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<RpcInflationGovernor> {
-        let request = GetInflationGovernorRequest::new_with_config(commitment_config).into();
-        let response = GetInflationGovernorResponse::from(self.send(request).await?);
+        let request = GetInflationGovernorRequest::new_with_config(commitment_config);
+        let response: GetInflationGovernorResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -817,8 +811,8 @@ impl WasmClient {
     }
 
     pub async fn get_inflation_rate(&self) -> ClientResult<RpcInflationRate> {
-        let request = GetInflationRateRequest::new().into();
-        let response = GetInflationRateResponse::from(self.send(request).await?);
+        let request = GetInflationRateRequest;
+        let response: GetInflationRateResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -835,9 +829,8 @@ impl WasmClient {
                 epoch,
                 ..Default::default()
             },
-        )
-        .into();
-        let response = GetInflationRewardResponse::from(self.send(request).await?);
+        );
+        let response: GetInflationRewardResponse = self.send(request).await?;
 
         Ok(response.into())
     }
@@ -861,8 +854,8 @@ impl WasmClient {
             min_context_slot: None,
         };
 
-        let request = GetAccountInfoRequest::new_with_config(*pubkey, config).into();
-        let response = GetAccountInfoResponse::from(self.send(request).await?);
+        let request = GetAccountInfoRequest::new_with_config(*pubkey, config);
+        let response: GetAccountInfoResponse = self.send(request).await?;
 
         if let Some(acc) = response.value {
             if let UiAccountData::Json(account_data) = acc.data {
@@ -892,16 +885,9 @@ impl WasmClient {
     pub async fn get_token_accounts_by_owner_with_commitment(
         &self,
         owner: &Pubkey,
-        token_account_filter: TokenAccountsFilter,
+        token_account_filter: RpcTokenAccountsFilter,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<Vec<RpcKeyedAccount>> {
-        let token_account_filter = match token_account_filter {
-            TokenAccountsFilter::Mint(mint) => RpcTokenAccountsFilter::Mint(mint.to_string()),
-            TokenAccountsFilter::ProgramId(program_id) => {
-                RpcTokenAccountsFilter::ProgramId(program_id.to_string())
-            }
-        };
-
         let config = RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::JsonParsed),
             commitment: Some(commitment_config),
@@ -910,9 +896,8 @@ impl WasmClient {
         };
 
         let request =
-            GetTokenAccountsByOwnerRequest::new_with_config(*owner, token_account_filter, config)
-                .into();
-        let response = GetTokenAccountsByOwnerResponse::from(self.send(request).await?);
+            GetTokenAccountsByOwnerRequest::new_with_config(*owner, token_account_filter, config);
+        let response: GetTokenAccountsByOwnerResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -920,7 +905,7 @@ impl WasmClient {
     pub async fn get_token_accounts_by_owner(
         &self,
         owner: &Pubkey,
-        token_account_filter: TokenAccountsFilter,
+        token_account_filter: RpcTokenAccountsFilter,
     ) -> ClientResult<Vec<RpcKeyedAccount>> {
         self.get_token_accounts_by_owner_with_commitment(
             owner,
@@ -935,9 +920,8 @@ impl WasmClient {
         pubkey: &Pubkey,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<UiTokenAmount> {
-        let request =
-            GetTokenAccountBalanceRequest::new_with_config(*pubkey, commitment_config).into();
-        let response = GetTokenAccountBalanceResponse::from(self.send(request).await?);
+        let request = GetTokenAccountBalanceRequest::new_with_config(*pubkey, commitment_config);
+        let response: GetTokenAccountBalanceResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -952,8 +936,8 @@ impl WasmClient {
         mint: &Pubkey,
         commitment_config: CommitmentConfig,
     ) -> ClientResult<UiTokenAmount> {
-        let request = GetTokenSupplyRequest::new_with_config(*mint, commitment_config).into();
-        let response = GetTokenSupplyResponse::from(self.send(request).await?);
+        let request = GetTokenSupplyRequest::new_with_config(*mint, commitment_config);
+        let response: GetTokenSupplyResponse = self.send(request).await?;
 
         Ok(response.value)
     }
@@ -968,9 +952,8 @@ impl WasmClient {
         transaction: &Transaction,
         config: RpcSimulateTransactionConfig,
     ) -> ClientResult<SimulateTransactionResponse> {
-        let request =
-            SimulateTransactionRequest::new_with_config(transaction.to_owned(), config).into();
-        let response = SimulateTransactionResponse::from(self.send(request).await?);
+        let request = SimulateTransactionRequest::new_with_config(transaction.to_owned(), config);
+        let response: SimulateTransactionResponse = self.send(request).await?;
         Ok(response)
     }
 
@@ -982,7 +965,7 @@ impl WasmClient {
             transaction,
             RpcSimulateTransactionConfig {
                 encoding: Some(UiTransactionEncoding::Base64),
-                replace_recent_blockhash: true,
+                replace_recent_blockhash: Some(true),
                 ..Default::default()
             },
         )

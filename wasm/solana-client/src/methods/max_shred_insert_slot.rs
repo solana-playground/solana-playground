@@ -1,20 +1,12 @@
-use solana_sdk::clock::Slot;
-
-use crate::{impl_method, ClientRequest, ClientResponse};
+use crate::impl_method;
 
 #[derive(Debug, Serialize)]
-pub struct MinimumLedgerSlotRequest;
+pub struct GetMaxShredInsertSlotRequest;
 
-impl_method!(MinimumLedgerSlotRequest, "minimumLedgerSlot");
+impl_method!(GetMaxShredInsertSlotRequest, "getMaxShredInsertSlot");
 
 #[derive(Debug, Deserialize)]
-pub struct MinimumLedgerSlotResponse(Slot);
-
-impl From<MinimumLedgerSlotResponse> for Slot {
-    fn from(val: MinimumLedgerSlotResponse) -> Self {
-        val.0
-    }
-}
+pub struct GetMaxShredInsertSlotResponse(u64);
 
 #[cfg(test)]
 mod tests {
@@ -26,12 +18,12 @@ mod tests {
 
     #[test]
     fn request() {
-        let request = ClientRequest::new(MinimumLedgerSlotRequest::NAME)
+        let request = ClientRequest::new(GetMaxShredInsertSlotRequest::NAME)
             .id(1)
-            .params(MinimumLedgerSlotRequest);
+            .params(GetMaxShredInsertSlotRequest);
 
         let ser_value = serde_json::to_value(request).unwrap();
-        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"minimumLedgerSlot"}"#;
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getMaxShredInsertSlot"}"#;
         let raw_value: Value = serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(ser_value, raw_value);
@@ -41,7 +33,7 @@ mod tests {
     fn response() {
         let raw_json = r#"{ "jsonrpc": "2.0", "result": 1234, "id": 1 }"#;
 
-        let response: ClientResponse<MinimumLedgerSlotResponse> =
+        let response: ClientResponse<GetMaxShredInsertSlotResponse> =
             serde_json::from_str(raw_json).unwrap();
 
         assert_eq!(response.id, 1);

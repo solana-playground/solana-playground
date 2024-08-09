@@ -8,7 +8,7 @@ use solana_clap_v3_utils_wasm::{
 use solana_cli_output_wasm::cli_output::{
     return_signers_data, CliSignOnlyData, CliSignature, OutputFormat, ReturnSignersConfig,
 };
-use solana_client_wasm::utils::rpc_filter::TokenAccountsFilter;
+use solana_client_wasm::utils::rpc_filter::RpcTokenAccountsFilter;
 use solana_extra_wasm::{
     account_decoder::{
         parse_token::{TokenAccountType, UiAccountState},
@@ -1736,8 +1736,8 @@ async fn command_accounts(
         .get_token_accounts_by_owner(
             &owner,
             match token {
-                Some(token) => TokenAccountsFilter::Mint(token),
-                None => TokenAccountsFilter::ProgramId(config.program_id),
+                Some(token) => RpcTokenAccountsFilter::Mint(token),
+                None => RpcTokenAccountsFilter::ProgramId(config.program_id),
             },
         )
         .await?;
@@ -1835,7 +1835,7 @@ async fn command_gc(
     println_display(config, "Fetching token accounts".to_string());
     let accounts = config
         .rpc_client
-        .get_token_accounts_by_owner(&owner, TokenAccountsFilter::ProgramId(config.program_id))
+        .get_token_accounts_by_owner(&owner, RpcTokenAccountsFilter::ProgramId(config.program_id))
         .await?;
     if accounts.is_empty() {
         println_display(config, "Nothing to do".to_string());

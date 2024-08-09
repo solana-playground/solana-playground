@@ -1,9 +1,10 @@
-use crate::{ClientError, ClientRequest, ClientResponse, ClientResult};
+use serde::de::DeserializeOwned;
+
+use crate::{methods::Method, ClientError, ClientRequest, ClientResponse, ClientResult};
 
 #[derive(Clone)]
 pub struct HttpProvider {
     client: reqwest::Client,
-    headers: reqwest::header::HeaderMap,
     url: String,
 }
 
@@ -11,22 +12,22 @@ impl HttpProvider {
     pub fn new(url: &str) -> Self {
         Self {
             client: reqwest::Client::new(),
-            headers: reqwest::header::HeaderMap::new(),
             url: url.to_owned(),
         }
     }
 }
 
 impl HttpProvider {
-    pub async fn send(&self, request: &ClientRequest) -> ClientResult<ClientResponse> {
+    pub async fn send<T: Method, R: DeserializeOwned>(
+        &self,
+        request: &T,
+    ) -> ClientResult<ClientResponse<R>> {
         let client = &self.client;
-        let url = self.url.clone();
-        let headers = self.headers.clone();
+        let client_request = ClientRequest::new(T::NAME).id(0).params(request);
 
         let request_result: serde_json::Value = client
-            .post(&url)
-            .headers(headers)
-            .json(&request)
+            .post(&self.url)
+            .json(&client_request)
             .send()
             .await
             .map_err(ClientError::from)?
@@ -34,7 +35,7 @@ impl HttpProvider {
             .await
             .map_err(ClientError::from)?;
 
-        match serde_json::from_value::<ClientResponse>(request_result.clone()) {
+        match serde_json::from_value::<ClientResponse<R>>(request_result.clone()) {
             Ok(response) => Ok(response),
             Err(_) => Err(serde_json::from_value::<ClientError>(request_result).unwrap()),
         }

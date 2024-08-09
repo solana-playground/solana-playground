@@ -43,6 +43,7 @@ fn slice_data(data: &[u8], data_slice_config: Option<UiDataSliceConfig>) -> &[u8
 #[serde(rename_all = "camelCase")]
 pub struct UiAccount {
     pub lamports: u64,
+    pub space: u64,
     pub data: UiAccountData,
     pub owner: String,
     pub executable: bool,
@@ -129,6 +130,7 @@ impl UiAccount {
         };
         UiAccount {
             lamports: account.lamports(),
+            space: account.data().len() as u64,
             data,
             owner: account.owner().to_string(),
             executable: account.executable(),

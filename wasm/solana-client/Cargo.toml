@@ -31,6 +31,8 @@ thiserror = "1"
 wasm-bindgen = { version = "0.2.88", optional = true }
 wasm-bindgen-futures = { version = "0.4.38", optional = true }
 web-sys = { version = "0.3.65", features = ["MessageEvent", "WebSocket"], optional = true }
+serde_tuple = "0.5"
+serde_with = "3.9"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.38"

@@ -1,40 +1,54 @@
-use crate::{utils::rpc_response::RpcVersionInfo, ClientRequest, ClientResponse};
+use crate::{impl_method, utils::rpc_response::RpcVersionInfo, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GetVersionRequest {}
+#[derive(Debug, Serialize)]
+pub struct GetVersionRequest;
 
-impl GetVersionRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
+impl_method!(GetVersionRequest, "getVersion");
 
-impl From<GetVersionRequest> for serde_json::Value {
-    fn from(_: GetVersionRequest) -> Self {
-        serde_json::Value::Null
-    }
-}
-
-impl From<GetVersionRequest> for ClientRequest {
-    fn from(value: GetVersionRequest) -> Self {
-        let mut request = ClientRequest::new("getVersion");
-        let params = value.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct GetVersionResponse(RpcVersionInfo);
-
-impl From<ClientResponse> for GetVersionResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
-    }
-}
 
 impl From<GetVersionResponse> for RpcVersionInfo {
     fn from(value: GetVersionResponse) -> Self {
         value.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::Value;
+
+    use crate::{methods::Method, ClientRequest, ClientResponse};
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetVersionRequest::NAME)
+            .id(1)
+            .params(GetVersionRequest);
+
+        let ser_value = serde_json::to_value(request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getVersion"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":{"feature-set":2891131721,"solana-core":"1.16.7"},"id":1}"#;
+
+        let response: ClientResponse<GetVersionResponse> = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        assert_eq!(
+            response.result.0,
+            RpcVersionInfo {
+                feature_set: Some(2891131721),
+                solana_core: "1.16.7".to_string()
+            }
+        );
     }
 }
