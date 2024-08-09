@@ -7,15 +7,28 @@ edition = "2021"
 crate-type = ["cdylib", "lib"]
 path = "default/src/lib.rs"
 
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
 [profile.release]
 overflow-checks = true
 incremental = true
 
 [dependencies]
-anchor-lang = { version = "*", features = ["anchor-debug", "allow-missing-optionals", "init-if-needed"] }
+anchor-lang = { version = "*", features = [
+    "interface-instructions",
+    "anchor-debug",
+    "allow-missing-optionals",
+    "init-if-needed",
+] }
 anchor-spl = { version = "*", features = ["dex", "governance", "metadata"] }
 arrayref = "*"
-borsh = "*"
+# borsh version to match anchor-lang to avoid "`borsh` is ambiguous" error
+borsh = ">=0.9, <0.11"
 borsh-derive = "*"
 bytemuck = "*"
 bytemuck_derive = "*"
@@ -28,7 +41,6 @@ pyth-sdk = "*"
 pyth-sdk-solana = "*"
 serde = "*"
 solana-program = "*"
-spl-account-compression = { version = "*", features = ["cpi"] }
 spl-associated-token-account = "*"
 spl-pod = "*"
 spl-tlv-account-resolution = "*"
@@ -37,6 +49,9 @@ spl-token-2022 = "*"
 spl-token-metadata-interface = "*"
 spl-transfer-hook-interface = "*"
 spl-type-length-value = "*"
-switchboard-solana = "*"
-switchboard-v2 = "*"
 thiserror = "*"
+
+## Does not build with anchor 0.30.0, throws errors on build
+# spl-account-compression = { version = "*", features = ["cpi"] }
+# switchboard-solana = "*"
+# switchboard-v2 = "*"

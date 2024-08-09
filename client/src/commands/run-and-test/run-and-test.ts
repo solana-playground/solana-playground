@@ -101,6 +101,7 @@ const processCommon = async (params: {
     const code = PgExplorer.getFileContent(
       PgCommon.joinPaths(folderPath, fileName)
     )!;
+
     await PgClient.execute({ fileName, code, isTest });
   }
 };

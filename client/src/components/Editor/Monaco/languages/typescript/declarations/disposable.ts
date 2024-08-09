@@ -1,5 +1,5 @@
 import * as monaco from "monaco-editor";
-import type { Idl } from "@coral-xyz/anchor";
+import { convertIdlToCamelCase } from "@coral-xyz/anchor/dist/cjs/idl";
 
 import { declareModule } from "./helper";
 import {
@@ -109,7 +109,8 @@ export const declareDisposableTypes = (): Disposable => {
       return;
     }
 
-    const convertedIdl = JSON.stringify(convertIdl(idl));
+    // TODO: Still having ts warnings/red squiggles on pg editor
+    const convertedIdl = JSON.stringify(convertIdlToCamelCase(idl));
 
     // Program
     const programType = `Program<${convertedIdl}>`;
@@ -122,13 +123,13 @@ const program: anchor.${programType};`
     );
 
     // target/types
-    const idlTypeName = PgCommon.toPascalFromSnake(idl.name);
+    const idlTypeName = PgCommon.toPascalFromSnake(idl.metadata.name);
     programDisposables.push(
       addModel(
         "target/types",
         `export type ${idlTypeName} = ${convertedIdl};
 export const IDL: ${idlTypeName} = ${convertedIdl};`,
-        PgExplorer.convertToFullPath(`target/types/${idl.name}.ts`)
+        PgExplorer.convertToFullPath(`target/types/${idl.metadata.name}.ts`)
       )
     );
 
@@ -136,7 +137,7 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
     const getWorkspace = (packageName: ClientPackageName) => {
       return `import { Program } from "${packageName}";
       const workspace: { ${PgCommon.toPascalFromSnake(
-        idl.name
+        idl.metadata.name
       )}: ${programType} };`;
     };
     programDisposables.push(
@@ -220,27 +221,6 @@ const addModel = (
   );
 
   return disposableCache[disposableType]!;
-};
-
-/**
- * Convert Anchor IDL's account names into camelCase to be used accuretely for types.
- *
- * @param idl Anchor IDL
- * @returns converted Anchor IDL
- */
-const convertIdl = (idl: Idl) => {
-  if (!idl.accounts) return idl;
-
-  let newIdl: Idl = { ...idl, accounts: [] };
-
-  for (const account of idl.accounts) {
-    newIdl.accounts!.push({
-      ...account,
-      name: account.name[0].toLowerCase() + account.name.substring(1),
-    });
-  }
-
-  return newIdl;
 };
 
 /**
