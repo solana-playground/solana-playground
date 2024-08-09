@@ -50,7 +50,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
   }, [idlInstruction]);
 
   // Refresh instruction in order to pass the latest generators to
-  // `InstructionInput`, otherwise the inital values are being generated
+  // `InstructionInput`, otherwise the initial values are being generated
   // from stale data.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const refresh = useCallback(

@@ -82,7 +82,7 @@ module.exports = {
           include: /src/,
           // Add errors to webpack instead of warnings
           failOnError: true,
-          // Allow import cycles that include an asyncronous import,
+          // Allow import cycles that include an asynchronous import,
           // e.g. via import(/* webpackMode: "weak" */ './file.js')
           allowAsyncCycles: false,
           // Set the current working directory for displaying module paths
