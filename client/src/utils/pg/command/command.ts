@@ -357,7 +357,9 @@ ${formatList(cmd.subcommands!)}`);
             }
             if (cmd.options) {
               const optList = cmd.options.map((opt) => ({
-                name: `${opt.short ? `-${opt.short}, ` : "    "}--${opt.name}`,
+                name: `${opt.short ? `-${opt.short}, ` : "    "}--${opt.name} ${
+                  opt.takeValue ? `<${opt.name.toUpperCase()}>` : ""
+                }`,
                 description: opt.description ?? "",
               }));
               lines.push("Options:", formatList(optList));
