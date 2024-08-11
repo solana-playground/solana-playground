@@ -87,7 +87,7 @@ mod tests {
             vec![
                 Some(UiAccount {
                     lamports: 1000000000,
-                    space: 16,
+                    space: Some(16),
                     data: UiAccountData::Binary(String::new(), UiAccountEncoding::Base64),
                     owner: "11111111111111111111111111111111".to_string(),
                     executable: false,
@@ -95,7 +95,7 @@ mod tests {
                 }),
                 Some(UiAccount {
                     lamports: 5000000000,
-                    space: 0,
+                    space: Some(0),
                     data: UiAccountData::Binary(String::new(), UiAccountEncoding::Base64),
                     owner: "11111111111111111111111111111111".to_string(),
                     executable: false,

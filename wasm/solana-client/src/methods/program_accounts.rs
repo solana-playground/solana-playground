@@ -107,7 +107,7 @@ mod tests {
                     lamports: 15298080,
                     owner: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T".to_string(),
                     rent_epoch: 28,
-                    space: 42
+                    space: Some(42)
                 },
                 pubkey: "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY".to_string()
             }]

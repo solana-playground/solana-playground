@@ -80,7 +80,7 @@ mod tests {
         assert_eq!(value.lamports, 1000000000);
         assert_eq!(value.owner, "11111111111111111111111111111111");
         assert_eq!(value.rent_epoch, 2);
-        assert_eq!(value.space, 80);
+        assert_eq!(value.space, Some(80));
         assert_eq!(value.data, UiAccountData::Binary("11116bv5nS2h3y12kD1yUKeMZvGcKLSjQgX6BeV7u1FrjeJcKfsHRTPuR3oZ1EioKtYGiYxpxMG5vpbZLsbcBYBEmZZcMKaSoGx9JZeAuWf".to_string(), UiAccountEncoding::Base58))
     }
 }

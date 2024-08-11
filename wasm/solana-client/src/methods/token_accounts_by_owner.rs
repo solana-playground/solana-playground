@@ -108,7 +108,7 @@ mod tests {
                     executable: false,
                     lamports: 1726080,
                     rent_epoch: 4,
-                    space: 165
+                    space: Some(165)
                 },
                 pubkey: "C2gJg6tKpQs41PRS1nC8aw3ZKNZK3HQQZGVrDFDup5nx".to_string()
             }]
