@@ -2,7 +2,6 @@ import {
   Dispatch,
   ForwardRefExoticComponent,
   SetStateAction,
-  useCallback,
   useState,
 } from "react";
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
@@ -42,26 +41,38 @@ const Sortable = <P, I extends UniqueIdentifier>({
 }: SortableProps<P, I>) => {
   const [activeItemProps, setActiveItemProps] = useState<P | null>(null);
 
-  const handleDragStart = useCallback((ev: DragStartEvent) => {
-    setActiveItemProps(ev.active.data.current as P | null);
-  }, []);
+  const handleDragStart = (ev: DragStartEvent) => {
+    const data = ev.active.data.current as any;
+    if (data.sortable.index === -1) {
+      // If an item is recently added to the `items` list, the internal DND
+      // context state doesn't get updated sometimes. To solve this, we
+      // override the internal state `data.sortable` from the most up-to-date
+      // values.
+      data.sortable.index = items.findIndex((item) => item === data.id);
 
-  const handleDragEnd = useCallback(
-    (ev: DragEndEvent) => {
-      const { active, over } = ev;
-      if (!over || active.id === over.id) return;
+      // Due to how the internals of `SortableContext` works, we set each value
+      // one-by-one because directly setting `data.sortable.items = items`
+      // doesn't work
+      for (const [key, value] of Object.entries(items)) {
+        data.sortable.items[key] = value;
+      }
+    }
+    setActiveItemProps(data);
+  };
 
-      setItems((items) => {
-        const oldIndex = items.indexOf(active.id as I);
-        const newIndex = items.indexOf(over.id as I);
+  const handleDragEnd = (ev: DragEndEvent) => {
+    const { active, over } = ev;
+    if (!over || active.id === over.id) return;
 
-        return arrayMove(items, oldIndex, newIndex);
-      });
+    setItems((items) => {
+      const oldIndex = items.indexOf(active.id as I);
+      const newIndex = items.indexOf(over.id as I);
 
-      setActiveItemProps(null);
-    },
-    [setItems]
-  );
+      return arrayMove(items, oldIndex, newIndex);
+    });
+
+    setActiveItemProps(null);
+  };
 
   return (
     <DndContext
