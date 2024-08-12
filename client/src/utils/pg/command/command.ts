@@ -347,7 +347,13 @@ ${formatList(cmd.subcommands!)}`);
               );
               const argList = cmd.args.map((arg) => ({
                 name: `<${arg.name.toUpperCase()}>`,
-                description: arg.description ?? "",
+                description: `${arg.description ?? ""} ${
+                  arg.values
+                    ? `(possible values: ${PgCommon.callIfNeeded(
+                        arg.values
+                      ).join(", ")})`
+                    : ""
+                }`,
               }));
               lines.push(
                 `${usagePrefix} ${usageArgs}`,
