@@ -345,16 +345,15 @@ ${formatList(cmd.subcommands!)}`);
                 (acc, arg) => acc + `<${arg.name.toUpperCase()}> `,
                 ""
               );
-              const argList = cmd.args.map((arg) => ({
-                name: `<${arg.name.toUpperCase()}>`,
-                description: `${arg.description ?? ""} ${
-                  arg.values
-                    ? `(possible values: ${PgCommon.callIfNeeded(
-                        arg.values
-                      ).join(", ")})`
-                    : ""
-                }`,
-              }));
+              const argList = cmd.args.map((arg) => [
+                `<${arg.name.toUpperCase()}>`,
+                arg.description ?? "",
+                arg.values
+                  ? `(possible values: ${PgCommon.callIfNeeded(arg.values).join(
+                      ", "
+                    )})`
+                  : "",
+              ]);
               lines.push(
                 `${usagePrefix} ${usageArgs}`,
                 "Arguments:",
@@ -362,12 +361,12 @@ ${formatList(cmd.subcommands!)}`);
               );
             }
             if (cmd.options) {
-              const optList = cmd.options.map((opt) => ({
-                name: `${opt.short ? `-${opt.short}, ` : "    "}--${opt.name} ${
+              const optList = cmd.options.map((opt) => [
+                `${opt.short ? `-${opt.short}, ` : "    "}--${opt.name} ${
                   opt.takeValue ? `<${opt.name.toUpperCase()}>` : ""
                 }`,
-                description: opt.description ?? "",
-              }));
+                opt.description ?? "",
+              ]);
               lines.push("Options:", formatList(optList));
             }
 
@@ -491,29 +490,32 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
 /**
  * Format the given list for terminal view.
  *
- * @param list list to format
+ * @param list list to format (requires at least 2 elements)
  * @returns the formatted list
  */
-export const formatList = (
-  list: Array<{ name: string; description: string }>
-) => {
+export const formatList = (list: string[][]) => {
   return list
     .sort((a, b) => {
       const allowedRegex = /^[a-zA-Z-]+$/;
-      if (!allowedRegex.test(a.name)) return 1;
-      if (!allowedRegex.test(b.name)) return -1;
-      return a.name.localeCompare(b.name);
+      if (!allowedRegex.test(a[0])) return 1;
+      if (!allowedRegex.test(b[0])) return -1;
+      return a[0].localeCompare(b[0]);
     })
-    .reduce((acc, cmd) => {
-      return (
+    .reduce(
+      (acc, cmd) =>
         acc +
         "    " +
-        cmd.name +
-        new Array(25 - cmd.name.length).fill(" ").reduce((acc, v) => acc + v) +
-        cmd.description +
-        "\n"
-      );
-    }, "");
+        // TODO: Make any columns longer than 25 chars go to the next line with
+        // proper formatting
+        cmd.reduce(
+          (acc, col) =>
+            acc +
+            col +
+            new Array(25 - col.length).fill(" ").reduce((acc, v) => acc + v)
+        ) +
+        "\n",
+      ""
+    );
 };
 
 /** Get custom event name for the given command. */
