@@ -320,7 +320,9 @@ Usage: ${[...tokens.slice(0, +i), cmd.name].join(" ")} <COMMAND>
 
 Commands:
 
-${formatList(cmd.subcommands!)}`);
+${formatList(
+  cmd.subcommands!.map((subcmd) => [subcmd.name, subcmd.description ?? ""])
+)}`);
           break;
         }
 
@@ -337,7 +339,12 @@ ${formatList(cmd.subcommands!)}`);
               lines.push(
                 `${usagePrefix} <COMMAND>`,
                 "Commands:",
-                formatList(cmd.subcommands)
+                formatList(
+                  cmd.subcommands.map((subcmd) => [
+                    subcmd.name,
+                    subcmd.description ?? "",
+                  ])
+                )
               );
             }
             if (cmd.args) {
@@ -490,32 +497,29 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
 /**
  * Format the given list for terminal view.
  *
- * @param list list to format (requires at least 2 elements)
+ * @param list list to format
  * @returns the formatted list
  */
-export const formatList = (list: string[][]) => {
+export const formatList = (list: Array<string[] | Record<string, string>>) => {
   return list
+    .map((item) => (Array.isArray(item) ? item : Object.values(item)))
     .sort((a, b) => {
       const allowedRegex = /^[a-zA-Z-]+$/;
       if (!allowedRegex.test(a[0])) return 1;
       if (!allowedRegex.test(b[0])) return -1;
       return a[0].localeCompare(b[0]);
     })
-    .reduce(
-      (acc, cmd) =>
+    .reduce((acc, item) => {
+      return (
         acc +
         "    " +
-        // TODO: Make any columns longer than 25 chars go to the next line with
-        // proper formatting
-        cmd.reduce(
-          (acc, col) =>
-            acc +
-            col +
-            new Array(25 - col.length).fill(" ").reduce((acc, v) => acc + v)
+        item.reduce(
+          (acc, col) => acc + col + " ".repeat(Math.max(24 - col.length, 0)),
+          ""
         ) +
-        "\n",
-      ""
-    );
+        "\n"
+      );
+    }, "");
 };
 
 /** Get custom event name for the given command. */
