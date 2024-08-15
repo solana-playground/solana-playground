@@ -320,9 +320,7 @@ Usage: ${[...tokens.slice(0, +i), cmd.name].join(" ")} <COMMAND>
 
 Commands:
 
-${formatList(
-  cmd.subcommands!.map((subcmd) => [subcmd.name, subcmd.description ?? ""])
-)}`);
+${formatList(cmd.subcommands!)}`);
           break;
         }
 
@@ -339,12 +337,7 @@ ${formatList(
               lines.push(
                 `${usagePrefix} <COMMAND>`,
                 "Commands:",
-                formatList(
-                  cmd.subcommands.map((subcmd) => [
-                    subcmd.name,
-                    subcmd.description ?? "",
-                  ])
-                )
+                formatList(cmd.subcommands)
               );
             }
             if (cmd.args) {
@@ -354,17 +347,17 @@ ${formatList(
               );
               const argList = cmd.args.map((arg) => [
                 `<${arg.name.toUpperCase()}>`,
-                arg.description ?? "",
-                arg.values
-                  ? `(possible values: ${PgCommon.callIfNeeded(arg.values).join(
-                      ", "
-                    )})`
-                  : "",
+                (arg.description ?? "") +
+                  (arg.values
+                    ? ` (possible values: ${PgCommon.callIfNeeded(
+                        arg.values
+                      ).join(", ")})`
+                    : ""),
               ]);
               lines.push(
                 `${usagePrefix} ${usageArgs}`,
                 "Arguments:",
-                formatList(argList)
+                formatList(argList, { align: "y" })
               );
             }
             if (cmd.options) {
@@ -374,7 +367,7 @@ ${formatList(
                 }`,
                 opt.description ?? "",
               ]);
-              lines.push("Options:", formatList(optList));
+              lines.push("Options:", formatList(optList, { align: "y" }));
             }
 
             PgTerminal.log(lines.join("\n\n"));
@@ -500,9 +493,15 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
  * @param list list to format
  * @returns the formatted list
  */
-export const formatList = (list: Array<string[] | Record<string, string>>) => {
+export const formatList = (
+  list: Array<string[] | { name: string; description?: string }>,
+  opts?: { align?: "x" | "y" }
+) => {
+  const { align } = PgCommon.setDefault(opts, { align: "x" });
   return list
-    .map((item) => (Array.isArray(item) ? item : Object.values(item)))
+    .map((item) =>
+      Array.isArray(item) ? item : [item.name, item.description ?? ""]
+    )
     .sort((a, b) => {
       const allowedRegex = /^[a-zA-Z-]+$/;
       if (!allowedRegex.test(a[0])) return 1;
@@ -510,15 +509,15 @@ export const formatList = (list: Array<string[] | Record<string, string>>) => {
       return a[0].localeCompare(b[0]);
     })
     .reduce((acc, item) => {
-      return (
-        acc +
-        "    " +
-        item.reduce(
-          (acc, col) => acc + col + " ".repeat(Math.max(24 - col.length, 0)),
-          ""
-        ) +
-        "\n"
-      );
+      const output =
+        align === "x"
+          ? item.reduce(
+              (acc, col) =>
+                acc + col + " ".repeat(Math.max(24 - col.length, 0)),
+              ""
+            )
+          : item.reduce((acc, col, i) => acc + (i ? "\n\t" : "") + col, "");
+      return acc + "    " + output + "\n";
     }, "");
 };
 
