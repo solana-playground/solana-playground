@@ -1,40 +1,53 @@
+use serde_with::{serde_as, DisplayFromStr};
 use solana_sdk::pubkey::Pubkey;
 
-use super::serde_utils::deserialize_public_key;
-use crate::{ClientRequest, ClientResponse};
+use crate::{impl_method, ClientRequest, ClientResponse};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GetIdentityRequest {}
+#[derive(Debug, Serialize)]
+pub struct GetIdentityRequest;
 
-impl GetIdentityRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
+impl_method!(GetIdentityRequest, "getIdentity");
 
-impl From<GetIdentityRequest> for serde_json::Value {
-    fn from(_val: GetIdentityRequest) -> Self {
-        serde_json::Value::Null
-    }
-}
-
-impl From<GetIdentityRequest> for ClientRequest {
-    fn from(val: GetIdentityRequest) -> Self {
-        let mut request = ClientRequest::new("getIdentity");
-        let params = val.into();
-
-        request.params(params).clone()
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde_as]
+#[derive(Debug, Deserialize)]
 pub struct GetIdentityResponse {
-    #[serde(deserialize_with = "deserialize_public_key")]
+    #[serde_as(as = "DisplayFromStr")]
     pub identity: Pubkey,
 }
 
-impl From<ClientResponse> for GetIdentityResponse {
-    fn from(response: ClientResponse) -> Self {
-        serde_json::from_value(response.result).unwrap()
+#[cfg(test)]
+mod tests {
+    use serde_json::Value;
+    use solana_sdk::pubkey;
+
+    use crate::{methods::Method, ClientRequest, ClientResponse};
+
+    use super::*;
+
+    #[test]
+    fn request() {
+        let request = ClientRequest::new(GetIdentityRequest::NAME)
+            .id(1)
+            .params(GetIdentityRequest);
+
+        let ser_value = serde_json::to_value(request).unwrap();
+        let raw_json = r#"{"jsonrpc":"2.0","id":1, "method":"getIdentity"}"#;
+        let raw_value: Value = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(ser_value, raw_value);
+    }
+
+    #[test]
+    fn response() {
+        let raw_json = r#"{"jsonrpc":"2.0","result":{"identity":"2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"},"id":1}"#;
+
+        let response: ClientResponse<GetIdentityResponse> = serde_json::from_str(raw_json).unwrap();
+
+        assert_eq!(response.id, 1);
+        assert_eq!(response.jsonrpc, "2.0");
+        assert_eq!(
+            response.result.identity,
+            pubkey!("2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN")
+        );
     }
 }
