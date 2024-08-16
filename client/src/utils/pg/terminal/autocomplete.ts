@@ -120,8 +120,7 @@ export class PgAutocomplete {
   private _addHandler(...handlers: AutocompleteHandler[]) {
     this._handlers.push(
       ...handlers.map((handler): AutocompleteHandlerCallback => {
-        handler = PgCommon.callIfNeeded(handler);
-        if (Array.isArray(handler)) {
+        if (Array.isArray(handler) || typeof handler === "function") {
           // Example:
           //
           // handler = ["anchor idl init", "anchor idl upgrade"]
@@ -138,7 +137,7 @@ export class PgAutocomplete {
           // tokens: ["anchor", "idl"]
           // return: ["init", "upgrade"]
           return (tokens, index) => {
-            return (handler as string[])
+            return (PgCommon.callIfNeeded(handler) as string[])
               .map(parse)
               .map((entryTokens) => {
                 const lastIndex = tokens.length - 1;
@@ -154,117 +153,111 @@ export class PgAutocomplete {
           };
         }
 
-        if (typeof handler === "object") {
-          // Example:
-          //
-          // handler = {
-          //   anchor: {
-          //     idl: {
-          //       init: {},
-          //       upgrade: {}
-          //     }
-          //   }
-          // }
-          //
-          // index: 0
-          // tokens: []
-          // return: ["anchor"]
-          //
-          // index: 1
-          // tokens: ["anchor"]
-          // return: ["idl"]
-          //
-          // index: 2
-          // tokens: ["anchor", "idl"]
-          // return: ["init", "upgrade"]
-          return (tokens, index) => {
-            const recursivelyGetCandidates = (obj: any, i = 0): string[] => {
-              if (i > index) return [];
+        // Example:
+        //
+        // handler = {
+        //   anchor: {
+        //     idl: {
+        //       init: {},
+        //       upgrade: {}
+        //     }
+        //   }
+        // }
+        //
+        // index: 0
+        // tokens: []
+        // return: ["anchor"]
+        //
+        // index: 1
+        // tokens: ["anchor"]
+        // return: ["idl"]
+        //
+        // index: 2
+        // tokens: ["anchor", "idl"]
+        // return: ["init", "upgrade"]
+        return (tokens, index) => {
+          const recursivelyGetCandidates = (obj: any, i = 0): string[] => {
+            if (i > index) return [];
 
-              const candidates = [];
-              for (const [key, value] of PgCommon.entries(obj)) {
-                // Argument values
-                if (PgCommon.isInt(key)) {
-                  // Skip options
-                  if (tokens[i] && getIsOption(tokens[i])) continue;
+            const candidates = [];
+            for (const [key, value] of PgCommon.entries(obj)) {
+              // Argument values
+              if (PgCommon.isInt(key)) {
+                // Skip options
+                if (tokens[i] && getIsOption(tokens[i])) continue;
 
-                  if (+key === index - i) {
-                    const token = tokens[index];
-                    const args: string[] = PgCommon.callIfNeeded(value);
-                    const filteredArgs = args.filter(
-                      (arg) => !token || arg.startsWith(token)
-                    );
-                    candidates.push(...filteredArgs);
-                  } else {
-                    // Options are also valid after arguments
-                    const opts = Object.entries(obj).reduce(
-                      (acc, [prop, val]) => {
-                        if (getIsOption(prop)) acc[prop] = val;
-                        return acc;
-                      },
-                      {} as typeof obj
-                    );
+                if (+key === index - i) {
+                  const token = tokens[index];
+                  const args: string[] = PgCommon.callIfNeeded(value);
+                  const filteredArgs = args.filter(
+                    (arg) => !token || arg.startsWith(token)
+                  );
+                  candidates.push(...filteredArgs);
+                } else {
+                  // Options are also valid after arguments
+                  const opts = Object.entries(obj).reduce(
+                    (acc, [prop, val]) => {
+                      if (getIsOption(prop)) acc[prop] = val;
+                      return acc;
+                    },
+                    {} as typeof obj
+                  );
 
-                    // The completion index for the next option is the sum of
-                    // `i` and how many previous arguments exist.
-                    //
-                    // The calculation below assumes all arguments have been
-                    // passed beforehand, which means option completions between
-                    // arguments won't work. Supplying options before or after
-                    // all arguments work expected.
-                    //
-                    // TODO: Calculate how many arguments exist properly to make
-                    // option completions between arguments work
-                    const argAmount = Object.keys(obj).filter(
-                      PgCommon.isInt
-                    ).length;
-                    candidates.push(
-                      ...recursivelyGetCandidates(opts, i + argAmount)
-                    );
-                  }
+                  // The completion index for the next option is the sum of
+                  // `i` and how many previous arguments exist.
+                  //
+                  // The calculation below assumes all arguments have been
+                  // passed beforehand, which means option completions between
+                  // arguments won't work. Supplying options before or after
+                  // all arguments work expected.
+                  //
+                  // TODO: Calculate how many arguments exist properly to make
+                  // option completions between arguments work
+                  const argAmount = Object.keys(obj).filter(
+                    PgCommon.isInt
+                  ).length;
+                  candidates.push(
+                    ...recursivelyGetCandidates(opts, i + argAmount)
+                  );
                 }
-                // Subcommands or options
-                else if (!tokens[i] || key.startsWith(tokens[i])) {
-                  // Current key and doesn't exist previously in tokens
-                  if (i === index && !tokens.slice(0, i).includes(key)) {
-                    candidates.push(key);
-                  }
-                  // Next candidates
-                  if (key === tokens[i]) {
-                    if (getIsOption(key)) {
-                      // Decide the next index based on whether the option takes
-                      // in a value
-                      const { takeValue, other } = obj[key];
+              }
+              // Subcommands or options
+              else if (!tokens[i] || key.startsWith(tokens[i])) {
+                // Current key and doesn't exist previously in tokens
+                if (i === index && !tokens.slice(0, i).includes(key)) {
+                  candidates.push(key);
+                }
+                // Next candidates
+                if (key === tokens[i]) {
+                  if (getIsOption(key)) {
+                    // Decide the next index based on whether the option takes
+                    // in a value
+                    const { takeValue, other } = obj[key];
 
-                      // Remove long/short to not suggest duplicates
-                      if (other) {
-                        obj = { ...obj };
-                        delete obj[other];
-                      }
-
-                      candidates.push(
-                        ...recursivelyGetCandidates(
-                          obj,
-                          takeValue ? i + 2 : i + 1
-                        )
-                      );
-                    } else {
-                      // Subcommand
-                      candidates.push(
-                        ...recursivelyGetCandidates(value, i + 1)
-                      );
+                    // Remove long/short to not suggest duplicates
+                    if (other) {
+                      obj = { ...obj };
+                      delete obj[other];
                     }
+
+                    candidates.push(
+                      ...recursivelyGetCandidates(
+                        obj,
+                        takeValue ? i + 2 : i + 1
+                      )
+                    );
+                  } else {
+                    // Subcommand
+                    candidates.push(...recursivelyGetCandidates(value, i + 1));
                   }
                 }
               }
-              return candidates;
-            };
-
-            return recursivelyGetCandidates(handler);
+            }
+            return candidates;
           };
-        }
 
-        return handler;
+          return recursivelyGetCandidates(handler);
+        };
       })
     );
   }
