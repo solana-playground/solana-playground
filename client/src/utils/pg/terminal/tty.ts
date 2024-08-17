@@ -486,14 +486,15 @@ export class PgTty {
           hl(match, PgTerminal.warning)
         )
 
-        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
+        // Match until ':' from the start of the line: e.g "Commands:"
         .replace(/^(.*?:)/gm, (match) => {
           if (
             /(http|{|})/.test(match) ||
             /"\w+":/.test(match) ||
             /\(\w+:/.test(match) ||
             /^\s*\|/.test(match) ||
-            /^\s?\d+/.test(match)
+            /^\s?\d+/.test(match) ||
+            /\(/.test(match)
           ) {
             return match;
           }
