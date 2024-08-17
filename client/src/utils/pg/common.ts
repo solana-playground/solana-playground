@@ -394,6 +394,22 @@ export class PgCommon {
   }
 
   /**
+   * Split the array to chunks based on the given length.
+   *
+   * @param array array to split to chunks
+   * @param len chunk length
+   * @returns the array chunks
+   */
+  static chunks<T>(array: T[], len: number) {
+    return array.reduce((acc, el, i) => {
+      const chunkIndex = Math.floor(i / len);
+      acc[chunkIndex] ??= [];
+      acc[chunkIndex].push(el);
+      return acc;
+    }, [] as T[][]);
+  }
+
+  /**
    * Access the property value from `.` seperated input.
    *
    * @param obj object to get property from
