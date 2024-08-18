@@ -508,16 +508,50 @@ export const formatList = (
       if (!allowedRegex.test(b[0])) return -1;
       return a[0].localeCompare(b[0]);
     })
-    .reduce((acc, item) => {
-      const output =
-        align === "x"
-          ? item.reduce(
-              (acc, col) =>
-                acc + col + " ".repeat(Math.max(24 - col.length, 0)),
+    .reduce((acc, items) => {
+      const output = items.reduce((acc, col, i) => {
+        const MAX_CHARS = 80;
+
+        const chunks: string[][] = [];
+        const words = col.split(" ");
+        let j = 0;
+        for (let i = 0; i < words.length; i++) {
+          while (
+            words[j] &&
+            [...(chunks[i] ?? []), words[j]].join(" ").length <= MAX_CHARS
+          ) {
+            chunks[i] ??= [];
+            chunks[i].push(words[j]);
+            j++;
+          }
+        }
+
+        if (align === "x") {
+          const WHITESPACE_LEN = 24;
+          return (
+            acc +
+            chunks.reduce(
+              (acc, row, i) =>
+                acc +
+                (i ? "\n\t" + " ".repeat(WHITESPACE_LEN) : "") +
+                row.join(" "),
               ""
-            )
-          : item.reduce((acc, col, i) => acc + (i ? "\n\t" : "") + col, "");
-      return acc + "    " + output + "\n";
+            ) +
+            " ".repeat(Math.max(WHITESPACE_LEN - col.length, 0))
+          );
+        }
+
+        return (
+          acc +
+          (i ? "\n\t" : "") +
+          chunks.reduce(
+            (acc, row, i) => acc + (i ? "\n\t" : "") + row.join(" "),
+            ""
+          )
+        );
+      }, "");
+
+      return acc + "\t" + output + "\n";
     }, "");
 };
 
