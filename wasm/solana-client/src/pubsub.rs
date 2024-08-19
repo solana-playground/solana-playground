@@ -86,7 +86,7 @@ impl WasmWebSocket {
     fn send(&self, method: &str, params: Option<Value>) {
         let mut req = ClientRequest::new(method);
         if let Some(params) = params {
-            req.params(params);
+            req = req.params(params);
         }
         self.ws
             .send_with_str(&serde_json::to_string(&req).unwrap())
