@@ -40,6 +40,7 @@ use crate::{
         ProcessResult,
     },
     utils::{
+        blockhash_query::blockhash_query_from_matches,
         checks::{check_account_for_fee_with_commitment, check_unique_pubkeys},
         memo::WithMemo,
     },
@@ -495,7 +496,7 @@ pub fn parse_vote_authorize(
 
     let sign_only = matches.is_present(SIGN_ONLY_ARG.name);
     let dump_transaction_message = matches.is_present(DUMP_TRANSACTION_MESSAGE.name);
-    let blockhash_query = BlockhashQuery::new_from_matches(matches);
+    let blockhash_query = blockhash_query_from_matches(matches);
     let nonce_account = pubkey_of(matches, NONCE_ARG.name);
     let memo = matches.value_of(MEMO_ARG.name).map(String::from);
     let (nonce_authority, nonce_authority_pubkey) =

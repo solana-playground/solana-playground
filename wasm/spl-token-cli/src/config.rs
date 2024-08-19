@@ -17,6 +17,8 @@ use solana_sdk::{
     signature::{Keypair, Signer},
 };
 
+use crate::utils::blockhash_query_from_matches;
+
 pub struct Config<'a> {
     pub(crate) rpc_client: Arc<WasmClient>,
     // pub(crate) websocket_url: String,
@@ -294,7 +296,7 @@ pub fn get_config<'a>(
     let nonce_account = None;
     let nonce_authority = None;
 
-    let blockhash_query = BlockhashQuery::new_from_matches(matches);
+    let blockhash_query = blockhash_query_from_matches(matches);
     let sign_only = matches.is_present(SIGN_ONLY_ARG.name);
     // TODO:
     // let dump_transaction_message = matches.is_present(DUMP_TRANSACTION_MESSAGE.name);

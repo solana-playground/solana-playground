@@ -1,5 +1,4 @@
 use bincode::serialize;
-use clap::ArgMatches;
 use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use solana_extra_wasm::{
     account_decoder::{UiAccount, UiAccountEncoding, UiDataSliceConfig},
@@ -13,14 +12,7 @@ use solana_sdk::{
     signature::Signature,
 };
 
-use super::{
-    clap::{
-        input_parsers::{pubkey_of, value_of},
-        nonce::NONCE_ARG,
-        offline::{BLOCKHASH_ARG, SIGN_ONLY_ARG},
-    },
-    rpc_filter::RpcFilterType,
-};
+use super::rpc_filter::RpcFilterType;
 use crate::{utils::nonce_utils, ClientError, ClientResult, WasmClient};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -102,13 +94,6 @@ impl BlockhashQuery {
             None if !sign_only => Self::All(source),
             _ => panic!("Cannot resolve blockhash"),
         }
-    }
-
-    pub fn new_from_matches(matches: &ArgMatches) -> Self {
-        let blockhash = value_of(matches, BLOCKHASH_ARG.name);
-        let sign_only = matches.is_present(SIGN_ONLY_ARG.name);
-        let nonce_account = pubkey_of(matches, NONCE_ARG.name);
-        BlockhashQuery::new(blockhash, sign_only, nonce_account)
     }
 
     pub async fn get_blockhash(
