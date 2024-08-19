@@ -218,11 +218,6 @@ export class PgTerminal {
     await PgTerminal.run({ scrollToBottom: [] });
   }
 
-  /** Dispatch run last command custom event. */
-  static async runLastCmd() {
-    await PgTerminal.run({ runLastCmd: [] });
-  }
-
   /** Execute the given command from string. */
   static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
     const term = await PgTerminal.get();
@@ -508,23 +503,6 @@ export class PgTerm {
     this._xterm.dispose();
     // @ts-ignore
     delete this._xterm;
-  }
-
-  /**
-   * Run the last command if it exists
-   *
-   * This function is useful for running wasm cli packages after initial loading
-   */
-  runLastCmd() {
-    // Last command is the current input
-    let lastCmd = this._tty.input;
-    if (!lastCmd || lastCmd === "!!") {
-      const maybeLastCmd = this._shell.history.getPrevious();
-      if (maybeLastCmd) lastCmd = maybeLastCmd;
-      else this.println("Unable to run last command.");
-    }
-
-    this.executeFromStr(lastCmd, true);
   }
 
   /**

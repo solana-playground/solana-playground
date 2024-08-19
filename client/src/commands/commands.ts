@@ -8,7 +8,6 @@ export * from "./deploy";
 export * from "./help";
 export * from "./prettier";
 export * from "./run-and-test";
-export * from "./run-last-cmd";
 export * from "./rustfmt";
 export * from "./solana";
 export * from "./spl-token";

@@ -171,7 +171,10 @@ export class PgShell {
     if (this._waitingForInput) {
       PgCommon.createAndDispatchCustomEvent(PgShell._TERMINAL_WAIT_FOR_INPUT);
     } else {
-      return await this._cmdManager.execute(parse(input));
+      const parsedInput = parse(input).flatMap((token) =>
+        token === "!!" ? parse(this._history.getPrevious() ?? "") : [token]
+      );
+      return await this._cmdManager.execute(parsedInput);
     }
   }
 
