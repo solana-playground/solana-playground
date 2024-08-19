@@ -7,17 +7,17 @@ use serde_with::serde_as;
 pub struct ClientRequest {
     id: u32,
     jsonrpc: &'static str,
-    method: &'static str,
+    method: String,
     #[serde(skip_serializing_if = "is_null")]
     params: Value,
 }
 
 impl ClientRequest {
-    pub fn new(method: &'static str) -> Self {
+    pub fn new(method: impl ToString) -> Self {
         Self {
             id: 0,
             jsonrpc: "2.0",
-            method,
+            method: method.to_string(),
             params: Value::Null,
         }
     }

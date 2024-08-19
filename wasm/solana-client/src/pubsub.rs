@@ -111,12 +111,11 @@ impl WasmWebSocket {
             if let Some(Ok(response)) = event
                 .data()
                 .as_string()
-                .map(|data| serde_json::from_str::<ClientResponse>(&data))
+                .map(|data| serde_json::from_str::<ClientResponse<SubscriptionId>>(&data))
             {
                 let id_ref = id_ref.clone();
                 spawn_local(async move {
-                    let subscription_id: SubscriptionId =
-                        serde_json::from_value(response.result).unwrap();
+                    let subscription_id: SubscriptionId = response.result;
                     let mut id = id_ref.lock().await;
                     *id = Some(subscription_id);
                 })
