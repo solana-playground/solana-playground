@@ -58,7 +58,9 @@ type ParsedInput<A, O> = {
 /** Recursively map argument types */
 type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
   ? Head extends Arg<infer N, infer V>
-    ? (Head["optional"] extends true ? { [K in N]?: V } : { [K in N]: V }) &
+    ? (Head["optional"] extends true
+        ? { [K in N]?: Head["multiple"] extends true ? V[] : V }
+        : { [K in N]: Head["multiple"] extends true ? V[] : V }) &
         ParsedArgs<Tail>
     : never
   : {};
@@ -81,6 +83,8 @@ export type Arg<N extends string = string, V extends string = string> = {
   description?: string;
   /** Whether the argument can be omitted */
   optional?: boolean;
+  /** Whether to take multiple values */
+  multiple?: boolean;
   /** Accepted values */
   values?: Getable<V[]>;
 };
@@ -410,7 +414,10 @@ ${formatList(cmd.subcommands!)}`);
 Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               );
             }
-            if (args.length > (cmd.args?.length ?? 0)) {
+            if (
+              args.length > (cmd.args?.length ?? 0) &&
+              !cmd.args?.at(-1)?.multiple
+            ) {
               throw new Error(
                 `Provided argument count is higher than expected: ${args.length}`
               );
@@ -419,30 +426,36 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
         }
 
         // Parse args
-        const parsedArgs: Record<string, string> = {};
+        const parsedArgs: Record<string, Arrayable<string>> = {};
         if (cmd.args) {
           for (const i in cmd.args) {
             const arg = cmd.args[i];
-            const inputArg = args[i];
-            if (!inputArg && !arg.optional) {
+            const inputArgs = arg.multiple
+              ? args.slice(+i)
+              : args[i]
+              ? [args[i]]
+              : [];
+            if (!inputArgs.length && !arg.optional) {
               throw new Error(`Argument not specified: \`${arg.name}\``);
             }
 
             // Validate values if specified
-            if (inputArg && arg.values) {
+            if (inputArgs.length && arg.values) {
               const values = PgCommon.callIfNeeded(arg.values);
-              const isValidValue = values.some((v) => v === inputArg);
-              if (!isValidValue) {
+              const invalidValue = inputArgs.find(
+                (inputArg) => !values.includes(inputArg)
+              );
+              if (invalidValue) {
                 throw new Error(
                   [
-                    `Incorrect argument value given: \`${inputArg}\``,
+                    `Incorrect argument value given: \`${invalidValue}\``,
                     `(possible values: ${values.join(", ")})`,
                   ].join(" ")
                 );
               }
             }
 
-            parsedArgs[arg.name] = inputArg;
+            parsedArgs[arg.name] = arg.multiple ? inputArgs : inputArgs[0];
           }
         }
 

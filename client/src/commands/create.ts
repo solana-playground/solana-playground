@@ -75,6 +75,10 @@ export const createArgs = <
     if (isOptional && !arg.optional) {
       throw new Error("Optional arguments must come after required arguments");
     }
+    if (arg.multiple && arg.name !== args.at(-1)!.name) {
+      throw new Error("A multiple value argument must be the last argument");
+    }
+
     if (arg.optional) isOptional = true;
   }
 
