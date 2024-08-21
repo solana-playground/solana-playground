@@ -15,8 +15,9 @@ import { createArgs, createCmd } from "../create";
 const createCommonArgs = (parentPath: string) =>
   createArgs([
     {
-      name: "path",
+      name: "paths",
       optional: true,
+      multiple: true,
       values: () => {
         return PgExplorer.getAllFiles()
           .map(([path]) => path)
@@ -32,28 +33,28 @@ export const run = createCmd({
   name: "run",
   description: "Run script(s)",
   args: createCommonArgs(PgExplorer.PATHS.CLIENT_DIRNAME),
-  run: (input) => processCommon({ path: input.args.path, isTest: false }),
+  run: (input) => processCommon({ paths: input.args.paths, isTest: false }),
 });
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
   args: createCommonArgs(PgExplorer.PATHS.TESTS_DIRNAME),
-  run: (input) => processCommon({ path: input.args.path, isTest: true }),
+  run: (input) => processCommon({ paths: input.args.paths, isTest: true }),
 });
 
 /**
  * Process `run` or `test` command.
  *
  * @param params -
- * - `path`: Path to run or test
+ * - `paths`: File paths to run or test
  * - `isTest`: Whether to execute as test
  */
 const processCommon = async (params: {
-  path: string | undefined;
+  paths: string[] | undefined;
   isTest: boolean;
 }) => {
-  const { path, isTest } = params;
+  const { paths, isTest } = params;
   PgTerminal.log(PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`));
 
   const { PgClient } = await PgClientImporter.import();
@@ -63,20 +64,24 @@ const processCommon = async (params: {
     : PgExplorer.PATHS.CLIENT_DIRNAME;
 
   // Run the script only at the given path
-  if (path) {
+  if (paths?.length) {
     // The path can be a file name that's expected to run inside the `client`
     // or `tests` directory based on the command that's running
-    const code =
-      PgExplorer.getFileContent(path) ??
-      PgExplorer.getFileContent(PgCommon.joinPaths(folderPath, path));
-    if (!code) throw new Error(`File '${path}' doesn't exist`);
+    for (const path of paths) {
+      const code =
+        PgExplorer.getFileContent(path) ??
+        PgExplorer.getFileContent(PgCommon.joinPaths(folderPath, path));
+      if (!code) throw new Error(`File '${path}' doesn't exist`);
 
-    const fileName = PgExplorer.getItemNameFromPath(path);
-    if (!PgExplorer.isFileJsLike(fileName)) {
-      throw new Error(`File '${fileName}' is not a script file`);
+      const fileName = PgExplorer.getItemNameFromPath(path);
+      if (!PgExplorer.isFileJsLike(fileName)) {
+        throw new Error(`File '${fileName}' is not a script file`);
+      }
+
+      await PgClient.execute({ fileName, code, isTest });
     }
 
-    return await PgClient.execute({ fileName, code, isTest });
+    return;
   }
 
   // Create default client/test if the folder is empty
