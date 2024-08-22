@@ -1,6 +1,6 @@
 import { getIsOption, hasTrailingWhitespace, parse } from "./utils";
 import { PgCommon } from "../common";
-import { Getable } from "../types";
+import type { Getable } from "../types";
 
 /** Autocomplete handler input type */
 type AutocompleteHandler =
@@ -188,11 +188,13 @@ export class PgAutocomplete {
 
                 if (+key === index - i) {
                   const token = tokens[index];
-                  const args: string[] = PgCommon.callIfNeeded(value);
+                  const args: string[] = PgCommon.callIfNeeded(value.values);
                   const filteredArgs = args.filter(
                     (arg) => !token || arg.startsWith(token)
                   );
                   candidates.push(...filteredArgs);
+                } else if (value.multiple) {
+                  candidates.push(...recursivelyGetCandidates(obj, i + 1));
                 } else {
                   // Options are also valid after arguments
                   const opts = Object.entries(obj).reduce(
@@ -232,7 +234,7 @@ export class PgAutocomplete {
                   if (getIsOption(key)) {
                     // Decide the next index based on whether the option takes
                     // in a value
-                    const { takeValue, other } = obj[key];
+                    const { takeValue, other } = value;
 
                     // Remove long/short to not suggest duplicates
                     if (other) {

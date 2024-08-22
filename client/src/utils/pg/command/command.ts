@@ -235,7 +235,9 @@ export class PgCommandManager {
         }
         if (cmd.args) {
           for (const [i, arg] of Object.entries(cmd.args)) {
-            if (arg.values) completion[i] = arg.values;
+            if (arg.values) {
+              completion[i] = { values: arg.values, multiple: arg.multiple };
+            }
           }
         }
         if (cmd.options) {
