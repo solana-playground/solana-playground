@@ -402,12 +402,17 @@ export class PgExplorer {
       // The reason we are not just getting the necessary files and re-calling this
       // function with { files } is because we would lose the tab info. Instead we
       // are creating a valid workspace state and writing it to `indexedDB`.
-      this._isTemporary = false;
 
       // Init workspace
       await this._initWorkspaces();
       // Create a new workspace in state
       this._workspace!.new(name);
+
+      // It's important to set `_isTemporary` after the workspace is created,
+      // otherwise there is a chance the creation fails, and the state ends up
+      // being invalid.
+      // See https://github.com/solana-playground/solana-playground/issues/275
+      this._isTemporary = false;
 
       // Change state paths(temporary projects start with /src)
       const getFullPath = (path: string) => {
