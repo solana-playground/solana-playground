@@ -46,6 +46,7 @@ const Terminal = () => {
       fontSize: 14,
       cursorBlink: xterm.cursor.blink,
       cursorStyle: xterm.cursor.kind,
+      tabStopWidth: 4,
       theme: {
         foreground: xterm.textPrimary,
         brightBlack: xterm.textSecondary,
