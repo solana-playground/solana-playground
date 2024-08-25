@@ -91,7 +91,11 @@ export const createArgs = <
  * @param opts option to create
  * @returns the options with their inferred types
  */
-export const createOptions = <N extends string, O extends Option<N>[]>(
+export const createOptions = <
+  N extends string,
+  V extends string,
+  O extends Option<N, V>[]
+>(
   opts: [...O]
 ) => {
   const createShort = (opt: O[number]) => {

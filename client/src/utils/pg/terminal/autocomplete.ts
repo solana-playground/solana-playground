@@ -186,13 +186,13 @@ export class PgAutocomplete {
                 // Skip options
                 if (tokens[i] && getIsOption(tokens[i])) continue;
 
-                if (+key === index - i) {
+                if (index - i === +key && value.values) {
                   const token = tokens[index];
-                  const args: string[] = PgCommon.callIfNeeded(value.values);
-                  const filteredArgs = args.filter(
-                    (arg) => !token || arg.startsWith(token)
+                  const values: string[] = PgCommon.callIfNeeded(value.values);
+                  const filteredValues = values.filter(
+                    (v) => !token || v.startsWith(token)
                   );
-                  candidates.push(...filteredArgs);
+                  candidates.push(...filteredValues);
                 } else if (value.multiple) {
                   candidates.push(...recursivelyGetCandidates(obj, i + 1));
                 } else {
@@ -232,20 +232,29 @@ export class PgAutocomplete {
                 // Next candidates
                 if (key === tokens[i]) {
                   if (getIsOption(key)) {
-                    // Decide the next index based on whether the option takes
-                    // in a value
-                    const { takeValue, other } = value;
-
                     // Remove long/short to not suggest duplicates
-                    if (other) {
+                    if (value.other) {
                       obj = { ...obj };
-                      delete obj[other];
+                      delete obj[value.other];
+                    }
+
+                    if (index - i === 1 && value.values) {
+                      const token = tokens[index];
+                      const values: string[] = PgCommon.callIfNeeded(
+                        value.values
+                      );
+                      const filteredValues = values.filter(
+                        (v) => !token || v.startsWith(token)
+                      );
+                      candidates.push(...filteredValues);
                     }
 
                     candidates.push(
                       ...recursivelyGetCandidates(
                         obj,
-                        takeValue ? i + 2 : i + 1
+                        // Decide the next index based on whether the option
+                        // takes in a value
+                        value.takeValue ? i + 2 : i + 1
                       )
                     );
                   } else {

@@ -90,7 +90,7 @@ export type Arg<N extends string = string, V extends string = string> = {
 };
 
 /** Command option */
-export type Option<N extends string = string> = {
+export type Option<N extends string = string, V extends string = string> = {
   /** Name of the option */
   name: N;
   /** Description of the option */
@@ -99,6 +99,8 @@ export type Option<N extends string = string> = {
   short?: boolean | string;
   /** Whether to take value for the option */
   takeValue?: boolean;
+  /** Accepted values */
+  values?: Getable<V[]>;
 };
 
 /** Terminal command inferred implementation */
@@ -218,7 +220,7 @@ export class PgCommandManager {
    * @returns the command completions
    */
   static getCompletions() {
-    type CompletionArg = Getable<string[]>;
+    type CompletionArg = { values?: Getable<string[]>; multiple?: boolean };
     type CompletionOption = { takeValue?: boolean; other?: string };
     interface Completions {
       [key: string]: Completions | CompletionArg | CompletionOption;
@@ -235,15 +237,13 @@ export class PgCommandManager {
         }
         if (cmd.args) {
           for (const [i, arg] of Object.entries(cmd.args)) {
-            if (arg.values) {
-              completion[i] = { values: arg.values, multiple: arg.multiple };
-            }
+            completion[i] = { values: arg.values, multiple: arg.multiple };
           }
         }
         if (cmd.options) {
           for (const opt of cmd.options) {
             const long = `--${opt.name}`;
-            completion[long] = { takeValue: opt.takeValue };
+            completion[long] = { takeValue: opt.takeValue, values: opt.values };
 
             if (opt.short) {
               const short = `-${opt.short}`;
@@ -474,6 +474,19 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               const val = opts.at(i + 1);
               if (!val) {
                 throw new Error(`Option value not given: \`${opt.name}\``);
+              }
+
+              // Validate values if specified
+              if (opt.values) {
+                const values = PgCommon.callIfNeeded(opt.values);
+                if (!values.includes(val)) {
+                  throw new Error(
+                    [
+                      `Incorrect option value given: \`${val}\``,
+                      `(possible values: ${values.join(", ")})`,
+                    ].join(" ")
+                  );
+                }
               }
 
               parsedOpts[opt.name] = val;
