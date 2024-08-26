@@ -399,7 +399,7 @@ ${formatList(cmd.subcommands!)}`);
                 if (!opt) throw new Error(`Unexpected option: \`${argOrOpt}\``);
 
                 opts.push(argOrOpt);
-                if (opt.takeValue) takeValue = true;
+                if (opt.takeValue || opt.values) takeValue = true;
               } else if (cmd.args) {
                 args.push(argOrOpt);
               }
@@ -470,7 +470,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
             );
             if (i === -1) continue;
 
-            if (opt.takeValue) {
+            if (opt.takeValue || opt.values) {
               const val = opts.at(i + 1);
               if (!val) {
                 throw new Error(`Option value not given: \`${opt.name}\``);
