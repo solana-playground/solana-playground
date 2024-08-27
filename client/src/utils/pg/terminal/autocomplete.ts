@@ -254,7 +254,7 @@ export class PgAutocomplete {
                         obj,
                         // Decide the next index based on whether the option
                         // takes in a value
-                        value.takeValue ?? value.values ? i + 2 : i + 1
+                        value.takeValue ? i + 2 : i + 1
                       )
                     );
                   } else {

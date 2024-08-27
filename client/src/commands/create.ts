@@ -120,5 +120,8 @@ export const createOptions = <
     opt.short = short;
   }
 
+  // If `values` field is specified, it implies `takeValue`
+  for (const opt of opts) opt.takeValue ??= !!opt.values;
+
   return opts;
 };
