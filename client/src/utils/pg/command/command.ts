@@ -67,9 +67,11 @@ type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
 
 /** Recursively map option types */
 type ParsedOptions<O> = O extends [infer Head, ...infer Tail]
-  ? Head extends Option<infer N>
+  ? Head extends Option<infer N, infer V>
     ? (Head["takeValue"] extends true
-        ? { [K in N]?: string }
+        ? { [K in N]?: V }
+        : Head["values"] extends Getable<V[]>
+        ? { [K in N]?: V }
         : { [K in N]?: boolean }) &
         ParsedOptions<Tail>
     : never
