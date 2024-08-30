@@ -2,7 +2,6 @@ import "styled-components";
 
 import { COMMANDS } from "../commands";
 import { FRAMEWORKS } from "../frameworks";
-import { Framework } from "../frameworks/create";
 import { ROUTES } from "../routes";
 import { SIDEBAR } from "../views";
 import {
@@ -37,11 +36,6 @@ global {
 
   /** Map of kebab-case tutorial names to thumbnail file names */
   const TUTORIAL_THUMBNAIL_MAP: { [tutorialName: string]: string };
-}
-
-// Framework
-global {
-  export { Framework } from "../frameworks/create";
 }
 
 // Framework name
