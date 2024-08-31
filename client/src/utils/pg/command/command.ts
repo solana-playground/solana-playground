@@ -349,12 +349,17 @@ ${formatList(cmd.subcommands!)}`);
               );
             }
             if (cmd.args) {
+              const toArgStr = (arg: Arg) => {
+                const name = arg.name.toUpperCase();
+                return arg.multiple ? `[${name}]` : `<${name}>`;
+              };
+
               const usageArgs = cmd.args.reduce(
-                (acc, arg) => acc + `<${arg.name.toUpperCase()}> `,
+                (acc, arg) => acc + toArgStr(arg) + " ",
                 ""
               );
               const argList = cmd.args.map((arg) => [
-                `<${arg.name.toUpperCase()}>`,
+                toArgStr(arg),
                 (arg.description ?? "") +
                   (arg.values
                     ? ` (possible values: ${PgCommon.callIfNeeded(
