@@ -634,7 +634,7 @@ export class PgTheme {
 
     // Backdrop
     def.backdrop ??= {};
-    def.backdrop.bg ??= "#00000080";
+    def.backdrop.bg ??= this._theme.isDark ? "#00000080" : "#00000040";
 
     // Border radius
     def.borderRadius ??= "4px";
