@@ -33,5 +33,5 @@ export const getAnchorProgram = (params?: {
     wallet,
     AnchorProvider.defaultOptions()
   );
-  return new Program(idl, programId, provider);
+  return new Program(idl, provider);
 };

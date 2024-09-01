@@ -166,7 +166,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                   <InstructionInput
                     key={acc.name + refreshCount}
                     prefix="accounts"
-                    type="publicKey"
+                    type="pubkey"
                     updateInstruction={({
                       updateGenerator,
                       updateRefs,

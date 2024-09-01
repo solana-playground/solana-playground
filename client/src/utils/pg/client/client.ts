@@ -217,6 +217,7 @@ export class PgClient {
         );
       };
     };
+
     const iframeConsole = {
       log: log(),
       info: log(PgTerminal.info),
@@ -449,7 +450,7 @@ export class PgClient {
 
       // Add `anchor.workspace`
       if (PgProgramInfo.idl) {
-        const snakeCaseName = PgProgramInfo.idl.name;
+        const snakeCaseName = PgProgramInfo.idl.metadata.name;
         const names = [
           PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
           PgCommon.toCamelFromSnake(snakeCaseName),
@@ -464,8 +465,8 @@ export class PgClient {
             get: () => {
               let program = this._getPg().program;
               if (program) {
-                const { idl, programId } = program;
-                program = new anchor.Program(idl, programId, pkg.getProvider());
+                const { idl } = program;
+                program = new anchor.Program(idl, pkg.getProvider());
               }
               return program;
             },

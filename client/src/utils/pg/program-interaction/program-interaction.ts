@@ -57,7 +57,7 @@ export class PgProgramInteraction {
       return acc;
     }, {} as Record<string, string>);
 
-    const signerAccounts = ix.values.accounts.filter((acc) => acc.isSigner);
+    const signerAccounts = ix.values.accounts.filter((acc) => acc.signer);
     const keypairSigners = signerAccounts
       .map((acc) => {
         if (acc.generator.type !== "Random") return null;

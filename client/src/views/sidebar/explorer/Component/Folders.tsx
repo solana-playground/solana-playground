@@ -6,6 +6,7 @@ import {
   MouseEvent,
   ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -26,7 +27,12 @@ import {
   Wrench,
 } from "../../../../components/Icons";
 import { ClassName, Id, ItemError } from "../../../../constants";
-import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
+import {
+  PgCommon,
+  PgExplorer,
+  PgView,
+  PgFramework,
+} from "../../../../utils/pg";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";
 import { useNewItem } from "./useNewItem";
@@ -54,8 +60,23 @@ const Folders = () => {
     (f) =>
       f !== PgExplorer.PATHS.SRC_DIRNAME &&
       f !== PgExplorer.PATHS.CLIENT_DIRNAME &&
-      f !== PgExplorer.PATHS.TESTS_DIRNAME
+      f !== PgExplorer.PATHS.TESTS_DIRNAME &&
+      f !== PgExplorer.PATHS.IDLS_DIRNAME
   );
+
+  // Check if framework is Anchor to display IDLs button
+  const [isAnchor, setIsAnchor] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      const framework = await PgFramework.getFromFiles();
+      if (framework?.name === "Anchor") {
+        setIsAnchor(true);
+      } else {
+        setIsAnchor(false);
+      }
+    };
+    fetchData();
+  }, [relativeRootPath]);
 
   return (
     <>
@@ -89,10 +110,18 @@ const Folders = () => {
                   Add
                 </SectionButton>
               )}
+
+              {!folders.includes(PgExplorer.PATHS.IDLS_DIRNAME) && isAnchor && (
+                <SectionButton onClick={ctxMenu.addIdls} icon={<Plus />}>
+                  IDLs
+                </SectionButton>
+              )}
             </SectionTopWrapper>
             <FolderGroup
               folders={folders.filter(
-                (f) => f === PgExplorer.PATHS.SRC_DIRNAME
+                (f) =>
+                  f === PgExplorer.PATHS.SRC_DIRNAME ||
+                  f === PgExplorer.PATHS.IDLS_DIRNAME
               )}
               relativeRootPath={relativeRootPath}
             />
@@ -129,6 +158,7 @@ const Folders = () => {
                 </SectionButton>
               )}
             </SectionTopWrapper>
+
             <FolderGroup
               folders={folders.filter(
                 (f) =>
