@@ -554,11 +554,9 @@ pub async fn process_airdrop(
         PgTerminal::log_wasm(
             &format!(
                 "In case of rate limit, try the web faucet: \
-                https://faucet.solana.com/?\
-                walletAddress={:?}&amount=5 \
+                https://faucet.solana.com/?walletAddress={:?}&amount=5 \
                 or this guide: \
-                https://solana.com/developers/guides/\
-                getstarted/solana-token-airdrop-and-faucets",
+                https://solana.com/developers/guides/getstarted/solana-token-airdrop-and-faucets",
                 &pubkey
             )
         );
