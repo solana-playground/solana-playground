@@ -125,7 +125,7 @@ class _PgTutorial {
    */
   static async getMetadata(name: string) {
     return await PgExplorer.fs.readToJSON<TutorialMetadata>(
-      PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, storage.PATH])
+      PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, name, storage.PATH)
     );
   }
 

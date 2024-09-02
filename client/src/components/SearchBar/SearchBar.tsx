@@ -40,13 +40,15 @@ type Item = string | (CommonItemProps & (NestableItem | DropdownableItem));
 
 type CommonItemProps = {
   label: string;
-  matches?: string[];
+  matches?: Array<string | RegExp> | ((value: string) => boolean);
+  onlyShowIfValid?: boolean;
+  closeButton?: boolean;
   element?: ReactNode;
   onSelect?: (item: Item) => void;
 };
 
 type NestableItem = {
-  value?: Getable<string> | { current: true };
+  value?: string | ((value: string) => string) | { current: true };
   data?: any;
   items?: Getable<Item[]> | (() => Promise<Item[]>) | null;
   DropdownComponent?: never;
@@ -93,6 +95,16 @@ const SearchBar: FC<SearchBarProps> = ({
 
     if (opts?.focus) input.focus();
   };
+  const getItemValue = (item: NormalizedItem) => {
+    const currentValue = inputRef.current?.value ?? props.value;
+    return item.value !== undefined
+      ? typeof item.value === "string"
+        ? item.value
+        : typeof item.value === "function"
+        ? item.value(currentValue)
+        : currentValue
+      : item.label;
+  };
 
   const [isVisible, setIsVisible] = useState(showSearchOnMount);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -106,7 +118,6 @@ const SearchBar: FC<SearchBarProps> = ({
     // Reset the input to its last saved value
     if (restoreIfNotSelected) setInputValue(lastValue.current);
   };
-  useOnClickOutside(wrapperRef, reset, isVisible);
   useKeybind("Escape", () => {
     if (document.activeElement === inputRef.current) reset();
   });
@@ -114,6 +125,7 @@ const SearchBar: FC<SearchBarProps> = ({
   const [itemState, setItemState] = useState<{
     items: typeof items;
     isInSubSearch: boolean;
+    closeButton?: boolean;
     Component?: (props: DropdownProps) => JSX.Element;
   }>({
     items,
@@ -158,11 +170,24 @@ const SearchBar: FC<SearchBarProps> = ({
           })
         )
       : normalizedItems.filter((item) => {
+          if (item.onlyShowIfValid) {
+            return props.validator?.(getItemValue(item));
+          }
+
+          // Show all optinos if the input is valid
+          if (props.validator?.(props.value)) return true;
+
+          if (typeof item.matches === "function") {
+            return item.matches(props.value);
+          }
+
           const matches = item.matches ?? [item.label];
           const lowerCaseValue = props.value.toLowerCase();
-          return matches.some((item) =>
-            item.toLowerCase().includes(lowerCaseValue)
-          );
+          return matches.some((match) => {
+            return typeof match === "string"
+              ? match.toLowerCase().includes(lowerCaseValue)
+              : match.test(lowerCaseValue);
+          });
         })
     : null;
 
@@ -179,6 +204,7 @@ const SearchBar: FC<SearchBarProps> = ({
         setItemState({
           items: await PgCommon.callIfNeeded(item.items),
           isInSubSearch: true,
+          closeButton: item.closeButton,
         });
         isInSubSearch = true;
       } catch (e: any) {
@@ -193,21 +219,12 @@ const SearchBar: FC<SearchBarProps> = ({
       setItemState({
         items: null,
         isInSubSearch: true,
+        closeButton: item.closeButton,
         Component: item.DropdownComponent,
       });
-
       isInSubSearch = true;
     } else {
-      setInputValue(
-        item.value !== undefined
-          ? typeof item.value === "string"
-            ? item.value
-            : typeof item.value === "function"
-            ? item.value()
-            : inputRef.current!.value
-          : item.label
-      );
-
+      setInputValue(getItemValue(item));
       isCompleted = true;
     }
 
@@ -234,8 +251,11 @@ const SearchBar: FC<SearchBarProps> = ({
       if (selectedItem) searchCommon(selectedItem);
     } else setIsVisible(true);
   };
-  useKeybind("Enter", () => {
-    if (document.activeElement === inputRef.current) searchTopResult();
+  useKeybind("Enter", {
+    handle: () => {
+      if (document.activeElement === inputRef.current) searchTopResult();
+    },
+    opts: { noPreventDefault: true },
   });
 
   // Keyboard navigation
@@ -300,6 +320,9 @@ const SearchBar: FC<SearchBarProps> = ({
     [filteredItems?.length]
   );
 
+  // Close on outside click
+  useOnClickOutside(wrapperRef, reset, isVisible && !itemState.closeButton);
+
   return (
     <Wrapper ref={wrapperRef}>
       <SearchInputWrapper width={searchButtonWidth}>
@@ -339,7 +362,7 @@ const SearchBar: FC<SearchBarProps> = ({
         />
 
         {props.value && (
-          <CloseButton
+          <InputCloseButton
             kind="no-border"
             onClick={() => {
               setInputValue("", { focus: true });
@@ -349,7 +372,7 @@ const SearchBar: FC<SearchBarProps> = ({
             position={searchButtonPosition}
           >
             <Close />
-          </CloseButton>
+          </InputCloseButton>
         )}
 
         <SearchButton
@@ -377,6 +400,12 @@ const SearchBar: FC<SearchBarProps> = ({
                   >
                     <PointedArrow rotate="180deg" />
                   </GoBackButton>
+
+                  {itemState.closeButton && (
+                    <SubSearchCloseButton kind="icon" onClick={reset}>
+                      <Close />
+                    </SubSearchCloseButton>
+                  )}
                 </SubSearchTopWrapper>
               )}
 
@@ -424,16 +453,16 @@ const SearchInputWrapper = styled.div<SearchButtonPositionWidth>`
 `;
 
 const SearchInput = styled(Input)<SearchButtonPosition>`
-  padding: 0.5rem;
-  ${({ position }) => {
-    return position === "left"
+  ${({ theme, position }) => css`
+    padding: ${theme.components.input.padding};
+    ${position === "left"
       ? `padding-left: var(--search-button-width);
     padding-right: var(--search-button-width);`
-      : `padding-right: calc(2 * var(--search-button-width))`;
-  }}
+      : `padding-right: calc(2 * var(--search-button-width))`}
+  `}
 `;
 
-const CloseButton = styled(Button)<SearchButtonPosition>`
+const InputCloseButton = styled(Button)<SearchButtonPosition>`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -482,6 +511,9 @@ const SubSearchTopWrapper = styled.div`
     position: sticky;
     top: -0.5rem;
     padding: 0.25rem 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: ${theme.components.input.bg};
   `}
 `;
@@ -492,6 +524,8 @@ const GoBackButton = styled(Button)`
     height: 1.25rem;
   }
 `;
+
+const SubSearchCloseButton = styled(Button)``;
 
 const DropdownItem = styled.div<{
   isSelected: boolean;

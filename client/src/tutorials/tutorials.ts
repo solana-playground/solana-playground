@@ -109,7 +109,7 @@ export const TUTORIALS = createTutorials(
 
   {
     name: "Lumberjack",
-    description: "How to build and energy system on chain.",
+    description: "How to build an energy system on chain.",
     authors: [
       {
         name: "Jonas Hahn",
@@ -163,6 +163,22 @@ export const TUTORIALS = createTutorials(
   },
 
   {
+    name: "Spl Token Vault",
+    description:
+      "Learn how to create and SPL token with meta data and icon using metaplex sdk and saving it in an anchor program.",
+    authors: [
+      {
+        name: "Jonas Hahn",
+        link: "https://twitter.com/solplay_jonas",
+      },
+    ],
+    framework: "Anchor",
+    level: "Intermediate",
+    languages: ["Rust", "TypeScript"],
+    categories: ["SPL", "Token"],
+  },
+
+  {
     name: "Expense Tracker",
     description:
       "Learn how to create an expense tracker app and understand PDAs",
@@ -190,5 +206,50 @@ export const TUTORIALS = createTutorials(
     level: "Intermediate",
     framework: "Anchor",
     languages: ["Rust", "TypeScript"],
+  },
+
+  {
+    name: "Tictactoe Seahorse",
+    description:
+      "Create your own 2 player on-chain classic game of tic-tac-toe.",
+    authors: [
+      {
+        name: "lostin",
+        link: "https://twitter.com/__lostin__",
+      },
+    ],
+    level: "Beginner",
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+    categories: ["Gaming"],
+  },
+
+  {
+    name: "Todo App Seahorse",
+    description: "Build a todo app to keep track of tasks.",
+    authors: [
+      {
+        name: "lostin",
+        link: "https://twitter.com/__lostin__",
+      },
+    ],
+    level: "Beginner",
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+  },
+
+  {
+    name: "Faucet Seahorse",
+    description: "Build a token faucet with a price oracle.",
+    authors: [
+      {
+        name: "lostin",
+        link: "https://twitter.com/__lostin__",
+      },
+    ],
+    level: "Intermediate",
+    framework: "Seahorse",
+    languages: ["Python", "TypeScript"],
+    categories: ["SPL", "Token"],
   }
 );

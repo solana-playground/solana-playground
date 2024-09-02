@@ -181,9 +181,20 @@ export class PgClient {
     const iframeWindow = iframeEl.contentWindow;
     if (!iframeWindow) throw new Error("No iframe window");
 
+    // Non runtime errors e.g. syntax
     iframeWindow.addEventListener("error", (ev) => {
       PgTerminal.log(`    ${ev.message}`);
+
+      // This kind of error requires custom event dispatch to indicate the
+      // client has finished running, otherwise client will stay in the running
+      // state indefinitely.
       PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
+    });
+
+    // Promise/async errors
+    iframeWindow.addEventListener("unhandledrejection", (ev) => {
+      PgTerminal.log(`    ${`Uncaught error: ${ev.reason.message}`}`);
+      // Does not require custom event dispatch to indicate running has finished
     });
 
     this._IframeWindow = iframeWindow;

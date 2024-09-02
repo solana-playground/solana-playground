@@ -62,7 +62,7 @@ export class PgView {
    * @param props component props
    * @returns the data from `close` method of the modal
    */
-  static async setModal<R, P>(
+  static async setModal<R, P extends Record<string, any> = {}>(
     Component: ReactNode | FC<P>,
     props?: P
   ): Promise<R | null> {
@@ -104,6 +104,15 @@ export class PgView {
       Component,
       props,
     });
+  }
+
+  /**
+   * Close either the given toast or, all toasts if `id` is not given.
+   *
+   * @param id toast id
+   */
+  static closeToast(id?: number) {
+    return PgCommon.createAndDispatchCustomEvent(EventName.TOAST_CLOSE, id);
   }
 
   /**

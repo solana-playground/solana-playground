@@ -14,6 +14,8 @@ interface Settings {
     commitment: "processed" | "confirmed" | "finalized";
     /** Whether to enable preflight checks */
     preflightChecks: boolean;
+    /** Priority fee calculcation method, or `number` for custom */
+    priorityFee: "average" | "median" | "min" | "max" | number;
   };
   /** Build settings */
   // TODO: Re-evalute whether build settings should be stored in `PgProgramInfo`
@@ -40,6 +42,16 @@ interface Settings {
     /** Whether to show transaction toast notification */
     showTx: boolean;
   };
+  /** Other settings */
+  other: {
+    /** Default block explorer */
+    blockExplorer: "Solana Explorer" | "Solscan" | "Solana FM";
+  };
+  /** Wallet settings */
+  wallet: {
+    /** Whether to airdrop automatically */
+    automaticAirdrop: boolean;
+  };
 }
 
 const defaultState: Settings = {
@@ -47,6 +59,7 @@ const defaultState: Settings = {
     endpoint: Endpoint.DEVNET,
     commitment: "confirmed",
     preflightChecks: true,
+    priorityFee: "median",
   },
   build: {
     flags: {
@@ -61,6 +74,12 @@ const defaultState: Settings = {
   },
   notification: {
     showTx: true,
+  },
+  other: {
+    blockExplorer: "Solana Explorer",
+  },
+  wallet: {
+    automaticAirdrop: true,
   },
 };
 

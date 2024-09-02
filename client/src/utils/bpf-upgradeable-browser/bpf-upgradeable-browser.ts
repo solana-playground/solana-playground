@@ -390,7 +390,10 @@ export class BpfLoaderUpgradeable {
   static BUFFER_PROGRAM_DATA_HEADER_SIZE: number = 45; // usize + Option<Pk>
 
   /** Maximal chunk of the data per tx */
-  static WRITE_CHUNK_SIZE: number = PACKET_DATA_SIZE - 220; // Data with 1 signature
+  static WRITE_CHUNK_SIZE: number =
+    PACKET_DATA_SIZE - // Maximum transaction size
+    220 - // Data with 1 signature
+    44; // Priority fee instruction size
 
   /** Get buffer account size. */
   static getBufferAccountSize(programLen: number) {
@@ -515,11 +518,15 @@ export class BpfLoaderUpgradeable {
       // Wait for last transaction to confirm
       await PgCommon.sleep(500);
 
-      const bufferAccount = await PgCommon.tryUntilSuccess(
-        () => connection.getAccountInfo(bufferPk),
-        5000
-      );
-      const onChainProgramData = bufferAccount!.data.slice(
+      // Even though we only get to this function after buffer account creation
+      // gets confirmed, the RPC can still return `null` here if it's behind.
+      const bufferAccount = await PgCommon.tryUntilSuccess(async () => {
+        const acc = await connection.getAccountInfo(bufferPk);
+        if (!acc) throw new Error();
+        return acc;
+      }, 2000);
+
+      const onChainProgramData = bufferAccount.data.slice(
         BpfLoaderUpgradeable.BUFFER_HEADER_SIZE,
         BpfLoaderUpgradeable.BUFFER_HEADER_SIZE + programData.length
       );
@@ -560,8 +567,8 @@ export class BpfLoaderUpgradeable {
 
   /** Create a program account from initialized buffer. */
   static async deployProgram(
-    bufferPk: PublicKey,
     program: Signer,
+    bufferPk: PublicKey,
     programLamports: number,
     maxDataLen: number,
     opts?: WalletOption
@@ -589,8 +596,8 @@ export class BpfLoaderUpgradeable {
     );
 
     return await PgTx.send(tx, {
-      keypairSigners: [program],
       wallet,
+      keypairSigners: [program],
     });
   }
 
@@ -618,7 +625,6 @@ export class BpfLoaderUpgradeable {
   static async upgradeProgram(
     programPk: PublicKey,
     bufferPk: PublicKey,
-    spillPk: PublicKey,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
@@ -628,8 +634,8 @@ export class BpfLoaderUpgradeable {
       await BpfLoaderUpgradeableProgram.upgrade({
         programPk,
         bufferPk,
-        spillPk,
         authorityPk: wallet.publicKey,
+        spillPk: wallet.publicKey,
       })
     );
 

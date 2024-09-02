@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { HelpTooltip } from "../../../../../components/Tooltip";
 import { SETTINGS, Setting as SettingType } from "../../../../../settings";
+import { PgTheme } from "../../../../../utils/pg";
 
 const Settings = () => (
   <Wrapper>
@@ -18,10 +19,13 @@ const Wrapper = styled.div`
       ${theme.components.sidebar.left.default.width} +
         ${theme.components.sidebar.right.default.initialWidth}
     );
+    max-height: clamp(20rem, 40rem, 80vh);
     background: ${theme.components.tooltip.bg};
     border: 1px solid ${theme.colors.default.border};
     border-radius: ${theme.default.borderRadius};
     box-shadow: ${theme.default.boxShadow};
+    overflow: auto;
+    ${PgTheme.getScrollbarCSS({ width: "0.25rem" })};
   `}
 `;
 
@@ -63,6 +67,8 @@ const SettingWrapper = styled.div<Pick<SettingType, "isCheckBox">>`
 
 const Left = styled.div`
   display: flex;
+  color: ${({ theme }) => theme.colors.default.textSecondary};
+  font-weight: bold;
 
   & > :nth-child(2) {
     margin-left: 0.5rem;

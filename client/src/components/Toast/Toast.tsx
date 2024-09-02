@@ -4,19 +4,25 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
 import { EventName } from "../../constants";
-import { PgTheme } from "../../utils/pg";
+import { PgCommon, PgTheme } from "../../utils/pg";
 import { useSetStatic } from "../../hooks";
+
+export interface ToastChildProps {
+  id: number;
+}
 
 const Toast = () => {
   const setToast = useCallback(({ Component, props }) => {
+    const id = PgCommon.generateRandomInt(0, 2 ** 12);
     if (typeof Component === "function") {
-      Component = <Component {...props?.componentProps} />;
+      Component = <Component {...props?.componentProps} id={id} />;
     }
 
-    toast(Component, props?.options);
+    toast(Component, { ...props?.options, toastId: id });
   }, []);
 
   useSetStatic(setToast, EventName.TOAST_SET);
+  useSetStatic(toast.dismiss, EventName.TOAST_CLOSE);
 
   return (
     <StyledContainer
@@ -30,7 +36,6 @@ const StyledContainer = styled(ToastContainer)`
   ${({ theme }) => css`
     &&&.Toastify__toast-container {
       left: ${theme.components.sidebar.left.default.width};
-      z-index: 2;
     }
 
     .Toastify__toast {

@@ -7,7 +7,7 @@ import Link from "../Link";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
 import { PgCommon, PgTheme, PgWallet } from "../../utils/pg";
-import { useConnection } from "../../hooks";
+import { useBlockExplorer, useConnection } from "../../hooks";
 
 const Transactions = () => {
   const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
@@ -72,9 +72,7 @@ const Transactions = () => {
 
         <SpinnerWithBg loading={loading}>
           {signatures?.length ? (
-            signatures.map((info, i) => (
-              <Tx key={i} {...info} endpoint={connection.rpcEndpoint} />
-            ))
+            signatures.map((info, i) => <Tx key={i} {...info} />)
           ) : (
             <NoTransaction>
               {!loading &&
@@ -157,12 +155,11 @@ const NoTransaction = styled.div`
   }
 `;
 
-const Tx: FC<ConfirmedSignatureInfo & { endpoint: string }> = ({
+const Tx: FC<ConfirmedSignatureInfo> = ({
   signature,
   slot,
   err,
   blockTime,
-  endpoint,
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -172,14 +169,15 @@ const Tx: FC<ConfirmedSignatureInfo & { endpoint: string }> = ({
   const now = new Date().getTime() / 1000;
   const timePassed = blockTime ? PgCommon.secondsToTime(now - blockTime) : null;
 
-  const { explorer, solscan } = PgCommon.getExplorerTxUrls(signature, endpoint);
+  const blockExplorer = useBlockExplorer();
 
   return (
     <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>
       {hover ? (
         <HoverWrapper>
-          <Link href={explorer}>Solana Explorer</Link>
-          {solscan && <Link href={solscan}>Solscan</Link>}
+          <Link href={blockExplorer.getTxUrl(signature)}>
+            {blockExplorer.name}
+          </Link>
         </HoverWrapper>
       ) : (
         <>
@@ -199,6 +197,10 @@ const TxWrapper = styled.div`
   ${({ theme }) => css`
     &:not(:last-child) {
       border-bottom: 1px solid ${theme.colors.default.border};
+    }
+
+    & > div {
+      height: 1rem;
     }
 
     ${PgTheme.convertToCSS(

@@ -112,7 +112,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
               <MenuItem key={i} {...item} hide={hide} />
             ))}
           </MenuWrapperWithPosition>,
-          document.getElementById(Id.PORTAL)!
+          document.getElementById(Id.PORTAL_ABOVE)!
         )}
     </Wrapper>
   );

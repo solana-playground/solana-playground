@@ -20,10 +20,10 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
       const itemPathToSelect =
         PgExplorer.currentFilePath ??
         PgCommon.appendSlash(
-          PgCommon.joinPaths([
+          PgCommon.joinPaths(
             PgExplorer.getProjectRootPath(),
-            PgExplorer.PATHS.SRC_DIRNAME,
-          ])
+            PgExplorer.PATHS.SRC_DIRNAME
+          )
         );
       const itemToSelect = PgExplorer.getElFromPath(itemPathToSelect);
       if (itemToSelect) PgExplorer.setSelectedEl(itemToSelect);

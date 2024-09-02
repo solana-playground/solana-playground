@@ -32,7 +32,7 @@ const Left: FC<LeftProps> = ({
   setWidth,
   oldWidth,
 }) => {
-  useActiveTab(sidebarPage, oldSidebarRef, width);
+  useActiveTab({ sidebarPage, oldSidebarRef, width });
 
   const handleSidebarChange = (value: SidebarPageName) => {
     setSidebarPage((state) => {
@@ -63,7 +63,7 @@ const Left: FC<LeftProps> = ({
             <SidebarButton tooltipEl="GitHub" src="/icons/sidebar/github.png" />
           </Link>
 
-          <Popover popEl={<Settings />}>
+          <Popover popEl={<Settings />} stackingContext="below-modal">
             <SidebarButton
               tooltipEl="Settings"
               src="/icons/sidebar/settings.webp"
@@ -75,23 +75,23 @@ const Left: FC<LeftProps> = ({
   );
 };
 
-const useActiveTab = <P extends SidebarPageName>(
-  currentPage: P,
-  oldPageRef: MutableRefObject<P>,
-  width: number
-) => {
+const useActiveTab = <P extends SidebarPageName>({
+  sidebarPage,
+  oldSidebarRef,
+  width,
+}: Pick<LeftProps<P>, "sidebarPage" | "oldSidebarRef" | "width">) => {
   const theme = useTheme();
 
   useEffect(() => {
-    const oldEl = document.getElementById(getId(oldPageRef.current));
+    const oldEl = document.getElementById(getId(oldSidebarRef.current));
     oldEl?.classList.remove(ClassName.ACTIVE);
 
-    const current = width !== 0 ? currentPage : "Closed";
+    const current = width !== 0 ? sidebarPage : "Closed";
     const newEl = document.getElementById(getId(current));
     newEl?.classList.add(ClassName.ACTIVE);
 
-    oldPageRef.current = currentPage;
-  }, [currentPage, oldPageRef, width, theme.name]);
+    oldSidebarRef.current = sidebarPage;
+  }, [sidebarPage, oldSidebarRef, width, theme.name]);
 };
 
 const getId = (id: string) => "sidebar" + id;

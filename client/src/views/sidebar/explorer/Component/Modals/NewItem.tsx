@@ -57,7 +57,7 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
           try {
             // Create item
             const itemPath = PgExplorer.getCanonicalPath(
-              PgCommon.joinPaths([parentPath, itemName])
+              PgCommon.joinPaths(parentPath, itemName)
             );
             await PgExplorer.newItem(itemPath);
 
@@ -129,6 +129,7 @@ const Wrapper = styled.div<{ depth: number }>`
   padding-left: ${({ depth }) => depth + "rem"};
 
   & > input {
+    height: 1.5rem;
     margin-left: 0.375rem;
   }
 `;

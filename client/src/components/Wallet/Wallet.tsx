@@ -1,10 +1,10 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
-import { Keypair } from "@solana/web3.js";
 
 import Balance from "./Balance";
 import Send from "./Send";
+import Settings from "./Settings";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import FadeIn from "../FadeIn";
@@ -13,10 +13,14 @@ import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Close, ShortArrow } from "../Icons";
-import { WalletSettings } from "./Settings";
 import { ClassName, Id } from "../../constants";
 import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
-import { useAutoAirdrop, useStandardAccountChange } from "./hooks";
+import {
+  useAutoAirdrop,
+  useDarken,
+  useStandardAccountChange,
+  useSyncBalance,
+} from "./hooks";
 import {
   useKeybind,
   useOnClickOutside,
@@ -29,8 +33,9 @@ const Wallet = () => {
 
   const { wallet } = useWallet();
 
-  useAutoAirdrop();
   useStandardAccountChange();
+  useSyncBalance();
+  useAutoAirdrop();
 
   if (!PgWallet.show || !wallet) return null;
 
@@ -104,7 +109,7 @@ const WalletTop = () => {
 
   return (
     <WalletTopWrapper>
-      <WalletSettings showRename={showRename} />
+      <Settings showRename={showRename} />
       {rename ? <WalletRename hideRename={hideRename} /> : <WalletName />}
       <WalletClose />
     </WalletTopWrapper>
@@ -120,12 +125,7 @@ const WalletTopWrapper = styled.div`
 const WalletName = () => {
   const { wallet, walletPkStr } = useWallet();
 
-  const darken = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
-  }, []);
-  const lighten = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
-  }, []);
+  const { darken, lighten } = useDarken();
 
   const getAccountDisplayName = useCallback(
     (accountName: string, pkStr: string) => {
@@ -141,7 +141,7 @@ const WalletName = () => {
   const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
     name: getAccountDisplayName(
       acc.name,
-      Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
+      PgWallet.createWallet(acc).publicKey.toBase58()
     ),
     onClick: () => PgWallet.switch(i),
     hoverColor: "textPrimary",

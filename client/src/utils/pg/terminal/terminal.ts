@@ -3,8 +3,10 @@ import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import { format } from "util";
 
-import { PgTty } from "./tty";
+import { PgAutocomplete } from "./autocomplete";
+import { PgHistory } from "./history";
 import { PgShell } from "./shell";
+import { PgTty } from "./tty";
 import {
   Emoji,
   EventName,
@@ -17,7 +19,7 @@ import {
   SERVER_ERROR,
 } from "../../../constants";
 import { PgCommon } from "../common";
-import type { ExecuteCommand, PrintOptions } from "./types";
+import type { CommandManager, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
@@ -107,71 +109,6 @@ export class PgTerminal {
 
   static underline(text: string) {
     return `\x1b[4m${text}\x1b[0m`;
-  }
-
-  /** Hightlight the text before printing to terminal. */
-  static colorText(text: string) {
-    return (
-      text
-        // Match for error
-        .replace(
-          /\w*\s?(\w*)error(:|\[.*?:)/gim,
-          (match) =>
-            this.error(match.substring(0, match.length - 1)) +
-            match[match.length - 1]
-        )
-
-        // Match for warning
-        .replace(/(\d+\s)?warning(s|:)?/gim, (match) => {
-          // warning:
-          if (match.endsWith(":")) {
-            return (
-              this.warning(match.substring(0, match.length - 1)) +
-              match[match.length - 1]
-            );
-          }
-
-          // 1 warning, 2 warnings
-          return this.warning(match);
-        })
-
-        // Match until ':' from the start of the line: e.g SUBCOMMANDS:
-        // TODO: Highlight the text from WASM so we don't have to do this.
-        .replace(/^(.*?:)/gm, (match) => {
-          if (
-            new RegExp(/(http|{|})/).test(match) ||
-            new RegExp(/"\w+":/).test(match) ||
-            new RegExp(/\(\w+:/).test(match) ||
-            new RegExp(/^\s*\|/).test(match) ||
-            new RegExp(/^\s?\d+/).test(match)
-          ) {
-            return match;
-          }
-          if (!match.includes("   ")) {
-            if (match.startsWith(" ")) {
-              return this.bold(match); // Indented
-            }
-            if (!match.toLowerCase().includes("error")) {
-              return this.primary(match);
-            }
-          }
-
-          return match;
-        })
-
-        // Secondary text color for (...)
-        .replace(/\(.+\)/gm, (match) =>
-          match === "(s)" ? match : this.secondaryText(match)
-        )
-
-        // Numbers
-        .replace(/^\s*\d+$/, (match) => this.secondary(match))
-
-        // Progression [1/5]
-        .replace(/\[\d+\/\d+\]/, (match) =>
-          this.bold(this.secondaryText(match))
-        )
-    );
   }
 
   /**
@@ -281,11 +218,6 @@ export class PgTerminal {
     await PgTerminal.run({ scrollToBottom: [] });
   }
 
-  /** Dispatch run last command custom event. */
-  static async runLastCmd() {
-    await PgTerminal.run({ runLastCmd: [] });
-  }
-
   /** Execute the given command from string. */
   static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
     const term = await PgTerminal.get();
@@ -386,13 +318,13 @@ const _log = console.log;
 export class PgTerm {
   private _xterm: XTerm;
   private _container: HTMLElement | null;
-  private _webLinksAddon: WebLinksAddon;
   private _fitAddon: FitAddon;
-  private _pgTty: PgTty;
-  private _pgShell: PgShell;
+  private _tty: PgTty;
+  private _shell: PgShell;
+  private _autocomplete: PgAutocomplete;
   private _isOpen: boolean;
 
-  constructor(execute: ExecuteCommand, xtermOptions?: ITerminalOptions) {
+  constructor(cmdManager: CommandManager, xtermOptions?: ITerminalOptions) {
     // Create xterm element
     this._xterm = new XTerm(xtermOptions);
 
@@ -400,25 +332,46 @@ export class PgTerm {
     this._container = null;
 
     // Load xterm addons
-    this._webLinksAddon = new WebLinksAddon();
     this._fitAddon = new FitAddon();
     this._xterm.loadAddon(this._fitAddon);
-    this._xterm.loadAddon(this._webLinksAddon);
+    this._xterm.loadAddon(new WebLinksAddon());
 
-    // Create  Shell and TTY
-    this._pgTty = new PgTty(this._xterm);
-    this._pgShell = new PgShell(this._pgTty, execute);
+    // Create Shell and TTY
+    const history = new PgHistory(20);
+    this._autocomplete = new PgAutocomplete([
+      cmdManager.getCompletions(),
+      () => history.getEntries(),
+    ]);
+    this._tty = new PgTty(this._xterm, cmdManager, this._autocomplete);
+    this._shell = new PgShell(
+      this._tty,
+      cmdManager,
+      this._autocomplete,
+      history
+    );
 
-    // XTerm events
-    this._xterm.onResize(this._handleTermResize);
-    this._xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
-      if (keyEvent.key === " ") {
-        keyEvent.domEvent.preventDefault();
+    // Add a custom resize handler that clears the prompt using the previous
+    // configuration, updates the cached terminal size information and then
+    // re-renders the input. This leads (most of the times) into a better
+    // formatted input.
+    //
+    // Also stops multiline inputs rendering unnecessarily.
+    this._xterm.onResize(({ rows, cols }) => {
+      this._tty.clearInput();
+      this._tty.setTermSize(cols, rows);
+      this._tty.setInput(this._tty.input, true);
+    });
+
+    // Add a custom key handler in order to fix a bug with spaces
+    this._xterm.onKey((ev) => {
+      if (ev.key === " ") {
+        ev.domEvent.preventDefault();
         return false;
       }
     });
+
     // Any data event (key, paste...)
-    this._xterm.onData(this._pgShell.handleTermData);
+    this._xterm.onData(this._shell.handleTermData);
 
     this._isOpen = false;
   }
@@ -459,8 +412,8 @@ export class PgTerm {
     }
 
     // We don't need `cursorX`, since we want to start at the beginning of the terminal
-    const cursorY = this._pgTty.getBuffer().cursorY;
-    const size = this._pgTty.getSize();
+    const cursorY = this._tty.buffer.cursorY;
+    const size = this._tty.size;
 
     const containerBoundingClientRect = this._container.getBoundingClientRect();
 
@@ -492,15 +445,15 @@ export class PgTerm {
       return;
     }
 
-    if (this._pgShell.isPrompting()) {
+    if (this._shell.isPrompting()) {
       // Cancel the current prompt and restart
-      this._pgShell.printAndRestartPrompt(() => {
-        this._pgTty.print(msg + "\n", opts);
+      this._shell.printAndRestartPrompt(() => {
+        this._tty.print(msg + "\n", opts);
       });
       return;
     }
 
-    this._pgTty.print(msg, opts);
+    this._tty.print(msg, opts);
   }
 
   /** Print a message with end line character appended */
@@ -516,11 +469,11 @@ export class PgTerm {
    *
    */
   clear(opts?: { full?: boolean }) {
-    this._pgTty.clearTty();
+    this._tty.clearTty();
     if (opts?.full) {
-      this._pgTty.clear();
+      this._tty.clear();
     } else {
-      this._pgTty.print(`${PgTerminal.PROMPT_PREFIX}${this._pgTty.getInput()}`);
+      this._tty.print(`${PgTerminal.PROMPT_PREFIX}${this._tty.input}`);
     }
   }
 
@@ -531,13 +484,13 @@ export class PgTerm {
    * like pressing build button
    */
   disable() {
-    this._pgShell.disable();
-    this._pgTty.clearLine();
+    this._shell.disable();
+    this._tty.clearLine();
   }
 
   /** Enable shell */
   enable() {
-    this._pgShell.enable();
+    this._shell.enable();
   }
 
   /** Scroll the terminal to bottom */
@@ -550,23 +503,6 @@ export class PgTerm {
     this._xterm.dispose();
     // @ts-ignore
     delete this._xterm;
-  }
-
-  /**
-   * Run the last command if it exists
-   *
-   * This function is useful for running wasm cli packages after initial loading
-   */
-  runLastCmd() {
-    // Last command is the current input
-    let lastCmd = this._pgTty.getInput();
-    if (!lastCmd || lastCmd === "!!") {
-      const maybeLastCmd = this._pgShell.getHistory().getPrevious();
-      if (maybeLastCmd) lastCmd = maybeLastCmd;
-      else this.println("Unable to run last command.");
-    }
-
-    this.executeFromStr(lastCmd, true);
   }
 
   /**
@@ -611,23 +547,41 @@ export class PgTerm {
     this.focus();
 
     let convertedMsg = msg;
+    let restore;
     if (opts?.default) {
-      convertedMsg += ` (default: ${opts.default})`;
+      const value = opts.default;
+      convertedMsg += ` (default: ${value})`;
+      restore = this._autocomplete.temporarilySetHandlers([value], {
+        append: true,
+      }).restore;
     }
     if (opts?.choice) {
       // Show multi choice items
-      convertedMsg += opts.choice.items.reduce(
+      const items = opts.choice.items;
+      convertedMsg += items.reduce(
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
+      restore = this._autocomplete.temporarilySetHandlers(
+        items.map((_, i) => i.toString())
+      ).restore;
     } else if (opts?.confirm) {
       convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
+      restore = this._autocomplete.temporarilySetHandlers([
+        "yes",
+        "no",
+      ]).restore;
     }
 
-    let userInput = await this._pgShell.waitForUserInput(convertedMsg);
-    if (!userInput && opts?.default) {
-      userInput = opts.default;
+    let userInput;
+    try {
+      userInput = await this._shell.waitForUserInput(convertedMsg);
+    } finally {
+      restore?.();
     }
+
+    // Set the input to the default if it exists on empty input
+    if (!userInput && opts?.default) userInput = opts.default;
 
     // Default validators
     if (opts && !opts.validator) {
@@ -695,15 +649,13 @@ export class PgTerm {
       returnValue = userInput;
     }
 
-    let visibleText = PgTerminal.success(userInput);
-    if (returnValue === "" || returnValue?.length === 0) {
-      visibleText = PgTerminal.secondaryText("empty");
-    }
+    const visibleText =
+      returnValue?.length === 0
+        ? PgTerminal.secondaryText("empty")
+        : PgTerminal.success(userInput);
 
-    this._pgTty.changeLine(
-      PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText
-    );
-    return returnValue as any;
+    this._tty.changeLine(PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText);
+    return returnValue;
   }
 
   /**
@@ -713,8 +665,8 @@ export class PgTerm {
    * @param clearCmd whether to clean the command afterwards - defaults to `true`
    */
   async executeFromStr(cmd: string, clearCmd?: boolean) {
-    this._pgTty.setInput(cmd);
-    return await this._pgShell.handleReadComplete(clearCmd);
+    this._tty.setInput(cmd);
+    return await this._shell.handleReadComplete(clearCmd);
   }
 
   /**
@@ -757,21 +709,5 @@ export class PgTerm {
     }
 
     return true;
-  };
-
-  /**
-   * Handle terminal resize
-   *
-   * This function clears the prompt using the previous configuration,
-   * updates the cached terminal size information and then re-renders the
-   * input. This leads (most of the times) into a better formatted input.
-   *
-   * Also stops multiline inputs rendering unnecessarily.
-   */
-  private _handleTermResize = (data: { rows: number; cols: number }) => {
-    const { rows, cols } = data;
-    this._pgTty.clearInput();
-    this._pgTty.setTermSize(cols, rows);
-    this._pgTty.setInput(this._pgTty.getInput(), true);
   };
 }

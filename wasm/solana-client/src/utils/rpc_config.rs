@@ -1,5 +1,5 @@
 use bincode::serialize;
-use clap::ArgMatches;
+use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use solana_extra_wasm::{
     account_decoder::{UiAccount, UiAccountEncoding, UiDataSliceConfig},
     transaction_status::{TransactionDetails, UiTransactionEncoding},
@@ -12,14 +12,7 @@ use solana_sdk::{
     signature::Signature,
 };
 
-use super::{
-    clap::{
-        input_parsers::{pubkey_of, value_of},
-        nonce::NONCE_ARG,
-        offline::{BLOCKHASH_ARG, SIGN_ONLY_ARG},
-    },
-    rpc_filter::RpcFilterType,
-};
+use super::rpc_filter::RpcFilterType;
 use crate::{utils::nonce_utils, ClientError, ClientResult, WasmClient};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -103,13 +96,6 @@ impl BlockhashQuery {
         }
     }
 
-    pub fn new_from_matches(matches: &ArgMatches) -> Self {
-        let blockhash = value_of(matches, BLOCKHASH_ARG.name);
-        let sign_only = matches.is_present(SIGN_ONLY_ARG.name);
-        let nonce_account = pubkey_of(matches, NONCE_ARG.name);
-        BlockhashQuery::new(blockhash, sign_only, nonce_account)
-    }
-
     pub async fn get_blockhash(
         &self,
         rpc_client: &WasmClient,
@@ -182,13 +168,14 @@ pub struct RpcSimulateTransactionAccountsConfig {
     pub addresses: Vec<String>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcSimulateTransactionConfig {
     #[serde(default)]
-    pub sig_verify: bool,
+    pub sig_verify: Option<bool>,
     #[serde(default)]
-    pub replace_recent_blockhash: bool,
+    pub replace_recent_blockhash: Option<bool>,
     #[serde(flatten)]
     pub commitment: Option<CommitmentConfig>,
     pub encoding: Option<UiTransactionEncoding>,
@@ -204,10 +191,12 @@ pub struct RpcRequestAirdropConfig {
     pub commitment: Option<CommitmentConfig>,
 }
 
+#[serde_as]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcLeaderScheduleConfig {
-    pub identity: Option<String>, // validator identity, as a base-58 encoded string
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub identity: Option<Pubkey>, // validator identity, as a base-58 encoded string
     #[serde(flatten)]
     pub commitment: Option<CommitmentConfig>,
 }
@@ -219,6 +208,7 @@ pub struct RpcBlockProductionConfigRange {
     pub last_slot: Option<Slot>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcBlockProductionConfig {
@@ -228,6 +218,7 @@ pub struct RpcBlockProductionConfig {
     pub commitment: Option<CommitmentConfig>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcGetVoteAccountsConfig {
@@ -278,6 +269,7 @@ pub struct RpcSupplyConfig {
     pub exclude_non_circulating_accounts_list: bool,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcEpochConfig {
@@ -287,6 +279,7 @@ pub struct RpcEpochConfig {
     pub min_context_slot: Option<Slot>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcAccountInfoConfig {
@@ -297,6 +290,7 @@ pub struct RpcAccountInfoConfig {
     pub min_context_slot: Option<Slot>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcProgramAccountsConfig {
@@ -306,13 +300,7 @@ pub struct RpcProgramAccountsConfig {
     pub with_context: Option<bool>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum RpcTokenAccountsFilter {
-    Mint(String),
-    ProgramId(String),
-}
-
+#[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcSignaturesForAddressConfig {
@@ -355,6 +343,7 @@ pub trait EncodingConfig {
     fn new_with_encoding(encoding: &Option<UiTransactionEncoding>) -> Self;
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcBlockConfig {
@@ -398,6 +387,7 @@ impl From<RpcBlockConfig> for RpcEncodingConfigWrapper<RpcBlockConfig> {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcTransactionConfig {
@@ -432,6 +422,7 @@ impl RpcBlocksConfigWrapper {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpcContextConfig {

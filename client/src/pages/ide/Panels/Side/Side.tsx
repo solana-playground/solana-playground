@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 import Left from "./Left";
@@ -10,15 +9,7 @@ import { PgCommon, PgTheme } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
-  // TODO: Handle initial sidebar page state from routes
-  const { pathname } = useLocation();
-  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>(
-    pathname.startsWith("/tutorials")
-      ? "Tutorials"
-      : pathname.startsWith("/programs")
-      ? "Programs"
-      : "Explorer"
-  );
+  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>("Explorer");
   const oldSidebarRef = useRef(sidebarPage);
 
   useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);

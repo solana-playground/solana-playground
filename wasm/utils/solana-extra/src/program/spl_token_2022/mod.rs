@@ -54,7 +54,7 @@ pub fn amount_to_ui_amount_string_trimmed(amount: u64, decimals: u8) -> String {
     s
 }
 
-/// Try to convert a UI represenation of a token amount to its raw amount using the given decimals
+/// Try to convert a UI representation of a token amount to its raw amount using the given decimals
 /// field
 pub fn try_ui_amount_into_amount(ui_amount: String, decimals: u8) -> Result<u64, ProgramError> {
     let decimals = decimals as usize;
@@ -88,7 +88,7 @@ pub fn check_program_account(spl_token_program_id: &Pubkey) -> ProgramResult {
     Ok(())
 }
 
-/// Checks that the supplied program ID is corect for spl-token or spl-token-2022
+/// Checks that the supplied program ID is correct for spl-token or spl-token-2022
 pub fn check_spl_token_program_account(spl_token_program_id: &Pubkey) -> ProgramResult {
     if spl_token_program_id != &id() && spl_token_program_id != &spl_token::id() {
         return Err(ProgramError::IncorrectProgramId);

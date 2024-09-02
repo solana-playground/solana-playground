@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 mod account_info;
 mod balance;
 mod block;
@@ -24,14 +26,15 @@ mod largest_accounts;
 mod latest_blockhash;
 mod leader_schedule;
 mod max_retransmit_slot;
+mod max_shred_insert_slot;
 mod minimum_balance_for_rent_exemption;
 mod minimum_ledger_slot;
 mod multiple_accounts;
 mod program_accounts;
 mod recent_performance_samples;
+mod recent_prioritization_fees;
 mod request_airdrop;
 mod send_transaction;
-mod serde_utils;
 mod signature_statuses;
 mod signatures_for_address;
 mod simulate_transaction;
@@ -39,6 +42,7 @@ mod slot;
 mod slot_leader;
 mod slot_leaders;
 mod stake_activation;
+mod stake_minimum_delegation;
 mod supply;
 mod token_account_balance;
 mod token_accounts_by_delegate;
@@ -50,7 +54,9 @@ mod transaction_count;
 mod version;
 mod vote_accounts;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
+use solana_sdk::pubkey::Pubkey;
 pub use {
     account_info::{GetAccountInfoRequest, GetAccountInfoResponse},
     balance::{GetBalanceRequest, GetBalanceResponse},
@@ -78,6 +84,7 @@ pub use {
     latest_blockhash::{GetLatestBlockhashRequest, GetLatestBlockhashResponse},
     leader_schedule::{GetLeaderScheduleRequest, GetLeaderScheduleResponse},
     max_retransmit_slot::{GetMaxRetransmitSlotRequest, GetMaxRetransmitSlotResponse},
+    max_shred_insert_slot::{GetMaxShredInsertSlotRequest, GetMaxShredInsertSlotResponse},
     minimum_balance_for_rent_exemption::{
         GetMinimumBalanceForRentExemptionRequest, GetMinimumBalanceForRentExemptionResponse,
     },
@@ -85,8 +92,10 @@ pub use {
     multiple_accounts::{GetMultipleAccountsRequest, GetMultipleAccountsResponse},
     program_accounts::{GetProgramAccountsRequest, GetProgramAccountsResponse},
     recent_performance_samples::{
-        GetRecentPerformanceSamplesRequest, GetRecentPerformanceSamplesRequestConfig,
-        GetRecentPerformanceSamplesResponse,
+        GetRecentPerformanceSamplesRequest, GetRecentPerformanceSamplesResponse,
+    },
+    recent_prioritization_fees::{
+        GetRecentPrioritizationFeesRequest, GetRecentPrioritizationFeesResponse,
     },
     request_airdrop::{RequestAirdropRequest, RequestAirdropResponse},
     send_transaction::{SendTransactionRequest, SendTransactionResponse},
@@ -99,6 +108,9 @@ pub use {
     slot_leader::{GetSlotLeaderRequest, GetSlotLeaderResponse},
     slot_leaders::{GetSlotLeadersRequest, GetSlotLeadersResponse},
     stake_activation::{GetStakeActivationRequest, GetStakeActivationResponse},
+    stake_minimum_delegation::{
+        GetStakeMinimumDelegationRequest, GetStakeMinimumDelegationResponse,
+    },
     supply::{GetSupplyRequest, GetSupplyResponse},
     token_account_balance::{GetTokenAccountBalanceRequest, GetTokenAccountBalanceResponse},
     token_accounts_by_delegate::{
@@ -113,7 +125,7 @@ pub use {
     vote_accounts::{GetVoteAccountsRequest, GetVoteAccountsResponse},
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub struct Context {
     slot: u64,
 }
@@ -124,4 +136,17 @@ pub struct BlockProductionRange {
     pub first_slot: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_slot: Option<u64>,
+}
+
+pub trait Method: Serialize {
+    const NAME: &'static str;
+}
+
+#[macro_export]
+macro_rules! impl_method {
+    ($ident:ident, $name:literal) => {
+        impl $crate::methods::Method for $ident {
+            const NAME: &'static str = $name;
+        }
+    };
 }

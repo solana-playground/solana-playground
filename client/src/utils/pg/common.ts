@@ -1,11 +1,6 @@
 import type { ChangeEvent } from "react";
 
-import {
-  Endpoint,
-  EventName,
-  EXPLORER_URL,
-  SOLSCAN_URL,
-} from "../../constants";
+import { Endpoint, EventName } from "../../constants";
 import type {
   AllPartial,
   Disposable,
@@ -399,6 +394,22 @@ export class PgCommon {
   }
 
   /**
+   * Split the array to chunks based on the given length.
+   *
+   * @param array array to split to chunks
+   * @param len chunk length
+   * @returns the array chunks
+   */
+  static chunks<T>(array: T[], len: number) {
+    return array.reduce((acc, el, i) => {
+      const chunkIndex = Math.floor(i / len);
+      acc[chunkIndex] ??= [];
+      acc[chunkIndex].push(el);
+      return acc;
+    }, [] as T[][]);
+  }
+
+  /**
    * Access the property value from `.` seperated input.
    *
    * @param obj object to get property from
@@ -463,6 +474,16 @@ export class PgCommon {
   }
 
   /**
+   * Get the current origin URL with the given `path` appended.
+   *
+   * @param path URL path
+   * @returns the URL based on the current origin
+   */
+  static getPathUrl(path: string) {
+    return PgCommon.joinPaths(window.location.origin, path);
+  }
+
+  /**
    * Encode the given content to data URL.
    *
    * @param content content to encode
@@ -481,69 +502,6 @@ export class PgCommon {
     }
 
     return "data:text/json;charset=utf-8," + encodeURIComponent(content);
-  }
-
-  /**
-   * Get the cluster URL parameter to add to the explorer URL(s)
-   *
-   * @returns the cluster URL suffix
-   */
-  static getExplorerClusterParam(endpoint: string) {
-    // Mainnet by default
-    let cluster = "";
-
-    if (endpoint === Endpoint.LOCALHOST) {
-      cluster = "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
-    } else if (
-      endpoint === Endpoint.DEVNET ||
-      endpoint === Endpoint.DEVNET_GENESYSGO
-    ) {
-      cluster = "?cluster=devnet";
-    } else if (endpoint === Endpoint.TESTNET) {
-      cluster = "?cluster=testnet";
-    }
-
-    return cluster;
-  }
-
-  /**
-   * Get transaction urls for explorers
-   *
-   * @returns transaction url for solana explorer, solscan
-   */
-  static getExplorerTxUrls(txHash: string, endpoint: string) {
-    let explorer = EXPLORER_URL + "/tx/" + txHash;
-    const cluster = this.getExplorerClusterParam(endpoint);
-    explorer += cluster;
-
-    // Solscan doesn't have support for localhost
-    if (endpoint === Endpoint.LOCALHOST) {
-      return { explorer };
-    }
-
-    const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
-
-    return { explorer, solscan };
-  }
-
-  /**
-   *  Get explorer urls for a mint
-   *
-   * @returns mint url for solana explorer, solscan
-   */
-  static getExplorerTokenUrl(mint: string, endpoint: string) {
-    let explorer = EXPLORER_URL + "/address/" + mint;
-    const cluster = this.getExplorerClusterParam(endpoint);
-    explorer += cluster;
-
-    // Solscan doesn't have support for localhost
-    if (endpoint === Endpoint.LOCALHOST) {
-      return { explorer };
-    }
-
-    const solscan = SOLSCAN_URL + "/token/" + mint + cluster;
-
-    return { explorer, solscan };
   }
 
   /**
@@ -838,6 +796,8 @@ export class PgCommon {
         return 1000;
       case Endpoint.LOCALHOST:
         return 100;
+      case Endpoint.DEVNET:
+        return 5;
       case Endpoint.TESTNET:
         return 1;
       default:
@@ -1164,7 +1124,7 @@ export class PgCommon {
    * @param paths paths to join
    * @returns the joined path
    */
-  static joinPaths(paths: string[]) {
+  static joinPaths(...paths: string[]) {
     return paths.reduce(
       (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
     );

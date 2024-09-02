@@ -71,10 +71,10 @@ export class PgExplorer {
       throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
     }
 
-    return PgCommon.joinPaths([
+    return PgCommon.joinPaths(
       PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgCommon.appendSlash(this.currentWorkspaceName),
-    ]);
+      PgCommon.appendSlash(this.currentWorkspaceName)
+    );
   }
 
   /** Get current workspace name */
@@ -402,16 +402,21 @@ export class PgExplorer {
       // The reason we are not just getting the necessary files and re-calling this
       // function with { files } is because we would lose the tab info. Instead we
       // are creating a valid workspace state and writing it to `indexedDB`.
-      this._isTemporary = false;
 
       // Init workspace
       await this._initWorkspaces();
       // Create a new workspace in state
       this._workspace!.new(name);
 
+      // It's important to set `_isTemporary` after the workspace is created,
+      // otherwise there is a chance the creation fails, and the state ends up
+      // being invalid.
+      // See https://github.com/solana-playground/solana-playground/issues/275
+      this._isTemporary = false;
+
       // Change state paths(temporary projects start with /src)
       const getFullPath = (path: string) => {
-        return PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, path]);
+        return PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, name, path);
       };
       for (const path in this.files) {
         const data = this.files[path];
@@ -843,7 +848,7 @@ export class PgExplorer {
     if (path.startsWith(this.PATHS.ROOT_DIR_PATH)) return path;
 
     // Convert to absolute path if it doesn't start with '/'
-    return PgCommon.joinPaths([this.getProjectRootPath(), path]);
+    return PgCommon.joinPaths(this.getProjectRootPath(), path);
   }
 
   /**
@@ -865,10 +870,10 @@ export class PgExplorer {
    * @returns the current `src` directory path with `/` appended
    */
   static getCurrentSrcPath() {
-    const srcPath = PgCommon.joinPaths([
+    const srcPath = PgCommon.joinPaths(
       this.getProjectRootPath(),
-      this.PATHS.SRC_DIRNAME,
-    ]);
+      this.PATHS.SRC_DIRNAME
+    );
     return PgCommon.appendSlash(srcPath);
   }
 
@@ -1063,7 +1068,7 @@ export class PgExplorer {
         .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
           return PgExplorer.getCanonicalPath(
-            PgCommon.joinPaths([path, itemName])
+            PgCommon.joinPaths(path, itemName)
           );
         });
       for (const subItemPath of subItemPaths) {
@@ -1645,10 +1650,7 @@ export class PgExplorer {
     const explorerFiles: ExplorerFiles = {};
 
     for (const [path, content] of tupleFiles) {
-      const fullPath = PgCommon.joinPaths([
-        PgExplorer.PATHS.ROOT_DIR_PATH,
-        path,
-      ]);
+      const fullPath = PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, path);
       explorerFiles[fullPath] = { content };
     }
 

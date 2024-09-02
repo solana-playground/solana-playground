@@ -113,7 +113,7 @@ class CacheProgram {
 
 type CacheItems = { [key: string]: CacheItem };
 
-// NOTE: These snake case names are standart metaplex names
+// NOTE: These snake case names are standard metaplex names
 export class CacheItem {
   name: string;
   image_hash: string;

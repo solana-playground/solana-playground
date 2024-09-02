@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useReducer, useState } from "react";
 import styled from "styled-components";
 
 import InstructionInput from "./InstructionInput";
@@ -20,6 +20,7 @@ import {
   PgProgramInteraction,
 } from "../../.././../../utils/pg/program-interaction";
 import { useWallet } from "../../../../../hooks";
+import { useIdl } from "../IdlProvider";
 
 interface InstructionProps {
   idlInstruction: IdlInstruction;
@@ -27,10 +28,13 @@ interface InstructionProps {
 }
 
 const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
-  const [instruction, setInstruction] = useState(
+  const [instruction, setInstruction] = useState(() =>
     PgProgramInteraction.getOrCreateInstruction(idlInstruction)
   );
   const [disabled, setDisabled] = useState(true);
+  const [refreshCount, refreshFields] = useReducer((r) => r + 1, 0);
+
+  const { idl } = useIdl();
 
   // Enable when there is no args and no accounts.
   //
@@ -46,10 +50,10 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
   }, [idlInstruction]);
 
   // Refresh instruction in order to pass the latest generators to
-  // `InstructionInput`, otherwise the inital values are being generated
+  // `InstructionInput`, otherwise the initial values are being generated
   // from stale data.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const refreshInstruction = useCallback(
+  const refresh = useCallback(
     PgCommon.debounce(() => setInstruction((ix) => ({ ...ix })), {
       delay: 1000,
     }),
@@ -61,6 +65,26 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
     () => PgProgramInteraction.saveInstruction(instruction),
     [instruction]
   );
+
+  // Fill empty fields with Random generator
+  const fillRandom = useCallback(() => {
+    setInstruction((ix) => PgProgramInteraction.fillRandom(ix, idl));
+
+    // Refresh fields in order to re-render mapped elements
+    refreshFields();
+  }, [idl]);
+
+  // Reset the current instruction and re-crate it from default values
+  const reset = useCallback(() => {
+    // Reset and re-crate instruction
+    setInstruction((ix) => {
+      PgProgramInteraction.resetInstruction(ix);
+      return PgProgramInteraction.getOrCreateInstruction(idlInstruction);
+    });
+
+    // Refresh fields in order to re-render mapped elements
+    refreshFields();
+  }, [idlInstruction]);
 
   const handleTest = async () => {
     const showLogTxHash = await PgTerminal.process(async () => {
@@ -98,7 +122,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
       await PgCommon.sleep(
         PgConnection.current.rpcEndpoint.startsWith("https") ? 1500 : 200
       );
-      await PgCommand.solana.run(`confirm ${showLogTxHash} -v`);
+      await PgCommand.solana.run("confirm", showLogTxHash, "-v");
     }
   };
 
@@ -116,7 +140,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
               <InstructionInputsWrapper>
                 {instruction.values.args.map((arg) => (
                   <InstructionInput
-                    key={arg.name}
+                    key={arg.name + refreshCount}
                     prefix="args"
                     updateInstruction={({
                       updateGenerator,
@@ -126,7 +150,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                       updateGenerator(arg);
                       updateRefs(arg, "Arguments");
                       setDisabled(checkErrors());
-                      refreshInstruction();
+                      refresh();
                     }}
                     {...arg}
                   />
@@ -140,7 +164,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
               <InstructionInputsWrapper>
                 {instruction.values.accounts.map((acc) => (
                   <InstructionInput
-                    key={acc.name}
+                    key={acc.name + refreshCount}
                     prefix="accounts"
                     type="publicKey"
                     updateInstruction={({
@@ -151,7 +175,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
                       updateGenerator(acc);
                       updateRefs(acc, "Accounts");
                       setDisabled(checkErrors());
-                      refreshInstruction();
+                      refresh();
                     }}
                     {...acc}
                   />
@@ -169,6 +193,14 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
           >
             Test
           </Button>
+
+          {(instruction.values.accounts.length > 0 ||
+            instruction.values.args.length > 0) && (
+            <>
+              <Button onClick={fillRandom}>Fill</Button>
+              <Button onClick={reset}>Reset</Button>
+            </>
+          )}
         </ButtonWrapper>
       </Interaction>
     </InstructionProvider>
@@ -198,6 +230,7 @@ const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 1rem;
+  gap: 1rem;
 
   & > button {
     padding: 0.5rem 1.5rem;

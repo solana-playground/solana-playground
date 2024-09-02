@@ -12,12 +12,7 @@ const NoWorkspace = () => {
   return (
     <Wrapper>
       <Text>Start by creating a new project.</Text>
-      <Button
-        onClick={newWorkspace}
-        kind="outline"
-        fullWidth
-        leftIcon={<Plus />}
-      >
+      <Button onClick={newWorkspace} fullWidth leftIcon={<Plus />}>
         Create a new project
       </Button>
     </Wrapper>

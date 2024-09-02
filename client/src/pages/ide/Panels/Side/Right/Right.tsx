@@ -59,6 +59,10 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
   );
 };
 
+const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
+  <TitleWrapper>{sidebarPage.toUpperCase()}</TitleWrapper>
+);
+
 const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
   const [el, setEl] = useState<NullableJSX>(null);
   const [loadingCount, setLoadingCount] = useState<number>(0);
@@ -112,12 +116,6 @@ const Wrapper = styled.div<{ windowHeight: number }>`
     ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
   `}
 `;
-
-const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
-  <TitleWrapper>
-    <span>{sidebarPage.toUpperCase()}</span>
-  </TitleWrapper>
-);
 
 const TitleWrapper = styled.div`
   ${({ theme }) => css`

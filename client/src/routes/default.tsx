@@ -1,4 +1,3 @@
-import { EditorWithTabs } from "../components/EditorWithTabs";
 import { PgExplorer, PgRouter, PgTutorial, PgView } from "../utils/pg";
 
 export const defaultRoute = PgRouter.create({
@@ -19,6 +18,7 @@ export const defaultRoute = PgRouter.create({
         throw new Error("No need to render");
       }
 
+      const { EditorWithTabs } = await import("../views/main/EditorWithTabs");
       return EditorWithTabs;
     });
   },

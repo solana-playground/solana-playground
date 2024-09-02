@@ -8,11 +8,10 @@ import Link from "../../../../../components/Link";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Checkmark, Sad } from "../../../../../components/Icons";
-import { CLIENT_URL } from "../../../../../constants";
 import { PgCommon, PgExplorer, PgShare, PgView } from "../../../../../utils/pg";
 
 export const Share = () => {
-  const [filePaths, setFilePaths] = useState(
+  const [filePaths, setFilePaths] = useState(() =>
     Object.keys(PgExplorer.files).filter(
       (path) => PgExplorer.getItemTypeFromPath(path).file
     )
@@ -70,7 +69,7 @@ interface SuccessPageProps {
 }
 
 const SuccessPage: FC<SuccessPageProps> = ({ shareId }) => {
-  const shareLink = `${CLIENT_URL}/${shareId}`;
+  const shareLink = PgCommon.getPathUrl(shareId);
 
   return (
     <Modal title buttonProps={{ text: "Continue" }}>
@@ -98,6 +97,7 @@ const SuccessWrapper = styled.div`
 const SuccessInputWrapper = styled.div`
   display: flex;
   margin-top: 1rem;
+  align-items: center;
 `;
 
 const SuccessLinkWrapper = styled.div`

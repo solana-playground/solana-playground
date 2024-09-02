@@ -5,7 +5,12 @@ import type { Arrayable, Disposable } from "./types";
 type Keybind = string;
 
 /** Handler callback for the keybind */
-type HandleKeybind = (ev: KeyboardEvent) => unknown;
+type HandleKeybindCb = (ev: KeyboardEvent) => unknown;
+
+/** Handler for the keybind */
+type HandleKeybind =
+  | HandleKeybindCb
+  | { handle: HandleKeybindCb; opts?: { noPreventDefault?: boolean } };
 
 /** A single keybind parameters */
 type SingleKeybind = [Keybind, HandleKeybind];
@@ -36,8 +41,13 @@ export class PgKeybind {
       });
       if (!keybind) return;
 
-      ev.preventDefault();
-      keybind.handle(ev);
+      if (typeof keybind.handle === "function") {
+        keybind.handle(ev);
+        ev.preventDefault();
+      } else {
+        keybind.handle.handle(ev);
+        if (!keybind.handle.opts?.noPreventDefault) ev.preventDefault();
+      }
     };
 
     document.addEventListener("keydown", handle);

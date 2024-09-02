@@ -17,6 +17,7 @@ import type {
   StandardWallet,
   StandardWalletProps,
   Wallet,
+  WalletAccount,
 } from "./types";
 
 const defaultState: Wallet = {
@@ -334,7 +335,7 @@ class _PgWallet {
    * @param account wallet account to derive the instance from
    * @returns a Playground Wallet instance
    */
-  static createWallet(account: Wallet["accounts"][number]): CurrentWallet {
+  static createWallet(account: WalletAccount): CurrentWallet {
     const keypair = Keypair.fromSecretKey(Uint8Array.from(account.kp));
 
     return {
@@ -368,7 +369,7 @@ class _PgWallet {
   }
 
   /**
-   * Check whether the given wallet account name is is valid.
+   * Check whether the given wallet account name is valid.
    *
    * @param name wallet account name
    * @throws if the name is not valid

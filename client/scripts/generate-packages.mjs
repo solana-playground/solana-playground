@@ -17,7 +17,10 @@ const CLIENT_PATH = pathModule.join(REPO_ROOT_PATH, "client");
 /** Packages output directory path */
 const PACKAGES_PATH = pathModule.join(CLIENT_PATH, "public", "packages");
 
-/** Renamed index file name(for re-exporting) */
+/** Default index type declaration file name */
+const DEFAULT_INDEX_FILENAME = "index.d.ts";
+
+/** Renamed index type declaration file name(for re-exporting) */
 const OLD_INDEX_FILENAME = "old-index.d.ts";
 
 /** All supported packages */
@@ -108,18 +111,18 @@ async function generatePackage(name) {
     // Parent of `indexPath`, // "../node_modules/@coral-xyz/anchor/dist/cjs"
     const typeRootPath = pathModule.join(pkg.indexPath, "..");
     await recursivelyReadDir(typeRootPath, (path) => {
-      const convertedPaths = convertPath(path);
+      const convertedPath = convertPath(path);
 
       if (path === pkg.indexPath) {
         // Rename the index to the project name and re-export it from a new index.d.ts
-        pkg.indexPath = convertedPaths.monaco;
+        pkg.indexPath = convertedPath.monaco;
 
         paths.unshift({
-          ...convertedPaths,
+          ...convertedPath,
           monaco: pathModule.join(pkg.indexPath, "..", OLD_INDEX_FILENAME),
         });
       } else {
-        paths.push(convertedPaths);
+        paths.push(convertedPath);
       }
     });
 
@@ -127,19 +130,15 @@ async function generatePackage(name) {
     versions[pkg.name] = pkg.version;
   }
 
-  const files = [];
+  const rawFiles = [];
   for (const path of paths) {
     const content = await fs.readFile(
       pathModule.join(REPO_ROOT_PATH, "client", path.webpack),
       "utf8"
     );
-    files.push([path.monaco, content]);
+    rawFiles.push([path.monaco, content]);
   }
-
-  // Don't use old index file name if there is only one file
-  if (files.length === 1) {
-    files[0][0] = files[0][0].replace(OLD_INDEX_FILENAME, "index.d.ts");
-  }
+  const files = convertDeclarationFiles(rawFiles, pkg?.indexPath);
 
   const packageOutPath = pathModule.join(PACKAGES_PATH, name);
   try {
@@ -226,7 +225,7 @@ async function getPackage(path) {
 
 /**
  * Convert the given path into a Webpack path(`/` is the client directory) and
- * a Monaco path(without '@').
+ * a Monaco compatible path.
  *
  * @param {string} path path to convert
  * @returns the converted Webpack and Monaco path
@@ -235,6 +234,79 @@ function convertPath(path) {
   const webpack = path.replace(/^.*node_modules\//, "/node_modules/");
   const monaco = webpack.slice(1).replace("//", "/");
   return { webpack, monaco };
+}
+
+/**
+ * Convert declaration file to make it compatible with Monaco editor.
+ *
+ * @param {[string, string][]} files declaration files
+ * @param {string | undefined} indexPath package index path
+ * @returns the converted content
+ */
+function convertDeclarationFiles(files, indexPath) {
+  // Don't use old index file name if there is only one file
+  if (files.length === 1) {
+    files[0][0] = files[0][0].replace(
+      OLD_INDEX_FILENAME,
+      DEFAULT_INDEX_FILENAME
+    );
+  }
+
+  /**
+   * Append `/index` to the given path when the path is a directory.
+   *
+   * Monaco TS worker is not able to use imports/exports if index files are not
+   * explicit, e.g. "./common" does not translate to "./common/index".
+   *
+   * @param {string} path declaration file path
+   * @param {string} match full matched string
+   * @param {string} quotedPath quote surrounded path
+   * @returns the paths with `/index` appended when the path is a directory
+   */
+  const addIndex = (path, match, quotedPath) => {
+    // Import or export statement's path
+    const statementPath = quotedPath.slice(1, quotedPath.length - 1);
+
+    // Only change local imports/exports
+    if (!statementPath.startsWith(".")) return match;
+
+    // Check if the `path` is a directory path with "index.d.ts" inside it
+    const INDEX_REGEX = /\/index(\.\w+)?$/;
+    const canonicalIndexPath =
+      new URL(statementPath, "x://x.x/" + path).href
+        .slice(8)
+        .replace(INDEX_REGEX, "") +
+      "/" +
+      DEFAULT_INDEX_FILENAME;
+    const isIndex = canonicalIndexPath === indexPath;
+    const isFolder = isIndex || files.some(([p]) => p === canonicalIndexPath);
+
+    if (isFolder) {
+      const indexFileName = (
+        isIndex ? OLD_INDEX_FILENAME : DEFAULT_INDEX_FILENAME
+      ).replace(".d.ts", "");
+      return match.replace(
+        quotedPath,
+        quotedPath.slice(0, quotedPath.length - 1).replace(INDEX_REGEX, "") +
+          "/" +
+          indexFileName +
+          quotedPath.slice(quotedPath.length - 1)
+      );
+    }
+
+    return match;
+  };
+
+  return files.map(([path, content]) => [
+    path,
+    content
+      // Module imports/exports
+      .replace(/^[import|export].*from\s(.+["|'])/gm, (...match) =>
+        addIndex(path, ...match)
+      )
+      // import("...")
+      .replace(/import\((.*)\)/gm, (...match) => addIndex(path, ...match)),
+  ]);
 }
 
 /**

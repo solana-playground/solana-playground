@@ -9,10 +9,11 @@ import {
 } from "./generator";
 import { getPrograms, getOrInitPythAccounts } from "./generators";
 import { getIdlType, IdlInstruction } from "./idl-types";
-import { createGeneratableInstruction } from "./instruction";
+import { createGeneratableInstruction, fillRandom } from "./instruction";
 import { getAnchorProgram } from "./program";
 import {
   getInstruction,
+  resetInstruction,
   saveInstruction,
   syncAllInstructions,
 } from "./storage";
@@ -109,9 +110,15 @@ export class PgProgramInteraction {
   /** {@link getOrInitPythAccounts} */
   static getOrInitPythAccounts = getOrInitPythAccounts;
 
+  /** {@link fillRandom} */
+  static fillRandom = fillRandom;
+
   /** {@link saveInstruction} */
   static saveInstruction = saveInstruction;
 
   /** {@link syncAllInstructions} */
   static syncAllInstructions = syncAllInstructions;
+
+  /** {@link resetInstruction} */
+  static resetInstruction = resetInstruction;
 }

@@ -82,7 +82,7 @@ type ArgsGenerator =
 type CustomGenerator = { type: "Custom"; value: string };
 
 /** Random value generator */
-type RandomGenerator = { type: "Random"; value: string; data: any };
+type RandomGenerator = { type: "Random"; value: string; data?: any };
 
 /** Reference generators */
 type RefGenerator =

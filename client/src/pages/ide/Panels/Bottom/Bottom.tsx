@@ -1,74 +1,37 @@
-import { useCallback, useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../../components/Button";
-import Link from "../../../../components/Link";
+import Delayed from "../../../../components/Delayed";
+import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Tooltip from "../../../../components/Tooltip";
-import { EXPLORER_URL, Id, NETWORKS, NetworkName } from "../../../../constants";
-import { PgCommand, PgCommon, PgTheme } from "../../../../utils/pg";
-import { useBalance, useConnection, useWallet } from "../../../../hooks";
+import { Id } from "../../../../constants";
+import { BOTTOM } from "../../../../views";
+import { PgTheme } from "../../../../utils/pg";
 
-const Bottom = () => {
-  const { connection } = useConnection();
-  const { wallet, walletPkStr } = useWallet();
-  const { balance } = useBalance();
-
-  const [networkName, cluster] = useMemo(() => {
-    return [
-      NETWORKS.filter((n) => n.endpoint === connection.rpcEndpoint)[0]?.name ??
-        NetworkName.CUSTOM,
-      PgCommon.getExplorerClusterParam(connection.rpcEndpoint),
-    ];
-  }, [connection.rpcEndpoint]);
-
-  // Using a callback because this function might be resolved later than the
-  // mount of this component
-  const connect = useCallback(() => PgCommand.connect.run(), []);
-
-  return (
-    <Wrapper id={Id.BOTTOM}>
-      <Tooltip element="Toggle Playground Wallet">
-        <ConnectButton
-          onClick={connect}
-          kind="transparent"
-          leftIcon={<WalletStatus isConnected={!!walletPkStr} />}
-        >
-          {wallet
-            ? wallet.isPg
-              ? "Connected to Playground Wallet"
-              : `Connected to ${wallet.name}`
-            : "Not connected"}
-        </ConnectButton>
-      </Tooltip>
-
-      {walletPkStr && (
-        <>
-          <Dash>-</Dash>
-          <Tooltip element={`RPC endpoint (${connection.rpcEndpoint})`}>
-            <RpcEndpoint>{networkName}</RpcEndpoint>
-          </Tooltip>
-
-          <Seperator>|</Seperator>
-
-          <Tooltip element="Your address">
-            <Address href={`${EXPLORER_URL}/address/${walletPkStr}${cluster}`}>
-              {walletPkStr}
-            </Address>
-          </Tooltip>
-
-          {balance !== undefined && balance !== null && (
-            <>
-              <Seperator>|</Seperator>
-              <Tooltip element="Current balance">
-                <Balance>{`${balance} SOL`}</Balance>
-              </Tooltip>
-            </>
+const Bottom = () => (
+  <Wrapper id={Id.BOTTOM}>
+    {/* Add delay to give enough time for component dependencies to initialize */}
+    <Delayed delay={60}>
+      {BOTTOM.map((Component, i) => (
+        <ErrorBoundary
+          key={i}
+          refreshButton={{ margin: "0 0.25rem 0 0.5rem" }}
+          Fallback={({ error }) => (
+            <Tooltip
+              element={error.message || "Unknown error"}
+              alwaysTakeFullWidth
+            >
+              <FallbackText>
+                Extension crashed{error.message ? `: ${error.message}` : ""}
+              </FallbackText>
+            </Tooltip>
           )}
-        </>
-      )}
-    </Wrapper>
-  );
-};
+        >
+          <Component />
+        </ErrorBoundary>
+      ))}
+    </Delayed>
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
@@ -82,51 +45,14 @@ const Wrapper = styled.div`
   `}
 `;
 
-const ConnectButton = styled(Button)`
+const FallbackText = styled.span`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.connect)};
-  `}
-`;
-
-const WalletStatus = styled.span<{ isConnected: boolean }>`
-  ${({ isConnected, theme }) => css`
-    &::before {
-      content: "";
-      display: block;
-      width: 0.75rem;
-      height: 0.75rem;
-      border-radius: 50%;
-      margin-right: 0.25rem;
-      background: ${isConnected
-        ? theme.colors.state.success.color
-        : theme.colors.state.error.color};
-    }
-  `}
-`;
-
-const Dash = styled.span`
-  margin-right: 0.75rem;
-`;
-
-const Seperator = styled.span`
-  margin: 0 0.75rem;
-`;
-
-const RpcEndpoint = styled.span`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.endpoint)};
-  `}
-`;
-
-const Address = styled(Link)`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.address)};
-  `}
-`;
-
-const Balance = styled.span`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.balance)};
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 15rem;
+    color: ${theme.colors.state.error.color};
   `}
 `;
 

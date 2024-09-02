@@ -25,13 +25,13 @@ export const convertFromPlayground = async (files: TupleFiles) => {
     /(pub\s+)?mod\s+(\w+)/m.exec(libContent)?.[2] ??
     PgCommon.toSnakeCase(PgExplorer.currentWorkspaceName ?? "program");
   const packageName = PgCommon.toKebabFromSnake(programName);
-  const programPath = PgCommon.joinPaths(["programs", packageName]);
+  const programPath = PgCommon.joinPaths("programs", packageName);
 
   const frameworkFiles: TupleFiles = [];
   for (let [path, content] of files) {
     // src -> programs/<program-name>/src
     if (path.startsWith(PgExplorer.PATHS.SRC_DIRNAME)) {
-      path = PgCommon.joinPaths([programPath, path]);
+      path = PgCommon.joinPaths(programPath, path);
     }
 
     // client -> client
@@ -58,7 +58,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
 
     // Migrations
     [
-      PgCommon.joinPaths(["migrations", "deploy.ts"]),
+      PgCommon.joinPaths("migrations", "deploy.ts"),
       `// Migrations are an early feature. Currently, they're nothing more than this
 // single deploy script that's invoked from the CLI, injecting a provider
 // configured from the workspace's Anchor.toml.
@@ -76,7 +76,7 @@ module.exports = async function (provider) {
 
     // Program Cargo.toml
     [
-      PgCommon.joinPaths([programPath, "Cargo.toml"]),
+      PgCommon.joinPaths(programPath, "Cargo.toml"),
       `[package]
 name = "${packageName}"
 version = "0.1.0"
@@ -100,7 +100,7 @@ ${await getRustDependencies(frameworkFiles)}
 
     // Program Xargo.toml
     [
-      PgCommon.joinPaths([programPath, "Xargo.toml"]),
+      PgCommon.joinPaths(programPath, "Xargo.toml"),
       `[target.bpfel-unknown-unknown.dependencies.std]
 features = []
 `,
@@ -211,7 +211,7 @@ ${await getJSDependencies(frameworkFiles)}
   // Create program keypair if it exists
   if (PgProgramInfo.kp) {
     frameworkFiles.push([
-      PgCommon.joinPaths(["target", "deploy", `${programName}-keypair.json`]),
+      PgCommon.joinPaths("target", "deploy", `${programName}-keypair.json`),
       JSON.stringify(Array.from(PgProgramInfo.kp.secretKey)),
     ]);
   }
@@ -221,7 +221,7 @@ ${await getJSDependencies(frameworkFiles)}
 
 /**
  * Try to make the JS/TS file work in a local `node` environment by making the
- * necesary conversions.
+ * necessary conversions.
  *
  * @param content JS/TS code
  * @param programName  snake case program name

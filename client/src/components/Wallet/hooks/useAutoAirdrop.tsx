@@ -1,53 +1,37 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-import { PgCommon, PgConnection, PgTx, PgWallet } from "../../../utils/pg";
-import { useBalance, useConnection, useWallet } from "../../../hooks";
+import { PgCommon, PgConnection, PgSettings, PgTx } from "../../../utils/pg";
+import {
+  useBalance,
+  useConnection,
+  useRenderOnChange,
+  useWallet,
+} from "../../../hooks";
 
-/** Sync the balance of the current wallet and airdrop when necessary. */
+/** Request airdrop when necessary. */
 export const useAutoAirdrop = () => {
-  const { connection, isConnected } = useConnection();
+  const automaticAirdrop = useRenderOnChange(
+    PgSettings.onDidChangeWalletAutomaticAirdrop
+  );
+
+  const { connection } = useConnection();
   const { wallet } = useWallet();
 
-  useEffect(() => {
-    if (!PgConnection.isReady(connection) || !wallet) return;
-
-    // Listen for balance changes
-    const id = connection.onAccountChange(wallet.publicKey, (acc) => {
-      PgWallet.balance = PgCommon.lamportsToSol(acc.lamports);
-    });
-
-    const fetchBalance = async () => {
-      try {
-        const lamports = await connection.getBalance(wallet.publicKey);
-        PgWallet.balance = PgCommon.lamportsToSol(lamports);
-      } catch (e: any) {
-        console.log("Couldn't fetch balance:", e.message);
-        PgWallet.balance = null;
-      }
-    };
-
-    fetchBalance();
-
-    return () => {
-      connection.removeAccountChangeListener(id);
-    };
-  }, [wallet, connection, isConnected]);
-
   // Auto airdrop if balance is less than 4 SOL
-  const [airdropError, setAirdropError] = useState(false);
   const airdropping = useRef(false);
 
   const { balance } = useBalance();
 
   useEffect(() => {
-    const airdrop = async (_balance: typeof balance = balance) => {
+    const airdrop = async (_balance = balance, airdropError = false) => {
       if (
+        !automaticAirdrop ||
         !PgConnection.isReady(connection) ||
         !wallet ||
         airdropping.current ||
         airdropError ||
         _balance === null ||
-        _balance >= 4
+        _balance >= 5
       ) {
         return;
       }
@@ -69,16 +53,16 @@ export const useAutoAirdrop = () => {
         });
       } catch (e: any) {
         console.log(e.message);
-        setAirdropError(true);
+        airdropError = true;
       } finally {
         airdropping.current = false;
         _balance = PgCommon.lamportsToSol(
           await connection.getBalance(wallet.publicKey)
         );
-        airdrop(_balance);
+        airdrop(_balance, airdropError);
       }
     };
 
     airdrop();
-  }, [wallet, connection, balance, airdropError]);
+  }, [automaticAirdrop, wallet, connection, balance]);
 };

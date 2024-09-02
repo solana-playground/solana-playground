@@ -1,5 +1,77 @@
 import { PgCommon } from "./common";
-import { PgExplorer, TupleFiles } from "./explorer";
+import { Lang, PgExplorer, TupleFiles } from "./explorer";
+import type { RequiredKey, SyncOrAsync } from "./types";
+
+/** Custom framework parameter */
+export type FrameworkImpl<N extends string> = {
+  /** Framework name */
+  name: N;
+
+  /** Framework program language */
+  language: Lang;
+
+  /** Image icon src */
+  icon: string;
+
+  /** Example GitHub project */
+  githubExample: {
+    /** Project name */
+    name: string;
+    /** Project GitHub URL */
+    url: string;
+  };
+
+  /** Default file to open after loading the default framework files */
+  defaultOpenFile?: string;
+
+  /** Whether to make the image circular */
+  circleImage?: boolean;
+
+  /**
+   * Get whether the given files have this framework's layout.
+   *
+   * @param files files with either playground's layout or framework's layout
+   * @returns whether the given files belong to this framework
+   */
+  getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
+
+  /** Lazy load default framework files, defaults to `./files` */
+  importFiles?: () => Promise<{
+    /** Default framework files to create on a new project */
+    files: TupleFiles;
+  }>;
+
+  /** Lazy load the **from** playground conversion module, defaults to `./from` */
+  importFromPlayground?: () => Promise<{
+    /**
+     * Convert the given playground layout files to the framework's original
+     * layout files.
+     *
+     * @param files playground layout files
+     * @returns the frameworks' original layout files
+     */
+    convertFromPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
+    /** Markdown text to show after conversion */
+    readme: string;
+  }>;
+
+  /** Lazy load the **to** playground conversion module, defaults to `./to` */
+  importToPlayground?: () => Promise<{
+    /**
+     * Convert the given framework layout files to playground layout files.
+     *
+     * @param files framework layout files
+     * @returns the playground layout files
+     */
+    convertToPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
+  }>;
+};
+
+/** Created framework */
+export type Framework<N extends string = string> = RequiredKey<
+  FrameworkImpl<N>,
+  "getIsCurrent" | "importFiles" | "importFromPlayground" | "importToPlayground"
+>;
 
 export class PgFramework {
   /** All frameworks */

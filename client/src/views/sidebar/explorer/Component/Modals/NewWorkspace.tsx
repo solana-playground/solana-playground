@@ -4,7 +4,12 @@ import styled, { css } from "styled-components";
 import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { Fn, PgExplorer, PgFramework } from "../../../../../utils/pg";
+import {
+  Fn,
+  Framework as FrameworkType,
+  PgExplorer,
+  PgFramework,
+} from "../../../../../utils/pg";
 
 export const NewWorkspace = () => {
   // Handle user input
@@ -34,9 +39,10 @@ export const NewWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: newWorkspace,
-        disabled: !name || !selected || !!error,
-        setError,
+        disabled: !name || !selected,
       }}
+      error={error}
+      setError={setError}
     >
       <Content>
         <WorkspaceNameWrapper>
@@ -95,7 +101,7 @@ const FrameworksWrapper = styled.div`
   gap: 2rem;
 `;
 
-interface FrameworkProps extends Framework {
+interface FrameworkProps extends FrameworkType {
   isSelected: boolean;
   select: Fn;
 }

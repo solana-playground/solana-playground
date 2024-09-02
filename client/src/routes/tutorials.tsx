@@ -1,17 +1,17 @@
-import { Tutorials } from "../components/Tutorials";
 import { PgExplorer, PgRouter, PgView } from "../utils/pg";
 
 export const tutorials = PgRouter.create({
   path: "/tutorials",
   handle: () => {
+    // Set sidebar
+    PgView.setSidebarPage("Tutorials");
+
     // Set main view
     PgView.setMain(async () => {
       // Initialize explorer
       await PgExplorer.init();
 
-      // Set sidebar
-      PgView.setSidebarPage("Tutorials");
-
+      const { Tutorials } = await import("../views/main/Tutorials");
       return Tutorials;
     });
 

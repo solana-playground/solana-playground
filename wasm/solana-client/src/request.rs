@@ -1,34 +1,46 @@
+use serde::Serialize;
 use serde_json::Value;
+use serde_with::serde_as;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde_as]
+#[derive(Debug, Serialize)]
 pub struct ClientRequest {
     id: u32,
-    jsonrpc: String,
+    jsonrpc: &'static str,
     method: String,
-    params: Option<Value>,
+    #[serde(skip_serializing_if = "is_null")]
+    params: Value,
 }
 
 impl ClientRequest {
-    pub fn new(method: &str) -> Self {
+    pub fn new(method: impl ToString) -> Self {
         Self {
             id: 0,
-            jsonrpc: "2.0".to_owned(),
-            method: method.to_owned(),
-            params: None,
+            jsonrpc: "2.0",
+            method: method.to_string(),
+            params: Value::Null,
         }
     }
-    pub fn id(&mut self, id: u32) -> &mut ClientRequest {
+    pub fn id(mut self, id: u32) -> Self {
         self.id = id;
         self
     }
 
-    pub fn jsonrpc(&mut self, jsonrpc: &str) -> &mut ClientRequest {
-        self.jsonrpc = jsonrpc.to_owned();
+    pub fn jsonrpc(mut self, jsonrpc: &'static str) -> Self {
+        self.jsonrpc = jsonrpc;
         self
     }
 
-    pub fn params(&mut self, params: Value) -> &mut ClientRequest {
-        self.params = Some(params);
+    pub fn params<T: Serialize>(mut self, params: T) -> Self {
+        self.params = serde_json::to_value(params).unwrap_or_default();
         self
+    }
+}
+
+fn is_null(v: &Value) -> bool {
+    match v {
+        Value::Null => true,
+        Value::Array(a) => a.iter().all(|el| el.is_null()),
+        _ => false,
     }
 }

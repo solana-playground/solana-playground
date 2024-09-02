@@ -7,4 +7,5 @@ mod config;
 mod constants;
 mod output;
 mod sort;
+mod utils;
 mod wasm;

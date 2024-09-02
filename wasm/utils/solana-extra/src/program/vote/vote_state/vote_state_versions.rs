@@ -20,30 +20,30 @@ impl VoteStateVersions {
                 VoteState {
                     node_pubkey: state.node_pubkey,
 
-                    /// the signer for withdrawals
+                    // the signer for withdrawals
                     authorized_withdrawer: state.authorized_withdrawer,
 
-                    /// percentage (0-100) that represents what part of a rewards
-                    ///  payout should be given to this VoteAccount
+                    // percentage (0-100) that represents what part of a rewards
+                    //  payout should be given to this VoteAccount
                     commission: state.commission,
 
                     votes: state.votes.clone(),
 
                     root_slot: state.root_slot,
 
-                    /// the signer for vote transactions
+                    // the signer for vote transactions
                     authorized_voters,
 
-                    /// history of prior authorized voters and the epochs for which
-                    /// they were set, the bottom end of the range is inclusive,
-                    /// the top of the range is exclusive
+                    // history of prior authorized voters and the epochs for which
+                    // they were set, the bottom end of the range is inclusive,
+                    // the top of the range is exclusive
                     prior_voters: CircBuf::default(),
 
-                    /// history of how many credits earned by the end of each epoch
-                    ///  each tuple is (Epoch, credits, prev_credits)
+                    // history of how many credits earned by the end of each epoch
+                    //  each tuple is (Epoch, credits, prev_credits)
                     epoch_credits: state.epoch_credits.clone(),
 
-                    /// most recent timestamp submitted with a vote
+                    // most recent timestamp submitted with a vote
                     last_timestamp: state.last_timestamp.clone(),
                 }
             }

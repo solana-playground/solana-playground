@@ -19,6 +19,7 @@ import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import { ReplaceItem } from "./Modals";
 import {
   Plus,
+  Rocket,
   ShortArrow,
   TestTube,
   Triangle,
@@ -67,13 +68,22 @@ const Folders = () => {
             <SectionTopWrapper>
               <SectionHeader>Program</SectionHeader>
               {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
-                <SectionButton
-                  onClick={ctxMenu.runBuild}
-                  icon={<Wrench />}
-                  addTextMargin
-                >
-                  Build
-                </SectionButton>
+                <>
+                  <SectionButton
+                    onClick={ctxMenu.runBuild}
+                    icon={<Wrench />}
+                    addTextMargin
+                  >
+                    Build
+                  </SectionButton>
+                  <SectionButton
+                    onClick={ctxMenu.runDeploy}
+                    icon={<Rocket />}
+                    addTextMargin
+                  >
+                    Deploy
+                  </SectionButton>
+                </>
               ) : (
                 <SectionButton onClick={ctxMenu.addProgram} icon={<Plus />}>
                   Add
@@ -179,7 +189,7 @@ const ExplorerDndContext: FC = ({ children }) => {
 
     const itemName = PgExplorer.getItemNameFromPath(fromPath);
     const newPath = PgExplorer.getCanonicalPath(
-      PgCommon.joinPaths([toPath, itemName])
+      PgCommon.joinPaths(toPath, itemName)
     );
     if (PgCommon.isPathsEqual(fromPath, newPath)) return;
 
@@ -255,11 +265,11 @@ const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
   <>
     {folders
       .sort((a, b) => a.localeCompare(b))
-      .map((foldername) => (
+      .map((folderName) => (
         <RecursiveFolder
-          key={foldername}
+          key={folderName}
           path={PgCommon.appendSlash(
-            PgCommon.joinPaths([relativeRootPath, foldername])
+            PgCommon.joinPaths(relativeRootPath, folderName)
           )}
         />
       ))}
@@ -333,9 +343,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
           .map((folderName) => (
             <RecursiveFolder
               key={folderName}
-              path={PgCommon.appendSlash(
-                PgCommon.joinPaths([path, folderName])
-              )}
+              path={PgCommon.appendSlash(PgCommon.joinPaths(path, folderName))}
             />
           ))}
 
@@ -344,10 +352,10 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
           .map((fileName) => (
             <Dnd.Draggable
               key={fileName}
-              id={PgCommon.joinPaths([path, fileName])}
+              id={PgCommon.joinPaths(path, fileName)}
               Item={StyledFile}
               itemProps={{
-                path: PgCommon.joinPaths([path, fileName]),
+                path: PgCommon.joinPaths(path, fileName),
                 name: fileName,
                 depth: depth + 1,
                 onClick: toggle,
@@ -392,6 +400,8 @@ const File = forwardRef<HTMLDivElement, FileProps>(
 
 const RootWrapper = styled.div`
   ${({ theme }) => css`
+  padding: 0.375rem 0;
+
   & .${ClassName.FOLDER}, & .${ClassName.FILE} {
     display: flex;
     align-items: center;

@@ -1,4 +1,6 @@
-import { createCmd, PgCommandValidation, PgPackage } from "../../utils/pg";
+import { PgPackage } from "../../utils/pg";
+import { createCmd } from "../create";
+import { isPgConnected } from "../validation";
 
 export const sugar = createCmd({
   name: "sugar",
@@ -9,7 +11,7 @@ export const sugar = createCmd({
       log: true,
     });
 
-    await runSugar(input);
+    await runSugar(input.raw);
   },
-  preCheck: PgCommandValidation.isPgConnected,
+  preCheck: isPgConnected,
 });

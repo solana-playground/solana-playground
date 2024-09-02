@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
+import ErrorBoundary from "../../../../../components/ErrorBoundary";
 import { SpinnerWithBg } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
 import {
@@ -48,7 +49,7 @@ const MainView = () => {
   return (
     <Wrapper>
       <StyledSpinnerWithBg loading={loading} size="2rem">
-        {el}
+        <ErrorBoundary>{el}</ErrorBoundary>
       </StyledSpinnerWithBg>
     </Wrapper>
   );

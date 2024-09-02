@@ -92,6 +92,7 @@ export const processWithdraw = async (
         if (
           !(await term.waitForUserInput("Do you want to continue?", {
             confirm: true,
+            default: "yes",
           }))
         ) {
           throw new Error("Withdraw aborted");

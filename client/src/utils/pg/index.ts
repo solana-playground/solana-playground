@@ -1,5 +1,6 @@
+export * from "./block-explorer";
 export * from "./bytes";
-export * from "./client";
+export * from "./client/";
 export * from "./common";
 export * from "./command";
 export * from "./connection";
@@ -9,6 +10,7 @@ export * from "./framework";
 export * from "./github";
 export * from "./global";
 export * from "./keybind";
+export * from "./package";
 export * from "./playnet/";
 export * from "./program-info";
 export * from "./router";
@@ -22,5 +24,3 @@ export * from "./tx/";
 export * from "./types";
 export * from "./view";
 export * from "./wallet/";
-
-export type { ClientPackageName } from "./client";

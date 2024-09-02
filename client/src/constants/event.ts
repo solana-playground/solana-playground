@@ -16,7 +16,6 @@ export enum EventName {
 
   // Terminal
   TERMINAL_STATIC = "terminalstatic",
-  TERMINAL_WAIT_FOR_INPUT = "terminalwaitforinput",
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
   // Theme
@@ -25,6 +24,7 @@ export enum EventName {
 
   // Toast
   TOAST_SET = "toastset",
+  TOAST_CLOSE = "toastclose",
 
   // View
   VIEW_MAIN_STATIC = "viewmainstatic",

@@ -1,7 +1,7 @@
 import { PgPlaynetRpc } from "./rpc";
-import { PgPackage } from "../command";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
+import { PgPackage } from "../package";
 import { EventName } from "../../../constants";
 import type { OverridableConnection } from "./types";
 
@@ -86,9 +86,9 @@ export class PgPlaynet {
 
   /** Playnet related paths in fs */
   private static _PATHS = {
-    DIR: PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, ".playnet"]),
+    DIR: PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, ".playnet"),
     get SAVE_DATA() {
-      return PgCommon.joinPaths([this.DIR, "data.json"]);
+      return PgCommon.joinPaths(this.DIR, "data.json");
     },
   };
 

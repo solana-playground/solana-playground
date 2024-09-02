@@ -5,6 +5,7 @@ import {
   ConnectionConfig,
 } from "@solana/web3.js";
 
+import { PgCommon } from "./common";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
@@ -94,24 +95,16 @@ const derive = () => ({
     derive: _PgConnection.getCluster,
     onChange: PgSettings.onDidChangeConnectionEndpoint,
   }),
+
+  /** Whether the cluster is down. `null` indicates potential connection error. */
+  isClusterDown: createDerivable({
+    derive: _PgConnection.getIsClusterDown,
+    onChange: "cluster",
+  }),
 });
 
 @derivable(derive)
 class _PgConnection {
-  /**
-   * Get whether there is a successful connection to the current endpoint.
-   *
-   * @returns whether there is a successful connection
-   */
-  static async getIsConnected() {
-    try {
-      await PgConnection.current.getVersion();
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
   /**
    * Get the cluster name from the given `endpoint`.
    *
@@ -185,6 +178,47 @@ class _PgConnection {
     }
 
     return true;
+  }
+
+  /**
+   * Get whether there is a successful connection to the current endpoint.
+   *
+   * @returns whether there is a successful connection
+   */
+  static async getIsConnected() {
+    try {
+      await PgConnection.current.getSlot();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Get whether the current cluster is down by comparing the latest slot
+   * numbers between a certain time period.
+   *
+   * @returns whether the current cluster is down
+   */
+  static async getIsClusterDown() {
+    let prevSlot: number;
+    try {
+      prevSlot = await PgConnection.current.getSlot();
+    } catch {
+      return null;
+    }
+
+    // Sleep to give time for the RPC to advance slots
+    await PgCommon.sleep(1000);
+
+    let nextSlot: number;
+    try {
+      nextSlot = await PgConnection.current.getSlot();
+    } catch {
+      return null;
+    }
+
+    return prevSlot === nextSlot;
   }
 }
 

@@ -1,8 +1,12 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 
 import Input from "../../components/Input";
-import Select from "../../components/Select";
+import Link from "../../components/Link";
 import Modal from "../../components/Modal";
+import Select from "../../components/Select";
+import Text from "../../components/Text";
+import { Info } from "../../components/Icons";
 import { Endpoint, NetworkName, NETWORKS } from "../../constants";
 import { PgCommand, PgCommon, PgSettings, PgView } from "../../utils/pg";
 
@@ -22,8 +26,9 @@ const EndpointSetting = () => {
   useEffect(() => {
     const { dispose } = PgSettings.onDidChangeConnectionEndpoint((endpoint) => {
       setValue(
-        options.find((o) => o.value === endpoint) ??
-          options.find((o) => o.label === NetworkName.CUSTOM)
+        options.find(
+          (o) => o.value === endpoint || o.label === NetworkName.CUSTOM
+        )
       );
     });
     return () => dispose();
@@ -48,16 +53,12 @@ const EndpointSetting = () => {
 };
 
 const CustomEndpoint = () => {
-  const [customEndpoint, setCustomEndpoint] = useState("");
+  const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setCustomEndpoint(ev.target.value);
+    setValue(ev.target.value);
     setError("");
-  };
-
-  const onSubmit = async () => {
-    await PgCommand.solana.run(`config set -u ${customEndpoint}`);
   };
 
   return (
@@ -66,24 +67,47 @@ const CustomEndpoint = () => {
       closeButton
       buttonProps={{
         text: "Add",
-        onSubmit,
-        disabled: !!error || error === "",
-        setError,
+        onSubmit: () => PgCommand.solana.run("config", "set", "-u", value),
+        disabled: !value,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
       }}
+      error={error}
+      setError={setError}
     >
-      <Input
-        autoFocus
-        placeholder="Custom endpoint"
-        value={customEndpoint}
-        onChange={handleChange}
-        error={error}
-        setError={setError}
-        validator={PgCommon.isUrl}
-      />
+      <Content>
+        <InputLabel>RPC URL</InputLabel>
+        <Input
+          autoFocus
+          placeholder="https://..."
+          value={value}
+          onChange={handleChange}
+          error={error}
+          setError={setError}
+          validator={PgCommon.isUrl}
+        />
+
+        <InfoText icon={<Info color="info" />}>
+          Check out the list of{" "}
+          <Link href="https://solana.com/rpc">RPC providers</Link> if you don't
+          have a custom endpoint.
+        </InfoText>
+      </Content>
     </Modal>
   );
 };
+
+const Content = styled.div`
+  max-width: 25rem;
+`;
+
+const InputLabel = styled.div`
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+`;
+
+const InfoText = styled(Text)`
+  margin-top: 1rem;
+`;
 
 export default EndpointSetting;

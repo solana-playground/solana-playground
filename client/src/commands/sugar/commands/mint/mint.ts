@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 
 import { getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgBlockExplorer, PgTerminal } from "../../../../utils/pg";
 
 export const processMint = async (
   rpcUrl: string | undefined,
@@ -99,10 +99,9 @@ export const processMint = async (
                     ? "NFT"
                     : `${nft.name}`
                 }: ${PgTerminal.underline(
-                  PgCommon.getExplorerTokenUrl(
-                    nft.address.toBase58(),
-                    metaplex.connection.rpcEndpoint
-                  ).explorer
+                  // The explorer URL will be based on the current cluster
+                  // rather than the cluster of the custom URL argument
+                  PgBlockExplorer.current.getAddressUrl(nft.address.toBase58())
                 )} `
               )
             );

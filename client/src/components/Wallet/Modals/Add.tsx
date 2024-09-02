@@ -23,9 +23,9 @@ export const Add = () => {
       buttonProps={{
         text: "Create",
         onSubmit: handleCreate,
-        setError,
-        disabled: !!error,
       }}
+      error={error}
+      setError={setError}
     >
       <MainContent>
         <MainText>Are you sure you want to create a new wallet?</MainText>

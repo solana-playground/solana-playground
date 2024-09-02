@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 
 import FilterGroup from "../../../../components/FilterGroup";
-import { FILTERS } from "../../../../components/Programs/filters";
+import { FILTERS } from "../../../main/Programs/filters";
 import { PgRouter, PgView } from "../../../../utils/pg";
 import { useAsyncEffect } from "../../../../hooks";
 
