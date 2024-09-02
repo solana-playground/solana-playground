@@ -1,5 +1,4 @@
 import { toBigNumber } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
 
 import {
   assertCorrectAuthority,
@@ -8,7 +7,7 @@ import {
   loadConfigData,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processUpdate = async (
   rpcUrl: string | undefined,
@@ -26,7 +25,7 @@ export const processUpdate = async (
   }
   let candyMachinePk;
   try {
-    candyMachinePk = new PublicKey(candyMachinePkStr);
+    candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
   } catch {
     throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
   }
@@ -48,7 +47,7 @@ export const processUpdate = async (
 
   await candyClient.update({
     candyMachine: candyState,
-    newAuthority: newAuthority ? new PublicKey(newAuthority) : undefined,
+    newAuthority: newAuthority ? new PgWeb3.PublicKey(newAuthority) : undefined,
     creators: configData.creators,
     groups: configData.guards?.groups ? configData.guards.groups : undefined,
     guards: configData.guards?.default ? configData.guards.default : undefined,

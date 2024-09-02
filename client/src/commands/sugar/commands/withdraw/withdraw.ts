@@ -1,9 +1,8 @@
 import { Metaplex } from "@metaplex-foundation/js";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 import { getMetaplex } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processWithdraw = async (
   candyMachine: string | undefined,
@@ -26,7 +25,7 @@ export const processWithdraw = async (
 
   // (2) Retrieving data for listing/draining
   if (candyMachinePkStr) {
-    const candyMachinePk = new PublicKey(candyMachinePkStr);
+    const candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
 
     await doWithdraw(metaplex, candyMachinePk);
   } else {
@@ -54,7 +53,7 @@ export const processWithdraw = async (
     term.println(
       `\nFound ${candyAccounts.length} candy machine(s), total amount: ${
         Emoji.SOL
-      } ${totalLamports / LAMPORTS_PER_SOL}`,
+      } ${totalLamports / PgWeb3.LAMPORTS_PER_SOL}`,
       { noColor: true }
     );
 
@@ -72,7 +71,9 @@ export const processWithdraw = async (
             `${PgCommon.string(accountInfo.pubkey.toBase58(), {
               addSpace: { amount: 48, position: "right" },
             })} ${PgCommon.string(
-              (accountInfo.account.lamports / LAMPORTS_PER_SOL).toString(),
+              (
+                accountInfo.account.lamports / PgWeb3.LAMPORTS_PER_SOL
+              ).toString(),
               { addSpace: { amount: 8 } }
             )}`
           );
@@ -133,6 +134,9 @@ export const processWithdraw = async (
   }
 };
 
-const doWithdraw = async (metaplex: Metaplex, candyMachinePk: PublicKey) => {
+const doWithdraw = async (
+  metaplex: Metaplex,
+  candyMachinePk: PgWeb3.PublicKey
+) => {
   await metaplex.candyMachines().delete({ candyMachine: candyMachinePk });
 };

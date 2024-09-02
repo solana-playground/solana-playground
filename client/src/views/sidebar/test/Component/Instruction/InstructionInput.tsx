@@ -1,6 +1,5 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import { Keypair } from "@solana/web3.js";
 
 import FromSeed from "./FromSeed";
 import Label from "../InputLabel";
@@ -9,7 +8,7 @@ import SearchBar, {
   SearchBarItem,
   SearchBarProps,
 } from "../../../../../components/SearchBar";
-import { PgCommon, PgWallet } from "../../../../../utils/pg";
+import { PgCommon, PgWallet, PgWeb3 } from "../../../../../utils/pg";
 import {
   GeneratableInstruction,
   Idl,
@@ -283,9 +282,9 @@ const getSearchBarProps = (
     // sign the transaction later with the generated key
     searchBarProps.items[0] = {
       label: "Random",
-      data: Array.from(Keypair.generate().secretKey),
+      data: Array.from(PgWeb3.Keypair.generate().secretKey),
       get value() {
-        return Keypair.fromSecretKey(
+        return PgWeb3.Keypair.fromSecretKey(
           Uint8Array.from((this as { data: number[] }).data)
         ).publicKey.toBase58();
       },

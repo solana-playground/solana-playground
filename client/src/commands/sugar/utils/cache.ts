@@ -4,10 +4,9 @@ import {
   findCandyMachineV2CreatorPda,
 } from "@metaplex-foundation/js";
 import { ConfigLine } from "@metaplex-foundation/mpl-candy-machine-core";
-import { PublicKey } from "@solana/web3.js";
 
 import { PgSugar } from "../processor";
-import { PgCommon, PgExplorer } from "../../../utils/pg";
+import { PgCommon, PgExplorer, PgWeb3 } from "../../../utils/pg";
 
 export class CandyCache {
   program: CacheProgram;
@@ -104,7 +103,7 @@ class CacheProgram {
     }
   }
 
-  setCandyMachine(candyMachinePk: PublicKey) {
+  setCandyMachine(candyMachinePk: PgWeb3.PublicKey) {
     this.candyMachine = candyMachinePk.toBase58();
     this.candyMachineCreator =
       findCandyMachineV2CreatorPda(candyMachinePk).toBase58();

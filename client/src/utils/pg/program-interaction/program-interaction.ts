@@ -1,5 +1,3 @@
-import { Keypair } from "@solana/web3.js";
-
 import { fetchAccount, fetchAllAccounts } from "./account";
 import {
   GeneratableInstruction,
@@ -20,6 +18,7 @@ import {
 import { PgCommon } from "../common";
 import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
+import { PgWeb3 } from "../web3";
 
 export class PgProgramInteraction {
   /**
@@ -61,7 +60,9 @@ export class PgProgramInteraction {
     const keypairSigners = signerAccounts
       .map((acc) => {
         if (acc.generator.type !== "Random") return null;
-        return Keypair.fromSecretKey(Uint8Array.from(acc.generator.data));
+        return PgWeb3.Keypair.fromSecretKey(
+          Uint8Array.from(acc.generator.data)
+        );
       })
       .filter(PgCommon.isNonNullish);
     const walletSigners = signerAccounts

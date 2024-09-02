@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
-import { PgCommon, PgTerminal, PgTheme, PgTx, PgWallet } from "../../utils/pg";
+import {
+  PgCommon,
+  PgTerminal,
+  PgTheme,
+  PgTx,
+  PgWallet,
+  PgWeb3,
+} from "../../utils/pg";
 import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (
@@ -57,12 +63,12 @@ const SendExpanded = () => {
 
       let msg;
       try {
-        const ix = SystemProgram.transfer({
+        const ix = PgWeb3.SystemProgram.transfer({
           fromPubkey: PgWallet.current!.publicKey,
-          toPubkey: new PublicKey(recipient),
+          toPubkey: new PgWeb3.PublicKey(recipient),
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
-        const tx = new Transaction().add(ix);
+        const tx = new PgWeb3.Transaction().add(ix);
         const txHash = await PgTx.send(tx);
         PgTx.notify(txHash);
 

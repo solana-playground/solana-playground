@@ -1,9 +1,3 @@
-import {
-  Keypair,
-  SYSVAR_CLOCK_PUBKEY,
-  SYSVAR_RENT_PUBKEY,
-} from "@solana/web3.js";
-
 import { getPrograms } from "./generators";
 import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
 import type {
@@ -11,6 +5,7 @@ import type {
   InstructionValueGenerator,
 } from "./generator";
 import type { OrString } from "../types";
+import { PgWeb3 } from "../web3";
 
 /**
  * Create a generatable instruction from the given IDL instruction.
@@ -60,9 +55,9 @@ export const fillRandom = (
           ...acc,
           generator: {
             type: "Random",
-            data: Array.from(Keypair.generate().secretKey),
+            data: Array.from(PgWeb3.Keypair.generate().secretKey),
             get value() {
-              return Keypair.fromSecretKey(
+              return PgWeb3.Keypair.fromSecretKey(
                 Uint8Array.from((this as { data: number[] }).data)
               ).publicKey.toBase58();
             },
@@ -163,6 +158,6 @@ const getKnownAccountKey = <
 /* Known account name -> account key map */
 // TODO: Add sysvar generator
 const KNOWN_ACCOUNT_KEYS = {
-  clock: SYSVAR_CLOCK_PUBKEY.toBase58(),
-  rent: SYSVAR_RENT_PUBKEY.toBase58(),
+  clock: PgWeb3.SYSVAR_CLOCK_PUBKEY.toBase58(),
+  rent: PgWeb3.SYSVAR_RENT_PUBKEY.toBase58(),
 } as const;

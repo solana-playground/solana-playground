@@ -1,6 +1,5 @@
-import { Message, Transaction } from "@solana/web3.js";
-
 import { PgBytes } from "../bytes";
+import { PgWeb3 } from "../web3";
 
 export class PgSerde {
   /**
@@ -13,7 +12,7 @@ export class PgSerde {
   static serializeTx(txBase64: string) {
     // Decode base64 tx and get tx object
     const txBuffer = PgBytes.fromBase64(txBase64);
-    const tx = Transaction.from(txBuffer);
+    const tx = PgWeb3.Transaction.from(txBuffer);
 
     // Convert tx object into Rust Serde format
     const rustTx = this._convertTx(tx);
@@ -32,7 +31,7 @@ export class PgSerde {
   static serializeMsg(msgBase64: string) {
     // Decode base64 msg and get msg object
     const msgBuffer = PgBytes.fromBase64(msgBase64);
-    const msg = Message.from(msgBuffer);
+    const msg = PgWeb3.Message.from(msgBuffer);
 
     // Convert msg object into Rust Serde format
     const rustMsg = this._convertMsg(msg);
@@ -47,7 +46,7 @@ export class PgSerde {
   }
 
   /** Convert the given transaction to a `serde` compatible transaction. */
-  private static _convertTx(tx: Transaction) {
+  private static _convertTx(tx: PgWeb3.Transaction) {
     return {
       signatures: this._convertToSerdeArray(
         tx.signatures
@@ -59,7 +58,7 @@ export class PgSerde {
   }
 
   /** Convert the given message to a `serde` compatible message. */
-  private static _convertMsg(msg: Message) {
+  private static _convertMsg(msg: PgWeb3.Message) {
     return {
       header: msg.header,
       accountKeys: this._convertToSerdeArray(

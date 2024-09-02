@@ -1,5 +1,4 @@
 import Bundlr from "@bundlr-network/client";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { BundlrEnpoints } from "../../constants";
 import { Emoji } from "../../../../constants";
@@ -8,6 +7,7 @@ import {
   PgSettings,
   PgTerminal,
   PgWallet,
+  PgWeb3,
 } from "../../../../utils/pg";
 
 enum BundlrAction {
@@ -44,7 +44,9 @@ export const processBundlr = async (
   PgTerminal.log("\nFunding address:");
   PgTerminal.log(`  -> pubkey: ${pkStr}`);
   PgTerminal.log(
-    `  -> lamports: ${balance} (${Emoji.SOL} ${balance.div(LAMPORTS_PER_SOL)})`
+    `  -> lamports: ${balance} (${Emoji.SOL} ${balance.div(
+      PgWeb3.LAMPORTS_PER_SOL
+    )})`
   );
 
   // Withdraw funds
@@ -69,7 +71,7 @@ export const processBundlr = async (
       );
       PgTerminal.log(
         `  -> required balance > ${LIMIT.toString()} (${Emoji.SOL} ${
-          LIMIT / LAMPORTS_PER_SOL
+          LIMIT / PgWeb3.LAMPORTS_PER_SOL
         })`
       );
     }

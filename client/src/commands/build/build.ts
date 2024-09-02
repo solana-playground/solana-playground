@@ -1,5 +1,3 @@
-import { Keypair } from "@solana/web3.js";
-
 import {
   ExplorerFiles,
   PgCommon,
@@ -10,6 +8,7 @@ import {
   PgServer,
   PgSettings,
   PgTerminal,
+  PgWeb3,
   TupleFiles,
 } from "../../utils/pg";
 import { createCmd } from "../create";
@@ -120,7 +119,7 @@ const buildPython = async (pythonFiles: TupleFiles) => {
 const getBuildFiles = () => {
   let programPkStr = PgProgramInfo.getPkStr();
   if (!programPkStr) {
-    const kp = Keypair.generate();
+    const kp = PgWeb3.Keypair.generate();
     PgProgramInfo.update({ kp });
     programPkStr = kp.publicKey.toBase58();
   }

@@ -1,11 +1,3 @@
-import {
-  Commitment,
-  ComputeBudgetProgram,
-  Connection,
-  Signer,
-  Transaction,
-} from "@solana/web3.js";
-
 import { ExplorerLink } from "./ExplorerLink";
 import { PgCommon } from "../common";
 import { PgPlaynet } from "../playnet";
@@ -13,6 +5,7 @@ import { PgSettings } from "../settings";
 import { PgView } from "../view";
 import { ConnectionOption, PgConnection } from "../connection";
 import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
+import { PgWeb3 } from "../web3";
 
 type WithTimeStamp<T> = T & {
   /** UNIX timestamp of the last cache */
@@ -45,9 +38,9 @@ export class PgTx {
    * @returns the transaction signature
    */
   static async send(
-    tx: Transaction,
+    tx: PgWeb3.Transaction,
     opts?: {
-      keypairSigners?: Signer[];
+      keypairSigners?: PgWeb3.Signer[];
       walletSigners?: CurrentWallet[];
       forceFetchLatestBlockhash?: boolean;
     } & ConnectionOption &
@@ -61,7 +54,7 @@ export class PgTx {
     // Set priority fees if the transaction doesn't already have it
     const existingsetComputeUnitPriceIx = tx.instructions.find(
       (ix) =>
-        ix.programId.equals(ComputeBudgetProgram.programId) &&
+        ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
         ix.data.at(0) === 3 // setComputeUnitPrice
     );
     if (!existingsetComputeUnitPriceIx) {
@@ -72,9 +65,10 @@ export class PgTx {
           ? priorityFeeSetting
           : priorityFeeInfo[priorityFeeSetting];
       if (priorityFee) {
-        const setComputeUnitPriceIx = ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: priorityFee,
-        });
+        const setComputeUnitPriceIx =
+          PgWeb3.ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports: priorityFee,
+          });
         tx.instructions = [setComputeUnitPriceIx, ...tx.instructions];
       }
     }
@@ -133,7 +127,7 @@ export class PgTx {
    */
   static async confirm(
     txHash: string,
-    opts?: { commitment?: Commitment } & ConnectionOption
+    opts?: { commitment?: PgWeb3.Commitment } & ConnectionOption
   ) {
     const connection = opts?.connection ?? PgConnection.current;
 
@@ -180,7 +174,10 @@ export class PgTx {
    *
    * @returns the latest blockhash
    */
-  private static async _getLatestBlockhash(conn: Connection, force?: boolean) {
+  private static async _getLatestBlockhash(
+    conn: PgWeb3.Connection,
+    force?: boolean
+  ) {
     // Check whether the latest saved blockhash is still valid
     const timestamp = PgCommon.getUnixTimstamp();
 
@@ -207,7 +204,7 @@ export class PgTx {
    * @param conn `Connection` object to use
    * @returns the priority fee information
    */
-  private static async _getPriorityFee(conn: Connection) {
+  private static async _getPriorityFee(conn: PgWeb3.Connection) {
     // Check whether the priority fee info has expired
     const timestamp = PgCommon.getUnixTimstamp();
 

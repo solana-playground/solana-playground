@@ -1,5 +1,3 @@
-import { PublicKey } from "@solana/web3.js";
-
 import {
   getCmCreatorMetadataAccounts,
   getMetaplex,
@@ -7,7 +5,7 @@ import {
   loadConfigData,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processReveal = async (rpcUrl: string | undefined) => {
   const term = await PgTerminal.get();
@@ -25,7 +23,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   const candyMachinePkStr = cache.program.candyMachine;
   let candyMachinePk;
   try {
-    candyMachinePk = new PublicKey(candyMachinePkStr);
+    candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
   } catch {
     throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
   }

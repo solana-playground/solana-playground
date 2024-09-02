@@ -1,9 +1,8 @@
 import { DefaultCandyGuardSettings } from "@metaplex-foundation/js";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processGuardShow = async (
   rpcUrl: string | undefined,
@@ -20,7 +19,7 @@ export const processGuardShow = async (
   }
   let candyGuardPk;
   try {
-    candyGuardPk = new PublicKey(candyGuardPkStr);
+    candyGuardPk = new PgWeb3.PublicKey(candyGuardPkStr);
   } catch {
     throw new Error(
       `Failed to parse candy machine guard id: ${candyGuardPkStr}`
@@ -90,7 +89,8 @@ const printGuardSet = (
       innerPadding,
       "lamports",
       `${guardSet.botTax.lamports.basisPoints.toString()} (${Emoji.SOL} ${
-        guardSet.botTax.lamports.basisPoints.toNumber() / LAMPORTS_PER_SOL
+        guardSet.botTax.lamports.basisPoints.toNumber() /
+        PgWeb3.LAMPORTS_PER_SOL
       })`
     );
     printWithStyle(
@@ -110,7 +110,8 @@ const printGuardSet = (
       "lamports",
 
       `${guardSet.solPayment.amount.basisPoints.toString()} (${Emoji.SOL} ${
-        guardSet.solPayment.amount.basisPoints.toNumber() / LAMPORTS_PER_SOL
+        guardSet.solPayment.amount.basisPoints.toNumber() /
+        PgWeb3.LAMPORTS_PER_SOL
       })`
     );
     printWithStyle(

@@ -1,14 +1,8 @@
-import {
-  clusterApiUrl,
-  Cluster as PublicCluster,
-  Connection,
-  ConnectionConfig,
-} from "@solana/web3.js";
-
 import { PgCommon } from "./common";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
+import { PgWeb3 } from "./web3";
 
 /** Optional `connection` prop */
 export interface ConnectionOption {
@@ -16,7 +10,7 @@ export interface ConnectionOption {
 }
 
 /** Solana public clusters or "localnet" */
-export type Cluster = "localnet" | PublicCluster;
+export type Cluster = "localnet" | PgWeb3.Cluster;
 
 const derive = () => ({
   /** Globally sycned connection instance */
@@ -121,11 +115,11 @@ class _PgConnection {
 
     // Public
     switch (endpoint) {
-      case clusterApiUrl("devnet"):
+      case PgWeb3.clusterApiUrl("devnet"):
         return "devnet";
-      case clusterApiUrl("testnet"):
+      case PgWeb3.clusterApiUrl("testnet"):
         return "testnet";
-      case clusterApiUrl("mainnet-beta"):
+      case PgWeb3.clusterApiUrl("mainnet-beta"):
         return "mainnet-beta";
     }
 
@@ -153,8 +147,8 @@ class _PgConnection {
    * @param opts connection options
    * @returns a new `Connection` instance
    */
-  static create(opts?: { endpoint?: string } & ConnectionConfig) {
-    return new Connection(
+  static create(opts?: { endpoint?: string } & PgWeb3.ConnectionConfig) {
+    return new PgWeb3.Connection(
       opts?.endpoint ?? PgSettings.connection.endpoint,
       opts ?? PgSettings.connection.commitment
     );

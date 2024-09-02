@@ -1,4 +1,3 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN, DecodeType } from "@coral-xyz/anchor";
 import type {
   Idl,
@@ -9,6 +8,7 @@ import type {
 } from "@coral-xyz/anchor/dist/cjs/idl";
 
 import { PgCommon } from "../common";
+import { PgWeb3 } from "../web3";
 import type { MergeUnion, OrString } from "../types";
 
 export type {
@@ -401,9 +401,9 @@ const createIdlType = <T extends IdlType>(idlType: PgIdlType<T>) => {
 
 const publicKey = createIdlType({
   displayType: "publicKey",
-  parse: (value) => new PublicKey(string.parse(value)),
+  parse: (value) => new PgWeb3.PublicKey(string.parse(value)),
   toBuffer: (value) => value.toBuffer(),
-  generateRandom: () => Keypair.generate().publicKey.toBase58(),
+  generateRandom: () => PgWeb3.Keypair.generate().publicKey.toBase58(),
 });
 
 const string = createIdlType({

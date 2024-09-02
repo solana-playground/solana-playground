@@ -1,11 +1,3 @@
-import {
-  BlockheightBasedTransactionConfirmationStrategy,
-  Connection,
-  PublicKey,
-  TransactionConfirmationStatus,
-  VersionedTransaction,
-  VersionedTransactionResponse,
-} from "@solana/web3.js";
 import type { PgRpc, TransactionStatus } from "@solana-playground/playnet";
 
 import { PgSerde } from "./serde";
@@ -21,6 +13,7 @@ import type {
   RpcResponse,
   RpcResponseWithContext,
 } from "./types";
+import { PgWeb3 } from "../web3";
 
 export class PgPlaynetRpc {
   /**
@@ -64,14 +57,14 @@ export class PgPlaynetRpc {
 
     // @ts-ignore
     connection.confirmTransaction = async (
-      ...params: Parameters<Connection["confirmTransaction"]>
+      ...params: Parameters<PgWeb3.Connection["confirmTransaction"]>
     ) => {
       let signature;
       if (typeof params[0] === "string") {
         signature = params[0];
       } else {
         const strat =
-          params[0] as BlockheightBasedTransactionConfirmationStrategy;
+          params[0] as PgWeb3.BlockheightBasedTransactionConfirmationStrategy;
         signature = strat.signature;
       }
 
@@ -87,7 +80,7 @@ export class PgPlaynetRpc {
 
     // @ts-ignore
     connection.onAccountChange = (
-      ...params: Parameters<Connection["onAccountChange"]>
+      ...params: Parameters<PgWeb3.Connection["onAccountChange"]>
     ) => {
       const address = params[0].toBase58();
       const cb = params[1];
@@ -114,7 +107,7 @@ export class PgPlaynetRpc {
     };
 
     connection.removeAccountChangeListener = async (
-      ...params: Parameters<Connection["removeAccountChangeListener"]>
+      ...params: Parameters<PgWeb3.Connection["removeAccountChangeListener"]>
     ) => {
       const [id] = params;
       clearInterval(id);
@@ -205,7 +198,7 @@ export class PgPlaynetRpc {
                   data: [PgBytes.toBase64(Buffer.from(account.data)), "base64"],
                   executable: account.executable,
                   lamports,
-                  owner: new PublicKey(account.owner.toBytes()),
+                  owner: new PgWeb3.PublicKey(account.owner.toBytes()),
                   rentEpoch: PgCommon.bigintToInt(account.rentEpoch),
                 },
         });
@@ -309,7 +302,7 @@ export class PgPlaynetRpc {
                           default:
                             return "finalized";
                         }
-                      })() as TransactionConfirmationStatus,
+                      })() as PgWeb3.TransactionConfirmationStatus,
                       confirmations: status.confirmations!,
                       err: status.error() ?? null,
                       slot: PgCommon.bigintToInt(status.slot),
@@ -336,10 +329,14 @@ export class PgPlaynetRpc {
         // web3.js expects tx object but solana-cli expects base64 encoded tx
         // string. We get base64 tx string from `playnet` and convert it to
         // `VersionedTransaction`
-        let tx: [string, string] | VersionedTransactionResponse["transaction"] =
-          [getTxResult.transaction(), "base64"];
+        let tx:
+          | [string, string]
+          | PgWeb3.VersionedTransactionResponse["transaction"] = [
+          getTxResult.transaction(),
+          "base64",
+        ];
         if (!options?.encoding) {
-          const versionedTx = VersionedTransaction.deserialize(
+          const versionedTx = PgWeb3.VersionedTransaction.deserialize(
             PgBytes.fromBase64(tx[0])
           );
 
@@ -456,7 +453,7 @@ export class PgPlaynetRpc {
   }
 
   /** Create `web3.js` compatible responses with type safety. */
-  private static _createRpcResponse<K extends keyof Connection>(
+  private static _createRpcResponse<K extends keyof PgWeb3.Connection>(
     request: RpcRequest,
     context: RpcResponseWithContext<K>["result"]["context"],
     data: {

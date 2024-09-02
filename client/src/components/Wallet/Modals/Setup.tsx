@@ -1,16 +1,15 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
-import { Keypair } from "@solana/web3.js";
 
 import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgWallet } from "../../../utils/pg";
+import { PgWallet, PgWeb3 } from "../../../utils/pg";
 
 export const Setup = () => {
   const [text, setText] = useState("");
-  const [keypair] = useState(Keypair.generate());
+  const [keypair] = useState(PgWeb3.Keypair.generate());
 
   const handleSetup = () => {
     if (!PgWallet.accounts.length) PgWallet.add({ keypair });

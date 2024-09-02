@@ -2,10 +2,10 @@ import {
   ASSOCIATED_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from "@coral-xyz/anchor/dist/cjs/utils/token";
-import { SystemProgram } from "@solana/web3.js";
 
 import { PgCommon } from "../../common";
 import { PgProgramInfo } from "../../program-info";
+import { PgWeb3 } from "../../web3";
 import type { Arrayable } from "../../types";
 
 /** Program data */
@@ -22,7 +22,7 @@ interface Program {
 const PROGRAMS: Readonly<Program[]> = [
   {
     name: "System",
-    programId: SystemProgram.programId.toBase58(),
+    programId: PgWeb3.SystemProgram.programId.toBase58(),
   },
   {
     name: "Token",

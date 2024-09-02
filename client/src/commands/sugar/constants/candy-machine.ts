@@ -1,5 +1,3 @@
-import { PublicKey } from "@solana/web3.js";
-
 import {
   MAX_CREATOR_LEN,
   MAX_CREATOR_LIMIT,
@@ -7,6 +5,7 @@ import {
   MAX_SYMBOL_LENGTH,
   MAX_URI_LENGTH,
 } from "./token-metadata";
+import { PgWeb3 } from "../../../utils/pg";
 
 export const EXPIRE_OFFSET = 10 * 60;
 export const CANDY_MACHINE_PREFIX = "candy_machine";
@@ -24,19 +23,19 @@ export const COLLECTION_PDA_SIZE = 8 + 32 + 32;
 
 export const CONFIG_LINE_SIZE = 4 + MAX_NAME_LENGTH + 4 + MAX_URI_LENGTH;
 
-export const BLOCK_HASHES = new PublicKey(
+export const BLOCK_HASHES = new PgWeb3.PublicKey(
   "SysvarRecentB1ockHashes11111111111111111111"
 );
-export const GUMDROP_ID = new PublicKey(
+export const GUMDROP_ID = new PgWeb3.PublicKey(
   "gdrpGjVffourzkdDRrQmySw4aTHr8a3xmQzzxSwFD1a"
 );
-export const CUPCAKE_ID = new PublicKey(
+export const CUPCAKE_ID = new PgWeb3.PublicKey(
   "cakeGJxEdGpZ3MJP8sM3QypwzuzZpko1ueonUQgKLPE"
 );
-export const A_TOKEN = new PublicKey(
+export const A_TOKEN = new PgWeb3.PublicKey(
   "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
 );
-export const COMPUTE_BUDGET = new PublicKey(
+export const COMPUTE_BUDGET = new PgWeb3.PublicKey(
   "ComputeBudget111111111111111111111111111111"
 );
 

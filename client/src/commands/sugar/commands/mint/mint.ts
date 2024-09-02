@@ -1,9 +1,8 @@
 import { toBigNumber } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
 
 import { getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgBlockExplorer, PgTerminal } from "../../../../utils/pg";
+import { PgBlockExplorer, PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processMint = async (
   rpcUrl: string | undefined,
@@ -21,7 +20,7 @@ export const processMint = async (
   }
   let candyMachinePk;
   try {
-    candyMachinePk = new PublicKey(candyMachinePkStr);
+    candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
   } catch {
     throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
   }
@@ -38,7 +37,7 @@ export const processMint = async (
   term.println(`\n[2/2] ${Emoji.CANDY} Minting from candy machine`);
 
   const receiverPk = receiver
-    ? new PublicKey(receiver)
+    ? new PgWeb3.PublicKey(receiver)
     : metaplex.identity().publicKey;
   term.println(`Minting to ${receiverPk.toBase58()}\n`);
 

@@ -1,9 +1,4 @@
 import type {
-  Keypair,
-  Transaction,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import type {
   Adapter,
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
@@ -11,6 +6,8 @@ import type {
   WalletAdapterProps,
 } from "@solana/wallet-adapter-base";
 import type { Wallet as SolanaWallet } from "@solana/wallet-adapter-react";
+
+import type { PgWeb3 } from "../web3";
 
 /** Wallet state */
 export interface Wallet {
@@ -49,7 +46,7 @@ export type SerializedWallet = Pick<
 >;
 
 /** Legacy or versioned transaction */
-export type AnyTransaction = Transaction | VersionedTransaction;
+export type AnyTransaction = PgWeb3.Transaction | PgWeb3.VersionedTransaction;
 
 /**
  * The current wallet which can be a Playground Wallet, a Wallet Standard Wallet
@@ -65,7 +62,7 @@ interface PgWalletProps extends DefaultWalletProps {
   /** The wallet is Playground Wallet */
   isPg: true;
   /** Keypair of the Playground Wallet account */
-  keypair: Keypair;
+  keypair: PgWeb3.Keypair;
 }
 
 /** All wallets other than Playground Wallet */

@@ -5,12 +5,11 @@ import {
   toMetaplexFileFromBrowser,
   UploadMetadataInput,
 } from "@metaplex-foundation/js";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { getAssetPairs } from "./assets";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 interface AssetType {
   image: number[];
@@ -230,7 +229,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
               if ((e.message = "Not enough funds to send data")) {
                 (
                   (await metaplex.storage().driver()) as BundlrStorageDriver
-                ).fund(sol(10_000 / LAMPORTS_PER_SOL));
+                ).fund(sol(10_000 / PgWeb3.LAMPORTS_PER_SOL));
               }
 
               maxTryIndex++;

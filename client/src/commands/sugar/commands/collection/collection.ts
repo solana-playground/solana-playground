@@ -1,11 +1,10 @@
 import { createSetCollectionInstruction } from "@metaplex-foundation/mpl-candy-machine-core";
-import { PublicKey, Transaction } from "@solana/web3.js";
 
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
 import { assertCorrectAuthority, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processCollectionSet = async (
   rpcUrl: string | undefined,
@@ -18,16 +17,16 @@ export const processCollectionSet = async (
   if (!candyMachinePkStr) {
     throw new Error("Missing candy machine id.");
   }
-  let candyMachinePk: PublicKey;
+  let candyMachinePk: PgWeb3.PublicKey;
   try {
-    candyMachinePk = new PublicKey(candyMachinePkStr);
+    candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
   } catch {
     throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
   }
 
-  let newCollectionMintPk: PublicKey;
+  let newCollectionMintPk: PgWeb3.PublicKey;
   try {
-    newCollectionMintPk = new PublicKey(collectionMint);
+    newCollectionMintPk = new PgWeb3.PublicKey(collectionMint);
   } catch {
     throw new Error(`Failed to parse collection mint id: ${candyMachinePkStr}`);
   }
@@ -48,7 +47,7 @@ export const processCollectionSet = async (
     `\n[2/2] ${Emoji.COLLECTION} Setting collection mint for candy machine`
   );
 
-  const getCandyPdas = (collectionMintPk: PublicKey) => {
+  const getCandyPdas = (collectionMintPk: PgWeb3.PublicKey) => {
     const authorityPda = metaplex
       .candyMachines()
       .pdas()
@@ -81,7 +80,7 @@ export const processCollectionSet = async (
     .nfts()
     .findByMint({ mintAddress: newCollectionMintPk });
 
-  const tx = new Transaction().add(
+  const tx = new PgWeb3.Transaction().add(
     createSetCollectionInstruction({
       candyMachine: candyMachinePk,
       authority: payer,

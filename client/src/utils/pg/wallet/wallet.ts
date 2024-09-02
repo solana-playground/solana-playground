@@ -1,5 +1,4 @@
 import * as ed25519 from "@noble/ed25519";
-import { Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 import { PgCommon } from "../common";
 import {
@@ -10,6 +9,7 @@ import {
   migratable,
   updatable,
 } from "../decorators";
+import { PgWeb3 } from "../web3";
 import type {
   AnyTransaction,
   CurrentWallet,
@@ -154,10 +154,10 @@ class _PgWallet {
    * @param name name of the account
    * @param keypair optional keypair, default to a random keypair
    */
-  static add(params?: { name?: string; keypair?: Keypair }) {
+  static add(params?: { name?: string; keypair?: PgWeb3.Keypair }) {
     const { name, keypair } = PgCommon.setDefault(params, {
       name: PgWallet.getNextAvailableAccountName(),
-      keypair: Keypair.generate(),
+      keypair: PgWeb3.Keypair.generate(),
     });
 
     // Validate name
@@ -240,7 +240,7 @@ class _PgWallet {
           const keypairBytes = Uint8Array.from(JSON.parse(decodedString));
           if (keypairBytes.length !== 64) throw new Error("Invalid keypair");
 
-          const keypair = Keypair.fromSecretKey(keypairBytes);
+          const keypair = PgWeb3.Keypair.fromSecretKey(keypairBytes);
           PgWallet.add({ name, keypair });
 
           return keypair;
@@ -257,7 +257,7 @@ class _PgWallet {
    *
    * @param keypair optional keypair, defaults to the current wallet's keypair
    */
-  static export(keypair?: Keypair) {
+  static export(keypair?: PgWeb3.Keypair) {
     PgCommon.export(
       "wallet-keypair.json",
       keypair ? Array.from(keypair.secretKey) : PgWallet.getKeypairBytes()
@@ -336,7 +336,7 @@ class _PgWallet {
    * @returns a Playground Wallet instance
    */
   static createWallet(account: WalletAccount): CurrentWallet {
-    const keypair = Keypair.fromSecretKey(Uint8Array.from(account.kp));
+    const keypair = PgWeb3.Keypair.fromSecretKey(Uint8Array.from(account.kp));
 
     return {
       isPg: true,
@@ -345,10 +345,10 @@ class _PgWallet {
       publicKey: keypair.publicKey,
 
       async signTransaction<T extends AnyTransaction>(tx: T) {
-        if ((tx as VersionedTransaction).version) {
-          (tx as VersionedTransaction).sign([keypair]);
+        if ((tx as PgWeb3.VersionedTransaction).version) {
+          (tx as PgWeb3.VersionedTransaction).sign([keypair]);
         } else {
-          (tx as Transaction).partialSign(keypair);
+          (tx as PgWeb3.Transaction).partialSign(keypair);
         }
 
         return tx;

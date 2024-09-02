@@ -1,16 +1,16 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 
 import Button from "../Button";
 import Link from "../Link";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils/pg";
 import { useBlockExplorer, useConnection } from "../../hooks";
 
 const Transactions = () => {
-  const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
+  const [signatures, setSignatures] =
+    useState<PgWeb3.ConfirmedSignatureInfo[]>();
   const [refreshCount, setRefreshCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -155,7 +155,7 @@ const NoTransaction = styled.div`
   }
 `;
 
-const Tx: FC<ConfirmedSignatureInfo> = ({
+const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   signature,
   slot,
   err,

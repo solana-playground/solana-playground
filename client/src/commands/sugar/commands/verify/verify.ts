@@ -1,9 +1,8 @@
 import { CandyMachineItem } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
 
 import { CacheItem, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgConnection, PgTerminal } from "../../../../utils/pg";
+import { PgConnection, PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processVerify = async (rpcUrl: string | undefined) => {
   // Load the cache file (this needs to have been created by
@@ -24,7 +23,7 @@ export const processVerify = async (rpcUrl: string | undefined) => {
 
   let candyMachinePk;
   try {
-    candyMachinePk = new PublicKey(cache.program.candyMachine);
+    candyMachinePk = new PgWeb3.PublicKey(cache.program.candyMachine);
   } catch {
     throw new Error(
       [
@@ -93,7 +92,7 @@ export const processVerify = async (rpcUrl: string | undefined) => {
     const collectionMetadataPk = metaplex
       .nfts()
       .pdas()
-      .metadata({ mint: new PublicKey(cache.program.collectionMint) });
+      .metadata({ mint: new PgWeb3.PublicKey(cache.program.collectionMint) });
 
     const metadata = await metaplex
       .nfts()

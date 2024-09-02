@@ -1,33 +1,35 @@
-import type { Connection } from "@solana/web3.js";
+import type { PgWeb3 } from "../web3";
 
 /** Playnet RPC request */
 export interface RpcRequest {
   jsonrpc: string;
-  method: keyof Connection;
+  method: keyof PgWeb3.Connection;
   params: any[];
   id: string;
 }
 
 /** Playnet RPC response */
-export type RpcResponse<K extends keyof Connection> = {
+export type RpcResponse<K extends keyof PgWeb3.Connection> = {
   jsonrpc: string;
-  result: Connection[K] extends (...args: any[]) => any
-    ? Awaited<ReturnType<Connection[K]>>
+  result: PgWeb3.Connection[K] extends (...args: any[]) => any
+    ? Awaited<ReturnType<PgWeb3.Connection[K]>>
     : null;
   id: string;
 };
 
 /** Playnet RPC response with context */
-export type RpcResponseWithContext<K extends keyof Connection> = {
+export type RpcResponseWithContext<K extends keyof PgWeb3.Connection> = {
   jsonrpc: string;
   result: {
     context: { apiVersion: string; slot: number };
-    value: Connection[K] extends (...args: any[]) => any
-      ? Awaited<ReturnType<Connection[K]>>
+    value: PgWeb3.Connection[K] extends (...args: any[]) => any
+      ? Awaited<ReturnType<PgWeb3.Connection[K]>>
       : null;
   };
   id: string;
 };
 
 /** Overridable `Connection` instance */
-export type OverridableConnection = Connection & { overridden?: boolean };
+export type OverridableConnection = PgWeb3.Connection & {
+  overridden?: boolean;
+};

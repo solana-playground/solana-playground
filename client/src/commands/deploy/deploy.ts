@@ -1,10 +1,3 @@
-import {
-  Keypair,
-  LAMPORTS_PER_SOL,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
-
 import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-browser";
 import {
   PgCommand,
@@ -16,6 +9,7 @@ import {
   PgTerminal,
   PgTx,
   PgWallet,
+  PgWeb3,
 } from "../../utils/pg";
 import { createCmd } from "../create";
 
@@ -150,7 +144,7 @@ const processDeploy = async () => {
   const connection = PgConnection.current;
 
   // Create buffer
-  const bufferKp = Keypair.generate();
+  const bufferKp = PgWeb3.Keypair.generate();
   const programLen = programBuffer.length;
   const bufferSize = BpfLoaderUpgradeable.getBufferAccountSize(programLen);
   const bufferBalance = await connection.getMinimumBalanceForRentExemption(
@@ -208,13 +202,14 @@ const processDeploy = async () => {
   // asking for approval.
   if (standardWallet) {
     // Transfer extra 0.1 SOL for fees (doesn't have to get used)
-    const requiredBalance = requiredBalanceWithoutFees + LAMPORTS_PER_SOL / 10;
-    const transferIx = SystemProgram.transfer({
+    const requiredBalance =
+      requiredBalanceWithoutFees + PgWeb3.LAMPORTS_PER_SOL / 10;
+    const transferIx = PgWeb3.SystemProgram.transfer({
       fromPubkey: standardWallet.publicKey,
       toPubkey: pgWallet.publicKey,
       lamports: requiredBalance,
     });
-    const transferTx = new Transaction().add(transferIx);
+    const transferTx = new PgWeb3.Transaction().add(transferIx);
     await sendAndConfirmTxWithRetries(
       () => PgTx.send(transferTx),
       async () => {

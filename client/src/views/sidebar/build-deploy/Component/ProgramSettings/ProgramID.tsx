@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useState } from "react";
-import { Keypair, PublicKey } from "@solana/web3.js";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
@@ -10,7 +9,12 @@ import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Warning } from "../../../../../components/Icons";
-import { PgProgramInfo, PgCommon, PgView } from "../../../../../utils/pg";
+import {
+  PgProgramInfo,
+  PgCommon,
+  PgView,
+  PgWeb3,
+} from "../../../../../utils/pg";
 import { useRenderOnChange } from "../../../../../hooks";
 
 const ProgramID = () => (
@@ -29,7 +33,7 @@ const New = () => {
     if (PgProgramInfo.kp) {
       await PgView.setModal(NewKeypairModal);
     } else {
-      PgProgramInfo.update({ kp: Keypair.generate() });
+      PgProgramInfo.update({ kp: PgWeb3.Keypair.generate() });
     }
   };
 
@@ -39,7 +43,7 @@ const New = () => {
 const NewKeypairModal = () => {
   const generateNewKeypair = () => {
     PgProgramInfo.update({
-      kp: Keypair.generate(),
+      kp: PgWeb3.Keypair.generate(),
       customPk: null,
     });
   };
@@ -88,7 +92,7 @@ const Import = () => {
 
       // Override customPk when user imports a new keypair
       PgProgramInfo.update({
-        kp: Keypair.fromSecretKey(buffer),
+        kp: PgWeb3.Keypair.fromSecretKey(buffer),
         customPk: null,
       });
 
@@ -147,7 +151,7 @@ const InputPk = () => {
 
   const handleClick = () => {
     try {
-      PgProgramInfo.update({ customPk: new PublicKey(val) });
+      PgProgramInfo.update({ customPk: new PgWeb3.PublicKey(val) });
 
       setUpdateInfo({ text: "Updated program id." });
       setChanged(false);

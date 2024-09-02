@@ -1,4 +1,3 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
 import { decodeIdlAccount, idlAddress } from "@coral-xyz/anchor/dist/cjs/idl";
 import type { Idl } from "@coral-xyz/anchor";
 
@@ -15,15 +14,16 @@ import {
 } from "./decorators";
 import { PgExplorer } from "./explorer";
 import type { Nullable } from "./types";
+import { PgWeb3 } from "./web3";
 
 /** Program info state */
 type ProgramInfo = Nullable<{
   /** Program's build server uuid */
   uuid: string;
   /** Program's keypair */
-  kp: Keypair;
+  kp: PgWeb3.Keypair;
   /** Program's custom public key */
-  customPk: PublicKey;
+  customPk: PgWeb3.PublicKey;
   /** Program's Anchor IDL */
   idl: Idl;
   /** Imported program binary file */
@@ -67,10 +67,10 @@ const storage = {
     return {
       ...serializedState,
       kp: serializedState.kp
-        ? Keypair.fromSecretKey(Uint8Array.from(serializedState.kp))
+        ? PgWeb3.Keypair.fromSecretKey(Uint8Array.from(serializedState.kp))
         : null,
       customPk: serializedState.customPk
-        ? new PublicKey(serializedState.customPk)
+        ? new PgWeb3.PublicKey(serializedState.customPk)
         : null,
       importedProgram: defaultState.importedProgram,
     };
@@ -99,7 +99,7 @@ const derive = () => ({
    * Custom public key has priority if it's specified.
    */
   pk: createDerivable({
-    derive: (): PublicKey | null => {
+    derive: (): PgWeb3.PublicKey | null => {
       if (PgProgramInfo.customPk) return PgProgramInfo.customPk;
       if (PgProgramInfo.kp) return PgProgramInfo.kp.publicKey;
       return null;
@@ -146,7 +146,7 @@ class _PgProgramInfo {
    * @param programId optional program id
    * @returns program's authority and whether the program is upgradable
    */
-  static async fetch(programId: PublicKey | null = PgProgramInfo.pk) {
+  static async fetch(programId: PgWeb3.PublicKey | null = PgProgramInfo.pk) {
     if (!programId) throw new Error("Program id doesn't exist");
 
     const conn = PgConnection.current;
@@ -157,7 +157,7 @@ class _PgProgramInfo {
     if (!programAccountInfo) return { deployed, upgradable: true };
 
     const programDataPkBuffer = programAccountInfo.data.slice(4);
-    const programDataPk = new PublicKey(programDataPkBuffer);
+    const programDataPk = new PgWeb3.PublicKey(programDataPkBuffer);
     const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
 
     // Check if program authority exists
@@ -165,7 +165,7 @@ class _PgProgramInfo {
     if (!authorityExists) return { deployed, upgradable: false };
 
     const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(13, 45);
-    const upgradeAuthorityPk = new PublicKey(upgradeAuthorityPkBuffer!);
+    const upgradeAuthorityPk = new PgWeb3.PublicKey(upgradeAuthorityPkBuffer!);
     return { deployed, authority: upgradeAuthorityPk, upgradable: true };
   }
 
@@ -178,7 +178,7 @@ class _PgProgramInfo {
    * @param programId optional program id
    * @returns the IDL and the authority of the IDL or `null` if IDL doesn't exist
    */
-  static async fetchIdl(programId: PublicKey | null = PgProgramInfo.pk) {
+  static async fetchIdl(programId = PgProgramInfo.pk) {
     if (!programId) throw new Error("Program id doesn't exist");
 
     const idlPk = await idlAddress(programId);

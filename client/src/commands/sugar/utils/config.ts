@@ -1,9 +1,8 @@
 import { Option, toBigNumber } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
 
 import { parseGuards } from "./guards";
 import { PgSugar } from "../processor";
-import { PgCommon, PgExplorer, PgTerminal } from "../../../utils/pg";
+import { PgCommon, PgExplorer, PgTerminal, PgWeb3 } from "../../../utils/pg";
 import type { ConfigData, ToPrimitive } from "../types";
 
 export const loadConfigData = async (): Promise<ConfigData> => {
@@ -27,7 +26,7 @@ export const loadConfigData = async (): Promise<ConfigData> => {
     isSequential: configData.isSequential,
     creators: configData.creators.map((c) => ({
       ...c,
-      address: new PublicKey(c.address),
+      address: new PgWeb3.PublicKey(c.address),
     })),
     hiddenSettings: configData.hiddenSettings
       ? {

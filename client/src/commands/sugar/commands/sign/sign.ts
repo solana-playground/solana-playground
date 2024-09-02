@@ -1,5 +1,4 @@
 import { Metaplex } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
 
 import {
   getCmCreatorMetadataAccounts,
@@ -7,7 +6,7 @@ import {
   loadCache,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processSign = async (
   rpcUrl: string | undefined,
@@ -31,7 +30,7 @@ export const processSign = async (
       metaplex
         .nfts()
         .pdas()
-        .metadata({ mint: new PublicKey(mint) })
+        .metadata({ mint: new PgWeb3.PublicKey(mint) })
     );
   } else {
     term.println(`\n[2/3] ${Emoji.LOOKING_GLASS} Fetching mint ids`);
@@ -40,7 +39,7 @@ export const processSign = async (
       candyMachineId ?? (await loadCache()).program.candyMachine;
     let candyMachinePk;
     try {
-      candyMachinePk = new PublicKey(candyMachinePkStr);
+      candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
     } catch {
       throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
     }
@@ -77,7 +76,7 @@ export const processSign = async (
           try {
             await sign(
               metaplex,
-              new PublicKey(metadataAccounts[j + i].data.slice(33, 65))
+              new PgWeb3.PublicKey(metadataAccounts[j + i].data.slice(33, 65))
             );
           } catch (e: any) {
             console.log(e.message);
@@ -107,6 +106,6 @@ export const processSign = async (
   }
 };
 
-const sign = async (metaplex: Metaplex, mintPk: PublicKey) => {
+const sign = async (metaplex: Metaplex, mintPk: PgWeb3.PublicKey) => {
   await metaplex.nfts().verifyCreator({ mintAddress: mintPk });
 };

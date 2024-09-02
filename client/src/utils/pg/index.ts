@@ -24,3 +24,4 @@ export * from "./tx/";
 export * from "./types";
 export * from "./view";
 export * from "./wallet/";
+export * from "./web3";

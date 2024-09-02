@@ -1,9 +1,8 @@
-import { PublicKey } from "@solana/web3.js";
-
 import { IdlType, getIdlType } from "./idl-types";
 import { getPrograms, getPythAccounts } from "./generators";
 import { PgProgramInfo } from "../program-info";
 import { PgWallet } from "../wallet";
+import { PgWeb3 } from "../web3";
 
 /**
  * Generatable instruction, i.e. the values of the instruction can be derived
@@ -217,10 +216,11 @@ export const generateValue = (
  */
 export const generateProgramAddressFromSeeds = (
   seeds: Seed[],
-  programId: PublicKey | string,
+  programId: PgWeb3.PublicKey | string,
   values: GeneratableInstruction["values"]
 ) => {
-  if (typeof programId !== "object") programId = new PublicKey(programId);
+  if (typeof programId !== "object")
+    programId = new PgWeb3.PublicKey(programId);
 
   const buffers = seeds.map((seed) => {
     const value = generateValue(seed.generator, values);
@@ -228,5 +228,5 @@ export const generateProgramAddressFromSeeds = (
     return toBuffer(parse(value));
   });
 
-  return PublicKey.findProgramAddressSync(buffers, programId)[0];
+  return PgWeb3.PublicKey.findProgramAddressSync(buffers, programId)[0];
 };
