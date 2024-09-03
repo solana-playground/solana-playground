@@ -9,7 +9,7 @@ import { Info } from "../../Icons";
 import { PgWallet, PgWeb3 } from "../../../utils/pg";
 
 export const Add = () => {
-  const [keypair] = useState(PgWeb3.Keypair.generate());
+  const [keypair] = useState(PgWeb3.Keypair.generate);
   const [name, setName] = useState(PgWallet.getNextAvailableAccountName());
   const [error, setError] = useState<string | null>(null);
 
