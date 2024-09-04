@@ -83,12 +83,22 @@ const LIGHT: Theme = {
             color: BG_WHITE,
           },
         },
+        "primary-outline": {
+          hover: {
+            color: BG_LIGHT,
+          },
+        },
         "primary-transparent": {
           bg: BLUE + "dd",
           color: BG_LIGHT,
           hover: {
             bg: BLUE + "bb",
             color: BG_WHITE,
+          },
+        },
+        "secondary-outline": {
+          hover: {
+            color: BG_LIGHT,
           },
         },
         "secondary-transparent": {
