@@ -13,8 +13,8 @@ import {
   updatable,
 } from "./decorators";
 import { PgExplorer } from "./explorer";
-import type { Nullable } from "./types";
 import { PgWeb3 } from "./web3";
+import type { Nullable } from "./types";
 
 /** Program info state */
 type ProgramInfo = Nullable<{

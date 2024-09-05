@@ -23,7 +23,7 @@ type InstructionValues = GeneratableInstruction["values"];
 type InstructionInputAccount = InstructionValues["accounts"][number];
 type InstructionInputArg = InstructionValues["args"][number];
 
-export type InstructionInputProps = {
+type InstructionInputProps = {
   prefix: "accounts" | "args" | "seed";
   updateInstruction: (props: {
     updateGenerator: (

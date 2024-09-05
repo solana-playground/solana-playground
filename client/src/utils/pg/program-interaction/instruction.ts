@@ -1,11 +1,11 @@
 import { getPrograms } from "./generators";
 import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
+import { PgWeb3 } from "../web3";
 import type {
   GeneratableInstruction,
   InstructionValueGenerator,
 } from "./generator";
 import type { OrString } from "../types";
-import { PgWeb3 } from "../web3";
 
 /**
  * Create a generatable instruction from the given IDL instruction.
