@@ -119,7 +119,7 @@ const PLAYGROUND: Theme = {
         },
         tutorials: {
           main: {
-            tutorials: {
+            content: {
               card: {
                 default: {
                   boxShadow: BOX_SHADOW_LIGHT,

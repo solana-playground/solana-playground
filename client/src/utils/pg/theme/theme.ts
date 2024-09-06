@@ -1663,35 +1663,35 @@ export class PgTheme {
     );
     tutorials.main.default.borderRadius ??= theme.default.borderRadius;
 
-    // Main filters
-    tutorials.main.filters ??= {};
-    tutorials.main.filters.width ??= "14.75rem";
-    tutorials.main.filters.padding ??= "0.5rem";
-    tutorials.main.filters.borderRight ??= `1px solid ${theme.colors.default.border}`;
-    tutorials.main.filters.borderTopLeftRadius ??=
+    // Main side (filters)
+    tutorials.main.side ??= {};
+    tutorials.main.side.width ??= "14.75rem";
+    tutorials.main.side.padding ??= "0.5rem";
+    tutorials.main.side.borderRight ??= `1px solid ${theme.colors.default.border}`;
+    tutorials.main.side.borderTopLeftRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
-    tutorials.main.filters.borderBottomLeftRadius ??=
+    tutorials.main.side.borderBottomLeftRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
 
-    // Main tutorials
-    tutorials.main.tutorials ??= {};
+    // Main content (tutorials)
+    tutorials.main.content ??= {};
 
-    // Main tutorials default
-    tutorials.main.tutorials.default ??= {};
-    tutorials.main.tutorials.default.flex ??= "1";
-    tutorials.main.tutorials.default.padding ??= "1.5rem";
-    tutorials.main.tutorials.default.display ??= "flex";
-    tutorials.main.tutorials.default.flexDirection ??= "column";
-    tutorials.main.tutorials.default.gap ??= "2rem";
-    tutorials.main.tutorials.default.bg ??= tutorials.main.default.bg;
-    tutorials.main.tutorials.default.borderTopRightRadius ??=
+    // Main content default
+    tutorials.main.content.default ??= {};
+    tutorials.main.content.default.flex ??= "1";
+    tutorials.main.content.default.padding ??= "1.5rem";
+    tutorials.main.content.default.display ??= "flex";
+    tutorials.main.content.default.flexDirection ??= "column";
+    tutorials.main.content.default.gap ??= "2rem";
+    tutorials.main.content.default.bg ??= tutorials.main.default.bg;
+    tutorials.main.content.default.borderTopRightRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
-    tutorials.main.tutorials.default.borderBottomRightRadius ??=
+    tutorials.main.content.default.borderBottomRightRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
-    //Main tutorials card
-    tutorials.main.tutorials.card ??= {};
-    const card = tutorials.main.tutorials.card;
-    //Main tutorials card default
+    //Main content card
+    tutorials.main.content.card ??= {};
+    const card = tutorials.main.content.card;
+    //Main content card default
     card.default ??= {};
     card.default.width ??= "100%";
     card.default.height ??= "100%";
@@ -1705,11 +1705,11 @@ export class PgTheme {
     card.default.boxShadow ??= theme.default.boxShadow;
     card.default.transition ??= `all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type}`;
-    //Main tutorials card gradient
+    //Main content card gradient
     card.gradient ??= {};
-    // Main tutorials featured tutorial
-    tutorials.main.tutorials.featured ??= {};
-    const featured = tutorials.main.tutorials.featured;
+    // Main content featured tutorial
+    tutorials.main.content.featured ??= {};
+    const featured = tutorials.main.content.featured;
     featured.height ??= "20rem";
     featured.display ??= "flex";
     featured.border ??= `1px solid ${theme.colors.default.border}`;

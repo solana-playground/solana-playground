@@ -47,7 +47,7 @@ const FeaturedTutorial: FC<FeaturedTutorialProps> = ({ tutorial }) => (
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.tutorials.featured
+      theme.components.main.views.tutorials.main.content.featured
     )};
   `}
 `;

@@ -146,7 +146,7 @@ const SOLANA: Theme = {
               bg: BG_BLACK,
               border: `1px solid ${SELECTION}`,
             },
-            tutorials: {
+            content: {
               card: {
                 default: {
                   bg: BG_GRAY,

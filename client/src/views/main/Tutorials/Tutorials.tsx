@@ -48,13 +48,15 @@ export const Tutorials = () => {
         </TopSection>
 
         <MainSection>
-          <FiltersWrapper>
-            {FILTERS.map((f) => (
-              <FilterGroup key={f.param} {...f} />
-            ))}
-          </FiltersWrapper>
+          <SideWrapper>
+            <FiltersWrapper>
+              {FILTERS.map((f) => (
+                <FilterGroup key={f.param} {...f} />
+              ))}
+            </FiltersWrapper>
+          </SideWrapper>
 
-          <TutorialsWrapper>
+          <ContentWrapper>
             {!featuredItems.length && !regularItems.length && <NoMatch />}
 
             {featuredItems.length > 0 && (
@@ -68,7 +70,7 @@ export const Tutorials = () => {
                 ))}
               </RegularTutorialsWrapper>
             )}
-          </TutorialsWrapper>
+          </ContentWrapper>
         </MainSection>
 
         <BottomSection>
@@ -114,16 +116,21 @@ const MainSection = styled.div`
   `}
 `;
 
-const FiltersWrapper = styled.div`
+const SideWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.filters)};
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.side)};
   `}
 `;
 
-const TutorialsWrapper = styled.div`
+const FiltersWrapper = styled.div`
+  position: sticky;
+  top: 0;
+`;
+
+const ContentWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.tutorials.default
+      theme.components.main.views.tutorials.main.content.default
     )};
   `}
 `;

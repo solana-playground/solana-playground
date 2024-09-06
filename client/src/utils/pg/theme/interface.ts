@@ -188,10 +188,10 @@ export interface Theme {
         tutorials?: ExtendibleComponent<{
           /** Tutorials main section */
           main?: ExtendibleComponent<{
-            /** Filters section */
-            filters?: DefaultComponent;
-            /** Tutorials section */
-            tutorials?: ExtendibleComponent<{
+            /** Side section (left filters) */
+            side?: DefaultComponent;
+            /** Content section (right tutorials) */
+            content?: ExtendibleComponent<{
               /** Tutorial card component */
               card?: ExtendibleComponent<{
                 /** Wrapper gradient */
