@@ -2,7 +2,14 @@ import { MouseEvent, useCallback, useState } from "react";
 
 import { DeleteItem, RenameItem } from "./Modals";
 import { ClassName, Id } from "../../../../constants";
-import { PgCommand, PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
+import {
+  PgCommand,
+  PgCommon,
+  PgExplorer,
+  PgGlobal,
+  PgView,
+} from "../../../../utils/pg";
+import { useRenderOnChange } from "../../../../hooks";
 
 export type ItemData = {
   [K in
@@ -17,6 +24,11 @@ export type ItemData = {
 export const useExplorerContextMenu = () => {
   const [itemData, setItemData] = useState<ItemData>({});
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
+
+  const deployState = useRenderOnChange(
+    PgGlobal.onDidChangeDeployState,
+    PgGlobal.deployState
+  );
 
   const handleMenu = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     // Add selected style to the item
@@ -144,5 +156,6 @@ export const useExplorerContextMenu = () => {
     runClientFolder,
     runTestFolder,
     itemData,
+    deployState,
   };
 };

@@ -80,6 +80,7 @@ const Folders = () => {
                     onClick={ctxMenu.runDeploy}
                     icon={<Rocket />}
                     addTextMargin
+                    disabled={ctxMenu.deployState !== "ready"}
                   >
                     Deploy
                   </SectionButton>
