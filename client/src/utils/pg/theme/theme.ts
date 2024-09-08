@@ -1730,7 +1730,6 @@ export class PgTheme {
 
     // Default
     programs.default ??= {};
-    programs.default.padding ??= "2rem 2.5rem";
     programs.default.fontFamily ??= theme.font.other.family;
     programs.default.fontSize ??= theme.font.other.size.medium;
 
@@ -1738,7 +1737,7 @@ export class PgTheme {
     programs.main ??= {};
     // Main default
     programs.main.default ??= {};
-    programs.main.default.marginTop ??= "2rem";
+    programs.main.default.padding ??= "2rem 2.5rem";
     programs.main.default.display ??= "flex";
     programs.main.default.flexWrap ??= "wrap";
     programs.main.default.gap ??= "1.5rem";
