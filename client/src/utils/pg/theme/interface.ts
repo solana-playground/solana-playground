@@ -205,6 +205,8 @@ export interface Theme {
 
         /** Programs page component */
         programs?: ExtendibleComponent<{
+          /** Programs top section */
+          top?: DefaultComponent;
           /** Programs main section */
           main?: ExtendibleComponent<{
             /** Program card component */

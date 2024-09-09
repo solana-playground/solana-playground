@@ -1733,6 +1733,16 @@ export class PgTheme {
     programs.default.fontFamily ??= theme.font.other.family;
     programs.default.fontSize ??= theme.font.other.size.medium;
 
+    // Top
+    programs.top ??= {};
+    programs.top.position ??= "sticky";
+    programs.top.top ??= 0;
+    programs.top.display ??= "flex";
+    programs.top.justifyContent ??= "space-between";
+    programs.top.width ??= "100%";
+    programs.top.padding ??= "1rem 2.5rem";
+    programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+
     // Main
     programs.main ??= {};
     // Main default

@@ -54,17 +54,13 @@ const Wrapper = styled.div`
 `;
 
 const TopSection = styled.div`
-  position: sticky;
-  top: 0;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 1rem 2.5rem;
-
-  /** Search bar */
-  & > div {
-    width: max(12rem, 50%);
-  }
+  ${({ theme }) => css`
+    /** Search bar */
+    & > div {
+      width: max(12rem, 50%);
+    }
+    ${PgTheme.convertToCSS(theme.components.main.views.programs.top)};
+  `}
 `;
 
 const Title = styled.h1``;
