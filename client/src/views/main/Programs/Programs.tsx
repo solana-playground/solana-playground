@@ -6,7 +6,7 @@ import Text from "../../../components/Text";
 import ProgramCard, { ProgramCardProps } from "./ProgramCard";
 import { Sad } from "../../../components/Icons";
 import { FILTERS } from "./filters";
-import { useDifferentBackground, useFilteredSearch } from "../../../hooks";
+import { useFilteredSearch } from "../../../hooks";
 import { PgTheme } from "../../../utils/pg";
 
 interface ProgramsProps {
@@ -14,8 +14,6 @@ interface ProgramsProps {
 }
 
 export const Programs: FC<ProgramsProps> = ({ programs }) => {
-  const { ref } = useDifferentBackground(100);
-
   const filteredSearch = useFilteredSearch({
     route: "/programs",
     items: programs,
@@ -28,7 +26,7 @@ export const Programs: FC<ProgramsProps> = ({ programs }) => {
 
   return (
     <Wrapper>
-      <TopSection ref={ref}>
+      <TopSection>
         <Title>Programs</Title>
         <SearchBar
           {...searchBarProps}

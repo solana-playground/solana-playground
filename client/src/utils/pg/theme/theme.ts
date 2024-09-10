@@ -1730,6 +1730,7 @@ export class PgTheme {
 
     // Default
     programs.default ??= {};
+    programs.default.bg ??= theme.components.main.default.bg;
     programs.default.fontFamily ??= theme.font.other.family;
     programs.default.fontSize ??= theme.font.other.size.medium;
 
@@ -1741,6 +1742,7 @@ export class PgTheme {
     programs.top.justifyContent ??= "space-between";
     programs.top.width ??= "100%";
     programs.top.padding ??= "1rem 2.5rem";
+    programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
     programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
 
     // Main
