@@ -131,7 +131,7 @@ impl WasmClient {
 
         match response.into() {
             Some(result) => Ok(result),
-            None => Err(ClientError::new(&format!(
+            None => Err(ClientError::new(format!(
                 "Signature {signature} not found."
             ))),
         }
@@ -170,7 +170,7 @@ impl WasmClient {
     pub async fn get_account(&self, pubkey: &Pubkey) -> ClientResult<Account> {
         self.get_account_with_commitment(pubkey, self.commitment_config())
             .await?
-            .ok_or_else(|| ClientError::new(&format!("Account {} not found.", pubkey)))
+            .ok_or_else(|| ClientError::new(format!("Account {} not found.", pubkey)))
     }
 
     pub async fn get_account_data(&self, pubkey: &Pubkey) -> ClientResult<Vec<u8>> {
@@ -258,7 +258,7 @@ impl WasmClient {
         // not have been submitted to the cluster, so callers should verify the success of
         // the correct transaction signature independently.
         if signature != transaction.signatures[0] {
-            Err(ClientError::new(&format!(
+            Err(ClientError::new(format!(
                 "RPC node returned mismatched signature {:?}, expected {:?}",
                 signature, transaction.signatures[0]
             )))
@@ -392,12 +392,12 @@ impl WasmClient {
         for RpcKeyedAccount { pubkey, account } in accounts.iter() {
             let pubkey = pubkey
                 .parse()
-                .map_err(|_| ClientError::new(&format!("{pubkey} is not a valid pubkey.")))?;
+                .map_err(|_| ClientError::new(format!("{pubkey} is not a valid pubkey.")))?;
             pubkey_accounts.push((
                 pubkey,
                 account
                     .decode()
-                    .ok_or_else(|| ClientError::new(&format!("Unable to decode {pubkey}")))?,
+                    .ok_or_else(|| ClientError::new(format!("Unable to decode {pubkey}")))?,
             ));
         }
         Ok(pubkey_accounts)
@@ -467,7 +467,7 @@ impl WasmClient {
         let maybe_ts: Option<UnixTimestamp> = response.into();
         match maybe_ts {
             Some(ts) => Ok(ts),
-            None => Err(ClientError::new(&format!("Block Not Found: slot={}", slot))),
+            None => Err(ClientError::new(format!("Block Not Found: slot={}", slot))),
         }
     }
 
@@ -862,7 +862,7 @@ impl WasmClient {
                 let token_account_type: TokenAccountType =
                     match serde_json::from_value(account_data.parsed) {
                         Ok(t) => t,
-                        Err(e) => return Err(ClientError::new(&e.to_string())),
+                        Err(e) => return Err(ClientError::new(e.to_string())),
                     };
 
                 if let TokenAccountType::Account(token_account) = token_account_type {
@@ -871,7 +871,7 @@ impl WasmClient {
             }
         }
 
-        Err(ClientError::new(&format!(
+        Err(ClientError::new(format!(
             "AccountNotFound: pubkey={}",
             pubkey
         )))

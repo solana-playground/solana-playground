@@ -130,12 +130,12 @@ where
     T: serde::ser::Serialize,
 {
     let serialized =
-        serialize(input).map_err(|e| ClientError::new(&format!("Serialization failed: {}", e)))?;
+        serialize(input).map_err(|e| ClientError::new(format!("Serialization failed: {}", e)))?;
     let encoded = match encoding {
         UiTransactionEncoding::Base58 => bs58::encode(serialized).into_string(),
         UiTransactionEncoding::Base64 => base64::encode(serialized),
         _ => {
-            return Err(ClientError::new(&format!(
+            return Err(ClientError::new(format!(
                 "unsupported encoding: {}. Supported encodings: base58, base64",
                 encoding
             )))
