@@ -1740,6 +1740,7 @@ export class PgTheme {
     programs.top.top ??= 0;
     programs.top.display ??= "flex";
     programs.top.justifyContent ??= "space-between";
+    programs.top.alignItems ??= "center";
     programs.top.width ??= "100%";
     programs.top.padding ??= "1rem 2.5rem";
     programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
