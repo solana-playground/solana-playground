@@ -1745,6 +1745,7 @@ export class PgTheme {
     programs.top.padding ??= "1rem 2.5rem";
     programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
     programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    programs.top["& > div"] = { width: "max(12rem, 50%)" };
 
     // Main
     programs.main ??= {};

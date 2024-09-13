@@ -53,10 +53,6 @@ const Wrapper = styled.div`
 
 const TopSection = styled.div`
   ${({ theme }) => css`
-    /** Search bar */
-    & > div {
-      width: max(12rem, 50%);
-    }
     ${PgTheme.convertToCSS(theme.components.main.views.programs.top)};
   `}
 `;
