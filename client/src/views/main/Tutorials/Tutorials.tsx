@@ -37,16 +37,16 @@ export const Tutorials = () => {
 
   return (
     <Wrapper>
-      <InnerWrapper>
-        <TopSection>
-          <Title>Learn</Title>
-          <SearchBar
-            {...searchBarProps}
-            placeholder="Search tutorials"
-            searchButton={{ position: "right", width: "2.5rem" }}
-          />
-        </TopSection>
+      <TopSection>
+        <Title>Learn</Title>
+        <SearchBar
+          {...searchBarProps}
+          placeholder="Search tutorials"
+          searchButton={{ position: "right", width: "2.5rem" }}
+        />
+      </TopSection>
 
+      <MainSectionScrollWrapper>
         <MainSection>
           <SideWrapper>
             <FiltersWrapper>
@@ -72,13 +72,13 @@ export const Tutorials = () => {
             )}
           </ContentWrapper>
         </MainSection>
+      </MainSectionScrollWrapper>
 
-        <BottomSection>
-          <Link href={`${GITHUB_URL}/tree/master/client/src/tutorials`}>
-            Contribute
-          </Link>
-        </BottomSection>
-      </InnerWrapper>
+      <BottomSection>
+        <Link href={`${GITHUB_URL}/tree/master/client/src/tutorials`}>
+          Contribute
+        </Link>
+      </BottomSection>
     </Wrapper>
   );
 };
@@ -89,18 +89,10 @@ const Wrapper = styled.div`
   `}
 `;
 
-const InnerWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  padding: 2rem 2.5rem;
-`;
-
 const TopSection = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  padding: 1rem 2.5rem;
 
   /** Search bar */
   & > div {
@@ -109,6 +101,11 @@ const TopSection = styled.div`
 `;
 
 const Title = styled.h1``;
+
+const MainSectionScrollWrapper = styled.div`
+  margin: 2rem 2.5rem;
+  overflow: auto;
+`;
 
 const MainSection = styled.div`
   ${({ theme }) => css`
@@ -167,6 +164,5 @@ const BottomSection = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-height: 5rem;
-  max-height: 5rem;
+  margin-bottom: 2rem;
 `;
