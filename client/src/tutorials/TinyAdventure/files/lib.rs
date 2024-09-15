@@ -39,16 +39,10 @@ mod tiny_adventure {
 }
 
 fn print_player(player_position: u8) {
-    if player_position == 0 {
-        msg!("A Journey Begins!");
-        msg!("o.......");
-    } else if player_position == 1 {
+    if player_position == 1 {
         msg!("..o.....");
     } else if player_position == 2 {
         msg!("....o...");
-    } else if player_position == 3 {
-        msg!("........\\o/");
-        msg!("You have reached the end! Super!");
     }
 }
 
