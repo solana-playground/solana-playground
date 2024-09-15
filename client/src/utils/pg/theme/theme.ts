@@ -1647,7 +1647,6 @@ export class PgTheme {
     tutorials.default ??= {};
     tutorials.default.display ??= "flex";
     tutorials.default.flexDirection ??= "column";
-    tutorials.default.justifyContent ??= "center";
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
 
