@@ -90,14 +90,9 @@ const Wrapper = styled.div`
 `;
 
 const TopSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 2.5rem;
-
-  /** Search bar */
-  & > div {
-    width: max(12rem, 50%);
-  }
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.top)};
+  `}
 `;
 
 const Title = styled.h1``;

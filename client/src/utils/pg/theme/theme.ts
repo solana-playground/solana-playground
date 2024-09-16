@@ -1650,6 +1650,13 @@ export class PgTheme {
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
 
+    // Top
+    tutorials.top ??= {};
+    tutorials.top.display = "flex";
+    tutorials.top.justifyContent = "space-between";
+    tutorials.top.padding = "1rem 2.5rem";
+    tutorials.top["& > div"] ??= { width: "max(12rem, 50%)" };
+
     // Main
     tutorials.main ??= {};
 

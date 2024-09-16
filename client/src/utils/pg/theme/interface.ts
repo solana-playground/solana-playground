@@ -186,6 +186,8 @@ export interface Theme {
 
         /** Tutorials page component */
         tutorials?: ExtendibleComponent<{
+          /** Tutorials top section */
+          top?: DefaultComponent;
           /** Tutorials main section */
           main?: ExtendibleComponent<{
             /** Side section (left filters) */
