@@ -1,18 +1,17 @@
+use http::StatusCode;
 use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Error {
-    code: i32,
+    code: u16,
     message: String,
 }
 
 impl Default for Error {
     fn default() -> Self {
         Self {
-            code: reqwest::StatusCode::INTERNAL_SERVER_ERROR.as_u16() as i32,
-            message: reqwest::StatusCode::INTERNAL_SERVER_ERROR
-                .as_str()
-                .to_owned(),
+            code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+            message: StatusCode::INTERNAL_SERVER_ERROR.as_str().to_owned(),
         }
     }
 }
@@ -36,17 +35,11 @@ impl Default for ClientError {
     }
 }
 
-impl From<reqwest::Error> for ClientError {
-    fn from(error: reqwest::Error) -> Self {
+impl From<gloo_net::Error> for ClientError {
+    fn from(error: gloo_net::Error) -> Self {
         ClientError {
             error: Error {
-                code: error
-                    .status()
-                    .unwrap_or(
-                        reqwest::StatusCode::from_u16(ClientError::default().error.code as u16)
-                            .unwrap(),
-                    )
-                    .as_u16() as i32,
+                code: StatusCode::INTERNAL_SERVER_ERROR.into(),
                 message: error.to_string(),
             },
             ..Default::default()
@@ -55,10 +48,20 @@ impl From<reqwest::Error> for ClientError {
 }
 
 impl ClientError {
-    pub fn new(error_msg: &str) -> Self {
+    pub fn new(error_msg: impl ToString) -> Self {
         ClientError {
             error: Error {
-                code: reqwest::StatusCode::SEE_OTHER.as_u16() as i32,
+                code: StatusCode::SEE_OTHER.as_u16(),
+                message: error_msg.to_string(),
+            },
+            ..Default::default()
+        }
+    }
+
+    pub fn new_with_status(code: u16, error_msg: impl ToString) -> Self {
+        ClientError {
+            error: Error {
+                code,
                 message: error_msg.to_string(),
             },
             ..Default::default()
