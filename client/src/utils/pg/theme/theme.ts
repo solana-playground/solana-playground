@@ -1655,7 +1655,8 @@ export class PgTheme {
     tutorials.top.display = "flex";
     tutorials.top.justifyContent = "space-between";
     tutorials.top.padding = "1rem 2.5rem";
-    tutorials.top["& > div"] ??= { width: "max(12rem, 50%)" };
+    tutorials.top["& > div"] ??= {};
+    tutorials.top["& > div"].width ??= "max(12rem, 50%)";
 
     // Main
     tutorials.main ??= {};
@@ -1749,7 +1750,8 @@ export class PgTheme {
     programs.top.padding ??= "1rem 2.5rem";
     programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
     programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    programs.top["& > div"] = { width: "max(12rem, 50%)" };
+    programs.top["& > div"] ??= {};
+    programs.top["& > div"].width ??= "max(12rem, 50%)";
 
     // Main
     programs.main ??= {};
