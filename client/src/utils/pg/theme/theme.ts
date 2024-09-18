@@ -1647,6 +1647,7 @@ export class PgTheme {
     tutorials.default ??= {};
     tutorials.default.display ??= "flex";
     tutorials.default.flexDirection ??= "column";
+    tutorials.default.bg ??= theme.components.main.default.bg;
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
 
@@ -1655,6 +1656,8 @@ export class PgTheme {
     tutorials.top.display = "flex";
     tutorials.top.justifyContent = "space-between";
     tutorials.top.padding = "1rem 2.5rem";
+    tutorials.top.bg ??= this.getDifferentBackground(tutorials.default.bg);
+    tutorials.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
     tutorials.top["& > div"] ??= {};
     tutorials.top["& > div"].width ??= "max(12rem, 50%)";
 
