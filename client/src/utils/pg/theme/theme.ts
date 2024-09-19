@@ -1690,6 +1690,7 @@ export class PgTheme {
     tutorials.main.content.default.padding ??= "1.5rem 2.5rem";
     tutorials.main.content.default.display ??= "flex";
     tutorials.main.content.default.flexDirection ??= "column";
+    tutorials.main.content.default.flexGrow ??= 1;
     tutorials.main.content.default.gap ??= "2rem";
     tutorials.main.content.default.bg ??= tutorials.main.default.bg;
     tutorials.main.content.default.borderTopRightRadius ??=
