@@ -100,6 +100,7 @@ const Title = styled.h1``;
 const MainSectionScrollWrapper = styled.div`
   margin: 2rem 2.5rem;
   overflow: auto;
+  flex-grow: 1;
 `;
 
 const MainSection = styled.div`

@@ -1667,6 +1667,7 @@ export class PgTheme {
     // Main default
     tutorials.main.default ??= {};
     tutorials.main.default.display ??= "flex";
+    tutorials.main.default.height ??= "100%";
     tutorials.main.default.bg ??= this.getDifferentBackground(
       theme.components.main.default.bg
     );
@@ -1687,11 +1688,12 @@ export class PgTheme {
 
     // Main content default
     tutorials.main.content.default ??= {};
-    tutorials.main.content.default.padding ??= "1.5rem 2.5rem";
+    tutorials.main.content.default.padding ??= "1.5rem 1.75rem";
     tutorials.main.content.default.display ??= "flex";
     tutorials.main.content.default.flexDirection ??= "column";
     tutorials.main.content.default.flexGrow ??= 1;
     tutorials.main.content.default.gap ??= "2rem";
+    tutorials.main.content.default.overflow ??= "auto";
     tutorials.main.content.default.bg ??= tutorials.main.default.bg;
     tutorials.main.content.default.borderTopRightRadius ??=
       theme.components.main.views.tutorials.main.default.borderRadius;
