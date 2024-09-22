@@ -118,14 +118,12 @@ const Terminal = () => {
     });
   }, []);
 
-  const [isClosed, setIsClosed] = useState(false);
-
   const toggleClose = useCallback(() => {
-    setIsClosed((c) => !c);
-    setHeight((h) => {
-      if (h === 0) return PgTerminal.DEFAULT_HEIGHT;
-      return 0;
-    });
+    setHeight((h) =>
+      h === PgTerminal.MIN_HEIGHT
+        ? PgTerminal.DEFAULT_HEIGHT
+        : PgTerminal.MIN_HEIGHT
+    );
   }, []);
 
   // Keybinds
@@ -144,8 +142,7 @@ const Terminal = () => {
             toggleClose();
             PgEditor.focus();
           } else {
-            if (!height) toggleClose(); // Minimized
-
+            if (height === PgTerminal.MIN_HEIGHT) toggleClose(); // Minimized
             term.focus();
           }
         },
@@ -158,7 +155,7 @@ const Terminal = () => {
         keybind: "Ctrl+J",
         handle: () => {
           toggleClose();
-          if (!height) term.focus();
+          if (height === PgTerminal.MIN_HEIGHT) term.focus();
           else PgEditor.focus();
         },
       },
@@ -207,7 +204,7 @@ const Terminal = () => {
               title={PgCommon.getKeybindTextOS("Toggle Close (Ctrl+`)")}
               onClick={toggleClose}
             >
-              {isClosed ? <Tick /> : <Close />}
+              {height === PgTerminal.MIN_HEIGHT ? <Tick /> : <Close />}
             </Button>
           </ButtonsWrapper>
         </Topbar>
