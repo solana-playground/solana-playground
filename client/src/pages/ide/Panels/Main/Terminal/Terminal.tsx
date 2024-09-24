@@ -105,17 +105,12 @@ const Terminal = () => {
     term.clear();
   }, [term]);
 
-  const maxButtonRef = useRef<HTMLButtonElement>(null);
-
   const toggleMaximize = useCallback(() => {
-    setHeight((h) => {
-      if (h === PgTerminal.MAX_HEIGHT) {
-        maxButtonRef.current?.classList.remove("down");
-        return PgTerminal.DEFAULT_HEIGHT;
-      }
-      maxButtonRef.current?.classList.add("down");
-      return PgTerminal.MAX_HEIGHT;
-    });
+    setHeight((h) =>
+      h === PgTerminal.MAX_HEIGHT
+        ? PgTerminal.DEFAULT_HEIGHT
+        : PgTerminal.MAX_HEIGHT
+    );
   }, []);
 
   const toggleClose = useCallback(() => {
@@ -195,9 +190,13 @@ const Terminal = () => {
               kind="icon"
               title={PgCommon.getKeybindTextOS("Toggle Maximize (Ctrl+M)")}
               onClick={toggleMaximize}
-              ref={maxButtonRef}
             >
-              <DoubleArrow />
+              {height === PgTerminal.MAX_HEIGHT &&
+              PgTerminal.MAX_HEIGHT !== PgTerminal.DEFAULT_HEIGHT ? (
+                <DoubleArrow rotate="180deg" />
+              ) : (
+                <DoubleArrow />
+              )}
             </Button>
             <Button
               kind="icon"
