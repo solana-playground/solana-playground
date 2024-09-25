@@ -11,7 +11,7 @@ import { PgCommon, PgSettings, PgView, UnionToTuple } from "../../utils/pg";
 
 type Option = UnionToTuple<
   Exclude<typeof PgSettings["connection"]["priorityFee"], number> | "custom"
->;
+>[number][];
 const OPTIONS = (["average", "median", "min", "max", "custom"] as Option).map(
   (o) => ({
     value: o,
