@@ -1753,6 +1753,7 @@ export class PgTheme {
     programs.top.justifyContent ??= "space-between";
     programs.top.alignItems ??= "center";
     programs.top.width ??= "100%";
+    programs.top.height ??= "4.5rem";
     programs.top.padding ??= "1rem 2.5rem";
     programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
     programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
@@ -1763,6 +1764,7 @@ export class PgTheme {
     programs.main ??= {};
     // Main default
     programs.main.default ??= {};
+    programs.main.default.minHeight ??= `calc(100% - ${programs.top.height})`;
     programs.main.default.padding ??= "2rem 2.5rem";
     programs.main.default.display ??= "flex";
     programs.main.default.flexWrap ??= "wrap";
