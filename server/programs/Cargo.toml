@@ -19,6 +19,7 @@ borsh = "*"
 borsh-derive = "*"
 bytemuck = "*"
 bytemuck_derive = "*"
+jupiter-cpi = { git = "https://github.com/jup-ag/jupiter-cpi", rev = "5eb8977" }
 mpl-bubblegum = "*"
 mpl-token-auth-rules = { version = "*", features = ["no-entrypoint"] }
 mpl-token-metadata = "*"
