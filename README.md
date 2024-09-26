@@ -35,7 +35,6 @@
 | [switchboard-solana](https://docs.rs/switchboard-solana/0.29.79)                   | 0.29.79 |
 | [switchboard-v2](https://docs.rs/switchboard-v2/0.4.0)                             | 0.4.0   |
 | [thiserror](https://docs.rs/thiserror/1.0.48)                                      | 1.0.48  |
-| [thiserror](https://docs.rs/thiserror/1.0.48)                                      | 1.0.48  |
 
 You can open an issue to request more crates.
 
