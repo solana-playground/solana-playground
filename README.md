@@ -13,6 +13,7 @@
 | [borsh-derive](https://docs.rs/borsh-derive/0.10.3)                                | 0.10.3  |
 | [bytemuck](https://docs.rs/bytemuck/1.14.0)                                        | 1.14.0  |
 | [bytemuck_derive](https://docs.rs/bytemuck_derive/1.5.0)                           | 1.5.0   |
+| [jup-cpi](https://docs.rs/jupiter-cpi/4.0.3)                                       | 4.0.3   |
 | [mpl-bubblegum](https://docs.rs/mpl-bubblegum/1.0.0)                               | 1.0.0   |
 | [mpl-token-auth-rules](https://docs.rs/mpl-token-auth-rules/1.4.3)                 | 1.4.3   |
 | [mpl-token-metadata](https://docs.rs/mpl-token-metadata/3.2.3)                     | 3.2.3   |
@@ -33,6 +34,7 @@
 | [spl-type-length-value](https://docs.rs/spl-type-length-value/0.3.0)               | 0.3.0   |
 | [switchboard-solana](https://docs.rs/switchboard-solana/0.29.79)                   | 0.29.79 |
 | [switchboard-v2](https://docs.rs/switchboard-v2/0.4.0)                             | 0.4.0   |
+| [thiserror](https://docs.rs/thiserror/1.0.48)                                      | 1.0.48  |
 | [thiserror](https://docs.rs/thiserror/1.0.48)                                      | 1.0.48  |
 
 You can open an issue to request more crates.
