@@ -269,6 +269,23 @@ export class PgTerminal {
     );
   }
 
+  /** Minimize the terminal. */
+  static minimize() {
+    this.setHeight(this.MIN_HEIGHT);
+  }
+
+  /**
+   * Set terminal height.
+   *
+   * @param height height to set in px
+   */
+  static setHeight(height: number) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.TERMINAL_HEIGHT_SET,
+      height
+    );
+  }
+
   /**
    * Set progressbar percentage.
    *

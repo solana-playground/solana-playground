@@ -79,6 +79,7 @@ const Terminal = () => {
 
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
+  useSetStatic(setHeight, EventName.TERMINAL_HEIGHT_SET);
 
   const termRef = useRef<HTMLDivElement>(null);
 
@@ -113,7 +114,7 @@ const Terminal = () => {
     );
   }, []);
 
-  const toggleClose = useCallback(() => {
+  const toggleMinimize = useCallback(() => {
     setHeight((h) =>
       h === PgTerminal.MIN_HEIGHT
         ? PgTerminal.DEFAULT_HEIGHT
@@ -134,10 +135,10 @@ const Terminal = () => {
         keybind: "Ctrl+`",
         handle: () => {
           if (PgTerminal.isFocused()) {
-            toggleClose();
+            toggleMinimize();
             PgEditor.focus();
           } else {
-            if (height === PgTerminal.MIN_HEIGHT) toggleClose(); // Minimized
+            if (height === PgTerminal.MIN_HEIGHT) toggleMinimize(); // Minimized
             term.focus();
           }
         },
@@ -149,13 +150,13 @@ const Terminal = () => {
       {
         keybind: "Ctrl+J",
         handle: () => {
-          toggleClose();
+          toggleMinimize();
           if (height === PgTerminal.MIN_HEIGHT) term.focus();
           else PgEditor.focus();
         },
       },
     ],
-    [term, height, clear, toggleClose, toggleMaximize]
+    [term, height, clear, toggleMinimize, toggleMaximize]
   );
 
   return (
@@ -201,7 +202,7 @@ const Terminal = () => {
             <Button
               kind="icon"
               title={PgCommon.getKeybindTextOS("Toggle Close (Ctrl+`)")}
-              onClick={toggleClose}
+              onClick={toggleMinimize}
             >
               {height === PgTerminal.MIN_HEIGHT ? <Tick /> : <Close />}
             </Button>
