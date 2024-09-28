@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import TutorialsSkeleton from "./TutorialsSkeleton";
@@ -6,6 +6,7 @@ import Text from "../../../../components/Text";
 import {
   PgCommon,
   PgRouter,
+  PgTerminal,
   PgTutorial,
   PgView,
   TutorialData,
@@ -66,6 +67,9 @@ const Tutorials = () => {
 
     setTutorialsData(data);
   }, []);
+
+  // Minimize terminal
+  useEffect(() => PgTerminal.minimize(), []);
 
   if (!tutorialsData) return <TutorialsSkeleton />;
 

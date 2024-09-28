@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import FilterGroup from "../../../../components/FilterGroup";
 import { FILTERS } from "../../../main/Programs/filters";
-import { PgRouter, PgView } from "../../../../utils/pg";
+import { PgRouter, PgTerminal, PgView } from "../../../../utils/pg";
 import { useAsyncEffect } from "../../../../hooks";
 
 const Programs = () => {
@@ -27,6 +28,9 @@ const Programs = () => {
     });
     return () => dispose();
   }, []);
+
+  // Minimize terminal
+  useEffect(() => PgTerminal.minimize(), []);
 
   return (
     <Wrapper>
