@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css, useTheme } from "styled-components";
-import { Resizable } from "re-resizable";
 import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
 import ProgressBar from "../../../../../components/ProgressBar";
+import Resizable from "../../../../../components/Resizable";
 import { COMMANDS } from "../../../../../commands";
 import {
   Clear,
@@ -165,16 +165,7 @@ const Terminal = () => {
       minWidth="100%"
       minHeight={PgTerminal.MIN_HEIGHT}
       onResizeStop={handleResizeStop}
-      enable={{
-        top: true,
-        right: false,
-        bottom: false,
-        left: false,
-        topRight: false,
-        bottomRight: false,
-        bottomLeft: false,
-        topLeft: false,
-      }}
+      enable="top"
     >
       <Wrapper ref={termRef}>
         <Topbar>
