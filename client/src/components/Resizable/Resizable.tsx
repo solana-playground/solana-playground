@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import styled, { css } from "styled-components";
 import {
   Resizable as ReResizable,
   ResizableProps as ReResizableProps,
@@ -10,11 +11,19 @@ type ResizableProps = Omit<ReResizableProps, "enable"> & {
 };
 
 const Resizable = forwardRef<ReResizable, ResizableProps>((props, ref) => (
-  <ReResizable
+  <StyledResizable
     ref={ref}
     {...{ ...props, enable: transformEnable(props.enable) }}
-  ></ReResizable>
+  ></StyledResizable>
 ));
+
+const StyledResizable = styled(ReResizable)`
+  ${({ theme }) => css`
+    transition: height, width;
+    transition-duration: ${theme.default.transition.duration.long};
+    transition-timing-function: ${theme.default.transition.type};
+  `}
+`;
 
 const transformEnable = (
   enable: ResizableProps["enable"]
