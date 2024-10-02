@@ -7,9 +7,9 @@ import {
   useCallback,
 } from "react";
 import styled, { css } from "styled-components";
-import { Resizable } from "re-resizable";
 
 import ErrorBoundary from "../../../../../components/ErrorBoundary";
+import Resizable from "../../../../../components/Resizable";
 import { Wormhole } from "../../../../../components/Loading";
 import { EventName } from "../../../../../constants";
 import {
@@ -39,17 +39,8 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
       size={{ width, height: "100%" }}
       minHeight="100%"
       maxWidth={window.innerWidth * 0.75}
-      enable={{
-        top: false,
-        right: true,
-        bottom: false,
-        left: false,
-        topRight: false,
-        bottomRight: false,
-        bottomLeft: false,
-        topLeft: false,
-      }}
       onResizeStop={handleResizeStop}
+      enable="right"
     >
       <Wrapper windowHeight={windowHeight}>
         <Title sidebarPage={sidebarPage} />
