@@ -13,8 +13,23 @@ type ResizableProps = Omit<ReResizableProps, "enable"> & {
 const Resizable = forwardRef<ReResizable, ResizableProps>((props, ref) => (
   <StyledResizable
     ref={ref}
-    {...{ ...props, enable: transformEnable(props.enable) }}
-  ></StyledResizable>
+    {...{
+      ...props,
+      enable: transformEnable(props.enable),
+      onResizeStart: (ev, dir, ref) => {
+        // Having a transition makes resizing experience laggy. To solve, we
+        // disable the transition when resizing starts, and re-enable it
+        // after resizing stops.
+        ref.style.transitionDuration = "0s";
+        props.onResizeStart?.(ev, dir, ref);
+      },
+      onResizeStop: (ev, dir, ref, delta) => {
+        // Setting to empty string restores the default value
+        ref.style.transitionDuration = "";
+        props.onResizeStop?.(ev, dir, ref, delta);
+      },
+    }}
+  />
 ));
 
 const StyledResizable = styled(ReResizable)`
