@@ -29,9 +29,10 @@ interface DefaultRightProps {
 interface RightProps<W = number> extends DefaultRightProps {
   width: W;
   setWidth: Dispatch<SetStateAction<W>>;
+  oldWidth: W;
 }
 
-const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
+const Right: FC<RightProps> = ({ sidebarPage, width, setWidth, oldWidth }) => {
   const { handleResizeStop, windowHeight } = useResize(setWidth);
 
   return (
@@ -42,7 +43,7 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth }) => {
       onResizeStop={handleResizeStop}
       enable="right"
     >
-      <Wrapper windowHeight={windowHeight}>
+      <Wrapper width={width} oldWidth={oldWidth} windowHeight={windowHeight}>
         <Title sidebarPage={sidebarPage} />
         <Content sidebarPage={sidebarPage} />
       </Wrapper>
@@ -96,12 +97,17 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
   return <ErrorBoundary>{el}</ErrorBoundary>;
 };
 
-const Wrapper = styled.div<{ windowHeight: number }>`
-  ${({ theme, windowHeight }) => css`
+const Wrapper = styled.div<{
+  windowHeight: number;
+  width: number;
+  oldWidth: number;
+}>`
+  ${({ theme, width, oldWidth, windowHeight }) => css`
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
+    min-width: ${width ? width : oldWidth}px;
 
     ${PgTheme.getScrollbarCSS()};
     ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};

@@ -51,7 +51,12 @@ const Side = () => {
         setWidth={setWidth}
         oldWidth={oldWidth}
       />
-      <Right sidebarPage={sidebarPage} width={width} setWidth={setWidth} />
+      <Right
+        sidebarPage={sidebarPage}
+        width={width}
+        setWidth={setWidth}
+        oldWidth={oldWidth}
+      />
     </Wrapper>
   );
 };
