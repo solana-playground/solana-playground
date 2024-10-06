@@ -119,7 +119,6 @@ const TitleWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: ${theme.components.tabs.tab.default.height};
 
     ${PgTheme.convertToCSS(theme.components.sidebar.right.title)};
   `}

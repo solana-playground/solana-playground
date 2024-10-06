@@ -1321,6 +1321,7 @@ export class PgTheme {
     sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
     // Right title
     sidebar.right.title ??= {};
+    sidebar.right.title.height ??= "2rem";
     sidebar.right.title.borderBottom ??= `1px solid ${theme.colors.default.border};`;
     sidebar.right.title.color ??= theme.colors.default.textSecondary;
     sidebar.right.title.fontSize ??= theme.font.code.size.large;
@@ -1369,7 +1370,7 @@ export class PgTheme {
     tabs.tab.default.justifyContent ??= "center";
     tabs.tab.default.alignItems ??= "center";
     tabs.tab.default.width ??= "fit-content";
-    tabs.tab.default.height ??= "2rem";
+    tabs.tab.default.height ??= theme.components.sidebar.right.title.height;
     tabs.tab.default.paddingLeft ??= "0.5rem";
     tabs.tab.default.color ??= theme.colors.default.textSecondary;
     tabs.tab.default.border ??= "1px solid transparent";
@@ -1689,7 +1690,7 @@ export class PgTheme {
 
     // Main content default
     tutorials.main.content.default ??= {};
-    tutorials.main.content.default.padding ??= "1.5rem 1.75rem";
+    tutorials.main.content.default.padding ??= "1.5rem";
     tutorials.main.content.default.display ??= "flex";
     tutorials.main.content.default.flexDirection ??= "column";
     tutorials.main.content.default.flexGrow ??= 1;
