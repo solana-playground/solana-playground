@@ -211,8 +211,11 @@ export interface Theme {
           top?: DefaultComponent;
           /** Programs main section */
           main?: ExtendibleComponent<{
-            /** Program card component */
-            card?: DefaultComponent;
+            /** Program main content component */
+            content?: ExtendibleComponent<{
+              /** Program main content card component */
+              card?: DefaultComponent;
+            }>;
           }>;
         }>;
       };

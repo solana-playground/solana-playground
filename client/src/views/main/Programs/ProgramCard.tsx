@@ -76,7 +76,9 @@ const ProgramCard: FC<ProgramCardProps> = ({
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.programs.main.card)};
+    ${PgTheme.convertToCSS(
+      theme.components.main.views.programs.main.content.card
+    )};
   `}
 `;
 

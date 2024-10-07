@@ -1766,23 +1766,29 @@ export class PgTheme {
     programs.main ??= {};
     // Main default
     programs.main.default ??= {};
+    programs.main.default.display ??= "flex";
     programs.main.default.minHeight ??= `calc(100% - ${programs.top.height})`;
     programs.main.default.padding ??= "2rem 2.5rem";
-    programs.main.default.display ??= "flex";
-    programs.main.default.flexWrap ??= "wrap";
-    programs.main.default.gap ??= "1.5rem";
-    // Main card
-    programs.main.card ??= {};
-    programs.main.card.flexGrow ??= "1";
-    programs.main.card.flexBasis ??= "50%";
-    programs.main.card.display ??= "flex";
-    programs.main.card.flexDirection ??= "column";
-    programs.main.card.gap ??= "0.5rem";
-    programs.main.card.maxWidth ??= "44.95rem";
-    programs.main.card.height ??= "fit-content";
-    programs.main.card.padding ??= "1rem";
-    programs.main.card.border ??= `1px solid ${theme.colors.default.border}`;
-    programs.main.card.borderRadius ??= theme.default.borderRadius;
+    // Main content
+    programs.main.content ??= {};
+    // Main content default
+    programs.main.content.default ??= {};
+    programs.main.content.default.display ??= "flex";
+    programs.main.content.default.flexWrap ??= "wrap";
+    programs.main.content.default.flexGrow ??= 1;
+    programs.main.content.default.gap ??= "1.5rem";
+    // Main content card
+    programs.main.content.card ??= {};
+    programs.main.content.card.flexGrow ??= 1;
+    programs.main.content.card.flexBasis ??= "50%";
+    programs.main.content.card.display ??= "flex";
+    programs.main.content.card.flexDirection ??= "column";
+    programs.main.content.card.gap ??= "0.5rem";
+    programs.main.content.card.maxWidth ??= "44.95rem";
+    programs.main.content.card.height ??= "fit-content";
+    programs.main.content.card.padding ??= "1rem";
+    programs.main.content.card.border ??= `1px solid ${theme.colors.default.border}`;
+    programs.main.content.card.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }

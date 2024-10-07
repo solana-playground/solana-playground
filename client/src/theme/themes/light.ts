@@ -133,8 +133,10 @@ const LIGHT: Theme = {
       views: {
         programs: {
           main: {
-            card: {
-              bg: BG_WHITE,
+            content: {
+              card: {
+                bg: BG_WHITE,
+              },
             },
           },
         },

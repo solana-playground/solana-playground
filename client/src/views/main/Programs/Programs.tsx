@@ -34,12 +34,17 @@ export const Programs: FC<ProgramsProps> = ({ programs }) => {
           searchButton={{ position: "right", width: "2.5rem" }}
         />
       </TopSection>
-      <MainSection>
-        {!regularItems.length && <NoMatch />}
 
-        {regularItems.map((program) => (
-          <ProgramCard key={program.name} {...program} />
-        ))}
+      <MainSection>
+        <MainContent noMatch={!regularItems.length}>
+          {!regularItems.length && (
+            <NoMatchText icon={<Sad />}>No match found</NoMatchText>
+          )}
+
+          {regularItems.map((program) => (
+            <ProgramCard key={program.name} {...program} />
+          ))}
+        </MainContent>
       </MainSection>
     </Wrapper>
   );
@@ -65,17 +70,15 @@ const MainSection = styled.div`
   `}
 `;
 
-const NoMatch = () => (
-  <NoMatchWrapper>
-    <NoMatchText icon={<Sad />}>No match found</NoMatchText>
-  </NoMatchWrapper>
-);
-
-const NoMatchWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const MainContent = styled.div<{ noMatch: boolean }>`
+  ${({ theme, noMatch }) => css`
+    ${PgTheme.convertToCSS(
+      theme.components.main.views.programs.main.content.default
+    )};
+    ${noMatch
+      ? "justify-content: center; align-items: center"
+      : "height: fit-content"};
+  `}
 `;
 
 const NoMatchText = styled(Text)`
