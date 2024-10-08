@@ -29,8 +29,11 @@ const Programs = () => {
     return () => dispose();
   }, []);
 
-  // Minimize terminal
-  useEffect(() => PgTerminal.minimize(), []);
+  // Minimize terminal on mount and reopen on unmount
+  useEffect(() => {
+    PgTerminal.minimize();
+    return () => PgTerminal.setHeight(PgTerminal.DEFAULT_HEIGHT);
+  }, []);
 
   return (
     <Wrapper>

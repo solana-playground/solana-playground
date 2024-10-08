@@ -68,8 +68,11 @@ const Tutorials = () => {
     setTutorialsData(data);
   }, []);
 
-  // Minimize terminal
-  useEffect(() => PgTerminal.minimize(), []);
+  // Minimize terminal on mount and reopen on unmount
+  useEffect(() => {
+    PgTerminal.minimize();
+    return () => PgTerminal.setHeight(PgTerminal.DEFAULT_HEIGHT);
+  }, []);
 
   if (!tutorialsData) return <TutorialsSkeleton />;
 
