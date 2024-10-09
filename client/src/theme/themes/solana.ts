@@ -125,7 +125,7 @@ const SOLANA: Theme = {
       default: {
         bg: BG_BLACK,
       },
-      views: {
+      primary: {
         home: {
           resources: {
             card: {

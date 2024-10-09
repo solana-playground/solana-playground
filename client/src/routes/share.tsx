@@ -15,7 +15,9 @@ export const share = PgRouter.create({
         // Initialize explorer
         await PgExplorer.init({ files });
 
-        const { EditorWithTabs } = await import("../views/main/EditorWithTabs");
+        const { EditorWithTabs } = await import(
+          "../views/main/primary/EditorWithTabs"
+        );
         return EditorWithTabs;
       } finally {
         // Set sidebar

@@ -100,7 +100,7 @@ const PLAYGROUND: Theme = {
       default: {
         bg: `linear-gradient(45deg, ${BG_DARK}, ${BG_DEFAULT})`,
       },
-      views: {
+      primary: {
         home: {
           resources: {
             card: {
@@ -142,6 +142,16 @@ const PLAYGROUND: Theme = {
           },
         },
       },
+      secondary: {
+        default: {
+          bg: `linear-gradient(210deg, ${BG_DEFAULT} 75%, ${BG_LIGHT})`,
+          borderTop: `1px solid ${BLUE}80`,
+          transition: `all 250ms ease-in-out`,
+          focusWithin: {
+            borderTopColor: BLUE,
+          },
+        },
+      },
     },
     modal: {
       default: {
@@ -170,16 +180,6 @@ const PLAYGROUND: Theme = {
     progressbar: {
       indicator: {
         bg: PROGRESS_BG,
-      },
-    },
-    terminal: {
-      default: {
-        bg: `linear-gradient(210deg, ${BG_DEFAULT} 75%, ${BG_LIGHT})`,
-        borderTop: `1px solid ${BLUE}80`,
-        transition: `all 250ms ease-in-out`,
-        focusWithin: {
-          borderTopColor: BLUE,
-        },
       },
     },
     toast: {

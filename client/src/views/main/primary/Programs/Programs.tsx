@@ -1,13 +1,13 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import SearchBar from "../../../components/SearchBar";
-import Text from "../../../components/Text";
+import SearchBar from "../../../../components/SearchBar";
+import Text from "../../../../components/Text";
 import ProgramCard, { ProgramCardProps } from "./ProgramCard";
-import { Sad } from "../../../components/Icons";
 import { FILTERS } from "./filters";
-import { useFilteredSearch } from "../../../hooks";
-import { PgTheme } from "../../../utils/pg";
+import { Sad } from "../../../../components/Icons";
+import { useFilteredSearch } from "../../../../hooks";
+import { PgTheme } from "../../../../utils/pg";
 
 interface ProgramsProps {
   programs: ProgramCardProps[];
@@ -52,13 +52,13 @@ export const Programs: FC<ProgramsProps> = ({ programs }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.programs.default)};
+    ${PgTheme.convertToCSS(theme.components.main.primary.programs.default)};
   `}
 `;
 
 const TopSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.programs.top)};
+    ${PgTheme.convertToCSS(theme.components.main.primary.programs.top)};
   `}
 `;
 
@@ -66,14 +66,16 @@ const Title = styled.h1``;
 
 const MainSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.programs.main.default)};
+    ${PgTheme.convertToCSS(
+      theme.components.main.primary.programs.main.default
+    )};
   `}
 `;
 
 const MainContent = styled.div<{ noMatch: boolean }>`
   ${({ theme, noMatch }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.programs.main.content.default
+      theme.components.main.primary.programs.main.content.default
     )};
     ${noMatch
       ? "justify-content: center; align-items: center"

@@ -11,7 +11,7 @@ export const tutorials = PgRouter.create({
       // Initialize explorer
       await PgExplorer.init();
 
-      const { Tutorials } = await import("../views/main/Tutorials");
+      const { Tutorials } = await import("../views/main/primary/Tutorials");
       return Tutorials;
     });
 

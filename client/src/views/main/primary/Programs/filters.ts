@@ -1,4 +1,4 @@
-import { TUTORIAL_CATEGORIES, TUTORIAL_FRAMEWORKS } from "../../../utils/pg";
+import { TUTORIAL_CATEGORIES, TUTORIAL_FRAMEWORKS } from "../../../../utils/pg";
 
 /** All program filters */
 export const FILTERS = [

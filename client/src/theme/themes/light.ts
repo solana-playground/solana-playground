@@ -130,7 +130,7 @@ const LIGHT: Theme = {
       },
     },
     main: {
-      views: {
+      primary: {
         programs: {
           main: {
             content: {

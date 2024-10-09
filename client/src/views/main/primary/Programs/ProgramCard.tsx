@@ -1,18 +1,18 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import Img from "../../../components/Img";
-import Link from "../../../components/Link";
-import Markdown from "../../../components/Markdown";
-import Tag from "../../../components/Tag";
-import Tooltip from "../../../components/Tooltip";
-import { Github } from "../../../components/Icons";
+import Img from "../../../../components/Img";
+import Link from "../../../../components/Link";
+import Markdown from "../../../../components/Markdown";
+import Tag from "../../../../components/Tag";
+import Tooltip from "../../../../components/Tooltip";
+import { Github } from "../../../../components/Icons";
 import {
   Arrayable,
   PgTheme,
   TutorialData,
   TutorialDetailKey,
-} from "../../../utils/pg";
+} from "../../../../utils/pg";
 
 export type ProgramCardProps = {
   /** Program name */
@@ -77,7 +77,7 @@ const ProgramCard: FC<ProgramCardProps> = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.programs.main.content.card
+      theme.components.main.primary.programs.main.content.card
     )};
   `}
 `;

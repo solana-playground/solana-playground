@@ -1,10 +1,10 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../components/Button";
-import Img from "../../../components/Img";
-import TutorialDetails from "../../../components/Tutorial/TutorialDetails";
-import { PgTheme, PgTutorial, TutorialData } from "../../../utils/pg";
+import Button from "../../../../components/Button";
+import Img from "../../../../components/Img";
+import TutorialDetails from "../../../../components/Tutorial/TutorialDetails";
+import { PgTheme, PgTutorial, TutorialData } from "../../../../utils/pg";
 
 interface FeaturedTutorialProps {
   tutorial: TutorialData;
@@ -47,7 +47,7 @@ const FeaturedTutorial: FC<FeaturedTutorialProps> = ({ tutorial }) => (
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.content.featured
+      theme.components.main.primary.tutorials.main.content.featured
     )};
   `}
 `;

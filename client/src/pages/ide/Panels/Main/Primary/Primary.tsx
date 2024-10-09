@@ -14,7 +14,7 @@ import {
 } from "../../../../../utils/pg";
 import { useGetAndSetStatic } from "../../../../../hooks";
 
-const MainView = () => {
+const Primary = () => {
   const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +44,11 @@ const MainView = () => {
     setLoading(false);
   }, []);
 
-  useGetAndSetStatic(el, setElWithTransition, EventName.VIEW_MAIN_STATIC);
+  useGetAndSetStatic(
+    el,
+    setElWithTransition,
+    EventName.VIEW_MAIN_PRIMARY_STATIC
+  );
 
   return (
     <Wrapper>
@@ -58,7 +62,7 @@ const MainView = () => {
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.getScrollbarCSS({ allChildren: true })};
-    ${PgTheme.convertToCSS(theme.components.main.default)};
+    ${PgTheme.convertToCSS(theme.components.main.primary.default)};
   `}
 `;
 
@@ -82,4 +86,4 @@ const fadeInAnimation = keyframes`
   100% { opacity: 1 }
 `;
 
-export default MainView;
+export default Primary;

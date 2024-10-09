@@ -11,10 +11,10 @@ import { Id } from "../../../constants";
 
 const Panels = () => (
   <Wrapper>
-    <MainWrapper>
+    <TopWrapper>
       <Side />
       <Main />
-    </MainWrapper>
+    </TopWrapper>
 
     <Bottom />
 
@@ -45,7 +45,7 @@ const Wrapper = styled.div`
   overflow: hidden;
 `;
 
-const MainWrapper = styled.div`
+const TopWrapper = styled.div`
   display: grid;
   grid-template-columns: auto 1fr;
   overflow: hidden;

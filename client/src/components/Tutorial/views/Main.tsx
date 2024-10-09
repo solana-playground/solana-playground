@@ -4,7 +4,8 @@ import Split from "react-split";
 
 import Button from "../../Button";
 import Markdown from "../../Markdown";
-import { EditorWithTabs } from "../../../views/main/EditorWithTabs";
+// TODO: Fix importing views from components
+import { EditorWithTabs } from "../../../views/main/primary/EditorWithTabs";
 import { PointedArrow } from "../../Icons";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialMainComponentProps } from "../types";
@@ -145,13 +146,15 @@ const TutorialPage = styled.div`
     overflow: auto;
     max-width: 60rem;
     padding-top: ${theme.components.tabs.tab.default.height};
-    background: ${theme.components.main.views.tutorial.default.bg};
+    background: ${theme.components.main.primary.tutorial.default.bg};
   `}
 `;
 
 const TutorialContent = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorial.tutorialPage)};
+    ${PgTheme.convertToCSS(
+      theme.components.main.primary.tutorial.tutorialPage
+    )};
   `}
 `;
 

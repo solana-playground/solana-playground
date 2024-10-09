@@ -1044,10 +1044,6 @@ export class PgTheme {
 
     // Default
     terminal.default ??= {};
-    terminal.default.height ??= "100%";
-    terminal.default.bg ??= theme.colors.default.bgPrimary;
-    terminal.default.color ??= theme.colors.default.textPrimary;
-    terminal.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
 
     // Xterm
     terminal.xterm ??= {};
@@ -1336,14 +1332,27 @@ export class PgTheme {
 
     // Default
     main.default ??= {};
+    main.default.display ??= "flex";
+    main.default.flexDirection ??= "column";
+    main.default.overflow ??= "hidden";
     main.default.bg ??= theme.colors.default.bgSecondary;
     main.default.color ??= theme.colors.default.textPrimary;
-    main.default.display ??= "flex";
-    main.default.flex ??= "1";
-    main.default.minHeight ??= 0;
 
-    // Views
-    main.views ??= {};
+    // Main primary
+    main.primary ??= {};
+    // Main top default
+    main.primary.default ??= {};
+    main.primary.default.flex ??= "1";
+    main.primary.default.minHeight ??= 0;
+
+    // Main secondary
+    main.secondary ??= {};
+    // Main secondary default
+    main.secondary.default ??= {};
+    main.secondary.default.height ??= "100%";
+    main.secondary.default.bg ??= theme.colors.default.bgPrimary;
+    main.secondary.default.color ??= theme.colors.default.textPrimary;
+    main.secondary.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
 
     return this;
   }
@@ -1510,8 +1519,8 @@ export class PgTheme {
     const main = this._getComponent("main");
     const theme = this._themeReady;
 
-    main.views!.home ??= {};
-    const home = main.views!.home;
+    main.primary!.home ??= {};
+    const home = main.primary!.home;
 
     // Default
     home.default ??= {};
@@ -1606,8 +1615,8 @@ export class PgTheme {
     const main = this._getComponent("main");
     const theme = this._themeReady;
 
-    main.views!.tutorial ??= {};
-    const tutorial = main.views!.tutorial;
+    main.primary!.tutorial ??= {};
+    const tutorial = main.primary!.tutorial;
 
     // Default
     tutorial.default ??= {};
@@ -1641,8 +1650,8 @@ export class PgTheme {
     const main = this._getComponent("main");
     const theme = this._themeReady;
 
-    main.views!.tutorials ??= {};
-    const tutorials = main.views!.tutorials;
+    main.primary!.tutorials ??= {};
+    const tutorials = main.primary!.tutorials;
 
     // Default
     tutorials.default ??= {};
@@ -1681,9 +1690,9 @@ export class PgTheme {
     tutorials.main.side.padding ??= "0.5rem";
     tutorials.main.side.borderRight ??= `1px solid ${theme.colors.default.border}`;
     tutorials.main.side.borderTopLeftRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
+      theme.components.main.primary.tutorials.main.default.borderRadius;
     tutorials.main.side.borderBottomLeftRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
+      theme.components.main.primary.tutorials.main.default.borderRadius;
 
     // Main content (tutorials)
     tutorials.main.content ??= {};
@@ -1698,9 +1707,9 @@ export class PgTheme {
     tutorials.main.content.default.overflow ??= "auto";
     tutorials.main.content.default.bg ??= tutorials.main.default.bg;
     tutorials.main.content.default.borderTopRightRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
+      theme.components.main.primary.tutorials.main.default.borderRadius;
     tutorials.main.content.default.borderBottomRightRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
+      theme.components.main.primary.tutorials.main.default.borderRadius;
     //Main content card
     tutorials.main.content.card ??= {};
     const card = tutorials.main.content.card;
@@ -1709,7 +1718,7 @@ export class PgTheme {
     card.default.width ??= "100%";
     card.default.height ??= "100%";
     card.default.overflow ??= "hidden";
-    card.default.bg ??= theme.components.main.views.tutorials.main.default.bg;
+    card.default.bg ??= theme.components.main.primary.tutorials.main.default.bg;
     card.default.color ??= theme.colors.default.textPrimary;
     card.default.border ??= `1px solid ${
       theme.colors.default.border + theme.default.transparency.medium
@@ -1738,8 +1747,8 @@ export class PgTheme {
     const main = this._getComponent("main");
     const theme = this._themeReady;
 
-    main.views!.programs ??= {};
-    const programs = main.views!.programs;
+    main.primary!.programs ??= {};
+    const programs = main.primary!.programs;
 
     // Default
     programs.default ??= {};

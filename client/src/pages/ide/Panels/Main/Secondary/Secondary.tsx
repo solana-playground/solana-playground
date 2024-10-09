@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import styled, { css, useTheme } from "styled-components";
+import { useCallback, useRef, useState } from "react";
+import styled, { css } from "styled-components";
 import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
 import ProgressBar from "../../../../../components/ProgressBar";
 import Resizable from "../../../../../components/Resizable";
-import { COMMANDS } from "../../../../../commands";
 import {
   Clear,
   Close,
@@ -13,85 +12,25 @@ import {
   Tick,
 } from "../../../../../components/Icons";
 import {
-  PgCommandManager,
   PgCommon,
+  // TODO: Remove
   PgEditor,
-  PgTerm,
+  // TODO: Remove
   PgTerminal,
   PgTheme,
 } from "../../../../../utils/pg";
 import { EventName } from "../../../../../constants";
-import {
-  useExposeStatic,
-  useKeybind,
-  useSetStatic,
-} from "../../../../../hooks";
+import { useKeybind, useSetStatic } from "../../../../../hooks";
 
-const Terminal = () => {
-  const terminalRef = useRef<HTMLDivElement>(null);
+// TODO: Import dynamically
+import Terminal from "../../../../../views/main/secondary/Terminal";
 
-  const theme = useTheme();
-
-  // Create xterm
-  const term = useMemo(() => {
-    const xterm = theme.components.terminal.xterm;
-
-    // Set the available commands
-    PgCommandManager.commands = COMMANDS;
-
-    return new PgTerm(PgCommandManager, {
-      convertEol: true,
-      rendererType: "dom",
-      fontFamily: theme.font.code.family,
-      fontSize: 14,
-      cursorBlink: xterm.cursor.blink,
-      cursorStyle: xterm.cursor.kind,
-      tabStopWidth: 4,
-      theme: {
-        foreground: xterm.textPrimary,
-        brightBlack: xterm.textSecondary,
-        black: xterm.textSecondary,
-        brightMagenta: xterm.primary,
-        brightCyan: xterm.secondary,
-        brightGreen: xterm.success,
-        brightRed: xterm.error,
-        brightYellow: xterm.warning,
-        brightBlue: xterm.info,
-        selection: xterm.selectionBg,
-        cursor: xterm.cursor.color,
-        cursorAccent: xterm.cursor.accentColor,
-      },
-    });
-  }, [theme]);
-
-  useExposeStatic(term, EventName.TERMINAL_STATIC);
-
-  // Open terminal
-  useEffect(() => {
-    if (terminalRef.current) {
-      if (terminalRef.current.hasChildNodes()) {
-        terminalRef.current.removeChild(terminalRef.current.childNodes[0]);
-      }
-
-      term.open(terminalRef.current);
-    }
-  }, [term]);
-
+const Secondary = () => {
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
   useSetStatic(setHeight, EventName.TERMINAL_HEIGHT_SET);
 
   const termRef = useRef<HTMLDivElement>(null);
-
-  // Handle resize
-  useEffect(() => {
-    const termEl = termRef.current!;
-    const observer = new ResizeObserver(
-      PgCommon.throttle(() => term.fit(), 200)
-    );
-    observer.observe(termEl);
-    return () => observer.unobserve(termEl);
-  }, [term]);
 
   const handleResizeStop = useCallback((_e, _dir, _ref, d) => {
     setHeight((h) => {
@@ -102,10 +41,6 @@ const Terminal = () => {
   }, []);
 
   // Buttons
-  const clear = useCallback(() => {
-    term.clear();
-  }, [term]);
-
   const toggleMaximize = useCallback(() => {
     setHeight((h) =>
       h === PgTerminal.MAX_HEIGHT
@@ -126,12 +61,6 @@ const Terminal = () => {
   useKeybind(
     [
       {
-        keybind: "Ctrl+L",
-        handle: () => {
-          if (PgTerminal.isFocused()) clear();
-        },
-      },
-      {
         keybind: "Ctrl+`",
         handle: () => {
           if (PgTerminal.isFocused()) {
@@ -139,7 +68,7 @@ const Terminal = () => {
             PgEditor.focus();
           } else {
             if (height === PgTerminal.MIN_HEIGHT) toggleMinimize(); // Minimized
-            term.focus();
+            PgTerminal.focus();
           }
         },
       },
@@ -151,12 +80,12 @@ const Terminal = () => {
         keybind: "Ctrl+J",
         handle: () => {
           toggleMinimize();
-          if (height === PgTerminal.MIN_HEIGHT) term.focus();
+          if (height === PgTerminal.MIN_HEIGHT) PgTerminal.focus();
           else PgEditor.focus();
         },
       },
     ],
-    [term, height, clear, toggleMinimize, toggleMaximize]
+    [height]
   );
 
   return (
@@ -174,7 +103,7 @@ const Terminal = () => {
             <Button
               kind="icon"
               title={PgCommon.getKeybindTextOS("Clear (Ctrl+L)")}
-              onClick={clear}
+              onClick={PgTerminal.clear}
             >
               <Clear />
             </Button>
@@ -199,7 +128,8 @@ const Terminal = () => {
             </Button>
           </ButtonsWrapper>
         </Topbar>
-        <TerminalWrapper ref={terminalRef} />
+
+        <Terminal />
       </Wrapper>
     </Resizable>
   );
@@ -207,9 +137,23 @@ const Terminal = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.getScrollbarCSS({ allChildren: true })};
-    ${PgTheme.convertToCSS(theme.components.terminal.default)};
+    ${PgTheme.convertToCSS(theme.components.main.secondary.default)};
+
+    & > div:first-child {
+      height: ${PgTerminal.MIN_HEIGHT}px;
+    }
+
+    & > div:last-child {
+      height: 100%;
+    }
   `}
+`;
+
+const Topbar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
 `;
 
 const TerminalProgress = () => {
@@ -217,14 +161,6 @@ const TerminalProgress = () => {
   useSetStatic(setProgress, EventName.TERMINAL_PROGRESS_SET);
   return <ProgressBar value={progress} />;
 };
-
-const Topbar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: ${PgTerminal.MIN_HEIGHT}px;
-  padding: 0 1rem;
-`;
 
 const ButtonsWrapper = styled.div`
   display: flex;
@@ -239,15 +175,4 @@ const ButtonsWrapper = styled.div`
   }
 `;
 
-// `minHeight` fixes text going below too much which made bottom text invisible
-const TerminalWrapper = styled.div`
-  height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
-  margin-left: 1rem;
-
-  & .xterm-viewport {
-    background: inherit !important;
-    width: 100% !important;
-  }
-`;
-
-export default Terminal;
+export default Secondary;

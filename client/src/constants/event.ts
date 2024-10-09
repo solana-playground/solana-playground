@@ -28,7 +28,7 @@ export enum EventName {
   TOAST_CLOSE = "toastclose",
 
   // View
-  VIEW_MAIN_STATIC = "viewmainstatic",
+  VIEW_MAIN_PRIMARY_STATIC = "viewmainprimarystatic",
   VIEW_NEW_ITEM_PORTAL_SET = "viewnewitemportalset",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
   VIEW_SIDEBAR_LOADING_SET = "viewsidebarloadingset",

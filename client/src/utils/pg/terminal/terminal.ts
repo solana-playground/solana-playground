@@ -203,6 +203,16 @@ export class PgTerminal {
     await PgTerminal.run({ println: [msg, opts] });
   }
 
+  /** Dispatch focus terminal custom event. */
+  static async focus() {
+    await PgTerminal.run({ focus: [] });
+  }
+
+  /** Dispatch focus terminal custom event. */
+  static async clear() {
+    await PgTerminal.run({ clear: [] });
+  }
+
   // TODO: Remove
   /**
    * Log terminal messages from anywhere

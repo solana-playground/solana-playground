@@ -1,9 +1,9 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import Img from "../../../components/Img";
-import Tag from "../../../components/Tag";
-import { PgTheme, PgTutorial, TutorialData } from "../../../utils/pg";
+import Img from "../../../../components/Img";
+import Tag from "../../../../components/Tag";
+import { PgTheme, PgTutorial, TutorialData } from "../../../../utils/pg";
 
 const TutorialCard: FC<TutorialData> = ({
   name,
@@ -80,7 +80,7 @@ const GradientWrapper = styled.div`
     }
 
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.content.card.gradient
+      theme.components.main.primary.tutorials.main.content.card.gradient
     )};
   `}
 `;
@@ -88,7 +88,7 @@ const GradientWrapper = styled.div`
 const InsideWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.content.card.default
+      theme.components.main.primary.tutorials.main.content.card.default
     )};
   `}
 `;

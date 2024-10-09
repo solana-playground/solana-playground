@@ -3,7 +3,7 @@ import {
   TUTORIAL_FRAMEWORKS,
   TUTORIAL_LANGUAGES,
   TUTORIAL_LEVELS,
-} from "../../../utils/pg";
+} from "../../../../utils/pg";
 
 /** All tutorial filters */
 export const FILTERS = [

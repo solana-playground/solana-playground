@@ -43,7 +43,7 @@ export class PgView {
   static async setMain(SetEl: SetElementAsync) {
     await PgCommon.tryUntilSuccess(async () => {
       const eventNames = PgCommon.getStaticStateEventNames(
-        EventName.VIEW_MAIN_STATIC
+        EventName.VIEW_MAIN_PRIMARY_STATIC
       );
       const result = await PgCommon.timeout(
         PgCommon.sendAndReceiveCustomEvent(eventNames.get),

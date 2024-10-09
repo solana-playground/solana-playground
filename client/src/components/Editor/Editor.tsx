@@ -60,7 +60,7 @@ const Wrapper = styled.div`
      * transparent and set this(wrapper) element's background to background-image.
      */
     &:has(> #${Id.HOME}) {
-      background: ${theme.components.main.views.home.default.bg ??
+      background: ${theme.components.main.primary.home.default.bg ??
       theme.components.main.default.bg};
     }
 

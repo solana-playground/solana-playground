@@ -13,7 +13,7 @@ export const programs = PgRouter.create({
 
       // Fetch programs
       const programs = await PgCommon.fetchJSON("/programs/programs.json");
-      const { Programs } = await import("../views/main/Programs");
+      const { Programs } = await import("../views/main/primary/Programs");
       return <Programs programs={programs} />;
     });
 

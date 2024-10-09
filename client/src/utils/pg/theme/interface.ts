@@ -161,9 +161,10 @@ export interface Theme {
     /** Input component */
     input?: DefaultComponent;
 
-    /** MainView component */
+    /** Main component */
     main?: ExtendibleComponent<{
-      views?: {
+      /** Main primary component */
+      primary?: ExtendibleComponent<{
         /** Home component */
         home?: ExtendibleComponent<{
           /** Playground title */
@@ -218,7 +219,9 @@ export interface Theme {
             }>;
           }>;
         }>;
-      };
+      }>;
+      /** Main secondary component */
+      secondary?: ExtendibleComponent<{}>;
     }>;
 
     /** Markdown component */

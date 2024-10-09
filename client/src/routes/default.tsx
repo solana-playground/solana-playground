@@ -18,7 +18,9 @@ export const defaultRoute = PgRouter.create({
         throw new Error("No need to render");
       }
 
-      const { EditorWithTabs } = await import("../views/main/EditorWithTabs");
+      const { EditorWithTabs } = await import(
+        "../views/main/primary/EditorWithTabs"
+      );
       return EditorWithTabs;
     });
   },

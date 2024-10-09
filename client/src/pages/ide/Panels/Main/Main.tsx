@@ -1,19 +1,20 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import Terminal from "./Terminal";
-import MainView from "./MainView";
+import Primary from "./Primary";
+import Secondary from "./Secondary";
+import { PgTheme } from "../../../../utils/pg";
 
 const Main = () => (
   <Wrapper>
-    <MainView />
-    <Terminal />
+    <Primary />
+    <Secondary />
   </Wrapper>
 );
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  ${({ theme }) => css`
+    ${PgTheme.convertToCSS(theme.components.main.default)};
+  `}
 `;
 
 export default Main;

@@ -2,15 +2,15 @@ import styled, { css } from "styled-components";
 
 import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
-import FilterGroup from "../../../components/FilterGroup";
-import Link from "../../../components/Link";
-import SearchBar from "../../../components/SearchBar";
-import Text from "../../../components/Text";
+import FilterGroup from "../../../../components/FilterGroup";
+import Link from "../../../../components/Link";
+import SearchBar from "../../../../components/SearchBar";
+import Text from "../../../../components/Text";
 import { FILTERS, sortByLevel } from "./filters";
-import { Sad } from "../../../components/Icons";
-import { useFilteredSearch } from "../../../hooks";
-import { GITHUB_URL } from "../../../constants";
-import { PgTheme, PgTutorial } from "../../../utils/pg";
+import { Sad } from "../../../../components/Icons";
+import { useFilteredSearch } from "../../../../hooks";
+import { GITHUB_URL } from "../../../../constants";
+import { PgTheme, PgTutorial } from "../../../../utils/pg";
 
 /**
  * Tutorial items sorted by date.
@@ -85,13 +85,13 @@ export const Tutorials = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.default)};
+    ${PgTheme.convertToCSS(theme.components.main.primary.tutorials.default)};
   `}
 `;
 
 const TopSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.top)};
+    ${PgTheme.convertToCSS(theme.components.main.primary.tutorials.top)};
   `}
 `;
 
@@ -105,13 +105,15 @@ const MainSectionScrollWrapper = styled.div`
 
 const MainSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.default)};
+    ${PgTheme.convertToCSS(
+      theme.components.main.primary.tutorials.main.default
+    )};
   `}
 `;
 
 const SideWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorials.main.side)};
+    ${PgTheme.convertToCSS(theme.components.main.primary.tutorials.main.side)};
   `}
 `;
 
@@ -123,7 +125,7 @@ const FiltersWrapper = styled.div`
 const ContentWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.views.tutorials.main.content.default
+      theme.components.main.primary.tutorials.main.content.default
     )};
   `}
 `;
