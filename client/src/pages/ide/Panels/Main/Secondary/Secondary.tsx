@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 import "xterm/css/xterm.css";
 
@@ -29,8 +29,6 @@ const Secondary = () => {
   // Resize
   const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
   useSetStatic(setHeight, EventName.TERMINAL_HEIGHT_SET);
-
-  const termRef = useRef<HTMLDivElement>(null);
 
   const handleResizeStop = useCallback((_e, _dir, _ref, d) => {
     setHeight((h) => {
@@ -96,7 +94,7 @@ const Secondary = () => {
       onResizeStop={handleResizeStop}
       enable="top"
     >
-      <Wrapper ref={termRef}>
+      <Wrapper>
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>
