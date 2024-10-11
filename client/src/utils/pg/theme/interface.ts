@@ -196,10 +196,7 @@ export interface Theme {
             /** Content section (right tutorials) */
             content?: ExtendibleComponent<{
               /** Tutorial card component */
-              card?: ExtendibleComponent<{
-                /** Wrapper gradient */
-                gradient?: DefaultComponent;
-              }>;
+              card?: ExtendibleComponent<"gradient">;
               /** Featured tutorial component */
               featured?: DefaultComponent;
             }>;
@@ -213,10 +210,7 @@ export interface Theme {
           /** Programs main section */
           main?: ExtendibleComponent<{
             /** Program main content component */
-            content?: ExtendibleComponent<{
-              /** Program main content card component */
-              card?: DefaultComponent;
-            }>;
+            content?: ExtendibleComponent<"card">;
           }>;
         }>;
       }>;
