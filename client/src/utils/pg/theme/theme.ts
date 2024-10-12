@@ -1044,6 +1044,7 @@ export class PgTheme {
 
     // Default
     terminal.default ??= {};
+    terminal.default.padding ??= "0.5rem 1rem";
 
     // Xterm
     terminal.xterm ??= {};
@@ -1059,7 +1060,7 @@ export class PgTheme {
     // Xterm cursor
     terminal.xterm.cursor ??= {};
     terminal.xterm.cursor.color ??= theme.colors.default.textPrimary;
-    terminal.xterm.cursor.accentColor ??= terminal.default.bg as string;
+    terminal.xterm.cursor.accentColor ??= terminal.default.bg!;
 
     return this;
   }

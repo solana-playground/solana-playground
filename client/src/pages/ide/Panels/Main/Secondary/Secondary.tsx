@@ -142,7 +142,7 @@ const Wrapper = styled.div`
     }
 
     & > div:last-child {
-      height: 100%;
+      height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
     }
   `}
 `;

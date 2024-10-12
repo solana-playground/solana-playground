@@ -63,45 +63,33 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
     }
   }, [term]);
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
   // Handle resize
   useEffect(() => {
-    const wrapperEl = wrapperRef.current!;
+    const terminalEl = terminalRef.current!;
     const observer = new ResizeObserver(
       PgCommon.throttle(() => term.fit(), 200)
     );
-    observer.observe(wrapperEl);
-    return () => observer.unobserve(wrapperEl);
+    observer.observe(terminalEl);
+    return () => observer.unobserve(terminalEl);
   }, [term]);
 
   useKeybind("Ctrl+L", () => {
     if (PgTerminal.isFocused()) term.clear();
   });
 
-  return (
-    <Wrapper ref={wrapperRef}>
-      <TerminalWrapper ref={terminalRef} />
-    </Wrapper>
-  );
+  return <Wrapper ref={terminalRef} />;
 };
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.getScrollbarCSS({ allChildren: true })};
     ${PgTheme.convertToCSS(theme.components.terminal.default)};
+
+    & .xterm-viewport {
+      background: inherit !important;
+      width: 100% !important;
+    }
   `}
-`;
-
-// `minHeight` fixes text going below too much which made bottom text invisible
-const TerminalWrapper = styled.div`
-  height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
-  margin-left: 1rem;
-
-  & .xterm-viewport {
-    background: inherit !important;
-    width: 100% !important;
-  }
 `;
 
 export default Terminal;
