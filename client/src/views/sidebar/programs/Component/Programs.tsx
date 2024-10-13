@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import FilterGroup from "../../../../components/FilterGroup";
@@ -29,10 +29,14 @@ const Programs = () => {
     return () => dispose();
   }, []);
 
-  // Minimize terminal on mount and reopen on unmount
+  // Minimize secondary main view on mount and reopen on unmount
+  const mainSecondaryHeight = useRef(PgTerminal.DEFAULT_HEIGHT);
   useEffect(() => {
-    PgTerminal.minimize();
-    return () => PgTerminal.setHeight(PgTerminal.DEFAULT_HEIGHT);
+    PgTerminal.setHeight((h) => {
+      mainSecondaryHeight.current = h;
+      return PgTerminal.MIN_HEIGHT;
+    });
+    return () => PgTerminal.setHeight(mainSecondaryHeight.current);
   }, []);
 
   return (

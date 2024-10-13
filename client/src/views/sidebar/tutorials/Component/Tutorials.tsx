@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import TutorialsSkeleton from "./TutorialsSkeleton";
@@ -68,10 +68,14 @@ const Tutorials = () => {
     setTutorialsData(data);
   }, []);
 
-  // Minimize terminal on mount and reopen on unmount
+  // Minimize secondary main view on mount and reopen on unmount
+  const mainSecondaryHeight = useRef(PgTerminal.DEFAULT_HEIGHT);
   useEffect(() => {
-    PgTerminal.minimize();
-    return () => PgTerminal.setHeight(PgTerminal.DEFAULT_HEIGHT);
+    PgTerminal.setHeight((h) => {
+      mainSecondaryHeight.current = h;
+      return PgTerminal.MIN_HEIGHT;
+    });
+    return () => PgTerminal.setHeight(mainSecondaryHeight.current);
   }, []);
 
   if (!tutorialsData) return <TutorialsSkeleton />;

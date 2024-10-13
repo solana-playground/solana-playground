@@ -20,7 +20,7 @@ import {
 } from "../../../constants";
 import { PgCommon } from "../common";
 import type { CommandManager, PrintOptions } from "./types";
-import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
+import type { Methods, ClassReturnType, SyncOrAsync, SetState } from "../types";
 
 export class PgTerminal {
   /** Default height of the terminal */
@@ -279,17 +279,12 @@ export class PgTerminal {
     );
   }
 
-  /** Minimize the terminal. */
-  static minimize() {
-    this.setHeight(this.MIN_HEIGHT);
-  }
-
   /**
    * Set terminal height.
    *
    * @param height height to set in px
    */
-  static setHeight(height: number) {
+  static setHeight(height: SetState<number>) {
     PgCommon.createAndDispatchCustomEvent(
       EventName.TERMINAL_HEIGHT_SET,
       height
