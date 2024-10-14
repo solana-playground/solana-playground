@@ -11,7 +11,6 @@ import {
   Emoji,
   EventName,
   GITHUB_URL,
-  Id,
   OTHER_ERROR,
   PROGRAM_ERROR,
   PROJECT_NAME,
@@ -20,35 +19,9 @@ import {
 } from "../../../constants";
 import { PgCommon } from "../common";
 import type { CommandManager, PrintOptions } from "./types";
-import type { Methods, ClassReturnType, SyncOrAsync, SetState } from "../types";
+import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
-  /** Default height of the terminal */
-  static get DEFAULT_HEIGHT() {
-    return Math.floor(window.innerHeight / 4);
-  }
-
-  /** Minimum height of the terminal(in px) */
-  static readonly MIN_HEIGHT = 36;
-
-  /**
-   * Maximum height for the terminal.
-   *
-   * This is for fixing bottom of the terminal not being visible due to
-   * incorrect resizing.
-   */
-  static get MAX_HEIGHT() {
-    const bottomHeight = document
-      .getElementById(Id.BOTTOM)
-      ?.getBoundingClientRect()?.height;
-
-    if (bottomHeight) {
-      return window.innerHeight - bottomHeight;
-    }
-
-    return this.DEFAULT_HEIGHT;
-  }
-
   /** Welcome text */
   static readonly DEFAULT_TEXT = [
     `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
@@ -276,18 +249,6 @@ export class PgTerminal {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
       data
-    );
-  }
-
-  /**
-   * Set terminal height.
-   *
-   * @param height height to set in px
-   */
-  static setHeight(height: SetState<number>) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.TERMINAL_HEIGHT_SET,
-      height
     );
   }
 

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { SetStateAction, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 import "xterm/css/xterm.css";
 
@@ -19,40 +19,46 @@ import {
   PgTerminal,
   PgTheme,
 } from "../../../../../utils/pg";
-import { EventName } from "../../../../../constants";
+import { EventName, Id } from "../../../../../constants";
 import { useKeybind, useSetStatic } from "../../../../../hooks";
 
 // TODO: Import dynamically
 import Terminal from "../../../../../views/main/secondary/Terminal";
 
 const Secondary = () => {
-  // Resize
-  const [height, setHeight] = useState(PgTerminal.DEFAULT_HEIGHT);
-  useSetStatic(setHeight, EventName.TERMINAL_HEIGHT_SET);
-
-  const handleResizeStop = useCallback((_e, _dir, _ref, d) => {
+  const [height, setHeight] = useState(getDefaultHeight);
+  const setCheckedHeight = useCallback((action: SetStateAction<number>) => {
     setHeight((h) => {
-      const result = h + d.height;
-      if (result > PgTerminal.MAX_HEIGHT) return PgTerminal.MAX_HEIGHT;
-      return result;
+      const height = typeof action === "function" ? action(h) : action;
+      const minHeight = getMinHeight();
+      if (height < minHeight) return minHeight;
+
+      const maxHeight = getMaxHeight();
+      if (height > maxHeight) return maxHeight;
+
+      return height;
     });
   }, []);
+  useSetStatic(setCheckedHeight, EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET);
+
+  const handleResizeStop = useCallback(
+    (_e, _dir, _ref, d) => setCheckedHeight((h) => h + d.height),
+    [setCheckedHeight]
+  );
 
   // Buttons
   const toggleMaximize = useCallback(() => {
-    setHeight((h) =>
-      h === PgTerminal.MAX_HEIGHT
-        ? PgTerminal.DEFAULT_HEIGHT
-        : PgTerminal.MAX_HEIGHT
-    );
+    setHeight((h) => {
+      const maxHeight = getMaxHeight();
+      return h === maxHeight ? getDefaultHeight() : maxHeight;
+    });
   }, []);
 
   const toggleMinimize = useCallback(() => {
-    setHeight((h) =>
-      h === PgTerminal.MIN_HEIGHT
-        ? PgTerminal.DEFAULT_HEIGHT
-        : PgTerminal.MIN_HEIGHT
-    );
+    setHeight((h) => {
+      const minHeight = getMinHeight();
+      return h === minHeight ? getDefaultHeight() : minHeight;
+    });
   }, []);
 
   // Keybinds
@@ -65,7 +71,7 @@ const Secondary = () => {
             toggleMinimize();
             PgEditor.focus();
           } else {
-            if (height === PgTerminal.MIN_HEIGHT) toggleMinimize(); // Minimized
+            if (height === getMinHeight()) toggleMinimize();
             PgTerminal.focus();
           }
         },
@@ -78,7 +84,7 @@ const Secondary = () => {
         keybind: "Ctrl+J",
         handle: () => {
           toggleMinimize();
-          if (height === PgTerminal.MIN_HEIGHT) PgTerminal.focus();
+          if (height === getMinHeight()) PgTerminal.focus();
           else PgEditor.focus();
         },
       },
@@ -90,7 +96,7 @@ const Secondary = () => {
     <Resizable
       size={{ height, width: "100%" }}
       minWidth="100%"
-      minHeight={PgTerminal.MIN_HEIGHT}
+      minHeight={getMinHeight()}
       onResizeStop={handleResizeStop}
       enable="top"
     >
@@ -110,8 +116,8 @@ const Secondary = () => {
               title={PgCommon.getKeybindTextOS("Toggle Maximize (Ctrl+M)")}
               onClick={toggleMaximize}
             >
-              {height === PgTerminal.MAX_HEIGHT &&
-              PgTerminal.MAX_HEIGHT !== PgTerminal.DEFAULT_HEIGHT ? (
+              {height === getMaxHeight() &&
+              getMaxHeight() !== getDefaultHeight() ? (
                 <DoubleArrow rotate="180deg" />
               ) : (
                 <DoubleArrow />
@@ -122,7 +128,7 @@ const Secondary = () => {
               title={PgCommon.getKeybindTextOS("Toggle Close (Ctrl+`)")}
               onClick={toggleMinimize}
             >
-              {height === PgTerminal.MIN_HEIGHT ? <Tick /> : <Close />}
+              {height === getMinHeight() ? <Tick /> : <Close />}
             </Button>
           </ButtonsWrapper>
         </Topbar>
@@ -138,11 +144,11 @@ const Wrapper = styled.div`
     ${PgTheme.convertToCSS(theme.components.main.secondary.default)};
 
     & > div:first-child {
-      height: ${PgTerminal.MIN_HEIGHT}px;
+      height: ${getMinHeight()}px;
     }
 
     & > div:last-child {
-      height: calc(100% - ${PgTerminal.MIN_HEIGHT}px);
+      height: calc(100% - ${getMinHeight()}px);
     }
   `}
 `;
@@ -172,5 +178,14 @@ const ButtonsWrapper = styled.div`
     transform: rotate(180deg);
   }
 `;
+
+const getDefaultHeight = () => Math.floor(window.innerHeight / 4);
+const getMinHeight = () => 36;
+const getMaxHeight = () => {
+  const bottomHeight = document
+    .getElementById(Id.BOTTOM)
+    ?.getBoundingClientRect()?.height;
+  return window.innerHeight - (bottomHeight ?? 0);
+};
 
 export default Secondary;

@@ -6,7 +6,6 @@ import Text from "../../../../components/Text";
 import {
   PgCommon,
   PgRouter,
-  PgTerminal,
   PgTutorial,
   PgView,
   TutorialData,
@@ -69,13 +68,13 @@ const Tutorials = () => {
   }, []);
 
   // Minimize secondary main view on mount and reopen on unmount
-  const mainSecondaryHeight = useRef(PgTerminal.DEFAULT_HEIGHT);
+  const mainSecondaryHeight = useRef(0);
   useEffect(() => {
-    PgTerminal.setHeight((h) => {
+    PgView.setMainSecondaryHeight((h) => {
       mainSecondaryHeight.current = h;
-      return PgTerminal.MIN_HEIGHT;
+      return 0;
     });
-    return () => PgTerminal.setHeight(mainSecondaryHeight.current);
+    return () => PgView.setMainSecondaryHeight(mainSecondaryHeight.current);
   }, []);
 
   if (!tutorialsData) return <TutorialsSkeleton />;

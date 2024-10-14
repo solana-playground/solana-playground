@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import FilterGroup from "../../../../components/FilterGroup";
 import { FILTERS } from "../../../main/primary/Programs/filters";
-import { PgRouter, PgTerminal, PgView } from "../../../../utils/pg";
+import { PgRouter, PgView } from "../../../../utils/pg";
 import { useAsyncEffect } from "../../../../hooks";
 
 const Programs = () => {
@@ -30,13 +30,13 @@ const Programs = () => {
   }, []);
 
   // Minimize secondary main view on mount and reopen on unmount
-  const mainSecondaryHeight = useRef(PgTerminal.DEFAULT_HEIGHT);
+  const mainSecondaryHeight = useRef(0);
   useEffect(() => {
-    PgTerminal.setHeight((h) => {
+    PgView.setMainSecondaryHeight((h) => {
       mainSecondaryHeight.current = h;
-      return PgTerminal.MIN_HEIGHT;
+      return 0;
     });
-    return () => PgTerminal.setHeight(mainSecondaryHeight.current);
+    return () => PgView.setMainSecondaryHeight(mainSecondaryHeight.current);
   }, []);
 
   return (

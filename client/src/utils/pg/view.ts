@@ -56,6 +56,18 @@ export class PgView {
   }
 
   /**
+   * Set main secondary height.
+   *
+   * @param height height to set in px
+   */
+  static setMainSecondaryHeight(height: SetState<number>) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET,
+      height
+    );
+  }
+
+  /**
    * Set the current modal and wait until close.
    *
    * @param Component component to set as the modal

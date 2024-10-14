@@ -16,7 +16,6 @@ export enum EventName {
 
   // Terminal
   TERMINAL_STATIC = "terminalstatic",
-  TERMINAL_HEIGHT_SET = "terminalheightset",
   TERMINAL_PROGRESS_SET = "terminalprogressset",
 
   // Theme
@@ -29,6 +28,7 @@ export enum EventName {
 
   // View
   VIEW_MAIN_PRIMARY_STATIC = "viewmainprimarystatic",
+  VIEW_MAIN_SECONDARY_HEIGHT_SET = "viewmainsecondaryheightset",
   VIEW_NEW_ITEM_PORTAL_SET = "viewnewitemportalset",
   VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
   VIEW_SIDEBAR_LOADING_SET = "viewsidebarloadingset",
