@@ -53,7 +53,7 @@ console.log("o........💎");
 // Here we move to the right three times and collect the chest at the end of the level
 for (let i = 0; i < 3; i++) {
   txHash = await pg.program.methods
-    .moveRight()
+    .moveRight("gib")
     .accounts({
       chestVault: chestVaultAccount,
       gameDataAccount: globalLevel1GameDataAccount,
