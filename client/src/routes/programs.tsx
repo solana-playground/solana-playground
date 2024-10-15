@@ -7,7 +7,7 @@ export const programs = PgRouter.create({
     PgView.setSidebarPage("Programs");
 
     // Set main view
-    PgView.setMain(async () => {
+    PgView.setMainPrimary(async () => {
       // Initialize explorer
       await PgExplorer.init();
 

@@ -36,11 +36,11 @@ export class PgView {
   }
 
   /**
-   * Set the main view(next to the sidebar and above the terminal).
+   * Set the primary main view (next to the sidebar and above the terminal).
    *
    * @param SetEl element to set the main view to
    */
-  static async setMain(SetEl: SetElementAsync) {
+  static async setMainPrimary(SetEl: SetElementAsync) {
     await PgCommon.tryUntilSuccess(async () => {
       const eventNames = PgCommon.getStaticStateEventNames(
         EventName.VIEW_MAIN_PRIMARY_STATIC
@@ -56,7 +56,7 @@ export class PgView {
   }
 
   /**
-   * Set main secondary height.
+   * Set the secondary main view's height.
    *
    * @param height height to set in px
    */

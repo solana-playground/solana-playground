@@ -5,7 +5,7 @@ export const share = PgRouter.create({
   validate: ({ shareId }) => PgShare.isValidId(shareId),
   handle: ({ shareId }) => {
     // Set main view
-    PgView.setMain(async () => {
+    PgView.setMainPrimary(async () => {
       PgView.setSidebarLoading(true);
 
       try {

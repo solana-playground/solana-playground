@@ -7,7 +7,7 @@ export const tutorials = PgRouter.create({
     PgView.setSidebarPage("Tutorials");
 
     // Set main view
-    PgView.setMain(async () => {
+    PgView.setMainPrimary(async () => {
       // Initialize explorer
       await PgExplorer.init();
 

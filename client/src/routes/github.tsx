@@ -5,7 +5,7 @@ export const githubDefault = PgRouter.create({
   validate: ({ githubUrl }) => PgGithub.isValidUrl(githubUrl),
   handle: ({ githubUrl }) => {
     // Set main view
-    PgView.setMain(async () => {
+    PgView.setMainPrimary(async () => {
       PgView.setSidebarLoading(true);
 
       try {
