@@ -41,6 +41,11 @@ You can open an issue to request more crates.
 
 ## Run locally
 
+Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/):
+```sh
+curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+```
+
 You can run the client locally by cloning the repository and running the following commands in the project directory.
 
 Setup and start the dev server:
