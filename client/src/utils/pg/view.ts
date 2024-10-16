@@ -7,14 +7,14 @@ import type { SetState, SetElementAsync } from "./types";
 
 export class PgView {
   /**
-   * Set the current sidebar state
+   * Set the current sidebar page.
    *
-   * @param state sidebar state to set
+   * @param page sidebar page to set
    */
-  static setSidebarPage(state: SetState<SidebarPageName> = "Explorer") {
+  static setSidebarPage(page: SetState<SidebarPageName> = "Explorer") {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_SIDEBAR_STATE_SET,
-      state
+      page
     );
   }
 
@@ -56,6 +56,20 @@ export class PgView {
   }
 
   /**
+   * Set the current secondary main view page.
+   *
+   * @param page secondary main view page to set
+   */
+  static setMainSecondaryPage(
+    page: SetState<MainSecondaryPageName> = "Terminal"
+  ) {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_MAIN_SECONDARY_PAGE_SET,
+      page
+    );
+  }
+
+  /**
    * Set the secondary main view's height.
    *
    * @param height height to set in px
@@ -65,6 +79,10 @@ export class PgView {
       EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET,
       height
     );
+  }
+
+  static focusMainSecondary() {
+    PgCommon.createAndDispatchCustomEvent(EventName.VIEW_MAIN_SECONDARY_FOCUS);
   }
 
   /**
@@ -151,6 +169,21 @@ export class PgView {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
+    });
+  }
+
+  /**
+   * Runs after changing the secondary main view page.
+   *
+   * @param cb callback function to run after changing the secondary main view page
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeMainSecondaryPage(
+    cb: (page: MainSecondaryPageName) => unknown
+  ) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
     });
   }
 }

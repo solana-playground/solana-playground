@@ -11,7 +11,6 @@ import { useKeybind, useSetStatic } from "../../../../hooks";
 const Side = () => {
   const [sidebarPage, setSidebarPage] = useState<SidebarPageName>("Explorer");
   const oldSidebarRef = useRef(sidebarPage);
-
   useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
@@ -28,7 +27,7 @@ const Side = () => {
 
   // Handle keybinds
   useKeybind(
-    SIDEBAR.filter((p) => !!p.keybind).map((p) => ({
+    SIDEBAR.filter((p) => p.keybind).map((p) => ({
       keybind: p.keybind!,
       handle: () => {
         setSidebarPage((page) => {

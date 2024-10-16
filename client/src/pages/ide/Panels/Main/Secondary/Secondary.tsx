@@ -1,29 +1,27 @@
-import { SetStateAction, useCallback, useState } from "react";
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import styled, { css } from "styled-components";
 import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
 import ProgressBar from "../../../../../components/ProgressBar";
 import Resizable from "../../../../../components/Resizable";
+import { Close, DoubleArrow, Tick } from "../../../../../components/Icons";
 import {
-  Clear,
-  Close,
-  DoubleArrow,
-  Tick,
-} from "../../../../../components/Icons";
-import {
+  NullableJSX,
   PgCommon,
   // TODO: Remove
   PgEditor,
-  // TODO: Remove
-  PgTerminal,
   PgTheme,
 } from "../../../../../utils/pg";
 import { EventName, Id } from "../../../../../constants";
-import { useKeybind, useSetStatic } from "../../../../../hooks";
-
-// TODO: Import dynamically
-import Terminal from "../../../../../views/main/secondary/Terminal";
+import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../../hooks";
+import { MAIN_SECONDARY } from "../../../../../views";
 
 const Secondary = () => {
   const [height, setHeight] = useState(getDefaultHeight);
@@ -40,6 +38,22 @@ const Secondary = () => {
     });
   }, []);
   useSetStatic(setCheckedHeight, EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET);
+
+  const [page, setPage] = useState<MainSecondaryPageName>("Terminal");
+  useSetStatic(setPage, EventName.VIEW_MAIN_SECONDARY_PAGE_SET);
+  useEffect(() => {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
+      page
+    );
+  }, [page]);
+  const pageInfo = useMemo(() => getPage(page), [page]);
+
+  const [el, setEl] = useState<NullableJSX>(null);
+  useAsyncEffect(async () => {
+    const { default: PageComponent } = await pageInfo.importElement();
+    setEl(<PageComponent />);
+  }, [pageInfo]);
 
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => setCheckedHeight((h) => h + d.height),
@@ -65,18 +79,6 @@ const Secondary = () => {
   useKeybind(
     [
       {
-        keybind: "Ctrl+`",
-        handle: () => {
-          if (PgTerminal.isFocused()) {
-            toggleMinimize();
-            PgEditor.focus();
-          } else {
-            if (height === getMinHeight()) toggleMinimize();
-            PgTerminal.focus();
-          }
-        },
-      },
-      {
         keybind: "Ctrl+M",
         handle: toggleMaximize,
       },
@@ -84,12 +86,42 @@ const Secondary = () => {
         keybind: "Ctrl+J",
         handle: () => {
           toggleMinimize();
-          if (height === getMinHeight()) PgTerminal.focus();
+          if (height === getMinHeight()) pageInfo.focus();
           else PgEditor.focus();
         },
       },
     ],
+    [height, pageInfo]
+  );
+
+  // Handle page keybinds
+  useKeybind(
+    MAIN_SECONDARY.filter((p) => p.keybind).map((p) => ({
+      keybind: p.keybind!,
+      handle: () => {
+        setPage(p.name);
+        const { getIsFocused, focus } = getPage(p.name);
+        if (getIsFocused()) {
+          toggleMinimize();
+          // TODO: Focus primary main view
+          PgEditor.focus();
+        } else {
+          focus();
+          if (height === getMinHeight()) toggleMinimize();
+        }
+      },
+    })),
     [height]
+  );
+
+  // Handle page action keybinds
+  useKeybind(
+    (pageInfo.actions ?? [])
+      .filter((a) => a.keybind)
+      .map((a) => ({
+        keybind: a.keybind!,
+        handle: a.run,
+      }))
   );
 
   return (
@@ -104,13 +136,20 @@ const Secondary = () => {
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>
-            <Button
-              kind="icon"
-              title={PgCommon.getKeybindTextOS("Clear (Ctrl+L)")}
-              onClick={PgTerminal.clear}
-            >
-              <Clear />
-            </Button>
+            {pageInfo.actions?.map((action) => (
+              <Button
+                kind="icon"
+                title={PgCommon.getKeybindTextOS(
+                  action.keybind
+                    ? `${action.name} (${action.keybind})`
+                    : action.name
+                )}
+                onClick={action.run}
+              >
+                {action.icon}
+              </Button>
+            ))}
+
             <Button
               kind="icon"
               title={PgCommon.getKeybindTextOS("Toggle Maximize (Ctrl+M)")}
@@ -133,7 +172,7 @@ const Secondary = () => {
           </ButtonsWrapper>
         </Topbar>
 
-        <Terminal />
+        {el}
       </Wrapper>
     </Resizable>
   );
@@ -186,6 +225,10 @@ const getMaxHeight = () => {
     .getElementById(Id.BOTTOM)
     ?.getBoundingClientRect()?.height;
   return window.innerHeight - (bottomHeight ?? 0);
+};
+
+const getPage = (page: MainSecondaryPageName) => {
+  return MAIN_SECONDARY.find((p) => p.name === page)!;
 };
 
 export default Secondary;

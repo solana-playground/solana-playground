@@ -3,7 +3,7 @@ import "styled-components";
 import { COMMANDS } from "../commands";
 import { FRAMEWORKS } from "../frameworks";
 import { ROUTES } from "../routes";
-import { SIDEBAR } from "../views";
+import { MAIN_SECONDARY, SIDEBAR } from "../views";
 import {
   Arrayable,
   ClientPackageName,
@@ -54,6 +54,9 @@ global {
 global {
   /** All sidebar page names */
   type SidebarPageName = typeof SIDEBAR[number]["name"];
+
+  /** All secondary main view page names */
+  type MainSecondaryPageName = typeof MAIN_SECONDARY[number]["name"];
 }
 
 // Commands
