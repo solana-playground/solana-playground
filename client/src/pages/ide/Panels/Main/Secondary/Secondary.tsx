@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import styled, { css } from "styled-components";
@@ -25,6 +26,12 @@ import { MAIN_SECONDARY } from "../../../../../views";
 
 const Secondary = () => {
   const [height, setHeight] = useState(getDefaultHeight);
+  const oldHeight = useRef(height);
+  useEffect(() => {
+    if (height !== getMinHeight() && height !== getMaxHeight()) {
+      oldHeight.current = height;
+    }
+  }, [height]);
   const setCheckedHeight = useCallback((action: SetStateAction<number>) => {
     setHeight((h) => {
       const height = typeof action === "function" ? action(h) : action;
@@ -64,14 +71,14 @@ const Secondary = () => {
   const toggleMaximize = useCallback(() => {
     setHeight((h) => {
       const maxHeight = getMaxHeight();
-      return h === maxHeight ? getDefaultHeight() : maxHeight;
+      return h === maxHeight ? oldHeight.current : maxHeight;
     });
   }, []);
 
   const toggleMinimize = useCallback(() => {
     setHeight((h) => {
       const minHeight = getMinHeight();
-      return h === minHeight ? getDefaultHeight() : minHeight;
+      return h === minHeight ? oldHeight.current : minHeight;
     });
   }, []);
 
@@ -103,11 +110,10 @@ const Secondary = () => {
         const { getIsFocused, focus } = getPage(p.name);
         if (getIsFocused()) {
           toggleMinimize();
-          // TODO: Focus primary main view
           PgEditor.focus();
         } else {
-          focus();
           if (height === getMinHeight()) toggleMinimize();
+          focus();
         }
       },
     })),
@@ -121,7 +127,8 @@ const Secondary = () => {
       .map((a) => ({
         keybind: a.keybind!,
         handle: a.run,
-      }))
+      })),
+    [pageInfo]
   );
 
   return (
