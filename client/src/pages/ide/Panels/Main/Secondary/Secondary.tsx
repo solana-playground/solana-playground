@@ -78,9 +78,11 @@ const Secondary = () => {
   const toggleMinimize = useCallback(() => {
     setHeight((h) => {
       const minHeight = getMinHeight();
+      if (h === minHeight) pageInfo.focus();
+      else PgEditor.focus();
       return h === minHeight ? oldHeight.current : minHeight;
     });
-  }, []);
+  }, [pageInfo]);
 
   // Keybinds
   useKeybind(
@@ -91,14 +93,10 @@ const Secondary = () => {
       },
       {
         keybind: "Ctrl+J",
-        handle: () => {
-          toggleMinimize();
-          if (height === getMinHeight()) pageInfo.focus();
-          else PgEditor.focus();
-        },
+        handle: toggleMinimize,
       },
     ],
-    [height, pageInfo]
+    [toggleMaximize, toggleMinimize]
   );
 
   // Handle page keybinds
@@ -117,7 +115,7 @@ const Secondary = () => {
         }
       },
     })),
-    [height]
+    [height, toggleMinimize]
   );
 
   // Handle page action keybinds
@@ -171,7 +169,7 @@ const Secondary = () => {
             </Button>
             <Button
               kind="icon"
-              title={PgCommon.getKeybindTextOS("Toggle Close (Ctrl+`)")}
+              title={PgCommon.getKeybindTextOS("Toggle Minimize (Ctrl+J)")}
               onClick={toggleMinimize}
             >
               {height === getMinHeight() ? <Tick /> : <Close />}
