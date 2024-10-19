@@ -84,22 +84,11 @@ const Secondary = () => {
     });
   }, [pageInfo]);
 
-  // Keybinds
-  useKeybind(
-    [
-      {
-        keybind: "Ctrl+M",
-        handle: toggleMaximize,
-      },
-      {
-        keybind: "Ctrl+J",
-        handle: toggleMinimize,
-      },
-    ],
-    [toggleMaximize, toggleMinimize]
-  );
+  // Default action keybinds
+  useKeybind("Ctrl+M", toggleMaximize, [toggleMaximize]);
+  useKeybind("Ctrl+J", toggleMinimize, [toggleMinimize]);
 
-  // Handle page keybinds
+  // Page keybinds
   useKeybind(
     MAIN_SECONDARY.filter((p) => p.keybind).map((p) => ({
       keybind: p.keybind!,
@@ -118,7 +107,7 @@ const Secondary = () => {
     [height, toggleMinimize]
   );
 
-  // Handle page action keybinds
+  // Page action keybinds
   useKeybind(
     (pageInfo.actions ?? [])
       .filter((a) => a.keybind)
