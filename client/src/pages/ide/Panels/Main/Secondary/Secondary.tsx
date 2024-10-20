@@ -201,15 +201,8 @@ const TerminalProgress = () => {
 
 const ButtonsWrapper = styled.div`
   display: flex;
+  gap: 0.25rem;
   margin-left: 0.5rem;
-
-  & button {
-    margin-left: 0.25rem;
-  }
-
-  & button.down svg {
-    transform: rotate(180deg);
-  }
 `;
 
 const getDefaultHeight = () => Math.floor(window.innerHeight / 4);
