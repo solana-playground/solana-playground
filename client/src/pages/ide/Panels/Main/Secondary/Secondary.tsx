@@ -132,6 +132,7 @@ const Secondary = () => {
           <ButtonsWrapper>
             {pageInfo.actions?.map((action) => (
               <Button
+                key={action.name}
                 kind="icon"
                 title={PgCommon.getKeybindTextOS(
                   action.keybind
