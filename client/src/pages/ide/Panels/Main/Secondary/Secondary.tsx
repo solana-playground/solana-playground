@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import styled, { css } from "styled-components";
-import "xterm/css/xterm.css";
 
 import Button from "../../../../../components/Button";
 import ProgressBar from "../../../../../components/ProgressBar";
