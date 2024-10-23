@@ -2,12 +2,14 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { EventName } from "../../../constants";
+import { COMMANDS } from "../../../commands";
 import { FRAMEWORKS } from "../../../frameworks";
 import { ROUTES } from "../../../routes";
 import { TUTORIALS } from "../../../tutorials";
 import {
   Disposable,
   PgBlockExplorer,
+  PgCommandManager,
   PgCommon,
   PgConnection,
   PgExplorer,
@@ -117,6 +119,9 @@ const useWorkspace = () => {
     return () => dispose();
   }, []);
 };
+
+// Set commands
+PgCommandManager.commands = COMMANDS;
 
 // Set frameworks
 PgFramework.frameworks = FRAMEWORKS;
