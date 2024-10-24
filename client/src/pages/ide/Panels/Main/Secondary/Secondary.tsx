@@ -83,9 +83,30 @@ const Secondary = () => {
     });
   }, [pageInfo]);
 
-  // Default action keybinds
-  useKeybind("Ctrl+M", toggleMaximize, [toggleMaximize]);
-  useKeybind("Ctrl+J", toggleMinimize, [toggleMinimize]);
+  // Combine page actions with default actions
+  const actions: typeof pageInfo["actions"] = useMemo(
+    () => [
+      ...(pageInfo.actions ?? []),
+      {
+        name: "Toggle Maximize",
+        keybind: "Ctrl+M",
+        icon:
+          height === getMaxHeight() && getMaxHeight() !== getDefaultHeight() ? (
+            <DoubleArrow rotate="180deg" />
+          ) : (
+            <DoubleArrow />
+          ),
+        run: toggleMaximize,
+      },
+      {
+        name: "Toggle Minimize",
+        keybind: "Ctrl+J",
+        icon: height === getMinHeight() ? <Tick /> : <Close />,
+        run: toggleMinimize,
+      },
+    ],
+    [pageInfo, height, toggleMaximize, toggleMinimize]
+  );
 
   // Page keybinds
   useKeybind(
@@ -106,15 +127,15 @@ const Secondary = () => {
     [height, toggleMinimize]
   );
 
-  // Page action keybinds
+  // Action keybinds
   useKeybind(
-    (pageInfo.actions ?? [])
+    actions
       .filter((a) => a.keybind)
       .map((a) => ({
         keybind: a.keybind!,
         handle: a.run,
       })),
-    [pageInfo]
+    [actions]
   );
 
   return (
@@ -129,40 +150,22 @@ const Secondary = () => {
         <Topbar>
           <TerminalProgress />
           <ButtonsWrapper>
-            {pageInfo.actions?.map((action) => (
+            {actions.map((action) => (
               <Button
                 key={action.name}
                 kind="icon"
-                title={PgCommon.getKeybindTextOS(
+                title={
                   action.keybind
-                    ? `${action.name} (${action.keybind})`
+                    ? `${action.name} (${PgCommon.getKeybindTextOS(
+                        action.keybind
+                      )})`
                     : action.name
-                )}
+                }
                 onClick={action.run}
               >
                 {action.icon}
               </Button>
             ))}
-
-            <Button
-              kind="icon"
-              title={PgCommon.getKeybindTextOS("Toggle Maximize (Ctrl+M)")}
-              onClick={toggleMaximize}
-            >
-              {height === getMaxHeight() &&
-              getMaxHeight() !== getDefaultHeight() ? (
-                <DoubleArrow rotate="180deg" />
-              ) : (
-                <DoubleArrow />
-              )}
-            </Button>
-            <Button
-              kind="icon"
-              title={PgCommon.getKeybindTextOS("Toggle Minimize (Ctrl+J)")}
-              onClick={toggleMinimize}
-            >
-              {height === getMinHeight() ? <Tick /> : <Close />}
-            </Button>
           </ButtonsWrapper>
         </Topbar>
 
