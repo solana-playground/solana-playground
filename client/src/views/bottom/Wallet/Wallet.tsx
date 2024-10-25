@@ -7,7 +7,7 @@ import { useWallet } from "../../../hooks";
 import { PgCommand, PgTheme } from "../../../utils/pg";
 
 export const Wallet = () => {
-  const { wallet, walletPkStr } = useWallet();
+  const { wallet } = useWallet();
 
   // Using a callback because this function might be resolved later than the
   // mount of this component
@@ -18,7 +18,7 @@ export const Wallet = () => {
       <ConnectButton
         onClick={connect}
         kind="transparent"
-        leftIcon={<WalletStatus isConnected={!!walletPkStr} />}
+        leftIcon={<WalletStatus isConnected={!!wallet} />}
       >
         {wallet
           ? wallet.isPg
