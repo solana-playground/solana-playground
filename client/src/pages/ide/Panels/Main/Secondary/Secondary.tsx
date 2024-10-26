@@ -24,6 +24,22 @@ import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../../hooks";
 import { MAIN_SECONDARY } from "../../../../../views";
 
 const Secondary = () => {
+  const [page, setPage] = useState<MainSecondaryPageName>("Terminal");
+  useSetStatic(setPage, EventName.VIEW_MAIN_SECONDARY_PAGE_SET);
+  useEffect(() => {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
+      page
+    );
+  }, [page]);
+  const pageInfo = useMemo(() => getPage(page), [page]);
+
+  const [el, setEl] = useState<NullableJSX>(null);
+  useAsyncEffect(async () => {
+    const { default: PageComponent } = await pageInfo.importElement();
+    setEl(<PageComponent />);
+  }, [pageInfo]);
+
   const [height, setHeight] = useState(getDefaultHeight);
   const oldHeight = useRef(height);
   useEffect(() => {
@@ -45,34 +61,10 @@ const Secondary = () => {
   }, []);
   useSetStatic(setCheckedHeight, EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET);
 
-  const [page, setPage] = useState<MainSecondaryPageName>("Terminal");
-  useSetStatic(setPage, EventName.VIEW_MAIN_SECONDARY_PAGE_SET);
-  useEffect(() => {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
-      page
-    );
-  }, [page]);
-  const pageInfo = useMemo(() => getPage(page), [page]);
-
-  const [el, setEl] = useState<NullableJSX>(null);
-  useAsyncEffect(async () => {
-    const { default: PageComponent } = await pageInfo.importElement();
-    setEl(<PageComponent />);
-  }, [pageInfo]);
-
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => setCheckedHeight((h) => h + d.height),
     [setCheckedHeight]
   );
-
-  // Buttons
-  const toggleMaximize = useCallback(() => {
-    setHeight((h) => {
-      const maxHeight = getMaxHeight();
-      return h === maxHeight ? oldHeight.current : maxHeight;
-    });
-  }, []);
 
   const toggleMinimize = useCallback(() => {
     setHeight((h) => {
@@ -96,7 +88,12 @@ const Secondary = () => {
           ) : (
             <DoubleArrow />
           ),
-        run: toggleMaximize,
+        run: () => {
+          setHeight((h) => {
+            const maxHeight = getMaxHeight();
+            return h === maxHeight ? oldHeight.current : maxHeight;
+          });
+        },
       },
       {
         name: "Toggle Minimize",
@@ -105,7 +102,7 @@ const Secondary = () => {
         run: toggleMinimize,
       },
     ],
-    [pageInfo, height, toggleMaximize, toggleMinimize]
+    [pageInfo, height, toggleMinimize]
   );
 
   // Page keybinds
