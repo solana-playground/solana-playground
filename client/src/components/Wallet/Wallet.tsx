@@ -123,8 +123,7 @@ const WalletTopWrapper = styled.div`
 `;
 
 const WalletName = () => {
-  const { wallet, walletPkStr } = useWallet();
-
+  const { wallet } = useWallet();
   const { darken, lighten } = useDarken();
 
   const getAccountDisplayName = useCallback(
@@ -172,7 +171,7 @@ const WalletName = () => {
             <WalletTitleIcon src={wallet.icon} alt={wallet.name} />
           )}
           <WalletTitleText>
-            {getAccountDisplayName(wallet.name, walletPkStr!)}
+            {getAccountDisplayName(wallet.name, wallet.publicKey.toBase58())}
           </WalletTitleText>
           <ShortArrow rotate="90deg" />
         </WalletTitleWrapper>
