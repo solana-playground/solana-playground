@@ -9,6 +9,7 @@ import {
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
+import ErrorBoundary from "../../../../../components/ErrorBoundary";
 import ProgressBar from "../../../../../components/ProgressBar";
 import Resizable from "../../../../../components/Resizable";
 import { Close, DoubleArrow, Tick } from "../../../../../components/Icons";
@@ -166,7 +167,7 @@ const Secondary = () => {
           </ButtonsWrapper>
         </Topbar>
 
-        {el}
+        <ErrorBoundary refreshButton>{el}</ErrorBoundary>
       </Wrapper>
     </Resizable>
   );
