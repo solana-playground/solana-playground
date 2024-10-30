@@ -56,27 +56,46 @@ class ErrorBoundary extends Component<Props, State> {
       const FbElement = <FbComponent error={this.state.error} />;
 
       if (this.props.refreshButton) {
-        return (
-          <div>
-            <div
-              style={{
-                ...(typeof this.props.refreshButton === "object"
-                  ? this.props.refreshButton
-                  : {}),
-              }}
-            >
+        // Reset the state (without the error) in order to re-render
+        const refresh = () => this.setState((s) => ({ ...s, error: null }));
+        const style = {
+          ...(typeof this.props.refreshButton === "object"
+            ? this.props.refreshButton
+            : {}),
+        };
+
+        if (this.props.Fallback) {
+          return (
+            <div>
               <Tooltip element="Refresh">
-                <Button
-                  kind="icon"
-                  onClick={() => {
-                    // Reset the state (without the error) in order to re-render
-                    this.setState((s) => ({ ...s, error: null }));
-                  }}
-                >
+                <Button kind="icon" onClick={refresh} style={style}>
                   <Refresh color="error" />
                 </Button>
               </Tooltip>
+
+              {FbElement}
             </div>
+          );
+        }
+
+        return (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column-reverse",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "1rem",
+            }}
+          >
+            <Button
+              kind="secondary-transparent"
+              leftIcon={<Refresh />}
+              onClick={refresh}
+              style={style}
+            >
+              Refresh
+            </Button>
 
             {FbElement}
           </div>
