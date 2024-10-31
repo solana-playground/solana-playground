@@ -1,4 +1,5 @@
-import { Component, CSSProperties, ErrorInfo, ReactNode } from "react";
+import { Component, ErrorInfo, ReactNode } from "react";
+import styled, { css } from "styled-components";
 
 import Button from "../Button";
 import Tooltip from "../Tooltip";
@@ -10,8 +11,6 @@ interface Props {
   children?: ReactNode;
   /** Fallback node when there is an error */
   Fallback?: (props: { error: Error }) => JSX.Element;
-  /** If truthy, add a refresh button to re-render the component */
-  refreshButton?: boolean | CSSProperties;
 }
 
 interface State {
@@ -55,58 +54,50 @@ class ErrorBoundary extends Component<Props, State> {
       const FbComponent = this.props.Fallback ?? Fallback;
       const FbElement = <FbComponent error={this.state.error} />;
 
-      if (this.props.refreshButton) {
-        // Reset the state (without the error) in order to re-render
-        const refresh = () => this.setState((s) => ({ ...s, error: null }));
-        const style = {
-          ...(typeof this.props.refreshButton === "object"
-            ? this.props.refreshButton
-            : {}),
-        };
+      // Reset the state (without the error) in order to re-render
+      const refresh = () => this.setState((s) => ({ ...s, error: null }));
 
-        if (this.props.Fallback) {
-          return (
-            <div>
-              <Tooltip element="Refresh">
-                <Button kind="icon" onClick={refresh} style={style}>
-                  <Refresh color="error" />
-                </Button>
-              </Tooltip>
-
-              {FbElement}
-            </div>
-          );
-        }
-
+      if (this.props.Fallback) {
         return (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column-reverse",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "1rem",
-            }}
-          >
-            <Button
-              kind="secondary-transparent"
-              leftIcon={<Refresh />}
-              onClick={refresh}
-              style={style}
-            >
-              Refresh
-            </Button>
-
+          <Wrapper iconOnly>
             {FbElement}
-          </div>
+
+            <Tooltip element="Refresh">
+              <Button kind="icon" onClick={refresh}>
+                <Refresh color="error" />
+              </Button>
+            </Tooltip>
+          </Wrapper>
         );
       }
 
-      return FbElement;
+      return (
+        <Wrapper>
+          {FbElement}
+
+          <Button
+            kind="secondary-transparent"
+            leftIcon={<Refresh />}
+            onClick={refresh}
+          >
+            Refresh
+          </Button>
+        </Wrapper>
+      );
     }
 
     return this.props.children;
   }
 }
+
+const Wrapper = styled.div<{ iconOnly?: boolean }>`
+  ${({ iconOnly }) => css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: ${iconOnly ? "row-reverse" : "column"};
+    gap: ${iconOnly ? "0.25rem" : "1rem"};
+  `}
+`;
 
 export default ErrorBoundary;

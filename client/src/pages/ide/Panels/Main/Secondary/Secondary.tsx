@@ -167,7 +167,7 @@ const Secondary = () => {
           </ButtonsWrapper>
         </Topbar>
 
-        <ErrorBoundary refreshButton>{el}</ErrorBoundary>
+        <ErrorBoundary>{el}</ErrorBoundary>
       </Wrapper>
     </Resizable>
   );

@@ -14,7 +14,6 @@ const Bottom = () => (
       {BOTTOM.map((Component, i) => (
         <ErrorBoundary
           key={i}
-          refreshButton={{ margin: "0 0.25rem 0 0.5rem" }}
           Fallback={({ error }) => (
             <Tooltip
               element={error.message || "Unknown error"}
