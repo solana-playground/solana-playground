@@ -1338,6 +1338,7 @@ export class PgTheme {
     main.default.overflow ??= "hidden";
     main.default.bg ??= theme.colors.default.bgSecondary;
     main.default.color ??= theme.colors.default.textPrimary;
+    main.default.zIndex ??= 1; // To make main view go over the sidebar
 
     // Main primary
     main.primary ??= {};
