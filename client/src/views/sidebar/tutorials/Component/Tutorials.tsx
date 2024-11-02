@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import TutorialsSkeleton from "./TutorialsSkeleton";
@@ -65,16 +65,6 @@ const Tutorials = () => {
     }
 
     setTutorialsData(data);
-  }, []);
-
-  // Minimize secondary main view on mount and reopen on unmount
-  const mainSecondaryHeight = useRef(0);
-  useEffect(() => {
-    PgView.setMainSecondaryHeight((h) => {
-      mainSecondaryHeight.current = h;
-      return 0;
-    });
-    return () => PgView.setMainSecondaryHeight(mainSecondaryHeight.current);
   }, []);
 
   if (!tutorialsData) return <TutorialsSkeleton />;

@@ -15,9 +15,9 @@ export const tutorials = PgRouter.create({
       return Tutorials;
     });
 
-    // Handle sidebar
     // TODO: Handle this in a better way
-    return PgView.onDidChangeSidebarPage((state) => {
+    // Handle sidebar
+    const sidebarPage = PgView.onDidChangeSidebarPage((state) => {
       switch (state) {
         case "Explorer":
         case "Build & Deploy":
@@ -25,5 +25,19 @@ export const tutorials = PgRouter.create({
           PgRouter.navigate();
       }
     });
+
+    // Minimize secondary main view and reopen on navigation to other routes
+    let mainSecondaryHeight = 0;
+    PgView.setMainSecondaryHeight((h) => {
+      mainSecondaryHeight = h;
+      return 0;
+    });
+
+    return {
+      dispose: () => {
+        sidebarPage.dispose();
+        PgView.setMainSecondaryHeight(mainSecondaryHeight);
+      },
+    };
   },
 });

@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import FilterGroup from "../../../../components/FilterGroup";
@@ -27,16 +26,6 @@ const Programs = () => {
       }
     });
     return () => dispose();
-  }, []);
-
-  // Minimize secondary main view on mount and reopen on unmount
-  const mainSecondaryHeight = useRef(0);
-  useEffect(() => {
-    PgView.setMainSecondaryHeight((h) => {
-      mainSecondaryHeight.current = h;
-      return 0;
-    });
-    return () => PgView.setMainSecondaryHeight(mainSecondaryHeight.current);
   }, []);
 
   return (
