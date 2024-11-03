@@ -183,6 +183,7 @@ const Wrapper = styled.div`
 
     & > div:last-child {
       height: calc(100% - ${getMinHeight()}px);
+      overflow: hidden;
     }
   `}
 `;
