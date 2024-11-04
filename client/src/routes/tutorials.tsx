@@ -36,6 +36,16 @@ export const tutorials = PgRouter.create({
     return {
       dispose: () => {
         sidebarPage.dispose();
+
+        // This fixes the case where going back from `/tutorials` to `/` with
+        // browser's navigations would cause incorrect component to still be mounted
+        // instead of switching to `Explorer`
+        PgView.setSidebarPage((state) => {
+          if (state === "Tutorials") return "Explorer";
+          return state;
+        });
+
+        // Set the main secondary view height to the previous saved value
         PgView.setMainSecondaryHeight(mainSecondaryHeight);
       },
     };
