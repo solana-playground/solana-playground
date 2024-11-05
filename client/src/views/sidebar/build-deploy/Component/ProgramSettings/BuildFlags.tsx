@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import Checkbox from "../../../../../components/Checkbox";
-import { HelpTooltip } from "../../../../../components/Tooltip";
+import Tooltip from "../../../../../components/Tooltip";
 import { PgCommon, PgSettings } from "../../../../../utils/pg";
 
 type BuildFlag = keyof typeof PgSettings["build"]["flags"];
@@ -23,7 +23,7 @@ const BuildFlags = () => (
           }}
           defaultChecked={PgSettings.build.flags[flag]}
         />
-        <HelpTooltip element={details} placement="right" maxWidth="15rem" />
+        <Tooltip help element={details} placement="right" maxWidth="15rem" />
       </Row>
     ))}
   </Wrapper>

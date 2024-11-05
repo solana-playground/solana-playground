@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import { HelpTooltip } from "../../../../../components/Tooltip";
+import Tooltip from "../../../../../components/Tooltip";
 import { SETTINGS, Setting as SettingType } from "../../../../../settings";
 import { PgTheme } from "../../../../../utils/pg";
 
@@ -33,7 +33,7 @@ const Setting: FC<SettingType> = ({ name, Component, tooltip, isCheckBox }) => (
   <SettingWrapper isCheckBox={isCheckBox}>
     <Left>
       <SettingName>{name}</SettingName>
-      {tooltip && <HelpTooltip {...tooltip} bgSecondary />}
+      {tooltip && <Tooltip help bgSecondary {...tooltip} />}
     </Left>
 
     <Right>
