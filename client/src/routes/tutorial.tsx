@@ -54,10 +54,20 @@ export const tutorial = PgRouter.create({
       }
     });
 
+    // Minimize secondary main view and reopen on navigation to other routes
+    let mainSecondaryHeight = 0;
+    PgView.setMainSecondaryHeight((h) => {
+      mainSecondaryHeight = h;
+      return 0;
+    });
+
     return {
       dispose: () => {
         tutorialInit?.dispose();
         sidebarPage.dispose();
+
+        // Set the main secondary view height to the previous saved value
+        PgView.setMainSecondaryHeight(mainSecondaryHeight);
       },
     };
   },
