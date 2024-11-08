@@ -5,7 +5,6 @@ import TutorialsSkeleton from "./TutorialsSkeleton";
 import Text from "../../../../components/Text";
 import {
   PgCommon,
-  PgRouter,
   PgTutorial,
   TutorialData,
   TutorialMetadata,
@@ -17,16 +16,6 @@ type TutorialsData = { completed: TutorialFullData; ongoing: TutorialFullData };
 
 const Tutorials = () => {
   const [tutorialsData, setTutorialsData] = useState<TutorialsData>();
-
-  // TODO: Handle this from sidebar page impl
-  // Handle path
-  useAsyncEffect(async () => {
-    const TUTORIALS_PATH: RoutePath = "/tutorials";
-    const { pathname } = await PgRouter.getLocation();
-    if (!pathname.startsWith(TUTORIALS_PATH)) {
-      await PgRouter.navigate(TUTORIALS_PATH);
-    }
-  }, []);
 
   // Get tutorial data
   useAsyncEffect(async () => {

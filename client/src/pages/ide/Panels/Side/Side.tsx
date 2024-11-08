@@ -18,6 +18,10 @@ const Side = () => {
       sidebarPage
     );
   }, [sidebarPage]);
+  useEffect(() => {
+    const page = SIDEBAR.find((p) => p.name === sidebarPage)!;
+    return page.handle?.()?.dispose;
+  }, [sidebarPage]);
 
   const [width, setWidth] = useState(320);
   const [oldWidth, setOldWidth] = useState(width);

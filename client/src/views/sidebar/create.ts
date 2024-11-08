@@ -1,4 +1,4 @@
-import { CallableJSX, PgCommon, RequiredKey } from "../../utils/pg";
+import { CallableJSX, Disposable, PgCommon, RequiredKey } from "../../utils/pg";
 
 /** Sidebar page param */
 type SidebarPageParam<N extends string> = {
@@ -10,6 +10,8 @@ type SidebarPageParam<N extends string> = {
   title?: string;
   /** Keybind for the page */
   keybind?: string;
+  /** Handle the page logic */
+  handle?: () => Disposable | void;
   /** Lazy loader for the element */
   importElement?: () => Promise<{ default: CallableJSX }>;
   /** Loading element to until the element is ready to show */
