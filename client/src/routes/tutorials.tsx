@@ -34,13 +34,12 @@ export const tutorials = PgRouter.create({
     });
 
     return {
-      dispose: async () => {
+      dispose: () => {
         sidebarPage.dispose();
 
         // TODO: Handle this automatically
         // Only change sidebar page when going outside of `/tutorials`
-        const { pathname } = await PgRouter.getLocation();
-        if (!pathname.startsWith(tutorials.path)) {
+        if (!PgRouter.location.pathname.startsWith(tutorials.path)) {
           // This fixes the case where going back from `/tutorials` to `/` with
           // browser's navigations would cause incorrect component to still be mounted
           // instead of switching to `Explorer`

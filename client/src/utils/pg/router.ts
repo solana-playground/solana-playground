@@ -1,5 +1,3 @@
-import type { Location } from "react-router-dom";
-
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
 import type { Disposable, OrString, SyncOrAsync } from "./types";
@@ -32,6 +30,9 @@ type PathVariable<T extends string> =
 type PathParameter<T extends string> = { [K in PathVariable<T>]: string };
 
 export class PgRouter {
+  /** URL information about the page */
+  static location = window.location;
+
   /**
    * Initialize the router.
    *
@@ -75,15 +76,6 @@ export class PgRouter {
   }
 
   /**
-   * Get the current location.
-   *
-   * @returns the current URL location
-   */
-  static async getLocation(): Promise<Location> {
-    return await PgCommon.sendAndReceiveCustomEvent(EventName.ROUTER_LOCATION);
-  }
-
-  /**
    * Navigate to the given path.
    *
    * This method will only navigate if the given path is different than the
@@ -93,8 +85,8 @@ export class PgRouter {
    */
   static async navigate(path: OrString<RoutePath> = "/") {
     try {
-      const location = await PgCommon.timeout(this.getLocation(), 200);
-      if (!this.isPathsEqual(location.pathname + location.search, path)) {
+      const { pathname, search } = this.location;
+      if (!this.isPathsEqual(pathname + search, path)) {
         PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
       }
     } catch {

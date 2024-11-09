@@ -20,7 +20,7 @@ import {
   PgTutorial,
   PgWallet,
 } from "../../../utils/pg";
-import { useDisposable, useGetStatic, useSetStatic } from "../../../hooks";
+import { useDisposable, useSetStatic } from "../../../hooks";
 
 const GlobalState = () => {
   useDisposable(PgGlobal.init);
@@ -60,12 +60,6 @@ const useRouter = () => {
 
   // Location
   const location = useLocation();
-  useGetStatic(location, EventName.ROUTER_LOCATION);
-
-  // Navigate
-  const navigate = useNavigate();
-  useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
-
   // Change method
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
@@ -73,6 +67,10 @@ const useRouter = () => {
       location.pathname
     );
   }, [location.pathname]);
+
+  // Navigate
+  const navigate = useNavigate();
+  useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
 };
 
 /** Handle workspaces/tutorials. */
@@ -101,7 +99,7 @@ const useWorkspace = () => {
       // Non-editor views should not handle tutorials
       // TODO: Add ability to handle this from route creation instead of making
       // changes to the implementation
-      const { pathname } = await PgRouter.getLocation();
+      const { pathname } = PgRouter.location;
       if (
         PgRouter.isPathsEqual(pathname, "/tutorials") ||
         PgRouter.isPathsEqual(pathname, "/programs")

@@ -135,10 +135,8 @@ class _PgTutorial {
    * @param name tutorial name
    */
   static async open(name: string) {
-    const { pathname } = await PgRouter.getLocation();
     const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(name)}`;
-
-    if (PgRouter.isPathsEqual(pathname, tutorialPath)) {
+    if (PgRouter.isPathsEqual(PgRouter.location.pathname, tutorialPath)) {
       // Open the tutorial pages view
       PgTutorial.update({ view: "main" });
 
