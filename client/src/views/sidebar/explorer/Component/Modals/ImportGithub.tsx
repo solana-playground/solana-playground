@@ -154,8 +154,8 @@ const Example: FC<ExampleProps> = ({ framework }) => (
       </Button>
 
       <Button
-        onClick={async () => {
-          await PgRouter.navigate("/" + framework.githubExample.url);
+        onClick={() => {
+          PgRouter.navigate("/" + framework.githubExample.url);
           PgView.closeModal();
         }}
         rightIcon={<Eye />}

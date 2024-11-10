@@ -111,7 +111,7 @@ const useWorkspace = () => {
         await PgTutorial.open(name);
       } else {
         PgExplorer.setWorkspaceName(name);
-        await PgRouter.navigate();
+        PgRouter.navigate();
       }
     });
     return () => dispose();

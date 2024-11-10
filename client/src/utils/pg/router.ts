@@ -83,13 +83,9 @@ export class PgRouter {
    *
    * @param path pathname to navigate to
    */
-  static async navigate(path: OrString<RoutePath> = "/") {
-    try {
-      const { pathname, search } = this.location;
-      if (!this.isPathsEqual(pathname + search, path)) {
-        PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
-      }
-    } catch {
+  static navigate(path: OrString<RoutePath> = "/") {
+    const { pathname, search } = this.location;
+    if (!this.isPathsEqual(pathname + search, path)) {
       PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
     }
   }
