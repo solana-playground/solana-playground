@@ -25,7 +25,7 @@ import { useDisposable, useSetStatic } from "../../../hooks";
 const GlobalState = () => {
   useDisposable(PgGlobal.init);
   useRouter();
-  useWorkspace();
+  useExplorer();
   useDisposable(PgConnection.init);
   useDisposable(PgBlockExplorer.init); // Must be after `PgConnection` init
   useDisposable(PgWallet.init);
@@ -73,8 +73,9 @@ const useRouter = () => {
   useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
 };
 
-/** Handle workspaces/tutorials. */
-const useWorkspace = () => {
+// TODO: Remove and handle this from explorer impl
+/** Handle explorer consistency. */
+const useExplorer = () => {
   // Handle loading state
   useEffect(() => {
     const { dispose } = PgExplorer.onDidInit(() => {
@@ -82,36 +83,6 @@ const useWorkspace = () => {
       // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
       if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
         PgExplorer.openFile(PgExplorer.tabs[0]);
-      }
-    });
-    return () => dispose();
-  }, []);
-
-  // Handle workspace switch
-  useEffect(() => {
-    const { dispose } = PgExplorer.onDidSwitchWorkspace(async () => {
-      const name = PgExplorer.currentWorkspaceName;
-      if (!name) {
-        PgRouter.navigate();
-        return;
-      }
-
-      // Non-editor views should not handle tutorials
-      // TODO: Add ability to handle this from route creation instead of making
-      // changes to the implementation
-      const { pathname } = PgRouter.location;
-      if (
-        PgRouter.isPathsEqual(pathname, "/tutorials") ||
-        PgRouter.isPathsEqual(pathname, "/programs")
-      ) {
-        return;
-      }
-
-      if (PgTutorial.isWorkspaceTutorial(name)) {
-        await PgTutorial.open(name);
-      } else {
-        PgExplorer.setWorkspaceName(name);
-        PgRouter.navigate();
       }
     });
     return () => dispose();
