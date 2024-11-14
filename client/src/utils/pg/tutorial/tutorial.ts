@@ -168,9 +168,7 @@ class _PgTutorial {
     const tutorialName = PgTutorial.data?.name;
     if (!tutorialName) throw new Error("Tutorial is not selected");
 
-    if (PgTutorial.isStarted(tutorialName)) {
-      await this.open(tutorialName);
-    } else {
+    if (!PgTutorial.isStarted(tutorialName)) {
       // Initial tutorial setup
       await PgExplorer.newWorkspace(tutorialName, {
         files: props.files,
@@ -184,6 +182,8 @@ class _PgTutorial {
         view: "main",
       });
     }
+
+    await this.open(tutorialName);
   }
 
   /** Finish the current tutorial. */
