@@ -23,13 +23,7 @@ import {
   Plus,
   Trash,
 } from "../../../../components/Icons";
-import {
-  PgCommon,
-  PgExplorer,
-  PgRouter,
-  PgTutorial,
-  PgView,
-} from "../../../../utils/pg";
+import { PgCommon, PgExplorer, PgTutorial, PgView } from "../../../../utils/pg";
 import { useExplorer } from "../../../../hooks";
 
 const Workspaces = () => {
@@ -131,12 +125,8 @@ const WorkspaceSelect = () => {
           const name = props?.value!;
           if (PgExplorer.currentWorkspaceName === name) return;
 
-          if (PgTutorial.isWorkspaceTutorial(name)) {
-            await PgTutorial.open(name);
-          } else {
-            PgExplorer.setWorkspaceName(name);
-            PgRouter.navigate();
-          }
+          if (PgTutorial.isWorkspaceTutorial(name)) await PgTutorial.open(name);
+          else await PgExplorer.switchWorkspace(name);
         }}
       />
     </SelectWrapper>

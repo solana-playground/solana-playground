@@ -61,6 +61,15 @@ export const tutorial = PgRouter.create({
       return 0;
     });
 
+    // Handle workspace switch
+    const switchWorkspace = PgExplorer.onDidSwitchWorkspace(async () => {
+      const name = PgExplorer.currentWorkspaceName;
+      if (!name) return;
+
+      if (PgTutorial.isWorkspaceTutorial(name)) await PgTutorial.open(name);
+      else PgRouter.navigate();
+    });
+
     return {
       dispose: () => {
         tutorialInit?.dispose();
@@ -68,6 +77,8 @@ export const tutorial = PgRouter.create({
 
         // Set the main secondary view height to the previous saved value
         PgView.setMainSecondaryHeight(mainSecondaryHeight);
+
+        switchWorkspace.dispose();
       },
     };
   },
