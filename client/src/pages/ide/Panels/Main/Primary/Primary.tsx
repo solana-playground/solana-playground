@@ -8,7 +8,6 @@ import {
   CallableJSX,
   NullableJSX,
   PgCommon,
-  PgRouter,
   PgTheme,
   SetElementAsync,
 } from "../../../../../utils/pg";
@@ -16,32 +15,19 @@ import { useGetAndSetStatic } from "../../../../../hooks";
 
 const Primary = () => {
   const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
-  const [loading, setLoading] = useState(true);
 
   const setElWithTransition = useCallback(async (SetEl: SetElementAsync) => {
-    setLoading(true);
     setEl(null);
 
-    const TransitionedEl = await PgCommon.transition(async () => {
+    const El = await PgCommon.transition(async () => {
       try {
         const ElPromise = typeof SetEl === "function" ? SetEl(null) : SetEl;
         return await ElPromise;
       } catch (e: any) {
         console.log("MAIN VIEW ERROR:", e.message);
-        PgRouter.navigate();
       }
     });
-    if (TransitionedEl) {
-      setEl(
-        typeof TransitionedEl === "function" ? (
-          <TransitionedEl />
-        ) : (
-          TransitionedEl
-        )
-      );
-    }
-
-    setLoading(false);
+    if (El) setEl(typeof El === "function" ? <El /> : El);
   }, []);
 
   useGetAndSetStatic(
@@ -52,7 +38,7 @@ const Primary = () => {
 
   return (
     <Wrapper>
-      <StyledSpinnerWithBg loading={loading} size="2rem">
+      <StyledSpinnerWithBg loading={!el} size="2rem">
         <ErrorBoundary>{el}</ErrorBoundary>
       </StyledSpinnerWithBg>
     </Wrapper>
