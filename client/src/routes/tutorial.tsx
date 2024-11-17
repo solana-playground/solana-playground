@@ -56,9 +56,22 @@ export const tutorial = PgRouter.create({
 
     // Minimize secondary main view and reopen on navigation to other routes
     let mainSecondaryHeight = 0;
-    PgView.setMainSecondaryHeight((h) => {
-      mainSecondaryHeight = h;
-      return 0;
+    const tutorialView = PgTutorial.onDidChangeView((view) => {
+      if (!view) return;
+
+      PgView.setMainSecondaryHeight((h) => {
+        switch (view) {
+          case "main":
+            if (mainSecondaryHeight) return mainSecondaryHeight;
+
+            mainSecondaryHeight = h;
+            return h;
+
+          case "about":
+            mainSecondaryHeight = h;
+            return 0;
+        }
+      });
     });
 
     // Handle workspace switch
@@ -77,6 +90,7 @@ export const tutorial = PgRouter.create({
 
         // Set the main secondary view height to the previous saved value
         PgView.setMainSecondaryHeight(mainSecondaryHeight);
+        tutorialView.dispose();
 
         switchWorkspace.dispose();
       },
