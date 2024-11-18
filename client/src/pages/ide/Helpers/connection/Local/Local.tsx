@@ -25,7 +25,7 @@ export const Local = () => {
       initial = false;
     });
 
-    return () => dispose();
+    return dispose;
   }, []);
 
   return (

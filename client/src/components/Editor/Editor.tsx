@@ -20,7 +20,7 @@ export const Editor = () => {
       )
     );
 
-    return () => dispose();
+    return dispose;
   }, []);
 
   // Save explorer metadata

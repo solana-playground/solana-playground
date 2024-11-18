@@ -175,7 +175,7 @@ const useSyncInstructionStorage = () => {
     const { dispose } = PgProgramInfo.onDidChangeIdl((idl) => {
       if (idl) PgProgramInteraction.syncAllInstructions(idl.instructions);
     });
-    return () => dispose();
+    return dispose;
   }, []);
 };
 

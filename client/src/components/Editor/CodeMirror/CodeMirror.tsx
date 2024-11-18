@@ -568,7 +568,7 @@ const CodeMirror = () => {
       PgProgramInfo.onDidChangePk,
     ]);
 
-    return () => dispose();
+    return dispose;
   }, [editor]);
 
   return <Wrapper ref={codemirrorRef} />;

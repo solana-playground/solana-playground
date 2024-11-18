@@ -56,6 +56,6 @@ export const useHelpConnection = () => {
       }
     }, [PgConnection.onDidChange, PgWallet.onDidChangeCurrent]);
 
-    return () => dispose();
+    return dispose;
   }, []);
 };

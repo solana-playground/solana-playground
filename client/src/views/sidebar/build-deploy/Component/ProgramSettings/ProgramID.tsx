@@ -140,7 +140,7 @@ const InputPk = () => {
       if (pk) setVal(pk.toBase58());
     });
 
-    return () => dispose();
+    return dispose;
   }, []);
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {

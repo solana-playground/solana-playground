@@ -55,7 +55,7 @@ const useRouter = () => {
   // Init
   useEffect(() => {
     const { dispose } = PgRouter.init(ROUTES);
-    return () => dispose();
+    return dispose;
   }, []);
 
   // Location
@@ -85,7 +85,7 @@ const useExplorer = () => {
         PgExplorer.openFile(PgExplorer.tabs[0]);
       }
     });
-    return () => dispose();
+    return dispose;
   }, []);
 };
 

@@ -17,7 +17,7 @@ export const useAirdrop = () => {
     const { dispose } = PgConnection.onDidChangeCurrent((connection) => {
       setAirdropAmount(PgCommon.getAirdropAmount(connection.rpcEndpoint));
     });
-    return () => dispose();
+    return dispose;
   }, []);
 
   const airdrop = async () => {

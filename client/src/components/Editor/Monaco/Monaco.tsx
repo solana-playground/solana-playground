@@ -183,7 +183,7 @@ const Monaco = () => {
 
     setIsThemeSet(true);
 
-    return () => dispose();
+    return dispose;
   }, [theme]);
 
   // Set font
@@ -211,7 +211,7 @@ const Monaco = () => {
       }
     });
 
-    return () => dispose();
+    return dispose;
   }, [editor]);
 
   // Create editor
@@ -716,7 +716,7 @@ const Monaco = () => {
       PgProgramInfo.onDidChangePk,
     ]);
 
-    return () => dispose();
+    return dispose;
   }, [editor]);
 
   return (

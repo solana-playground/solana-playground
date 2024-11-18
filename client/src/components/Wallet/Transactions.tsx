@@ -35,7 +35,7 @@ const Transactions = () => {
       }
     });
 
-    return () => dispose();
+    return dispose;
   }, [connection, refreshCount]);
 
   const refresh = useCallback(() => {

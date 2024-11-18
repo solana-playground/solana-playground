@@ -15,7 +15,7 @@ const BlockExplorer = () => {
     const { dispose } = PgSettings.onDidChangeOtherBlockExplorer((be) =>
       setValue(OPTIONS.find((o) => o.value === be))
     );
-    return () => dispose();
+    return dispose;
   }, []);
 
   return (

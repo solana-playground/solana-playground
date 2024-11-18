@@ -30,7 +30,7 @@ const PriorityFee = () => {
           : OPTIONS.find((o) => o.value === fee)
       )
     );
-    return () => dispose();
+    return dispose;
   }, []);
 
   return (

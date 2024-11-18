@@ -89,7 +89,7 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
         setLoading(false);
       }
     });
-    return () => dispose();
+    return dispose;
   }, [setLoading]);
 
   if (loadingCount) return <Loading sidebarPage={sidebarPage} />;

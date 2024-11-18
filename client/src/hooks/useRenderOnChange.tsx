@@ -37,7 +37,7 @@ export const useRenderOnChange = <T,>(
         setValue(newValue);
       }
     });
-    return () => dispose();
+    return dispose;
   }, [effect, onChange]);
 
   return value;

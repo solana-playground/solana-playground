@@ -18,7 +18,7 @@ const CommitmentSetting = () => {
     const { dispose } = PgSettings.onDidChangeConnectionCommitment(
       (commitment) => setValue(OPTIONS.find((o) => o.value === commitment))
     );
-    return () => dispose();
+    return dispose;
   }, []);
 
   return (

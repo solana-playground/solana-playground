@@ -31,7 +31,7 @@ const EndpointSetting = () => {
         )
       );
     });
-    return () => dispose();
+    return dispose;
   }, [options]);
 
   return (

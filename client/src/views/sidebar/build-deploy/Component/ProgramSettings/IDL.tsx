@@ -136,7 +136,7 @@ const InitOrUpgrade = () => {
       PgProgramInfo.onDidChange,
       PgWallet.onDidChangeCurrent,
     ]);
-    return () => dispose();
+    return dispose;
   }, [getIdl]);
 
   const handleInitOrUpgrade = async () => {
