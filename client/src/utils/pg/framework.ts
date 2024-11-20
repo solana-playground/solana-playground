@@ -75,7 +75,7 @@ export type Framework<N extends string = string> = RequiredKey<
 
 export class PgFramework {
   /** All frameworks */
-  static frameworks: Framework[];
+  static frameworks: Framework<FrameworkName>[];
 
   /**
    * Get the framework from its name.
