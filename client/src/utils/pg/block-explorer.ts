@@ -1,4 +1,3 @@
-import { Endpoint } from "../../constants";
 import { PgConnection } from "./connection";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { PgSettings } from "./settings";
@@ -43,76 +42,13 @@ type BlockExplorer = Omit<
   "getClusterParam" | "getCommonUrl"
 >;
 
-const createBlockExplorer = (b: BlockExplorerImpl) => {
-  b.getCommonUrl ??= (p, v) => b.url + "/" + p + "/" + v + b.getClusterParam();
-  b.getAddressUrl ??= (address) => b.getCommonUrl!("address", address);
-  b.getTxUrl ??= (txHash) => b.getCommonUrl!("tx", txHash);
-
-  return b as BlockExplorer;
-};
-
-const SOLANA_EXPLORER = createBlockExplorer({
-  name: "Solana Explorer",
-  url: "https://explorer.solana.com",
-  getClusterParam: () => {
-    switch (PgConnection.cluster) {
-      case "mainnet-beta":
-        return "";
-      case "testnet":
-        return "?cluster=testnet";
-      case "devnet":
-        return "?cluster=devnet";
-      case "localnet":
-        return "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
-    }
-  },
-});
-
-const SOLSCAN = createBlockExplorer({
-  name: "Solscan",
-  url: "https://solscan.io",
-  getClusterParam: () => {
-    switch (PgConnection.cluster) {
-      case "mainnet-beta":
-        return "";
-      case "testnet":
-        return "?cluster=testnet";
-      case "devnet":
-        return "?cluster=devnet";
-      case "localnet":
-        // No support https://solana.stackexchange.com/a/2330
-        return "";
-    }
-  },
-});
-
-const SOLANA_FM = createBlockExplorer({
-  name: "Solana FM",
-  url: "https://solana.fm",
-  getClusterParam: () => {
-    switch (PgConnection.cluster) {
-      case "mainnet-beta":
-        return "";
-      case "testnet":
-        return "?cluster=testnet-solana";
-      case "devnet":
-        return "?cluster=devnet-solana";
-      case "localnet":
-        // Doesn't work with protocol ("http") prefix
-        return "?cluster=custom-" + new URL(Endpoint.LOCALHOST).host;
-    }
-  },
-});
-
 const derive = () => ({
   /** The current block explorer based on user's block explorer setting */
   current: createDerivable({
     derive: () => {
-      return (
-        _PgBlockExplorer.ALL.find(
-          (be) => be.name === PgSettings.other.blockExplorer
-        ) ?? SOLANA_EXPLORER
-      );
+      return _PgBlockExplorer.blockExplorers.find(
+        (be) => be.name === PgSettings.other.blockExplorer
+      )!;
     },
     onChange: [
       PgSettings.onDidChangeOtherBlockExplorer,
@@ -124,7 +60,22 @@ const derive = () => ({
 @derivable(derive)
 class _PgBlockExplorer {
   /** All block explorers */
-  static readonly ALL = [SOLANA_EXPLORER, SOLSCAN, SOLANA_FM];
+  static blockExplorers: BlockExplorer[];
+
+  /**
+   * Create a block explorer.
+   *
+   * @param b block explorer implementation
+   * @returns the created block explorer
+   */
+  static create(b: BlockExplorerImpl): BlockExplorer {
+    b.getCommonUrl ??= (p, v) =>
+      b.url + "/" + p + "/" + v + b.getClusterParam();
+    b.getAddressUrl ??= (address) => b.getCommonUrl!("address", address);
+    b.getTxUrl ??= (txHash) => b.getCommonUrl!("tx", txHash);
+
+    return b as BlockExplorer;
+  }
 }
 
 export const PgBlockExplorer = declareDerivable(_PgBlockExplorer, derive);

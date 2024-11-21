@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { EventName } from "../../../constants";
+import { BLOCK_EXPLORERS } from "../../../block-explorers";
 import { COMMANDS } from "../../../commands";
 import { FRAMEWORKS } from "../../../frameworks";
 import { ROUTES } from "../../../routes";
@@ -21,6 +22,12 @@ import {
   PgWallet,
 } from "../../../utils/pg";
 import { useDisposable, useSetStatic } from "../../../hooks";
+
+// Set fields
+PgBlockExplorer.blockExplorers = BLOCK_EXPLORERS;
+PgCommandManager.commands = COMMANDS;
+PgFramework.frameworks = FRAMEWORKS;
+PgTutorial.tutorials = TUTORIALS;
 
 const GlobalState = () => {
   useDisposable(PgGlobal.init);
@@ -88,14 +95,5 @@ const useExplorer = () => {
     return dispose;
   }, []);
 };
-
-// Set commands
-PgCommandManager.commands = COMMANDS;
-
-// Set frameworks
-PgFramework.frameworks = FRAMEWORKS;
-
-// Set tutorials
-PgTutorial.tutorials = TUTORIALS;
 
 export default GlobalState;
