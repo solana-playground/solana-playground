@@ -58,6 +58,7 @@ const Wallet = () => {
         enableResizing={false}
         bounds={"#" + Id.WALLET_BOUND}
         enableUserSelectHack={false}
+        style={{ zIndex: 1 }}
       >
         <WalletWrapper>
           <WalletTop />
