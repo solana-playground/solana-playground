@@ -4,7 +4,7 @@ import { PgSettings } from "./settings";
 
 interface BlockExplorerImpl {
   /** Name of the block explorer */
-  name: typeof PgSettings["other"]["blockExplorer"];
+  name: string;
   /** Base URL of the explorer website */
   url: string;
   /**

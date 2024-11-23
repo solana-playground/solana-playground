@@ -44,8 +44,8 @@ interface Settings {
   };
   /** Other settings */
   other: {
-    /** Default block explorer */
-    blockExplorer: "Solana Explorer" | "Solscan" | "Solana FM";
+    /** Block explorer to use */
+    blockExplorer: string;
   };
   /** Wallet settings */
   wallet: {
