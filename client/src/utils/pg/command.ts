@@ -1,12 +1,12 @@
-import { PgCommon } from "../common";
-import { PgTerminal } from "../terminal";
+import { PgCommon } from "./common";
+import { PgTerminal } from "./terminal";
 import type {
   Arrayable,
   Disposable,
   Getable,
   SyncOrAsync,
   ValueOf,
-} from "../types";
+} from "./types";
 
 /** Terminal command implementation */
 export type CommandImpl<
