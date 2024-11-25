@@ -32,21 +32,25 @@ const ProgramSettings = () => {
     const framework = await PgFramework.getFromFiles();
     switch (framework?.name) {
       case "Anchor":
-      case "Seahorse":
-        setSettings([
-          ...DEFAULT_PROGRAM_SETTINGS,
-          {
-            title: "Build flags",
-            description: "Anchor build flags",
-            element: <BuildFlags />,
-          },
+      case "Seahorse": {
+        const anchorSettings: ProgramSettingProps[] = [
           {
             title: "IDL",
             description: "Anchor IDL interactions",
             element: <IDL />,
           },
-        ]);
+        ];
+        if (process.env.NODE_ENV !== "production") {
+          anchorSettings.unshift({
+            title: "Build flags",
+            description: "Anchor build flags",
+            element: <BuildFlags />,
+          });
+        }
+
+        setSettings(DEFAULT_PROGRAM_SETTINGS.concat(anchorSettings));
         break;
+      }
       case "Native":
         setSettings(DEFAULT_PROGRAM_SETTINGS);
         break;
