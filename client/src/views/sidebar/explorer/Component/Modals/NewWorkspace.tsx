@@ -23,7 +23,7 @@ export const NewWorkspace = () => {
   };
 
   const newWorkspace = async () => {
-    const { importFiles, defaultOpenFile } = PgFramework.frameworks.find(
+    const { importFiles, defaultOpenFile } = PgFramework.all.find(
       (f) => f.name === selected
     )!;
     const { files } = await importFiles();
@@ -61,7 +61,7 @@ export const NewWorkspace = () => {
         <FrameworkSectionWrapper>
           <MainText>Choose a framework</MainText>
           <FrameworksWrapper>
-            {PgFramework.frameworks.map((f) => (
+            {PgFramework.all.map((f) => (
               <Framework
                 key={f.name}
                 isSelected={selected === f.name}

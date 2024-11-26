@@ -171,7 +171,7 @@ export const PgCommand: Commands = new Proxy(
       cmdCodeName: CommandCodeName
     ): Command<string, Arg[], Option[], unknown, unknown> => {
       if (!target[cmdCodeName]) {
-        const cmdUiName = PgCommandManager.commands[cmdCodeName].name;
+        const cmdUiName = PgCommandManager.all[cmdCodeName].name;
         target[cmdCodeName] = {
           name: cmdUiName,
           run: (...args: string[]) => {
@@ -204,8 +204,8 @@ export const PgCommand: Commands = new Proxy(
  * `PgCommand` instead.
  */
 export class PgCommandManager {
-  /** Internal commands */
-  static commands: InternalCommands;
+  /** All internal commands */
+  static all: InternalCommands;
 
   /**
    * Get the available command names.
@@ -213,7 +213,7 @@ export class PgCommandManager {
    * @returns the command names
    */
   static getNames() {
-    return Object.values(PgCommandManager.commands).map((cmd) => cmd.name);
+    return Object.values(this.all).map((cmd) => cmd.name);
   }
 
   /**
@@ -262,7 +262,7 @@ export class PgCommandManager {
       return completions;
     };
 
-    return recursivelyGetCompletions(Object.values(PgCommandManager.commands));
+    return recursivelyGetCompletions(Object.values(PgCommandManager.all));
   }
 
   /**
@@ -278,7 +278,7 @@ export class PgCommandManager {
       const inputCmdName = tokens.at(0);
       if (!inputCmdName) return;
 
-      const topCmd = Object.values(PgCommandManager.commands).find(
+      const topCmd = Object.values(PgCommandManager.all).find(
         (cmd) => cmd.name === inputCmdName
       );
       if (!topCmd) {

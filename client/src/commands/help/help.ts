@@ -5,7 +5,7 @@ export const help = createCmd({
   name: "help",
   description: "Print help message",
   run: () => {
-    const cmds = Object.values(PgCommandManager.commands);
+    const cmds = Object.values(PgCommandManager.all);
     PgTerminal.log("Commands:\n\n" + formatList(cmds));
   },
 });

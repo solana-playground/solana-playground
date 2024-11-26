@@ -58,7 +58,7 @@ const storage = {
 @updatable({ defaultState, storage })
 class _PgTutorial {
   /** All tutorials */
-  static tutorials: TutorialData[];
+  static all: TutorialData[];
 
   /**
    * Get the tutorial's data from its name.
@@ -67,7 +67,7 @@ class _PgTutorial {
    * @returns the tutorial's data if it exists
    */
   static getTutorialData(name: string) {
-    return this.tutorials.find((t) => {
+    return this.all.find((t) => {
       return PgRouter.isPathsEqual(
         PgCommon.toKebabFromTitle(t.name),
         PgCommon.toKebabFromTitle(name)
@@ -82,7 +82,7 @@ class _PgTutorial {
    * @returns whether the given workspace name is a tutorial
    */
   static isWorkspaceTutorial(name: string) {
-    return _PgTutorial.tutorials.some((t) => t.name === name);
+    return _PgTutorial.all.some((t) => t.name === name);
   }
 
   /**

@@ -6,7 +6,7 @@ import { PgBlockExplorer, PgSettings } from "../../utils/pg";
 const BlockExplorer = () => {
   const options = useMemo(
     () =>
-      PgBlockExplorer.blockExplorers.map((be) => ({
+      PgBlockExplorer.all.map((be) => ({
         value: be.name,
         label: be.name,
       })),

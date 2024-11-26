@@ -75,7 +75,7 @@ export type Framework<N extends string = string> = RequiredKey<
 
 export class PgFramework {
   /** All frameworks */
-  static frameworks: Framework<FrameworkName>[];
+  static all: Framework<FrameworkName>[];
 
   /**
    * Get the framework from its name.
@@ -84,7 +84,7 @@ export class PgFramework {
    * @returns the framework
    */
   static get(name: FrameworkName) {
-    return this.frameworks.find((f) => f.name === name)!;
+    return this.all.find((f) => f.name === name)!;
   }
 
   /**
@@ -94,7 +94,7 @@ export class PgFramework {
    * @returns the framework
    */
   static async getFromFiles(files: TupleFiles = PgExplorer.getAllFiles()) {
-    for (const framework of this.frameworks) {
+    for (const framework of this.all) {
       const isCurrent = await framework.getIsCurrent(files);
       if (isCurrent) return framework;
     }

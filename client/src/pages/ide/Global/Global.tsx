@@ -24,10 +24,10 @@ import {
 import { useDisposable, useSetStatic } from "../../../hooks";
 
 // Set fields
-PgBlockExplorer.blockExplorers = BLOCK_EXPLORERS;
-PgCommandManager.commands = COMMANDS;
-PgFramework.frameworks = FRAMEWORKS;
-PgTutorial.tutorials = TUTORIALS;
+PgBlockExplorer.all = BLOCK_EXPLORERS;
+PgCommandManager.all = COMMANDS;
+PgFramework.all = FRAMEWORKS;
+PgTutorial.all = TUTORIALS;
 
 const GlobalState = () => {
   useDisposable(PgGlobal.init);

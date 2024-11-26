@@ -20,8 +20,8 @@ import { PgTheme, PgTutorial } from "../../../../utils/pg";
  * oldest.
  */
 const tutorials = [
-  ...PgTutorial.tutorials.slice(0, 3),
-  ...PgTutorial.tutorials.slice(3).sort(() => -1),
+  ...PgTutorial.all.slice(0, 3),
+  ...PgTutorial.all.slice(3).sort(() => -1),
 ];
 
 export const Tutorials = () => {

@@ -70,7 +70,7 @@ export const ImportGithub = () => {
         <ExamplesSectionWrapper>
           <ExamplesTitle>Examples</ExamplesTitle>
           <ExamplesWrapper>
-            {PgFramework.frameworks.map((framework) => (
+            {PgFramework.all.map((framework) => (
               <Example key={framework.name} framework={framework} />
             ))}
           </ExamplesWrapper>
