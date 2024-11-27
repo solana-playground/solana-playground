@@ -1,5 +1,5 @@
 import { EventName } from "../../constants";
-import { Lang, PgCommon } from "../../utils/pg";
+import { PgCommon } from "../../utils/pg";
 import { createCmd } from "../create";
 
 export const rustfmt = createCmd({
@@ -7,7 +7,7 @@ export const rustfmt = createCmd({
   description: "Format the current file with rustfmt",
   run: async () => {
     await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT, {
-      lang: Lang.RUST,
+      lang: "Rust",
       fromTerminal: true,
     });
   },

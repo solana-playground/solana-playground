@@ -6,10 +6,10 @@ import { initLanguages } from "./languages";
 import { SpinnerWithBg } from "../../Loading";
 import { EventName } from "../../../constants";
 import {
-  Lang,
   PgCommand,
   PgCommon,
   PgExplorer,
+  PgLanguage,
   PgPackage,
   PgProgramInfo,
   PgTerminal,
@@ -256,7 +256,7 @@ const Monaco = () => {
       // when switching between JS/TS files because models are being disposed and
       // recreated each time instead of only the first time.
       // https://github.com/microsoft/monaco-editor/issues/1083
-      if (PgExplorer.isFileJsLike(curFile.path)) {
+      if (PgLanguage.getIsPathJsLike(curFile.path)) {
         monaco.editor
           .getModels()
           .filter((model) => {
@@ -265,7 +265,7 @@ const Monaco = () => {
               // will also get disposed
               (model.uri.path.includes(PgExplorer.PATHS.CLIENT_DIRNAME) ||
                 model.uri.path.includes(PgExplorer.PATHS.TESTS_DIRNAME)) &&
-              PgExplorer.isFileJsLike(model.uri.path) &&
+              PgLanguage.getIsPathJsLike(model.uri.path) &&
               model.uri.path !== curFile.path &&
               !model.getValue().includes("import")
             );
@@ -398,14 +398,14 @@ const Monaco = () => {
   // Format event
   useSendAndReceiveCustomEvent(
     EventName.EDITOR_FORMAT,
-    async (ev?: { lang: Lang; fromTerminal: boolean }) => {
+    async (ev?: { lang: LanguageName; fromTerminal: boolean }) => {
       if (!editor) return;
 
       const lang = PgExplorer.getCurrentFileLanguage();
       if (!lang) return;
 
       let formatRust;
-      const isCurrentFileRust = lang === Lang.RUST;
+      const isCurrentFileRust = lang.name === "Rust";
       if (isCurrentFileRust) {
         formatRust = async () => {
           const currentContent = editor.getValue();
@@ -531,7 +531,7 @@ const Monaco = () => {
         };
       }
 
-      const isCurrentFileJSON = lang === Lang.JSON;
+      const isCurrentFileJSON = lang.name === "JSON";
       let formatJSON;
       if (isCurrentFileJSON) {
         formatJSON = () => {
@@ -606,7 +606,7 @@ const Monaco = () => {
 
       // From terminal
       switch (ev.lang) {
-        case Lang.RUST: {
+        case "Rust": {
           if (!isCurrentFileRust) {
             PgTerminal.log(
               PgTerminal.warning("Current file is not a Rust file.")
@@ -618,7 +618,7 @@ const Monaco = () => {
           break;
         }
 
-        case Lang.TYPESCRIPT: {
+        case "TypeScript": {
           if (!isCurrentFileJsLike) {
             PgTerminal.log(
               PgTerminal.warning("Current file is not a JS/TS file.")
@@ -688,8 +688,8 @@ const Monaco = () => {
 
       // Update in editor
       const currentLang = PgExplorer.getCurrentFileLanguage();
-      const isRust = currentLang === Lang.RUST;
-      const isPython = currentLang === Lang.PYTHON;
+      const isRust = currentLang?.name === "Rust";
+      const isPython = currentLang?.name === "Python";
       if (!isRust && !isPython) return;
 
       const editorContent = editor.getValue();

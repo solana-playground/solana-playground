@@ -1,8 +1,8 @@
 import { PgExplorerEvent } from "./events";
 import { PgFs } from "./fs";
-import { Lang } from "./lang";
 import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
+import { PgLanguage } from "../language";
 import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
 import type {
   Explorer,
@@ -696,7 +696,7 @@ export class PgExplorer {
    */
   static getCurrentFileLanguage() {
     if (this.currentFilePath) {
-      return this.getLanguageFromPath(this.currentFilePath);
+      return PgLanguage.getFromPath(this.currentFilePath);
     }
   }
 
@@ -706,7 +706,9 @@ export class PgExplorer {
    * @returns whether the current file is a JavaScript-like file
    */
   static isCurrentFileJsLike() {
-    if (this.currentFilePath) return this.isFileJsLike(this.currentFilePath);
+    if (this.currentFilePath) {
+      return PgLanguage.getIsPathJsLike(this.currentFilePath);
+    }
   }
 
   /**
@@ -1348,66 +1350,6 @@ export class PgExplorer {
   }
 
   /**
-   * Get file extension of the given path.
-   *
-   * @param path file path
-   * @returns the file extension
-   */
-  static getExtensionFromPath(path: string) {
-    return path
-      .split(".")
-      .reverse()
-      .filter((cur, i) => i === 0 || (i === 1 && cur === "test"))
-      .reverse()
-      .join(".");
-  }
-
-  /**
-   * Get the langugage from the given path's extension.
-   *
-   * @param path item path
-   * @returns the language
-   */
-  static getLanguageFromPath(path: string) {
-    switch (PgExplorer.getExtensionFromPath(path)) {
-      case "rs":
-        return Lang.RUST;
-      case "py":
-        return Lang.PYTHON;
-      case "js":
-        return Lang.JAVASCRIPT;
-      case "ts":
-        return Lang.TYPESCRIPT;
-      case "test.js":
-        return Lang.JAVASCRIPT_TEST;
-      case "test.ts":
-        return Lang.TYPESCRIPT_TEST;
-      case "json":
-        return Lang.JSON;
-      default:
-        return null;
-    }
-  }
-
-  /**
-   * Get whether the given path is a regular JS/TS or test JS/TS file.
-   *
-   * @path file path
-   * @returns whether the given file is a JavaScript-like file
-   */
-  static isFileJsLike(path: string) {
-    switch (PgExplorer.getLanguageFromPath(path)) {
-      case Lang.JAVASCRIPT:
-      case Lang.TYPESCRIPT:
-      case Lang.JAVASCRIPT_TEST:
-      case Lang.TYPESCRIPT_TEST:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /**
    * Get whether the element is a JS/TS client element.
    *
    * @param el item element
@@ -1417,12 +1359,13 @@ export class PgExplorer {
     const path = this.getItemPathFromEl(el);
     if (!path) return false;
 
-    const lang = this.getLanguageFromPath(path);
-    return (
-      !!path &&
-      !path.includes(".test") &&
-      (lang === Lang.JAVASCRIPT || lang === Lang.TYPESCRIPT)
-    );
+    const isFileJsLike = PgLanguage.getIsPathJsLike(path);
+    if (!isFileJsLike) return false;
+
+    const lang = PgLanguage.getFromPath(path);
+    if (!lang) return false;
+
+    return !!(path && !path.includes(".test"));
   }
 
   /**
@@ -1435,10 +1378,13 @@ export class PgExplorer {
     const path = this.getItemPathFromEl(el);
     if (!path) return false;
 
-    const lang = this.getLanguageFromPath(path);
-    return (
-      !!path && (lang === Lang.JAVASCRIPT_TEST || lang === Lang.TYPESCRIPT_TEST)
-    );
+    const isFileJsLike = PgLanguage.getIsPathJsLike(path);
+    if (!isFileJsLike) return false;
+
+    const lang = PgLanguage.getFromPath(path);
+    if (!lang) return false;
+
+    return !!(path && path.includes(".test"));
   }
 
   /**

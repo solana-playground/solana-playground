@@ -5,6 +5,7 @@ import { EventName } from "../../../constants";
 import { BLOCK_EXPLORERS } from "../../../block-explorers";
 import { COMMANDS } from "../../../commands";
 import { FRAMEWORKS } from "../../../frameworks";
+import { LANGUAGES } from "../../../languages";
 import { ROUTES } from "../../../routes";
 import { TUTORIALS } from "../../../tutorials";
 import {
@@ -16,6 +17,7 @@ import {
   PgExplorer,
   PgFramework,
   PgGlobal,
+  PgLanguage,
   PgProgramInfo,
   PgRouter,
   PgTutorial,
@@ -27,6 +29,7 @@ import { useDisposable, useSetStatic } from "../../../hooks";
 PgBlockExplorer.all = BLOCK_EXPLORERS;
 PgCommandManager.all = COMMANDS;
 PgFramework.all = FRAMEWORKS;
+PgLanguage.all = LANGUAGES;
 PgTutorial.all = TUTORIALS;
 
 const GlobalState = () => {

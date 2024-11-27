@@ -1,9 +1,8 @@
 import { createFramework } from "../create";
-import { Lang } from "../../utils/pg";
 
 export const native = createFramework({
   name: "Native",
-  language: Lang.RUST,
+  language: "Rust",
   icon: "/icons/platforms/solana.png",
   githubExample: {
     name: "Hello Solana",

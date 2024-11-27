@@ -2,6 +2,7 @@ import {
   PgClientImporter,
   PgCommon,
   PgExplorer,
+  PgLanguage,
   PgTerminal,
 } from "../../utils/pg";
 import { createArgs, createCmd } from "../create";
@@ -21,7 +22,7 @@ const createCommonArgs = (parentPath: string) =>
       values: () => {
         return PgExplorer.getAllFiles()
           .map(([path]) => path)
-          .filter(PgExplorer.isFileJsLike)
+          .filter(PgLanguage.getIsPathJsLike)
           .map(PgExplorer.getRelativePath)
           .filter((path) => path.startsWith(parentPath))
           .map((path) => path.replace(PgCommon.appendSlash(parentPath), ""));
@@ -74,7 +75,7 @@ const processCommon = async (params: {
       if (!code) throw new Error(`File '${path}' doesn't exist`);
 
       const fileName = PgExplorer.getItemNameFromPath(path);
-      if (!PgExplorer.isFileJsLike(fileName)) {
+      if (!PgLanguage.getIsPathJsLike(fileName)) {
         throw new Error(`File '${fileName}' is not a script file`);
       }
 
@@ -102,7 +103,7 @@ const processCommon = async (params: {
   }
 
   // Run all files inside the folder
-  for (const fileName of folder.files.filter(PgExplorer.isFileJsLike)) {
+  for (const fileName of folder.files.filter(PgLanguage.getIsPathJsLike)) {
     const code = PgExplorer.getFileContent(
       PgCommon.joinPaths(folderPath, fileName)
     )!;

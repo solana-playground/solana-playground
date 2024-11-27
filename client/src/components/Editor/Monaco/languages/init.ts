@@ -114,9 +114,7 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
   return PgExplorer.onDidOpenFile(async (file) => {
     if (!file) return;
 
-    const extension = PgExplorer.getExtensionFromPath(file.path)
-      .split(".")
-      .at(-1)!;
+    const extension = file.path.split(".").at(-1)!;
     const lang = monaco.languages.getLanguages().find((lang) => {
       return lang.extensions?.map((ext) => ext.slice(1)).includes(extension);
     });

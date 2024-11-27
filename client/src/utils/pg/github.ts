@@ -1,6 +1,7 @@
 import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
 import { PgFramework } from "./framework";
+import { PgLanguage } from "./language";
 import { GithubError } from "../../constants";
 import type { Arrayable } from "./types";
 
@@ -112,7 +113,7 @@ export class PgGithub {
       for (const itemData of dirData) {
         if (itemData.type === "file") {
           // Skip fetching the content if the language is not supported
-          if (!PgExplorer.getLanguageFromPath(itemData.path)) continue;
+          if (!PgLanguage.getFromPath(itemData.path)) continue;
 
           const content = await PgCommon.fetchText(itemData.download_url!);
           files.push([itemData.path, content]);

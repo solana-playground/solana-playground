@@ -9,7 +9,6 @@ import {
   PgExplorer,
   PgProgramInfo,
   PgTerminal,
-  Lang,
   PgCommon,
   PgPackage,
   PgCommand,
@@ -209,8 +208,8 @@ const CodeMirror = () => {
       // Lazy load language extensions
       (async () => {
         let languageExtensions;
-        switch (PgExplorer.getCurrentFileLanguage()) {
-          case Lang.RUST: {
+        switch (PgExplorer.getCurrentFileLanguage()?.name) {
+          case "Rust": {
             const { rustExtensions } = await import(
               "./extensions/languages/rust"
             );
@@ -219,7 +218,7 @@ const CodeMirror = () => {
             break;
           }
 
-          case Lang.PYTHON: {
+          case "Python": {
             const { pythonExtensions } = await import(
               "./extensions/languages/python"
             );
@@ -227,7 +226,7 @@ const CodeMirror = () => {
             break;
           }
 
-          case Lang.JAVASCRIPT: {
+          case "JavaScript": {
             const { javascriptExtensions } = await import(
               "./extensions/languages/javascript"
             );
@@ -235,7 +234,7 @@ const CodeMirror = () => {
             break;
           }
 
-          case Lang.TYPESCRIPT: {
+          case "TypeScript": {
             const { javascriptExtensions } = await import(
               "./extensions/languages/javascript"
             );
@@ -315,14 +314,14 @@ const CodeMirror = () => {
   // Format event
   useSendAndReceiveCustomEvent(
     EventName.EDITOR_FORMAT,
-    async (ev?: { lang: Lang; fromTerminal: boolean }) => {
+    async (ev?: { lang: LanguageName; fromTerminal: boolean }) => {
       if (!editor) return;
 
       const lang = PgExplorer.getCurrentFileLanguage();
       if (!lang) return;
 
       let formatRust;
-      const isCurrentFileRust = lang === Lang.RUST;
+      const isCurrentFileRust = lang.name === "Rust";
       if (isCurrentFileRust) {
         formatRust = async () => {
           const { rustfmt } = await PgPackage.import("rustfmt");
@@ -418,7 +417,7 @@ const CodeMirror = () => {
         };
       }
 
-      const isCurrentFileJSON = lang === Lang.JSON;
+      const isCurrentFileJSON = lang.name === "JSON";
       let formatJSON;
       if (isCurrentFileJSON) {
         formatJSON = () => {
@@ -477,7 +476,7 @@ const CodeMirror = () => {
 
       // From terminal
       switch (ev.lang) {
-        case Lang.RUST: {
+        case "Rust": {
           if (!isCurrentFileRust) {
             PgTerminal.log(
               PgTerminal.warning("Current file is not a Rust file.")
@@ -489,7 +488,7 @@ const CodeMirror = () => {
           break;
         }
 
-        case Lang.TYPESCRIPT: {
+        case "TypeScript": {
           if (!isCurrentFileJsLike) {
             PgTerminal.log(
               PgTerminal.warning("Current file is not a JS/TS file.")
@@ -541,8 +540,8 @@ const CodeMirror = () => {
 
       // Update in editor
       const currentLang = PgExplorer.getCurrentFileLanguage();
-      const isRust = currentLang === Lang.RUST;
-      const isPython = currentLang === Lang.PYTHON;
+      const isRust = currentLang?.name === "Rust";
+      const isPython = currentLang?.name === "Python";
       if (!isRust && !isPython) return;
 
       const editorContent = editor.state.doc.toString();

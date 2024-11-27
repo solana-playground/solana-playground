@@ -1,5 +1,5 @@
 import { PgCommon } from "./common";
-import { Lang, PgExplorer, TupleFiles } from "./explorer";
+import { PgExplorer, TupleFiles } from "./explorer";
 import type { RequiredKey, SyncOrAsync } from "./types";
 
 /** Custom framework parameter */
@@ -8,7 +8,7 @@ export type FrameworkImpl<N extends string> = {
   name: N;
 
   /** Framework program language */
-  language: Lang;
+  language: LanguageName;
 
   /** Image icon src */
   icon: string;

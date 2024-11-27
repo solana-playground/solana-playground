@@ -2,6 +2,7 @@ import "styled-components";
 
 import { COMMANDS } from "../commands";
 import { FRAMEWORKS } from "../frameworks";
+import { LANGUAGES } from "../languages";
 import { ROUTES } from "../routes";
 import { MAIN_SECONDARY, SIDEBAR } from "../views";
 import {
@@ -42,6 +43,12 @@ global {
 global {
   /** Framework names */
   type FrameworkName = typeof FRAMEWORKS[number]["name"];
+}
+
+// Language name
+global {
+  /** Language names */
+  type LanguageName = typeof LANGUAGES[number]["name"];
 }
 
 // Route
