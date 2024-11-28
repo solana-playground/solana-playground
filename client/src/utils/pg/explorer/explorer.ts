@@ -1350,44 +1350,6 @@ export class PgExplorer {
   }
 
   /**
-   * Get whether the element is a JS/TS client element.
-   *
-   * @param el item element
-   * @returns whether the element can run client
-   */
-  static getIsItemClientFromEl(el: HTMLDivElement) {
-    const path = this.getItemPathFromEl(el);
-    if (!path) return false;
-
-    const isFileJsLike = PgLanguage.getIsPathJsLike(path);
-    if (!isFileJsLike) return false;
-
-    const lang = PgLanguage.getFromPath(path);
-    if (!lang) return false;
-
-    return !!(path && !path.includes(".test"));
-  }
-
-  /**
-   * Get whether the element is a JS/TS test element.
-   *
-   * @param el item element
-   * @returns whether the element can run tests
-   */
-  static getIsItemTestFromEl(el: HTMLDivElement) {
-    const path = this.getItemPathFromEl(el);
-    if (!path) return false;
-
-    const isFileJsLike = PgLanguage.getIsPathJsLike(path);
-    if (!isFileJsLike) return false;
-
-    const lang = PgLanguage.getFromPath(path);
-    if (!lang) return false;
-
-    return !!(path && path.includes(".test"));
-  }
-
-  /**
    * Get the parent's path from the given path with `/` appended.
    *
    * @param path item path

@@ -7,6 +7,7 @@ import {
   PgCommon,
   PgExplorer,
   PgGlobal,
+  PgLanguage,
   PgView,
 } from "../../../../utils/pg";
 import { useRenderOnChange } from "../../../../hooks";
@@ -51,10 +52,16 @@ export const useExplorerContextMenu = () => {
       isFolder: itemType.folder,
       isProgramFolder:
         itemType.folder && itemName === PgExplorer.PATHS.SRC_DIRNAME,
-      isClient: itemType.file && PgExplorer.getIsItemClientFromEl(selectedEl),
+      isClient:
+        itemType.file &&
+        PgLanguage.getIsPathJsLike(itemPath) &&
+        !itemPath.includes(".test"),
       isClientFolder:
         itemType.folder && itemName === PgExplorer.PATHS.CLIENT_DIRNAME,
-      isTest: itemType.file && PgExplorer.getIsItemTestFromEl(selectedEl),
+      isTest:
+        itemType.file &&
+        PgLanguage.getIsPathJsLike(itemPath) &&
+        itemPath.includes(".test"),
       isTestFolder:
         itemType.folder && itemName === PgExplorer.PATHS.TESTS_DIRNAME,
     };
