@@ -6,6 +6,7 @@ import LangIcon from "../LangIcon";
 import {
   OrString,
   PgFramework,
+  PgLanguage,
   TutorialCategory,
   TutorialDetailKey,
   TutorialLanguage,
@@ -103,24 +104,16 @@ interface LanguageProps {
 
 const Language: FC<LanguageProps> = ({ value, ...props }) => {
   const { ref } = useDelayedDifferentBackground();
+  const fileName =
+    "file." +
+    PgLanguage.all.find((lang) => lang.name === value)?.extension.at(0);
 
   return (
     <Boxed ref={ref} {...props}>
-      <LangIcon fileName={getLanguageExtension(value)} />
+      <LangIcon fileName={fileName} />
       {value}
     </Boxed>
   );
-};
-
-const getLanguageExtension = (lang: TutorialLanguage) => {
-  switch (lang) {
-    case "Python":
-      return ".py";
-    case "Rust":
-      return ".rs";
-    case "TypeScript":
-      return ".ts";
-  }
 };
 
 interface CategoryProps {

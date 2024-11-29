@@ -15,7 +15,7 @@ type Language<N extends string> = LanguageImpl<N> & {
 };
 
 /** File extension to match */
-type Extension = string | RegExp;
+type Extension = string;
 
 export class PgLanguage {
   /** All supported programming languages */
@@ -41,10 +41,7 @@ export class PgLanguage {
   static getFromPath(path: string) {
     const givenExt = path.split(".").slice(1).join(".");
     return this.all.find((lang) =>
-      lang.extension.some((ext) => {
-        if (typeof ext === "string") return givenExt.endsWith(ext);
-        return ext.test(givenExt);
-      })
+      lang.extension.some((ext) => givenExt.endsWith(ext))
     );
   }
 
