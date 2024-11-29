@@ -43,7 +43,7 @@ You can open an issue to request more crates.
 
 You can run the client locally by cloning the repository and running the following commands in the project directory.
 
-Setup and start the dev server:
+Set up and start the dev server:
 
 ```sh
 cd client # change directory to client
@@ -69,8 +69,8 @@ yarn --version
 
 ## Contributing
 
-Anyone is welcome to contribute to **Solana Playground** no matter how big or small.
+Anyone is welcome to contribute to **Solana Playground,** no matter how big or small the contribution.
 
 ## License
 
-Public libraries(e.g. [solana-client-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/solana-client), [solana-extra-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/utils/solana-extra)) are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE) and the rest are licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
+Public libraries (e.g. [solana-client-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/solana-client), [solana-extra-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/utils/solana-extra)) are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE), and the rest are licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
