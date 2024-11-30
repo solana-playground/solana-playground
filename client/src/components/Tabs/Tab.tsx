@@ -95,7 +95,7 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
           ref={ref}
           {...(props as SortableItemProvidedProps)}
         >
-          <LangIcon fileName={fileName} />
+          <LangIcon path={path} />
           <Name>{fileName}</Name>
           <Button
             ref={closeButtonRef}

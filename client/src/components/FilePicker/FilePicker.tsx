@@ -132,7 +132,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path, setFilePaths }) => {
               depth={depth + 1}
               label={
                 <FileNameWrapper>
-                  <LangIcon fileName={name} />
+                  <LangIcon path={name} />
                   <FileName>{name}</FileName>
                 </FileNameWrapper>
               }

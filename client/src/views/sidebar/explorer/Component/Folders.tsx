@@ -393,7 +393,7 @@ const File = forwardRef<HTMLDivElement, FileProps>(
   ({ path, name, depth, ...props }, ref) => (
     <div ref={ref} data-path={path} {...props}>
       <PaddingLeft depth={depth} />
-      <LangIcon fileName={name} />
+      <LangIcon path={path} />
       <span>{name}</span>
     </div>
   )

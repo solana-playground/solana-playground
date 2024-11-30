@@ -12,27 +12,28 @@ import {
 } from "../Icons";
 
 interface LangIconProps {
-  fileName: string;
+  /** File path to decide the language from */
+  path: string;
 }
 
-const LangIcon: FC<LangIconProps> = ({ fileName }) => {
+const LangIcon: FC<LangIconProps> = ({ path }) => {
   const Icon = useMemo(() => {
-    const lang = PgLanguage.getFromPath(fileName);
+    const lang = PgLanguage.getFromPath(path);
     switch (lang?.name) {
       case "Rust":
         return <Rust color="textSecondary" />;
       case "Python":
         return <Python />;
       case "JavaScript":
-        return <JavaScript isTest={fileName.endsWith(".test.js")} />;
+        return <JavaScript isTest={path.endsWith(".test.js")} />;
       case "TypeScript":
-        return <TypeScript isTest={fileName.endsWith(".test.ts")} />;
+        return <TypeScript isTest={path.endsWith(".test.ts")} />;
       case "JSON":
         return <Json />;
       default:
         return <QuestionMark />;
     }
-  }, [fileName]);
+  }, [path]);
 
   return <Wrapper>{Icon}</Wrapper>;
 };

@@ -104,13 +104,13 @@ interface LanguageProps {
 
 const Language: FC<LanguageProps> = ({ value, ...props }) => {
   const { ref } = useDelayedDifferentBackground();
-  const fileName =
+  const path =
     "file." +
     PgLanguage.all.find((lang) => lang.name === value)?.extension.at(0);
 
   return (
     <Boxed ref={ref} {...props}>
-      <LangIcon fileName={fileName} />
+      <LangIcon path={path} />
       {value}
     </Boxed>
   );

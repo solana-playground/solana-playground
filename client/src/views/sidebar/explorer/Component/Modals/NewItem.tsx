@@ -107,7 +107,7 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
 
   return (
     <Wrapper ref={newFileRef} depth={depth}>
-      <LangIcon fileName={itemName} />
+      <LangIcon path={itemName} />
       <Input
         autoFocus
         value={itemName}
