@@ -258,9 +258,19 @@ class _PgWallet {
    * @param keypair optional keypair, defaults to the current wallet's keypair
    */
   static export(keypair?: PgWeb3.Keypair) {
-    PgCommon.export(
+    if (keypair) {
+      return PgCommon.export(
+        "wallet-keypair.json",
+        Array.from(keypair.secretKey)
+      );
+    }
+
+    if (!PgWallet.current) throw new Error("Not connected");
+    if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
+
+    return PgCommon.export(
       "wallet-keypair.json",
-      keypair ? Array.from(keypair.secretKey) : PgWallet.getKeypairBytes()
+      Array.from(PgWallet.current.keypair.secretKey)
     );
   }
 
@@ -308,14 +318,6 @@ class _PgWallet {
     } catch {
       return PgWallet.getNextAvailableAccountName(index + 1);
     }
-  }
-
-  /** Get the keypair bytes of the current wallet. */
-  static getKeypairBytes() {
-    if (!PgWallet.current) throw new Error("Not connected");
-    if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
-
-    return Array.from(PgWallet.current.keypair.secretKey);
   }
 
   /**
