@@ -141,7 +141,7 @@ const WalletName = () => {
   const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
     name: getAccountDisplayName(
       acc.name,
-      PgWallet.createWallet(acc).publicKey.toBase58()
+      PgWallet.create(acc).publicKey.toBase58()
     ),
     onClick: () => PgWallet.switch(i),
     hoverColor: "textPrimary",

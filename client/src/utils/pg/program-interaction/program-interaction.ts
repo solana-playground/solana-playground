@@ -73,7 +73,7 @@ export class PgProgramInteraction {
         const walletAccount = PgWallet.accounts.find(
           ({ name }) => name === generatorName
         )!;
-        return PgWallet.createWallet(walletAccount);
+        return PgWallet.create(walletAccount);
       })
       .filter(PgCommon.isNonNullish);
 

@@ -154,7 +154,7 @@ const processDeploy = async () => {
   const wallet = PgWallet.current!;
   const [pgWallet, standardWallet] = wallet.isPg
     ? [wallet, null]
-    : [PgWallet.createWallet(PgWallet.accounts[0]), wallet];
+    : [PgWallet.create(PgWallet.accounts[0]), wallet];
 
   // Decide whether it's an initial deployment or an upgrade and calculate
   // how much SOL user needs before creating the buffer.

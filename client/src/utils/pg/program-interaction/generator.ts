@@ -173,7 +173,7 @@ export const generateValue = (
       const walletAcc = PgWallet.accounts.find(
         (acc) => acc.name === generator.name
       )!;
-      return PgWallet.createWallet(walletAcc).publicKey.toBase58();
+      return PgWallet.create(walletAcc).publicKey.toBase58();
     }
 
     case "From seed":

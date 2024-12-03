@@ -507,7 +507,7 @@ export class PgClient {
     if (pg.wallet) {
       pg.wallets = {};
 
-      const pgWallets = PgWallet.accounts.map(PgWallet.createWallet);
+      const pgWallets = PgWallet.accounts.map(PgWallet.create);
       const standardWallets = PgWallet.getConnectedStandardWallets();
 
       const wallets = [...pgWallets, ...standardWallets];

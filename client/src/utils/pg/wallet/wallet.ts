@@ -95,7 +95,7 @@ const derive = () => ({
             return null;
           }
 
-          return PgWallet.createWallet(currentAccount);
+          return PgWallet.create(currentAccount);
         }
 
         case "sol":
@@ -333,7 +333,7 @@ class _PgWallet {
    * @param account wallet account to derive the instance from
    * @returns a Playground Wallet instance
    */
-  static createWallet(account: WalletAccount): CurrentWallet {
+  static create(account: WalletAccount): CurrentWallet {
     const keypair = PgWeb3.Keypair.fromSecretKey(Uint8Array.from(account.kp));
 
     return {
