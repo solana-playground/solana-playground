@@ -19,6 +19,7 @@ import type {
   Wallet,
   WalletAccount,
 } from "./types";
+import type { RequiredKey } from "../types";
 
 const defaultState: Wallet = {
   state: "setup",
@@ -324,7 +325,10 @@ class _PgWallet {
   static getConnectedStandardWallets() {
     return PgWallet.standardWallets
       .map((wallet) => wallet.adapter)
-      .filter((adapter) => adapter.connected);
+      .filter((adapter) => adapter.connected) as RequiredKey<
+      typeof PgWallet["standardWallets"][number]["adapter"],
+      "publicKey"
+    >[];
   }
 
   /**
