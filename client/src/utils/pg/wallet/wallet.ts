@@ -168,7 +168,7 @@ class _PgWallet {
     const accountIndex = PgWallet.accounts.findIndex((acc) => {
       return (
         (name && acc.name === name) ||
-        keypair.publicKey.toBuffer().equals(Buffer.from(acc.kp))
+        PgWallet.create(acc).publicKey.equals(keypair.publicKey)
       );
     });
     if (accountIndex !== -1) {
