@@ -1,7 +1,7 @@
 import {
+  PgLanguage,
   TutorialLevel,
   TUTORIAL_FRAMEWORKS,
-  TUTORIAL_LANGUAGES,
   TUTORIAL_LEVELS,
 } from "../../../../utils/pg";
 
@@ -18,7 +18,7 @@ export const FILTERS = [
   },
   {
     param: "languages",
-    filters: TUTORIAL_LANGUAGES,
+    filters: PgLanguage.all.map((lang) => lang.name),
   },
   // TODO: Enable once there are more tutorials with various categories
   // {

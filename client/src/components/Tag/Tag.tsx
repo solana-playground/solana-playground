@@ -9,7 +9,6 @@ import {
   PgLanguage,
   TutorialCategory,
   TutorialDetailKey,
-  TutorialLanguage,
   TutorialLevel,
 } from "../../utils/pg";
 import { useDifferentBackground } from "../../hooks";
@@ -99,7 +98,7 @@ const FrameworkImage = styled(Img)<{ $circle?: boolean }>`
 `;
 
 interface LanguageProps {
-  value: TutorialLanguage;
+  value: LanguageName;
 }
 
 const Language: FC<LanguageProps> = ({ value, ...props }) => {

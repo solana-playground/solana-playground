@@ -3,7 +3,6 @@ import type { ComponentType } from "react";
 import {
   TUTORIAL_CATEGORIES,
   TUTORIAL_FRAMEWORKS,
-  TUTORIAL_LANGUAGES,
   TUTORIAL_LEVELS,
 } from "./details";
 import type { Nullable, RequiredKey } from "../types";
@@ -40,7 +39,7 @@ export interface TutorialDataInit {
   /** Solana program framework */
   framework?: TutorialFramework;
   /** Programming languages used in the tutorial */
-  languages?: TutorialLanguage[];
+  languages?: LanguageName[];
   /** Category of the tutorial. Can specify up to 3 categories. */
   categories?: TutorialCategory[];
   /** Whether the tutorial is featured */
@@ -82,7 +81,6 @@ export interface TutorialMetadata {
 
 export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
 export type TutorialFramework = typeof TUTORIAL_FRAMEWORKS[number];
-export type TutorialLanguage = typeof TUTORIAL_LANGUAGES[number];
 export type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
 
 export type TutorialDetailKey = keyof Pick<
