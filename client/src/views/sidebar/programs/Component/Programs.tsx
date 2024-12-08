@@ -1,13 +1,11 @@
 import styled, { css } from "styled-components";
 
-import FilterGroup from "../../../../components/FilterGroup";
+import FilterGroups from "../../../../components/FilterGroups";
 import { FILTERS } from "../../../main/primary/Programs/filters";
 
 const Programs = () => (
   <Wrapper>
-    {FILTERS.map((f) => (
-      <FilterGroup key={f.param} {...f} />
-    ))}
+    <FilterGroups filters={FILTERS} />
   </Wrapper>
 );
 

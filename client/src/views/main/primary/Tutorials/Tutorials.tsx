@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 
 import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
-import FilterGroup from "../../../../components/FilterGroup";
+import FilterGroups from "../../../../components/FilterGroups";
 import Link from "../../../../components/Link";
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
@@ -50,9 +50,7 @@ export const Tutorials = () => {
         <MainSection>
           <SideWrapper>
             <FiltersWrapper>
-              {FILTERS.map((f) => (
-                <FilterGroup key={f.param} {...f} />
-              ))}
+              <FilterGroups filters={FILTERS} />
             </FiltersWrapper>
           </SideWrapper>
 

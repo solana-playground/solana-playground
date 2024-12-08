@@ -5,6 +5,18 @@ import styled, { css } from "styled-components";
 import Checkbox from "../Checkbox";
 import Tag from "../Tag";
 
+interface FilterGroupsProps {
+  filters: readonly FilterGroupProps[];
+}
+
+const FilterGroups: FC<FilterGroupsProps> = ({ filters }) => (
+  <>
+    {filters.map((filter) => (
+      <FilterGroup key={filter.param} {...filter} />
+    ))}
+  </>
+);
+
 interface FilterGroupProps {
   param: string;
   filters: readonly string[];
@@ -72,4 +84,4 @@ const FilterLabel = styled(Tag)`
   }}
 `;
 
-export default FilterGroup;
+export default FilterGroups;
