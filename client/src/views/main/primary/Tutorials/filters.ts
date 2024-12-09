@@ -1,7 +1,7 @@
 import {
+  PgFramework,
   PgLanguage,
   TutorialLevel,
-  TUTORIAL_FRAMEWORKS,
   TUTORIAL_LEVELS,
 } from "../../../../utils/pg";
 
@@ -14,7 +14,7 @@ export const FILTERS = [
   },
   {
     param: "framework",
-    filters: TUTORIAL_FRAMEWORKS,
+    filters: PgFramework.all.map((f) => f.name),
   },
   {
     param: "languages",

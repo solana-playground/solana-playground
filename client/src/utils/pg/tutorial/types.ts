@@ -1,10 +1,6 @@
 import type { ComponentType } from "react";
 
-import {
-  TUTORIAL_CATEGORIES,
-  TUTORIAL_FRAMEWORKS,
-  TUTORIAL_LEVELS,
-} from "./details";
+import { TUTORIAL_CATEGORIES, TUTORIAL_LEVELS } from "./details";
 import type { Nullable, RequiredKey } from "../types";
 
 type Author = {
@@ -37,7 +33,7 @@ export interface TutorialDataInit {
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
   /** Solana program framework */
-  framework?: TutorialFramework;
+  framework?: FrameworkName;
   /** Programming languages used in the tutorial */
   languages?: LanguageName[];
   /** Category of the tutorial. Can specify up to 3 categories. */
@@ -80,7 +76,6 @@ export interface TutorialMetadata {
 }
 
 export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
-export type TutorialFramework = typeof TUTORIAL_FRAMEWORKS[number];
 export type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
 
 export type TutorialDetailKey = keyof Pick<
