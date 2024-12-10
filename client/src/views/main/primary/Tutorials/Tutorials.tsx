@@ -50,7 +50,7 @@ export const Tutorials = () => {
         <MainSection>
           <SideWrapper>
             <FiltersWrapper>
-              <FilterGroups filters={FILTERS} />
+              <FilterGroups filters={FILTERS} items={tutorials} />
             </FiltersWrapper>
           </SideWrapper>
 

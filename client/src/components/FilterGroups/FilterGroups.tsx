@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { ComponentProps, FC } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
@@ -6,20 +6,36 @@ import Checkbox from "../Checkbox";
 import Tag from "../Tag";
 
 interface FilterGroupsProps {
-  filters: readonly FilterGroupProps[];
+  filters: readonly {
+    param: string;
+    filters: readonly string[];
+  }[];
+  items?: any[];
 }
 
-const FilterGroups: FC<FilterGroupsProps> = ({ filters }) => (
+const FilterGroups: FC<FilterGroupsProps> = ({ filters, items }) => (
   <>
-    {filters.map((filter) => (
-      <FilterGroup key={filter.param} {...filter} />
+    {filters.map((f) => (
+      <FilterGroup
+        key={f.param}
+        {...f}
+        filters={f.filters.map((name) => ({
+          name,
+          count: items?.filter((item) => {
+            const field = item[f.param];
+            if (typeof field === "string") return field === name;
+            if (Array.isArray(field)) return field.includes(name);
+            return false;
+          }).length,
+        }))}
+      />
     ))}
   </>
 );
 
 interface FilterGroupProps {
   param: string;
-  filters: readonly string[];
+  filters: Array<{ name: string } & Pick<FilterLabelProps, "count">>;
 }
 
 const FilterGroup: FC<FilterGroupProps> = ({ param, filters }) => {
@@ -31,14 +47,20 @@ const FilterGroup: FC<FilterGroupProps> = ({ param, filters }) => {
       <FilterGroupTitle>{param}</FilterGroupTitle>
       {filters.filter(Boolean).map((filter) => (
         <Checkbox
-          key={filter}
-          label={<FilterLabel kind={param} value={filter} />}
-          checked={searchValues.includes(filter)}
+          key={filter.name}
+          label={
+            <FilterLabel
+              kind={param}
+              value={filter.name}
+              count={filter.count}
+            />
+          }
+          checked={searchValues.includes(filter.name)}
           onChange={(ev) => {
             if (ev.target.checked) {
-              searchParams.append(param, filter);
+              searchParams.append(param, filter.name);
             } else {
-              const otherValues = searchValues.filter((f) => f !== filter);
+              const otherValues = searchValues.filter((f) => f !== filter.name);
               searchParams.delete(param);
               for (const otherValue of otherValues) {
                 searchParams.append(param, otherValue);
@@ -71,7 +93,24 @@ const FilterGroupTitle = styled.div`
   `}
 `;
 
-const FilterLabel = styled(Tag)`
+type FilterLabelProps = ComponentProps<typeof Tag> & {
+  count: number | undefined;
+};
+
+const FilterLabel: FC<FilterLabelProps> = ({ count, ...props }) => (
+  <FilterLabelWrapper>
+    <StyledTag {...props} />
+    {count ? <FilterCount>({count})</FilterCount> : null}
+  </FilterLabelWrapper>
+);
+
+const FilterLabelWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+`;
+
+const StyledTag = styled(Tag)`
   ${({ kind }) => {
     // Reset the default box styles except `level`
     if (kind !== "level") {
@@ -82,6 +121,10 @@ const FilterLabel = styled(Tag)`
       `;
     }
   }}
+`;
+
+const FilterCount = styled.span`
+  font-weight: bold;
 `;
 
 export default FilterGroups;
