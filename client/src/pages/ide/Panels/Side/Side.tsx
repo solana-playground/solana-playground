@@ -5,7 +5,7 @@ import Left from "./Left";
 import Right from "./Right";
 import { EventName } from "../../../../constants";
 import { SIDEBAR } from "../../../../views";
-import { PgCommon, PgTheme } from "../../../../utils/pg";
+import { PgCommon, PgRouter, PgTheme } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
@@ -20,6 +20,10 @@ const Side = () => {
   }, [sidebarPage]);
   useEffect(() => {
     const page = SIDEBAR.find((p) => p.name === sidebarPage)!;
+    if (page.route && !PgRouter.location.pathname.startsWith(page.route)) {
+      PgRouter.navigate(page.route);
+    }
+
     return page.handle?.()?.dispose;
   }, [sidebarPage]);
 

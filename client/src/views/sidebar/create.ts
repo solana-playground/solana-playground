@@ -10,6 +10,8 @@ type SidebarPageParam<N extends string> = {
   title?: string;
   /** Keybind for the page */
   keybind?: string;
+  /** Route to navigate to */
+  route?: RoutePath;
   /** Handle the page logic */
   handle?: () => Disposable | void;
   /** Lazy loader for the element */
