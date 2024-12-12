@@ -31,7 +31,7 @@ export enum EventName {
   VIEW_MAIN_SECONDARY_FOCUS = "viewmainsecondaryfocus",
   VIEW_MAIN_SECONDARY_PAGE_SET = "viewmainsecondarypageset",
   VIEW_NEW_ITEM_PORTAL_SET = "viewnewitemportalset",
-  VIEW_SIDEBAR_STATE_SET = "viewsidebarstateset",
+  VIEW_SIDEBAR_PAGE_NAME_SET = "viewsidebarpagenameset",
   VIEW_SIDEBAR_LOADING_SET = "viewsidebarloadingset",
   VIEW_ON_DID_CHANGE_SIDEBAR_PAGE = "viewondidchangesidebarpage",
   VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE = "viewondidchangemainsecondarypage",

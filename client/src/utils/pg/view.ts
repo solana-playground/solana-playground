@@ -13,7 +13,7 @@ export class PgView {
    */
   static setSidebarPage(page: SetState<SidebarPageName> = "Explorer") {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_SIDEBAR_STATE_SET,
+      EventName.VIEW_SIDEBAR_PAGE_NAME_SET,
       page
     );
   }
@@ -165,7 +165,7 @@ export class PgView {
    * @param cb callback function to run after changing sidebar page
    * @returns a dispose function to clear the event
    */
-  static onDidChangeSidebarPage(cb: (page: SidebarPageName) => unknown) {
+  static onDidChangeSidebarPage(cb: (page: SidebarPage) => unknown) {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,

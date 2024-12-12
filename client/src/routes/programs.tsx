@@ -19,8 +19,8 @@ export const programs = PgRouter.create({
 
     // TODO: Handle this in a better way
     // Handle sidebar
-    const sidebarPage = PgView.onDidChangeSidebarPage((state) => {
-      switch (state) {
+    const sidebarPage = PgView.onDidChangeSidebarPage((page) => {
+      switch (page.name) {
         case "Explorer":
         case "Build & Deploy":
         case "Test":

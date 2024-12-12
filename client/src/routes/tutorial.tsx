@@ -43,8 +43,8 @@ export const tutorial = PgRouter.create({
     });
 
     // Handle sidebar
-    const sidebarPage = PgView.onDidChangeSidebarPage((state) => {
-      if (state === "Tutorials") {
+    const sidebarPage = PgView.onDidChangeSidebarPage((page) => {
+      if (page.name === "Tutorials") {
         PgTutorial.update({ view: "about" });
       } else {
         // Get whether the tutorial has started

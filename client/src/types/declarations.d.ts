@@ -59,8 +59,11 @@ global {
 
 // View
 global {
+  /** All sidebar pages */
+  type SidebarPage = typeof SIDEBAR[number];
+
   /** All sidebar page names */
-  type SidebarPageName = typeof SIDEBAR[number]["name"];
+  type SidebarPageName = SidebarPage["name"];
 
   /** All secondary main view page names */
   type MainSecondaryPageName = typeof MAIN_SECONDARY[number]["name"];

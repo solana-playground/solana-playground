@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Left from "./Left";
@@ -9,23 +9,27 @@ import { PgCommon, PgRouter, PgTheme } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
-  const [sidebarPage, setSidebarPage] = useState<SidebarPageName>("Explorer");
-  const oldSidebarRef = useRef(sidebarPage);
-  useSetStatic(setSidebarPage, EventName.VIEW_SIDEBAR_STATE_SET);
+  const [pageName, setPageName] = useState<SidebarPageName>("Explorer");
+  const oldPageName = useRef(pageName);
+  useSetStatic(setPageName, EventName.VIEW_SIDEBAR_PAGE_NAME_SET);
+
+  const page = useMemo(
+    () => SIDEBAR.find((p) => p.name === pageName)!,
+    [pageName]
+  );
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
-      sidebarPage
+      page
     );
-  }, [sidebarPage]);
+  }, [page]);
   useEffect(() => {
-    const page = SIDEBAR.find((p) => p.name === sidebarPage)!;
     if (page.route && !PgRouter.location.pathname.startsWith(page.route)) {
       PgRouter.navigate(page.route);
     }
 
     return page.handle?.()?.dispose;
-  }, [sidebarPage]);
+  }, [page]);
 
   const [width, setWidth] = useState(320);
   const [oldWidth, setOldWidth] = useState(width);
@@ -38,7 +42,7 @@ const Side = () => {
     SIDEBAR.filter((p) => p.keybind).map((p) => ({
       keybind: p.keybind!,
       handle: () => {
-        setSidebarPage((page) => {
+        setPageName((page) => {
           const closeCondition = width !== 0 && page === p.name;
           setWidth(closeCondition ? 0 : oldWidth);
           return p.name;
@@ -51,15 +55,15 @@ const Side = () => {
   return (
     <Wrapper>
       <Left
-        sidebarPage={sidebarPage}
-        setSidebarPage={setSidebarPage}
-        oldSidebarRef={oldSidebarRef}
+        pageName={pageName}
+        setPageName={setPageName}
+        oldPageName={oldPageName}
         width={width}
         setWidth={setWidth}
         oldWidth={oldWidth}
       />
       <Right
-        sidebarPage={sidebarPage}
+        page={page}
         width={width}
         setWidth={setWidth}
         oldWidth={oldWidth}

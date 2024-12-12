@@ -19,11 +19,10 @@ import {
   SetState,
 } from "../../../../../utils/pg";
 import { useResize } from "./useResize";
-import { SIDEBAR } from "../../../../../views/sidebar";
 import { useSetStatic } from "../../../../../hooks";
 
 interface DefaultRightProps {
-  sidebarPage: SidebarPageName;
+  page: SidebarPage;
 }
 
 interface RightProps<W = number> extends DefaultRightProps {
@@ -32,7 +31,7 @@ interface RightProps<W = number> extends DefaultRightProps {
   oldWidth: W;
 }
 
-const Right: FC<RightProps> = ({ sidebarPage, width, setWidth, oldWidth }) => {
+const Right: FC<RightProps> = ({ page, width, setWidth, oldWidth }) => {
   const { handleResizeStop, windowHeight } = useResize(setWidth);
 
   return (
@@ -44,18 +43,18 @@ const Right: FC<RightProps> = ({ sidebarPage, width, setWidth, oldWidth }) => {
       enable="right"
     >
       <Wrapper width={width} oldWidth={oldWidth} windowHeight={windowHeight}>
-        <Title sidebarPage={sidebarPage} />
-        <Content sidebarPage={sidebarPage} />
+        <Title page={page} />
+        <Content page={page} />
       </Wrapper>
     </Resizable>
   );
 };
 
-const Title: FC<DefaultRightProps> = ({ sidebarPage }) => (
-  <TitleWrapper>{sidebarPage.toUpperCase()}</TitleWrapper>
+const Title: FC<DefaultRightProps> = ({ page }) => (
+  <TitleWrapper>{page.name.toUpperCase()}</TitleWrapper>
 );
 
-const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
+const Content: FC<DefaultRightProps> = ({ page }) => {
   const [el, setEl] = useState<NullableJSX>(null);
   const [loadingCount, setLoadingCount] = useState<number>(0);
 
@@ -80,8 +79,7 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
       ids[currentId] ??= false;
 
       try {
-        const { importElement } = SIDEBAR.find((s) => s.name === page)!;
-        const { default: PageComponent } = await importElement();
+        const { default: PageComponent } = await page.importElement();
         if (ids[currentId + 1] === undefined) setEl(<PageComponent />);
       } catch (e: any) {
         console.log("SIDEBAR ERROR", e.message);
@@ -92,7 +90,7 @@ const Content: FC<DefaultRightProps> = ({ sidebarPage }) => {
     return dispose;
   }, [setLoading]);
 
-  if (loadingCount) return <Loading sidebarPage={sidebarPage} />;
+  if (loadingCount) return <Loading page={page} />;
 
   return <ErrorBoundary>{el}</ErrorBoundary>;
 };
@@ -124,12 +122,8 @@ const TitleWrapper = styled.div`
   `}
 `;
 
-const Loading: FC<DefaultRightProps> = ({ sidebarPage }) => {
-  const LoadingElement = SIDEBAR.find(
-    (p) => p.name === sidebarPage
-  )!.LoadingElement;
-
-  if (LoadingElement) return <LoadingElement />;
+const Loading: FC<DefaultRightProps> = ({ page }) => {
+  if (page.LoadingElement) return <page.LoadingElement />;
 
   return (
     <LoadingWrapper>
