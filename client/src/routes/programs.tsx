@@ -17,15 +17,9 @@ export const programs = PgRouter.create({
       return <Programs programs={programs} />;
     });
 
-    // TODO: Handle this in a better way
     // Handle sidebar
     const sidebarPage = PgView.onDidChangeSidebarPage((page) => {
-      switch (page.name) {
-        case "Explorer":
-        case "Build & Deploy":
-        case "Test":
-          PgRouter.navigate();
-      }
+      if (!page.route) PgRouter.navigate();
     });
 
     // Minimize secondary main view and reopen on navigation to other routes
