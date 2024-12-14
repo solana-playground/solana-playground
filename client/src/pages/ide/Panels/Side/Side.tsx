@@ -4,8 +4,7 @@ import styled, { css } from "styled-components";
 import Left from "./Left";
 import Right from "./Right";
 import { EventName } from "../../../../constants";
-import { SIDEBAR } from "../../../../views";
-import { PgCommon, PgRouter, PgTheme } from "../../../../utils/pg";
+import { PgCommon, PgRouter, PgTheme, PgView } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
@@ -13,10 +12,7 @@ const Side = () => {
   const oldPageName = useRef(pageName);
   useSetStatic(setPageName, EventName.VIEW_SIDEBAR_PAGE_NAME_SET);
 
-  const page = useMemo(
-    () => SIDEBAR.find((p) => p.name === pageName)!,
-    [pageName]
-  );
+  const page = useMemo(() => PgView.getSidebarPage(pageName), [pageName]);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
@@ -39,16 +35,18 @@ const Side = () => {
 
   // Handle keybinds
   useKeybind(
-    SIDEBAR.filter((p) => p.keybind).map((p) => ({
-      keybind: p.keybind!,
-      handle: () => {
-        setPageName((page) => {
-          const closeCondition = width !== 0 && page === p.name;
-          setWidth(closeCondition ? 0 : oldWidth);
-          return p.name;
-        });
-      },
-    })),
+    PgView.sidebar
+      .filter((p) => p.keybind)
+      .map((p) => ({
+        keybind: p.keybind!,
+        handle: () => {
+          setPageName((page) => {
+            const closeCondition = width !== 0 && page === p.name;
+            setWidth(closeCondition ? 0 : oldWidth);
+            return p.name;
+          });
+        },
+      })),
     [width, oldWidth]
   );
 

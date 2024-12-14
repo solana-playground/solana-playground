@@ -8,6 +8,7 @@ import { FRAMEWORKS } from "../../../frameworks";
 import { LANGUAGES } from "../../../languages";
 import { ROUTES } from "../../../routes";
 import { TUTORIALS } from "../../../tutorials";
+import { SIDEBAR } from "../../../views";
 import {
   Disposable,
   PgBlockExplorer,
@@ -21,6 +22,7 @@ import {
   PgProgramInfo,
   PgRouter,
   PgTutorial,
+  PgView,
   PgWallet,
 } from "../../../utils/pg";
 import { useDisposable, useSetStatic } from "../../../hooks";
@@ -31,6 +33,7 @@ PgCommandManager.all = COMMANDS;
 PgFramework.all = FRAMEWORKS;
 PgLanguage.all = LANGUAGES;
 PgTutorial.all = TUTORIALS;
+PgView.sidebar = SIDEBAR;
 
 const GlobalState = () => {
   useDisposable(PgGlobal.init);

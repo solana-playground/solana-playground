@@ -1,30 +1,4 @@
-import { CallableJSX, Disposable, PgCommon, RequiredKey } from "../../utils/pg";
-
-/** Sidebar page param */
-type SidebarPageParam<N extends string> = {
-  /** Name of the page */
-  name: N;
-  /** `src` of the image */
-  icon: string;
-  /** Title of the page, defaults to `name` */
-  title?: string;
-  /** Keybind for the page */
-  keybind?: string;
-  /** Route to navigate to */
-  route?: RoutePath;
-  /** Handle the page logic */
-  handle?: () => Disposable | void;
-  /** Lazy loader for the element */
-  importElement?: () => Promise<{ default: CallableJSX }>;
-  /** Loading element to until the element is ready to show */
-  LoadingElement?: CallableJSX;
-};
-
-/** Created sidebar page */
-type SidebarPage<N extends string> = RequiredKey<
-  SidebarPageParam<N>,
-  "title" | "importElement"
->;
+import { PgCommon, SidebarPage, SidebarPageParam } from "../../utils/pg";
 
 /**
  * Create a sidebar page.

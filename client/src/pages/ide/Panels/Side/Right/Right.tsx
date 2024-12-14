@@ -17,6 +17,7 @@ import {
   PgTheme,
   PgView,
   SetState,
+  SidebarPage,
 } from "../../../../../utils/pg";
 import { useResize } from "./useResize";
 import { useSetStatic } from "../../../../../hooks";

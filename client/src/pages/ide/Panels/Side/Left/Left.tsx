@@ -11,9 +11,8 @@ import SidebarButton from "./SidebarButton";
 import Settings from "./Settings";
 import Link from "../../../../../components/Link";
 import Popover from "../../../../../components/Popover";
-import { SIDEBAR } from "../../../../../views/sidebar";
 import { ClassName, GITHUB_URL } from "../../../../../constants";
-import { PgCommon, PgTheme } from "../../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../../utils/pg";
 
 interface LeftProps<P = SidebarPageName, W = number> {
   pageName: P;
@@ -47,7 +46,7 @@ const Left: FC<LeftProps> = ({
     <Wrapper>
       <Icons>
         <Top>
-          {SIDEBAR.map((page) => (
+          {PgView.sidebar.map((page) => (
             <SidebarButton
               key={page.name}
               tooltipEl={PgCommon.getKeybindTextOS(page.title)}
