@@ -1,29 +1,18 @@
-import { PgExplorer, PgRouter, PgShare, PgView } from "../utils/pg";
+import { PgRouter, PgShare } from "../utils/pg";
+import { handleRoute } from "./utils";
 
 export const share = PgRouter.create({
   path: "/{shareId}",
   validate: ({ shareId }) => PgShare.isValidId(shareId),
   handle: ({ shareId }) => {
-    // Set main view
-    PgView.setMainPrimary(async () => {
-      PgView.setSidebarLoading(true);
-
-      try {
-        // Get the share data
-        const files = await PgShare.get(shareId);
-
-        // Initialize explorer
-        await PgExplorer.init({ files });
-
+    return handleRoute({
+      getMain: async () => {
         const { EditorWithTabs } = await import(
           "../views/main/primary/EditorWithTabs"
         );
         return EditorWithTabs;
-      } finally {
-        // Set sidebar
-        PgView.setSidebarPage();
-        PgView.setSidebarLoading(false);
-      }
+      },
+      getExplorerInitArg: async () => ({ files: await PgShare.get(shareId) }),
     });
   },
 });

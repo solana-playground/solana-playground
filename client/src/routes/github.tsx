@@ -1,29 +1,20 @@
-import { PgExplorer, PgGithub, PgRouter, PgView } from "../utils/pg";
+import { PgGithub, PgRouter } from "../utils/pg";
+import { handleRoute } from "./utils";
 
 export const githubDefault = PgRouter.create({
   path: "/{githubUrl}",
   validate: ({ githubUrl }) => PgGithub.isValidUrl(githubUrl),
   handle: ({ githubUrl }) => {
-    // Set main view
-    PgView.setMainPrimary(async () => {
-      PgView.setSidebarLoading(true);
-
-      try {
-        // Get repository data
-        const files = await PgGithub.getFiles(githubUrl);
-
-        // Initialize explorer
-        await PgExplorer.init({ files });
-
+    return handleRoute({
+      getMain: async () => {
         const { EditorWithTabs } = await import(
           "../views/main/primary/EditorWithTabs"
         );
         return EditorWithTabs;
-      } finally {
-        // Set sidebar
-        PgView.setSidebarPage();
-        PgView.setSidebarLoading(false);
-      }
+      },
+      getExplorerInitArg: async () => ({
+        files: await PgGithub.getFiles(githubUrl),
+      }),
     });
   },
 });
