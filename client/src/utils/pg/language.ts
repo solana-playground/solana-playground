@@ -40,7 +40,7 @@ export class PgLanguage {
    */
   static getFromPath(path: string) {
     const givenExt = path.split(".").slice(1).join(".");
-    return this.all.find((lang) =>
+    return PgLanguage.all.find((lang) =>
       lang.extension.some((ext) => givenExt.endsWith(ext))
     );
   }
@@ -52,7 +52,7 @@ export class PgLanguage {
    * @returns whether the given file is a JavaScript-like file
    */
   static getIsPathJsLike(path: string) {
-    const lang = this.getFromPath(path);
+    const lang = PgLanguage.getFromPath(path);
     switch (lang?.name) {
       case "JavaScript":
       case "TypeScript":
