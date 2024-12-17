@@ -82,8 +82,11 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.getScrollbarCSS({ allChildren: true })};
     ${PgTheme.convertToCSS(theme.components.terminal.default)};
+
+    & .xterm {
+      padding: 0.25rem 1rem;
+    }
 
     & .xterm-viewport {
       background: inherit !important;

@@ -182,6 +182,7 @@ const Wrapper = styled.div`
     }
 
     & > div:last-child {
+      ${PgTheme.getScrollbarCSS({ allChildren: true })};
       height: calc(100% - ${getMinHeight()}px);
       overflow: hidden;
     }

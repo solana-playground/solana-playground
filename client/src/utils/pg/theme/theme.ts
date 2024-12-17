@@ -1044,7 +1044,6 @@ export class PgTheme {
 
     // Default
     terminal.default ??= {};
-    terminal.default.padding ??= "0.5rem 1rem";
 
     // Xterm
     terminal.xterm ??= {};
