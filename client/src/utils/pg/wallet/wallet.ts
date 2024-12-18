@@ -386,6 +386,19 @@ class _PgWallet {
     const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
     if (nameExists) throw new Error(`Account '${name}' already exists`);
   }
+
+  /**
+   * Get the keypair bytes of the current wallet.
+   *
+   * NOTE: It looks like this method is not being used, but it's being used by
+   * WASM packages.
+   */
+  static getKeypairBytes() {
+    if (!PgWallet.current) throw new Error("Not connected");
+    if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
+
+    return Array.from(PgWallet.current.keypair.secretKey);
+  }
 }
 
 export const PgWallet = declareDerivable(
