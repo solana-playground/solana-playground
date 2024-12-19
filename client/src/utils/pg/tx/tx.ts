@@ -220,7 +220,9 @@ export class PgTx {
       this._cachedPriorityFee = {
         min: Math.min(...fees),
         max: Math.max(...fees),
-        average: Math.ceil(fees.reduce((acc, cur) => acc + cur) / fees.length),
+        average: Math.ceil(
+          fees.reduce((acc, cur) => acc + cur, 0) / fees.length
+        ),
         median: fees[Math.floor(fees.length / 2)],
         timestamp,
       };
