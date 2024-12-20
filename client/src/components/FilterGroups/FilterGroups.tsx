@@ -49,32 +49,37 @@ const FilterGroup: FC<FilterGroupProps> = ({ param, filters }) => {
   return (
     <FilterGroupWrapper>
       <FilterGroupTitle>{param}</FilterGroupTitle>
-      {filters.filter(Boolean).map((filter) => (
-        <Checkbox
-          key={filter.name}
-          label={
-            <FilterLabel
-              kind={param}
-              value={filter.name}
-              count={filter.count}
-            />
-          }
-          checked={searchValues.includes(filter.name)}
-          onChange={(ev) => {
-            if (ev.target.checked) {
-              searchParams.append(param, filter.name);
-            } else {
-              const otherValues = searchValues.filter((f) => f !== filter.name);
-              searchParams.delete(param);
-              for (const otherValue of otherValues) {
-                searchParams.append(param, otherValue);
-              }
+      {filters
+        .filter(Boolean)
+        .filter((filter) => filter.count !== 0)
+        .map((filter) => (
+          <Checkbox
+            key={filter.name}
+            label={
+              <FilterLabel
+                kind={param}
+                value={filter.name}
+                count={filter.count}
+              />
             }
+            checked={searchValues.includes(filter.name)}
+            onChange={(ev) => {
+              if (ev.target.checked) {
+                searchParams.append(param, filter.name);
+              } else {
+                const otherValues = searchValues.filter(
+                  (f) => f !== filter.name
+                );
+                searchParams.delete(param);
+                for (const otherValue of otherValues) {
+                  searchParams.append(param, otherValue);
+                }
+              }
 
-            setSearchParams(searchParams, { replace: true });
-          }}
-        />
-      ))}
+              setSearchParams(searchParams, { replace: true });
+            }}
+          />
+        ))}
     </FilterGroupWrapper>
   );
 };
