@@ -2,7 +2,8 @@ import { PgConnection } from "./connection";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { PgSettings } from "./settings";
 
-interface BlockExplorerImpl {
+/** Block explorer creation parameter */
+interface BlockExplorerParam {
   /** Name of the block explorer */
   name: string;
   /** Base URL of the explorer website */
@@ -38,7 +39,7 @@ interface BlockExplorerImpl {
 }
 
 type BlockExplorer = Omit<
-  Required<BlockExplorerImpl>,
+  Required<BlockExplorerParam>,
   "getClusterParam" | "getCommonUrl"
 >;
 
@@ -68,7 +69,7 @@ class _PgBlockExplorer {
    * @param b block explorer implementation
    * @returns the created block explorer
    */
-  static create(b: BlockExplorerImpl): BlockExplorer {
+  static create(b: BlockExplorerParam): BlockExplorer {
     b.getCommonUrl ??= (p, v) =>
       b.url + "/" + p + "/" + v + b.getClusterParam();
     b.getAddressUrl ??= (address) => b.getCommonUrl!("address", address);

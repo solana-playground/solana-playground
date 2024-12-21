@@ -2,8 +2,8 @@ import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
 import type { RequiredKey, SyncOrAsync } from "./types";
 
-/** Custom framework parameter */
-export type FrameworkImpl<N extends string> = {
+/** Framework creation parameter */
+export type FrameworkParam<N extends string> = {
   /** Framework name */
   name: N;
 
@@ -69,7 +69,7 @@ export type FrameworkImpl<N extends string> = {
 
 /** Created framework */
 export type Framework<N extends string = string> = RequiredKey<
-  FrameworkImpl<N>,
+  FrameworkParam<N>,
   "getIsCurrent" | "importFiles" | "importFromPlayground" | "importToPlayground"
 >;
 

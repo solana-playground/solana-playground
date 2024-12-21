@@ -1,9 +1,4 @@
-import type {
-  Arg,
-  CommandImpl,
-  CommandInferredImpl,
-  Option,
-} from "../utils/pg";
+import type { Arg, CommandParam, Command, Option } from "../utils/pg";
 
 /**
  * Create a command.
@@ -20,10 +15,10 @@ export const createCmd = <
   S,
   R
 >(
-  cmd: CommandImpl<N, A, O, S, R>
+  cmd: CommandParam<N, A, O, S, R>
 ) => {
   addHelpOption(cmd);
-  return cmd as CommandInferredImpl<N, A, O, S, R>;
+  return cmd as Command<N, A, O, S, R>;
 };
 
 /**
@@ -41,10 +36,10 @@ export const createSubcmds = <
   S,
   R
 >(
-  ...subcmds: CommandImpl<N, A, O, S, R>[]
+  ...subcmds: CommandParam<N, A, O, S, R>[]
 ) => {
   for (const subcmd of subcmds) addHelpOption(subcmd);
-  return subcmds as CommandInferredImpl<N, A, O, S, R>[];
+  return subcmds as Command<N, A, O, S, R>[];
 };
 
 /**

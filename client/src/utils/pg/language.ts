@@ -1,8 +1,8 @@
 import { PgCommon } from "./common";
 import type { Arrayable } from "./types";
 
-/** Programing language implementation */
-type LanguageImpl<N extends string> = {
+/** Programing language creation parameter */
+type LanguageParam<N extends string> = {
   /** Language name */
   name: N;
   /** Valid file extension(s) for the language */
@@ -10,7 +10,7 @@ type LanguageImpl<N extends string> = {
 };
 
 /** Programming language */
-type Language<N extends string> = LanguageImpl<N> & {
+type Language<N extends string> = LanguageParam<N> & {
   extension: Array<Extension>;
 };
 
@@ -27,7 +27,7 @@ export class PgLanguage {
    * @param lang language implementation
    * @returns the language with correct types
    */
-  static create<N extends string>(lang: LanguageImpl<N>) {
+  static create<N extends string>(lang: LanguageParam<N>) {
     lang.extension = PgCommon.toArray(lang.extension);
     return lang as Language<N>;
   }

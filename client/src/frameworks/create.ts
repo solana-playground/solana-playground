@@ -1,4 +1,4 @@
-import { Framework, FrameworkImpl, PgCommon } from "../utils/pg";
+import { Framework, FrameworkParam, PgCommon } from "../utils/pg";
 
 /**
  * Create a framework with inferred types.
@@ -7,7 +7,7 @@ import { Framework, FrameworkImpl, PgCommon } from "../utils/pg";
  * @returns the framework with inferred types
  */
 export const createFramework = <N extends string>(
-  framework: FrameworkImpl<N>
+  framework: FrameworkParam<N>
 ) => {
   const folderPath = `./${PgCommon.toKebabFromTitle(framework.name)}/`;
   framework.importFiles ??= () => import(folderPath + "files");

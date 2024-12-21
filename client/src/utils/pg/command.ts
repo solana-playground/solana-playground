@@ -8,8 +8,8 @@ import type {
   ValueOf,
 } from "./types";
 
-/** Terminal command implementation */
-export type CommandImpl<
+/** Terminal command creation parameter */
+export type CommandParam<
   N extends string,
   A extends Arg[],
   O extends Option[],
@@ -105,33 +105,33 @@ export type Option<N extends string = string, V extends string = string> = {
   values?: Getable<V[]>;
 };
 
-/** Terminal command inferred implementation */
-export type CommandInferredImpl<
+/** Inferred terminal command implementation */
+export type Command<
   N extends string,
   A extends Arg[],
   O extends Option[],
   S,
   R
-> = Omit<CommandImpl<N, A, O, S, R>, "subcommands"> & {
-  subcommands?: S extends CommandInferredImpl<
+> = Omit<CommandParam<N, A, O, S, R>, "subcommands"> & {
+  subcommands?: S extends Command<
     infer N2,
     infer A2,
     infer O2,
     infer S2,
     infer R2
   >
-    ? CommandInferredImpl<N2, A2, O2, S2, R2>
+    ? Command<N2, A2, O2, S2, R2>
     : any[];
 };
 
-/** Command type for external usage */
-type Command<
+/** Executable command type for external usage */
+type ExecutableCommand<
   N extends string,
   A extends Arg[],
   O extends Option[],
   S,
   R
-> = Pick<CommandInferredImpl<N, A, O, S, R>, "name"> & {
+> = Pick<Command<N, A, O, S, R>, "name"> & {
   /** Process the command. */
   run(...args: string[]): Promise<Awaited<R>>;
   /**
@@ -151,14 +151,14 @@ type CommandCodeName = keyof InternalCommands;
 
 /** Ready to be used commands */
 type Commands = {
-  [N in keyof InternalCommands]: InternalCommands[N] extends CommandInferredImpl<
+  [N in keyof InternalCommands]: InternalCommands[N] extends Command<
     infer N,
     infer A,
     infer O,
     infer S,
     infer R
   >
-    ? Command<N, A, O, S, R>
+    ? ExecutableCommand<N, A, O, S, R>
     : never;
 };
 
@@ -169,7 +169,7 @@ export const PgCommand: Commands = new Proxy(
     get: (
       target: any,
       cmdCodeName: CommandCodeName
-    ): Command<string, Arg[], Option[], unknown, unknown> => {
+    ): ExecutableCommand<string, Arg[], Option[], unknown, unknown> => {
       if (!target[cmdCodeName]) {
         const cmdUiName = PgCommandManager.all[cmdCodeName].name;
         target[cmdCodeName] = {
@@ -294,8 +294,7 @@ export class PgCommandManager {
         input
       );
 
-      let cmd: CommandInferredImpl<string, Arg[], Option[], any[], any> =
-        topCmd;
+      let cmd: Command<string, Arg[], Option[], any[], any> = topCmd;
       const args = [];
       const opts = [];
 
