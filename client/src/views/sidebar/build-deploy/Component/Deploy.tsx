@@ -57,7 +57,7 @@ const Deploy = () => {
             // state has to be handled outside of the command because the deploy
             // command is waiting for user input and re-running the command here
             // would overwrite the user input.
-            return PgCommand.deploy.run();
+            return PgCommand.deploy.execute();
 
           case "loading":
             PgGlobal.update({ deployState: "paused" });
@@ -110,7 +110,7 @@ const Deploy = () => {
     return (
       <Wrapper>
         <Text>Your wallet must be connected for program deployments.</Text>
-        <Button onClick={() => PgCommand.connect.run()} kind="primary">
+        <Button onClick={() => PgCommand.connect.execute()} kind="primary">
           Connect to Playground Wallet
         </Button>
       </Wrapper>

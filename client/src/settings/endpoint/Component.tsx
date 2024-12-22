@@ -67,7 +67,7 @@ const CustomEndpoint = () => {
       closeButton
       buttonProps={{
         text: "Add",
-        onSubmit: () => PgCommand.solana.run("config", "set", "-u", value),
+        onSubmit: () => PgCommand.solana.execute("config", "set", "-u", value),
         disabled: !value,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },

@@ -16,7 +16,7 @@ import { createCmd } from "../create";
 export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
-  run: async () => {
+  handle: async () => {
     PgGlobal.update({ deployState: "loading" });
 
     PgTerminal.log(
@@ -75,7 +75,7 @@ async function checkWallet() {
     PgTerminal.log(PgTerminal.info("Connecting..."));
 
     const needsSetup = PgWallet.state === "setup";
-    const connected = await PgCommand.connect.run();
+    const connected = await PgCommand.connect.execute();
     if (!connected) throw new Error("Wallet must be connected.");
 
     PgTerminal.log("");
@@ -90,7 +90,7 @@ async function checkWallet() {
 async function checkProgram() {
   if (!PgProgramInfo.uuid && !PgProgramInfo.importedProgram?.buffer.length) {
     PgTerminal.log("Warning: Program is not built.");
-    await PgCommand.build.run();
+    await PgCommand.build.execute();
   }
 
   if (!PgProgramInfo.pk) {
@@ -193,7 +193,7 @@ const processDeploy = async () => {
       );
       if (!confirmed) throw new Error("Insufficient balance");
 
-      await PgCommand.solana.run("airdrop", airdropAmount.toString());
+      await PgCommand.solana.execute("airdrop", airdropAmount.toString());
     }
   }
 

@@ -563,7 +563,7 @@ const CodeMirror = () => {
     };
 
     const { dispose } = PgCommon.batchChanges(updateId, [
-      PgCommand.build.onDidRunStart,
+      PgCommand.build.onDidStart,
       PgProgramInfo.onDidChangePk,
     ]);
 

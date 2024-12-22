@@ -16,7 +16,7 @@ import { createCmd } from "../create";
 export const build = createCmd({
   name: "build",
   description: "Build your program",
-  run: async () => {
+  handle: async () => {
     PgGlobal.update({ buildLoading: true });
     PgTerminal.log(PgTerminal.info("Building..."));
 

@@ -12,7 +12,7 @@ import { PgProgramInteraction } from "../../../../utils/pg/program-interaction";
 import { useProgramInfo, useRenderOnChange } from "../../../../hooks";
 
 const Test = () => {
-  useRenderOnChange(PgCommand.build.onDidRunFinish);
+  useRenderOnChange(PgCommand.build.onDidFinish);
 
   const { error, deployed } = useProgramInfo();
 

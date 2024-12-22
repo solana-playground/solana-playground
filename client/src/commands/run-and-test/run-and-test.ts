@@ -34,14 +34,14 @@ export const run = createCmd({
   name: "run",
   description: "Run script(s)",
   args: createCommonArgs(PgExplorer.PATHS.CLIENT_DIRNAME),
-  run: (input) => processCommon({ paths: input.args.paths, isTest: false }),
+  handle: (input) => processCommon({ paths: input.args.paths, isTest: false }),
 });
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
   args: createCommonArgs(PgExplorer.PATHS.TESTS_DIRNAME),
-  run: (input) => processCommon({ paths: input.args.paths, isTest: true }),
+  handle: (input) => processCommon({ paths: input.args.paths, isTest: true }),
 });
 
 /**

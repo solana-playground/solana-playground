@@ -10,7 +10,7 @@ const Build = () => {
     PgGlobal.onDidChangeBuildLoading,
     PgGlobal.buildLoading
   );
-  const build = useCallback(() => PgCommand.build.run(), []);
+  const build = useCallback(() => PgCommand.build.execute(), []);
 
   return (
     <Wrapper>

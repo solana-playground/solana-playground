@@ -114,7 +114,7 @@ const derive = () => ({
         return await _PgProgramInfo.fetch();
       } catch {}
     },
-    onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidRunFinish],
+    onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidFinish],
   }),
 });
 

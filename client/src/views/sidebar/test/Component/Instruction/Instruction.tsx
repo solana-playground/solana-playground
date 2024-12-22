@@ -122,7 +122,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
       await PgCommon.sleep(
         PgConnection.current.rpcEndpoint.startsWith("https") ? 1500 : 200
       );
-      await PgCommand.solana.run("confirm", showLogTxHash, "-v");
+      await PgCommand.solana.execute("confirm", showLogTxHash, "-v");
     }
   };
 

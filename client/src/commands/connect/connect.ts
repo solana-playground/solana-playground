@@ -12,7 +12,7 @@ export const connect = createCmd({
         PgWallet.standardWallets.map((w) => w.adapter.name.toLowerCase()),
     },
   ]),
-  run: async (input) => {
+  handle: async (input) => {
     switch (PgWallet.state) {
       case "pg": {
         const isOther = await toggleStandardIfNeeded(input.args.wallet);

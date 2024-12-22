@@ -84,7 +84,7 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
       name: wallet.adapter.connected
         ? `Disconnect from ${wallet.adapter.name}`
         : `Connect to ${wallet.adapter.name}`,
-      onClick: () => PgCommand.connect.run(wallet.adapter.name),
+      onClick: () => PgCommand.connect.execute(wallet.adapter.name),
       hoverColor: "secondary",
       icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
     })

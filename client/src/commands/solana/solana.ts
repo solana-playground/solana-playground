@@ -5,7 +5,7 @@ import { isPgConnected } from "../validation";
 export const solana = createCmd({
   name: "solana",
   description: "Commands for interacting with Solana",
-  run: async (input) => {
+  handle: async (input) => {
     const { runSolana } = await PgPackage.import("solana-cli", {
       log: true,
     });

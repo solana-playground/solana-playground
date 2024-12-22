@@ -5,7 +5,7 @@ import { isPgConnected } from "../validation";
 export const anchor = createCmd({
   name: "anchor",
   description: "Anchor CLI",
-  run: async (input) => {
+  handle: async (input) => {
     const { runAnchor } = await PgPackage.import("anchor-cli", {
       log: true,
     });

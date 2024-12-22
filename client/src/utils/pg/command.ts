@@ -22,7 +22,7 @@ export type CommandParam<
   description: string;
   /* Only process the command if the condition passes */
   preCheck?: Arrayable<() => SyncOrAsync<void>>;
-} & (WithSubcommands<S> | WithRun<A, O, R>);
+} & (WithSubcommands<S> | WithHandle<A, O, R>);
 
 type WithSubcommands<S> = {
   /** Command arguments */
@@ -30,18 +30,18 @@ type WithSubcommands<S> = {
   /** Command options */
   options?: never;
   /** Function to run when the command is called */
-  run?: never;
+  handle?: never;
   /** Subcommands */
   subcommands?: S;
 };
 
-type WithRun<A, O, R> = {
+type WithHandle<A, O, R> = {
   /** Command arguments */
   args?: A;
   /** Command options */
   options?: O;
   /** Function to run when the command is called */
-  run: (input: ParsedInput<A, O>) => R;
+  handle: (input: ParsedInput<A, O>) => R;
   /** Subcommands */
   subcommands?: never;
 };
@@ -126,24 +126,24 @@ export type Command<
 
 /** Executable command type for external usage */
 type ExecutableCommand<
-  N extends string,
-  A extends Arg[],
-  O extends Option[],
-  S,
-  R
+  N extends string = string,
+  A extends Arg[] = Arg[],
+  O extends Option[] = Option[],
+  S = unknown,
+  R = unknown
 > = Pick<Command<N, A, O, S, R>, "name"> & {
   /** Process the command. */
-  run(...args: string[]): Promise<Awaited<R>>;
+  execute(...args: string[]): Promise<Awaited<R>>;
   /**
    * @param cb callback function to run when the command starts running
    * @returns a dispose function to clear the event
    */
-  onDidRunStart(cb: (input: string | null) => void): Disposable;
+  onDidStart(cb: (input: string | null) => void): Disposable;
   /**
    * @param cb callback function to run when the command finishes running
    * @returns a dispose function to clear the event
    */
-  onDidRunFinish(cb: (result: Awaited<R>) => void): Disposable;
+  onDidFinish(cb: (result: Awaited<R>) => void): Disposable;
 };
 
 /** Name of all the available commands (only code) */
@@ -151,7 +151,7 @@ type CommandCodeName = keyof InternalCommands;
 
 /** Ready to be used commands */
 type Commands = {
-  [N in keyof InternalCommands]: InternalCommands[N] extends Command<
+  [N in CommandCodeName]: InternalCommands[N] extends Command<
     infer N,
     infer A,
     infer O,
@@ -163,39 +163,36 @@ type Commands = {
 };
 
 /** All commands */
-export const PgCommand: Commands = new Proxy(
-  {},
-  {
-    get: (
-      target: any,
-      cmdCodeName: CommandCodeName
-    ): ExecutableCommand<string, Arg[], Option[], unknown, unknown> => {
-      if (!target[cmdCodeName]) {
-        const cmdUiName = PgCommandManager.all[cmdCodeName].name;
-        target[cmdCodeName] = {
-          name: cmdUiName,
-          run: (...args: string[]) => {
-            return PgCommandManager.execute([cmdUiName, ...args]);
-          },
-          onDidRunStart: (cb: (input: string | null) => void) => {
-            return PgCommon.onDidChange({
-              cb,
-              eventName: getEventName(cmdCodeName, "start"),
-            });
-          },
-          onDidRunFinish: (cb: (result: unknown) => void) => {
-            return PgCommon.onDidChange({
-              cb,
-              eventName: getEventName(cmdCodeName, "finish"),
-            });
-          },
-        };
-      }
+export const PgCommand: Commands = new Proxy({} as any, {
+  get: (
+    target: { [K in CommandCodeName]?: ExecutableCommand },
+    cmdCodeName: CommandCodeName
+  ) => {
+    if (!target[cmdCodeName]) {
+      const cmdUiName = PgCommandManager.all[cmdCodeName].name;
+      target[cmdCodeName] = {
+        name: cmdUiName,
+        execute: (...args: string[]) => {
+          return PgCommandManager.execute([cmdUiName, ...args]);
+        },
+        onDidStart: (cb: (input: string | null) => void) => {
+          return PgCommon.onDidChange({
+            cb,
+            eventName: getEventName(cmdCodeName, "start"),
+          });
+        },
+        onDidFinish: (cb: (result: unknown) => void) => {
+          return PgCommon.onDidChange({
+            cb,
+            eventName: getEventName(cmdCodeName, "finish"),
+          });
+        },
+      };
+    }
 
-      return target[cmdCodeName];
-    },
-  }
-);
+    return target[cmdCodeName];
+  },
+});
 
 /**
  * Terminal command manager.
@@ -319,7 +316,7 @@ export class PgCommandManager {
         if (!isLast && isNextTokenSubcmd) continue;
 
         // Check missing command processor
-        if (!cmd.run) {
+        if (!cmd.handle) {
           PgTerminal.log(`
 ${cmd.description}
 
@@ -503,7 +500,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
         }
 
         // Run the command processor
-        const result = await cmd.run({
+        const result = await cmd.handle({
           raw: input,
           args: parsedArgs,
           options: parsedOpts,
