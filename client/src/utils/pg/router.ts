@@ -48,7 +48,7 @@ export class PgRouter {
       let params: PathParameter<P>;
       const route = routes.find((route) => {
         try {
-          params = this._getParamsFromPath(path, route.path);
+          params = this._getParamsFromPath(route.path, path);
           if (route.validate) return route.validate(params);
           return true;
         } catch {
@@ -123,17 +123,17 @@ export class PgRouter {
    * ### Example:
    *
    * ```ts
-   * const params = _getParamsFromPath("/tutorials/hello-anchor", "/tutorials/{tutorialName}");
+   * const params = _getParamsFromPath("/tutorials/{tutorialName}", "/tutorials/hello-anchor");
    * console.log(params); // { tutorialName: "hello-anchor" }
    * ```
    *
-   * @param path current path
    * @param routePath playground route
+   * @param path current path
    * @returns the parameters as key-value
    */
   private static _getParamsFromPath<P extends string>(
-    path: string,
-    routePath: P
+    routePath: P,
+    path: string
   ): PathParameter<P> {
     const result: Record<string, string> = {};
 
@@ -144,13 +144,17 @@ export class PgRouter {
       // Get the matching parts
       const startIndex = templatePath.indexOf(OPEN);
       if (startIndex === -1) {
-        if (this.isPathsEqual(templatePath, subPath)) return {};
+        if (PgRouter.isPathsEqual(templatePath, subPath)) return {};
 
         throw new Error("Doesn't match");
       }
 
       // Remove matching parts
-      if (subPath.slice(0, startIndex) === templatePath.slice(0, startIndex)) {
+      if (
+        templatePath
+          .slice(0, startIndex)
+          .startsWith(subPath.slice(0, startIndex))
+      ) {
         subPath = subPath.slice(startIndex);
       }
 
@@ -166,6 +170,7 @@ export class PgRouter {
       if (endIndex === templatePath.length - 1) {
         if (!subPath.startsWith("/")) {
           result[prop] = subPath;
+
           return;
         }
 
@@ -175,13 +180,12 @@ export class PgRouter {
       // Get the next template character
       const nextTemplateCharacter = templatePath.at(endIndex + 1);
       if (nextTemplateCharacter) {
-        const newVal = (result[prop] = subPath.substring(
-          0,
-          subPath.indexOf(nextTemplateCharacter)
-        ));
+        const nextIndex = subPath.indexOf(nextTemplateCharacter);
+        result[prop] =
+          nextIndex === -1 ? subPath : subPath.substring(0, nextIndex);
 
         recursivelyMapValues(
-          subPath.substring(newVal.length),
+          subPath.substring(result[prop].length),
           index + endIndex + 1
         );
       }
