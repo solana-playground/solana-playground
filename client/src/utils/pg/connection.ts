@@ -3,6 +3,7 @@ import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
 import { PgWeb3 } from "./web3";
+import { Endpoint } from "../../constants";
 
 /** Optional `connection` prop */
 export interface ConnectionOption {
@@ -213,6 +214,26 @@ class _PgConnection {
     }
 
     return prevSlot === nextSlot;
+  }
+
+  /**
+   * Get the airdrop amount based on the current endpoint.
+   *
+   * @returns airdrop amount in SOL
+   */
+  static getAirdropAmount() {
+    switch (PgConnection.current.rpcEndpoint) {
+      case Endpoint.PLAYNET:
+        return 1000;
+      case Endpoint.LOCALHOST:
+        return 100;
+      case Endpoint.DEVNET:
+        return 5;
+      case Endpoint.TESTNET:
+        return 1;
+      default:
+        return null;
+    }
   }
 }
 

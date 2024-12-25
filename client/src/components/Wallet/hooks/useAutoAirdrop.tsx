@@ -37,7 +37,7 @@ export const useAutoAirdrop = () => {
       }
 
       // Get cap amount for airdrop based on network
-      const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
+      const airdropAmount = PgConnection.getAirdropAmount();
       if (!airdropAmount) return;
 
       try {
@@ -48,7 +48,7 @@ export const useAutoAirdrop = () => {
           PgCommon.solToLamports(airdropAmount)
         );
         await PgTx.confirm(txHash, {
-          connection: connection,
+          connection,
           commitment: "finalized",
         });
       } catch (e: any) {

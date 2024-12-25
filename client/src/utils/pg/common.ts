@@ -1,6 +1,6 @@
 import type { ChangeEvent } from "react";
 
-import { Endpoint, EventName } from "../../constants";
+import { EventName } from "../../constants";
 import type {
   AllPartial,
   Disposable,
@@ -785,24 +785,6 @@ export class PgCommon {
    */
   static capitalize(str: string) {
     return str[0].toUpperCase() + str.slice(1);
-  }
-
-  /**
-   * @returns automatic airdrop amount
-   */
-  static getAirdropAmount(endpoint: string) {
-    switch (endpoint) {
-      case Endpoint.PLAYNET:
-        return 1000;
-      case Endpoint.LOCALHOST:
-        return 100;
-      case Endpoint.DEVNET:
-        return 5;
-      case Endpoint.TESTNET:
-        return 1;
-      default:
-        return null;
-    }
   }
 
   /**

@@ -168,7 +168,7 @@ const processDeploy = async () => {
     ? bufferBalance
     : 3 * bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
-    const airdropAmount = PgCommon.getAirdropAmount(connection.rpcEndpoint);
+    const airdropAmount = PgConnection.getAirdropAmount();
     if (airdropAmount !== null) {
       const term = await PgTerminal.get();
       const msg = programExists

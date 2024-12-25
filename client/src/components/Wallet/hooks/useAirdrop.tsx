@@ -11,11 +11,11 @@ import {
 
 export const useAirdrop = () => {
   const [airdropAmount, setAirdropAmount] =
-    useState<ReturnType<typeof PgCommon["getAirdropAmount"]>>(null);
+    useState<ReturnType<typeof PgConnection["getAirdropAmount"]>>(null);
 
   useEffect(() => {
-    const { dispose } = PgConnection.onDidChangeCurrent((connection) => {
-      setAirdropAmount(PgCommon.getAirdropAmount(connection.rpcEndpoint));
+    const { dispose } = PgConnection.onDidChangeCurrent(() => {
+      setAirdropAmount(PgConnection.getAirdropAmount());
     });
     return dispose;
   }, []);
