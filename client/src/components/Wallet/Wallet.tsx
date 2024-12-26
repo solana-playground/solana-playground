@@ -45,7 +45,7 @@ const Wallet = () => {
 
   return (
     <>
-      <WalletBound id={Id.WALLET_BOUND} />
+      <WalletBound id={WALLET_BOUND_ID} />
       <Rnd
         default={{
           x: window.innerWidth - (WALLET_WIDTH + 12),
@@ -56,7 +56,7 @@ const Wallet = () => {
         minWidth={WALLET_WIDTH}
         maxWidth={WALLET_WIDTH}
         enableResizing={false}
-        bounds={"#" + Id.WALLET_BOUND}
+        bounds={"#" + WALLET_BOUND_ID}
         enableUserSelectHack={false}
         style={{ zIndex: 1 }}
       >
@@ -70,6 +70,8 @@ const Wallet = () => {
 };
 
 const WALLET_WIDTH = 320;
+
+const WALLET_BOUND_ID = "wallet-bound";
 
 const WalletBound = styled.div`
   ${({ theme }) => css`

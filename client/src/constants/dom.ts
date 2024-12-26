@@ -21,7 +21,6 @@ export enum Id {
   BOTTOM = "bottom",
   TABS = "tabs",
   WALLET_MAIN = "wallet-main",
-  WALLET_BOUND = "wallet-bound",
   HOME = "home",
   PORTAL_ABOVE = "portal-above",
   PORTAL_BELOW = "portal-below",
