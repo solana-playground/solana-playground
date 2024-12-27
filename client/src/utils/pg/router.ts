@@ -149,14 +149,13 @@ export class PgRouter {
         throw new Error("Doesn't match");
       }
 
+      const startsWith = templatePath
+        .slice(0, startIndex)
+        .startsWith(subPath.slice(0, startIndex));
+      if (!startsWith) throw new Error("Doesn't match");
+
       // Remove matching parts
-      if (
-        templatePath
-          .slice(0, startIndex)
-          .startsWith(subPath.slice(0, startIndex))
-      ) {
-        subPath = subPath.slice(startIndex);
-      }
+      subPath = subPath.slice(startIndex);
 
       const relativeEndIndex = templatePath
         .substring(startIndex)
