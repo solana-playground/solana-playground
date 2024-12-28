@@ -8,9 +8,10 @@ export const defaultRoute = PgRouter.create({
       getMain: async () => {
         // Don't change the UI to avoid flickering if the current workspace is
         // a tutorial but the user is on route `/`
-        if (PgTutorial.isCurrentWorkspaceTutorial()) {
+        const workspaceName = PgExplorer.currentWorkspaceName;
+        if (workspaceName && PgTutorial.isWorkspaceTutorial(workspaceName)) {
           // Open the tutorial
-          PgTutorial.open(PgExplorer.currentWorkspaceName!);
+          PgTutorial.open(workspaceName);
 
           // Stop the render of this method by throwing an error
           throw new Error("No need to render");

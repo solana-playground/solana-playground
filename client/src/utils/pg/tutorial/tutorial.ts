@@ -86,16 +86,6 @@ class _PgTutorial {
   }
 
   /**
-   * Get whether the current workspace is a tutorial.
-   *
-   * @returns whether the current workspace is a tutorial
-   */
-  static isCurrentWorkspaceTutorial() {
-    const workspaceName = PgExplorer.currentWorkspaceName;
-    return workspaceName ? this.isWorkspaceTutorial(workspaceName) : false;
-  }
-
-  /**
    * Get all tutorial names the user has started.
    *
    * @returns user tutorial names
