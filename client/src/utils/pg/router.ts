@@ -195,3 +195,65 @@ export class PgRouter {
     return result as PathParameter<P>;
   }
 }
+
+// Tests
+if (process.env.NODE_ENV !== "production") {
+  // @ts-expect-error
+  const test = PgRouter._getParamsFromPath;
+  const assertMatches = (
+    route: string,
+    path: string,
+    expectedParams: object = {}
+  ) => {
+    const actualParams = test(route, path);
+    if (!PgCommon.isEqual(expectedParams, actualParams)) {
+      throw new Error(
+        [
+          `Route: ${route} and ${path} mismatch:`,
+          `expected (${PgCommon.prettyJSON(expectedParams)})`,
+          `actual: ${PgCommon.prettyJSON(actualParams)}`,
+        ].join("\n")
+      );
+    }
+  };
+  const assertNoMatches = (route: string, path: string) => {
+    const msg = `Route ${route} and path ${path} did not throw`;
+    try {
+      test(route, path);
+      throw new Error(msg);
+    } catch (e: any) {
+      if (e.message === msg) throw e;
+    }
+  };
+
+  assertMatches("/", "/");
+  assertMatches("/tutorials", "/tutorials");
+  assertMatches("/tutorials", "/tutorials/");
+  assertMatches("/tutorials/{name}", "/tutorials/first", {
+    name: "first",
+  });
+  assertMatches("/tutorials/{name}", "/tutorials/first/1", {
+    name: "first/1",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials", {
+    name: "",
+    page: "",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials/first", {
+    name: "first",
+    page: "",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials/first/", {
+    name: "first",
+    page: "",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials/first/1", {
+    name: "first",
+    page: "1",
+  });
+  assertNoMatches("/tutorials", "/");
+  assertNoMatches("/tutorials", "/programs");
+  assertNoMatches("/tutorials/", "/programs");
+  assertNoMatches("/tutorials/{name}", "/programs");
+  assertNoMatches("/tutorials/{name}/{page}", "/programs");
+}
