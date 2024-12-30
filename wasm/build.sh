@@ -75,7 +75,7 @@ build() {
     # Set the toolchain based on the `rust-toolchain.toml` file
     if [ -f "rust-toolchain.toml" ]; then
         echo "Installing rust toolchain"
-        toolchain=$(awk '/"[stable|nightly]/{gsub(/"/, ""); print $3 }' rust-toolchain.toml)
+        toolchain=$(awk '/channel/{gsub(/"/, ""); print $3 }' rust-toolchain.toml)
         rustup toolchain install $toolchain --component rust-src
     fi
 
