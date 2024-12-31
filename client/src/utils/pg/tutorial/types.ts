@@ -19,7 +19,7 @@ export type TutorialState = Nullable<
 export type SerializedTutorialState = Nullable<TutorialMetadata>;
 
 /** Tutorial data with optional fields. */
-export interface TutorialDataInit {
+export interface TutorialDataParam {
   /** Tutorial name that will be shown in tutorials section */
   name: string;
   /**
@@ -62,7 +62,7 @@ export interface TutorialDataInit {
 
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
-  TutorialDataInit,
+  TutorialDataParam,
   "thumbnail" | "elementImport"
 >;
 

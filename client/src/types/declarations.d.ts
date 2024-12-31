@@ -11,6 +11,7 @@ import {
   Disposable,
   SyncOrAsync,
   ThemeReady,
+  TutorialDataParam,
 } from "../utils/pg";
 
 /** Global overrides */
@@ -34,6 +35,9 @@ global {
     };
     importable: ClientPackageName[];
   };
+
+  /** Array of all markdown tutorial data */
+  const MARKDOWN_TUTORIALS: TutorialDataParam[];
 
   /** Map of kebab-case tutorial names to thumbnail file names */
   const TUTORIAL_THUMBNAIL_MAP: { [tutorialName: string]: string };

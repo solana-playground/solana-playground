@@ -123,6 +123,28 @@ module.exports = {
             "utf8"
           ),
 
+          /** Array of all markdown tutorial data */
+          MARKDOWN_TUTORIALS: defineFromPublicDir(
+            "tutorials",
+            (dirItems, tutorialsPath) => {
+              return dirItems
+                .map((tutorialName) => {
+                  const tutorialDir = path.join(tutorialsPath, tutorialName);
+                  const tutorialDataFileName = fs
+                    .readdirSync(tutorialDir)
+                    .find((name) => name === "data.json");
+                  if (!tutorialDataFileName) return null;
+
+                  const data = fs.readFileSync(
+                    path.join(tutorialDir, tutorialDataFileName),
+                    { encoding: "utf8" }
+                  );
+                  return JSON.parse(data);
+                })
+                .filter(Boolean);
+            }
+          ),
+
           /** Map of kebab-case tutorial names to thumbnail file names */
           TUTORIAL_THUMBNAIL_MAP: defineFromPublicDir(
             "tutorials",

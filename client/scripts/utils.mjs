@@ -10,6 +10,9 @@ export const SUPPORTED_CRATES_PATH = path.join(
   "supported-crates.json"
 );
 
+/** Playground client directory path */
+export const CLIENT_PATH = path.join(REPO_ROOT_PATH, "client");
+
 /**
  * Remove the contents of the given directory.
  *

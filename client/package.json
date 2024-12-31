@@ -91,14 +91,15 @@
   },
   "scripts": {
     "setup": "git submodule update --init && yarn build-wasm && yarn generate",
-    "start": "craco start",
+    "start": "yarn generate && craco start",
     "build": "yarn generate && GENERATE_SOURCEMAP=false craco build",
     "build-wasm": "build=\"../wasm/build.sh\" && chmod +x $build && $build --update",
     "format": "prettier --write src/",
     "check-format": "prettier --check src/",
-    "generate": "yarn generate-crates && yarn generate-packages",
+    "generate": "yarn generate-crates && yarn generate-packages && yarn generate-tutorials",
     "generate-crates": "node scripts/generate-crates.mjs",
     "generate-packages": "node scripts/generate-packages.mjs",
+    "generate-tutorials": "node scripts/generate-tutorials.mjs",
     "sync-readme": "node scripts/sync-readme.mjs"
   },
   "eslintConfig": {
