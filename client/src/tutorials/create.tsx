@@ -10,7 +10,7 @@ export const createTutorials = (...tutorials: TutorialDataParam[]) => {
   const customTutorials = tutorials.map((tutorial) => {
     setCommonDefaults(tutorial);
 
-    tutorial.elementImport ??= () => {
+    tutorial.importComponent ??= () => {
       return import(`./${PgCommon.toPascalFromTitle(tutorial.name)}`);
     };
 
@@ -20,7 +20,7 @@ export const createTutorials = (...tutorials: TutorialDataParam[]) => {
   const markdownTutorials = MARKDOWN_TUTORIALS.map((tutorial) => {
     setCommonDefaults(tutorial);
 
-    tutorial.elementImport = async () => {
+    tutorial.importComponent = async () => {
       const tutorialPath = getTutorialPath(tutorial);
       const fetchText = (p: string) => PgCommon.fetchText(tutorialPath + p);
 

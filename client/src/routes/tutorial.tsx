@@ -38,7 +38,7 @@ export const tutorial = PgRouter.create({
         PgView.setSidebarPage("Tutorials");
       }
 
-      const { default: Tutorial } = await tutorial.elementImport();
+      const { default: Tutorial } = await tutorial.importComponent();
       return <Tutorial {...tutorial} />;
     });
 

@@ -55,15 +55,15 @@ export interface TutorialDataParam {
    *
    * Defaults to `./<TutorialName>`.
    */
-  elementImport?: () => Promise<{
-    default: ComponentType<Omit<TutorialData, "elementImport">>;
+  importComponent?: () => Promise<{
+    default: ComponentType<Omit<TutorialData, "importComponent">>;
   }>;
 }
 
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
   TutorialDataParam,
-  "thumbnail" | "elementImport"
+  "thumbnail" | "importComponent"
 >;
 
 export interface TutorialMetadata {
