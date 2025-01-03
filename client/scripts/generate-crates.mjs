@@ -2,6 +2,7 @@
 
 import path from "path";
 import fs from "fs/promises";
+import { exit } from "process";
 import { homedir } from "os";
 import { execSync, spawnSync } from "child_process";
 
@@ -34,14 +35,15 @@ try {
   spawnSync("cargo", ["install", CLI_NAME, "--version", "0.3.0", "--locked"]);
 }
 
-/** Whether the `Cargo.lock` file exists */
-const hasLockFile = await exists(LOCK_FILE_PATH);
+/** Local crates.io registry */
+const registry = await getRegistry();
+if (!registry) {
+  console.log("Unable to find local crates.io registry. Skipping crate generation...")
+  exit(0);
+}
 
 /** `Cargo.lock` file for dependencies */
 const lockFile = await parseLockFile(LOCK_FILE_PATH);
-
-/** Local crates.io registry */
-const registry = await getRegistry();
 
 /** Cached crate names */
 const cachedCrates = [];
@@ -140,7 +142,7 @@ async function generateDependencies(crates, transitive) {
       "--output",
       path.join(CRATES_PATH, `${snakeCaseName}.rs`),
     ]);
-    if (result.status !== 0) throw new Error(result.stderr.toString());
+    if (result.status !== 0) throw new Error(result.output.toString());
 
     // Get `Cargo.toml`
     await fs.copyFile(
@@ -165,7 +167,7 @@ async function generateDependencies(crates, transitive) {
  * @returns the dependencies in { [name: string]: <VERSION: string> } format
  */
 function getDependencies(name, version) {
-  if (!hasLockFile) return {};
+  if (!lockFile) return {};
 
   const crate = lockFile.find(
     (crate) => crate.name === name && crate.version === version
@@ -183,7 +185,7 @@ function getDependencies(name, version) {
 
 /** Get all supported crates. */
 export async function getCrates() {
-  if (hasLockFile) {
+  if (lockFile) {
     const dependencies = lockFile
       .find((crate) => crate.name === "solpg")
       .dependencies.reduce((acc, dep) => {
@@ -209,6 +211,9 @@ export async function getCrates() {
  */
 async function getRegistry() {
   const registryPath = path.join(homedir(), ".cargo", "registry", "src");
+  const registryExists = await exists(registryPath);
+  if (!registryExists) return null;
+
   const registries = await fs.readdir(registryPath);
   const cratesIoRegistry = registries.find((registry) => {
     return registry.startsWith("index.crates.io");
@@ -228,7 +233,8 @@ async function getRegistry() {
  * @returns the parsed lock file
  */
 async function parseLockFile(lockPath) {
-  if (!hasLockFile) return [];
+  const lockFileExists = await exists(LOCK_FILE_PATH);
+  if (!lockFileExists) return null;
 
   const lockFile = await fs.readFile(lockPath, "utf8");
   return lockFile

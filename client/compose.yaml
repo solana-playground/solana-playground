@@ -1,0 +1,15 @@
+name: "solana-playground"
+services:
+  wasm:
+    build:
+      context: ../wasm
+  client:
+    depends_on:
+      - wasm
+    build:
+      context: ../
+      dockerfile: ./client/Dockerfile
+    ports:
+      - 3000:3000
+    tty: true
+    stdin_open: true
