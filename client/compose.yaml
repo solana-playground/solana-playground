@@ -3,12 +3,15 @@ services:
   wasm:
     build:
       context: ../wasm
+
   client:
     depends_on:
       - wasm
     build:
       context: ../
       dockerfile: ./client/Dockerfile
+      args:
+        - HAS_SERVER=${PG_SERVER:-true}
     ports:
       - 3000:3000
     tty: true
