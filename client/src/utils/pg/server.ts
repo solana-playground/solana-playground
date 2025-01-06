@@ -102,14 +102,11 @@ export class PgServer {
     return (await response.text()) as ShareNewResponse;
   }
 
-  /** Default playground server URL */
-  private static readonly _DEFAULT_SERVER_URL = "https://api.solpg.io";
-
   /** Server URL that is customizable from environment variables */
   private static readonly _SERVER_URL =
     process.env.NODE_ENV === "production"
-      ? this._DEFAULT_SERVER_URL
-      : process.env.REACT_APP_SERVER_URL ?? this._DEFAULT_SERVER_URL;
+      ? "https://api.solpg.io"
+      : process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080";
 
   /**
    * Send an HTTP request to the Playground server.
