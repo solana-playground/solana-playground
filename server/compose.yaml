@@ -12,7 +12,10 @@ services:
   db:
     image: mongo:7
     volumes:
-      - ./mongodb:/data/db
+      - mongodb:/data/db
     # Override the default command because it logs a lot and setting `logging`
     # `driver` to `none` doesn't work
     command: mongod --quiet --logpath /dev/null
+
+volumes:
+  mongodb:
