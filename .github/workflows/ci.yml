@@ -119,10 +119,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      # `wasm-pack 0.13.0` breaks our build, see https://github.com/RReverser/wasm-bindgen-rayon/issues/9
-      - name: Install wasm-pack
-        run: cargo install wasm-pack@0.10.3 --locked
-
       - name: Setup
         run: yarn setup
 

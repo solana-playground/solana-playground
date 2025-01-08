@@ -41,6 +41,16 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Install `wasm-pack` if it's not already installed
+if ! command -v wasm-pack 2>&1 >/dev/null; then
+    echo "\`wasm-pack\` is not installed. Installing..."
+
+    # Install a specific version of `wasm-pack` without default features. See:
+    # - https://github.com/RReverser/wasm-bindgen-rayon/issues/9
+    # - https://github.com/rustwasm/wasm-pack/issues/1186#issuecomment-1374814605
+    cargo install wasm-pack@0.10.3 --locked --no-default-features
+fi
+
 # All package names
 all_packages=(
     "anchor-cli"
