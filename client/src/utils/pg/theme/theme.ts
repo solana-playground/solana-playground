@@ -1354,6 +1354,29 @@ export class PgTheme {
     main.secondary.default.bg ??= theme.colors.default.bgPrimary;
     main.secondary.default.color ??= theme.colors.default.textPrimary;
     main.secondary.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
+    // Main secondary tabs
+    main.secondary.tabs ??= {};
+    const tabs = main.secondary.tabs;
+    // Main secondary tabs default
+    tabs.default ??= {};
+    tabs.default.display ??= "flex";
+    tabs.default.gap ??= "1rem";
+    tabs.default.marginRight ??= "1rem";
+    // Main secondary tabs tab
+    tabs.tab ??= {};
+    // Main secondary tabs tab default
+    tabs.tab.default ??= {};
+    tabs.tab.default.padding ??= "0.25rem";
+    tabs.tab.default.color ??= theme.colors.default.textSecondary;
+    tabs.tab.default.fontSize ??= theme.font.code.size.small;
+    tabs.tab.default.textTransform ??= "uppercase";
+    tabs.tab.default.hover ??= {};
+    tabs.tab.default.hover.cursor ??= "pointer";
+    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
+    // Main secondary tabs tab current
+    tabs.tab.current ??= {};
+    tabs.tab.current.color ??= theme.colors.default.textPrimary;
+    tabs.tab.current.borderBottom ??= `1px solid ${theme.colors.default.secondary}`;
 
     return this;
   }

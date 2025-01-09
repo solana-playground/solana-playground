@@ -215,7 +215,13 @@ export interface Theme {
         }>;
       }>;
       /** Main secondary component */
-      secondary?: ExtendibleComponent<{}>;
+      secondary?: ExtendibleComponent<{
+        /** Main secondary tabs */
+        tabs?: ExtendibleComponent<{
+          /** Main secondary tab */
+          tab?: ExtendibleComponent<"current">;
+        }>;
+      }>;
     }>;
 
     /** Markdown component */
