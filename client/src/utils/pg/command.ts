@@ -88,7 +88,7 @@ export type Arg<N extends string = string, V extends string = string> = {
   /** Whether to take multiple values */
   multiple?: boolean;
   /** Accepted values */
-  values?: Getable<V[]>;
+  values?: V[] | ((token: string) => V[]);
 };
 
 /** Command option */
@@ -357,10 +357,8 @@ ${formatList(cmd.subcommands!)}`);
               const argList = cmd.args.map((arg) => [
                 toArgStr(arg),
                 (arg.description ?? "") +
-                  (arg.values
-                    ? ` (possible values: ${PgCommon.callIfNeeded(
-                        arg.values
-                      ).join(", ")})`
+                  (Array.isArray(arg.values)
+                    ? ` (possible values: ${arg.values.join(", ")})`
                     : ""),
               ]);
               lines.push(
@@ -446,7 +444,10 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
 
             // Validate values if specified
             if (inputArgs.length && arg.values) {
-              const values = PgCommon.callIfNeeded(arg.values);
+              const values =
+                typeof arg.values === "function"
+                  ? arg.values(args[i])
+                  : arg.values;
               const invalidValue = inputArgs.find(
                 (inputArg) => !values.includes(inputArg)
               );

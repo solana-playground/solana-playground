@@ -1080,13 +1080,12 @@ export class PgCommon {
   }
 
   /**
-   * Append '/' to the end of the string
+   * Append '/' to the end of the string.
    *
    * @param str string to append slash to
    * @returns the slash appended string
    */
   static appendSlash(str: string) {
-    if (!str) return "";
     return str + (str.endsWith("/") ? "" : "/");
   }
 

@@ -188,7 +188,10 @@ export class PgAutocomplete {
 
                 if (index - i === +key && value.values) {
                   const token = tokens[index];
-                  const values: string[] = PgCommon.callIfNeeded(value.values);
+                  const values: string[] =
+                    typeof value.values === "function"
+                      ? value.values(token ?? "")
+                      : value.values;
                   const filteredValues = values.filter(
                     (v) => !token || v.startsWith(token)
                   );

@@ -1356,16 +1356,13 @@ export class PgExplorer {
    * @returns the parent path
    */
   static getParentPathFromPath(path: string) {
-    const itemType = this.getItemTypeFromPath(path);
+    const pad =
+      this.getItemTypeFromPath(path).folder && path.endsWith("/") ? 2 : 1;
 
     const names = path.split("/");
-    const parentPath = path
-      .split("/")
-      .filter((_itemName, i) => i !== names.length - (itemType.file ? 1 : 2))
-      .reduce((acc, itemName) => {
-        if (itemName) return (acc += `/${itemName}`);
-        return acc;
-      });
+    const parentPath = names
+      .filter((_itemName, i) => i !== names.length - pad)
+      .reduce((acc, itemName) => (acc += `/${itemName}`));
 
     return PgCommon.appendSlash(parentPath);
   }

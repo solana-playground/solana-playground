@@ -19,7 +19,22 @@ const createCommonArgs = (parentPath: string) =>
       name: "paths",
       optional: true,
       multiple: true,
-      values: () => {
+      values: (token) => {
+        if (token.startsWith(PgExplorer.PATHS.ROOT_DIR_PATH)) {
+          const path = token.endsWith("/")
+            ? token
+            : PgExplorer.getParentPathFromPath(token);
+          const folder = PgExplorer.getFolderContent(path);
+          return [
+            ...folder.files
+              .map((name) => PgCommon.joinPaths(path, name))
+              .filter(PgLanguage.getIsPathJsLike),
+            ...folder.folders
+              .map((name) => PgCommon.joinPaths(path, name))
+              .map(PgCommon.appendSlash),
+          ];
+        }
+
         return PgExplorer.getAllFiles()
           .map(([path]) => path)
           .filter(PgLanguage.getIsPathJsLike)
