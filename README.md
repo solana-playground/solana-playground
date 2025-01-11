@@ -41,15 +41,8 @@ You can open an issue to request more crates.
 
 ## Run locally
 
-You can run the client locally by cloning the repository and running the following commands in the project directory.
-
-Set up and start the dev server:
-
-```sh
-cd client # change directory to client
-yarn setup # run the setup script(only once)
-yarn start # start local dev server
-```
+- [Client setup](https://github.com/solana-playground/solana-playground/tree/master/client#setup)
+- [Server setup](https://github.com/solana-playground/solana-playground/tree/master/server#setup)
 
 ##### Recommended versions
 
