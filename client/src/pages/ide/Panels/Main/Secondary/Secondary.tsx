@@ -37,7 +37,7 @@ const Secondary = () => {
 
   const [el, setEl] = useState<NullableJSX>(null);
   useAsyncEffect(async () => {
-    const { default: PageComponent } = await pageInfo.importElement();
+    const { default: PageComponent } = await pageInfo.importComponent();
     setEl(<PageComponent />);
   }, [pageInfo]);
 

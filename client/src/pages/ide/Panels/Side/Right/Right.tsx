@@ -80,7 +80,7 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
       ids[currentId] ??= false;
 
       try {
-        const { default: PageComponent } = await page.importElement();
+        const { default: PageComponent } = await page.importComponent();
         if (ids[currentId + 1] === undefined) setEl(<PageComponent />);
       } catch (e: any) {
         console.log("SIDEBAR ERROR", e.message);

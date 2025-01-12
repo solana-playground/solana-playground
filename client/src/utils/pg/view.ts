@@ -26,7 +26,7 @@ export type SidebarPageParam<N extends string> = {
   /** Handle the page logic */
   handle?: () => Disposable | void;
   /** Lazy loader for the element */
-  importElement?: () => Promise<{ default: CallableJSX }>;
+  importComponent?: () => Promise<{ default: CallableJSX }>;
   /** Loading element to until the element is ready to show */
   LoadingElement?: CallableJSX;
 };
@@ -34,7 +34,7 @@ export type SidebarPageParam<N extends string> = {
 /** Created sidebar page */
 export type SidebarPage<N extends string = string> = RequiredKey<
   SidebarPageParam<N>,
-  "title" | "importElement"
+  "title" | "importComponent"
 >;
 
 export class PgView {

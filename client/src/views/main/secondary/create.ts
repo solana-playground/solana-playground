@@ -20,7 +20,7 @@ type MainSecondaryPageParam<N extends string> = {
     run: () => void;
   }>;
   /** Lazy loader for the element */
-  importElement?: () => Promise<{ default: CallableJSX }>;
+  importComponent?: () => Promise<{ default: CallableJSX }>;
   /** Get whether the page is in focus */
   getIsFocused: () => boolean;
   /** Focus the page */
@@ -30,7 +30,7 @@ type MainSecondaryPageParam<N extends string> = {
 /** Created sidebar page */
 type MainSecondaryPage<N extends string> = RequiredKey<
   MainSecondaryPageParam<N>,
-  "title" | "importElement"
+  "title" | "importComponent"
 >;
 
 /**
@@ -43,7 +43,7 @@ export const createMainSecondaryPage = <N extends string>(
   page: MainSecondaryPageParam<N>
 ) => {
   page.title ??= page.keybind ? `${page.name} (${page.keybind})` : page.name;
-  page.importElement ??= () => {
+  page.importComponent ??= () => {
     return import(
       `./${PgCommon.toKebabFromTitle(page.name.replace("& ", ""))}/Component`
     );

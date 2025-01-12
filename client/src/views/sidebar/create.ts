@@ -11,7 +11,7 @@ export const createSidebarPage = <N extends string>(
 ) => {
   page.icon = "/icons/sidebar/" + page.icon;
   page.title ??= page.keybind ? `${page.name} (${page.keybind})` : page.name;
-  page.importElement ??= () => {
+  page.importComponent ??= () => {
     return import(
       `./${PgCommon.toKebabFromTitle(page.name.replace("& ", ""))}/Component`
     );
