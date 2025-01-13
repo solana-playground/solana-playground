@@ -128,6 +128,7 @@ module.exports = {
             "tutorials",
             (dirItems, tutorialsPath) => {
               return dirItems
+                .filter((tutorialName) => !tutorialName.startsWith("_"))
                 .map((tutorialName) => {
                   const tutorialDir = path.join(tutorialsPath, tutorialName);
                   const tutorialDataFileName = fs
