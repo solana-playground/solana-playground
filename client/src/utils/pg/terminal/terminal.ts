@@ -267,6 +267,74 @@ export class PgTerminal {
   }
 
   /**
+   * Format the given list for terminal view.
+   *
+   * @param list list to format
+   * @returns the formatted list
+   */
+  static formatList(
+    list: Array<string[] | { name: string; description?: string }>,
+    opts?: { align?: "x" | "y" }
+  ) {
+    const { align } = PgCommon.setDefault(opts, { align: "x" });
+    return list
+      .map((item) =>
+        Array.isArray(item) ? item : [item.name, item.description ?? ""]
+      )
+      .sort((a, b) => {
+        const allowedRegex = /^[a-zA-Z-]+$/;
+        if (!allowedRegex.test(a[0])) return 1;
+        if (!allowedRegex.test(b[0])) return -1;
+        return a[0].localeCompare(b[0]);
+      })
+      .reduce((acc, items) => {
+        const output = items.reduce((acc, col, i) => {
+          const MAX_CHARS = 80;
+
+          const chunks: string[][] = [];
+          const words = col.split(" ");
+          let j = 0;
+          for (let i = 0; i < words.length; i++) {
+            while (
+              words[j] &&
+              [...(chunks[i] ?? []), words[j]].join(" ").length <= MAX_CHARS
+            ) {
+              chunks[i] ??= [];
+              chunks[i].push(words[j]);
+              j++;
+            }
+          }
+
+          if (align === "x") {
+            const WHITESPACE_LEN = 24;
+            return (
+              acc +
+              chunks.reduce(
+                (acc, row, i) =>
+                  acc +
+                  (i ? "\n\t" + " ".repeat(WHITESPACE_LEN) : "") +
+                  row.join(" "),
+                ""
+              ) +
+              " ".repeat(Math.max(WHITESPACE_LEN - col.length, 0))
+            );
+          }
+
+          return (
+            acc +
+            (i ? "\n\t" : "") +
+            chunks.reduce(
+              (acc, row, i) => acc + (i ? "\n\t" : "") + row.join(" "),
+              ""
+            )
+          );
+        }, "");
+
+        return acc + "\t" + output + "\n";
+      }, "");
+  }
+
+  /**
    * Redifined console.log for showing mocha logs in the playground terminal
    */
   static consoleLog(msg: string, ...rest: any[]) {
