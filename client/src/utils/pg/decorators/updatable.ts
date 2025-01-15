@@ -50,7 +50,7 @@ export function updatable<T>(params: {
   /** Default value to set */
   defaultState: Required<T>;
   /** Storage that is responsible with de/serialization */
-  storage: CustomStorage<T>;
+  storage?: CustomStorage<T>;
   /** Whether to add proxy setters recursively */
   recursive?: boolean;
 }) {
@@ -60,7 +60,9 @@ export function updatable<T>(params: {
 
     // Add `init` method
     addInit(sClass, async () => {
-      const state: T = await params.storage.read();
+      const state: T = params.storage
+        ? await params.storage.read()
+        : params.defaultState;
 
       // Set the default if any prop is missing(recursively)
       const setMissingDefaults = (state: any, defaultState: any) => {
@@ -99,7 +101,7 @@ export function updatable<T>(params: {
       // Set the initial state
       sClass.update(state);
 
-      return sClass.onDidChange((state: T) => params.storage.write(state));
+      return sClass.onDidChange((state: T) => params.storage?.write(state));
     });
 
     // Add `update` method
