@@ -10,16 +10,7 @@ const defaultState: GlobalState = {
   deployState: "ready",
 };
 
-/** Nothing to persist. */
-const storage = {
-  read() {
-    return defaultState;
-  },
-
-  write(state: GlobalState) {},
-};
-
-@updatable({ defaultState, storage })
+@updatable({ defaultState })
 class _PgGlobal {}
 
 export const PgGlobal = declareUpdatable(_PgGlobal, { defaultState });
