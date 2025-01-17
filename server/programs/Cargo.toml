@@ -20,6 +20,7 @@ borsh-derive = "*"
 bytemuck = "*"
 bytemuck_derive = "*"
 mpl-bubblegum = "*"
+mpl-core = "*"
 mpl-token-auth-rules = { version = "*", features = ["no-entrypoint"] }
 mpl-token-metadata = "*"
 num-derive = "*"
