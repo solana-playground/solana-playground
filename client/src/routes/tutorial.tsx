@@ -1,5 +1,6 @@
 import {
   Disposable,
+  PgCommon,
   PgExplorer,
   PgRouter,
   PgTutorial,
@@ -10,7 +11,12 @@ export const tutorial = PgRouter.create({
   path: "/tutorials/{tutorialName}",
   handle: ({ tutorialName }) => {
     // Get the tutorial
-    const tutorial = PgTutorial.getTutorialData(tutorialName);
+    const tutorial = PgTutorial.all.find((t) => {
+      return PgRouter.isPathsEqual(
+        PgCommon.toKebabFromTitle(t.name),
+        tutorialName
+      );
+    });
 
     // Check whether the tutorial exists
     if (!tutorial) {

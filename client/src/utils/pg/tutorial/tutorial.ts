@@ -61,21 +61,6 @@ class _PgTutorial {
   static all: TutorialData[];
 
   /**
-   * Get the tutorial's data from its name.
-   *
-   * @param name tutorial name
-   * @returns the tutorial's data if it exists
-   */
-  static getTutorialData(name: string) {
-    return this.all.find((t) => {
-      return PgRouter.isPathsEqual(
-        PgCommon.toKebabFromTitle(t.name),
-        PgCommon.toKebabFromTitle(name)
-      );
-    });
-  }
-
-  /**
    * Get whether the given workspace name is a tutorial.
    *
    * @param name workspace name
