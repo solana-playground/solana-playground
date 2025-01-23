@@ -5,7 +5,7 @@ import pathModule from "path";
 
 import { CLIENT_PATH } from "./utils.mjs";
 
-const DIRS = ["block-explorers", "commands"];
+const DIRS = ["block-explorers", "commands", "frameworks"];
 
 for (const dir of DIRS) {
   const dirPath = pathModule.join(CLIENT_PATH, "src", dir);
