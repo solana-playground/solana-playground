@@ -77,16 +77,14 @@ const WalletBound = styled.div`
   ${({ theme }) => css`
     position: absolute;
     margin: ${theme.components.tabs.tab.default.height} 0.75rem
-      ${theme.components.bottom.default.height}
-      ${theme.components.sidebar.left.default.width};
-    width: calc(
-      100% - (0.75rem + ${theme.components.sidebar.left.default.width})
-    );
+      ${theme.views.bottom.default.height}
+      ${theme.views.sidebar.left.default.width};
+    width: calc(100% - (0.75rem + ${theme.views.sidebar.left.default.width}));
     height: calc(
       100% -
         (
           ${theme.components.tabs.tab.default.height} +
-            ${theme.components.bottom.default.height}
+            ${theme.views.bottom.default.height}
         )
     );
     z-index: -1;

@@ -83,13 +83,13 @@ export const Tutorials = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.primary.tutorials.default)};
+    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.default)};
   `}
 `;
 
 const TopSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.primary.tutorials.top)};
+    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.top)};
   `}
 `;
 
@@ -103,15 +103,13 @@ const MainSectionScrollWrapper = styled.div`
 
 const MainSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.components.main.primary.tutorials.main.default
-    )};
+    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.main.default)};
   `}
 `;
 
 const SideWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.primary.tutorials.main.side)};
+    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.main.side)};
   `}
 `;
 
@@ -123,7 +121,7 @@ const FiltersWrapper = styled.div`
 const ContentWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.primary.tutorials.main.content.default
+      theme.views.main.primary.tutorials.main.content.default
     )};
   `}
 `;

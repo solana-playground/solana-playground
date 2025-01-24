@@ -82,11 +82,6 @@ export interface Theme {
 
   /** Override the component defaults */
   components?: {
-    /** Bottom bar component */
-    bottom?: ExtendibleComponent<
-      "connect" | "endpoint" | "address" | "balance"
-    >;
-
     /** Button component */
     button?: OverridableComponent<ButtonKind>;
 
@@ -161,69 +156,6 @@ export interface Theme {
     /** Input component */
     input?: DefaultComponent;
 
-    /** Main component */
-    main?: ExtendibleComponent<{
-      /** Main primary component */
-      primary?: ExtendibleComponent<{
-        /** Home component */
-        home?: ExtendibleComponent<{
-          /** Playground title */
-          title?: DefaultComponent;
-          /** Resources section */
-          resources?: ExtendibleComponent<{
-            /** Resources title */
-            title?: DefaultComponent;
-            /** Resource card */
-            card?: ExtendibleComponent<
-              "image" | "title" | "description" | "button"
-            >;
-          }>;
-          /** Tutorials section */
-          tutorials?: ExtendibleComponent<"title" | "card">;
-        }>;
-
-        /** Tutorial component */
-        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
-
-        /** Tutorials page component */
-        tutorials?: ExtendibleComponent<{
-          /** Tutorials top section */
-          top?: DefaultComponent;
-          /** Tutorials main section */
-          main?: ExtendibleComponent<{
-            /** Side section (left filters) */
-            side?: DefaultComponent;
-            /** Content section (right tutorials) */
-            content?: ExtendibleComponent<{
-              /** Tutorial card component */
-              card?: ExtendibleComponent<"gradient">;
-              /** Featured tutorial component */
-              featured?: DefaultComponent;
-            }>;
-          }>;
-        }>;
-
-        /** Programs page component */
-        programs?: ExtendibleComponent<{
-          /** Programs top section */
-          top?: DefaultComponent;
-          /** Programs main section */
-          main?: ExtendibleComponent<{
-            /** Program main content component */
-            content?: ExtendibleComponent<"card">;
-          }>;
-        }>;
-      }>;
-      /** Main secondary component */
-      secondary?: ExtendibleComponent<{
-        /** Main secondary tabs */
-        tabs?: ExtendibleComponent<{
-          /** Main secondary tab */
-          tab?: ExtendibleComponent<"current">;
-        }>;
-      }>;
-    }>;
-
     /** Markdown component */
     markdown?: DefaultComponent & { subtleBg?: Bg };
 
@@ -247,21 +179,6 @@ export interface Theme {
       | "dropdownIndicator"
       | "indicatorSeparator"
     >;
-
-    /** Sidebar component */
-    sidebar?: ExtendibleComponent<{
-      /** Left side of the side panel(icon panel) */
-      left?: ExtendibleComponent<{
-        /** Left sidebar icon button */
-        button?: ExtendibleComponent<"selected">;
-      }>;
-
-      /** Right side of the side panel */
-      right?: ExtendibleComponent<
-        "title",
-        { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
-      >;
-    }>;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
@@ -348,6 +265,93 @@ export interface Theme {
           }>;
         }>;
       }>;
+    }>;
+  };
+
+  /** Override view defaults */
+  views?: {
+    /** Bottom bar view */
+    bottom?: ExtendibleComponent<
+      "connect" | "endpoint" | "address" | "balance"
+    >;
+
+    /** Main view */
+    main?: ExtendibleComponent<{
+      /** Main primary view */
+      primary?: ExtendibleComponent<{
+        /** Home view */
+        home?: ExtendibleComponent<{
+          /** Playground title */
+          title?: DefaultComponent;
+          /** Resources section */
+          resources?: ExtendibleComponent<{
+            /** Resources title */
+            title?: DefaultComponent;
+            /** Resource card */
+            card?: ExtendibleComponent<
+              "image" | "title" | "description" | "button"
+            >;
+          }>;
+          /** Tutorials section */
+          tutorials?: ExtendibleComponent<"title" | "card">;
+        }>;
+
+        /** Tutorial view */
+        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
+        /** Tutorials page view */
+        tutorials?: ExtendibleComponent<{
+          /** Tutorials top section */
+          top?: DefaultComponent;
+          /** Tutorials main section */
+          main?: ExtendibleComponent<{
+            /** Side section (left filters) */
+            side?: DefaultComponent;
+            /** Content section (right tutorials) */
+            content?: ExtendibleComponent<{
+              /** Tutorial card component */
+              card?: ExtendibleComponent<"gradient">;
+              /** Featured tutorial component */
+              featured?: DefaultComponent;
+            }>;
+          }>;
+        }>;
+
+        /** Programs page view */
+        programs?: ExtendibleComponent<{
+          /** Programs top section */
+          top?: DefaultComponent;
+          /** Programs main section */
+          main?: ExtendibleComponent<{
+            /** Program main content component */
+            content?: ExtendibleComponent<"card">;
+          }>;
+        }>;
+      }>;
+
+      /** Main secondary view */
+      secondary?: ExtendibleComponent<{
+        /** Main secondary tabs */
+        tabs?: ExtendibleComponent<{
+          /** Main secondary tab */
+          tab?: ExtendibleComponent<"current">;
+        }>;
+      }>;
+    }>;
+
+    /** Sidebar view */
+    sidebar?: ExtendibleComponent<{
+      /** Left side of the side panel (icon panel) */
+      left?: ExtendibleComponent<{
+        /** Left sidebar icon button */
+        button?: ExtendibleComponent<"selected">;
+      }>;
+
+      /** Right side of the side panel */
+      right?: ExtendibleComponent<
+        "title",
+        { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
+      >;
     }>;
   };
 
@@ -476,14 +480,11 @@ type DefaultComponents = "input" | "skeleton" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =
-  | "bottom"
   | "editor"
-  | "main"
   | "markdown"
   | "modal"
   | "progressbar"
   | "select"
-  | "sidebar"
   | "tabs"
   | "terminal"
   | "toast"
@@ -511,7 +512,8 @@ export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
  */
 export type ThemeReady<
   T extends ThemeInternal = ThemeInternal,
-  C extends NonNullable<T["components"]> = NonNullable<T["components"]>
+  C extends NonNullable<T["components"]> = NonNullable<T["components"]>,
+  V extends NonNullable<T["views"]> = NonNullable<T["views"]>
 > = NestedRequired<T> & {
   // Default components
   components: Pick<C, DefaultComponents>;
@@ -525,6 +527,9 @@ export type ThemeReady<
     OverridableComponents,
     "default"
   >;
+} & {
+  // All views
+  views: AllRequired<V>;
 };
 
 /** Properties that are allowed to be specified from theme objects */

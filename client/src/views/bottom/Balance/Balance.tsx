@@ -26,6 +26,6 @@ const Seperator = styled.span`
 
 const BalanceText = styled.span`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.balance)};
+    ${PgTheme.convertToCSS(theme.views.bottom.balance)};
   `}
 `;

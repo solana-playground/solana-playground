@@ -16,8 +16,8 @@ const Settings = () => (
 const Wrapper = styled.div`
   ${({ theme }) => css`
     min-width: calc(
-      ${theme.components.sidebar.left.default.width} +
-        ${theme.components.sidebar.right.default.initialWidth}
+      ${theme.views.sidebar.left.default.width} +
+        ${theme.views.sidebar.right.default.initialWidth}
     );
     max-height: clamp(20rem, 40rem, 80vh);
     background: ${theme.components.tooltip.bg};
@@ -49,8 +49,8 @@ const SettingWrapper = styled.div<Pick<SettingType, "isCheckBox">>`
     align-items: center;
     width: 100%;
     max-width: calc(
-      ${theme.components.sidebar.left.default.width} +
-        ${theme.components.sidebar.right.default.initialWidth}
+      ${theme.views.sidebar.left.default.width} +
+        ${theme.views.sidebar.right.default.initialWidth}
     );
     padding: 1rem;
 

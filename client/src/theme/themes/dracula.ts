@@ -55,17 +55,8 @@ const DRACULA: Theme = {
       },
     },
   },
+
   components: {
-    bottom: {
-      default: {
-        bg: BG_DARKER,
-      },
-      connect: {
-        hover: {
-          bg: PURPLE + "16",
-        },
-      },
-    },
     editor: {
       gutter: {
         color: COMMENT,
@@ -74,15 +65,6 @@ const DRACULA: Theme = {
     modal: {
       default: {
         bg: BG_DARK,
-      },
-    },
-    sidebar: {
-      left: {
-        button: {
-          selected: {
-            bg: SELECTION,
-          },
-        },
       },
     },
     skeleton: {
@@ -98,6 +80,29 @@ const DRACULA: Theme = {
       bg: BG_DARKER,
     },
   },
+
+  views: {
+    bottom: {
+      default: {
+        bg: BG_DARKER,
+      },
+      connect: {
+        hover: {
+          bg: PURPLE + "16",
+        },
+      },
+    },
+    sidebar: {
+      left: {
+        button: {
+          selected: {
+            bg: SELECTION,
+          },
+        },
+      },
+    },
+  },
+
   highlight: {
     typeName: { color: CYAN, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },

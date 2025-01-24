@@ -63,12 +63,8 @@ const LIGHT: Theme = {
       },
     },
   },
+
   components: {
-    bottom: {
-      default: {
-        color: BG_WHITE,
-      },
-    },
     button: {
       overrides: {
         primary: {
@@ -129,6 +125,23 @@ const LIGHT: Theme = {
         activeColor: TEXT_PRIMARY,
       },
     },
+    skeleton: {
+      bg: "#e5e4e6",
+      highlightColor: BG_LIGHT,
+    },
+    wallet: {
+      default: {
+        bg: BG_WHITE,
+      },
+    },
+  },
+
+  views: {
+    bottom: {
+      default: {
+        color: BG_WHITE,
+      },
+    },
     main: {
       primary: {
         programs: {
@@ -153,15 +166,6 @@ const LIGHT: Theme = {
             borderLeft: `2px solid ${BG_LIGHT}`,
           },
         },
-      },
-    },
-    skeleton: {
-      bg: "#e5e4e6",
-      highlightColor: BG_LIGHT,
-    },
-    wallet: {
-      default: {
-        bg: BG_WHITE,
       },
     },
   },

@@ -146,15 +146,13 @@ const TutorialPage = styled.div`
     overflow: auto;
     max-width: 60rem;
     padding-top: ${theme.components.tabs.tab.default.height};
-    background: ${theme.components.main.primary.tutorial.default.bg};
+    background: ${theme.views.main.primary.tutorial.default.bg};
   `}
 `;
 
 const TutorialContent = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.components.main.primary.tutorial.tutorialPage
-    )};
+    ${PgTheme.convertToCSS(theme.views.main.primary.tutorial.tutorialPage)};
   `}
 `;
 

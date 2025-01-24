@@ -46,7 +46,7 @@ const FullWidthBg = styled.div`
   ${({ theme }) => css`
     padding: 1rem;
     margin-top: 0.75rem;
-    background: ${theme.components.sidebar.right.default.otherBg};
+    background: ${theme.views.sidebar.right.default.otherBg};
     border-top: 1px solid ${theme.colors.default.border};
     border-bottom: 1px solid ${theme.colors.default.border};
   `}

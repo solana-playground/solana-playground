@@ -64,12 +64,8 @@ const SOLANA: Theme = {
   default: {
     borderRadius: "12px",
   },
+
   components: {
-    bottom: {
-      default: {
-        color: BG_BLACK,
-      },
-    },
     button: {
       default: {
         "&:not(:disabled):hover": {
@@ -121,53 +117,9 @@ const SOLANA: Theme = {
     input: {
       padding: "0.375rem 0.625rem",
     },
-    main: {
-      default: {
-        bg: BG_BLACK,
-      },
-      primary: {
-        home: {
-          resources: {
-            card: {
-              default: {
-                bg: BG_GRAY,
-              },
-            },
-          },
-          tutorials: {
-            card: {
-              bg: BG_GRAY,
-            },
-          },
-        },
-        tutorials: {
-          main: {
-            default: {
-              bg: BG_BLACK,
-              border: `1px solid ${SELECTION}`,
-            },
-            content: {
-              card: {
-                default: {
-                  bg: BG_GRAY,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
     menu: {
       default: {
         bg: BG_GRAY,
-      },
-    },
-    sidebar: {
-      right: {
-        default: {
-          bg: BG_BLACK,
-          otherBg: BG_GRAY,
-        },
       },
     },
     skeleton: {
@@ -213,6 +165,59 @@ const SOLANA: Theme = {
       },
     },
   },
+
+  views: {
+    bottom: {
+      default: {
+        color: BG_BLACK,
+      },
+    },
+    main: {
+      default: {
+        bg: BG_BLACK,
+      },
+      primary: {
+        home: {
+          resources: {
+            card: {
+              default: {
+                bg: BG_GRAY,
+              },
+            },
+          },
+          tutorials: {
+            card: {
+              bg: BG_GRAY,
+            },
+          },
+        },
+        tutorials: {
+          main: {
+            default: {
+              bg: BG_BLACK,
+              border: `1px solid ${SELECTION}`,
+            },
+            content: {
+              card: {
+                default: {
+                  bg: BG_GRAY,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    sidebar: {
+      right: {
+        default: {
+          bg: BG_BLACK,
+          otherBg: BG_GRAY,
+        },
+      },
+    },
+  },
+
   highlight: {
     typeName: { color: BLUE, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },

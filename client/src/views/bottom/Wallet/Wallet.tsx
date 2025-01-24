@@ -32,7 +32,7 @@ export const Wallet = () => {
 
 const ConnectButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.connect)};
+    ${PgTheme.convertToCSS(theme.views.bottom.connect)};
   `}
 `;
 

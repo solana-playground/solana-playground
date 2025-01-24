@@ -30,6 +30,6 @@ const Seperator = styled.span`
 
 const AddressLink = styled(Link)`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.address)};
+    ${PgTheme.convertToCSS(theme.views.bottom.address)};
   `}
 `;

@@ -80,7 +80,7 @@ const GradientWrapper = styled.div`
     }
 
     ${PgTheme.convertToCSS(
-      theme.components.main.primary.tutorials.main.content.card.gradient
+      theme.views.main.primary.tutorials.main.content.card.gradient
     )};
   `}
 `;
@@ -88,7 +88,7 @@ const GradientWrapper = styled.div`
 const InsideWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.primary.tutorials.main.content.card.default
+      theme.views.main.primary.tutorials.main.content.card.default
     )};
   `}
 `;

@@ -13,7 +13,7 @@ const Main = () => (
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.default)};
+    ${PgTheme.convertToCSS(theme.views.main.default)};
   `}
 `;
 
