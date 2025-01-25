@@ -72,7 +72,7 @@ const Side = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.sidebar.default)};
+    ${PgTheme.convertToCSS(theme.views.sidebar.default)};
   `}
 `;
 

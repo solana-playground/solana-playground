@@ -31,7 +31,7 @@ const Tutorials = () => {
     const tutorialNames = PgTutorial.getUserTutorialNames();
     const data: TutorialsData = { completed: [], ongoing: [] };
     for (const tutorialName of tutorialNames) {
-      const tutorialData = PgTutorial.getTutorialData(tutorialName);
+      const tutorialData = PgTutorial.all.find((t) => t.name === tutorialName);
       if (!tutorialData) continue;
 
       const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
@@ -103,7 +103,7 @@ const TutorialWrapper = styled.div<{ progress: number }>`
   ${({ theme, progress }) => css`
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background: ${theme.components.sidebar.right.default.otherBg};
+    background: ${theme.views.sidebar.right.default.otherBg};
     border-radius: ${theme.default.borderRadius};
     box-shadow: ${theme.default.boxShadow};
     transition: all ${theme.default.transition.duration.medium}

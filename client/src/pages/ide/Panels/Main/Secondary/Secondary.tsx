@@ -190,7 +190,7 @@ const Secondary = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.secondary.default)};
+    ${PgTheme.convertToCSS(theme.views.main.secondary.default)};
 
     & > div:first-child {
       height: ${getMinHeight()}px;
@@ -213,15 +213,15 @@ const Topbar = styled.div`
 
 const TabsWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.secondary.tabs.default)};
+    ${PgTheme.convertToCSS(theme.views.main.secondary.tabs.default)};
   `}
 `;
 
 const Tab = styled.div<{ isCurrent: boolean }>`
   ${({ theme, isCurrent }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.secondary.tabs.tab.default)};
+    ${PgTheme.convertToCSS(theme.views.main.secondary.tabs.tab.default)};
     ${isCurrent &&
-    PgTheme.convertToCSS(theme.components.main.secondary.tabs.tab.current)};
+    PgTheme.convertToCSS(theme.views.main.secondary.tabs.tab.current)};
   `}
 `;
 

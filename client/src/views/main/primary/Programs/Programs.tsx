@@ -52,13 +52,13 @@ export const Programs: FC<ProgramsProps> = ({ programs }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.primary.programs.default)};
+    ${PgTheme.convertToCSS(theme.views.main.primary.programs.default)};
   `}
 `;
 
 const TopSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.primary.programs.top)};
+    ${PgTheme.convertToCSS(theme.views.main.primary.programs.top)};
   `}
 `;
 
@@ -66,16 +66,14 @@ const Title = styled.h1``;
 
 const MainSection = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.components.main.primary.programs.main.default
-    )};
+    ${PgTheme.convertToCSS(theme.views.main.primary.programs.main.default)};
   `}
 `;
 
 const MainContent = styled.div<{ noMatch: boolean }>`
   ${({ theme, noMatch }) => css`
     ${PgTheme.convertToCSS(
-      theme.components.main.primary.programs.main.content.default
+      theme.views.main.primary.programs.main.content.default
     )};
     ${noMatch
       ? "justify-content: center; align-items: center"

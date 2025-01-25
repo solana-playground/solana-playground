@@ -1,6 +1,3 @@
-import { anchor } from "./anchor";
-import { native } from "./native";
-import { seahorse } from "./seahorse";
+import * as _FRAMEWORKS from "./frameworks";
 
-/** All available program frameworks, order matters */
-export const FRAMEWORKS = [native, anchor, seahorse];
+export const FRAMEWORKS = Object.values(_FRAMEWORKS);

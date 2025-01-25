@@ -8,6 +8,6 @@ export const FILTERS = [
   },
   {
     param: "categories",
-    filters: TUTORIAL_CATEGORIES.filter((c) => c !== "Gaming"),
+    filters: TUTORIAL_CATEGORIES,
   },
 ] as const;

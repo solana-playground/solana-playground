@@ -105,11 +105,11 @@ const Wrapper = styled.div<{
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    height: calc(${windowHeight}px - ${theme.components.bottom.default.height});
+    height: calc(${windowHeight}px - ${theme.views.bottom.default.height});
     min-width: ${width ? width : oldWidth}px;
 
     ${PgTheme.getScrollbarCSS()};
-    ${PgTheme.convertToCSS(theme.components.sidebar.right.default)};
+    ${PgTheme.convertToCSS(theme.views.sidebar.right.default)};
   `}
 `;
 
@@ -119,7 +119,7 @@ const TitleWrapper = styled.div`
     justify-content: center;
     align-items: center;
 
-    ${PgTheme.convertToCSS(theme.components.sidebar.right.title)};
+    ${PgTheme.convertToCSS(theme.views.sidebar.right.title)};
   `}
 `;
 

@@ -40,7 +40,7 @@ const Wrapper = styled.div`
       align-items: center;
     }
 
-    ${PgTheme.convertToCSS(theme.components.bottom.default)};
+    ${PgTheme.convertToCSS(theme.views.bottom.default)};
   `}
 `;
 

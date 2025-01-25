@@ -25,10 +25,10 @@ const SidebarButton: FC<SidebarButtonProps> = ({
 
 const IconWrapper = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.sidebar.left.button.default)};
+    ${PgTheme.convertToCSS(theme.views.sidebar.left.button.default)};
 
     &.${ClassName.ACTIVE} {
-      ${PgTheme.convertToCSS(theme.components.sidebar.left.button.selected)};
+      ${PgTheme.convertToCSS(theme.views.sidebar.left.button.selected)};
     }
 
     &.${ClassName.ACTIVE} img,

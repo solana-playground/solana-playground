@@ -1,5 +1,3 @@
-// Exported commands from this file will automatically be usable in the terminal
-
 export * from "./anchor";
 export * from "./build";
 export * from "./clear";

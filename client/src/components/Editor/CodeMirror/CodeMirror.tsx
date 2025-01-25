@@ -583,12 +583,12 @@ const Wrapper = styled.div`
     })};
 
     & ::-webkit-scrollbar-track {
-      background: ${theme.components.main.default.bg};
+      background: ${theme.views.main.default.bg};
       border-left: 1px solid ${theme.colors.default.border};
     }
 
     & ::-webkit-scrollbar-corner {
-      background: ${theme.components.main.default.bg};
+      background: ${theme.views.main.default.bg};
     }
   `}
 `;

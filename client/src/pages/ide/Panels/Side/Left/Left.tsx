@@ -102,7 +102,7 @@ const Wrapper = styled.div`
     user-select: none;
     overflow: hidden;
 
-    ${PgTheme.convertToCSS(theme.components.sidebar.left.default)};
+    ${PgTheme.convertToCSS(theme.views.sidebar.left.default)};
   `}
 `;
 

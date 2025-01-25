@@ -73,12 +73,8 @@ const PLAYGROUND: Theme = {
     borderRadius: "8px",
     boxShadow: "#0d081680 -1px 4px 8px",
   },
+
   components: {
-    bottom: {
-      default: {
-        bg: DARK_BLUE,
-      },
-    },
     button: {
       default: {
         borderRadius: "12px",
@@ -94,6 +90,35 @@ const PLAYGROUND: Theme = {
       },
       wrapper: {
         bg: `linear-gradient(315deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
+      },
+    },
+    modal: {
+      default: {
+        bg: BG_DARK + "19",
+        boxShadow: BOX_SHADOW_LIGHT,
+        border: "none",
+      },
+    },
+    skeleton: {
+      bg: BG_LIGHT,
+      highlightColor: BG_DEFAULT,
+    },
+    progressbar: {
+      indicator: {
+        bg: PROGRESS_BG,
+      },
+    },
+    toast: {
+      progress: {
+        bg: PROGRESS_BG,
+      },
+    },
+  },
+
+  views: {
+    bottom: {
+      default: {
+        bg: DARK_BLUE,
       },
     },
     main: {
@@ -153,13 +178,7 @@ const PLAYGROUND: Theme = {
         },
       },
     },
-    modal: {
-      default: {
-        bg: BG_DARK + "19",
-        boxShadow: BOX_SHADOW_LIGHT,
-        border: "none",
-      },
-    },
+
     sidebar: {
       left: {
         default: {
@@ -173,21 +192,8 @@ const PLAYGROUND: Theme = {
         },
       },
     },
-    skeleton: {
-      bg: BG_LIGHT,
-      highlightColor: BG_DEFAULT,
-    },
-    progressbar: {
-      indicator: {
-        bg: PROGRESS_BG,
-      },
-    },
-    toast: {
-      progress: {
-        bg: PROGRESS_BG,
-      },
-    },
   },
+
   highlight: {
     typeName: { color: CYAN, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },

@@ -35,6 +35,6 @@ const Dash = styled.span`
 
 const NetworkNameText = styled.span`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.bottom.endpoint)};
+    ${PgTheme.convertToCSS(theme.views.bottom.endpoint)};
   `}
 `;
