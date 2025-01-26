@@ -221,6 +221,7 @@ const SOLANA: Theme = {
   highlight: {
     typeName: { color: BLUE, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },
+    constant: { color: TEXT_PRIMARY },
     namespace: { color: BLUE },
     macroName: { color: GREEN },
     functionCall: { color: GREEN },
@@ -244,13 +245,12 @@ const SOLANA: Theme = {
     lineComment: { color: COMMENT },
     blockComment: { color: COMMENT },
     meta: { color: PURPLE },
-    invalid: { color: RED },
-    constant: { color: TEXT_PRIMARY },
     regexp: { color: ORANGE },
     tagName: { color: YELLOW },
     attributeName: { color: YELLOW },
     attributeValue: { color: YELLOW },
     annotion: { color: ORANGE },
+    invalid: { color: RED },
   },
 };
 

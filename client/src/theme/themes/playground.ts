@@ -197,6 +197,7 @@ const PLAYGROUND: Theme = {
   highlight: {
     typeName: { color: CYAN, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },
+    constant: { color: TEXT_PRIMARY },
     namespace: { color: CYAN },
     macroName: { color: H_GREEN },
     functionCall: { color: H_GREEN },
@@ -220,13 +221,12 @@ const PLAYGROUND: Theme = {
     lineComment: { color: COMMENT, fontStyle: "italic" },
     blockComment: { color: COMMENT, fontStyle: "italic" },
     meta: { color: H_LIGHT_BLUE },
-    invalid: { color: RED },
-    constant: { color: TEXT_PRIMARY },
     regexp: { color: YELLOW },
     tagName: { color: YELLOW },
     attributeName: { color: YELLOW },
     attributeValue: { color: YELLOW },
     annotion: { color: YELLOW },
+    invalid: { color: RED },
   },
 };
 

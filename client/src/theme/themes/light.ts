@@ -173,6 +173,7 @@ const LIGHT: Theme = {
   highlight: {
     typeName: { color: TYPE_BLUE, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },
+    constant: { color: TEXT_SECONDARY },
     namespace: { color: TYPE_BLUE },
     macroName: { color: KEYWORDS_BLUE },
     functionCall: { color: FN_YELLOW },
@@ -196,13 +197,12 @@ const LIGHT: Theme = {
     lineComment: { color: COMMENT },
     blockComment: { color: COMMENT },
     meta: { color: GUTTER_BLUE },
-    invalid: { color: ERROR_RED },
-    constant: { color: TEXT_SECONDARY },
     regexp: { color: STRING_RED },
     tagName: { color: STRING_RED },
     attributeName: { color: STRING_RED },
     attributeValue: { color: STRING_RED },
     annotion: { color: STRING_RED },
+    invalid: { color: ERROR_RED },
   },
 };
 

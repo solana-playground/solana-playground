@@ -356,104 +356,82 @@ export interface Theme {
   };
 
   /** Code highlight styles */
-  highlight: Highlight;
+  highlight: HighlightParam;
+}
+
+/** Syntax highlighting styles parameter */
+interface HighlightParam {
+  /** let x: *bool* = true; */
+  typeName: HighlightToken;
+  /** let *x*: bool = true; */
+  variableName: HighlightToken;
+  /** const *x*: bool = true; */
+  constant: HighlightToken;
+  /** *String*::new(); */
+  namespace: HighlightToken;
+  /** *println!*() */
+  macroName: HighlightToken;
+  /** *myFn*() */
+  functionCall: HighlightToken;
+  /** a.*to*lowercase*() */
+  functionDef: HighlightToken;
+  /** myFn(*arg*: bool) */
+  functionArg: HighlightToken;
+  /** const macro*rules struct union enum type fn impl trait let static */
+  definitionKeyword: HighlightToken;
+  /** mod use crate */
+  moduleKeyword: HighlightToken;
+  /** pub unsafe async mut extern default move */
+  modifier: HighlightToken;
+  /** for if else loop while match continue break return await */
+  controlKeyword: HighlightToken;
+  /** as in ref */
+  operatorKeyword: HighlightToken;
+  /** where crate super dyn */
+  keyword: HighlightToken;
+  /** self */
+  self: HighlightToken;
+  /** true */
+  bool: HighlightToken;
+  /** 5 */
+  integer: HighlightToken;
+  /** 5.5 */
+  literal: HighlightToken;
+  /** "" + b"" + r#""# */
+  string: HighlightToken;
+  /** ' */
+  character: HighlightToken;
+  /** & */
+  operator: HighlightToken;
+  /** * */
+  derefOperator: HighlightToken;
+  /** Lifetime &*'a* */
+  specialVariable: HighlightToken;
+  /** Comment with `//` */
+  lineComment: HighlightToken;
+  /** Comment with `///` */
+  blockComment: HighlightToken;
+  /** # */
+  meta: HighlightToken;
+  /** /expr/ */
+  regexp: HighlightToken;
+
+  //////////////// The following are unused by the Monaco Editor ///////////////
+  // TODO: Remove after CodeMirror impl
+  tagName: HighlightToken;
+  attributeName: HighlightToken;
+  attributeValue: HighlightToken;
+  annotion: HighlightToken;
+  invalid: HighlightToken;
 }
 
 /** Syntax highlighting styles */
-export interface Highlight {
-  // const x: _bool_ = true;
-  typeName: HighlightToken;
-
-  // let _x_: bool = true;
-  variableName: HighlightToken;
-
-  // _String_::new();
-  namespace: HighlightToken;
-
-  // _println!_()
-  macroName: HighlightToken;
-
-  // _myFn_()
-  functionCall: HighlightToken;
-
-  // a._to_lowercase_()
-  functionDef: HighlightToken;
-
-  // myFn(_arg_: bool)
-  functionArg: HighlightToken;
-
-  // const macro_rules struct union enum type fn impl trait let static
-  definitionKeyword: HighlightToken;
-
-  // mod use crate
-  moduleKeyword: HighlightToken;
-
-  // pub unsafe async mut extern default move
-  modifier: HighlightToken;
-
-  // for if else loop while match continue break return await
-  controlKeyword: HighlightToken;
-
-  // as in ref
-  operatorKeyword: HighlightToken;
-
-  // where crate super dyn
-  keyword: HighlightToken;
-
-  // self
-  self: HighlightToken;
-
-  // true
-  bool: HighlightToken;
-
-  // 5
-  integer: HighlightToken;
-
-  // 5.5
-  literal: HighlightToken;
-
-  // "" + b"" + r#""#
-  string: HighlightToken;
-
-  // '
-  character: HighlightToken;
-
-  // &
-  operator: HighlightToken;
-
-  // *
-  derefOperator: HighlightToken;
-
-  // Lifetime &_'a_
-  specialVariable: HighlightToken;
-
-  // Comment with //
-  lineComment: HighlightToken;
-
-  // Comment with /* */
-  blockComment: HighlightToken;
-
-  // #
-  meta: HighlightToken;
-
-  invalid: HighlightToken;
-
-  // const _x_: bool = true;
-  constant: HighlightToken;
-
-  regexp: HighlightToken;
-
-  tagName: HighlightToken;
-
-  attributeName: HighlightToken;
-
-  attributeValue: HighlightToken;
-
-  annotion: HighlightToken;
-}
+export type Highlight = {
+  [K in keyof HighlightParam]: Exclude<HighlightToken, string>;
+};
 
 /** Syntax highlighting token */
-type HighlightToken = Pick<StandardProperties, "color" | "fontStyle">;
+type HighlightToken = string | Pick<StandardProperties, "color" | "fontStyle">;
 
 /** Playground font */
 export interface Font {
@@ -530,6 +508,9 @@ export type ThemeReady<
 } & {
   // All views
   views: AllRequired<V>;
+} & {
+  // Code syntax highlighting
+  highlight: Highlight;
 };
 
 /** Properties that are allowed to be specified from theme objects */

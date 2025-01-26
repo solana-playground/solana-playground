@@ -109,7 +109,12 @@ export class PgTheme {
     this._font = font;
 
     // Set defaults(order matters)
-    this._theme_fonts()._default()._stateColors()._views()._components();
+    this._theme_fonts()
+      ._default()
+      ._stateColors()
+      ._highlight()
+      ._views()
+      ._components();
 
     // Set theme
     localStorage.setItem(this._THEME_KEY, params.themeName);
@@ -670,6 +675,22 @@ export class PgTheme {
     state.info.bg ??= state.info.color + theme.default.transparency.low;
     state.success.bg ??= state.success.color + theme.default.transparency.low;
     state.warning.bg ??= state.warning.color + theme.default.transparency.low;
+
+    return this;
+  }
+
+  /** Set code syntax highlights */
+  private static _highlight() {
+    this._theme.highlight = Object.entries(this._theme.highlight).reduce(
+      (acc, [key, val]) => {
+        if (typeof val === "string") {
+          acc[key as keyof typeof acc] = { color: val };
+        }
+
+        return acc;
+      },
+      this._theme.highlight
+    );
 
     return this;
   }

@@ -106,6 +106,7 @@ const DRACULA: Theme = {
   highlight: {
     typeName: { color: CYAN, fontStyle: "italic" },
     variableName: { color: TEXT_PRIMARY },
+    constant: { color: TEXT_PRIMARY },
     namespace: { color: CYAN },
     macroName: { color: GREEN },
     functionCall: { color: GREEN },
@@ -129,13 +130,12 @@ const DRACULA: Theme = {
     lineComment: { color: COMMENT },
     blockComment: { color: COMMENT },
     meta: { color: PURPLE },
-    invalid: { color: RED },
-    constant: { color: TEXT_PRIMARY },
     regexp: { color: ORANGE },
     tagName: { color: YELLOW },
     attributeName: { color: YELLOW },
     attributeValue: { color: YELLOW },
     annotion: { color: ORANGE },
+    invalid: { color: RED },
   },
 };
 
