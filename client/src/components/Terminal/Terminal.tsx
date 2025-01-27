@@ -73,9 +73,13 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
     return () => observer.unobserve(terminalEl);
   }, [term]);
 
-  useKeybind("Ctrl+L", () => {
-    if (PgTerminal.isFocused()) term.clear();
-  });
+  useKeybind(
+    "Ctrl+L",
+    () => {
+      if (PgTerminal.isFocused()) term.clear();
+    },
+    [term]
+  );
 
   return <Wrapper ref={terminalRef} />;
 };
