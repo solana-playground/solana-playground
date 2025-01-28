@@ -1,5 +1,5 @@
-import { PgRouter, PgShare } from "../utils/pg";
-import { handleRoute } from "./utils";
+import { PgRouter, PgShare } from "../../utils/pg";
+import { handleRoute } from "../common";
 
 export const share = PgRouter.create({
   path: "/{shareId}",
@@ -8,7 +8,7 @@ export const share = PgRouter.create({
     return handleRoute({
       getMain: async () => {
         const { EditorWithTabs } = await import(
-          "../views/main/primary/EditorWithTabs"
+          "../../views/main/primary/EditorWithTabs"
         );
         return EditorWithTabs;
       },

@@ -1,5 +1,5 @@
-import { PgExplorer, PgRouter, PgTutorial } from "../utils/pg";
-import { handleRoute } from "./utils";
+import { PgExplorer, PgRouter, PgTutorial } from "../../utils/pg";
+import { handleRoute } from "../common";
 
 export const defaultRoute = PgRouter.create({
   path: "/",
@@ -18,7 +18,7 @@ export const defaultRoute = PgRouter.create({
         }
 
         const { EditorWithTabs } = await import(
-          "../views/main/primary/EditorWithTabs"
+          "../../views/main/primary/EditorWithTabs"
         );
         return EditorWithTabs;
       },

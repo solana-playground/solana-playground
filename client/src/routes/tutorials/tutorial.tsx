@@ -5,7 +5,7 @@ import {
   PgRouter,
   PgTutorial,
   PgView,
-} from "../utils/pg";
+} from "../../utils/pg";
 
 export const tutorial = PgRouter.create({
   path: "/tutorials/{tutorialName}",

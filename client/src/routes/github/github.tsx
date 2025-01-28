@@ -1,5 +1,5 @@
-import { PgGithub, PgRouter } from "../utils/pg";
-import { handleRoute } from "./utils";
+import { PgGithub, PgRouter } from "../../utils/pg";
+import { handleRoute } from "../common";
 
 export const githubDefault = PgRouter.create({
   path: "/{githubUrl}",
@@ -8,7 +8,7 @@ export const githubDefault = PgRouter.create({
     return handleRoute({
       getMain: async () => {
         const { EditorWithTabs } = await import(
-          "../views/main/primary/EditorWithTabs"
+          "../../views/main/primary/EditorWithTabs"
         );
         return EditorWithTabs;
       },
