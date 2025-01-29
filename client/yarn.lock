@@ -2698,12 +2698,12 @@
   resolved "https://registry.yarnpkg.com/@solana/codecs-core/-/codecs-core-2.0.0-experimental.8618508.tgz#4f6709dd50e671267f3bea7d09209bc6471b7ad0"
   integrity sha512-JCz7mKjVKtfZxkuDtwMAUgA7YvJcA2BwpZaA1NOLcted4OMC4Prwa3DUe3f3181ixPYaRyptbF0Ikq2MbDkYEA==
 
-"@solana/codecs-core@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/codecs-core/-/codecs-core-2.0.0-preview.2.tgz#689784d032fbc1fedbde40bb25d76cdcecf6553b"
-  integrity sha512-gLhCJXieSCrAU7acUJjbXl+IbGnqovvxQLlimztPoGgfLQ1wFYu+XJswrEVQqknZYK1pgxpxH3rZ+OKFs0ndQg==
+"@solana/codecs-core@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-core/-/codecs-core-2.0.0-rc.1.tgz#1a2d76b9c7b9e7b7aeb3bd78be81c2ba21e3ce22"
+  integrity sha512-bauxqMfSs8EHD0JKESaNmNuNvkvHSuN3bbWAF5RjOfDu2PugxHrvRebmYauvSumZ3cTfQ4HJJX6PG5rN852qyQ==
   dependencies:
-    "@solana/errors" "2.0.0-preview.2"
+    "@solana/errors" "2.0.0-rc.1"
 
 "@solana/codecs-data-structures@2.0.0-experimental.8618508":
   version "2.0.0-experimental.8618508"
@@ -2713,14 +2713,14 @@
     "@solana/codecs-core" "2.0.0-experimental.8618508"
     "@solana/codecs-numbers" "2.0.0-experimental.8618508"
 
-"@solana/codecs-data-structures@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/codecs-data-structures/-/codecs-data-structures-2.0.0-preview.2.tgz#e82cb1b6d154fa636cd5c8953ff3f32959cc0370"
-  integrity sha512-Xf5vIfromOZo94Q8HbR04TbgTwzigqrKII0GjYr21K7rb3nba4hUW2ir8kguY7HWFBcjHGlU5x3MevKBOLp3Zg==
+"@solana/codecs-data-structures@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-data-structures/-/codecs-data-structures-2.0.0-rc.1.tgz#d47b2363d99fb3d643f5677c97d64a812982b888"
+  integrity sha512-rinCv0RrAVJ9rE/rmaibWJQxMwC5lSaORSZuwjopSUE6T0nb/MVg6Z1siNCXhh/HFTOg0l8bNvZHgBcN/yvXog==
   dependencies:
-    "@solana/codecs-core" "2.0.0-preview.2"
-    "@solana/codecs-numbers" "2.0.0-preview.2"
-    "@solana/errors" "2.0.0-preview.2"
+    "@solana/codecs-core" "2.0.0-rc.1"
+    "@solana/codecs-numbers" "2.0.0-rc.1"
+    "@solana/errors" "2.0.0-rc.1"
 
 "@solana/codecs-numbers@2.0.0-experimental.8618508":
   version "2.0.0-experimental.8618508"
@@ -2729,13 +2729,13 @@
   dependencies:
     "@solana/codecs-core" "2.0.0-experimental.8618508"
 
-"@solana/codecs-numbers@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/codecs-numbers/-/codecs-numbers-2.0.0-preview.2.tgz#56995c27396cd8ee3bae8bd055363891b630bbd0"
-  integrity sha512-aLZnDTf43z4qOnpTcDsUVy1Ci9im1Md8thWipSWbE+WM9ojZAx528oAql+Cv8M8N+6ALKwgVRhPZkto6E59ARw==
+"@solana/codecs-numbers@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-numbers/-/codecs-numbers-2.0.0-rc.1.tgz#f34978ddf7ea4016af3aaed5f7577c1d9869a614"
+  integrity sha512-J5i5mOkvukXn8E3Z7sGIPxsThRCgSdgTWJDQeZvucQ9PT6Y3HiVXJ0pcWiOWAoQ3RX8e/f4I3IC+wE6pZiJzDQ==
   dependencies:
-    "@solana/codecs-core" "2.0.0-preview.2"
-    "@solana/errors" "2.0.0-preview.2"
+    "@solana/codecs-core" "2.0.0-rc.1"
+    "@solana/errors" "2.0.0-rc.1"
 
 "@solana/codecs-strings@2.0.0-experimental.8618508":
   version "2.0.0-experimental.8618508"
@@ -2745,33 +2745,33 @@
     "@solana/codecs-core" "2.0.0-experimental.8618508"
     "@solana/codecs-numbers" "2.0.0-experimental.8618508"
 
-"@solana/codecs-strings@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/codecs-strings/-/codecs-strings-2.0.0-preview.2.tgz#8bd01a4e48614d5289d72d743c3e81305d445c46"
-  integrity sha512-EgBwY+lIaHHgMJIqVOGHfIfpdmmUDNoNO/GAUGeFPf+q0dF+DtwhJPEMShhzh64X2MeCZcmSO6Kinx0Bvmmz2g==
+"@solana/codecs-strings@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-strings/-/codecs-strings-2.0.0-rc.1.tgz#e1d9167075b8c5b0b60849f8add69c0f24307018"
+  integrity sha512-9/wPhw8TbGRTt6mHC4Zz1RqOnuPTqq1Nb4EyuvpZ39GW6O2t2Q7Q0XxiB3+BdoEjwA2XgPw6e2iRfvYgqty44g==
   dependencies:
-    "@solana/codecs-core" "2.0.0-preview.2"
-    "@solana/codecs-numbers" "2.0.0-preview.2"
-    "@solana/errors" "2.0.0-preview.2"
+    "@solana/codecs-core" "2.0.0-rc.1"
+    "@solana/codecs-numbers" "2.0.0-rc.1"
+    "@solana/errors" "2.0.0-rc.1"
 
-"@solana/codecs@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/codecs/-/codecs-2.0.0-preview.2.tgz#d6615fec98f423166fb89409f9a4ad5b74c10935"
-  integrity sha512-4HHzCD5+pOSmSB71X6w9ptweV48Zj1Vqhe732+pcAQ2cMNnN0gMPMdDq7j3YwaZDZ7yrILVV/3+HTnfT77t2yA==
+"@solana/codecs@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/codecs/-/codecs-2.0.0-rc.1.tgz#146dc5db58bd3c28e04b4c805e6096c2d2a0a875"
+  integrity sha512-qxoR7VybNJixV51L0G1RD2boZTcxmwUWnKCaJJExQ5qNKwbpSyDdWfFJfM5JhGyKe9DnPVOZB+JHWXnpbZBqrQ==
   dependencies:
-    "@solana/codecs-core" "2.0.0-preview.2"
-    "@solana/codecs-data-structures" "2.0.0-preview.2"
-    "@solana/codecs-numbers" "2.0.0-preview.2"
-    "@solana/codecs-strings" "2.0.0-preview.2"
-    "@solana/options" "2.0.0-preview.2"
+    "@solana/codecs-core" "2.0.0-rc.1"
+    "@solana/codecs-data-structures" "2.0.0-rc.1"
+    "@solana/codecs-numbers" "2.0.0-rc.1"
+    "@solana/codecs-strings" "2.0.0-rc.1"
+    "@solana/options" "2.0.0-rc.1"
 
-"@solana/errors@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/errors/-/errors-2.0.0-preview.2.tgz#e0ea8b008c5c02528d5855bc1903e5e9bbec322e"
-  integrity sha512-H2DZ1l3iYF5Rp5pPbJpmmtCauWeQXRJapkDg8epQ8BJ7cA2Ut/QEtC3CMmw/iMTcuS6uemFNLcWvlOfoQhvQuA==
+"@solana/errors@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/errors/-/errors-2.0.0-rc.1.tgz#3882120886eab98a37a595b85f81558861b29d62"
+  integrity sha512-ejNvQ2oJ7+bcFAYWj225lyRkHnixuAeb7RQCixm+5mH4n1IA4Qya/9Bmfy5RAAHQzxK43clu3kZmL5eF9VGtYQ==
   dependencies:
     chalk "^5.3.0"
-    commander "^12.0.0"
+    commander "^12.1.0"
 
 "@solana/options@2.0.0-experimental.8618508":
   version "2.0.0-experimental.8618508"
@@ -2781,13 +2781,16 @@
     "@solana/codecs-core" "2.0.0-experimental.8618508"
     "@solana/codecs-numbers" "2.0.0-experimental.8618508"
 
-"@solana/options@2.0.0-preview.2":
-  version "2.0.0-preview.2"
-  resolved "https://registry.yarnpkg.com/@solana/options/-/options-2.0.0-preview.2.tgz#13ff008bf43a5056ef9a091dc7bb3f39321e867e"
-  integrity sha512-FAHqEeH0cVsUOTzjl5OfUBw2cyT8d5Oekx4xcn5hn+NyPAfQJgM3CEThzgRD6Q/4mM5pVUnND3oK/Mt1RzSE/w==
+"@solana/options@2.0.0-rc.1":
+  version "2.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@solana/options/-/options-2.0.0-rc.1.tgz#06924ba316dc85791fc46726a51403144a85fc4d"
+  integrity sha512-mLUcR9mZ3qfHlmMnREdIFPf9dpMc/Bl66tLSOOWxw4ml5xMT2ohFn7WGqoKcu/UHkT9CrC6+amEdqCNvUqI7AA==
   dependencies:
-    "@solana/codecs-core" "2.0.0-preview.2"
-    "@solana/codecs-numbers" "2.0.0-preview.2"
+    "@solana/codecs-core" "2.0.0-rc.1"
+    "@solana/codecs-data-structures" "2.0.0-rc.1"
+    "@solana/codecs-numbers" "2.0.0-rc.1"
+    "@solana/codecs-strings" "2.0.0-rc.1"
+    "@solana/errors" "2.0.0-rc.1"
 
 "@solana/spl-account-compression@*":
   version "0.1.10"
@@ -2813,13 +2816,12 @@
     js-sha3 "^0.8.0"
     typescript-collections "^1.3.3"
 
-"@solana/spl-token-group@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@solana/spl-token-group/-/spl-token-group-0.0.2.tgz#23f754fd535a4df5e2b80293a03aabd58bd99167"
-  integrity sha512-vLePrFvT9+PfK2KZaddPebTWtRykXUR+060gqomFUcBk/2UPpZtsJGW+xshI9z9Ryrx7FieprZEUCApw34BwrQ==
+"@solana/spl-token-group@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token-group/-/spl-token-group-0.0.7.tgz#83c00f0cd0bda33115468cd28b89d94f8ec1fee4"
+  integrity sha512-V1N/iX7Cr7H0uazWUT2uk27TMqlqedpXHRqqAbVO2gvmJyT0E0ummMEAVQeXZ05ZhQ/xF39DLSdBp90XebWEug==
   dependencies:
-    "@solana/codecs" "2.0.0-preview.2"
-    "@solana/spl-type-length-value" "0.1.0"
+    "@solana/codecs" "2.0.0-rc.1"
 
 "@solana/spl-token-metadata@^0.1.2":
   version "0.1.2"
@@ -2833,15 +2835,23 @@
     "@solana/options" "2.0.0-experimental.8618508"
     "@solana/spl-type-length-value" "0.1.0"
 
+"@solana/spl-token-metadata@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token-metadata/-/spl-token-metadata-0.1.6.tgz#d240947aed6e7318d637238022a7b0981b32ae80"
+  integrity sha512-7sMt1rsm/zQOQcUWllQX9mD2O6KhSAtY1hFR2hfFwgqfFWzSY9E9GDvFVNYUI1F0iQKcm6HmePU9QbKRXTEBiA==
+  dependencies:
+    "@solana/codecs" "2.0.0-rc.1"
+
 "@solana/spl-token@*":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.4.3.tgz#cb923184fcba3f875f5914a440a68d7f537d0bac"
-  integrity sha512-mRjJJE9CIBejsg9WAmDp369pWeObm42K2fwsZ4dkJAMCt1KBPb5Eb1vzM5+AYfV/BUTy3QP2oFx8kV+8Doa1xQ==
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.4.11.tgz#331ccba30495c62f6dc4c1b8c1454f2c4e2a09fc"
+  integrity sha512-wG9I5nPpRCseiJ3+LyO0Fa8MJsecg6v32zPsP2nZYn/VyfGYET1DkhXVtqLE3dkVSjrt+2ILc9iewOX5L0hpGA==
   dependencies:
     "@solana/buffer-layout" "^4.0.0"
     "@solana/buffer-layout-utils" "^0.2.0"
-    "@solana/spl-token-group" "^0.0.2"
-    "@solana/spl-token-metadata" "^0.1.2"
+    "@solana/spl-token-group" "^0.0.7"
+    "@solana/spl-token-metadata" "^0.1.6"
+    "@solana/zk-sdk" "0.1.0"
     buffer "^6.0.3"
 
 "@solana/spl-token@^0.1.8":
@@ -3051,6 +3061,11 @@
     node-fetch "2"
     rpc-websockets "^7.5.0"
     superstruct "^0.14.2"
+
+"@solana/zk-sdk@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@solana/zk-sdk/-/zk-sdk-0.1.0.tgz#f0d5f0bec8688962332dc1fd817627dda493bef6"
+  integrity sha512-5iWTokAx6sOLSJVj7wABhhHtJ2KifXP1yjefBwXhd/BNwl+ZmI5KwQEGPYHGJEDabhqwam2Kwly7N+k0Bj7Bng==
 
 "@supercharge/promise-pool@^2.1.0":
   version "2.4.0"
@@ -5182,10 +5197,10 @@ comma-separated-tokens@^2.0.0:
   resolved "https://registry.yarnpkg.com/comma-separated-tokens/-/comma-separated-tokens-2.0.2.tgz#d4c25abb679b7751c880be623c1179780fe1dd98"
   integrity sha512-G5yTt3KQN4Yn7Yk4ed73hlZ1evrFKXeUW3086p3PRFNp7m2vIjI6Pg+Kgb+oyzhd9F2qdcoj67+y3SdxL5XWsg==
 
-commander@^12.0.0:
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-12.0.0.tgz#b929db6df8546080adfd004ab215ed48cf6f2592"
-  integrity sha512-MwVNWlYjDTtOjX5PiD7o5pK0UrFU/OYgcJfjjK4RaHZETNtjJqrZa9Y9ds88+A+f+d5lv+561eZ+yCKoS3gbAA==
+commander@^12.1.0:
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-12.1.0.tgz#01423b36f501259fdaac4d0e4d60c96c991585d3"
+  integrity sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==
 
 commander@^2.20.0, commander@^2.20.3:
   version "2.20.3"
