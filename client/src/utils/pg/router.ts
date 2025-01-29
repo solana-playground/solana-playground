@@ -1,6 +1,6 @@
 import { PgCommon } from "./common";
 import { EventName } from "../../constants";
-import type { Disposable, OrString, SyncOrAsync } from "./types";
+import type { Disposable, SyncOrAsync } from "./types";
 
 /** Opening delimiter for path variables */
 const OPEN = "{";
@@ -83,7 +83,7 @@ export class PgRouter {
    *
    * @param path pathname to navigate to
    */
-  static navigate(path: OrString<RoutePath> = "/") {
+  static navigate(path: RoutePath = "/") {
     const { pathname, search } = this.location;
     if (!this.isPathsEqual(pathname + search, path)) {
       PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
@@ -97,10 +97,7 @@ export class PgRouter {
    * @param pathTwo second path
    * @returns whether the paths are equal
    */
-  static isPathsEqual(
-    pathOne: OrString<RoutePath>,
-    pathTwo: OrString<RoutePath>
-  ) {
+  static isPathsEqual(pathOne: RoutePath, pathTwo: RoutePath) {
     return PgCommon.isPathsEqual(pathOne, pathTwo);
   }
 

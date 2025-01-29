@@ -9,6 +9,7 @@ import {
   Arrayable,
   ClientPackageName,
   Disposable,
+  OrString,
   SyncOrAsync,
   ThemeReady,
   TutorialDataParam,
@@ -58,7 +59,7 @@ global {
 // Route
 global {
   /** All route path names */
-  type RoutePath = typeof ROUTES[number]["path"];
+  type RoutePath = OrString<typeof ROUTES[number]["path"]>;
 }
 
 // View
