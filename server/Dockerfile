@@ -24,7 +24,7 @@ RUN cargo build --release
 ################################# START SERVER #################################
 FROM rust
 
-ARG SOLANA_VERSION="1.17.0"
+ARG SOLANA_VERSION="1.17.34"
 
 # Install Solana
 RUN sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"
