@@ -11,6 +11,7 @@ const DIRS = [
   "frameworks",
   "languages",
   "routes",
+  "themes",
 ];
 
 for (const dir of DIRS) {

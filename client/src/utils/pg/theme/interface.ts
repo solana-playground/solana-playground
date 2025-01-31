@@ -444,14 +444,17 @@ export interface Font {
 }
 
 /** Importable(lazy) theme */
-export interface ImportableTheme {
+export interface ImportableThemeParam {
   /** Name of the theme that's displayed in theme settings */
   name: string;
   /** Import promise for the theme to lazy load */
-  importTheme: () => Promise<{
+  importTheme?: () => Promise<{
     default: Theme;
   }>;
 }
+
+/** Importable(lazy) theme */
+export type ImportableTheme = Required<ImportableThemeParam>;
 
 /** Components that use `DefaultComponent` type */
 type DefaultComponents = "input" | "skeleton" | "tooltip";

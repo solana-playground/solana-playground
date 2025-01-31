@@ -4,7 +4,7 @@ import styled, {
   ThemeProvider as StyledThemeProvider,
 } from "styled-components";
 
-import { FONTS, THEMES } from "../../theme";
+import { FONTS, THEMES } from "../../themes";
 import { Font, PgTheme, ThemeReady } from "../../utils/pg/theme";
 import { EventName } from "../../constants/event";
 import { useSetStatic } from "../../hooks/useSetStatic";
