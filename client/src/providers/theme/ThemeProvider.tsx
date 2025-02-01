@@ -5,12 +5,12 @@ import styled, {
 } from "styled-components";
 
 import { FONTS, THEMES } from "../../themes";
-import { Font, PgTheme, ThemeReady } from "../../utils/pg/theme";
+import { Font, PgTheme, Theme } from "../../utils/pg/theme";
 import { EventName } from "../../constants/event";
 import { useSetStatic } from "../../hooks/useSetStatic";
 
 export const ThemeProvider: FC = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeReady>();
+  const [theme, setTheme] = useState<Theme>();
   const [font, setFont] = useState<Font>();
 
   useSetStatic(setTheme, EventName.THEME_SET);

@@ -11,7 +11,7 @@ import {
   Disposable,
   OrString,
   SyncOrAsync,
-  ThemeReady,
+  Theme,
   TutorialDataParam,
 } from "../utils/pg";
 
@@ -78,5 +78,5 @@ global {
 }
 
 declare module "styled-components" {
-  export interface DefaultTheme extends ThemeReady {}
+  export interface DefaultTheme extends Theme {}
 }

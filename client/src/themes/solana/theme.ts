@@ -1,4 +1,4 @@
-import type { Theme } from "../../utils/pg";
+import type { ThemeParam } from "../../utils/pg";
 
 // BG
 const BG_BLACK = "#000000",
@@ -28,7 +28,7 @@ const NO_TRANSFORM = {
   },
 };
 
-const SOLANA: Theme = {
+const SOLANA: ThemeParam = {
   isDark: true,
   colors: {
     default: {

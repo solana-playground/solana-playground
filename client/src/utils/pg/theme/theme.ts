@@ -7,7 +7,7 @@ import type {
   ImportableTheme,
   Font,
   ThemeInternal,
-  ThemeReady,
+  Theme,
   ThemeColor,
   Highlight,
 } from "./interface";
@@ -316,7 +316,7 @@ export class PgTheme {
    * @param theme ready theme
    * @returns the converted TextMate theme
    */
-  static convertToTextMateTheme(theme: ThemeReady) {
+  static convertToTextMateTheme(theme: Theme) {
     const editorStyles = theme.components.editor;
     const hl = theme.highlight;
 
@@ -567,7 +567,7 @@ export class PgTheme {
 
   /** Get the theme with default types set */
   private static get _themeReady() {
-    return this._theme as ThemeReady;
+    return this._theme as Theme;
   }
 
   /** Get and initialize component and return it with the correct type */
