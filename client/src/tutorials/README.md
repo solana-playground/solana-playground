@@ -72,32 +72,19 @@ For example, you can run any code whenever the user changes the page.
 
 Make sure you've done the initial setup mentioned in [How to add a tutorial](#how-to-add-a-tutorial).
 
-1. Create a tutorial component
+1. Copy the `__template` directory
 
-   There is a ready to use template component in `./__Template`. You can copy the entire directory and change it based on your needs. Component lives in `Template.tsx`, everything else is tutorial contents.
+2. Rename the directory and file names to fit your tutorial's name e.g. if your tutorial name is "Cool Tutorial", rename the:
 
-2. Add an entry for your tutorial
+   - Directory to `cool-tutorial`
+   - `template.ts` file to `cool-tutorial.ts`
+   - `Template.tsx` file to `CoolTutorial.tsx`
 
-   Open `tutorials.ts` and add an entry to the `TUTORIALS` array like in the existing template.
+3. Change content
 
-   ```ts
-   {
-     name: "Template",
-     description: "Simple template tutorial.",
-     authors: [
-       {
-         name: "acheron",
-         link: "https://twitter.com/acheroncrypto",
-       },
-     ],
-     level: "Beginner",
-     framework: "Anchor",
-     languages: ["Rust", "TypeScript"],
-     categories: ["Gaming", "Payments"],
-   },
-   ```
+   You can take inspiration from the existing tutorials like `hello-*` tutorials, e.g. `hello-anchor`.
 
-3. [Send pull requests](#send-pull-requests)
+4. [Send pull requests](#send-pull-requests)
 
 ## Storing assets
 
