@@ -32,7 +32,6 @@ const BOX_SHADOW_LIGHT = `0px 0px 12px 0px ${TEXT_PRIMARY}30`;
 const PROGRESS_BG = `linear-gradient(to right, ${BLUE}, ${CYAN})`;
 
 const PLAYGROUND: ThemeParam = {
-  isDark: true,
   colors: {
     default: {
       bgPrimary: BG_DEFAULT,

@@ -29,7 +29,6 @@ const NO_TRANSFORM = {
 };
 
 const SOLANA: ThemeParam = {
-  isDark: true,
   colors: {
     default: {
       bgPrimary: BG_BLACK,

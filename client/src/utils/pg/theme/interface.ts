@@ -8,9 +8,6 @@ import { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
 export interface ThemeParam {
-  /** Whether the theme is a dark theme */
-  isDark: boolean;
-
   /**
    * Colors of the theme.
    *
@@ -447,6 +444,8 @@ export interface Font {
 export interface ImportableThemeParam {
   /** Name of the theme that's displayed in theme settings */
   name: string;
+  /** Whether the theme is a dark theme */
+  isDark?: boolean;
   /** Import promise for the theme to lazy load */
   importTheme?: () => Promise<{
     default: ThemeParam;
@@ -476,7 +475,7 @@ type ExtendibleComponents =
 type OverridableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
-export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
+export type ThemeInternal = Partial<Pick<ImportableTheme, "name" | "isDark">> &
   ThemeParam & {
     /** Default font */
     font?: {

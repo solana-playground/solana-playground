@@ -106,6 +106,7 @@ export class PgTheme {
       (await importableTheme.importTheme()).default
     );
     this._theme.name = importableTheme.name;
+    this._theme.isDark = importableTheme.isDark;
     this._font = font;
 
     // Set defaults(order matters)

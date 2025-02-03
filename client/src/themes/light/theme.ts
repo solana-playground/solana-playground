@@ -29,7 +29,6 @@ const HOVER = "#ecedee";
 const DISABLED = "#cccccc";
 
 const LIGHT: ThemeParam = {
-  isDark: false,
   colors: {
     default: {
       bgPrimary: BG_WHITE,
