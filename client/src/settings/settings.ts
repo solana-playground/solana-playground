@@ -1,26 +1,11 @@
-import { automaticAirdrop } from "./automatic-airdrop";
-import { blockExplorer } from "./block-explorer";
-import { commitment } from "./commitment";
-import { endpoint } from "./endpoint";
-import { font } from "./font";
-import { improveBuildErrors } from "./improve-build-errors";
-import { preflightChecks } from "./preflight-checks";
-import { priorityFee } from "./priority-fee";
-import { showTransactionDetails } from "./show-transaction-details";
-import { showTransactionNotifications } from "./show-transaction-notifications";
-import { theme } from "./theme";
-
-/** All configurable settings */
-export const SETTINGS = [
-  theme,
-  font,
-  endpoint,
-  commitment,
-  priorityFee,
-  blockExplorer,
-  preflightChecks,
-  automaticAirdrop,
-  showTransactionDetails,
-  showTransactionNotifications,
-  improveBuildErrors,
-];
+export * from "./automatic-airdrop";
+export * from "./block-explorer";
+export * from "./commitment";
+export * from "./endpoint";
+export * from "./font";
+export * from "./improve-build-errors";
+export * from "./preflight-checks";
+export * from "./priority-fee";
+export * from "./show-transaction-details";
+export * from "./show-transaction-notifications";
+export * from "./theme";

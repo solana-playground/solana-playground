@@ -11,6 +11,7 @@ const DIRS = [
   "frameworks",
   "languages",
   "routes",
+  "settings",
   "themes",
   "tutorials",
 ];
