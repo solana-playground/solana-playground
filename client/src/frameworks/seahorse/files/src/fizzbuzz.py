@@ -1,5 +1,5 @@
 # fizzbuzz
-# Built with Seahorse v0.2.0
+# Built with Seahorse v0.1.1
 #
 # On-chain, persistent FizzBuzz!
 
