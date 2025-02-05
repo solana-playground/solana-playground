@@ -2,23 +2,39 @@ import { useMemo } from "react";
 import { useTheme } from "styled-components";
 
 import Select from "../../components/Select";
-import { PgTheme } from "../../utils/pg";
+import { PgCommon, PgTheme } from "../../utils/pg";
 
 const ThemeSetting = () => {
-  const theme = useTheme();
+  const options = useMemo(() => {
+    const [darkThemes, lightThemes] = PgCommon.filterWithRemaining(
+      PgTheme.themes,
+      (t) => t.isDark
+    );
+    return [
+      {
+        label: "Dark",
+        options: darkThemes.map((t) => ({ label: t.name, value: t.name })),
+      },
+      {
+        label: "Light",
+        options: lightThemes.map((t) => ({ label: t.name, value: t.name })),
+      },
+    ];
+  }, []);
 
-  const options = useMemo(
-    () => PgTheme.themes.map((t) => ({ value: t.name, label: t.name })),
-    []
-  );
+  const theme = useTheme();
+  const value = useMemo(() => {
+    for (const option of options) {
+      const val = option.options.find((option) => option.value === theme.name);
+      if (val) return val;
+    }
+  }, [theme.name, options]);
 
   return (
     <Select
       options={options}
-      value={options.find((option) => option.value === theme.name)}
-      onChange={(newValue) => {
-        PgTheme.set({ themeName: newValue!.value });
-      }}
+      value={value}
+      onChange={(newValue) => PgTheme.set({ themeName: newValue!.value })}
     />
   );
 };
