@@ -1789,7 +1789,6 @@ export class PgTheme {
     featured.border ??= `1px solid ${theme.colors.default.border}`;
     featured.borderRadius ??= theme.default.borderRadius;
     featured.boxShadow ??= theme.default.boxShadow;
-    featured.overflow ??= "hidden";
 
     return this;
   }
