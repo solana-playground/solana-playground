@@ -168,33 +168,27 @@ const processDeploy = async () => {
     ? bufferBalance
     : 3 * bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
+    const msg = `${
+      programExists ? "Upgrading" : "Initial deployment"
+    } costs ${PgTerminal.bold(
+      PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
+    )} SOL but you have ${PgTerminal.bold(
+      PgCommon.lamportsToSol(userBalance).toFixed(2)
+    )} SOL. ${PgTerminal.bold(
+      PgCommon.lamportsToSol(bufferBalance).toFixed(2)
+    )} SOL will be refunded at the end.`;
     const airdropAmount = PgConnection.getAirdropAmount();
-    if (airdropAmount !== null) {
-      const term = await PgTerminal.get();
-      const msg = programExists
-        ? `Initial deployment costs ${PgTerminal.bold(
-            PgCommon.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
-          )} SOL but you have ${PgTerminal.bold(
-            PgCommon.lamportsToSol(userBalance).toFixed(2)
-          )} SOL. ${PgTerminal.bold(
-            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-          )} SOL will be refunded at the end.`
-        : `Upgrading costs ${PgTerminal.bold(
-            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-          )} SOL but you have ${PgTerminal.bold(
-            PgCommon.lamportsToSol(userBalance).toFixed(2)
-          )} SOL. ${PgTerminal.bold(
-            PgCommon.lamportsToSol(bufferBalance).toFixed(2)
-          )} SOL will be refunded at the end.`;
-      term.println(`Warning: ${msg}`);
-      const confirmed = await term.waitForUserInput(
-        "You don't have enough SOL to complete the deployment. Would you like to request an airdrop?",
-        { confirm: true, default: "yes" }
-      );
-      if (!confirmed) throw new Error("Insufficient balance");
+    if (airdropAmount === null) throw new Error(msg);
 
-      await PgCommand.solana.execute("airdrop", airdropAmount.toString());
-    }
+    const term = await PgTerminal.get();
+    term.println(`Warning: ${msg}`);
+    const confirmed = await term.waitForUserInput(
+      "You don't have enough SOL to complete the deployment. Would you like to request an airdrop?",
+      { confirm: true, default: "yes" }
+    );
+    if (!confirmed) throw new Error("Insufficient balance");
+
+    await PgCommand.solana.execute("airdrop", airdropAmount.toString());
   }
 
   // If deploying from a standard wallet, transfer the required lamports for
