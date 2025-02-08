@@ -598,14 +598,7 @@ export class PgTerm {
     this.focus();
 
     let convertedMsg = msg;
-    let restore;
-    if (opts?.default) {
-      const value = opts.default;
-      convertedMsg += ` (default: ${value})`;
-      restore = this._autocomplete.temporarilySetHandlers([value], {
-        append: true,
-      }).restore;
-    }
+    const restoreHandlers = [];
     if (opts?.choice) {
       // Show multi choice items
       const items = opts.choice.items;
@@ -613,22 +606,32 @@ export class PgTerm {
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
-      restore = this._autocomplete.temporarilySetHandlers(
-        items.map((_, i) => i.toString())
-      ).restore;
+      restoreHandlers.push(
+        this._autocomplete.temporarilySetHandlers(
+          items.map((_, i) => i.toString())
+        )
+      );
     } else if (opts?.confirm) {
+      // Confirm is a special case choice
       convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
-      restore = this._autocomplete.temporarilySetHandlers([
-        "yes",
-        "no",
-      ]).restore;
+      restoreHandlers.push(
+        this._autocomplete.temporarilySetHandlers(["yes", "no"])
+      );
+    }
+
+    if (opts?.default) {
+      const value = opts.default;
+      convertedMsg += ` (default: ${value})`;
+      restoreHandlers.push(
+        this._autocomplete.temporarilySetHandlers([value], { append: true })
+      );
     }
 
     let userInput;
     try {
       userInput = await this._shell.waitForUserInput(convertedMsg);
     } finally {
-      restore?.();
+      restoreHandlers.reverse().forEach(({ restore }) => restore());
     }
 
     // Set the input to the default if it exists on empty input
