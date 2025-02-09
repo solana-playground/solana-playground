@@ -34,7 +34,7 @@ const FeaturedTutorial: FC<FeaturedTutorialProps> = ({ tutorial }) => (
 
         <Button
           onClick={() => PgTutorial.open(tutorial.name)}
-          kind="primary"
+          kind="secondary"
           fontWeight="bold"
         >
           START LEARNING
