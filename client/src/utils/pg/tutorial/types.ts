@@ -51,6 +51,13 @@ export interface TutorialDataParam {
    */
   thumbnail?: string;
   /**
+   * UNIX timestamp of tutorial's creation date.
+   *
+   * Defaults to the timestamp of the first commit that includes the tutorial's
+   * directory.
+   */
+  unixTimestamp?: number;
+  /**
    * Tutorial component async import.
    *
    * Defaults to `./<TutorialName>`.
@@ -63,7 +70,7 @@ export interface TutorialDataParam {
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
   TutorialDataParam,
-  "thumbnail" | "importComponent"
+  "thumbnail" | "unixTimestamp" | "importComponent"
 >;
 
 export interface TutorialMetadata {

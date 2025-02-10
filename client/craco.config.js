@@ -3,6 +3,7 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 module.exports = {
   webpack: {
@@ -136,11 +137,20 @@ module.exports = {
                     .find((name) => name === "data.json");
                   if (!tutorialDataFileName) return null;
 
-                  const data = fs.readFileSync(
+                  const dataStr = fs.readFileSync(
                     path.join(tutorialDir, tutorialDataFileName),
                     { encoding: "utf8" }
                   );
-                  return JSON.parse(data);
+                  const json = JSON.parse(dataStr);
+                  json.unixTimestamp = execSync(
+                    "git log --follow --format=%ad --date=unix --diff-filter=A .",
+                    { cwd: tutorialDir }
+                  )
+                    .toString()
+                    .split("\n")
+                    .filter(Boolean)
+                    .pop();
+                  return json;
                 })
                 .filter(Boolean);
             }

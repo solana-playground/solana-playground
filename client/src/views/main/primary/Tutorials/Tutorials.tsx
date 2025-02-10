@@ -21,7 +21,7 @@ import { PgTheme, PgTutorial } from "../../../../utils/pg";
  */
 const tutorials = [
   ...PgTutorial.all.slice(0, 3),
-  ...PgTutorial.all.slice(3).sort(() => -1),
+  ...PgTutorial.all.slice(3).sort((a, b) => a.unixTimestamp - b.unixTimestamp),
 ];
 
 export const Tutorials = () => {
