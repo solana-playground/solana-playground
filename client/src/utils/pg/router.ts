@@ -229,6 +229,9 @@ if (process.env.NODE_ENV !== "production") {
   assertMatches("/tutorials/{name}", "/tutorials/first", {
     name: "first",
   });
+  assertMatches("/tutorials/{name}", "/tutorials/first/", {
+    name: "first",
+  });
   assertMatches("/tutorials/{name}", "/tutorials/first/1", {
     name: "first/1",
   });
