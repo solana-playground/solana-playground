@@ -6,11 +6,11 @@ import FilterGroups from "../../../../components/FilterGroups";
 import Link from "../../../../components/Link";
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
-import { FILTERS, sortByLevel } from "./filters";
+import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
 import { useFilteredSearch } from "../../../../hooks";
 import { GITHUB_URL } from "../../../../constants";
-import { PgTheme, PgTutorial } from "../../../../utils/pg";
+import { PgTheme, PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
 /**
  * Tutorial items sorted by date.
@@ -29,7 +29,11 @@ export const Tutorials = () => {
     route: "/tutorials",
     items: tutorials,
     filters: FILTERS,
-    sort: sortByLevel,
+    sort: (a, b) => {
+      return (
+        TUTORIAL_LEVELS.indexOf(a.level) - TUTORIAL_LEVELS.indexOf(b.level)
+      );
+    },
   });
   if (!filteredSearch) return null;
 
