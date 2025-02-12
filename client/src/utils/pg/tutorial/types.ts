@@ -51,6 +51,12 @@ export interface TutorialDataParam {
    */
   thumbnail?: string;
   /**
+   * Total amount of pages the tutorial has.
+   *
+   * Defaults to the number of items in the `/tutorials/<tutorial-name>/pages`.
+   */
+  pageCount?: number;
+  /**
    * UNIX timestamp of tutorial's creation date.
    *
    * Defaults to the timestamp of the first commit that includes the tutorial's
@@ -70,14 +76,12 @@ export interface TutorialDataParam {
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
   TutorialDataParam,
-  "thumbnail" | "unixTimestamp" | "importComponent"
+  "thumbnail" | "pageCount" | "unixTimestamp" | "importComponent"
 >;
 
 export interface TutorialMetadata {
   /** Current page number */
   pageNumber: number;
-  /** Total page amount of the tutorial */
-  pageCount: number;
   /** Whether the tutorial has been completed */
   completed: boolean;
 }

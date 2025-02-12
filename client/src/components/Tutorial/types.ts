@@ -15,7 +15,7 @@ export type TutorialComponentProps = {
 
 export type TutorialAboutComponentProps = Pick<
   TutorialComponentProps,
-  "about" | "files" | "defaultOpenFile" | "pages"
+  "about" | "files" | "defaultOpenFile"
 >;
 
 export type TutorialMainComponentProps = Pick<

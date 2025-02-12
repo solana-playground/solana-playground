@@ -137,12 +137,18 @@ module.exports = {
                     .find((name) => name === "data.json");
                   if (!tutorialDataFileName) return null;
 
-                  const dataStr = fs.readFileSync(
-                    path.join(tutorialDir, tutorialDataFileName),
-                    { encoding: "utf8" }
+                  const data = JSON.parse(
+                    fs.readFileSync(
+                      path.join(tutorialDir, tutorialDataFileName),
+                      { encoding: "utf8" }
+                    )
                   );
-                  const json = JSON.parse(dataStr);
-                  json.unixTimestamp = execSync(
+                  data.pageCount = JSON.parse(
+                    fs.readFileSync(path.join(tutorialDir, "content.json"), {
+                      encoding: "utf8",
+                    })
+                  ).pageCount;
+                  data.unixTimestamp = execSync(
                     "git log --follow --format=%ad --date=unix --diff-filter=A .",
                     { cwd: tutorialDir }
                   )
@@ -150,7 +156,8 @@ module.exports = {
                     .split("\n")
                     .filter(Boolean)
                     .pop();
-                  return json;
+
+                  return data;
                 })
                 .filter(Boolean);
             }

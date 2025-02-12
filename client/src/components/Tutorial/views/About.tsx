@@ -13,7 +13,6 @@ export const About: FC<TutorialAboutComponentProps> = ({
   files,
   defaultOpenFile,
   about,
-  pages,
 }) => {
   const tutorial = PgTutorial.data;
   const isStarted = !!PgTutorial.pageNumber;
@@ -23,7 +22,6 @@ export const About: FC<TutorialAboutComponentProps> = ({
     await PgTutorial.start({
       files,
       defaultOpenFile,
-      pageCount: pages.length,
     });
   };
 

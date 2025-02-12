@@ -12,7 +12,6 @@ import type {
 
 const defaultState: TutorialState = {
   pageNumber: null,
-  pageCount: null,
   completed: null,
   view: null,
   data: null,
@@ -47,7 +46,6 @@ const storage = {
     // Don't use spread operator(...) because of the extra state
     const serializedState: SerializedTutorialState = {
       pageNumber: state.pageNumber,
-      pageCount: state.pageCount,
       completed: state.completed,
     };
 
@@ -134,12 +132,7 @@ class _PgTutorial {
    *
    * @param props tutorial properties
    */
-  static async start(
-    props: { files: TupleFiles; defaultOpenFile?: string } & Pick<
-      TutorialMetadata,
-      "pageCount"
-    >
-  ) {
+  static async start(props: { files: TupleFiles; defaultOpenFile?: string }) {
     const tutorialName = PgTutorial.data?.name;
     if (!tutorialName) throw new Error("Tutorial is not selected");
 
@@ -152,7 +145,6 @@ class _PgTutorial {
 
       PgTutorial.update({
         pageNumber: 1,
-        pageCount: props.pageCount,
         completed: false,
         view: "main",
       });

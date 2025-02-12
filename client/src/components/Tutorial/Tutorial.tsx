@@ -25,12 +25,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   return (
     <Wrapper>
       {PgTutorial.view === "about" ? (
-        <About
-          about={about}
-          files={files}
-          pages={pages}
-          defaultOpenFile={defaultOpenFile}
-        />
+        <About about={about} files={files} defaultOpenFile={defaultOpenFile} />
       ) : (
         <Main pages={pages} layout={layout} onComplete={onComplete} />
       )}
