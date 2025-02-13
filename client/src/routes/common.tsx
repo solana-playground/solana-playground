@@ -11,7 +11,7 @@ import {
 /** Handle routes conveniently. */
 export const handleRoute = (params: {
   /** Get primary main view component/element. */
-  getMain: () => Promise<NullableJSX | CallableJSX>;
+  main: string | (() => Promise<NullableJSX | CallableJSX>);
   /** Sidebar page to set */
   // TODO: Make it work with `SidebarPageName` (doesn't work due to circularity)
   sidebar?: string;
@@ -22,7 +22,7 @@ export const handleRoute = (params: {
     Parameters<typeof PgExplorer["init"]>[0]
   >;
 }): Disposable => {
-  const { getMain, sidebar, minimizeSecondaryMainView, getExplorerInitArg } =
+  const { main, sidebar, minimizeSecondaryMainView, getExplorerInitArg } =
     params;
   const sidebarPageName = sidebar as SidebarPageName | undefined;
 
@@ -39,7 +39,13 @@ export const handleRoute = (params: {
       if (sidebar) PgView.setSidebarPage(sidebarPageName);
 
       // Get/import main
-      return getMain();
+      if (typeof main === "string") {
+        const mod = await import("../views/main/primary/" + main);
+        const Main = Object.values<CallableJSX>(mod)[0];
+        return <Main />;
+      }
+
+      return main();
     } finally {
       PgView.setSidebarLoading(false);
     }

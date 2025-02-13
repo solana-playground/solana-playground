@@ -6,12 +6,7 @@ export const share = PgRouter.create({
   validate: ({ shareId }) => PgShare.isValidId(shareId),
   handle: ({ shareId }) => {
     return handleRoute({
-      getMain: async () => {
-        const { EditorWithTabs } = await import(
-          "../../views/main/primary/EditorWithTabs"
-        );
-        return EditorWithTabs;
-      },
+      main: "EditorWithTabs",
       getExplorerInitArg: async () => ({ files: await PgShare.get(shareId) }),
     });
   },

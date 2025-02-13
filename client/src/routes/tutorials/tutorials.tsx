@@ -14,12 +14,7 @@ export const tutorials = PgRouter.create({
     if (name) return handleTutorial(name);
 
     return handleRoute({
-      getMain: async () => {
-        const { Tutorials } = await import(
-          "../../views/main/primary/Tutorials"
-        );
-        return Tutorials;
-      },
+      main: "Tutorials",
       sidebar: "Tutorials",
       minimizeSecondaryMainView: true,
     });

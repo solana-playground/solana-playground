@@ -5,7 +5,7 @@ export const defaultRoute = PgRouter.create({
   path: "/",
   handle: () => {
     return handleRoute({
-      getMain: async () => {
+      main: async () => {
         // Don't change the UI to avoid flickering if the current workspace is
         // a tutorial but the user is on route `/`
         const workspaceName = PgExplorer.currentWorkspaceName;
