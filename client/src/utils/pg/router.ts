@@ -165,8 +165,9 @@ export class PgRouter {
       // Check whether the closing index is the last index
       if (endIndex === templatePath.length - 1) {
         if (!subPath.startsWith("/")) {
-          result[prop] = subPath;
-
+          result[prop] = subPath.endsWith("/")
+            ? subPath.substring(0, subPath.length - 1)
+            : subPath;
           return;
         }
 
