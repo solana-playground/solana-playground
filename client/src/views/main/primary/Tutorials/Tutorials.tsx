@@ -12,27 +12,24 @@ import { useFilteredSearch } from "../../../../hooks";
 import { GITHUB_URL } from "../../../../constants";
 import { PgTheme, PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
-/**
- * Tutorial items sorted by date.
- *
- * The first 3 tutorials are kept in order because they are essential "Hello
- * world" tutorials. The remaining tutorials are sorted from the newest to the
- * oldest.
- */
-const tutorials = [
-  ...PgTutorial.all.slice(0, 3),
-  ...PgTutorial.all.slice(3).sort((a, b) => a.unixTimestamp - b.unixTimestamp),
-];
-
 export const Tutorials = () => {
   const filteredSearch = useFilteredSearch({
     route: "/tutorials",
-    items: tutorials,
+    items: PgTutorial.all,
     filters: FILTERS,
     sort: (a, b) => {
-      return (
-        TUTORIAL_LEVELS.indexOf(a.level) - TUTORIAL_LEVELS.indexOf(b.level)
-      );
+      // Prioritize "Hello world" tutorials
+      if (a.name.startsWith("Hello")) return a.name.localeCompare(b.name);
+
+      // If different level, sort by level (beginner to advanced)
+      if (a.level !== b.level) {
+        return (
+          TUTORIAL_LEVELS.indexOf(a.level) - TUTORIAL_LEVELS.indexOf(b.level)
+        );
+      }
+
+      // Same level, sort by creation date (newest to oldest)
+      return b.unixTimestamp - a.unixTimestamp;
     },
   });
   if (!filteredSearch) return null;
@@ -54,7 +51,7 @@ export const Tutorials = () => {
         <MainSection>
           <SideWrapper>
             <FiltersWrapper>
-              <FilterGroups filters={FILTERS} items={tutorials} />
+              <FilterGroups filters={FILTERS} items={PgTutorial.all} />
             </FiltersWrapper>
           </SideWrapper>
 
