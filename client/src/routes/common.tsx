@@ -11,7 +11,7 @@ import {
 /** Handle routes conveniently. */
 export const handleRoute = (params: {
   /** Get primary main view component/element. */
-  main: string | (() => Promise<NullableJSX | CallableJSX>);
+  main?: string | (() => Promise<NullableJSX | CallableJSX>);
   /** Sidebar page to set */
   // TODO: Make it work with `SidebarPageName` (doesn't work due to circularity)
   sidebar?: string;
@@ -22,9 +22,13 @@ export const handleRoute = (params: {
     Parameters<typeof PgExplorer["init"]>[0]
   >;
 }): Disposable => {
-  const { main, sidebar, minimizeSecondaryMainView, getExplorerInitArg } =
-    params;
-  const sidebarPageName = sidebar as SidebarPageName | undefined;
+  const {
+    main,
+    sidebar: _sidebar,
+    minimizeSecondaryMainView,
+    getExplorerInitArg,
+  } = params;
+  const sidebar = _sidebar as SidebarPageName | undefined;
 
   // Set primary main view
   PgView.setMainPrimary(async () => {
@@ -36,24 +40,23 @@ export const handleRoute = (params: {
       await PgExplorer.init(explorerInitArg);
 
       // Set sidebar page
-      if (sidebar) PgView.setSidebarPage(sidebarPageName);
+      if (sidebar) PgView.setSidebarPage(sidebar);
 
       // Get/import main
-      if (typeof main === "string") {
-        const mod = await import("../views/main/primary/" + main);
-        const Main = Object.values<CallableJSX>(mod)[0];
-        return <Main />;
-      }
+      if (typeof main === "function") return main();
 
-      return main();
+      const mod = await import(
+        "../views/main/primary/" + (main ?? "EditorWithTabs")
+      );
+      const Main = Object.values<CallableJSX>(mod)[0];
+      return <Main />;
     } finally {
       PgView.setSidebarLoading(false);
     }
   });
 
   // Handle clicking on non-routed sidebar pages
-  const sidebarRoute =
-    sidebarPageName && PgView.getSidebarPage(sidebarPageName).route;
+  const sidebarRoute = sidebar && PgView.getSidebarPage(sidebar).route;
   const sidebarPageChange = sidebarRoute
     ? PgView.onDidChangeSidebarPage((page) => {
         if (!page.route) PgRouter.navigate();

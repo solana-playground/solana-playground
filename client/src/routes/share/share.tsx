@@ -6,7 +6,6 @@ export const share = PgRouter.create({
   validate: ({ shareId }) => PgShare.isValidId(shareId),
   handle: ({ shareId }) => {
     return handleRoute({
-      main: "EditorWithTabs",
       getExplorerInitArg: async () => ({ files: await PgShare.get(shareId) }),
     });
   },

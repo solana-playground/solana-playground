@@ -6,7 +6,6 @@ export const githubDefault = PgRouter.create({
   validate: ({ githubUrl }) => PgGithub.isValidUrl(githubUrl),
   handle: ({ githubUrl }) => {
     return handleRoute({
-      main: "EditorWithTabs",
       getExplorerInitArg: async () => ({
         files: await PgGithub.getFiles(githubUrl),
       }),
