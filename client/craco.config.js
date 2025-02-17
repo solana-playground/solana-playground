@@ -139,15 +139,12 @@ module.exports = {
 
                   const data = JSON.parse(
                     fs.readFileSync(
-                      path.join(tutorialDir, tutorialDataFileName),
-                      { encoding: "utf8" }
+                      path.join(tutorialDir, tutorialDataFileName)
                     )
                   );
-                  data.pageCount = JSON.parse(
-                    fs.readFileSync(path.join(tutorialDir, "content.json"), {
-                      encoding: "utf8",
-                    })
-                  ).pageCount;
+                  data.pageCount = fs.readdirSync(
+                    path.join(tutorialDir, "pages")
+                  ).length;
                   data.unixTimestamp = execSync(
                     "git log --follow --format=%ad --date=unix --diff-filter=A .",
                     { cwd: tutorialDir }

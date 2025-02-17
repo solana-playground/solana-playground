@@ -46,13 +46,12 @@ export const markdownTutorials = MARKDOWN_TUTORIALS.map((tutorial) => {
 
     const info: {
       files: string[];
-      pageCount: number;
     } = await PgCommon.fetchJSON(tutorialPath + "content.json");
 
     const about = await fetchText("about.md");
     const pages = (
       await Promise.all(
-        new Array(info.pageCount)
+        new Array(tutorial.pageCount)
           .fill(null)
           .map((_, i) => `pages/${i + 1}.md`)
           .map(fetchText)

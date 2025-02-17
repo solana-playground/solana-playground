@@ -34,13 +34,8 @@ for (const name of tutorials) {
   const filesDirPath = pathModule.join(tutorialPath, "files");
   const files = await recursivelFindFiles(filesDirPath);
 
-  const pagesDir = await fs.readdir(pathModule.join(tutorialPath, "pages"));
-
   await fs.writeFile(
     pathModule.join(tutorialPath, "content.json"),
-    JSON.stringify({
-      files,
-      pageCount: pagesDir.length,
-    })
+    JSON.stringify({ files })
   );
 }
