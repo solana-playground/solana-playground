@@ -7,7 +7,7 @@ import Markdown from "../../Markdown";
 // TODO: Fix importing views from components
 import { EditorWithTabs } from "../../../views/main/primary/EditorWithTabs";
 import { PointedArrow } from "../../Icons";
-import { PgTheme, PgTutorial } from "../../../utils/pg";
+import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialMainComponentProps } from "../types";
 
 export const Main: FC<TutorialMainComponentProps> = ({
@@ -18,6 +18,18 @@ export const Main: FC<TutorialMainComponentProps> = ({
   const pageNumber = PgTutorial.pageNumber;
 
   const tutorialPageRef = useRef<HTMLDivElement>(null);
+
+  // Sync page number with URL path
+  useEffect(() => {
+    if (!pageNumber) return;
+
+    const paths = PgRouter.location.pathname.split("/");
+    const hasPage = paths.length === 4;
+    if (hasPage) paths[paths.length - 1] = pageNumber.toString();
+    else paths.push(pageNumber.toString());
+
+    PgRouter.navigate(paths.join("/"));
+  }, [pageNumber]);
 
   // Scroll to the top on page change
   useEffect(() => {

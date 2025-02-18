@@ -15,8 +15,11 @@ export type TutorialComponentProps = {
 
 export type TutorialAboutComponentProps = Pick<
   TutorialComponentProps,
-  "about" | "files" | "defaultOpenFile"
->;
+  "about"
+> & {
+  /** Start the tutorial. */
+  start: () => Promise<void>;
+};
 
 export type TutorialMainComponentProps = Pick<
   TutorialComponentProps,

@@ -109,19 +109,21 @@ class _PgTutorial {
    */
   static async open(name: string) {
     const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(name)}`;
-    if (PgRouter.isPathsEqual(PgRouter.location.pathname, tutorialPath)) {
+    if (PgRouter.location.pathname.startsWith(tutorialPath)) {
       // Open the tutorial pages view
-      PgTutorial.update({ view: "main" });
+      PgTutorial.view = "main";
 
       // Sleep before setting the sidebar state to avoid flickering when the
       // current page modifies the sidebar state, e.g. inside `onMount`
       await PgCommon.sleep(0);
       PgView.setSidebarPage((state) => {
-        if (state === "Tutorials") return "Explorer";
-        return state;
+        return state === "Tutorials" ? "Explorer" : state;
       });
     } else {
-      PgRouter.navigate(tutorialPath);
+      const pageNumber =
+        PgTutorial.pageNumber ??
+        (await _PgTutorial.getMetadata(name)).pageNumber;
+      PgRouter.navigate(tutorialPath + "/" + pageNumber);
     }
   }
 
@@ -132,19 +134,19 @@ class _PgTutorial {
    *
    * @param props tutorial properties
    */
-  static async start(props: { files: TupleFiles; defaultOpenFile?: string }) {
+  static async start(params: { files: TupleFiles; defaultOpenFile?: string }) {
     const tutorialName = PgTutorial.data?.name;
     if (!tutorialName) throw new Error("Tutorial is not selected");
 
     if (!PgTutorial.isStarted(tutorialName)) {
       // Initial tutorial setup
       await PgExplorer.newWorkspace(tutorialName, {
-        files: props.files,
-        defaultOpenFile: props.defaultOpenFile,
+        files: params.files,
+        defaultOpenFile: params.defaultOpenFile,
       });
 
       PgTutorial.update({
-        pageNumber: 1,
+        pageNumber: PgTutorial.pageNumber ?? 1,
         completed: false,
         view: "main",
       });

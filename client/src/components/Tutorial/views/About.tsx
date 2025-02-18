@@ -9,21 +9,10 @@ import { PointedArrow, Triangle } from "../../Icons";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialAboutComponentProps } from "../types";
 
-export const About: FC<TutorialAboutComponentProps> = ({
-  files,
-  defaultOpenFile,
-  about,
-}) => {
+export const About: FC<TutorialAboutComponentProps> = ({ about, start }) => {
   const tutorial = PgTutorial.data;
   const isStarted = !!PgTutorial.pageNumber;
   const isFinished = PgTutorial.completed;
-
-  const startTutorial = async () => {
-    await PgTutorial.start({
-      files,
-      defaultOpenFile,
-    });
-  };
 
   if (!tutorial) return null;
 
@@ -66,7 +55,7 @@ export const About: FC<TutorialAboutComponentProps> = ({
 
             <GeneratedTopRightWrapper>
               <Button
-                onClick={startTutorial}
+                onClick={start}
                 kind={isFinished ? "no-border" : "secondary"}
                 color={isFinished ? "success" : undefined}
                 fontWeight="bold"

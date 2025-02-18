@@ -9,9 +9,9 @@ import {
 import { handleRoute } from "../common";
 
 export const tutorials = PgRouter.create({
-  path: "/tutorials/{name}",
-  handle: ({ name }) => {
-    if (name) return handleTutorial(name);
+  path: "/tutorials/{name}/{page}",
+  handle: ({ name, page }) => {
+    if (name) return handleTutorial(name, page);
 
     return handleRoute({
       main: "Tutorials",
@@ -21,7 +21,7 @@ export const tutorials = PgRouter.create({
   },
 });
 
-const handleTutorial = (name: string) => {
+const handleTutorial = (name: string, page: string) => {
   // Get the tutorial
   const tutorial = PgTutorial.all.find((t) => {
     return PgRouter.isPathsEqual(PgCommon.toKebabFromTitle(t.name), name);
@@ -53,6 +53,8 @@ const handleTutorial = (name: string) => {
       PgView.setSidebarPage("Tutorials");
     }
 
+    if (page) PgTutorial.pageNumber = parseInt(page);
+
     const { default: Tutorial } = await tutorial.importComponent();
     return <Tutorial {...tutorial} />;
   });
@@ -60,11 +62,11 @@ const handleTutorial = (name: string) => {
   // Handle sidebar
   const sidebarPage = PgView.onDidChangeSidebarPage((page) => {
     if (page.name === "Tutorials") {
-      PgTutorial.update({ view: "about" });
+      PgTutorial.view = "about";
     } else {
       // Get whether the tutorial has started
       const started = PgTutorial.isStarted(tutorial.name);
-      if (started) PgTutorial.update({ view: "main" });
+      if (started) PgTutorial.view = "main";
       else PgRouter.navigate();
     }
   });
