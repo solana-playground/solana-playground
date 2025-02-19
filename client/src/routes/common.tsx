@@ -9,19 +9,21 @@ import {
 } from "../utils/pg";
 
 /** Handle routes conveniently. */
-export const handleRoute = (params: {
-  /** Get primary main view component/element. */
-  main?: string | (() => Promise<NullableJSX | CallableJSX>);
-  /** Sidebar page to set */
-  // TODO: Make it work with `SidebarPageName` (doesn't work due to circularity)
-  sidebar?: string;
-  /** Whether to minimize secondary main view */
-  minimizeSecondaryMainView?: boolean;
-  /** Get custom explorer initialization arguments. */
-  getExplorerInitArg?: () => SyncOrAsync<
-    Parameters<typeof PgExplorer["init"]>[0]
-  >;
-}): Disposable => {
+export const handleRoute = (
+  params: {
+    /** Get primary main view component/element. */
+    main?: string | (() => Promise<NullableJSX | CallableJSX>);
+    /** Sidebar page to set */
+    // TODO: Make it work with `SidebarPageName` (doesn't work due to circularity)
+    sidebar?: string;
+    /** Whether to minimize secondary main view */
+    minimizeSecondaryMainView?: boolean;
+    /** Get custom explorer initialization arguments. */
+    getExplorerInitArg?: () => SyncOrAsync<
+      Parameters<typeof PgExplorer["init"]>[0]
+    >;
+  } = {}
+): Disposable => {
   const {
     main,
     sidebar: _sidebar,

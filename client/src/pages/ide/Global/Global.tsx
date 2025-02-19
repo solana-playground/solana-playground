@@ -35,7 +35,7 @@ PgLanguage.all = LANGUAGES;
 PgTutorial.all = TUTORIALS;
 PgView.sidebar = SIDEBAR;
 
-const GlobalState = () => {
+const Global = () => {
   useDisposable(PgGlobal.init);
   useRouter();
   useExplorer();
@@ -43,6 +43,7 @@ const GlobalState = () => {
   useDisposable(PgBlockExplorer.init); // Must be after `PgConnection` init
   useDisposable(PgWallet.init);
   useProgramInfo();
+  useTutorial();
 
   return null;
 };
@@ -102,4 +103,21 @@ const useExplorer = () => {
   }, []);
 };
 
-export default GlobalState;
+/** Navigate to tutorial's route when necessary. */
+const useTutorial = () => {
+  useEffect(() => {
+    const { dispose } = PgCommon.batchChanges(() => {
+      // Don't change the UI to avoid flickering if the current workspace is
+      // a tutorial but the user is on route `/`
+      if (PgRouter.location.pathname === "/") {
+        const workspaceName = PgExplorer.currentWorkspaceName;
+        if (workspaceName && PgTutorial.isWorkspaceTutorial(workspaceName)) {
+          PgTutorial.open(workspaceName);
+        }
+      }
+    }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]);
+    return dispose;
+  }, []);
+};
+
+export default Global;
