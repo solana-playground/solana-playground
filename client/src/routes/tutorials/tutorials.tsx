@@ -21,6 +21,8 @@ export const tutorials = PgRouter.create({
   },
 });
 
+let isTutorialInView = false;
+
 const handleTutorial = (name: string, page: string) => {
   // Get the tutorial
   const tutorial = PgTutorial.all.find((t) => {
@@ -30,6 +32,12 @@ const handleTutorial = (name: string, page: string) => {
   // Check whether the tutorial exists
   if (!tutorial) {
     PgRouter.navigate();
+    return;
+  }
+
+  // Only change the page if the tutorial is already in view
+  if (isTutorialInView && page) {
+    PgTutorial.pageNumber = parseInt(page);
     return;
   }
 
@@ -54,6 +62,8 @@ const handleTutorial = (name: string, page: string) => {
     }
 
     if (page) PgTutorial.pageNumber = parseInt(page);
+
+    isTutorialInView = true;
 
     const { default: Tutorial } = await tutorial.importComponent();
     return <Tutorial {...tutorial} />;
@@ -102,6 +112,19 @@ const handleTutorial = (name: string, page: string) => {
 
   return {
     dispose: () => {
+      // If the new path is still the same tutorial with a different page,
+      // change the page without disposing anything
+      try {
+        const newParams = PgRouter.getParamsFromPath(
+          tutorials.path,
+          PgRouter.location.pathname
+        );
+        if (newParams.name === name && newParams.page) {
+          PgTutorial.pageNumber = parseInt(newParams.page);
+          return;
+        }
+      } catch {}
+
       tutorialInit?.dispose();
       sidebarPage.dispose();
 
@@ -110,6 +133,7 @@ const handleTutorial = (name: string, page: string) => {
       tutorialView.dispose();
 
       switchWorkspace.dispose();
+      isTutorialInView = false;
     },
   };
 };

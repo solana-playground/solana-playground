@@ -48,7 +48,7 @@ export class PgRouter {
       let params: PathParameter<P>;
       const route = routes.find((route) => {
         try {
-          params = this._getParamsFromPath(route.path, path);
+          params = this.getParamsFromPath(route.path, path);
           if (route.validate) return route.validate(params);
           return true;
         } catch {
@@ -120,15 +120,15 @@ export class PgRouter {
    * ### Example:
    *
    * ```ts
-   * const params = _getParamsFromPath("/tutorials/{tutorialName}", "/tutorials/hello-anchor");
-   * console.log(params); // { tutorialName: "hello-anchor" }
+   * const params = getParamsFromPath("/tutorials/{name}", "/tutorials/hello-anchor");
+   * console.log(params); // { name: "hello-anchor" }
    * ```
    *
    * @param routePath playground route
    * @param path current path
    * @returns the parameters as key-value
    */
-  private static _getParamsFromPath<P extends string>(
+  static getParamsFromPath<P extends string>(
     routePath: P,
     path: string
   ): PathParameter<P> {
@@ -196,8 +196,7 @@ export class PgRouter {
 
 // Tests
 if (process.env.NODE_ENV !== "production") {
-  // @ts-expect-error
-  const test = PgRouter._getParamsFromPath;
+  const test = PgRouter.getParamsFromPath;
   const assertMatches = (
     route: string,
     path: string,
