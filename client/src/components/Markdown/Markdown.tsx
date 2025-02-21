@@ -12,9 +12,11 @@ interface MarkdownProps {
   children: string;
   /** Make all fonts the code font */
   codeFontOnly?: boolean;
+  /** Root for the `src` prop (defaults to the current path) */
+  rootSrc?: string;
 }
 
-const Markdown = (props: MarkdownProps) => (
+const Markdown = ({ rootSrc, ...props }: MarkdownProps) => (
   <StyledMarkdown
     remarkPlugins={[remarkGfm]}
     components={{
@@ -23,12 +25,19 @@ const Markdown = (props: MarkdownProps) => (
 
       /** Images */
       img: (props) => {
-        const src =
-          props.src && !props.src.startsWith("/")
-            ? PgCommon.joinPaths(PgRouter.location.pathname, props.src)
-            : props.src;
-
-        return <Img {...props} src={src} />;
+        return (
+          <Img
+            {...props}
+            src={
+              props.src && !props.src.startsWith("/")
+                ? PgCommon.joinPaths(
+                    rootSrc ?? PgRouter.location.pathname,
+                    props.src
+                  )
+                : props.src
+            }
+          />
+        );
       },
 
       /** Code blocks */

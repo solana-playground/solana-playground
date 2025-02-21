@@ -18,17 +18,17 @@ export const Tutorial: FC<TutorialComponentProps> = ({
   useRenderOnChange(PgTutorial.onDidChange);
 
   const start = useCallback(async () => {
-    await PgTutorial.start({
-      files,
-      defaultOpenFile,
-    });
+    await PgTutorial.start({ files, defaultOpenFile });
   }, [files, defaultOpenFile]);
 
   // Start the tutorial when the page number is set
   useEffect(() => {
-    if (PgTutorial.pageNumber && !PgTutorial.isStarted(PgTutorial.data!.name)) {
-      start();
-    }
+    const { dispose } = PgTutorial.onDidChangePage((page) => {
+      if (page && !PgTutorial.isStarted(PgTutorial.data!.name)) {
+        start();
+      }
+    });
+    return dispose;
   }, [start]);
 
   // On component mount
@@ -38,10 +38,15 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 
   return (
     <Wrapper>
-      {PgTutorial.view === "about" ? (
-        <About about={about} start={start} />
+      {PgTutorial.page ? (
+        <Main
+          pageNumber={PgTutorial.page}
+          pages={pages}
+          layout={layout}
+          onComplete={onComplete}
+        />
       ) : (
-        <Main pages={pages} layout={layout} onComplete={onComplete} />
+        <About about={about} start={start} />
       )}
     </Wrapper>
   );

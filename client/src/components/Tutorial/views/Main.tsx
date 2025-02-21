@@ -11,25 +11,12 @@ import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialMainComponentProps } from "../types";
 
 export const Main: FC<TutorialMainComponentProps> = ({
+  pageNumber,
   pages,
   layout = "editor-content",
   onComplete,
 }) => {
-  const pageNumber = PgTutorial.pageNumber;
-
   const tutorialPageRef = useRef<HTMLDivElement>(null);
-
-  // Sync page number with URL path
-  useEffect(() => {
-    if (!pageNumber) return;
-
-    const paths = PgRouter.location.pathname.split("/");
-    const hasPage = paths.length === 4;
-    if (hasPage) paths[paths.length - 1] = pageNumber.toString();
-    else paths.push(pageNumber.toString());
-
-    PgRouter.navigate(paths.join("/"));
-  }, [pageNumber]);
 
   // Scroll to the top on page change
   useEffect(() => {
@@ -38,18 +25,16 @@ export const Main: FC<TutorialMainComponentProps> = ({
 
   // Specific page events
   useEffect(() => {
-    if (!pageNumber) return;
-
     const page = pages[pageNumber - 1];
     if (page.onMount) return page.onMount();
   }, [pageNumber, pages]);
 
   const nextPage = () => {
-    PgTutorial.pageNumber! += 1;
+    PgTutorial.openPage(pageNumber + 1);
   };
 
   const previousPage = () => {
-    PgTutorial.pageNumber! -= 1;
+    PgTutorial.openPage(pageNumber - 1);
   };
 
   const finishTutorial = () => {
@@ -57,12 +42,10 @@ export const Main: FC<TutorialMainComponentProps> = ({
     if (onComplete) onComplete();
   };
 
-  if (!pageNumber) return null;
-
   const currentPage = pages.at(pageNumber - 1);
   if (!currentPage) {
     // This could happen if the saved page has been deleted
-    PgTutorial.pageNumber = 1;
+    PgTutorial.openPage(1);
     return null;
   }
 
@@ -84,7 +67,14 @@ export const Main: FC<TutorialMainComponentProps> = ({
       <TutorialPage ref={tutorialPageRef}>
         <TutorialContent>
           {typeof currentContent === "string" ? (
-            <Markdown>{currentContent}</Markdown>
+            <Markdown
+              rootSrc={PgRouter.location.pathname
+                .split("/")
+                .slice(0, 3)
+                .join("/")}
+            >
+              {currentContent}
+            </Markdown>
           ) : (
             currentContent
           )}

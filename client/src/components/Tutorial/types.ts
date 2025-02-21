@@ -24,7 +24,10 @@ export type TutorialAboutComponentProps = Pick<
 export type TutorialMainComponentProps = Pick<
   TutorialComponentProps,
   "pages" | "layout" | "onComplete"
->;
+> & {
+  /** Current page number */
+  pageNumber: number;
+};
 
 type Page = {
   /** Content of the page, can be either:

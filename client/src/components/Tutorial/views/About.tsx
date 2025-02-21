@@ -11,10 +11,10 @@ import type { TutorialAboutComponentProps } from "../types";
 
 export const About: FC<TutorialAboutComponentProps> = ({ about, start }) => {
   const tutorial = PgTutorial.data;
-  const isStarted = !!PgTutorial.pageNumber;
-  const isFinished = PgTutorial.completed;
-
   if (!tutorial) return null;
+
+  const isStarted = PgTutorial.isStarted(tutorial.name);
+  const isFinished = PgTutorial.completed;
 
   return (
     <Wrapper>

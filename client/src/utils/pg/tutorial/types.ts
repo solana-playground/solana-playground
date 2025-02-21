@@ -11,9 +11,7 @@ type Author = {
 };
 
 /** Program info state */
-export type TutorialState = Nullable<
-  TutorialMetadata & { view: "about" | "main"; data: TutorialData }
->;
+export type TutorialState = Nullable<TutorialMetadata & { data: TutorialData }>;
 
 /** Serialized program info that's used in storage */
 export type SerializedTutorialState = Nullable<TutorialMetadata>;

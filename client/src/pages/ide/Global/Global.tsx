@@ -32,6 +32,7 @@ PgBlockExplorer.all = BLOCK_EXPLORERS;
 PgCommandManager.all = COMMANDS;
 PgFramework.all = FRAMEWORKS;
 PgLanguage.all = LANGUAGES;
+PgRouter.all = ROUTES;
 PgTutorial.all = TUTORIALS;
 PgView.sidebar = SIDEBAR;
 
@@ -68,7 +69,7 @@ const useProgramInfo = () => {
 const useRouter = () => {
   // Init
   useEffect(() => {
-    const { dispose } = PgRouter.init(ROUTES);
+    const { dispose } = PgRouter.init();
     return dispose;
   }, []);
 

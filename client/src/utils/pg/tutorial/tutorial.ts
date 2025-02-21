@@ -2,7 +2,13 @@ import { PgCommon } from "../common";
 import { PgExplorer, TupleFiles } from "../explorer";
 import { PgRouter } from "../router";
 import { PgView } from "../view";
-import { declareUpdatable, updatable } from "../decorators";
+import {
+  createDerivable,
+  declareDerivable,
+  declareUpdatable,
+  derivable,
+  updatable,
+} from "../decorators";
 import type {
   SerializedTutorialState,
   TutorialData,
@@ -13,7 +19,6 @@ import type {
 const defaultState: TutorialState = {
   pageNumber: null,
   completed: null,
-  view: null,
   data: null,
 };
 
@@ -34,7 +39,12 @@ const storage = {
       return { ...defaultState, data: PgTutorial.data };
     }
 
-    return { ...defaultState, ...serializedState, data: PgTutorial.data };
+    return {
+      ...defaultState,
+      ...serializedState,
+      pageNumber: serializedState.pageNumber,
+      data: PgTutorial.data,
+    };
   },
 
   /** Serialize the data and write to storage. */
@@ -45,7 +55,7 @@ const storage = {
 
     // Don't use spread operator(...) because of the extra state
     const serializedState: SerializedTutorialState = {
-      pageNumber: state.pageNumber,
+      pageNumber: state.pageNumber ?? 1,
       completed: state.completed,
     };
 
@@ -53,6 +63,34 @@ const storage = {
   },
 };
 
+const derive = () => ({
+  /** Tutorial page number derived from the URL path */
+  page: createDerivable({
+    derive: (path) => {
+      // TODO: Fix `path` being `undefined`
+      path = PgRouter.location.pathname;
+      const route = PgRouter.all.find((route) =>
+        route.path.startsWith("/tutorials")
+      );
+      if (!route) throw new Error("/tutorials route not found");
+
+      try {
+        const { page } = PgRouter.getParamsFromPath(route.path, path);
+        if (PgCommon.isInt(page)) return parseInt(page);
+      } catch {}
+    },
+    onChange: PgRouter.onDidChangePath,
+  }),
+
+  __save: createDerivable({
+    derive: () => {
+      if (PgTutorial.page) PgTutorial.pageNumber = PgTutorial.page;
+    },
+    onChange: "page",
+  }),
+});
+
+@derivable(derive)
 @updatable({ defaultState, storage })
 class _PgTutorial {
   /** All tutorials */
@@ -109,22 +147,46 @@ class _PgTutorial {
    */
   static async open(name: string) {
     const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(name)}`;
-    if (PgRouter.location.pathname.startsWith(tutorialPath)) {
-      // Open the tutorial pages view
-      PgTutorial.view = "main";
-
-      // Sleep before setting the sidebar state to avoid flickering when the
-      // current page modifies the sidebar state, e.g. inside `onMount`
-      await PgCommon.sleep(0);
-      PgView.setSidebarPage((state) => {
-        return state === "Tutorials" ? "Explorer" : state;
-      });
+    if (PgTutorial.page) {
+      PgRouter.navigate(tutorialPath + "/" + PgTutorial.page);
+    } else if (this.isStarted(name)) {
+      try {
+        const { pageNumber } = await this.getMetadata(name);
+        PgRouter.navigate(tutorialPath + "/" + pageNumber);
+      } catch {
+        PgRouter.navigate(tutorialPath + "/" + 1);
+      }
     } else {
-      const pageNumber =
-        PgTutorial.pageNumber ??
-        (await _PgTutorial.getMetadata(name)).pageNumber;
-      PgRouter.navigate(tutorialPath + "/" + pageNumber);
+      PgRouter.navigate(tutorialPath);
     }
+  }
+
+  /**
+   * Open the about page of the current selected tutorial.
+   *
+   * @param name tutorial name
+   */
+  static async openAboutPage() {
+    const tutorialPath = PgRouter.location.pathname
+      .split("/")
+      .slice(0, 3)
+      .join("/");
+    PgRouter.navigate(tutorialPath);
+  }
+
+  /**
+   * Open the given page of the current selected tutorial.
+   *
+   * @param pageNumber page number to open
+   */
+  static openPage(pageNumber: number) {
+    const paths = PgRouter.location.pathname.split("/");
+    const hasPage = paths.length === 4;
+    const page = pageNumber.toString();
+    if (hasPage) paths[paths.length - 1] = page;
+    else paths.push(page);
+
+    PgRouter.navigate(paths.join("/"));
   }
 
   /**
@@ -135,24 +197,23 @@ class _PgTutorial {
    * @param props tutorial properties
    */
   static async start(params: { files: TupleFiles; defaultOpenFile?: string }) {
-    const tutorialName = PgTutorial.data?.name;
-    if (!tutorialName) throw new Error("Tutorial is not selected");
+    const name = PgTutorial.data?.name;
+    if (!name) throw new Error("Tutorial is not selected");
 
-    if (!PgTutorial.isStarted(tutorialName)) {
+    let pageToOpen: number | null;
+    if (!this.isStarted(name)) {
       // Initial tutorial setup
-      await PgExplorer.newWorkspace(tutorialName, {
-        files: params.files,
-        defaultOpenFile: params.defaultOpenFile,
-      });
+      await PgExplorer.newWorkspace(name, params);
 
-      PgTutorial.update({
-        pageNumber: PgTutorial.pageNumber ?? 1,
-        completed: false,
-        view: "main",
-      });
+      PgTutorial.update({ completed: false, pageNumber: 1 });
+      pageToOpen = 1;
+    } else {
+      // Get the saved page
+      const { pageNumber } = await this.getMetadata(name);
+      pageToOpen = pageNumber;
     }
 
-    await this.open(tutorialName);
+    this.openPage(pageToOpen);
   }
 
   /** Finish the current tutorial. */
@@ -162,4 +223,7 @@ class _PgTutorial {
   }
 }
 
-export const PgTutorial = declareUpdatable(_PgTutorial, { defaultState });
+export const PgTutorial = declareDerivable(
+  declareUpdatable(_PgTutorial, { defaultState }),
+  derive
+);

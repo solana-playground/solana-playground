@@ -9,7 +9,7 @@ const OPEN = "{";
 const CLOSE = "}";
 
 /** Custom route */
-type Route<P extends string> = {
+type Route<P extends string = string> = {
   /** Route pathname, always starts with `/` */
   path: P;
   /** Handler method for the route */
@@ -27,11 +27,16 @@ type PathVariable<T extends string> =
     : T;
 
 /** Map the variables to an object with `string` values */
-type PathParameter<T extends string> = { [K in PathVariable<T>]: string };
+type PathParameter<T extends string = string> = {
+  [K in PathVariable<T>]: string;
+};
 
 export class PgRouter {
   /** URL information about the page */
   static location = window.location;
+
+  /** All routes */
+  static all: Route<RoutePath>[];
 
   /**
    * Initialize the router.
@@ -39,14 +44,14 @@ export class PgRouter {
    * @param routes all available routes
    * @returns a dispose function to clear the event
    */
-  static init<P extends string>(routes: Route<P>[]) {
+  static init() {
     let disposable: Disposable | undefined;
     return this.onDidChangePath(async (path) => {
       // Dispose
       disposable?.dispose();
 
-      let params: PathParameter<P>;
-      const route = routes.find((route) => {
+      let params: PathParameter;
+      const route = this.all.find((route) => {
         try {
           params = this.getParamsFromPath(route.path, path);
           if (route.validate) return route.validate(params);
@@ -111,6 +116,7 @@ export class PgRouter {
     return PgCommon.onDidChange({
       cb,
       eventName: EventName.ROUTER_ON_DID_CHANGE_PATH,
+      initialRun: { value: PgRouter.location.pathname },
     });
   }
 
