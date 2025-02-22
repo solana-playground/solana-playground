@@ -21,7 +21,7 @@ export const tutorials = PgRouter.create({
   },
 });
 
-let tutorialInit: Disposable | undefined;
+let disposables: Disposable[] = [];
 let isTutorialInView = false;
 let mainSecondaryHeight = 0;
 
@@ -48,57 +48,62 @@ const handleTutorial = (name: string, page: string) => {
       PgTutorial.data = tutorial;
 
       // Initialize tutorial
-      tutorialInit = await PgTutorial.init();
-
+      disposables.push(await PgTutorial.init());
       isTutorialInView = true;
 
       const { default: Tutorial } = await tutorial.importComponent();
       return <Tutorial {...tutorial} />;
     });
+
+    disposables.push(
+      // Handle sidebar page changes
+      PgView.onDidChangeSidebarPage((page) => {
+        if (page.name === "Tutorials") {
+          PgTutorial.openAboutPage();
+        } else {
+          const started = PgTutorial.isStarted(tutorial.name);
+          if (started) PgTutorial.open(tutorial.name);
+          else PgRouter.navigate();
+        }
+      }),
+
+      // Handle workspace switch
+      PgExplorer.onDidSwitchWorkspace(() => {
+        const name = PgExplorer.currentWorkspaceName;
+        if (!name || name === tutorial.name) return;
+
+        if (PgTutorial.isWorkspaceTutorial(name)) PgTutorial.open(name);
+        else PgRouter.navigate();
+      }),
+
+      // Set the main secondary view height to the previous saved value
+      { dispose: () => PgView.setMainSecondaryHeight(mainSecondaryHeight) },
+
+      // Set `isTutorialInView` to its default value
+      { dispose: () => (isTutorialInView = false) }
+    );
   }
 
-  // Handle sidebar
+  // Open the correct sidebar page
   PgView.setSidebarPage((sidebar) => {
     if (!page) return "Tutorials";
     return sidebar === "Tutorials" ? "Explorer" : sidebar;
   });
-  const sidebarPage = PgView.onDidChangeSidebarPage((page) => {
-    if (page.name === "Tutorials") {
-      PgTutorial.openAboutPage();
-    } else {
-      const started = PgTutorial.isStarted(tutorial.name);
-      if (started) PgTutorial.open(tutorial.name);
-      else PgRouter.navigate();
-    }
-  });
 
   // Minimize secondary main view and reopen on navigation to other routes
   PgView.setMainSecondaryHeight((h) => {
-    mainSecondaryHeight = h;
-    return page ? mainSecondaryHeight : 0;
-  });
-
-  // Handle workspace switch
-  const switchWorkspace = PgExplorer.onDidSwitchWorkspace(() => {
-    const name = PgExplorer.currentWorkspaceName;
-    if (!name || name === tutorial.name) return;
-
-    if (PgTutorial.isWorkspaceTutorial(name)) PgTutorial.open(name);
-    else PgRouter.navigate();
+    if (page) {
+      // TODO: Remove hardcoded value
+      if (h > 36) mainSecondaryHeight = h;
+      return mainSecondaryHeight;
+    }
+    return 0;
   });
 
   return {
     dispose: () => {
-      tutorialInit?.dispose();
-      sidebarPage.dispose();
-
-      // Set the main secondary view height to the previous saved value
-      PgView.setMainSecondaryHeight(mainSecondaryHeight);
-
-      switchWorkspace.dispose();
-
-      // If the new path is still the same tutorial, return early to skip the
-      // loading process of the primary main view
+      // If the new path is still the same tutorial, return early without
+      // disposing anything
       try {
         const newParams = PgRouter.getParamsFromPath(
           tutorials.path,
@@ -106,7 +111,10 @@ const handleTutorial = (name: string, page: string) => {
         );
         if (newParams.name === name) return;
       } catch {}
-      isTutorialInView = false;
+
+      // Dispose all disposables and clear it
+      disposables.forEach(({ dispose }) => dispose());
+      disposables = [];
     },
   };
 };

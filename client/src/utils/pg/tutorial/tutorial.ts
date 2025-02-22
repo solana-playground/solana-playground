@@ -82,6 +82,8 @@ const derive = () => ({
     onChange: PgRouter.onDidChangePath,
   }),
 
+  /** Save tutorial page number to storage */
+  // TODO: Find a better way to save
   __save: createDerivable({
     derive: () => {
       if (PgTutorial.page) PgTutorial.pageNumber = PgTutorial.page;
@@ -147,9 +149,7 @@ class _PgTutorial {
    */
   static async open(name: string) {
     const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(name)}`;
-    if (PgTutorial.page) {
-      PgRouter.navigate(tutorialPath + "/" + PgTutorial.page);
-    } else if (this.isStarted(name)) {
+    if (this.isStarted(name)) {
       try {
         const { pageNumber } = await this.getMetadata(name);
         PgRouter.navigate(tutorialPath + "/" + pageNumber);
@@ -206,7 +206,7 @@ class _PgTutorial {
       await PgExplorer.newWorkspace(name, params);
 
       PgTutorial.update({ completed: false, pageNumber: 1 });
-      pageToOpen = 1;
+      pageToOpen = PgTutorial.page ?? 1;
     } else {
       // Get the saved page
       const { pageNumber } = await this.getMetadata(name);
