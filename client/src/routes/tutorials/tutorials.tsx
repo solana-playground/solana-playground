@@ -76,6 +76,13 @@ const handleTutorial = (name: string, page: string) => {
         else PgRouter.navigate();
       }),
 
+      // Handle workspace deletion
+      PgExplorer.onDidDeleteWorkspace(() => {
+        // Only handle if there are no more workspaces because
+        // `onDidSwitchWorkspace` handles all other cases
+        if (PgExplorer.allWorkspaceNames?.length === 0) PgRouter.navigate();
+      }),
+
       // Set the main secondary view height to the previous saved value
       { dispose: () => PgView.setMainSecondaryHeight(mainSecondaryHeight) },
 
