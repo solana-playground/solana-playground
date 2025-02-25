@@ -16,17 +16,21 @@ export type TutorialComponentProps = {
 export type TutorialAboutComponentProps = Pick<
   TutorialComponentProps,
   "about"
-> & {
-  /** Start the tutorial. */
-  start: () => Promise<void>;
-};
+> &
+  TutorailComponentCommonProps;
 
 export type TutorialMainComponentProps = Pick<
   TutorialComponentProps,
   "pages" | "layout" | "onComplete"
-> & {
-  /** Current page number */
-  pageNumber: number;
+> &
+  TutorailComponentCommonProps & {
+    /** Current page number */
+    pageNumber: number;
+  };
+
+type TutorailComponentCommonProps = {
+  /** Start the tutorial. */
+  start: () => Promise<void>;
 };
 
 type Page = {

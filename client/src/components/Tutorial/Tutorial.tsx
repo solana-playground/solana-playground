@@ -17,19 +17,10 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 }) => {
   useRenderOnChange(PgTutorial.onDidChange);
 
-  const start = useCallback(async () => {
-    await PgTutorial.start({ files, defaultOpenFile });
-  }, [files, defaultOpenFile]);
-
-  // Start the tutorial when the page number is set
-  useEffect(() => {
-    const { dispose } = PgTutorial.onDidChangePage((page) => {
-      if (page && !PgTutorial.isStarted(PgTutorial.data!.name)) {
-        start();
-      }
-    });
-    return dispose;
-  }, [start]);
+  const start = useCallback(
+    () => PgTutorial.start({ files, defaultOpenFile }),
+    [files, defaultOpenFile]
+  );
 
   // On component mount
   useEffect(() => {
@@ -44,6 +35,7 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           pages={pages}
           layout={layout}
           onComplete={onComplete}
+          start={start}
         />
       ) : (
         <About about={about} start={start} />

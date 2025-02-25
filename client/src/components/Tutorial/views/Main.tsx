@@ -4,6 +4,7 @@ import Split from "react-split";
 
 import Button from "../../Button";
 import Markdown from "../../Markdown";
+import { SpinnerWithBg } from "../../Loading";
 // TODO: Fix importing views from components
 import { EditorWithTabs } from "../../../views/main/primary/EditorWithTabs";
 import { PointedArrow } from "../../Icons";
@@ -15,6 +16,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
   pages,
   layout = "editor-content",
   onComplete,
+  start,
 }) => {
   const tutorialPageRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +30,13 @@ export const Main: FC<TutorialMainComponentProps> = ({
     const page = pages[pageNumber - 1];
     if (page.onMount) return page.onMount();
   }, [pageNumber, pages]);
+
+  // If the page is set from the URL but the tutorial has not been started,
+  // start the tutorial automatically
+  const isStarted = PgTutorial.isStarted(PgTutorial.data!.name);
+  useEffect(() => {
+    if (!isStarted) start();
+  }, [isStarted, start]);
 
   const nextPage = () => {
     PgTutorial.openPage(pageNumber + 1);
@@ -62,7 +71,11 @@ export const Main: FC<TutorialMainComponentProps> = ({
 
   return (
     <Wrapper {...props}>
-      {currentLayout === "editor-content" && <EditorWithTabs />}
+      {currentLayout === "editor-content" && isStarted ? (
+        <EditorWithTabs />
+      ) : (
+        <SpinnerWithBg loading size="2rem" />
+      )}
 
       <TutorialPage ref={tutorialPageRef}>
         <TutorialContent>
