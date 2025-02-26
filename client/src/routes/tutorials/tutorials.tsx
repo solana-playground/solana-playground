@@ -39,6 +39,8 @@ const handleTutorial = (name: string, page: string) => {
 
   // Only change the page if the tutorial is already in view
   if (!isTutorialInView) {
+    isTutorialInView = true;
+
     // Set main view
     PgView.setMainPrimary(async () => {
       // Initialize explorer
@@ -49,7 +51,6 @@ const handleTutorial = (name: string, page: string) => {
 
       // Initialize tutorial
       disposables.push(await PgTutorial.init());
-      isTutorialInView = true;
 
       const { default: Tutorial } = await tutorial.importComponent();
       return <Tutorial {...tutorial} />;
@@ -58,13 +59,19 @@ const handleTutorial = (name: string, page: string) => {
     disposables.push(
       // Handle sidebar page changes
       PgView.onDidChangeSidebarPage((page) => {
-        if (page.name === "Tutorials") {
-          PgTutorial.openAboutPage();
-        } else {
-          const started = PgTutorial.isStarted(tutorial.name);
-          if (started) PgTutorial.open(tutorial.name);
-          else PgRouter.navigate();
-        }
+        // Skip handling other routed pages in order to avoid navigation issues.
+        // Without this check, this callback runs again after clicking to a
+        // different sidebar page with route (e.g. Programs), which then
+        // results in `PgTutorial.open` getting run and the user getting
+        // navigated to the last tutorial's path erroneously.
+        //
+        // TODO: Find a way to dispose this *just before* the next navigation
+        // and remove this check
+        if (page.route && page.route !== "/tutorials") return;
+
+        if (page.name === "Tutorials") PgTutorial.openAboutPage();
+        else if (!PgTutorial.isStarted(tutorial.name)) PgRouter.navigate();
+        else PgTutorial.open(tutorial.name);
       }),
 
       // Handle workspace switch
