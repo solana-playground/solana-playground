@@ -40,8 +40,10 @@ global {
   /** Array of all markdown tutorial data */
   const MARKDOWN_TUTORIALS: TutorialDataParam[];
 
-  /** Map of kebab-case tutorial names to thumbnail file names */
-  const TUTORIAL_THUMBNAIL_MAP: { [tutorialName: string]: string };
+  /** Map of kebab-case tutorial names to necessary custom tutorial data */
+  const CUSTOM_TUTORIALS: {
+    [tutorialName: string]: { pageCount: number; thumbnail: string };
+  };
 }
 
 // Framework name

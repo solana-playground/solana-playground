@@ -16,11 +16,12 @@ export const createTutorial = (tutorial: TutorialDataParam) => {
     );
   }
 
-  if (!tutorial.thumbnail) {
-    const kebabCaseName = PgCommon.toKebabFromTitle(tutorial.name);
-    tutorial.thumbnail = TUTORIAL_THUMBNAIL_MAP[kebabCaseName];
-  }
+  const customTutorial =
+    CUSTOM_TUTORIALS[PgCommon.toKebabFromTitle(tutorial.name)];
+  tutorial.thumbnail ??= customTutorial.thumbnail;
   tutorial.thumbnail = getTutorialPath(tutorial) + tutorial.thumbnail;
+
+  tutorial.pageCount ??= customTutorial.pageCount;
 
   tutorial.importComponent ??= () => {
     return import(

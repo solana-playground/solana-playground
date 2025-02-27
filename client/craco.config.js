@@ -132,9 +132,10 @@ module.exports = {
                 .filter((tutorialName) => !tutorialName.startsWith("_"))
                 .map((tutorialName) => {
                   const tutorialDir = path.join(tutorialsPath, tutorialName);
-                  const tutorialDataFileName = fs
-                    .readdirSync(tutorialDir)
-                    .find((name) => name === "data.json");
+                  const tutorialDirItems = fs.readdirSync(tutorialDir);
+                  const tutorialDataFileName = tutorialDirItems.find(
+                    (name) => name === "data.json"
+                  );
                   if (!tutorialDataFileName) return null;
 
                   const data = JSON.parse(
@@ -154,21 +155,54 @@ module.exports = {
                     .filter(Boolean)
                     .pop();
 
+                  const thumbnailFileName = tutorialDirItems.find((name) =>
+                    name.startsWith("thumbnail")
+                  );
+                  if (thumbnailFileName) data.thumbnail ??= thumbnailFileName;
+
                   return data;
                 })
                 .filter(Boolean);
             }
           ),
 
-          /** Map of kebab-case tutorial names to thumbnail file names */
-          TUTORIAL_THUMBNAIL_MAP: defineFromPublicDir(
+          /** Map of kebab-case tutorial names to necessary custom tutorial data */
+          CUSTOM_TUTORIALS: defineFromPublicDir(
             "tutorials",
             (dirItems, tutorialsPath) => {
               return dirItems.reduce((acc, tutorialName) => {
-                const thumbnailFileName = fs
-                  .readdirSync(path.join(tutorialsPath, tutorialName))
-                  .find((name) => name.startsWith("thumbnail"));
-                if (thumbnailFileName) acc[tutorialName] = thumbnailFileName;
+                const tutorialDir = path.join(tutorialsPath, tutorialName);
+                const tutorialDirItems = fs.readdirSync(tutorialDir);
+                const tutorialDataFileName = tutorialDirItems.find(
+                  (name) => name === "data.json"
+                );
+                if (tutorialDataFileName) return acc;
+
+                acc[tutorialName] ??= {};
+
+                // Thumbnail
+                const thumbnailFileName = tutorialDirItems.find((name) =>
+                  name.startsWith("thumbnail")
+                );
+                if (thumbnailFileName)
+                  acc[tutorialName].thumbnail = thumbnailFileName;
+
+                // Page count
+                const pagesDirs = [
+                  path.join(tutorialDir, "pages"),
+                  path.join("src", "tutorials", tutorialName, "pages"),
+                ];
+                for (const pagesDir of pagesDirs) {
+                  if (fs.existsSync(pagesDir)) {
+                    acc[tutorialName].pageCount =
+                      fs.readdirSync(pagesDir).length;
+                    break;
+                  }
+                }
+                if (!acc[tutorialName].pageCount) {
+                  throw new Error("Unable to get tutorial page count");
+                }
+
                 return acc;
               }, {});
             }
