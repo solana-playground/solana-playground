@@ -148,6 +148,9 @@ class _PgTutorial {
    * @param name tutorial name
    */
   static async open(name: string) {
+    // Do not open if it's already open
+    if (PgTutorial.data?.name === name && PgTutorial.page) return;
+
     const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(name)}`;
     if (this.isStarted(name)) {
       try {
