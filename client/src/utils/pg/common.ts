@@ -706,7 +706,9 @@ export class PgCommon {
     return str
       .split(" ")
       .map((w) => w.toLowerCase())
-      .join("-");
+      .join("-")
+      .replaceAll("&", "")
+      .replaceAll("--", "-");
   }
 
   /**

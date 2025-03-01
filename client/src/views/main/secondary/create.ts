@@ -44,9 +44,7 @@ export const createMainSecondaryPage = <N extends string>(
 ) => {
   page.title ??= page.keybind ? `${page.name} (${page.keybind})` : page.name;
   page.importComponent ??= () => {
-    return import(
-      `./${PgCommon.toKebabFromTitle(page.name.replace("& ", ""))}/Component`
-    );
+    return import(`./${PgCommon.toKebabFromTitle(page.name)}/Component`);
   };
   return page as MainSecondaryPage<N>;
 };
