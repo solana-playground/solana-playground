@@ -75,13 +75,22 @@ const useRouter = () => {
 
   // Location
   const location = useLocation();
-  // Change method
+
+  // Path
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       EventName.ROUTER_ON_DID_CHANGE_PATH,
       location.pathname
     );
   }, [location.pathname]);
+
+  // Hash
+  useEffect(() => {
+    PgCommon.createAndDispatchCustomEvent(
+      EventName.ROUTER_ON_DID_CHANGE_HASH,
+      location.hash
+    );
+  }, [location.hash]);
 
   // Navigate
   const navigate = useNavigate();

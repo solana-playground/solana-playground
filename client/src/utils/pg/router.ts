@@ -121,6 +121,20 @@ export class PgRouter {
   }
 
   /**
+   * Runs after hash change.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeHash(cb: (hash: string) => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: EventName.ROUTER_ON_DID_CHANGE_HASH,
+      initialRun: { value: PgRouter.location.hash },
+    });
+  }
+
+  /**
    * Get the custom parameters from the given path.
    *
    * ### Example:
