@@ -3,19 +3,18 @@ import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { EventName } from "../../../../constants";
 import { PgCommon, PgRouter, PgTheme, PgView } from "../../../../utils/pg";
 import { useKeybind, useSetStatic } from "../../../../hooks";
 
 const Side = () => {
   const [pageName, setPageName] = useState<SidebarPageName>("Explorer");
   const oldPageName = useRef(pageName);
-  useSetStatic(setPageName, EventName.VIEW_SIDEBAR_PAGE_NAME_SET);
+  useSetStatic(setPageName, PgView.events.SIDEBAR_PAGE_NAME_SET);
 
   const page = useMemo(() => PgView.getSidebarPage(pageName), [pageName]);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
+      PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE,
       page
     );
   }, [page]);

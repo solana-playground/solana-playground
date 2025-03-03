@@ -4,8 +4,7 @@ import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
 import LangIcon from "../../../../../components/LangIcon";
-import { EventName } from "../../../../../constants";
-import { Fn, PgCommon, PgExplorer } from "../../../../../utils/pg";
+import { Fn, PgCommon, PgExplorer, PgView } from "../../../../../utils/pg";
 import {
   useKeybind,
   useOnClickOutside,
@@ -15,7 +14,7 @@ import {
 export const NewItem = () => {
   const [El, setEl] = useState<Element | null>(null);
 
-  useSetStatic(setEl, EventName.VIEW_NEW_ITEM_PORTAL_SET);
+  useSetStatic(setEl, PgView.events.NEW_ITEM_PORTAL_SET);
 
   const hide = useCallback(() => setEl(null), []);
 

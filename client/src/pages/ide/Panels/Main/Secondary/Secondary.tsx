@@ -19,6 +19,7 @@ import {
   // TODO: Remove
   PgEditor,
   PgTheme,
+  PgView,
 } from "../../../../../utils/pg";
 import { EventName, Id } from "../../../../../constants";
 import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../../hooks";
@@ -26,10 +27,10 @@ import { MAIN_SECONDARY } from "../../../../../views";
 
 const Secondary = () => {
   const [page, setPage] = useState<MainSecondaryPageName>("Terminal");
-  useSetStatic(setPage, EventName.VIEW_MAIN_SECONDARY_PAGE_SET);
+  useSetStatic(setPage, PgView.events.MAIN_SECONDARY_PAGE_SET);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
+      PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
       page
     );
   }, [page]);
@@ -60,7 +61,7 @@ const Secondary = () => {
       return height;
     });
   }, []);
-  useSetStatic(setCheckedHeight, EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET);
+  useSetStatic(setCheckedHeight, PgView.events.MAIN_SECONDARY_HEIGHT_SET);
 
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => setCheckedHeight((h) => h + d.height),

@@ -2,7 +2,6 @@ import type { FC, ReactNode } from "react";
 import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
-import { EventName } from "../../constants";
 import type {
   SetState,
   SetElementAsync,
@@ -41,6 +40,22 @@ export class PgView {
   /** All sidebar pages */
   static sidebar: SidebarPage<SidebarPageName>[];
 
+  /** All view event names */
+  static events = {
+    MAIN_PRIMARY_STATIC: "viewmainprimarystatic",
+    MAIN_SECONDARY_HEIGHT_SET: "viewmainsecondaryheightset",
+    MAIN_SECONDARY_FOCUS: "viewmainsecondaryfocus",
+    MAIN_SECONDARY_PAGE_SET: "viewmainsecondarypageset",
+    SIDEBAR_PAGE_NAME_SET: "viewsidebarpagenameset",
+    SIDEBAR_LOADING_SET: "viewsidebarloadingset",
+    MODAL_SET: "viewmodalset",
+    TOAST_SET: "viewtoastset",
+    TOAST_CLOSE: "viewtoastclose",
+    NEW_ITEM_PORTAL_SET: "viewnewitemportalset",
+    ON_DID_CHANGE_SIDEBAR_PAGE: "viewondidchangesidebarpage",
+    ON_DID_CHANGE_MAIN_SECONDARY_PAGE: "viewondidchangemainsecondarypage",
+  };
+
   /**
    * Set the current sidebar page.
    *
@@ -57,7 +72,7 @@ export class PgView {
    */
   static setSidebarPage(page: SetState<SidebarPageName> = "Explorer") {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_SIDEBAR_PAGE_NAME_SET,
+      PgView.events.SIDEBAR_PAGE_NAME_SET,
       page
     );
   }
@@ -74,7 +89,7 @@ export class PgView {
    */
   static setSidebarLoading(loading: SetState<boolean>) {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_SIDEBAR_LOADING_SET,
+      PgView.events.SIDEBAR_LOADING_SET,
       loading
     );
   }
@@ -87,7 +102,7 @@ export class PgView {
   static async setMainPrimary(SetEl: SetElementAsync) {
     await PgCommon.tryUntilSuccess(async () => {
       const eventNames = PgCommon.getStaticStateEventNames(
-        EventName.VIEW_MAIN_PRIMARY_STATIC
+        PgView.events.MAIN_PRIMARY_STATIC
       );
       const result = await PgCommon.timeout(
         PgCommon.sendAndReceiveCustomEvent(eventNames.get),
@@ -108,7 +123,7 @@ export class PgView {
     page: SetState<MainSecondaryPageName> = "Terminal"
   ) {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_MAIN_SECONDARY_PAGE_SET,
+      PgView.events.MAIN_SECONDARY_PAGE_SET,
       page
     );
   }
@@ -120,13 +135,13 @@ export class PgView {
    */
   static setMainSecondaryHeight(height: SetState<number>) {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_MAIN_SECONDARY_HEIGHT_SET,
+      PgView.events.MAIN_SECONDARY_HEIGHT_SET,
       height
     );
   }
 
   static focusMainSecondary() {
-    PgCommon.createAndDispatchCustomEvent(EventName.VIEW_MAIN_SECONDARY_FOCUS);
+    PgCommon.createAndDispatchCustomEvent(PgView.events.MAIN_SECONDARY_FOCUS);
   }
 
   /**
@@ -140,7 +155,7 @@ export class PgView {
     Component: ReactNode | FC<P>,
     props?: P
   ): Promise<R | null> {
-    return await PgCommon.sendAndReceiveCustomEvent(EventName.MODAL_SET, {
+    return await PgCommon.sendAndReceiveCustomEvent(PgView.events.MODAL_SET, {
       Component,
       props,
     });
@@ -157,7 +172,7 @@ export class PgView {
     if (data?.target) data = null;
 
     PgCommon.createAndDispatchCustomEvent(
-      PgCommon.getSendAndReceiveEventNames(EventName.MODAL_SET).receive,
+      PgCommon.getSendAndReceiveEventNames(PgView.events.MODAL_SET).receive,
       { data }
     );
 
@@ -174,7 +189,7 @@ export class PgView {
     Component: ReactNode | FC<P>,
     props?: { componentProps?: P; options?: ToastOptions }
   ) {
-    return PgCommon.createAndDispatchCustomEvent(EventName.TOAST_SET, {
+    return PgCommon.createAndDispatchCustomEvent(PgView.events.TOAST_SET, {
       Component,
       props,
     });
@@ -186,7 +201,7 @@ export class PgView {
    * @param id toast id
    */
   static closeToast(id?: number) {
-    return PgCommon.createAndDispatchCustomEvent(EventName.TOAST_CLOSE, id);
+    return PgCommon.createAndDispatchCustomEvent(PgView.events.TOAST_CLOSE, id);
   }
 
   /**
@@ -198,7 +213,7 @@ export class PgView {
    */
   static setNewItemPortal(Element: Element | null) {
     return PgCommon.createAndDispatchCustomEvent(
-      EventName.VIEW_NEW_ITEM_PORTAL_SET,
+      PgView.events.NEW_ITEM_PORTAL_SET,
       Element
     );
   }
@@ -212,7 +227,7 @@ export class PgView {
   static onDidChangeSidebarPage(cb: (page: SidebarPage) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.VIEW_ON_DID_CHANGE_SIDEBAR_PAGE,
+      eventName: PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE,
     });
   }
 
@@ -227,7 +242,7 @@ export class PgView {
   ) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.VIEW_ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
+      eventName: PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
     });
   }
 }

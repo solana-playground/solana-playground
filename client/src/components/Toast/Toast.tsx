@@ -3,8 +3,7 @@ import styled, { css } from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
-import { EventName } from "../../constants";
-import { PgCommon, PgTheme } from "../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../utils/pg";
 import { useSetStatic } from "../../hooks";
 
 export interface ToastChildProps {
@@ -21,8 +20,8 @@ const Toast = () => {
     toast(Component, { ...props?.options, toastId: id });
   }, []);
 
-  useSetStatic(setToast, EventName.TOAST_SET);
-  useSetStatic(toast.dismiss, EventName.TOAST_CLOSE);
+  useSetStatic(setToast, PgView.events.TOAST_SET);
+  useSetStatic(toast.dismiss, PgView.events.TOAST_CLOSE);
 
   return (
     <StyledContainer

@@ -11,7 +11,6 @@ import styled, { css } from "styled-components";
 import ErrorBoundary from "../../../../../components/ErrorBoundary";
 import Resizable from "../../../../../components/Resizable";
 import { Wormhole } from "../../../../../components/Loading";
-import { EventName } from "../../../../../constants";
 import {
   NullableJSX,
   PgTheme,
@@ -68,7 +67,7 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     });
   }, []);
 
-  useSetStatic(setLoading, EventName.VIEW_SIDEBAR_LOADING_SET);
+  useSetStatic(setLoading, PgView.events.SIDEBAR_LOADING_SET);
 
   useEffect(() => {
     const ids: boolean[] = [];

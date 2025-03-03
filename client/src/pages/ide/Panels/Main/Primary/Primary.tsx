@@ -3,12 +3,12 @@ import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../../components/ErrorBoundary";
 import { SpinnerWithBg } from "../../../../../components/Loading";
-import { EventName } from "../../../../../constants";
 import {
   CallableJSX,
   NullableJSX,
   PgCommon,
   PgTheme,
+  PgView,
   SetElementAsync,
 } from "../../../../../utils/pg";
 import { useGetAndSetStatic } from "../../../../../hooks";
@@ -33,7 +33,7 @@ const Primary = () => {
   useGetAndSetStatic(
     el,
     setElWithTransition,
-    EventName.VIEW_MAIN_PRIMARY_STATIC
+    PgView.events.MAIN_PRIMARY_STATIC
   );
 
   return (
