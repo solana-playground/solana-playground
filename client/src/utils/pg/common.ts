@@ -703,12 +703,15 @@ export class PgCommon {
    * @returns kebab-case converted version of the Title Case string
    */
   static toKebabFromTitle(str: string) {
-    return str
+    str = str
       .split(" ")
       .map((w) => w.toLowerCase())
       .join("-")
-      .replaceAll("&", "")
+      .replaceAll(/\W/g, (match) => (match === "-" ? match : ""))
       .replaceAll("--", "-");
+    if (str.startsWith("-")) str = str.substring(1);
+    if (str.endsWith("-")) str = str.substring(0, str.length - 1);
+    return str;
   }
 
   /**
