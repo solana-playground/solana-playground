@@ -5,8 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
-
-import { Id } from "../../../../../constants";
+import { PgView } from "../../../../../utils/pg";
 
 export const useResize = (setWidth: Dispatch<SetStateAction<number>>) => {
   const [windowHeight, setWindowHeight] = useState(getWindowHeight);
@@ -36,5 +35,7 @@ export const useResize = (setWidth: Dispatch<SetStateAction<number>>) => {
 };
 
 const getWindowHeight = () => {
-  return document.getElementById(Id.ROOT)?.getClientRects()[0]?.height ?? 979;
+  return (
+    document.getElementById(PgView.ids.ROOT)?.getClientRects()[0]?.height ?? 979
+  );
 };

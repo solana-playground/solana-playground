@@ -7,8 +7,8 @@ import Link from "../../Link";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { External, ShortArrow } from "../../Icons";
-import { Id, PROJECT_NAME } from "../../../constants";
-import { PgTheme } from "../../../utils/pg";
+import { PROJECT_NAME } from "../../../constants";
+import { PgTheme, PgView } from "../../../utils/pg";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the
@@ -22,7 +22,7 @@ const Home = () => {
   if (!show) return null;
 
   return (
-    <Wrapper id={Id.HOME}>
+    <Wrapper id={PgView.ids.HOME}>
       <ProjectTitle>{PROJECT_NAME}</ProjectTitle>
 
       <ContentWrapper>

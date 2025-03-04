@@ -9,8 +9,7 @@ import {
 import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
-import { ClassName } from "../../constants";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme, PgView } from "../../utils/pg";
 
 export type ButtonKind =
   | "primary"
@@ -120,7 +119,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <StyledButton
         ref={ref}
-        className={`${className} ${isLoading ? ClassName.BUTTON_LOADING : ""}`}
+        className={`${className} ${
+          isLoading ? PgView.classNames.BUTTON_LOADING : ""
+        }`}
         disabled={isDisabled}
         onClick={handleOnClick}
         {...props}
@@ -400,7 +401,7 @@ const getButtonStyles = ({
       transform: scale(0);
     }
 
-    &.${ClassName.BUTTON_LOADING} > span.btn-spinner {
+    &.${PgView.classNames.BUTTON_LOADING} > span.btn-spinner {
       width: 1rem;
       height: 1rem;
       margin-right: 0.5rem;

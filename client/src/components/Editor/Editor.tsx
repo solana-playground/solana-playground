@@ -2,8 +2,7 @@ import { useEffect, lazy, Suspense, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { SpinnerWithBg } from "../Loading";
-import { Id } from "../../constants";
-import { PgCommon, PgExplorer, PgTheme } from "../../utils/pg";
+import { PgCommon, PgExplorer, PgTheme, PgView } from "../../utils/pg";
 
 const Home = lazy(() => import("./Home"));
 const Monaco = lazy(() => import("./Monaco"));
@@ -59,7 +58,7 @@ const Wrapper = styled.div`
      * We are able to solve this problem by seting the editor's background to
      * transparent and set this(wrapper) element's background to background-image.
      */
-    &:has(> #${Id.HOME}) {
+    &:has(> #${PgView.ids.HOME}) {
       background: ${theme.views.main.primary.home.default.bg ??
       theme.views.main.default.bg};
     }

@@ -12,9 +12,9 @@ import styled, { css } from "styled-components";
 
 import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
-import { Id } from "../../constants";
 import { useOnClickOutside } from "../../hooks";
 import type { CommonMenuProps } from "./Menu"; // Circular dependency
+import { PgView } from "../../utils/pg";
 
 export type ContextMenuProps = {
   onContextMenu?: (ev: MouseEvent<HTMLDivElement>) => void;
@@ -112,7 +112,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
               <MenuItem key={i} {...item} hide={hide} />
             ))}
           </MenuWrapperWithPosition>,
-          document.getElementById(Id.PORTAL_ABOVE)!
+          document.getElementById(PgView.ids.PORTAL_ABOVE)!
         )}
     </Wrapper>
   );

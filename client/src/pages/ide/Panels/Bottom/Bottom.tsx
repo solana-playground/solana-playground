@@ -3,12 +3,11 @@ import styled, { css } from "styled-components";
 import Delayed from "../../../../components/Delayed";
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Tooltip from "../../../../components/Tooltip";
-import { Id } from "../../../../constants";
 import { BOTTOM } from "../../../../views";
-import { PgTheme } from "../../../../utils/pg";
+import { PgTheme, PgView } from "../../../../utils/pg";
 
 const Bottom = () => (
-  <Wrapper id={Id.BOTTOM}>
+  <Wrapper id={PgView.ids.BOTTOM}>
     {/* Add delay to give enough time for component dependencies to initialize */}
     <Delayed delay={60}>
       {BOTTOM.map((Component, i) => (

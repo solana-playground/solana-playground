@@ -11,7 +11,7 @@ import SidebarButton from "./SidebarButton";
 import Settings from "./Settings";
 import Link from "../../../../../components/Link";
 import Popover from "../../../../../components/Popover";
-import { ClassName, GITHUB_URL } from "../../../../../constants";
+import { GITHUB_URL } from "../../../../../constants";
 import { PgCommon, PgTheme, PgView } from "../../../../../utils/pg";
 
 interface LeftProps<P = SidebarPageName, W = number> {
@@ -83,11 +83,11 @@ const useActiveTab = <P extends SidebarPageName>({
 
   useEffect(() => {
     const oldEl = document.getElementById(getId(oldPageName.current));
-    oldEl?.classList.remove(ClassName.ACTIVE);
+    oldEl?.classList.remove(PgView.classNames.ACTIVE);
 
     const current = width !== 0 ? pageName : "Closed";
     const newEl = document.getElementById(getId(current));
-    newEl?.classList.add(ClassName.ACTIVE);
+    newEl?.classList.add(PgView.classNames.ACTIVE);
 
     oldPageName.current = pageName;
   }, [pageName, oldPageName, width, theme.name]);

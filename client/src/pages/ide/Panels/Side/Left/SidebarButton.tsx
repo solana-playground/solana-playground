@@ -3,8 +3,7 @@ import styled, { css } from "styled-components";
 
 import Img from "../../../../../components/Img";
 import Tooltip from "../../../../../components/Tooltip";
-import { ClassName } from "../../../../../constants";
-import { PgTheme } from "../../../../../utils/pg";
+import { PgTheme, PgView } from "../../../../../utils/pg";
 
 interface SidebarButtonProps extends ComponentPropsWithoutRef<"div"> {
   src: string;
@@ -27,12 +26,12 @@ const IconWrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.views.sidebar.left.button.default)};
 
-    &.${ClassName.ACTIVE} {
+    &.${PgView.classNames.ACTIVE} {
       ${PgTheme.convertToCSS(theme.views.sidebar.left.button.selected)};
     }
 
-    &.${ClassName.ACTIVE} img,
-    &:hover:not(.${ClassName.ACTIVE}) img {
+    &.${PgView.classNames.ACTIVE} img,
+    &:hover:not(.${PgView.classNames.ACTIVE}) img {
       filter: invert(1);
     }
   `}

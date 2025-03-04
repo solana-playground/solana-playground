@@ -10,8 +10,8 @@ import {
 } from "react";
 import styled from "styled-components";
 
-import { ClassName } from "../../constants";
 import { ShortArrow } from "../Icons";
+import { PgView } from "../../utils/pg";
 
 interface FoldableProps {
   element: ReactNode;
@@ -39,9 +39,9 @@ const Foldable: FC<FoldableProps> = ({
   const clickWrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (show) {
-      clickWrapperRef.current?.classList.add(ClassName.OPEN);
+      clickWrapperRef.current?.classList.add(PgView.classNames.OPEN);
     } else {
-      clickWrapperRef.current?.classList.remove(ClassName.OPEN);
+      clickWrapperRef.current?.classList.remove(PgView.classNames.OPEN);
     }
   }, [show]);
 
@@ -68,7 +68,7 @@ const ClickElWrapper = styled.div`
     margin-right: 0.5rem;
   }
 
-  &.${ClassName.OPEN} svg:first-child {
+  &.${PgView.classNames.OPEN} svg:first-child {
     transform: rotate(90deg);
   }
 

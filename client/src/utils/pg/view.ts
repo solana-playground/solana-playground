@@ -56,6 +56,36 @@ export class PgView {
     ON_DID_CHANGE_MAIN_SECONDARY_PAGE: "viewondidchangemainsecondarypage",
   };
 
+  /** DOM class names */
+  static classNames = {
+    ACTIVE: "active",
+    ERROR: "error",
+    SUCCESS: "success",
+    OPEN: "open",
+    HIDDEN: "hidden",
+    TOUCHED: "touched",
+    SELECTED: "selected",
+    CTX_SELECTED: "ctx-selected",
+    FILE: "file",
+    FOLDER: "folder",
+    FOLDER_INSIDE: "folder-inside",
+    LOADING: "loading",
+    DARKEN: "darken",
+    BUTTON_LOADING: "btn-loading",
+  };
+
+  /** DOM ids */
+  static ids = {
+    ROOT: "root",
+    ROOT_DIR: "root-dir",
+    BOTTOM: "bottom",
+    TABS: "tabs",
+    WALLET_MAIN: "wallet-main",
+    HOME: "home",
+    PORTAL_ABOVE: "portal-above",
+    PORTAL_BELOW: "portal-below",
+  };
+
   /**
    * Set the current sidebar page.
    *

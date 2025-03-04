@@ -7,7 +7,7 @@ import Delayed from "../../../components/Delayed";
 import ModalBackdrop from "../../../components/ModalBackdrop";
 import Toast from "../../../components/Toast";
 import Wallet from "../../../components/Wallet";
-import { Id } from "../../../constants";
+import { PgView } from "../../../utils/pg";
 
 const Panels = () => (
   <Wrapper>
@@ -25,12 +25,12 @@ const Panels = () => (
     </Delayed>
 
     {/* A portal that is *above* the modal backdrop stacking context */}
-    <PortalAbove id={Id.PORTAL_ABOVE} />
+    <PortalAbove id={PgView.ids.PORTAL_ABOVE} />
 
     <ModalBackdrop />
 
     {/* A portal that is *below* the modal backdrop stacking context */}
-    <PortalBelow id={Id.PORTAL_BELOW}>
+    <PortalBelow id={PgView.ids.PORTAL_BELOW}>
       <Toast />
     </PortalBelow>
   </Wrapper>

@@ -5,8 +5,7 @@ import Tab from "./Tab";
 import Button from "../Button";
 import Dnd from "../Dnd";
 import Img from "../Img";
-import { Id } from "../../constants";
-import { PgExplorer, PgTheme, PgWallet } from "../../utils/pg";
+import { PgExplorer, PgTheme, PgView, PgWallet } from "../../utils/pg";
 import {
   useExplorer,
   useKeybind,
@@ -42,7 +41,7 @@ export const Tabs = () => {
   if (!explorer.tabs.length) return null;
 
   return (
-    <Wrapper id={Id.TABS}>
+    <Wrapper id={PgView.ids.TABS}>
       <TabsWrapper>
         <Dnd.Sortable
           items={explorer.tabs as string[]}

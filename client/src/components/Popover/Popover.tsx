@@ -11,8 +11,7 @@ import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 
 import FadeIn from "../FadeIn";
-import { Id } from "../../constants";
-import { PgCommon, RequiredKey, ValueOf } from "../../utils/pg";
+import { PgCommon, PgView, RequiredKey, ValueOf } from "../../utils/pg";
 
 export interface PopoverProps {
   /** Popover element to show on trigger */
@@ -380,7 +379,9 @@ const CommonPopover: FC<CommonPopoverProps> = ({
       {...props}
     />,
     document.getElementById(
-      stackingContext === "above-modal" ? Id.PORTAL_ABOVE : Id.PORTAL_BELOW
+      stackingContext === "above-modal"
+        ? PgView.ids.PORTAL_ABOVE
+        : PgView.ids.PORTAL_BELOW
     )!
   );
 };

@@ -1,14 +1,18 @@
 import { useCallback } from "react";
 
-import { ClassName, Id } from "../../../constants";
+import { PgView } from "../../../utils/pg";
 
 /** Darken/lighten the wallet component.  */
 export const useDarken = () => {
   const darken = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
+    document
+      .getElementById(PgView.ids.WALLET_MAIN)
+      ?.classList.add(PgView.classNames.DARKEN);
   }, []);
   const lighten = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
+    document
+      .getElementById(PgView.ids.WALLET_MAIN)
+      ?.classList.remove(PgView.classNames.DARKEN);
   }, []);
 
   return { darken, lighten };

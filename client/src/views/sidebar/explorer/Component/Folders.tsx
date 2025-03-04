@@ -25,7 +25,7 @@ import {
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { ClassName, Id, ItemError } from "../../../../constants";
+import { ItemError } from "../../../../constants";
 import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";
@@ -63,7 +63,7 @@ const Folders = () => {
 
       <ExplorerDndContext>
         <ExplorerContextMenu {...ctxMenu}>
-          <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
+          <RootWrapper id={PgView.ids.ROOT_DIR} data-path={relativeRootPath}>
             {/* Program */}
             <SectionTopWrapper>
               <SectionHeader>Program</SectionHeader>
@@ -332,12 +332,12 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
           name: folderName,
           depth,
           onClick: toggle,
-          className: ClassName.FOLDER,
+          className: PgView.classNames.FOLDER,
         }}
       />
 
       <FolderInsideWrapper
-        className={`${ClassName.FOLDER_INSIDE} ${ClassName.HIDDEN}`}
+        className={`${PgView.classNames.FOLDER_INSIDE} ${PgView.classNames.HIDDEN}`}
       >
         {folders
           .sort((a, b) => a.localeCompare(b))
@@ -360,7 +360,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
                 name: fileName,
                 depth: depth + 1,
                 onClick: toggle,
-                className: ClassName.FILE,
+                className: PgView.classNames.FILE,
               }}
             />
           ))}
@@ -403,7 +403,7 @@ const RootWrapper = styled.div`
   ${({ theme }) => css`
   padding: 0.375rem 0;
 
-  & .${ClassName.FOLDER}, & .${ClassName.FILE} {
+  & .${PgView.classNames.FOLDER}, & .${PgView.classNames.FILE} {
     display: flex;
     align-items: center;
     padding: 0.25rem 1rem;
@@ -411,13 +411,13 @@ const RootWrapper = styled.div`
     border: 1px solid transparent;
     font-size: ${theme.font.code.size.small};
 
-    &.${ClassName.SELECTED} {
+    &.${PgView.classNames.SELECTED} {
       background: ${
         theme.colors.default.primary + theme.default.transparency.low
       };
     }
 
-    &.${ClassName.CTX_SELECTED} {
+    &.${PgView.classNames.CTX_SELECTED} {
       background: ${
         theme.colors.default.primary + theme.default.transparency.low
       };
@@ -462,7 +462,7 @@ const SectionHeader = styled.div`
 `;
 
 const FolderInsideWrapper = styled.div`
-  &.${ClassName.HIDDEN} {
+  &.${PgView.classNames.HIDDEN} {
     display: none;
   }
 `;
@@ -481,7 +481,7 @@ const StyledFolder = styled(Folder)`
         ${theme.default.transition.type};
     }
 
-    &.${ClassName.OPEN} svg {
+    &.${PgView.classNames.OPEN} svg {
       transform: rotate(90deg);
     }
   `}

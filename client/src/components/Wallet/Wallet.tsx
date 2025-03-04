@@ -13,8 +13,14 @@ import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Close, ShortArrow } from "../Icons";
-import { ClassName, Id } from "../../constants";
-import { CurrentWallet, Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import {
+  CurrentWallet,
+  Fn,
+  PgCommon,
+  PgTheme,
+  PgView,
+  PgWallet,
+} from "../../utils/pg";
 import {
   useAutoAirdrop,
   useDarken,
@@ -40,7 +46,7 @@ const Wallet = () => {
   if (!PgWallet.show || !wallet) return null;
 
   const tabHeight = document
-    .getElementById(Id.TABS)
+    .getElementById(PgView.ids.TABS)
     ?.getBoundingClientRect().height;
 
   return (
@@ -251,7 +257,7 @@ const CloseButton = styled(Button)`
 `;
 
 const WalletMain = () => (
-  <MainWrapper id={Id.WALLET_MAIN}>
+  <MainWrapper id={PgView.ids.WALLET_MAIN}>
     <Balance />
     <Send />
     <Transactions />
@@ -272,7 +278,7 @@ const MainWrapper = styled.div`
         ${theme.default.transition.type};
     }
 
-    &.${ClassName.DARKEN}::after {
+    &.${PgView.classNames.DARKEN}::after {
       ${PgTheme.convertToCSS(theme.components.wallet.main.backdrop)};
     }
 

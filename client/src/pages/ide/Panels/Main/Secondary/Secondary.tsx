@@ -21,7 +21,7 @@ import {
   PgTheme,
   PgView,
 } from "../../../../../utils/pg";
-import { EventName, Id } from "../../../../../constants";
+import { EventName } from "../../../../../constants";
 import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../../hooks";
 import { MAIN_SECONDARY } from "../../../../../views";
 
@@ -242,7 +242,7 @@ const getDefaultHeight = () => Math.floor(window.innerHeight / 4);
 const getMinHeight = () => 36;
 const getMaxHeight = () => {
   const bottomHeight = document
-    .getElementById(Id.BOTTOM)
+    .getElementById(PgView.ids.BOTTOM)
     ?.getBoundingClientRect()?.height;
   return window.innerHeight - (bottomHeight ?? 0);
 };

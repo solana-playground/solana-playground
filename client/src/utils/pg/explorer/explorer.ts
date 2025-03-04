@@ -3,7 +3,8 @@ import { PgFs } from "./fs";
 import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
 import { PgLanguage } from "../language";
-import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
+import { PgView } from "../view";
+import { ItemError, WorkspaceError } from "../../../constants";
 import type {
   Explorer,
   TupleFiles,
@@ -1400,12 +1401,12 @@ export class PgExplorer {
 
   /** Get the root folder elemement. */
   static getRootFolderEl() {
-    return document.getElementById(Id.ROOT_DIR);
+    return document.getElementById(PgView.ids.ROOT_DIR);
   }
 
   /** Get the current selected element. */
   static getSelectedEl() {
-    return document.getElementsByClassName(ClassName.SELECTED)[0] as
+    return document.getElementsByClassName(PgView.classNames.SELECTED)[0] as
       | HTMLDivElement
       | undefined;
   }
@@ -1416,14 +1417,14 @@ export class PgExplorer {
    * @param newEl new element to select
    */
   static setSelectedEl(newEl: HTMLDivElement) {
-    PgExplorer.getSelectedEl()?.classList.remove(ClassName.SELECTED);
-    newEl.classList.add(ClassName.SELECTED);
+    PgExplorer.getSelectedEl()?.classList.remove(PgView.classNames.SELECTED);
+    newEl.classList.add(PgView.classNames.SELECTED);
   }
 
   /** Get the selected context element. */
   static getCtxSelectedEl() {
     const ctxSelectedEls = document.getElementsByClassName(
-      ClassName.CTX_SELECTED
+      PgView.classNames.CTX_SELECTED
     );
     if (ctxSelectedEls.length) return ctxSelectedEls[0];
   }
@@ -1431,12 +1432,14 @@ export class PgExplorer {
   /** Set the selected context element. */
   static setCtxSelectedEl(newEl: HTMLDivElement) {
     PgExplorer.removeCtxSelectedEl();
-    newEl.classList.add(ClassName.CTX_SELECTED);
+    newEl.classList.add(PgView.classNames.CTX_SELECTED);
   }
 
   /** Remove the selected context element. */
   static removeCtxSelectedEl() {
-    PgExplorer.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
+    PgExplorer.getCtxSelectedEl()?.classList.remove(
+      PgView.classNames.CTX_SELECTED
+    );
   }
 
   /**
@@ -1446,11 +1449,12 @@ export class PgExplorer {
    */
   static openFolder(el: HTMLDivElement) {
     // Folder icon
-    el.classList.add(ClassName.OPEN);
+    el.classList.add(PgView.classNames.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl) insideFolderEl.classList.remove(ClassName.HIDDEN);
+    if (insideFolderEl)
+      insideFolderEl.classList.remove(PgView.classNames.HIDDEN);
   }
 
   /**
@@ -1460,11 +1464,12 @@ export class PgExplorer {
    */
   static toggleFolder(el: HTMLDivElement) {
     // Folder icon
-    el.classList.toggle(ClassName.OPEN);
+    el.classList.toggle(PgView.classNames.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl) insideFolderEl.classList.toggle(ClassName.HIDDEN);
+    if (insideFolderEl)
+      insideFolderEl.classList.toggle(PgView.classNames.HIDDEN);
   }
 
   /**
@@ -1488,17 +1493,19 @@ export class PgExplorer {
   /** Collapse all folders in the UI. */
   static collapseAllFolders() {
     // Close all folders
-    const folderElements = document.getElementsByClassName(ClassName.FOLDER);
+    const folderElements = document.getElementsByClassName(
+      PgView.classNames.FOLDER
+    );
     for (const folder of folderElements) {
-      folder.classList.remove(ClassName.OPEN);
+      folder.classList.remove(PgView.classNames.OPEN);
     }
 
     // Hide all folder inside elements
     const insideElements = document.getElementsByClassName(
-      ClassName.FOLDER_INSIDE
+      PgView.classNames.FOLDER_INSIDE
     );
     for (const folderInside of insideElements) {
-      folderInside.classList.add(ClassName.HIDDEN);
+      folderInside.classList.add(PgView.classNames.HIDDEN);
     }
   }
 

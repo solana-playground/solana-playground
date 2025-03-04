@@ -1,7 +1,6 @@
 import { MouseEvent, useCallback, useState } from "react";
 
 import { DeleteItem, RenameItem } from "./Modals";
-import { ClassName, Id } from "../../../../constants";
 import {
   PgCommand,
   PgCommon,
@@ -40,7 +39,7 @@ export const useExplorerContextMenu = () => {
     const selectedEl = itemEl as HTMLDivElement;
 
     // Root dir is not allowed to be selected as it cannot be renamed or deleted
-    if (selectedEl.id === Id.ROOT_DIR) throw new Error();
+    if (selectedEl.id === PgView.ids.ROOT_DIR) throw new Error();
 
     const itemType = PgExplorer.getItemTypeFromEl(selectedEl);
     if (!itemType) throw new Error();
@@ -89,9 +88,11 @@ export const useExplorerContextMenu = () => {
   // Functions
   const ctxNewItem = useCallback(() => {
     const ctxSelected = PgExplorer.getElFromPath(getPath())!;
-    if (!ctxSelected.classList.contains(ClassName.OPEN)) {
-      ctxSelected.classList.add(ClassName.OPEN);
-      ctxSelected.nextElementSibling?.classList.remove(ClassName.HIDDEN);
+    if (!ctxSelected.classList.contains(PgView.classNames.OPEN)) {
+      ctxSelected.classList.add(PgView.classNames.OPEN);
+      ctxSelected.nextElementSibling?.classList.remove(
+        PgView.classNames.HIDDEN
+      );
     }
 
     PgView.setNewItemPortal(ctxSelected.nextElementSibling);
