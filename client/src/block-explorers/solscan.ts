@@ -5,14 +5,14 @@ export const solscan = PgBlockExplorer.create({
   url: "https://solscan.io",
   getClusterParam: () => {
     switch (PgConnection.cluster) {
-      case "mainnet-beta":
-        return "";
       case "testnet":
         return "?cluster=testnet";
       case "devnet":
         return "?cluster=devnet";
       case "localnet":
         // No support https://solana.stackexchange.com/a/2330
+        return "";
+      default:
         return "";
     }
   },

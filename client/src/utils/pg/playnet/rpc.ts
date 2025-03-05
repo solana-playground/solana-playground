@@ -6,6 +6,7 @@ import { PgBytes } from "../bytes";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgSettings } from "../settings";
+import { PgWeb3 } from "../web3";
 import { Endpoint } from "../../../constants";
 import type {
   OverridableConnection,
@@ -13,7 +14,6 @@ import type {
   RpcResponse,
   RpcResponseWithContext,
 } from "./types";
-import { PgWeb3 } from "../web3";
 
 export class PgPlaynetRpc {
   /**

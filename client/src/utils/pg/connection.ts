@@ -11,7 +11,7 @@ export interface ConnectionOption {
 }
 
 /** Solana public clusters or "localnet" */
-export type Cluster = "localnet" | PgWeb3.Cluster;
+export type Cluster = "playnet" | "localnet" | PgWeb3.Cluster;
 
 const derive = () => ({
   /** Globally sycned connection instance */
@@ -23,11 +23,9 @@ const derive = () => ({
     // will run again to return the overridden connection instance.
     derive: () => {
       // Check whether the endpoint is Playnet
-      if (PgPlaynet.isUrlPlaynet(PgSettings.connection.endpoint)) {
+      if (PgPlaynet.isUrlPlaynet()) {
         // Return the connection instance if it has been overridden
-        if (PgPlaynet.connection?.overridden) {
-          return PgPlaynet.connection;
-        }
+        if (PgPlaynet.connection?.overridden) return PgPlaynet.connection;
 
         // Initialize Playnet
         PgPlaynet.init();
@@ -101,48 +99,6 @@ const derive = () => ({
 @derivable(derive)
 class _PgConnection {
   /**
-   * Get the cluster name from the given `endpoint`.
-   *
-   * @param endpoint RPC endpoint
-   * @returns the cluster name
-   */
-  static async getCluster(
-    endpoint: string = PgConnection.current.rpcEndpoint
-  ): Promise<Cluster> {
-    // Local
-    if (endpoint.includes("localhost") || endpoint.includes("127.0.0.1")) {
-      return "localnet";
-    }
-
-    // Public
-    switch (endpoint) {
-      case PgWeb3.clusterApiUrl("devnet"):
-        return "devnet";
-      case PgWeb3.clusterApiUrl("testnet"):
-        return "testnet";
-      case PgWeb3.clusterApiUrl("mainnet-beta"):
-        return "mainnet-beta";
-    }
-
-    // Decide custom endpoints from the genesis hash of the cluster
-    const genesisHash = await PgConnection.create({
-      endpoint,
-    }).getGenesisHash();
-    switch (genesisHash) {
-      case "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG":
-        return "devnet";
-      case "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
-        return "testnet";
-      case "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d":
-        return "mainnet-beta";
-      default:
-        throw new Error(
-          `Genesis hash ${genesisHash} did not match any cluster`
-        );
-    }
-  }
-
-  /**
    * Create a connection with the given options or defaults from settings.
    *
    * @param opts connection options
@@ -190,6 +146,51 @@ class _PgConnection {
   }
 
   /**
+   * Get the cluster name from the given `endpoint`.
+   *
+   * @param endpoint RPC endpoint
+   * @returns the cluster name
+   */
+  static async getCluster(
+    endpoint: string = PgConnection.current.rpcEndpoint
+  ): Promise<Cluster> {
+    // Playnet
+    if (PgPlaynet.isUrlPlaynet(endpoint)) return "playnet";
+
+    // Local
+    if (endpoint.includes("localhost") || endpoint.includes("127.0.0.1")) {
+      return "localnet";
+    }
+
+    // Public
+    switch (endpoint) {
+      case PgWeb3.clusterApiUrl("devnet"):
+        return "devnet";
+      case PgWeb3.clusterApiUrl("testnet"):
+        return "testnet";
+      case PgWeb3.clusterApiUrl("mainnet-beta"):
+        return "mainnet-beta";
+    }
+
+    // Decide custom endpoints from the genesis hash of the cluster
+    const genesisHash = await PgConnection.create({
+      endpoint,
+    }).getGenesisHash();
+    switch (genesisHash) {
+      case "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG":
+        return "devnet";
+      case "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
+        return "testnet";
+      case "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d":
+        return "mainnet-beta";
+      default:
+        throw new Error(
+          `Genesis hash ${genesisHash} did not match any cluster`
+        );
+    }
+  }
+
+  /**
    * Get whether the current cluster is down by comparing the latest slot
    * numbers between a certain time period.
    *
@@ -217,7 +218,7 @@ class _PgConnection {
   }
 
   /**
-   * Get the airdrop amount based on the current endpoint.
+   * Get the airdrop amount based on the current cluster.
    *
    * @returns airdrop amount in SOL
    */

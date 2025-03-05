@@ -6,8 +6,6 @@ export const solanaFM = PgBlockExplorer.create({
   url: "https://solana.fm",
   getClusterParam: () => {
     switch (PgConnection.cluster) {
-      case "mainnet-beta":
-        return "";
       case "testnet":
         return "?cluster=testnet-solana";
       case "devnet":
@@ -15,6 +13,8 @@ export const solanaFM = PgBlockExplorer.create({
       case "localnet":
         // Doesn't work with protocol ("http") prefix
         return "?cluster=custom-" + new URL(Endpoint.LOCALHOST).host;
+      default:
+        return "";
     }
   },
 });
