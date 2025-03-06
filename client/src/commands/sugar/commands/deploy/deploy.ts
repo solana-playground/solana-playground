@@ -1,5 +1,5 @@
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
@@ -204,7 +204,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
       );
 
       // Show progress bar
-      PgTerminal.setProgress(0.1);
+      PgView.setMainSecondaryProgress(0.1);
       let progressCount = 0;
 
       const CONCURRENT = 4;
@@ -245,7 +245,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
               errorCount++;
             } finally {
               progressCount++;
-              PgTerminal.setProgress(
+              PgView.setMainSecondaryProgress(
                 (progressCount / configLineChunks.length) * 100
               );
             }
@@ -254,7 +254,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
       );
 
       // Hide progress bar
-      setTimeout(() => PgTerminal.setProgress(0), 1000);
+      setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
       // Sync and refresh the file if it's already open
       clearInterval(saveCacheIntervalId);

@@ -156,7 +156,7 @@ export class PgSugar {
         );
       }
     } finally {
-      setTimeout(() => PgTerminal.setProgress(0), 1000);
+      setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
     }
   }
 }

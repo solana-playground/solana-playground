@@ -13,7 +13,6 @@ export enum EventName {
 
   // Terminal
   TERMINAL_STATIC = "terminalstatic",
-  TERMINAL_PROGRESS_SET = "terminalprogressset",
 
   // Theme
   THEME_SET = "themeset",

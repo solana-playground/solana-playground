@@ -5,7 +5,7 @@ import {
   loadConfigData,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
 
 export const processReveal = async (rpcUrl: string | undefined) => {
   const term = await PgTerminal.get();
@@ -57,7 +57,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   term.println(`\n[4/4] ${Emoji.UPLOAD} Updating NFT URIs from cache values`);
 
   // Show progress bar
-  PgTerminal.setProgress(0.1);
+  PgView.setMainSecondaryProgress(0.1);
   let progressCount = 0;
   let errorCount = 0;
 
@@ -93,7 +93,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
           errorCount++;
         } finally {
           progressCount++;
-          PgTerminal.setProgress(
+          PgView.setMainSecondaryProgress(
             (progressCount / metadataAccounts.length) * 100
           );
         }
@@ -102,7 +102,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   );
 
   // Hide progress bar
-  setTimeout(() => PgTerminal.setProgress(0), 1000);
+  setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
   if (errorCount) {
     term.println(

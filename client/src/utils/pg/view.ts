@@ -46,6 +46,7 @@ export class PgView {
     MAIN_SECONDARY_HEIGHT_SET: "viewmainsecondaryheightset",
     MAIN_SECONDARY_FOCUS: "viewmainsecondaryfocus",
     MAIN_SECONDARY_PAGE_SET: "viewmainsecondarypageset",
+    MAIN_SECONDARY_PROGRESS_SET: "viewmainsecondaryprogressset",
     SIDEBAR_PAGE_NAME_SET: "viewsidebarpagenameset",
     SIDEBAR_LOADING_SET: "viewsidebarloadingset",
     MODAL_SET: "viewmodalset",
@@ -155,6 +156,20 @@ export class PgView {
     PgCommon.createAndDispatchCustomEvent(
       PgView.events.MAIN_SECONDARY_PAGE_SET,
       page
+    );
+  }
+
+  /**
+   * Set secondary main view progress bar percentage.
+   *
+   * Progress bar will be hidden if `progress` is set to 0.
+   *
+   * @param progress progress percentage in 0-100
+   */
+  static setMainSecondaryProgress(progress: number) {
+    PgCommon.createAndDispatchCustomEvent(
+      PgView.events.MAIN_SECONDARY_PROGRESS_SET,
+      progress
     );
   }
 

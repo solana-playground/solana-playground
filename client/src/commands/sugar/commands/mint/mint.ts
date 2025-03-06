@@ -2,7 +2,12 @@ import { toBigNumber } from "@metaplex-foundation/js";
 
 import { getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgBlockExplorer, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import {
+  PgBlockExplorer,
+  PgTerminal,
+  PgView,
+  PgWeb3,
+} from "../../../../utils/pg";
 
 export const processMint = async (
   rpcUrl: string | undefined,
@@ -49,7 +54,7 @@ export const processMint = async (
   }
 
   // Show progress bar
-  PgTerminal.setProgress(0.1);
+  PgView.setMainSecondaryProgress(0.1);
   let progressCount = 0;
 
   // Check for candy guard groups
@@ -117,14 +122,16 @@ export const processMint = async (
           }
         } finally {
           progressCount++;
-          PgTerminal.setProgress((progressCount / mintAmount.toNumber()) * 100);
+          PgView.setMainSecondaryProgress(
+            (progressCount / mintAmount.toNumber()) * 100
+          );
         }
       }
     })
   );
 
   // Hide progress bar
-  setTimeout(() => PgTerminal.setProgress(0), 1000);
+  setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
   if (isMintingOver) {
     term.println(PgTerminal.info("Minting is over!"));

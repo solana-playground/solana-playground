@@ -253,20 +253,6 @@ export class PgTerminal {
   }
 
   /**
-   * Set progressbar percentage.
-   *
-   * Progress bar will be hidden if `progress` is set to 0.
-   *
-   * @param progress progress percentage in 0-100
-   */
-  static setProgress(progress: number) {
-    PgCommon.createAndDispatchCustomEvent(
-      EventName.TERMINAL_PROGRESS_SET,
-      progress
-    );
-  }
-
-  /**
    * Format the given list for terminal view.
    *
    * @param list list to format

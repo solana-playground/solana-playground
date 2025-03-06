@@ -6,7 +6,7 @@ import {
   loadCache,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
 
 export const processSign = async (
   rpcUrl: string | undefined,
@@ -64,7 +64,7 @@ export const processSign = async (
     }
 
     // Show progress bar
-    PgTerminal.setProgress(0.1);
+    PgView.setMainSecondaryProgress(0.1);
     let progressCount = 0;
     let errorCount = 0;
 
@@ -83,7 +83,7 @@ export const processSign = async (
             errorCount++;
           } finally {
             progressCount++;
-            PgTerminal.setProgress(
+            PgView.setMainSecondaryProgress(
               (progressCount / metadataAccounts.length) * 100
             );
           }
@@ -92,7 +92,7 @@ export const processSign = async (
     );
 
     // Hide progress bar
-    setTimeout(() => PgTerminal.setProgress(0), 1000);
+    setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
     if (errorCount) {
       throw new Error(

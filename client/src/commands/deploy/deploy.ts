@@ -8,6 +8,7 @@ import {
   PgServer,
   PgTerminal,
   PgTx,
+  PgView,
   PgWallet,
   PgWeb3,
 } from "../../utils/pg";
@@ -24,7 +25,7 @@ export const deploy = createCmd({
         "Deploying..."
       )} This could take a while depending on the program size and network conditions.`
     );
-    PgTerminal.setProgress(0.1);
+    PgView.setMainSecondaryProgress(0.1);
 
     let msg;
     try {
@@ -61,7 +62,7 @@ export const deploy = createCmd({
       return 1; // To indicate error
     } finally {
       if (msg) PgTerminal.log(msg + "\n");
-      PgTerminal.setProgress(0);
+      PgView.setMainSecondaryProgress(0);
       PgGlobal.update({ deployState: "ready" });
     }
   },
@@ -242,7 +243,8 @@ const processDeploy = async () => {
     programBuffer,
     {
       wallet: pgWallet,
-      onWrite: (offset) => PgTerminal.setProgress((offset / programLen) * 100),
+      onWrite: (offset) =>
+        PgView.setMainSecondaryProgress((offset / programLen) * 100),
       onMissing: (missingCount) => {
         PgTerminal.log(
           `Warning: ${PgTerminal.bold(

@@ -21,7 +21,6 @@ import {
   PgTheme,
   PgView,
 } from "../../../../../utils/pg";
-import { EventName } from "../../../../../constants";
 import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../../hooks";
 import { MAIN_SECONDARY } from "../../../../../views";
 
@@ -161,7 +160,7 @@ const Secondary = () => {
             </TabsWrapper>
           )}
 
-          <TerminalProgress />
+          <Progress />
 
           <ActionsWrapper>
             {actions.map((action) => (
@@ -226,9 +225,9 @@ const Tab = styled.div<{ isCurrent: boolean }>`
   `}
 `;
 
-const TerminalProgress = () => {
+const Progress = () => {
   const [progress, setProgress] = useState(0);
-  useSetStatic(setProgress, EventName.TERMINAL_PROGRESS_SET);
+  useSetStatic(setProgress, PgView.events.MAIN_SECONDARY_PROGRESS_SET);
   return <ProgressBar value={progress} />;
 };
 
