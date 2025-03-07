@@ -48,6 +48,7 @@ export class PgView {
     MAIN_SECONDARY_PAGE_SET: "viewmainsecondarypageset",
     MAIN_SECONDARY_PROGRESS_SET: "viewmainsecondaryprogressset",
     SIDEBAR_PAGE_NAME_SET: "viewsidebarpagenameset",
+    SIDEBAR_PAGE_PROPS_SET: "viewsidebarpagepropsset",
     SIDEBAR_LOADING_SET: "viewsidebarloadingset",
     MODAL_SET: "viewmodalset",
     TOAST_SET: "viewtoastset",
@@ -105,6 +106,18 @@ export class PgView {
     PgCommon.createAndDispatchCustomEvent(
       PgView.events.SIDEBAR_PAGE_NAME_SET,
       page
+    );
+  }
+
+  /**
+   * Set the current sidebar page props.
+   *
+   * @param page sidebar page to set
+   */
+  static setSidebarPageProps(props: Record<string, any>) {
+    PgCommon.createAndDispatchCustomEvent(
+      PgView.events.SIDEBAR_PAGE_PROPS_SET,
+      props
     );
   }
 

@@ -2,9 +2,9 @@ import {
   FC,
   Dispatch,
   SetStateAction,
-  useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import styled, { css } from "styled-components";
 
@@ -19,7 +19,7 @@ import {
   SidebarPage,
 } from "../../../../../utils/pg";
 import { useResize } from "./useResize";
-import { useSetStatic } from "../../../../../hooks";
+import { useAsyncEffect, useSetStatic } from "../../../../../hooks";
 
 interface DefaultRightProps {
   page: SidebarPage;
@@ -56,6 +56,7 @@ const Title: FC<DefaultRightProps> = ({ page }) => (
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
   const [el, setEl] = useState<NullableJSX>(null);
+  const [props, setProps] = useState(() => ({}));
   const [loadingCount, setLoadingCount] = useState<number>(0);
 
   // There could be multiple processes that change the loading state and the
@@ -67,28 +68,24 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     });
   }, []);
 
+  useSetStatic(setProps, PgView.events.SIDEBAR_PAGE_PROPS_SET);
   useSetStatic(setLoading, PgView.events.SIDEBAR_LOADING_SET);
 
-  useEffect(() => {
-    const ids: boolean[] = [];
+  const ids = useRef<boolean[]>([]);
 
-    const { dispose } = PgView.onDidChangeSidebarPage(async (page) => {
-      setLoading(true);
+  useAsyncEffect(async () => {
+    setLoading(true);
+    const currentId = ids.current.length;
 
-      const currentId = ids.length;
-      ids[currentId] ??= false;
-
-      try {
-        const { default: PageComponent } = await page.importComponent();
-        if (ids[currentId + 1] === undefined) setEl(<PageComponent />);
-      } catch (e: any) {
-        console.log("SIDEBAR ERROR", e.message);
-      } finally {
-        setLoading(false);
-      }
-    });
-    return dispose;
-  }, [setLoading]);
+    try {
+      const { default: PageComponent } = await page.importComponent();
+      if (!ids.current[currentId + 1]) setEl(<PageComponent {...props} />);
+    } catch (e: any) {
+      console.log("SIDEBAR ERROR", e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, props, setLoading]);
 
   if (loadingCount) return <Loading page={page} />;
 
