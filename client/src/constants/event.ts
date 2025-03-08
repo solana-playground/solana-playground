@@ -13,8 +13,4 @@ export enum EventName {
 
   // Terminal
   TERMINAL_STATIC = "terminalstatic",
-
-  // Theme
-  THEME_SET = "themeset",
-  THEME_FONT_SET = "fontset",
 }

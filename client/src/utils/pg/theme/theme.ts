@@ -1,7 +1,6 @@
 import type { StandardProperties } from "csstype";
 
 import { PgCommon } from "../common";
-import { EventName } from "../../../constants";
 import type {
   DefaultComponent,
   ImportableTheme,
@@ -31,6 +30,12 @@ export class PgTheme {
 
   /** Font key in localStorage */
   private static readonly _FONT_KEY = "font";
+
+  /** Theme event names */
+  static events = {
+    THEME_SET: "themeset",
+    FONT_SET: "fontset",
+  };
 
   /** All available themes */
   static get themes() {
@@ -119,11 +124,14 @@ export class PgTheme {
 
     // Set theme
     localStorage.setItem(this._THEME_KEY, params.themeName);
-    PgCommon.createAndDispatchCustomEvent(EventName.THEME_SET, this._theme);
+    PgCommon.createAndDispatchCustomEvent(
+      PgTheme.events.THEME_SET,
+      this._theme
+    );
 
     // Set font
     localStorage.setItem(this._FONT_KEY, params.fontFamily);
-    PgCommon.createAndDispatchCustomEvent(EventName.THEME_FONT_SET, this._font);
+    PgCommon.createAndDispatchCustomEvent(PgTheme.events.FONT_SET, this._font);
   }
 
   /**

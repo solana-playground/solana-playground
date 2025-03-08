@@ -6,15 +6,14 @@ import styled, {
 
 import { FONTS, THEMES } from "../../themes";
 import { Font, PgTheme, Theme } from "../../utils/pg/theme";
-import { EventName } from "../../constants/event";
 import { useSetStatic } from "../../hooks/useSetStatic";
 
 export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<Theme>();
   const [font, setFont] = useState<Font>();
 
-  useSetStatic(setTheme, EventName.THEME_SET);
-  useSetStatic(setFont, EventName.THEME_FONT_SET);
+  useSetStatic(setTheme, PgTheme.events.THEME_SET);
+  useSetStatic(setFont, PgTheme.events.FONT_SET);
 
   // Create initial theme
   useEffect(() => {
