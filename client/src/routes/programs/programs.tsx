@@ -4,13 +4,15 @@ import { handleRoute } from "../common";
 export const programs = PgRouter.create({
   path: "/programs",
   handle: () => {
+    const programs = {
+      name: "Programs",
+      props: async () => ({
+        programs: await PgCommon.fetchJSON("/programs/programs.json"),
+      }),
+    };
     return handleRoute({
-      main: async () => {
-        const programs = await PgCommon.fetchJSON("/programs/programs.json");
-        const { Programs } = await import("../../views/main/primary/Programs");
-        return <Programs programs={programs} />;
-      },
-      sidebar: "Programs",
+      main: programs,
+      sidebar: programs,
       minimizeSecondaryMainView: true,
     });
   },

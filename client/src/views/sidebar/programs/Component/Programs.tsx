@@ -1,11 +1,17 @@
+import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import FilterGroups from "../../../../components/FilterGroups";
 import { FILTERS } from "../../../main/primary/Programs/filters";
 
-const Programs = () => (
+interface ProgramsProps {
+  // TODO: Proper type
+  programs: any[];
+}
+
+const Programs: FC<ProgramsProps> = ({ programs }) => (
   <Wrapper>
-    <FilterGroups filters={FILTERS} />
+    <FilterGroups filters={FILTERS} items={programs} />
   </Wrapper>
 );
 
