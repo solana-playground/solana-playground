@@ -59,9 +59,11 @@ const ProgramSettings = () => {
     }
   }, []);
 
+  if (!settings) return null;
+
   return (
     <Wrapper>
-      {settings?.map((setting) => (
+      {settings.map((setting) => (
         <ProgramSetting key={setting.title} {...setting} />
       ))}
     </Wrapper>
