@@ -85,7 +85,7 @@ impl WasmClient {
 
     async fn send<T: Method, R: DeserializeOwned>(&self, request: T) -> ClientResult<R> {
         let Provider::Http(provider) = &self.provider;
-        provider.send(&request).await?.result
+        Ok(provider.send(&request).await?.result)
     }
 
     pub async fn get_balance_with_commitment(
