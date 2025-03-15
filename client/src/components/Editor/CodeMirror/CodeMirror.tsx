@@ -4,7 +4,6 @@ import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 
 import { autosave, defaultExtensions, getThemeExtension } from "./extensions";
-import { EventName } from "../../../constants";
 import {
   PgExplorer,
   PgProgramInfo,
@@ -14,6 +13,7 @@ import {
   PgCommand,
   PgTheme,
   PgFramework,
+  PgEditor,
 } from "../../../utils/pg";
 import { useKeybind, useSendAndReceiveCustomEvent } from "../../../hooks";
 
@@ -305,15 +305,15 @@ const CodeMirror = () => {
       if (!editor.hasFocus) editor.focus();
     };
 
-    document.addEventListener(EventName.EDITOR_FOCUS, handleFocus);
+    document.addEventListener(PgEditor.events.FOCUS, handleFocus);
     return () => {
-      document.removeEventListener(EventName.EDITOR_FOCUS, handleFocus);
+      document.removeEventListener(PgEditor.events.FOCUS, handleFocus);
     };
   }, [editor]);
 
   // Format event
   useSendAndReceiveCustomEvent(
-    EventName.EDITOR_FORMAT,
+    PgEditor.events.FORMAT,
     async (ev?: { lang: LanguageName; fromTerminal: boolean }) => {
       if (!editor) return;
 
@@ -509,7 +509,7 @@ const CodeMirror = () => {
     () => {
       if (editor?.hasFocus) {
         PgTerminal.process(async () => {
-          await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
+          await PgCommon.sendAndReceiveCustomEvent(PgEditor.events.FORMAT);
         });
       }
     },

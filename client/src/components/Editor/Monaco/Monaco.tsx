@@ -4,10 +4,10 @@ import * as monaco from "monaco-editor";
 
 import { initLanguages } from "./languages";
 import { SpinnerWithBg } from "../../Loading";
-import { EventName } from "../../../constants";
 import {
   PgCommand,
   PgCommon,
+  PgEditor,
   PgExplorer,
   PgLanguage,
   PgPackage,
@@ -389,15 +389,15 @@ const Monaco = () => {
       if (!editor.hasTextFocus()) editor.focus();
     };
 
-    document.addEventListener(EventName.EDITOR_FOCUS, handleFocus);
+    document.addEventListener(PgEditor.events.FOCUS, handleFocus);
     return () => {
-      document.removeEventListener(EventName.EDITOR_FOCUS, handleFocus);
+      document.removeEventListener(PgEditor.events.FOCUS, handleFocus);
     };
   }, [editor]);
 
   // Format event
   useSendAndReceiveCustomEvent(
-    EventName.EDITOR_FORMAT,
+    PgEditor.events.FORMAT,
     async (ev?: { lang: LanguageName; fromTerminal: boolean }) => {
       if (!editor) return;
 
@@ -639,7 +639,7 @@ const Monaco = () => {
     () => {
       if (editor?.hasTextFocus()) {
         PgTerminal.process(async () => {
-          await PgCommon.sendAndReceiveCustomEvent(EventName.EDITOR_FORMAT);
+          await PgCommon.sendAndReceiveCustomEvent(PgEditor.events.FORMAT);
         });
       }
     },

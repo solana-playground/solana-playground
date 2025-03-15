@@ -1,8 +1,4 @@
 export enum EventName {
-  // Editor
-  EDITOR_FOCUS = "editorfocus",
-  EDITOR_FORMAT = "editorformat",
-
   // Playnet
   PLAYNET_ON_DID_INIT = "playnetondidinit",
 
