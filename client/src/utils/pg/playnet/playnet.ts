@@ -2,12 +2,16 @@ import { PgPlaynetRpc } from "./rpc";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
 import { PgPackage } from "../package";
-import { EventName } from "../../../constants";
 import type { OverridableConnection } from "./types";
 
 export class PgPlaynet {
   /** Overridable Playnet connection */
   static connection: OverridableConnection | null;
+
+  /** All playnet event names */
+  static events = {
+    ON_DID_INIT: "playnetondidinit",
+  };
 
   /**
    * Initialize Playnet and apply the necessary changes for the client to be
@@ -30,7 +34,7 @@ export class PgPlaynet {
     this.connection = PgPlaynetRpc.overrideConnection(this._playnet.rpc);
 
     // Dispatch `init` event to create a new connection object
-    PgCommon.createAndDispatchCustomEvent(EventName.PLAYNET_ON_DID_INIT);
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_INIT);
 
     // Save Playnet data periodically
     this._SAVE_INTERVAL_ID = PgCommon.setIntervalOnFocus(() => {
@@ -76,7 +80,7 @@ export class PgPlaynet {
   static onDidInit(cb: () => any) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.PLAYNET_ON_DID_INIT,
+      eventName: PgPlaynet.events.ON_DID_INIT,
     });
   }
 
