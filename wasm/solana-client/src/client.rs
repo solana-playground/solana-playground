@@ -43,7 +43,7 @@ use crate::{
             RpcPerfSample, RpcSupply, RpcVersionInfo, RpcVoteAccountStatus,
         },
     },
-    ClientError, ClientResponse, ClientResult,
+    ClientError, ClientResult,
 };
 
 pub struct WasmClient {
@@ -106,9 +106,9 @@ impl WasmClient {
 
     pub async fn request_airdrop(&self, pubkey: &Pubkey, lamports: u64) -> ClientResult<Signature> {
         let request = RequestAirdropRequest::new(*pubkey, lamports);
-        let response: ClientResponse<RequestAirdropResponse> = self.send(request).await?;
+        let response: RequestAirdropResponse = self.send(request).await?;
 
-        Ok(response.result.into())
+        Ok(response.into())
     }
 
     pub async fn get_signature_statuses(
