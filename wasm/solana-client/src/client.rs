@@ -43,7 +43,7 @@ use crate::{
             RpcPerfSample, RpcSupply, RpcVersionInfo, RpcVoteAccountStatus,
         },
     },
-    ClientError, ClientResponse, ClientResult,
+    ClientError, ClientResult,
 };
 
 pub struct WasmClient {
@@ -85,7 +85,7 @@ impl WasmClient {
 
     async fn send<T: Method, R: DeserializeOwned>(&self, request: T) -> ClientResult<R> {
         let Provider::Http(provider) = &self.provider;
-        provider.send(&request).await?.result
+        Ok(provider.send(&request).await?.result)
     }
 
     pub async fn get_balance_with_commitment(
@@ -106,9 +106,9 @@ impl WasmClient {
 
     pub async fn request_airdrop(&self, pubkey: &Pubkey, lamports: u64) -> ClientResult<Signature> {
         let request = RequestAirdropRequest::new(*pubkey, lamports);
-        let response: ClientResponse<RequestAirdropResponse> = self.send(request).await?;
+        let response: RequestAirdropResponse = self.send(request).await?;
 
-        Ok(response.result.into())
+        Ok(response.into())
     }
 
     pub async fn get_signature_statuses(
