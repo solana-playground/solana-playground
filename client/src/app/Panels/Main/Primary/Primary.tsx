@@ -9,25 +9,26 @@ import {
   PgCommon,
   PgTheme,
   PgView,
-  SetElementAsync,
 } from "../../../../utils/pg";
 import { useGetAndSetStatic } from "../../../../hooks";
 
 const Primary = () => {
   const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
 
-  const setElWithTransition = useCallback(async (SetEl: SetElementAsync) => {
-    setEl(null);
+  const setElWithTransition = useCallback(async (el: any) => {
+    if (PgCommon.isAsyncFunction(el)) {
+      setEl(null);
 
-    const El = await PgCommon.transition(async () => {
-      try {
-        const ElPromise = typeof SetEl === "function" ? SetEl(null) : SetEl;
-        return await ElPromise;
-      } catch (e: any) {
-        console.log("MAIN VIEW ERROR:", e.message);
-      }
-    });
-    if (El) setEl(typeof El === "function" ? <El /> : El);
+      el = await PgCommon.transition(async () => {
+        try {
+          return await PgCommon.callIfNeeded(el);
+        } catch (e: any) {
+          console.log("MAIN VIEW ERROR:", e.message);
+        }
+      });
+    }
+
+    setEl(PgCommon.callIfNeeded(el) ?? null);
   }, []);
 
   useGetAndSetStatic(
