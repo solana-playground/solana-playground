@@ -1,5 +1,4 @@
 import { PgCommon } from "./common";
-import { EventName } from "../../constants";
 import type { Disposable, SyncOrAsync } from "./types";
 
 /** Opening delimiter for path variables */
@@ -37,6 +36,13 @@ export class PgRouter {
 
   /** All routes */
   static all: Route<RoutePath>[];
+
+  /** All router event names */
+  static events = {
+    NAVIGATE: "routernavigate",
+    ON_DID_CHANGE_PATH: "routerondidchangepath",
+    ON_DID_CHANGE_HASH: "routerondidchangehash",
+  };
 
   /**
    * Initialize the router.
@@ -91,7 +97,7 @@ export class PgRouter {
   static navigate(path: RoutePath = "/") {
     const { pathname, search } = this.location;
     if (!this.isPathsEqual(pathname + search, path)) {
-      PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
+      PgCommon.createAndDispatchCustomEvent(this.events.NAVIGATE, path);
     }
   }
 
@@ -115,7 +121,7 @@ export class PgRouter {
   static onDidChangePath(cb: (path: RoutePath) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.ROUTER_ON_DID_CHANGE_PATH,
+      eventName: PgRouter.events.ON_DID_CHANGE_PATH,
       initialRun: { value: PgRouter.location.pathname },
     });
   }
@@ -129,7 +135,7 @@ export class PgRouter {
   static onDidChangeHash(cb: (hash: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.ROUTER_ON_DID_CHANGE_HASH,
+      eventName: PgRouter.events.ON_DID_CHANGE_HASH,
       initialRun: { value: PgRouter.location.hash },
     });
   }

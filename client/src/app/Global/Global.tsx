@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { EventName } from "../../constants";
 import { BLOCK_EXPLORERS } from "../../block-explorers";
 import { COMMANDS } from "../../commands";
 import { FRAMEWORKS } from "../../frameworks";
@@ -79,7 +78,7 @@ const useRouter = () => {
   // Path
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.ROUTER_ON_DID_CHANGE_PATH,
+      PgRouter.events.ON_DID_CHANGE_PATH,
       location.pathname
     );
   }, [location.pathname]);
@@ -87,14 +86,14 @@ const useRouter = () => {
   // Hash
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
-      EventName.ROUTER_ON_DID_CHANGE_HASH,
+      PgRouter.events.ON_DID_CHANGE_HASH,
       location.hash
     );
   }, [location.hash]);
 
   // Navigate
   const navigate = useNavigate();
-  useSetStatic(navigate, EventName.ROUTER_NAVIGATE);
+  useSetStatic(navigate, PgRouter.events.NAVIGATE);
 };
 
 // TODO: Remove and handle this from explorer impl
