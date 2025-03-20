@@ -2,7 +2,6 @@ import { FC, useEffect, useMemo, useRef } from "react";
 import styled, { css, useTheme } from "styled-components";
 import "xterm/css/xterm.css";
 
-import { EventName } from "../../constants";
 import { useExposeStatic, useKeybind } from "../../hooks";
 import {
   CommandManager,
@@ -50,7 +49,7 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
     });
   }, [theme, cmdManager]);
 
-  useExposeStatic(term, EventName.TERMINAL_STATIC);
+  useExposeStatic(term, PgTerminal.events.STATIC);
 
   // Open terminal
   useEffect(() => {

@@ -9,7 +9,6 @@ import { PgShell } from "./shell";
 import { PgTty } from "./tty";
 import {
   Emoji,
-  EventName,
   GITHUB_URL,
   OTHER_ERROR,
   PROGRAM_ERROR,
@@ -22,6 +21,11 @@ import type { CommandManager, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
+  /** All terminal event names */
+  static events = {
+    STATIC: "terminalstatic",
+  };
+
   /** Welcome text */
   static readonly DEFAULT_TEXT = [
     `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
@@ -232,7 +236,7 @@ export class PgTerminal {
    */
   static async get() {
     return await PgCommon.sendAndReceiveCustomEvent<PgTerm>(
-      PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).get
+      PgCommon.getStaticEventNames(PgTerminal.events.STATIC).get
     );
   }
 
@@ -247,7 +251,7 @@ export class PgTerminal {
     M extends Methods<PgTerm>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
-      PgCommon.getStaticEventNames(EventName.TERMINAL_STATIC).run,
+      PgCommon.getStaticEventNames(PgTerminal.events.STATIC).run,
       data
     );
   }

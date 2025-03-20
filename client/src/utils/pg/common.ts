@@ -1,6 +1,5 @@
 import type { ChangeEvent } from "react";
 
-import { EventName } from "../../constants";
 import type {
   AllPartial,
   Disposable,
@@ -890,7 +889,7 @@ export class PgCommon {
    */
   static onDidChange<T>(params: {
     cb: (value: T) => any;
-    eventName: OrString<EventName>;
+    eventName: string;
     // TODO: make it run by default
     initialRun?: { value: T };
   }): Disposable {
