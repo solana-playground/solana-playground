@@ -6,7 +6,6 @@ import type {
   Promisable,
   SyncOrAsync,
   Arrayable,
-  OrString,
   ValueOf,
 } from "./types";
 
