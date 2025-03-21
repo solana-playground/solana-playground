@@ -26,5 +26,6 @@
   "spl-type-length-value": "0.3.0",
   "switchboard-solana": "0.29.79",
   "switchboard-v2": "0.4.0",
-  "thiserror": "1.0.48"
+  "thiserror": "1.0.48",
+  "groth16-solana":"0.0.3"
 }
