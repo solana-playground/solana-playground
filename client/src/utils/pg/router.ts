@@ -52,8 +52,14 @@ export class PgRouter {
    */
   static init() {
     let disposable: Disposable | undefined;
+    let prevPath: string | undefined;
     return this.onDidChangePath(async (path) => {
-      // Dispose
+      // The callback runs twice at the start, which may cause unwanted
+      // behavior. Return early to avoid that problem.
+      if (prevPath === path) return;
+      prevPath = path;
+
+      // Dispose the previous path handler
       disposable?.dispose();
 
       let params: PathParameter;
