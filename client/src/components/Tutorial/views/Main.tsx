@@ -6,7 +6,7 @@ import Button from "../../Button";
 import Markdown from "../../Markdown";
 import { SpinnerWithBg } from "../../Loading";
 // TODO: Fix importing views from components
-import { EditorWithTabs } from "../../../views/main/primary/EditorWithTabs";
+import EditorWithTabs from "../../../views/main/primary/EditorWithTabs";
 import { PointedArrow } from "../../Icons";
 import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialMainComponentProps } from "../types";

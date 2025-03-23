@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Editor } from "../../../../components/Editor";
 import { Tabs } from "../../../../components/Tabs";
 
-export const EditorWithTabs = () => (
+const EditorWithTabs = () => (
   <Wrapper>
     <Tabs />
     <Editor />
@@ -15,3 +15,5 @@ const Wrapper = styled.div`
   flex-direction: column;
   width: 100%;
 `;
+
+export default EditorWithTabs;

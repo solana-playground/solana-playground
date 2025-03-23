@@ -68,9 +68,9 @@ export const handleRoute = (
         case "function":
           return main();
         case "object":
-          const mod = await import("../views/main/primary/" + main.name);
-          const Main =
-            Object.values<(...props: unknown[]) => JSX.Element>(mod)[0];
+          const { default: Main } = await import(
+            "../views/main/primary/" + main.name
+          );
           const props = await PgCommon.callIfNeeded(main.props);
           return <Main {...props} />;
         default:

@@ -13,7 +13,7 @@ interface ProgramsProps {
   programs: ProgramCardProps[];
 }
 
-export const Programs: FC<ProgramsProps> = ({ programs }) => {
+const Programs: FC<ProgramsProps> = ({ programs }) => {
   const filteredSearch = useFilteredSearch({
     route: "/programs",
     items: programs,
@@ -88,3 +88,5 @@ const NoMatchText = styled(Text)`
     font-size: ${theme.font.other.size.small};
   `}
 `;
+
+export default Programs;

@@ -10,7 +10,7 @@ interface NotFoundProps {
   path: string;
 }
 
-export const NotFound: FC<NotFoundProps> = ({ path }) => (
+const NotFound: FC<NotFoundProps> = ({ path }) => (
   <Wrapper>
     <Text kind="error" icon={<Error />}>
       Invalid URL path: {path}
@@ -28,3 +28,5 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 1rem;
 `;
+
+export default NotFound;

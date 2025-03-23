@@ -12,7 +12,7 @@ import { useFilteredSearch } from "../../../../hooks";
 import { GITHUB_URL } from "../../../../constants";
 import { PgTheme, PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
-export const Tutorials = () => {
+const Tutorials = () => {
   const filteredSearch = useFilteredSearch({
     route: "/tutorials",
     items: PgTutorial.all,
@@ -161,3 +161,5 @@ const BottomSection = styled.div`
   width: 100%;
   margin-bottom: 2rem;
 `;
+
+export default Tutorials;
