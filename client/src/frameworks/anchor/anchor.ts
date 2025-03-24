@@ -3,7 +3,7 @@ import { createFramework } from "../create";
 export const anchor = createFramework({
   name: "Anchor",
   language: "Rust",
-  icon: "https://www.anchor-lang.com/_next/image?url=%2Flogo.png&w=128&q=80",
+  icon: "https://raw.githubusercontent.com/coral-xyz/anchor/0e5285aecdf410fa0779b7cd09a47f235882c156/docs/public/icons/anchor.png",
   githubExample: {
     name: "Create Account",
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",
