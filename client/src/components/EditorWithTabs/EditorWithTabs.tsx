@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-import { Editor } from "../../../../components/Editor";
-import { Tabs } from "../../../../components/Tabs";
+import { Editor } from "../Editor";
+import { Tabs } from "../Tabs";
 
 const EditorWithTabs = () => (
   <Wrapper>

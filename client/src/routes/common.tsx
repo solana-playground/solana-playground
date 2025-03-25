@@ -40,7 +40,7 @@ export const handleRoute = (
     ? typeof _main === "string"
       ? { name: _main }
       : _main
-    : { name: "EditorWithTabs" };
+    : { name: "Default" };
   const sidebar = _sidebar
     ? typeof _sidebar === "string"
       ? { name: _sidebar as SidebarPageName }

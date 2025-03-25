@@ -3,10 +3,9 @@ import styled, { css } from "styled-components";
 import Split from "react-split";
 
 import Button from "../../Button";
+import EditorWithTabs from "../../EditorWithTabs";
 import Markdown from "../../Markdown";
 import { SpinnerWithBg } from "../../Loading";
-// TODO: Fix importing views from components
-import EditorWithTabs from "../../../views/main/primary/EditorWithTabs";
 import { PointedArrow } from "../../Icons";
 import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialMainComponentProps } from "../types";
