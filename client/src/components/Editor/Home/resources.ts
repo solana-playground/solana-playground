@@ -18,8 +18,8 @@ export const RESOURCES: ResourceProps[] = [
   {
     title: "Anchor",
     text: "Everything related to developing on Solana with Anchor framework.",
-    url: "https://www.anchor-lang.com/docs/high-level-overview",
-    src: "https://www.anchor-lang.com/_next/image?url=%2Flogo.png&w=32&q=75",
+    url: "https://www.anchor-lang.com/docs/quickstart/solpg",
+    src: "https://www.anchor-lang.com/_next/image?url=%2Ficons%2Fanchor.png&w=32&q=75",
   },
   {
     title: "Seahorse",
