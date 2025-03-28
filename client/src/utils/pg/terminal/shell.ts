@@ -10,7 +10,6 @@ import {
 } from "./utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
-
 import type { ActiveCharPrompt, ActivePrompt, CommandManager } from "./types";
 
 /**

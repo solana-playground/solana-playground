@@ -1,14 +1,12 @@
 import { ITerminalOptions, Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
-import { format } from "util";
 
 import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgShell } from "./shell";
 import { PgTty } from "./tty";
 import {
-  Emoji,
   GITHUB_URL,
   OTHER_ERROR,
   PROGRAM_ERROR,
@@ -323,38 +321,7 @@ export class PgTerminal {
         return acc + "\t" + output + "\n";
       }, "");
   }
-
-  /**
-   * Redifined console.log for showing mocha logs in the playground terminal
-   */
-  static consoleLog(msg: string, ...rest: any[]) {
-    _log(msg, ...rest);
-
-    if (msg !== undefined) {
-      // We only want to log mocha logs to the terminal
-      const fullMessage = format(msg, ...rest);
-      if (fullMessage.startsWith("  ")) {
-        const editedMessage = fullMessage
-          // Replace checkmark icon
-          .replace(Emoji.CHECKMARK, PgTerminal.success("✔ "))
-          // Make '1) testname' red
-          .replace(/\s+\d\)\s\w*$/, (match) => PgTerminal.error(match))
-          // Passing text
-          .replace(/\d+\spassing/, (match) => PgTerminal.success(match))
-          // Failing text
-          .replace(/\d+\sfailing/, (match) => PgTerminal.error(match))
-          // Don't show the stack trace because it shows the transpiled code
-          // TODO: show where the error actually happened in user code
-          .replace(/\s+at.*$/gm, "");
-
-        PgTerminal.log(editedMessage);
-      }
-    }
-  }
 }
-
-// Keep the default console.log
-const _log = console.log;
 
 export class PgTerm {
   private _xterm: XTerm;
