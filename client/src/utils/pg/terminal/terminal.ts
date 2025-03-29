@@ -325,7 +325,6 @@ export class PgTerminal {
 
 export class PgTerm {
   private _xterm: XTerm;
-  private _container: HTMLElement | null;
   private _fitAddon: FitAddon;
   private _tty: PgTty;
   private _shell: PgShell;
@@ -335,9 +334,6 @@ export class PgTerm {
   constructor(cmdManager: CommandManager, xtermOptions?: ITerminalOptions) {
     // Create xterm element
     this._xterm = new XTerm(xtermOptions);
-
-    // Container is empty at start
-    this._container = null;
 
     // Load xterm addons
     this._fitAddon = new FitAddon();
@@ -386,8 +382,6 @@ export class PgTerm {
 
   /** Open terminal */
   open(container: HTMLElement) {
-    this._container = container;
-
     this._xterm.open(container);
     this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
     this._isOpen = true;
@@ -413,25 +407,20 @@ export class PgTerm {
     this.scrollToCursor();
   }
 
-  /** Scroll terminal to wherever the cursor currently is */
+  /** Scroll terminal to wherever the cursor currently is. */
   scrollToCursor() {
-    if (!this._container) {
-      return;
-    }
-
-    // We don't need `cursorX`, since we want to start at the beginning of the terminal
-    const cursorY = this._tty.buffer.cursorY;
-    const size = this._tty.size;
-
-    const containerBoundingClientRect = this._container.getBoundingClientRect();
+    const scrollableEl = document
+      .getElementsByClassName("xterm-viewport")
+      .item(0);
+    if (!scrollableEl) throw new Error("XTerm viewport not found");
 
     // Find how much to scroll because of our cursor
+    const rect = scrollableEl.getBoundingClientRect();
     const cursorOffsetY =
-      (cursorY / size.rows) * containerBoundingClientRect.height;
+      (this._tty.buffer.cursorY / this._tty.size.rows) * rect.height;
 
-    let scrollX = containerBoundingClientRect.left;
-    let scrollY = containerBoundingClientRect.top + cursorOffsetY + 10;
-
+    let scrollX = rect.left;
+    let scrollY = rect.top + cursorOffsetY + 10;
     if (scrollX < 0) {
       scrollX = 0;
     }
@@ -439,7 +428,7 @@ export class PgTerm {
       scrollY = document.body.scrollHeight;
     }
 
-    window.scrollTo(scrollX, scrollY);
+    scrollableEl.scrollTo(scrollX, scrollY);
   }
 
   /** Print a message */
