@@ -26,7 +26,7 @@ export const useAirdrop = () => {
 
       let msg;
       try {
-        PgTerminal.log(PgTerminal.info("Sending an airdrop request..."));
+        PgTerminal.println(PgTerminal.info("Sending an airdrop request..."));
 
         const conn = PgConnection.current;
         const walletPk = PgWallet.current!.publicKey;
@@ -61,7 +61,7 @@ export const useAirdrop = () => {
           "Error receiving airdrop:"
         )}: ${convertedError}`;
       } finally {
-        PgTerminal.log(msg + "\n");
+        PgTerminal.println(msg + "\n");
       }
     });
   };

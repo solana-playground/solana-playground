@@ -27,11 +27,11 @@ export class PgPackage {
   static async import<T extends PackageName>(name: T, opts?: { log: boolean }) {
     const uiName = this._getUIName(name);
     const log = opts?.log && this._isPkgLoadingInitial(name);
-    if (log) PgTerminal.log(PgTerminal.info(`Loading ${uiName}...`));
+    if (log) PgTerminal.println(PgTerminal.info(`Loading ${uiName}...`));
 
     try {
       const pkg = (await this._import(name)) as unknown as ImportResult[T];
-      if (log) PgTerminal.log(PgTerminal.success("Success.") + "\n");
+      if (log) PgTerminal.println(PgTerminal.success("Success.") + "\n");
 
       return pkg;
     } catch (e: any) {

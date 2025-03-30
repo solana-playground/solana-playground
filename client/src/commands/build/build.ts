@@ -18,7 +18,7 @@ export const build = createCmd({
   description: "Build your program",
   handle: async () => {
     PgGlobal.update({ buildLoading: true });
-    PgTerminal.log(PgTerminal.info("Building..."));
+    PgTerminal.println(PgTerminal.info("Building..."));
 
     let msg;
     try {
@@ -28,7 +28,7 @@ export const build = createCmd({
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Build error: ${convertedError}`;
     } finally {
-      PgTerminal.log(msg + "\n");
+      PgTerminal.println(msg + "\n");
       PgGlobal.update({ buildLoading: false });
     }
   },

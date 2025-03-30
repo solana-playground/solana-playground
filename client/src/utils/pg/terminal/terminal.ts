@@ -174,7 +174,7 @@ export class PgTerminal {
   }
 
   /** Log terminal messages from anywhere. */
-  static async log(msg: any, opts?: PrintOptions) {
+  static async println(msg: any, opts?: PrintOptions) {
     await PgTerminal.run({ println: [msg, opts] });
   }
 
@@ -195,7 +195,7 @@ export class PgTerminal {
    * Mainly used from WASM
    */
   static logWasm(msg: any) {
-    this.log(msg);
+    this.println(msg);
   }
 
   /** Dispatch scroll to bottom custom event. */
@@ -221,7 +221,7 @@ export class PgTerminal {
     try {
       return await cb();
     } catch (e: any) {
-      this.log(`Process error: ${e?.message ? e.message : e}`);
+      this.println(`Process error: ${e?.message ? e.message : e}`);
     } finally {
       this.enable();
     }

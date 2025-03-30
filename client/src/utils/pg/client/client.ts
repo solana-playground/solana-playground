@@ -32,7 +32,7 @@ export class PgClient {
   static async execute({ fileName, code, isTest }: ClientParams) {
     await this._executeBlocking(
       async () => {
-        PgTerminal.log(`  ${fileName}:`);
+        PgTerminal.println(`  ${fileName}:`);
 
         // Get Iframe window
         const iframeWindow = this._getIframeWindow();
@@ -120,7 +120,7 @@ export class PgClient {
           } else {
             const { dispose } = PgCommon.onDidChange({
               cb: () => {
-                PgTerminal.log("");
+                PgTerminal.println("");
                 dispose();
                 res();
               },
@@ -183,7 +183,7 @@ export class PgClient {
 
     // Non runtime errors e.g. syntax
     iframeWindow.addEventListener("error", (ev) => {
-      PgTerminal.log(`    ${ev.message}`);
+      PgTerminal.println(`    ${ev.message}`);
 
       // This kind of error requires custom event dispatch to indicate the
       // client has finished running, otherwise client will stay in the running
@@ -193,7 +193,7 @@ export class PgClient {
 
     // Promise/async errors
     iframeWindow.addEventListener("unhandledrejection", (ev) => {
-      PgTerminal.log(`    ${`Uncaught error: ${ev.reason.message}`}`);
+      PgTerminal.println(`    ${`Uncaught error: ${ev.reason.message}`}`);
       // Does not require custom event dispatch to indicate running has finished
     });
 
@@ -212,7 +212,7 @@ export class PgClient {
     // Redefine console inside the iframe to log in the terminal
     const log = (cb?: (text: string) => string) => {
       return (...args: any[]) => {
-        return PgTerminal.log(
+        return PgTerminal.println(
           "    " + (cb ? cb(util.format(...args)) : util.format(...args))
         );
       };

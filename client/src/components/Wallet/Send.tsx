@@ -57,7 +57,7 @@ const SendExpanded = () => {
     if (disabled) return;
 
     await PgTerminal.process(async () => {
-      PgTerminal.log(
+      PgTerminal.println(
         PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
       );
 
@@ -84,7 +84,7 @@ const SendExpanded = () => {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Transfer error: ${convertedError}`;
       } finally {
-        PgTerminal.log(msg + "\n");
+        PgTerminal.println(msg + "\n");
       }
     });
   };

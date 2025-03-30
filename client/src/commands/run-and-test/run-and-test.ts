@@ -71,7 +71,9 @@ const processCommon = async (params: {
   isTest: boolean;
 }) => {
   const { paths, isTest } = params;
-  PgTerminal.log(PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`));
+  PgTerminal.println(
+    PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
+  );
 
   const { PgClient } = await PgClientImporter.import();
 
@@ -105,10 +107,10 @@ const processCommon = async (params: {
   if (!folder.files.length && !folder.folders.length) {
     let DEFAULT;
     if (isTest) {
-      PgTerminal.log(PgTerminal.info("Creating default test..."));
+      PgTerminal.println(PgTerminal.info("Creating default test..."));
       DEFAULT = DEFAULT_TEST;
     } else {
-      PgTerminal.log(PgTerminal.info("Creating default client..."));
+      PgTerminal.println(PgTerminal.info("Creating default client..."));
       DEFAULT = DEFAULT_CLIENT;
     }
 

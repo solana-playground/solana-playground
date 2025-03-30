@@ -317,7 +317,7 @@ export class PgCommandManager {
 
         // Check missing command processor
         if (!cmd.handle) {
-          PgTerminal.log(`
+          PgTerminal.println(`
 ${cmd.description}
 
 Usage: ${[...tokens.slice(0, +i), cmd.name].join(" ")} <COMMAND>
@@ -380,7 +380,7 @@ ${PgTerminal.formatList(cmd.subcommands!)}`);
               );
             }
 
-            PgTerminal.log(lines.join("\n\n"));
+            PgTerminal.println(lines.join("\n\n"));
             return;
           }
 

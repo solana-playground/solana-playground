@@ -18,7 +18,7 @@ export const connect = createCmd({
         const isOther = await toggleStandardIfNeeded(input.args.wallet);
         if (!isOther) {
           PgWallet.state = "disconnected";
-          PgTerminal.log(PgTerminal.bold("Disconnected."));
+          PgTerminal.println(PgTerminal.bold("Disconnected."));
         }
 
         await confirmDisconnect();
@@ -37,7 +37,7 @@ export const connect = createCmd({
         if (!isOther) {
           await PgWallet.current.disconnect();
           PgWallet.state = "pg";
-          PgTerminal.log(
+          PgTerminal.println(
             PgTerminal.bold(`Disconnected from ${PgWallet.current.name}.`)
           );
         }
@@ -50,7 +50,7 @@ export const connect = createCmd({
         const isOther = await toggleStandardIfNeeded(input.args.wallet);
         if (!isOther) {
           PgWallet.state = "pg";
-          PgTerminal.log(PgTerminal.success("Connected."));
+          PgTerminal.println(PgTerminal.success("Connected."));
         }
 
         await confirmConnect();
@@ -64,10 +64,10 @@ export const connect = createCmd({
           const isOther = await toggleStandardIfNeeded(input.args.wallet);
           if (!isOther) PgWallet.state = "pg";
 
-          PgTerminal.log(PgTerminal.success("Setup completed."));
+          PgTerminal.println(PgTerminal.success("Setup completed."));
           await confirmConnect();
         } else {
-          PgTerminal.log(PgTerminal.error("Setup rejected."));
+          PgTerminal.println(PgTerminal.error("Setup rejected."));
         }
 
         return !!setupCompleted;
@@ -103,11 +103,11 @@ const toggleStandardIfNeeded = async (inputWalletName: string | undefined) => {
     PgWallet.standardName = walletName;
     PgWallet.state = "sol";
 
-    PgTerminal.log(PgTerminal.success(`Connected to ${walletName}.`));
+    PgTerminal.println(PgTerminal.success(`Connected to ${walletName}.`));
   } else {
     await wallet.adapter.disconnect();
     PgWallet.state = "pg";
-    PgTerminal.log(PgTerminal.bold(`Disconnected from ${walletName}.`));
+    PgTerminal.println(PgTerminal.bold(`Disconnected from ${walletName}.`));
   }
 
   return true;

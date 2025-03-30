@@ -36,7 +36,7 @@ export class PgClientImporter {
               // TODO: show where the error actually happened in user code
               .replace(/\s+at.*$/gm, "");
 
-            PgTerminal.log(editedMessage);
+            PgTerminal.println(editedMessage);
           }
         }
       };

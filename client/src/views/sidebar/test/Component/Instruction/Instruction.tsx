@@ -88,7 +88,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
 
   const handleTest = async () => {
     const showLogTxHash = await PgTerminal.process(async () => {
-      PgTerminal.log(PgTerminal.info(`Testing '${instruction.name}'...`));
+      PgTerminal.println(PgTerminal.info(`Testing '${instruction.name}'...`));
 
       try {
         const txHash = await PgCommon.transition(
@@ -105,11 +105,11 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
           : `${Emoji.CHECKMARK} ${PgTerminal.success(
               `Test '${instruction.name}' passed`
             )}.`;
-        PgTerminal.log(msg + "\n", { noColor: true });
+        PgTerminal.println(msg + "\n", { noColor: true });
       } catch (e: any) {
         console.log(e);
         const convertedError = PgTerminal.convertErrorMessage(e.message);
-        PgTerminal.log(
+        PgTerminal.println(
           `${Emoji.CROSS} ${PgTerminal.error(
             `Test '${instruction.name}' failed`
           )}: ${convertedError}\n`,

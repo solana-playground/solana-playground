@@ -20,7 +20,7 @@ export const deploy = createCmd({
   handle: async () => {
     PgGlobal.update({ deployState: "loading" });
 
-    PgTerminal.log(
+    PgTerminal.println(
       `${PgTerminal.info(
         "Deploying..."
       )} This could take a while depending on the program size and network conditions.`
@@ -47,9 +47,9 @@ export const deploy = createCmd({
         );
         if (shouldCloseBufferAccount) {
           await closeBuffer();
-          PgTerminal.log(PgTerminal.success("Reclaim successful."));
+          PgTerminal.println(PgTerminal.success("Reclaim successful."));
         } else {
-          PgTerminal.log(
+          PgTerminal.println(
             `${PgTerminal.error(
               "Reclaim rejected."
             )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`
@@ -61,7 +61,7 @@ export const deploy = createCmd({
       msg = `Deployment error: ${convertedError}`;
       return 1; // To indicate error
     } finally {
-      if (msg) PgTerminal.log(msg + "\n");
+      if (msg) PgTerminal.println(msg + "\n");
       PgView.setMainSecondaryProgress(0);
       PgGlobal.update({ deployState: "ready" });
     }
@@ -72,14 +72,14 @@ export const deploy = createCmd({
 /** Check whether the wallet is connected (playground or standard). */
 async function checkWallet() {
   if (!PgWallet.current) {
-    PgTerminal.log("Warning: Wallet is not connected.");
-    PgTerminal.log(PgTerminal.info("Connecting..."));
+    PgTerminal.println("Warning: Wallet is not connected.");
+    PgTerminal.println(PgTerminal.info("Connecting..."));
 
     const needsSetup = PgWallet.state === "setup";
     const connected = await PgCommand.connect.execute();
     if (!connected) throw new Error("Wallet must be connected.");
 
-    PgTerminal.log("");
+    PgTerminal.println("");
 
     // When it's the first ever deployment, add extra sleep to give time for
     // the automatic airdrop request to confirm
@@ -90,7 +90,7 @@ async function checkWallet() {
 /** Check whether the state is valid for deployment. */
 async function checkProgram() {
   if (!PgProgramInfo.uuid && !PgProgramInfo.importedProgram?.buffer.length) {
-    PgTerminal.log("Warning: Program is not built.");
+    PgTerminal.println("Warning: Program is not built.");
     await PgCommand.build.execute();
   }
 
@@ -246,7 +246,7 @@ const processDeploy = async () => {
       onWrite: (offset) =>
         PgView.setMainSecondaryProgress((offset / programLen) * 100),
       onMissing: (missingCount) => {
-        PgTerminal.log(
+        PgTerminal.println(
           `Warning: ${PgTerminal.bold(
             missingCount.toString()
           )} ${PgCommon.makePlural(

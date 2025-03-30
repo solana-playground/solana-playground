@@ -62,7 +62,7 @@ For example, you can run any code whenever the user changes the page.
   pages={[
     {
       // ...
-      onMount: () => PgTerminal.log("I'm controlling the terminal!"),
+      onMount: () => PgTerminal.println("I'm controlling the terminal!"),
     },
   ]}
 />
