@@ -7,10 +7,8 @@ import { PgHistory } from "./history";
 import { PgShell } from "./shell";
 import { PgTty } from "./tty";
 import {
-  GITHUB_URL,
   OTHER_ERROR,
   PROGRAM_ERROR,
-  PROJECT_NAME,
   RPC_ERROR,
   SERVER_ERROR,
 } from "../../../constants";
@@ -23,16 +21,6 @@ export class PgTerminal {
   static events = {
     STATIC: "terminalstatic",
   };
-
-  /** Welcome text */
-  static readonly DEFAULT_TEXT = [
-    `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
-    `Popular crates for Solana development are available to use.`,
-    `See the list of available crates and request new crates from ${PgTerminal.underline(
-      GITHUB_URL
-    )}`,
-    `Type ${PgTerminal.bold("help")} to see all commands.\n`,
-  ].join("\n\n");
 
   /** Default prompt string before entering commands */
   static readonly PROMPT_PREFIX = "$ ";
@@ -330,10 +318,14 @@ export class PgTerm {
   private _shell: PgShell;
   private _autocomplete: PgAutocomplete;
   private _isOpen: boolean;
+  private _defaultText?: string;
 
-  constructor(cmdManager: CommandManager, xtermOptions?: ITerminalOptions) {
-    // Create xterm element
-    this._xterm = new XTerm(xtermOptions);
+  constructor(
+    cmdManager: CommandManager,
+    opts?: { xterm?: ITerminalOptions; defaultText?: string }
+  ) {
+    // Create xterm instance
+    this._xterm = new XTerm(opts?.xterm);
 
     // Load xterm addons
     this._fitAddon = new FitAddon();
@@ -378,9 +370,10 @@ export class PgTerm {
     this._xterm.onData(this._shell.handleTermData);
 
     this._isOpen = false;
+    this._defaultText = opts?.defaultText;
   }
 
-  /** Open terminal */
+  /** Open terminal. */
   open(container: HTMLElement) {
     this._xterm.open(container);
     this._xterm.attachCustomKeyEventHandler(this._handleCustomEvent);
@@ -389,8 +382,8 @@ export class PgTerm {
     // Fit terminal
     this.fit();
 
-    // Print welcome text
-    this.println(PgTerminal.DEFAULT_TEXT);
+    // Print default text
+    if (this._defaultText) this.println(this._defaultText);
 
     // Prompt
     this.enable();
