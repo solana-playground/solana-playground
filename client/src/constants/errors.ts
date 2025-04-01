@@ -17,7 +17,6 @@ export enum WorkspaceError {
 
 export enum GithubError {
   INVALID_URL = "Invalid program url",
-  INVALID_REPO = "Invalid program repository",
 }
 
 interface ConvertedError {
