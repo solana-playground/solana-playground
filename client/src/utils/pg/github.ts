@@ -2,7 +2,6 @@ import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
 import { PgFramework } from "./framework";
 import { PgLanguage } from "./language";
-import { GithubError } from "../../constants";
 import type { Arrayable } from "./types";
 
 type GithubRepositoryData = {
@@ -46,7 +45,7 @@ export class PgGithub {
     const regex =
       /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/;
     const res = regex.exec(url);
-    if (!res) throw new Error(GithubError.INVALID_URL);
+    if (!res) throw new Error("Invalid program url");
 
     const owner = res[3]; // solana-labs
     const repo = res[4]; // solana-program-library

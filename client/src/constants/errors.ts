@@ -15,10 +15,6 @@ export enum WorkspaceError {
   CURRENT_NOT_FOUND = "Current workspace not found",
 }
 
-export enum GithubError {
-  INVALID_URL = "Invalid program url",
-}
-
 interface ConvertedError {
   [key: string]: string;
 }
