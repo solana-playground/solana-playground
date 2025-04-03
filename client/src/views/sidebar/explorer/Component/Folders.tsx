@@ -27,20 +27,20 @@ import {
 } from "../../../../components/Icons";
 import { ItemError } from "../../../../constants";
 import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
+import { useCreateItem } from "./useCreateItem";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";
-import { useNewItem } from "./useNewItem";
 import { useKeybind } from "../../../../hooks";
 
 const Folders = () => {
   useHandleItemState();
 
   const ctxMenu = useExplorerContextMenu();
-  const { newItem } = useNewItem();
+  const { createItem } = useCreateItem();
 
   useKeybind(
     [
-      { keybind: "Alt+N", handle: newItem },
+      { keybind: "Alt+N", handle: createItem },
       { keybind: "F2", handle: ctxMenu.renameItem },
       { keybind: "Delete", handle: ctxMenu.deleteItem },
     ],

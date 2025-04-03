@@ -69,7 +69,7 @@ export class PgWorkspace {
    *
    * @param name workspace name
    */
-  new(name: string) {
+  create(name: string) {
     if (this.allNames.includes(name)) {
       throw new Error(WorkspaceError.ALREADY_EXISTS);
     }

@@ -5,7 +5,7 @@ import Button from "../../../../components/Button";
 import Select from "../../../../components/Select";
 import Text from "../../../../components/Text";
 import {
-  NewWorkspace,
+  CreateWorkspace,
   RenameWorkspace,
   DeleteWorkspace,
   ImportGithub,
@@ -29,7 +29,7 @@ import { useExplorer } from "../../../../hooks";
 const Workspaces = () => {
   if (PgExplorer.isTemporary) return <TemporaryWarning />;
 
-  const handleNew = () => PgView.setModal(NewWorkspace);
+  const handleCreate = () => PgView.setModal(CreateWorkspace);
   const handleRename = () => PgView.setModal(RenameWorkspace);
   const handleDelete = () => PgView.setModal(DeleteWorkspace);
   const handleGithub = () => PgView.setModal(ImportGithub);
@@ -41,7 +41,7 @@ const Workspaces = () => {
       <TopWrapper>
         <MainText>Projects</MainText>
         <ButtonsWrapper>
-          <Button onClick={handleNew} kind="icon" title="Create">
+          <Button onClick={handleCreate} kind="icon" title="Create">
             <Plus />
           </Button>
 

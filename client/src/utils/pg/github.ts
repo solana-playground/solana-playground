@@ -70,7 +70,7 @@ export class PgGithub {
     } else {
       // Create a new workspace
       const convertedFiles = await this.getFiles(url);
-      await PgExplorer.newWorkspace(githubWorkspaceName, {
+      await PgExplorer.createWorkspace(githubWorkspaceName, {
         files: convertedFiles,
         skipNameValidation: true,
       });

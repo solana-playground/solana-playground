@@ -44,7 +44,7 @@ export const loadConfigData = async (): Promise<ConfigData> => {
 };
 
 export const saveConfigData = async (configData: ConfigData) => {
-  await PgExplorer.newItem(
+  await PgExplorer.createItem(
     PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
     PgCommon.prettyJSON({
       ...configData,

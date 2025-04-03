@@ -153,7 +153,7 @@ export class PgExplorer {
    * - Name and path checks
    * - Create item in the state
    */
-  static async newItem(
+  static async createItem(
     path: string,
     content: string = "",
     opts?: {
@@ -385,7 +385,7 @@ export class PgExplorer {
    * - `fromTemporary`: whether to create new workspace from a temporary project
    * - `skipNameValidation`: whether to skip workspace name validation
    */
-  static async newWorkspace(
+  static async createWorkspace(
     name: string,
     opts?: {
       files?: TupleFiles;
@@ -407,7 +407,7 @@ export class PgExplorer {
       // Init workspace
       await this._initWorkspaces();
       // Create a new workspace in state
-      this._workspace!.new(name);
+      this._workspace!.create(name);
 
       // It's important to set `_isTemporary` after the workspace is created,
       // otherwise there is a chance the creation fails, and the state ends up
@@ -437,7 +437,7 @@ export class PgExplorer {
     if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
 
     // Create a new workspace in state
-    this._workspace.new(name);
+    this._workspace.create(name);
 
     // Create files
     if (opts?.files) {
@@ -1131,7 +1131,7 @@ export class PgExplorer {
       const lsExplorerStr = localStorage.getItem("explorer");
       if (lsExplorerStr) {
         // Create a default workspace
-        this._workspace.new(PgWorkspace.DEFAULT_WORKSPACE_NAME);
+        this._workspace.create(PgWorkspace.DEFAULT_WORKSPACE_NAME);
         // Save workspaces
         await this._saveWorkspaces();
 

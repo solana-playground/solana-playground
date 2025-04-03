@@ -317,7 +317,7 @@ export const processCreateConfig = async () => {
     term.println(
       `Saving config to file: "${PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
     );
-    await PgExplorer.newItem(
+    await PgExplorer.createItem(
       PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
       prettyConfigData,
       { override: true }

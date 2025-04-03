@@ -11,7 +11,7 @@ import {
   PgFramework,
 } from "../../../../../utils/pg";
 
-export const NewWorkspace = () => {
+export const CreateWorkspace = () => {
   // Handle user input
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -22,13 +22,13 @@ export const NewWorkspace = () => {
     setError("");
   };
 
-  const newWorkspace = async () => {
+  const createWorkspace = async () => {
     const { importFiles, defaultOpenFile } = PgFramework.all.find(
       (f) => f.name === selected
     )!;
     const { files } = await importFiles();
 
-    await PgExplorer.newWorkspace(name, {
+    await PgExplorer.createWorkspace(name, {
       files,
       defaultOpenFile,
     });
@@ -38,7 +38,7 @@ export const NewWorkspace = () => {
     <Modal
       buttonProps={{
         text: "Create",
-        onSubmit: newWorkspace,
+        onSubmit: createWorkspace,
         disabled: !name || !selected,
       }}
       error={error}

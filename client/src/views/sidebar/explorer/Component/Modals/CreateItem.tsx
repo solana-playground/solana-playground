@@ -11,7 +11,7 @@ import {
   useSetStatic,
 } from "../../../../../hooks";
 
-export const NewItem = () => {
+export const CreateItem = () => {
   const [El, setEl] = useState<Element | null>(null);
 
   useSetStatic(setEl, PgView.events.NEW_ITEM_PORTAL_SET);
@@ -19,16 +19,16 @@ export const NewItem = () => {
   const hide = useCallback(() => setEl(null), []);
 
   return El
-    ? ReactDOM.createPortal(<NewItemInput El={El} hide={hide} />, El)
+    ? ReactDOM.createPortal(<CreateItemInput El={El} hide={hide} />, El)
     : null;
 };
 
-interface NewItemInputProps {
+interface CreateItemInputProps {
   El: Element;
   hide: Fn;
 }
 
-const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
+const CreateItemInput: FC<CreateItemInputProps> = ({ El, hide }) => {
   const [itemName, setItemName] = useState("");
   const [error, setError] = useState(false);
 
@@ -58,7 +58,7 @@ const NewItemInput: FC<NewItemInputProps> = ({ El, hide }) => {
             const itemPath = PgExplorer.getCanonicalPath(
               PgCommon.joinPaths(parentPath, itemName)
             );
-            await PgExplorer.newItem(itemPath);
+            await PgExplorer.createItem(itemPath);
 
             // Hide input
             hide();

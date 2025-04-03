@@ -115,7 +115,7 @@ const processCommon = async (params: {
     }
 
     const [fileName, code] = DEFAULT;
-    await PgExplorer.newItem(PgCommon.joinPaths(folderPath, fileName), code);
+    await PgExplorer.createItem(PgCommon.joinPaths(folderPath, fileName), code);
     return await PgClient.execute({ fileName, code, isTest });
   }
 

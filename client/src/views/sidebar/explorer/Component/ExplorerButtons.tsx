@@ -3,15 +3,15 @@ import styled from "styled-components";
 
 import Button from "../../../../components/Button";
 import Img from "../../../../components/Img";
-import { NewItem, Share } from "./Modals";
 import { PgExplorer, PgRouter, PgView } from "../../../../utils/pg";
-import { useNewItem } from "./useNewItem";
+import { CreateItem, Share } from "./Modals";
+import { useCreateItem } from "./useCreateItem";
 
 const ExplorerButtons = () => (
   <ButtonsWrapper>
     <NewItemButton imageName="new_file.png" title="New file" />
     <NewItemButton imageName="new_folder.png" title="New folder" />
-    <NewItem />
+    <CreateItem />
     <CollapseAllButton />
     <ShareButton />
     {PgExplorer.isTemporary && <GoBackButton />}
@@ -48,10 +48,10 @@ interface ButtonProps {
 }
 
 const NewItemButton: FC<ButtonProps> = ({ imageName, title }) => {
-  const { newItem } = useNewItem();
+  const { createItem } = useCreateItem();
 
   return (
-    <Button onClick={newItem} kind="icon" title={title}>
+    <Button onClick={createItem} kind="icon" title={title}>
       <Img src={getExplorerIconsPath(imageName)} alt={title} />
     </Button>
   );

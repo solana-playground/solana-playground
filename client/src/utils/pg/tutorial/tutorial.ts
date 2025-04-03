@@ -206,7 +206,7 @@ class _PgTutorial {
     let pageToOpen: number | null;
     if (!this.isStarted(name)) {
       // Initial tutorial setup
-      await PgExplorer.newWorkspace(name, params);
+      await PgExplorer.createWorkspace(name, params);
 
       pageToOpen = PgTutorial.page ?? 1;
       PgTutorial.update({ completed: false, pageNumber: pageToOpen });

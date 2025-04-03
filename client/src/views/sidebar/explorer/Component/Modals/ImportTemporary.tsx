@@ -15,7 +15,7 @@ export const ImportTemporary = () => {
   };
 
   const importTemporary = async () => {
-    await PgExplorer.newWorkspace(name, { fromTemporary: true });
+    await PgExplorer.createWorkspace(name, { fromTemporary: true });
   };
 
   return (

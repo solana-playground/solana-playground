@@ -112,7 +112,7 @@ export const useExplorerContextMenu = () => {
   }, [getPath]);
 
   const addProgram = useCallback(async () => {
-    await PgExplorer.newItem(
+    await PgExplorer.createItem(
       PgCommon.joinPaths(PgExplorer.PATHS.SRC_DIRNAME, "lib.rs")
     );
   }, []);

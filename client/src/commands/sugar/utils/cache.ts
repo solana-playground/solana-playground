@@ -26,7 +26,7 @@ export class CandyCache {
   }
 
   async syncFile(onlyRefreshIfAlreadyOpen: boolean = true) {
-    await PgExplorer.newItem(
+    await PgExplorer.createItem(
       PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
       PgCommon.prettyJSON(this),
       {

@@ -27,7 +27,7 @@ const HelloSolana = () => (
           const clientPath = "client/client.ts";
           const clientExists = await PgExplorer.fs.exists(clientPath);
           if (!clientExists) {
-            await PgExplorer.newItem(
+            await PgExplorer.createItem(
               clientPath,
               require("./files/client.ts.raw")
             );

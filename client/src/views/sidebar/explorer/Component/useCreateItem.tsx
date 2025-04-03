@@ -2,8 +2,8 @@ import { useCallback } from "react";
 
 import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 
-export const useNewItem = () => {
-  const newItem = useCallback(async () => {
+export const useCreateItem = () => {
+  const createItem = useCallback(async () => {
     const selected = PgExplorer.getSelectedEl();
 
     if (selected) {
@@ -26,7 +26,7 @@ export const useNewItem = () => {
       const { folders } = PgExplorer.getFolderContent(projectRootPath);
       // Create a new `src` dir if there are no folders
       if (!folders.length) {
-        await PgExplorer.newItem(PgExplorer.PATHS.SRC_DIRNAME);
+        await PgExplorer.createItem(PgExplorer.PATHS.SRC_DIRNAME);
         folders.push(PgExplorer.PATHS.SRC_DIRNAME);
 
         // Sleep to give time for the UI to update
@@ -45,12 +45,12 @@ export const useNewItem = () => {
         const path = PgExplorer.getItemPathFromEl(div);
         if (path && PgCommon.isPathsEqual(path, folderPath)) {
           PgExplorer.setSelectedEl(div);
-          newItem();
+          createItem();
           break;
         }
       }
     }
   }, []);
 
-  return { newItem };
+  return { createItem };
 };

@@ -65,7 +65,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
     }
   };
 
-  const importFs = () => PgExplorer.newWorkspace(name, { files });
+  const importFs = () => PgExplorer.createWorkspace(name, { files });
 
   return (
     <Modal
