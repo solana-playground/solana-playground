@@ -119,6 +119,16 @@ export class PgRouter {
   }
 
   /**
+   * Get the current origin URL with the given `path` appended.
+   *
+   * @param path URL path
+   * @returns the URL based on the current origin
+   */
+  static getPathUrl(path: string) {
+    return PgCommon.joinPaths(this.location.origin, path);
+  }
+
+  /**
    * Runs after path change.
    *
    * @param cb callback function to run

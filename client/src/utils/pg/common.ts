@@ -472,16 +472,6 @@ export class PgCommon {
   }
 
   /**
-   * Get the current origin URL with the given `path` appended.
-   *
-   * @param path URL path
-   * @returns the URL based on the current origin
-   */
-  static getPathUrl(path: string) {
-    return PgCommon.joinPaths(window.location.origin, path);
-  }
-
-  /**
    * Encode the given content to data URL.
    *
    * @param content content to encode
