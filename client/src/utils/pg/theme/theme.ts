@@ -85,24 +85,21 @@ export class PgTheme {
       fontFamily: Font["family"];
     }> = {}
   ) {
-    params.themeName ??=
-      localStorage.getItem(this._THEME_KEY) ?? this._themes[0].name;
-    params.fontFamily ??=
-      localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family;
+    const { themeName, fontFamily } = PgCommon.setDefault(params, {
+      themeName: localStorage.getItem(this._THEME_KEY) ?? this._themes[0].name,
+      fontFamily: localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family,
+    });
 
-    let importableTheme = this._themes.find((t) => t.name === params.themeName);
-
-    // This could happen when:
-    // 1. The theme name was updated/deleted
-    // 2. The theme key was overridden by another app when running locally
-    // 3. The user manually edited `localStorage` theme value
-    if (!importableTheme) {
-      importableTheme = this._themes[0];
-      params.themeName = importableTheme.name;
-      params.fontFamily = this._fonts[0].family;
-    }
-
-    const font = this._fonts.find((f) => f.family === params.fontFamily)!;
+    // We might not be able to find the theme from `themeName` if one of the
+    // following occured:
+    //
+    // - The theme name was updated/deleted
+    // - The theme key was overridden by another app when running locally
+    // - The user manually edited `localStorage` theme value
+    const importableTheme =
+      this._themes.find((t) => t.name === themeName) ?? this._themes[0];
+    const font =
+      this._fonts.find((f) => f.family === fontFamily) ?? this.fonts[0];
 
     // Cloning the object because override functions expect the theme to be
     // uninitialized. Keeping a reference to an old theme may cause unwanted
@@ -123,14 +120,14 @@ export class PgTheme {
       ._components();
 
     // Set theme
-    localStorage.setItem(this._THEME_KEY, params.themeName);
+    localStorage.setItem(this._THEME_KEY, themeName);
     PgCommon.createAndDispatchCustomEvent(
       PgTheme.events.THEME_SET,
       this._theme
     );
 
     // Set font
-    localStorage.setItem(this._FONT_KEY, params.fontFamily);
+    localStorage.setItem(this._FONT_KEY, fontFamily);
     PgCommon.createAndDispatchCustomEvent(PgTheme.events.FONT_SET, this._font);
   }
 
