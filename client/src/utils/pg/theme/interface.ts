@@ -447,7 +447,7 @@ export interface ImportableThemeParam {
   /** Whether the theme is a dark theme */
   isDark?: boolean;
   /** Import promise for the theme to lazy load */
-  importTheme?: () => Promise<{
+  import?: () => Promise<{
     default: ThemeParam;
   }>;
 }

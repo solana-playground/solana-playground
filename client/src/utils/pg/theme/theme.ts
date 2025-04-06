@@ -104,9 +104,7 @@ export class PgTheme {
     // Cloning the object because override functions expect the theme to be
     // uninitialized. Keeping a reference to an old theme may cause unwanted
     // side effects.
-    this._theme = structuredClone(
-      (await importableTheme.importTheme()).default
-    );
+    this._theme = structuredClone((await importableTheme.import()).default);
     this._theme.name = importableTheme.name;
     this._theme.isDark = importableTheme.isDark;
     this._font = font;

@@ -13,7 +13,7 @@ import type { ImportableTheme, ImportableThemeParam } from "../utils/pg";
  */
 export const createTheme = (theme: ImportableThemeParam) => {
   theme.isDark ??= false;
-  theme.importTheme ??= () =>
+  theme.import ??= () =>
     import(`./${PgCommon.toKebabFromTitle(theme.name)}/theme`);
   return theme as ImportableTheme;
 };
