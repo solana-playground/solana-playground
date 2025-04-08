@@ -732,7 +732,7 @@ export class PgCommon {
   static toTitleFromKebab(str: string) {
     return (
       str[0].toUpperCase() +
-      str.slice(1).replace(/-\w/, (match) => " " + match[1].toUpperCase())
+      str.slice(1).replace(/-\w/g, (match) => " " + match[1].toUpperCase())
     );
   }
 
