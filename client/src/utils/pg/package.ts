@@ -81,10 +81,11 @@ If the problem continues, consider filing a bug report in ${PgTerminal.underline
     switch (name) {
       case "seahorse-compile":
         return "Seahorse";
-      case "spl-token-cli":
-        return "SPL Token CLI";
       default:
-        return PgCommon.toTitleFromKebab(name).replace("Cli", "CLI");
+        return name
+          .replace("spl", (m) => m.toUpperCase())
+          .replace("cli", (m) => m.toUpperCase())
+          .replace(/.+/g, PgCommon.toTitleFromKebab);
     }
   }
 
