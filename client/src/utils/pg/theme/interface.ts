@@ -412,14 +412,6 @@ interface HighlightParam {
   meta: HighlightToken;
   /** /expr/ */
   regexp: HighlightToken;
-
-  //////////////// The following are unused by the Monaco Editor ///////////////
-  // TODO: Remove after CodeMirror impl
-  tagName: HighlightToken;
-  attributeName: HighlightToken;
-  attributeValue: HighlightToken;
-  annotion: HighlightToken;
-  invalid: HighlightToken;
 }
 
 /** Syntax highlighting styles */

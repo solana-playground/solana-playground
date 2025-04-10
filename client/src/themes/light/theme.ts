@@ -197,11 +197,6 @@ const LIGHT: ThemeParam = {
     blockComment: { color: COMMENT },
     meta: { color: GUTTER_BLUE },
     regexp: { color: STRING_RED },
-    tagName: { color: STRING_RED },
-    attributeName: { color: STRING_RED },
-    attributeValue: { color: STRING_RED },
-    annotion: { color: STRING_RED },
-    invalid: { color: ERROR_RED },
   },
 };
 

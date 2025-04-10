@@ -221,11 +221,6 @@ const PLAYGROUND: ThemeParam = {
     blockComment: { color: COMMENT, fontStyle: "italic" },
     meta: { color: H_LIGHT_BLUE },
     regexp: { color: YELLOW },
-    tagName: { color: YELLOW },
-    attributeName: { color: YELLOW },
-    attributeValue: { color: YELLOW },
-    annotion: { color: YELLOW },
-    invalid: { color: RED },
   },
 };
 

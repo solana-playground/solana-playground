@@ -130,11 +130,6 @@ const DRACULA: ThemeParam = {
     blockComment: { color: COMMENT },
     meta: { color: PURPLE },
     regexp: { color: ORANGE },
-    tagName: { color: YELLOW },
-    attributeName: { color: YELLOW },
-    attributeValue: { color: YELLOW },
-    annotion: { color: ORANGE },
-    invalid: { color: RED },
   },
 };
 
