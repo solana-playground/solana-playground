@@ -26,11 +26,13 @@ export class PgPackage {
    */
   static async import<T extends PackageName>(name: T, opts?: { log: boolean }) {
     const uiName = this._getUIName(name);
-    const log = opts?.log && this._isPkgLoadingInitial(name);
+    const isLoaded = this._loadedPkgs.includes(name);
+    const log = opts?.log && !isLoaded;
     if (log) PgTerminal.println(PgTerminal.info(`Loading ${uiName}...`));
 
     try {
       const pkg = (await this._import(name)) as unknown as ImportResult[T];
+      if (!isLoaded) this._loadedPkgs.push(name);
       if (log) PgTerminal.println(PgTerminal.success("Success.") + "\n");
 
       return pkg;
@@ -89,22 +91,6 @@ If the problem continues, consider filing a bug report in ${PgTerminal.underline
     }
   }
 
-  /**
-   * Get whether the package is being loaded for the first time and set the
-   * package's loaded state to `true`
-   *
-   * @param name package name
-   * @returns `true` if the package hasn't been loaded before
-   */
-  private static _isPkgLoadingInitial(name: PackageName) {
-    const initial = !this._loadedPkgs[name];
-    if (initial) {
-      this._loadedPkgs[name] = true;
-    }
-
-    return initial;
-  }
-
   /** Loaded packages */
-  private static readonly _loadedPkgs: { [K in PackageName]?: boolean } = {};
+  private static readonly _loadedPkgs: PackageName[] = [];
 }
