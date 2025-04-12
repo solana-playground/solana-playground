@@ -8,13 +8,6 @@ export enum ItemError {
   SRC_RENAME = "Cannot rename src folder",
 }
 
-export enum WorkspaceError {
-  ALREADY_EXISTS = "Already exists",
-  INVALID_NAME = "Invalid name",
-  NOT_FOUND = "Workspace not found",
-  CURRENT_NOT_FOUND = "Current workspace not found",
-}
-
 interface ConvertedError {
   [key: string]: string;
 }

@@ -1,4 +1,3 @@
-import { WorkspaceError } from "../../../constants";
 import { PgCommon } from "../common";
 
 interface Workspaces {
@@ -16,6 +15,14 @@ interface Workspaces {
 export class PgWorkspace {
   /** Class methods */
   private _state: Workspaces;
+
+  /** Workspace errors */
+  static errors = {
+    ALREADY_EXISTS: "Already exists",
+    INVALID_NAME: "Invalid name",
+    NOT_FOUND: "Workspace not found",
+    CURRENT_NOT_FOUND: "Current workspace not found",
+  };
 
   constructor(workspaces: Workspaces = PgWorkspace.DEFAULT) {
     this._state = workspaces;
@@ -71,7 +78,7 @@ export class PgWorkspace {
    */
   create(name: string) {
     if (this.allNames.includes(name)) {
-      throw new Error(WorkspaceError.ALREADY_EXISTS);
+      throw new Error(PgWorkspace.errors.ALREADY_EXISTS);
     }
 
     this._state.allNames.push(name);
@@ -94,7 +101,7 @@ export class PgWorkspace {
    */
   rename(newName: string) {
     if (this._state.allNames.includes(newName)) {
-      throw new Error(WorkspaceError.ALREADY_EXISTS);
+      throw new Error(PgWorkspace.errors.ALREADY_EXISTS);
     }
 
     const oldName = this._state.currentName;

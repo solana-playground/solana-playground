@@ -4,7 +4,7 @@ import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
 import { PgLanguage } from "../language";
 import { PgView } from "../view";
-import { ItemError, WorkspaceError } from "../../../constants";
+import { ItemError } from "../../../constants";
 import type {
   Explorer,
   TupleFiles,
@@ -69,7 +69,7 @@ export class PgExplorer {
    */
   static get currentWorkspacePath() {
     if (!this.currentWorkspaceName) {
-      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
     }
 
     return PgCommon.joinPaths(
@@ -396,7 +396,7 @@ export class PgExplorer {
   ) {
     name = name.trim();
     if (!opts?.skipNameValidation && !this.isWorkspaceNameValid(name)) {
-      throw new Error(WorkspaceError.INVALID_NAME);
+      throw new Error(PgWorkspace.errors.INVALID_NAME);
     }
 
     if (opts?.fromTemporary && this.isTemporary) {
@@ -434,7 +434,7 @@ export class PgExplorer {
       return;
     }
 
-    if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
+    if (!this._workspace) throw new Error(PgWorkspace.errors.NOT_FOUND);
 
     // Create a new workspace in state
     this._workspace.create(name);
@@ -502,16 +502,16 @@ export class PgExplorer {
   static async renameWorkspace(newName: string) {
     newName = newName.trim();
     if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
     }
     if (!this.currentWorkspaceName) {
-      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
     }
     if (!this.isWorkspaceNameValid(newName)) {
-      throw new Error(WorkspaceError.INVALID_NAME);
+      throw new Error(PgWorkspace.errors.INVALID_NAME);
     }
     if (this.allWorkspaceNames!.includes(newName)) {
-      throw new Error(WorkspaceError.ALREADY_EXISTS);
+      throw new Error(PgWorkspace.errors.ALREADY_EXISTS);
     }
 
     // Rename workspace folder
@@ -534,10 +534,10 @@ export class PgExplorer {
   /** Delete the current workspace. */
   static async deleteWorkspace() {
     if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
     }
     if (!this.currentWorkspaceName) {
-      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
     }
 
     // Delete from `indexedDB`
@@ -1051,7 +1051,7 @@ export class PgExplorer {
    */
   private static async _initCurrentWorkspace() {
     if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
     }
 
     // Reset files
