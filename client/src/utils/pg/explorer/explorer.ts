@@ -1,4 +1,3 @@
-import { PgExplorerEvent } from "./events";
 import { PgFs } from "./fs";
 import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
@@ -29,6 +28,21 @@ export class PgExplorer {
 
   /** `indexedDB` file system */
   static fs = PgFs;
+
+  /** Explorer event names */
+  static events = {
+    ON_DID_INIT: "explorerondidinit",
+    ON_DID_CREATE_ITEM: "explorerondidcreateitem",
+    ON_DID_RENAME_ITEM: "explorerondidrenameitem",
+    ON_DID_DELETE_ITEM: "explorerondiddeleteitem",
+    ON_DID_OPEN_FILE: "explorerondidopenfile",
+    ON_DID_CLOSE_FILE: "explorerondidclosefile",
+    ON_DID_SET_TABS: "explorerondidsettabs",
+    ON_DID_CREATE_WORKSPACE: "explorerondidcreateworkspace",
+    ON_DID_RENAME_WORKSPACE: "explorerondidrenameworkspace",
+    ON_DID_DELETE_WORKSPACE: "explorerondiddeleteworkspace",
+    ON_DID_SWITCH_WORKSPACE: "explorerondidswitchworkspace",
+  };
 
   /* -------------------------------- Getters ------------------------------- */
 
@@ -140,7 +154,7 @@ export class PgExplorer {
 
     this._isInitialized = true;
 
-    PgExplorerEvent.dispatchOnDidInit();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_INIT);
   }
 
   /**
@@ -213,7 +227,7 @@ export class PgExplorer {
       files[fullPath] = {};
     }
 
-    PgExplorerEvent.dispatchOnDidCreateItem();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CREATE_ITEM);
 
     await this.saveMeta();
   }
@@ -319,8 +333,14 @@ export class PgExplorer {
     if (opts?.override) this.setTabs(this.tabs);
 
     // Keep the same current file after rename
-    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
-    PgExplorerEvent.dispatchOnDidRenameItem(oldPath);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_OPEN_FILE,
+      this.getCurrentFile()
+    );
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_RENAME_ITEM,
+      oldPath
+    );
 
     await this.saveMeta();
   }
@@ -370,7 +390,10 @@ export class PgExplorer {
       if (lastTabPath) this.openFile(lastTabPath);
     }
 
-    PgExplorerEvent.dispatchOnDidDeleteItem(fullPath);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_DELETE_ITEM,
+      fullPath
+    );
 
     await this.saveMeta();
   }
@@ -453,7 +476,7 @@ export class PgExplorer {
       defaultOpenFile: opts?.defaultOpenFile,
     });
 
-    PgExplorerEvent.dispatchOnDidCreateWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CREATE_WORKSPACE);
   }
 
   /**
@@ -484,14 +507,17 @@ export class PgExplorer {
       // Save metadata to never lose default open file
       await this.saveMeta();
     } else {
-      PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
+      PgCommon.createAndDispatchCustomEvent(
+        this.events.ON_DID_OPEN_FILE,
+        this.getCurrentFile()
+      );
     }
 
     // Set initialized workspace name
     this._initializedWorkspaceName = name;
 
     // Dispatch change event
-    PgExplorerEvent.dispatchOnDidSwitchWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_SWITCH_WORKSPACE);
   }
 
   /**
@@ -528,7 +554,7 @@ export class PgExplorer {
 
     await this.switchWorkspace(newName);
 
-    PgExplorerEvent.dispatchOnDidRenameWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_RENAME_WORKSPACE);
   }
 
   /** Delete the current workspace. */
@@ -553,10 +579,12 @@ export class PgExplorer {
     } else {
       this._workspace.setCurrent({ allNames: [] });
       await this._saveWorkspaces();
-      PgExplorerEvent.dispatchOnDidSwitchWorkspace();
+      PgCommon.createAndDispatchCustomEvent(
+        this.events.ON_DID_SWITCH_WORKSPACE
+      );
     }
 
-    PgExplorerEvent.dispatchOnDidDeleteWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_DELETE_WORKSPACE);
   }
 
   /**
@@ -731,7 +759,10 @@ export class PgExplorer {
     // Update the current file index
     this._explorer.currentIndex = this.tabs.indexOf(path);
 
-    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_OPEN_FILE,
+      this.getCurrentFile()
+    );
   }
 
   /**
@@ -757,7 +788,7 @@ export class PgExplorer {
       this._explorer.currentIndex = this.tabs.indexOf(this.currentFilePath);
     }
 
-    PgExplorerEvent.dispatchOnDidCloseFile();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CLOSE_FILE);
   }
 
   /**
@@ -772,7 +803,7 @@ export class PgExplorer {
       this._explorer.currentIndex = this.tabs.indexOf(currentPath);
     }
 
-    PgExplorerEvent.dispatchOnDidSetTabs();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_SET_TABS);
   }
 
   /**
@@ -907,7 +938,7 @@ export class PgExplorer {
   static onDidInit(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_INIT,
+      eventName: PgExplorer.events.ON_DID_INIT,
     });
   }
 
@@ -920,7 +951,7 @@ export class PgExplorer {
   static onDidCreateItem(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CREATE_ITEM,
+      eventName: PgExplorer.events.ON_DID_CREATE_ITEM,
     });
   }
 
@@ -933,7 +964,7 @@ export class PgExplorer {
   static onDidRenameItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_RENAME_ITEM,
+      eventName: PgExplorer.events.ON_DID_RENAME_ITEM,
     });
   }
 
@@ -946,7 +977,7 @@ export class PgExplorer {
   static onDidDeleteItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_DELETE_ITEM,
+      eventName: PgExplorer.events.ON_DID_DELETE_ITEM,
     });
   }
 
@@ -959,7 +990,7 @@ export class PgExplorer {
   static onDidOpenFile(cb: (file: FullFile | null) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_OPEN_FILE,
+      eventName: PgExplorer.events.ON_DID_OPEN_FILE,
       initialRun: { value: PgExplorer.getCurrentFile() },
     });
   }
@@ -973,7 +1004,7 @@ export class PgExplorer {
   static onDidCloseFile(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CLOSE_FILE,
+      eventName: PgExplorer.events.ON_DID_CLOSE_FILE,
     });
   }
 
@@ -986,7 +1017,7 @@ export class PgExplorer {
   static onDidSetTabs(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_SET_TABS,
+      eventName: PgExplorer.events.ON_DID_SET_TABS,
     });
   }
 
@@ -999,7 +1030,7 @@ export class PgExplorer {
   static onDidCreateWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CREATE_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_CREATE_WORKSPACE,
     });
   }
 
@@ -1012,7 +1043,7 @@ export class PgExplorer {
   static onDidRenameWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_RENAME_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_RENAME_WORKSPACE,
     });
   }
 
@@ -1025,7 +1056,7 @@ export class PgExplorer {
   static onDidDeleteWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_DELETE_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_DELETE_WORKSPACE,
     });
   }
 
@@ -1038,7 +1069,7 @@ export class PgExplorer {
   static onDidSwitchWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_SWITCH_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_SWITCH_WORKSPACE,
     });
   }
 
