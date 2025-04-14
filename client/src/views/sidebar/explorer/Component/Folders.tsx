@@ -25,7 +25,6 @@ import {
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { ItemError } from "../../../../constants";
 import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
 import { useCreateItem } from "./useCreateItem";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
@@ -199,7 +198,7 @@ const ExplorerDndContext: FC = ({ children }) => {
         skipNameValidation: true,
       });
     } catch (e: any) {
-      if (e.message === ItemError.ALREADY_EXISTS) {
+      if (e.message === PgExplorer.errors.ALREADY_EXISTS) {
         await PgView.setModal(
           <ReplaceItem fromPath={fromPath} toPath={newPath} />
         );

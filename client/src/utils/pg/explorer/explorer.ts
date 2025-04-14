@@ -3,7 +3,6 @@ import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
 import { PgLanguage } from "../language";
 import { PgView } from "../view";
-import { ItemError } from "../../../constants";
 import type {
   Explorer,
   TupleFiles,
@@ -28,6 +27,15 @@ export class PgExplorer {
 
   /** `indexedDB` file system */
   static fs = PgFs;
+
+  /** Explorer errors */
+  static errors = {
+    ALREADY_EXISTS: "Already exists",
+    INVALID_NAME: "Invalid name",
+    TYPE_MISMATCH: "Types don't match",
+    SRC_DELETE: "Cannot delete src folder",
+    SRC_RENAME: "Cannot rename src folder",
+  };
 
   /** Explorer event names */
   static events = {
@@ -186,14 +194,14 @@ export class PgExplorer {
       !opts?.skipNameValidation &&
       !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath))
     ) {
-      throw new Error(ItemError.INVALID_NAME);
+      throw new Error(PgExplorer.errors.INVALID_NAME);
     }
 
     const files = this.files;
 
     // Check whether the item already exists
     if (files[fullPath] && !opts?.override) {
-      throw new Error(ItemError.ALREADY_EXISTS);
+      throw new Error(PgExplorer.errors.ALREADY_EXISTS);
     }
 
     const itemType = PgExplorer.getItemTypeFromPath(fullPath);
@@ -254,10 +262,10 @@ export class PgExplorer {
     if (PgCommon.isPathsEqual(newPath, oldPath)) return;
 
     if (!opts?.skipNameValidation && !PgExplorer.isItemNameValid(newPath)) {
-      throw new Error(ItemError.INVALID_NAME);
+      throw new Error(PgExplorer.errors.INVALID_NAME);
     }
     if (PgCommon.isPathsEqual(oldPath, this.getCurrentSrcPath())) {
-      throw new Error(ItemError.SRC_RENAME);
+      throw new Error(PgExplorer.errors.SRC_RENAME);
     }
 
     const itemType = PgExplorer.getItemTypeFromPath(oldPath);
@@ -266,7 +274,7 @@ export class PgExplorer {
       (itemType.file && !newItemType.file) ||
       (itemType.folder && !newItemType.folder)
     ) {
-      throw new Error(ItemError.TYPE_MISMATCH);
+      throw new Error(PgExplorer.errors.TYPE_MISMATCH);
     }
 
     if (!opts?.override) {
@@ -279,7 +287,7 @@ export class PgExplorer {
         const { files, folders } = this.getFolderContent(newPath);
         newPathExists = files.length > 0 || folders.length > 0;
       }
-      if (newPathExists) throw new Error(ItemError.ALREADY_EXISTS);
+      if (newPathExists) throw new Error(PgExplorer.errors.ALREADY_EXISTS);
     }
 
     // Rename in `indexedDB`
@@ -358,7 +366,7 @@ export class PgExplorer {
 
     // Can't delete src folder
     if (PgCommon.isPathsEqual(fullPath, this.getCurrentSrcPath())) {
-      throw new Error(ItemError.SRC_DELETE);
+      throw new Error(PgExplorer.errors.SRC_DELETE);
     }
 
     if (!this.isTemporary) {
