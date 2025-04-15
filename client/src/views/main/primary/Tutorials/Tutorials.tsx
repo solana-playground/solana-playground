@@ -19,7 +19,11 @@ const Tutorials = () => {
     filters: FILTERS,
     sort: (a, b) => {
       // Prioritize "Hello world" tutorials
-      if (a.name.startsWith("Hello")) return a.name.localeCompare(b.name);
+      if (a.name.startsWith("Hello") && b.name.startsWith("Hello")) {
+        return a.name.localeCompare(b.name);
+      }
+      if (a.name.startsWith("Hello")) return -1;
+      if (b.name.startsWith("Hello")) return 1;
 
       // If different level, sort by level (beginner to advanced)
       if (a.level !== b.level) {
