@@ -9,7 +9,11 @@ import IdlProvider from "./IdlProvider";
 import Text from "../../../../components/Text";
 import { PgCommand, PgProgramInfo } from "../../../../utils/pg";
 import { PgProgramInteraction } from "../../../../utils/pg/program-interaction";
-import { useProgramInfo, useRenderOnChange } from "../../../../hooks";
+import {
+  useExplorer,
+  useProgramInfo,
+  useRenderOnChange,
+} from "../../../../hooks";
 
 const Test = () => {
   useRenderOnChange(PgCommand.build.onDidFinish);
@@ -21,6 +25,15 @@ const Test = () => {
 
   // Handle instruction storage
   useSyncInstructionStorage();
+
+  const { explorer } = useExplorer();
+  if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
+    return (
+      <InitialWrapper>
+        <Text>No project to test.</Text>
+      </InitialWrapper>
+    );
+  }
 
   if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
     return (
