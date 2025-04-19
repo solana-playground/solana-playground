@@ -33,8 +33,19 @@ const handleTutorial = (name: string, page: string) => {
 
   // Check whether the tutorial exists
   if (!tutorial) {
-    PgRouter.navigate();
-    return;
+    return handleRoute({
+      main: {
+        name: "NotFound",
+        props: {
+          text: `Tutorial not found: ${PgCommon.toTitleFromKebab(name)}`,
+          navigate: {
+            name: "See all tutorials",
+            path: "/tutorials",
+          },
+        },
+      },
+      sidebar: "Tutorials",
+    });
   }
 
   // Only change the page if the tutorial is already in view
