@@ -5,23 +5,20 @@ import pathModule from "path";
 
 import { CLIENT_PATH } from "./utils.mjs";
 
-const DIRS = [
-  "block-explorers",
-  "commands",
-  "frameworks",
-  "languages",
-  "routes",
-  "settings",
-  "themes",
-  "tutorials",
-];
+const srcPath = pathModule.join(CLIENT_PATH, "src");
+for (const name of await fs.readdir(srcPath)) {
+  const itemPath = pathModule.join(srcPath, name);
+  const stat = await fs.stat(itemPath);
+  if (!stat.isDirectory()) continue;
 
-for (const dir of DIRS) {
-  const dirPath = pathModule.join(CLIENT_PATH, "src", dir);
+  const dirContent = await fs.readdir(itemPath);
+  const isExportable = dirContent.includes(`${name}.ts`);
+  if (!isExportable) continue;
+
   const items = await fs
-    .readdir(dirPath)
+    .readdir(itemPath)
     .then((items) => items.map(pathModule.parse));
-  const namesToSkip = [dir, "index", "__template"];
+  const namesToSkip = [name, "index", "__template"];
   const hasDir = items.some((item) => !item.ext);
   const exports = items
     .filter(
@@ -30,5 +27,5 @@ for (const dir of DIRS) {
     .map((item) => item.name)
     .reduce((acc, cur) => acc + `export * from "./${cur}";\n`, "");
 
-  await fs.writeFile(pathModule.join(dirPath, `${dir}.ts`), exports);
+  await fs.writeFile(pathModule.join(itemPath, `${name}.ts`), exports);
 }
