@@ -11,13 +11,12 @@ for (const name of await fs.readdir(srcPath)) {
   const stat = await fs.stat(itemPath);
   if (!stat.isDirectory()) continue;
 
-  const dirContent = await fs.readdir(itemPath);
-  const isExportable = dirContent.includes(`${name}.ts`);
-  if (!isExportable) continue;
-
   const items = await fs
     .readdir(itemPath)
     .then((items) => items.map(pathModule.parse));
+  const isExportable = items.some((item) => item.name === name);
+  if (!isExportable) continue;
+
   const namesToSkip = [name, "index", "__template"];
   const hasDir = items.some((item) => !item.ext);
   const exports = items
