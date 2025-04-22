@@ -197,19 +197,20 @@ export class PgTty {
 
   /** Print a message and properly handle new-lines. */
   print(msg: any, opts?: PrintOptions) {
+    // All data types should be converted to string
     if (typeof msg === "object") msg = PgCommon.prettyJSON(msg);
     else msg = `${msg}`;
 
-    // All data types should be converted to string
-    msg = msg.replace(/[\r\n]+/g, "\n").replace(/\n/g, "\r\n");
-
-    // Color text
-    if (!opts?.noColor) msg = this._highlightText(msg);
     if (opts?.newLine) msg += "\n";
+    if (!opts?.noColor) msg = this._highlightText(msg);
+
+    // The following are necessary to make the output look as expected
+    msg = msg
+      .replace(/\n\n/g, "\n \n")
+      .replace(/[\r\n]+/g, "\n")
+      .replace(/\n/g, "\r\n");
 
     if (opts?.sync) {
-      // We write it synchronously via hacking a bit on xterm
-
       //@ts-ignore
       this._xterm._core.writeSync(msg);
       //@ts-ignore

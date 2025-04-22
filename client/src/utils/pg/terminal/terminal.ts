@@ -389,12 +389,12 @@ export class PgTerm {
     this.enable();
   }
 
-  /** Fit terminal */
+  /** Fit terminal. */
   fit() {
     this._fitAddon.fit();
   }
 
-  /** Focus terminal and scroll to cursor */
+  /** Focus terminal and scroll to cursor. */
   focus() {
     this._xterm.focus();
     this.scrollToCursor();
@@ -424,29 +424,21 @@ export class PgTerm {
     scrollableEl.scrollTo(scrollX, scrollY);
   }
 
-  /** Print a message */
+  /** Print a message. */
   print(msg: any, opts?: PrintOptions) {
-    if (typeof msg === "string") {
-      // For some reason, double new lines are not respected. Thus, fixing that here
-      msg = msg.replace(/\n\n/g, "\n \n");
-    }
-
-    if (!this._isOpen) {
-      return;
-    }
+    if (!this._isOpen) return;
 
     if (this._shell.isPrompting()) {
       // Cancel the current prompt and restart
       this._shell.printAndRestartPrompt(() => {
         this._tty.print(msg + "\n", opts);
       });
-      return;
+    } else {
+      this._tty.print(msg, opts);
     }
-
-    this._tty.print(msg, opts);
   }
 
-  /** Print a message with end line character appended */
+  /** Print a message with end line character appended. */
   println(msg: any, opts?: PrintOptions) {
     this.print(msg, { ...opts, newLine: true });
   }
@@ -456,7 +448,6 @@ export class PgTerm {
    * but will not clear xterm buffer by default.
    *
    * @param opts.full whether to fully clean xterm buffer
-   *
    */
   clear(opts?: { full?: boolean }) {
     this._tty.clearTty();
@@ -467,28 +458,23 @@ export class PgTerm {
     }
   }
 
-  /**
-   * Disable shell:
-   * - Disables shell
-   * - Clears current line for  for actions that were committed from outside of terminal
-   * like pressing build button
-   */
+  /** Disable shell and clear the current line. */
   disable() {
     this._shell.disable();
     this._tty.clearLine();
   }
 
-  /** Enable shell */
+  /** Enable shell. */
   enable() {
     this._shell.enable();
   }
 
-  /** Scroll the terminal to bottom */
+  /** Scroll the terminal to bottom. */
   scrollToBottom() {
     this._xterm.scrollToBottom();
   }
 
-  /** Destroy xterm instance */
+  /** Destroy the current xterm instance. */
   destroy() {
     this._xterm.dispose();
     // @ts-ignore
@@ -496,7 +482,7 @@ export class PgTerm {
   }
 
   /**
-   * Wait for user input
+   * Wait for user input.
    *
    * @param msg message to print to the terminal before prompting user
    * @param opts -
