@@ -46,3 +46,14 @@ export interface ActiveCharPrompt {
 export interface ActivePrompt extends ActiveCharPrompt {
   continuationPromptPrefix: string;
 }
+
+export interface Prefixes {
+  /** Default prompt string before entering commands */
+  prompt: string;
+  /** Prompt after `\` or `'` */
+  continuationPrompt: string;
+  /** Prompt prefix for waiting user input */
+  waitingInputPrompt: string;
+  /** Prefix for the waiting user input prompt message */
+  waitingInputMsg: string;
+}

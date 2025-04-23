@@ -13,7 +13,7 @@ import {
   SERVER_ERROR,
 } from "../../../constants";
 import { PgCommon } from "../common";
-import type { CommandManager, PrintOptions } from "./types";
+import type { CommandManager, Prefixes, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
@@ -21,18 +21,6 @@ export class PgTerminal {
   static events = {
     STATIC: "terminalstatic",
   };
-
-  /** Default prompt string before entering commands */
-  static readonly PROMPT_PREFIX = "$ ";
-
-  /** Prompt after `\` or `'` */
-  static readonly CONTINUATION_PROMPT_PREFIX = "> ";
-
-  /** Prefix for the waiting user input prompt message */
-  static readonly WAITING_INPUT_MSG_PREFIX = "? ";
-
-  /** Prompt prefix for waiting user input */
-  static readonly WAITING_INPUT_PROMPT_PREFIX = ">> ";
 
   static success(text: string) {
     return `\x1b[1;32m${text}\x1b[0m`;
@@ -318,11 +306,16 @@ export class PgTerm {
   private _shell: PgShell;
   private _autocomplete: PgAutocomplete;
   private _isOpen: boolean;
+  private _prefixes: Prefixes;
   private _defaultText?: string;
 
   constructor(
     cmdManager: CommandManager,
-    opts?: { xterm?: ITerminalOptions; defaultText?: string }
+    opts?: {
+      xterm?: ITerminalOptions;
+      prefixes?: Prefixes;
+      defaultText?: string;
+    }
   ) {
     // Create xterm instance
     this._xterm = new XTerm(opts?.xterm);
@@ -331,6 +324,14 @@ export class PgTerm {
     this._fitAddon = new FitAddon();
     this._xterm.loadAddon(this._fitAddon);
     this._xterm.loadAddon(new WebLinksAddon());
+
+    // Set prefixes
+    this._prefixes = opts?.prefixes ?? {
+      prompt: "$ ",
+      continuationPrompt: "> ",
+      waitingInputPrompt: ">> ",
+      waitingInputMsg: "? ",
+    };
 
     // Create Shell and TTY
     const history = new PgHistory(20);
@@ -343,7 +344,8 @@ export class PgTerm {
       this._tty,
       cmdManager,
       this._autocomplete,
-      history
+      history,
+      this._prefixes
     );
 
     // Add a custom resize handler that clears the prompt using the previous
@@ -454,7 +456,7 @@ export class PgTerm {
     if (opts?.full) {
       this._tty.clear();
     } else {
-      this._tty.print(`${PgTerminal.PROMPT_PREFIX}${this._tty.input}`);
+      this._tty.print(`${this._prefixes.prompt}${this._tty.input}`);
     }
   }
 
@@ -633,7 +635,7 @@ export class PgTerm {
         ? PgTerminal.secondaryText("empty")
         : PgTerminal.success(userInput);
 
-    this._tty.changeLine(PgTerminal.WAITING_INPUT_PROMPT_PREFIX + visibleText);
+    this._tty.changeLine(this._prefixes.waitingInputPrompt + visibleText);
     return returnValue;
   }
 

@@ -76,16 +76,14 @@ export class PgTty {
   getInputStartsWithPrompt() {
     for (let i = 0; i < 10; i++) {
       const currentLine = this._getCurrentLine(i);
-      if (!currentLine) return;
+      if (!currentLine) return false;
+      if (currentLine.isWrapped) continue;
 
-      if (!currentLine.isWrapped) {
-        const currentLineStr = currentLine.translateToString();
-        return (
-          currentLineStr.startsWith(PgTerminal.PROMPT_PREFIX) ||
-          currentLineStr.startsWith(PgTerminal.CONTINUATION_PROMPT_PREFIX) ||
-          currentLineStr.startsWith(PgTerminal.WAITING_INPUT_PROMPT_PREFIX)
-        );
-      }
+      const currentLineStr = currentLine.translateToString();
+      return (
+        currentLineStr.startsWith(this._promptPrefix) ||
+        currentLineStr.startsWith(this._continuationPromptPrefix)
+      );
     }
   }
 
@@ -156,10 +154,7 @@ export class PgTty {
    * Return a promise that will resolve when the user has completed typing a
    * single line.
    */
-  read(
-    promptPrefix: string,
-    continuationPromptPrefix: string = PgTerminal.CONTINUATION_PROMPT_PREFIX
-  ): ActivePrompt {
+  read(promptPrefix: string, continuationPromptPrefix: string): ActivePrompt {
     if (promptPrefix.length > 0) {
       this.print(promptPrefix);
     }

@@ -10,7 +10,12 @@ import {
 } from "./utils";
 import { PgTerminal } from "./terminal";
 import { PgCommon } from "../common";
-import type { ActiveCharPrompt, ActivePrompt, CommandManager } from "./types";
+import type {
+  ActiveCharPrompt,
+  ActivePrompt,
+  CommandManager,
+  Prefixes,
+} from "./types";
 
 /**
  * A shell is the primary interface that is used to start other programs.
@@ -30,17 +35,20 @@ export class PgShell {
   private _processCount = 0;
   private _activePrompt: ActivePrompt | null = null;
   private _activeCharPrompt: ActiveCharPrompt | null = null;
+  private _prefixes: Prefixes;
 
   constructor(
     tty: PgTty,
     cmdManager: CommandManager,
     autocomplete: PgAutocomplete,
-    history: PgHistory
+    history: PgHistory,
+    prefixes: Prefixes
   ) {
     this._tty = tty;
     this._cmdManager = cmdManager;
     this._autocomplete = autocomplete;
     this._history = history;
+    this._prefixes = prefixes;
   }
 
   /** Terminal history */
@@ -57,34 +65,8 @@ export class PgShell {
   enable() {
     setTimeout(() => {
       this._decrementProcessCount();
-      if (!this._processCount) this.prompt();
+      if (!this._processCount) this._prompt();
     }, 10);
-  }
-
-  /**
-   * Prompt terminal.
-   *
-   * This function also helps with command history.
-   */
-  async prompt() {
-    // If we are already prompting, do nothing
-    if (this._activePrompt && this._tty.getInputStartsWithPrompt()) {
-      return;
-    }
-
-    try {
-      const promptText = this._waitingForInput
-        ? PgTerminal.WAITING_INPUT_PROMPT_PREFIX
-        : PgTerminal.PROMPT_PREFIX;
-      this._activePrompt = this._tty.read(promptText);
-
-      await this._activePrompt.promise;
-      const input = this._tty.input.trim();
-      this._history.push(input);
-    } catch (e: any) {
-      this._tty.println(e.message);
-      this.prompt();
-    }
   }
 
   /** Get whether the shell is active, and the user can type. */
@@ -129,10 +111,10 @@ export class PgShell {
       else {
         this._tty.clearLine();
         this._tty.println(
-          PgTerminal.secondary(PgTerminal.WAITING_INPUT_MSG_PREFIX) + msg
+          PgTerminal.secondary(this._prefixes.waitingInputMsg) + msg
         );
         this._waitingForInput = true;
-        this.prompt();
+        this._prompt();
 
         // This will happen once user sends the input
         const handleInput = () => {
@@ -214,6 +196,32 @@ export class PgShell {
       this._handleData(data);
     }
   };
+
+  /**
+   * Prompt terminal.
+   *
+   * This function also helps with command history.
+   */
+  private async _prompt() {
+    // If we are already prompting, do nothing
+    if (this._activePrompt && this._tty.getInputStartsWithPrompt()) return;
+
+    try {
+      this._activePrompt = this._tty.read(
+        this._waitingForInput
+          ? this._prefixes.waitingInputPrompt
+          : this._prefixes.prompt,
+        this._prefixes.continuationPrompt
+      );
+
+      await this._activePrompt.promise;
+      const input = this._tty.input.trim();
+      this._history.push(input);
+    } catch (e: any) {
+      this._tty.println(e.message);
+      this._prompt();
+    }
+  }
 
   /** Move cursor at given direction. */
   private _handleCursorMove = (dir: number) => {
