@@ -313,7 +313,7 @@ export class PgTerm {
     cmdManager: CommandManager,
     opts?: {
       xterm?: ITerminalOptions;
-      prefixes?: Prefixes;
+      prefixes?: Partial<Prefixes>;
       defaultText?: string;
     }
   ) {
@@ -326,12 +326,12 @@ export class PgTerm {
     this._xterm.loadAddon(new WebLinksAddon());
 
     // Set prefixes
-    this._prefixes = opts?.prefixes ?? {
+    this._prefixes = PgCommon.setDefault(opts?.prefixes, {
       prompt: "$ ",
       continuationPrompt: "> ",
       waitingInputPrompt: ">> ",
       waitingInputMsg: "? ",
-    };
+    });
 
     // Create Shell and TTY
     const history = new PgHistory(20);
