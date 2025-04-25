@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../Button";
@@ -166,13 +166,26 @@ const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   const enter = useCallback(() => setHover(true), []);
   const leave = useCallback(() => setHover(false), []);
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // There is an issue where moving the mouse over the elements fast makes the
+  // `hover` state inconsistent i.e. `hover === true` when the pointer is not
+  // on the element. This `useEffect` fixes the mentioned inconsistency.
+  //
+  // https://github.com/facebook/react/issues/4492
+  useEffect(() => {
+    if (hover && wrapperRef.current?.matches(":hover") === false) {
+      setHover(false);
+    }
+  }, [hover]);
+
   const now = new Date().getTime() / 1000;
   const timePassed = blockTime ? PgCommon.secondsToTime(now - blockTime) : null;
 
   const blockExplorer = useBlockExplorer();
 
   return (
-    <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>
+    <TxWrapper ref={wrapperRef} onMouseEnter={enter} onMouseLeave={leave}>
       {hover ? (
         <HoverWrapper>
           <Link href={blockExplorer.getTxUrl(signature)}>
