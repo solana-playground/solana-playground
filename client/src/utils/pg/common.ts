@@ -7,6 +7,7 @@ import type {
   SyncOrAsync,
   Arrayable,
   ValueOf,
+  OrString,
 } from "./types";
 
 export class PgCommon {
@@ -436,6 +437,44 @@ export class PgCommon {
    */
   static entries<T extends Record<string, unknown>>(obj: T) {
     return Object.entries(obj) as Array<[keyof T, ValueOf<T>]>;
+  }
+
+  /**
+   * Index into an object with proper types.
+   *
+   * TypeScript does not allow `obj[key]` if `key` is not guaranteed to be
+   * an actual property of the `obj`. A common workaround for this issue is to
+   * cast the `key` type like `obj[key as keyof typeof obj]`. However, this
+   * means the type of the resulting value will not include `undefined` unless
+   * the property values of the object also includes it.
+   *
+   * # Example
+   *
+   * If it's a known property, it will have the type of the object values type
+   * without `undefined`:
+   *
+   * ```ts
+   * const age = this.indexInto({ age: 42 }, "age");
+   * // value: `42`, type: `number`
+   * ```
+   *
+   * If the value is unknown, rather than resulting in an error, the type
+   * will include `undefined`:
+   *
+   * ```ts
+   * const age = this.indexInto({ age: 42 }, "no");
+   * // value: `undefined`, type: `number | undefined`
+   * ```
+   *
+   * @param obj object
+   * @param key potential key of the object
+   * @returns the indexed value with proper types
+   */
+  static indexInto<
+    T extends Record<string, unknown>,
+    K extends OrString<keyof T>
+  >(obj: T, key: K) {
+    return obj[key] as K extends keyof T ? T[K] : ValueOf<T> | undefined;
   }
 
   /**
