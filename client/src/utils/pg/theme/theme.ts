@@ -206,28 +206,12 @@ export class PgTheme {
    * @returns the color value from theme
    */
   static getColor(color: ThemeColor = "textSecondary") {
-    const theme = this._themeReady;
+    const colors = this._themeReady.colors;
 
-    switch (color) {
-      case "primary":
-        return theme.colors.default.primary;
-      case "secondary":
-        return theme.colors.default.secondary;
-      case "error":
-        return theme.colors.state.error.color;
-      case "success":
-        return theme.colors.state.success.color;
-      case "warning":
-        return theme.colors.state.warning.color;
-      case "info":
-        return theme.colors.state.info.color;
-      case "textPrimary":
-        return theme.colors.default.textPrimary;
-      case "textSecondary":
-        return theme.colors.default.textSecondary;
-      default:
-        throw new Error(`Unknown color '${color}'`);
-    }
+    return (
+      PgCommon.indexInto(colors.state, color)?.color ??
+      PgCommon.indexInto(colors.default, color)!
+    );
   }
 
   /**
