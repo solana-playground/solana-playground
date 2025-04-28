@@ -24,6 +24,10 @@ const Primary = () => {
           return await PgCommon.callIfNeeded(el);
         } catch (e: any) {
           console.log("MAIN VIEW ERROR:", e.message);
+          const Error = () => {
+            throw e;
+          };
+          return <Error />;
         }
       });
     }
