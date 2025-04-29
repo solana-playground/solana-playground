@@ -100,11 +100,16 @@ export class PgRouter {
    *
    * @param path pathname to navigate to
    */
-  static navigate(path: RoutePath = "/") {
+  static async navigate(path: RoutePath = "/") {
     const { pathname, search } = this.location;
-    if (!this.isPathsEqual(pathname + search, path)) {
-      PgCommon.createAndDispatchCustomEvent(this.events.NAVIGATE, path);
-    }
+    if (this.isPathsEqual(pathname + search, path)) return;
+
+    await PgCommon.tryUntilSuccess(async () => {
+      const navigate: (path: string) => void =
+        await PgCommon.sendAndReceiveCustomEvent(this.events.NAVIGATE);
+
+      navigate(path);
+    }, 100);
   }
 
   /**

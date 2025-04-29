@@ -24,7 +24,7 @@ import {
   PgView,
   PgWallet,
 } from "../../utils/pg";
-import { useDisposable, useSetStatic } from "../../hooks";
+import { useDisposable, useGetStatic } from "../../hooks";
 
 // Set fields
 PgBlockExplorer.all = BLOCK_EXPLORERS;
@@ -93,7 +93,7 @@ const useRouter = () => {
 
   // Navigate
   const navigate = useNavigate();
-  useSetStatic(navigate, PgRouter.events.NAVIGATE);
+  useGetStatic(navigate, PgRouter.events.NAVIGATE);
 };
 
 // TODO: Remove and handle this from explorer impl
