@@ -148,14 +148,11 @@ export class PgView {
       const eventNames = PgCommon.getStaticStateEventNames(
         PgView.events.MAIN_PRIMARY_STATIC
       );
-      const result = await PgCommon.timeout(
-        PgCommon.sendAndReceiveCustomEvent(eventNames.get),
-        100
-      );
+      const result = await PgCommon.sendAndReceiveCustomEvent(eventNames.get);
       if (result === undefined) throw new Error();
 
       PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
-    }, 1000);
+    }, 100);
   }
 
   /**
