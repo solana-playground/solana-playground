@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
+import PrimaryError from "./PrimaryError";
 import { SpinnerWithBg } from "../../../../components/Loading";
 import {
   CallableJSX,
@@ -24,10 +25,13 @@ const Primary = () => {
           return await PgCommon.callIfNeeded(el);
         } catch (e: any) {
           console.log("MAIN VIEW ERROR:", e.message);
-          const Error = () => {
-            throw e;
-          };
-          return <Error />;
+          const initialEl = el;
+          return (
+            <PrimaryError
+              error={e}
+              retry={() => setElWithTransition(initialEl)}
+            />
+          );
         }
       });
     }
