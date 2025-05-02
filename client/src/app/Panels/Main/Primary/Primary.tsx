@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
-import PrimaryError from "./PrimaryError";
 import { SpinnerWithBg } from "../../../../components/Loading";
 import {
   CallableJSX,
@@ -11,7 +10,7 @@ import {
   PgTheme,
   PgView,
 } from "../../../../utils/pg";
-import { useGetAndSetStatic } from "../../../../hooks";
+import { useAsyncEffect, useGetAndSetStatic } from "../../../../hooks";
 
 const Primary = () => {
   const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
@@ -25,11 +24,14 @@ const Primary = () => {
           return await PgCommon.callIfNeeded(el);
         } catch (e: any) {
           console.log("MAIN VIEW ERROR:", e.message);
-          const initialEl = el;
+          const initialEl: () => Promise<CallableJSX | NullableJSX> = el;
+
           return (
             <PrimaryError
-              error={e}
-              retry={() => setElWithTransition(initialEl)}
+              retry={async () => {
+                const el = await initialEl();
+                setEl(PgCommon.callIfNeeded(el) ?? null);
+              }}
             />
           );
         }
@@ -52,6 +54,26 @@ const Primary = () => {
       </StyledSpinnerWithBg>
     </Wrapper>
   );
+};
+
+const PrimaryError = (props: { retry: () => Promise<unknown> }) => {
+  const [, setError] = useState();
+  useAsyncEffect(async () => {
+    try {
+      await props.retry();
+    } catch (e) {
+      // Error boundaries do not catch promise errors.
+      // See https://github.com/facebook/react/issues/11334
+      //
+      // As a workaround, the following line manually triggers a render error,
+      // which is then caught by the parent `ErrorBoundary` component.
+      setError(() => {
+        throw e;
+      });
+    }
+  }, []);
+
+  return <StyledSpinnerWithBg loading size="2rem" />;
 };
 
 const Wrapper = styled.div`
