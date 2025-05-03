@@ -118,8 +118,7 @@ const handleTutorial = (name: string, page: string) => {
   // Minimize secondary main view and reopen on navigation to other routes
   PgView.setMainSecondaryHeight((h) => {
     if (page) {
-      // TODO: Remove hardcoded value
-      if (h > 36) mainSecondaryHeight = h;
+      if (h > PgView.getMainSecondaryMinHeight()) mainSecondaryHeight = h;
       return mainSecondaryHeight;
     }
     return 0;

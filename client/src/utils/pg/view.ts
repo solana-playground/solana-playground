@@ -155,6 +155,25 @@ export class PgView {
     }, 100);
   }
 
+  /** Get the default height of the main secondary view. */
+  static getMainSecondaryDefaultHeight() {
+    return Math.floor(window.innerHeight / 4);
+  }
+
+  /** Get the minimum height of the main secondary view. */
+  static getMainSecondaryMinHeight() {
+    // TODO: Make it dynamic?
+    return 36;
+  }
+
+  /** Get the maximum height of the main secondary view. */
+  static getMainSecondaryMaxHeight() {
+    const bottomHeight = document
+      .getElementById(PgView.ids.BOTTOM)
+      ?.getBoundingClientRect()?.height;
+    return window.innerHeight - (bottomHeight ?? 0);
+  }
+
   /**
    * Set the current secondary main view page.
    *
