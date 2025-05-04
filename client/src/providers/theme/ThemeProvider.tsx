@@ -20,26 +20,6 @@ export const ThemeProvider: FC = ({ children }) => {
     PgTheme.create(THEMES, FONTS);
   }, []);
 
-  // Update `theme.font` when theme or font changes
-  useEffect(() => {
-    if (theme && font) {
-      const fontFamily = PgTheme.addFallbackFont(font.family);
-      if (theme.font.code.family !== fontFamily) {
-        setTheme((t) => {
-          return (
-            t && {
-              ...t,
-              font: {
-                code: { ...font, family: fontFamily },
-                other: t.font.other,
-              },
-            }
-          );
-        });
-      }
-    }
-  }, [theme, font]);
-
   if (!theme || !font) return null;
 
   return (
