@@ -117,6 +117,14 @@ export class PgTheme {
       ._views()
       ._components();
 
+    // Load font
+    const fontFace = new FontFace(
+      fontFamily,
+      `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
+    );
+    await fontFace.load();
+    document.fonts.add(fontFace);
+
     // Set theme
     localStorage.setItem(this._THEME_KEY, themeName);
     PgCommon.createAndDispatchCustomEvent(
