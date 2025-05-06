@@ -2882,7 +2882,7 @@
   dependencies:
     "@solana/codecs" "2.0.0-rc.1"
 
-"@solana/spl-token@0.4.13":
+"@solana/spl-token@*":
   version "0.4.13"
   resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.4.13.tgz#8f65c3c2b315e1a00a91b8d0f60922c6eb71de62"
   integrity sha512-cite/pYWQZZVvLbg5lsodSovbetK/eA24gaR0eeUeMuBAMNrT8XFCwaygKy0N2WSg3gSyjjNpIeAGBAKZaY/1w==
@@ -2995,7 +2995,7 @@
     "@wallet-standard/app" "^1.0.1"
     "@wallet-standard/base" "^1.0.1"
 
-"@solana/web3.js@1.98.2":
+"@solana/web3.js@*":
   version "1.98.2"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.98.2.tgz#45167a5cfb64436944bf4dc1e8be8482bd6d4c14"
   integrity sha512-BqVwEG+TaG2yCkBMbD3C4hdpustR4FpuUFRPUmqRZYYlPI9Hg4XMWxHWOWRzHE9Lkc9NDjzXFX7lDXSgzC7R1A==
