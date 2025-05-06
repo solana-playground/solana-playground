@@ -119,21 +119,21 @@ export class PgTheme {
 
     // Load font
     const fontFace = new FontFace(
-      fontFamily,
+      this._font.family,
       `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
     );
     await fontFace.load();
     document.fonts.add(fontFace);
 
     // Set theme
-    localStorage.setItem(this._THEME_KEY, themeName);
+    localStorage.setItem(this._THEME_KEY, this._theme.name);
     PgCommon.createAndDispatchCustomEvent(
       PgTheme.events.THEME_SET,
       this._theme
     );
 
     // Set font
-    localStorage.setItem(this._FONT_KEY, fontFamily);
+    localStorage.setItem(this._FONT_KEY, this._font.family);
     PgCommon.createAndDispatchCustomEvent(PgTheme.events.FONT_SET, this._font);
   }
 
