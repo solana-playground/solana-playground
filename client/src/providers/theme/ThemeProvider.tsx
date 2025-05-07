@@ -5,22 +5,20 @@ import styled, {
 } from "styled-components";
 
 import { FONTS, THEMES } from "../../themes";
-import { Font, PgTheme, Theme } from "../../utils/pg/theme";
+import { PgTheme, Theme } from "../../utils/pg/theme";
 import { useSetStatic } from "../../hooks/useSetStatic";
 
 export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<Theme>();
-  const [font, setFont] = useState<Font>();
 
   useSetStatic(setTheme, PgTheme.events.THEME_SET);
-  useSetStatic(setFont, PgTheme.events.FONT_SET);
 
   // Create initial theme
   useEffect(() => {
     PgTheme.create(THEMES, FONTS);
   }, []);
 
-  if (!theme || !font) return null;
+  if (!theme) return null;
 
   return (
     <StyledThemeProvider theme={theme}>
