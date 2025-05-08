@@ -34,7 +34,6 @@ export class PgTheme {
   /** Theme event names */
   static events = {
     THEME_SET: "themeset",
-    FONT_SET: "fontset",
   };
 
   /** All available themes */
@@ -134,7 +133,6 @@ export class PgTheme {
 
     // Set font
     localStorage.setItem(this._FONT_KEY, this._font.family);
-    PgCommon.createAndDispatchCustomEvent(PgTheme.events.FONT_SET, this._font);
   }
 
   /**
