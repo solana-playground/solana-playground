@@ -108,7 +108,19 @@ export class PgTheme {
     this._theme.isDark = importableTheme.isDark;
     this._font = font;
 
-    // Set defaults(order matters)
+    // Load font
+    const fontFace = new FontFace(
+      this._font.family,
+      `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
+    );
+    try {
+      await fontFace.load();
+      document.fonts.add(fontFace);
+    } catch (e) {
+      console.log("Failed to load font:", this._font.family);
+    }
+
+    // Set defaults (order matters)
     this._theme_fonts()
       ._default()
       ._stateColors()
@@ -116,23 +128,15 @@ export class PgTheme {
       ._views()
       ._components();
 
-    // Load font
-    const fontFace = new FontFace(
-      this._font.family,
-      `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
-    );
-    await fontFace.load();
-    document.fonts.add(fontFace);
-
-    // Set theme
+    // Save to storage
     localStorage.setItem(this._THEME_KEY, this._theme.name);
+    localStorage.setItem(this._FONT_KEY, this._font.family);
+
+    // Dispatch theme set event to update UI
     PgCommon.createAndDispatchCustomEvent(
       PgTheme.events.THEME_SET,
       this._theme
     );
-
-    // Set font
-    localStorage.setItem(this._FONT_KEY, this._font.family);
   }
 
   /**
