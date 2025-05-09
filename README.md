@@ -1,3 +1,5 @@
+![1000047104](https://github.com/user-attachments/assets/0e6cfe4d-58e7-477c-bc9b-83fd3ff86762)
+![1000045948](https://github.com/user-attachments/assets/78f189bf-c2d6-4e0d-8b38-1997b8534632)
 # Solana Playground
 
 [SolPg](https://beta.solpg.io) allows you to quickly develop, deploy and test [Solana](https://docs.solana.com/introduction) programs(smart contracts) from browsers.
