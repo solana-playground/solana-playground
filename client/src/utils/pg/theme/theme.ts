@@ -108,16 +108,30 @@ export class PgTheme {
     this._theme.isDark = importableTheme.isDark;
     this._font = font;
 
-    // Load font
-    const fontFace = new FontFace(
-      this._font.family,
-      `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
-    );
-    try {
-      await fontFace.load();
-      document.fonts.add(fontFace);
-    } catch (e) {
-      console.log("Failed to load font:", this._font.family);
+    // Load font if necessary.
+    //
+    // Iterating over the fonts here because both the `check` and `has` methods
+    // of `document.fonts` are not reliable i.e. `check` returns `true` for
+    // non-existent fonts and `has` expects a `FontFace` argument, which means
+    // we'd have to store the object somewhere because it compares by object
+    // reference rather than font family.
+    let isLoaded = false;
+    for (const font of document.fonts.keys()) {
+      if (font.family === this._font.family) {
+        isLoaded = font.status === "loaded";
+      }
+    }
+    if (!isLoaded) {
+      try {
+        const fontFace = new FontFace(
+          this._font.family,
+          `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
+        );
+        await fontFace.load();
+        document.fonts.add(fontFace);
+      } catch (e) {
+        console.log(`Failed to load font: ${this._font.family}\nError: ${e}`);
+      }
     }
 
     // Set defaults (order matters)
