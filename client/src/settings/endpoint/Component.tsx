@@ -7,17 +7,15 @@ import Modal from "../../components/Modal";
 import Select from "../../components/Select";
 import Text from "../../components/Text";
 import { Info } from "../../components/Icons";
-import { Endpoint, NetworkName, NETWORKS } from "../../constants";
+import { NETWORKS } from "../../constants";
 import { PgCommand, PgCommon, PgSettings, PgView } from "../../utils/pg";
 
 const EndpointSetting = () => {
   const options = useMemo(
-    () =>
-      NETWORKS.map((n) => ({ value: n.endpoint, label: n.name })).filter((n) =>
-        process.env.NODE_ENV === "production"
-          ? n.label !== NetworkName.PLAYNET
-          : true
-      ),
+    () => [
+      ...NETWORKS.map((n) => ({ label: n.name, value: n.endpoint })),
+      { label: "Custom", value: "" },
+    ],
     []
   );
 
@@ -25,11 +23,7 @@ const EndpointSetting = () => {
 
   useEffect(() => {
     const { dispose } = PgSettings.onDidChangeConnectionEndpoint((endpoint) => {
-      setValue(
-        options.find(
-          (o) => o.value === endpoint || o.label === NetworkName.CUSTOM
-        )
-      );
+      setValue(options.find((o) => o.value === endpoint) ?? options.at(-1));
     });
     return dispose;
   }, [options]);
@@ -39,14 +33,8 @@ const EndpointSetting = () => {
       options={options}
       value={value}
       onChange={(newValue) => {
-        if (newValue?.value === Endpoint.CUSTOM) {
-          PgView.setModal(CustomEndpoint);
-        } else {
-          const newEndpoint = NETWORKS.find(
-            (n) => n.name === newValue?.label
-          )!.endpoint;
-          PgSettings.connection.endpoint = newEndpoint;
-        }
+        if (newValue?.value) PgSettings.connection.endpoint = newValue.value;
+        else PgView.setModal(CustomEndpoint);
       }}
     />
   );

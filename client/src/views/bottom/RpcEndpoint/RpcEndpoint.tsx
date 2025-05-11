@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Tooltip from "../../../components/Tooltip";
-import { NETWORKS, NetworkName } from "../../../constants";
+import { NETWORKS } from "../../../constants";
 import { useConnection, useWallet } from "../../../hooks";
 import { PgTheme } from "../../../utils/pg";
 
@@ -13,7 +13,7 @@ export const RpcEndpoint = () => {
   const networkName = useMemo(() => {
     return (
       NETWORKS.find((n) => n.endpoint === connection.rpcEndpoint)?.name ??
-      NetworkName.CUSTOM
+      "Custom"
     );
   }, [connection.rpcEndpoint]);
 

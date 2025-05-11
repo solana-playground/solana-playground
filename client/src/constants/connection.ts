@@ -1,13 +1,3 @@
-/** Name that will be showed in the UI */
-export enum NetworkName {
-  PLAYNET = "playnet",
-  LOCALHOST = "localhost",
-  DEVNET = "devnet",
-  TESTNET = "testnet",
-  MAINNET_BETA = "mainnet-beta",
-  CUSTOM = "custom",
-}
-
 /** RPC endpoint */
 export enum Endpoint {
   PLAYNET = "http://playnet",
@@ -15,38 +5,33 @@ export enum Endpoint {
   DEVNET = "https://api.devnet.solana.com",
   TESTNET = "https://api.testnet.solana.com",
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
-  CUSTOM = "CUSTOM",
 }
 
 interface Network {
-  name: NetworkName;
+  name: string;
   endpoint: Endpoint;
 }
 
 /** Default networks that users can choose from */
 export const NETWORKS: Network[] = [
   {
-    name: NetworkName.PLAYNET,
+    name: "Playnet",
     endpoint: Endpoint.PLAYNET,
   },
   {
-    name: NetworkName.LOCALHOST,
+    name: "Localhost",
     endpoint: Endpoint.LOCALHOST,
   },
   {
-    name: NetworkName.DEVNET,
+    name: "Devnet",
     endpoint: Endpoint.DEVNET,
   },
   {
-    name: NetworkName.TESTNET,
+    name: "Testnet",
     endpoint: Endpoint.TESTNET,
   },
   {
-    name: NetworkName.MAINNET_BETA,
+    name: "Mainnet Beta",
     endpoint: Endpoint.MAINNET_BETA,
-  },
-  {
-    name: NetworkName.CUSTOM,
-    endpoint: Endpoint.CUSTOM,
   },
 ];
