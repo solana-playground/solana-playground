@@ -49,7 +49,7 @@ export const NonLocal: FC<ToastChildProps> = ({ id }) => {
               "config",
               "set",
               "-u",
-              Endpoint.LOCALHOST
+              Endpoint.LOCALNET
             );
           }}
           kind="secondary-transparent"

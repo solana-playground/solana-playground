@@ -41,7 +41,7 @@ export const useHelpConnection = () => {
       }
 
       // Connection failed
-      if (PgConnection.current.rpcEndpoint === Endpoint.LOCALHOST) {
+      if (PgConnection.current.rpcEndpoint === Endpoint.LOCALNET) {
         executeOnce("local", async () => {
           const { Local } = await import("./Local");
           await PgView.setModal(Local);

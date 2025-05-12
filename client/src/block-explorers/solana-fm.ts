@@ -12,7 +12,7 @@ export const solanaFM = PgBlockExplorer.create({
         return "?cluster=devnet-solana";
       case "localnet":
         // Doesn't work with protocol ("http") prefix
-        return "?cluster=custom-" + new URL(Endpoint.LOCALHOST).host;
+        return "?cluster=custom-" + new URL(Endpoint.LOCALNET).host;
       default:
         return "";
     }

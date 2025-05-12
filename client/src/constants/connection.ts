@@ -1,7 +1,7 @@
 /** RPC endpoint */
 export enum Endpoint {
   PLAYNET = "http://playnet",
-  LOCALHOST = "http://localhost:8899",
+  LOCALNET = "http://localhost:8899",
   DEVNET = "https://api.devnet.solana.com",
   TESTNET = "https://api.testnet.solana.com",
   MAINNET_BETA = "https://api.mainnet-beta.solana.com",
@@ -19,8 +19,8 @@ export const NETWORKS: Network[] = [
     endpoint: Endpoint.PLAYNET,
   },
   {
-    name: "Localhost",
-    endpoint: Endpoint.LOCALHOST,
+    name: "Localnet",
+    endpoint: Endpoint.LOCALNET,
   },
   {
     name: "Devnet",

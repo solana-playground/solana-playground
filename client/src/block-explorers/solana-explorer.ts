@@ -11,7 +11,7 @@ export const solanaExplorer = PgBlockExplorer.create({
       case "devnet":
         return "?cluster=devnet";
       case "localnet":
-        return "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
+        return "?cluster=custom&customUrl=" + Endpoint.LOCALNET;
       default:
         return "";
     }
