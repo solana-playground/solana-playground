@@ -14,7 +14,7 @@ export const Add = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleCreate = () => PgWallet.add({ name, keypair });
-  const handleExport = () => PgWallet.export(keypair);
+  const handleExport = () => PgWallet.export({ name, keypair });
 
   return (
     <Modal

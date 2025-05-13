@@ -256,18 +256,23 @@ class _PgWallet {
   /**
    * Export the given or the existing keypair to the user's file system.
    *
-   * @param keypair optional keypair, defaults to the current wallet's keypair
+   * @param params optional parameters
+   * @param params.name optional name, defaults to the current wallet's name
+   * @param params.keypair optional keypair, defaults to the current wallet
    */
-  static export(keypair?: PgWeb3.Keypair) {
-    if (!keypair) {
+  static export(params?: { name?: string; keypair?: PgWeb3.Keypair }) {
+    params ??= {};
+    if (!params.name || !params.keypair) {
       if (!PgWallet.current) throw new Error("Not connected");
       if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
-      keypair = PgWallet.current.keypair;
+
+      params.name ??= PgWallet.current.name;
+      params.keypair ??= PgWallet.current.keypair;
     }
 
     return PgCommon.export(
-      `${PgWallet.current?.name ?? "wallet"}-keypair.json`,
-      Array.from(keypair.secretKey)
+      `${params.name}-keypair.json`,
+      Array.from(params.keypair.secretKey)
     );
   }
 
