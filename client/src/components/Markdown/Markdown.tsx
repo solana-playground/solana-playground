@@ -379,8 +379,7 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
     kbd {
       display: inline-block;
       padding: 3px 5px;
-      font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
+      font: ${theme.font.code.size.small} ${theme.font.code.family};
       line-height: 10px;
       color: var(--color-fg-default);
       vertical-align: middle;
@@ -468,17 +467,15 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
 
     tt,
     code {
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
-      font-size: 12px;
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
     }
 
     pre {
       margin-top: 0;
       margin-bottom: 0;
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
-      font-size: 12px;
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
       word-wrap: normal;
     }
 
