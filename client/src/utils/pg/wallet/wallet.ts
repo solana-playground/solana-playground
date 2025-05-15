@@ -293,16 +293,6 @@ class _PgWallet {
   }
 
   /**
-   * Get the default name of the wallet account.
-   *
-   * @param index account index
-   * @returns the wallet account name
-   */
-  static getDefaultAccountName(index: number = PgWallet.currentIndex) {
-    return `Wallet ${index + 1}`;
-  }
-
-  /**
    * Get the next available default account name.
    *
    * This method recurses until it founds an available wallet account name.
@@ -314,7 +304,7 @@ class _PgWallet {
     index: number = PgWallet.accounts.length
   ): string {
     try {
-      const name = PgWallet.getDefaultAccountName(index);
+      const name = this._getDefaultAccountName(index);
       PgWallet.validateAccountName(name);
       return name;
     } catch {
@@ -403,6 +393,16 @@ class _PgWallet {
     if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
 
     return Array.from(PgWallet.current.keypair.secretKey);
+  }
+
+  /**
+   * Get the default name of the wallet account.
+   *
+   * @param index account index
+   * @returns the wallet account name
+   */
+  private static _getDefaultAccountName(index: number = PgWallet.currentIndex) {
+    return `Wallet ${index + 1}`;
   }
 }
 
