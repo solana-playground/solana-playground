@@ -15,7 +15,7 @@ type Option = UnionToTuple<
 const OPTIONS = (["average", "median", "min", "max", "custom"] as Option).map(
   (o) => ({
     value: o,
-    label: o,
+    label: PgCommon.toTitleFromKebab(o),
   })
 );
 

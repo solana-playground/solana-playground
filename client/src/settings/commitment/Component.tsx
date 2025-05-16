@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 
 import Select from "../../components/Select";
-import { PgSettings, UnionToTuple } from "../../utils/pg";
+import { PgCommon, PgSettings, UnionToTuple } from "../../utils/pg";
 
 type Option = UnionToTuple<typeof PgSettings["connection"]["commitment"]>;
 const OPTIONS = (["processed", "confirmed", "finalized"] as Option).map(
   (o) => ({
     value: o,
-    label: o,
+    label: PgCommon.toTitleFromKebab(o),
   })
 );
 
