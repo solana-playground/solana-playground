@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import Button from "../Button";
 import Link from "../Link";
+import Text from "../Text";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
 import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils/pg";
@@ -77,15 +78,11 @@ const Transactions = () => {
             <NoTransaction>
               {!loading &&
                 (error ? (
-                  <>
-                    <Sad />
+                  <Text kind="error" icon={<Sad />}>
                     Connection error.
-                  </>
+                  </Text>
                 ) : (
-                  <>
-                    <Sad />
-                    No transaction found.
-                  </>
+                  <Text icon={<Sad />}>No transaction found.</Text>
                 ))}
             </NoTransaction>
           )}
