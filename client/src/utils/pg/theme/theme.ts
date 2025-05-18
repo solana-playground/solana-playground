@@ -46,6 +46,16 @@ export class PgTheme {
     return this._fonts;
   }
 
+  /** Current theme */
+  static get theme() {
+    return this._themeReady;
+  }
+
+  /** Current font */
+  static get font() {
+    return this._font;
+  }
+
   /**
    * Create the initial theme and font from `localStorage`.
    *

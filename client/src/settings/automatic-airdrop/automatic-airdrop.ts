@@ -1,3 +1,4 @@
+import { PgSettings } from "../../utils/pg";
 import { createSetting } from "../create";
 
 export const automaticAirdrop = createSetting({
@@ -7,5 +8,7 @@ export const automaticAirdrop = createSetting({
       "Whether to automatically send airdrop requests based on the current endpoint",
     maxWidth: "14rem",
   },
-  isCheckBox: true,
+  getValue: () => PgSettings.wallet.automaticAirdrop,
+  setValue: (v) => (PgSettings.wallet.automaticAirdrop = v),
+  onChange: PgSettings.onDidChangeWalletAutomaticAirdrop,
 });

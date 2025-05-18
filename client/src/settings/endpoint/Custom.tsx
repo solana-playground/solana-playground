@@ -1,44 +1,12 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../components/Input";
 import Link from "../../components/Link";
 import Modal from "../../components/Modal";
-import Select from "../../components/Select";
 import Text from "../../components/Text";
 import { Info } from "../../components/Icons";
-import { NETWORKS } from "../../constants";
-import { PgCommand, PgCommon, PgSettings, PgView } from "../../utils/pg";
-
-const EndpointSetting = () => {
-  const options = useMemo(
-    () => [
-      ...NETWORKS.map((n) => ({ label: n.name, value: n.endpoint })),
-      { label: "Custom", value: "" },
-    ],
-    []
-  );
-
-  const [value, setValue] = useState<typeof options[number]>();
-
-  useEffect(() => {
-    const { dispose } = PgSettings.onDidChangeConnectionEndpoint((endpoint) => {
-      setValue(options.find((o) => o.value === endpoint) ?? options.at(-1));
-    });
-    return dispose;
-  }, [options]);
-
-  return (
-    <Select
-      options={options}
-      value={value}
-      onChange={(newValue) => {
-        if (newValue?.value) PgSettings.connection.endpoint = newValue.value;
-        else PgView.setModal(CustomEndpoint);
-      }}
-    />
-  );
-};
+import { PgCommand, PgCommon } from "../../utils/pg";
 
 const CustomEndpoint = () => {
   const [value, setValue] = useState("");
@@ -98,4 +66,4 @@ const InfoText = styled(Text)`
   margin-top: 1rem;
 `;
 
-export default EndpointSetting;
+export default CustomEndpoint;

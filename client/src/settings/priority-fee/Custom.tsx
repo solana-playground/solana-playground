@@ -1,53 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../components/Input";
 import Link from "../../components/Link";
 import Modal from "../../components/Modal";
-import Select from "../../components/Select";
 import Text from "../../components/Text";
 import { Info } from "../../components/Icons";
-import { PgCommon, PgSettings, PgView, UnionToTuple } from "../../utils/pg";
-
-type Option = UnionToTuple<
-  Exclude<typeof PgSettings["connection"]["priorityFee"], number> | "custom"
->[number][];
-const OPTIONS = (["average", "median", "min", "max", "custom"] as Option).map(
-  (o) => ({
-    value: o,
-    label: PgCommon.toTitleFromKebab(o),
-  })
-);
-
-const PriorityFee = () => {
-  const [value, setValue] = useState<typeof OPTIONS[number]>();
-
-  useEffect(() => {
-    const { dispose } = PgSettings.onDidChangeConnectionPriorityFee((fee) =>
-      setValue(
-        typeof fee === "number"
-          ? { label: `custom (${fee})` as "custom", value: "custom" }
-          : OPTIONS.find((o) => o.value === fee)
-      )
-    );
-    return dispose;
-  }, []);
-
-  return (
-    <Select
-      options={OPTIONS}
-      value={value}
-      onChange={(newValue) => {
-        const newPriorityFee = newValue?.value;
-        if (newPriorityFee === "custom") {
-          PgView.setModal(CustomPriorityFee);
-        } else {
-          PgSettings.connection.priorityFee = newPriorityFee!;
-        }
-      }}
-    />
-  );
-};
+import { PgCommon, PgSettings } from "../../utils/pg";
 
 const CustomPriorityFee = () => {
   const [value, setValue] = useState(
@@ -111,4 +70,4 @@ const InfoText = styled(Text)`
   margin-top: 1rem;
 `;
 
-export default PriorityFee;
+export default CustomPriorityFee;
