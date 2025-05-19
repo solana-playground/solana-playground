@@ -14,7 +14,7 @@ const Transactions = () => {
     useState<PgWeb3.ConfirmedSignatureInfo[]>();
   const [refreshCount, setRefreshCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   const { connection } = useConnection();
 
@@ -27,9 +27,9 @@ const Transactions = () => {
         );
 
         setSignatures(_signatures);
-        setError(false);
-      } catch {
-        setError(true);
+        setError("");
+      } catch (e: any) {
+        setError(e.message ? e.message : "Unknown error");
         setSignatures([]);
       } finally {
         setLoading(false);
@@ -79,7 +79,7 @@ const Transactions = () => {
               {!loading &&
                 (error ? (
                   <Text kind="error" icon={<Sad />}>
-                    Connection error.
+                    Connection error: {error}
                   </Text>
                 ) : (
                   <Text icon={<Sad />}>No transaction found.</Text>
