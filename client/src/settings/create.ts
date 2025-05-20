@@ -1,41 +1,4 @@
-import { CallableJSX, Disposable, Getable, PgCommon } from "../utils/pg";
-import type { TooltipProps } from "../components/Tooltip";
-
-/** UI setting parameter */
-interface SettingParam<T> {
-  /** Name of the setting */
-  name: string;
-  /** Help tooltip */
-  tooltip?: TooltipProps;
-  /**
-   * Possible values for the settings.
-   *
-   * If this is not set, the setting is assumed to be a checkbox.
-   */
-  values?: Getable<readonly Values<T>[]>;
-  /** Get current value. */
-  getValue: () => T;
-  /** Set current value. */
-  setValue: (v: T) => unknown;
-  /** Setting's `onChange` function (necessary for re-rendering on change) */
-  onChange?: (cb: (v: T) => void) => Disposable;
-  /**
-   * Custom component to set custom values for the setting.
-   *
-   * This is set automatically if `Custom.tsx` file inside the setting's
-   * directory exists.
-   */
-  CustomComponent?: CallableJSX;
-}
-
-/** Possible setting values */
-type Values<T> =
-  | T
-  | { name: string; value: T }
-  | { name: string; values: Values<T[]> };
-
-/** UI Setting */
-export type Setting<T = any> = SettingParam<T>;
+import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
 
 /**
  * Create a UI setting.
@@ -43,11 +6,33 @@ export type Setting<T = any> = SettingParam<T>;
  * @param setting UI setting
  * @returns the setting with correct types
  */
-export const createSetting = <T>(setting: SettingParam<T>) => {
+export const createSetting = <I extends string = "", V = boolean>(
+  setting: SettingParam<I, V>
+) => {
   try {
     const mod = require(`./${PgCommon.toKebabFromTitle(setting.name)}/Custom`);
     setting.CustomComponent ??= mod.default;
-  } finally {
-    return setting as Setting<T>;
+  } catch {}
+
+  if (setting.id) {
+    const fields = setting.id.split(".");
+    setting.getValue ??= () => {
+      return fields.reduce((acc, cur) => acc[cur], PgSettings as any);
+    };
+    setting.setValue ??= (v) => {
+      const parentObj = fields
+        .slice(0, -1)
+        .reduce((acc, cur) => acc[cur], PgSettings as any);
+      const lastField = fields.at(-1)!;
+      parentObj[lastField] = v;
+    };
+    setting.onChange ??= PgSettings[
+      fields.reduce(
+        (acc, cur) => acc + PgCommon.capitalize(cur),
+        "onDidChange"
+      ) as keyof typeof PgSettings
+    ] as typeof setting["onChange"];
   }
+
+  return setting as Setting<I, V>;
 };

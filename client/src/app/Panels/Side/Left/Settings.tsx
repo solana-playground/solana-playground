@@ -5,8 +5,14 @@ import Checkbox from "../../../../components/Checkbox";
 import Select from "../../../../components/Select";
 import Tooltip from "../../../../components/Tooltip";
 import { useRenderOnChange } from "../../../../hooks";
-import { SETTINGS, Setting as SettingType } from "../../../../settings";
-import { PgCommon, PgTheme, PgView, RequiredKey } from "../../../../utils/pg";
+import { SETTINGS } from "../../../../settings";
+import {
+  PgCommon,
+  PgTheme,
+  PgView,
+  RequiredKey,
+  Setting as SettingType,
+} from "../../../../utils/pg";
 
 const Settings = () => (
   <Wrapper>

@@ -5,6 +5,7 @@ import { FRAMEWORKS } from "../frameworks";
 import { LANGUAGES } from "../languages";
 import { ROUTES } from "../routes";
 import { MAIN_SECONDARY, SIDEBAR } from "../views";
+import { SETTINGS } from "../settings";
 import {
   Arrayable,
   ClientPackageName,
@@ -77,6 +78,12 @@ global {
 global {
   /** All internal commands type */
   type InternalCommands = typeof COMMANDS;
+}
+
+// Settings
+global {
+  /** Internal settings array */
+  type InternalSettings = typeof SETTINGS;
 }
 
 declare module "styled-components" {

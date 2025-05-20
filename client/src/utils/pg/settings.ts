@@ -3,23 +3,12 @@
 
 import { Endpoint } from "../../constants";
 import { declareUpdatable, migratable, updatable } from "./decorators";
-import type { OrString } from "./types";
+import type { CallableJSX, Disposable, Getable } from "./types";
+// TODO: Remove
+import type { TooltipProps } from "../../components/Tooltip";
 
-interface Settings {
-  /** Connection settings */
-  connection: {
-    /** Connection RPC URL */
-    endpoint: OrString<Endpoint>;
-    /** Connection commitment */
-    commitment: "processed" | "confirmed" | "finalized";
-    /** Whether to enable preflight checks */
-    preflightChecks: boolean;
-    /** Priority fee calculcation method, or `number` for custom */
-    priorityFee: "average" | "median" | "min" | "max" | number;
-  };
-  /** Build settings */
-  // TODO: Re-evalute whether build settings should be stored in `PgProgramInfo`
-  // to allow the ability to set program specific settings instead of global?
+type Settings = ConvertAll<InternalSettings> & {
+  // TODO: Store this in `PgProgramInfo` and remove
   build: {
     flags: {
       /** Whether to enable Anchor `seeds` feature */
@@ -29,30 +18,64 @@ interface Settings {
       /** Whether to enable Anchor safety checks */
       safetyChecks: boolean;
     };
-    /** Whether to improve build error logs */
-    improveErrors: boolean;
   };
-  /** Test UI settings */
-  testUi: {
-    /** Whether to show transaction details in terminal */
-    showTxDetailsInTerminal: boolean;
-  };
-  /** Notification settings */
-  notification: {
-    /** Whether to show transaction toast notification */
-    showTx: boolean;
-  };
-  /** Other settings */
-  other: {
-    /** Block explorer to use */
-    blockExplorer: string;
-  };
-  /** Wallet settings */
-  wallet: {
-    /** Whether to airdrop automatically */
-    automaticAirdrop: boolean;
-  };
-}
+};
+
+type ConvertAll<A, R = unknown> = A extends readonly [infer Head, ...infer Tail]
+  ? Head extends Setting<infer I, infer V>
+    ? R & ConvertAll<Tail, Convert<I, V>>
+    : never
+  : R;
+
+type Convert<I extends string, V> = I extends ""
+  ? unknown
+  : I extends `${infer Head}.${infer Rest}`
+  ? { [K in Head]: Convert<Rest, V> }
+  : { [K in I]: V extends undefined ? boolean : V };
+
+/** Setting creation parameter */
+export type SettingParam<I extends string, V> = {
+  /** Setting identifier (used in `PgSettings`) */
+  id?: I;
+  /** Name of the setting */
+  name: string;
+  /** Help tooltip */
+  tooltip?: TooltipProps;
+  /**
+   * Possible values for the settings.
+   *
+   * If this is not set, the setting is assumed to be a checkbox.
+   */
+  values?: Getable<readonly Values<V>[]>;
+  /**
+   * Custom component to set custom values for the setting.
+   *
+   * This is set automatically if `Custom.tsx` file inside the setting's
+   * directory exists.
+   */
+  CustomComponent?: CallableJSX;
+} & Partial<SettingsCompat<V>>;
+
+/** Compatibility with non-standard settings (theme and font) */
+// TODO: Move `PgTheme` storage to `PgSettings` and remove this
+type SettingsCompat<V> = {
+  /** Get current value. */
+  getValue: () => V;
+  /** Set current value. */
+  setValue: (v: V) => unknown;
+  /** Setting's `onChange` function (necessary for re-rendering on change) */
+  onChange?: (cb: (v: V) => void) => Disposable;
+};
+
+/** Possible setting values */
+type Values<V> =
+  | V
+  | { name: string; value: V }
+  | { name: string; values: Values<V[]> };
+
+/** UI Setting */
+export type Setting<I extends string = string, V = any> = SettingParam<I, V> &
+  SettingsCompat<V>;
 
 const defaultState: Settings = {
   connection: {
