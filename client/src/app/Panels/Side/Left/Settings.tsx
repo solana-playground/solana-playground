@@ -41,14 +41,16 @@ const Wrapper = styled.div`
 
 const Setting: FC<SettingType> = ({
   name,
-  tooltip,
+  description,
   onChange,
   ...setterProps
 }) => (
   <SettingWrapper isCheckBox={!setterProps.values}>
     <Left>
       <SettingName>{name}</SettingName>
-      {tooltip && <Tooltip help bgSecondary {...tooltip} />}
+      {description && (
+        <Tooltip help bgSecondary element={description} maxWidth="20rem" />
+      )}
     </Left>
 
     <Right>
