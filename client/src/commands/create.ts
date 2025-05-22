@@ -22,24 +22,22 @@ export const createCmd = <
 };
 
 /**
- * Create subcommands.
- *
- * NOTE: This is only a type helper function.
+ * Create a subcommand.
  *
  * @param cmd command to create
  * @returns the command with its inferred type
  */
-export const createSubcmds = <
+export const createSubcmd = <
   N extends string,
   A extends Arg[],
   O extends Option[],
   S,
   R
 >(
-  ...subcmds: CommandParam<N, A, O, S, R>[]
+  subcmd: CommandParam<N, A, O, S, R>
 ) => {
-  for (const subcmd of subcmds) addHelpOption(subcmd);
-  return subcmds as Command<N, A, O, S, R>[];
+  addHelpOption(subcmd);
+  return subcmd;
 };
 
 /**
