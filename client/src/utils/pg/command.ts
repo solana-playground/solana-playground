@@ -88,7 +88,7 @@ export type Arg<N extends string = string, V extends string = string> = {
   /** Whether to take multiple values */
   multiple?: boolean;
   /** Accepted values */
-  values?: V[] | ((token: string) => V[]);
+  values?: V[] | ((token: string, tokens: string[]) => V[]);
 };
 
 /** Command option */
@@ -449,7 +449,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
             if (inputArgs.length && arg.values) {
               const values =
                 typeof arg.values === "function"
-                  ? arg.values(args[i])
+                  ? arg.values(args[i], tokens)
                   : arg.values;
               const invalidValue = inputArgs.find(
                 (inputArg) => !values.includes(inputArg)
