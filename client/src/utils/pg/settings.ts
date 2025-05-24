@@ -3,9 +3,9 @@
 
 import { Endpoint } from "../../constants";
 import { declareUpdatable, migratable, updatable } from "./decorators";
-import type { CallableJSX, Disposable, Getable } from "./types";
+import type { CallableJSX, Disposable, Getable, UnionToTuple } from "./types";
 
-type Settings = ConvertAll<InternalSettings> & {
+type Settings = ConvertAll<UnionToTuple<InternalSettings[number]>> & {
   // TODO: Store this in `PgProgramInfo` and remove
   build: {
     flags: {
