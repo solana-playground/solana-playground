@@ -609,6 +609,13 @@ export class PgCommon {
   }
 
   /**
+   * @returns whether the given string is parsable to a boolean
+   */
+  static isBoolean(str: string) {
+    return str === "true" || str === "false";
+  }
+
+  /**
    * @returns whether the given string is parsable to a public key
    */
   static isPk(str: string) {

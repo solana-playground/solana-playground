@@ -4,6 +4,7 @@ export * from "./clear";
 export * from "./connect";
 export * from "./deploy";
 export * from "./help";
+export * from "./pg";
 export * from "./prettier";
 export * from "./run-and-test";
 export * from "./rustfmt";
