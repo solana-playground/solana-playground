@@ -1,7 +1,7 @@
-import * as s from "./settings";
+import * as S from "./generated";
 
 /** All configurable settings (in order) */
-export const SETTINGS = Object.values(s).sort((a, b) => {
+export const SETTINGS = Object.values(S).sort((a, b) => {
   // Prioritize select components over checkboxes
   if (a.values && !b.values) return -1;
 

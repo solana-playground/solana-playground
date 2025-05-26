@@ -5,6 +5,9 @@ import pathModule from "path";
 
 import { CLIENT_PATH } from "./utils.mjs";
 
+/** Name of the generated file (without extension) */
+const GENERATED_FILENAME = "generated";
+
 const srcPath = pathModule.join(CLIENT_PATH, "src");
 for (const name of await fs.readdir(srcPath)) {
   const itemPath = pathModule.join(srcPath, name);
@@ -14,10 +17,10 @@ for (const name of await fs.readdir(srcPath)) {
   const items = await fs
     .readdir(itemPath)
     .then((items) => items.map(pathModule.parse));
-  const isExportable = items.some((item) => item.name === name);
+  const isExportable = items.some((item) => item.name === GENERATED_FILENAME);
   if (!isExportable) continue;
 
-  const namesToSkip = [name, "index", "__template"];
+  const namesToSkip = [GENERATED_FILENAME, name, "index", "__template"];
   const hasDir = items.some((item) => !item.ext);
   const exports = items
     .filter(
@@ -26,5 +29,8 @@ for (const name of await fs.readdir(srcPath)) {
     .map((item) => item.name)
     .reduce((acc, cur) => acc + `export * from "./${cur}";\n`, "");
 
-  await fs.writeFile(pathModule.join(itemPath, `${name}.ts`), exports);
+  await fs.writeFile(
+    pathModule.join(itemPath, `${GENERATED_FILENAME}.ts`),
+    exports
+  );
 }

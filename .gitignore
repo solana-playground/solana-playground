@@ -5,6 +5,9 @@
 # Generated package imports
 **/client/package.ts
 
+# Generated TS files
+**/generated.ts
+
 # Production
 */build
 

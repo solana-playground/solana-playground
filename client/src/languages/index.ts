@@ -1,3 +1,3 @@
-import * as _LANGUAGES from "./languages";
+import * as L from "./generated";
 
-export const LANGUAGES = Object.values(_LANGUAGES);
+export const LANGUAGES = Object.values(L);

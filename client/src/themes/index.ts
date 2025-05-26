@@ -1,4 +1,5 @@
-import * as _THEMES from "./themes";
+import * as T from "./generated";
+
 export { FONTS } from "./fonts";
 
-export const THEMES = Object.values(_THEMES);
+export const THEMES = Object.values(T);

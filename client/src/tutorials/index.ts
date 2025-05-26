@@ -1,4 +1,4 @@
-import * as customTutorials from "./tutorials";
+import * as customTutorials from "./generated";
 import { markdownTutorials } from "./create";
 
 /** All visible tutorials at `/tutorials` (in order) */

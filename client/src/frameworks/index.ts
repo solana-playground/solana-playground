@@ -1,3 +1,3 @@
-import * as _FRAMEWORKS from "./frameworks";
+import * as F from "./generated";
 
-export const FRAMEWORKS = Object.values(_FRAMEWORKS);
+export const FRAMEWORKS = Object.values(F);

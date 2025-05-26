@@ -1,3 +1,3 @@
-import * as _BLOCK_EXPLORERS from "./block-explorers";
+import * as B from "./generated";
 
-export const BLOCK_EXPLORERS = Object.values(_BLOCK_EXPLORERS);
+export const BLOCK_EXPLORERS = Object.values(B);
