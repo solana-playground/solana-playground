@@ -5,9 +5,9 @@ import Checkbox from "../../../../components/Checkbox";
 import Select from "../../../../components/Select";
 import Tooltip from "../../../../components/Tooltip";
 import { useRenderOnChange } from "../../../../hooks";
-import { SETTINGS } from "../../../../settings";
 import {
   PgCommon,
+  PgSettings,
   PgTheme,
   PgView,
   RequiredKey,
@@ -16,7 +16,7 @@ import {
 
 const Settings = () => (
   <Wrapper>
-    {SETTINGS.map((setting) => (
+    {PgSettings.all.map((setting) => (
       <Setting key={setting.name} {...(setting as SettingType)} />
     ))}
   </Wrapper>

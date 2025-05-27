@@ -8,6 +8,7 @@ import { LANGUAGES } from "../../languages";
 import { ROUTES } from "../../routes";
 import { TUTORIALS } from "../../tutorials";
 import { SIDEBAR } from "../../views";
+import { SETTINGS } from "../../settings";
 import {
   Disposable,
   PgBlockExplorer,
@@ -20,6 +21,7 @@ import {
   PgLanguage,
   PgProgramInfo,
   PgRouter,
+  PgSettings,
   PgTutorial,
   PgView,
   PgWallet,
@@ -34,6 +36,7 @@ PgLanguage.all = LANGUAGES;
 PgRouter.all = ROUTES;
 PgTutorial.all = TUTORIALS;
 PgView.sidebar = SIDEBAR;
+PgSettings.all = SETTINGS;
 
 const Global = () => {
   useDisposable(PgGlobal.init);

@@ -1,5 +1,3 @@
-// TODO: `PgSettings.all`
-import { SETTINGS } from "../../settings";
 import { PgCommon, PgSettings, PgTerminal } from "../../utils/pg";
 import { createArgs, createCmd, createSubcmd } from "../create";
 
@@ -14,7 +12,8 @@ export const pg = createCmd({
         {
           name: "id",
           description: "Setting ID",
-          values: SETTINGS.map((s) => s.id).filter(PgCommon.isNonNullish),
+          values: () =>
+            PgSettings.all.map((s) => s.id).filter(PgCommon.isNonNullish),
         },
       ]),
       handle: (input) => {
@@ -31,7 +30,8 @@ export const pg = createCmd({
         {
           name: "id",
           description: "Setting ID",
-          values: SETTINGS.map((s) => s.id).filter(PgCommon.isNonNullish),
+          values: () =>
+            PgSettings.all.map((s) => s.id).filter(PgCommon.isNonNullish),
         },
         {
           name: "value",
@@ -40,7 +40,7 @@ export const pg = createCmd({
             const id = token
               ? tokens[tokens.findIndex((t) => t === token) - 1]
               : tokens[tokens.length - 1];
-            const setting = SETTINGS.find((s) => s.id === id);
+            const setting = PgSettings.all.find((s) => s.id === id);
             if (!setting) throw new Error(`Setting not found: ${id}`);
 
             // TODO: Fix complex values e.g. `connection.endpoint`

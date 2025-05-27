@@ -174,7 +174,10 @@ const migrate = () => {
 
 @migratable(migrate)
 @updatable({ defaultState, storage, recursive })
-class _PgSettings {}
+class _PgSettings {
+  /** All settings */
+  static all: Setting[];
+}
 
 export const PgSettings = declareUpdatable(_PgSettings, {
   defaultState,
