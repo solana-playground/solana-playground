@@ -1,6 +1,13 @@
 import { PgCommon, PgSettings, PgTerminal } from "../../utils/pg";
 import { createArgs, createCmd, createSubcmd } from "../create";
 
+/** Common setting ID argument */
+const settingIdArg = {
+  name: "id",
+  description: "Setting ID",
+  values: () => PgSettings.all.map((s) => s.id).filter(PgCommon.isNonNullish),
+} as const;
+
 export const pg = createCmd({
   name: "pg",
   description: "Playground utilities",
@@ -8,14 +15,7 @@ export const pg = createCmd({
     createSubcmd({
       name: "get",
       description: "Get setting value",
-      args: createArgs([
-        {
-          name: "id",
-          description: "Setting ID",
-          values: () =>
-            PgSettings.all.map((s) => s.id).filter(PgCommon.isNonNullish),
-        },
-      ]),
+      args: createArgs([settingIdArg]),
       handle: (input) => {
         const fields = input.args.id.split(".");
         const value = fields.reduce((acc, cur) => acc[cur], PgSettings as any);
@@ -27,12 +27,7 @@ export const pg = createCmd({
       name: "set",
       description: "Set setting value",
       args: createArgs([
-        {
-          name: "id",
-          description: "Setting ID",
-          values: () =>
-            PgSettings.all.map((s) => s.id).filter(PgCommon.isNonNullish),
-        },
+        settingIdArg,
         {
           name: "value",
           description: "Value to set",
