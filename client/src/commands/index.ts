@@ -1,1 +1,1 @@
-export * as COMMANDS from "./generated";
+export * from "./commands";

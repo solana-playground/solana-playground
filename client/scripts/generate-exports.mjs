@@ -17,7 +17,7 @@ for (const name of await fs.readdir(srcPath)) {
   const items = await fs
     .readdir(itemPath)
     .then((items) => items.map(pathModule.parse));
-  const isExportable = items.some((item) => item.name === GENERATED_FILENAME);
+  const isExportable = items.some((item) => item.name === name);
   if (!isExportable) continue;
 
   const namesToSkip = [GENERATED_FILENAME, name, "index", "__template"];
