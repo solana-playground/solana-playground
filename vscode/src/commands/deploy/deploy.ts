@@ -70,7 +70,16 @@ export const processDeploy = async (
       const airdropAmount = PgConnection.getAirdropAmount();
       if (airdropAmount !== null) {
         throw new Error(
-          errMsg + `\nYou can use airdrop command to airdrop some SOL.`
+          [
+            errMsg + `\nYou can use airdrop command to airdrop some SOL. \n `,
+            `Or you can get devnet sol from the web faucet `,
+            `https://faucet.solana.com/?walletAddress`,
+            `=${walletKp.publicKey.toString()}&amount=5`,
+            `\n Or you can follow this guide to find `,
+            `other ways on how to get dev net sol: `,
+            `https://solana.com/de/developers/guides/`,
+            `getstarted/solana-token-airdrop-and-faucets`,
+          ].join("")
         );
       } else throw new Error(errMsg);
     }
@@ -88,7 +97,16 @@ export const processDeploy = async (
       const airdropAmount = PgConnection.getAirdropAmount();
       if (airdropAmount !== null) {
         throw new Error(
-          errMsg + `\nYou can use airdrop command to airdrop some SOL.`
+          [
+            errMsg + `\nYou can use airdrop command to airdrop some SOL. \n `,
+            `Or you can get devnet sol from the web faucet `,
+            `https://faucet.solana.com/?walletAddress`,
+            `=${walletKp.publicKey.toString()}&amount=5`,
+            `\n Or you can follow this guide to find `,
+            `other ways on how to get dev net sol: `,
+            `https://solana.com/de/developers/guides/`,
+            `getstarted/solana-token-airdrop-and-faucets`,
+          ].join("")
         );
       } else throw new Error(errMsg);
     }
