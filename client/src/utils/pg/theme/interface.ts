@@ -7,10 +7,7 @@ import { TextKind } from "../../../components/Text";
 import { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
-export interface Theme {
-  /** Whether the theme is a dark theme */
-  isDark: boolean;
-
+export interface ThemeParam {
   /**
    * Colors of the theme.
    *
@@ -82,11 +79,6 @@ export interface Theme {
 
   /** Override the component defaults */
   components?: {
-    /** Bottom bar component */
-    bottom?: ExtendibleComponent<
-      "connect" | "endpoint" | "address" | "balance"
-    >;
-
     /** Button component */
     button?: OverridableComponent<ButtonKind>;
 
@@ -161,59 +153,6 @@ export interface Theme {
     /** Input component */
     input?: DefaultComponent;
 
-    /** MainView component */
-    main?: ExtendibleComponent<{
-      views?: {
-        /** Home component */
-        home?: ExtendibleComponent<{
-          /** Playground title */
-          title?: DefaultComponent;
-          /** Resources section */
-          resources?: ExtendibleComponent<{
-            /** Resources title */
-            title?: DefaultComponent;
-            /** Resource card */
-            card?: ExtendibleComponent<
-              "image" | "title" | "description" | "button"
-            >;
-          }>;
-          /** Tutorials section */
-          tutorials?: ExtendibleComponent<"title" | "card">;
-        }>;
-
-        /** Tutorial component */
-        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
-
-        /** Tutorials page component */
-        tutorials?: ExtendibleComponent<{
-          /** Tutorials main section */
-          main?: ExtendibleComponent<{
-            /** Filters section */
-            filters?: DefaultComponent;
-            /** Tutorials section */
-            tutorials?: ExtendibleComponent<{
-              /** Tutorial card component */
-              card?: ExtendibleComponent<{
-                /** Wrapper gradient */
-                gradient?: DefaultComponent;
-              }>;
-              /** Featured tutorial component */
-              featured?: DefaultComponent;
-            }>;
-          }>;
-        }>;
-
-        /** Programs page component */
-        programs?: ExtendibleComponent<{
-          /** Programs main section */
-          main?: ExtendibleComponent<{
-            /** Program card component */
-            card?: DefaultComponent;
-          }>;
-        }>;
-      };
-    }>;
-
     /** Markdown component */
     markdown?: DefaultComponent & { subtleBg?: Bg };
 
@@ -237,21 +176,6 @@ export interface Theme {
       | "dropdownIndicator"
       | "indicatorSeparator"
     >;
-
-    /** Sidebar component */
-    sidebar?: ExtendibleComponent<{
-      /** Left side of the side panel(icon panel) */
-      left?: ExtendibleComponent<{
-        /** Left sidebar icon button */
-        button?: ExtendibleComponent<"selected">;
-      }>;
-
-      /** Right side of the side panel */
-      right?: ExtendibleComponent<
-        "title",
-        { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
-      >;
-    }>;
 
     /** Skeleton component */
     skeleton?: DefaultComponent & {
@@ -341,105 +265,162 @@ export interface Theme {
     }>;
   };
 
+  /** Override view defaults */
+  views?: {
+    /** Bottom bar view */
+    bottom?: ExtendibleComponent<
+      "connect" | "endpoint" | "address" | "balance"
+    >;
+
+    /** Main view */
+    main?: ExtendibleComponent<{
+      /** Main primary view */
+      primary?: ExtendibleComponent<{
+        /** Home view */
+        home?: ExtendibleComponent<{
+          /** Playground title */
+          title?: DefaultComponent;
+          /** Resources section */
+          resources?: ExtendibleComponent<{
+            /** Resources title */
+            title?: DefaultComponent;
+            /** Resource card */
+            card?: ExtendibleComponent<
+              "image" | "title" | "description" | "button"
+            >;
+          }>;
+          /** Tutorials section */
+          tutorials?: ExtendibleComponent<"title" | "card">;
+        }>;
+
+        /** Tutorial view */
+        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
+        /** Tutorials page view */
+        tutorials?: ExtendibleComponent<{
+          /** Tutorials top section */
+          top?: DefaultComponent;
+          /** Tutorials main section */
+          main?: ExtendibleComponent<{
+            /** Side section (left filters) */
+            side?: DefaultComponent;
+            /** Content section (right tutorials) */
+            content?: ExtendibleComponent<{
+              /** Tutorial card component */
+              card?: ExtendibleComponent<"gradient">;
+              /** Featured tutorial component */
+              featured?: DefaultComponent;
+            }>;
+          }>;
+        }>;
+
+        /** Programs page view */
+        programs?: ExtendibleComponent<{
+          /** Programs top section */
+          top?: DefaultComponent;
+          /** Programs main section */
+          main?: ExtendibleComponent<{
+            /** Program main content component */
+            content?: ExtendibleComponent<"card">;
+          }>;
+        }>;
+      }>;
+
+      /** Main secondary view */
+      secondary?: ExtendibleComponent<{
+        /** Main secondary tabs */
+        tabs?: ExtendibleComponent<{
+          /** Main secondary tab */
+          tab?: ExtendibleComponent<"current">;
+        }>;
+      }>;
+    }>;
+
+    /** Sidebar view */
+    sidebar?: ExtendibleComponent<{
+      /** Left side of the side panel (icon panel) */
+      left?: ExtendibleComponent<{
+        /** Left sidebar icon button */
+        button?: ExtendibleComponent<"selected">;
+      }>;
+
+      /** Right side of the side panel */
+      right?: ExtendibleComponent<
+        "title",
+        { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
+      >;
+    }>;
+  };
+
   /** Code highlight styles */
-  highlight: Highlight;
+  highlight: HighlightParam;
+}
+
+/** Syntax highlighting styles parameter */
+interface HighlightParam {
+  /** let x: *bool* = true; */
+  typeName: HighlightToken;
+  /** let *x*: bool = true; */
+  variableName: HighlightToken;
+  /** const *x*: bool = true; */
+  constant: HighlightToken;
+  /** *String*::new(); */
+  namespace: HighlightToken;
+  /** *println!*() */
+  macroName: HighlightToken;
+  /** *myFn*() */
+  functionCall: HighlightToken;
+  /** a.*to*lowercase*() */
+  functionDef: HighlightToken;
+  /** myFn(*arg*: bool) */
+  functionArg: HighlightToken;
+  /** const macro*rules struct union enum type fn impl trait let static */
+  definitionKeyword: HighlightToken;
+  /** mod use crate */
+  moduleKeyword: HighlightToken;
+  /** pub unsafe async mut extern default move */
+  modifier: HighlightToken;
+  /** for if else loop while match continue break return await */
+  controlKeyword: HighlightToken;
+  /** as in ref */
+  operatorKeyword: HighlightToken;
+  /** where crate super dyn */
+  keyword: HighlightToken;
+  /** self */
+  self: HighlightToken;
+  /** true */
+  bool: HighlightToken;
+  /** 5 */
+  integer: HighlightToken;
+  /** 5.5 */
+  literal: HighlightToken;
+  /** "" + b"" + r#""# */
+  string: HighlightToken;
+  /** ' */
+  character: HighlightToken;
+  /** & */
+  operator: HighlightToken;
+  /** * */
+  derefOperator: HighlightToken;
+  /** Lifetime &*'a* */
+  specialVariable: HighlightToken;
+  /** Comment with `//` */
+  lineComment: HighlightToken;
+  /** Comment with `///` */
+  blockComment: HighlightToken;
+  /** # */
+  meta: HighlightToken;
+  /** /expr/ */
+  regexp: HighlightToken;
 }
 
 /** Syntax highlighting styles */
-export interface Highlight {
-  // const x: _bool_ = true;
-  typeName: HighlightToken;
-
-  // let _x_: bool = true;
-  variableName: HighlightToken;
-
-  // _String_::new();
-  namespace: HighlightToken;
-
-  // _println!_()
-  macroName: HighlightToken;
-
-  // _myFn_()
-  functionCall: HighlightToken;
-
-  // a._to_lowercase_()
-  functionDef: HighlightToken;
-
-  // myFn(_arg_: bool)
-  functionArg: HighlightToken;
-
-  // const macro_rules struct union enum type fn impl trait let static
-  definitionKeyword: HighlightToken;
-
-  // mod use crate
-  moduleKeyword: HighlightToken;
-
-  // pub unsafe async mut extern default move
-  modifier: HighlightToken;
-
-  // for if else loop while match continue break return await
-  controlKeyword: HighlightToken;
-
-  // as in ref
-  operatorKeyword: HighlightToken;
-
-  // where crate super dyn
-  keyword: HighlightToken;
-
-  // self
-  self: HighlightToken;
-
-  // true
-  bool: HighlightToken;
-
-  // 5
-  integer: HighlightToken;
-
-  // 5.5
-  literal: HighlightToken;
-
-  // "" + b"" + r#""#
-  string: HighlightToken;
-
-  // '
-  character: HighlightToken;
-
-  // &
-  operator: HighlightToken;
-
-  // *
-  derefOperator: HighlightToken;
-
-  // Lifetime &_'a_
-  specialVariable: HighlightToken;
-
-  // Comment with //
-  lineComment: HighlightToken;
-
-  // Comment with /* */
-  blockComment: HighlightToken;
-
-  // #
-  meta: HighlightToken;
-
-  invalid: HighlightToken;
-
-  // const _x_: bool = true;
-  constant: HighlightToken;
-
-  regexp: HighlightToken;
-
-  tagName: HighlightToken;
-
-  attributeName: HighlightToken;
-
-  attributeValue: HighlightToken;
-
-  annotion: HighlightToken;
-}
+export type Highlight = {
+  [K in keyof HighlightParam]: Exclude<HighlightToken, string>;
+};
 
 /** Syntax highlighting token */
-type HighlightToken = Pick<StandardProperties, "color" | "fontStyle">;
+type HighlightToken = string | Pick<StandardProperties, "color" | "fontStyle">;
 
 /** Playground font */
 export interface Font {
@@ -452,28 +433,30 @@ export interface Font {
 }
 
 /** Importable(lazy) theme */
-export interface ImportableTheme {
+export interface ImportableThemeParam {
   /** Name of the theme that's displayed in theme settings */
   name: string;
+  /** Whether the theme is a dark theme */
+  isDark?: boolean;
   /** Import promise for the theme to lazy load */
-  importTheme: () => Promise<{
-    default: Theme;
+  import?: () => Promise<{
+    default: ThemeParam;
   }>;
 }
+
+/** Importable(lazy) theme */
+export type ImportableTheme = Required<ImportableThemeParam>;
 
 /** Components that use `DefaultComponent` type */
 type DefaultComponents = "input" | "skeleton" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =
-  | "bottom"
   | "editor"
-  | "main"
   | "markdown"
   | "modal"
   | "progressbar"
   | "select"
-  | "sidebar"
   | "tabs"
   | "terminal"
   | "toast"
@@ -484,8 +467,8 @@ type ExtendibleComponents =
 type OverridableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
-export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
-  Theme & {
+export type ThemeInternal = Partial<Omit<ImportableTheme, "importTheme">> &
+  ThemeParam & {
     /** Default font */
     font?: {
       /** Code font */
@@ -499,9 +482,10 @@ export type ThemeInternal = Partial<Pick<ImportableTheme, "name">> &
  * Ready to be used theme. Some of the optional properties will be overridden
  * with default values.
  */
-export type ThemeReady<
+export type Theme<
   T extends ThemeInternal = ThemeInternal,
-  C extends NonNullable<T["components"]> = NonNullable<T["components"]>
+  C extends NonNullable<T["components"]> = NonNullable<T["components"]>,
+  V extends NonNullable<T["views"]> = NonNullable<T["views"]>
 > = NestedRequired<T> & {
   // Default components
   components: Pick<C, DefaultComponents>;
@@ -515,6 +499,12 @@ export type ThemeReady<
     OverridableComponents,
     "default"
   >;
+} & {
+  // All views
+  views: AllRequired<V>;
+} & {
+  // Code syntax highlighting
+  highlight: Highlight;
 };
 
 /** Properties that are allowed to be specified from theme objects */
@@ -596,7 +586,7 @@ type StateColor = {
 /** Theme color names */
 export type ThemeColor =
   | keyof Pick<
-      ThemeReady["colors"]["default"],
+      Theme["colors"]["default"],
       "primary" | "secondary" | "textPrimary" | "textSecondary"
     >
-  | keyof Omit<ThemeReady["colors"]["state"], "hover" | "disabled">;
+  | keyof Omit<Theme["colors"]["state"], "hover" | "disabled">;

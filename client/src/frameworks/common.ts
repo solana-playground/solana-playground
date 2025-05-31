@@ -2,7 +2,7 @@ import {
   ClientPackageName,
   MergeUnion,
   PgCommon,
-  PgExplorer,
+  PgLanguage,
   PgView,
   TupleFiles,
   ValueOf,
@@ -87,7 +87,7 @@ export const getJSDependencies = async (files: TupleFiles) => {
 
   const dependencies: Dependencies = {};
   const jsContents = files
-    .filter(([path]) => PgExplorer.isFileJsLike(path))
+    .filter(([path]) => PgLanguage.getIsPathJsLike(path))
     .map(([_, content]) => content);
 
   for (const content of jsContents) {

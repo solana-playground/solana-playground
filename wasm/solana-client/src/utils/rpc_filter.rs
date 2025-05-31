@@ -1,5 +1,4 @@
-use std::borrow::Cow;
-
+use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
 use solana_extra_wasm::program::spl_token_2022::{
     generic_token_account::GenericTokenAccount, state::Account,
 };
@@ -7,6 +6,7 @@ use solana_sdk::{
     account::{AccountSharedData, ReadableAccount},
     pubkey::Pubkey,
 };
+use std::borrow::Cow;
 use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -28,6 +28,7 @@ pub enum MemcmpEncoding {
     Binary,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Memcmp {
     /// Data offset to begin match
@@ -167,8 +168,10 @@ pub enum RpcFilterError {
     Base64DecodeError(#[from] base64::DecodeError),
 }
 
-#[derive(Serialize, Deserialize)]
-pub enum TokenAccountsFilter {
-    Mint(Pubkey),
-    ProgramId(Pubkey),
+#[serde_as]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RpcTokenAccountsFilter {
+    Mint(#[serde_as(as = "DisplayFromStr")] Pubkey),
+    ProgramId(#[serde_as(as = "DisplayFromStr")] Pubkey),
 }

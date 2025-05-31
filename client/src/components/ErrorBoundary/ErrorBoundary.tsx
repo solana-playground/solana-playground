@@ -1,12 +1,16 @@
 import { Component, ErrorInfo, ReactNode } from "react";
+import styled, { css } from "styled-components";
 
+import Button from "../Button";
+import Tooltip from "../Tooltip";
 import Fallback from "./Fallback";
+import { Refresh } from "../Icons";
 
 interface Props {
   /** Node to render as children */
   children?: ReactNode;
   /** Fallback node when there is an error */
-  fallback?: ReactNode;
+  Fallback?: (props: { error: Error }) => JSX.Element;
 }
 
 interface State {
@@ -47,11 +51,53 @@ class ErrorBoundary extends Component<Props, State> {
   /** Render `fallback` if there is an error, `children` otherwise. */
   render() {
     if (this.state.error) {
-      return this.props.fallback ?? <Fallback error={this.state.error} />;
+      const FbComponent = this.props.Fallback ?? Fallback;
+      const FbElement = <FbComponent error={this.state.error} />;
+
+      // Reset the state (without the error) in order to re-render
+      const refresh = () => this.setState((s) => ({ ...s, error: null }));
+
+      if (this.props.Fallback) {
+        return (
+          <Wrapper iconOnly>
+            {FbElement}
+
+            <Tooltip element="Refresh">
+              <Button kind="icon" onClick={refresh}>
+                <Refresh color="error" />
+              </Button>
+            </Tooltip>
+          </Wrapper>
+        );
+      }
+
+      return (
+        <Wrapper>
+          {FbElement}
+
+          <Button
+            kind="secondary-transparent"
+            leftIcon={<Refresh />}
+            onClick={refresh}
+          >
+            Refresh
+          </Button>
+        </Wrapper>
+      );
     }
 
     return this.props.children;
   }
 }
+
+const Wrapper = styled.div<{ iconOnly?: boolean }>`
+  ${({ iconOnly }) => css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: ${iconOnly ? "row-reverse" : "column"};
+    gap: ${iconOnly ? "0.25rem" : "1rem"};
+  `}
+`;
 
 export default ErrorBoundary;

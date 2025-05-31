@@ -4,10 +4,9 @@ import {
   findCandyMachineV2CreatorPda,
 } from "@metaplex-foundation/js";
 import { ConfigLine } from "@metaplex-foundation/mpl-candy-machine-core";
-import { PublicKey } from "@solana/web3.js";
 
 import { PgSugar } from "../processor";
-import { PgCommon, PgExplorer } from "../../../utils/pg";
+import { PgCommon, PgExplorer, PgWeb3 } from "../../../utils/pg";
 
 export class CandyCache {
   program: CacheProgram;
@@ -27,7 +26,7 @@ export class CandyCache {
   }
 
   async syncFile(onlyRefreshIfAlreadyOpen: boolean = true) {
-    await PgExplorer.newItem(
+    await PgExplorer.createItem(
       PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
       PgCommon.prettyJSON(this),
       {
@@ -104,7 +103,7 @@ class CacheProgram {
     }
   }
 
-  setCandyMachine(candyMachinePk: PublicKey) {
+  setCandyMachine(candyMachinePk: PgWeb3.PublicKey) {
     this.candyMachine = candyMachinePk.toBase58();
     this.candyMachineCreator =
       findCandyMachineV2CreatorPda(candyMachinePk).toBase58();
@@ -113,7 +112,7 @@ class CacheProgram {
 
 type CacheItems = { [key: string]: CacheItem };
 
-// NOTE: These snake case names are standart metaplex names
+// NOTE: These snake case names are standard metaplex names
 export class CacheItem {
   name: string;
   image_hash: string;

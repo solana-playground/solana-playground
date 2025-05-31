@@ -3,6 +3,7 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 module.exports = {
   webpack: {
@@ -82,7 +83,7 @@ module.exports = {
           include: /src/,
           // Add errors to webpack instead of warnings
           failOnError: true,
-          // Allow import cycles that include an asyncronous import,
+          // Allow import cycles that include an asynchronous import,
           // e.g. via import(/* webpackMode: "weak" */ './file.js')
           allowAsyncCycles: false,
           // Set the current working directory for displaying module paths
@@ -123,15 +124,85 @@ module.exports = {
             "utf8"
           ),
 
-          /** Map of kebab-case tutorial names to thumbnail file names */
-          TUTORIAL_THUMBNAIL_MAP: defineFromPublicDir(
+          /** Array of all markdown tutorial data */
+          MARKDOWN_TUTORIALS: defineFromPublicDir(
+            "tutorials",
+            (dirItems, tutorialsPath) => {
+              return dirItems
+                .filter((tutorialName) => !tutorialName.startsWith("_"))
+                .map((tutorialName) => {
+                  const tutorialDir = path.join(tutorialsPath, tutorialName);
+                  const tutorialDirItems = fs.readdirSync(tutorialDir);
+                  const tutorialDataFileName = tutorialDirItems.find(
+                    (name) => name === "data.json"
+                  );
+                  if (!tutorialDataFileName) return null;
+
+                  const data = JSON.parse(
+                    fs.readFileSync(
+                      path.join(tutorialDir, tutorialDataFileName)
+                    )
+                  );
+                  data.pageCount = fs.readdirSync(
+                    path.join(tutorialDir, "pages")
+                  ).length;
+                  data.unixTimestamp = execSync(
+                    "git log --follow --format=%ad --date=unix --diff-filter=A .",
+                    { cwd: tutorialDir }
+                  )
+                    .toString()
+                    .split("\n")
+                    .filter(Boolean)
+                    .pop();
+
+                  const thumbnailFileName = tutorialDirItems.find((name) =>
+                    name.startsWith("thumbnail")
+                  );
+                  if (thumbnailFileName) data.thumbnail ??= thumbnailFileName;
+
+                  return data;
+                })
+                .filter(Boolean);
+            }
+          ),
+
+          /** Map of kebab-case tutorial names to necessary custom tutorial data */
+          CUSTOM_TUTORIALS: defineFromPublicDir(
             "tutorials",
             (dirItems, tutorialsPath) => {
               return dirItems.reduce((acc, tutorialName) => {
-                const thumbnailFileName = fs
-                  .readdirSync(path.join(tutorialsPath, tutorialName))
-                  .find((name) => name.startsWith("thumbnail"));
-                if (thumbnailFileName) acc[tutorialName] = thumbnailFileName;
+                const tutorialDir = path.join(tutorialsPath, tutorialName);
+                const tutorialDirItems = fs.readdirSync(tutorialDir);
+                const tutorialDataFileName = tutorialDirItems.find(
+                  (name) => name === "data.json"
+                );
+                if (tutorialDataFileName) return acc;
+
+                acc[tutorialName] ??= {};
+
+                // Thumbnail
+                const thumbnailFileName = tutorialDirItems.find((name) =>
+                  name.startsWith("thumbnail")
+                );
+                if (thumbnailFileName)
+                  acc[tutorialName].thumbnail = thumbnailFileName;
+
+                // Page count
+                const pagesDirs = [
+                  path.join(tutorialDir, "pages"),
+                  path.join("src", "tutorials", tutorialName, "pages"),
+                ];
+                for (const pagesDir of pagesDirs) {
+                  if (fs.existsSync(pagesDir)) {
+                    acc[tutorialName].pageCount =
+                      fs.readdirSync(pagesDir).length;
+                    break;
+                  }
+                }
+                if (!acc[tutorialName].pageCount) {
+                  throw new Error("Unable to get tutorial page count");
+                }
+
                 return acc;
               }, {});
             }

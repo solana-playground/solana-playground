@@ -1,9 +1,4 @@
 import type {
-  Keypair,
-  Transaction,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import type {
   Adapter,
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
@@ -12,21 +7,14 @@ import type {
 } from "@solana/wallet-adapter-base";
 import type { Wallet as SolanaWallet } from "@solana/wallet-adapter-react";
 
+import type { PgWeb3 } from "../web3";
+
 /** Wallet state */
 export interface Wallet {
   /** Wallet connection state */
   state: "setup" | "disconnected" | "pg" | "sol";
   /** All accounts */
-  accounts: Array<{
-    /**
-     * ed25519 keypair of the account.
-     *
-     * First 32 bytes are the private key, last 32 bytes are the public key.
-     */
-    kp: Array<number>;
-    /** Name of the account */
-    name: string;
-  }>;
+  accounts: WalletAccount[];
   /** Current wallet index */
   currentIndex: number;
   /** Balance of the current wallet, `null` by default */
@@ -39,6 +27,18 @@ export interface Wallet {
   standardName: string | null;
 }
 
+/** Playground wallet accounts (with keypair) */
+export interface WalletAccount {
+  /**
+   * ed25519 keypair of the account.
+   *
+   * First 32 bytes are the private key, last 32 bytes are the public key.
+   */
+  kp: number[];
+  /** Name of the account */
+  name: string;
+}
+
 /** Serialized wallet that's used in storage */
 export type SerializedWallet = Pick<
   Wallet,
@@ -46,7 +46,7 @@ export type SerializedWallet = Pick<
 >;
 
 /** Legacy or versioned transaction */
-export type AnyTransaction = Transaction | VersionedTransaction;
+export type AnyTransaction = PgWeb3.Transaction | PgWeb3.VersionedTransaction;
 
 /**
  * The current wallet which can be a Playground Wallet, a Wallet Standard Wallet
@@ -62,7 +62,7 @@ interface PgWalletProps extends DefaultWalletProps {
   /** The wallet is Playground Wallet */
   isPg: true;
   /** Keypair of the Playground Wallet account */
-  keypair: Keypair;
+  keypair: PgWeb3.Keypair;
 }
 
 /** All wallets other than Playground Wallet */

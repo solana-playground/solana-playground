@@ -1,9 +1,8 @@
-import { PgExplorerEvent } from "./events";
 import { PgFs } from "./fs";
-import { Lang } from "./lang";
 import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
-import { ClassName, Id, ItemError, WorkspaceError } from "../../../constants";
+import { PgLanguage } from "../language";
+import { PgView } from "../view";
 import type {
   Explorer,
   TupleFiles,
@@ -28,6 +27,30 @@ export class PgExplorer {
 
   /** `indexedDB` file system */
   static fs = PgFs;
+
+  /** Explorer errors */
+  static errors = {
+    ALREADY_EXISTS: "Already exists",
+    INVALID_NAME: "Invalid name",
+    TYPE_MISMATCH: "Types don't match",
+    SRC_DELETE: "Cannot delete src folder",
+    SRC_RENAME: "Cannot rename src folder",
+  };
+
+  /** Explorer event names */
+  static events = {
+    ON_DID_INIT: "explorerondidinit",
+    ON_DID_CREATE_ITEM: "explorerondidcreateitem",
+    ON_DID_RENAME_ITEM: "explorerondidrenameitem",
+    ON_DID_DELETE_ITEM: "explorerondiddeleteitem",
+    ON_DID_OPEN_FILE: "explorerondidopenfile",
+    ON_DID_CLOSE_FILE: "explorerondidclosefile",
+    ON_DID_SET_TABS: "explorerondidsettabs",
+    ON_DID_CREATE_WORKSPACE: "explorerondidcreateworkspace",
+    ON_DID_RENAME_WORKSPACE: "explorerondidrenameworkspace",
+    ON_DID_DELETE_WORKSPACE: "explorerondiddeleteworkspace",
+    ON_DID_SWITCH_WORKSPACE: "explorerondidswitchworkspace",
+  };
 
   /* -------------------------------- Getters ------------------------------- */
 
@@ -68,13 +91,13 @@ export class PgExplorer {
    */
   static get currentWorkspacePath() {
     if (!this.currentWorkspaceName) {
-      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
     }
 
-    return PgCommon.joinPaths([
+    return PgCommon.joinPaths(
       PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgCommon.appendSlash(this.currentWorkspaceName),
-    ]);
+      PgCommon.appendSlash(this.currentWorkspaceName)
+    );
   }
 
   /** Get current workspace name */
@@ -139,7 +162,7 @@ export class PgExplorer {
 
     this._isInitialized = true;
 
-    PgExplorerEvent.dispatchOnDidInit();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_INIT);
   }
 
   /**
@@ -152,7 +175,7 @@ export class PgExplorer {
    * - Name and path checks
    * - Create item in the state
    */
-  static async newItem(
+  static async createItem(
     path: string,
     content: string = "",
     opts?: {
@@ -171,14 +194,14 @@ export class PgExplorer {
       !opts?.skipNameValidation &&
       !PgExplorer.isItemNameValid(PgExplorer.getItemNameFromPath(fullPath))
     ) {
-      throw new Error(ItemError.INVALID_NAME);
+      throw new Error(PgExplorer.errors.INVALID_NAME);
     }
 
     const files = this.files;
 
     // Check whether the item already exists
     if (files[fullPath] && !opts?.override) {
-      throw new Error(ItemError.ALREADY_EXISTS);
+      throw new Error(PgExplorer.errors.ALREADY_EXISTS);
     }
 
     const itemType = PgExplorer.getItemTypeFromPath(fullPath);
@@ -212,7 +235,7 @@ export class PgExplorer {
       files[fullPath] = {};
     }
 
-    PgExplorerEvent.dispatchOnDidCreateItem();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CREATE_ITEM);
 
     await this.saveMeta();
   }
@@ -239,10 +262,10 @@ export class PgExplorer {
     if (PgCommon.isPathsEqual(newPath, oldPath)) return;
 
     if (!opts?.skipNameValidation && !PgExplorer.isItemNameValid(newPath)) {
-      throw new Error(ItemError.INVALID_NAME);
+      throw new Error(PgExplorer.errors.INVALID_NAME);
     }
     if (PgCommon.isPathsEqual(oldPath, this.getCurrentSrcPath())) {
-      throw new Error(ItemError.SRC_RENAME);
+      throw new Error(PgExplorer.errors.SRC_RENAME);
     }
 
     const itemType = PgExplorer.getItemTypeFromPath(oldPath);
@@ -251,7 +274,7 @@ export class PgExplorer {
       (itemType.file && !newItemType.file) ||
       (itemType.folder && !newItemType.folder)
     ) {
-      throw new Error(ItemError.TYPE_MISMATCH);
+      throw new Error(PgExplorer.errors.TYPE_MISMATCH);
     }
 
     if (!opts?.override) {
@@ -264,7 +287,7 @@ export class PgExplorer {
         const { files, folders } = this.getFolderContent(newPath);
         newPathExists = files.length > 0 || folders.length > 0;
       }
-      if (newPathExists) throw new Error(ItemError.ALREADY_EXISTS);
+      if (newPathExists) throw new Error(PgExplorer.errors.ALREADY_EXISTS);
     }
 
     // Rename in `indexedDB`
@@ -318,8 +341,14 @@ export class PgExplorer {
     if (opts?.override) this.setTabs(this.tabs);
 
     // Keep the same current file after rename
-    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
-    PgExplorerEvent.dispatchOnDidRenameItem(oldPath);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_OPEN_FILE,
+      this.getCurrentFile()
+    );
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_RENAME_ITEM,
+      oldPath
+    );
 
     await this.saveMeta();
   }
@@ -337,7 +366,7 @@ export class PgExplorer {
 
     // Can't delete src folder
     if (PgCommon.isPathsEqual(fullPath, this.getCurrentSrcPath())) {
-      throw new Error(ItemError.SRC_DELETE);
+      throw new Error(PgExplorer.errors.SRC_DELETE);
     }
 
     if (!this.isTemporary) {
@@ -369,7 +398,10 @@ export class PgExplorer {
       if (lastTabPath) this.openFile(lastTabPath);
     }
 
-    PgExplorerEvent.dispatchOnDidDeleteItem(fullPath);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_DELETE_ITEM,
+      fullPath
+    );
 
     await this.saveMeta();
   }
@@ -384,7 +416,7 @@ export class PgExplorer {
    * - `fromTemporary`: whether to create new workspace from a temporary project
    * - `skipNameValidation`: whether to skip workspace name validation
    */
-  static async newWorkspace(
+  static async createWorkspace(
     name: string,
     opts?: {
       files?: TupleFiles;
@@ -395,23 +427,28 @@ export class PgExplorer {
   ) {
     name = name.trim();
     if (!opts?.skipNameValidation && !this.isWorkspaceNameValid(name)) {
-      throw new Error(WorkspaceError.INVALID_NAME);
+      throw new Error(PgWorkspace.errors.INVALID_NAME);
     }
 
     if (opts?.fromTemporary && this.isTemporary) {
       // The reason we are not just getting the necessary files and re-calling this
       // function with { files } is because we would lose the tab info. Instead we
       // are creating a valid workspace state and writing it to `indexedDB`.
-      this._isTemporary = false;
 
       // Init workspace
       await this._initWorkspaces();
       // Create a new workspace in state
-      this._workspace!.new(name);
+      this._workspace!.create(name);
+
+      // It's important to set `_isTemporary` after the workspace is created,
+      // otherwise there is a chance the creation fails, and the state ends up
+      // being invalid.
+      // See https://github.com/solana-playground/solana-playground/issues/275
+      this._isTemporary = false;
 
       // Change state paths(temporary projects start with /src)
       const getFullPath = (path: string) => {
-        return PgCommon.joinPaths([PgExplorer.PATHS.ROOT_DIR_PATH, name, path]);
+        return PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, name, path);
       };
       for (const path in this.files) {
         const data = this.files[path];
@@ -428,10 +465,10 @@ export class PgExplorer {
       return;
     }
 
-    if (!this._workspace) throw new Error(WorkspaceError.NOT_FOUND);
+    if (!this._workspace) throw new Error(PgWorkspace.errors.NOT_FOUND);
 
     // Create a new workspace in state
-    this._workspace.new(name);
+    this._workspace.create(name);
 
     // Create files
     if (opts?.files) {
@@ -447,7 +484,7 @@ export class PgExplorer {
       defaultOpenFile: opts?.defaultOpenFile,
     });
 
-    PgExplorerEvent.dispatchOnDidCreateWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CREATE_WORKSPACE);
   }
 
   /**
@@ -478,14 +515,17 @@ export class PgExplorer {
       // Save metadata to never lose default open file
       await this.saveMeta();
     } else {
-      PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
+      PgCommon.createAndDispatchCustomEvent(
+        this.events.ON_DID_OPEN_FILE,
+        this.getCurrentFile()
+      );
     }
 
     // Set initialized workspace name
     this._initializedWorkspaceName = name;
 
     // Dispatch change event
-    PgExplorerEvent.dispatchOnDidSwitchWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_SWITCH_WORKSPACE);
   }
 
   /**
@@ -496,16 +536,16 @@ export class PgExplorer {
   static async renameWorkspace(newName: string) {
     newName = newName.trim();
     if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
     }
     if (!this.currentWorkspaceName) {
-      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
     }
     if (!this.isWorkspaceNameValid(newName)) {
-      throw new Error(WorkspaceError.INVALID_NAME);
+      throw new Error(PgWorkspace.errors.INVALID_NAME);
     }
     if (this.allWorkspaceNames!.includes(newName)) {
-      throw new Error(WorkspaceError.ALREADY_EXISTS);
+      throw new Error(PgWorkspace.errors.ALREADY_EXISTS);
     }
 
     // Rename workspace folder
@@ -522,16 +562,16 @@ export class PgExplorer {
 
     await this.switchWorkspace(newName);
 
-    PgExplorerEvent.dispatchOnDidRenameWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_RENAME_WORKSPACE);
   }
 
   /** Delete the current workspace. */
   static async deleteWorkspace() {
     if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
     }
     if (!this.currentWorkspaceName) {
-      throw new Error(WorkspaceError.CURRENT_NOT_FOUND);
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
     }
 
     // Delete from `indexedDB`
@@ -547,10 +587,12 @@ export class PgExplorer {
     } else {
       this._workspace.setCurrent({ allNames: [] });
       await this._saveWorkspaces();
-      PgExplorerEvent.dispatchOnDidSwitchWorkspace();
+      PgCommon.createAndDispatchCustomEvent(
+        this.events.ON_DID_SWITCH_WORKSPACE
+      );
     }
 
-    PgExplorerEvent.dispatchOnDidDeleteWorkspace();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_DELETE_WORKSPACE);
   }
 
   /**
@@ -691,7 +733,7 @@ export class PgExplorer {
    */
   static getCurrentFileLanguage() {
     if (this.currentFilePath) {
-      return this.getLanguageFromPath(this.currentFilePath);
+      return PgLanguage.getFromPath(this.currentFilePath);
     }
   }
 
@@ -701,7 +743,9 @@ export class PgExplorer {
    * @returns whether the current file is a JavaScript-like file
    */
   static isCurrentFileJsLike() {
-    if (this.currentFilePath) return this.isFileJsLike(this.currentFilePath);
+    if (this.currentFilePath) {
+      return PgLanguage.getIsPathJsLike(this.currentFilePath);
+    }
   }
 
   /**
@@ -723,7 +767,10 @@ export class PgExplorer {
     // Update the current file index
     this._explorer.currentIndex = this.tabs.indexOf(path);
 
-    PgExplorerEvent.dispatchOnDidOpenFile(this.getCurrentFile()!);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_OPEN_FILE,
+      this.getCurrentFile()
+    );
   }
 
   /**
@@ -749,7 +796,7 @@ export class PgExplorer {
       this._explorer.currentIndex = this.tabs.indexOf(this.currentFilePath);
     }
 
-    PgExplorerEvent.dispatchOnDidCloseFile();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CLOSE_FILE);
   }
 
   /**
@@ -764,7 +811,7 @@ export class PgExplorer {
       this._explorer.currentIndex = this.tabs.indexOf(currentPath);
     }
 
-    PgExplorerEvent.dispatchOnDidSetTabs();
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_SET_TABS);
   }
 
   /**
@@ -843,7 +890,7 @@ export class PgExplorer {
     if (path.startsWith(this.PATHS.ROOT_DIR_PATH)) return path;
 
     // Convert to absolute path if it doesn't start with '/'
-    return PgCommon.joinPaths([this.getProjectRootPath(), path]);
+    return PgCommon.joinPaths(this.getProjectRootPath(), path);
   }
 
   /**
@@ -865,10 +912,10 @@ export class PgExplorer {
    * @returns the current `src` directory path with `/` appended
    */
   static getCurrentSrcPath() {
-    const srcPath = PgCommon.joinPaths([
+    const srcPath = PgCommon.joinPaths(
       this.getProjectRootPath(),
-      this.PATHS.SRC_DIRNAME,
-    ]);
+      this.PATHS.SRC_DIRNAME
+    );
     return PgCommon.appendSlash(srcPath);
   }
 
@@ -899,7 +946,7 @@ export class PgExplorer {
   static onDidInit(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_INIT,
+      eventName: PgExplorer.events.ON_DID_INIT,
     });
   }
 
@@ -912,7 +959,7 @@ export class PgExplorer {
   static onDidCreateItem(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CREATE_ITEM,
+      eventName: PgExplorer.events.ON_DID_CREATE_ITEM,
     });
   }
 
@@ -925,7 +972,7 @@ export class PgExplorer {
   static onDidRenameItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_RENAME_ITEM,
+      eventName: PgExplorer.events.ON_DID_RENAME_ITEM,
     });
   }
 
@@ -938,7 +985,7 @@ export class PgExplorer {
   static onDidDeleteItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_DELETE_ITEM,
+      eventName: PgExplorer.events.ON_DID_DELETE_ITEM,
     });
   }
 
@@ -951,7 +998,7 @@ export class PgExplorer {
   static onDidOpenFile(cb: (file: FullFile | null) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_OPEN_FILE,
+      eventName: PgExplorer.events.ON_DID_OPEN_FILE,
       initialRun: { value: PgExplorer.getCurrentFile() },
     });
   }
@@ -965,7 +1012,7 @@ export class PgExplorer {
   static onDidCloseFile(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CLOSE_FILE,
+      eventName: PgExplorer.events.ON_DID_CLOSE_FILE,
     });
   }
 
@@ -978,7 +1025,7 @@ export class PgExplorer {
   static onDidSetTabs(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_SET_TABS,
+      eventName: PgExplorer.events.ON_DID_SET_TABS,
     });
   }
 
@@ -991,7 +1038,7 @@ export class PgExplorer {
   static onDidCreateWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_CREATE_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_CREATE_WORKSPACE,
     });
   }
 
@@ -1004,7 +1051,7 @@ export class PgExplorer {
   static onDidRenameWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_RENAME_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_RENAME_WORKSPACE,
     });
   }
 
@@ -1017,7 +1064,7 @@ export class PgExplorer {
   static onDidDeleteWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_DELETE_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_DELETE_WORKSPACE,
     });
   }
 
@@ -1030,7 +1077,7 @@ export class PgExplorer {
   static onDidSwitchWorkspace(cb: () => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: PgExplorerEvent.ON_DID_SWITCH_WORKSPACE,
+      eventName: PgExplorer.events.ON_DID_SWITCH_WORKSPACE,
     });
   }
 
@@ -1043,7 +1090,7 @@ export class PgExplorer {
    */
   private static async _initCurrentWorkspace() {
     if (!this._workspace) {
-      throw new Error(WorkspaceError.NOT_FOUND);
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
     }
 
     // Reset files
@@ -1063,7 +1110,7 @@ export class PgExplorer {
         .filter(PgExplorer.isItemNameValid)
         .map((itemName) => {
           return PgExplorer.getCanonicalPath(
-            PgCommon.joinPaths([path, itemName])
+            PgCommon.joinPaths(path, itemName)
           );
         });
       for (const subItemPath of subItemPaths) {
@@ -1123,7 +1170,7 @@ export class PgExplorer {
       const lsExplorerStr = localStorage.getItem("explorer");
       if (lsExplorerStr) {
         // Create a default workspace
-        this._workspace.new(PgWorkspace.DEFAULT_WORKSPACE_NAME);
+        this._workspace.create(PgWorkspace.DEFAULT_WORKSPACE_NAME);
         // Save workspaces
         await this._saveWorkspaces();
 
@@ -1343,116 +1390,19 @@ export class PgExplorer {
   }
 
   /**
-   * Get file extension of the given path.
-   *
-   * @param path file path
-   * @returns the file extension
-   */
-  static getExtensionFromPath(path: string) {
-    return path
-      .split(".")
-      .reverse()
-      .filter((cur, i) => i === 0 || (i === 1 && cur === "test"))
-      .reverse()
-      .join(".");
-  }
-
-  /**
-   * Get the langugage from the given path's extension.
-   *
-   * @param path item path
-   * @returns the language
-   */
-  static getLanguageFromPath(path: string) {
-    switch (PgExplorer.getExtensionFromPath(path)) {
-      case "rs":
-        return Lang.RUST;
-      case "py":
-        return Lang.PYTHON;
-      case "js":
-        return Lang.JAVASCRIPT;
-      case "ts":
-        return Lang.TYPESCRIPT;
-      case "test.js":
-        return Lang.JAVASCRIPT_TEST;
-      case "test.ts":
-        return Lang.TYPESCRIPT_TEST;
-      case "json":
-        return Lang.JSON;
-      default:
-        return null;
-    }
-  }
-
-  /**
-   * Get whether the given path is a regular JS/TS or test JS/TS file.
-   *
-   * @path file path
-   * @returns whether the given file is a JavaScript-like file
-   */
-  static isFileJsLike(path: string) {
-    switch (PgExplorer.getLanguageFromPath(path)) {
-      case Lang.JAVASCRIPT:
-      case Lang.TYPESCRIPT:
-      case Lang.JAVASCRIPT_TEST:
-      case Lang.TYPESCRIPT_TEST:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Get whether the element is a JS/TS client element.
-   *
-   * @param el item element
-   * @returns whether the element can run client
-   */
-  static getIsItemClientFromEl(el: HTMLDivElement) {
-    const path = this.getItemPathFromEl(el);
-    if (!path) return false;
-
-    const lang = this.getLanguageFromPath(path);
-    return (
-      !!path &&
-      !path.includes(".test") &&
-      (lang === Lang.JAVASCRIPT || lang === Lang.TYPESCRIPT)
-    );
-  }
-
-  /**
-   * Get whether the element is a JS/TS test element.
-   *
-   * @param el item element
-   * @returns whether the element can run tests
-   */
-  static getIsItemTestFromEl(el: HTMLDivElement) {
-    const path = this.getItemPathFromEl(el);
-    if (!path) return false;
-
-    const lang = this.getLanguageFromPath(path);
-    return (
-      !!path && (lang === Lang.JAVASCRIPT_TEST || lang === Lang.TYPESCRIPT_TEST)
-    );
-  }
-
-  /**
    * Get the parent's path from the given path with `/` appended.
    *
    * @param path item path
    * @returns the parent path
    */
   static getParentPathFromPath(path: string) {
-    const itemType = this.getItemTypeFromPath(path);
+    const pad =
+      this.getItemTypeFromPath(path).folder && path.endsWith("/") ? 2 : 1;
 
     const names = path.split("/");
-    const parentPath = path
-      .split("/")
-      .filter((_itemName, i) => i !== names.length - (itemType.file ? 1 : 2))
-      .reduce((acc, itemName) => {
-        if (itemName) return (acc += `/${itemName}`);
-        return acc;
-      });
+    const parentPath = names
+      .filter((_itemName, i) => i !== names.length - pad)
+      .reduce((acc, itemName) => (acc += `/${itemName}`));
 
     return PgCommon.appendSlash(parentPath);
   }
@@ -1490,12 +1440,12 @@ export class PgExplorer {
 
   /** Get the root folder elemement. */
   static getRootFolderEl() {
-    return document.getElementById(Id.ROOT_DIR);
+    return document.getElementById(PgView.ids.ROOT_DIR);
   }
 
   /** Get the current selected element. */
   static getSelectedEl() {
-    return document.getElementsByClassName(ClassName.SELECTED)[0] as
+    return document.getElementsByClassName(PgView.classNames.SELECTED)[0] as
       | HTMLDivElement
       | undefined;
   }
@@ -1506,14 +1456,14 @@ export class PgExplorer {
    * @param newEl new element to select
    */
   static setSelectedEl(newEl: HTMLDivElement) {
-    PgExplorer.getSelectedEl()?.classList.remove(ClassName.SELECTED);
-    newEl.classList.add(ClassName.SELECTED);
+    PgExplorer.getSelectedEl()?.classList.remove(PgView.classNames.SELECTED);
+    newEl.classList.add(PgView.classNames.SELECTED);
   }
 
   /** Get the selected context element. */
   static getCtxSelectedEl() {
     const ctxSelectedEls = document.getElementsByClassName(
-      ClassName.CTX_SELECTED
+      PgView.classNames.CTX_SELECTED
     );
     if (ctxSelectedEls.length) return ctxSelectedEls[0];
   }
@@ -1521,12 +1471,14 @@ export class PgExplorer {
   /** Set the selected context element. */
   static setCtxSelectedEl(newEl: HTMLDivElement) {
     PgExplorer.removeCtxSelectedEl();
-    newEl.classList.add(ClassName.CTX_SELECTED);
+    newEl.classList.add(PgView.classNames.CTX_SELECTED);
   }
 
   /** Remove the selected context element. */
   static removeCtxSelectedEl() {
-    PgExplorer.getCtxSelectedEl()?.classList.remove(ClassName.CTX_SELECTED);
+    PgExplorer.getCtxSelectedEl()?.classList.remove(
+      PgView.classNames.CTX_SELECTED
+    );
   }
 
   /**
@@ -1536,11 +1488,12 @@ export class PgExplorer {
    */
   static openFolder(el: HTMLDivElement) {
     // Folder icon
-    el.classList.add(ClassName.OPEN);
+    el.classList.add(PgView.classNames.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl) insideFolderEl.classList.remove(ClassName.HIDDEN);
+    if (insideFolderEl)
+      insideFolderEl.classList.remove(PgView.classNames.HIDDEN);
   }
 
   /**
@@ -1550,11 +1503,12 @@ export class PgExplorer {
    */
   static toggleFolder(el: HTMLDivElement) {
     // Folder icon
-    el.classList.toggle(ClassName.OPEN);
+    el.classList.toggle(PgView.classNames.OPEN);
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl) insideFolderEl.classList.toggle(ClassName.HIDDEN);
+    if (insideFolderEl)
+      insideFolderEl.classList.toggle(PgView.classNames.HIDDEN);
   }
 
   /**
@@ -1578,17 +1532,19 @@ export class PgExplorer {
   /** Collapse all folders in the UI. */
   static collapseAllFolders() {
     // Close all folders
-    const folderElements = document.getElementsByClassName(ClassName.FOLDER);
+    const folderElements = document.getElementsByClassName(
+      PgView.classNames.FOLDER
+    );
     for (const folder of folderElements) {
-      folder.classList.remove(ClassName.OPEN);
+      folder.classList.remove(PgView.classNames.OPEN);
     }
 
     // Hide all folder inside elements
     const insideElements = document.getElementsByClassName(
-      ClassName.FOLDER_INSIDE
+      PgView.classNames.FOLDER_INSIDE
     );
     for (const folderInside of insideElements) {
-      folderInside.classList.add(ClassName.HIDDEN);
+      folderInside.classList.add(PgView.classNames.HIDDEN);
     }
   }
 
@@ -1645,10 +1601,7 @@ export class PgExplorer {
     const explorerFiles: ExplorerFiles = {};
 
     for (const [path, content] of tupleFiles) {
-      const fullPath = PgCommon.joinPaths([
-        PgExplorer.PATHS.ROOT_DIR_PATH,
-        path,
-      ]);
+      const fullPath = PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, path);
       explorerFiles[fullPath] = { content };
     }
 

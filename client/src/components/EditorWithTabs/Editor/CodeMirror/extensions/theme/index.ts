@@ -1,1 +1,0 @@
-export { getThemeExtension } from "./theme";

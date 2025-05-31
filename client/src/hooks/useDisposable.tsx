@@ -5,6 +5,6 @@ import type { Disposable, SyncOrAsync } from "../utils/pg";
 export const useDisposable = (disposable: () => SyncOrAsync<Disposable>) => {
   useAsyncEffect(async () => {
     const { dispose } = await disposable();
-    return () => dispose();
+    return dispose;
   }, [disposable]);
 };

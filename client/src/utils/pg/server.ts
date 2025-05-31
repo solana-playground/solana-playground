@@ -81,7 +81,7 @@ export class PgServer {
     /** `/share` response */
     type ShareResponse = ShareNewRequest["explorer"];
 
-    const response = await this._send(`/share/${id}`);
+    const response = await this._send(`/share/${id}`, { cache: true });
     return (await response.json()) as ShareResponse;
   }
 
@@ -102,14 +102,11 @@ export class PgServer {
     return (await response.text()) as ShareNewResponse;
   }
 
-  /** Default playground server URL */
-  private static readonly _DEFAULT_SERVER_URL = "https://api.solpg.io";
-
   /** Server URL that is customizable from environment variables */
   private static readonly _SERVER_URL =
     process.env.NODE_ENV === "production"
-      ? this._DEFAULT_SERVER_URL
-      : process.env.REACT_APP_SERVER_URL ?? this._DEFAULT_SERVER_URL;
+      ? "https://api.solpg.io"
+      : process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080";
 
   /**
    * Send an HTTP request to the Playground server.
@@ -119,20 +116,23 @@ export class PgServer {
    */
   private static async _send(
     path: string,
-    options?: { post?: { body: string } }
+    options?: { post?: { body: string }; cache?: boolean }
   ) {
-    let requestInit: RequestInit = {};
-    if (options?.post) {
-      requestInit = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: options.post.body,
-      };
-    }
-    const response = await fetch(`${this._SERVER_URL}${path}`, requestInit);
+    const requestInit: RequestInit = {};
 
+    if (options?.post) {
+      requestInit.method = "POST";
+      requestInit.headers = {
+        "Content-Type": "application/json",
+      };
+      requestInit.body = options.post.body;
+    }
+
+    if (!options?.cache) {
+      requestInit.cache = "no-store";
+    }
+
+    const response = await fetch(`${this._SERVER_URL}${path}`, requestInit);
     if (!response.ok) {
       const message = await response.text();
       throw new Error(message);

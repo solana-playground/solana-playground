@@ -7,8 +7,7 @@ import {
 } from "react";
 import styled, { css } from "styled-components";
 
-import { ClassName } from "../../constants";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme, PgView } from "../../utils/pg";
 
 type InputError = string | boolean | null;
 
@@ -27,7 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         {...defaultInputProps}
         {...props}
-        className={`${className} ${error ? ClassName.ERROR : ""}`}
+        className={`${className} ${error ? PgView.classNames.ERROR : ""}`}
         onChange={(ev) => {
           onChange?.(ev);
 
@@ -36,8 +35,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             const handleError = (err: InputError) => {
               if (setError) setError(err);
 
-              if (err) ev.target.classList.add(ClassName.ERROR);
-              else ev.target.classList.remove(ClassName.ERROR);
+              if (err) ev.target.classList.add(PgView.classNames.ERROR);
+              else ev.target.classList.remove(PgView.classNames.ERROR);
             };
 
             try {
@@ -73,12 +72,12 @@ const StyledInput = styled.input<InputProps>`
       cursor: not-allowed;
     }
 
-    &.${ClassName.ERROR} {
+    &.${PgView.classNames.ERROR} {
       outline-color: transparent;
       border-color: ${theme.colors.state.error.color};
     }
 
-    &.${ClassName.SUCCESS} {
+    &.${PgView.classNames.SUCCESS} {
       outline-color: transparent;
       border-color: ${theme.colors.state.success.color};
     }
@@ -91,7 +90,7 @@ const defaultInputProps = {
   autoComplete: "off",
   fullWidth: true,
   onFocus: (e: FocusEvent<HTMLInputElement>) => {
-    e.target.classList.add(ClassName.TOUCHED);
+    e.target.classList.add(PgView.classNames.TOUCHED);
   },
 };
 

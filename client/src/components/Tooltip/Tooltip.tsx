@@ -8,10 +8,14 @@ import { PgTheme } from "../../utils/pg";
 export type TooltipProps = Omit<PopoverProps, "showOnHover" | "popEl"> & {
   /** Tooltip element to show on hover */
   element: ReactNode;
+  /** Whether to show it as a help tooltip */
+  help?: boolean;
 };
 
-const Tooltip: FC<TooltipProps> = (props) => (
-  <StyledPopover {...props} popEl={props.element} showOnHover />
+const Tooltip: FC<TooltipProps> = ({ children, element, help, ...props }) => (
+  <StyledPopover {...props} popEl={element} showOnHover>
+    {help ? <StyledQuestionMarkOutlined color="textSecondary" /> : children}
+  </StyledPopover>
 );
 
 const StyledPopover = styled(Popover)<Pick<TooltipProps, "bgSecondary">>`
@@ -22,12 +26,6 @@ const StyledPopover = styled(Popover)<Pick<TooltipProps, "bgSecondary">>`
       : theme.components.tooltip.bg};
   `}
 `;
-
-export const HelpTooltip: FC<TooltipProps> = (props) => (
-  <Tooltip {...props}>
-    <StyledQuestionMarkOutlined color="textSecondary" />
-  </Tooltip>
-);
 
 const StyledQuestionMarkOutlined = styled(QuestionMarkOutlined)`
   &:hover {

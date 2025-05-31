@@ -32,16 +32,16 @@ export class PgSugar {
   static PATHS = {
     METAPLEX_DIRNAME: "metaplex",
     get CANDY_MACHINE_DIR_PATH() {
-      return PgCommon.joinPaths([this.METAPLEX_DIRNAME, "candy-machine"]);
+      return PgCommon.joinPaths(this.METAPLEX_DIRNAME, "candy-machine");
     },
     get CANDY_MACHINE_CONFIG_FILEPATH() {
-      return PgCommon.joinPaths([this.CANDY_MACHINE_DIR_PATH, "config.json"]);
+      return PgCommon.joinPaths(this.CANDY_MACHINE_DIR_PATH, "config.json");
     },
     get CANDY_MACHINE_CACHE_FILEPATH() {
-      return PgCommon.joinPaths([this.CANDY_MACHINE_DIR_PATH, "cache.json"]);
+      return PgCommon.joinPaths(this.CANDY_MACHINE_DIR_PATH, "cache.json");
     },
     get CANDY_MACHINE_ASSETS_DIR_PATH() {
-      return PgCommon.joinPaths([this.CANDY_MACHINE_DIR_PATH, "assets"]);
+      return PgCommon.joinPaths(this.CANDY_MACHINE_DIR_PATH, "assets");
     },
   };
 
@@ -134,11 +134,11 @@ export class PgSugar {
   private static async _run(cb: () => Promise<void>) {
     try {
       await cb();
-      PgTerminal.log(
+      PgTerminal.println(
         `\n${Emoji.CHECKMARK} ${PgTerminal.success("Command successful.")}\n`
       );
     } catch (e: any) {
-      PgTerminal.log(
+      PgTerminal.println(
         `\n${Emoji.ERROR} ${PgTerminal.error(
           "Error running command (re-run needed):"
         )} ${e.message}`,
@@ -147,7 +147,7 @@ export class PgSugar {
       );
       // Show how to set a custom rpc endpoint if the current endpoint is a known endpoint
       if (NETWORKS.some((n) => n.endpoint === PgSettings.connection.endpoint)) {
-        PgTerminal.log(
+        PgTerminal.println(
           `${
             e.message?.endsWith("\n") ? "" : "\n"
           }NOTE: You may want to use a custom rpc endpoint. If you have one, you can set it up with ${PgTerminal.bold(
@@ -156,7 +156,7 @@ export class PgSugar {
         );
       }
     } finally {
-      setTimeout(() => PgTerminal.setProgress(0), 1000);
+      setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
     }
   }
 }

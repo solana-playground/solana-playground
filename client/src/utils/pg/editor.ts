@@ -1,9 +1,14 @@
-import { EventName } from "../../constants";
 import { PgCommon } from "./common";
 
 export class PgEditor {
+  /** All editor event names */
+  static events = {
+    FOCUS: "editorfocus",
+    FORMAT: "editorformat",
+  };
+
   /** Focus the editor. */
   static focus() {
-    PgCommon.createAndDispatchCustomEvent(EventName.EDITOR_FOCUS);
+    PgCommon.createAndDispatchCustomEvent(PgEditor.events.FOCUS);
   }
 }

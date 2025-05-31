@@ -1,20 +1,4 @@
-import { CallableJSX, PgCommon, RequiredKey } from "../utils/pg";
-import type { TooltipProps } from "../components/Tooltip";
-
-/** UI setting parameter */
-interface SettingParam {
-  /** Name of the setting */
-  name: string;
-  /** Setting component, default to `./setting-name/Component` */
-  Component?: CallableJSX;
-  /** Help tooltip */
-  tooltip?: TooltipProps;
-  /** Whether the `Element` is a `Checkbox` */
-  isCheckBox?: boolean;
-}
-
-/** UI Setting */
-export type Setting = RequiredKey<SettingParam, "Component">;
+import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
 
 /**
  * Create a UI setting.
@@ -22,9 +6,27 @@ export type Setting = RequiredKey<SettingParam, "Component">;
  * @param setting UI setting
  * @returns the setting with correct types
  */
-export const createSetting = (setting: SettingParam) => {
-  setting.Component ??= require(`./${PgCommon.toKebabFromTitle(
-    setting.name
-  )}/Component`).default;
-  return setting as Setting;
+export const createSetting = <I extends string = "", V = boolean>(
+  setting: SettingParam<I, V>
+) => {
+  try {
+    const mod = require(`./${PgCommon.toKebabFromTitle(setting.name)}/Custom`);
+    setting.CustomComponent ??= mod.default;
+  } catch {}
+
+  if (setting.id) {
+    const id = setting.id;
+    setting.getValue ??= () => PgSettings.get(id);
+    setting.setValue ??= (v) => PgSettings.set(id, v);
+    setting.onChange ??= PgSettings[
+      id
+        .split(".")
+        .reduce(
+          (acc, cur) => acc + PgCommon.capitalize(cur),
+          "onDidChange"
+        ) as keyof typeof PgSettings
+    ] as typeof setting["onChange"];
+  }
+
+  return setting as Setting<I, V>;
 };

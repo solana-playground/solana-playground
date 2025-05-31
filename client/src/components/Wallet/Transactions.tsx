@@ -1,19 +1,20 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 
 import Button from "../Button";
 import Link from "../Link";
+import Text from "../Text";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgTheme, PgWallet } from "../../utils/pg";
-import { useConnection } from "../../hooks";
+import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils/pg";
+import { useBlockExplorer, useConnection } from "../../hooks";
 
 const Transactions = () => {
-  const [signatures, setSignatures] = useState<ConfirmedSignatureInfo[]>();
+  const [signatures, setSignatures] =
+    useState<PgWeb3.ConfirmedSignatureInfo[]>();
   const [refreshCount, setRefreshCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   const { connection } = useConnection();
 
@@ -26,16 +27,16 @@ const Transactions = () => {
         );
 
         setSignatures(_signatures);
-        setError(false);
-      } catch {
-        setError(true);
+        setError("");
+      } catch (e: any) {
+        setError(e.message ? e.message : "Unknown error");
         setSignatures([]);
       } finally {
         setLoading(false);
       }
     });
 
-    return () => dispose();
+    return dispose;
   }, [connection, refreshCount]);
 
   const refresh = useCallback(() => {
@@ -72,22 +73,16 @@ const Transactions = () => {
 
         <SpinnerWithBg loading={loading}>
           {signatures?.length ? (
-            signatures.map((info, i) => (
-              <Tx key={i} {...info} endpoint={connection.rpcEndpoint} />
-            ))
+            signatures.map((info, i) => <Tx key={i} {...info} />)
           ) : (
             <NoTransaction>
               {!loading &&
                 (error ? (
-                  <>
-                    <Sad />
-                    Connection error.
-                  </>
+                  <Text kind="error" icon={<Sad />}>
+                    Connection error: {error}
+                  </Text>
                 ) : (
-                  <>
-                    <Sad />
-                    No transaction found.
-                  </>
+                  <Text icon={<Sad />}>No transaction found.</Text>
                 ))}
             </NoTransaction>
           )}
@@ -157,29 +152,42 @@ const NoTransaction = styled.div`
   }
 `;
 
-const Tx: FC<ConfirmedSignatureInfo & { endpoint: string }> = ({
+const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   signature,
   slot,
   err,
   blockTime,
-  endpoint,
 }) => {
   const [hover, setHover] = useState(false);
 
   const enter = useCallback(() => setHover(true), []);
   const leave = useCallback(() => setHover(false), []);
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // There is an issue where moving the mouse over the elements fast makes the
+  // `hover` state inconsistent i.e. `hover === true` when the pointer is not
+  // on the element. This `useEffect` fixes the mentioned inconsistency.
+  //
+  // https://github.com/facebook/react/issues/4492
+  useEffect(() => {
+    if (hover && wrapperRef.current?.matches(":hover") === false) {
+      setHover(false);
+    }
+  }, [hover]);
+
   const now = new Date().getTime() / 1000;
   const timePassed = blockTime ? PgCommon.secondsToTime(now - blockTime) : null;
 
-  const { explorer, solscan } = PgCommon.getExplorerTxUrls(signature, endpoint);
+  const blockExplorer = useBlockExplorer();
 
   return (
-    <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>
+    <TxWrapper ref={wrapperRef} onMouseEnter={enter} onMouseLeave={leave}>
       {hover ? (
         <HoverWrapper>
-          <Link href={explorer}>Solana Explorer</Link>
-          {solscan && <Link href={solscan}>Solscan</Link>}
+          <Link href={blockExplorer.getTxUrl(signature)}>
+            {blockExplorer.name}
+          </Link>
         </HoverWrapper>
       ) : (
         <>
@@ -199,6 +207,10 @@ const TxWrapper = styled.div`
   ${({ theme }) => css`
     &:not(:last-child) {
       border-bottom: 1px solid ${theme.colors.default.border};
+    }
+
+    & > div {
+      height: 1rem;
     }
 
     ${PgTheme.convertToCSS(

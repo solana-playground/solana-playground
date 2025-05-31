@@ -47,6 +47,7 @@ pub struct UiAccount {
     pub owner: String,
     pub executable: bool,
     pub rent_epoch: Epoch,
+    pub space: Option<u64>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -129,6 +130,7 @@ impl UiAccount {
         };
         UiAccount {
             lamports: account.lamports(),
+            space: Some(account.data().len() as u64),
             data,
             owner: account.owner().to_string(),
             executable: account.executable(),

@@ -11,7 +11,7 @@ export const useKeybind = (
 ) => {
   useEffect(() => {
     const { dispose } = PgKeybind.add(...(args as AddKeybindParams));
-    return () => dispose();
+    return dispose;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, getDeps(args));

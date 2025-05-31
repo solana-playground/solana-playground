@@ -14,6 +14,7 @@ import {
   Info,
 } from "../../../../../components/Icons";
 import {
+  Framework,
   PgCommon,
   PgFramework,
   PgGithub,
@@ -38,15 +39,16 @@ export const ImportGithub = () => {
 
   return (
     <Modal
+      title
       buttonProps={{
         text: "Import",
         onSubmit: importFromGithub,
-        disabled: !url || !!error,
+        disabled: !url,
         btnLoading: { text: "Importing..." },
         rightIcon: <ImportWorkspace />,
-        setError,
       }}
-      title
+      error={error}
+      setError={setError}
     >
       <Wrapper>
         <GithubUrlWrapper>
@@ -68,7 +70,7 @@ export const ImportGithub = () => {
         <ExamplesSectionWrapper>
           <ExamplesTitle>Examples</ExamplesTitle>
           <ExamplesWrapper>
-            {PgFramework.frameworks.map((framework) => (
+            {PgFramework.all.map((framework) => (
               <Example key={framework.name} framework={framework} />
             ))}
           </ExamplesWrapper>
@@ -93,10 +95,7 @@ export const ImportGithub = () => {
 const GITHUB_PROGRAM_URL =
   "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor";
 
-const VIEW_URL = PgCommon.joinPaths([
-  window.location.origin,
-  GITHUB_PROGRAM_URL,
-]);
+const VIEW_URL = PgRouter.getPathUrl(GITHUB_PROGRAM_URL);
 
 const Wrapper = styled.div`
   max-width: 39rem;
@@ -155,8 +154,8 @@ const Example: FC<ExampleProps> = ({ framework }) => (
       </Button>
 
       <Button
-        onClick={async () => {
-          await PgRouter.navigate("/" + framework.githubExample.url);
+        onClick={() => {
+          PgRouter.navigate("/" + framework.githubExample.url);
           PgView.closeModal();
         }}
         rightIcon={<Eye />}

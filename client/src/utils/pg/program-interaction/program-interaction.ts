@@ -1,5 +1,3 @@
-import { Keypair } from "@solana/web3.js";
-
 import { fetchAccount, fetchAllAccounts } from "./account";
 import {
   GeneratableInstruction,
@@ -9,16 +7,18 @@ import {
 } from "./generator";
 import { getPrograms, getOrInitPythAccounts } from "./generators";
 import { getIdlType, IdlInstruction } from "./idl-types";
-import { createGeneratableInstruction } from "./instruction";
+import { createGeneratableInstruction, fillRandom } from "./instruction";
 import { getAnchorProgram } from "./program";
 import {
   getInstruction,
+  resetInstruction,
   saveInstruction,
   syncAllInstructions,
 } from "./storage";
 import { PgCommon } from "../common";
 import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
+import { PgWeb3 } from "../web3";
 
 export class PgProgramInteraction {
   /**
@@ -60,7 +60,9 @@ export class PgProgramInteraction {
     const keypairSigners = signerAccounts
       .map((acc) => {
         if (acc.generator.type !== "Random") return null;
-        return Keypair.fromSecretKey(Uint8Array.from(acc.generator.data));
+        return PgWeb3.Keypair.fromSecretKey(
+          Uint8Array.from(acc.generator.data)
+        );
       })
       .filter(PgCommon.isNonNullish);
     const walletSigners = signerAccounts
@@ -71,7 +73,7 @@ export class PgProgramInteraction {
         const walletAccount = PgWallet.accounts.find(
           ({ name }) => name === generatorName
         )!;
-        return PgWallet.createWallet(walletAccount);
+        return PgWallet.create(walletAccount);
       })
       .filter(PgCommon.isNonNullish);
 
@@ -109,9 +111,15 @@ export class PgProgramInteraction {
   /** {@link getOrInitPythAccounts} */
   static getOrInitPythAccounts = getOrInitPythAccounts;
 
+  /** {@link fillRandom} */
+  static fillRandom = fillRandom;
+
   /** {@link saveInstruction} */
   static saveInstruction = saveInstruction;
 
   /** {@link syncAllInstructions} */
   static syncAllInstructions = syncAllInstructions;
+
+  /** {@link resetInstruction} */
+  static resetInstruction = resetInstruction;
 }

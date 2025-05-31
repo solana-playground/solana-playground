@@ -5,5 +5,6 @@ export const tutorials = createSidebarPage({
   name: "Tutorials",
   icon: "tutorials.webp",
   keybind: "Ctrl+Shift+X",
+  route: "/tutorials",
   LoadingElement: TutorialsSkeleton,
 });

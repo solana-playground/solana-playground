@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 import InputLabel from "../InputLabel";
@@ -18,7 +18,11 @@ import {
 import { useInstruction } from "./InstructionProvider";
 import { useKeybind } from "../../../../../hooks";
 
-const FromSeed = ({ search }: SearchBarDropdownProps) => {
+type FromSeedProps = {
+  name: string;
+} & SearchBarDropdownProps;
+
+const FromSeed = ({ name, search }: FromSeedProps) => {
   const { values } = useInstruction().instruction;
 
   const [seeds, setSeeds] = useState<
@@ -26,7 +30,30 @@ const FromSeed = ({ search }: SearchBarDropdownProps) => {
       | ({ state: "selecting" } & Partial<SeedType>)
       | ({ state: "selected" } & SeedType)
     >
-  >([{ state: "selecting" }]);
+  >(() => {
+    // Restore if seeds are already set
+    const acc = values.accounts.find((acc) => acc.name === name);
+    if (acc && acc.generator.type === "From seed") {
+      return acc.generator.seeds.map((seed) => ({
+        state: "selected",
+        ...seed,
+      }));
+    }
+    return [{ state: "selecting" }];
+  });
+
+  // Get whether the seeds are set initially in order to decide whether to
+  // show seed input dropdowns
+  const [isDefault, initialSeedsLength] = useMemo(
+    () => [seeds.at(0)?.state === "selecting", seeds.length],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+  const showSelectedSeedDropdown = useMemo(
+    () => isDefault || initialSeedsLength !== seeds.length,
+    [isDefault, initialSeedsLength, seeds.length]
+  );
+
   // Default to instruction program ID but create a new object in order to
   // avoid accidentally updating the instruction program ID
   const programId = useRef({ ...values.programId });
@@ -121,7 +148,11 @@ const FromSeed = ({ search }: SearchBarDropdownProps) => {
                 }
               />
             ) : (
-              <SelectedSeed index={index} seed={seed} />
+              <SelectedSeed
+                index={index}
+                seed={seed}
+                searchBarProps={{ showSearchOnMount: showSelectedSeedDropdown }}
+              />
             )}
           </SeedWrapper>
         ))}
@@ -143,7 +174,6 @@ const FromSeed = ({ search }: SearchBarDropdownProps) => {
           onClick={() => {
             setSeeds((seeds) => [...seeds, { state: "selecting" }]);
           }}
-          kind="outline"
           leftIcon={<Plus />}
         >
           Add Seed
@@ -217,15 +247,20 @@ const SeedSearchBar: FC<SeedSearchBarProps> = ({ select }) => {
 type SelectedSeedProps = {
   seed: SeedType;
   index: number;
+  searchBarProps: Partial<SearchBarProps>;
 };
 
-const SelectedSeed: FC<SelectedSeedProps> = ({ seed, index }) => (
+const SelectedSeed: FC<SelectedSeedProps> = ({
+  seed,
+  index,
+  searchBarProps,
+}) => (
   <SelectedSeedWrapper>
     <InstructionInput
       prefix="seed"
       name={index.toString()}
       updateInstruction={({ updateGenerator }) => updateGenerator(seed)}
-      searchBarProps={{ showSearchOnMount: true }}
+      searchBarProps={searchBarProps}
       noLabel
       {...seed}
     />

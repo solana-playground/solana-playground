@@ -5,7 +5,7 @@ import {
   toDateTime,
   token,
 } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
+import { PgWeb3 } from "../../../utils/pg";
 
 import type { ConfigData, ToPrimitive } from "../types";
 
@@ -27,7 +27,7 @@ const _parseGuards = (guards: { [key: string]: any }) => {
     switch (key) {
       case "addressGate":
         guards[key] = {
-          address: new PublicKey(guards[key].address),
+          address: new PgWeb3.PublicKey(guards[key].address),
         };
         break;
 
@@ -52,7 +52,7 @@ const _parseGuards = (guards: { [key: string]: any }) => {
 
       case "gatekeeper":
         guards[key] = {
-          network: new PublicKey(guards[key].gatekeeperNetwork),
+          network: new PgWeb3.PublicKey(guards[key].gatekeeperNetwork),
           expireOnUse: guards[key].expireOnUse,
         };
         break;
@@ -66,20 +66,26 @@ const _parseGuards = (guards: { [key: string]: any }) => {
 
       case "nftBurn":
         guards[key] = {
-          requiredCollection: new PublicKey(guards[key].requiredCollection),
+          requiredCollection: new PgWeb3.PublicKey(
+            guards[key].requiredCollection
+          ),
         };
         break;
 
       case "nftGate":
         guards[key] = {
-          requiredCollection: new PublicKey(guards[key].requiredCollection),
+          requiredCollection: new PgWeb3.PublicKey(
+            guards[key].requiredCollection
+          ),
         };
         break;
 
       case "nftPayment":
         guards[key] = {
-          requiredCollection: new PublicKey(guards[key].requiredCollection),
-          destination: new PublicKey(guards[key].destination),
+          requiredCollection: new PgWeb3.PublicKey(
+            guards[key].requiredCollection
+          ),
+          destination: new PgWeb3.PublicKey(guards[key].destination),
         };
         break;
 
@@ -92,7 +98,7 @@ const _parseGuards = (guards: { [key: string]: any }) => {
       case "solPayment":
         guards[key] = {
           amount: sol(guards[key].value),
-          destination: new PublicKey(guards[key].destination),
+          destination: new PgWeb3.PublicKey(guards[key].destination),
         };
         break;
 
@@ -104,29 +110,29 @@ const _parseGuards = (guards: { [key: string]: any }) => {
 
       case "thirdPartySigner":
         guards[key] = {
-          signerKey: new PublicKey(guards[key].signerKey),
+          signerKey: new PgWeb3.PublicKey(guards[key].signerKey),
         };
         break;
 
       case "tokenBurn":
         guards[key] = {
           amount: token(guards[key].amount),
-          mint: new PublicKey(guards[key].mint),
+          mint: new PgWeb3.PublicKey(guards[key].mint),
         };
         break;
 
       case "tokenGate":
         guards[key] = {
           amount: token(guards[key].amount),
-          mint: new PublicKey(guards[key].mint),
+          mint: new PgWeb3.PublicKey(guards[key].mint),
         };
         break;
 
       case "tokenPayment":
         guards[key] = {
           amount: token(guards[key].amount),
-          tokenMint: new PublicKey(guards[key].mint),
-          destinationAta: new PublicKey(guards[key].destination),
+          tokenMint: new PgWeb3.PublicKey(guards[key].mint),
+          destinationAta: new PgWeb3.PublicKey(guards[key].destination),
         };
         break;
     }

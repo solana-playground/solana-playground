@@ -41,24 +41,14 @@ You can open an issue to request more crates.
 
 ## Run locally
 
-You can run the client locally by cloning the repository and running the following commands in the project directory.
-
-Setup and start the dev server:
-
-```sh
-cd client # change directory to client
-yarn setup # run the setup script(only once)
-yarn start # start local dev server
-```
+- [Client setup](https://github.com/solana-playground/solana-playground/tree/master/client#setup)
+- [Server setup](https://github.com/solana-playground/solana-playground/tree/master/server#setup)
 
 ##### Recommended versions
 
 ```sh
 rustc --version
-# rustc 1.71.0 (8ede3aae2 2023-07-12)
-
-wasm-pack --version
-# wasm-pack 0.10.3
+# rustc 1.75.0 (82e1608df 2023-12-21)
 
 node --version
 # v18.15.0
@@ -69,8 +59,8 @@ yarn --version
 
 ## Contributing
 
-Anyone is welcome to contribute to **Solana Playground** no matter how big or small.
+Anyone is welcome to contribute to **Solana Playground,** no matter how big or small the contribution.
 
 ## License
 
-Public libraries(e.g. [solana-client-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/solana-client), [solana-extra-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/utils/solana-extra)) are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE) and the rest are licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).
+Public libraries (e.g. [solana-client-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/solana-client), [solana-extra-wasm](https://github.com/solana-playground/solana-playground/tree/master/wasm/utils/solana-extra)) are licensed under [Apache-2.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-APACHE), and the rest are licensed under [GPL-3.0](https://github.com/solana-playground/solana-playground/blob/master/LICENSE-GPL).

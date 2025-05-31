@@ -14,7 +14,6 @@ const BuildDeploy = () => (
 
 const Wrapper = styled.div`
   padding: 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.default.border};
 `;
 
 export default BuildDeploy;

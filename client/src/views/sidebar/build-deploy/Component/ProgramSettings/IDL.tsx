@@ -136,19 +136,19 @@ const InitOrUpgrade = () => {
       PgProgramInfo.onDidChange,
       PgWallet.onDidChangeCurrent,
     ]);
-    return () => dispose();
+    return dispose;
   }, [getIdl]);
 
   const handleInitOrUpgrade = async () => {
     switch (state) {
       case InitOrUpgradeState.CAN_INIT: {
         setState(InitOrUpgradeState.IS_INITIALIZING);
-        await PgCommand.anchor.run("idl init");
+        await PgCommand.anchor.execute("idl", "init");
         break;
       }
       case InitOrUpgradeState.CAN_UPGRADE: {
         setState(InitOrUpgradeState.IS_UPGRADING);
-        await PgCommand.anchor.run("idl upgrade");
+        await PgCommand.anchor.execute("idl", "upgrade");
         break;
       }
     }

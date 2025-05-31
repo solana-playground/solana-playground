@@ -48,6 +48,7 @@ use crate::{
         ProcessResult, SignatureResult,
     },
     utils::{
+        blockhash_query::blockhash_query_from_matches,
         memo::WithMemo,
         spend_utils::{resolve_spend_tx_and_check_account_balances, SpendAmount},
     },
@@ -416,7 +417,7 @@ pub fn parse_transfer(
     let sign_only = matches.is_present(SIGN_ONLY_ARG.name);
     let dump_transaction_message = matches.is_present(DUMP_TRANSACTION_MESSAGE.name);
     let no_wait = matches.is_present("no_wait");
-    let blockhash_query = BlockhashQuery::new_from_matches(matches);
+    let blockhash_query = blockhash_query_from_matches(matches);
     let nonce_account = pubkey_of_signer(matches, NONCE_ARG.name, wallet_manager)?;
     let (nonce_authority, nonce_authority_pubkey) =
         signer_of(matches, NONCE_AUTHORITY_ARG.name, wallet_manager)?;

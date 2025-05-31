@@ -1,8 +1,6 @@
-import { PublicKey } from "@solana/web3.js";
-
 import { getMetaplex, loadCache, loadConfigData } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
 
 export const processGuardWithdraw = async (
   rpcUrl: string | undefined,
@@ -19,7 +17,7 @@ export const processGuardWithdraw = async (
   }
   let candyGuardPk;
   try {
-    candyGuardPk = new PublicKey(candyGuardPkStr);
+    candyGuardPk = new PgWeb3.PublicKey(candyGuardPkStr);
   } catch {
     throw new Error(
       `Failed to parse candy machine guard id: ${candyGuardPkStr}`

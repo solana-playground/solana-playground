@@ -1,19 +1,13 @@
 import type { ChangeEvent } from "react";
 
-import {
-  Endpoint,
-  EventName,
-  EXPLORER_URL,
-  SOLSCAN_URL,
-} from "../../constants";
 import type {
   AllPartial,
   Disposable,
   Promisable,
   SyncOrAsync,
   Arrayable,
-  OrString,
   ValueOf,
+  OrString,
 } from "./types";
 
 export class PgCommon {
@@ -399,6 +393,22 @@ export class PgCommon {
   }
 
   /**
+   * Split the array to chunks based on the given length.
+   *
+   * @param array array to split to chunks
+   * @param len chunk length
+   * @returns the array chunks
+   */
+  static chunks<T>(array: T[], len: number) {
+    return array.reduce((acc, el, i) => {
+      const chunkIndex = Math.floor(i / len);
+      acc[chunkIndex] ??= [];
+      acc[chunkIndex].push(el);
+      return acc;
+    }, [] as T[][]);
+  }
+
+  /**
    * Access the property value from `.` seperated input.
    *
    * @param obj object to get property from
@@ -427,6 +437,44 @@ export class PgCommon {
    */
   static entries<T extends Record<string, unknown>>(obj: T) {
     return Object.entries(obj) as Array<[keyof T, ValueOf<T>]>;
+  }
+
+  /**
+   * Index into an object with proper types.
+   *
+   * TypeScript does not allow `obj[key]` if `key` is not guaranteed to be
+   * an actual property of the `obj`. A common workaround for this issue is to
+   * cast the `key` type like `obj[key as keyof typeof obj]`. However, this
+   * means the type of the resulting value will not include `undefined` unless
+   * the property values of the object also includes it.
+   *
+   * # Example
+   *
+   * If it's a known property, it will have the type of the object values type
+   * without `undefined`:
+   *
+   * ```ts
+   * const age = this.indexInto({ age: 42 }, "age");
+   * // value: `42`, type: `number`
+   * ```
+   *
+   * If the value is unknown, rather than resulting in an error, the type
+   * will include `undefined`:
+   *
+   * ```ts
+   * const age = this.indexInto({ age: 42 }, "no");
+   * // value: `undefined`, type: `number | undefined`
+   * ```
+   *
+   * @param obj object
+   * @param key potential key of the object
+   * @returns the indexed value with proper types
+   */
+  static indexInto<
+    T extends Record<string, unknown>,
+    K extends OrString<keyof T>
+  >(obj: T, key: K) {
+    return obj[key] as K extends keyof T ? T[K] : ValueOf<T> | undefined;
   }
 
   /**
@@ -481,69 +529,6 @@ export class PgCommon {
     }
 
     return "data:text/json;charset=utf-8," + encodeURIComponent(content);
-  }
-
-  /**
-   * Get the cluster URL parameter to add to the explorer URL(s)
-   *
-   * @returns the cluster URL suffix
-   */
-  static getExplorerClusterParam(endpoint: string) {
-    // Mainnet by default
-    let cluster = "";
-
-    if (endpoint === Endpoint.LOCALHOST) {
-      cluster = "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
-    } else if (
-      endpoint === Endpoint.DEVNET ||
-      endpoint === Endpoint.DEVNET_GENESYSGO
-    ) {
-      cluster = "?cluster=devnet";
-    } else if (endpoint === Endpoint.TESTNET) {
-      cluster = "?cluster=testnet";
-    }
-
-    return cluster;
-  }
-
-  /**
-   * Get transaction urls for explorers
-   *
-   * @returns transaction url for solana explorer, solscan
-   */
-  static getExplorerTxUrls(txHash: string, endpoint: string) {
-    let explorer = EXPLORER_URL + "/tx/" + txHash;
-    const cluster = this.getExplorerClusterParam(endpoint);
-    explorer += cluster;
-
-    // Solscan doesn't have support for localhost
-    if (endpoint === Endpoint.LOCALHOST) {
-      return { explorer };
-    }
-
-    const solscan = SOLSCAN_URL + "/tx/" + txHash + cluster;
-
-    return { explorer, solscan };
-  }
-
-  /**
-   *  Get explorer urls for a mint
-   *
-   * @returns mint url for solana explorer, solscan
-   */
-  static getExplorerTokenUrl(mint: string, endpoint: string) {
-    let explorer = EXPLORER_URL + "/address/" + mint;
-    const cluster = this.getExplorerClusterParam(endpoint);
-    explorer += cluster;
-
-    // Solscan doesn't have support for localhost
-    if (endpoint === Endpoint.LOCALHOST) {
-      return { explorer };
-    }
-
-    const solscan = SOLSCAN_URL + "/token/" + mint + cluster;
-
-    return { explorer, solscan };
   }
 
   /**
@@ -621,6 +606,13 @@ export class PgCommon {
     if (!result) return false;
 
     return result[0] === str;
+  }
+
+  /**
+   * @returns whether the given string is parsable to a boolean
+   */
+  static isBoolean(str: string) {
+    return str === "true" || str === "false";
   }
 
   /**
@@ -745,10 +737,15 @@ export class PgCommon {
    * @returns kebab-case converted version of the Title Case string
    */
   static toKebabFromTitle(str: string) {
-    return str
+    str = str
       .split(" ")
       .map((w) => w.toLowerCase())
-      .join("-");
+      .join("-")
+      .replaceAll(/\W/g, (match) => (match === "-" ? match : ""))
+      .replaceAll("--", "-");
+    if (str.startsWith("-")) str = str.substring(1);
+    if (str.endsWith("-")) str = str.substring(0, str.length - 1);
+    return str;
   }
 
   /**
@@ -781,7 +778,7 @@ export class PgCommon {
   static toTitleFromKebab(str: string) {
     return (
       str[0].toUpperCase() +
-      str.slice(1).replace(/-\w/, (match) => " " + match[1].toUpperCase())
+      str.slice(1).replace(/-\w/g, (match) => " " + match[1].toUpperCase())
     );
   }
 
@@ -827,22 +824,6 @@ export class PgCommon {
    */
   static capitalize(str: string) {
     return str[0].toUpperCase() + str.slice(1);
-  }
-
-  /**
-   * @returns automatic airdrop amount
-   */
-  static getAirdropAmount(endpoint: string) {
-    switch (endpoint) {
-      case Endpoint.PLAYNET:
-        return 1000;
-      case Endpoint.LOCALHOST:
-        return 100;
-      case Endpoint.TESTNET:
-        return 1;
-      default:
-        return null;
-    }
   }
 
   /**
@@ -943,7 +924,7 @@ export class PgCommon {
    */
   static onDidChange<T>(params: {
     cb: (value: T) => any;
-    eventName: OrString<EventName>;
+    eventName: string;
     // TODO: make it run by default
     initialRun?: { value: T };
   }): Disposable {
@@ -1138,13 +1119,12 @@ export class PgCommon {
   }
 
   /**
-   * Append '/' to the end of the string
+   * Append '/' to the end of the string.
    *
    * @param str string to append slash to
    * @returns the slash appended string
    */
   static appendSlash(str: string) {
-    if (!str) return "";
     return str + (str.endsWith("/") ? "" : "/");
   }
 
@@ -1164,7 +1144,7 @@ export class PgCommon {
    * @param paths paths to join
    * @returns the joined path
    */
-  static joinPaths(paths: string[]) {
+  static joinPaths(...paths: string[]) {
     return paths.reduce(
       (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
     );

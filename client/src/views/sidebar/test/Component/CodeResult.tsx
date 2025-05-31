@@ -18,8 +18,8 @@ const StyledCodeBlock = styled(CodeBlock)<CodeResultProps>`
     & pre {
       padding: 1rem 0.5rem;
       background: ${index % 2 === 1
-        ? theme.components.sidebar.right.default.otherBg
-        : theme.components.sidebar.right.default.bg} !important;
+        ? theme.views.sidebar.right.default.otherBg
+        : theme.views.sidebar.right.default.bg} !important;
     }
   `}
 `;

@@ -1,20 +1,10 @@
-import { commitment } from "./commitment";
-import { endpoint } from "./endpoint";
-import { font } from "./font";
-import { improveBuildErrors } from "./improve-build-errors";
-import { preflightChecks } from "./preflight-checks";
-import { showTransactionDetails } from "./show-transaction-details";
-import { showTransactionNotifications } from "./show-transaction-notifications";
-import { theme } from "./theme";
+import * as S from "./generated";
 
-/** All configurable settings */
-export const SETTINGS = [
-  theme,
-  font,
-  endpoint,
-  commitment,
-  preflightChecks,
-  showTransactionDetails,
-  showTransactionNotifications,
-  improveBuildErrors,
-];
+/** All configurable settings (in order) */
+export const SETTINGS = Object.values(S).sort((a, b) => {
+  // Prioritize select components over checkboxes
+  if (a.values && !b.values) return -1;
+
+  // Alphabetically order based on UI name
+  return a.name.localeCompare(b.name);
+});

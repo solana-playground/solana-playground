@@ -2,7 +2,8 @@ import { useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../components/Button";
-import { useRenderOnChange } from "../../../../hooks";
+import Text from "../../../../components/Text";
+import { useExplorer, useRenderOnChange } from "../../../../hooks";
 import { PgCommand, PgGlobal } from "../../../../utils/pg";
 
 const Build = () => {
@@ -10,7 +11,12 @@ const Build = () => {
     PgGlobal.onDidChangeBuildLoading,
     PgGlobal.buildLoading
   );
-  const build = useCallback(() => PgCommand.build.run(), []);
+  const build = useCallback(() => PgCommand.build.execute(), []);
+
+  const { explorer } = useExplorer();
+  if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
+    return <Text>No project to build.</Text>;
+  }
 
   return (
     <Wrapper>

@@ -11,7 +11,7 @@ Ideally this server shouldn't exist and everything should be done on clients but
 
 The easiest way to run the server is via [Docker Compose](https://github.com/docker/compose):
 
-```
+```sh
 docker compose up
 ```
 

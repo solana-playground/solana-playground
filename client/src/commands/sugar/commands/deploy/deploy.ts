@@ -1,8 +1,5 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
-
 import { Emoji } from "../../../../constants";
-import { PgCommon } from "../../../../utils/pg/common";
-import { PgTerminal } from "../../../../utils/pg/terminal";
+import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
@@ -64,10 +61,10 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
 
   const metaplex = await getMetaplex(rpcUrl);
   const candyClient = metaplex.candyMachines();
-  let candyPubkey: PublicKey;
+  let candyPubkey: PgWeb3.PublicKey;
 
   if (!candyMachinePkStr) {
-    const candyKp = new Keypair();
+    const candyKp = new PgWeb3.Keypair();
     candyPubkey = candyKp.publicKey;
 
     // Check collection, required in v3
@@ -80,10 +77,10 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
       `\n[1/${totalSteps}] ${Emoji.COLLECTION} Creating collection NFT for candy machine`
     );
 
-    let collectionMintPk: PublicKey;
+    let collectionMintPk: PgWeb3.PublicKey;
     if (collectionItem.onChain) {
       term.println("\nCollection mint already deployed.");
-      collectionMintPk = new PublicKey(cache.program.collectionMint);
+      collectionMintPk = new PgWeb3.PublicKey(cache.program.collectionMint);
     } else {
       // Create collection
       // collectionMintPk = await createCollection(metaplex, cache, configData);
@@ -161,7 +158,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
         ].join(" ")
       );
     }
-    candyPubkey = new PublicKey(candyMachinePkStr);
+    candyPubkey = new PgWeb3.PublicKey(candyMachinePkStr);
 
     try {
       await candyClient.findByAddress({
@@ -207,7 +204,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
       );
 
       // Show progress bar
-      PgTerminal.setProgress(0.1);
+      PgView.setMainSecondaryProgress(0.1);
       let progressCount = 0;
 
       const CONCURRENT = 4;
@@ -248,7 +245,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
               errorCount++;
             } finally {
               progressCount++;
-              PgTerminal.setProgress(
+              PgView.setMainSecondaryProgress(
                 (progressCount / configLineChunks.length) * 100
               );
             }
@@ -257,7 +254,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
       );
 
       // Hide progress bar
-      setTimeout(() => PgTerminal.setProgress(0), 1000);
+      setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
       // Sync and refresh the file if it's already open
       clearInterval(saveCacheIntervalId);

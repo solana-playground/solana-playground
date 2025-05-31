@@ -5,7 +5,7 @@ export const printWithStyle = (
   key: string | number,
   value: any = ""
 ) => {
-  PgTerminal.log(
+  PgTerminal.println(
     ` ${PgTerminal.secondaryText(`${indent}:.. ${key}:`)} ${value}`,
     { noColor: true }
   );

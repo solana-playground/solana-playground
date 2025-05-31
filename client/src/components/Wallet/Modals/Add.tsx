@@ -1,21 +1,20 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
-import { Keypair } from "@solana/web3.js";
 
 import Button from "../../Button";
 import Input from "../../Input";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Info } from "../../Icons";
-import { PgWallet } from "../../../utils/pg";
+import { PgWallet, PgWeb3 } from "../../../utils/pg";
 
 export const Add = () => {
-  const [keypair] = useState(Keypair.generate());
-  const [name, setName] = useState(PgWallet.getNextAvailableAccountName());
+  const [keypair] = useState(PgWeb3.Keypair.generate);
+  const [name, setName] = useState(PgWallet.getNextAvailableAccountName);
   const [error, setError] = useState<string | null>(null);
 
   const handleCreate = () => PgWallet.add({ name, keypair });
-  const handleExport = () => PgWallet.export(keypair);
+  const handleExport = () => PgWallet.export({ name, keypair });
 
   return (
     <Modal
@@ -23,9 +22,9 @@ export const Add = () => {
       buttonProps={{
         text: "Create",
         onSubmit: handleCreate,
-        setError,
-        disabled: !!error,
       }}
+      error={error}
+      setError={setError}
     >
       <MainContent>
         <MainText>Are you sure you want to create a new wallet?</MainText>

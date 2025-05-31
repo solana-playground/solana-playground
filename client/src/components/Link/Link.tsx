@@ -3,10 +3,9 @@ import { Link as RouterLink } from "react-router-dom";
 import styled, { css, DefaultTheme } from "styled-components";
 
 import { External } from "../Icons";
-import type { OrString } from "../../utils/pg";
 
 export interface LinkProps extends ComponentPropsWithoutRef<"a"> {
-  href: OrString<RoutePath>;
+  href: RoutePath;
 }
 
 const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {

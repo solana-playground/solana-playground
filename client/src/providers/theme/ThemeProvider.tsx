@@ -4,44 +4,21 @@ import styled, {
   ThemeProvider as StyledThemeProvider,
 } from "styled-components";
 
-import { FONTS, THEMES } from "../../theme";
-import { Font, PgTheme, ThemeReady } from "../../utils/pg/theme";
-import { EventName } from "../../constants/event";
+import { FONTS, THEMES } from "../../themes";
+import { PgTheme, Theme } from "../../utils/pg/theme";
 import { useSetStatic } from "../../hooks/useSetStatic";
 
 export const ThemeProvider: FC = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeReady>();
-  const [font, setFont] = useState<Font>();
+  const [theme, setTheme] = useState<Theme>();
 
-  useSetStatic(setTheme, EventName.THEME_SET);
-  useSetStatic(setFont, EventName.THEME_FONT_SET);
+  useSetStatic(setTheme, PgTheme.events.THEME_SET);
 
   // Create initial theme
   useEffect(() => {
     PgTheme.create(THEMES, FONTS);
   }, []);
 
-  // Update `theme.font` when theme or font changes
-  useEffect(() => {
-    if (theme && font) {
-      const fontFamily = PgTheme.addFallbackFont(font.family);
-      if (theme.font.code.family !== fontFamily) {
-        setTheme((t) => {
-          return (
-            t && {
-              ...t,
-              font: {
-                code: { ...font, family: fontFamily },
-                other: t.font.other,
-              },
-            }
-          );
-        });
-      }
-    }
-  }, [theme, font]);
-
-  if (!theme || !font) return null;
+  if (!theme) return null;
 
   return (
     <StyledThemeProvider theme={theme}>

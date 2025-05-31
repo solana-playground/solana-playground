@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
 
-import { Lang, PgExplorer } from "../../utils/pg";
+import { PgLanguage } from "../../utils/pg";
 import {
   JavaScript,
   Json,
@@ -12,30 +12,28 @@ import {
 } from "../Icons";
 
 interface LangIconProps {
-  fileName: string;
+  /** File path to decide the language from */
+  path: string;
 }
 
-const LangIcon: FC<LangIconProps> = ({ fileName }) => {
+const LangIcon: FC<LangIconProps> = ({ path }) => {
   const Icon = useMemo(() => {
-    switch (PgExplorer.getLanguageFromPath(fileName)) {
-      case Lang.RUST:
+    const lang = PgLanguage.getFromPath(path);
+    switch (lang?.name) {
+      case "Rust":
         return <Rust color="textSecondary" />;
-      case Lang.PYTHON:
+      case "Python":
         return <Python />;
-      case Lang.JAVASCRIPT:
-        return <JavaScript />;
-      case Lang.TYPESCRIPT:
-        return <TypeScript />;
-      case Lang.JAVASCRIPT_TEST:
-        return <JavaScript isTest />;
-      case Lang.TYPESCRIPT_TEST:
-        return <TypeScript isTest />;
-      case Lang.JSON:
+      case "JavaScript":
+        return <JavaScript isTest={path.endsWith(".test.js")} />;
+      case "TypeScript":
+        return <TypeScript isTest={path.endsWith(".test.ts")} />;
+      case "JSON":
         return <Json />;
       default:
         return <QuestionMark />;
     }
-  }, [fileName]);
+  }, [path]);
 
   return <Wrapper>{Icon}</Wrapper>;
 };

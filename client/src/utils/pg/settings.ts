@@ -3,21 +3,10 @@
 
 import { Endpoint } from "../../constants";
 import { declareUpdatable, migratable, updatable } from "./decorators";
-import type { OrString } from "./types";
+import type { CallableJSX, Disposable, Getable, UnionToTuple } from "./types";
 
-interface Settings {
-  /** Connection settings */
-  connection: {
-    /** Connection RPC URL */
-    endpoint: OrString<Endpoint>;
-    /** Connection commitment */
-    commitment: "processed" | "confirmed" | "finalized";
-    /** Whether to enable preflight checks */
-    preflightChecks: boolean;
-  };
-  /** Build settings */
-  // TODO: Re-evalute whether build settings should be stored in `PgProgramInfo`
-  // to allow the ability to set program specific settings instead of global?
+type Settings = ConvertAll<UnionToTuple<InternalSettings[number]>> & {
+  // TODO: Store this in `PgProgramInfo` and remove
   build: {
     flags: {
       /** Whether to enable Anchor `seeds` feature */
@@ -27,26 +16,84 @@ interface Settings {
       /** Whether to enable Anchor safety checks */
       safetyChecks: boolean;
     };
-    /** Whether to improve build error logs */
-    improveErrors: boolean;
   };
-  /** Test UI settings */
-  testUi: {
-    /** Whether to show transaction details in terminal */
-    showTxDetailsInTerminal: boolean;
-  };
-  /** Notification settings */
-  notification: {
-    /** Whether to show transaction toast notification */
-    showTx: boolean;
-  };
-}
+};
 
+type ConvertAll<A, R = unknown> = A extends readonly [infer Head, ...infer Tail]
+  ? Head extends Setting<infer I, infer V>
+    ? R & ConvertAll<Tail, Convert<I, V>>
+    : never
+  : R;
+
+type Convert<I extends string, V> = I extends ""
+  ? unknown
+  : I extends `${infer Head}.${infer Rest}`
+  ? { [K in Head]: Convert<Rest, V> }
+  : { [K in I]: V extends undefined ? boolean : V };
+
+/** Setting creation parameter */
+export type SettingParam<I extends string, V> = {
+  /** Setting identifier (used in `PgSettings`) */
+  id?: I;
+  /** Name of the setting */
+  name: string;
+  /** Information about the setting that will be shown as a help tooltip */
+  description?: string;
+  /**
+   * Possible values for the settings.
+   *
+   * If this is not set, the setting is assumed to be a checkbox.
+   */
+  values?: Getable<readonly Values<V>[]>;
+  /**
+   * Custom component to set custom values for the setting.
+   *
+   * This is set automatically if `Custom.tsx` file inside the setting's
+   * directory exists.
+   */
+  CustomComponent?: CallableJSX;
+} & Partial<SettingsCompat<V>>;
+
+/** Compatibility with non-standard settings (theme and font) */
+// TODO: Move `PgTheme` storage to `PgSettings` and remove this
+type SettingsCompat<V> = {
+  /** Get current value. */
+  getValue: () => V;
+  /** Set current value. */
+  setValue: (v: V) => unknown;
+  /** Setting's `onChange` function (necessary for re-rendering on change) */
+  onChange?: (cb: (v: V) => void) => Disposable;
+};
+
+/** Possible setting values */
+type Values<V> =
+  | V
+  | { name: string; value: V }
+  | { name: string; values: Values<V[]> };
+
+/** UI Setting */
+export type Setting<I extends string = string, V = any> = SettingParam<I, V> &
+  SettingsCompat<V>;
+
+// Default values for the settings currently need to be initialized here rather
+// than during settings creation in `/settings` mainly because of two reasons:
+//
+// 1. The initialization only requires the default values, meaning all other
+//    setting fields are useless in this context.
+// 2. This file has constraints on what it can import because it gets loaded
+//    before everything else (even before the initial lazy loading process).
+//    There is no reason to apply these constraints to `/settings`.
+//
+// TODO: Unless we find another way, the initialization problem i.e. having to
+// make changes to this file can be fixed by adding a `defaultValue` field to
+// settings and adding a script that creates the `defaultState` constant based
+// on the new field.
 const defaultState: Settings = {
   connection: {
     endpoint: Endpoint.DEVNET,
     commitment: "confirmed",
     preflightChecks: true,
+    priorityFee: "median",
   },
   build: {
     flags: {
@@ -61,6 +108,12 @@ const defaultState: Settings = {
   },
   notification: {
     showTx: true,
+  },
+  other: {
+    blockExplorer: "Solana Explorer",
+  },
+  wallet: {
+    automaticAirdrop: true,
   },
 };
 
@@ -121,7 +174,35 @@ const migrate = () => {
 
 @migratable(migrate)
 @updatable({ defaultState, storage, recursive })
-class _PgSettings {}
+class _PgSettings {
+  /** All settings */
+  static all: Setting[];
+
+  /**
+   * Get the setting value.
+   *
+   * @param id setting id
+   * @returns the setting value
+   */
+  static get(id: string) {
+    return id.split(".").reduce((acc, cur) => acc[cur], PgSettings as any);
+  }
+
+  /**
+   * Set the setting value.
+   *
+   * @param id setting id
+   * @param value value to set
+   */
+  static set(id: string, value: any) {
+    const fields = id.split(".");
+    const parentObj = fields
+      .slice(0, -1)
+      .reduce((acc, cur) => acc[cur], PgSettings as any);
+    const lastField = fields.at(-1)!;
+    parentObj[lastField] = value;
+  }
+}
 
 export const PgSettings = declareUpdatable(_PgSettings, {
   defaultState,

@@ -1,25 +1,5 @@
 import { GITHUB_URL } from "./project";
 
-export enum ItemError {
-  ALREADY_EXISTS = "Already exists",
-  INVALID_NAME = "Invalid name",
-  TYPE_MISMATCH = "Types don't match",
-  SRC_DELETE = "Cannot delete src folder",
-  SRC_RENAME = "Cannot rename src folder",
-}
-
-export enum WorkspaceError {
-  ALREADY_EXISTS = "Already exists",
-  INVALID_NAME = "Invalid name",
-  NOT_FOUND = "Workspace not found",
-  CURRENT_NOT_FOUND = "Current workspace not found",
-}
-
-export enum GithubError {
-  INVALID_URL = "Invalid program url",
-  INVALID_REPO = "Invalid program repository",
-}
-
 interface ConvertedError {
   [key: string]: string;
 }

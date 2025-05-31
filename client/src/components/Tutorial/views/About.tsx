@@ -9,25 +9,12 @@ import { PointedArrow, Triangle } from "../../Icons";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialAboutComponentProps } from "../types";
 
-export const About: FC<TutorialAboutComponentProps> = ({
-  files,
-  defaultOpenFile,
-  about,
-  pages,
-}) => {
+export const About: FC<TutorialAboutComponentProps> = ({ about, start }) => {
   const tutorial = PgTutorial.data;
-  const isStarted = !!PgTutorial.pageNumber;
-  const isFinished = PgTutorial.completed;
-
-  const startTutorial = async () => {
-    await PgTutorial.start({
-      files,
-      defaultOpenFile,
-      pageCount: pages.length,
-    });
-  };
-
   if (!tutorial) return null;
+
+  const isStarted = PgTutorial.isStarted(tutorial.name);
+  const isFinished = PgTutorial.completed;
 
   return (
     <Wrapper>
@@ -68,7 +55,7 @@ export const About: FC<TutorialAboutComponentProps> = ({
 
             <GeneratedTopRightWrapper>
               <Button
-                onClick={startTutorial}
+                onClick={start}
                 kind={isFinished ? "no-border" : "secondary"}
                 color={isFinished ? "success" : undefined}
                 fontWeight="bold"
@@ -124,7 +111,7 @@ const GoBackButtonWrapper = styled.div`
 
 const TutorialAboutPage = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.components.main.views.tutorial.aboutPage)};
+    ${PgTheme.convertToCSS(theme.views.main.primary.tutorial.aboutPage)};
   `}
 `;
 

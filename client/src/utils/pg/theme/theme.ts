@@ -1,13 +1,12 @@
 import type { StandardProperties } from "csstype";
 
 import { PgCommon } from "../common";
-import { EventName } from "../../../constants";
 import type {
   DefaultComponent,
   ImportableTheme,
   Font,
   ThemeInternal,
-  ThemeReady,
+  Theme,
   ThemeColor,
   Highlight,
 } from "./interface";
@@ -32,6 +31,11 @@ export class PgTheme {
   /** Font key in localStorage */
   private static readonly _FONT_KEY = "font";
 
+  /** Theme event names */
+  static events = {
+    THEME_SET: "themeset",
+  };
+
   /** All available themes */
   static get themes() {
     return this._themes;
@@ -40,6 +44,16 @@ export class PgTheme {
   /** All available fonts */
   static get fonts() {
     return this._fonts;
+  }
+
+  /** Current theme */
+  static get theme() {
+    return this._themeReady;
+  }
+
+  /** Current font */
+  static get font() {
+    return this._font;
   }
 
   /**
@@ -80,70 +94,73 @@ export class PgTheme {
       fontFamily: Font["family"];
     }> = {}
   ) {
-    params.themeName ??=
-      localStorage.getItem(this._THEME_KEY) ?? this._themes[0].name;
-    params.fontFamily ??=
-      localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family;
+    const { themeName, fontFamily } = PgCommon.setDefault(params, {
+      themeName: localStorage.getItem(this._THEME_KEY) ?? this._themes[0].name,
+      fontFamily: localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family,
+    });
 
-    let importableTheme = this._themes.find((t) => t.name === params.themeName);
-
-    // This could happen when:
-    // 1. The theme name was updated/deleted
-    // 2. The theme key was overridden by another app when running locally
-    // 3. The user manually edited `localStorage` theme value
-    if (!importableTheme) {
-      importableTheme = this._themes[0];
-      params.themeName = importableTheme.name;
-      params.fontFamily = this._fonts[0].family;
-    }
-
-    const font = this._fonts.find((f) => f.family === params.fontFamily)!;
+    // We might not be able to find the theme from `themeName` if one of the
+    // following occured:
+    //
+    // - The theme name was updated/deleted
+    // - The theme key was overridden by another app when running locally
+    // - The user manually edited `localStorage` theme value
+    const importableTheme =
+      this._themes.find((t) => t.name === themeName) ?? this._themes[0];
+    const font =
+      this._fonts.find((f) => f.family === fontFamily) ?? this.fonts[0];
 
     // Cloning the object because override functions expect the theme to be
     // uninitialized. Keeping a reference to an old theme may cause unwanted
     // side effects.
-    this._theme = structuredClone(
-      (await importableTheme.importTheme()).default
-    );
+    this._theme = structuredClone((await importableTheme.import()).default);
     this._theme.name = importableTheme.name;
+    this._theme.isDark = importableTheme.isDark;
     this._font = font;
 
-    // Set defaults(order matters)
+    // Load font if necessary.
+    //
+    // Iterating over the fonts here because both the `check` and `has` methods
+    // of `document.fonts` are not reliable i.e. `check` returns `true` for
+    // non-existent fonts and `has` expects a `FontFace` argument, which means
+    // we'd have to store the object somewhere because it compares by object
+    // reference rather than font family.
+    let isLoaded = false;
+    for (const font of document.fonts.keys()) {
+      if (font.family === this._font.family) {
+        isLoaded = font.status === "loaded";
+      }
+    }
+    if (!isLoaded) {
+      try {
+        const fontFace = new FontFace(
+          this._font.family,
+          `url(/fonts/${PgCommon.toPascalFromTitle(this._font.family)}.woff2)`
+        );
+        await fontFace.load();
+        document.fonts.add(fontFace);
+      } catch (e) {
+        console.log(`Failed to load font: ${this._font.family}\nError: ${e}`);
+      }
+    }
+
+    // Set defaults (order matters)
     this._theme_fonts()
       ._default()
       ._stateColors()
-      ._components()
-      ._skeleton()
-      ._button()
-      ._menu()
-      ._text()
-      ._input()
-      ._select()
-      ._tooltip()
-      ._progressBar()
-      ._uploadArea()
-      ._toast()
-      ._modal()
-      ._markdown()
-      ._terminal()
-      ._wallet()
-      ._bottom()
-      ._sidebar()
-      ._main()
-      ._tabs()
-      ._editor()
-      ._home()
-      ._tutorial()
-      ._tutorials()
-      ._programs();
+      ._highlight()
+      ._views()
+      ._components();
 
-    // Set theme
-    localStorage.setItem(this._THEME_KEY, params.themeName);
-    PgCommon.createAndDispatchCustomEvent(EventName.THEME_SET, this._theme);
+    // Save to storage
+    localStorage.setItem(this._THEME_KEY, this._theme.name);
+    localStorage.setItem(this._FONT_KEY, this._font.family);
 
-    // Set font
-    localStorage.setItem(this._FONT_KEY, params.fontFamily);
-    PgCommon.createAndDispatchCustomEvent(EventName.THEME_FONT_SET, this._font);
+    // Dispatch theme set event to update UI
+    PgCommon.createAndDispatchCustomEvent(
+      PgTheme.events.THEME_SET,
+      this._theme
+    );
   }
 
   /**
@@ -223,28 +240,12 @@ export class PgTheme {
    * @returns the color value from theme
    */
   static getColor(color: ThemeColor = "textSecondary") {
-    const theme = this._themeReady;
+    const colors = this._themeReady.colors;
 
-    switch (color) {
-      case "primary":
-        return theme.colors.default.primary;
-      case "secondary":
-        return theme.colors.default.secondary;
-      case "error":
-        return theme.colors.state.error.color;
-      case "success":
-        return theme.colors.state.success.color;
-      case "warning":
-        return theme.colors.state.warning.color;
-      case "info":
-        return theme.colors.state.info.color;
-      case "textPrimary":
-        return theme.colors.default.textPrimary;
-      case "textSecondary":
-        return theme.colors.default.textSecondary;
-      default:
-        throw new Error(`Unknown color '${color}'`);
-    }
+    return (
+      PgCommon.indexInto(colors.state, color)?.color ??
+      PgCommon.indexInto(colors.default, color)!
+    );
   }
 
   /**
@@ -255,10 +256,6 @@ export class PgTheme {
    */
   static getDifferentBackground(bg: string) {
     const theme = this._themeReady;
-
-    const textBg = theme.components.text.default.bg!;
-    if (!PgCommon.isColorsEqual(bg, textBg)) return textBg;
-
     const { bgPrimary, bgSecondary } = theme.colors.default;
     if (PgCommon.isColorsEqual(bg, bgPrimary)) return bgSecondary;
     return bgPrimary;
@@ -341,7 +338,7 @@ export class PgTheme {
    * @param theme ready theme
    * @returns the converted TextMate theme
    */
-  static convertToTextMateTheme(theme: ThemeReady) {
+  static convertToTextMateTheme(theme: Theme) {
     const editorStyles = theme.components.editor;
     const hl = theme.highlight;
 
@@ -592,7 +589,7 @@ export class PgTheme {
 
   /** Get the theme with default types set */
   private static get _themeReady() {
-    return this._theme as ThemeReady;
+    return this._theme as Theme;
   }
 
   /** Get and initialize component and return it with the correct type */
@@ -601,8 +598,16 @@ export class PgTheme {
   >(component: T): NonNullable<NonNullable<ThemeInternal["components"]>[T]> {
     const components = this._theme.components!;
     components[component] ??= {};
-
     return components[component]!;
+  }
+
+  /** Get and initialize component and return it with the correct type */
+  private static _getView<T extends keyof NonNullable<ThemeInternal["views"]>>(
+    view: T
+  ): NonNullable<NonNullable<ThemeInternal["views"]>[T]> {
+    const views = this._theme.views!;
+    views[view] ??= {};
+    return views[view]!;
   }
 
   /** Set default fonts */
@@ -634,7 +639,7 @@ export class PgTheme {
 
     // Backdrop
     def.backdrop ??= {};
-    def.backdrop.bg ??= "#00000080";
+    def.backdrop.bg ??= this._theme.isDark ? "#00000080" : "#00000040";
 
     // Border radius
     def.borderRadius ??= "4px";
@@ -696,9 +701,199 @@ export class PgTheme {
     return this;
   }
 
+  /** Set code syntax highlights */
+  private static _highlight() {
+    this._theme.highlight = Object.entries(this._theme.highlight).reduce(
+      (acc, [key, val]) => {
+        if (typeof val === "string") {
+          acc[key as keyof typeof acc] = { color: val };
+        }
+
+        return acc;
+      },
+      this._theme.highlight
+    );
+
+    return this;
+  }
+
+  /** Set default views */
+  private static _views() {
+    this._theme.views ??= {};
+
+    return this._bottom()
+      ._sidebar()
+      ._main()
+      ._home()
+      ._tutorial()
+      ._tutorials()
+      ._programs();
+  }
+
   /** Set default components */
   private static _components() {
     this._theme.components ??= {};
+
+    return this._skeleton()
+      ._button()
+      ._menu()
+      ._text()
+      ._input()
+      ._select()
+      ._tooltip()
+      ._progressBar()
+      ._uploadArea()
+      ._toast()
+      ._modal()
+      ._markdown()
+      ._terminal()
+      ._wallet()
+      ._tabs()
+      ._editor();
+  }
+
+  /** Set default bottom bar view */
+  private static _bottom() {
+    const bottom = this._getView("bottom");
+    const theme = this._themeReady;
+
+    // Default
+    bottom.default ??= {};
+    bottom.default.height ??= "1.5rem";
+    bottom.default.padding ??= "0 0.5rem";
+    bottom.default.bg ??= theme.colors.default.primary;
+    bottom.default.color ??= theme.colors.default.textPrimary;
+    bottom.default.fontSize ??= theme.font.code.size.small;
+    bottom.default.display ??= "flex";
+    bottom.default.flexWrap ??= "wrap";
+    bottom.default.alignItems ??= "center";
+
+    // Connect button
+    bottom.connect ??= {};
+    bottom.connect.height ??= "100%";
+    bottom.connect.padding ??= "0 0.75rem";
+    bottom.connect.border ??= "none";
+    bottom.connect.hover ??= {};
+    bottom.connect.hover.bg ??=
+      bottom.default.color + theme.default.transparency.low;
+
+    // Endpoint
+    bottom.endpoint ??= {};
+
+    // Address
+    bottom.address ??= {};
+    bottom.address.color ??= bottom.default.color;
+
+    // Balance
+    bottom.balance ??= {};
+
+    return this;
+  }
+
+  /** Set default main view */
+  private static _main() {
+    const main = this._getView("main");
+    const theme = this._themeReady;
+
+    // Default
+    main.default ??= {};
+    main.default.display ??= "flex";
+    main.default.flexDirection ??= "column";
+    main.default.overflow ??= "hidden";
+    main.default.bg ??= theme.colors.default.bgSecondary;
+    main.default.color ??= theme.colors.default.textPrimary;
+    main.default.zIndex ??= 1; // To make main view go over the sidebar
+
+    // Main primary
+    main.primary ??= {};
+    // Main top default
+    main.primary.default ??= {};
+    main.primary.default.flex ??= "1";
+    main.primary.default.minHeight ??= 0;
+
+    // Main secondary
+    main.secondary ??= {};
+    // Main secondary default
+    main.secondary.default ??= {};
+    main.secondary.default.height ??= "100%";
+    main.secondary.default.bg ??= theme.colors.default.bgPrimary;
+    main.secondary.default.color ??= theme.colors.default.textPrimary;
+    main.secondary.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
+    // Main secondary tabs
+    main.secondary.tabs ??= {};
+    const tabs = main.secondary.tabs;
+    // Main secondary tabs default
+    tabs.default ??= {};
+    tabs.default.display ??= "flex";
+    tabs.default.gap ??= "1rem";
+    tabs.default.marginRight ??= "1rem";
+    // Main secondary tabs tab
+    tabs.tab ??= {};
+    // Main secondary tabs tab default
+    tabs.tab.default ??= {};
+    tabs.tab.default.padding ??= "0.25rem";
+    tabs.tab.default.color ??= theme.colors.default.textSecondary;
+    tabs.tab.default.fontSize ??= theme.font.code.size.small;
+    tabs.tab.default.textTransform ??= "uppercase";
+    tabs.tab.default.hover ??= {};
+    tabs.tab.default.hover.cursor ??= "pointer";
+    tabs.tab.default.hover.color ??= theme.colors.default.textPrimary;
+    // Main secondary tabs tab current
+    tabs.tab.current ??= {};
+    tabs.tab.current.color ??= theme.colors.default.textPrimary;
+    tabs.tab.current.borderBottom ??= `1px solid ${theme.colors.default.secondary}`;
+
+    return this;
+  }
+
+  /** Set default sidebar view */
+  private static _sidebar() {
+    const sidebar = this._getView("sidebar");
+    const theme = this._themeReady;
+
+    // Default
+    sidebar.default ??= {};
+    sidebar.default.display ??= "flex";
+
+    // Left
+    sidebar.left ??= {};
+    // Left default
+    sidebar.left.default ??= {};
+    sidebar.left.default.width ??= "3rem";
+    sidebar.left.default.bg ??= theme.colors.default.bgPrimary;
+    sidebar.left.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
+
+    // Left icon button
+    sidebar.left.button ??= {};
+    // Left icon button default
+    sidebar.left.button.default ??= {};
+    sidebar.left.button.default.display ??= "flex";
+    sidebar.left.button.default.justifyContent ??= "center";
+    sidebar.left.button.default.alignItems ??= "center";
+    sidebar.left.button.default.width ??= sidebar.left.default.width;
+    sidebar.left.button.default.height ??= "3rem";
+    sidebar.left.button.default.cursor ??= "pointer";
+
+    // Left icon button selected
+    sidebar.left.button.selected ??= {};
+    sidebar.left.button.selected.bg ??= theme.colors.state.hover.bg;
+    sidebar.left.button.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
+    sidebar.left.button.selected.borderRight ??= "2px solid transparent";
+
+    // Right
+    sidebar.right ??= {};
+    // Right default
+    sidebar.right.default ??= {};
+    sidebar.right.default.initialWidth ??= "20rem";
+    sidebar.right.default.bg ??= theme.colors.default.bgSecondary;
+    sidebar.right.default.otherBg ??= theme.colors.default.bgPrimary;
+    sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
+    // Right title
+    sidebar.right.title ??= {};
+    sidebar.right.title.height ??= "2rem";
+    sidebar.right.title.borderBottom ??= `1px solid ${theme.colors.default.border};`;
+    sidebar.right.title.color ??= theme.colors.default.textSecondary;
+    sidebar.right.title.fontSize ??= theme.font.code.size.large;
 
     return this;
   }
@@ -775,7 +970,8 @@ export class PgTheme {
     const theme = this._themeReady;
 
     input.width ??= "100%";
-    input.padding ??= "0.25rem 0.5rem";
+    input.height ??= "2rem";
+    input.padding ??= "0.375rem 0.5rem";
     input.bg ??= theme.colors.default.bgPrimary;
     input.color ??= theme.colors.default.textPrimary;
     input.border ??= `1px solid ${theme.colors.default.border}`;
@@ -1043,10 +1239,6 @@ export class PgTheme {
 
     // Default
     terminal.default ??= {};
-    terminal.default.height ??= "100%";
-    terminal.default.bg ??= theme.colors.default.bgPrimary;
-    terminal.default.color ??= theme.colors.default.textPrimary;
-    terminal.default.borderTop ??= `1px solid ${theme.colors.default.primary};`;
 
     // Xterm
     terminal.xterm ??= {};
@@ -1062,7 +1254,7 @@ export class PgTheme {
     // Xterm cursor
     terminal.xterm.cursor ??= {};
     terminal.xterm.cursor.color ??= theme.colors.default.textPrimary;
-    terminal.xterm.cursor.accentColor ??= terminal.default.bg as string;
+    terminal.xterm.cursor.accentColor ??= terminal.default.bg!;
 
     return this;
   }
@@ -1238,114 +1430,6 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default bottom bar component */
-  private static _bottom() {
-    const bottom = this._getComponent("bottom");
-    const theme = this._themeReady;
-
-    // Default
-    bottom.default ??= {};
-    bottom.default.height ??= "1.5rem";
-    bottom.default.padding ??= "0 0.5rem";
-    bottom.default.bg ??= theme.colors.default.primary;
-    bottom.default.color ??= theme.colors.default.textPrimary;
-    bottom.default.fontSize ??= theme.font.code.size.small;
-    bottom.default.display ??= "flex";
-    bottom.default.flexWrap ??= "wrap";
-    bottom.default.alignItems ??= "center";
-
-    // Connect button
-    bottom.connect ??= {};
-    bottom.connect.height ??= "100%";
-    bottom.connect.padding ??= "0 0.75rem";
-    bottom.connect.border ??= "none";
-    bottom.connect.hover ??= {};
-    bottom.connect.hover.bg ??=
-      bottom.default.color + theme.default.transparency.low;
-
-    // Endpoint
-    bottom.endpoint ??= {};
-
-    // Address
-    bottom.address ??= {};
-    bottom.address.color ??= bottom.default.color;
-
-    // Balance
-    bottom.balance ??= {};
-
-    return this;
-  }
-
-  /** Set default sidebar component */
-  private static _sidebar() {
-    const sidebar = this._getComponent("sidebar");
-    const theme = this._themeReady;
-
-    // Default
-    sidebar.default ??= {};
-    sidebar.default.display ??= "flex";
-
-    // Left
-    sidebar.left ??= {};
-    // Left default
-    sidebar.left.default ??= {};
-    sidebar.left.default.width ??= "3rem";
-    sidebar.left.default.bg ??= theme.colors.default.bgPrimary;
-    sidebar.left.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
-
-    // Left icon button
-    sidebar.left.button ??= {};
-    // Left icon button default
-    sidebar.left.button.default ??= {};
-    sidebar.left.button.default.display ??= "flex";
-    sidebar.left.button.default.justifyContent ??= "center";
-    sidebar.left.button.default.alignItems ??= "center";
-    sidebar.left.button.default.width ??= sidebar.left.default.width;
-    sidebar.left.button.default.height ??= "3rem";
-    sidebar.left.button.default.cursor ??= "pointer";
-
-    // Left icon button selected
-    sidebar.left.button.selected ??= {};
-    sidebar.left.button.selected.bg ??= theme.colors.state.hover.bg;
-    sidebar.left.button.selected.borderLeft ??= `2px solid ${theme.colors.default.secondary}`;
-    sidebar.left.button.selected.borderRight ??= "2px solid transparent";
-
-    // Right
-    sidebar.right ??= {};
-    // Right default
-    sidebar.right.default ??= {};
-    sidebar.right.default.initialWidth ??= "20rem";
-    sidebar.right.default.bg ??= theme.colors.default.bgSecondary;
-    sidebar.right.default.otherBg ??= theme.colors.default.bgPrimary;
-    sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
-    // Right title
-    sidebar.right.title ??= {};
-    sidebar.right.title.borderBottom ??= `1px solid ${theme.colors.default.border};`;
-    sidebar.right.title.color ??= theme.colors.default.textSecondary;
-    sidebar.right.title.fontSize ??= theme.font.code.size.large;
-
-    return this;
-  }
-
-  /** Set default main view */
-  private static _main() {
-    const main = this._getComponent("main");
-    const theme = this._themeReady;
-
-    // Default
-    main.default ??= {};
-    main.default.bg ??= theme.colors.default.bgSecondary;
-    main.default.color ??= theme.colors.default.textPrimary;
-    main.default.display ??= "flex";
-    main.default.flex ??= "1";
-    main.default.minHeight ??= 0;
-
-    // Views
-    main.views ??= {};
-
-    return this;
-  }
-
   /** Set default tabs component */
   private static _tabs() {
     const tabs = this._getComponent("tabs");
@@ -1356,7 +1440,7 @@ export class PgTheme {
     tabs.default.display ??= "flex";
     tabs.default.justifyContent ??= "space-between";
     tabs.default.userSelect ??= "none";
-    tabs.default.bg ??= theme.components.main.default.bg;
+    tabs.default.bg ??= theme.views.main.default.bg;
     tabs.default.borderBottom ??= `1px solid ${theme.colors.default.border}`;
     tabs.default.fontSize ??= theme.font.code.size.small;
 
@@ -1368,7 +1452,7 @@ export class PgTheme {
     tabs.tab.default.justifyContent ??= "center";
     tabs.tab.default.alignItems ??= "center";
     tabs.tab.default.width ??= "fit-content";
-    tabs.tab.default.height ??= "2rem";
+    tabs.tab.default.height ??= theme.views.sidebar.right.title.height;
     tabs.tab.default.paddingLeft ??= "0.5rem";
     tabs.tab.default.color ??= theme.colors.default.textSecondary;
     tabs.tab.default.border ??= "1px solid transparent";
@@ -1505,11 +1589,11 @@ export class PgTheme {
 
   /** Set default home view */
   private static _home() {
-    const main = this._getComponent("main");
+    const main = this._getView("main");
     const theme = this._themeReady;
 
-    main.views!.home ??= {};
-    const home = main.views!.home;
+    main.primary!.home ??= {};
+    const home = main.primary!.home;
 
     // Default
     home.default ??= {};
@@ -1601,11 +1685,11 @@ export class PgTheme {
 
   /** Set default tutorial view */
   private static _tutorial() {
-    const main = this._getComponent("main");
+    const main = this._getView("main");
     const theme = this._themeReady;
 
-    main.views!.tutorial ??= {};
-    const tutorial = main.views!.tutorial;
+    main.primary!.tutorial ??= {};
+    const tutorial = main.primary!.tutorial;
 
     // Default
     tutorial.default ??= {};
@@ -1636,66 +1720,78 @@ export class PgTheme {
 
   /** Set default tutorials view */
   private static _tutorials() {
-    const main = this._getComponent("main");
+    const main = this._getView("main");
     const theme = this._themeReady;
 
-    main.views!.tutorials ??= {};
-    const tutorials = main.views!.tutorials;
+    main.primary!.tutorials ??= {};
+    const tutorials = main.primary!.tutorials;
 
     // Default
     tutorials.default ??= {};
     tutorials.default.display ??= "flex";
-    tutorials.default.justifyContent ??= "center";
+    tutorials.default.flexDirection ??= "column";
+    tutorials.default.bg ??= theme.views.main.default.bg;
     tutorials.default.fontFamily ??= theme.font.other.family;
     tutorials.default.fontSize ??= theme.font.other.size.medium;
+
+    // Top
+    tutorials.top ??= {};
+    tutorials.top.display ??= "flex";
+    tutorials.top.justifyContent ??= "space-between";
+    tutorials.top.padding ??= "1rem 2.5rem";
+    tutorials.top.bg ??= this.getDifferentBackground(tutorials.default.bg);
+    tutorials.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    tutorials.top["& > div"] ??= {};
+    tutorials.top["& > div"].width ??= "max(12rem, 50%)";
 
     // Main
     tutorials.main ??= {};
 
     // Main default
     tutorials.main.default ??= {};
-    tutorials.main.default.flex ??= "1";
     tutorials.main.default.display ??= "flex";
-    tutorials.main.default.margin ??= "2rem 0";
+    tutorials.main.default.height ??= "100%";
     tutorials.main.default.bg ??= this.getDifferentBackground(
-      theme.components.main.default.bg
+      theme.views.main.default.bg
     );
     tutorials.main.default.borderRadius ??= theme.default.borderRadius;
 
-    // Main filters
-    tutorials.main.filters ??= {};
-    tutorials.main.filters.width ??= "14.75rem";
-    tutorials.main.filters.padding ??= "0.5rem";
-    tutorials.main.filters.borderRight ??= `1px solid ${theme.colors.default.border}`;
-    tutorials.main.filters.borderTopLeftRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
-    tutorials.main.filters.borderBottomLeftRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
+    // Main side (filters)
+    tutorials.main.side ??= {};
+    tutorials.main.side.width ??= "14.5rem";
+    tutorials.main.side.flexShrink ??= 0;
+    tutorials.main.side.padding ??= "0.5rem";
+    tutorials.main.side.borderRight ??= `1px solid ${theme.colors.default.border}`;
+    tutorials.main.side.borderTopLeftRadius ??=
+      theme.views.main.primary.tutorials.main.default.borderRadius;
+    tutorials.main.side.borderBottomLeftRadius ??=
+      theme.views.main.primary.tutorials.main.default.borderRadius;
 
-    // Main tutorials
-    tutorials.main.tutorials ??= {};
+    // Main content (tutorials)
+    tutorials.main.content ??= {};
 
-    // Main tutorials default
-    tutorials.main.tutorials.default ??= {};
-    tutorials.main.tutorials.default.flex ??= "1";
-    tutorials.main.tutorials.default.padding ??= "1.5rem";
-    tutorials.main.tutorials.default.display ??= "flex";
-    tutorials.main.tutorials.default.flexDirection ??= "column";
-    tutorials.main.tutorials.default.gap ??= "2rem";
-    tutorials.main.tutorials.default.bg ??= tutorials.main.default.bg;
-    tutorials.main.tutorials.default.borderTopRightRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
-    tutorials.main.tutorials.default.borderBottomRightRadius ??=
-      theme.components.main.views.tutorials.main.default.borderRadius;
-    //Main tutorials card
-    tutorials.main.tutorials.card ??= {};
-    const card = tutorials.main.tutorials.card;
-    //Main tutorials card default
+    // Main content default
+    tutorials.main.content.default ??= {};
+    tutorials.main.content.default.padding ??= "1.5rem";
+    tutorials.main.content.default.display ??= "flex";
+    tutorials.main.content.default.flexDirection ??= "column";
+    tutorials.main.content.default.flexGrow ??= 1;
+    tutorials.main.content.default.gap ??= "2rem";
+    tutorials.main.content.default.overflow ??= "auto";
+    tutorials.main.content.default.bg ??= tutorials.main.default.bg;
+    tutorials.main.content.default.borderTopRightRadius ??=
+      theme.views.main.primary.tutorials.main.default.borderRadius;
+    tutorials.main.content.default.borderBottomRightRadius ??=
+      theme.views.main.primary.tutorials.main.default.borderRadius;
+    //Main content card
+    tutorials.main.content.card ??= {};
+    const card = tutorials.main.content.card;
+    //Main content card default
     card.default ??= {};
     card.default.width ??= "100%";
     card.default.height ??= "100%";
     card.default.overflow ??= "hidden";
-    card.default.bg ??= theme.components.main.views.tutorials.main.default.bg;
+    card.default.bg ??= theme.views.main.primary.tutorials.main.default.bg;
     card.default.color ??= theme.colors.default.textPrimary;
     card.default.border ??= `1px solid ${
       theme.colors.default.border + theme.default.transparency.medium
@@ -1704,55 +1800,76 @@ export class PgTheme {
     card.default.boxShadow ??= theme.default.boxShadow;
     card.default.transition ??= `all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type}`;
-    //Main tutorials card gradient
+    //Main content card gradient
     card.gradient ??= {};
-    // Main tutorials featured tutorial
-    tutorials.main.tutorials.featured ??= {};
-    const featured = tutorials.main.tutorials.featured;
+    // Main content featured tutorial
+    tutorials.main.content.featured ??= {};
+    const featured = tutorials.main.content.featured;
     featured.height ??= "20rem";
     featured.display ??= "flex";
     featured.border ??= `1px solid ${theme.colors.default.border}`;
     featured.borderRadius ??= theme.default.borderRadius;
     featured.boxShadow ??= theme.default.boxShadow;
-    featured.overflow ??= "hidden";
 
     return this;
   }
 
   /** Set default programs view */
   private static _programs() {
-    const main = this._getComponent("main");
+    const main = this._getView("main");
     const theme = this._themeReady;
 
-    main.views!.programs ??= {};
-    const programs = main.views!.programs;
+    main.primary!.programs ??= {};
+    const programs = main.primary!.programs;
 
     // Default
     programs.default ??= {};
-    programs.default.padding ??= "2rem 2.5rem";
+    programs.default.bg ??= theme.views.main.default.bg;
     programs.default.fontFamily ??= theme.font.other.family;
     programs.default.fontSize ??= theme.font.other.size.medium;
+
+    // Top
+    programs.top ??= {};
+    programs.top.position ??= "sticky";
+    programs.top.top ??= 0;
+    programs.top.display ??= "flex";
+    programs.top.justifyContent ??= "space-between";
+    programs.top.alignItems ??= "center";
+    programs.top.width ??= "100%";
+    programs.top.height ??= "4.5rem";
+    programs.top.padding ??= "1rem 2.5rem";
+    programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
+    programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
+    programs.top["& > div"] ??= {};
+    programs.top["& > div"].width ??= "max(12rem, 50%)";
 
     // Main
     programs.main ??= {};
     // Main default
     programs.main.default ??= {};
-    programs.main.default.marginTop ??= "2rem";
     programs.main.default.display ??= "flex";
-    programs.main.default.flexWrap ??= "wrap";
-    programs.main.default.gap ??= "1.5rem";
-    // Main card
-    programs.main.card ??= {};
-    programs.main.card.flexGrow ??= "1";
-    programs.main.card.flexBasis ??= "50%";
-    programs.main.card.display ??= "flex";
-    programs.main.card.flexDirection ??= "column";
-    programs.main.card.gap ??= "0.5rem";
-    programs.main.card.maxWidth ??= "44.95rem";
-    programs.main.card.height ??= "fit-content";
-    programs.main.card.padding ??= "1rem";
-    programs.main.card.border ??= `1px solid ${theme.colors.default.border}`;
-    programs.main.card.borderRadius ??= theme.default.borderRadius;
+    programs.main.default.minHeight ??= `calc(100% - ${programs.top.height})`;
+    programs.main.default.padding ??= "2rem 2.5rem";
+    // Main content
+    programs.main.content ??= {};
+    // Main content default
+    programs.main.content.default ??= {};
+    programs.main.content.default.display ??= "flex";
+    programs.main.content.default.flexWrap ??= "wrap";
+    programs.main.content.default.flexGrow ??= 1;
+    programs.main.content.default.gap ??= "1.5rem";
+    // Main content card
+    programs.main.content.card ??= {};
+    programs.main.content.card.flexGrow ??= 1;
+    programs.main.content.card.flexBasis ??= "50%";
+    programs.main.content.card.display ??= "flex";
+    programs.main.content.card.flexDirection ??= "column";
+    programs.main.content.card.gap ??= "0.5rem";
+    programs.main.content.card.maxWidth ??= "44.95rem";
+    programs.main.content.card.height ??= "fit-content";
+    programs.main.content.card.padding ??= "1rem";
+    programs.main.content.card.border ??= `1px solid ${theme.colors.default.border}`;
+    programs.main.content.card.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }

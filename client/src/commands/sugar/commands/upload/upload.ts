@@ -5,12 +5,11 @@ import {
   toMetaplexFileFromBrowser,
   UploadMetadataInput,
 } from "@metaplex-foundation/js";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { getAssetPairs } from "./assets";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
 
 interface AssetType {
   image: number[];
@@ -164,7 +163,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
     const saveCacheIntervalId = setInterval(() => cache.syncFile(false), 5000);
 
     // Show progress bar
-    PgTerminal.setProgress(0.1);
+    PgView.setMainSecondaryProgress(0.1);
     let progressCount = 0;
 
     const CONCURRENT = 4;
@@ -216,7 +215,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
               });
 
               progressCount++;
-              PgTerminal.setProgress(
+              PgView.setMainSecondaryProgress(
                 (progressCount / indices.metadata.length) * 100
               );
 
@@ -230,7 +229,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
               if ((e.message = "Not enough funds to send data")) {
                 (
                   (await metaplex.storage().driver()) as BundlrStorageDriver
-                ).fund(sol(10_000 / LAMPORTS_PER_SOL));
+                ).fund(sol(10_000 / PgWeb3.LAMPORTS_PER_SOL));
               }
 
               maxTryIndex++;
@@ -242,7 +241,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
                 await cache.syncFile();
 
                 progressCount++;
-                PgTerminal.setProgress(
+                PgView.setMainSecondaryProgress(
                   (progressCount / indices.metadata.length) * 100
                 );
                 break;
@@ -256,7 +255,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
     );
 
     // Hide progress bar
-    setTimeout(() => PgTerminal.setProgress(0), 1000);
+    setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
     // Sync and refresh the file if it's already open
     clearInterval(saveCacheIntervalId);

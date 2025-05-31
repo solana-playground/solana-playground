@@ -61,7 +61,7 @@ export const processCreateConfig = async () => {
   // Sequential
   configData.isSequential = await term.waitForUserInput(
     "Do you want to use a sequential mint index generation? We recommend you choose no.",
-    { confirm: true }
+    { confirm: true, default: "no" }
   );
 
   // Creators
@@ -285,7 +285,7 @@ export const processCreateConfig = async () => {
   // Mutability
   configData.isMutable = await term.waitForUserInput(
     "Do you want your NFTs to remain mutable? We HIGHLY recommend you choose yes.",
-    { confirm: true }
+    { confirm: true, default: "yes" }
   );
 
   // Guards
@@ -317,7 +317,7 @@ export const processCreateConfig = async () => {
     term.println(
       `Saving config to file: "${PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH}"\n`
     );
-    await PgExplorer.newItem(
+    await PgExplorer.createItem(
       PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
       prettyConfigData,
       { override: true }

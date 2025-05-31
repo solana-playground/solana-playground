@@ -1,8 +1,7 @@
 import { FC } from "react";
 import styled, { css, keyframes } from "styled-components";
 
-import { ClassName } from "../../constants";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme, PgView } from "../../utils/pg";
 
 interface SpinnerWithBgProps extends SpinnerProps {
   loading: boolean;
@@ -15,7 +14,9 @@ export const SpinnerWithBg: FC<SpinnerWithBgProps> = ({
   children,
   ...spinnerProps
 }) => (
-  <Wrapper className={`${className ?? ""} ${loading ? ClassName.LOADING : ""}`}>
+  <Wrapper
+    className={`${className ?? ""} ${loading ? PgView.classNames.LOADING : ""}`}
+  >
     <Spinner className="spinner" {...spinnerProps} />
     {children}
   </Wrapper>
@@ -43,7 +44,7 @@ const Wrapper = styled.div`
       display: none;
     }
 
-    &.${ClassName.LOADING} {
+    &.${PgView.classNames.LOADING} {
       &::after {
         z-index: 1;
         ${PgTheme.convertToCSS(theme.default.backdrop)};

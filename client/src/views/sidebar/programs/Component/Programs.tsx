@@ -1,41 +1,19 @@
+import { FC } from "react";
 import styled, { css } from "styled-components";
 
-import FilterGroup from "../../../../components/FilterGroup";
-import { FILTERS } from "../../../../components/Programs/filters";
-import { PgRouter, PgView } from "../../../../utils/pg";
-import { useAsyncEffect } from "../../../../hooks";
+import FilterGroups from "../../../../components/FilterGroups";
+import { FILTERS } from "../../../main/primary/Programs/filters";
 
-const Programs = () => {
-  // Handle path
-  useAsyncEffect(async () => {
-    const PROGRAMS_PATH: RoutePath = "/programs";
-    const { pathname } = await PgRouter.getLocation();
-    if (!pathname.startsWith(PROGRAMS_PATH)) {
-      await PgRouter.navigate(PROGRAMS_PATH);
-    }
+interface ProgramsProps {
+  // TODO: Proper type
+  programs: any[];
+}
 
-    // This will fix the case where going back from `/programs` to `/` with
-    // browser's navigations would cause this component to be still mounted
-    // instead of switching to `Explorer`
-    const { dispose } = PgRouter.onDidChangePath((path) => {
-      if (!path.startsWith(PROGRAMS_PATH)) {
-        PgView.setSidebarPage((state) => {
-          if (state === "Programs") return "Explorer";
-          return state;
-        });
-      }
-    });
-    return () => dispose();
-  }, []);
-
-  return (
-    <Wrapper>
-      {FILTERS.map((f) => (
-        <FilterGroup key={f.param} {...f} />
-      ))}
-    </Wrapper>
-  );
-};
+const Programs: FC<ProgramsProps> = ({ programs }) => (
+  <Wrapper>
+    <FilterGroups filters={FILTERS} items={programs} />
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
   ${({ theme }) => css`

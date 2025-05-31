@@ -1,10 +1,10 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
-import { Keypair } from "@solana/web3.js";
 
 import Balance from "./Balance";
 import Send from "./Send";
+import Settings from "./Settings";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import FadeIn from "../FadeIn";
@@ -13,11 +13,17 @@ import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Close, ShortArrow } from "../Icons";
-import { WalletSettings } from "./Settings";
-import { ClassName, Id } from "../../constants";
-import { Fn, PgCommon, PgTheme, PgWallet } from "../../utils/pg";
+import {
+  CurrentWallet,
+  Fn,
+  PgCommon,
+  PgTheme,
+  PgView,
+  PgWallet,
+} from "../../utils/pg";
 import {
   useAutoAirdrop,
+  useDarken,
   useStandardAccountChange,
   useSyncBalance,
 } from "./hooks";
@@ -40,12 +46,12 @@ const Wallet = () => {
   if (!PgWallet.show || !wallet) return null;
 
   const tabHeight = document
-    .getElementById(Id.TABS)
+    .getElementById(PgView.ids.TABS)
     ?.getBoundingClientRect().height;
 
   return (
     <>
-      <WalletBound id={Id.WALLET_BOUND} />
+      <WalletBound id={WALLET_BOUND_ID} />
       <Rnd
         default={{
           x: window.innerWidth - (WALLET_WIDTH + 12),
@@ -56,8 +62,9 @@ const Wallet = () => {
         minWidth={WALLET_WIDTH}
         maxWidth={WALLET_WIDTH}
         enableResizing={false}
-        bounds={"#" + Id.WALLET_BOUND}
+        bounds={"#" + WALLET_BOUND_ID}
         enableUserSelectHack={false}
+        style={{ zIndex: 1 }}
       >
         <WalletWrapper>
           <WalletTop />
@@ -70,20 +77,20 @@ const Wallet = () => {
 
 const WALLET_WIDTH = 320;
 
+const WALLET_BOUND_ID = "wallet-bound";
+
 const WalletBound = styled.div`
   ${({ theme }) => css`
     position: absolute;
     margin: ${theme.components.tabs.tab.default.height} 0.75rem
-      ${theme.components.bottom.default.height}
-      ${theme.components.sidebar.left.default.width};
-    width: calc(
-      100% - (0.75rem + ${theme.components.sidebar.left.default.width})
-    );
+      ${theme.views.bottom.default.height}
+      ${theme.views.sidebar.left.default.width};
+    width: calc(100% - (0.75rem + ${theme.views.sidebar.left.default.width}));
     height: calc(
       100% -
         (
           ${theme.components.tabs.tab.default.height} +
-            ${theme.components.bottom.default.height}
+            ${theme.views.bottom.default.height}
         )
     );
     z-index: -1;
@@ -109,7 +116,7 @@ const WalletTop = () => {
 
   return (
     <WalletTopWrapper>
-      <WalletSettings showRename={showRename} />
+      <Settings showRename={showRename} />
       {rename ? <WalletRename hideRename={hideRename} /> : <WalletName />}
       <WalletClose />
     </WalletTopWrapper>
@@ -123,20 +130,14 @@ const WalletTopWrapper = styled.div`
 `;
 
 const WalletName = () => {
-  const { wallet, walletPkStr } = useWallet();
-
-  const darken = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.add(ClassName.DARKEN);
-  }, []);
-  const lighten = useCallback(() => {
-    document.getElementById(Id.WALLET_MAIN)?.classList.remove(ClassName.DARKEN);
-  }, []);
+  const { wallet } = useWallet();
+  const { darken, lighten } = useDarken();
 
   const getAccountDisplayName = useCallback(
-    (accountName: string, pkStr: string) => {
+    (wallet: Pick<CurrentWallet, "name" | "publicKey">) => {
       return (
-        PgCommon.withMaxLength(accountName, 12) +
-        ` - (${PgCommon.shorten(pkStr)})`
+        PgCommon.withMaxLength(wallet.name, 12) +
+        ` - (${PgCommon.shorten(wallet.publicKey.toBase58())})`
       );
     },
     []
@@ -144,10 +145,7 @@ const WalletName = () => {
 
   // Show al lof the Playground Wallet accounts
   const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
-    name: getAccountDisplayName(
-      acc.name,
-      Keypair.fromSecretKey(Uint8Array.from(acc.kp)).publicKey.toBase58()
-    ),
+    name: getAccountDisplayName(PgWallet.create(acc)),
     onClick: () => PgWallet.switch(i),
     hoverColor: "textPrimary",
   }));
@@ -155,7 +153,7 @@ const WalletName = () => {
   // Show all of the connected Wallet Standard accounts
   const standardAccounts: MenuItemProps[] =
     PgWallet.getConnectedStandardWallets().map((wallet) => ({
-      name: getAccountDisplayName(wallet.name, wallet.publicKey!.toBase58()),
+      name: getAccountDisplayName(wallet),
       onClick: () => {
         PgWallet.update({ state: "sol", standardName: wallet.name });
       },
@@ -176,9 +174,7 @@ const WalletName = () => {
           {!wallet.isPg && (
             <WalletTitleIcon src={wallet.icon} alt={wallet.name} />
           )}
-          <WalletTitleText>
-            {getAccountDisplayName(wallet.name, walletPkStr!)}
-          </WalletTitleText>
+          <WalletTitleText>{getAccountDisplayName(wallet)}</WalletTitleText>
           <ShortArrow rotate="90deg" />
         </WalletTitleWrapper>
       </Tooltip>
@@ -261,7 +257,7 @@ const CloseButton = styled(Button)`
 `;
 
 const WalletMain = () => (
-  <MainWrapper id={Id.WALLET_MAIN}>
+  <MainWrapper id={PgView.ids.WALLET_MAIN}>
     <Balance />
     <Send />
     <Transactions />
@@ -282,7 +278,7 @@ const MainWrapper = styled.div`
         ${theme.default.transition.type};
     }
 
-    &.${ClassName.DARKEN}::after {
+    &.${PgView.classNames.DARKEN}::after {
       ${PgTheme.convertToCSS(theme.components.wallet.main.backdrop)};
     }
 

@@ -2,15 +2,18 @@ import "styled-components";
 
 import { COMMANDS } from "../commands";
 import { FRAMEWORKS } from "../frameworks";
-import { Framework } from "../frameworks/create";
+import { LANGUAGES } from "../languages";
 import { ROUTES } from "../routes";
-import { SIDEBAR } from "../views";
+import { MAIN_SECONDARY, SIDEBAR } from "../views";
+import { SETTINGS } from "../settings";
 import {
   Arrayable,
   ClientPackageName,
   Disposable,
+  OrString,
   SyncOrAsync,
-  ThemeReady,
+  Theme,
+  TutorialDataParam,
 } from "../utils/pg";
 
 /** Global overrides */
@@ -35,13 +38,13 @@ global {
     importable: ClientPackageName[];
   };
 
-  /** Map of kebab-case tutorial names to thumbnail file names */
-  const TUTORIAL_THUMBNAIL_MAP: { [tutorialName: string]: string };
-}
+  /** Array of all markdown tutorial data */
+  const MARKDOWN_TUTORIALS: TutorialDataParam[];
 
-// Framework
-global {
-  export { Framework } from "../frameworks/create";
+  /** Map of kebab-case tutorial names to necessary custom tutorial data */
+  const CUSTOM_TUTORIALS: {
+    [tutorialName: string]: { pageCount: number; thumbnail: string };
+  };
 }
 
 // Framework name
@@ -50,64 +53,39 @@ global {
   type FrameworkName = typeof FRAMEWORKS[number]["name"];
 }
 
+// Language name
+global {
+  /** Language names */
+  type LanguageName = typeof LANGUAGES[number]["name"];
+}
+
 // Route
 global {
   /** All route path names */
-  type RoutePath = typeof ROUTES[number]["path"];
+  type RoutePath = OrString<typeof ROUTES[number]["path"]>;
 }
 
 // View
 global {
   /** All sidebar page names */
   type SidebarPageName = typeof SIDEBAR[number]["name"];
+
+  /** All secondary main view page names */
+  type MainSecondaryPageName = typeof MAIN_SECONDARY[number]["name"];
 }
 
 // Commands
 global {
   /** All internal commands type */
   type InternalCommands = typeof COMMANDS;
+}
 
-  /** Name of all the available commands(only code) */
-  type CommandCodeName = keyof InternalCommands;
-
-  /** Ready to be used commands */
-  type Commands = {
-    [N in keyof InternalCommands]: InternalCommands[N] extends CommandImpl<
-      infer R
-    >
-      ? Command<R>
-      : never;
-  };
-
-  /** Command type for external usage */
-  type Command<R> = Pick<CommandImpl<R>, "name"> & {
-    /** Command processor */
-    run(args?: string): Promise<Awaited<R>>;
-    /**
-     * @param cb callback function to run when the command starts running
-     * @returns a dispose function to clear the event
-     */
-    onDidRunStart(cb: (input: string | null) => void): Disposable;
-    /**
-     * @param cb callback function to run when the command finishes running
-     * @returns a dispose function to clear the event
-     */
-    onDidRunFinish(cb: (result: Awaited<R>) => void): Disposable;
-  };
-
-  /** Terminal command implementation */
-  type CommandImpl<R> = {
-    /** Name of the command that will be used in terminal */
-    name: string;
-    /** Description that will be seen in the `help` command */
-    description: string;
-    /** Function to run when the command is called */
-    run: (input: string) => R;
-    /* Only process the command if the condition passes */
-    preCheck?: Arrayable<() => SyncOrAsync<void>>;
-  };
+// Settings
+global {
+  /** Internal settings array */
+  type InternalSettings = typeof SETTINGS;
 }
 
 declare module "styled-components" {
-  export interface DefaultTheme extends ThemeReady {}
+  export interface DefaultTheme extends Theme {}
 }

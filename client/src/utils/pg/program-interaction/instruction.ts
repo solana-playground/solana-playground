@@ -1,11 +1,10 @@
-import { SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
-
 import { getPrograms } from "./generators";
+import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
+import { PgWeb3 } from "../web3";
 import type {
   GeneratableInstruction,
   InstructionValueGenerator,
 } from "./generator";
-import type { IdlAccount, IdlInstruction } from "./idl-types";
 import type { OrString } from "../types";
 
 /**
@@ -33,6 +32,57 @@ export const createGeneratableInstruction = (
     },
   };
 };
+
+/**
+ * Fill empty values of the given generatable instruction with "Random"
+ * generators.
+ *
+ * @param ix generatable instruction
+ * @param idl IDL
+ * @returns the instruction with empty values filled with "Random" generator
+ */
+export const fillRandom = (
+  ix: GeneratableInstruction,
+  idl: Idl
+): GeneratableInstruction => ({
+  ...ix,
+  values: {
+    ...ix.values,
+    accounts: ix.values.accounts.map((acc) => {
+      // Only override empty fields
+      if (acc.generator.type === "Custom" && !acc.generator.value) {
+        return {
+          ...acc,
+          generator: {
+            type: "Random",
+            data: Array.from(PgWeb3.Keypair.generate().secretKey),
+            get value() {
+              return PgWeb3.Keypair.fromSecretKey(
+                Uint8Array.from((this as { data: number[] }).data)
+              ).publicKey.toBase58();
+            },
+          },
+        };
+      }
+
+      return acc;
+    }),
+    args: ix.values.args.map((arg) => {
+      // Only override empty fields
+      if (arg.generator.type === "Custom" && !arg.generator.value) {
+        return {
+          ...arg,
+          generator: {
+            type: "Random",
+            value: getIdlType(arg.type, idl).generateRandom(),
+          },
+        };
+      }
+
+      return arg;
+    }),
+  },
+});
 
 /**
  * Create an account generator from the given IDL account.
@@ -76,11 +126,15 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
     };
   }
 
+  // Set common wallet account names to current wallet
+  const COMMON_WALLET_ACCOUNT_NAMES = ["authority", "owner", "payer", "signer"];
+  if (acc.isSigner && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
+    return { type: "Current wallet" };
+  }
+
   // Check whether it's a known program
   const knownProgram = getPrograms().find((p) => p.alias?.includes(acc.name));
-  if (knownProgram) {
-    return { type: "All programs", name: knownProgram.name };
-  }
+  if (knownProgram) return { type: "All programs", name: knownProgram.name };
 
   return { type: "Custom", value: getKnownAccountKey(acc.name) ?? "" };
 };
@@ -104,6 +158,6 @@ const getKnownAccountKey = <
 /* Known account name -> account key map */
 // TODO: Add sysvar generator
 const KNOWN_ACCOUNT_KEYS = {
-  clock: SYSVAR_CLOCK_PUBKEY.toBase58(),
-  rent: SYSVAR_RENT_PUBKEY.toBase58(),
+  clock: PgWeb3.SYSVAR_CLOCK_PUBKEY.toBase58(),
+  rent: PgWeb3.SYSVAR_RENT_PUBKEY.toBase58(),
 } as const;

@@ -11,10 +11,10 @@ import {
   createInitializeMintInstruction,
   createMintToInstruction,
 } from "@solana/spl-token";
-import { Keypair, SystemProgram, Transaction } from "@solana/web3.js";
 
 import { CandyCache } from "../../utils";
 import type { ConfigData } from "../../types";
+import { PgWeb3 } from "../../../../utils/pg";
 
 export const createCollection = async (
   metaplex: Metaplex,
@@ -28,13 +28,13 @@ export const createCollection = async (
     );
   }
 
-  const collectionMintKp = new Keypair();
+  const collectionMintKp = new PgWeb3.Keypair();
   const collectionMintPk = collectionMintKp.publicKey;
 
   const payer = metaplex.identity().publicKey;
 
   // Create mint account
-  const createMintAccountIx = await SystemProgram.createAccount({
+  const createMintAccountIx = PgWeb3.SystemProgram.createAccount({
     fromPubkey: payer,
     lamports: await metaplex.connection.getMinimumBalanceForRentExemption(
       MINT_SIZE
@@ -124,7 +124,7 @@ export const createCollection = async (
     { createMasterEditionArgs: { maxSupply: 0 } }
   );
 
-  const tx = new Transaction().add(
+  const tx = new PgWeb3.Transaction().add(
     ...[
       createMintAccountIx,
       initMintIx,

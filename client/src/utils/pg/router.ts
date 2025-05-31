@@ -1,8 +1,5 @@
-import type { Location } from "react-router-dom";
-
 import { PgCommon } from "./common";
-import { EventName } from "../../constants";
-import type { Disposable, OrString, SyncOrAsync } from "./types";
+import type { Disposable, SyncOrAsync } from "./types";
 
 /** Opening delimiter for path variables */
 const OPEN = "{";
@@ -11,7 +8,7 @@ const OPEN = "{";
 const CLOSE = "}";
 
 /** Custom route */
-type Route<P extends string> = {
+type Route<P extends string = string> = {
   /** Route pathname, always starts with `/` */
   path: P;
   /** Handler method for the route */
@@ -29,25 +26,46 @@ type PathVariable<T extends string> =
     : T;
 
 /** Map the variables to an object with `string` values */
-type PathParameter<T extends string> = { [K in PathVariable<T>]: string };
+type PathParameter<T extends string = string> = {
+  [K in PathVariable<T>]: string;
+};
 
 export class PgRouter {
+  /** URL information about the page */
+  static location = window.location;
+
+  /** All routes */
+  static all: Route<RoutePath>[];
+
+  /** All router event names */
+  static events = {
+    NAVIGATE: "routernavigate",
+    ON_DID_CHANGE_PATH: "routerondidchangepath",
+    ON_DID_CHANGE_HASH: "routerondidchangehash",
+  };
+
   /**
    * Initialize the router.
    *
    * @param routes all available routes
    * @returns a dispose function to clear the event
    */
-  static init<P extends string>(routes: Route<P>[]) {
+  static init() {
     let disposable: Disposable | undefined;
+    let prevPath: string | undefined;
     return this.onDidChangePath(async (path) => {
-      // Dispose
+      // The callback runs twice at the start, which may cause unwanted
+      // behavior. Return early to avoid that problem.
+      if (prevPath === path) return;
+      prevPath = path;
+
+      // Dispose the previous path handler
       disposable?.dispose();
 
-      let params: PathParameter<P>;
-      const route = routes.find((route) => {
+      let params: PathParameter;
+      const route = this.all.find((route) => {
         try {
-          params = this._getParamsFromPath(path, route.path);
+          params = this.getParamsFromPath(route.path, path);
           if (route.validate) return route.validate(params);
           return true;
         } catch {
@@ -75,15 +93,6 @@ export class PgRouter {
   }
 
   /**
-   * Get the current location.
-   *
-   * @returns the current URL location
-   */
-  static async getLocation(): Promise<Location> {
-    return await PgCommon.sendAndReceiveCustomEvent(EventName.ROUTER_LOCATION);
-  }
-
-  /**
    * Navigate to the given path.
    *
    * This method will only navigate if the given path is different than the
@@ -91,15 +100,16 @@ export class PgRouter {
    *
    * @param path pathname to navigate to
    */
-  static async navigate(path: OrString<RoutePath> = "/") {
-    try {
-      const location = await PgCommon.timeout(this.getLocation(), 200);
-      if (!this.isPathsEqual(location.pathname + location.search, path)) {
-        PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
-      }
-    } catch {
-      PgCommon.createAndDispatchCustomEvent(EventName.ROUTER_NAVIGATE, path);
-    }
+  static async navigate(path: RoutePath = "/") {
+    const { pathname, search } = this.location;
+    if (this.isPathsEqual(pathname + search, path)) return;
+
+    await PgCommon.tryUntilSuccess(async () => {
+      const navigate: (path: string) => void =
+        await PgCommon.sendAndReceiveCustomEvent(this.events.NAVIGATE);
+
+      navigate(path);
+    }, 100);
   }
 
   /**
@@ -109,11 +119,18 @@ export class PgRouter {
    * @param pathTwo second path
    * @returns whether the paths are equal
    */
-  static isPathsEqual(
-    pathOne: OrString<RoutePath>,
-    pathTwo: OrString<RoutePath>
-  ) {
+  static isPathsEqual(pathOne: RoutePath, pathTwo: RoutePath) {
     return PgCommon.isPathsEqual(pathOne, pathTwo);
+  }
+
+  /**
+   * Get the current origin URL with the given `path` appended.
+   *
+   * @param path URL path
+   * @returns the URL based on the current origin
+   */
+  static getPathUrl(path: string) {
+    return PgCommon.joinPaths(this.location.origin, path);
   }
 
   /**
@@ -125,7 +142,22 @@ export class PgRouter {
   static onDidChangePath(cb: (path: RoutePath) => unknown) {
     return PgCommon.onDidChange({
       cb,
-      eventName: EventName.ROUTER_ON_DID_CHANGE_PATH,
+      eventName: PgRouter.events.ON_DID_CHANGE_PATH,
+      initialRun: { value: PgRouter.location.pathname },
+    });
+  }
+
+  /**
+   * Runs after hash change.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeHash(cb: (hash: string) => unknown) {
+    return PgCommon.onDidChange({
+      cb,
+      eventName: PgRouter.events.ON_DID_CHANGE_HASH,
+      initialRun: { value: PgRouter.location.hash },
     });
   }
 
@@ -135,17 +167,17 @@ export class PgRouter {
    * ### Example:
    *
    * ```ts
-   * const params = _getParamsFromPath("/tutorials/hello-anchor", "/tutorials/{tutorialName}");
-   * console.log(params); // { tutorialName: "hello-anchor" }
+   * const params = getParamsFromPath("/tutorials/{name}", "/tutorials/hello-anchor");
+   * console.log(params); // { name: "hello-anchor" }
    * ```
    *
-   * @param path current path
    * @param routePath playground route
+   * @param path current path
    * @returns the parameters as key-value
    */
-  private static _getParamsFromPath<P extends string>(
-    path: string,
-    routePath: P
+  static getParamsFromPath<P extends string>(
+    routePath: P,
+    path: string
   ): PathParameter<P> {
     const result: Record<string, string> = {};
 
@@ -156,15 +188,18 @@ export class PgRouter {
       // Get the matching parts
       const startIndex = templatePath.indexOf(OPEN);
       if (startIndex === -1) {
-        if (this.isPathsEqual(templatePath, subPath)) return {};
+        if (PgRouter.isPathsEqual(templatePath, subPath)) return {};
 
         throw new Error("Doesn't match");
       }
 
+      const startsWith = templatePath
+        .slice(0, startIndex)
+        .startsWith(subPath.slice(0, startIndex));
+      if (!startsWith) throw new Error("Doesn't match");
+
       // Remove matching parts
-      if (subPath.slice(0, startIndex) === templatePath.slice(0, startIndex)) {
-        subPath = subPath.slice(startIndex);
-      }
+      subPath = subPath.slice(startIndex);
 
       const relativeEndIndex = templatePath
         .substring(startIndex)
@@ -177,7 +212,9 @@ export class PgRouter {
       // Check whether the closing index is the last index
       if (endIndex === templatePath.length - 1) {
         if (!subPath.startsWith("/")) {
-          result[prop] = subPath;
+          result[prop] = subPath.endsWith("/")
+            ? subPath.substring(0, subPath.length - 1)
+            : subPath;
           return;
         }
 
@@ -187,13 +224,12 @@ export class PgRouter {
       // Get the next template character
       const nextTemplateCharacter = templatePath.at(endIndex + 1);
       if (nextTemplateCharacter) {
-        const newVal = (result[prop] = subPath.substring(
-          0,
-          subPath.indexOf(nextTemplateCharacter)
-        ));
+        const nextIndex = subPath.indexOf(nextTemplateCharacter);
+        result[prop] =
+          nextIndex === -1 ? subPath : subPath.substring(0, nextIndex);
 
         recursivelyMapValues(
-          subPath.substring(newVal.length),
+          subPath.substring(result[prop].length),
           index + endIndex + 1
         );
       }
@@ -203,4 +239,68 @@ export class PgRouter {
 
     return result as PathParameter<P>;
   }
+}
+
+// Tests
+if (process.env.NODE_ENV !== "production") {
+  const test = PgRouter.getParamsFromPath;
+  const assertMatches = (
+    route: string,
+    path: string,
+    expectedParams: object = {}
+  ) => {
+    const actualParams = test(route, path);
+    if (!PgCommon.isEqual(expectedParams, actualParams)) {
+      throw new Error(
+        [
+          `Route: ${route} and ${path} mismatch:`,
+          `expected (${PgCommon.prettyJSON(expectedParams)})`,
+          `actual: ${PgCommon.prettyJSON(actualParams)}`,
+        ].join("\n")
+      );
+    }
+  };
+  const assertNoMatches = (route: string, path: string) => {
+    const msg = `Route ${route} and path ${path} did not throw`;
+    try {
+      test(route, path);
+      throw new Error(msg);
+    } catch (e: any) {
+      if (e.message === msg) throw e;
+    }
+  };
+
+  assertMatches("/", "/");
+  assertMatches("/tutorials", "/tutorials");
+  assertMatches("/tutorials", "/tutorials/");
+  assertMatches("/tutorials/{name}", "/tutorials/first", {
+    name: "first",
+  });
+  assertMatches("/tutorials/{name}", "/tutorials/first/", {
+    name: "first",
+  });
+  assertMatches("/tutorials/{name}", "/tutorials/first/1", {
+    name: "first/1",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials", {
+    name: "",
+    page: "",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials/first", {
+    name: "first",
+    page: "",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials/first/", {
+    name: "first",
+    page: "",
+  });
+  assertMatches("/tutorials/{name}/{page}", "/tutorials/first/1", {
+    name: "first",
+    page: "1",
+  });
+  assertNoMatches("/tutorials", "/");
+  assertNoMatches("/tutorials", "/programs");
+  assertNoMatches("/tutorials/", "/programs");
+  assertNoMatches("/tutorials/{name}", "/programs");
+  assertNoMatches("/tutorials/{name}/{page}", "/programs");
 }

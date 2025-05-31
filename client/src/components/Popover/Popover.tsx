@@ -11,8 +11,7 @@ import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 
 import FadeIn from "../FadeIn";
-import { Id } from "../../constants";
-import { PgCommon, RequiredKey, ValueOf } from "../../utils/pg";
+import { PgCommon, PgView, RequiredKey, ValueOf } from "../../utils/pg";
 
 export interface PopoverProps {
   /** Popover element to show on trigger */
@@ -21,6 +20,8 @@ export interface PopoverProps {
   anchorEl?: HTMLElement;
   /** Where to place the popover element relative to the anchor point */
   placement?: "top" | "right" | "bottom" | "left";
+  /** Element stacking context */
+  stackingContext?: "above-modal" | "below-modal";
   /** Arrow pointing to the `anchorEl` from the `popEl` */
   arrow?: {
     /** Arrow size in px */
@@ -95,6 +96,7 @@ const CommonPopover: FC<CommonPopoverProps> = ({
   delay = 500,
   placement = "top",
   arrow = { size: 8 },
+  stackingContext = "above-modal",
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -357,7 +359,6 @@ const CommonPopover: FC<CommonPopoverProps> = ({
 
     const repositionResizeObserver = new ResizeObserver((entries) => {
       popoverEl.style.width = entries[0].contentRect.width + "px";
-      console.log(entries[0].contentRect.width, popoverEl.style.width);
     });
     repositionResizeObserver.observe(anchorEl);
 
@@ -377,7 +378,11 @@ const CommonPopover: FC<CommonPopoverProps> = ({
       {...position}
       {...props}
     />,
-    document.getElementById(Id.PORTAL)!
+    document.getElementById(
+      stackingContext === "above-modal"
+        ? PgView.ids.PORTAL_ABOVE
+        : PgView.ids.PORTAL_BELOW
+    )!
   );
 };
 

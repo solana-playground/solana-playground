@@ -19,27 +19,27 @@ import { ExplorerContextMenu } from "./ExplorerContextMenu";
 import { ReplaceItem } from "./Modals";
 import {
   Plus,
+  Rocket,
   ShortArrow,
   TestTube,
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { ClassName, Id, ItemError } from "../../../../constants";
 import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
+import { useCreateItem } from "./useCreateItem";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";
-import { useNewItem } from "./useNewItem";
 import { useKeybind } from "../../../../hooks";
 
 const Folders = () => {
   useHandleItemState();
 
   const ctxMenu = useExplorerContextMenu();
-  const { newItem } = useNewItem();
+  const { createItem } = useCreateItem();
 
   useKeybind(
     [
-      { keybind: "Alt+N", handle: newItem },
+      { keybind: "Alt+N", handle: createItem },
       { keybind: "F2", handle: ctxMenu.renameItem },
       { keybind: "Delete", handle: ctxMenu.deleteItem },
     ],
@@ -62,18 +62,28 @@ const Folders = () => {
 
       <ExplorerDndContext>
         <ExplorerContextMenu {...ctxMenu}>
-          <RootWrapper id={Id.ROOT_DIR} data-path={relativeRootPath}>
+          <RootWrapper id={PgView.ids.ROOT_DIR} data-path={relativeRootPath}>
             {/* Program */}
             <SectionTopWrapper>
               <SectionHeader>Program</SectionHeader>
               {folders.includes(PgExplorer.PATHS.SRC_DIRNAME) ? (
-                <SectionButton
-                  onClick={ctxMenu.runBuild}
-                  icon={<Wrench />}
-                  addTextMargin
-                >
-                  Build
-                </SectionButton>
+                <>
+                  <SectionButton
+                    onClick={ctxMenu.runBuild}
+                    icon={<Wrench />}
+                    addTextMargin
+                  >
+                    Build
+                  </SectionButton>
+                  <SectionButton
+                    onClick={ctxMenu.runDeploy}
+                    icon={<Rocket />}
+                    addTextMargin
+                    disabled={ctxMenu.deployState !== "ready"}
+                  >
+                    Deploy
+                  </SectionButton>
+                </>
               ) : (
                 <SectionButton onClick={ctxMenu.addProgram} icon={<Plus />}>
                   Add
@@ -179,7 +189,7 @@ const ExplorerDndContext: FC = ({ children }) => {
 
     const itemName = PgExplorer.getItemNameFromPath(fromPath);
     const newPath = PgExplorer.getCanonicalPath(
-      PgCommon.joinPaths([toPath, itemName])
+      PgCommon.joinPaths(toPath, itemName)
     );
     if (PgCommon.isPathsEqual(fromPath, newPath)) return;
 
@@ -188,7 +198,7 @@ const ExplorerDndContext: FC = ({ children }) => {
         skipNameValidation: true,
       });
     } catch (e: any) {
-      if (e.message === ItemError.ALREADY_EXISTS) {
+      if (e.message === PgExplorer.errors.ALREADY_EXISTS) {
         await PgView.setModal(
           <ReplaceItem fromPath={fromPath} toPath={newPath} />
         );
@@ -255,11 +265,11 @@ const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
   <>
     {folders
       .sort((a, b) => a.localeCompare(b))
-      .map((foldername) => (
+      .map((folderName) => (
         <RecursiveFolder
-          key={foldername}
+          key={folderName}
           path={PgCommon.appendSlash(
-            PgCommon.joinPaths([relativeRootPath, foldername])
+            PgCommon.joinPaths(relativeRootPath, folderName)
           )}
         />
       ))}
@@ -321,21 +331,19 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
           name: folderName,
           depth,
           onClick: toggle,
-          className: ClassName.FOLDER,
+          className: PgView.classNames.FOLDER,
         }}
       />
 
       <FolderInsideWrapper
-        className={`${ClassName.FOLDER_INSIDE} ${ClassName.HIDDEN}`}
+        className={`${PgView.classNames.FOLDER_INSIDE} ${PgView.classNames.HIDDEN}`}
       >
         {folders
           .sort((a, b) => a.localeCompare(b))
           .map((folderName) => (
             <RecursiveFolder
               key={folderName}
-              path={PgCommon.appendSlash(
-                PgCommon.joinPaths([path, folderName])
-              )}
+              path={PgCommon.appendSlash(PgCommon.joinPaths(path, folderName))}
             />
           ))}
 
@@ -344,14 +352,14 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
           .map((fileName) => (
             <Dnd.Draggable
               key={fileName}
-              id={PgCommon.joinPaths([path, fileName])}
+              id={PgCommon.joinPaths(path, fileName)}
               Item={StyledFile}
               itemProps={{
-                path: PgCommon.joinPaths([path, fileName]),
+                path: PgCommon.joinPaths(path, fileName),
                 name: fileName,
                 depth: depth + 1,
                 onClick: toggle,
-                className: ClassName.FILE,
+                className: PgView.classNames.FILE,
               }}
             />
           ))}
@@ -384,7 +392,7 @@ const File = forwardRef<HTMLDivElement, FileProps>(
   ({ path, name, depth, ...props }, ref) => (
     <div ref={ref} data-path={path} {...props}>
       <PaddingLeft depth={depth} />
-      <LangIcon fileName={name} />
+      <LangIcon path={path} />
       <span>{name}</span>
     </div>
   )
@@ -392,7 +400,9 @@ const File = forwardRef<HTMLDivElement, FileProps>(
 
 const RootWrapper = styled.div`
   ${({ theme }) => css`
-  & .${ClassName.FOLDER}, & .${ClassName.FILE} {
+  padding: 0.375rem 0;
+
+  & .${PgView.classNames.FOLDER}, & .${PgView.classNames.FILE} {
     display: flex;
     align-items: center;
     padding: 0.25rem 1rem;
@@ -400,13 +410,13 @@ const RootWrapper = styled.div`
     border: 1px solid transparent;
     font-size: ${theme.font.code.size.small};
 
-    &.${ClassName.SELECTED} {
+    &.${PgView.classNames.SELECTED} {
       background: ${
         theme.colors.default.primary + theme.default.transparency.low
       };
     }
 
-    &.${ClassName.CTX_SELECTED} {
+    &.${PgView.classNames.CTX_SELECTED} {
       background: ${
         theme.colors.default.primary + theme.default.transparency.low
       };
@@ -451,7 +461,7 @@ const SectionHeader = styled.div`
 `;
 
 const FolderInsideWrapper = styled.div`
-  &.${ClassName.HIDDEN} {
+  &.${PgView.classNames.HIDDEN} {
     display: none;
   }
 `;
@@ -470,7 +480,7 @@ const StyledFolder = styled(Folder)`
         ${theme.default.transition.type};
     }
 
-    &.${ClassName.OPEN} svg {
+    &.${PgView.classNames.OPEN} svg {
       transform: rotate(90deg);
     }
   `}

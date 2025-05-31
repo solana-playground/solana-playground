@@ -1,5 +1,3 @@
-import { PublicKey } from "@solana/web3.js";
-
 import {
   getCmCreatorMetadataAccounts,
   getMetaplex,
@@ -7,7 +5,7 @@ import {
   loadConfigData,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
 
 export const processReveal = async (rpcUrl: string | undefined) => {
   const term = await PgTerminal.get();
@@ -25,7 +23,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   const candyMachinePkStr = cache.program.candyMachine;
   let candyMachinePk;
   try {
-    candyMachinePk = new PublicKey(candyMachinePkStr);
+    candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
   } catch {
     throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
   }
@@ -59,7 +57,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   term.println(`\n[4/4] ${Emoji.UPLOAD} Updating NFT URIs from cache values`);
 
   // Show progress bar
-  PgTerminal.setProgress(0.1);
+  PgView.setMainSecondaryProgress(0.1);
   let progressCount = 0;
   let errorCount = 0;
 
@@ -95,7 +93,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
           errorCount++;
         } finally {
           progressCount++;
-          PgTerminal.setProgress(
+          PgView.setMainSecondaryProgress(
             (progressCount / metadataAccounts.length) * 100
           );
         }
@@ -104,7 +102,7 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   );
 
   // Hide progress bar
-  setTimeout(() => PgTerminal.setProgress(0), 1000);
+  setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
   if (errorCount) {
     term.println(

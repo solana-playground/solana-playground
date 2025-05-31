@@ -1,6 +1,5 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import { Keypair } from "@solana/web3.js";
 
 import FromSeed from "./FromSeed";
 import Label from "../InputLabel";
@@ -9,7 +8,7 @@ import SearchBar, {
   SearchBarItem,
   SearchBarProps,
 } from "../../../../../components/SearchBar";
-import { PgCommon, PgWallet } from "../../../../../utils/pg";
+import { PgCommon, PgWallet, PgWeb3 } from "../../../../../utils/pg";
 import {
   GeneratableInstruction,
   Idl,
@@ -24,7 +23,7 @@ type InstructionValues = GeneratableInstruction["values"];
 type InstructionInputAccount = InstructionValues["accounts"][number];
 type InstructionInputArg = InstructionValues["args"][number];
 
-export type InstructionInputProps = {
+type InstructionInputProps = {
   prefix: "accounts" | "args" | "seed";
   updateInstruction: (props: {
     updateGenerator: (
@@ -52,7 +51,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
   generator,
   searchBarProps,
   noLabel,
-  ...labelProps
+  ...accountProps
 }) => {
   const { instruction, setInstruction } = useInstruction();
   const { idl } = useIdl();
@@ -161,7 +160,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
     <Wrapper>
       {!noLabel && (
         <Row>
-          <Label name={name} type={displayType} {...labelProps} />
+          <Label name={name} type={displayType} {...accountProps} />
         </Row>
       )}
 
@@ -176,7 +175,14 @@ const InstructionInput: FC<InstructionInputProps> = ({
             setSelectedItems={setSelectedItems}
             restoreIfNotSelected
             labelToSelectOnPaste="Custom"
-            {...getSearchBarProps(name, type, generator, instruction, idl)}
+            {...getSearchBarProps(
+              name,
+              type,
+              generator,
+              accountProps,
+              instruction,
+              idl
+            )}
             {...searchBarProps}
           />
           <CopyButtonWrapper>
@@ -217,6 +223,7 @@ const getSearchBarProps = (
   name: string,
   type: IdlType,
   generator: InstructionValueGenerator & { name?: string; value?: string },
+  accountProps: Partial<Pick<InstructionInputAccount, "isMut" | "isSigner">>,
   instruction: GeneratableInstruction,
   idl: Idl
 ) => {
@@ -268,16 +275,16 @@ const getSearchBarProps = (
   };
 
   if (customizable.displayType === "bool") {
-    searchBarProps.items = ["false", "true"];
+    searchBarProps.items.push("false", "true");
     searchBarProps.noCustomOption = true;
   } else if (customizable.displayType === "publicKey") {
     // Handle "Random" for "publicKey" differently in order to be able to
     // sign the transaction later with the generated key
     searchBarProps.items[0] = {
       label: "Random",
-      data: Array.from(Keypair.generate().secretKey),
+      data: Array.from(PgWeb3.Keypair.generate().secretKey),
       get value() {
-        return Keypair.fromSecretKey(
+        return PgWeb3.Keypair.fromSecretKey(
           Uint8Array.from((this as { data: number[] }).data)
         ).publicKey.toBase58();
       },
@@ -298,26 +305,31 @@ const getSearchBarProps = (
     // From seed
     searchBarProps.items.push({
       label: "From seed",
-      DropdownComponent: FromSeed,
+      DropdownComponent: (props) => <FromSeed {...props} name={name} />,
+      closeButton: true,
     });
 
     // Programs
-    pushGeneratorItem({
-      type: "All programs",
-      names: PgProgramInteraction.getPrograms().map((p) => p.name),
-    });
+    if (!(accountProps.isMut || accountProps.isSigner)) {
+      pushGeneratorItem({
+        type: "All programs",
+        names: PgProgramInteraction.getPrograms().map((p) => p.name),
+      });
+    }
 
     // Pyth
-    searchBarProps.items.push({
-      label: "Pyth",
-      items: async () => {
-        const accounts = await PgProgramInteraction.getOrInitPythAccounts();
-        return Object.entries(accounts).map(([label, value]) => ({
-          label,
-          value,
-        }));
-      },
-    });
+    if (!(accountProps.isMut || accountProps.isSigner)) {
+      searchBarProps.items.push({
+        label: "Pyth",
+        items: async () => {
+          const accounts = await PgProgramInteraction.getOrInitPythAccounts();
+          return Object.entries(accounts).map(([label, value]) => ({
+            label,
+            value,
+          }));
+        },
+      });
+    }
   } else {
     // Handle enum
     const definedType = idl.types?.find(
@@ -326,34 +338,43 @@ const getSearchBarProps = (
     if (definedType?.kind === "enum") {
       const enumItems = definedType.variants.map((variant) => {
         const camelCaseName = PgCommon.toCamelCase(variant.name);
+
         // Unit
         if (!variant.fields?.length) return camelCaseName;
+
+        const lowerCaseName = camelCaseName.toLowerCase();
+        const createValue = (value: string, defaultValue: string) => {
+          if (value.toLowerCase().includes(lowerCaseName)) return value;
+          return defaultValue;
+        };
+        const matches = (value: string) => {
+          if (!value) return true;
+
+          const lowerCaseValue = value.toLowerCase();
+          if (lowerCaseName.includes(lowerCaseValue)) return true;
+
+          return new RegExp(lowerCaseName).test(lowerCaseValue);
+        };
 
         // Named
         if ((variant.fields[0] as { name?: string }).name) {
           return {
             label: camelCaseName,
-            value: `{ ${camelCaseName}: {...} }`,
+            value: (v: string) => createValue(v, `{ ${camelCaseName}: {...} }`),
+            matches,
           };
         }
 
         // Tuple
         return {
           label: camelCaseName,
-          value: `{ ${camelCaseName}: [...] }`,
+          value: (v: string) => createValue(v, `{ ${camelCaseName}: [...] }`),
+          matches,
         };
       });
       searchBarProps.items.push(...enumItems);
       searchBarProps.noCustomOption = true;
     }
-  }
-
-  // Add custom value after type overrides to get `noCustomOption`
-  if (!searchBarProps.noCustomOption) {
-    searchBarProps.items.unshift({
-      label: "Custom",
-      value: { current: true },
-    });
   }
 
   // Add argument refs
@@ -372,26 +393,14 @@ const getSearchBarProps = (
       .map((acc) => acc.name),
   });
 
-  // Validator
-  searchBarProps.validator = (...args) => {
-    try {
-      customizable.parse(...args);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  // Filter
-  searchBarProps.filter = ({ input, item }) => {
-    // Show all options if the input is valid
-    if (searchBarProps.validator!(input)) return true;
-
-    return (
-      item.label !== "Custom" &&
-      item.label.toLowerCase().includes(input.toLowerCase())
-    );
-  };
+  // Add custom value after type overrides to get `noCustomOption`
+  if (!searchBarProps.noCustomOption) {
+    searchBarProps.items.unshift({
+      label: "Custom",
+      value: { current: true },
+      onlyShowIfValid: true,
+    });
+  }
 
   // Initial items to select
   searchBarProps.initialSelectedItems = searchBarProps.noCustomOption
@@ -406,13 +415,23 @@ const getSearchBarProps = (
     ? { label: generator.type, data: generator.data }
     : generator.type;
 
+  // Validator
+  searchBarProps.validator = (...args) => {
+    try {
+      customizable.parse(...args);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return searchBarProps;
 };
 
 /** Generate the value or default to an empty string in the case of an error. */
 const generateValueOrDefault = (
   generator: InstructionValueGenerator,
-  values: GeneratableInstruction["values"]
+  values: InstructionValues
 ) => {
   try {
     return PgProgramInteraction.generateValue(generator, values);

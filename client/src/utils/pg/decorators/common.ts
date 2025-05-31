@@ -37,6 +37,10 @@ export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
     disposables.push(disposable);
 
     sClass[IS_INITIALIZED_PROPERTY] = true;
+    disposables.push(
+      { dispose: () => (sClass[IS_INITIALIZED_PROPERTY] = false) },
+      { dispose: () => (sClass[INTERNAL_STATE_PROPERTY] = {}) }
+    );
 
     return {
       dispose: () => disposables.forEach(({ dispose }) => dispose()),

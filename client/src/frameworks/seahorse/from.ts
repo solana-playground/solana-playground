@@ -18,7 +18,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   // with the expected program name as the program module name so that we can
   // convert the files to Anchor to avoid duplicating file generation logic.
   files.push([
-    PgCommon.joinPaths([PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"]),
+    PgCommon.joinPaths(PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"),
     `use anchor_lang::prelude::*;\n#[program] mod ${programName} {}`,
   ]);
 
@@ -26,7 +26,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   const frameworkFiles = anchorFiles.map((file) => {
     // programs/<program-name>/src/**/*.py -> programs_py/<program-name>.py
     file[0] = file[0].replace(/programs\/.*\/src\/(.*\.py)/, (_, name) => {
-      return PgCommon.joinPaths(["programs_py", name]);
+      return PgCommon.joinPaths("programs_py", name);
     });
 
     // Update manifest dependencies
@@ -45,11 +45,11 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   });
 
   // Add Seahorse prelude
-  const SEAHORSE_PATH = PgCommon.joinPaths(["programs_py", "seahorse"]);
+  const SEAHORSE_PATH = PgCommon.joinPaths("programs_py", "seahorse");
   frameworkFiles.push(
-    [PgCommon.joinPaths([SEAHORSE_PATH, "__init__.py"]), ""],
+    [PgCommon.joinPaths(SEAHORSE_PATH, "__init__.py"), ""],
     [
-      PgCommon.joinPaths([SEAHORSE_PATH, "prelude.py"]),
+      PgCommon.joinPaths(SEAHORSE_PATH, "prelude.py"),
       await PgCommon.fetchText(
         "https://raw.githubusercontent.com/solana-developers/seahorse/main/data/const/seahorse_prelude.py"
       ),

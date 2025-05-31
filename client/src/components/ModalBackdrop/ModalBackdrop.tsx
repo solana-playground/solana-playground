@@ -1,7 +1,6 @@
 import { ReactElement, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { EventName } from "../../constants";
 import { PgCommon, PgTheme, PgView } from "../../utils/pg";
 import { useKeybind, useSetStatic } from "../../hooks";
 
@@ -18,7 +17,7 @@ const ModalBackdrop = () => {
 
   useSetStatic(
     setModalStatic,
-    PgCommon.getSendAndReceiveEventNames(EventName.MODAL_SET).send
+    PgCommon.getSendAndReceiveEventNames(PgView.events.MODAL_SET).send
   );
 
   // Close modal on ESC
@@ -36,6 +35,7 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     inset: 0;
+    z-index: 3;
 
     ${PgTheme.convertToCSS(theme.components.modal.backdrop)};
   `}

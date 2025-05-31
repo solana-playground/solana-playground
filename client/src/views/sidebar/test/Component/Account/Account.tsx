@@ -1,6 +1,5 @@
 import { FC, useState } from "react";
 import styled from "styled-components";
-import { PublicKey } from "@solana/web3.js";
 
 import CodeResult from "../CodeResult";
 import InputLabel from "../InputLabel";
@@ -10,7 +9,7 @@ import Foldable from "../../../../../components/Foldable";
 import SearchBar from "../../../../../components/SearchBar";
 import Text from "../../../../../components/Text";
 import { SpinnerWithBg } from "../../../../../components/Loading";
-import { PgCommon } from "../../../../../utils/pg";
+import { PgCommon, PgWeb3 } from "../../../../../utils/pg";
 import { PgProgramInteraction } from "../../../../../utils/pg/program-interaction";
 import { useWallet } from "../../../../../hooks";
 
@@ -55,7 +54,7 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
       const account = await PgCommon.transition(
         PgProgramInteraction.fetchAccount(
           accountName,
-          new PublicKey(enteredAddress)
+          new PgWeb3.PublicKey(enteredAddress)
         )
       );
       handleFetched(account);

@@ -1,37 +1,98 @@
+import { FC, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import styled, { css } from "styled-components";
 import remarkGfm from "remark-gfm";
 
 import CodeBlock from "../CodeBlock";
+import Img from "../Img";
 import Link, { LinkProps } from "../Link";
-import { PgTheme } from "../../utils/pg";
+import { HyperLink } from "../Icons";
+import { PgCommon, PgRouter, PgTheme } from "../../utils/pg";
 
 interface MarkdownProps {
   /** Markdown string */
   children: string;
   /** Make all fonts the code font */
   codeFontOnly?: boolean;
+  /** Root for the `src` prop (defaults to the current path) */
+  rootSrc?: string;
 }
 
-const Markdown = (props: MarkdownProps) => (
-  <StyledMarkdown
-    remarkPlugins={[remarkGfm]}
-    components={{
-      /** Links */
-      a: (props) => <Link {...(props as LinkProps)} />,
+const Markdown: FC<MarkdownProps> = ({ rootSrc, ...props }) => {
+  // Scroll to section
+  useEffect(() => {
+    /** Recursively try to find a parent vertically scrollable element. */
+    const findParentScrollableElement = (
+      element: HTMLElement | null
+    ): HTMLElement | null => {
+      if (!element) return null;
+      if (element.scrollHeight > element.clientHeight) return element;
+      return findParentScrollableElement(element.parentElement);
+    };
 
-      /** Code blocks */
-      pre: (props) => {
-        const codeProps = (props as any).children[0].props;
-        const lang = codeProps.className?.split("-")?.at(1);
-        const code = codeProps.children[0];
+    const { dispose } = PgRouter.onDidChangeHash((hash) => {
+      if (!hash) return;
 
-        return <CodeBlock lang={lang}>{code}</CodeBlock>;
-      },
-    }}
-    {...props}
-  />
-);
+      const el = document.getElementById(
+        HEADER_ELEMENT_ID_PREFIX + hash.substring(1)
+      );
+      if (!el) return;
+
+      setTimeout(() => {
+        const scrollableEl = findParentScrollableElement(el);
+        if (!scrollableEl) return;
+
+        scrollableEl.scrollTo({
+          top: el.getBoundingClientRect().top + scrollableEl.scrollTop,
+          behavior: "smooth",
+        });
+      });
+    });
+    return dispose;
+  }, []);
+
+  return (
+    <StyledMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        /** Links */
+        a: (props) => <Link {...(props as LinkProps)} />,
+
+        /** Images */
+        img: (props) => {
+          return (
+            <Img
+              {...props}
+              src={
+                props.src && !props.src.startsWith("/")
+                  ? PgCommon.joinPaths(
+                      rootSrc ?? PgRouter.location.pathname,
+                      props.src
+                    )
+                  : props.src
+              }
+            />
+          );
+        },
+
+        /** Code blocks */
+        pre: (props) => {
+          const codeProps = (props as any).children[0].props;
+          const lang = codeProps.className?.split("-")?.at(1);
+          const code = codeProps.children[0];
+
+          return <CodeBlock lang={lang}>{code}</CodeBlock>;
+        },
+
+        /** Section headers */
+        h1: (props) => <LinkableHeader element="h1" {...props} />,
+        h2: (props) => <LinkableHeader element="h2" {...props} />,
+        h3: (props) => <LinkableHeader element="h3" {...props} />,
+      }}
+      {...props}
+    />
+  );
+};
 
 const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
   ${({ theme, codeFontOnly }) => css`
@@ -318,8 +379,7 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
     kbd {
       display: inline-block;
       padding: 3px 5px;
-      font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
+      font: ${theme.font.code.size.small} ${theme.font.code.family};
       line-height: 10px;
       color: var(--color-fg-default);
       vertical-align: middle;
@@ -407,17 +467,15 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
 
     tt,
     code {
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
-      font-size: 12px;
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
     }
 
     pre {
       margin-top: 0;
       margin-bottom: 0;
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
-      font-size: 12px;
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
       word-wrap: normal;
     }
 
@@ -1029,5 +1087,47 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
     height: fit-content;
   `}
 `;
+
+interface LinkableHeaderProps {
+  element: "h1" | "h2" | "h3";
+}
+
+const LinkableHeader: FC<LinkableHeaderProps> = ({
+  element: Header,
+  ...rest
+}) => {
+  const hash = PgCommon.toKebabFromTitle((rest.children as string[])[0]);
+
+  return (
+    <LinkableHeaderWrapper onClick={() => (PgRouter.location.hash = hash)}>
+      <HyperLink />
+      <Header {...rest} id={HEADER_ELEMENT_ID_PREFIX + hash} />
+    </LinkableHeaderWrapper>
+  );
+};
+
+const LinkableHeaderWrapper = styled.div`
+  ${({ theme }) => css`
+    position: relative;
+    cursor: pointer;
+
+    & > :first-child {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -1.5rem;
+      margin: auto 0;
+      opacity: 0;
+      transition: opacity ${theme.default.transition.duration.short}
+        ${theme.default.transition.type};
+    }
+
+    &:hover > :first-child {
+      opacity: 1;
+    }
+  `}
+`;
+
+const HEADER_ELEMENT_ID_PREFIX = "md";
 
 export default Markdown;

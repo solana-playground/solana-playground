@@ -2,7 +2,6 @@ import { ScriptTarget, transpile } from "typescript";
 import * as mocha from "mocha";
 import * as util from "util";
 import * as anchor from "@coral-xyz/anchor";
-import * as web3 from "@solana/web3.js";
 
 import { ClientPackageName, PgClientPackage } from "./package";
 import { PgCommon } from "../common";
@@ -12,6 +11,7 @@ import { PgProgramInteraction } from "../program-interaction";
 import { PgTerminal } from "../terminal";
 import { CurrentWallet, PgWallet, StandardWallet } from "../wallet";
 import type { MergeUnion, OrString } from "../types";
+import type { PgWeb3 } from "../web3";
 
 /** Options to use when running a script/test */
 interface ClientParams {
@@ -32,7 +32,7 @@ export class PgClient {
   static async execute({ fileName, code, isTest }: ClientParams) {
     await this._executeBlocking(
       async () => {
-        PgTerminal.log(`  ${fileName}:`);
+        PgTerminal.println(`  ${fileName}:`);
 
         // Get Iframe window
         const iframeWindow = this._getIframeWindow();
@@ -120,7 +120,7 @@ export class PgClient {
           } else {
             const { dispose } = PgCommon.onDidChange({
               cb: () => {
-                PgTerminal.log("");
+                PgTerminal.println("");
                 dispose();
                 res();
               },
@@ -181,9 +181,20 @@ export class PgClient {
     const iframeWindow = iframeEl.contentWindow;
     if (!iframeWindow) throw new Error("No iframe window");
 
+    // Non runtime errors e.g. syntax
     iframeWindow.addEventListener("error", (ev) => {
-      PgTerminal.log(`    ${ev.message}`);
+      PgTerminal.println(`    ${ev.message}`);
+
+      // This kind of error requires custom event dispatch to indicate the
+      // client has finished running, otherwise client will stay in the running
+      // state indefinitely.
       PgCommon.createAndDispatchCustomEvent(CLIENT_ON_DID_FINISH_RUNNING);
+    });
+
+    // Promise/async errors
+    iframeWindow.addEventListener("unhandledrejection", (ev) => {
+      PgTerminal.println(`    ${`Uncaught error: ${ev.reason.message}`}`);
+      // Does not require custom event dispatch to indicate running has finished
     });
 
     this._IframeWindow = iframeWindow;
@@ -201,7 +212,7 @@ export class PgClient {
     // Redefine console inside the iframe to log in the terminal
     const log = (cb?: (text: string) => string) => {
       return (...args: any[]) => {
-        return PgTerminal.log(
+        return PgTerminal.println(
           "    " + (cb ? cb(util.format(...args)) : util.format(...args))
         );
       };
@@ -400,7 +411,7 @@ export class PgClient {
       // Add `AnchorProvider.local()`
       pkg[providerName].local = (
         url?: string,
-        opts: web3.ConfirmOptions = anchor.AnchorProvider.defaultOptions()
+        opts: PgWeb3.ConfirmOptions = anchor.AnchorProvider.defaultOptions()
       ) => {
         const connection = PgConnection.create({
           endpoint: url ?? "http://localhost:8899",
@@ -475,13 +486,13 @@ export class PgClient {
     /** Utilities to be available under the `pg` namespace */
     interface Pg {
       /** Playground connection instance */
-      connection: web3.Connection;
+      connection: PgWeb3.Connection;
       /** Current connected wallet */
       wallet?: CurrentWallet;
       /** All available wallets, including the standard wallets */
       wallets?: Record<string, CurrentWallet | StandardWallet>;
       /** Current project's program public key */
-      PROGRAM_ID?: web3.PublicKey;
+      PROGRAM_ID?: PgWeb3.PublicKey;
       /** Anchor program instance of the current project */
       program?: anchor.Program;
     }
@@ -496,7 +507,7 @@ export class PgClient {
     if (pg.wallet) {
       pg.wallets = {};
 
-      const pgWallets = PgWallet.accounts.map(PgWallet.createWallet);
+      const pgWallets = PgWallet.accounts.map(PgWallet.create);
       const standardWallets = PgWallet.getConnectedStandardWallets();
 
       const wallets = [...pgWallets, ...standardWallets];

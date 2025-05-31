@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Foldable from "../../../../../components/Foldable";
@@ -6,42 +6,69 @@ import BuildFlags from "./BuildFlags";
 import IDL from "./IDL";
 import ProgramBinary from "./ProgramBinary";
 import ProgramID from "./ProgramID";
+import { useAsyncEffect } from "../../../../../hooks";
+import { PgFramework } from "../../../../../utils/pg";
 
 /** All program settings */
-const PROGRAM_SETTINGS: ProgramSettingProps[] = [
+const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [
   {
     title: "Program ID",
     description:
-      "Import/export program keypair or input a public key for the program.",
+      "Import/export program keypair or input a public key for the program",
     element: <ProgramID />,
     isOpen: true,
   },
   {
     title: "Program binary",
-    description: "Import your program and deploy without failure.",
+    description: "Import your program and deploy without failure",
     element: <ProgramBinary />,
-  },
-  // TODO: Hide it if it's a Native program
-  {
-    title: "Build flags",
-    description: "Anchor build flags.",
-    element: <BuildFlags />,
-  },
-  // TODO: Hide it if it's a Native program
-  {
-    title: "IDL",
-    description: "Anchor IDL interactions.",
-    element: <IDL />,
   },
 ];
 
-const ProgramSettings = () => (
-  <Wrapper>
-    {PROGRAM_SETTINGS.map((setting) => (
-      <ProgramSetting key={setting.title} {...setting} />
-    ))}
-  </Wrapper>
-);
+const ProgramSettings = () => {
+  const [settings, setSettings] = useState<ProgramSettingProps[] | null>(null);
+
+  useAsyncEffect(async () => {
+    const framework = await PgFramework.getFromFiles();
+    switch (framework?.name) {
+      case "Anchor":
+      case "Seahorse": {
+        const anchorSettings: ProgramSettingProps[] = [
+          {
+            title: "IDL",
+            description: "Anchor IDL interactions",
+            element: <IDL />,
+          },
+        ];
+        if (process.env.NODE_ENV !== "production") {
+          anchorSettings.unshift({
+            title: "Build flags",
+            description: "Anchor build flags",
+            element: <BuildFlags />,
+          });
+        }
+
+        setSettings(DEFAULT_PROGRAM_SETTINGS.concat(anchorSettings));
+        break;
+      }
+      case "Native":
+        setSettings(DEFAULT_PROGRAM_SETTINGS);
+        break;
+      default:
+        setSettings(null);
+    }
+  }, []);
+
+  if (!settings) return null;
+
+  return (
+    <Wrapper>
+      {settings.map((setting) => (
+        <ProgramSetting key={setting.title} {...setting} />
+      ))}
+    </Wrapper>
+  );
+};
 
 const Wrapper = styled.div`
   display: flex;

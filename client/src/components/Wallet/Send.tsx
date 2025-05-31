@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 import Button from "../Button";
 import Input from "../Input";
 import Foldable from "../Foldable";
-import { PgCommon, PgTerminal, PgTheme, PgTx, PgWallet } from "../../utils/pg";
+import {
+  PgCommon,
+  PgTerminal,
+  PgTheme,
+  PgTx,
+  PgWallet,
+  PgWeb3,
+} from "../../utils/pg";
 import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (
@@ -51,20 +57,23 @@ const SendExpanded = () => {
     if (disabled) return;
 
     await PgTerminal.process(async () => {
-      PgTerminal.log(
+      PgTerminal.println(
         PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
       );
 
       let msg;
       try {
-        const ix = SystemProgram.transfer({
+        const ix = PgWeb3.SystemProgram.transfer({
           fromPubkey: PgWallet.current!.publicKey,
-          toPubkey: new PublicKey(recipient),
+          toPubkey: new PgWeb3.PublicKey(recipient),
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
-        const tx = new Transaction().add(ix);
-        const txHash = await PgCommon.transition(PgTx.send(tx));
+        const tx = new PgWeb3.Transaction().add(ix);
+        const txHash = await PgTx.send(tx);
         PgTx.notify(txHash);
+
+        const txResult = await PgCommon.transition(PgTx.confirm(txHash));
+        if (txResult?.err) throw txResult.err;
 
         msg = PgTerminal.success("Success.");
 
@@ -75,7 +84,7 @@ const SendExpanded = () => {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Transfer error: ${convertedError}`;
       } finally {
-        PgTerminal.log(msg + "\n");
+        PgTerminal.println(msg + "\n");
       }
     });
   };

@@ -2,22 +2,17 @@ import styled from "styled-components";
 
 import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
-import { NewWorkspace } from "./Modals";
+import { CreateWorkspace } from "./Modals";
 import { Plus } from "../../../../components/Icons";
 import { PgView } from "../../../../utils/pg";
 
 const NoWorkspace = () => {
-  const newWorkspace = () => PgView.setModal(NewWorkspace);
+  const createWorkspace = () => PgView.setModal(CreateWorkspace);
 
   return (
     <Wrapper>
       <Text>Start by creating a new project.</Text>
-      <Button
-        onClick={newWorkspace}
-        kind="outline"
-        fullWidth
-        leftIcon={<Plus />}
-      >
+      <Button onClick={createWorkspace} fullWidth leftIcon={<Plus />}>
         Create a new project
       </Button>
     </Wrapper>

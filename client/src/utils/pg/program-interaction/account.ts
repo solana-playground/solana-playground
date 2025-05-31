@@ -1,7 +1,6 @@
-import { PublicKey } from "@solana/web3.js";
-
 import { getAnchorProgram } from "./program";
 import { PgCommon } from "../common";
+import type { PgWeb3 } from "../web3";
 
 /**
  * Fetch the given on-chain account.
@@ -10,7 +9,10 @@ import { PgCommon } from "../common";
  * @param address public key of the account
  * @returns the account
  */
-export const fetchAccount = async (accountName: string, address: PublicKey) => {
+export const fetchAccount = async (
+  accountName: string,
+  address: PgWeb3.PublicKey
+) => {
   const account = getAccountClient(accountName);
   return await account.fetch(address);
 };

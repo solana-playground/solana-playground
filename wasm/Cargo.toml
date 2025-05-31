@@ -6,6 +6,7 @@ members = [
     "solana-client",
     "spl-token-cli",
     "sugar-cli",
-    "utils/*"
+    "utils/*",
 ]
 exclude = ["playnet", "rust-analyzer"]
+resolver = "2"

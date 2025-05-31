@@ -1,9 +1,13 @@
 import { toBigNumber } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
 
 import { getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal } from "../../../../utils/pg";
+import {
+  PgBlockExplorer,
+  PgTerminal,
+  PgView,
+  PgWeb3,
+} from "../../../../utils/pg";
 
 export const processMint = async (
   rpcUrl: string | undefined,
@@ -21,7 +25,7 @@ export const processMint = async (
   }
   let candyMachinePk;
   try {
-    candyMachinePk = new PublicKey(candyMachinePkStr);
+    candyMachinePk = new PgWeb3.PublicKey(candyMachinePkStr);
   } catch {
     throw new Error(`Failed to parse candy machine id: ${candyMachinePkStr}`);
   }
@@ -38,7 +42,7 @@ export const processMint = async (
   term.println(`\n[2/2] ${Emoji.CANDY} Minting from candy machine`);
 
   const receiverPk = receiver
-    ? new PublicKey(receiver)
+    ? new PgWeb3.PublicKey(receiver)
     : metaplex.identity().publicKey;
   term.println(`Minting to ${receiverPk.toBase58()}\n`);
 
@@ -50,7 +54,7 @@ export const processMint = async (
   }
 
   // Show progress bar
-  PgTerminal.setProgress(0.1);
+  PgView.setMainSecondaryProgress(0.1);
   let progressCount = 0;
 
   // Check for candy guard groups
@@ -99,10 +103,9 @@ export const processMint = async (
                     ? "NFT"
                     : `${nft.name}`
                 }: ${PgTerminal.underline(
-                  PgCommon.getExplorerTokenUrl(
-                    nft.address.toBase58(),
-                    metaplex.connection.rpcEndpoint
-                  ).explorer
+                  // The explorer URL will be based on the current cluster
+                  // rather than the cluster of the custom URL argument
+                  PgBlockExplorer.current.getAddressUrl(nft.address.toBase58())
                 )} `
               )
             );
@@ -119,14 +122,16 @@ export const processMint = async (
           }
         } finally {
           progressCount++;
-          PgTerminal.setProgress((progressCount / mintAmount.toNumber()) * 100);
+          PgView.setMainSecondaryProgress(
+            (progressCount / mintAmount.toNumber()) * 100
+          );
         }
       }
     })
   );
 
   // Hide progress bar
-  setTimeout(() => PgTerminal.setProgress(0), 1000);
+  setTimeout(() => PgView.setMainSecondaryProgress(0), 1000);
 
   if (isMintingOver) {
     term.println(PgTerminal.info("Minting is over!"));

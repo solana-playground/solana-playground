@@ -1,8 +1,15 @@
 import { MouseEvent, useCallback, useState } from "react";
 
 import { DeleteItem, RenameItem } from "./Modals";
-import { ClassName, Id } from "../../../../constants";
-import { PgCommand, PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
+import {
+  PgCommand,
+  PgCommon,
+  PgExplorer,
+  PgGlobal,
+  PgLanguage,
+  PgView,
+} from "../../../../utils/pg";
+import { useRenderOnChange } from "../../../../hooks";
 
 export type ItemData = {
   [K in
@@ -18,6 +25,11 @@ export const useExplorerContextMenu = () => {
   const [itemData, setItemData] = useState<ItemData>({});
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
 
+  const deployState = useRenderOnChange(
+    PgGlobal.onDidChangeDeployState,
+    PgGlobal.deployState
+  );
+
   const handleMenu = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     // Add selected style to the item
     let itemEl = ev.target as Node;
@@ -27,7 +39,7 @@ export const useExplorerContextMenu = () => {
     const selectedEl = itemEl as HTMLDivElement;
 
     // Root dir is not allowed to be selected as it cannot be renamed or deleted
-    if (selectedEl.id === Id.ROOT_DIR) throw new Error();
+    if (selectedEl.id === PgView.ids.ROOT_DIR) throw new Error();
 
     const itemType = PgExplorer.getItemTypeFromEl(selectedEl);
     if (!itemType) throw new Error();
@@ -39,10 +51,16 @@ export const useExplorerContextMenu = () => {
       isFolder: itemType.folder,
       isProgramFolder:
         itemType.folder && itemName === PgExplorer.PATHS.SRC_DIRNAME,
-      isClient: itemType.file && PgExplorer.getIsItemClientFromEl(selectedEl),
+      isClient:
+        itemType.file &&
+        PgLanguage.getIsPathJsLike(itemPath) &&
+        !itemPath.includes(".test"),
       isClientFolder:
         itemType.folder && itemName === PgExplorer.PATHS.CLIENT_DIRNAME,
-      isTest: itemType.file && PgExplorer.getIsItemTestFromEl(selectedEl),
+      isTest:
+        itemType.file &&
+        PgLanguage.getIsPathJsLike(itemPath) &&
+        itemPath.includes(".test"),
       isTestFolder:
         itemType.folder && itemName === PgExplorer.PATHS.TESTS_DIRNAME,
     };
@@ -70,9 +88,11 @@ export const useExplorerContextMenu = () => {
   // Functions
   const ctxNewItem = useCallback(() => {
     const ctxSelected = PgExplorer.getElFromPath(getPath())!;
-    if (!ctxSelected.classList.contains(ClassName.OPEN)) {
-      ctxSelected.classList.add(ClassName.OPEN);
-      ctxSelected.nextElementSibling?.classList.remove(ClassName.HIDDEN);
+    if (!ctxSelected.classList.contains(PgView.classNames.OPEN)) {
+      ctxSelected.classList.add(PgView.classNames.OPEN);
+      ctxSelected.nextElementSibling?.classList.remove(
+        PgView.classNames.HIDDEN
+      );
     }
 
     PgView.setNewItemPortal(ctxSelected.nextElementSibling);
@@ -92,41 +112,41 @@ export const useExplorerContextMenu = () => {
   }, [getPath]);
 
   const addProgram = useCallback(async () => {
-    await PgExplorer.newItem(
-      PgCommon.joinPaths([PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"])
+    await PgExplorer.createItem(
+      PgCommon.joinPaths(PgExplorer.PATHS.SRC_DIRNAME, "lib.rs")
     );
   }, []);
 
   const addClient = useCallback(async () => {
-    await PgCommand.run.run();
+    await PgCommand.run.execute();
   }, []);
 
   const addTests = useCallback(async () => {
-    await PgCommand.test.run();
+    await PgCommand.test.execute();
   }, []);
 
   const runBuild = useCallback(async () => {
-    await PgCommand.build.run();
+    await PgCommand.build.execute();
   }, []);
 
   const runDeploy = useCallback(async () => {
-    await PgCommand.deploy.run();
+    await PgCommand.deploy.execute();
   }, []);
 
   const runClient = useCallback(async () => {
-    await PgCommand.run.run(getPath());
+    await PgCommand.run.execute(getPath());
   }, [getPath]);
 
   const runTest = useCallback(async () => {
-    await PgCommand.test.run(getPath());
+    await PgCommand.test.execute(getPath());
   }, [getPath]);
 
   const runClientFolder = useCallback(async () => {
-    await PgCommand.run.run();
+    await PgCommand.run.execute();
   }, []);
 
   const runTestFolder = useCallback(async () => {
-    await PgCommand.test.run();
+    await PgCommand.test.execute();
   }, []);
 
   return {
@@ -144,5 +164,6 @@ export const useExplorerContextMenu = () => {
     runClientFolder,
     runTestFolder,
     itemData,
+    deployState,
   };
 };

@@ -1,7 +1,7 @@
 import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
 import { PgFramework } from "./framework";
-import { GithubError } from "../../constants";
+import { PgLanguage } from "./language";
 import type { Arrayable } from "./types";
 
 type GithubRepositoryData = {
@@ -45,7 +45,7 @@ export class PgGithub {
     const regex =
       /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/;
     const res = regex.exec(url);
-    if (!res) throw new Error(GithubError.INVALID_URL);
+    if (!res) throw new Error("Invalid program url");
 
     const owner = res[3]; // solana-labs
     const repo = res[4]; // solana-program-library
@@ -70,7 +70,7 @@ export class PgGithub {
     } else {
       // Create a new workspace
       const convertedFiles = await this.getFiles(url);
-      await PgExplorer.newWorkspace(githubWorkspaceName, {
+      await PgExplorer.createWorkspace(githubWorkspaceName, {
         files: convertedFiles,
         skipNameValidation: true,
       });
@@ -112,12 +112,12 @@ export class PgGithub {
       for (const itemData of dirData) {
         if (itemData.type === "file") {
           // Skip fetching the content if the language is not supported
-          if (!PgExplorer.getLanguageFromPath(itemData.path)) continue;
+          if (!PgLanguage.getFromPath(itemData.path)) continue;
 
           const content = await PgCommon.fetchText(itemData.download_url!);
           files.push([itemData.path, content]);
         } else if (itemData.type === "dir") {
-          const insideDirUrl = PgCommon.joinPaths([currentUrl, itemData.name]);
+          const insideDirUrl = PgCommon.joinPaths(currentUrl, itemData.name);
           const { data: insideDirData } = await this._getRepositoryData(
             insideDirUrl
           );

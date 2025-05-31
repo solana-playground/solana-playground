@@ -15,18 +15,19 @@ export const ImportTemporary = () => {
   };
 
   const importTemporary = async () => {
-    await PgExplorer.newWorkspace(name, { fromTemporary: true });
+    await PgExplorer.createWorkspace(name, { fromTemporary: true });
   };
 
   return (
     <Modal
+      title
       buttonProps={{
         text: "Import",
         onSubmit: importTemporary,
-        disabled: !name || !!error,
-        setError,
+        disabled: !name,
       }}
-      title
+      error={error}
+      setError={setError}
     >
       <MainText>Project name</MainText>
       <Input

@@ -14,10 +14,7 @@ export const convertToPlayground = async (files: TupleFiles) => {
       files.reduce((acc, file) => {
         const result = /.*programs_py\/([\w\d]+\.py)/.exec(file[0]);
         if (result) {
-          file[0] = PgCommon.joinPaths([
-            PgExplorer.PATHS.SRC_DIRNAME,
-            result[1],
-          ]);
+          file[0] = PgCommon.joinPaths(PgExplorer.PATHS.SRC_DIRNAME, result[1]);
           acc.push(file);
         }
 

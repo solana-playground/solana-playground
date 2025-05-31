@@ -3,16 +3,19 @@
 import fs from "fs/promises";
 import pathModule from "path";
 
-import { exists, readJSON, REPO_ROOT_PATH, resetDir } from "./utils.mjs";
+import {
+  CLIENT_PATH,
+  exists,
+  readJSON,
+  REPO_ROOT_PATH,
+  resetDir,
+} from "./utils.mjs";
 
 /** Supported packages path */
 const SUPPORTED_PACKAGES_PATH = pathModule.join(
   REPO_ROOT_PATH,
   "supported-packages.json"
 );
-
-/** Playground client directory path */
-const CLIENT_PATH = pathModule.join(REPO_ROOT_PATH, "client");
 
 /** Packages output directory path */
 const PACKAGES_PATH = pathModule.join(CLIENT_PATH, "public", "packages");

@@ -58,7 +58,7 @@ export const processValidate = async (
       if (
         !(await term.waitForUserInput(
           "Do you want to continue without automatically setting the candy machine collection?",
-          { confirm: true }
+          { confirm: true, default: "yes" }
         ))
       ) {
         throw new Error("Operation aborted");

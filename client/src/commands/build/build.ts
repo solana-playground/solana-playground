@@ -1,7 +1,4 @@
-import { Keypair } from "@solana/web3.js";
-
 import {
-  createCmd,
   ExplorerFiles,
   PgCommon,
   PgExplorer,
@@ -11,15 +8,17 @@ import {
   PgServer,
   PgSettings,
   PgTerminal,
+  PgWeb3,
   TupleFiles,
 } from "../../utils/pg";
+import { createCmd } from "../create";
 
 export const build = createCmd({
   name: "build",
   description: "Build your program",
-  run: async () => {
+  handle: async () => {
     PgGlobal.update({ buildLoading: true });
-    PgTerminal.log(PgTerminal.info("Building..."));
+    PgTerminal.println(PgTerminal.info("Building..."));
 
     let msg;
     try {
@@ -29,7 +28,7 @@ export const build = createCmd({
       const convertedError = PgTerminal.convertErrorMessage(e.message);
       msg = `Build error: ${convertedError}`;
     } finally {
-      PgTerminal.log(msg + "\n");
+      PgTerminal.println(msg + "\n");
       PgGlobal.update({ buildLoading: false });
     }
   },
@@ -120,7 +119,7 @@ const buildPython = async (pythonFiles: TupleFiles) => {
 const getBuildFiles = () => {
   let programPkStr = PgProgramInfo.getPkStr();
   if (!programPkStr) {
-    const kp = Keypair.generate();
+    const kp = PgWeb3.Keypair.generate();
     PgProgramInfo.update({ kp });
     programPkStr = kp.publicKey.toBase58();
   }
@@ -203,10 +202,10 @@ const getBuildFiles = () => {
     if (!content) continue;
 
     // Remove the workspace from path because build only needs /src
-    const buildPath = PgCommon.joinPaths([
+    const buildPath = PgCommon.joinPaths(
       PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgExplorer.getRelativePath(path),
-    ]);
+      PgExplorer.getRelativePath(path)
+    );
     buildFiles.push([buildPath, content]);
   }
 
@@ -321,21 +320,26 @@ const improveOutput = (output: string) => {
         (err) => !prioritizedErrors.includes(err) && !hiddenErrors.includes(err)
       );
       const displayErrors = prioritizedErrors.concat(remainingErrors);
-      output = displayErrors.reduce(
-        (acc, cur, i) => (i < MAX_ERROR_AMOUNT ? acc + cur : acc),
-        ""
-      );
 
-      if (displayErrors.length > MAX_ERROR_AMOUNT) {
-        output += [
-          "Note: This is a shorter version of the error logs to make it easier to debug.",
-          `Currently ${PgTerminal.bold(
-            MAX_ERROR_AMOUNT.toString()
-          )} errors are displayed but there are ${PgTerminal.bold(
-            displayErrors.length.toString()
-          )} errors.`,
-          'Disable "Improve build errors" setting to see the full error output.',
-        ].join(" ");
+      // Output should be overridden only in the case of display errors length
+      // being non-zero
+      if (displayErrors.length) {
+        output = displayErrors.reduce(
+          (acc, cur, i) => (i < MAX_ERROR_AMOUNT ? acc + cur : acc),
+          ""
+        );
+
+        if (displayErrors.length > MAX_ERROR_AMOUNT) {
+          output += [
+            "Note: This is a shorter version of the error logs to make it easier to debug.",
+            `Currently ${PgTerminal.bold(
+              MAX_ERROR_AMOUNT.toString()
+            )} errors are displayed but there are ${PgTerminal.bold(
+              displayErrors.length.toString()
+            )} errors.`,
+            'Disable "Improve build errors" setting to see the full error output.',
+          ].join(" ");
+        }
       }
     }
   }

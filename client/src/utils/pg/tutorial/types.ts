@@ -1,11 +1,6 @@
 import type { ComponentType } from "react";
 
-import {
-  TUTORIAL_CATEGORIES,
-  TUTORIAL_FRAMEWORKS,
-  TUTORIAL_LANGUAGES,
-  TUTORIAL_LEVELS,
-} from "./details";
+import { TUTORIAL_CATEGORIES, TUTORIAL_LEVELS } from "./details";
 import type { Nullable, RequiredKey } from "../types";
 
 type Author = {
@@ -16,15 +11,13 @@ type Author = {
 };
 
 /** Program info state */
-export type TutorialState = Nullable<
-  TutorialMetadata & { view: "about" | "main"; data: TutorialData }
->;
+export type TutorialState = Nullable<TutorialMetadata & { data: TutorialData }>;
 
 /** Serialized program info that's used in storage */
 export type SerializedTutorialState = Nullable<TutorialMetadata>;
 
 /** Tutorial data with optional fields. */
-export interface TutorialDataInit {
+export interface TutorialDataParam {
   /** Tutorial name that will be shown in tutorials section */
   name: string;
   /**
@@ -38,9 +31,9 @@ export interface TutorialDataInit {
   /** Difficulty level of the tutorial */
   level: TutorialLevel;
   /** Solana program framework */
-  framework?: TutorialFramework;
+  framework?: FrameworkName;
   /** Programming languages used in the tutorial */
-  languages?: TutorialLanguage[];
+  languages?: LanguageName[];
   /** Category of the tutorial. Can specify up to 3 categories. */
   categories?: TutorialCategory[];
   /** Whether the tutorial is featured */
@@ -56,33 +49,42 @@ export interface TutorialDataInit {
    */
   thumbnail?: string;
   /**
+   * Total amount of pages the tutorial has.
+   *
+   * Defaults to the number of items in the `/tutorials/<tutorial-name>/pages`.
+   */
+  pageCount?: number;
+  /**
+   * UNIX timestamp of tutorial's creation date.
+   *
+   * Defaults to the timestamp of the first commit that includes the tutorial's
+   * directory.
+   */
+  unixTimestamp?: number;
+  /**
    * Tutorial component async import.
    *
    * Defaults to `./<TutorialName>`.
    */
-  elementImport?: () => Promise<{
-    default: ComponentType<Omit<TutorialData, "elementImport">>;
+  importComponent?: () => Promise<{
+    default: ComponentType<Omit<TutorialData, "importComponent">>;
   }>;
 }
 
 /** Tutorial data with optional fields filled with defaults. */
 export type TutorialData = RequiredKey<
-  TutorialDataInit,
-  "thumbnail" | "elementImport"
+  TutorialDataParam,
+  "thumbnail" | "pageCount" | "unixTimestamp" | "importComponent"
 >;
 
 export interface TutorialMetadata {
   /** Current page number */
   pageNumber: number;
-  /** Total page amount of the tutorial */
-  pageCount: number;
   /** Whether the tutorial has been completed */
   completed: boolean;
 }
 
 export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
-export type TutorialFramework = typeof TUTORIAL_FRAMEWORKS[number];
-export type TutorialLanguage = typeof TUTORIAL_LANGUAGES[number];
 export type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
 
 export type TutorialDetailKey = keyof Pick<

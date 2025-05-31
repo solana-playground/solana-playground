@@ -19,10 +19,10 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   };
 
   const rename = async () => {
-    const newPath = PgCommon.joinPaths([
+    const newPath = PgCommon.joinPaths(
       PgExplorer.getParentPathFromPath(path),
-      newName,
-    ]);
+      newName
+    );
     await PgExplorer.renameItem(path, newPath);
   };
 
@@ -34,14 +34,15 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
 
   return (
     <Modal
+      title={`Rename '${itemName}'`}
       buttonProps={{
         text: "Rename",
         onSubmit: rename,
         size: "small",
-        disabled: !newName || !!error,
-        setError,
+        disabled: !newName,
       }}
-      title={`Rename '${itemName}'`}
+      error={error}
+      setError={setError}
     >
       <Input
         ref={inputRef}

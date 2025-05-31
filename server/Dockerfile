@@ -1,5 +1,5 @@
 ################# BASE RUST INSTALLATION TO USE IN OTHER STEPS #################
-FROM ubuntu:22.04 as rust
+FROM ubuntu:24.04 AS rust
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
@@ -14,7 +14,7 @@ RUN sh -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y
 ENV PATH="${HOME}/.cargo/bin:${PATH}"
 
 ############################## BUILD SERVER BINARY #############################
-FROM rust as build
+FROM rust AS build
 
 WORKDIR /build
 COPY Cargo.* .

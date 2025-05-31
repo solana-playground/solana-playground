@@ -1,81 +1,128 @@
 import {
-  createCmd,
   PgClientImporter,
   PgCommon,
   PgExplorer,
+  PgLanguage,
   PgTerminal,
 } from "../../utils/pg";
+import { createArgs, createCmd } from "../create";
+
+/**
+ * Crate common arguments.
+ *
+ * @param parentPath path that is expected to be run inside of
+ * @returns the common arguments
+ */
+const createCommonArgs = (parentPath: string) =>
+  createArgs([
+    {
+      name: "paths",
+      optional: true,
+      multiple: true,
+      values: (token) => {
+        if (token.startsWith(PgExplorer.PATHS.ROOT_DIR_PATH)) {
+          const path = token.endsWith("/")
+            ? token
+            : PgExplorer.getParentPathFromPath(token);
+          const folder = PgExplorer.getFolderContent(path);
+          return [
+            ...folder.files
+              .map((name) => PgCommon.joinPaths(path, name))
+              .filter(PgLanguage.getIsPathJsLike),
+            ...folder.folders
+              .map((name) => PgCommon.joinPaths(path, name))
+              .map(PgCommon.appendSlash),
+          ];
+        }
+
+        return PgExplorer.getAllFiles()
+          .map(([path]) => path)
+          .filter(PgLanguage.getIsPathJsLike)
+          .map(PgExplorer.getRelativePath)
+          .filter((path) => path.startsWith(parentPath))
+          .map((path) => path.replace(PgCommon.appendSlash(parentPath), ""));
+      },
+    },
+  ]);
 
 export const run = createCmd({
   name: "run",
   description: "Run script(s)",
-  run: (input) => processCommon({ input, isTest: false }),
+  args: createCommonArgs(PgExplorer.PATHS.CLIENT_DIRNAME),
+  handle: (input) => processCommon({ paths: input.args.paths, isTest: false }),
 });
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
-  run: (input) => processCommon({ input, isTest: true }),
+  args: createCommonArgs(PgExplorer.PATHS.TESTS_DIRNAME),
+  handle: (input) => processCommon({ paths: input.args.paths, isTest: true }),
 });
 
 /**
  * Process `run` or `test` command.
  *
- * @param param -
- * - `input`: Command input(full)
+ * @param params -
+ * - `paths`: File paths to run or test
  * - `isTest`: Whether to execute as test
  */
-const processCommon = async ({
-  input,
-  isTest,
-}: {
-  input: string;
+const processCommon = async (params: {
+  paths: string[] | undefined;
   isTest: boolean;
 }) => {
-  PgTerminal.log(PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`));
+  const { paths, isTest } = params;
+  PgTerminal.println(
+    PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
+  );
 
-  const path = /^\w+\s?(.*)/.exec(input)?.at(1);
   const { PgClient } = await PgClientImporter.import();
-
-  // Run the script only at the given path
-  if (path) {
-    const code = PgExplorer.getFileContent(path);
-    if (!code) throw new Error(`File '${path}' doesn't exist`);
-
-    const fileName = PgExplorer.getItemNameFromPath(path);
-    if (!PgExplorer.isFileJsLike(fileName)) {
-      throw new Error(`File '${fileName}' is not a script file`);
-    }
-
-    return await PgClient.execute({ fileName, code, isTest });
-  }
 
   const folderPath = isTest
     ? PgExplorer.PATHS.TESTS_DIRNAME
     : PgExplorer.PATHS.CLIENT_DIRNAME;
-  const folder = PgExplorer.getFolderContent(folderPath);
+
+  // Run the script only at the given path
+  if (paths?.length) {
+    // The path can be a file name that's expected to run inside the `client`
+    // or `tests` directory based on the command that's running
+    for (const path of paths) {
+      const code =
+        PgExplorer.getFileContent(path) ??
+        PgExplorer.getFileContent(PgCommon.joinPaths(folderPath, path));
+      if (!code) throw new Error(`File '${path}' doesn't exist`);
+
+      const fileName = PgExplorer.getItemNameFromPath(path);
+      if (!PgLanguage.getIsPathJsLike(fileName)) {
+        throw new Error(`File '${fileName}' is not a script file`);
+      }
+
+      await PgClient.execute({ fileName, code, isTest });
+    }
+
+    return;
+  }
 
   // Create default client/test if the folder is empty
+  const folder = PgExplorer.getFolderContent(folderPath);
   if (!folder.files.length && !folder.folders.length) {
     let DEFAULT;
     if (isTest) {
-      PgTerminal.log(PgTerminal.info("Creating default test..."));
+      PgTerminal.println(PgTerminal.info("Creating default test..."));
       DEFAULT = DEFAULT_TEST;
     } else {
-      PgTerminal.log(PgTerminal.info("Creating default client..."));
+      PgTerminal.println(PgTerminal.info("Creating default client..."));
       DEFAULT = DEFAULT_CLIENT;
     }
 
     const [fileName, code] = DEFAULT;
-    await PgExplorer.newItem(PgCommon.joinPaths([folderPath, fileName]), code);
-
+    await PgExplorer.createItem(PgCommon.joinPaths(folderPath, fileName), code);
     return await PgClient.execute({ fileName, code, isTest });
   }
 
   // Run all files inside the folder
-  for (const fileName of folder.files.filter(PgExplorer.isFileJsLike)) {
+  for (const fileName of folder.files.filter(PgLanguage.getIsPathJsLike)) {
     const code = PgExplorer.getFileContent(
-      PgCommon.joinPaths([folderPath, fileName])
+      PgCommon.joinPaths(folderPath, fileName)
     )!;
     await PgClient.execute({ fileName, code, isTest });
   }

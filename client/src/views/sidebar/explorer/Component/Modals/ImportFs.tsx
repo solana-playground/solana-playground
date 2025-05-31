@@ -65,7 +65,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
     }
   };
 
-  const importFs = () => PgExplorer.newWorkspace(name, { files });
+  const importFs = () => PgExplorer.createWorkspace(name, { files });
 
   return (
     <Modal
@@ -73,10 +73,11 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
       buttonProps={{
         text: "Import",
         onSubmit: importFs,
-        disabled: !name || !files || !!filesError || !!importError,
-        setError: setImportError,
+        disabled: !name || !files || !!filesError,
         rightIcon: <ImportWorkspace />,
       }}
+      error={importError}
+      setError={setImportError}
     >
       <Content>
         <ProjectNameWrapper>
