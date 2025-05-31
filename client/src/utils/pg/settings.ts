@@ -177,6 +177,31 @@ const migrate = () => {
 class _PgSettings {
   /** All settings */
   static all: Setting[];
+
+  /**
+   * Get the setting value.
+   *
+   * @param id setting id
+   * @returns the setting value
+   */
+  static get(id: string) {
+    return id.split(".").reduce((acc, cur) => acc[cur], PgSettings as any);
+  }
+
+  /**
+   * Set the setting value.
+   *
+   * @param id setting id
+   * @param value value to set
+   */
+  static set(id: string, value: any) {
+    const fields = id.split(".");
+    const parentObj = fields
+      .slice(0, -1)
+      .reduce((acc, cur) => acc[cur], PgSettings as any);
+    const lastField = fields.at(-1)!;
+    parentObj[lastField] = value;
+  }
 }
 
 export const PgSettings = declareUpdatable(_PgSettings, {

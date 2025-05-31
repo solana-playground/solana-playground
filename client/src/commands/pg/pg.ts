@@ -17,8 +17,7 @@ export const pg = createCmd({
       description: "Get setting value",
       args: createArgs([settingIdArg]),
       handle: (input) => {
-        const fields = input.args.id.split(".");
-        const value = fields.reduce((acc, cur) => acc[cur], PgSettings as any);
+        const value = PgSettings.get(input.args.id);
         PgTerminal.println(value);
       },
     }),
@@ -46,13 +45,9 @@ export const pg = createCmd({
         },
       ]),
       handle: (input) => {
-        const fields = input.args.id.split(".");
-        const parentObj = fields
-          .slice(0, -1)
-          .reduce((acc, cur) => acc[cur], PgSettings as any);
-        const lastField = fields.at(-1)!;
-        const v = input.args.value;
-        parentObj[lastField] = PgCommon.isBoolean(v) ? v === "true" : v;
+        const val = input.args.value;
+        const parsedVal = PgCommon.isBoolean(val) ? val === "true" : val;
+        PgSettings.set(input.args.id, parsedVal);
       },
     }),
   ],
