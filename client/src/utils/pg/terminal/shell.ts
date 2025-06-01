@@ -367,13 +367,17 @@ export class PgShell {
 
             const createNewInput = (candidate: string) => {
               const tokens = parse(inputFragment);
-              return [
-                ...(hasTrailingWhitespace(inputFragment)
-                  ? tokens
-                  : tokens.slice(0, -1)),
-                candidate,
-              ]
-                .map((token) => (token.includes(" ") ? `"${token}"` : token))
+              const prevTokens = hasTrailingWhitespace(inputFragment)
+                ? tokens
+                : tokens.slice(0, -1);
+              return [...prevTokens, candidate]
+                .map((token, i) =>
+                  token.includes(" ")
+                    ? i === prevTokens.length && token.endsWith(" ")
+                      ? `"${token}`
+                      : `"${token}"`
+                    : token
+                )
                 .join(" ");
             };
 
