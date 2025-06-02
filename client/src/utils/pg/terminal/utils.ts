@@ -110,7 +110,12 @@ export const isIncompleteInput = (input: string) => {
  * @returns whether the input ends with trailing whitespace
  */
 export const hasTrailingWhitespace = (input: string) => {
-  return input.match(/[^\\][ \t]$/m) !== null;
+  const trailingWhitespaceRegex = /[^\\][ \t]$/m;
+  return (
+    input.match(trailingWhitespaceRegex) !== null &&
+    // If the last token ends with whitespace, this should return `false`
+    !parse(input).at(-1)?.match(trailingWhitespaceRegex)
+  );
 };
 
 /**
