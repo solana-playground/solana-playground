@@ -117,15 +117,3 @@ export const hasTrailingWhitespace = (input: string) => {
     !parse(input).at(-1)?.match(trailingWhitespaceRegex)
   );
 };
-
-/**
- * @returns the last expression in the given input
- */
-export const getLastToken = (input: string) => {
-  if (!input.trim()) return "";
-  if (hasTrailingWhitespace(input)) return "";
-
-  // Last token
-  const tokens = parse(input);
-  return tokens.pop() || "";
-};

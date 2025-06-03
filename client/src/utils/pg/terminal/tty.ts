@@ -2,7 +2,7 @@ import { Terminal as XTerm } from "xterm";
 
 import { PgAutocomplete } from "./autocomplete";
 import { PgTerminal } from "./terminal";
-import { getLastToken } from "./utils";
+import { parse } from "./utils";
 import { PgCommon } from "../common";
 import type {
   ActiveCharPrompt,
@@ -442,7 +442,7 @@ export class PgTty {
         const candidates = this._autocomplete.getCandidates(inputWithoutPrefix);
         if (candidates.length) {
           const [candidate] = candidates;
-          const lastToken = getLastToken(inputWithoutPrefix);
+          const lastToken = parse(inputWithoutPrefix).at(-1) ?? "";
           if (candidate !== lastToken) {
             const missingText = candidate.replace(lastToken, "");
             text = text.replace(
