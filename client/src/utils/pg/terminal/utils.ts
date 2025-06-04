@@ -112,8 +112,11 @@ export const isIncompleteInput = (input: string) => {
 export const hasTrailingWhitespace = (input: string) => {
   const trailingWhitespaceRegex = /[^\\][ \t]$/m;
   return (
-    input.match(trailingWhitespaceRegex) !== null &&
-    // If the last token ends with whitespace, this should return `false`
-    !parse(input).at(-1)?.match(trailingWhitespaceRegex)
+    (input.match(trailingWhitespaceRegex) !== null &&
+      // If the last token ends with whitespace, this should return `false`
+      !parse(input).at(-1)?.match(trailingWhitespaceRegex)) ||
+    // Not technically whitespace, but quote endings must be treated the same
+    // as whitespace endings
+    input.match(/('|")$/) !== null
   );
 };
