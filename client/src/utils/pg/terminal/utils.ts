@@ -13,12 +13,17 @@ export const parse = (input: string) => {
       case '"':
       case "'":
         isInQuotes = !isInQuotes;
+        if (!tokens[currentTokenIndex]) tokens[currentTokenIndex] = "";
         break;
 
       case " ":
-        if (!isInQuotes) currentTokenIndex++;
-        else if (!tokens[currentTokenIndex]) tokens[currentTokenIndex] = char;
-        else tokens[currentTokenIndex] += char;
+        if (!isInQuotes) {
+          currentTokenIndex++;
+          tokens[currentTokenIndex] = "";
+        } else {
+          if (!tokens[currentTokenIndex]) tokens[currentTokenIndex] = char;
+          else tokens[currentTokenIndex] += char;
+        }
         break;
 
       default:
@@ -104,23 +109,4 @@ export const isIncompleteInput = (input: string) => {
   }
 
   return false;
-};
-
-/**
- * @returns whether the input ends with trailing whitespace
- */
-export const hasTrailingWhitespace = (input: string) => {
-  return input.match(/[^\\][ \t]$/m) !== null;
-};
-
-/**
- * @returns the last expression in the given input
- */
-export const getLastToken = (input: string) => {
-  if (!input.trim()) return "";
-  if (hasTrailingWhitespace(input)) return "";
-
-  // Last token
-  const tokens = parse(input);
-  return tokens.pop() || "";
 };

@@ -1,4 +1,4 @@
-import { getIsOption, hasTrailingWhitespace, parse } from "./utils";
+import { getIsOption, parse } from "./utils";
 import { PgCommon } from "../common";
 import type { Getable } from "../types";
 
@@ -72,8 +72,6 @@ export class PgAutocomplete {
 
     // Empty expressions
     if (!input.trim()) index = 0;
-    // Expressions with danging space
-    else if (hasTrailingWhitespace(input)) index += 1;
 
     // Collect all auto-complete candidates from the callbacks
     const candidates = this._handlers.reduce((acc, cb) => {
