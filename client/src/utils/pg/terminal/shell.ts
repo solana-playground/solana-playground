@@ -4,7 +4,6 @@ import { PgTty } from "./tty";
 import {
   closestLeftBoundary,
   closestRightBoundary,
-  hasTrailingWhitespace,
   isIncompleteInput,
   parse,
 } from "./utils";
@@ -366,10 +365,7 @@ export class PgShell {
             );
 
             const createNewInput = (candidate: string) => {
-              const tokens = parse(inputFragment);
-              const prevTokens = hasTrailingWhitespace(inputFragment)
-                ? tokens
-                : tokens.slice(0, -1);
+              const prevTokens = parse(inputFragment).slice(0, -1);
               return [...prevTokens, candidate]
                 .map((token, i) =>
                   token.includes(" ")
@@ -387,7 +383,7 @@ export class PgShell {
             // different way.
             if (candidates.length === 0) {
               // Add a space if there is none already
-              if (!hasTrailingWhitespace(inputFragment)) {
+              if (inputFragment.match(/[^\\][ \t]$/m) === null) {
                 this._handleCursorInsert(" ");
               }
             } else if (candidates.length === 1) {
