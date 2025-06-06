@@ -30,10 +30,10 @@ export const pg = createCmd({
         {
           name: "value",
           description: "Value to set",
-          values: (token, tokens) => {
-            const id = token
-              ? tokens[tokens.findIndex((t) => t === token) - 1]
-              : tokens[tokens.length - 1];
+          values: (_, tokens) => {
+            // TODO: Find a better way to reliably get the setting ID because
+            // passing an option before the third token would break this logic
+            const id = tokens.at(2);
             const setting = PgSettings.all.find((s) => s.id === id);
             if (!setting) throw new Error(`Setting not found: ${id}`);
 
