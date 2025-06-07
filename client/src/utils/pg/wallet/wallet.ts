@@ -271,7 +271,7 @@ class _PgWallet {
     }
 
     return PgCommon.export(
-      `${params.name}-keypair.json`,
+      `${PgCommon.toKebabFromTitle(params.name)}-keypair.json`,
       Array.from(params.keypair.secretKey)
     );
   }
