@@ -365,16 +365,34 @@ export class PgShell {
             );
 
             const createNewInput = (candidate: string) => {
-              const prevTokens = parse(inputFragment).slice(0, -1);
-              return [...prevTokens, candidate]
-                .map((token, i) =>
-                  token.includes(" ")
-                    ? i === prevTokens.length && token.endsWith(" ")
-                      ? `"${token}`
-                      : `"${token}"`
-                    : token
-                )
-                .join(" ");
+              const tokens = parse(inputFragment).map((token) =>
+                token.includes(" ") ? `"${token}"` : token
+              );
+
+              const quotes = {
+                prefix: false,
+                suffix: false,
+              };
+              if (candidate.includes(" ")) {
+                quotes.prefix = true;
+                if (!candidate.endsWith(" ")) quotes.suffix = true;
+              }
+
+              // If the user put a quotation mark, add it back.
+              //
+              // Note that checking the raw user input (`inputFragment`) is
+              // intentional because `parse` function does not keep quotes.
+              if (inputFragment.split(" ").at(-1)?.startsWith('"')) {
+                quotes.prefix = true;
+              }
+
+              // Add the quotes if necessary
+              if (quotes.prefix) candidate = '"' + candidate;
+              if (quotes.suffix) candidate += '"';
+
+              // Replace the last token
+              tokens[tokens.length - 1] = candidate;
+              return tokens.join(" ");
             };
 
             const candidates = this._autocomplete.getCandidates(inputFragment);
