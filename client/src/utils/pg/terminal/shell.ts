@@ -370,6 +370,7 @@ export class PgShell {
               );
 
               const quotes = {
+                char: '"',
                 prefix: false,
                 suffix: false,
               };
@@ -382,13 +383,16 @@ export class PgShell {
               //
               // Note that checking the raw user input (`inputFragment`) is
               // intentional because `parse` function does not keep quotes.
-              if (inputFragment.split(" ").at(-1)?.startsWith('"')) {
-                quotes.prefix = true;
-              }
+              const firstCharOfLastToken = inputFragment
+                .split(" ")
+                .at(-1)
+                ?.at(0);
+              if (firstCharOfLastToken === "'") quotes.char = "'";
+              if (firstCharOfLastToken === quotes.char) quotes.prefix = true;
 
               // Add the quotes if necessary
-              if (quotes.prefix) candidate = '"' + candidate;
-              if (quotes.suffix) candidate += '"';
+              if (quotes.prefix) candidate = quotes.char + candidate;
+              if (quotes.suffix) candidate += quotes.char;
 
               // Replace the last token
               tokens[tokens.length - 1] = candidate;
