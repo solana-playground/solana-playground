@@ -16,10 +16,7 @@ export const pg = createCmd({
       name: "get",
       description: "Get setting value",
       args: createArgs([settingIdArg]),
-      handle: (input) => {
-        const value = PgSettings.get(input.args.id);
-        PgTerminal.println(value);
-      },
+      handle: (input) => PgTerminal.println(PgSettings.get(input.args.id)),
     }),
 
     createSubcmd({
@@ -46,7 +43,11 @@ export const pg = createCmd({
       ]),
       handle: (input) => {
         const val = input.args.value;
-        const parsedVal = PgCommon.isBoolean(val) ? val === "true" : val;
+        const parsedVal = PgCommon.isBoolean(val)
+          ? val === "true"
+          : PgCommon.isInt(val)
+          ? parseInt(val)
+          : val;
         PgSettings.set(input.args.id, parsedVal);
       },
     }),
