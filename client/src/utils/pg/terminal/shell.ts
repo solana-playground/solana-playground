@@ -359,11 +359,6 @@ export class PgShell {
 
         case "\t": // TAB
           if (this._autocomplete.hasAnyHandler()) {
-            const inputFragment = this._tty.input.substring(
-              0,
-              this._tty.cursor
-            );
-
             const createNewInput = (candidate: string) => {
               const tokens = parse(inputFragment).map((token) =>
                 token.includes(" ") ? `"${token}"` : token
@@ -383,12 +378,17 @@ export class PgShell {
               //
               // Note that checking the raw user input (`inputFragment`) is
               // intentional because `parse` function does not keep quotes.
+              //
+              // TODO: Fix for tokens with whitespace tokens e.g. "One two"
               const firstCharOfLastToken = inputFragment
                 .split(" ")
                 .at(-1)
                 ?.at(0);
               if (firstCharOfLastToken === "'") quotes.char = "'";
-              if (firstCharOfLastToken === quotes.char) quotes.prefix = true;
+              if (firstCharOfLastToken === quotes.char) {
+                quotes.prefix = true;
+                if (candidates.length === 1) quotes.suffix = true;
+              }
 
               // Add the quotes if necessary
               if (quotes.prefix) candidate = quotes.char + candidate;
@@ -399,6 +399,10 @@ export class PgShell {
               return tokens.join(" ");
             };
 
+            const inputFragment = this._tty.input.substring(
+              0,
+              this._tty.cursor
+            );
             const candidates = this._autocomplete.getCandidates(inputFragment);
 
             // Depending on the number of candidates, we are handing them in a
