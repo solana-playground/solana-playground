@@ -34,10 +34,18 @@ export const pg = createCmd({
             const setting = PgSettings.all.find((s) => s.id === id);
             if (!setting) throw new Error(`Setting not found: ${id}`);
 
-            // TODO: Fix complex values e.g. `connection.endpoint`
-            return setting.values
-              ? PgCommon.callIfNeeded(setting.values).map((v) => `${v}`)
-              : ["true", "false"];
+            // If `values` field is not specified, default to boolean
+            if (!setting.values) return ["true", "false"];
+
+            return PgCommon.callIfNeeded(setting.values).map((v) => {
+              if (typeof v === "string") return v;
+
+              // TODO: Support values by their `name` fields
+              if (typeof v === "object" && v.name && v.value) return v.value;
+
+              // TODO: Objects with `values` field
+              throw new Error(`Unimplemented setting value: ${v}`);
+            });
           },
         },
       ]),
