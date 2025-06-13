@@ -39,9 +39,7 @@ export const pg = createCmd({
 
             return PgCommon.callIfNeeded(setting.values).map((v) => {
               if (typeof v === "string") return v;
-
-              // TODO: Support values by their `name` fields
-              if (typeof v === "object" && v.name && v.value) return v.value;
+              if (typeof v === "object" && v.name && v.value) return v.name;
 
               // TODO: Objects with `values` field
               throw new Error(`Unimplemented setting value: ${v}`);
@@ -50,13 +48,25 @@ export const pg = createCmd({
         },
       ]),
       handle: (input) => {
+        const id = input.args.id;
         const val = input.args.value;
-        const parsedVal = PgCommon.isBoolean(val)
-          ? val === "true"
-          : PgCommon.isInt(val)
-          ? parseInt(val)
-          : val;
-        PgSettings.set(input.args.id, parsedVal);
+        const setting = PgSettings.all.find((s) => s.id === id);
+        if (!setting) throw new Error(`Setting not found: ${id}`);
+
+        let parsedVal = PgCommon.callIfNeeded(setting.values)?.find(
+          (v) => v.name === val
+        )?.value;
+        if (!parsedVal) {
+          // TODO: Parse based on setting's `values` prop (currently, there is
+          // no way to indicate what type custom values are going to be)
+          parsedVal = PgCommon.isBoolean(val)
+            ? val === "true"
+            : PgCommon.isInt(val)
+            ? parseInt(val)
+            : val;
+        }
+
+        PgSettings.set(id, parsedVal);
       },
     }),
   ],
