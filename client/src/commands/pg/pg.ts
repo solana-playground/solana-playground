@@ -27,7 +27,7 @@ export const pg = createCmd({
         {
           name: "value",
           description: "Value to set",
-          values: (_, tokens) => {
+          values: (token, tokens) => {
             // TODO: Find a better way to reliably get the setting ID because
             // passing an option before the third token would break this logic
             const id = tokens.at(2);
@@ -37,13 +37,23 @@ export const pg = createCmd({
             // If `values` field is not specified, default to boolean
             if (!setting.values) return ["true", "false"];
 
-            return PgCommon.callIfNeeded(setting.values).map((v) => {
+            const values = PgCommon.callIfNeeded(setting.values).map((v) => {
               if (typeof v === "string") return v;
               if (typeof v === "object" && v.name && v.value) return v.name;
 
               // TODO: Objects with `values` field
               throw new Error(`Unimplemented setting value: ${v}`);
             });
+
+            // If the setting has a custom component, allow the current token
+            // to be used as a setting value.
+            //
+            // TODO: The setting should implement a method to decide whether a
+            // value is valid, and we should use it to verify the `token` here.
+            // Otherwise, this results in allowing all values e.g. for
+            // `connection.endpoint`, the user can set non-URL values.
+            if (setting.CustomComponent) values.push(token);
+            return values;
           },
         },
       ]),
