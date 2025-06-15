@@ -52,6 +52,8 @@ export type SettingParam<I extends string, V> = {
    * directory exists.
    */
   CustomComponent?: CallableJSX;
+  /** Validate the custom value. */
+  customValueValidator?: (value: string) => boolean;
 } & Partial<SettingsCompat<V>>;
 
 /** Compatibility with non-standard settings (theme and font) */

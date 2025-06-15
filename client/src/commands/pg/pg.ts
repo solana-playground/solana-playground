@@ -45,14 +45,15 @@ export const pg = createCmd({
               throw new Error(`Unimplemented setting value: ${v}`);
             });
 
-            // If the setting has a custom component, allow the current token
-            // to be used as a setting value.
-            //
-            // TODO: The setting should implement a method to decide whether a
-            // value is valid, and we should use it to verify the `token` here.
-            // Otherwise, this results in allowing all values e.g. for
-            // `connection.endpoint`, the user can set non-URL values.
-            if (setting.CustomComponent) values.push(token);
+            // If the setting has a custom value validator, allow the current
+            // token to be used as a setting value after a validation check
+            if (setting.customValueValidator) {
+              try {
+                const isValid = setting.customValueValidator(token);
+                if (isValid) values.push(token);
+              } catch {}
+            }
+
             return values;
           },
         },
