@@ -7,5 +7,8 @@ export const endpoint = createSetting({
   name: "Endpoint",
   description: "RPC URL that lets you interact with a specific Solana cluster",
   values: NETWORKS.map((n) => ({ name: n.name, value: n.endpoint })),
-  customValueValidator: PgCommon.isUrl,
+  parseCustomValue: (v) => {
+    if (PgCommon.isUrl(v)) return v;
+    throw new Error(`The setting value must be a URL: ${v}`);
+  },
 });

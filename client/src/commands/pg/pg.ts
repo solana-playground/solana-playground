@@ -45,12 +45,12 @@ export const pg = createCmd({
               throw new Error(`Unimplemented setting value: ${v}`);
             });
 
-            // If the setting has a custom value validator, allow the current
+            // If the setting has a custom value parser, allow the current
             // token to be used as a setting value after a validation check
-            if (setting.customValueValidator) {
+            if (setting.parseCustomValue) {
               try {
-                const isValid = setting.customValueValidator(token);
-                if (isValid) values.push(token);
+                setting.parseCustomValue(token);
+                values.push(token);
               } catch {}
             }
 

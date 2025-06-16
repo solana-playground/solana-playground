@@ -6,8 +6,8 @@ import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
  * @param setting UI setting
  * @returns the setting with correct types
  */
-export const createSetting = <I extends string = "", V = boolean>(
-  setting: SettingParam<I, V>
+export const createSetting = <I extends string = "", V = boolean, C = never>(
+  setting: SettingParam<I, V, C>
 ) => {
   try {
     const mod = require(`./${PgCommon.toKebabFromTitle(setting.name)}/Custom`);
@@ -28,5 +28,5 @@ export const createSetting = <I extends string = "", V = boolean>(
     ] as typeof setting["onChange"];
   }
 
-  return setting as Setting<I, V>;
+  return setting as Setting<I, V, C>;
 };

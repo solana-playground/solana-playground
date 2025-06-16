@@ -20,8 +20,8 @@ type Settings = ConvertAll<UnionToTuple<InternalSettings[number]>> & {
 };
 
 type ConvertAll<A, R = unknown> = A extends readonly [infer Head, ...infer Tail]
-  ? Head extends Setting<infer I, infer V>
-    ? R & ConvertAll<Tail, Convert<I, V>>
+  ? Head extends Setting<infer I, infer V, infer C>
+    ? R & ConvertAll<Tail, Convert<I, V | C>>
     : never
   : R;
 
@@ -32,7 +32,7 @@ type Convert<I extends string, V> = I extends ""
   : { [K in I]: V extends undefined ? boolean : V };
 
 /** Setting creation parameter */
-export type SettingParam<I extends string, V> = {
+export type SettingParam<I extends string, V, C> = {
   /** Setting identifier (used in `PgSettings`) */
   id?: I;
   /** Name of the setting */
@@ -45,6 +45,8 @@ export type SettingParam<I extends string, V> = {
    * If this is not set, the setting is assumed to be a checkbox.
    */
   values?: Getable<readonly Values<V>[]>;
+  /** Parse the custom value. */
+  parseCustomValue?: (value: string) => C;
   /**
    * Custom component to set custom values for the setting.
    *
@@ -52,8 +54,6 @@ export type SettingParam<I extends string, V> = {
    * directory exists.
    */
   CustomComponent?: CallableJSX;
-  /** Validate the custom value. */
-  customValueValidator?: (value: string) => boolean;
 } & Partial<SettingsCompat<V>>;
 
 /** Compatibility with non-standard settings (theme and font) */
@@ -74,7 +74,11 @@ type Values<V> =
   | { name: string; values: Values<V[]> };
 
 /** UI Setting */
-export type Setting<I extends string = string, V = any> = SettingParam<I, V> &
+export type Setting<I extends string = string, V = any, C = any> = SettingParam<
+  I,
+  V,
+  C
+> &
   SettingsCompat<V>;
 
 // Default values for the settings currently need to be initialized here rather
