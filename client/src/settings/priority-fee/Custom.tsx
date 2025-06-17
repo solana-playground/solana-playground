@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../components/Input";
@@ -6,7 +6,7 @@ import Link from "../../components/Link";
 import Modal from "../../components/Modal";
 import Text from "../../components/Text";
 import { Info } from "../../components/Icons";
-import { PgCommon, PgSettings } from "../../utils/pg";
+import { PgSettings } from "../../utils/pg";
 
 const CustomPriorityFee = () => {
   const [value, setValue] = useState(
@@ -16,13 +16,20 @@ const CustomPriorityFee = () => {
   );
   const [error, setError] = useState("");
 
+  const { parseCustomValue } = useMemo(
+    () => PgSettings.all.find((s) => s.id === "connection.priorityFee")!,
+    []
+  );
+
   return (
     <Modal
       title
       closeButton
       buttonProps={{
         text: "Set",
-        onSubmit: () => (PgSettings.connection.priorityFee = parseInt(value)),
+        onSubmit: () => {
+          PgSettings.connection.priorityFee = parseCustomValue!(value);
+        },
         disabled: !value,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
@@ -42,7 +49,7 @@ const CustomPriorityFee = () => {
           }}
           error={error}
           setError={setError}
-          validator={PgCommon.isInt}
+          validator={parseCustomValue}
         />
 
         <InfoText icon={<Info color="info" />}>
