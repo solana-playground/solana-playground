@@ -43,10 +43,7 @@ const CustomPriorityFee = () => {
           autoFocus
           placeholder="9000"
           value={value}
-          onChange={(ev) => {
-            setValue(ev.target.value);
-            setError("");
-          }}
+          onChange={(ev) => setValue(ev.target.value)}
           error={error}
           setError={setError}
           validator={parseCustomValue}

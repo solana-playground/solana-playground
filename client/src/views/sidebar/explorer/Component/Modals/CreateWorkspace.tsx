@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../../../../../components/Img";
@@ -16,11 +16,6 @@ export const CreateWorkspace = () => {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setName(ev.target.value);
-    setError("");
-  };
 
   const createWorkspace = async () => {
     const { importFiles, defaultOpenFile } = PgFramework.all.find(
@@ -49,7 +44,7 @@ export const CreateWorkspace = () => {
           <MainText>Project name</MainText>
           <Input
             autoFocus
-            onChange={handleChange}
+            onChange={(ev) => setName(ev.target.value)}
             value={name}
             error={error}
             setError={setError}

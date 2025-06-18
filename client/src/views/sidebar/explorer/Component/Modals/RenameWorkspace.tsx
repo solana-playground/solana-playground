@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
@@ -8,11 +8,6 @@ export const RenameWorkspace = () => {
   const workspaceName = PgExplorer.currentWorkspaceName!;
   const [newName, setNewName] = useState(workspaceName);
   const [error, setError] = useState("");
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setNewName(ev.target.value);
-    setError("");
-  };
 
   const renameWorkspace = async () => {
     if (PgExplorer.currentWorkspaceName === newName) return;
@@ -44,7 +39,7 @@ export const RenameWorkspace = () => {
     >
       <Input
         ref={inputRef}
-        onChange={handleChange}
+        onChange={(ev) => setNewName(ev.target.value)}
         value={newName}
         error={error}
         setError={setError}

@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../components/Input";
@@ -11,11 +11,6 @@ import { PgCommand, PgCommon } from "../../utils/pg";
 const CustomEndpoint = () => {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setValue(ev.target.value);
-    setError("");
-  };
 
   return (
     <Modal
@@ -37,7 +32,7 @@ const CustomEndpoint = () => {
           autoFocus
           placeholder="https://..."
           value={value}
-          onChange={handleChange}
+          onChange={(ev) => setValue(ev.target.value)}
           error={error}
           setError={setError}
           validator={PgCommon.isUrl}

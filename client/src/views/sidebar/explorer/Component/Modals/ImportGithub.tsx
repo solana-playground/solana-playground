@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
@@ -27,14 +27,6 @@ export const ImportGithub = () => {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
 
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    const input = ev.target.value;
-    setUrl(input);
-
-    if (!input.includes("github.com")) setError("The URL must be a GitHub URL");
-    else setError("");
-  };
-
   const importFromGithub = () => PgCommon.transition(PgGithub.import(url));
 
   return (
@@ -55,7 +47,7 @@ export const ImportGithub = () => {
           <GithubUrlInputLabel>GitHub URL</GithubUrlInputLabel>
           <Input
             autoFocus
-            onChange={handleChange}
+            onChange={(ev) => setUrl(ev.target.value)}
             value={url}
             validator={PgGithub.isValidUrl}
             setError={setError}
