@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../components/Input";
@@ -6,11 +6,16 @@ import Link from "../../components/Link";
 import Modal from "../../components/Modal";
 import Text from "../../components/Text";
 import { Info } from "../../components/Icons";
-import { PgCommand, PgCommon } from "../../utils/pg";
+import { PgSettings } from "../../utils/pg";
 
 const CustomEndpoint = () => {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
+
+  const { parseCustomValue } = useMemo(
+    () => PgSettings.all.find((s) => s.id === "connection.endpoint")!,
+    []
+  );
 
   return (
     <Modal
@@ -18,7 +23,9 @@ const CustomEndpoint = () => {
       closeButton
       buttonProps={{
         text: "Add",
-        onSubmit: () => PgCommand.solana.execute("config", "set", "-u", value),
+        onSubmit: () => {
+          PgSettings.connection.endpoint = parseCustomValue!(value);
+        },
         disabled: !value,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
@@ -35,7 +42,7 @@ const CustomEndpoint = () => {
           onChange={(ev) => setValue(ev.target.value)}
           error={error}
           setError={setError}
-          validator={PgCommon.isUrl}
+          validator={parseCustomValue}
         />
 
         <InfoText icon={<Info color="info" />}>
