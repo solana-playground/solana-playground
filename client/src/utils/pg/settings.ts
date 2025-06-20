@@ -54,6 +54,15 @@ export type SettingParam<I extends string, V, C> = {
    * directory exists.
    */
   CustomComponent?: CallableJSX;
+  /** Custom props to automatically create a custom component */
+  customProps?: {
+    /** Type of the custom value e.g. URL */
+    type?: string;
+    /** Input placeholder */
+    placeholder?: string;
+    /** Additional information to display as a tip to the user (Markdown supported) */
+    tip?: string;
+  };
 } & Partial<SettingsCompat<V>>;
 
 /** Compatibility with non-standard settings (theme and font) */

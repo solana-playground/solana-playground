@@ -1,4 +1,5 @@
 import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
+import { Custom } from "./Custom";
 
 /**
  * Create a UI setting.
@@ -9,11 +10,6 @@ import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
 export const createSetting = <I extends string = "", V = boolean, C = never>(
   setting: SettingParam<I, V, C>
 ) => {
-  try {
-    const mod = require(`./${PgCommon.toKebabFromTitle(setting.name)}/Custom`);
-    setting.CustomComponent ??= mod.default;
-  } catch {}
-
   if (setting.id) {
     const id = setting.id;
     setting.getValue ??= () => PgSettings.get(id);
@@ -28,5 +24,13 @@ export const createSetting = <I extends string = "", V = boolean, C = never>(
     ] as typeof setting["onChange"];
   }
 
-  return setting as Setting<I, V, C>;
+  try {
+    const mod = require(`./${PgCommon.toKebabFromTitle(setting.name)}/Custom`);
+    setting.CustomComponent ??= mod.default;
+  } catch {}
+
+  const s = setting as Setting<I, V, C>;
+  if (s.customProps) s.CustomComponent ??= () => <Custom setting={s} />;
+
+  return s;
 };
