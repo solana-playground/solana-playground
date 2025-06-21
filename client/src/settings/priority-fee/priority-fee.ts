@@ -11,4 +11,9 @@ export const priorityFee = createSetting({
     if (PgCommon.isInt(v)) return parseInt(v);
     throw new Error(`The setting value must be an integer: ${v}`);
   },
+  customProps: {
+    type: "micro lamports",
+    placeholder: "9000",
+    tip: "Check out the priority fees [guide](https://solana.com/developers/guides/advanced/how-to-use-priority-fees) for more information.",
+  },
 });
