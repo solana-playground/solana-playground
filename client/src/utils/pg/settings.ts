@@ -45,23 +45,23 @@ export type SettingParam<I extends string, V, C> = {
    * If this is not set, the setting is assumed to be a checkbox.
    */
   values?: Getable<readonly Values<V>[]>;
-  /** Parse the custom value. */
-  parseCustomValue?: (value: string) => C;
-  /**
-   * Custom component to set custom values for the setting.
-   *
-   * This is set automatically if `Custom.tsx` file inside the setting's
-   * directory exists.
-   */
-  CustomComponent?: CallableJSX;
-  /** Custom props to automatically create a custom component */
-  customProps?: {
+  /** Custom value properties */
+  custom?: {
+    /** Parse the custom value. */
+    parse: (value: string) => C;
     /** Type of the custom value e.g. URL */
     type?: string;
     /** Input placeholder */
     placeholder?: string;
     /** Additional information to display as a tip to the user (Markdown supported) */
     tip?: string;
+    /**
+     * Custom component to set custom values for the setting.
+     *
+     * This is set automatically if `Custom.tsx` file inside the setting's
+     * directory exists.
+     */
+    Component?: CallableJSX;
   };
 } & Partial<SettingsCompat<V>>;
 

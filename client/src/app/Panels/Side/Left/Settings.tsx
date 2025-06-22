@@ -123,14 +123,14 @@ const SettingSetterSelect: FC<SettingSetterSelectProps> = ({
   values,
   getValue,
   setValue,
-  CustomComponent,
+  custom,
 }) => {
   const options = useMemo(() => {
     const options = PgCommon.callIfNeeded(values).map(convertValue);
-    if (CustomComponent) options.push({ label: "Custom", value: "" });
+    if (custom) options.push({ label: "Custom", value: "" });
 
     return options;
-  }, [values, CustomComponent]);
+  }, [values, custom]);
 
   return (
     <Select
@@ -138,7 +138,7 @@ const SettingSetterSelect: FC<SettingSetterSelectProps> = ({
       value={findOption(options, getValue()) ?? options.at(-1)}
       onChange={(o) => {
         if (o?.value) setValue(o.value);
-        else PgView.setModal(CustomComponent);
+        else PgView.setModal(custom!.Component);
       }}
     />
   );

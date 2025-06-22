@@ -47,9 +47,9 @@ export const pg = createCmd({
 
             // If the setting has a custom value parser, allow the current
             // token to be used as a setting value after a validation check
-            if (setting.parseCustomValue) {
+            if (setting.custom) {
               try {
-                setting.parseCustomValue(token);
+                setting.custom.parse(token);
                 values.push(token);
               } catch {}
             }

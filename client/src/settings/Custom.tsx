@@ -17,6 +17,9 @@ export const Custom: FC<CustomProps> = ({ setting }) => {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
+  const { custom } = setting;
+  if (!custom) throw new Error(setting.id);
+
   return (
     <Modal
       title
@@ -25,7 +28,7 @@ export const Custom: FC<CustomProps> = ({ setting }) => {
         text: "Set",
         onSubmit: () => {
           // TODO: Remove `!` after making `id` required
-          PgSettings.set(setting.id!, setting.parseCustomValue!(value));
+          PgSettings.set(setting.id!, custom.parse(value));
         },
         disabled: !value,
         fullWidth: true,
@@ -37,21 +40,21 @@ export const Custom: FC<CustomProps> = ({ setting }) => {
       <Content>
         <InputLabel>
           {setting.name}
-          {setting.customProps?.type ? ` (${setting.customProps.type})` : ""}
+          {custom.type ? ` (${custom.type})` : ""}
         </InputLabel>
         <Input
           autoFocus
-          placeholder={setting.customProps?.placeholder}
+          placeholder={custom.placeholder}
           value={value}
           onChange={(ev) => setValue(ev.target.value)}
           error={error}
           setError={setError}
-          validator={setting.parseCustomValue}
+          validator={custom.parse}
         />
 
-        {setting.customProps?.tip && (
+        {custom.tip && (
           <Tip icon={<Info color="info" />}>
-            <Markdown codeFontOnly>{setting.customProps.tip}</Markdown>
+            <Markdown codeFontOnly>{custom.tip}</Markdown>
           </Tip>
         )}
       </Content>

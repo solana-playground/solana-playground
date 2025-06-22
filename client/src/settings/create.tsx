@@ -25,12 +25,16 @@ export const createSetting = <I extends string = "", V = boolean, C = never>(
   }
 
   try {
-    const mod = require(`./${PgCommon.toKebabFromTitle(setting.name)}/Custom`);
-    setting.CustomComponent ??= mod.default;
+    if (setting.custom) {
+      const mod = require(`./${PgCommon.toKebabFromTitle(
+        setting.name
+      )}/Custom`);
+      setting.custom.Component ??= mod.default;
+    }
   } catch {}
 
   const s = setting as Setting<I, V, C>;
-  if (s.customProps) s.CustomComponent ??= () => <Custom setting={s} />;
+  if (s.custom) s.custom.Component ??= () => <Custom setting={s} />;
 
   return s;
 };
