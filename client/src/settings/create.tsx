@@ -1,5 +1,4 @@
 import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
-import { Custom } from "./Custom";
 
 /**
  * Create a UI setting.
@@ -33,8 +32,5 @@ export const createSetting = <I extends string = "", V = boolean, C = never>(
     }
   } catch {}
 
-  const s = setting as Setting<I, V, C>;
-  if (s.custom) s.custom.Component ??= () => <Custom setting={s} />;
-
-  return s;
+  return setting as Setting<I, V, C>;
 };

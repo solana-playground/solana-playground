@@ -13,11 +13,12 @@ import {
   RequiredKey,
   Setting as SettingType,
 } from "../../../../utils/pg";
+import { CustomSetting } from "./CustomSetting";
 
 const Settings = () => (
   <Wrapper>
     {PgSettings.all.map((setting) => (
-      <Setting key={setting.name} {...(setting as SettingType)} />
+      <Setting key={setting.name} {...setting} />
     ))}
   </Wrapper>
 );
@@ -39,25 +40,25 @@ const Wrapper = styled.div`
   `}
 `;
 
-const Setting: FC<SettingType> = ({
-  name,
-  description,
-  onChange,
-  ...setterProps
-}) => (
-  <SettingWrapper isCheckBox={!setterProps.values}>
+const Setting: FC<SettingType> = (setting) => (
+  <SettingWrapper isCheckBox={!setting.values}>
     <Left>
-      <SettingName>{name}</SettingName>
-      {description && (
-        <Tooltip help bgSecondary element={description} maxWidth="20rem" />
+      <SettingName>{setting.name}</SettingName>
+      {setting.description && (
+        <Tooltip
+          help
+          bgSecondary
+          element={setting.description}
+          maxWidth="20rem"
+        />
       )}
     </Left>
 
     <Right>
-      {onChange ? (
-        <SettingSetterWithOnChange onChange={onChange} {...setterProps} />
+      {setting.onChange ? (
+        <SettingSetterWithOnChange {...setting} onChange={setting.onChange} />
       ) : (
-        <SettingSetter {...setterProps} />
+        <SettingSetter {...setting} />
       )}
     </Right>
   </SettingWrapper>
@@ -102,7 +103,7 @@ const Right = styled.div`
   margin-left: 1rem;
 `;
 
-type SettingSetterProps = Omit<SettingType, "name" | "tooltip">;
+type SettingSetterProps = SettingType;
 
 // Create a separate component to get around conditional hook usage error.
 const SettingSetterWithOnChange: FC<
@@ -119,26 +120,26 @@ const SettingSetter: FC<SettingSetterProps> = ({ values, ...props }) => {
 
 type SettingSetterSelectProps = RequiredKey<SettingSetterProps, "values">;
 
-const SettingSetterSelect: FC<SettingSetterSelectProps> = ({
-  values,
-  getValue,
-  setValue,
-  custom,
-}) => {
+const SettingSetterSelect: FC<SettingSetterSelectProps> = (setting) => {
   const options = useMemo(() => {
-    const options = PgCommon.callIfNeeded(values).map(convertValue);
-    if (custom) options.push({ label: "Custom", value: "" });
+    const options = PgCommon.callIfNeeded(setting.values).map(convertValue);
+    if (setting.custom) options.push({ label: "Custom", value: "" });
 
     return options;
-  }, [values, custom]);
+  }, [setting.values, setting.custom]);
 
   return (
     <Select
       options={options}
-      value={findOption(options, getValue()) ?? options.at(-1)}
+      value={findOption(options, setting.getValue()) ?? options.at(-1)}
       onChange={(o) => {
-        if (o?.value) setValue(o.value);
-        else PgView.setModal(custom!.Component);
+        if (o?.value) {
+          setting.setValue(o.value);
+        } else if (setting.custom?.Component) {
+          PgView.setModal(setting.custom.Component);
+        } else {
+          PgView.setModal(<CustomSetting setting={setting} />);
+        }
       }}
     />
   );
@@ -148,6 +149,7 @@ const SettingSetterSelect: FC<SettingSetterSelectProps> = ({
  * Convert the setting value to make it compatible with the `Select` component.
  *
  * @param v the value to convert
+ * @returns the converted value
  */
 const convertValue = (v: any) => {
   if (typeof v === "object") {
