@@ -6,7 +6,7 @@ import Markdown from "../../../../components/Markdown";
 import Modal from "../../../../components/Modal";
 import Text from "../../../../components/Text";
 import { Info } from "../../../../components/Icons";
-import { PgSettings, Setting } from "../../../../utils/pg";
+import { Setting } from "../../../../utils/pg";
 
 interface CustomSettingProps {
   setting: Setting;
@@ -26,10 +26,7 @@ export const CustomSetting: FC<CustomSettingProps> = ({ setting }) => {
       closeButton
       buttonProps={{
         text: "Set",
-        onSubmit: () => {
-          // TODO: Remove `!` after making `id` required
-          PgSettings.set(setting.id!, custom.parse(value));
-        },
+        onSubmit: () => setting.setValue(custom.parse(value)),
         disabled: !value,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
