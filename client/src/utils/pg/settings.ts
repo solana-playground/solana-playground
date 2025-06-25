@@ -200,7 +200,7 @@ class _PgSettings {
    * @returns the setting value
    */
   static get(id: string) {
-    return id.split(".").reduce((acc, cur) => acc[cur], PgSettings as any);
+    return this._getSetting(id).getValue();
   }
 
   /**
@@ -210,12 +210,19 @@ class _PgSettings {
    * @param value value to set
    */
   static set(id: string, value: any) {
-    const fields = id.split(".");
-    const parentObj = fields
-      .slice(0, -1)
-      .reduce((acc, cur) => acc[cur], PgSettings as any);
-    const lastField = fields.at(-1)!;
-    parentObj[lastField] = value;
+    this._getSetting(id).setValue(value);
+  }
+
+  /**
+   * Get the setting implementation from its id.
+   *
+   * @param id setting id
+   * @returns the full setting object
+   */
+  private static _getSetting(id: string) {
+    const setting = PgSettings.all.find((s) => s.id === id);
+    if (!setting) throw new Error(`Setting not found: ${id}`);
+    return setting;
   }
 }
 

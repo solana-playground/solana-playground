@@ -11,8 +11,17 @@ export const createSetting = <I extends string = "", V = boolean, C = never>(
 ) => {
   if (setting.id) {
     const id = setting.id;
-    setting.getValue ??= () => PgSettings.get(id);
-    setting.setValue ??= (v) => PgSettings.set(id, v);
+    setting.getValue ??= () => {
+      return id.split(".").reduce((acc, cur) => acc[cur], PgSettings as any);
+    };
+    setting.setValue ??= (v) => {
+      const fields = id.split(".");
+      const parentObj = fields
+        .slice(0, -1)
+        .reduce((acc, cur) => acc[cur], PgSettings as any);
+      const lastField = fields.at(-1)!;
+      parentObj[lastField] = v;
+    };
     setting.onChange ??= PgSettings[
       id
         .split(".")
