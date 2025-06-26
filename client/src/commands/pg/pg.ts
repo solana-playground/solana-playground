@@ -68,13 +68,9 @@ export const pg = createCmd({
           (v) => v.name === val
         )?.value;
         if (!parsedVal) {
-          // TODO: Parse based on setting's `values` prop (currently, there is
-          // no way to indicate what type custom values are going to be)
-          parsedVal = PgCommon.isBoolean(val)
-            ? val === "true"
-            : PgCommon.isInt(val)
-            ? parseInt(val)
-            : val;
+          if (!setting.values) parsedVal = val === "true";
+          else if (setting.custom) parsedVal = setting.custom.parse(val);
+          else parsedVal = val;
         }
 
         PgSettings.set(id, parsedVal);
