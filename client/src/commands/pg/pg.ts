@@ -16,7 +16,7 @@ export const pg = createCmd({
       name: "get",
       description: "Get setting value",
       args: createArgs([settingIdArg]),
-      handle: (input) => PgTerminal.println(PgSettings.get(input.args.id)),
+      handle: (input) => PgTerminal.println(PgSettings.getValue(input.args.id)),
     }),
 
     createSubcmd({
@@ -31,8 +31,10 @@ export const pg = createCmd({
             // TODO: Find a better way to reliably get the setting ID because
             // passing an option before the third token would break this logic
             const id = tokens.at(2);
-            const setting = PgSettings.all.find((s) => s.id === id);
-            if (!setting) throw new Error(`Setting not found: ${id}`);
+            if (!id) throw new Error("Setting ID not found in tokens");
+
+            // Get setting
+            const setting = PgSettings.get(id);
 
             // If `values` field is not specified, default to boolean
             if (!setting.values) return ["true", "false"];
@@ -61,8 +63,7 @@ export const pg = createCmd({
       handle: (input) => {
         const id = input.args.id;
         const val = input.args.value;
-        const setting = PgSettings.all.find((s) => s.id === id);
-        if (!setting) throw new Error(`Setting not found: ${id}`);
+        const setting = PgSettings.get(id);
 
         let parsedVal = PgCommon.callIfNeeded(setting.values)?.find(
           (v) => v.name === val
@@ -73,7 +74,7 @@ export const pg = createCmd({
           else parsedVal = val;
         }
 
-        PgSettings.set(id, parsedVal);
+        PgSettings.setValue(id, parsedVal);
       },
     }),
   ],

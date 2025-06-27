@@ -194,13 +194,25 @@ class _PgSettings {
   static all: Setting[];
 
   /**
+   * Get the setting's implementation from its id.
+   *
+   * @param id setting id
+   * @returns the full setting object
+   */
+  static get(id: string) {
+    const setting = PgSettings.all.find((s) => s.id === id);
+    if (!setting) throw new Error(`Setting not found: ${id}`);
+    return setting;
+  }
+
+  /**
    * Get the setting value.
    *
    * @param id setting id
    * @returns the setting value
    */
-  static get(id: string) {
-    return this._getSetting(id).getValue();
+  static getValue(id: string) {
+    return this.get(id).getValue();
   }
 
   /**
@@ -209,20 +221,8 @@ class _PgSettings {
    * @param id setting id
    * @param value value to set
    */
-  static set(id: string, value: any) {
-    this._getSetting(id).setValue(value);
-  }
-
-  /**
-   * Get the setting implementation from its id.
-   *
-   * @param id setting id
-   * @returns the full setting object
-   */
-  private static _getSetting(id: string) {
-    const setting = PgSettings.all.find((s) => s.id === id);
-    if (!setting) throw new Error(`Setting not found: ${id}`);
-    return setting;
+  static setValue(id: string, value: any) {
+    this.get(id).setValue(value);
   }
 }
 
