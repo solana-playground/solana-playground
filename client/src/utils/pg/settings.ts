@@ -204,26 +204,6 @@ class _PgSettings {
     if (!setting) throw new Error(`Setting not found: ${id}`);
     return setting;
   }
-
-  /**
-   * Get the setting value.
-   *
-   * @param id setting id
-   * @returns the setting value
-   */
-  static getValue(id: string) {
-    return this.get(id).getValue();
-  }
-
-  /**
-   * Set the setting value.
-   *
-   * @param id setting id
-   * @param value value to set
-   */
-  static setValue(id: string, value: any) {
-    this.get(id).setValue(value);
-  }
 }
 
 export const PgSettings = declareUpdatable(_PgSettings, {
