@@ -71,9 +71,16 @@ export const pg = createCmd({
           (v) => v.name === value
         )?.value;
         if (!parsedVal) {
-          if (!setting.values) parsedVal = value === "true";
-          else if (setting.custom) parsedVal = setting.custom.parse(value);
-          else parsedVal = value;
+          if (setting.custom) {
+            try {
+              parsedVal = setting.custom.parse(value);
+            } catch {}
+          }
+
+          if (!parsedVal) {
+            if (!setting.values) parsedVal = value === "true";
+            else parsedVal = value;
+          }
         }
 
         setting.setValue(parsedVal);
