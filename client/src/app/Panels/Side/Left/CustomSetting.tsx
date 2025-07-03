@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../../../components/Input";
@@ -13,12 +13,26 @@ interface CustomSettingProps {
 }
 
 export const CustomSetting: FC<CustomSettingProps> = ({ setting }) => {
-  // TODO: Show old custom value if it exists
-  const [value, setValue] = useState("");
-  const [error, setError] = useState("");
-
+  // TODO: Make the `setting` variable's type have `custom` property
   const { custom } = setting;
   if (!custom) throw new Error(setting.id);
+
+  const [value, setValue] = useState(() => {
+    try {
+      const value = `${setting.getValue()}`;
+      custom.parse(value);
+      return value;
+    } catch {
+      return "";
+    }
+  });
+  const [error, setError] = useState("");
+
+  // Select the full input value on mount
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inputRef.current?.setSelectionRange(0, inputRef.current.value.length);
+  }, []);
 
   return (
     <Modal
@@ -40,6 +54,7 @@ export const CustomSetting: FC<CustomSettingProps> = ({ setting }) => {
           {custom.type ? ` (${custom.type})` : ""}
         </InputLabel>
         <Input
+          ref={inputRef}
           autoFocus
           placeholder={custom.placeholder}
           value={value}
