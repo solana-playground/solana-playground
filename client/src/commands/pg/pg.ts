@@ -70,16 +70,15 @@ export const pg = createCmd({
         let parsedVal = PgCommon.callIfNeeded(setting.values)?.find(
           (v) => v.name === value
         )?.value;
-        if (!parsedVal) {
+        if (parsedVal === undefined) {
           if (setting.custom) {
             try {
               parsedVal = setting.custom.parse(value);
             } catch {}
           }
 
-          if (!parsedVal) {
-            if (!setting.values) parsedVal = value === "true";
-            else parsedVal = value;
+          if (parsedVal === undefined) {
+            parsedVal = setting.values ? value : value === "true";
           }
         }
 
