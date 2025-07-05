@@ -51,6 +51,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
       // Multiple programs require selecting the program to import which closes
       // the current modal
       if (!mounted.current) {
+        PgView.closeModal();
         PgView.setModal(<ImportFs name={name} files={pgFiles} />);
       } else {
         setFiles(pgFiles);
@@ -58,6 +59,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
       }
     } catch (e: any) {
       if (!mounted.current) {
+        PgView.closeModal();
         PgView.setModal(<ImportFs name={name} filesError={e.message} />);
       } else {
         setFilesError(e.message);

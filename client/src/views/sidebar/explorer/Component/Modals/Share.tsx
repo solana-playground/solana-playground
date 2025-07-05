@@ -26,9 +26,11 @@ export const Share = () => {
   const share = async () => {
     try {
       const shareId = await PgCommon.transition(PgShare.new(filePaths));
+      PgView.closeModal();
       PgView.setModal(<SuccessPage shareId={shareId} />);
     } catch (e: any) {
       console.log("SHARE ERROR:", e.message);
+      PgView.closeModal();
       PgView.setModal(<ErrorPage message={e.message} />);
     }
   };

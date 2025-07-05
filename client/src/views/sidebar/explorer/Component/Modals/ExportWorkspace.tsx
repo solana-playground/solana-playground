@@ -11,6 +11,7 @@ export const ExportWorkspace = () => {
     try {
       const { readme } = await PgFramework.exportWorkspace({ convert: true });
       const { ExportWorkspaceReadme } = await import("./ExportWorkspaceReadme");
+      PgView.closeModal();
       await PgView.setModal(<ExportWorkspaceReadme text={readme} />);
     } catch (e) {
       console.error("Convert and export error:", e);
