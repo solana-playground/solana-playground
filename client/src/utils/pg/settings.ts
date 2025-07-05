@@ -20,8 +20,8 @@ type Settings = ConvertAll<UnionToTuple<InternalSettings[number]>> & {
 };
 
 type ConvertAll<A, R = unknown> = A extends readonly [infer Head, ...infer Tail]
-  ? Head extends Setting<infer I, infer V>
-    ? R & ConvertAll<Tail, Convert<I, V>>
+  ? Head extends Setting<infer I, infer V, infer C>
+    ? R & ConvertAll<Tail, Convert<I, V | C>>
     : never
   : R;
 
@@ -32,7 +32,7 @@ type Convert<I extends string, V> = I extends ""
   : { [K in I]: V extends undefined ? boolean : V };
 
 /** Setting creation parameter */
-export type SettingParam<I extends string, V> = {
+export type SettingParam<I extends string, V, C> = {
   /** Setting identifier (used in `PgSettings`) */
   id?: I;
   /** Name of the setting */
@@ -45,13 +45,24 @@ export type SettingParam<I extends string, V> = {
    * If this is not set, the setting is assumed to be a checkbox.
    */
   values?: Getable<readonly Values<V>[]>;
-  /**
-   * Custom component to set custom values for the setting.
-   *
-   * This is set automatically if `Custom.tsx` file inside the setting's
-   * directory exists.
-   */
-  CustomComponent?: CallableJSX;
+  /** Custom value properties */
+  custom?: {
+    /** Parse the custom value. */
+    parse: (value: string) => C;
+    /** Type of the custom value e.g. URL */
+    type?: string;
+    /** Input placeholder */
+    placeholder?: string;
+    /** Additional information to display as a tip to the user (Markdown supported) */
+    tip?: string;
+    /**
+     * Custom component to set custom values for the setting.
+     *
+     * This is set automatically if `Custom.tsx` file inside the setting's
+     * directory exists.
+     */
+    Component?: CallableJSX;
+  };
 } & Partial<SettingsCompat<V>>;
 
 /** Compatibility with non-standard settings (theme and font) */
@@ -72,7 +83,11 @@ type Values<V> =
   | { name: string; values: Values<V[]> };
 
 /** UI Setting */
-export type Setting<I extends string = string, V = any> = SettingParam<I, V> &
+export type Setting<I extends string = string, V = any, C = any> = SettingParam<
+  I,
+  V,
+  C
+> &
   SettingsCompat<V>;
 
 // Default values for the settings currently need to be initialized here rather
@@ -179,28 +194,15 @@ class _PgSettings {
   static all: Setting[];
 
   /**
-   * Get the setting value.
+   * Get the setting's implementation from its id.
    *
    * @param id setting id
-   * @returns the setting value
+   * @returns the full setting object
    */
   static get(id: string) {
-    return id.split(".").reduce((acc, cur) => acc[cur], PgSettings as any);
-  }
-
-  /**
-   * Set the setting value.
-   *
-   * @param id setting id
-   * @param value value to set
-   */
-  static set(id: string, value: any) {
-    const fields = id.split(".");
-    const parentObj = fields
-      .slice(0, -1)
-      .reduce((acc, cur) => acc[cur], PgSettings as any);
-    const lastField = fields.at(-1)!;
-    parentObj[lastField] = value;
+    const setting = PgSettings.all.find((s) => s.id === id);
+    if (!setting) throw new Error(`Setting not found: ${id}`);
+    return setting;
   }
 }
 

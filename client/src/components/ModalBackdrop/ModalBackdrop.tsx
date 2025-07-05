@@ -5,14 +5,20 @@ import { PgCommon, PgTheme, PgView } from "../../utils/pg";
 import { useKeybind, useSetStatic } from "../../hooks";
 
 const ModalBackdrop = () => {
-  const [modal, setModal] = useState<ReactElement | null>(null);
+  const [modals, setModals] = useState<ReactElement[]>([]);
 
   const setModalStatic = useCallback(({ Component, props }) => {
+    // Treat `null` component as close
+    if (Component === null) {
+      setModals((modals) => modals.slice(0, -1));
+      return;
+    }
+
     if (typeof Component === "function") {
       Component = <Component {...props} />;
     }
 
-    setModal(Component);
+    setModals((modals) => [...modals, Component]);
   }, []);
 
   useSetStatic(
@@ -23,7 +29,7 @@ const ModalBackdrop = () => {
   // Close modal on ESC
   useKeybind("Escape", PgView.closeModal);
 
-  return modal ? <Wrapper>{modal}</Wrapper> : null;
+  return modals.length ? <Wrapper>{modals.at(-1)}</Wrapper> : null;
 };
 
 const Wrapper = styled.div`

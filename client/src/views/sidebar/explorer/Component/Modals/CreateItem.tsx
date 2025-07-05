@@ -110,12 +110,10 @@ const CreateItemInput: FC<CreateItemInputProps> = ({ El, hide }) => {
       <Input
         autoFocus
         value={itemName}
-        onChange={(ev) => {
-          setItemName(ev.target.value);
-          setError(false);
-        }}
+        onChange={(ev) => setItemName(ev.target.value)}
         error={error}
         setError={setError}
+        validator={PgExplorer.isItemNameValid}
       />
     </Wrapper>
   );
