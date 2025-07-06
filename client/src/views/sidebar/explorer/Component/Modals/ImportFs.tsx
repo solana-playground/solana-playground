@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
@@ -28,11 +28,6 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
   const [importError, setImportError] = useState("");
 
   const mounted = useMounted();
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setName(ev.target.value);
-    setImportError("");
-  };
 
   const onDrop = async (userFiles: Array<File & { path: string }>) => {
     try {
@@ -86,7 +81,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
           <MainText>Project name</MainText>
           <Input
             autoFocus
-            onChange={handleChange}
+            onChange={(ev) => setName(ev.target.value)}
             value={name}
             error={importError}
             placeholder="my local project..."
