@@ -61,11 +61,9 @@ const Modal: FC<ModalProps> = ({
       // Close unless explicitly forbidden
       if (!buttonProps.noCloseOnSubmit) PgView.closeModal(data);
     } catch (e: any) {
-      if (props.setError) props.setError(e.message);
-      else {
-        setError(e.message);
-        throw e;
-      }
+      const msg = e.message ?? "Unknown error";
+      if (props.setError) props.setError(msg);
+      else setError(msg);
     }
   }, [buttonProps, props]);
 
@@ -78,6 +76,9 @@ const Modal: FC<ModalProps> = ({
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(wrapperRef, PgView.closeModal);
+
+  const displayError =
+    error || (typeof props.error === "string" ? props.error : null);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -97,9 +98,9 @@ const Modal: FC<ModalProps> = ({
 
       <ScrollableWrapper>
         <ContentWrapper>
-          {(error || props.error) && (
+          {displayError && (
             <ErrorText kind="error" icon={<Sad />}>
-              {error || props.error}
+              {displayError}
             </ErrorText>
           )}
 
