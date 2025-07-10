@@ -4,37 +4,31 @@ import Modal from "../../../../../components/Modal";
 import { Warning } from "../../../../../components/Icons";
 import { PgExplorer } from "../../../../../utils/pg";
 
-export const DeleteWorkspace = () => {
-  const deleteWorkspace = async () => {
-    await PgExplorer.deleteWorkspace();
-  };
-
-  return (
-    <Modal
-      title
-      buttonProps={{
-        text: "Delete",
-        onSubmit: deleteWorkspace,
-        kind: "error",
-      }}
-    >
-      <Content>
-        <IconWrapper>
-          <Warning color="warning" />
-        </IconWrapper>
-        <ContentText>
-          <Main>
-            Are you sure you want to delete workspace '
-            {PgExplorer.currentWorkspaceName}'?
-          </Main>
-          <Desc>This action is irreversable!</Desc>
-          <Desc>- All files and folders will be deleted.</Desc>
-          <Desc>- Program credentials will be deleted.</Desc>
-        </ContentText>
-      </Content>
-    </Modal>
-  );
-};
+export const DeleteWorkspace = () => (
+  <Modal
+    title
+    buttonProps={{
+      text: "Delete",
+      kind: "error",
+      onSubmit: () => PgExplorer.deleteWorkspace(),
+    }}
+  >
+    <Content>
+      <IconWrapper>
+        <Warning color="warning" />
+      </IconWrapper>
+      <ContentText>
+        <Main>
+          Are you sure you want to delete workspace '
+          {PgExplorer.currentWorkspaceName}'?
+        </Main>
+        <Desc>This action is irreversable!</Desc>
+        <Desc>- All files and folders will be deleted.</Desc>
+        <Desc>- Program credentials will be deleted.</Desc>
+      </ContentText>
+    </Content>
+  </Modal>
+);
 
 const Content = styled.div`
   display: flex;

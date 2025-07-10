@@ -31,19 +31,17 @@ export const RenameWorkspace = () => {
       buttonProps={{
         text: "Rename",
         onSubmit: renameWorkspace,
-        disabled: !newName,
+        disabled: !!error,
         size: "small",
       }}
-      error={error}
-      setError={setError}
     >
       <Input
         ref={inputRef}
-        onChange={(ev) => setNewName(ev.target.value)}
         value={newName}
+        onChange={(ev) => setNewName(ev.target.value)}
+        validator={PgExplorer.isWorkspaceNameValid}
         error={error}
         setError={setError}
-        validator={PgExplorer.isWorkspaceNameValid}
       />
     </Modal>
   );

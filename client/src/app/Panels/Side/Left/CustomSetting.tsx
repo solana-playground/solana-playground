@@ -41,12 +41,10 @@ export const CustomSetting: FC<CustomSettingProps> = ({ setting }) => {
       buttonProps={{
         text: "Set",
         onSubmit: () => setting.setValue(custom.parse(value)),
-        disabled: !value,
+        disabled: !!error,
         fullWidth: true,
         style: { height: "2.5rem", marginTop: "-0.25rem" },
       }}
-      error={error}
-      setError={setError}
     >
       <Content>
         <InputLabel>
@@ -56,12 +54,12 @@ export const CustomSetting: FC<CustomSettingProps> = ({ setting }) => {
         <Input
           ref={inputRef}
           autoFocus
-          placeholder={custom.placeholder}
           value={value}
           onChange={(ev) => setValue(ev.target.value)}
+          validator={custom.parse}
           error={error}
           setError={setError}
-          validator={custom.parse}
+          placeholder={custom.placeholder}
         />
 
         {custom.tip && (

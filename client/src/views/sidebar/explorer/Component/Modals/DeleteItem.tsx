@@ -35,8 +35,8 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
       title
       buttonProps={{
         text: "Delete",
-        onSubmit: deleteItem,
         kind: "error",
+        onSubmit: deleteItem,
       }}
     >
       <Content>

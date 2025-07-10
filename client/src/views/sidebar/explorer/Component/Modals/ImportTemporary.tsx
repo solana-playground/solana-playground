@@ -19,19 +19,17 @@ export const ImportTemporary = () => {
       buttonProps={{
         text: "Import",
         onSubmit: importTemporary,
-        disabled: !name,
+        disabled: !!error,
       }}
-      error={error}
-      setError={setError}
     >
       <MainText>Project name</MainText>
       <Input
         autoFocus
-        onChange={(ev) => setName(ev.target.value)}
         value={name}
+        onChange={(ev) => setName(ev.target.value)}
+        validator={PgExplorer.isWorkspaceNameValid}
         error={error}
         setError={setError}
-        validator={PgExplorer.isWorkspaceNameValid}
         placeholder="project name..."
       />
     </Modal>

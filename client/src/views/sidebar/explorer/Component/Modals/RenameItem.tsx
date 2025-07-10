@@ -34,19 +34,17 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
         text: "Rename",
         onSubmit: rename,
         size: "small",
-        disabled: !newName,
+        disabled: !!error,
       }}
-      error={error}
-      setError={setError}
     >
       <Input
         ref={inputRef}
         autoFocus
         value={newName}
         onChange={(ev) => setNewName(ev.target.value)}
+        validator={PgExplorer.isItemNameValid}
         error={error}
         setError={setError}
-        validator={PgExplorer.isItemNameValid}
       />
     </Modal>
   );

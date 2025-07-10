@@ -27,29 +27,26 @@ export const ImportGithub = () => {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
 
-  const importFromGithub = () => PgCommon.transition(PgGithub.import(url));
-
   return (
     <Modal
       title
       buttonProps={{
         text: "Import",
-        onSubmit: importFromGithub,
-        disabled: !url,
+        onSubmit: () => PgCommon.transition(PgGithub.import(url)),
+        disabled: !!error,
         btnLoading: { text: "Importing..." },
         rightIcon: <ImportWorkspace />,
       }}
-      error={error}
-      setError={setError}
     >
       <Wrapper>
         <GithubUrlWrapper>
           <GithubUrlInputLabel>GitHub URL</GithubUrlInputLabel>
           <Input
             autoFocus
-            onChange={(ev) => setUrl(ev.target.value)}
             value={url}
+            onChange={(ev) => setUrl(ev.target.value)}
             validator={PgGithub.isValidUrl}
+            error={error}
             setError={setError}
             placeholder="https://github.com/..."
           />

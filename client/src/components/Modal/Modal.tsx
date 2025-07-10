@@ -1,11 +1,4 @@
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useCallback,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
@@ -30,10 +23,6 @@ interface ModalProps {
     /** Set loading state of the button based on `onSubmit` */
     setLoading?: Dispatch<SetStateAction<boolean>>;
   };
-  /** Error to display */
-  error?: any;
-  /** Set the error when `onSubmit` throws */
-  setError?: Dispatch<SetStateAction<any>>;
   /**
    * Whether to show a close button on top-right.
    *
@@ -47,25 +36,21 @@ const Modal: FC<ModalProps> = ({
   buttonProps,
   closeButton = !buttonProps?.onSubmit,
   children,
-  ...props
 }) => {
   const [error, setError] = useState("");
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = async () => {
     if (!buttonProps || buttonProps.disabled) return;
 
     try {
-      // Get result
       const data = await buttonProps.onSubmit?.();
 
       // Close unless explicitly forbidden
       if (!buttonProps.noCloseOnSubmit) PgView.closeModal(data);
     } catch (e: any) {
-      const msg = e.message ?? "Unknown error";
-      if (props.setError) props.setError(msg);
-      else setError(msg);
+      setError(e.message ?? "Unknown error");
     }
-  }, [buttonProps, props]);
+  };
 
   // Submit on Enter
   // Intentionally clicking the button in order to trigger the button's loading
@@ -76,9 +61,6 @@ const Modal: FC<ModalProps> = ({
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(wrapperRef, PgView.closeModal);
-
-  const displayError =
-    error || (typeof props.error === "string" ? props.error : null);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -98,9 +80,9 @@ const Modal: FC<ModalProps> = ({
 
       <ScrollableWrapper>
         <ContentWrapper>
-          {displayError && (
+          {error && (
             <ErrorText kind="error" icon={<Sad />}>
-              {displayError}
+              {error}
             </ErrorText>
           )}
 
@@ -119,8 +101,6 @@ const Modal: FC<ModalProps> = ({
               {...buttonProps}
               ref={buttonRef}
               onClick={handleSubmit}
-              disabled={buttonProps.disabled || !!props.error}
-              size={buttonProps.size}
               kind={
                 buttonProps.onSubmit
                   ? buttonProps.kind ?? "primary-transparent"
