@@ -1,0 +1,16 @@
+service: playground-server
+runtime: custom
+env: flex
+
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 1
+
+# Environment variables
+env_variables:
+  # PG_DB_URI: "mongodb://<YOUR_PROD_MONGO_HOST>:27017"
+
+resources:
+  cpu: 1
+  memory_gb: 1
+  disk_size_gb: 10
