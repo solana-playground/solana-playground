@@ -8,7 +8,7 @@ automatic_scaling:
 
 # Environment variables
 env_variables:
-  # PG_DB_URI: "mongodb://<YOUR_PROD_MONGO_HOST>:27017"
+  PG_DB_URI: "mongodb://<YOUR_PROD_MONGO_HOST>:27017"
 
 resources:
   cpu: 1
