@@ -53,11 +53,13 @@ jobs:
           ref: v0.29
           fetch-depth: 0
 
-      - name: Fetch tags
+      - name: Set up Git to get tag and normalize for App Engine
         run: |
           git fetch --tags
           TAG=$(git describe --tags --abbrev=0)
-          echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
+          # Replace periods with dashes for App Engine compatibility
+          NORMALIZED_TAG=${TAG//./-}
+          echo "VERSION_TAG=$NORMALIZED_TAG" >> $GITHUB_ENV
 
       - name: Set up Cloud SDK authentication
         uses: google-github-actions/auth@v2
@@ -86,3 +88,4 @@ jobs:
             --version=${{ env.VERSION_TAG }} \
             --no-promote \
             --quiet
+        working-directory: server
