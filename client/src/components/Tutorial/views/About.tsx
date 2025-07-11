@@ -84,7 +84,11 @@ export const About: FC<TutorialAboutComponentProps> = ({ about, start }) => {
         </GeneratedWrapper>
 
         <CustomWrapper>
-          {typeof about === "string" ? <Markdown>{about}</Markdown> : about}
+          {typeof about === "string" ? (
+            <Markdown linkable>{about}</Markdown>
+          ) : (
+            about
+          )}
         </CustomWrapper>
       </TutorialAboutPage>
     </Wrapper>

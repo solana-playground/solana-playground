@@ -80,6 +80,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
         <TutorialContent>
           {typeof currentContent === "string" ? (
             <Markdown
+              linkable
               rootSrc={PgRouter.location.pathname
                 .split("/")
                 .slice(0, 3)

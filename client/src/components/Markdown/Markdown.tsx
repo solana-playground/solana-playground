@@ -16,9 +16,11 @@ interface MarkdownProps {
   codeFontOnly?: boolean;
   /** Root for the `src` prop (defaults to the current path) */
   rootSrc?: string;
+  /** Whether to support URL hashes `<URL>#<HASH>` */
+  linkable?: boolean;
 }
 
-const Markdown: FC<MarkdownProps> = ({ rootSrc, ...props }) => {
+const Markdown: FC<MarkdownProps> = ({ rootSrc, linkable, ...props }) => {
   // Scroll to section
   useEffect(() => {
     /** Recursively try to find a parent vertically scrollable element. */
@@ -85,9 +87,9 @@ const Markdown: FC<MarkdownProps> = ({ rootSrc, ...props }) => {
         },
 
         /** Section headers */
-        h1: (props) => <LinkableHeader element="h1" {...props} />,
-        h2: (props) => <LinkableHeader element="h2" {...props} />,
-        h3: (props) => <LinkableHeader element="h3" {...props} />,
+        h1: (props) => <Header element="h1" linkable={linkable} {...props} />,
+        h2: (props) => <Header element="h2" linkable={linkable} {...props} />,
+        h3: (props) => <Header element="h3" linkable={linkable} {...props} />,
       }}
       {...props}
     />
@@ -1088,25 +1090,24 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
   `}
 `;
 
-interface LinkableHeaderProps {
+type HeaderProps = {
   element: "h1" | "h2" | "h3";
-}
+} & Pick<MarkdownProps, "linkable">;
 
-const LinkableHeader: FC<LinkableHeaderProps> = ({
-  element: Header,
-  ...rest
-}) => {
+const Header: FC<HeaderProps> = ({ element: H, linkable, ...rest }) => {
+  if (!linkable) return <H {...rest} />;
+
   const hash = PgCommon.toKebabFromTitle((rest.children as string[])[0]);
 
   return (
-    <LinkableHeaderWrapper onClick={() => (PgRouter.location.hash = hash)}>
+    <HeaderWrapper onClick={() => (PgRouter.location.hash = hash)}>
       <HyperLink />
-      <Header {...rest} id={HEADER_ELEMENT_ID_PREFIX + hash} />
-    </LinkableHeaderWrapper>
+      <H {...rest} id={HEADER_ELEMENT_ID_PREFIX + hash} />
+    </HeaderWrapper>
   );
 };
 
-const LinkableHeaderWrapper = styled.div`
+const HeaderWrapper = styled.div`
   ${({ theme }) => css`
     position: relative;
     cursor: pointer;
