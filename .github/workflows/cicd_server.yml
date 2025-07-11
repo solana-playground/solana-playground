@@ -1,0 +1,85 @@
+name: CICD Server
+
+on:
+  push:
+    branches:
+      - v0.29
+
+  workflow_dispatch:
+
+jobs:
+  format_server:
+    name: Format server
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+  clippy_server:
+    name: Clippy server
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add clippy
+        run: rustup component add clippy
+
+      - name: Run clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+  deploy:
+    name: Deploy Playground Server
+    runs-on: ubuntu-latest
+    needs:
+      - format_server
+      - clippy_server
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch tags
+        run: |
+          git fetch --tags
+          TAG=$(git describe --tags --abbrev=0)
+          echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Set up Cloud SDK authentication
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure GCloud
+        run: |-
+          gcloud config set account ${{ secrets.SERVICE_ACCOUNT }}
+          gcloud config set project ${{ secrets.PROJECT_ID }}
+
+#      - name: Replace app.yaml environment variables
+#        uses: 73h/gae-app-yaml-replace-env-variables@v0.1
+#        env:
+#          PG_DB_URI: ${{ secrets.PROD_DB_URI }}
+#        with:
+#          app_yaml_path: app.yaml
+
+      - name: Deploy to App Engine with specific version (no promote)
+        run: |
+          gcloud app deploy app.yaml \
+            --version=${{ env.VERSION_TAG }} \
+            --no-promote \
+            --quiet
