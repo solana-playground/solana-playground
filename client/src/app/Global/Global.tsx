@@ -41,7 +41,6 @@ PgSettings.all = SETTINGS;
 const Global = () => {
   useDisposable(PgGlobal.init);
   useRouter();
-  useExplorer();
   useDisposable(PgConnection.init);
   useDisposable(PgBlockExplorer.init); // Must be after `PgConnection` init
   useDisposable(PgWallet.init);
@@ -97,22 +96,6 @@ const useRouter = () => {
   // Navigate
   const navigate = useNavigate();
   useGetStatic(navigate, PgRouter.events.NAVIGATE);
-};
-
-// TODO: Remove and handle this from explorer impl
-/** Handle explorer consistency. */
-const useExplorer = () => {
-  // Handle loading state
-  useEffect(() => {
-    const { dispose } = PgExplorer.onDidInit(() => {
-      // Check whether the tab state is valid
-      // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
-      if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
-        PgExplorer.openFile(PgExplorer.tabs[0]);
-      }
-    });
-    return dispose;
-  }, []);
 };
 
 /** Navigate to tutorial's route when necessary. */

@@ -160,6 +160,16 @@ export class PgExplorer {
       }
     }
 
+    // Sanity check for the tab and current file state
+    // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
+    //
+    // This should no longer be an issue after the partial rewrite of explorer,
+    // but keeping it anyway just in case the same problem occurs in the future.
+    if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
+      console.log("Tab and current file state is partially invalid");
+      PgExplorer.openFile(PgExplorer.tabs[0]);
+    }
+
     this._isInitialized = true;
 
     PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_INIT);
