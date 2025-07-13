@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
@@ -20,8 +20,6 @@ interface ModalProps {
     onSubmit?: () => SyncOrAsync;
     /** Whether to skip closing the modal when user submits */
     noCloseOnSubmit?: boolean;
-    /** Set loading state of the button based on `onSubmit` */
-    setLoading?: Dispatch<SetStateAction<boolean>>;
   };
   /**
    * Whether to show a close button on top-right.
