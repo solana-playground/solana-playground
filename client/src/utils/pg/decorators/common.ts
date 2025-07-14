@@ -58,20 +58,14 @@ export const addOnDidChange = (
   sClass: any,
   state: { [key: string]: unknown }
 ) => {
-  // Batch main change event
+  // Main change event
   (sClass as OnDidChangeDefault<unknown>).onDidChange = (
     cb: (value: unknown) => void
   ) => {
-    return PgCommon.batchChanges(
-      () => cb(sClass[INTERNAL_STATE_PROPERTY]),
-      [onDidChange]
-    );
-  };
-
-  // Main change event
-  const onDidChange = (cb: (value: unknown) => void) => {
     return PgCommon.onDidChange({
-      cb,
+      // Debounce the main change event because each property change dispatches
+      // the main change event
+      cb: PgCommon.debounce(cb),
       eventName: sClass._getChangeEventName(),
       initialRun: sClass[IS_INITIALIZED_PROPERTY]
         ? { value: sClass[INTERNAL_STATE_PROPERTY] }

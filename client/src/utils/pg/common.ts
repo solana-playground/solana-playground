@@ -86,20 +86,22 @@ export class PgCommon {
    * Debounce the given callback.
    *
    * @param cb callback to debounce
-   * @param options -
-   * - delay: how long to wait before running the callback
-   * - sharedTimeout: shared timeout object
+   * @param opts -
+   * - `delay`: how long to wait before running the callback
+   * - `sharedTimeout`: shared timeout object
    */
   static debounce(
-    cb: () => void,
-    options?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
+    cb: (...args: unknown[]) => unknown,
+    opts?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
   ) {
-    const delay = options?.delay ?? 100;
-    const sharedTimeout = options?.sharedTimeout ?? {};
+    const { delay, sharedTimeout } = PgCommon.setDefault(opts, {
+      delay: 100,
+      sharedTimeout: {},
+    });
 
-    return () => {
-      sharedTimeout.id && clearTimeout(sharedTimeout.id);
-      sharedTimeout.id = setTimeout(cb, delay);
+    return (...args: unknown[]) => {
+      if (sharedTimeout.id) clearTimeout(sharedTimeout.id);
+      sharedTimeout.id = setTimeout(() => cb(...args), delay);
     };
   }
 
@@ -949,6 +951,8 @@ export class PgCommon {
    *
    * @param cb callback to run
    * @param onChanges onChange methods
+   * @param ops options
+   * - `delay`: debounce delay in ms
    * @returns a dispose function to clear all events
    */
   static batchChanges(
