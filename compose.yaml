@@ -65,7 +65,7 @@ services:
       - ${PG_PORT:-8080}:8080
     env_file: .env
     environment:
-      - PG_DB_URI=${PG_DB_URI:-mongodb://db:27017}
+      - PG_DB_URI=${PG_DB_URI:-postgresql://postgres:postgres@db:5432/solpg}
     profiles:
       - dev
       - prod
@@ -80,13 +80,18 @@ services:
       - standalone
 
   db:
-    image: mongo:7
+    image: postgres:16-alpine
     volumes:
-      - mongodb:/data/db
-    command: mongod --quiet --logpath /dev/null
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=solpg
+    ports:
+      - 5432:5432
     profiles:
       - dev
       - prod
 
 volumes:
-  mongodb:
+  postgres_data:
