@@ -140,10 +140,8 @@ export class PgRouter {
    * @returns a dispose function to clear the event
    */
   static onDidChangePath(cb: (path: RoutePath) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgRouter.events.ON_DID_CHANGE_PATH,
-      initialRun: { value: PgRouter.location.pathname },
+    return PgCommon.onDidChange(PgRouter.events.ON_DID_CHANGE_PATH, cb, {
+      value: PgRouter.location.pathname,
     });
   }
 
@@ -154,10 +152,8 @@ export class PgRouter {
    * @returns a dispose function to clear the event
    */
   static onDidChangeHash(cb: (hash: string) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgRouter.events.ON_DID_CHANGE_HASH,
-      initialRun: { value: PgRouter.location.hash },
+    return PgCommon.onDidChange(PgRouter.events.ON_DID_CHANGE_HASH, cb, {
+      value: PgRouter.location.hash,
     });
   }
 

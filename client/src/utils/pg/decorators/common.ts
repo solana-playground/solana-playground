@@ -60,29 +60,27 @@ export const addOnDidChange = (
 ) => {
   // Main change event
   (sClass as OnDidChangeDefault<unknown>).onDidChange = (
-    cb: (value: unknown) => void
+    cb: (value: unknown) => unknown
   ) => {
-    return PgCommon.onDidChange({
+    return PgCommon.onDidChange(
+      sClass._getChangeEventName(),
       // Debounce the main change event because each property change dispatches
       // the main change event
-      cb: PgCommon.debounce(cb),
-      eventName: sClass._getChangeEventName(),
-      initialRun: sClass[IS_INITIALIZED_PROPERTY]
+      PgCommon.debounce(cb),
+      sClass[IS_INITIALIZED_PROPERTY]
         ? { value: sClass[INTERNAL_STATE_PROPERTY] }
-        : undefined,
-    });
+        : undefined
+    );
   };
 
   // Property change events
   for (const prop in state) {
     sClass[getChangePropName(prop)] = (cb: (value: unknown) => unknown) => {
-      return PgCommon.onDidChange({
+      return PgCommon.onDidChange(
+        sClass._getChangeEventName(prop),
         cb,
-        eventName: sClass._getChangeEventName(prop),
-        initialRun: sClass[IS_INITIALIZED_PROPERTY]
-          ? { value: sClass[prop] }
-          : undefined,
-      });
+        sClass[IS_INITIALIZED_PROPERTY] ? { value: sClass[prop] } : undefined
+      );
     };
   }
 

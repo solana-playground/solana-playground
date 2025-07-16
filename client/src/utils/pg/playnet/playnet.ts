@@ -78,10 +78,7 @@ export class PgPlaynet {
    * @returns a dispose function to clear the event
    */
   static onDidInit(cb: () => any) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgPlaynet.events.ON_DID_INIT,
-    });
+    return PgCommon.onDidChange(PgPlaynet.events.ON_DID_INIT, cb);
   }
 
   /** Static Playnet instance */

@@ -17,29 +17,29 @@ import type { Methods } from "../utils/pg";
  * );
  * ```
  *
- * @param classObject object to expose
  * @param eventName event name to derive from
+ * @param classObject object to expose
  */
 export const useExposeStatic = (
-  classObject: { [key: string]: any } | null,
-  eventName: string
+  eventName: string,
+  classObject: { [key: string]: any } | null
 ) => {
   const eventNames = useMemo(
     () => PgCommon.getStaticEventNames(eventName),
     [eventName]
   );
-  useExposeGetClassAsStatic(classObject, eventNames.get);
-  useExposeMethodsAsStatic(classObject, eventNames.run);
+  useExposeGetClassAsStatic(eventNames.get, classObject);
+  useExposeMethodsAsStatic(eventNames.run, classObject);
 };
 
-const useExposeGetClassAsStatic = <T,>(classObject: T, eventName: string) => {
+const useExposeGetClassAsStatic = <T,>(eventName: string, classObject: T) => {
   const cb = useCallback(async () => classObject, [classObject]);
   useSendAndReceiveCustomEvent<T>(eventName, cb);
 };
 
 const useExposeMethodsAsStatic = <T,>(
-  classObject: { [key: string]: any } | null,
-  eventName: string
+  eventName: string,
+  classObject: { [key: string]: any } | null
 ) => {
   const cb = useCallback(
     async (data) => {

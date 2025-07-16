@@ -14,7 +14,7 @@ import {
 export const CreateItem = () => {
   const [El, setEl] = useState<Element | null>(null);
 
-  useSetStatic(setEl, PgView.events.NEW_ITEM_PORTAL_SET);
+  useSetStatic(PgView.events.NEW_ITEM_PORTAL_SET, setEl);
 
   const hide = useCallback(() => setEl(null), []);
 

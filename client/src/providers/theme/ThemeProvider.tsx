@@ -11,7 +11,7 @@ import { useSetStatic } from "../../hooks/useSetStatic";
 export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<Theme>();
 
-  useSetStatic(setTheme, PgTheme.events.THEME_SET);
+  useSetStatic(PgTheme.events.THEME_SET, setTheme);
 
   // Create initial theme
   useEffect(() => {

@@ -230,13 +230,11 @@ const defineSettersRecursively = ({
       );
 
     sClass[onDidChangeEventName] ??= (cb: (value: unknown) => unknown) => {
-      return PgCommon.onDidChange({
+      return PgCommon.onDidChange(
+        sClass._getChangeEventName(currentPropNames),
         cb,
-        eventName: sClass._getChangeEventName(currentPropNames),
-        initialRun: sClass[IS_INITIALIZED_PROPERTY]
-          ? { value: getter[prop] }
-          : undefined,
-      });
+        sClass[IS_INITIALIZED_PROPERTY] ? { value: getter[prop] } : undefined
+      );
     };
 
     // Recursively update

@@ -60,7 +60,7 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
     });
   }, [theme, cmdManager]);
 
-  useExposeStatic(term, PgTerminal.events.STATIC);
+  useExposeStatic(PgTerminal.events.STATIC, term);
 
   // Open terminal
   useEffect(() => {

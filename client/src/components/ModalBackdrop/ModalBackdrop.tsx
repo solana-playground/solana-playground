@@ -22,8 +22,8 @@ const ModalBackdrop = () => {
   }, []);
 
   useSetStatic(
-    setModalStatic,
-    PgCommon.getSendAndReceiveEventNames(PgView.events.MODAL_SET).send
+    PgCommon.getSendAndReceiveEventNames(PgView.events.MODAL_SET).send,
+    setModalStatic
   );
 
   // Close modal on ESC

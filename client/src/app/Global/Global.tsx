@@ -95,7 +95,7 @@ const useRouter = () => {
 
   // Navigate
   const navigate = useNavigate();
-  useGetStatic(navigate, PgRouter.events.NAVIGATE);
+  useGetStatic(PgRouter.events.NAVIGATE, navigate);
 };
 
 /** Navigate to tutorial's route when necessary. */
