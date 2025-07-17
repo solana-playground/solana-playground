@@ -954,10 +954,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidInit(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_INIT,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_INIT, cb);
   }
 
   /**
@@ -967,10 +964,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidCreateItem(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_CREATE_ITEM,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_CREATE_ITEM, cb);
   }
 
   /**
@@ -980,10 +974,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidRenameItem(cb: (path: string) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_RENAME_ITEM,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_RENAME_ITEM, cb);
   }
 
   /**
@@ -993,10 +984,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidDeleteItem(cb: (path: string) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_DELETE_ITEM,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_DELETE_ITEM, cb);
   }
 
   /**
@@ -1006,10 +994,8 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidOpenFile(cb: (file: FullFile | null) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_OPEN_FILE,
-      initialRun: { value: PgExplorer.getCurrentFile() },
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_OPEN_FILE, cb, {
+      value: PgExplorer.getCurrentFile(),
     });
   }
 
@@ -1020,10 +1006,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidCloseFile(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_CLOSE_FILE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_CLOSE_FILE, cb);
   }
 
   /**
@@ -1033,10 +1016,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidSetTabs(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_SET_TABS,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_SET_TABS, cb);
   }
 
   /**
@@ -1046,10 +1026,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidCreateWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_CREATE_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_CREATE_WORKSPACE, cb);
   }
 
   /**
@@ -1059,10 +1036,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidRenameWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_RENAME_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_RENAME_WORKSPACE, cb);
   }
 
   /**
@@ -1072,10 +1046,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidDeleteWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_DELETE_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_DELETE_WORKSPACE, cb);
   }
 
   /**
@@ -1085,10 +1056,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidSwitchWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_SWITCH_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_SWITCH_WORKSPACE, cb);
   }
 
   /* ---------------------------- Private methods --------------------------- */

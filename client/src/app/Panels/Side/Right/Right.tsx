@@ -68,8 +68,8 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     });
   }, []);
 
-  useSetStatic(setProps, PgView.events.SIDEBAR_PAGE_PROPS_SET);
-  useSetStatic(setLoading, PgView.events.SIDEBAR_LOADING_SET);
+  useSetStatic(PgView.events.SIDEBAR_PAGE_PROPS_SET, setProps);
+  useSetStatic(PgView.events.SIDEBAR_LOADING_SET, setLoading);
 
   const ids = useRef<boolean[]>([]);
 

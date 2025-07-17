@@ -20,8 +20,8 @@ const Toast = () => {
     toast(Component, { ...props?.options, toastId: id });
   }, []);
 
-  useSetStatic(setToast, PgView.events.TOAST_SET);
-  useSetStatic(toast.dismiss, PgView.events.TOAST_CLOSE);
+  useSetStatic(PgView.events.TOAST_SET, setToast);
+  useSetStatic(PgView.events.TOAST_CLOSE, toast.dismiss);
 
   return (
     <StyledContainer

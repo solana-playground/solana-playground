@@ -101,7 +101,16 @@ export function updatable<T>(params: {
       // Set the initial state
       sClass.update(state);
 
-      return sClass.onDidChange((state: T) => params.storage?.write(state));
+      return sClass.onDidChange((state: T) => {
+        // Check whether the state has been initialized. Normally, if this
+        // callback runs, it means the state has already been initialized,
+        // but if the app crashes without being able to recover (white screen),
+        // this callback somtimes runs with invalid state (e.g. partial).
+        //
+        // TODO: Make sure this callback never runs if the state hasn't been
+        // initialized, and remove this check.
+        if (sClass[IS_INITIALIZED_PROPERTY]) params.storage?.write(state);
+      });
     });
 
     // Add `update` method
@@ -221,13 +230,11 @@ const defineSettersRecursively = ({
       );
 
     sClass[onDidChangeEventName] ??= (cb: (value: unknown) => unknown) => {
-      return PgCommon.onDidChange({
+      return PgCommon.onDidChange(
+        sClass._getChangeEventName(currentPropNames),
         cb,
-        eventName: sClass._getChangeEventName(currentPropNames),
-        initialRun: sClass[IS_INITIALIZED_PROPERTY]
-          ? { value: getter[prop] }
-          : undefined,
-      });
+        sClass[IS_INITIALIZED_PROPERTY] ? { value: getter[prop] } : undefined
+      );
     };
 
     // Recursively update

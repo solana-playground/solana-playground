@@ -299,10 +299,7 @@ export class PgView {
    * @returns a dispose function to clear the event
    */
   static onDidChangeSidebarPage(cb: (page: SidebarPage) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE,
-    });
+    return PgCommon.onDidChange(PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE, cb);
   }
 
   /**
@@ -314,9 +311,9 @@ export class PgView {
   static onDidChangeMainSecondaryPage(
     cb: (page: MainSecondaryPageName) => unknown
   ) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
-    });
+    return PgCommon.onDidChange(
+      PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
+      cb
+    );
   }
 }

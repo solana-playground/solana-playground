@@ -9,7 +9,7 @@ import { useKeybind, useSetStatic } from "../../../hooks";
 const Side = () => {
   const [pageName, setPageName] = useState<SidebarPageName>("Explorer");
   const oldPageName = useRef(pageName);
-  useSetStatic(setPageName, PgView.events.SIDEBAR_PAGE_NAME_SET);
+  useSetStatic(PgView.events.SIDEBAR_PAGE_NAME_SET, setPageName);
 
   const page = useMemo(() => PgView.getSidebarPage(pageName), [pageName]);
   useEffect(() => {
