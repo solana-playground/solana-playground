@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import type { OnDidChangeDefault } from "./types";
-import type { Arrayable, Disposable, SyncOrAsync } from "../types";
+import type { Disposable, SyncOrAsync } from "../types";
 
 /** Private state property */
 export const INTERNAL_STATE_PROPERTY = "_state";
@@ -85,9 +85,7 @@ export const addOnDidChange = (
   }
 
   // Get custom event name
-  sClass._getChangeEventName = (name?: Arrayable<string>) => {
-    if (Array.isArray(name)) name = name.join(".");
-
+  sClass._getChangeEventName = (prop?: string) => {
     // `sClass.name` is minified to something like `e` in production builds
     // which cause collision with other classes and this only happens with the
     // main `onDidChange` method because the child change methods have `name`
@@ -103,6 +101,26 @@ export const addOnDidChange = (
     // to include only the class/function names(decorator classes can be transpiled
     // to either classes or functions depending on the browser version) that start
     // with "_Pg".
-    return "ondidchange" + sClass.name + (name ?? "");
+    return "ondidchange" + sClass.name + (prop ?? "");
+  };
+
+  // Dispatch change event
+  sClass._dispatchChangeEvent = (prop?: string) => {
+    // Only dispatch if the state has been initialized
+    if (!sClass[IS_INITIALIZED_PROPERTY]) return;
+
+    // Dispatch the prop update event if `prop` exists
+    if (prop) {
+      PgCommon.createAndDispatchCustomEvent(
+        sClass._getChangeEventName(prop),
+        PgCommon.getProperty(sClass[INTERNAL_STATE_PROPERTY], prop)
+      );
+    }
+
+    // Always dispatch the main update event
+    PgCommon.createAndDispatchCustomEvent(
+      sClass._getChangeEventName(),
+      sClass[INTERNAL_STATE_PROPERTY]
+    );
   };
 };

@@ -53,19 +53,9 @@ export function derivable<T extends Derivable>(
 
         const disposable = PgCommon.batchChanges(async (value) => {
           sClass[INTERNAL_STATE_PROPERTY][prop] = await derivable.derive(value);
-
-          // Prop change event
-          PgCommon.createAndDispatchCustomEvent(
-            sClass._getChangeEventName(prop),
-            sClass[prop]
-          );
-
-          // Main change event
-          PgCommon.createAndDispatchCustomEvent(
-            sClass._getChangeEventName(),
-            sClass[INTERNAL_STATE_PROPERTY]
-          );
+          sClass._dispatchChangeEvent(prop);
         }, derivable.onChange as Exclude<OnChange, string>[]);
+
         disposables.push(disposable);
       }
 

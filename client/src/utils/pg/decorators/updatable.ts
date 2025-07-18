@@ -101,16 +101,7 @@ export function updatable<T>(params: {
       // Set the initial state
       sClass.update(state);
 
-      return sClass.onDidChange((state: T) => {
-        // Check whether the state has been initialized. Normally, if this
-        // callback runs, it means the state has already been initialized,
-        // but if the app crashes without being able to recover (white screen),
-        // this callback somtimes runs with invalid state (e.g. partial).
-        //
-        // TODO: Make sure this callback never runs if the state hasn't been
-        // initialized, and remove this check.
-        if (sClass[IS_INITIALIZED_PROPERTY]) params.storage?.write(state);
-      });
+      return sClass.onDidChange((state: T) => params.storage?.write(state));
     });
 
     // Add `update` method
@@ -147,18 +138,7 @@ export function updatable<T>(params: {
           get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
           set: (value: T[keyof T]) => {
             sClass[INTERNAL_STATE_PROPERTY][prop] = value;
-
-            // Change event
-            PgCommon.createAndDispatchCustomEvent(
-              sClass._getChangeEventName(prop),
-              value
-            );
-
-            // Dispatch the main update event
-            PgCommon.createAndDispatchCustomEvent(
-              sClass._getChangeEventName(),
-              sClass[INTERNAL_STATE_PROPERTY]
-            );
+            sClass._dispatchChangeEvent(prop);
           },
         });
       }
@@ -185,11 +165,15 @@ const defineSettersRecursively = ({
     set(target: any, prop: string, value: any) {
       target[prop] = value;
 
-      // Setting a new value should dispatch a change event for all of
-      // the parent objects.
-      // Example:
+      // Setting a new value should dispatch a change event for all of the
+      // parent objects. For example:
+      //
+      // ```
       // const obj = { nested: { number: 1 } };
-      // obj.a.b = 2; -> obj.OnDidChangeNestedNumber, obj.OnDidChangeNested, obj.onDidChange
+      // obj.nested.number = 2;
+      // ```
+      //
+      // Should trigger `onDidChangeNestedNumber`, `onDidChangeNested`, `onDidChange`.
 
       // 1. [nested, number].reduce
       // 2. [nested, nested.number].reverse
@@ -201,18 +185,7 @@ const defineSettersRecursively = ({
           return acc;
         }, [] as string[])
         .reverse()
-        .forEach((prop) => {
-          PgCommon.createAndDispatchCustomEvent(
-            sClass._getChangeEventName(prop),
-            PgCommon.getProperty(sClass[INTERNAL_STATE_PROPERTY], prop)
-          );
-        });
-
-      // Dispatch the main update event
-      PgCommon.createAndDispatchCustomEvent(
-        sClass._getChangeEventName(),
-        sClass[INTERNAL_STATE_PROPERTY]
-      );
+        .forEach(sClass._dispatchChangeEvent);
 
       return true;
     },
@@ -231,7 +204,7 @@ const defineSettersRecursively = ({
 
     sClass[onDidChangeEventName] ??= (cb: (value: unknown) => unknown) => {
       return PgCommon.onDidChange(
-        sClass._getChangeEventName(currentPropNames),
+        sClass._getChangeEventName(currentPropNames.join(".")),
         cb,
         sClass[IS_INITIALIZED_PROPERTY] ? { value: getter[prop] } : undefined
       );
