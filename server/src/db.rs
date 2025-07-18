@@ -25,7 +25,7 @@ pub async fn find_by_id(id: &str, collection: &str) -> Result<Option<Value>> {
     let pool = get_pool()?;
     let id = Uuid::parse_str(id)?;
 
-    let query = format!("SELECT data FROM {} WHERE id = $1", collection);
+    let query = format!("SELECT data FROM {collection} WHERE id = $1");
     let row: Option<(Value,)> = sqlx::query_as(&query).bind(id).fetch_optional(pool).await?;
 
     Ok(row.map(|(data,)| data))
@@ -37,8 +37,7 @@ pub async fn insert(value: Value, collection: &str) -> Result<String> {
     let id = Uuid::new_v4();
 
     let query = format!(
-        "INSERT INTO {} (id, data) VALUES ($1, $2) RETURNING id",
-        collection
+        "INSERT INTO {collection} (id, data) VALUES ($1, $2) RETURNING id"
     );
     let row: (Uuid,) = sqlx::query_as(&query)
         .bind(id)
