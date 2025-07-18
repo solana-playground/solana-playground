@@ -36,9 +36,7 @@ pub async fn insert(value: Value, collection: &str) -> Result<String> {
     let pool = get_pool()?;
     let id = Uuid::new_v4();
 
-    let query = format!(
-        "INSERT INTO {collection} (id, data) VALUES ($1, $2) RETURNING id"
-    );
+    let query = format!("INSERT INTO {collection} (id, data) VALUES ($1, $2) RETURNING id");
     let row: (Uuid,) = sqlx::query_as(&query)
         .bind(id)
         .bind(&value)
