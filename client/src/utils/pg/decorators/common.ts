@@ -11,9 +11,16 @@ export const IS_INITIALIZED_PROPERTY = "_isinitialized";
 /** Change event method name prefix */
 export const ON_DID_CHANGE = "onDidChange";
 
-/** Get the change event property name. */
+/**
+ * Get the change event property name.
+ *
+ * @param prop property path (e.g. `field`, `inner.field`)
+ * @returns the property name for the change event
+ */
 export const getChangePropName = (prop: string) => {
-  return ON_DID_CHANGE + PgCommon.capitalize(prop);
+  return prop
+    .split(".")
+    .reduce((acc, cur) => acc + PgCommon.capitalize(cur), ON_DID_CHANGE);
 };
 
 /**

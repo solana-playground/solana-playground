@@ -2,6 +2,7 @@ import { PgCommon } from "../common";
 import {
   addInit,
   addOnDidChange,
+  getChangePropName,
   INTERNAL_STATE_PROPERTY,
   IS_INITIALIZED_PROPERTY,
   ON_DID_CHANGE,
@@ -193,18 +194,14 @@ const defineSettersRecursively = ({
 
   for (const prop in getter) {
     const currentPropNames = [...propNames, prop];
+    const currentPropPath = currentPropNames.join(".");
 
-    // Change event handlers
-    const onDidChangeEventName =
-      ON_DID_CHANGE +
-      currentPropNames.reduce(
-        (acc, cur) => acc + cur[0].toUpperCase() + cur.slice(1),
-        ""
-      );
-
-    sClass[onDidChangeEventName] ??= (cb: (value: unknown) => unknown) => {
+    // TODO: Move this functionality to `addOnDidChange` function
+    sClass[getChangePropName(currentPropPath)] ??= (
+      cb: (value: unknown) => unknown
+    ) => {
       return PgCommon.onDidChange(
-        sClass._getChangeEventName(currentPropNames.join(".")),
+        sClass._getChangeEventName(currentPropPath),
         cb,
         sClass[IS_INITIALIZED_PROPERTY] ? { value: getter[prop] } : undefined
       );
