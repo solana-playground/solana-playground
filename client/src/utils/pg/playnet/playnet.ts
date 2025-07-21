@@ -9,7 +9,7 @@ export class PgPlaynet {
   static connection: OverridableConnection | null;
 
   /** All playnet event names */
-  static events = {
+  static readonly events = {
     ON_DID_INIT: "playnetondidinit",
   };
 

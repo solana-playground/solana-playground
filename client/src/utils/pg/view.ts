@@ -41,7 +41,7 @@ export class PgView {
   static sidebar: SidebarPage<SidebarPageName>[];
 
   /** All view event names */
-  static events = {
+  static readonly events = {
     MAIN_PRIMARY_STATIC: "viewmainprimarystatic",
     MAIN_SECONDARY_HEIGHT_SET: "viewmainsecondaryheightset",
     MAIN_SECONDARY_FOCUS: "viewmainsecondaryfocus",

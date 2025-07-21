@@ -32,7 +32,7 @@ export class PgTheme {
   private static readonly _FONT_KEY = "font";
 
   /** Theme event names */
-  static events = {
+  static readonly events = {
     THEME_SET: "themeset",
   };
 

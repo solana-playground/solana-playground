@@ -26,10 +26,10 @@ export class PgExplorer {
   private static _initializedWorkspaceName: string | null = null;
 
   /** `indexedDB` file system */
-  static fs = PgFs;
+  static readonly fs = PgFs;
 
   /** Explorer errors */
-  static errors = {
+  static readonly errors = {
     ALREADY_EXISTS: "Already exists",
     INVALID_NAME: "Invalid name",
     TYPE_MISMATCH: "Types don't match",
@@ -38,7 +38,7 @@ export class PgExplorer {
   };
 
   /** Explorer event names */
-  static events = {
+  static readonly events = {
     ON_DID_INIT: "explorerondidinit",
     ON_DID_CREATE_ITEM: "explorerondidcreateitem",
     ON_DID_RENAME_ITEM: "explorerondidrenameitem",

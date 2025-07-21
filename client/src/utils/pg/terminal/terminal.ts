@@ -18,7 +18,7 @@ import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
 
 export class PgTerminal {
   /** All terminal event names */
-  static events = {
+  static readonly events = {
     STATIC: "terminalstatic",
   };
 

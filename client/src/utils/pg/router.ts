@@ -31,14 +31,14 @@ type PathParameter<T extends string = string> = {
 };
 
 export class PgRouter {
-  /** URL information about the page */
-  static location = window.location;
-
   /** All routes */
   static all: Route<RoutePath>[];
 
+  /** URL information about the page */
+  static readonly location = window.location;
+
   /** All router event names */
-  static events = {
+  static readonly events = {
     NAVIGATE: "routernavigate",
     ON_DID_CHANGE_PATH: "routerondidchangepath",
     ON_DID_CHANGE_HASH: "routerondidchangehash",

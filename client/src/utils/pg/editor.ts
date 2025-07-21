@@ -2,7 +2,7 @@ import { PgCommon } from "./common";
 
 export class PgEditor {
   /** All editor event names */
-  static events = {
+  static readonly events = {
     FOCUS: "editorfocus",
     FORMAT: "editorformat",
   };
