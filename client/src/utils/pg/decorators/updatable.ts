@@ -1,10 +1,7 @@
-import { PgCommon } from "../common";
 import {
   addInit,
   addOnDidChange,
-  getChangePropName,
   INTERNAL_STATE_PROPERTY,
-  IS_INITIALIZED_PROPERTY,
   ON_DID_CHANGE,
 } from "./common";
 import type {
@@ -57,7 +54,7 @@ export function updatable<T>(params: {
 }) {
   return (sClass: any) => {
     // Add `onDidChange` methods
-    addOnDidChange(sClass, params.defaultState);
+    addOnDidChange(sClass, params.defaultState, params.recursive);
 
     // Add `init` method
     addInit(sClass, async () => {
@@ -193,27 +190,13 @@ const defineSettersRecursively = ({
   });
 
   for (const prop in getter) {
-    const currentPropNames = [...propNames, prop];
-    const currentPropPath = currentPropNames.join(".");
-
-    // TODO: Move this functionality to `addOnDidChange` function
-    sClass[getChangePropName(currentPropPath)] ??= (
-      cb: (value: unknown) => unknown
-    ) => {
-      return PgCommon.onDidChange(
-        sClass._getChangeEventName(currentPropPath),
-        cb,
-        sClass[IS_INITIALIZED_PROPERTY] ? { value: getter[prop] } : undefined
-      );
-    };
-
     // Recursively update
     if (typeof getter[prop] === "object" && getter[prop] !== null) {
       getter[prop] = defineSettersRecursively({
         sClass,
         getter: getter[prop],
         internal: internal[prop],
-        propNames: currentPropNames,
+        propNames: [...propNames, prop],
       });
     } else {
       // Trigger the setter

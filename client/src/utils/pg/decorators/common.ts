@@ -6,7 +6,7 @@ import type { Disposable, SyncOrAsync } from "../types";
 export const INTERNAL_STATE_PROPERTY = "_state";
 
 /** The property name for keeping track of whether the class has been initialized */
-export const IS_INITIALIZED_PROPERTY = "_isinitialized";
+const IS_INITIALIZED_PROPERTY = "_isinitialized";
 
 /** Change event method name prefix */
 export const ON_DID_CHANGE = "onDidChange";
@@ -60,10 +60,12 @@ export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
  *
  * @param sClass static class
  * @param state default state
+ * @param recursive whether to recursively add `onDidChange` methods
  */
 export const addOnDidChange = (
   sClass: any,
-  state: { [key: string]: unknown }
+  state: { [key: string]: unknown },
+  recursive?: boolean
 ) => {
   // Main change event
   (sClass as OnDidChangeDefault<unknown>).onDidChange = (
@@ -89,6 +91,35 @@ export const addOnDidChange = (
         sClass[IS_INITIALIZED_PROPERTY] ? { value: sClass[prop] } : undefined
       );
     };
+  }
+
+  // Recursive property change events
+  if (recursive) {
+    const addOnDidChangeProps = (props: string[] = []) => {
+      const value = props.length ? PgCommon.getProperty(state, props) : state;
+      for (const prop in value) {
+        const currentProps = [...props, prop];
+        const currentPropPath = currentProps.join(".");
+        sClass[getChangePropName(currentPropPath)] = (
+          cb: (value: unknown) => unknown
+        ) => {
+          return PgCommon.onDidChange(
+            sClass._getChangeEventName(currentPropPath),
+            cb,
+            sClass[IS_INITIALIZED_PROPERTY]
+              ? { value: PgCommon.getProperty(sClass, currentPropPath) }
+              : undefined
+          );
+        };
+
+        const value = PgCommon.getProperty(state, currentPropPath);
+        if (typeof value === "object" && value !== null) {
+          addOnDidChangeProps(currentProps);
+        }
+      }
+    };
+
+    addOnDidChangeProps();
   }
 
   // Get custom event name
