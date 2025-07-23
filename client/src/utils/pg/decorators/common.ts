@@ -96,7 +96,7 @@ export const addOnDidChange = (
   // Recursive property change events
   if (recursive) {
     const addOnDidChangeProps = (props: string[] = []) => {
-      const value = props.length ? PgCommon.getProperty(state, props) : state;
+      const value = props.length ? PgCommon.getValue(state, props) : state;
       for (const prop in value) {
         const currentProps = [...props, prop];
         const currentPropPath = currentProps.join(".");
@@ -107,12 +107,12 @@ export const addOnDidChange = (
             sClass._getChangeEventName(currentPropPath),
             cb,
             sClass[IS_INITIALIZED_PROPERTY]
-              ? { value: PgCommon.getProperty(sClass, currentPropPath) }
+              ? { value: PgCommon.getValue(sClass, currentPropPath) }
               : undefined
           );
         };
 
-        const value = PgCommon.getProperty(state, currentPropPath);
+        const value = PgCommon.getValue(state, currentPropPath);
         if (typeof value === "object" && value !== null) {
           addOnDidChangeProps(currentProps);
         }
@@ -151,7 +151,7 @@ export const addOnDidChange = (
     if (prop) {
       PgCommon.createAndDispatchCustomEvent(
         sClass._getChangeEventName(prop),
-        PgCommon.getProperty(sClass[INTERNAL_STATE_PROPERTY], prop)
+        PgCommon.getValue(sClass[INTERNAL_STATE_PROPERTY], prop)
       );
     }
 

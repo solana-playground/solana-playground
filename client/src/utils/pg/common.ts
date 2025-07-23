@@ -413,12 +413,12 @@ export class PgCommon {
   /**
    * Access the property value from `.` seperated input.
    *
-   * @param obj object to get property from
-   * @param property `.` seperated property input
+   * @param obj object to get the property value of
+   * @param prop `.` seperated property path
    */
-  static getProperty(obj: any, property: string | string[]) {
-    if (Array.isArray(property)) property = property.join(".");
-    return property.split(".").reduce((acc, cur) => acc[cur], obj);
+  static getValue(obj: Record<string, any>, prop: string | string[]) {
+    if (Array.isArray(prop)) prop = prop.join(".");
+    return prop.split(".").reduce((acc, cur) => acc[cur], obj);
   }
 
   /**
