@@ -68,11 +68,9 @@ export const addOnDidChange = (
   recursive?: boolean
 ) => {
   // Main change event
-  (sClass as OnDidChangeDefault<unknown>).onDidChange = (
-    cb: (value: unknown) => unknown
-  ) => {
+  (sClass as OnDidChangeDefault<unknown>).onDidChange = (cb) => {
     return PgCommon.onDidChange(
-      sClass._getChangeEventName(),
+      getChangeEventName(),
       // Debounce the main change event because each property change dispatches
       // the main change event
       PgCommon.debounce(cb),
@@ -86,7 +84,7 @@ export const addOnDidChange = (
   for (const prop in state) {
     sClass[getChangePropName(prop)] = (cb: (value: unknown) => unknown) => {
       return PgCommon.onDidChange(
-        sClass._getChangeEventName(prop),
+        getChangeEventName(prop),
         cb,
         sClass[IS_INITIALIZED_PROPERTY] ? { value: sClass[prop] } : undefined
       );
@@ -104,7 +102,7 @@ export const addOnDidChange = (
           cb: (value: unknown) => unknown
         ) => {
           return PgCommon.onDidChange(
-            sClass._getChangeEventName(currentPropPath),
+            getChangeEventName(currentPropPath),
             cb,
             sClass[IS_INITIALIZED_PROPERTY]
               ? { value: PgCommon.getValue(sClass, currentPropPath) }
@@ -123,7 +121,7 @@ export const addOnDidChange = (
   }
 
   // Get custom event name
-  sClass._getChangeEventName = (prop?: string) => {
+  const getChangeEventName = (prop?: string) => {
     // `sClass.name` is minified to something like `e` in production builds
     // which cause collision with other classes and this only happens with the
     // main `onDidChange` method because the child change methods have `name`
@@ -142,7 +140,7 @@ export const addOnDidChange = (
     return "ondidchange" + sClass.name + (prop ?? "");
   };
 
-  // Dispatch change event
+  // Dispatch change event(s)
   sClass._dispatchChangeEvent = (prop?: string) => {
     // Only dispatch if the state has been initialized
     if (!sClass[IS_INITIALIZED_PROPERTY]) return;
@@ -150,14 +148,14 @@ export const addOnDidChange = (
     // Dispatch the prop update event if `prop` exists
     if (prop) {
       PgCommon.createAndDispatchCustomEvent(
-        sClass._getChangeEventName(prop),
+        getChangeEventName(prop),
         PgCommon.getValue(sClass[INTERNAL_STATE_PROPERTY], prop)
       );
     }
 
     // Always dispatch the main update event
     PgCommon.createAndDispatchCustomEvent(
-      sClass._getChangeEventName(),
+      getChangeEventName(),
       sClass[INTERNAL_STATE_PROPERTY]
     );
   };
