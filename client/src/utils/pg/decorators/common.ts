@@ -17,7 +17,8 @@ export const ON_DID_CHANGE = "onDidChange";
  * @param prop property path (e.g. `field`, `inner.field`)
  * @returns the property name for the change event
  */
-export const getChangePropName = (prop: string) => {
+export const getChangePropName = (prop: string | string[]) => {
+  if (Array.isArray(prop)) prop = prop.join(".");
   return prop
     .split(".")
     .reduce((acc, cur) => acc + PgCommon.capitalize(cur), ON_DID_CHANGE);
@@ -97,20 +98,19 @@ export const addOnDidChange = (
       const value = props.length ? PgCommon.getValue(state, props) : state;
       for (const prop in value) {
         const currentProps = [...props, prop];
-        const currentPropPath = currentProps.join(".");
-        sClass[getChangePropName(currentPropPath)] = (
+        sClass[getChangePropName(currentProps)] = (
           cb: (value: unknown) => unknown
         ) => {
           return PgCommon.onDidChange(
-            getChangeEventName(currentPropPath),
+            getChangeEventName(currentProps),
             cb,
             sClass[IS_INITIALIZED_PROPERTY]
-              ? { value: PgCommon.getValue(sClass, currentPropPath) }
+              ? { value: PgCommon.getValue(sClass, currentProps) }
               : undefined
           );
         };
 
-        const value = PgCommon.getValue(state, currentPropPath);
+        const value = PgCommon.getValue(state, currentProps);
         if (typeof value === "object" && value !== null) {
           addOnDidChangeProps(currentProps);
         }
@@ -121,7 +121,9 @@ export const addOnDidChange = (
   }
 
   // Get custom event name
-  const getChangeEventName = (prop?: string) => {
+  const getChangeEventName = (prop?: string | string[]) => {
+    if (Array.isArray(prop)) prop = prop.join(".");
+
     // `sClass.name` is minified to something like `e` in production builds
     // which cause collision with other classes and this only happens with the
     // main `onDidChange` method because the child change methods have `name`
