@@ -1,9 +1,4 @@
-import {
-  addInit,
-  addOnDidChange,
-  INTERNAL_STATE_PROPERTY,
-  ON_DID_CHANGE,
-} from "./common";
+import { addInit, addOnDidChange, PROPS } from "./common";
 import { PgCommon } from "../common";
 import type {
   Initialize,
@@ -15,12 +10,12 @@ import type { Disposable, SyncOrAsync } from "../types";
 /** Updatable decorator */
 type Update<T> = {
   /** Update state */
-  update(params: Partial<T>): void;
+  [PROPS.UPDATE]: (params: Partial<T>) => void;
 };
 
 /** Recursive `onDidChange${propertyName}` method types */
 type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in keyof U as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in keyof U as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };
@@ -98,14 +93,18 @@ export function updatable<T>(params: {
       removeExtraProperties(state, params.defaultState);
 
       // Set the initial state
-      sClass.update(state);
+      sClass[PROPS.UPDATE](state);
 
-      return sClass.onDidChange((state: T) => params.storage?.write(state));
+      // Save to storage on change.
+      //
+      // NOTE: Creating a new callback is necessary here, otherwise `this`
+      // keyword becomes unusable in `storage.write`.
+      return sClass[PROPS.ON_DID_CHANGE]((s: T) => params.storage?.write(s));
     });
 
     // Add `update` method
     if (params.recursive) {
-      (sClass as Update<T>).update = (params) => {
+      (sClass as Update<T>)[PROPS.UPDATE] = (params) => {
         for (const [prop, value] of PgCommon.entries(params)) {
           update(sClass, prop, value);
 
@@ -115,7 +114,7 @@ export function updatable<T>(params: {
         }
       };
     } else {
-      (sClass as Update<T>).update = (params) => {
+      (sClass as Update<T>)[PROPS.UPDATE] = (params) => {
         for (const entry of PgCommon.entries(params)) update(sClass, ...entry);
       };
     }
@@ -129,10 +128,10 @@ const update = <T>(sClass: any, prop: keyof T, value: Partial<T>[keyof T]) => {
   // Define getter and setter once
   if (!Object.hasOwn(sClass, prop)) {
     Object.defineProperty(sClass, prop, {
-      get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
+      get: () => sClass[PROPS.INTERNAL_STATE][prop],
       set: (value: T[keyof T]) => {
-        sClass[INTERNAL_STATE_PROPERTY][prop] = value;
-        sClass._dispatchChangeEvent(prop);
+        sClass[PROPS.INTERNAL_STATE][prop] = value;
+        sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
       },
     });
   }
@@ -146,7 +145,7 @@ const recursivelyDefineSetters = (sClass: any, propNames: string[]) => {
   const parent = PgCommon.getValue(sClass, propNames.slice(0, -1)) ?? sClass;
   const lastProp = propNames.at(-1)!;
   parent[lastProp] = new Proxy(
-    PgCommon.getValue(sClass[INTERNAL_STATE_PROPERTY], propNames),
+    PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], propNames),
     {
       set(target: any, prop: string, value: any) {
         target[prop] = value;
@@ -171,7 +170,7 @@ const recursivelyDefineSetters = (sClass: any, propNames: string[]) => {
             return acc;
           }, [] as string[])
           .reverse()
-          .forEach(sClass._dispatchChangeEvent);
+          .forEach(sClass[PROPS.DISPATCH_CHANGE_EVENT]);
 
         return true;
       },

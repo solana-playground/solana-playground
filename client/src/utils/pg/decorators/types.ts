@@ -1,24 +1,26 @@
-import type { ON_DID_CHANGE } from "./common";
+import type { PROPS } from "./common";
 import type { Disposable, SyncOrAsync } from "../types";
 
 /** `init` prop */
 export type Initialize = {
-  /** Initializer that returns a disposable */
-  init(): SyncOrAsync<Disposable>;
+  /** Initialize the decorator functionality */
+  [PROPS.INIT]: () => SyncOrAsync<Disposable>;
 };
 
 /** Default `onDidChange` type */
 export type OnDidChangeDefault<T> = {
   /**
+   * The main on change handler.
+   *
    * @param cb callback function to run after the change
    * @returns a dispose function to clear the event
    */
-  onDidChange(cb: (value: T) => void): Disposable;
+  [PROPS.ON_DID_CHANGE]: (cb: (value: T) => void) => Disposable;
 };
 
 /** Non-recursive `onDidChange${propertyName}` method types */
 export type OnDidChangeProperty<T> = {
-  [K in keyof T as `${typeof ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in keyof T as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: T[K]) => void
   ) => Disposable;
 };
