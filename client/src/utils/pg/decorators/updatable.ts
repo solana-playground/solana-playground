@@ -40,7 +40,7 @@ type CustomStorage<T> = {
  * NOTE: Types have to be added separately as decorators don't have proper
  * type support.
  */
-export function updatable<T>(params: {
+export function updatable<T extends Record<string, any>>(params: {
   /** Default value to set */
   defaultState: Required<T>;
   /** Storage that is responsible with de/serialization */
@@ -92,8 +92,26 @@ export function updatable<T>(params: {
       };
       removeExtraProperties(state, params.defaultState);
 
-      // Set the initial state
-      sClass[PROPS.UPDATE](state);
+      // Set the internal state
+      sClass[PROPS.INTERNAL_STATE] = state;
+
+      // Define getters and setters
+      for (const [prop, value] of PgCommon.entries(state)) {
+        // Define getters and setters once
+        if (!Object.hasOwn(sClass, prop)) {
+          Object.defineProperty(sClass, prop, {
+            get: () => sClass[PROPS.INTERNAL_STATE][prop],
+            set: (value: T[keyof T]) => {
+              sClass[PROPS.INTERNAL_STATE][prop] = value;
+              sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
+            },
+          });
+        }
+
+        if (params.recursive && typeof value === "object" && value !== null) {
+          recursivelyDefineSetters(sClass, [prop]);
+        }
+      }
 
       // Save to storage on change.
       //
@@ -103,49 +121,20 @@ export function updatable<T>(params: {
     });
 
     // Add `update` method
-    if (params.recursive) {
-      (sClass as Update<T>)[PROPS.UPDATE] = (params) => {
-        for (const [prop, value] of PgCommon.entries(params)) {
-          update(sClass, prop, value);
-
-          if (typeof value === "object" && value !== null) {
-            recursivelyDefineSetters(sClass, [prop]);
-          }
-        }
-      };
-    } else {
-      (sClass as Update<T>)[PROPS.UPDATE] = (params) => {
-        for (const entry of PgCommon.entries(params)) update(sClass, ...entry);
-      };
-    }
+    (sClass as Update<T>)[PROPS.UPDATE] = (params) => {
+      for (const [prop, value] of Object.entries(params)) {
+        if (value !== undefined) sClass[prop] = value;
+      }
+    };
   };
 }
 
-/** Update property values. */
-const update = <T>(sClass: any, prop: keyof T, value: Partial<T>[keyof T]) => {
-  if (value === undefined) return;
-
-  // Define getter and setter once
-  if (!Object.hasOwn(sClass, prop)) {
-    Object.defineProperty(sClass, prop, {
-      get: () => sClass[PROPS.INTERNAL_STATE][prop],
-      set: (value: T[keyof T]) => {
-        sClass[PROPS.INTERNAL_STATE][prop] = value;
-        sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
-      },
-    });
-  }
-
-  // Trigger the setter
-  sClass[prop] = value;
-};
-
 /** Define proxy setters for properties recursively. */
-const recursivelyDefineSetters = (sClass: any, propNames: string[]) => {
-  const parent = PgCommon.getValue(sClass, propNames.slice(0, -1)) ?? sClass;
-  const lastProp = propNames.at(-1)!;
+const recursivelyDefineSetters = (sClass: any, props: string[]) => {
+  const parent = PgCommon.getValue(sClass, props.slice(0, -1)) ?? sClass;
+  const lastProp = props.at(-1)!;
   parent[lastProp] = new Proxy(
-    PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], propNames),
+    PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], props),
     {
       set(target: any, prop: string, value: any) {
         target[prop] = value;
@@ -163,10 +152,10 @@ const recursivelyDefineSetters = (sClass: any, propNames: string[]) => {
         // 1. [nested, number].reduce
         // 2. [nested, nested.number].reverse
         // 3. [nested.number, nested].forEach
-        propNames
+        props
           .concat([prop])
           .reduce((acc, cur, i) => {
-            acc.push(propNames.slice(0, i).concat([cur]).join("."));
+            acc.push(props.slice(0, i).concat([cur]).join("."));
             return acc;
           }, [] as string[])
           .reverse()
@@ -181,7 +170,7 @@ const recursivelyDefineSetters = (sClass: any, propNames: string[]) => {
   for (const [prop, value] of PgCommon.entries(current)) {
     if (typeof value === "object" && value !== null) {
       // Recursively update
-      recursivelyDefineSetters(sClass, [...propNames, prop]);
+      recursivelyDefineSetters(sClass, [...props, prop]);
     } else {
       // Trigger the setter via self-assign
       current[prop] = value;
