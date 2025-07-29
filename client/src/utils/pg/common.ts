@@ -825,7 +825,14 @@ export class PgCommon {
    * @returns the string with its first letter uppercased
    */
   static capitalize(str: string) {
-    return str[0].toUpperCase() + str.slice(1);
+    switch (str.length) {
+      case 0:
+        return str;
+      case 1:
+        return str.toUpperCase();
+      default:
+        return str[0].toUpperCase() + str.slice(1);
+    }
   }
 
   /**
