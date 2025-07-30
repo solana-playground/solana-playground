@@ -96,8 +96,7 @@ export function updatable<T extends Record<string, any>>(params: {
       sClass[PROPS.INTERNAL_STATE] = state;
 
       // Define getters and setters
-      for (const [prop, value] of PgCommon.entries(state)) {
-        // Define getters and setters once
+      for (const prop in state) {
         if (!Object.hasOwn(sClass, prop)) {
           Object.defineProperty(sClass, prop, {
             get: () => sClass[PROPS.INTERNAL_STATE][prop],
@@ -108,9 +107,7 @@ export function updatable<T extends Record<string, any>>(params: {
           });
         }
 
-        if (params.recursive && typeof value === "object" && value !== null) {
-          recursivelyDefineSetters(sClass, [prop]);
-        }
+        if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
       }
 
       // Save to storage on change.
@@ -131,6 +128,9 @@ export function updatable<T extends Record<string, any>>(params: {
 
 /** Define proxy setters for properties recursively. */
 const recursivelyDefineSetters = (sClass: any, props: string[]) => {
+  const internalValue = PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], props);
+  if (typeof internalValue !== "object" || internalValue === null) return;
+
   const parent = PgCommon.getValue(sClass, props.slice(0, -1)) ?? sClass;
   const lastProp = props.at(-1)!;
   parent[lastProp] = new Proxy(
@@ -166,15 +166,8 @@ const recursivelyDefineSetters = (sClass: any, props: string[]) => {
     }
   );
 
-  const current = parent[lastProp];
-  for (const [prop, value] of PgCommon.entries(current)) {
-    if (typeof value === "object" && value !== null) {
-      // Recursively update
-      recursivelyDefineSetters(sClass, [...props, prop]);
-    } else {
-      // Trigger the setter via self-assign
-      current[prop] = value;
-    }
+  for (const prop in parent[lastProp]) {
+    recursivelyDefineSetters(sClass, [...props, prop]);
   }
 };
 
