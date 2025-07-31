@@ -1,14 +1,14 @@
 import { addInit, addOnDidChange, PROPS } from "./common";
 import { PgCommon } from "../common";
 import type {
-  Initialize,
+  Initable,
   OnDidChangeDefault,
   OnDidChangeProperty,
 } from "./types";
 import type { Disposable, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
-type Update<T> = {
+type Updatable<T> = {
   /** Update state */
   [PROPS.UPDATE]: (params: Partial<T>) => void;
 };
@@ -118,7 +118,7 @@ export function updatable<T extends Record<string, any>>(params: {
     });
 
     // Add `update` method
-    (sClass as Update<T>)[PROPS.UPDATE] = (params) => {
+    (sClass as Updatable<T>)[PROPS.UPDATE] = (params) => {
       for (const [prop, value] of Object.entries(params)) {
         if (value !== undefined) sClass[prop] = value;
       }
@@ -249,8 +249,8 @@ export const declareUpdatable = <C, T, R>(
 ) => {
   return sClass as unknown as Omit<C, "prototype"> &
     T &
-    Initialize &
-    Update<T> &
+    Initable &
+    Updatable<T> &
     OnDidChangeDefault<T> &
     (R extends boolean
       ? OnDidChangePropertyRecursive<T>

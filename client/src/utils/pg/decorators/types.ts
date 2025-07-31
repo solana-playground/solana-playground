@@ -1,8 +1,8 @@
 import type { PROPS } from "./common";
 import type { Disposable, SyncOrAsync } from "../types";
 
-/** `init` prop */
-export type Initialize = {
+/** Initable decorator */
+export type Initable = {
   /** Initialize the decorator functionality */
   [PROPS.INIT]: () => SyncOrAsync<Disposable>;
 };

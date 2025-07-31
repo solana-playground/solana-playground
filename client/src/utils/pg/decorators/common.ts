@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import type { Initialize, OnDidChangeProperty } from "./types";
+import type { Initable, OnDidChangeProperty } from "./types";
 import type { Disposable, SyncOrAsync } from "../types";
 
 /** Property names */
@@ -28,7 +28,7 @@ export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
   sClass[PROPS.INTERNAL_STATE] ??= {};
 
   const previousInit = sClass.init;
-  (sClass as Initialize)[PROPS.INIT] = async () => {
+  (sClass as Initable)[PROPS.INIT] = async () => {
     const disposables: Disposable[] = [];
     if (previousInit) {
       const disposable = await previousInit();

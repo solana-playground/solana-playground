@@ -11,6 +11,7 @@ import { SIDEBAR } from "../../views";
 import { SETTINGS } from "../../settings";
 import {
   Disposable,
+  initAll,
   PgBlockExplorer,
   PgCommandManager,
   PgCommon,
@@ -38,18 +39,20 @@ PgTutorial.all = TUTORIALS;
 PgView.sidebar = SIDEBAR;
 PgSettings.all = SETTINGS;
 
+// All initables to initialize
+const INITABLES = [PgBlockExplorer, PgConnection, PgGlobal, PgWallet];
+
 const Global = () => {
-  useDisposable(PgGlobal.init);
+  useDisposable(() => initAll(INITABLES));
   useRouter();
-  useDisposable(PgConnection.init);
-  useDisposable(PgBlockExplorer.init); // Must be after `PgConnection` init
-  useDisposable(PgWallet.init);
   useProgramInfo();
   useTutorial();
 
   return null;
 };
 
+// TODO: Handle this functionality in `PgProgramInfo` (`updatable` decorator).
+// We should just be able to add `PgProgramInfo` to `INITABLES` and remove this.
 /** Initialize `PgProgramInfo` on explorer initialization and workspace switch. */
 const useProgramInfo = () => {
   useEffect(() => {
@@ -98,6 +101,7 @@ const useRouter = () => {
   useGetStatic(PgRouter.events.NAVIGATE, navigate);
 };
 
+// TODO: Find a way to handle this from `PgTutorial`
 /** Navigate to tutorial's route when necessary. */
 const useTutorial = () => {
   useEffect(() => {

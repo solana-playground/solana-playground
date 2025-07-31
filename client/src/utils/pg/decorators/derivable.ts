@@ -1,7 +1,7 @@
 import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
 import { PgCommon } from "../common";
 import type {
-  Initialize,
+  Initable,
   OnDidChangeDefault,
   OnDidChangeProperty,
 } from "./types";
@@ -94,7 +94,7 @@ export const createDerivable = <T, R>(derivable: Derivable<T, R>) => derivable;
  */
 export const declareDerivable = <C, T>(sClass: C, derive: () => T) => {
   return sClass as Omit<C, "prototype"> &
-    Initialize &
+    Initable &
     DerivableState<T> &
     OnDidChangeDefault<DerivableState<T>> &
     OnDidChangeProperty<DerivableState<T>>;
