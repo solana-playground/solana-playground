@@ -422,6 +422,24 @@ export class PgCommon {
   }
 
   /**
+   * Set object property values from `.` separated input.
+   *
+   * @param obj object
+   * @param prop `.` seperated property path
+   * @param value new value to set
+   */
+  static setValue(
+    obj: Record<string, any>,
+    prop: string | string[],
+    value: any
+  ) {
+    const fields = PgCommon.toArray(prop);
+    const parentObj = fields.slice(0, -1).reduce((acc, cur) => acc[cur], obj);
+    const lastField = fields.at(-1)!;
+    parentObj[lastField] = value;
+  }
+
+  /**
    * Get the keys of an object with better types rather than `string[]`.
    *
    * @param obj object

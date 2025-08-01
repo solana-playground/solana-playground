@@ -131,44 +131,38 @@ const recursivelyDefineSetters = (sClass: any, props: string[]) => {
   const internalValue = PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], props);
   if (typeof internalValue !== "object" || internalValue === null) return;
 
-  const parent = PgCommon.getValue(sClass, props.slice(0, -1)) ?? sClass;
-  const lastProp = props.at(-1)!;
-  parent[lastProp] = new Proxy(
-    PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], props),
-    {
-      set(target: any, prop: string, value: any) {
-        target[prop] = value;
+  const proxy = new Proxy(internalValue, {
+    set(target: any, prop: string, value: any) {
+      target[prop] = value;
 
-        // Setting a new value should dispatch a change event for all of the
-        // parent objects. For example:
-        //
-        // ```
-        // const obj = { nested: { number: 1 } };
-        // obj.nested.number = 2;
-        // ```
-        //
-        // Should trigger `onDidChangeNestedNumber`, `onDidChangeNested`, `onDidChange`.
+      // Setting a new value should dispatch a change event for all of the
+      // parent objects. For example:
+      //
+      // ```
+      // const obj = { nested: { number: 1 } };
+      // obj.nested.number = 2;
+      // ```
+      //
+      // Should trigger `onDidChangeNestedNumber`, `onDidChangeNested`, `onDidChange`.
 
-        // 1. [nested, number].reduce
-        // 2. [nested, nested.number].reverse
-        // 3. [nested.number, nested].forEach
-        props
-          .concat([prop])
-          .reduce((acc, cur, i) => {
-            acc.push(props.slice(0, i).concat([cur]).join("."));
-            return acc;
-          }, [] as string[])
-          .reverse()
-          .forEach(sClass[PROPS.DISPATCH_CHANGE_EVENT]);
+      // 1. [nested, number].reduce
+      // 2. [nested, nested.number].reverse
+      // 3. [nested.number, nested].forEach
+      props
+        .concat([prop])
+        .reduce((acc, cur, i) => {
+          acc.push(props.slice(0, i).concat([cur]).join("."));
+          return acc;
+        }, [] as string[])
+        .reverse()
+        .forEach(sClass[PROPS.DISPATCH_CHANGE_EVENT]);
 
-        return true;
-      },
-    }
-  );
+      return true;
+    },
+  });
+  PgCommon.setValue(sClass, props, proxy);
 
-  for (const prop in parent[lastProp]) {
-    recursivelyDefineSetters(sClass, [...props, prop]);
-  }
+  for (const prop in proxy) recursivelyDefineSetters(sClass, [...props, prop]);
 };
 
 /**
