@@ -127,8 +127,11 @@ export function updatable<T extends Record<string, any>>(params: {
 }
 
 /** Define proxy setters for properties recursively. */
-const recursivelyDefineSetters = (sClass: any, props: string[]) => {
-  const internalValue = PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], props);
+const recursivelyDefineSetters = (sClass: any, accessor: string[]) => {
+  const internalValue = PgCommon.getValue(
+    sClass[PROPS.INTERNAL_STATE],
+    accessor
+  );
   if (typeof internalValue !== "object" || internalValue === null) return;
 
   const proxy = new Proxy(internalValue, {
@@ -145,24 +148,27 @@ const recursivelyDefineSetters = (sClass: any, props: string[]) => {
       //
       // Should trigger `onDidChangeNestedNumber`, `onDidChangeNested`, `onDidChange`.
 
-      // 1. [nested, number].reduce
-      // 2. [nested, nested.number].reverse
-      // 3. [nested.number, nested].forEach
-      props
+      // 1. [nested].concat
+      // 2. [nested, number].reduce
+      // 3. [nested, nested.number].reverse
+      // 4. [nested.number, nested].forEach
+      accessor
         .concat([prop])
         .reduce((acc, cur, i) => {
-          acc.push(props.slice(0, i).concat([cur]).join("."));
+          acc.push(accessor.slice(0, i).concat([cur]));
           return acc;
-        }, [] as string[])
+        }, [] as string[][])
         .reverse()
         .forEach(sClass[PROPS.DISPATCH_CHANGE_EVENT]);
 
       return true;
     },
   });
-  PgCommon.setValue(sClass, props, proxy);
+  PgCommon.setValue(sClass, accessor, proxy);
 
-  for (const prop in proxy) recursivelyDefineSetters(sClass, [...props, prop]);
+  for (const prop in proxy) {
+    recursivelyDefineSetters(sClass, [...accessor, prop]);
+  }
 };
 
 /**

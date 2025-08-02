@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import type { Initable, OnDidChangeProperty } from "./types";
-import type { Disposable, SyncOrAsync } from "../types";
+import type { Accessor, Disposable, SyncOrAsync } from "../types";
 
 /** Property names */
 export const PROPS = {
@@ -93,23 +93,25 @@ export const addOnDidChange = (
 
   // Recursive property change events
   if (recursive) {
-    const addOnDidChangeProps = (props: string[] = []) => {
-      const value = props.length ? PgCommon.getValue(state, props) : state;
+    const addOnDidChangeProps = (accessor: string[] = []) => {
+      const value = accessor.length
+        ? PgCommon.getValue(state, accessor)
+        : state;
       for (const prop in value) {
-        const currentProp = [...props, prop];
-        (sClass as OnDidChange)[getChangePropName(currentProp)] = (cb) => {
+        const currentAccessor = [...accessor, prop];
+        (sClass as OnDidChange)[getChangePropName(currentAccessor)] = (cb) => {
           return PgCommon.onDidChange(
-            getChangeEventName(currentProp),
+            getChangeEventName(currentAccessor),
             cb,
             sClass[PROPS.IS_INITIALIZED]
-              ? { value: PgCommon.getValue(sClass, currentProp) }
+              ? { value: PgCommon.getValue(sClass, currentAccessor) }
               : undefined
           );
         };
 
-        const value = PgCommon.getValue(state, currentProp);
+        const value = PgCommon.getValue(state, currentAccessor);
         if (typeof value === "object" && value !== null) {
-          addOnDidChangeProps(currentProp);
+          addOnDidChangeProps(currentAccessor);
         }
       }
     };
@@ -118,9 +120,7 @@ export const addOnDidChange = (
   }
 
   // Get custom event name
-  const getChangeEventName = (prop?: string | string[]) => {
-    if (Array.isArray(prop)) prop = prop.join(".");
-
+  const getChangeEventName = (accessor: Accessor = []) => {
     // `sClass.name` is minified to something like `e` in production builds
     // which cause collision with other classes and this only happens with the
     // main `onDidChange` method because the child change methods have `name`
@@ -136,19 +136,23 @@ export const addOnDidChange = (
     // to include only the class/function names(decorator classes can be transpiled
     // to either classes or functions depending on the browser version) that start
     // with "_Pg".
-    return "ondidchange" + sClass.name + (prop ?? "");
+    return (
+      "ondidchange" +
+      sClass.name +
+      PgCommon.normalizeAccessor(accessor).join(".")
+    );
   };
 
   // Dispatch change event(s)
-  sClass[PROPS.DISPATCH_CHANGE_EVENT] = (prop?: string) => {
+  sClass[PROPS.DISPATCH_CHANGE_EVENT] = (accessor?: Accessor) => {
     // Only dispatch if the state has been initialized
     if (!sClass[PROPS.IS_INITIALIZED]) return;
 
     // Dispatch the prop update event if `prop` exists
-    if (prop) {
+    if (accessor) {
       PgCommon.createAndDispatchCustomEvent(
-        getChangeEventName(prop),
-        PgCommon.getValue(sClass, prop)
+        getChangeEventName(accessor),
+        PgCommon.getValue(sClass, accessor)
       );
     }
 
@@ -163,18 +167,14 @@ export const addOnDidChange = (
 /**
  * Get the change event property name.
  *
- * @param prop property path (e.g. `field`, `inner.field`)
+ * @param accessor property accessor (e.g. `field`, `inner.field`)
  * @returns the property name for the change event
  */
 export const getChangePropName = <T extends Record<string, unknown>>(
-  prop?: string | string[]
+  accessor: Accessor = []
 ) => {
-  if (Array.isArray(prop)) prop = prop.join(".");
-
-  return (prop ?? "")
-    .split(".")
-    .reduce(
-      (acc, cur) => acc + PgCommon.capitalize(cur),
-      PROPS.ON_DID_CHANGE
-    ) as keyof OnDidChangeProperty<T>;
+  return PgCommon.normalizeAccessor(accessor).reduce(
+    (acc, cur) => acc + PgCommon.capitalize(cur),
+    PROPS.ON_DID_CHANGE
+  ) as keyof OnDidChangeProperty<T>;
 };

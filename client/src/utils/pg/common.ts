@@ -8,6 +8,7 @@ import type {
   Arrayable,
   ValueOf,
   OrString,
+  Accessor,
 } from "./types";
 
 export class PgCommon {
@@ -414,29 +415,39 @@ export class PgCommon {
    * Access the property value from `.` seperated input.
    *
    * @param obj object to get the property value of
-   * @param prop `.` seperated property path
+   * @param accessor property accessor
    */
-  static getValue(obj: Record<string, any>, prop: string | string[]) {
-    if (Array.isArray(prop)) prop = prop.join(".");
-    return prop.split(".").reduce((acc, cur) => acc[cur], obj);
+  static getValue(obj: Record<string, any>, accessor: Accessor) {
+    return PgCommon.normalizeAccessor(accessor).reduce(
+      (acc, cur) => acc[cur],
+      obj
+    );
   }
 
   /**
    * Set object property values from `.` separated input.
    *
    * @param obj object
-   * @param prop `.` seperated property path
+   * @param accessor property accessor
    * @param value new value to set
    */
-  static setValue(
-    obj: Record<string, any>,
-    prop: string | string[],
-    value: any
-  ) {
-    const fields = PgCommon.toArray(prop);
-    const parentObj = fields.slice(0, -1).reduce((acc, cur) => acc[cur], obj);
-    const lastField = fields.at(-1)!;
-    parentObj[lastField] = value;
+  static setValue(obj: Record<string, any>, accessor: Accessor, value: any) {
+    accessor = PgCommon.normalizeAccessor(accessor);
+    if (!accessor.length) throw new Error("Accessor cannot be empty empty");
+
+    const parent = PgCommon.getValue(obj, accessor.slice(0, -1));
+    const lastProp = accessor.at(-1)!;
+    parent[lastProp] = value;
+  }
+
+  /**
+   * Normalize the accessor i.e. convert the `string` inputs to an array.
+   *
+   * @param accessor property accessor
+   * @returns the normalized accessor (array)
+   */
+  static normalizeAccessor(accessor: Accessor) {
+    return typeof accessor === "string" ? accessor.split(".") : accessor;
   }
 
   /**
