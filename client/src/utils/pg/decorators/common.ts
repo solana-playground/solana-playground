@@ -12,6 +12,8 @@ export const PROPS = {
   INIT: "init",
   /** Update method name */
   UPDATE: "update",
+  /** Refresh state method name */
+  REFRESH: "refresh",
   /** Change event method name (or prefix) */
   ON_DID_CHANGE: "onDidChange",
   /** Dispatch change event(s) method name */
@@ -24,7 +26,11 @@ export const PROPS = {
  * @param sClass static class
  * @param init init method to implement
  */
-export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
+export const addInit = (
+  sClass: any,
+  init: () => SyncOrAsync<Disposable>,
+  onDidInit?: () => SyncOrAsync<Disposable>
+) => {
   sClass[PROPS.INTERNAL_STATE] ??= {};
 
   const previousInit = sClass.init;
@@ -38,7 +44,13 @@ export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
     const disposable = await init();
     disposables.push(disposable);
 
+    if (onDidInit && !sClass[PROPS.IS_INITIALIZED]) {
+      const disposable = await onDidInit();
+      disposables.push(disposable);
+    }
+
     sClass[PROPS.IS_INITIALIZED] = true;
+
     disposables.push(
       { dispose: () => (sClass[PROPS.IS_INITIALIZED] = false) },
       { dispose: () => (sClass[PROPS.INTERNAL_STATE] = {}) }

@@ -11,6 +11,8 @@ import type { Disposable, SyncOrAsync } from "../types";
 type Updatable<T> = {
   /** Update state */
   [PROPS.UPDATE]: (params: Partial<T>) => void;
+  /** Refresh state */
+  [PROPS.REFRESH]: () => SyncOrAsync<void>;
 };
 
 /** Recursive `onDidChange${propertyName}` method types */
@@ -47,18 +49,58 @@ export function updatable<T extends Record<string, any>>(params: {
   storage?: CustomStorage<T>;
   /** Whether to add proxy setters recursively */
   recursive?: boolean;
+  /** Callback to run after initialization */
+  onDidInit?: () => SyncOrAsync<Disposable>;
 }) {
   return (sClass: any) => {
     // Add `onDidChange` methods
     addOnDidChange(sClass, params.defaultState, params.recursive);
 
     // Add `init` method
-    addInit(sClass, async () => {
+    addInit(
+      sClass,
+      async () => {
+        // Set the internal state
+        await (sClass as Updatable<T>)[PROPS.REFRESH]();
+
+        // Define getters and setters
+        for (const prop in sClass[PROPS.INTERNAL_STATE]) {
+          if (!Object.hasOwn(sClass, prop)) {
+            Object.defineProperty(sClass, prop, {
+              get: () => sClass[PROPS.INTERNAL_STATE][prop],
+              set: (value: T[keyof T]) => {
+                sClass[PROPS.INTERNAL_STATE][prop] = value;
+                sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
+              },
+            });
+          }
+
+          if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
+        }
+
+        // Save to storage on change.
+        //
+        // NOTE: Creating a new callback is necessary here, otherwise `this`
+        // keyword becomes unusable in `storage.write`.
+        return sClass[PROPS.ON_DID_CHANGE]((s: T) => params.storage?.write(s));
+      },
+      params.onDidInit
+    );
+
+    // Add `update` method
+    (sClass as Updatable<T>)[PROPS.UPDATE] = (params) => {
+      for (const [prop, value] of Object.entries(params)) {
+        if (value !== undefined) sClass[prop] = value;
+      }
+    };
+
+    // Add `refresh` method
+    (sClass as Updatable<T>)[PROPS.REFRESH] = async () => {
       const state: T = params.storage
         ? await params.storage.read()
         : params.defaultState;
 
-      // Set the default if any prop is missing(recursively)
+      // Set the default if any prop is missing (recursively)
       const setMissingDefaults = (state: any, defaultState: any) => {
         if (Array.isArray(state)) return;
 
@@ -75,7 +117,7 @@ export function updatable<T extends Record<string, any>>(params: {
       };
       setMissingDefaults(state, params.defaultState);
 
-      // Remove extra properties if a prop was removed(recursively)
+      // Remove extra properties if a prop was removed (recursively)
       const removeExtraProperties = (state: any, defaultState: any) => {
         if (Array.isArray(state)) return;
 
@@ -92,36 +134,7 @@ export function updatable<T extends Record<string, any>>(params: {
       };
       removeExtraProperties(state, params.defaultState);
 
-      // Set the internal state
       sClass[PROPS.INTERNAL_STATE] = state;
-
-      // Define getters and setters
-      for (const prop in state) {
-        if (!Object.hasOwn(sClass, prop)) {
-          Object.defineProperty(sClass, prop, {
-            get: () => sClass[PROPS.INTERNAL_STATE][prop],
-            set: (value: T[keyof T]) => {
-              sClass[PROPS.INTERNAL_STATE][prop] = value;
-              sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
-            },
-          });
-        }
-
-        if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
-      }
-
-      // Save to storage on change.
-      //
-      // NOTE: Creating a new callback is necessary here, otherwise `this`
-      // keyword becomes unusable in `storage.write`.
-      return sClass[PROPS.ON_DID_CHANGE]((s: T) => params.storage?.write(s));
-    });
-
-    // Add `update` method
-    (sClass as Updatable<T>)[PROPS.UPDATE] = (params) => {
-      for (const [prop, value] of Object.entries(params)) {
-        if (value !== undefined) sClass[prop] = value;
-      }
     };
   };
 }
