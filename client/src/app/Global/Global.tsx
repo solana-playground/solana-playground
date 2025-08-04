@@ -10,7 +10,6 @@ import { TUTORIALS } from "../../tutorials";
 import { SIDEBAR } from "../../views";
 import { SETTINGS } from "../../settings";
 import {
-  Disposable,
   initAll,
   PgBlockExplorer,
   PgCommandManager,
@@ -40,33 +39,20 @@ PgView.sidebar = SIDEBAR;
 PgSettings.all = SETTINGS;
 
 // All initables to initialize
-const INITABLES = [PgBlockExplorer, PgConnection, PgGlobal, PgWallet];
+const INITABLES = [
+  PgBlockExplorer,
+  PgConnection,
+  PgGlobal,
+  PgProgramInfo,
+  PgWallet,
+];
 
 const Global = () => {
   useDisposable(() => initAll(INITABLES));
   useRouter();
-  useProgramInfo();
   useTutorial();
 
   return null;
-};
-
-// TODO: Handle this functionality in `PgProgramInfo` (`updatable` decorator).
-// We should just be able to add `PgProgramInfo` to `INITABLES` and remove this.
-/** Initialize `PgProgramInfo` on explorer initialization and workspace switch. */
-const useProgramInfo = () => {
-  useEffect(() => {
-    let programInfo: Disposable | undefined;
-    const batch = PgCommon.batchChanges(async () => {
-      programInfo?.dispose();
-      programInfo = await PgProgramInfo.init();
-    }, [PgExplorer.onDidInit, PgExplorer.onDidSwitchWorkspace]);
-
-    return () => {
-      programInfo?.dispose();
-      batch.dispose();
-    };
-  }, []);
 };
 
 /** Handle URL routing. */
