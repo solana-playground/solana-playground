@@ -9,9 +9,9 @@ import type { Disposable, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
 type Updatable<T> = {
-  /** Update state */
+  /** Update state. */
   [PROPS.UPDATE]: (params: Partial<T>) => void;
-  /** Refresh state */
+  /** Refresh state (from storage if it exists). */
   [PROPS.REFRESH]: () => SyncOrAsync<void>;
 };
 
@@ -61,19 +61,19 @@ export function updatable<T extends Record<string, any>>(params: {
       sClass,
       async () => {
         // Set the internal state
-        await (sClass as Updatable<T>)[PROPS.REFRESH]();
+        await sClass[PROPS.REFRESH]();
 
         // Define getters and setters
         for (const prop in sClass[PROPS.INTERNAL_STATE]) {
-          if (!Object.hasOwn(sClass, prop)) {
-            Object.defineProperty(sClass, prop, {
-              get: () => sClass[PROPS.INTERNAL_STATE][prop],
-              set: (value: T[keyof T]) => {
-                sClass[PROPS.INTERNAL_STATE][prop] = value;
-                sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
-              },
-            });
-          }
+          if (Object.hasOwn(sClass, prop)) continue;
+
+          Object.defineProperty(sClass, prop, {
+            get: () => sClass[PROPS.INTERNAL_STATE][prop],
+            set: (value: T[keyof T]) => {
+              sClass[PROPS.INTERNAL_STATE][prop] = value;
+              sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
+            },
+          });
 
           if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
         }
@@ -135,6 +135,30 @@ export function updatable<T extends Record<string, any>>(params: {
       removeExtraProperties(state, params.defaultState);
 
       sClass[PROPS.INTERNAL_STATE] = state;
+
+      if (sClass[PROPS.IS_INITIALIZED]) {
+        // Dispatch change events by self-assigning the innermost values, which
+        // will also trigger the change events of its parent fields (change
+        // events bubble up).
+        //
+        // NOTE: This part assumes change events always bubble up. If we ever
+        // change it to bubble down (e.g. in `recursivelyDefineSetters`), we'd
+        // need to update this part too.
+        const selfAssignInnerFields = (state: any, accessor: string[] = []) => {
+          for (const [prop, value] of Object.entries(state)) {
+            if (
+              params.recursive &&
+              typeof value === "object" &&
+              value !== null
+            ) {
+              selfAssignInnerFields(value, [...accessor, prop]);
+            } else {
+              PgCommon.setValue(sClass, [...accessor, prop], value);
+            }
+          }
+        };
+        selfAssignInnerFields(sClass[PROPS.INTERNAL_STATE]);
+      }
     };
   };
 }
