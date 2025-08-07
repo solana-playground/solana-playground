@@ -63,6 +63,17 @@ const storage = {
   },
 };
 
+const onDidInit = () => {
+  // Navigate to tutorial's route if the current workspace is a tutorial but
+  // the user is on the default route
+  return PgCommon.batchChanges(() => {
+    if (PgRouter.location.pathname !== "/") return;
+
+    const name = PgExplorer.currentWorkspaceName;
+    if (name && PgTutorial.isWorkspaceTutorial(name)) PgTutorial.open(name);
+  }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]);
+};
+
 const derive = () => ({
   /** Tutorial page number derived from the URL path */
   page: createDerivable({
@@ -77,7 +88,9 @@ const derive = () => ({
       try {
         const { page } = PgRouter.getParamsFromPath(route.path, path);
         if (PgCommon.isInt(page)) return parseInt(page);
-      } catch {}
+      } catch (e) {
+        console.log("Error:", e);
+      }
     },
     onChange: PgRouter.onDidChangePath,
   }),
@@ -93,7 +106,7 @@ const derive = () => ({
 });
 
 @derivable(derive)
-@updatable({ defaultState, storage })
+@updatable({ defaultState, storage, onDidInit })
 class _PgTutorial {
   /** All tutorials */
   static all: TutorialData[];

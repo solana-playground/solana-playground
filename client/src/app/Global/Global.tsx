@@ -15,7 +15,6 @@ import {
   PgCommandManager,
   PgCommon,
   PgConnection,
-  PgExplorer,
   PgFramework,
   PgGlobal,
   PgLanguage,
@@ -44,13 +43,13 @@ const INITABLES = [
   PgConnection,
   PgGlobal,
   PgProgramInfo,
+  PgTutorial,
   PgWallet,
 ];
 
 const Global = () => {
   useDisposable(() => initAll(INITABLES));
   useRouter();
-  useTutorial();
 
   return null;
 };
@@ -85,24 +84,6 @@ const useRouter = () => {
   // Navigate
   const navigate = useNavigate();
   useGetStatic(PgRouter.events.NAVIGATE, navigate);
-};
-
-// TODO: Find a way to handle this from `PgTutorial`
-/** Navigate to tutorial's route when necessary. */
-const useTutorial = () => {
-  useEffect(() => {
-    const { dispose } = PgCommon.batchChanges(() => {
-      // Don't change the UI to avoid flickering if the current workspace is
-      // a tutorial but the user is on route `/`
-      if (PgRouter.location.pathname === "/") {
-        const workspaceName = PgExplorer.currentWorkspaceName;
-        if (workspaceName && PgTutorial.isWorkspaceTutorial(workspaceName)) {
-          PgTutorial.open(workspaceName);
-        }
-      }
-    }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]);
-    return dispose;
-  }, []);
 };
 
 export default Global;
