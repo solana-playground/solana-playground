@@ -1,4 +1,3 @@
-name: "solana-playground"
 services:
   server:
     depends_on:
@@ -7,15 +6,18 @@ services:
     ports:
       - 8080:8080
     environment:
-      - PG_DB_URI=mongodb://db:27017
+      - PG_DB_URI=postgresql://postgres:postgres@db:5432/solpg
 
   db:
-    image: mongo:7
+    image: postgres:16-alpine
     volumes:
-      - mongodb:/data/db
-    # Override the default command because it logs a lot and setting `logging`
-    # `driver` to `none` doesn't work
-    command: mongod --quiet --logpath /dev/null
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=solpg
+    ports:
+      - 5432:5432
 
 volumes:
-  mongodb:
+  postgres_data:
