@@ -63,7 +63,7 @@
     "xterm-addon-web-links": "^0.5.1"
   },
   "devDependencies": {
-    "@craco/craco": "^6.4.3",
+    "@craco/craco": "^6.4.5",
     "@types/bn.js": "^5.1.1",
     "@types/mocha": "^9.1.1",
     "@types/node": "^17.0.21",
