@@ -134,7 +134,10 @@ export function updatable<T extends Record<string, any>>(params: {
       };
       removeExtraProperties(state, params.defaultState);
 
-      sClass[PROPS.INTERNAL_STATE] = state;
+      // Set internal state fields individually to keep `derivable` fields
+      for (const [prop, value] of Object.entries(state)) {
+        sClass[PROPS.INTERNAL_STATE][prop] = value;
+      }
 
       if (sClass[PROPS.IS_INITIALIZED]) {
         // Dispatch change events by self-assigning the innermost values, which
@@ -157,7 +160,7 @@ export function updatable<T extends Record<string, any>>(params: {
             }
           }
         };
-        selfAssignInnerFields(sClass[PROPS.INTERNAL_STATE]);
+        selfAssignInnerFields(state);
       }
     };
   };
