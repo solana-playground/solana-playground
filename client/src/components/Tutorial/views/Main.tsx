@@ -14,12 +14,18 @@ export const Main: FC<TutorialMainComponentProps> = ({
   pageNumber,
   pages,
   layout = "editor-content",
+  isStarted,
   onComplete,
   start,
 }) => {
-  const tutorialPageRef = useRef<HTMLDivElement>(null);
+  // If the page is set from the URL but the tutorial has not been started,
+  // start the tutorial automatically
+  useEffect(() => {
+    if (!isStarted) start();
+  }, [isStarted, start]);
 
   // Scroll to the top on page change
+  const tutorialPageRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     tutorialPageRef.current?.scrollTo({ top: 0, left: 0 });
   }, [pageNumber]);
@@ -29,13 +35,6 @@ export const Main: FC<TutorialMainComponentProps> = ({
     const page = pages[pageNumber - 1];
     if (page.onMount) return page.onMount();
   }, [pageNumber, pages]);
-
-  // If the page is set from the URL but the tutorial has not been started,
-  // start the tutorial automatically
-  const isStarted = PgTutorial.isStarted(PgTutorial.data!.name);
-  useEffect(() => {
-    if (!isStarted) start();
-  }, [isStarted, start]);
 
   const nextPage = () => {
     PgTutorial.openPage(pageNumber + 1);

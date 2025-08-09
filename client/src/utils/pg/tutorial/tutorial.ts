@@ -9,17 +9,11 @@ import {
   derivable,
   updatable,
 } from "../decorators";
-import type {
-  SerializedTutorialState,
-  TutorialData,
-  TutorialMetadata,
-  TutorialState,
-} from "./types";
+import type { TutorialData, TutorialMetadata, TutorialState } from "./types";
 
 const defaultState: TutorialState = {
   pageNumber: null,
   completed: null,
-  data: null,
 };
 
 const storage = {
@@ -28,34 +22,24 @@ const storage = {
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<TutorialState> {
-    if (!PgTutorial.data || !PgTutorial.isStarted(PgTutorial.data.name)) {
-      return { ...defaultState, data: PgTutorial.data };
+    if (!PgTutorial.current || !PgTutorial.isStarted(PgTutorial.current.name)) {
+      return defaultState;
     }
 
-    let serializedState: SerializedTutorialState;
     try {
-      serializedState = await PgExplorer.fs.readToJSON(this.PATH);
+      return await PgExplorer.fs.readToJSON(this.PATH);
     } catch {
-      return { ...defaultState, data: PgTutorial.data };
+      return defaultState;
     }
-
-    return {
-      ...defaultState,
-      ...serializedState,
-      pageNumber: serializedState.pageNumber,
-      data: PgTutorial.data,
-    };
   },
 
   /** Serialize the data and write to storage. */
   async write(state: TutorialState) {
-    if (!PgTutorial.data || !PgTutorial.isStarted(PgTutorial.data.name)) {
-      return;
-    }
+    if (!state.pageNumber) return;
 
     // Don't use spread operator(...) because of the extra state
-    const serializedState: SerializedTutorialState = {
-      pageNumber: state.pageNumber ?? 1,
+    const serializedState: TutorialState = {
+      pageNumber: state.pageNumber,
       completed: state.completed,
     };
 
@@ -75,21 +59,34 @@ const onDidInit = () => {
 };
 
 const derive = () => ({
+  /** Current tutorial derived from the URL path */
+  current: createDerivable({
+    derive: (path) => {
+      const route = getTutorialsRoute();
+
+      try {
+        const { name } = PgRouter.getParamsFromPath(route.path, path);
+        const tutorial = _PgTutorial.all.find((t) => {
+          return PgRouter.isPathsEqual(PgCommon.toKebabFromTitle(t.name), name);
+        });
+        return tutorial;
+      } catch (e) {
+        console.log("`PgTutorial.current` error:", e);
+      }
+    },
+    onChange: PgRouter.onDidChangePath,
+  }),
+
   /** Tutorial page number derived from the URL path */
   page: createDerivable({
     derive: (path) => {
-      // TODO: Fix `path` being `undefined`
-      path = PgRouter.location.pathname;
-      const route = PgRouter.all.find((route) =>
-        route.path.startsWith("/tutorials")
-      );
-      if (!route) throw new Error("/tutorials route not found");
+      const route = getTutorialsRoute();
 
       try {
         const { page } = PgRouter.getParamsFromPath(route.path, path);
         if (PgCommon.isInt(page)) return parseInt(page);
       } catch (e) {
-        console.log("Error:", e);
+        console.log("`PgTutorial.page` error:", e);
       }
     },
     onChange: PgRouter.onDidChangePath,
@@ -104,6 +101,15 @@ const derive = () => ({
     onChange: "page",
   }),
 });
+
+const getTutorialsRoute = () => {
+  const route = PgRouter.all.find((route) =>
+    route.path.startsWith("/tutorials")
+  );
+  if (!route) throw new Error("/tutorials route not found");
+
+  return route;
+};
 
 @derivable(derive)
 @updatable({ defaultState, storage, onDidInit })
@@ -162,7 +168,7 @@ class _PgTutorial {
    */
   static async open(name: string) {
     // Do not open if it's already open
-    if (PgTutorial.data?.name === name && PgTutorial.page) return;
+    if (PgTutorial.current?.name === name && PgTutorial.page) return;
 
     const tutorialPath = `/tutorials/${PgCommon.toKebabFromTitle(name)}`;
     if (this.isStarted(name)) {
@@ -177,11 +183,7 @@ class _PgTutorial {
     }
   }
 
-  /**
-   * Open the about page of the current selected tutorial.
-   *
-   * @param name tutorial name
-   */
+  /** Open the about page of the current selected tutorial. */
   static async openAboutPage() {
     const tutorialPath = PgRouter.location.pathname
       .split("/")
@@ -210,13 +212,13 @@ class _PgTutorial {
    *
    * This method can only start the current selected tutorial.
    *
-   * @param props tutorial properties
+   * @param params tutorial start options
    */
   static async start(params: { files: TupleFiles; defaultOpenFile?: string }) {
-    const name = PgTutorial.data?.name;
+    const name = PgTutorial.current?.name;
     if (!name) throw new Error("Tutorial is not selected");
 
-    let pageToOpen: number | null;
+    let pageToOpen: number;
     if (!this.isStarted(name)) {
       // Initial tutorial setup
       await PgExplorer.createWorkspace(name, params);

@@ -27,6 +27,10 @@ export const Tutorial: FC<TutorialComponentProps> = ({
     if (onMount) return onMount();
   }, [onMount]);
 
+  if (!PgTutorial.current) throw new Error("Current tutorial has not been set");
+
+  const isStarted = PgTutorial.isStarted(PgTutorial.current.name);
+
   return (
     <Wrapper>
       {PgTutorial.page ? (
@@ -34,11 +38,12 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           pageNumber={PgTutorial.page}
           pages={pages}
           layout={layout}
+          isStarted={isStarted}
           onComplete={onComplete}
           start={start}
         />
       ) : (
-        <About about={about} start={start} />
+        <About about={about} isStarted={isStarted} start={start} />
       )}
     </Wrapper>
   );
