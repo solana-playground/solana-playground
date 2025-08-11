@@ -46,9 +46,10 @@ const INITABLES = [
   PgTutorial,
   PgWallet,
 ];
+const getInitables = () => initAll(INITABLES);
 
 const Global = () => {
-  useDisposable(() => initAll(INITABLES));
+  useDisposable(getInitables);
   useRouter();
 
   return null;
