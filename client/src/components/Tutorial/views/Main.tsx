@@ -1,10 +1,10 @@
 import { FC, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
-import Split from "react-split";
 
 import Button from "../../Button";
 import EditorWithTabs from "../../EditorWithTabs";
 import Markdown from "../../Markdown";
+import Resizable from "../../Resizable";
 import { SpinnerWithBg } from "../../Loading";
 import { PointedArrow } from "../../Icons";
 import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
@@ -59,20 +59,21 @@ export const Main: FC<TutorialMainComponentProps> = ({
   const currentContent = currentPage.content;
   const currentLayout = currentPage.layout ?? layout;
 
-  // TODO: Add a custom `Split` component because `react-split` doesn't properly
-  // handle size and `children.length` changes
-  const [Wrapper, props] = (
-    currentLayout === "content-only"
-      ? [RegularWrapper, {}]
-      : [SplitWrapper, { sizes: [60, 40] }]
-  ) as [typeof RegularWrapper, {}];
-
   return (
-    <Wrapper {...props}>
-      {currentLayout === "editor-content" && isStarted ? (
-        <EditorWithTabs />
-      ) : (
-        <SpinnerWithBg loading size="2rem" />
+    <Wrapper>
+      {currentLayout === "editor-content" && (
+        <Resizable
+          enable="right"
+          defaultSize={{ width: "60%", height: "100%" }}
+          minWidth="25%"
+          maxWidth="75%"
+        >
+          {isStarted ? (
+            <EditorWithTabs />
+          ) : (
+            <SpinnerWithBg loading size="2rem" />
+          )}
+        </Resizable>
       )}
 
       <TutorialPage ref={tutorialPageRef}>
@@ -137,22 +138,9 @@ export const Main: FC<TutorialMainComponentProps> = ({
   );
 };
 
-const RegularWrapper = styled.div``;
-
-const SplitWrapper = styled(Split)`
+const Wrapper = styled.div`
   display: flex;
-  width: 100%;
-  height: -webkit-fill-available;
-  max-height: 100%;
-  overflow: auto;
-
-  & > div:not(.gutter) {
-    min-width: 25%;
-  }
-
-  & > .gutter {
-    cursor: col-resize;
-  }
+  height: 100%;
 `;
 
 const TutorialPage = styled.div`
