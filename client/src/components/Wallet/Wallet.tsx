@@ -21,12 +21,7 @@ import {
   PgView,
   PgWallet,
 } from "../../utils/pg";
-import {
-  useAutoAirdrop,
-  useDarken,
-  useStandardAccountChange,
-  useSyncBalance,
-} from "./hooks";
+import { useAutoAirdrop, useDarken, useStandardAccountChange } from "./hooks";
 import {
   useKeybind,
   useOnClickOutside,
@@ -40,7 +35,6 @@ const Wallet = () => {
   const { wallet } = useWallet();
 
   useStandardAccountChange();
-  useSyncBalance();
   useAutoAirdrop();
 
   if (!PgWallet.show || !wallet) return null;

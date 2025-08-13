@@ -6,8 +6,7 @@ import { PgTheme } from "../../../utils/pg";
 
 export const Balance = () => {
   const { balance } = useBalance();
-
-  if (balance === undefined || balance === null) return null;
+  if (typeof balance !== "number") return null;
 
   return (
     <>

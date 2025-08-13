@@ -19,13 +19,13 @@ import type {
   Wallet,
   WalletAccount,
 } from "./types";
-import type { RequiredKey } from "../types";
+import type { Disposable, RequiredKey } from "../types";
+import { PgConnection } from "../connection";
 
 const defaultState: Wallet = {
   state: "setup",
   accounts: [],
   currentIndex: -1,
-  balance: null,
   show: false,
   standardWallets: [],
   standardName: null,
@@ -43,7 +43,6 @@ const storage = {
     const serializedState: SerializedWallet = JSON.parse(serializedStateStr);
     return {
       ...serializedState,
-      balance: defaultState.balance,
       show: defaultState.show,
       standardWallets: defaultState.standardWallets,
     };
@@ -110,6 +109,56 @@ const derive = () => ({
       }
     },
     onChange: ["state", "accounts", "currentIndex", "standard"],
+  }),
+
+  /** Balance of the current wallet in SOL */
+  balance: createDerivable({
+    derive: async (value): Promise<number | null> => {
+      const wallet = PgWallet.current;
+      if (!wallet) return null;
+
+      // Direct value from `connection.onAccountChange`
+      if (typeof value === "number") return PgCommon.lamportsToSol(value);
+
+      try {
+        const lamports = await PgConnection.current.getBalance(
+          wallet.publicKey
+        );
+        return PgCommon.lamportsToSol(lamports);
+      } catch (e: any) {
+        console.log("Couldn't fetch balance:", e.message);
+        return null;
+      }
+    },
+    onChange: [
+      "current",
+      PgConnection.onDidChangeCurrent,
+      // Listen to account changes via WS to re-derive as necessary
+      (cb) => {
+        const disposables: Disposable[] = [
+          PgCommon.batchChanges(() => {
+            if (disposables[1]) disposables[1].dispose();
+
+            if (!PgConnection.current || !PgWallet.current) return;
+
+            // Listen for balance changes
+            const id = PgConnection.current.onAccountChange(
+              PgWallet.current.publicKey,
+              (acc) => cb(acc.lamports)
+            );
+            disposables[1] = {
+              dispose: () => {
+                PgConnection.current.removeAccountChangeListener(id);
+              },
+            };
+          }, [PgWallet.onDidChangeCurrent, PgConnection.onDidChangeCurrent]),
+        ];
+
+        return {
+          dispose: () => disposables.forEach(({ dispose }) => dispose()),
+        };
+      },
+    ],
   }),
 });
 

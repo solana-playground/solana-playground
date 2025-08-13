@@ -17,8 +17,6 @@ export interface Wallet {
   accounts: WalletAccount[];
   /** Current wallet index */
   currentIndex: number;
-  /** Balance of the current wallet, `null` by default */
-  balance: number | null;
   /** Whether to show the `Wallet` component */
   show: boolean;
   /** Wallet Standard wallets */
