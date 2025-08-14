@@ -1,6 +1,7 @@
 import * as ed25519 from "@noble/ed25519";
 
 import { PgCommon } from "../common";
+import { PgConnection } from "../connection";
 import {
   createDerivable,
   declareDerivable,
@@ -20,7 +21,6 @@ import type {
   WalletAccount,
 } from "./types";
 import type { Disposable, RequiredKey } from "../types";
-import { PgConnection } from "../connection";
 
 const defaultState: Wallet = {
   state: "setup",
@@ -137,9 +137,16 @@ const derive = () => ({
       (cb) => {
         const disposables: Disposable[] = [
           PgCommon.batchChanges(() => {
-            if (disposables[1]) disposables[1].dispose();
+            if (disposables[1]) disposables.pop()!.dispose();
 
             if (!PgConnection.current || !PgWallet.current) return;
+
+            // Declare the connection here because if the connection changes,
+            // using `PgConnection.current.removeAccountChangeListener` in
+            // `dispose` doesn't remove the existing subscription (since a new
+            // `Connection` object that doesn't have access to the previous
+            // subscriptions gets created)
+            const conn = PgConnection.current;
 
             // Listen for balance changes
             const id = PgConnection.current.onAccountChange(
@@ -147,9 +154,7 @@ const derive = () => ({
               (acc) => cb(acc.lamports)
             );
             disposables[1] = {
-              dispose: () => {
-                PgConnection.current.removeAccountChangeListener(id);
-              },
+              dispose: () => conn.removeAccountChangeListener(id),
             };
           }, [PgWallet.onDidChangeCurrent, PgConnection.onDidChangeCurrent]),
         ];
