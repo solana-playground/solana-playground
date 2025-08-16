@@ -10,12 +10,16 @@ export const PROPS = {
   IS_INITIALIZED: "_isInitialized",
   /** Initialization method name */
   INIT: "init",
+  /** The property name for keeping track of all `init` functions */
+  INITS: "_inits",
   /** Update method name */
   UPDATE: "update",
   /** Refresh state method name */
   REFRESH: "refresh",
   /** Change event method name (or prefix) */
   ON_DID_CHANGE: "onDidChange",
+  /** Change event method name (or prefix) */
+  ON_DID_INIT: "_onDidChange",
   /** Dispatch change event(s) method name */
   DISPATCH_CHANGE_EVENT: "_dispatchChangeEvent",
 } as const;
@@ -32,27 +36,28 @@ export const addInit = (
   onDidInit?: () => SyncOrAsync<Disposable>
 ) => {
   sClass[PROPS.INTERNAL_STATE] ??= {};
+  sClass[PROPS.ON_DID_INIT] ??= onDidInit;
+  sClass[PROPS.INITS] ??= [];
+  sClass[PROPS.INITS].push(init);
 
-  const previousInit = sClass.init;
   (sClass as Initable)[PROPS.INIT] = async () => {
     const disposables: Disposable[] = [];
-    if (previousInit) {
-      const disposable = await previousInit();
-      disposables.push(disposable);
-    }
-
-    const disposable = await init();
-    disposables.push(disposable);
-
-    if (onDidInit && !sClass[PROPS.IS_INITIALIZED]) {
-      const disposable = await onDidInit();
+    for (const init of sClass[PROPS.INITS]) {
+      const disposable = await init();
       disposables.push(disposable);
     }
 
     sClass[PROPS.IS_INITIALIZED] = true;
 
+    if (sClass[PROPS.ON_DID_INIT]) {
+      const disposable = await sClass[PROPS.ON_DID_INIT]();
+      disposables.push(disposable);
+    }
+
     disposables.push(
       { dispose: () => (sClass[PROPS.IS_INITIALIZED] = false) },
+      { dispose: () => (sClass[PROPS.INITS] = []) },
+      { dispose: () => delete sClass[PROPS.ON_DID_INIT] },
       { dispose: () => (sClass[PROPS.INTERNAL_STATE] = {}) }
     );
 
