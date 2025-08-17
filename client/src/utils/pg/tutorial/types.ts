@@ -88,3 +88,6 @@ export type TutorialDetailKey = keyof Pick<
   TutorialData,
   "level" | "framework" | "languages" | "categories"
 >;
+
+/** A map of string to unknown data as used for tutorial storage data */
+export type TutorialStorageData = Record<string, unknown>;
