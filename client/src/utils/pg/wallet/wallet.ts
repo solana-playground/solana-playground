@@ -69,23 +69,22 @@ const onDidInit = () => {
   return PgCommon.batchChanges(async () => {
     if (!PgSettings.wallet.automaticAirdrop) return;
 
-    const balance = PgWallet.balance;
-    if (typeof balance !== "number") return;
-
-    // Current wallet should always exist when balance is a number
-    const wallet = PgWallet.current;
-    if (!wallet) return;
+    // Need the current account balance to decide the airdrop
+    if (typeof PgWallet.balance !== "number") return;
 
     // Get airdrop amount based on network (in SOL)
     const airdropAmount = PgConnection.getAirdropAmount();
     if (!airdropAmount) return;
 
     // Only airdrop if the balance is less than the airdrop amount
-    if (balance >= airdropAmount) return;
+    if (PgWallet.balance >= airdropAmount) return;
+
+    // Current wallet should always exist when balance is a number
+    if (!PgWallet.current) return;
 
     try {
       const txHash = await PgConnection.current.requestAirdrop(
-        wallet.publicKey,
+        PgWallet.current.publicKey,
         PgCommon.solToLamports(airdropAmount)
       );
       await PgTx.confirm(txHash);
@@ -150,15 +149,18 @@ const derive = () => ({
   /** Balance of the current wallet in SOL */
   balance: createDerivable({
     derive: async (value): Promise<number | null> => {
-      const wallet = PgWallet.current;
-      if (!wallet) return null;
-
       // Direct value from `connection.onAccountChange`
       if (typeof value === "number") return PgCommon.lamportsToSol(value);
 
+      // Check wallet status
+      if (!PgWallet.current) return null;
+
+      // Check connection status (it can be `undefined` at the start of the app)
+      if (PgConnection.isConnected === false) return null;
+
       try {
         const lamports = await PgConnection.current.getBalance(
-          wallet.publicKey
+          PgWallet.current.publicKey
         );
         return PgCommon.lamportsToSol(lamports);
       } catch (e: any) {
@@ -169,13 +171,14 @@ const derive = () => ({
     onChange: [
       "current",
       PgConnection.onDidChangeCurrent,
+      PgConnection.onDidChangeIsConnected,
       // Listen to account changes via WS to re-derive as necessary
       (cb) => {
         const disposables: Disposable[] = [
           PgCommon.batchChanges(() => {
             if (disposables[1]) disposables.pop()!.dispose();
 
-            if (!PgConnection.current || !PgWallet.current) return;
+            if (!PgWallet.current) return;
 
             // Declare the connection here because if the connection changes,
             // using `PgConnection.current.removeAccountChangeListener` in
