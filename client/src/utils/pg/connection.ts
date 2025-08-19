@@ -46,37 +46,49 @@ const derive = () => ({
   isConnected: createDerivable({
     derive: _PgConnection.getIsConnected,
     onChange: (cb) => {
-      // Keep track of `isConnected` and only run the `cb` when the value
-      // actually changes. This is because the decorators such as `derivable`
-      // and `updatable` trigger a change event each time the value is set
-      // independent of whether the value has changed unlike React which only
-      // re-renders when the memory location of the value changes.
-      //
-      // TODO: Allow specifying whether the value should be compared with the
-      // previous value and trigger the change event **only if** there is a
-      // difference in comparison.
-      let isConnected = false;
+      const disposables = [
+        PgConnection.onDidChangeCluster((cluster) => {
+          // Dispose and remove old disposables
+          for (const i of Object.keys(disposables)) {
+            if (+i) disposables.pop()!.dispose();
+          }
 
-      // Refresh every 60 seconds on success
-      const successId = setInterval(async () => {
-        if (!isConnected) return;
+          // Refresh intervals
+          const successInterval = cluster === "localnet" ? 5000 : 60000;
+          const errorInterval = cluster === "localnet" ? 5000 : 10000;
 
-        isConnected = await PgConnection.getIsConnected();
-        if (!isConnected) cb();
-      }, 60000);
+          // Keep track of `isConnected` and only run the `cb` when the value
+          // actually changes. This is because the decorators such as `derivable`
+          // and `updatable` trigger a change event each time the value is set
+          // independent of whether the value has changed unlike React which only
+          // re-renders when the memory location of the value changes.
+          //
+          // TODO: Allow specifying whether the value should be compared with the
+          // previous value and trigger the change event **only if** there is a
+          // difference in comparison.
+          let isConnected = false;
 
-      // Refresh every 5 seconds on error
-      const errorId = setInterval(async () => {
-        if (isConnected) return;
+          const successId = setInterval(async () => {
+            if (!isConnected) return;
 
-        isConnected = await PgConnection.getIsConnected();
-        if (isConnected) cb();
-      }, 5000);
+            isConnected = await PgConnection.getIsConnected();
+            if (!isConnected) cb();
+          }, successInterval);
+          disposables.push({ dispose: () => clearInterval(successId) });
+
+          const errorId = setInterval(async () => {
+            if (isConnected) return;
+
+            isConnected = await PgConnection.getIsConnected();
+            if (isConnected) cb();
+          }, errorInterval);
+          disposables.push({ dispose: () => clearInterval(errorId) });
+        }),
+      ];
 
       return {
         dispose: () => {
-          clearInterval(successId);
-          clearInterval(errorId);
+          disposables.forEach(({ dispose }) => dispose());
         },
       };
     },
