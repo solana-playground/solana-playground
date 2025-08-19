@@ -277,7 +277,7 @@ impl Rewrite for ast::MetaItem {
                 // width. Since a literal is basically unformattable unless it
                 // is a string literal (and only if `format_strings` is set),
                 // we might be better off ignoring the fact that the attribute
-                // is longer than the max width and contiue on formatting.
+                // is longer than the max width and continue on formatting.
                 // See #2479 for example.
                 let value = rewrite_literal(context, literal, lit_shape)
                     .unwrap_or_else(|| context.snippet(literal.span).to_owned());
