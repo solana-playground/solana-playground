@@ -54,14 +54,27 @@ const storage = {
 };
 
 const onDidInit = () => {
-  // Navigate to tutorial's route if the current workspace is a tutorial but
-  // the user is on the default route
-  return PgCommon.batchChanges(() => {
-    if (PgRouter.location.pathname !== "/") return;
+  const disposables = [
+    // Navigate to tutorial's route if the current workspace is a tutorial but
+    // the user is on the default route
+    PgCommon.batchChanges(() => {
+      if (PgRouter.location.pathname !== "/") return;
 
-    const name = PgExplorer.currentWorkspaceName;
-    if (name && PgTutorial.isWorkspaceTutorial(name)) PgTutorial.open(name);
-  }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]);
+      const name = PgExplorer.currentWorkspaceName;
+      if (name && PgTutorial.isWorkspaceTutorial(name)) PgTutorial.open(name);
+    }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]),
+
+    // Save tutorial page number to storage when the page changes
+    PgTutorial.onDidChangePage((page) => {
+      // Updating the `pageNumber` field is enough to write the value to storage
+      // because it's an `updatable` field with custom storage
+      if (page) PgTutorial.pageNumber = page;
+    }),
+  ];
+
+  return {
+    dispose: () => disposables.forEach(({ dispose }) => dispose()),
+  };
 };
 
 const derive = () => ({
@@ -96,15 +109,6 @@ const derive = () => ({
       }
     },
     onChange: PgRouter.onDidChangePath,
-  }),
-
-  /** Save tutorial page number to storage */
-  // TODO: Find a better way to save
-  __save: createDerivable({
-    derive: () => {
-      if (PgTutorial.page) PgTutorial.pageNumber = PgTutorial.page;
-    },
-    onChange: "page",
   }),
 });
 
