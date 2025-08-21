@@ -49,43 +49,37 @@ export function updatable<T extends Record<string, any>>(params: {
   storage?: CustomStorage<T>;
   /** Whether to add proxy setters recursively */
   recursive?: boolean;
-  /** Callback to run after initialization */
-  onDidInit?: () => SyncOrAsync<Disposable>;
 }) {
   return (sClass: any) => {
     // Add `onDidChange` methods
     addOnDidChange(sClass, params.defaultState, params.recursive);
 
     // Add `init` method
-    addInit(
-      sClass,
-      async () => {
-        // Set the internal state
-        await sClass[PROPS.REFRESH]();
+    addInit(sClass, async () => {
+      // Set the internal state
+      await sClass[PROPS.REFRESH]();
 
-        // Define getters and setters
-        for (const prop in sClass[PROPS.INTERNAL_STATE]) {
-          if (Object.hasOwn(sClass, prop)) continue;
+      // Define getters and setters
+      for (const prop in sClass[PROPS.INTERNAL_STATE]) {
+        if (Object.hasOwn(sClass, prop)) continue;
 
-          Object.defineProperty(sClass, prop, {
-            get: () => sClass[PROPS.INTERNAL_STATE][prop],
-            set: (value: T[keyof T]) => {
-              sClass[PROPS.INTERNAL_STATE][prop] = value;
-              sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
-            },
-          });
+        Object.defineProperty(sClass, prop, {
+          get: () => sClass[PROPS.INTERNAL_STATE][prop],
+          set: (value: T[keyof T]) => {
+            sClass[PROPS.INTERNAL_STATE][prop] = value;
+            sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
+          },
+        });
 
-          if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
-        }
+        if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
+      }
 
-        // Save to storage on change.
-        //
-        // NOTE: Creating a new callback is necessary here, otherwise `this`
-        // keyword becomes unusable in `storage.write`.
-        return sClass[PROPS.ON_DID_CHANGE]((s: T) => params.storage?.write(s));
-      },
-      params.onDidInit
-    );
+      // Save to storage on change.
+      //
+      // NOTE: Creating a new callback is necessary here, otherwise `this`
+      // keyword becomes unusable in `storage.write`.
+      return sClass[PROPS.ON_DID_CHANGE]((s: T) => params.storage?.write(s));
+    });
 
     // Add `update` method
     (sClass as Updatable<T>)[PROPS.UPDATE] = (params) => {

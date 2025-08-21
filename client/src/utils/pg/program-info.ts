@@ -10,6 +10,7 @@ import {
   declareDerivable,
   declareUpdatable,
   derivable,
+  initable,
   migratable,
   updatable,
 } from "./decorators";
@@ -137,8 +138,9 @@ const migrate = () => {
 };
 
 @migratable(migrate)
+@initable({ onDidInit })
 @derivable(derive)
-@updatable({ defaultState, storage, onDidInit })
+@updatable({ defaultState, storage })
 class _PgProgramInfo {
   /** Get the current program's pubkey as base58 string. */
   static getPkStr() {

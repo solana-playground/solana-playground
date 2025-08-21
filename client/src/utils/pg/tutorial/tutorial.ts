@@ -7,6 +7,7 @@ import {
   declareDerivable,
   declareUpdatable,
   derivable,
+  initable,
   updatable,
 } from "../decorators";
 import type {
@@ -121,8 +122,9 @@ const getTutorialsRoute = () => {
   return route;
 };
 
+@initable({ onDidInit })
 @derivable(derive)
-@updatable({ defaultState, storage, onDidInit })
+@updatable({ defaultState, storage })
 class _PgTutorial {
   /** All tutorials */
   static all: TutorialData[];

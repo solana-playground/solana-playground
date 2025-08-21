@@ -7,6 +7,7 @@ import {
   declareDerivable,
   declareUpdatable,
   derivable,
+  initable,
   migratable,
   updatable,
 } from "../decorators";
@@ -239,8 +240,9 @@ const migrate = () => {
 };
 
 @migratable(migrate)
+@initable({ onDidInit })
 @derivable(derive)
-@updatable({ defaultState, storage, onDidInit })
+@updatable({ defaultState, storage })
 class _PgWallet {
   /**
    * Add a new account.

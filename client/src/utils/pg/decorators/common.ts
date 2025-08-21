@@ -32,32 +32,32 @@ export const PROPS = {
  */
 export const addInit = (
   sClass: any,
-  init: () => SyncOrAsync<Disposable>,
-  onDidInit?: () => SyncOrAsync<Disposable>
+  init?: () => SyncOrAsync<Disposable | void>,
+  onDidInit?: () => SyncOrAsync<Disposable | void>
 ) => {
   sClass[PROPS.INTERNAL_STATE] ??= {};
-  sClass[PROPS.ON_DID_INIT] ??= onDidInit;
   sClass[PROPS.INITS] ??= [];
-  sClass[PROPS.INITS].push(init);
+  if (init) sClass[PROPS.INITS].push(init);
+  if (onDidInit) sClass[PROPS.ON_DID_INIT] = onDidInit;
 
   (sClass as Initable)[PROPS.INIT] = async () => {
     const disposables: Disposable[] = [];
     for (const init of sClass[PROPS.INITS]) {
-      const disposable = await init();
-      disposables.push(disposable);
+      const maybeDisposable = await init();
+      if (maybeDisposable) disposables.push(maybeDisposable);
     }
 
     sClass[PROPS.IS_INITIALIZED] = true;
 
     if (sClass[PROPS.ON_DID_INIT]) {
-      const disposable = await sClass[PROPS.ON_DID_INIT]();
-      disposables.push(disposable);
+      const maybeDisposable = await sClass[PROPS.ON_DID_INIT]();
+      if (maybeDisposable) disposables.push(maybeDisposable);
     }
 
     disposables.push(
       { dispose: () => (sClass[PROPS.IS_INITIALIZED] = false) },
-      { dispose: () => (sClass[PROPS.INITS] = []) },
       { dispose: () => delete sClass[PROPS.ON_DID_INIT] },
+      { dispose: () => (sClass[PROPS.INITS] = []) },
       { dispose: () => (sClass[PROPS.INTERNAL_STATE] = {}) }
     );
 
