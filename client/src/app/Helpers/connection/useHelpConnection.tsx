@@ -22,8 +22,13 @@ export const useHelpConnection = () => {
       cb: () => SyncOrAsync
     ) => {
       if (cache[kind]) return;
-      await cb();
       cache[kind] = true;
+
+      try {
+        await cb();
+      } catch {
+        cache[kind] = false;
+      }
     };
 
     const { dispose } = PgCommon.batchChanges(async () => {
