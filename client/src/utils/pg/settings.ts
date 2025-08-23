@@ -127,6 +127,15 @@ const defaultState: Settings = {
   other: {
     blockExplorer: "Solana Explorer",
   },
+  server: {
+    endpoint:
+      process.env.NODE_ENV === "production"
+        ? "https://api.solpg.io"
+        : // Docker builds use this environment variable to set the server URL
+          // to the production API (instead of local) if the user has not yet
+          // built the server image
+          process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080",
+  },
   wallet: {
     automaticAirdrop: true,
   },
