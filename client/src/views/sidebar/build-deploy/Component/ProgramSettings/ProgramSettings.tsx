@@ -51,11 +51,9 @@ const ProgramSettings = () => {
         setSettings(DEFAULT_PROGRAM_SETTINGS.concat(anchorSettings));
         break;
       }
-      case "Native":
-        setSettings(DEFAULT_PROGRAM_SETTINGS);
-        break;
+
       default:
-        setSettings(null);
+        setSettings(DEFAULT_PROGRAM_SETTINGS);
     }
   }, []);
 
