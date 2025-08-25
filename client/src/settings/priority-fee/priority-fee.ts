@@ -3,7 +3,6 @@ import { createSetting } from "../create";
 
 export const priorityFee = createSetting({
   id: "connection.priorityFee",
-  name: "Priority fee",
   description:
     "Priority fee calculation method to use when sending transactions",
   values: ["average", "median", "min", "max"] as const,

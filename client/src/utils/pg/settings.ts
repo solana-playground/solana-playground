@@ -3,7 +3,13 @@
 
 import { Endpoint } from "../../constants";
 import { declareUpdatable, migratable, updatable } from "./decorators";
-import type { CallableJSX, Disposable, Getable, UnionToTuple } from "./types";
+import type {
+  CallableJSX,
+  Disposable,
+  Getable,
+  RequiredKey,
+  UnionToTuple,
+} from "./types";
 
 type Settings = ConvertAll<UnionToTuple<InternalSettings[number]>> & {
   // TODO: Store this in `PgProgramInfo` and remove
@@ -32,11 +38,11 @@ type Convert<I extends string, V> = I extends ""
   : { [K in I]: V extends undefined ? boolean : V };
 
 /** Setting creation parameter */
-export type SettingParam<I extends string, V, C> = {
+export type SettingParam<I extends string = string, V = unknown, C = never> = {
   /** Setting identifier (used in `PgSettings`) */
   id?: I;
-  /** Name of the setting */
-  name: string;
+  /** Name of the setting (default: derive from `id`) */
+  name?: string;
   /** Information about the setting that will be shown as a help tooltip */
   description?: string;
   /**
@@ -83,10 +89,9 @@ type Values<V> =
   | { name: string; values: Values<V[]> };
 
 /** UI Setting */
-export type Setting<I extends string = string, V = any, C = any> = SettingParam<
-  I,
-  V,
-  C
+export type Setting<I extends string = string, V = any, C = any> = RequiredKey<
+  SettingParam<I, V, C>,
+  "name"
 > &
   SettingsCompat<V>;
 
