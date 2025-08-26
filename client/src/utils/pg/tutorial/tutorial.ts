@@ -16,7 +16,6 @@ import type {
   TutorialState,
   TutorialStorageData,
 } from "./types";
-import type { ValueOf } from "../types";
 
 const defaultState: TutorialState = {
   pageNumber: null,
@@ -258,6 +257,7 @@ class _PgTutorial {
    *
    * The API is rougly the same as the `Storage` API, e.g. `localStorage`, main
    * differences being:
+   *
    * - Asynchronous API due to using `indexedDB` under the hood
    * - Optionally, the storage object can be made type-safe
    *
@@ -269,13 +269,18 @@ class _PgTutorial {
    *   anotherField: string;
    * }
    *
-   * const storage = PgTutorial.getStorage<StorageData>();
-   * const field = await storage.getItem("field"); // number | undefined
+   * const storage = PgTutorial.getStorage<StorageData>({ field: 42, anotherField: "hi" });
+   * const field = await storage.getItem("field"); // 42
+   * await storage.setItem("field", 0);
+   * const newField = await storage.getItem("field"); // 0
    * ```
    *
+   * @param defaultValue default value to set initially
    * @returns the tutorial storage
    */
-  static getStorage<T extends TutorialStorageData = TutorialStorageData>() {
+  static getStorage<T extends TutorialStorageData = TutorialStorageData>(
+    defaultValue: T
+  ) {
     class PgTutorialStorage {
       /**
        * Get the item from the given key.
@@ -283,9 +288,9 @@ class _PgTutorial {
        * @param key key of the item
        * @returns the value or `undefined` if key doesn't exist
        */
-      async getItem(key: keyof T) {
+      async getItem<K extends keyof T>(key: K) {
         const data = await this._readFile();
-        return data[key] as ValueOf<T> | undefined;
+        return data[key];
       }
 
       /**
@@ -294,7 +299,7 @@ class _PgTutorial {
        * @param key key of the item
        * @param value value of the item
        */
-      async setItem(key: keyof T, value: ValueOf<T>) {
+      async setItem<K extends keyof T>(key: K, value: T[K]) {
         const data = await this._readFile();
         data[key] = value;
         await this._writeFile(data);
@@ -313,7 +318,7 @@ class _PgTutorial {
 
       /** Clear all key-value pairs and reset to the default state. */
       async clear() {
-        await this._writeFile(PgTutorialStorage._DEFAULT);
+        await this._writeFile(defaultValue);
       }
 
       /**
@@ -322,9 +327,9 @@ class _PgTutorial {
        * @returns the data as JSON
        */
       private async _readFile() {
-        return await PgExplorer.fs.readToJSONOrDefault<T>(
+        return await PgExplorer.fs.readToJSONOrDefault(
           PgTutorialStorage._PATH,
-          PgTutorialStorage._DEFAULT
+          defaultValue
         );
       }
 
@@ -341,10 +346,9 @@ class _PgTutorial {
       }
 
       /** Relative path to the tutorial storage JSON file */
+      // TODO: Use a constant for `.workspace` (same directory is used in the
+      // explorer)
       private static _PATH = ".workspace/tutorial-storage.json";
-
-      /** Default state of the tutorial storage data */
-      private static _DEFAULT = {} as T;
     }
 
     return new PgTutorialStorage();
