@@ -2,6 +2,7 @@ import { FC, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Checkbox from "../../../../components/Checkbox";
+import Foldable from "../../../../components/Foldable";
 import Select from "../../../../components/Select";
 import Tooltip from "../../../../components/Tooltip";
 import { useRenderOnChange } from "../../../../hooks";
@@ -17,9 +18,31 @@ import { CustomSetting } from "./CustomSetting";
 
 const Settings = () => (
   <Wrapper>
-    {PgSettings.all.map((setting) => (
-      <Setting key={setting.name} {...setting} />
-    ))}
+    {PgSettings.all
+      .reduce((acc, cur) => {
+        // TODO: Remove hardcoding `ui`
+        const groupName = cur.id ? cur.id.split(".")[0] : "ui";
+        const lastGroup = acc.at(-1);
+        if (lastGroup?.name === groupName) lastGroup.settings.push(cur);
+        else acc.push({ name: groupName, settings: [cur] });
+
+        return acc;
+      }, [] as SettingGroupProps[])
+      .map((group) => {
+        group.settings.sort((a, b) => {
+          // Prioritize select components over checkboxes
+          if (a.values && !b.values) return -1;
+          if (b.values && !a.values) return 1;
+
+          // Alphabetically order based on UI name
+          return a.name.localeCompare(b.name);
+        });
+
+        return group;
+      })
+      .map((group) => (
+        <SettingGroup key={group.name} {...group} />
+      ))}
   </Wrapper>
 );
 
@@ -37,6 +60,55 @@ const Wrapper = styled.div`
     box-shadow: ${theme.default.boxShadow};
     overflow: auto;
     ${PgTheme.getScrollbarCSS({ width: "0.25rem" })};
+  `}
+`;
+
+type SettingGroupProps = {
+  name: string;
+  settings: SettingType[];
+};
+
+const SettingGroup: FC<SettingGroupProps> = ({ name, settings }) => (
+  <SettingGroupWrapper>
+    <Foldable
+      isOpen
+      element={
+        <SettingGroupName>
+          {PgCommon.toTitleFromCamel(name).replace("Ui", "UI")}
+        </SettingGroupName>
+      }
+    >
+      {settings.map((setting) => (
+        <Setting key={setting.id ?? setting.name} {...setting} />
+      ))}
+    </Foldable>
+  </SettingGroupWrapper>
+);
+
+const SettingGroupWrapper = styled.div`
+  ${({ theme }) => css`
+    padding: 1rem;
+    max-width: calc(
+      ${theme.views.sidebar.left.default.width} +
+        ${theme.views.sidebar.right.default.initialWidth}
+    );
+
+    &:not(:last-child) {
+      border-bottom: 1px solid ${theme.colors.default.border};
+    }
+  `}
+`;
+
+const SettingGroupName = styled.span`
+  ${({ theme }) => css`
+    color: ${theme.colors.default.textSecondary};
+    font-weight: bold;
+    transition: all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
+
+    &:hover {
+      color: ${theme.colors.default.textPrimary};
+    }
   `}
 `;
 
@@ -65,20 +137,11 @@ const Setting: FC<SettingType> = (setting) => (
 );
 
 const SettingWrapper = styled.div<{ isCheckBox: boolean }>`
-  ${({ theme, isCheckBox }) => css`
+  ${({ isCheckBox }) => css`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    max-width: calc(
-      ${theme.views.sidebar.left.default.width} +
-        ${theme.views.sidebar.right.default.initialWidth}
-    );
-    padding: 1rem;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid ${theme.colors.default.border};
-    }
+    padding: 0.5rem 0 0.5rem 0.25rem;
 
     ${!isCheckBox &&
     `& > div:last-child {
@@ -89,15 +152,16 @@ const SettingWrapper = styled.div<{ isCheckBox: boolean }>`
 
 const Left = styled.div`
   display: flex;
-  color: ${({ theme }) => theme.colors.default.textSecondary};
-  font-weight: bold;
+  align-items: center;
 
   & > :nth-child(2) {
     margin-left: 0.5rem;
   }
 `;
 
-const SettingName = styled.span``;
+const SettingName = styled.span`
+  color: ${({ theme }) => theme.colors.default.textSecondary};
+`;
 
 const Right = styled.div`
   margin-left: 1rem;
