@@ -23,7 +23,7 @@ import type {
   Wallet,
   WalletAccount,
 } from "./types";
-import type { Disposable, RequiredKey } from "../types";
+import type { RequiredKey } from "../types";
 
 const defaultState: Wallet = {
   state: "setup",
@@ -175,11 +175,11 @@ const derive = () => ({
       PgConnection.onDidChangeIsConnected,
       // Listen to account changes via WS to re-derive as necessary
       (cb) => {
-        const disposables: Disposable[] = [
+        const disposables = [
           PgCommon.batchChanges(() => {
             if (disposables[1]) disposables.pop()!.dispose();
 
-            if (!PgWallet.current) return;
+            if (!PgWallet.current || !PgConnection.isConnected) return;
 
             // Declare the connection here because if the connection changes,
             // using `PgConnection.current.removeAccountChangeListener` in
@@ -193,14 +193,20 @@ const derive = () => ({
               PgWallet.current.publicKey,
               (acc) => cb(acc.lamports)
             );
-            disposables[1] = {
+            disposables.push({
               dispose: () => conn.removeAccountChangeListener(id),
-            };
-          }, [PgWallet.onDidChangeCurrent, PgConnection.onDidChangeCurrent]),
+            });
+          }, [
+            PgWallet.onDidChangeCurrent,
+            PgConnection.onDidChangeCurrent,
+            PgConnection.onDidChangeIsConnected,
+          ]),
         ];
 
         return {
-          dispose: () => disposables.forEach(({ dispose }) => dispose()),
+          dispose: () => {
+            disposables.forEach(({ dispose }) => dispose());
+          },
         };
       },
     ],
