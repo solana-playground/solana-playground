@@ -11,7 +11,6 @@ import {
   declareUpdatable,
   derivable,
   initable,
-  migratable,
   updatable,
 } from "./decorators";
 import { PgExplorer } from "./explorer";
@@ -137,10 +136,9 @@ const migrate = () => {
   localStorage.removeItem("programInfo");
 };
 
-@migratable(migrate)
 @initable({ onDidInit })
 @derivable(derive)
-@updatable({ defaultState, storage })
+@updatable({ defaultState, storage, migrate })
 class _PgProgramInfo {
   /** Get the current program's pubkey as base58 string. */
   static getPkStr() {

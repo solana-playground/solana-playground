@@ -49,6 +49,8 @@ export function updatable<T extends Record<string, any>>(params: {
   storage?: CustomStorage<T>;
   /** Whether to add proxy setters recursively */
   recursive?: boolean;
+  /** Migrate data (runs before everything else in `init` and `refresh`) */
+  migrate?: () => SyncOrAsync<void>;
 }) {
   return (sClass: any) => {
     // Add `onDidChange` methods
@@ -90,6 +92,9 @@ export function updatable<T extends Record<string, any>>(params: {
 
     // Add `refresh` method
     (sClass as Updatable<T>)[PROPS.REFRESH] = async () => {
+      // Migrate if needed
+      await params.migrate?.();
+
       const state: T = params.storage
         ? await params.storage.read()
         : params.defaultState;

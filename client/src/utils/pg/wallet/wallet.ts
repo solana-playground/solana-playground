@@ -8,7 +8,6 @@ import {
   declareUpdatable,
   derivable,
   initable,
-  migratable,
   updatable,
 } from "../decorators";
 import { PgSettings } from "../settings";
@@ -245,10 +244,9 @@ const migrate = () => {
   localStorage.removeItem("walletName");
 };
 
-@migratable(migrate)
 @initable({ onDidInit })
 @derivable(derive)
-@updatable({ defaultState, storage })
+@updatable({ defaultState, storage, migrate })
 class _PgWallet {
   /**
    * Add a new account.

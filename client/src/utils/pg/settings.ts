@@ -2,7 +2,7 @@
 // import should be avoided.
 
 import { Endpoint } from "../../constants";
-import { declareUpdatable, migratable, updatable } from "./decorators";
+import { declareUpdatable, updatable } from "./decorators";
 import type {
   CallableJSX,
   Disposable,
@@ -201,8 +201,7 @@ const migrate = () => {
   localStorage.setItem(storage.KEY, JSON.stringify(newValue));
 };
 
-@migratable(migrate)
-@updatable({ defaultState, storage, recursive })
+@updatable({ defaultState, storage, recursive, migrate })
 class _PgSettings {
   /** All settings */
   static all: Setting[];
