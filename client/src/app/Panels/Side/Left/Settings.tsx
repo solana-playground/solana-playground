@@ -72,11 +72,7 @@ const SettingGroup: FC<SettingGroupProps> = ({ name, settings }) => (
   <SettingGroupWrapper>
     <Foldable
       isOpen
-      element={
-        <SettingGroupName>
-          {PgCommon.toTitleFromCamel(name).replace("Ui", "UI")}
-        </SettingGroupName>
-      }
+      element={PgCommon.toTitleFromCamel(name).replace("Ui", "UI")}
     >
       {settings.map((setting) => (
         <Setting key={setting.id ?? setting.name} {...setting} />
@@ -95,19 +91,6 @@ const SettingGroupWrapper = styled.div`
 
     &:not(:last-child) {
       border-bottom: 1px solid ${theme.colors.default.border};
-    }
-  `}
-`;
-
-const SettingGroupName = styled.span`
-  ${({ theme }) => css`
-    color: ${theme.colors.default.textSecondary};
-    font-weight: bold;
-    transition: all ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type};
-
-    &:hover {
-      color: ${theme.colors.default.textPrimary};
     }
   `}
 `;

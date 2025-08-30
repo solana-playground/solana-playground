@@ -83,7 +83,7 @@ const Issues = () => {
   if (browser === "Firefox") return null;
 
   return (
-    <Foldable element={<strong>Having issues?</strong>}>
+    <Foldable element="Having issues?">
       <Text icon={<Info color="info" />}>
         <p>
           If you have a running test validator, it means your browser is

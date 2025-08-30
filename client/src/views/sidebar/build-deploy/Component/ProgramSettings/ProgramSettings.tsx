@@ -94,10 +94,7 @@ const ProgramSetting: FC<ProgramSettingProps> = ({
   isOpen,
 }) => (
   <ProgramSettingWrapper>
-    <Foldable
-      isOpen={isOpen}
-      element={<ProgramSettingTitle>{title}</ProgramSettingTitle>}
-    >
+    <Foldable isOpen={isOpen} element={title}>
       <ProgramSettingsInside>
         <ProgramSettingDescription>{description}</ProgramSettingDescription>
         <ProgramSettingContent>{element}</ProgramSettingContent>
@@ -109,8 +106,6 @@ const ProgramSetting: FC<ProgramSettingProps> = ({
 const ProgramSettingWrapper = styled.div`
   margin-top: 1rem;
 `;
-
-const ProgramSettingTitle = styled.span``;
 
 const ProgramSettingsInside = styled.div`
   padding: 0 0.5rem;
