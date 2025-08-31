@@ -6,5 +6,6 @@ export const other = [
     id: "other.blockExplorer",
     description: "Default block explorer to use",
     values: (): string[] => PgBlockExplorer.all.map((b) => b.name),
+    default: "Solana Explorer",
   }),
 ];

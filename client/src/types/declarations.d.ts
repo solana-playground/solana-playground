@@ -11,6 +11,7 @@ import {
   ClientPackageName,
   Disposable,
   OrString,
+  Settings,
   SyncOrAsync,
   Theme,
   TutorialDataParam,
@@ -24,6 +25,9 @@ global {
 
 /** Webpack defined globals */
 global {
+  /** Default settings */
+  const DEFAULT_SETTINGS: Settings;
+
   /** Rust Analyzer crates */
   const CRATES: { importable: string[]; transitive: string[] };
 
@@ -82,8 +86,8 @@ global {
 
 // Settings
 global {
-  /** Internal settings array */
-  type InternalSettings = typeof SETTINGS;
+  /** Internal setting declaration */
+  type InternalSetting = typeof SETTINGS[number];
 }
 
 declare module "styled-components" {

@@ -1,7 +1,6 @@
 // Settings are getting loaded at the start of the application, so any non-type
 // import should be avoided.
 
-import { Endpoint } from "../../constants";
 import { declareUpdatable, updatable } from "./decorators";
 import type {
   CallableJSX,
@@ -11,7 +10,7 @@ import type {
   UnionToTuple,
 } from "./types";
 
-type Settings = ConvertAll<UnionToTuple<InternalSettings[number]>> & {
+export type Settings = ConvertAll<UnionToTuple<InternalSetting>> & {
   // TODO: Store this in `PgProgramInfo` and remove
   build: {
     flags: {
@@ -38,7 +37,12 @@ type Convert<I extends string, V> = I extends ""
   : { [K in I]: V extends undefined ? boolean : V };
 
 /** Setting creation parameter */
-export type SettingParam<I extends string = string, V = unknown, C = never> = {
+export type SettingParam<
+  I extends string = string,
+  V = unknown,
+  C = never,
+  D = boolean
+> = {
   /** Setting identifier (used in `PgSettings`) */
   id?: I;
   /** Name of the setting (default: derive from `id`) */
@@ -51,6 +55,8 @@ export type SettingParam<I extends string = string, V = unknown, C = never> = {
    * If this is not set, the setting is assumed to be a checkbox.
    */
   values?: Getable<readonly Values<V>[]>;
+  /** Default value for the setting */
+  default?: D;
   /** Custom value properties */
   custom?: {
     /** Parse the custom value. */
@@ -90,11 +96,16 @@ type Values<V> =
 
 /** UI Setting */
 export type Setting<I extends string = string, V = any, C = any> = RequiredKey<
-  SettingParam<I, V, C>,
+  Omit<SettingParam<I, V, C>, "default">,
   "name"
-> &
-  SettingsCompat<V>;
+> & { default: V | C } & SettingsCompat<V>;
 
+// UPDATE: The following comments are technically correct, but we've managed to
+// fully abstract setting creation process without sacrificing performance i.e.
+// only the default values of settings are getting loaded at the start of the
+// application, and default values of settings can be set during their creation
+// process.
+//
 // Default values for the settings currently need to be initialized here rather
 // than during settings creation in `/settings` mainly because of two reasons:
 //
@@ -104,45 +115,16 @@ export type Setting<I extends string = string, V = any, C = any> = RequiredKey<
 //    before everything else (even before the initial lazy loading process).
 //    There is no reason to apply these constraints to `/settings`.
 //
-// TODO: Unless we find another way, the initialization problem i.e. having to
-// make changes to this file can be fixed by adding a `defaultValue` field to
-// settings and adding a script that creates the `defaultState` constant based
-// on the new field.
+// TODO: Remove `build.flags`
 const defaultState: Settings = {
-  connection: {
-    endpoint: Endpoint.DEVNET,
-    commitment: "confirmed",
-    preflightChecks: true,
-    priorityFee: "median",
-  },
+  ...DEFAULT_SETTINGS,
   build: {
+    ...DEFAULT_SETTINGS.build,
     flags: {
       seedsFeature: false,
       noDocs: true,
       safetyChecks: false,
     },
-    improveErrors: true,
-  },
-  testUi: {
-    showTxDetailsInTerminal: false,
-  },
-  notification: {
-    showTx: true,
-  },
-  other: {
-    blockExplorer: "Solana Explorer",
-  },
-  server: {
-    endpoint:
-      process.env.NODE_ENV === "production"
-        ? "https://api.solpg.io"
-        : // Docker builds use this environment variable to set the server URL
-          // to the production API (instead of local) if the user has not yet
-          // built the server image
-          process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080",
-  },
-  wallet: {
-    automaticAirdrop: true,
   },
 };
 
