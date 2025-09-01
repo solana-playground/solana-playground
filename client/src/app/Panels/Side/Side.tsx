@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Left from "./Left";
@@ -8,7 +8,6 @@ import { useKeybind, useSetStatic } from "../../../hooks";
 
 const Side = () => {
   const [pageName, setPageName] = useState<SidebarPageName>("Explorer");
-  const oldPageName = useRef(pageName);
   useSetStatic(PgView.events.SIDEBAR_PAGE_NAME_SET, setPageName);
 
   const page = useMemo(() => PgView.getSidebarPage(pageName), [pageName]);
@@ -54,7 +53,6 @@ const Side = () => {
       <Left
         pageName={pageName}
         setPageName={setPageName}
-        oldPageName={oldPageName}
         width={width}
         setWidth={setWidth}
         oldWidth={oldWidth}

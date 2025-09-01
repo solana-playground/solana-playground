@@ -1,11 +1,5 @@
-import {
-  FC,
-  SetStateAction,
-  Dispatch,
-  MutableRefObject,
-  useEffect,
-} from "react";
-import styled, { css, useTheme } from "styled-components";
+import { FC, SetStateAction, Dispatch } from "react";
+import styled, { css } from "styled-components";
 
 import SidebarButton from "./SidebarButton";
 import Settings from "./Settings";
@@ -17,7 +11,6 @@ import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 interface LeftProps<P = SidebarPageName, W = number> {
   pageName: P;
   setPageName: Dispatch<SetStateAction<P>>;
-  oldPageName: MutableRefObject<P>;
   width: W;
   setWidth: Dispatch<SetStateAction<W>>;
   oldWidth: W;
@@ -26,13 +19,10 @@ interface LeftProps<P = SidebarPageName, W = number> {
 const Left: FC<LeftProps> = ({
   pageName,
   setPageName,
-  oldPageName,
   width,
   setWidth,
   oldWidth,
 }) => {
-  useActiveTab({ pageName, oldPageName, width });
-
   const handleSidebarChange = (value: SidebarPageName) => {
     setPageName((state) => {
       if (!width) setWidth(oldWidth);
@@ -49,22 +39,22 @@ const Left: FC<LeftProps> = ({
           {PgView.sidebar.map((page) => (
             <SidebarButton
               key={page.name}
-              tooltipEl={PgCommon.getKeybindTextOS(page.title)}
-              id={getId(page.name)}
+              tooltip={PgCommon.getKeybindTextOS(page.title)}
               src={page.icon}
               onClick={() => handleSidebarChange(page.name)}
+              active={width !== 0 && page.name === pageName}
             />
           ))}
         </Top>
 
         <Bottom>
           <Link href={GITHUB_URL}>
-            <SidebarButton tooltipEl="GitHub" src="/icons/sidebar/github.png" />
+            <SidebarButton tooltip="GitHub" src="/icons/sidebar/github.png" />
           </Link>
 
           <Popover popEl={<Settings />} stackingContext="below-modal">
             <SidebarButton
-              tooltipEl="Settings"
+              tooltip="Settings"
               src="/icons/sidebar/settings.webp"
             />
           </Popover>
@@ -73,27 +63,6 @@ const Left: FC<LeftProps> = ({
     </Wrapper>
   );
 };
-
-const useActiveTab = <P extends SidebarPageName>({
-  pageName,
-  oldPageName,
-  width,
-}: Pick<LeftProps<P>, "pageName" | "oldPageName" | "width">) => {
-  const theme = useTheme();
-
-  useEffect(() => {
-    const oldEl = document.getElementById(getId(oldPageName.current));
-    oldEl?.classList.remove(PgView.classNames.ACTIVE);
-
-    const current = width !== 0 ? pageName : "Closed";
-    const newEl = document.getElementById(getId(current));
-    newEl?.classList.add(PgView.classNames.ACTIVE);
-
-    oldPageName.current = pageName;
-  }, [pageName, oldPageName, width, theme.name]);
-};
-
-const getId = (id: string) => "sidebar" + id;
 
 const Wrapper = styled.div`
   ${({ theme }) => css`

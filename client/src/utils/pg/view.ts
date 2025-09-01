@@ -60,7 +60,6 @@ export class PgView {
 
   /** DOM class names */
   static classNames = {
-    ACTIVE: "active",
     ERROR: "error",
     SUCCESS: "success",
     OPEN: "open",

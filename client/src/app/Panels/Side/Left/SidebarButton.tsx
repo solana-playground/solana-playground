@@ -3,37 +3,30 @@ import styled, { css } from "styled-components";
 
 import Img from "../../../../components/Img";
 import Tooltip from "../../../../components/Tooltip";
-import { PgTheme, PgView } from "../../../../utils/pg";
+import { PgTheme } from "../../../../utils/pg";
 
 interface SidebarButtonProps extends ComponentPropsWithoutRef<"div"> {
   src: string;
-  tooltipEl: ReactNode;
+  tooltip: ReactNode;
+  active?: boolean;
 }
 
-const SidebarButton: FC<SidebarButtonProps> = ({
-  src,
-  tooltipEl,
-  ...props
-}) => (
-  <Tooltip element={tooltipEl} placement="right" arrow={{ size: 4 }}>
+const SidebarButton: FC<SidebarButtonProps> = ({ src, tooltip, ...props }) => (
+  <Tooltip element={tooltip} placement="right" arrow={{ size: 4 }}>
     <IconWrapper {...props}>
       <Icon src={src} />
     </IconWrapper>
   </Tooltip>
 );
 
-const IconWrapper = styled.div`
-  ${({ theme }) => css`
+const IconWrapper = styled.div<Pick<SidebarButtonProps, "active">>`
+  ${({ theme, active }) => css`
     ${PgTheme.convertToCSS(theme.views.sidebar.left.button.default)};
 
-    &.${PgView.classNames.ACTIVE} {
-      ${PgTheme.convertToCSS(theme.views.sidebar.left.button.selected)};
-    }
-
-    &.${PgView.classNames.ACTIVE} img,
-    &:hover:not(.${PgView.classNames.ACTIVE}) img {
-      filter: invert(1);
-    }
+    ${active
+      ? `${PgTheme.convertToCSS(theme.views.sidebar.left.button.selected)};
+      & img { filter: invert(1); }`
+      : `&:hover img { filter: invert(1); }`}
   `}
 `;
 
