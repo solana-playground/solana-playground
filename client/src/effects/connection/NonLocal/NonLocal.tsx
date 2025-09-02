@@ -1,10 +1,10 @@
 import { FC, useEffect } from "react";
 import styled, { css } from "styled-components";
 
-import Button from "../../../../components/Button";
-import { Endpoint } from "../../../../constants";
-import { PgCommand, PgConnection, PgView } from "../../../../utils/pg";
-import type { ToastChildProps } from "../../../../components/Toast";
+import Button from "../../../components/Button";
+import { Endpoint } from "../../../constants";
+import { PgCommand, PgConnection, PgView } from "../../../utils/pg";
+import type { ToastChildProps } from "../../../components/Toast";
 
 export const NonLocal: FC<ToastChildProps> = ({ id }) => {
   // Close the toast if the user changes the cluster

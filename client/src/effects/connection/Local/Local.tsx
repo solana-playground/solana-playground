@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import styled, { css } from "styled-components";
 
-import Foldable from "../../../../components/Foldable";
-import Markdown from "../../../../components/Markdown";
-import Modal from "../../../../components/Modal";
-import Text from "../../../../components/Text";
-import { Info, Sad } from "../../../../components/Icons";
-import { PgCommon, PgConnection, PgView } from "../../../../utils/pg";
+import Foldable from "../../../components/Foldable";
+import Markdown from "../../../components/Markdown";
+import Modal from "../../../components/Modal";
+import Text from "../../../components/Text";
+import { Info, Sad } from "../../../components/Icons";
+import { PgCommon, PgConnection, PgView } from "../../../utils/pg";
 
 export const Local = () => {
   // Check localnet connection
