@@ -32,16 +32,12 @@ const storage = {
       return defaultState;
     }
 
-    try {
-      return await PgExplorer.fs.readToJSON(this.PATH);
-    } catch {
-      return defaultState;
-    }
+    return await PgExplorer.fs.readToJSONOrDefault(this.PATH, defaultState);
   },
 
   /** Serialize the data and write to storage. */
   async write(state: TutorialState) {
-    if (!state.pageNumber) return;
+    if (!state.pageNumber || !PgExplorer.isInitialized) return;
 
     // Don't use spread operator(...) because of the extra state
     const serializedState: TutorialState = {
