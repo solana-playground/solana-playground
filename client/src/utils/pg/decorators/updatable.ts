@@ -50,7 +50,7 @@ export function updatable<T extends Record<string, any>>(params: {
   /** Whether to add proxy setters recursively */
   recursive?: boolean;
   /** Migrate data (runs before everything else in `init` and `refresh`) */
-  migrate?: () => SyncOrAsync<void>;
+  migrate?: () => SyncOrAsync<Array<{ from: string; to: string }> | void>;
 }) {
   return (sClass: any) => {
     // Add `onDidChange` methods
@@ -93,11 +93,35 @@ export function updatable<T extends Record<string, any>>(params: {
     // Add `refresh` method
     (sClass as Updatable<T>)[PROPS.REFRESH] = async () => {
       // Migrate if needed
-      await params.migrate?.();
+      const migrations = await params.migrate?.();
 
       const state: T = params.storage
         ? await params.storage.read()
         : params.defaultState;
+
+      if (migrations) {
+        for (const migration of migrations) {
+          // Get old value
+          let value;
+          try {
+            value = PgCommon.getValue(state, migration.from);
+          } catch {
+            // The value has already been migrated
+            break;
+          }
+
+          // Set parents to empty objects if needed
+          const to = PgCommon.normalizeAccessor(migration.to);
+          for (const i in to) {
+            PgCommon.getValue(state, to.slice(0, +i))[to[i]] ??= {};
+          }
+
+          // Set new value
+          PgCommon.setValue(state, to, value);
+
+          // The deletion of the old value will be handled in `removeExtraProperties`
+        }
+      }
 
       // Set the default if any prop is missing (recursively)
       const setMissingDefaults = (state: any, defaultState: any) => {
