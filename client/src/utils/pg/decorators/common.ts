@@ -1,20 +1,28 @@
 import { PgCommon } from "../common";
-import type { OnDidChangeDefault } from "./types";
-import type { Arrayable, Disposable, SyncOrAsync } from "../types";
+import type { Initable, OnDidChangeProperty } from "./types";
+import type { Accessor, Disposable, SyncOrAsync } from "../types";
 
-/** Private state property */
-export const INTERNAL_STATE_PROPERTY = "_state";
-
-/** The property name for keeping track of whether the class has been initialized */
-export const IS_INITIALIZED_PROPERTY = "_isinitialized";
-
-/** Change event method name prefix */
-export const ON_DID_CHANGE = "onDidChange";
-
-/** Get the change event property name. */
-export const getChangePropName = (prop: string) => {
-  return ON_DID_CHANGE + PgCommon.capitalize(prop);
-};
+/** Property names */
+export const PROPS = {
+  /** Internal (private) state */
+  INTERNAL_STATE: "_state",
+  /** The property name for keeping track of whether the class has been initialized */
+  IS_INITIALIZED: "_isInitialized",
+  /** Initialization method name */
+  INIT: "init",
+  /** The property name for keeping track of all `init` functions */
+  INITS: "_inits",
+  /** Update method name */
+  UPDATE: "update",
+  /** Refresh state method name */
+  REFRESH: "refresh",
+  /** Change event method name (or prefix) */
+  ON_DID_CHANGE: "onDidChange",
+  /** Change event method name (or prefix) */
+  ON_DID_INIT: "_onDidChange",
+  /** Dispatch change event(s) method name */
+  DISPATCH_CHANGE_EVENT: "_dispatchChangeEvent",
+} as const;
 
 /**
  * Add `init` property to the given static class.
@@ -22,24 +30,35 @@ export const getChangePropName = (prop: string) => {
  * @param sClass static class
  * @param init init method to implement
  */
-export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
-  sClass[INTERNAL_STATE_PROPERTY] ??= {};
+export const addInit = (
+  sClass: any,
+  init?: () => SyncOrAsync<Disposable | void>,
+  onDidInit?: () => SyncOrAsync<Disposable | void>
+) => {
+  sClass[PROPS.INTERNAL_STATE] ??= {};
+  sClass[PROPS.INITS] ??= [];
+  if (init) sClass[PROPS.INITS].push(init);
+  if (onDidInit) sClass[PROPS.ON_DID_INIT] = onDidInit;
 
-  const previousInit = sClass.init;
-  sClass.init = async () => {
+  (sClass as Initable)[PROPS.INIT] = async () => {
     const disposables: Disposable[] = [];
-    if (previousInit) {
-      const disposable = await previousInit();
-      disposables.push(disposable);
+    for (const init of sClass[PROPS.INITS]) {
+      const maybeDisposable = await init();
+      if (maybeDisposable) disposables.push(maybeDisposable);
     }
 
-    const disposable = await init();
-    disposables.push(disposable);
+    sClass[PROPS.IS_INITIALIZED] = true;
 
-    sClass[IS_INITIALIZED_PROPERTY] = true;
+    if (sClass[PROPS.ON_DID_INIT]) {
+      const maybeDisposable = await sClass[PROPS.ON_DID_INIT]();
+      if (maybeDisposable) disposables.push(maybeDisposable);
+    }
+
     disposables.push(
-      { dispose: () => (sClass[IS_INITIALIZED_PROPERTY] = false) },
-      { dispose: () => (sClass[INTERNAL_STATE_PROPERTY] = {}) }
+      { dispose: () => (sClass[PROPS.IS_INITIALIZED] = false) },
+      { dispose: () => delete sClass[PROPS.ON_DID_INIT] },
+      { dispose: () => (sClass[PROPS.INITS] = []) },
+      { dispose: () => (sClass[PROPS.INTERNAL_STATE] = {}) }
     );
 
     return {
@@ -53,49 +72,72 @@ export const addInit = (sClass: any, init: () => SyncOrAsync<Disposable>) => {
  *
  * @param sClass static class
  * @param state default state
+ * @param recursive whether to recursively add `onDidChange` methods
  */
 export const addOnDidChange = (
   sClass: any,
-  state: { [key: string]: unknown }
+  state: Record<string, unknown>,
+  recursive?: boolean
 ) => {
-  // Batch main change event
-  (sClass as OnDidChangeDefault<unknown>).onDidChange = (
-    cb: (value: unknown) => void
-  ) => {
-    return PgCommon.batchChanges(
-      () => cb(sClass[INTERNAL_STATE_PROPERTY]),
-      [onDidChange]
-    );
-  };
+  // Casting to this type is technically incorrect, but it gets the job done
+  type OnDidChange = OnDidChangeProperty<typeof state>;
 
   // Main change event
-  const onDidChange = (cb: (value: unknown) => void) => {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: sClass._getChangeEventName(),
-      initialRun: sClass[IS_INITIALIZED_PROPERTY]
-        ? { value: sClass[INTERNAL_STATE_PROPERTY] }
-        : undefined,
-    });
+  (sClass as OnDidChange)[getChangePropName()] = (cb) => {
+    return PgCommon.onDidChange(
+      getChangeEventName(),
+      // Debounce the main change event because each property change dispatches
+      // the main change event
+      PgCommon.debounce(cb),
+      sClass[PROPS.IS_INITIALIZED]
+        ? { value: sClass[PROPS.INTERNAL_STATE] }
+        : undefined
+    );
   };
 
   // Property change events
   for (const prop in state) {
-    sClass[getChangePropName(prop)] = (cb: (value: unknown) => unknown) => {
-      return PgCommon.onDidChange({
+    (sClass as OnDidChange)[getChangePropName(prop)] = (cb) => {
+      return PgCommon.onDidChange(
+        getChangeEventName(prop),
         cb,
-        eventName: sClass._getChangeEventName(prop),
-        initialRun: sClass[IS_INITIALIZED_PROPERTY]
-          ? { value: sClass[prop] }
-          : undefined,
-      });
+        sClass[PROPS.IS_INITIALIZED]
+          ? { value: PgCommon.getValue(sClass, prop) }
+          : undefined
+      );
     };
   }
 
-  // Get custom event name
-  sClass._getChangeEventName = (name?: Arrayable<string>) => {
-    if (Array.isArray(name)) name = name.join(".");
+  // Recursive property change events
+  if (recursive) {
+    const addOnDidChangeProps = (accessor: string[] = []) => {
+      const value = accessor.length
+        ? PgCommon.getValue(state, accessor)
+        : state;
+      for (const prop in value) {
+        const currentAccessor = [...accessor, prop];
+        (sClass as OnDidChange)[getChangePropName(currentAccessor)] = (cb) => {
+          return PgCommon.onDidChange(
+            getChangeEventName(currentAccessor),
+            cb,
+            sClass[PROPS.IS_INITIALIZED]
+              ? { value: PgCommon.getValue(sClass, currentAccessor) }
+              : undefined
+          );
+        };
 
+        const value = PgCommon.getValue(state, currentAccessor);
+        if (typeof value === "object" && value !== null) {
+          addOnDidChangeProps(currentAccessor);
+        }
+      }
+    };
+
+    addOnDidChangeProps();
+  }
+
+  // Get custom event name
+  const getChangeEventName = (accessor: Accessor = []) => {
     // `sClass.name` is minified to something like `e` in production builds
     // which cause collision with other classes and this only happens with the
     // main `onDidChange` method because the child change methods have `name`
@@ -111,6 +153,45 @@ export const addOnDidChange = (
     // to include only the class/function names(decorator classes can be transpiled
     // to either classes or functions depending on the browser version) that start
     // with "_Pg".
-    return "ondidchange" + sClass.name + (name ?? "");
+    return (
+      "ondidchange" +
+      sClass.name +
+      PgCommon.normalizeAccessor(accessor).join(".")
+    );
   };
+
+  // Dispatch change event(s)
+  sClass[PROPS.DISPATCH_CHANGE_EVENT] = (accessor?: Accessor) => {
+    // Only dispatch if the state has been initialized
+    if (!sClass[PROPS.IS_INITIALIZED]) return;
+
+    // Dispatch the prop update event if `prop` exists
+    if (accessor) {
+      PgCommon.createAndDispatchCustomEvent(
+        getChangeEventName(accessor),
+        PgCommon.getValue(sClass, accessor)
+      );
+    }
+
+    // Always dispatch the main update event
+    PgCommon.createAndDispatchCustomEvent(
+      getChangeEventName(),
+      sClass[PROPS.INTERNAL_STATE]
+    );
+  };
+};
+
+/**
+ * Get the change event property name.
+ *
+ * @param accessor property accessor (e.g. `field`, `inner.field`)
+ * @returns the property name for the change event
+ */
+export const getChangePropName = <T extends Record<string, unknown>>(
+  accessor: Accessor = []
+) => {
+  return PgCommon.normalizeAccessor(accessor).reduce(
+    (acc, cur) => acc + PgCommon.capitalize(cur),
+    PROPS.ON_DID_CHANGE
+  ) as keyof OnDidChangeProperty<T>;
 };

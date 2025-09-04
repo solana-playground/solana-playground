@@ -48,7 +48,6 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
     "react-select": "^5.5.4",
-    "react-split": "^2.0.14",
     "react-toastify": "^9.0.0",
     "react-use-clipboard": "^1.0.8",
     "remark-gfm": "^3.0.1",
@@ -73,7 +72,8 @@
     "@types/styled-components": "^5.1.24",
     "circular-dependency-plugin": "^5.2.2",
     "csstype": "^3.1.2",
-    "monaco-editor-webpack-plugin": "^7.0.1"
+    "monaco-editor-webpack-plugin": "^7.0.1",
+    "tsx": "^4.20.5"
   },
   "resolutions": {
     "@solana/buffer-layout": "^4.0.0",

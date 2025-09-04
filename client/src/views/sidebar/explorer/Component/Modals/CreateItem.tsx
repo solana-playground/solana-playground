@@ -14,7 +14,7 @@ import {
 export const CreateItem = () => {
   const [El, setEl] = useState<Element | null>(null);
 
-  useSetStatic(setEl, PgView.events.NEW_ITEM_PORTAL_SET);
+  useSetStatic(PgView.events.NEW_ITEM_PORTAL_SET, setEl);
 
   const hide = useCallback(() => setEl(null), []);
 
@@ -110,12 +110,10 @@ const CreateItemInput: FC<CreateItemInputProps> = ({ El, hide }) => {
       <Input
         autoFocus
         value={itemName}
-        onChange={(ev) => {
-          setItemName(ev.target.value);
-          setError(false);
-        }}
+        onChange={(ev) => setItemName(ev.target.value)}
         error={error}
         setError={setError}
+        validator={PgExplorer.isItemNameValid}
       />
     </Wrapper>
   );

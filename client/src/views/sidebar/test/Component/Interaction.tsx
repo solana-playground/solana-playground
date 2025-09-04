@@ -10,7 +10,7 @@ interface InteractionProps {
 
 const Interaction: FC<InteractionProps> = ({ name, index, children }) => (
   <Wrapper index={index}>
-    <Foldable element={<Name>{name}</Name>}>{children}</Foldable>
+    <Foldable element={name}>{children}</Foldable>
   </Wrapper>
 );
 
@@ -24,10 +24,6 @@ const Wrapper = styled.div<Pick<InteractionProps, "index">>`
       border-bottom: 1px solid ${theme.colors.default.border};
     }
   `}
-`;
-
-const Name = styled.span`
-  font-weight: bold;
 `;
 
 export default Interaction;

@@ -26,7 +26,7 @@ import { MAIN_SECONDARY } from "../../../../views";
 
 const Secondary = () => {
   const [page, setPage] = useState<MainSecondaryPageName>("Terminal");
-  useSetStatic(setPage, PgView.events.MAIN_SECONDARY_PAGE_SET);
+  useSetStatic(PgView.events.MAIN_SECONDARY_PAGE_SET, setPage);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
@@ -63,7 +63,7 @@ const Secondary = () => {
       return height;
     });
   }, []);
-  useSetStatic(setCheckedHeight, PgView.events.MAIN_SECONDARY_HEIGHT_SET);
+  useSetStatic(PgView.events.MAIN_SECONDARY_HEIGHT_SET, setCheckedHeight);
 
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => setCheckedHeight((h) => h + d.height),
@@ -233,7 +233,7 @@ const Tab = styled.div<{ isCurrent: boolean }>`
 
 const Progress = () => {
   const [progress, setProgress] = useState(0);
-  useSetStatic(setProgress, PgView.events.MAIN_SECONDARY_PROGRESS_SET);
+  useSetStatic(PgView.events.MAIN_SECONDARY_PROGRESS_SET, setProgress);
   return <ProgressBar value={progress} />;
 };
 

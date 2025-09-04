@@ -42,9 +42,9 @@ const Primary = () => {
   }, []);
 
   useGetAndSetStatic(
+    PgView.events.MAIN_PRIMARY_STATIC,
     el,
-    setElWithTransition,
-    PgView.events.MAIN_PRIMARY_STATIC
+    setElWithTransition
   );
 
   return (

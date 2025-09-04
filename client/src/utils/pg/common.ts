@@ -8,6 +8,7 @@ import type {
   Arrayable,
   ValueOf,
   OrString,
+  Accessor,
 } from "./types";
 
 export class PgCommon {
@@ -86,20 +87,22 @@ export class PgCommon {
    * Debounce the given callback.
    *
    * @param cb callback to debounce
-   * @param options -
-   * - delay: how long to wait before running the callback
-   * - sharedTimeout: shared timeout object
+   * @param opts -
+   * - `delay`: how long to wait before running the callback
+   * - `sharedTimeout`: shared timeout object
    */
   static debounce(
-    cb: () => void,
-    options?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
+    cb: (...args: unknown[]) => unknown,
+    opts?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
   ) {
-    const delay = options?.delay ?? 100;
-    const sharedTimeout = options?.sharedTimeout ?? {};
+    const { delay, sharedTimeout } = PgCommon.setDefault(opts, {
+      delay: 100,
+      sharedTimeout: {},
+    });
 
-    return () => {
-      sharedTimeout.id && clearTimeout(sharedTimeout.id);
-      sharedTimeout.id = setTimeout(cb, delay);
+    return (...args: unknown[]) => {
+      if (sharedTimeout.id) clearTimeout(sharedTimeout.id);
+      sharedTimeout.id = setTimeout(() => cb(...args), delay);
     };
   }
 
@@ -411,12 +414,40 @@ export class PgCommon {
   /**
    * Access the property value from `.` seperated input.
    *
-   * @param obj object to get property from
-   * @param property `.` seperated property input
+   * @param obj object to get the property value of
+   * @param accessor property accessor
    */
-  static getProperty(obj: any, property: string | string[]) {
-    if (Array.isArray(property)) property = property.join(".");
-    return property.split(".").reduce((acc, cur) => acc[cur], obj);
+  static getValue(obj: Record<string, any>, accessor: Accessor) {
+    return PgCommon.normalizeAccessor(accessor).reduce(
+      (acc, cur) => acc[cur],
+      obj
+    );
+  }
+
+  /**
+   * Set object property values from `.` separated input.
+   *
+   * @param obj object
+   * @param accessor property accessor
+   * @param value new value to set
+   */
+  static setValue(obj: Record<string, any>, accessor: Accessor, value: any) {
+    accessor = PgCommon.normalizeAccessor(accessor);
+    if (!accessor.length) throw new Error("Accessor cannot be empty empty");
+
+    const parent = PgCommon.getValue(obj, accessor.slice(0, -1));
+    const lastProp = accessor.at(-1)!;
+    parent[lastProp] = value;
+  }
+
+  /**
+   * Normalize the accessor i.e. convert the `string` inputs to an array.
+   *
+   * @param accessor property accessor
+   * @returns the normalized accessor (array)
+   */
+  static normalizeAccessor(accessor: Accessor) {
+    return typeof accessor === "string" ? accessor.split(".") : accessor;
   }
 
   /**
@@ -823,7 +854,14 @@ export class PgCommon {
    * @returns the string with its first letter uppercased
    */
   static capitalize(str: string) {
-    return str[0].toUpperCase() + str.slice(1);
+    switch (str.length) {
+      case 0:
+        return str;
+      case 1:
+        return str.toUpperCase();
+      default:
+        return str[0].toUpperCase() + str.slice(1);
+    }
   }
 
   /**
@@ -916,30 +954,29 @@ export class PgCommon {
   /**
    * Handle change event.
    *
-   * If `params.initialRun` is specified, the callback will run immediately with
-   * the given `params.initialRun.value`. Any subsequent runs are only possible
+   * @param eventName name of the event
+   * @param cb callback to run
+   * @param initialRun if specified, the callback will run immediately with the
+   * given `params.initialRun.value`. Any subsequent runs are only possible
    * through the custom event listener.
-   *
    * @returns a dispose function to clear the event
    */
-  static onDidChange<T>(params: {
-    cb: (value: T) => any;
-    eventName: string;
+  static onDidChange<T>(
+    eventName: string,
+    cb: (value: T) => any,
     // TODO: make it run by default
-    initialRun?: { value: T };
-  }): Disposable {
+    initialRun?: { value: T }
+  ): Disposable {
     type Event = UIEvent & { detail: T };
 
-    const handle = (ev: Event) => {
-      params.cb(ev.detail);
-    };
+    const handle = (ev: Event) => cb(ev.detail);
 
-    if (params.initialRun) handle({ detail: params.initialRun.value } as Event);
+    if (initialRun) handle({ detail: initialRun.value } as Event);
 
-    document.addEventListener(params.eventName, handle as EventListener);
+    document.addEventListener(eventName, handle as EventListener);
     return {
       dispose: () => {
-        document.removeEventListener(params.eventName, handle as EventListener);
+        document.removeEventListener(eventName, handle as EventListener);
       },
     };
   }
@@ -949,6 +986,8 @@ export class PgCommon {
    *
    * @param cb callback to run
    * @param onChanges onChange methods
+   * @param ops options
+   * - `delay`: debounce delay in ms
    * @returns a dispose function to clear all events
    */
   static batchChanges(

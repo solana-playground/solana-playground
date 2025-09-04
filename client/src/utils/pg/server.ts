@@ -1,5 +1,6 @@
 import type { Idl } from "@coral-xyz/anchor";
 
+import { PgSettings } from "./settings";
 import type { TupleFiles } from "./explorer";
 
 /** Rust `Option` type */
@@ -102,12 +103,6 @@ export class PgServer {
     return (await response.text()) as ShareNewResponse;
   }
 
-  /** Server URL that is customizable from environment variables */
-  private static readonly _SERVER_URL =
-    process.env.NODE_ENV === "production"
-      ? "https://api.solpg.io"
-      : process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080";
-
   /**
    * Send an HTTP request to the Playground server.
    *
@@ -132,7 +127,10 @@ export class PgServer {
       requestInit.cache = "no-store";
     }
 
-    const response = await fetch(`${this._SERVER_URL}${path}`, requestInit);
+    const response = await fetch(
+      `${PgSettings.server.endpoint}${path}`,
+      requestInit
+    );
     if (!response.ok) {
       const message = await response.text();
       throw new Error(message);

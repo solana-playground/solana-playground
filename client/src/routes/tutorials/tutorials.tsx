@@ -57,11 +57,8 @@ const handleTutorial = (name: string, page: string) => {
       // Initialize explorer
       await PgExplorer.init({ name: tutorial.name });
 
-      // Set the current tutorial data, has to happen before tutorial init
-      PgTutorial.data = tutorial;
-
-      // Initialize tutorial
-      disposables.push(await PgTutorial.init());
+      // Refresh tutorial state
+      await PgTutorial.refresh();
 
       const { default: Tutorial } = await tutorial.importComponent();
       return <Tutorial {...tutorial} />;

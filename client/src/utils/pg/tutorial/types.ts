@@ -10,11 +10,8 @@ type Author = {
   link?: string;
 };
 
-/** Program info state */
-export type TutorialState = Nullable<TutorialMetadata & { data: TutorialData }>;
-
-/** Serialized program info that's used in storage */
-export type SerializedTutorialState = Nullable<TutorialMetadata>;
+/** Tutorial state (same as the serialized state) */
+export type TutorialState = Nullable<TutorialMetadata>;
 
 /** Tutorial data with optional fields. */
 export interface TutorialDataParam {
@@ -91,3 +88,6 @@ export type TutorialDetailKey = keyof Pick<
   TutorialData,
   "level" | "framework" | "languages" | "categories"
 >;
+
+/** A map of string to unknown data as used for tutorial storage data */
+export type TutorialStorageData = Record<string, unknown>;

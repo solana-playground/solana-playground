@@ -1,12 +1,7 @@
-import {
-  addInit,
-  addOnDidChange,
-  getChangePropName,
-  INTERNAL_STATE_PROPERTY,
-} from "./common";
+import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
 import { PgCommon } from "../common";
 import type {
-  Initialize,
+  Initable,
   OnDidChangeDefault,
   OnDidChangeProperty,
 } from "./types";
@@ -37,7 +32,7 @@ export function derivable<T extends Derivable>(
         // Define getter
         if (!Object.hasOwn(sClass, prop)) {
           Object.defineProperty(sClass, prop, {
-            get: () => sClass[INTERNAL_STATE_PROPERTY][prop],
+            get: () => sClass[PROPS.INTERNAL_STATE][prop],
           });
         }
 
@@ -52,20 +47,10 @@ export function derivable<T extends Derivable>(
         });
 
         const disposable = PgCommon.batchChanges(async (value) => {
-          sClass[INTERNAL_STATE_PROPERTY][prop] = await derivable.derive(value);
-
-          // Prop change event
-          PgCommon.createAndDispatchCustomEvent(
-            sClass._getChangeEventName(prop),
-            sClass[prop]
-          );
-
-          // Main change event
-          PgCommon.createAndDispatchCustomEvent(
-            sClass._getChangeEventName(),
-            sClass[INTERNAL_STATE_PROPERTY]
-          );
+          sClass[PROPS.INTERNAL_STATE][prop] = await derivable.derive(value);
+          sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
         }, derivable.onChange as Exclude<OnChange, string>[]);
+
         disposables.push(disposable);
       }
 
@@ -109,7 +94,7 @@ export const createDerivable = <T, R>(derivable: Derivable<T, R>) => derivable;
  */
 export const declareDerivable = <C, T>(sClass: C, derive: () => T) => {
   return sClass as Omit<C, "prototype"> &
-    Initialize &
+    Initable &
     DerivableState<T> &
     OnDidChangeDefault<DerivableState<T>> &
     OnDidChangeProperty<DerivableState<T>>;

@@ -26,3 +26,5 @@ export * from "./types";
 export * from "./view";
 export * from "./wallet/";
 export * from "./web3";
+
+export { initAll } from "./decorators";

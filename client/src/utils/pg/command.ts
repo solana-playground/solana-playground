@@ -169,24 +169,13 @@ export const PgCommand: Commands = new Proxy({} as any, {
     cmdCodeName: CommandCodeName
   ) => {
     if (!target[cmdCodeName]) {
-      const cmdUiName = PgCommandManager.all[cmdCodeName].name;
+      const name = PgCommandManager.all[cmdCodeName].name;
+      const eventNames = getEventNames(name);
       target[cmdCodeName] = {
-        name: cmdUiName,
-        execute: (...args: string[]) => {
-          return PgCommandManager.execute([cmdUiName, ...args]);
-        },
-        onDidStart: (cb: (input: string | null) => void) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: getEventName(cmdCodeName, "start"),
-          });
-        },
-        onDidFinish: (cb: (result: unknown) => void) => {
-          return PgCommon.onDidChange({
-            cb,
-            eventName: getEventName(cmdCodeName, "finish"),
-          });
-        },
+        name,
+        execute: (...args) => PgCommandManager.execute([name, ...args]),
+        onDidStart: (cb) => PgCommon.onDidChange(eventNames.start, cb),
+        onDidFinish: (cb) => PgCommon.onDidChange(eventNames.finish, cb),
       };
     }
 
@@ -284,12 +273,11 @@ export class PgCommandManager {
         );
       }
 
-      // Dispatch start event
       const input = tokens.join(" ");
-      PgCommon.createAndDispatchCustomEvent(
-        getEventName(topCmd.name, "start"),
-        input
-      );
+
+      // Dispatch start event
+      const eventNames = getEventNames(topCmd.name);
+      PgCommon.createAndDispatchCustomEvent(eventNames.start, input);
 
       let cmd: Command<string, Arg[], Option[], any[], any> = topCmd;
       const args = [];
@@ -511,10 +499,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
         });
 
         // Dispatch finish event
-        PgCommon.createAndDispatchCustomEvent(
-          getEventName(topCmd.name, "finish"),
-          result
-        );
+        PgCommon.createAndDispatchCustomEvent(eventNames.finish, result);
 
         return result;
       }
@@ -522,12 +507,8 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
   }
 }
 
-/** Get custom event name for the given command. */
-const getEventName = (name: string, kind: "start" | "finish") => {
-  switch (kind) {
-    case "start":
-      return "ondidrunstart" + name;
-    case "finish":
-      return "ondidrunfinish" + name;
-  }
-};
+/** Get custom event names of the given command. */
+const getEventNames = (name: string) => ({
+  start: "ondidrunstart" + name,
+  finish: "ondidrunfinish" + name,
+});

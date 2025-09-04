@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
@@ -17,33 +17,27 @@ import { useMounted } from "../../../../../hooks";
 interface ImportFsProps {
   name?: string;
   files?: TupleFiles;
-  filesError?: string;
+  importError?: string;
 }
 
 export const ImportFs: FC<ImportFsProps> = (props) => {
   // Handle user input
   const [name, setName] = useState(props.name ?? "");
   const [files, setFiles] = useState(props.files);
-  const [filesError, setFilesError] = useState(props.filesError ?? "");
-  const [importError, setImportError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [importError, setImportError] = useState(props.importError ?? "");
 
   const mounted = useMounted();
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setName(ev.target.value);
-    setImportError("");
-  };
 
   const onDrop = async (userFiles: Array<File & { path: string }>) => {
     try {
       const importFiles: TupleFiles = [];
       for (const userFile of userFiles) {
-        let path = userFile.path;
-        const shouldSkip = /(\/\.|node_modules|target)/.test(path);
+        const shouldSkip = /(\/\.|node_modules|target)/.test(userFile.path);
         if (shouldSkip) continue;
 
         const content = await userFile.text();
-        importFiles.push([path, content]);
+        importFiles.push([userFile.path, content]);
       }
 
       const pgFiles = await PgFramework.convertToPlaygroundLayout(importFiles);
@@ -51,42 +45,42 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
       // Multiple programs require selecting the program to import which closes
       // the current modal
       if (!mounted.current) {
+        PgView.closeModal();
         PgView.setModal(<ImportFs name={name} files={pgFiles} />);
       } else {
         setFiles(pgFiles);
-        setFilesError("");
+        setImportError("");
       }
     } catch (e: any) {
       if (!mounted.current) {
-        PgView.setModal(<ImportFs name={name} filesError={e.message} />);
+        PgView.closeModal();
+        PgView.setModal(<ImportFs name={name} importError={e.message} />);
       } else {
-        setFilesError(e.message);
+        setImportError(e.message);
       }
     }
   };
-
-  const importFs = () => PgExplorer.createWorkspace(name, { files });
 
   return (
     <Modal
       title="Import project"
       buttonProps={{
         text: "Import",
-        onSubmit: importFs,
-        disabled: !name || !files || !!filesError,
+        onSubmit: () => PgExplorer.createWorkspace(name, { files }),
+        disabled: !files || !!nameError || !!importError,
         rightIcon: <ImportWorkspace />,
       }}
-      error={importError}
-      setError={setImportError}
     >
       <Content>
         <ProjectNameWrapper>
           <MainText>Project name</MainText>
           <Input
             autoFocus
-            onChange={handleChange}
             value={name}
-            error={importError}
+            onChange={(ev) => setName(ev.target.value)}
+            validator={PgExplorer.isWorkspaceNameValid}
+            error={nameError}
+            setError={setNameError}
             placeholder="my local project..."
           />
         </ProjectNameWrapper>
@@ -94,7 +88,7 @@ export const ImportFs: FC<ImportFsProps> = (props) => {
         <UploadAreaWrapper>
           <UploadArea
             onDrop={onDrop}
-            error={filesError}
+            error={importError}
             filesLength={files?.length}
             text="Drop a program or a workspace"
           />

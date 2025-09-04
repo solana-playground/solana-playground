@@ -29,6 +29,8 @@ export type TutorialMainComponentProps = Pick<
   };
 
 type TutorailComponentCommonProps = {
+  /** Whether the tutorial has been started */
+  isStarted: boolean;
   /** Start the tutorial. */
   start: () => Promise<void>;
 };

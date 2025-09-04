@@ -9,11 +9,12 @@ import { PointedArrow, Triangle } from "../../Icons";
 import { PgTheme, PgTutorial } from "../../../utils/pg";
 import type { TutorialAboutComponentProps } from "../types";
 
-export const About: FC<TutorialAboutComponentProps> = ({ about, start }) => {
-  const tutorial = PgTutorial.data;
-  if (!tutorial) return null;
-
-  const isStarted = PgTutorial.isStarted(tutorial.name);
+export const About: FC<TutorialAboutComponentProps> = ({
+  about,
+  isStarted,
+  start,
+}) => {
+  const tutorial = PgTutorial.current!;
   const isFinished = PgTutorial.completed;
 
   return (
@@ -84,7 +85,11 @@ export const About: FC<TutorialAboutComponentProps> = ({ about, start }) => {
         </GeneratedWrapper>
 
         <CustomWrapper>
-          {typeof about === "string" ? <Markdown>{about}</Markdown> : about}
+          {typeof about === "string" ? (
+            <Markdown linkable>{about}</Markdown>
+          ) : (
+            about
+          )}
         </CustomWrapper>
       </TutorialAboutPage>
     </Wrapper>

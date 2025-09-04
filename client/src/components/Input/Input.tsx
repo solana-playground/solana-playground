@@ -28,28 +28,26 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {...props}
         className={`${className} ${error ? PgView.classNames.ERROR : ""}`}
         onChange={(ev) => {
-          onChange?.(ev);
+          const handleError = (err: InputError) => {
+            if (setError) setError(err);
+
+            if (err) ev.target.classList.add(PgView.classNames.ERROR);
+            else ev.target.classList.remove(PgView.classNames.ERROR);
+          };
+
+          // Reset error if possible
+          handleError(null);
 
           // Validation
           if (validator) {
-            const handleError = (err: InputError) => {
-              if (setError) setError(err);
-
-              if (err) ev.target.classList.add(PgView.classNames.ERROR);
-              else ev.target.classList.remove(PgView.classNames.ERROR);
-            };
-
             try {
-              if (validator(ev.target.value) === false) {
-                handleError(true);
-              } else {
-                handleError(null);
-              }
+              if (validator(ev.target.value) === false) handleError(true);
             } catch (err: any) {
-              console.log("Validation error:", err.message);
               handleError(err.message);
             }
           }
+
+          onChange?.(ev);
         }}
       />
     </>

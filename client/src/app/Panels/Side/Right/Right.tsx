@@ -18,7 +18,6 @@ import {
   SetState,
   SidebarPage,
 } from "../../../../utils/pg";
-import { useResize } from "./useResize";
 import { useAsyncEffect, useSetStatic } from "../../../../hooks";
 
 interface DefaultRightProps {
@@ -32,17 +31,26 @@ interface RightProps<W = number> extends DefaultRightProps {
 }
 
 const Right: FC<RightProps> = ({ page, width, setWidth, oldWidth }) => {
-  const { handleResizeStop, windowHeight } = useResize(setWidth);
+  const handleResizeStop = useCallback(
+    (e, direction, ref, d) => {
+      setWidth((w) => {
+        const newWidth = w + d.width;
+        if (newWidth < 180) return 0;
+
+        return newWidth;
+      });
+    },
+    [setWidth]
+  );
 
   return (
     <Resizable
       size={{ width, height: "100%" }}
-      minHeight="100%"
       maxWidth={window.innerWidth * 0.75}
       onResizeStop={handleResizeStop}
       enable="right"
     >
-      <Wrapper width={width} oldWidth={oldWidth} windowHeight={windowHeight}>
+      <Wrapper width={width} oldWidth={oldWidth}>
         <Title page={page} />
         <Content page={page} />
       </Wrapper>
@@ -68,8 +76,8 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     });
   }, []);
 
-  useSetStatic(setProps, PgView.events.SIDEBAR_PAGE_PROPS_SET);
-  useSetStatic(setLoading, PgView.events.SIDEBAR_LOADING_SET);
+  useSetStatic(PgView.events.SIDEBAR_PAGE_PROPS_SET, setProps);
+  useSetStatic(PgView.events.SIDEBAR_LOADING_SET, setLoading);
 
   const ids = useRef<boolean[]>([]);
 
@@ -93,15 +101,14 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
 };
 
 const Wrapper = styled.div<{
-  windowHeight: number;
   width: number;
   oldWidth: number;
 }>`
-  ${({ theme, width, oldWidth, windowHeight }) => css`
+  ${({ theme, width, oldWidth }) => css`
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    height: calc(${windowHeight}px - ${theme.views.bottom.default.height});
+    height: 100%;
     min-width: ${width ? width : oldWidth}px;
 
     ${PgTheme.getScrollbarCSS()};

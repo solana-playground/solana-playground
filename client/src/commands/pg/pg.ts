@@ -16,7 +16,10 @@ export const pg = createCmd({
       name: "get",
       description: "Get setting value",
       args: createArgs([settingIdArg]),
-      handle: (input) => PgTerminal.println(PgSettings.get(input.args.id)),
+      handle: (input) => {
+        const value = PgSettings.get(input.args.id).getValue();
+        PgTerminal.println(value);
+      },
     }),
 
     createSubcmd({
@@ -31,8 +34,10 @@ export const pg = createCmd({
             // TODO: Find a better way to reliably get the setting ID because
             // passing an option before the third token would break this logic
             const id = tokens.at(2);
-            const setting = PgSettings.all.find((s) => s.id === id);
-            if (!setting) throw new Error(`Setting not found: ${id}`);
+            if (!id) throw new Error("Setting ID not found in tokens");
+
+            // Get setting
+            const setting = PgSettings.get(id);
 
             // If `values` field is not specified, default to boolean
             if (!setting.values) return ["true", "false"];
@@ -45,12 +50,12 @@ export const pg = createCmd({
               throw new Error(`Unimplemented setting value: ${v}`);
             });
 
-            // If the setting has a custom value validator, allow the current
+            // If the setting has a custom value parser, allow the current
             // token to be used as a setting value after a validation check
-            if (setting.customValueValidator) {
+            if (setting.custom) {
               try {
-                const isValid = setting.customValueValidator(token);
-                if (isValid) values.push(token);
+                setting.custom.parse(token);
+                values.push(token);
               } catch {}
             }
 
@@ -59,25 +64,25 @@ export const pg = createCmd({
         },
       ]),
       handle: (input) => {
-        const id = input.args.id;
-        const val = input.args.value;
-        const setting = PgSettings.all.find((s) => s.id === id);
-        if (!setting) throw new Error(`Setting not found: ${id}`);
+        const { id, value } = input.args;
+        const setting = PgSettings.get(id);
 
         let parsedVal = PgCommon.callIfNeeded(setting.values)?.find(
-          (v) => v.name === val
+          (v) => v.name === value
         )?.value;
-        if (!parsedVal) {
-          // TODO: Parse based on setting's `values` prop (currently, there is
-          // no way to indicate what type custom values are going to be)
-          parsedVal = PgCommon.isBoolean(val)
-            ? val === "true"
-            : PgCommon.isInt(val)
-            ? parseInt(val)
-            : val;
+        if (parsedVal === undefined) {
+          if (setting.custom) {
+            try {
+              parsedVal = setting.custom.parse(value);
+            } catch {}
+          }
+
+          if (parsedVal === undefined) {
+            parsedVal = setting.values ? value : value === "true";
+          }
         }
 
-        PgSettings.set(id, parsedVal);
+        setting.setValue(parsedVal);
       },
     }),
   ],

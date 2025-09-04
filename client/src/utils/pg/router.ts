@@ -31,14 +31,14 @@ type PathParameter<T extends string = string> = {
 };
 
 export class PgRouter {
-  /** URL information about the page */
-  static location = window.location;
-
   /** All routes */
   static all: Route<RoutePath>[];
 
+  /** URL information about the page */
+  static readonly location = window.location;
+
   /** All router event names */
-  static events = {
+  static readonly events = {
     NAVIGATE: "routernavigate",
     ON_DID_CHANGE_PATH: "routerondidchangepath",
     ON_DID_CHANGE_HASH: "routerondidchangehash",
@@ -140,10 +140,8 @@ export class PgRouter {
    * @returns a dispose function to clear the event
    */
   static onDidChangePath(cb: (path: RoutePath) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgRouter.events.ON_DID_CHANGE_PATH,
-      initialRun: { value: PgRouter.location.pathname },
+    return PgCommon.onDidChange(PgRouter.events.ON_DID_CHANGE_PATH, cb, {
+      value: PgRouter.location.pathname,
     });
   }
 
@@ -154,10 +152,8 @@ export class PgRouter {
    * @returns a dispose function to clear the event
    */
   static onDidChangeHash(cb: (hash: string) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgRouter.events.ON_DID_CHANGE_HASH,
-      initialRun: { value: PgRouter.location.hash },
+    return PgCommon.onDidChange(PgRouter.events.ON_DID_CHANGE_HASH, cb, {
+      value: PgRouter.location.hash,
     });
   }
 

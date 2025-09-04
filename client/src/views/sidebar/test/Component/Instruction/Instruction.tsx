@@ -136,7 +136,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
       <Interaction name={instruction.name} index={index}>
         <ArgsAndAccountsWrapper>
           {instruction.values.args.length > 0 && (
-            <Foldable element={<ArgsText>Args</ArgsText>} isOpen>
+            <Foldable element="Args" isOpen>
               <InstructionInputsWrapper>
                 {instruction.values.args.map((arg) => (
                   <InstructionInput
@@ -160,7 +160,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
           )}
 
           {instruction.values.accounts.length > 0 && (
-            <Foldable element={<AccountsText>Accounts</AccountsText>} isOpen>
+            <Foldable element="Accounts" isOpen>
               <InstructionInputsWrapper>
                 {instruction.values.accounts.map((acc) => (
                   <InstructionInput
@@ -221,10 +221,6 @@ const InstructionInputsWrapper = styled.div`
   gap: 0.5rem;
   font-size: ${({ theme }) => theme.font.code.size.small};
 `;
-
-const ArgsText = styled.span``;
-
-const AccountsText = styled.span``;
 
 const ButtonWrapper = styled.div`
   display: flex;

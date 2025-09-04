@@ -10,12 +10,11 @@ import { TUTORIALS } from "../../tutorials";
 import { SIDEBAR } from "../../views";
 import { SETTINGS } from "../../settings";
 import {
-  Disposable,
+  initAll,
   PgBlockExplorer,
   PgCommandManager,
   PgCommon,
   PgConnection,
-  PgExplorer,
   PgFramework,
   PgGlobal,
   PgLanguage,
@@ -38,33 +37,22 @@ PgTutorial.all = TUTORIALS;
 PgView.sidebar = SIDEBAR;
 PgSettings.all = SETTINGS;
 
+// All initables to initialize
+const INITABLES = [
+  PgBlockExplorer,
+  PgConnection,
+  PgGlobal,
+  PgProgramInfo,
+  PgTutorial,
+  PgWallet,
+];
+const getInitables = () => initAll(INITABLES);
+
 const Global = () => {
-  useDisposable(PgGlobal.init);
+  useDisposable(getInitables);
   useRouter();
-  useExplorer();
-  useDisposable(PgConnection.init);
-  useDisposable(PgBlockExplorer.init); // Must be after `PgConnection` init
-  useDisposable(PgWallet.init);
-  useProgramInfo();
-  useTutorial();
 
   return null;
-};
-
-/** Initialize `PgProgramInfo` on explorer initialization and workspace switch. */
-const useProgramInfo = () => {
-  useEffect(() => {
-    let programInfo: Disposable | undefined;
-    const batch = PgCommon.batchChanges(async () => {
-      programInfo?.dispose();
-      programInfo = await PgProgramInfo.init();
-    }, [PgExplorer.onDidInit, PgExplorer.onDidSwitchWorkspace]);
-
-    return () => {
-      programInfo?.dispose();
-      batch.dispose();
-    };
-  }, []);
 };
 
 /** Handle URL routing. */
@@ -96,40 +84,7 @@ const useRouter = () => {
 
   // Navigate
   const navigate = useNavigate();
-  useGetStatic(navigate, PgRouter.events.NAVIGATE);
-};
-
-// TODO: Remove and handle this from explorer impl
-/** Handle explorer consistency. */
-const useExplorer = () => {
-  // Handle loading state
-  useEffect(() => {
-    const { dispose } = PgExplorer.onDidInit(() => {
-      // Check whether the tab state is valid
-      // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
-      if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
-        PgExplorer.openFile(PgExplorer.tabs[0]);
-      }
-    });
-    return dispose;
-  }, []);
-};
-
-/** Navigate to tutorial's route when necessary. */
-const useTutorial = () => {
-  useEffect(() => {
-    const { dispose } = PgCommon.batchChanges(() => {
-      // Don't change the UI to avoid flickering if the current workspace is
-      // a tutorial but the user is on route `/`
-      if (PgRouter.location.pathname === "/") {
-        const workspaceName = PgExplorer.currentWorkspaceName;
-        if (workspaceName && PgTutorial.isWorkspaceTutorial(workspaceName)) {
-          PgTutorial.open(workspaceName);
-        }
-      }
-    }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]);
-    return dispose;
-  }, []);
+  useGetStatic(PgRouter.events.NAVIGATE, navigate);
 };
 
 export default Global;

@@ -107,7 +107,7 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
       {(fetchedData || fetchError) && (
         <ResultWrapper>
           <Foldable
-            element={<span>Result</span>}
+            element="Result"
             isOpen={resultOpen}
             setIsOpen={setResultOpen}
           >

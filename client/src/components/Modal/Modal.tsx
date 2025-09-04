@@ -1,11 +1,4 @@
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useCallback,
-  useRef,
-  useState,
-} from "react";
+import { FC, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button, { ButtonProps } from "../Button";
@@ -27,13 +20,7 @@ interface ModalProps {
     onSubmit?: () => SyncOrAsync;
     /** Whether to skip closing the modal when user submits */
     noCloseOnSubmit?: boolean;
-    /** Set loading state of the button based on `onSubmit` */
-    setLoading?: Dispatch<SetStateAction<boolean>>;
   };
-  /** Error to display */
-  error?: any;
-  /** Set the error when `onSubmit` throws */
-  setError?: Dispatch<SetStateAction<any>>;
   /**
    * Whether to show a close button on top-right.
    *
@@ -47,27 +34,21 @@ const Modal: FC<ModalProps> = ({
   buttonProps,
   closeButton = !buttonProps?.onSubmit,
   children,
-  ...props
 }) => {
   const [error, setError] = useState("");
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = async () => {
     if (!buttonProps || buttonProps.disabled) return;
 
     try {
-      // Get result
       const data = await buttonProps.onSubmit?.();
 
       // Close unless explicitly forbidden
       if (!buttonProps.noCloseOnSubmit) PgView.closeModal(data);
     } catch (e: any) {
-      if (props.setError) props.setError(e.message);
-      else {
-        setError(e.message);
-        throw e;
-      }
+      setError(e.message ?? "Unknown error");
     }
-  }, [buttonProps, props]);
+  };
 
   // Submit on Enter
   // Intentionally clicking the button in order to trigger the button's loading
@@ -118,8 +99,6 @@ const Modal: FC<ModalProps> = ({
               {...buttonProps}
               ref={buttonRef}
               onClick={handleSubmit}
-              disabled={buttonProps.disabled || !!props.error}
-              size={buttonProps.size}
               kind={
                 buttonProps.onSubmit
                   ? buttonProps.kind ?? "primary-transparent"

@@ -13,18 +13,14 @@ export const Add = () => {
   const [name, setName] = useState(PgWallet.getNextAvailableAccountName);
   const [error, setError] = useState<string | null>(null);
 
-  const handleCreate = () => PgWallet.add({ name, keypair });
-  const handleExport = () => PgWallet.export({ name, keypair });
-
   return (
     <Modal
       title
       buttonProps={{
         text: "Create",
-        onSubmit: handleCreate,
+        onSubmit: () => PgWallet.add({ name, keypair }),
+        disabled: !!error,
       }}
-      error={error}
-      setError={setError}
     >
       <MainContent>
         <MainText>Are you sure you want to create a new wallet?</MainText>
@@ -46,7 +42,9 @@ export const Add = () => {
             Saving the keypair will allow you to recover the wallet.
           </Text>
         </WarningTextWrapper>
-        <Button onClick={handleExport}>Save keypair</Button>
+        <Button onClick={() => PgWallet.export({ name, keypair })}>
+          Save keypair
+        </Button>
       </MainContent>
     </Modal>
   );

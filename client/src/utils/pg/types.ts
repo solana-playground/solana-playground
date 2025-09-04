@@ -144,3 +144,6 @@ export type OrString<T> = T | (string & {});
 export type WithOptionalDependencyList<T extends unknown[]> =
   | T
   | [...T, React.DependencyList];
+
+/** Property accessor (`"outer.inner"` is the same as `["outer", "inner"]`) */
+export type Accessor = Arrayable<string>;

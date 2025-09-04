@@ -8,7 +8,7 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { ShortArrow } from "../Icons";
 import { PgView } from "../../utils/pg";
@@ -58,23 +58,34 @@ const Foldable: FC<FoldableProps> = ({
 };
 
 const ClickElWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: fit-content;
-  user-select: none;
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: fit-content;
+    user-select: none;
+    font-weight: bold;
+    color: ${theme.colors.default.textSecondary};
+    transition: all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
 
-  & svg:first-child {
-    margin-right: 0.5rem;
-  }
+    &:hover {
+      cursor: pointer;
+      color: ${theme.colors.default.textPrimary};
+    }
 
-  &.${PgView.classNames.OPEN} svg:first-child {
-    transform: rotate(90deg);
-  }
+    & svg:first-child {
+      margin-right: 0.5rem;
+    }
 
-  &:hover {
-    cursor: pointer;
-  }
+    &.${PgView.classNames.OPEN} {
+      color: ${theme.colors.default.textPrimary};
+
+      & svg:first-child {
+        transform: rotate(90deg);
+      }
+    }
+  `}
 `;
 
 const InsideWrapper = styled.div`

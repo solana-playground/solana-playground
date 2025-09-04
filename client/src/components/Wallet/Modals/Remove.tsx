@@ -6,32 +6,27 @@ import Text from "../../Text";
 import { Warning } from "../../Icons";
 import { PgWallet } from "../../../utils/pg";
 
-export const Remove = () => {
-  const handleRemove = () => PgWallet.remove();
-  const handleExport = () => PgWallet.export();
-
-  return (
-    <Modal
-      title
-      buttonProps={{
-        text: "Remove",
-        kind: "error",
-        onSubmit: handleRemove,
-      }}
-    >
-      <MainContent>
-        <MainText>Are you sure you want to remove the current wallet?</MainText>
-        <Desc>This action is irreversable!</Desc>
-        <WarningTextWrapper>
-          <Text icon={<Warning color="warning" />}>
-            You can recover the wallet later if you save the keypair.
-          </Text>
-        </WarningTextWrapper>
-        <Button onClick={handleExport}>Save keypair</Button>
-      </MainContent>
-    </Modal>
-  );
-};
+export const Remove = () => (
+  <Modal
+    title
+    buttonProps={{
+      text: "Remove",
+      kind: "error",
+      onSubmit: () => PgWallet.remove(),
+    }}
+  >
+    <MainContent>
+      <MainText>Are you sure you want to remove the current wallet?</MainText>
+      <Desc>This action is irreversable!</Desc>
+      <WarningTextWrapper>
+        <Text icon={<Warning color="warning" />}>
+          You can recover the wallet later if you save the keypair.
+        </Text>
+      </WarningTextWrapper>
+      <Button onClick={() => PgWallet.export()}>Save keypair</Button>
+    </MainContent>
+  </Modal>
+);
 
 const MainContent = styled.div`
   display: flex;

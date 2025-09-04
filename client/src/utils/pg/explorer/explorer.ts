@@ -26,10 +26,10 @@ export class PgExplorer {
   private static _initializedWorkspaceName: string | null = null;
 
   /** `indexedDB` file system */
-  static fs = PgFs;
+  static readonly fs = PgFs;
 
   /** Explorer errors */
-  static errors = {
+  static readonly errors = {
     ALREADY_EXISTS: "Already exists",
     INVALID_NAME: "Invalid name",
     TYPE_MISMATCH: "Types don't match",
@@ -38,7 +38,7 @@ export class PgExplorer {
   };
 
   /** Explorer event names */
-  static events = {
+  static readonly events = {
     ON_DID_INIT: "explorerondidinit",
     ON_DID_CREATE_ITEM: "explorerondidcreateitem",
     ON_DID_RENAME_ITEM: "explorerondidrenameitem",
@@ -158,6 +158,16 @@ export class PgExplorer {
         // Reset the explorer state
         this._explorer = this._getDefaultState();
       }
+    }
+
+    // Sanity check for the tab and current file state
+    // Invalid case: https://github.com/solana-playground/solana-playground/issues/91#issuecomment-1336388179
+    //
+    // This should no longer be an issue after the partial rewrite of explorer,
+    // but keeping it anyway just in case the same problem occurs in the future.
+    if (PgExplorer.tabs.length && !PgExplorer.currentFilePath) {
+      console.log("Tab and current file state is partially invalid");
+      PgExplorer.openFile(PgExplorer.tabs[0]);
     }
 
     this._isInitialized = true;
@@ -944,10 +954,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidInit(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_INIT,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_INIT, cb);
   }
 
   /**
@@ -957,10 +964,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidCreateItem(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_CREATE_ITEM,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_CREATE_ITEM, cb);
   }
 
   /**
@@ -970,10 +974,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidRenameItem(cb: (path: string) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_RENAME_ITEM,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_RENAME_ITEM, cb);
   }
 
   /**
@@ -983,10 +984,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidDeleteItem(cb: (path: string) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_DELETE_ITEM,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_DELETE_ITEM, cb);
   }
 
   /**
@@ -996,10 +994,8 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidOpenFile(cb: (file: FullFile | null) => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_OPEN_FILE,
-      initialRun: { value: PgExplorer.getCurrentFile() },
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_OPEN_FILE, cb, {
+      value: PgExplorer.getCurrentFile(),
     });
   }
 
@@ -1010,10 +1006,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidCloseFile(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_CLOSE_FILE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_CLOSE_FILE, cb);
   }
 
   /**
@@ -1023,10 +1016,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidSetTabs(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_SET_TABS,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_SET_TABS, cb);
   }
 
   /**
@@ -1036,10 +1026,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidCreateWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_CREATE_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_CREATE_WORKSPACE, cb);
   }
 
   /**
@@ -1049,10 +1036,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidRenameWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_RENAME_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_RENAME_WORKSPACE, cb);
   }
 
   /**
@@ -1062,10 +1046,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidDeleteWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_DELETE_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_DELETE_WORKSPACE, cb);
   }
 
   /**
@@ -1075,10 +1056,7 @@ export class PgExplorer {
    * @returns a dispose function to clear the event
    */
   static onDidSwitchWorkspace(cb: () => unknown) {
-    return PgCommon.onDidChange({
-      cb,
-      eventName: PgExplorer.events.ON_DID_SWITCH_WORKSPACE,
-    });
+    return PgCommon.onDidChange(PgExplorer.events.ON_DID_SWITCH_WORKSPACE, cb);
   }
 
   /* ---------------------------- Private methods --------------------------- */

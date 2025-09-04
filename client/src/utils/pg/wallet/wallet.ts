@@ -1,14 +1,17 @@
 import * as ed25519 from "@noble/ed25519";
 
 import { PgCommon } from "../common";
+import { PgConnection } from "../connection";
 import {
   createDerivable,
   declareDerivable,
   declareUpdatable,
   derivable,
-  migratable,
+  initable,
   updatable,
 } from "../decorators";
+import { PgSettings } from "../settings";
+import { PgTx } from "../tx";
 import { PgWeb3 } from "../web3";
 import type {
   AnyTransaction,
@@ -25,7 +28,6 @@ const defaultState: Wallet = {
   state: "setup",
   accounts: [],
   currentIndex: -1,
-  balance: null,
   show: false,
   standardWallets: [],
   standardName: null,
@@ -43,7 +45,6 @@ const storage = {
     const serializedState: SerializedWallet = JSON.parse(serializedStateStr);
     return {
       ...serializedState,
-      balance: defaultState.balance,
       show: defaultState.show,
       standardWallets: defaultState.standardWallets,
     };
@@ -61,6 +62,39 @@ const storage = {
 
     localStorage.setItem(this.KEY, JSON.stringify(serializedState));
   },
+};
+
+const onDidInit = () => {
+  // Automatically airdrop
+  return PgCommon.batchChanges(async () => {
+    if (!PgSettings.wallet.automaticAirdrop) return;
+
+    // Need the current account balance to decide the airdrop
+    if (typeof PgWallet.balance !== "number") return;
+
+    // Get airdrop amount based on network (in SOL)
+    const airdropAmount = PgConnection.getAirdropAmount();
+    if (!airdropAmount) return;
+
+    // Only airdrop if the balance is less than the airdrop amount
+    if (PgWallet.balance >= airdropAmount) return;
+
+    // Current wallet should always exist when balance is a number
+    if (!PgWallet.current) return;
+
+    try {
+      const txHash = await PgConnection.current.requestAirdrop(
+        PgWallet.current.publicKey,
+        PgCommon.solToLamports(airdropAmount)
+      );
+      await PgTx.confirm(txHash);
+    } catch (e) {
+      console.log("Automatic airdrop failed:", e);
+    }
+  }, [
+    PgWallet.onDidChangeBalance,
+    PgSettings.onDidChangeWalletAutomaticAirdrop,
+  ]);
 };
 
 const derive = () => ({
@@ -111,6 +145,71 @@ const derive = () => ({
     },
     onChange: ["state", "accounts", "currentIndex", "standard"],
   }),
+
+  /** Balance of the current wallet in SOL */
+  balance: createDerivable({
+    derive: async (value): Promise<number | null> => {
+      // Direct value from `connection.onAccountChange`
+      if (typeof value === "number") return PgCommon.lamportsToSol(value);
+
+      // Check wallet status
+      if (!PgWallet.current) return null;
+
+      // Check connection status (it can be `undefined` at the start of the app)
+      if (PgConnection.isConnected === false) return null;
+
+      try {
+        const lamports = await PgConnection.current.getBalance(
+          PgWallet.current.publicKey
+        );
+        return PgCommon.lamportsToSol(lamports);
+      } catch (e: any) {
+        console.log("Couldn't fetch balance:", e.message);
+        return null;
+      }
+    },
+    onChange: [
+      "current",
+      PgConnection.onDidChangeCurrent,
+      PgConnection.onDidChangeIsConnected,
+      // Listen to account changes via WS to re-derive as necessary
+      (cb) => {
+        const disposables = [
+          PgCommon.batchChanges(() => {
+            if (disposables[1]) disposables.pop()!.dispose();
+
+            if (!PgWallet.current || !PgConnection.isConnected) return;
+
+            // Declare the connection here because if the connection changes,
+            // using `PgConnection.current.removeAccountChangeListener` in
+            // `dispose` doesn't remove the existing subscription (since a new
+            // `Connection` object that doesn't have access to the previous
+            // subscriptions gets created)
+            const conn = PgConnection.current;
+
+            // Listen for balance changes
+            const id = PgConnection.current.onAccountChange(
+              PgWallet.current.publicKey,
+              (acc) => cb(acc.lamports)
+            );
+            disposables.push({
+              dispose: () => conn.removeAccountChangeListener(id),
+            });
+          }, [
+            PgWallet.onDidChangeCurrent,
+            PgConnection.onDidChangeCurrent,
+            PgConnection.onDidChangeIsConnected,
+          ]),
+        ];
+
+        return {
+          dispose: () => {
+            disposables.forEach(({ dispose }) => dispose());
+          },
+        };
+      },
+    ],
+  }),
 });
 
 // TODO: Remove in 2024
@@ -145,9 +244,9 @@ const migrate = () => {
   localStorage.removeItem("walletName");
 };
 
-@migratable(migrate)
+@initable({ onDidInit })
 @derivable(derive)
-@updatable({ defaultState, storage })
+@updatable({ defaultState, storage, migrate })
 class _PgWallet {
   /**
    * Add a new account.

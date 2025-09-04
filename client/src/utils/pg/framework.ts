@@ -123,9 +123,11 @@ export class PgFramework {
    *
    * @param opts options
    * - `convert`: whether to convert the playground layout to the framework's layout
-   * @returns README Markdown text if `opts.convert` is true
+   * @returns README Markdown text if `opts.convert` is `true`
    */
-  static async exportWorkspace(opts?: { convert?: boolean }) {
+  static async exportWorkspace<C extends boolean = false>(opts?: {
+    convert?: C;
+  }) {
     let files: TupleFiles = [];
     const recursivelyGetItems = async (path: string) => {
       const itemNames = await PgExplorer.fs.readDir(path);
@@ -168,6 +170,6 @@ export class PgFramework {
     const blob = await zip.generateAsync({ type: "blob" });
     PgCommon.export(PgExplorer.currentWorkspaceName + ".zip", blob);
 
-    return { readme };
+    return { readme } as { readme: C extends true ? string : undefined };
   }
 }

@@ -118,14 +118,14 @@ export class PgClient {
               }
             }, 1000);
           } else {
-            const { dispose } = PgCommon.onDidChange({
-              cb: () => {
+            const { dispose } = PgCommon.onDidChange(
+              CLIENT_ON_DID_FINISH_RUNNING,
+              () => {
                 PgTerminal.println("");
                 dispose();
                 res();
-              },
-              eventName: CLIENT_ON_DID_FINISH_RUNNING,
-            });
+              }
+            );
           }
 
           // Inject the script to the iframe element
