@@ -44,7 +44,6 @@ export class PgView {
   static readonly events = {
     MAIN_PRIMARY_STATIC: "viewmainprimarystatic",
     MAIN_SECONDARY_HEIGHT_SET: "viewmainsecondaryheightset",
-    MAIN_SECONDARY_FOCUS: "viewmainsecondaryfocus",
     MAIN_SECONDARY_PAGE_SET: "viewmainsecondarypageset",
     MAIN_SECONDARY_PROGRESS_SET: "viewmainsecondaryprogressset",
     SIDEBAR_PAGE_NAME_SET: "viewsidebarpagenameset",
@@ -211,10 +210,6 @@ export class PgView {
       PgView.events.MAIN_SECONDARY_HEIGHT_SET,
       height
     );
-  }
-
-  static focusMainSecondary() {
-    PgCommon.createAndDispatchCustomEvent(PgView.events.MAIN_SECONDARY_FOCUS);
   }
 
   /**
