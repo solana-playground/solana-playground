@@ -116,10 +116,18 @@ class _PgConnection {
    * @returns a new `Connection` instance
    */
   static create(opts?: { endpoint?: string } & PgWeb3.ConnectionConfig) {
-    return new PgWeb3.Connection(
+    const conn = new PgWeb3.Connection(
       opts?.endpoint ?? PgSettings.connection.endpoint,
       opts ?? PgSettings.connection.commitment
     );
+
+    // If the WS connection fails for whatever reason, removing listeners does
+    // *not* work properly, as it tries to reconnect indefinitely. To fix this
+    // leakage, change the `reconnect` property of the internal WS object.
+    // @ts-ignore
+    conn._rpcWebSocket.reconnect = false;
+
+    return conn;
   }
 
   /**
