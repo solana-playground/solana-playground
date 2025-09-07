@@ -552,6 +552,13 @@ pub async fn process_airdrop(
             Ok(build_balance_message(current_balance, false, true))
         }
     } else {
+        PgTerminal::log_wasm(&format!(
+            "In case of rate limit, try the web faucet: \
+                https://faucet.solana.com/?walletAddress={:?}&amount=5 \
+                or this guide: \
+                https://solana.com/developers/guides/getstarted/solana-token-airdrop-and-faucets",
+            &pubkey
+        ));
         log_instruction_custom_error::<SystemError>(result, config)
     }
 }
