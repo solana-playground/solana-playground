@@ -3,6 +3,7 @@
 
 import { declareUpdatable, updatable } from "./decorators";
 import type {
+  Arrayable,
   CallableJSX,
   Disposable,
   Getable,
@@ -75,6 +76,8 @@ export type SettingParam<
      */
     Component?: CallableJSX;
   };
+  /** Migrate old setting `id`s, useful for renaming settings */
+  migrate?: { from: Arrayable<string> };
 } & Partial<SettingsCompat<V>>;
 
 /** Compatibility with non-standard settings (theme and font) */
@@ -117,9 +120,9 @@ export type Setting<I extends string = string, V = any, C = any> = RequiredKey<
 //
 // TODO: Remove `build.flags`
 const defaultState: Settings = {
-  ...DEFAULT_SETTINGS,
+  ...GLOBAL_SETTINGS.default,
   build: {
-    ...DEFAULT_SETTINGS.build,
+    ...GLOBAL_SETTINGS.default.build,
     flags: {
       seedsFeature: false,
       noDocs: true,
@@ -147,8 +150,13 @@ const storage = {
 
 const recursive = true;
 
-// TODO: Remove in 2024
 const migrate = () => {
+  migrateLegacy();
+  return GLOBAL_SETTINGS.migrations;
+};
+
+// TODO: Remove when domain changes
+const migrateLegacy = () => {
   const migrateFromLocalStorage = <R>(oldKey: string) => {
     const valueStr = localStorage.getItem(oldKey);
     if (!valueStr) return;

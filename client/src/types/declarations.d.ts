@@ -25,8 +25,11 @@ global {
 
 /** Webpack defined globals */
 global {
-  /** Default settings */
-  const DEFAULT_SETTINGS: Settings;
+  /** Global settings */
+  const GLOBAL_SETTINGS: {
+    default: Settings;
+    migrations: Array<{ from: string; to: string }>;
+  };
 
   /** Rust Analyzer crates */
   const CRATES: { importable: string[]; transitive: string[] };

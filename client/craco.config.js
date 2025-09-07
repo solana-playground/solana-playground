@@ -102,8 +102,8 @@ module.exports = {
 
         // Define globals
         new webpack.DefinePlugin({
-          /** Default setting values */
-          DEFAULT_SETTINGS: (() => {
+          /** Setting info */
+          GLOBAL_SETTINGS: (() => {
             const settingsPath = path.join("src", "settings");
             const settingsStr = execSync(
               `yarn run tsx ${settingsPath} --no-warnings`,
@@ -114,24 +114,31 @@ module.exports = {
               .at(1);
             if (!settingsStr) throw new Error("Settings not found");
 
-            const defaultSettings = JSON.parse(settingsStr).reduce(
-              (acc, cur) => {
-                // TODO: Remove after requiring all settings to have ID
-                if (!cur.id) return acc;
+            const settings = JSON.parse(settingsStr);
 
-                const accessor = cur.id.split(".");
-                accessor.reduce((obj, field, i) => {
-                  if (i === accessor.length - 1) obj[field] = cur.default;
-                  else obj[field] ??= {};
-                  return obj[field];
-                }, acc);
+            const defaultSettings = settings.reduce((acc, cur) => {
+              // TODO: Remove after requiring all settings to have ID
+              if (!cur.id) return acc;
 
-                return acc;
-              },
-              {}
-            );
+              const accessor = cur.id.split(".");
+              accessor.reduce((obj, field, i) => {
+                if (i === accessor.length - 1) obj[field] = cur.default;
+                else obj[field] ??= {};
+                return obj[field];
+              }, acc);
 
-            return JSON.stringify(defaultSettings);
+              return acc;
+            }, {});
+
+            const migrations = settings.reduce((acc, cur) => {
+              if (cur.migrate) acc.push({ from: cur.migrate.from, to: cur.id });
+              return acc;
+            }, []);
+
+            return JSON.stringify({
+              default: defaultSettings,
+              migrations,
+            });
           })(),
 
           /** All supported crates(Rust Analyzer) */

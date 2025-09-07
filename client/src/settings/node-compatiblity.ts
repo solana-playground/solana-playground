@@ -22,5 +22,5 @@ if (IS_NODE) {
   global.indexedDB = {
     open: () => ({}),
   };
-  global.DEFAULT_SETTINGS = {};
+  global.GLOBAL_SETTINGS = { default: {} };
 }
