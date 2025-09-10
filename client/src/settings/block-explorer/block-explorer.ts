@@ -1,11 +1,12 @@
 import { PgBlockExplorer } from "../../utils/pg";
 import { createSetting } from "../create";
 
-export const other = [
+export const blockExplorer = [
   createSetting({
-    id: "other.blockExplorer",
+    id: "blockExplorer.name",
     description: "Default block explorer to use",
     values: (): string[] => PgBlockExplorer.all.map((b) => b.name),
     default: "Solana Explorer",
+    migrate: { from: "other.blockExplorer" },
   }),
 ];
