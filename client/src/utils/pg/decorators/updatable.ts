@@ -107,7 +107,7 @@ export function updatable<T extends Record<string, any>>(params: {
             value = PgCommon.getValue(state, migration.from);
           } catch {
             // The value has already been migrated
-            break;
+            continue;
           }
 
           // Set parents to empty objects if needed
