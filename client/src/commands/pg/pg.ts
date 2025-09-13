@@ -5,7 +5,7 @@ import { createArgs, createCmd, createSubcmd } from "../create";
 const settingIdArg = {
   name: "id",
   description: "Setting ID",
-  values: () => PgSettings.all.map((s) => s.id).filter(PgCommon.isNonNullish),
+  values: () => PgSettings.all.map((s) => s.id),
 } as const;
 
 export const pg = createCmd({

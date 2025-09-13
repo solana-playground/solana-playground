@@ -31,9 +31,7 @@ type ConvertAll<A, R = unknown> = A extends readonly [infer Head, ...infer Tail]
     : never
   : R;
 
-type Convert<I extends string, V> = I extends ""
-  ? unknown
-  : I extends `${infer Head}.${infer Rest}`
+type Convert<I extends string, V> = I extends `${infer Head}.${infer Rest}`
   ? { [K in Head]: Convert<Rest, V> }
   : { [K in I]: V extends undefined ? boolean : V };
 
@@ -45,7 +43,7 @@ export type SettingParam<
   D = boolean
 > = {
   /** Setting identifier (used in `PgSettings`) */
-  id?: I;
+  id: I;
   /** Name of the setting (default: derive from `id`) */
   name?: string;
   /** Information about the setting that will be shown as a help tooltip */

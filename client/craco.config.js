@@ -117,8 +117,7 @@ module.exports = {
             const settings = JSON.parse(settingsStr);
 
             const defaultSettings = settings.reduce((acc, cur) => {
-              // TODO: Remove after requiring all settings to have ID
-              if (!cur.id) return acc;
+              if (cur.default === undefined) return acc;
 
               const accessor = cur.id.split(".");
               accessor.reduce((obj, field, i) => {

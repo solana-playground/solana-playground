@@ -3,14 +3,14 @@ import { createSetting } from "../create";
 
 export const ui = [
   createSetting({
-    name: "Font",
+    id: "ui.font",
     values: () => PgTheme.fonts.map((f) => f.family),
     getValue: () => PgTheme.font.family,
     setValue: (v) => PgTheme.set({ fontFamily: v }),
     // `onChange` isn't necessary because the whole app re-renders on font change
   }),
   createSetting({
-    name: "Theme",
+    id: "ui.theme",
     values: () => {
       const [darkThemes, lightThemes] = PgCommon.filterWithRemaining(
         PgTheme.themes,
