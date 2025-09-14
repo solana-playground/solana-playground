@@ -32,8 +32,8 @@ export const Main: FC<TutorialMainComponentProps> = ({
 
   // Specific page events
   useEffect(() => {
-    const page = pages[pageNumber - 1];
-    if (page.onMount) return page.onMount();
+    const page = pages.at(pageNumber - 1);
+    if (page?.onMount) return page.onMount();
   }, [pageNumber, pages]);
 
   const nextPage = () => {
