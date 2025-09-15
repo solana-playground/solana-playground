@@ -1,0 +1,1 @@
+export { setting } from "./setting";
