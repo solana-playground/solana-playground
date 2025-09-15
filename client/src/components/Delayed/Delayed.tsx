@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 
 interface DelayedProps {
-  /** The amount of miliseconds to sleep before rendering the `children` */
+  /** The amount of milliseconds to sleep before rendering the `children` */
   delay?: number;
 }
 

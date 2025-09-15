@@ -34,7 +34,7 @@ export interface PopoverProps {
    * element but inside the pop-up element.
    */
   continueToShowOnPopupHover?: boolean;
-  /** The amount of miliseconds to hover before the pop-up is visible */
+  /** The amount of milliseconds to hover before the pop-up is visible */
   delay?: number;
   /** Always take full width of the `anchorEl` */
   alwaysTakeFullWidth?: boolean;
