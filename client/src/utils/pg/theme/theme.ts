@@ -870,6 +870,7 @@ export class PgTheme {
     // Default
     sidebar.default ??= {};
     sidebar.default.display ??= "flex";
+    sidebar.default.overflowX ??= "hidden"; // This makes content scroll work
 
     // Left
     sidebar.left ??= {};
@@ -906,7 +907,7 @@ export class PgTheme {
     sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
     // Right title
     sidebar.right.title ??= {};
-    sidebar.right.title.height ??= "2rem";
+    sidebar.right.title.minHeight ??= "2rem";
     sidebar.right.title.borderBottom ??= `1px solid ${theme.colors.default.border};`;
     sidebar.right.title.color ??= theme.colors.default.textSecondary;
     sidebar.right.title.fontSize ??= theme.font.code.size.large;

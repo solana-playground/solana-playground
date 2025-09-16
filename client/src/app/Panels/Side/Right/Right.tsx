@@ -97,7 +97,11 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
 
   if (loadingCount) return <Loading page={page} />;
 
-  return <ErrorBoundary>{el}</ErrorBoundary>;
+  return (
+    <ErrorBoundary>
+      <ContentWrapper>{el}</ContentWrapper>
+    </ErrorBoundary>
+  );
 };
 
 const Wrapper = styled.div<{
@@ -107,11 +111,9 @@ const Wrapper = styled.div<{
   ${({ theme, width, oldWidth }) => css`
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     height: 100%;
     min-width: ${width ? width : oldWidth}px;
 
-    ${PgTheme.getScrollbarCSS()};
     ${PgTheme.convertToCSS(theme.views.sidebar.right.default)};
   `}
 `;
@@ -124,6 +126,12 @@ const TitleWrapper = styled.div`
 
     ${PgTheme.convertToCSS(theme.views.sidebar.right.title)};
   `}
+`;
+
+const ContentWrapper = styled.div`
+  overflow-y: auto;
+
+  ${PgTheme.getScrollbarCSS()};
 `;
 
 const Loading: FC<DefaultRightProps> = ({ page }) => {
