@@ -9,7 +9,7 @@ const idArg = {
 } as const;
 
 export const setting = createCmd({
-  name: "pg",
+  name: "setting",
   description: "Manage playground settings",
   subcommands: [
     createSubcmd({
@@ -42,13 +42,16 @@ export const setting = createCmd({
             // If `values` field is not specified, default to boolean
             if (!setting.values) return ["true", "false"];
 
-            const values = PgCommon.callIfNeeded(setting.values).map((v) => {
-              if (typeof v === "string") return v;
-              if (typeof v === "object" && v.name && v.value) return v.name;
+            // Normalize values
+            const values = PgCommon.callIfNeeded(setting.values).flatMap(
+              (v) => {
+                if (typeof v === "string") return v;
+                if (typeof v === "object" && v.name && v.value) return v.name;
+                if (typeof v === "object" && v.values) return v.values;
 
-              // TODO: Objects with `values` field
-              throw new Error(`Unimplemented setting value: ${v}`);
-            });
+                throw new Error(`Unimplemented setting value: ${v}`);
+              }
+            );
 
             // If the setting has a custom value parser, allow the current
             // token to be used as a setting value after a validation check
