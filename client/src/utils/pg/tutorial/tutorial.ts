@@ -39,13 +39,7 @@ const storage = {
   async write(state: TutorialState) {
     if (!state.pageNumber || !PgExplorer.isInitialized) return;
 
-    // Don't use spread operator(...) because of the extra state
-    const serializedState: TutorialState = {
-      pageNumber: state.pageNumber,
-      completed: state.completed,
-    };
-
-    await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(serializedState));
+    await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(state));
   },
 };
 

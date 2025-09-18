@@ -43,16 +43,12 @@ const storage = {
     if (!serializedStateStr) return defaultState;
 
     const serializedState: SerializedWallet = JSON.parse(serializedStateStr);
-    return {
-      ...serializedState,
-      show: defaultState.show,
-      standardWallets: defaultState.standardWallets,
-    };
+    return { ...defaultState, ...serializedState };
   },
 
   /** Serialize the data and write to storage. */
   write(wallet: Wallet) {
-    // Don't use spread operator(...) because of the extra derived state
+    // Don't use spread operator(...) because of the extra state
     const serializedState: SerializedWallet = {
       accounts: wallet.accounts,
       currentIndex: wallet.currentIndex,
