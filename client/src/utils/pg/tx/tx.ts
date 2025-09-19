@@ -1,8 +1,6 @@
-import { ExplorerLink } from "./ExplorerLink";
 import { PgCommon } from "../common";
 import { PgPlaynet } from "../playnet";
 import { PgSettings } from "../settings";
-import { PgView } from "../view";
 import { ConnectionOption, PgConnection } from "../connection";
 import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
 import { PgWeb3 } from "../web3";
@@ -29,6 +27,11 @@ type PriorityFeeInfo = WithTimeStamp<{
 }>;
 
 export class PgTx {
+  /** All transaction event names */
+  static readonly events = {
+    ON_DID_SEND: "txondidsend",
+  };
+
   /**
    * Send a transaction with additional signer optionality.
    *
@@ -116,6 +119,9 @@ export class PgTx {
       throw e;
     }
 
+    // Dispatch transaction send event
+    PgCommon.createAndDispatchCustomEvent(PgTx.events.ON_DID_SEND, txHash);
+
     return txHash;
   }
 
@@ -142,21 +148,13 @@ export class PgTx {
   }
 
   /**
-   * Show a notification toast with explorer links for the transaction.
+   * Runs after sending a transaction.
    *
-   * @param txHash transaction signature
+   * @param cb callback function to run after a transaction gets sent
+   * @returns a dispose function to clear the event
    */
-  static notify(txHash: string) {
-    // Check setting
-    if (!PgSettings.notification.showTx) return;
-
-    // Don't show on playnet
-    if (PgPlaynet.isUrlPlaynet()) return;
-
-    PgView.setToast(ExplorerLink, {
-      componentProps: { txHash },
-      options: { toastId: txHash },
-    });
+  static onDidSend(cb: (txHash: string) => unknown) {
+    return PgCommon.onDidChange(PgTx.events.ON_DID_SEND, cb);
   }
 
   /** Cached blockhash to reduce the amount of requests to the RPC endpoint */

@@ -36,11 +36,11 @@ export const useAirdrop = () => {
         // of confirming the tx.
         const beforeBalance = await conn.getBalance(walletPk, "processed");
 
+        // Send the airdrop request
         const txHash = await conn.requestAirdrop(
           walletPk,
           PgCommon.solToLamports(airdropAmount)
         );
-        PgTx.notify(txHash);
 
         // Allow enough time for balance to update by waiting for confirmation
         await PgTx.confirm(txHash, conn);
