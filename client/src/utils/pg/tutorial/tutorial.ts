@@ -1,7 +1,6 @@
 import { PgCommon } from "../common";
 import { PgExplorer, TupleFiles } from "../explorer";
 import { PgRouter } from "../router";
-import { PgView } from "../view";
 import {
   createDerivable,
   declareDerivable,
@@ -238,7 +237,7 @@ class _PgTutorial {
   /** Finish the current tutorial. */
   static finish() {
     PgTutorial.completed = true;
-    PgView.setSidebarPage("Tutorials");
+    this.openAboutPage();
   }
 
   /**
