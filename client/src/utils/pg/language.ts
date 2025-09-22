@@ -1,3 +1,5 @@
+import type { FC } from "react";
+
 import { PgCommon } from "./common";
 import type { Arrayable } from "./types";
 
@@ -6,12 +8,14 @@ type LanguageParam<N extends string> = {
   /** Language name */
   name: N;
   /** Valid file extension(s) for the language */
-  extension: Arrayable<Extension>;
+  extensions: Arrayable<Extension>;
+  /** Language icon component */
+  Icon: FC<{ path: string }>;
 };
 
 /** Programming language */
 type Language<N extends string> = LanguageParam<N> & {
-  extension: Array<Extension>;
+  extensions: Array<Extension>;
 };
 
 /** File extension to match */
@@ -28,7 +32,7 @@ export class PgLanguage {
    * @returns the language with correct types
    */
   static create<N extends string>(lang: LanguageParam<N>) {
-    lang.extension = PgCommon.toArray(lang.extension);
+    lang.extensions = PgCommon.toArray(lang.extensions);
     return lang as Language<N>;
   }
 
@@ -41,7 +45,7 @@ export class PgLanguage {
   static getFromPath(path: string) {
     const givenExt = path.split(".").slice(1).join(".");
     return PgLanguage.all.find((lang) =>
-      lang.extension.some((ext) => givenExt.endsWith(ext))
+      lang.extensions.some((ext) => givenExt.endsWith(ext))
     );
   }
 
