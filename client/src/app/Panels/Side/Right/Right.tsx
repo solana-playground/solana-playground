@@ -129,6 +129,7 @@ const TitleWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.div`
+  height: 100%;
   overflow-y: auto;
 
   ${PgTheme.getScrollbarCSS()};
