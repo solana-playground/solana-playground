@@ -120,7 +120,7 @@ export class PgTx {
     }
 
     // Dispatch transaction send event
-    PgCommon.createAndDispatchCustomEvent(PgTx.events.ON_DID_SEND, txHash);
+    PgCommon.createAndDispatchCustomEvent(PgTx.events.ON_DID_SEND, tx);
 
     return txHash;
   }
@@ -153,7 +153,7 @@ export class PgTx {
    * @param cb callback function to run after a transaction gets sent
    * @returns a dispose function to clear the event
    */
-  static onDidSend(cb: (txHash: string) => unknown) {
+  static onDidSend(cb: (tx: PgWeb3.Transaction) => unknown) {
     return PgCommon.onDidChange(PgTx.events.ON_DID_SEND, cb);
   }
 
