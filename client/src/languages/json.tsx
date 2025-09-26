@@ -4,7 +4,7 @@ import { PgLanguage } from "../utils/pg";
 export const json = PgLanguage.create({
   name: "JSON",
   extensions: "json",
-  Icon: () => (
+  icon: () => (
     <Svg viewBox="0 0 16 16">
       <path
         fillRule="evenodd"

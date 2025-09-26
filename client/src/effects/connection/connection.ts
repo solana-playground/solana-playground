@@ -31,7 +31,7 @@ export const connection = () => {
     } else {
       executeOnce("nonLocal", async () => {
         const { NonLocal } = await import("./NonLocal");
-        PgView.setToast(NonLocal, {
+        PgView.setToast<never>(NonLocal, {
           options: { autoClose: false, closeOnClick: true },
         });
       });

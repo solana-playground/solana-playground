@@ -4,7 +4,6 @@
 import { declareUpdatable, updatable } from "./decorators";
 import type {
   Arrayable,
-  CallableJSX,
   Disposable,
   Getable,
   RequiredKey,
@@ -72,7 +71,7 @@ export type SettingParam<
      * This is set automatically if `Custom.tsx` file inside the setting's
      * directory exists.
      */
-    Component?: CallableJSX;
+    Component?: () => JSX.Element;
   };
   /** Migrate old setting `id`s, useful for renaming settings */
   migrate?: { from: Arrayable<string> };

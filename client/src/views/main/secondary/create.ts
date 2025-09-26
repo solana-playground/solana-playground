@@ -1,4 +1,6 @@
-import { CallableJSX, PgCommon, RequiredKey } from "../../../utils/pg";
+import type { FC } from "react";
+
+import { Elementable, PgCommon, RequiredKey } from "../../../utils/pg";
 
 /** Secondary main view page parameter */
 type MainSecondaryPageParam<N extends string> = {
@@ -15,12 +17,12 @@ type MainSecondaryPageParam<N extends string> = {
     /** Action keybind */
     keybind?: string;
     /** Action icon */
-    icon: JSX.Element;
+    icon: Elementable;
     /** Action processor */
     run: () => void;
   }>;
   /** Lazy loader for the element */
-  importComponent?: () => Promise<{ default: CallableJSX }>;
+  importComponent?: () => Promise<{ default: FC }>;
   /** Get whether the page is in focus */
   getIsFocused: () => boolean;
   /** Focus the page */

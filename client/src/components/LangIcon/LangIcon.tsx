@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
 
-import { PgLanguage } from "../../utils/pg";
+import { PgLanguage, PgView } from "../../utils/pg";
 import { QuestionMark } from "../Icons";
 
 interface LangIconProps {
@@ -12,7 +12,8 @@ interface LangIconProps {
 const LangIcon: FC<LangIconProps> = ({ path }) => {
   const Icon = useMemo(() => {
     const lang = PgLanguage.getFromPath(path);
-    return lang ? <lang.Icon path={path} /> : <QuestionMark />;
+    if (!lang) return <QuestionMark />;
+    return PgView.normalizeElement(lang.icon, { path });
   }, [path]);
 
   return <Wrapper>{Icon}</Wrapper>;

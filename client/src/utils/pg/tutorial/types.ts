@@ -1,5 +1,3 @@
-import type { ComponentType } from "react";
-
 import { TUTORIAL_CATEGORIES, TUTORIAL_LEVELS } from "./details";
 import type { Nullable, RequiredKey } from "../types";
 
@@ -64,7 +62,7 @@ export interface TutorialDataParam {
    * Defaults to `./<TutorialName>`.
    */
   importComponent?: () => Promise<{
-    default: ComponentType<Omit<TutorialData, "importComponent">>;
+    default: (props: Omit<TutorialData, "importComponent">) => JSX.Element;
   }>;
 }
 

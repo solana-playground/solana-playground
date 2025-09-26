@@ -7,18 +7,15 @@ import { useKeybind, useSetStatic } from "../../hooks";
 const ModalBackdrop = () => {
   const [modals, setModals] = useState<ReactElement[]>([]);
 
-  const setModalStatic = useCallback(({ Component, props }) => {
-    // Treat `null` component as close
-    if (Component === null) {
+  const setModalStatic = useCallback(({ elementable, props }) => {
+    // Treat `null` as close
+    if (elementable === null) {
       setModals((modals) => modals.slice(0, -1));
       return;
     }
 
-    if (typeof Component === "function") {
-      Component = <Component {...props} />;
-    }
-
-    setModals((modals) => [...modals, Component]);
+    elementable = PgView.normalizeElement(elementable, props);
+    setModals((modals) => [...modals, elementable]);
   }, []);
 
   useSetStatic(

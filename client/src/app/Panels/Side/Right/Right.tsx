@@ -5,19 +5,14 @@ import {
   useState,
   useCallback,
   useRef,
+  ReactNode,
 } from "react";
 import styled, { css } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
-import {
-  NullableJSX,
-  PgTheme,
-  PgView,
-  SetState,
-  SidebarPage,
-} from "../../../../utils/pg";
+import { PgTheme, PgView, SetState, SidebarPage } from "../../../../utils/pg";
 import { useAsyncEffect, useSetStatic } from "../../../../hooks";
 
 interface DefaultRightProps {
@@ -63,7 +58,7 @@ const Title: FC<DefaultRightProps> = ({ page }) => (
 );
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
-  const [el, setEl] = useState<NullableJSX>(null);
+  const [el, setEl] = useState<ReactNode>(null);
   const [props, setProps] = useState(() => ({}));
   const [loadingCount, setLoadingCount] = useState<number>(0);
 
@@ -136,7 +131,7 @@ const ContentWrapper = styled.div`
 `;
 
 const Loading: FC<DefaultRightProps> = ({ page }) => {
-  if (page.LoadingElement) return <page.LoadingElement />;
+  if (page.LoadingComponent) return <page.LoadingComponent />;
 
   return (
     <LoadingWrapper>

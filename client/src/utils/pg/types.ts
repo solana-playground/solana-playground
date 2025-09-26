@@ -49,17 +49,8 @@ export type Disposable = {
   dispose: () => void;
 };
 
-/** Nullable JSX Element */
-export type NullableJSX = JSX.Element | null;
-
-/** <Callable /> JSX Element */
-export type CallableJSX = () => NullableJSX;
-
 /** Set state type */
 export type SetState<T> = T | ((cur: T) => T);
-
-/** Set element asynchronously */
-export type SetElementAsync = SetState<SyncOrAsync<NullableJSX | CallableJSX>>;
 
 /** Make the given keys required */
 export type RequiredKey<T, R extends keyof T> = Omit<T, R> & {
@@ -140,10 +131,16 @@ export type Getable<T> = T | (() => T);
 /** Given type `T` or `string` with intellisense for the initial type */
 export type OrString<T> = T | (string & {});
 
+/** Property accessor (`"outer.inner"` is the same as `["outer", "inner"]`) */
+export type Accessor = Arrayable<string>;
+
+/** Types that can be converted to an `Element` */
+export type Elementable<
+  P extends Record<string, unknown> = Record<string, unknown>,
+  R extends JSX.Element | null = JSX.Element | null
+> = R | ((props: P & { children?: R }) => R);
+
 /** Add optional `React.DependencyList` for parameters */
 export type WithOptionalDependencyList<T extends unknown[]> =
   | T
   | [...T, React.DependencyList];
-
-/** Property accessor (`"outer.inner"` is the same as `["outer", "inner"]`) */
-export type Accessor = Arrayable<string>;

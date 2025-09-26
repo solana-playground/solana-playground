@@ -1,13 +1,13 @@
-import type { FC, ReactNode } from "react";
+import type { FC } from "react";
 import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
 import type {
   SetState,
-  SetElementAsync,
   Disposable,
-  CallableJSX,
   RequiredKey,
+  SyncOrAsync,
+  Elementable,
 } from "./types";
 
 /** Sidebar page param */
@@ -25,9 +25,9 @@ export type SidebarPageParam<N extends string> = {
   /** Handle the page logic */
   handle?: () => Disposable | void;
   /** Lazy loader for the element */
-  importComponent?: () => Promise<{ default: CallableJSX }>;
-  /** Loading element to until the element is ready to show */
-  LoadingElement?: CallableJSX;
+  importComponent?: () => Promise<{ default: FC }>;
+  /** Loading component to show until the page element is ready */
+  LoadingComponent?: FC;
 };
 
 /** Created sidebar page */
@@ -139,9 +139,9 @@ export class PgView {
   /**
    * Set the primary main view (next to the sidebar and above the terminal).
    *
-   * @param SetEl element to set the main view to
+   * @param setEl element to set the main view to
    */
-  static async setMainPrimary(SetEl: SetElementAsync) {
+  static async setMainPrimary(setEl: SetState<SyncOrAsync<Elementable>>) {
     await PgCommon.tryUntilSuccess(async () => {
       const eventNames = PgCommon.getStaticStateEventNames(
         PgView.events.MAIN_PRIMARY_STATIC
@@ -149,7 +149,7 @@ export class PgView {
       const result = await PgCommon.sendAndReceiveCustomEvent(eventNames.get);
       if (result === undefined) throw new Error();
 
-      PgCommon.createAndDispatchCustomEvent(eventNames.set, SetEl);
+      PgCommon.createAndDispatchCustomEvent(eventNames.set, setEl);
     }, 100);
   }
 
@@ -215,16 +215,16 @@ export class PgView {
   /**
    * Set the current modal and wait until close.
    *
-   * @param Component component to set as the modal
+   * @param elementable elementable to set as the modal
    * @param props component props
    * @returns the data from `close` method of the modal
    */
   static async setModal<R, P extends Record<string, any> = {}>(
-    Component: ReactNode | FC<P>,
+    elementable: Elementable<P>,
     props?: P
   ): Promise<R | null> {
     return await PgCommon.sendAndReceiveCustomEvent(PgView.events.MODAL_SET, {
-      Component,
+      elementable,
       props,
     });
   }
@@ -250,15 +250,15 @@ export class PgView {
   /**
    * Show a notification toast.
    *
-   * @param Component component to show
+   * @param elementable component to show
    * @param props component props and toast options
    */
-  static setToast<P>(
-    Component: ReactNode | FC<P>,
+  static setToast<P extends Record<string, unknown>>(
+    elementable: Elementable<P>,
     props?: { componentProps?: P; options?: ToastOptions }
   ) {
     return PgCommon.createAndDispatchCustomEvent(PgView.events.TOAST_SET, {
-      Component,
+      elementable,
       props,
     });
   }
@@ -309,5 +309,24 @@ export class PgView {
       PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
       cb
     );
+  }
+
+  /**
+   * Normalize element i.e. convert components to elements and keep elemenets
+   * the same.
+   *
+   * NOTE: This function is defined here rather than in `PgCommon` because it
+   * requires the current file to be in `tsx` format (or to import React's
+   * `createElement` function, which we want to avoid).
+   *
+   * @param elementable element or component
+   * @param props props to pass to the component (unused for elements)
+   * @returns the normalized element
+   */
+  static normalizeElement<
+    P extends Record<string, unknown> = Record<string, unknown>
+  >(Elementable: Elementable<P>, props?: P) {
+    if (typeof Elementable === "object") return Elementable;
+    return <Elementable {...(props as P)} />;
   }
 }

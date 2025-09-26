@@ -4,7 +4,7 @@ import { PgLanguage } from "../utils/pg";
 export const python = PgLanguage.create({
   name: "Python",
   extensions: "py",
-  Icon: () => (
+  icon: () => (
     <Svg viewBox="0 0 32 32">
       <defs>
         <linearGradient

@@ -1,7 +1,5 @@
-import type { FC } from "react";
-
 import { PgCommon } from "./common";
-import type { Arrayable } from "./types";
+import type { Arrayable, Elementable } from "./types";
 
 /** Programing language creation parameter */
 type LanguageParam<N extends string> = {
@@ -9,8 +7,8 @@ type LanguageParam<N extends string> = {
   name: N;
   /** Valid file extension(s) for the language */
   extensions: Arrayable<Extension>;
-  /** Language icon component */
-  Icon: FC<{ path: string }>;
+  /** Language icon */
+  icon: Elementable<{ path: string }>;
 };
 
 /** Programming language */
