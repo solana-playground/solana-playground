@@ -1,5 +1,4 @@
 import { PgCommon } from "../common";
-import { PgPlaynet } from "../playnet";
 import { PgSettings } from "../settings";
 import { ConnectionOption, PgConnection } from "../connection";
 import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
@@ -136,10 +135,6 @@ export class PgTx {
     opts?: { commitment?: PgWeb3.Commitment } & ConnectionOption
   ) {
     const connection = opts?.connection ?? PgConnection.current;
-
-    // Don't confirm on playnet
-    if (PgPlaynet.isUrlPlaynet(connection.rpcEndpoint)) return;
-
     const result = await connection.confirmTransaction(
       txHash,
       opts?.commitment
