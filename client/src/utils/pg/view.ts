@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { createElement, FC } from "react";
 import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
@@ -315,18 +315,14 @@ export class PgView {
    * Normalize element i.e. convert components to elements and keep elemenets
    * the same.
    *
-   * NOTE: This function is defined here rather than in `PgCommon` because it
-   * requires the current file to be in `tsx` format (or to import React's
-   * `createElement` function, which we want to avoid).
-   *
    * @param elementable element or component
    * @param props props to pass to the component (unused for elements)
    * @returns the normalized element
    */
   static normalizeElement<
     P extends Record<string, unknown> = Record<string, unknown>
-  >(Elementable: Elementable<P>, props?: P) {
-    if (typeof Elementable === "object") return Elementable;
-    return <Elementable {...(props as P)} />;
+  >(elementable: Elementable<P>, props?: P) {
+    if (typeof elementable === "object") return elementable;
+    return createElement(elementable, props);
   }
 }
