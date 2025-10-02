@@ -1741,95 +1741,21 @@ export class PgTheme {
   /** Set default tutorials view */
   private static _tutorials() {
     const main = this._getView("main");
-    const theme = this._themeReady;
-
     main.primary!.tutorials ??= {};
+
     const tutorials = main.primary!.tutorials;
-
-    // Default
     tutorials.default ??= {};
-    tutorials.default.display ??= "flex";
-    tutorials.default.flexDirection ??= "column";
-    tutorials.default.bg ??= theme.views.main.default.bg;
-    tutorials.default.fontFamily ??= theme.font.other.family;
-    tutorials.default.fontSize ??= theme.font.other.size.medium;
-
-    // Top
+    tutorials.default.bg ??= this._themeReady.views.main.default.bg;
     tutorials.top ??= {};
-    tutorials.top.display ??= "flex";
-    tutorials.top.justifyContent ??= "space-between";
-    tutorials.top.padding ??= "1rem 2.5rem";
-    tutorials.top.bg ??= this.getDifferentBackground(tutorials.default.bg);
-    tutorials.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    tutorials.top["& > div"] ??= {};
-    tutorials.top["& > div"].width ??= "max(12rem, 50%)";
-
-    // Main
     tutorials.main ??= {};
-
-    // Main default
     tutorials.main.default ??= {};
-    tutorials.main.default.display ??= "flex";
-    tutorials.main.default.height ??= "100%";
-    tutorials.main.default.bg ??= this.getDifferentBackground(
-      theme.views.main.default.bg
-    );
-    tutorials.main.default.borderRadius ??= theme.default.borderRadius;
-
-    // Main side (filters)
     tutorials.main.side ??= {};
-    tutorials.main.side.width ??= "14.5rem";
-    tutorials.main.side.flexShrink ??= 0;
-    tutorials.main.side.padding ??= "0.5rem";
-    tutorials.main.side.borderRight ??= `1px solid ${theme.colors.default.border}`;
-    tutorials.main.side.borderTopLeftRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-    tutorials.main.side.borderBottomLeftRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-
-    // Main content (tutorials)
     tutorials.main.content ??= {};
-
-    // Main content default
     tutorials.main.content.default ??= {};
-    tutorials.main.content.default.padding ??= "1.5rem";
-    tutorials.main.content.default.display ??= "flex";
-    tutorials.main.content.default.flexDirection ??= "column";
-    tutorials.main.content.default.flexGrow ??= 1;
-    tutorials.main.content.default.gap ??= "2rem";
-    tutorials.main.content.default.overflow ??= "auto";
-    tutorials.main.content.default.bg ??= tutorials.main.default.bg;
-    tutorials.main.content.default.borderTopRightRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-    tutorials.main.content.default.borderBottomRightRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-    //Main content card
     tutorials.main.content.card ??= {};
-    const card = tutorials.main.content.card;
-    //Main content card default
-    card.default ??= {};
-    card.default.width ??= "100%";
-    card.default.height ??= "100%";
-    card.default.overflow ??= "hidden";
-    card.default.bg ??= theme.views.main.primary.tutorials.main.default.bg;
-    card.default.color ??= theme.colors.default.textPrimary;
-    card.default.border ??= `1px solid ${
-      theme.colors.default.border + theme.default.transparency.medium
-    }`;
-    card.default.borderRadius ??= theme.default.borderRadius;
-    card.default.boxShadow ??= theme.default.boxShadow;
-    card.default.transition ??= `all ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type}`;
-    //Main content card gradient
-    card.gradient ??= {};
-    // Main content featured tutorial
+    tutorials.main.content.card.default ??= {};
+    tutorials.main.content.card.gradient ??= {};
     tutorials.main.content.featured ??= {};
-    const featured = tutorials.main.content.featured;
-    featured.height ??= "20rem";
-    featured.display ??= "flex";
-    featured.border ??= `1px solid ${theme.colors.default.border}`;
-    featured.borderRadius ??= theme.default.borderRadius;
-    featured.boxShadow ??= theme.default.boxShadow;
 
     return this;
   }

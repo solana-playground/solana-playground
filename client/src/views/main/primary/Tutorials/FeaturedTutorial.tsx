@@ -46,6 +46,12 @@ const FeaturedTutorial: FC<FeaturedTutorialProps> = ({ tutorial }) => (
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    height: 20rem;
+    display: flex;
+    border: 1px solid ${theme.colors.default.border};
+    border-radius: ${theme.default.borderRadius};
+    box-shadow: ${theme.default.boxShadow};
+
     ${PgTheme.convertToCSS(
       theme.views.main.primary.tutorials.main.content.featured
     )};
