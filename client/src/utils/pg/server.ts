@@ -1,5 +1,6 @@
 import type { Idl } from "@coral-xyz/anchor";
 
+import { PgCommon } from "./common";
 import { PgSettings } from "./settings";
 import type { TupleFiles } from "./explorer";
 
@@ -128,7 +129,7 @@ export class PgServer {
     }
 
     const response = await fetch(
-      `${PgSettings.server.endpoint}${path}`,
+      PgCommon.joinPaths(PgSettings.server.endpoint, path),
       requestInit
     );
     if (!response.ok) {
