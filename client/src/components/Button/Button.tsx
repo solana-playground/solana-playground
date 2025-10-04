@@ -9,7 +9,7 @@ import {
 import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
-import { PgTheme, PgView } from "../../utils/pg";
+import { PgTheme } from "../../utils/pg";
 
 export type ButtonKind =
   | "primary"
@@ -76,16 +76,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    {
-      btnLoading,
-      className,
-      disabled,
-      leftIcon,
-      rightIcon,
-      onClick,
-      children,
-      ...props
-    },
+    { btnLoading, disabled, leftIcon, rightIcon, onClick, children, ...props },
     ref
   ) => {
     const [isLoading, setIsLoading] = useState(getIsLoading(btnLoading));
@@ -119,10 +110,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <StyledButton
         ref={ref}
-        className={`${className} ${
-          isLoading ? PgView.classNames.BUTTON_LOADING : ""
-        }`}
         disabled={isDisabled}
+        btnLoading={isLoading}
         onClick={handleOnClick}
         {...props}
       >
@@ -159,6 +148,7 @@ const getButtonStyles = ({
   color: _color,
   hoverColor: _hoverColor,
   fontWeight: _fontWeight,
+  btnLoading,
 }: ButtonProps & { theme: DefaultTheme }) => {
   // Clone the default Button theme to not override the global object
   let button = structuredClone(theme.components.button.default);
@@ -399,18 +389,19 @@ const getButtonStyles = ({
     /* Loading */
     & > span.btn-spinner {
       transform: scale(0);
-    }
 
-    &.${PgView.classNames.BUTTON_LOADING} > span.btn-spinner {
-      width: 1rem;
-      height: 1rem;
-      margin-right: 0.5rem;
-      border: 3px solid transparent;
-      border-top-color: ${theme.colors.default.primary};
-      border-right-color: ${theme.colors.default.primary};
-      border-radius: 50%;
-      animation: ${spinnerAnimation} 0.5s linear infinite;
-      transform: scale(1);
+      ${btnLoading &&
+      css`
+        transform: scale(1);
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        border: 3px solid transparent;
+        border-top-color: ${theme.colors.default.primary};
+        border-right-color: ${theme.colors.default.primary};
+        border-radius: 50%;
+        animation: ${spinnerAnimation} 0.5s linear infinite;
+      `}
     }
   `;
 

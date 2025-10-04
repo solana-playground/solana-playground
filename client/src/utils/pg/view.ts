@@ -71,7 +71,6 @@ export class PgView {
     FOLDER_INSIDE: "folder-inside",
     LOADING: "loading",
     DARKEN: "darken",
-    BUTTON_LOADING: "btn-loading",
   };
 
   /** DOM ids */
