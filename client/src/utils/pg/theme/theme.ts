@@ -754,6 +754,7 @@ export class PgTheme {
       ._button()
       ._menu()
       ._text()
+      ._svg()
       ._input()
       ._select()
       ._tooltip()
@@ -965,7 +966,7 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default menu component */
+  /** Set default text component */
   private static _text() {
     const text = this._getComponent("text");
     const theme = this._themeReady;
@@ -980,6 +981,16 @@ export class PgTheme {
     text.default.borderRadius ??= theme.default.borderRadius;
     text.default.fontSize ??= theme.font.code.size.small;
     text.default.lineHeight ??= 1.5;
+
+    return this;
+  }
+
+  /** Set default svg component */
+  private static _svg() {
+    const svg = this._getComponent("svg");
+    const theme = this._themeReady;
+
+    svg.transition ??= `color ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
 
     return this;
   }
