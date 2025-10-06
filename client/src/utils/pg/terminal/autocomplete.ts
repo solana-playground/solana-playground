@@ -1,6 +1,6 @@
 import { getIsOption, parse } from "./utils";
 import { PgCommon } from "../common";
-import type { Getable } from "../types";
+import type { Disposable, Getable } from "../types";
 
 /** Autocomplete handler input type */
 type AutocompleteHandler =
@@ -44,20 +44,16 @@ export class PgAutocomplete {
    * @param handler handler to set
    * @param opts handler options:
    * - `append`: whether to append the handler to the existing handlers
-   * @returns an object with `restore` callback to restore the handlers
+   * @returns a disposable object to restore the handlers
    */
   temporarilySetHandlers(
     handler: AutocompleteHandler,
     opts?: { append?: boolean }
-  ) {
+  ): Disposable {
     const initialHandlers = this._handlers;
     this._handlers = opts?.append ? [...initialHandlers] : [];
     this._addHandler(handler);
-    return {
-      restore: () => {
-        this._handlers = initialHandlers;
-      },
-    };
+    return { dispose: () => (this._handlers = initialHandlers) };
   }
 
   /**
