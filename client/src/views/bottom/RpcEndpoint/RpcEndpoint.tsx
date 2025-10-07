@@ -20,18 +20,11 @@ export const RpcEndpoint = () => {
   if (!wallet) return null;
 
   return (
-    <>
-      <Dash>-</Dash>
-      <Tooltip element={`RPC endpoint (${connection.rpcEndpoint})`}>
-        <NetworkNameText>{networkName}</NetworkNameText>
-      </Tooltip>
-    </>
+    <Tooltip element={`RPC endpoint (${connection.rpcEndpoint})`}>
+      <NetworkNameText>{networkName}</NetworkNameText>
+    </Tooltip>
   );
 };
-
-const Dash = styled.span`
-  margin-right: 0.75rem;
-`;
 
 const NetworkNameText = styled.span`
   ${({ theme }) => css`

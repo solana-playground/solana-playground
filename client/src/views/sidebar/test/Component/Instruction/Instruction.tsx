@@ -94,7 +94,6 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
         const txHash = await PgCommon.transition(
           PgProgramInteraction.test(instruction)
         );
-        PgTx.notify(txHash);
         if (PgSettings.testUi.showTxDetailsInTerminal) return txHash;
 
         const txResult = await PgTx.confirm(txHash);

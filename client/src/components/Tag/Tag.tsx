@@ -105,7 +105,7 @@ const Language: FC<LanguageProps> = ({ value, ...props }) => {
   const { ref } = useDelayedDifferentBackground();
   const path =
     "file." +
-    PgLanguage.all.find((lang) => lang.name === value)?.extension.at(0);
+    PgLanguage.all.find((lang) => lang.name === value)?.extensions.at(0);
 
   return (
     <Boxed ref={ref} {...props}>

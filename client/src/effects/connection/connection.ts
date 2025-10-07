@@ -1,4 +1,3 @@
-import { Endpoint } from "../../constants";
 import {
   PgCommon,
   PgConnection,
@@ -11,7 +10,7 @@ export const connection = () => {
   return PgCommon.batchChanges(async () => {
     if (cache.local && cache.nonLocal) return;
     if (!PgWallet.current) return;
-    if (PgConnection.current.rpcEndpoint === Endpoint.PLAYNET) return;
+    if (PgConnection.cluster === "playnet") return;
 
     const RETRY_AMOUNT = 2;
     for (let i = 0; i < RETRY_AMOUNT; i++) {
@@ -23,7 +22,7 @@ export const connection = () => {
     }
 
     // Connection failed
-    if (PgConnection.current.rpcEndpoint === Endpoint.LOCALNET) {
+    if (PgConnection.cluster === "localnet") {
       executeOnce("local", async () => {
         const { Local } = await import("./Local");
         await PgView.setModal(Local);
@@ -31,7 +30,7 @@ export const connection = () => {
     } else {
       executeOnce("nonLocal", async () => {
         const { NonLocal } = await import("./NonLocal");
-        PgView.setToast(NonLocal, {
+        PgView.setToast<never>(NonLocal, {
           options: { autoClose: false, closeOnClick: true },
         });
       });

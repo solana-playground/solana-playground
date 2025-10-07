@@ -68,6 +68,7 @@ const storage = {
     }
 
     return {
+      ...defaultState,
       ...serializedState,
       kp: serializedState.kp
         ? PgWeb3.Keypair.fromSecretKey(Uint8Array.from(serializedState.kp))
@@ -75,7 +76,6 @@ const storage = {
       customPk: serializedState.customPk
         ? new PgWeb3.PublicKey(serializedState.customPk)
         : null,
-      importedProgram: defaultState.importedProgram,
     };
   },
 
@@ -83,7 +83,7 @@ const storage = {
   async write(state: ProgramInfo) {
     if (!PgExplorer.isInitialized || !PgExplorer.currentWorkspaceName) return;
 
-    // Don't use spread operator(...) because of the extra derived state
+    // Don't use spread operator(...) because of the extra state
     const serializedState: SerializedProgramInfo = {
       uuid: state.uuid,
       idl: state.idl,

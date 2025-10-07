@@ -170,12 +170,11 @@ export const PgCommand: Commands = new Proxy({} as any, {
   ) => {
     if (!target[cmdCodeName]) {
       const name = PgCommandManager.all[cmdCodeName].name;
-      const eventNames = getEventNames(name);
       target[cmdCodeName] = {
         name,
         execute: (...args) => PgCommandManager.execute([name, ...args]),
-        onDidStart: (cb) => PgCommon.onDidChange(eventNames.start, cb),
-        onDidFinish: (cb) => PgCommon.onDidChange(eventNames.finish, cb),
+        onDidStart: (cb) => PgCommandManager.onDidStart(name, cb),
+        onDidFinish: (cb) => PgCommandManager.onDidFinish(name, cb),
       };
     }
 
@@ -276,7 +275,7 @@ export class PgCommandManager {
       const input = tokens.join(" ");
 
       // Dispatch start event
-      const eventNames = getEventNames(topCmd.name);
+      const eventNames = PgCommandManager._getEventNames(topCmd.name);
       PgCommon.createAndDispatchCustomEvent(eventNames.start, input);
 
       let cmd: Command<string, Arg[], Option[], any[], any> = topCmd;
@@ -505,10 +504,38 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
       }
     });
   }
-}
 
-/** Get custom event names of the given command. */
-const getEventNames = (name: string) => ({
-  start: "ondidrunstart" + name,
-  finish: "ondidrunfinish" + name,
-});
+  /**
+   * Runs after the command starts execution.
+   *
+   * @param name command name
+   * @returns a disposable to clear the event listener
+   */
+  static onDidStart(
+    name: string,
+    ...params: Parameters<ExecutableCommand["onDidStart"]>
+  ) {
+    return PgCommon.onDidChange(this._getEventNames(name).start, ...params);
+  }
+
+  /**
+   * Runs after the command finishes execution.
+   *
+   * @param name command name
+   * @returns a disposable to clear the event listener
+   */
+  static onDidFinish(
+    name: string,
+    ...params: Parameters<ExecutableCommand["onDidFinish"]>
+  ) {
+    return PgCommon.onDidChange(this._getEventNames(name).finish, ...params);
+  }
+
+  /** Get custom event names of the given command. */
+  private static _getEventNames(name: string) {
+    return {
+      start: "ondidrunstart" + name,
+      finish: "ondidrunfinish" + name,
+    };
+  }
+}

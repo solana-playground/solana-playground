@@ -11,13 +11,13 @@ export interface ToastChildProps {
 }
 
 const Toast = () => {
-  const setToast = useCallback(({ Component, props }) => {
+  const setToast = useCallback(({ elementable, props }) => {
     const id = PgCommon.generateRandomInt(0, 2 ** 12);
-    if (typeof Component === "function") {
-      Component = <Component {...props?.componentProps} id={id} />;
-    }
-
-    toast(Component, { ...props?.options, toastId: id });
+    elementable = PgView.normalizeElement(elementable, {
+      ...props?.componentProps,
+      id,
+    });
+    toast(elementable, { ...props?.options, toastId: id });
   }, []);
 
   useSetStatic(PgView.events.TOAST_SET, setToast);

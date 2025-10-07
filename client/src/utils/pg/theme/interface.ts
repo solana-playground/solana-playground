@@ -182,6 +182,8 @@ export interface ThemeParam {
       highlightColor?: Color;
     };
 
+    svg?: DefaultComponent;
+
     /** Tabs component */
     tabs?: ExtendibleComponent<{
       tab?: ExtendibleComponent<
@@ -448,7 +450,7 @@ export interface ImportableThemeParam {
 export type ImportableTheme = Required<ImportableThemeParam>;
 
 /** Components that use `DefaultComponent` type */
-type DefaultComponents = "input" | "skeleton" | "tooltip";
+type DefaultComponents = "input" | "skeleton" | "svg" | "tooltip";
 
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =

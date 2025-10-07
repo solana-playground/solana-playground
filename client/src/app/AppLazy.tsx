@@ -1,15 +1,14 @@
-import { BrowserRouter } from "react-router-dom";
-
 import Delayed from "../components/Delayed";
 import FadeIn from "../components/FadeIn";
 import Effects from "./Effects";
 import Global from "./Global";
 import Panels from "./Panels";
+import { RouterProvider } from "../providers/router";
 import { SolanaProvider } from "../providers/solana";
 
 const AppLazy = () => (
-  <SolanaProvider>
-    <BrowserRouter>
+  <RouterProvider>
+    <SolanaProvider>
       <FadeIn>
         <Panels />
       </FadeIn>
@@ -31,8 +30,8 @@ const AppLazy = () => (
       <Delayed delay={1000}>
         <Effects />
       </Delayed>
-    </BrowserRouter>
-  </SolanaProvider>
+    </SolanaProvider>
+  </RouterProvider>
 );
 
 export default AppLazy;

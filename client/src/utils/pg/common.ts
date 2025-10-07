@@ -1,5 +1,3 @@
-import type { ChangeEvent } from "react";
-
 import type {
   AllPartial,
   Disposable,
@@ -189,10 +187,14 @@ export class PgCommon {
    * the given value.
    *
    * @param maybeFunction value to check
+   * @param args function arguments (unused for non-functions)
    * @returns either the given value or the called value if it's a function
    */
-  static callIfNeeded<T>(maybeFunction: T): T extends () => infer R ? R : T {
-    if (typeof maybeFunction === "function") return maybeFunction();
+  static callIfNeeded<T, P extends unknown[]>(
+    maybeFunction: T,
+    ...args: P
+  ): T extends () => infer R ? R : T {
+    if (typeof maybeFunction === "function") return maybeFunction(...args);
     return maybeFunction as T extends () => infer R ? R : T;
   }
 
@@ -1049,7 +1051,7 @@ export class PgCommon {
    * - `dir`: whether to accept directories
    */
   static async import<T>(
-    onChange: (ev: ChangeEvent<HTMLInputElement>) => Promise<T>,
+    onChange: (ev: Event & { target: HTMLInputElement }) => Promise<T>,
     opts?: { accept?: string; dir?: boolean }
   ): Promise<T> {
     return new Promise((res, rej) => {

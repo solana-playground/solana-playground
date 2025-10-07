@@ -12,21 +12,13 @@ export const Address = () => {
 
   const walletPkStr = wallet.publicKey.toBase58();
   return (
-    <>
-      <Seperator>|</Seperator>
-
-      <Tooltip element="Your address">
-        <AddressLink href={blockExplorer.getAddressUrl(walletPkStr)}>
-          {walletPkStr}
-        </AddressLink>
-      </Tooltip>
-    </>
+    <Tooltip element="Your address">
+      <AddressLink href={blockExplorer.getAddressUrl(walletPkStr)}>
+        {walletPkStr}
+      </AddressLink>
+    </Tooltip>
   );
 };
-
-const Seperator = styled.span`
-  margin: 0 0.75rem;
-`;
 
 const AddressLink = styled(Link)`
   ${({ theme }) => css`

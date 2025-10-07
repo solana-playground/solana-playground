@@ -126,11 +126,27 @@ export class PgTheme {
     // we'd have to store the object somewhere because it compares by object
     // reference rather than font family.
     let isLoaded = false;
-    for (const font of document.fonts.keys()) {
-      if (font.family === this._font.family) {
-        isLoaded = font.status === "loaded";
+    if (PgCommon.getBrowser() === "Firefox") {
+      // Using `document.fonts.keys()` in a loop results in
+      // `TypeError: document.fonts.keys() is not iterable` on Firefox.
+      //
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1729089
+      const fonts = document.fonts.keys();
+      while (1) {
+        const { done, value: font } = fonts.next();
+        if (done) break;
+        if (font.family === this._font.family) {
+          isLoaded = font.status === "loaded";
+        }
+      }
+    } else {
+      for (const font of document.fonts.keys()) {
+        if (font.family === this._font.family) {
+          isLoaded = font.status === "loaded";
+        }
       }
     }
+
     if (!isLoaded) {
       try {
         const fontFace = new FontFace(
@@ -738,6 +754,7 @@ export class PgTheme {
       ._button()
       ._menu()
       ._text()
+      ._svg()
       ._input()
       ._select()
       ._tooltip()
@@ -767,11 +784,13 @@ export class PgTheme {
     bottom.default.display ??= "flex";
     bottom.default.flexWrap ??= "wrap";
     bottom.default.alignItems ??= "center";
+    bottom.default.gap ??= "0 1rem";
 
     // Connect button
     bottom.connect ??= {};
     bottom.connect.height ??= "100%";
     bottom.connect.padding ??= "0 0.75rem";
+    bottom.connect.marginRight ??= "-0.5rem";
     bottom.connect.border ??= "none";
     bottom.connect.hover ??= {};
     bottom.connect.hover.bg ??=
@@ -854,6 +873,7 @@ export class PgTheme {
     // Default
     sidebar.default ??= {};
     sidebar.default.display ??= "flex";
+    sidebar.default.overflowX ??= "hidden"; // This makes content scroll work
 
     // Left
     sidebar.left ??= {};
@@ -891,6 +911,7 @@ export class PgTheme {
     // Right title
     sidebar.right.title ??= {};
     sidebar.right.title.height ??= "2rem";
+    sidebar.right.title.minHeight ??= sidebar.right.title.height;
     sidebar.right.title.borderBottom ??= `1px solid ${theme.colors.default.border};`;
     sidebar.right.title.color ??= theme.colors.default.textSecondary;
     sidebar.right.title.fontSize ??= theme.font.code.size.large;
@@ -945,7 +966,7 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default menu component */
+  /** Set default text component */
   private static _text() {
     const text = this._getComponent("text");
     const theme = this._themeReady;
@@ -960,6 +981,16 @@ export class PgTheme {
     text.default.borderRadius ??= theme.default.borderRadius;
     text.default.fontSize ??= theme.font.code.size.small;
     text.default.lineHeight ??= 1.5;
+
+    return this;
+  }
+
+  /** Set default svg component */
+  private static _svg() {
+    const svg = this._getComponent("svg");
+    const theme = this._themeReady;
+
+    svg.transition ??= `color ${theme.default.transition.duration.short} ${theme.default.transition.type}`;
 
     return this;
   }
@@ -1721,95 +1752,21 @@ export class PgTheme {
   /** Set default tutorials view */
   private static _tutorials() {
     const main = this._getView("main");
-    const theme = this._themeReady;
-
     main.primary!.tutorials ??= {};
+
     const tutorials = main.primary!.tutorials;
-
-    // Default
     tutorials.default ??= {};
-    tutorials.default.display ??= "flex";
-    tutorials.default.flexDirection ??= "column";
-    tutorials.default.bg ??= theme.views.main.default.bg;
-    tutorials.default.fontFamily ??= theme.font.other.family;
-    tutorials.default.fontSize ??= theme.font.other.size.medium;
-
-    // Top
+    tutorials.default.bg ??= this._themeReady.views.main.default.bg;
     tutorials.top ??= {};
-    tutorials.top.display ??= "flex";
-    tutorials.top.justifyContent ??= "space-between";
-    tutorials.top.padding ??= "1rem 2.5rem";
-    tutorials.top.bg ??= this.getDifferentBackground(tutorials.default.bg);
-    tutorials.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    tutorials.top["& > div"] ??= {};
-    tutorials.top["& > div"].width ??= "max(12rem, 50%)";
-
-    // Main
     tutorials.main ??= {};
-
-    // Main default
     tutorials.main.default ??= {};
-    tutorials.main.default.display ??= "flex";
-    tutorials.main.default.height ??= "100%";
-    tutorials.main.default.bg ??= this.getDifferentBackground(
-      theme.views.main.default.bg
-    );
-    tutorials.main.default.borderRadius ??= theme.default.borderRadius;
-
-    // Main side (filters)
     tutorials.main.side ??= {};
-    tutorials.main.side.width ??= "14.5rem";
-    tutorials.main.side.flexShrink ??= 0;
-    tutorials.main.side.padding ??= "0.5rem";
-    tutorials.main.side.borderRight ??= `1px solid ${theme.colors.default.border}`;
-    tutorials.main.side.borderTopLeftRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-    tutorials.main.side.borderBottomLeftRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-
-    // Main content (tutorials)
     tutorials.main.content ??= {};
-
-    // Main content default
     tutorials.main.content.default ??= {};
-    tutorials.main.content.default.padding ??= "1.5rem";
-    tutorials.main.content.default.display ??= "flex";
-    tutorials.main.content.default.flexDirection ??= "column";
-    tutorials.main.content.default.flexGrow ??= 1;
-    tutorials.main.content.default.gap ??= "2rem";
-    tutorials.main.content.default.overflow ??= "auto";
-    tutorials.main.content.default.bg ??= tutorials.main.default.bg;
-    tutorials.main.content.default.borderTopRightRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-    tutorials.main.content.default.borderBottomRightRadius ??=
-      theme.views.main.primary.tutorials.main.default.borderRadius;
-    //Main content card
     tutorials.main.content.card ??= {};
-    const card = tutorials.main.content.card;
-    //Main content card default
-    card.default ??= {};
-    card.default.width ??= "100%";
-    card.default.height ??= "100%";
-    card.default.overflow ??= "hidden";
-    card.default.bg ??= theme.views.main.primary.tutorials.main.default.bg;
-    card.default.color ??= theme.colors.default.textPrimary;
-    card.default.border ??= `1px solid ${
-      theme.colors.default.border + theme.default.transparency.medium
-    }`;
-    card.default.borderRadius ??= theme.default.borderRadius;
-    card.default.boxShadow ??= theme.default.boxShadow;
-    card.default.transition ??= `all ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type}`;
-    //Main content card gradient
-    card.gradient ??= {};
-    // Main content featured tutorial
+    tutorials.main.content.card.default ??= {};
+    tutorials.main.content.card.gradient ??= {};
     tutorials.main.content.featured ??= {};
-    const featured = tutorials.main.content.featured;
-    featured.height ??= "20rem";
-    featured.display ??= "flex";
-    featured.border ??= `1px solid ${theme.colors.default.border}`;
-    featured.borderRadius ??= theme.default.borderRadius;
-    featured.boxShadow ??= theme.default.boxShadow;
 
     return this;
   }

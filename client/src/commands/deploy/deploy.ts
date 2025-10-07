@@ -33,8 +33,6 @@ export const deploy = createCmd({
       const { txHash, closeBuffer } = await processDeploy();
       if (txHash) {
         const timePassed = (performance.now() - startTime) / 1000;
-        PgTx.notify(txHash);
-
         msg = `${PgTerminal.success(
           "Deployment successful."
         )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;

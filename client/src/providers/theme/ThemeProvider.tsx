@@ -35,11 +35,6 @@ const Wrapper = styled.div`
     font-family: ${theme.font.code.family};
     font-size: ${theme.font.code.size.medium};
 
-    & svg {
-      transition: color ${theme.default.transition.duration.short}
-        ${theme.default.transition.type};
-    }
-
     & ::selection {
       background: ${theme.colors.default.primary +
       theme.default.transparency.medium};

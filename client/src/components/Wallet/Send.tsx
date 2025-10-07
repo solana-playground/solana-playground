@@ -70,8 +70,6 @@ const SendExpanded = () => {
         });
         const tx = new PgWeb3.Transaction().add(ix);
         const txHash = await PgTx.send(tx);
-        PgTx.notify(txHash);
-
         const txResult = await PgCommon.transition(PgTx.confirm(txHash));
         if (txResult?.err) throw txResult.err;
 

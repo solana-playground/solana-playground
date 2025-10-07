@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-
 import { BLOCK_EXPLORERS } from "../../block-explorers";
 import { COMMANDS } from "../../commands";
 import { FRAMEWORKS } from "../../frameworks";
@@ -13,7 +10,6 @@ import {
   initAll,
   PgBlockExplorer,
   PgCommandManager,
-  PgCommon,
   PgConnection,
   PgFramework,
   PgGlobal,
@@ -25,7 +21,7 @@ import {
   PgView,
   PgWallet,
 } from "../../utils/pg";
-import { useDisposable, useGetStatic } from "../../hooks";
+import { useDisposable } from "../../hooks";
 
 // Set fields
 PgBlockExplorer.all = BLOCK_EXPLORERS;
@@ -43,6 +39,7 @@ const INITABLES = [
   PgConnection,
   PgGlobal,
   PgProgramInfo,
+  PgRouter,
   PgTutorial,
   PgWallet,
 ];
@@ -50,41 +47,8 @@ const getInitables = () => initAll(INITABLES);
 
 const Global = () => {
   useDisposable(getInitables);
-  useRouter();
 
   return null;
-};
-
-/** Handle URL routing. */
-const useRouter = () => {
-  // Init
-  useEffect(() => {
-    const { dispose } = PgRouter.init();
-    return dispose;
-  }, []);
-
-  // Location
-  const location = useLocation();
-
-  // Path
-  useEffect(() => {
-    PgCommon.createAndDispatchCustomEvent(
-      PgRouter.events.ON_DID_CHANGE_PATH,
-      location.pathname
-    );
-  }, [location.pathname]);
-
-  // Hash
-  useEffect(() => {
-    PgCommon.createAndDispatchCustomEvent(
-      PgRouter.events.ON_DID_CHANGE_HASH,
-      location.hash
-    );
-  }, [location.hash]);
-
-  // Navigate
-  const navigate = useNavigate();
-  useGetStatic(PgRouter.events.NAVIGATE, navigate);
 };
 
 export default Global;

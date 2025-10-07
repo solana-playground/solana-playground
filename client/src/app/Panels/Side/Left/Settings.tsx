@@ -20,8 +20,7 @@ const Settings = () => (
   <Wrapper>
     {PgSettings.all
       .reduce((acc, cur) => {
-        // TODO: Remove hardcoding `ui`
-        const groupName = cur.id ? cur.id.split(".")[0] : "ui";
+        const groupName = cur.id.split(".")[0];
         const lastGroup = acc.at(-1);
         if (lastGroup?.name === groupName) lastGroup.settings.push(cur);
         else acc.push({ name: groupName, settings: [cur] });
@@ -75,7 +74,7 @@ const SettingGroup: FC<SettingGroupProps> = ({ name, settings }) => (
       element={PgCommon.toTitleFromCamel(name).replace("Ui", "UI")}
     >
       {settings.map((setting) => (
-        <Setting key={setting.id ?? setting.name} {...setting} />
+        <Setting key={setting.id} {...setting} />
       ))}
     </Foldable>
   </SettingGroupWrapper>

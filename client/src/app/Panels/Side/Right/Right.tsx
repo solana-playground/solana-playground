@@ -5,19 +5,14 @@ import {
   useState,
   useCallback,
   useRef,
+  ReactNode,
 } from "react";
 import styled, { css } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
-import {
-  NullableJSX,
-  PgTheme,
-  PgView,
-  SetState,
-  SidebarPage,
-} from "../../../../utils/pg";
+import { PgTheme, PgView, SetState, SidebarPage } from "../../../../utils/pg";
 import { useAsyncEffect, useSetStatic } from "../../../../hooks";
 
 interface DefaultRightProps {
@@ -63,7 +58,7 @@ const Title: FC<DefaultRightProps> = ({ page }) => (
 );
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
-  const [el, setEl] = useState<NullableJSX>(null);
+  const [el, setEl] = useState<ReactNode>(null);
   const [props, setProps] = useState(() => ({}));
   const [loadingCount, setLoadingCount] = useState<number>(0);
 
@@ -97,7 +92,11 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
 
   if (loadingCount) return <Loading page={page} />;
 
-  return <ErrorBoundary>{el}</ErrorBoundary>;
+  return (
+    <ErrorBoundary>
+      <ContentWrapper>{el}</ContentWrapper>
+    </ErrorBoundary>
+  );
 };
 
 const Wrapper = styled.div<{
@@ -107,11 +106,9 @@ const Wrapper = styled.div<{
   ${({ theme, width, oldWidth }) => css`
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     height: 100%;
     min-width: ${width ? width : oldWidth}px;
 
-    ${PgTheme.getScrollbarCSS()};
     ${PgTheme.convertToCSS(theme.views.sidebar.right.default)};
   `}
 `;
@@ -126,8 +123,15 @@ const TitleWrapper = styled.div`
   `}
 `;
 
+const ContentWrapper = styled.div`
+  height: 100%;
+  overflow-y: auto;
+
+  ${PgTheme.getScrollbarCSS()};
+`;
+
 const Loading: FC<DefaultRightProps> = ({ page }) => {
-  if (page.LoadingElement) return <page.LoadingElement />;
+  if (page.LoadingComponent) return <page.LoadingComponent />;
 
   return (
     <LoadingWrapper>

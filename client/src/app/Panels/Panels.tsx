@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Bottom from "./Bottom";
 import Main from "./Main";
 import Side from "./Side";
-import Delayed from "../../components/Delayed";
 import ModalBackdrop from "../../components/ModalBackdrop";
 import Toast from "../../components/Toast";
 import Wallet from "../../components/Wallet";
@@ -18,11 +17,7 @@ const Panels = () => (
 
     <Bottom />
 
-    {/* Add a delay to the mount of the `Wallet` component because some of the
-    globals used in that component doesn't get initialized in time */}
-    <Delayed delay={10}>
-      <Wallet />
-    </Delayed>
+    <Wallet />
 
     {/* A portal that is *above* the modal backdrop stacking context */}
     <PortalAbove id={PgView.ids.PORTAL_ABOVE} />

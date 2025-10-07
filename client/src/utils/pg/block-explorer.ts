@@ -1,4 +1,3 @@
-import { PgConnection } from "./connection";
 import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { PgSettings } from "./settings";
 
@@ -46,15 +45,8 @@ type BlockExplorer = Omit<
 const derive = () => ({
   /** The current block explorer based on user's block explorer setting */
   current: createDerivable({
-    derive: () => {
-      return _PgBlockExplorer.all.find(
-        (be) => be.name === PgSettings.other.blockExplorer
-      )!;
-    },
-    onChange: [
-      PgSettings.onDidChangeOtherBlockExplorer,
-      PgConnection.onDidChangeCluster,
-    ],
+    derive: (name) => _PgBlockExplorer.all.find((be) => be.name === name)!,
+    onChange: PgSettings.onDidChangeBlockExplorerName,
   }),
 });
 

@@ -87,6 +87,18 @@ const GradientWrapper = styled.div`
 
 const InsideWrapper = styled.div`
   ${({ theme }) => css`
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: ${theme.views.main.primary.tutorials.main.default.bg};
+    color: ${theme.colors.default.textPrimary};
+    border: 1px solid
+      ${theme.colors.default.border + theme.default.transparency.medium};
+    border-radius: ${theme.default.borderRadius};
+    box-shadow: ${theme.default.boxShadow};
+    transition: all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
+
     ${PgTheme.convertToCSS(
       theme.views.main.primary.tutorials.main.content.card.default
     )};

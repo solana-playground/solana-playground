@@ -1,4 +1,5 @@
 import {
+  ReactNode,
   SetStateAction,
   useCallback,
   useEffect,
@@ -14,7 +15,6 @@ import ProgressBar from "../../../../components/ProgressBar";
 import Resizable from "../../../../components/Resizable";
 import { Close, DoubleArrow, Tick } from "../../../../components/Icons";
 import {
-  NullableJSX,
   PgCommon,
   // TODO: Remove
   PgEditor,
@@ -35,7 +35,7 @@ const Secondary = () => {
   }, [page]);
   const pageInfo = useMemo(() => getPage(page), [page]);
 
-  const [el, setEl] = useState<NullableJSX>(null);
+  const [el, setEl] = useState<ReactNode>(null);
   useAsyncEffect(async () => {
     const { default: PageComponent } = await pageInfo.importComponent();
     setEl(<PageComponent />);

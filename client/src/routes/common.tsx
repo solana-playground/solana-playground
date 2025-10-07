@@ -1,7 +1,6 @@
 import {
-  CallableJSX,
   Disposable,
-  NullableJSX,
+  Elementable,
   PgCommon,
   PgExplorer,
   PgRouter,
@@ -18,7 +17,7 @@ type ComponentName =
 export const handleRoute = (
   params: {
     /** Get primary main view component/element. */
-    main?: ComponentName | (() => Promise<NullableJSX | CallableJSX>);
+    main?: ComponentName | (() => Promise<Elementable>);
     /** Sidebar page to set */
     // TODO: Make it work with `SidebarPageName` (doesn't work due to circularity)
     sidebar?: ComponentName;

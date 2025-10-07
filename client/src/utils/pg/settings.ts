@@ -3,7 +3,7 @@
 
 import { declareUpdatable, updatable } from "./decorators";
 import type {
-  CallableJSX,
+  Arrayable,
   Disposable,
   Getable,
   RequiredKey,
@@ -30,9 +30,7 @@ type ConvertAll<A, R = unknown> = A extends readonly [infer Head, ...infer Tail]
     : never
   : R;
 
-type Convert<I extends string, V> = I extends ""
-  ? unknown
-  : I extends `${infer Head}.${infer Rest}`
+type Convert<I extends string, V> = I extends `${infer Head}.${infer Rest}`
   ? { [K in Head]: Convert<Rest, V> }
   : { [K in I]: V extends undefined ? boolean : V };
 
@@ -44,7 +42,7 @@ export type SettingParam<
   D = boolean
 > = {
   /** Setting identifier (used in `PgSettings`) */
-  id?: I;
+  id: I;
   /** Name of the setting (default: derive from `id`) */
   name?: string;
   /** Information about the setting that will be shown as a help tooltip */
@@ -73,8 +71,10 @@ export type SettingParam<
      * This is set automatically if `Custom.tsx` file inside the setting's
      * directory exists.
      */
-    Component?: CallableJSX;
+    Component?: () => JSX.Element;
   };
+  /** Migrate old setting `id`s, useful for renaming settings */
+  migrate?: { from: Arrayable<string> };
 } & Partial<SettingsCompat<V>>;
 
 /** Compatibility with non-standard settings (theme and font) */
@@ -117,9 +117,9 @@ export type Setting<I extends string = string, V = any, C = any> = RequiredKey<
 //
 // TODO: Remove `build.flags`
 const defaultState: Settings = {
-  ...DEFAULT_SETTINGS,
+  ...GLOBAL_SETTINGS.default,
   build: {
-    ...DEFAULT_SETTINGS.build,
+    ...GLOBAL_SETTINGS.default.build,
     flags: {
       seedsFeature: false,
       noDocs: true,
@@ -147,8 +147,13 @@ const storage = {
 
 const recursive = true;
 
-// TODO: Remove in 2024
 const migrate = () => {
+  migrateLegacy();
+  return GLOBAL_SETTINGS.migrations;
+};
+
+// TODO: Remove when domain changes
+const migrateLegacy = () => {
   const migrateFromLocalStorage = <R>(oldKey: string) => {
     const valueStr = localStorage.getItem(oldKey);
     if (!valueStr) return;

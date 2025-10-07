@@ -88,12 +88,29 @@ const Tutorials = () => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    font-family: ${theme.font.other.family};
+    font-size: ${theme.font.other.size.medium};
+
     ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.default)};
   `}
 `;
 
 const TopSection = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: ${PgTheme.getDifferentBackground(
+      theme.views.main.primary.tutorials.default.bg
+    )};
+    border-bottom: 1px solid ${theme.colors.default.border};
+
+    & > div {
+      width: max(12rem, 50%);
+    }
+
     ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.top)};
   `}
 `;
@@ -108,12 +125,26 @@ const MainSectionScrollWrapper = styled.div`
 
 const MainSection = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    height: 100%;
+    background: ${PgTheme.getDifferentBackground(theme.views.main.default.bg)};
+    border-radius: ${theme.default.borderRadius};
+
     ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.main.default)};
   `}
 `;
 
 const SideWrapper = styled.div`
   ${({ theme }) => css`
+    width: 14.5rem;
+    flex-shrink: 0;
+    padding: 0.5rem;
+    border-right: 1px solid ${theme.colors.default.border};
+    border-top-left-radius: ${theme.views.main.primary.tutorials.main.default
+      .borderRadius};
+    border-bottom-left-radius: ${theme.views.main.primary.tutorials.main.default
+      .borderRadius};
+
     ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.main.side)};
   `}
 `;
@@ -125,6 +156,18 @@ const FiltersWrapper = styled.div`
 
 const ContentWrapper = styled.div`
   ${({ theme }) => css`
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 2rem;
+    overflow: auto;
+    background: ${theme.views.main.primary.tutorials.main.default.bg};
+    border-top-right-radius: ${theme.views.main.primary.tutorials.main.default
+      .borderRadius};
+    border-bottom-right-radius: ${theme.views.main.primary.tutorials.main
+      .default.borderRadius};
+
     ${PgTheme.convertToCSS(
       theme.views.main.primary.tutorials.main.content.default
     )};

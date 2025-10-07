@@ -525,7 +525,7 @@ export class PgTerm {
     this.focus();
 
     let convertedMsg = msg;
-    const restoreHandlers = [];
+    const disposables = [];
     if (opts?.choice) {
       // Show multi choice items
       const items = opts.choice.items;
@@ -533,7 +533,7 @@ export class PgTerm {
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
         "\n"
       );
-      restoreHandlers.push(
+      disposables.push(
         this._autocomplete.temporarilySetHandlers(
           items.map((_, i) => i.toString())
         )
@@ -541,7 +541,7 @@ export class PgTerm {
     } else if (opts?.confirm) {
       // Confirm is a special case choice
       convertedMsg += PgTerminal.secondaryText(` [yes/no]`);
-      restoreHandlers.push(
+      disposables.push(
         this._autocomplete.temporarilySetHandlers(["yes", "no"])
       );
     }
@@ -549,7 +549,7 @@ export class PgTerm {
     if (opts?.default) {
       const value = opts.default;
       convertedMsg += ` (default: ${value})`;
-      restoreHandlers.push(
+      disposables.push(
         this._autocomplete.temporarilySetHandlers([value], { append: true })
       );
     }
@@ -558,7 +558,7 @@ export class PgTerm {
     try {
       userInput = await this._shell.waitForUserInput(convertedMsg);
     } finally {
-      restoreHandlers.reverse().forEach(({ restore }) => restore());
+      disposables.reverse().forEach(({ dispose }) => dispose());
     }
 
     // Set the input to the default if it exists on empty input

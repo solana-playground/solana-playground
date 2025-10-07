@@ -1,21 +1,15 @@
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import { SpinnerWithBg } from "../../../../components/Loading";
-import {
-  CallableJSX,
-  NullableJSX,
-  PgCommon,
-  PgTheme,
-  PgView,
-} from "../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 import { useAsyncEffect, useGetAndSetStatic } from "../../../../hooks";
 
 const Primary = () => {
-  const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
+  const [el, setEl] = useState<ReactNode>(null);
 
-  const setElWithTransition = useCallback(async (el: any) => {
+  const setElWithTransition = useCallback(async (el) => {
     if (PgCommon.isAsyncFunction(el)) {
       setEl(null);
 
@@ -24,7 +18,7 @@ const Primary = () => {
           return await PgCommon.callIfNeeded(el);
         } catch (e: any) {
           console.log("MAIN VIEW ERROR:", e.message);
-          const initialEl: () => Promise<CallableJSX | NullableJSX> = el;
+          const initialEl: () => Promise<ReactNode> = el;
 
           return (
             <PrimaryError

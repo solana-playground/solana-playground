@@ -1,8 +1,8 @@
-import { FC } from "react";
+import type { FC } from "react";
 import styled from "styled-components";
 
-import Link from "../../../components/Link";
-import { useBlockExplorer } from "../../../hooks";
+import Link from "../../components/Link";
+import { useBlockExplorer } from "../../hooks";
 
 interface ExplorerLinkProps {
   txHash: string;
