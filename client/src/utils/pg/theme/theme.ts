@@ -1774,59 +1774,17 @@ export class PgTheme {
   /** Set default programs view */
   private static _programs() {
     const main = this._getView("main");
-    const theme = this._themeReady;
-
     main.primary!.programs ??= {};
+
     const programs = main.primary!.programs;
-
-    // Default
     programs.default ??= {};
-    programs.default.bg ??= theme.views.main.default.bg;
-    programs.default.fontFamily ??= theme.font.other.family;
-    programs.default.fontSize ??= theme.font.other.size.medium;
-
-    // Top
+    programs.default.bg ??= this._themeReady.views.main.default.bg;
     programs.top ??= {};
-    programs.top.position ??= "sticky";
-    programs.top.top ??= 0;
-    programs.top.display ??= "flex";
-    programs.top.justifyContent ??= "space-between";
-    programs.top.alignItems ??= "center";
-    programs.top.width ??= "100%";
-    programs.top.height ??= "4.5rem";
-    programs.top.padding ??= "1rem 2.5rem";
-    programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
-    programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    programs.top["& > div"] ??= {};
-    programs.top["& > div"].width ??= "max(12rem, 50%)";
-
-    // Main
     programs.main ??= {};
-    // Main default
     programs.main.default ??= {};
-    programs.main.default.display ??= "flex";
-    programs.main.default.minHeight ??= `calc(100% - ${programs.top.height})`;
-    programs.main.default.padding ??= "2rem 2.5rem";
-    // Main content
     programs.main.content ??= {};
-    // Main content default
     programs.main.content.default ??= {};
-    programs.main.content.default.display ??= "flex";
-    programs.main.content.default.flexWrap ??= "wrap";
-    programs.main.content.default.flexGrow ??= 1;
-    programs.main.content.default.gap ??= "1.5rem";
-    // Main content card
     programs.main.content.card ??= {};
-    programs.main.content.card.flexGrow ??= 1;
-    programs.main.content.card.flexBasis ??= "50%";
-    programs.main.content.card.display ??= "flex";
-    programs.main.content.card.flexDirection ??= "column";
-    programs.main.content.card.gap ??= "0.5rem";
-    programs.main.content.card.maxWidth ??= "44.95rem";
-    programs.main.content.card.height ??= "fit-content";
-    programs.main.content.card.padding ??= "1rem";
-    programs.main.content.card.border ??= `1px solid ${theme.colors.default.border}`;
-    programs.main.content.card.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }
