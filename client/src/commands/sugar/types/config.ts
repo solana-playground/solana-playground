@@ -31,7 +31,7 @@ export interface ConfigData {
   /** List of creators */
   creators: Omit<Creator, "verified">[];
 
-  /** Hidden setttings */
+  /** Hidden settings */
   hiddenSettings: Option<HiddenSettings>;
 
   /** Upload method configuration */
