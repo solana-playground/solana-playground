@@ -67,8 +67,8 @@ const Deploy = () => {
             PgGlobal.update({ deployState: "loading" });
         }
       },
-      btnLoading: deployState === "cancelled",
       disabled: buildLoading,
+      loading: deployState === "cancelled",
       leftIcon:
         deployState === "loading" ? (
           <Pause />

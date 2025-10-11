@@ -52,7 +52,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   /** Whether the button should take the full width of the parent element */
   fullWidth?: boolean;
   /** Loading state */
-  btnLoading?:
+  loading?:
     | boolean
     | {
         /** Whether the button is in loading state */
@@ -76,25 +76,25 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { btnLoading, disabled, leftIcon, rightIcon, onClick, children, ...props },
+    { disabled, loading, leftIcon, rightIcon, onClick, children, ...props },
     ref
   ) => {
-    const [isLoading, setIsLoading] = useState(getIsLoading(btnLoading));
+    const [isLoading, setIsLoading] = useState(() => getIsLoading(loading));
     const [isDisabled, setIsDisabled] = useState(disabled);
 
     // Manage manual loading state
     useEffect(() => {
-      const res = getIsLoading(btnLoading);
-      if (res !== undefined) setIsLoading(res);
-    }, [btnLoading]);
+      const isLoading = getIsLoading(loading);
+      if (isLoading !== undefined) setIsLoading(isLoading);
+    }, [loading]);
 
-    // Disable when manually set or is loading
+    // Disable when manually set
     useEffect(() => {
-      setIsDisabled(disabled || isLoading);
-    }, [disabled, isLoading]);
+      setIsDisabled(disabled);
+    }, [disabled]);
 
     const handleOnClick = async (ev: MouseEvent<HTMLButtonElement>) => {
-      const shouldSetIsDisabled = getIsLoading(btnLoading) === undefined;
+      const shouldSetIsDisabled = getIsLoading(loading) === undefined;
       const shouldSetIsLoading = shouldSetIsDisabled && props.kind !== "icon";
 
       try {
@@ -110,8 +110,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <StyledButton
         ref={ref}
-        disabled={isDisabled}
-        btnLoading={isLoading}
+        disabled={isDisabled || isLoading}
+        $loading={isLoading}
         onClick={handleOnClick}
         {...props}
       >
@@ -119,8 +119,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {leftIcon && <span className="left-icon">{leftIcon}</span>}
 
         {isLoading
-          ? typeof btnLoading === "object"
-            ? btnLoading.text ?? children
+          ? typeof loading === "object"
+            ? loading.text ?? children
             : children
           : children}
 
@@ -131,11 +131,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 /** Get whether the button is currently in a loading state */
-const getIsLoading = (btnLoading: ButtonProps["btnLoading"]) => {
-  return typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+const getIsLoading = (loading: ButtonProps["loading"]) => {
+  return typeof loading === "object" ? loading.state : loading;
 };
 
-const StyledButton = styled.button<ButtonProps>`
+const StyledButton = styled.button<ButtonProps & { $loading?: boolean }>`
   ${(props) => getButtonStyles(props)}
 `;
 
@@ -148,8 +148,8 @@ const getButtonStyles = ({
   color: _color,
   hoverColor: _hoverColor,
   fontWeight: _fontWeight,
-  btnLoading,
-}: ButtonProps & { theme: DefaultTheme }) => {
+  $loading,
+}: ButtonProps & { theme: DefaultTheme; $loading?: boolean }) => {
   // Clone the default Button theme to not override the global object
   let button = structuredClone(theme.components.button.default);
 
@@ -390,7 +390,7 @@ const getButtonStyles = ({
     & > span.btn-spinner {
       transform: scale(0);
 
-      ${btnLoading &&
+      ${$loading &&
       css`
         transform: scale(1);
         width: 1rem;
