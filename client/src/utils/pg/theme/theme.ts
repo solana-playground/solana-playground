@@ -908,6 +908,8 @@ export class PgTheme {
     sidebar.right.default.bg ??= theme.colors.default.bgSecondary;
     sidebar.right.default.otherBg ??= theme.colors.default.bgPrimary;
     sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
+    // Right content
+    sidebar.right.content ??= {};
     // Right title
     sidebar.right.title ??= {};
     sidebar.right.title.height ??= "2rem";

@@ -182,6 +182,7 @@ export interface ThemeParam {
       highlightColor?: Color;
     };
 
+    /** SVG component */
     svg?: DefaultComponent;
 
     /** Tabs component */
@@ -348,7 +349,7 @@ export interface ThemeParam {
 
       /** Right side of the side panel */
       right?: ExtendibleComponent<
-        "title",
+        "title" | "content",
         { otherBg?: Bg; initialWidth?: StandardProperties["width"] }
       >;
     }>;
