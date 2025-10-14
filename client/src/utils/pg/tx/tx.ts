@@ -54,18 +54,17 @@ export class PgTx {
     const connection = opts?.connection ?? PgConnection.current;
 
     // Set priority fees if the transaction doesn't already have it
-    const existingsetComputeUnitPriceIx = tx.instructions.find(
+    const existingSetComputeUnitPriceIx = tx.instructions.find(
       (ix) =>
         ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
         ix.data.at(0) === 3 // setComputeUnitPrice
     );
-    if (!existingsetComputeUnitPriceIx) {
-      const priorityFeeInfo = await this._getPriorityFee(connection);
+    if (!existingSetComputeUnitPriceIx) {
       const priorityFeeSetting = PgSettings.connection.priorityFee;
       const priorityFee =
         typeof priorityFeeSetting === "number"
           ? priorityFeeSetting
-          : priorityFeeInfo[priorityFeeSetting];
+          : (await this._getPriorityFee(connection))[priorityFeeSetting];
       if (priorityFee) {
         const setComputeUnitPriceIx =
           PgWeb3.ComputeBudgetProgram.setComputeUnitPrice({
