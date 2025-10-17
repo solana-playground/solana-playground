@@ -761,6 +761,7 @@ export class PgTheme {
       ._progressBar()
       ._uploadArea()
       ._toast()
+      ._topbar()
       ._modal()
       ._markdown()
       ._terminal()
@@ -1182,7 +1183,7 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default skeleton component */
+  /** Set default toast component */
   private static _toast() {
     const toast = this._getComponent("toast");
     const theme = this._themeReady;
@@ -1203,6 +1204,18 @@ export class PgTheme {
     // Close button
     toast.closeButton ??= {};
     toast.closeButton.color ??= theme.colors.default.textSecondary;
+
+    return this;
+  }
+
+  /** Set default topbar component */
+  private static _topbar() {
+    const topbar = this._getComponent("topbar");
+    const theme = this._themeReady;
+
+    topbar.bg ??= PgTheme.getDifferentBackground(
+      theme.views.main.primary.programs.default.bg
+    );
 
     return this;
   }

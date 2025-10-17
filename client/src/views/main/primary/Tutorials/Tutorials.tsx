@@ -6,6 +6,7 @@ import FilterGroups from "../../../../components/FilterGroups";
 import Link from "../../../../components/Link";
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
+import Topbar from "../../../../components/Topbar";
 import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
 import { useFilteredSearch } from "../../../../hooks";
@@ -97,15 +98,9 @@ const Wrapper = styled.div`
   `}
 `;
 
-const TopSection = styled.div`
+const TopSection = styled(Topbar)`
   ${({ theme }) => css`
-    display: flex;
-    justify-content: space-between;
     padding: 1rem 2.5rem;
-    background: ${PgTheme.getDifferentBackground(
-      theme.views.main.primary.tutorials.default.bg
-    )};
-    border-bottom: 1px solid ${theme.colors.default.border};
 
     & > div {
       width: max(12rem, 50%);

@@ -221,6 +221,9 @@ export interface ThemeParam {
     /** Notification toast component */
     toast?: ExtendibleComponent<"progress" | "closeButton">;
 
+    /** Topbar component (e.g. top section of primary main view) */
+    topbar?: DefaultComponent;
+
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
 

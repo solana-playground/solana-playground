@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
+import Topbar from "../../../../components/Topbar";
 import ProgramCard, { ProgramCardProps } from "./ProgramCard";
 import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
@@ -61,20 +62,10 @@ const Wrapper = styled.div`
   `}
 `;
 
-const TopSection = styled.div`
+const TopSection = styled(Topbar)`
   ${({ theme }) => css`
-    position: sticky;
-    top: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
     height: var(--top-height);
     padding: 1rem 2.5rem;
-    background: ${PgTheme.getDifferentBackground(
-      theme.views.main.primary.programs.default.bg
-    )};
-    border-bottom: 1px solid ${theme.colors.default.border};
 
     & > div {
       width: max(12rem, 50%);
