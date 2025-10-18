@@ -17,7 +17,7 @@ export const setting = createCmd({
       description: "Get setting value",
       args: createArgs([idArg]),
       handle: (input) => {
-        const value = PgSettings.get(input.args.id).getValue();
+        const value = getSetting(input.args.id).getValue();
         PgTerminal.println(value);
       },
     }),
@@ -37,7 +37,7 @@ export const setting = createCmd({
             if (!id) throw new Error("Setting ID not found in tokens");
 
             // Get setting
-            const setting = PgSettings.get(id);
+            const setting = getSetting(id);
 
             // If `values` field is not specified, default to boolean
             if (!setting.values) return ["true", "false"];
@@ -68,7 +68,7 @@ export const setting = createCmd({
       ]),
       handle: (input) => {
         const { id, value } = input.args;
-        const setting = PgSettings.get(id);
+        const setting = getSetting(id);
 
         let parsedVal = PgCommon.callIfNeeded(setting.values)?.find(
           (v) => v.name === value
@@ -90,3 +90,16 @@ export const setting = createCmd({
     }),
   ],
 });
+
+/**
+ * Get the setting's implementation from its id.
+ *
+ * @param id setting id
+ * @throws if the setting is not found
+ * @returns the full setting object
+ */
+const getSetting = (id: string) => {
+  const setting = PgSettings.all.find((s) => s.id === id);
+  if (!setting) throw new Error(`Setting not found: ${id}`);
+  return setting;
+};
