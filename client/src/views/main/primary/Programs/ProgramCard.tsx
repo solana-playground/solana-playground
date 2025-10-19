@@ -1,6 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import Card from "../../../../components/Card";
 import Img from "../../../../components/Img";
 import Link from "../../../../components/Link";
 import Markdown from "../../../../components/Markdown";
@@ -74,7 +75,7 @@ const ProgramCard: FC<ProgramCardProps> = ({
   </Wrapper>
 );
 
-const Wrapper = styled.div`
+const Wrapper = styled(Card)`
   ${({ theme }) => css`
     flex-grow: 1;
     flex-basis: 50%;
@@ -83,9 +84,6 @@ const Wrapper = styled.div`
     gap: 0.5rem;
     max-width: 44.95rem;
     height: fit-content;
-    padding: 1rem;
-    border: 1px solid ${theme.colors.default.border};
-    border-radius: ${theme.default.borderRadius};
 
     ${PgTheme.convertToCSS(
       theme.views.main.primary.programs.main.content.card

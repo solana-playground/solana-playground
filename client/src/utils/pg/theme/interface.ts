@@ -82,6 +82,9 @@ export interface ThemeParam {
     /** Button component */
     button?: OverridableComponent<ButtonKind>;
 
+    /** Card component */
+    card?: DefaultComponent;
+
     /** Editor component */
     editor?: {
       /** Editor defaults */
@@ -313,7 +316,7 @@ export interface ThemeParam {
             /** Content section (right tutorials) */
             content?: ExtendibleComponent<{
               /** Tutorial card component */
-              card?: ExtendibleComponent<"gradient">;
+              card?: DefaultComponent;
               /** Featured tutorial component */
               featured?: DefaultComponent;
             }>;
@@ -454,7 +457,13 @@ export interface ImportableThemeParam {
 export type ImportableTheme = Required<ImportableThemeParam>;
 
 /** Components that use `DefaultComponent` type */
-type DefaultComponents = "input" | "skeleton" | "svg" | "tooltip";
+type DefaultComponents =
+  | "card"
+  | "input"
+  | "skeleton"
+  | "svg"
+  | "tooltip"
+  | "topbar";
 
 /** Components that use `ExtendibleComponent` type */
 type ExtendibleComponents =

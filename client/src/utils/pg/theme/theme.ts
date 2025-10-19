@@ -752,6 +752,7 @@ export class PgTheme {
 
     return this._skeleton()
       ._button()
+      ._card()
       ._menu()
       ._text()
       ._svg()
@@ -949,6 +950,12 @@ export class PgTheme {
     button.default.fontWeight ??= "normal";
     button.default.hover ??= {};
 
+    return this;
+  }
+
+  /** Set default card component */
+  private static _card() {
+    this._getComponent("card");
     return this;
   }
 
@@ -1668,17 +1675,9 @@ export class PgTheme {
     home.resources.card ??= {};
     // Resources card default
     home.resources.card.default ??= {};
-    home.resources.card.default.bg ??= theme.colors.default.bgPrimary;
-    home.resources.card.default.color ??= theme.colors.default.textPrimary;
-    home.resources.card.default.border ??= `1px solid ${
-      theme.colors.default.border + theme.default.transparency.medium
-    }`;
-    home.resources.card.default.borderRadius ??= theme.default.borderRadius;
     home.resources.card.default.width ??= "15rem";
     home.resources.card.default.height ??= "15rem";
     home.resources.card.default.padding ??= "1rem 1.5rem 1.5rem 1.5rem";
-    home.resources.card.default.marginRight ??= "2rem";
-    home.resources.card.default.marginBottom ??= "2rem";
     // Resources card image
     home.resources.card.image ??= {};
     home.resources.card.image.width ??= "1.25rem";
@@ -1713,18 +1712,8 @@ export class PgTheme {
     home.tutorials.title.fontSize ??= "1.25rem";
     // Tutorials card
     home.tutorials.card ??= {};
-    home.tutorials.card.bg ??= theme.colors.default.bgPrimary;
-    home.tutorials.card.color ??= theme.colors.default.textPrimary;
-    home.tutorials.card.border ??= `1px solid
-      ${theme.colors.default.border + theme.default.transparency.medium}`;
-    home.tutorials.card.borderRadius ??= theme.default.borderRadius;
-    home.tutorials.card.padding ??= "1rem";
-    home.tutorials.card.marginBottom ??= "1rem";
-    home.tutorials.card.transition ??= `all ${theme.default.transition.duration.medium} ${theme.default.transition.type}`;
     home.tutorials.card.display ??= "flex";
     home.tutorials.card.alignItems ??= "center";
-    home.tutorials.card.hover ??= {};
-    home.tutorials.card.hover.bg ??= theme.colors.state.hover.bg;
 
     return this;
   }
@@ -1780,7 +1769,6 @@ export class PgTheme {
     tutorials.main.content.default ??= {};
     tutorials.main.content.card ??= {};
     tutorials.main.content.card.default ??= {};
-    tutorials.main.content.card.gradient ??= {};
     tutorials.main.content.featured ??= {};
 
     return this;
