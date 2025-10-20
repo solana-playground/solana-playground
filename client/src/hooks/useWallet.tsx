@@ -3,5 +3,5 @@ import { useRenderOnChange } from "./useRenderOnChange";
 
 export const useWallet = () => {
   useRenderOnChange(PgWallet.onDidChangeCurrent);
-  return { wallet: PgWallet.current };
+  return PgWallet.current;
 };

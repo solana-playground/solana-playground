@@ -125,7 +125,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
     }
   };
 
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
   return (
     <InstructionProvider

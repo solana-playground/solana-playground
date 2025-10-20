@@ -39,7 +39,7 @@ const SendExpanded = () => {
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
 
-  const { balance } = useBalance();
+  const balance = useBalance();
 
   // Send button disable
   useEffect(() => {

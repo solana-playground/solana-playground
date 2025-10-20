@@ -7,7 +7,7 @@ import { useWallet } from "../../../hooks";
 import { PgCommand, PgTheme } from "../../../utils/pg";
 
 export const Wallet = () => {
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
   // Using a callback because this function might be resolved later than the
   // mount of this component

@@ -32,7 +32,7 @@ import {
 const Wallet = () => {
   useRenderOnChange(PgWallet.onDidChangeShow);
 
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
   useStandardAccountChange();
 
@@ -123,7 +123,7 @@ const WalletTopWrapper = styled.div`
 `;
 
 const WalletName = () => {
-  const { wallet } = useWallet();
+  const wallet = useWallet();
   const { darken, lighten } = useDarken();
 
   const getAccountDisplayName = useCallback(

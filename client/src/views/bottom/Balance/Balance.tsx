@@ -5,7 +5,7 @@ import { useBalance } from "../../../hooks";
 import { PgTheme } from "../../../utils/pg";
 
 export const Balance = () => {
-  const { balance } = useBalance();
+  const balance = useBalance();
   if (typeof balance !== "number") return null;
 
   return (

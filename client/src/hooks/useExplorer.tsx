@@ -9,13 +9,11 @@ import { useRenderOnChange } from "./useRenderOnChange";
  */
 export const useExplorer = <C,>(opts?: { checkInitialization?: C }) => {
   useRenderOnChange(PgExplorer.onNeedRender);
-  return {
-    explorer: opts?.checkInitialization
+  return (
+    opts?.checkInitialization
       ? PgExplorer.isInitialized
         ? PgExplorer
         : null
-      : PgExplorer,
-  } as {
-    explorer: C extends true ? typeof PgExplorer | null : typeof PgExplorer;
-  };
+      : PgExplorer
+  ) as C extends true ? typeof PgExplorer | null : typeof PgExplorer;
 };

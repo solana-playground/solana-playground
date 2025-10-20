@@ -81,7 +81,7 @@ const Workspaces = () => {
 };
 
 const WorkspaceSelect = () => {
-  const { explorer } = useExplorer();
+  const explorer = useExplorer();
 
   const options = useMemo(() => {
     const [tutorials, projects] = PgCommon.filterWithRemaining(

@@ -27,7 +27,7 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
   const [fetchAllLoading, setFetchAllLoading] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
 
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
   const handleFetched = (data: object) => {
     setFetchedData(data);

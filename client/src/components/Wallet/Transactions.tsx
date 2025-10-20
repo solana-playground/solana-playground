@@ -16,7 +16,7 @@ const Transactions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const { connection } = useConnection();
+  const connection = useConnection();
 
   useEffect(() => {
     const { dispose } = PgWallet.onDidChangeCurrent(async (wallet) => {

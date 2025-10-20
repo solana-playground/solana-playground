@@ -5,8 +5,5 @@ import { useRenderOnChange } from "./useRenderOnChange";
 export const useConnection = () => {
   useRenderOnChange(PgConnection.onDidChangeCurrent);
   useRenderOnChange(PgConnection.onDidChangeIsConnected);
-  return {
-    connection: PgConnection.current,
-    isConnected: PgConnection.isConnected,
-  };
+  return PgConnection.current;
 };

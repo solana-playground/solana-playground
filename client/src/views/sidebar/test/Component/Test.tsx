@@ -18,7 +18,9 @@ import {
 const Test = () => {
   useRenderOnChange(PgCommand.build.onDidFinish);
 
-  const { error, deployed } = useProgramInfo();
+  const programInfo = useProgramInfo();
+  const error = !programInfo.onChain;
+  const deployed = programInfo.onChain?.deployed;
 
   // Used for both accounts and events data
   useBigNumberJson();
@@ -26,7 +28,7 @@ const Test = () => {
   // Handle instruction storage
   useSyncInstructionStorage();
 
-  const { explorer } = useExplorer();
+  const explorer = useExplorer();
   if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
     return (
       <InitialWrapper>
@@ -35,7 +37,7 @@ const Test = () => {
     );
   }
 
-  if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
+  if (!programInfo.importedProgram && !programInfo.uuid) {
     return (
       <InitialWrapper>
         <Text>Program is not built.</Text>
@@ -43,7 +45,7 @@ const Test = () => {
     );
   }
 
-  if (!PgProgramInfo.pk) {
+  if (!programInfo.pk) {
     return (
       <InitialWrapper>
         <Text>The program has no public key.</Text>
@@ -51,8 +53,7 @@ const Test = () => {
     );
   }
 
-  const idl = PgProgramInfo.idl;
-
+  const { idl } = programInfo;
   if (!idl) {
     return (
       <InitialWrapper>

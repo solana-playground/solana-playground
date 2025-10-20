@@ -13,7 +13,7 @@ const Build = () => {
   );
   const build = useCallback(() => PgCommand.build.execute(), []);
 
-  const { explorer } = useExplorer();
+  const explorer = useExplorer();
   if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
     return <Text>No project to build.</Text>;
   }
