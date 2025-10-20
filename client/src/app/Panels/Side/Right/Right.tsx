@@ -124,10 +124,13 @@ const TitleWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: 100%;
-  overflow-y: auto;
+  ${({ theme }) => css`
+    height: 100%;
+    overflow-y: auto;
 
-  ${PgTheme.getScrollbarCSS()};
+    ${PgTheme.getScrollbarCSS()};
+    ${PgTheme.convertToCSS(theme.views.sidebar.right.content)};
+  `}
 `;
 
 const Loading: FC<DefaultRightProps> = ({ page }) => {

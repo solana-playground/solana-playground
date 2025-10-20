@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
+import Topbar from "../../../../components/Topbar";
 import ProgramCard, { ProgramCardProps } from "./ProgramCard";
 import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
@@ -52,12 +53,24 @@ const Programs: FC<ProgramsProps> = ({ programs }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    --top-height: 4.5rem;
+
+    font-family: ${theme.font.other.family};
+    font-size: ${theme.font.other.size.medium};
+
     ${PgTheme.convertToCSS(theme.views.main.primary.programs.default)};
   `}
 `;
 
-const TopSection = styled.div`
+const TopSection = styled(Topbar)`
   ${({ theme }) => css`
+    height: var(--top-height);
+    padding: 1rem 2.5rem;
+
+    & > div {
+      width: max(12rem, 50%);
+    }
+
     ${PgTheme.convertToCSS(theme.views.main.primary.programs.top)};
   `}
 `;
@@ -66,15 +79,25 @@ const Title = styled.h1``;
 
 const MainSection = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    min-height: calc(100% - var(--top-height));
+    padding: 2rem 2.5rem;
+
     ${PgTheme.convertToCSS(theme.views.main.primary.programs.main.default)};
   `}
 `;
 
 const MainContent = styled.div<{ noMatch: boolean }>`
   ${({ theme, noMatch }) => css`
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    gap: 1.5rem;
+
     ${PgTheme.convertToCSS(
       theme.views.main.primary.programs.main.content.default
     )};
+
     ${noMatch
       ? "justify-content: center; align-items: center"
       : "height: fit-content"};

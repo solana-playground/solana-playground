@@ -159,11 +159,7 @@ const InitOrUpgrade = () => {
   if (state === InitOrUpgradeState.HIDDEN) return null;
 
   return (
-    <Button
-      disabled={disabled}
-      btnLoading={loading}
-      onClick={handleInitOrUpgrade}
-    >
+    <Button disabled={disabled} loading={loading} onClick={handleInitOrUpgrade}>
       {buttonText}
     </Button>
   );

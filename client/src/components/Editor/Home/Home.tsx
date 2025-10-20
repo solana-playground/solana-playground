@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
+import Card from "../../Card";
 import Img from "../../Img";
 import Link from "../../Link";
 import { ResourceProps, RESOURCES } from "./resources";
@@ -88,6 +89,7 @@ const ResourcesTitle = styled.div`
 const ResourceCardsWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
+  gap: 2rem;
 `;
 
 const Resource: FC<ResourceProps> = ({
@@ -97,7 +99,7 @@ const Resource: FC<ResourceProps> = ({
   src,
   circleImage,
 }) => (
-  <ResourceWrapper>
+  <ResourceCard>
     <ResourceTitle>
       <ResourceImg src={src} $circleImage={circleImage} />
       {title}
@@ -108,10 +110,10 @@ const Resource: FC<ResourceProps> = ({
         <ResourceButton rightIcon={<External />}>Learn more</ResourceButton>
       </Link>
     </ResourceButtonWrapper>
-  </ResourceWrapper>
+  </ResourceCard>
 );
 
-const ResourceWrapper = styled.div`
+const ResourceCard = styled(Card)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
       theme.views.main.primary.home.resources.card.default
@@ -166,17 +168,21 @@ const TutorialsTitle = styled.div`
   `}
 `;
 
-const TutorialCardsWrapper = styled.div``;
+const TutorialCardsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
 
 const Tutorial: FC<TutorialProps> = ({ title, url }) => {
   const src = getSrc(url);
 
   return (
     <Link href={url}>
-      <TutorialWrapper>
+      <TutorialCard>
         {src && <TutorialIcon src={src} />}
         <TutorialTitle>{title}</TutorialTitle>
-      </TutorialWrapper>
+      </TutorialCard>
     </Link>
   );
 };
@@ -190,7 +196,7 @@ const getSrc = (url: string) => {
   if (src) return "/icons/platforms/" + src;
 };
 
-const TutorialWrapper = styled.div`
+const TutorialCard = styled(Card)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.views.main.primary.home.tutorials.card)};
   `}
@@ -205,6 +211,8 @@ const TutorialTitle = styled.span``;
 
 const PlaygroundTutorialsButton = styled(Button)`
   ${({ theme }) => css`
+    margin-top: 1rem;
+
     color: ${theme.colors.default.primary};
     padding: 0.25rem 0.5rem;
 

@@ -34,7 +34,7 @@ export const ImportGithub = () => {
         text: "Import",
         onSubmit: () => PgCommon.transition(PgGithub.import(url)),
         disabled: !!error,
-        btnLoading: { text: "Importing..." },
+        loading: { text: "Importing..." },
         rightIcon: <ImportWorkspace />,
       }}
     >

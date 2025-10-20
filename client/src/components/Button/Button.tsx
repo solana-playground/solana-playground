@@ -6,10 +6,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import styled, { css, CSSProperties, DefaultTheme } from "styled-components";
+import styled, { css, CSSProperties } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme, ThemeColor } from "../../utils/pg";
 
 export type ButtonKind =
   | "primary"
@@ -24,25 +24,11 @@ export type ButtonKind =
   | "no-border"
   | "icon";
 
-export type ButtonSize = "small" | "medium" | "large";
+type ButtonBg = Exclude<ThemeColor, "textPrimary" | "textSecondary">;
 
-type ButtonColor =
-  | "primary"
-  | "secondary"
-  | "success"
-  | "error"
-  | "warning"
-  | "info"
-  | "textPrimary"
-  | "textSecondary";
+type ButtonColor = ThemeColor;
 
-type ButtonBg =
-  | "primary"
-  | "secondary"
-  | "success"
-  | "error"
-  | "warning"
-  | "info";
+type ButtonSize = "small" | "medium" | "large";
 
 export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   /** Button kind */
@@ -52,7 +38,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
   /** Whether the button should take the full width of the parent element */
   fullWidth?: boolean;
   /** Loading state */
-  btnLoading?:
+  loading?:
     | boolean
     | {
         /** Whether the button is in loading state */
@@ -76,25 +62,25 @@ export interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { btnLoading, disabled, leftIcon, rightIcon, onClick, children, ...props },
+    { disabled, loading, leftIcon, rightIcon, onClick, children, ...props },
     ref
   ) => {
-    const [isLoading, setIsLoading] = useState(getIsLoading(btnLoading));
+    const [isLoading, setIsLoading] = useState(() => getIsLoading(loading));
     const [isDisabled, setIsDisabled] = useState(disabled);
 
     // Manage manual loading state
     useEffect(() => {
-      const res = getIsLoading(btnLoading);
-      if (res !== undefined) setIsLoading(res);
-    }, [btnLoading]);
+      const isLoading = getIsLoading(loading);
+      if (isLoading !== undefined) setIsLoading(isLoading);
+    }, [loading]);
 
-    // Disable when manually set or is loading
+    // Disable when manually set
     useEffect(() => {
-      setIsDisabled(disabled || isLoading);
-    }, [disabled, isLoading]);
+      setIsDisabled(disabled);
+    }, [disabled]);
 
     const handleOnClick = async (ev: MouseEvent<HTMLButtonElement>) => {
-      const shouldSetIsDisabled = getIsLoading(btnLoading) === undefined;
+      const shouldSetIsDisabled = getIsLoading(loading) === undefined;
       const shouldSetIsLoading = shouldSetIsDisabled && props.kind !== "icon";
 
       try {
@@ -110,8 +96,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <StyledButton
         ref={ref}
-        disabled={isDisabled}
-        btnLoading={isLoading}
+        disabled={isDisabled || isLoading}
+        $loading={isLoading}
         onClick={handleOnClick}
         {...props}
       >
@@ -119,8 +105,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {leftIcon && <span className="left-icon">{leftIcon}</span>}
 
         {isLoading
-          ? typeof btnLoading === "object"
-            ? btnLoading.text ?? children
+          ? typeof loading === "object"
+            ? loading.text ?? children
             : children
           : children}
 
@@ -131,300 +117,241 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 /** Get whether the button is currently in a loading state */
-const getIsLoading = (btnLoading: ButtonProps["btnLoading"]) => {
-  return typeof btnLoading === "object" ? btnLoading.state : btnLoading;
+const getIsLoading = (loading: ButtonProps["loading"]) => {
+  return typeof loading === "object" ? loading.state : loading;
 };
 
-const StyledButton = styled.button<ButtonProps>`
-  ${(props) => getButtonStyles(props)}
-`;
+const StyledButton = styled.button<ButtonProps & { $loading?: boolean }>`
+  ${({
+    theme,
+    kind = "outline",
+    size,
+    fullWidth,
+    bg,
+    color,
+    hoverColor,
+    fontWeight,
+    $loading,
+  }) => {
+    // Clone the default Button theme to not override the global object
+    let button = structuredClone(theme.components.button.default);
 
-const getButtonStyles = ({
-  theme,
-  kind = "outline",
-  size,
-  fullWidth,
-  bg: _bg,
-  color: _color,
-  hoverColor: _hoverColor,
-  fontWeight: _fontWeight,
-  btnLoading,
-}: ButtonProps & { theme: DefaultTheme }) => {
-  // Clone the default Button theme to not override the global object
-  let button = structuredClone(theme.components.button.default);
-
-  // Kind
-  switch (kind) {
-    case "primary": {
-      button.padding = "0.5rem 1.25rem";
-      button.bg = theme.colors.default.primary;
-      button.hover!.bg = theme.colors.default.primary + "E0";
-      break;
-    }
-    case "secondary": {
-      button.bg = theme.colors.default.secondary;
-      button.hover!.bg = theme.colors.default.secondary + "E0";
-      button.padding = "0.5rem 1.25rem";
-      break;
-    }
-    case "primary-transparent": {
-      button.padding = "0.5rem 1.25rem";
-      button.bg =
-        theme.colors.default.primary +
-        (theme.isDark
-          ? theme.default.transparency.medium
-          : theme.default.transparency.high);
-      button.hover!.bg =
-        theme.colors.default.primary +
-        (theme.isDark
-          ? theme.default.transparency.high
-          : theme.default.transparency.medium);
-      break;
-    }
-    case "secondary-transparent": {
-      button.padding = "0.5rem 1.25rem";
-      button.bg =
-        theme.colors.default.secondary + theme.default.transparency.medium;
-      button.hover!.bg =
-        theme.colors.default.secondary + theme.default.transparency.high;
-      break;
-    }
-    case "error": {
-      button.padding = "0.5rem 1.25rem";
-      button.bg =
-        theme.colors.state.error.color +
-        (theme.isDark ? theme.default.transparency.high : "");
-      button.hover!.bg =
-        theme.colors.state.error.color +
-        (theme.isDark ? "" : theme.default.transparency.high);
-      break;
-    }
-    case "primary-outline": {
-      button.borderColor = theme.colors.default.primary;
-      button.hover!.bg = theme.colors.default.primary + "E0";
-      break;
-    }
-    case "secondary-outline": {
-      button.borderColor = theme.colors.default.secondary;
-      button.hover!.bg = theme.colors.default.secondary + "E0";
-      break;
-    }
-    case "outline": {
-      button.borderColor = theme.colors.default.border;
-      button.hover!.bg = theme.colors.state.hover.bg;
-      button.hover!.borderColor = theme.colors.default.border;
-      break;
-    }
-    case "icon": {
-      button.padding = "0.25rem";
-      button.color = theme.colors.default.textSecondary;
-      button.hover!.bg = theme.colors.state.hover.bg;
-      button.hover!.color = theme.colors.default.textPrimary;
-      break;
-    }
-    case "transparent": {
-      button.padding = "0.5rem 0.75rem";
-      button.hover!.borderColor = theme.colors.default.border;
-      break;
-    }
-    case "no-border": {
-      button.padding = "0";
-      button.color = theme.colors.default.textSecondary;
-      button.hover!.color = theme.colors.default.textPrimary;
-      break;
-    }
-  }
-
-  // Button kind specific overrides
-  // NOTE: Overrides must come after setting the `ButtonKind` defaults
-  button = PgTheme.overrideDefaults(
-    button,
-    theme.components.button.overrides?.[kind]
-  );
-
-  // NOTE: Props must come after the defaults and overrides
-
-  // Size prop
-  if (size || !button.padding) {
-    if (size === "large") button.padding = "0.75rem 1.5rem";
-    else if (size === "medium") button.padding = "0.5rem 1.25rem";
-    else if (size === "small") button.padding = "0.25rem 0.75rem";
-    else button.padding = "0.5rem 0.75rem";
-  }
-
-  // Font weight prop
-  if (_bg) {
-    switch (_bg) {
-      case "primary":
+    // Kind
+    switch (kind) {
+      case "primary": {
+        button.padding = "0.5rem 1.25rem";
         button.bg = theme.colors.default.primary;
+        button.hover!.bg = theme.colors.default.primary + "E0";
         break;
-      case "secondary":
+      }
+      case "secondary": {
         button.bg = theme.colors.default.secondary;
+        button.hover!.bg = theme.colors.default.secondary + "E0";
+        button.padding = "0.5rem 1.25rem";
         break;
-      case "success":
-        button.bg = theme.colors.state.success.bg;
+      }
+      case "primary-transparent": {
+        button.padding = "0.5rem 1.25rem";
+        button.bg =
+          theme.colors.default.primary +
+          (theme.isDark
+            ? theme.default.transparency.medium
+            : theme.default.transparency.high);
+        button.hover!.bg =
+          theme.colors.default.primary +
+          (theme.isDark
+            ? theme.default.transparency.high
+            : theme.default.transparency.medium);
         break;
-      case "error":
-        button.bg = theme.colors.state.error.bg;
-        break;
-      case "info":
-        button.bg = theme.colors.state.info.bg;
-        break;
-      case "warning":
-        button.bg = theme.colors.state.warning.bg;
-    }
-  }
-
-  // Font weight prop
-  if (_color) {
-    switch (_color) {
-      case "primary":
-        button.color =
-          theme.colors.default.primary + theme.default.transparency.high;
-        button.hover!.color = theme.colors.default.primary;
-        break;
-      case "secondary":
-        button.color =
+      }
+      case "secondary-transparent": {
+        button.padding = "0.5rem 1.25rem";
+        button.bg =
+          theme.colors.default.secondary + theme.default.transparency.medium;
+        button.hover!.bg =
           theme.colors.default.secondary + theme.default.transparency.high;
-        button.hover!.color = theme.colors.default.secondary;
         break;
-      case "success":
-        button.color =
-          theme.colors.state.success.color + theme.default.transparency.high;
-        button.hover!.color = theme.colors.state.success.color;
+      }
+      case "error": {
+        button.padding = "0.5rem 1.25rem";
+        button.bg =
+          theme.colors.state.error.color +
+          (theme.isDark ? theme.default.transparency.high : "");
+        button.hover!.bg =
+          theme.colors.state.error.color +
+          (theme.isDark ? "" : theme.default.transparency.high);
         break;
-      case "error":
-        button.color =
-          theme.colors.state.error.color + theme.default.transparency.high;
-        button.hover!.color = theme.colors.state.error.color;
+      }
+      case "primary-outline": {
+        button.borderColor = theme.colors.default.primary;
+        button.hover!.bg = theme.colors.default.primary + "E0";
         break;
-      case "info":
-        button.color =
-          theme.colors.state.info.color + theme.default.transparency.high;
-        button.hover!.color = theme.colors.state.info.color;
+      }
+      case "secondary-outline": {
+        button.borderColor = theme.colors.default.secondary;
+        button.hover!.bg = theme.colors.default.secondary + "E0";
         break;
-      case "warning":
-        button.color =
-          theme.colors.state.warning.color + theme.default.transparency.high;
-        button.hover!.color = theme.colors.state.warning.color;
+      }
+      case "outline": {
+        button.borderColor = theme.colors.default.border;
+        button.hover!.bg = theme.colors.state.hover.bg;
+        button.hover!.borderColor = theme.colors.default.border;
         break;
-      case "textPrimary":
-        button.color = theme.colors.default.textPrimary;
-        break;
-      case "textSecondary":
+      }
+      case "icon": {
+        button.padding = "0.25rem";
         button.color = theme.colors.default.textSecondary;
+        button.hover!.bg = theme.colors.state.hover.bg;
+        button.hover!.color = theme.colors.default.textPrimary;
+        break;
+      }
+      case "transparent": {
+        button.padding = "0.5rem 0.75rem";
+        button.hover!.borderColor = theme.colors.default.border;
+        break;
+      }
+      case "no-border": {
+        button.padding = "0";
+        button.color = theme.colors.default.textSecondary;
+        button.hover!.color = theme.colors.default.textPrimary;
+        break;
+      }
     }
-  }
 
-  // Font weight prop
-  if (_hoverColor) {
-    switch (_hoverColor) {
-      case "primary":
-        button.hover!.color = theme.colors.default.primary;
-        break;
-      case "secondary":
-        button.hover!.color = theme.colors.default.secondary;
-        break;
-      case "success":
-        button.hover!.color = theme.colors.state.success.color;
-        break;
-      case "error":
-        button.hover!.color = theme.colors.state.error.color;
-        break;
-      case "info":
-        button.hover!.color = theme.colors.state.info.color;
-        break;
-      case "warning":
-        button.hover!.color = theme.colors.state.warning.color;
+    // Button kind specific overrides
+    // NOTE: Overrides must come after setting the `ButtonKind` defaults
+    button = PgTheme.overrideDefaults(
+      button,
+      theme.components.button.overrides?.[kind]
+    );
+
+    // NOTE: Props must come after the defaults and overrides
+
+    // Size prop
+    if (size || !button.padding) {
+      if (size === "large") button.padding = "0.75rem 1.5rem";
+      else if (size === "medium") button.padding = "0.5rem 1.25rem";
+      else if (size === "small") button.padding = "0.25rem 0.75rem";
+      else button.padding = "0.5rem 0.75rem";
     }
-  }
 
-  // Font weight prop
-  if (_fontWeight) {
-    button.fontWeight = _fontWeight;
-    button.hover!.fontWeight = button.fontWeight;
-  }
+    // Background prop
+    if (bg) {
+      switch (bg) {
+        case "primary":
+        case "secondary":
+          button.bg = theme.colors.default[bg];
+          break;
+        case "success":
+        case "error":
+        case "info":
+        case "warning":
+          button.bg = theme.colors.state[bg].bg;
+      }
+    }
 
-  let defaultCss = css`
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type};
-    border: 1px solid ${button.borderColor};
-    ${PgTheme.convertToCSS(button)};
+    // Color prop
+    if (color) {
+      const themeColor = PgTheme.getColor(color);
+      switch (color) {
+        case "textPrimary":
+        case "textSecondary":
+          button.color = themeColor;
+          break;
+        case "primary":
+        case "secondary":
+        case "success":
+        case "error":
+        case "info":
+        case "warning":
+          button.color = themeColor + theme.default.transparency.high;
+          button.hover!.color = themeColor;
+      }
+    }
 
-    &:disabled {
-      cursor: not-allowed;
-      background: ${theme.colors.state.disabled.bg};
-      color: ${theme.colors.state.disabled.color};
+    // Hover color prop
+    if (hoverColor) button.hover!.color = PgTheme.getColor(hoverColor);
 
-      &:hover {
+    // Font weight prop
+    if (fontWeight) {
+      button.fontWeight = fontWeight;
+      button.hover!.fontWeight = button.fontWeight;
+    }
+
+    return css`
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid ${button.borderColor};
+      transition: all ${theme.default.transition.duration.medium}
+        ${theme.default.transition.type};
+
+      &:disabled {
         cursor: not-allowed;
         background: ${theme.colors.state.disabled.bg};
         color: ${theme.colors.state.disabled.color};
+
+        &:hover {
+          cursor: not-allowed;
+          background: ${theme.colors.state.disabled.bg};
+          color: ${theme.colors.state.disabled.color};
+        }
       }
-    }
 
-    /* Left Icon */
-    & > span.left-icon {
-      display: flex;
+      /* Left Icon */
+      & > span.left-icon {
+        display: flex;
 
-      & > * {
-        margin-right: 0.375rem;
+        & > * {
+          margin-right: 0.375rem;
+        }
       }
-    }
 
-    /* Right Icon */
-    & > span.right-icon {
-      display: flex;
+      /* Right Icon */
+      & > span.right-icon {
+        display: flex;
 
-      & > * {
-        margin-left: 0.375rem;
+        & > * {
+          margin-left: 0.375rem;
+        }
       }
-    }
 
-    /* Loading */
-    & > span.btn-spinner {
-      transform: scale(0);
+      /* Loading */
+      & > span.btn-spinner {
+        transform: scale(0);
 
-      ${btnLoading &&
-      css`
-        transform: scale(1);
-        width: 1rem;
-        height: 1rem;
-        margin-right: 0.5rem;
-        border: 3px solid transparent;
-        border-top-color: ${theme.colors.default.primary};
-        border-right-color: ${theme.colors.default.primary};
-        border-radius: 50%;
-        animation: ${spinnerAnimation} 0.5s linear infinite;
-      `}
-    }
-  `;
+        ${$loading &&
+        css`
+          transform: scale(1);
+          width: 1rem;
+          height: 1rem;
+          margin-right: 0.5rem;
+          border: 3px solid transparent;
+          border-top-color: ${theme.colors.default.primary};
+          border-right-color: ${theme.colors.default.primary};
+          border-radius: 50%;
+          animation: ${spinnerAnimation} 0.5s linear infinite;
+        `}
+      }
 
-  if (fullWidth) {
-    defaultCss = defaultCss.concat(css`
-      width: 100%;
-    `);
-  }
+      ${PgTheme.convertToCSS(button)};
 
-  if (kind === "icon") {
-    defaultCss = defaultCss.concat(css`
+      ${fullWidth && `width: 100%;`}
+
+      ${kind === "icon" &&
+      `
       height: fit-content;
       width: fit-content;
 
-      & img,
-      svg {
+      & img, svg {
         width: 1rem;
         height: 1rem;
       }
-    `);
-  }
-
-  return defaultCss;
-};
+      `}
+    `;
+  }}
+`;
 
 export default Button;

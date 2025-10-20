@@ -192,18 +192,6 @@ const migrateLegacy = () => {
 class _PgSettings {
   /** All settings */
   static all: Setting[];
-
-  /**
-   * Get the setting's implementation from its id.
-   *
-   * @param id setting id
-   * @returns the full setting object
-   */
-  static get(id: string) {
-    const setting = PgSettings.all.find((s) => s.id === id);
-    if (!setting) throw new Error(`Setting not found: ${id}`);
-    return setting;
-  }
 }
 
 export const PgSettings = declareUpdatable(_PgSettings, {

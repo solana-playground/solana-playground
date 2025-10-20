@@ -186,16 +186,16 @@ export class PgCommon {
    * Call the value and return it if the input is a function or simply return
    * the given value.
    *
-   * @param maybeFunction value to check
+   * @param maybeFn value to check
    * @param args function arguments (unused for non-functions)
    * @returns either the given value or the called value if it's a function
    */
-  static callIfNeeded<T, P extends unknown[]>(
-    maybeFunction: T,
-    ...args: P
-  ): T extends () => infer R ? R : T {
-    if (typeof maybeFunction === "function") return maybeFunction(...args);
-    return maybeFunction as T extends () => infer R ? R : T;
+  static callIfNeeded<T>(
+    maybeFn: T,
+    ...args: T extends (...args: infer A) => any ? A : never[]
+  ): T extends (...args: any[]) => infer R ? R : T {
+    if (typeof maybeFn === "function") return maybeFn(...args);
+    return maybeFn as any;
   }
 
   /**

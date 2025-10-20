@@ -112,8 +112,8 @@ const SendExpanded = () => {
       />
       <ExpandedButton
         onClick={send}
-        btnLoading={{ text: "Sending..." }}
         disabled={disabled}
+        loading={{ text: "Sending..." }}
         kind="primary-transparent"
         fullWidth
       >

@@ -752,6 +752,7 @@ export class PgTheme {
 
     return this._skeleton()
       ._button()
+      ._card()
       ._menu()
       ._text()
       ._svg()
@@ -761,6 +762,7 @@ export class PgTheme {
       ._progressBar()
       ._uploadArea()
       ._toast()
+      ._topbar()
       ._modal()
       ._markdown()
       ._terminal()
@@ -908,6 +910,8 @@ export class PgTheme {
     sidebar.right.default.bg ??= theme.colors.default.bgSecondary;
     sidebar.right.default.otherBg ??= theme.colors.default.bgPrimary;
     sidebar.right.default.borderRight ??= `1px solid ${theme.colors.default.border}`;
+    // Right content
+    sidebar.right.content ??= {};
     // Right title
     sidebar.right.title ??= {};
     sidebar.right.title.height ??= "2rem";
@@ -946,6 +950,12 @@ export class PgTheme {
     button.default.fontWeight ??= "normal";
     button.default.hover ??= {};
 
+    return this;
+  }
+
+  /** Set default card component */
+  private static _card() {
+    this._getComponent("card");
     return this;
   }
 
@@ -1180,7 +1190,7 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default skeleton component */
+  /** Set default toast component */
   private static _toast() {
     const toast = this._getComponent("toast");
     const theme = this._themeReady;
@@ -1201,6 +1211,18 @@ export class PgTheme {
     // Close button
     toast.closeButton ??= {};
     toast.closeButton.color ??= theme.colors.default.textSecondary;
+
+    return this;
+  }
+
+  /** Set default topbar component */
+  private static _topbar() {
+    const topbar = this._getComponent("topbar");
+    const theme = this._themeReady;
+
+    topbar.bg ??= PgTheme.getDifferentBackground(
+      theme.views.main.primary.programs.default.bg
+    );
 
     return this;
   }
@@ -1653,17 +1675,9 @@ export class PgTheme {
     home.resources.card ??= {};
     // Resources card default
     home.resources.card.default ??= {};
-    home.resources.card.default.bg ??= theme.colors.default.bgPrimary;
-    home.resources.card.default.color ??= theme.colors.default.textPrimary;
-    home.resources.card.default.border ??= `1px solid ${
-      theme.colors.default.border + theme.default.transparency.medium
-    }`;
-    home.resources.card.default.borderRadius ??= theme.default.borderRadius;
     home.resources.card.default.width ??= "15rem";
     home.resources.card.default.height ??= "15rem";
     home.resources.card.default.padding ??= "1rem 1.5rem 1.5rem 1.5rem";
-    home.resources.card.default.marginRight ??= "2rem";
-    home.resources.card.default.marginBottom ??= "2rem";
     // Resources card image
     home.resources.card.image ??= {};
     home.resources.card.image.width ??= "1.25rem";
@@ -1698,18 +1712,8 @@ export class PgTheme {
     home.tutorials.title.fontSize ??= "1.25rem";
     // Tutorials card
     home.tutorials.card ??= {};
-    home.tutorials.card.bg ??= theme.colors.default.bgPrimary;
-    home.tutorials.card.color ??= theme.colors.default.textPrimary;
-    home.tutorials.card.border ??= `1px solid
-      ${theme.colors.default.border + theme.default.transparency.medium}`;
-    home.tutorials.card.borderRadius ??= theme.default.borderRadius;
-    home.tutorials.card.padding ??= "1rem";
-    home.tutorials.card.marginBottom ??= "1rem";
-    home.tutorials.card.transition ??= `all ${theme.default.transition.duration.medium} ${theme.default.transition.type}`;
     home.tutorials.card.display ??= "flex";
     home.tutorials.card.alignItems ??= "center";
-    home.tutorials.card.hover ??= {};
-    home.tutorials.card.hover.bg ??= theme.colors.state.hover.bg;
 
     return this;
   }
@@ -1765,7 +1769,6 @@ export class PgTheme {
     tutorials.main.content.default ??= {};
     tutorials.main.content.card ??= {};
     tutorials.main.content.card.default ??= {};
-    tutorials.main.content.card.gradient ??= {};
     tutorials.main.content.featured ??= {};
 
     return this;
@@ -1774,59 +1777,17 @@ export class PgTheme {
   /** Set default programs view */
   private static _programs() {
     const main = this._getView("main");
-    const theme = this._themeReady;
-
     main.primary!.programs ??= {};
+
     const programs = main.primary!.programs;
-
-    // Default
     programs.default ??= {};
-    programs.default.bg ??= theme.views.main.default.bg;
-    programs.default.fontFamily ??= theme.font.other.family;
-    programs.default.fontSize ??= theme.font.other.size.medium;
-
-    // Top
+    programs.default.bg ??= this._themeReady.views.main.default.bg;
     programs.top ??= {};
-    programs.top.position ??= "sticky";
-    programs.top.top ??= 0;
-    programs.top.display ??= "flex";
-    programs.top.justifyContent ??= "space-between";
-    programs.top.alignItems ??= "center";
-    programs.top.width ??= "100%";
-    programs.top.height ??= "4.5rem";
-    programs.top.padding ??= "1rem 2.5rem";
-    programs.top.bg ??= this.getDifferentBackground(programs.default.bg);
-    programs.top.borderBottom ??= `1px solid ${theme.colors.default.border}`;
-    programs.top["& > div"] ??= {};
-    programs.top["& > div"].width ??= "max(12rem, 50%)";
-
-    // Main
     programs.main ??= {};
-    // Main default
     programs.main.default ??= {};
-    programs.main.default.display ??= "flex";
-    programs.main.default.minHeight ??= `calc(100% - ${programs.top.height})`;
-    programs.main.default.padding ??= "2rem 2.5rem";
-    // Main content
     programs.main.content ??= {};
-    // Main content default
     programs.main.content.default ??= {};
-    programs.main.content.default.display ??= "flex";
-    programs.main.content.default.flexWrap ??= "wrap";
-    programs.main.content.default.flexGrow ??= 1;
-    programs.main.content.default.gap ??= "1.5rem";
-    // Main content card
     programs.main.content.card ??= {};
-    programs.main.content.card.flexGrow ??= 1;
-    programs.main.content.card.flexBasis ??= "50%";
-    programs.main.content.card.display ??= "flex";
-    programs.main.content.card.flexDirection ??= "column";
-    programs.main.content.card.gap ??= "0.5rem";
-    programs.main.content.card.maxWidth ??= "44.95rem";
-    programs.main.content.card.height ??= "fit-content";
-    programs.main.content.card.padding ??= "1rem";
-    programs.main.content.card.border ??= `1px solid ${theme.colors.default.border}`;
-    programs.main.content.card.borderRadius ??= theme.default.borderRadius;
 
     return this;
   }

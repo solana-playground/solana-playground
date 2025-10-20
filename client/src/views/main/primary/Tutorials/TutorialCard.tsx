@@ -1,6 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import Card from "../../../../components/Card";
 import Img from "../../../../components/Img";
 import Tag from "../../../../components/Tag";
 import { PgTheme, PgTutorial, TutorialData } from "../../../../utils/pg";
@@ -12,92 +13,34 @@ const TutorialCard: FC<TutorialData> = ({
   level,
   framework,
 }) => (
-  <GradientWrapper onClick={() => PgTutorial.open(name)}>
-    <InsideWrapper>
-      <ImgWrapper>
-        <TutorialImg src={thumbnail} />
-      </ImgWrapper>
+  <Wrapper onClick={() => PgTutorial.open(name)}>
+    <ImgWrapper>
+      <TutorialImg src={thumbnail} />
+    </ImgWrapper>
 
-      <InfoWrapper>
-        <InfoTopSection>
-          <NameRow>
-            <Name>{name}</Name>
-            <Tag kind="level" value={level} />
-          </NameRow>
-          <Description>{description}</Description>
-        </InfoTopSection>
+    <InfoWrapper>
+      <InfoTopSection>
+        <NameRow>
+          <Name>{name}</Name>
+          <Tag kind="level" value={level} />
+        </NameRow>
+        <Description>{description}</Description>
+      </InfoTopSection>
 
-        <InfoBottomSection>
-          {framework && <Tag kind="framework" value={framework} />}
-        </InfoBottomSection>
-      </InfoWrapper>
-    </InsideWrapper>
-  </GradientWrapper>
+      <InfoBottomSection>
+        {framework && <Tag kind="framework" value={framework} />}
+      </InfoBottomSection>
+    </InfoWrapper>
+  </Wrapper>
 );
 
-const GradientWrapper = styled.div`
+const Wrapper = styled(Card)`
   ${({ theme }) => css`
-    --img-height: 13.5rem;
+    --img-height: 13.1rem;
 
-    position: relative;
     width: calc(var(--img-height) * 4 / 3);
     height: 23rem;
-    padding: 0.25rem;
-    transform-style: preserve-3d;
-    transition: transform ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type};
-
-    &::after {
-      content: "";
-      position: absolute;
-      transform: translateZ(-1px);
-      height: 100%;
-      width: 100%;
-      inset: 0;
-      margin: auto;
-      border-radius: ${theme.default.borderRadius};
-      background: linear-gradient(
-        45deg,
-        ${theme.colors.default.primary},
-        ${theme.colors.default.secondary}
-      );
-      opacity: 0;
-      transition: opacity ${theme.default.transition.duration.medium}
-        ${theme.default.transition.type};
-    }
-
-    &:hover {
-      cursor: pointer;
-      transform: translateY(-0.5rem);
-
-      & > div {
-        background: ${theme.colors.state.hover.bg};
-      }
-
-      &::after {
-        opacity: 1;
-      }
-    }
-
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.tutorials.main.content.card.gradient
-    )};
-  `}
-`;
-
-const InsideWrapper = styled.div`
-  ${({ theme }) => css`
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: ${theme.views.main.primary.tutorials.main.default.bg};
-    color: ${theme.colors.default.textPrimary};
-    border: 1px solid
-      ${theme.colors.default.border + theme.default.transparency.medium};
-    border-radius: ${theme.default.borderRadius};
-    box-shadow: ${theme.default.boxShadow};
-    transition: all ${theme.default.transition.duration.medium}
-      ${theme.default.transition.type};
+    padding: 0;
 
     ${PgTheme.convertToCSS(
       theme.views.main.primary.tutorials.main.content.card.default
