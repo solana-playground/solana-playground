@@ -141,19 +141,6 @@ const LIGHT: ThemeParam = {
         color: BG_WHITE,
       },
     },
-    main: {
-      primary: {
-        programs: {
-          main: {
-            content: {
-              card: {
-                bg: BG_WHITE,
-              },
-            },
-          },
-        },
-      },
-    },
     sidebar: {
       left: {
         default: {

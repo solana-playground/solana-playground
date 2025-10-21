@@ -84,10 +84,6 @@ const Wrapper = styled(Card)`
     gap: 0.5rem;
     max-width: 44.95rem;
     height: fit-content;
-
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.programs.main.content.card
-    )};
   `}
 `;
 

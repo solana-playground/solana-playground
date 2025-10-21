@@ -322,17 +322,6 @@ export interface ThemeParam {
             }>;
           }>;
         }>;
-
-        /** Programs page view */
-        programs?: ExtendibleComponent<{
-          /** Programs top section */
-          top?: DefaultComponent;
-          /** Programs main section */
-          main?: ExtendibleComponent<{
-            /** Program main content component */
-            content?: ExtendibleComponent<"card">;
-          }>;
-        }>;
       }>;
 
       /** Main secondary view */
