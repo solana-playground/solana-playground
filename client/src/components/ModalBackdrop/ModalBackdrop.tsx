@@ -1,10 +1,12 @@
-import { ReactElement, useCallback, useState } from "react";
+import { FC, ReactElement, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { PgCommon, PgTheme, PgView } from "../../utils/pg";
 import { useKeybind, useSetStatic } from "../../hooks";
 
-const ModalBackdrop = () => {
+interface ModalBackdropProps {}
+
+const ModalBackdrop: FC<ModalBackdropProps> = (props) => {
   const [modals, setModals] = useState<ReactElement[]>([]);
 
   const setModalStatic = useCallback(({ elementable, props }) => {
@@ -26,7 +28,7 @@ const ModalBackdrop = () => {
   // Close modal on ESC
   useKeybind("Escape", PgView.closeModal);
 
-  return modals.length ? <Wrapper>{modals.at(-1)}</Wrapper> : null;
+  return modals.length ? <Wrapper {...props}>{modals.at(-1)}</Wrapper> : null;
 };
 
 const Wrapper = styled.div`
@@ -38,7 +40,6 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     inset: 0;
-    z-index: 3;
 
     ${PgTheme.convertToCSS(theme.components.modal.backdrop)};
   `}
