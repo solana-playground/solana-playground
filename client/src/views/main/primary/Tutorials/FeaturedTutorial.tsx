@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Button from "../../../../components/Button";
 import Img from "../../../../components/Img";
 import TutorialDetails from "../../../../components/Tutorial/TutorialDetails";
-import { PgTheme, PgTutorial, TutorialData } from "../../../../utils/pg";
+import { PgTutorial, TutorialData } from "../../../../utils/pg";
 
 interface FeaturedTutorialProps {
   tutorial: TutorialData;
@@ -51,10 +51,6 @@ const Wrapper = styled.div`
     border: 1px solid ${theme.colors.default.border};
     border-radius: ${theme.default.borderRadius};
     box-shadow: ${theme.default.boxShadow};
-
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.tutorials.main.content.featured
-    )};
   `}
 `;
 

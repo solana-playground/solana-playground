@@ -737,7 +737,7 @@ export class PgTheme {
   private static _views() {
     this._theme.views ??= {};
 
-    return this._bottom()._sidebar()._main()._home()._tutorial()._tutorials();
+    return this._bottom()._sidebar()._main()._home()._tutorial();
   }
 
   /** Set default components */
@@ -1741,27 +1741,6 @@ export class PgTheme {
     tutorial.tutorialPage.fontFamily ??= theme.font.other.family;
     tutorial.tutorialPage.fontSize ??= theme.font.other.size.medium;
     tutorial.tutorialPage.padding ??= "2rem";
-
-    return this;
-  }
-
-  /** Set default tutorials view */
-  private static _tutorials() {
-    const main = this._getView("main");
-    main.primary!.tutorials ??= {};
-
-    const tutorials = main.primary!.tutorials;
-    tutorials.default ??= {};
-    tutorials.default.bg ??= this._themeReady.views.main.default.bg;
-    tutorials.top ??= {};
-    tutorials.main ??= {};
-    tutorials.main.default ??= {};
-    tutorials.main.side ??= {};
-    tutorials.main.content ??= {};
-    tutorials.main.content.default ??= {};
-    tutorials.main.content.card ??= {};
-    tutorials.main.content.card.default ??= {};
-    tutorials.main.content.featured ??= {};
 
     return this;
   }

@@ -35,17 +35,11 @@ const TutorialCard: FC<TutorialData> = ({
 );
 
 const Wrapper = styled(Card)`
-  ${({ theme }) => css`
-    --img-height: 13.1rem;
+  --img-height: 13.1rem;
 
-    width: calc(var(--img-height) * 4 / 3);
-    height: 23rem;
-    padding: 0;
-
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.tutorials.main.content.card.default
-    )};
-  `}
+  width: calc(var(--img-height) * 4 / 3);
+  height: 23rem;
+  padding: 0;
 `;
 
 const ImgWrapper = styled.div`

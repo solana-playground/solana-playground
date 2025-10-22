@@ -145,24 +145,6 @@ const PLAYGROUND: ThemeParam = {
             boxShadow: BOX_SHADOW_LIGHT,
           },
         },
-        tutorials: {
-          top: {
-            bg: `linear-gradient(180deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
-            boxShadow: BOX_SHADOW_LIGHT,
-          },
-          main: {
-            content: {
-              card: {
-                default: {
-                  boxShadow: BOX_SHADOW_LIGHT,
-                },
-              },
-              featured: {
-                boxShadow: BOX_SHADOW_LIGHT,
-              },
-            },
-          },
-        },
       },
       secondary: {
         default: {

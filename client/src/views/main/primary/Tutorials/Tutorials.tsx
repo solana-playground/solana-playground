@@ -93,21 +93,15 @@ const Wrapper = styled.div`
     flex-direction: column;
     font-family: ${theme.font.other.family};
     font-size: ${theme.font.other.size.medium};
-
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.default)};
   `}
 `;
 
 const TopSection = styled(Topbar)`
-  ${({ theme }) => css`
-    padding: 1rem 2.5rem;
+  padding: 1rem 2.5rem;
 
-    & > div {
-      width: max(12rem, 50%);
-    }
-
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.top)};
-  `}
+  & > div {
+    width: max(12rem, 50%);
+  }
 `;
 
 const Title = styled.h1``;
@@ -123,12 +117,10 @@ const MainSection = styled.div`
     display: flex;
     height: 100%;
     background: ${PgTheme.getDifferentBackground(
-      theme.views.main.primary.tutorials.default.bg
+      theme.views.main.primary.default.bg
     )};
     border-radius: ${theme.default.borderRadius};
     overflow: hidden;
-
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.main.default)};
   `}
 `;
 
@@ -138,8 +130,6 @@ const SideWrapper = styled.div`
     flex-shrink: 0;
     padding: 0.5rem;
     border-right: 1px solid ${theme.colors.default.border};
-
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorials.main.side)};
   `}
 `;
 
@@ -149,18 +139,12 @@ const FiltersWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  ${({ theme }) => css`
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    gap: 2rem;
-    overflow: auto;
-
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.tutorials.main.content.default
-    )};
-  `}
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 2rem;
+  overflow: auto;
 `;
 
 const RegularTutorialsWrapper = styled.div`

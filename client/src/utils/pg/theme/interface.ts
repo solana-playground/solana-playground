@@ -304,24 +304,6 @@ export interface ThemeParam {
 
         /** Tutorial view */
         tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
-
-        /** Tutorials page view */
-        tutorials?: ExtendibleComponent<{
-          /** Tutorials top section */
-          top?: DefaultComponent;
-          /** Tutorials main section */
-          main?: ExtendibleComponent<{
-            /** Side section (left filters) */
-            side?: DefaultComponent;
-            /** Content section (right tutorials) */
-            content?: ExtendibleComponent<{
-              /** Tutorial card component */
-              card?: DefaultComponent;
-              /** Featured tutorial component */
-              featured?: DefaultComponent;
-            }>;
-          }>;
-        }>;
       }>;
 
       /** Main secondary view */
