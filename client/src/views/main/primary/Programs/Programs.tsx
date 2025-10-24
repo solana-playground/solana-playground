@@ -36,7 +36,7 @@ const Programs: FC<ProgramsProps> = ({ programs }) => {
       </TopSection>
 
       <MainSection>
-        <MainContent noMatch={!regularItems.length}>
+        <ContentWrapper noMatch={!regularItems.length}>
           {!regularItems.length && (
             <NoMatchText icon={<Sad />}>No match found</NoMatchText>
           )}
@@ -44,7 +44,7 @@ const Programs: FC<ProgramsProps> = ({ programs }) => {
           {regularItems.map((program) => (
             <ProgramCard key={program.name} {...program} />
           ))}
-        </MainContent>
+        </ContentWrapper>
       </MainSection>
     </Wrapper>
   );
@@ -60,28 +60,24 @@ const Wrapper = styled.div`
 `;
 
 const TopSection = styled(Topbar)`
-  ${({ theme }) => css`
-    height: var(--top-height);
-    padding: 1rem 2.5rem;
+  height: var(--top-height);
+  padding: 1rem 2.5rem;
 
-    & > div {
-      width: max(12rem, 50%);
-    }
-  `}
+  & > div {
+    width: max(12rem, 50%);
+  }
 `;
 
 const Title = styled.h1``;
 
 const MainSection = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    min-height: calc(100% - var(--top-height));
-    padding: 2rem 2.5rem;
-  `}
+  display: flex;
+  min-height: calc(100% - var(--top-height));
+  padding: 2rem 2.5rem;
 `;
 
-const MainContent = styled.div<{ noMatch: boolean }>`
-  ${({ theme, noMatch }) => css`
+const ContentWrapper = styled.div<{ noMatch: boolean }>`
+  ${({ noMatch }) => css`
     display: flex;
     flex-wrap: wrap;
     flex-grow: 1;
