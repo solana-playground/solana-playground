@@ -62,10 +62,10 @@ const TutorialCard: FC<TutorialCardProps> = ({
 };
 
 const Wrapper = styled(Card)`
-  --img-height: 13.1rem;
+  --img-height: 16.125rem;
 
   width: calc(var(--img-height) * 4 / 3);
-  height: 23rem;
+  height: 26rem;
   padding: 0;
 `;
 

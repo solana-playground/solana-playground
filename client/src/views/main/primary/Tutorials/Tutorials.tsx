@@ -2,16 +2,13 @@ import styled, { css } from "styled-components";
 
 import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
-import FilterGroups from "../../../../components/FilterGroups";
-import Link from "../../../../components/Link";
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
 import Topbar from "../../../../components/Topbar";
 import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
 import { useFilteredSearch } from "../../../../hooks";
-import { GITHUB_URL } from "../../../../constants";
-import { PgTheme, PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
+import { PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
 const Tutorials = () => {
   const filteredSearch = useFilteredSearch({
@@ -52,52 +49,37 @@ const Tutorials = () => {
         />
       </TopSection>
 
-      <MainSectionScrollWrapper>
-        <MainSection>
-          <SideWrapper>
-            <FiltersWrapper>
-              <FilterGroups filters={FILTERS} items={PgTutorial.all} />
-            </FiltersWrapper>
-          </SideWrapper>
+      <MainSection>
+        <ContentWrapper noMatch={!featuredItems.length && !regularItems.length}>
+          {!featuredItems.length && !regularItems.length && (
+            <NoMatchText icon={<Sad />}>No match found</NoMatchText>
+          )}
 
-          <ContentWrapper>
-            {!featuredItems.length && !regularItems.length && <NoMatch />}
+          {featuredItems.length > 0 && (
+            <FeaturedTutorial tutorial={featuredItems[0]} />
+          )}
 
-            {featuredItems.length > 0 && (
-              <FeaturedTutorial tutorial={featuredItems[0]} />
-            )}
-
-            {regularItems.length > 0 && (
-              <RegularTutorialsWrapper>
-                {regularItems.map((t) => (
-                  <TutorialCard key={t.name} {...t} />
-                ))}
-              </RegularTutorialsWrapper>
-            )}
-          </ContentWrapper>
-        </MainSection>
-      </MainSectionScrollWrapper>
-
-      <BottomSection>
-        <Link href={`${GITHUB_URL}/tree/master/client/src/tutorials`}>
-          Contribute
-        </Link>
-      </BottomSection>
+          {regularItems.length > 0 &&
+            regularItems.map((t) => <TutorialCard key={t.name} {...t} />)}
+        </ContentWrapper>
+      </MainSection>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    display: flex;
-    flex-direction: column;
+    --top-height: 4.5rem;
+
     font-family: ${theme.font.other.family};
     font-size: ${theme.font.other.size.medium};
   `}
 `;
 
 const TopSection = styled(Topbar)`
+  height: var(--top-height);
   padding: 1rem 2.5rem;
+  z-index: 1;
 
   & > div {
     width: max(12rem, 50%);
@@ -106,64 +88,23 @@ const TopSection = styled(Topbar)`
 
 const Title = styled.h1``;
 
-const MainSectionScrollWrapper = styled.div`
-  margin: 2rem 2.5rem;
-  overflow: hidden;
-  flex-grow: 1;
-`;
-
 const MainSection = styled.div`
-  ${({ theme }) => css`
+  display: flex;
+  min-height: calc(100% - var(--top-height));
+  padding: 2rem 2.5rem;
+`;
+
+const ContentWrapper = styled.div<{ noMatch: boolean }>`
+  ${({ noMatch }) => css`
     display: flex;
-    height: 100%;
-    background: ${PgTheme.getDifferentBackground(
-      theme.views.main.primary.default.bg
-    )};
-    border-radius: ${theme.default.borderRadius};
-    overflow: hidden;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    gap: 1rem;
+
+    ${noMatch
+      ? "justify-content: center; align-items: center"
+      : "height: fit-content"};
   `}
-`;
-
-const SideWrapper = styled.div`
-  ${({ theme }) => css`
-    width: 14.5rem;
-    flex-shrink: 0;
-    padding: 0.5rem;
-    border-right: 1px solid ${theme.colors.default.border};
-  `}
-`;
-
-const FiltersWrapper = styled.div`
-  position: sticky;
-  top: 0;
-`;
-
-const ContentWrapper = styled.div`
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  gap: 2rem;
-  overflow: auto;
-`;
-
-const RegularTutorialsWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-`;
-
-const NoMatch = () => (
-  <NoMatchWrapper>
-    <NoMatchText icon={<Sad />}>No match found</NoMatchText>
-  </NoMatchWrapper>
-);
-
-const NoMatchWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 const NoMatchText = styled(Text)`
@@ -172,14 +113,6 @@ const NoMatchText = styled(Text)`
     height: 5rem;
     font-size: ${theme.font.other.size.small};
   `}
-`;
-
-const BottomSection = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 2rem;
 `;
 
 export default Tutorials;
