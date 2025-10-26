@@ -45,44 +45,40 @@ const TutorialCard: FC<TutorialCardProps> = ({
       </ImgWrapper>
 
       <InfoWrapper>
-        <InfoTopSection>
+        <InfoTopWrapper>
           <NameRow>
             <Name>{name}</Name>
             <Tag kind="level" value={level} />
           </NameRow>
           <Description>{description}</Description>
-        </InfoTopSection>
+        </InfoTopWrapper>
 
-        <InfoBottomSection>
-          {framework && <Tag kind="framework" value={framework} />}
-        </InfoBottomSection>
+        <InfoBottomWrapper>
+          {framework && <Framework kind="framework" value={framework} />}
+        </InfoBottomWrapper>
       </InfoWrapper>
     </Wrapper>
   );
 };
 
 const Wrapper = styled(Card)`
-  --img-height: 16.125rem;
-
-  width: calc(var(--img-height) * 4 / 3);
-  height: 26rem;
   padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ImgWrapper = styled.div<{ progress: number }>`
   ${({ theme, progress }) => css`
     width: 100%;
-    height: var(--img-height);
     position: relative;
 
     &::after {
-      --progress-height: 0.25rem;
-
       content: "";
       position: absolute;
       left: 0;
-      bottom: calc(-1 * var(--progress-height));
-      height: var(--progress-height);
+      bottom: 0;
+      height: 0.25rem;
       background: ${progress === 100
         ? `linear-gradient(90deg, ${theme.colors.state.success.color} 0%, ${
             theme.colors.state.success.color + theme.default.transparency.high
@@ -96,21 +92,21 @@ const ImgWrapper = styled.div<{ progress: number }>`
 `;
 
 const TutorialImg = styled(Img)`
+  aspect-ratio: 4 / 3;
   width: 100%;
-  height: 100%;
   object-fit: cover;
 `;
 
 const InfoWrapper = styled.div`
   width: 100%;
-  height: calc(100% - var(--img-height));
+  flex: 1;
   padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 `;
 
-const InfoTopSection = styled.div``;
+const InfoTopWrapper = styled.div``;
 
 const NameRow = styled.div`
   display: flex;
@@ -131,6 +127,10 @@ const Description = styled.div`
   `}
 `;
 
-const InfoBottomSection = styled.div``;
+const InfoBottomWrapper = styled.div``;
+
+const Framework = styled(Tag)`
+  margin-top: 0.75rem;
+`;
 
 export default TutorialCard;

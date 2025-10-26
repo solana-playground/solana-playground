@@ -81,7 +81,6 @@ const Wrapper = styled(Card)`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-width: 44.95rem;
   height: fit-content;
 `;
 

@@ -1,10 +1,11 @@
 import styled, { css } from "styled-components";
 
-import FeaturedTutorial from "./FeaturedTutorial";
-import TutorialCard from "./TutorialCard";
+import List from "../../../../components/ResponsiveItems";
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
 import Topbar from "../../../../components/Topbar";
+import FeaturedTutorial from "./FeaturedTutorial";
+import TutorialCard from "./TutorialCard";
 import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
 import { useFilteredSearch } from "../../../../hooks";
@@ -49,19 +50,20 @@ const Tutorials = () => {
         />
       </TopSection>
 
-      <MainSection>
-        <ContentWrapper noMatch={!featuredItems.length && !regularItems.length}>
-          {!featuredItems.length && !regularItems.length && (
-            <NoMatchText icon={<Sad />}>No match found</NoMatchText>
-          )}
+      <MainSection noMatch={!featuredItems.length && !regularItems.length}>
+        {featuredItems.length || regularItems.length ? (
+          <List minItemWidth="16rem" gap="1rem" maxItems={4}>
+            {regularItems.map((t) => (
+              <TutorialCard key={t.name} {...t} />
+            ))}
+          </List>
+        ) : (
+          <NoMatchText icon={<Sad />}>No match found</NoMatchText>
+        )}
 
-          {featuredItems.length > 0 && (
-            <FeaturedTutorial tutorial={featuredItems[0]} />
-          )}
-
-          {regularItems.length > 0 &&
-            regularItems.map((t) => <TutorialCard key={t.name} {...t} />)}
-        </ContentWrapper>
+        {featuredItems.length > 0 && (
+          <FeaturedTutorial tutorial={featuredItems[0]} />
+        )}
       </MainSection>
     </Wrapper>
   );
@@ -88,22 +90,13 @@ const TopSection = styled(Topbar)`
 
 const Title = styled.h1``;
 
-const MainSection = styled.div`
-  display: flex;
-  min-height: calc(100% - var(--top-height));
-  padding: 2rem 2.5rem;
-`;
-
-const ContentWrapper = styled.div<{ noMatch: boolean }>`
+const MainSection = styled.div<{ noMatch: boolean }>`
   ${({ noMatch }) => css`
     display: flex;
-    flex-wrap: wrap;
-    flex-grow: 1;
-    gap: 1rem;
+    min-height: calc(100% - var(--top-height));
+    padding: 2rem 2.5rem;
 
-    ${noMatch
-      ? "justify-content: center; align-items: center"
-      : "height: fit-content"};
+    ${noMatch && "justify-content: center; align-items: center;"}
   `}
 `;
 

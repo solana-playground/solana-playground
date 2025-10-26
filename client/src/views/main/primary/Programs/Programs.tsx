@@ -1,6 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import ResponsiveItems from "../../../../components/ResponsiveItems";
 import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
 import Topbar from "../../../../components/Topbar";
@@ -35,16 +36,16 @@ const Programs: FC<ProgramsProps> = ({ programs }) => {
         />
       </TopSection>
 
-      <MainSection>
-        <ContentWrapper noMatch={!regularItems.length}>
-          {!regularItems.length && (
-            <NoMatchText icon={<Sad />}>No match found</NoMatchText>
-          )}
-
-          {regularItems.map((program) => (
-            <ProgramCard key={program.name} {...program} />
-          ))}
-        </ContentWrapper>
+      <MainSection noMatch={!regularItems.length}>
+        {regularItems.length ? (
+          <ResponsiveItems minItemWidth="27.5rem" gap="1.5rem" maxItems={2}>
+            {regularItems.map((p) => (
+              <ProgramCard key={p.name} {...p} />
+            ))}
+          </ResponsiveItems>
+        ) : (
+          <NoMatchText icon={<Sad />}>No match found</NoMatchText>
+        )}
       </MainSection>
     </Wrapper>
   );
@@ -70,22 +71,13 @@ const TopSection = styled(Topbar)`
 
 const Title = styled.h1``;
 
-const MainSection = styled.div`
-  display: flex;
-  min-height: calc(100% - var(--top-height));
-  padding: 2rem 2.5rem;
-`;
-
-const ContentWrapper = styled.div<{ noMatch: boolean }>`
+const MainSection = styled.div<{ noMatch: boolean }>`
   ${({ noMatch }) => css`
     display: flex;
-    flex-wrap: wrap;
-    flex-grow: 1;
-    gap: 1.5rem;
+    min-height: calc(100% - var(--top-height));
+    padding: 2rem 2.5rem;
 
-    ${noMatch
-      ? "justify-content: center; align-items: center"
-      : "height: fit-content"};
+    ${noMatch && "justify-content: center; align-items: center;"}
   `}
 `;
 
