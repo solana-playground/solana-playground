@@ -53,15 +53,15 @@ const Programs: FC<ProgramsProps> = ({ programs }) => {
 
 const Wrapper = styled.div`
   ${({ theme }) => css`
-    --top-height: 4.5rem;
-
+    display: flex;
+    flex-direction: column;
     font-family: ${theme.font.other.family};
     font-size: ${theme.font.other.size.medium};
   `}
 `;
 
 const TopSection = styled(Topbar)`
-  height: var(--top-height);
+  height: 4.5rem;
   padding: 1rem 2.5rem;
 
   & > div {
@@ -73,8 +73,8 @@ const Title = styled.h1``;
 
 const MainSection = styled.div<{ noMatch: boolean }>`
   ${({ noMatch }) => css`
+    flex: 1;
     display: flex;
-    min-height: calc(100% - var(--top-height));
     padding: 2rem 2.5rem;
 
     ${noMatch && "justify-content: center; align-items: center;"}
