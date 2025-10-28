@@ -279,14 +279,21 @@ const StyledButton = styled.button<ButtonProps & { $loading?: boolean }>`
     }
 
     return css`
+      --transition: all ${theme.default.transition.duration.medium}
+        ${theme.default.transition.type};
+
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       border: 1px solid ${button.borderColor};
-      transition: all ${theme.default.transition.duration.medium}
-        ${theme.default.transition.type};
+      transition: var(--transition);
+
+      & svg {
+        /** There may be flickering if the transition properties don't match */
+        transition: var(--transition);
+      }
 
       &:disabled {
         cursor: not-allowed;
