@@ -18,7 +18,7 @@ const FilterGroups = <P extends string>({
   filters,
   items,
 }: FilterGroupsProps<P>) => (
-  <>
+  <Wrapper>
     {filters.map((f) => (
       <FilterGroup
         key={f.param}
@@ -34,8 +34,15 @@ const FilterGroups = <P extends string>({
         }))}
       />
     ))}
-  </>
+  </Wrapper>
 );
+
+const Wrapper = styled.div`
+  ${({ theme }) => css`
+    font-family: ${theme.font.other.family};
+    font-size: ${theme.font.other.size.medium};
+  `}
+`;
 
 interface FilterGroupProps {
   param: string;
