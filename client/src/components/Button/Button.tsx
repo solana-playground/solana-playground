@@ -290,9 +290,14 @@ const StyledButton = styled.button<ButtonProps & { $loading?: boolean }>`
       border: 1px solid ${button.borderColor};
       transition: var(--transition);
 
+      /* There may be flickering if the transition properties don't match */
       & svg {
-        /** There may be flickering if the transition properties don't match */
         transition: var(--transition);
+      }
+
+      /* Make child svg color consistent */
+      &:hover svg {
+        color: inherit;
       }
 
       &:disabled {
@@ -304,6 +309,11 @@ const StyledButton = styled.button<ButtonProps & { $loading?: boolean }>`
           cursor: not-allowed;
           background: ${theme.colors.state.disabled.bg};
           color: ${theme.colors.state.disabled.color};
+        }
+
+        /* Without this, svgs have their own color when the button is disabled */
+        & svg {
+          color: inherit;
         }
       }
 
