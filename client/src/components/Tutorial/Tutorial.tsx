@@ -52,6 +52,6 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.getScrollbarCSS({ allChildren: true })};
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorial.default)};
+    ${PgTheme.convertToCSS(theme.components.tutorial.default)};
   `}
 `;

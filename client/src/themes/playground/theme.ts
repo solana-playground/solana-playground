@@ -116,6 +116,12 @@ const PLAYGROUND: ThemeParam = {
       bg: `linear-gradient(180deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
       boxShadow: BOX_SHADOW_LIGHT,
     },
+    tutorial: {
+      aboutPage: {
+        bg: "transparent",
+        boxShadow: BOX_SHADOW_LIGHT,
+      },
+    },
   },
 
   views: {
@@ -137,12 +143,6 @@ const PLAYGROUND: ThemeParam = {
                 border: "none",
               },
             },
-          },
-        },
-        tutorial: {
-          aboutPage: {
-            bg: "transparent",
-            boxShadow: BOX_SHADOW_LIGHT,
           },
         },
       },

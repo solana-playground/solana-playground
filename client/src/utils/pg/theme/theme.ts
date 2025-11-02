@@ -737,7 +737,7 @@ export class PgTheme {
   private static _views() {
     this._theme.views ??= {};
 
-    return this._bottom()._sidebar()._main()._home()._tutorial();
+    return this._bottom()._sidebar()._main()._home();
   }
 
   /** Set default components */
@@ -762,7 +762,8 @@ export class PgTheme {
       ._terminal()
       ._wallet()
       ._tabs()
-      ._editor();
+      ._editor()
+      ._tutorial();
   }
 
   /** Set default bottom bar view */
@@ -1710,13 +1711,10 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default tutorial view */
+  /** Set default tutorial component */
   private static _tutorial() {
-    const main = this._getView("main");
+    const tutorial = this._getComponent("tutorial");
     const theme = this._themeReady;
-
-    main.primary!.tutorial ??= {};
-    const tutorial = main.primary!.tutorial;
 
     // Default
     tutorial.default ??= {};

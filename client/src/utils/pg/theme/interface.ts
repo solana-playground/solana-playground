@@ -230,6 +230,9 @@ export interface ThemeParam {
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
 
+    /** Tutorial component */
+    tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
     /** Upload area component */
     uploadArea?: ExtendibleComponent<{
       /** Upload icon */
@@ -301,9 +304,6 @@ export interface ThemeParam {
           /** Tutorials section */
           tutorials?: ExtendibleComponent<"title" | "card">;
         }>;
-
-        /** Tutorial view */
-        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
       }>;
 
       /** Main secondary view */
@@ -446,6 +446,7 @@ type ExtendibleComponents =
   | "tabs"
   | "terminal"
   | "toast"
+  | "tutorial"
   | "uploadArea"
   | "wallet";
 
