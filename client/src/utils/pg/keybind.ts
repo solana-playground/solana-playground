@@ -28,16 +28,34 @@ export class PgKeybind {
    * @returns a dispose function to clear the event
    */
   static add(...args: SingleKeybind | MultipleKeybinds): Disposable {
-    const keybinds =
+    // Normalize keybinds
+    const keybinds = PgCommon.toArray(
       typeof args[0] === "string"
         ? { keybind: args[0], handle: args[1]! }
-        : args[0];
-
-    const keybindsArray = PgCommon.toArray(keybinds);
+        : args[0]
+    );
 
     const handle = (ev: KeyboardEvent) => {
-      const keybind = keybindsArray.find(({ keybind }) => {
-        return this._isMatch(keybind, ev);
+      const keybind = keybinds.find(({ keybind }) => {
+        return keybind
+          .toUpperCase()
+          .replaceAll(" ", "")
+          .split("+")
+          .map((key) => {
+            switch (key) {
+              case "CTRL":
+                return ev.ctrlKey || ev.metaKey;
+              case "ALT":
+                return ev.altKey;
+              case "SHIFT":
+                return ev.shiftKey;
+              case "SPACE":
+                return ev.key === " ";
+              default:
+                return key === ev.key.toUpperCase();
+            }
+          })
+          .reduce((acc, cur) => acc && cur, true);
       });
       if (!keybind) return;
 
@@ -52,43 +70,5 @@ export class PgKeybind {
 
     document.addEventListener("keydown", handle);
     return { dispose: () => document.removeEventListener("keydown", handle) };
-  }
-
-  /**
-   * Get whether the given `keybind` and pressed keys from the `ev` match.
-   *
-   * @param keybind keybind string
-   * @param ev keyboard event
-   * @returns whether the given keybind and pressed keys match
-   */
-  private static _isMatch(keybind: string, ev: KeyboardEvent) {
-    let isMatch = true;
-
-    const keys = keybind.toUpperCase().replaceAll(" ", "").split("+");
-    for (const key of keys) {
-      switch (key) {
-        case "CTRL":
-        case "CONTROL":
-          isMatch &&= ev.ctrlKey || ev.metaKey;
-          break;
-
-        case "ALT":
-          isMatch &&= ev.altKey;
-          break;
-
-        case "SHIFT":
-          isMatch &&= ev.shiftKey;
-          break;
-
-        case "SPACE":
-          isMatch &&= ev.key === " ";
-          break;
-
-        default:
-          isMatch &&= key === ev.key.toUpperCase();
-      }
-    }
-
-    return isMatch;
   }
 }
