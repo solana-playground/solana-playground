@@ -4,7 +4,6 @@ import { BundlrEnpoints } from "../../constants";
 import { Emoji } from "../../../../constants";
 import {
   PgConnection,
-  PgSettings,
   PgTerminal,
   PgWallet,
   PgWeb3,
@@ -19,7 +18,7 @@ enum BundlrAction {
 const LIMIT = 5000;
 
 export const processBundlr = async (
-  rpcUrl: string = PgSettings.connection.endpoint,
+  rpcUrl = PgConnection.current.rpcEndpoint,
   action: BundlrAction
 ) => {
   // Get balance

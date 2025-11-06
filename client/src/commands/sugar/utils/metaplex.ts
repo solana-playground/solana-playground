@@ -5,11 +5,9 @@ import {
 } from "@metaplex-foundation/js";
 
 import { BundlrEnpoints } from "../constants";
-import { PgConnection, PgSettings, PgWallet } from "../../../utils/pg";
+import { PgConnection, PgWallet } from "../../../utils/pg";
 
-export const getMetaplex = async (
-  endpoint: string = PgSettings.connection.endpoint
-) => {
+export const getMetaplex = async (endpoint?: string) => {
   return Metaplex.make(PgConnection.create({ endpoint }))
     .use(walletAdapterIdentity(PgWallet.current!))
     .use(

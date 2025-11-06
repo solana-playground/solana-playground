@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { Emoji, NETWORKS } from "../../constants";
-import { PgCommon, PgSettings, PgTerminal } from "../../utils/pg";
+import { PgCommon, PgConnection, PgTerminal } from "../../utils/pg";
 import {
   processBundlr,
   processCollectionSet,
@@ -146,7 +146,9 @@ export class PgSugar {
         { noColor: true }
       );
       // Show how to set a custom rpc endpoint if the current endpoint is a known endpoint
-      if (NETWORKS.some((n) => n.endpoint === PgSettings.connection.endpoint)) {
+      if (
+        NETWORKS.some((n) => n.endpoint === PgConnection.current.rpcEndpoint)
+      ) {
         PgTerminal.println(
           `${
             e.message?.endsWith("\n") ? "" : "\n"
