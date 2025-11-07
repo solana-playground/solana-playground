@@ -223,7 +223,11 @@ const recursivelyDefineSetters = (sClass: any, accessor: string[]) => {
     sClass[PROPS.INTERNAL_STATE],
     accessor
   );
-  if (typeof internalValue !== "object" || internalValue === null) return;
+  if (typeof internalValue !== "object" || internalValue === null) {
+    // Self-assign to dispatch change events
+    PgCommon.setValue(sClass[PROPS.INTERNAL_STATE], accessor, internalValue);
+    return;
+  }
 
   const proxy = new Proxy(internalValue, {
     set(target: any, prop: string, value: any) {
