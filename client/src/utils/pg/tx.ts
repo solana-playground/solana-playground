@@ -1,8 +1,8 @@
-import { PgCommon } from "../common";
-import { PgSettings } from "../settings";
-import { ConnectionOption, PgConnection } from "../connection";
-import { CurrentWallet, PgWallet, WalletOption } from "../wallet";
-import { PgWeb3 } from "../web3";
+import { PgCommon } from "./common";
+import { ConnectionOption, PgConnection } from "./connection";
+import { PgSettings } from "./settings";
+import { CurrentWallet, PgWallet, WalletOption } from "./wallet";
+import { PgWeb3 } from "./web3";
 
 type WithTimeStamp<T> = T & {
   /** UNIX timestamp of the last cache */
