@@ -37,20 +37,19 @@ export function derivable<T extends Derivable>(
         }
 
         const derivable = state[prop];
-        derivable.onChange = PgCommon.toArray(derivable.onChange);
-        derivable.onChange = derivable.onChange.map((onChange) => {
-          if (typeof onChange === "string") {
-            return sClass[getChangePropName(onChange)];
-          }
+        const disposable = PgCommon.batchChanges(
+          async (value) => {
+            sClass[PROPS.INTERNAL_STATE][prop] = await derivable.derive(value);
+            sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
+          },
+          PgCommon.toArray(derivable.onChange).map((onChange) => {
+            if (typeof onChange === "string") {
+              return sClass[getChangePropName(onChange)];
+            }
 
-          return onChange;
-        });
-
-        const disposable = PgCommon.batchChanges(async (value) => {
-          sClass[PROPS.INTERNAL_STATE][prop] = await derivable.derive(value);
-          sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
-        }, derivable.onChange as Exclude<OnChange, string>[]);
-
+            return onChange;
+          })
+        );
         disposables.push(disposable);
       }
 

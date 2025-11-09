@@ -12,8 +12,8 @@ import styled, { css } from "styled-components";
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
-import { PgTheme, PgView, SetState, SidebarPage } from "../../../../utils/pg";
-import { useAsyncEffect, useSetStatic } from "../../../../hooks";
+import { PgTheme, PgView, SidebarPage } from "../../../../utils/pg";
+import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
 interface DefaultRightProps {
   page: SidebarPage;
@@ -58,26 +58,17 @@ const Title: FC<DefaultRightProps> = ({ page }) => (
 );
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
+  // FIXME: Type is `unknown` without the cast
+  const props = useRenderOnChange(PgView.onDidChangeSidebarProps) as
+    | Record<string, unknown>
+    | undefined;
+  const loadingCount = useRenderOnChange(PgView.onDidChangeSidebarLoadingCount);
+
   const [el, setEl] = useState<ReactNode>(null);
-  const [props, setProps] = useState(() => ({}));
-  const [loadingCount, setLoadingCount] = useState<number>(0);
-
-  // There could be multiple processes that change the loading state and the
-  // overall loading state should only be disabled when all processes complete.
-  const setLoading = useCallback((set: SetState<boolean>) => {
-    setLoadingCount((prev) => {
-      const val = typeof set === "function" ? set(!!prev) : set;
-      return val ? prev + 1 : prev - 1;
-    });
-  }, []);
-
-  useSetStatic(PgView.events.SIDEBAR_PAGE_PROPS_SET, setProps);
-  useSetStatic(PgView.events.SIDEBAR_LOADING_SET, setLoading);
 
   const ids = useRef<boolean[]>([]);
-
   useAsyncEffect(async () => {
-    setLoading(true);
+    PgView.setSidebarLoading(true);
     const currentId = ids.current.length;
 
     try {
@@ -86,9 +77,9 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     } catch (e: any) {
       console.log("SIDEBAR ERROR", e.message);
     } finally {
-      setLoading(false);
+      PgView.setSidebarLoading(false);
     }
-  }, [page, props, setLoading]);
+  }, [page, props]);
 
   if (loadingCount) return <Loading page={page} />;
 

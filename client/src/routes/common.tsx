@@ -56,10 +56,11 @@ export const handleRoute = (
       await PgExplorer.init(explorerInitArg);
 
       // Set sidebar page
-      if (sidebar) PgView.setSidebarPage(sidebar.name);
-      if (sidebar?.props) {
-        const sidebarProps = await PgCommon.callIfNeeded(sidebar.props);
-        PgView.setSidebarPageProps(sidebarProps);
+      if (sidebar) {
+        PgView.sidebar.name = sidebar.name;
+        PgView.sidebar.props = sidebar.props
+          ? await PgCommon.callIfNeeded(sidebar.props)
+          : {};
       }
 
       // Get/import main
@@ -81,9 +82,11 @@ export const handleRoute = (
   });
 
   // Handle clicking on non-routed sidebar pages
-  const sidebarRoute = sidebar && PgView.getSidebarPage(sidebar.name).route;
+  const sidebarRoute =
+    sidebar &&
+    PgView.allSidebarPages.find((p) => p.name === sidebar.name)!.route;
   const sidebarPageChange = sidebarRoute
-    ? PgView.onDidChangeSidebarPage((page) => {
+    ? PgView.onDidChangeCurrentSidebarPage((page) => {
         if (!page.route) PgRouter.navigate();
       })
     : null;
@@ -109,15 +112,13 @@ export const handleRoute = (
       // Only change sidebar page when going outside of `/${path}`
       if (
         sidebarRoute &&
-        !PgRouter.location.pathname.startsWith(sidebarRoute)
+        !PgRouter.location.pathname.startsWith(sidebarRoute) &&
+        PgView.sidebar.name === sidebar.name
       ) {
         // This fixes the case where going back from `/${path}` to `/` with
         // browser's navigations would cause incorrect component to still be
         // mounted instead of switching to `Explorer`
-        PgView.setSidebarPage((page) => {
-          if (page === sidebar.name) return "Explorer";
-          return page;
-        });
+        PgView.sidebar.name = "Explorer";
       }
 
       // Set the main secondary view height to the previous saved value

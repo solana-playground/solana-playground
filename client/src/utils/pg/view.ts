@@ -2,6 +2,13 @@ import { createElement, FC } from "react";
 import type { ToastOptions } from "react-toastify";
 
 import { PgCommon } from "./common";
+import {
+  createDerivable,
+  declareDerivable,
+  declareUpdatable,
+  derivable,
+  updatable,
+} from "./decorators";
 import type {
   SetState,
   Disposable,
@@ -36,9 +43,37 @@ export type SidebarPage<N extends string = string> = RequiredKey<
   "title" | "importComponent"
 >;
 
-export class PgView {
+interface ViewState {
+  sidebar: {
+    name: SidebarPageName;
+    props: Record<string, unknown>;
+    loadingCount: number;
+  };
+}
+
+const defaultState: ViewState = {
+  sidebar: {
+    name: "Explorer",
+    props: {},
+    loadingCount: 0,
+  },
+};
+
+const recursive = true;
+
+const derive = () => ({
+  /** Current sidebar page */
+  currentSidebarPage: createDerivable({
+    derive: (name) => _PgView.allSidebarPages.find((p) => p.name === name)!,
+    onChange: "sidebar.name",
+  }),
+});
+
+@derivable(derive)
+@updatable({ defaultState, recursive })
+class _PgView {
   /** All sidebar pages */
-  static sidebar: SidebarPage<SidebarPageName>[];
+  static allSidebarPages: SidebarPage<SidebarPageName>[];
 
   /** All view event names */
   static readonly events = {
@@ -46,14 +81,10 @@ export class PgView {
     MAIN_SECONDARY_HEIGHT_SET: "viewmainsecondaryheightset",
     MAIN_SECONDARY_PAGE_SET: "viewmainsecondarypageset",
     MAIN_SECONDARY_PROGRESS_SET: "viewmainsecondaryprogressset",
-    SIDEBAR_PAGE_NAME_SET: "viewsidebarpagenameset",
-    SIDEBAR_PAGE_PROPS_SET: "viewsidebarpagepropsset",
-    SIDEBAR_LOADING_SET: "viewsidebarloadingset",
     MODAL_SET: "viewmodalset",
     TOAST_SET: "viewtoastset",
     TOAST_CLOSE: "viewtoastclose",
     NEW_ITEM_PORTAL_SET: "viewnewitemportalset",
-    ON_DID_CHANGE_SIDEBAR_PAGE: "viewondidchangesidebarpage",
     ON_DID_CHANGE_MAIN_SECONDARY_PAGE: "viewondidchangemainsecondarypage",
   };
 
@@ -86,39 +117,6 @@ export class PgView {
   };
 
   /**
-   * Set the current sidebar page.
-   *
-   * @param page sidebar page to set
-   */
-  static getSidebarPage(name: SidebarPageName) {
-    return this.sidebar.find((s) => s.name === name)!;
-  }
-
-  /**
-   * Set the current sidebar page.
-   *
-   * @param page sidebar page to set
-   */
-  static setSidebarPage(page: SetState<SidebarPageName> = "Explorer") {
-    PgCommon.createAndDispatchCustomEvent(
-      PgView.events.SIDEBAR_PAGE_NAME_SET,
-      page
-    );
-  }
-
-  /**
-   * Set the current sidebar page props.
-   *
-   * @param page sidebar page to set
-   */
-  static setSidebarPageProps(props: Record<string, any>) {
-    PgCommon.createAndDispatchCustomEvent(
-      PgView.events.SIDEBAR_PAGE_PROPS_SET,
-      props
-    );
-  }
-
-  /**
    * Set sidebar right component's loading state.
    *
    * **NOTE:** The boolean values are used to either increment or decrement the
@@ -126,13 +124,13 @@ export class PgView {
    * the process count and the loading state is only disabled if there is no
    * other ongoing process.
    *
-   * @param loading set loading state
+   * @param loading whether the sidebar should show loading state
    */
-  static setSidebarLoading(loading: SetState<boolean>) {
-    PgCommon.createAndDispatchCustomEvent(
-      PgView.events.SIDEBAR_LOADING_SET,
-      loading
-    );
+  static setSidebarLoading(loading: boolean) {
+    // There could be multiple processes that change the loading state, and the
+    // overall loading state should only be disabled when all processes complete
+    if (loading) PgView.sidebar.loadingCount++;
+    else PgView.sidebar.loadingCount--;
   }
 
   /**
@@ -286,16 +284,6 @@ export class PgView {
   }
 
   /**
-   * Runs after changing sidebar page.
-   *
-   * @param cb callback function to run after changing sidebar page
-   * @returns a dispose function to clear the event
-   */
-  static onDidChangeSidebarPage(cb: (page: SidebarPage) => unknown) {
-    return PgCommon.onDidChange(PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE, cb);
-  }
-
-  /**
    * Runs after changing the secondary main view page.
    *
    * @param cb callback function to run after changing the secondary main view page
@@ -325,3 +313,16 @@ export class PgView {
     return createElement(elementable, props);
   }
 }
+
+export const PgView = declareDerivable(
+  declareUpdatable(_PgView, { defaultState, recursive }),
+  derive
+);
+
+// PgView.init();
+
+// setTimeout(() => {
+//   PgView.onDidChangeCurrentSidebarPage((currentSidebarPage) => {
+//     console.log("currentSidebarPage:", currentSidebarPage);
+//   });
+// }, 2000);

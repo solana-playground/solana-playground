@@ -17,10 +17,11 @@
 export const IS_NODE = typeof window === "undefined";
 
 if (IS_NODE) {
+  const f = () => ({});
+
   global.self = global;
   global.window = global;
-  global.indexedDB = {
-    open: () => ({}),
-  };
+  global.indexedDB = { open: f, onerror: f };
   global.GLOBAL_SETTINGS = { default: {} };
+  global.document = { addEventListener: f };
 }

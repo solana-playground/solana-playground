@@ -13,7 +13,7 @@ export const useRenderOnChange = <T,>(
   useEffect(() => {
     // If `onChange` doesn't exist, re-run the effect after a timeout
     if (!onChange) {
-      setTimeout(() => runEffect(), 20);
+      setTimeout(() => runEffect(), 10);
       return;
     }
 
@@ -40,5 +40,5 @@ export const useRenderOnChange = <T,>(
     return dispose;
   }, [effect, onChange]);
 
-  return value;
+  return value === undefined ? defaultValue : value;
 };

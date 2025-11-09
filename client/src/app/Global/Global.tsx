@@ -29,9 +29,9 @@ PgCommandManager.all = COMMANDS;
 PgFramework.all = FRAMEWORKS;
 PgLanguage.all = LANGUAGES;
 PgRouter.all = ROUTES;
-PgTutorial.all = TUTORIALS;
-PgView.sidebar = SIDEBAR;
 PgSettings.all = SETTINGS;
+PgTutorial.all = TUTORIALS;
+PgView.allSidebarPages = SIDEBAR;
 
 // All initables to initialize
 const INITABLES = [
@@ -41,13 +41,13 @@ const INITABLES = [
   PgProgramInfo,
   PgRouter,
   PgTutorial,
+  PgView,
   PgWallet,
 ];
 const getInitables = () => initAll(INITABLES);
 
 const Global = () => {
   useDisposable(getInitables);
-
   return null;
 };
 

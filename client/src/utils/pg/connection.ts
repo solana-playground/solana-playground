@@ -3,6 +3,7 @@ import { createDerivable, declareDerivable, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
 import { PgWeb3 } from "./web3";
+import type { Disposable } from "./types";
 
 /** Optional `connection` prop */
 export interface ConnectionOption {
@@ -46,7 +47,8 @@ const derive = () => ({
   isConnected: createDerivable({
     derive: _PgConnection.getIsConnected,
     onChange: (cb) => {
-      const disposables = [
+      const disposables: Disposable[] = [];
+      disposables.push(
         PgConnection.onDidChangeCluster((cluster) => {
           // Dispose and remove old disposables
           for (const i of Object.keys(disposables)) {
@@ -83,8 +85,8 @@ const derive = () => ({
             if (isConnected) cb();
           }, errorInterval);
           disposables.push({ dispose: () => clearInterval(errorId) });
-        }),
-      ];
+        })
+      );
 
       return {
         dispose: () => {

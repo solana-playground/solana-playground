@@ -89,22 +89,16 @@ export const addOnDidChange = (
       // Debounce the main change event because each property change dispatches
       // the main change event
       PgCommon.debounce(cb),
-      sClass[PROPS.IS_INITIALIZED]
-        ? { value: sClass[PROPS.INTERNAL_STATE] }
-        : undefined
+      { value: sClass[PROPS.INTERNAL_STATE] }
     );
   };
 
   // Property change events
   for (const prop in state) {
     (sClass as OnDidChange)[getChangePropName(prop)] = (cb) => {
-      return PgCommon.onDidChange(
-        getChangeEventName(prop),
-        cb,
-        sClass[PROPS.IS_INITIALIZED]
-          ? { value: PgCommon.getValue(sClass, prop) }
-          : undefined
-      );
+      return PgCommon.onDidChange(getChangeEventName(prop), cb, {
+        value: PgCommon.getValue(sClass, prop),
+      });
     };
   }
 
@@ -117,13 +111,9 @@ export const addOnDidChange = (
       for (const prop in value) {
         const currentAccessor = [...accessor, prop];
         (sClass as OnDidChange)[getChangePropName(currentAccessor)] = (cb) => {
-          return PgCommon.onDidChange(
-            getChangeEventName(currentAccessor),
-            cb,
-            sClass[PROPS.IS_INITIALIZED]
-              ? { value: PgCommon.getValue(sClass, currentAccessor) }
-              : undefined
-          );
+          return PgCommon.onDidChange(getChangeEventName(currentAccessor), cb, {
+            value: PgCommon.getValue(sClass, currentAccessor),
+          });
         };
 
         const value = PgCommon.getValue(state, currentAccessor);
