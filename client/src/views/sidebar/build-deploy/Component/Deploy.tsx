@@ -12,14 +12,8 @@ import {
 import { Pause, Triangle } from "../../../../components/Icons";
 
 const Deploy = () => {
-  const buildLoading = useRenderOnChange(
-    PgGlobal.onDidChangeBuildLoading,
-    PgGlobal.buildLoading
-  );
-  const deployState = useRenderOnChange(
-    PgGlobal.onDidChangeDeployState,
-    PgGlobal.deployState
-  );
+  const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);
+  const deployState = useRenderOnChange(PgGlobal.onDidChangeDeployState);
 
   const programInfo = useProgramInfo();
   const error = !programInfo.onChain;

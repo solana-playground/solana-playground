@@ -46,12 +46,11 @@ const Import = () => {
 };
 
 const Export = () => {
-  useRenderOnChange(PgProgramInfo.onDidChangeIdl);
-
-  if (!PgProgramInfo.idl) return null;
+  const idl = useRenderOnChange(PgProgramInfo.onDidChangeIdl);
+  if (!idl) return null;
 
   return (
-    <ExportButton href={PgProgramInfo.idl} fileName="idl.json">
+    <ExportButton href={idl} fileName="idl.json">
       Export
     </ExportButton>
   );

@@ -25,10 +25,7 @@ export const useExplorerContextMenu = () => {
   const [itemData, setItemData] = useState<ItemData>({});
   const [ctxSelectedPath, setCtxSelectedPath] = useState("");
 
-  const deployState = useRenderOnChange(
-    PgGlobal.onDidChangeDeployState,
-    PgGlobal.deployState
-  );
+  const deployState = useRenderOnChange(PgGlobal.onDidChangeDeployState);
 
   const handleMenu = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     // Add selected style to the item

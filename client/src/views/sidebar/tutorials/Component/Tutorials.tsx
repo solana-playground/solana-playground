@@ -14,8 +14,8 @@ import {
 import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
 const Tutorials = () => {
-  useRenderOnChange(PgTutorial.onDidChangeCurrent);
-  return PgTutorial.current ? <Progress /> : <Filters />;
+  const tutorial = useRenderOnChange(PgTutorial.onDidChangeCurrent);
+  return tutorial ? <Progress /> : <Filters />;
 };
 
 const Filters = () => <FilterGroups filters={FILTERS} items={PgTutorial.all} />;

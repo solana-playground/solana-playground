@@ -111,13 +111,12 @@ const Import = () => {
 };
 
 const Export = () => {
-  useRenderOnChange(PgProgramInfo.onDidChangeKp);
-
-  if (!PgProgramInfo.kp) return null;
+  const kp = useRenderOnChange(PgProgramInfo.onDidChangeKp);
+  if (!kp) return null;
 
   return (
     <ExportButton
-      href={Array.from(PgProgramInfo.kp.secretKey)}
+      href={Array.from(kp.secretKey)}
       fileName="program-keypair.json"
     >
       Export

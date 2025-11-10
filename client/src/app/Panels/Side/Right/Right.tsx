@@ -59,9 +59,10 @@ const Title: FC<DefaultRightProps> = ({ page }) => (
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
   // FIXME: Type is `unknown` without the cast
-  const props = useRenderOnChange(PgView.onDidChangeSidebarProps) as
-    | Record<string, unknown>
-    | undefined;
+  const props = useRenderOnChange(PgView.onDidChangeSidebarProps) as Record<
+    string,
+    unknown
+  >;
   const loadingCount = useRenderOnChange(PgView.onDidChangeSidebarLoadingCount);
 
   const [el, setEl] = useState<ReactNode>(null);

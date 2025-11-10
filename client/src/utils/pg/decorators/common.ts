@@ -83,7 +83,8 @@ export const addOnDidChange = (
   type OnDidChange = OnDidChangeProperty<typeof state>;
 
   // Main change event
-  (sClass as OnDidChange)[getChangePropName()] = (cb) => {
+  const mainChangePropName = getChangePropName();
+  sClass[mainChangePropName] = (cb: any) => {
     return PgCommon.onDidChange(
       getChangeEventName(),
       // Debounce the main change event because each property change dispatches
@@ -92,13 +93,20 @@ export const addOnDidChange = (
       { value: sClass[PROPS.INTERNAL_STATE] }
     );
   };
+  (sClass as OnDidChange)[mainChangePropName].getValue = () => {
+    return sClass[PROPS.INTERNAL_STATE];
+  };
 
   // Property change events
   for (const prop in state) {
-    (sClass as OnDidChange)[getChangePropName(prop)] = (cb) => {
+    const changePropName = getChangePropName(prop);
+    sClass[changePropName] = (cb: any) => {
       return PgCommon.onDidChange(getChangeEventName(prop), cb, {
         value: PgCommon.getValue(sClass, prop),
       });
+    };
+    (sClass as OnDidChange)[changePropName].getValue = () => {
+      return PgCommon.getValue(sClass, prop);
     };
   }
 
@@ -110,10 +118,14 @@ export const addOnDidChange = (
         : state;
       for (const prop in value) {
         const currentAccessor = [...accessor, prop];
-        (sClass as OnDidChange)[getChangePropName(currentAccessor)] = (cb) => {
+        const changePropName = getChangePropName(currentAccessor);
+        sClass[changePropName] = (cb: any) => {
           return PgCommon.onDidChange(getChangeEventName(currentAccessor), cb, {
             value: PgCommon.getValue(sClass, currentAccessor),
           });
+        };
+        (sClass as OnDidChange)[changePropName].getValue = () => {
+          return PgCommon.getValue(sClass, currentAccessor);
         };
 
         const value = PgCommon.getValue(state, currentAccessor);

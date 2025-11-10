@@ -50,14 +50,13 @@ const Import = () => (
 );
 
 const Export = () => {
-  useRenderOnChange(PgProgramInfo.onDidChangeUuid);
-
-  if (!PgProgramInfo.uuid) return null;
+  const uuid = useRenderOnChange(PgProgramInfo.onDidChangeUuid);
+  if (!uuid) return null;
 
   return (
     <Button
       onClick={async () => {
-        const programBuffer = await PgServer.deploy(PgProgramInfo.uuid!);
+        const programBuffer = await PgServer.deploy(uuid);
         const programName = PgExplorer.currentWorkspaceName ?? "program";
         PgCommon.export(`${programName}.so`, programBuffer);
       }}

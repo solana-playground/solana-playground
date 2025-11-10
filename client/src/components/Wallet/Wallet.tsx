@@ -30,13 +30,13 @@ import {
 } from "../../hooks";
 
 const Wallet = () => {
-  useRenderOnChange(PgWallet.onDidChangeShow);
+  const show = useRenderOnChange(PgWallet.onDidChangeShow);
 
   const wallet = useWallet();
 
   useStandardAccountChange();
 
-  if (!PgWallet.show || !wallet) return null;
+  if (!show || !wallet) return null;
 
   const tabHeight = document
     .getElementById(PgView.ids.TABS)

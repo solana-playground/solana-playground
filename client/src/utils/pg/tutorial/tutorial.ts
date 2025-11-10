@@ -74,12 +74,11 @@ const derive = () => ({
 
       try {
         const { name } = PgRouter.getParamsFromPath(route.path, path);
-        const tutorial = _PgTutorial.all.find((t) => {
+        return _PgTutorial.all.find((t) => {
           return PgRouter.isPathsEqual(PgCommon.toKebabFromTitle(t.name), name);
-        });
-        return tutorial;
-      } catch (e) {
-        console.log("`PgTutorial.current` error:", e);
+        })!;
+      } catch {
+        return null;
       }
     },
     onChange: PgRouter.onDidChangePath,
@@ -93,8 +92,8 @@ const derive = () => ({
       try {
         const { page } = PgRouter.getParamsFromPath(route.path, path);
         if (PgCommon.isInt(page)) return parseInt(page);
-      } catch (e) {
-        console.log("`PgTutorial.page` error:", e);
+      } catch {
+        return null;
       }
     },
     onChange: PgRouter.onDidChangePath,

@@ -15,12 +15,17 @@ export type OnDidChangeDefault<T> = {
    * @param cb callback function to run after the change
    * @returns a dispose function to clear the event
    */
-  [PROPS.ON_DID_CHANGE]: (cb: (value: T) => void) => Disposable;
+  [PROPS.ON_DID_CHANGE]: OnDidChange<T>;
 };
 
 /** Non-recursive `onDidChange${propertyName}` method types */
 export type OnDidChangeProperty<T> = {
-  [K in keyof T as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
-    cb: (value: T[K]) => void
-  ) => Disposable;
+  [K in keyof T as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: OnDidChange<
+    T[K]
+  >;
+};
+
+/** Actual type of the `onDidChange` property */
+type OnDidChange<T> = ((cb: (value: T) => void) => Disposable) & {
+  getValue: () => T;
 };
