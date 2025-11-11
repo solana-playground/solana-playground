@@ -1,5 +1,4 @@
 import { PgCommon } from "../common";
-import type { Initable, OnDidChangeProperty } from "./types";
 import type { Accessor, Disposable, SyncOrAsync } from "../types";
 
 /** Property names */
@@ -23,6 +22,35 @@ export const PROPS = {
   /** Dispatch change event(s) method name */
   DISPATCH_CHANGE_EVENT: "_dispatchChangeEvent",
 } as const;
+
+/** Initable decorator */
+export type Initable = {
+  /** Initialize the decorator functionality */
+  [PROPS.INIT]: () => SyncOrAsync<Disposable>;
+};
+
+/** Default `onDidChange` type */
+export type OnDidChangeDefault<T> = {
+  /**
+   * The main on change handler.
+   *
+   * @param cb callback function to run after the change
+   * @returns a dispose function to clear the event
+   */
+  [PROPS.ON_DID_CHANGE]: OnDidChange<T>;
+};
+
+/** Non-recursive `onDidChange${propertyName}` method types */
+export type OnDidChangeProperty<T> = {
+  [K in keyof T as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: OnDidChange<
+    T[K]
+  >;
+};
+
+/** Actual type of the `onDidChange` property */
+type OnDidChange<T> = ((cb: (value: T) => void) => Disposable) & {
+  getValue: () => T;
+};
 
 /**
  * Add `init` property to the given static class.

@@ -1,4 +1,4 @@
-import { declareUpdatable, updatable } from "./decorators";
+import { declareDecorator, updatable } from "./decorators";
 
 interface GlobalState {
   buildLoading: boolean;
@@ -13,4 +13,6 @@ const defaultState: GlobalState = {
 @updatable({ defaultState })
 class _PgGlobal {}
 
-export const PgGlobal = declareUpdatable(_PgGlobal, { defaultState });
+export const PgGlobal = declareDecorator(_PgGlobal, {
+  updatable: { defaultState },
+});

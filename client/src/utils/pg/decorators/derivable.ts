@@ -1,10 +1,5 @@
-import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
 import { PgCommon } from "../common";
-import type {
-  Initable,
-  OnDidChangeDefault,
-  OnDidChangeProperty,
-} from "./types";
+import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
 import type { Disposable } from "../types";
 
 /**
@@ -72,7 +67,7 @@ type Derivable<T = any, R = unknown> = {
 };
 
 /** Derivable state properties */
-type DerivableState<T> = {
+export type DerivableState<T> = {
   readonly // eslint-disable-next-line @typescript-eslint/no-unused-vars
   [K in keyof T]: T[K] extends Derivable<infer _, infer R> ? Awaited<R> : never;
 };
@@ -83,18 +78,3 @@ type DerivableState<T> = {
  * This function is a type helper function.
  */
 export const createDerivable = <T, R>(derivable: Derivable<T, R>) => derivable;
-
-/**
- * Add necessary types to the given derivable static class.
- *
- * @param sClass static class
- * @param derive derive properties that will be added to the given class
- * @returns the static class with correct types
- */
-export const declareDerivable = <C, T>(sClass: C, derive: () => T) => {
-  return sClass as Omit<C, "prototype"> &
-    Initable &
-    DerivableState<T> &
-    OnDidChangeDefault<DerivableState<T>> &
-    OnDidChangeProperty<DerivableState<T>>;
-};

@@ -4,8 +4,7 @@ import type { ToastOptions } from "react-toastify";
 import { PgCommon } from "./common";
 import {
   createDerivable,
-  declareDerivable,
-  declareUpdatable,
+  declareDecorator,
   derivable,
   updatable,
 } from "./decorators";
@@ -314,15 +313,7 @@ class _PgView {
   }
 }
 
-export const PgView = declareDerivable(
-  declareUpdatable(_PgView, { defaultState, recursive }),
-  derive
-);
-
-// PgView.init();
-
-// setTimeout(() => {
-//   PgView.onDidChangeCurrentSidebarPage((currentSidebarPage) => {
-//     console.log("currentSidebarPage:", currentSidebarPage);
-//   });
-// }, 2000);
+export const PgView = declareDecorator(_PgView, {
+  derivable: derive,
+  updatable: { defaultState, recursive },
+});

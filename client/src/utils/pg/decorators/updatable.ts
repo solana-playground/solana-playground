@@ -1,14 +1,9 @@
-import { addInit, addOnDidChange, PROPS } from "./common";
 import { PgCommon } from "../common";
-import type {
-  Initable,
-  OnDidChangeDefault,
-  OnDidChangeProperty,
-} from "./types";
+import { addInit, addOnDidChange, PROPS } from "./common";
 import type { Disposable, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
-type Updatable<T> = {
+export type Updatable<T> = {
   /** Update state. */
   [PROPS.UPDATE]: (params: Partial<T>) => void;
   /** Refresh state (from storage if it exists). */
@@ -16,7 +11,7 @@ type Updatable<T> = {
 };
 
 /** Recursive `onDidChange${propertyName}` method types */
-type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
+export type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
   [K in keyof U as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
@@ -330,24 +325,3 @@ type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
     ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
     : [[...Acc, K], T[K]];
 }[keyof T];
-
-/**
- * Add the necessary types to the given updatable static class.
- *
- * @param sClass static class
- * @param options type helper options
- * @returns the static class with correct types
- */
-export const declareUpdatable = <C, T, R>(
-  sClass: C,
-  options?: { defaultState: T; recursive?: R }
-) => {
-  return sClass as unknown as Omit<C, "prototype"> &
-    T &
-    Initable &
-    Updatable<T> &
-    OnDidChangeDefault<T> &
-    (R extends boolean
-      ? OnDidChangePropertyRecursive<T>
-      : OnDidChangeProperty<T>);
-};

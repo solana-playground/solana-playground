@@ -1,5 +1,5 @@
 import { PgCommon } from "./common";
-import { createDerivable, declareDerivable, derivable } from "./decorators";
+import { createDerivable, declareDecorator, derivable } from "./decorators";
 import { OverridableConnection, PgPlaynet } from "./playnet";
 import { PgSettings } from "./settings";
 import { PgWeb3 } from "./web3";
@@ -259,4 +259,6 @@ class _PgConnection {
   }
 }
 
-export const PgConnection = declareDerivable(_PgConnection, derive);
+export const PgConnection = declareDecorator(_PgConnection, {
+  derivable: derive,
+});

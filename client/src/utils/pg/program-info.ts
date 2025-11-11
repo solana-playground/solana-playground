@@ -7,8 +7,7 @@ import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import {
   createDerivable,
-  declareDerivable,
-  declareUpdatable,
+  declareDecorator,
   derivable,
   initable,
   updatable,
@@ -206,7 +205,7 @@ class _PgProgramInfo {
   }
 }
 
-export const PgProgramInfo = declareDerivable(
-  declareUpdatable(_PgProgramInfo, { defaultState }),
-  derive
-);
+export const PgProgramInfo = declareDecorator(_PgProgramInfo, {
+  derivable: derive,
+  updatable: { defaultState },
+});

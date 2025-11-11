@@ -3,8 +3,7 @@ import { PgExplorer, TupleFiles } from "../explorer";
 import { PgRouter } from "../router";
 import {
   createDerivable,
-  declareDerivable,
-  declareUpdatable,
+  declareDecorator,
   derivable,
   initable,
   updatable,
@@ -343,7 +342,7 @@ class _PgTutorial {
   }
 }
 
-export const PgTutorial = declareDerivable(
-  declareUpdatable(_PgTutorial, { defaultState }),
-  derive
-);
+export const PgTutorial = declareDecorator(_PgTutorial, {
+  derivable: derive,
+  updatable: { defaultState },
+});

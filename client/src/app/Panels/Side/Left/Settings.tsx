@@ -22,7 +22,7 @@ const Settings = () => (
       .reduce((acc, cur) => {
         const groupName = cur.id.split(".")[0];
         const lastGroup = acc.at(-1);
-        if (lastGroup?.name === groupName) lastGroup.settings.push(cur);
+        if (lastGroup?.name === groupName) lastGroup!.settings.push(cur);
         else acc.push({ name: groupName, settings: [cur] });
 
         return acc;
