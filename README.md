@@ -1,5 +1,5 @@
 # Solana Playground
-
+airdrop solona
 [SolPg](https://beta.solpg.io) allows you to quickly develop, deploy and test [Solana](https://docs.solana.com/introduction) programs(smart contracts) from browsers.
 
 ## Supported crates
