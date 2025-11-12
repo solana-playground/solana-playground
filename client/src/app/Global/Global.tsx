@@ -35,6 +35,8 @@ PgView.allSidebarPages = SIDEBAR;
 
 // All initables to initialize
 const INITABLES = [
+  // Initialize settings first, since others may depend on it
+  PgSettings,
   PgBlockExplorer,
   PgConnection,
   PgGlobal,

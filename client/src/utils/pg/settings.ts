@@ -1,6 +1,3 @@
-// Settings are getting loaded at the start of the application, so any non-type
-// import should be avoided.
-
 import { declareDecorator, updatable } from "./decorators";
 import type {
   Arrayable,
