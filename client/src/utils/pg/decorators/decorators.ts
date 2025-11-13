@@ -35,6 +35,7 @@ export const initAll = async (initables: Initable[]): Promise<Disposable> => {
     length: initables.length,
   }).fill(null);
   let prevRemainingIndices: number[] | undefined;
+  let attemps = 0;
 
   do {
     const remainingIndices = disposables
@@ -48,7 +49,19 @@ export const initAll = async (initables: Initable[]): Promise<Disposable> => {
     for (const i of remainingIndices) {
       try {
         disposables[i] = await initables[i].init();
-      } catch {}
+      } catch (e: any) {
+        // @ts-ignore
+        console.log("Initialization failed:", initables[i].name, e.message);
+      } finally {
+        attemps++;
+
+        // Detect potential infinite loops, which could happen if 2 `initable`s
+        // depend on each other for initialization
+        const maxAttemps = (disposables.length * (disposables.length + 1)) / 2;
+        if (attemps > maxAttemps) {
+          throw new Error("Total initialization attempts went above the max");
+        }
+      }
     }
 
     prevRemainingIndices = remainingIndices;
