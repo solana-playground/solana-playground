@@ -1,7 +1,7 @@
 import Delayed from "../components/Delayed";
 import FadeIn from "../components/FadeIn";
 import Effects from "./Effects";
-import Global from "./Global";
+import Globals from "./Globals";
 import Panels from "./Panels";
 import { RouterProvider } from "../providers/router";
 import { SolanaProvider } from "../providers/solana";
@@ -25,7 +25,7 @@ const AppLazy = () => (
       initialized. This would allow us to get rid of seemingly redundant checks
       such as checking whether the explorer has been initialized.
       */}
-      <Global />
+      <Globals />
 
       <Delayed delay={1000}>
         <Effects />
