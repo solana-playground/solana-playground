@@ -1,11 +1,13 @@
 import { GLOBALS } from "../../globals";
 import { initAll } from "../../utils/pg";
-import { useDisposable } from "../../hooks";
-
-const getInitables = () => initAll(GLOBALS);
+import { useAsyncEffect } from "../../hooks";
 
 const Globals = () => {
-  useDisposable(getInitables);
+  useAsyncEffect(async () => {
+    const { dispose } = await initAll(GLOBALS);
+    return dispose;
+  }, []);
+
   return null;
 };
 
