@@ -2,18 +2,17 @@ import { useEffect, useReducer, useState } from "react";
 
 import type { Disposable } from "../utils/pg";
 
-export const useRenderOnChange = <T,>(
-  onChange: (cb: (v?: T) => any) => Disposable,
-  defaultValue?: T
+export const useRenderOnChange = <T, G extends () => T>(
+  onChange: ((cb: (v?: T) => any) => Disposable) & { getValue?: G }
 ) => {
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState(() => onChange?.getValue?.());
   const [, render] = useReducer((r) => r + 1, 0);
   const [effect, runEffect] = useReducer((r) => r + 1, 0);
 
   useEffect(() => {
     // If `onChange` doesn't exist, re-run the effect after a timeout
     if (!onChange) {
-      setTimeout(() => runEffect(), 20);
+      setTimeout(() => runEffect(), 10);
       return;
     }
 
@@ -40,5 +39,7 @@ export const useRenderOnChange = <T,>(
     return dispose;
   }, [effect, onChange]);
 
-  return value;
+  return (
+    value === undefined ? onChange?.getValue?.() : value
+  ) as G extends undefined ? T | undefined : T;
 };

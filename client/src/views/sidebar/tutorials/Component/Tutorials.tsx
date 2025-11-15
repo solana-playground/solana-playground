@@ -1,36 +1,47 @@
 import { FC, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
-import TutorialsSkeleton from "./TutorialsSkeleton";
+import FilterGroups from "../../../../components/FilterGroups";
 import Text from "../../../../components/Text";
+import TutorialsSkeleton from "./TutorialsSkeleton";
+import { FILTERS } from "../../../main/primary/Tutorials/filters";
 import {
   PgCommon,
   PgTutorial,
   TutorialData,
   TutorialMetadata,
 } from "../../../../utils/pg";
-import { useAsyncEffect } from "../../../../hooks";
-
-type TutorialFullData = (TutorialData & TutorialMetadata)[];
-type TutorialsData = { completed: TutorialFullData; ongoing: TutorialFullData };
+import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
 const Tutorials = () => {
-  const [tutorialsData, setTutorialsData] = useState<TutorialsData>();
+  const tutorial = useRenderOnChange(PgTutorial.onDidChangeCurrent);
+  return tutorial ? <Progress /> : <Filters />;
+};
+
+const Filters = () => <FilterGroups filters={FILTERS} items={PgTutorial.all} />;
+
+type TutorialFullData = TutorialData & TutorialMetadata;
+
+const Progress = () => {
+  const [tutorialsData, setTutorialsData] = useState<{
+    completed: TutorialFullData[];
+    ongoing: TutorialFullData[];
+  }>();
 
   // Get tutorial data
   useAsyncEffect(async () => {
     // Sleep here because:
-    // - If user starts on the `tutorials` route, the workspaces might not get
-    // initialized before this callback runs which causes errors while getting
-    // tutorial names with `PgTutorial.getUserTutorialNames`
+    // - Explorer might not have been initialized
     // - The current tutorial's `completed` state might not have been saved yet
     // after finishing the tutorial
     // - Better transition
+    //
+    // TODO: Remove this after making sure explorer is always initialized
+    // before this runs.
     await PgCommon.sleep(300);
 
-    const tutorialNames = PgTutorial.getUserTutorialNames();
-    const data: TutorialsData = { completed: [], ongoing: [] };
-    for (const tutorialName of tutorialNames) {
+    const data: typeof tutorialsData = { completed: [], ongoing: [] };
+    for (const tutorialName of PgTutorial.getUserTutorialNames()) {
       const tutorialData = PgTutorial.all.find((t) => t.name === tutorialName);
       if (!tutorialData) continue;
 
@@ -46,18 +57,21 @@ const Tutorials = () => {
   if (!tutorialsData) return <TutorialsSkeleton />;
 
   return (
-    <Wrapper>
+    <ProgressWrapper>
       {!tutorialsData.ongoing.length && !tutorialsData.completed.length && (
         <Text>Choose and start a new tutorial to track your progress.</Text>
       )}
-      <TutorialGroup name="Ongoing" data={tutorialsData.ongoing} />
-      <TutorialGroup name="Completed" data={tutorialsData.completed} />
-    </Wrapper>
+      <TutorialGroup name="Ongoing" tutorials={tutorialsData.ongoing} />
+      <TutorialGroup name="Completed" tutorials={tutorialsData.completed} />
+    </ProgressWrapper>
   );
 };
 
-const Wrapper = styled.div`
+const ProgressWrapper = styled.div`
   ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
     padding: 1.5rem 1rem;
     color: ${theme.colors.default.textSecondary};
   `}
@@ -65,39 +79,42 @@ const Wrapper = styled.div`
 
 interface TutorialGroupProps {
   name: string;
-  data: TutorialFullData;
+  tutorials: TutorialFullData[];
 }
 
-const TutorialGroup: FC<TutorialGroupProps> = ({ name, data }) => (
-  <>
-    {data.length > 0 && (
-      <TutorialsSectionHeader>
-        {name} -&gt; <Bold>{data.length}</Bold>
-      </TutorialsSectionHeader>
-    )}
-    {data.map((t, i) => (
-      <TutorialWrapper
-        key={i}
-        onClick={() => PgTutorial.open(t.name)}
-        progress={t.completed ? 100 : ((t.pageNumber - 1) / t.pageCount) * 100}
-      >
-        <TutorialName>{t.name}</TutorialName>
-      </TutorialWrapper>
-    ))}
-  </>
-);
+const TutorialGroup: FC<TutorialGroupProps> = ({ name, tutorials }) => {
+  if (!tutorials.length) return null;
 
-const TutorialsSectionHeader = styled.div`
-  font-size: ${({ theme }) => theme.font.code.size.large};
+  return (
+    <TutorialGroupWrapper>
+      <TutorialGroupHeader>
+        {name} -&gt; <Count>{tutorials.length}</Count>
+      </TutorialGroupHeader>
 
-  &:not(:first-child) {
-    margin-top: 2rem;
-  }
+      {tutorials.map((t) => (
+        <TutorialWrapper
+          key={t.name}
+          onClick={() => PgTutorial.open(t.name)}
+          progress={
+            t.completed ? 100 : ((t.pageNumber - 1) / t.pageCount) * 100
+          }
+        >
+          <TutorialName>{t.name}</TutorialName>
+        </TutorialWrapper>
+      ))}
+    </TutorialGroupWrapper>
+  );
+};
+
+const TutorialGroupWrapper = styled.div``;
+
+const TutorialGroupHeader = styled.div`
+  ${({ theme }) => css`
+    font-size: ${theme.font.code.size.large};
+  `}
 `;
 
-const Bold = styled.span`
-  font-weight: bold;
-`;
+const Count = styled.strong``;
 
 const TutorialWrapper = styled.div<{ progress: number }>`
   ${({ theme, progress }) => css`
@@ -121,7 +138,7 @@ const TutorialWrapper = styled.div<{ progress: number }>`
             theme.colors.state.success.color + theme.default.transparency.high
           } 100%)`
         : `linear-gradient(90deg, ${theme.colors.default.primary} 0%, ${theme.colors.default.secondary} 100%)`};
-      animation: ${animateWidth(progress)}
+      animation: ${keyframes`from { width: 0; } to { width: ${progress}%; }`}
         ${theme.default.transition.duration.long}
         ${theme.default.transition.type} forwards;
     }
@@ -134,18 +151,6 @@ const TutorialWrapper = styled.div<{ progress: number }>`
   `}
 `;
 
-const animateWidth = (progress: number) =>
-  keyframes`
-    from {
-      width: 0;
-    }
-    to {
-      width: ${progress}%;
-    }
-`;
-
-const TutorialName = styled.div`
-  font-weight: bold;
-`;
+const TutorialName = styled.strong``;
 
 export default Tutorials;

@@ -7,7 +7,7 @@ import { PgTheme } from "../../../utils/pg";
 
 export const Address = () => {
   const blockExplorer = useBlockExplorer();
-  const { wallet } = useWallet();
+  const wallet = useWallet();
   if (!wallet) return null;
 
   const walletPkStr = wallet.publicKey.toBase58();

@@ -48,8 +48,10 @@ const getStyles = ({
 }) => {
   if ($isWrapper) {
     return css`
-      & svg {
-        color: ${theme.colors.default.textSecondary};
+      color: ${theme.colors.default.textSecondary};
+
+      &:hover {
+        color: ${theme.colors.default.textPrimary};
       }
 
       & > * {

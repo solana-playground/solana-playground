@@ -76,19 +76,12 @@ const ProgramCard: FC<ProgramCardProps> = ({
 );
 
 const Wrapper = styled(Card)`
-  ${({ theme }) => css`
-    flex-grow: 1;
-    flex-basis: 50%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-width: 44.95rem;
-    height: fit-content;
-
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.programs.main.content.card
-    )};
-  `}
+  flex-grow: 1;
+  flex-basis: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: fit-content;
 `;
 
 const Header = styled.div`

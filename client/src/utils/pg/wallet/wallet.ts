@@ -4,8 +4,7 @@ import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import {
   createDerivable,
-  declareDerivable,
-  declareUpdatable,
+  declareDecorator,
   derivable,
   initable,
   updatable,
@@ -501,7 +500,7 @@ class _PgWallet {
   }
 }
 
-export const PgWallet = declareDerivable(
-  declareUpdatable(_PgWallet, { defaultState }),
-  derive
-);
+export const PgWallet = declareDecorator(_PgWallet, {
+  derivable: derive,
+  updatable: { defaultState },
+});

@@ -1,5 +1,4 @@
 import { addInit } from "./common";
-import type { Initable } from "./types";
 
 /**
  * Make the given static class initable.
@@ -21,17 +20,3 @@ export function initable(params: {
 }) {
   return (sClass: any) => addInit(sClass, params.init, params.onDidInit);
 }
-
-/**
- * Add necessary types to the given initable static class.
- *
- * This is not necessary if the type of the class already has the `init`
- * property coming from other initable decorators such as `derivable` and
- * `updatable`.
- *
- * @param sClass static class
- * @returns the static class with correct types
- */
-export const declareInitable = <C>(sClass: C) => {
-  return sClass as Omit<C, "prototype"> & Initable;
-};

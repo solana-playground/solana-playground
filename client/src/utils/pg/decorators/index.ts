@@ -1,4 +1,4 @@
-export * from "./derivable";
-export * from "./initable";
-export * from "./updatable";
-export * from "./utils";
+export * from "./decorators";
+export { createDerivable, derivable } from "./derivable";
+export { initable } from "./initable";
+export { updatable } from "./updatable";

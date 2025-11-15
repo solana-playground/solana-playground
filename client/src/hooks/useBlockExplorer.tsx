@@ -3,6 +3,5 @@ import { PgBlockExplorer } from "../utils/pg";
 
 /** Get the current block explorer */
 export const useBlockExplorer = () => {
-  useRenderOnChange(PgBlockExplorer.onDidChange);
-  return PgBlockExplorer.current;
+  return useRenderOnChange(PgBlockExplorer.onDidChangeCurrent);
 };

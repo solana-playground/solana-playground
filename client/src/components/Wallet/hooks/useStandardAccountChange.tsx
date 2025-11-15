@@ -9,7 +9,7 @@ import { PgWallet } from "../../../utils/pg";
  * This only applies to Standard Wallets.
  */
 export const useStandardAccountChange = () => {
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
   useEffect(() => {
     if (!wallet || wallet.isPg) return;

@@ -112,6 +112,16 @@ const PLAYGROUND: ThemeParam = {
         bg: PROGRESS_BG,
       },
     },
+    topbar: {
+      bg: `linear-gradient(180deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
+      boxShadow: BOX_SHADOW_LIGHT,
+    },
+    tutorial: {
+      aboutPage: {
+        bg: "transparent",
+        boxShadow: BOX_SHADOW_LIGHT,
+      },
+    },
   },
 
   views: {
@@ -131,36 +141,6 @@ const PLAYGROUND: ThemeParam = {
               default: {
                 boxShadow: BOX_SHADOW_LIGHT,
                 border: "none",
-              },
-            },
-          },
-        },
-        programs: {
-          top: {
-            bg: `linear-gradient(180deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
-            boxShadow: BOX_SHADOW_LIGHT,
-          },
-        },
-        tutorial: {
-          aboutPage: {
-            bg: "transparent",
-            boxShadow: BOX_SHADOW_LIGHT,
-          },
-        },
-        tutorials: {
-          top: {
-            bg: `linear-gradient(180deg, ${BG_DEFAULT}, ${BG_LIGHT})`,
-            boxShadow: BOX_SHADOW_LIGHT,
-          },
-          main: {
-            content: {
-              card: {
-                default: {
-                  boxShadow: BOX_SHADOW_LIGHT,
-                },
-              },
-              featured: {
-                boxShadow: BOX_SHADOW_LIGHT,
               },
             },
           },

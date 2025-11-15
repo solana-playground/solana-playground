@@ -1,7 +1,4 @@
-// Settings are getting loaded at the start of the application, so any non-type
-// import should be avoided.
-
-import { declareUpdatable, updatable } from "./decorators";
+import { declareDecorator, updatable } from "./decorators";
 import type {
   Arrayable,
   Disposable,
@@ -194,7 +191,6 @@ class _PgSettings {
   static all: Setting[];
 }
 
-export const PgSettings = declareUpdatable(_PgSettings, {
-  defaultState,
-  recursive,
+export const PgSettings = declareDecorator(_PgSettings, {
+  updatable: { defaultState, recursive },
 });

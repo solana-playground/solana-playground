@@ -10,8 +10,12 @@ import { PgWallet, PgWeb3 } from "../../../utils/pg";
 
 export const Add = () => {
   const [keypair] = useState(PgWeb3.Keypair.generate);
-  const [name, setName] = useState(PgWallet.getNextAvailableAccountName);
-  const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState(() => {
+    // Passing `PgWallet.getNextAvailableAccountName` directly to the `useState`
+    // makes the name incorrect (n+1 name)
+    return PgWallet.getNextAvailableAccountName();
+  });
+  const [error, setError] = useState("");
 
   return (
     <Modal

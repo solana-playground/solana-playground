@@ -737,13 +737,7 @@ export class PgTheme {
   private static _views() {
     this._theme.views ??= {};
 
-    return this._bottom()
-      ._sidebar()
-      ._main()
-      ._home()
-      ._tutorial()
-      ._tutorials()
-      ._programs();
+    return this._bottom()._sidebar()._main()._home();
   }
 
   /** Set default components */
@@ -768,7 +762,8 @@ export class PgTheme {
       ._terminal()
       ._wallet()
       ._tabs()
-      ._editor();
+      ._editor()
+      ._tutorial();
   }
 
   /** Set default bottom bar view */
@@ -1220,9 +1215,7 @@ export class PgTheme {
     const topbar = this._getComponent("topbar");
     const theme = this._themeReady;
 
-    topbar.bg ??= PgTheme.getDifferentBackground(
-      theme.views.main.primary.programs.default.bg
-    );
+    topbar.bg ??= PgTheme.getDifferentBackground(theme.views.main.default.bg);
 
     return this;
   }
@@ -1718,13 +1711,10 @@ export class PgTheme {
     return this;
   }
 
-  /** Set default tutorial view */
+  /** Set default tutorial component */
   private static _tutorial() {
-    const main = this._getView("main");
+    const tutorial = this._getComponent("tutorial");
     const theme = this._themeReady;
-
-    main.primary!.tutorial ??= {};
-    const tutorial = main.primary!.tutorial;
 
     // Default
     tutorial.default ??= {};
@@ -1749,45 +1739,6 @@ export class PgTheme {
     tutorial.tutorialPage.fontFamily ??= theme.font.other.family;
     tutorial.tutorialPage.fontSize ??= theme.font.other.size.medium;
     tutorial.tutorialPage.padding ??= "2rem";
-
-    return this;
-  }
-
-  /** Set default tutorials view */
-  private static _tutorials() {
-    const main = this._getView("main");
-    main.primary!.tutorials ??= {};
-
-    const tutorials = main.primary!.tutorials;
-    tutorials.default ??= {};
-    tutorials.default.bg ??= this._themeReady.views.main.default.bg;
-    tutorials.top ??= {};
-    tutorials.main ??= {};
-    tutorials.main.default ??= {};
-    tutorials.main.side ??= {};
-    tutorials.main.content ??= {};
-    tutorials.main.content.default ??= {};
-    tutorials.main.content.card ??= {};
-    tutorials.main.content.card.default ??= {};
-    tutorials.main.content.featured ??= {};
-
-    return this;
-  }
-
-  /** Set default programs view */
-  private static _programs() {
-    const main = this._getView("main");
-    main.primary!.programs ??= {};
-
-    const programs = main.primary!.programs;
-    programs.default ??= {};
-    programs.default.bg ??= this._themeReady.views.main.default.bg;
-    programs.top ??= {};
-    programs.main ??= {};
-    programs.main.default ??= {};
-    programs.main.content ??= {};
-    programs.main.content.default ??= {};
-    programs.main.content.card ??= {};
 
     return this;
   }

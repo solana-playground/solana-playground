@@ -7,8 +7,8 @@ import { useConnection, useWallet } from "../../../hooks";
 import { PgTheme } from "../../../utils/pg";
 
 export const RpcEndpoint = () => {
-  const { connection } = useConnection();
-  const { wallet } = useWallet();
+  const connection = useConnection();
+  const wallet = useWallet();
 
   const networkName = useMemo(() => {
     return (

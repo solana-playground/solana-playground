@@ -1,23 +1,19 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, PgRouter, PgTheme, PgView } from "../../../utils/pg";
-import { useKeybind, useSetStatic } from "../../../hooks";
+import { PgRouter, PgTheme, PgView } from "../../../utils/pg";
+import { useKeybind, useRenderOnChange } from "../../../hooks";
 
 const Side = () => {
-  const [pageName, setPageName] = useState<SidebarPageName>("Explorer");
-  useSetStatic(PgView.events.SIDEBAR_PAGE_NAME_SET, setPageName);
+  const page = useRenderOnChange(PgView.onDidChangeCurrentSidebarPage);
 
-  const page = useMemo(() => PgView.getSidebarPage(pageName), [pageName]);
   useEffect(() => {
-    PgCommon.createAndDispatchCustomEvent(
-      PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE,
-      page
-    );
-  }, [page]);
-  useEffect(() => {
+    // TODO: Remove after making sure `initable` initialization happens before
+    // the mount of views
+    if (!page) return;
+
     if (page.route && !PgRouter.location.pathname.startsWith(page.route)) {
       PgRouter.navigate(page.route);
     }
@@ -33,26 +29,28 @@ const Side = () => {
 
   // Handle keybinds
   useKeybind(
-    PgView.sidebar
+    PgView.allSidebarPages
       .filter((p) => p.keybind)
       .map((p) => ({
         keybind: p.keybind!,
         handle: () => {
-          setPageName((page) => {
-            const closeCondition = width !== 0 && page === p.name;
-            setWidth(closeCondition ? 0 : oldWidth);
-            return p.name;
-          });
+          const closeCondition = width !== 0 && PgView.sidebar.name === p.name;
+          setWidth(closeCondition ? 0 : oldWidth);
+          PgView.sidebar.name = p.name;
         },
       })),
     [width, oldWidth]
   );
 
+  // TODO: Remove after making sure `initable` initialization happens before the
+  // mount of views
+  if (!page) return null;
+
   return (
     <Wrapper>
       <Left
-        pageName={pageName}
-        setPageName={setPageName}
+        pageName={page.name}
+        setPageName={(v) => (PgView.sidebar.name = v)}
         width={width}
         setWidth={setWidth}
         oldWidth={oldWidth}

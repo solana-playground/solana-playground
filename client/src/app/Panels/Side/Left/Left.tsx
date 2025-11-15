@@ -10,7 +10,7 @@ import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 
 interface LeftProps<P = SidebarPageName, W = number> {
   pageName: P;
-  setPageName: Dispatch<SetStateAction<P>>;
+  setPageName: (p: P) => void;
   width: W;
   setWidth: Dispatch<SetStateAction<W>>;
   oldWidth: W;
@@ -24,19 +24,17 @@ const Left: FC<LeftProps> = ({
   oldWidth,
 }) => {
   const handleSidebarChange = (value: SidebarPageName) => {
-    setPageName((state) => {
-      if (!width) setWidth(oldWidth);
-      else if (state === value) setWidth(0);
+    if (!width) setWidth(oldWidth);
+    else if (pageName === value) setWidth(0);
 
-      return value;
-    });
+    setPageName(value);
   };
 
   return (
     <Wrapper>
       <Icons>
         <Top>
-          {PgView.sidebar.map((page) => (
+          {PgView.allSidebarPages.map((page) => (
             <SidebarButton
               key={page.name}
               tooltip={PgCommon.getKeybindTextOS(page.title)}

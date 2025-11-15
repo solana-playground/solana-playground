@@ -1,74 +1,116 @@
-import { FC } from "react";
-import styled, { css } from "styled-components";
+import { FC, useState } from "react";
+import styled, { css, keyframes } from "styled-components";
 
 import Card from "../../../../components/Card";
 import Img from "../../../../components/Img";
 import Tag from "../../../../components/Tag";
-import { PgTheme, PgTutorial, TutorialData } from "../../../../utils/pg";
+import { useAsyncEffect } from "../../../../hooks";
+import {
+  PgTheme,
+  PgTutorial,
+  TutorialData,
+  TutorialMetadata,
+} from "../../../../utils/pg";
 
-const TutorialCard: FC<TutorialData> = ({
+type TutorialCardProps = TutorialData;
+
+const TutorialCard: FC<TutorialCardProps> = ({
   name,
   description,
   thumbnail,
   level,
   framework,
-}) => (
-  <Wrapper onClick={() => PgTutorial.open(name)}>
-    <ImgWrapper>
-      <TutorialImg src={thumbnail} />
-    </ImgWrapper>
+  pageCount,
+}) => {
+  const [metadata, setMetadata] = useState<TutorialMetadata>();
+  useAsyncEffect(async () => {
+    const userTutorialNames = PgTutorial.getUserTutorialNames();
+    if (!userTutorialNames.includes(name)) return;
 
-    <InfoWrapper>
-      <InfoTopSection>
-        <NameRow>
-          <Name>{name}</Name>
-          <Tag kind="level" value={level} />
-        </NameRow>
-        <Description>{description}</Description>
-      </InfoTopSection>
+    const tutorial = PgTutorial.all.find((t) => t.name === name);
+    if (!tutorial) throw new Error(`Tutorial not found: ${name}`);
 
-      <InfoBottomSection>
-        {framework && <Tag kind="framework" value={framework} />}
-      </InfoBottomSection>
-    </InfoWrapper>
-  </Wrapper>
-);
+    const metadata = await PgTutorial.getMetadata(name);
+    setMetadata(metadata);
+  }, [name]);
+
+  return (
+    <Wrapper onClick={() => PgTutorial.open(name)}>
+      <ImgWrapper
+        progress={
+          metadata
+            ? metadata.completed
+              ? 100
+              : ((metadata.pageNumber - 1) / pageCount) * 100
+            : 0
+        }
+      >
+        <TutorialImg src={thumbnail} />
+      </ImgWrapper>
+
+      <InfoWrapper>
+        <InfoTopWrapper>
+          <NameRow>
+            <Name>{name}</Name>
+            <Tag kind="level" value={level} />
+          </NameRow>
+          <Description>{description}</Description>
+        </InfoTopWrapper>
+
+        <InfoBottomWrapper>
+          {framework && <Framework kind="framework" value={framework} />}
+        </InfoBottomWrapper>
+      </InfoWrapper>
+    </Wrapper>
+  );
+};
 
 const Wrapper = styled(Card)`
-  ${({ theme }) => css`
-    --img-height: 13.1rem;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
 
-    width: calc(var(--img-height) * 4 / 3);
-    height: 23rem;
-    padding: 0;
+const ImgWrapper = styled.div<{ progress: number }>`
+  ${({ theme, progress }) => css`
+    width: 100%;
+    position: relative;
 
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.tutorials.main.content.card.default
-    )};
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 0.25rem;
+      background: ${progress === 100
+        ? `linear-gradient(90deg, ${theme.colors.state.success.color} 0%, ${
+            theme.colors.state.success.color + theme.default.transparency.high
+          } 100%)`
+        : `linear-gradient(90deg, ${theme.colors.default.primary} 0%, ${theme.colors.default.secondary} 100%)`};
+      animation: ${keyframes`from { width: 0; } to { width: ${progress}%; }`}
+        ${theme.default.transition.duration.long}
+        ${theme.default.transition.type} forwards;
+    }
   `}
 `;
 
-const ImgWrapper = styled.div`
-  width: 100%;
-  height: var(--img-height);
-`;
-
 const TutorialImg = styled(Img)`
+  aspect-ratio: 4 / 3;
   width: 100%;
-  height: 100%;
   object-fit: cover;
 `;
 
 const InfoWrapper = styled.div`
   width: 100%;
-  height: calc(100% - var(--img-height));
+  flex: 1;
   padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 `;
 
-const InfoTopSection = styled.div``;
+const InfoTopWrapper = styled.div``;
 
 const NameRow = styled.div`
   display: flex;
@@ -89,6 +131,10 @@ const Description = styled.div`
   `}
 `;
 
-const InfoBottomSection = styled.div``;
+const InfoBottomWrapper = styled.div``;
+
+const Framework = styled(Tag)`
+  margin-top: 0.75rem;
+`;
 
 export default TutorialCard;

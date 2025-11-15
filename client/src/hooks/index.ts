@@ -4,7 +4,6 @@ export { useBlockExplorer } from "./useBlockExplorer";
 export { useConnection } from "./useConnection";
 export { useCopy } from "./useCopy";
 export { useDifferentBackground } from "./useDifferentBackground";
-export { useDisposable } from "./useDisposable";
 export { useExplorer } from "./useExplorer";
 export { useExposeStatic } from "./useExposeStatic";
 export { useFilteredSearch } from "./useFilteredSearch";

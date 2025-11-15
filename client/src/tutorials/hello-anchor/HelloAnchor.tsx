@@ -11,17 +11,14 @@ const HelloAnchor = () => (
       {
         content: require("./pages/2.md"),
         title: "Build & Deploy",
-        onMount: () => {
-          // Switch sidebar state to Build & Deploy
-          PgView.setSidebarPage("Build & Deploy");
-        },
+        onMount: () => (PgView.sidebar.name = "Build & Deploy"),
       },
       {
         content: require("./pages/3.md"),
         title: "Client",
         onMount: async () => {
-          // Switch sidebar state to Explorer
-          PgView.setSidebarPage("Explorer");
+          // Switch sidebar page to Explorer
+          PgView.sidebar.name = "Explorer";
 
           // Create client.ts file
           const clientPath = "client/client.ts";
@@ -37,10 +34,7 @@ const HelloAnchor = () => (
       {
         content: require("./pages/4.md"),
         title: "Test UI",
-        onMount: () => {
-          // Switch sidebar state to Test
-          PgView.setSidebarPage("Test");
-        },
+        onMount: () => (PgView.sidebar.name = "Test"),
       },
     ]}
     // Initial files to have at the beginning of the tutorial

@@ -7,13 +7,10 @@ import { useExplorer, useRenderOnChange } from "../../../../hooks";
 import { PgCommand, PgGlobal } from "../../../../utils/pg";
 
 const Build = () => {
-  const buildLoading = useRenderOnChange(
-    PgGlobal.onDidChangeBuildLoading,
-    PgGlobal.buildLoading
-  );
+  const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);
   const build = useCallback(() => PgCommand.build.execute(), []);
 
-  const { explorer } = useExplorer();
+  const explorer = useExplorer();
   if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
     return <Text>No project to build.</Text>;
   }

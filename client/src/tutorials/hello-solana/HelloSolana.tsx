@@ -11,17 +11,14 @@ const HelloSolana = () => (
       {
         content: require("./pages/2.md"),
         title: "Build & Deploy",
-        onMount: () => {
-          // Switch sidebar state to Build & Deploy
-          PgView.setSidebarPage("Build & Deploy");
-        },
+        onMount: () => (PgView.sidebar.name = "Build & Deploy"),
       },
       {
         content: require("./pages/3.md"),
         title: "Client",
         onMount: async () => {
-          // Switch sidebar state to Explorer
-          PgView.setSidebarPage("Explorer");
+          // Switch sidebar page to Explorer
+          PgView.sidebar.name = "Explorer";
 
           // Create client.ts file
           const clientPath = "client/client.ts";

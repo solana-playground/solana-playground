@@ -12,25 +12,22 @@ import {
 import { Pause, Triangle } from "../../../../components/Icons";
 
 const Deploy = () => {
-  const buildLoading = useRenderOnChange(
-    PgGlobal.onDidChangeBuildLoading,
-    PgGlobal.buildLoading
-  );
-  const deployState = useRenderOnChange(
-    PgGlobal.onDidChangeDeployState,
-    PgGlobal.deployState
-  );
+  const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);
+  const deployState = useRenderOnChange(PgGlobal.onDidChangeDeployState);
 
-  const { deployed, error, programInfo } = useProgramInfo();
-  const { wallet } = useWallet();
+  const programInfo = useProgramInfo();
+  const error = !programInfo.onChain;
+  const deployed = programInfo.onChain?.deployed;
   const upgradable = programInfo.onChain?.upgradable;
-  const hasAuthority = wallet
-    ? programInfo.onChain?.authority?.equals(wallet.publicKey)
-    : false;
   const hasProgramKp = !!programInfo.kp;
   const hasUuid = !!programInfo.uuid;
   const importedProgram = programInfo.importedProgram;
   const isImportedProgram = !!importedProgram?.buffer.length;
+
+  const wallet = useWallet();
+  const hasAuthority = wallet
+    ? programInfo.onChain?.authority?.equals(wallet.publicKey)
+    : false;
 
   const deployButtonText = useMemo(() => {
     return deployState === "cancelled"

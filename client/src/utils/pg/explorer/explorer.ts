@@ -71,7 +71,7 @@ export class PgExplorer {
 
   /** Get explorer tabs */
   static get tabs() {
-    return this._explorer.tabs as Readonly<Explorer["tabs"]>;
+    return this._explorer.tabs as readonly string[];
   }
 
   /** Get current file path */

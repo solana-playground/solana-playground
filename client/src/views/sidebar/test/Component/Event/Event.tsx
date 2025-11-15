@@ -13,8 +13,8 @@ interface EventProps {
 }
 
 const Event: FC<EventProps> = ({ index, eventName }) => {
-  const { connection } = useConnection();
-  const { wallet } = useWallet();
+  const connection = useConnection();
+  const wallet = useWallet();
   const { idl } = useIdl();
 
   const [receivedEvents, setReceivedEvents] = useState<object[]>([]);

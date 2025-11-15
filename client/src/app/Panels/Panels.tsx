@@ -22,7 +22,7 @@ const Panels = () => (
     {/* A portal that is *above* the modal backdrop stacking context */}
     <PortalAbove id={PgView.ids.PORTAL_ABOVE} />
 
-    <ModalBackdrop />
+    <StyledModalBackdrop />
 
     {/* A portal that is *below* the modal backdrop stacking context */}
     <PortalBelow id={PgView.ids.PORTAL_BELOW}>
@@ -50,6 +50,10 @@ const TopWrapper = styled.div`
 
 const PortalAbove = styled.div`
   z-index: 4;
+`;
+
+const StyledModalBackdrop = styled(ModalBackdrop)`
+  z-index: 3;
 `;
 
 const PortalBelow = styled.div`

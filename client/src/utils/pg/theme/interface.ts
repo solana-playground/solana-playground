@@ -230,6 +230,9 @@ export interface ThemeParam {
     /** Tooltip component */
     tooltip?: DefaultStyles & { bgSecondary?: Bg };
 
+    /** Tutorial component */
+    tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
+
     /** Upload area component */
     uploadArea?: ExtendibleComponent<{
       /** Upload icon */
@@ -300,38 +303,6 @@ export interface ThemeParam {
           }>;
           /** Tutorials section */
           tutorials?: ExtendibleComponent<"title" | "card">;
-        }>;
-
-        /** Tutorial view */
-        tutorial?: ExtendibleComponent<"aboutPage" | "tutorialPage">;
-
-        /** Tutorials page view */
-        tutorials?: ExtendibleComponent<{
-          /** Tutorials top section */
-          top?: DefaultComponent;
-          /** Tutorials main section */
-          main?: ExtendibleComponent<{
-            /** Side section (left filters) */
-            side?: DefaultComponent;
-            /** Content section (right tutorials) */
-            content?: ExtendibleComponent<{
-              /** Tutorial card component */
-              card?: DefaultComponent;
-              /** Featured tutorial component */
-              featured?: DefaultComponent;
-            }>;
-          }>;
-        }>;
-
-        /** Programs page view */
-        programs?: ExtendibleComponent<{
-          /** Programs top section */
-          top?: DefaultComponent;
-          /** Programs main section */
-          main?: ExtendibleComponent<{
-            /** Program main content component */
-            content?: ExtendibleComponent<"card">;
-          }>;
         }>;
       }>;
 
@@ -475,6 +446,7 @@ type ExtendibleComponents =
   | "tabs"
   | "terminal"
   | "toast"
+  | "tutorial"
   | "uploadArea"
   | "wallet";
 

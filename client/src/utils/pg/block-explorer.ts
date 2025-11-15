@@ -1,4 +1,4 @@
-import { createDerivable, declareDerivable, derivable } from "./decorators";
+import { createDerivable, declareDecorator, derivable } from "./decorators";
 import { PgSettings } from "./settings";
 
 /** Block explorer creation parameter */
@@ -71,4 +71,6 @@ class _PgBlockExplorer {
   }
 }
 
-export const PgBlockExplorer = declareDerivable(_PgBlockExplorer, derive);
+export const PgBlockExplorer = declareDecorator(_PgBlockExplorer, {
+  derivable: derive,
+});

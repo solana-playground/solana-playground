@@ -190,21 +190,6 @@ const SOLANA: ThemeParam = {
             },
           },
         },
-        tutorials: {
-          main: {
-            default: {
-              bg: BG_BLACK,
-              border: `1px solid ${SELECTION}`,
-            },
-            content: {
-              card: {
-                default: {
-                  bg: BG_GRAY,
-                },
-              },
-            },
-          },
-        },
       },
     },
     sidebar: {
