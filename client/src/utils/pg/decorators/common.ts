@@ -107,9 +107,6 @@ export const addOnDidChange = (
   state: Record<string, unknown>,
   recursive?: boolean
 ) => {
-  // Casting to this type is technically incorrect, but it gets the job done
-  type OnDidChange = OnDidChangeProperty<typeof state>;
-
   // Main change event
   const mainChangePropName = getChangePropName();
   sClass[mainChangePropName] = (cb: any) => {
@@ -121,9 +118,7 @@ export const addOnDidChange = (
       { value: sClass[PROPS.INTERNAL_STATE] }
     );
   };
-  (sClass as OnDidChange)[mainChangePropName].getValue = () => {
-    return sClass[PROPS.INTERNAL_STATE];
-  };
+  sClass[mainChangePropName].getValue = () => sClass[PROPS.INTERNAL_STATE];
 
   // Property change events
   for (const prop in state) {
@@ -133,9 +128,7 @@ export const addOnDidChange = (
         value: PgCommon.getValue(sClass, prop),
       });
     };
-    (sClass as OnDidChange)[changePropName].getValue = () => {
-      return PgCommon.getValue(sClass, prop);
-    };
+    sClass[changePropName].getValue = () => PgCommon.getValue(sClass, prop);
   }
 
   // Recursive property change events
@@ -152,7 +145,7 @@ export const addOnDidChange = (
             value: PgCommon.getValue(sClass, currentAccessor),
           });
         };
-        (sClass as OnDidChange)[changePropName].getValue = () => {
+        sClass[changePropName].getValue = () => {
           return PgCommon.getValue(sClass, currentAccessor);
         };
 
