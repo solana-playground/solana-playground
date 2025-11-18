@@ -10,10 +10,6 @@ const Side = () => {
   const page = useRenderOnChange(PgView.onDidChangeCurrentSidebarPage);
 
   useEffect(() => {
-    // TODO: Remove after making sure `initable` initialization happens before
-    // the mount of views
-    if (!page) return;
-
     if (page.route && !PgRouter.location.pathname.startsWith(page.route)) {
       PgRouter.navigate(page.route);
     }
@@ -41,10 +37,6 @@ const Side = () => {
       })),
     [width, oldWidth]
   );
-
-  // TODO: Remove after making sure `initable` initialization happens before the
-  // mount of views
-  if (!page) return null;
 
   return (
     <Wrapper>

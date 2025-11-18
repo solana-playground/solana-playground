@@ -1,25 +1,25 @@
 import Delayed from "../components/Delayed";
 import FadeIn from "../components/FadeIn";
 import Effects from "./Effects";
-import Globals from "./Globals";
 import Panels from "./Panels";
+import { GlobalsProvider } from "../providers/globals";
 import { RouterProvider } from "../providers/router";
 import { SolanaProvider } from "../providers/solana";
 
 const AppLazy = () => (
-  <RouterProvider>
-    <SolanaProvider>
-      <Globals />
+  <GlobalsProvider>
+    <RouterProvider>
+      <SolanaProvider>
+        <FadeIn>
+          <Panels />
+        </FadeIn>
 
-      <FadeIn>
-        <Panels />
-      </FadeIn>
-
-      <Delayed delay={1000}>
-        <Effects />
-      </Delayed>
-    </SolanaProvider>
-  </RouterProvider>
+        <Delayed delay={1000}>
+          <Effects />
+        </Delayed>
+      </SolanaProvider>
+    </RouterProvider>
+  </GlobalsProvider>
 );
 
 export default AppLazy;

@@ -1,0 +1,1 @@
+export { GlobalsProvider } from "./GlobalsProvider";

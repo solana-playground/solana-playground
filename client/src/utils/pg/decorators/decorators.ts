@@ -67,6 +67,12 @@ export const initAll = async (initables: Initable[]): Promise<Disposable> => {
     prevRemainingIndices = remainingIndices;
   } while (prevRemainingIndices.length);
 
+  // Wait for the next event loop (necessary for everything to finish init)
+  //
+  // FIXME: This may not be needed once `init` methods *actually* initialize
+  // everything. Currently `derivable` initialization happens in the next loop.
+  await PgCommon.sleep(0);
+
   return {
     dispose: () => {
       (disposables as Disposable[]).forEach(({ dispose }) => dispose());
