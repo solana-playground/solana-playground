@@ -1,4 +1,4 @@
-import { FC, SetStateAction, Dispatch } from "react";
+import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import SidebarButton from "./SidebarButton";
@@ -10,57 +10,40 @@ import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 
 interface LeftProps<P = SidebarPageName, W = number> {
   pageName: P;
-  setPageName: (p: P) => void;
+  setPageName: (name: P) => void;
   width: W;
-  setWidth: Dispatch<SetStateAction<W>>;
-  oldWidth: W;
 }
 
-const Left: FC<LeftProps> = ({
-  pageName,
-  setPageName,
-  width,
-  setWidth,
-  oldWidth,
-}) => {
-  const handleSidebarChange = (value: SidebarPageName) => {
-    if (!width) setWidth(oldWidth);
-    else if (pageName === value) setWidth(0);
+const Left: FC<LeftProps> = ({ pageName, width, setPageName }) => (
+  <Wrapper>
+    <Icons>
+      <Top>
+        {PgView.allSidebarPages.map((page) => (
+          <SidebarButton
+            key={page.name}
+            tooltip={PgCommon.getKeybindTextOS(page.title)}
+            src={page.icon}
+            onClick={() => setPageName(page.name)}
+            active={page.name === pageName && width !== 0}
+          />
+        ))}
+      </Top>
 
-    setPageName(value);
-  };
+      <Bottom>
+        <Link href={GITHUB_URL}>
+          <SidebarButton tooltip="GitHub" src="/icons/sidebar/github.png" />
+        </Link>
 
-  return (
-    <Wrapper>
-      <Icons>
-        <Top>
-          {PgView.allSidebarPages.map((page) => (
-            <SidebarButton
-              key={page.name}
-              tooltip={PgCommon.getKeybindTextOS(page.title)}
-              src={page.icon}
-              onClick={() => handleSidebarChange(page.name)}
-              active={width !== 0 && page.name === pageName}
-            />
-          ))}
-        </Top>
-
-        <Bottom>
-          <Link href={GITHUB_URL}>
-            <SidebarButton tooltip="GitHub" src="/icons/sidebar/github.png" />
-          </Link>
-
-          <Popover popEl={<Settings />} stackingContext="below-modal">
-            <SidebarButton
-              tooltip="Settings"
-              src="/icons/sidebar/settings.webp"
-            />
-          </Popover>
-        </Bottom>
-      </Icons>
-    </Wrapper>
-  );
-};
+        <Popover popEl={<Settings />} stackingContext="below-modal">
+          <SidebarButton
+            tooltip="Settings"
+            src="/icons/sidebar/settings.webp"
+          />
+        </Popover>
+      </Bottom>
+    </Icons>
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
   ${({ theme }) => css`

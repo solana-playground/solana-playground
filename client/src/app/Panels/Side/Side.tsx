@@ -9,6 +9,20 @@ import { useKeybind, useRenderOnChange } from "../../../hooks";
 const Side = () => {
   const page = useRenderOnChange(PgView.onDidChangeCurrentSidebarPage);
 
+  // Set page name (setting the same name handles open/close state)
+  const setPageName = (pageName: SidebarPageName) => {
+    PgView.sidebar.name = pageName;
+
+    // Page name update happens in the next event loop, use timeout here to sync
+    //
+    // TODO: Remove the timeout if we move the width state to `PgView`
+    setTimeout(() => {
+      if (!width) setWidth(oldWidth);
+      else if (pageName === page.name) setWidth(0);
+    });
+  };
+
+  // Handle routes
   useEffect(() => {
     if (page.route && !PgRouter.location.pathname.startsWith(page.route)) {
       PgRouter.navigate(page.route);
@@ -27,26 +41,13 @@ const Side = () => {
   useKeybind(
     PgView.allSidebarPages
       .filter((p) => p.keybind)
-      .map((p) => ({
-        keybind: p.keybind!,
-        handle: () => {
-          const closeCondition = width !== 0 && PgView.sidebar.name === p.name;
-          setWidth(closeCondition ? 0 : oldWidth);
-          PgView.sidebar.name = p.name;
-        },
-      })),
-    [width, oldWidth]
+      .map((p) => ({ keybind: p.keybind!, handle: () => setPageName(p.name) })),
+    [setPageName]
   );
 
   return (
     <Wrapper>
-      <Left
-        pageName={page.name}
-        setPageName={(v) => (PgView.sidebar.name = v)}
-        width={width}
-        setWidth={setWidth}
-        oldWidth={oldWidth}
-      />
+      <Left pageName={page.name} setPageName={setPageName} width={width} />
       <Right
         page={page}
         width={width}
