@@ -107,6 +107,14 @@ export const addOnDidChange = (
   state: Record<string, unknown>,
   recursive?: boolean
 ) => {
+  const getInitialValue = (accessor: Accessor = []) => {
+    accessor = PgCommon.normalizeAccessor(accessor);
+    const value = accessor.length
+      ? PgCommon.getValue(sClass, accessor)
+      : sClass[PROPS.INTERNAL_STATE];
+    if (value !== undefined) return { value };
+  };
+
   // Main change event
   const mainChangePropName = getChangePropName();
   sClass[mainChangePropName] = (cb: any) => {
@@ -115,7 +123,7 @@ export const addOnDidChange = (
       // Debounce the main change event because each property change dispatches
       // the main change event
       PgCommon.debounce(cb),
-      { value: sClass[PROPS.INTERNAL_STATE] }
+      getInitialValue()
     );
   };
   sClass[mainChangePropName].getValue = () => sClass[PROPS.INTERNAL_STATE];
@@ -124,9 +132,11 @@ export const addOnDidChange = (
   for (const prop in state) {
     const changePropName = getChangePropName(prop);
     sClass[changePropName] = (cb: any) => {
-      return PgCommon.onDidChange(getChangeEventName(prop), cb, {
-        value: PgCommon.getValue(sClass, prop),
-      });
+      return PgCommon.onDidChange(
+        getChangeEventName(prop),
+        cb,
+        getInitialValue(prop)
+      );
     };
     sClass[changePropName].getValue = () => PgCommon.getValue(sClass, prop);
   }
@@ -141,9 +151,11 @@ export const addOnDidChange = (
         const currentAccessor = [...accessor, prop];
         const changePropName = getChangePropName(currentAccessor);
         sClass[changePropName] = (cb: any) => {
-          return PgCommon.onDidChange(getChangeEventName(currentAccessor), cb, {
-            value: PgCommon.getValue(sClass, currentAccessor),
-          });
+          return PgCommon.onDidChange(
+            getChangeEventName(currentAccessor),
+            cb,
+            getInitialValue(currentAccessor)
+          );
         };
         sClass[changePropName].getValue = () => {
           return PgCommon.getValue(sClass, currentAccessor);
