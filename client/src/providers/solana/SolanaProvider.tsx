@@ -18,11 +18,7 @@ const PgWalletProvider: FC = ({ children }) => {
 
   // Handle the connection of Solana wallets to Playground Wallet
   useEffect(() => {
-    // Add timeout because `PgWallet` listeners are not available on mount
-    const id = setTimeout(() => {
-      PgWallet.standardWallets = wallets;
-    });
-    return () => clearTimeout(id);
+    PgWallet.standardWallets = wallets;
   }, [wallets, publicKey]);
 
   return <>{children}</>;
