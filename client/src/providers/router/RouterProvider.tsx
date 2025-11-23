@@ -9,7 +9,11 @@ export const RouterProvider: FC = ({ children }) => (
     <InternalRouter>{children}</InternalRouter>
   </BrowserRouter>
 );
+
 const InternalRouter: FC = ({ children }) => {
+  // Handle routes
+  useEffect(() => PgRouter.init().dispose, []);
+
   // Location
   const location = useLocation();
 
