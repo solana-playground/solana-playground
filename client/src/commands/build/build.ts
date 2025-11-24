@@ -1,8 +1,8 @@
 import {
-  ExplorerFiles,
   PgCommon,
   PgExplorer,
   PgGlobal,
+  PgLanguage,
   PgPackage,
   PgProgramInfo,
   PgServer,
@@ -155,42 +155,32 @@ const getBuildFiles = () => {
   };
 
   const getUpdatedProgramIdContent = (path: string) => {
-    let content = files[path].content;
-    let updated = false;
+    const content = files[path].content;
     if (content) {
-      if (path.endsWith(".rs")) {
-        const updateIdResult = updateIdRust(content);
-        content = updateIdResult.content;
-        updated = updateIdResult.updated;
-      } else if (path.endsWith(".py")) {
-        const updateIdResult = updateIdPython(content);
-        content = updateIdResult.content;
-        updated = updateIdResult.updated;
+      switch (PgLanguage.getFromPath(path)?.name) {
+        case "Rust":
+          return updateIdRust(content);
+        case "Python":
+          return updateIdPython(content);
       }
     }
 
-    return { content, updated };
-  };
-
-  // Prioritise files where we are likely to find a rust `declare_id!`
-  const prioritiseFilePaths = (files: ExplorerFiles) => {
-    const prioritised: Array<string> = [];
-    for (const path in files) {
-      if (path.endsWith("lib.rs") || path.endsWith("id.rs")) {
-        prioritised.unshift(path);
-      } else {
-        prioritised.push(path);
-      }
-    }
-    return prioritised;
+    return { content, updated: false };
   };
 
   const files = PgExplorer.files;
-  const prioritisedFilePaths = prioritiseFilePaths(files);
   const buildFiles: TupleFiles = [];
   let alreadyUpdatedId = false;
 
-  for (const path of prioritisedFilePaths) {
+  // Prioritize files where we are likely to find a rust `declare_id!`
+  const prioritizedFileNames = ["lib.rs", "id.rs"];
+  const prioritizedFilePaths = Object.keys(files).reduce((acc, path) => {
+    if (prioritizedFileNames.some((n) => path.endsWith(n))) acc.unshift(path);
+    else acc.push(path);
+
+    return acc;
+  }, [] as string[]);
+  for (const path of prioritizedFilePaths) {
     if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
 
     let content = files[path].content;
