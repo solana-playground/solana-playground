@@ -46,6 +46,8 @@ export const handleRoute = (
       : { ..._sidebar, name: _sidebar.name as SidebarPageName }
     : null;
 
+  const disposables: Disposable[] = [];
+
   // Set primary main view
   PgView.setMainPrimary(async () => {
     try {
@@ -58,9 +60,13 @@ export const handleRoute = (
       // Set sidebar page
       if (sidebar) {
         PgView.sidebar.name = sidebar.name;
-        PgView.sidebar.props = sidebar.props
-          ? await PgCommon.callIfNeeded(sidebar.props)
-          : {};
+
+        if (sidebar.props) {
+          PgView.sidebar.props = await PgCommon.callIfNeeded(sidebar.props);
+          disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
+        }
+      } else if (!PgView.sidebar.name) {
+        PgView.sidebar.name = "Explorer";
       }
 
       // Get/import main
@@ -81,18 +87,34 @@ export const handleRoute = (
     }
   });
 
-  // Handle clicking on non-routed sidebar pages
   const sidebarRoute =
     sidebar &&
     PgView.allSidebarPages.find((p) => p.name === sidebar.name)!.route;
-  const sidebarPageChange = sidebarRoute
-    ? PgView.onDidChangeCurrentSidebarPage((page) => {
-        if (!page.route) PgRouter.navigate();
-      })
-    : null;
+  if (sidebarRoute) {
+    disposables.push(
+      // Handle clicking on non-routed sidebar pages
+      PgView.onDidChangeCurrentSidebarPage((page) => {
+        if (page && !page.route) PgRouter.navigate();
+      }),
+
+      // Only change sidebar page when going outside of `/${path}`
+      {
+        dispose: () => {
+          if (
+            !PgRouter.location.pathname.startsWith(sidebarRoute) &&
+            PgView.sidebar.name === sidebar.name
+          ) {
+            // This fixes the case where going back from `/${path}` to `/` with
+            // browser's navigations would cause incorrect component to still be
+            // mounted instead of switching to `Explorer`
+            PgView.sidebar.name = "Explorer";
+          }
+        },
+      }
+    );
+  }
 
   // Minimize secondary main view and reopen on navigation to other routes
-  let mainSecondaryHeightChange: Disposable | undefined;
   if (minimizeSecondaryMainView) {
     let oldHeight = 0;
     PgView.setMainSecondaryHeight((h) => {
@@ -100,29 +122,13 @@ export const handleRoute = (
       return 0;
     });
 
-    mainSecondaryHeightChange = {
+    // Set the main secondary view height to the previous saved value
+    disposables.push({
       dispose: () => PgView.setMainSecondaryHeight(oldHeight),
-    };
+    });
   }
 
   return {
-    dispose: () => {
-      sidebarPageChange?.dispose();
-
-      // Only change sidebar page when going outside of `/${path}`
-      if (
-        sidebarRoute &&
-        !PgRouter.location.pathname.startsWith(sidebarRoute) &&
-        PgView.sidebar.name === sidebar.name
-      ) {
-        // This fixes the case where going back from `/${path}` to `/` with
-        // browser's navigations would cause incorrect component to still be
-        // mounted instead of switching to `Explorer`
-        PgView.sidebar.name = "Explorer";
-      }
-
-      // Set the main secondary view height to the previous saved value
-      mainSecondaryHeightChange?.dispose();
-    },
+    dispose: () => disposables.forEach(({ dispose }) => dispose()),
   };
 };

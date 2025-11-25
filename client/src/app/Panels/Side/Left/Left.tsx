@@ -8,7 +8,7 @@ import Popover from "../../../../components/Popover";
 import { GITHUB_URL } from "../../../../constants";
 import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 
-interface LeftProps<P = SidebarPageName, W = number> {
+interface LeftProps<P = typeof PgView.sidebar.name, W = number> {
   pageName: P;
   setPageName: (name: P) => void;
   width: W;

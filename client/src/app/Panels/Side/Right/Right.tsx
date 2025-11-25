@@ -12,11 +12,11 @@ import styled, { css } from "styled-components";
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
-import { PgTheme, PgView, SidebarPage } from "../../../../utils/pg";
+import { PgTheme, PgView } from "../../../../utils/pg";
 import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
 interface DefaultRightProps {
-  page: SidebarPage;
+  page: typeof PgView.currentSidebarPage;
 }
 
 interface RightProps<W = number> extends DefaultRightProps {
@@ -54,7 +54,7 @@ const Right: FC<RightProps> = ({ page, width, setWidth, oldWidth }) => {
 };
 
 const Title: FC<DefaultRightProps> = ({ page }) => (
-  <TitleWrapper>{page.name.toUpperCase()}</TitleWrapper>
+  <TitleWrapper>{page ? page.name.toUpperCase() : ""}</TitleWrapper>
 );
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
@@ -69,6 +69,8 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
 
   const ids = useRef<boolean[]>([]);
   useAsyncEffect(async () => {
+    if (!page) return;
+
     PgView.setSidebarLoading(true);
     const currentId = ids.current.length;
 
@@ -126,7 +128,7 @@ const ContentWrapper = styled.div`
 `;
 
 const Loading: FC<DefaultRightProps> = ({ page }) => {
-  if (page.LoadingComponent) return <page.LoadingComponent />;
+  if (page?.LoadingComponent) return <page.LoadingComponent />;
 
   return (
     <LoadingWrapper>

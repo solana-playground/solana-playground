@@ -44,7 +44,7 @@ export type SidebarPage<N extends string = string> = RequiredKey<
 
 interface ViewState {
   sidebar: {
-    name: SidebarPageName;
+    name: SidebarPageName | null;
     props: Record<string, unknown>;
     loadingCount: number;
   };
@@ -52,7 +52,7 @@ interface ViewState {
 
 const defaultState: ViewState = {
   sidebar: {
-    name: "Explorer",
+    name: null,
     props: {},
     loadingCount: 0,
   },
@@ -63,7 +63,7 @@ const recursive = true;
 const derive = () => ({
   /** Current sidebar page */
   currentSidebarPage: createDerivable({
-    derive: (name) => _PgView.allSidebarPages.find((p) => p.name === name)!,
+    derive: (n) => _PgView.allSidebarPages.find((p) => p.name === n) ?? null,
     onChange: "sidebar.name",
   }),
 });

@@ -67,6 +67,8 @@ const handleTutorial = (name: string, page: string) => {
     disposables.push(
       // Handle sidebar page changes
       PgView.onDidChangeCurrentSidebarPage((page) => {
+        if (!page) return;
+
         // Skip handling other routed pages in order to avoid navigation issues.
         // Without this check, this callback runs again after clicking to a
         // different sidebar page with route (e.g. Programs), which then
