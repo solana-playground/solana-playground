@@ -64,10 +64,15 @@ const handleTutorial = (name: string, page: string) => {
       return <Tutorial {...tutorial} />;
     });
 
+    // TODO: Remove after making sure change events don't fire unless the value
+    // actually changes
+    let prevSidebarPageName = PgView.sidebar.name;
     disposables.push(
       // Handle sidebar page changes
-      PgView.onDidChangeCurrentSidebarPage((page) => {
-        if (!page) return;
+      PgView.onDidChangeCurrentSidebarPage((p) => {
+        if (!p) return;
+        if (prevSidebarPageName === p.name) return;
+        prevSidebarPageName = p.name;
 
         // Skip handling other routed pages in order to avoid navigation issues.
         // Without this check, this callback runs again after clicking to a
@@ -77,9 +82,9 @@ const handleTutorial = (name: string, page: string) => {
         //
         // TODO: Find a way to dispose this *just before* the next navigation
         // and remove this check
-        if (page.route && page.route !== "/tutorials") return;
+        if (p.route && p.name !== "Tutorials") return;
 
-        if (page.name === "Tutorials") PgTutorial.openAboutPage();
+        if (p.name === "Tutorials") PgTutorial.openAboutPage();
         else if (!PgTutorial.isStarted(tutorial.name)) PgRouter.navigate();
         else PgTutorial.open(tutorial.name);
       }),
@@ -109,8 +114,11 @@ const handleTutorial = (name: string, page: string) => {
   }
 
   // Open the correct sidebar page
-  if (PgView.sidebar.name === "Tutorials") PgView.sidebar.name = "Explorer";
-  if (!page) PgView.sidebar.name = "Tutorials";
+  if (!page) {
+    PgView.sidebar.name = "Tutorials";
+  } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
+    PgView.sidebar.name = "Explorer";
+  }
 
   // Minimize secondary main view and reopen on navigation to other routes
   PgView.setMainSecondaryHeight((h) => {

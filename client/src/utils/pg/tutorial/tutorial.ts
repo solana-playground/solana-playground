@@ -144,7 +144,11 @@ class _PgTutorial {
    * @returns whether the tutorial is started
    */
   static isStarted(name: string) {
-    return PgExplorer.allWorkspaceNames?.includes(name) ?? false;
+    if (!PgExplorer.allWorkspaceNames) {
+      throw new Error("Explorer has not been initialized");
+    }
+
+    return PgExplorer.allWorkspaceNames.includes(name);
   }
 
   /**
@@ -187,7 +191,7 @@ class _PgTutorial {
       .split("/")
       .slice(0, 3)
       .join("/");
-    PgRouter.navigate(tutorialPath);
+    return await PgRouter.navigate(tutorialPath);
   }
 
   /**
