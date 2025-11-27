@@ -64,30 +64,28 @@ const handleTutorial = (name: string, page: string) => {
       return <Tutorial {...tutorial} />;
     });
 
-    // TODO: Remove after making sure change events don't fire unless the value
-    // actually changes
-    let prevSidebarPageName = PgView.sidebar.name;
     disposables.push(
       // Handle sidebar page changes
-      PgView.onDidChangeCurrentSidebarPage((p) => {
-        if (!p) return;
-        if (prevSidebarPageName === p.name) return;
-        prevSidebarPageName = p.name;
+      PgView.onDidChangeCurrentSidebarPage(
+        (p) => {
+          if (!p) return;
 
-        // Skip handling other routed pages in order to avoid navigation issues.
-        // Without this check, this callback runs again after clicking to a
-        // different sidebar page with route (e.g. Programs), which then
-        // results in `PgTutorial.open` getting run and the user getting
-        // navigated to the last tutorial's path erroneously.
-        //
-        // TODO: Find a way to dispose this *just before* the next navigation
-        // and remove this check
-        if (p.route && p.name !== "Tutorials") return;
+          // Skip handling other routed pages in order to avoid navigation issues.
+          // Without this check, this callback runs again after clicking to a
+          // different sidebar page with route (e.g. Programs), which then
+          // results in `PgTutorial.open` getting run and the user getting
+          // navigated to the last tutorial's path erroneously.
+          //
+          // TODO: Find a way to dispose this *just before* the next navigation
+          // and remove this check
+          if (p.route && p.name !== "Tutorials") return;
 
-        if (p.name === "Tutorials") PgTutorial.openAboutPage();
-        else if (!PgTutorial.isStarted(tutorial.name)) PgRouter.navigate();
-        else PgTutorial.open(tutorial.name);
-      }),
+          if (p.name === "Tutorials") PgTutorial.openAboutPage();
+          else if (!PgTutorial.isStarted(tutorial.name)) PgRouter.navigate();
+          else PgTutorial.open(tutorial.name);
+        },
+        { skipInitialRunIfSameValue: true }
+      ),
 
       // Handle workspace switch
       PgExplorer.onDidSwitchWorkspace(() => {

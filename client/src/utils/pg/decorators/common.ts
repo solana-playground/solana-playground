@@ -48,9 +48,14 @@ export type OnDidChangeProperty<T> = {
 };
 
 /** Actual type of the `onDidChange` property */
-type OnDidChange<T> = ((cb: (value: T) => void) => Disposable) & {
+type OnDidChange<T> = OnDidChangeCallback<T> & {
   getValue: () => T;
 };
+
+type OnDidChangeCallback<T> = (
+  cb: (value: T) => void,
+  opts?: { skipInitialRunIfSameValue?: boolean }
+) => Disposable;
 
 /**
  * Add `init` property to the given static class.
@@ -107,35 +112,52 @@ export const addOnDidChange = (
   state: Record<string, unknown>,
   recursive?: boolean
 ) => {
-  const getInitialValue = (accessor: Accessor = []) => {
+  type OnDidChangeMethods = {
+    [K in `${typeof PROPS.ON_DID_CHANGE}${string}`]: OnDidChangeCallback<
+      typeof state
+    >;
+  };
+  const getInitialValue = (accessor: Accessor, prevValue?: unknown) => {
     accessor = PgCommon.normalizeAccessor(accessor);
     const value = accessor.length
       ? PgCommon.getValue(sClass, accessor)
       : sClass[PROPS.INTERNAL_STATE];
-    if (value !== undefined) return { value };
+    if (value !== undefined && value !== prevValue) return { value };
   };
 
   // Main change event
-  const mainChangePropName = getChangePropName();
-  sClass[mainChangePropName] = (cb: any) => {
-    return PgCommon.onDidChange(
-      getChangeEventName(),
-      // Debounce the main change event because each property change dispatches
-      // the main change event
-      PgCommon.debounce(cb),
-      getInitialValue()
-    );
-  };
-  sClass[mainChangePropName].getValue = () => sClass[PROPS.INTERNAL_STATE];
+  {
+    let prevValue: unknown;
+    const mainChangePropName = getChangePropName();
+    (sClass as OnDidChangeMethods)[mainChangePropName] = (cb, opts) => {
+      return PgCommon.onDidChange(
+        getChangeEventName(),
+        opts?.skipInitialRunIfSameValue
+          ? (...args) => {
+              prevValue = args[0];
+              return cb(...args);
+            }
+          : cb,
+        getInitialValue([], prevValue)
+      );
+    };
+    sClass[mainChangePropName].getValue = () => sClass[PROPS.INTERNAL_STATE];
+  }
 
   // Property change events
   for (const prop in state) {
     const changePropName = getChangePropName(prop);
-    sClass[changePropName] = (cb: any) => {
+    let prevValue: unknown;
+    (sClass as OnDidChangeMethods)[changePropName] = (cb, opts) => {
       return PgCommon.onDidChange(
         getChangeEventName(prop),
-        cb,
-        getInitialValue(prop)
+        opts?.skipInitialRunIfSameValue
+          ? (...args) => {
+              prevValue = args[0];
+              return cb(...args);
+            }
+          : cb,
+        getInitialValue(prop, prevValue)
       );
     };
     sClass[changePropName].getValue = () => PgCommon.getValue(sClass, prop);
@@ -148,13 +170,19 @@ export const addOnDidChange = (
         ? PgCommon.getValue(state, accessor)
         : state;
       for (const prop in value) {
+        let prevValue: unknown;
         const currentAccessor = [...accessor, prop];
         const changePropName = getChangePropName(currentAccessor);
-        sClass[changePropName] = (cb: any) => {
+        (sClass as OnDidChangeMethods)[changePropName] = (cb, opts) => {
           return PgCommon.onDidChange(
             getChangeEventName(currentAccessor),
-            cb,
-            getInitialValue(currentAccessor)
+            opts?.skipInitialRunIfSameValue
+              ? (...args) => {
+                  prevValue = args[0];
+                  return cb(...args);
+                }
+              : cb,
+            getInitialValue(currentAccessor, prevValue)
           );
         };
         sClass[changePropName].getValue = () => {
