@@ -26,7 +26,10 @@ const storage = {
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<TutorialState> {
-    if (!PgTutorial.current || !PgTutorial.isStarted(PgTutorial.current.name)) {
+    if (
+      !PgTutorial.current ||
+      PgTutorial.current.name !== PgExplorer.currentWorkspaceName
+    ) {
       return defaultState;
     }
 
@@ -35,7 +38,12 @@ const storage = {
 
   /** Serialize the data and write to storage. */
   async write(state: TutorialState) {
-    if (!state.pageNumber || !PgExplorer.isInitialized) return;
+    if (
+      !PgTutorial.current ||
+      PgTutorial.current.name !== PgExplorer.currentWorkspaceName
+    ) {
+      return;
+    }
 
     await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(state));
   },
@@ -73,9 +81,14 @@ const derive = () => ({
 
       try {
         const { name } = PgRouter.getParamsFromPath(route.path, path);
-        return _PgTutorial.all.find((t) => {
-          return PgRouter.isPathsEqual(PgCommon.toKebabFromTitle(t.name), name);
-        })!;
+        return (
+          _PgTutorial.all.find((t) => {
+            return PgRouter.isPathsEqual(
+              PgCommon.toKebabFromTitle(t.name),
+              name
+            );
+          }) ?? null
+        );
       } catch {
         return null;
       }
@@ -134,6 +147,7 @@ class _PgTutorial {
     if (!PgExplorer.allWorkspaceNames) {
       throw new Error("Explorer not initialized");
     }
+
     return PgExplorer.allWorkspaceNames.filter(this.isWorkspaceTutorial);
   }
 
@@ -145,7 +159,7 @@ class _PgTutorial {
    */
   static isStarted(name: string) {
     if (!PgExplorer.allWorkspaceNames) {
-      throw new Error("Explorer has not been initialized");
+      throw new Error("Explorer not initialized");
     }
 
     return PgExplorer.allWorkspaceNames.includes(name);
@@ -176,12 +190,12 @@ class _PgTutorial {
     if (this.isStarted(name)) {
       try {
         const { pageNumber } = await this.getMetadata(name);
-        PgRouter.navigate(tutorialPath + "/" + pageNumber);
+        await PgRouter.navigate(tutorialPath + "/" + pageNumber);
       } catch {
-        PgRouter.navigate(tutorialPath + "/" + 1);
+        await PgRouter.navigate(tutorialPath + "/" + 1);
       }
     } else {
-      PgRouter.navigate(tutorialPath);
+      await PgRouter.navigate(tutorialPath);
     }
   }
 
@@ -191,7 +205,7 @@ class _PgTutorial {
       .split("/")
       .slice(0, 3)
       .join("/");
-    return await PgRouter.navigate(tutorialPath);
+    await PgRouter.navigate(tutorialPath);
   }
 
   /**
@@ -199,14 +213,14 @@ class _PgTutorial {
    *
    * @param pageNumber page number to open
    */
-  static openPage(pageNumber: number) {
+  static async openPage(pageNumber: number) {
     const paths = PgRouter.location.pathname.split("/");
     const hasPage = paths.length === 4;
     const page = pageNumber.toString();
     if (hasPage) paths[paths.length - 1] = page;
     else paths.push(page);
 
-    PgRouter.navigate(paths.join("/"));
+    await PgRouter.navigate(paths.join("/"));
   }
 
   /**
@@ -233,13 +247,13 @@ class _PgTutorial {
       pageToOpen = pageNumber;
     }
 
-    this.openPage(pageToOpen);
+    await this.openPage(pageToOpen);
   }
 
   /** Finish the current tutorial. */
-  static finish() {
+  static async finish() {
     PgTutorial.completed = true;
-    this.openAboutPage();
+    await this.openAboutPage();
   }
 
   /**
