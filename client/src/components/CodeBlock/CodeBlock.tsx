@@ -13,12 +13,9 @@ export interface CodeBlockProps {
   lang?: string;
 }
 
-const CodeBlock = ({ lang, children, ...props }: CodeBlockProps) => {
-  const code = children;
-
-  const { ref: wrapperRef } = useDifferentBackground<HTMLDivElement>();
-  const { ref: copyButtonWrapperRef } =
-    useDifferentBackground<HTMLDivElement>();
+const CodeBlock = ({ lang, children: code, ...props }: CodeBlockProps) => {
+  const wrapperRef = useDifferentBackground();
+  const copyButtonWrapperRef = useDifferentBackground();
 
   return (
     <Wrapper ref={wrapperRef} {...props}>

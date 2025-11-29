@@ -11,7 +11,7 @@ interface TutorialDetailsProps {
 }
 
 const TutorialDetails: FC<TutorialDetailsProps> = ({ details }) => {
-  const { ref } = useDifferentBackground();
+  const ref = useDifferentBackground();
 
   return (
     <TutorialDetailsWrapper ref={ref}>

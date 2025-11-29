@@ -79,7 +79,7 @@ interface FrameworkProps {
 
 const Framework: FC<FrameworkProps> = ({ value, ...props }) => {
   const framework = useMemo(() => PgFramework.get(value), [value]);
-  const { ref } = useDelayedDifferentBackground();
+  const ref = useDelayedDifferentBackground();
 
   return (
     <Boxed ref={ref} {...props}>
@@ -102,7 +102,7 @@ interface LanguageProps {
 }
 
 const Language: FC<LanguageProps> = ({ value, ...props }) => {
-  const { ref } = useDelayedDifferentBackground();
+  const ref = useDelayedDifferentBackground();
   const path =
     "file." +
     PgLanguage.all.find((lang) => lang.name === value)?.extensions.at(0);
@@ -120,7 +120,7 @@ interface CategoryProps {
 }
 
 const Category: FC<CategoryProps> = ({ value, ...props }) => {
-  const { ref } = useDelayedDifferentBackground();
+  const ref = useDelayedDifferentBackground();
   return (
     <Boxed ref={ref} {...props}>
       {value}

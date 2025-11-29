@@ -22,7 +22,7 @@ interface FilePickerProps {
 }
 
 const FilePicker: FC<FilePickerProps> = ({ path, filePaths, setFilePaths }) => {
-  const { ref } = useDifferentBackground();
+  const ref = useDifferentBackground();
 
   // Handle checkbox `checked`
   useEffect(() => {

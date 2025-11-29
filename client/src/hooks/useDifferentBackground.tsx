@@ -48,5 +48,5 @@ export const useDifferentBackground = <T extends HTMLElement = HTMLDivElement>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [delay, theme.name]);
 
-  return { ref };
+  return ref;
 };
