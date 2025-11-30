@@ -110,6 +110,14 @@ export class PgTheme {
     const font =
       this._fonts.find((f) => f.family === fontFamily) ?? this.fonts[0];
 
+    // Check and return early if theme and font are already set
+    if (
+      importableTheme.name === this._theme?.name &&
+      font.family === this._font?.family
+    ) {
+      return;
+    }
+
     // Cloning the object because override functions expect the theme to be
     // uninitialized. Keeping a reference to an old theme may cause unwanted
     // side effects.
@@ -146,7 +154,6 @@ export class PgTheme {
         }
       }
     }
-
     if (!isLoaded) {
       try {
         const fontFace = new FontFace(
