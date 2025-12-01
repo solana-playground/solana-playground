@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import { addInit, addOnDidChange, PROPS } from "./common";
+import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
 import type { Disposable, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
@@ -71,38 +71,63 @@ export function updatable<T extends Record<string, any>>(params: {
         if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
       }
 
-      // Save to storage on change
       if (!params.storage) return;
 
-      // NOTE: Creating a new callback is necessary here, otherwise `this`
-      // keyword becomes unusable in `storage.write`.
-      return sClass[PROPS.ON_DID_CHANGE](
-        (state: T & Record<string, unknown>) => {
-          // At the time of writing this comment, all decorators use the same
-          // internal state, meaning `state` may include fields comnig from other
-          // decorators such as `derivable`. This is mainly because there are some
-          // methods such as `onDidChange` that require the aggregated state value
-          // to be used. This also allows using common functionality to implement
-          // the decorators. However, in the future, especially if we decide to
-          // add more decorators that use the same internal state, it might be
-          // worth creating a separate internal state field for each. For now,
-          // it's sufficient to just remove the fields that aren't defined in
-          // `params.defaultState` from the `state` variable.
+      // Recursively get all accessors
+      const getAllAccessors = (
+        accessor: string[] = [],
+        all: typeof accessor[] = []
+      ) => {
+        const value = PgCommon.getValue(params.defaultState, accessor);
+        if (typeof value === "object" && value !== null) {
+          for (const key in value) getAllAccessors([...accessor, key], all);
+        } else if (accessor.length) {
+          all.push(accessor);
+        }
 
+        return all;
+      };
+
+      // Save to storage on change.
+      //
+      // This code used to be `sClass[PROPS.ON_DID_CHANGE]`, meaning we'd write
+      // to storage even if non-updatable fields changed. This might sound
+      // harmless at first, but it caused unexpected behavior elsewhere during
+      // transition states.
+      //
+      // TODO: Separate internal state of decorators because this code stinks.
+      return PgCommon.batchChanges(
+        // NOTE: Creating a new callback is necessary here, otherwise `this`
+        // keyword becomes unusable in `storage.write`.
+        () => {
+          // At the time of writing this comment, all decorators use the same
+          // internal state, meaning `sClass[PROPS.INTERNAL_STATE]` may include
+          // fields coming from other decorators such as `derivable`. This is
+          // mainly because there are some methods such as `onDidChange` that
+          // require the aggregated state value to be used. This also allows
+          // using common functionality to implement the decorators. However, in
+          // the future, especially if we decide to add more decorators that use
+          // the same internal state, it might be worth creating a separate
+          // internal state field for each. For now, it's sufficient to just
+          // remove the fields that aren't defined in `params.defaultState` from
+          // the internal state.
+          //
           // NOTE: `removeExtraProperties` function cannot be used here because
-          // we'd need to clone the `state` in order to not remove the internal
-          // state fields, and `structuredClone` is not guaranteed to work for
-          // all `derivable` fields.
-          const updatableState = PgCommon.entries(state).reduce(
-            (acc, [prop, value]) => {
-              if (params.defaultState[prop] !== undefined) acc[prop] = value;
-              return acc;
-            },
-            {} as T
-          );
+          // we'd need to clone the internal state in order to not remove the
+          // internal state fields, and `structuredClone` is not guaranteed to
+          // work for all `derivable` fields.
+          const updatableState = PgCommon.entries(
+            sClass[PROPS.INTERNAL_STATE] as T & Record<string, unknown>
+          ).reduce((acc, [prop, value]) => {
+            if (params.defaultState[prop] !== undefined) acc[prop] = value;
+            return acc;
+          }, {} as T);
 
           params.storage!.write(updatableState);
-        }
+        },
+        getAllAccessors()
+          .map(getChangePropName)
+          .map((prop) => sClass[prop])
       );
     });
 
