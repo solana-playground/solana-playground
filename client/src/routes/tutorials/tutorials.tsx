@@ -57,6 +57,12 @@ const handleTutorial = (name: string, page: string) => {
       // Initialize explorer
       await PgExplorer.init({ name: tutorial.name });
 
+      // Wait until `PgTutorial.current` gets set before refreshing the data to
+      // avoid state corruption
+      await PgCommon.tryUntilSuccess(async () => {
+        if (PgTutorial.current?.name !== tutorial.name) throw new Error();
+      }, 1);
+
       // Refresh tutorial state
       await PgTutorial.refresh();
 

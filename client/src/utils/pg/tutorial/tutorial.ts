@@ -63,8 +63,17 @@ const onDidInit = () => {
     // Save tutorial page number to storage when the page changes
     PgTutorial.onDidChangePage((page) => {
       // Updating the `pageNumber` field is enough to write the value to storage
-      // because it's an `updatable` field with custom storage
-      if (page) PgTutorial.pageNumber = page;
+      // because it's an `updatable` field with custom storage.
+      //
+      // NOTE: Also check `PgTutorial.pageNumber` to exist because it should
+      // always be defined after the tutorial has been started. `pageNumber` not
+      // being defined may mean the tutorial data hasn't fully been initialized,
+      // thus partially updating it might result in corrupted state.
+      //
+      // FIXME: Checking `PgTutorial.pageNumber` to be defined results in
+      // `pageNumber` to not be saved when the tutorial page has been opened
+      // via URL paths (e.g. when directly starting from `/tutorials/name/2`).
+      if (page && PgTutorial.pageNumber) PgTutorial.pageNumber = page;
     }),
   ];
 
