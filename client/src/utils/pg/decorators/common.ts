@@ -230,9 +230,16 @@ export const addOnDidChange = (
 
     // Dispatch the prop update event if `prop` exists
     if (accessor) {
+      const value = PgCommon.getValue(sClass, accessor);
+
+      // Only dispatch if value changes
+      const prevProp = "__prev" + PgCommon.normalizeAccessor(accessor).join("");
+      if (sClass[prevProp] === value) return;
+
+      sClass[prevProp] = value;
       PgCommon.createAndDispatchCustomEvent(
         getChangeEventName(accessor),
-        PgCommon.getValue(sClass, accessor)
+        value
       );
     }
 
