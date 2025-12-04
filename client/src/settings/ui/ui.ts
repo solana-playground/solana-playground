@@ -7,7 +7,7 @@ export const ui = [
     values: () => PgTheme.fonts.map((f) => f.family),
     getValue: () => PgTheme.font.family,
     setValue: (v) => PgTheme.set({ fontFamily: v }),
-    // `onChange` isn't necessary because the whole app re-renders on font change
+    onChange: PgTheme.onDidChangeFontFamily,
   }),
   createSetting({
     id: "ui.theme",
@@ -23,6 +23,6 @@ export const ui = [
     },
     getValue: () => PgTheme.theme.name,
     setValue: (v) => PgTheme.set({ themeName: v }),
-    // `onChange` isn't necessary because the whole app re-renders on theme change
+    onChange: PgTheme.onDidChangeThemeName,
   }),
 ];

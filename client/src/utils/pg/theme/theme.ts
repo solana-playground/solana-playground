@@ -33,7 +33,8 @@ export class PgTheme {
 
   /** Theme event names */
   static readonly events = {
-    THEME_SET: "themeset",
+    ON_DID_CHANGE_THEME_NAME: "themeondidchangethemename",
+    ON_DID_CHANGE_FONT_FAMILY: "themeondidchangefontfamily",
   };
 
   /** All available themes */
@@ -111,19 +112,18 @@ export class PgTheme {
       this._fonts.find((f) => f.family === fontFamily) ?? this.fonts[0];
 
     // Check and return early if theme and font are already set
-    if (
-      importableTheme.name === this._theme?.name &&
-      font.family === this._font?.family
-    ) {
-      return;
-    }
+    const sameTheme = importableTheme.name === this._theme?.name;
+    const sameFont = font.family === this._font?.family;
+    if (sameTheme && sameFont) return;
 
     // Cloning the object because override functions expect the theme to be
     // uninitialized. Keeping a reference to an old theme may cause unwanted
     // side effects.
-    this._theme = structuredClone((await importableTheme.import()).default);
-    this._theme.name = importableTheme.name;
-    this._theme.isDark = importableTheme.isDark;
+    this._theme = {
+      ...structuredClone((await importableTheme.import()).default),
+      name: importableTheme.name,
+      isDark: importableTheme.isDark,
+    };
     this._font = font;
 
     // Load font if necessary.
@@ -179,10 +179,46 @@ export class PgTheme {
     localStorage.setItem(this._THEME_KEY, this._theme.name);
     localStorage.setItem(this._FONT_KEY, this._font.family);
 
-    // Dispatch theme set event to update UI
-    PgCommon.createAndDispatchCustomEvent(
-      PgTheme.events.THEME_SET,
-      this._theme
+    // Dispatch change events
+    if (!sameTheme) {
+      PgCommon.createAndDispatchCustomEvent(
+        PgTheme.events.ON_DID_CHANGE_THEME_NAME,
+        this._theme.name
+      );
+    }
+    if (!sameFont) {
+      PgCommon.createAndDispatchCustomEvent(
+        PgTheme.events.ON_DID_CHANGE_FONT_FAMILY,
+        this._font.family
+      );
+    }
+  }
+
+  /**
+   * Runs after changing theme name.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeThemeName(cb: (theme: string) => void) {
+    return PgCommon.onDidChange(
+      PgTheme.events.ON_DID_CHANGE_THEME_NAME,
+      cb,
+      PgTheme._theme ? { value: PgTheme._theme.name } : undefined
+    );
+  }
+
+  /**
+   * Runs after changing font family.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidChangeFontFamily(cb: (font: string) => void) {
+    return PgCommon.onDidChange(
+      PgTheme.events.ON_DID_CHANGE_FONT_FAMILY,
+      cb,
+      PgTheme._font ? { value: PgTheme._font.family } : undefined
     );
   }
 

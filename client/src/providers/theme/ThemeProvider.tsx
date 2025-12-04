@@ -5,17 +5,23 @@ import styled, {
 } from "styled-components";
 
 import { FONTS, THEMES } from "../../themes";
+import { PgCommon } from "../../utils/pg/common";
 import { PgTheme, Theme } from "../../utils/pg/theme";
-import { useSetStatic } from "../../hooks/useSetStatic";
 
 export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<Theme>();
 
-  useSetStatic(PgTheme.events.THEME_SET, setTheme);
-
-  // Create initial theme
+  // Create the initial theme
   useEffect(() => {
     PgTheme.create(THEMES, FONTS);
+  }, []);
+
+  // Set theme when the current theme name or font family changes
+  useEffect(() => {
+    return PgCommon.batchChanges(
+      () => setTheme(PgTheme.theme),
+      [PgTheme.onDidChangeThemeName, PgTheme.onDidChangeFontFamily]
+    ).dispose;
   }, []);
 
   if (!theme) return null;

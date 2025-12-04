@@ -454,7 +454,7 @@ type ExtendibleComponents =
 type OverridableComponents = "button" | "menu" | "text";
 
 /** Theme to be used while setting the defaults internally */
-export type ThemeInternal = Partial<Omit<ImportableTheme, "importTheme">> &
+export type ThemeInternal = Omit<ImportableTheme, "import"> &
   ThemeParam & {
     /** Default font */
     font?: {
