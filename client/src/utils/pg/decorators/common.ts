@@ -132,12 +132,14 @@ export const addOnDidChange = (
     (sClass as OnDidChangeMethods)[mainChangePropName] = (cb, opts) => {
       return PgCommon.onDidChange(
         getChangeEventName(),
-        opts?.skipInitialRunIfSameValue
-          ? (...args) => {
-              prevValue = args[0];
-              return cb(...args);
-            }
-          : cb,
+        PgCommon.debounce(
+          opts?.skipInitialRunIfSameValue
+            ? (...args: Parameters<typeof cb>) => {
+                prevValue = args[0];
+                return cb(...args);
+              }
+            : cb
+        ),
         getInitialValue([], prevValue)
       );
     };

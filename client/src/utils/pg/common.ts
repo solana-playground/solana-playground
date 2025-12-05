@@ -90,7 +90,7 @@ export class PgCommon {
    * - `sharedTimeout`: shared timeout object
    */
   static debounce(
-    cb: (...args: unknown[]) => unknown,
+    cb: (...args: any[]) => unknown,
     opts?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
   ) {
     const { delay, sharedTimeout } = PgCommon.setDefault(opts, {
