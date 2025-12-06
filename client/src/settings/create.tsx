@@ -22,10 +22,10 @@ export const createSetting = <
     .map((word, i) => (i ? word.toLowerCase() : word))
     .join(" ");
 
-  if (!(setting.getValue && setting.setValue)) {
+  if (!(setting.getValue && setting.setValue && setting.onChange)) {
     setting.getValue = () => PgCommon.getValue(PgSettings, id);
     setting.setValue = (v) => PgCommon.setValue(PgSettings, id, v);
-    setting.onChange ??= PgSettings[
+    setting.onChange = PgSettings[
       id.reduce(
         (acc, cur) => acc + PgCommon.capitalize(cur),
         "onDidChange"

@@ -109,11 +109,7 @@ const Setting: FC<SettingType> = (setting) => (
     </Left>
 
     <Right>
-      {setting.onChange ? (
-        <SettingSetterWithOnChange {...setting} onChange={setting.onChange} />
-      ) : (
-        <SettingSetter {...setting} />
-      )}
+      <SettingSetter {...setting} />
     </Right>
   </SettingWrapper>
 );
@@ -151,15 +147,8 @@ const Right = styled.div`
 
 type SettingSetterProps = SettingType;
 
-// Create a separate component to get around conditional hook usage error.
-const SettingSetterWithOnChange: FC<
-  RequiredKey<SettingSetterProps, "onChange">
-> = ({ onChange, ...props }) => {
-  useRenderOnChange(onChange);
-  return <SettingSetter {...props} />;
-};
-
 const SettingSetter: FC<SettingSetterProps> = ({ values, ...props }) => {
+  useRenderOnChange(props.onChange);
   if (values) return <SettingSetterSelect values={values} {...props} />;
   return <SettingSetterCheckBox {...props} />;
 };

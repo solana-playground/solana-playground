@@ -82,7 +82,7 @@ type SettingsCompat<V> = {
   /** Set current value. */
   setValue: (v: V) => unknown;
   /** Setting's `onChange` function (necessary for re-rendering on change) */
-  onChange?: (cb: (v: V) => void) => Disposable;
+  onChange: (cb: (v: V) => void) => Disposable;
 };
 
 /** Possible setting values */
