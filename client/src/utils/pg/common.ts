@@ -94,7 +94,7 @@ export class PgCommon {
     opts?: { delay?: number; sharedTimeout?: { id?: NodeJS.Timeout } }
   ) {
     const { delay, sharedTimeout } = PgCommon.setDefault(opts, {
-      delay: 100,
+      delay: 0,
       sharedTimeout: {},
     });
 
