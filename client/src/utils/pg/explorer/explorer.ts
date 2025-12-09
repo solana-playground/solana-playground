@@ -138,13 +138,10 @@ export class PgExplorer {
       // Tabs, current
       const currentFilePath = this._getDefaultOpenFile(this._explorer.files);
       if (currentFilePath) this.openFile(currentFilePath);
-    }
-    // Skip initializing if the workspace has already been initialized
-    else if (
-      this._initializedWorkspaceName ===
+    } else if (
+      this._initializedWorkspaceName !==
       (params?.name ?? this.currentWorkspaceName)
     ) {
-    } else {
       this._isTemporary = false;
       if (!this._workspace) await this._initWorkspaces();
 
@@ -158,6 +155,9 @@ export class PgExplorer {
         // Reset the explorer state
         this._explorer = this._getDefaultState();
       }
+    } else {
+      // Skip initializing if the workspace has already been initialized
+      return;
     }
 
     // Sanity check for the tab and current file state
