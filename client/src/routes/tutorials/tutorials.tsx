@@ -2,9 +2,12 @@ import {
   Disposable,
   PgCommon,
   PgExplorer,
+  PgFramework,
+  PgLanguage,
   PgRouter,
   PgTutorial,
   PgView,
+  TUTORIAL_LEVELS,
 } from "../../utils/pg";
 import { handleRoute } from "../common";
 
@@ -13,9 +16,22 @@ export const tutorials = PgRouter.create({
   handle: ({ name, page }) => {
     if (name) return handleTutorial(name, page);
 
+    const tutorials = {
+      name: "Tutorials",
+      props: {
+        // TODO: Pass all tutorials as a prop too
+        filters: [
+          { param: "level", filters: TUTORIAL_LEVELS },
+          { param: "framework", filters: PgFramework.all.map((f) => f.name) },
+          { param: "languages", filters: PgLanguage.all.map((l) => l.name) },
+          // TODO: Enable once there are more tutorials with various categories
+          // { param: "categories", filters: TUTORIAL_CATEGORIES },
+        ],
+      },
+    };
     return handleRoute({
-      main: "Tutorials",
-      sidebar: "Tutorials",
+      main: tutorials,
+      sidebar: tutorials,
       minimizeSecondaryMainView: true,
     });
   },

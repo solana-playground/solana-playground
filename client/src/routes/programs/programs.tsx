@@ -1,4 +1,9 @@
-import { PgCommon, PgRouter } from "../../utils/pg";
+import {
+  PgCommon,
+  PgFramework,
+  PgRouter,
+  TUTORIAL_CATEGORIES,
+} from "../../utils/pg";
 import { handleRoute } from "../common";
 
 export const programs = PgRouter.create({
@@ -8,6 +13,10 @@ export const programs = PgRouter.create({
       name: "Programs",
       props: async () => ({
         programs: await PgCommon.fetchJSON("/programs/programs.json"),
+        filters: [
+          { param: "framework", filters: PgFramework.all.map((f) => f.name) },
+          { param: "categories", filters: TUTORIAL_CATEGORIES },
+        ],
       }),
     };
     return handleRoute({

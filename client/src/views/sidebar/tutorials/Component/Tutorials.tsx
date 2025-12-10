@@ -4,21 +4,26 @@ import styled, { css, keyframes } from "styled-components";
 import FilterGroups from "../../../../components/FilterGroups";
 import Text from "../../../../components/Text";
 import TutorialsSkeleton from "./TutorialsSkeleton";
-import { FILTERS } from "../../../main/primary/Tutorials/filters";
 import {
   PgCommon,
   PgTutorial,
+  RequiredKey,
   TutorialData,
   TutorialMetadata,
 } from "../../../../utils/pg";
-import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
+import { Filter, useAsyncEffect } from "../../../../hooks";
 
-const Tutorials = () => {
-  const tutorial = useRenderOnChange(PgTutorial.onDidChangeCurrent);
-  return tutorial ? <Progress /> : <Filters />;
+interface TutorialsProps {
+  filters?: Filter[];
+}
+
+const Tutorials: FC<TutorialsProps> = ({ filters }) => {
+  return filters ? <Filters filters={filters} /> : <Progress />;
 };
 
-const Filters = () => <FilterGroups filters={FILTERS} items={PgTutorial.all} />;
+const Filters: FC<RequiredKey<TutorialsProps, "filters">> = (props) => (
+  <FilterGroups {...props} items={PgTutorial.all as any[]} />
+);
 
 type TutorialFullData = TutorialData & TutorialMetadata;
 

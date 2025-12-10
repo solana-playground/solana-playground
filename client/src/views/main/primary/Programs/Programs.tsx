@@ -6,19 +6,19 @@ import SearchBar from "../../../../components/SearchBar";
 import Text from "../../../../components/Text";
 import Topbar from "../../../../components/Topbar";
 import ProgramCard, { ProgramCardProps } from "./ProgramCard";
-import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
-import { useFilteredSearch } from "../../../../hooks";
+import { Filter, useFilteredSearch } from "../../../../hooks";
 
 interface ProgramsProps {
   programs: ProgramCardProps[];
+  filters: Filter[];
 }
 
-const Programs: FC<ProgramsProps> = ({ programs }) => {
+const Programs: FC<ProgramsProps> = ({ programs, filters }) => {
   const filteredSearch = useFilteredSearch({
     route: "/programs",
     items: programs,
-    filters: FILTERS,
+    filters,
     sort: (a, b) => a.name.localeCompare(b.name),
   });
   if (!filteredSearch) return null;

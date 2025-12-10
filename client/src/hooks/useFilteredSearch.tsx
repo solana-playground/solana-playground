@@ -11,9 +11,14 @@ interface FilterSearchProps<T extends Filterable> {
   /** All filterable items */
   items: T[];
   /** All filters */
-  filters: Readonly<Array<{ param: string }>>;
+  filters: Filter[];
   /** Sort function for the items */
   sort: (a: T, b: T) => number;
+}
+
+export interface Filter {
+  param: string;
+  filters: string[];
 }
 
 export const useFilteredSearch = <T extends Filterable>({

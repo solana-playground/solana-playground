@@ -17,3 +17,5 @@ export { useRenderOnChange } from "./useRenderOnChange";
 export { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
 export { useSetStatic } from "./useSetStatic";
 export { useWallet } from "./useWallet";
+
+export type { Filter } from "./useFilteredSearch";

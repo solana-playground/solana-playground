@@ -1,3 +1,4 @@
+import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import List from "../../../../components/ResponsiveItems";
@@ -6,16 +7,19 @@ import Text from "../../../../components/Text";
 import Topbar from "../../../../components/Topbar";
 import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
-import { FILTERS } from "./filters";
 import { Sad } from "../../../../components/Icons";
-import { useFilteredSearch } from "../../../../hooks";
+import { Filter, useFilteredSearch } from "../../../../hooks";
 import { PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
-const Tutorials = () => {
+interface TutorialsProps {
+  filters: Filter[];
+}
+
+const Tutorials: FC<TutorialsProps> = ({ filters }) => {
   const filteredSearch = useFilteredSearch({
     route: "/tutorials",
     items: PgTutorial.all,
-    filters: FILTERS,
+    filters,
     sort: (a, b) => {
       // Prioritize "Hello world" tutorials
       if (a.name.startsWith("Hello") && b.name.startsWith("Hello")) {
