@@ -271,6 +271,7 @@ export class PgCommon {
       case "object":
         // `typeof null === "object"` -> true
         if (value1 === value2) return true;
+        if (value1 === null || value2 === null) return false;
 
         // Compare key lengths
         if (Object.keys(value1).length !== Object.keys(value2).length) {
