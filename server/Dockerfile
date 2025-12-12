@@ -24,10 +24,10 @@ RUN cargo build --release
 ################################# START SERVER #################################
 FROM rust
 
-ARG SOLANA_VERSION="1.17.0"
+ARG SOLANA_VERSION="1.17.32"
 
 # Install Solana
-RUN sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"
+RUN sh -c "$(curl -sSfL https://release.anza.xyz/v${SOLANA_VERSION}/install)"
 ENV PATH="${HOME}/.local/share/solana/install/active_release/bin:${PATH}"
 
 # Set the workdir
