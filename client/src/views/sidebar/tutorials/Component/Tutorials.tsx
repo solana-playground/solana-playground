@@ -7,27 +7,29 @@ import TutorialsSkeleton from "./TutorialsSkeleton";
 import {
   PgCommon,
   PgTutorial,
-  RequiredKey,
   TutorialData,
   TutorialMetadata,
 } from "../../../../utils/pg";
 import { Filter, useAsyncEffect } from "../../../../hooks";
 
 interface TutorialsProps {
+  tutorials: TutorialData[];
   filters?: Filter[];
 }
 
-const Tutorials: FC<TutorialsProps> = ({ filters }) => {
-  return filters ? <Filters filters={filters} /> : <Progress />;
+const Tutorials: FC<TutorialsProps> = ({ filters, ...props }) => {
+  return filters ? (
+    <FilterGroups items={props.tutorials} filters={filters} />
+  ) : (
+    <Progress {...props} />
+  );
 };
-
-const Filters: FC<RequiredKey<TutorialsProps, "filters">> = (props) => (
-  <FilterGroups {...props} items={PgTutorial.all as any[]} />
-);
 
 type TutorialFullData = TutorialData & TutorialMetadata;
 
-const Progress = () => {
+type ProgressProsp = Omit<TutorialsProps, "filters">;
+
+const Progress: FC<ProgressProsp> = ({ tutorials }) => {
   const [tutorialsData, setTutorialsData] = useState<{
     completed: TutorialFullData[];
     ongoing: TutorialFullData[];
@@ -47,7 +49,7 @@ const Progress = () => {
 
     const data: typeof tutorialsData = { completed: [], ongoing: [] };
     for (const tutorialName of PgTutorial.getUserTutorialNames()) {
-      const tutorialData = PgTutorial.all.find((t) => t.name === tutorialName);
+      const tutorialData = tutorials.find((t) => t.name === tutorialName);
       if (!tutorialData) continue;
 
       const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
@@ -57,7 +59,7 @@ const Progress = () => {
     }
 
     setTutorialsData(data);
-  }, []);
+  }, [tutorials]);
 
   if (!tutorialsData) return <TutorialsSkeleton />;
 

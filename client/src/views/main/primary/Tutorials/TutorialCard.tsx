@@ -27,9 +27,6 @@ const TutorialCard: FC<TutorialCardProps> = ({
     const userTutorialNames = PgTutorial.getUserTutorialNames();
     if (!userTutorialNames.includes(name)) return;
 
-    const tutorial = PgTutorial.all.find((t) => t.name === name);
-    if (!tutorial) throw new Error(`Tutorial not found: ${name}`);
-
     const metadata = await PgTutorial.getMetadata(name);
     setMetadata(metadata);
   }, [name]);

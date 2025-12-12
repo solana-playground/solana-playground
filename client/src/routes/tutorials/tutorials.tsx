@@ -7,6 +7,7 @@ import {
   PgRouter,
   PgTutorial,
   PgView,
+  TutorialData,
   TUTORIAL_LEVELS,
 } from "../../utils/pg";
 import { handleRoute } from "../common";
@@ -19,7 +20,7 @@ export const tutorials = PgRouter.create({
     const tutorials = {
       name: "Tutorials",
       props: {
-        // TODO: Pass all tutorials as a prop too
+        tutorials: getAllTutorials(),
         filters: [
           { param: "level", filters: TUTORIAL_LEVELS },
           { param: "framework", filters: PgFramework.all.map((f) => f.name) },
@@ -36,6 +37,8 @@ export const tutorials = PgRouter.create({
     });
   },
 });
+
+const getAllTutorials = (): TutorialData[] => PgTutorial.all;
 
 let disposables: Disposable[] = [];
 let isTutorialInView = false;
@@ -60,7 +63,10 @@ const handleTutorial = (name: string, page: string) => {
           },
         },
       },
-      sidebar: "Tutorials",
+      sidebar: {
+        name: "Tutorials",
+        props: { tutorials: getAllTutorials() },
+      },
     });
   }
 
@@ -136,6 +142,8 @@ const handleTutorial = (name: string, page: string) => {
   // Open the correct sidebar page
   if (!page) {
     PgView.sidebar.name = "Tutorials";
+    PgView.sidebar.props = { tutorials: getAllTutorials() };
+    disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
   } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
     PgView.sidebar.name = "Explorer";
   }

@@ -9,16 +9,17 @@ import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
 import { Sad } from "../../../../components/Icons";
 import { Filter, useFilteredSearch } from "../../../../hooks";
-import { PgTutorial, TUTORIAL_LEVELS } from "../../../../utils/pg";
+import { TutorialData, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
 interface TutorialsProps {
+  tutorials: TutorialData[];
   filters: Filter[];
 }
 
-const Tutorials: FC<TutorialsProps> = ({ filters }) => {
+const Tutorials: FC<TutorialsProps> = ({ tutorials, filters }) => {
   const filteredSearch = useFilteredSearch({
     route: "/tutorials",
-    items: PgTutorial.all,
+    items: tutorials,
     filters,
     sort: (a, b) => {
       // Prioritize "Hello world" tutorials

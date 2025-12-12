@@ -11,7 +11,7 @@ interface FilterGroupsProps<P extends string> {
     param: P;
     filters: readonly string[];
   }[];
-  items?: Array<{ [K in P]?: Arrayable<string> }>;
+  items?: Array<{ [K in P]?: Arrayable<unknown> }>;
 }
 
 const FilterGroups = <P extends string>({
