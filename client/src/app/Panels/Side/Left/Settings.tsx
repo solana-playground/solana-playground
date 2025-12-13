@@ -221,13 +221,11 @@ type SettingSetterCheckBoxProps = Omit<SettingSetterProps, "values">;
 const SettingSetterCheckBox: FC<SettingSetterCheckBoxProps> = ({
   getValue,
   setValue,
-}) => {
-  return (
-    <Checkbox
-      onChange={(ev) => setValue(ev.target.checked)}
-      defaultChecked={getValue()}
-    />
-  );
-};
+}) => (
+  <Checkbox
+    onChange={(ev) => setValue(ev.target.checked)}
+    checked={getValue()}
+  />
+);
 
 export default Settings;
