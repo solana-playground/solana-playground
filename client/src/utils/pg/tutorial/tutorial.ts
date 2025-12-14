@@ -50,6 +50,7 @@ const storage = {
 };
 
 const onDidInit = () => {
+  let lastTutorialName: string | undefined;
   const disposables = [
     // Navigate to tutorial's route if the current workspace is a tutorial but
     // the user is on the default route
@@ -61,20 +62,19 @@ const onDidInit = () => {
     }, [PgRouter.onDidChangePath, PgExplorer.onDidInit]),
 
     // Save tutorial page number to storage when the page changes
-    PgTutorial.onDidChangePage((page) => {
+    PgCommon.batchChanges(() => {
+      if (!PgTutorial.current) return;
+
+      // Don't save if the reason for the page change is opening another tutorial
+      if (lastTutorialName !== PgTutorial.current.name) {
+        lastTutorialName = PgTutorial.current.name;
+        return;
+      }
+
       // Updating the `pageNumber` field is enough to write the value to storage
-      // because it's an `updatable` field with custom storage.
-      //
-      // NOTE: Also check `PgTutorial.pageNumber` to exist because it should
-      // always be defined after the tutorial has been started. `pageNumber` not
-      // being defined may mean the tutorial data hasn't fully been initialized,
-      // thus partially updating it might result in corrupted state.
-      //
-      // FIXME: Checking `PgTutorial.pageNumber` to be defined results in
-      // `pageNumber` to not be saved when the tutorial page has been opened
-      // via URL paths (e.g. when directly starting from `/tutorials/name/2`).
-      if (page && PgTutorial.pageNumber) PgTutorial.pageNumber = page;
-    }),
+      // because it's an `updatable` field with custom storage
+      if (PgTutorial.page) PgTutorial.pageNumber = PgTutorial.page;
+    }, [PgTutorial.onDidChangeCurrent, PgTutorial.onDidChangePage]),
   ];
 
   return {
@@ -113,6 +113,7 @@ const derive = () => ({
       try {
         const { page } = PgRouter.getParamsFromPath(route.path, path);
         if (PgCommon.isInt(page)) return parseInt(page);
+        return null;
       } catch {
         return null;
       }
