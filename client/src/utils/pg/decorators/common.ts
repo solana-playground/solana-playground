@@ -112,84 +112,57 @@ export const addOnDidChange = (
   state: Record<string, unknown>,
   recursive?: boolean
 ) => {
-  type OnDidChangeMethods = {
-    [K in `${typeof PROPS.ON_DID_CHANGE}${string}`]: OnDidChangeCallback<
-      typeof state
-    >;
-  };
-  const getInitialValue = (accessor: Accessor, prevValue?: unknown) => {
-    accessor = PgCommon.normalizeAccessor(accessor);
-    const value = accessor.length
-      ? PgCommon.getValue(sClass, accessor)
-      : sClass[PROPS.INTERNAL_STATE];
-    if (value !== undefined && value !== prevValue) return { value };
-  };
+  const addOnDidChangeProp = (
+    accessor: Accessor,
+    prev: { value?: unknown }
+  ) => {
+    type OnDidChangeMethods = {
+      [K in `${typeof PROPS.ON_DID_CHANGE}${string}`]: OnDidChangeCallback<
+        typeof state
+      >;
+    };
 
-  // Main change event
-  {
-    let prevValue: unknown;
-    const mainChangePropName = getChangePropName();
-    (sClass as OnDidChangeMethods)[mainChangePropName] = (cb, opts) => {
+    const changePropName = getChangePropName(accessor);
+    (sClass as OnDidChangeMethods)[changePropName] = (cb, opts) => {
+      const value = PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], accessor);
       return PgCommon.onDidChange(
-        getChangeEventName(),
+        getChangeEventName(accessor),
         PgCommon.debounce(
           opts?.skipInitialRunIfSameValue
             ? (...args: Parameters<typeof cb>) => {
-                prevValue = args[0];
+                prev.value = args[0];
                 return cb(...args);
               }
             : cb
         ),
-        getInitialValue([], prevValue)
+        value !== undefined && value !== prev.value ? { value } : undefined
       );
     };
-    sClass[mainChangePropName].getValue = () => sClass[PROPS.INTERNAL_STATE];
+    sClass[changePropName].getValue = () => {
+      return PgCommon.getValue(sClass[PROPS.INTERNAL_STATE], accessor);
+    };
+  };
+
+  // Main change event
+  {
+    const prev = {};
+    addOnDidChangeProp([], prev);
   }
 
   // Property change events
   for (const prop in state) {
-    const changePropName = getChangePropName(prop);
-    let prevValue: unknown;
-    (sClass as OnDidChangeMethods)[changePropName] = (cb, opts) => {
-      return PgCommon.onDidChange(
-        getChangeEventName(prop),
-        opts?.skipInitialRunIfSameValue
-          ? (...args) => {
-              prevValue = args[0];
-              return cb(...args);
-            }
-          : cb,
-        getInitialValue(prop, prevValue)
-      );
-    };
-    sClass[changePropName].getValue = () => PgCommon.getValue(sClass, prop);
+    const prev = {};
+    addOnDidChangeProp(prop, prev);
   }
 
   // Recursive property change events
   if (recursive) {
     const addOnDidChangeProps = (accessor: string[] = []) => {
-      const value = accessor.length
-        ? PgCommon.getValue(state, accessor)
-        : state;
+      const value = PgCommon.getValue(state, accessor);
       for (const prop in value) {
-        let prevValue: unknown;
         const currentAccessor = [...accessor, prop];
-        const changePropName = getChangePropName(currentAccessor);
-        (sClass as OnDidChangeMethods)[changePropName] = (cb, opts) => {
-          return PgCommon.onDidChange(
-            getChangeEventName(currentAccessor),
-            opts?.skipInitialRunIfSameValue
-              ? (...args) => {
-                  prevValue = args[0];
-                  return cb(...args);
-                }
-              : cb,
-            getInitialValue(currentAccessor, prevValue)
-          );
-        };
-        sClass[changePropName].getValue = () => {
-          return PgCommon.getValue(sClass, currentAccessor);
-        };
+        const prev = {};
+        addOnDidChangeProp(currentAccessor, prev);
 
         const value = PgCommon.getValue(state, currentAccessor);
         if (typeof value === "object" && value !== null) {
