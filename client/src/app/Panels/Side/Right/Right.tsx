@@ -58,11 +58,7 @@ const Title: FC<DefaultRightProps> = ({ page }) => (
 );
 
 const Content: FC<DefaultRightProps> = ({ page }) => {
-  // FIXME: Type is `unknown` without the cast
-  const props = useRenderOnChange(PgView.onDidChangeSidebarProps) as Record<
-    string,
-    unknown
-  >;
+  const props = useRenderOnChange(PgView.onDidChangeSidebarProps);
   const loadingCount = useRenderOnChange(PgView.onDidChangeSidebarLoadingCount);
 
   const [el, setEl] = useState<ReactNode>(null);
@@ -100,7 +96,7 @@ const Wrapper = styled.div<{
   ${({ theme, width, oldWidth }) => css`
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: calc(100vh - ${PgTheme.theme.views.bottom.default.height});
     min-width: ${width ? width : oldWidth}px;
 
     ${PgTheme.convertToCSS(theme.views.sidebar.right.default)};
