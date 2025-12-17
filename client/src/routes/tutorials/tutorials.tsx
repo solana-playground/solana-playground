@@ -70,6 +70,14 @@ const handleTutorial = (name: string, page: string) => {
     });
   }
 
+  // Only allow integers for page names
+  //
+  // TODO: Allow custom names for pages e.g. `my-tutorial/my-page`
+  if (page && !PgCommon.isInt(page)) {
+    PgTutorial.openAboutPage();
+    return;
+  }
+
   // Only change the page if the tutorial is already in view
   if (!isTutorialInView) {
     isTutorialInView = true;
