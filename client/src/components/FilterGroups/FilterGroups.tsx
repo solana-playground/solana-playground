@@ -4,14 +4,11 @@ import styled, { css } from "styled-components";
 
 import Checkbox from "../Checkbox";
 import Tag from "../Tag";
-import type { Arrayable } from "../../utils/pg";
+import type { Filter } from "../../hooks";
 
 interface FilterGroupsProps<P extends string> {
-  filters: readonly {
-    param: P;
-    filters: readonly string[];
-  }[];
-  items?: Array<{ [K in P]?: Arrayable<unknown> }>;
+  filters: readonly Filter<P>[];
+  items?: Array<{ [K in P]?: any }>;
 }
 
 const FilterGroups = <P extends string>({

@@ -16,8 +16,8 @@ interface FilterSearchProps<T extends Filterable> {
   sort: (a: T, b: T) => number;
 }
 
-export interface Filter {
-  param: string;
+export interface Filter<P extends string = string> {
+  param: P;
   filters: string[];
 }
 
