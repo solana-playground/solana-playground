@@ -1,4 +1,8 @@
-import { TUTORIAL_CATEGORIES, TUTORIAL_LEVELS } from "./details";
+import {
+  TUTORIAL_CATEGORIES,
+  TUTORIAL_LEVELS,
+  TUTORIAL_PROGRESS,
+} from "./details";
 import type { Nullable, RequiredKey } from "../types";
 
 type Author = {
@@ -79,8 +83,16 @@ export interface TutorialMetadata {
   completed: boolean;
 }
 
+export interface TutorialProgressData {
+  /** Tutorial progression */
+  progress: TutorialProgress;
+}
+
+export type TutorialFullData = TutorialData & TutorialProgressData;
+
+export type TutorialProgress = typeof TUTORIAL_PROGRESS[number];
 export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
-export type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
+type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
 
 export type TutorialDetailKey = keyof Pick<
   TutorialData,

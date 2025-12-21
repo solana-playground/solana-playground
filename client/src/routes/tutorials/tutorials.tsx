@@ -7,8 +7,10 @@ import {
   PgRouter,
   PgTutorial,
   PgView,
-  TutorialData,
+  TutorialFullData,
+  TutorialProgress,
   TUTORIAL_LEVELS,
+  TUTORIAL_PROGRESS,
 } from "../../utils/pg";
 import { handleRoute } from "../common";
 
@@ -19,16 +21,17 @@ export const tutorials = PgRouter.create({
 
     const tutorials = {
       name: "Tutorials",
-      props: {
-        tutorials: getAllTutorials(),
+      props: async () => ({
+        tutorials: await getAllTutorials(),
         filters: [
+          { param: "progress", filters: TUTORIAL_PROGRESS },
           { param: "level", filters: TUTORIAL_LEVELS },
           { param: "framework", filters: PgFramework.all.map((f) => f.name) },
           { param: "languages", filters: PgLanguage.all.map((l) => l.name) },
           // TODO: Enable once there are more tutorials with various categories
           // { param: "categories", filters: TUTORIAL_CATEGORIES },
         ],
-      },
+      }),
     };
     return handleRoute({
       main: tutorials,
@@ -38,7 +41,23 @@ export const tutorials = PgRouter.create({
   },
 });
 
-const getAllTutorials = (): TutorialData[] => PgTutorial.all;
+const getAllTutorials = async () => {
+  const tutorials: TutorialFullData[] = [];
+  for (const tutorial of PgTutorial.all) {
+    // Add `progress` field
+    let progress: TutorialProgress;
+    if (PgTutorial.isStarted(tutorial.name)) {
+      const metadata = await PgTutorial.getMetadata(tutorial.name);
+      progress = metadata.completed ? "Completed" : "Ongoing";
+    } else {
+      progress = "Not started";
+    }
+
+    tutorials.push({ ...tutorial, progress });
+  }
+
+  return tutorials;
+};
 
 let disposables: Disposable[] = [];
 let isTutorialInView = false;
@@ -65,7 +84,7 @@ const handleTutorial = (name: string, page: string) => {
       },
       sidebar: {
         name: "Tutorials",
-        props: { tutorials: getAllTutorials() },
+        props: async () => ({ tutorials: await getAllTutorials() }),
       },
     });
   }
@@ -150,7 +169,11 @@ const handleTutorial = (name: string, page: string) => {
   // Open the correct sidebar page
   if (!page) {
     PgView.sidebar.name = "Tutorials";
-    PgView.sidebar.props = { tutorials: getAllTutorials() };
+    // TODO: Support auto-resolution of `Promise`s and remove this workaround
+    (async () => {
+      PgView.sidebar.props = { tutorials: await getAllTutorials() };
+    })();
+
     disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
   } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
     PgView.sidebar.name = "Explorer";

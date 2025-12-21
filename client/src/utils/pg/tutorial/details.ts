@@ -1,3 +1,9 @@
+export const TUTORIAL_PROGRESS = [
+  "Not started",
+  "Ongoing",
+  "Completed",
+] as const;
+
 export const TUTORIAL_LEVELS = [
   "Beginner",
   "Intermediate",

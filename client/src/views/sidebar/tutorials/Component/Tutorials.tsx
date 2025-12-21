@@ -8,12 +8,13 @@ import {
   PgCommon,
   PgTutorial,
   TutorialData,
+  TutorialFullData,
   TutorialMetadata,
 } from "../../../../utils/pg";
 import { Filter, useAsyncEffect } from "../../../../hooks";
 
 interface TutorialsProps {
-  tutorials: TutorialData[];
+  tutorials: TutorialFullData[];
   filters?: Filter[];
 }
 
@@ -25,14 +26,14 @@ const Tutorials: FC<TutorialsProps> = ({ filters, ...props }) => {
   );
 };
 
-type TutorialFullData = TutorialData & TutorialMetadata;
+type TutorialDataWithMetadata = TutorialData & TutorialMetadata;
 
 type ProgressProsp = Omit<TutorialsProps, "filters">;
 
 const Progress: FC<ProgressProsp> = ({ tutorials }) => {
   const [tutorialsData, setTutorialsData] = useState<{
-    completed: TutorialFullData[];
-    ongoing: TutorialFullData[];
+    completed: TutorialDataWithMetadata[];
+    ongoing: TutorialDataWithMetadata[];
   }>();
 
   // Get tutorial data
@@ -86,7 +87,7 @@ const ProgressWrapper = styled.div`
 
 interface TutorialGroupProps {
   name: string;
-  tutorials: TutorialFullData[];
+  tutorials: TutorialDataWithMetadata[];
 }
 
 const TutorialGroup: FC<TutorialGroupProps> = ({ name, tutorials }) => {

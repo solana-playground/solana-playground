@@ -9,10 +9,10 @@ import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
 import { Sad } from "../../../../components/Icons";
 import { Filter, useFilteredSearch } from "../../../../hooks";
-import { TutorialData, TUTORIAL_LEVELS } from "../../../../utils/pg";
+import { TutorialFullData, TUTORIAL_LEVELS } from "../../../../utils/pg";
 
 interface TutorialsProps {
-  tutorials: TutorialData[];
+  tutorials: TutorialFullData[];
   filters: Filter[];
 }
 
