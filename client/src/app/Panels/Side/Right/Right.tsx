@@ -12,7 +12,7 @@ import styled, { css } from "styled-components";
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
-import { PgTheme, PgView } from "../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
 interface DefaultRightProps {
@@ -67,12 +67,15 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
   useAsyncEffect(async () => {
     if (!page) return;
 
-    PgView.setSidebarLoading(true);
     const currentId = ids.current.length;
+    ids.current[currentId] ??= true;
 
     try {
-      const { default: PageComponent } = await page.importComponent();
-      if (!ids.current[currentId + 1]) setEl(<PageComponent {...props} />);
+      PgView.setSidebarLoading(true);
+
+      const { default: Page } = await page.importComponent();
+      const resolvedProps = await PgCommon.callIfNeeded(props);
+      if (!ids.current[currentId + 1]) setEl(<Page {...resolvedProps} />);
     } catch (e: any) {
       console.log("SIDEBAR ERROR", e.message);
     } finally {

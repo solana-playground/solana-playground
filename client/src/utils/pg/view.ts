@@ -14,6 +14,7 @@ import type {
   RequiredKey,
   SyncOrAsync,
   Elementable,
+  Promisable,
 } from "./types";
 
 /** Sidebar page param */
@@ -45,7 +46,7 @@ export type SidebarPage<N extends string = string> = RequiredKey<
 interface ViewState {
   sidebar: {
     name: SidebarPageName | null;
-    props: Record<string, unknown>;
+    props: Promisable<Record<string, unknown>>;
     loadingCount: number;
   };
 }
