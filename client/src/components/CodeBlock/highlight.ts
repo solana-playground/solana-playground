@@ -1,4 +1,5 @@
 import {
+  BUNDLED_LANGUAGES,
   getHighlighter,
   Highlighter,
   Lang,
@@ -50,23 +51,28 @@ const initializeHighlighter = async () => {
 
   isInitializing = true;
 
-  const responseWasm = await fetch(
+  // Playground serves everything itself
+  setCDN("/");
+
+  // Load `vscode-oniguruma`
+  const resp = await fetch(
     require("vscode-oniguruma/release/onig.wasm?resource")
   );
-  setWasm(responseWasm);
-  setCDN("/");
+  setWasm(resp);
 
   // There is no way to not load a default theme.
   // See: https://github.com/shikijs/shiki/issues/473
   //
   // We put an empty JSON file at `/themes/dracula.json` otherwise it fails.
-  highlighter = await getHighlighter({
-    theme: "dracula",
-    langs: [],
-    paths: {
-      languages: "grammars",
-      themes: "themes",
-    },
+  highlighter = await getHighlighter({ theme: "dracula", langs: [] });
+
+  // Bundled languages specify grammar path as `${id}.tmLanguage.json` and
+  // `shiki` looks for that exact path in `/languages` (default path). However,
+  // our grammar definitions are at `/language/${id}/grammar.tmLanguage.json`,
+  // which are used both by `shiki` and `monaco-editor`. To make `shiki` check
+  // the correct path, we override the `path` field of bundled languages global.
+  BUNDLED_LANGUAGES.forEach((lang) => {
+    lang.path = PgCommon.joinPaths(lang.id, "grammar.tmLanguage.json");
   });
 };
 
