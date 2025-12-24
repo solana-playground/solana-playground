@@ -169,11 +169,7 @@ const handleTutorial = (name: string, page: string) => {
   // Open the correct sidebar page
   if (!page) {
     PgView.sidebar.name = "Tutorials";
-    // TODO: Support auto-resolution of `Promise`s and remove this workaround
-    (async () => {
-      PgView.sidebar.props = { tutorials: await getAllTutorials() };
-    })();
-
+    PgView.sidebar.props = async () => ({ tutorials: await getAllTutorials() });
     disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
   } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
     PgView.sidebar.name = "Explorer";
