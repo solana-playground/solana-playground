@@ -184,12 +184,15 @@ class _PgConnection {
     }
 
     // Public
-    switch (endpoint) {
-      case PgWeb3.clusterApiUrl("devnet"):
+    //
+    // For some reason only `mainnet-beta` returns with `/` appended at the end,
+    // so compare the `/` appended strings for consistency
+    switch (PgCommon.appendSlash(endpoint)) {
+      case PgCommon.appendSlash(PgWeb3.clusterApiUrl("devnet")):
         return "devnet";
-      case PgWeb3.clusterApiUrl("testnet"):
+      case PgCommon.appendSlash(PgWeb3.clusterApiUrl("testnet")):
         return "testnet";
-      case PgWeb3.clusterApiUrl("mainnet-beta"):
+      case PgCommon.appendSlash(PgWeb3.clusterApiUrl("mainnet-beta")):
         return "mainnet-beta";
     }
 
