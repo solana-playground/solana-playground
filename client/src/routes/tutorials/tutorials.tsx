@@ -41,24 +41,6 @@ export const tutorials = PgRouter.create({
   },
 });
 
-const getAllTutorials = async () => {
-  const tutorials: TutorialFullData[] = [];
-  for (const tutorial of PgTutorial.all) {
-    // Add `progress` field
-    let progress: TutorialProgress;
-    if (PgTutorial.isStarted(tutorial.name)) {
-      const metadata = await PgTutorial.getMetadata(tutorial.name);
-      progress = metadata.completed ? "Completed" : "Ongoing";
-    } else {
-      progress = "Not started";
-    }
-
-    tutorials.push({ ...tutorial, progress });
-  }
-
-  return tutorials;
-};
-
 let disposables: Disposable[] = [];
 let isTutorialInView = false;
 let mainSecondaryHeight = 0;
@@ -201,4 +183,21 @@ const handleTutorial = (name: string, page: string) => {
       disposables = [];
     },
   };
+};
+
+const getAllTutorials = async (): Promise<TutorialFullData[]> => {
+  return await Promise.all(
+    PgTutorial.all.map(async (t) => {
+      // Add `progress` field
+      let progress: TutorialProgress;
+      if (PgTutorial.isStarted(t.name)) {
+        const metadata = await PgTutorial.getMetadata(t.name);
+        progress = metadata.completed ? "Completed" : "Ongoing";
+      } else {
+        progress = "Not started";
+      }
+
+      return { ...t, progress };
+    })
+  );
 };
