@@ -836,8 +836,8 @@ export class PgTheme {
     bottom.connect.hover.bg ??=
       bottom.default.color + theme.default.transparency.low;
 
-    // Endpoint
-    bottom.endpoint ??= {};
+    // Cluster
+    bottom.cluster ??= {};
 
     // Address
     bottom.address ??= {};

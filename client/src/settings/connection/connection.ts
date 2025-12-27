@@ -1,4 +1,4 @@
-import { Endpoint, NETWORKS } from "../../constants";
+import { Endpoint } from "../../constants";
 import { PgCommon } from "../../utils/pg";
 import { createSetting } from "../create";
 
@@ -13,7 +13,13 @@ export const connection = [
     id: "connection.endpoint",
     description:
       "RPC URL that lets you interact with a specific Solana cluster",
-    values: NETWORKS.map((n) => ({ name: n.name, value: n.endpoint })),
+    values: [
+      { name: "Playnet", value: Endpoint.PLAYNET },
+      { name: "Localnet", value: Endpoint.LOCALNET },
+      { name: "Devnet", value: Endpoint.DEVNET },
+      { name: "Testnet", value: Endpoint.TESTNET },
+      { name: "Mainnet Beta", value: Endpoint.MAINNET_BETA },
+    ],
     default: Endpoint.DEVNET,
     custom: {
       parse: (v) => {

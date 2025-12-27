@@ -280,9 +280,7 @@ export interface ThemeParam {
   /** Override view defaults */
   views?: {
     /** Bottom bar view */
-    bottom?: ExtendibleComponent<
-      "connect" | "endpoint" | "address" | "balance"
-    >;
+    bottom?: ExtendibleComponent<"connect" | "cluster" | "address" | "balance">;
 
     /** Main view */
     main?: ExtendibleComponent<{
