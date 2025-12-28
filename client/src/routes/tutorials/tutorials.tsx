@@ -8,7 +8,6 @@ import {
   PgTutorial,
   PgView,
   TutorialFullData,
-  TutorialProgress,
   TUTORIAL_LEVELS,
   TUTORIAL_PROGRESS,
 } from "../../utils/pg";
@@ -188,16 +187,16 @@ const handleTutorial = (name: string, page: string) => {
 const getAllTutorials = async (): Promise<TutorialFullData[]> => {
   return await Promise.all(
     PgTutorial.all.map(async (t) => {
-      // Add `progress` field
-      let progress: TutorialProgress;
+      const tutorial: Partial<TutorialFullData> = { ...t };
       if (PgTutorial.isStarted(t.name)) {
         const metadata = await PgTutorial.getMetadata(t.name);
-        progress = metadata.completed ? "Completed" : "Ongoing";
+        tutorial.metadata = metadata;
+        tutorial.progress = metadata.completed ? "Completed" : "Ongoing";
       } else {
-        progress = "Not started";
+        tutorial.progress = "Not started";
       }
 
-      return { ...t, progress };
+      return tutorial as TutorialFullData;
     })
   );
 };

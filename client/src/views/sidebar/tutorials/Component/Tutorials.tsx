@@ -1,17 +1,10 @@
-import { FC, useState } from "react";
+import { FC, useMemo } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import FilterGroups from "../../../../components/FilterGroups";
 import Text from "../../../../components/Text";
-import TutorialsSkeleton from "./TutorialsSkeleton";
-import {
-  PgCommon,
-  PgTutorial,
-  TutorialData,
-  TutorialFullData,
-  TutorialMetadata,
-} from "../../../../utils/pg";
-import { Filter, useAsyncEffect } from "../../../../hooks";
+import { PgTutorial, TutorialFullData } from "../../../../utils/pg";
+import type { Filter } from "../../../../hooks";
 
 interface TutorialsProps {
   tutorials: TutorialFullData[];
@@ -26,43 +19,22 @@ const Tutorials: FC<TutorialsProps> = ({ filters, ...props }) => {
   );
 };
 
-type TutorialDataWithMetadata = TutorialData & TutorialMetadata;
-
 type ProgressProsp = Omit<TutorialsProps, "filters">;
 
 const Progress: FC<ProgressProsp> = ({ tutorials }) => {
-  const [tutorialsData, setTutorialsData] = useState<{
-    completed: TutorialDataWithMetadata[];
-    ongoing: TutorialDataWithMetadata[];
-  }>();
-
-  // Get tutorial data
-  useAsyncEffect(async () => {
-    // Sleep here because:
-    // - Explorer might not have been initialized
-    // - The current tutorial's `completed` state might not have been saved yet
-    // after finishing the tutorial
-    // - Better transition
-    //
-    // TODO: Remove this after making sure explorer is always initialized
-    // before this runs.
-    await PgCommon.sleep(300);
-
-    const data: typeof tutorialsData = { completed: [], ongoing: [] };
-    for (const tutorialName of PgTutorial.getUserTutorialNames()) {
-      const tutorialData = tutorials.find((t) => t.name === tutorialName);
-      if (!tutorialData) continue;
-
-      const tutorialMetadata = await PgTutorial.getMetadata(tutorialName);
-      const tutorialFullData = { ...tutorialData, ...tutorialMetadata };
-      if (tutorialMetadata.completed) data.completed.push(tutorialFullData);
-      else data.ongoing.push(tutorialFullData);
-    }
-
-    setTutorialsData(data);
+  const tutorialsData = useMemo(() => {
+    return tutorials.reduce(
+      (acc, cur) => {
+        if (cur.progress === "Ongoing") acc.ongoing.push(cur);
+        if (cur.progress === "Completed") acc.completed.push(cur);
+        return acc;
+      },
+      { completed: [], ongoing: [] } as {
+        completed: TutorialFullData[];
+        ongoing: TutorialFullData[];
+      }
+    );
   }, [tutorials]);
-
-  if (!tutorialsData) return <TutorialsSkeleton />;
 
   return (
     <ProgressWrapper>
@@ -87,7 +59,7 @@ const ProgressWrapper = styled.div`
 
 interface TutorialGroupProps {
   name: string;
-  tutorials: TutorialDataWithMetadata[];
+  tutorials: TutorialFullData[];
 }
 
 const TutorialGroup: FC<TutorialGroupProps> = ({ name, tutorials }) => {
@@ -104,7 +76,11 @@ const TutorialGroup: FC<TutorialGroupProps> = ({ name, tutorials }) => {
           key={t.name}
           onClick={() => PgTutorial.open(t.name)}
           progress={
-            t.completed ? 100 : ((t.pageNumber - 1) / t.pageCount) * 100
+            t.metadata
+              ? t.metadata.completed
+                ? 100
+                : ((t.metadata.pageNumber - 1) / t.pageCount) * 100
+              : 0
           }
         >
           <TutorialName>{t.name}</TutorialName>

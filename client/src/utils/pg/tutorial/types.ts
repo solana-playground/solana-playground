@@ -83,20 +83,20 @@ export interface TutorialMetadata {
   completed: boolean;
 }
 
-export interface TutorialProgressData {
+export type TutorialFullData = TutorialData & {
   /** Tutorial progression */
   progress: TutorialProgress;
-}
-
-export type TutorialFullData = TutorialData & TutorialProgressData;
+  /** Tutorial metadata */
+  metadata?: TutorialMetadata;
+};
 
 export type TutorialProgress = typeof TUTORIAL_PROGRESS[number];
 export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
 type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
 
 export type TutorialDetailKey = keyof Pick<
-  TutorialData,
-  "level" | "framework" | "languages" | "categories"
+  TutorialFullData,
+  "progress" | "level" | "framework" | "languages" | "categories"
 >;
 
 /** A map of string to unknown data as used for tutorial storage data */
