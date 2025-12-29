@@ -7,11 +7,11 @@ import {
   useRef,
   ReactNode,
 } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
-import { Wormhole } from "../../../../components/Loading";
+import { SpinnerWithBg, Wormhole } from "../../../../components/Loading";
 import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
 import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
@@ -70,14 +70,18 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     const currentId = ids.current.length;
     ids.current[currentId] ??= true;
 
-    try {
-      PgView.setSidebarLoading(true);
-
+    const setContent = async () => {
       const { default: Page } = await page.importComponent();
       const resolvedProps = await PgCommon.callIfNeeded(props);
       if (!ids.current[currentId + 1]) setEl(<Page {...resolvedProps} />);
+    };
+
+    try {
+      PgView.setSidebarLoading(true);
+      await setContent();
     } catch (e: any) {
-      console.log("SIDEBAR ERROR", e.message);
+      console.log("SIDEBAR ERROR:", e.message);
+      setEl(<SidebarError retry={setContent} />);
     } finally {
       PgView.setSidebarLoading(false);
     }
@@ -91,6 +95,46 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     </ErrorBoundary>
   );
 };
+
+const SidebarError = (props: { retry: () => Promise<unknown> }) => {
+  const [, setError] = useState();
+  useAsyncEffect(async () => {
+    try {
+      await props.retry();
+    } catch (e) {
+      // Error boundaries do not catch promise errors.
+      // See https://github.com/facebook/react/issues/11334
+      //
+      // As a workaround, the following line manually triggers a render error,
+      // which is then caught by the parent `ErrorBoundary` component.
+      setError(() => {
+        throw e;
+      });
+    }
+  }, []);
+
+  return <StyledSpinnerWithBg loading size="2rem" />;
+};
+
+const StyledSpinnerWithBg = styled(SpinnerWithBg)`
+  ${({ theme }) => css`
+    display: flex;
+
+    & > *:last-child {
+      flex: 1;
+      overflow: auto;
+      opacity: 0;
+      animation: ${fadeInAnimation} ${theme.default.transition.duration.long}
+        ${theme.default.transition.type} forwards;
+    }
+  `}
+`;
+
+const fadeInAnimation = keyframes`
+  0% { opacity: 0 }
+  40% { opacity : 0 }
+  100% { opacity: 1 }
+`;
 
 const Wrapper = styled.div<{
   width: number;
