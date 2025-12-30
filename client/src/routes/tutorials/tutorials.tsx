@@ -185,6 +185,10 @@ const handleTutorial = (name: string, page: string) => {
 };
 
 const getAllTutorials = async (): Promise<TutorialFullData[]> => {
+  await PgCommon.tryUntilSuccess(() => {
+    if (!PgExplorer.isInitialized) throw new Error();
+  }, 10);
+
   return await Promise.all(
     PgTutorial.all.map(async (t) => {
       const tutorial: Partial<TutorialFullData> = { ...t };
