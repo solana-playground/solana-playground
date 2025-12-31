@@ -1,6 +1,5 @@
 import styled, { css } from "styled-components";
 
-import Delayed from "../../../components/Delayed";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 import Tooltip from "../../../components/Tooltip";
 import { BOTTOM } from "../../../views";
@@ -8,26 +7,23 @@ import { PgTheme, PgView } from "../../../utils/pg";
 
 const Bottom = () => (
   <Wrapper id={PgView.ids.BOTTOM}>
-    {/* Add delay to give enough time for component dependencies to initialize */}
-    <Delayed delay={60}>
-      {BOTTOM.map((Component, i) => (
-        <ErrorBoundary
-          key={i}
-          Fallback={({ error }) => (
-            <Tooltip
-              element={error.message || "Unknown error"}
-              alwaysTakeFullWidth
-            >
-              <FallbackText>
-                Extension crashed{error.message ? `: ${error.message}` : ""}
-              </FallbackText>
-            </Tooltip>
-          )}
-        >
-          <Component />
-        </ErrorBoundary>
-      ))}
-    </Delayed>
+    {BOTTOM.map((Component, i) => (
+      <ErrorBoundary
+        key={i}
+        Fallback={({ error }) => (
+          <Tooltip
+            element={error.message || "Unknown error"}
+            alwaysTakeFullWidth
+          >
+            <FallbackText>
+              Extension crashed{error.message ? `: ${error.message}` : ""}
+            </FallbackText>
+          </Tooltip>
+        )}
+      >
+        <Component />
+      </ErrorBoundary>
+    ))}
   </Wrapper>
 );
 
