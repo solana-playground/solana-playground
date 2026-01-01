@@ -172,16 +172,15 @@ class BpfLoaderUpgradeableProgram {
   static programId = BPF_LOADER_UPGRADEABLE_PROGRAM_ID;
 
   /** Derive programData address from program. */
-  static async getProgramDataAddress(programPk: PublicKey): Promise<PublicKey> {
-    return (
-      await PublicKey.findProgramAddress([programPk.toBuffer()], this.programId)
+  static getProgramDataAddress(programPk: PublicKey) {
+    return PublicKey.findProgramAddressSync(
+      [programPk.toBuffer()],
+      this.programId
     )[0];
   }
 
   /** Generate a tx instruction that initialize buffer account. */
-  static initializeBuffer(
-    params: InitializeBufferParams
-  ): TransactionInstruction {
+  static initializeBuffer(params: InitializeBufferParams) {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.InitializeBuffer;
     const data = encodeData(type, {});
 
@@ -199,7 +198,7 @@ class BpfLoaderUpgradeableProgram {
    * Generate a tx instruction that write a chunk of program data to a buffer
    * account.
    */
-  static write(params: WriteParams): TransactionInstruction {
+  static write(params: WriteParams) {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Write;
     const data = encodeData(type, {
       offset: params.offset,
@@ -220,9 +219,7 @@ class BpfLoaderUpgradeableProgram {
    * Generate a tx instruction that deploy a program with a specified maximum
    * program length.
    */
-  static async deployWithMaxProgramLen(
-    params: DeployWithMaxProgramLenParams
-  ): Promise<TransactionInstruction> {
+  static deployWithMaxProgramLen(params: DeployWithMaxProgramLenParams) {
     const type =
       BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.DeployWithMaxDataLen;
     const data = encodeData(type, {
@@ -230,7 +227,7 @@ class BpfLoaderUpgradeableProgram {
       maxDataLenPadding: 0,
     });
 
-    const programDataPk = await this.getProgramDataAddress(params.programPk);
+    const programDataPk = this.getProgramDataAddress(params.programPk);
 
     return new TransactionInstruction({
       keys: [
@@ -253,11 +250,11 @@ class BpfLoaderUpgradeableProgram {
   }
 
   /** Generate a tx instruction that upgrade a program. */
-  static async upgrade(params: UpgradeParams): Promise<TransactionInstruction> {
+  static upgrade(params: UpgradeParams) {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Upgrade;
     const data = encodeData(type, {});
 
-    const programDataPk = await this.getProgramDataAddress(params.programPk);
+    const programDataPk = this.getProgramDataAddress(params.programPk);
 
     return new TransactionInstruction({
       keys: [
@@ -267,11 +264,7 @@ class BpfLoaderUpgradeableProgram {
         { pubkey: params.spillPk, isSigner: true, isWritable: true },
         { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
         { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
-        {
-          pubkey: params.authorityPk,
-          isSigner: true,
-          isWritable: false,
-        },
+        { pubkey: params.authorityPk, isSigner: true, isWritable: false },
       ],
       programId: this.programId,
       data,
@@ -279,25 +272,15 @@ class BpfLoaderUpgradeableProgram {
   }
 
   /** Generate a tx instruction that set a new buffer authority. */
-  static setBufferAuthority(
-    params: SetBufferAuthorityParams
-  ): TransactionInstruction {
+  static setBufferAuthority(params: SetBufferAuthorityParams) {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.SetAuthority;
     const data = encodeData(type, {});
 
     return new TransactionInstruction({
       keys: [
         { pubkey: params.bufferPk, isSigner: false, isWritable: true },
-        {
-          pubkey: params.authorityPk,
-          isSigner: true,
-          isWritable: false,
-        },
-        {
-          pubkey: params.newAuthorityPk,
-          isSigner: false,
-          isWritable: false,
-        },
+        { pubkey: params.authorityPk, isSigner: true, isWritable: false },
+        { pubkey: params.newAuthorityPk, isSigner: false, isWritable: false },
       ],
       programId: this.programId,
       data,
@@ -305,21 +288,15 @@ class BpfLoaderUpgradeableProgram {
   }
 
   /** Generate a tx instruction that set a new program authority. */
-  static async setUpgradeAuthority(
-    params: SetUpgradeAuthorityParams
-  ): Promise<TransactionInstruction> {
+  static setUpgradeAuthority(params: SetUpgradeAuthorityParams) {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.SetAuthority;
     const data = encodeData(type, {});
 
-    const programDataPk = await this.getProgramDataAddress(params.programPk);
+    const programDataPk = this.getProgramDataAddress(params.programPk);
 
     const keys = [
       { pubkey: programDataPk, isSigner: false, isWritable: true },
-      {
-        pubkey: params.authorityPk,
-        isSigner: true,
-        isWritable: false,
-      },
+      { pubkey: params.authorityPk, isSigner: true, isWritable: false },
     ];
 
     if (params.newAuthorityPk) {
@@ -341,17 +318,13 @@ class BpfLoaderUpgradeableProgram {
    * Generate a tx instruction that close a program, a buffer, or an
    * uninitialized account.
    */
-  static close(params: CloseParams): TransactionInstruction {
+  static close(params: CloseParams) {
     const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Close;
     const data = encodeData(type, {});
 
     const keys = [
       { pubkey: params.closePk, isSigner: false, isWritable: true },
-      {
-        pubkey: params.recipientPk,
-        isSigner: false,
-        isWritable: true,
-      },
+      { pubkey: params.recipientPk, isSigner: false, isWritable: true },
     ];
 
     if (params.authorityPk) {
@@ -386,9 +359,6 @@ export class BpfLoaderUpgradeable {
   /** Program account size */
   static BUFFER_PROGRAM_SIZE: number = 36; // Pk
 
-  /** ProgramData account size without data */
-  static BUFFER_PROGRAM_DATA_HEADER_SIZE: number = 45; // usize + Option<Pk>
-
   /** Maximal chunk of the data per tx */
   static WRITE_CHUNK_SIZE: number =
     PACKET_DATA_SIZE - // Maximum transaction size
@@ -416,7 +386,7 @@ export class BpfLoaderUpgradeable {
         newAccountPubkey: buffer.publicKey,
         lamports,
         space: this.getBufferAccountSize(programLen),
-        programId: BPF_LOADER_UPGRADEABLE_PROGRAM_ID,
+        programId: BpfLoaderUpgradeableProgram.programId,
       })
     );
     tx.add(
@@ -426,10 +396,7 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, {
-      keypairSigners: [buffer],
-      wallet,
-    });
+    return await PgTx.send(tx, { keypairSigners: [buffer], wallet });
   }
 
   /** Update the buffer authority. */
@@ -582,11 +549,11 @@ export class BpfLoaderUpgradeable {
         newAccountPubkey: program.publicKey,
         lamports: programLamports,
         space: this.BUFFER_PROGRAM_SIZE,
-        programId: BPF_LOADER_UPGRADEABLE_PROGRAM_ID,
+        programId: BpfLoaderUpgradeableProgram.programId,
       })
     );
     tx.add(
-      await BpfLoaderUpgradeableProgram.deployWithMaxProgramLen({
+      BpfLoaderUpgradeableProgram.deployWithMaxProgramLen({
         programPk: program.publicKey,
         bufferPk,
         upgradeAuthorityPk: wallet.publicKey,
@@ -595,10 +562,7 @@ export class BpfLoaderUpgradeable {
       })
     );
 
-    return await PgTx.send(tx, {
-      wallet,
-      keypairSigners: [program],
-    });
+    return await PgTx.send(tx, { wallet, keypairSigners: [program] });
   }
 
   /** Update the program authority. */
@@ -611,7 +575,7 @@ export class BpfLoaderUpgradeable {
 
     const tx = new Transaction();
     tx.add(
-      await BpfLoaderUpgradeableProgram.setUpgradeAuthority({
+      BpfLoaderUpgradeableProgram.setUpgradeAuthority({
         programPk,
         authorityPk: wallet.publicKey,
         newAuthorityPk,
@@ -631,7 +595,7 @@ export class BpfLoaderUpgradeable {
 
     const tx = new Transaction();
     tx.add(
-      await BpfLoaderUpgradeableProgram.upgrade({
+      BpfLoaderUpgradeableProgram.upgrade({
         programPk,
         bufferPk,
         authorityPk: wallet.publicKey,
@@ -649,9 +613,7 @@ export class BpfLoaderUpgradeable {
     const tx = new Transaction();
     tx.add(
       BpfLoaderUpgradeableProgram.close({
-        closePk: await BpfLoaderUpgradeableProgram.getProgramDataAddress(
-          programPk
-        ),
+        closePk: BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk),
         recipientPk: wallet.publicKey,
         authorityPk: wallet.publicKey,
         programPk,
