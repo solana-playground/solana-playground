@@ -51,6 +51,9 @@ export class PgKeybind {
                 return ev.shiftKey;
               case "SPACE":
                 return ev.key === " ";
+              case "`":
+                // Chromium sets `ev.key` to "Unidentified" on "CTRL+`"
+                return ev.code === "Backquote";
               default:
                 return key === ev.key.toUpperCase();
             }
