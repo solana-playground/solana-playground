@@ -90,7 +90,7 @@ export type TutorialFullData = TutorialData & {
   metadata?: TutorialMetadata;
 };
 
-export type TutorialProgress = typeof TUTORIAL_PROGRESS[number];
+type TutorialProgress = typeof TUTORIAL_PROGRESS[number];
 export type TutorialLevel = typeof TUTORIAL_LEVELS[number];
 type TutorialCategory = typeof TUTORIAL_CATEGORIES[number];
 

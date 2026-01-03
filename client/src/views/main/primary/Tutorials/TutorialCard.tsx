@@ -1,18 +1,12 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import Card from "../../../../components/Card";
 import Img from "../../../../components/Img";
 import Tag from "../../../../components/Tag";
-import { useAsyncEffect } from "../../../../hooks";
-import {
-  PgTheme,
-  PgTutorial,
-  TutorialData,
-  TutorialMetadata,
-} from "../../../../utils/pg";
+import { PgTheme, PgTutorial, TutorialFullData } from "../../../../utils/pg";
 
-type TutorialCardProps = TutorialData;
+type TutorialCardProps = TutorialFullData;
 
 const TutorialCard: FC<TutorialCardProps> = ({
   name,
@@ -21,46 +15,36 @@ const TutorialCard: FC<TutorialCardProps> = ({
   level,
   framework,
   pageCount,
-}) => {
-  const [metadata, setMetadata] = useState<TutorialMetadata>();
-  useAsyncEffect(async () => {
-    const userTutorialNames = PgTutorial.getUserTutorialNames();
-    if (!userTutorialNames.includes(name)) return;
+  metadata,
+}) => (
+  <Wrapper onClick={() => PgTutorial.open(name)}>
+    <ImgWrapper
+      progress={
+        metadata
+          ? metadata.completed
+            ? 100
+            : ((metadata.pageNumber - 1) / pageCount) * 100
+          : 0
+      }
+    >
+      <TutorialImg src={thumbnail} />
+    </ImgWrapper>
 
-    const metadata = await PgTutorial.getMetadata(name);
-    setMetadata(metadata);
-  }, [name]);
+    <InfoWrapper>
+      <InfoTopWrapper>
+        <NameRow>
+          <Name>{name}</Name>
+          <Tag kind="level" value={level} />
+        </NameRow>
+        <Description>{description}</Description>
+      </InfoTopWrapper>
 
-  return (
-    <Wrapper onClick={() => PgTutorial.open(name)}>
-      <ImgWrapper
-        progress={
-          metadata
-            ? metadata.completed
-              ? 100
-              : ((metadata.pageNumber - 1) / pageCount) * 100
-            : 0
-        }
-      >
-        <TutorialImg src={thumbnail} />
-      </ImgWrapper>
-
-      <InfoWrapper>
-        <InfoTopWrapper>
-          <NameRow>
-            <Name>{name}</Name>
-            <Tag kind="level" value={level} />
-          </NameRow>
-          <Description>{description}</Description>
-        </InfoTopWrapper>
-
-        <InfoBottomWrapper>
-          {framework && <Framework kind="framework" value={framework} />}
-        </InfoBottomWrapper>
-      </InfoWrapper>
-    </Wrapper>
-  );
-};
+      <InfoBottomWrapper>
+        {framework && <Framework kind="framework" value={framework} />}
+      </InfoBottomWrapper>
+    </InfoWrapper>
+  </Wrapper>
+);
 
 const Wrapper = styled(Card)`
   padding: 0;
