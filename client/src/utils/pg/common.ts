@@ -19,7 +19,7 @@ export class PgCommon {
   }
 
   /**
-   * Wait at least `ms` amount of miliseconds before resolving.
+   * Wait at least `ms` amount of milliseconds before resolving.
    *
    * @param promisable either `Promise` or a function that returns a `Promise`
    * @returns the result of the promise parameter
@@ -38,7 +38,7 @@ export class PgCommon {
   }
 
   /**
-   * Wait at least `ms` amount of miliseconds before timing out.
+   * Wait at least `ms` amount of milliseconds before timing out.
    *
    * @param promisable either `Promise` or a function that returns a `Promise`
    * @throws on timeout
@@ -59,7 +59,7 @@ export class PgCommon {
    * Try the given callback until success.
    *
    * @param cb callback function to try
-   * @param tryInterval try interval in miliseconds
+   * @param tryInterval try interval in milliseconds
    * @returns the return value of the callback
    */
   static async tryUntilSuccess<T>(
@@ -108,7 +108,7 @@ export class PgCommon {
    * Throttle the given callback.
    *
    * @param cb callback function to run
-   * @param ms amount of delay in miliseconds
+   * @param ms amount of delay in milliseconds
    * @returns the wrapped callback function
    */
   static throttle<T extends unknown[]>(
@@ -1034,7 +1034,7 @@ export class PgCommon {
    * Runs `setInterval` callback function only when the document has focus
    *
    * @param cb callback to run on interval
-   * @param ms interval time amount in miliseconds
+   * @param ms interval time amount in milliseconds
    * @returns a cleanup timer that should be called with `clearInterval`
    */
   static setIntervalOnFocus(cb: () => void, ms?: number) {
