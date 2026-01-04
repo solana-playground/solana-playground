@@ -3,7 +3,6 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useRef,
   useState,
   Dispatch,
   SetStateAction,
@@ -11,7 +10,6 @@ import {
 import styled, { css } from "styled-components";
 
 import { ShortArrow } from "../Icons";
-import { PgView } from "../../utils/pg";
 
 interface FoldableProps {
   element: ReactNode;
@@ -36,18 +34,9 @@ const Foldable: FC<FoldableProps> = ({
     else setShow((s) => !s);
   }, [setIsOpen]);
 
-  const clickWrapperRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (show) {
-      clickWrapperRef.current?.classList.add(PgView.classNames.OPEN);
-    } else {
-      clickWrapperRef.current?.classList.remove(PgView.classNames.OPEN);
-    }
-  }, [show]);
-
   return (
     <>
-      <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
+      <ClickElWrapper onClick={handleClick} show={show}>
         <ShortArrow />
         {element}
       </ClickElWrapper>
@@ -57,15 +46,17 @@ const Foldable: FC<FoldableProps> = ({
   );
 };
 
-const ClickElWrapper = styled.div`
-  ${({ theme }) => css`
+const ClickElWrapper = styled.div<{ show: boolean }>`
+  ${({ theme, show }) => css`
     display: flex;
     align-items: center;
     justify-content: flex-start;
     width: fit-content;
     user-select: none;
     font-weight: bold;
-    color: ${theme.colors.default.textSecondary};
+    color: ${show
+      ? theme.colors.default.textPrimary
+      : theme.colors.default.textSecondary};
     transition: all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type};
 
@@ -76,14 +67,7 @@ const ClickElWrapper = styled.div`
 
     & svg:first-child {
       margin-right: 0.5rem;
-    }
-
-    &.${PgView.classNames.OPEN} {
-      color: ${theme.colors.default.textPrimary};
-
-      & svg:first-child {
-        transform: rotate(90deg);
-      }
+      ${show && "transform: rotate(90deg);"}
     }
   `}
 `;
