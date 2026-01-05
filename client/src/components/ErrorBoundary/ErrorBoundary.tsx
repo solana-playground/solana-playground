@@ -4,11 +4,12 @@ import styled, { css } from "styled-components";
 import Button from "../Button";
 import Tooltip from "../Tooltip";
 import Fallback from "./Fallback";
+import ThrowError from "./ThrowError";
 import { Refresh } from "../Icons";
 
 interface Props {
   /** Node to render as children */
-  children?: ReactNode;
+  children?: ReactNode | ChildrenError;
   /** Fallback node when there is an error */
   Fallback?: (props: { error: Error }) => JSX.Element;
 }
@@ -18,7 +19,28 @@ interface State {
   error: Error | null;
 }
 
+interface ChildrenError {
+  /** Error that was thrown */
+  error: Error;
+  /** Refresh the component (need to change the `children`) */
+  refresh: () => Promise<unknown>;
+}
+
 class ErrorBoundary extends Component<Props, State> {
+  /**
+   * Extract `props.children` error props with proper type support.
+   *
+   * @param prop children error prop
+   * @param props props to check
+   * @returns
+   */
+  extractChildrenErrorProp<P extends keyof ChildrenError>(
+    prop: P,
+    props = this.props
+  ) {
+    return (props.children as Partial<ChildrenError>)?.[prop];
+  }
+
   /**
    * Derive the state from the given error.
    *
@@ -31,7 +53,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   /** State of the component */
-  state: State = { error: null };
+  state: State = { error: this.extractChildrenErrorProp("error") ?? null };
 
   /**
    * Callback to run when an error is caught.
@@ -46,6 +68,13 @@ class ErrorBoundary extends Component<Props, State> {
     //   in div (created by App)
     //   in App
     // There is no need to log the error because it's logged automatically
+  }
+
+  /** Update the state with an error the first time props have an error */
+  componentDidUpdate(prevProps: Readonly<Props>) {
+    const prevErr = this.extractChildrenErrorProp("error", prevProps);
+    const curErr = this.extractChildrenErrorProp("error");
+    if (!prevErr && curErr) this.setState((s) => ({ ...s, error: curErr }));
   }
 
   /** Render `fallback` if there is an error, `children` otherwise. */
@@ -85,6 +114,9 @@ class ErrorBoundary extends Component<Props, State> {
         </Wrapper>
       );
     }
+
+    const refresh = this.extractChildrenErrorProp("refresh");
+    if (refresh) return <ThrowError refresh={refresh} />;
 
     return this.props.children;
   }
