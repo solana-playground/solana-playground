@@ -27,18 +27,20 @@ interface ChildrenError {
 }
 
 class ErrorBoundary extends Component<Props, State> {
+  /** State of the component */
+  state: State = { error: this.extractChildrenErrorProp("error") ?? null };
+
+  /** Whether the error from props was used */
+  usedErrorProp: boolean = false;
+
   /**
    * Extract `props.children` error props with proper type support.
    *
    * @param prop children error prop
-   * @param props props to check
    * @returns
    */
-  extractChildrenErrorProp<P extends keyof ChildrenError>(
-    prop: P,
-    props = this.props
-  ) {
-    return (props.children as Partial<ChildrenError>)?.[prop];
+  extractChildrenErrorProp<P extends keyof ChildrenError>(prop: P) {
+    return (this.props as { children?: ChildrenError }).children?.[prop];
   }
 
   /**
@@ -51,9 +53,6 @@ class ErrorBoundary extends Component<Props, State> {
     // Update state so the next render will show the fallback UI.
     return { error };
   }
-
-  /** State of the component */
-  state: State = { error: this.extractChildrenErrorProp("error") ?? null };
 
   /**
    * Callback to run when an error is caught.
@@ -70,15 +69,15 @@ class ErrorBoundary extends Component<Props, State> {
     // There is no need to log the error because it's logged automatically
   }
 
-  /** Update the state with an error the first time props have an error */
-  componentDidUpdate(prevProps: Readonly<Props>) {
-    const prevErr = this.extractChildrenErrorProp("error", prevProps);
-    const curErr = this.extractChildrenErrorProp("error");
-    if (!prevErr && curErr) this.setState((s) => ({ ...s, error: curErr }));
-  }
-
   /** Render `fallback` if there is an error, `children` otherwise. */
   render() {
+    const error = this.extractChildrenErrorProp("error");
+    if (error && !this.usedErrorProp) {
+      this.usedErrorProp = true;
+      this.setState((s) => ({ ...s, error }));
+      return null;
+    }
+
     if (this.state.error) {
       const FbComponent = this.props.Fallback ?? Fallback;
       const FbElement = <FbComponent error={this.state.error} />;
@@ -117,6 +116,9 @@ class ErrorBoundary extends Component<Props, State> {
 
     const refresh = this.extractChildrenErrorProp("refresh");
     if (refresh) return <ThrowError refresh={refresh} />;
+
+    // Reset the error prop usage so that we can show the error next time
+    this.usedErrorProp = false;
 
     return this.props.children;
   }
