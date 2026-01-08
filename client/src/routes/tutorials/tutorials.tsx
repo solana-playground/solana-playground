@@ -150,7 +150,10 @@ const handleTutorial = (name: string, page: string) => {
   // Open the correct sidebar page
   if (!page) {
     PgView.sidebar.name = "Tutorials";
-    PgView.sidebar.props = async () => ({ tutorials: await getAllTutorials() });
+    PgView.sidebar.props = async () => ({
+      tutorials: await getAllTutorials(),
+      pageName: PgView.sidebar.name,
+    });
     disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
   } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
     PgView.sidebar.name = "Explorer";

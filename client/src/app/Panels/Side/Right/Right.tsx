@@ -71,8 +71,10 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     ids.current[currentId] ??= true;
 
     const setContent = async () => {
-      const { default: Page } = await page.importComponent();
-      const resolvedProps = await PgCommon.callIfNeeded(props);
+      const [{ default: Page }, resolvedProps] = await Promise.all([
+        page.importComponent(),
+        PgCommon.callIfNeeded(props),
+      ]);
       if (!ids.current[currentId + 1]) setEl(<Page {...resolvedProps} />);
     };
 
@@ -86,7 +88,16 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
     }
   }, [page, props]);
 
-  if (loadingCount) return <Loading page={page} />;
+  if (
+    loadingCount ||
+    !el ||
+    !page ||
+    (page.route &&
+      (el as { props?: Record<string, any> }).props &&
+      page.name !== (el as { props: { pageName?: string } }).props.pageName)
+  ) {
+    return <Loading page={page} />;
+  }
 
   return (
     <ContentWrapper>

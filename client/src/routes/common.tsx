@@ -62,7 +62,8 @@ export const handleRoute = (
         PgView.sidebar.name = sidebar.name;
 
         if (sidebar.props) {
-          PgView.sidebar.props = await PgCommon.callIfNeeded(sidebar.props);
+          const sidebarProps = await PgCommon.callIfNeeded(sidebar.props);
+          PgView.sidebar.props = { ...sidebarProps, pageName: sidebar.name };
           disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
         }
       } else if (!PgView.sidebar.name) {

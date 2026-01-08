@@ -130,7 +130,7 @@ class _PgView {
     // There could be multiple processes that change the loading state, and the
     // overall loading state should only be disabled when all processes complete
     if (loading) PgView.sidebar.loadingCount++;
-    else PgView.sidebar.loadingCount--;
+    else if (PgView.sidebar.loadingCount) PgView.sidebar.loadingCount--;
   }
 
   /**
