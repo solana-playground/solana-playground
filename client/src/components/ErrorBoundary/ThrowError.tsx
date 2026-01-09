@@ -1,11 +1,11 @@
 import { FC, useState } from "react";
-import styled, { css, keyframes } from "styled-components";
 
 import { SpinnerWithBg } from "../Loading";
 import { useAsyncEffect } from "../../hooks";
 import { PgCommon } from "../../utils/pg";
 
 interface ThrowErrorProps {
+  /** Refresh the element */
   refresh: () => Promise<unknown>;
 }
 
@@ -26,27 +26,7 @@ const ThrowError: FC<ThrowErrorProps> = ({ refresh }) => {
     }
   }, [refresh]);
 
-  return <StyledSpinnerWithBg loading size="2rem" />;
+  return <SpinnerWithBg loading size="2rem" />;
 };
-
-const StyledSpinnerWithBg = styled(SpinnerWithBg)`
-  ${({ theme }) => css`
-    display: flex;
-
-    & > *:last-child {
-      flex: 1;
-      overflow: auto;
-      opacity: 0;
-      animation: ${fadeInAnimation} ${theme.default.transition.duration.long}
-        ${theme.default.transition.type} forwards;
-    }
-  `}
-`;
-
-const fadeInAnimation = keyframes`
-  0% { opacity: 0 }
-  40% { opacity : 0 }
-  100% { opacity: 1 }
-`;
 
 export default ThrowError;
