@@ -1,5 +1,5 @@
 import { convertToPlaygroundCommon, selectProgram } from "../common";
-import type { TupleFiles } from "../../utils/pg";
+import type { TupleFiles } from "../../utils";
 
 /**
  * {@link Framework.importToPlayground}

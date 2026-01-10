@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Button from "../../../components/Button";
 import { Endpoint } from "../../../constants";
-import { PgCommand, PgConnection, PgView } from "../../../utils/pg";
+import { PgCommand, PgConnection, PgView } from "../../../utils";
 import type { ToastChildProps } from "../../../components/Toast";
 
 export const NonLocal: FC<ToastChildProps> = ({ id }) => {

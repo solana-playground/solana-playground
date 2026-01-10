@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Button from "../../../../components/Button";
 import Img from "../../../../components/Img";
-import { PgExplorer, PgRouter, PgView } from "../../../../utils/pg";
+import { PgExplorer, PgRouter, PgView } from "../../../../utils";
 import { CreateItem, Share } from "./Modals";
 import { useCreateItem } from "./useCreateItem";
 

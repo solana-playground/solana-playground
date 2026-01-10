@@ -1,5 +1,5 @@
 import Svg from "../components/Svg";
-import { PgLanguage } from "../utils/pg";
+import { PgLanguage } from "../utils";
 
 export const javascript = PgLanguage.create({
   name: "JavaScript",

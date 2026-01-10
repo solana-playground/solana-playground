@@ -23,7 +23,7 @@ import {
   Plus,
   Trash,
 } from "../../../../components/Icons";
-import { PgCommon, PgExplorer, PgTutorial, PgView } from "../../../../utils/pg";
+import { PgCommon, PgExplorer, PgTutorial, PgView } from "../../../../utils";
 import { useExplorer } from "../../../../hooks";
 
 const Workspaces = () => {

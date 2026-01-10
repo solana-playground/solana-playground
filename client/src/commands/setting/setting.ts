@@ -1,4 +1,4 @@
-import { PgCommon, PgSettings, PgTerminal } from "../../utils/pg";
+import { PgCommon, PgSettings, PgTerminal } from "../../utils";
 import { createArgs, createCmd, createSubcmd } from "../create";
 
 /** Common setting ID argument */

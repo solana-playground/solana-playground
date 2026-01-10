@@ -2,7 +2,7 @@ import { DefaultCandyGuardSettings } from "@metaplex-foundation/js";
 
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processGuardShow = async (
   rpcUrl: string | undefined,

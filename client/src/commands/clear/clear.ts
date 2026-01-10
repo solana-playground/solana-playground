@@ -1,4 +1,4 @@
-import { PgTerminal } from "../../utils/pg";
+import { PgTerminal } from "../../utils";
 import { createCmd } from "../create";
 
 export const clear = createCmd({

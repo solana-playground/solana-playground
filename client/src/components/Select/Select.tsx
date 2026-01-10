@@ -1,7 +1,7 @@
 import ReactSelect, { GroupBase, Props } from "react-select";
 import styled, { css, useTheme } from "styled-components";
 
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 const Select = <
   Option,

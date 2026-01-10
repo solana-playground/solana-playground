@@ -1,7 +1,7 @@
 import { FC, ReactElement, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { PgCommon, PgTheme, PgView } from "../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../utils";
 import { useKeybind, useSetStatic } from "../../hooks";
 
 interface ModalBackdropProps {}

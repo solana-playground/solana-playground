@@ -1,6 +1,6 @@
 import { DependencyList, useEffect } from "react";
 
-import type { Fn } from "../utils/pg";
+import type { Fn } from "../utils";
 
 /**
  * Async version of the `useEffect` hook.

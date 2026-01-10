@@ -3,7 +3,7 @@ import styled, { css, keyframes } from "styled-components";
 
 import FilterGroups from "../../../../components/FilterGroups";
 import Text from "../../../../components/Text";
-import { PgTutorial, TutorialFullData } from "../../../../utils/pg";
+import { PgTutorial, TutorialFullData } from "../../../../utils";
 import type { Filter } from "../../../../hooks";
 
 interface TutorialsProps {

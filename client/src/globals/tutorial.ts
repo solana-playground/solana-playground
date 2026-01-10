@@ -1,5 +1,5 @@
 import { TUTORIALS } from "../tutorials";
-import { PgTutorial } from "../utils/pg";
+import { PgTutorial } from "../utils";
 
 PgTutorial.all = TUTORIALS;
 

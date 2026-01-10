@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { About, Main } from "./views";
-import { PgTheme, PgTutorial } from "../../utils/pg";
+import { PgTheme, PgTutorial } from "../../utils";
 import { useRenderOnChange } from "../../hooks";
 import type { TutorialComponentProps } from "./types";
 

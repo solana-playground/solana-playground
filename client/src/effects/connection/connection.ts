@@ -4,7 +4,7 @@ import {
   PgView,
   PgWallet,
   SyncOrAsync,
-} from "../../utils/pg";
+} from "../../utils";
 
 export const connection = () => {
   return PgCommon.batchChanges(async () => {

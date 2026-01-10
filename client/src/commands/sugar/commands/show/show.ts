@@ -3,7 +3,7 @@ import { Creator } from "@metaplex-foundation/js";
 import { NULL_STRING } from "../../constants";
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processShow = async (
   rpcUrl: string | undefined,

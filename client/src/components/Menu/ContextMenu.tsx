@@ -14,7 +14,7 @@ import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
 import { useOnClickOutside } from "../../hooks";
 import type { CommonMenuProps } from "./Menu"; // Circular dependency
-import { PgView } from "../../utils/pg";
+import { PgView } from "../../utils";
 
 export type ContextMenuProps = {
   onContextMenu?: (ev: MouseEvent<HTMLDivElement>) => void;

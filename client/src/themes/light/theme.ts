@@ -1,4 +1,4 @@
-import type { ThemeParam } from "../../utils/pg";
+import type { ThemeParam } from "../../utils";
 
 // BG
 const BG_DARK = "#2c2c2c";

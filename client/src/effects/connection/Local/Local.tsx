@@ -6,7 +6,7 @@ import Markdown from "../../../components/Markdown";
 import Modal from "../../../components/Modal";
 import Text from "../../../components/Text";
 import { Info, Sad } from "../../../components/Icons";
-import { PgCommon, PgConnection, PgView } from "../../../utils/pg";
+import { PgCommon, PgConnection, PgView } from "../../../utils";
 
 export const Local = () => {
   // Check localnet connection

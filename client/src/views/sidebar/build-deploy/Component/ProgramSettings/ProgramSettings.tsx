@@ -7,7 +7,7 @@ import IDL from "./IDL";
 import ProgramBinary from "./ProgramBinary";
 import ProgramID from "./ProgramID";
 import { useAsyncEffect } from "../../../../../hooks";
-import { PgFramework } from "../../../../../utils/pg";
+import { PgFramework } from "../../../../../utils";
 
 /** All program settings */
 const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [

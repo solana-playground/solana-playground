@@ -1,6 +1,6 @@
 import { getMetaplex, loadCache, loadConfigData } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processGuardUpdate = async (
   rpcUrl: string | undefined,

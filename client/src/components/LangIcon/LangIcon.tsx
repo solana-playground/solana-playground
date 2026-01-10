@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
 
-import { PgLanguage, PgView } from "../../utils/pg";
+import { PgLanguage, PgView } from "../../utils";
 import { QuestionMark } from "../Icons";
 
 interface LangIconProps {

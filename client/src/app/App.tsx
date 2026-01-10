@@ -8,7 +8,7 @@ import { AppLoading } from "../components/Loading/App";
 // ```
 // const AppLazy = lazy(async () => {
 //   const { GLOBALS } = await import("../globals");
-//   const { initAll } = await import("../utils/pg");
+//   const { initAll } = await import("../utils");
 //   await initAll(GLOBALS);
 //
 //   return import("./AppLazy");

@@ -14,11 +14,11 @@ import {
   PgSettings,
   PgTerminal,
   PgTx,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 import {
   IdlInstruction,
   PgProgramInteraction,
-} from "../../.././../../utils/pg/program-interaction";
+} from "../../.././../../utils/program-interaction";
 import { useWallet } from "../../../../../hooks";
 import { useIdl } from "../IdlProvider";
 

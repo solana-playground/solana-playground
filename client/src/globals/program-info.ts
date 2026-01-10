@@ -1,1 +1,1 @@
-export { PgProgramInfo } from "../utils/pg";
+export { PgProgramInfo } from "../utils";

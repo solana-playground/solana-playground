@@ -3,7 +3,7 @@ import {
   PgFramework,
   PgRouter,
   TUTORIAL_CATEGORIES,
-} from "../../utils/pg";
+} from "../../utils";
 import { handleRoute } from "../common";
 
 export const programs = PgRouter.create({

@@ -1,1 +1,1 @@
-export { PgWallet } from "../utils/pg";
+export { PgWallet } from "../utils";

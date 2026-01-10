@@ -9,7 +9,7 @@ import {
 import styled, { css, CSSProperties } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
-import { PgTheme, ThemeColor } from "../../utils/pg";
+import { PgTheme, ThemeColor } from "../../utils";
 
 export type ButtonKind =
   | "primary"

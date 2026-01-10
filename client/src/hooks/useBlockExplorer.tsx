@@ -1,5 +1,5 @@
 import { useRenderOnChange } from "./useRenderOnChange";
-import { PgBlockExplorer } from "../utils/pg";
+import { PgBlockExplorer } from "../utils";
 
 /** Get the current block explorer */
 export const useBlockExplorer = () => {

@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
 import LangIcon from "../../../../../components/LangIcon";
-import { Fn, PgCommon, PgExplorer, PgView } from "../../../../../utils/pg";
+import { Fn, PgCommon, PgExplorer, PgView } from "../../../../../utils";
 import {
   useKeybind,
   useOnClickOutside,

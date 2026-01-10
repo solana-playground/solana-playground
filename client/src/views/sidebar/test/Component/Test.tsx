@@ -7,8 +7,8 @@ import Event from "./Event";
 import Instruction from "./Instruction";
 import IdlProvider from "./IdlProvider";
 import Text from "../../../../components/Text";
-import { PgCommand, PgProgramInfo } from "../../../../utils/pg";
-import { PgProgramInteraction } from "../../../../utils/pg/program-interaction";
+import { PgCommand, PgProgramInfo } from "../../../../utils";
+import { PgProgramInteraction } from "../../../../utils/program-interaction";
 import {
   useExplorer,
   useProgramInfo,

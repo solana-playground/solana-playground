@@ -7,7 +7,7 @@ import Markdown from "../../Markdown";
 import Resizable from "../../Resizable";
 import { SpinnerWithBg } from "../../Loading";
 import { PointedArrow } from "../../Icons";
-import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
+import { PgRouter, PgTheme, PgTutorial } from "../../../utils";
 import type { TutorialMainComponentProps } from "../types";
 
 export const Main: FC<TutorialMainComponentProps> = ({

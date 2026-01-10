@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 
 import { AppLoading } from "../../components/Loading/App";
 import { GLOBALS } from "../../globals";
-import { initAll } from "../../utils/pg";
+import { initAll } from "../../utils";
 import { useAsyncEffect } from "../../hooks";
 
 export const GlobalsProvider: FC = ({ children }) => {

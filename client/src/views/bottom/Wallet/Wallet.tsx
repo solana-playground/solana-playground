@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Button from "../../../components/Button";
 import Tooltip from "../../../components/Tooltip";
 import { useWallet } from "../../../hooks";
-import { PgCommand, PgTheme } from "../../../utils/pg";
+import { PgCommand, PgTheme } from "../../../utils";
 
 export const Wallet = () => {
   const wallet = useWallet();

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useTheme } from "styled-components";
 
-import { PgTheme } from "../utils/pg";
+import { PgTheme } from "../utils";
 
 /**
  * Use a different background than the parent node's background.

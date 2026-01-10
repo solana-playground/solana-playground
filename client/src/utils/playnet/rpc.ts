@@ -7,7 +7,7 @@ import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgSettings } from "../settings";
 import { PgWeb3 } from "../web3";
-import { Endpoint } from "../../../constants";
+import { Endpoint } from "../../constants";
 import type {
   OverridableConnection,
   RpcRequest,

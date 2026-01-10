@@ -5,7 +5,7 @@ import Tab from "./Tab";
 import Button from "../Button";
 import Dnd from "../Dnd";
 import Img from "../Img";
-import { PgExplorer, PgTheme, PgView, PgWallet } from "../../utils/pg";
+import { PgExplorer, PgTheme, PgView, PgWallet } from "../../utils";
 import {
   useExplorer,
   useKeybind,

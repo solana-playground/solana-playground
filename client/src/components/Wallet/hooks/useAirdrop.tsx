@@ -7,7 +7,7 @@ import {
   PgTerminal,
   PgTx,
   PgWallet,
-} from "../../../utils/pg";
+} from "../../../utils";
 
 export const useAirdrop = () => {
   const [airdropAmount, setAirdropAmount] =

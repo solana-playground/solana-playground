@@ -1,4 +1,4 @@
-import { PgRouter, PgShare } from "../../utils/pg";
+import { PgRouter, PgShare } from "../../utils";
 import { handleRoute } from "../common";
 
 export const share = PgRouter.create({

@@ -9,12 +9,7 @@ import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Warning } from "../../../../../components/Icons";
-import {
-  PgProgramInfo,
-  PgCommon,
-  PgView,
-  PgWeb3,
-} from "../../../../../utils/pg";
+import { PgProgramInfo, PgCommon, PgView, PgWeb3 } from "../../../../../utils";
 import { useRenderOnChange } from "../../../../../hooks";
 
 const ProgramID = () => (

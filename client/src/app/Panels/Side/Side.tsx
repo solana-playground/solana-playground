@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Left from "./Left";
 import Right from "./Right";
 import { SpinnerWithBg } from "../../../components/Loading";
-import { PgRouter, PgTheme, PgView } from "../../../utils/pg";
+import { PgRouter, PgTheme, PgView } from "../../../utils";
 import { useKeybind, useRenderOnChange } from "../../../hooks";
 
 const Side = () => {

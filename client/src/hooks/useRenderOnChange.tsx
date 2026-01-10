@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from "react";
 
-import type { Disposable } from "../utils/pg";
+import type { Disposable } from "../utils";
 
 export const useRenderOnChange = <T, G extends () => T>(
   onChange: ((cb: (v?: T) => any) => Disposable) & { getValue?: G }

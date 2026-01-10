@@ -8,7 +8,7 @@ import {
   PgGlobal,
   PgLanguage,
   PgView,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 import { useRenderOnChange } from "../../../../hooks";
 
 export type ItemData = {

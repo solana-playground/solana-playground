@@ -6,7 +6,7 @@ import {
   MAX_URI_LENGTH,
   VALID_CATEGORIES,
 } from "../../constants";
-import { PgCommon } from "../../../../utils/pg";
+import { PgCommon } from "../../../../utils";
 import type { ToPrimitive } from "../../types";
 
 export const checkName = (name: string) => {

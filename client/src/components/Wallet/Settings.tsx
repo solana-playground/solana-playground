@@ -14,7 +14,7 @@ import {
   ThreeDots,
   Trash,
 } from "../Icons";
-import { Fn, PgCommand, PgView, PgWallet } from "../../utils/pg";
+import { Fn, PgCommand, PgView, PgWallet } from "../../utils";
 import { useAirdrop, useDarken } from "./hooks";
 import { useCopy } from "../../hooks";
 

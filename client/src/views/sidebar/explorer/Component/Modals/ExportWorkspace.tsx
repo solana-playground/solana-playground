@@ -4,7 +4,7 @@ import Button from "../../../../../components/Button";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { ExportFile, Info } from "../../../../../components/Icons";
-import { PgFramework, PgView } from "../../../../../utils/pg";
+import { PgFramework, PgView } from "../../../../../utils";
 
 export const ExportWorkspace = () => {
   const convertAndExport = async () => {

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTheme } from "styled-components";
-import { PgCommon, PgExplorer } from "../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../utils";
 
 /** Manage the item state when the current workspace or file changes. */
 export const useHandleItemState = () => {

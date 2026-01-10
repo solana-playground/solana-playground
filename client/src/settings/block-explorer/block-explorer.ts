@@ -1,4 +1,4 @@
-import { PgBlockExplorer } from "../../utils/pg";
+import { PgBlockExplorer } from "../../utils";
 import { createSetting } from "../create";
 
 export const blockExplorer = [

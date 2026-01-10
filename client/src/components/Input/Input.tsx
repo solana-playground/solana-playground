@@ -7,7 +7,7 @@ import {
 } from "react";
 import styled, { css } from "styled-components";
 
-import { PgTheme, PgView } from "../../utils/pg";
+import { PgTheme, PgView } from "../../utils";
 
 type InputError = string | boolean | null;
 

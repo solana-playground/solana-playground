@@ -1,5 +1,5 @@
 import { SIDEBAR } from "../views";
-import { PgView } from "../utils/pg";
+import { PgView } from "../utils";
 
 PgView.allSidebarPages = SIDEBAR;
 

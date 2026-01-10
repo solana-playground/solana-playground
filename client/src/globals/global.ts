@@ -1,1 +1,1 @@
-export { PgGlobal } from "../utils/pg";
+export { PgGlobal } from "../utils";

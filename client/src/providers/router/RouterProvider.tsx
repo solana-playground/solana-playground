@@ -1,7 +1,7 @@
 import { FC, useEffect } from "react";
 import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 
-import { PgCommon, PgRouter } from "../../utils/pg";
+import { PgCommon, PgRouter } from "../../utils";
 import { useGetStatic } from "../../hooks";
 
 export const RouterProvider: FC = ({ children }) => (

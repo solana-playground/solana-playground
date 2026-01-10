@@ -1,6 +1,6 @@
 import { format } from "util";
 
-import { Emoji } from "../../../constants";
+import { Emoji } from "../../constants";
 import { PgTerminal } from "../terminal";
 
 export class PgClientImporter {

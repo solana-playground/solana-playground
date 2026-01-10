@@ -1,4 +1,4 @@
-import { PgPackage } from "../../utils/pg";
+import { PgPackage } from "../../utils";
 import { createCmd } from "../create";
 import { isPgConnected } from "../validation";
 

@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction, createContext, useContext } from "react";
 
-import type { GeneratableInstruction } from "../../../../../utils/pg/program-interaction";
+import type { GeneratableInstruction } from "../../../../../utils/program-interaction";
 
 interface InstructionProviderProps {
   instruction: GeneratableInstruction;

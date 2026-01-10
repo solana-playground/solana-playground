@@ -1,4 +1,4 @@
-import { PgCommandManager, PgTerminal } from "../../utils/pg";
+import { PgCommandManager, PgTerminal } from "../../utils";
 import { createCmd } from "../create";
 
 export const help = createCmd({

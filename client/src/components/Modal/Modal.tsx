@@ -6,7 +6,7 @@ import FadeIn from "../FadeIn";
 import Text from "../Text";
 import { Close, Sad } from "../Icons";
 import { PROJECT_NAME } from "../../constants";
-import { OrString, PgTheme, PgView, SyncOrAsync } from "../../utils/pg";
+import { OrString, PgTheme, PgView, SyncOrAsync } from "../../utils";
 import { useKeybind, useOnClickOutside } from "../../hooks";
 
 interface ModalProps {

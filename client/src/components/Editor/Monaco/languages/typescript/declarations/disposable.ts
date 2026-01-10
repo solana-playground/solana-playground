@@ -9,7 +9,7 @@ import {
   PgExplorer,
   PgProgramInfo,
   PgWallet,
-} from "../../../../../../utils/pg";
+} from "../../../../../../utils";
 
 /**
  * Declare types that can change based on outside events.

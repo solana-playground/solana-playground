@@ -12,7 +12,7 @@ import {
   IRawTheme,
 } from "vscode-textmate";
 
-import { RequiredKey, PgExplorer, PgCommon } from "../../../../utils/pg";
+import { RequiredKey, PgExplorer, PgCommon } from "../../../../utils";
 
 // Remove defaults https://github.com/Microsoft/monaco-editor/issues/252#issuecomment-482786867
 monaco.languages.getLanguages().forEach((lang) => {

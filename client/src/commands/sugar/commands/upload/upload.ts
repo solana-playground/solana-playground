@@ -9,7 +9,7 @@ import {
 import { getAssetPairs } from "./assets";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils";
 
 interface AssetType {
   image: number[];

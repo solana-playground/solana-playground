@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen(raw_module = "/src/utils/pg/program-info.ts")]
+#[wasm_bindgen(raw_module = "/src/utils/program-info.ts")]
 extern "C" {
     pub type PgProgramInfo;
 
@@ -13,7 +13,7 @@ extern "C" {
     pub fn pk_string() -> Option<String>;
 }
 
-#[wasm_bindgen(raw_module = "/src/utils/pg/settings.ts")]
+#[wasm_bindgen(raw_module = "/src/utils/settings.ts")]
 extern "C" {
     pub type PgSettings;
     pub type PgSettingsConnection;
@@ -47,7 +47,7 @@ extern "C" {
     pub fn set_preflight_checks(this: &PgSettingsConnection, value: bool);
 }
 
-#[wasm_bindgen(raw_module = "/src/utils/pg/terminal/terminal.ts")]
+#[wasm_bindgen(raw_module = "/src/utils/terminal/terminal.ts")]
 extern "C" {
     pub type PgTerminal;
 
@@ -62,7 +62,7 @@ extern "C" {
 
 }
 
-#[wasm_bindgen(raw_module = "/src/utils/pg/wallet/wallet.ts")]
+#[wasm_bindgen(raw_module = "/src/utils/wallet/wallet.ts")]
 extern "C" {
     pub type PgWallet;
 

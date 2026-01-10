@@ -11,7 +11,7 @@ import {
 } from "./parser";
 import { SugarUploadScreen } from "../upload";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgView, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgView, PgTerminal } from "../../../../utils";
 
 export const processValidate = async (
   strict: boolean,

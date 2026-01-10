@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { PgKeybind, WithOptionalDependencyList } from "../utils/pg";
+import { PgKeybind, WithOptionalDependencyList } from "../utils";
 
 /** Parameters of `PgKeybind.add` */
 type AddKeybindParams = Parameters<typeof PgKeybind["add"]>;

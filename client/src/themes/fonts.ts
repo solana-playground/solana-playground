@@ -1,4 +1,4 @@
-import type { Font } from "../utils/pg";
+import type { Font } from "../utils";
 
 /** All available fonts */
 export const FONTS: Font[] = [

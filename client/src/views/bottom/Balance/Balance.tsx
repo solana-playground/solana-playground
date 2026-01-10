@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 
 import Tooltip from "../../../components/Tooltip";
 import { useBalance } from "../../../hooks";
-import { PgTheme } from "../../../utils/pg";
+import { PgTheme } from "../../../utils";
 
 export const Balance = () => {
   const balance = useBalance();

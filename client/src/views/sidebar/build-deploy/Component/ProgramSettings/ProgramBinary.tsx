@@ -7,7 +7,7 @@ import {
   PgExplorer,
   PgProgramInfo,
   PgServer,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 import { useRenderOnChange } from "../../../../../hooks";
 
 const ProgramBinary = () => (

@@ -12,7 +12,7 @@ import styled, { css } from "styled-components";
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
-import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../utils";
 import { useAsyncEffect, useRenderOnChange } from "../../../../hooks";
 
 interface DefaultRightProps {

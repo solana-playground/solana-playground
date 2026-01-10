@@ -1,4 +1,4 @@
-import { PgCommon, PgExplorer, TupleFiles } from "../../utils/pg";
+import { PgCommon, PgExplorer, TupleFiles } from "../../utils";
 import { convertFromPlayground as convertToAnchor } from "../anchor/from";
 import { addAfter } from "../common";
 

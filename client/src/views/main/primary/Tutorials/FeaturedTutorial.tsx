@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Button from "../../../../components/Button";
 import Img from "../../../../components/Img";
 import TutorialDetails from "../../../../components/Tutorial/TutorialDetails";
-import { PgTutorial, TutorialData } from "../../../../utils/pg";
+import { PgTutorial, TutorialData } from "../../../../utils";
 
 interface FeaturedTutorialProps {
   tutorial: TutorialData;

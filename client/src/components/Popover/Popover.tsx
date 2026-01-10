@@ -11,7 +11,7 @@ import ReactDOM from "react-dom";
 import styled, { css } from "styled-components";
 
 import FadeIn from "../FadeIn";
-import { PgCommon, PgView, RequiredKey, ValueOf } from "../../utils/pg";
+import { PgCommon, PgView, RequiredKey, ValueOf } from "../../utils";
 
 export interface PopoverProps {
   /** Popover element to show on trigger */

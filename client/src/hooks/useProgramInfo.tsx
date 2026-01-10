@@ -1,4 +1,4 @@
-import { PgProgramInfo } from "../utils/pg";
+import { PgProgramInfo } from "../utils";
 import { useRenderOnChange } from "./useRenderOnChange";
 
 /** Get the current program info. */

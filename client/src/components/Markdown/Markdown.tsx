@@ -7,7 +7,7 @@ import CodeBlock from "../CodeBlock";
 import Img from "../Img";
 import Link, { LinkProps } from "../Link";
 import { HyperLink } from "../Icons";
-import { PgCommon, PgRouter, PgTheme } from "../../utils/pg";
+import { PgCommon, PgRouter, PgTheme } from "../../utils";
 
 interface MarkdownProps {
   /** Markdown string */

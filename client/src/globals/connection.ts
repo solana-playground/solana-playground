@@ -1,1 +1,1 @@
-export { PgConnection } from "../utils/pg";
+export { PgConnection } from "../utils";

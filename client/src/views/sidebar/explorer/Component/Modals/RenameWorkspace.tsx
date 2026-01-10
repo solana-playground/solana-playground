@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgCommon, PgExplorer, PgView } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer, PgView } from "../../../../../utils";
 
 export const RenameWorkspace = () => {
   const workspaceName = PgExplorer.currentWorkspaceName!;

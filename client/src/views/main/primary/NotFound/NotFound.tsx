@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
 import { Error } from "../../../../components/Icons";
-import { PgRouter } from "../../../../utils/pg";
+import { PgRouter } from "../../../../utils";
 
 interface NotFoundProps {
   text?: string;

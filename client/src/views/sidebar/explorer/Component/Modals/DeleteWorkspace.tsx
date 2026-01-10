@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 
 import Modal from "../../../../../components/Modal";
 import { Warning } from "../../../../../components/Icons";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgExplorer } from "../../../../../utils";
 
 export const DeleteWorkspace = () => (
   <Modal

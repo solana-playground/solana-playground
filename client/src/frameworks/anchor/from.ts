@@ -1,9 +1,4 @@
-import {
-  PgCommon,
-  PgExplorer,
-  PgProgramInfo,
-  TupleFiles,
-} from "../../utils/pg";
+import { PgCommon, PgExplorer, PgProgramInfo, TupleFiles } from "../../utils";
 import {
   addAfter,
   addImports,

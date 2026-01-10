@@ -1,7 +1,7 @@
 import { ChangeEvent } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 
-import { Arrayable, PgCommon, PgRouter } from "../utils/pg";
+import { Arrayable, PgCommon, PgRouter } from "../utils";
 
 type Filterable = { name: string; featured?: boolean } & Record<string, any>;
 

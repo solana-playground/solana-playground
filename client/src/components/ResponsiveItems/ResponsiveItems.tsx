@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { PgCommon } from "../../utils/pg";
+import { PgCommon } from "../../utils";
 
 interface ResponsiveItemsProps {
   minItemWidth: string;

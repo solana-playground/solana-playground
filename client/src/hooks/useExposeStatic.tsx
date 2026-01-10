@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from "react";
 
 import { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
-import { PgCommon } from "../utils/pg/common";
-import type { Methods } from "../utils/pg";
+import { PgCommon } from "../utils/common";
+import type { Methods } from "../utils";
 
 /**
  * Expose the given class object inside a component to outside, allowing it to

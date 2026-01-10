@@ -14,7 +14,7 @@ import {
   PgProgramInfo,
   PgTerminal,
   PgTheme,
-} from "../../../utils/pg";
+} from "../../../utils";
 import {
   useAsyncEffect,
   useKeybind,

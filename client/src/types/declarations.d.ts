@@ -15,7 +15,7 @@ import {
   SyncOrAsync,
   Theme,
   TutorialDataParam,
-} from "../utils/pg";
+} from "../utils";
 
 /** Global overrides */
 global {

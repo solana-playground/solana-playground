@@ -20,7 +20,7 @@ import {
   PgGithub,
   PgRouter,
   PgView,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 
 export const ImportGithub = () => {
   // Handle user input

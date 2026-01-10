@@ -4,7 +4,7 @@ import {
   PgExplorer,
   PgProgramInfo,
   TupleFiles,
-} from "../../utils/pg";
+} from "../../utils";
 import {
   addAfter,
   addImports,

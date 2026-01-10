@@ -1,5 +1,5 @@
 import { convertToPlayground as convertFromAnchor } from "../anchor/to";
-import { PgCommon, PgExplorer, TupleFiles } from "../../utils/pg";
+import { PgCommon, PgExplorer, TupleFiles } from "../../utils";
 
 /**
  * {@link Framework.importToPlayground}

@@ -8,14 +8,14 @@ import SearchBar, {
   SearchBarItem,
   SearchBarProps,
 } from "../../../../../components/SearchBar";
-import { PgCommon, PgWallet, PgWeb3 } from "../../../../../utils/pg";
+import { PgCommon, PgWallet, PgWeb3 } from "../../../../../utils";
 import {
   GeneratableInstruction,
   Idl,
   IdlType,
   InstructionValueGenerator,
   PgProgramInteraction,
-} from "../../../../../utils/pg/program-interaction";
+} from "../../../../../utils/program-interaction";
 import { useInstruction } from "./InstructionProvider";
 import { useIdl } from "../IdlProvider";
 

@@ -1,4 +1,4 @@
 import { COMMANDS } from "../commands";
-import { PgCommandManager } from "../utils/pg";
+import { PgCommandManager } from "../utils";
 
 PgCommandManager.all = COMMANDS;

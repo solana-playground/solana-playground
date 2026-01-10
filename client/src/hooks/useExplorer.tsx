@@ -1,4 +1,4 @@
-import { PgExplorer } from "../utils/pg";
+import { PgExplorer } from "../utils";
 import { useRenderOnChange } from "./useRenderOnChange";
 
 /**

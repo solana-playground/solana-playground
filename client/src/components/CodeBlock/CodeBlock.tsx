@@ -3,7 +3,7 @@ import styled, { css, useTheme } from "styled-components";
 
 import CopyButton from "../CopyButton";
 import { highlight } from "./highlight";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 import { useAsyncEffect, useDifferentBackground } from "../../hooks";
 
 export interface CodeBlockProps {

@@ -20,7 +20,7 @@ import {
   PgTheme,
   PgView,
   PgWallet,
-} from "../../utils/pg";
+} from "../../utils";
 import { useDarken, useStandardAccountChange } from "./hooks";
 import {
   useKeybind,

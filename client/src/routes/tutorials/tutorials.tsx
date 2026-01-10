@@ -10,7 +10,7 @@ import {
   TutorialFullData,
   TUTORIAL_LEVELS,
   TUTORIAL_PROGRESS,
-} from "../../utils/pg";
+} from "../../utils";
 import { handleRoute } from "../common";
 
 export const tutorials = PgRouter.create({

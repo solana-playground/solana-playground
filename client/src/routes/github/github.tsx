@@ -1,4 +1,4 @@
-import { PgGithub, PgRouter } from "../../utils/pg";
+import { PgGithub, PgRouter } from "../../utils";
 import { handleRoute } from "../common";
 
 export const githubDefault = PgRouter.create({

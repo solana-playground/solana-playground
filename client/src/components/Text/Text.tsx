@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
 import { useDifferentBackground } from "../../hooks";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 export type TextKind = "default" | "info" | "warning" | "success" | "error";
 

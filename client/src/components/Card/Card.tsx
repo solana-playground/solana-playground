@@ -7,7 +7,7 @@ import {
 } from "react";
 import styled, { css } from "styled-components";
 
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 interface CardProps extends ComponentPropsWithoutRef<"div"> {}
 

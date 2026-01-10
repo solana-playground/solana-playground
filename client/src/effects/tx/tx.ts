@@ -1,11 +1,5 @@
-import { BPF_LOADER_UPGRADEABLE_PROGRAM_ID } from "../../utils/bpf-upgradeable-browser";
-import {
-  PgBytes,
-  PgConnection,
-  PgSettings,
-  PgTx,
-  PgView,
-} from "../../utils/pg";
+import { BPF_LOADER_UPGRADEABLE_PROGRAM_ID } from "../../utils/bpf-upgradeable-loader";
+import { PgBytes, PgConnection, PgSettings, PgTx, PgView } from "../../utils";
 import { ExplorerLink } from "./ExplorerLink";
 
 // Show a notification toast with explorer links after a transaction is sent.

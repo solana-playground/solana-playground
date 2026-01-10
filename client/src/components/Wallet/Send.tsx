@@ -11,7 +11,7 @@ import {
   PgTx,
   PgWallet,
   PgWeb3,
-} from "../../utils/pg";
+} from "../../utils";
 import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (

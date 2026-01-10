@@ -1,4 +1,4 @@
-import { PgWallet } from "../utils/pg";
+import { PgWallet } from "../utils";
 import { useRenderOnChange } from "./useRenderOnChange";
 
 /** Get globally synced current wallet's balance. */

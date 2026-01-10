@@ -6,7 +6,7 @@ import {
 import { ConfigLine } from "@metaplex-foundation/mpl-candy-machine-core";
 
 import { PgSugar } from "../processor";
-import { PgCommon, PgExplorer, PgWeb3 } from "../../../utils/pg";
+import { PgCommon, PgExplorer, PgWeb3 } from "../../../utils";
 
 export class CandyCache {
   program: CacheProgram;

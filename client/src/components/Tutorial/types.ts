@@ -1,4 +1,4 @@
-import type { TupleFiles } from "../../utils/pg";
+import type { TupleFiles } from "../../utils";
 
 export type TutorialComponentProps = {
   /** About section that will be shown under the description of the tutorial page */

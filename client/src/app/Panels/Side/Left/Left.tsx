@@ -6,7 +6,7 @@ import Settings from "./Settings";
 import Link from "../../../../components/Link";
 import Popover from "../../../../components/Popover";
 import { GITHUB_URL } from "../../../../constants";
-import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../utils";
 
 interface LeftProps<P = typeof PgView.sidebar.name, W = number> {
   pageName: P;

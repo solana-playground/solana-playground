@@ -5,7 +5,7 @@ import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgWallet, PgWeb3 } from "../../../utils/pg";
+import { PgWallet, PgWeb3 } from "../../../utils";
 
 export const Setup = () => {
   const [text, setText] = useState("");

@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 
 import { SpinnerWithBg } from "../Loading";
 import { useAsyncEffect } from "../../hooks";
-import { PgCommon } from "../../utils/pg";
+import { PgCommon } from "../../utils";
 
 interface ThrowErrorProps {
   /** Refresh the element */

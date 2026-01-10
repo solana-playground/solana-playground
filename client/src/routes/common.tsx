@@ -7,7 +7,7 @@ import {
   PgView,
   Promisable,
   SyncOrAsync,
-} from "../utils/pg";
+} from "../utils";
 
 type ComponentName =
   | string

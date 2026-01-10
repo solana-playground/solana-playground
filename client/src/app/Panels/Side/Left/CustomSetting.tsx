@@ -6,7 +6,7 @@ import Markdown from "../../../../components/Markdown";
 import Modal from "../../../../components/Modal";
 import Text from "../../../../components/Text";
 import { Info } from "../../../../components/Icons";
-import { Setting } from "../../../../utils/pg";
+import { Setting } from "../../../../utils";
 
 interface CustomSettingProps {
   setting: Setting;

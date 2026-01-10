@@ -13,7 +13,7 @@ import {
   PgView,
   RequiredKey,
   Setting as SettingType,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 import { CustomSetting } from "./CustomSetting";
 
 const Settings = () => (

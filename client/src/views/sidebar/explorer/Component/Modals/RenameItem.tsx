@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from "react";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgCommon, PgExplorer } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../../utils";
 
 interface RenameItemProps {
   path: string;

@@ -1,5 +1,5 @@
 import { Endpoint } from "../../constants";
-import { PgCommon } from "../../utils/pg";
+import { PgCommon } from "../../utils";
 import { createSetting } from "../create";
 
 export const connection = [

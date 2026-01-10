@@ -1,5 +1,5 @@
 import { GITHUB_URL } from "../../constants";
-import { PgCommon } from "../../utils/pg";
+import { PgCommon } from "../../utils";
 import { createSetting } from "../create";
 
 export const server = [

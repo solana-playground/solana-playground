@@ -1,4 +1,4 @@
-import { PgCommon, PgTheme } from "../../utils/pg";
+import { PgCommon, PgTheme } from "../../utils";
 import { createSetting } from "../create";
 
 export const ui = [

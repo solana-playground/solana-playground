@@ -1,7 +1,7 @@
 import { FC, useEffect, useMemo } from "react";
 import { useWallet, WalletProvider } from "@solana/wallet-adapter-react";
 
-import { PgWallet } from "../../utils/pg";
+import { PgWallet } from "../../utils";
 
 export const SolanaProvider: FC = ({ children }) => {
   const wallets = useMemo(() => [], []);

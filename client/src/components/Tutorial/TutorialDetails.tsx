@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Link from "../Link";
 import Tag from "../Tag";
-import { Arrayable, TutorialDetailKey } from "../../utils/pg";
+import { Arrayable, TutorialDetailKey } from "../../utils";
 import { useDifferentBackground } from "../../hooks";
 
 interface TutorialDetailsProps {

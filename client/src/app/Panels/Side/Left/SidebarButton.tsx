@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Img from "../../../../components/Img";
 import Tooltip from "../../../../components/Tooltip";
-import { PgTheme } from "../../../../utils/pg";
+import { PgTheme } from "../../../../utils";
 
 interface SidebarButtonProps extends ComponentPropsWithoutRef<"div"> {
   src: string;

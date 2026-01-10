@@ -20,7 +20,7 @@ import {
   PgEditor,
   PgTheme,
   PgView,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../hooks";
 import { MAIN_SECONDARY } from "../../../../views";
 

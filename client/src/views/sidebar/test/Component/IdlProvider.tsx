@@ -1,6 +1,6 @@
 import { FC, createContext, useContext } from "react";
 
-import type { Idl } from "../../../../utils/pg/program-interaction";
+import type { Idl } from "../../../../utils/program-interaction";
 
 interface IdlProviderProps {
   idl: Idl;

@@ -1,5 +1,5 @@
 import { SETTINGS } from "../settings";
-import { PgSettings } from "../utils/pg";
+import { PgSettings } from "../utils";
 
 PgSettings.all = SETTINGS;
 

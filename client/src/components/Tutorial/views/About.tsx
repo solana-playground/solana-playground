@@ -6,7 +6,7 @@ import Link from "../../Link";
 import Markdown from "../../Markdown";
 import TutorialDetails from "../TutorialDetails";
 import { PointedArrow, Triangle } from "../../Icons";
-import { PgTheme, PgTutorial } from "../../../utils/pg";
+import { PgTheme, PgTutorial } from "../../../utils";
 import type { TutorialAboutComponentProps } from "../types";
 
 export const About: FC<TutorialAboutComponentProps> = ({

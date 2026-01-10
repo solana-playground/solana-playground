@@ -10,7 +10,7 @@ import {
   PgTerm,
   PgTerminal,
   PgTheme,
-} from "../../utils/pg";
+} from "../../utils";
 
 interface TerminalProps {
   cmdManager: CommandManager;

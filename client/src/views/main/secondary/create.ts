@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-import { Elementable, PgCommon, RequiredKey } from "../../../utils/pg";
+import { Elementable, PgCommon, RequiredKey } from "../../../utils";
 
 /** Secondary main view page parameter */
 type MainSecondaryPageParam<N extends string> = {

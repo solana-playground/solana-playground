@@ -4,7 +4,7 @@ import styled, { css, keyframes } from "styled-components";
 import Card from "../../../../components/Card";
 import Img from "../../../../components/Img";
 import Tag from "../../../../components/Tag";
-import { PgTheme, PgTutorial, TutorialFullData } from "../../../../utils/pg";
+import { PgTheme, PgTutorial, TutorialFullData } from "../../../../utils";
 
 type TutorialCardProps = TutorialFullData;
 

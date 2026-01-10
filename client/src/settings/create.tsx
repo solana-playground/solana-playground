@@ -1,4 +1,4 @@
-import { PgCommon, PgSettings, Setting, SettingParam } from "../utils/pg";
+import { PgCommon, PgSettings, Setting, SettingParam } from "../utils";
 
 /**
  * Create a UI setting.

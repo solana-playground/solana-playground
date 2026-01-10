@@ -1,5 +1,5 @@
 import { loadCache, loadConfigData, saveConfigData } from "../../utils";
-import { PgBytes, PgCommon, PgTerminal } from "../../../../utils/pg";
+import { PgBytes, PgCommon, PgTerminal } from "../../../../utils";
 
 export const processHash = async (compare: string | undefined) => {
   const configData = await loadConfigData();

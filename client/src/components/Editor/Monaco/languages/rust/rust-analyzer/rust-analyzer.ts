@@ -8,7 +8,7 @@ import {
   Disposable,
   PgCommon,
   PgExplorer,
-} from "../../../../../../utils/pg";
+} from "../../../../../../utils";
 
 /** Monaco language id for Rust */
 const LANGUAGE_ID = "rust";

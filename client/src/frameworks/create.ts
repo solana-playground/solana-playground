@@ -1,4 +1,4 @@
-import { Framework, FrameworkParam, PgCommon } from "../utils/pg";
+import { Framework, FrameworkParam, PgCommon } from "../utils";
 
 /**
  * Create a framework with inferred types.

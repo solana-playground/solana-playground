@@ -1,5 +1,5 @@
 import { Endpoint } from "../constants";
-import { PgBlockExplorer, PgConnection } from "../utils/pg";
+import { PgBlockExplorer, PgConnection } from "../utils";
 
 export const solanaFM = PgBlockExplorer.create({
   name: "Solana FM",

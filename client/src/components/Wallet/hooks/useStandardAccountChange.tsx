@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { useWallet } from "../../../hooks";
-import { PgWallet } from "../../../utils/pg";
+import { PgWallet } from "../../../utils";
 
 /**
  * Update the standard wallet when the user switches between accounts.

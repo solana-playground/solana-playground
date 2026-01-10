@@ -3,7 +3,7 @@ import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import { SpinnerWithBg } from "../../../../components/Loading";
-import { PgCommon, PgTheme, PgView } from "../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../utils";
 import { useGetAndSetStatic } from "../../../../hooks";
 
 const Primary = () => {

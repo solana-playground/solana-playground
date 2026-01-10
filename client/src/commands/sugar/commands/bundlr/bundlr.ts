@@ -2,12 +2,7 @@ import Bundlr from "@bundlr-network/client";
 
 import { BundlrEnpoints } from "../../constants";
 import { Emoji } from "../../../../constants";
-import {
-  PgConnection,
-  PgTerminal,
-  PgWallet,
-  PgWeb3,
-} from "../../../../utils/pg";
+import { PgConnection, PgTerminal, PgWallet, PgWeb3 } from "../../../../utils";
 
 enum BundlrAction {
   Balance = 0,

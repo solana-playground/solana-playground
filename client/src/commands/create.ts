@@ -1,4 +1,4 @@
-import type { Arg, CommandParam, Command, Option } from "../utils/pg";
+import type { Arg, CommandParam, Command, Option } from "../utils";
 
 /**
  * Create a command.

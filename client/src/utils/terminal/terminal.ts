@@ -11,7 +11,7 @@ import {
   PROGRAM_ERROR,
   RPC_ERROR,
   SERVER_ERROR,
-} from "../../../constants";
+} from "../../constants";
 import { PgCommon } from "../common";
 import type { CommandManager, Prefixes, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";

@@ -6,7 +6,7 @@ import Input from "../../Input";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Info } from "../../Icons";
-import { PgWallet, PgWeb3 } from "../../../utils/pg";
+import { PgWallet, PgWeb3 } from "../../../utils";
 
 export const Add = () => {
   const [keypair] = useState(PgWeb3.Keypair.generate);

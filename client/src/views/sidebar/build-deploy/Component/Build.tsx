@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
 import { useExplorer, useRenderOnChange } from "../../../../hooks";
-import { PgCommand, PgGlobal } from "../../../../utils/pg";
+import { PgCommand, PgGlobal } from "../../../../utils";
 
 const Build = () => {
   const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);

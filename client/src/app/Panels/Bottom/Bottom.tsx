@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 import Tooltip from "../../../components/Tooltip";
 import { BOTTOM } from "../../../views";
-import { PgTheme, PgView } from "../../../utils/pg";
+import { PgTheme, PgView } from "../../../utils";
 
 const Bottom = () => (
   <Wrapper id={PgView.ids.BOTTOM}>

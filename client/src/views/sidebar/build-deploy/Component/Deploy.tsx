@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Text from "../../../../components/Text";
 import Button, { ButtonProps } from "../../../../components/Button";
-import { PgCommand, PgGlobal } from "../../../../utils/pg";
+import { PgCommand, PgGlobal } from "../../../../utils";
 import {
   useProgramInfo,
   useRenderOnChange,

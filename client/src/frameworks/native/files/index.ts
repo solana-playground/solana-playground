@@ -1,4 +1,4 @@
-import type { TupleFiles } from "../../../utils/pg";
+import type { TupleFiles } from "../../../utils";
 
 export const files: TupleFiles = [
   ["src/lib.rs", require("./src/lib.rs")],

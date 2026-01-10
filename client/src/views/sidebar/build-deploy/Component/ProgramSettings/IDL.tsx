@@ -9,7 +9,7 @@ import {
   PgCommon,
   PgProgramInfo,
   PgWallet,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 import { useRenderOnChange } from "../../../../../hooks";
 
 const IDL = () => (

@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 
 import Tooltip from "../../../components/Tooltip";
 import { useConnection, useRenderOnChange, useWallet } from "../../../hooks";
-import { PgCommon, PgConnection, PgTheme } from "../../../utils/pg";
+import { PgCommon, PgConnection, PgTheme } from "../../../utils";
 
 export const Cluster = () => {
   const cluster = useRenderOnChange(PgConnection.onDidChangeCluster);

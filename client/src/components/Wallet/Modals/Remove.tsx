@@ -4,7 +4,7 @@ import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgWallet } from "../../../utils/pg";
+import { PgWallet } from "../../../utils";
 
 export const Remove = () => (
   <Modal

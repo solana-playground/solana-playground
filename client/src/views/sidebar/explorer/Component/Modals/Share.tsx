@@ -14,7 +14,7 @@ import {
   PgRouter,
   PgShare,
   PgView,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 
 export const Share = () => {
   const [filePaths, setFilePaths] = useState(() =>

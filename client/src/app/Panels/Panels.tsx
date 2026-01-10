@@ -6,7 +6,7 @@ import Side from "./Side";
 import ModalBackdrop from "../../components/ModalBackdrop";
 import Toast from "../../components/Toast";
 import Wallet from "../../components/Wallet";
-import { PgView } from "../../utils/pg";
+import { PgView } from "../../utils";
 
 const Panels = () => (
   <Wrapper>

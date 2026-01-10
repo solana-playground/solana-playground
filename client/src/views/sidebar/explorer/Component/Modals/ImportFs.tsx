@@ -11,7 +11,7 @@ import {
   PgFramework,
   PgView,
   TupleFiles,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 import { useMounted } from "../../../../../hooks";
 
 interface ImportFsProps {

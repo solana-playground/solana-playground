@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { Emoji, Endpoint } from "../../constants";
-import { PgCommon, PgConnection, PgTerminal } from "../../utils/pg";
+import { PgCommon, PgConnection, PgTerminal } from "../../utils";
 import {
   processBundlr,
   processCollectionSet,

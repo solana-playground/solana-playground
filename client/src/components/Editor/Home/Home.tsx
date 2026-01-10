@@ -9,7 +9,7 @@ import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { External, ShortArrow } from "../../Icons";
 import { PROJECT_NAME } from "../../../constants";
-import { PgTheme, PgView } from "../../../utils/pg";
+import { PgTheme, PgView } from "../../../utils";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the

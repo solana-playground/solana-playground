@@ -1,6 +1,6 @@
 // Common command checks
 
-import { PgCommand, PgTerminal, PgWallet } from "../utils/pg";
+import { PgCommand, PgTerminal, PgWallet } from "../utils";
 
 /** Check whether Playground Wallet is connected. */
 export const isPgConnected = () => {

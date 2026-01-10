@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
-import { PgCommon, PgTheme, PgView } from "../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../utils";
 import { useSetStatic } from "../../hooks";
 
 export interface ToastChildProps {

@@ -9,7 +9,7 @@ import FeaturedTutorial from "./FeaturedTutorial";
 import TutorialCard from "./TutorialCard";
 import { Sad } from "../../../../components/Icons";
 import { Filter, useFilteredSearch } from "../../../../hooks";
-import { TutorialFullData, TUTORIAL_LEVELS } from "../../../../utils/pg";
+import { TutorialFullData, TUTORIAL_LEVELS } from "../../../../utils";
 
 interface TutorialsProps {
   tutorials: TutorialFullData[];

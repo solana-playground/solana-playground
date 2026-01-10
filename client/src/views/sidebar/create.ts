@@ -1,4 +1,4 @@
-import { PgCommon, SidebarPage, SidebarPageParam } from "../../utils/pg";
+import { PgCommon, SidebarPage, SidebarPageParam } from "../../utils";
 
 /**
  * Create a sidebar page.

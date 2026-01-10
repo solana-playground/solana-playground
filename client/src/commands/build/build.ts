@@ -10,7 +10,7 @@ import {
   PgTerminal,
   PgWeb3,
   TupleFiles,
-} from "../../utils/pg";
+} from "../../utils";
 import { createCmd } from "../create";
 
 export const build = createCmd({

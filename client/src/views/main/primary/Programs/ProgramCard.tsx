@@ -13,7 +13,7 @@ import {
   PgTheme,
   TutorialData,
   TutorialDetailKey,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 
 export type ProgramCardProps = {
   /** Program name */

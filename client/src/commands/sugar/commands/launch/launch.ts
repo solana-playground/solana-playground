@@ -5,7 +5,7 @@ import { processValidate } from "../validate";
 import { processVerify } from "../verify";
 import { loadConfigData } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal } from "../../../../utils";
 
 export const processLaunch = async (
   rpcUrl: string | undefined,

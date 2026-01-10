@@ -9,7 +9,7 @@ import {
   Framework as FrameworkType,
   PgExplorer,
   PgFramework,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 
 export const CreateWorkspace = () => {
   // Handle user input

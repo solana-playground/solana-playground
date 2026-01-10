@@ -1,4 +1,4 @@
-import { PgTerminal } from "../../../utils/pg";
+import { PgTerminal } from "../../../utils";
 
 export const printWithStyle = (
   indent: string,

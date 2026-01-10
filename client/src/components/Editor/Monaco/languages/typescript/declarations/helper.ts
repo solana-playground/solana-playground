@@ -5,7 +5,7 @@ import {
   Disposable,
   PgCommon,
   TupleFiles,
-} from "../../../../../../utils/pg";
+} from "../../../../../../utils";
 
 /**
  * Some declaration files need to be declared for them to be referenced by other

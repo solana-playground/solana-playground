@@ -1,9 +1,9 @@
 import { StandardProperties } from "csstype";
 import { ITerminalOptions as XtermOptions } from "xterm";
 
-import { ButtonKind } from "../../../components/Button";
-import { MenuKind } from "../../../components/Menu";
-import { TextKind } from "../../../components/Text";
+import { ButtonKind } from "../../components/Button";
+import { MenuKind } from "../../components/Menu";
+import { TextKind } from "../../components/Text";
 import { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */

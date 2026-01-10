@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled, { css, keyframes } from "styled-components";
 
-import { PgTheme, PgView } from "../../utils/pg";
+import { PgTheme, PgView } from "../../utils";
 
 interface SpinnerWithBgProps extends SpinnerProps {
   loading: boolean;

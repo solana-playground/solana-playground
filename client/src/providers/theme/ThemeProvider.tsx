@@ -5,8 +5,8 @@ import styled, {
 } from "styled-components";
 
 import { FONTS, THEMES } from "../../themes";
-import { PgCommon } from "../../utils/pg/common";
-import { PgTheme, Theme } from "../../utils/pg/theme";
+import { PgCommon } from "../../utils/common";
+import { PgTheme, Theme } from "../../utils/theme";
 
 export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<Theme>();

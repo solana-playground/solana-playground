@@ -6,7 +6,7 @@ import Link from "../Link";
 import Text from "../Text";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils/pg";
+import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils";
 import { useBlockExplorer, useConnection } from "../../hooks";
 
 const Transactions = () => {

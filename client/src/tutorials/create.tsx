@@ -3,7 +3,7 @@ import {
   TupleString,
   TutorialData,
   TutorialDataParam,
-} from "../utils/pg";
+} from "../utils";
 
 /** Create tutorials with defaults. */
 export const createTutorial = (tutorial: TutorialDataParam) => {

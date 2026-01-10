@@ -13,7 +13,7 @@ import Button from "../Button";
 import LangIcon from "../LangIcon";
 import Menu from "../Menu";
 import { Close } from "../Icons";
-import { PgExplorer, PgTheme } from "../../utils/pg";
+import { PgExplorer, PgTheme } from "../../utils";
 import type { SortableItemProvidedProps } from "../Dnd/Sortable";
 
 interface TabProps extends ComponentPropsWithoutRef<"div"> {

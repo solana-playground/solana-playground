@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgExplorer } from "../../../../../utils/pg";
+import { PgExplorer } from "../../../../../utils";
 
 export const ImportTemporary = () => {
   const [name, setName] = useState("");

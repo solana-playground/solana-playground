@@ -9,7 +9,7 @@ import {
   PgLanguage,
   TutorialDetailKey,
   TutorialLevel,
-} from "../../utils/pg";
+} from "../../utils";
 import { useDifferentBackground } from "../../hooks";
 
 interface TagProps {

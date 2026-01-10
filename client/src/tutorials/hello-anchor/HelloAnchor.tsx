@@ -1,5 +1,5 @@
 import { Tutorial } from "../../components/Tutorial";
-import { PgExplorer, PgView } from "../../utils/pg";
+import { PgExplorer, PgView } from "../../utils";
 
 const HelloAnchor = () => (
   <Tutorial

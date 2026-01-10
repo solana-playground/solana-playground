@@ -2,8 +2,8 @@ import { FC, useEffect, useState } from "react";
 
 import CodeResult from "../CodeResult";
 import Interaction from "../Interaction";
-import { PgCommon } from "../../../../../utils/pg";
-import { PgProgramInteraction } from "../../../../../utils/pg/program-interaction";
+import { PgCommon } from "../../../../../utils";
+import { PgProgramInteraction } from "../../../../../utils/program-interaction";
 import { useConnection, useWallet } from "../../../../../hooks";
 import { useIdl } from "../IdlProvider";
 

@@ -11,7 +11,7 @@ import {
 } from "shiki";
 import type { IRawTheme } from "vscode-textmate";
 
-import { OrString, PgCommon } from "../../utils/pg";
+import { OrString, PgCommon } from "../../utils";
 
 /**
  * Convert the given code to HTML.

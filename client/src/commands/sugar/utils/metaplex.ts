@@ -5,7 +5,7 @@ import {
 } from "@metaplex-foundation/js";
 
 import { BundlrEnpoints } from "../constants";
-import { PgConnection, PgWallet } from "../../../utils/pg";
+import { PgConnection, PgWallet } from "../../../utils";
 
 export const getMetaplex = async (endpoint?: string) => {
   return Metaplex.make(PgConnection.create({ endpoint }))
