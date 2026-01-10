@@ -6,7 +6,7 @@ import { PgTheme } from "../utils/pg";
 /**
  * Use a different background than the parent node's background.
  *
- * @param delay the amount of miliseconds to delay the background check
+ * @param delay the amount of milliseconds to delay the background check
  *
  * @returns the element ref object to attach
  */
