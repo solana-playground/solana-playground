@@ -915,7 +915,6 @@ export class PgTheme {
     sidebar.default.width ??= "100%";
     sidebar.default.height ??= "100%";
     sidebar.default.display ??= "flex";
-    sidebar.default.overflowX ??= "hidden"; // This makes content scroll work
 
     // Left
     sidebar.left ??= {};
