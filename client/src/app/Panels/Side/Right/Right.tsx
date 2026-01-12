@@ -10,6 +10,7 @@ import {
 import styled, { css } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
+import FadeIn from "../../../../components/FadeIn";
 import Resizable from "../../../../components/Resizable";
 import { Wormhole } from "../../../../components/Loading";
 import { PgCommon, PgTheme, PgView } from "../../../../utils";
@@ -100,7 +101,7 @@ const Content: FC<DefaultRightProps> = ({ page }) => {
   }
 
   return (
-    <ContentWrapper>
+    <ContentWrapper duration="long">
       <ErrorBoundary>{el}</ErrorBoundary>
     </ContentWrapper>
   );
@@ -130,7 +131,7 @@ const TitleWrapper = styled.div`
   `}
 `;
 
-const ContentWrapper = styled.div`
+const ContentWrapper = styled(FadeIn)`
   ${({ theme }) => css`
     height: 100%;
     overflow-y: auto;
