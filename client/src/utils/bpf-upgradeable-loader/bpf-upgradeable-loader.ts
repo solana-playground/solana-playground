@@ -1,97 +1,24 @@
 // Thanks to @fanatid
 
-import { Buffer } from "buffer";
 import * as BufferLayout from "@solana/buffer-layout";
-import {
-  PACKET_DATA_SIZE,
-  PublicKey,
-  SYSVAR_CLOCK_PUBKEY,
-  SYSVAR_RENT_PUBKEY,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction,
-  Signer,
-} from "@solana/web3.js";
 
-import { encodeData, InstructionType } from "./instruction";
 import * as Layout from "./layout";
-import {
-  ConnectionOption,
-  PgCommon,
-  PgConnection,
-  PgTx,
-  PgWallet,
-  WalletOption,
-} from "..";
+import { PgCommon } from "../common";
+import { ConnectionOption, PgConnection } from "../connection";
+import { PgTx } from "../tx";
+import { PgWallet, WalletOption } from "../wallet";
+import { PgWeb3 } from "../web3";
 
-export const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(
+export const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PgWeb3.PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
 );
-
-/** An enumeration of valid BpfUpgradeableLoaderInstructionType's */
-type BpfUpgradeableLoaderInstructionType =
-  | "InitializeBuffer"
-  | "Write"
-  | "DeployWithMaxDataLen"
-  | "Upgrade"
-  | "SetAuthority"
-  | "Close";
-
-/**
- * An enumeration of valid system InstructionType's
- * @internal
- */
-const BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS: {
-  [type in BpfUpgradeableLoaderInstructionType]: InstructionType;
-} = Object.freeze({
-  InitializeBuffer: {
-    index: 0,
-    layout: BufferLayout.struct<BufferLayout.UInt>([
-      BufferLayout.u32("instruction"),
-    ]),
-  },
-  Write: {
-    index: 1,
-    layout: BufferLayout.struct<BufferLayout.UInt>([
-      BufferLayout.u32("instruction"),
-      BufferLayout.u32("offset"),
-      Layout.rustVecBytes("bytes"),
-    ]),
-  },
-  DeployWithMaxDataLen: {
-    index: 2,
-    layout: BufferLayout.struct<BufferLayout.UInt>([
-      BufferLayout.u32("instruction"),
-      BufferLayout.u32("maxDataLen"),
-      BufferLayout.u32("maxDataLenPadding"),
-    ]),
-  },
-  Upgrade: {
-    index: 3,
-    layout: BufferLayout.struct<BufferLayout.UInt>([
-      BufferLayout.u32("instruction"),
-    ]),
-  },
-  SetAuthority: {
-    index: 4,
-    layout: BufferLayout.struct<BufferLayout.UInt>([
-      BufferLayout.u32("instruction"),
-    ]),
-  },
-  Close: {
-    index: 5,
-    layout: BufferLayout.struct<BufferLayout.UInt>([
-      BufferLayout.u32("instruction"),
-    ]),
-  },
-});
 
 /** Initialize buffer tx params */
 type InitializeBufferParams = {
   /** Public key of the buffer account */
-  bufferPk: PublicKey;
+  bufferPk: PgWeb3.PublicKey;
   /** Public key to set as authority of the initialized buffer */
-  authorityPk: PublicKey;
+  authorityPk: PgWeb3.PublicKey;
 };
 
 /** Write tx params */
@@ -101,9 +28,9 @@ type WriteParams = {
   /** Chunk of program data */
   bytes: Buffer;
   /** Public key of the buffer account */
-  bufferPk: PublicKey;
+  bufferPk: PgWeb3.PublicKey;
   /** Public key to set as authority of the initialized buffer */
-  authorityPk: PublicKey;
+  authorityPk: PgWeb3.PublicKey;
 };
 
 /** Deploy program tx params */
@@ -111,57 +38,57 @@ type DeployWithMaxProgramLenParams = {
   /** Maximum length that the program can be upgraded to. */
   maxDataLen: number;
   /** The uninitialized Program account */
-  programPk: PublicKey;
+  programPk: PgWeb3.PublicKey;
   /** The buffer account where the program data has been written. The buffer account’s authority must match the program’s authority */
-  bufferPk: PublicKey;
+  bufferPk: PgWeb3.PublicKey;
   /** The program’s authority */
-  upgradeAuthorityPk: PublicKey;
+  upgradeAuthorityPk: PgWeb3.PublicKey;
   /** The payer account that will pay to create the ProgramData account */
-  payerPk: PublicKey;
+  payerPk: PgWeb3.PublicKey;
 };
 
 /** Upgrade tx params */
 type UpgradeParams = {
   /** The program account */
-  programPk: PublicKey;
+  programPk: PgWeb3.PublicKey;
   /** The buffer account where the program data has been written. The buffer account’s authority must match the program’s authority */
-  bufferPk: PublicKey;
+  bufferPk: PgWeb3.PublicKey;
   /** The spill account */
-  spillPk: PublicKey;
+  spillPk: PgWeb3.PublicKey;
   /** The program’s authority */
-  authorityPk: PublicKey;
+  authorityPk: PgWeb3.PublicKey;
 };
 
 /** Update buffer authority tx params */
 type SetBufferAuthorityParams = {
   /** The buffer account where the program data has been written */
-  bufferPk: PublicKey;
+  bufferPk: PgWeb3.PublicKey;
   /** The buffer's authority */
-  authorityPk: PublicKey;
+  authorityPk: PgWeb3.PublicKey;
   /** New buffer's authority */
-  newAuthorityPk: PublicKey;
+  newAuthorityPk: PgWeb3.PublicKey;
 };
 
 /** Update program authority tx params */
 type SetUpgradeAuthorityParams = {
   /** The program account */
-  programPk: PublicKey;
+  programPk: PgWeb3.PublicKey;
   /** The current authority */
-  authorityPk: PublicKey;
+  authorityPk: PgWeb3.PublicKey;
   /** The new authority, optional, if omitted then the program will not be upgradable */
-  newAuthorityPk: PublicKey | undefined;
+  newAuthorityPk?: PgWeb3.PublicKey;
 };
 
 /** Close account tx params */
 type CloseParams = {
   /** The account to close */
-  closePk: PublicKey;
+  closePk: PgWeb3.PublicKey;
   /** The account to deposit the closed account’s lamports */
-  recipientPk: PublicKey;
+  recipientPk: PgWeb3.PublicKey;
   /** The account’s authority, Optional, required for initialized accounts */
-  authorityPk: PublicKey | undefined;
+  authorityPk?: PgWeb3.PublicKey;
   /** The associated Program account if the account to close is a ProgramData account */
-  programPk: PublicKey | undefined;
+  programPk?: PgWeb3.PublicKey;
 };
 
 /**
@@ -171,9 +98,9 @@ class BpfLoaderUpgradeableProgram {
   /** Public key that identifies the BpfLoaderUpgradeable program */
   static programId = BPF_LOADER_UPGRADEABLE_PROGRAM_ID;
 
-  /** Derive programData address from program. */
-  static getProgramDataAddress(programPk: PublicKey) {
-    return PublicKey.findProgramAddressSync(
+  /** Derive the program data address from the given program address. */
+  static getProgramDataAddress(programPk: PgWeb3.PublicKey) {
+    return PgWeb3.PublicKey.findProgramAddressSync(
       [programPk.toBuffer()],
       this.programId
     )[0];
@@ -181,10 +108,17 @@ class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that initialize buffer account. */
   static initializeBuffer(params: InitializeBufferParams) {
-    const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.InitializeBuffer;
-    const data = encodeData(type, {});
+    const data = this._encodeData(
+      {
+        discriminator: 0,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+        ]),
+      },
+      {}
+    );
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys: [
         { pubkey: params.bufferPk, isSigner: false, isWritable: true },
         { pubkey: params.authorityPk, isSigner: false, isWritable: false },
@@ -199,13 +133,19 @@ class BpfLoaderUpgradeableProgram {
    * account.
    */
   static write(params: WriteParams) {
-    const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Write;
-    const data = encodeData(type, {
-      offset: params.offset,
-      bytes: params.bytes,
-    });
+    const data = this._encodeData(
+      {
+        discriminator: 1,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+          BufferLayout.u32("offset"),
+          Layout.rustVecBytes("bytes"),
+        ]),
+      },
+      { offset: params.offset, bytes: params.bytes }
+    );
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys: [
         { pubkey: params.bufferPk, isSigner: false, isWritable: true },
         { pubkey: params.authorityPk, isSigner: true, isWritable: false },
@@ -220,24 +160,41 @@ class BpfLoaderUpgradeableProgram {
    * program length.
    */
   static deployWithMaxProgramLen(params: DeployWithMaxProgramLenParams) {
-    const type =
-      BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.DeployWithMaxDataLen;
-    const data = encodeData(type, {
-      maxDataLen: params.maxDataLen,
-      maxDataLenPadding: 0,
-    });
+    const data = this._encodeData(
+      {
+        discriminator: 2,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+          BufferLayout.u32("maxDataLen"),
+          BufferLayout.u32("maxDataLenPadding"),
+        ]),
+      },
+      { maxDataLen: params.maxDataLen, maxDataLenPadding: 0 }
+    );
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys: [
         { pubkey: params.payerPk, isSigner: true, isWritable: true },
         { pubkey: programDataPk, isSigner: false, isWritable: true },
         { pubkey: params.programPk, isSigner: false, isWritable: true },
         { pubkey: params.bufferPk, isSigner: false, isWritable: true },
-        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-        { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        {
+          pubkey: PgWeb3.SYSVAR_RENT_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: PgWeb3.SYSVAR_CLOCK_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: PgWeb3.SystemProgram.programId,
+          isSigner: false,
+          isWritable: false,
+        },
         {
           pubkey: params.upgradeAuthorityPk,
           isSigner: true,
@@ -251,19 +208,34 @@ class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that upgrade a program. */
   static upgrade(params: UpgradeParams) {
-    const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Upgrade;
-    const data = encodeData(type, {});
+    const data = this._encodeData(
+      {
+        discriminator: 3,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+        ]),
+      },
+      {}
+    );
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys: [
         { pubkey: programDataPk, isSigner: false, isWritable: true },
         { pubkey: params.programPk, isSigner: false, isWritable: true },
         { pubkey: params.bufferPk, isSigner: false, isWritable: true },
         { pubkey: params.spillPk, isSigner: true, isWritable: true },
-        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-        { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+        {
+          pubkey: PgWeb3.SYSVAR_RENT_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: PgWeb3.SYSVAR_CLOCK_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
         { pubkey: params.authorityPk, isSigner: true, isWritable: false },
       ],
       programId: this.programId,
@@ -273,10 +245,17 @@ class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that set a new buffer authority. */
   static setBufferAuthority(params: SetBufferAuthorityParams) {
-    const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.SetAuthority;
-    const data = encodeData(type, {});
+    const data = this._encodeData(
+      {
+        discriminator: 4,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+        ]),
+      },
+      {}
+    );
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys: [
         { pubkey: params.bufferPk, isSigner: false, isWritable: true },
         { pubkey: params.authorityPk, isSigner: true, isWritable: false },
@@ -289,8 +268,15 @@ class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that set a new program authority. */
   static setUpgradeAuthority(params: SetUpgradeAuthorityParams) {
-    const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.SetAuthority;
-    const data = encodeData(type, {});
+    const data = this._encodeData(
+      {
+        discriminator: 4,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+        ]),
+      },
+      {}
+    );
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
 
@@ -298,7 +284,6 @@ class BpfLoaderUpgradeableProgram {
       { pubkey: programDataPk, isSigner: false, isWritable: true },
       { pubkey: params.authorityPk, isSigner: true, isWritable: false },
     ];
-
     if (params.newAuthorityPk) {
       keys.push({
         pubkey: params.newAuthorityPk,
@@ -307,7 +292,7 @@ class BpfLoaderUpgradeableProgram {
       });
     }
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys,
       programId: this.programId,
       data,
@@ -319,14 +304,20 @@ class BpfLoaderUpgradeableProgram {
    * uninitialized account.
    */
   static close(params: CloseParams) {
-    const type = BPF_UPGRADEABLE_LOADER_INSTRUCTION_LAYOUTS.Close;
-    const data = encodeData(type, {});
+    const data = this._encodeData(
+      {
+        discriminator: 5,
+        layout: BufferLayout.struct<BufferLayout.UInt>([
+          BufferLayout.u32("discriminator"),
+        ]),
+      },
+      {}
+    );
 
     const keys = [
       { pubkey: params.closePk, isSigner: false, isWritable: true },
       { pubkey: params.recipientPk, isSigner: false, isWritable: true },
     ];
-
     if (params.authorityPk) {
       keys.push({
         pubkey: params.authorityPk,
@@ -334,7 +325,6 @@ class BpfLoaderUpgradeableProgram {
         isWritable: false,
       });
     }
-
     if (params.programPk) {
       keys.push({
         pubkey: params.programPk,
@@ -343,27 +333,56 @@ class BpfLoaderUpgradeableProgram {
       });
     }
 
-    return new TransactionInstruction({
+    return new PgWeb3.TransactionInstruction({
       keys,
       programId: this.programId,
       data,
     });
+  }
+
+  /** Encode instruction data. */
+  private static _encodeData(
+    ix: {
+      /** Instruction identifier */
+      discriminator: number;
+      /** Layout to build the data from */
+      layout: BufferLayout.Layout<any>;
+    },
+    /** Instruction arguments */
+    fields: Record<string, any>
+  ) {
+    const allocLen =
+      ix.layout.span >= 0
+        ? ix.layout.span
+        : (ix.layout as unknown as { fields: any[] }).fields.reduce(
+            (acc, cur) => {
+              if (cur.span >= 0) {
+                acc += cur.span;
+              } else if (typeof cur.alloc === "function") {
+                acc += cur.alloc(fields[cur.property]);
+              }
+
+              return acc;
+            },
+            0
+          );
+    const data = Buffer.alloc(allocLen);
+    const layoutFields = Object.assign(
+      { discriminator: ix.discriminator },
+      fields
+    );
+    ix.layout.encode(layoutFields, data);
+    return data;
   }
 }
 
 /** BpfLoaderUpgradeable program interface */
 export class BpfLoaderUpgradeable {
   /** Buffer account size without data */
-  static BUFFER_HEADER_SIZE: number = 37; // Option<Pk>
+  static BUFFER_HEADER_SIZE = 37; // Option<Pk>
 
   /** Program account size */
-  static BUFFER_PROGRAM_SIZE: number = 36; // Pk
-
-  /** Maximal chunk of the data per tx */
-  static WRITE_CHUNK_SIZE: number =
-    PACKET_DATA_SIZE - // Maximum transaction size
-    220 - // Data with 1 signature
-    44; // Priority fee instruction size
+  static BUFFER_PROGRAM_SIZE = 36; // Pk
 
   /** Get buffer account size. */
   static getBufferAccountSize(programLen: number) {
@@ -372,43 +391,42 @@ export class BpfLoaderUpgradeable {
 
   /** Create and initialize a buffer account. */
   static async createBuffer(
-    buffer: Signer,
+    buffer: PgWeb3.Signer,
     lamports: number,
     programLen: number,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
-      SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: buffer.publicKey,
-        lamports,
-        space: this.getBufferAccountSize(programLen),
-        programId: BpfLoaderUpgradeableProgram.programId,
-      })
-    );
-    tx.add(
-      BpfLoaderUpgradeableProgram.initializeBuffer({
-        bufferPk: buffer.publicKey,
-        authorityPk: wallet.publicKey,
-      })
-    );
+    const tx = new PgWeb3.Transaction()
+      .add(
+        PgWeb3.SystemProgram.createAccount({
+          fromPubkey: wallet.publicKey,
+          newAccountPubkey: buffer.publicKey,
+          lamports,
+          space: this.getBufferAccountSize(programLen),
+          programId: BpfLoaderUpgradeableProgram.programId,
+        })
+      )
+      .add(
+        BpfLoaderUpgradeableProgram.initializeBuffer({
+          bufferPk: buffer.publicKey,
+          authorityPk: wallet.publicKey,
+        })
+      );
 
     return await PgTx.send(tx, { keypairSigners: [buffer], wallet });
   }
 
   /** Update the buffer authority. */
   static async setBufferAuthority(
-    bufferPk: PublicKey,
-    newAuthorityPk: PublicKey,
+    bufferPk: PgWeb3.PublicKey,
+    newAuthorityPk: PgWeb3.PublicKey,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
+    const tx = new PgWeb3.Transaction().add(
       BpfLoaderUpgradeableProgram.setBufferAuthority({
         bufferPk,
         authorityPk: wallet.publicKey,
@@ -421,7 +439,7 @@ export class BpfLoaderUpgradeable {
 
   /** Load programData to the initialized buffer account. */
   static async loadBuffer(
-    bufferPk: PublicKey,
+    bufferPk: PgWeb3.PublicKey,
     programData: Buffer,
     opts?: {
       loadConcurrency?: number;
@@ -436,6 +454,12 @@ export class BpfLoaderUpgradeable {
       loadConcurrency: 8,
     });
 
+    // Maximal chunk of the data per tx
+    const WRITE_CHUNK_SIZE =
+      PgWeb3.PACKET_DATA_SIZE - // Maximum transaction size
+      220 - // Data with 1 signature
+      44; // Priority fee instruction size
+
     const loadBuffer = async (indices: number[], isMissing?: boolean) => {
       if (isMissing) opts?.onMissing?.(indices.length);
 
@@ -445,14 +469,13 @@ export class BpfLoaderUpgradeable {
           while (1) {
             if (opts?.abortController?.signal.aborted) return;
 
-            const offset = indices[i] * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+            const offset = indices[i] * WRITE_CHUNK_SIZE;
             i++;
-            const endOffset = offset + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+            const endOffset = offset + WRITE_CHUNK_SIZE;
             const bytes = programData.slice(offset, endOffset);
             if (bytes.length === 0) break;
 
-            const tx = new Transaction();
-            tx.add(
+            const tx = new PgWeb3.Transaction().add(
               BpfLoaderUpgradeableProgram.write({
                 offset,
                 bytes,
@@ -472,9 +495,7 @@ export class BpfLoaderUpgradeable {
       );
     };
 
-    const txCount = Math.ceil(
-      programData.length / BpfLoaderUpgradeable.WRITE_CHUNK_SIZE
-    );
+    const txCount = Math.ceil(programData.length / WRITE_CHUNK_SIZE);
     const indices = new Array(txCount).fill(null).map((_, i) => i);
     let isMissing = false;
 
@@ -501,8 +522,8 @@ export class BpfLoaderUpgradeable {
 
       const missingIndices = indices
         .map((i) => {
-          const start = i * BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
-          const end = start + BpfLoaderUpgradeable.WRITE_CHUNK_SIZE;
+          const start = i * WRITE_CHUNK_SIZE;
+          const end = start + WRITE_CHUNK_SIZE;
           const actualSlice = programData.slice(start, end);
           const onChainSlice = onChainProgramData.slice(start, end);
           if (!actualSlice.equals(onChainSlice)) return i;
@@ -516,16 +537,14 @@ export class BpfLoaderUpgradeable {
   }
 
   /** Close the buffer account and withdraw funds. */
-  static async closeBuffer(bufferPk: PublicKey, opts?: WalletOption) {
+  static async closeBuffer(bufferPk: PgWeb3.PublicKey, opts?: WalletOption) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
+    const tx = new PgWeb3.Transaction().add(
       BpfLoaderUpgradeableProgram.close({
         closePk: bufferPk,
         recipientPk: wallet.publicKey,
         authorityPk: wallet.publicKey,
-        programPk: undefined,
       })
     );
 
@@ -534,47 +553,46 @@ export class BpfLoaderUpgradeable {
 
   /** Create a program account from initialized buffer. */
   static async deployProgram(
-    program: Signer,
-    bufferPk: PublicKey,
+    program: PgWeb3.Signer,
+    bufferPk: PgWeb3.PublicKey,
     programLamports: number,
     maxDataLen: number,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
-      SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: program.publicKey,
-        lamports: programLamports,
-        space: this.BUFFER_PROGRAM_SIZE,
-        programId: BpfLoaderUpgradeableProgram.programId,
-      })
-    );
-    tx.add(
-      BpfLoaderUpgradeableProgram.deployWithMaxProgramLen({
-        programPk: program.publicKey,
-        bufferPk,
-        upgradeAuthorityPk: wallet.publicKey,
-        payerPk: wallet.publicKey,
-        maxDataLen,
-      })
-    );
+    const tx = new PgWeb3.Transaction()
+      .add(
+        PgWeb3.SystemProgram.createAccount({
+          fromPubkey: wallet.publicKey,
+          newAccountPubkey: program.publicKey,
+          lamports: programLamports,
+          space: this.BUFFER_PROGRAM_SIZE,
+          programId: BpfLoaderUpgradeableProgram.programId,
+        })
+      )
+      .add(
+        BpfLoaderUpgradeableProgram.deployWithMaxProgramLen({
+          programPk: program.publicKey,
+          bufferPk,
+          upgradeAuthorityPk: wallet.publicKey,
+          payerPk: wallet.publicKey,
+          maxDataLen,
+        })
+      );
 
     return await PgTx.send(tx, { wallet, keypairSigners: [program] });
   }
 
   /** Update the program authority. */
   static async setProgramAuthority(
-    programPk: PublicKey,
-    newAuthorityPk: PublicKey | undefined,
+    programPk: PgWeb3.PublicKey,
+    newAuthorityPk?: PgWeb3.PublicKey,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
+    const tx = new PgWeb3.Transaction().add(
       BpfLoaderUpgradeableProgram.setUpgradeAuthority({
         programPk,
         authorityPk: wallet.publicKey,
@@ -587,14 +605,13 @@ export class BpfLoaderUpgradeable {
 
   /** Upgrade a program. */
   static async upgradeProgram(
-    programPk: PublicKey,
-    bufferPk: PublicKey,
+    programPk: PgWeb3.PublicKey,
+    bufferPk: PgWeb3.PublicKey,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
+    const tx = new PgWeb3.Transaction().add(
       BpfLoaderUpgradeableProgram.upgrade({
         programPk,
         bufferPk,
@@ -607,11 +624,10 @@ export class BpfLoaderUpgradeable {
   }
 
   /** Close the program account and withdraw funds. */
-  static async closeProgram(programPk: PublicKey, opts?: WalletOption) {
+  static async closeProgram(programPk: PgWeb3.PublicKey, opts?: WalletOption) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new Transaction();
-    tx.add(
+    const tx = new PgWeb3.Transaction().add(
       BpfLoaderUpgradeableProgram.close({
         closePk: BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk),
         recipientPk: wallet.publicKey,

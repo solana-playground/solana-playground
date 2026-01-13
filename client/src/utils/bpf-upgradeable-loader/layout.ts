@@ -1,10 +1,7 @@
-import { Buffer } from "buffer";
 import * as BufferLayout from "@solana/buffer-layout";
 
-/**
- * Layout for a Rust Vec<u8> type
- */
-export const rustVecBytes = (property: string = "string") => {
+/** Get the layout for a Rust `Vec<u8>` type. */
+export const rustVecBytes = (property: string) => {
   const rvbl = BufferLayout.struct<any>(
     [
       BufferLayout.u32("length"),
@@ -22,9 +19,7 @@ export const rustVecBytes = (property: string = "string") => {
   };
 
   rvbl.encode = (bytes: Buffer, buffer: any, offset: any) => {
-    const data = {
-      bytes,
-    };
+    const data = { bytes };
     return _encode(data, buffer, offset);
   };
 
@@ -34,15 +29,3 @@ export const rustVecBytes = (property: string = "string") => {
 
   return rvbl;
 };
-
-export function getAlloc(type: any, fields: any): number {
-  let alloc = 0;
-  type.layout.fields.forEach((item: any) => {
-    if (item.span >= 0) {
-      alloc += item.span;
-    } else if (typeof item.alloc === "function") {
-      alloc += item.alloc(fields[item.property]);
-    }
-  });
-  return alloc;
-}
