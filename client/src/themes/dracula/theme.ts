@@ -85,11 +85,6 @@ const DRACULA: ThemeParam = {
       default: {
         bg: BG_DARKER,
       },
-      connect: {
-        hover: {
-          bg: PURPLE + "16",
-        },
-      },
     },
     sidebar: {
       left: {

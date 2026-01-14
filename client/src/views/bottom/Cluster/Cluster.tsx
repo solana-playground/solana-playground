@@ -1,14 +1,13 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import Tooltip from "../../../components/Tooltip";
 import { useConnection, useRenderOnChange, useWallet } from "../../../hooks";
-import { PgCommon, PgConnection, PgTheme } from "../../../utils";
+import { PgCommon, PgConnection } from "../../../utils";
 
 export const Cluster = () => {
   const cluster = useRenderOnChange(PgConnection.onDidChangeCluster);
   const connection = useConnection();
   const wallet = useWallet();
-
   if (!wallet) return null;
 
   return (
@@ -18,8 +17,4 @@ export const Cluster = () => {
   );
 };
 
-const ClusterName = styled.span`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.views.bottom.cluster)};
-  `}
-`;
+const ClusterName = styled.span``;

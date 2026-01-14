@@ -826,26 +826,6 @@ export class PgTheme {
     bottom.default.alignItems ??= "center";
     bottom.default.gap ??= "0 1rem";
 
-    // Connect button
-    bottom.connect ??= {};
-    bottom.connect.height ??= "100%";
-    bottom.connect.padding ??= "0 0.75rem";
-    bottom.connect.marginRight ??= "-0.5rem";
-    bottom.connect.border ??= "none";
-    bottom.connect.hover ??= {};
-    bottom.connect.hover.bg ??=
-      bottom.default.color + theme.default.transparency.low;
-
-    // Cluster
-    bottom.cluster ??= {};
-
-    // Address
-    bottom.address ??= {};
-    bottom.address.color ??= bottom.default.color;
-
-    // Balance
-    bottom.balance ??= {};
-
     return this;
   }
 

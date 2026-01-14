@@ -1,8 +1,7 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import Tooltip from "../../../components/Tooltip";
 import { useBalance } from "../../../hooks";
-import { PgTheme } from "../../../utils";
 
 export const Balance = () => {
   const balance = useBalance();
@@ -15,8 +14,4 @@ export const Balance = () => {
   );
 };
 
-const BalanceText = styled.span`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.views.bottom.balance)};
-  `}
-`;
+const BalanceText = styled.span``;

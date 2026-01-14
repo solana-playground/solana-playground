@@ -1,9 +1,8 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import Link from "../../../components/Link";
 import Tooltip from "../../../components/Tooltip";
 import { useBlockExplorer, useWallet } from "../../../hooks";
-import { PgTheme } from "../../../utils";
 
 export const Address = () => {
   const blockExplorer = useBlockExplorer();
@@ -21,7 +20,5 @@ export const Address = () => {
 };
 
 const AddressLink = styled(Link)`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.views.bottom.address)};
-  `}
+  color: inherit;
 `;

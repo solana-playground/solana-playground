@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Button from "../../../components/Button";
 import Tooltip from "../../../components/Tooltip";
 import { useWallet } from "../../../hooks";
-import { PgCommand, PgTheme } from "../../../utils";
+import { PgCommand } from "../../../utils";
 
 export const Wallet = () => {
   const wallet = useWallet();
@@ -32,7 +32,15 @@ export const Wallet = () => {
 
 const ConnectButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.views.bottom.connect)};
+    height: 100%;
+    padding: 0 0.75rem;
+    margin-right: -0.5rem;
+    border: none;
+
+    &:hover {
+      background: ${theme.views.bottom.default.color +
+      theme.default.transparency.low};
+    }
   `}
 `;
 
