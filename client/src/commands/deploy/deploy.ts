@@ -145,7 +145,8 @@ const processDeploy = async () => {
   // Create buffer
   const bufferKp = PgWeb3.Keypair.generate();
   const programLen = programBuffer.length;
-  const bufferSize = BpfLoaderUpgradeable.getBufferAccountSize(programLen);
+  const bufferSize =
+    PgWeb3.BpfLoaderUpgradeableProgram.getBufferAccountSize(programLen);
   const bufferBalance = await connection.getMinimumBalanceForRentExemption(
     bufferSize
   );
@@ -318,9 +319,10 @@ const processDeploy = async () => {
             );
           }
 
-          const programSize = BpfLoaderUpgradeable.getBufferAccountSize(
-            BpfLoaderUpgradeable.BUFFER_PROGRAM_SIZE
-          );
+          const programSize =
+            PgWeb3.BpfLoaderUpgradeableProgram.getBufferAccountSize(
+              PgWeb3.BpfLoaderUpgradeableProgram.PROGRAM_ACCOUNT_SIZE
+            );
           const programBalance =
             await connection.getMinimumBalanceForRentExemption(programSize);
 

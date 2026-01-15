@@ -1,5 +1,11 @@
-import { BPF_LOADER_UPGRADEABLE_PROGRAM_ID } from "../../utils/bpf-upgradeable-loader";
-import { PgBytes, PgConnection, PgSettings, PgTx, PgView } from "../../utils";
+import {
+  PgBytes,
+  PgConnection,
+  PgSettings,
+  PgTx,
+  PgView,
+  PgWeb3,
+} from "../../utils";
 import { ExplorerLink } from "./ExplorerLink";
 
 // Show a notification toast with explorer links after a transaction is sent.
@@ -14,7 +20,7 @@ export const tx = () => {
     // Don't show buffer initialize and write transactions (too many)
     const hasBufferInitOrWriteIx = tx.instructions.some(
       (ix) =>
-        ix.programId.equals(BPF_LOADER_UPGRADEABLE_PROGRAM_ID) &&
+        ix.programId.equals(PgWeb3.BPF_LOADER_UPGRADEABLE_PROGRAM_ID) &&
         (ix.data[0] === 0 || ix.data[0] === 1)
     );
     if (hasBufferInitOrWriteIx) return;
