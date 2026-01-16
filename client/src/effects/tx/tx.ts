@@ -20,8 +20,11 @@ export const tx = () => {
     // Don't show buffer initialize and write transactions (too many)
     const hasBufferInitOrWriteIx = tx.instructions.some(
       (ix) =>
-        ix.programId.equals(PgWeb3.BPF_LOADER_UPGRADEABLE_PROGRAM_ID) &&
-        (ix.data[0] === 0 || ix.data[0] === 1)
+        ix.programId.equals(PgWeb3.BpfLoaderUpgradeableProgram.programId) &&
+        (PgWeb3.BpfLoaderUpgradeableProgram.isInitializeBufferInstruction(
+          ix.data
+        ) ||
+          PgWeb3.BpfLoaderUpgradeableProgram.isWriteInstruction(ix.data))
     );
     if (hasBufferInitOrWriteIx) return;
 

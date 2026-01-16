@@ -10,10 +10,6 @@ import {
   SYSVAR_RENT_PUBKEY,
 } from "./web3";
 
-export const BPF_LOADER_UPGRADEABLE_PROGRAM_ID = new PublicKey(
-  "BPFLoaderUpgradeab1e11111111111111111111111"
-);
-
 /** Initialize buffer tx params */
 type InitializeBufferParams = {
   /** Public key of the buffer account */
@@ -97,7 +93,9 @@ type CloseParams = {
  */
 export class BpfLoaderUpgradeableProgram {
   /** Public key that identifies the BpfLoaderUpgradeable program */
-  static programId = BPF_LOADER_UPGRADEABLE_PROGRAM_ID;
+  static programId = new PublicKey(
+    "BPFLoaderUpgradeab1e11111111111111111111111"
+  );
 
   /** Buffer account size without data */
   static BUFFER_ACCOUNT_METADATA_SIZE = 37; // Option<Pk>
@@ -330,6 +328,54 @@ export class BpfLoaderUpgradeableProgram {
       programId: this.programId,
       data,
     });
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.initializeBuffer} instruction.
+   */
+  static isInitializeBufferInstruction(data: Buffer) {
+    return data[0] === 0;
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.write} instruction.
+   */
+  static isWriteInstruction(data: Buffer) {
+    return data[0] === 1;
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.deployWithMaxProgramLen} instruction.
+   */
+  static isDeployWithMaxProgramLenInstruction(data: Buffer) {
+    return data[0] === 2;
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.upgrade} instruction.
+   */
+  static isUpgradeInstruction(data: Buffer) {
+    return data[0] === 3;
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.setBufferAuthority} instruction.
+   */
+  static isSetBufferAuthorityInstruction(data: Buffer) {
+    return data[0] === 4;
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.close} instruction.
+   */
+  static isCloseInstruction(data: Buffer) {
+    return data[0] === 5;
   }
 
   /** Encode instruction data. */
