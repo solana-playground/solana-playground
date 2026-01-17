@@ -149,7 +149,7 @@ export class BpfLoaderUpgradeableProgram {
         layout: BufferLayout.struct<BufferLayout.UInt>([
           BufferLayout.u32("discriminator"),
           BufferLayout.u32("offset"),
-          rustVecBytes("bytes"),
+          vecBytes("bytes"),
         ]),
       },
       { offset: params.offset, bytes: params.bytes }
@@ -414,32 +414,31 @@ export class BpfLoaderUpgradeableProgram {
   }
 }
 
-/** Get the layout for a Rust `Vec<u8>` type. */
-const rustVecBytes = (property: string) => {
-  const rvbl = BufferLayout.struct<any>(
+/** Get the layout for a Rust `Vec<u8>` type (default `bincode`). */
+const vecBytes = (property: string) => {
+  const len = BufferLayout.nu64("length");
+  const dataProp = "bytes";
+  const layout = BufferLayout.struct<any>(
     [
-      BufferLayout.u32("length"),
-      BufferLayout.u32("lengthPadding"),
-      BufferLayout.blob(BufferLayout.offset(BufferLayout.u32(), -8), "bytes"),
+      len,
+      BufferLayout.blob(
+        BufferLayout.offset(
+          // Use `u32` here rather than `len` because `blob` doesn't work with
+          // big numbers (`nu64`)
+          BufferLayout.u32(),
+          -len.span
+        ),
+        dataProp
+      ),
     ],
     property
   );
-  const _decode = rvbl.decode.bind(rvbl);
-  const _encode = rvbl.encode.bind(rvbl);
+  const _decode = layout.decode.bind(layout);
+  const _encode = layout.encode.bind(layout);
 
-  rvbl.decode = (buffer: any, offset: any) => {
-    const data = _decode(buffer, offset);
-    return data["bytes"];
-  };
+  layout.decode = (...args) => _decode(...args)[dataProp];
+  layout.encode = (src, ...rest) => _encode({ [dataProp]: src }, ...rest);
+  (layout as any).alloc = (b: Buffer) => len.span + b.length;
 
-  rvbl.encode = (bytes: Buffer, buffer: any, offset: any) => {
-    const data = { bytes };
-    return _encode(data, buffer, offset);
-  };
-
-  (rvbl as any).alloc = (bytes: Buffer) => {
-    return BufferLayout.u32().span + BufferLayout.u32().span + bytes.length;
-  };
-
-  return rvbl;
+  return layout;
 };
