@@ -1,10 +1,14 @@
-import { PgCommon } from "../common";
-import { ConnectionOption, PgConnection } from "../connection";
-import { PgTx } from "../tx";
-import { PgWallet, WalletOption } from "../wallet";
-import { PgWeb3 } from "../web3";
+import {
+  ConnectionOption,
+  PgCommon,
+  PgConnection,
+  PgTx,
+  PgWallet,
+  PgWeb3,
+  WalletOption,
+} from "../../utils";
 
-/** BpfLoaderUpgradeable program interface */
+/** Wrapper around `BpfLoaderUpgradeableProgram` for easier interactions */
 export class BpfLoaderUpgradeable {
   /** Create and initialize a buffer account. */
   static async createBuffer(

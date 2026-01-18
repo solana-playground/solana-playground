@@ -1,4 +1,3 @@
-import { BpfLoaderUpgradeable } from "../../utils/bpf-upgradeable-loader";
 import {
   PgCommand,
   PgCommon,
@@ -13,6 +12,7 @@ import {
   PgWeb3,
 } from "../../utils";
 import { createCmd } from "../create";
+import { BpfLoaderUpgradeable } from "./bpf-loader-upgradeable";
 
 export const deploy = createCmd({
   name: "deploy",
