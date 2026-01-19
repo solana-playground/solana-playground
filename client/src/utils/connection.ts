@@ -70,6 +70,9 @@ const derive = () => ({
           // difference in comparison.
           let isConnected = false;
 
+          // Initial run
+          cb();
+
           const successId = setInterval(async () => {
             if (!isConnected) return;
 

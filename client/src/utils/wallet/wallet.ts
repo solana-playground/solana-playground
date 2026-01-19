@@ -151,7 +151,7 @@ const derive = () => ({
       if (!PgWallet.current) return null;
 
       // Check connection status (it can be `undefined` at the start of the app)
-      if (PgConnection.isConnected === false) return null;
+      if (!PgConnection.isConnected) return null;
 
       try {
         const lamports = await PgConnection.current.getBalance(
