@@ -118,15 +118,7 @@ export class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that initialize buffer account. */
   static initializeBuffer(params: InitializeBufferParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 0,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-        ]),
-      },
-      {}
-    );
+    const data = this._encodeData({ discriminator: 0 });
 
     return new TransactionInstruction({
       keys: [
@@ -143,17 +135,11 @@ export class BpfLoaderUpgradeableProgram {
    * account.
    */
   static write(params: WriteParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 1,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-          BufferLayout.u32("offset"),
-          vecBytes("bytes"),
-        ]),
-      },
-      { offset: params.offset, bytes: params.bytes }
-    );
+    const data = this._encodeData({
+      discriminator: 1,
+      params: [BufferLayout.u32("offset"), vecBytes("bytes")],
+      args: { offset: params.offset, bytes: params.bytes },
+    });
 
     return new TransactionInstruction({
       keys: [
@@ -170,17 +156,14 @@ export class BpfLoaderUpgradeableProgram {
    * program length.
    */
   static deployWithMaxProgramLen(params: DeployWithMaxProgramLenParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 2,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-          BufferLayout.u32("maxDataLen"),
-          BufferLayout.u32("maxDataLenPadding"),
-        ]),
-      },
-      { maxDataLen: params.maxDataLen, maxDataLenPadding: 0 }
-    );
+    const data = this._encodeData({
+      discriminator: 2,
+      params: [
+        BufferLayout.u32("maxDataLen"),
+        BufferLayout.u32("maxDataLenPadding"),
+      ],
+      args: { maxDataLen: params.maxDataLen, maxDataLenPadding: 0 },
+    });
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
 
@@ -206,15 +189,7 @@ export class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that upgrade a program. */
   static upgrade(params: UpgradeParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 3,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-        ]),
-      },
-      {}
-    );
+    const data = this._encodeData({ discriminator: 3 });
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
 
@@ -235,15 +210,7 @@ export class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that set a new buffer authority. */
   static setBufferAuthority(params: SetBufferAuthorityParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 4,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-        ]),
-      },
-      {}
-    );
+    const data = this._encodeData({ discriminator: 4 });
 
     return new TransactionInstruction({
       keys: [
@@ -258,15 +225,7 @@ export class BpfLoaderUpgradeableProgram {
 
   /** Generate a tx instruction that set a new program authority. */
   static setUpgradeAuthority(params: SetUpgradeAuthorityParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 4,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-        ]),
-      },
-      {}
-    );
+    const data = this._encodeData({ discriminator: 4 });
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
 
@@ -294,15 +253,7 @@ export class BpfLoaderUpgradeableProgram {
    * uninitialized account.
    */
   static close(params: CloseParams) {
-    const data = this._encodeData(
-      {
-        discriminator: 5,
-        layout: BufferLayout.struct<BufferLayout.UInt>([
-          BufferLayout.u32("discriminator"),
-        ]),
-      },
-      {}
-    );
+    const data = this._encodeData({ discriminator: 5 });
 
     const keys = [
       { pubkey: params.closePk, isSigner: false, isWritable: true },
@@ -379,37 +330,35 @@ export class BpfLoaderUpgradeableProgram {
   }
 
   /** Encode instruction data. */
-  private static _encodeData(
-    ix: {
-      /** Instruction identifier */
-      discriminator: number;
-      /** Layout to build the data from */
-      layout: BufferLayout.Layout<any>;
-    },
+  private static _encodeData(ix: {
+    /** Instruction identifier */
+    discriminator: number;
+    /** Instruction parameter layouts */
+    params?: BufferLayout.Layout<any>[];
     /** Instruction arguments */
-    fields: Record<string, any>
-  ) {
-    const allocLen =
-      ix.layout.span >= 0
-        ? ix.layout.span
-        : (ix.layout as unknown as { fields: any[] }).fields.reduce(
-            (acc, cur) => {
-              if (cur.span >= 0) {
-                acc += cur.span;
-              } else if (typeof cur.alloc === "function") {
-                acc += cur.alloc(fields[cur.property]);
-              }
+    args?: Record<string, any>;
+  }) {
+    const { discriminator, params = [], args = {} } = ix;
 
-              return acc;
-            },
-            0
-          );
+    const layout = BufferLayout.struct<any>([
+      BufferLayout.u32("discriminator"),
+      ...params,
+    ]);
+
+    const allocLen =
+      layout.span >= 0
+        ? layout.span
+        : (layout as unknown as { fields: any[] }).fields.reduce((acc, cur) => {
+            if (cur.span >= 0) {
+              acc += cur.span;
+            } else if (typeof cur.alloc === "function") {
+              acc += cur.alloc(args[cur.property]);
+            }
+
+            return acc;
+          }, 0);
     const data = Buffer.alloc(allocLen);
-    const layoutFields = Object.assign(
-      { discriminator: ix.discriminator },
-      fields
-    );
-    ix.layout.encode(layoutFields, data);
+    layout.encode({ discriminator, ...args }, data);
     return data;
   }
 }
