@@ -158,11 +158,8 @@ export class BpfLoaderUpgradeableProgram {
   static deployWithMaxProgramLen(params: DeployWithMaxProgramLenParams) {
     const data = this._encodeData({
       discriminator: 2,
-      params: [
-        BufferLayout.u32("maxDataLen"),
-        BufferLayout.u32("maxDataLenPadding"),
-      ],
-      args: { maxDataLen: params.maxDataLen, maxDataLenPadding: 0 },
+      params: [BufferLayout.nu64("maxDataLen")],
+      args: { maxDataLen: params.maxDataLen },
     });
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
