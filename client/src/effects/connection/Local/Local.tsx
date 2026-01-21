@@ -9,22 +9,11 @@ import { Info, Sad } from "../../../components/Icons";
 import { PgCommon, PgConnection, PgView } from "../../../utils";
 
 export const Local = () => {
-  // Check localnet connection
+  // Close when connected
   useEffect(() => {
-    // When this modal shows up, it means there was a connection error to
-    // localnet but because `PgConnection.isConnected` gets refreshed every
-    // minute, `PgConnection.isConnected` could still be a truthy value.
-    //
-    // TODO: Remove after making change events not fire on mount by default
-    let initial = true;
-
     const { dispose } = PgConnection.onDidChangeIsConnected((isConnected) => {
-      // Only close the modal if it's not `initial` and `isConnected` is true
-      if (!initial && isConnected) PgView.closeModal();
-
-      initial = false;
+      if (isConnected) PgView.closeModal();
     });
-
     return dispose;
   }, []);
 
