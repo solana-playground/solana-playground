@@ -233,7 +233,9 @@ const processDeploy = async () => {
 
   console.log("Buffer pk:", bufferKp.publicKey.toBase58());
   const closeBuffer = async () => {
-    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey);
+    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
+      wallet: pgWallet,
+    });
   };
 
   // Load buffer
@@ -256,15 +258,7 @@ const processDeploy = async () => {
       },
     }
   );
-  if (loadBufferResult.cancelled) {
-    return {
-      closeBuffer: async () => {
-        await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
-          wallet: pgWallet,
-        });
-      },
-    };
-  }
+  if (loadBufferResult.cancelled) return { closeBuffer };
 
   // If deploying from a standard wallet, transfer the buffer authority
   // to the standard wallet before deployment, otherwise it doesn't
