@@ -100,6 +100,9 @@ export function updatable<T extends Record<string, any>>(params: {
         // NOTE: Creating a new callback is necessary here, otherwise `this`
         // keyword becomes unusable in `storage.write`.
         () => {
+          // Don't save if it's not initialized
+          if (!sClass[PROPS.IS_INITIALIZED]) return;
+
           // At the time of writing this comment, all decorators use the same
           // internal state, meaning `sClass[PROPS.INTERNAL_STATE]` may include
           // fields coming from other decorators such as `derivable`. This is
