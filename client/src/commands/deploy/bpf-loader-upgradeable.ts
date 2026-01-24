@@ -1,5 +1,4 @@
 import {
-  ConnectionOption,
   PgCommon,
   PgConnection,
   PgTx,
@@ -68,10 +67,9 @@ export class BpfLoaderUpgradeable {
       abortController?: AbortController;
       onWrite?: (offset: number) => void;
       onMissing?: (missingCount: number) => void;
-    } & ConnectionOption &
-      WalletOption
+    } & WalletOption
   ) {
-    const { connection, wallet } = this._getOptions(opts);
+    const { wallet } = this._getOptions(opts);
     const { loadConcurrency } = PgCommon.setDefault(opts, {
       loadConcurrency: 8,
     });
@@ -107,7 +105,7 @@ export class BpfLoaderUpgradeable {
             );
 
             try {
-              await PgTx.send(tx, { connection, wallet });
+              await PgTx.send(tx, { wallet });
               if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
@@ -131,7 +129,7 @@ export class BpfLoaderUpgradeable {
       // Even though we only get to this function after buffer account creation
       // gets confirmed, the RPC can still return `null` here if it's behind.
       const bufferAccount = await PgCommon.tryUntilSuccess(async () => {
-        const acc = await connection.getAccountInfo(bufferPk);
+        const acc = await PgConnection.current.getAccountInfo(bufferPk);
         if (!acc) throw new Error();
         return acc;
       }, 2000);
@@ -264,12 +262,10 @@ export class BpfLoaderUpgradeable {
   }
 
   /** Get the connection and wallet instance. */
-  private static _getOptions(opts?: ConnectionOption & WalletOption) {
-    const connection = opts?.connection ?? PgConnection.current;
-
+  private static _getOptions(opts?: WalletOption) {
     const wallet = opts?.wallet ?? PgWallet.current;
     if (!wallet) throw new Error("Wallet is not connected");
 
-    return { connection, wallet };
+    return { wallet };
   }
 }
