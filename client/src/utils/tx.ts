@@ -44,6 +44,7 @@ export class PgTx {
     opts?: {
       keypairSigners?: PgWeb3.Signer[];
       walletSigners?: CurrentWallet[];
+      computeUnitLimit?: number;
       forceFetchLatestBlockhash?: boolean;
     } & ConnectionOption &
       WalletOption
@@ -57,7 +58,7 @@ export class PgTx {
     const existingSetComputeUnitPriceIx = tx.instructions.find(
       (ix) =>
         ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
-        ix.data.at(0) === 3 // setComputeUnitPrice
+        ix.data.at(0) === 3 // `setComputeUnitPrice`
     );
     if (!existingSetComputeUnitPriceIx) {
       const priorityFeeSetting = PgSettings.connection.priorityFee;
@@ -66,11 +67,28 @@ export class PgTx {
           ? priorityFeeSetting
           : (await this._getPriorityFee(connection))[priorityFeeSetting];
       if (priorityFee) {
-        const setComputeUnitPriceIx =
+        tx.instructions.unshift(
           PgWeb3.ComputeBudgetProgram.setComputeUnitPrice({
             microLamports: priorityFee,
-          });
-        tx.instructions = [setComputeUnitPriceIx, ...tx.instructions];
+          })
+        );
+      }
+    }
+
+    // Set compute unit limit if specified
+    if (opts?.computeUnitLimit) {
+      // Check for existing `setComputeUnitLimit` ix
+      const existingSetComputeUnitLimitIx = tx.instructions.find(
+        (ix) =>
+          ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
+          ix.data.at(0) === 2 // `setComputeUnitLimit`
+      );
+      if (!existingSetComputeUnitLimitIx) {
+        tx.instructions.unshift(
+          PgWeb3.ComputeBudgetProgram.setComputeUnitLimit({
+            units: opts.computeUnitLimit,
+          })
+        );
       }
     }
 
