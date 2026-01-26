@@ -45,13 +45,11 @@ export const deploy = createCmd({
         );
         if (shouldCloseBufferAccount) {
           await closeBuffer();
-          PgTerminal.println(PgTerminal.success("Reclaim successful."));
+          msg = PgTerminal.success("Reclaim successful.");
         } else {
-          PgTerminal.println(
-            `${PgTerminal.error(
-              "Reclaim rejected."
-            )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`
-          );
+          msg = `${PgTerminal.error(
+            "Reclaim rejected."
+          )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`;
         }
       }
     } catch (e: any) {
@@ -121,12 +119,6 @@ Program authority: ${authority}
 Your address: ${PgWallet.current!.publicKey}`);
   }
 }
-
-/** Maximum amount of transaction retries */
-const MAX_RETRIES = 5;
-
-/** Sleep amount multiplier each time a transaction fails */
-const SLEEP_MULTIPLIER = 1.8;
 
 /**
  * Deploy the current program.
@@ -198,12 +190,13 @@ const processDeploy = async () => {
     // Transfer extra 0.1 SOL for fees (doesn't have to get used)
     const requiredBalance =
       requiredBalanceWithoutFees + PgWeb3.LAMPORTS_PER_SOL / 10;
-    const transferIx = PgWeb3.SystemProgram.transfer({
-      fromPubkey: standardWallet.publicKey,
-      toPubkey: pgWallet.publicKey,
-      lamports: requiredBalance,
-    });
-    const transferTx = new PgWeb3.Transaction().add(transferIx);
+    const transferTx = new PgWeb3.Transaction().add(
+      PgWeb3.SystemProgram.transfer({
+        fromPubkey: standardWallet.publicKey,
+        toPubkey: pgWallet.publicKey,
+        lamports: requiredBalance,
+      })
+    );
     await sendAndConfirmTxWithRetries(
       () => PgTx.send(transferTx),
       async () => {
@@ -233,9 +226,17 @@ const processDeploy = async () => {
 
   console.log("Buffer pk:", bufferKp.publicKey.toBase58());
   const closeBuffer = async () => {
-    await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
-      wallet: pgWallet,
-    });
+    return await sendAndConfirmTxWithRetries(
+      async () => {
+        return await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
+          wallet: pgWallet,
+        });
+      },
+      async () => {
+        const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+        return !bufferAcc;
+      }
+    );
   };
 
   // Load buffer
@@ -422,6 +423,9 @@ const sendAndConfirmTxWithRetries = async (
   sendTx: () => Promise<string>,
   checkConfirmation: () => Promise<boolean>
 ) => {
+  const MAX_RETRIES = 5;
+  const SLEEP_MULTIPLIER = 1.8;
+
   let sleepAmount = 1000;
   let errMsg;
   for (let i = 0; i < MAX_RETRIES; i++) {
