@@ -18,15 +18,11 @@ export const CreateWorkspace = () => {
   const [selected, setSelected] = useState<string | null>(null);
 
   const createWorkspace = async () => {
-    const { importFiles, defaultOpenFile } = PgFramework.all.find(
+    const { getDefaultFiles, defaultOpenFile } = PgFramework.all.find(
       (f) => f.name === selected
     )!;
-    const { files } = await importFiles();
-
-    await PgExplorer.createWorkspace(name, {
-      files,
-      defaultOpenFile,
-    });
+    const { files } = await getDefaultFiles();
+    await PgExplorer.createWorkspace(name, { files, defaultOpenFile });
   };
 
   return (

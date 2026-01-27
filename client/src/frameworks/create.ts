@@ -10,13 +10,13 @@ export const createFramework = <N extends string>(
   framework: FrameworkParam<N>
 ) => {
   const folderPath = `./${PgCommon.toKebabFromTitle(framework.name)}/`;
-  framework.importFiles ??= () => import(folderPath + "files");
-  framework.importFromPlayground ??= async () => {
-    const { convertFromPlayground } = await import(folderPath + "from");
-    const { default: readme } = await import(folderPath + "from.md");
+  framework.getDefaultFiles ??= () => import(folderPath + "files");
+  framework.import ??= () => import(folderPath + "import");
+  framework.export ??= async () => {
+    const { convertFromPlayground } = await import(folderPath + "export");
+    const { default: readme } = await import(folderPath + "export.md");
     return { convertFromPlayground, readme };
   };
-  framework.importToPlayground ??= () => import(folderPath + "to");
 
   return framework as Framework<N>;
 };

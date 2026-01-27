@@ -36,13 +36,24 @@ export type FrameworkParam<N extends string> = {
   getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
 
   /** Lazy load default framework files, defaults to `./files` */
-  importFiles?: () => Promise<{
+  getDefaultFiles?: () => Promise<{
     /** Default framework files to create on a new project */
     files: TupleFiles;
   }>;
 
-  /** Lazy load the **from** playground conversion module, defaults to `./from` */
-  importFromPlayground?: () => Promise<{
+  /** Lazy load the **to** playground conversion module, defaults to `./import` */
+  import?: () => Promise<{
+    /**
+     * Convert the given framework layout files to playground layout files.
+     *
+     * @param files framework layout files
+     * @returns the playground layout files
+     */
+    convertToPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
+  }>;
+
+  /** Lazy load the **from** playground conversion module, defaults to `./export` */
+  export?: () => Promise<{
     /**
      * Convert the given playground layout files to the framework's original
      * layout files.
@@ -54,23 +65,12 @@ export type FrameworkParam<N extends string> = {
     /** Markdown text to show after conversion */
     readme: string;
   }>;
-
-  /** Lazy load the **to** playground conversion module, defaults to `./to` */
-  importToPlayground?: () => Promise<{
-    /**
-     * Convert the given framework layout files to playground layout files.
-     *
-     * @param files framework layout files
-     * @returns the playground layout files
-     */
-    convertToPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
-  }>;
 };
 
 /** Created framework */
 export type Framework<N extends string = string> = RequiredKey<
   FrameworkParam<N>,
-  "getIsCurrent" | "importFiles" | "importFromPlayground" | "importToPlayground"
+  "getIsCurrent" | "getDefaultFiles" | "import" | "export"
 >;
 
 export class PgFramework {
@@ -110,7 +110,7 @@ export class PgFramework {
     const framework = await this.getFromFiles(files);
     if (!framework) throw new Error("Could not identify framework");
 
-    const { convertToPlayground } = await framework.importToPlayground();
+    const { convertToPlayground } = await framework.import();
     const convertedFiles = await convertToPlayground(files);
     if (!convertedFiles.length) throw new Error("Could not convert files");
 
@@ -154,7 +154,7 @@ export class PgFramework {
       const framework = await this.getFromFiles(files);
       if (!framework) throw new Error("Could not identify framework");
 
-      const frameworkFrom = await framework.importFromPlayground();
+      const frameworkFrom = await framework.export();
       readme = frameworkFrom.readme;
       files = await frameworkFrom.convertFromPlayground(files);
     }
