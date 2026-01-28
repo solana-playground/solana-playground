@@ -25,6 +25,25 @@ type PriorityFeeInfo = WithTimeStamp<{
   max: number;
 }>;
 
+type TransactionSimulateOptions = TransactionSendOptions;
+
+type TransactionSendOptions = {
+  /** Keypairs to sign the transaction */
+  keypairSigners?: PgWeb3.Signer[];
+  /** Wallets to sign the transaction */
+  walletSigners?: CurrentWallet[];
+  /**
+   * Add a compute unit limit instruction with this value.
+   *
+   * **Note:** This value does not override if the transaction already has a
+   * `setComputeUnitLimit` instruction.
+   */
+  computeUnitLimit?: number;
+  /** Do not use the cached blockhash */
+  forceFetchLatestBlockhash?: boolean;
+} & ConnectionOption &
+  WalletOption;
+
 export class PgTx {
   /** All transaction event names */
   static readonly events = {
@@ -32,84 +51,35 @@ export class PgTx {
   };
 
   /**
-   * Send a transaction with additional signer optionality.
+   * Simulate a transaction with opinionated (good) defaults.
    *
-   * This method caches the latest blockhash in order to minimize the amount of
-   * RPC requests.
+   * @param tx transaction to simulate
+   * @param opts simulation options
+   * @returns the transaction simulation response
+   */
+  static async simulate(
+    tx: PgWeb3.Transaction,
+    opts?: TransactionSimulateOptions
+  ) {
+    await this._prepareTx(tx, opts);
+    const connection = opts?.connection ?? PgConnection.current;
+    const result = await connection.simulateTransaction(tx);
+    return result.value;
+  }
+
+  /**
+   * Send a transaction with opinionated (good) defaults.
    *
+   * @param tx transaction to send
+   * @param opts send options
    * @returns the transaction signature
    */
   static async send(
     tx: PgWeb3.Transaction,
-    opts?: {
-      keypairSigners?: PgWeb3.Signer[];
-      walletSigners?: CurrentWallet[];
-      computeUnitLimit?: number;
-      forceFetchLatestBlockhash?: boolean;
-    } & ConnectionOption &
-      WalletOption
+    opts?: TransactionSendOptions
   ): Promise<string> {
-    const wallet = opts?.wallet ?? PgWallet.current;
-    if (!wallet) throw new Error("Wallet not connected");
-
+    await this._prepareTx(tx, opts);
     const connection = opts?.connection ?? PgConnection.current;
-
-    // Set priority fees if the transaction doesn't already have it
-    const existingSetComputeUnitPriceIx = tx.instructions.find(
-      (ix) =>
-        ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
-        ix.data.at(0) === 3 // `setComputeUnitPrice`
-    );
-    if (!existingSetComputeUnitPriceIx) {
-      const priorityFeeSetting = PgSettings.connection.priorityFee;
-      const priorityFee =
-        typeof priorityFeeSetting === "number"
-          ? priorityFeeSetting
-          : (await this._getPriorityFee(connection))[priorityFeeSetting];
-      if (priorityFee) {
-        tx.instructions.unshift(
-          PgWeb3.ComputeBudgetProgram.setComputeUnitPrice({
-            microLamports: priorityFee,
-          })
-        );
-      }
-    }
-
-    // Set compute unit limit if specified
-    if (opts?.computeUnitLimit) {
-      // Check for existing `setComputeUnitLimit` ix
-      const existingSetComputeUnitLimitIx = tx.instructions.find(
-        (ix) =>
-          ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
-          ix.data.at(0) === 2 // `setComputeUnitLimit`
-      );
-      if (!existingSetComputeUnitLimitIx) {
-        tx.instructions.unshift(
-          PgWeb3.ComputeBudgetProgram.setComputeUnitLimit({
-            units: opts.computeUnitLimit,
-          })
-        );
-      }
-    }
-
-    tx.recentBlockhash = await this._getLatestBlockhash(
-      connection,
-      opts?.forceFetchLatestBlockhash
-    );
-    tx.feePayer = wallet.publicKey;
-
-    // Add keypair signers
-    if (opts?.keypairSigners?.length) tx.partialSign(...opts.keypairSigners);
-
-    // Add wallet signers
-    if (opts?.walletSigners) {
-      for (const walletSigner of opts.walletSigners) {
-        tx = await walletSigner.signTransaction(tx);
-      }
-    }
-
-    // Sign with the current wallet as it's always the fee payer
-    tx = await wallet.signTransaction(tx);
 
     // Caching the blockhash will result in getting the same tx signature when
     // using the same tx data.
@@ -174,6 +144,74 @@ export class PgTx {
 
   /** Cached priority fee to reduce the amount of requests to the RPC endpoint */
   private static _cachedPriorityFee: PriorityFeeInfo | null = null;
+
+  /** Prepare the transaction for simulation and send. */
+  static async _prepareTx(
+    tx: PgWeb3.Transaction,
+    opts?: TransactionSendOptions
+  ) {
+    const wallet = opts?.wallet ?? PgWallet.current;
+    if (!wallet) throw new Error("Wallet not connected");
+
+    const connection = opts?.connection ?? PgConnection.current;
+
+    // Set priority fees if the transaction doesn't already have it
+    const existingSetComputeUnitPriceIx = tx.instructions.find(
+      (ix) =>
+        ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
+        ix.data.at(0) === 3 // `setComputeUnitPrice`
+    );
+    if (!existingSetComputeUnitPriceIx) {
+      const priorityFeeSetting = PgSettings.connection.priorityFee;
+      const priorityFee =
+        typeof priorityFeeSetting === "number"
+          ? priorityFeeSetting
+          : (await this._getPriorityFee(connection))[priorityFeeSetting];
+      if (priorityFee) {
+        tx.instructions.unshift(
+          PgWeb3.ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports: priorityFee,
+          })
+        );
+      }
+    }
+
+    // Set compute unit limit if specified
+    if (opts?.computeUnitLimit) {
+      // Check for existing `setComputeUnitLimit` ix
+      const existingSetComputeUnitLimitIx = tx.instructions.find(
+        (ix) =>
+          ix.programId.equals(PgWeb3.ComputeBudgetProgram.programId) &&
+          ix.data.at(0) === 2 // `setComputeUnitLimit`
+      );
+      if (!existingSetComputeUnitLimitIx) {
+        tx.instructions.unshift(
+          PgWeb3.ComputeBudgetProgram.setComputeUnitLimit({
+            units: opts.computeUnitLimit,
+          })
+        );
+      }
+    }
+
+    tx.recentBlockhash = await this._getLatestBlockhash(
+      connection,
+      opts?.forceFetchLatestBlockhash
+    );
+    tx.feePayer = wallet.publicKey;
+
+    // Add keypair signers
+    if (opts?.keypairSigners?.length) tx.partialSign(...opts.keypairSigners);
+
+    // Add wallet signers
+    if (opts?.walletSigners) {
+      for (const walletSigner of opts.walletSigners) {
+        tx = await walletSigner.signTransaction(tx);
+      }
+    }
+
+    // Sign with the current wallet as it's always the fee payer
+    tx = await wallet.signTransaction(tx);
+  }
 
   /**
    * Get the latest blockhash from the cache or fetch the latest if the cached
