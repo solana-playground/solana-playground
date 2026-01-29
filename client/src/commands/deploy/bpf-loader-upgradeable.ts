@@ -77,8 +77,23 @@ export class BpfLoaderUpgradeable {
     // Maximal chunk of the data per tx
     const WRITE_CHUNK_SIZE =
       PgWeb3.PACKET_DATA_SIZE - // Maximum transaction size
-      220 - // Data with 1 signature
-      44; // Priority fee instruction size
+      220 - //                     Data with 1 signature
+      44 - //                      `setComputeUnitPrice` instruction size
+      40; //                       `setComputeUnitLimit` instruction size
+
+    // Simulate to get the compute unit consumption of a write transaction and
+    // reuse it for all writes since they all consume the same amount of CU
+    const { unitsConsumed: computeUnitLimit } = await PgTx.simulate(
+      new PgWeb3.Transaction().add(
+        PgWeb3.BpfLoaderUpgradeableProgram.write({
+          offset: 0,
+          bytes: programData.slice(0, WRITE_CHUNK_SIZE),
+          bufferPk,
+          authorityPk: wallet.publicKey,
+        })
+      ),
+      { computeUnitLimit: PgWeb3.MAX_COMPUTE_UNIT_LIMIT }
+    );
 
     const loadBuffer = async (indices: number[], isMissing?: boolean) => {
       if (isMissing) opts?.onMissing?.(indices.length);
@@ -105,7 +120,7 @@ export class BpfLoaderUpgradeable {
             );
 
             try {
-              await PgTx.send(tx, { wallet });
+              await PgTx.send(tx, { wallet, computeUnitLimit });
               if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
@@ -148,10 +163,9 @@ export class BpfLoaderUpgradeable {
           const actualSlice = programData.slice(start, end);
           const onChainSlice = onChainProgramData.slice(start, end);
           if (!actualSlice.equals(onChainSlice)) return i;
-
           return null;
         })
-        .filter((i) => i !== null) as number[];
+        .filter(PgCommon.isNonNullish);
       await loadBuffer(missingIndices, isMissing);
       isMissing = true;
     }
