@@ -5,11 +5,6 @@ import { PgSettings } from "./settings";
 import { PgWeb3 } from "./web3";
 import type { Disposable } from "./types";
 
-/** Optional `connection` prop */
-export interface ConnectionOption {
-  connection?: typeof PgConnection["current"];
-}
-
 /** Solana public clusters or "localnet" */
 export type Cluster = "playnet" | "localnet" | PgWeb3.Cluster;
 

@@ -1,5 +1,5 @@
 import { PgCommon } from "./common";
-import { ConnectionOption, PgConnection } from "./connection";
+import { PgConnection } from "./connection";
 import { PgSettings } from "./settings";
 import { CurrentWallet, PgWallet, WalletOption } from "./wallet";
 import { PgWeb3 } from "./web3";
@@ -41,8 +41,7 @@ type TransactionSendOptions = {
   computeUnitLimit?: number;
   /** Do not use the cached blockhash */
   forceFetchLatestBlockhash?: boolean;
-} & ConnectionOption &
-  WalletOption;
+} & WalletOption;
 
 export class PgTx {
   /** All transaction event names */
@@ -61,8 +60,7 @@ export class PgTx {
     tx: PgWeb3.Transaction,
     opts?: TransactionSimulateOptions
   ) {
-    await this._prepareTx(tx, opts);
-    const connection = opts?.connection ?? PgConnection.current;
+    const { connection } = await this._prepareTx(tx, opts);
     const result = await connection.simulateTransaction(tx);
     return result.value;
   }
@@ -78,8 +76,7 @@ export class PgTx {
     tx: PgWeb3.Transaction,
     opts?: TransactionSendOptions
   ): Promise<string> {
-    await this._prepareTx(tx, opts);
-    const connection = opts?.connection ?? PgConnection.current;
+    const { connection } = await this._prepareTx(tx, opts);
 
     // Caching the blockhash will result in getting the same tx signature when
     // using the same tx data.
@@ -119,9 +116,9 @@ export class PgTx {
    */
   static async confirm(
     txHash: string,
-    opts?: { commitment?: PgWeb3.Commitment } & ConnectionOption
+    opts?: { commitment?: PgWeb3.Commitment }
   ) {
-    const connection = opts?.connection ?? PgConnection.current;
+    const connection = PgConnection.current;
     const result = await connection.confirmTransaction(
       txHash,
       opts?.commitment
@@ -153,7 +150,7 @@ export class PgTx {
     const wallet = opts?.wallet ?? PgWallet.current;
     if (!wallet) throw new Error("Wallet not connected");
 
-    const connection = opts?.connection ?? PgConnection.current;
+    const connection = PgConnection.current;
 
     // Set priority fees if the transaction doesn't already have it
     const existingSetComputeUnitPriceIx = tx.instructions.find(
@@ -211,6 +208,8 @@ export class PgTx {
 
     // Sign with the current wallet as it's always the fee payer
     tx = await wallet.signTransaction(tx);
+
+    return { connection };
   }
 
   /**
