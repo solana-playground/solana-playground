@@ -10,8 +10,8 @@ export type FrameworkParam<N extends string> = {
   /** Framework program language */
   language: LanguageName;
 
-  /** Image icon src */
-  icon: string;
+  /** Image icon src, defaults to `/frameworks/icon.png` */
+  icon?: string;
 
   /** Example GitHub project */
   githubExample: {

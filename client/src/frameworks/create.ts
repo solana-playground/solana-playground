@@ -9,7 +9,10 @@ import { Framework, FrameworkParam, PgCommon } from "../utils";
 export const createFramework = <N extends string>(
   framework: FrameworkParam<N>
 ) => {
-  const folderPath = `./${PgCommon.toKebabFromTitle(framework.name)}/`;
+  const kebabName = PgCommon.toKebabFromTitle(framework.name);
+  framework.icon ??= `/frameworks/${kebabName}/icon.png`;
+
+  const folderPath = `./${kebabName}/`;
   framework.getDefaultFiles ??= () => import(folderPath + "files");
   framework.import ??= () => import(folderPath + "import");
   framework.export ??= async () => {
