@@ -8,8 +8,7 @@ export const connect = createCmd({
     {
       name: "wallet",
       optional: true,
-      values: () =>
-        PgWallet.standardWallets.map((w) => w.adapter.name.toLowerCase()),
+      values: () => PgWallet.standardWallets.map((w) => w.name.toLowerCase()),
     },
   ]),
   handle: async (input) => {
@@ -86,18 +85,18 @@ const toggleStandardIfNeeded = async (inputWalletName: string | undefined) => {
   if (!inputWalletName) return false;
 
   const wallet = PgWallet.standardWallets.find((wallet) => {
-    return wallet.adapter.name.toLowerCase() === inputWalletName.toLowerCase();
+    return wallet.name.toLowerCase() === inputWalletName.toLowerCase();
   });
   if (!wallet) {
     throw new Error(`Given wallet '${inputWalletName}' is not detected`);
   }
 
   // The given wallet name could be different, e.g. lowercase
-  const walletName = wallet.adapter.name;
+  const walletName = wallet.name;
 
   // Check whether the wallet is already connected
-  if (!wallet.adapter.connected) {
-    await wallet.adapter.connect();
+  if (!wallet.connected) {
+    await wallet.connect();
 
     // Set the standard wallet name to derive the standard wallet
     PgWallet.standardName = walletName;
@@ -105,7 +104,7 @@ const toggleStandardIfNeeded = async (inputWalletName: string | undefined) => {
 
     PgTerminal.println(PgTerminal.success(`Connected to ${walletName}.`));
   } else {
-    await wallet.adapter.disconnect();
+    await wallet.disconnect();
     PgWallet.state = "pg";
     PgTerminal.println(PgTerminal.bold(`Disconnected from ${walletName}.`));
   }

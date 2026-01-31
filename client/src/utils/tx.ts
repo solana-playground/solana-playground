@@ -1,7 +1,7 @@
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
 import { PgSettings } from "./settings";
-import { CurrentWallet, PgWallet, WalletOption } from "./wallet";
+import { Wallet, PgWallet, WalletOption } from "./wallet";
 import { PgWeb3 } from "./web3";
 
 type WithTimeStamp<T> = T & {
@@ -31,7 +31,7 @@ type TransactionSendOptions = {
   /** Keypairs to sign the transaction */
   keypairSigners?: PgWeb3.Signer[];
   /** Wallets to sign the transaction */
-  walletSigners?: CurrentWallet[];
+  walletSigners?: Wallet[];
   /**
    * Add a compute unit limit instruction with this value.
    *

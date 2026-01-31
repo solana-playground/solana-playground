@@ -9,7 +9,7 @@ import { PgConnection } from "../connection";
 import { PgProgramInfo } from "../program-info";
 import { PgProgramInteraction } from "../program-interaction";
 import { PgTerminal } from "../terminal";
-import { CurrentWallet, PgWallet, StandardWallet } from "../wallet";
+import { Wallet, PgWallet } from "../wallet";
 import type { MergeUnion, OrString } from "../types";
 import type { PgWeb3 } from "../web3";
 
@@ -488,9 +488,9 @@ export class PgClient {
       /** Playground connection instance */
       connection: PgWeb3.Connection;
       /** Current connected wallet */
-      wallet?: CurrentWallet;
+      wallet?: Wallet;
       /** All available wallets, including the standard wallets */
-      wallets?: Record<string, CurrentWallet | StandardWallet>;
+      wallets?: Record<string, Wallet>;
       /** Current project's program public key */
       PROGRAM_ID?: PgWeb3.PublicKey;
       /** Anchor program instance of the current project */

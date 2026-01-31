@@ -14,16 +14,14 @@ import { PgTx } from "../tx";
 import { PgWeb3 } from "../web3";
 import type {
   AnyTransaction,
-  CurrentWallet,
-  SerializedWallet,
+  WalletState,
+  SerializedWalletState,
   StandardWallet,
-  StandardWalletProps,
   Wallet,
   WalletAccount,
 } from "./types";
-import type { RequiredKey } from "../types";
 
-const defaultState: Wallet = {
+const defaultState: WalletState = {
   state: "setup",
   accounts: [],
   currentIndex: -1,
@@ -37,18 +35,19 @@ const storage = {
   KEY: "wallet",
 
   /** Read from storage and deserialize the data. */
-  read(): Wallet {
+  read(): WalletState {
     const serializedStateStr = localStorage.getItem(this.KEY);
     if (!serializedStateStr) return defaultState;
 
-    const serializedState: SerializedWallet = JSON.parse(serializedStateStr);
+    const serializedState: SerializedWalletState =
+      JSON.parse(serializedStateStr);
     return { ...defaultState, ...serializedState };
   },
 
   /** Serialize the data and write to storage. */
-  write(wallet: Wallet) {
+  write(wallet: WalletState) {
     // Don't use spread operator(...) because of the extra state
-    const serializedState: SerializedWallet = {
+    const serializedState: SerializedWalletState = {
       accounts: wallet.accounts,
       currentIndex: wallet.currentIndex,
       state: wallet.state,
@@ -96,10 +95,10 @@ const derive = () => ({
   /** A Wallet Standard wallet adapter */
   standard: createDerivable({
     derive: (): StandardWallet | null => {
-      const otherWallet = PgWallet.standardWallets.find(
-        (wallet) => wallet.adapter.name === PgWallet.standardName
+      const standardWallet = PgWallet.standardWallets.find(
+        (wallet) => wallet.name === PgWallet.standardName
       );
-      return otherWallet?.adapter ?? null;
+      return standardWallet ?? null;
     },
     onChange: ["standardWallets", "standardName"],
   }),
@@ -113,7 +112,7 @@ const derive = () => ({
    * - `null` if not connected.
    */
   current: createDerivable({
-    derive: async (): Promise<CurrentWallet | null> => {
+    derive: async (): Promise<Wallet | null> => {
       switch (PgWallet.state) {
         case "pg": {
           // Check whether the current account exists
@@ -131,7 +130,7 @@ const derive = () => ({
         case "sol":
           if (!PgWallet.standard || PgWallet.standard.connecting) return null;
           if (!PgWallet.standard.connected) await PgWallet.standard.connect();
-          return PgWallet.standard as StandardWalletProps;
+          return PgWallet.standard as StandardWallet<true>;
 
         case "disconnected":
         case "setup":
@@ -212,17 +211,17 @@ const migrate = () => {
   const walletStr = localStorage.getItem(storage.KEY);
   if (!walletStr) return;
 
-  interface OldWallet {
+  interface OldWalletState {
     setupCompleted: boolean;
     connected: boolean;
     sk: Array<number>;
   }
 
-  const oldOrNewWallet: OldWallet | Wallet = JSON.parse(walletStr);
-  if ((oldOrNewWallet as Wallet).accounts) return;
+  const oldOrNewWallet: OldWalletState | WalletState = JSON.parse(walletStr);
+  if ((oldOrNewWallet as WalletState).accounts) return;
 
-  const oldWallet = oldOrNewWallet as OldWallet;
-  const newWallet: Wallet = {
+  const oldWallet = oldOrNewWallet as OldWalletState;
+  const newWallet: WalletState = {
     ...defaultState,
     state: oldWallet.setupCompleted
       ? oldWallet.connected
@@ -412,12 +411,9 @@ class _PgWallet {
    * @returns the connected standard wallet adapters
    */
   static getConnectedStandardWallets() {
-    return PgWallet.standardWallets
-      .map((wallet) => wallet.adapter)
-      .filter((adapter) => adapter.connected) as RequiredKey<
-      typeof PgWallet["standardWallets"][number]["adapter"],
-      "publicKey"
-    >[];
+    return PgWallet.standardWallets.filter(
+      (w) => w.connected
+    ) as StandardWallet<true>[];
   }
 
   /**
@@ -426,7 +422,7 @@ class _PgWallet {
    * @param account wallet account to derive the instance from
    * @returns a Playground Wallet instance
    */
-  static create(account: WalletAccount): CurrentWallet {
+  static create(account: WalletAccount): Wallet {
     const keypair = PgWeb3.Keypair.fromSecretKey(Uint8Array.from(account.kp));
 
     return {

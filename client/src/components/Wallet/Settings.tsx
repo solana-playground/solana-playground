@@ -81,12 +81,12 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
 
   const standardWalletSettings: MenuItemProps[] = PgWallet.standardWallets.map(
     (wallet) => ({
-      name: wallet.adapter.connected
-        ? `Disconnect from ${wallet.adapter.name}`
-        : `Connect to ${wallet.adapter.name}`,
-      onClick: () => PgCommand.connect.execute(wallet.adapter.name),
+      name: wallet.connected
+        ? `Disconnect from ${wallet.name}`
+        : `Connect to ${wallet.name}`,
+      onClick: () => PgCommand.connect.execute(wallet.name),
       hoverColor: "secondary",
-      icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
+      icon: <Img src={wallet.icon} alt={wallet.name} />,
     })
   );
 

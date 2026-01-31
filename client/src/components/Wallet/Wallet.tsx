@@ -14,7 +14,7 @@ import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Close, ShortArrow } from "../Icons";
 import {
-  CurrentWallet,
+  Wallet as WalletType,
   Fn,
   PgCommon,
   PgTheme,
@@ -127,7 +127,7 @@ const WalletName = () => {
   const { darken, lighten } = useDarken();
 
   const getAccountDisplayName = useCallback(
-    (wallet: Pick<CurrentWallet, "name" | "publicKey">) => {
+    (wallet: Pick<WalletType, "name" | "publicKey">) => {
       return (
         PgCommon.withMaxLength(wallet.name, 12) +
         ` - (${PgCommon.shorten(wallet.publicKey.toBase58())})`
