@@ -77,10 +77,10 @@ export class PgProgramInteraction {
       })
       .filter(PgCommon.isNonNullish);
 
-    const tx = await program.methods[ix.name](...args)
+    const pIx = await program.methods[ix.name](...args)
       .accounts(accounts)
-      .transaction();
-    const txHash = await PgTx.send(tx, { keypairSigners, walletSigners });
+      .instruction();
+    const txHash = await PgTx.send(pIx, { keypairSigners, walletSigners });
     return txHash;
   }
 

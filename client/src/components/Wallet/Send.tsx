@@ -68,8 +68,7 @@ const SendExpanded = () => {
           toPubkey: new PgWeb3.PublicKey(recipient),
           lamports: PgCommon.solToLamports(parseFloat(amount)),
         });
-        const tx = new PgWeb3.Transaction().add(ix);
-        const txHash = await PgTx.send(tx);
+        const txHash = await PgTx.send(ix);
         const txResult = await PgCommon.transition(PgTx.confirm(txHash));
         if (txResult?.err) throw txResult.err;
 

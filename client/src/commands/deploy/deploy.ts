@@ -190,15 +190,13 @@ const processDeploy = async () => {
     // Transfer extra 0.1 SOL for fees (doesn't have to get used)
     const requiredBalance =
       requiredBalanceWithoutFees + PgWeb3.LAMPORTS_PER_SOL / 10;
-    const transferTx = new PgWeb3.Transaction().add(
-      PgWeb3.SystemProgram.transfer({
-        fromPubkey: standardWallet.publicKey,
-        toPubkey: pgWallet.publicKey,
-        lamports: requiredBalance,
-      })
-    );
+    const transferIx = PgWeb3.SystemProgram.transfer({
+      fromPubkey: standardWallet.publicKey,
+      toPubkey: pgWallet.publicKey,
+      lamports: requiredBalance,
+    });
     await sendAndConfirmTxWithRetries(
-      () => PgTx.send(transferTx),
+      () => PgTx.send(transferIx),
       async () => {
         const currentBalance = await connection.getBalance(
           standardWallet.publicKey

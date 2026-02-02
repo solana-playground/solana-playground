@@ -3,6 +3,7 @@ import { PgConnection } from "./connection";
 import { PgSettings } from "./settings";
 import { Wallet, PgWallet, WalletOption } from "./wallet";
 import { PgWeb3 } from "./web3";
+import type { Arrayable } from "./types";
 
 type WithTimeStamp<T> = T & {
   /** UNIX timestamp of the last cache */
@@ -43,6 +44,10 @@ type TransactionSendOptions = {
   forceFetchLatestBlockhash?: boolean;
 } & WalletOption;
 
+type Transactionable =
+  | PgWeb3.Transaction
+  | Arrayable<PgWeb3.TransactionInstruction>;
+
 export class PgTx {
   /** All transaction event names */
   static readonly events = {
@@ -52,15 +57,15 @@ export class PgTx {
   /**
    * Simulate a transaction with opinionated (good) defaults.
    *
-   * @param tx transaction to simulate
+   * @param txable transaction to simulate
    * @param opts simulation options
    * @returns the transaction simulation response
    */
   static async simulate(
-    tx: PgWeb3.Transaction,
+    txable: Transactionable,
     opts?: TransactionSimulateOptions
   ) {
-    const { connection } = await this._prepareTx(tx, opts);
+    const { connection, tx } = await this._prepareTx(txable, opts);
     const result = await connection.simulateTransaction(tx);
     return result.value;
   }
@@ -68,15 +73,15 @@ export class PgTx {
   /**
    * Send a transaction with opinionated (good) defaults.
    *
-   * @param tx transaction to send
+   * @param txable transaction to send
    * @param opts send options
    * @returns the transaction signature
    */
   static async send(
-    tx: PgWeb3.Transaction,
+    txable: Transactionable,
     opts?: TransactionSendOptions
   ): Promise<string> {
-    const { connection } = await this._prepareTx(tx, opts);
+    const { connection, tx } = await this._prepareTx(txable, opts);
 
     // Caching the blockhash will result in getting the same tx signature when
     // using the same tx data.
@@ -144,9 +149,14 @@ export class PgTx {
 
   /** Prepare the transaction for simulation and send. */
   static async _prepareTx(
-    tx: PgWeb3.Transaction,
+    txable: Transactionable,
     opts?: TransactionSendOptions
   ) {
+    let tx =
+      txable instanceof PgWeb3.Transaction
+        ? txable
+        : new PgWeb3.Transaction().add(...PgCommon.toArray(txable));
+
     const wallet = opts?.wallet ?? PgWallet.current;
     if (!wallet) throw new Error("Wallet not connected");
 
@@ -209,7 +219,7 @@ export class PgTx {
     // Sign with the current wallet as it's always the fee payer
     tx = await wallet.signTransaction(tx);
 
-    return { connection };
+    return { connection, tx };
   }
 
   /**

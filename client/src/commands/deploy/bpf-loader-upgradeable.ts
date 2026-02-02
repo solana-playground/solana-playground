@@ -18,25 +18,22 @@ export class BpfLoaderUpgradeable {
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction()
-      .add(
-        PgWeb3.SystemProgram.createAccount({
-          fromPubkey: wallet.publicKey,
-          newAccountPubkey: buffer.publicKey,
-          lamports,
-          space:
-            PgWeb3.BpfLoaderUpgradeableProgram.getBufferAccountSize(programLen),
-          programId: PgWeb3.BpfLoaderUpgradeableProgram.programId,
-        })
-      )
-      .add(
-        PgWeb3.BpfLoaderUpgradeableProgram.initializeBuffer({
-          bufferPk: buffer.publicKey,
-          authorityPk: wallet.publicKey,
-        })
-      );
+    const ixs = [
+      PgWeb3.SystemProgram.createAccount({
+        fromPubkey: wallet.publicKey,
+        newAccountPubkey: buffer.publicKey,
+        lamports,
+        space:
+          PgWeb3.BpfLoaderUpgradeableProgram.getBufferAccountSize(programLen),
+        programId: PgWeb3.BpfLoaderUpgradeableProgram.programId,
+      }),
+      PgWeb3.BpfLoaderUpgradeableProgram.initializeBuffer({
+        bufferPk: buffer.publicKey,
+        authorityPk: wallet.publicKey,
+      }),
+    ];
 
-    return await PgTx.send(tx, { keypairSigners: [buffer], wallet });
+    return await PgTx.send(ixs, { keypairSigners: [buffer], wallet });
   }
 
   /** Update the buffer authority. */
@@ -47,15 +44,13 @@ export class BpfLoaderUpgradeable {
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction().add(
-      PgWeb3.BpfLoaderUpgradeableProgram.setBufferAuthority({
-        bufferPk,
-        authorityPk: wallet.publicKey,
-        newAuthorityPk,
-      })
-    );
+    const ix = PgWeb3.BpfLoaderUpgradeableProgram.setBufferAuthority({
+      bufferPk,
+      authorityPk: wallet.publicKey,
+      newAuthorityPk,
+    });
 
-    return await PgTx.send(tx, { wallet });
+    return await PgTx.send(ix, { wallet });
   }
 
   /** Load programData to the initialized buffer account. */
@@ -84,14 +79,12 @@ export class BpfLoaderUpgradeable {
     // Simulate to get the compute unit consumption of a write transaction and
     // reuse it for all writes since they all consume the same amount of CU
     const { unitsConsumed: computeUnitLimit } = await PgTx.simulate(
-      new PgWeb3.Transaction().add(
-        PgWeb3.BpfLoaderUpgradeableProgram.write({
-          offset: 0,
-          bytes: programData.slice(0, WRITE_CHUNK_SIZE),
-          bufferPk,
-          authorityPk: wallet.publicKey,
-        })
-      ),
+      PgWeb3.BpfLoaderUpgradeableProgram.write({
+        offset: 0,
+        bytes: programData.slice(0, WRITE_CHUNK_SIZE),
+        bufferPk,
+        authorityPk: wallet.publicKey,
+      }),
       { computeUnitLimit: PgWeb3.MAX_COMPUTE_UNIT_LIMIT }
     );
 
@@ -110,17 +103,15 @@ export class BpfLoaderUpgradeable {
             const bytes = programData.slice(offset, endOffset);
             if (bytes.length === 0) break;
 
-            const tx = new PgWeb3.Transaction().add(
-              PgWeb3.BpfLoaderUpgradeableProgram.write({
-                offset,
-                bytes,
-                bufferPk,
-                authorityPk: wallet.publicKey,
-              })
-            );
+            const ix = PgWeb3.BpfLoaderUpgradeableProgram.write({
+              offset,
+              bytes,
+              bufferPk,
+              authorityPk: wallet.publicKey,
+            });
 
             try {
-              await PgTx.send(tx, { wallet, computeUnitLimit });
+              await PgTx.send(ix, { wallet, computeUnitLimit });
               if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
               console.log("Buffer write error:", e.message);
@@ -175,15 +166,13 @@ export class BpfLoaderUpgradeable {
   static async closeBuffer(bufferPk: PgWeb3.PublicKey, opts?: WalletOption) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction().add(
-      PgWeb3.BpfLoaderUpgradeableProgram.close({
-        closePk: bufferPk,
-        recipientPk: wallet.publicKey,
-        authorityPk: wallet.publicKey,
-      })
-    );
+    const ix = PgWeb3.BpfLoaderUpgradeableProgram.close({
+      closePk: bufferPk,
+      recipientPk: wallet.publicKey,
+      authorityPk: wallet.publicKey,
+    });
 
-    return await PgTx.send(tx, { wallet });
+    return await PgTx.send(ix, { wallet });
   }
 
   /** Create a program account from initialized buffer. */
@@ -196,27 +185,24 @@ export class BpfLoaderUpgradeable {
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction()
-      .add(
-        PgWeb3.SystemProgram.createAccount({
-          fromPubkey: wallet.publicKey,
-          newAccountPubkey: program.publicKey,
-          lamports: programLamports,
-          space: PgWeb3.BpfLoaderUpgradeableProgram.PROGRAM_ACCOUNT_SIZE,
-          programId: PgWeb3.BpfLoaderUpgradeableProgram.programId,
-        })
-      )
-      .add(
-        PgWeb3.BpfLoaderUpgradeableProgram.deployWithMaxProgramLen({
-          programPk: program.publicKey,
-          bufferPk,
-          upgradeAuthorityPk: wallet.publicKey,
-          payerPk: wallet.publicKey,
-          maxDataLen,
-        })
-      );
+    const ixs = [
+      PgWeb3.SystemProgram.createAccount({
+        fromPubkey: wallet.publicKey,
+        newAccountPubkey: program.publicKey,
+        lamports: programLamports,
+        space: PgWeb3.BpfLoaderUpgradeableProgram.PROGRAM_ACCOUNT_SIZE,
+        programId: PgWeb3.BpfLoaderUpgradeableProgram.programId,
+      }),
+      PgWeb3.BpfLoaderUpgradeableProgram.deployWithMaxProgramLen({
+        programPk: program.publicKey,
+        bufferPk,
+        upgradeAuthorityPk: wallet.publicKey,
+        payerPk: wallet.publicKey,
+        maxDataLen,
+      }),
+    ];
 
-    return await PgTx.send(tx, { wallet, keypairSigners: [program] });
+    return await PgTx.send(ixs, { wallet, keypairSigners: [program] });
   }
 
   /** Update the program authority. */
@@ -227,15 +213,13 @@ export class BpfLoaderUpgradeable {
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction().add(
-      PgWeb3.BpfLoaderUpgradeableProgram.setUpgradeAuthority({
-        programPk,
-        authorityPk: wallet.publicKey,
-        newAuthorityPk,
-      })
-    );
+    const ix = PgWeb3.BpfLoaderUpgradeableProgram.setUpgradeAuthority({
+      programPk,
+      authorityPk: wallet.publicKey,
+      newAuthorityPk,
+    });
 
-    return await PgTx.send(tx, { wallet });
+    return await PgTx.send(ix, { wallet });
   }
 
   /** Upgrade a program. */
@@ -246,33 +230,29 @@ export class BpfLoaderUpgradeable {
   ) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction().add(
-      PgWeb3.BpfLoaderUpgradeableProgram.upgrade({
-        programPk,
-        bufferPk,
-        authorityPk: wallet.publicKey,
-        spillPk: wallet.publicKey,
-      })
-    );
+    const ix = PgWeb3.BpfLoaderUpgradeableProgram.upgrade({
+      programPk,
+      bufferPk,
+      authorityPk: wallet.publicKey,
+      spillPk: wallet.publicKey,
+    });
 
-    return await PgTx.send(tx, { wallet });
+    return await PgTx.send(ix, { wallet });
   }
 
   /** Close the program account and withdraw funds. */
   static async closeProgram(programPk: PgWeb3.PublicKey, opts?: WalletOption) {
     const { wallet } = this._getOptions(opts);
 
-    const tx = new PgWeb3.Transaction().add(
-      PgWeb3.BpfLoaderUpgradeableProgram.close({
-        closePk:
-          PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk),
-        recipientPk: wallet.publicKey,
-        authorityPk: wallet.publicKey,
-        programPk,
-      })
-    );
+    const ix = PgWeb3.BpfLoaderUpgradeableProgram.close({
+      closePk:
+        PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk),
+      recipientPk: wallet.publicKey,
+      authorityPk: wallet.publicKey,
+      programPk,
+    });
 
-    return await PgTx.send(tx, { wallet });
+    return await PgTx.send(ix, { wallet });
   }
 
   /** Get the connection and wallet instance. */
