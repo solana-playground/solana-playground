@@ -58,26 +58,20 @@ type PgWallet = {
   isPg: true;
   /** Keypair of the Playground Wallet account */
   keypair: PgWeb3.Keypair;
-} & CommonWalletProps &
-  NonNullablePublicKeyProp &
+  /** Name of the account */
+  name: string;
+} & NonNullablePublicKeyProp &
   SignerWalletProps;
 
 /** All wallets other than Playground Wallet */
 export type StandardWallet<C extends boolean = false> = {
   /** The wallet is not Playground Wallet */
   isPg?: false;
-} & CommonWalletProps &
-  (C extends true
-    ? Omit<StandardWalletAdapter, "name" | "publicKey"> &
-        NonNullablePublicKeyProp
-    : Omit<StandardWalletAdapter, "name">) &
-  SignerWalletProps;
-
-/** Common props for both Playground Wallet and other wallets */
-interface CommonWalletProps {
-  /** Name of the account */
-  name: string;
-}
+} & (C extends true
+  ? Omit<StandardWalletAdapter, "publicKey"> &
+      NonNullablePublicKeyProp &
+      SignerWalletProps
+  : StandardWalletAdapter);
 
 /** Non-nullable public key property (connected state) */
 interface NonNullablePublicKeyProp {

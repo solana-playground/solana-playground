@@ -1,7 +1,5 @@
 import { FC, useEffect, useMemo } from "react";
 import {
-  MessageSignerWalletAdapter,
-  SignerWalletAdapter,
   StandardWalletAdapter,
   WalletReadyState,
 } from "@solana/wallet-adapter-base";
@@ -20,18 +18,20 @@ export const SolanaProvider: FC = ({ children }) => {
 };
 
 const PgWalletProvider: FC = ({ children }) => {
-  const { wallets, publicKey } = useWallet();
+  const { wallets } = useWallet();
 
   // Set the standard wallets
   useEffect(() => {
-    // @ts-ignore
+    // Only check for the `standard` field because signer methods such as
+    // `signTransaction` and `signMessage` are optional, and they are only
+    // getting set after a successful connection.
     PgWallet.standardWallets = wallets
       .filter((w) => w.readyState === WalletReadyState.Installed)
       .map((w) => w.adapter)
-      .filter((w) => (w as StandardWalletAdapter).standard)
-      .filter((w) => (w as SignerWalletAdapter).signTransaction)
-      .filter((w) => (w as MessageSignerWalletAdapter).signMessage);
-  }, [wallets, publicKey]);
+      .filter(
+        (w) => (w as StandardWalletAdapter).standard
+      ) as StandardWalletAdapter[];
+  }, [wallets]);
 
   return <>{children}</>;
 };
