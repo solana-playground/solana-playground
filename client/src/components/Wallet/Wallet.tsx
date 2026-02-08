@@ -8,6 +8,7 @@ import Settings from "./Settings";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import FadeIn from "../FadeIn";
+import ErrorBoundary from "../ErrorBoundary";
 import Img from "../Img";
 import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
@@ -60,8 +61,10 @@ const Wallet = () => {
         style={{ zIndex: 1 }}
       >
         <WalletWrapper>
-          <WalletTop />
-          <WalletMain />
+          <ErrorBoundary>
+            <WalletTop />
+            <WalletMain />
+          </ErrorBoundary>
         </WalletWrapper>
       </Rnd>
     </>
