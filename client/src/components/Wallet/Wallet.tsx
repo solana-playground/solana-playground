@@ -22,7 +22,7 @@ import {
   PgView,
   PgWallet,
 } from "../../utils";
-import { useDarken, useStandardAccountChange } from "./hooks";
+import { useDarken } from "./hooks";
 import {
   useKeybind,
   useOnClickOutside,
@@ -34,8 +34,6 @@ const Wallet = () => {
   const show = useRenderOnChange(PgWallet.onDidChangeShow);
 
   const wallet = useWallet();
-
-  useStandardAccountChange();
 
   if (!show || !wallet) return null;
 
