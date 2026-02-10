@@ -66,6 +66,37 @@ export const handleRoute = (
           PgView.sidebar.props = { ...sidebarProps, pageName: sidebar.name };
           disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
         }
+
+        const sidebarRoute = PgView.allSidebarPages.find(
+          (p) => p.name === sidebar.name
+        )!.route;
+        if (sidebarRoute) {
+          // Sleep to make sure the current page has been updated and
+          // `onDidChangeCurrentSidebarPage` will not run with stale data
+          await PgCommon.sleep(0);
+
+          disposables.push(
+            // Handle clicking to non-routed sidebar pages
+            PgView.onDidChangeCurrentSidebarPage((page) => {
+              if (page && !page.route) PgRouter.navigate();
+            }),
+
+            // Only change sidebar page when going outside of `/${path}`
+            {
+              dispose: () => {
+                if (
+                  !PgRouter.location.pathname.startsWith(sidebarRoute) &&
+                  PgView.sidebar.name === sidebar.name
+                ) {
+                  // This fixes the case where going back from `/${path}` to `/` with
+                  // browser's navigations would cause incorrect component to still be
+                  // mounted instead of switching to `Explorer`
+                  PgView.sidebar.name = "Explorer";
+                }
+              },
+            }
+          );
+        }
       } else if (!PgView.sidebar.name) {
         PgView.sidebar.name = "Explorer";
       }
@@ -87,33 +118,6 @@ export const handleRoute = (
       PgView.setSidebarLoading(false);
     }
   });
-
-  const sidebarRoute =
-    sidebar &&
-    PgView.allSidebarPages.find((p) => p.name === sidebar.name)!.route;
-  if (sidebarRoute) {
-    disposables.push(
-      // Handle clicking on non-routed sidebar pages
-      PgView.onDidChangeCurrentSidebarPage((page) => {
-        if (page && !page.route) PgRouter.navigate();
-      }),
-
-      // Only change sidebar page when going outside of `/${path}`
-      {
-        dispose: () => {
-          if (
-            !PgRouter.location.pathname.startsWith(sidebarRoute) &&
-            PgView.sidebar.name === sidebar.name
-          ) {
-            // This fixes the case where going back from `/${path}` to `/` with
-            // browser's navigations would cause incorrect component to still be
-            // mounted instead of switching to `Explorer`
-            PgView.sidebar.name = "Explorer";
-          }
-        },
-      }
-    );
-  }
 
   // Minimize secondary main view and reopen on navigation to other routes
   if (minimizeSecondaryMainView) {
