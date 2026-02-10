@@ -2,7 +2,12 @@ import { createFramework } from "../create";
 
 export const anchor = createFramework({
   name: "Anchor",
+  description:
+    "Anchor is a framework providing several convenient developer tools for writing Solana programs.",
   language: "Rust",
+  docs: {
+    url: "https://www.anchor-lang.com/docs/quickstart/solpg",
+  },
   githubExample: {
     name: "Create Account",
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",

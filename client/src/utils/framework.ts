@@ -7,11 +7,27 @@ export type FrameworkParam<N extends string> = {
   /** Framework name */
   name: N;
 
+  /** Framework description */
+  description: string;
+
   /** Framework program language */
   language: LanguageName;
 
   /** Image icon src, defaults to `/frameworks/icon.png` */
   icon?: string;
+
+  /** Whether to make the image circular */
+  circleImage?: boolean;
+
+  /** Framework documentation */
+  docs?: {
+    /** Framework documentation URL */
+    url: string;
+    /** Framework documentation name, defaults to the framework `name` */
+    name?: string;
+    /** Framework documentation description, defaults to the framework `description` */
+    description?: string;
+  };
 
   /** Example GitHub project */
   githubExample: {
@@ -23,9 +39,6 @@ export type FrameworkParam<N extends string> = {
 
   /** Default file to open after loading the default framework files */
   defaultOpenFile?: string;
-
-  /** Whether to make the image circular */
-  circleImage?: boolean;
 
   /**
    * Get whether the given files have this framework's layout.
@@ -70,7 +83,7 @@ export type FrameworkParam<N extends string> = {
 /** Created framework */
 export type Framework<N extends string = string> = RequiredKey<
   FrameworkParam<N>,
-  "getIsCurrent" | "getDefaultFiles" | "import" | "export"
+  "icon" | "getIsCurrent" | "getDefaultFiles" | "import" | "export"
 >;
 
 export class PgFramework {
