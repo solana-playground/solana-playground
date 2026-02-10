@@ -30,7 +30,10 @@ impl Config {
             port: get_env("PORT", 8080u16),
             payload_limit: get_env("PAYLOAD_LIMIT", 1024usize * 1024 * 1024),
             verbose: get_env("VERBOSE", false),
-            db_uri: get_env("DB_URI", "mongodb://localhost:27017"),
+            db_uri: get_env(
+                "DB_URI",
+                "postgresql://postgres:postgres@localhost:5432/solpg",
+            ),
             db_name: get_env("DB_NAME", "solpg"),
         }
     }
