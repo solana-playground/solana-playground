@@ -1,6 +1,7 @@
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
+import Markdown from "../../../../../components/Markdown";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { ExportFile, Info } from "../../../../../components/Icons";
@@ -10,11 +11,14 @@ export const ExportWorkspace = () => {
   const convertAndExport = async () => {
     try {
       const { readme } = await PgFramework.exportWorkspace({ convert: true });
-      const { ExportWorkspaceReadme } = await import("./ExportWorkspaceReadme");
       PgView.closeModal();
-      await PgView.setModal(<ExportWorkspaceReadme text={readme} />);
+      await PgView.setModal(
+        <Modal title buttonProps={{ text: "Continue" }}>
+          <Markdown>{readme}</Markdown>
+        </Modal>
+      );
     } catch (e) {
-      console.error("Convert and export error:", e);
+      console.log("Convert and export error:", e);
       await exportWithoutChanges();
     }
   };
