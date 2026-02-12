@@ -44,9 +44,14 @@ const PgWalletProvider: FC = ({ children }) => {
     if (!wallet || wallet.isPg) return;
 
     const handleStandardAccountChange = () => {
-      // Set the `standardName` to itself to trigger the rederivation of the
-      // derivable fields that depend on this field (`standard` and `current`)
-      PgWallet.update({ standardName: PgWallet.standardName });
+      // Set the `standardWallets` to itself to trigger the re-derivation of the
+      // derivable fields that depend on this field (`standard` and `current`).
+      //
+      // NOTE: This only works because the field `standardWallets` is an object,
+      // which is not cached by the decorator implementation. Using `standardName`
+      // instead would not trigger re-derivation after the first change because
+      // string values are cached.
+      PgWallet.update({ standardWallets: PgWallet.standardWallets });
     };
 
     // There is no specific event for account changes, but the `connect` event
