@@ -96,10 +96,6 @@ export const RPC_ERROR: ConvertedError = {
     "RPC endpoint is not responsive. Please change the endpoint from the settings.",
 };
 
-export const SERVER_ERROR: ConvertedError = {
-  OpenFile: "Please rebuild the project.",
-};
-
 export const OTHER_ERROR: ConvertedError = {
   "Failed to fetch": `Unable to build. If the problem persists, please consider creating an issue about the problem in ${GITHUB_URL}/issues`,
   "unable to infer src variant": "Enum variant does not exist.",

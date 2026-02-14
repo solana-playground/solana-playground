@@ -20,15 +20,10 @@ export const build = createCmd({
     PgGlobal.update({ buildLoading: true });
     PgTerminal.println(PgTerminal.info("Building..."));
 
-    let msg;
     try {
       const output = await processBuild();
-      msg = improveOutput(output.stderr);
-    } catch (e: any) {
-      const convertedError = PgTerminal.convertErrorMessage(e.message);
-      msg = `Build error: ${convertedError}`;
+      PgTerminal.println(improveOutput(output.stderr) + "\n");
     } finally {
-      PgTerminal.println(msg + "\n");
       PgGlobal.update({ buildLoading: false });
     }
   },

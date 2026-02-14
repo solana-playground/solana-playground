@@ -27,10 +27,10 @@ export const deploy = createCmd({
     );
     PgView.setMainSecondaryProgress(0.1);
 
-    let msg;
     try {
       const startTime = performance.now();
       const { txHash, closeBuffer } = await processDeploy();
+      let msg;
       if (txHash) {
         const timePassed = (performance.now() - startTime) / 1000;
         msg = `${PgTerminal.success(
@@ -52,12 +52,9 @@ export const deploy = createCmd({
           )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`;
         }
       }
-    } catch (e: any) {
-      const convertedError = PgTerminal.convertErrorMessage(e.message);
-      msg = `Deployment error: ${convertedError}`;
-      return 1; // To indicate error
+
+      PgTerminal.println(msg + "\n");
     } finally {
-      if (msg) PgTerminal.println(msg + "\n");
       PgView.setMainSecondaryProgress(0);
       PgGlobal.update({ deployState: "ready" });
     }

@@ -6,12 +6,7 @@ import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgShell } from "./shell";
 import { PgTty } from "./tty";
-import {
-  OTHER_ERROR,
-  PROGRAM_ERROR,
-  RPC_ERROR,
-  SERVER_ERROR,
-} from "../../constants";
+import { OTHER_ERROR, PROGRAM_ERROR, RPC_ERROR } from "../../constants";
 import { PgCommon } from "../common";
 import type { CommandManager, Prefixes, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
@@ -109,14 +104,6 @@ export class PgTerminal {
     for (const rpcError in RPC_ERROR) {
       if (msg.includes(rpcError)) {
         msg = RPC_ERROR[rpcError];
-        return msg;
-      }
-    }
-
-    // Server errors
-    for (const serverError in SERVER_ERROR) {
-      if (msg === serverError) {
-        msg = SERVER_ERROR[serverError];
         return msg;
       }
     }
