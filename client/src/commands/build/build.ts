@@ -119,21 +119,58 @@ const getBuildFiles = () => {
     programPkStr = kp.publicKey.toBase58();
   }
 
+
+
+  /**
+ * Updates the `declare_id!` macro in Rust source content with the current program public key.
+ * Safely skips single-line comments (`//`) and block comments to avoid
+ * injecting the program ID into commented code.
+ *
+ * @param content - The Rust source file content as a string
+ * @returns An object containing:
+ * - `content` - The updated source content with the new program ID injected
+ * - `updated` - A boolean indicating whether a `declare_id!` was found and updated
+ */
+
   const updateIdRust = (content: string) => {
     let updated = false;
 
-    const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/gm;
-    const newContent = content.replace(rustDeclareIdRegex, (match) => {
-      const res = rustDeclareIdRegex.exec(match);
-      if (!res) return match;
-      updated = true;
+    // split content into lines and process each line 
+    // to avoid modifying declared ids in comments or docstrings
+    const lines = content.split("\n");
+    let insideBlockComment = false;
 
-      // res[1] could be solana_program:: or undefined
-      return (res[1] ?? "\n") + `declare_id!("${programPkStr}")`;
+    const processedLines = lines.map(line => {
+      // Track block comment opening
+      if (line.includes("/*")) insideBlockComment = true;
+
+      // if inside block comment , skip line entierly 
+      if (insideBlockComment) {
+        // Track the block comment closing
+        if (line.includes("*/")) insideBlockComment = false;
+        return line;
+      }
+
+
+      // skip single-line comments
+      const trimmed = line.trimStart();
+      if (trimmed.startsWith("//")) return line;
+
+      // Safe to replace active declare_id! only on non-commented lines
+      const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/;
+      return line.replace(rustDeclareIdRegex, (match) => {
+        const res = rustDeclareIdRegex.exec(match);
+        if (!res) return match;
+        updated = true;
+        return (res[1] ?? "") + `declare_id!("${programPkStr}")`;
+      });
     });
 
+    const newContent = processedLines.join("\n");
     return { content: newContent, updated };
+
   };
+
 
   const updateIdPython = (content: string) => {
     let updated = false;
