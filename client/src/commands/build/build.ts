@@ -123,46 +123,34 @@ const getBuildFiles = () => {
    * Update the `declare_id!` macro in Rust source content with the current
    * program's public key.
    *
-   * @param content - The Rust source file content as a string
-   * @returns An object containing:
-   * - `content` - The updated source content with the new program ID injected
-   * - `updated` - A boolean indicating whether the ID was updated
-   */
-  const updateIdRust = (content: string) => {
-    let updated = false;
-
-    // split content into lines and process each line 
-    // to avoid modifying declared ids in comments or docstrings
-    const lines = content.split("\n");
     let insideBlockComment = false;
+    const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/;
+    const newContent = content
+      .split("\n")
+      .map((line) => {
+        // Track block comment opening
+        if (line.includes("/*")) insideBlockComment = true;
 
-    const processedLines = lines.map(line => {
-      // Track block comment opening
-      if (line.includes("/*")) insideBlockComment = true;
+        // If inside block comment, skip line entirely
+        if (insideBlockComment) {
+          // Track block comment closing
+          if (line.includes("*/")) insideBlockComment = false;
+          return line;
+        }
 
-      // if inside block comment , skip line entierly 
-      if (insideBlockComment) {
-        // Track the block comment closing
-        if (line.includes("*/")) insideBlockComment = false;
-        return line;
-      }
+        // Skip single-line comments
+        if (line.trimStart().startsWith("//")) return line;
 
+        return line.replace(rustDeclareIdRegex, (match) => {
+          const res = rustDeclareIdRegex.exec(match);
+          if (!res) return match;
+          updated = true;
 
-      // skip single-line comments
-      const trimmed = line.trimStart();
-      if (trimmed.startsWith("//")) return line;
-
-      // Safe to replace active declare_id! only on non-commented lines
-      const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/;
-      return line.replace(rustDeclareIdRegex, (match) => {
-        const res = rustDeclareIdRegex.exec(match);
-        if (!res) return match;
-        updated = true;
-        return (res[1] ?? "") + `declare_id!("${programPkStr}")`;
-      });
-    });
-
-    const newContent = processedLines.join("\n");
+          // `res[1]` could be `solana_program::` or `undefined`
+          return (res[1] ?? "") + `declare_id!("${programPkStr}")`;
+        });
+      })
+      .join("\n");
     return { content: newContent, updated };
 
   };
