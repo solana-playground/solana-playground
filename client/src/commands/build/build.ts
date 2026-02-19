@@ -154,7 +154,6 @@ const getBuildFiles = () => {
     return { content: newContent, updated };
   };
 
-
   const updateIdPython = (content: string) => {
     let updated = false;
 
