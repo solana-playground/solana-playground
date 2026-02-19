@@ -119,19 +119,15 @@ const getBuildFiles = () => {
     programPkStr = kp.publicKey.toBase58();
   }
 
-
-
   /**
- * Updates the `declare_id!` macro in Rust source content with the current program public key.
- * Safely skips single-line comments (`//`) and block comments to avoid
- * injecting the program ID into commented code.
- *
- * @param content - The Rust source file content as a string
- * @returns An object containing:
- * - `content` - The updated source content with the new program ID injected
- * - `updated` - A boolean indicating whether a `declare_id!` was found and updated
- */
-
+   * Update the `declare_id!` macro in Rust source content with the current
+   * program's public key.
+   *
+   * @param content - The Rust source file content as a string
+   * @returns An object containing:
+   * - `content` - The updated source content with the new program ID injected
+   * - `updated` - A boolean indicating whether the ID was updated
+   */
   const updateIdRust = (content: string) => {
     let updated = false;
 
