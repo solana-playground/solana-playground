@@ -152,7 +152,6 @@ const getBuildFiles = () => {
       })
       .join("\n");
     return { content: newContent, updated };
-
   };
 
 
