@@ -120,14 +120,14 @@ const getBuildFiles = () => {
   }
 
   /**
-  * Update the `declare_id!` macro in Rust source content with the current
-  * program's public key.
-  *
-  * @param content - The Rust source file content as a string
-  * @returns An object containing:
-  * - `content` - The updated source content with the new program ID injected
-  * - `updated` - A boolean indicating whether the ID was updated
-  */
+   * Update the `declare_id!` macro in Rust source content with the current
+   * program's public key.
+   *
+   * @param content - The Rust source file content as a string
+   * @returns An object containing:
+   * - `content` - The updated source content with the new program ID injected
+   * - `updated` - A boolean indicating whether the ID was updated
+   */
   const updateIdRust = (content: string) => {
     let updated = false;
 
