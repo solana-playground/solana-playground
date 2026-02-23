@@ -130,7 +130,6 @@ const getBuildFiles = () => {
    */
   const updateIdRust = (content: string) => {
     let updated = false;
-
     let insideBlockComment = false;
     const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/;
     const newContent = content
