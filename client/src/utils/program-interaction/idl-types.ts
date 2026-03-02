@@ -22,8 +22,8 @@ interface PgIdlType<
   T extends IdlType,
   V extends DecodeType<T, never> = DecodeType<T, never>
 > {
-  /** Display type to show in UI */
-  displayType: OrString<Exclude<T, object>>;
+  /** Display name to show in UI */
+  name: OrString<Exclude<T, object>>;
   /**
    * Parse from string to the IDL type's JS equivalent.
    *
@@ -112,7 +112,7 @@ export const getIdlType: <T extends IdlType>(
       case "struct": {
         const fields = definedType.type.fields;
         return createIdlType({
-          displayType: definedType.name,
+          name: definedType.name,
           parse: (value) => {
             if (!value.startsWith("{") || !value.endsWith("}")) {
               throw new Error("Not an object");
@@ -216,7 +216,7 @@ export const getIdlType: <T extends IdlType>(
         };
 
         return createIdlType({
-          displayType: definedType.name,
+          name: definedType.name,
           parse: (value) => {
             // Allow unit enums to be passed by name
             try {
@@ -320,7 +320,7 @@ export const getIdlType: <T extends IdlType>(
       case "alias": {
         return {
           ...getIdlType(definedType.type.value, idl),
-          displayType: definedType.name,
+          name: definedType.name,
         };
       }
     }
@@ -333,7 +333,7 @@ export const getIdlType: <T extends IdlType>(
     const inner = getIdlType(optionLike, idl);
     return createIdlType({
       ...inner,
-      displayType: `${option ? "" : "C"}Option<${inner.displayType}>`,
+      name: `${option ? "" : "C"}Option<${inner.name}>`,
       parse: (value) => {
         if (["", "null", "none"].includes(value)) return null;
         return inner.parse(value);
@@ -353,9 +353,7 @@ export const getIdlType: <T extends IdlType>(
     const [elementType, len] = array ?? [vec];
     const inner = getIdlType(elementType!, idl);
     return createIdlType({
-      displayType: array
-        ? `[${inner.displayType}; ${len}]`
-        : `Vec<${inner.displayType}>`,
+      name: array ? `[${inner.name}; ${len}]` : `Vec<${inner.name}>`,
       parse: (value) => {
         if (!value.startsWith("[") || !value.endsWith("]")) {
           throw new Error("Not an array");
@@ -380,7 +378,7 @@ export const getIdlType: <T extends IdlType>(
         const stringifiedArray = JSON.stringify(
           new Array(array ? len : 4).fill(null).map(inner.generateRandom)
         );
-        if (inner.displayType === "string") return stringifiedArray;
+        if (inner.name === "string") return stringifiedArray;
         return stringifiedArray.replaceAll('"', "");
       },
     });
@@ -400,14 +398,14 @@ const createIdlType = <T extends IdlType>(idlType: PgIdlType<T>) => {
 };
 
 const publicKey = createIdlType({
-  displayType: "publicKey",
+  name: "publicKey",
   parse: (value) => new PgWeb3.PublicKey(string.parse(value)),
   toBuffer: (value) => value.toBuffer(),
   generateRandom: () => PgWeb3.Keypair.generate().publicKey.toBase58(),
 });
 
 const string = createIdlType({
-  displayType: "string",
+  name: "string",
   // Remove the quotes from string in order to make struct inputs intuitive
   // e.g. `{ name: "Abc" }` should be parsed as "Abc" instead of "\"Abc\"".
   // Maybe replace only the first and the last quotes?
@@ -421,7 +419,7 @@ const string = createIdlType({
 });
 
 const bool = createIdlType({
-  displayType: "bool",
+  name: "bool",
   parse: (value) => {
     if (value === "true") return true;
     if (value === "false") return false;
@@ -432,7 +430,7 @@ const bool = createIdlType({
 });
 
 const u8 = createIdlType({
-  displayType: "u8",
+  name: "u8",
   parse: (value) => {
     assertUint(value, 1);
     return parseInt(value);
@@ -442,7 +440,7 @@ const u8 = createIdlType({
 });
 
 const u16 = createIdlType({
-  displayType: "u16",
+  name: "u16",
   parse: (value) => {
     assertUint(value, 2);
     return parseInt(value);
@@ -452,7 +450,7 @@ const u16 = createIdlType({
 });
 
 const u32 = createIdlType({
-  displayType: "u32",
+  name: "u32",
   parse: (value) => {
     assertUint(value, 4);
     return parseInt(value);
@@ -462,7 +460,7 @@ const u32 = createIdlType({
 });
 
 const u64 = createIdlType({
-  displayType: "u64",
+  name: "u64",
   parse: (value) => {
     assertUint(value, 8);
     return new BN(value);
@@ -472,7 +470,7 @@ const u64 = createIdlType({
 });
 
 const u128 = createIdlType({
-  displayType: "u128",
+  name: "u128",
   parse: (value) => {
     assertUint(value, 16);
     return new BN(value);
@@ -482,7 +480,7 @@ const u128 = createIdlType({
 });
 
 const i8 = createIdlType({
-  displayType: "i8",
+  name: "i8",
   parse: (value) => {
     assertInt(value, 1);
     return parseInt(value);
@@ -492,7 +490,7 @@ const i8 = createIdlType({
 });
 
 const i16 = createIdlType({
-  displayType: "i16",
+  name: "i16",
   parse: (value) => {
     assertInt(value, 2);
     return parseInt(value);
@@ -502,7 +500,7 @@ const i16 = createIdlType({
 });
 
 const i32 = createIdlType({
-  displayType: "i32",
+  name: "i32",
   parse: (value) => {
     assertInt(value, 4);
     return parseInt(value);
@@ -512,7 +510,7 @@ const i32 = createIdlType({
 });
 
 const i64 = createIdlType({
-  displayType: "i64",
+  name: "i64",
   parse: (value) => {
     assertInt(value, 8);
     return new BN(value);
@@ -522,7 +520,7 @@ const i64 = createIdlType({
 });
 
 const i128 = createIdlType({
-  displayType: "i128",
+  name: "i128",
   parse: (value) => {
     assertInt(value, 16);
     return new BN(value);
@@ -532,7 +530,7 @@ const i128 = createIdlType({
 });
 
 const f32 = createIdlType({
-  displayType: "f32",
+  name: "f32",
   parse: (value) => {
     if (!PgCommon.isFloat(value)) throw new Error("Invalid float");
     return parseFloat(value);
@@ -546,7 +544,7 @@ const f32 = createIdlType({
 });
 
 const f64 = createIdlType({
-  displayType: "f64",
+  name: "f64",
   parse: (value) => {
     if (!PgCommon.isFloat(value)) throw new Error("Invalid float");
     return parseFloat(value);
@@ -560,7 +558,7 @@ const f64 = createIdlType({
 });
 
 const bytes = createIdlType({
-  displayType: "bytes",
+  name: "bytes",
   parse: (value) => {
     const array: number[] = JSON.parse(value);
     const isValid = array.every((el) => el === 0 || u8.parse(el.toString()));

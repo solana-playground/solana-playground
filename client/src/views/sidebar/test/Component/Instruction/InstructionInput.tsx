@@ -56,7 +56,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
   const { instruction, setInstruction } = useInstruction();
   const { idl } = useIdl();
 
-  const { displayType, parse } = useMemo(
+  const { name: typeName, parse } = useMemo(
     () => PgProgramInteraction.getIdlType(type, idl),
     [type, idl]
   );
@@ -160,7 +160,7 @@ const InstructionInput: FC<InstructionInputProps> = ({
     <Wrapper>
       {!noLabel && (
         <Row>
-          <Label name={name} type={displayType} {...accountProps} />
+          <Label name={name} type={typeName} {...accountProps} />
         </Row>
       )}
 
@@ -271,10 +271,10 @@ const getSearchBarProps = (
     }
   };
 
-  if (customizable.displayType === "bool") {
+  if (customizable.name === "bool") {
     searchBarProps.items.push("false", "true");
     searchBarProps.noCustomOption = true;
-  } else if (customizable.displayType === "publicKey") {
+  } else if (customizable.name === "publicKey") {
     // Handle "Random" for "publicKey" differently in order to be able to
     // sign the transaction later with the generated key
     searchBarProps.items[0] = {
@@ -331,7 +331,7 @@ const getSearchBarProps = (
   } else {
     // Handle enum
     const definedType = idl.types?.find(
-      (t) => t.name === customizable.displayType
+      (t) => t.name === customizable.name
     )?.type;
     if (definedType?.kind === "enum") {
       const enumItems = definedType.variants.map((variant) => {
