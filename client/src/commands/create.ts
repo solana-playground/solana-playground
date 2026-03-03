@@ -3,8 +3,6 @@ import type { Arg, CommandParam, Command, Option } from "../utils";
 /**
  * Create a command.
  *
- * NOTE: This is only a type helper function.
- *
  * @param cmd command to create
  * @returns the command with its inferred type
  */
@@ -24,7 +22,7 @@ export const createCmd = <
 /**
  * Create a subcommand.
  *
- * @param cmd command to create
+ * @param subcmd subcommand to create
  * @returns the command with its inferred type
  */
 export const createSubcmd = <
@@ -53,13 +51,14 @@ const addHelpOption = (cmd: { options?: Option[] }) => {
 /**
  * Create command arguments.
  *
- * @param arg arg to create
+ * @param args args to create
  * @returns the args with their inferred types
  */
 export const createArgs = <
   N extends string,
   V extends string,
-  A extends Arg<N, V>[]
+  P,
+  A extends Arg<N, V, P>[]
 >(
   args: [...A]
 ) => {
@@ -81,13 +80,14 @@ export const createArgs = <
 /**
  * Create command options.
  *
- * @param opts option to create
+ * @param opts options to create
  * @returns the options with their inferred types
  */
 export const createOptions = <
   N extends string,
   V extends string,
-  O extends Option<N, V>[]
+  P,
+  O extends Option<N, V, P>[]
 >(
   opts: [...O]
 ) => {
@@ -112,9 +112,6 @@ export const createOptions = <
 
     opt.short = short;
   }
-
-  // If `values` field is specified, it implies `takeValue`
-  for (const opt of opts) opt.takeValue ??= !!opt.values;
 
   return opts;
 };

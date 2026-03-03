@@ -1,12 +1,6 @@
 import { PgCommon } from "./common";
 import { PgTerminal } from "./terminal";
-import type {
-  Arrayable,
-  Disposable,
-  Getable,
-  SyncOrAsync,
-  ValueOf,
-} from "./types";
+import type { Arrayable, Disposable, Getable, SyncOrAsync } from "./types";
 
 /** Terminal command creation parameter */
 export type CommandParam<
@@ -57,28 +51,48 @@ type ParsedInput<A, O> = {
 
 /** Recursively map argument types */
 type ParsedArgs<A> = A extends [infer Head, ...infer Tail]
-  ? Head extends Arg<infer N, infer V>
+  ? Head extends Arg<infer N, infer V, infer P>
     ? (Head["optional"] extends true
-        ? { [K in N]?: Head["multiple"] extends true ? V[] : V }
-        : { [K in N]: Head["multiple"] extends true ? V[] : V }) &
+        ? {
+            [K in N]?: ArgValue<Head, V, P>;
+          }
+        : {
+            [K in N]: ArgValue<Head, V, P>;
+          }) &
         ParsedArgs<Tail>
     : never
   : {};
 
+type ArgValue<A extends Arg, V, P> = A["multiple"] extends true
+  ? A["parse"] extends NonNullable<A["parse"]>
+    ? P[]
+    : V[]
+  : A["parse"] extends NonNullable<A["parse"]>
+  ? P
+  : V;
+
 /** Recursively map option types */
 type ParsedOptions<O> = O extends [infer Head, ...infer Tail]
-  ? Head extends Option<infer N, infer V>
+  ? Head extends Option<infer N, infer V, infer P>
     ? (Head["takeValue"] extends true
-        ? { [K in N]?: V }
-        : Head["values"] extends Getable<V[]>
-        ? { [K in N]?: V }
+        ? { [K in N]?: OptionValue<Head, V, P> }
         : { [K in N]?: boolean }) &
         ParsedOptions<Tail>
     : never
   : {};
 
+type OptionValue<O extends Option, V, P> = O["parse"] extends NonNullable<
+  O["parse"]
+>
+  ? P
+  : V;
+
 /** Command argument */
-export type Arg<N extends string = string, V extends string = string> = {
+export type Arg<
+  N extends string = string,
+  V extends string = string,
+  P = unknown
+> = {
   /** Name of the argument */
   name: N;
   /** Description of the argument */
@@ -89,21 +103,37 @@ export type Arg<N extends string = string, V extends string = string> = {
   multiple?: boolean;
   /** Accepted values */
   values?: V[] | ((token: string, tokens: string[]) => V[]);
+  /** Parse the argument */
+  parse?: (token: string, tokens: string[]) => P;
 };
 
 /** Command option */
-export type Option<N extends string = string, V extends string = string> = {
+export type Option<
+  N extends string = string,
+  V extends string = string,
+  P = unknown
+> = {
   /** Name of the option */
   name: N;
   /** Description of the option */
   description?: string;
   /** Short form of the option passed with a single dash (`-`) */
   short?: boolean | string;
-  /** Whether to take value for the option */
-  takeValue?: boolean;
-  /** Accepted values */
-  values?: Getable<V[]>;
-};
+} & (
+  | {
+      /** Whether to take value for the option */
+      takeValue: true;
+      /** Accepted values */
+      values?: Getable<V[]>;
+      /** Parse the option */
+      parse?: (token: string) => P;
+    }
+  | {
+      takeValue?: never;
+      values?: never;
+      parse?: never;
+    }
+);
 
 /** Inferred terminal command implementation */
 export type Command<
@@ -213,7 +243,7 @@ export class PgCommandManager {
       [key: string]: Completions | CompletionArg | CompletionOption;
     }
     const recursivelyGetCompletions = (
-      commands: ValueOf<InternalCommands>[],
+      commands: Command<string, any[], any[], any[], any>[],
       completions: Completions = {}
     ) => {
       for (const cmd of commands) {
@@ -419,7 +449,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
         }
 
         // Parse args
-        const parsedArgs: Record<string, Arrayable<string>> = {};
+        const parsedArgs: Record<string, Arrayable<unknown>> = {};
         if (cmd.args) {
           for (const i in cmd.args) {
             const arg = cmd.args[i];
@@ -428,8 +458,13 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               : args[i]
               ? [args[i]]
               : [];
-            if (!inputArgs.length && !arg.optional) {
-              throw new Error(`Argument not specified: \`${arg.name}\``);
+            if (!inputArgs.length) {
+              if (!arg.optional) {
+                throw new Error(`Argument not specified: \`${arg.name}\``);
+              }
+
+              // Optional argument value not specified, skip
+              continue;
             }
 
             // Validate values if specified
@@ -451,12 +486,20 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               }
             }
 
-            parsedArgs[arg.name] = arg.multiple ? inputArgs : inputArgs[0];
+            if (arg.multiple) {
+              parsedArgs[arg.name] = arg.parse
+                ? inputArgs.map((token) => arg.parse!(token, tokens))
+                : inputArgs;
+            } else {
+              parsedArgs[arg.name] = arg.parse
+                ? arg.parse(inputArgs[0], tokens)
+                : inputArgs[0];
+            }
           }
         }
 
         // Parse options
-        const parsedOpts: Record<string, string | boolean> = {};
+        const parsedOpts: Record<string, unknown> = {};
         if (cmd.options) {
           for (const opt of cmd.options) {
             const i = opts.findIndex(
@@ -483,7 +526,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
                 }
               }
 
-              parsedOpts[opt.name] = val;
+              parsedOpts[opt.name] = opt.parse ? opt.parse(val) : val;
             } else {
               parsedOpts[opt.name] = true;
             }

@@ -18,9 +18,8 @@ export const airdrop = createCmd({
       name: "amount",
       description: "Airdrop amount (in SOL)",
       optional: true,
-      // TODO: Add `parse` value and remove this
-      values: (token) => {
-        if (PgCommon.isFloat(token)) return [token];
+      parse: (token) => {
+        if (PgCommon.isFloat(token)) return parseFloat(token);
         throw new Error("Amount must be a number");
       },
     },
@@ -31,9 +30,7 @@ export const airdrop = createCmd({
       throw new Error("Cannot airdrop on this cluster");
     }
 
-    const amount = input.args.amount
-      ? parseFloat(input.args.amount)
-      : defaultAmount;
+    const amount = input.args.amount ?? defaultAmount;
     PgTerminal.println(PgTerminal.info(`Airdropping ${amount} SOL...`));
 
     const connection = PgConnection.current;

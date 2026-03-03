@@ -64,29 +64,30 @@ export const setting = createCmd({
 
             return values;
           },
+          parse: (token, tokens) => {
+            // TODO: Find a better way to reliably get the setting ID because
+            // passing an option before the third token would break this logic
+            const id = tokens.at(2);
+            if (!id) throw new Error("Setting ID not found in tokens");
+
+            const setting = getSetting(id);
+            const value = token;
+            const namedValue = PgCommon.callIfNeeded(setting.values)?.find(
+              (v) => v.name === value
+            )?.value;
+            if (namedValue) return namedValue;
+
+            if (setting.custom) {
+              try {
+                return setting.custom.parse(value);
+              } catch {}
+            }
+
+            return setting.values ? value : value === "true";
+          },
         },
       ]),
-      handle: (input) => {
-        const { id, value } = input.args;
-        const setting = getSetting(id);
-
-        let parsedVal = PgCommon.callIfNeeded(setting.values)?.find(
-          (v) => v.name === value
-        )?.value;
-        if (parsedVal === undefined) {
-          if (setting.custom) {
-            try {
-              parsedVal = setting.custom.parse(value);
-            } catch {}
-          }
-
-          if (parsedVal === undefined) {
-            parsedVal = setting.values ? value : value === "true";
-          }
-        }
-
-        setting.setValue(parsedVal);
-      },
+      handle: (input) => getSetting(input.args.id).setValue(input.args.value),
     }),
   ],
 });
