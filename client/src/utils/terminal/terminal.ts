@@ -212,9 +212,10 @@ export class PgTerminal {
   ) {
     const { align } = PgCommon.setDefault(opts, { align: "x" });
     return list
-      .map((item) =>
-        Array.isArray(item) ? item : [item.name, item.description ?? ""]
-      )
+      .map((item) => {
+        if (Array.isArray(item)) return item;
+        return Object.values(item).filter((v) => typeof v === "string");
+      })
       .sort((a, b) => {
         const allowedRegex = /^[a-zA-Z-]+$/;
         if (!allowedRegex.test(a[0])) return 1;
