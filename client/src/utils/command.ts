@@ -386,7 +386,7 @@ ${PgTerminal.formatList(cmd.subcommands!)}`);
             }
             if (cmd.options) {
               const optList = cmd.options.map((opt) => [
-                `${opt.short ? `-${opt.short}, ` : "    "}--${opt.name} ${
+                `${opt.short ? `-${opt.short}, ` : ""}--${opt.name} ${
                   opt.takeValue ? `<${opt.name.toUpperCase()}>` : ""
                 }`,
                 opt.description ?? "",
