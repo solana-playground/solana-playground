@@ -31,12 +31,7 @@ export const setting = createCmd({
           name: "value",
           description: "Value to set",
           values: (token, tokens) => {
-            // TODO: Find a better way to reliably get the setting ID because
-            // passing an option before the third token would break this logic
-            const id = tokens.at(2);
-            if (!id) throw new Error("Setting ID not found in tokens");
-
-            // Get setting
+            const id = getSettingIdFromTokens(tokens);
             const setting = getSetting(id);
 
             // If `values` field is not specified, default to boolean
@@ -65,11 +60,7 @@ export const setting = createCmd({
             return values;
           },
           parse: (token, tokens) => {
-            // TODO: Find a better way to reliably get the setting ID because
-            // passing an option before the third token would break this logic
-            const id = tokens.at(2);
-            if (!id) throw new Error("Setting ID not found in tokens");
-
+            const id = getSettingIdFromTokens(tokens);
             const setting = getSetting(id);
             const value = token;
             const namedValue = PgCommon.callIfNeeded(setting.values)?.find(
@@ -103,4 +94,29 @@ const getSetting = (id: string) => {
   const setting = PgSettings.all.find((s) => s.id === id);
   if (!setting) throw new Error(`Setting not found: ${id}`);
   return setting;
+};
+
+/**
+ * Get setting ID from the given tokens.
+ *
+ * This makes strong assumptions about the location of the setting ID argument
+ * (index 2), which works fine for now, but would break in the case of nested
+ * subcommands.
+ *
+ * **NOTE:** A better way to handle this situation would be to provide parsed
+ * tokens rather than raw tokens to `arg.values` and `arg.parse`. However, this
+ * is not straight-forward to achieve because `arg.values` is also used in the
+ * autocompletion logic, which currently only concerns itself with the current
+ * token without keeping track of the previous ones. Technically, we could do
+ * this for `arg.parse`, since that's only used by the command processor, but
+ * we're choosing to not do that in order to keep the APIs (arguments) the same.
+ *
+ * @param tokens command tokens
+ * @returns the setting ID without checking whether it's a valid ID
+ */
+// TODO: Provide parsed tokens instead of raw ones to `arg.values` and `arg.parse`
+const getSettingIdFromTokens = (tokens: string[]) => {
+  const id = tokens.filter((t) => !t.startsWith("-")).at(2);
+  if (!id) throw new Error("Setting ID not found in tokens");
+  return id;
 };
