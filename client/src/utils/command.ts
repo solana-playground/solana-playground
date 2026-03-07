@@ -381,7 +381,7 @@ ${PgTerminal.formatList(cmd.subcommands!)}`);
               lines.push(
                 `${usagePrefix} ${usageArgs}`,
                 "Arguments:",
-                PgTerminal.formatList(argList, { align: "y" })
+                PgTerminal.formatList(argList)
               );
             }
             if (cmd.options) {
@@ -391,10 +391,7 @@ ${PgTerminal.formatList(cmd.subcommands!)}`);
                 }`,
                 opt.description ?? "",
               ]);
-              lines.push(
-                "Options:",
-                PgTerminal.formatList(optList, { align: "y" })
-              );
+              lines.push("Options:", PgTerminal.formatList(optList));
             }
 
             PgTerminal.println(lines.join("\n\n"));
