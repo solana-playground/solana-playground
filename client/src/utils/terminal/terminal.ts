@@ -222,12 +222,12 @@ export class PgTerminal {
         if (!allowedRegex.test(b[0])) return -1;
         return a[0].localeCompare(b[0]);
       })
-      .reduce((acc, items) => {
-        const output = items.reduce((acc, col, i) => {
+      .reduce((acc, items, _i, list) => {
+        const output = items.reduce((acc, item, i) => {
           const MAX_CHARS = 80;
 
           const chunks: string[][] = [];
-          const words = col.split(" ");
+          const words = item.split(" ");
           let j = 0;
           for (let i = 0; i < words.length; i++) {
             while (
@@ -241,18 +241,20 @@ export class PgTerminal {
           }
 
           if (align === "x") {
-            const WHITESPACE_LEN = 24;
-            return (
-              acc +
-              chunks.reduce(
-                (acc, row, i) =>
-                  acc +
-                  (i ? "\n\t" + " ".repeat(WHITESPACE_LEN) : "") +
-                  row.join(" "),
-                ""
-              ) +
-              " ".repeat(Math.max(WHITESPACE_LEN - col.length, 0))
+            const normalizedItem = chunks.reduce(
+              (acc, chunk, i) => acc + (i ? "\n" : "") + chunk.join(" "),
+              ""
             );
+            if (!i) return acc + normalizedItem;
+
+            const DEFAULT_WHITESPACE_LEN = 24;
+            const longestPreviousRowLen = Math.max(
+              ...list.map((items) => items[i - 1].length)
+            );
+            const previousRowLen = items[i - 1].length;
+            const missingWhitespace = longestPreviousRowLen - previousRowLen;
+            const whitespaceLen = DEFAULT_WHITESPACE_LEN + missingWhitespace;
+            return acc + " ".repeat(whitespaceLen) + normalizedItem;
           }
 
           return (
