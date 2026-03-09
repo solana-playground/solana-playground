@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Button from "../../../components/Button";
 import { Endpoint } from "../../../constants";
-import { PgCommand, PgConnection, PgView } from "../../../utils";
+import { PgConnection, PgSettings, PgView } from "../../../utils";
 import type { ToastChildProps } from "../../../components/Toast";
 
 export const NonLocal: FC<ToastChildProps> = ({ id }) => {
@@ -44,14 +44,7 @@ export const NonLocal: FC<ToastChildProps> = ({ id }) => {
 
       <ButtonsWrapper>
         <Button
-          onClick={() => {
-            return PgCommand.solana.execute(
-              "config",
-              "set",
-              "-u",
-              Endpoint.LOCALNET
-            );
-          }}
+          onClick={() => (PgSettings.connection.endpoint = Endpoint.LOCALNET)}
           kind="secondary-transparent"
           size="small"
         >
