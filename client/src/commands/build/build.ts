@@ -22,7 +22,7 @@ export const build = createCmd({
 
     try {
       const output = await processBuild();
-      PgTerminal.println(improveOutput(output.stderr) + "\n");
+      PgTerminal.println(improveOutput(output.stderr));
     } finally {
       PgGlobal.update({ buildLoading: false });
     }

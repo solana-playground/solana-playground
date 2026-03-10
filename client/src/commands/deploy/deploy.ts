@@ -53,7 +53,7 @@ export const deploy = createCmd({
         }
       }
 
-      PgTerminal.println(msg + "\n");
+      PgTerminal.println(msg);
     } finally {
       PgView.setMainSecondaryProgress(0);
       PgGlobal.update({ deployState: "ready" });

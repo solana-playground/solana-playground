@@ -104,7 +104,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
           : `${Emoji.CHECKMARK} ${PgTerminal.success(
               `Test '${instruction.name}' passed`
             )}.`;
-        PgTerminal.println(msg + "\n", { noColor: true });
+        PgTerminal.println(msg, { noColor: true });
       } catch (e: any) {
         console.log(e);
         const convertedError = PgTerminal.convertErrorMessage(e.message);

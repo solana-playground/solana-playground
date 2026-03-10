@@ -81,7 +81,7 @@ const SendExpanded = () => {
         const convertedError = PgTerminal.convertErrorMessage(e.message);
         msg = `Transfer error: ${convertedError}`;
       } finally {
-        PgTerminal.println(msg + "\n");
+        PgTerminal.println(msg);
       }
     });
   };

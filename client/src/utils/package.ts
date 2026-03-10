@@ -33,7 +33,7 @@ export class PgPackage {
     try {
       const pkg = (await this._import(name)) as unknown as ImportResult[T];
       if (!isLoaded) this._loadedPkgs.push(name);
-      if (log) PgTerminal.println(PgTerminal.success("Success.") + "\n");
+      if (log) PgTerminal.println(PgTerminal.success("Success."));
 
       return pkg;
     } catch (e: any) {
