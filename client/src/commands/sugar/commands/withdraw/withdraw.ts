@@ -60,19 +60,19 @@ export const processWithdraw = async (
     if (candyAccounts.length) {
       if (list) {
         term.println(
-          `\n${PgCommon.string("Candy Machine ID", {
-            addSpace: { amount: 48, position: "right" },
+          `\n${PgCommon.addSpace("Candy Machine ID", 48, {
+            position: "right",
           })} Balance`
         );
-        term.println(PgCommon.string("-", { repeat: { amount: 61 } }));
+        term.println("-".repeat(61));
 
         for (const accountInfo of candyAccounts) {
           term.println(
-            `${PgCommon.string(accountInfo.pubkey.toBase58(), {
-              addSpace: { amount: 48, position: "right" },
-            })} ${PgCommon.string(
+            `${PgCommon.addSpace(accountInfo.pubkey.toBase58(), 48, {
+              position: "right",
+            })} ${PgCommon.addSpace(
               PgWeb3.lamportsToSol(accountInfo.account.lamports).toString(),
-              { addSpace: { amount: 8 } }
+              8
             )}`
           );
         }

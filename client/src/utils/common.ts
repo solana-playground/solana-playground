@@ -1200,36 +1200,27 @@ export class PgCommon {
   }
 
   /**
-   * Adds space before the string, mainly used for terminal output
+   * Add space(s) before or after the string.
    *
-   * @param str string to prepend spaces to
+   * @param str string input
+   * @param amount the amount of space characters
    * @param opts -
-   * - addSpace: add space before or after the string
-   * - repeat: repeat the string `repeat.amount` times
-   * @returns the space prepended string
+   * - `type`: total or additional
+   * - `position`: from the left or the right
+   * @returns a new string with the space(s) added
    */
-  static string(
+  static addSpace(
     str: string,
-    opts: {
-      addSpace?: {
-        amount: number;
-        type?: "total" | "additional";
-        position?: "left" | "right";
-      };
-      repeat?: { amount: number };
+    amount: number,
+    opts?: {
+      type?: "total" | "additional";
+      position?: "left" | "right";
     }
   ) {
-    if (opts.addSpace) {
-      const space = this._repeatPattern(
-        " ",
-        opts.addSpace.amount -
-          (opts.addSpace.type === "additional" ? 0 : str.length)
-      );
-      return opts.addSpace.position === "right" ? str + space : space + str;
-    }
-    if (opts.repeat) {
-      return this._repeatPattern(str, opts.repeat.amount);
-    }
+    const space = " ".repeat(
+      amount - (opts?.type === "additional" ? 0 : str.length)
+    );
+    return opts?.position === "right" ? str + space : space + str;
   }
 
   /**
@@ -1257,18 +1248,5 @@ export class PgCommon {
    */
   static shorten(str: string, amount: number = 3) {
     return str.slice(0, amount) + "..." + str.slice(-amount);
-  }
-
-  /**
-   * Repeat a `pattern` `amount` times
-   *
-   * @param pattern pattern to repeat
-   * @param amount amount of times to repeat
-   * @returns the output
-   */
-  private static _repeatPattern(pattern: string, amount: number) {
-    return new Array(amount >= 0 ? amount : 0)
-      .fill(null)
-      .reduce((acc) => acc + pattern, "");
   }
 }
