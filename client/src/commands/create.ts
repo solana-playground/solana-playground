@@ -107,7 +107,7 @@ export const createOptions = <
     const short = createShort(opt);
     const exists = opts
       .filter((o) => o.name !== opt.name)
-      .some((o) => createShort(o) === short);
+      .some((o) => o.short && createShort(o) === short);
     if (exists) throw new Error(`Duplicate short option: \`${opt.name}\``);
 
     opt.short = short;
