@@ -39,15 +39,55 @@ export const processBuild = async () => {
   }
 
   // Change program id in file system
-  const rustDeclareIdRegex = new RegExp(
-    /^\s*(([\w_]+::)*)declare_id!\("(\w*)"\)/gm
-  );
+  const rustDeclareIdRegex = /^\s*(([\w_]+::)*)declare_id!\("(\w*)"\)/;
   const pythonDeclareIdRegex = new RegExp(/^declare_id\(("|')(\w*)("|')\)/gm);
+
+  /**
+   * Update the `declare_id!` macro in Rust source content with the current
+   * program's public key, skipping occurrences inside comments.
+   *
+   * Uses the same comment-skipping approach as the client build command.
+   */
+  const updateIdRust = (content: string) => {
+    let updated = false;
+    let insideBlockComment = false;
+    const programPkStr = programKp.publicKey.toBase58();
+    const newContent = content
+      .split("\n")
+      .map((line) => {
+        // Track block comment opening
+        if (line.includes("/*")) insideBlockComment = true;
+
+        // If inside block comment, skip line entirely
+        if (insideBlockComment) {
+          // Track block comment closing
+          if (line.includes("*/")) insideBlockComment = false;
+          return line;
+        }
+
+        // Skip single-line comments
+        if (line.trimStart().startsWith("//")) return line;
+
+        return line.replace(rustDeclareIdRegex, (match) => {
+          const res = rustDeclareIdRegex.exec(match);
+          if (!res) return match;
+          updated = true;
+
+          // `res[1]` could be `solana_program::` or `undefined`
+          return (res[1] ?? "") + `declare_id!("${programPkStr}")`;
+        });
+      })
+      .join("\n");
+
+    return { content: newContent, updated };
+  };
 
   const getDeclareIdFile = () => {
     return files.find((file) => {
       if (file[0].endsWith(PATHS.FILES.LIB_RS)) {
-        return rustDeclareIdRegex.test(file[1]);
+        const { updated } = updateIdRust(file[1]);
+        // If updateIdRust would update it, declare_id exists uncommented
+        return updated || rustDeclareIdRegex.test(file[1]);
       } else if (file[0].endsWith(".py")) {
         return pythonDeclareIdRegex.test(file[1]);
       }
@@ -57,17 +97,7 @@ export const processBuild = async () => {
   const updateId = (file: Files[0]) => {
     const content = file[1];
     if (file[0].endsWith(PATHS.FILES.LIB_RS)) {
-      return content.replace(rustDeclareIdRegex, (match) => {
-        const res = rustDeclareIdRegex.exec(match);
-        if (!res) return match;
-
-        // res[1] could be solana_program:: or undefined
-        return (
-          "\n" +
-          (res[1] ?? "") +
-          `declare_id!("${programKp.publicKey.toBase58()}")`
-        );
-      });
+      return updateIdRust(content).content;
     } else if (file[0].endsWith(".py")) {
       return content.replace(
         pythonDeclareIdRegex,
