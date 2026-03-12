@@ -61,28 +61,20 @@ const SendExpanded = () => {
         PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
       );
 
-      let msg;
-      try {
-        const ix = PgWeb3.SystemProgram.transfer({
-          fromPubkey: PgWallet.current!.publicKey,
-          toPubkey: new PgWeb3.PublicKey(recipient),
-          lamports: PgWeb3.solToLamports(parseFloat(amount)),
-        });
-        const txHash = await PgTx.send(ix);
-        const txResult = await PgCommon.transition(PgTx.confirm(txHash));
-        if (txResult?.err) throw txResult.err;
+      const ix = PgWeb3.SystemProgram.transfer({
+        fromPubkey: PgWallet.current!.publicKey,
+        toPubkey: new PgWeb3.PublicKey(recipient),
+        lamports: PgWeb3.solToLamports(parseFloat(amount)),
+      });
+      const txHash = await PgTx.send(ix);
+      const txResult = await PgCommon.transition(PgTx.confirm(txHash));
+      if (txResult?.err) throw txResult.err;
 
-        msg = PgTerminal.success("Success.");
+      PgTerminal.println(PgTerminal.success("Success."));
 
-        // Reset inputs
-        setRecipient("");
-        setAmount("");
-      } catch (e: any) {
-        const convertedError = PgTerminal.convertErrorMessage(e.message);
-        msg = `Transfer error: ${convertedError}`;
-      } finally {
-        PgTerminal.println(msg);
-      }
+      // Reset inputs
+      setRecipient("");
+      setAmount("");
     });
   };
 
