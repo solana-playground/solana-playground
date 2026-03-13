@@ -83,7 +83,10 @@ export class PgServer {
     /** `/share` response */
     type ShareResponse = ShareNewRequest["explorer"];
 
-    const response = await this._send(`/share/${id}`, { cache: true });
+    const response = await this._send(`/share/${id}`, {
+      cache: true,
+      useDefaultUrl: process.env.NODE_ENV === "production",
+    });
     return (await response.json()) as ShareResponse;
   }
 
@@ -99,39 +102,35 @@ export class PgServer {
 
     const response = await this._send("/new", {
       post: { body: JSON.stringify(req) },
+      useDefaultUrl: process.env.NODE_ENV === "production",
     });
-
     return (await response.text()) as ShareNewResponse;
   }
 
   /**
    * Send an HTTP request to the Playground server.
    *
-   * @throws when the response is not OK with the decoded response
+   * @param opts server send request options
+   * @throws when the response is not OK (with the decoded response)
    * @returns the HTTP response
    */
   private static async _send(
     path: string,
-    options?: { post?: { body: string }; cache?: boolean }
+    opts?: { cache?: boolean; post?: { body: string }; useDefaultUrl?: boolean }
   ) {
     const requestInit: RequestInit = {};
+    if (!opts?.cache) requestInit.cache = "no-store";
 
-    if (options?.post) {
+    if (opts?.post) {
       requestInit.method = "POST";
-      requestInit.headers = {
-        "Content-Type": "application/json",
-      };
-      requestInit.body = options.post.body;
+      requestInit.headers = { "Content-Type": "application/json" };
+      requestInit.body = opts.post.body;
     }
 
-    if (!options?.cache) {
-      requestInit.cache = "no-store";
-    }
-
-    const response = await fetch(
-      PgCommon.joinPaths(PgSettings.server.endpoint, path),
-      requestInit
-    );
+    // TODO: Make this type safe
+    const setting = PgSettings.all.find((s) => s.id === "server.endpoint")!;
+    const url = opts?.useDefaultUrl ? setting.default : setting.getValue();
+    const response = await fetch(PgCommon.joinPaths(url, path), requestInit);
     if (!response.ok) {
       const message = await response.text();
       throw new Error(message);
