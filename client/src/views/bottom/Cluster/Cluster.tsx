@@ -12,7 +12,9 @@ export const Cluster = () => {
 
   return (
     <Tooltip element={`Cluster (URL: ${connection.rpcEndpoint})`}>
-      <ClusterName>{PgCommon.toTitleFromKebab(cluster)}</ClusterName>
+      <ClusterName>
+        {PgCommon.toTitleFromKebab(cluster ?? "unknown")}
+      </ClusterName>
     </Tooltip>
   );
 };

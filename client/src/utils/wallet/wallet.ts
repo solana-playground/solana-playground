@@ -102,6 +102,7 @@ const derive = () => ({
       }
     },
     onChange: ["state", "accounts", "currentIndex", "standard"],
+    canThrow: true,
   }),
 
   /** Balance of the current wallet in SOL */
@@ -116,15 +117,10 @@ const derive = () => ({
       // Check connection status (it can be `undefined` at the start of the app)
       if (!PgConnection.isConnected) return null;
 
-      try {
-        const lamports = await PgConnection.current.getBalance(
-          PgWallet.current.publicKey
-        );
-        return PgWeb3.lamportsToSol(lamports);
-      } catch (e: any) {
-        console.log("Couldn't fetch balance:", e.message);
-        return null;
-      }
+      const lamports = await PgConnection.current.getBalance(
+        PgWallet.current.publicKey
+      );
+      return PgWeb3.lamportsToSol(lamports);
     },
     onChange: [
       "current",
@@ -167,6 +163,7 @@ const derive = () => ({
         };
       },
     ],
+    canThrow: true,
   }),
 });
 

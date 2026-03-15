@@ -119,12 +119,9 @@ const derive = () => ({
 
   /** On-chain data of the program */
   onChain: createDerivable({
-    derive: async () => {
-      try {
-        return await _PgProgramInfo.fetch();
-      } catch {}
-    },
+    derive: () => _PgProgramInfo.fetch(),
     onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidFinish],
+    canThrow: true,
   }),
 });
 

@@ -16,6 +16,8 @@ const PYTH_ACCOUNTS: {
  * @returns the Pyth feed accounts for the current cluster
  */
 export const getOrInitPythAccounts = async () => {
+  if (!PgConnection.cluster) return {};
+
   PYTH_ACCOUNTS[PgConnection.cluster] ??= await PgCommon.fetchJSON(
     `/pyth/${PgConnection.cluster}.json`
   );
@@ -31,6 +33,8 @@ export const getOrInitPythAccounts = async () => {
  * @returns the Pyth feed accounts for the current cluster
  */
 export const getPythAccounts = () => {
+  if (!PgConnection.cluster) return {};
+
   const accounts = PYTH_ACCOUNTS[PgConnection.cluster];
   if (accounts) return accounts;
   throw new Error(`Pyth accounts on ${PgConnection.cluster} not found`);

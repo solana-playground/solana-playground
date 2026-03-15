@@ -88,21 +88,15 @@ const derive = () => ({
     derive: (path) => {
       const route = getTutorialsRoute();
 
-      try {
-        const { name } = PgRouter.getParamsFromPath(route.path, path);
-        return (
-          _PgTutorial.all.find((t) => {
-            return PgRouter.isPathsEqual(
-              PgCommon.toKebabFromTitle(t.name),
-              name
-            );
-          }) ?? null
-        );
-      } catch {
-        return null;
-      }
+      const { name } = PgRouter.getParamsFromPath(route.path, path);
+      return (
+        _PgTutorial.all.find((t) => {
+          return PgRouter.isPathsEqual(PgCommon.toKebabFromTitle(t.name), name);
+        }) ?? null
+      );
     },
     onChange: PgRouter.onDidChangePath,
+    canThrow: true,
   }),
 
   /** Tutorial page number derived from the URL path */
@@ -110,15 +104,12 @@ const derive = () => ({
     derive: (path) => {
       const route = getTutorialsRoute();
 
-      try {
-        const { page } = PgRouter.getParamsFromPath(route.path, path);
-        if (PgCommon.isInt(page)) return parseInt(page);
-        return null;
-      } catch {
-        return null;
-      }
+      const { page } = PgRouter.getParamsFromPath(route.path, path);
+      if (PgCommon.isInt(page)) return parseInt(page);
+      return null;
     },
     onChange: PgRouter.onDidChangePath,
+    canThrow: true,
   }),
 });
 

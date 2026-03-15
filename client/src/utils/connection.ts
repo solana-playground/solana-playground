@@ -98,6 +98,7 @@ const derive = () => ({
   cluster: createDerivable({
     derive: _PgConnection.getCluster,
     onChange: PgSettings.onDidChangeConnectionEndpoint,
+    canThrow: true,
   }),
 
   /** Whether the cluster is down. `null` indicates potential connection error. */
