@@ -204,6 +204,7 @@ export class PgTerminal {
    * Format the given list for terminal view.
    *
    * @param list list to format
+   * @param opts format options
    * @returns the formatted list
    */
   static formatList(
@@ -241,11 +242,15 @@ export class PgTerminal {
           }
 
           if (align === "x") {
-            const normalizedItem = chunks.reduce(
-              (acc, chunk, i) => acc + (i ? "\n" : "") + chunk.join(" "),
-              ""
-            );
-            if (!i) return acc + normalizedItem;
+            if (!i) {
+              return (
+                acc +
+                chunks.reduce(
+                  (acc, chunk, i) => acc + (i ? "\n\t" : "") + chunk.join(" "),
+                  ""
+                )
+              );
+            }
 
             const DEFAULT_WHITESPACE_LEN = 24;
             const longestPreviousRowLen = Math.max(
@@ -254,7 +259,16 @@ export class PgTerminal {
             const previousRowLen = items[i - 1].length;
             const missingWhitespace = longestPreviousRowLen - previousRowLen;
             const whitespaceLen = DEFAULT_WHITESPACE_LEN + missingWhitespace;
-            return acc + " ".repeat(whitespaceLen) + normalizedItem;
+            const whitespace = " ".repeat(whitespaceLen);
+            const nextIndent = "\n\t" + " ".repeat(previousRowLen) + whitespace;
+            return (
+              acc +
+              whitespace +
+              chunks.reduce(
+                (acc, col, i) => acc + (i ? nextIndent : "") + col.join(" "),
+                ""
+              )
+            );
           }
 
           return (
