@@ -97,23 +97,32 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
         if (PgSettings.testUi.showTxDetailsInTerminal) return txHash;
 
         const txResult = await PgTx.confirm(txHash);
-        const msg = txResult?.err
-          ? `${Emoji.CROSS} ${PgTerminal.error(
-              `Test '${instruction.name}' failed`
-            )}.`
-          : `${Emoji.CHECKMARK} ${PgTerminal.success(
-              `Test '${instruction.name}' passed`
-            )}.`;
-        PgTerminal.println(msg, { noColor: true });
-      } catch (e: any) {
-        console.log(e);
-        const convertedError = PgTerminal.convertErrorMessage(e.message);
+        if (txResult?.err) {
+          throw new Error(`${Emoji.CROSS} Test \`${instruction.name}\` failed`);
+        }
+
         PgTerminal.println(
-          `${Emoji.CROSS} ${PgTerminal.error(
-            `Test '${instruction.name}' failed`
-          )}: ${convertedError}\n`,
+          `${Emoji.CHECKMARK} ${PgTerminal.success(
+            `Test \`${instruction.name}\` passed`
+          )}.`,
           { noColor: true }
         );
+      } catch (e: any) {
+        if (e.message) {
+          const ERRORS = [
+            ["unable to infer src variant", "Enum variant not found"],
+            [
+              "program.methods[txVals.name] is not a function",
+              "Test component is outdated",
+            ],
+          ];
+
+          for (const [before, after] of ERRORS) {
+            if (e.message === before) throw new Error(after);
+          }
+        }
+
+        throw e;
       }
     });
 
