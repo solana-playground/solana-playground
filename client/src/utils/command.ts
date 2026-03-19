@@ -126,7 +126,7 @@ export type Option<
       /** Accepted values */
       values?: Getable<V[]>;
       /** Parse the option */
-      parse?: (token: string) => P;
+      parse?: (token: string, tokens: string[]) => P;
     }
   | {
       takeValue?: never;
@@ -483,14 +483,13 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
               }
             }
 
-            if (arg.multiple) {
-              parsedArgs[arg.name] = arg.parse
-                ? inputArgs.map((token) => arg.parse!(token, tokens))
-                : inputArgs;
+            if (arg.parse) {
+              const parse = PgCommandManager._createParse("argument", arg);
+              parsedArgs[arg.name] = arg.multiple
+                ? inputArgs.map((token) => parse(token, tokens))
+                : parse(inputArgs[0], tokens);
             } else {
-              parsedArgs[arg.name] = arg.parse
-                ? arg.parse(inputArgs[0], tokens)
-                : inputArgs[0];
+              parsedArgs[arg.name] = arg.multiple ? inputArgs : inputArgs[0];
             }
           }
         }
@@ -523,7 +522,9 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
                 }
               }
 
-              parsedOpts[opt.name] = opt.parse ? opt.parse(val) : val;
+              parsedOpts[opt.name] = opt.parse
+                ? PgCommandManager._createParse("option", opt)(val, tokens)
+                : val;
             } else {
               parsedOpts[opt.name] = true;
             }
@@ -576,6 +577,27 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
     return {
       start: "ondidrunstart" + name,
       finish: "ondidrunfinish" + name,
+    };
+  }
+
+  /** Create a parse function with better error messages. */
+  private static _createParse<T extends Arg | Option>(
+    kind: "argument" | "option",
+    item: T
+  ): NonNullable<T["parse"]> {
+    const parse = item.parse;
+    if (!parse) throw new Error(`Parse not defined: ${item.name}`);
+
+    return (...args) => {
+      try {
+        return item.parse!(...args);
+      } catch (e: any) {
+        throw new Error(
+          `Failed to parse ${kind}: \`${item.name}\`${
+            e.message ? `: ${e.message}` : ""
+          }`
+        );
+      }
     };
   }
 }
