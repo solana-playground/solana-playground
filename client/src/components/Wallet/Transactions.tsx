@@ -166,14 +166,18 @@ const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // There is an issue where moving the mouse over the elements fast makes the
-  // `hover` state inconsistent i.e. `hover === true` when the pointer is not
-  // on the element. This `useEffect` fixes the mentioned inconsistency.
+  // `hover` state inconsistent i.e. `hover === true` when the pointer is not on
+  // the element. This `useEffect` fixes the mentioned inconsistency.
   //
   // https://github.com/facebook/react/issues/4492
   useEffect(() => {
-    if (hover && wrapperRef.current?.matches(":hover") === false) {
-      setHover(false);
-    }
+    if (!hover) return;
+
+    const id = setTimeout(
+      () => setHover(wrapperRef.current?.matches(":hover") === true),
+      10
+    );
+    return () => clearTimeout(id);
   }, [hover]);
 
   const now = new Date().getTime() / 1000;
