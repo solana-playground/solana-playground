@@ -6,7 +6,6 @@ import { PgAutocomplete } from "./autocomplete";
 import { PgHistory } from "./history";
 import { PgShell } from "./shell";
 import { PgTty } from "./tty";
-import { OTHER_ERROR, RPC_ERROR } from "../../constants";
 import { PgCommon } from "../common";
 import type { CommandManager, Prefixes, PrintOptions } from "./types";
 import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
@@ -55,51 +54,6 @@ export class PgTerminal {
 
   static underline(text: string) {
     return `\x1b[4m${text}\x1b[0m`;
-  }
-
-  /**
-   * Make error messages more friendly
-   */
-  static convertErrorMessage(msg: string) {
-    // Descriptive program errors
-    if (msg.startsWith("failed to send")) {
-      const parts = msg.split(":");
-      // With ix index
-      if (parts.length === 4) {
-        const ixIndex = parts[2][parts[2].length - 1];
-        const programError = parts[3][1].toUpperCase() + parts[3].substring(2);
-
-        msg = `\n${this.bold("Instruction index:")} ${ixIndex}\n${this.bold(
-          "Reason:"
-        )} ${programError}.`;
-
-        return msg;
-      }
-
-      // Without ix index
-      const programError = parts[2][1].toUpperCase() + parts[2].substring(2);
-      msg = `\n${this.bold("Reason:")} ${programError}.`;
-
-      return msg;
-    }
-
-    // Rpc errors
-    for (const rpcError in RPC_ERROR) {
-      if (msg.includes(rpcError)) {
-        msg = RPC_ERROR[rpcError];
-        return msg;
-      }
-    }
-
-    // Other errors
-    for (const otherError in OTHER_ERROR) {
-      if (msg === otherError) {
-        msg = OTHER_ERROR[otherError];
-        return msg;
-      }
-    }
-
-    return msg;
   }
 
   /** Get whether the terminal is focused or in blur. */
