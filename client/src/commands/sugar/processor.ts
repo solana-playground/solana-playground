@@ -1,7 +1,5 @@
-// @ts-nocheck
-
 import { Emoji, Endpoint } from "../../constants";
-import { PgCommon, PgConnection, PgTerminal } from "../../utils";
+import { PgCommon, PgConnection, PgTerminal, PgView } from "../../utils";
 import {
   processBundlr,
   processCollectionSet,
@@ -45,83 +43,83 @@ export class PgSugar {
     },
   };
 
-  static async bundlr(...args) {
+  static async bundlr(...args: Parameters<typeof processBundlr>) {
     await this._run(() => processBundlr(...args));
   }
 
-  static async collectionSet(...args) {
+  static async collectionSet(...args: Parameters<typeof processCollectionSet>) {
     await this._run(() => processCollectionSet(...args));
   }
 
-  static async createConfig(...args) {
+  static async createConfig(...args: Parameters<typeof processCreateConfig>) {
     await this._run(() => processCreateConfig(...args));
   }
 
-  static async deploy(...args) {
+  static async deploy(...args: Parameters<typeof processDeploy>) {
     await this._run(() => processDeploy(...args));
   }
 
-  static async guardAdd(...args) {
+  static async guardAdd(...args: Parameters<typeof processGuardAdd>) {
     await this._run(() => processGuardAdd(...args));
   }
 
-  static async guardRemove(...args) {
+  static async guardRemove(...args: Parameters<typeof processGuardRemove>) {
     await this._run(() => processGuardRemove(...args));
   }
 
-  static async guardShow(...args) {
+  static async guardShow(...args: Parameters<typeof processGuardShow>) {
     await this._run(() => processGuardShow(...args));
   }
 
-  static async guardUpdate(...args) {
+  static async guardUpdate(...args: Parameters<typeof processGuardUpdate>) {
     await this._run(() => processGuardUpdate(...args));
   }
 
-  static async guardWithdraw(...args) {
+  static async guardWithdraw(...args: Parameters<typeof processGuardWithdraw>) {
     await this._run(() => processGuardWithdraw(...args));
   }
 
-  static async hash(...args) {
+  static async hash(...args: Parameters<typeof processHash>) {
     await this._run(() => processHash(...args));
   }
 
-  static async launch(...args) {
+  static async launch(...args: Parameters<typeof processLaunch>) {
     await this._run(() => processLaunch(...args));
   }
 
-  static async mint(...args) {
+  static async mint(...args: Parameters<typeof processMint>) {
     await this._run(() => processMint(...args));
   }
 
-  static async reveal(...args) {
+  static async reveal(...args: Parameters<typeof processReveal>) {
     await this._run(() => processReveal(...args));
   }
 
-  static async show(...args) {
+  static async show(...args: Parameters<typeof processShow>) {
     await this._run(() => processShow(...args));
   }
 
-  static async sign(...args) {
+  static async sign(...args: Parameters<typeof processSign>) {
     await this._run(() => processSign(...args));
   }
 
-  static async update(...args) {
+  static async update(...args: Parameters<typeof processUpdate>) {
     await this._run(() => processUpdate(...args));
   }
 
-  static async upload(...args) {
+  static async upload(...args: Parameters<typeof processUpload>) {
     await this._run(() => processUpload(...args));
   }
 
-  static async validate(...args) {
+  static async validate(...args: Parameters<typeof processValidate>) {
     await this._run(() => processValidate(...args));
   }
 
-  static async verify(...args) {
+  static async verify(...args: Parameters<typeof processVerify>) {
     await this._run(() => processVerify(...args));
   }
 
-  static async withdraw(...args) {
+  static async withdraw(...args: Parameters<typeof processWithdraw>) {
     await this._run(() => processWithdraw(...args));
   }
 
