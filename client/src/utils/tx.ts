@@ -148,7 +148,7 @@ export class PgTx {
   private static _cachedPriorityFee: PriorityFeeInfo | null = null;
 
   /** Prepare the transaction for simulation and send. */
-  static async _prepareTx(
+  private static async _prepareTx(
     txable: Transactionable,
     opts?: TransactionSendOptions
   ) {
