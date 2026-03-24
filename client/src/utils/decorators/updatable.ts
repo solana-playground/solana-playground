@@ -58,15 +58,15 @@ export function updatable<T extends Record<string, any>>(params: {
 
       // Define getters and setters
       for (const prop in sClass[PROPS.INTERNAL_STATE]) {
-        if (Object.hasOwn(sClass, prop)) continue;
-
-        Object.defineProperty(sClass, prop, {
-          get: () => sClass[PROPS.INTERNAL_STATE][prop],
-          set: (value: T[keyof T]) => {
-            sClass[PROPS.INTERNAL_STATE][prop] = value;
-            sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
-          },
-        });
+        if (!Object.hasOwn(sClass, prop)) {
+          Object.defineProperty(sClass, prop, {
+            get: () => sClass[PROPS.INTERNAL_STATE][prop],
+            set: (value: T[keyof T]) => {
+              sClass[PROPS.INTERNAL_STATE][prop] = value;
+              sClass[PROPS.DISPATCH_CHANGE_EVENT](prop);
+            },
+          });
+        }
 
         if (params.recursive) recursivelyDefineSetters(sClass, [prop]);
       }
