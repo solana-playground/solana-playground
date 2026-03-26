@@ -160,7 +160,13 @@ const processDeploy = async () => {
   const requiredBalanceWithoutFees = programExists
     ? bufferBalance
     : 3 * bufferBalance;
-  if (userBalance < requiredBalanceWithoutFees) {
+  
+  // Add estimated transaction fees to required balance
+  // Deployment transactions typically cost 0.01-0.05 SOL in fees
+  const estimatedFees = PgWeb3.solToLamports(0.05);
+  const requiredBalance = requiredBalanceWithoutFees + estimatedFees;
+  
+  if (userBalance < requiredBalance) {
     const msg = `${
       programExists ? "Upgrading" : "Initial deployment"
     } costs ${PgTerminal.bold(
