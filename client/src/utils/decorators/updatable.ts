@@ -242,17 +242,14 @@ export function updatable<T extends Record<string, any>>(params: {
 
 /** Define proxy setters for properties recursively. */
 const recursivelyDefineSetters = (sClass: any, accessor: string[]) => {
-  const internalValue = PgCommon.getValue(
-    sClass[PROPS.INTERNAL_STATE],
-    accessor
-  );
-  if (typeof internalValue !== "object" || internalValue === null) {
+  const value = PgCommon.getValue(sClass, accessor);
+  if (typeof value !== "object" || value === null) {
     // Self-assign to dispatch change events
-    PgCommon.setValue(sClass[PROPS.INTERNAL_STATE], accessor, internalValue);
+    PgCommon.setValue(sClass, accessor, value);
     return;
   }
 
-  const proxy = new Proxy(internalValue, {
+  const proxy = new Proxy(value, {
     set(target: any, prop: string, value: any) {
       target[prop] = value;
 
