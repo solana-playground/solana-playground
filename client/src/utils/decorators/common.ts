@@ -89,8 +89,6 @@ export const addInit = (
 
     disposables.push(
       { dispose: () => (sClass[PROPS.IS_INITIALIZED] = false) },
-      { dispose: () => delete sClass[PROPS.ON_DID_INIT] },
-      { dispose: () => (sClass[PROPS.INITS] = []) },
       { dispose: () => (sClass[PROPS.INTERNAL_STATE] = {}) }
     );
 
