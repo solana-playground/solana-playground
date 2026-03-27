@@ -95,9 +95,15 @@ export class PgTheme {
       fontFamily: Font["family"];
     }> = {}
   ) {
+    const defaultTheme = this.themes.find((t) => t.name === "Dracula");
+    if (!defaultTheme) throw new Error("Default theme not found");
+
+    const defaultFont = this.fonts.find((f) => f.family === "JetBrains Mono");
+    if (!defaultFont) throw new Error("Default font not found");
+
     const { themeName, fontFamily } = PgCommon.setDefault(params, {
-      themeName: localStorage.getItem(this._THEME_KEY) ?? this._themes[0].name,
-      fontFamily: localStorage.getItem(this._FONT_KEY) ?? this._fonts[0].family,
+      themeName: localStorage.getItem(this._THEME_KEY) ?? defaultTheme.name,
+      fontFamily: localStorage.getItem(this._FONT_KEY) ?? defaultFont.family,
     });
 
     // We might not be able to find the theme from `themeName` if one of the
@@ -107,9 +113,9 @@ export class PgTheme {
     // - The theme key was overridden by another app when running locally
     // - The user manually edited `localStorage` theme value
     const importableTheme =
-      this._themes.find((t) => t.name === themeName) ?? this._themes[0];
+      this._themes.find((t) => t.name === themeName) ?? defaultTheme;
     const font =
-      this._fonts.find((f) => f.family === fontFamily) ?? this.fonts[0];
+      this._fonts.find((f) => f.family === fontFamily) ?? defaultFont;
 
     // Check and return early if theme and font are already set
     const sameTheme = importableTheme.name === this._theme?.name;
