@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../components/Button";
@@ -8,7 +7,6 @@ import { PgCommand, PgGlobal } from "../../../../utils";
 
 const Build = () => {
   const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);
-  const build = useCallback(() => PgCommand.build.execute(), []);
 
   const explorer = useExplorer();
   if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
@@ -17,7 +15,12 @@ const Build = () => {
 
   return (
     <Wrapper>
-      <Button kind="secondary" onClick={build} loading={buildLoading} fullWidth>
+      <Button
+        kind="secondary"
+        onClick={() => PgCommand.build.execute()}
+        loading={buildLoading}
+        fullWidth
+      >
         {buildLoading ? "Building..." : "Build"}
       </Button>
     </Wrapper>
