@@ -408,6 +408,8 @@ export interface Font {
       StandardProperties["fontSize"]
     >;
   };
+  /** Whether the font should be used as the default font */
+  isDefault?: boolean;
 }
 
 /** Importable(lazy) theme */
@@ -416,6 +418,8 @@ export interface ImportableThemeParam {
   name: string;
   /** Whether the theme is a dark theme */
   isDark?: boolean;
+  /** Whether the theme should be used as the default theme */
+  isDefault?: boolean;
   /** Import promise for the theme to lazy load */
   import?: () => Promise<{
     default: ThemeParam;

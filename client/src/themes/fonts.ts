@@ -11,6 +11,7 @@ export const FONTS: Font[] = [
       large: "0.875rem",
       xlarge: "1rem",
     },
+    isDefault: true,
   },
   {
     family: "Hack",

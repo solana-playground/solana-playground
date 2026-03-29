@@ -64,6 +64,13 @@ export class PgTheme {
    * @param fonts all fonts
    */
   static async create(themes: ImportableTheme[], fonts: Font[]) {
+    if (themes.filter((t) => t.isDefault).length !== 1) {
+      throw new Error("There must exactly be 1 default theme");
+    }
+    if (fonts.filter((f) => f.isDefault).length !== 1) {
+      throw new Error("There must exactly be 1 default font");
+    }
+
     this._themes = themes;
     this._fonts = fonts;
     await this.set();
@@ -95,12 +102,8 @@ export class PgTheme {
       fontFamily: Font["family"];
     }> = {}
   ) {
-    const defaultTheme = this.themes.find((t) => t.name === "Dracula");
-    if (!defaultTheme) throw new Error("Default theme not found");
-
-    const defaultFont = this.fonts.find((f) => f.family === "JetBrains Mono");
-    if (!defaultFont) throw new Error("Default font not found");
-
+    const defaultTheme = this.themes.find((t) => t.isDefault)!;
+    const defaultFont = this.fonts.find((f) => f.isDefault)!;
     const { themeName, fontFamily } = PgCommon.setDefault(params, {
       themeName: localStorage.getItem(this._THEME_KEY) ?? defaultTheme.name,
       fontFamily: localStorage.getItem(this._FONT_KEY) ?? defaultFont.family,
@@ -129,6 +132,7 @@ export class PgTheme {
       ...structuredClone((await importableTheme.import()).default),
       name: importableTheme.name,
       isDark: importableTheme.isDark,
+      isDefault: importableTheme.isDefault,
     };
     this._font = font;
 

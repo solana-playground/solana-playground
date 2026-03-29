@@ -3,4 +3,5 @@ import { createTheme } from "../create";
 export const dracula = createTheme({
   name: "Dracula",
   isDark: true,
+  isDefault: true,
 });
