@@ -57,6 +57,33 @@ yarn --version
 # 1.22.22
 ```
 
+### Run with Docker on macOS (Apple Silicon)
+
+The project can be built and run entirely via Docker using [OrbStack](https://orbstack.dev/) or Docker Desktop on macOS.
+
+All services run as `linux/amd64` containers (Solana CLI only provides x86-64 binaries). OrbStack handles this transparently via Rosetta 2 emulation.
+
+```sh
+# Development (hot reload)
+docker compose --profile dev up --build
+
+# Production (static build)
+docker compose --profile prod up --build
+
+# Client:  http://localhost:3000
+# Server:  http://localhost:8080
+```
+
+To stop and clean up:
+
+```sh
+# Stop services
+docker compose down
+
+# Stop and remove database volume
+docker compose down -v
+```
+
 ## Contributing
 
 Anyone is welcome to contribute to **Solana Playground,** no matter how big or small the contribution.
