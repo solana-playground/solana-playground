@@ -57,7 +57,7 @@ export function updatable<T extends Record<string, any>>(params: {
       await sClass[PROPS.REFRESH]();
 
       // Define getters and setters
-      for (const prop in sClass[PROPS.INTERNAL_STATE]) {
+      for (const prop in params.defaultState) {
         if (!Object.hasOwn(sClass, prop)) {
           Object.defineProperty(sClass, prop, {
             get: () => sClass[PROPS.INTERNAL_STATE][prop],
