@@ -1,11 +1,28 @@
 name: "solana-playground"
 
+x-client: &client
+  platform: linux/amd64
+  depends_on:
+    wasm:
+      condition: service_completed_successfully
+    server:
+      condition: service_started
+  build:
+    context: .
+    dockerfile: ./client/Dockerfile
+    args:
+      HAS_SERVER: "true"
+    additional_contexts:
+      solana-playground-wasm: service:wasm
+      solana-playground-server: service:server
+  ports:
+    - ${PG_CLIENT_PORT:-3000}:3000
+
 services:
   wasm:
     platform: linux/amd64
     build:
       context: ./wasm
-    image: solana-playground-wasm
 
   server:
     platform: linux/amd64
@@ -13,7 +30,6 @@ services:
       - db
     build:
       context: ./server
-    image: solana-playground-server
     ports:
       - ${PG_PORT:-8080}:8080
     environment:
@@ -22,47 +38,17 @@ services:
       - RUST_LOG=${RUST_LOG:-info}
 
   client:
-    platform: linux/amd64
-    depends_on:
-      wasm:
-        condition: service_completed_successfully
-      server:
-        condition: service_started
-    build:
-      context: .
-      dockerfile: ./client/Dockerfile
-      args:
-        HAS_SERVER: "true"
-      additional_contexts:
-        solana-playground-wasm: service:wasm
-        solana-playground-server: service:server
+    <<: *client
     profiles:
       - dev
-    ports:
-      - ${PG_CLIENT_PORT:-3000}:3000
     tty: true
     stdin_open: true
 
   client-prod:
-    platform: linux/amd64
-    depends_on:
-      wasm:
-        condition: service_completed_successfully
-      server:
-        condition: service_started
-    build:
-      context: .
-      dockerfile: ./client/Dockerfile
-      args:
-        HAS_SERVER: "true"
-      additional_contexts:
-        solana-playground-wasm: service:wasm
-        solana-playground-server: service:server
+    <<: *client
     profiles:
       - prod
     command: ["sh", "-c", "yarn build && npx serve -s build"]
-    ports:
-      - ${PG_CLIENT_PORT:-3000}:3000
 
   db:
     image: mongo:7
