@@ -61,7 +61,7 @@ yarn --version
 
 The project can be built and run entirely via Docker using [OrbStack](https://orbstack.dev/) or Docker Desktop on macOS.
 
-All services run as `linux/amd64` containers (Solana CLI only provides x86-64 binaries). OrbStack handles this transparently via Rosetta 2 emulation.
+All services run as `linux/amd64` containers (Solana CLI only provides x86-64 binaries). OrbStack handles this transparently via Rosetta for Linux.
 
 ```sh
 # Development (hot reload)
