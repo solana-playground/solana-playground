@@ -75,7 +75,9 @@ export const initAll = async (initables: Initable[]): Promise<Disposable> => {
 
   return {
     dispose: () => {
-      (disposables as Disposable[]).forEach(({ dispose }) => dispose());
+      (disposables as Disposable[])
+        .reverse()
+        .forEach(({ dispose }) => dispose());
     },
   };
 };
