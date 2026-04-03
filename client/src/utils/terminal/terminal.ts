@@ -122,6 +122,7 @@ export class PgTerminal {
       return await cb();
     } catch (e: any) {
       this.println(`Process error: ${e?.message ? e.message : e}`);
+      throw e;
     } finally {
       this.enable();
     }
