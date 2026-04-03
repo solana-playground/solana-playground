@@ -57,18 +57,24 @@ yarn --version
 # 1.22.22
 ```
 
-### Run with Docker on macOS (Apple Silicon)
+### Run with Docker
 
-The project can be built and run entirely via Docker using [OrbStack](https://orbstack.dev/) or Docker Desktop on macOS.
+The project can be built and run entirely via Docker Compose.
 
-All services run as `linux/amd64` containers (Solana CLI v1.17.34 does not ship Linux ARM64 binaries). On Apple Silicon this is handled transparently (by OrbStack or Docker Desktop).
+All services run as `linux/amd64` containers (Solana CLI v1.17.34 does not ship Linux ARM64 binaries). This works on any platform with Docker: Linux natively, macOS via [OrbStack](https://orbstack.dev/) or Docker Desktop, and Windows via WSL2 or Docker Desktop.
 
 ```sh
-# Development (hot reload)
+# Full stack — development (hot reload)
 docker compose --profile dev up --build
 
-# Production (static build)
+# Full stack — production (static build)
 docker compose --profile prod up --build
+
+# Client only — standalone without server
+docker compose --profile standalone up --build
+
+# Server only (+ database)
+docker compose --profile dev up server --build
 
 # Client:  http://localhost:3000
 # Server:  http://localhost:8080
