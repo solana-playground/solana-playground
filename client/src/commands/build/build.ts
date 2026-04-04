@@ -21,8 +21,9 @@ export const build = createCmd({
     PgTerminal.println(PgTerminal.info("Building..."));
 
     try {
-      const output = await processBuild();
-      PgTerminal.println(improveOutput(output.stderr));
+      const result = await buildProgram();
+      PgProgramInfo.update({ idl: result.idl, uuid: result.uuid ?? undefined });
+      PgTerminal.println(improveOutput(result.stderr));
     } finally {
       PgGlobal.update({ buildLoading: false });
     }
@@ -32,78 +33,15 @@ export const build = createCmd({
 /**
  * Compile the current project.
  *
- * @returns build output from stderr(not only errors)
+ * @returns the build response
  */
-const processBuild = async () => {
+const buildProgram = async () => {
   const buildFiles = getBuildFiles();
-  const pythonFiles = buildFiles.filter(([fileName]) =>
-    fileName.toLowerCase().endsWith(".py")
+  const pythonFiles = buildFiles.filter(
+    ([path]) => PgLanguage.getFromPath(path)?.name === "Python"
   );
-
-  if (pythonFiles.length > 0) {
-    return await buildPython(pythonFiles);
-  }
-
+  if (pythonFiles.length > 0) return await buildPython(pythonFiles);
   return await buildRust(buildFiles);
-};
-
-/**
- * Build rust files and return the output.
- *
- * @param files Rust files from `src/`
- * @returns Build output from stderr(not only errors)
- */
-const buildRust = async (files: TupleFiles) => {
-  if (!files.length) throw new Error("Couldn't find any Rust files.");
-
-  const resp = await PgServer.build({
-    files,
-    uuid: PgProgramInfo.uuid,
-    flags: PgSettings.build.flags,
-  });
-
-  // Update program info
-  PgProgramInfo.update({
-    uuid: resp.uuid ?? undefined,
-    idl: resp.idl,
-  });
-
-  return { stderr: resp.stderr };
-};
-
-/**
- * Convert Python files into Rust with seahorse-compile-wasm and run `_buildRust`.
- *
- * @param pythonFiles Python files in `src/`
- * @returns Build output from stderr(not only errors)
- */
-const buildPython = async (pythonFiles: TupleFiles) => {
-  const { compileSeahorse } = await PgPackage.import("seahorse-compile");
-
-  const rustFiles = pythonFiles.flatMap(([path, content]) => {
-    const seahorseProgramName =
-      PgExplorer.getItemNameFromPath(path).split(".py")[0];
-    const compiledContent = compileSeahorse(content, seahorseProgramName);
-
-    if (compiledContent.length === 0) {
-      throw new Error("Seahorse compile failed");
-    }
-
-    // Seahorse compile outputs a flattened array like [filepath, content, filepath, content]
-    const files: TupleFiles = [];
-    for (let i = 0; i < compiledContent.length; i += 2) {
-      const path = compiledContent[i];
-      let content = compiledContent[i + 1];
-      // The build server detects #[program] to determine if Anchor
-      // Seahorse (without rustfmt) outputs # [program]
-      content = content.replace("# [program]", "#[program]");
-      files.push([path, content]);
-    }
-
-    return files;
-  });
-
-  return await buildRust(rustFiles);
 };
 
 /**
@@ -222,6 +160,57 @@ const getBuildFiles = () => {
   }
 
   return buildFiles;
+};
+
+/**
+ * Convert Python files into Rust with seahorse-compile-wasm and run `_buildRust`.
+ *
+ * @param pythonFiles Python files in `src/`
+ * @returns the build response
+ */
+const buildPython = async (pythonFiles: TupleFiles) => {
+  const { compileSeahorse } = await PgPackage.import("seahorse-compile");
+
+  const rustFiles = pythonFiles.flatMap(([path, content]) => {
+    const seahorseProgramName =
+      PgExplorer.getItemNameFromPath(path).split(".py")[0];
+    const compiledContent = compileSeahorse(content, seahorseProgramName);
+
+    if (compiledContent.length === 0) {
+      throw new Error("Seahorse compile failed");
+    }
+
+    // Seahorse compile outputs a flattened array like [filepath, content, filepath, content]
+    const files: TupleFiles = [];
+    for (let i = 0; i < compiledContent.length; i += 2) {
+      const path = compiledContent[i];
+      let content = compiledContent[i + 1];
+      // The build server detects #[program] to determine if Anchor
+      // Seahorse (without rustfmt) outputs # [program]
+      content = content.replace("# [program]", "#[program]");
+      files.push([path, content]);
+    }
+
+    return files;
+  });
+
+  return await buildRust(rustFiles);
+};
+
+/**
+ * Build Rust files and return the output.
+ *
+ * @param files Rust files from `src/`
+ * @returns the build response
+ */
+const buildRust = async (files: TupleFiles) => {
+  if (!files.length) throw new Error("Couldn't find any Rust files.");
+
+  return await PgServer.build({
+    files,
+    uuid: PgProgramInfo.uuid,
+    flags: PgSettings.build.flags,
+  });
 };
 
 /**
