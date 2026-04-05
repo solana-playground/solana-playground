@@ -6,6 +6,7 @@ import Tooltip from "../Tooltip";
 import Fallback from "./Fallback";
 import ThrowError from "./ThrowError";
 import { Refresh } from "../Icons";
+import type { Fn } from "../../utils";
 
 interface Props {
   /** Node to render as children */
@@ -23,7 +24,7 @@ interface ChildrenError {
   /** Error that was thrown */
   error: Error;
   /** Refresh the component (need to change the `children`) */
-  refresh: () => Promise<unknown>;
+  refresh: () => Promise<Fn | void>;
 }
 
 class ErrorBoundary extends Component<Props, State> {

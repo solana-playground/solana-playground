@@ -1,4 +1,4 @@
-import { DependencyList, useEffect } from "react";
+import { DependencyList, useEffect, useState } from "react";
 
 import type { Fn } from "../utils";
 
@@ -15,14 +15,27 @@ export const useAsyncEffect = (
   cb: () => Promise<Fn | void>,
   deps?: DependencyList
 ) => {
+  const [, setError] = useState();
   useEffect(
     () => {
       let returned = false;
-      let ret: Fn | void;
+      let ret: Awaited<ReturnType<typeof cb>>;
 
       (async () => {
-        ret = await cb();
-        if (returned) ret?.();
+        try {
+          ret = await cb();
+        } catch (e) {
+          // Error boundaries do not catch promise errors.
+          // See https://github.com/facebook/react/issues/11334
+          //
+          // As a workaround, the following line manually triggers a render
+          // error that can get caught by the `ErrorBoundary` component.
+          setError(() => {
+            throw e;
+          });
+        } finally {
+          if (returned) ret?.();
+        }
       })();
 
       return () => {
