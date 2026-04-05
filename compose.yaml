@@ -1,0 +1,89 @@
+name: "solana-playground"
+
+x-client: &client
+  platform: linux/amd64
+  depends_on:
+    wasm:
+      condition: service_completed_successfully
+    server:
+      condition: service_started
+  build:
+    context: .
+    dockerfile: ./client/Dockerfile
+    args:
+      HAS_SERVER: "true"
+    additional_contexts:
+      solana-playground-wasm: service:wasm
+      solana-playground-server: service:server
+  ports:
+    - ${PG_CLIENT_PORT:-3000}:3000
+
+services:
+  wasm:
+    platform: linux/amd64
+    build:
+      context: ./wasm
+    profiles:
+      - dev
+      - prod
+      - standalone
+
+  client-standalone:
+    platform: linux/amd64
+    depends_on:
+      wasm:
+        condition: service_completed_successfully
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+      args:
+        HAS_SERVER: ${PG_SERVER:-false}
+      additional_contexts:
+        solana-playground-wasm: service:wasm
+    ports:
+      - ${PG_CLIENT_PORT:-3000}:3000
+    tty: true
+    stdin_open: true
+    profiles:
+      - standalone
+
+  server:
+    platform: linux/amd64
+    depends_on:
+      - db
+    build:
+      context: ./server
+    ports:
+      - ${PG_PORT:-8080}:8080
+    environment:
+      - PG_DB_URI=mongodb://db:27017
+      - PG_CLIENT_URL=http://localhost:${PG_CLIENT_PORT:-3000}
+      - RUST_LOG=${RUST_LOG:-info}
+    profiles:
+      - dev
+      - prod
+
+  client:
+    <<: *client
+    tty: true
+    stdin_open: true
+    profiles:
+      - dev
+
+  client-prod:
+    <<: *client
+    command: ["sh", "-c", "yarn build && npx serve -s build"]
+    profiles:
+      - prod
+
+  db:
+    image: mongo:7
+    volumes:
+      - mongodb:/data/db
+    command: mongod --quiet --logpath /dev/null
+    profiles:
+      - dev
+      - prod
+
+volumes:
+  mongodb:

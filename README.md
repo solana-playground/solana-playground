@@ -57,6 +57,39 @@ yarn --version
 # 1.22.22
 ```
 
+### Run with Docker
+
+The project can be built and run entirely via Docker Compose.
+
+All services run as `linux/amd64` containers (Solana CLI v1.17.34 does not ship Linux ARM64 binaries). This works on any platform with Docker: Linux natively, macOS via [OrbStack](https://orbstack.dev/) or Docker Desktop, and Windows via WSL2 or Docker Desktop.
+
+```sh
+# Full stack — development (hot reload)
+docker compose --profile dev up --build
+
+# Full stack — production (static build)
+docker compose --profile prod up --build
+
+# Client only — standalone without server
+docker compose --profile standalone up --build
+
+# Server only (+ database)
+docker compose --profile dev up server --build
+
+# Client:  http://localhost:3000
+# Server:  http://localhost:8080
+```
+
+To stop and clean up:
+
+```sh
+# Stop services
+docker compose down
+
+# Stop and remove database volume
+docker compose down -v
+```
+
 ## Contributing
 
 Anyone is welcome to contribute to **Solana Playground,** no matter how big or small the contribution.
