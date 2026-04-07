@@ -85,7 +85,7 @@ export class PgServer {
 
     const response = await this._send(`/share/${id}`, {
       cache: true,
-      useDefaultUrl: process.env.NODE_ENV === "production",
+      useDbServer: process.env.NODE_ENV === "production",
     });
     return (await response.json()) as ShareResponse;
   }
@@ -102,7 +102,7 @@ export class PgServer {
 
     const response = await this._send("/new", {
       post: { body: JSON.stringify(req) },
-      useDefaultUrl: process.env.NODE_ENV === "production",
+      useDbServer: process.env.NODE_ENV === "production",
     });
     return (await response.text()) as ShareNewResponse;
   }
@@ -116,7 +116,7 @@ export class PgServer {
    */
   private static async _send(
     path: string,
-    opts?: { cache?: boolean; post?: { body: string }; useDefaultUrl?: boolean }
+    opts?: { cache?: boolean; post?: { body: string }; useDbServer?: boolean }
   ) {
     const requestInit: RequestInit = {};
     if (!opts?.cache) requestInit.cache = "no-store";
@@ -127,9 +127,9 @@ export class PgServer {
       requestInit.body = opts.post.body;
     }
 
-    // TODO: Make this type safe
-    const setting = PgSettings.all.find((s) => s.id === "server.endpoint")!;
-    const url = opts?.useDefaultUrl ? setting.default : setting.getValue();
+    const url = opts?.useDbServer
+      ? "https://api.solpg.io"
+      : PgSettings.server.endpoint;
     const response = await fetch(PgCommon.joinPaths(url, path), requestInit);
     if (!response.ok) {
       const message = await response.text();
