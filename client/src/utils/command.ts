@@ -173,7 +173,11 @@ type ExecutableCommand<
    * @param cb callback function to run when the command finishes running
    * @returns a dispose function to clear the event
    */
-  onDidFinish(cb: (result: Awaited<R>) => void): Disposable;
+  onDidFinish(
+    cb: (
+      result: { ok: Awaited<R>; err?: never } | { err: Error; ok?: never }
+    ) => void
+  ): Disposable;
 };
 
 /** Name of all the available commands (only code) */
@@ -532,16 +536,21 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
         }
 
         // Run the command processor
-        const result = await cmd.handle({
-          raw: input,
-          args: parsedArgs,
-          options: parsedOpts,
-        });
-
-        // Dispatch finish event
-        PgCommon.createAndDispatchCustomEvent(eventNames.finish, result);
-
-        return result;
+        let result;
+        try {
+          const ret = await cmd.handle({
+            raw: input,
+            args: parsedArgs,
+            options: parsedOpts,
+          });
+          result = { ok: ret };
+          return ret;
+        } catch (e) {
+          result = { err: e };
+          throw e;
+        } finally {
+          PgCommon.createAndDispatchCustomEvent(eventNames.finish, result);
+        }
       }
     });
   }
