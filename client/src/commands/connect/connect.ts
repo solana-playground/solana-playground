@@ -3,7 +3,7 @@ import { createArgs, createCmd } from "../create";
 
 export const connect = createCmd({
   name: "connect",
-  description: "Toggle connection to Playground Wallet",
+  description: "Manage wallet connection",
   args: createArgs([
     {
       name: "wallet",
@@ -23,7 +23,7 @@ export const connect = createCmd({
           await confirm(() => PgWallet.current);
         }
 
-        return true;
+        break;
       }
 
       case "sol": {
@@ -46,7 +46,7 @@ export const connect = createCmd({
           await confirm(() => PgWallet.current && !PgWallet.current.isPg);
         }
 
-        return true;
+        break;
       }
 
       case "disconnected": {
@@ -59,23 +59,19 @@ export const connect = createCmd({
           await confirm(() => PgWallet.current && !PgWallet.current.isPg);
         }
 
-        return true;
+        break;
       }
 
       case "setup": {
         const { Setup } = await import("../../components/Wallet/Modals/Setup");
         const setupCompleted = await PgView.setModal<boolean>(Setup);
-        if (setupCompleted) {
-          const { changed } = await toggleStandardIfNeeded(input.args.wallet);
-          if (!changed) PgWallet.state = "pg";
+        if (!setupCompleted) throw new Error("Setup rejected.");
 
-          PgTerminal.println(PgTerminal.success("Setup completed."));
-          await confirm(() => PgWallet.current?.isPg);
-        } else {
-          PgTerminal.println(PgTerminal.error("Setup rejected."));
-        }
+        const { changed } = await toggleStandardIfNeeded(input.args.wallet);
+        if (!changed) PgWallet.state = "pg";
 
-        return !!setupCompleted;
+        PgTerminal.println(PgTerminal.success("Setup completed."));
+        await confirm(() => PgWallet.current?.isPg);
       }
     }
   },
