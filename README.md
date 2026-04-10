@@ -67,7 +67,7 @@ All services run as `linux/amd64` containers (Solana CLI v1.17.34 does not ship 
 # Copy and customize environment variables
 cp .env.example .env
 
-# Full stack — development (hot reload)
+# Full stack — development (watch mode, but without volumes to mount local src directory into running container)
 docker compose --profile dev up --build
 
 # Full stack — production (static build)
