@@ -1,0 +1,5 @@
+**/node_modules
+**/target
+**/client/package.ts
+**/generated.ts
+server/mongodb
