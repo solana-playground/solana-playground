@@ -39,6 +39,7 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
     {
       name: "Airdrop",
       onClick: airdrop,
+      hoverColor: "success",
       showCondition: airdropCondition,
       icon: <Airdrop />,
     },
