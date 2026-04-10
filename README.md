@@ -64,6 +64,9 @@ The project can be built and run entirely via Docker Compose.
 All services run as `linux/amd64` containers (Solana CLI v1.17.34 does not ship Linux ARM64 binaries). This works on any platform with Docker: Linux natively, macOS via [OrbStack](https://orbstack.dev/) or Docker Desktop, and Windows via WSL2 or Docker Desktop.
 
 ```sh
+# Copy and customize environment variables
+cp .env.example .env
+
 # Full stack — development (hot reload)
 docker compose --profile dev up --build
 
