@@ -1,10 +1,11 @@
 import { PgPackage } from "../../utils";
 import { createCmd } from "../create";
-import { isPgConnected } from "../validation";
+import { checkPgWallet } from "../checks";
 
 export const solana = createCmd({
   name: "solana",
   description: "Commands for interacting with Solana",
+  preCheck: checkPgWallet,
   handle: async (input) => {
     const { runSolana } = await PgPackage.import("solana-cli", {
       log: true,
@@ -12,5 +13,4 @@ export const solana = createCmd({
 
     await runSolana(input.raw);
   },
-  preCheck: isPgConnected,
 });
