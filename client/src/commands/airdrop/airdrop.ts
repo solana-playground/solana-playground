@@ -58,7 +58,7 @@ export const airdrop = createCmd({
       throw new Error("Balance did not change");
     }
 
-    PgTerminal.println(PgTerminal.success("Success."));
+    PgTerminal.println(PgTerminal.success("Airdrop successful."));
   },
   preCheck: checkWallet,
 });
