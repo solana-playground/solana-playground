@@ -164,9 +164,7 @@ export class PgShell {
     if (!this.isPrompting() && data !== "\x03") return;
 
     if (this._tty.firstInit && this._activePrompt) {
-      const line = this._tty.buffer.getLine(
-        this._tty.buffer.cursorY + this._tty.buffer.baseY
-      );
+      const line = this._tty.getLine();
       if (!line) return;
 
       const promptRead = line.translateToString(

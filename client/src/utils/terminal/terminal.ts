@@ -109,23 +109,10 @@ export class PgTerminal {
     return await term.executeFromStr(...args);
   }
 
-  /**
-   * Wrapper function for commands that interact with the terminal
-   *
-   * This function should be used as a wrapper function when calling any
-   * terminal command.
-   */
+  /** {@link PgTerm.process} */
   static async process<T>(cb: () => SyncOrAsync<T>) {
-    this.disable();
-    this.scrollToBottom();
-    try {
-      return await cb();
-    } catch (e: any) {
-      this.println(`Process error: ${e?.message ? e.message : e}`);
-      throw e;
-    } finally {
-      this.enable();
-    }
+    const term = await PgTerminal.get();
+    return await term.process<T>(cb);
   }
 
   /**
@@ -590,6 +577,34 @@ export class PgTerm {
   async executeFromStr(cmd: string, clearCmd?: boolean) {
     this._tty.setInput(cmd);
     return await this._shell.handleReadComplete(clearCmd);
+  }
+
+  /**
+   * Process the given callback.
+   *
+   * The terminal will be disabled for the duration of the callback.
+   *
+   * @param cb callback to process
+   * @throws if the callback throws (while also printing the error)
+   * @returns the process result
+   */
+  async process<T>(cb: () => SyncOrAsync<T>) {
+    this.disable();
+    this.scrollToBottom();
+    try {
+      return await cb();
+    } catch (e: any) {
+      // The previous line is not available until the next event loop
+      await PgCommon.sleep(0);
+
+      const msg = `Process error: ${e?.message ? e.message : e}`;
+      const previousLine = this._tty.getLine(1)?.translateToString().trim();
+      if (previousLine !== msg) this.println(msg);
+
+      throw e;
+    } finally {
+      this.enable();
+    }
   }
 
   /**

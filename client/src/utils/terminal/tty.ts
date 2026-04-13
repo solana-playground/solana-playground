@@ -75,7 +75,7 @@ export class PgTty {
    */
   getInputStartsWithPrompt() {
     for (let i = 0; i < 10; i++) {
-      const currentLine = this._getCurrentLine(i);
+      const currentLine = this.getLine(i);
       if (!currentLine) return false;
       if (currentLine.isWrapped) continue;
 
@@ -323,6 +323,28 @@ export class PgTty {
   }
 
   /**
+   * Get the line at the specified offset (current by default).
+   *
+   * @param offset amount of lines before the last line
+   * @returns the line at the specified offset
+   */
+  getLine(offset: number = 0) {
+    const buffer = this.buffer;
+    return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
+  }
+
+  /**
+   * Change the specified line with the new input.
+   *
+   * @param newInput input to change the line to
+   * @param offset line offset. 0 is current, 1 is last. Defaults to 1.
+   */
+  changeLine(newInput: string, offset: number = 1) {
+    this.clearLine(offset);
+    this.println(newInput);
+  }
+
+  /**
    * Clear the current line.
    *
    * @param offset amount of lines before the current line
@@ -337,17 +359,6 @@ export class PgTty {
     this.print(`\x1b[G`);
     // This also clears the line but helps with parsing errors
     this.print(`\x1b[2K`);
-  }
-
-  /**
-   * Change the specified line with the new input.
-   *
-   * @param newInput input to change the line to
-   * @param offset line offset. 0 is current, 1 is last. Defaults to 1.
-   */
-  changeLine(newInput: string, offset: number = 1) {
-    this.clearLine(offset);
-    this.println(newInput);
   }
 
   /** Create a deconstructed read promise. */
@@ -376,12 +387,6 @@ export class PgTty {
       this._promptPrefix +
       input.replace(/\n/g, "\n" + this._continuationPromptPrefix)
     );
-  }
-
-  /** Get the current line. */
-  private _getCurrentLine(offset: number = 0) {
-    const buffer = this.buffer;
-    return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
   }
 
   /**
