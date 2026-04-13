@@ -22,11 +22,6 @@ if (IS_NODE) {
   global.self = global;
   global.window = global;
   global.indexedDB = { open: f, onerror: f };
-  Object.defineProperty(global, "navigator", {
-    value: { locks: null, userAgent: "", platform: "" },
-    writable: true,
-    configurable: true,
-  });
   global.GLOBAL_SETTINGS = { default: {} };
   global.document = { addEventListener: f };
 }
