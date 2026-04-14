@@ -79,6 +79,9 @@
     "@solana/buffer-layout": "^4.0.0",
     "styled-components": "^5"
   },
+  "engines": {
+    "node": ">=22.20.0"
+  },
   "scripts": {
     "setup": "git submodule update --init && yarn build-wasm && yarn generate",
     "start": "yarn generate && craco start",
