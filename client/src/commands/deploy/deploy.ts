@@ -11,12 +11,14 @@ import {
   PgWallet,
   PgWeb3,
 } from "../../utils";
+import { checkWallet } from "../checks";
 import { createCmd } from "../create";
 import { BpfLoaderUpgradeable } from "./bpf-loader-upgradeable";
 
 export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
+  preCheck: [checkWallet, checkProgram],
   handle: async () => {
     PgGlobal.update({ deployState: "loading" });
 
@@ -59,25 +61,7 @@ export const deploy = createCmd({
       PgGlobal.update({ deployState: "ready" });
     }
   },
-  preCheck: [checkWallet, checkProgram],
 });
-
-/** Check whether the wallet is connected (playground or standard). */
-async function checkWallet() {
-  if (!PgWallet.current) {
-    PgTerminal.println("Warning: Wallet is not connected.");
-    PgTerminal.println(PgTerminal.info("Connecting..."));
-
-    const needsSetup = PgWallet.state === "setup";
-    await PgCommand.connect.execute();
-
-    PgTerminal.println("");
-
-    // When it's the first ever deployment, add extra sleep to give time for
-    // the automatic airdrop request to confirm
-    if (needsSetup) await PgCommon.sleep(2000);
-  }
-}
 
 /** Check whether the state is valid for deployment. */
 async function checkProgram() {

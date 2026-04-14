@@ -1,5 +1,4 @@
 import {
-  PgCommand,
   PgCommon,
   PgConnection,
   PgTerminal,
@@ -7,6 +6,7 @@ import {
   PgWallet,
   PgWeb3,
 } from "../../utils";
+import { checkWallet } from "../checks";
 import { createArgs, createCmd } from "../create";
 
 export const airdrop = createCmd({
@@ -24,6 +24,7 @@ export const airdrop = createCmd({
       },
     },
   ]),
+  preCheck: checkWallet,
   handle: async (input) => {
     const defaultAmount = PgConnection.getAirdropAmount();
     if (typeof defaultAmount !== "number") {
@@ -60,15 +61,4 @@ export const airdrop = createCmd({
 
     PgTerminal.println(PgTerminal.success("Airdrop successful."));
   },
-  preCheck: checkWallet,
 });
-
-function checkWallet() {
-  if (!PgWallet.current) {
-    throw new Error(
-      `Wallet must be connected to run this command. Run '${PgTerminal.bold(
-        PgCommand.connect.name
-      )}' to connect.`
-    );
-  }
-}
