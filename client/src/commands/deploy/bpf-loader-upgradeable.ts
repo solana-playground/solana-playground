@@ -86,7 +86,7 @@ export class BpfLoaderUpgradeable {
         bufferPk,
         authorityPk: wallet.publicKey,
       }),
-      { computeUnitLimit: PgWeb3.MAX_COMPUTE_UNIT_LIMIT }
+      { computeUnitLimit: PgWeb3.MAX_COMPUTE_UNIT_LIMIT, wallet }
     );
 
     const loadBuffer = async (indices: number[], isMissing?: boolean) => {
