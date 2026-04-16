@@ -65,6 +65,7 @@ const derive = () => ({
       return standardWallet ?? null;
     },
     onChange: ["standardWallets", "standardName"],
+    infallible: true,
   }),
 
   /**
@@ -102,7 +103,6 @@ const derive = () => ({
       }
     },
     onChange: ["state", "accounts", "currentIndex", "standard"],
-    canThrow: true,
   }),
 
   /** Balance of the current wallet in SOL */
@@ -163,7 +163,6 @@ const derive = () => ({
         };
       },
     ],
-    canThrow: true,
   }),
 });
 

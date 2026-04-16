@@ -33,7 +33,7 @@ export function derivable<T extends Derivable>(
 
         const derivable = state[prop];
         const derive: typeof derivable["derive"] = async (value) => {
-          if (!derivable.canThrow) return await derivable.derive(value);
+          if (derivable.infallible) return await derivable.derive(value);
 
           try {
             return await derivable.derive(value);
@@ -68,22 +68,22 @@ export function derivable<T extends Derivable>(
 type OnChange<T = unknown> = ((cb: (value?: T) => void) => Disposable) | string;
 
 /** Derivable property declaration */
-type Derivable<T = any, R = unknown, C extends boolean = boolean> = {
+type Derivable<T = any, R = unknown, I extends boolean = boolean> = {
   /** The method that the value will be derived from. */
   derive: (value: T) => R;
   /** Derive method will be called whenever there is a change. */
   onChange: OnChange<T> | OnChange[];
-  /** Whether the `derive` method can throw an error */
-  canThrow?: C;
+  /** Whether the `derive` method is infallible i.e. cannot throw */
+  infallible?: I;
 };
 
 /** Derivable state properties */
 export type DerivableState<T> = {
   readonly // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [K in keyof T]: T[K] extends Derivable<infer _, infer R, infer C>
-    ? C extends true
-      ? Awaited<R | null>
-      : Awaited<R>
+  [K in keyof T]: T[K] extends Derivable<infer _, infer R, infer I>
+    ? I extends true
+      ? Awaited<R>
+      : Awaited<R | null>
     : never;
 };
 

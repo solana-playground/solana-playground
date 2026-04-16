@@ -115,13 +115,13 @@ const derive = () => ({
       return null;
     },
     onChange: ["kp", "customPk"],
+    infallible: true,
   }),
 
   /** On-chain data of the program */
   onChain: createDerivable({
     derive: () => _PgProgramInfo.fetch(),
     onChange: ["pk", PgConnection.onDidChange, PgCommand.deploy.onDidFinish],
-    canThrow: true,
   }),
 });
 

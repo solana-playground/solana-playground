@@ -66,6 +66,7 @@ const derive = () => ({
   currentSidebarPage: createDerivable({
     derive: (n) => _PgView.allSidebarPages.find((p) => p.name === n) ?? null,
     onChange: "sidebar.name",
+    infallible: true,
   }),
 });
 

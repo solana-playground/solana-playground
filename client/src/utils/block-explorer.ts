@@ -47,6 +47,7 @@ const derive = () => ({
   current: createDerivable({
     derive: (name) => _PgBlockExplorer.all.find((be) => be.name === name)!,
     onChange: PgSettings.onDidChangeBlockExplorerName,
+    infallible: true,
   }),
 });
 

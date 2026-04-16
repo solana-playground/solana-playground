@@ -96,7 +96,6 @@ const derive = () => ({
       );
     },
     onChange: PgRouter.onDidChangePath,
-    canThrow: true,
   }),
 
   /** Tutorial page number derived from the URL path */
@@ -109,7 +108,6 @@ const derive = () => ({
       return null;
     },
     onChange: PgRouter.onDidChangePath,
-    canThrow: true,
   }),
 });
 
