@@ -312,7 +312,7 @@ const loadBufferWithControl = (
         cancelled?: never;
         success: true;
       }
-  >(async (res) => {
+  >(async (res, rej) => {
     const abortController = new AbortController();
     args[2] = { ...args[2], abortController };
 
@@ -349,7 +349,14 @@ const loadBufferWithControl = (
       prevState = state;
     });
 
-    await BpfLoaderUpgradeable.loadBuffer(...args);
+    try {
+      await BpfLoaderUpgradeable.loadBuffer(...args);
+      if (!abortController.signal.aborted) res({ success: true });
+    } catch (e) {
+      if (!abortController.signal.aborted) rej(e);
+    } finally {
+      dispose();
+    }
 
     if (!abortController.signal.aborted) {
       dispose();
