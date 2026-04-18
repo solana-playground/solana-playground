@@ -564,7 +564,10 @@ export class PgTerm {
         ? PgTerminal.secondaryText("empty")
         : PgTerminal.success(userInput);
 
-    this._tty.changeLine(this._prefixes.waitingInputPrompt + visibleText);
+    // Change the line
+    this._tty.clearLine(1);
+    this._tty.println(this._prefixes.waitingInputPrompt + visibleText);
+
     return returnValue;
   }
 
