@@ -58,7 +58,7 @@ services:
     environment:
       - PG_DB_URI=mongodb://db:27017
       - PG_CLIENT_URL=http://localhost:${PG_CLIENT_PORT:-3000}
-      - RUST_LOG=${RUST_LOG:-info}
+      - RUST_LOG=${RUST_LOG:-error}
     profiles:
       - dev
       - prod
