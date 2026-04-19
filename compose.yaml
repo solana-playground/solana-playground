@@ -55,10 +55,9 @@ services:
       context: ./server
     ports:
       - ${PG_PORT:-8080}:8080
+    env_file: .env
     environment:
-      - PG_DB_URI=mongodb://db:27017
-      - PG_CLIENT_URL=http://localhost:${PG_CLIENT_PORT:-3000}
-      - RUST_LOG=${RUST_LOG:-error}
+      - PG_DB_URI=${PG_DB_URI:-mongodb://db:27017}
     profiles:
       - dev
       - prod
