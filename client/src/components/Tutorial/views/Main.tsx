@@ -7,7 +7,14 @@ import Markdown from "../../Markdown";
 import Resizable from "../../Resizable";
 import { SpinnerWithBg } from "../../Loading";
 import { PointedArrow } from "../../Icons";
-import { PgRouter, PgTheme, PgTutorial } from "../../../utils";
+import { useAsyncEffect } from "../../../hooks";
+import {
+  PgCommon,
+  PgRouter,
+  PgTheme,
+  PgTutorial,
+  PgView,
+} from "../../../utils";
 import type { TutorialMainComponentProps } from "../types";
 
 export const Main: FC<TutorialMainComponentProps> = ({
@@ -19,9 +26,19 @@ export const Main: FC<TutorialMainComponentProps> = ({
   start,
 }) => {
   // If the page is set from the URL but the tutorial has not been started,
-  // start the tutorial automatically
-  useEffect(() => {
-    if (!isStarted) start();
+  // start the tutorial automatically.
+  //
+  // TODO: Move this to the route handler. Currently, the user sees the sidebar
+  // page for a short period of time before this effect runs.
+  useAsyncEffect(async () => {
+    if (isStarted) return;
+
+    PgView.setSidebarLoading(true);
+    try {
+      await PgCommon.transition(start);
+    } finally {
+      PgView.setSidebarLoading(false);
+    }
   }, [isStarted, start]);
 
   // Scroll to the top on page change
