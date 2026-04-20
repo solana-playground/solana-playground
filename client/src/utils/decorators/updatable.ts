@@ -126,6 +126,10 @@ export function updatable<T extends Record<string, any>>(params: {
             return acc;
           }, {} as T);
 
+          // Do not save if it's the default state. This mitigates unintended
+          // resets during and after a full app crash.
+          if (PgCommon.isEqual(updatableState, params.defaultState)) return;
+
           params.storage!.write(updatableState);
         },
         getAllAccessors()
