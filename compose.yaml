@@ -11,7 +11,8 @@ x-client: &client
     context: .
     dockerfile: ./client/Dockerfile
     args:
-      HAS_SERVER: "true"
+      USER: solpg
+      HAS_SERVER: true
     additional_contexts:
       solana-playground-wasm: service:wasm
       solana-playground-server: service:server
@@ -19,14 +20,18 @@ x-client: &client
     - ${PG_CLIENT_PORT:-3000}:3000
 
 services:
-  wasm:
-    platform: linux/amd64
-    build:
-      context: ./wasm
+  client:
+    <<: *client
+    tty: true
+    stdin_open: true
     profiles:
       - dev
+
+  client-prod:
+    <<: *client
+    command: ["sh", "-c", "yarn build && npx serve -s build"]
+    profiles:
       - prod
-      - standalone
 
   client-standalone:
     platform: linux/amd64
@@ -37,6 +42,7 @@ services:
       context: .
       dockerfile: ./client/Dockerfile
       args:
+        USER: solpg
         HAS_SERVER: ${PG_SERVER:-false}
       additional_contexts:
         solana-playground-wasm: service:wasm
@@ -53,6 +59,8 @@ services:
       - db
     build:
       context: ./server
+      args:
+        USER: solpg
     ports:
       - ${PG_PORT:-8080}:8080
     env_file: .env
@@ -62,18 +70,14 @@ services:
       - dev
       - prod
 
-  client:
-    <<: *client
-    tty: true
-    stdin_open: true
+  wasm:
+    platform: linux/amd64
+    build:
+      context: ./wasm
     profiles:
       - dev
-
-  client-prod:
-    <<: *client
-    command: ["sh", "-c", "yarn build && npx serve -s build"]
-    profiles:
       - prod
+      - standalone
 
   db:
     image: mongo:7
