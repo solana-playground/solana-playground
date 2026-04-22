@@ -186,7 +186,6 @@ export class BpfLoaderUpgradeable {
   static async deployProgram(
     program: PgWeb3.Signer,
     bufferPk: PgWeb3.PublicKey,
-    programLamports: number,
     maxDataLen: number,
     opts?: WalletOption
   ) {
@@ -196,7 +195,9 @@ export class BpfLoaderUpgradeable {
       PgWeb3.SystemProgram.createAccount({
         fromPubkey: wallet.publicKey,
         newAccountPubkey: program.publicKey,
-        lamports: programLamports,
+        lamports: await PgConnection.current.getMinimumBalanceForRentExemption(
+          PgWeb3.BpfLoaderUpgradeableProgram.PROGRAM_ACCOUNT_SIZE
+        ),
         space: PgWeb3.BpfLoaderUpgradeableProgram.PROGRAM_ACCOUNT_SIZE,
         programId: PgWeb3.BpfLoaderUpgradeableProgram.programId,
       }),

@@ -268,9 +268,6 @@ const processDeploy = async () => {
 
   // Deploy/upgrade
   try {
-    const programBalance = await connection.getMinimumBalanceForRentExemption(
-      PgWeb3.BpfLoaderUpgradeableProgram.PROGRAM_ACCOUNT_SIZE
-    );
     const txHash = await sendAndConfirmTxWithRetries(
       async () => {
         if (programExists) {
@@ -283,7 +280,6 @@ const processDeploy = async () => {
         return await BpfLoaderUpgradeable.deployProgram(
           PgProgramInfo.kp!,
           bufferKp.publicKey,
-          programBalance,
           programLen * 2
         );
       },
