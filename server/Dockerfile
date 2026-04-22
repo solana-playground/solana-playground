@@ -3,11 +3,14 @@ FROM ubuntu:24.04 AS rust
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
-ENV HOME="/root"
-
 # Install build deps
 RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq \
     build-essential curl pkg-config libssl-dev libudev-dev
+
+# Create a non-root user
+RUN useradd -m -u 1001 -s /bin/bash solpg
+USER solpg
+ENV HOME="/home/solpg"
 
 # Install Rust
 RUN sh -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y
@@ -31,10 +34,10 @@ RUN sh -c "$(curl -sSfL https://release.anza.xyz/v${SOLANA_VERSION}/install)"
 ENV PATH="${HOME}/.local/share/solana/install/active_release/bin:${PATH}"
 
 # Set the workdir
-WORKDIR /home/pg
+WORKDIR /home/solpg
 
 # Copy programs dir and build the default program
-COPY programs programs
+COPY --chown=solpg:solpg programs programs
 RUN cargo-build-sbf --manifest-path programs/Cargo.toml
 
 # Start server
