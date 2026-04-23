@@ -456,13 +456,7 @@ export class PgTty {
       }
     }
 
-    const hl = (s: string, colorCb: (s: string) => string) => {
-      if (s.endsWith(":")) {
-        return colorCb(s.substring(0, s.length - 1)) + s[s.length - 1];
-      }
-
-      return colorCb(s);
-    };
+    const hl = (s: string, colorCb: (s: string) => string) => colorCb(s);
 
     return (
       text
