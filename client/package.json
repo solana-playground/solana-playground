@@ -54,7 +54,7 @@
     "shiki": "^0.14.4",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",
-    "typescript": "=4.9.5",
+    "typescript": "=5.0.4",
     "vscode-oniguruma": "^1.7.0",
     "vscode-textmate": "^9.0.0",
     "xterm": "^4.18.0",
@@ -77,7 +77,8 @@
   },
   "resolutions": {
     "@solana/buffer-layout": "^4.0.0",
-    "styled-components": "^5"
+    "styled-components": "^5",
+    "typescript": "5.0.4"
   },
   "engines": {
     "node": ">=22.20.0"
@@ -85,7 +86,8 @@
   "scripts": {
     "setup": "git submodule update --init && yarn build-wasm && yarn generate",
     "start": "yarn generate && craco start",
-    "build": "yarn generate && GENERATE_SOURCEMAP=false craco build",
+    "build": "yarn generate && yarn run build-craco",
+    "build-craco": "GENERATE_SOURCEMAP=false craco build",
     "build-wasm": "build=\"../wasm/build.sh\" && chmod +x $build && $build --update",
     "format": "prettier --write src/",
     "check-format": "prettier --check src/",
@@ -94,7 +96,10 @@
     "generate-exports": "node scripts/generate-exports.mjs",
     "generate-packages": "node scripts/generate-packages.mjs",
     "generate-tutorials": "node scripts/generate-tutorials.mjs",
-    "sync-readme": "node scripts/sync-readme.mjs"
+    "sync-readme": "node scripts/sync-readme.mjs",
+    "test": "yarn run test-types && yarn run build-craco",
+    "test-build": "yarn run build-craco",
+    "test-types": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [
