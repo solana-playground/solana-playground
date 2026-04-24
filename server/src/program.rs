@@ -75,17 +75,11 @@ pub fn build(
 
     // Build the program
     let output = Command::new("cargo-build-sbf")
-        .args([
-            "--manifest-path",
-            manifest_path
-                .to_str()
-                .expect("Manifest path should always be UTF-8"),
-            "--sbf-out-dir",
-            program_path
-                .to_str()
-                .ok_or_else(|| anyhow!("{program_path:?} is not valid UTF-8"))?,
-            "--offline",
-        ])
+        .arg("--manifest-path")
+        .arg(manifest_path)
+        .arg("--sbf-out-dir")
+        .arg(&program_path)
+        .arg("--offline")
         .output()?;
 
     // Check compile errors
