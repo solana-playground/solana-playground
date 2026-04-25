@@ -2,4 +2,5 @@
 **/target
 **/client/package.ts
 **/generated.ts
+*/build
 server/mongodb
