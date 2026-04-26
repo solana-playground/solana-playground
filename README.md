@@ -47,9 +47,6 @@ You can open an issue to request more crates.
 ##### Recommended versions
 
 ```sh
-rustc --version
-# rustc 1.75.0 (82e1608df 2023-12-21)
-
 node --version
 # v22.20.0
 
