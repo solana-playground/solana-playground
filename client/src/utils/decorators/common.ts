@@ -42,9 +42,10 @@ export type OnDidChangeDefault<T> = {
 
 /** Non-recursive `onDidChange${propertyName}` method types */
 export type OnDidChangeProperty<T> = {
-  [K in Extract<keyof T, string> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: OnDidChange<
-    T[K]
-  >;
+  [K in Extract<
+    keyof T,
+    string
+  > as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: OnDidChange<T[K]>;
 };
 
 /** Actual type of the `onDidChange` property */

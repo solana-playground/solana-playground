@@ -12,7 +12,10 @@ export type Updatable<T> = {
 
 /** Recursive `onDidChange${propertyName}` method types */
 export type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in Extract<keyof U, string> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in Extract<
+    keyof U,
+    string
+  > as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };
