@@ -1,5 +1,5 @@
 import { PgCommon } from "../common";
-import type { Accessor, Disposable, SyncOrAsync } from "../types";
+import type { Accessor, Disposable, StringKeys, SyncOrAsync } from "../types";
 
 /** Property names */
 export const PROPS = {
@@ -42,10 +42,9 @@ export type OnDidChangeDefault<T> = {
 
 /** Non-recursive `onDidChange${propertyName}` method types */
 export type OnDidChangeProperty<T> = {
-  [K in Extract<
-    keyof T,
-    string
-  > as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: OnDidChange<T[K]>;
+  [K in StringKeys<T> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: OnDidChange<
+    T[K]
+  >;
 };
 
 /** Actual type of the `onDidChange` property */

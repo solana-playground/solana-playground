@@ -117,6 +117,9 @@ export type SyncOrAsync<T = unknown> = T | Promise<T>;
 /** A `Promise` or a callback that returns a `Promise` */
 export type Promisable<T> = Getable<SyncOrAsync<T>>;
 
+/** String-only keys of `T` */
+export type StringKeys<T> = Extract<keyof T, string>;
+
 /** Make every property (... | null) */
 export type Nullable<T> = {
   [K in keyof T]: T[K] | null;
