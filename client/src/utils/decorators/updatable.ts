@@ -12,7 +12,7 @@ export type Updatable<T> = {
 
 /** Recursive `onDidChange${propertyName}` method types */
 export type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in keyof U as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in Extract<keyof U, string> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };
@@ -346,7 +346,9 @@ type JoinCapitalized<T extends string[]> = T extends [
 
 /** Map the property values to a union of tuples */
 type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
-  [K in keyof T]: T[K] extends object
-    ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
-    : [[...Acc, K], T[K]];
+  [K in keyof T]: K extends string
+    ? T[K] extends object
+      ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
+      : [[...Acc, K], T[K]]
+    : never;
 }[keyof T];

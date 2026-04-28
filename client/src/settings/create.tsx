@@ -23,7 +23,7 @@ export const createSetting = <
     .join(" ");
 
   if (!(setting.getValue && setting.setValue && setting.onChange)) {
-    setting.getValue = () => PgCommon.getValue(PgSettings, id);
+    setting.getValue = () => PgCommon.getValue(PgSettings, id) as V;
     setting.setValue = (v) => PgCommon.setValue(PgSettings, id, v);
     setting.onChange = PgSettings[
       id.reduce(
