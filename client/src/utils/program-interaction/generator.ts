@@ -98,7 +98,9 @@ type PublicKeyGenerator =
       programId: WithGenerator<ProgramGenerator>;
     }
   | { type: "All programs"; name: string }
-  | { type: "Pyth"; name: string };
+  | { type: "Pyth"; name: string }
+  | { type: "Token accounts"; name: string }
+  | { type: "Mint accounts"; name: string };
 
 /** Program public key generator */
 type ProgramGenerator = { type: "Current program" };
@@ -134,6 +136,8 @@ export const createGenerator = (
     case "All wallets":
     case "All programs":
     case "Pyth":
+    case "Token accounts":
+    case "Mint accounts":
     case "Accounts":
     case "Arguments":
       if (selectedItems.length !== 2) return null;
@@ -190,6 +194,10 @@ export const generateValue = (
 
     case "Pyth":
       return getPythAccounts()[generator.name];
+
+    case "Token accounts":
+    case "Mint accounts":
+      return generator.name;
 
     case "Accounts": {
       const accRef = values.accounts.find(

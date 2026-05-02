@@ -307,6 +307,36 @@ const getSearchBarProps = (
       closeButton: true,
     });
 
+    if (PgWallet.current && !accountProps.isSigner) {
+      searchBarProps.items.push(
+        {
+          label: "Token accounts",
+          items: async () => {
+            const accounts =
+              await PgProgramInteraction.getOrInitOwnedTokenAccounts();
+
+            return accounts.tokenAccounts.map(({ address, mint, amount }) => ({
+              label: address,
+              value: address,
+              matches: [mint, amount].filter(Boolean),
+            }));
+          },
+        },
+        {
+          label: "Mint accounts",
+          items: async () => {
+            const accounts =
+              await PgProgramInteraction.getOrInitOwnedTokenAccounts();
+
+            return accounts.mintAccounts.map(({ address }) => ({
+              label: address,
+              value: address,
+            }));
+          },
+        }
+      );
+    }
+
     // Programs
     if (!(accountProps.isMut || accountProps.isSigner)) {
       pushGeneratorItem({
