@@ -1,5 +1,3 @@
-export * from "./javascript";
-export * from "./json";
-export * from "./python";
-export * from "./rust";
-export * from "./typescript";
+import * as L from "./generated";
+
+export const LANGUAGES = Object.values(L);

@@ -1,7 +1,6 @@
-import { PgWallet } from "../utils/pg";
+import { PgWallet } from "../utils";
 import { useRenderOnChange } from "./useRenderOnChange";
 
 export const useWallet = () => {
-  useRenderOnChange(PgWallet.onDidChangeCurrent);
-  return { wallet: PgWallet.current };
+  return useRenderOnChange(PgWallet.onDidChangeCurrent);
 };

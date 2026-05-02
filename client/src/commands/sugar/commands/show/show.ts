@@ -3,7 +3,7 @@ import { Creator } from "@metaplex-foundation/js";
 import { NULL_STRING } from "../../constants";
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processShow = async (
   rpcUrl: string | undefined,
@@ -159,7 +159,6 @@ export const processShow = async (
       );
 
       let current = 0;
-
       for (const i of indices) {
         if (!current) {
           term.println(PgTerminal.secondaryText(" :"));
@@ -167,15 +166,12 @@ export const processShow = async (
         }
         current += 1;
 
+        const msg = PgCommon.addSpace(i.toString(), 5);
         if (current === 11) {
           current = 0;
-          term.print(
-            `${PgCommon.string(i.toString(), { addSpace: { amount: 5 } })}\n`
-          );
+          term.println(msg);
         } else {
-          term.print(
-            `${PgCommon.string(i.toString(), { addSpace: { amount: 5 } })} `
-          );
+          term.print(msg + " ");
         }
       }
 

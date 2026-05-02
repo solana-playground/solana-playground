@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
-import { PgCommon, PgTheme, PgView } from "../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../utils";
 import { useSetStatic } from "../../hooks";
 
 export interface ToastChildProps {
@@ -11,17 +11,17 @@ export interface ToastChildProps {
 }
 
 const Toast = () => {
-  const setToast = useCallback(({ Component, props }) => {
+  const setToast = useCallback(({ elementable, props }) => {
     const id = PgCommon.generateRandomInt(0, 2 ** 12);
-    if (typeof Component === "function") {
-      Component = <Component {...props?.componentProps} id={id} />;
-    }
-
-    toast(Component, { ...props?.options, toastId: id });
+    elementable = PgView.normalizeElement(elementable, {
+      ...props?.componentProps,
+      id,
+    });
+    toast(elementable, { ...props?.options, toastId: id });
   }, []);
 
-  useSetStatic(setToast, PgView.events.TOAST_SET);
-  useSetStatic(toast.dismiss, PgView.events.TOAST_CLOSE);
+  useSetStatic(PgView.events.TOAST_SET, setToast);
+  useSetStatic(PgView.events.TOAST_CLOSE, toast.dismiss);
 
   return (
     <StyledContainer

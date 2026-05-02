@@ -1,4 +1,4 @@
-import type { PgWeb3 } from "../../../utils/pg";
+import type { PgWeb3 } from "../../../utils";
 
 export const assertCorrectAuthority = (
   userPk: PgWeb3.PublicKey,

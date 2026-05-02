@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
 
 export const useSetStatic = (
-  set: Dispatch<SetStateAction<any>>,
-  eventName: string
+  eventName: string,
+  set: Dispatch<SetStateAction<any>>
 ) => {
   useEffect(() => {
     const handle = (e: UIEvent & { detail: any }) => {

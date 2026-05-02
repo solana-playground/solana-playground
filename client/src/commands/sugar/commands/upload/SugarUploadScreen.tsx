@@ -2,7 +2,7 @@ import { FC, useCallback, useState } from "react";
 
 import Modal from "../../../../components/Modal";
 import UploadArea from "../../../../components/UploadArea";
-import { PgCommon } from "../../../../utils/pg";
+import { PgCommon } from "../../../../utils";
 
 interface SugarUploadScreenProps {
   title: string;

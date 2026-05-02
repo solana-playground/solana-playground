@@ -1,40 +1,35 @@
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 import ErrorBoundary from "../../../../components/ErrorBoundary";
 import { SpinnerWithBg } from "../../../../components/Loading";
-import {
-  CallableJSX,
-  NullableJSX,
-  PgCommon,
-  PgTheme,
-  PgView,
-} from "../../../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../../../utils";
 import { useGetAndSetStatic } from "../../../../hooks";
 
 const Primary = () => {
-  const [el, setEl] = useState<CallableJSX | NullableJSX>(null);
-
-  const setElWithTransition = useCallback(async (el: any) => {
+  const [el, setEl] = useState<ReactNode>(null);
+  const setElWithTransition = useCallback(async (el) => {
     if (PgCommon.isAsyncFunction(el)) {
       setEl(null);
 
-      el = await PgCommon.transition(async () => {
-        try {
-          return await PgCommon.callIfNeeded(el);
-        } catch (e: any) {
-          console.log("MAIN VIEW ERROR:", e.message);
-        }
-      });
-    }
+      const setContent = async () => {
+        setEl(PgCommon.callIfNeeded(await el()));
+      };
 
-    setEl(PgCommon.callIfNeeded(el) ?? null);
+      try {
+        await PgCommon.transition(setContent);
+      } catch (e) {
+        setEl({ error: e, refresh: setContent });
+      }
+    } else {
+      setEl(PgCommon.callIfNeeded(el));
+    }
   }, []);
 
   useGetAndSetStatic(
+    PgView.events.MAIN_PRIMARY_STATIC,
     el,
-    setElWithTransition,
-    PgView.events.MAIN_PRIMARY_STATIC
+    setElWithTransition
   );
 
   return (

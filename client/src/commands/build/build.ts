@@ -1,8 +1,8 @@
 import {
-  ExplorerFiles,
   PgCommon,
   PgExplorer,
   PgGlobal,
+  PgLanguage,
   PgPackage,
   PgProgramInfo,
   PgServer,
@@ -10,7 +10,7 @@ import {
   PgTerminal,
   PgWeb3,
   TupleFiles,
-} from "../../utils/pg";
+} from "../../utils";
 import { createCmd } from "../create";
 
 export const build = createCmd({
@@ -20,15 +20,11 @@ export const build = createCmd({
     PgGlobal.update({ buildLoading: true });
     PgTerminal.println(PgTerminal.info("Building..."));
 
-    let msg;
     try {
-      const output = await processBuild();
-      msg = improveOutput(output.stderr);
-    } catch (e: any) {
-      const convertedError = PgTerminal.convertErrorMessage(e.message);
-      msg = `Build error: ${convertedError}`;
+      const result = await buildProgram();
+      PgProgramInfo.update({ idl: result.idl, uuid: result.uuid ?? undefined });
+      PgTerminal.println(improveOutput(result.stderr));
     } finally {
-      PgTerminal.println(msg + "\n");
       PgGlobal.update({ buildLoading: false });
     }
   },
@@ -37,50 +33,140 @@ export const build = createCmd({
 /**
  * Compile the current project.
  *
- * @returns build output from stderr(not only errors)
+ * @returns the build response
  */
-const processBuild = async () => {
+const buildProgram = async () => {
   const buildFiles = getBuildFiles();
-  const pythonFiles = buildFiles.filter(([fileName]) =>
-    fileName.toLowerCase().endsWith(".py")
+  const pythonFiles = buildFiles.filter(
+    ([path]) => PgLanguage.getFromPath(path)?.name === "Python"
   );
-
-  if (pythonFiles.length > 0) {
-    return await buildPython(pythonFiles);
-  }
-
+  if (pythonFiles.length > 0) return await buildPython(pythonFiles);
   return await buildRust(buildFiles);
 };
 
 /**
- * Build rust files and return the output.
+ * Get the files necessary for the build process.
  *
- * @param files Rust files from `src/`
- * @returns Build output from stderr(not only errors)
+ * @returns the necessary data for the build request
  */
-const buildRust = async (files: TupleFiles) => {
-  if (!files.length) throw new Error("Couldn't find any Rust files.");
+const getBuildFiles = () => {
+  let programPkStr = PgProgramInfo.getPkStr();
+  if (!programPkStr) {
+    const kp = PgWeb3.Keypair.generate();
+    PgProgramInfo.update({ kp });
+    programPkStr = kp.publicKey.toBase58();
+  }
 
-  const resp = await PgServer.build({
-    files,
-    uuid: PgProgramInfo.uuid,
-    flags: PgSettings.build.flags,
-  });
+  /**
+   * Update the `declare_id!` macro in Rust source content with the current
+   * program's public key.
+   *
+   * @param content - The Rust source file content as a string
+   * @returns An object containing:
+   * - `content` - The updated source content with the new program ID injected
+   * - `updated` - A boolean indicating whether the ID was updated
+   */
+  const updateIdRust = (content: string) => {
+    let updated = false;
+    let insideBlockComment = false;
+    const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/;
+    const newContent = content
+      .split("\n")
+      .map((line) => {
+        // Track block comment opening
+        if (line.includes("/*")) insideBlockComment = true;
 
-  // Update program info
-  PgProgramInfo.update({
-    uuid: resp.uuid ?? undefined,
-    idl: resp.idl,
-  });
+        // If inside block comment, skip line entirely
+        if (insideBlockComment) {
+          // Track block comment closing
+          if (line.includes("*/")) insideBlockComment = false;
+          return line;
+        }
 
-  return { stderr: resp.stderr };
+        // Skip single-line comments
+        if (line.trimStart().startsWith("//")) return line;
+
+        return line.replace(rustDeclareIdRegex, (match) => {
+          const res = rustDeclareIdRegex.exec(match);
+          if (!res) return match;
+          updated = true;
+
+          // `res[1]` could be `solana_program::` or `undefined`
+          return (res[1] ?? "") + `declare_id!("${programPkStr}")`;
+        });
+      })
+      .join("\n");
+
+    return { content: newContent, updated };
+  };
+
+  const updateIdPython = (content: string) => {
+    let updated = false;
+
+    const pythonDeclareIdRegex = /^declare_id\(("|')(\w*)("|')\)/gm;
+    const newContent = content.replace(pythonDeclareIdRegex, (match) => {
+      const res = pythonDeclareIdRegex.exec(match);
+      if (!res) return match;
+      updated = true;
+      return `declare_id('${programPkStr}')`;
+    });
+
+    return { content: newContent, updated };
+  };
+
+  const getUpdatedProgramIdContent = (path: string) => {
+    const content = files[path].content;
+    if (content) {
+      switch (PgLanguage.getFromPath(path)?.name) {
+        case "Rust":
+          return updateIdRust(content);
+        case "Python":
+          return updateIdPython(content);
+      }
+    }
+
+    return { content, updated: false };
+  };
+
+  const files = PgExplorer.files;
+  const buildFiles: TupleFiles = [];
+  let alreadyUpdatedId = false;
+
+  // Prioritize files where we are likely to find a rust `declare_id!`
+  const prioritizedFileNames = ["lib.rs", "id.rs"];
+  const prioritizedFilePaths = Object.keys(files).reduce((acc, path) => {
+    if (prioritizedFileNames.some((n) => path.endsWith(n))) acc.unshift(path);
+    else acc.push(path);
+
+    return acc;
+  }, [] as string[]);
+  for (const path of prioritizedFilePaths) {
+    if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
+
+    let content = files[path].content;
+    if (!alreadyUpdatedId) {
+      const updateIdResult = getUpdatedProgramIdContent(path);
+      content = updateIdResult.content;
+      alreadyUpdatedId = updateIdResult.updated;
+    }
+    if (!content) continue;
+
+    // Remove the workspace from path because build only needs /src
+    const buildPath = PgCommon.joinPaths(
+      PgExplorer.PATHS.ROOT_DIR_PATH,
+      PgExplorer.getRelativePath(path)
+    );
+    buildFiles.push([buildPath, content]);
+  }
+
+  return buildFiles;
 };
 
 /**
  * Convert Python files into Rust with seahorse-compile-wasm and run `_buildRust`.
  *
  * @param pythonFiles Python files in `src/`
- * @returns Build output from stderr(not only errors)
+ * @returns the build response
  */
 const buildPython = async (pythonFiles: TupleFiles) => {
   const { compileSeahorse } = await PgPackage.import("seahorse-compile");
@@ -112,104 +198,19 @@ const buildPython = async (pythonFiles: TupleFiles) => {
 };
 
 /**
- * Get the files necessary for the build process.
+ * Build Rust files and return the output.
  *
- * @returns the necessary data for the build request
+ * @param files Rust files from `src/`
+ * @returns the build response
  */
-const getBuildFiles = () => {
-  let programPkStr = PgProgramInfo.getPkStr();
-  if (!programPkStr) {
-    const kp = PgWeb3.Keypair.generate();
-    PgProgramInfo.update({ kp });
-    programPkStr = kp.publicKey.toBase58();
-  }
+const buildRust = async (files: TupleFiles) => {
+  if (!files.length) throw new Error("Couldn't find any Rust files.");
 
-  const updateIdRust = (content: string) => {
-    let updated = false;
-
-    const rustDeclareIdRegex = /^(([\w]+::)*)declare_id!\("(\w*)"\)/gm;
-    const newContent = content.replace(rustDeclareIdRegex, (match) => {
-      const res = rustDeclareIdRegex.exec(match);
-      if (!res) return match;
-      updated = true;
-
-      // res[1] could be solana_program:: or undefined
-      return (res[1] ?? "\n") + `declare_id!("${programPkStr}")`;
-    });
-
-    return { content: newContent, updated };
-  };
-
-  const updateIdPython = (content: string) => {
-    let updated = false;
-
-    const pythonDeclareIdRegex = /^declare_id\(("|')(\w*)("|')\)/gm;
-    const newContent = content.replace(pythonDeclareIdRegex, (match) => {
-      const res = pythonDeclareIdRegex.exec(match);
-      if (!res) return match;
-      updated = true;
-      return `declare_id('${programPkStr}')`;
-    });
-
-    return { content: newContent, updated };
-  };
-
-  const getUpdatedProgramIdContent = (path: string) => {
-    let content = files[path].content;
-    let updated = false;
-    if (content) {
-      if (path.endsWith(".rs")) {
-        const updateIdResult = updateIdRust(content);
-        content = updateIdResult.content;
-        updated = updateIdResult.updated;
-      } else if (path.endsWith(".py")) {
-        const updateIdResult = updateIdPython(content);
-        content = updateIdResult.content;
-        updated = updateIdResult.updated;
-      }
-    }
-
-    return { content, updated };
-  };
-
-  // Prioritise files where we are likely to find a rust `declare_id!`
-  const prioritiseFilePaths = (files: ExplorerFiles) => {
-    const prioritised: Array<string> = [];
-    for (const path in files) {
-      if (path.endsWith("lib.rs") || path.endsWith("id.rs")) {
-        prioritised.unshift(path);
-      } else {
-        prioritised.push(path);
-      }
-    }
-    return prioritised;
-  };
-
-  const files = PgExplorer.files;
-  const prioritisedFilePaths = prioritiseFilePaths(files);
-  const buildFiles: TupleFiles = [];
-  let alreadyUpdatedId = false;
-
-  for (const path of prioritisedFilePaths) {
-    if (!path.startsWith(PgExplorer.getCurrentSrcPath())) continue;
-
-    let content = files[path].content;
-    if (!alreadyUpdatedId) {
-      const updateIdResult = getUpdatedProgramIdContent(path);
-      content = updateIdResult.content;
-      alreadyUpdatedId = updateIdResult.updated;
-    }
-    if (!content) continue;
-
-    // Remove the workspace from path because build only needs /src
-    const buildPath = PgCommon.joinPaths(
-      PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgExplorer.getRelativePath(path)
-    );
-    buildFiles.push([buildPath, content]);
-  }
-
-  return buildFiles;
+  return await PgServer.build({
+    files,
+    uuid: PgProgramInfo.uuid,
+    flags: PgSettings.build.flags,
+  });
 };
 
 /**

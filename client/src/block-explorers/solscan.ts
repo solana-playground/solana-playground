@@ -1,4 +1,4 @@
-import { PgBlockExplorer, PgConnection } from "../utils/pg";
+import { PgBlockExplorer, PgConnection } from "../utils";
 
 export const solscan = PgBlockExplorer.create({
   name: "Solscan",

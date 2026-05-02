@@ -4,7 +4,7 @@ import {
   PgExplorer,
   PgLanguage,
   PgTerminal,
-} from "../../utils/pg";
+} from "../../utils";
 import { createArgs, createCmd } from "../create";
 
 /**

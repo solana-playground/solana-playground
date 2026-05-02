@@ -5,7 +5,7 @@ import {
   loadConfigData,
 } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processGuardAdd = async (
   rpcUrl: string | undefined,

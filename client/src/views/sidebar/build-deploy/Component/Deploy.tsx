@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Text from "../../../../components/Text";
 import Button, { ButtonProps } from "../../../../components/Button";
-import { PgCommand, PgGlobal } from "../../../../utils/pg";
+import { PgCommand, PgGlobal } from "../../../../utils";
 import {
   useProgramInfo,
   useRenderOnChange,
@@ -12,25 +12,22 @@ import {
 import { Pause, Triangle } from "../../../../components/Icons";
 
 const Deploy = () => {
-  const buildLoading = useRenderOnChange(
-    PgGlobal.onDidChangeBuildLoading,
-    PgGlobal.buildLoading
-  );
-  const deployState = useRenderOnChange(
-    PgGlobal.onDidChangeDeployState,
-    PgGlobal.deployState
-  );
+  const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);
+  const deployState = useRenderOnChange(PgGlobal.onDidChangeDeployState);
 
-  const { deployed, error, programInfo } = useProgramInfo();
-  const { wallet } = useWallet();
+  const programInfo = useProgramInfo();
+  const error = !programInfo.onChain;
+  const deployed = programInfo.onChain?.deployed;
   const upgradable = programInfo.onChain?.upgradable;
-  const hasAuthority = wallet
-    ? programInfo.onChain?.authority?.equals(wallet.publicKey)
-    : false;
   const hasProgramKp = !!programInfo.kp;
   const hasUuid = !!programInfo.uuid;
   const importedProgram = programInfo.importedProgram;
   const isImportedProgram = !!importedProgram?.buffer.length;
+
+  const wallet = useWallet();
+  const hasAuthority = wallet
+    ? programInfo.onChain?.authority?.equals(wallet.publicKey)
+    : false;
 
   const deployButtonText = useMemo(() => {
     return deployState === "cancelled"
@@ -67,8 +64,8 @@ const Deploy = () => {
             PgGlobal.update({ deployState: "loading" });
         }
       },
-      btnLoading: deployState === "cancelled",
       disabled: buildLoading,
+      loading: deployState === "cancelled",
       leftIcon:
         deployState === "loading" ? (
           <Pause />
@@ -81,22 +78,19 @@ const Deploy = () => {
 
   // First time state
   if (!deployed && !hasProgramKp) {
-    if (isImportedProgram)
-      return (
-        <Wrapper>
-          <Text>
-            <div>
-              Initial deployment needs a keypair. You can import it from
-              <Bold> Program ID</Bold> settings.
-            </div>
-          </Text>
-        </Wrapper>
-      );
+    if (!isImportedProgram) return null;
 
-    return null;
+    return (
+      <Wrapper>
+        <Text>
+          Initial deployment needs a keypair. You can import it from
+          <Bold> Program ID</Bold> settings.
+        </Text>
+      </Wrapper>
+    );
   }
 
-  if (error)
+  if (error) {
     return (
       <Wrapper>
         <Text kind="error">
@@ -105,8 +99,9 @@ const Deploy = () => {
         </Text>
       </Wrapper>
     );
+  }
 
-  if (!wallet)
+  if (!wallet) {
     return (
       <Wrapper>
         <Text>Your wallet must be connected for program deployments.</Text>
@@ -115,27 +110,28 @@ const Deploy = () => {
         </Button>
       </Wrapper>
     );
+  }
 
-  if (!hasUuid && !isImportedProgram)
+  if (!hasUuid && !isImportedProgram) {
     return (
       <Wrapper>
         <Text>
-          <div>
-            Build the program first or import a program from
-            <Bold> Program binary</Bold>.
-          </div>
+          Build the program first or import a program from
+          <Bold> Program binary</Bold>.
         </Text>
       </Wrapper>
     );
+  }
 
-  if (upgradable === false)
+  if (upgradable === false) {
     return (
       <Wrapper>
         <Text kind="warning">The program is not upgradable.</Text>
       </Wrapper>
     );
+  }
 
-  if (hasAuthority === false)
+  if (hasAuthority === false) {
     return (
       <Wrapper>
         <Text kind="warning">
@@ -143,6 +139,7 @@ const Deploy = () => {
         </Text>
       </Wrapper>
     );
+  }
 
   // Custom(uploaded) program deploy
   if (isImportedProgram) {

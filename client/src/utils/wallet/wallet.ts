@@ -1,0 +1,469 @@
+import * as ed25519 from "@noble/ed25519";
+
+import { PgCommon } from "../common";
+import { PgConnection } from "../connection";
+import {
+  createDerivable,
+  declareDecorator,
+  derivable,
+  updatable,
+} from "../decorators";
+import { PgWeb3 } from "../web3";
+import type {
+  AnyTransaction,
+  WalletState,
+  SerializedWalletState,
+  StandardWallet,
+  Wallet,
+  WalletAccount,
+} from "./types";
+
+const defaultState: WalletState = {
+  state: "setup",
+  accounts: [],
+  currentIndex: -1,
+  show: false,
+  standardWallets: [],
+  standardName: null,
+};
+
+const storage = {
+  /** Relative path to program info */
+  KEY: "wallet",
+
+  /** Read from storage and deserialize the data. */
+  read(): WalletState {
+    const serializedStateStr = localStorage.getItem(this.KEY);
+    if (!serializedStateStr) return defaultState;
+
+    const serializedState: SerializedWalletState =
+      JSON.parse(serializedStateStr);
+    return { ...defaultState, ...serializedState };
+  },
+
+  /** Serialize the data and write to storage. */
+  write(wallet: WalletState) {
+    // Don't use spread operator(...) because of the extra state
+    const serializedState: SerializedWalletState = {
+      accounts: wallet.accounts,
+      currentIndex: wallet.currentIndex,
+      state: wallet.state,
+      standardName: wallet.standardName,
+    };
+
+    localStorage.setItem(this.KEY, JSON.stringify(serializedState));
+  },
+};
+
+const derive = () => ({
+  /** A Wallet Standard wallet adapter */
+  standard: createDerivable({
+    derive: (): StandardWallet | null => {
+      const standardWallet = PgWallet.standardWallets.find(
+        (wallet) => wallet.name === PgWallet.standardName
+      );
+      return standardWallet ?? null;
+    },
+    onChange: ["standardWallets", "standardName"],
+    infallible: true,
+  }),
+
+  /**
+   * The current active wallet.
+   *
+   * It will be one of the following:
+   * - The Playground Wallet
+   * - A Wallet Standard wallet
+   * - `null` if not connected.
+   */
+  current: createDerivable({
+    derive: async (): Promise<Wallet | null> => {
+      switch (PgWallet.state) {
+        case "pg": {
+          // Check whether the current account exists
+          const currentAccount = PgWallet.accounts[PgWallet.currentIndex];
+          if (!currentAccount) {
+            if (!PgWallet.accounts.length) PgWallet.add();
+            else PgWallet.switch(0);
+
+            return null;
+          }
+
+          return PgWallet.create(currentAccount);
+        }
+
+        case "sol":
+          if (!PgWallet.standard || PgWallet.standard.connecting) return null;
+          if (!PgWallet.standard.connected) await PgWallet.standard.connect();
+          return PgWallet.standard as StandardWallet<true>;
+
+        case "disconnected":
+        case "setup":
+          return null;
+      }
+    },
+    onChange: ["state", "accounts", "currentIndex", "standard"],
+  }),
+
+  /** Balance of the current wallet in SOL */
+  balance: createDerivable({
+    derive: async (value): Promise<number | null> => {
+      // Direct value from `connection.onAccountChange`
+      if (typeof value === "number") return PgWeb3.lamportsToSol(value);
+
+      // Check wallet status
+      if (!PgWallet.current) return null;
+
+      // Check connection status (it can be `undefined` at the start of the app)
+      if (!PgConnection.isConnected) return null;
+
+      const lamports = await PgConnection.current.getBalance(
+        PgWallet.current.publicKey
+      );
+      return PgWeb3.lamportsToSol(lamports);
+    },
+    onChange: [
+      "current",
+      PgConnection.onDidChangeCurrent,
+      PgConnection.onDidChangeIsConnected,
+      // Listen to account changes via WS to re-derive as necessary
+      (cb) => {
+        const disposables = [
+          PgCommon.batchChanges(() => {
+            if (disposables[1]) disposables.pop()!.dispose();
+
+            if (!PgWallet.current || !PgConnection.isConnected) return;
+
+            // Declare the connection here because if the connection changes,
+            // using `PgConnection.current.removeAccountChangeListener` in
+            // `dispose` doesn't remove the existing subscription (since a new
+            // `Connection` object that doesn't have access to the previous
+            // subscriptions gets created)
+            const conn = PgConnection.current;
+
+            // Listen for balance changes
+            const id = PgConnection.current.onAccountChange(
+              PgWallet.current.publicKey,
+              (acc) => cb(acc.lamports)
+            );
+            disposables.push({
+              dispose: () => conn.removeAccountChangeListener(id),
+            });
+          }, [
+            PgWallet.onDidChangeCurrent,
+            PgConnection.onDidChangeCurrent,
+            PgConnection.onDidChangeIsConnected,
+          ]),
+        ];
+
+        return {
+          dispose: () => {
+            disposables.forEach(({ dispose }) => dispose());
+          },
+        };
+      },
+    ],
+  }),
+});
+
+// TODO: Remove in 2024
+const migrate = () => {
+  const walletStr = localStorage.getItem(storage.KEY);
+  if (!walletStr) return;
+
+  interface OldWalletState {
+    setupCompleted: boolean;
+    connected: boolean;
+    sk: Array<number>;
+  }
+
+  const oldOrNewWallet: OldWalletState | WalletState = JSON.parse(walletStr);
+  if ((oldOrNewWallet as WalletState).accounts) return;
+
+  const oldWallet = oldOrNewWallet as OldWalletState;
+  const newWallet: WalletState = {
+    ...defaultState,
+    state: oldWallet.setupCompleted
+      ? oldWallet.connected
+        ? "pg"
+        : "disconnected"
+      : "setup",
+    accounts: [{ kp: oldWallet.sk, name: "Wallet 1" }],
+  };
+
+  // Set the new wallet format
+  localStorage.setItem(storage.KEY, JSON.stringify(newWallet));
+
+  // Remove wallet adapter key
+  localStorage.removeItem("walletName");
+};
+
+@derivable(derive)
+@updatable({ defaultState, storage, migrate })
+class _PgWallet {
+  /**
+   * Add a new account.
+   *
+   * @param name name of the account
+   * @param keypair optional keypair, default to a random keypair
+   */
+  static add(params?: { name?: string; keypair?: PgWeb3.Keypair }) {
+    const { name, keypair } = PgCommon.setDefault(params, {
+      name: PgWallet.getNextAvailableAccountName(),
+      keypair: PgWeb3.Keypair.generate(),
+    });
+
+    // Validate name
+    PgWallet.validateAccountName(name);
+
+    // Check if account exists
+    const accountIndex = PgWallet.accounts.findIndex((acc) => {
+      return (
+        (name && acc.name === name) ||
+        PgWallet.create(acc).publicKey.equals(keypair.publicKey)
+      );
+    });
+    if (accountIndex !== -1) {
+      // Account exists, switch to the account
+      PgWallet.switch(accountIndex);
+      return;
+    }
+
+    // Add the account
+    PgWallet.accounts.push({
+      kp: Array.from(keypair.secretKey),
+      name,
+    });
+
+    // Update the accounts
+    PgWallet.update({
+      state: "pg",
+      accounts: PgWallet.accounts,
+      currentIndex: PgWallet.accounts.length - 1,
+    });
+  }
+
+  /**
+   * Remove the account at the given index.
+   *
+   * @param index account index
+   */
+  static remove(index: number = PgWallet.currentIndex) {
+    PgWallet.accounts.splice(index, 1);
+
+    // Update the accounts
+    PgWallet.update({
+      accounts: PgWallet.accounts,
+      currentIndex: PgWallet.accounts.length - 1,
+    });
+  }
+
+  /**
+   * Rename the account.
+   *
+   * @param name new name of the account
+   * @param index account index
+   */
+  static rename(name: string, index: number = PgWallet.currentIndex) {
+    // Validate name
+    PgWallet.validateAccountName(name);
+
+    PgWallet.accounts[index].name = name;
+
+    // Update the accounts
+    PgWallet.update({ accounts: PgWallet.accounts });
+  }
+
+  /**
+   * Import a keypair from the user's file system.
+   *
+   * @param name name of the account
+   * @returns the imported keypair if importing was successful
+   */
+  static async import(name?: string) {
+    return await PgCommon.import(
+      async (ev) => {
+        const files = ev.target.files;
+        if (!files?.length) return;
+
+        try {
+          const file = files[0];
+          const arrayBuffer = await file.arrayBuffer();
+          const decodedString = PgCommon.decodeBytes(arrayBuffer);
+          const keypairBytes = Uint8Array.from(JSON.parse(decodedString));
+          if (keypairBytes.length !== 64) throw new Error("Invalid keypair");
+
+          const keypair = PgWeb3.Keypair.fromSecretKey(keypairBytes);
+          PgWallet.add({ name, keypair });
+
+          return keypair;
+        } catch (err: any) {
+          console.log(err.message);
+        }
+      },
+      { accept: ".json" }
+    );
+  }
+
+  /**
+   * Export the given or the existing keypair to the user's file system.
+   *
+   * @param params optional parameters
+   * @param params.name optional name, defaults to the current wallet's name
+   * @param params.keypair optional keypair, defaults to the current wallet
+   */
+  static export(params?: { name?: string; keypair?: PgWeb3.Keypair }) {
+    params ??= {};
+    if (!params.name || !params.keypair) {
+      if (!PgWallet.current) throw new Error("Not connected");
+      if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
+
+      params.name ??= PgWallet.current.name;
+      params.keypair ??= PgWallet.current.keypair;
+    }
+
+    return PgCommon.export(
+      `${PgCommon.toKebabFromTitle(params.name)}-keypair.json`,
+      Array.from(params.keypair.secretKey)
+    );
+  }
+
+  /**
+   * Switch to the given account index.
+   *
+   * @param index account index to switch to
+   */
+  static switch(index: number) {
+    if (!PgWallet.accounts[index]) {
+      throw new Error(`Account index '${index}' not found`);
+    }
+
+    PgWallet.update({ state: "pg", currentIndex: index });
+  }
+
+  /**
+   * Get the next available default account name.
+   *
+   * This method recurses until it founds an available wallet account name.
+   *
+   * @param index account index
+   * @returns the next available default account name
+   */
+  static getNextAvailableAccountName(
+    index: number = PgWallet.accounts.length
+  ): string {
+    try {
+      const name = this._getDefaultAccountName(index);
+      PgWallet.validateAccountName(name);
+      return name;
+    } catch {
+      return PgWallet.getNextAvailableAccountName(index + 1);
+    }
+  }
+
+  /**
+   * Get all of the connected standard wallet adapters.
+   *
+   * @returns the connected standard wallet adapters
+   */
+  static getConnectedStandardWallets() {
+    return PgWallet.standardWallets.filter(
+      (w) => w.connected
+    ) as StandardWallet<true>[];
+  }
+
+  /**
+   * Get all of the connected wallets (both playground and standard).
+   *
+   * @returns all connected wallets
+   */
+  static getConnectedWallets() {
+    return PgWallet.accounts
+      .map(PgWallet.create)
+      .concat(PgWallet.getConnectedStandardWallets());
+  }
+
+  /**
+   * Create a Playground Wallet instance from the given account.
+   *
+   * @param account wallet account to derive the instance from
+   * @returns a Playground Wallet instance
+   */
+  static create(account: WalletAccount): Wallet {
+    const keypair = PgWeb3.Keypair.fromSecretKey(Uint8Array.from(account.kp));
+
+    return {
+      isPg: true,
+      keypair,
+      name: account.name,
+      publicKey: keypair.publicKey,
+
+      async signTransaction<T extends AnyTransaction>(tx: T) {
+        if ((tx as PgWeb3.VersionedTransaction).version) {
+          (tx as PgWeb3.VersionedTransaction).sign([keypair]);
+        } else {
+          (tx as PgWeb3.Transaction).partialSign(keypair);
+        }
+
+        return tx;
+      },
+
+      async signAllTransactions<T extends AnyTransaction>(txs: T[]) {
+        for (const tx of txs) {
+          this.signTransaction(tx);
+        }
+
+        return txs;
+      },
+
+      async signMessage(message: Uint8Array) {
+        return await ed25519.sign(message, keypair.secretKey.slice(0, 32));
+      },
+    };
+  }
+
+  /**
+   * Check whether the given wallet account name is valid.
+   *
+   * @param name wallet account name
+   * @throws if the name is not valid
+   */
+  static validateAccountName(name: string) {
+    name = name.trim();
+
+    // Empty check
+    if (!name) throw new Error("Account name can't be empty");
+
+    // Check whether the name exists
+    const nameExists = PgWallet.accounts.some((acc) => acc.name === name);
+    if (nameExists) throw new Error(`Account '${name}' already exists`);
+  }
+
+  /**
+   * Get the keypair bytes of the current wallet.
+   *
+   * NOTE: It looks like this method is not being used, but it's being used by
+   * WASM packages.
+   */
+  static getKeypairBytes() {
+    if (!PgWallet.current) throw new Error("Not connected");
+    if (!PgWallet.current.isPg) throw new Error("Not Playground Wallet");
+
+    return Array.from(PgWallet.current.keypair.secretKey);
+  }
+
+  /**
+   * Get the default name of the wallet account.
+   *
+   * @param index account index
+   * @returns the wallet account name
+   */
+  private static _getDefaultAccountName(index: number = PgWallet.currentIndex) {
+    return `Wallet ${index + 1}`;
+  }
+}
+
+export const PgWallet = declareDecorator(_PgWallet, {
+  derivable: derive,
+  updatable: { defaultState },
+});

@@ -67,7 +67,7 @@ const packageImportFile = await fs.readFile(
   "utf8"
 );
 await fs.writeFile(
-  pathModule.join(CLIENT_PATH, "src", "utils", "pg", "client", "package.ts"),
+  pathModule.join(CLIENT_PATH, "src", "utils", "client", "package.ts"),
   packageImportFile
     .replace(
       "<PACKAGE_NAMES>",

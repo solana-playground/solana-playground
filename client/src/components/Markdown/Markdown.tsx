@@ -7,7 +7,7 @@ import CodeBlock from "../CodeBlock";
 import Img from "../Img";
 import Link, { LinkProps } from "../Link";
 import { HyperLink } from "../Icons";
-import { PgCommon, PgRouter, PgTheme } from "../../utils/pg";
+import { PgCommon, PgRouter, PgTheme } from "../../utils";
 
 interface MarkdownProps {
   /** Markdown string */
@@ -16,11 +16,15 @@ interface MarkdownProps {
   codeFontOnly?: boolean;
   /** Root for the `src` prop (defaults to the current path) */
   rootSrc?: string;
+  /** Whether to support URL hashes `<URL>#<HASH>` */
+  linkable?: boolean;
 }
 
-const Markdown: FC<MarkdownProps> = ({ rootSrc, ...props }) => {
-  // Scroll to section
+const Markdown: FC<MarkdownProps> = ({ rootSrc, linkable, ...props }) => {
+  // Scroll to section if it's linkable
   useEffect(() => {
+    if (!linkable) return;
+
     /** Recursively try to find a parent vertically scrollable element. */
     const findParentScrollableElement = (
       element: HTMLElement | null
@@ -49,7 +53,7 @@ const Markdown: FC<MarkdownProps> = ({ rootSrc, ...props }) => {
       });
     });
     return dispose;
-  }, []);
+  }, [linkable]);
 
   return (
     <StyledMarkdown
@@ -85,9 +89,9 @@ const Markdown: FC<MarkdownProps> = ({ rootSrc, ...props }) => {
         },
 
         /** Section headers */
-        h1: (props) => <LinkableHeader element="h1" {...props} />,
-        h2: (props) => <LinkableHeader element="h2" {...props} />,
-        h3: (props) => <LinkableHeader element="h3" {...props} />,
+        h1: (props) => <Header element="h1" linkable={linkable} {...props} />,
+        h2: (props) => <Header element="h2" linkable={linkable} {...props} />,
+        h3: (props) => <Header element="h3" linkable={linkable} {...props} />,
       }}
       {...props}
     />
@@ -379,8 +383,7 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
     kbd {
       display: inline-block;
       padding: 3px 5px;
-      font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
+      font: ${theme.font.code.size.small} ${theme.font.code.family};
       line-height: 10px;
       color: var(--color-fg-default);
       vertical-align: middle;
@@ -468,17 +471,15 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
 
     tt,
     code {
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
-      font-size: 12px;
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
     }
 
     pre {
       margin-top: 0;
       margin-bottom: 0;
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-        Liberation Mono, monospace;
-      font-size: 12px;
+      font-family: ${theme.font.code.family};
+      font-size: ${theme.font.code.size.medium};
       word-wrap: normal;
     }
 
@@ -1091,25 +1092,24 @@ const StyledMarkdown = styled(ReactMarkdown)<MarkdownProps>`
   `}
 `;
 
-interface LinkableHeaderProps {
+type HeaderProps = {
   element: "h1" | "h2" | "h3";
-}
+} & Pick<MarkdownProps, "linkable">;
 
-const LinkableHeader: FC<LinkableHeaderProps> = ({
-  element: Header,
-  ...rest
-}) => {
+const Header: FC<HeaderProps> = ({ element: H, linkable, ...rest }) => {
+  if (!linkable) return <H {...rest} />;
+
   const hash = PgCommon.toKebabFromTitle((rest.children as string[])[0]);
 
   return (
-    <LinkableHeaderWrapper onClick={() => (PgRouter.location.hash = hash)}>
+    <HeaderWrapper onClick={() => (PgRouter.location.hash = hash)}>
       <HyperLink />
-      <Header {...rest} id={HEADER_ELEMENT_ID_PREFIX + hash} />
-    </LinkableHeaderWrapper>
+      <H {...rest} id={HEADER_ELEMENT_ID_PREFIX + hash} />
+    </HeaderWrapper>
   );
 };
 
-const LinkableHeaderWrapper = styled.div`
+const HeaderWrapper = styled.div`
   ${({ theme }) => css`
     position: relative;
     cursor: pointer;

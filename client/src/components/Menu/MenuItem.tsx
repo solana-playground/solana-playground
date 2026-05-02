@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
-import { PgTheme, ThemeColor } from "../../utils/pg";
+import { PgTheme, ThemeColor } from "../../utils";
 
 export interface MenuItemProps {
   name: string;

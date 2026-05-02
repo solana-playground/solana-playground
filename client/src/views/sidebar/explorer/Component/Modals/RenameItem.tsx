@@ -1,8 +1,8 @@
-import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
-import { PgCommon, PgExplorer } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../../utils";
 
 interface RenameItemProps {
   path: string;
@@ -12,11 +12,6 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
   const itemName = PgExplorer.getItemNameFromPath(path);
   const [newName, setNewName] = useState(itemName);
   const [error, setError] = useState("");
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setNewName(ev.target.value);
-    setError("");
-  };
 
   const rename = async () => {
     const newPath = PgCommon.joinPaths(
@@ -39,19 +34,17 @@ export const RenameItem: FC<RenameItemProps> = ({ path }) => {
         text: "Rename",
         onSubmit: rename,
         size: "small",
-        disabled: !newName,
+        disabled: !!error,
       }}
-      error={error}
-      setError={setError}
     >
       <Input
         ref={inputRef}
         autoFocus
         value={newName}
-        onChange={handleChange}
+        onChange={(ev) => setNewName(ev.target.value)}
+        validator={PgExplorer.isItemNameValid}
         error={error}
         setError={setError}
-        validator={PgExplorer.isItemNameValid}
       />
     </Modal>
   );

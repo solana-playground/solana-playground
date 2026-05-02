@@ -1,19 +1,26 @@
+import { FC } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../../../components/Button";
-import Modal from "../../../../../components/Modal";
+import Markdown from "../../../../../components/Markdown";
+import Modal, { CommonModalPageProps } from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { ExportFile, Info } from "../../../../../components/Icons";
-import { PgFramework, PgView } from "../../../../../utils/pg";
+import { PgFramework, PgView } from "../../../../../utils";
 
-export const ExportWorkspace = () => {
+export const ExportWorkspace = () => (
+  <Modal multiple defaultPage={{ Component: Default }} />
+);
+
+type DefaultProps = CommonModalPageProps;
+
+const Default: FC<DefaultProps> = ({ setPage }) => {
   const convertAndExport = async () => {
     try {
       const { readme } = await PgFramework.exportWorkspace({ convert: true });
-      const { ExportWorkspaceReadme } = await import("./ExportWorkspaceReadme");
-      await PgView.setModal(<ExportWorkspaceReadme text={readme!} />);
+      setPage({ Component: Readme, props: { readme } });
     } catch (e) {
-      console.error("Convert and export error:", e);
+      console.log("Convert and export error:", e);
       await exportWithoutChanges();
     }
   };
@@ -88,3 +95,14 @@ const ButtonsWrapper = styled.div`
     margin-right: 1rem;
   }
 `;
+
+type ReadmeProps = CommonModalPageProps & {
+  /** Markdown text */
+  readme: string;
+};
+
+const Readme: FC<ReadmeProps> = ({ readme }) => (
+  <Modal title buttonProps={{ text: "Continue" }}>
+    <Markdown>{readme}</Markdown>
+  </Modal>
+);

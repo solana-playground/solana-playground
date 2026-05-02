@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef } from "react";
 import styled, { css, DefaultTheme } from "styled-components";
 
 import FadeIn from "../FadeIn";
-import { Fn, PgTheme } from "../../utils/pg";
+import { Fn, PgTheme } from "../../utils";
 import { useKeybind } from "../../hooks";
 import type { MenuKind } from "./Menu";
 

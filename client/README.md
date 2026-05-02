@@ -18,14 +18,18 @@ yarn start
 
 ## Docker
 
-You can also run the client locally via [Docker Compose](https://github.com/docker/compose):
+You can run the client locally via [Docker Compose](https://github.com/docker/compose):
 
 ```sh
-docker compose up
+docker compose -f ../compose.yaml --profile dev up --build
 ```
 
-**Note:** By default, this assumes you've built [the server image](https://github.com/solana-playground/solana-playground/tree/master/server#setup) before. If you don't want to run the server, you can set the `PG_SERVER` environment variable to `false` before running the command:
+### Standalone (client only, without the server)
+
+To run only the client without building or depending on the server, use the `standalone` profile. The client will use the production API (`https://api.solpg.io`) instead of a local server:
 
 ```sh
-PG_SERVER=false docker compose up
+docker compose -f ../compose.yaml --profile standalone up --build
 ```
+
+See the [root README](../README.md#run-with-docker) for more options.

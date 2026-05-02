@@ -2,7 +2,7 @@ import { DefaultCandyGuardSettings } from "@metaplex-foundation/js";
 
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processGuardShow = async (
   rpcUrl: string | undefined,
@@ -88,10 +88,11 @@ const printGuardSet = (
     printWithStyle(
       innerPadding,
       "lamports",
-      `${guardSet.botTax.lamports.basisPoints.toString()} (${Emoji.SOL} ${
-        guardSet.botTax.lamports.basisPoints.toNumber() /
-        PgWeb3.LAMPORTS_PER_SOL
-      })`
+      `${guardSet.botTax.lamports.basisPoints.toString()} (${
+        Emoji.SOL
+      } ${PgWeb3.lamportsToSol(
+        guardSet.botTax.lamports.basisPoints.toNumber()
+      )})`
     );
     printWithStyle(
       innerPadding,
@@ -109,10 +110,11 @@ const printGuardSet = (
       innerPadding,
       "lamports",
 
-      `${guardSet.solPayment.amount.basisPoints.toString()} (${Emoji.SOL} ${
-        guardSet.solPayment.amount.basisPoints.toNumber() /
-        PgWeb3.LAMPORTS_PER_SOL
-      })`
+      `${guardSet.solPayment.amount.basisPoints.toString()} (${
+        Emoji.SOL
+      } ${PgWeb3.lamportsToSol(
+        guardSet.solPayment.amount.basisPoints.toNumber()
+      )})`
     );
     printWithStyle(
       innerPadding,

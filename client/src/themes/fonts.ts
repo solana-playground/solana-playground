@@ -1,4 +1,4 @@
-import type { Font } from "../utils/pg";
+import type { Font } from "../utils";
 
 /** All available fonts */
 export const FONTS: Font[] = [
@@ -11,6 +11,7 @@ export const FONTS: Font[] = [
       large: "0.875rem",
       xlarge: "1rem",
     },
+    isDefault: true,
   },
   {
     family: "Hack",

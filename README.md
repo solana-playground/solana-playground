@@ -47,14 +47,47 @@ You can open an issue to request more crates.
 ##### Recommended versions
 
 ```sh
-rustc --version
-# rustc 1.75.0 (82e1608df 2023-12-21)
-
 node --version
-# v18.15.0
+# v22.20.0
 
 yarn --version
-# 1.22.19
+# 1.22.22
+```
+
+### Run with Docker
+
+The project can be built and run entirely via Docker Compose.
+
+All services run as `linux/amd64` containers (Solana/Agave does not ship Linux ARM64 binaries). This works on any platform with Docker: Linux natively, macOS via [OrbStack](https://orbstack.dev/) or Docker Desktop, and Windows via WSL2 or Docker Desktop.
+
+```sh
+# Copy and customize environment variables
+cp .env.example .env
+
+# Full stack — development (watch mode, but without volumes to mount local src directory into running container)
+docker compose --profile dev up --build
+
+# Full stack — production (static build)
+docker compose --profile prod up --build
+
+# Client only — standalone without server
+docker compose --profile standalone up --build
+
+# Server only (+ database)
+docker compose --profile dev up server --build
+
+# Client:  http://localhost:3000
+# Server:  http://localhost:8080
+```
+
+To stop and clean up:
+
+```sh
+# Stop services
+docker compose down
+
+# Stop and remove database volume
+docker compose down -v
 ```
 
 ## Contributing

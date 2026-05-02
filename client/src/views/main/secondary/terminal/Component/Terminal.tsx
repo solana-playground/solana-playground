@@ -1,5 +1,5 @@
 import TerminalComponent from "../../../../../components/Terminal";
-import { PgCommandManager } from "../../../../../utils/pg";
+import { PgCommandManager } from "../../../../../utils";
 
 const Terminal = () => <TerminalComponent cmdManager={PgCommandManager} />;
 

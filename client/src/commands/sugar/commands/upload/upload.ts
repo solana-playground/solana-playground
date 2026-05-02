@@ -9,7 +9,7 @@ import {
 import { getAssetPairs } from "./assets";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils";
 
 interface AssetType {
   image: number[];
@@ -115,21 +115,21 @@ export const processUpload = async (rpcUrl: string | undefined) => {
 
   term.println("+--------------------+");
   term.println(
-    `| images    | ${PgCommon.string(indices.image.length.toString(), {
-      addSpace: { amount: 6 },
-    })} |`
+    `| images    | ${PgCommon.addSpace(indices.image.length.toString(), 6)} |`
   );
   term.println(
-    `| metadata  | ${PgCommon.string(indices.metadata.length.toString(), {
-      addSpace: { amount: 6 },
-    })} |`
+    `| metadata  | ${PgCommon.addSpace(
+      indices.metadata.length.toString(),
+      6
+    )} |`
   );
 
   if (indices.animation.length) {
     term.println(
-      `| animation    | ${PgCommon.string(indices.animation.length.toString(), {
-        addSpace: { amount: 6 },
-      })} |`
+      `| animation    | ${PgCommon.addSpace(
+        indices.animation.length.toString(),
+        6
+      )} |`
     );
   }
   term.println("+--------------------+");

@@ -5,7 +5,7 @@ import Button from "../../Button";
 import Modal from "../../Modal";
 import Text from "../../Text";
 import { Warning } from "../../Icons";
-import { PgWallet, PgWeb3 } from "../../../utils/pg";
+import { PgWallet, PgWeb3 } from "../../../utils";
 
 export const Setup = () => {
   const [text, setText] = useState("");
@@ -13,12 +13,18 @@ export const Setup = () => {
 
   const handleSetup = () => {
     if (!PgWallet.accounts.length) PgWallet.add({ keypair });
-    return true;
+    return true; // Indicate the setup has been completed successfully
   };
 
   const handleExport = () => {
-    if (!PgWallet.accounts.length) PgWallet.export(keypair);
-    else PgWallet.export();
+    if (!PgWallet.accounts.length) {
+      PgWallet.export({
+        name: PgWallet.getNextAvailableAccountName(),
+        keypair,
+      });
+    } else {
+      PgWallet.export();
+    }
   };
 
   const handleImport = async () => {

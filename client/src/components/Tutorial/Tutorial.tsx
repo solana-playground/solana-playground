@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { About, Main } from "./views";
-import { PgTheme, PgTutorial } from "../../utils/pg";
+import { PgTheme, PgTutorial } from "../../utils";
 import { useRenderOnChange } from "../../hooks";
 import type { TutorialComponentProps } from "./types";
 
@@ -27,6 +27,10 @@ export const Tutorial: FC<TutorialComponentProps> = ({
     if (onMount) return onMount();
   }, [onMount]);
 
+  if (!PgTutorial.current) throw new Error("Current tutorial has not been set");
+
+  const isStarted = PgTutorial.isStarted(PgTutorial.current.name);
+
   return (
     <Wrapper>
       {PgTutorial.page ? (
@@ -34,11 +38,12 @@ export const Tutorial: FC<TutorialComponentProps> = ({
           pageNumber={PgTutorial.page}
           pages={pages}
           layout={layout}
+          isStarted={isStarted}
           onComplete={onComplete}
           start={start}
         />
       ) : (
-        <About about={about} start={start} />
+        <About about={about} isStarted={isStarted} start={start} />
       )}
     </Wrapper>
   );
@@ -47,6 +52,6 @@ export const Tutorial: FC<TutorialComponentProps> = ({
 const Wrapper = styled.div`
   ${({ theme }) => css`
     ${PgTheme.getScrollbarCSS({ allChildren: true })};
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorial.default)};
+    ${PgTheme.convertToCSS(theme.components.tutorial.default)};
   `}
 `;

@@ -1,29 +1,34 @@
-import { ReactElement, useCallback, useState } from "react";
+import { FC, ReactElement, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { PgCommon, PgTheme, PgView } from "../../utils/pg";
+import { PgCommon, PgTheme, PgView } from "../../utils";
 import { useKeybind, useSetStatic } from "../../hooks";
 
-const ModalBackdrop = () => {
-  const [modal, setModal] = useState<ReactElement | null>(null);
+interface ModalBackdropProps {}
 
-  const setModalStatic = useCallback(({ Component, props }) => {
-    if (typeof Component === "function") {
-      Component = <Component {...props} />;
+const ModalBackdrop: FC<ModalBackdropProps> = (props) => {
+  const [modals, setModals] = useState<ReactElement[]>([]);
+
+  const setModalStatic = useCallback(({ elementable, props }) => {
+    // Treat `null` as close
+    if (elementable === null) {
+      setModals((modals) => modals.slice(0, -1));
+      return;
     }
 
-    setModal(Component);
+    elementable = PgView.normalizeElement(elementable, props);
+    setModals((modals) => [...modals, elementable]);
   }, []);
 
   useSetStatic(
-    setModalStatic,
-    PgCommon.getSendAndReceiveEventNames(PgView.events.MODAL_SET).send
+    PgCommon.getSendAndReceiveEventNames(PgView.events.MODAL_SET).send,
+    setModalStatic
   );
 
   // Close modal on ESC
   useKeybind("Escape", PgView.closeModal);
 
-  return modal ? <Wrapper>{modal}</Wrapper> : null;
+  return modals.length ? <Wrapper {...props}>{modals.at(-1)}</Wrapper> : null;
 };
 
 const Wrapper = styled.div`
@@ -35,7 +40,6 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     inset: 0;
-    z-index: 3;
 
     ${PgTheme.convertToCSS(theme.components.modal.backdrop)};
   `}

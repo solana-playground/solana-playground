@@ -1,6 +1,4 @@
-export * from "./default";
-export * from "./github";
-export * from "./not-found";
-export * from "./programs";
-export * from "./share";
-export * from "./tutorials";
+import * as R from "./generated";
+
+const { defaultRoute, notFound, ...routes } = R;
+export const ROUTES = [defaultRoute, ...Object.values(routes), notFound];

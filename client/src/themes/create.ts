@@ -1,5 +1,5 @@
-import { PgCommon } from "../utils/pg/common";
-import type { ImportableTheme, ImportableThemeParam } from "../utils/pg";
+import { PgCommon } from "../utils/common";
+import type { ImportableTheme, ImportableThemeParam } from "../utils";
 
 /**
  * Create a theme with lazy loading support.
@@ -13,6 +13,7 @@ import type { ImportableTheme, ImportableThemeParam } from "../utils/pg";
  */
 export const createTheme = (theme: ImportableThemeParam) => {
   theme.isDark ??= false;
+  theme.isDefault ??= false;
   theme.import ??= () =>
     import(`./${PgCommon.toKebabFromTitle(theme.name)}/theme`);
   return theme as ImportableTheme;

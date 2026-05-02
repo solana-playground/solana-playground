@@ -4,7 +4,7 @@ import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
 import { CreateWorkspace } from "./Modals";
 import { Plus } from "../../../../components/Icons";
-import { PgView } from "../../../../utils/pg";
+import { PgView } from "../../../../utils";
 
 const NoWorkspace = () => {
   const createWorkspace = () => PgView.setModal(CreateWorkspace);

@@ -1,7 +1,7 @@
 import { ChangeEvent } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 
-import { Arrayable, PgCommon, PgRouter } from "../utils/pg";
+import { Arrayable, PgCommon, PgRouter } from "../utils";
 
 type Filterable = { name: string; featured?: boolean } & Record<string, any>;
 
@@ -11,9 +11,14 @@ interface FilterSearchProps<T extends Filterable> {
   /** All filterable items */
   items: T[];
   /** All filters */
-  filters: Readonly<Array<{ param: string }>>;
+  filters: Filter[];
   /** Sort function for the items */
   sort: (a: T, b: T) => number;
+}
+
+export interface Filter<P extends string = string> {
+  param: P;
+  filters: string[];
 }
 
 export const useFilteredSearch = <T extends Filterable>({

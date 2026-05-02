@@ -5,7 +5,7 @@ import {
   Disposable,
   PgCommon,
   SyncOrAsync,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 
 /**
  * Common import implementation based on model and model's content change.

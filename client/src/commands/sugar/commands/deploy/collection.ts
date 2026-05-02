@@ -14,7 +14,7 @@ import {
 
 import { CandyCache } from "../../utils";
 import type { ConfigData } from "../../types";
-import { PgWeb3 } from "../../../../utils/pg";
+import { PgWeb3 } from "../../../../utils";
 
 export const createCollection = async (
   metaplex: Metaplex,

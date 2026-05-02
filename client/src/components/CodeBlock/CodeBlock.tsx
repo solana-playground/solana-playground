@@ -1,9 +1,9 @@
 import { useState } from "react";
 import styled, { css, useTheme } from "styled-components";
 
-import CopyButton from "../CopyButton";
+import Button from "../Button";
 import { highlight } from "./highlight";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 import { useAsyncEffect, useDifferentBackground } from "../../hooks";
 
 export interface CodeBlockProps {
@@ -13,17 +13,14 @@ export interface CodeBlockProps {
   lang?: string;
 }
 
-const CodeBlock = ({ lang, children, ...props }: CodeBlockProps) => {
-  const code = children;
-
-  const { ref: wrapperRef } = useDifferentBackground<HTMLDivElement>();
-  const { ref: copyButtonWrapperRef } =
-    useDifferentBackground<HTMLDivElement>();
+const CodeBlock = ({ lang, children: code, ...props }: CodeBlockProps) => {
+  const wrapperRef = useDifferentBackground();
+  const copyButtonWrapperRef = useDifferentBackground();
 
   return (
     <Wrapper ref={wrapperRef} {...props}>
       <CopyButtonWrapper ref={copyButtonWrapperRef}>
-        <CopyButton copyText={code} />
+        <Button.Copy copyText={code} />
       </CopyButtonWrapper>
 
       <Code lang={lang}>{code}</Code>

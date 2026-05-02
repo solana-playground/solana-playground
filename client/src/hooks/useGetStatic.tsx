@@ -1,5 +1,5 @@
 import { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
 
-export const useGetStatic = (get: any, eventName: string) => {
+export const useGetStatic = (eventName: string, get: any) => {
   useSendAndReceiveCustomEvent(eventName, () => get);
 };

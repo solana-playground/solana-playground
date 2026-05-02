@@ -13,7 +13,7 @@ import {
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { PgExplorer } from "../../../../utils/pg";
+import { PgExplorer } from "../../../../utils";
 import type { useExplorerContextMenu } from "./useExplorerContextMenu";
 
 type ExplorerContextMenuProps = ReturnType<typeof useExplorerContextMenu>;

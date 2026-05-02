@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef } from "react";
 import styled, { css, useTheme } from "styled-components";
 
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 interface ProgressBarProps {
   value: number;

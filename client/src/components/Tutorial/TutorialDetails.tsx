@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Link from "../Link";
 import Tag from "../Tag";
-import { Arrayable, TutorialDetailKey } from "../../utils/pg";
+import { Arrayable, TutorialDetailKey } from "../../utils";
 import { useDifferentBackground } from "../../hooks";
 
 interface TutorialDetailsProps {
@@ -11,7 +11,7 @@ interface TutorialDetailsProps {
 }
 
 const TutorialDetails: FC<TutorialDetailsProps> = ({ details }) => {
-  const { ref } = useDifferentBackground();
+  const ref = useDifferentBackground();
 
   return (
     <TutorialDetailsWrapper ref={ref}>

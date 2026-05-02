@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
 import { useDifferentBackground } from "../../hooks";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 export type TextKind = "default" | "info" | "warning" | "success" | "error";
 
@@ -14,7 +14,7 @@ interface TextProps extends ComponentPropsWithoutRef<"div"> {
 /** A text component that always have a different background than its parent */
 const Text = forwardRef<HTMLDivElement, TextProps>(
   ({ icon, children, ...props }, refProp) => {
-    const { ref } = useDifferentBackground();
+    const ref = useDifferentBackground();
 
     return (
       <Wrapper ref={refProp ?? ref} icon={icon} {...props}>

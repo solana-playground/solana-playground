@@ -2,13 +2,7 @@ import Bundlr from "@bundlr-network/client";
 
 import { BundlrEnpoints } from "../../constants";
 import { Emoji } from "../../../../constants";
-import {
-  PgConnection,
-  PgSettings,
-  PgTerminal,
-  PgWallet,
-  PgWeb3,
-} from "../../../../utils/pg";
+import { PgConnection, PgTerminal, PgWallet, PgWeb3 } from "../../../../utils";
 
 enum BundlrAction {
   Balance = 0,
@@ -19,7 +13,7 @@ enum BundlrAction {
 const LIMIT = 5000;
 
 export const processBundlr = async (
-  rpcUrl: string = PgSettings.connection.endpoint,
+  rpcUrl = PgConnection.current.rpcEndpoint,
   action: BundlrAction
 ) => {
   // Get balance
@@ -70,9 +64,9 @@ export const processBundlr = async (
         `\n${PgTerminal.error("Insufficient balance for withdraw:")}`
       );
       PgTerminal.println(
-        `  -> required balance > ${LIMIT.toString()} (${Emoji.SOL} ${
-          LIMIT / PgWeb3.LAMPORTS_PER_SOL
-        })`
+        `  -> required balance > ${LIMIT.toString()} (${
+          Emoji.SOL
+        } ${PgWeb3.lamportsToSol(LIMIT)})`
       );
     }
   }

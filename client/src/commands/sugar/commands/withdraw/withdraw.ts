@@ -2,7 +2,7 @@ import { Metaplex } from "@metaplex-foundation/js";
 
 import { getMetaplex } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processWithdraw = async (
   candyMachine: string | undefined,
@@ -53,28 +53,26 @@ export const processWithdraw = async (
     term.println(
       `\nFound ${candyAccounts.length} candy machine(s), total amount: ${
         Emoji.SOL
-      } ${totalLamports / PgWeb3.LAMPORTS_PER_SOL}`,
+      } ${PgWeb3.lamportsToSol(totalLamports)}`,
       { noColor: true }
     );
 
     if (candyAccounts.length) {
       if (list) {
         term.println(
-          `\n${PgCommon.string("Candy Machine ID", {
-            addSpace: { amount: 48, position: "right" },
+          `\n${PgCommon.addSpace("Candy Machine ID", 48, {
+            position: "right",
           })} Balance`
         );
-        term.println(PgCommon.string("-", { repeat: { amount: 61 } }));
+        term.println("-".repeat(61));
 
         for (const accountInfo of candyAccounts) {
           term.println(
-            `${PgCommon.string(accountInfo.pubkey.toBase58(), {
-              addSpace: { amount: 48, position: "right" },
-            })} ${PgCommon.string(
-              (
-                accountInfo.account.lamports / PgWeb3.LAMPORTS_PER_SOL
-              ).toString(),
-              { addSpace: { amount: 8 } }
+            `${PgCommon.addSpace(accountInfo.pubkey.toBase58(), 48, {
+              position: "right",
+            })} ${PgCommon.addSpace(
+              PgWeb3.lamportsToSol(accountInfo.account.lamports).toString(),
+              8
             )}`
           );
         }

@@ -1,11 +1,12 @@
-export * from "./automatic-airdrop";
-export * from "./block-explorer";
-export * from "./commitment";
-export * from "./endpoint";
-export * from "./font";
-export * from "./improve-build-errors";
-export * from "./preflight-checks";
-export * from "./priority-fee";
-export * from "./show-transaction-details";
-export * from "./show-transaction-notifications";
-export * from "./theme";
+import { IS_NODE } from "./node-compatiblity"; // Needs to happen first
+import * as S from "./generated";
+
+/** All configurable settings */
+export const SETTINGS = Object.values(S).flat();
+
+// Needed to define `DEFAULT_SETTINGS`
+if (IS_NODE) {
+  console.log("---DEFAULT_SETTINGS---");
+  console.log(JSON.stringify(SETTINGS));
+  console.log("---DEFAULT_SETTINGS---");
+}

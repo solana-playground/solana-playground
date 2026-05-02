@@ -1,24 +1,32 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import Left from "./Left";
 import Right from "./Right";
-import { PgCommon, PgRouter, PgTheme, PgView } from "../../../utils/pg";
-import { useKeybind, useSetStatic } from "../../../hooks";
+import { SpinnerWithBg } from "../../../components/Loading";
+import { PgRouter, PgTheme, PgView } from "../../../utils";
+import { useKeybind, useRenderOnChange } from "../../../hooks";
 
 const Side = () => {
-  const [pageName, setPageName] = useState<SidebarPageName>("Explorer");
-  const oldPageName = useRef(pageName);
-  useSetStatic(setPageName, PgView.events.SIDEBAR_PAGE_NAME_SET);
+  const page = useRenderOnChange(PgView.onDidChangeCurrentSidebarPage);
 
-  const page = useMemo(() => PgView.getSidebarPage(pageName), [pageName]);
+  // Set page name (setting the same name handles open/close state)
+  const setPageName = (pageName: typeof PgView.sidebar.name) => {
+    PgView.sidebar.name = pageName;
+
+    // Page name update happens in the next event loop, use timeout here to sync
+    //
+    // TODO: Remove the timeout if we move the width state to `PgView`
+    setTimeout(() => {
+      if (!width) setWidth(oldWidth);
+      else if (pageName === page?.name) setWidth(0);
+    });
+  };
+
+  // Handle routes
   useEffect(() => {
-    PgCommon.createAndDispatchCustomEvent(
-      PgView.events.ON_DID_CHANGE_SIDEBAR_PAGE,
-      page
-    );
-  }, [page]);
-  useEffect(() => {
+    if (!page) return;
+
     if (page.route && !PgRouter.location.pathname.startsWith(page.route)) {
       PgRouter.navigate(page.route);
     }
@@ -34,38 +42,28 @@ const Side = () => {
 
   // Handle keybinds
   useKeybind(
-    PgView.sidebar
+    PgView.allSidebarPages
       .filter((p) => p.keybind)
-      .map((p) => ({
-        keybind: p.keybind!,
-        handle: () => {
-          setPageName((page) => {
-            const closeCondition = width !== 0 && page === p.name;
-            setWidth(closeCondition ? 0 : oldWidth);
-            return p.name;
-          });
-        },
-      })),
-    [width, oldWidth]
+      .map((p) => ({ keybind: p.keybind!, handle: () => setPageName(p.name) })),
+    [setPageName]
   );
 
   return (
-    <Wrapper>
-      <Left
-        pageName={pageName}
-        setPageName={setPageName}
-        oldPageName={oldPageName}
-        width={width}
-        setWidth={setWidth}
-        oldWidth={oldWidth}
-      />
-      <Right
-        page={page}
-        width={width}
-        setWidth={setWidth}
-        oldWidth={oldWidth}
-      />
-    </Wrapper>
+    <SpinnerWithBg loading={!page}>
+      <Wrapper>
+        <Left
+          pageName={PgView.sidebar.name}
+          setPageName={setPageName}
+          width={width}
+        />
+        <Right
+          page={page}
+          width={width}
+          setWidth={setWidth}
+          oldWidth={oldWidth}
+        />
+      </Wrapper>
+    </SpinnerWithBg>
   );
 };
 

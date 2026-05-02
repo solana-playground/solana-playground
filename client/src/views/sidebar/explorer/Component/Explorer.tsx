@@ -6,7 +6,7 @@ import Workspaces from "./Workspaces";
 import { useExplorer } from "../../../../hooks";
 
 const Explorer = () => {
-  const { explorer } = useExplorer({ checkInitialization: true });
+  const explorer = useExplorer({ checkInitialization: true });
 
   if (!explorer?.isTemporary) {
     if (!explorer?.allWorkspaceNames) return null;

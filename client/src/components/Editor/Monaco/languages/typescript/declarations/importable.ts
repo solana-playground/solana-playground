@@ -1,6 +1,6 @@
 import { declarePackage } from "./helper";
 import { importTypes } from "../../common";
-import type { ClientPackageName, Disposable } from "../../../../../../utils/pg";
+import type { ClientPackageName, Disposable } from "../../../../../../utils";
 
 /**
  * Declare importable types in the editor and update them based on file switch

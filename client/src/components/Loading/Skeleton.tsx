@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from "styled-components";
 
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 interface SkeletonProps {
   height?: string;

@@ -5,42 +5,26 @@ import styled, {
 } from "styled-components";
 
 import { FONTS, THEMES } from "../../themes";
-import { Font, PgTheme, Theme } from "../../utils/pg/theme";
-import { useSetStatic } from "../../hooks/useSetStatic";
+import { PgCommon } from "../../utils/common";
+import { PgTheme, Theme } from "../../utils/theme";
 
 export const ThemeProvider: FC = ({ children }) => {
   const [theme, setTheme] = useState<Theme>();
-  const [font, setFont] = useState<Font>();
 
-  useSetStatic(setTheme, PgTheme.events.THEME_SET);
-  useSetStatic(setFont, PgTheme.events.FONT_SET);
-
-  // Create initial theme
+  // Create the initial theme
   useEffect(() => {
     PgTheme.create(THEMES, FONTS);
   }, []);
 
-  // Update `theme.font` when theme or font changes
+  // Set theme when the current theme name or font family changes
   useEffect(() => {
-    if (theme && font) {
-      const fontFamily = PgTheme.addFallbackFont(font.family);
-      if (theme.font.code.family !== fontFamily) {
-        setTheme((t) => {
-          return (
-            t && {
-              ...t,
-              font: {
-                code: { ...font, family: fontFamily },
-                other: t.font.other,
-              },
-            }
-          );
-        });
-      }
-    }
-  }, [theme, font]);
+    return PgCommon.batchChanges(
+      () => setTheme(PgTheme.theme),
+      [PgTheme.onDidChangeThemeName, PgTheme.onDidChangeFontFamily]
+    ).dispose;
+  }, []);
 
-  if (!theme || !font) return null;
+  if (!theme) return null;
 
   return (
     <StyledThemeProvider theme={theme}>
@@ -56,11 +40,6 @@ const Wrapper = styled.div`
     color: ${theme.colors.default.textPrimary};
     font-family: ${theme.font.code.family};
     font-size: ${theme.font.code.size.medium};
-
-    & svg {
-      transition: color ${theme.default.transition.duration.short}
-        ${theme.default.transition.type};
-    }
 
     & ::selection {
       background: ${theme.colors.default.primary +

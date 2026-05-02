@@ -7,14 +7,20 @@ import Event from "./Event";
 import Instruction from "./Instruction";
 import IdlProvider from "./IdlProvider";
 import Text from "../../../../components/Text";
-import { PgCommand, PgProgramInfo } from "../../../../utils/pg";
-import { PgProgramInteraction } from "../../../../utils/pg/program-interaction";
-import { useProgramInfo, useRenderOnChange } from "../../../../hooks";
+import { PgCommand, PgProgramInfo } from "../../../../utils";
+import { PgProgramInteraction } from "../../../../utils/program-interaction";
+import {
+  useExplorer,
+  useProgramInfo,
+  useRenderOnChange,
+} from "../../../../hooks";
 
 const Test = () => {
   useRenderOnChange(PgCommand.build.onDidFinish);
 
-  const { error, deployed } = useProgramInfo();
+  const programInfo = useProgramInfo();
+  const error = !programInfo.onChain;
+  const deployed = programInfo.onChain?.deployed;
 
   // Used for both accounts and events data
   useBigNumberJson();
@@ -22,7 +28,16 @@ const Test = () => {
   // Handle instruction storage
   useSyncInstructionStorage();
 
-  if (!PgProgramInfo.importedProgram && !PgProgramInfo.uuid) {
+  const explorer = useExplorer();
+  if (!explorer.isTemporary && !explorer.currentWorkspaceName) {
+    return (
+      <InitialWrapper>
+        <Text>No project to test.</Text>
+      </InitialWrapper>
+    );
+  }
+
+  if (!programInfo.importedProgram && !programInfo.uuid) {
     return (
       <InitialWrapper>
         <Text>Program is not built.</Text>
@@ -30,7 +45,7 @@ const Test = () => {
     );
   }
 
-  if (!PgProgramInfo.pk) {
+  if (!programInfo.pk) {
     return (
       <InitialWrapper>
         <Text>The program has no public key.</Text>
@@ -38,8 +53,7 @@ const Test = () => {
     );
   }
 
-  const idl = PgProgramInfo.idl;
-
+  const { idl } = programInfo;
   if (!idl) {
     return (
       <InitialWrapper>

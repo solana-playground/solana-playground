@@ -7,10 +7,9 @@ import {
   OrString,
   PgFramework,
   PgLanguage,
-  TutorialCategory,
   TutorialDetailKey,
   TutorialLevel,
-} from "../../utils/pg";
+} from "../../utils";
 import { useDifferentBackground } from "../../hooks";
 
 interface TagProps {
@@ -21,15 +20,13 @@ interface TagProps {
 const Tag: FC<TagProps> = ({ kind, ...props }) => {
   switch (kind) {
     case "level":
-      return <Level {...props} children={props.value} />;
+      return <Level {...props}>{props.value}</Level>;
     case "framework":
       return <Framework {...props} />;
     case "languages":
       return <Language {...props} />;
-    case "categories":
-      return <Category {...props} />;
     default:
-      return <span {...props}></span>;
+      return <Default {...props} />;
   }
 };
 
@@ -55,31 +52,13 @@ const Level = styled.span<{ children: TutorialLevel }>`
   }}
 `;
 
-const Boxed = styled.div`
-  ${({ theme }) => css`
-    padding: 0.5rem 0.75rem;
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    color: ${theme.colors.default.textSecondary};
-    border-radius: ${theme.default.borderRadius};
-    box-shadow: ${theme.default.boxShadow};
-    font-size: ${theme.font.other.size.small};
-    font-weight: bold;
-
-    & *:first-child {
-      margin-right: 0.5rem;
-    }
-  `}
-`;
-
 interface FrameworkProps {
   value: FrameworkName;
 }
 
 const Framework: FC<FrameworkProps> = ({ value, ...props }) => {
   const framework = useMemo(() => PgFramework.get(value), [value]);
-  const { ref } = useDelayedDifferentBackground();
+  const ref = useDelayedDifferentBackground();
 
   return (
     <Boxed ref={ref} {...props}>
@@ -102,10 +81,10 @@ interface LanguageProps {
 }
 
 const Language: FC<LanguageProps> = ({ value, ...props }) => {
-  const { ref } = useDelayedDifferentBackground();
+  const ref = useDelayedDifferentBackground();
   const path =
     "file." +
-    PgLanguage.all.find((lang) => lang.name === value)?.extension.at(0);
+    PgLanguage.all.find((lang) => lang.name === value)?.extensions.at(0);
 
   return (
     <Boxed ref={ref} {...props}>
@@ -115,18 +94,34 @@ const Language: FC<LanguageProps> = ({ value, ...props }) => {
   );
 };
 
-interface CategoryProps {
-  value: TutorialCategory;
-}
+type DefaultProps = Omit<TagProps, "kind">;
 
-const Category: FC<CategoryProps> = ({ value, ...props }) => {
-  const { ref } = useDelayedDifferentBackground();
+const Default: FC<DefaultProps> = ({ value, ...props }) => {
+  const ref = useDelayedDifferentBackground();
   return (
     <Boxed ref={ref} {...props}>
       {value}
     </Boxed>
   );
 };
+
+const Boxed = styled.div`
+  ${({ theme }) => css`
+    padding: 0.5rem 0.75rem;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    color: ${theme.colors.default.textSecondary};
+    border-radius: ${theme.default.borderRadius};
+    box-shadow: ${theme.default.boxShadow};
+    font-size: ${theme.font.other.size.small};
+    font-weight: bold;
+
+    & *:first-child {
+      margin-right: 0.5rem;
+    }
+  `}
+`;
 
 /**
  * Add a delay to decide the parent background because the parent background may

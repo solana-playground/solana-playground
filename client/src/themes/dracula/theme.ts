@@ -1,4 +1,4 @@
-import type { ThemeParam } from "../../utils/pg";
+import type { ThemeParam } from "../../utils";
 
 // BG
 const BG_DEFAULT = "#282A36",
@@ -84,11 +84,6 @@ const DRACULA: ThemeParam = {
     bottom: {
       default: {
         bg: BG_DARKER,
-      },
-      connect: {
-        hover: {
-          bg: PURPLE + "16",
-        },
       },
     },
     sidebar: {

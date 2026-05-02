@@ -5,15 +5,17 @@ import { FRAMEWORKS } from "../frameworks";
 import { LANGUAGES } from "../languages";
 import { ROUTES } from "../routes";
 import { MAIN_SECONDARY, SIDEBAR } from "../views";
+import { SETTINGS } from "../settings";
 import {
   Arrayable,
   ClientPackageName,
   Disposable,
   OrString,
+  Settings,
   SyncOrAsync,
   Theme,
   TutorialDataParam,
-} from "../utils/pg";
+} from "../utils";
 
 /** Global overrides */
 global {
@@ -23,6 +25,12 @@ global {
 
 /** Webpack defined globals */
 global {
+  /** Global settings */
+  const GLOBAL_SETTINGS: {
+    default: Settings;
+    migrations: Array<{ from: string; to: string }>;
+  };
+
   /** Rust Analyzer crates */
   const CRATES: { importable: string[]; transitive: string[] };
 
@@ -77,6 +85,12 @@ global {
 global {
   /** All internal commands type */
   type InternalCommands = typeof COMMANDS;
+}
+
+// Settings
+global {
+  /** Internal setting declaration */
+  type InternalSetting = typeof SETTINGS[number];
 }
 
 declare module "styled-components" {

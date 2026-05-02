@@ -1,3 +1,6 @@
-export * from "./hello-anchor";
-export * from "./hello-seahorse";
-export * from "./hello-solana";
+import * as customTutorials from "./generated";
+import { markdownTutorials } from "./create";
+
+/** All visible tutorials at `/tutorials` */
+export const TUTORIALS =
+  Object.values(customTutorials).concat(markdownTutorials);

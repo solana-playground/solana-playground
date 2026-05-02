@@ -1,10 +1,12 @@
-import styled, { css, keyframes } from "styled-components";
+import styled, { css, DefaultTheme, keyframes } from "styled-components";
 
-interface FadeInProps {}
+interface FadeInProps {
+  duration?: keyof DefaultTheme["default"]["transition"]["duration"];
+}
 
 const FadeIn = styled.div<FadeInProps>`
-  ${({ theme }) => css`
-    animation: ${fadeIn} ${theme.default.transition.duration.short}
+  ${({ theme, duration = "short" }) => css`
+    animation: ${fadeIn} ${theme.default.transition.duration[duration]}
       ${theme.default.transition.type} forwards;
   `}
 `;

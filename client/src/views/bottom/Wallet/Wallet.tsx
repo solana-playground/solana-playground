@@ -1,22 +1,17 @@
-import { useCallback } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../../components/Button";
 import Tooltip from "../../../components/Tooltip";
 import { useWallet } from "../../../hooks";
-import { PgCommand, PgTheme } from "../../../utils/pg";
+import { PgCommand } from "../../../utils";
 
 export const Wallet = () => {
-  const { wallet } = useWallet();
-
-  // Using a callback because this function might be resolved later than the
-  // mount of this component
-  const connect = useCallback(() => PgCommand.connect.execute(), []);
+  const wallet = useWallet();
 
   return (
     <Tooltip element="Toggle Playground Wallet">
       <ConnectButton
-        onClick={connect}
+        onClick={() => PgCommand.connect.execute()}
         kind="transparent"
         leftIcon={<WalletStatus isConnected={!!wallet} />}
       >
@@ -32,7 +27,15 @@ export const Wallet = () => {
 
 const ConnectButton = styled(Button)`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.views.bottom.connect)};
+    height: 100%;
+    padding: 0 0.75rem;
+    margin-right: -0.5rem;
+    border: none;
+
+    &:hover {
+      background: ${theme.views.bottom.default.color +
+      theme.default.transparency.low};
+    }
   `}
 `;
 

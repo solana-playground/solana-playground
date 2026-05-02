@@ -1,14 +1,13 @@
 import {
-  CallableJSX,
   Disposable,
-  NullableJSX,
+  Elementable,
   PgCommon,
   PgExplorer,
   PgRouter,
   PgView,
   Promisable,
   SyncOrAsync,
-} from "../utils/pg";
+} from "../utils";
 
 type ComponentName =
   | string
@@ -18,7 +17,7 @@ type ComponentName =
 export const handleRoute = (
   params: {
     /** Get primary main view component/element. */
-    main?: ComponentName | (() => Promise<NullableJSX | CallableJSX>);
+    main?: ComponentName | (() => Promise<Elementable>);
     /** Sidebar page to set */
     // TODO: Make it work with `SidebarPageName` (doesn't work due to circularity)
     sidebar?: ComponentName;
@@ -47,6 +46,8 @@ export const handleRoute = (
       : { ..._sidebar, name: _sidebar.name as SidebarPageName }
     : null;
 
+  const disposables: Disposable[] = [];
+
   // Set primary main view
   PgView.setMainPrimary(async () => {
     try {
@@ -57,10 +58,47 @@ export const handleRoute = (
       await PgExplorer.init(explorerInitArg);
 
       // Set sidebar page
-      if (sidebar) PgView.setSidebarPage(sidebar.name);
-      if (sidebar?.props) {
-        const sidebarProps = await PgCommon.callIfNeeded(sidebar.props);
-        PgView.setSidebarPageProps(sidebarProps);
+      if (sidebar) {
+        PgView.sidebar.name = sidebar.name;
+
+        if (sidebar.props) {
+          const sidebarProps = await PgCommon.callIfNeeded(sidebar.props);
+          PgView.sidebar.props = { ...sidebarProps, pageName: sidebar.name };
+          disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
+        }
+
+        const sidebarRoute = PgView.allSidebarPages.find(
+          (p) => p.name === sidebar.name
+        )!.route;
+        if (sidebarRoute) {
+          // Sleep to make sure the current page has been updated and
+          // `onDidChangeCurrentSidebarPage` will not run with stale data
+          await PgCommon.sleep(0);
+
+          disposables.push(
+            // Handle clicking to non-routed sidebar pages
+            PgView.onDidChangeCurrentSidebarPage((page) => {
+              if (page && !page.route) PgRouter.navigate();
+            }),
+
+            // Only change sidebar page when going outside of `/${path}`
+            {
+              dispose: () => {
+                if (
+                  !PgRouter.location.pathname.startsWith(sidebarRoute) &&
+                  PgView.sidebar.name === sidebar.name
+                ) {
+                  // This fixes the case where going back from `/${path}` to `/` with
+                  // browser's navigations would cause incorrect component to still be
+                  // mounted instead of switching to `Explorer`
+                  PgView.sidebar.name = "Explorer";
+                }
+              },
+            }
+          );
+        }
+      } else if (!PgView.sidebar.name) {
+        PgView.sidebar.name = "Explorer";
       }
 
       // Get/import main
@@ -81,16 +119,7 @@ export const handleRoute = (
     }
   });
 
-  // Handle clicking on non-routed sidebar pages
-  const sidebarRoute = sidebar && PgView.getSidebarPage(sidebar.name).route;
-  const sidebarPageChange = sidebarRoute
-    ? PgView.onDidChangeSidebarPage((page) => {
-        if (!page.route) PgRouter.navigate();
-      })
-    : null;
-
   // Minimize secondary main view and reopen on navigation to other routes
-  let mainSecondaryHeightChange: Disposable | undefined;
   if (minimizeSecondaryMainView) {
     let oldHeight = 0;
     PgView.setMainSecondaryHeight((h) => {
@@ -98,31 +127,13 @@ export const handleRoute = (
       return 0;
     });
 
-    mainSecondaryHeightChange = {
+    // Set the main secondary view height to the previous saved value
+    disposables.push({
       dispose: () => PgView.setMainSecondaryHeight(oldHeight),
-    };
+    });
   }
 
   return {
-    dispose: () => {
-      sidebarPageChange?.dispose();
-
-      // Only change sidebar page when going outside of `/${path}`
-      if (
-        sidebarRoute &&
-        !PgRouter.location.pathname.startsWith(sidebarRoute)
-      ) {
-        // This fixes the case where going back from `/${path}` to `/` with
-        // browser's navigations would cause incorrect component to still be
-        // mounted instead of switching to `Explorer`
-        PgView.setSidebarPage((page) => {
-          if (page === sidebar.name) return "Explorer";
-          return page;
-        });
-      }
-
-      // Set the main secondary view height to the previous saved value
-      mainSecondaryHeightChange?.dispose();
-    },
+    dispose: () => disposables.forEach(({ dispose }) => dispose()),
   };
 };

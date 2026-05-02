@@ -1,4 +1,4 @@
-import { PgCommon, PgEditor } from "../../utils/pg";
+import { PgCommon, PgEditor } from "../../utils";
 import { createCmd } from "../create";
 
 export const rustfmt = createCmd({

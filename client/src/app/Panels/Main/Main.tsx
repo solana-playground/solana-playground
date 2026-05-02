@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 
 import Primary from "./Primary";
 import Secondary from "./Secondary";
-import { PgTheme } from "../../../utils/pg";
+import { PgTheme } from "../../../utils";
 
 const Main = () => (
   <Wrapper>

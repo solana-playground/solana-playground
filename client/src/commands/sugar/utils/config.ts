@@ -2,7 +2,7 @@ import { Option, toBigNumber } from "@metaplex-foundation/js";
 
 import { parseGuards } from "./guards";
 import { PgSugar } from "../processor";
-import { PgCommon, PgExplorer, PgTerminal, PgWeb3 } from "../../../utils/pg";
+import { PgCommon, PgExplorer, PgTerminal, PgWeb3 } from "../../../utils";
 import type { ConfigData, ToPrimitive } from "../types";
 
 export const loadConfigData = async (): Promise<ConfigData> => {

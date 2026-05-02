@@ -12,7 +12,7 @@ Ideally this server shouldn't exist and everything should be done on clients but
 The easiest way to run the server is via [Docker Compose](https://github.com/docker/compose):
 
 ```sh
-docker compose up
+docker compose -f ../compose.yaml --profile dev up server --build
 ```
 
 This will:
@@ -20,3 +20,5 @@ This will:
 1. Create a [MongoDB](https://github.com/mongodb/mongo) database
 2. Build the server from source
 3. Start the server
+
+See the [root README](../README.md#run-with-docker) for more options.

@@ -1,5 +1,5 @@
 import { Clear } from "../../../../components/Icons";
-import { PgTerminal } from "../../../../utils/pg";
+import { PgTerminal } from "../../../../utils";
 import { createMainSecondaryPage } from "../create";
 
 export const terminal = createMainSecondaryPage({

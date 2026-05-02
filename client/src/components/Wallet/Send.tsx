@@ -11,7 +11,7 @@ import {
   PgTx,
   PgWallet,
   PgWeb3,
-} from "../../utils/pg";
+} from "../../utils";
 import { useBalance, useKeybind } from "../../hooks";
 
 const Send = () => (
@@ -39,7 +39,7 @@ const SendExpanded = () => {
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
 
-  const { balance } = useBalance();
+  const balance = useBalance();
 
   // Send button disable
   useEffect(() => {
@@ -61,31 +61,20 @@ const SendExpanded = () => {
         PgTerminal.info(`Sending ${amount} SOL to ${recipient}...`)
       );
 
-      let msg;
-      try {
-        const ix = PgWeb3.SystemProgram.transfer({
-          fromPubkey: PgWallet.current!.publicKey,
-          toPubkey: new PgWeb3.PublicKey(recipient),
-          lamports: PgCommon.solToLamports(parseFloat(amount)),
-        });
-        const tx = new PgWeb3.Transaction().add(ix);
-        const txHash = await PgTx.send(tx);
-        PgTx.notify(txHash);
+      const ix = PgWeb3.SystemProgram.transfer({
+        fromPubkey: PgWallet.current!.publicKey,
+        toPubkey: new PgWeb3.PublicKey(recipient),
+        lamports: PgWeb3.solToLamports(parseFloat(amount)),
+      });
+      const txHash = await PgTx.send(ix);
+      const txResult = await PgCommon.transition(PgTx.confirm(txHash));
+      if (txResult?.err) throw txResult.err;
 
-        const txResult = await PgCommon.transition(PgTx.confirm(txHash));
-        if (txResult?.err) throw txResult.err;
+      PgTerminal.println(PgTerminal.success("Success."));
 
-        msg = PgTerminal.success("Success.");
-
-        // Reset inputs
-        setRecipient("");
-        setAmount("");
-      } catch (e: any) {
-        const convertedError = PgTerminal.convertErrorMessage(e.message);
-        msg = `Transfer error: ${convertedError}`;
-      } finally {
-        PgTerminal.println(msg + "\n");
-      }
+      // Reset inputs
+      setRecipient("");
+      setAmount("");
     });
   };
 
@@ -114,8 +103,8 @@ const SendExpanded = () => {
       />
       <ExpandedButton
         onClick={send}
-        btnLoading={{ text: "Sending..." }}
         disabled={disabled}
+        loading={{ text: "Sending..." }}
         kind="primary-transparent"
         fullWidth
       >

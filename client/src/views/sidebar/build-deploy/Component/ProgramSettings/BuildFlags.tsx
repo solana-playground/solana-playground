@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import Checkbox from "../../../../../components/Checkbox";
 import Tooltip from "../../../../../components/Tooltip";
-import { PgCommon, PgSettings } from "../../../../../utils/pg";
+import { PgCommon, PgSettings } from "../../../../../utils";
 
 type BuildFlag = keyof typeof PgSettings["build"]["flags"];
 

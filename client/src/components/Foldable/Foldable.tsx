@@ -3,15 +3,13 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useRef,
   useState,
   Dispatch,
   SetStateAction,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { ShortArrow } from "../Icons";
-import { PgView } from "../../utils/pg";
 
 interface FoldableProps {
   element: ReactNode;
@@ -36,18 +34,9 @@ const Foldable: FC<FoldableProps> = ({
     else setShow((s) => !s);
   }, [setIsOpen]);
 
-  const clickWrapperRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (show) {
-      clickWrapperRef.current?.classList.add(PgView.classNames.OPEN);
-    } else {
-      clickWrapperRef.current?.classList.remove(PgView.classNames.OPEN);
-    }
-  }, [show]);
-
   return (
     <>
-      <ClickElWrapper ref={clickWrapperRef} onClick={handleClick}>
+      <ClickElWrapper onClick={handleClick} show={show}>
         <ShortArrow />
         {element}
       </ClickElWrapper>
@@ -57,24 +46,30 @@ const Foldable: FC<FoldableProps> = ({
   );
 };
 
-const ClickElWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: fit-content;
-  user-select: none;
+const ClickElWrapper = styled.div<{ show: boolean }>`
+  ${({ theme, show }) => css`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: fit-content;
+    user-select: none;
+    font-weight: bold;
+    color: ${show
+      ? theme.colors.default.textPrimary
+      : theme.colors.default.textSecondary};
+    transition: all ${theme.default.transition.duration.medium}
+      ${theme.default.transition.type};
 
-  & svg:first-child {
-    margin-right: 0.5rem;
-  }
+    &:hover {
+      cursor: pointer;
+      color: ${theme.colors.default.textPrimary};
+    }
 
-  &.${PgView.classNames.OPEN} svg:first-child {
-    transform: rotate(90deg);
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
+    & svg:first-child {
+      margin-right: 0.5rem;
+      ${show && "transform: rotate(90deg);"}
+    }
+  `}
 `;
 
 const InsideWrapper = styled.div`

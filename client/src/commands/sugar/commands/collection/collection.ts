@@ -4,7 +4,7 @@ import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";
 import { assertCorrectAuthority, getMetaplex, loadCache } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgTerminal, PgWeb3 } from "../../../../utils/pg";
+import { PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processCollectionSet = async (
   rpcUrl: string | undefined,

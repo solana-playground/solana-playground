@@ -14,7 +14,7 @@ import Input, { InputProps } from "../Input";
 import { Close, PointedArrow, Search } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
 import { useKeybind, useOnClickOutside } from "../../hooks";
-import { Arrayable, Getable, PgCommon, PgTheme } from "../../utils/pg";
+import { Arrayable, Getable, PgCommon, PgTheme } from "../../utils";
 
 export interface SearchBarProps extends InputProps {
   items?: Item[] | null;

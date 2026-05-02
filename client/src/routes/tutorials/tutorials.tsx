@@ -2,10 +2,15 @@ import {
   Disposable,
   PgCommon,
   PgExplorer,
+  PgFramework,
+  PgLanguage,
   PgRouter,
   PgTutorial,
   PgView,
-} from "../../utils/pg";
+  TutorialFullData,
+  TUTORIAL_LEVELS,
+  TUTORIAL_PROGRESS,
+} from "../../utils";
 import { handleRoute } from "../common";
 
 export const tutorials = PgRouter.create({
@@ -13,9 +18,23 @@ export const tutorials = PgRouter.create({
   handle: ({ name, page }) => {
     if (name) return handleTutorial(name, page);
 
+    const tutorials = {
+      name: "Tutorials",
+      props: async () => ({
+        tutorials: await getAllTutorials(),
+        filters: [
+          { param: "progress", filters: TUTORIAL_PROGRESS },
+          { param: "level", filters: TUTORIAL_LEVELS },
+          { param: "framework", filters: PgFramework.all.map((f) => f.name) },
+          { param: "languages", filters: PgLanguage.all.map((l) => l.name) },
+          // TODO: Enable once there are more tutorials with various categories
+          // { param: "categories", filters: TUTORIAL_CATEGORIES },
+        ],
+      }),
+    };
     return handleRoute({
-      main: "Tutorials",
-      sidebar: "Tutorials",
+      main: tutorials,
+      sidebar: tutorials,
       minimizeSecondaryMainView: true,
     });
   },
@@ -33,7 +52,29 @@ const handleTutorial = (name: string, page: string) => {
 
   // Check whether the tutorial exists
   if (!tutorial) {
-    PgRouter.navigate();
+    return handleRoute({
+      main: {
+        name: "NotFound",
+        props: {
+          text: `Tutorial not found: ${PgCommon.toTitleFromKebab(name)}`,
+          navigate: {
+            name: "See all tutorials",
+            path: "/tutorials",
+          },
+        },
+      },
+      sidebar: {
+        name: "Tutorials",
+        props: async () => ({ tutorials: await getAllTutorials() }),
+      },
+    });
+  }
+
+  // Only allow integers for page names
+  //
+  // TODO: Allow custom names for pages e.g. `my-tutorial/my-page`
+  if (page && !PgCommon.isInt(page)) {
+    PgTutorial.openAboutPage();
     return;
   }
 
@@ -46,11 +87,14 @@ const handleTutorial = (name: string, page: string) => {
       // Initialize explorer
       await PgExplorer.init({ name: tutorial.name });
 
-      // Set the current tutorial data, has to happen before tutorial init
-      PgTutorial.data = tutorial;
+      // Wait until `PgTutorial.current` gets set before refreshing the data to
+      // avoid state corruption
+      await PgCommon.tryUntilSuccess(async () => {
+        if (PgTutorial.current?.name !== tutorial.name) throw new Error();
+      }, 1);
 
-      // Initialize tutorial
-      disposables.push(await PgTutorial.init());
+      // Refresh tutorial state
+      await PgTutorial.refresh();
 
       const { default: Tutorial } = await tutorial.importComponent();
       return <Tutorial {...tutorial} />;
@@ -58,21 +102,26 @@ const handleTutorial = (name: string, page: string) => {
 
     disposables.push(
       // Handle sidebar page changes
-      PgView.onDidChangeSidebarPage((page) => {
-        // Skip handling other routed pages in order to avoid navigation issues.
-        // Without this check, this callback runs again after clicking to a
-        // different sidebar page with route (e.g. Programs), which then
-        // results in `PgTutorial.open` getting run and the user getting
-        // navigated to the last tutorial's path erroneously.
-        //
-        // TODO: Find a way to dispose this *just before* the next navigation
-        // and remove this check
-        if (page.route && page.route !== "/tutorials") return;
+      PgView.onDidChangeCurrentSidebarPage(
+        (p) => {
+          if (!p) return;
 
-        if (page.name === "Tutorials") PgTutorial.openAboutPage();
-        else if (!PgTutorial.isStarted(tutorial.name)) PgRouter.navigate();
-        else PgTutorial.open(tutorial.name);
-      }),
+          // Skip handling other routed pages in order to avoid navigation issues.
+          // Without this check, this callback runs again after clicking to a
+          // different sidebar page with route (e.g. Programs), which then
+          // results in `PgTutorial.open` getting run and the user getting
+          // navigated to the last tutorial's path erroneously.
+          //
+          // TODO: Find a way to dispose this *just before* the next navigation
+          // and remove this check
+          if (p.route && p.name !== "Tutorials") return;
+
+          if (p.name === "Tutorials") PgTutorial.openAboutPage();
+          else if (!PgTutorial.isStarted(tutorial.name)) PgRouter.navigate();
+          else PgTutorial.open(tutorial.name);
+        },
+        { skipInitialRunIfSameValue: true }
+      ),
 
       // Handle workspace switch
       PgExplorer.onDidSwitchWorkspace(() => {
@@ -99,16 +148,21 @@ const handleTutorial = (name: string, page: string) => {
   }
 
   // Open the correct sidebar page
-  PgView.setSidebarPage((sidebar) => {
-    if (!page) return "Tutorials";
-    return sidebar === "Tutorials" ? "Explorer" : sidebar;
-  });
+  if (!page) {
+    PgView.sidebar.name = "Tutorials";
+    PgView.sidebar.props = async () => ({
+      tutorials: await getAllTutorials(),
+      pageName: PgView.sidebar.name,
+    });
+    disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
+  } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
+    PgView.sidebar.name = "Explorer";
+  }
 
   // Minimize secondary main view and reopen on navigation to other routes
   PgView.setMainSecondaryHeight((h) => {
     if (page) {
-      // TODO: Remove hardcoded value
-      if (h > 36) mainSecondaryHeight = h;
+      if (h > PgView.getMainSecondaryMinHeight()) mainSecondaryHeight = h;
       return mainSecondaryHeight;
     }
     return 0;
@@ -131,4 +185,25 @@ const handleTutorial = (name: string, page: string) => {
       disposables = [];
     },
   };
+};
+
+const getAllTutorials = async (): Promise<TutorialFullData[]> => {
+  await PgCommon.tryUntilSuccess(() => {
+    if (!PgExplorer.isInitialized) throw new Error();
+  }, 10);
+
+  return await Promise.all(
+    PgTutorial.all.map(async (t) => {
+      const tutorial: Partial<TutorialFullData> = { ...t };
+      if (PgTutorial.isStarted(t.name)) {
+        const metadata = await PgTutorial.getMetadata(t.name);
+        tutorial.metadata = metadata;
+        tutorial.progress = metadata.completed ? "Completed" : "Ongoing";
+      } else {
+        tutorial.progress = "Not started";
+      }
+
+      return tutorial as TutorialFullData;
+    })
+  );
 };

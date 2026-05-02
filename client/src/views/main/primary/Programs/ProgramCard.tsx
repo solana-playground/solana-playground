@@ -1,6 +1,7 @@
 import { FC } from "react";
 import styled, { css } from "styled-components";
 
+import Card from "../../../../components/Card";
 import Img from "../../../../components/Img";
 import Link from "../../../../components/Link";
 import Markdown from "../../../../components/Markdown";
@@ -12,7 +13,7 @@ import {
   PgTheme,
   TutorialData,
   TutorialDetailKey,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 
 export type ProgramCardProps = {
   /** Program name */
@@ -74,12 +75,13 @@ const ProgramCard: FC<ProgramCardProps> = ({
   </Wrapper>
 );
 
-const Wrapper = styled.div`
-  ${({ theme }) => css`
-    ${PgTheme.convertToCSS(
-      theme.views.main.primary.programs.main.content.card
-    )};
-  `}
+const Wrapper = styled(Card)`
+  flex-grow: 1;
+  flex-basis: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: fit-content;
 `;
 
 const Header = styled.div`

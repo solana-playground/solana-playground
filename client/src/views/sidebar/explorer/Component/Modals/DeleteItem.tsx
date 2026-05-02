@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Modal from "../../../../../components/Modal";
 import { Warning } from "../../../../../components/Icons";
-import { PgCommon, PgExplorer } from "../../../../../utils/pg";
+import { PgCommon, PgExplorer } from "../../../../../utils";
 
 interface DeleteItemProps {
   path: string;
@@ -35,8 +35,8 @@ export const DeleteItem: FC<DeleteItemProps> = ({ path }) => {
       title
       buttonProps={{
         text: "Delete",
-        onSubmit: deleteItem,
         kind: "error",
+        onSubmit: deleteItem,
       }}
     >
       <Content>

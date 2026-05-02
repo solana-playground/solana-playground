@@ -12,7 +12,7 @@ import {
   IRawTheme,
 } from "vscode-textmate";
 
-import { RequiredKey, PgExplorer, PgCommon } from "../../../../utils/pg";
+import { RequiredKey, PgExplorer, PgCommon } from "../../../../utils";
 
 // Remove defaults https://github.com/Microsoft/monaco-editor/issues/252#issuecomment-482786867
 monaco.languages.getLanguages().forEach((lang) => {
@@ -53,7 +53,7 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
     }),
     loadGrammar: async (scopeName: string) => {
       const grammar = await PgCommon.fetchJSON(
-        `/grammars/${scopeName}.tmLanguage.json`
+        `/languages/${scopeName}/grammar.tmLanguage.json`
       );
       // `registry.loadGrammarWithConfiguration` expects `scopeName` as the
       // first argument but we provide language id instead because grammars
@@ -101,7 +101,9 @@ export const initLanguages = async (theme: RequiredKey<IRawTheme, "name">) => {
     });
 
     // Set configuration
-    const configuration = await import(`./${languageId}/configuration.json`);
+    const configuration = await PgCommon.fetchJSON(
+      `/languages/${languageId}/configuration.json`
+    );
     monaco.languages.setLanguageConfiguration(
       languageId,
       parseConfiguration(configuration)

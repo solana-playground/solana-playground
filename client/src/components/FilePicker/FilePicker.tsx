@@ -12,7 +12,7 @@ import styled, { css } from "styled-components";
 
 import Checkbox from "../Checkbox";
 import LangIcon from "../LangIcon";
-import { PgCommon, PgExplorer } from "../../utils/pg";
+import { PgCommon, PgExplorer } from "../../utils";
 import { useDifferentBackground } from "../../hooks";
 
 interface FilePickerProps {
@@ -22,7 +22,7 @@ interface FilePickerProps {
 }
 
 const FilePicker: FC<FilePickerProps> = ({ path, filePaths, setFilePaths }) => {
-  const { ref } = useDifferentBackground();
+  const ref = useDifferentBackground();
 
   // Handle checkbox `checked`
   useEffect(() => {

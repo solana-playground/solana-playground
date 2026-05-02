@@ -4,19 +4,26 @@ import styled from "styled-components";
 import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
 import { Error } from "../../../../components/Icons";
-import { PgRouter } from "../../../../utils/pg";
+import { PgRouter } from "../../../../utils";
 
 interface NotFoundProps {
-  path: string;
+  text?: string;
+  navigate?: {
+    name: string;
+    path: RoutePath;
+  };
 }
 
-const NotFound: FC<NotFoundProps> = ({ path }) => (
+const NotFound: FC<NotFoundProps> = ({ text, navigate }) => (
   <Wrapper>
     <Text kind="error" icon={<Error />}>
-      Invalid URL path: {path}
+      {text ?? `URL path not found: ${PgRouter.location.pathname}`}
     </Text>
-    <Button kind="primary-transparent" onClick={() => PgRouter.navigate()}>
-      Go home
+    <Button
+      kind="primary-transparent"
+      onClick={() => PgRouter.navigate(navigate?.path)}
+    >
+      {navigate?.name ?? "Go home"}
     </Button>
   </Wrapper>
 );

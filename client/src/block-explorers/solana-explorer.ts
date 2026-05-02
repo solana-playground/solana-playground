@@ -1,5 +1,5 @@
 import { Endpoint } from "../constants";
-import { PgBlockExplorer, PgConnection } from "../utils/pg";
+import { PgBlockExplorer, PgConnection } from "../utils";
 
 export const solanaExplorer = PgBlockExplorer.create({
   name: "Solana Explorer",
@@ -11,7 +11,7 @@ export const solanaExplorer = PgBlockExplorer.create({
       case "devnet":
         return "?cluster=devnet";
       case "localnet":
-        return "?cluster=custom&customUrl=" + Endpoint.LOCALHOST;
+        return "?cluster=custom&customUrl=" + Endpoint.LOCALNET;
       default:
         return "";
     }

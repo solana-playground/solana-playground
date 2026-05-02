@@ -1,8 +1,8 @@
 export interface ResourceProps {
-  title: string;
-  text: string;
+  name: string;
+  description: string;
   url: string;
-  src: string;
+  icon: string;
   circleImage?: boolean;
 }
 
@@ -10,10 +10,11 @@ const ROOT_DIR = "/icons/platforms/";
 
 export const RESOURCES: ResourceProps[] = [
   {
-    title: "Cookbook",
-    text: "Detailed explanations and guides for building applications on Solana.",
+    name: "Cookbook",
+    description:
+      "Detailed explanations and guides for building applications on Solana.",
     url: "https://solanacookbook.com/",
-    src: "https://solanacookbook.com/solana_cookbook_darkmode.svg",
+    icon: "https://solanacookbook.com/solana_cookbook_darkmode.svg",
   },
   {
     title: "Anchor",
@@ -32,19 +33,17 @@ export const RESOURCES: ResourceProps[] = [
   {
     title: "SolDev",
     text: "Solana content aggregator with easy discoverability for all your development needs.",
+    name: "SolDev",
+    description:
+      "Solana content aggregator with easy discoverability for all your development needs.",
     url: "https://soldev.app/",
-    src: ROOT_DIR + "soldev.png",
+    icon: ROOT_DIR + "soldev.png",
   },
   {
-    title: "Solana Docs",
-    text: "The core Solana documentation used to provide deep understanding of Solana concepts.",
-    url: "https://docs.solana.com/",
-    src: ROOT_DIR + "solana.png",
-  },
-  {
-    title: "Metaplex Docs",
-    text: "Documentation for understanding how to work with NFTs on Solana using the Metaplex Standards.",
+    name: "Metaplex Docs",
+    description:
+      "Documentation for understanding how to work with NFTs on Solana using the Metaplex Standards.",
     url: "https://developers.metaplex.com/",
-    src: ROOT_DIR + "metaplex.png",
+    icon: ROOT_DIR + "metaplex.png",
   },
 ];

@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Popover, { PopoverProps } from "../Popover";
 import { QuestionMarkOutlined } from "../Icons";
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 
 export type TooltipProps = Omit<PopoverProps, "showOnHover" | "popEl"> & {
   /** Tooltip element to show on hover */

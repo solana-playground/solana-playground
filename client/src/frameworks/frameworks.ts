@@ -1,3 +1,3 @@
-export * from "./anchor";
-export * from "./native";
-export * from "./seahorse";
+import * as F from "./generated";
+
+export const FRAMEWORKS = Object.values(F);

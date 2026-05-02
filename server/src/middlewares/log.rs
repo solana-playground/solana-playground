@@ -1,5 +1,6 @@
 use axum::{extract::Request, middleware::Next, response::IntoResponse};
-use tracing::{error, info};
+
+use crate::log::{error, info};
 
 /// Create a logging middleware.
 ///

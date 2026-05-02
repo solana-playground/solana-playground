@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { PgView } from "../../../utils/pg";
+import { PgView } from "../../../utils";
 
 /** Darken/lighten the wallet component.  */
 export const useDarken = () => {

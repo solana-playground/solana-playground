@@ -2,7 +2,8 @@ use std::time::Duration;
 
 use http::{header, Method};
 use tower_http::cors::{AllowOrigin, CorsLayer};
-use tracing::error;
+
+use crate::log::error;
 
 /// Create a CORS middleware.
 ///

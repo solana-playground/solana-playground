@@ -10,7 +10,7 @@ import {
   PgTerm,
   PgTerminal,
   PgTheme,
-} from "../../utils/pg";
+} from "../../utils";
 
 interface TerminalProps {
   cmdManager: CommandManager;
@@ -60,7 +60,7 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
     });
   }, [theme, cmdManager]);
 
-  useExposeStatic(term, PgTerminal.events.STATIC);
+  useExposeStatic(PgTerminal.events.STATIC, term);
 
   // Open terminal
   useEffect(() => {

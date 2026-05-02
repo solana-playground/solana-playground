@@ -25,7 +25,7 @@ import {
   Triangle,
   Wrench,
 } from "../../../../components/Icons";
-import { PgCommon, PgExplorer, PgView } from "../../../../utils/pg";
+import { PgCommon, PgExplorer, PgView } from "../../../../utils";
 import { useCreateItem } from "./useCreateItem";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";

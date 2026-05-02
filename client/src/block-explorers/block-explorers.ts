@@ -1,3 +1,3 @@
-export * from "./solana-explorer";
-export * from "./solana-fm";
-export * from "./solscan";
+import * as B from "./generated";
+
+export const BLOCK_EXPLORERS = Object.values(B);

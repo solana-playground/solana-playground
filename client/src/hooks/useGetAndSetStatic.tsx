@@ -1,18 +1,18 @@
 import { Dispatch, SetStateAction, useMemo } from "react";
 
-import { PgCommon } from "../utils/pg/common";
+import { PgCommon } from "../utils/common";
 import { useGetStatic } from "./useGetStatic";
 import { useSetStatic } from "./useSetStatic";
 
 export const useGetAndSetStatic = <T,>(
+  eventName: string,
   get: T,
-  set: Dispatch<SetStateAction<T>>,
-  eventName: string
+  set: Dispatch<SetStateAction<T>>
 ) => {
   const eventNames = useMemo(
     () => PgCommon.getStaticStateEventNames(eventName),
     [eventName]
   );
-  useGetStatic(get, eventNames.get);
-  useSetStatic(set, eventNames.set);
+  useGetStatic(eventNames.get, get);
+  useSetStatic(eventNames.set, set);
 };

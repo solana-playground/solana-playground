@@ -8,25 +8,21 @@ import Settings from "./Settings";
 import Transactions from "./Transactions";
 import Button from "../Button";
 import FadeIn from "../FadeIn";
+import ErrorBoundary from "../ErrorBoundary";
 import Img from "../Img";
 import Input from "../Input";
 import Menu, { MenuItemProps } from "../Menu";
 import Tooltip from "../Tooltip";
 import { Close, ShortArrow } from "../Icons";
 import {
-  CurrentWallet,
+  Wallet as WalletType,
   Fn,
   PgCommon,
   PgTheme,
   PgView,
   PgWallet,
-} from "../../utils/pg";
-import {
-  useAutoAirdrop,
-  useDarken,
-  useStandardAccountChange,
-  useSyncBalance,
-} from "./hooks";
+} from "../../utils";
+import { useDarken } from "./hooks";
 import {
   useKeybind,
   useOnClickOutside,
@@ -35,15 +31,11 @@ import {
 } from "../../hooks";
 
 const Wallet = () => {
-  useRenderOnChange(PgWallet.onDidChangeShow);
+  const show = useRenderOnChange(PgWallet.onDidChangeShow);
 
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
-  useStandardAccountChange();
-  useSyncBalance();
-  useAutoAirdrop();
-
-  if (!PgWallet.show || !wallet) return null;
+  if (!show || !wallet) return null;
 
   const tabHeight = document
     .getElementById(PgView.ids.TABS)
@@ -67,8 +59,10 @@ const Wallet = () => {
         style={{ zIndex: 1 }}
       >
         <WalletWrapper>
-          <WalletTop />
-          <WalletMain />
+          <ErrorBoundary>
+            <WalletTop />
+            <WalletMain />
+          </ErrorBoundary>
         </WalletWrapper>
       </Rnd>
     </>
@@ -82,14 +76,14 @@ const WALLET_BOUND_ID = "wallet-bound";
 const WalletBound = styled.div`
   ${({ theme }) => css`
     position: absolute;
-    margin: ${theme.components.tabs.tab.default.height} 0.75rem
+    margin: ${theme.views.sidebar.right.title.height} 0.75rem
       ${theme.views.bottom.default.height}
       ${theme.views.sidebar.left.default.width};
     width: calc(100% - (0.75rem + ${theme.views.sidebar.left.default.width}));
     height: calc(
       100% -
         (
-          ${theme.components.tabs.tab.default.height} +
+          ${theme.views.sidebar.right.title.height} +
             ${theme.views.bottom.default.height}
         )
     );
@@ -106,13 +100,8 @@ const WalletWrapper = styled(FadeIn)`
 const WalletTop = () => {
   const [rename, setRename] = useState(false);
 
-  const showRename = useCallback(() => {
-    setRename(true);
-  }, []);
-
-  const hideRename = useCallback(() => {
-    setRename(false);
-  }, []);
+  const showRename = useCallback(() => setRename(true), []);
+  const hideRename = useCallback(() => setRename(false), []);
 
   return (
     <WalletTopWrapper>
@@ -130,20 +119,21 @@ const WalletTopWrapper = styled.div`
 `;
 
 const WalletName = () => {
-  const { wallet } = useWallet();
+  const wallet = useWallet();
   const { darken, lighten } = useDarken();
 
-  const getAccountDisplayName = useCallback(
-    (wallet: Pick<CurrentWallet, "name" | "publicKey">) => {
-      return (
-        PgCommon.withMaxLength(wallet.name, 12) +
-        ` - (${PgCommon.shorten(wallet.publicKey.toBase58())})`
-      );
-    },
-    []
-  );
+  const getAccountDisplayName = useCallback((wallet: WalletType) => {
+    const name = PgCommon.withMaxLength(wallet.name, 12);
 
-  // Show al lof the Playground Wallet accounts
+    // On standard wallet disconnect, the `publicKey` field appears `null` for a
+    // brief moment until `PgWallet.getConnectedStandardWallets` runs again.
+    //
+    // TODO: Make sure `publicKey` can never be `null`
+    if (!wallet.publicKey) return name;
+    return `${name} - (${PgCommon.shorten(wallet.publicKey.toBase58())})`;
+  }, []);
+
+  // Show all of the Playground Wallet accounts
   const pgAccounts: MenuItemProps[] = PgWallet.accounts.map((acc, i) => ({
     name: getAccountDisplayName(PgWallet.create(acc)),
     onClick: () => PgWallet.switch(i),

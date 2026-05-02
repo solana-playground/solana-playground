@@ -2,7 +2,8 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use tracing::error;
+
+use crate::log::error;
 
 /// Application result type that can be used in API handler functions
 pub type Result<T> = core::result::Result<T, Error>;

@@ -1,7 +1,7 @@
 import * as monaco from "monaco-editor";
 
 import { declarePackage } from "./helper";
-import { Disposable, MergeUnion, PgCommon } from "../../../../../../utils/pg";
+import { Disposable, MergeUnion, PgCommon } from "../../../../../../utils";
 
 /** Global packages */
 type GlobalPackages = typeof PACKAGES["global"];

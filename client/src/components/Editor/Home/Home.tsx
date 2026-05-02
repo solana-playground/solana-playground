@@ -2,24 +2,29 @@ import { FC, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../../Button";
+import Card from "../../Card";
 import Img from "../../Img";
 import Link from "../../Link";
 import { ResourceProps, RESOURCES } from "./resources";
 import { TutorialProps, TUTORIALS } from "./tutorials";
 import { External, ShortArrow } from "../../Icons";
 import { PROJECT_NAME } from "../../../constants";
-import { PgTheme, PgView } from "../../../utils/pg";
+import { PgFramework, PgTheme, PgView } from "../../../utils";
 
 const Home = () => {
   // This prevents unnecessarily fetching the home content for a frame when the
   // app is first mounted
-  const [show, setShow] = useState(false);
-
+  const [resources, setResources] = useState<ResourceProps[]>();
   useEffect(() => {
-    setShow(true);
+    setResources(
+      PgFramework.all
+        .filter((f) => f.docs)
+        .map((f) => ({ ...f, ...f.docs } as ResourceProps))
+        .concat(RESOURCES)
+    );
   }, []);
 
-  if (!show) return null;
+  if (!resources) return null;
 
   return (
     <Wrapper id={PgView.ids.HOME}>
@@ -29,7 +34,7 @@ const Home = () => {
         <ResourcesWrapper>
           <ResourcesTitle>Resources</ResourcesTitle>
           <ResourceCardsWrapper>
-            {RESOURCES.map((r, i) => (
+            {resources.map((r, i) => (
               <Resource key={i} {...r} />
             ))}
           </ResourceCardsWrapper>
@@ -88,30 +93,31 @@ const ResourcesTitle = styled.div`
 const ResourceCardsWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
+  gap: 2rem;
 `;
 
 const Resource: FC<ResourceProps> = ({
-  title,
-  text,
+  name,
+  description,
   url,
-  src,
+  icon,
   circleImage,
 }) => (
-  <ResourceWrapper>
+  <ResourceCard>
     <ResourceTitle>
-      <ResourceImg src={src} $circleImage={circleImage} />
-      {title}
+      <ResourceImg src={icon} $circleImage={circleImage} />
+      {name}
     </ResourceTitle>
-    <ResourceDescription>{text}</ResourceDescription>
+    <ResourceDescription>{description}</ResourceDescription>
     <ResourceButtonWrapper>
       <Link href={url}>
         <ResourceButton rightIcon={<External />}>Learn more</ResourceButton>
       </Link>
     </ResourceButtonWrapper>
-  </ResourceWrapper>
+  </ResourceCard>
 );
 
-const ResourceWrapper = styled.div`
+const ResourceCard = styled(Card)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(
       theme.views.main.primary.home.resources.card.default
@@ -166,17 +172,21 @@ const TutorialsTitle = styled.div`
   `}
 `;
 
-const TutorialCardsWrapper = styled.div``;
+const TutorialCardsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
 
 const Tutorial: FC<TutorialProps> = ({ title, url }) => {
   const src = getSrc(url);
 
   return (
     <Link href={url}>
-      <TutorialWrapper>
+      <TutorialCard>
         {src && <TutorialIcon src={src} />}
         <TutorialTitle>{title}</TutorialTitle>
-      </TutorialWrapper>
+      </TutorialCard>
     </Link>
   );
 };
@@ -190,7 +200,7 @@ const getSrc = (url: string) => {
   if (src) return "/icons/platforms/" + src;
 };
 
-const TutorialWrapper = styled.div`
+const TutorialCard = styled(Card)`
   ${({ theme }) => css`
     ${PgTheme.convertToCSS(theme.views.main.primary.home.tutorials.card)};
   `}
@@ -205,6 +215,8 @@ const TutorialTitle = styled.span``;
 
 const PlaygroundTutorialsButton = styled(Button)`
   ${({ theme }) => css`
+    margin-top: 1rem;
+
     color: ${theme.colors.default.primary};
     padding: 0.25rem 0.5rem;
 

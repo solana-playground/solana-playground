@@ -9,7 +9,9 @@ export interface LinkProps extends ComponentPropsWithoutRef<"a"> {
 }
 
 const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
-  const isWrapper = typeof props.children !== "string";
+  // `Markdown` component may set `props.children` to an array
+  const isWrapper =
+    typeof props.children !== "string" && !Array.isArray(props.children);
 
   if (props.href.startsWith("/")) {
     return (
@@ -46,8 +48,10 @@ const getStyles = ({
 }) => {
   if ($isWrapper) {
     return css`
-      & svg {
-        color: ${theme.colors.default.textSecondary};
+      color: ${theme.colors.default.textSecondary};
+
+      &:hover {
+        color: ${theme.colors.default.textPrimary};
       }
 
       & > * {

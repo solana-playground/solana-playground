@@ -1,4 +1,9 @@
-use std::{fs, path::Path, process::Command, sync::OnceLock};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+    sync::LazyLock,
+};
 
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
@@ -38,10 +43,10 @@ pub fn build(
     }
 
     // Check file paths
-    static ALLOWED_REGEX: OnceLock<Regex> = OnceLock::new();
-    let allowed_regex = ALLOWED_REGEX.get_or_init(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
+    static ALLOWED_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
     let is_valid = files.iter().all(|[path, _]| {
-        allowed_regex.is_match(path)
+        ALLOWED_REGEX.is_match(path)
             && path.len() <= MAX_PATH_LENGTH
             && !path.contains("..")
             && !path.contains("//")
@@ -65,27 +70,25 @@ pub fn build(
         fs::write(item_path, content)?;
     }
 
-    // Update manifest path
-    static MANIFEST: OnceLock<String> = OnceLock::new();
-    let manifest_path = Path::new(PROGRAMS_DIR).join("Cargo.toml");
-    let manifest = MANIFEST
-        .get_or_init(|| fs::read_to_string(&manifest_path).expect("Could not read manifest"))
-        .replacen("default", program_name, 1);
-    fs::write(&manifest_path, manifest)?;
+    // Update manifest
+    static MANIFEST: LazyLock<(PathBuf, String)> = LazyLock::new(|| {
+        let path = Path::new(PROGRAMS_DIR).join("Cargo.toml");
+        let content = fs::read_to_string(&path).expect("Could not read manifest");
+        (path, content)
+    });
+    let (manifest_path, manifest_content) = &*MANIFEST;
+    fs::write(
+        manifest_path,
+        manifest_content.replacen("default", program_name, 1),
+    )?;
 
     // Build the program
     let output = Command::new("cargo-build-sbf")
-        .args([
-            "--manifest-path",
-            manifest_path
-                .to_str()
-                .expect("Manifest path should always be UTF-8"),
-            "--sbf-out-dir",
-            program_path
-                .to_str()
-                .ok_or_else(|| anyhow!("{program_path:?} is not valid UTF-8"))?,
-            "--offline",
-        ])
+        .arg("--manifest-path")
+        .arg(manifest_path)
+        .arg("--sbf-out-dir")
+        .arg(&program_path)
+        .arg("--offline")
         .output()?;
 
     // Check compile errors

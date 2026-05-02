@@ -1,4 +1,4 @@
-import type { ThemeParam } from "../../utils/pg";
+import type { ThemeParam } from "../../utils";
 
 // BG
 const BG_BLACK = "#000000",
@@ -187,21 +187,6 @@ const SOLANA: ThemeParam = {
           tutorials: {
             card: {
               bg: BG_GRAY,
-            },
-          },
-        },
-        tutorials: {
-          main: {
-            default: {
-              bg: BG_BLACK,
-              border: `1px solid ${SELECTION}`,
-            },
-            content: {
-              card: {
-                default: {
-                  bg: BG_GRAY,
-                },
-              },
             },
           },
         },

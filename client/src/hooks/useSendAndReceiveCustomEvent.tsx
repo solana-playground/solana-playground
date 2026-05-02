@@ -1,6 +1,6 @@
 import { DependencyList, useEffect } from "react";
 
-import { PgCommon } from "../utils/pg/common";
+import { PgCommon } from "../utils/common";
 
 export const useSendAndReceiveCustomEvent = <T,>(
   eventName: string,

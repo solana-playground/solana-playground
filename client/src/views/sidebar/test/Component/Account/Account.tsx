@@ -9,8 +9,8 @@ import Foldable from "../../../../../components/Foldable";
 import SearchBar from "../../../../../components/SearchBar";
 import Text from "../../../../../components/Text";
 import { SpinnerWithBg } from "../../../../../components/Loading";
-import { PgCommon, PgWeb3 } from "../../../../../utils/pg";
-import { PgProgramInteraction } from "../../../../../utils/pg/program-interaction";
+import { PgCommon, PgWeb3 } from "../../../../../utils";
+import { PgProgramInteraction } from "../../../../../utils/program-interaction";
 import { useWallet } from "../../../../../hooks";
 
 interface AccountProps {
@@ -27,7 +27,7 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
   const [fetchAllLoading, setFetchAllLoading] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
 
-  const { wallet } = useWallet();
+  const wallet = useWallet();
 
   const handleFetched = (data: object) => {
     setFetchedData(data);
@@ -107,7 +107,7 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
       {(fetchedData || fetchError) && (
         <ResultWrapper>
           <Foldable
-            element={<span>Result</span>}
+            element="Result"
             isOpen={resultOpen}
             setIsOpen={setResultOpen}
           >

@@ -1,11 +1,12 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../Button";
 import Link from "../Link";
+import Text from "../Text";
 import { Clock, Refresh, Sad, Error as ErrorIcon } from "../Icons";
 import { SpinnerWithBg } from "../Loading";
-import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils/pg";
+import { PgCommon, PgTheme, PgWallet, PgWeb3 } from "../../utils";
 import { useBlockExplorer, useConnection } from "../../hooks";
 
 const Transactions = () => {
@@ -13,9 +14,9 @@ const Transactions = () => {
     useState<PgWeb3.ConfirmedSignatureInfo[]>();
   const [refreshCount, setRefreshCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
-  const { connection } = useConnection();
+  const connection = useConnection();
 
   useEffect(() => {
     const { dispose } = PgWallet.onDidChangeCurrent(async (wallet) => {
@@ -26,9 +27,9 @@ const Transactions = () => {
         );
 
         setSignatures(_signatures);
-        setError(false);
-      } catch {
-        setError(true);
+        setError("");
+      } catch (e: any) {
+        setError(e.message ? e.message : "Unknown error");
         setSignatures([]);
       } finally {
         setLoading(false);
@@ -77,15 +78,11 @@ const Transactions = () => {
             <NoTransaction>
               {!loading &&
                 (error ? (
-                  <>
-                    <Sad />
-                    Connection error.
-                  </>
+                  <Text kind="error" icon={<Sad />}>
+                    Connection error: {error}
+                  </Text>
                 ) : (
-                  <>
-                    <Sad />
-                    No transaction found.
-                  </>
+                  <Text icon={<Sad />}>No transaction found.</Text>
                 ))}
             </NoTransaction>
           )}
@@ -166,13 +163,30 @@ const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   const enter = useCallback(() => setHover(true), []);
   const leave = useCallback(() => setHover(false), []);
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // There is an issue where moving the mouse over the elements fast makes the
+  // `hover` state inconsistent i.e. `hover === true` when the pointer is not on
+  // the element. This `useEffect` fixes the mentioned inconsistency.
+  //
+  // https://github.com/facebook/react/issues/4492
+  useEffect(() => {
+    if (!hover) return;
+
+    const id = setTimeout(
+      () => setHover(wrapperRef.current?.matches(":hover") === true),
+      10
+    );
+    return () => clearTimeout(id);
+  }, [hover]);
+
   const now = new Date().getTime() / 1000;
   const timePassed = blockTime ? PgCommon.secondsToTime(now - blockTime) : null;
 
   const blockExplorer = useBlockExplorer();
 
   return (
-    <TxWrapper onMouseEnter={enter} onMouseLeave={leave}>
+    <TxWrapper ref={wrapperRef} onMouseEnter={enter} onMouseLeave={leave}>
       {hover ? (
         <HoverWrapper>
           <Link href={blockExplorer.getTxUrl(signature)}>

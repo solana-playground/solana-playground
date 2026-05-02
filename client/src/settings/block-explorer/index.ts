@@ -1,1 +1,1 @@
-export { blockExplorer } from "./block-explorer";
+export * from "./block-explorer";

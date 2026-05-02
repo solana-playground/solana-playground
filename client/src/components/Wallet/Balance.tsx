@@ -1,11 +1,10 @@
 import styled, { css } from "styled-components";
 
-import { PgTheme } from "../../utils/pg";
+import { PgTheme } from "../../utils";
 import { useBalance } from "../../hooks";
 
 const Balance = () => {
-  const { balance } = useBalance();
-
+  const balance = useBalance();
   if (balance === null) return null;
 
   return <Wrapper>{balance === 0 ? 0 : balance.toFixed(3)} SOL</Wrapper>;

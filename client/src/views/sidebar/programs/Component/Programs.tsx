@@ -1,25 +1,16 @@
 import { FC } from "react";
-import styled, { css } from "styled-components";
 
 import FilterGroups from "../../../../components/FilterGroups";
-import { FILTERS } from "../../../main/primary/Programs/filters";
+import type { Filter } from "../../../../hooks";
 
 interface ProgramsProps {
   // TODO: Proper type
   programs: any[];
+  filters: Filter[];
 }
 
-const Programs: FC<ProgramsProps> = ({ programs }) => (
-  <Wrapper>
-    <FilterGroups filters={FILTERS} items={programs} />
-  </Wrapper>
+const Programs: FC<ProgramsProps> = ({ programs, filters }) => (
+  <FilterGroups items={programs} filters={filters} />
 );
-
-const Wrapper = styled.div`
-  ${({ theme }) => css`
-    font-family: ${theme.font.other.family};
-    font-size: ${theme.font.other.size.medium};
-  `}
-`;
 
 export default Programs;

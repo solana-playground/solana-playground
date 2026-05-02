@@ -15,14 +15,13 @@ use axum::{
     Router,
 };
 use tokio::net::TcpListener;
-use tracing::info;
 
-use self::{config::Config, log::init_logging, middlewares::*, routes::*};
+use self::{config::Config, log::info, middlewares::*, routes::*};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = Config::from_env();
-    init_logging(config.verbose);
+    log::init(config.verbose);
     info!("Config loaded: {config:#?}");
 
     db::init(&config.db_uri, config.db_name).await?;

@@ -1,4 +1,4 @@
-import { PgRouter } from "../../utils/pg";
+import { PgRouter } from "../../utils";
 import { handleRoute } from "../common";
 
 export const defaultRoute = PgRouter.create({

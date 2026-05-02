@@ -14,7 +14,7 @@ import {
   ThreeDots,
   Trash,
 } from "../Icons";
-import { Fn, PgCommand, PgView, PgWallet } from "../../utils/pg";
+import { Fn, PgCommand, PgView, PgWallet } from "../../utils";
 import { useAirdrop, useDarken } from "./hooks";
 import { useCopy } from "../../hooks";
 
@@ -39,6 +39,7 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
     {
       name: "Airdrop",
       onClick: airdrop,
+      hoverColor: "success",
       showCondition: airdropCondition,
       icon: <Airdrop />,
     },
@@ -81,12 +82,12 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
 
   const standardWalletSettings: MenuItemProps[] = PgWallet.standardWallets.map(
     (wallet) => ({
-      name: wallet.adapter.connected
-        ? `Disconnect from ${wallet.adapter.name}`
-        : `Connect to ${wallet.adapter.name}`,
-      onClick: () => PgCommand.connect.execute(wallet.adapter.name),
-      hoverColor: "secondary",
-      icon: <Img src={wallet.adapter.icon} alt={wallet.adapter.name} />,
+      name: wallet.connected
+        ? `Disconnect from ${wallet.name}`
+        : `Connect to ${wallet.name}`,
+      onClick: () => PgCommand.connect.execute(wallet.name.toLowerCase()),
+      hoverColor: wallet.connected ? "error" : "secondary",
+      icon: <Img src={wallet.icon} alt={wallet.name} />,
     })
   );
 

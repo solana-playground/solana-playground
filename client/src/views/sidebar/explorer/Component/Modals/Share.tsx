@@ -1,22 +1,22 @@
 import { FC, useState } from "react";
 import styled from "styled-components";
 
-import CopyButton from "../../../../../components/CopyButton";
+import Button from "../../../../../components/Button";
 import FilePicker from "../../../../../components/FilePicker";
 import Input from "../../../../../components/Input";
 import Link from "../../../../../components/Link";
-import Modal from "../../../../../components/Modal";
+import Modal, { CommonModalPageProps } from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Checkmark, Sad } from "../../../../../components/Icons";
-import {
-  PgCommon,
-  PgExplorer,
-  PgRouter,
-  PgShare,
-  PgView,
-} from "../../../../../utils/pg";
+import { PgCommon, PgExplorer, PgRouter, PgShare } from "../../../../../utils";
 
-export const Share = () => {
+export const Share = () => (
+  <Modal multiple defaultPage={{ Component: Default }} />
+);
+
+type DefaultProps = CommonModalPageProps;
+
+const Default: FC<DefaultProps> = ({ setPage }) => {
   const [filePaths, setFilePaths] = useState(() =>
     Object.keys(PgExplorer.files).filter(
       (path) => PgExplorer.getItemTypeFromPath(path).file
@@ -26,10 +26,9 @@ export const Share = () => {
   const share = async () => {
     try {
       const shareId = await PgCommon.transition(PgShare.new(filePaths));
-      PgView.setModal(<SuccessPage shareId={shareId} />);
+      setPage({ Component: SuccessPage, props: { shareId } });
     } catch (e: any) {
-      console.log("SHARE ERROR:", e.message);
-      PgView.setModal(<ErrorPage message={e.message} />);
+      setPage({ Component: ErrorPage, props: { message: e.message } });
     }
   };
 
@@ -86,7 +85,7 @@ const SuccessPage: FC<SuccessPageProps> = ({ shareId }) => {
 
         <SuccessInputWrapper>
           <Input value={shareLink} readOnly />
-          <CopyButton copyText={shareLink} />
+          <Button.Copy copyText={shareLink} />
         </SuccessInputWrapper>
         <SuccessLinkWrapper>
           <Link href={shareLink}>Go to the link</Link>

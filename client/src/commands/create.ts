@@ -1,9 +1,7 @@
-import type { Arg, CommandParam, Command, Option } from "../utils/pg";
+import type { Arg, CommandParam, Command, Option } from "../utils";
 
 /**
  * Create a command.
- *
- * NOTE: This is only a type helper function.
  *
  * @param cmd command to create
  * @returns the command with its inferred type
@@ -22,24 +20,22 @@ export const createCmd = <
 };
 
 /**
- * Create subcommands.
+ * Create a subcommand.
  *
- * NOTE: This is only a type helper function.
- *
- * @param cmd command to create
+ * @param subcmd subcommand to create
  * @returns the command with its inferred type
  */
-export const createSubcmds = <
+export const createSubcmd = <
   N extends string,
   A extends Arg[],
   O extends Option[],
   S,
   R
 >(
-  ...subcmds: CommandParam<N, A, O, S, R>[]
+  subcmd: CommandParam<N, A, O, S, R>
 ) => {
-  for (const subcmd of subcmds) addHelpOption(subcmd);
-  return subcmds as Command<N, A, O, S, R>[];
+  addHelpOption(subcmd);
+  return subcmd;
 };
 
 /**
@@ -55,13 +51,14 @@ const addHelpOption = (cmd: { options?: Option[] }) => {
 /**
  * Create command arguments.
  *
- * @param arg arg to create
+ * @param args args to create
  * @returns the args with their inferred types
  */
 export const createArgs = <
   N extends string,
   V extends string,
-  A extends Arg<N, V>[]
+  P,
+  A extends Arg<N, V, P>[]
 >(
   args: [...A]
 ) => {
@@ -83,13 +80,14 @@ export const createArgs = <
 /**
  * Create command options.
  *
- * @param opts option to create
+ * @param opts options to create
  * @returns the options with their inferred types
  */
 export const createOptions = <
   N extends string,
   V extends string,
-  O extends Option<N, V>[]
+  P,
+  O extends Option<N, V, P>[]
 >(
   opts: [...O]
 ) => {
@@ -109,14 +107,11 @@ export const createOptions = <
     const short = createShort(opt);
     const exists = opts
       .filter((o) => o.name !== opt.name)
-      .some((o) => createShort(o) === short);
+      .some((o) => o.short && createShort(o) === short);
     if (exists) throw new Error(`Duplicate short option: \`${opt.name}\``);
 
     opt.short = short;
   }
-
-  // If `values` field is specified, it implies `takeValue`
-  for (const opt of opts) opt.takeValue ??= !!opt.values;
 
   return opts;
 };

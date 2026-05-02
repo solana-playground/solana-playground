@@ -5,7 +5,7 @@ import Tab from "./Tab";
 import Button from "../Button";
 import Dnd from "../Dnd";
 import Img from "../Img";
-import { PgExplorer, PgTheme, PgView, PgWallet } from "../../utils/pg";
+import { PgExplorer, PgTheme, PgView, PgWallet } from "../../utils";
 import {
   useExplorer,
   useKeybind,
@@ -17,7 +17,7 @@ export const Tabs = () => {
   // Without this, tabs flicker after reorder
   useRenderOnChange(PgExplorer.onDidSetTabs);
 
-  const { explorer } = useExplorer();
+  const explorer = useExplorer();
 
   const setItems = useCallback((action: SetStateAction<string[]>) => {
     const newTabs =
@@ -73,8 +73,7 @@ const TabsWrapper = styled.div`
 `;
 
 const Wallet = () => {
-  const { wallet } = useWallet();
-
+  const wallet = useWallet();
   if (!wallet) return null;
 
   return (

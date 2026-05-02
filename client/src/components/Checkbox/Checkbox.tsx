@@ -1,21 +1,15 @@
 import { ComponentPropsWithoutRef, FC, forwardRef, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
-interface CheckBoxProps extends ComponentPropsWithoutRef<"input"> {
+interface CheckboxProps extends ComponentPropsWithoutRef<"input"> {
   /** Checkbox `label` to show */
   label?: ReactNode;
 }
 
-const Checkbox: FC<CheckBoxProps> = forwardRef<HTMLInputElement, CheckBoxProps>(
-  ({ onChange, defaultChecked, label, ...props }, ref) => (
+const Checkbox: FC<CheckboxProps> = forwardRef<HTMLInputElement, CheckboxProps>(
+  ({ label, ...props }, ref) => (
     <Label>
-      <StyledCheckbox
-        ref={ref}
-        type="checkbox"
-        onChange={onChange}
-        defaultChecked={defaultChecked}
-        {...props}
-      />
+      <StyledCheckbox ref={ref} type="checkbox" {...props} />
       {label && <LabelText>{label}</LabelText>}
     </Label>
   )

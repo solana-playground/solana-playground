@@ -5,7 +5,7 @@ import {
 } from "../../constants";
 import { PgSugar } from "../../processor";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgExplorer, PgTerminal } from "../../../../utils/pg";
+import { PgCommon, PgExplorer, PgTerminal } from "../../../../utils";
 import { ConfigData, ToPrimitive, UploadMethod } from "../../types";
 
 export const processCreateConfig = async () => {

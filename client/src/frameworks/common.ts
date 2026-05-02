@@ -6,7 +6,7 @@ import {
   PgView,
   TupleFiles,
   ValueOf,
-} from "../utils/pg";
+} from "../utils";
 import { SelectProgram } from "./SelectProgram";
 
 /** Map of dependency name -> version */

@@ -1,41 +1,57 @@
 import { FC, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
-import Split from "react-split";
 
 import Button from "../../Button";
 import EditorWithTabs from "../../EditorWithTabs";
 import Markdown from "../../Markdown";
+import Resizable from "../../Resizable";
 import { SpinnerWithBg } from "../../Loading";
 import { PointedArrow } from "../../Icons";
-import { PgRouter, PgTheme, PgTutorial } from "../../../utils/pg";
+import { useAsyncEffect } from "../../../hooks";
+import {
+  PgCommon,
+  PgRouter,
+  PgTheme,
+  PgTutorial,
+  PgView,
+} from "../../../utils";
 import type { TutorialMainComponentProps } from "../types";
 
 export const Main: FC<TutorialMainComponentProps> = ({
   pageNumber,
   pages,
   layout = "editor-content",
+  isStarted,
   onComplete,
   start,
 }) => {
-  const tutorialPageRef = useRef<HTMLDivElement>(null);
+  // If the page is set from the URL but the tutorial has not been started,
+  // start the tutorial automatically.
+  //
+  // TODO: Move this to the route handler. Currently, the user sees the sidebar
+  // page for a short period of time before this effect runs.
+  useAsyncEffect(async () => {
+    if (isStarted) return;
+
+    PgView.setSidebarLoading(true);
+    try {
+      await PgCommon.transition(start);
+    } finally {
+      PgView.setSidebarLoading(false);
+    }
+  }, [isStarted, start]);
 
   // Scroll to the top on page change
+  const tutorialPageRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     tutorialPageRef.current?.scrollTo({ top: 0, left: 0 });
   }, [pageNumber]);
 
   // Specific page events
   useEffect(() => {
-    const page = pages[pageNumber - 1];
-    if (page.onMount) return page.onMount();
+    const page = pages.at(pageNumber - 1);
+    if (page?.onMount) return page.onMount();
   }, [pageNumber, pages]);
-
-  // If the page is set from the URL but the tutorial has not been started,
-  // start the tutorial automatically
-  const isStarted = PgTutorial.isStarted(PgTutorial.data!.name);
-  useEffect(() => {
-    if (!isStarted) start();
-  }, [isStarted, start]);
 
   const nextPage = () => {
     PgTutorial.openPage(pageNumber + 1);
@@ -60,26 +76,28 @@ export const Main: FC<TutorialMainComponentProps> = ({
   const currentContent = currentPage.content;
   const currentLayout = currentPage.layout ?? layout;
 
-  // TODO: Add a custom `Split` component because `react-split` doesn't properly
-  // handle size and `children.length` changes
-  const [Wrapper, props] = (
-    currentLayout === "content-only"
-      ? [RegularWrapper, {}]
-      : [SplitWrapper, { sizes: [60, 40] }]
-  ) as [typeof RegularWrapper, {}];
-
   return (
-    <Wrapper {...props}>
-      {currentLayout === "editor-content" && isStarted ? (
-        <EditorWithTabs />
-      ) : (
-        <SpinnerWithBg loading size="2rem" />
+    <Wrapper>
+      {currentLayout === "editor-content" && (
+        <Resizable
+          enable="right"
+          defaultSize={{ width: "60%", height: "100%" }}
+          minWidth="25%"
+          maxWidth="75%"
+        >
+          {isStarted ? (
+            <EditorWithTabs />
+          ) : (
+            <SpinnerWithBg loading size="2rem" />
+          )}
+        </Resizable>
       )}
 
       <TutorialPage ref={tutorialPageRef}>
         <TutorialContent>
           {typeof currentContent === "string" ? (
             <Markdown
+              linkable
               rootSrc={PgRouter.location.pathname
                 .split("/")
                 .slice(0, 3)
@@ -137,22 +155,9 @@ export const Main: FC<TutorialMainComponentProps> = ({
   );
 };
 
-const RegularWrapper = styled.div``;
-
-const SplitWrapper = styled(Split)`
+const Wrapper = styled.div`
   display: flex;
-  width: 100%;
-  height: -webkit-fill-available;
-  max-height: 100%;
-  overflow: auto;
-
-  & > div:not(.gutter) {
-    min-width: 25%;
-  }
-
-  & > .gutter {
-    cursor: col-resize;
-  }
+  height: 100%;
 `;
 
 const TutorialPage = styled.div`
@@ -160,13 +165,13 @@ const TutorialPage = styled.div`
     overflow: auto;
     max-width: 60rem;
     padding-top: ${theme.components.tabs.tab.default.height};
-    background: ${theme.views.main.primary.tutorial.default.bg};
+    background: ${theme.components.tutorial.default.bg};
   `}
 `;
 
 const TutorialContent = styled.div`
   ${({ theme }) => css`
-    ${PgTheme.convertToCSS(theme.views.main.primary.tutorial.tutorialPage)};
+    ${PgTheme.convertToCSS(theme.components.tutorial.tutorialPage)};
   `}
 `;
 

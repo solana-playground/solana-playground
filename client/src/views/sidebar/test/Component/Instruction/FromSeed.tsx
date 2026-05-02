@@ -14,7 +14,7 @@ import {
   IdlType,
   PgProgramInteraction,
   Seed as SeedType,
-} from "../../../../../utils/pg/program-interaction";
+} from "../../../../../utils/program-interaction";
 import { useInstruction } from "./InstructionProvider";
 import { useKeybind } from "../../../../../hooks";
 

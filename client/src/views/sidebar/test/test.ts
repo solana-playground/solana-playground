@@ -5,5 +5,5 @@ export const test = createSidebarPage({
   name: "Test",
   icon: "test.png",
   keybind: "Ctrl+Shift+D",
-  LoadingElement: TestSkeleton,
+  LoadingComponent: TestSkeleton,
 });

@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../../../../../components/Img";
@@ -9,29 +9,17 @@ import {
   Framework as FrameworkType,
   PgExplorer,
   PgFramework,
-} from "../../../../../utils/pg";
+} from "../../../../../utils";
 
 export const CreateWorkspace = () => {
-  // Handle user input
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setName(ev.target.value);
-    setError("");
-  };
+  const [selected, setSelected] = useState<FrameworkName | null>(null);
 
   const createWorkspace = async () => {
-    const { importFiles, defaultOpenFile } = PgFramework.all.find(
-      (f) => f.name === selected
-    )!;
-    const { files } = await importFiles();
-
-    await PgExplorer.createWorkspace(name, {
-      files,
-      defaultOpenFile,
-    });
+    const { getDefaultFiles, defaultOpenFile } = PgFramework.get(selected!);
+    const { files } = await getDefaultFiles();
+    await PgExplorer.createWorkspace(name, { files, defaultOpenFile });
   };
 
   return (
@@ -39,21 +27,19 @@ export const CreateWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: createWorkspace,
-        disabled: !name || !selected,
+        disabled: !!error || !selected,
       }}
-      error={error}
-      setError={setError}
     >
       <Content>
         <WorkspaceNameWrapper>
           <MainText>Project name</MainText>
           <Input
             autoFocus
-            onChange={handleChange}
             value={name}
+            onChange={(ev) => setName(ev.target.value)}
+            validator={PgExplorer.isWorkspaceNameValid}
             error={error}
             setError={setError}
-            validator={PgExplorer.isWorkspaceNameValid}
             placeholder="my project..."
           />
         </WorkspaceNameWrapper>

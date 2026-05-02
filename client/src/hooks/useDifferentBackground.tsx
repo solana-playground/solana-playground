@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useTheme } from "styled-components";
 
-import { PgTheme } from "../utils/pg";
+import { PgTheme } from "../utils";
 
 /**
  * Use a different background than the parent node's background.
  *
- * @param delay the amount of miliseconds to delay the background check
+ * @param delay the amount of milliseconds to delay the background check
  *
  * @returns the element ref object to attach
  */
@@ -48,5 +48,5 @@ export const useDifferentBackground = <T extends HTMLElement = HTMLDivElement>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [delay, theme.name]);
 
-  return { ref };
+  return ref;
 };

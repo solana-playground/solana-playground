@@ -1,5 +1,5 @@
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils/pg";
+import { PgCommon, PgTerminal, PgView, PgWeb3 } from "../../../../utils";
 import { loadConfigData, getMetaplex, loadCache } from "../../utils";
 import { hashAndUpdate } from "../hash";
 import { processUpdate } from "../update";

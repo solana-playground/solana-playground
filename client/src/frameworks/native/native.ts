@@ -2,8 +2,13 @@ import { createFramework } from "../create";
 
 export const native = createFramework({
   name: "Native",
+  description: "Solana programs without a framework.",
   language: "Rust",
-  icon: "/icons/platforms/solana.png",
+  docs: {
+    url: "https://solana.com/docs/intro/quick-start",
+    name: "Solana",
+    description: "The official Solana developer documentation.",
+  },
   githubExample: {
     name: "Hello Solana",
     // Only import the program for now since `fs` and `os` modules are not

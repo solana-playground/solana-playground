@@ -1,4 +1,5 @@
 import {
+  ReactNode,
   SetStateAction,
   useCallback,
   useEffect,
@@ -14,19 +15,18 @@ import ProgressBar from "../../../../components/ProgressBar";
 import Resizable from "../../../../components/Resizable";
 import { Close, DoubleArrow, Tick } from "../../../../components/Icons";
 import {
-  NullableJSX,
   PgCommon,
   // TODO: Remove
   PgEditor,
   PgTheme,
   PgView,
-} from "../../../../utils/pg";
+} from "../../../../utils";
 import { useAsyncEffect, useKeybind, useSetStatic } from "../../../../hooks";
 import { MAIN_SECONDARY } from "../../../../views";
 
 const Secondary = () => {
   const [page, setPage] = useState<MainSecondaryPageName>("Terminal");
-  useSetStatic(setPage, PgView.events.MAIN_SECONDARY_PAGE_SET);
+  useSetStatic(PgView.events.MAIN_SECONDARY_PAGE_SET, setPage);
   useEffect(() => {
     PgCommon.createAndDispatchCustomEvent(
       PgView.events.ON_DID_CHANGE_MAIN_SECONDARY_PAGE,
@@ -35,32 +35,35 @@ const Secondary = () => {
   }, [page]);
   const pageInfo = useMemo(() => getPage(page), [page]);
 
-  const [el, setEl] = useState<NullableJSX>(null);
+  const [el, setEl] = useState<ReactNode>(null);
   useAsyncEffect(async () => {
     const { default: PageComponent } = await pageInfo.importComponent();
     setEl(<PageComponent />);
   }, [pageInfo]);
 
-  const [height, setHeight] = useState(getDefaultHeight);
+  const [height, setHeight] = useState(PgView.getMainSecondaryDefaultHeight);
   const oldHeight = useRef(height);
   useEffect(() => {
-    if (height !== getMinHeight() && height !== getMaxHeight()) {
+    if (
+      height !== PgView.getMainSecondaryMinHeight() &&
+      height !== PgView.getMainSecondaryMaxHeight()
+    ) {
       oldHeight.current = height;
     }
   }, [height]);
   const setCheckedHeight = useCallback((action: SetStateAction<number>) => {
     setHeight((h) => {
       const height = typeof action === "function" ? action(h) : action;
-      const minHeight = getMinHeight();
+      const minHeight = PgView.getMainSecondaryMinHeight();
       if (height < minHeight) return minHeight;
 
-      const maxHeight = getMaxHeight();
+      const maxHeight = PgView.getMainSecondaryMaxHeight();
       if (height > maxHeight) return maxHeight;
 
       return height;
     });
   }, []);
-  useSetStatic(setCheckedHeight, PgView.events.MAIN_SECONDARY_HEIGHT_SET);
+  useSetStatic(PgView.events.MAIN_SECONDARY_HEIGHT_SET, setCheckedHeight);
 
   const handleResizeStop = useCallback(
     (_e, _dir, _ref, d) => setCheckedHeight((h) => h + d.height),
@@ -69,7 +72,7 @@ const Secondary = () => {
 
   const toggleMinimize = useCallback(() => {
     setHeight((h) => {
-      const minHeight = getMinHeight();
+      const minHeight = PgView.getMainSecondaryMinHeight();
       if (h === minHeight) pageInfo.focus();
       else PgEditor.focus();
       return h === minHeight ? oldHeight.current : minHeight;
@@ -84,14 +87,16 @@ const Secondary = () => {
         name: "Toggle Maximize",
         keybind: "Ctrl+M",
         icon:
-          height === getMaxHeight() && getMaxHeight() !== getDefaultHeight() ? (
+          height === PgView.getMainSecondaryMaxHeight() &&
+          PgView.getMainSecondaryMaxHeight() !==
+            PgView.getMainSecondaryDefaultHeight() ? (
             <DoubleArrow rotate="180deg" />
           ) : (
             <DoubleArrow />
           ),
         run: () => {
           setHeight((h) => {
-            const maxHeight = getMaxHeight();
+            const maxHeight = PgView.getMainSecondaryMaxHeight();
             return h === maxHeight ? oldHeight.current : maxHeight;
           });
         },
@@ -99,7 +104,8 @@ const Secondary = () => {
       {
         name: "Toggle Minimize",
         keybind: "Ctrl+J",
-        icon: height === getMinHeight() ? <Tick /> : <Close />,
+        icon:
+          height === PgView.getMainSecondaryMinHeight() ? <Tick /> : <Close />,
         run: toggleMinimize,
       },
     ],
@@ -117,7 +123,7 @@ const Secondary = () => {
           toggleMinimize();
           PgEditor.focus();
         } else {
-          if (height === getMinHeight()) toggleMinimize();
+          if (height === PgView.getMainSecondaryMinHeight()) toggleMinimize();
           focus();
         }
       },
@@ -140,7 +146,7 @@ const Secondary = () => {
     <Resizable
       size={{ height, width: "100%" }}
       minWidth="100%"
-      minHeight={getMinHeight()}
+      minHeight={PgView.getMainSecondaryMinHeight()}
       onResizeStop={handleResizeStop}
       enable="top"
     >
@@ -193,12 +199,12 @@ const Wrapper = styled.div`
     ${PgTheme.convertToCSS(theme.views.main.secondary.default)};
 
     & > div:first-child {
-      height: ${getMinHeight()}px;
+      height: ${PgView.getMainSecondaryMinHeight()}px;
     }
 
     & > div:last-child {
       ${PgTheme.getScrollbarCSS({ allChildren: true })};
-      height: calc(100% - ${getMinHeight()}px);
+      height: calc(100% - ${PgView.getMainSecondaryMinHeight()}px);
       overflow: hidden;
     }
   `}
@@ -227,7 +233,7 @@ const Tab = styled.div<{ isCurrent: boolean }>`
 
 const Progress = () => {
   const [progress, setProgress] = useState(0);
-  useSetStatic(setProgress, PgView.events.MAIN_SECONDARY_PROGRESS_SET);
+  useSetStatic(PgView.events.MAIN_SECONDARY_PROGRESS_SET, setProgress);
   return <ProgressBar value={progress} />;
 };
 
@@ -236,15 +242,6 @@ const ActionsWrapper = styled.div`
   gap: 0.25rem;
   margin-left: 0.5rem;
 `;
-
-const getDefaultHeight = () => Math.floor(window.innerHeight / 4);
-const getMinHeight = () => 36;
-const getMaxHeight = () => {
-  const bottomHeight = document
-    .getElementById(PgView.ids.BOTTOM)
-    ?.getBoundingClientRect()?.height;
-  return window.innerHeight - (bottomHeight ?? 0);
-};
 
 const getPage = (page: MainSecondaryPageName) => {
   return MAIN_SECONDARY.find((p) => p.name === page)!;
