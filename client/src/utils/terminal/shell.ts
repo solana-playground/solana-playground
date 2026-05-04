@@ -105,31 +105,30 @@ export class PgShell {
    * @returns user input
    */
   async waitForUserInput(msg: string) {
-    return new Promise<string>((res, rej) => {
-      if (this._waitingForInput) rej("Already waiting for input.");
-      else {
-        this._tty.clearLine();
-        this._tty.println(
-          PgTerminal.secondary(this._prefixes.waitingInputMsg) + msg
-        );
-        this._waitingForInput = true;
-        this._prompt();
+    return new Promise<string>(async (res, rej) => {
+      if (this._waitingForInput) return rej("Already waiting for input.");
 
-        // This will happen once user sends the input
-        const handleInput = () => {
-          document.removeEventListener(
-            PgShell._TERMINAL_WAIT_FOR_INPUT,
-            handleInput
-          );
-          this._waitingForInput = false;
-          res(this._tty.input);
-        };
-
-        document.addEventListener(
+      // This will trigger once the user sends input
+      const handleInput = () => {
+        document.removeEventListener(
           PgShell._TERMINAL_WAIT_FOR_INPUT,
           handleInput
         );
-      }
+        this._waitingForInput = false;
+        res(this._tty.input);
+      };
+      document.addEventListener(PgShell._TERMINAL_WAIT_FOR_INPUT, handleInput);
+      this._waitingForInput = true;
+
+      this._tty.clearLine();
+      this._tty.println(
+        PgTerminal.secondary(this._prefixes.waitingInputMsg) + msg
+      );
+
+      // Sleep to fix an issue that makes the current line appear to start with
+      // a prompt token when it shouldn't
+      await PgCommon.sleep(0);
+      await this._prompt();
     });
   }
 
@@ -216,7 +215,8 @@ export class PgShell {
       this._history.push(input);
     } catch (e: any) {
       this._tty.println(e.message);
-      this._prompt();
+      await PgCommon.sleep(10);
+      await this._prompt();
     }
   }
 
