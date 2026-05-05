@@ -2,6 +2,7 @@ import type {
   AllPartial,
   Disposable,
   Promisable,
+  KeyOf,
   SyncOrAsync,
   Arrayable,
   ValueOf,
@@ -311,8 +312,9 @@ export class PgCommon {
   static setDefault<T, D extends AllPartial<T>>(value: T, defaultValue: D) {
     value ??= {} as T;
     for (const property in defaultValue) {
-      const result = defaultValue[property] as AllPartial<T[keyof T]>;
-      value[property as keyof T] ??= result as T[keyof T];
+      type K = KeyOf<T>;
+      const result = defaultValue[property] as AllPartial<T[K]>;
+      value[property as K] ??= result as T[K];
     }
 
     return value as NonNullable<T & D>;
@@ -446,7 +448,7 @@ export class PgCommon {
    * @returns the object keys as an array
    */
   static keys<T extends Record<string, unknown>>(obj: T) {
-    return Object.keys(obj) as Array<keyof T>;
+    return Object.keys(obj) as Array<KeyOf<T>>;
   }
 
   /**
@@ -456,7 +458,7 @@ export class PgCommon {
    * @returns the object entries as an array of [key, value] tuples
    */
   static entries<T extends Record<string, unknown>>(obj: T) {
-    return Object.entries(obj) as Array<[keyof T, ValueOf<T>]>;
+    return Object.entries(obj) as Array<[KeyOf<T>, ValueOf<T>]>;
   }
 
   /**

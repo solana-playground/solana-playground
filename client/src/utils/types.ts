@@ -1,3 +1,6 @@
+/** Get the keys of `T` (strings) */
+export type KeyOf<T> = Extract<keyof T, string>;
+
 /** Get value of the given object */
 export type ValueOf<T extends object> = T[keyof T];
 

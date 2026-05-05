@@ -15,8 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "experimentalDecorators": true,
-    "keyofStringsOnly": true
+    "experimentalDecorators": true
   },
   "include": ["src"],
   "exclude": ["/**/*.raw.d.ts", "/**/declarations/packages/"]

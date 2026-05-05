@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
-import type { Disposable, SyncOrAsync } from "../types";
+import type { Disposable, KeyOf, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
 export type Updatable<T> = {
@@ -12,7 +12,7 @@ export type Updatable<T> = {
 
 /** Recursive `onDidChange${propertyName}` method types */
 export type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in keyof U as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in KeyOf<U> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };
@@ -353,7 +353,9 @@ type JoinCapitalized<T extends string[]> = T extends [
 
 /** Map the property values to a union of tuples */
 type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
-  [K in keyof T]: T[K] extends object
-    ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
-    : [[...Acc, K], T[K]];
+  [K in keyof T]: K extends KeyOf<T>
+    ? T[K] extends object
+      ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
+      : [[...Acc, K], T[K]]
+    : never;
 }[keyof T];
