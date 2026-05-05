@@ -1,13 +1,10 @@
-use std::{
-    fs,
-    path::{Path, PathBuf},
-    process::Command,
-    sync::LazyLock,
-};
+use std::{fs, path::Path, process::Command, sync::LazyLock};
 
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
+
+use crate::log::{info, warn};
 
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
@@ -31,6 +28,7 @@ pub type Files = Vec<[String; 2]>;
 ///
 /// NOTE: This function doesn't return an error in the case of a compiler error.
 pub fn build(
+    concurrency_id: usize,
     program_name: &str,
     files: &Files,
     seeds_feature: bool,
@@ -58,6 +56,27 @@ pub fn build(
         }
     }
 
+    // Copy `Cargo.*` files and `target` dir into a separate directory (only once)
+    let concurrency_path = Path::new(PROGRAMS_DIR).join(concurrency_id.to_string());
+    let concurrency_ready_path = concurrency_path.join("ready");
+    if !fs::exists(&concurrency_ready_path)? {
+        info!("Initializing concurrency id {concurrency_id}");
+        copy_dir(
+            Path::new(PROGRAMS_DIR).join("target"),
+            concurrency_path.join("target"),
+        )?;
+        fs::copy(
+            Path::new(PROGRAMS_DIR).join("Cargo.toml"),
+            concurrency_path.join("Cargo.toml"),
+        )?;
+        fs::copy(
+            Path::new(PROGRAMS_DIR).join("Cargo.lock"),
+            concurrency_path.join("Cargo.lock"),
+        )?;
+        fs::write(concurrency_ready_path, [])?;
+        info!("Completed {concurrency_id}");
+    }
+
     // Write files
     let program_path = Path::new(PROGRAMS_DIR).join(program_name);
     for [path, content] in files {
@@ -73,15 +92,14 @@ pub fn build(
     }
 
     // Update manifest
-    static MANIFEST: LazyLock<(PathBuf, String)> = LazyLock::new(|| {
-        let path = Path::new(PROGRAMS_DIR).join("Cargo.toml");
-        let content = fs::read_to_string(&path).expect("Could not read manifest");
-        (path, content)
+    static MANIFEST: LazyLock<String> = LazyLock::new(|| {
+        fs::read_to_string(Path::new(PROGRAMS_DIR).join("Cargo.toml"))
+            .expect("Could not read manifest")
     });
-    let (manifest_path, manifest_content) = &*MANIFEST;
+    let manifest_path = concurrency_path.join("Cargo.toml");
     fs::write(
-        manifest_path,
-        manifest_content.replacen("default", program_name, 1),
+        &manifest_path,
+        MANIFEST.replacen("default", &format!("../{program_name}"), 1),
     )?;
 
     // Build the program
@@ -115,6 +133,29 @@ pub fn build(
         .transpose()
         .map_or_else(|e| (format!("IDL error: {e}"), None), |idl| (stderr, idl));
     Ok(ret)
+}
+
+/// Recursively copy a directory.
+fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> std::io::Result<()> {
+    let from = from.as_ref();
+    let to = to.as_ref();
+
+    fs::create_dir_all(to)?;
+    for entry in fs::read_dir(from)? {
+        let entry = entry?;
+        let from = entry.path();
+        let to = to.join(entry.file_name());
+        let file_type = entry.file_type()?;
+        if file_type.is_dir() {
+            copy_dir(&from, &to)?;
+        } else if file_type.is_file() {
+            fs::copy(&from, &to)?;
+        } else {
+            warn!("Unknown file type: {file_type:?} {from:?}")
+        }
+    }
+
+    Ok(())
 }
 
 /// Read the program ELF and return its bytes.

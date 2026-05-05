@@ -1,8 +1,13 @@
+use std::sync::Arc;
+
 use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
-use axum::{extract::Json, response::IntoResponse};
+use axum::{
+    extract::{Json, State},
+    response::IntoResponse,
+};
 use serde::{Deserialize, Serialize};
-use tokio::task;
+use tokio::{sync::Semaphore, task};
 use uuid::Uuid;
 
 use crate::{
@@ -48,7 +53,10 @@ struct BuildResponse {
 }
 
 /// Build the program.
-pub async fn build(Json(payload): Json<BuildRequest>) -> Result<impl IntoResponse> {
+pub async fn build(
+    State(sem): State<Arc<Semaphore>>,
+    Json(payload): Json<BuildRequest>,
+) -> Result<impl IntoResponse> {
     let (uuid, respond_with_uuid) = match payload.uuid {
         Some(uuid) => Uuid::try_parse(&uuid)
             .map(|_| (uuid, false))
@@ -56,11 +64,20 @@ pub async fn build(Json(payload): Json<BuildRequest>) -> Result<impl IntoRespons
         None => (Uuid::new_v4().to_string(), true),
     };
 
+    // Only permit a certain number of builds concurrently
+    let permit = sem
+        .acquire()
+        .await
+        .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
+    // FIXME: It's still possible for multiple requests to get the same id
+    let concurrency_id = sem.available_permits();
+
     // Spawn a blocking `tokio::task` to avoid blocking the thread
     let (build_result, uuid) = task::spawn_blocking(move || {
         let flags = payload.flags.as_ref();
         (
             program::build(
+                concurrency_id,
                 &uuid,
                 &payload.files,
                 flags.and_then(|f| f.seeds_feature).unwrap_or_default(),
@@ -73,6 +90,7 @@ pub async fn build(Json(payload): Json<BuildRequest>) -> Result<impl IntoRespons
     .await
     .expect("`spawn_blocking` failure");
 
+    drop(permit);
     let (stderr, idl) = build_result?;
 
     Ok(Json(BuildResponse {

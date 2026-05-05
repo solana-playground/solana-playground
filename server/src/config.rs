@@ -17,6 +17,8 @@ pub struct Config {
     pub db_uri: String,
     /// Database name
     pub db_name: String,
+    /// Maximum amount of concurrent builds
+    pub build_concurrency: usize,
 }
 
 impl Config {
@@ -32,6 +34,7 @@ impl Config {
             verbose: get_env("VERBOSE", false),
             db_uri: get_env("DB_URI", "mongodb://localhost:27017"),
             db_name: get_env("DB_NAME", "solpg"),
+            build_concurrency: get_env("BUILD_CONCURRENCY", 16usize),
         }
     }
 }

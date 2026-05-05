@@ -6,7 +6,10 @@ mod middlewares;
 mod program;
 mod routes;
 
-use std::net::{Ipv4Addr, SocketAddr};
+use std::{
+    net::{Ipv4Addr, SocketAddr},
+    sync::Arc,
+};
 
 use anyhow::Result;
 use axum::{
@@ -14,7 +17,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, sync::Semaphore};
 
 use self::{config::Config, log::info, middlewares::*, routes::*};
 
@@ -28,7 +31,10 @@ async fn main() -> Result<()> {
     info!("DB initialized");
 
     let app = Router::new()
-        .route("/build", post(build))
+        .route(
+            "/build",
+            post(build).with_state(Arc::new(Semaphore::new(config.build_concurrency))),
+        )
         .route("/deploy/:uuid", get(deploy))
         .route("/share/:id", get(share_get))
         .route("/new", post(share_new))
