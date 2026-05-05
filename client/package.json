@@ -96,7 +96,7 @@
     "generate-packages": "node scripts/generate-packages.mjs",
     "generate-tutorials": "node scripts/generate-tutorials.mjs",
     "sync-readme": "node scripts/sync-readme.mjs",
-    "test": "yarn run test-types && yarn run build-craco",
+    "test": "yarn test-types && yarn build",
     "test-build": "yarn run build-craco",
     "test-types": "tsc --noEmit"
   },
