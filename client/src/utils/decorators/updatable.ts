@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
-import type { Disposable, StringKeys, SyncOrAsync } from "../types";
+import type { Disposable, KeyOf, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
 export type Updatable<T> = {
@@ -12,7 +12,7 @@ export type Updatable<T> = {
 
 /** Recursive `onDidChange${propertyName}` method types */
 export type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in StringKeys<U> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in KeyOf<U> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };

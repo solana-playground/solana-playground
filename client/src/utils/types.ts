@@ -1,3 +1,6 @@
+/** Get the keys of `T` (strings) */
+export type KeyOf<T> = Extract<keyof T, string>;
+
 /** Get value of the given object */
 export type ValueOf<T extends object> = T[keyof T];
 
@@ -116,9 +119,6 @@ export type SyncOrAsync<T = unknown> = T | Promise<T>;
 
 /** A `Promise` or a callback that returns a `Promise` */
 export type Promisable<T> = Getable<SyncOrAsync<T>>;
-
-/** String-only keys of `T` */
-export type KeyOf<T> = Extract<keyof T, string>;
 
 /** Make every property (... | null) */
 export type Nullable<T> = {
