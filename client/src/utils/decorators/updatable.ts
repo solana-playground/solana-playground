@@ -346,7 +346,7 @@ type JoinCapitalized<T extends string[]> = T extends [
 
 /** Map the property values to a union of tuples */
 type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
-  [K in keyof T]: K extends string
+  [K in keyof T]: K extends KeyOf<T>
     ? T[K] extends object
       ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
       : [[...Acc, K], T[K]]
