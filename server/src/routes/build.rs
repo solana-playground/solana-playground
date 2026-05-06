@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
@@ -8,7 +8,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::{
-    sync::{Mutex, Semaphore, SemaphorePermit},
+    sync::{Semaphore, SemaphorePermit},
     task,
 };
 use uuid::Uuid;
@@ -73,24 +73,45 @@ impl BuildState {
         }
     }
 
-    /// Acquire a permit and claim a free slot. The permit must be held until the slot is released.
-    async fn reserve(&self) -> Result<(usize, SemaphorePermit<'_>)> {
+    /// Acquire a permit and claim a free slot. The slot is released when the returned guard drops.
+    async fn reserve(&self) -> Result<SlotGuard<'_>> {
         let permit = self
             .sem
             .acquire()
             .await
             .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
-        let mut ids = self.ids.lock().await;
+        let mut ids = self.ids.lock().unwrap_or_else(|e| e.into_inner());
         let id = ids
             .iter()
             .position(|used| !used)
             .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
         ids[id] = true;
-        Ok((id, permit))
+        drop(ids);
+        Ok(SlotGuard {
+            ids: self.ids.clone(),
+            id,
+            _permit: permit,
+        })
     }
+}
 
-    async fn release(&self, id: usize) {
-        self.ids.lock().await[id] = false;
+/// Releases the slot (and permit) on drop, regardless of how the holder exits.
+struct SlotGuard<'a> {
+    ids: Arc<Mutex<Vec<bool>>>,
+    id: usize,
+    _permit: SemaphorePermit<'a>,
+}
+
+impl SlotGuard<'_> {
+    fn id(&self) -> usize {
+        self.id
+    }
+}
+
+impl Drop for SlotGuard<'_> {
+    fn drop(&mut self) {
+        let mut ids = self.ids.lock().unwrap_or_else(|e| e.into_inner());
+        ids[self.id] = false;
     }
 }
 
@@ -107,7 +128,8 @@ pub async fn build(
     };
 
     // Only permit a certain number of builds concurrently
-    let (concurrency_id, permit) = state.reserve().await?;
+    let slot = state.reserve().await?;
+    let concurrency_id = slot.id();
 
     // Spawn a blocking `tokio::task` to avoid blocking the thread
     let (build_result, uuid) = task::spawn_blocking(move || {
@@ -125,10 +147,9 @@ pub async fn build(
         )
     })
     .await
-    .expect("`spawn_blocking` failure");
+    .map_err(|e| anyhow!("`spawn_blocking` failure: {e}"))?;
 
-    state.release(concurrency_id).await;
-    drop(permit);
+    drop(slot);
     let (stderr, idl) = build_result?;
 
     Ok(Json(BuildResponse {
@@ -140,17 +161,28 @@ pub async fn build(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::time::Duration;
 
+    use super::*;
+
     #[tokio::test]
-    async fn slot_leaks_when_holder_panics() {
+    async fn slot_freed_on_normal_drop() {
+        let state = BuildState::new(2);
+        let slot = state.reserve().await.unwrap();
+        let id = slot.id();
+        drop(slot);
+        let ids = state.ids.lock().expect("slot table not poisoned");
+        assert!(!ids[id], "slot must be freed on normal drop");
+    }
+
+    #[tokio::test]
+    async fn slot_freed_when_holder_panics() {
         let state = BuildState::new(2);
 
         let result = tokio::spawn({
             let state = state.clone();
             async move {
-                let (_id, _permit) = state.reserve().await.unwrap();
+                let _slot = state.reserve().await.unwrap();
                 panic!("simulated build panic");
             }
         })
@@ -158,34 +190,65 @@ mod tests {
 
         assert!(result.is_err(), "task should have panicked");
 
-        let ids = state.ids.lock().await;
-        assert!(
-            ids[0],
-            "current implementation leaks the slot when the holder panics"
-        );
+        let ids = state.ids.lock().expect("slot table not poisoned");
+        assert!(!ids[0], "slot must be freed on panic");
     }
 
     #[tokio::test]
-    async fn slot_leaks_when_holder_is_cancelled() {
+    async fn slot_freed_when_holder_is_cancelled() {
         let state = BuildState::new(2);
 
         let handle = tokio::spawn({
             let state = state.clone();
             async move {
-                let (id, _permit) = state.reserve().await.unwrap();
+                let _slot = state.reserve().await.unwrap();
                 tokio::time::sleep(Duration::from_secs(1)).await;
-                state.release(id).await;
             }
         });
 
-        tokio::time::sleep(Duration::from_millis(50)).await;
+        // Wait until the spawned task actually claims the slot, so the assertion
+        // can't pass for the wrong reason on a slow runner.
+        let start = std::time::Instant::now();
+        loop {
+            if state.ids.lock().expect("slot table not poisoned")[0] {
+                break;
+            }
+            assert!(
+                start.elapsed() < Duration::from_secs(5),
+                "spawned task did not claim a slot within timeout",
+            );
+            tokio::time::sleep(Duration::from_millis(1)).await;
+        }
+
         handle.abort();
         let _ = handle.await;
 
-        let ids = state.ids.lock().await;
-        assert!(
-            ids[0],
-            "current implementation leaks the slot when the holder is cancelled"
+        let ids = state.ids.lock().expect("slot table not poisoned");
+        assert!(!ids[0], "slot must be freed on cancellation");
+    }
+
+    #[tokio::test]
+    async fn concurrent_reservations_get_distinct_ids_and_block_when_full() {
+        let state = BuildState::new(2);
+
+        let s1 = state.reserve().await.unwrap();
+        let s2 = state.reserve().await.unwrap();
+        assert_ne!(
+            s1.id(),
+            s2.id(),
+            "concurrent reservations must use distinct ids"
         );
+
+        let blocked = tokio::time::timeout(Duration::from_millis(50), state.reserve()).await;
+        assert!(
+            blocked.is_err(),
+            "third reservation must block when capacity is exhausted"
+        );
+
+        let freed_id = s1.id();
+        drop(s1);
+        let s3 = state.reserve().await.unwrap();
+        assert_eq!(s3.id(), freed_id, "released id should be reused");
+        assert_ne!(s3.id(), s2.id());
     }
 }
