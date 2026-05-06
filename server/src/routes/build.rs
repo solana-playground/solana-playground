@@ -8,7 +8,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::{
-    sync::{Mutex, Semaphore},
+    sync::{Mutex, Semaphore, SemaphorePermit},
     task,
 };
 use uuid::Uuid;
@@ -72,6 +72,26 @@ impl BuildState {
             ids: Arc::new(Mutex::new(vec![false; concurrency])),
         }
     }
+
+    /// Acquire a permit and claim a free slot. The permit must be held until the slot is released.
+    async fn reserve(&self) -> Result<(usize, SemaphorePermit<'_>)> {
+        let permit = self
+            .sem
+            .acquire()
+            .await
+            .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
+        let mut ids = self.ids.lock().await;
+        let id = ids
+            .iter()
+            .position(|used| !used)
+            .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
+        ids[id] = true;
+        Ok((id, permit))
+    }
+
+    async fn release(&self, id: usize) {
+        self.ids.lock().await[id] = false;
+    }
 }
 
 /// Build the program.
@@ -87,19 +107,7 @@ pub async fn build(
     };
 
     // Only permit a certain number of builds concurrently
-    let permit = state
-        .sem
-        .acquire()
-        .await
-        .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
-    let mut ids = state.ids.lock().await;
-    let concurrency_id = ids
-        .iter()
-        .enumerate()
-        .find_map(|(id, used)| (!used).then_some(id))
-        .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
-    ids[concurrency_id] = true;
-    drop(ids);
+    let (concurrency_id, permit) = state.reserve().await?;
 
     // Spawn a blocking `tokio::task` to avoid blocking the thread
     let (build_result, uuid) = task::spawn_blocking(move || {
@@ -119,9 +127,7 @@ pub async fn build(
     .await
     .expect("`spawn_blocking` failure");
 
-    let mut ids = state.ids.lock().await;
-    ids[concurrency_id] = false;
-    drop(ids);
+    state.release(concurrency_id).await;
     drop(permit);
     let (stderr, idl) = build_result?;
 
@@ -130,4 +136,56 @@ pub async fn build(
         uuid: if respond_with_uuid { Some(uuid) } else { None },
         idl,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Duration;
+
+    #[tokio::test]
+    async fn slot_leaks_when_holder_panics() {
+        let state = BuildState::new(2);
+
+        let result = tokio::spawn({
+            let state = state.clone();
+            async move {
+                let (_id, _permit) = state.reserve().await.unwrap();
+                panic!("simulated build panic");
+            }
+        })
+        .await;
+
+        assert!(result.is_err(), "task should have panicked");
+
+        let ids = state.ids.lock().await;
+        assert!(
+            ids[0],
+            "current implementation leaks the slot when the holder panics"
+        );
+    }
+
+    #[tokio::test]
+    async fn slot_leaks_when_holder_is_cancelled() {
+        let state = BuildState::new(2);
+
+        let handle = tokio::spawn({
+            let state = state.clone();
+            async move {
+                let (id, _permit) = state.reserve().await.unwrap();
+                tokio::time::sleep(Duration::from_secs(1)).await;
+                state.release(id).await;
+            }
+        });
+
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        handle.abort();
+        let _ = handle.await;
+
+        let ids = state.ids.lock().await;
+        assert!(
+            ids[0],
+            "current implementation leaks the slot when the holder is cancelled"
+        );
+    }
 }
