@@ -6,10 +6,7 @@ mod middlewares;
 mod program;
 mod routes;
 
-use std::{
-    net::{Ipv4Addr, SocketAddr},
-    sync::Arc,
-};
+use std::net::{Ipv4Addr, SocketAddr};
 
 use anyhow::Result;
 use axum::{
@@ -17,7 +14,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use tokio::{net::TcpListener, sync::Semaphore};
+use tokio::net::TcpListener;
 
 use self::{config::Config, log::info, middlewares::*, routes::*};
 
@@ -33,7 +30,7 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route(
             "/build",
-            post(build).with_state(Arc::new(Semaphore::new(config.build_concurrency))),
+            post(build).with_state(BuildState::new(config.build_concurrency)),
         )
         .route("/deploy/:uuid", get(deploy))
         .route("/share/:id", get(share_get))

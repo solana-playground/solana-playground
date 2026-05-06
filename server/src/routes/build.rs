@@ -7,7 +7,10 @@ use axum::{
     response::IntoResponse,
 };
 use serde::{Deserialize, Serialize};
-use tokio::{sync::Semaphore, task};
+use tokio::{
+    sync::{Mutex, Semaphore},
+    task,
+};
 use uuid::Uuid;
 
 use crate::{
@@ -32,7 +35,7 @@ pub struct BuildRequest {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BuildFlags {
+struct BuildFlags {
     /// Enable Anchor `seeds` feature, defaults to `false`
     seeds_feature: Option<bool>,
     /// Remove doc comments from the IDL, defaults to `true`
@@ -52,9 +55,28 @@ struct BuildResponse {
     idl: Option<Idl>,
 }
 
+/// Build state
+#[derive(Clone)]
+pub struct BuildState {
+    /// Semaphore to limit concurrent requests
+    sem: Arc<Semaphore>,
+    /// A set of current requests based on availability (capped by `sem`)
+    ids: Arc<Mutex<Vec<bool>>>,
+}
+
+impl BuildState {
+    /// Create a new value with the maximum amount of concurrent builds.
+    pub fn new(concurrency: usize) -> Self {
+        Self {
+            sem: Arc::new(Semaphore::new(concurrency)),
+            ids: Arc::new(Mutex::new(vec![false; concurrency])),
+        }
+    }
+}
+
 /// Build the program.
 pub async fn build(
-    State(sem): State<Arc<Semaphore>>,
+    State(state): State<BuildState>,
     Json(payload): Json<BuildRequest>,
 ) -> Result<impl IntoResponse> {
     let (uuid, respond_with_uuid) = match payload.uuid {
@@ -65,12 +87,19 @@ pub async fn build(
     };
 
     // Only permit a certain number of builds concurrently
-    let permit = sem
+    let permit = state
+        .sem
         .acquire()
         .await
         .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
-    // FIXME: It's still possible for multiple requests to get the same id
-    let concurrency_id = sem.available_permits();
+    let mut ids = state.ids.lock().await;
+    let concurrency_id = ids
+        .iter()
+        .enumerate()
+        .find_map(|(id, used)| (!used).then_some(id))
+        .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
+    ids[concurrency_id] = true;
+    drop(ids);
 
     // Spawn a blocking `tokio::task` to avoid blocking the thread
     let (build_result, uuid) = task::spawn_blocking(move || {
@@ -90,6 +119,9 @@ pub async fn build(
     .await
     .expect("`spawn_blocking` failure");
 
+    let mut ids = state.ids.lock().await;
+    ids[concurrency_id] = false;
+    drop(ids);
     drop(permit);
     let (stderr, idl) = build_result?;
 
