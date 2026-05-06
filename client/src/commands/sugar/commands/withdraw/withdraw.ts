@@ -89,7 +89,7 @@ export const processWithdraw = async (
         );
 
         if (
-          !(await term.waitForUserInput("Do you want to continue?", {
+          !(await term.waitForInput("Do you want to continue?", {
             confirm: true,
             default: "yes",
           }))

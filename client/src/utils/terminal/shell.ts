@@ -104,7 +104,7 @@ export class PgShell {
    * @param msg message to print to the terminal before prompting user
    * @returns user input
    */
-  async waitForUserInput(msg: string) {
+  async waitForInput(msg: string) {
     return new Promise<string>(async (res, rej) => {
       if (this._waitingForInput) return rej("Already waiting for input.");
 

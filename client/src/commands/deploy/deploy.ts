@@ -40,7 +40,7 @@ export const deploy = createCmd({
         )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
       } else if (closeBuffer) {
         const term = await PgTerminal.get();
-        const shouldCloseBufferAccount = await term.waitForUserInput(
+        const shouldCloseBufferAccount = await term.waitForInput(
           PgTerminal.warning("Cancelled deployment.") +
             " Would you like to close the buffer account and reclaim SOL?",
           { confirm: true, default: "yes" }
@@ -158,7 +158,7 @@ const processDeploy = async () => {
 
     const term = await PgTerminal.get();
     term.println(`Warning: ${msg}`);
-    const confirmed = await term.waitForUserInput(
+    const confirmed = await term.waitForInput(
       "You don't have enough SOL to complete the deployment. Would you like to request an airdrop?",
       { confirm: true, default: "yes" }
     );
@@ -318,10 +318,10 @@ const loadBufferWithControl = (
         await term.executeFromStr("yes");
       } else {
         abortController.abort();
-        const shouldContinue = await term.waitForUserInput(
-          "Continue deployment?",
-          { confirm: true, default: "yes" }
-        );
+        const shouldContinue = await term.waitForInput("Continue deployment?", {
+          confirm: true,
+          default: "yes",
+        });
         dispose();
 
         if (shouldContinue) {
