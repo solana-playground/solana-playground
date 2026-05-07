@@ -19,8 +19,8 @@ pub async fn init(uri: &str, _namespace: String, max_connections: u32) -> Result
         .connect(uri)
         .await?;
 
-    // Run migrations
-    sqlx::migrate!("./migrations").run(&pool).await?;
+    // No-arg form defaults to `./migrations` (CARGO_MANIFEST_DIR-relative).
+    sqlx::migrate!().run(&pool).await?;
 
     DB.set(pool).map_err(|_| anyhow!("Failed to init `DB`"))
 }
