@@ -25,7 +25,10 @@ async fn main() -> Result<()> {
     info!("Config loaded: {config:#?}");
 
     db::init(&config.db_uri, config.db_name, config.db_max_connections).await?;
-    info!("DB initialized (max_connections={})", config.db_max_connections);
+    info!(
+        "DB initialized (max_connections={})",
+        config.db_max_connections
+    );
 
     let app = Router::new()
         .route(

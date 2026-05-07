@@ -1,9 +1,13 @@
+mod id;
+
 use std::sync::OnceLock;
 
 use anyhow::{anyhow, Result};
 use serde_json::Value;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use uuid::Uuid;
+
+use self::id::is_legacy_id;
 
 /// Global database connection pool
 static DB: OnceLock<PgPool> = OnceLock::new();
@@ -30,6 +34,22 @@ pub async fn find_by_id(id: &str, collection: &str) -> Result<Option<Value>> {
     let id = Uuid::parse_str(id)?;
 
     let query = format!("SELECT data FROM {collection} WHERE id = $1");
+    let row: Option<(Value,)> = sqlx::query_as(&query).bind(id).fetch_optional(pool).await?;
+
+    Ok(row.map(|(data,)| data))
+}
+
+/// Find the value by id, falling back to `legacy_id` for 24-char hex (mongo ObjectId) inputs.
+pub async fn find_by_legacy_and_id(id: &str, collection: &str) -> Result<Option<Value>> {
+    if Uuid::parse_str(id).is_ok() {
+        return find_by_id(id, collection).await;
+    }
+    if !is_legacy_id(id) {
+        return Err(anyhow!("invalid id format"));
+    }
+
+    let pool = get_pool()?;
+    let query = format!("SELECT data FROM {collection} WHERE legacy_id = $1");
     let row: Option<(Value,)> = sqlx::query_as(&query).bind(id).fetch_optional(pool).await?;
 
     Ok(row.map(|(data,)| data))
