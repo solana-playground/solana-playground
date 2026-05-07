@@ -8,7 +8,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::{
-    sync::{Mutex, Semaphore},
+    sync::{Mutex, OwnedSemaphorePermit, Semaphore},
     task,
 };
 use uuid::Uuid;
@@ -74,6 +74,48 @@ impl BuildState {
     }
 }
 
+/// A utility type to manage permits.
+struct Permit {
+    /// Build state
+    state: BuildState,
+    /// Permit id
+    id: usize,
+    /// An owned semaphore permit. Once this field gets dropped, the semaphore permits new acquires.
+    #[allow(unused)]
+    permit: OwnedSemaphorePermit,
+}
+
+impl Permit {
+    /// Acquire a permit.
+    ///
+    /// You *must* call [`Permit::release`] to release afterwards.
+    async fn acquire(state: BuildState) -> Result<Self> {
+        let permit = state
+            .sem
+            .clone()
+            .acquire_owned()
+            .await
+            .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
+
+        let mut ids = state.ids.lock().await;
+        let id = ids
+            .iter()
+            .enumerate()
+            .find_map(|(id, used)| (!used).then_some(id))
+            .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
+        ids[id] = true;
+        drop(ids);
+
+        Ok(Self { state, permit, id })
+    }
+
+    /// Release the permit.
+    async fn release(self) {
+        let mut ids = self.state.ids.lock().await;
+        ids[self.id] = false;
+    }
+}
+
 /// Build the program.
 pub async fn build(
     State(state): State<BuildState>,
@@ -87,26 +129,14 @@ pub async fn build(
     };
 
     // Only permit a certain number of builds concurrently
-    let permit = state
-        .sem
-        .acquire()
-        .await
-        .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
-    let mut ids = state.ids.lock().await;
-    let concurrency_id = ids
-        .iter()
-        .enumerate()
-        .find_map(|(id, used)| (!used).then_some(id))
-        .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
-    ids[concurrency_id] = true;
-    drop(ids);
+    let permit = Permit::acquire(state).await?;
 
     // Spawn a blocking `tokio::task` to avoid blocking the thread
     let (build_result, uuid) = task::spawn_blocking(move || {
         let flags = payload.flags.as_ref();
         (
             program::build(
-                concurrency_id,
+                permit.id,
                 &uuid,
                 &payload.files,
                 flags.and_then(|f| f.seeds_feature).unwrap_or_default(),
@@ -119,10 +149,7 @@ pub async fn build(
     .await
     .expect("`spawn_blocking` failure");
 
-    let mut ids = state.ids.lock().await;
-    ids[concurrency_id] = false;
-    drop(ids);
-    drop(permit);
+    permit.release().await;
     let (stderr, idl) = build_result?;
 
     Ok(Json(BuildResponse {
