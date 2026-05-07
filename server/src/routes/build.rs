@@ -49,8 +49,8 @@ struct BuildFlags {
 struct BuildResponse {
     /// Solana build tools output to `stderr` regardless of the compilation status
     stderr: String,
-    /// UUID of the program, `None` if the [`BuildRequest`] includes `uuid`
-    uuid: Option<String>,
+    /// UUID of the program. Always echoed so the client can correlate the response.
+    uuid: String,
     /// Anchor IDL of the program, `None` for native programs
     idl: Option<Idl>,
 }
@@ -120,11 +120,11 @@ pub async fn build(
     State(state): State<BuildState>,
     Json(payload): Json<BuildRequest>,
 ) -> Result<impl IntoResponse> {
-    let (uuid, respond_with_uuid) = match payload.uuid {
+    let uuid = match payload.uuid {
         Some(uuid) => Uuid::try_parse(&uuid)
-            .map(|_| (uuid, false))
+            .map(|_| uuid)
             .map_err(|_| anyhow!("Invalid UUID"))?,
-        None => (Uuid::new_v4().to_string(), true),
+        None => Uuid::new_v4().to_string(),
     };
 
     // Only permit a certain number of builds concurrently
@@ -154,7 +154,7 @@ pub async fn build(
 
     Ok(Json(BuildResponse {
         stderr,
-        uuid: if respond_with_uuid { Some(uuid) } else { None },
+        uuid,
         idl,
     }))
 }

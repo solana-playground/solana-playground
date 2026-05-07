@@ -113,7 +113,11 @@ pub fn build(
 
     // Check compile errors
     let stderr = String::from_utf8(output.stderr)?;
-    if stderr.rfind("error: could not compile").is_some() {
+    let rust_compile_failed = stderr.rfind("error: could not compile").is_some();
+    // `cargo-build-sbf` post-link checks (e.g. stack-size verifier) emit lines starting with
+    // "Error:" but exit 0, so an exit-code or rustc-only check would miss them.
+    let sbf_link_failed = stderr.lines().any(|line| line.starts_with("Error: "));
+    if rust_compile_failed || sbf_link_failed {
         return Ok((stderr, None));
     }
 
