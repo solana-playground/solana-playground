@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
@@ -7,10 +7,7 @@ use axum::{
     response::IntoResponse,
 };
 use serde::{Deserialize, Serialize};
-use tokio::{
-    sync::{Mutex, OwnedSemaphorePermit, Semaphore},
-    task,
-};
+use tokio::{sync::Semaphore, task};
 use uuid::Uuid;
 
 use crate::{
@@ -74,48 +71,6 @@ impl BuildState {
     }
 }
 
-/// A utility type to manage permits.
-struct Permit {
-    /// Build state
-    state: BuildState,
-    /// Permit id
-    id: usize,
-    /// An owned semaphore permit. Once this field gets dropped, the semaphore permits new acquires.
-    #[allow(unused)]
-    permit: OwnedSemaphorePermit,
-}
-
-impl Permit {
-    /// Acquire a permit.
-    ///
-    /// You *must* call [`Permit::release`] to release afterwards.
-    async fn acquire(state: BuildState) -> Result<Self> {
-        let permit = state
-            .sem
-            .clone()
-            .acquire_owned()
-            .await
-            .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
-
-        let mut ids = state.ids.lock().await;
-        let id = ids
-            .iter()
-            .enumerate()
-            .find_map(|(id, used)| (!used).then_some(id))
-            .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
-        ids[id] = true;
-        drop(ids);
-
-        Ok(Self { state, permit, id })
-    }
-
-    /// Release the permit.
-    async fn release(self) {
-        let mut ids = self.state.ids.lock().await;
-        ids[self.id] = false;
-    }
-}
-
 /// Build the program.
 pub async fn build(
     State(state): State<BuildState>,
@@ -129,14 +84,15 @@ pub async fn build(
     };
 
     // Only permit a certain number of builds concurrently
-    let permit = Permit::acquire(state).await?;
+    let permit = concurrent::Permit::acquire(state).await?;
+    let concurrency_id = permit.id();
 
     // Spawn a blocking `tokio::task` to avoid blocking the thread
     let (build_result, uuid) = task::spawn_blocking(move || {
         let flags = payload.flags.as_ref();
         (
             program::build(
-                permit.id,
+                concurrency_id,
                 &uuid,
                 &payload.files,
                 flags.and_then(|f| f.seeds_feature).unwrap_or_default(),
@@ -147,9 +103,7 @@ pub async fn build(
         )
     })
     .await
-    .expect("`spawn_blocking` failure");
-
-    permit.release().await;
+    .map_err(|e| anyhow!("Failed to run `spawn_blocking`: {e}"))?;
     let (stderr, idl) = build_result?;
 
     Ok(Json(BuildResponse {
@@ -157,4 +111,73 @@ pub async fn build(
         uuid: if respond_with_uuid { Some(uuid) } else { None },
         idl,
     }))
+}
+
+/// Concurrency helpers
+mod concurrent {
+    use tokio::sync::OwnedSemaphorePermit;
+
+    use super::*;
+    use crate::log::error;
+
+    /// A utility type to manage concurrent permits.
+    pub(super) struct Permit {
+        /// Permit id
+        id: usize,
+        /// An owned semaphore permit used to limit concurrent requests
+        #[allow(unused)]
+        permit: OwnedSemaphorePermit,
+        /// Build state
+        state: BuildState,
+    }
+
+    impl Permit {
+        /// Acquire a permit.
+        ///
+        /// # Note
+        ///
+        /// This function takes ownership of [`BuildState`], even though it doesn't need to, in
+        /// order to help make sure the ids [`Mutex`] doesn't get used anywhere else. This is done
+        /// to limit the usage of `state.ids` and make sure it never gets poisoned.
+        pub async fn acquire(state: BuildState) -> Result<Self> {
+            let permit = state
+                .sem
+                .clone()
+                .acquire_owned()
+                .await
+                .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
+
+            let mut ids = state
+                .ids
+                .lock()
+                .map_err(|e| anyhow!("Failed to lock ids: {e}"))?;
+            let id = ids
+                .iter()
+                .enumerate()
+                .find_map(|(id, used)| (!used).then_some(id))
+                .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
+            ids[id] = true;
+            drop(ids);
+
+            Ok(Self { id, permit, state })
+        }
+
+        /// Get the permit ID.
+        pub fn id(&self) -> usize {
+            self.id
+        }
+    }
+
+    impl Drop for Permit {
+        fn drop(&mut self) {
+            let Ok(mut ids) = self.state.ids.lock() else {
+                // TODO: Figure out whether this could happen. It shouldn't happen, but if it does,
+                // should we ignore poisoned locks?
+                error!("Failed to lock ids for id {}", self.id);
+                return;
+            };
+
+            ids[self.id] = false;
+        }
+    }
 }
