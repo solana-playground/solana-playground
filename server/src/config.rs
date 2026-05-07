@@ -17,6 +17,8 @@ pub struct Config {
     pub db_uri: String,
     /// Database name
     pub db_name: String,
+    /// Maximum number of connections in the database pool
+    pub db_max_connections: u32,
     /// Maximum amount of concurrent builds
     pub build_concurrency: usize,
 }
@@ -37,6 +39,7 @@ impl Config {
                 "postgresql://postgres:postgres@localhost:5432/solpg",
             ),
             db_name: get_env("DB_NAME", "solpg"),
+            db_max_connections: get_env("DB_MAX_CONNECTIONS", 10u32),
             build_concurrency: get_env("BUILD_CONCURRENCY", 16usize),
         }
     }

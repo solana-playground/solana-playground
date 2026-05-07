@@ -11,8 +11,12 @@ static DB: OnceLock<PgPool> = OnceLock::new();
 /// Initialize the global database connection pool.
 ///
 /// NOTE: Other functions in this module will not be usable before this function is executed.
-pub async fn init(uri: &str, _name: String) -> Result<()> {
-    let pool = PgPoolOptions::new().max_connections(5).connect(uri).await?;
+pub async fn init(uri: &str, _name: String, max_connections: u32) -> Result<()> {
+    // `max_connections` defaults to sqlx's default (10); tune via `PG_DB_MAX_CONNECTIONS`
+    let pool = PgPoolOptions::new()
+        .max_connections(max_connections)
+        .connect(uri)
+        .await?;
 
     // Run migrations
     sqlx::migrate!("./migrations").run(&pool).await?;
