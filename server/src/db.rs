@@ -13,7 +13,6 @@ static DB: OnceLock<PgPool> = OnceLock::new();
 /// NOTE: Other functions in this module will not be usable before this function is executed.
 /// `_namespace` is db-agnostic naming so this signature survives a DB provider swap.
 pub async fn init(uri: &str, _namespace: String, max_connections: u32) -> Result<()> {
-    // `max_connections` defaults to sqlx's default (10); tune via `PG_DB_MAX_CONNECTIONS`
     let pool = PgPoolOptions::new()
         .max_connections(max_connections)
         .connect(uri)
