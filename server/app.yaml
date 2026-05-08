@@ -6,9 +6,10 @@ automatic_scaling:
   min_num_instances: 1
   max_num_instances: 1
 
-# Environment variables
+# Runtime configuration is supplied via GCP-managed env vars and/or secrets.
+# Keep this file free of credentials so the manifest is safe to commit.
 env_variables:
-  PG_DB_URI: "mongodb://<YOUR_PROD_MONGO_HOST>:27017"
+  PG_PORT: "8080"
 
 resources:
   cpu: 1
