@@ -1,0 +1,18 @@
+# Files uploaded to App Engine. Override the repo .gitignore so the staged
+# `build/` (CRA bundle copied in by cicd_web.yml) is included in the upload.
+
+.git
+.gitignore
+.gcloudignore
+
+node_modules
+*.log
+.env
+.env.*
+
+# Tests stay out of the deploy image.
+**/*.test.mjs
+
+# Docker compose Dockerfile is renamed into place by the workflow; the source
+# version is not needed in the deploy upload.
+Dockerfile.gae
