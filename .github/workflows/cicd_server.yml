@@ -3,7 +3,7 @@ name: CICD Server
 on:
   push:
     branches:
-      - v0.29
+      - master
 
   workflow_dispatch:
 
@@ -19,8 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Add nightly rustfmt
+        run: rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+
       - name: Check formatting
-        run: cargo fmt --check
+        run: cargo +nightly fmt --check
 
   clippy_server:
     name: Clippy server
@@ -50,13 +53,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: v0.29
+          ref: master
           fetch-depth: 0
 
       - name: Set up Git to get tag and normalize for App Engine
         run: |
           git fetch --tags
-          TAG=$(git describe --tags --abbrev=0)
+          TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
           # Replace periods with dashes for App Engine compatibility
           NORMALIZED_TAG=${TAG//./-}
           echo "VERSION_TAG=$NORMALIZED_TAG" >> $GITHUB_ENV
@@ -64,7 +67,7 @@ jobs:
       - name: Set up Cloud SDK authentication
         uses: google-github-actions/auth@v2
         with:
-          token_format: 'access_token'
+          token_format: "access_token"
           credentials_json: ${{ secrets.GCP_KEY }}
 
       - name: Set up Cloud SDK
@@ -74,13 +77,6 @@ jobs:
         run: |-
           gcloud config set account ${{ secrets.SERVICE_ACCOUNT }}
           gcloud config set project ${{ secrets.PROJECT_ID }}
-
-#      - name: Replace app.yaml environment variables
-#        uses: 73h/gae-app-yaml-replace-env-variables@v0.1
-#        env:
-#          PG_DB_URI: ${{ secrets.PROD_DB_URI }}
-#        with:
-#          app_yaml_path: app.yaml
 
       - name: Deploy to App Engine with specific version (no promote)
         run: |
