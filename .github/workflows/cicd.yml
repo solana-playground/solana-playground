@@ -17,7 +17,7 @@ jobs:
         working-directory: server
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Add nightly rustfmt
         run: rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
@@ -34,7 +34,7 @@ jobs:
         working-directory: server
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Add clippy
         run: rustup component add clippy
@@ -51,8 +51,8 @@ jobs:
         working-directory: web
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: yarn
@@ -76,7 +76,7 @@ jobs:
       version_tag: ${{ steps.tag.outputs.version_tag }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: master
           fetch-depth: 0
@@ -99,7 +99,7 @@ jobs:
       - resolve_version
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: master
 
@@ -133,12 +133,12 @@ jobs:
       - resolve_version
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: master
           submodules: recursive
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: yarn
