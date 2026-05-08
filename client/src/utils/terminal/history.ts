@@ -57,6 +57,7 @@ export class PgHistory {
     const index = Math.max(0, this._cursor - 1);
     this._cursor = index;
     if (this._entries.length > index) return this._entries[index];
+    return undefined;
   }
 
   /**
@@ -68,5 +69,6 @@ export class PgHistory {
     const index = Math.min(this._entries.length, this._cursor + 1);
     this._cursor = index;
     if (this._entries.length >= index) return this._entries[index];
+    return undefined;
   }
 }

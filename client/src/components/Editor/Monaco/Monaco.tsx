@@ -229,6 +229,7 @@ const Monaco = () => {
   // Dispose editor
   useEffect(() => {
     if (editor) return () => editor.dispose();
+    return;
   }, [editor]);
 
   // Set editor state

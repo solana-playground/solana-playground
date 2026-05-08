@@ -124,6 +124,7 @@ export class PgPlaynet {
       return await PgExplorer.fs.readToString(this._PATHS.SAVE_DATA);
     } catch (e: any) {
       console.log("Couldn't get Playnet data:", e.message);
+      return undefined;
     }
   }
 }

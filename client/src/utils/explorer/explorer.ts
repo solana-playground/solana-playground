@@ -745,6 +745,7 @@ export class PgExplorer {
     if (this.currentFilePath) {
       return PgLanguage.getFromPath(this.currentFilePath);
     }
+    return undefined;
   }
 
   /**
@@ -756,6 +757,7 @@ export class PgExplorer {
     if (this.currentFilePath) {
       return PgLanguage.getIsPathJsLike(this.currentFilePath);
     }
+    return undefined;
   }
 
   /**
@@ -1355,6 +1357,7 @@ export class PgExplorer {
   static getItemTypeFromEl(el: HTMLDivElement) {
     const path = PgExplorer.getItemPathFromEl(el);
     if (path) return PgExplorer.getItemTypeFromPath(path);
+    return undefined;
   }
 
   /**
@@ -1402,6 +1405,7 @@ export class PgExplorer {
         el.parentElement!.previousElementSibling as HTMLDivElement
       );
     }
+    return undefined;
   }
 
   /**
@@ -1444,6 +1448,7 @@ export class PgExplorer {
       PgView.classNames.CTX_SELECTED
     );
     if (ctxSelectedEls.length) return ctxSelectedEls[0];
+    return undefined;
   }
 
   /** Set the selected context element. */

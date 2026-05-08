@@ -563,6 +563,7 @@ export class PgCommon {
     if (userAgent.includes("win")) return "Windows";
     if (userAgent.includes("mac")) return "MacOS";
     if (userAgent.includes("linux")) return "Linux";
+    return undefined;
   }
 
   /**
@@ -587,6 +588,7 @@ export class PgCommon {
     if ((navigator as any).brave) return "Brave";
     if (navigator.userAgent.includes("Chrome")) return "Chrome";
     if (navigator.userAgent.includes("Firefox")) return "Firefox";
+    return undefined;
   }
 
   /**

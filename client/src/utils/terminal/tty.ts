@@ -85,6 +85,7 @@ export class PgTty {
         currentLineStr.startsWith(this._continuationPromptPrefix)
       );
     }
+    return false;
   }
 
   /**

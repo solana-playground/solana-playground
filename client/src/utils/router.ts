@@ -229,6 +229,7 @@ export class PgRouter {
           index + endIndex + 1
         );
       }
+      return undefined;
     };
 
     recursivelyMapValues(path);

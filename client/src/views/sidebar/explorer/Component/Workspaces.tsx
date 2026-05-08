@@ -114,6 +114,7 @@ const WorkspaceSelect = () => {
       );
       if (val) return val;
     }
+    return undefined;
   }, [explorer.currentWorkspaceName, options]);
 
   return (

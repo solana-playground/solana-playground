@@ -111,6 +111,7 @@ export class PgFramework {
       const isCurrent = await framework.getIsCurrent(files);
       if (isCurrent) return framework;
     }
+    return undefined;
   }
 
   /**

@@ -97,7 +97,7 @@
     "generate-tutorials": "node scripts/generate-tutorials.mjs",
     "sync-readme": "node scripts/sync-readme.mjs",
     "test": "yarn test-types && yarn build",
-    "test-types": "tsc --noEmit"
+    "test-types": "yarn generate && tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [

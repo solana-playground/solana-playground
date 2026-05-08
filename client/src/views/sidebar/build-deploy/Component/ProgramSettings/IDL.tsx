@@ -85,6 +85,8 @@ const InitOrUpgrade = () => {
       case InitOrUpgradeState.CAN_UPGRADE:
       case InitOrUpgradeState.INCORRECT_AUTHORITY:
         return "Upgrade";
+      default:
+        return undefined;
     }
   }, [state]);
 

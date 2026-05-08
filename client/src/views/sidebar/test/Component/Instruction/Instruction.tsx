@@ -107,6 +107,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
           )}.`,
           { noColor: true }
         );
+        return undefined;
       } catch (e: any) {
         if (e.message) {
           const ERRORS = [

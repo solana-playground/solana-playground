@@ -299,6 +299,7 @@ class _PgWallet {
           return keypair;
         } catch (err: any) {
           console.log(err.message);
+          return undefined;
         }
       },
       { accept: ".json" }

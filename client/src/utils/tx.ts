@@ -129,6 +129,7 @@ export class PgTx {
       opts?.commitment
     );
     if (result?.value.err) return { err: result.value.err };
+    return undefined;
   }
 
   /**

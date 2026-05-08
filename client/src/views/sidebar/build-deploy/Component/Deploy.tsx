@@ -54,7 +54,8 @@ const Deploy = () => {
             // state has to be handled outside of the command because the deploy
             // command is waiting for user input and re-running the command here
             // would overwrite the user input.
-            return PgCommand.deploy.execute();
+            PgCommand.deploy.execute();
+            break;
 
           case "loading":
             PgGlobal.update({ deployState: "paused" });

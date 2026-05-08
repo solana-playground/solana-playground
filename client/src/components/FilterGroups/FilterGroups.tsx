@@ -131,6 +131,7 @@ const StyledTag = styled(Tag)`
         box-shadow: none;
       `;
     }
+    return undefined;
   }}
 `;
 

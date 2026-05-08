@@ -197,7 +197,7 @@ const getSrc = (url: string) => {
   if (url.includes("youtube.com")) src = "youtube.png";
   else if (url.includes("dev.to")) src = "devto.png";
 
-  if (src) return "/icons/platforms/" + src;
+  return src ? "/icons/platforms/" + src : undefined;
 };
 
 const TutorialCard = styled(Card)`

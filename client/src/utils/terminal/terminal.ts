@@ -293,7 +293,7 @@ export class PgTerm {
     this._xterm.onKey((ev) => {
       if (ev.key === " ") {
         ev.domEvent.preventDefault();
-        return false;
+        return;
       }
     });
 
