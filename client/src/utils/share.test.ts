@@ -13,12 +13,12 @@ describe("PgShare.isValidId", () => {
     expect(PgShare.isValidId(uuidv4())).toBe(true);
   });
 
-  test.each([
-    "507f1f77bcf86cd799439011",
-    "69fd158574a75cd49b9875f3",
-  ])("accepts legacy ObjectId %s", (id) => {
-    expect(PgShare.isValidId(id)).toBe(true);
-  });
+  test.each(["507f1f77bcf86cd799439011", "69fd158574a75cd49b9875f3"])(
+    "accepts legacy ObjectId %s",
+    (id) => {
+      expect(PgShare.isValidId(id)).toBe(true);
+    }
+  );
 
   test.each([
     ["empty", ""],
