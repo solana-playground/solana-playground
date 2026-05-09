@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use http::{header, Method};
+use axum::http::{header, Method};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
 use crate::log::error;
