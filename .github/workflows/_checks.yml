@@ -1,0 +1,156 @@
+name: Checks
+
+# Reusable workflow shared by ci.yml (PR validation) and cicd.yml (master
+# deploy gate). Single source of truth for format/clippy/build steps so the
+# two trigger workflows can't drift apart.
+on:
+  workflow_call:
+
+jobs:
+  format_client:
+    name: Format client
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "yarn"
+          cache-dependency-path: "client/yarn.lock"
+
+      # Always install the version specified in yarn.lock
+      - name: Install prettier
+        run: |
+          prettier_version=$(awk "/^prettier/{getline; print}" yarn.lock | cut -d "\"" -f 2)
+          npm i -g prettier@$prettier_version
+
+      - name: Check format
+        run: yarn check-format
+
+  format_server:
+    name: Format server
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Add nightly rustfmt
+        run: rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+
+      - name: Check format
+        run: cargo +nightly fmt --check
+
+  format_wasm:
+    name: Format WASM
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: wasm
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check format
+        run: cargo fmt --check
+
+  format_web:
+    name: Format web
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: web/yarn.lock
+
+      - name: Install deps
+        run: corepack enable && yarn install --frozen-lockfile
+
+      - name: Lint and format check
+        run: yarn lint
+
+      - name: Run tests
+        run: yarn test
+
+  clippy_server:
+    name: Clippy Server
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Add clippy
+        run: rustup component add clippy
+
+      - name: Check clippy warnings
+        run: cargo clippy --all-targets -- -D warnings
+
+  clippy_wasm:
+    name: Clippy WASM
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: wasm
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Add clippy
+        run: rustup component add clippy
+
+      - name: Check clippy warnings
+        run: cargo clippy --all-targets -- -D warnings
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs:
+      [format_client, format_server, format_wasm, clippy_server, clippy_wasm]
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "yarn"
+          cache-dependency-path: "client/yarn.lock"
+
+      - name: Sync rust-toolchain
+        run: rustc --version
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Setup
+        run: yarn setup
+
+      # This confirms that there are no changes after setup script runs
+      - name: Check git status
+        run: git status --porcelain | wc -l | grep -q -w "0"
+
+      - name: Build
+        run: yarn build
