@@ -21,6 +21,7 @@ jobs:
   format_client:
     name: Format client
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     defaults:
       run:
@@ -45,6 +46,7 @@ jobs:
   format_server:
     name: Format server
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     defaults:
       run:
@@ -62,6 +64,7 @@ jobs:
   format_wasm:
     name: Format WASM
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     defaults:
       run:
@@ -79,6 +82,7 @@ jobs:
   test_web:
     name: Test web
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     defaults:
       run:
@@ -104,6 +108,7 @@ jobs:
   clippy_server:
     name: Clippy Server
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: format_server
 
     defaults:
@@ -122,6 +127,7 @@ jobs:
   clippy_wasm:
     name: Clippy WASM
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     needs: format_wasm
 
     defaults:
@@ -140,6 +146,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs:
       [format_client, format_server, format_wasm, clippy_server, clippy_wasm]
 
@@ -169,6 +176,14 @@ jobs:
             wasm/playnet
             wasm/rust-analyzer
             wasm/rustfmt
+
+      # Seed wasm-pack's cache so it skips its non-`--locked` cargo-install fallback (incompatible with 1.75.0).
+      - name: Seed wasm-pack cache with wasm-bindgen-cli@0.2.92
+        run: |
+          cargo install --locked \
+            --version 0.2.92 \
+            --root "$HOME/.cache/.wasm-pack/.wasm-bindgen-cargo-install-0.2.92" \
+            wasm-bindgen-cli
 
       - name: Setup
         run: yarn setup
