@@ -5,6 +5,17 @@ name: Checks
 # two trigger workflows can't drift apart.
 on:
   workflow_call:
+    inputs:
+      rust_toolchain:
+        description: "Rust toolchain channel used for `cargo fmt --check` in the server workspace (host triple is resolved automatically by rustup)."
+        required: false
+        type: string
+        default: nightly
+      wasm_rust_toolchain:
+        description: "Rust toolchain channel used for `cargo fmt --check` and `cargo clippy` in the wasm workspace. Pinned because wasm deps (e.g. ahash 0.8.3) reference nightly features removed in newer toolchains."
+        required: false
+        type: string
+        default: "1.75.0"
 
 jobs:
   format_client:
@@ -19,18 +30,17 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: client/.nvmrc
           cache: "yarn"
           cache-dependency-path: "client/yarn.lock"
 
-      # Always install the version specified in yarn.lock
-      - name: Install prettier
+      # Make the locked prettier resolvable on PATH (no global install,
+      # no full `yarn install`), then run the package.json script so
+      # CI mirrors local dev exactly.
+      - name: Check format
         run: |
           prettier_version=$(awk "/^prettier/{getline; print}" yarn.lock | cut -d "\"" -f 2)
-          npm i -g prettier@$prettier_version
-
-      - name: Check format
-        run: yarn check-format
+          npx --yes --package=prettier@$prettier_version -- yarn check-format
 
   format_server:
     name: Format server
@@ -43,11 +53,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Add nightly rustfmt
-        run: rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+      - name: Add rustfmt toolchain(${{ inputs.rust_toolchain }})
+        run: rustup component add --toolchain ${{ inputs.rust_toolchain }} rustfmt
 
-      - name: Check format
-        run: cargo +nightly fmt --check
+      - name: Check format toolchain(${{ inputs.rust_toolchain }})
+        run: cargo +${{ inputs.rust_toolchain }} fmt --check
 
   format_wasm:
     name: Format WASM
@@ -60,11 +70,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check format
-        run: cargo fmt --check
+      - name: Add rustfmt toolchain(${{ inputs.wasm_rust_toolchain }})
+        run: rustup component add --toolchain ${{ inputs.wasm_rust_toolchain }} rustfmt
 
-  format_web:
-    name: Format web
+      - name: Check format toolchain(${{ inputs.wasm_rust_toolchain }})
+        run: cargo +${{ inputs.wasm_rust_toolchain }} fmt --check
+
+  test_web:
+    name: Test web
     runs-on: ubuntu-latest
 
     defaults:
@@ -75,7 +88,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: web/.nvmrc
           cache: yarn
           cache-dependency-path: web/yarn.lock
 
@@ -91,6 +104,7 @@ jobs:
   clippy_server:
     name: Clippy Server
     runs-on: ubuntu-latest
+    needs: format_server
 
     defaults:
       run:
@@ -108,6 +122,7 @@ jobs:
   clippy_wasm:
     name: Clippy WASM
     runs-on: ubuntu-latest
+    needs: format_wasm
 
     defaults:
       run:
@@ -116,11 +131,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Add clippy
-        run: rustup component add clippy
+      - name: Add clippy toolchain(${{ inputs.wasm_rust_toolchain }})
+        run: rustup component add --toolchain ${{ inputs.wasm_rust_toolchain }} clippy
 
-      - name: Check clippy warnings
-        run: cargo clippy --all-targets -- -D warnings
+      - name: Check clippy warnings toolchain(${{ inputs.wasm_rust_toolchain }})
+        run: cargo +${{ inputs.wasm_rust_toolchain }} clippy --all-targets -- -D warnings
 
   build:
     name: Build
@@ -136,14 +151,24 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: client/.nvmrc
           cache: "yarn"
           cache-dependency-path: "client/yarn.lock"
 
       - name: Sync rust-toolchain
         run: rustc --version
 
+      # `wasm/build.sh` builds the wasm workspace plus three standalone
+      # crates each with their own target dir. Listing them all lets
+      # rust-cache do per-target lookups instead of falling back to the
+      # repo root (which has no Cargo.toml).
       - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            wasm
+            wasm/playnet
+            wasm/rust-analyzer
+            wasm/rustfmt
 
       - name: Setup
         run: yarn setup
