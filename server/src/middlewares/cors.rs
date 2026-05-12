@@ -7,12 +7,12 @@ use crate::log::error;
 
 /// Create a CORS middleware.
 ///
-/// Request origins other than `client_url` and `localhost` are not allowed.
-pub fn cors(client_url: String) -> CorsLayer {
+/// Request origins other than `client_urls` and `http:://localhost` are not allowed.
+pub fn cors(client_urls: Vec<String>) -> CorsLayer {
     CorsLayer::new()
         .allow_origin(AllowOrigin::predicate(move |origin, _| {
             let origin_bytes = origin.as_bytes();
-            if origin_bytes == client_url.as_bytes()
+            if client_urls.iter().any(|url| url.as_bytes() == origin_bytes)
                 || origin_bytes.starts_with(b"http://localhost")
             {
                 return true;
