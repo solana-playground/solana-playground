@@ -165,25 +165,25 @@ jobs:
       - name: Sync rust-toolchain
         run: rustc --version
 
-      # `wasm/build.sh` builds the wasm workspace plus three standalone
-      # crates each with their own target dir. Listing them all lets
-      # rust-cache do per-target lookups instead of falling back to the
-      # repo root (which has no Cargo.toml).
+      # `wasm/rust-analyzer` and `wasm/rustfmt` sit outside the wasm workspace with their own target dirs; list them so rust-cache picks each up.
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
             wasm
-            wasm/playnet
             wasm/rust-analyzer
             wasm/rustfmt
 
-      # Seed wasm-pack's cache so it skips its non-`--locked` cargo-install fallback (incompatible with 1.75.0).
-      - name: Seed wasm-pack cache with wasm-bindgen-cli@0.2.92
+      # wasm-pack 0.10.3's internal `cargo install wasm-bindgen-cli` (no --locked) fails both ways: 0.2.92 pulls edition2024 transitive deps that need Rust 1.85+, and 0.2.87 refuses to build on modern rustc ("please update to v0.2.88").
+      # Running under wasm/'s 1.75 pin with --locked sidesteps both, and the install lands at wasm-pack's expected cache path so its existence check short-circuits the fallback.
+      - name: Seed wasm-pack cache with wasm-bindgen-cli
+        working-directory: wasm
         run: |
-          cargo install --locked \
-            --version 0.2.92 \
-            --root "$HOME/.cache/.wasm-pack/.wasm-bindgen-cargo-install-0.2.92" \
-            wasm-bindgen-cli
+          for v in 0.2.92 0.2.87; do
+            dest="$HOME/.cache/.wasm-pack/wasm-bindgen-cargo-install-$v"
+            cargo install --locked --version "$v" --root "$dest" wasm-bindgen-cli
+            mv "$dest/bin/"* "$dest/"
+            rmdir "$dest/bin"
+          done
 
       - name: Setup
         run: yarn setup
