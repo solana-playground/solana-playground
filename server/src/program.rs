@@ -1,4 +1,4 @@
-use std::{fs, path::Path, process::Command, sync::LazyLock};
+use std::{fs, io, path::Path, process::Command, sync::LazyLock};
 
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
@@ -74,8 +74,17 @@ pub fn build(
         info!("Initialized concurrency id {concurrency_id}");
     }
 
-    // Write files
+    // Remove existing files
+    //
+    // TODO: Compare with existing files and only remove the unused ones instead of removing all
     let program_path = Path::new(PROGRAMS_DIR).join(program_name);
+    if let Err(e) = fs::remove_dir_all(program_path.join("src")) {
+        if e.kind() != io::ErrorKind::NotFound {
+            return Err(anyhow!("Failed to remove existing files: {e}"));
+        }
+    };
+
+    // Write files
     for [path, content] in files {
         let relative_path = path.trim_start_matches('/');
         let item_path = program_path.join(relative_path);
