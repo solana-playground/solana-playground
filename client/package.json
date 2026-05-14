@@ -64,6 +64,7 @@
   "devDependencies": {
     "@craco/craco": "^6.4.3",
     "@types/bn.js": "^5.1.1",
+    "@types/jest": "^27.5.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^17.0.21",
     "@types/pako": "^2.0.0",
@@ -96,8 +97,9 @@
     "generate-packages": "node scripts/generate-packages.mjs",
     "generate-tutorials": "node scripts/generate-tutorials.mjs",
     "sync-readme": "node scripts/sync-readme.mjs",
-    "test": "yarn test-types && yarn build",
-    "test-types": "tsc --noEmit"
+    "test": "yarn test-types && yarn test-unit && yarn build",
+    "test-types": "tsc --noEmit",
+    "test-unit": "craco test --watchAll=false"
   },
   "eslintConfig": {
     "extends": [

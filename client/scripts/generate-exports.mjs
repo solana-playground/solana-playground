@@ -20,7 +20,13 @@ for (const name of await fs.readdir(srcPath)) {
   const isExportable = items.some((item) => item.name === name);
   if (!isExportable) continue;
 
-  const namesToSkip = [GENERATED_FILENAME, name, "index", "__template"];
+  const namesToSkip = [
+    GENERATED_FILENAME,
+    name,
+    "index",
+    "__template",
+    "__tests__",
+  ];
   const hasDir = items.some((item) => !item.ext);
   const exports = items
     .filter(

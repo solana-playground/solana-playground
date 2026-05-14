@@ -130,4 +130,6 @@ jobs:
         run: git status --porcelain | wc -l | grep -q -w "0"
 
       - name: Build
-        run: yarn build
+        run: |
+          yarn test
+          yarn build
