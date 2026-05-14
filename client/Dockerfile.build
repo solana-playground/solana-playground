@@ -1,0 +1,31 @@
+ARG IMAGE="node:22.20.0"
+ARG RUST_TOOLCHAIN=1.75.0
+
+# Static CRA build for the API proxy.
+# Separate from client/Dockerfile to keep dev profiles intact.
+FROM ${IMAGE}
+
+# Rust toolchain + cargo registry for crate source generation (Rust Analyzer).
+ARG RUST_TOOLCHAIN
+RUN sh -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y --default-toolchain ${RUST_TOOLCHAIN}
+ENV PATH="/root/.cargo/bin:$PATH"
+COPY --from=solana-playground-server /home/solpg/.cargo /root/.cargo
+
+WORKDIR /home/pg
+COPY . .
+
+# WASM is produced by the `wasm` service and fed in via additional_contexts.
+COPY --from=solana-playground-wasm /wasm wasm
+
+# Initialize submodules (client/public, etc.).
+RUN git submodule update --init
+
+WORKDIR /home/pg/client
+
+# Same-origin API — Hono wrapper proxies relative URLs server-side.
+ENV REACT_APP_SAME_ORIGIN=1
+
+RUN yarn --frozen-lockfile && yarn build
+
+# No runtime work — exists only to export the build via additional_contexts.
+CMD ["true"]

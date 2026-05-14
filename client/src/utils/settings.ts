@@ -1,4 +1,5 @@
 import { declareDecorator, updatable } from "./decorators";
+import { recoverStaleSameOriginEndpoint } from "./settings-recovery";
 import type {
   Arrayable,
   Disposable,
@@ -133,7 +134,10 @@ const storage = {
   read() {
     const stateStr = localStorage.getItem(this.KEY);
     if (!stateStr) return defaultState;
-    return JSON.parse(stateStr) as Settings;
+    return recoverStaleSameOriginEndpoint(
+      JSON.parse(stateStr) as Settings,
+      defaultState
+    );
   },
 
   /** Serialize the data and write to storage. */

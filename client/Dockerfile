@@ -3,7 +3,7 @@ ARG HAS_SERVER
 # Default non-root user
 ARG USER
 # Base image
-ARG IMAGE="node:22"
+ARG IMAGE="node:22.20.0"
 
 ################################## Has server ##################################
 FROM ${IMAGE} AS server-true
@@ -20,8 +20,9 @@ ONBUILD COPY --from=solana-playground-server /home/${USER}/.cargo /root/.cargo
 ################################### No server ##################################
 FROM ${IMAGE} AS server-false
 
-# Set build server URL to the production API
-ONBUILD ENV REACT_APP_SERVER_URL="https://api.solpg.io"
+# Set build server URL to the production API; override via --build-arg if needed
+ONBUILD ARG REACT_APP_SERVER_URL="https://api.solpg.io"
+ONBUILD ENV REACT_APP_SERVER_URL=${REACT_APP_SERVER_URL}
 
 ###################### Build and start development client ######################
 FROM server-${HAS_SERVER}

@@ -12,11 +12,10 @@ export const server = [
     ],
     default:
       process.env.NODE_ENV === "production"
-        ? "https://api.solpg.io"
-        : // Docker builds use this environment variable to set the server URL
-          // to the production API (instead of local) if the user has not yet
-          // built the server image
-          process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080",
+        ? process.env.REACT_APP_SAME_ORIGIN === "1"
+          ? "." // relative URL — requests go to the same-origin BFF
+          : process.env.REACT_APP_SERVER_URL ?? "https://api.solpg.io"
+        : process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080",
     custom: {
       parse: (v) => {
         if (PgCommon.isUrl(v)) return v;

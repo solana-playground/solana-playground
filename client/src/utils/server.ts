@@ -83,10 +83,7 @@ export class PgServer {
     /** `/share` response */
     type ShareResponse = ShareNewRequest["explorer"];
 
-    const response = await this._send(`/share/${id}`, {
-      cache: true,
-      useDbServer: process.env.NODE_ENV === "production",
-    });
+    const response = await this._send(`/share/${id}`, { cache: true });
     return (await response.json()) as ShareResponse;
   }
 
@@ -102,21 +99,18 @@ export class PgServer {
 
     const response = await this._send("/new", {
       post: { body: JSON.stringify(req) },
-      useDbServer: process.env.NODE_ENV === "production",
     });
     return (await response.text()) as ShareNewResponse;
   }
 
   /**
-   * Send an HTTP request to the Playground server.
+   * Send an HTTP request to `PgSettings.server.endpoint`.
    *
-   * @param opts server send request options
    * @throws when the response is not OK (with the decoded response)
-   * @returns the HTTP response
    */
   private static async _send(
     path: string,
-    opts?: { cache?: boolean; post?: { body: string }; useDbServer?: boolean }
+    opts?: { cache?: boolean; post?: { body: string } }
   ) {
     const requestInit: RequestInit = {};
     if (!opts?.cache) requestInit.cache = "no-store";
@@ -127,17 +121,13 @@ export class PgServer {
       requestInit.body = opts.post.body;
     }
 
-    const serverUrl = opts?.useDbServer
-      ? "https://api.solpg.io"
-      : PgSettings.server.endpoint;
-    const requestUrl = PgCommon.joinPaths(serverUrl, path);
+    const requestUrl = PgCommon.joinPaths(PgSettings.server.endpoint, path);
     try {
       const response = await fetch(requestUrl, requestInit);
       if (!response.ok) {
         const message = await response.text();
         throw new Error(message);
       }
-
       return response;
     } catch (e: any) {
       throw new Error(`Server request failed (${requestUrl}): ${e?.message}`);
