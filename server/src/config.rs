@@ -28,7 +28,7 @@ impl Config {
     pub fn from_env() -> Config {
         dotenv().ok();
         Config {
-            client_urls: get_env::<String>("CLIENT_URLS", "https://beta.solpg.io")
+            client_urls: get_env::<String>("CLIENT_URLS", "http://localhost,https://beta.solpg.io")
                 .split(',')
                 .map(str::trim)
                 .map(ToOwned::to_owned)
