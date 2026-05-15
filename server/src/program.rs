@@ -15,6 +15,18 @@ const MAX_FILE_AMOUNT: usize = 64;
 /// Maximum length of the file paths to pass to the [`build`] function.
 const MAX_PATH_LENGTH: usize = 128;
 
+/// PATH for the build subprocess.
+const BUILD_PATH: &str = "/home/solpg/.local/share/solana/install/active_release/bin:/home/solpg/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+
+/// Apply a clean environment containing only the toolchain locator vars.
+fn apply_build_env(cmd: &mut Command) -> &mut Command {
+    cmd.env_clear()
+        .env("PATH", BUILD_PATH)
+        .env("HOME", "/home/solpg")
+        .env("CARGO_HOME", "/home/solpg/.cargo")
+        .env("RUSTUP_HOME", "/home/solpg/.rustup")
+}
+
 /// A vector of [Path, Content]
 pub type Files = Vec<[String; 2]>;
 
@@ -109,7 +121,8 @@ pub fn build(
     )?;
 
     // Build the program
-    let output = Command::new("cargo-build-sbf")
+    let mut cmd = Command::new("cargo-build-sbf");
+    let output = apply_build_env(&mut cmd)
         .arg("--manifest-path")
         .arg(manifest_path)
         .arg("--sbf-out-dir")
