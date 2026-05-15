@@ -181,11 +181,13 @@ const getOrInitTokenAccounts = async (params?: GetTokenAccountsParams) => {
     };
   }
 
-  if (!cluster || !owner) return EMPTY_TOKEN_ACCOUNTS;
+  if (!cluster || !owner || !fetchAccounts) return EMPTY_TOKEN_ACCOUNTS;
+
+  const loadAccounts = fetchAccounts;
 
   return await cache.getOrInit(
     `${cluster}:${owner.toBase58()}`,
-    async () => normalizeTokenAccounts(await fetchAccounts()),
+    async () => normalizeTokenAccounts(await loadAccounts()),
     params?.now
   );
 };
