@@ -127,15 +127,20 @@ export class PgServer {
       requestInit.body = opts.post.body;
     }
 
-    const url = opts?.useDbServer
+    const serverUrl = opts?.useDbServer
       ? "https://api.solpg.io"
       : PgSettings.server.endpoint;
-    const response = await fetch(PgCommon.joinPaths(url, path), requestInit);
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(message);
-    }
+    const requestUrl = PgCommon.joinPaths(serverUrl, path);
+    try {
+      const response = await fetch(requestUrl, requestInit);
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message);
+      }
 
-    return response;
+      return response;
+    } catch (e: any) {
+      throw new Error(`Server request failed (${requestUrl}): ${e?.message}`);
+    }
   }
 }

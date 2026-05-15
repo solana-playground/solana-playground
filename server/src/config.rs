@@ -5,8 +5,8 @@ use dotenv::dotenv;
 /// Server configuration
 #[derive(Debug)]
 pub struct Config {
-    /// Client URL to allow requests from
-    pub client_url: String,
+    /// Client URLs to allow requests from
+    pub client_urls: Vec<String>,
     /// Port to listen from
     pub port: u16,
     /// Request payload size limit in bytes
@@ -30,7 +30,11 @@ impl Config {
     pub fn from_env() -> Config {
         dotenv().ok();
         Config {
-            client_url: get_env("CLIENT_URL", "https://beta.solpg.io"),
+            client_urls: get_env::<String>("CLIENT_URLS", "http://localhost,https://beta.solpg.io")
+                .split(',')
+                .map(str::trim)
+                .map(ToOwned::to_owned)
+                .collect(),
             port: get_env("PORT", 8080u16),
             payload_limit: get_env("PAYLOAD_LIMIT", 1024usize * 1024),
             verbose: get_env("VERBOSE", false),

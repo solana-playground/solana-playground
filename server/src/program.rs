@@ -1,10 +1,10 @@
-use std::{fs, path::Path, process::Command, sync::LazyLock};
+use std::{fs, io, path::Path, process::Command, sync::LazyLock};
 
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
 
-use crate::log::{info, warn};
+use crate::log::info;
 
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
@@ -56,15 +56,12 @@ pub fn build(
         }
     }
 
-    // Copy `Cargo.*` files and `target` dir into a separate directory (only once)
+    // Copy `Cargo.*` files into a separate directory (only once)
     let concurrency_path = Path::new(PROGRAMS_DIR).join(concurrency_id.to_string());
     let concurrency_ready_path = concurrency_path.join("ready");
     if !fs::exists(&concurrency_ready_path)? {
         info!("Initializing concurrency id {concurrency_id}");
-        copy_dir(
-            Path::new(PROGRAMS_DIR).join("target"),
-            concurrency_path.join("target"),
-        )?;
+        fs::create_dir_all(&concurrency_path)?;
         fs::copy(
             Path::new(PROGRAMS_DIR).join("Cargo.toml"),
             concurrency_path.join("Cargo.toml"),
@@ -74,11 +71,20 @@ pub fn build(
             concurrency_path.join("Cargo.lock"),
         )?;
         fs::write(concurrency_ready_path, [])?;
-        info!("Completed {concurrency_id}");
+        info!("Initialized concurrency id {concurrency_id}");
     }
 
-    // Write files
+    // Remove existing files
+    //
+    // TODO: Compare with existing files and only remove the unused ones instead of removing all
     let program_path = Path::new(PROGRAMS_DIR).join(program_name);
+    if let Err(e) = fs::remove_dir_all(program_path.join("src")) {
+        if e.kind() != io::ErrorKind::NotFound {
+            return Err(anyhow!("Failed to remove existing files: {e}"));
+        }
+    };
+
+    // Write files
     for [path, content] in files {
         let relative_path = path.trim_start_matches('/');
         let item_path = program_path.join(relative_path);
@@ -133,29 +139,6 @@ pub fn build(
         .transpose()
         .map_or_else(|e| (format!("IDL error: {e}"), None), |idl| (stderr, idl));
     Ok(ret)
-}
-
-/// Recursively copy a directory.
-fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> std::io::Result<()> {
-    let from = from.as_ref();
-    let to = to.as_ref();
-
-    fs::create_dir_all(to)?;
-    for entry in fs::read_dir(from)? {
-        let entry = entry?;
-        let from = entry.path();
-        let to = to.join(entry.file_name());
-        let file_type = entry.file_type()?;
-        if file_type.is_dir() {
-            copy_dir(&from, &to)?;
-        } else if file_type.is_file() {
-            fs::copy(&from, &to)?;
-        } else {
-            warn!("Unknown file type: {file_type:?} {from:?}")
-        }
-    }
-
-    Ok(())
 }
 
 /// Read the program ELF and return its bytes.

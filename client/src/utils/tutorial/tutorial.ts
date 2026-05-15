@@ -200,6 +200,8 @@ class _PgTutorial {
 
   /** Open the about page of the current selected tutorial. */
   static async openAboutPage() {
+    if (!PgTutorial.current) throw new Error("Tutorial not selected");
+
     const tutorialPath = PgRouter.location.pathname
       .split("/")
       .slice(0, 3)
@@ -213,6 +215,8 @@ class _PgTutorial {
    * @param pageNumber page number to open
    */
   static async openPage(pageNumber: number) {
+    if (!PgTutorial.current) throw new Error("Tutorial not selected");
+
     const paths = PgRouter.location.pathname.split("/");
     const hasPage = paths.length === 4;
     const page = pageNumber.toString();
@@ -230,9 +234,9 @@ class _PgTutorial {
    * @param params tutorial start options
    */
   static async start(params: { files: TupleFiles; defaultOpenFile?: string }) {
-    const name = PgTutorial.current?.name;
-    if (!name) throw new Error("Tutorial is not selected");
+    if (!PgTutorial.current) throw new Error("Tutorial not selected");
 
+    const name = PgTutorial.current.name;
     let pageToOpen: number;
     if (!this.isStarted(name)) {
       // Initial tutorial setup
@@ -251,6 +255,8 @@ class _PgTutorial {
 
   /** Finish the current tutorial. */
   static async finish() {
+    if (!PgTutorial.current) throw new Error("Tutorial not selected");
+
     PgTutorial.completed = true;
     await this.openAboutPage();
   }

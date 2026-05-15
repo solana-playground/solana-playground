@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
         .route("/new", post(share_new))
         .layer(compression())
         .layer(payload_limit(config.payload_limit))
-        .layer(cors(config.client_url))
+        .layer(cors(config.client_urls))
         .layer(middleware::from_fn(log));
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, config.port));

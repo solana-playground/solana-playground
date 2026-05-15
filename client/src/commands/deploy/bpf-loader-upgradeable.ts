@@ -213,23 +213,6 @@ export class BpfLoaderUpgradeable {
     return await PgTx.send(ixs, { wallet, keypairSigners: [program] });
   }
 
-  /** Update the program authority. */
-  static async setProgramAuthority(
-    programPk: PgWeb3.PublicKey,
-    newAuthorityPk?: PgWeb3.PublicKey,
-    opts?: WalletOption
-  ) {
-    const { wallet } = this._getOptions(opts);
-
-    const ix = PgWeb3.BpfLoaderUpgradeableProgram.setUpgradeAuthority({
-      programPk,
-      authorityPk: wallet.publicKey,
-      newAuthorityPk,
-    });
-
-    return await PgTx.send(ix, { wallet });
-  }
-
   /** Upgrade a program. */
   static async upgradeProgram(
     programPk: PgWeb3.PublicKey,
