@@ -1,6 +1,8 @@
 // `share.ts` transitively imports `./server` and `./explorer`, which pull in
 // build-time-generated globals (`GLOBAL_SETTINGS`). Stub them out so the
 // validator can be tested in isolation.
+import { describe, expect, jest, test } from "@jest/globals";
+
 jest.mock("./server", () => ({}));
 jest.mock("./explorer", () => ({}));
 
