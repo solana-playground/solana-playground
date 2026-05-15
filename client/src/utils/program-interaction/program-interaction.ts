@@ -1,5 +1,3 @@
-import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
-
 import { fetchAccount, fetchAllAccounts } from "./account";
 import {
   GeneratableInstruction,
@@ -8,9 +6,10 @@ import {
   generateProgramAddressFromSeeds,
 } from "./generator";
 import {
-  getOrInitOwnedTokenAccounts,
+  getMintAccounts,
   getOrInitPythAccounts,
   getPrograms,
+  getTokenAccounts,
 } from "./generators";
 import { getIdlType, IdlInstruction } from "./idl-types";
 import { createGeneratableInstruction, fillRandom } from "./instruction";
@@ -22,7 +21,6 @@ import {
   syncAllInstructions,
 } from "./storage";
 import { PgCommon } from "../common";
-import { PgConnection } from "../connection";
 import { PgTx } from "../tx";
 import { PgWallet } from "../wallet";
 import { PgWeb3 } from "../web3";
@@ -114,27 +112,14 @@ export class PgProgramInteraction {
   /** {@link fetchAllAccounts} */
   static fetchAllAccounts = fetchAllAccounts;
 
+  /** {@link getTokenAccounts} */
+  static getTokenAccounts = getTokenAccounts;
+
+  /** {@link getMintAccounts} */
+  static getMintAccounts = getMintAccounts;
+
   /** {@link getOrInitPythAccounts} */
   static getOrInitPythAccounts = getOrInitPythAccounts;
-
-  /** {@link getOrInitOwnedTokenAccounts} */
-  static getOrInitOwnedTokenAccounts = () => {
-    const owner = PgWallet.current?.publicKey ?? null;
-
-    return getOrInitOwnedTokenAccounts({
-      cluster: PgConnection.cluster,
-      owner,
-      fetchAccounts: async () => {
-        if (!owner) return [];
-
-        const accounts =
-          await PgConnection.current.getParsedTokenAccountsByOwner(owner, {
-            programId: TOKEN_PROGRAM_ID,
-          });
-        return accounts.value;
-      },
-    });
-  };
 
   /** {@link fillRandom} */
   static fillRandom = fillRandom;

@@ -312,10 +312,9 @@ const getSearchBarProps = (
         {
           label: "Token accounts",
           items: async () => {
-            const accounts =
-              await PgProgramInteraction.getOrInitOwnedTokenAccounts();
+            const accounts = await PgProgramInteraction.getTokenAccounts();
 
-            return accounts.tokenAccounts.map(({ address, mint, amount }) => ({
+            return accounts.map(({ address, mint, amount }) => ({
               label: address,
               value: address,
               matches: [mint, amount].filter(Boolean),
@@ -325,10 +324,9 @@ const getSearchBarProps = (
         {
           label: "Mint accounts",
           items: async () => {
-            const accounts =
-              await PgProgramInteraction.getOrInitOwnedTokenAccounts();
+            const accounts = await PgProgramInteraction.getMintAccounts();
 
-            return accounts.mintAccounts.map(({ address }) => ({
+            return accounts.map((address) => ({
               label: address,
               value: address,
             }));

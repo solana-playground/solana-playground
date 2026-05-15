@@ -4,10 +4,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  getOrInitOwnedTokenAccounts,
-  normalizeOwnedTokenAccounts,
-  OwnedTokenAccountsCache,
-  OwnedTokenAccountsData,
+  getMintAccounts,
+  getTokenAccounts,
+  normalizeTokenAccounts,
+  TokenAccountsCache,
+  TokenAccountsData,
 } from "./token";
 
 const createPubkey = (value: string) => ({
@@ -37,8 +38,8 @@ const createParsedTokenAccount = (
   },
 });
 
-test("normalizeOwnedTokenAccounts derives token and mint suggestions", () => {
-  const normalized = normalizeOwnedTokenAccounts([
+test("normalizeTokenAccounts derives token and mint suggestions", () => {
+  const normalized = normalizeTokenAccounts([
     createParsedTokenAccount("token-b", "mint-2", "2"),
     createParsedTokenAccount("token-c", "mint-1", "3"),
     createParsedTokenAccount("ignored", "mint-3", "1", "mint"),
@@ -50,17 +51,14 @@ test("normalizeOwnedTokenAccounts derives token and mint suggestions", () => {
     { address: "token-c", mint: "mint-1", amount: "3" },
     { address: "token-b", mint: "mint-2", amount: "2" },
   ]);
-  assert.deepEqual(normalized.mintAccounts, [
-    { address: "mint-1" },
-    { address: "mint-2" },
-  ]);
+  assert.deepEqual(normalized.mintAccounts, ["mint-1", "mint-2"]);
 });
 
-test("OwnedTokenAccountsCache reuses fresh entries and refreshes expired ones", async () => {
-  const cache = new OwnedTokenAccountsCache(30);
+test("TokenAccountsCache reuses fresh entries and refreshes expired ones", async () => {
+  const cache = new TokenAccountsCache(30);
 
   let fetchCount = 0;
-  const fetcher = async (): Promise<OwnedTokenAccountsData> => {
+  const fetcher = async (): Promise<TokenAccountsData> => {
     fetchCount += 1;
     return {
       tokenAccounts: [
@@ -70,7 +68,7 @@ test("OwnedTokenAccountsCache reuses fresh entries and refreshes expired ones", 
           amount: fetchCount.toString(),
         },
       ],
-      mintAccounts: [{ address: `mint-${fetchCount}` }],
+      mintAccounts: [`mint-${fetchCount}`],
     };
   };
 
@@ -83,18 +81,18 @@ test("OwnedTokenAccountsCache reuses fresh entries and refreshes expired ones", 
   assert.notEqual(third, first);
   assert.deepEqual(third, {
     tokenAccounts: [{ address: "token-2", mint: "mint-2", amount: "2" }],
-    mintAccounts: [{ address: "mint-2" }],
+    mintAccounts: ["mint-2"],
   });
 });
 
-test("OwnedTokenAccountsCache reuses the same in-flight fetch", async () => {
-  const cache = new OwnedTokenAccountsCache(30);
+test("TokenAccountsCache reuses the same in-flight fetch", async () => {
+  const cache = new TokenAccountsCache(30);
 
   let fetchCount = 0;
-  let resolveFetch!: (value: OwnedTokenAccountsData) => void;
+  let resolveFetch!: (value: TokenAccountsData) => void;
   const fetcher = () => {
     fetchCount += 1;
-    return new Promise<OwnedTokenAccountsData>((resolve) => {
+    return new Promise<TokenAccountsData>((resolve) => {
       resolveFetch = resolve;
     });
   };
@@ -106,7 +104,7 @@ test("OwnedTokenAccountsCache reuses the same in-flight fetch", async () => {
 
   const expected = {
     tokenAccounts: [{ address: "token-1", mint: "mint-1", amount: "1" }],
-    mintAccounts: [{ address: "mint-1" }],
+    mintAccounts: ["mint-1"],
   };
   resolveFetch(expected);
 
@@ -114,10 +112,10 @@ test("OwnedTokenAccountsCache reuses the same in-flight fetch", async () => {
   assert.deepEqual(await secondPromise, expected);
 });
 
-test("getOrInitOwnedTokenAccounts returns an empty result without cluster or owner", async () => {
+test("getTokenAccounts returns an empty result without cluster or owner", async () => {
   let fetchCount = 0;
 
-  const accounts = await getOrInitOwnedTokenAccounts({
+  const accounts = await getTokenAccounts({
     cluster: null,
     owner: null,
     fetchAccounts: async () => {
@@ -127,8 +125,41 @@ test("getOrInitOwnedTokenAccounts returns an empty result without cluster or own
   });
 
   assert.equal(fetchCount, 0);
-  assert.deepEqual(accounts, {
-    tokenAccounts: [],
-    mintAccounts: [],
+  assert.deepEqual(accounts, []);
+});
+
+test("getTokenAccounts and getMintAccounts share the same cached fetch", async () => {
+  let fetchCount = 0;
+  const cache = new TokenAccountsCache(30);
+
+  const fetchAccounts = async () => {
+    fetchCount += 1;
+    return [
+      createParsedTokenAccount("token-b", "mint-2", "2"),
+      createParsedTokenAccount("token-a", "mint-1", "1"),
+    ];
+  };
+
+  const owner = createPubkey("owner");
+  const tokenAccounts = await getTokenAccounts({
+    cluster: "devnet",
+    owner,
+    fetchAccounts,
+    cache,
+    now: 100,
   });
+  const mintAccounts = await getMintAccounts({
+    cluster: "devnet",
+    owner,
+    fetchAccounts,
+    cache,
+    now: 100,
+  });
+
+  assert.equal(fetchCount, 1);
+  assert.deepEqual(tokenAccounts, [
+    { address: "token-a", mint: "mint-1", amount: "1" },
+    { address: "token-b", mint: "mint-2", amount: "2" },
+  ]);
+  assert.deepEqual(mintAccounts, ["mint-1", "mint-2"]);
 });

@@ -1,66 +1,59 @@
-export interface OwnedTokenAccount {
+import type { Connection, PublicKey } from "@solana/web3.js";
+
+import type { Cluster } from "../../connection";
+
+export interface TokenAccount {
   address: string;
   mint: string;
   amount: string;
 }
 
-export interface OwnedMintAccount {
-  address: string;
+export interface TokenAccountsData {
+  tokenAccounts: TokenAccount[];
+  mintAccounts: string[];
 }
 
-export interface OwnedTokenAccountsData {
-  tokenAccounts: OwnedTokenAccount[];
-  mintAccounts: OwnedMintAccount[];
-}
+type ParsedTokenAccounts = Awaited<
+  ReturnType<Connection["getParsedTokenAccountsByOwner"]>
+>["value"];
 
-export interface ParsedTokenAccountLike {
-  pubkey: string | { toBase58(): string };
-  account: {
-    data?: {
-      parsed?: {
-        type?: string;
-        accountType?: string;
-        info?: {
-          mint?: string;
-          tokenAmount?: {
-            amount?: string;
-            uiAmountString?: string;
-          };
-        };
-      };
-    };
-  };
-}
-
-type OwnerLike = { toBase58(): string };
-
-type CacheEntry = {
-  data?: OwnedTokenAccountsData;
-  timestamp?: number;
-  promise?: Promise<OwnedTokenAccountsData>;
+type GetTokenAccountsParams = {
+  cluster?: Cluster | null;
+  owner?: PublicKey | null;
+  fetchAccounts?: () => Promise<ParsedTokenAccounts>;
+  cache?: TokenAccountsCache;
+  now?: number;
 };
 
-const EMPTY_OWNED_TOKEN_ACCOUNTS: OwnedTokenAccountsData = {
+type CacheEntry = {
+  data?: TokenAccountsData;
+  timestamp?: number;
+  promise?: Promise<TokenAccountsData>;
+};
+
+const EMPTY_TOKEN_ACCOUNTS: TokenAccountsData = {
   tokenAccounts: [],
   mintAccounts: [],
 };
+
+const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 
 const DEFAULT_CACHE_TTL = 30;
 
 const getNow = () => Math.floor(Date.now() / 1000);
 
-export class OwnedTokenAccountsCache {
+export class TokenAccountsCache {
   private readonly _entries: Record<string, CacheEntry> = {};
 
   constructor(private readonly _ttlSeconds = DEFAULT_CACHE_TTL) {}
 
   get(key: string) {
-    return this._entries[key]?.data ?? EMPTY_OWNED_TOKEN_ACCOUNTS;
+    return this._entries[key]?.data ?? EMPTY_TOKEN_ACCOUNTS;
   }
 
   async getOrInit(
     key: string,
-    fetcher: () => Promise<OwnedTokenAccountsData>,
+    fetcher: () => Promise<TokenAccountsData>,
     now: number = getNow()
   ) {
     const entry = (this._entries[key] ??= {});
@@ -102,17 +95,27 @@ export class OwnedTokenAccountsCache {
   }
 }
 
-const ownedTokenAccountsCache = new OwnedTokenAccountsCache();
+const tokenAccountsCache = new TokenAccountsCache();
 
-export const normalizeOwnedTokenAccounts = (
-  accounts: ParsedTokenAccountLike[]
-): OwnedTokenAccountsData => {
-  const tokenAccounts: OwnedTokenAccount[] = [];
-  const mintAccounts: OwnedMintAccount[] = [];
+export const normalizeTokenAccounts = (
+  accounts: ParsedTokenAccounts
+): TokenAccountsData => {
+  const tokenAccounts: TokenAccount[] = [];
+  const mintAccounts: string[] = [];
   const seenMints = new Set<string>();
 
   for (const account of accounts) {
-    const parsed = account.account.data?.parsed;
+    const parsed = account.account.data.parsed as {
+      type?: string;
+      accountType?: string;
+      info?: {
+        mint?: string;
+        tokenAmount?: {
+          amount?: string;
+          uiAmountString?: string;
+        };
+      };
+    };
     if (!parsed) continue;
 
     const parsedType = parsed.type ?? parsed.accountType;
@@ -137,7 +140,7 @@ export const normalizeOwnedTokenAccounts = (
 
     if (seenMints.has(mint)) continue;
     seenMints.add(mint);
-    mintAccounts.push({ address: mint });
+    mintAccounts.push(mint);
   }
 
   tokenAccounts.sort(
@@ -145,30 +148,52 @@ export const normalizeOwnedTokenAccounts = (
       left.mint.localeCompare(right.mint) ||
       left.address.localeCompare(right.address)
   );
-  mintAccounts.sort((left, right) => left.address.localeCompare(right.address));
+  mintAccounts.sort((left, right) => left.localeCompare(right));
 
   return { tokenAccounts, mintAccounts };
 };
 
-export const getOrInitOwnedTokenAccounts = async (params: {
-  cluster?: string | null;
-  owner?: OwnerLike | null;
-  fetchAccounts: () => Promise<ParsedTokenAccountLike[]>;
-  cache?: OwnedTokenAccountsCache;
-  now?: number;
-}) => {
-  const {
+const getOrInitTokenAccounts = async (params?: GetTokenAccountsParams) => {
+  let {
     cluster,
     owner,
     fetchAccounts,
-    cache = ownedTokenAccountsCache,
-  } = params;
+    cache = tokenAccountsCache,
+  } = params ?? {};
 
-  if (!cluster || !owner) return EMPTY_OWNED_TOKEN_ACCOUNTS;
+  if (cluster === undefined || owner === undefined || !fetchAccounts) {
+    const [{ PgConnection }, { PgWallet }, { PgWeb3 }] = await Promise.all([
+      import("../../connection"),
+      import("../../wallet"),
+      import("../../web3"),
+    ]);
+
+    cluster ??= PgConnection.cluster;
+    owner ??= PgWallet.current?.publicKey ?? null;
+    fetchAccounts ??= async () => {
+      if (!owner) return [];
+
+      const accounts = await PgConnection.current.getParsedTokenAccountsByOwner(
+        owner,
+        { programId: new PgWeb3.PublicKey(TOKEN_PROGRAM_ID) }
+      );
+      return accounts.value;
+    };
+  }
+
+  if (!cluster || !owner) return EMPTY_TOKEN_ACCOUNTS;
 
   return await cache.getOrInit(
     `${cluster}:${owner.toBase58()}`,
-    async () => normalizeOwnedTokenAccounts(await fetchAccounts()),
-    params.now
+    async () => normalizeTokenAccounts(await fetchAccounts()),
+    params?.now
   );
+};
+
+export const getTokenAccounts = async (params?: GetTokenAccountsParams) => {
+  return (await getOrInitTokenAccounts(params)).tokenAccounts;
+};
+
+export const getMintAccounts = async (params?: GetTokenAccountsParams) => {
+  return (await getOrInitTokenAccounts(params)).mintAccounts;
 };
