@@ -55,6 +55,7 @@
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",
     "typescript": "=5.0.4",
+    "uuid": "^9.0.1",
     "vscode-oniguruma": "^1.7.0",
     "vscode-textmate": "^9.0.0",
     "xterm": "^4.18.0",
@@ -64,6 +65,7 @@
   "devDependencies": {
     "@craco/craco": "^6.4.3",
     "@types/bn.js": "^5.1.1",
+    "@types/jest": "^29.5.12",
     "@types/mocha": "^9.1.1",
     "@types/node": "^17.0.21",
     "@types/pako": "^2.0.0",
@@ -96,8 +98,9 @@
     "generate-packages": "node scripts/generate-packages.mjs",
     "generate-tutorials": "node scripts/generate-tutorials.mjs",
     "sync-readme": "node scripts/sync-readme.mjs",
-    "test": "yarn test-types && yarn build",
-    "test-types": "tsc --noEmit"
+    "test": "yarn test-types && yarn test:unit && yarn build",
+    "test-types": "tsc --noEmit",
+    "test:unit": "craco test --watchAll=false"
   },
   "eslintConfig": {
     "extends": [

@@ -36,6 +36,7 @@ RUN echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 
 # Actual build
+COPY migrations migrations
 COPY src src
 # It doesn't rebuild without removing the crate fingerprint for some reason
 RUN rm -rf target/release/.fingerprint/solpg-server-*

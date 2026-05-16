@@ -20,7 +20,7 @@
 */yarn-error.log*
 
 # Server
-server/mongodb
+server/.sqlx
 server/programs/*
 !server/programs/Cargo.*
 !server/programs/default

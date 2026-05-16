@@ -9,6 +9,7 @@ import {
 import styled, { css, CSSProperties } from "styled-components";
 
 import { spinnerAnimation } from "../Loading";
+import { useMounted } from "../../hooks";
 import { PgTheme, ThemeColor } from "../../utils";
 
 export type ButtonKind =
@@ -68,6 +69,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const [isLoading, setIsLoading] = useState(() => getIsLoading(loading));
     const [isDisabled, setIsDisabled] = useState(disabled);
 
+    // Async `onClick` may unmount the button (e.g. modal page swap); guard the
+    // finally block from updating state on an unmounted component.
+    const mountedRef = useMounted();
+
     // Manage manual loading state
     useEffect(() => {
       const isLoading = getIsLoading(loading);
@@ -88,6 +93,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         if (shouldSetIsLoading) setIsLoading(true);
         await onClick?.(ev);
       } finally {
+        if (!mountedRef.current) return;
         if (shouldSetIsDisabled) setIsDisabled(false);
         if (shouldSetIsLoading) setIsLoading(false);
       }

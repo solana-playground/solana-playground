@@ -1,5 +1,7 @@
-import { PgCommon } from "./common";
+import { validate as uuidValidate } from "uuid";
+
 import { ExplorerFiles, PgExplorer } from "./explorer";
+import { PgCommon } from "./common";
 import { PgServer } from "./server";
 
 export class PgShare {
@@ -59,11 +61,25 @@ export class PgShare {
   /**
    * Get whether the given id is in a valid format.
    *
+   * Accepts UUID (current postgres backend) or 24-char hex (legacy mongo
+   * ObjectId, looked up via the `legacy_id` column server-side) so old share
+   * URLs survive the database migration.
+   *
    * @param id share id
    * @returns whether the given id is in a valid format
    */
   static isValidId(id: string) {
-    return PgCommon.isHex(id);
+    return uuidValidate(id) || PgShare.isLegacyId(id);
+  }
+
+  /**
+   * Get whether the given id is a legacy mongo ObjectId (24-char hex).
+   *
+   * @param id share id
+   * @returns whether the given id matches the legacy format
+   */
+  private static isLegacyId(id: string) {
+    return id.length === 24 && PgCommon.isHex(id);
   }
 
   /**

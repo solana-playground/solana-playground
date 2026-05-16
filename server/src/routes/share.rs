@@ -10,7 +10,7 @@ const COLLECTION: &str = "share";
 
 /// Get the share from its id.
 pub async fn share_get(Path(id): Path<String>) -> Result<impl IntoResponse> {
-    db::find_by_id(&id, COLLECTION)
+    db::find_by_legacy_and_id(&id, COLLECTION)
         .await?
         .map(Json)
         .ok_or_else(|| anyhow!("Share not found"))

@@ -17,7 +17,7 @@ docker compose -f ../compose.yaml --profile dev up server --build
 
 This will:
 
-1. Create a [MongoDB](https://github.com/mongodb/mongo) database
+1. Create a [PostgreSQL](https://www.postgresql.org/) database
 2. Build the server from source
 3. Start the server
 

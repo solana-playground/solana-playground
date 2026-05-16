@@ -17,6 +17,8 @@ pub struct Config {
     pub db_uri: String,
     /// Database name
     pub db_name: String,
+    /// Maximum number of connections in the database pool
+    pub db_max_connections: u32,
     /// Maximum amount of concurrent builds
     pub build_concurrency: usize,
 }
@@ -36,8 +38,12 @@ impl Config {
             port: get_env("PORT", 8080u16),
             payload_limit: get_env("PAYLOAD_LIMIT", 1024usize * 1024),
             verbose: get_env("VERBOSE", false),
-            db_uri: get_env("DB_URI", "mongodb://localhost:27017"),
+            db_uri: get_env(
+                "DB_URI",
+                "postgresql://postgres:postgres@localhost:5432/solpg",
+            ),
             db_name: get_env("DB_NAME", "solpg"),
+            db_max_connections: get_env("DB_MAX_CONNECTIONS", 10u32),
             build_concurrency: get_env("BUILD_CONCURRENCY", 16usize),
         }
     }
