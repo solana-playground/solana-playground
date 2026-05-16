@@ -42,7 +42,7 @@ const Sortable = <P, I extends UniqueIdentifier>({
   const [activeItemProps, setActiveItemProps] = useState<P | null>(null);
 
   const handleDragStart = (ev: DragStartEvent) => {
-    const data = ev.active.data.current as any;
+    const data = ev.active.data.current!;
     if (data.sortable.index === -1) {
       // If an item is recently added to the `items` list, the internal DND
       // context state doesn't get updated sometimes. To solve this, we
@@ -57,7 +57,7 @@ const Sortable = <P, I extends UniqueIdentifier>({
         data.sortable.items[key] = value;
       }
     }
-    setActiveItemProps(data);
+    setActiveItemProps(data as P);
   };
 
   const handleDragEnd = (ev: DragEndEvent) => {
@@ -95,6 +95,11 @@ const Sortable = <P, I extends UniqueIdentifier>({
     </DndContext>
   );
 };
+
+export interface SortableItemCommonProps {
+  isDragging: boolean;
+  isDragOverlay?: boolean;
+}
 
 interface SortableItemProps<P> {
   id: UniqueIdentifier;
@@ -141,10 +146,5 @@ const getSortingStrategy = (strategy: SortStrategy) => {
       return verticalListSortingStrategy;
   }
 };
-
-export interface SortableItemProvidedProps {
-  isDragging: boolean;
-  isDragOverlay: boolean;
-}
 
 export default Sortable;

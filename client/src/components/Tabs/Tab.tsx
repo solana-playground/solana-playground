@@ -14,7 +14,7 @@ import LangIcon from "../LangIcon";
 import Menu from "../Menu";
 import { Close } from "../Icons";
 import { PgExplorer, PgTheme } from "../../utils";
-import type { SortableItemProvidedProps } from "../Dnd/Sortable";
+import type { SortableItemCommonProps } from "../Dnd/Sortable";
 
 interface TabProps extends ComponentPropsWithoutRef<"div"> {
   path: string;
@@ -88,12 +88,12 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
         onHide={() => setIsSelected(false)}
       >
         <Wrapper
-          isSelected={isSelected}
-          isCurrent={path === PgExplorer.currentFilePath}
           onClick={changeTab}
           title={path}
           ref={ref}
-          {...(props as SortableItemProvidedProps)}
+          isSelected={isSelected}
+          isCurrent={path === PgExplorer.currentFilePath}
+          {...(props as SortableItemCommonProps)}
         >
           <LangIcon path={path} />
           <Name>{fileName}</Name>
@@ -111,12 +111,9 @@ const Tab = forwardRef<HTMLDivElement, TabProps>(
   }
 );
 
-const Wrapper = styled.div<{
-  isSelected: boolean;
-  isCurrent: boolean;
-  isDragging: boolean;
-  isDragOverlay: boolean;
-}>`
+const Wrapper = styled.div<
+  { isSelected: boolean; isCurrent: boolean } & SortableItemCommonProps
+>`
   ${({ theme, isSelected, isCurrent, isDragging, isDragOverlay }) => css`
     & button {
       ${!isCurrent && "opacity: 0;"}
