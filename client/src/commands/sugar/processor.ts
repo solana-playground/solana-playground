@@ -133,11 +133,13 @@ export class PgSugar {
     try {
       await cb();
       PgTerminal.println(
-        `\n${Emoji.CHECKMARK} ${PgTerminal.success("Command successful.")}\n`
+        `\n${Emoji.CHECKMARK_BUTTON} ${PgTerminal.success(
+          "Command successful."
+        )}\n`
       );
     } catch (e: any) {
       PgTerminal.println(
-        `\n${Emoji.ERROR} ${PgTerminal.error(
+        `\n${Emoji.STOP_SIGN} ${PgTerminal.error(
           "Error running command (re-run needed):"
         )} ${e.message}`,
 

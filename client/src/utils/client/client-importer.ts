@@ -25,7 +25,10 @@ export class PgClientImporter {
           if (fullMessage.startsWith("  ")) {
             const editedMessage = fullMessage
               // Replace checkmark icon
-              .replace(Emoji.CHECKMARK, PgTerminal.success("✔ "))
+              .replace(
+                Emoji.CHECKMARK_BUTTON,
+                PgTerminal.success(Emoji.CHECKMARK)
+              )
               // Make '1) testname' red
               .replace(/\s+\d\)\s\w*$/, PgTerminal.error)
               // Passing text

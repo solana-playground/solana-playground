@@ -6,6 +6,7 @@ import Link from "../../Link";
 import Markdown from "../../Markdown";
 import TutorialDetails from "../TutorialDetails";
 import { PointedArrow, Triangle } from "../../Icons";
+import { Emoji } from "../../../constants";
 import { PgTheme, PgTutorial } from "../../../utils";
 import type { TutorialAboutComponentProps } from "../types";
 
@@ -61,7 +62,11 @@ export const About: FC<TutorialAboutComponentProps> = ({
                 color={isFinished ? "success" : undefined}
                 fontWeight="bold"
                 leftIcon={
-                  isFinished ? <span>✔</span> : <Triangle rotate="90deg" />
+                  isFinished ? (
+                    <span>{Emoji.CHECKMARK}</span>
+                  ) : (
+                    <Triangle rotate="90deg" />
+                  )
                 }
               >
                 {isFinished ? "COMPLETED" : isStarted ? "CONTINUE" : "START"}

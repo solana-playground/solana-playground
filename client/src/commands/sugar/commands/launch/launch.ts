@@ -14,7 +14,7 @@ export const processLaunch = async (
 ) => {
   const term = await PgTerminal.get();
 
-  term.println(`Starting Sugar launch... ${Emoji.LAUNCH}`);
+  term.println(`Starting Sugar launch... ${Emoji.ROCKET}`);
 
   // Config
   try {

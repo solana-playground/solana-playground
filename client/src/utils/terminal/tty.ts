@@ -191,7 +191,7 @@ export class PgTty {
   }
 
   /** Print a message and properly handle new-lines. */
-  print(msg: any, opts?: PrintOptions) {
+  print(msg: string | object, opts?: PrintOptions) {
     // All data types should be converted to string
     if (typeof msg === "object") msg = PgCommon.prettyJSON(msg);
     else msg = `${msg}`;
@@ -203,7 +203,12 @@ export class PgTty {
     msg = msg
       .replace(/\n\n/g, "\n \n")
       .replace(/[\r\n]+/g, "\n")
-      .replace(/\n/g, "\r\n");
+      .replace(/\n/g, "\r\n")
+      // Without this, the characterafter the emoji starts inside the emoji
+      .replace(
+        /\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})*(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})*)*/gu,
+        (match) => match + " "
+      );
 
     if (opts?.sync) {
       //@ts-ignore

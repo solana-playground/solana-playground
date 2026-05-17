@@ -7,6 +7,7 @@ import Markdown from "../../Markdown";
 import Resizable from "../../Resizable";
 import { SpinnerWithBg } from "../../Loading";
 import { PointedArrow } from "../../Icons";
+import { Emoji } from "../../../constants";
 import { useAsyncEffect } from "../../../hooks";
 import {
   PgCommon,
@@ -132,7 +133,7 @@ export const Main: FC<TutorialMainComponentProps> = ({
                     onClick={finishTutorial}
                     kind="no-border"
                     color="success"
-                    rightIcon={<span>✔</span>}
+                    rightIcon={<span>{Emoji.CHECKMARK}</span>}
                   >
                     Finish
                   </NavigationButton>

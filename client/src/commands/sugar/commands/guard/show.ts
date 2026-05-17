@@ -33,7 +33,7 @@ export const processGuardShow = async (
     .findCandyGuardByAddress({ address: candyGuardPk });
 
   term.println(
-    `\n${Emoji.GUARD} ${PgTerminal.secondaryText(
+    `\n${Emoji.SHIELD} ${PgTerminal.secondaryText(
       "Candy Guard ID:"
     )} ${candyGuardPkStr}`
   );

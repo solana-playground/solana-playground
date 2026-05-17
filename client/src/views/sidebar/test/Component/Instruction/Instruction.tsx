@@ -98,11 +98,13 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
 
         const txResult = await PgTx.confirm(txHash);
         if (txResult?.err) {
-          throw new Error(`${Emoji.CROSS} Test \`${instruction.name}\` failed`);
+          throw new Error(
+            `${Emoji.CROSSMARK} Test \`${instruction.name}\` failed`
+          );
         }
 
         PgTerminal.println(
-          `${Emoji.CHECKMARK} ${PgTerminal.success(
+          `${Emoji.CHECKMARK_BUTTON} ${PgTerminal.success(
             `Test \`${instruction.name}\` passed`
           )}.`,
           { noColor: true }

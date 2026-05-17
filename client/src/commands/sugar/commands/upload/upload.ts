@@ -154,7 +154,7 @@ export const processUpload = async (rpcUrl: string | undefined) => {
 
     // Upload files
     term.println(
-      `\n[3/3] ${Emoji.UPLOAD} Uploading files ${
+      `\n[3/3] ${Emoji.OUTBOX_TRAY} Uploading files ${
         !indices.metadata.length ? "(skipping)" : ""
       }`
     );
