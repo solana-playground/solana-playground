@@ -32,8 +32,8 @@ async fn main() -> Result<()> {
             "/build",
             post(build).with_state(BuildState::new(config.build_concurrency)),
         )
-        .route("/deploy/:uuid", get(deploy))
-        .route("/share/:id", get(share_get))
+        .route("/deploy/{uuid}", get(deploy))
+        .route("/share/{id}", get(share_get))
         .route("/new", post(share_new))
         .layer(compression())
         .layer(payload_limit(config.payload_limit))
