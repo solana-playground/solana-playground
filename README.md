@@ -70,11 +70,14 @@ docker compose --profile dev up --build
 # Full stack — production (static build)
 docker compose --profile prod up --build
 
-# Client only — standalone without server
-docker compose --profile standalone up --build
+# Client only
+docker compose up client-standalone --build
 
-# Server only (+ database)
+# Server + DB
 docker compose --profile dev up server --build
+
+# Server only
+docker compose up server-standalone --build
 
 # Client:  http://localhost:3000
 # Server:  http://localhost:8080
