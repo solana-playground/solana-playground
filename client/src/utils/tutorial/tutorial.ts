@@ -87,7 +87,6 @@ const derive = () => ({
   current: createDerivable({
     derive: (path) => {
       const route = getTutorialsRoute();
-
       const { name } = PgRouter.getParamsFromPath(route.path, path);
       return (
         _PgTutorial.all.find((t) => {
@@ -102,7 +101,6 @@ const derive = () => ({
   page: createDerivable({
     derive: (path) => {
       const route = getTutorialsRoute();
-
       const { page } = PgRouter.getParamsFromPath(route.path, path);
       if (PgCommon.isInt(page)) return parseInt(page);
       return null;
@@ -135,19 +133,6 @@ class _PgTutorial {
    */
   static isWorkspaceTutorial(name: string) {
     return _PgTutorial.all.some((t) => t.name === name);
-  }
-
-  /**
-   * Get all tutorial names the user has started.
-   *
-   * @returns user tutorial names
-   */
-  static getUserTutorialNames() {
-    if (!PgExplorer.allWorkspaceNames) {
-      throw new Error("Explorer not initialized");
-    }
-
-    return PgExplorer.allWorkspaceNames.filter(this.isWorkspaceTutorial);
   }
 
   /**
