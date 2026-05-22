@@ -195,7 +195,10 @@ export class PgPlaynetRpc {
             lamports === 0
               ? null
               : {
-                  data: [PgBytes.toBase64(Buffer.from(account.data)), "base64"],
+                  data: [
+                    PgBytes.encodeBase64(Buffer.from(account.data)),
+                    "base64",
+                  ],
                   executable: account.executable,
                   lamports,
                   owner: new PgWeb3.PublicKey(account.owner.toBytes()),
@@ -337,11 +340,11 @@ export class PgPlaynetRpc {
         ];
         if (!options?.encoding) {
           const versionedTx = PgWeb3.VersionedTransaction.deserialize(
-            PgBytes.fromBase64(tx[0])
+            PgBytes.decodeBase64(tx[0])
           );
 
           const signatures = versionedTx.signatures.map((signatureBytes) => {
-            return PgBytes.toBase58(Buffer.from(signatureBytes));
+            return PgBytes.encodeBase58(Buffer.from(signatureBytes));
           });
 
           tx = {
@@ -434,7 +437,7 @@ export class PgPlaynetRpc {
                   ? {
                       programId: returnData.programId.toString(),
                       data: [
-                        PgBytes.toBase64(Buffer.from(returnData.data)),
+                        PgBytes.encodeBase64(Buffer.from(returnData.data)),
                         "base64",
                       ],
                     }

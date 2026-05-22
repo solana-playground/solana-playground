@@ -196,8 +196,7 @@ class _PgProgramInfo {
     const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
     const { inflate } = await import("pako");
     const inflatedIdl = inflate(idlAccount.data);
-    const idl: Idl = JSON.parse(PgBytes.toUtf8(Buffer.from(inflatedIdl)));
-
+    const idl: Idl = JSON.parse(PgBytes.decodeUtf8(Buffer.from(inflatedIdl)));
     return { idl, authority: idlAccount.authority };
   }
 }

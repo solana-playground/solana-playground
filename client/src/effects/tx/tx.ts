@@ -30,7 +30,7 @@ export const tx = () => {
 
     // Sanity check for signature
     if (!tx.signature) return;
-    const txHash = PgBytes.toBase58(tx.signature);
+    const txHash = PgBytes.encodeBase58(tx.signature);
 
     PgView.setToast(ExplorerLink, {
       componentProps: { txHash },

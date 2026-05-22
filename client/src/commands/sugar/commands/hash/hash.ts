@@ -44,8 +44,7 @@ export const hashAndUpdate = async () => {
 
 // FIXME: This ends up not producing the same hash with the sugar cli
 const hash = (data: string) => {
-  return PgBytes.toBase58(PgBytes.fromHex(PgBytes.hashSha256(data))).substring(
-    0,
-    32
-  );
+  return PgBytes.encodeBase58(
+    PgBytes.decodeHex(PgBytes.hashSha256(data))
+  ).substring(0, 32);
 };
