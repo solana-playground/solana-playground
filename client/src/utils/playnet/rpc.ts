@@ -278,6 +278,22 @@ export class PgPlaynetRpc {
         });
       }
 
+      // TODO: Actually support priority fees instead of a dummy impl
+      case "getRecentPrioritizationFees": {
+        return this._createRpcResponse<"getRecentPrioritizationFees">(
+          request,
+          context,
+          {
+            result: [
+              {
+                prioritizationFee: 0,
+                slot: PgCommon.bigintToInt(rpc.getSlot()),
+              },
+            ],
+          }
+        );
+      }
+
       case "getSignatureStatuses": {
         const [signatures] = request.params;
 
