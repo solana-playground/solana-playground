@@ -222,19 +222,6 @@ export class PgCommon {
   }
 
   /**
-   * @returns the decoded string
-   */
-  static decodeBytes(
-    b: ArrayBuffer | Buffer | Uint8Array,
-    type: string = "utf-8"
-  ) {
-    const decoder = new TextDecoder(type);
-    const decodedString = decoder.decode(b);
-
-    return decodedString;
-  }
-
-  /**
    * @returns whether the given values are equal
    */
   static isEqual(value1: any, value2: any) {

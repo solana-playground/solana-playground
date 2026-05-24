@@ -1,5 +1,6 @@
 import * as ed25519 from "@noble/ed25519";
 
+import { PgCodec } from "../codec";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import {
@@ -289,11 +290,12 @@ class _PgWallet {
         try {
           const file = files[0];
           const arrayBuffer = await file.arrayBuffer();
-          const decodedString = PgCommon.decodeBytes(arrayBuffer);
-          const keypairBytes = Uint8Array.from(JSON.parse(decodedString));
-          if (keypairBytes.length !== 64) throw new Error("Invalid keypair");
+          const bytes = Uint8Array.from(
+            JSON.parse(PgCodec.decodeText(arrayBuffer))
+          );
+          if (bytes.length !== 64) throw new Error("Invalid keypair");
 
-          const keypair = PgWeb3.Keypair.fromSecretKey(keypairBytes);
+          const keypair = PgWeb3.Keypair.fromSecretKey(bytes);
           PgWallet.add({ name, keypair });
 
           return keypair;

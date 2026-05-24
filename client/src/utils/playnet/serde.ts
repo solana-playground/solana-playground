@@ -1,4 +1,4 @@
-import { PgBytes } from "../bytes";
+import { PgCodec } from "../codec";
 import { PgWeb3 } from "../web3";
 
 export class PgSerde {
@@ -11,7 +11,7 @@ export class PgSerde {
    */
   static serializeTx(txBase64: string) {
     // Decode base64 tx and get tx object
-    const txBuffer = PgBytes.decodeBase64(txBase64);
+    const txBuffer = PgCodec.decodeBinary(txBase64, "base64");
     const tx = PgWeb3.Transaction.from(txBuffer);
 
     // Convert tx object into Rust Serde format
@@ -30,7 +30,7 @@ export class PgSerde {
    */
   static serializeMsg(msgBase64: string) {
     // Decode base64 msg and get msg object
-    const msgBuffer = PgBytes.decodeBase64(msgBase64);
+    const msgBuffer = PgCodec.decodeBinary(msgBase64, "base64");
     const msg = PgWeb3.Message.from(msgBuffer);
 
     // Convert msg object into Rust Serde format
@@ -64,13 +64,15 @@ export class PgSerde {
       accountKeys: this._convertToSerdeArray(
         msg.accountKeys.map((key) => Array.from(key.toBytes()))
       ),
-      recentBlockhash: Array.from(PgBytes.decodeBase58(msg.recentBlockhash)),
+      recentBlockhash: Array.from(
+        PgCodec.decodeBinary(msg.recentBlockhash, "base58")
+      ),
       instructions: this._convertToSerdeArray(
         msg.instructions.map((ix) => ({
           ...ix,
           accounts: this._convertToSerdeArray(ix.accounts),
           data: this._convertToSerdeArray(
-            Array.from(PgBytes.decodeBase58(ix.data))
+            Array.from(PgCodec.decodeBinary(ix.data, "base58"))
           ),
         }))
       ),

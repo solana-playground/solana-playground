@@ -1,5 +1,5 @@
 import { loadCache, loadConfigData, saveConfigData } from "../../utils";
-import { PgBytes, PgCommon, PgTerminal } from "../../../../utils";
+import { PgCodec, PgCommon, PgTerminal } from "../../../../utils";
 
 export const processHash = async (compare: string | undefined) => {
   const configData = await loadConfigData();
@@ -39,12 +39,13 @@ export const hashAndUpdate = async () => {
 
   await saveConfigData(configData);
 
-  return PgCommon.decodeBytes(Buffer.from(hiddenSettings.hash));
+  return PgCodec.decodeText(hiddenSettings.hash);
 };
 
 // FIXME: This ends up not producing the same hash with the sugar cli
 const hash = (data: string) => {
-  return PgBytes.encodeBase58(
-    PgBytes.decodeHex(PgBytes.hashSha256(data))
+  return PgCodec.encodeBinary(
+    PgCodec.decodeBinary(PgCodec.hashSha256(data), "hex"),
+    "base58"
   ).substring(0, 32);
 };

@@ -6,7 +6,13 @@ import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
 import Text from "../../../../../components/Text";
 import { Warning } from "../../../../../components/Icons";
-import { PgProgramInfo, PgCommon, PgView, PgWeb3 } from "../../../../../utils";
+import {
+  PgCodec,
+  PgProgramInfo,
+  PgCommon,
+  PgView,
+  PgWeb3,
+} from "../../../../../utils";
 import { useRenderOnChange } from "../../../../../hooks";
 
 const ProgramID = () => (
@@ -78,13 +84,12 @@ const Import = () => {
     try {
       const file = files[0];
       const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeBytes(arrayBuffer);
-      const buffer = Buffer.from(JSON.parse(decodedString));
-      if (buffer.length !== 64) throw new Error("Invalid keypair");
+      const buf = Buffer.from(JSON.parse(PgCodec.decodeText(arrayBuffer)));
+      if (buf.length !== 64) throw new Error("Invalid keypair");
 
       // Override customPk when user imports a new keypair
       PgProgramInfo.update({
-        kp: PgWeb3.Keypair.fromSecretKey(buffer),
+        kp: PgWeb3.Keypair.fromSecretKey(buf),
         customPk: null,
       });
 

@@ -2,7 +2,7 @@ import { DefaultCandyGuardSettings } from "@metaplex-foundation/js";
 
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
+import { PgCodec, PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processGuardShow = async (
   rpcUrl: string | undefined,
@@ -220,7 +220,7 @@ const printGuardSet = (
     printWithStyle(
       innerPadding,
       "merkle root",
-      PgCommon.decodeBytes(guardSet.allowList.merkleRoot)
+      PgCodec.decodeText(guardSet.allowList.merkleRoot)
     );
   } else {
     printWithStyle(padding, "allow list", "none");
