@@ -351,12 +351,7 @@ const loadBufferWithControl = (
     } catch (e) {
       if (!abortController.signal.aborted) rej(e);
     } finally {
-      dispose();
-    }
-
-    if (!abortController.signal.aborted) {
-      dispose();
-      res({ success: true });
+      if (!abortController.signal.aborted) dispose();
     }
   });
 };
