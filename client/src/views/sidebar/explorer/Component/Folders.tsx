@@ -7,6 +7,7 @@ import {
   ReactNode,
   useCallback,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import styled, { css, useTheme } from "styled-components";
@@ -29,7 +30,7 @@ import { PgCommon, PgExplorer, PgView } from "../../../../utils";
 import { useCreateItem } from "./useCreateItem";
 import { useExplorerContextMenu } from "./useExplorerContextMenu";
 import { useHandleItemState } from "./useHandleItemState";
-import { useKeybind } from "../../../../hooks";
+import { useKeybind, useOnClickOutside } from "../../../../hooks";
 
 const Folders = () => {
   useHandleItemState();
@@ -261,20 +262,26 @@ interface FolderGroupProps {
   relativeRootPath: string;
 }
 
-const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
-  <>
-    {folders
-      .sort((a, b) => a.localeCompare(b))
-      .map((folderName) => (
-        <RecursiveFolder
-          key={folderName}
-          path={PgCommon.appendSlash(
-            PgCommon.joinPaths(relativeRootPath, folderName)
-          )}
-        />
-      ))}
-  </>
-);
+const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => {
+  // Reset ctx selected on outside clicks
+  const ref = useRef<HTMLDivElement>(null);
+  useOnClickOutside(ref, PgExplorer.removeCtxSelectedEl);
+
+  return (
+    <div ref={ref}>
+      {folders
+        .sort((a, b) => a.localeCompare(b))
+        .map((folderName) => (
+          <RecursiveFolder
+            key={folderName}
+            path={PgCommon.appendSlash(
+              PgCommon.joinPaths(relativeRootPath, folderName)
+            )}
+          />
+        ))}
+    </div>
+  );
+};
 
 interface RecursiveFolderProps {
   path: string;
@@ -285,7 +292,6 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
     () => PgExplorer.getItemNameFromPath(path),
     [path]
   );
-
   const depth = useMemo(
     () => PgExplorer.getRelativePath(path).split("/").length - 2,
     [path]
