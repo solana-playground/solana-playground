@@ -22,7 +22,15 @@ export const build = createCmd({
 
     try {
       const result = await buildProgram();
-      PgProgramInfo.update({ idl: result.idl, uuid: result.uuid ?? undefined });
+      // Server only returns `uuid` on the first build of a session, so we
+      // can't use it as a success signal. Mirror the server's own check on
+      // `stderr` so deploy can warn before reusing a stale binary.
+      const failed = result.stderr.includes("error: could not compile");
+      PgProgramInfo.update({
+        idl: result.idl,
+        uuid: result.uuid ?? undefined,
+        lastBuildError: failed ? result.stderr : null,
+      });
       PgTerminal.println(improveOutput(result.stderr));
     } finally {
       PgGlobal.update({ buildLoading: false });

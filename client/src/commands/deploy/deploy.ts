@@ -70,6 +70,24 @@ async function checkProgram() {
     await PgCommand.build.execute();
   }
 
+  // The server keeps the previous `solpg.so` after a failed compile, so /deploy
+  // would silently upload the stale binary. Make that explicit and let the user
+  // opt in. Only relevant when we'd actually use the server-cached binary.
+  if (
+    PgProgramInfo.lastBuildError &&
+    !PgProgramInfo.importedProgram?.buffer.length
+  ) {
+    PgTerminal.println(
+      "Warning: Your last build failed. Deploying now will upload the last successful build, not the current sources."
+    );
+    const term = await PgTerminal.get();
+    const proceed = await term.waitForInput(
+      "Deploy the previously built binary anyway?",
+      { confirm: true, default: "no" }
+    );
+    if (!proceed) throw new Error("Deployment cancelled: last build failed.");
+  }
+
   if (!PgProgramInfo.pk) {
     throw new Error(
       "Program ID not found. Go to 'Build & Deploy' tab and set the program ID."
