@@ -1,10 +1,10 @@
 # Default non-root user
-ARG USER
+ARG USER=solpg
 
 ################# BASE RUST INSTALLATION TO USE IN OTHER STEPS #################
 FROM ubuntu:24.04 AS rust
 
-ARG USER
+ARG USER=solpg
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # Install build deps
@@ -44,7 +44,7 @@ RUN cargo build --release
 ################################# START SERVER #################################
 FROM rust
 
-ARG USER
+ARG USER=solpg
 ARG SOLANA_VERSION="1.17.34"
 
 # Install Solana
