@@ -11,8 +11,8 @@ jobs:
   checks:
     uses: ./.github/workflows/_checks.yml
 
-  # Single source of truth for the App Engine version tag, consumed by both
-  # deploy jobs so server and web land under the same version label.
+  # Resolves the App Engine version tag from the latest git tag so the deploy
+  # job lands under a predictable, release-aligned version label.
   resolve_version:
     name: Resolve deploy version
     runs-on: ubuntu-latest
