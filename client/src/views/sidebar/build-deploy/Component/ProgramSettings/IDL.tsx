@@ -3,7 +3,6 @@ import styled from "styled-components";
 
 import Button from "../../../../../components/Button";
 import {
-  PgCodec,
   PgCommand,
   PgCommon,
   PgProgramInfo,
@@ -26,8 +25,8 @@ const Import = () => {
 
     try {
       const file = files[0];
-      const arrayBuffer = await file.arrayBuffer();
-      const idl = JSON.parse(PgCodec.decodeText(arrayBuffer));
+      const text = await file.text();
+      const idl = JSON.parse(text);
       PgProgramInfo.update({ idl });
     } catch (e: any) {
       console.log(e.message);
