@@ -25,7 +25,7 @@ See the [root README](../README.md#run-with-docker) for more options.
 
 # Deployment
 
-The server is deployed to **Google App Engine** as the `playground-server` service via [`.github/workflows/cicd_server.yml`](../.github/workflows/cicd_server.yml). Pushes to `master` run `cargo fmt` + `cargo clippy`, then `gcloud app deploy server/app.yaml` from a checkout that includes git tags.
+The server is deployed to **Google App Engine** as the `playground-server` service via [`.github/workflows/cicd.yml`](../.github/workflows/cicd.yml). Pushes to `master` run `cargo fmt` + `cargo clippy`, then `gcloud app deploy server/app.yaml` from a checkout that includes git tags.
 
 The deployed App Engine version is derived from the latest git tag (periods replaced with dashes — e.g. `0.29.1` → `0-29-1`) and is uploaded with `--no-promote`, so traffic must be cut over manually in the GCP console.
 
