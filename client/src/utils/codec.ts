@@ -26,22 +26,10 @@ export class PgCodec {
   }
 
   /**
-   * Decode the given bytes to a string using the given text encoding.
-   *
-   * @param bytes bytes to decode
-   * @param encoding text encoding
-   * @returns the decoded text
-   */
-  static decodeText(bytes: Bytes, encoding: TextEncoding = "utf-8") {
-    const buf = this._normalizeBytes(bytes);
-    return new TextDecoder(encoding).decode(buf);
-  }
-
-  /**
    * Encode the given bytes to a string using the given binary encoding.
    *
-   * @param bytes
-   * @param encoding
+   * @param bytes bytes to encode
+   * @param encoding binary encoding
    * @returns the encoded string
    */
   static encodeBinary(bytes: Bytes, encoding: BinaryEncoding) {
@@ -57,12 +45,24 @@ export class PgCodec {
   }
 
   /**
+   * Decode the given bytes to a string using the given text encoding.
+   *
+   * @param bytes bytes to decode
+   * @param encoding text encoding
+   * @returns the decoded text
+   */
+  static decodeText(bytes: Bytes, encoding: TextEncoding = "utf-8") {
+    const buf = this._normalizeBytes(bytes);
+    return new TextDecoder(encoding).decode(buf);
+  }
+
+  /**
    * Encode text (UTF-8 only).
    *
    * @param str string to encode
    * @returns the encoded bytes
    */
-  encodeText(str: string) {
+  static encodeText(str: string) {
     return Buffer.from(new TextEncoder().encode(str));
   }
 
@@ -79,13 +79,11 @@ export class PgCodec {
    * @returns the normalized buffer
    */
   private static _normalizeBytes(b: Bytes) {
-    if (Array.isArray(b)) {
-      return Buffer.from(b);
-    }
     if (ArrayBuffer.isView(b)) {
       return Buffer.from(new Uint8Array(b.buffer, b.byteOffset, b.byteLength));
     }
 
-    return Buffer.from(b);
+    // Why can't we just `return Buffer.from(b)`?
+    return Array.isArray(b) ? Buffer.from(b) : Buffer.from(b);
   }
 }
