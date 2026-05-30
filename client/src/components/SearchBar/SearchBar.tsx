@@ -351,7 +351,7 @@ const SearchBar: FC<SearchBarProps> = ({
             if (item) {
               // `item.value` can be an empty string because it's not updated as
               // soon as `onPaste` executes.
-              if (typeof item === "object") item.value ||= clipboardText;
+              if (typeof item === "object") item.value = clipboardText;
 
               // Include a timeout otherwise the pasted text is appended to the
               // value we set instead of overriding it
