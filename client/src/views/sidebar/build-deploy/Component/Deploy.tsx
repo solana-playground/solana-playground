@@ -3,13 +3,13 @@ import styled from "styled-components";
 
 import Text from "../../../../components/Text";
 import Button, { ButtonProps } from "../../../../components/Button";
+import { Pause, Rocket, Triangle } from "../../../../components/Icons";
 import { PgCommand, PgGlobal } from "../../../../utils";
 import {
   useProgramInfo,
   useRenderOnChange,
   useWallet,
 } from "../../../../hooks";
-import { Pause, Triangle } from "../../../../components/Icons";
 
 const Deploy = () => {
   const buildLoading = useRenderOnChange(PgGlobal.onDidChangeBuildLoading);
@@ -71,7 +71,9 @@ const Deploy = () => {
           <Pause />
         ) : deployState === "paused" ? (
           <Triangle rotate="90deg" />
-        ) : null,
+        ) : (
+          <Rocket />
+        ),
     }),
     [buildLoading, deployState]
   );
