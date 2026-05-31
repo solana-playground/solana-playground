@@ -68,11 +68,6 @@ export class PgTerminal {
     await PgTerminal.run({ enable: [] });
   }
 
-  /** Dispatch disable terminal custom event. */
-  static async disable() {
-    await PgTerminal.run({ disable: [] });
-  }
-
   /** Log terminal messages from anywhere. */
   static async println(msg: any, opts?: PrintOptions) {
     await PgTerminal.run({ println: [msg, opts] });
