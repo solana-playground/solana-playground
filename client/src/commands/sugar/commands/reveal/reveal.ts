@@ -54,7 +54,9 @@ export const processReveal = async (rpcUrl: string | undefined) => {
   // Not necessary but keeping it just to have the same output as sugar cli
   term.println(`\n[3/4] ${Emoji.LOOKING_GLASS} Matching NFTs to cache values`);
 
-  term.println(`\n[4/4] ${Emoji.UPLOAD} Updating NFT URIs from cache values`);
+  term.println(
+    `\n[4/4] ${Emoji.OUTBOX_TRAY} Updating NFT URIs from cache values`
+  );
 
   // Show progress bar
   PgView.setMainSecondaryProgress(0.1);

@@ -54,9 +54,15 @@ export const airdrop = createCmd({
       throw new Error(`Airdrop transaction failed: ${txResult.err}`);
     }
 
-    const afterBalance = await connection.getBalance(walletPk, "processed");
-    if (afterBalance === beforeBalance) {
-      throw new Error("Balance did not change");
+    // Even though we waited for the transaction to confirm, `getBalance` can
+    // sometimes return a stale balance. Try a couple times to mitigate.
+    const MAX_RETRIES = 3;
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      const afterBalance = await connection.getBalance(walletPk, "processed");
+      if (afterBalance !== beforeBalance) break;
+      if (i === MAX_RETRIES - 1) throw new Error("Balance did not change");
+
+      await PgCommon.sleep(1000);
     }
 
     PgTerminal.println(PgTerminal.success("Airdrop successful."));

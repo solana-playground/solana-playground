@@ -68,11 +68,6 @@ export class PgTerminal {
     await PgTerminal.run({ enable: [] });
   }
 
-  /** Dispatch disable terminal custom event. */
-  static async disable() {
-    await PgTerminal.run({ disable: [] });
-  }
-
   /** Log terminal messages from anywhere. */
   static async println(msg: any, opts?: PrintOptions) {
     await PgTerminal.run({ println: [msg, opts] });
@@ -426,7 +421,7 @@ export class PgTerm {
    * - validator: callback function to validate the user input
    * @returns user input
    */
-  async waitForUserInput<
+  async waitForInput<
     O extends {
       allowEmpty?: boolean;
       confirm?: boolean;
@@ -485,7 +480,7 @@ export class PgTerm {
 
     let userInput;
     try {
-      userInput = await this._shell.waitForUserInput(convertedMsg);
+      userInput = await this._shell.waitForInput(convertedMsg);
     } finally {
       disposables.reverse().forEach(({ dispose }) => dispose());
     }
@@ -519,7 +514,7 @@ export class PgTerm {
     // Allow empty
     if (!userInput && !opts?.allowEmpty) {
       this.println(PgTerminal.error("Can't be empty.\n"));
-      return await this.waitForUserInput(msg, opts);
+      return await this.waitForInput(msg, opts);
     }
 
     // Validator
@@ -529,13 +524,13 @@ export class PgTerm {
           this.println(
             PgTerminal.error(`'${userInput}' is not a valid value.\n`)
           );
-          return await this.waitForUserInput(msg, opts);
+          return await this.waitForInput(msg, opts);
         }
       } catch (e: any) {
         this.println(
           PgTerminal.error(`${e.message || `Validation failed: ${e}`}\n`)
         );
-        return await this.waitForUserInput(msg, opts);
+        return await this.waitForInput(msg, opts);
       }
     }
 

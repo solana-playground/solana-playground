@@ -184,7 +184,7 @@ export class PgRouter {
       // Get the matching parts
       const startIndex = templatePath.indexOf(OPEN);
       if (startIndex === -1) {
-        if (PgRouter.isPathsEqual(templatePath, subPath)) return {};
+        if (PgRouter.isPathsEqual(templatePath, subPath)) return;
 
         throw new Error("Doesn't match");
       }
@@ -230,7 +230,6 @@ export class PgRouter {
         );
       }
     };
-
     recursivelyMapValues(path);
 
     return result as PathParameter<P>;

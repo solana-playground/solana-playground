@@ -1,13 +1,10 @@
-use std::{
-    fs,
-    path::{Path, PathBuf},
-    process::Command,
-    sync::LazyLock,
-};
+use std::{fs, io, path::Path, process::Command, sync::LazyLock};
 
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
+
+use crate::log::info;
 
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
@@ -31,6 +28,7 @@ pub type Files = Vec<[String; 2]>;
 ///
 /// NOTE: This function doesn't return an error in the case of a compiler error.
 pub fn build(
+    concurrency_id: usize,
     program_name: &str,
     files: &Files,
     seeds_feature: bool,
@@ -39,31 +37,60 @@ pub fn build(
 ) -> anyhow::Result<(String, Option<Idl>)> {
     // Check file count
     if files.len() > MAX_FILE_AMOUNT {
-        return Err(anyhow!("Exceeded maximum file amount({MAX_FILE_AMOUNT})"));
+        return Err(anyhow!(
+            "Exceeded maximum file amount: {} > {MAX_FILE_AMOUNT}",
+            files.len()
+        ));
     }
 
     // Check file paths
     static ALLOWED_REGEX: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
-    let is_valid = files.iter().all(|[path, _]| {
-        ALLOWED_REGEX.is_match(path)
-            && path.len() <= MAX_PATH_LENGTH
+    for [path, _] in files {
+        let is_valid = path.len() <= MAX_PATH_LENGTH
             && !path.contains("..")
             && !path.contains("//")
-    });
-    if !is_valid {
-        return Err(anyhow!("Invalid path"));
+            && ALLOWED_REGEX.is_match(path);
+        if !is_valid {
+            return Err(anyhow!("Invalid path: {path}"));
+        }
     }
 
-    // Write files
+    // Copy `Cargo.*` files into a separate directory (only once)
+    let concurrency_path = Path::new(PROGRAMS_DIR).join(concurrency_id.to_string());
+    let concurrency_ready_path = concurrency_path.join("ready");
+    if !fs::exists(&concurrency_ready_path)? {
+        info!("Initializing concurrency id {concurrency_id}");
+        fs::create_dir_all(&concurrency_path)?;
+        fs::copy(
+            Path::new(PROGRAMS_DIR).join("Cargo.toml"),
+            concurrency_path.join("Cargo.toml"),
+        )?;
+        fs::copy(
+            Path::new(PROGRAMS_DIR).join("Cargo.lock"),
+            concurrency_path.join("Cargo.lock"),
+        )?;
+        fs::write(concurrency_ready_path, [])?;
+        info!("Initialized concurrency id {concurrency_id}");
+    }
+
+    // Remove existing files
+    //
+    // TODO: Compare with existing files and only remove the unused ones instead of removing all
     let program_path = Path::new(PROGRAMS_DIR).join(program_name);
+    if let Err(e) = fs::remove_dir_all(program_path.join("src")) {
+        if e.kind() != io::ErrorKind::NotFound {
+            return Err(anyhow!("Failed to remove existing files: {e}"));
+        }
+    };
+
+    // Write files
     for [path, content] in files {
-        // TODO: Send relative path from client and remove this line
         let relative_path = path.trim_start_matches('/');
         let item_path = program_path.join(relative_path);
 
         // Create directories when necessary
-        let parent_path = item_path.parent().expect("Should have parent");
+        let parent_path = item_path.parent().expect("Must have parent");
         fs::create_dir_all(parent_path)?;
 
         // Write file
@@ -71,15 +98,14 @@ pub fn build(
     }
 
     // Update manifest
-    static MANIFEST: LazyLock<(PathBuf, String)> = LazyLock::new(|| {
-        let path = Path::new(PROGRAMS_DIR).join("Cargo.toml");
-        let content = fs::read_to_string(&path).expect("Could not read manifest");
-        (path, content)
+    static MANIFEST: LazyLock<String> = LazyLock::new(|| {
+        fs::read_to_string(Path::new(PROGRAMS_DIR).join("Cargo.toml"))
+            .expect("Could not read manifest")
     });
-    let (manifest_path, manifest_content) = &*MANIFEST;
+    let manifest_path = concurrency_path.join("Cargo.toml");
     fs::write(
-        manifest_path,
-        manifest_content.replacen("default", program_name, 1),
+        &manifest_path,
+        MANIFEST.replacen("default", &format!("../{program_name}"), 1),
     )?;
 
     // Build the program
@@ -111,7 +137,7 @@ pub fn build(
             )
         })
         .transpose()
-        .map_or_else(|e| (format!("Error: {e}"), None), |idl| (stderr, idl));
+        .map_or_else(|e| (format!("IDL error: {e}"), None), |idl| (stderr, idl));
     Ok(ret)
 }
 

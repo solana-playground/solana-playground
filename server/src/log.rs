@@ -1,5 +1,7 @@
 use tracing_subscriber::EnvFilter;
 
+// https://github.com/rust-lang/rustfmt/issues/4070
+#[rustfmt::skip]
 pub use tracing::*;
 
 /// Initialize logging in the application.

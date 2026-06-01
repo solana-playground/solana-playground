@@ -24,8 +24,21 @@ ENV PATH="${HOME}/.cargo/bin:${PATH}"
 FROM rust AS build
 
 WORKDIR /build
-COPY Cargo.* rust-toolchain.toml ./
+
+# Cache toolchain
+COPY rust-toolchain.toml .
+RUN cargo --version
+
+# Cache deps
+COPY Cargo.* .
+RUN mkdir src
+RUN echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+
+# Actual build
 COPY src src
+# It doesn't rebuild without removing the crate fingerprint for some reason
+RUN rm -rf target/release/.fingerprint/solpg-server-*
 RUN cargo build --release
 
 ################################# START SERVER #################################

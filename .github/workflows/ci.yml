@@ -45,8 +45,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Add nightly rustfmt
+        run: rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+
       - name: Check format
-        run: cargo fmt --check
+        run: cargo +nightly fmt --check
 
   format_wasm:
     runs-on: ubuntu-latest

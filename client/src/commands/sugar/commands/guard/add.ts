@@ -55,7 +55,7 @@ export const processGuardAdd = async (
 
   let candyGuardPk;
   if (!candyGuardPkStr) {
-    term.println(`\n[2/3] ${Emoji.GUARD} Initializing a candy guard`);
+    term.println(`\n[2/3] ${Emoji.SHIELD} Initializing a candy guard`);
 
     const { response, candyGuardAddress } = await metaplex
       .candyMachines()
@@ -86,7 +86,7 @@ export const processGuardAdd = async (
   term.println(`\nCandy guard ID: ${candyGuardPk.toBase58()}`);
 
   // Wrap the candy machine
-  term.println(`\n[3/3] ${Emoji.WRAP} Wrapping`);
+  term.println(`\n[3/3] ${Emoji.PACKAGE} Wrapping`);
 
   const { response } = await metaplex.candyMachines().wrapCandyGuard({
     candyGuard: candyGuardPk,

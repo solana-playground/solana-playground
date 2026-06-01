@@ -1,7 +1,7 @@
 import { decodeIdlAccount, idlAddress } from "@coral-xyz/anchor/dist/cjs/idl";
 import type { Idl } from "@coral-xyz/anchor";
 
-import { PgBytes } from "./bytes";
+import { PgCodec } from "./codec";
 import { PgCommand } from "./command";
 import { PgCommon } from "./common";
 import { PgConnection } from "./connection";
@@ -196,8 +196,7 @@ class _PgProgramInfo {
     const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
     const { inflate } = await import("pako");
     const inflatedIdl = inflate(idlAccount.data);
-    const idl: Idl = JSON.parse(PgBytes.toUtf8(Buffer.from(inflatedIdl)));
-
+    const idl: Idl = JSON.parse(PgCodec.decodeText(inflatedIdl));
     return { idl, authority: idlAccount.authority };
   }
 }

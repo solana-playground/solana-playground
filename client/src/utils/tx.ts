@@ -5,27 +5,6 @@ import { Wallet, PgWallet, WalletOption } from "./wallet";
 import { PgWeb3 } from "./web3";
 import type { Arrayable } from "./types";
 
-type WithTimeStamp<T> = T & {
-  /** UNIX timestamp of the last cache */
-  timestamp: number;
-};
-
-type BlockhashInfo = WithTimeStamp<{
-  /** Latest blockhash */
-  blockhash: string;
-}>;
-
-type PriorityFeeInfo = WithTimeStamp<{
-  /** Average priority fee paid in the latest slots */
-  average: number;
-  /** Median priority fee paid in the latest slots */
-  median: number;
-  /** Minimum priority fee paid in the latest slots */
-  min: number;
-  /** Maximum priority fee paid in the latest slots */
-  max: number;
-}>;
-
 type TransactionSimulateOptions = TransactionSendOptions;
 
 type TransactionSendOptions = {
@@ -141,12 +120,6 @@ export class PgTx {
     return PgCommon.onDidChange(PgTx.events.ON_DID_SEND, cb);
   }
 
-  /** Cached blockhash to reduce the amount of requests to the RPC endpoint */
-  private static _cachedBlockhashInfo: BlockhashInfo | null = null;
-
-  /** Cached priority fee to reduce the amount of requests to the RPC endpoint */
-  private static _cachedPriorityFee: PriorityFeeInfo | null = null;
-
   /** Prepare the transaction for simulation and send. */
   private static async _prepareTx(
     txable: Transactionable,
@@ -228,30 +201,21 @@ export class PgTx {
    *
    * @param conn `Connection` object to use
    * @param force whether to force fetch the latest blockhash
-   *
    * @returns the latest blockhash
    */
   private static async _getLatestBlockhash(
     conn: PgWeb3.Connection,
     force?: boolean
   ) {
-    // Check whether the latest saved blockhash is still valid
-    const timestamp = PgCommon.getUnixTimstamp();
-
-    // Blockhashes are valid for 150 slots, optimal block time is ~400ms
-    // For finalized: (150 - 32) * 0.4 = 47.2s ~= 45s (to be safe)
-    if (
-      force ||
-      !this._cachedBlockhashInfo ||
-      timestamp > this._cachedBlockhashInfo.timestamp + 45
-    ) {
-      this._cachedBlockhashInfo = {
-        blockhash: (await conn.getLatestBlockhash()).blockhash,
-        timestamp,
-      };
-    }
-
-    return this._cachedBlockhashInfo.blockhash;
+    return await PgCommon.getCachedValue(
+      this,
+      "blockhash",
+      () => conn.getLatestBlockhash().then(({ blockhash }) => blockhash),
+      // Blockhashes are valid for 150 slots, optimal block time is ~400ms
+      // For finalized: (150 - 32) * 0.4 = 47.2s ~= 45s (to be safe)
+      45,
+      force
+    );
   }
 
   /**
@@ -262,29 +226,24 @@ export class PgTx {
    * @returns the priority fee information
    */
   private static async _getPriorityFee(conn: PgWeb3.Connection) {
-    // Check whether the priority fee info has expired
-    const timestamp = PgCommon.getUnixTimstamp();
-
-    // There is not a perfect way to estimate for how long the priority fee will
-    // be valid since it's a guess about the future based on the past data
-    if (
-      !this._cachedPriorityFee ||
-      timestamp > this._cachedPriorityFee.timestamp + 60
-    ) {
-      const result = await conn.getRecentPrioritizationFees();
-      const fees = result.map((fee) => fee.prioritizationFee).sort();
-
-      this._cachedPriorityFee = {
-        min: Math.min(...fees),
-        max: Math.max(...fees),
-        average: Math.ceil(
-          fees.reduce((acc, cur) => acc + cur, 0) / fees.length
-        ),
-        median: fees[Math.floor(fees.length / 2)],
-        timestamp,
-      };
-    }
-
-    return this._cachedPriorityFee;
+    return await PgCommon.getCachedValue(
+      this,
+      "priority-fee",
+      async () => {
+        const result = await conn.getRecentPrioritizationFees();
+        const fees = result.map((fee) => fee.prioritizationFee).sort();
+        return {
+          min: Math.min(...fees),
+          max: Math.max(...fees),
+          average: Math.ceil(
+            fees.reduce((acc, cur) => acc + cur, 0) / fees.length
+          ),
+          median: fees[Math.floor(fees.length / 2)],
+        };
+      },
+      // There is no perfect way to estimate for how long the priority fee will
+      // be valid since it's a guess about the future based on past data
+      60
+    );
   }
 }

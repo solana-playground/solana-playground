@@ -2,7 +2,7 @@ import type { PgRpc, TransactionStatus } from "@solana-playground/playnet";
 
 import { PgSerde } from "./serde";
 import { PgPlaynetUtils } from "./utils";
-import { PgBytes } from "../bytes";
+import { PgCodec } from "../codec";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgSettings } from "../settings";
@@ -189,13 +189,17 @@ export class PgPlaynetRpc {
         const account = rpc.getAccountInfo(address);
         const lamports = PgCommon.bigintToInt(account.lamports);
 
+        const encoding = "base64";
         return this._createRpcResponse<"getAccountInfo">(request, context, {
           // @ts-ignore
           value:
             lamports === 0
               ? null
               : {
-                  data: [PgBytes.toBase64(Buffer.from(account.data)), "base64"],
+                  data: [
+                    PgCodec.encodeBinary(account.data, encoding),
+                    encoding,
+                  ],
                   executable: account.executable,
                   lamports,
                   owner: new PgWeb3.PublicKey(account.owner.toBytes()),
@@ -275,6 +279,22 @@ export class PgPlaynetRpc {
         });
       }
 
+      // TODO: Actually support priority fees instead of a dummy impl
+      case "getRecentPrioritizationFees": {
+        return this._createRpcResponse<"getRecentPrioritizationFees">(
+          request,
+          context,
+          {
+            result: [
+              {
+                prioritizationFee: 0,
+                slot: PgCommon.bigintToInt(rpc.getSlot()),
+              },
+            ],
+          }
+        );
+      }
+
       case "getSignatureStatuses": {
         const [signatures] = request.params;
 
@@ -337,17 +357,12 @@ export class PgPlaynetRpc {
         ];
         if (!options?.encoding) {
           const versionedTx = PgWeb3.VersionedTransaction.deserialize(
-            PgBytes.fromBase64(tx[0])
+            PgCodec.decodeBinary(tx[0], "base64")
           );
-
           const signatures = versionedTx.signatures.map((signatureBytes) => {
-            return PgBytes.toBase58(Buffer.from(signatureBytes));
+            return PgCodec.encodeBinary(signatureBytes, "base58");
           });
-
-          tx = {
-            message: versionedTx.message,
-            signatures,
-          };
+          tx = { message: versionedTx.message, signatures };
         }
 
         const convertBalances = (bigintBalances: BigUint64Array) => {
@@ -415,9 +430,9 @@ export class PgPlaynetRpc {
         const rustTxBytes = PgSerde.serializeTx(txBase64);
 
         const simulationResult = rpc.simulateTransaction(rustTxBytes);
-
         const returnData = simulationResult.returnData();
 
+        const encoding = "base64";
         return this._createRpcResponse<"simulateTransaction">(
           request,
           context,
@@ -434,8 +449,8 @@ export class PgPlaynetRpc {
                   ? {
                       programId: returnData.programId.toString(),
                       data: [
-                        PgBytes.toBase64(Buffer.from(returnData.data)),
-                        "base64",
+                        PgCodec.encodeBinary(returnData.data, encoding),
+                        encoding,
                       ],
                     }
                   : null,

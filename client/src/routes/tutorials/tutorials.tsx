@@ -196,7 +196,20 @@ const getAllTutorials = async (): Promise<TutorialFullData[]> => {
     PgTutorial.all.map(async (t) => {
       const tutorial: Partial<TutorialFullData> = { ...t };
       if (PgTutorial.isStarted(t.name)) {
-        const metadata = await PgTutorial.getMetadata(t.name);
+        // Use the up-to-date state data for the current tutorial because there
+        // is a slight delay before tutorial metadata gets saved to storage.
+        //
+        // TODO: Make sure this function runs again after tutorial metadata gets
+        // saved to storage and remove this workaround.
+        const metadata =
+          t.name === PgTutorial.current?.name &&
+          typeof PgTutorial.completed === "boolean" &&
+          typeof PgTutorial.pageNumber === "number"
+            ? {
+                completed: PgTutorial.completed,
+                pageNumber: PgTutorial.pageNumber,
+              }
+            : await PgTutorial.getMetadata(t.name);
         tutorial.metadata = metadata;
         tutorial.progress = metadata.completed ? "Completed" : "Ongoing";
       } else {

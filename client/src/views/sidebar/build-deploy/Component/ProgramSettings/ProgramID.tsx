@@ -77,14 +77,13 @@ const Import = () => {
 
     try {
       const file = files[0];
-      const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeBytes(arrayBuffer);
-      const buffer = Buffer.from(JSON.parse(decodedString));
-      if (buffer.length !== 64) throw new Error("Invalid keypair");
+      const text = await file.text();
+      const bytes = Uint8Array.from(JSON.parse(text));
+      if (bytes.length !== 64) throw new Error("Invalid keypair");
 
       // Override customPk when user imports a new keypair
       PgProgramInfo.update({
-        kp: PgWeb3.Keypair.fromSecretKey(buffer),
+        kp: PgWeb3.Keypair.fromSecretKey(bytes),
         customPk: null,
       });
 

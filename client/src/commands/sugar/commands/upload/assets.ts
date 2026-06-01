@@ -2,7 +2,7 @@ import { JsonMetadata } from "@metaplex-foundation/js";
 
 import { SugarUploadScreen } from "./SugarUploadScreen";
 import { CacheItem } from "../../utils";
-import { PgBytes, PgCommon, PgView } from "../../../../utils";
+import { PgCodec, PgCommon, PgView } from "../../../../utils";
 
 class AssetPair {
   name: string;
@@ -148,4 +148,4 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
 };
 
 /** Encode with SHA-256 hash algorithm. */
-const encode = PgBytes.hashSha256;
+const encode = PgCodec.hashSha256;

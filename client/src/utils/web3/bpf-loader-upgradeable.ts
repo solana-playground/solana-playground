@@ -26,7 +26,7 @@ type WriteParams = {
   bytes: Buffer;
   /** Public key of the buffer account */
   bufferPk: PublicKey;
-  /** Public key to set as authority of the initialized buffer */
+  /** Public key to set as the authority of the initialized buffer */
   authorityPk: PublicKey;
 };
 
@@ -36,9 +36,13 @@ type DeployWithMaxProgramLenParams = {
   maxDataLen: number;
   /** The uninitialized Program account */
   programPk: PublicKey;
-  /** The buffer account where the program data has been written. The buffer account’s authority must match the program’s authority */
+  /**
+   * The buffer account where the program data has been written.
+   *
+   * This account's authority must match the program's authority.
+   */
   bufferPk: PublicKey;
-  /** The program’s authority */
+  /** The program's authority */
   upgradeAuthorityPk: PublicKey;
   /** The payer account that will pay to create the ProgramData account */
   payerPk: PublicKey;
@@ -48,17 +52,21 @@ type DeployWithMaxProgramLenParams = {
 type UpgradeParams = {
   /** The program account */
   programPk: PublicKey;
-  /** The buffer account where the program data has been written. The buffer account’s authority must match the program’s authority */
+  /**
+   * The buffer account where the program data has been written.
+   *
+   * This account's authority must match the program's authority.
+   */
   bufferPk: PublicKey;
   /** The spill account */
   spillPk: PublicKey;
-  /** The program’s authority */
+  /** The program's authority */
   authorityPk: PublicKey;
 };
 
 /** Update buffer authority tx params */
 type SetBufferAuthorityParams = {
-  /** The buffer account where the program data has been written */
+  /** The program buffer account */
   bufferPk: PublicKey;
   /** The buffer's authority */
   authorityPk: PublicKey;
@@ -80,17 +88,15 @@ type SetUpgradeAuthorityParams = {
 type CloseParams = {
   /** The account to close */
   closePk: PublicKey;
-  /** The account to deposit the closed account’s lamports */
+  /** The account to deposit the closed account's lamports */
   recipientPk: PublicKey;
-  /** The account’s authority, Optional, required for initialized accounts */
+  /** The account's authority, Optional, required for initialized accounts */
   authorityPk?: PublicKey;
   /** The associated Program account if the account to close is a ProgramData account */
   programPk?: PublicKey;
 };
 
-/**
- * Factory class for txs to interact with the BpfLoaderUpgradeable program
- */
+/** Factory class for txs to interact with the BpfLoaderUpgradeable program */
 export class BpfLoaderUpgradeableProgram {
   /** Public key that identifies the BpfLoaderUpgradeable program */
   static programId = new PublicKey(
@@ -116,7 +122,7 @@ export class BpfLoaderUpgradeableProgram {
     )[0];
   }
 
-  /** Generate a tx instruction that initialize buffer account. */
+  /** Generate a tx instruction that initializes a buffer account. */
   static initializeBuffer(params: InitializeBufferParams) {
     const data = this._encodeData({ discriminator: 0 });
 
@@ -131,8 +137,8 @@ export class BpfLoaderUpgradeableProgram {
   }
 
   /**
-   * Generate a tx instruction that write a chunk of program data to a buffer
-   * account.
+   * Generate a tx instruction that writes a chunk of the given program data
+   * (`params.bytes`) to the given buffer account (`params.bufferPk`).
    */
   static write(params: WriteParams) {
     const data = this._encodeData({
@@ -152,8 +158,8 @@ export class BpfLoaderUpgradeableProgram {
   }
 
   /**
-   * Generate a tx instruction that deploy a program with a specified maximum
-   * program length.
+   * Generate a tx instruction that deploys a program with the specified maximum
+   * program length (`params.maxDataLen`).
    */
   static deployWithMaxProgramLen(params: DeployWithMaxProgramLenParams) {
     const data = this._encodeData({
@@ -184,7 +190,7 @@ export class BpfLoaderUpgradeableProgram {
     });
   }
 
-  /** Generate a tx instruction that upgrade a program. */
+  /** Generate a tx instruction that upgrades a program. */
   static upgrade(params: UpgradeParams) {
     const data = this._encodeData({ discriminator: 3 });
 
@@ -205,7 +211,7 @@ export class BpfLoaderUpgradeableProgram {
     });
   }
 
-  /** Generate a tx instruction that set a new buffer authority. */
+  /** Generate a tx instruction that sets a new buffer authority. */
   static setBufferAuthority(params: SetBufferAuthorityParams) {
     const data = this._encodeData({ discriminator: 4 });
 
@@ -220,7 +226,7 @@ export class BpfLoaderUpgradeableProgram {
     });
   }
 
-  /** Generate a tx instruction that set a new program authority. */
+  /** Generate a tx instruction that sets a new program authority. */
   static setUpgradeAuthority(params: SetUpgradeAuthorityParams) {
     const data = this._encodeData({ discriminator: 4 });
 
@@ -246,7 +252,7 @@ export class BpfLoaderUpgradeableProgram {
   }
 
   /**
-   * Generate a tx instruction that close a program, a buffer, or an
+   * Generate a tx instruction that closes a program, a buffer, or an
    * uninitialized account.
    */
   static close(params: CloseParams) {

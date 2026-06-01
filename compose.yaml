@@ -19,6 +19,19 @@ x-client: &client
   ports:
     - ${PG_CLIENT_PORT:-3000}:3000
 
+x-server: &server
+  platform: linux/amd64
+  build:
+    context: ./server
+    args:
+      USER: solpg
+  ports:
+    - ${PG_PORT:-8080}:8080
+  env_file: .env
+  profiles:
+    - dev
+    - prod
+
 services:
   client:
     <<: *client
@@ -33,6 +46,7 @@ services:
     profiles:
       - prod
 
+  # Client without server
   client-standalone:
     platform: linux/amd64
     depends_on:
@@ -51,24 +65,18 @@ services:
     tty: true
     stdin_open: true
     profiles:
-      - standalone
+      - client-standalone
 
   server:
-    platform: linux/amd64
+    <<: *server
     depends_on:
       - db
-    build:
-      context: ./server
-      args:
-        USER: solpg
-    ports:
-      - ${PG_PORT:-8080}:8080
-    env_file: .env
     environment:
       - PG_DB_URI=${PG_DB_URI:-mongodb://db:27017}
-    profiles:
-      - dev
-      - prod
+
+  # Server without DB
+  server-standalone:
+    <<: *server
 
   wasm:
     platform: linux/amd64
@@ -77,12 +85,14 @@ services:
     profiles:
       - dev
       - prod
-      - standalone
+      - client-standalone
 
   db:
     image: mongo:7
     volumes:
       - mongodb:/data/db
+    # Override the default command because it logs a lot and setting `logging`
+    # `driver` to `none` doesn't work
     command: mongod --quiet --logpath /dev/null
     profiles:
       - dev

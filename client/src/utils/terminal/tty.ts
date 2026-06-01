@@ -191,7 +191,7 @@ export class PgTty {
   }
 
   /** Print a message and properly handle new-lines. */
-  print(msg: any, opts?: PrintOptions) {
+  print(msg: string | object, opts?: PrintOptions) {
     // All data types should be converted to string
     if (typeof msg === "object") msg = PgCommon.prettyJSON(msg);
     else msg = `${msg}`;
@@ -203,7 +203,12 @@ export class PgTty {
     msg = msg
       .replace(/\n\n/g, "\n \n")
       .replace(/[\r\n]+/g, "\n")
-      .replace(/\n/g, "\r\n");
+      .replace(/\n/g, "\r\n")
+      // Without this, the characterafter the emoji starts inside the emoji
+      .replace(
+        /\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})*(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})*)*/gu,
+        (match) => match + " "
+      );
 
     if (opts?.sync) {
       //@ts-ignore
@@ -223,7 +228,7 @@ export class PgTty {
   }
 
   /** Print a list of items using a wide-format. */
-  printWide(items: Array<string>, padding = 2) {
+  printWide(items: string[], padding = 2) {
     if (items.length === 0) return this.println("");
 
     // Compute item sizes and matrix row/cols
@@ -247,30 +252,6 @@ export class PgTty {
       }
       this.println(rowStr);
     }
-  }
-
-  /**
-   * Print a status message on the current line.
-   *
-   * This function meant to be used with `clearStatus()`.
-   */
-  printStatus(message: string, sync?: boolean) {
-    // Save the cursor position
-    this.print("\u001b[s", { sync });
-    this.print(message, { sync });
-  }
-
-  /**
-   * Clear the current status on the line.
-   *
-   * This function is meant to be run after `printStatus()`.
-   */
-  clearStatus(sync?: boolean) {
-    // Restore the cursor position
-    this.print("\u001b[u", { sync });
-    // Clear from cursor to end of screen
-    this.print("\u001b[1000D", { sync });
-    this.print("\u001b[0J", { sync });
   }
 
   /**
@@ -328,7 +309,7 @@ export class PgTty {
    * @param offset amount of lines before the last line
    * @returns the line at the specified offset
    */
-  getLine(offset: number = 0) {
+  getLine(offset = 0) {
     const buffer = this.buffer;
     return buffer.getLine(buffer.baseY + buffer.cursorY - offset);
   }
@@ -339,14 +320,11 @@ export class PgTty {
    * @param offset amount of lines before the current line
    */
   clearLine(offset?: number) {
-    if (offset) {
-      // Move up
-      this.print(`\x1b[${offset}A`);
-    }
-
-    // Clears the whole line
+    // Move up
+    if (offset) this.print(`\x1b[${offset}A`);
+    // Clear the whole line
     this.print(`\x1b[G`);
-    // This also clears the line but helps with parsing errors
+    // This also clears the line but also helps with parsing errors
     this.print(`\x1b[2K`);
   }
 

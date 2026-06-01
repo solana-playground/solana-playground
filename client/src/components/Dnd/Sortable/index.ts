@@ -1,2 +1,2 @@
 export { default } from "./Sortable";
-export type { SortableItemProvidedProps } from "./Sortable";
+export type { SortableItemCommonProps } from "./Sortable";

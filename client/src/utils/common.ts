@@ -2,6 +2,7 @@ import type {
   AllPartial,
   Disposable,
   Promisable,
+  KeyOf,
   SyncOrAsync,
   Arrayable,
   ValueOf,
@@ -221,19 +222,6 @@ export class PgCommon {
   }
 
   /**
-   * @returns the decoded string
-   */
-  static decodeBytes(
-    b: ArrayBuffer | Buffer | Uint8Array,
-    type: string = "utf-8"
-  ) {
-    const decoder = new TextDecoder(type);
-    const decodedString = decoder.decode(b);
-
-    return decodedString;
-  }
-
-  /**
    * @returns whether the given values are equal
    */
   static isEqual(value1: any, value2: any) {
@@ -311,8 +299,9 @@ export class PgCommon {
   static setDefault<T, D extends AllPartial<T>>(value: T, defaultValue: D) {
     value ??= {} as T;
     for (const property in defaultValue) {
-      const result = defaultValue[property] as AllPartial<T[keyof T]>;
-      value[property as keyof T] ??= result as T[keyof T];
+      type K = KeyOf<T>;
+      const result = defaultValue[property] as AllPartial<T[K]>;
+      value[property as K] ??= result as T[K];
     }
 
     return value as NonNullable<T & D>;
@@ -446,7 +435,7 @@ export class PgCommon {
    * @returns the object keys as an array
    */
   static keys<T extends Record<string, unknown>>(obj: T) {
-    return Object.keys(obj) as Array<keyof T>;
+    return Object.keys(obj) as Array<KeyOf<T>>;
   }
 
   /**
@@ -456,7 +445,7 @@ export class PgCommon {
    * @returns the object entries as an array of [key, value] tuples
    */
   static entries<T extends Record<string, unknown>>(obj: T) {
-    return Object.entries(obj) as Array<[keyof T, ValueOf<T>]>;
+    return Object.entries(obj) as Array<[KeyOf<T>, ValueOf<T>]>;
   }
 
   /**
@@ -524,10 +513,65 @@ export class PgCommon {
   }
 
   /**
-   * @returns the current UNIX timestamp(sec)
+   * @returns the current UNIX timestamp (in seconds)
    */
-  static getUnixTimstamp() {
+  static getUnixTimestamp() {
     return Math.floor(Date.now() / 1000);
+  }
+
+  /**
+   * Get human readable date time from unix timestamp
+   *
+   * @param unixTs unix timestamp in seconds
+   * @param opts date format options
+   * @returns formatted date string
+   */
+  static getFormattedDateFromUnixTimestamp(
+    unixTs: number,
+    opts?: {
+      locale: string;
+    } & Pick<Intl.DateTimeFormatOptions, "dateStyle" | "timeStyle" | "timeZone">
+  ) {
+    return new Intl.DateTimeFormat(opts?.locale ?? "en-US", {
+      dateStyle: opts?.dateStyle ?? "full",
+      timeStyle: opts?.timeStyle ?? "long",
+      timeZone: opts?.timeZone ?? "UTC",
+    }).format(unixTs * 1e3);
+  }
+
+  /**
+   * Get the previously saved value or create if it doesn't exist in cache.
+   *
+   * @param obj object to save the cache to
+   * @param key cache key
+   * @param getData callback to get the data
+   * @param duration cache invalidation duration
+   * @param force whether to force invalidate the cache
+   * @returns
+   */
+  static async getCachedValue<R>(
+    obj: any,
+    key: string,
+    getData: () => SyncOrAsync<R>,
+    duration: number,
+    force?: boolean
+  ) {
+    switch (typeof obj) {
+      case "object":
+      case "function": // Classes are functions
+        break;
+
+      default:
+        throw new Error(`Received non-object: ${obj}`);
+    }
+    if (typeof obj !== "object") key = "_cached" + PgCommon.toCamelCase(key);
+    const timestamp = PgCommon.getUnixTimestamp();
+
+    if (force || !obj[key] || timestamp > obj[key].timestamp + duration) {
+      obj[key] = { data: await getData(), timestamp };
+    }
+
+    return obj[key].data as R;
   }
 
   /**
@@ -1116,26 +1160,6 @@ export class PgCommon {
    */
   static prettyJSON(obj: object) {
     return JSON.stringify(obj, null, 2);
-  }
-
-  /**
-   * Get human readable date time from unix timestamp
-   *
-   * @param unixTs unix timestamp in seconds
-   * @param opts date format options
-   * @returns formatted date string
-   */
-  static getFormattedDateFromUnixTimestamp(
-    unixTs: number,
-    opts?: {
-      locale: string;
-    } & Pick<Intl.DateTimeFormatOptions, "dateStyle" | "timeStyle" | "timeZone">
-  ) {
-    return new Intl.DateTimeFormat(opts?.locale ?? "en-US", {
-      dateStyle: opts?.dateStyle ?? "full",
-      timeStyle: opts?.timeStyle ?? "long",
-      timeZone: opts?.timeZone ?? "UTC",
-    }).format(unixTs * 1e3);
   }
 
   /**

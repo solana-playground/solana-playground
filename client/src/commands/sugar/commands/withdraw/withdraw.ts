@@ -15,9 +15,7 @@ export const processWithdraw = async (
 
   const metaplex = await getMetaplex(rpcUrl);
 
-  term.println(
-    `\n[2/2] ${Emoji.WITHDRAW} ${list ? "Listing" : "Retrieving"} funds`
-  );
+  term.println(`\n[2/2] ${Emoji.ATM} ${list ? "Listing" : "Retrieving"} funds`);
 
   // the --list flag takes precedence; even if a candy machine id is passed
   // as an argument, we will list the candy machines (no draining happens)
@@ -89,7 +87,7 @@ export const processWithdraw = async (
         );
 
         if (
-          !(await term.waitForUserInput("Do you want to continue?", {
+          !(await term.waitForInput("Do you want to continue?", {
             confirm: true,
             default: "yes",
           }))

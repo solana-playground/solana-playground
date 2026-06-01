@@ -19,8 +19,8 @@ interface AccountProps {
 }
 
 const Account: FC<AccountProps> = ({ accountName, index }) => {
-  const [enteredAddress, setEnteredAddress] = useState("");
-  const [enteredAddressError, setEnteredAddressError] = useState(false);
+  const [address, setAddress] = useState("");
+  const [addressError, setAddressError] = useState(false);
   const [fetchedData, setFetchedData] = useState<object>();
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchOneLoading, setFetchOneLoading] = useState(false);
@@ -29,65 +29,52 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
 
   const wallet = useWallet();
 
-  const handleFetched = (data: object) => {
-    setFetchedData(data);
-    setFetchError(null);
-    setResultOpen(true);
+  const createFetch = (
+    cb: () => Promise<NonNullable<typeof fetchedData>>,
+    setLoading: typeof setFetchOneLoading
+  ) => {
+    return async () => {
+      setLoading(true);
+      try {
+        const data = await PgCommon.transition(cb());
+        setFetchedData(data);
+        setFetchError(null);
+      } catch (e: any) {
+        if (e.message.startsWith("Account does not exist")) {
+          setFetchError("Account does not exist");
+        } else if (e.message === "Invalid account discriminator") {
+          setFetchError(`Given account is not type ${accountName}`);
+        } else {
+          setFetchError(`Unknown error: ${e.message}`);
+        }
+      } finally {
+        setLoading(false);
+        setResultOpen(true);
+      }
+    };
   };
 
-  const handleError = (e: any) => {
-    if (e.message.startsWith("Account does not exist")) {
-      setFetchError("Account does not exist");
-    } else if (e.message === "Invalid account discriminator") {
-      setFetchError(`Given account is not type ${accountName}`);
-    } else {
-      console.log(e);
-      setFetchError(`Unknown error: ${e.message}`);
-    }
+  const fetchOne = createFetch(() => {
+    return PgProgramInteraction.fetchAccount(
+      accountName,
+      new PgWeb3.PublicKey(address)
+    );
+  }, setFetchOneLoading);
 
-    setResultOpen(true);
-  };
-
-  const fetchOne = async () => {
-    setFetchOneLoading(true);
-    try {
-      const account = await PgCommon.transition(
-        PgProgramInteraction.fetchAccount(
-          accountName,
-          new PgWeb3.PublicKey(enteredAddress)
-        )
-      );
-      handleFetched(account);
-    } catch (err: any) {
-      handleError(err);
-    } finally {
-      setFetchOneLoading(false);
-    }
-  };
-
-  const fetchAll = async () => {
-    setFetchAllLoading(true);
-    try {
-      const allAccounts = await PgCommon.transition(
-        PgProgramInteraction.fetchAllAccounts(accountName)
-      );
-      handleFetched(allAccounts);
-    } catch (err: any) {
-      handleError(err);
-    } finally {
-      setFetchAllLoading(false);
-    }
-  };
+  const fetchAll = createFetch(
+    () => PgProgramInteraction.fetchAllAccounts(accountName),
+    setFetchAllLoading
+  );
 
   return (
     <Interaction name={accountName} index={index}>
       <InputWrapper>
         <InputLabel name="address" type="publicKey" />
         <SearchBar
-          value={enteredAddress}
-          onChange={(ev) => setEnteredAddress(ev.target.value)}
-          error={enteredAddressError}
-          setError={setEnteredAddressError}
+          value={address}
+          onChange={(ev) => setAddress(ev.target.value)}
+          error={addressError}
+          setError={setAddressError}
           validator={PgCommon.isPk}
         />
       </InputWrapper>
@@ -95,11 +82,11 @@ const Account: FC<AccountProps> = ({ accountName, index }) => {
       <ButtonsWrapper>
         <Button
           onClick={fetchOne}
-          disabled={!wallet || !enteredAddress || enteredAddressError}
+          disabled={!wallet || fetchAllLoading || !address || addressError}
         >
           Fetch
         </Button>
-        <Button onClick={fetchAll} disabled={!wallet}>
+        <Button onClick={fetchAll} disabled={!wallet || fetchOneLoading}>
           Fetch All
         </Button>
       </ButtonsWrapper>

@@ -36,7 +36,6 @@ const Import = () => (
         const fileName = file.name;
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-
         PgProgramInfo.update({ importedProgram: { buffer, fileName } });
       } catch (err: any) {
         console.log(err.message);

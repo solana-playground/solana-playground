@@ -3,7 +3,7 @@ import { Creator } from "@metaplex-foundation/js";
 import { NULL_STRING } from "../../constants";
 import { getMetaplex, loadCache, printWithStyle } from "../../utils";
 import { Emoji } from "../../../../constants";
-import { PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
+import { PgCodec, PgCommon, PgTerminal, PgWeb3 } from "../../../../utils";
 
 export const processShow = async (
   rpcUrl: string | undefined,
@@ -97,11 +97,7 @@ export const processShow = async (
     printWithStyle("", "hidden settings", "");
     printWithStyle(":   ", "name", hiddenSettings.name);
     printWithStyle(":   ", "uri", hiddenSettings.uri);
-    printWithStyle(
-      ":   ",
-      "hash",
-      PgCommon.decodeBytes(Uint8Array.from(hiddenSettings.hash))
-    );
+    printWithStyle(":   ", "hash", PgCodec.decodeText(hiddenSettings.hash));
   } else {
     printWithStyle("", "hidden settings", "none");
   }

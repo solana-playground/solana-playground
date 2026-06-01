@@ -56,7 +56,7 @@ export const processMint = async (
   const groupLen = candyState.candyGuard?.groups.length;
   let groupIndex = 0;
   if (groupLen && groupLen > 1) {
-    groupIndex = await term.waitForUserInput(
+    groupIndex = await term.waitForInput(
       "Candy guard has multiple groups. Which group do you belong to?",
       {
         choice: {

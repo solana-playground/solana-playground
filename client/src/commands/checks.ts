@@ -14,7 +14,7 @@ export const checkWallet = async () => {
 
 const connect = async (name: "Playground Wallet" | "Wallet") => {
   const term = await PgTerminal.get();
-  const shouldConnect = await term.waitForUserInput(
+  const shouldConnect = await term.waitForInput(
     `${name} is not connected. Would you like to connect?`,
     { confirm: true, default: "yes" }
   );

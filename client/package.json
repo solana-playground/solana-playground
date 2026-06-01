@@ -35,7 +35,7 @@
     "crypto-browserify": "^3.12.0",
     "jszip": "^3.10.1",
     "mocha": "^10.0.0",
-    "monaco-editor": "=0.36.1",
+    "monaco-editor": "=0.37.1",
     "pako": "^2.1.0",
     "prettier": "^2.7.1",
     "process": "^0.11.10",
@@ -54,7 +54,7 @@
     "shiki": "^0.14.4",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",
-    "typescript": "=4.9.5",
+    "typescript": "=5.0.4",
     "vscode-oniguruma": "^1.7.0",
     "vscode-textmate": "^9.0.0",
     "xterm": "^4.18.0",
@@ -77,7 +77,8 @@
   },
   "resolutions": {
     "@solana/buffer-layout": "^4.0.0",
-    "styled-components": "^5"
+    "styled-components": "^5",
+    "typescript": "5.0.4"
   },
   "engines": {
     "node": ">=22.20.0"
@@ -94,7 +95,9 @@
     "generate-exports": "node scripts/generate-exports.mjs",
     "generate-packages": "node scripts/generate-packages.mjs",
     "generate-tutorials": "node scripts/generate-tutorials.mjs",
-    "sync-readme": "node scripts/sync-readme.mjs"
+    "sync-readme": "node scripts/sync-readme.mjs",
+    "test": "yarn test-types && yarn build",
+    "test-types": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [

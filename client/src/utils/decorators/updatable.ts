@@ -1,6 +1,6 @@
 import { PgCommon } from "../common";
 import { addInit, addOnDidChange, getChangePropName, PROPS } from "./common";
-import type { Disposable, SyncOrAsync } from "../types";
+import type { Disposable, KeyOf, SyncOrAsync } from "../types";
 
 /** Updatable decorator */
 export type Updatable<T> = {
@@ -12,7 +12,7 @@ export type Updatable<T> = {
 
 /** Recursive `onDidChange${propertyName}` method types */
 export type OnDidChangePropertyRecursive<T, U = FlattenObject<T>> = {
-  [K in keyof U as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
+  [K in KeyOf<U> as `${typeof PROPS.ON_DID_CHANGE}${Capitalize<K>}`]: (
     cb: (value: U[K]) => void
   ) => Disposable;
 };
@@ -128,7 +128,7 @@ export function updatable<T extends Record<string, any>>(params: {
 
           // Do not save if it's the default state. This mitigates unintended
           // resets during and after a full app crash.
-          if (PgCommon.isEqual(updatableState, params.defaultState)) return;
+          if (updatableState === params.defaultState) return;
 
           params.storage!.write(updatableState);
         },
@@ -150,9 +150,9 @@ export function updatable<T extends Record<string, any>>(params: {
       // Migrate if needed
       const migrations = await params.migrate?.();
 
-      // FIXME: Mutating `state` may have unintended side-effects, and we cannot
-      // use `structuredClone` because some values, such as class instances,
-      // cannot be cloned properly.
+      // Mutating `state` may have unintended side-effects, and we cannot use
+      // `structuredClone` because some values, such as self-referencing object
+      // and class instances, cannot be cloned properly.
       const state: T = params.storage
         ? await params.storage.read()
         : params.defaultState;
@@ -215,33 +215,33 @@ export function updatable<T extends Record<string, any>>(params: {
       };
       removeExtraProperties(state, params.defaultState);
 
-      // Set internal state fields individually to keep `derivable` fields
-      for (const [prop, value] of Object.entries(state)) {
-        sClass[PROPS.INTERNAL_STATE][prop] = value;
-      }
-
-      if (sClass[PROPS.IS_INITIALIZED]) {
-        // Dispatch change events by self-assigning the innermost values, which
-        // will also trigger the change events of its parent fields (change
-        // events bubble up).
-        //
-        // NOTE: This part assumes change events always bubble up. If we ever
-        // change it to bubble down (e.g. in `recursivelyDefineSetters`), we'd
-        // need to update this part too.
-        const selfAssignInnerFields = (state: any, accessor: string[] = []) => {
-          for (const [prop, value] of Object.entries(state)) {
-            if (
-              params.recursive &&
-              typeof value === "object" &&
-              value !== null
-            ) {
-              selfAssignInnerFields(value, [...accessor, prop]);
-            } else {
-              PgCommon.setValue(sClass, [...accessor, prop], value);
-            }
+      // Initialize or self-assign fields.
+      //
+      // If the field has already been initialized before, dispatch change
+      // events by self-assigning the innermost values, which will also trigger
+      // the change events of its parent fields (change events bubble up).
+      //
+      // NOTE: This part assumes change events always bubble up. If we ever
+      // change it to bubble down (e.g. in `recursivelyDefineSetters`), we'd
+      // need to update this part too.
+      const handleFields = (
+        classState: any,
+        state: any,
+        accessor: string[] = []
+      ) => {
+        for (const [prop, value] of Object.entries(state)) {
+          if (params.recursive && typeof value === "object" && value !== null) {
+            PgCommon.getValue(classState, accessor)[prop] ??= {};
+            handleFields(classState, value, [...accessor, prop]);
+          } else {
+            PgCommon.setValue(classState, [...accessor, prop], value);
           }
-        };
-        selfAssignInnerFields(state);
+        }
+      };
+      if (!sClass[PROPS.IS_INITIALIZED]) {
+        handleFields(sClass[PROPS.INTERNAL_STATE], state);
+      } else {
+        handleFields(sClass, state);
       }
     };
   };
@@ -353,7 +353,9 @@ type JoinCapitalized<T extends string[]> = T extends [
 
 /** Map the property values to a union of tuples */
 type PropertiesToUnionOfTuples<T, Acc extends string[] = []> = {
-  [K in keyof T]: T[K] extends object
-    ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
-    : [[...Acc, K], T[K]];
+  [K in keyof T]: K extends KeyOf<T>
+    ? T[K] extends object
+      ? [[...Acc, K], T[K]] | PropertiesToUnionOfTuples<T[K], [...Acc, K]>
+      : [[...Acc, K], T[K]]
+    : never;
 }[keyof T];

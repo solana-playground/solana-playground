@@ -2,7 +2,13 @@ import { Option, toBigNumber } from "@metaplex-foundation/js";
 
 import { parseGuards } from "./guards";
 import { PgSugar } from "../processor";
-import { PgCommon, PgExplorer, PgTerminal, PgWeb3 } from "../../../utils";
+import {
+  PgCodec,
+  PgCommon,
+  PgExplorer,
+  PgTerminal,
+  PgWeb3,
+} from "../../../utils";
 import type { ConfigData, ToPrimitive } from "../types";
 
 export const loadConfigData = async (): Promise<ConfigData> => {
@@ -52,9 +58,7 @@ export const saveConfigData = async (configData: ConfigData) => {
       hiddenSettings: configData.hiddenSettings
         ? {
             ...configData.hiddenSettings,
-            hash: PgCommon.decodeBytes(
-              Uint8Array.from(configData.hiddenSettings.hash)
-            ),
+            hash: PgCodec.decodeText(configData.hiddenSettings.hash),
           }
         : null,
       creators: configData.creators.map((c) => ({

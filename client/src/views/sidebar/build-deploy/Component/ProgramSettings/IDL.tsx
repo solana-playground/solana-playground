@@ -25,12 +25,9 @@ const Import = () => {
 
     try {
       const file = files[0];
-      const arrayBuffer = await file.arrayBuffer();
-      const decodedString = PgCommon.decodeBytes(arrayBuffer);
-
-      PgProgramInfo.update({
-        idl: JSON.parse(decodedString),
-      });
+      const text = await file.text();
+      const idl = JSON.parse(text);
+      PgProgramInfo.update({ idl });
     } catch (e: any) {
       console.log(e.message);
     }

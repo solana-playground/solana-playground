@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
+import { Wrench } from "../../../../components/Icons";
 import { useExplorer, useRenderOnChange } from "../../../../hooks";
 import { PgCommand, PgGlobal } from "../../../../utils";
 
@@ -20,6 +21,7 @@ const Build = () => {
         onClick={() => PgCommand.build.execute()}
         loading={buildLoading}
         fullWidth
+        leftIcon={<Wrench />}
       >
         {buildLoading ? "Building..." : "Build"}
       </Button>

@@ -1,5 +1,5 @@
 import {
-  PgBytes,
+  PgCodec,
   PgConnection,
   PgSettings,
   PgTx,
@@ -30,8 +30,8 @@ export const tx = () => {
 
     // Sanity check for signature
     if (!tx.signature) return;
-    const txHash = PgBytes.toBase58(tx.signature);
 
+    const txHash = PgCodec.encodeBinary(tx.signature, "base58");
     PgView.setToast(ExplorerLink, {
       componentProps: { txHash },
       options: { toastId: txHash },

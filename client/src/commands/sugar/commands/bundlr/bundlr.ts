@@ -45,7 +45,7 @@ export const processBundlr = async (
 
   // Withdraw funds
   if (action === BundlrAction.Withraw) {
-    PgTerminal.println(`\n${"[2/2]"} ${Emoji.WITHDRAW} Withdrawing funds`);
+    PgTerminal.println(`\n${"[2/2]"} ${Emoji.ATM} Withdrawing funds`);
 
     if (balance.isZero()) {
       PgTerminal.println!("\nNo funds to withdraw.");
