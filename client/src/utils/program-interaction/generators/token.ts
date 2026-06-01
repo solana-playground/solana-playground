@@ -1,108 +1,89 @@
-import type { Connection, PublicKey } from "@solana/web3.js";
+import { PgCommon } from "../../common";
+import type { PgWeb3 } from "../../web3";
 
-import type { Cluster } from "../../connection";
-
+/** A single SPL token account owned by the current wallet */
 export interface TokenAccount {
   address: string;
   mint: string;
   amount: string;
 }
 
+/** Token accounts and the unique mints derived from them */
 export interface TokenAccountsData {
   tokenAccounts: TokenAccount[];
   mintAccounts: string[];
 }
 
 type ParsedTokenAccounts = Awaited<
-  ReturnType<Connection["getParsedTokenAccountsByOwner"]>
+  ReturnType<PgWeb3.Connection["getParsedTokenAccountsByOwner"]>
 >["value"];
-
-type GetTokenAccountsParams = {
-  cluster?: Cluster | null;
-  owner?: PublicKey | null;
-  fetchAccounts?: () => Promise<ParsedTokenAccounts>;
-  cache?: TokenAccountsCache;
-  now?: number;
-};
 
 type CacheEntry = {
   data?: TokenAccountsData;
   timestamp?: number;
-  promise?: Promise<TokenAccountsData>;
+  promise?: Promise<TokenAccountsData> | null;
 };
+
+/** Token and Token-2022 program ids to fetch accounts from */
+const TOKEN_PROGRAM_IDS = [
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+];
+
+/** Number of seconds to keep fetched token accounts before refetching */
+const CACHE_TTL = 30;
 
 const EMPTY_TOKEN_ACCOUNTS: TokenAccountsData = {
   tokenAccounts: [],
   mintAccounts: [],
 };
 
-const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+/** Fetched token accounts keyed by `cluster:owner` */
+const tokenAccountsCache: Record<string, CacheEntry> = {};
 
-const DEFAULT_CACHE_TTL = 30;
+let isInvalidationListenerSet = false;
 
-const getNow = () => Math.floor(Date.now() / 1000);
+/** Remove all cached token accounts. */
+const clearTokenAccountsCache = () => {
+  for (const key in tokenAccountsCache) delete tokenAccountsCache[key];
+};
 
-export class TokenAccountsCache {
-  private readonly _entries: Record<string, CacheEntry> = {};
+/** Invalidate the cache when a transaction is sent (registers only once). */
+const setInvalidationListener = async () => {
+  if (isInvalidationListenerSet) return;
+  isInvalidationListenerSet = true;
 
-  constructor(private readonly _ttlSeconds = DEFAULT_CACHE_TTL) {}
+  const { PgTx } = await import("../../tx");
+  PgTx.onDidSend(clearTokenAccountsCache);
+};
 
-  get(key: string) {
-    return this._entries[key]?.data ?? EMPTY_TOKEN_ACCOUNTS;
-  }
+/** Fetch the current wallet's Token and Token-2022 accounts. */
+const fetchTokenAccounts = async (
+  owner: PgWeb3.PublicKey
+): Promise<ParsedTokenAccounts> => {
+  const [{ PgConnection }, { PgWeb3 }] = await Promise.all([
+    import("../../connection"),
+    import("../../web3"),
+  ]);
 
-  async getOrInit(
-    key: string,
-    fetcher: () => Promise<TokenAccountsData>,
-    now: number = getNow()
-  ) {
-    const entry = (this._entries[key] ??= {});
-
-    if (
-      entry.data &&
-      entry.timestamp !== undefined &&
-      now <= entry.timestamp + this._ttlSeconds
-    ) {
-      return entry.data;
-    }
-
-    if (entry.promise) return await entry.promise;
-
-    entry.promise = fetcher()
-      .then((data) => {
-        entry.data = data;
-        entry.timestamp = now;
-        entry.promise = undefined;
-        return data;
+  const connection = PgConnection.current;
+  const results = await Promise.all(
+    TOKEN_PROGRAM_IDS.map((programId) =>
+      connection.getParsedTokenAccountsByOwner(owner, {
+        programId: new PgWeb3.PublicKey(programId),
       })
-      .catch((error) => {
-        entry.promise = undefined;
-        throw error;
-      });
+    )
+  );
 
-    return await entry.promise;
-  }
+  return results.flatMap((result) => result.value);
+};
 
-  clear(key?: string) {
-    if (key) {
-      delete this._entries[key];
-      return;
-    }
-
-    for (const existingKey of Object.keys(this._entries)) {
-      delete this._entries[existingKey];
-    }
-  }
-}
-
-const tokenAccountsCache = new TokenAccountsCache();
-
-export const normalizeTokenAccounts = (
+/** Derive sorted token accounts and unique mints from parsed accounts. */
+const normalizeTokenAccounts = (
   accounts: ParsedTokenAccounts
 ): TokenAccountsData => {
   const tokenAccounts: TokenAccount[] = [];
-  const mintAccounts: string[] = [];
-  const seenMints = new Set<string>();
+  const mints = new Set<string>();
 
   for (const account of accounts) {
     const parsed = account.account.data.parsed as {
@@ -124,23 +105,15 @@ export const normalizeTokenAccounts = (
     const mint = parsed.info?.mint;
     if (!mint) continue;
 
-    const address =
-      typeof account.pubkey === "string"
-        ? account.pubkey
-        : account.pubkey.toBase58();
-
     tokenAccounts.push({
-      address,
+      address: account.pubkey.toBase58(),
       mint,
       amount:
         parsed.info?.tokenAmount?.uiAmountString ??
         parsed.info?.tokenAmount?.amount ??
         "",
     });
-
-    if (seenMints.has(mint)) continue;
-    seenMints.add(mint);
-    mintAccounts.push(mint);
+    mints.add(mint);
   }
 
   tokenAccounts.sort(
@@ -148,54 +121,59 @@ export const normalizeTokenAccounts = (
       left.mint.localeCompare(right.mint) ||
       left.address.localeCompare(right.address)
   );
-  mintAccounts.sort((left, right) => left.localeCompare(right));
+  const mintAccounts = [...mints].sort((left, right) =>
+    left.localeCompare(right)
+  );
 
   return { tokenAccounts, mintAccounts };
 };
 
-const getOrInitTokenAccounts = async (params?: GetTokenAccountsParams) => {
-  let {
-    cluster,
-    owner,
-    fetchAccounts,
-    cache = tokenAccountsCache,
-  } = params ?? {};
+/** Get or fetch the wallet's token accounts, cached per cluster/owner. */
+const getOrInitTokenAccounts = async (): Promise<TokenAccountsData> => {
+  const [{ PgConnection }, { PgWallet }] = await Promise.all([
+    import("../../connection"),
+    import("../../wallet"),
+  ]);
 
-  if (cluster === undefined || owner === undefined || !fetchAccounts) {
-    const [{ PgConnection }, { PgWallet }, { PgWeb3 }] = await Promise.all([
-      import("../../connection"),
-      import("../../wallet"),
-      import("../../web3"),
-    ]);
+  const cluster = PgConnection.cluster;
+  const owner = PgWallet.current?.publicKey ?? null;
+  if (!cluster || !owner) return EMPTY_TOKEN_ACCOUNTS;
 
-    cluster ??= PgConnection.cluster;
-    owner ??= PgWallet.current?.publicKey ?? null;
-    fetchAccounts ??= async () => {
-      if (!owner) return [];
+  setInvalidationListener();
 
-      const accounts = await PgConnection.current.getParsedTokenAccountsByOwner(
-        owner,
-        { programId: new PgWeb3.PublicKey(TOKEN_PROGRAM_ID) }
-      );
-      return accounts.value;
-    };
+  const entry = (tokenAccountsCache[`${cluster}:${owner.toBase58()}`] ??= {});
+
+  const now = PgCommon.getUnixTimstamp();
+  if (
+    entry.data &&
+    entry.timestamp !== undefined &&
+    now <= entry.timestamp + CACHE_TTL
+  ) {
+    return entry.data;
   }
 
-  if (!cluster || !owner || !fetchAccounts) return EMPTY_TOKEN_ACCOUNTS;
+  if (entry.promise) return await entry.promise;
 
-  const loadAccounts = fetchAccounts;
+  entry.promise = (async () => {
+    try {
+      const data = normalizeTokenAccounts(await fetchTokenAccounts(owner));
+      entry.data = data;
+      entry.timestamp = PgCommon.getUnixTimstamp();
+      return data;
+    } finally {
+      entry.promise = null;
+    }
+  })();
 
-  return await cache.getOrInit(
-    `${cluster}:${owner.toBase58()}`,
-    async () => normalizeTokenAccounts(await loadAccounts()),
-    params?.now
-  );
+  return await entry.promise;
 };
 
-export const getTokenAccounts = async (params?: GetTokenAccountsParams) => {
-  return (await getOrInitTokenAccounts(params)).tokenAccounts;
+/** Get the current wallet's token accounts for the connected cluster. */
+export const getTokenAccounts = async () => {
+  return (await getOrInitTokenAccounts()).tokenAccounts;
 };
 
-export const getMintAccounts = async (params?: GetTokenAccountsParams) => {
-  return (await getOrInitTokenAccounts(params)).mintAccounts;
+/** Get the unique mints from the current wallet's token accounts. */
+export const getMintAccounts = async () => {
+  return (await getOrInitTokenAccounts()).mintAccounts;
 };
