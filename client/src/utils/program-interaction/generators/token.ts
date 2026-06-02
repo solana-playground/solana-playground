@@ -1,22 +1,21 @@
 import { PgCommon } from "../../common";
-import type { PgWeb3 } from "../../web3";
+import { PgConnection } from "../../connection";
+import { PgTx } from "../../tx";
+import { PgWallet } from "../../wallet";
+import { PgWeb3 } from "../../web3";
 
 /** A single SPL token account owned by the current wallet */
-export interface TokenAccount {
+interface TokenAccount {
   address: string;
   mint: string;
   amount: string;
 }
 
 /** Token accounts and the unique mints derived from them */
-export interface TokenAccountsData {
+interface TokenAccountsData {
   tokenAccounts: TokenAccount[];
   mintAccounts: string[];
 }
-
-type ParsedTokenAccounts = Awaited<
-  ReturnType<PgWeb3.Connection["getParsedTokenAccountsByOwner"]>
->["value"];
 
 type CacheEntry = {
   data?: TokenAccountsData;
@@ -43,29 +42,53 @@ const tokenAccountsCache: Record<string, CacheEntry> = {};
 
 let isInvalidationListenerSet = false;
 
-/** Remove all cached token accounts. */
-const clearTokenAccountsCache = () => {
-  for (const key in tokenAccountsCache) delete tokenAccountsCache[key];
+/** Get the current wallet's token accounts for the connected cluster. */
+export const getTokenAccounts = async () => {
+  return (await getOrInitTokenAccounts()).tokenAccounts;
 };
 
-/** Invalidate the cache when a transaction is sent (registers only once). */
-const setInvalidationListener = async () => {
-  if (isInvalidationListenerSet) return;
-  isInvalidationListenerSet = true;
-
-  const { PgTx } = await import("../../tx");
-  PgTx.onDidSend(clearTokenAccountsCache);
+/** Get the unique mints from the current wallet's token accounts. */
+export const getMintAccounts = async () => {
+  return (await getOrInitTokenAccounts()).mintAccounts;
 };
 
-/** Fetch the current wallet's Token and Token-2022 accounts. */
-const fetchTokenAccounts = async (
-  owner: PgWeb3.PublicKey
-): Promise<ParsedTokenAccounts> => {
-  const [{ PgConnection }, { PgWeb3 }] = await Promise.all([
-    import("../../connection"),
-    import("../../web3"),
-  ]);
+/** Get or fetch the wallet's token accounts, cached per cluster/owner. */
+const getOrInitTokenAccounts = async () => {
+  const cluster = PgConnection.cluster;
+  const owner = PgWallet.current?.publicKey ?? null;
+  if (!cluster || !owner) return EMPTY_TOKEN_ACCOUNTS;
 
+  setInvalidationListener();
+
+  const entry = (tokenAccountsCache[`${cluster}:${owner.toBase58()}`] ??= {});
+
+  const now = PgCommon.getUnixTimestamp();
+  if (
+    entry.data &&
+    entry.timestamp !== undefined &&
+    now <= entry.timestamp + CACHE_TTL
+  ) {
+    return entry.data;
+  }
+
+  if (entry.promise) return await entry.promise;
+
+  entry.promise = (async () => {
+    try {
+      const data = await fetchTokenAccounts(owner);
+      entry.data = data;
+      entry.timestamp = PgCommon.getUnixTimestamp();
+      return data;
+    } finally {
+      entry.promise = null;
+    }
+  })();
+
+  return await entry.promise;
+};
+
+/** Fetch and normalize the current wallet's Token and Token-2022 accounts. */
+const fetchTokenAccounts = async (owner: PgWeb3.PublicKey) => {
   const connection = PgConnection.current;
   const results = await Promise.all(
     TOKEN_PROGRAM_IDS.map((programId) =>
@@ -75,18 +98,11 @@ const fetchTokenAccounts = async (
     )
   );
 
-  return results.flatMap((result) => result.value);
-};
-
-/** Derive sorted token accounts and unique mints from parsed accounts. */
-const normalizeTokenAccounts = (
-  accounts: ParsedTokenAccounts
-): TokenAccountsData => {
   const tokenAccounts: TokenAccount[] = [];
   const mints = new Set<string>();
 
-  for (const account of accounts) {
-    const parsed = account.account.data.parsed as {
+  for (const { account, pubkey } of results.flatMap((result) => result.value)) {
+    const parsed = account.data.parsed as {
       type?: string;
       accountType?: string;
       info?: {
@@ -106,7 +122,7 @@ const normalizeTokenAccounts = (
     if (!mint) continue;
 
     tokenAccounts.push({
-      address: account.pubkey.toBase58(),
+      address: pubkey.toBase58(),
       mint,
       amount:
         parsed.info?.tokenAmount?.uiAmountString ??
@@ -128,52 +144,15 @@ const normalizeTokenAccounts = (
   return { tokenAccounts, mintAccounts };
 };
 
-/** Get or fetch the wallet's token accounts, cached per cluster/owner. */
-const getOrInitTokenAccounts = async (): Promise<TokenAccountsData> => {
-  const [{ PgConnection }, { PgWallet }] = await Promise.all([
-    import("../../connection"),
-    import("../../wallet"),
-  ]);
-
-  const cluster = PgConnection.cluster;
-  const owner = PgWallet.current?.publicKey ?? null;
-  if (!cluster || !owner) return EMPTY_TOKEN_ACCOUNTS;
-
-  setInvalidationListener();
-
-  const entry = (tokenAccountsCache[`${cluster}:${owner.toBase58()}`] ??= {});
-
-  const now = PgCommon.getUnixTimstamp();
-  if (
-    entry.data &&
-    entry.timestamp !== undefined &&
-    now <= entry.timestamp + CACHE_TTL
-  ) {
-    return entry.data;
-  }
-
-  if (entry.promise) return await entry.promise;
-
-  entry.promise = (async () => {
-    try {
-      const data = normalizeTokenAccounts(await fetchTokenAccounts(owner));
-      entry.data = data;
-      entry.timestamp = PgCommon.getUnixTimstamp();
-      return data;
-    } finally {
-      entry.promise = null;
-    }
-  })();
-
-  return await entry.promise;
+/** Remove all cached token accounts. */
+const clearTokenAccountsCache = () => {
+  for (const key in tokenAccountsCache) delete tokenAccountsCache[key];
 };
 
-/** Get the current wallet's token accounts for the connected cluster. */
-export const getTokenAccounts = async () => {
-  return (await getOrInitTokenAccounts()).tokenAccounts;
-};
+/** Invalidate the cache when a transaction is sent (registers only once). */
+const setInvalidationListener = () => {
+  if (isInvalidationListenerSet) return;
+  isInvalidationListenerSet = true;
 
-/** Get the unique mints from the current wallet's token accounts. */
-export const getMintAccounts = async () => {
-  return (await getOrInitTokenAccounts()).mintAccounts;
+  PgTx.onDidSend(clearTokenAccountsCache);
 };
