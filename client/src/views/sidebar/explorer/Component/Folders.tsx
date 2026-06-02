@@ -71,6 +71,7 @@ const Folders = () => {
                 <>
                   <SectionButton
                     onClick={ctxMenu.runBuild}
+                    disabled={ctxMenu.buildLoading}
                     icon={<Wrench />}
                     addTextMargin
                   >
@@ -78,9 +79,9 @@ const Folders = () => {
                   </SectionButton>
                   <SectionButton
                     onClick={ctxMenu.runDeploy}
+                    disabled={ctxMenu.deployState !== "ready"}
                     icon={<Rocket />}
                     addTextMargin
-                    disabled={ctxMenu.deployState !== "ready"}
                   >
                     Deploy
                   </SectionButton>
