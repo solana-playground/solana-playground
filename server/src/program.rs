@@ -9,11 +9,14 @@ use crate::log::info;
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
 
-/// Maximum amount of files to pass to the [`build`] function.
+/// Maximum amount of files to pass to the [`build`] function
 const MAX_FILE_AMOUNT: usize = 64;
 
-/// Maximum length of the file paths to pass to the [`build`] function.
-const MAX_PATH_LENGTH: usize = 128;
+/// Maximum length of the file paths to pass to the [`build`] function
+const MAX_PATH_LEN: usize = 128;
+
+/// Max program build output stderr length
+const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024;
 
 /// A vector of [Path, Content]
 pub type Files = Vec<[String; 2]>;
@@ -47,7 +50,7 @@ pub fn build(
     static ALLOWED_REGEX: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
     for [path, _] in files {
-        let is_valid = path.len() <= MAX_PATH_LENGTH
+        let is_valid = path.len() <= MAX_PATH_LEN
             && !path.contains("..")
             && !path.contains("//")
             && ALLOWED_REGEX.is_match(path);
@@ -116,6 +119,14 @@ pub fn build(
         .arg(&program_path)
         .arg("--offline")
         .output()?;
+
+    // Check output length
+    if output.stderr.len() > MAX_STDERR_LEN {
+        return Err(anyhow!(
+            "Exceeded maximum build output length: {} > {MAX_STDERR_LEN}",
+            output.stderr.len()
+        ));
+    }
 
     // Check compile errors
     let stderr = String::from_utf8(output.stderr)?;
