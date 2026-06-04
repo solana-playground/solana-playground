@@ -149,37 +149,26 @@ export class PgCommon {
    */
   static executeInOrder<T>(cb: (...args: [T]) => SyncOrAsync) {
     type Callback = typeof cb;
-    type CallbackWithArgs = [Callback, Parameters<Callback>];
 
-    const queue: CallbackWithArgs[] = [];
+    const queue: Parameters<Callback>[] = [];
     let isExecuting = false;
 
     const execute = async () => {
+      if (isExecuting) return;
+
       isExecuting = true;
 
-      while (queue.length !== 0) {
-        for (const index in queue) {
-          const [cb, args] = queue[index];
-          try {
-            await cb(...args);
-          } catch (e) {
-            throw e;
-          } finally {
-            queue.splice(+index, 1);
-          }
-        }
+      while (queue.length) {
+        const args = queue.shift()!;
+        await cb(...args);
       }
 
       isExecuting = false;
     };
 
-    const pushQueue = (item: CallbackWithArgs) => {
-      queue.push(item);
-      if (!isExecuting) execute();
-    };
-
     return async (...args: Parameters<Callback>) => {
-      pushQueue([cb, args]);
+      queue.push(args);
+      execute();
     };
   }
 
