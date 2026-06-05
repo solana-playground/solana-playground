@@ -15,16 +15,20 @@ const MAX_FILE_AMOUNT: usize = 64;
 /// Maximum length of the file paths to pass to the [`build`] function.
 const MAX_PATH_LENGTH: usize = 128;
 
-/// PATH for the build subprocess.
-const BUILD_PATH: &str = "/home/solpg/.local/share/solana/install/active_release/bin:/home/solpg/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
-
-/// Apply a clean environment containing only the toolchain locator vars.
+/// Apply a clean environment containing only the toolchain locator vars,
+/// derived from `$HOME` so we don't assume a specific username or container layout.
 fn apply_build_env(cmd: &mut Command) -> &mut Command {
+    let home = std::env::var("HOME").expect("HOME must be set for the build subprocess");
+    let build_path = format!(
+        "{home}/.local/share/solana/install/active_release/bin:{home}/.cargo/bin:\
+         /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    );
     cmd.env_clear()
-        .env("PATH", BUILD_PATH)
-        .env("HOME", "/home/solpg")
-        .env("CARGO_HOME", "/home/solpg/.cargo")
-        .env("RUSTUP_HOME", "/home/solpg/.rustup")
+        .env("PATH", build_path)
+        .env("HOME", &home)
+        .env("CARGO_HOME", format!("{home}/.cargo"))
+        .env("RUSTUP_HOME", format!("{home}/.rustup"));
+    cmd
 }
 
 /// A vector of [Path, Content]
