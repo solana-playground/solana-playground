@@ -10,7 +10,7 @@ import {
   SYSVAR_RENT_PUBKEY,
 } from "./web3";
 
-/** Initialize buffer tx params */
+/** Initialize buffer ix params */
 type InitializeBufferParams = {
   /** Public key of the buffer account */
   bufferPk: PublicKey;
@@ -18,9 +18,9 @@ type InitializeBufferParams = {
   authorityPk: PublicKey;
 };
 
-/** Write tx params */
+/** Write ix params */
 type WriteParams = {
-  /** Offset at which to write the given bytes. */
+  /** Offset at which to write the given bytes */
   offset: number;
   /** Chunk of program data */
   bytes: Buffer;
@@ -30,7 +30,7 @@ type WriteParams = {
   authorityPk: PublicKey;
 };
 
-/** Deploy program tx params */
+/** Deploy program ix params */
 type DeployWithMaxProgramLenParams = {
   /** Maximum length that the program can be upgraded to. */
   maxDataLen: number;
@@ -48,7 +48,7 @@ type DeployWithMaxProgramLenParams = {
   payerPk: PublicKey;
 };
 
-/** Upgrade tx params */
+/** Upgrade ix params */
 type UpgradeParams = {
   /** The program account */
   programPk: PublicKey;
@@ -64,7 +64,7 @@ type UpgradeParams = {
   authorityPk: PublicKey;
 };
 
-/** Update buffer authority tx params */
+/** Update buffer authority ix params */
 type SetBufferAuthorityParams = {
   /** The program buffer account */
   bufferPk: PublicKey;
@@ -74,7 +74,7 @@ type SetBufferAuthorityParams = {
   newAuthorityPk: PublicKey;
 };
 
-/** Update program authority tx params */
+/** Update program authority ix params */
 type SetUpgradeAuthorityParams = {
   /** The program account */
   programPk: PublicKey;
@@ -84,7 +84,7 @@ type SetUpgradeAuthorityParams = {
   newAuthorityPk?: PublicKey;
 };
 
-/** Close account tx params */
+/** Close account ix params */
 type CloseParams = {
   /** The account to close */
   closePk: PublicKey;
@@ -94,6 +94,19 @@ type CloseParams = {
   authorityPk?: PublicKey;
   /** The associated Program account if the account to close is a ProgramData account */
   programPk?: PublicKey;
+};
+
+/** Extend program ix params */
+type ExtendProgramParams = {
+  /** Number of bytes to extend the program data */
+  additionalBytes: number;
+  /** The program account */
+  programPk: PublicKey;
+  /**
+   * The payer account, optional, that will pay necessary rent exemption costs
+   * for the increased storage size
+   */
+  payerPk?: PublicKey;
 };
 
 /** Factory class for txs to interact with the BpfLoaderUpgradeable program */
@@ -231,7 +244,6 @@ export class BpfLoaderUpgradeableProgram {
     const data = this._encodeData({ discriminator: 4 });
 
     const programDataPk = this.getProgramDataAddress(params.programPk);
-
     const keys = [
       { pubkey: programDataPk, isSigner: false, isWritable: true },
       { pubkey: params.authorityPk, isSigner: true, isWritable: false },
@@ -275,6 +287,36 @@ export class BpfLoaderUpgradeableProgram {
         isSigner: false,
         isWritable: true,
       });
+    }
+
+    return new TransactionInstruction({
+      keys,
+      programId: this.programId,
+      data,
+    });
+  }
+
+  /**
+   * Generate a tx instruction that extends a program by the specified number
+   * of bytes (`params.additionalBytes`).
+   */
+  static extendProgram(params: ExtendProgramParams) {
+    const data = this._encodeData({
+      discriminator: 6,
+      params: [BufferLayout.u32("additionalBytes")],
+      args: { additionalBytes: params.additionalBytes },
+    });
+
+    const programDataPk = this.getProgramDataAddress(params.programPk);
+    const keys = [
+      { pubkey: programDataPk, isSigner: false, isWritable: true },
+      { pubkey: params.programPk, isSigner: false, isWritable: true },
+    ];
+    if (params.payerPk) {
+      keys.push(
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        { pubkey: params.payerPk, isSigner: true, isWritable: true }
+      );
     }
 
     return new TransactionInstruction({
@@ -330,6 +372,14 @@ export class BpfLoaderUpgradeableProgram {
    */
   static isCloseInstruction(data: Buffer) {
     return data[0] === 5;
+  }
+
+  /**
+   * Check whether the given instruction data is a
+   * {@link BpfLoaderUpgradeableProgram.extendProgram} instruction.
+   */
+  static isExtendProgramInstruction(data: Buffer) {
+    return data[0] === 6;
   }
 
   /** Encode instruction data. */
