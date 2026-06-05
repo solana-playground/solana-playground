@@ -111,16 +111,12 @@ pub fn build(
     // Build the program with a clean env, inheriting only toolchain locator vars from the parent.
     let output = Command::new("cargo-build-sbf")
         .env_clear()
-        .envs(
-            ["PATH", "HOME"]
-                .into_iter()
-                .filter_map(|key| {
-                    std::env::var(key)
-                        .inspect_err(|e| warn!("Failed to get env variable: `{key}`: {e}"))
-                        .ok()
-                        .map(|value| (key, value))
-                }),
-        )
+        .envs(["PATH", "HOME"].into_iter().filter_map(|key| {
+            std::env::var(key)
+                .inspect_err(|e| warn!("Failed to get env variable: `{key}`: {e}"))
+                .ok()
+                .map(|value| (key, value))
+        }))
         .arg("--manifest-path")
         .arg(manifest_path)
         .arg("--sbf-out-dir")
