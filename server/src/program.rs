@@ -4,7 +4,7 @@ use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
 
-use crate::log::info;
+use crate::log::{info, warn};
 
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
@@ -14,18 +14,6 @@ const MAX_FILE_AMOUNT: usize = 64;
 
 /// Maximum length of the file paths to pass to the [`build`] function.
 const MAX_PATH_LENGTH: usize = 128;
-
-/// Apply a clean environment containing only the toolchain locator vars,
-/// inherited from the parent process so we don't impose any OS-specific layout.
-fn apply_build_env(cmd: &mut Command) -> &mut Command {
-    cmd.env_clear();
-    for key in ["PATH", "HOME", "CARGO_HOME", "RUSTUP_HOME"] {
-        if let Ok(val) = std::env::var(key) {
-            cmd.env(key, val);
-        }
-    }
-    cmd
-}
 
 /// A vector of [Path, Content]
 pub type Files = Vec<[String; 2]>;
@@ -120,9 +108,19 @@ pub fn build(
         MANIFEST.replacen("default", &format!("../{program_name}"), 1),
     )?;
 
-    // Build the program
-    let mut cmd = Command::new("cargo-build-sbf");
-    let output = apply_build_env(&mut cmd)
+    // Build the program with a clean env, inheriting only toolchain locator vars from the parent.
+    let output = Command::new("cargo-build-sbf")
+        .env_clear()
+        .envs(
+            ["PATH", "HOME"]
+                .into_iter()
+                .filter_map(|key| {
+                    std::env::var(key)
+                        .inspect_err(|e| warn!("Failed to get env variable: `{key}`: {e}"))
+                        .ok()
+                        .map(|value| (key, value))
+                }),
+        )
         .arg("--manifest-path")
         .arg(manifest_path)
         .arg("--sbf-out-dir")
