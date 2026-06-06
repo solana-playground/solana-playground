@@ -4,7 +4,7 @@ use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
 
-use crate::log::info;
+use crate::log::{info, warn};
 
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
@@ -111,8 +111,15 @@ pub fn build(
         MANIFEST.replacen("default", &format!("../{program_name}"), 1),
     )?;
 
-    // Build the program
+    // Build the program with a clean env, inheriting only toolchain locator vars from the parent.
     let output = Command::new("cargo-build-sbf")
+        .env_clear()
+        .envs(["PATH", "HOME"].into_iter().filter_map(|key| {
+            std::env::var(key)
+                .inspect_err(|e| warn!("Failed to get env variable: `{key}`: {e}"))
+                .ok()
+                .map(|value| (key, value))
+        }))
         .arg("--manifest-path")
         .arg(manifest_path)
         .arg("--sbf-out-dir")
