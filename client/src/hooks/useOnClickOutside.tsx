@@ -1,5 +1,7 @@
 import { RefObject, useEffect } from "react";
 
+import { PgCommon, PgView } from "../utils";
+
 /**
  * Run the given callback when the user clicks outside of the given element.
  *
@@ -16,9 +18,22 @@ export const useOnClickOutside = (
     if (!listenCondition) return;
 
     const handleOutsideClick = (ev: MouseEvent) => {
-      if (ev.target && !ref.current?.contains(ev.target as Node)) {
-        cb();
-      }
+      const el = ref.current;
+      const targetEl = ev.target;
+      if (!el || !targetEl) return;
+      if (!(targetEl instanceof HTMLElement)) return;
+      if (el.contains(targetEl)) return;
+
+      // Account for portals (they're not actually inside current ref)
+      const isPortalChild = [PgView.ids.PORTAL_ABOVE, PgView.ids.PORTAL_BELOW]
+        .map((id) => document.getElementById(id))
+        .filter(PgCommon.isNonNullish)
+        .some((el) => el.contains(targetEl));
+
+      // TODO: Make this more robust (portal children don't have to be inside)
+      if (isPortalChild) return;
+
+      cb();
     };
 
     document.addEventListener("mousedown", handleOutsideClick);
