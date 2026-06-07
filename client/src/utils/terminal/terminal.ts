@@ -93,11 +93,6 @@ export class PgTerminal {
     this.println(msg);
   }
 
-  /** Dispatch scroll to bottom custom event. */
-  static async scrollToBottom() {
-    await PgTerminal.run({ scrollToBottom: [] });
-  }
-
   /** Execute the given command from string. */
   static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
     const term = await PgTerminal.get();
