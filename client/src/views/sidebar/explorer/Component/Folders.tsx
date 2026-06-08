@@ -47,6 +47,10 @@ const Folders = () => {
     []
   );
 
+  // Reset ctx selected on outside clicks
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(wrapperRef, PgExplorer.removeCtxSelectedEl);
+
   // No need to memoize here
   const relativeRootPath = PgExplorer.getProjectRootPath();
   const { folders } = PgExplorer.getFolderContent(relativeRootPath);
@@ -63,7 +67,11 @@ const Folders = () => {
 
       <ExplorerDndContext>
         <ExplorerContextMenu {...ctxMenu}>
-          <RootWrapper id={PgView.ids.ROOT_DIR} data-path={relativeRootPath}>
+          <RootWrapper
+            ref={wrapperRef}
+            id={PgView.ids.ROOT_DIR}
+            data-path={relativeRootPath}
+          >
             {/* Program */}
             <SectionTopWrapper>
               <SectionHeader>Program</SectionHeader>
@@ -263,26 +271,20 @@ interface FolderGroupProps {
   relativeRootPath: string;
 }
 
-const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => {
-  // Reset ctx selected on outside clicks
-  const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, PgExplorer.removeCtxSelectedEl);
-
-  return (
-    <div ref={ref}>
-      {folders
-        .sort((a, b) => a.localeCompare(b))
-        .map((folderName) => (
-          <RecursiveFolder
-            key={folderName}
-            path={PgCommon.appendSlash(
-              PgCommon.joinPaths(relativeRootPath, folderName)
-            )}
-          />
-        ))}
-    </div>
-  );
-};
+const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
+  <>
+    {folders
+      .sort((a, b) => a.localeCompare(b))
+      .map((folderName) => (
+        <RecursiveFolder
+          key={folderName}
+          path={PgCommon.appendSlash(
+            PgCommon.joinPaths(relativeRootPath, folderName)
+          )}
+        />
+      ))}
+  </>
+);
 
 interface RecursiveFolderProps {
   path: string;
