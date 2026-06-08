@@ -51,7 +51,6 @@ jobs:
           GAE_SERVER_URL: ${{ secrets.GAE_SERVER_URL }}
         run: |
           : "${GAE_SERVER_URL:?secret is unset or empty; refusing to deploy without a server URL}"
-          echo "::warning::REACT_APP_SERVER_URL is currently ignored by production builds because client/src/settings/server/server.ts hardcodes the default endpoint when NODE_ENV=production. Deployments will use api.solpg.io until server.ts is patched."
           export REACT_APP_SERVER_URL="${GAE_SERVER_URL}"
           yarn setup
           yarn build

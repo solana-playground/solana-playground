@@ -37,6 +37,11 @@ Each target has a matching `vercel-link-{production,preview}` that's run automat
 
 `GAE_SERVER_URL` must be configured in Vercel for whichever environment you're deploying to (Production for `-production`, Preview for `-preview`, or both).
 
-## Known issue
+## Endpoint routing
 
-[`client/src/settings/server/server.ts`](../client/src/settings/server/server.ts) hardcodes `https://api.solpg.io` when `NODE_ENV === "production"` and ignores `REACT_APP_SERVER_URL`. Until that's patched, deploys hit `api.solpg.io` regardless of `GAE_SERVER_URL`.
+Split is deliberate:
+
+- **Build/deploy is configurable** (`REACT_APP_SERVER_URL` at build time, also user-overridable via the `server.endpoint` setting) — so self-hosted forks can route builds to their own backend.
+- **Share (`/share/*`, `/new`) is hardcoded to `https://api.solpg.io`** — so shared snippets stay discoverable from one canonical store regardless of where the client is hosted.
+
+For this Vercel deploy, `REACT_APP_SERVER_URL` is sourced from `GAE_SERVER_URL`.
