@@ -6,8 +6,8 @@ name: Deploy Client (Vercel)
 # need to be installed on Vercel's build image.
 #
 # Trigger from the Actions tab → "Deploy Client (Vercel)" → "Run workflow".
-# Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, GAE_SERVER_URL)
-# are read directly from repo settings.
+# Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID) are read directly from repo settings.
+# REACT_APP_SERVER_URL is pulled from the Vercel project's Preview env via `vercel pull`.
 on:
   workflow_dispatch:
     inputs:
@@ -45,24 +45,23 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Build client bundle
-        working-directory: client
-        env:
-          GAE_SERVER_URL: ${{ secrets.GAE_SERVER_URL }}
-        run: |
-          : "${GAE_SERVER_URL:?secret is unset or empty; refusing to deploy without a server URL}"
-          export REACT_APP_SERVER_URL="${GAE_SERVER_URL}"
-          yarn setup
-          yarn build
-
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # vercel CLI runs from repo root: project Root Directory is `client`, so cwd + RootDirectory = client/.
-      # Build + deploy both target preview (no --prod) so the deployment lands on a unique URL.
-      # vercel CLI rejects mismatched build/deploy env targets when using --prebuilt.
+      # Preview target throughout (vercel rejects mismatched build/deploy targets with --prebuilt).
+      # Pull runs before yarn build so REACT_APP_SERVER_URL gets sourced into the build shell.
       - name: Pull Vercel project settings
         run: vercel pull --yes --environment=preview --token="${VERCEL_TOKEN}"
+
+      - name: Build client bundle
+        working-directory: client
+        run: |
+          set -a
+          . ../.vercel/.env.preview.local
+          set +a
+          : "${REACT_APP_SERVER_URL:?REACT_APP_SERVER_URL missing from Vercel preview env}"
+          yarn setup
+          yarn build
 
       - name: Build Vercel output
         run: vercel build --token="${VERCEL_TOKEN}"

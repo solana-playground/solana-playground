@@ -32,7 +32,7 @@ vercel-link-preview:
 # Build + deploy straight to the production alias. Live immediately.
 deploy-client-to-vercel-production: vercel-link-production
 	set -a && . ./.vercel/.env.production.local && set +a && \
-		export REACT_APP_SERVER_URL="$${GAE_SERVER_URL:?GAE_SERVER_URL missing from Vercel production env}" && \
+		: $${REACT_APP_SERVER_URL:?REACT_APP_SERVER_URL missing from Vercel production env} && \
 		(cd client && yarn setup && yarn build) && \
 		npx vercel@latest build --prod --token="$${VERCEL_TOKEN}" && \
 		npx vercel@latest deploy --prebuilt --prod --token="$${VERCEL_TOKEN}"
@@ -40,7 +40,7 @@ deploy-client-to-vercel-production: vercel-link-production
 # Build + deploy as a unique preview URL. Promote with `vercel promote <url> --prod`.
 deploy-client-to-vercel-preview: vercel-link-preview
 	set -a && . ./.vercel/.env.preview.local && set +a && \
-		export REACT_APP_SERVER_URL="$${GAE_SERVER_URL:?GAE_SERVER_URL missing from Vercel preview env}" && \
+		: $${REACT_APP_SERVER_URL:?REACT_APP_SERVER_URL missing from Vercel preview env} && \
 		(cd client && yarn setup && yarn build) && \
 		npx vercel@latest build --token="$${VERCEL_TOKEN}" && \
 		npx vercel@latest deploy --prebuilt --token="$${VERCEL_TOKEN}"

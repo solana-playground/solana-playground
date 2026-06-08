@@ -11,7 +11,8 @@ export const server = [
     values: [
       ...(customServerUrl
         ? [{ name: "Solana Playground", value: customServerUrl }]
-        : [{ name: "Solpg Playground API", value: "https://api.solpg.io" }]),
+        : []),
+      { name: "Solpg Playground API", value: "https://api.solpg.io" },
       { name: "Local", value: "http://localhost:8080" },
     ],
     default:
