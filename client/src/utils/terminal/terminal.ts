@@ -331,11 +331,6 @@ export class PgTerm {
     this.scrollToCursor();
   }
 
-  /** Focus only; `scrollToCursor()`'s formula desyncs the DOM scroll from xterm's state and leaves the next render at the wrong position. */
-  focusOnly() {
-    this._xterm.focus();
-  }
-
   /** Scroll terminal to wherever the cursor currently is. */
   scrollToCursor() {
     const scrollableEl = document
@@ -456,7 +451,8 @@ export class PgTerm {
         : number
       : string
   > {
-    this.focusOnly();
+    // Avoid `this.focus()` here: its `scrollToCursor()` desyncs the DOM scroll from xterm's state and leaves the next render at the wrong position.
+    this._xterm.focus();
     this.scrollToBottom();
 
     let convertedMsg = msg;
