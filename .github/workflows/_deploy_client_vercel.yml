@@ -52,23 +52,23 @@ jobs:
         run: |
           : "${GAE_SERVER_URL:?secret is unset or empty; refusing to deploy without a server URL}"
           echo "::warning::REACT_APP_SERVER_URL is currently ignored by production builds because client/src/settings/server/server.ts hardcodes the default endpoint when NODE_ENV=production. Deployments will use api.solpg.io until server.ts is patched."
-          export REACT_APP_SERVER_URL="https://${GAE_SERVER_URL}"
+          export REACT_APP_SERVER_URL="${GAE_SERVER_URL}"
           yarn setup
           yarn build
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      # vercel CLI runs from repo root: project Root Directory is `client`, so cwd + RootDirectory = client/.
+      # Build + deploy both target preview (no --prod) so the deployment lands on a unique URL.
+      # vercel CLI rejects mismatched build/deploy env targets when using --prebuilt.
       - name: Pull Vercel project settings
-        working-directory: client
-        run: vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
+        run: vercel pull --yes --environment=preview --token="${VERCEL_TOKEN}"
 
       - name: Build Vercel output
-        working-directory: client
-        run: vercel build --prod --token="${VERCEL_TOKEN}"
+        run: vercel build --token="${VERCEL_TOKEN}"
 
       - name: Deploy prebuilt output to Vercel (no auto-promote)
-        working-directory: client
         # Mirror GAE `--no-promote` semantics: ship a preview deployment with
         # a unique URL; promotion to the production alias is a manual step
         # via `vercel promote <url> --prod` or the Vercel dashboard.
