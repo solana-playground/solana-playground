@@ -70,11 +70,11 @@ async function checkProgram() {
     await PgCommand.build.execute();
   }
 
-  // The server keeps the previous `solpg.so` after a failed compile, so /deploy
-  // would silently upload the stale binary. Make that explicit and let the user
-  // opt in. Only relevant when we'd actually use the server-cached binary.
+  // The server keeps the previous program binary after a failed compilation, so
+  // /deploy would silently return the stale binary. Ask the user about whether
+  // to proceed with the deployment using the server-cached binary.
   if (
-    PgProgramInfo.lastBuildError &&
+    PgProgramInfo.lastBuildFailed &&
     !PgProgramInfo.importedProgram?.buffer.length
   ) {
     PgTerminal.println(

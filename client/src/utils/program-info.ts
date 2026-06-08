@@ -31,8 +31,8 @@ type ProgramInfo = Nullable<{
     buffer: Buffer;
     fileName: string;
   };
-  /** stderr from the last failed build; cleared on success. Persisted so a reload doesn't drop the warning. */
-  lastBuildError: string;
+  /** Whether the last build failed; cleared on success. Persisted so a reload doesn't drop the warning. */
+  lastBuildFailed: boolean;
 }>;
 
 /** Serialized program info that's used in storage */
@@ -41,7 +41,7 @@ type SerializedProgramInfo = Nullable<{
   kp: Array<number>;
   customPk: string;
   idl: Idl;
-  lastBuildError: string;
+  lastBuildFailed: boolean;
 }>;
 
 const defaultState: ProgramInfo = {
@@ -50,7 +50,7 @@ const defaultState: ProgramInfo = {
   customPk: null,
   idl: null,
   importedProgram: null,
-  lastBuildError: null,
+  lastBuildFailed: null,
 };
 
 const storage = {
@@ -92,7 +92,7 @@ const storage = {
       idl: state.idl,
       kp: state.kp ? Array.from(state.kp.secretKey) : null,
       customPk: state.customPk?.toBase58() ?? null,
-      lastBuildError: state.lastBuildError,
+      lastBuildFailed: state.lastBuildFailed,
     };
 
     await PgExplorer.fs.writeFile(this.PATH, JSON.stringify(serializedState));

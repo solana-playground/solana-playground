@@ -29,7 +29,7 @@ export const build = createCmd({
       PgProgramInfo.update({
         idl: result.idl,
         uuid: result.uuid ?? undefined,
-        lastBuildError: failed ? result.stderr : null,
+        lastBuildFailed: failed,
       });
       PgTerminal.println(improveOutput(result.stderr));
     } finally {
