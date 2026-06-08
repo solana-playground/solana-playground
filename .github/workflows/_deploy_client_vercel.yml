@@ -1,0 +1,75 @@
+name: Deploy Client (Vercel)
+
+# Manual workflow: builds the React client (CRA + craco + wasm crates) in
+# CI and ships the prebuilt output to Vercel via `vercel deploy --prebuilt`.
+# Vercel skips its own build step entirely so the wasm toolchain does not
+# need to be installed on Vercel's build image.
+#
+# Trigger from the Actions tab → "Deploy Client (Vercel)" → "Run workflow".
+# Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, GAE_SERVER_URL)
+# are read directly from repo settings.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to deploy (branch, tag, or SHA)."
+        required: false
+        default: master
+        type: string
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+          submodules: recursive
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: client/.nvmrc
+          cache: yarn
+          cache-dependency-path: client/yarn.lock
+
+      - name: Sync rust-toolchain
+        run: rustc --version
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build client bundle
+        working-directory: client
+        env:
+          GAE_SERVER_URL: ${{ secrets.GAE_SERVER_URL }}
+        run: |
+          : "${GAE_SERVER_URL:?secret is unset or empty; refusing to deploy without a server URL}"
+          echo "::warning::REACT_APP_SERVER_URL is currently ignored by production builds because client/src/settings/server/server.ts hardcodes the default endpoint when NODE_ENV=production. Deployments will use api.solpg.io until server.ts is patched."
+          export REACT_APP_SERVER_URL="https://${GAE_SERVER_URL}"
+          yarn setup
+          yarn build
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel project settings
+        working-directory: client
+        run: vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
+
+      - name: Build Vercel output
+        working-directory: client
+        run: vercel build --prod --token="${VERCEL_TOKEN}"
+
+      - name: Deploy prebuilt output to Vercel (no auto-promote)
+        working-directory: client
+        # Mirror GAE `--no-promote` semantics: ship a preview deployment with
+        # a unique URL; promotion to the production alias is a manual step
+        # via `vercel promote <url> --prod` or the Vercel dashboard.
+        run: vercel deploy --prebuilt --token="${VERCEL_TOKEN}"
