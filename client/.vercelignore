@@ -1,0 +1,14 @@
+node_modules
+src
+scripts
+public
+craco.config.js
+tsconfig.json
+package.json
+yarn.lock
+Dockerfile
+README.md
+.nvmrc
+.env*
+*.png
+*.log
