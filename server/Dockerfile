@@ -60,8 +60,5 @@ RUN cargo-build-sbf --manifest-path programs/Cargo.toml
 
 # Start server
 COPY --from=build /build/target/release/solpg-server .
-# Restrict the server binary to its owner so a future unprivileged builder
-# user (e.g. for sandboxed cargo-build-sbf) cannot read it.
-RUN chmod 700 solpg-server
 EXPOSE 8080
 CMD ["./solpg-server"]

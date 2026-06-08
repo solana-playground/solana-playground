@@ -62,12 +62,6 @@ services:
         solana-playground-wasm: service:wasm
     ports:
       - ${PG_CLIENT_PORT:-3000}:3000
-    volumes:
-      - ./client:/home/solpg/client
-      - /home/solpg/client/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
     tty: true
     stdin_open: true
     profiles:
@@ -78,8 +72,6 @@ services:
     depends_on:
       - db
     environment:
-      - PG_API_KEY=${PG_API_KEY:-}
-      - PG_API_KEYS=${PG_API_KEYS:-}
       - PG_DB_URI=${PG_DB_URI:-mongodb://db:27017}
 
   # Server without DB
@@ -105,43 +97,6 @@ services:
     profiles:
       - dev
       - prod
-      - prod_next
-
-  client-build:
-    platform: linux/amd64
-    depends_on:
-      wasm:
-        condition: service_completed_successfully
-      server:
-        condition: service_started
-    build:
-      context: .
-      dockerfile: ./client/Dockerfile.build
-      additional_contexts:
-        solana-playground-wasm: service:wasm
-        solana-playground-server: service:server
-    profiles:
-      - prod_next
-
-  web:
-    platform: linux/amd64
-    depends_on:
-      client-build:
-        condition: service_completed_successfully
-      server:
-        condition: service_started
-    build:
-      context: .
-      dockerfile: ./web/Dockerfile
-      additional_contexts:
-        solana-playground-client-build: service:client-build
-    ports:
-      - ${PG_CLIENT_PORT:-3000}:8080
-    environment:
-      - PG_API_KEY=${PG_API_KEY:-}
-      - PG_SERVER_URL=http://server:8080
-    profiles:
-      - prod_next
 
 volumes:
   mongodb:
