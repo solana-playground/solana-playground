@@ -1,9 +1,12 @@
 name: CICD
 
+# Manual deploy. Trigger from the Actions tab → "CICD" → "Run workflow".
+# Push to master does NOT auto-deploy; promotion is an explicit operator action.
+# Uncomment the `push:` block below to re-enable automatic deploys on master.
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
 
   workflow_dispatch:
 
