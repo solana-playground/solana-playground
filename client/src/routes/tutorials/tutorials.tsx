@@ -157,6 +157,8 @@ const handleTutorial = (name: string, page: string) => {
     disposables.push({ dispose: () => (PgView.sidebar.props = {}) });
   } else if (!PgView.sidebar.name || PgView.sidebar.name === "Tutorials") {
     PgView.sidebar.name = "Explorer";
+  } else {
+    PgView.sidebar.props = {};
   }
 
   // Minimize secondary main view and reopen on navigation to other routes
